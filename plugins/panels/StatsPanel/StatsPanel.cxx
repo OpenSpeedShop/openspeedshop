@@ -240,17 +240,8 @@ StatsPanel::~StatsPanel()
   Redirect_Window_Output( cli->wid, NULL, NULL );
 #endif // CAUSES_CLI_FITS_ON_EXIT
 
-// Just make sure any pending output goes "somewhere".
-  Panel *cmdPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), "&Command Panel");
-  if( cmdPanel )
-  {
-    MessageObject *msg = new MessageObject("Redirect_Window_Output()");
-    cmdPanel->listener((void *)msg);
-    delete msg;
-  } else
-  {
-    fprintf(stderr, "Unable to redirect output to the cmdpanel.\n");
-  }
+  resetRedirect();
+
 
   if( currentCollector )
   {
@@ -1275,7 +1266,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 
 // printf("currentItemIndex=%d\n", currentItemIndex);
 
-          hlo = new HighlightObject(di->getPath(), di->getLine(), hotToCold_color_names[currentItemIndex], QString::null, QString("Beginning of function %1").arg(function_name.ascii()) );
+          hlo = new HighlightObject(di->getPath(), di->getLine(), hotToCold_color_names[currentItemIndex], QString::null, QString("Beginning of function %1").arg(function_name.ascii()), (QString)*columnHeaderList.begin() );
           highlightList->push_back(hlo);
 // printf("push_back function entry (currentItemIndex=%d\n", currentItemIndex);
 // hlo->print();
@@ -1346,6 +1337,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
                     hlo->value = QString("%1").arg(v);
 // printf("  new value=(%s)\n", hlo->value.ascii() );
                     hlo->description = QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(v);
+                    hlo->value_description = (QString)*columnHeaderList.begin();
                     color_index = getLineColor(v);
                     hlo->color = hotToCold_color_names[color_index];
                     FOUND = TRUE;
@@ -1355,7 +1347,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 
                 if( !FOUND )
                 {
-                  hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), QString("\nMetric %1 %2.").arg(currentMetricStr).arg(sit->second) );
+                  hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), QString("\nMetric %1 %2.").arg(currentMetricStr).arg(sit->second), (QString)*columnHeaderList.begin() );
                   highlightList->push_back(hlo);
 // printf("A: Push_back a hlo for %d %f (%s)\n", sit->first, sit->second, hlo->description.ascii() );
                 }
@@ -1398,6 +1390,8 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
                     v += sit->second;
                     hlo->value = QString("%1").arg(v);
                     hlo->description = QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(v);
+
+                    hlo->value_description = (QString)*columnHeaderList.begin();
                     color_index = getLineColor(v);
                     hlo->color = hotToCold_color_names[color_index];
                     FOUND = TRUE;
@@ -1406,7 +1400,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
                 }
                 if( !FOUND )
                 {
-                  hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(sit->second) );
+                  hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(sit->second), (QString)*columnHeaderList.begin() );
                   highlightList->push_back(hlo);
 // printf("B: Push_back a hlo for %d %f\n", sit->first, sit->second);
 // hlo->print();
@@ -1435,7 +1429,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
               currentCollectorStr.startsWith("TraceBacks") ||
               currentCollectorStr.startsWith("TraceBacks/FullStack") ) )
         {
-          hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite");
+          hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite", "N/A");
           highlightList->push_back(hlo);
           spo = new SourceObject(function_name.ascii(), di->getPath(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
         } else
@@ -1545,7 +1539,7 @@ StatsPanel::updateStatsPanelData()
 
   updateThreadsList();
 
-QString lastAbout = about;
+  QString lastAbout = about;
 
   nprintf( DEBUG_PANELS) ("Find_Experiment_Object() for %d\n", expID);
 
@@ -1683,6 +1677,8 @@ QString lastAbout = about;
       {
         clip->Set_Results_Used();
       }
+      splv->addColumn( "No data available:" );
+      resetRedirect();
       return;
     }
 
@@ -1696,6 +1692,8 @@ QString lastAbout = about;
       {
         clip->Set_Results_Used();
       }
+      splv->addColumn( "Command failed to complete." );
+      resetRedirect();
       return;
     }
 
@@ -2592,6 +2590,23 @@ StatsPanel::MYListViewItem( StatsPanel *arg1, SPListViewItem *arg2, SPListViewIt
   }
 
   return item;
+}
+
+void
+StatsPanel::resetRedirect()
+{
+
+// Just make sure any pending output goes "somewhere".
+  Panel *cmdPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), "&Command Panel");
+  if( cmdPanel )
+  {
+    MessageObject *msg = new MessageObject("Redirect_Window_Output()");
+    cmdPanel->listener((void *)msg);
+    delete msg;
+  } else
+  {
+    fprintf(stderr, "Unable to redirect output to the cmdpanel.\n");
+  }
 }
 
 #if 0

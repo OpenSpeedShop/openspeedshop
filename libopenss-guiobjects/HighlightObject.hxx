@@ -40,15 +40,17 @@ public:
       line = 0;
       value = QString::null;
       description = "none";
+      value_description = QString::null;
     };
 
-    HighlightObject(QString fn, int l, QString c="red", QString v=QString::null, QString d="N/A")
+    HighlightObject(QString fn, int l, QString c="red", QString v=QString::null, QString d="N/A", QString vd="Stats")
     {
       fileName = fn;
       line = l;
       color = c;
       value = v;
       description = d;
+      value_description = vd;
     };
 
     ~HighlightObject()
@@ -65,6 +67,7 @@ public:
     int line;
     QString color;
     QString value;
+    QString value_description;
     QString description;
 };
 #endif // HIGHLIGHTOBJECT_H

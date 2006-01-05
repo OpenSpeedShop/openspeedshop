@@ -186,6 +186,8 @@ ThreadGroupStringList currentThreadGroupStrList;
 
     void updateStatsPanelData();
 
+    void resetRedirect();
+
     SPListViewItem *lastlvi;
 int lastIndentLevel;
     bool gotHeader;

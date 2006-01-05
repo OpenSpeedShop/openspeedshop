@@ -111,11 +111,13 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) 
 
   canvasForm = new SPCanvasForm( label->height(), splitter, "Stats" );
   canvasForm->hide();
-canvasForm->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, canvasForm->sizePolicy().hasHeightForWidth() ) );
+  canvasForm->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, canvasForm->sizePolicy().hasHeightForWidth() ) );
+
 
 #ifdef CANVAS_FORM_2
   canvasForm2 = new SPCanvasForm( label->height(), splitter, "stats" );
   canvasForm2->hide();
+
 #endif // CANVAS_FORM_2
 
   delete label;
@@ -823,8 +825,8 @@ SourcePanel::loadFile(const QString &_fileName)
     textEdit->clear();
     textEdit->clearScrollBar();
     label->setText(tr("No file found."));
-textEdit->clear();
-textEdit->append(msg);
+    textEdit->clear();
+    textEdit->append(msg);
     return FALSE;
   }
 
@@ -878,9 +880,7 @@ textEdit->append(msg);
 
   textEdit->show();
 
-// #ifdef SLOWS_ME_DOWN
   textEdit->clearScrollBar();
-// #endif // SLOWS_ME_DOWN
 
   calculateLastParameters();
 
@@ -889,6 +889,9 @@ textEdit->append(msg);
     textEdit->moveCursor(QTextEdit::MoveHome, FALSE);
     canvasForm->clearAllItems();
     canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lineCount, lastVisibleLines, -2, highlightList);
+
+    QString header_label = "Stats";
+    canvasForm->header->setLabel(0, header_label);
   } else
   {
     // Redisplay the high lights.
@@ -1131,7 +1134,7 @@ SourcePanel::valueChanged(int passed_in_value)
 
 // This is not correct, but it's gets close enough for right now.  FIX
   nprintf(DEBUG_PANELS) ("Your valueChanged - passed_in_value=%d\n", passed_in_value);
-int max_value = vscrollbar->maxValue();
+  int max_value = vscrollbar->maxValue();
   int value = 0;
  
   if( passed_in_value >= 0 )
@@ -1177,14 +1180,16 @@ SourcePanel::doFileHighlights()
        ++it)
   {
     hlo = (HighlightObject *)*it;
-// printf("Here's a line to highlight line=%d\n", hlo->line);
-// hlo->print();
     if( hlo->fileName == fileName )
     {
-// printf("Try to highlight line %d\n", hlo->line );
       highlightLine(hlo->line, hlo->color, TRUE);
     }
-//    highlightSegment(para, index, para, index+4, "yellow");
+  }
+  // If there was a value description, put it out.
+  if( hlo )
+  {
+    QString header_label = hlo->value_description;
+    canvasForm->header->setLabel(0, header_label);
   }
 
   // Don't forget to turn the refreshing (for resize etc) back on...
