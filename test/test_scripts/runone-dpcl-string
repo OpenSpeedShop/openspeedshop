@@ -78,6 +78,7 @@ def CompareResults(testName, fileptr):
 #		print " expectedfileline=%s\n" %  expectedfileline
 		failure_reason = 0
 		outputLineCount = 1
+		outputfileptr = open(outputfilename, 'r')
 		outputfileline = outputfileptr.readline()
 		if not outputfileline:
 			break
@@ -111,7 +112,8 @@ def CompareResults(testName, fileptr):
 #			print "innerloop failure_reason=%d\n" % failure_reason
 # Read next expected file line, if any
 		expectedfileline = expectedfileptr.readline()
-		expectedLineCount = expectedLineCount + 1
+		if expectedfileline: expectedLineCount = expectedLineCount + 1
+
 #		print "outerloop bottom of while expectedfileline=%s\n" %  expectedfileline
 #		print "outerloop bottom of while expectedLineCount=%d\n" %  expectedLineCount
 #		print "outerloop passing_ratio=%d\n" % passing_ratio
@@ -126,11 +128,10 @@ def CompareResults(testName, fileptr):
 	else:
 		if (failure_reason != 3): failure_reason = 1
 		fileptr.write(testName + ' has FAILED. \n')
-
-	if (failure_reason == 1):
-		fileptr.write('Some of the expected output lines are missing or different from expected.\n')
-	if (failure_reason == 3):
-		fileptr.write('There were no output lines - openss may have crashed or timed out\n')
+		if (failure_reason == 1):
+			fileptr.write('Some of the expected output lines are missing or different from expected.\n')
+		if (failure_reason == 3):
+			fileptr.write('There were no output lines - openss may have crashed or timed out\n')
 
 
 
