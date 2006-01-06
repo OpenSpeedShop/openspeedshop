@@ -126,6 +126,7 @@ static inline CommandResult *Copy_CRType (CommandResult *old) {
 
 static
 bool Raw_Data (CommandObject *cmd,
+               ExperimentObject *exp,
                Collector& collector,
                std::string& metric,
                ThreadGroup& tgrp,
@@ -134,63 +135,66 @@ bool Raw_Data (CommandObject *cmd,
                                  std::vector<double> > > >& items) {
 // Pick up the raw data samples for the measured functions.
 
-   // Get all the functions from all the threads.
-    std::set<Function> objects;
-    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+ // Get the list of desired functions.
+  std::set<Function> objects;
 
-     // Check for asnychonous abort command
-      if (cmd->Status() == CMD_ABORTED) {
-        break;
-      }
-
-      Thread thread = *ti;
-      std::set<Function> threadObjects;
-      OpenSpeedShop::Queries::GetSourceObjects(thread, threadObjects);
-      objects.insert(threadObjects.begin(), threadObjects.end());
-    }
-    if (objects.empty()) {
-      return false;
-    }
-
-   // Get the callstacks and data from the collector.
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, items);
-
-   // Retain only the requested functions.
-    OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-    vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
-    bool has_f = false;
-    OpenSpeedShop::cli::ParseTarget pt;
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
+  OpenSpeedShop::cli::ParseTarget pt;
+  if (p_tlist->begin() == p_tlist->end()) {
+   // There is no <target> list for filtering.
+   // Get all the mpi functions for all the threads.
+    objects = exp->FW()->getFunctionsByNamePattern ("PMPI*");
+  } else {
+   // There is a list.  Is there a "-f" specifier?
     vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
-    if (p_tlist->begin() != p_tlist->end()) {
-     // There is a list.  Is there a "-f" specifier?
-      pt = *p_tlist->begin(); // There can only be one!
-      f_list = pt.getFileList();
-      if ((f_list != NULL) && !(f_list->empty())) {
-       // Remove unneeded functions.
-        std::map<Function, std::map<Framework::StackTrace, std::vector<double> > >::iterator fi;
-        for (fi = items->begin(); fi != items->end(); fi++) {
-          bool object_needed = false;
-          Function func = (*fi).first;
-          vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
-          for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
-            OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
-            OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
-            Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
-            std::string F_Name = pval1.name;
-            if (Include_Object (F_Name, (*func.getThreads().begin()), func)) {
-              object_needed = true;
-              break;
-            }
-          }
+    pt = *p_tlist->begin(); // There can only be one!
+    f_list = pt.getFileList();
 
-          if (!object_needed) {
-            items->erase (fi);
+    if ((f_list == NULL) || (f_list->empty()) ||
+        Look_For_KeyWord(cmd, "ButterFly")) {
+     // There is no Function filtering requested or a ButerFly views is requested.
+     // Get all the functions in the already selected thread groups.
+     // Function filtering will be done later for ButerFly views.
+      for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+       // Check for asnychonous abort command
+        if (cmd->Status() == CMD_ABORTED) {
+          return false;
+        }
+
+        Thread thread = *ti;
+        std::set<Function> threadObjects;
+        OpenSpeedShop::Queries::GetSourceObjects(thread, threadObjects);
+        objects.insert(threadObjects.begin(), threadObjects.end());
+      }
+    } else {
+     // There is some sort of file filter specified.
+     // Determine the names of desired functions and get Function objects for them.
+     // Thread filtering will be done in GetMetricInThreadGroup.
+        std::map<Function, std::map<Framework::StackTrace, std::vector<double> > >::iterator fi;
+        vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
+        for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
+          OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
+          OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
+          Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
+          std::string F_Name = pval1.name;
+          std::set<Function> new_objects = exp->FW()->getFunctionsByNamePattern (F_Name);
+          if (!new_objects.empty()) {
+            objects.insert (new_objects.begin(), new_objects.end());
           }
         }
-      }
     }
+  }
 
-    return !(items->empty());
+  if (objects.empty()) {
+    return false;
+  }
+
+ // Get the callstacks and data from the collector.
+  GetMetricInThreadGroup (collector, metric, tgrp, objects, items);
+
+  return !(items->empty());
 }
 
 static void Function_Report(
@@ -212,11 +216,12 @@ static void Function_Report(
       for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
         std::vector<double>::iterator vi;
         for (vi = (*si).second.begin(); vi != (*si).second.end(); vi++) {
+          double v = *vi;
           cnt ++;
-          vmin = min(vmin,*vi);
-          vmax = max(vmax,*vi);
-          sum += *vi;
-          sum_squares += (*vi) * (*vi);
+          vmin = min(vmin,v);
+          vmax = max(vmax,v);
+          sum += v;
+          sum_squares += (v * v);
         }
       }
       SmartPtr<std::vector<CommandResult *> > vcs = Framework::SmartPtr<std::vector<CommandResult *> >(
@@ -246,13 +251,17 @@ static void Function_Report(
 }
 
 static inline
-CommandResult *Build_CallBack_Entry (Framework::StackTrace& st, int64_t i) {
+CommandResult *Build_CallBack_Entry (Framework::StackTrace& st, int64_t i, bool add_stmts) {
     CommandResult *SE = NULL;
     std::pair<bool, Function> fp = st.getFunctionAt(i);
     if (fp.first) {
      // Use Function.
-      std::set<Statement> ss = st.getStatementsAt(i);
-      SE = new CommandResult_Function (fp.second, ss);
+      if (add_stmts) {
+        std::set<Statement> ss = st.getStatementsAt(i);
+        SE = new CommandResult_Function (fp.second, ss);
+      } else {
+        SE = new CommandResult_Function (fp.second);
+      }
     } else {
      // Use Absolute Address.
       SE = new CommandResult_Uint (st[i].getValue());
@@ -261,7 +270,7 @@ CommandResult *Build_CallBack_Entry (Framework::StackTrace& st, int64_t i) {
 }
 
 static SmartPtr<std::vector<CommandResult *> >
-       Construct_CallBack (bool TraceBack_Order, Framework::StackTrace& st) {
+       Construct_CallBack (bool TraceBack_Order, bool add_stmts, Framework::StackTrace& st) {
   SmartPtr<std::vector<CommandResult *> > call_stack
              = Framework::SmartPtr<std::vector<CommandResult *> >(
                            new std::vector<CommandResult *>()
@@ -271,17 +280,18 @@ static SmartPtr<std::vector<CommandResult *> >
   if (len == 0) return call_stack;
   if (TraceBack_Order)
     for ( i = 0;  i < len; i++) {
-      call_stack->push_back(Build_CallBack_Entry(st, i));
+      call_stack->push_back(Build_CallBack_Entry(st, i, add_stmts));
     }
   else
     for ( i = len-1; i >= 0; i--) {
-      call_stack->push_back(Build_CallBack_Entry(st, i));
+      call_stack->push_back(Build_CallBack_Entry(st, i, add_stmts));
     }
   return call_stack;
 }
 
 static void CallStack_Report (
               bool TraceBack_Order,
+              bool add_stmts,
               SmartPtr<std::map<Function,
                                 std::map<Framework::StackTrace,
                                          std::vector<double> > > >& raw_items,
@@ -322,7 +332,7 @@ static void CallStack_Report (
       (*vcs)[max_temp] = CRPTR (vmax);
       (*vcs)[cnt_temp] = CRPTR (cnt);
       (*vcs)[ssq_temp] = CRPTR (sum_squares);
-      SmartPtr<std::vector<CommandResult *> > call_stack = Construct_CallBack (TraceBack_Order, st);
+      SmartPtr<std::vector<CommandResult *> > call_stack = Construct_CallBack (TraceBack_Order, add_stmts, st);
       CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (call_stack,
                                                                             TraceBack_Order);
       c_items.push_back(std::make_pair(CSE, vcs));
@@ -342,10 +352,32 @@ static SmartPtr<std::vector<CommandResult *> >
   for (int64_t i = 0; i < len; i++) {
     CommandResult *CE = (*cs)[i];
     CommandResult *NCE;
-    cmd_result_type_enum ty = CE->Type();
     NCE = Dup_CommandResult (CE);
     call_stack->push_back(NCE);
   }
+  return call_stack;
+}
+
+static SmartPtr<std::vector<CommandResult *> > 
+       Copy_Call_Stack_Entry (int64_t idx,
+                              int64_t bias,
+                              SmartPtr<std::vector<CommandResult *> >& cs) {
+  SmartPtr<std::vector<CommandResult *> > call_stack;
+  call_stack = Framework::SmartPtr<std::vector<CommandResult *> >(
+                           new std::vector<CommandResult *>()
+                           );
+  if (bias == -1) {
+    call_stack->push_back (CRPTR(""));
+    call_stack->push_back (Dup_CommandResult ((*cs)[idx-1]) );
+  }
+  if (bias == 0) {
+    call_stack->push_back (Dup_CommandResult ((*cs)[idx]) );
+  }
+  if (bias == +1) {
+    call_stack->push_back (CRPTR(""));
+    call_stack->push_back (Dup_CommandResult ((*cs)[idx+1]) );
+  }
+
   return call_stack;
 }
 
@@ -384,11 +416,57 @@ static int64_t Match_Call_Stack (SmartPtr<std::vector<CommandResult *> >& cs,
       ((CommandResult_Uint *)cse)->Value(V);
       ((CommandResult_Uint *)ncse)->Value(NV);
       if (V != NV) return (i - 1);
+    } else if (ty == CMD_RESULT_STRING) {
+     // Compare caracters.
+      std::string V;
+      std::string NV;
+      ((CommandResult_String *)cse)->Value(V);
+      ((CommandResult_String *)ncse)->Value(NV);
+      if (V != NV) return (i - 1);
     } else {
       return (i - 1);
     }
 
   }
+  return minsz;
+}
+
+static int64_t Match_Short_Stack (SmartPtr<std::vector<CommandResult *> >& cs,
+                                  SmartPtr<std::vector<CommandResult *> >& ncs) {
+  int64_t csz = cs->size();
+  int64_t ncsz = ncs->size();
+  if ((csz <= 0) || (ncsz <= 0)) return -1;
+  int64_t minsz = min(csz, ncsz);
+  int64_t i = 0;
+  // for (int64_t i = 0; i < minsz; i++) {
+    CommandResult *cse = (*cs)[csz-1];
+    CommandResult *ncse = (*ncs)[ncsz-1];
+    cmd_result_type_enum ty = cse->Type();
+    if (ty != ncse->Type()) return (i - 1);
+
+    if (ty == CMD_RESULT_FUNCTION) {
+     // Compare functions only.
+      if (*((CommandResult_Function *)cse) != *((CommandResult_Function *)ncse)) return (i - 1);
+    } else if (ty == CMD_RESULT_LINKEDOBJECT) {
+     // Compare LinkedObjects and offsets.
+      uint64_t V;
+      uint64_t NV;
+      ((CommandResult_LinkedObject *)cse)->Value(V);
+      ((CommandResult_LinkedObject *)ncse)->Value(NV);
+      if (V != NV) return (i - 1);
+      if (*((CommandResult_LinkedObject *)cse) != *((CommandResult_LinkedObject *)ncse)) return (i - 1);
+    } else if (ty == CMD_RESULT_UINT) {
+     // Compare absolute addresses.
+      uint64_t V;
+      uint64_t NV;
+      ((CommandResult_Uint *)cse)->Value(V);
+      ((CommandResult_Uint *)ncse)->Value(NV);
+      if (V != NV) return (i - 1);
+    } else {
+      return (i - 1);
+    }
+
+  // }
   return minsz;
 }
 
@@ -408,7 +486,7 @@ static void Combine_Duplicate_CallStacks (
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
 
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
-   // Foreach CallStack entry, look for duplicates and missing intermediates.
+   // Foreach CallStack entry, look for duplicates.
     std::vector<std::pair<CommandResult_CallStackEntry *,
                           SmartPtr<std::vector<CommandResult *> > > >::iterator nvpi = vpi+1;
     if (nvpi == c_items.end()) break;
@@ -455,6 +533,57 @@ static void Combine_Duplicate_CallStacks (
   }
 }
 
+static void Combine_Short_Stacks (
+              std::vector<std::pair<CommandResult_CallStackEntry *,
+                                    SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+  std::vector<std::pair<CommandResult_CallStackEntry *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+
+  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+   // Foreach CallStack entry, look for duplicates.
+    std::vector<std::pair<CommandResult_CallStackEntry *,
+                          SmartPtr<std::vector<CommandResult *> > > >::iterator nvpi = vpi+1;
+    if (nvpi == c_items.end()) break;
+    std::pair<CommandResult_CallStackEntry *,
+              SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
+    SmartPtr<std::vector<CommandResult *> > cs = cp.first->Value();
+    int64_t cs_size = cs->size();
+   // Compare the current entry to all following ones.
+
+    for ( ; nvpi != c_items.end(); ) {
+      std::pair<CommandResult_CallStackEntry *,
+                SmartPtr<std::vector<CommandResult *> > > ncp = *nvpi;
+      SmartPtr<std::vector<CommandResult *> > ncs = ncp.first->Value();
+      if (cs_size > ncs->size()) {
+        break;
+      }
+      if (cs_size != ncs->size()) {
+       // We can do this because the original call stacks are expanded in place.
+        nvpi++;
+        continue;
+      }
+      int64_t matchcount = Match_Call_Stack (cs, ncs);
+      if ((matchcount >= 0) &&
+          (matchcount == cs->size()) &&
+          (matchcount == ncs->size())) {
+       // Call stacks are identical - combine values.
+        Accumulate_PreDefined_Temps ((*cp.second), (*ncp.second));
+        nvpi = c_items.erase(nvpi);
+        delete ncp.first;
+        if ((*ncp.second).begin() != (*ncp.second).end()) {
+          for (int64_t i = 0; i < (*ncp.second).size(); i++) {
+            delete (*ncp.second)[i];
+          }
+        }
+        continue;
+      }
+     // Match failed.  Keep looking.
+      nvpi++;
+    }
+
+  }
+}
+
 static SmartPtr<std::vector<CommandResult *> >
   Dup_CRVector (SmartPtr<std::vector<CommandResult *> >& crv) {
      // Insert intermediate, dummy entry to fill a gap in the trace.
@@ -467,6 +596,127 @@ static SmartPtr<std::vector<CommandResult *> >
         vcs->push_back ( Copy_CRType ((*crv)[j]) );
       }
   return vcs;
+}
+
+static SmartPtr<std::vector<CommandResult *> >
+  Copy_CRVector (SmartPtr<std::vector<CommandResult *> >& crv) {
+     // Insert intermediate, dummy entry to fill a gap in the trace.
+      SmartPtr<std::vector<CommandResult *> > vcs
+              = Framework::SmartPtr<std::vector<CommandResult *> >(
+                           new std::vector<CommandResult *>()
+                           );
+     // Generate initial value for each column.
+      for (int64_t j = 0; j < crv->size(); j++) {
+        vcs->push_back ( Dup_CommandResult ((*crv)[j]) );
+      }
+  return vcs;
+}
+
+static void Extract_Pivot_Items (
+              CommandObject * cmd,
+              ExperimentObject *exp,
+              bool TraceBack_Order,
+              std::vector<std::pair<CommandResult_CallStackEntry *,
+                                    SmartPtr<std::vector<CommandResult *> > > >& c_items,
+              std::string F_Name,
+              std::vector<std::pair<CommandResult_CallStackEntry *,
+                                    SmartPtr<std::vector<CommandResult *> > > >& result) {
+ // Convert the function name to a Function object for easaier comparisons
+ // than using the character string name will allow.
+  std::set<Function> FS = exp->FW()->getFunctionsByNamePattern (F_Name);
+
+  bool pivot_added = false;
+  std::pair<CommandResult_CallStackEntry *,
+            SmartPtr<std::vector<CommandResult *> > > pivot;
+  std::vector<std::pair<CommandResult_CallStackEntry *,
+                        SmartPtr<std::vector<CommandResult *> > > > pred;
+  std::vector<std::pair<CommandResult_CallStackEntry *,
+                        SmartPtr<std::vector<CommandResult *> > > > succ;
+
+  std::vector<std::pair<CommandResult_CallStackEntry *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+   // Foreach CallStack entry, look for the matching function name.
+    std::pair<CommandResult_CallStackEntry *,
+              SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
+    SmartPtr<std::vector<CommandResult *> > cs = cp.first->Value();
+
+    for (int64_t i = 0; i < cs->size(); i++) {
+      CommandResult *cof = (*cs)[i];
+      if ((cof->Type() == CMD_RESULT_FUNCTION) &&
+          (FS.find(*(CommandResult_Function *)cof) != FS.end())) {
+       // Insert intermediate, dummy entry to fill a gap in the trace.
+        if (!pivot_added) {
+          SmartPtr<std::vector<CommandResult *> > vcs = Copy_CRVector (cp.second);
+          SmartPtr<std::vector<CommandResult *> > ncs = Copy_Call_Stack_Entry (i, 0, cs);
+          CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (ncs,
+                                                                                TraceBack_Order);
+          pivot = std::make_pair(CSE, vcs);
+          pivot_added = true;
+        } else {
+          Accumulate_PreDefined_Temps ((*pivot.second), (*cp.second));
+        }
+        if (i != 0) {
+          SmartPtr<std::vector<CommandResult *> > vcs = Copy_CRVector (cp.second);
+          // SmartPtr<std::vector<CommandResult *> > ncs = Dup_Call_Stack (i, cs);
+          SmartPtr<std::vector<CommandResult *> > ncs = Copy_Call_Stack_Entry (i, -1, cs);
+          CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (ncs,
+                                                                                !TraceBack_Order);
+          pred.push_back (std::make_pair(CSE, vcs));
+        }
+        if ((i+1) < cs->size()) {
+          SmartPtr<std::vector<CommandResult *> > vcs = Copy_CRVector (cp.second);
+          // SmartPtr<std::vector<CommandResult *> > ncs = Dup_Call_Stack (i+2, cs);
+          SmartPtr<std::vector<CommandResult *> > ncs = Copy_Call_Stack_Entry (i, +1, cs);
+          CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (ncs,
+                                                                                TraceBack_Order);
+          succ.push_back (std::make_pair(CSE, vcs));
+        }
+        break;
+      }
+    }
+  }
+  if (pivot_added) {
+    if (!pred.empty()) {
+      Combine_Short_Stacks (pred);
+      result.insert(result.end(), pred.begin(), pred.end());
+    }
+    result.push_back (pivot);
+    if (!succ.empty()) {
+      Combine_Short_Stacks (succ);
+      result.insert(result.end(), succ.begin(), succ.end());
+    }
+  }
+}
+
+static void Build_ButterFly_View (
+              CommandObject * cmd,
+              ExperimentObject *exp,
+              bool TraceBack_Order,
+              std::vector<std::pair<CommandResult_CallStackEntry *,
+                                    SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+  std::vector<std::pair<CommandResult_CallStackEntry *,
+                        SmartPtr<std::vector<CommandResult *> > > > result;
+ // Extract only the requested functions.
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
+  if (p_tlist->begin() != p_tlist->end()) {
+   // There is a list.  Is there a "-f" specifier?
+    OpenSpeedShop::cli::ParseTarget pt = *p_tlist->begin(); // There can only be one!
+    vector<OpenSpeedShop::cli::ParseRange> *f_list = pt.getFileList();
+    if ((f_list != NULL) && !(f_list->empty())) {
+     // Foreach function name, build a ButterFly view.
+      vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
+      for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
+        OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
+        OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
+        Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
+        std::string F_Name = pval1.name;
+        Extract_Pivot_Items (cmd, exp, TraceBack_Order, c_items, F_Name, result);
+      }
+    }
+  }
+  c_items = result;
 }
 
 static void Expand_CallStack (
@@ -695,13 +945,6 @@ void Form_CallStack_Output (CommandObject *cmd,
       cmd->Result_Predefined (E);
     }
 
- // Release instructions
-  for (i = 0; i < IV.size(); i++) {
-    ViewInstruction *vp = IV[i];
-    delete vp;
-    IV[i] = NULL;
-  }
-
  // Release summary temporaries
   for ( i=0; i < num_total_temps; i++) {
     if (temp[i] != NULL) {
@@ -718,6 +961,12 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
 
   if (CV.size() == 0) {
     Mark_Cmd_With_Soft_Error(cmd, "(There are no metrics specified to report.)");
+    return false;   // There is no collector, return.
+  }
+
+  if (Look_For_KeyWord(cmd, "ButterFly") &&
+      !Filter_Uses_F (cmd)) {
+    Mark_Cmd_With_Soft_Error(cmd, "(The required function list ('-f ...') for ButterFly views is missing.)");
     return false;   // There is no collector, return.
   }
 
@@ -753,7 +1002,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
     int64_t Column0index = vinst0->TMP1();
     SmartPtr<std::map<Function, std::map<Framework::StackTrace, std::vector<double> > > > f_items;
     bool first_column_found = false;
-    first_column_found = Raw_Data (cmd, CV[Column0index], MV[Column0index], tgrp, f_items);
+    first_column_found = Raw_Data (cmd, exp, CV[Column0index], MV[Column0index], tgrp, f_items);
     if (!first_column_found) {
       std::string s("(There are no data samples for " + MV[Column0index] + " available.)");
       Mark_Cmd_With_Soft_Error(cmd,s);
@@ -829,6 +1078,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
     std::string EO_Title;
     std::vector<std::pair<CommandResult_CallStackEntry *,
                           SmartPtr<std::vector<CommandResult *> > > > c_items;
+    bool TraceBack_Order = false;
     if (Look_For_KeyWord(cmd, "Statement") ||
         Look_For_KeyWord(cmd, "Statements") ||
         Look_For_KeyWord(cmd, "CallTree") ||
@@ -836,12 +1086,15 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
         Look_For_KeyWord(cmd, "TraceBack") ||
         Look_For_KeyWord(cmd, "TraceBacks") ||
         Look_For_KeyWord(cmd, "FullStack") ||
-        Look_For_KeyWord(cmd, "FullStacks")) {
+        Look_For_KeyWord(cmd, "FullStacks") ||
+        Look_For_KeyWord(cmd, "ButterFly")) {
      // Straight Report will break down report by call stack.
       EO_Title = "Call Stack Function (defining location)";
+      bool add_stmts = (!Look_For_KeyWord(cmd, "ButterFly") ||
+                        Look_For_KeyWord(cmd, "FullStack") ||
+                        Look_For_KeyWord(cmd, "FullStacks"));
 
      // Determine ordering
-      bool TraceBack_Order = false;
       if (Look_For_KeyWord(cmd, "TraceBack") ||
           Look_For_KeyWord(cmd, "TraceBacks")) {
         TraceBack_Order = true;
@@ -863,7 +1116,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
      // which is not really necessary because we only need read access
      // to do these conversions.
       CV[0].lockDatabase();
-      CallStack_Report (TraceBack_Order, f_items, c_items);
+      CallStack_Report (TraceBack_Order, add_stmts, f_items, c_items);
       CV[0].unlockDatabase();
 
       Combine_Duplicate_CallStacks (c_items);
@@ -880,14 +1133,16 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
                                                      SmartPtr<std::vector<CommandResult *> > > >());
 
      // Should we expand the call stack entries in the report?
-      if (!Look_For_KeyWord(cmd, "DontExpand")) {
-        Expand_CallStack (TraceBack_Order, c_items);
-      }
+      if (!Look_For_KeyWord(cmd, "ButterFly")) {
+        if (!Look_For_KeyWord(cmd, "DontExpand")) {
+          Expand_CallStack (TraceBack_Order, c_items);
+        }
 
-     // Should we eliminate redundant entries in the report?
-      if (!Look_For_KeyWord(cmd, "FullStack") &&
-          !Look_For_KeyWord(cmd, "FullStacks")) {
-        Combine_Duplicate_CallStacks (c_items);
+       // Should we eliminate redundant entries in the report?
+        if (!Look_For_KeyWord(cmd, "FullStack") &&
+            !Look_For_KeyWord(cmd, "FullStacks")) {
+          Combine_Duplicate_CallStacks (c_items);
+        }
       }
     } else if (Look_For_KeyWord(cmd, "LinkedObject") ||
                Look_For_KeyWord(cmd, "LinkedObjects")) {
@@ -946,13 +1201,47 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
     }
 
    // Now format the view.
-    Form_CallStack_Output (cmd, topn, tgrp, CV, MV, IV,
-                           num_columns,
-                           Gen_Total_Percent, percentofcolumn, TotalValue,
-                           c_items);
+    if (Look_For_KeyWord(cmd, "ButterFly")) {
+     // Foreach function name, build a ButterFly view.
+     // Note: we have already verified that there is a '-f' list.
+      OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+      vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
+      Assert (p_tlist->begin() != p_tlist->end());
+      OpenSpeedShop::cli::ParseTarget pt = *p_tlist->begin(); // There can only be one!
+      vector<OpenSpeedShop::cli::ParseRange> *f_list = pt.getFileList();
+      Assert ((f_list != NULL) && !(f_list->empty()));
+      bool MoreThanOne = false;
+      vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
+      for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
+        OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
+        OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
+        Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
+        std::vector<std::pair<CommandResult_CallStackEntry *,
+                              SmartPtr<std::vector<CommandResult *> > > > result;
+        Extract_Pivot_Items (cmd, exp, TraceBack_Order, c_items, pval1.name, result);
+        if (MoreThanOne) cmd->Result_RawString("");  // Delimiter between items is a null string.
+        Form_CallStack_Output (cmd, topn, tgrp, CV, MV, IV,
+                               num_columns,
+                               Gen_Total_Percent, percentofcolumn, TotalValue,
+                               result);
+        MoreThanOne = true;
+      }
+    } else {
+      Form_CallStack_Output (cmd, topn, tgrp, CV, MV, IV,
+                             num_columns,
+                             Gen_Total_Percent, percentofcolumn, TotalValue,
+                             c_items);
+    }
 
    // Release space for no longer needed items.
     if (TotalValue != NULL) delete TotalValue;
+
+   // Release instructions
+    for (i = 0; i < IV.size(); i++) {
+      ViewInstruction *vp = IV[i];
+      delete vp;
+      IV[i] = NULL;
+    }
 
   }
   catch(const Exception& error) {
@@ -980,7 +1269,7 @@ static void define_columns (CommandObject *cmd,
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
-  bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  bool Generate_Summary = (Look_For_KeyWord(cmd, "Summary") & !Look_For_KeyWord(cmd, "ButterFly"));
 
   if (Generate_Summary) {
    // Total time is always displayed - also add display of the summary time.
@@ -1133,9 +1422,14 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
                                       "\n\tThe addition of 'FullStack' with either 'CallTrees' of 'TraceBacks'"
                                       " will cause the report to include the full call stack for each measured"
                                       " function.  Redundant portions of a call stack are suppressed by default."
-                                      "\n\tThe addition of 'Summary' with to the '-v' option list will result"
-                                      " in an additional line of output at the end of the report that summarizes"
-                                      " the information in each column."
+                                      "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
+                                      " 'CallTrees' or 'TraceBacks' will result in an additional line of output at"
+                                      " the end of the report that summarizes the information in each column."
+                                      "\n\t'-v ButterFly' along with a '-f <function_list>' will produce a report"
+                                      " that summarizes the calls to a function and the calls from the function."
+                                      " The calling functions will be listed before the names function and the"
+                                      " called functions afterwards, by default, although the addition of"
+                                      " 'TraceBacks' to the '-v' specifier will reverse this ordering."
                                       "\n\nAdditional information can be requested with the '-m' option.  Items"
                                       " listed after the option will cause additiional columns to be added"
                                       " to the report. More than one option can be selected."
