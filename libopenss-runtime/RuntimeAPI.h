@@ -38,16 +38,48 @@
 #include <rpc/rpc.h>
 #include <ucontext.h>
 
+/** Number of entries in the sample buffer. */
+#define OpenSS_PCBufferSize 1024
+
+/** Number of entries in the hash table. */
+#define OpenSS_PCHashTableSize (OpenSS_PCBufferSize + (OpenSS_PCBufferSize / 4))
+
+/** struct to record the pc buffer, count buffer, hash table, address range */
+ 
+typedef struct {
+
+    /** Sample buffer. */
+    struct {
+	/**< Program counter (PC) addresses. */
+        uint64_t pc[OpenSS_PCBufferSize];
+
+	/**< Sample count at each address. */
+        uint8_t count[OpenSS_PCBufferSize];
+    } buffer;
+
+    /** Hash table mapping PC addresses to their sample buffer entries. */
+    unsigned hash_table[OpenSS_PCHashTableSize];
+
+    /** pc buffer length*/
+    uint8_t pc_len;
+    /** count buffer length*/
+    uint8_t count_len;
+
+    /** Address range for the PC addresses */
+    uint64_t addr_begin;
+    uint64_t addr_end;
+} OpenSS_PCData;
 
 
 /** Type representing a function pointer to a timer event handler. */
 typedef void (*OpenSS_TimerEventHandler)(const ucontext_t*);
 
 
-
 void OpenSS_DecodeParameters(const char*, const xdrproc_t, void*);
 uint64_t OpenSS_GetAddressOfFunction(const void*);
 uint64_t OpenSS_GetPCFromContext(const ucontext_t*);
+bool_t   OpenSS_UpdatePCData(uint64_t pc, OpenSS_PCData *pcdata);
+
 uint64_t OpenSS_GetTime();
 void OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
 void OpenSS_Timer(uint64_t, OpenSS_TimerEventHandler);

@@ -44,6 +44,7 @@ libopenss_runtime_la_SOURCES = \
 	OpenSS_DecodeParameters.c \
 	OpenSS_GetAddressOfFunction.c \
 	OpenSS_GetPCFromContext.c \
+	OpenSS_UpdatePCData.c \
 	OpenSS_GetTime.c \
 	OpenSS_Send.c \
 	OpenSS_Timer.c \
@@ -52,6 +53,7 @@ libopenss_runtime_la_SOURCES = \
 if HAVE_LIBUNWIND
 libopenss_runtime_la_SOURCES += \
 	OpenSS_GetStackTraceFromContext.c
+
 endif	
 
 if HAVE_PAPI
