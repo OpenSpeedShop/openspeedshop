@@ -97,9 +97,9 @@ extern "C"
   }
 
 
-  void initStatsPanelPreferenceSettings()
+  void initPreferenceSettings()
   {
-// printf("initStatsPanelPreferenceSettings(%s)\n", pname);
+// printf("StatsPanel: initPreferenceSettings(%s)\n", pname);
     sortDecendingCheckBox->setChecked(TRUE);
     levelsToOpenLineEdit->setText( "-1" );
     showTopNLineEdit->setText( "10" );
@@ -110,7 +110,7 @@ extern "C"
 
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
   {
-// printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
+// printf("StatsPanel: initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
 
     statsPanelStackPage = new QWidget( stack, name );
     pname = strdup(name);
@@ -125,18 +125,18 @@ extern "C"
 
     layout8 = new QVBoxLayout( statsPanelGroupBox->layout(), 11, "layout8");
 
-QHBoxLayout *layoutLevelsToOpen = new QHBoxLayout( 0, 0, 6, "layoutLevelsToOpen");
+    QHBoxLayout *layoutLevelsToOpen = new QHBoxLayout( 0, 0, 6, "layoutLevelsToOpen");
 
-levelsToOpenTextLabel =
+    levelsToOpenTextLabel =
       new QLabel( statsPanelGroupBox, "levelsToOpenTextLabel" );
-layoutLevelsToOpen->addWidget( levelsToOpenTextLabel );
+    layoutLevelsToOpen->addWidget( levelsToOpenTextLabel );
 
-levelsToOpenLineEdit =
+    levelsToOpenLineEdit =
       new QLineEdit( statsPanelGroupBox, "levelsToOpenLineEdit" );
 
-layoutLevelsToOpen->addWidget( levelsToOpenLineEdit );
+    layoutLevelsToOpen->addWidget( levelsToOpenLineEdit );
 
-layout8->addLayout( layoutLevelsToOpen );
+    layout8->addLayout( layoutLevelsToOpen );
 
     layoutTopN = new QHBoxLayout( 0, 0, 6, "layoutTopN");
 
@@ -167,12 +167,12 @@ layout8->addLayout( layoutLevelsToOpen );
 
     showTextInChartCheckBox =
       new QCheckBox( statsPanelGroupBox, "showTextInChartCheckBox" );
-showTextInChartCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showTextInChartCheckBox->sizePolicy().hasHeightForWidth() ) );
+    showTextInChartCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showTextInChartCheckBox->sizePolicy().hasHeightForWidth() ) );
     layout8->addWidget( showTextInChartCheckBox );
 
     sortDecendingCheckBox =
       new QCheckBox( statsPanelGroupBox, "sortDecendingCheckBox" );
-sortDecendingCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, sortDecendingCheckBox->sizePolicy().hasHeightForWidth() ) );
+    sortDecendingCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, sortDecendingCheckBox->sizePolicy().hasHeightForWidth() ) );
     layout8->addWidget( sortDecendingCheckBox );
 
 
@@ -202,7 +202,8 @@ sortDecendingCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QS
     showColumnToSortTextLabel->setText( "Column to sort:" );
     showTextInChartCheckBox->setText( "Show text in chart:" );
 
-    initStatsPanelPreferenceSettings();
+//    initStatsPanelPreferenceSettings();
+    initPreferenceSettings();
 
     if( settings != NULL )
     {

@@ -59,7 +59,7 @@ extern "C"
   }
 
 
-  void initManageProcessesPanelPreferenceSettings()
+  void initPreferenceSettings()
   {
     sortPreferenceCheckBox->setChecked(FALSE);
     updateOnCheckBox->setChecked(TRUE);
@@ -124,7 +124,8 @@ QHBoxLayout *updateDisplayLayout = new QHBoxLayout( layout6, 11, "updateDisplayL
     managerProcessesPanelGroupBox->setTitle( "Manage Processes Panel" );
     sortPreferenceCheckBox->setText( "Sort Preference" );
 
-    initManageProcessesPanelPreferenceSettings();
+//    initManageProcessesPanelPreferenceSettings();
+    initPreferenceSettings();
 
 
     if( settings != NULL )

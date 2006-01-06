@@ -77,12 +77,45 @@ extern "C"
   }
 
 // #include <assert.h>
-  void initSourcePanelPreferenceSettings()
+  void initPreferenceSettings()
   {
-// printf("initSourcePanelPreferenceSettings(%s)\n", pname);
+// printf("SourcePanel: initPreferenceSettings(%s)\n", pname);
 // assert(i);
     showStatisticsCheckBox->setChecked(FALSE);
     showLineNumbersCheckBox->setChecked(FALSE);
+
+    for(int i=0;i<numEntries;i++)
+    {
+      QString ls_name = QString("leftSideLineEdit%1").arg(i);
+      QString rs_name = QString("rightSideLineEdit%1").arg(i);
+
+      // Now try to find this named widget and set the value
+      for( LineEditList::Iterator it = leftSideLineEditList.begin();
+           it != leftSideLineEditList.end(); ++it )
+      {
+      //   QLineEdit *lsle = (QLineEdit *)it.current(); 
+         QLineEdit *lsle = (QLineEdit *)*it; 
+
+         if( lsle->name() == ls_name )
+         {
+           lsle->setText("");
+           break;
+         }
+
+      }
+      for( LineEditList::Iterator it = rightSideLineEditList.begin();
+           it != rightSideLineEditList.end(); ++it )
+      {
+      //   QLineEdit *lsle = (QLineEdit *)it.current(); 
+         QLineEdit *rsle = (QLineEdit *)*it; 
+
+         if( rsle->name() == rs_name )
+         {
+           rsle->setText("");
+           break;
+         }
+      }
+    }
   }
 
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
@@ -151,7 +184,7 @@ extern "C"
     }
     //End PathRempping Section
 
-    initSourcePanelPreferenceSettings();
+    initPreferenceSettings();
 
     if( settings != NULL )
     {
