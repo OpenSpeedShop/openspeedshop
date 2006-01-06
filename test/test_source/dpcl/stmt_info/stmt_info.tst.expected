@@ -1,6 +1,2 @@
-bcreate() was successful.
-Module name libdyninstAPI_RT.so.1 examined
-Module name mutatee.c examined
-Module mutatee.c found... getting statement info
-bget_all_statements() SUCCESS! - status ASC_success
-bget_all_statements() SUCCESS !!!!
+bget_all_statements() SUCCESS - status ASC_success
+bget_all_statements() SUCCESS
