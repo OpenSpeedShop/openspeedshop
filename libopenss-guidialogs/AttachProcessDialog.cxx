@@ -505,7 +505,7 @@ AttachProcessDialog::readFilterList()
 void
 AttachProcessDialog::saveSelected()
 {
-// printf("saveSelected() entered\n");
+//printf("saveSelected() entered\n");
   QString s = QString::null;
   IncExcList::Iterator it;
   for( it = incExcList.begin();
@@ -519,11 +519,16 @@ AttachProcessDialog::saveSelected()
     s += (QString)*it;
   }
 
-// printf("You'll want to save (%s)\n", s.ascii() );
+  if( s.isEmpty() )
+  {
+    return;
+  }
+
+//printf("You'll want to save (%s)\n", s.ascii() );
   if( !s.isEmpty() )
   {
     settings = new QSettings();
-// printf("are you really writting this?\n");
+//printf("are you really writting this?\n");
     if( !settings->writeEntry( "/openspeedshop/general/incExcProcessList", s) )
     {
       fprintf(stderr, "Write of process list failed.\n");
