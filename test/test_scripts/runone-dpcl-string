@@ -75,7 +75,6 @@ def CompareResults(testName, fileptr):
 		failure_reason = 3
 		passing_ratio = 0
 	while expectedfileline and failure_reason != 3:
-#		print " expectedfileline=%s\n" %  expectedfileline
 		failure_reason = 0
 		outputLineCount = 1
 		outputfileptr = open(outputfilename, 'r')
@@ -83,12 +82,9 @@ def CompareResults(testName, fileptr):
 		if not outputfileline:
 			break
 		while outputfileline:
-#      		        print " outputfileline=%s\n" %  outputfileline
        		        if not outputfileline:
 				break
 
-#			print " outputfileline=%s\n" %  outputfileline
-#			print " expectedfileline=%s\n" %  expectedfileline
 			j = 0
 # For this loop - assume passing until proven unequal
 			passing_ratio = 1
@@ -96,32 +92,19 @@ def CompareResults(testName, fileptr):
 				if expectedfileline[j] == outputfileline[j]:
 					j = j + 1
 				else:
-#					print "expectedfileline[j]=%c\n" % expectedfileline[j]
-#					print "outputfileline[j]=%c\n" % outputfileline[j]
 					passing_ratio = 0
 					failure_reason = 1
 					break
-			if (passing_ratio == 1): matchedLines = matchedLines + 1	
-#			print "innerloop bottom of while matchedLines=%d\n" %  matchedLines
+			if (passing_ratio == 1): 
+				matchedLines = matchedLines + 1	
+				break 
+
 	
 			outputfileline = outputfileptr.readline()
 			outputLineCount = outputLineCount + 1
-#			print "innerloop bottom of while outputfileline=%s\n" %  outputfileline
-#			print "innerloop bottom of while outputLineCount=%d\n" %  outputLineCount
-#			print "innerloop passing_ratio=%d\n" % passing_ratio
-#			print "innerloop failure_reason=%d\n" % failure_reason
 # Read next expected file line, if any
 		expectedfileline = expectedfileptr.readline()
 		if expectedfileline: expectedLineCount = expectedLineCount + 1
-
-#		print "outerloop bottom of while expectedfileline=%s\n" %  expectedfileline
-#		print "outerloop bottom of while expectedLineCount=%d\n" %  expectedLineCount
-#		print "outerloop passing_ratio=%d\n" % passing_ratio
-#		print "outerloop failure_reason=%d\n" % failure_reason
-#		print "outerloop bottom of while matchedLines=%d\n" %  matchedLines
-#		print "outerloop bottom of while outputLineCount=%d\n" %  outputLineCount
-#		print "outerloop bottom of while matchedLines=%d\n" %  matchedLines
-	
 	
 	if (matchedLines == expectedLineCount):
 		fileptr.write(testName + ' has PASSED \n')
