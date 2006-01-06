@@ -31,6 +31,6 @@ echo ! sleep 400>> input.script
 echo expview -v nowait>> input.script
 echo exit >> input.script
 openss -batch < input.script
-kill -9 $i
+kill -n 9 $i
 rm -f file1
 
