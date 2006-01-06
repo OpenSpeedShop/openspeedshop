@@ -1,0 +1,149 @@
+#!/usr/bin/env python
+#Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+#
+from sys import *
+import sys
+import os
+from time import *
+from string import *
+#from datetime import *
+
+
+def createTestList():
+       checktemptestlist = os.system('test -e temptestlist')
+       if checktemptestlist == 0:
+               os.system('rm -f temptestlist')
+       os.system('ls -1 *.tst >> temptestlist')
+
+def runTest(testName):
+       checkinput = os.system('test -e input.script')
+       if checkinput == 0:
+               os.system('rm -f input.script')
+       #test_input = open(testName, 'r')
+       #testCommand = test_input.readline()
+       #linesToCompare = test_input.readline()
+       #test_input.close()
+       os.system('./'+testName+ '>> '+ testName+'.output')
+
+def iterateThroughTestList(fileptr):
+       con_input = open('temptestlist', 'r')
+       while 1:
+               config_line = con_input.readline()
+               if not config_line:
+                       break
+               test_name = config_line
+               i = 0
+               while 1:
+                       if test_name[i] == '.':
+                               break
+                       else:
+                               i = i + 1
+               testName = test_name[0:i+4]
+
+               runTest(testName)
+               CompareResults(testName, fileptr)
+
+       con_input.close()
+
+
+def CompareResults(testName, fileptr):
+	expected_functions = []
+	expected_functions_counter = 0
+	outputfilename = testName + '.output'
+	expectedfilename = testName + '.expected'
+	outputfileptr = open(outputfilename, 'r')
+	expectedfileptr = open(expectedfilename, 'r')
+	expectedLineCount = 1
+	failure_reason = 0
+	matchedLines = 0	
+	expectedfileline = expectedfileptr.readline()
+	if not expectedfileline:
+		failure_reason = 3
+		passing_ratio = 0
+	while expectedfileline and failure_reason != 3:
+#		print " expectedfileline=%s\n" %  expectedfileline
+		failure_reason = 0
+		outputLineCount = 1
+		outputfileline = outputfileptr.readline()
+		if not outputfileline:
+			break
+		while outputfileline:
+#      		        print " outputfileline=%s\n" %  outputfileline
+       		        if not outputfileline:
+				break
+
+#			print " outputfileline=%s\n" %  outputfileline
+#			print " expectedfileline=%s\n" %  expectedfileline
+			j = 0
+# For this loop - assume passing until proven unequal
+			passing_ratio = 1
+			while (expectedfileline[j] != '\n') and (outputfileline[j] != '\n'):
+				if expectedfileline[j] == outputfileline[j]:
+					j = j + 1
+				else:
+#					print "expectedfileline[j]=%c\n" % expectedfileline[j]
+#					print "outputfileline[j]=%c\n" % outputfileline[j]
+					passing_ratio = 0
+					failure_reason = 1
+					break
+			if (passing_ratio == 1): matchedLines = matchedLines + 1	
+#			print "innerloop bottom of while matchedLines=%d\n" %  matchedLines
+	
+			outputfileline = outputfileptr.readline()
+			outputLineCount = outputLineCount + 1
+#			print "innerloop bottom of while outputfileline=%s\n" %  outputfileline
+#			print "innerloop bottom of while outputLineCount=%d\n" %  outputLineCount
+#			print "innerloop passing_ratio=%d\n" % passing_ratio
+#			print "innerloop failure_reason=%d\n" % failure_reason
+# Read next expected file line, if any
+		expectedfileline = expectedfileptr.readline()
+		expectedLineCount = expectedLineCount + 1
+#		print "outerloop bottom of while expectedfileline=%s\n" %  expectedfileline
+#		print "outerloop bottom of while expectedLineCount=%d\n" %  expectedLineCount
+#		print "outerloop passing_ratio=%d\n" % passing_ratio
+#		print "outerloop failure_reason=%d\n" % failure_reason
+#		print "outerloop bottom of while matchedLines=%d\n" %  matchedLines
+#		print "outerloop bottom of while outputLineCount=%d\n" %  outputLineCount
+#		print "outerloop bottom of while matchedLines=%d\n" %  matchedLines
+	
+	
+	if (matchedLines == expectedLineCount):
+		fileptr.write(testName + ' has PASSED \n')
+	else:
+		if (failure_reason != 3): failure_reason = 1
+		fileptr.write(testName + ' has FAILED. \n')
+
+	if (failure_reason == 1):
+		fileptr.write('Some of the expected output lines are missing or different from expected.\n')
+	if (failure_reason == 3):
+		fileptr.write('There were no output lines - openss may have crashed or timed out\n')
+
+
+
+if __name__ == '__main__':
+       checkoutput = os.system('test -e *.output')
+       if checkoutput == 0:
+               os.system('rm -f *.output')
+
+       currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
+       resultsFile =  'testresults_' + currTime
+       resultfileptr = open(resultsFile, 'w')
+       tempfileptr = open('testresultsfilename', 'w')
+       tempfileptr.write(resultsFile)
+
+       createTestList()
+       iterateThroughTestList(resultfileptr)
