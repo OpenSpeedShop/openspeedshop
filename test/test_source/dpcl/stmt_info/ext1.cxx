@@ -122,7 +122,8 @@ main(int argc, char *argv[])
 	    AisStatus sts(ASC_failure); 
 	    StatementInfoList * stmt_info_list = mymod.bget_all_statements(P, &sts);
             if (sts.status() == ASC_success) {
-               printf("bget_all_statements() SUCCESS! - status %s\n",sts.status_name());
+               printf("bget_all_statements() SUCCESS - status %s\n",sts.status_name());
+//               printf("bget_all_statements() BOOSUCCESS - status %s\n",sts.status_name());
                int stmt_info_cnt = stmt_info_list->get_count();
 //               printf("stmt info count %d\n", stmt_info_cnt);
                for (int i = 0; i < stmt_info_cnt; i++) {
@@ -142,7 +143,7 @@ main(int argc, char *argv[])
                      }
                   }
                }
-               printf("bget_all_statements() SUCCESS !!!!\n");
+               printf("bget_all_statements() SUCCESS\n");
             }
             else {
                printf("bget_all_statements() FAILS !!\n");
