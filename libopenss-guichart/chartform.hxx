@@ -35,6 +35,7 @@ class QCanvas;
 class QFont;
 class QPrinter;
 class QString;
+class QLabel;
 
 static char *chart_colors[] = {
   "red",
@@ -87,6 +88,8 @@ public:
     bool fileSaveAsPixmap(QString filename);
 
     void init();
+
+    void setHeader( QString );
 protected:
     virtual void closeEvent( QCloseEvent * );
 
@@ -130,6 +133,7 @@ private:
     QAction *optionsVerticalBarChartAction;
 
 
+    QLabel *headerLabel;
     QString m_filename;
     QStringList m_recentFiles;
     QCanvas *m_canvas;

@@ -46,12 +46,16 @@ moc_StatsPanel.cxx: StatsPanel.hxx
 moc_SPChartForm.cxx: SPChartForm.hxx
 	-moc -o moc_SPChartForm.cxx SPChartForm.hxx
 
+moc_SPCheckBox.cxx: SPCheckBox.hxx
+	-moc -o moc_SPCheckBox.cxx SPCheckBox.hxx
+
 
 StatsPanel_la_SOURCES = \
 	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
 	SPListViewItem.hxx SPListViewItem.cxx \
 	SPListView.hxx SPListView.cxx \
 	SPChartForm.hxx SPChartForm.cxx moc_SPChartForm.cxx \
-	local_plugin_info.hxx preference_plugin_info.hxx
+	local_plugin_info.hxx preference_plugin_info.hxx \
+	SPCheckBox.hxx SPCheckBox.cxx moc_SPCheckBox.cxx 
 
 CLEANFILES=moc_StatsPanel.cxx moc_SPChartForm.cxx

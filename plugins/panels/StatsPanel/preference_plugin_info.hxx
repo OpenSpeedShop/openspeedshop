@@ -27,10 +27,13 @@
 #include <qlabel.h>
 #include <qcheckbox.h>
 #include <qsettings.h>
+#include <qlistview.h>
 
+#include <SPCheckBox.hxx>
 
 extern "C"
 {
+  SPCheckBoxList checkBoxList;
   QWidget* statsPanelStackPage = NULL;
   QVBoxLayout* generalStackPageLayout_3;
   QGroupBox* statsPanelGroupBox;
@@ -55,7 +58,11 @@ extern "C"
 
   QLineEdit* showColumnToSortLineEdit;
 
-  QCheckBox* showTextInChartCheckBox;
+
+  QGroupBox *textLabelGroupBox;
+  SPCheckBox* showTextInChartCheckBox;
+  SPCheckBox* showTextByValueCheckBox;
+  SPCheckBox* showTextByPercentCheckBox;
 
   static char *pname = NULL;
 
@@ -90,15 +97,26 @@ extern "C"
   }
 
 
-  bool getPreferenceShowTextInChart()
+  STATSPANEL_TEXT_ENUM getPreferenceShowTextInChart()
   {
 // printf("getPreferenceShowTextInChart(%s)\n", pname);
-    return( showTextInChartCheckBox->isChecked() );
+    if( showTextInChartCheckBox->isChecked() )
+    {
+      if( showTextByValueCheckBox->isChecked() )
+      {
+        return( TEXT_BYVALUE );
+      } else
+      {
+        return( TEXT_BYPERCENT );
+      }
+    }
+    return( TEXT_NONE );
   }
 
 
   void initPreferenceSettings()
   {
+    checkBoxList.clear();
 // printf("StatsPanel: initPreferenceSettings(%s)\n", pname);
     sortDecendingCheckBox->setChecked(TRUE);
     levelsToOpenLineEdit->setText( "-1" );
@@ -106,6 +124,8 @@ extern "C"
     showTopNChartLineEdit->setText( "5" );
     showColumnToSortLineEdit->setText( "0" );
     showTextInChartCheckBox->setChecked(TRUE);
+    showTextByValueCheckBox->setChecked(TRUE);
+    showTextByPercentCheckBox->setChecked(FALSE);
   }
 
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
@@ -164,11 +184,34 @@ extern "C"
 
     layout8->addLayout( layoutTopNChart );
 
+    textLabelGroupBox = new QGroupBox( statsPanelGroupBox, "textLabelGroupBox" );
+    textLabelGroupBox->setColumnLayout(0, Qt::Vertical );
+    textLabelGroupBox->layout()->setSpacing( 6 );
+    textLabelGroupBox->layout()->setMargin( 11 );
+    textLabelGroupBox->setTitle( "Data Labels" );
+
+    QVBoxLayout *textLabelLayout = new QVBoxLayout( textLabelGroupBox->layout(), 11, "layout8");
 
     showTextInChartCheckBox =
-      new QCheckBox( statsPanelGroupBox, "showTextInChartCheckBox" );
+      new SPCheckBox( textLabelGroupBox, "showTextInChartCheckBox");
     showTextInChartCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showTextInChartCheckBox->sizePolicy().hasHeightForWidth() ) );
-    layout8->addWidget( showTextInChartCheckBox );
+    textLabelLayout->addWidget( showTextInChartCheckBox );
+
+    showTextByValueCheckBox =
+      new SPCheckBox( textLabelGroupBox, "showTextByValueCheckBox", &checkBoxList );
+    showTextByValueCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showTextByValueCheckBox->sizePolicy().hasHeightForWidth() ) );
+    textLabelLayout->addWidget( showTextByValueCheckBox );
+    checkBoxList.push_back( showTextByValueCheckBox );
+
+
+    showTextByPercentCheckBox =
+      new SPCheckBox( textLabelGroupBox, "showTextByPercentCheckBox", &checkBoxList );
+    showTextByPercentCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showTextByPercentCheckBox->sizePolicy().hasHeightForWidth() ) );
+    textLabelLayout->addWidget( showTextByPercentCheckBox );
+    checkBoxList.push_back( showTextByPercentCheckBox );
+
+    layout8->addWidget( textLabelGroupBox );
+
 
     sortDecendingCheckBox =
       new QCheckBox( statsPanelGroupBox, "sortDecendingCheckBox" );
@@ -201,8 +244,9 @@ extern "C"
     showTopNChartTextLabel->setText( "Show top N items in chart:" );
     showColumnToSortTextLabel->setText( "Column to sort:" );
     showTextInChartCheckBox->setText( "Show text in chart:" );
+    showTextByValueCheckBox->setText( "  Show text by value:" );
+    showTextByPercentCheckBox->setText( "  Show text by percent:" );
 
-//    initStatsPanelPreferenceSettings();
     initPreferenceSettings();
 
     if( settings != NULL )
@@ -237,6 +281,16 @@ extern "C"
         "openspeedshop", name, showTextInChartCheckBox->name() );
       showTextInChartCheckBox->setChecked(
         settings->readBoolEntry(settings_buffer, TRUE) );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, showTextByValueCheckBox->name() );
+      showTextByValueCheckBox->setChecked(
+        settings->readBoolEntry(settings_buffer, TRUE) );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, showTextByPercentCheckBox->name() );
+      showTextByPercentCheckBox->setChecked(
+        settings->readBoolEntry(settings_buffer, TRUE) );
     }
 
     return statsPanelStackPage;
@@ -266,6 +320,14 @@ extern "C"
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showTextInChartCheckBox->name() );
     settings->writeEntry(settings_buffer, showTextInChartCheckBox->isChecked() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, showTextByValueCheckBox->name() );
+    settings->writeEntry(settings_buffer, showTextByValueCheckBox->isChecked() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, showTextByPercentCheckBox->name() );
+    settings->writeEntry(settings_buffer, showTextByPercentCheckBox->isChecked() );
 
   }
 }

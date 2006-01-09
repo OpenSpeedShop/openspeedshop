@@ -229,7 +229,7 @@ int lastIndentLevel;
     bool statsFLAG;
 
     //! Flag setting, indicating if we should be displaying the text in graphics.
-    bool textFLAG;
+    int textENUM;
   
     //! Flag setting, indicating if we should be displaying the chart.
     bool chartFLAG;

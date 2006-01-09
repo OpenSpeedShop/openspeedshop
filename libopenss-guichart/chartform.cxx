@@ -40,6 +40,7 @@
 #include <qstatusbar.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
+#include <qlabel.h>
 
 #include <qtextedit.h> // For testing...
 #include <qlayout.h> // For testing...
@@ -69,7 +70,10 @@ ChartForm::ChartForm(  QWidget* parent, const char* name, WFlags fl) : QWidget( 
 
    /*! Put all this in a layout so the resize does the right thing...  */
    setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)7, 0, 0, sizePolicy().hasHeightForWidth() ) );
-   QHBoxLayout * localLayout = new QHBoxLayout( this, 0, -1, "ChartForm");
+   QVBoxLayout * localLayout = new QVBoxLayout( this, 0, -1, "ChartForm");
+
+   headerLabel = new QLabel(this, "headerLabel");
+   localLayout->addWidget(headerLabel);
 
     setIcon( QPixmap( options_piechart ) );
 
@@ -604,3 +608,10 @@ for( ChartPercentValueList::iterator vi = values.begin();vi != values.end(); vi+
 
   drawElements();
 }
+
+void
+ChartForm::setHeader( QString header )
+{
+  headerLabel->setText(header);
+}
+

@@ -1527,7 +1527,7 @@ StatsPanel::updateStatsPanelData()
   }
 // printf("numberItemsToDisplayInChart = %d\n", numberItemsToDisplayInChart );
 
-
+  textENUM = getPreferenceShowTextInChart();
 
   lastlvi = NULL;
   gotHeader = FALSE;
@@ -1729,8 +1729,7 @@ StatsPanel::updateStatsPanelData()
    {
     color_names = coldToHot_color_names;
    }
-   textFLAG = getPreferenceShowTextInChart();
-   if( !textFLAG )
+   if( textENUM == TEXT_NONE )
    {
      ctvl.clear();
    }
@@ -1753,7 +1752,7 @@ StatsPanel::updateStatsPanelData()
     {
 // printf("add other of %f\n", 100.00-total_percent );
       cpvl.push_back( (int)(100.00-total_percent) );
-      if( textFLAG )
+      if( textENUM != TEXT_NONE )
       {
         ctvl.push_back( "other" );
       }
@@ -1772,6 +1771,7 @@ StatsPanel::updateStatsPanelData()
 // printf("cpvl.count()=%d ctvl.count()=%d\n", cpvl.count(), ctvl.count() );
 
   cf->setValues(cpvl, ctvl, color_names, MAX_COLOR_CNT);
+  cf->setHeader( (QString)*columnHeaderList.begin() );
 
   QApplication::restoreOverrideCursor();
 
@@ -2507,7 +2507,13 @@ StatsPanel::outputCLIData(QString *data)
       ctvl.count() < numberItemsToDisplayInChart )
   {
 // printf("Push back another one!(%s)\n", strings[percentIndex].stripWhiteSpace().ascii());
-    ctvl.push_back( strings[percentIndex].stripWhiteSpace() );
+    if( textENUM == TEXT_BYVALUE )
+    { 
+      ctvl.push_back( strings[0].stripWhiteSpace() );
+    } else if( textENUM == TEXT_BYPERCENT )
+    {
+      ctvl.push_back( strings[percentIndex].stripWhiteSpace() );
+    }
   }
 
 }
