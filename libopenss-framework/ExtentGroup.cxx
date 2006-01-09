@@ -104,6 +104,10 @@ namespace {
  */
 Extent ExtentGroup::getBounds() const
 {
+    // Handle special case of an empty group
+    if(empty())
+	return Extent();
+
     // Initialize the tree (when necessary)
     initializeTree();
     
@@ -128,6 +132,10 @@ std::set<ExtentGroup::size_type>
 ExtentGroup::getIntersectionWith(const Extent& extent) const
 {
     std::set<size_type> intersection;
+
+    // Handle special case of an empty group
+    if(empty())
+	return std::set<size_type>();
 
     // Initialize the tree (when necessary)
     initializeTree();
