@@ -540,8 +540,8 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         contextMenu->insertItem(s);
         s = QString("Show Metric: CallTrees");
         contextMenu->insertItem(s);
-s = QString("Show Metric: Butterfly");
-contextMenu->insertItem(s);
+        s = QString("Show Metric: Butterfly");
+        contextMenu->insertItem(s);
         if( !currentCollectorStr.isEmpty() && 
             (currentCollectorStr == "Functions" || currentCollectorStr == "mpi") )
         {
@@ -1574,14 +1574,14 @@ StatsPanel::updateStatsPanelData()
   }
 
 
-// printf("so far: command=(%s) currentCollectorStr=(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentMetricStr.ascii() );
+// printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedMetricStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii(), currentMetricStr.ascii() );
 
-  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("mpi") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("TraceBacks/FullStack") || currentCollectorStr.startsWith("Butterfly") ) )
+  if( mpiFLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) )
   { 
-    if( currentCollectorStr.isEmpty() || currentCollectorStr == "CallTrees" )
+    if( currentUserSelectedMetricStr.isEmpty() || currentUserSelectedMetricStr == "CallTrees" )
     {
       command = QString("expView -x %1 mpi%2 -v CallTrees").arg(expID).arg(numberItemsToDisplayInStats);
-    } else if ( currentCollectorStr == "CallTrees by Selected Function" )
+    } else if ( currentUserSelectedMetricStr == "CallTrees by Selected Function" )
     {
       if( selectedFunctionStr.isEmpty() )
       {
@@ -1592,13 +1592,13 @@ StatsPanel::updateStatsPanelData()
         return;
       }
       command = QString("expView -x %1 mpi%2 -v CallTrees -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
-    } else if ( currentCollectorStr == "TraceBacks" )
+    } else if ( currentUserSelectedMetricStr == "TraceBacks" )
     {
       command = QString("expView -x %1 mpi%2 -v TraceBacks").arg(expID).arg(numberItemsToDisplayInStats);
-    } else if ( currentCollectorStr == "TraceBacks/FullStack" )
+    } else if ( currentUserSelectedMetricStr == "TraceBacks/FullStack" )
     {
       command = QString("expView -x %1 mpi%2 -v TraceBacks,FullStack").arg(expID).arg(numberItemsToDisplayInStats);
-    } else if( currentCollectorStr == "Butterfly" )
+    } else if( currentUserSelectedMetricStr == "Butterfly" )
     {
       if( selectedFunctionStr.isEmpty() )
       {
@@ -1858,6 +1858,9 @@ StatsPanel::collectorMetricSelected(int val)
 // printf("collectorMetricSelected val=%d\n", val);
 // printf("collectorMetricSelected: Full currentCollectorStr=(%s)\n", popupMenu->text(val).ascii() );
 
+
+currentUserSelectedMetricStr = QString::null;
+
   QString s = popupMenu->text(val).ascii();
 
   int index = s.find("Show Metric:");
@@ -1873,12 +1876,12 @@ StatsPanel::collectorMetricSelected(int val)
       // This one resets to all...
     } else 
     { // The user wants to do all the metrics on the selected threads...
-      index = s.find(":");
-      currentCollectorStr = s.mid(13, index-13 );
       currentMetricStr = QString::null;
-      currentUserSelectedMetricStr = QString::null;
-// printf("B2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
-if( currentCollectorStr != "Show Metric: CallTrees by Selected Function" )
+      index = s.find(":");
+//      currentCollectorStr = s.mid(13, index-13 );
+      currentUserSelectedMetricStr = s.mid(13, index-13);
+// printf("B2: currentCollectorStr=(NULL) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
+if( currentUserSelectedMetricStr != "Show Metric: CallTrees by Selected Function" )
 {
   selectedFunctionStr = QString::null;
 }
@@ -2391,11 +2394,10 @@ StatsPanel::outputCLIData(QString *data)
 
 
   SPListViewItem *splvi;
-//  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") ) )
-  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("TraceBacks/FullStack") ) )
+  if( mpiFLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") ) )
   {
     QString indentChar = ">";
-    if( currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("TraceBacks/FullStack") )
+    if( currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") )
     {
       indentChar = "<";
     } 
@@ -2622,6 +2624,19 @@ StatsPanel::findSelectedFunction()
     int eof = tstr.find('(');
     functionStr = tstr.mid(0,eof);
   }
+
+
+  // Now clean up any known noise on the line.
+  if( functionStr.stripWhiteSpace().startsWith("@ ") )
+  {
+    int i = functionStr.find(" in ");
+    if( i != -1 )
+    {
+      QString fstr = functionStr.mid(i+4,9999);
+      functionStr = fstr;
+    }
+  }
+
 
   return( functionStr );
 }
