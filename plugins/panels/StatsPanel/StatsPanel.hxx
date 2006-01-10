@@ -101,6 +101,7 @@ class StatsPanel  : public Panel
 
     SPListView *splv;
 
+    QString lastAbout;
     QString about;
 
     QHBoxLayout *frameLayout;
@@ -189,7 +190,7 @@ ThreadGroupStringList currentThreadGroupStrList;
     void resetRedirect();
 
     SPListViewItem *lastlvi;
-int lastIndentLevel;
+    int lastIndentLevel;
     bool gotHeader;
     bool gotColumns;
     int fieldCount;
@@ -237,6 +238,7 @@ int lastIndentLevel;
     CollectorListObject *clo;
 
 
+    QString findSelectedFunction();
     QString selectedFunctionStr;
 
     SPListViewItem *MYListViewItem( StatsPanel *arg1, SPListViewItem *arg2, SPListViewItem *arg3, QString *strings);

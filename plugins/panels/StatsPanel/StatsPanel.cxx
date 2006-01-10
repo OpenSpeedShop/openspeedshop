@@ -146,6 +146,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   percentIndex = -1;
   gotColumns = FALSE;
   about = QString::null;
+  lastAbout = QString::null;
 // printf("currentItemIndex initialized to 0\n");
 
   f = NULL;
@@ -539,6 +540,8 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         contextMenu->insertItem(s);
         s = QString("Show Metric: CallTrees");
         contextMenu->insertItem(s);
+s = QString("Show Metric: Butterfly");
+contextMenu->insertItem(s);
         if( !currentCollectorStr.isEmpty() && 
             (currentCollectorStr == "Functions" || currentCollectorStr == "mpi") )
         {
@@ -1153,6 +1156,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // printf("A: filename=(%s)\n", filename.ascii() );
 // printf("A: funcString=(%s)\n", funcString.ascii() );
 
+// printf("mpiFLAG=(%d) currentCollectorStr=(%s)\n", mpiFLAG, currentCollectorStr.ascii() );
   if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("TraceBacks/FullStack") ) )
   {
     int bof = -1;
@@ -1539,7 +1543,7 @@ StatsPanel::updateStatsPanelData()
 
   updateThreadsList();
 
-  QString lastAbout = about;
+  lastAbout = about;
 
   nprintf( DEBUG_PANELS) ("Find_Experiment_Object() for %d\n", expID);
 
@@ -1572,7 +1576,7 @@ StatsPanel::updateStatsPanelData()
 
 // printf("so far: command=(%s) currentCollectorStr=(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentMetricStr.ascii() );
 
-  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("mpi") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("TraceBacks/FullStack") ) )
+  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("mpi") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("TraceBacks/FullStack") || currentCollectorStr.startsWith("Butterfly") ) )
   { 
     if( currentCollectorStr.isEmpty() || currentCollectorStr == "CallTrees" )
     {
@@ -1581,28 +1585,11 @@ StatsPanel::updateStatsPanelData()
     {
       if( selectedFunctionStr.isEmpty() )
       {
-        QListViewItem *selected_function_item = NULL;
-        QListViewItemIterator it( splv, QListViewItemIterator::Selected );
-        while( it.current() )
-        {
-          int i = 0;
-          selected_function_item = it.current();
-          break;  // only select one for now...
-          ++it;
-        }
-        if( selected_function_item == NULL || selected_function_item->text(fieldCount-1).isEmpty() )
-        {
-// printf("Whoa!  No function selected.\n");
-          about = lastAbout;
-          return;
-        }
-// printf("selected_function_item->text(%d)=(%s)\n", fieldCount-1, selected_function_item->text(fieldCount-1).ascii() );
-        if( selected_function_item && !selected_function_item->text(fieldCount-1).isEmpty() )
-        {
-          QString tstr = selected_function_item->text(fieldCount-1);
-          int eof = tstr.find('(');
-          selectedFunctionStr = tstr.mid(0,eof);
-        }
+        selectedFunctionStr = findSelectedFunction();
+      }
+      if( selectedFunctionStr.isEmpty() )
+      {
+        return;
       }
       command = QString("expView -x %1 mpi%2 -v CallTrees -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
     } else if ( currentCollectorStr == "TraceBacks" )
@@ -1611,6 +1598,17 @@ StatsPanel::updateStatsPanelData()
     } else if ( currentCollectorStr == "TraceBacks/FullStack" )
     {
       command = QString("expView -x %1 mpi%2 -v TraceBacks,FullStack").arg(expID).arg(numberItemsToDisplayInStats);
+    } else if( currentCollectorStr == "Butterfly" )
+    {
+      if( selectedFunctionStr.isEmpty() )
+      {
+        selectedFunctionStr = findSelectedFunction();
+      }
+      if( selectedFunctionStr.isEmpty() )
+      {
+        return;
+      }
+      command = QString("expView -x %1 mpi%2 -v Butterfly -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
     } else
     {
       command = QString("expView -x %1 mpi%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats);
@@ -2596,6 +2594,36 @@ StatsPanel::MYListViewItem( StatsPanel *arg1, SPListViewItem *arg2, SPListViewIt
   }
 
   return item;
+}
+
+QString
+StatsPanel::findSelectedFunction()
+{
+  QString functionStr = QString::null;
+  QListViewItem *selected_function_item = NULL;
+  QListViewItemIterator it( splv, QListViewItemIterator::Selected );
+  while( it.current() )
+  {
+    int i = 0;
+    selected_function_item = it.current();
+    break;  // only select one for now...
+    ++it;
+  }
+  if( selected_function_item == NULL || selected_function_item->text(fieldCount-1).isEmpty() )
+  {
+// printf("Whoa!  No function selected.\n");
+    about = lastAbout;
+    return QString::null;
+  }
+// printf("selected_function_item->text(%d)=(%s)\n", fieldCount-1, selected_function_item->text(fieldCount-1).ascii() );
+  if( selected_function_item && !selected_function_item->text(fieldCount-1).isEmpty() )
+  {
+    QString tstr = selected_function_item->text(fieldCount-1);
+    int eof = tstr.find('(');
+    functionStr = tstr.mid(0,eof);
+  }
+
+  return( functionStr );
 }
 
 void
