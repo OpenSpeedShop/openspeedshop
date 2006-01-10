@@ -153,6 +153,7 @@ AC_CONFIG_FILES(
 	plugins/collectors/usertime/Makefile
 	plugins/collectors/hwc/Makefile
 	plugins/collectors/hwctime/Makefile
+	plugins/collectors/io/Makefile
 	plugins/collectors/mpi/Makefile
 	plugins/collectors/mpit/Makefile
 	plugins/panels/Makefile

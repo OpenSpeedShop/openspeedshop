@@ -26,7 +26,7 @@ endif
 if HAVE_PAPI
 SUBDIRS += hwc
 if HAVE_LIBUNWIND
-SUBDIRS += hwctime
+SUBDIRS += hwctime io
 endif
 endif
 
