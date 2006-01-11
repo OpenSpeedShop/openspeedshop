@@ -44,6 +44,7 @@ bool First_Column (CommandObject *cmd,
                    std::vector<Collector>& CV,
                    std::vector<std::string>& MV,
                    int64_t Column0index,
+                   std::set<TE>& objects,
                    std::vector<std::pair<TE, CommandResult *> >& items) {
     int64_t i;
 
@@ -53,8 +54,6 @@ bool First_Column (CommandObject *cmd,
             Framework::SmartPtr<std::map<TE, CommandResult *> >(
                 new std::map<TE, CommandResult * >()
                 );
-    std::set<TE> objects;
-    Get_Filtered_Objects (cmd, tgrp, objects);
     if (objects.empty()) {
       return false;
     }
@@ -272,21 +271,27 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     std::vector<std::pair<Function, CommandResult *> > f_items;
     std::vector<std::pair<Statement, CommandResult *> > s_items;
     std::vector<std::pair<LinkedObject, CommandResult *> > l_items;
+    std::set<Function> f_objects;
+    std::set<Statement> s_objects;
+    std::set<LinkedObject> l_objects;
     bool first_column_found = false;
     std::string EO_Title;
     switch (vg) {
      case VIEW_STATEMENTS:
-      first_column_found = First_Column (cmd, tgrp, CV, MV, Column0index, s_items);
+      Get_Filtered_Objects (cmd, exp, tgrp, s_objects);
+      first_column_found = First_Column (cmd, tgrp, CV, MV, Column0index, s_objects, s_items);
       topn = min(topn, (int64_t)s_items.size());
       EO_Title = "Statement Location (Line Number)";
       break;
      case VIEW_LINKEDOBJECTS:
-      first_column_found = First_Column (cmd, tgrp, CV, MV, Column0index, l_items);
+      Get_Filtered_Objects (cmd, exp, tgrp, l_objects);
+      first_column_found = First_Column (cmd, tgrp, CV, MV, Column0index, l_objects, l_items);
       topn = min(topn, (int64_t)l_items.size());
       EO_Title = "LinkedObject";
       break;
      default:
-      first_column_found = First_Column (cmd, tgrp, CV, MV, Column0index, f_items);
+      Get_Filtered_Objects (cmd, exp, tgrp, f_objects);
+      first_column_found = First_Column (cmd, tgrp, CV, MV, Column0index, f_objects, f_items);
       topn = min(topn, (int64_t)f_items.size());
       EO_Title = "Function Name";
       break;

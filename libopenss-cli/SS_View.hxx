@@ -273,139 +273,15 @@ CommandResult *Get_Object_Metric (CommandObject *cmd,
   return (items->begin() != items->end()) ? (*(items->begin())).second : NULL;
 }
 
-template <typename TE>
-bool Cmp_F2Object (std::string F_Name, TE object) {
-  if (F_Name.size() == 0) return false;
-  int64_t len = F_Name.size();
-  int64_t pos = F_Name.find( "/" );
-  if ((pos >= 0) &&
-      (pos < len) &&
-      ((pos != 1) || (F_Name[0] != *"."))) {
-   // Compare path name.
-    return (F_Name == object.getPath());
-  } else {
-   // Compare basename.
-    int64_t dot = F_Name.find( "." );
-    if ((dot >= 0) &&
-        (dot < len)) {
-     // look for exact match.
-      return (F_Name == object.getPath().getBaseName());
-    } else {
-     // Look for partial match.
-      std::string baseName = object.getPath().getBaseName();
-      int64_t subl = baseName.size();
-      int64_t subs = baseName.find (F_Name);
-      return ((subs >= 0) && (subs < subl));
-    }
-  }
-}
 
-inline bool Include_Object (std::string F_Name, Thread thread, LinkedObject object) {
- // F_Name can only be a LinkedObject name.
-  return Cmp_F2Object (F_Name, object);
-}
+void Get_Filtered_Objects (CommandObject *cmd, ExperimentObject *exp,
+                           ThreadGroup& tgrp, std::set<LinkedObject>& objects );
 
-inline  bool Include_Object (std::string F_Name, Thread thread, Function object) {
- // Is the object in the set of previously selected threads?
-  std::set<Thread> tt = object.getThreads();
-  if (tt.find(thread) == tt.end()) return false;
+void Get_Filtered_Objects (CommandObject *cmd, ExperimentObject *exp,
+                           ThreadGroup& tgrp, std::set<Function>& objects );
 
- // Is F_Name a function name?
-  if (F_Name == object.getName()) return true;
-
- // Is F_Name a LinkedObject name?
-  LinkedObject L = object.getLinkedObject();
-  if (Cmp_F2Object (F_Name, L)) return true;
-
- // Is F_Name a containing file name?
-  std::set<Statement> T = object.getDefinitions();
-  for (std::set<Statement>::iterator ti = T.begin(); ti != T.end(); ti++) {
-    Statement st = *ti;
-    std::set<Thread> ts = st.getThreads();
-    if (ts.find(thread) == ts.end()) continue;
-    std::set<Function> tf = st.getFunctions();
-    if (tf.find(object) == tf.end()) continue;
-    if (Cmp_F2Object (F_Name, st)) return true;
-  }
-
-  return false;
-}
-
-inline bool Include_Object (std::string F_Name, Thread thread, Statement object) {
- // Is the object in the set of previously selected threads?
-  std::set<Thread> tt = object.getThreads();
-  if (tt.find(thread) == tt.end()) return false;
-
- // Is F_Name a function name?
-  std::set<Function> tf = object.getFunctions();
-  for (std::set<Function>::iterator fi = tf.begin(); fi != tf.end(); fi++) {
-    Function f = *fi;
-    std::set<Thread> tt = f.getThreads();
-    if (tt.find(thread) == tt.end()) continue;
-    if (F_Name == f.getName()) return true;
-  }
-
- // Is F_Name a LinkedObject name?
-  LinkedObject L = object.getLinkedObject();
-  if (Cmp_F2Object (F_Name, L)) return true;
-
- // Is F_Name a containing file name?
-  if (Cmp_F2Object (F_Name, object)) return true;
-
-  return false;
-}
-
-template <typename TE>
-void Get_Filtered_Objects (CommandObject *cmd, ThreadGroup& tgrp, std::set<TE >& objects ) {
-  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
-  bool has_f = false;
-  OpenSpeedShop::cli::ParseTarget pt;
-  vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
-  if (p_tlist->begin() != p_tlist->end()) {
-    // There is a list.  Is there a "-f" specifier?
-    pt = *p_tlist->begin(); // There can only be one!
-    f_list = pt.getFileList();
-    has_f = !((f_list == NULL) || f_list->empty());
-  }
-
-  for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-
-   // Check for asnychonous abort command
-    if (cmd->Status() == CMD_ABORTED) {
-      return;
-    }
-
-    Thread thread = *ti;
-    std::set<TE> threadObjects;
-    OpenSpeedShop::Queries::GetSourceObjects(thread, threadObjects);
-    if (has_f) {
-     // Only include selected objects.
-      bool object_inserted = false;
-      vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
-      for (typename std::set<TE>::iterator newi = threadObjects.begin();
-                // ((newi != threadObjects.end()) && (!object_inserted));
-                newi != threadObjects.end();
-                newi++) {
-        TE new_object = *newi;
-        for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
-          OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
-          OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
-          Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
-          std::string F_Name = pval1.name;
-          if (Include_Object (F_Name, thread, new_object)) {
-            objects.insert(new_object);
-            object_inserted = true;
-            break;
-          }
-        }
-      }
-    } else {
-     // Include everything.
-      objects.insert(threadObjects.begin(), threadObjects.end());
-    }
-  }
-}
+void Get_Filtered_Objects (CommandObject *cmd, ExperimentObject *exp,
+                           ThreadGroup& tgrp, std::set<Statement>& objects );
 
 
 ViewType *Find_View (std::string viewname);
