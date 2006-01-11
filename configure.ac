@@ -172,6 +172,7 @@ AC_CONFIG_FILES(
 	plugins/views/Makefile
 	plugins/views/basic/Makefile
 	plugins/views/mpi/Makefile
+	plugins/views/io/Makefile
 	plugins/wizards/Makefile
 	plugins/wizards/IntroWizardPanel/Makefile
 	plugins/wizards/pcSampleWizardPanel/Makefile
