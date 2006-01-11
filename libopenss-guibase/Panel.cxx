@@ -51,6 +51,7 @@ class QTabWidget;
 #include <qsplitter.h>
 
 #include <qtimer.h>
+#include <qaction.h>
 
 #include "PluginInfo.hxx"
 
@@ -69,7 +70,6 @@ Panel::Panel(PanelContainer *pc, const char *n) : QWidget(pc, n)
 
   pluginInfo = NULL;
   contextMenu = NULL;
-  recycleID = 0;
   recycleFLAG = TRUE;
 
   groupID = 0;
@@ -186,14 +186,23 @@ bool Panel::menu(QPopupMenu* _contextMenu)
   nprintf(DEBUG_PANELS) ("Panel::menu() entered\n");
 
   contextMenu = _contextMenu;
-  recycleID = contextMenu->insertItem("Recycle", this, SLOT(toggleRecycle()) );
   contextMenu->setCheckable(TRUE);
-  contextMenu->setItemChecked(recycleID, recycleFLAG);
+  QAction *qaction = new QAction(this, "toggleRecycleMenuItem");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Recycle") );
+  qaction->setToggleAction(TRUE);
+  qaction->setOn(recycleFLAG);
+  connect( qaction, SIGNAL( activated() ), this, SLOT(toggleRecycle()) );
+  qaction->setToolTip(tr("Recycle this panel..."));
 
 // printf("Panel::menu() pluginInfo=0x%x\n", pluginInfo);
   if( pluginInfo->initialize_preferences_entry_point != NULL )
   {
-    contextMenu->insertItem("Preference Panel", this, SLOT(raisePreferencePanel()) );
+    QAction *qaction = new QAction(this, "preferencePanelMenuItem");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Preference Panel...") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT(raisePreferencePanel()) );
+    qaction->setToolTip(tr("Raise the Preference Panel..."));
   }
   
 
@@ -320,10 +329,6 @@ Panel::toggleRecycle()
   } else
   {
     recycleFLAG = TRUE;
-  }
-  if( contextMenu )
-  {
-    contextMenu->setItemChecked(recycleID, recycleFLAG);
   }
 }
 

@@ -111,7 +111,6 @@ public:
     PluginInfo *pluginInfo;
 
     QPopupMenu* contextMenu;
-    int recycleID;
     bool recycleFLAG;
 
 protected:

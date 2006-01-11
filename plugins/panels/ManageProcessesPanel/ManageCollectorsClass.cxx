@@ -1701,12 +1701,12 @@ psetListView->contentsMouseReleaseEvent(NULL);
     leftSide = FALSE;
 
     // If this is a root node, there's no selection available.  Ignore..
-QListViewItemIterator it(psetListView, QListViewItemIterator::Selected);
-while( it.current() )
-{
-  selectedItem = (MPListViewItem *)it.current();
-  break;
-}
+    QListViewItemIterator it(psetListView, QListViewItemIterator::Selected);
+    while( it.current() )
+    {
+      selectedItem = (MPListViewItem *)it.current();
+      break;
+    }
     if( !selectedItem || selectedItem->parent() == NULL )
     {
       psetListView->clearSelection();
@@ -1742,16 +1742,17 @@ while( it.current() )
   qaction = new QAction( this,  "focusOnProcess");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Focus on Process(es)...") );
-if( leftSide == TRUE ) 
-{
-// printf("LEFT SIDE MENU\n");
-  connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnProcessSelected() ) );
-} else
-{
-// printf("RIGHT SIDE MENU\n");
-  connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnPSetSelected() ) );
-}
-  qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
+  if( leftSide == TRUE ) 
+  {
+  // printf("LEFT SIDE MENU\n");
+    connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnProcessSelected() ) );
+    qaction->setStatusTip( tr("Focus on selected process(es).") );
+  } else
+  {
+  // printf("RIGHT SIDE MENU\n");
+    connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnPSetSelected() ) );
+    qaction->setStatusTip( tr("Focus on selected process(es).") );
+  }
 
   // If we can't select this item, leave it here, but disable it.
   if( !selectable ) 

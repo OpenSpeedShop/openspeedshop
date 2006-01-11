@@ -142,9 +142,6 @@ ThreadGroupStringList currentThreadGroupStrList;
     SPListViewItem *currentItem;
     int currentItemIndex;
 
-    int showPercentageID;
-    bool showPercentageFLAG;
-
     QPopupMenu *threadMenu;
     QPopupMenu *modifierMenu;
     QPopupMenu *popupMenu;   // Pointer to the contextMenu
@@ -166,7 +163,6 @@ ThreadGroupStringList currentThreadGroupStrList;
     void details();
     void updatePanel();
     void gotoSource(bool use_current_item = FALSE);
-    void showPercentageSelected();
     void aboutSelected();
     void compareSelected();
     void manageProcessesSelected();

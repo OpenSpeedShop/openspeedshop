@@ -239,7 +239,7 @@ SourcePanel::menu(QPopupMenu* contextMenu)
   qaction->addTo( contextMenu );
   qaction->setText( tr("Export Data...") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( saveAs() ) );
-  qaction->setStatusTip( tr("Save panel to ascii file.") );
+  qaction->setToolTip( tr("Save panel to ascii file.") );
 
   contextMenu->insertSeparator();
 
@@ -247,13 +247,13 @@ SourcePanel::menu(QPopupMenu* contextMenu)
   qaction->addTo( contextMenu );
   qaction->setText( tr("Open New...") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( chooseFile() ) );
-  qaction->setStatusTip( tr("Open a new file and load it into panel.") );
+  qaction->setToolTip( tr("Open a new file and load it into panel.") );
 
   qaction = new QAction( this,  "gotoLine");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Goto Line...") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( goToLine() ) );
-  qaction->setStatusTip( tr("Goto a specific source line.") );
+  qaction->setToolTip( tr("Goto a specific source line.") );
 
   if( expID > 0 )
   {
@@ -261,7 +261,7 @@ SourcePanel::menu(QPopupMenu* contextMenu)
     qaction->addTo( contextMenu );
     qaction->setText( tr("Goto Function...") );
     connect( qaction, SIGNAL( activated() ), this, SLOT( goToFunction() ) );
-    qaction->setStatusTip( tr("Goto a specific function.") );
+    qaction->setToolTip( tr("Goto a specific function.") );
   }
   if( line_numbersFLAG == TRUE )
   {
@@ -269,14 +269,14 @@ SourcePanel::menu(QPopupMenu* contextMenu)
     qaction->addTo( contextMenu );
     qaction->setText( tr("Hide Line Numbers") );
     connect( qaction, SIGNAL( activated() ), this, SLOT( showLineNumbers() ) );
-    qaction->setStatusTip( tr("Hide the line numbers.") );
+    qaction->setToolTip( tr("Hide the line numbers.") );
   } else
   {
     qaction = new QAction( this,  "showLineNumbers");
     qaction->addTo( contextMenu );
     qaction->setText( tr("Show Line Numbers") );
     connect( qaction, SIGNAL( activated() ), this, SLOT( showLineNumbers() ) );
-    qaction->setStatusTip( tr("Show line numbers.") );
+    qaction->setToolTip( tr("Show line numbers.") );
   }
   if( statsFLAG == TRUE )
   {
@@ -284,21 +284,21 @@ SourcePanel::menu(QPopupMenu* contextMenu)
     qaction->addTo( contextMenu );
     qaction->setText( tr("Hide Statistics") );
     connect( qaction, SIGNAL( activated() ), this, SLOT( showCanvasForm() ) );
-    qaction->setStatusTip( tr("Hide statistics canvas.") );
+    qaction->setToolTip( tr("Hide statistics canvas.") );
   } else
   {
     qaction = new QAction( this,  "showStatistics");
     qaction->addTo( contextMenu );
     qaction->setText( tr("Show Statistics") );
     connect( qaction, SIGNAL( activated() ), this, SLOT( showCanvasForm() ) );
-    qaction->setStatusTip( tr("Show statistics canvas. (Currently unimplemented.)") );
+    qaction->setToolTip( tr("Show statistics canvas.") );
   }
 
   qaction = new QAction( this,  "findString");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Find...") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( findString() ) );
-  qaction->setStatusTip( tr("Search for a string in this source panel.") );
+  qaction->setToolTip( tr("Search for a string in this source panel.") );
 
   contextMenu->insertSeparator();
 
@@ -306,13 +306,13 @@ SourcePanel::menu(QPopupMenu* contextMenu)
   qaction->addTo( contextMenu );
   qaction->setText( tr("Zoom In") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( zoomIn() ) );
-  qaction->setStatusTip( tr("Makes the font larger.") );
+  qaction->setToolTip( tr("Makes the font larger.") );
 
   qaction = new QAction( this,  "zoomOut");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Zoom Out") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( zoomOut() ) );
-  qaction->setStatusTip( tr("Makes the font smaller.") );
+  qaction->setToolTip( tr("Makes the font smaller.") );
 
   return( TRUE );
 }

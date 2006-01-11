@@ -164,8 +164,6 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   expID = -1;
   descending_sort = true;
   TotalTime = 0;
-  showPercentageID = -1;
-  showPercentageFLAG = TRUE;
 
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
@@ -203,7 +201,6 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   if( pc->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
   {
     chartFLAG = TRUE;
-    showPercentageFLAG = TRUE;
     cf->show();
   } else
   {
@@ -533,21 +530,41 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 // printf("currentCollectorStr=%s\n", currentCollectorStr.ascii() );
       if( QString(collector_name).startsWith("mpi::exclusive_times") )
       {
-        QString s = QString("Show Metric: Functions");
-        contextMenu->insertItem(s);
-        s = QString("Show Metric: TraceBacks");
-        contextMenu->insertItem(s);
-        s = QString("Show Metric: TraceBacks/FullStack");
-        contextMenu->insertItem(s);
-        s = QString("Show Metric: CallTrees");
-        contextMenu->insertItem(s);
-        s = QString("Show Metric: Butterfly");
-        contextMenu->insertItem(s);
+        QString s = QString::null;
+
+        QAction *qaction = new QAction(this, "showFunctions");
+        qaction->addTo( contextMenu );
+        qaction->setText( tr("Show Metric: Functions") );
+        qaction->setToolTip(tr("Show timings for MPI Functions."));
+
+        qaction = new QAction(this, "showTracebacks");
+        qaction->addTo( contextMenu );
+        qaction->setText( tr("Show Metric: TraceBacks") );
+        qaction->setToolTip(tr("Show tracebacks to MPI Functions."));
+
+
+        qaction = new QAction(this, "showTracebacks/FullStack");
+        qaction->addTo( contextMenu );
+        qaction->setText( tr("Show Metric: TraceBacks/FullStack") );
+        qaction->setToolTip(tr("Show tracebacks, with full stacks, to MPI Functions."));
+
+        qaction = new QAction(this, "showCallTrees");
+        qaction->addTo( contextMenu );
+        qaction->setText( tr("Show Metric: CallTrees") );
+        qaction->setToolTip(tr("Show Call Trees to each MPI Functions."));
+
+        qaction = new QAction(this, "showButterfly");
+        qaction->addTo( contextMenu );
+        qaction->setText( tr("Show Metric: Butterfly") );
+        qaction->setToolTip(tr("Show Butterfly view (caller/callees) for selected function."));
+
         if( !currentCollectorStr.isEmpty() && 
             (currentCollectorStr == "Functions" || currentCollectorStr == "mpi") )
         {
-          s = QString("Show Metric: CallTrees by Selected Function");
-          contextMenu->insertItem(s);
+          qaction = new QAction(this, "showCallTreesBySelectedFunction");
+          qaction->addTo( contextMenu );
+          qaction->setText( tr("Show Metric: CallTrees by Selected Function") );
+          qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
         }
         if( modifierMenu )
         {
@@ -644,9 +661,6 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     connect( qaction, SIGNAL( activated() ), this, SLOT( manageProcessesSelected() ) );
     qaction->setStatusTip( tr(QString("There are over %1 processes to manage.  This brings up the Manage Processes\nPanel which is designed to handle large number of procesess/threads.").arg(MAX_PROC_MENU_DISPLAY)) );
   }
-
-  showPercentageID = contextMenu->insertItem("Show Percentages", this, SLOT(showPercentageSelected()) );
-  contextMenu->setItemChecked(showPercentageID, showPercentageFLAG);
 
   contextMenu->insertSeparator();
 
@@ -946,23 +960,6 @@ StatsPanel::gotoSource(bool use_current_item)
   }
 
   itemSelected(lvi);
-}
-
-void
-StatsPanel::showPercentageSelected()
-{
-  if( showPercentageFLAG == TRUE )
-  {
-    showPercentageFLAG = FALSE;
-  } else
-  {
-    showPercentageFLAG = TRUE;
-  }
-  if( contextMenu )
-  {
-    contextMenu->setItemChecked(showPercentageID, showPercentageFLAG);
-  }
-  updateStatsPanelData();
 }
 
 void
@@ -1550,7 +1547,7 @@ StatsPanel::updateStatsPanelData()
 
   QString command = QString("expView -x %1").arg(expID);
   about = QString("Experiment: %1\n").arg(expID);
-  if( currentCollectorStr.isEmpty() || showPercentageFLAG == FALSE )
+  if( currentCollectorStr.isEmpty() )
   {
     command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
     about += QString("Requested data for all collectors for top %1 items\n").arg(numberItemsToDisplayInStats);
@@ -1759,8 +1756,8 @@ StatsPanel::updateStatsPanelData()
   }
 
   // Or were there no percents in the initial query.
-// printf("total_percent = %f showPercentageFLAG = %d\n", total_percent, showPercentageFLAG );
-  if( total_percent == 0.0 || showPercentageFLAG == FALSE )
+// printf("total_percent = %f\n", total_percent );
+  if( total_percent == 0.0 )
   {
     cpvl.clear();
     ctvl.clear();
@@ -2451,11 +2448,13 @@ if( currentUserSelectedMetricStr.startsWith("Butterfly") )
         indent_level = strings[fieldCount-1].find(rxp);
         strippedString1 = strings[fieldCount-1].mid(indent_level,9999);
         strings[fieldCount-1] = strippedString1;
-// Pretty up the format a bit.
-if( currentUserSelectedMetricStr.startsWith("Butterfly") )
-{
-  strings[fieldCount-1].replace(0,0,QString("  ")); // This is the bad boy
-}
+
+        // Pretty up the format a bit.
+        if( currentUserSelectedMetricStr.startsWith("Butterfly") )
+        {
+          strings[fieldCount-1].replace(0,0,QString("  ")); // This is the bad boy
+        }
+
         if( indent_level == -1 )
         {
           fprintf(stderr, "Error in determining depth for (%s).\n", strippedString1.ascii() );
