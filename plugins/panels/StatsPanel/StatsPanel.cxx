@@ -178,6 +178,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   cf->setCaption("SPChartFormIntoSplitterA");
 
   splv = new SPListView(this, splitterA, getName(), 0);
+  splv->setSorting ( -1 );
 
   connect( splv, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
 
@@ -2394,9 +2395,10 @@ StatsPanel::outputCLIData(QString *data)
 
 
   SPListViewItem *splvi;
-  if( mpiFLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") ) )
+  if( mpiFLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) )
   {
     QString indentChar = ">";
+
     if( currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") )
     {
       indentChar = "<";
@@ -2404,12 +2406,41 @@ StatsPanel::outputCLIData(QString *data)
     bool indented = strings[fieldCount-1].startsWith(indentChar);
     int indent_level = 0;
 
+// Pretty the output up a bit.
+if( currentUserSelectedMetricStr.startsWith("Butterfly") )
+{
+  if( indented )
+  {
+//    strings[fieldCount-1].replace(0,1,"  "); // This is the bad boy
+  } else if( strings[fieldCount-1].startsWith("<") )
+  {
+    strings[fieldCount-1].remove("<");
+  } else
+  {
+    strings[fieldCount-1].insert(0," ");
+  }
+// printf("here (%s)\n", strings[fieldCount-1].ascii() );
+}
+
 
 // printf("indented = (%d)\n", indented );
-// printf("%d %s %s\n", indented, strings[0].ascii(), strings[fieldCount-1].ascii() );
+// printf("%d (%s) (%s)\n", indented, strings[0].ascii(), strings[fieldCount-1].ascii() );
   
     if( !indented )
     {
+// printf("indent_level=zero lastIndentLevel=%d\n", indent_level, lastIndentLevel );
+      // If it's not indented, make sure if is put after the last
+      // root node.
+      if( lastlvi )
+      {
+        SPListViewItem *topParent = (SPListViewItem *)lastlvi->parent();
+        while( topParent )
+        {
+          lastlvi = topParent;
+          topParent = (SPListViewItem *)topParent->parent();
+        }
+// printf("Put after (%s) \n", lastlvi->text(fieldCount-1).ascii() );
+      }
       lastlvi = splvi =  MYListViewItem( this, splv, lastlvi, strings);
       lastIndentLevel = 0;
     } else
@@ -2420,9 +2451,13 @@ StatsPanel::outputCLIData(QString *data)
         indent_level = strings[fieldCount-1].find(rxp);
         strippedString1 = strings[fieldCount-1].mid(indent_level,9999);
         strings[fieldCount-1] = strippedString1;
+// Pretty up the format a bit.
+if( currentUserSelectedMetricStr.startsWith("Butterfly") )
+{
+  strings[fieldCount-1].replace(0,0,QString("  ")); // This is the bad boy
+}
         if( indent_level == -1 )
         {
-//        fprintf(stderr, "Error in determining depth for (%s).\n", strings[1].ascii() );
           fprintf(stderr, "Error in determining depth for (%s).\n", strippedString1.ascii() );
 
         }
@@ -2430,11 +2465,10 @@ StatsPanel::outputCLIData(QString *data)
         if( indent_level > lastIndentLevel )
         {
 // printf("A: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(fieldCount-1).ascii(), lastlvi->text(fieldCount-1).ascii() );
-//          lastlvi = splvi =  new SPListViewItem( this, lastlvi, lastlvi, strings[0], strippedString1 );
           lastlvi = splvi =  MYListViewItem( this, lastlvi, lastlvi, strings);
         } else
         {
-// printf("Go figure out the right leaf to put this in...\n");
+// printf("Go figure out the right leaf to put this in...(%s) \n", strings[1].ascii() );
 
           SPListViewItem *mynextlvi = lastlvi;
           SPListViewItem *after = NULL;
@@ -2463,12 +2497,10 @@ StatsPanel::outputCLIData(QString *data)
             after = (SPListViewItem *)after->nextSibling();
           }
 // printf("C: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(fieldCount-1).ascii(), after->text(fieldCount-1).ascii() );
-//          lastlvi = splvi =  new SPListViewItem( this, lastlvi, after, strings[0], strippedString1 );
           lastlvi = splvi = MYListViewItem( this, lastlvi, after, strings );
         }
       } else
       {
-//      fprintf(stderr, "Error in chaining child (%s) to tree.\n", strings[1].ascii() );
         fprintf(stderr, "Error in chaining child (%s) to tree.\n", strippedString1.ascii() );
       }
     }
@@ -2477,7 +2509,10 @@ StatsPanel::outputCLIData(QString *data)
 // printf("  indent_level=%d\n", indent_level );
     if( indent_level < levelsToOpen || levelsToOpen == -1 )
     {
-          lastlvi->setOpen(TRUE);
+      if( lastlvi )
+      {
+        lastlvi->setOpen(TRUE);
+      }
     }
 // printf("open lastlvi=(%s)\n", lastlvi->text(fieldCount-1).ascii() );
 
@@ -2638,7 +2673,7 @@ StatsPanel::findSelectedFunction()
   }
 
 
-  return( functionStr );
+  return( functionStr.stripWhiteSpace() );
 }
 
 void
