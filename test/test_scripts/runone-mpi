@@ -112,14 +112,14 @@ def CompareResults(testName, fileptr):
 		failure_reason = 2
 		
 	if (failure_reason == 0 ):
-		fileptr.write(testName + ' has PASSED ')
+		fileptr.write(testName + ' has PASSED.\n ')
 	else:
-		fileptr.write(testName + ' has FAILED.  ')
+		fileptr.write(testName + ' has FAILED. ')
 
 		if (failure_reason == 3):
-			fileptr.write('Looks like openss crashed. ')
+			fileptr.write('Looks like openss crashed. \n')
 		if (failure_reason == 2):
-			fileptr.write('Some of the expected functions are missing.')
+			fileptr.write('Some of the expected functions are missing. \n')
 
 
 if __name__ == '__main__':
