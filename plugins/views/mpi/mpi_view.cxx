@@ -366,14 +366,14 @@ static SmartPtr<std::vector<CommandResult *> >
   call_stack = Framework::SmartPtr<std::vector<CommandResult *> >(
                            new std::vector<CommandResult *>()
                            );
-  if (bias == -1) {
+  if (bias < 0) {
     call_stack->push_back (CRPTR(""));
     call_stack->push_back (Dup_CommandResult ((*cs)[idx-1]) );
   }
   if (bias == 0) {
     call_stack->push_back (Dup_CommandResult ((*cs)[idx]) );
   }
-  if (bias == +1) {
+  if (bias > 0) {
     call_stack->push_back (CRPTR(""));
     call_stack->push_back (Dup_CommandResult ((*cs)[idx+1]) );
   }
@@ -618,13 +618,9 @@ static void Extract_Pivot_Items (
               bool TraceBack_Order,
               std::vector<std::pair<CommandResult_CallStackEntry *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items,
-              std::string F_Name,
+              Function& func,
               std::vector<std::pair<CommandResult_CallStackEntry *,
                                     SmartPtr<std::vector<CommandResult *> > > >& result) {
- // Convert the function name to a Function object for easaier comparisons
- // than using the character string name will allow.
-  std::set<Function> FS = exp->FW()->getFunctionsByNamePattern (F_Name);
-
   bool pivot_added = false;
   std::pair<CommandResult_CallStackEntry *,
             SmartPtr<std::vector<CommandResult *> > > pivot;
@@ -644,7 +640,7 @@ static void Extract_Pivot_Items (
     for (int64_t i = 0; i < cs->size(); i++) {
       CommandResult *cof = (*cs)[i];
       if ((cof->Type() == CMD_RESULT_FUNCTION) &&
-          (FS.find(*(CommandResult_Function *)cof) != FS.end())) {
+          ((*(CommandResult_Function *)cof) == func)) {
        // Insert intermediate, dummy entry to fill a gap in the trace.
         if (!pivot_added) {
           SmartPtr<std::vector<CommandResult *> > vcs = Copy_CRVector (cp.second);
@@ -658,7 +654,6 @@ static void Extract_Pivot_Items (
         }
         if (i != 0) {
           SmartPtr<std::vector<CommandResult *> > vcs = Copy_CRVector (cp.second);
-          // SmartPtr<std::vector<CommandResult *> > ncs = Dup_Call_Stack (i, cs);
           SmartPtr<std::vector<CommandResult *> > ncs = Copy_Call_Stack_Entry (i, -1, cs);
           CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (ncs,
                                                                                 !TraceBack_Order);
@@ -666,7 +661,6 @@ static void Extract_Pivot_Items (
         }
         if ((i+1) < cs->size()) {
           SmartPtr<std::vector<CommandResult *> > vcs = Copy_CRVector (cp.second);
-          // SmartPtr<std::vector<CommandResult *> > ncs = Dup_Call_Stack (i+2, cs);
           SmartPtr<std::vector<CommandResult *> > ncs = Copy_Call_Stack_Entry (i, +1, cs);
           CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (ncs,
                                                                                 TraceBack_Order);
@@ -687,36 +681,6 @@ static void Extract_Pivot_Items (
       result.insert(result.end(), succ.begin(), succ.end());
     }
   }
-}
-
-static void Build_ButterFly_View (
-              CommandObject * cmd,
-              ExperimentObject *exp,
-              bool TraceBack_Order,
-              std::vector<std::pair<CommandResult_CallStackEntry *,
-                                    SmartPtr<std::vector<CommandResult *> > > >& c_items) {
-  std::vector<std::pair<CommandResult_CallStackEntry *,
-                        SmartPtr<std::vector<CommandResult *> > > > result;
- // Extract only the requested functions.
-  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
-  if (p_tlist->begin() != p_tlist->end()) {
-   // There is a list.  Is there a "-f" specifier?
-    OpenSpeedShop::cli::ParseTarget pt = *p_tlist->begin(); // There can only be one!
-    vector<OpenSpeedShop::cli::ParseRange> *f_list = pt.getFileList();
-    if ((f_list != NULL) && !(f_list->empty())) {
-     // Foreach function name, build a ButterFly view.
-      vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
-      for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
-        OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
-        OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
-        Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
-        std::string F_Name = pval1.name;
-        Extract_Pivot_Items (cmd, exp, TraceBack_Order, c_items, F_Name, result);
-      }
-    }
-  }
-  c_items = result;
 }
 
 static void Expand_CallStack (
@@ -992,7 +956,6 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
     }
     if ((ViewInst[0]->OpCode() != VIEWINST_Display_Metric)  &&
         (ViewInst[0]->OpCode() != VIEWINST_Display_Tmp)) {
-      std::string s("(The first column is not a metric.)");
       Mark_Cmd_With_Soft_Error(cmd, "(The first column is not a metric.)");
       return false;   // There is nothing to sort on.
     }
@@ -1120,7 +1083,8 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
       CV[0].unlockDatabase();
 
       Combine_Duplicate_CallStacks (c_items);
-      if (topn < (int64_t)c_items.size()) {
+      if ((topn < (int64_t)c_items.size()) &&
+          !Look_For_KeyWord(cmd, "ButterFly")) {
        // Determine the topn items.
         std::sort(c_items.begin(), c_items.end(),
                 sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *,
@@ -1216,16 +1180,37 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
         OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
         OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
         Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
-        std::vector<std::pair<CommandResult_CallStackEntry *,
-                              SmartPtr<std::vector<CommandResult *> > > > result;
-        Extract_Pivot_Items (cmd, exp, TraceBack_Order, c_items, pval1.name, result);
-        if (MoreThanOne) cmd->Result_RawString("");  // Delimiter between items is a null string.
-        Form_CallStack_Output (cmd, topn, tgrp, CV, MV, IV,
-                               num_columns,
-                               Gen_Total_Percent, percentofcolumn, TotalValue,
-                               result);
-        MoreThanOne = true;
+        std::set<Function> FS = exp->FW()->getFunctionsByNamePattern (pval1.name);
+        std::set<Function>::iterator fsi;
+        for (fsi = FS.begin(); fsi != FS.end(); fsi++) {
+          std::vector<std::pair<CommandResult_CallStackEntry *,
+                                SmartPtr<std::vector<CommandResult *> > > > result;
+          Function func = *fsi;
+          Extract_Pivot_Items (cmd, exp, TraceBack_Order, c_items, func, result);
+          if (!result.empty()) {
+            if (MoreThanOne) cmd->Result_RawString("");  // Delimiter between items is a null string.
+            Form_CallStack_Output (cmd, topn, tgrp, CV, MV, IV,
+                                   num_columns,
+                                   Gen_Total_Percent, percentofcolumn, TotalValue,
+                                   result);
+            MoreThanOne = true;
+          }
+        }
       }
+
+     // NOW, we need to delete the base vector and its data.
+      std::vector<std::pair<CommandResult_CallStackEntry *,
+                            SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+      for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+       // Foreach CallStack entry, look for duplicates and missing intermediates.
+        std::pair<CommandResult_CallStackEntry *,
+                  SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
+        delete cp.first;
+        for (int64_t i = 0; i < (*cp.second).size(); i++) {
+          delete (*cp.second)[i];
+        }
+      }
+
     } else {
       Form_CallStack_Output (cmd, topn, tgrp, CV, MV, IV,
                              num_columns,
@@ -1324,7 +1309,11 @@ static void define_columns (CommandObject *cmd,
                                               (num_predefine_temps+max_temp)));
           }
           last_column++;
-        } else if (!strcasecmp(M_Name.c_str(), "count") && !count_used) {
+        } else if (!count_used &&
+                   (!strcasecmp(M_Name.c_str(), "count") ||
+                    !strcasecmp(M_Name.c_str(), "counts") ||
+                    !strcasecmp(M_Name.c_str(), "call") ||
+                    !strcasecmp(M_Name.c_str(), "calls"))) {
          // fourth temp is total counts
           count_used = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, cnt_temp));
@@ -1364,6 +1353,9 @@ static void define_columns (CommandObject *cmd,
                                               (num_predefine_temps+cnt_temp)));
           }
           last_column++;
+        } else {
+          Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
+          return;
         }
       }
     }
@@ -1427,7 +1419,7 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
                                       " the end of the report that summarizes the information in each column."
                                       "\n\t'-v ButterFly' along with a '-f <function_list>' will produce a report"
                                       " that summarizes the calls to a function and the calls from the function."
-                                      " The calling functions will be listed before the names function and the"
+                                      " The calling functions will be listed before the named function and the"
                                       " called functions afterwards, by default, although the addition of"
                                       " 'TraceBacks' to the '-v' specifier will reverse this ordering."
                                       "\n\nAdditional information can be requested with the '-m' option.  Items"
