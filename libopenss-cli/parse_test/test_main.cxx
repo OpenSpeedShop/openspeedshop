@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 
+#include "Python.h"
 #include "SS_Input_Manager.hxx"
 
 using namespace std;
