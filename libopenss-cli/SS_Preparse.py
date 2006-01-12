@@ -67,7 +67,6 @@ def cmd_parse(args):
 	if type(args[ndx]) is types.LongType:
 	    args[ndx] = str(args[ndx])
 
-    #print "args: ",args
     # Replace pseudo quotes with the real thing
     args = pseudo_quote_check(args)
 
@@ -77,13 +76,82 @@ def cmd_parse(args):
     if count > 0:
         blank_delim = " "
         zusamen = blank_delim.join(args[:count])
-        #print "zusamen=" , zusamen
-        #print "cmd_is_assignment", cmd_is_assignment
+
         if myparse.cmd_is_assignment is not 0:
             PY_Input.SetAssign (1)
         return PY_Input.CallParser (zusamen)
 
     pass
+
+################################################################################
+#
+# cmd_parse
+#
+# Find all parts that either end or begin with
+# a colon (range) or comma (list) and join that
+# part with part next to the character in question. 
+# 
+# This is for cases like:
+#   -p 111 ,222, 333 : 444 , 555
+# We want them to become:
+#   -p 111,222,333:444,555
+#
+# I am going to assume that parts[i] represents the first
+# element we care about and parts[count-1] the last. Thus
+# we don't have to check the beginning of parts[i] and the
+# ending of parts[count-1].
+#
+################################################################################
+def compact_list_range(parts,i,count):
+
+    zero_delim = ""
+
+    i_start = i
+    check_back = 1
+
+    while i < count:
+    	# Is this the last list item?
+    	if i == count-1:
+	    check_back = 0
+	else:
+    	    # Lump following item with current item
+	    #print i, count, parts
+    	    post_arg  = parts[i+1]
+    	    post_len = len(post_arg)
+
+	# Current lump
+    	cur_arg  = parts[i]
+    	cur_len = len(cur_arg)
+	do_merge = 0
+
+	if check_back == 1:
+	    # comma check
+    	    if cur_arg[cur_len-1] == ',' or post_arg[0] == ',':
+	    	do_merge = 1
+	    # colon check
+    	    elif cur_arg[cur_len-1] == ':' or post_arg[0] == ':':
+	    	# Merge this and following node
+	    	do_merge = 1
+
+	    if do_merge == 1:
+	    	# Merge this and following node
+		t_arg = parts[i]+parts[i+1]
+		t_parts = parts[0:i+1]
+		t_parts[i] = t_arg
+
+		if i+2 < count:
+    	    	    parts = t_parts+parts[i+2:count]
+	    	else:
+		    parts = t_parts
+		
+		# Merging the two elements reduces the size
+		# of the python array we are processing.
+		count = count-1
+ 
+    	if do_merge == 0:
+    	    i = i+1
+	
+    return (parts,i_start,count)
 
 ################################################################################
 #
@@ -98,7 +166,6 @@ def cmd_parse(args):
 ################################################################################
 def cloak_list_range(parts,i,count,is_name):
 
-    #print 'in cloak_list(',arg,')'
     arg = parts[i]
 
     # Check for prequoated symbols.
@@ -115,7 +182,6 @@ def cloak_list_range(parts,i,count,is_name):
 	    # The assumption here is that the first character is always kosher
 	    t_arg = arg[0]
 	    arg_len = len(arg)
-	    #print arg_len
 	    j = 1
 	    while j < arg_len:
 	    	c = arg[j]
@@ -128,8 +194,6 @@ def cloak_list_range(parts,i,count,is_name):
 
     	    parts[i] = t_arg
 
-    #print arg
-    #return arg
     return (parts,i+1,count)
 
 ################################################################################
@@ -150,12 +214,10 @@ def match_quotes(parts,i,count):
 
     blank_delim = " "
 
-    #print "first", " ",parts, " ",i," ",count
     i_start = i
     while i < count:
     	arg  = parts[i]
     	arg_len = len(arg)
-	#print arg_len," ",arg," ",[arg_len-1]
     	if arg[arg_len-1] ==    '"':
 	    # check if single part 
 	    if i_start == i:
@@ -164,8 +226,6 @@ def match_quotes(parts,i,count):
     	    	t_arg = blank_delim.join(parts[i_start:i+1])
 		t_arg = t_arg[1:len(t_arg)-1]
 
-		#print "t_arg: ", t_arg
-		
 	    	if i_start == 0:
 	    	    t_parts[0] = t_arg
 		else:
@@ -177,14 +237,12 @@ def match_quotes(parts,i,count):
 		    t_parts = t_parts+parts[i+1:count]
 		count = count - (i-i_start)
 
-    	    	#print "second", " ",t_parts, " ",i_start+1," ",count
     	    	t_parts[i_start] = '"-z' + t_parts[i_start] + '-z"'
 
 		return (t_parts,i_start+1,count)
 
 	i = i+1
 
-    #print "last", " ",parts, " ",i_start+1," ",count
     return (parts,i_start+1,count)
 
 ################################################################################
@@ -349,6 +407,11 @@ def preParseArgs(line, command_dict, str_opts_dict, num_opts_dict):
             func_ndx = ndx
 
 	    i = ndx+1
+	    
+	    #Get rid of spaces within lists and ranges
+	    #print parts, i, count
+	    parts,i,count = compact_list_range(parts,i,count)
+	    #print parts, i, count
 	    while i < count:
 
                 # Yes, I know the following is stupid and should
@@ -359,16 +422,10 @@ def preParseArgs(line, command_dict, str_opts_dict, num_opts_dict):
                 # live with this.
 	      t_part = string.lower(parts[i])
 
-	      #t_arg = arg_dict.get(t_part)
 	      if t_part[0] == '"':
 	      	(parts,i,count) = match_quotes(parts,i,count)
 	      else:
-                #if t_arg is not None:
-		#    parts[i] = t_part
-		#    (parts,i) = quote_arg(parts,i)
-
-		#else:
-		    # Look for HELP arguments for commands
+ 		    # Look for HELP arguments for commands
                     t_arg = command_dict.get(t_part)
 		    if t_arg is not None:
 		    	parts[i] = t_part
