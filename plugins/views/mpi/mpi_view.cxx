@@ -470,16 +470,24 @@ static int64_t Match_Short_Stack (SmartPtr<std::vector<CommandResult *> >& cs,
   return minsz;
 }
 
-static inline void Accumulate_PreDefined_Temps (std::vector<CommandResult *>& A,
+static inline void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& IV,
+                                                std::vector<CommandResult *>& A,
                                                 std::vector<CommandResult *>& B) {
-  Accumulate_CommandResult (A[sum_temp], B[sum_temp]);
-  Accumulate_Min_CommandResult (A[min_temp], B[min_temp]);
-  Accumulate_Max_CommandResult (A[max_temp], B[max_temp]);
-  Accumulate_CommandResult (A[cnt_temp], B[cnt_temp]);
-  Accumulate_CommandResult (A[ssq_temp], B[ssq_temp]);
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    int64_t idx = vp->TMP1();
+    if (vp->OpCode() == VIEWINST_Add) {
+      Accumulate_CommandResult (A[idx], B[idx]);
+    } else if (vp->OpCode() == VIEWINST_Min) {
+      Accumulate_Min_CommandResult (A[idx], B[idx]);
+    } else if (vp->OpCode() == VIEWINST_Max) {
+      Accumulate_Max_CommandResult (A[idx], B[idx]);
+    }
+  }
 }
 
 static void Combine_Duplicate_CallStacks (
+              std::vector<ViewInstruction *>& IV,
               std::vector<std::pair<CommandResult_CallStackEntry *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items) {
   std::vector<std::pair<CommandResult_CallStackEntry *,
@@ -513,7 +521,7 @@ static void Combine_Duplicate_CallStacks (
           (matchcount == cs->size()) &&
           (matchcount == ncs->size())) {
        // Call stacks are identical - combine values.
-        Accumulate_PreDefined_Temps ((*cp.second), (*ncp.second));
+        Accumulate_PreDefined_Temps (IV, (*cp.second), (*ncp.second));
         nvpi = c_items.erase(nvpi);
         delete ncp.first;
         if ((*ncp.second).begin() != (*ncp.second).end()) {
@@ -534,6 +542,7 @@ static void Combine_Duplicate_CallStacks (
 }
 
 static void Combine_Short_Stacks (
+              std::vector<ViewInstruction *>& IV,
               std::vector<std::pair<CommandResult_CallStackEntry *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items) {
   std::vector<std::pair<CommandResult_CallStackEntry *,
@@ -567,7 +576,7 @@ static void Combine_Short_Stacks (
           (matchcount == cs->size()) &&
           (matchcount == ncs->size())) {
        // Call stacks are identical - combine values.
-        Accumulate_PreDefined_Temps ((*cp.second), (*ncp.second));
+        Accumulate_PreDefined_Temps (IV, (*cp.second), (*ncp.second));
         nvpi = c_items.erase(nvpi);
         delete ncp.first;
         if ((*ncp.second).begin() != (*ncp.second).end()) {
@@ -615,6 +624,7 @@ static SmartPtr<std::vector<CommandResult *> >
 static void Extract_Pivot_Items (
               CommandObject * cmd,
               ExperimentObject *exp,
+              std::vector<ViewInstruction *>& IV,
               bool TraceBack_Order,
               std::vector<std::pair<CommandResult_CallStackEntry *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items,
@@ -650,7 +660,7 @@ static void Extract_Pivot_Items (
           pivot = std::make_pair(CSE, vcs);
           pivot_added = true;
         } else {
-          Accumulate_PreDefined_Temps ((*pivot.second), (*cp.second));
+          Accumulate_PreDefined_Temps (IV, (*pivot.second), (*cp.second));
         }
         if (i != 0) {
           SmartPtr<std::vector<CommandResult *> > vcs = Copy_CRVector (cp.second);
@@ -672,12 +682,12 @@ static void Extract_Pivot_Items (
   }
   if (pivot_added) {
     if (!pred.empty()) {
-      Combine_Short_Stacks (pred);
+      Combine_Short_Stacks (IV, pred);
       result.insert(result.end(), pred.begin(), pred.end());
     }
     result.push_back (pivot);
     if (!succ.empty()) {
-      Combine_Short_Stacks (succ);
+      Combine_Short_Stacks (IV, succ);
       result.insert(result.end(), succ.begin(), succ.end());
     }
   }
@@ -716,7 +726,6 @@ static void Expand_CallStack (
 
 static
 void Form_CallStack_Output (CommandObject *cmd,
-                            int64_t topn,
                             ThreadGroup& tgrp,
                             std::vector<Collector>& CV,
                             std::vector<std::string>& MV,
@@ -727,24 +736,16 @@ void Form_CallStack_Output (CommandObject *cmd,
                             CommandResult *TotalValue,
                             std::vector<std::pair<CommandResult_CallStackEntry *,
                                                   SmartPtr<std::vector<CommandResult *> > > >& items) {
-  if (items.empty()) return;
-
   int64_t i;
   bool report_Column_summary = false;
 
   std::vector<ViewInstruction *> ViewInst(num_columns);
   int64_t num_input_temps = items[0].second->size();
-  int64_t num_total_temps = max(num_input_temps, Find_Max_Tmp_Def(IV)+1);
   bool input_temp_used[num_input_temps];
-  std::vector<ViewInstruction *> Summary_Display(num_columns);
-  for ( i=0; i <num_columns; i++) Summary_Display[i] = NULL;
-  std::vector<ViewInstruction *> SummaryInst(num_input_temps);
-  for ( i=0; i <num_input_temps; i++) SummaryInst[i] = NULL;
-  std::vector<CommandResult *> temp(num_total_temps);
-  for ( i=0; i < num_total_temps; i++) temp[i] = NULL;
+  std::vector<CommandResult *> summary_temp(num_input_temps);
+  for ( i=0; i < num_input_temps; i++) summary_temp[i] = NULL;
 
  // Reformat the instructions for easier access.
-  std::vector<CommandResult *> first_row = *(items.begin()->second);
   for (i = 0; i < IV.size(); i++) {
     ViewInstruction *vp = IV[i];
       if ((vp->OpCode() == VIEWINST_Display_Metric) ||
@@ -756,18 +757,15 @@ void Form_CallStack_Output (CommandObject *cmd,
           (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
         ViewInst[vp->TR()] = vp;
       }
-      if ((vp->OpCode() == VIEWINST_Display_Summary_Tmp) ||
-          (vp->OpCode() == VIEWINST_Display_Summary_StdDev) ||
-          (vp->OpCode() == VIEWINST_Display_Summary_Average)) {
+      if (vp->OpCode() == VIEWINST_Display_Summary) {
         report_Column_summary = true;
-        Summary_Display[vp->TR()] = vp;
       }
-      if ((vp->OpCode() == VIEWINST_Column_Summary_Add) ||
-          (vp->OpCode() == VIEWINST_Column_Summary_Min) ||
-          (vp->OpCode() == VIEWINST_Column_Summary_Max)) {
-        SummaryInst[vp->TMP1()] = vp;
-        temp[vp->TR()] = Copy_CRType (first_row[vp->TMP1()]);
-      }
+  }
+  if (report_Column_summary) {
+    std::vector<CommandResult *> first_row = *(items.begin()->second);
+    for ( i=0; i < num_input_temps; i++) {
+      summary_temp[i] = Copy_CRType (first_row[i]);
+    }
   }
 
    // Format the report with the items that are in the vector.
@@ -848,22 +846,7 @@ void Form_CallStack_Output (CommandObject *cmd,
 
      // Accumulate Summary Information
       if (report_Column_summary) {
-        for ( i=0; i < num_input_temps; i++) {
-          ViewInstruction *sinst = SummaryInst[i];
-          if (sinst != NULL) {
-            int64_t def_tmp = sinst->TR();
-            CommandResult *v = (*it->second)[sinst->TMP1()];
-            if (temp[def_tmp] != NULL) {
-              if (sinst->OpCode() == VIEWINST_Column_Summary_Add) {
-                Accumulate_CommandResult (temp[def_tmp], v);
-              } else if (sinst->OpCode() == VIEWINST_Column_Summary_Min) {
-                Accumulate_Min_CommandResult (temp[def_tmp], v);
-              } else if (sinst->OpCode() == VIEWINST_Column_Summary_Max) {
-                Accumulate_Max_CommandResult (temp[def_tmp], v);
-              }
-            }
-          }
-        }
+          Accumulate_PreDefined_Temps (IV, summary_temp, (*it->second));
       }
 
      // Reclaim space for unused temps.
@@ -879,23 +862,23 @@ void Form_CallStack_Output (CommandObject *cmd,
       CommandResult_Enders *E = new CommandResult_Enders ();
      // Add Metrics Summary
       for ( i=0; i < num_columns; i++) {
-        ViewInstruction *sinst = Summary_Display[i];
+        ViewInstruction *sinst = ViewInst[i];
         CommandResult *summary = NULL;
         Assert (sinst != NULL);
-        if (sinst->OpCode() == VIEWINST_Display_Summary_Tmp) {
-          summary = Dup_CommandResult (temp[sinst->TMP1()]);
-        } else if (sinst->OpCode() == VIEWINST_Display_Summary_Average) {
-          CommandResult *V = temp[sinst->TMP1()];
+        if (sinst->OpCode() == VIEWINST_Display_Tmp) {
+          summary = Dup_CommandResult (summary_temp[sinst->TMP1()]);
+        } else if (sinst->OpCode() == VIEWINST_Display_Average_Tmp) {
+          CommandResult *V = summary_temp[sinst->TMP1()];
           if (!V->isNullValue ()) {
-            summary = Calculate_Average (V, temp[sinst->TMP2()]);
+            summary = Calculate_Average (V, summary_temp[sinst->TMP2()]);
           }
-        } else if (sinst->OpCode() == VIEWINST_Display_Summary_StdDev) {
-          CommandResult *V1 = temp[sinst->TMP1()];
-          CommandResult *V2 = temp[sinst->TMP2()];
-          CommandResult *V3 = temp[sinst->TMP3()];
+        } else if (sinst->OpCode() == VIEWINST_Display_StdDeviation_Tmp) {
+          CommandResult *V1 = summary_temp[sinst->TMP1()];
+          CommandResult *V2 = summary_temp[sinst->TMP2()];
+          CommandResult *V3 = summary_temp[sinst->TMP3()];
           summary = Calculate_StdDev (V1, V2, V3);
-        } else if (sinst->OpCode() == VIEWINST_Display_Summary_Percent) {
-          CommandResult *V = temp[sinst->TMP1()];
+        } else if (sinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
+          CommandResult *V = summary_temp[sinst->TMP1()];
           summary = Calculate_Percent (V, TotalValue);
         }
         if (summary == NULL) {
@@ -910,9 +893,9 @@ void Form_CallStack_Output (CommandObject *cmd,
     }
 
  // Release summary temporaries
-  for ( i=0; i < num_total_temps; i++) {
-    if (temp[i] != NULL) {
-      delete temp[i];
+  for ( i=0; i < num_input_temps; i++) {
+    if (summary_temp[i] != NULL) {
+      delete summary_temp[i];
     }
   }
 
@@ -934,13 +917,14 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
     return false;   // There is no collector, return.
   }
 
+  CommandResult *TotalValue = NULL;
+  int64_t i;
   if (topn == 0) topn = LONG_MAX;
 
   try {
    // Set up quick access to instructions for columns.
     int64_t num_columns = 0;
     std::vector<ViewInstruction *> ViewInst(IV.size());
-    int64_t i;
     for ( i=0; i < IV.size(); i++) {
       ViewInstruction *vinst = Find_Column_Def (IV, i);
       if (vinst == NULL) {
@@ -973,7 +957,6 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
     }
 
    // Calculate %?
-    CommandResult *TotalValue = NULL;
     ViewInstruction *totalInst = Find_Total_Def (IV);
     int64_t totalIndex = 0;
     int64_t percentofcolumn = -1;
@@ -1082,7 +1065,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
       CallStack_Report (TraceBack_Order, add_stmts, f_items, c_items);
       CV[0].unlockDatabase();
 
-      Combine_Duplicate_CallStacks (c_items);
+      Combine_Duplicate_CallStacks (IV, c_items);
       if ((topn < (int64_t)c_items.size()) &&
           !Look_For_KeyWord(cmd, "ButterFly")) {
        // Determine the topn items.
@@ -1105,7 +1088,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
        // Should we eliminate redundant entries in the report?
         if (!Look_For_KeyWord(cmd, "FullStack") &&
             !Look_For_KeyWord(cmd, "FullStacks")) {
-          Combine_Duplicate_CallStacks (c_items);
+          Combine_Duplicate_CallStacks (IV, c_items);
         }
       }
     } else if (Look_For_KeyWord(cmd, "LinkedObject") ||
@@ -1186,10 +1169,10 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
           std::vector<std::pair<CommandResult_CallStackEntry *,
                                 SmartPtr<std::vector<CommandResult *> > > > result;
           Function func = *fsi;
-          Extract_Pivot_Items (cmd, exp, TraceBack_Order, c_items, func, result);
+          Extract_Pivot_Items (cmd, exp, IV, TraceBack_Order, c_items, func, result);
           if (!result.empty()) {
             if (MoreThanOne) cmd->Result_RawString("");  // Delimiter between items is a null string.
-            Form_CallStack_Output (cmd, topn, tgrp, CV, MV, IV,
+            Form_CallStack_Output (cmd, tgrp, CV, MV, IV,
                                    num_columns,
                                    Gen_Total_Percent, percentofcolumn, TotalValue,
                                    result);
@@ -1212,26 +1195,25 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
       }
 
     } else {
-      Form_CallStack_Output (cmd, topn, tgrp, CV, MV, IV,
+      Form_CallStack_Output (cmd, tgrp, CV, MV, IV,
                              num_columns,
                              Gen_Total_Percent, percentofcolumn, TotalValue,
                              c_items);
     }
 
-   // Release space for no longer needed items.
-    if (TotalValue != NULL) delete TotalValue;
-
-   // Release instructions
-    for (i = 0; i < IV.size(); i++) {
-      ViewInstruction *vp = IV[i];
-      delete vp;
-      IV[i] = NULL;
-    }
-
   }
   catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
-    return false;
+  }
+
+ // Release space for no longer needed items.
+  if (TotalValue != NULL) delete TotalValue;
+
+ // Release instructions
+  for (i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    delete vp;
+    IV[i] = NULL;
   }
 
   return ((cmd->Status() != CMD_ERROR) && (cmd->Status() != CMD_ABORTED));
@@ -1248,6 +1230,13 @@ static void define_columns (CommandObject *cmd,
 
   int64_t last_column = 0;  // Total time is always placed in first column.
 
+ // Define combination instructions for predefined temporaries.
+  IV.push_back(new ViewInstruction (VIEWINST_Add, sum_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Min, min_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Max, max_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, cnt_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, ssq_temp));
+
  // Initial instructions to insert time into first column.
   IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, sum_temp));  // first is total time
   HV.push_back("Exclusive Time");
@@ -1258,15 +1247,7 @@ static void define_columns (CommandObject *cmd,
 
   if (Generate_Summary) {
    // Total time is always displayed - also add display of the summary time.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Summary_Tmp, last_column,
-                                      (num_predefine_temps+sum_temp)));
-
-   // Accumulate all intermediate values if one is needed.
-    IV.push_back(new ViewInstruction (VIEWINST_Column_Summary_Add, (num_predefine_temps+sum_temp), sum_temp));
-    IV.push_back(new ViewInstruction (VIEWINST_Column_Summary_Min, (num_predefine_temps+min_temp), min_temp));
-    IV.push_back(new ViewInstruction (VIEWINST_Column_Summary_Max, (num_predefine_temps+max_temp), max_temp));
-    IV.push_back(new ViewInstruction (VIEWINST_Column_Summary_Add, (num_predefine_temps+cnt_temp), cnt_temp));
-    IV.push_back(new ViewInstruction (VIEWINST_Column_Summary_Add, (num_predefine_temps+ssq_temp), ssq_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
   }
 
   last_column++;
@@ -1294,20 +1275,12 @@ static void define_columns (CommandObject *cmd,
           min_used = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, min_temp));
           HV.push_back("Min Time");
-          if (Generate_Summary) {
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Summary_Tmp, last_column,
-                                              (num_predefine_temps+min_temp)));
-          }
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "max") && !max_used) {
          // third temp is max time
           max_used = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, max_temp));
           HV.push_back("Max Time");
-          if (Generate_Summary) {
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Summary_Tmp, last_column,
-                                              (num_predefine_temps+max_temp)));
-          }
           last_column++;
         } else if (!count_used &&
                    (!strcasecmp(M_Name.c_str(), "count") ||
@@ -1318,40 +1291,22 @@ static void define_columns (CommandObject *cmd,
           count_used = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, cnt_temp));
           HV.push_back("Number of Calls");
-          if (Generate_Summary) {
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Summary_Tmp, last_column,
-                                              (num_predefine_temps+cnt_temp)));
-          }
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "average")) {
          // average time is calculated from two temps: sum (#0) and total counts (#3).
           IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column, sum_temp, cnt_temp));
           HV.push_back("Average Time");
-          if (Generate_Summary) {
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Summary_Average, last_column,
-                                              (num_predefine_temps+sum_temp), (num_predefine_temps+cnt_temp)));
-          }
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "percent")) {
          // percent is calculate from 2 temps: time for this row (#0) and total time.
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column, sum_temp));
           HV.push_back("% of Total");
-          if (Generate_Summary) {
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Summary_Percent, last_column,
-                                              (num_predefine_temps+cnt_temp)));
-          }
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "stddev")) {
          // The standard deviation is calculated from 3 temps: sum (#0), sum of squares (#4) and total counts (#3).
           IV.push_back(new ViewInstruction (VIEWINST_Display_StdDeviation_Tmp, last_column,
                                             sum_temp, ssq_temp, cnt_temp));
           HV.push_back("Standard Deviation");
-          if (Generate_Summary) {
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Summary_StdDev, last_column,
-                                              (num_predefine_temps+sum_temp),
-                                              (num_predefine_temps+ssq_temp),
-                                              (num_predefine_temps+cnt_temp)));
-          }
           last_column++;
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");

@@ -33,23 +33,10 @@ enum ViewOpCode {
      VIEWINST_Display_StdDeviation_Tmp, // TmpResult is column# to display in.
                                         // TMP_index1 is row_tmp# with sums.
                                         // TMP_index2 is row_tmp# with sum of squares
-     VIEWINST_Display_Summary_Tmp,      // TmpResult is column# to display summary temp in.
-                                        // TMP_index1 is summary-tmp# to display.
-     VIEWINST_Display_Summary_Percent,  // TmpResult is column# to display summary calcuation in.
-                                        // TMP_index1 is summary_tmp# with numerator.
-     VIEWINST_Display_Summary_StdDev,   // TmpResult is column# to display summary calcuation in.
-                                        // TMP_index1 is summary_tmp# with sums.
-                                        // TMP_index2 is summary_tmp# with sum of squares.
-                                        // TMP_index3 is summary_tmp# with number of counts.
-     VIEWINST_Display_Summary_Average,  // TmpResult is column# to display summary calcuation in.
-                                        // TMP_index1 is summary_tmp# with numerator.
-                                        // TMP_index2 is summary_tmp# with denominator.
-     VIEWINST_Column_Summary_Add,       // TmpResult is summary_tmp# to accumulate result.
-                                        // TMP_index1 is row_temp# to sum.
-     VIEWINST_Column_Summary_Min,       // TmpResult is summary_tmp# to accumulate result.
-                                        // TMP_index1 is row_temp# to take min of.
-     VIEWINST_Column_Summary_Max,       // TmpResult is summary_tmp# to accumulate result.
-                                        // TMP_index1 is row_temp# to take max of.
+     VIEWINST_Display_Summary,          // Generate column summary.
+     VIEWINST_Add,                      // TMP_index1 is predefined temp# combined with '+' op. 
+     VIEWINST_Min,                      // TMP_index1 is predefined temp# combined with 'min' op.
+     VIEWINST_Max,                      // TMP_index1 is predefined temp# combined with 'max' op.
 };
 
 class ViewInstruction
@@ -62,6 +49,13 @@ class ViewInstruction
   int64_t TMP_index3; // index of temp
 
  public:
+  ViewInstruction (ViewOpCode I) {
+    Instruction = I;
+    TmpResult = -1;
+    TMP_index1 = -1;
+    TMP_index2 = -1;
+    TMP_index3 = -1;
+  }
   ViewInstruction (ViewOpCode I, int64_t TR) {
     Instruction = I;
     TmpResult = -1;
@@ -107,13 +101,10 @@ class ViewInstruction
      case VIEWINST_Display_Percent_Tmp: op = "Display_Percent_Tmp"; break;
      case VIEWINST_Display_Average_Tmp: op = "Display_Average_Tmp"; break;
      case VIEWINST_Display_StdDeviation_Tmp: op = "Display_StdDeviation_Tmp"; break;
-     case VIEWINST_Display_Summary_Tmp: op = "Display_Summary_Tmp"; break;
-     case VIEWINST_Display_Summary_StdDev: op = "Display_Summary_StdDev"; break;
-     case VIEWINST_Display_Summary_Average: op= "Display_Summary_Average"; break;
-     case VIEWINST_Display_Summary_Percent: op= "Display_Summary_Percent"; break;
-     case VIEWINST_Column_Summary_Add: op = "Column_Summary_Add"; break;
-     case VIEWINST_Column_Summary_Min: op = "Column_Summary_Min"; break;
-     case VIEWINST_Column_Summary_Max: op = "Column_Summary_Max"; break;
+     case VIEWINST_Display_Summary: op = "Display_Summary"; break;
+     case VIEWINST_Add: op = "Add"; break;
+     case VIEWINST_Min: op = "Min"; break;
+     case VIEWINST_Max: op = "Max"; break;
      default: op ="(unknown)"; break;
     }
     to << op << " " << TmpResult  << " "
@@ -298,7 +289,6 @@ ViewInstruction *Find_Total_Def (std::vector<ViewInstruction *>IV);
 ViewInstruction *Find_Percent_Def (std::vector<ViewInstruction *>IV);
 ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Column);
 int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV);
-int64_t Find_Max_Tmp_Def (std::vector<ViewInstruction *>IV);
 bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
                           std::vector<Collector>& CV, std::vector<std::string>& MV,
                           std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV);

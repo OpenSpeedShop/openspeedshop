@@ -783,20 +783,6 @@ int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV) {
   return Max_Column;
 }
 
-int64_t Find_Max_Tmp_Def (std::vector<ViewInstruction *>IV) {
-  int64_t Max_Tmp = 0;
-  for (int64_t i = 0; i < IV.size(); i++) {
-   // Check the instructions that can define a temp result.
-    ViewInstruction *vp = IV[i];
-    if ((vp->OpCode() == VIEWINST_Column_Summary_Add) ||
-        (vp->OpCode() == VIEWINST_Column_Summary_Min) ||
-        (vp->OpCode() == VIEWINST_Column_Summary_Max)) {
-      Max_Tmp = max (Max_Tmp,vp->TR());
-    }
-  }
-  return Max_Tmp;
-}
-
 void Print_View_Params (ostream &to,
                         std::vector<Collector> CV,
                         std::vector<std::string> MV,
