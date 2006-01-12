@@ -1292,6 +1292,7 @@ if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT")
   // Currently we don't set any mpi parameters.
 } else if( lao->paramList )
   {
+#ifdef PULL
     QString sample_rate_str = (QString)*lao->paramList->begin();
 // printf("sample_rate_str=(%s)\n", sample_rate_str.ascii() );
     unsigned int sampling_rate = sample_rate_str.toUInt();
@@ -1345,6 +1346,7 @@ if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT")
       return 0;
     }
     delete lao->paramList;
+#endif // PULL
   }
   nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
 
