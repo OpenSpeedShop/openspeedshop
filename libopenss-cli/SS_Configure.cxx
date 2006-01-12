@@ -60,7 +60,7 @@ static void Add_Help (SS_Message_Czar& czar,
                       std::string description) {
   SS_Message_Element element;
   element.set_keyword (name, "preferences");
-  std::string s = name + " is " + type_info + " variable.";
+  std::string s = type_info + " variable.";
   element.set_brief (s);
   s = s + "\n\n" + description;
   element.add_normal (s);

@@ -40,6 +40,9 @@ char *topic_man_brief = {
 char *topic_nomenclature_brief = {
     "Lists general Open|SpeedShop nomenclature"
 };
+char *topic_preferences_brief = {
+    "Lists general Open|SpeedShop preference variables"
+};
 
 /*********************************************/
 // DETAILED TOPICS
@@ -70,6 +73,13 @@ char *topic_man_detailed[] = {
 };
 char *topic_nomenclature_detailed[] = {
     topic_nomenclature_brief,
+    " "
+};
+char *topic_preferences_detailed[] = {
+    topic_preferences_brief,
+    " ",
+    "Set preference variables through the GUI panel:",
+    "\t File->Preferences->General",
     " "
 };
 
@@ -106,6 +116,13 @@ OpenSpeedShop::message_element_t topic_msg[] = {
     -1,"terms",NULL,0,
     "topic",topic_nomenclature_brief,
     topic_nomenclature_detailed,sizeof(topic_nomenclature_detailed)/sizeof(char **),
+    NULL,0,NULL,0,NULL,0,
+
+//    preferences
+    -1,"preferences",NULL,0,
+    "topic",topic_preferences_brief,
+    topic_preferences_detailed,sizeof(topic_preferences_detailed)/sizeof(char
+**),
     NULL,0,NULL,0,NULL,0,
 
 //    END OF LIST
