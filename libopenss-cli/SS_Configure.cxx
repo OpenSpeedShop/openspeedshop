@@ -17,6 +17,7 @@
 *******************************************************************************/
 
 #include "SS_Input_Manager.hxx"
+#include "SS_Settings.hxx"
 // where is this include????    #include <libxml/xmlreader.h>
 
 int64_t OPENSS_VIEW_FIELD_SIZE = 20;
@@ -24,7 +25,7 @@ int64_t OPENSS_VIEW_PRECISION = 4;
 int64_t OPENSS_HISTORY_LIMIT = 100;
 int64_t OPENSS_HISTORY_DEFAULT = 24;
 int64_t OPENSS_MAX_ASYNC_COMMANDS = 20;
-int64_t OPENSS_HELP_LEVEL_DEFAULT = 2;
+int64_t OPENSS_HELP_LEVEL_DEFAULT = 1;
 bool    OPENSS_VIEW_FULLPATH = false;
 bool    OPENSS_SAVE_EXPERIMENT_DATABASE = false;
 bool    OPENSS_ALLOW_PYTHON_COMMANDS = true;
@@ -53,50 +54,129 @@ static inline void set_bool (bool &env, std::string envName) {
   }
 }
 
-void SS_Configure () {
-
-  set_int64 (OPENSS_VIEW_FIELD_SIZE, "OPENSS_VIEW_FIELD_SIZE");
-  set_int64 (OPENSS_VIEW_PRECISION, "OPENSS_VIEW_PRECISION");
-  set_int64 (OPENSS_HISTORY_LIMIT, "OPENSS_HISTORY_LIMIT");
-  set_int64 (OPENSS_HISTORY_DEFAULT, "OPENSS_HISTORY_DEFAULT");
-  set_int64 (OPENSS_MAX_ASYNC_COMMANDS, "OPENSS_MAX_ASYNC_COMMANDS");
-  set_int64 (OPENSS_HELP_LEVEL_DEFAULT, "OPENSS_HELP_LEVEL_DEFAULT");
-
-  set_bool (OPENSS_VIEW_FULLPATH, "OPENSS_VIEW_FULLPATH");
-  set_bool (OPENSS_SAVE_EXPERIMENT_DATABASE, "OPENSS_SAVE_EXPERIMENT_DATABASE");
-  set_bool (OPENSS_ALLOW_PYTHON_COMMANDS, "OPENSS_ALLOW_PYTHON_COMMANDS");
-  set_bool (OPENSS_LOG_BY_DEFAULT, "OPENSS_LOG_BY_DEFAULT");
-  set_bool (OPENSS_LIMIT_SIGNAL_CATCHING, "OPENSS_LIMIT_SIGNAL_CATCHING");
+static void Add_Help (SS_Message_Czar& czar,
+                      std::string name,
+                      std::string type_info,
+                      std::string description) {
+  SS_Message_Element element;
+  element.set_keyword (name, "preferences");
+  std::string s = name + " is " + type_info + " variable.";
+  element.set_brief (s);
+  s = s + "\n\n" + description;
+  element.add_normal (s);
+  element.add_verbose (s);
+  czar.Add_Help(element);
 }
 
-static void Search_rc_Files () {
-  std::string baseName = ".openss/preferencesrc";
-  int fd;
+void SS_Configure () {
+  SS_Message_Czar& czar = theMessageCzar();
+  bool ok;
 
- // Look for installation definitions.
-  char *S = getenv ("OPENSS_INSTALL_DIR");
-  if (S != NULL) {
-    std::string FilePath = std::string(S) + baseName;
-    if ((fd = open(FilePath.c_str(), O_RDONLY)) != -1) {
-     // File name exists!
-      Assert(close(fd) == 0);
-    }
-  }
+ // Open the prefence data base
+  SS_Settings *settings = new SS_Settings();
 
- // Look for global user definitions.
-  S = getenv ("HOME");
-  if (S != NULL) {
-    std::string FilePath = std::string(S) + baseName;
-    if ((fd = open(FilePath.c_str(), O_RDONLY)) != -1) {
-     // File name exists!
-      Assert(close(fd) == 0);
-    }
-  }
+ // Containers to hold results of preference reads
+  int64_t Ivalue;
+  double Fvalue;
+  bool Bvalue;
+  std::string Svalue;
 
- // Look for local user definitions.
-  std::string FilePath = std::string("./") + baseName;
-  if ((fd = open(FilePath.c_str(), O_RDONLY)) != -1) {
-   // File name exists!
-    Assert(close(fd) == 0);
-  }
+  Add_Help (czar, "viewFieldSize", "an integer, preference",
+            "Define the width of each field when the result "
+            "of an 'expView' command is printed.  The default is 20 columns.");
+  Ivalue = settings->readNumEntry(std::string("viewFieldSize"), OPENSS_VIEW_FIELD_SIZE, &ok);
+  if (ok) OPENSS_VIEW_FIELD_SIZE = Ivalue;
+
+  Add_Help (czar, "viewPrecision", "an integer, preference",
+            "Define the precision used to format a floating point number when "
+            "the result of an 'expView' command is printed.  The default is 4.");
+  Ivalue = settings->readNumEntry(std::string("viewPrecision"), OPENSS_VIEW_PRECISION, &ok);
+  if (ok) OPENSS_VIEW_PRECISION = Ivalue;
+
+  Add_Help (czar, "historyLimit", "an integer, preference",
+            "Define the maximum number of commands that are remembered for the "
+            "'history' command.  If the command is issued with a larger number, "
+            "this limit is automatically increased.  The default is 100.");
+  Ivalue = settings->readNumEntry(std::string("historyLimit"), OPENSS_HISTORY_LIMIT, &ok);
+  if (ok) OPENSS_HISTORY_LIMIT = Ivalue;
+
+  Add_Help (czar, "historyDefault", "an integer, preference",
+            "Define the number of previous commands that will be printed when "
+            "the 'history' command is issued without a requesting length. The "
+            "default is 24.");
+  Ivalue = settings->readNumEntry(std::string("historyDefault"), OPENSS_HISTORY_DEFAULT, &ok);
+  if (ok) OPENSS_HISTORY_DEFAULT = Ivalue;
+
+  Add_Help (czar, "maxAsyncCommands", "an integer, preference",
+            "Define the maximum number of commands that can be processed at "
+            "the same time. This is a limit on the parallel execution of "
+            "commands in OpenSS and controls the degree to which commands "
+            "can be overlapped.  The default is 20.");
+  Ivalue = settings->readNumEntry(std::string("maxAsyncCommands"), OPENSS_MAX_ASYNC_COMMANDS, &ok);
+  if (ok) OPENSS_MAX_ASYNC_COMMANDS = Ivalue;
+
+  Add_Help (czar, "helpLevelDefault", "an integer, preference",
+            "Define the level of help information that is displayed when "
+            "the 'help' command is issued without a <verbosity_list_spec>. "
+            "The valid integer values correspond to the folowing:"
+            "\n  '0' == '-v brief'"
+            "\n  '1' == '-v normal'"
+            "\n  '2' == '-v detailed'"
+            "\nThe default is level 1, 'normal'.");
+  Ivalue = settings->readNumEntry(std::string("helpLevelDefault"), OPENSS_HELP_LEVEL_DEFAULT, &ok);
+  if (ok) OPENSS_HELP_LEVEL_DEFAULT = Ivalue;
+
+
+  Add_Help (czar, "viewFullPath", "a boolean, preference",
+            "Declare whether or not a full path is displayed in place of "
+            "a file name when the function, linkedobject, or statement "
+            "location is displayed as part of an 'expView' command.  The "
+            "default is false, allowing only the containing file name to "
+            "be displayed.");
+  Bvalue = settings->readBoolEntry(std::string("viewFullPath"), OPENSS_VIEW_FULLPATH, &ok);
+  if (ok) OPENSS_VIEW_FULLPATH = Bvalue;
+
+  Add_Help (czar, "saveExperimentDatabase", "a boolean, preference",
+            "Declare that the database created when an 'expCreate' "
+            "command is issued will be saved when the OpenSS session is "
+            "terminated.  The saved database will be in the user's "
+            "current directory and will be of the form: "
+            " 'X<exp_id>_iiiiii.openss'  "
+            "where the 'iiiiii' field is the first integer, starting with 0, "
+            "that generates a unique file name.  The default is 'false' "
+            "and experiment databases will be deleted when the OpenSS "
+            "session terminates unless the user has issued an 'expSave' "
+            "command.");
+  Bvalue = settings->readBoolEntry(std::string("saveExperimentDatabase"), OPENSS_SAVE_EXPERIMENT_DATABASE, &ok);
+  if (ok) OPENSS_SAVE_EXPERIMENT_DATABASE = Bvalue;
+
+  Add_Help (czar, "allowPythonCommands", "a boolean, preference",
+            "Declare that Python commands may be intermixed with OpenSS "
+            "commands.  The default is true.");
+  Bvalue = settings->readBoolEntry(std::string("allowPythonCommands"), OPENSS_ALLOW_PYTHON_COMMANDS, &ok);
+  if (ok) OPENSS_ALLOW_PYTHON_COMMANDS = Bvalue;
+
+  Add_Help (czar, "OPENSS_LOG_BY_DEFAULT", "a boolean, environment",
+            "Declare that a log file will be opened and each command "
+            "will be tracked through the various internal processing "
+            "steps of OpenSS.  This is intended to be an internal debug "
+            "aid and is not generally useful.  The default is false.");
+  set_bool (OPENSS_LOG_BY_DEFAULT, "OPENSS_LOG_BY_DEFAULT");
+
+  Add_Help (czar, "OPENSS_LIMIT_SIGNAL_CATCHING", "a boolean, environment",
+            "Declare that OpenSS should limit the types of signals it "
+            "traps. When set to true, OpenSS will ignore the following "
+            "faults: "
+            "\n  SIGILL - illegal instructions "
+            "\n  SIGFPE - floating point exceptions "
+            "\n  SIGBUS - bus errors "
+            "\n  SIGSEGV - illegal memory addresses "
+            "\n  SIGSYS - system errors "
+            "\nIgnoring the errors will allow a core file to be generated, "
+            "so this is intended to be an internal debug aid.  The default "
+            "value is false and OpenSS will attempt to clean up if an "
+            "error is encountered.  Setting the value to true may result "
+            "in a number of files being left around if OpenSS encounters "
+            "a fault.");
+  set_bool (OPENSS_LIMIT_SIGNAL_CATCHING, "OPENSS_LIMIT_SIGNAL_CATCHING");
 }
