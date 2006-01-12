@@ -15,8 +15,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-
-MPIWRAPPERS = \
+nodist_mpi_rt_la_SOURCES = \
 	MPI_Allgather.c \
 	MPI_Allgatherv.c \
 	MPI_Allreduce.c \
@@ -92,21 +91,21 @@ mpi_rt_la_LIBADD = \
 	-lpthread -lrt
 
 mpi_rt_la_SOURCES = \
-	blobs.x $(BUILT_SOURCES) $(MPIWRAPPERS) \
+	blobs.x $(BUILT_SOURCES) \
 	wrappers.c \
 	mkwrapper.c runtime.h runtime.c
 
 EXTRA_DIST = mkwrapper.template
 
 SUFFIXES = .x
-CLEANFILES = $(BUILT_SOURCES) $(MPIWRAPPERS) mkwrapper
+CLEANFILES = $(BUILT_SOURCES) $(nodist_mpi_rt_la_SOURCES) mkwrapper
 
 blobs.h blobs.c : blobs.x
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
 
-$(MPIWRAPPERS) : mkwrapper mkwrapper.template
+$(nodist_mpi_rt_la_SOURCES) : mkwrapper mkwrapper.template
 	./mkwrapper \
 		` echo $@ | sed -e 's/\.c//' ` \
 		@MPI_HEADER@ \
