@@ -530,31 +530,34 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 // printf("currentCollectorStr=%s\n", currentCollectorStr.ascii() );
       if( QString(collector_name).startsWith("mpi::exclusive_times") )
       {
+        QPopupMenu *mpiMenu = new QPopupMenu(this);
+        connect(mpiMenu, SIGNAL( activated(int) ),
+        this, SLOT(collectorMetricSelected(int)) );
         QString s = QString::null;
 
         QAction *qaction = new QAction(this, "showFunctions");
-        qaction->addTo( contextMenu );
+        qaction->addTo( mpiMenu );
         qaction->setText( tr("Show Metric: Functions") );
         qaction->setToolTip(tr("Show timings for MPI Functions."));
 
         qaction = new QAction(this, "showTracebacks");
-        qaction->addTo( contextMenu );
+        qaction->addTo( mpiMenu );
         qaction->setText( tr("Show Metric: TraceBacks") );
         qaction->setToolTip(tr("Show tracebacks to MPI Functions."));
 
 
         qaction = new QAction(this, "showTracebacks/FullStack");
-        qaction->addTo( contextMenu );
+        qaction->addTo( mpiMenu );
         qaction->setText( tr("Show Metric: TraceBacks/FullStack") );
         qaction->setToolTip(tr("Show tracebacks, with full stacks, to MPI Functions."));
 
         qaction = new QAction(this, "showCallTrees");
-        qaction->addTo( contextMenu );
+        qaction->addTo( mpiMenu );
         qaction->setText( tr("Show Metric: CallTrees") );
         qaction->setToolTip(tr("Show Call Trees to each MPI Functions."));
 
         qaction = new QAction(this, "showButterfly");
-        qaction->addTo( contextMenu );
+        qaction->addTo( mpiMenu );
         qaction->setText( tr("Show Metric: Butterfly") );
         qaction->setToolTip(tr("Show Butterfly view (caller/callees) for selected function."));
 
@@ -562,7 +565,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
             (currentCollectorStr == "Functions" || currentCollectorStr == "mpi") )
         {
           qaction = new QAction(this, "showCallTreesBySelectedFunction");
-          qaction->addTo( contextMenu );
+          qaction->addTo( mpiMenu );
           qaction->setText( tr("Show Metric: CallTrees by Selected Function") );
           qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
         }
@@ -593,9 +596,10 @@ StatsPanel::menu( QPopupMenu* contextMenu)
             }
           }
         }
-        contextMenu->insertItem(QString("Show mpi modifiers:"), modifierMenu);
+        mpiMenu->insertItem(QString("Show mpi modifiers:"), modifierMenu);
 
 
+        contextMenu->insertItem(QString("Show metrics: MPI"), mpiMenu);
       }
     } else
     {
@@ -1857,7 +1861,7 @@ StatsPanel::collectorMetricSelected(int val)
 // printf("collectorMetricSelected: Full currentCollectorStr=(%s)\n", popupMenu->text(val).ascii() );
 
 
-currentUserSelectedMetricStr = QString::null;
+  currentUserSelectedMetricStr = QString::null;
 
   QString s = popupMenu->text(val).ascii();
 
@@ -1879,10 +1883,10 @@ currentUserSelectedMetricStr = QString::null;
 //      currentCollectorStr = s.mid(13, index-13 );
       currentUserSelectedMetricStr = s.mid(13, index-13);
 // printf("B2: currentCollectorStr=(NULL) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
-if( currentUserSelectedMetricStr != "Show Metric: CallTrees by Selected Function" )
-{
-  selectedFunctionStr = QString::null;
-}
+      if( currentUserSelectedMetricStr != "Show Metric: CallTrees by Selected Function" )
+      {
+        selectedFunctionStr = QString::null;
+      }
     }
     updateStatsPanelData();
   }
