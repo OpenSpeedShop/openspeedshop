@@ -501,7 +501,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   QString defaultStatsReportStr = QString::null;
   if( list_of_collectors.size() > 1 || list_of_pids.size() > 1 )
   {
-// printf("We only have more than one collector... one metric\n");
+// printf("We have more than one collector... one metric\n");
     defaultStatsReportStr = QString("Show Metric: %1").arg(currentCollectorStr);
     if( mpiFLAG == FALSE )
     {
@@ -532,7 +532,8 @@ StatsPanel::menu( QPopupMenu* contextMenu)
       {
         QPopupMenu *mpiMenu = new QPopupMenu(this);
         connect(mpiMenu, SIGNAL( activated(int) ),
-        this, SLOT(collectorMetricSelected(int)) );
+           this, SLOT(collectorMetricSelected(int)) );
+
         QString s = QString::null;
 
         QAction *qaction = new QAction(this, "showFunctions");
@@ -607,7 +608,6 @@ StatsPanel::menu( QPopupMenu* contextMenu)
       mid = contextMenu->insertItem(s);
 // printf("mid=%d for %s\n", mid, s.ascii() );
 
-//      if( currentMetricStr.isEmpty() || currentCollectorStr.isEmpty() )
       if( currentMetricStr.isEmpty() && currentCollectorStr.isEmpty() )
       {
         int index = s.find("Show Metric:");
@@ -1561,10 +1561,15 @@ StatsPanel::updateStatsPanelData()
     about += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
 
   }
-  if( !currentUserSelectedMetricStr.isEmpty() )
+  if( !currentUserSelectedMetricStr.isEmpty() && !currentCollectorStr.isEmpty() )
   {
-     command += QString(" -m %1").arg(currentUserSelectedMetricStr);
-     about += QString("for metrics %1\n").arg(currentUserSelectedMetricStr);
+    if( currentCollectorStr != currentUserSelectedMetricStr )
+    {  // If these 2 are equal, we want the default display... not a 
+       // specific metric.
+// printf("A: adding currentUserSelectedMetricStr=(%s) currentCollectorStr=(%s)\n", currentUserSelectedMetricStr.ascii(), currentCollectorStr.ascii()  );
+       command += QString(" -m %1").arg(currentUserSelectedMetricStr);
+       about += QString("for metrics %1\n").arg(currentUserSelectedMetricStr);
+    }
   }
   if( !mpiFLAG )
   { 
