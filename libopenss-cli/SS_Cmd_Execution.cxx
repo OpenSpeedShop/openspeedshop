@@ -189,22 +189,19 @@ static ExperimentObject *Find_Specified_Experiment (CommandObject *cmd) {
   if (ExperimentID == 0) {
     ExperimentID = Experiment_Focus ( WindowID );
     if (ExperimentID == 0) {
-      std::string s("There is no focused experiment.");
-      Mark_Cmd_With_Soft_Error(cmd,s);
+      Mark_Cmd_With_Soft_Error(cmd, "There is no focused experiment.");
       return NULL;
     }
   }
   exp = Find_Experiment_Object (ExperimentID);
   if (exp == NULL) {
-    std::string s("The requested experiment ID does not exist.");
-    Mark_Cmd_With_Soft_Error(cmd,s);
+    Mark_Cmd_With_Soft_Error(cmd, "The requested experiment ID does not exist.");
     return NULL;
   }
 
  // Is there an FrameWork Experiment to look at?
   if (exp->FW() == NULL) {
-    std::string s("The requested FrameWork experiment does not exist.");
-    Mark_Cmd_With_Soft_Error(cmd,s);
+    Mark_Cmd_With_Soft_Error(cmd, "The requested FrameWork experiment does not exist.");
     return NULL;
   }
 
@@ -421,41 +418,44 @@ static bool within_range (std::string S, parse_range_t R) {
 }
 
 /**
- * Method: ()
+ * Method: Filter_Uses_F()
  * 
- * .
+ * Determine if any of the <target_list> specifiers
+ * make use of the optional -f' field.
  *     
- * @param   .
+ * @param CommandObject *cmd to access teh parse objects.
  *
- * @return  void
- *
- * @todo    Error handling.
+ * @return bool - true if there is a '-f' field, false otherwise.
  *
  */
 bool Filter_Uses_F (CommandObject *cmd) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseTarget> *p_tlist = p_result->getTargetList();
-  if (p_tlist->begin() == p_tlist->end()) {
-   // There are no filters.
-    return false;
+
+ // For each set of filter specifications ...
+  vector<ParseTarget>::iterator pi;
+  for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
+    ParseTarget pt = *pi;
+    vector<ParseRange> *f_list = pt.getFileList();
+    if ((f_list != NULL) || !f_list->empty()) return true;
   }
 
-  ParseTarget pt = *p_tlist->begin(); // There can only be one!
-  vector<ParseRange> *f_list = pt.getFileList();
-
-  return !((f_list == NULL) || f_list->empty());
+  return false;
 }
 
 /**
- * Method: ()
+ * Method: Filter_ThreadGroup()
  * 
- * .
+ * Scan ths <target_list> specifier for a command and
+ * determine which of the original set of threads are
+ * begin requested.
+ *
+ * Output is done by overwriting the input argument.
  *     
- * @param   .
+ * @param CommandObject *cmd - containing the parse object.
+ *        ThreadGroup& tgrp  - the original set of threads.
  *
- * @return  void
- *
- * @todo    Error handling.
+ * @return  void, but one of the input arguments is altered.
  *
  */
 void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
@@ -467,135 +467,107 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
   }
 
   ThreadGroup dgrp;
+  ThreadGroup rgrp;
 
-  ParseTarget pt = *p_tlist->begin(); // There can only be one!
-  vector<ParseRange> *c_list = pt.getClusterList();
-  vector<ParseRange> *h_list = pt.getHostList();
-  vector<ParseRange> *f_list = pt.getFileList();
-  vector<ParseRange> *p_list = pt.getPidList();
-  vector<ParseRange> *t_list = pt.getThreadList();
-  vector<ParseRange> *r_list = pt.getRankList();
+ // For each set of filter specifications ...
+  vector<ParseTarget>::iterator pi;
+  for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
+    ParseTarget pt = *pi;
+    vector<ParseRange> *c_list = pt.getClusterList();
+    vector<ParseRange> *h_list = pt.getHostList();
+    vector<ParseRange> *f_list = pt.getFileList();
+    vector<ParseRange> *p_list = pt.getPidList();
+    vector<ParseRange> *t_list = pt.getThreadList();
+    vector<ParseRange> *r_list = pt.getRankList();
 
-  bool has_h = !((h_list == NULL) || h_list->empty());
-  bool has_f = !((f_list == NULL) || f_list->empty());
-  bool has_p = !((p_list == NULL) || p_list->empty());
-  bool has_t = !((t_list == NULL) || t_list->empty());
-  bool has_r = !((r_list == NULL) || r_list->empty());
+    bool has_h = !((h_list == NULL) || h_list->empty());
+    bool has_f = !((f_list == NULL) || f_list->empty());
+    bool has_p = !((p_list == NULL) || p_list->empty());
+    bool has_t = !((t_list == NULL) || t_list->empty());
+    bool has_r = !((r_list == NULL) || r_list->empty());
 
- // Remove non-matching hosts.
-  if (has_h) {
-
+   // Go through every thread and decide if it is included.
     ThreadGroup::iterator ti;
     for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
-      std::string hid = Experiment::getCanonicalName(t.getHost());
-      bool within_list = false;
+      bool include_thread = true;
 
-      vector<ParseRange>::iterator pr_iter;
-      for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
-        if (within_range(hid, *pr_iter->getRange())) {
-          within_list = true;
-          break;
-        }
-      }
-
-     // Remove non-matching hosts from the ThreadGroup.
-      if (!within_list) {
-        dgrp.insert(t);
-      }
-    }
-
-  }
-
- // Remove non-matching pids.
-  if (has_p) {
-
-    ThreadGroup::iterator ti;
-    for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-      Thread t = *ti;
-      pid_t pid = t.getProcessId();
-      bool within_list = false;
-
-      vector<ParseRange>::iterator pr_iter;
-      for (pr_iter=p_list->begin();pr_iter != p_list->end(); pr_iter++) {
-        if (within_range(pid, *pr_iter->getRange())) {
-          within_list = true;
-          break;
-        }
-      }
-
-     // Remove non-matching hosts from the ThreadGroup.
-      if (!within_list) {
-        dgrp.insert(t);
-      }
-    }
-
-  }
-
- // Remove non-matching threads.
-  if (has_t) {
-
-    ThreadGroup::iterator ti;
-    for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-      Thread t = *ti;
-      std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-      if (pthread.first) {
-        int64_t tid = pthread.second;
+      if (has_h) {
+       // Does it match a host?
         bool within_list = false;
-
+        std::string hid = Experiment::getCanonicalName(t.getHost());
         vector<ParseRange>::iterator pr_iter;
-        for (pr_iter=t_list->begin();pr_iter != t_list->end(); pr_iter++) {
-          if (within_range(tid, *pr_iter->getRange())) {
+        for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
+          if (within_range(hid, *pr_iter->getRange())) {
             within_list = true;
             break;
           }
         }
-
-       // Remove non-matching hosts from the ThreadGroup.
-        if (!within_list) {
-          dgrp.insert(t);
-          continue;
-        }
+        include_thread = within_list;
       }
-      ti++;
-    }
 
-  }
+      if (include_thread && has_p) {
+       // Does it match a pid?
+        pid_t pid = t.getProcessId();
+        bool within_list = false;
+
+        vector<ParseRange>::iterator pr_iter;
+        for (pr_iter=p_list->begin();pr_iter != p_list->end(); pr_iter++) {
+          if (within_range(pid, *pr_iter->getRange())) {
+            within_list = true;
+            break;
+          }
+        }
+        include_thread = within_list;
+      }
+
+      if (include_thread && has_t) {
+       // Does it match a pthread ID?
+        std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+        if (pthread.first) {
+          int64_t tid = pthread.second;
+          bool within_list = false;
+
+          vector<ParseRange>::iterator pr_iter;
+          for (pr_iter=t_list->begin();pr_iter != t_list->end(); pr_iter++) {
+            if (within_range(tid, *pr_iter->getRange())) {
+              within_list = true;
+              break;
+            }
+          }
+          include_thread = within_list;
+        } else include_thread = false;
+      }
 
 #if HAS_OPENMP
- // Remove non-matching ranks.
-  if (has_r) {
+      if (include_thread && has_r) {
+       // Does it match a rank ID?
+        int64_t rid = t.getOmpThreadId();
+        bool within_list = false;
 
-    ThreadGroup::iterator ti;
-    for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-      Thread t = *ti;
-      int64_t rid = t.getOmpThreadId();
-      bool within_list = false;
-
-      vector<ParseRange>::iterator pr_iter;
-      for (pr_iter=r_list->begin();pr_iter != r_list->end(); pr_iter++) {
-        if (within_range(rid, *pr_iter->getRange())) {
-          within_list = true;
-          break;
+        vector<ParseRange>::iterator pr_iter;
+        for (pr_iter=r_list->begin();pr_iter != r_list->end(); pr_iter++) {
+          if (within_range(rid, *pr_iter->getRange())) {
+            within_list = true;
+            break;
+          }
         }
+        include_thread = within_list;
+      }
+#endif
+
+     // Add matching threads to rgrp.
+      if (include_thread) {
+        rgrp.insert(t);
       }
 
-     // Remove non-matching hosts from the ThreadGroup.
-      if (!within_list) {
-        dgrp.insert(t);
-      }
     }
 
   }
-#endif
 
- // Remove the unneeded threads from the original group.
-    ThreadGroup::iterator ti;
-    for (ti = dgrp.begin(); ti != dgrp.end(); ti++) {
-      Thread t = *ti;
-      tgrp.erase(t);
-    }
-
+ // Copy selected threads to output argument.
+  tgrp.clear();
+  tgrp = rgrp;
 }
 
 // Utilities to decode <target_list> and attach or detach
@@ -894,8 +866,7 @@ static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
   if (!has_h) {
     char HostName[MAXHOSTNAMELEN+1];
     if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
-      std::string s("Can not retrieve host name.");
-      Mark_Cmd_With_Soft_Error(cmd,s);
+      Mark_Cmd_With_Soft_Error(cmd, "Can not retrieve host name.");
       return;
     }
     //pt.pushHostPoint (HostName[0]);
@@ -906,13 +877,11 @@ static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 
  // Semantic check for illegal combinations.
   if ( has_f && (has_p || has_t || has_r) ) {
-    std::string s("The -f option can not be used with -p -t or -r options.");
-    Mark_Cmd_With_Soft_Error(cmd,s);
+    Mark_Cmd_With_Soft_Error(cmd, "The -f option can not be used with -p -t or -r options.");
     return;
   }
   if ( has_t && has_r ) {
-    std::string s("The -t option can not be used with the -r option.");
-    Mark_Cmd_With_Soft_Error(cmd,s);
+    Mark_Cmd_With_Soft_Error(cmd, "The -t option can not be used with the -r option.");
     return;
   }
 
@@ -1218,8 +1187,7 @@ bool SS_expCreate (CommandObject *cmd) {
  // There is no specified experiment.  Allocate a new Experiment.
   ExperimentObject *exp = new ExperimentObject ();
   if (exp->FW() == NULL) {
-    std::string s("Unable to create a new experiment in the FrameWork.");
-    Mark_Cmd_With_Soft_Error(cmd,s);
+    Mark_Cmd_With_Soft_Error(cmd, "Unable to create a new experiment in the FrameWork.");
     return false;
   }
   EXPID exp_id = exp->ExperimentObject_ID();
@@ -1526,8 +1494,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     try {
       tgrp = exp->FW()->getThreads();
       if (tgrp.empty()) {
-    	std::string s("There are no applications specified for the experiment.");
-    	Mark_Cmd_With_Soft_Error(cmd,s);
+    	Mark_Cmd_With_Soft_Error(cmd, "There are no applications specified for the experiment.");
         return false;
       }
     }
@@ -1736,8 +1703,7 @@ bool SS_expRestore (CommandObject *cmd) {
  // Extract the savefile name.
   parse_val_t *file_name_value = Get_Simple_File_Name (cmd);
   if (file_name_value == NULL) {
-    std::string s("A file name for the Database is required.");
-    Mark_Cmd_With_Soft_Error(cmd,s);
+    Mark_Cmd_With_Soft_Error(cmd, "A file name for the Database is required.");
     return false;
   }
 
@@ -1753,8 +1719,7 @@ bool SS_expRestore (CommandObject *cmd) {
   ExperimentObject *exp = new ExperimentObject (data_base_name);
   if ((exp == NULL) ||
       (exp->ExperimentObject_ID() <= 0)) {
-    std::string s("The specified file name is not a legal data base.");
-    Mark_Cmd_With_Soft_Error(cmd,s);
+    Mark_Cmd_With_Soft_Error(cmd, "The specified file name is not a legal data base.");
     return false;
   }
 
@@ -1794,8 +1759,7 @@ bool SS_expSave (CommandObject *cmd) {
  // Extract the savefile name.
   parse_val_t *file_name_value = Get_Simple_File_Name (cmd);
   if (file_name_value == NULL) {
-    std::string s("Need a file name for the Database.");
-    Mark_Cmd_With_Soft_Error(cmd,s);
+    Mark_Cmd_With_Soft_Error(cmd, "Need a file name for the Database.");
     return false;
   }
 
@@ -2286,16 +2250,14 @@ bool SS_expView (CommandObject *cmd) {
     if ((exp == NULL) ||
         (exp->FW() == NULL)) {
      // No experiment was specified, so we can't find a useful view to gneerate.
-      std::string s("No valid experiment was specified.");
-      Mark_Cmd_With_Soft_Error(cmd,s);
+      Mark_Cmd_With_Soft_Error(cmd, "No valid experiment was specified.");
       view_result = false;
     } else {
      // Look for a view that would be meaningful.
       CollectorGroup cgrp = exp->FW()->getCollectors();
       if (cgrp.begin() == cgrp.end()) {
        // No collector was used.
-    	std::string s("No performance measurements were made for the experiment.");
-    	Mark_Cmd_With_Soft_Error(cmd,s);
+    	Mark_Cmd_With_Soft_Error(cmd, "No performance measurements were made for the experiment.");
         view_result = false;
       } else {
         bool view_found = false;
@@ -2514,8 +2476,10 @@ bool SS_ListHosts (CommandObject *cmd) {
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
 
   if (All_KeyWord) {
-// TODO:  List all the Hosts on the system.
-    cmd->Result_String ("not yet implemented");
+   // List all the Hosts on the system.
+   // We have decided not to support this option.
+    Mark_Cmd_With_Soft_Error(cmd, "Selection based on 'all' is not supported.");
+    return false;
   } else {
    // Get the Hosts for a specified Experiment or the focused Experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
@@ -2683,6 +2647,11 @@ bool SS_ListObj (CommandObject *cmd) {
     return false;
   }
 
+  if (Filter_Uses_F(cmd)) {
+    Mark_Cmd_With_Soft_Error(cmd, "Selection based on file name is not supported.");
+    return false;
+  }
+
  // Prevent this experiment from changing until we are done.
   exp->Q_Lock (cmd, true);
 
@@ -2847,8 +2816,10 @@ bool SS_ListPids (CommandObject *cmd) {
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
 
   if (All_KeyWord) {
-// TODO:  List all the PIDs on the system.
-    cmd->Result_String ("not yet implemented");
+   // List all the PIDs on the system.
+   // We have decided not to support this option.
+    Mark_Cmd_With_Soft_Error(cmd, "Selection based on 'all' is not supported.");
+    return false;
   } else {
    // Get the Pids for a specified Experiment or the focused Experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
@@ -2857,8 +2828,7 @@ bool SS_ListPids (CommandObject *cmd) {
     }
 
     if (Filter_Uses_F(cmd)) {
-      std::string s("Selection based on file name is not supported.");
-      Mark_Cmd_With_Soft_Error(cmd,s);
+      Mark_Cmd_With_Soft_Error(cmd, "Selection based on file name is not supported.");
       return false;
     }
 
@@ -2906,8 +2876,10 @@ bool SS_ListRanks (CommandObject *cmd) {
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
 
   if (All_KeyWord) {
-// TODO:  List all the PIDs on the system.
-    cmd->Result_String ("not yet implemented");
+   // List all the PIDs on the system.
+   // We have decided not to support this option.
+    Mark_Cmd_With_Soft_Error(cmd, "Selection based on 'all' is not supported.");
+    return false;
   } else {
    // Get the Rankss for a specified Experiment or the focused Experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
@@ -2916,8 +2888,7 @@ bool SS_ListRanks (CommandObject *cmd) {
     }
 
     if (Filter_Uses_F(cmd)) {
-      std::string s("Selection based on file name is not supported.");
-      Mark_Cmd_With_Soft_Error(cmd,s);
+      Mark_Cmd_With_Soft_Error(cmd, "Selection based on file name is not supported.");
       return false;
     }
 
@@ -2954,8 +2925,7 @@ bool SS_ListRanks (CommandObject *cmd) {
   return true;
 
 #else
-  std::string s("The system does not support MPI Ranks.");
-  Mark_Cmd_With_Soft_Error(cmd,s);
+  Mark_Cmd_With_Soft_Error(cmd, "The system does not support MPI Ranks.");
   return false;
 #endif
 }
@@ -3097,8 +3067,10 @@ bool SS_ListThreads (CommandObject *cmd) {
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
 
   if (All_KeyWord) {
-// TODO:  List all the Threads on the system.
-    cmd->Result_String ("not yet implemented");
+   // List all the Threads on the system.
+   // We have decided not to support this option.
+    Mark_Cmd_With_Soft_Error(cmd, "Selection based on 'all' is not supported.");
+    return false;
   } else {
    // Get the Threads for a specified Experiment or the focused Experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
@@ -3107,8 +3079,7 @@ bool SS_ListThreads (CommandObject *cmd) {
     }
 
     if (Filter_Uses_F(cmd)) {
-      std::string s("Selection based on file name is not supported.");
-      Mark_Cmd_With_Soft_Error(cmd,s);
+      Mark_Cmd_With_Soft_Error(cmd, "Selection based on file name is not supported.");
       return false;
     }
 
@@ -3134,8 +3105,7 @@ bool SS_ListThreads (CommandObject *cmd) {
   return true;
 
 #else
-  std::string s("The system does not support OpenMp Threads.");
-  Mark_Cmd_With_Soft_Error(cmd,s);
+  Mark_Cmd_With_Soft_Error(cmd, "The system does not support OpenMp Threads.");
   return false;
 #endif
 }
@@ -3484,8 +3454,7 @@ bool SS_OpenGui (CommandObject *cmd) {
      // The GUI was not opened before so we need to define an input control window for it.
       char HostName[MAXHOSTNAMELEN+1];
       if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
-    	std::string s("Can not retreive host name.");
-    	Mark_Cmd_With_Soft_Error(cmd,s);
+    	Mark_Cmd_With_Soft_Error(cmd, "Can not retreive host name.");
         return false;
       }
       pid_t my_pid = getpid();
@@ -3522,8 +3491,7 @@ bool SS_Playback (CommandObject *cmd) {
   parse_val_t *f_val = Get_Simple_File_Name (cmd);
 
   if (f_val == NULL) {
-    std::string s("Can not determine file name.");
-    Mark_Cmd_With_Soft_Error(cmd,s);
+    Mark_Cmd_With_Soft_Error(cmd, "Can not determine file name.");
     return false;
   }
 
