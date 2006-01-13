@@ -100,6 +100,8 @@ struct sort_descending : public std::binary_function<T,T,bool> {
 };
 
 
+// This is the stream the cli will write the output from the 
+// expView commands that are sent its way.
 class SPOutputClass : public ss_ostream
 {
   public:
@@ -126,8 +128,7 @@ class SPOutputClass : public ss_ostream
 
 
 
-/*! Create a pc Sampling Specific Stats Panel.   This panel is derived
-    from the StatsPanelBase class.  
+/*! Create a Stats Panel.
 */
 StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
@@ -234,14 +235,13 @@ StatsPanel::~StatsPanel()
   nprintf( DEBUG_CONST_DESTRUCT ) ("  StatsPanel::~StatsPanel() destructor called\n");
 // printf("  StatsPanel::~StatsPanel() destructor called\n");
 
-#ifdef CAUSES_CLI_FITS_ON_EXIT
-  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-  Redirect_Window_Output( cli->wid, NULL, NULL );
-#endif // CAUSES_CLI_FITS_ON_EXIT
-
+  // We must reset the directing of output, otherwise the cli goes nuts
+  // trying to figure out where the output is suppose to go.
   resetRedirect();
 
 
+  // We allocated a Collect, we must delete it.   Otherwise the framework
+  // issues a warning on exit.
   if( currentCollector )
   {
 // printf("Destructor delete the currentCollector\n");
@@ -2289,13 +2289,19 @@ StatsPanel::setCurrentMetricStr()
 {
 // printf("StatsPanel::setCurrentMetricStr() entered\n");
 
+  // The cli (by default) focuses on the last metric.   We should to 
+  // otherwise, when trying to focus on the related source panel, we 
+  // don't get the correct statistics showing up.
   for( std::list<std::string>::const_iterator it = list_of_collectors.begin();
        it != list_of_collectors.end(); it++ )
   {
        std::string collector_name = (std::string)*it;
        QString s = QString(collector_name.c_str() );
 // printf("collector_name=(%s)\n", collector_name.c_str() );
-      if( currentMetricStr.isEmpty() )
+
+        
+//      if( currentMetricStr.isEmpty() ) // See comment regarding which metric
+                                         // to focus on by default. (above)
       {
 // printf("Can you toggle this (currentCollector) menu?\n");
         int index = s.find("::");
