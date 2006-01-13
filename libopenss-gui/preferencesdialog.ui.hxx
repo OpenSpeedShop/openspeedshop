@@ -97,12 +97,6 @@ void PreferencesDialog::readPreferencesOnEntry()
   allowPythonCommandsCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/allowPythonCommands") );
 
-  logByDefaultCheckBox->setChecked(
-    settings->readBoolEntry( "/openspeedshop/general/logByDefault") );
-
-  limitSignalCatchingCheckBox->setChecked(
-    settings->readBoolEntry( "/openspeedshop/general/limitSignalCatching") );
-
   setShowSplashScreenCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/showSplashScreen") );
   showGraphicsCheckBox->setChecked(
@@ -145,10 +139,6 @@ void PreferencesDialog::resetPreferenceDefaults()
    saveExperimentDatabaseCheckBox->setChecked(saveExperimentDatabase);
    allowPythonCommands = TRUE;
    allowPythonCommandsCheckBox->setChecked(allowPythonCommands);
-   logByDefault = FALSE;
-   logByDefaultCheckBox->setChecked(logByDefault);
-   limitSignalCatching = FALSE;
-   limitSignalCatchingCheckBox->setChecked(limitSignalCatching);
 
 
   // Begin reset all preferences to defaults
@@ -360,16 +350,6 @@ void PreferencesDialog::savePreferences()
   if( !settings->writeEntry( "/openspeedshop/general/allowPythonCommands", allowPythonCommandsCheckBox->isChecked() ) )
   {
     printf("Unable to write allowPythonCommands.\n");
-  }
-
-  if( !settings->writeEntry( "/openspeedshop/general/logByDefault", logByDefaultCheckBox->isChecked() ) )
-  {
-    printf("Unable to write logByDefault.\n");
-  }
-
-  if( !settings->writeEntry( "/openspeedshop/general/limitSignalCatching", limitSignalCatchingCheckBox->isChecked() ) )
-  {
-    printf("Unable to write limitSignalCatching.\n");
   }
 
   // Begin save all preferences

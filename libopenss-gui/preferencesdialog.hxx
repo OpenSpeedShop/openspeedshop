@@ -91,8 +91,6 @@ QString globalRemoteShell;
     bool viewFullPath; 
     bool saveExperimentDatabase; 
     bool allowPythonCommands; 
-    bool logByDefault; 
-    bool limitSignalCatching; 
 
     QSettings *settings;
     void readPreferencesOnEntry();

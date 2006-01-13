@@ -66,8 +66,6 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    viewFullPath = FALSE;  
    saveExperimentDatabase = FALSE; 
    allowPythonCommands = TRUE; 
-   logByDefault = FALSE; 
-   limitSignalCatching = FALSE; 
 
 
    globalRemoteShell = "/usr/bin/rsh";
@@ -299,20 +297,6 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     allowPythonCommandsCheckBox->setText( tr( "Allow Python Commands" ) );
     rightSideLayout->addWidget( allowPythonCommandsCheckBox );
     }
-    { // LOG_BY_DEFAULT
-    logByDefaultCheckBox = new QCheckBox( GeneralGroupBox, "logByDefaultCheckBox" );
-    logByDefaultCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, logByDefaultCheckBox->sizePolicy().hasHeightForWidth() ) );
-    logByDefaultCheckBox->setChecked( TRUE );
-    logByDefaultCheckBox->setText( tr( "Log By Default" ) );
-    rightSideLayout->addWidget( logByDefaultCheckBox );
-    }
-    { // LIMIT_SIGNAL_CATCHING
-    limitSignalCatchingCheckBox = new QCheckBox( GeneralGroupBox, "limitSignalCatchingCheckBox" );
-    limitSignalCatchingCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, limitSignalCatchingCheckBox->sizePolicy().hasHeightForWidth() ) );
-    limitSignalCatchingCheckBox->setChecked( TRUE );
-    limitSignalCatchingCheckBox->setText( tr( "Limit Signal Catching" ) );
-    rightSideLayout->addWidget( limitSignalCatchingCheckBox );
-    }
 
     generalStackPageLayout->addWidget( GeneralGroupBox );
     stack->addWidget( generalStackPage, 0 );
@@ -378,14 +362,6 @@ QToolTip::add(saveExperimentDatabaseCheckBox,
   allowPythonCommandsCheckBox->setChecked(allowPythonCommands);
 QToolTip::add(allowPythonCommandsCheckBox,
   tr("Declare that Python commands may be intermixed with OpenSS\ncommands.  The default is true.") );
-
-  logByDefaultCheckBox->setChecked(logByDefault);
-QToolTip::add(logByDefaultCheckBox,
-  tr("Declare that a log file will be opened and each command\nwill be tracked through the various internal processing\nstep of OpenSS.  This is intended to be an internal debug\naid and is not generally useful.  The default is false.") );
-
-  limitSignalCatchingCheckBox->setChecked(limitSignalCatching);
-QToolTip::add(limitSignalCatchingCheckBox,
-  tr("Declare that OpenSS should limit the types of signals it\ntraps. When set to true, OpenSS will ignore the following\nfaults:\n SIGILL - illegal instructions\n SIGFPE - floating point exceptions\n SIGBUS - bus errors\n SIGSEGV - illegal memory addresses\n SIGSYS - system errors\nIgnoring the errors will allow a core file to be generated,\nso this is intended to be an internal debug aid.  The default\nvalue is false and OpenSS will attempt to clean up if an\nerror is encountered.  Setting the value to true may result\nin a number of files being left around if OpenSS encounters\na fault.") );
 
     setCaption( tr( "Preferences Dialog" ) );
     categoryListView->header()->setLabel( 0, tr( "Categories" ) );
