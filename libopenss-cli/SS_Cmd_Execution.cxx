@@ -450,6 +450,12 @@ bool Filter_Uses_F (CommandObject *cmd) {
  * determine which of the original set of threads are
  * begin requested.
  *
+ * A thread is selected if one of the itees in each  of
+ * the specified -h -p -r -t lists matchs the similar
+ * information for the thread for one of the <target>
+ * specifiers in the given <target_list>. The -f option
+ * is ignored.
+ *
  * Output is done by overwriting the input argument.
  *     
  * @param CommandObject *cmd - containing the parse object.
