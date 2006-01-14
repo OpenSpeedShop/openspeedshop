@@ -196,6 +196,12 @@ AC_CONFIG_FILES(
 	libopenss-gui/Makefile
 	test/Makefile
 	test/executables/Makefile
+	test/executables/smg2000/Makefile
+	test/executables/smg2000/krylov/Makefile
+	test/executables/smg2000/struct_ls/Makefile
+	test/executables/smg2000/struct_mv/Makefile
+	test/executables/smg2000/utilities/Makefile
+	test/executables/smg2000/test/Makefile
 	test/executables/forever/Makefile
 	test/executables/forever_cxx/Makefile
 	test/executables/fredO2/Makefile
