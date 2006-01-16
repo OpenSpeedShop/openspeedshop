@@ -76,6 +76,7 @@ static char *coldToHot_color_names[] = {
 #include "SPListView.hxx"   // Change this to your new class header file name
 #include "SPListViewItem.hxx"   // Change this to your new class header file name
 #include "UpdateObject.hxx"
+#include "RaiseCompareObject.hxx"
 #include "FocusObject.hxx"
 #include "HighlightObject.hxx"
 #include "SourceObject.hxx"
@@ -978,8 +979,24 @@ QMessageBox::information(this, "About stats information", aboutString, "Ok");
 void
 StatsPanel::compareSelected()
 {
-printf("compareSelected() menu selected.\n");
-QMessageBox::information(this, "compareSelected() unimplemented", "This functionality is currently unimplement.\nIt will eventually bring up a dialog that will\nallow many different comparisons.\n  - Compare one run to another.\n  - Compare on thread to another.\n  - Compare one thread against all others.\n  - ...\n", "Ok");
+// printf("compareSelected() menu selected.\n");
+  manageProcessesSelected();
+
+  QString name = QString("ManageProcessesPanel [%1]").arg(expID);
+
+  Panel *manageProcessesPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+
+  if( manageProcessesPanel )
+  { 
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    if( eo && eo->FW() )
+    {
+      Experiment *experiment = eo->FW();
+      RaiseCompareObject *msg =
+        new RaiseCompareObject(expID, 1);
+      manageProcessesPanel->listener( (void *)msg );
+    }
+  }
 }
 
 /*! Compare item was selected. */
@@ -990,12 +1007,12 @@ StatsPanel::manageProcessesSelected()
   QString name = QString("ManageProcessesPanel [%1]").arg(expID);
 
 
-  Panel *manageProcessPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+  Panel *manageProcessesPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
 
-  if( manageProcessPanel )
+  if( manageProcessesPanel )
   { 
     nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel() found ManageProcessesPanel found.. raise it.\n");
-    getPanelContainer()->raisePanel(manageProcessPanel);
+    getPanelContainer()->raisePanel(manageProcessesPanel);
   } else
   {
 //    nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel() no ManageProcessesPanel found.. create one.\n");
@@ -1004,20 +1021,20 @@ StatsPanel::manageProcessesSelected()
     PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
 
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-    manageProcessPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ManageProcessesPanel", startPC, ao);
+    manageProcessesPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ManageProcessesPanel", startPC, ao);
     delete ao;
   }
 
-  if( manageProcessPanel )
+  if( manageProcessesPanel )
   {
-//    nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", manageProcessPanel->getName());
+//    nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", manageProcessesPanel->getName());
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
     if( eo && eo->FW() )
     {
       Experiment *experiment = eo->FW();
       UpdateObject *msg =
         new UpdateObject((void *)experiment, expID, "pcsamp", 1);
-      manageProcessPanel->listener( (void *)msg );
+      manageProcessesPanel->listener( (void *)msg );
     }
   }
 
