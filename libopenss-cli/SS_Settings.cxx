@@ -227,23 +227,22 @@ SS_Settings::find(std::string key, bool *ok)
       (settings_file->rdstate() & ifstream::failbit ) != 0 )
   {
 //    cerr << "Error opening 'test.txt'\n";
-    ok = 0;
+    *ok = 0;
     return std::string();
   }
-
 
   string line;
   settings_file->seekg (startOfSection, ios::beg);
   
   while( !settings_file->eof() )
   {
-// cout << line << endl;
     getline (*settings_file,line);
-
-    if( line.find("[",0) == 0 )
+// cout << "(" << line << ")" << endl;
+    if( line.size() == 0 || line.find("[",0) == 0 )
     { // We're at a new section.   Break...
-      ok = 0;
-      return NULL;
+      *ok = 0;
+// printf("Return NULL\n");
+      return std::string();
     }
     if( line.find(key, 0) == 0 )
     {
