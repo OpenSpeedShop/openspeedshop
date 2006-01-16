@@ -102,8 +102,8 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   attachCollectorsListView->setAllColumnsShowFocus( TRUE );
   attachCollectorsListView->setShowSortIndicator( TRUE );
   attachCollectorsListView->setRootIsDecorated(TRUE);
-attachCollectorsListView->setAcceptDrops( FALSE );
-attachCollectorsListView->viewport()->setAcceptDrops(TRUE);
+  attachCollectorsListView->setAcceptDrops( FALSE );
+  attachCollectorsListView->viewport()->setAcceptDrops(TRUE);
 
 
   psetListView = new MPListView( (QWidget *)splitter, (const char *)"psetlist", 0 );
@@ -1677,9 +1677,8 @@ ManageCollectorsClass::updateTimerCallback()
 bool
 ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 {
-// printf("ManageCollectorsClass::menu(0x%x) entered.\n", contextMenu);
-psetListView->contentsDragLeaveEvent(NULL);
-psetListView->contentsMouseReleaseEvent(NULL);
+  psetListView->contentsDragLeaveEvent(NULL);
+  psetListView->contentsMouseReleaseEvent(NULL);
 
 
   bool selectable = TRUE;

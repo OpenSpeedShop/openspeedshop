@@ -24,8 +24,10 @@
 
 class PanelContainer;
 class ManageCollectorsClass;
+class ManageCompareClass;
 class QHBoxLayout;
 class ArgumentObject;
+class QAction;
 
 #undef PANEL_CLASS_NAME
 #define PANEL_CLASS_NAME ManageProcessesPanel   // Change the value of the define
@@ -61,14 +63,17 @@ class ManageProcessesPanel  : public Panel
     QHBoxLayout * frameLayout;
 
     ManageCollectorsClass *mcc;
+    ManageCompareClass *mcc1;
 
     void preferencesChanged();
 
     int expID;
 
+    bool openComparePaneFLAG;
   public slots:
 
     void updateTimerCallback();
+    void openComparePane();
 
   protected:
     //! Sets the language specific strings.

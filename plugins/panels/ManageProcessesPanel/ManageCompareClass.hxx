@@ -17,8 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
   
 
-#ifndef MANAGECOLLECTORCLASS_H
-#define MANAGECOLLECTORCLASS_H
+#ifndef MANAGECOMPARECLASS_H
+#define MANAGECOMPARECLASS_H
 
 #include <qvariant.h>
 #include <qdialog.h>
@@ -33,8 +33,6 @@
 #include "GenericProgressDialog.hxx"
 #include "MPListView.hxx"
 
-enum DialogSortType  { COLLECTOR_T, PID_T, MPIRANK_T, HOST_T };
-
 class QVBoxLayout;
 class QHBoxLayout;
 class QGridLayout;
@@ -46,90 +44,56 @@ class QPopupMenu;
 class QListView;
 class QListViewItem;
 class QSplitter;
+class QToolBox;
+class QTabWidget;
 
 class PanelContainer;
 class ManageProcessesPanel;
 
-class ManageCollectorsClass : public QWidget
+typedef QValueList <QListView *> CompareList;
+
+class ManageCompareClass : public QWidget
 {
     Q_OBJECT
 
 public:
-    ManageCollectorsClass( Panel *p, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0, int exp_id = -1 );
-    ~ManageCollectorsClass();
-
-    MPListView* attachCollectorsListView;
-    MPListView *psetListView;
-
-    QString selectedCollectors();
-    QTimer *updateTimer;
-    int timerValue;
-    void updateAttachedList();
-    void updatePSetList();
-
-    CollectorListObject *clo;
+    ManageCompareClass( Panel *p, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0, int exp_id = -1 );
+    ~ManageCompareClass();
 
     bool menu(QPopupMenu* contextMenu);
 
     int expID;
     Panel *p;
 
-    int userPsetCount;
-
 protected:
-    QVBoxLayout* ManageCollectorsClassLayout;
+    QHBoxLayout* ManageCompareClassLayout;
     QHBoxLayout* AddCollectorLayout;
     QSplitter *splitter;
     QHBoxLayout* Layout1;
     QSpacerItem* Horizontal_Spacing2;
 
+      CompareList compareList;
+      QToolBox *csetTB;
+      int ccnt;
+int tcnt;
+
     CLIInterface *cli;
     OpenSpeedshop *mw;
 
-    int steps;
-    QTimer *loadTimer;
-    GenericProgressDialog *pd;
-
-    QPopupMenu *popupMenu;
-    QPopupMenu *paramMenu;
-    QPopupMenu *collectorMenu;
-    QPopupMenu *collectorPopupMenu;
-    DialogSortType dialogSortType;
-    std::list<std::string> list_of_collectors;
-
-    QListViewItem *user_defined_psets;
-    
 protected slots:
     virtual void languageChange();
 
 public slots:
-    void updatePanel();
-    void updateTimerCallback();
 
 private slots:
-    void attachCollectorSelected(int);
-    void detachSelected();
-    void disableSelected();
-    void enableSelected();
-    void attachProcessSelected();
-    void focusOnProcessSelected();
-    void focusOnPSetList(QListView *);
-    void focusOnPSetSelected();
-    void focusOnProcessSelected(QListViewItem*);
-    void loadProgramSelected();
-    void fileCollectorAboutToShowSelected();
-    void paramSelected(int);
-    void sortByProcess();
-    void sortByCollector();
-    void sortByHost();
-    void sortByMPIRank();
-    void createUserPSet();
-    void removeUserPSet();
-
-    void progressUpdate();
+    void addNewCSet();
+    void addNewTab();
+    void addNewTab(QTabWidget *);
+    void removeCSet();
+    void removeRaisedTab();
 
 private:
 
 };
 
-#endif // MANAGECOLLECTORCLASS_H
+#endif // MANAGECOMPARECLASS_H

@@ -17,9 +17,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "ManageProcessesPanel.hxx"   // Change this to your new class header file name
-#include "ManageCollectorsClass.hxx"   // Change this to your new class header file name
+#include "ManageProcessesPanel.hxx"
+#include "ManageCollectorsClass.hxx"
+#include "ManageCompareClass.hxx"
 #include "PreferencesChangedObject.hxx"
+#include "RaiseCompareObject.hxx"
 #include "UpdateObject.hxx"
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
@@ -30,14 +32,23 @@
 #include <qtextedit.h>  // For QTextEdit in example below...
 ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
+  expID = ao->int_data;
+  openComparePaneFLAG = FALSE;
+
   setCaption("ManageProcessesPanel");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  expID = ao->int_data;
+  QSplitter *compareSplitter = new QSplitter(getBaseWidgetFrame(), "compareSplitter");
+  compareSplitter->setOrientation(QSplitter::Vertical);
 
-  mcc = new ManageCollectorsClass( this, getBaseWidgetFrame() );
-  frameLayout->addWidget(mcc);
+
+  mcc = new ManageCollectorsClass( this, compareSplitter );
+
+  mcc1 = new ManageCompareClass( this, compareSplitter );
+
+  frameLayout->addWidget(compareSplitter);
   mcc->show();
+  mcc1->hide();
   mcc->expID = ao->int_data;
   groupID = mcc->expID;
   getBaseWidgetFrame()->setCaption("ManageProcessesPanelBaseWidget");
@@ -76,11 +87,27 @@ ManageProcessesPanel::languageChange()
 bool
 ManageProcessesPanel::menu(QPopupMenu* contextMenu)
 {
-  dprintf("ManageProcessesPanel::menu() requested.\n");
-
   Panel::menu(contextMenu);
 
-  return( mcc->menu(contextMenu) );
+  QAction *qaction = new QAction( this,  "openComparePane");
+  qaction->addTo( contextMenu );
+  if( openComparePaneFLAG )
+  {
+    qaction->setText( tr("Hide Compare Pane") );
+  } else 
+  {
+    qaction->setText( tr("Show Compare Pane") );
+  }
+  connect( qaction, SIGNAL( activated() ), this, SLOT( openComparePane() ) );
+  qaction->setStatusTip( tr("Open pane to set the compare properties.") );
+
+  if( mcc1->hasMouse() )
+  {
+    return( mcc1->menu(contextMenu) );
+  } else
+  {
+    return( mcc->menu(contextMenu) );
+  }
 
   return( FALSE );
 }
@@ -163,6 +190,20 @@ ManageProcessesPanel::listener(void *msg)
 //    f = sao->f;
   dprintf("Attempt to call (unexistent) exportData() routine\n");
 //    exportData();
+  } else if(  msgObject->msgType  == "RaiseCompareObject" )
+  {
+    RaiseCompareObject *msg = (RaiseCompareObject *)msgObject;
+    nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() RaiseCompareObject!\n");
+
+    if( msg->raiseFLAG )
+    {
+      if( msg->raiseFLAG )
+      {
+        getPanelContainer()->raisePanel((Panel *)this);
+      }
+    }
+
+    mcc1->show();
   }
 
 
@@ -193,6 +234,21 @@ ManageProcessesPanel::updateTimerCallback()
 {
   mcc->updateTimerCallback();
 }
+
+void
+ManageProcessesPanel::openComparePane()
+{
+  if( openComparePaneFLAG )
+  {
+    openComparePaneFLAG = FALSE;
+    mcc1->hide();
+  } else
+  {
+    openComparePaneFLAG = TRUE;
+    mcc1->show();
+  }
+}
+
 
 void
 ManageProcessesPanel::preferencesChanged()
