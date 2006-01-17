@@ -92,6 +92,7 @@ private slots:
     void removeCSet();
     void removeRaisedTab();
     void removeUserPSet();
+    void focusOnCSet();
 
 private:
 

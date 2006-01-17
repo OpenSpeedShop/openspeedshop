@@ -276,7 +276,7 @@ ao->loadedFromSavedFile = loadedFromSavedFile;
   QApplication::restoreOverrideCursor();
 }
 
-void OpenSpeedshop::fileOpenSavedExperiment(QString filename)
+void OpenSpeedshop::fileOpenSavedExperiment(QString filename, bool openPanel)
 {
 // printf("OpenSpeedshop::fileOpenSavedExperiment() entered\n");
 //printf("  Get a list of all the experiment files in the current directory\n");
@@ -316,9 +316,11 @@ void OpenSpeedshop::fileOpenSavedExperiment(QString filename)
       QMessageBox::information( this, "No collector found for file.:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
     } else
     {
-//      ExperimentObject *eo = Find_Experiment_Object((EXPID)val);
       loadedFromSavedFile = TRUE;
-      fileOpenExperiment(val);
+      if( openPanel )
+      {
+        fileOpenExperiment(val);
+      }
     }
   }
 }

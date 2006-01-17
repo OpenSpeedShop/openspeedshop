@@ -71,11 +71,12 @@ tcnt = 0;
 
   if ( !name ) setName( "ManageCompareClass" );
 
-QVBoxLayout *mainCompareLayout = new QVBoxLayout( this, 1, 1, "mainCompareLayout");
-QLabel *header = new QLabel(this, "header");
-header->setText("Compare Processes Factory:");
-header->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
-mainCompareLayout->addWidget(header);
+  QVBoxLayout *mainCompareLayout = new QVBoxLayout( this, 1, 1, "mainCompareLayout");
+  QLabel *header = new QLabel(this, "header");
+  header->setText("Compare Processes Factory:");
+  header->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+  QToolTip::add(header, tr("The Compare Processes Factor is the interface that allows you to compare one set\nof process/thread to another -or- one experiment run against another.\n\nIt allows you manage columns of data that will be displayed in the StatsPanel.\nEach cset defined can have mulitiple columns defined.   Each coloumn can have an\nindividual collector/metric/modifier displayed.\n\nFirst you create the CompareSet (cset) definition, using this panel, then select\n\"Focus on this CSET\" and the StatsPanel (and eventually the SourcePanel) will be\nupdated with the selected statistics.") );
+  mainCompareLayout->addWidget(header);
 
   ManageCompareClassLayout = new QHBoxLayout( mainCompareLayout, 1, "ManageCompareClassLayout"); 
 
@@ -86,14 +87,14 @@ mainCompareLayout->addWidget(header);
 
   ManageCompareClassLayout->addWidget( splitter );
 
-// Vertical list of compare sets (set of psets) defined by the user.
-// this simple defaults to "All process/threads, as if this pane never
-// existed.
-csetTB = new QToolBox( splitter, "listOfCompareSets");
+  // Vertical list of compare sets (set of psets) defined by the user.
+  // this simple defaults to "All process/threads, as if this pane never
+  // existed.
+  csetTB = new QToolBox( splitter, "listOfCompareSets");
 
-compareList.clear();
+  compareList.clear();
 
-addNewCSet();
+  addNewCSet();
 
 
   languageChange();
@@ -118,10 +119,19 @@ void ManageCompareClass::languageChange()
 bool
 ManageCompareClass::menu(QPopupMenu* contextMenu)
 {
+  QAction *qaction = NULL;
 
   contextMenu->insertSeparator();
 
-  QAction *qaction = new QAction( this,  "addNewCSet");
+  qaction = new QAction( this,  "focusOnCSET");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Focus on CSet...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnCSet() ) );
+  qaction->setStatusTip( tr("Focus the StatsPanel on compare set (cset) in focus.") );
+
+  contextMenu->insertSeparator();
+
+  qaction = new QAction( this,  "addNewCSet");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Add new cset (Compare Set)...") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( addNewCSet() ) );
@@ -266,4 +276,10 @@ printf("removeUserPSet() hmmmm\n");
   QWidget *currentTab = currentTabWidget->currentPage();
 
 printf("Hmmmm.\n");
+}
+
+void
+ManageCompareClass::focusOnCSet()
+{
+printf("focusOnCSet() entered.   Now all you need to do is implement it.\n");
 }

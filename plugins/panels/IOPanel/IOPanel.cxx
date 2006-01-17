@@ -38,6 +38,7 @@
 #include "ArgumentObject.hxx"
 #include "FocusObject.hxx"
 #include "ManageProcessesPanel.hxx"
+#include "RaiseCompareObject.hxx"
 
 #include "LoadAttachObject.hxx"
 #include "ArgumentObject.hxx"
@@ -470,7 +471,7 @@ if( experiment != NULL )
   qaction->addTo( contextMenu );
   qaction->setText( "Manage Data Sets..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( manageDataSetsSelected() ) );
-  qaction->setStatusTip( tr("Combine data sets from multiple runs. (Currently unimplemented)") );
+  qaction->setStatusTip( tr("Opens another data set (experiment), so it's data can be compared against this experiments data.") );
 
   contextMenu->insertSeparator();
 
@@ -488,8 +489,42 @@ void
 IOPanel::manageDataSetsSelected()
 {
   nprintf( DEBUG_PANELS ) ("IOPanel::manageDataSetsSelected()\n");
+
   QString str(tr("This feature is currently under construction.\n") );
-  QMessageBox::information( this, "Informational", str, "Manage Data Sets not yet implemented." );
+  QMessageBox::information( this, "Informational", str, "Continue" );
+
+  QString fn = QString::null;
+  char *cwd = get_current_dir_name();
+  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open for comparison");
+  free(cwd);
+  if( !fn.isEmpty() )
+  {
+//      printf("fn = %s\n", fn.ascii() );
+//      fprintf(stderr, "Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
+    getPanelContainer()->getMainWindow()->executableName = QString::null;
+    getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn, FALSE);
+  } else
+  {
+    fprintf(stderr, "No experiment file name given.\n");
+  }
+  loadManageProcessesPanel();
+
+  QString name = QString("ManageProcessesPanel [%1]").arg(expID);
+
+  Panel *manageProcessesPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+
+  if( manageProcessesPanel )
+  {
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    if( eo && eo->FW() )
+    {
+      Experiment *experiment = eo->FW();
+      RaiseCompareObject *msg =
+        new RaiseCompareObject(expID, 1);
+      manageProcessesPanel->listener( (void *)msg );
+    }
+  }
+
 }   
 
 //! Save ascii version of this panel.
@@ -1292,7 +1327,6 @@ if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT")
   // Currently we don't set any mpi parameters.
 } else if( lao->paramList )
   {
-#ifdef PULL
     QString sample_rate_str = (QString)*lao->paramList->begin();
 // printf("sample_rate_str=(%s)\n", sample_rate_str.ascii() );
     unsigned int sampling_rate = sample_rate_str.toUInt();
@@ -1346,7 +1380,6 @@ if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT")
       return 0;
     }
     delete lao->paramList;
-#endif // PULL
   }
   nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
 
