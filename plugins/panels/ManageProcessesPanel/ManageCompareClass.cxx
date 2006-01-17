@@ -147,6 +147,13 @@ ManageCompareClass::menu(QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( removeRaisedTab() ) );
   qaction->setStatusTip( tr("Removes column (tab) from the current cset.") );
 
+  contextMenu->insertSeparator();
+
+  qaction = new QAction( this,  "removeUserPSet");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Remove process/process set..") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( removeUserPSet() ) );
+  qaction->setStatusTip( tr("Removes process/process set from the current cset.") );
 
   return( TRUE );
 }
@@ -200,8 +207,15 @@ ManageCompareClass::addNewTab(QTabWidget *tabWidget)
   QToolTip::add(l, tr("Well, this really won't be a selection ... I don't think.") );
   TBlayout->addWidget(l);
   
-  QListView *lv = new QListView( frame, QString("lv%1-%2").arg(tcnt).arg(ccnt)  );
+//  MPListView *lv = new MPListView( frame, QString("lv%1-%2").arg(tcnt).arg(ccnt), 0  );
+  MPListView *lv = new MPListView( frame, CPS, 0  );
   lv->addColumn("lv header");
+  lv->setAllColumnsShowFocus( TRUE );
+  lv->setShowSortIndicator( TRUE );
+  lv->setRootIsDecorated(TRUE);
+  lv->setSelectionMode( QListView::Single );
+  MPListViewItem *dynamic_items = new MPListViewItem( lv, CPS);
+
   QToolTip::add(l, tr("Drag and drop, psets or individual processes from the processes\nsets (psets) above.   In the StatsPanel, the statistics from\nthese grouped processes will be displayed in\ncolumns relative to this display.") );
   TBlayout->addWidget(lv);
   
@@ -242,3 +256,14 @@ ManageCompareClass::removeRaisedTab()
   
 }
 
+void
+ManageCompareClass::removeUserPSet()
+{
+printf("removeUserPSet() hmmmm\n");
+  // First find the current (raised) cset.\n");
+  QTabWidget *currentTabWidget = (QTabWidget* )csetTB->currentItem();
+
+  QWidget *currentTab = currentTabWidget->currentPage();
+
+printf("Hmmmm.\n");
+}

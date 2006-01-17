@@ -126,7 +126,6 @@ void MPListView::contentsDropEvent( QDropEvent *e )
   }
   if( !acceptDrops() || !viewport()->acceptDrops() )
   {
-// printf("We don't accept drops at this time... please move along.\n");
     mousePressed = FALSE;
     return;
   }
@@ -149,7 +148,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
   // pset list.   These are not user configurable.
   QListViewItem *top = item;
   QListViewItem *last = top;
-  if( !top || top->parent() == NULL )
+  if( top->parent() == NULL && item->text(0) != CPS )
   {
     e->ignore();
     return;
@@ -177,7 +176,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
   }
 
 
-  if ( item && item->parent() )
+  if ( (item && item->parent()) || (item && last->text(0) == CPS) )
   {
     QStrList lst;
 

@@ -29,6 +29,7 @@ using namespace std;
 #include "qlistview.h"
 #include <qwidget.h>
 
+#define CPS "Compare Process Set"
 #define DPS "Dynamic Process Set"
 #define UDPS "User Defined Process Set"
 

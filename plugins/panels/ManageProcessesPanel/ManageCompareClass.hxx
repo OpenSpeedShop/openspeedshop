@@ -91,6 +91,7 @@ private slots:
     void addNewTab(QTabWidget *);
     void removeCSet();
     void removeRaisedTab();
+    void removeUserPSet();
 
 private:
 
