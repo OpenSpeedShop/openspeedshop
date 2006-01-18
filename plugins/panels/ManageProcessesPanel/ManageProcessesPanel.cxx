@@ -35,13 +35,10 @@ ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, Ar
   setCaption("ManageProcessesPanel");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  QSplitter *compareSplitter = new QSplitter(getBaseWidgetFrame(), "compareSplitter");
-  compareSplitter->setOrientation(QSplitter::Vertical);
+  mcc = new ManageCollectorsClass( this, getBaseWidgetFrame() );
 
+  frameLayout->addWidget(mcc);
 
-  mcc = new ManageCollectorsClass( this, compareSplitter );
-
-  frameLayout->addWidget(compareSplitter);
   mcc->show();
   mcc->expID = ao->int_data;
   groupID = mcc->expID;

@@ -96,6 +96,8 @@ tcnt = 0;
 
   compareList.clear();
 
+  gatherInfo();
+
   addNewCSet();
 
 
@@ -196,40 +198,115 @@ void
 CompareClass::addNewTab(QTabWidget *tabWidget)
 {
 
-  gatherInfo();
-
   QFrame *frame = new QFrame(tabWidget, QString("frame%1-%2").arg(tcnt).arg(ccnt) );
   QVBoxLayout *TBlayout = new QVBoxLayout( frame, 1, 1, QString("TBlayout%1-%2").arg(tcnt).arg(ccnt) );
-{
-  QComboBox *cb = new QComboBox(FALSE, frame, "collectorComboBox");
 
-        CollectorEntryList::Iterator it;
-        for( it = clo->collectorEntryList.begin();
-           it != clo->collectorEntryList.end();
-           ++it )
-        {
-          ce = (CollectorEntry *)*it;
-cb->insertItem( ce->name );
+
+{
+QComboBox *cb = NULL;
+// if( experiment_list.size() > 1 )
+{
+  QHBoxLayout *experimentLayout = new QHBoxLayout( TBlayout, 1, "experimentLayout" );
+
+  QLabel *cbl = new QLabel(frame, "experimentComboBoxLabel");
+  cbl->setText( tr("Available Experiments:") );
+  cbl->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+  QToolTip::add(cbl, tr("Select which experiment that you want\nto use in the comparison for this column.") );
+  experimentLayout->addWidget(cbl);
+
+  cb = new QComboBox(FALSE, frame, "experimentComboBox");
+  cb->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+
+  QToolTip::add(cb, tr("Select which experiment that you want\nto use in the comparison for this column.") );
+  experimentLayout->addWidget(cb);
+
+  QSpacerItem *spacer = new QSpacerItem(1000,1, QSizePolicy::Maximum, QSizePolicy::Fixed);
+  experimentLayout->addItem(spacer);
+}
+
+for( std::vector<pair_def>::const_iterator it = experiment_list.begin();         it != experiment_list.end(); it++ )
+{
+// printf("it->first=%d it->second.c_str()=(%s)\n", it->first, it->second.c_str() );
+
+  QString str1 = QString("%1").arg(it->first);
+  QString str2 = QString("%1").arg(it->second.c_str());
+  if( cb )
+  {
+    cb->insertItem( "Exp:"+str1+" "+str2 );
+  }
+// printf("str1.ascii()=(%s) str2.ascii()=(%s)\n", str1.ascii(), str2.ascii() );
+}
+}
+
+{
+QComboBox *cb = NULL;
+// if( clo->collectorEntryList.size() > 1 )
+{
+  QHBoxLayout *collectorLayout = new QHBoxLayout( TBlayout, 1, "collectorLayout" );
+
+  QLabel *cbl = new QLabel(frame, "collectorComboBoxLabel");
+  cbl->setText( tr("Available Collectors:") );
+  cbl->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+  QToolTip::add(cbl, tr("Select which collector that you want\nto use in the comparison for this column.") );
+  collectorLayout->addWidget(cbl);
+
+  cb = new QComboBox(FALSE, frame, "collectorComboBox");
+  cb->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+
+  QToolTip::add(cb, tr("Select which collector that you want\nto use in the comparison for this column.") );
+  collectorLayout->addWidget(cb);
+
+  QSpacerItem *spacer = new QSpacerItem(1000,1, QSizePolicy::Maximum, QSizePolicy::Fixed);
+  collectorLayout->addItem(spacer);
+}
+
+  CollectorEntryList::Iterator it;
+  for( it = clo->collectorEntryList.begin();
+       it != clo->collectorEntryList.end();
+       ++it )
+  {
+    ce = (CollectorEntry *)*it;
+if( cb )
+{
+    cb->insertItem( ce->name );
 // printf("Put this to menu: ce->name=%s ce->short_name\n", ce->name.ascii(), ce->short_name.ascii() );
-       }
-  QToolTip::add(cb, tr("Select which collect (from the list) that you want\nto use in the comparison for this column.") );
-  TBlayout->addWidget(cb);
+}
+  }
 }
   
 {
+
 if( ce )
 {
+  QHBoxLayout *metricLayout = new QHBoxLayout( TBlayout, 1, "metricLayout" );
+
+  QLabel *cbl = new QLabel(frame, "metricComboBoxLabel");
+  cbl->setText( tr("Available Metrics/Modifers:") );
+  cbl->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+  QToolTip::add(cbl, tr("Select which metric/modifier that you want\nto use in the comparison for this column.") );
+  metricLayout->addWidget(cbl);
+
   QComboBox *cb = new QComboBox(FALSE, frame, "metricComboBox");
-          CollectorMetricEntryList::Iterator plit;
-          for( plit = ce->metricList.begin();
-               plit != ce->metricList.end(); ++plit )
-          {
-            CollectorMetricEntry *cpe = (CollectorMetricEntry *)*plit;
+  QToolTip::add(cb, tr("Select which metric/modifier that you want\nto use in the comparison for this column.") );
+  metricLayout->addWidget(cb);
+
+  QSpacerItem *spacer = new QSpacerItem(1000,1, QSizePolicy::Maximum, QSizePolicy::Fixed);
+  metricLayout->addItem(spacer);
+
+  CollectorMetricEntryList::Iterator plit;
+  for( plit = ce->metricList.begin();
+       plit != ce->metricList.end(); ++plit )
+  {
+    CollectorMetricEntry *cpe = (CollectorMetricEntry *)*plit;
 // printf("Put this to a menu: cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
-cb->insertItem( cpe->name );
-          }
-  QToolTip::add(cb, tr("Select which collect (from the list) that you want\nto use in the comparison for this column.") );
-  TBlayout->addWidget(cb);
+    cb->insertItem( cpe->name );
+  }
+  cb->insertItem("min");
+  cb->insertItem("max");
+  cb->insertItem("average");
+  cb->insertItem("count");
+  cb->insertItem("percent");
+  cb->insertItem("stddev");
 }
 }
   
@@ -245,21 +322,21 @@ cb->insertItem( cpe->name );
   TBlayout->addWidget(l);
 #endif // OLDWAY
   
-//  MPListView *lv = new MPListView( frame, QString("lv%1-%2").arg(tcnt).arg(ccnt), 0  );
   MPListView *lv = new MPListView( frame, CPS, 0  );
-  lv->addColumn("Process/Process Sets (psets) to be display in this column:");
+  lv->addColumn("Column");
+  QToolTip::add(lv->header(), "Process/Process Sets (psets) to be display in this column:");
   lv->setAllColumnsShowFocus( TRUE );
   lv->setShowSortIndicator( TRUE );
   lv->setRootIsDecorated(TRUE);
   lv->setSelectionMode( QListView::Single );
   MPListViewItem *dynamic_items = new MPListViewItem( lv, CPS);
 
-  QToolTip::add(lv, tr("Drag and drop, psets or individual processes from the processes\nsets (psets) above.   In the StatsPanel, the statistics from\nthese grouped processes will be displayed in\ncolumns relative to this display.") );
+  QToolTip::add(lv->viewport(), tr("Drag and drop, psets or individual processes from the ManageProcessesPanel.   In the StatsPanel, the statistics from\nthese grouped processes will be displayed in\ncolumns relative to this display.") );
   TBlayout->addWidget(lv);
   
   // ??  compareList.push_back(lv);
   
-  tabWidget->addTab( frame, QString("Column #%1-%2").arg(tcnt).arg(ccnt)  );
+  tabWidget->addTab( frame, QString("Column #%1").arg(tcnt)  );
   int count = tabWidget->count();
 // printf("count=%d\n", count);
 QWidget *cp = tabWidget->page(count-1);
@@ -320,36 +397,88 @@ void
 CompareClass::gatherInfo(QString collectorName)
 {
 // printf("gatherInfo() entered\n");
+{ // Begin gather experiment info
 
-        if( clo )
-        {
-          delete(clo);
-        }
+  std::list<int64_t> int_list;
+  int_list.clear();
+  experiment_list.clear();
+
+  QString command = QString("listExp");
+  InputLineObject *clip = NULL;
+  if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &int_list, clip, TRUE ) )
+  {
+//    printf("Unable to run %s command.\n", command.ascii() );
+    QMessageBox::information(this, QString(tr("Initialization warning:")), QString("Unable to run \"%1\" command.").arg(command.ascii()), QMessageBox::Ok );
+  }
+
+  std::list<int64_t>::iterator it;
+// printf("int_list.size() =%d\n", int_list.size() );
+  for(it = int_list.begin(); it != int_list.end(); it++ )
+  {
+    int64_t expID = (int64_t)(*it);
+// printf("expID=(%d)\n", expID );
+
+
+    QString expStr = QString("%1").arg(expID);
+
+    command = QString("listTypes -x %1").arg(expStr);
+    std::list<std::string> list_of_collectors;
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
+           &list_of_collectors, clip, TRUE ) )
+    {
+// printf("Unable to run %s command.\n", command.ascii() );
+      
+      QMessageBox::information(this, QString(tr("Initialization warning:")), QString("Unable to run \"%1\" command.").arg(command.ascii()), QMessageBox::Ok );
+
+      return;
+    }
   
-        clo = new CollectorListObject(expID);
+    int knownCollectorType = FALSE;
+    QString panel_type = "other";
+    if( list_of_collectors.size() > 0 )
+    {
+      for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
+      {
+//      std::string collector_name = *it;
+        QString collector_name = (QString)*it;
+// printf("  collector_name=(%s)\n", collector_name.ascii() );
+
+const char *str = collector_name.ascii();
+experiment_list.push_back( std::make_pair(expID, str ) );
+      }
+    }
+  }
+} // End gather experiment info
+
+  if( clo )
+  {
+    delete(clo);
+  }
+  
+  clo = new CollectorListObject(expID);
 // printf("expID=%d\n", expID);
 
-ce = NULL;
-        CollectorEntryList::Iterator it;
-        for( it = clo->collectorEntryList.begin();
-           it != clo->collectorEntryList.end();
-           ++it )
-        {
-          ce = (CollectorEntry *)*it;
-// printf("ce->name=%s ce->short_name\n", ce->name.ascii(), ce->short_name.ascii() );
-if( ce->name == collectorName )
-{
-          CollectorMetricEntryList::Iterator plit;
-          for( plit = ce->metricList.begin();
-               plit != ce->metricList.end(); ++plit )
-          {
-            CollectorMetricEntry *cpe = (CollectorMetricEntry *)*plit;
-// printf("cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
-          }
-  break;
-} else
-{
   ce = NULL;
-}
-        }
+  CollectorEntryList::Iterator it;
+  for( it = clo->collectorEntryList.begin();
+       it != clo->collectorEntryList.end();
+       ++it )
+  {
+    ce = (CollectorEntry *)*it;
+// printf("ce->name=%s ce->short_name\n", ce->name.ascii(), ce->short_name.ascii() );
+    if( ce->name == collectorName )
+    {
+      CollectorMetricEntryList::Iterator plit;
+      for( plit = ce->metricList.begin();
+           plit != ce->metricList.end(); ++plit )
+      {
+        CollectorMetricEntry *cpe = (CollectorMetricEntry *)*plit;
+// printf("cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
+      }
+      break;
+    } else
+    {
+      ce = NULL;
+    }
+  }
 }

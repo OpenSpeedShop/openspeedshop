@@ -51,6 +51,8 @@ class PanelContainer;
 class ComparePanel;
 class CollectorListObject;
 
+typedef std::pair<int64_t, std::string> pair_def;
+
 typedef QValueList <QListView *> CompareList;
 
 class CompareClass : public QWidget
@@ -99,6 +101,8 @@ private:
     void gatherInfo(QString collector_name = QString::null);
     CollectorListObject *clo;
     CollectorEntry *ce;
+
+    std::vector<pair_def> experiment_list;
 
 };
 

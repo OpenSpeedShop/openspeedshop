@@ -68,10 +68,7 @@ class ComparePanel  : public Panel
 
     int expID;
 
-    bool openComparePaneFLAG;
   public slots:
-
-    void openComparePane();
 
   protected:
     //! Sets the language specific strings.

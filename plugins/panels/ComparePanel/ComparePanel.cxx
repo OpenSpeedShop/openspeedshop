@@ -31,7 +31,6 @@
 ComparePanel::ComparePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   expID = ao->int_data;
-  openComparePaneFLAG = FALSE;
 
   setCaption("ComparePanel");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
@@ -40,15 +39,11 @@ ComparePanel::ComparePanel(PanelContainer *pc, const char *n, ArgumentObject *ao
   compareSplitter->setOrientation(QSplitter::Vertical);
 
 
-  mcc = new CompareClass( this, compareSplitter);
-
   mcc1 = new CompareClass( this, compareSplitter, "CompareClass", FALSE, 0, ao->int_data );
 
   frameLayout->addWidget(compareSplitter);
-  mcc->show();
-  mcc1->hide();
-  mcc->expID = ao->int_data;
-  groupID = mcc->expID;
+  mcc1->expID = ao->int_data;
+  groupID = mcc1->expID;
   getBaseWidgetFrame()->setCaption("ComparePanelBaseWidget");
 
   char name_buffer[100];
@@ -66,7 +61,7 @@ ComparePanel::~ComparePanel()
 {
   // Delete anything you new'd from the constructor.
 // printf("ComparePanel::destructor called.\n");
-  delete mcc;
+  delete mcc1;
 }
 
 void
@@ -87,27 +82,7 @@ ComparePanel::menu(QPopupMenu* contextMenu)
 {
   Panel::menu(contextMenu);
 
-  QAction *qaction = new QAction( this,  "openComparePane");
-  qaction->addTo( contextMenu );
-  if( openComparePaneFLAG )
-  {
-    qaction->setText( tr("Hide Compare Pane") );
-  } else 
-  {
-    qaction->setText( tr("Show Compare Pane") );
-  }
-  connect( qaction, SIGNAL( activated() ), this, SLOT( openComparePane() ) );
-  qaction->setStatusTip( tr("Open pane to set the compare properties.") );
-
-  if( mcc1->hasMouse() )
-  {
-    return( mcc1->menu(contextMenu) );
-  } else
-  {
-    return( mcc->menu(contextMenu) );
-  }
-
-  return( FALSE );
+  return( mcc1->menu(contextMenu) );
 }
 
 /*! If the user panel save functionality, their function
@@ -159,17 +134,6 @@ ComparePanel::listener(void *msg)
     UpdateObject *msg = (UpdateObject *)msgObject;
     nprintf(DEBUG_MESSAGES) ("ComparePanel::listener() UpdateExperimentDataObject!\n");
 
-#ifdef PULL
-    mcc->expID = msg->expID;
-    mcc->updatePanel();
-printf("mcc1->expID=%d msg->expID=%d\n", mcc1->expID, msg->expID );
-if( mcc1->expID != msg->expID )
-{
-  mcc1->expID = msg->expID;
-  mcc1->addNewCSet();
-}
-#endif // PULL
-
     if( msg->raiseFLAG )
     {
     if( msg->raiseFLAG )
@@ -218,21 +182,6 @@ ComparePanel::raisePreferencePanel()
 // printf("ComparePanel::raisePreferencePanel() \n");
   getPanelContainer()->getMainWindow()->filePreferences( manageProcessesPanelStackPage, QString(pluginInfo->panel_type) );
 }
-
-void
-ComparePanel::openComparePane()
-{
-  if( openComparePaneFLAG )
-  {
-    openComparePaneFLAG = FALSE;
-    mcc1->hide();
-  } else
-  {
-    openComparePaneFLAG = TRUE;
-    mcc1->show();
-  }
-}
-
 
 void
 ComparePanel::preferencesChanged()
