@@ -24,7 +24,6 @@
 
 class PanelContainer;
 class ManageCollectorsClass;
-class ManageCompareClass;
 class QHBoxLayout;
 class ArgumentObject;
 class QAction;
