@@ -20,12 +20,15 @@
 #include "SS_Input_Manager.hxx"
 
 // Indicate where in the predefined-temporay table certain vaules are.
-#define sum_temp 0
-#define min_temp 1
-#define max_temp 2
-#define cnt_temp 3
-#define ssq_temp 4
-#define num_predefine_temps 5
+// Note: index '0' is reserved for the sort key and will be filled in
+//       by the general utilities when needed.
+#define sort_temp 0
+#define sum_temp 1
+#define min_temp 2
+#define max_temp 3
+#define cnt_temp 4
+#define ssq_temp 5
+#define num_predefine_temps 6
 
 template <class T>
 struct sort_ascending_CommandResult : public std::binary_function<T,T,bool> {
@@ -85,6 +88,45 @@ struct sort_descending_CallStacks : public std::binary_function<T,T,bool> {
         return CommandResult_gt ((*x.second)[0], (*y.second)[0]);
     }
 };
+
+static void Setup_Sort( 
+       ViewInstruction *vinst,
+       std::vector<std::pair<CommandResult_CallStackEntry *,
+                             SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+  if ((vinst->OpCode() == VIEWINST_Display_Metric) ||
+      (vinst->OpCode() == VIEWINST_Display_Percent_Metric) ||
+      (vinst->OpCode() == VIEWINST_Display_Percent_Column)) {
+    return;
+  }
+  std::vector<std::pair<CommandResult_CallStackEntry *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+   // Foreach CallStack entry, set the desired sort value into the sort_temp field.
+    std::pair<CommandResult_CallStackEntry *,
+              SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
+    CommandResult *Old = (*cp.second)[sort_temp];
+    if (Old != NULL) delete Old;
+    CommandResult *New = NULL;
+    CommandResult *V1 = (*cp.second)[vinst->TMP1()];
+    if (vinst->OpCode() == VIEWINST_Display_Tmp) {
+      New = Dup_CommandResult (V1);
+    } else if (vinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
+     // Use value without calculating percent - order will be the same.
+      New = Dup_CommandResult (V1);
+    } else if (vinst->OpCode() == VIEWINST_Display_Average_Tmp) {
+      if (!V1->isNullValue ()) {
+        New = Calculate_Average (V1, (*cp.second)[vinst->TMP2()]);
+      }
+    } else if (vinst->OpCode() ==VIEWINST_Display_StdDeviation_Tmp) {
+      CommandResult *V1 = (*cp.second)[vinst->TMP1()];
+      CommandResult *V2 = (*cp.second)[vinst->TMP2()];
+      CommandResult *V3 = (*cp.second)[vinst->TMP3()];
+      New = Calculate_StdDev (V1, V2, V3);
+    }
+    Assert (New != NULL);
+    (*cp.second)[sort_temp] = New;
+  }
+}
 
 static void Dump_Intermediate_CallStack (ostream &tostream,
        std::vector<std::pair<CommandResult_CallStackEntry *,
@@ -842,6 +884,7 @@ void Form_CallStack_Output (CommandObject *cmd,
       }
      // Add ID for row
       C->CommandResult_Columns::Add_Column (it->first);
+      it->first = NULL;  // allow only 1 pointer to a CommandResult object
       cmd->Result_Predefined (C);
 
      // Accumulate Summary Information
@@ -851,8 +894,9 @@ void Form_CallStack_Output (CommandObject *cmd,
 
      // Reclaim space for unused temps.
       for ( i=0; i < num_input_temps; i++) {
-        if (!input_temp_used[i]) {
-          delete (*it->second)[i];
+        if (input_temp_used[i]) {
+         // allow only 1 pointer to a CommandResult object
+          (*it->second)[i] = NULL;
         }
       }
     }
@@ -901,10 +945,46 @@ void Form_CallStack_Output (CommandObject *cmd,
 
 }
 
+/**
+ * Method: Reclaim_Space
+ *
+ * Reclaim remaining CommandResult objects within an item vector.
+ * Before deleting a std::vector containing pointers to CommandResult
+ * objects, free the space for the objects.
+ *
+ * The first parameter is an index into the vector where reclaimation
+ * will begin.  All items from that point until the end of the vector
+ * will be freed.
+ *
+ * @param   starting index
+ * @param   std::vector of items
+ *
+ * @return  void
+ *
+ */
+static void Reclaim_Space (
+              int64_t starting_with,
+              std::vector<std::pair<CommandResult_CallStackEntry *,
+                                    SmartPtr<std::vector<CommandResult *> > > >& items) {
+      std::vector<std::pair<CommandResult_CallStackEntry *,
+                            SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+      for (vpi = (items.begin() + starting_with); vpi != items.end(); vpi++) {
+       // Foreach CallStack entry, free space for CommandResult objects.
+        std::pair<CommandResult_CallStackEntry *,
+                  SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
+        if (cp.first != NULL) { delete cp.first; }
+        for (int64_t i = 0; i < (*cp.second).size(); i++) {
+          CommandResult *it = (*cp.second)[i];
+          if (it != NULL) { delete it; }
+        }
+      }
+
+}
+
 static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                        ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
                        std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV) {
-  // Print_View_Params (cerr, CV,MV,IV);
+   // Print_View_Params (cerr, CV,MV,IV);
 
   if (CV.size() == 0) {
     Mark_Cmd_With_Soft_Error(cmd, "(There are no metrics specified to report.)");
@@ -917,6 +997,8 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
     return false;   // There is no collector, return.
   }
 
+  std::vector<std::pair<CommandResult_CallStackEntry *,
+                        SmartPtr<std::vector<CommandResult *> > > > c_items;
   CommandResult *TotalValue = NULL;
   int64_t i;
   if (topn == 0) topn = LONG_MAX;
@@ -938,15 +1020,10 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
       Mark_Cmd_With_Soft_Error(cmd, "(There is no display requested.)");
       return false;   // There is no column[0] defined, return.
     }
-    if ((ViewInst[0]->OpCode() != VIEWINST_Display_Metric)  &&
-        (ViewInst[0]->OpCode() != VIEWINST_Display_Tmp)) {
-      Mark_Cmd_With_Soft_Error(cmd, "(The first column is not a metric.)");
-      return false;   // There is nothing to sort on.
-    }
 
    // Acquire base set of metric values.
     ViewInstruction *vinst0 = ViewInst[0];
-    int64_t Column0index = vinst0->TMP1();
+    int64_t Column0index = (ViewInst[0]->OpCode() == VIEWINST_Display_Metric) ? vinst0->TMP1() : 0;
     SmartPtr<std::map<Function, std::map<Framework::StackTrace, std::vector<double> > > > f_items;
     bool first_column_found = false;
     first_column_found = Raw_Data (cmd, exp, CV[Column0index], MV[Column0index], tgrp, f_items);
@@ -967,7 +1044,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
       if ((vinst != NULL) &&
           (vinst->OpCode() == VIEWINST_Display_Percent_Tmp)) {
        // 
-        if (vinst->TMP1() >= num_columns) {
+        if (vinst->TMP1() >= num_predefine_temps) {
          // Clearly, this is an error.
           Gen_Total_Percent = false;
         } else {
@@ -1000,7 +1077,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
         } else if (vinst->OpCode() == VIEWINST_Display_Percent_Metric) {
          // We will recalcualte the value when we generate the %.
         } else {
-         // Note yet implemented??
+         // Not yet implemented??
           Gen_Total_Percent = false;
         }
       } else {
@@ -1022,8 +1099,6 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
 
    // What granularity has been requested?
     std::string EO_Title;
-    std::vector<std::pair<CommandResult_CallStackEntry *,
-                          SmartPtr<std::vector<CommandResult *> > > > c_items;
     bool TraceBack_Order = false;
     if (Look_For_KeyWord(cmd, "Statement") ||
         Look_For_KeyWord(cmd, "Statements") ||
@@ -1047,7 +1122,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
         if (Look_For_KeyWord(cmd, "CallTree") ||
             Look_For_KeyWord(cmd, "CallTrees")) {
          // Two ordering requests.  Pick CallOrder.
-         // Should there be some sort of warning message issued?
+         // Should there be some kind of warning message issued?
           TraceBack_Order = false;
         }
       }
@@ -1066,12 +1141,14 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
       CV[0].unlockDatabase();
 
       Combine_Duplicate_CallStacks (IV, c_items);
+      Setup_Sort (ViewInst[0], c_items);
       if ((topn < (int64_t)c_items.size()) &&
           !Look_For_KeyWord(cmd, "ButterFly")) {
        // Determine the topn items.
         std::sort(c_items.begin(), c_items.end(),
                 sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *,
                                                         SmartPtr<std::vector<CommandResult *> > > >());
+        Reclaim_Space (topn, c_items);
         c_items.erase ( (c_items.begin() + topn), c_items.end());
       }
      // Sort report in calling tree order.
@@ -1092,7 +1169,9 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
         }
       }
     } else if (Look_For_KeyWord(cmd, "LinkedObject") ||
-               Look_For_KeyWord(cmd, "LinkedObjects")) {
+               Look_For_KeyWord(cmd, "LinkedObjects") ||
+               Look_For_KeyWord(cmd, "Dso") ||
+               Look_For_KeyWord(cmd, "Dsos")) {
      // LinkedObjects doesn't seem to be meaningful.
       Mark_Cmd_With_Soft_Error(cmd,"(LinkedObject View is not supported)");
       return false;   // There is no data, return.
@@ -1100,10 +1179,12 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
      // Default is the summary report by MPI function.
       EO_Title = "Function (defining location)";
       Function_Report (f_items, c_items);
+      Setup_Sort (ViewInst[0], c_items);
       std::sort(c_items.begin(), c_items.end(),
                 sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *,
                                                         SmartPtr<std::vector<CommandResult *> > > >());
       if (topn < (int64_t)c_items.size()) {
+        Reclaim_Space (topn, c_items);
         c_items.erase ( (c_items.begin() + topn), c_items.end());
       }
     }
@@ -1176,21 +1257,9 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
                                    num_columns,
                                    Gen_Total_Percent, percentofcolumn, TotalValue,
                                    result);
+            Reclaim_Space (0, result);
             MoreThanOne = true;
           }
-        }
-      }
-
-     // NOW, we need to delete the base vector and its data.
-      std::vector<std::pair<CommandResult_CallStackEntry *,
-                            SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
-      for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
-       // Foreach CallStack entry, look for duplicates and missing intermediates.
-        std::pair<CommandResult_CallStackEntry *,
-                  SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
-        delete cp.first;
-        for (int64_t i = 0; i < (*cp.second).size(); i++) {
-          delete (*cp.second)[i];
         }
       }
 
@@ -1207,6 +1276,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
   }
 
  // Release space for no longer needed items.
+  Reclaim_Space (0, c_items);
   if (TotalValue != NULL) delete TotalValue;
 
  // Release instructions
@@ -1224,6 +1294,7 @@ static void define_columns (CommandObject *cmd,
                            std::vector<std::string>& HV) {
  // Because we use the use the generated CommandResult temp in the final report,
  // and then delete it, we must be sure that we don't try to use it twice.
+  bool sum_used = false;
   bool min_used = false;
   bool max_used = false;
   bool count_used = false;
@@ -1237,10 +1308,6 @@ static void define_columns (CommandObject *cmd,
   IV.push_back(new ViewInstruction (VIEWINST_Add, cnt_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, ssq_temp));
 
- // Initial instructions to insert time into first column.
-  IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, sum_temp));  // first is total time
-  HV.push_back("Exclusive Time");
-
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_Summary = (Look_For_KeyWord(cmd, "Summary") & !Look_For_KeyWord(cmd, "ButterFly"));
@@ -1250,8 +1317,6 @@ static void define_columns (CommandObject *cmd,
     IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
   }
 
-  last_column++;
-  
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
     int64_t i = 0;
@@ -1270,7 +1335,13 @@ static void define_columns (CommandObject *cmd,
      // Try to match the name with built in values.
       if (M_Name.length() > 0) {
         // Select temp values for columns and build column headers
-        if (!strcasecmp(M_Name.c_str(), "min") && !min_used) {
+        if (!strcasecmp(M_Name.c_str(), "exclusive_times") && !sum_used) {
+         // first temp is sum of times
+          sum_used = true;
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, sum_temp));
+          HV.push_back("Exclusive Time");
+          last_column++;
+        } else if (!strcasecmp(M_Name.c_str(), "min") && !min_used) {
          // second temp is min time
           min_used = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, min_temp));
@@ -1310,10 +1381,13 @@ static void define_columns (CommandObject *cmd,
           last_column++;
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
-          return;
         }
       }
     }
+  } else {
+   // If nothing is requested, insert time into first column.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, sum_temp));  // first is total time
+    HV.push_back("Exclusive Time");
   }
 }
 
@@ -1358,8 +1432,8 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
                                       "\n\nThe form of the information displayed can be controlled through"
                                       " the  '-v' option."
                                       "\n\t'-v Functions' will produce a summary report that"
-                                      " will be sorted in descending order of the time spent in each"
-                                      " function.  This is the default display."
+                                      " will be sorted in descending order of the value in the left most"
+                                      " column (see the '-m' option).  This is the default display."
                                       "\n\t'-v CallTrees' will produce a calling stack report that is presented"
                                       " in calling tree order - from the start of the program to the measured"
                                       " program."
@@ -1377,13 +1451,17 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
                                       " The calling functions will be listed before the named function and the"
                                       " called functions afterwards, by default, although the addition of"
                                       " 'TraceBacks' to the '-v' specifier will reverse this ordering."
-                                      "\n\nAdditional information can be requested with the '-m' option.  Items"
-                                      " listed after the option will cause additiional columns to be added"
-                                      " to the report. More than one option can be selected."
-                                      " The full set available options is: 'min', 'max', 'average', 'count'"
-                                      " and 'percent'."
+                                      "\n\nThe information included in the report can be controlled with the"
+                                      " '-m' option.  More than one item can be selected but only the items"
+                                      " listed after the option will be printed and they will be printed in"
+                                      " the order that they are listed."
+                                      " If no '-m' option is specified, the default is equivalent to"
+                                      " '-m exclusive times'."
+                                      " The full set of available options is: 'exclusive_times',"
+                                      " 'min', 'max', 'average', 'count', 'percent', and 'stddev'."
                                       " Each option reports information about the set of mpi calls that is"
                                       " reported for the function on that particular line in the report."
+                                      " \n\t'-m exclusive_times' reports the wall clock time used in the function."
                                       " \n\t'-m min' reports the minimum time spent in the function."
                                       " \n\t'-m max' reports the maximum time spent in the function."
                                       " \n\t'-m average' reports the average time spent in the function."
