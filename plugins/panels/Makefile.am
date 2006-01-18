@@ -22,6 +22,7 @@ SUBDIRS = \
 	CmdPanel \
 	StatsPanel \
 	ManageProcessesPanel \
+	ComparePanel \
 	pcSamplePanel \
 	UserTimePanel \
 	IOPanel \

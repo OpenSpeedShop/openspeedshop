@@ -979,23 +979,24 @@ QMessageBox::information(this, "About stats information", aboutString, "Ok");
 void
 StatsPanel::compareSelected()
 {
-// printf("compareSelected() menu selected.\n");
-  manageProcessesSelected();
+  QString name = QString("ComparePanel [%1]").arg(expID);
 
-  QString name = QString("ManageProcessesPanel [%1]").arg(expID);
+  Panel *comparePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
 
-  Panel *manageProcessesPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
-
-  if( manageProcessesPanel )
+  if( comparePanel )
   { 
-    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-    if( eo && eo->FW() )
-    {
-      Experiment *experiment = eo->FW();
-      RaiseCompareObject *msg =
-        new RaiseCompareObject(expID, 1);
-      manageProcessesPanel->listener( (void *)msg );
-    }
+    nprintf( DEBUG_PANELS ) ("comparePanel() found comparePanel found.. raise it.\n");
+    getPanelContainer()->raisePanel(comparePanel);
+  } else
+  {
+//    nprintf( DEBUG_PANELS ) ("comparePanel() no comparePanel found.. create one.\n");
+
+    PanelContainer *startPC = getPanelContainer();
+    PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
+
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+    comparePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ComparePanel", startPC, ao);
+    delete ao;
   }
 }
 

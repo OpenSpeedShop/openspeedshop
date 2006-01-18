@@ -68,12 +68,11 @@ class ManageProcessesPanel  : public Panel
     void preferencesChanged();
 
     int expID;
-
-    bool openComparePaneFLAG;
+    
   public slots:
 
     void updateTimerCallback();
-    void openComparePane();
+    void openComparePanel();
 
   protected:
     //! Sets the language specific strings.

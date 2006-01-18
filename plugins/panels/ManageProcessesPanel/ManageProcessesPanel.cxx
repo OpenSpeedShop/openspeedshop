@@ -33,7 +33,6 @@
 ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   expID = ao->int_data;
-  openComparePaneFLAG = FALSE;
 
   setCaption("ManageProcessesPanel");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
@@ -90,17 +89,11 @@ ManageProcessesPanel::menu(QPopupMenu* contextMenu)
 {
   Panel::menu(contextMenu);
 
-  QAction *qaction = new QAction( this,  "openComparePane");
+  QAction *qaction = new QAction( this,  "openComparePanel");
   qaction->addTo( contextMenu );
-  if( openComparePaneFLAG )
-  {
-    qaction->setText( tr("Hide Compare Pane") );
-  } else 
-  {
-    qaction->setText( tr("Show Compare Pane") );
-  }
-  connect( qaction, SIGNAL( activated() ), this, SLOT( openComparePane() ) );
-  qaction->setStatusTip( tr("Open pane to set the compare properties.") );
+  qaction->setText( tr("Compare Panel") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( openComparePanel() ) );
+  qaction->setStatusTip( tr("Open panel to set the compare properties.") );
 
   if( mcc1->hasMouse() )
   {
@@ -243,16 +236,27 @@ ManageProcessesPanel::updateTimerCallback()
 }
 
 void
-ManageProcessesPanel::openComparePane()
+ManageProcessesPanel::openComparePanel()
 {
-  if( openComparePaneFLAG )
-  {
-    openComparePaneFLAG = FALSE;
-    mcc1->hide();
+  QString name = QString("ComparePanel [%1]").arg(expID);
+
+
+  Panel *comparePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+
+  if( comparePanel )
+  { 
+    nprintf( DEBUG_PANELS ) ("comparePanel() found comparePanel found.. raise it.\n");
+    getPanelContainer()->raisePanel(comparePanel);
   } else
   {
-    openComparePaneFLAG = TRUE;
-    mcc1->show();
+//    nprintf( DEBUG_PANELS ) ("comparePanel() no comparePanel found.. create one.\n");
+
+    PanelContainer *startPC = getPanelContainer();
+    PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
+
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+    comparePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ComparePanel", startPC, ao);
+    delete ao;
   }
 }
 
