@@ -1642,6 +1642,7 @@ StatsPanel::updateStatsPanelData()
        command += QString(" %1").arg(currentThreadsStr);
        about += QString("for threads %1\n").arg(currentThreadsStr);
     }
+  } 
 
 // printf("add any modifiers...\n");
     for( std::list<std::string>::const_iterator it = current_list_of_modifiers.begin();
@@ -1650,9 +1651,11 @@ StatsPanel::updateStatsPanelData()
       std::string modifier = (std::string)*it;
       if( modifierStr.isEmpty() )
       {
+// printf("A: modifer = (%s)\n", modifier.c_str() );
         modifierStr = QString(" -m %1").arg(modifier.c_str());
       } else
       {
+// printf("B: modifer = (%s)\n", modifier.c_str() );
         modifierStr += QString(",%1").arg(modifier.c_str());
       }
     }
@@ -1662,7 +1665,6 @@ StatsPanel::updateStatsPanelData()
     }
 
 // printf("command=(%s)\n", command.ascii() );
-  } 
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
