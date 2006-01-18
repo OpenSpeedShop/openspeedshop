@@ -176,6 +176,32 @@ bool Experiment::is_debug_mpijob_enabled = false;
 
 
 
+#ifdef HAVE_DPCL
+#include "dpcl/ProcessTable.hxx"
+#endif
+
+/**
+ * Get the DPCL daemon listener port name.
+ *
+ * Returns the name of the DPCL daemon ("dpcld") listener port name in the form
+ * "[host]:[port]". An empty string is returned if the listener isn't operating.
+ * The listener is used when manually starting ("dpcld -p [host]:[port]") DPCL
+ * daemons rather than using the normal xinetd based mechanism.
+ *
+ * @return    Name of the dpcld listener port in the form "[host]:[port]".
+ */
+std::string Experiment::getDpcldListenerPort()
+{   
+    // Return the dpcld listener port name to the caller
+#ifdef HAVE_DPCL
+    return ProcessTable::TheTable.getDpcldListenerPort();
+#else
+    return std::string();
+#endif
+}
+
+
+
 //
 // Maximum length of a host name. According to the Linux manual page for the
 // gethostname() function, this should be available in a header somewhere. But

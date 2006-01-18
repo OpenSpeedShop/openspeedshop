@@ -84,6 +84,8 @@ namespace OpenSpeedShop { namespace Framework {
 
     public:
 
+	static std::string getDpcldListenerPort();
+	
 	static std::string getLocalHost();
 	static std::string getCanonicalName(const std::string&);
 	

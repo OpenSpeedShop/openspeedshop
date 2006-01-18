@@ -101,6 +101,8 @@ namespace OpenSpeedShop { namespace Framework {
 	
     private:
 
+	friend class ProcessTable;
+
 #ifndef NDEBUG
 	static bool is_debug_enabled;
 	
@@ -110,9 +112,6 @@ namespace OpenSpeedShop { namespace Framework {
 	void debugRequest(const std::string&) const;
 #endif
 	
-	static void initialize();
-	static void finalize();
-
 	static Path searchForExecutable(const Path&);
 
 	static std::pair<std::string, std::string> 

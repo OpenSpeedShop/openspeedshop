@@ -24,6 +24,7 @@
 
 #include "Assert.hxx"
 #include "Lockable.hxx"
+#include "MainLoop.hxx"
 #include "Process.hxx"
 #include "ProcessTable.hxx"
 #include "SmartPtr.hxx"
@@ -40,23 +41,78 @@ ProcessTable ProcessTable::TheTable;
 
 
 /**
- * Test if table is empty.
+ * Default constructor.
  *
- * Returns a boolean value indicating if this process table is empty. Process
- * tables are defined as being "empty" when they have no processes in them. An
- * empty table may still contain threads.
- *
- * @return    Boolean "true" if this process table is empty, "false" otherwise.
+ * Performs any DPCL initializations that are necessary before the first process
+ * is created and added to the process table. This consists of starting the DPCL
+ * main loop, initializing the DPCL process termination and out-of-band data
+ * handlers, and configuring any debugging variables.
  */
-bool ProcessTable::isEmpty() const
+ProcessTable::ProcessTable() :
+    Lockable(),
+    std::map<std::string, std::pair<SmartPtr<Process>, ThreadGroup> >(),
+    dm_dpcld_listener_port()
 {
-    // Iterate over each entry in the process table looking for a process
-    for(ProcessTable::const_iterator i = begin(); i != end(); ++i)
-	if(!i->second.first.isNull())
-	    return false;
+#ifndef NDEBUG
+    // Is debugging enabled?
+    if(getenv("OPENSS_DEBUG_PROCESS") != NULL)
+	Process::is_debug_enabled = true;
     
-    // Otherwise indicate to the caller that the table is empty
-    return true;
+    if(Process::is_debug_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "ProcessTable::ProcessTable() starting DPCL main loop"
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+    
+    // Start the DPCL main loop
+    dm_dpcld_listener_port = MainLoop::start();
+    
+    // Setup the process termination handler
+    GCBFuncType old_callback;
+    GCBTagType old_tag;	
+    AisStatus retval = 
+	Ais_override_default_callback(AIS_PROC_TERMINATE_MSG,
+				      Process::terminationCallback, NULL,
+				      &old_callback, &old_tag);
+    Assert(retval.status() == ASC_success);	
+    
+    // Setup the out-of-band data handler
+    retval = 
+	Ais_override_default_callback(AIS_OUTOFBAND_DATA,
+				      Process::outOfBandDataCallback, NULL,
+				      &old_callback, &old_tag);
+    Assert(retval.status() == ASC_success);
+}
+
+
+
+/**
+ * Destructor.
+ *
+ * Performs any DPCL finalizations that are necessary after the last process is
+ * destroyed and removed from the process table. This consists of stopping the
+ * DPCL main loop.
+ */
+ProcessTable::~ProcessTable()
+{
+    // Insure all processes are destroyed before stopping the DPCL main loop
+    clear();
+    
+#ifndef NDEBUG
+    if(Process::is_debug_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "ProcessTable::~ProcessTable() stopping DPCL main loop"
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+    
+    // Stop the DPCL main loop
+    MainLoop::stop();
 }
 
 

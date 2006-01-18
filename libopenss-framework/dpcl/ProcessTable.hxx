@@ -78,8 +78,15 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	static ProcessTable TheTable;
 	
-	bool isEmpty() const;
-	
+	ProcessTable();
+	~ProcessTable();
+
+	/** Read-only data member accessor function. */
+	const std::string& getDpcldListenerPort() const
+	{
+	    return dm_dpcld_listener_port;
+	}
+
 	void addProcess(const SmartPtr<Process>&);
 	void removeProcess(const SmartPtr<Process>&);
 	void addThread(const Thread&);
@@ -89,6 +96,11 @@ namespace OpenSpeedShop { namespace Framework {
         SmartPtr<Process> getProcessByThread(const Thread&) const;
         ThreadGroup getThreadsByName(const std::string&) const;
         ThreadGroup getThreadsByProcess(const SmartPtr<Process>&) const;
+
+    private:
+
+	/** Name of the dpcld listener port in the form "[host]:[port]". */
+	std::string dm_dpcld_listener_port;
 	
     };
     

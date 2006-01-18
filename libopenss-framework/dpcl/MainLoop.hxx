@@ -29,6 +29,8 @@
 #include "config.h"
 #endif
 
+#include <string>
+
 
 
 namespace OpenSpeedShop { namespace Framework {
@@ -48,7 +50,7 @@ namespace OpenSpeedShop { namespace Framework {
      */
     namespace MainLoop
     {
-	void start();
+	std::string start();
 	void suspend();
 	void resume();
 	void stop();

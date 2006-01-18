@@ -145,11 +145,16 @@ namespace {
  * executing the DPCL main loop. A pipe is established to the monitor thread
  * that allows main threads to temporarily suspend the DPCL main loop when
  * necessary.
+ *
+ * @return    Name of the DPCL daemon listener port in the form "[host]:[port]".
+ *            DPCL daemons can be started manually wherever they are needed and
+ *            attached to the tool by starting them as "dpcld -p [host]:[port]".
  */
-void MainLoop::start()
+std::string MainLoop::start()
 {
     // Initialize the DPCL client library
     Ais_initialize();
+    const char* listener = Ais_allow_manual_start();
     if(getenv("OPENSS_DEBUG_DPCLD") != NULL)
 	Ais_blog_on(Experiment::getLocalHost().c_str(),
 		    LGL_detail, LGD_daemon, NULL, 0);
@@ -163,6 +168,9 @@ void MainLoop::start()
     
     // Create the monitor thread
     Assert(pthread_create(&monitor_tid, NULL, monitorThread, NULL) == 0);
+
+    // Return the name of the DPCL daemon listener port to the caller
+    return listener ? std::string(listener) : std::string();
 }
 
 

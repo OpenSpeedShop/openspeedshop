@@ -278,9 +278,6 @@ Process::Process(const std::string& host, const std::string& command,
     dm_future_state(Thread::Disconnected),
     dm_libraries()
 {
-    // Perform pre-first-process initializations (if necessary)
-    initialize();
-    
 #ifndef NDEBUG
     if(is_debug_enabled) {
 	std::stringstream output;
@@ -345,9 +342,6 @@ Process::Process(const std::string& host, const std::string& command,
     // Did the process creation fail?
     if(retval.status() != ASC_success) {
 
-	// Perform post-last-process finalizations (if necessary)
-	finalize();
-	
 	// Throw an exception indicating command wasn't found
 	throw Exception(Exception::CommandNotFound, host, command);
 	
@@ -388,9 +382,6 @@ Process::Process(const std::string& host, const pid_t& pid) :
     dm_future_state(Thread::Disconnected),
     dm_libraries()
 {
-    // Perform pre-first-process initializations (if necessary)
-    initialize();
-
 #ifndef NDEBUG
     if(is_debug_enabled) {
 	std::stringstream output;
@@ -442,9 +433,6 @@ Process::~Process()
     
     // Destroy the actual DPCL process handle
     delete dm_process;
-    
-    // Perform post-last-process finalizations (if necessary)
-    finalize();
 }
 
 
@@ -1240,109 +1228,6 @@ bool Process::getGlobalMPICHProcTable(Job& value)
 
     // Indicate to the caller if the value was retrieved
     return succeeded;
-}
-
-
-
-/**
- * Pre-first-process initializations.
- *
- * Performs any initializations that are necessary before the first process is
- * created and added to the process table. This consists of starting the DPCL
- * main loop, initializing the DPCL process termination handler, and configuring
- * any debugging variables.
- *
- * @note    Designed to be called <em>only</em> from the Process constructors
- *          before they access any DPCL services. The construction of a new
- *          Process object, and its addition to the process table, must be
- *          performed within a critical section on the process table if race
- *          conditions are to be avoided.
- */
-void Process::initialize()
-{
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
-	
-	// Is the process table empty?
-	if(ProcessTable::TheTable.isEmpty()) {
-
-#ifndef NDEBUG
-	    // Is debugging enabled?
-	    if(getenv("OPENSS_DEBUG_PROCESS") != NULL)
-		is_debug_enabled = true;
-	    
-	    if(is_debug_enabled) {
-		std::stringstream output;
-		output << "[TID " << pthread_self() << "] "
-		       << "Process::initialize() starting DPCL main loop"
-		       << std::endl;
-		std::cerr << output.str();
-	    }
-#endif
-	    
-	    // Start the DPCL main loop
-	    MainLoop::start();
-	    
-	    // Setup the process termination handler
-	    GCBFuncType old_callback;
-	    GCBTagType old_tag;	
-	    AisStatus retval = 
-		Ais_override_default_callback(AIS_PROC_TERMINATE_MSG,
-					      terminationCallback, NULL,
-					      &old_callback, &old_tag);
-	    Assert(retval.status() == ASC_success);	
-
-	    // Setup the out-of-band data handler
-	    retval = 
-		Ais_override_default_callback(AIS_OUTOFBAND_DATA,
-					      outOfBandDataCallback, NULL,
-					      &old_callback, &old_tag);
-	    Assert(retval.status() == ASC_success);	
-
-	}
-    }
-}
-
-
-
-/**
- * Post-last-process finalizations.
- *
- * Performs any finalizations that are necessary after the last process is
- * destroyed and removed from the process table. This consists of stopping the
- * DPCL main loop.
- *
- * @note    Designed to be called <em>only</em> from the Process destructor
- *          after it is finished accessing any DPCL services. The destruction
- *          of the Process object, and its removal from the process table,
- *          must be performed within a critical section on the process table
- *          if race conditions are to be avoided.
- */
-void Process::finalize()
-{
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
-	
-	// Is the process table empty?
-	if(ProcessTable::TheTable.isEmpty()) {
-
-#ifndef NDEBUG
-	    if(is_debug_enabled) {
-		std::stringstream output;
-		output << "[TID " << pthread_self() << "] "
-		       << "Process::finalize() stopping DPCL main loop"
-		       << std::endl;
-		std::cerr << output.str();
-	    }
-#endif
-	    
-	    // Stop the DPCL main loop
-	    MainLoop::stop();
-	    
-	}
-    }
 }
 
 
