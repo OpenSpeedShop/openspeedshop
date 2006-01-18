@@ -19,7 +19,6 @@
 
 #include "ManageProcessesPanel.hxx"
 #include "ManageCollectorsClass.hxx"
-#include "ManageCompareClass.hxx"
 #include "PreferencesChangedObject.hxx"
 #include "RaiseCompareObject.hxx"
 #include "UpdateObject.hxx"
@@ -43,12 +42,8 @@ ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, Ar
 
   mcc = new ManageCollectorsClass( this, compareSplitter );
 
-//  mcc1 = new ManageCompareClass( this, compareSplitter );
-  mcc1 = new ManageCompareClass( this, compareSplitter, "CompareClass", FALSE, 0, ao->int_data );
-
   frameLayout->addWidget(compareSplitter);
   mcc->show();
-  mcc1->hide();
   mcc->expID = ao->int_data;
   groupID = mcc->expID;
   getBaseWidgetFrame()->setCaption("ManageProcessesPanelBaseWidget");
@@ -95,15 +90,7 @@ ManageProcessesPanel::menu(QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( openComparePanel() ) );
   qaction->setStatusTip( tr("Open panel to set the compare properties.") );
 
-  if( mcc1->hasMouse() )
-  {
-    return( mcc1->menu(contextMenu) );
-  } else
-  {
-    return( mcc->menu(contextMenu) );
-  }
-
-  return( FALSE );
+  return( mcc->menu(contextMenu) );
 }
 
 /*! If the user panel save functionality, their function
@@ -157,14 +144,6 @@ ManageProcessesPanel::listener(void *msg)
 
     mcc->expID = msg->expID;
     mcc->updatePanel();
-#ifdef PULL
-printf("mcc1->expID=%d msg->expID=%d\n", mcc1->expID, msg->expID );
-if( mcc1->expID != msg->expID )
-{
-  mcc1->expID = msg->expID;
-  mcc1->addNewCSet();
-}
-#endif // PULL
 
     if( msg->raiseFLAG )
     {
@@ -203,7 +182,6 @@ if( mcc1->expID != msg->expID )
       }
     }
 
-    mcc1->show();
   }
 
 

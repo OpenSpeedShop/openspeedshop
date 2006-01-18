@@ -63,7 +63,6 @@ class ManageProcessesPanel  : public Panel
     QHBoxLayout * frameLayout;
 
     ManageCollectorsClass *mcc;
-    ManageCompareClass *mcc1;
 
     void preferencesChanged();
 
