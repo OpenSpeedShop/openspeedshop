@@ -44,7 +44,8 @@ ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, Ar
 
   mcc = new ManageCollectorsClass( this, compareSplitter );
 
-  mcc1 = new ManageCompareClass( this, compareSplitter );
+//  mcc1 = new ManageCompareClass( this, compareSplitter );
+  mcc1 = new ManageCompareClass( this, compareSplitter, "CompareClass", FALSE, 0, ao->int_data );
 
   frameLayout->addWidget(compareSplitter);
   mcc->show();
@@ -162,9 +163,15 @@ ManageProcessesPanel::listener(void *msg)
     nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() UpdateExperimentDataObject!\n");
 
     mcc->expID = msg->expID;
-//    mcc->updateAttachedList();
-//    mcc->updatePSetList();
     mcc->updatePanel();
+#ifdef PULL
+printf("mcc1->expID=%d msg->expID=%d\n", mcc1->expID, msg->expID );
+if( mcc1->expID != msg->expID )
+{
+  mcc1->expID = msg->expID;
+  mcc1->addNewCSet();
+}
+#endif // PULL
 
     if( msg->raiseFLAG )
     {

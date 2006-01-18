@@ -49,6 +49,7 @@ class QTabWidget;
 
 class PanelContainer;
 class ManageProcessesPanel;
+class CollectorListObject;
 
 typedef QValueList <QListView *> CompareList;
 
@@ -84,9 +85,9 @@ protected slots:
     virtual void languageChange();
 
 public slots:
+    void addNewCSet();
 
 private slots:
-    void addNewCSet();
     void addNewTab();
     void addNewTab(QTabWidget *);
     void removeCSet();
@@ -95,6 +96,9 @@ private slots:
     void focusOnCSet();
 
 private:
+    void gatherInfo(QString collector_name = QString::null);
+    CollectorListObject *clo;
+    CollectorEntry *ce;
 
 };
 

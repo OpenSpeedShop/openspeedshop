@@ -68,6 +68,8 @@ tcnt = 0;
   mw = (OpenSpeedshop *)p->getPanelContainer()->getMainWindow();
   cli = p->getPanelContainer()->getMainWindow()->cli;
   expID = exp_id;
+  clo = NULL;
+  ce = NULL;
 
   if ( !name ) setName( "ManageCompareClass" );
 
@@ -194,19 +196,44 @@ void
 ManageCompareClass::addNewTab(QTabWidget *tabWidget)
 {
 
+  gatherInfo();
+
   QFrame *frame = new QFrame(tabWidget, QString("frame%1-%2").arg(tcnt).arg(ccnt) );
   QVBoxLayout *TBlayout = new QVBoxLayout( frame, 1, 1, QString("TBlayout%1-%2").arg(tcnt).arg(ccnt) );
-  QLabel *l;
-  l = new QLabel( frame, QString("l%1-%2").arg(tcnt).arg(ccnt)  );
-  l->setText( QString("Collector for cset %1-%2").arg(tcnt).arg(ccnt)  );
-  QToolTip::add(l, tr("Select which collect (from the list) that you want\nto use in the comparison for this column.") );
-  TBlayout->addWidget(l);
+{
+  QComboBox *cb = new QComboBox(FALSE, frame, "collectorComboBox");
+
+        CollectorEntryList::Iterator it;
+        for( it = clo->collectorEntryList.begin();
+           it != clo->collectorEntryList.end();
+           ++it )
+        {
+          ce = (CollectorEntry *)*it;
+cb->insertItem( ce->name );
+// printf("Put this to menu: ce->name=%s ce->short_name\n", ce->name.ascii(), ce->short_name.ascii() );
+       }
+  QToolTip::add(cb, tr("Select which collect (from the list) that you want\nto use in the comparison for this column.") );
+  TBlayout->addWidget(cb);
+}
   
-  l = new QLabel( frame, QString("l%1-%2").arg(tcnt).arg(ccnt)  );
-  l->setText( QString("Metric for cset %1-%2").arg(tcnt).arg(ccnt)  );
-  QToolTip::add(l, tr("Select which metric (from the list) that you want\nto use in the comparison for this column.") );
-  TBlayout->addWidget(l);
+{
+if( ce )
+{
+  QComboBox *cb = new QComboBox(FALSE, frame, "metricComboBox");
+          CollectorMetricEntryList::Iterator plit;
+          for( plit = ce->metricList.begin();
+               plit != ce->metricList.end(); ++plit )
+          {
+            CollectorMetricEntry *cpe = (CollectorMetricEntry *)*plit;
+// printf("Put this to a menu: cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
+cb->insertItem( cpe->name );
+          }
+  QToolTip::add(cb, tr("Select which collect (from the list) that you want\nto use in the comparison for this column.") );
+  TBlayout->addWidget(cb);
+}
+}
   
+#ifdef OLDWAY
   l = new QLabel( frame, QString("l%1-%2").arg(tcnt).arg(ccnt)  );
   l->setText( QString("Modifiers for cset %1-%2").arg(tcnt).arg(ccnt)  );
   QToolTip::add(l, tr("Select which modifiers (from the list) that you want\nto use in the comparison for this column.") );
@@ -216,17 +243,18 @@ ManageCompareClass::addNewTab(QTabWidget *tabWidget)
   l->setText( QString("Sort Key (i.e. functions) for cset %1-%2").arg(tcnt).arg(ccnt)  );
   QToolTip::add(l, tr("Well, this really won't be a selection ... I don't think.") );
   TBlayout->addWidget(l);
+#endif // OLDWAY
   
 //  MPListView *lv = new MPListView( frame, QString("lv%1-%2").arg(tcnt).arg(ccnt), 0  );
   MPListView *lv = new MPListView( frame, CPS, 0  );
-  lv->addColumn("lv header");
+  lv->addColumn("Process/Process Sets (psets) to be display in this column:");
   lv->setAllColumnsShowFocus( TRUE );
   lv->setShowSortIndicator( TRUE );
   lv->setRootIsDecorated(TRUE);
   lv->setSelectionMode( QListView::Single );
   MPListViewItem *dynamic_items = new MPListViewItem( lv, CPS);
 
-  QToolTip::add(l, tr("Drag and drop, psets or individual processes from the processes\nsets (psets) above.   In the StatsPanel, the statistics from\nthese grouped processes will be displayed in\ncolumns relative to this display.") );
+  QToolTip::add(lv, tr("Drag and drop, psets or individual processes from the processes\nsets (psets) above.   In the StatsPanel, the statistics from\nthese grouped processes will be displayed in\ncolumns relative to this display.") );
   TBlayout->addWidget(lv);
   
   // ??  compareList.push_back(lv);
@@ -282,4 +310,46 @@ void
 ManageCompareClass::focusOnCSet()
 {
 printf("focusOnCSet() entered.   Now all you need to do is implement it.\n");
+}
+
+
+#include "CollectorListObject.hxx"
+#include "CollectorEntryClass.hxx"
+#include "CollectorMetricEntryClass.hxx"
+void
+ManageCompareClass::gatherInfo(QString collectorName)
+{
+// printf("gatherInfo() entered\n");
+
+        if( clo )
+        {
+          delete(clo);
+        }
+  
+        clo = new CollectorListObject(expID);
+// printf("expID=%d\n", expID);
+
+ce = NULL;
+        CollectorEntryList::Iterator it;
+        for( it = clo->collectorEntryList.begin();
+           it != clo->collectorEntryList.end();
+           ++it )
+        {
+          ce = (CollectorEntry *)*it;
+// printf("ce->name=%s ce->short_name\n", ce->name.ascii(), ce->short_name.ascii() );
+if( ce->name == collectorName )
+{
+          CollectorMetricEntryList::Iterator plit;
+          for( plit = ce->metricList.begin();
+               plit != ce->metricList.end(); ++plit )
+          {
+            CollectorMetricEntry *cpe = (CollectorMetricEntry *)*plit;
+// printf("cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
+          }
+  break;
+} else
+{
+  ce = NULL;
+}
+        }
 }
