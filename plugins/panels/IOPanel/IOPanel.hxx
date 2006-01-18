@@ -140,7 +140,7 @@ public:
 
 public slots:
   void saveAsSelected();
-  void manageDataSetsSelected();
+  void compareExperimentsSelected();
   void loadSourcePanel();
   void editPanelName();
   void experimentStatus();

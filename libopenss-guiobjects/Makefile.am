@@ -53,7 +53,6 @@ libopenss_guiobjects_la_SOURCES = \
 	MessageObject.hxx MessageObject.cxx \
 	SourceObject.hxx SourceObject.cxx \
 	UpdateObject.hxx UpdateObject.cxx \
-	RaiseCompareObject.hxx RaiseCompareObject.cxx \
 	FocusObject.hxx FocusObject.cxx \
 	ArgumentObject.hxx ArgumentObject.cxx \
 	ClosingDownObject.hxx ClosingDownObject.cxx \

@@ -20,7 +20,6 @@
 #include "ManageProcessesPanel.hxx"
 #include "ManageCollectorsClass.hxx"
 #include "PreferencesChangedObject.hxx"
-#include "RaiseCompareObject.hxx"
 #include "UpdateObject.hxx"
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
@@ -169,19 +168,6 @@ ManageProcessesPanel::listener(void *msg)
 //    f = sao->f;
   dprintf("Attempt to call (unexistent) exportData() routine\n");
 //    exportData();
-  } else if(  msgObject->msgType  == "RaiseCompareObject" )
-  {
-    RaiseCompareObject *msg = (RaiseCompareObject *)msgObject;
-    nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() RaiseCompareObject!\n");
-
-    if( msg->raiseFLAG )
-    {
-      if( msg->raiseFLAG )
-      {
-        getPanelContainer()->raisePanel((Panel *)this);
-      }
-    }
-
   }
 
 

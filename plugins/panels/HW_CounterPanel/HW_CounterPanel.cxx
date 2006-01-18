@@ -38,7 +38,6 @@
 #include "ArgumentObject.hxx"
 #include "FocusObject.hxx"
 #include "ManageProcessesPanel.hxx"
-#include "RaiseCompareObject.hxx"
 
 #include "LoadAttachObject.hxx"
 #include "ArgumentObject.hxx"
@@ -467,11 +466,11 @@ if( experiment != NULL )
   qaction->setStatusTip( tr("Bring up the process and collector manager.") );
 
 
-  qaction = new QAction( this,  "manageDataSets");
+  qaction = new QAction( this,  "compareExperimentsSelected");
   qaction->addTo( contextMenu );
-  qaction->setText( "Manage Data Sets..." );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( manageDataSetsSelected() ) );
-  qaction->setStatusTip( tr("Opens another data set (experiment), so it's data can be compared against this experiments data.") );
+  qaction->setText( "Compare Experiments..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( compareExperimentsSelected() ) );
+  qaction->setStatusTip( tr("Opens a saved experiment, so it's data can be compared against this experiments data.") );
 
   contextMenu->insertSeparator();
 
@@ -486,9 +485,9 @@ if( experiment != NULL )
 
 
 void
-HW_CounterPanel::manageDataSetsSelected()
+HW_CounterPanel::compareExperimentsSelected()
 {
-  nprintf( DEBUG_PANELS ) ("HW_CounterPanel::manageDataSetsSelected()\n");
+  nprintf( DEBUG_PANELS ) ("HW_CounterPanel::compareExperimentsSelected()\n");
 
   QString str(tr("This feature is currently under construction.\n") );
   QMessageBox::information( this, "Informational", str, "Continue" );
@@ -507,24 +506,27 @@ HW_CounterPanel::manageDataSetsSelected()
   {
     fprintf(stderr, "No experiment file name given.\n");
   }
-  loadManageProcessesPanel();
 
-  QString name = QString("ManageProcessesPanel [%1]").arg(expID);
+  QString name = QString("ComparePanel [%1]").arg(expID);
 
-  Panel *manageProcessesPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+  Panel *comparePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
 
-  if( manageProcessesPanel )
+
+  if( comparePanel )
+  { 
+    nprintf( DEBUG_PANELS ) ("comparePanel() found comparePanel found.. raise it.\n");
+    getPanelContainer()->raisePanel(comparePanel);
+  } else
   {
-    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-    if( eo && eo->FW() )
-    {
-      Experiment *experiment = eo->FW();
-      RaiseCompareObject *msg =
-        new RaiseCompareObject(expID, 1);
-      manageProcessesPanel->listener( (void *)msg );
-    }
-  }
+//    nprintf( DEBUG_PANELS ) ("comparePanel() no comparePanel found.. create one.\n");
 
+    PanelContainer *startPC = getPanelContainer();
+    PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
+
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+    comparePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ComparePanel", bestFitPC, ao);
+    delete ao;
+  }
 }   
 
 //! Save ascii version of this panel.

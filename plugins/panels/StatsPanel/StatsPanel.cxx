@@ -76,7 +76,6 @@ static char *coldToHot_color_names[] = {
 #include "SPListView.hxx"   // Change this to your new class header file name
 #include "SPListViewItem.hxx"   // Change this to your new class header file name
 #include "UpdateObject.hxx"
-#include "RaiseCompareObject.hxx"
 #include "FocusObject.hxx"
 #include "HighlightObject.hxx"
 #include "SourceObject.hxx"
