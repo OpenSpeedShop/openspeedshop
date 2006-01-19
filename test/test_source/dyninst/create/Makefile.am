@@ -31,7 +31,7 @@ mutator_CXXFLAGS = \
 	-DUSE_STL_VECTOR -DTEST_CREATE_PROCESS \
 	-I/usr/include/dyninst 
 
-mutator_LDFLAGS = 
+mutator_LDFLAGS = \
 	-L/usr/lib \
 	-ldyninstAPI \
 	-liberty -ldwarf -lelf -ldl
@@ -39,7 +39,7 @@ mutator_LDFLAGS =
 mutator_LIBS = \
 	-L/usr/lib \
 	-ldyninstAPI \
-	-liberty -ldwarf -lelf -ldl 
+	-liberty -ldwarf -lelf -ldl
 
 mutator_SOURCES = \
 	mutator.cxx
