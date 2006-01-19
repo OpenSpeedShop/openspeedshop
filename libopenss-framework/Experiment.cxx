@@ -28,6 +28,8 @@
 #include "Experiment.hxx"
 #include "Function.hxx"
 #include "Instrumentor.hxx"
+#include "LinkedObject.hxx"
+#include "Statement.hxx"
 #include "ThreadGroup.hxx"
 
 #ifdef HAVE_ARRAYSVCS
@@ -135,6 +137,7 @@ namespace {
 	"    checksum BLOB DEFAULT NULL,"
 	"    contents BLOB DEFAULT NULL"
 	");",
+	"CREATE INDEX IndexFilesByPath ON Files (path);",
 	
 	// Collector Table
 	"CREATE TABLE Collectors ("
@@ -1000,6 +1003,125 @@ Experiment::getFunctionsByNamePattern(const std::string& pattern) const
     
     // Return the functions to the caller
     return functions;
+}
+
+
+
+/**
+ * Get linked objects by path pattern.
+ *
+ * Returns the linked objects that match the passed path pattern. An empty set
+ * is returned if no such linked object can be found. Wildcards are expressed
+ * using standard UNIX file globbing syntax (e.g. "libpthread*").
+ *
+ * @param pattern    Path pattern to find.
+ * @return           Linked objects matching this path pattern.
+ */
+std::set<LinkedObject>
+Experiment::getLinkedObjectsByPathPattern(const std::string& pattern) const
+{
+    std::set<LinkedObject> linked_objects;
+
+    // Find the linked objects matching this path
+    BEGIN_TRANSACTION(dm_database);
+    dm_database->prepareStatement(
+	"SELECT LinkedObjects.id "
+	"FROM LinkedObjects "
+	"  JOIN Files "
+	"ON LinkedObjects.file = Files.id "
+	"WHERE Files.path GLOB ?;"
+	);
+    dm_database->bindArgument(1, pattern);
+    while(dm_database->executeStatement())
+	linked_objects.insert(LinkedObject(dm_database,
+					   dm_database->getResultAsInteger(1)));
+    END_TRANSACTION(dm_database);
+    
+    // Return the linked objects to the caller
+    return linked_objects;
+}
+
+
+
+/**
+ * Get functions by path pattern.
+ *
+ * Returns the functions that match the passed path pattern. An empty set is
+ * returned if no such function can be found. Wildcards are expressed using
+ * standard UNIX file globbing syntax (e.g. "libpthread*").
+ *
+ * @todo    Currently the performance of this query is less than optimal.
+ *          Improvements can probably be made once the speed of address/address
+ *          queries on the database have been accelerated.
+ *
+ * @param pattern    Path pattern to find.
+ * @return           Functions matching this path pattern.
+ */
+std::set<Function>
+Experiment::getFunctionsByPathPattern(const std::string& pattern) const
+{
+    std::set<Function> functions;
+
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+
+    // Find the statements matching this path
+    std::set<Statement> statements = getStatementsByPathPattern(pattern);
+
+    // Iterate over each of these statements
+    for(std::set<Statement>::const_iterator
+	    i = statements.begin(); i != statements.end(); ++i) {
+	
+	// Find the functions containing this statement
+	std::set<Function> functions_in_statement = i->getFunctions();
+
+	// Add these functions to the results
+	functions.insert(functions_in_statement.begin(),
+			 functions_in_statement.end());
+
+    }
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);
+
+    // Return the functions to the caller
+    return functions;
+}
+
+
+
+/**
+ * Get statements by path pattern.
+ *
+ * Returns the statements that match the passed path pattern. An empty set is
+ * returned if no such statement can be found. Wildcards are expressed using
+ * standard UNIX file globbing syntax (e.g. "libpthread*"). 
+ *
+ * @param pattern    Path pattern to find.
+ * @return           Statements matching this path pattern.
+ */
+std::set<Statement> 
+Experiment::getStatementsByPathPattern(const std::string& pattern) const
+{
+    std::set<Statement> statements;
+
+    // Find the statements matching this path
+    BEGIN_TRANSACTION(dm_database);
+    dm_database->prepareStatement(
+	"SELECT Statements.id "
+	"FROM Statements "
+	"  JOIN Files "
+	"ON Statements.file = Files.id "
+	"WHERE Files.path GLOB ?;"
+	);
+    dm_database->bindArgument(1, pattern);
+    while(dm_database->executeStatement())
+	statements.insert(Statement(dm_database,
+				    dm_database->getResultAsInteger(1)));
+    END_TRANSACTION(dm_database);
+    
+    // Return the statements to the caller
+    return statements;
 }
 
 

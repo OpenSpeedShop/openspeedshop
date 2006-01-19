@@ -38,6 +38,7 @@
 namespace OpenSpeedShop { namespace Framework {
 
     class Database;
+    class Experiment;
     class ExtentGroup;
     class Function;
     class LinkedObject;
@@ -57,6 +58,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Statement :
 	public Entry
     {
+	friend class Experiment;
 	friend class Function;
 	friend class LinkedObject;
 	friend class Thread;

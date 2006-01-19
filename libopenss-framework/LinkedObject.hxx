@@ -39,6 +39,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class AddressSpace;
     class Database;
+    class Experiment;
     class ExtentGroup;
     class Function;
     class Path;
@@ -59,6 +60,7 @@ namespace OpenSpeedShop { namespace Framework {
 	public Entry
     {
 	friend class AddressSpace;
+	friend class Experiment;
 	friend class Function;
 	friend class Statement;
 	friend class Thread;

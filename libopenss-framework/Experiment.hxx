@@ -50,6 +50,8 @@ namespace OpenSpeedShop { namespace Framework {
     class Collector;
     class CollectorGroup;
     class Function;
+    class LinkedObject;
+    class Statement;
     class Thread;
     class ThreadGroup;
     
@@ -126,6 +128,13 @@ namespace OpenSpeedShop { namespace Framework {
 	void removeCollector(const Collector&) const;
 
 	std::set<Function> getFunctionsByNamePattern(const std::string&) const;
+
+	std::set<LinkedObject> getLinkedObjectsByPathPattern(
+	    const std::string&) const;
+	std::set<Function> getFunctionsByPathPattern(
+	    const std::string&) const;
+	std::set<Statement> getStatementsByPathPattern(
+	    const std::string&) const;
 	
     private:
 
