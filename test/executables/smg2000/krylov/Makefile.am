@@ -12,6 +12,7 @@ smgtopdir = $(top_srcdir)/test/executables/smg2000
 
 
 libkrylov_a_CFLAGS =\
+	$(MPI_CPPFLAGS) \
 	-I$(smgtopdir)\
 	-I$(smgtopdir)/utilities\
 	-I -g -gdwarf-2 -O -DTIMER_USE_MPI 
