@@ -12,6 +12,7 @@ smgtopdir = $(top_srcdir)/test/executables/smg2000
 
 
 smg2000_CFLAGS = \
+	$(MPI_CPPFLAGS) \
 	-I$(smgtopdir)\
 	-I$(smgtopdir)/utilities\
 	-I$(smgtopdir)/struct_mv\
