@@ -11,6 +11,7 @@ lib_LIBRARIES = libHYPRE_struct_ls.a
 smgtopdir = $(top_srcdir)/test/executables/smg2000
 
 libHYPRE_struct_ls_a_CFLAGS = \
+	$(MPI_CPPFLAGS) \
 	-I$(smgtopdir)\
 	-I$(smgtopdir)/utilities\
 	-I$(smgtopdir)/krylov\
