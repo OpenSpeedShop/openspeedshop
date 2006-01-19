@@ -11,6 +11,7 @@ lib_LIBRARIES = libHYPRE_utilities.a
 smgtopdir = $(top_srcdir)/test/executables/smg2000
 
 libHYPRE_utilities_a_CFLAGS = \
+	$(MPI_CPPFLAGS) \
 	-I$(smgtopdir)\
 	-I -g -gdwarf-2 -O -DTIMER_USE_MPI \
 	-DHYPRE_TIMING
