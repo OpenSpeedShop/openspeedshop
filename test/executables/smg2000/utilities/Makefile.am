@@ -16,6 +16,12 @@ libHYPRE_utilities_a_CFLAGS = \
 	-I -g -gdwarf-2 -O -DTIMER_USE_MPI \
 	-DHYPRE_TIMING
 
+libHYPRE_utilities_a_LDFLAGS = \
+        -lm $(MPI_LDFLAGS) $(MPI_LIBS)
+
+libHYPRE_utilities_a_LIBADD = \
+        -ldl
+
 libHYPRE_utilities_a_SOURCES = \
 	memory.h\
 	mpistubs.h\

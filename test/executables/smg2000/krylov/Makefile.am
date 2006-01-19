@@ -17,6 +17,11 @@ libkrylov_a_CFLAGS =\
 	-I$(smgtopdir)/utilities\
 	-I -g -gdwarf-2 -O -DTIMER_USE_MPI 
 
+libkrylov_a_LDFLAGS = \
+        -lm $(MPI_LDFLAGS) $(MPI_LIBS)
+
+libkrylov_a_LIBADD = \
+        -ldl
 
 libkrylov_a_SOURCES =\
 	krylov.h \

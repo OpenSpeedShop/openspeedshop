@@ -20,8 +20,9 @@ smg2000_CFLAGS = \
 	-I$(smgtopdir)/krylov\
 	-I -g -gdwarf-2 -O -DTIMER_USE_MPI \
 	-DHYPRE_TIMING
- 
-smg2000_LDFLAGS =\
+
+smg2000_LDFLAGS = \
+        -lm $(MPI_LDFLAGS) $(MPI_LIBS) \
 	-L.\
 	-L$(smgtopdir)/struct_ls\
 	-L$(smgtopdir)/struct_mv\
@@ -29,9 +30,8 @@ smg2000_LDFLAGS =\
 	-L$(smgtopdir)/utilities
 
 smg2000_LDADD = \
+	-ldl \
 	-lHYPRE_struct_ls\
 	-lHYPRE_struct_mv\
 	-lkrylov\
-	-lHYPRE_utilities \
-	-lm \
-	-lmpi
+	-lHYPRE_utilities 
