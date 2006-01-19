@@ -172,6 +172,10 @@ Initial_Python ()
 	    Assert(fp != NULL);
 	    PyRun_SimpleFile(fp, preparser_filename);
 	    Assert(fclose(fp) == 0);
+
+            // Initialize the port used by the DPCL daemons
+            std::string dpcl_port = "DpcldListenerPort = '" + Experiment::getDpcldListenerPort() + "'";
+            PyRun_SimpleString(dpcl_port.c_str());
 	    
 	    // Return successfully to the caller
 	    return;

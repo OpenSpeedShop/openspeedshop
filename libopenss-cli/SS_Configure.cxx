@@ -81,6 +81,14 @@ void SS_Configure () {
   bool Bvalue;
   std::string Svalue;
 
+  Add_Help (czar, "DpcldListenerPort", "an internal configuration",
+            "When DPCL is initalized, it determines which port to listen on "
+            "for manually started daemons.  The string is in the form "
+            "'host_name:port_number' and will be returned when the variable "
+            "name is entered.  It must be used if the daemons are started by "
+            "the user.  In most environments, the daemons are installed in "
+            "system libraries and do not need to be manually started.");
+
   Add_Help (czar, "viewFieldSize", "an integer, preference",
             "Define the width of each field when the result "
             "of an 'expView' command is printed.  The default is 20 columns.");
