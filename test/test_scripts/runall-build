@@ -138,6 +138,15 @@ if __name__ == '__main__':
 		currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
 	
 		testResultsFile = 'testresults_' + currTime
+		testResultsFileInput = open(testResultsFile, 'w')
+		os.system('hostname >> hostfile')
+		hostinput = open('hostfile', 'r')
+		hostName = hostinput.readline()
+		os.system('rm hostfile')
+		testResultsFileInput.write('Tests run on host: ')
+		testResultsFileInput.write(hostName)
+		testResultsFileInput.write('\n')
+		testResultsFileInput.close()
 
 		resultsfilenameinput = open('testresultsfilename', 'w')
 		resultsfilenameinput.write(testResultsFile)
