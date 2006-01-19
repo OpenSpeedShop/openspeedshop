@@ -31,6 +31,7 @@
 
 #include "ToolAPI.hxx"
 
+#include <functional>
 #include <map>
 #include <string>
 #include <vector>
@@ -58,7 +59,59 @@ namespace OpenSpeedShop {
                               std::set<Framework::Function>&);
         void GetSourceObjects(const Framework::Thread&,
                               std::set<Framework::Statement>&);
-	
+
+	/**
+	 * Strict weak ordering predicate for linked objects.
+	 *
+	 * Defines a strict weak ordering predicate for linked objects that
+	 * works properly even when the two linked objects are in different
+	 * experiment databases. This predicate is slower than the less-than
+	 * operator for linked objects, but is useful when comparing across
+	 * experiments.
+	 */
+	struct CompareLinkedObjects :
+	    std::binary_function<const Framework::LinkedObject&,
+				 const Framework::LinkedObject&,
+				 bool>
+	{
+	    bool operator()(const Framework::LinkedObject&,
+			    const Framework::LinkedObject&) const;
+	};
+
+	/**
+	 * Strict weak ordering predicate for functions.
+	 *
+	 * Defines a strict weak ordering predicate for functions that works
+	 * properly even when the two functions are in different experiment
+	 * databases. This predicate is slower than the less-than operator
+	 * for functions, but is useful when comparing across experiments.
+	 */
+	struct CompareFunctions :
+	    std::binary_function<const Framework::Function&,
+				 const Framework::Function&,
+				 bool>
+	{
+	    bool operator()(const Framework::Function&,
+			    const Framework::Function&) const;
+	};
+
+	/**
+	 * Strict weak ordering predicate for statements.
+	 *
+	 * Defines a strict weak ordering predicate for statements that works
+	 * properly even when the two statements are in different experiment
+	 * databases. This predicate is slower than the less-than operator
+	 * for statements, but is useful when comparing across experiments.
+	 */
+	struct CompareStatements :
+	    std::binary_function<const Framework::Statement&,
+				 const Framework::Statement&,
+				 bool>
+	{
+	    bool operator()(const Framework::Statement&,
+			    const Framework::Statement&) const;
+	};
+
 	template <typename TS, typename TM>
 	void GetMetricInThread(
 	    const Framework::Collector&,

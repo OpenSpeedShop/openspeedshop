@@ -81,6 +81,80 @@ void Queries::GetSourceObjects(const Framework::Thread& thread,
 
 
 /**
+ * Strict weak ordering predicate evaluator for linked objects.
+ *
+ * Implements a strict weak ordering predicate for linked objects that works
+ * properly even when the two linked objects are in different experiment
+ * databases.
+ *
+ * @param lhs    Linked object on left hand side of comparison.
+ * @param rhs    Linked object on right hand side of comparison.
+ * @return       Boolean "true" if (lhs < rhs), "false" otherwise.
+ */
+bool Queries::CompareLinkedObjects::operator()(
+    const Framework::LinkedObject& lhs,
+    const Framework::LinkedObject& rhs) const
+{
+    return lhs.getPath() < rhs.getPath();
+}
+
+
+
+/**
+ * Strict weak ordering predicate evaluator for functions.
+ *
+ * Implements a strict weak ordering predicate for functions that works
+ * properly even when the two functions are in different experiment databases.
+ *
+ * @param lhs    Function on left hand side of comparison.
+ * @param rhs    Function on right hand side of comparison.
+ * @return       Boolean "true" if (lhs < rhs), "false" otherwise.
+ */
+bool Queries::CompareFunctions::operator()(
+    const Framework::Function& lhs,
+    const Framework::Function& rhs) const
+{
+    if(lhs.getName() < rhs.getName())
+	return true;
+    else if(lhs.getName() > rhs.getName())
+	return false;
+    return lhs.getLinkedObject().getPath() < rhs.getLinkedObject().getPath();
+}
+
+
+
+/**
+ * Strict weak ordering predicate evaluator for statements.
+ *
+ * Implements a strict weak ordering predicate for statements that works
+ * properly even when the two statements are in different experiment databases.
+ *
+ * @param lhs    Statement on left hand side of comparison.
+ * @param rhs    Statement on right hand side of comparison.
+ * @return       Boolean "true" if (lhs < rhs), "false" otherwise.
+ */
+bool Queries::CompareStatements::operator()(
+    const Framework::Statement& lhs,
+    const Framework::Statement& rhs) const
+{
+    if(lhs.getPath() < rhs.getPath())
+	return true;
+    else if(lhs.getPath() > rhs.getPath())
+	return false;
+    else if(lhs.getLine() < rhs.getLine())
+	return true;
+    else if(lhs.getLine() > rhs.getLine())
+	return false;
+    else if(lhs.getColumn() < rhs.getColumn())
+	return true;
+    else if(lhs.getColumn() > rhs.getColumn())
+	return false;
+    return lhs.getLinkedObject().getPath() < rhs.getLinkedObject().getPath();
+}
+
+
+
+/**
  * Addition-assignment operator.
  *
  * Operator "+=" defined for a map of stack traces to a list of doubles. Combine
