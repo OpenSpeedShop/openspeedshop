@@ -785,6 +785,8 @@ SourcePanel::loadFile(const QString &_fileName)
 // printf("attempt to remap the path to _fileName=(%s)\n", _fileName.ascii() );
   QString remapped_fileName = remapPath(_fileName);
 
+// printf("attempt to remap the path to remapped_fileName=(%s)\n", remapped_fileName.ascii() );
+
   canvasForm->hide();
   canvasForm->clearAllItems();
   canvasForm->show();
@@ -811,6 +813,13 @@ SourcePanel::loadFile(const QString &_fileName)
     textEdit->clear();
     textEdit->clearScrollBar();
     label->setText(tr("No file found."));
+    if( !fileName.isEmpty() )
+    {
+      QString msg;
+      msg = QString("Unable to open file: %1\n-or-\n%2").arg(fileName).arg(remapped_fileName);
+      QMessageBox::information( (QWidget *)this, tr("Details..."),
+                               msg, QMessageBox::Ok );
+    }
     return FALSE;
   }
   fileName = remapped_fileName;

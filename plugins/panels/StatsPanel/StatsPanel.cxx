@@ -1134,7 +1134,6 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 {
 // printf("matchSelectedItem() entered. sf=%s\n", sf.c_str() );
 
-  QString lineNumberStr = "-1"; // MPI only
 
   if( mpiFLAG )
   { // The mpi tree is different.   We need to look up the highlighted
@@ -1155,64 +1154,18 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   SourceObject *spo = NULL;
   HighlightList *highlightList = new HighlightList();
   highlightList->clear();
+
   QString selected_function_qstring = QString(sf).stripWhiteSpace();
-  QString funcString = selected_function_qstring.section(' ', 0, 0, QString::SectionSkipEmpty);
-  std::string selected_function = funcString.ascii();
+  QString lineNumberStr = "-1"; // MPI only
 
-// printf("funcString=(%s)\n", funcString.ascii() );
+  QString filename = getFilenameFromString( QString(sf).stripWhiteSpace() ); 
 
-  int end_func_name_index = selected_function_qstring.find("(");
-  QString function_name = selected_function_qstring.mid(0,end_func_name_index);
+  QString function_name = getFunctionNameFromString( QString(sf).stripWhiteSpace(), lineNumberStr );
 
-// printf("function_name=(%s)\n", function_name.ascii() );
-
-  int start_file_index = selected_function_qstring.find(" ");
-  QString intermediate_string = selected_function_qstring.mid(start_file_index+1);
-  int end_file_index = intermediate_string.find(",");
-  QString filename = intermediate_string.mid(0, end_file_index );
-
-// printf("A: selected_function_qstring=(%s)\n", selected_function_qstring.ascii() );
-// printf("A: filename=(%s)\n", filename.ascii() );
-// printf("A: funcString=(%s)\n", funcString.ascii() );
+// printf("AA: filename=(%s)\n", filename.ascii() );
+// printf("AA: function_name=(%s) lineNumberStr=(%s)\n", function_name.ascii(), lineNumberStr.ascii() );
 
 // printf("mpiFLAG=(%d) currentCollectorStr=(%s)\n", mpiFLAG, currentCollectorStr.ascii() );
-  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("TraceBacks/FullStack") ) )
-  {
-    int bof = -1;
-    int eof = selected_function_qstring.find('(');
-// printf("eof=%d\n", eof);
-    if( eof == -1 )
-    {
-// printf("main:  you should never be here..\n");
-      function_name = "main";
-    } else
-    {
-
-      QString tempString = selected_function_qstring.mid(0,eof);
-// printf("tempString=%s\n", tempString.ascii() );
-
-      QRegExp rxp = QRegExp( "[ >]");
-      bof = tempString.findRev(rxp, eof);
-// printf("bof=%d\n", bof);
-      if( bof == -1 )
-      {
-        bof = 0;
-      } else
-      {
-        bof++;
-      }
-    }
-    function_name = selected_function_qstring.mid(bof,eof-bof);
-
-    int boln = selected_function_qstring.find('@');
-    boln++;
-    int eoln = selected_function_qstring.find(" in ");
-    lineNumberStr = selected_function_qstring.mid(boln,eoln-boln).stripWhiteSpace();
-// printf("lineNumberStr=(%s)\n", lineNumberStr.ascii() );
-
-  
-// printf("mpi: function_name=(%s)\n", function_name.ascii() );
-  }
 
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
@@ -1446,6 +1399,20 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
           currentItemIndex++;
           lvit++;
         }
+// ADD CHECK HERE TO SEE IF filename == di->getPath() 
+if( filename.isEmpty() )
+{
+  filename = di->getPath();
+// printf("filename was empty.   setting to di->getPath((%s)\n", filename.ascii() ); 
+}
+if( filename != di->getPath() )
+{
+  QString msg;
+  msg = QString("Filename mismatch: Confusion exists over which file to use.\nThe choices are %1 and %2.\nUsing the former").arg(filename).arg(di->getPath());
+  QMessageBox::information( (QWidget *)this, tr("Details..."),
+                               msg, QMessageBox::Ok );
+}
+// printf("PREPARE the hlo and spo.  filename=(%s)\n", filename.ascii() );
         if( mpiFLAG && lineNumberStr != "-1" &&
             ( currentCollectorStr.startsWith("CallTrees") ||
               currentCollectorStr.startsWith("Functions") ||
@@ -1454,10 +1421,14 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
         {
           hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite", "N/A");
           highlightList->push_back(hlo);
-          spo = new SourceObject(function_name.ascii(), di->getPath(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
+// printf("spo A:\n");
+//          spo = new SourceObject(function_name.ascii(), di->getPath(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
+          spo = new SourceObject(function_name.ascii(), filename.ascii(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
         } else
         {
-          spo = new SourceObject(function_name.ascii(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
+// printf("spo B:\n");
+//          spo = new SourceObject(function_name.ascii(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
+          spo = new SourceObject(function_name.ascii(), filename, di->getLine()-1, expID, TRUE, highlightList);
 }
         } else
         {
@@ -1468,7 +1439,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
     // If no spo, make one so the source panel is placed correctly.
     if( !spo )
     {
-//printf("NO SOURCE PANEL OBJECT to update existing source. Create null one.\n");
+// printf("NO SOURCE PANEL OBJECT to update existing source. Create null one.\n");
       spo = new SourceObject(NULL, NULL, -1, expID, TRUE, NULL);
     }
     if( spo )
@@ -2724,6 +2695,113 @@ StatsPanel::resetRedirect()
   {
     fprintf(stderr, "Unable to redirect output to the cmdpanel.\n");
   }
+}
+
+QString
+StatsPanel::getFilenameFromString( QString selected_qstring )
+{
+
+// printf("Get filename from (%s)\n", selected_qstring.ascii() );
+  QString filename = QString::null;
+
+  int sfi = 0;
+
+  sfi = selected_qstring.find(" in ");
+// printf("sfi=%d (Was there an \" in \"\n", sfi );
+
+  if( sfi == -1 )
+  {
+    sfi = selected_qstring.find(" ");
+  } else
+  {
+    sfi = selected_qstring.find(": ");
+    sfi += 1;
+  }
+  sfi++;
+
+  int efi = selected_qstring.find(",");
+
+// printf("sfi=(%d) efi=(%d) (Was there a \",\" in (%s)\n", sfi, efi, selected_qstring.ascii()  );
+
+  filename = selected_qstring.mid(sfi, efi-sfi );
+
+// printf("   returning filename=(%s)\n", filename.ascii() );
+
+  return(filename);
+}
+
+QString
+StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNumberStr )
+{
+// printf("Get funcString from %s\n", selected_qstring.ascii() );
+  QString funcString = QString::null;
+  QString workString = selected_qstring;
+
+  int sfi = 0;
+
+  sfi = selected_qstring.find(" in ");
+// printf("sfi=%d (Was there an \" in \"\n", sfi );
+  if( sfi != -1 )
+  {
+    workString = selected_qstring.mid(sfi+4);
+  } else
+  {
+    workString = selected_qstring;
+  }
+
+// printf("Start you function lookup from (%s)\n", workString.ascii() );
+
+  funcString = workString.section(' ', 0, 0, QString::SectionSkipEmpty);
+  std::string selected_function = funcString.ascii();
+
+// printf("funcString=(%s)\n", funcString.ascii() );
+
+  int efi = workString.find("(");
+  QString function_name = workString.mid(0,efi);
+
+// printf("function_name=(%s)\n", function_name.ascii() );
+
+  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("TraceBacks/FullStack") ) )
+  {
+    int bof = -1;
+    int eof = workString.find('(');
+// printf("eof=%d\n", eof);
+    if( eof == -1 )
+    {
+// printf("main:  you should never be here..\n");
+      function_name = "main";
+    } else
+    {
+
+      QString tempString = workString.mid(0,eof);
+// printf("tempString=%s\n", tempString.ascii() );
+
+      QRegExp rxp = QRegExp( "[ >]");
+      bof = tempString.findRev(rxp, eof);
+// printf("bof=%d\n", bof);
+      if( bof == -1 )
+      {
+        bof = 0;
+      } else
+      {
+        bof++;
+      }
+    }
+    function_name = workString.mid(bof,eof-bof);
+
+    int boln = workString.find('@');
+    boln++;
+    int eoln = workString.find(" in ");
+    lineNumberStr = workString.mid(boln,eoln-boln).stripWhiteSpace();
+// printf("lineNumberStr=(%s)\n", lineNumberStr.ascii() );
+
+
+// printf("mpi: function_name=(%s)\n", function_name.ascii() );
+  }
+
+// printf("returning function_name=(%s) lineNumberStr=(%s)\n", function_name.ascii(), lineNumberStr.ascii() );
+
+  return(function_name);
 }
 
 #if 0

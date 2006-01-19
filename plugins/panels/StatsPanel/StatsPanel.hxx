@@ -214,6 +214,9 @@ ThreadGroupStringList currentThreadGroupStrList;
     int getLineColor(uint64_t value);
 
 
+    QString getFilenameFromString( QString ); 
+    QString getFunctionNameFromString( QString, QString & );
+
     bool descending_sort;
 
     double Get_Double_Total_Time();
