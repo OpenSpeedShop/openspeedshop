@@ -1,4 +1,4 @@
-#! /bin/tcsh
+#!/bin/sh
 ###############################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 #
@@ -16,4 +16,5 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
+export DYNINSTAPI_RT_LIB=/usr/lib/libdyninstAPI_RT.so.1
 ./mutator ./mutatee 10
