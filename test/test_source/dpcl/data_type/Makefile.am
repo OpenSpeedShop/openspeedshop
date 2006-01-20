@@ -51,3 +51,11 @@ mutatee_LDADD = \
 
 mutatee_SOURCES = \
 	mutatee.cxx
+
+EXTRA_DIST = \
+        README \
+        data_type.tst \
+        data_type.tst.expected \
+        runone-dpcl \
+        runall-dpcl
+

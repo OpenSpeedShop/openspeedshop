@@ -43,3 +43,9 @@ mutatee_LDADD = \
 mutatee_SOURCES = \
 	mutatee.c
 
+EXTRA_DIST = \
+        stmt_info.tst \
+        stmt_info.tst.expected \
+        runone-dpcl \
+        runall-dpcl
+

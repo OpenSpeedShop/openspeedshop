@@ -46,3 +46,11 @@ probe_module_LIBS = \
 
 probe_module_SOURCES = \
 	probe_module.c
+
+EXTRA_DIST = \
+        README \
+        phase.tst \
+        phase.tst.expected \
+        runone-dpcl \
+        runall-dpcl
+

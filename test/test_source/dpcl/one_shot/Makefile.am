@@ -67,3 +67,11 @@ hello_LDFLAGS = \
 hello_SOURCES = \
 	hello.c
 
+
+EXTRA_DIST = \
+	README \
+        one_shot.tst \
+        one_shot.tst.expected \
+        runone-dpcl \
+        runall-dpcl 
+

@@ -57,3 +57,10 @@ hello_LDFLAGS = \
 hello_SOURCES = \
 	hello.c
 
+EXTRA_DIST = \
+        README \
+        probe_module.tst \
+        probe_module.tst.expected \
+        runone-dpcl \
+        runall-dpcl
+

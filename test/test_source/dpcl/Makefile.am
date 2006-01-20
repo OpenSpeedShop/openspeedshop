@@ -24,4 +24,6 @@ SUBDIRS = one_shot point_probe probe_module start_terminate phase module_addr st
 #
 DIST_SUBDIRS = one_shot point_probe probe_module start_terminate phase module_addr stmt_info daemonRT_locking data_type
 
+EXTRA_DIST = runall-dpcl
+
 

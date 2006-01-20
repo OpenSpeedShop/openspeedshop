@@ -28,5 +28,5 @@ daemonRT_locking_SOURCES = \
 	daemonRT_locking.c
 
 EXTRA_DIST = \
-	runone-dpcl runall-dpcl
+	runone-dpcl runall-dpcl daemonRT_locking.tst daemonRT_locking.tst.expected
 

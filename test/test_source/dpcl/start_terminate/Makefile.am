@@ -43,3 +43,10 @@ mutatee_LDADD = \
 mutatee_SOURCES = \
 	mutatee.c
 
+EXTRA_DIST = \
+        README \
+        start_terminate.tst \
+        start_terminate.tst.expected \
+        runone-dpcl \
+        runall-dpcl
+
