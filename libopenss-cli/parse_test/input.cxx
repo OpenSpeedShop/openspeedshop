@@ -721,6 +721,18 @@ main()
 
     dump_close_output(p_os);
 
+    // EXPCOMPARE
+    p_os = open_output("expcompare.input");
+
+    four_level("expcompare",
+    	    	0,EXPID_MAX,exp_id_arg,NULL,
+    	    	0,MPI_FLAG_MAX,mpi_flag_arg,NULL,
+    	    	0,TARGET_MAX,target_arg,NULL,
+    	    	0,EXPTYPE_MAX,exptype_arg,NULL
+    	    	);
+
+    dump_close_output(p_os);
+
     // EXPDETACH
     p_os = open_output("expdetach.input");
     three_level("expdetach",

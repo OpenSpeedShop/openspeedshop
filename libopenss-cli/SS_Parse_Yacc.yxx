@@ -48,7 +48,7 @@ int val;
 char *string;
 }
 
-%token ATTACH_HEAD CLOSE_HEAD CREATE_HEAD DETACH_HEAD 
+%token ATTACH_HEAD CLOSE_HEAD CREATE_HEAD COMPARE_HEAD DETACH_HEAD 
 %token DISABLE_HEAD ENABLE_HEAD 
 %token FOCUS_HEAD GO_HEAD PAUSE_HEAD RESTORE_HEAD SAVE_HEAD
 %token SETPARAM_HEAD STATUS_HEAD VIEW_HEAD 
@@ -100,6 +100,7 @@ command_line:  END_LINE
 command_desc: exp_attach_com 	{p_parse_result->setCommandType(CMD_EXP_ATTACH);}
     	    | exp_close_com 	{p_parse_result->setCommandType(CMD_EXP_CLOSE);}
 	    | exp_create_com 	{p_parse_result->setCommandType(CMD_EXP_CREATE);}
+	    | exp_compare_com 	{p_parse_result->setCommandType(CMD_EXP_COMPARE);}
 	    | exp_detach_com 	{p_parse_result->setCommandType(CMD_EXP_DETACH);}
 	    | exp_disable_com 	{p_parse_result->setCommandType(CMD_EXP_DISABLE);}
 	    | exp_enable_com 	{p_parse_result->setCommandType(CMD_EXP_ENABLE);}
@@ -260,6 +261,70 @@ exp_create_args:
     	    	|   target_list modifier_list_spec expType_list 
     	    	|   modifier_list_spec expType_list target_list 
     	    	|   modifier_list_spec target_list expType_list 
+    	    	;
+
+    	    /** EXP_COMPARE **/
+    	    /** <expId> = expCompare  <expId_spec> ] [ <modifier_list_spec> ] <target_list> [ <expType_list> ] **/
+exp_compare_com:    COMPARE_HEAD exp_compare_args 
+  	    	|   COMPARE_HEAD exp_compare_args error END_LINE 
+    	    	;
+exp_compare_args:
+    	    	    /* empty */
+
+    	    	|   target_list
+
+    	    	|   expId_spec target_list 
+    	    	|   target_list expId_spec 
+    	    	|   modifier_list_spec target_list 
+    	    	|   target_list modifier_list_spec 
+    	    	|   expType_list target_list 
+    	    	|   target_list expType_list 
+
+    	    	|   expId_spec modifier_list_spec target_list 
+    	    	|   expId_spec target_list modifier_list_spec 
+    	    	|   modifier_list_spec expId_spec target_list 
+    	    	|   modifier_list_spec target_list expId_spec 
+    	    	|   target_list expId_spec modifier_list_spec 
+    	    	|   target_list modifier_list_spec expId_spec 
+    	    	|   expId_spec expType_list target_list 
+    	    	|   expId_spec target_list expType_list 
+    	    	|   expType_list expId_spec target_list 
+    	    	|   expType_list target_list expId_spec 
+    	    	|   target_list expId_spec expType_list 
+    	    	|   target_list expType_list expId_spec 
+    	    	|   modifier_list_spec expType_list target_list 
+    	    	|   modifier_list_spec target_list expType_list 
+    	    	|   expType_list modifier_list_spec target_list 
+    	    	|   expType_list target_list modifier_list_spec 
+    	    	|   target_list modifier_list_spec expType_list 
+    	    	|   target_list expType_list modifier_list_spec 
+
+    	    	|   expId_spec modifier_list_spec expType_list target_list 
+    	    	|   expId_spec modifier_list_spec target_list expType_list 
+    	    	|   expId_spec expType_list modifier_list_spec target_list 
+    	    	|   expId_spec expType_list target_list modifier_list_spec 
+    	    	|   expId_spec target_list modifier_list_spec expType_list 
+    	    	|   expId_spec target_list expType_list modifier_list_spec 
+    	    	|   modifier_list_spec expId_spec expType_list target_list 
+    	    	|   modifier_list_spec expId_spec target_list expType_list 
+    	    	|   modifier_list_spec expType_list expId_spec target_list 
+    	    	|   modifier_list_spec expType_list target_list expId_spec 
+    	    	|   modifier_list_spec target_list expId_spec expType_list 
+    	    	|   modifier_list_spec target_list expType_list expId_spec 
+    	    	|   expType_list expId_spec modifier_list_spec target_list 
+    	    	|   expType_list expId_spec target_list modifier_list_spec 
+    	    	|   expType_list modifier_list_spec expId_spec target_list 
+    	    	|   expType_list modifier_list_spec target_list expId_spec 
+    	    	|   expType_list target_list expId_spec modifier_list_spec 
+    	    	|   expType_list target_list modifier_list_spec expId_spec 
+    	    	|   target_list expId_spec modifier_list_spec expType_list 
+    	    	|   target_list expId_spec expType_list modifier_list_spec 
+    	    	|   target_list modifier_list_spec expId_spec expType_list 
+    	    	|   target_list modifier_list_spec expType_list expId_spec 
+    	    	|   target_list expType_list expId_spec modifier_list_spec 
+    	    	|   target_list expType_list modifier_list_spec expId_spec 
+
+
     	    	;
 
     	    /** EXP_DETACH **/
@@ -988,6 +1053,7 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	|   ATTACH_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_ATTACH].name);}
     	    	|   CLOSE_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_CLOSE].name);}
     	    	|   CREATE_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_CREATE].name);}
+    	    	|   COMPARE_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_COMPARE].name);}
     	    	|   DETACH_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_DETACH].name);}
     	    	|   DISABLE_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_DISABLE].name);}
     	    	|   ENABLE_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_ENABLE].name);}
