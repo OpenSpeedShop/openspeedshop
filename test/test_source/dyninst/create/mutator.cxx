@@ -1,5 +1,6 @@
 
 #include "BPatch.h"
+#include "BPatch_function.h"
 
 BPatch bpatch;
 
