@@ -868,6 +868,30 @@ inline CommandResult *Dup_CommandResult (CommandResult *C) {
   return NULL;
 }
 
+// Create a new CommandResult object, with an initial default value,
+// that has the same type as another CommandResult object.
+inline CommandResult *New_CommandResult (CommandResult *C) {
+  CommandResult *v = NULL;
+  switch (C->Type()) {
+   case CMD_RESULT_UINT:
+    v = new CommandResult_Uint ();
+    break;
+   case CMD_RESULT_INT:
+    v = new CommandResult_Int ();
+    break;
+   case CMD_RESULT_FLOAT:
+    v = new CommandResult_Float ();
+    break;
+   case CMD_RESULT_STRING:
+     v = new CommandResult_String ("");
+     break;
+   case CMD_RESULT_RAWSTRING:
+     v = new CommandResult_RawString ("");
+     break;
+  }
+  return v;
+}
+
 inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
   Assert (lhs->Type() == rhs->Type());
   switch (lhs->Type()) {
@@ -1327,6 +1351,9 @@ public:
   }
   void Result_Predefined (CommandResult *C) {
     Attach_Result (C);
+  }
+  void Result_Predefined (std::list<CommandResult *>& R) {
+    CMD_Result.splice( CMD_Result.end(), R);
   }
 
   std::list<CommandResult *> Result_List () {

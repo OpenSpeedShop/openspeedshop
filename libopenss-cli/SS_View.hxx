@@ -308,3 +308,16 @@ void SS_Get_Views (CommandObject *cmd, std::string collector_name);
 void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fexp, std::string s = "");
 
 bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string viewname);
+
+void Construct_View_Output (CommandObject *cmd,
+                            ThreadGroup& tgrp,
+                            std::vector<Collector>& CV,
+                            std::vector<std::string>& MV,
+                            std::vector<ViewInstruction *>& IV,
+                            int64_t num_columns,
+                            bool Gen_Total_Percent,
+                            int64_t percentofcolumn,
+                            CommandResult *TotalValue,
+                            std::vector<std::pair<CommandResult_CallStackEntry *,
+                                                  SmartPtr<std::vector<CommandResult *> > > >& items,
+                            std::list<CommandResult *>& view_result );
