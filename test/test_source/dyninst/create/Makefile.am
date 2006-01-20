@@ -32,12 +32,12 @@ mutator_CXXFLAGS = \
 	-I/usr/include/dyninst 
 
 mutator_LDFLAGS = \
-	-L/usr/lib \
+	$(DPCL_LDFLAGS) \
 	-ldyninstAPI \
 	-liberty -ldwarf -lelf -ldl
 
 mutator_LIBS = \
-	-L/usr/lib \
+	$(DPCL_LDFLAGS) \
 	-ldyninstAPI \
 	-liberty -ldwarf -lelf -ldl
 
