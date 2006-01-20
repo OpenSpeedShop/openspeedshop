@@ -93,27 +93,27 @@ void SS_Configure () {
             "Define the width of each field when the result "
             "of an 'expView' command is printed.  The default is 20 columns.");
   Ivalue = settings->readNumEntry(std::string("viewFieldSize"), OPENSS_VIEW_FIELD_SIZE, &ok);
-  if (ok) OPENSS_VIEW_FIELD_SIZE = Ivalue;
+  if (ok && (Ivalue >= 0)) OPENSS_VIEW_FIELD_SIZE = Ivalue;
 
   Add_Help (czar, "viewPrecision", "an integer, preference",
             "Define the precision used to format a floating point number when "
             "the result of an 'expView' command is printed.  The default is 4.");
   Ivalue = settings->readNumEntry(std::string("viewPrecision"), OPENSS_VIEW_PRECISION, &ok);
-  if (ok) OPENSS_VIEW_PRECISION = Ivalue;
+  if (ok && (Ivalue >= 0)) OPENSS_VIEW_PRECISION = Ivalue;
 
   Add_Help (czar, "historyLimit", "an integer, preference",
             "Define the maximum number of commands that are remembered for the "
             "'history' command.  If the command is issued with a larger number, "
             "this limit is automatically increased.  The default is 100.");
   Ivalue = settings->readNumEntry(std::string("historyLimit"), OPENSS_HISTORY_LIMIT, &ok);
-  if (ok) OPENSS_HISTORY_LIMIT = Ivalue;
+  if (ok && (Ivalue >= 0)) OPENSS_HISTORY_LIMIT = Ivalue;
 
   Add_Help (czar, "historyDefault", "an integer, preference",
             "Define the number of previous commands that will be printed when "
             "the 'history' command is issued without a requesting length. The "
             "default is 24.");
   Ivalue = settings->readNumEntry(std::string("historyDefault"), OPENSS_HISTORY_DEFAULT, &ok);
-  if (ok) OPENSS_HISTORY_DEFAULT = Ivalue;
+  if (ok && (Ivalue >= 0)) OPENSS_HISTORY_DEFAULT = Ivalue;
 
   Add_Help (czar, "maxAsyncCommands", "an integer, preference",
             "Define the maximum number of commands that can be processed at "
@@ -121,7 +121,7 @@ void SS_Configure () {
             "commands in OpenSS and controls the degree to which commands "
             "can be overlapped.  The default is 20.");
   Ivalue = settings->readNumEntry(std::string("maxAsyncCommands"), OPENSS_MAX_ASYNC_COMMANDS, &ok);
-  if (ok) OPENSS_MAX_ASYNC_COMMANDS = Ivalue;
+  if (ok && (Ivalue > 0)) OPENSS_MAX_ASYNC_COMMANDS = Ivalue;
 
   Add_Help (czar, "helpLevelDefault", "an integer, preference",
             "Define the level of help information that is displayed when "
@@ -132,7 +132,7 @@ void SS_Configure () {
             "\n  '2' == '-v detailed'"
             "\nThe default is level 1, 'normal'.");
   Ivalue = settings->readNumEntry(std::string("helpLevelDefault"), OPENSS_HELP_LEVEL_DEFAULT, &ok);
-  if (ok) OPENSS_HELP_LEVEL_DEFAULT = Ivalue;
+  if (ok && (Ivalue >= 0)) OPENSS_HELP_LEVEL_DEFAULT = Ivalue;
 
 
   Add_Help (czar, "viewFullPath", "a boolean, preference",
