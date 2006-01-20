@@ -169,6 +169,18 @@ CompareClass::menu(QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( removeUserPSet() ) );
   qaction->setStatusTip( tr("Removes process/process set from the current cset.") );
 
+  qaction = new QAction( this,  "focusOnProcess");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Focus on Process(es) in compare set...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnCSetSelected() ) );
+  qaction->setStatusTip( tr("Focus on processes in current cset.") );
+
+  qaction = new QAction( this,  "addProcessesSelected");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Add process(es)...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( addProcessesSelected() ) );
+  qaction->setStatusTip( tr("Add processes to the current column of current cset.") );
+
   return( TRUE );
 }
 
@@ -345,6 +357,20 @@ tabWidget->showPage(cp);
   tabWidget->setTabToolTip(cp, "The information in this tab will be displayed in\nthe StatsPanel's associated column.  i.e. Column #1\nwill be in the first column of the StatsPanel\nColumn #2 the second.  Column #3 the third...");
 
 tcnt++;
+}
+
+void
+CompareClass::focusOnCSetSelected()
+{
+printf("CompareClass::focusOnCSetSelected() entered\n");
+printf("Currently unimplemented\n");
+}
+
+void
+CompareClass::addProcessesSelected()
+{
+printf("CompareClass::addProcessesSelected() entered\n");
+printf("Currently unimplemented\n");
 }
 
 void

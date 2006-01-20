@@ -96,6 +96,8 @@ private slots:
     void removeRaisedTab();
     void removeUserPSet();
     void focusOnCSet();
+    void focusOnCSetSelected();
+    void addProcessesSelected();
 
 private:
     void gatherInfo(QString collector_name = QString::null);
