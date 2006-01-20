@@ -30,4 +30,5 @@ check_SCRIPTS = $(check_SCRIPTS_common)
 
 TESTS = $(check_SCRIPTS)
 
+EXTRA_DIST	=	runall-dpcl
 
