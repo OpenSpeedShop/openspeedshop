@@ -118,7 +118,7 @@ ColumnValueClass columnValueClass[10];
     void updateThreadsList();
     void updateCollectorMetricList();
     void outputCLIData(QString *data);
-bool mpiFLAG;
+bool mpi_io_FLAG;
 
   protected:
     //! Sets the language specific strings.
