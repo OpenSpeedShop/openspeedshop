@@ -349,6 +349,14 @@ ManageCollectorsClass::updateAttachedList()
 // printf("got an experiment.\n");
   // The following bit of code was snag and modified from SS_View_exp.cxx
           ThreadGroup tgrp = eo->FW()->getThreads();
+// printf("eo->Determine_Status() = (%d)\n", eo->Determine_Status() );
+          if( ( (eo->Determine_Status() == ExpStatus_NonExistent) ||
+            (eo->Determine_Status() == ExpStatus_Terminated ) ||
+            (eo->Determine_Status() == ExpStatus_InError ) ) && updateTimer )
+          {
+            updateTimer->stop();
+            updateTimer = NULL;
+          }
           ThreadGroup::iterator ti;
           bool atleastone = false;
           for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
@@ -378,16 +386,12 @@ ManageCollectorsClass::updateAttachedList()
                 break;
               case Thread::Terminated:
                 threadStatusStr = "Terminate";
-if( updateTimer )
-{
-  updateTimer->stop();
-  updateTimer = NULL;
-}
                 break;
               default:
                 threadStatusStr = "Unknown";
                 break;
             }
+// printf("threadStatusStr=(%s)\n", threadStatusStr.ascii() );
   
             if (!atleastone)
             {

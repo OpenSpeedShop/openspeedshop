@@ -258,10 +258,19 @@ if( attachFLAG )
     {
       experiment = eo->FW();
     }
-    statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
-    runnableFLAG = TRUE;
-    pco->runButton->setEnabled(TRUE);
-    pco->runButton->enabledFLAG = TRUE;
+      if( eo->Determine_Status() == ExpStatus_NonExistent || eo->Determine_Status() == ExpStatus_InError || eo->Determine_Status() == ExpStatus_Terminated )
+      {
+        statusLabelText->setText( tr(QString("Loaded saved data from file.") ) );
+        runnableFLAG = FALSE;
+        pco->runButton->setEnabled(FALSE);
+        pco->runButton->enabledFLAG = FALSE;
+      } else
+      {
+        statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
+        runnableFLAG = TRUE;
+        pco->runButton->setEnabled(TRUE);
+        pco->runButton->enabledFLAG = TRUE;
+      }
   }
 
   char name_buffer[100];
@@ -281,7 +290,6 @@ if( attachFLAG )
 
   if( expID > 0 && !executableNameStr.isEmpty() )
   {
-// printf("Here A: \n");
     statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
     runnableFLAG = TRUE;
     pco->runButton->setEnabled(TRUE);
@@ -290,21 +298,6 @@ if( attachFLAG )
     updateInitialStatus();
   } else if( expID > 0 )
   {
-// printf("Here B: \n");
-#ifdef PULL
-    ThreadGroup tgrp = experiment->getThreads();
-    ThreadGroup::iterator ti = tgrp.begin();
-    if( tgrp.size() == 0 )
-    {
-      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" or \"Use the Wizard to begin your experiment...\"") );
-        PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
-      ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
-      topPC->dl_create_and_add_panel("FPE Tracing Wizard", bestFitPC, ao);
-      delete ao;
-    } else
-    {
-
-#endif // PULL
       ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
       if( ao && ao->loadedFromSavedFile == TRUE )
       {
@@ -328,9 +321,6 @@ if( attachFLAG )
 // printf("D: call updateInitialStatus() \n");
         updateInitialStatus();
       }
-#ifdef PULL
-    }
-#endif // PULL
   } else if( executableNameStr.isEmpty() )
   {
 // printf("Here C: \n");
@@ -1147,13 +1137,21 @@ FPE_TracingPanel::updateStatus()
   if( eo && eo->FW() )
   {
     int status = eo->Determine_Status();
+// printf("fpe: eo->Determine_Status()=%d\n", eo->Determine_Status() );
+    if( eo->Determine_Status() == ExpStatus_NonExistent || eo->Determine_Status() == ExpStatus_InError || eo->Determine_Status() == ExpStatus_Terminated )
+    {
+    statusLabelText->setText( tr(QString("Loaded saved data from file.") ) );
+    runnableFLAG = FALSE;
+    pco->runButton->setEnabled(FALSE);
+    pco->runButton->enabledFLAG = FALSE;
+}
     nprintf( DEBUG_PANELS ) ("status=%d\n", status);
     switch( status )
     {
       case ExpStatus_NonExistent:
 // printf("ExpStatus_NonExistent:\n");
 //        statusLabelText->setText( "0: ExpStatus_NonExistent" );
-        statusLabelText->setText( tr("No available experiment status available") );
+//        statusLabelText->setText( tr("No available experiment status available") );
         statusTimer->stop();
         pco->runButton->setEnabled(FALSE);
         pco->runButton->enabledFLAG = FALSE;
