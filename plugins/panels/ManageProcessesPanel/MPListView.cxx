@@ -212,9 +212,17 @@ void MPListView::contentsDropEvent( QDropEvent *e )
 // printf("field[%d]=(%s)\n", i, MPListView::oldCurrent->text(i).ascii() );
 // }
 
+    QString namedSet = QString::null;
+    if( MPListView::oldCurrent->text(0).find("pset") == 0 || MPListView::oldCurrent->text(0).find("upset") == 0 )
+    {
+      namedSet = MPListView::oldCurrent->text(0)+"*";
+// printf("We have a pset named!!   Just put out the pset name...\n");
+    }
+
     // First check to see if it's already been added.
     if( isThisADuplicate( item ) )
     {
+// printf("It thinks this is a duplicate!\n");
       return;
     }
 
@@ -226,6 +234,14 @@ void MPListView::contentsDropEvent( QDropEvent *e )
         !MPListView::oldCurrent->descriptionClassObject->all )
     {
       // Loop through all the children...
+      if( namedSet )
+      {
+        MPListViewItem *namedSetItem =
+                new MPListViewItem( item, namedSet );
+        DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null, namedSet );
+        namedSetItem->descriptionClassObject = dco;
+        item = namedSetItem;
+      }
       MPListViewItem *mpChild = (MPListViewItem *)MPListView::oldCurrent->firstChild();
       while( mpChild )
       {
@@ -254,6 +270,14 @@ void MPListView::contentsDropEvent( QDropEvent *e )
       {
         if( MPListView::oldCurrent->descriptionClassObject->root )
         {
+          if( namedSet )
+          {
+            MPListViewItem *namedSetItem =
+                    new MPListViewItem( item, namedSet );
+            DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null, namedSet );
+            namedSetItem->descriptionClassObject = dco;
+            item = namedSetItem;
+          }
           MPListViewItem *item2 =
             new MPListViewItem( item, MPListView::oldCurrent->firstChild()->text(0).ascii() );
           item2->descriptionClassObject = MPListView::oldCurrent->descriptionClassObject;
@@ -382,6 +406,28 @@ MPListView::isThisADuplicate(MPListViewItem *item)
 {
 // printf("isThisADuplicate(%s %s) entered\n", MPListView::oldCurrent->text(0).ascii(), item->text(0).ascii() );
 
+  // If this is a named pset, look for another named pset that's already there.
+  QString namedSet = QString::null;
+  if( MPListView::oldCurrent->text(0).find("pset") == 0 ||
+      MPListView::oldCurrent->text(0).find("upset") == 0 )
+  {
+    namedSet = MPListView::oldCurrent->text(0)+"*";
+// printf("this (%s) is a named pset!\n", namedSet.ascii() );
+    QListViewItem *nitem = NULL;
+    nitem = item->firstChild();
+    while( nitem )
+    {
+// printf("  (%s)\n", nitem->text(0).ascii() );
+      if( nitem->text(0) == namedSet )
+      {
+// printf("We have a duplicate namedSet\n");
+        return(TRUE);
+      }
+      nitem = nitem->nextSibling();
+    }
+  }
+
+
   QListViewItem *nitem = item->firstChild();
   while( nitem )
   {
@@ -395,6 +441,7 @@ MPListView::isThisADuplicate(MPListViewItem *item)
     }
     nitem = nitem->nextSibling();
   }
+
 
   return(FALSE);
 }

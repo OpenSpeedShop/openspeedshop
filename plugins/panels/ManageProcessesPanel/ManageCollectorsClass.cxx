@@ -1277,11 +1277,16 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
 // printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
 // if( lvi->descriptionClassObject )
 // {
-// lvi->descriptionClassObject->Print();
+  // lvi->descriptionClassObject->Print();
 // }
     if( msg == NULL )
     {
       msg = new FocusObject(expID,  NULL, NULL, TRUE);
+    }
+    if( !lvi || !lvi->descriptionClassObject )
+    {
+      QMessageBox::information( this, tr("Focus Error:"), tr("Unable to focus on selection: No description for process(es)."), QMessageBox::Ok );
+      return;
     }
 
     if( lvi->descriptionClassObject->all )
