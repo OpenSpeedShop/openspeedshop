@@ -149,15 +149,15 @@ CompareClass::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-  qaction = new QAction( this,  "addNewTab");
+  qaction = new QAction( this,  "addNewColumn");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Add new tab to current compare set...") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( addNewTab() ) );
+  qaction->setText( tr("Add new column to current compare set...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( addNewColumn() ) );
   qaction->setStatusTip( tr("Adds an additional column (tab) to the definition of the current cset.") );
 
   qaction = new QAction( this,  "removeRaisedTab");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Remove raised tab from current compare set...") );
+  qaction->setText( tr("Remove raised column from current compare set...") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( removeRaisedTab() ) );
   qaction->setStatusTip( tr("Removes column (tab) from the current cset.") );
 
@@ -191,7 +191,7 @@ CompareClass::addNewCSet()
 
   QTabWidget *tabWidget = new QTabWidget(this, "tabWidget");
 
-  addNewTab(tabWidget);
+  addNewColumn(tabWidget);
 
   csetTB->addItem(tabWidget, QString("cset%1").arg(ccnt) );
 
@@ -199,15 +199,15 @@ CompareClass::addNewCSet()
 
 // Entry point from the menu.  You'll need to lookup the tabWidget
 void
-CompareClass::addNewTab()
+CompareClass::addNewColumn()
 {
   QWidget *currentItem = csetTB->currentItem();
 
-  addNewTab( (QTabWidget *)currentItem );
+  addNewColumn( (QTabWidget *)currentItem );
 }
 
 void
-CompareClass::addNewTab(QTabWidget *tabWidget)
+CompareClass::addNewColumn(QTabWidget *tabWidget)
 {
 
   QFrame *frame = new QFrame(tabWidget, QString("frame%1-%2").arg(tcnt).arg(ccnt) );
@@ -335,7 +335,7 @@ if( ce )
 #endif // OLDWAY
   
   MPListView *lv = new MPListView( frame, CPS, 0  );
-  lv->addColumn("Column");
+  lv->addColumn("Processes/PSets:");
   QToolTip::add(lv->header(), "Process/Process Sets (psets) to be display in this column:");
   lv->setAllColumnsShowFocus( TRUE );
   lv->setShowSortIndicator( TRUE );
@@ -343,7 +343,7 @@ if( ce )
   lv->setSelectionMode( QListView::Single );
   MPListViewItem *dynamic_items = new MPListViewItem( lv, CPS);
 
-  QToolTip::add(lv->viewport(), tr("Drag and drop, psets or individual processes from the ManageProcessesPanel.   In the StatsPanel, the statistics from\nthese grouped processes will be displayed in\ncolumns relative to this display.") );
+  QToolTip::add(lv->viewport(), tr("Drag and drop, psets or individual processes from the\nManageProcessesPanel.  In the StatsPanel, the statistics from\nthese grouped processes will be displayed in\ncolumns relative to this display.") );
   TBlayout->addWidget(lv);
   
   // ??  compareList.push_back(lv);
@@ -351,10 +351,10 @@ if( ce )
   tabWidget->addTab( frame, QString("Column #%1").arg(tcnt)  );
   int count = tabWidget->count();
 // printf("count=%d\n", count);
-QWidget *cp = tabWidget->page(count-1);
-cp->show();
-tabWidget->showPage(cp);
-  tabWidget->setTabToolTip(cp, "The information in this tab will be displayed in\nthe StatsPanel's associated column.  i.e. Column #1\nwill be in the first column of the StatsPanel\nColumn #2 the second.  Column #3 the third...");
+  QWidget *cp = tabWidget->page(count-1);
+  cp->show();
+  tabWidget->showPage(cp);
+  tabWidget->setTabToolTip(cp, "The information in this column will be displayed in\nthe StatsPanel's associated column.  i.e. Column #1\nwill be in the first column of the StatsPanel\nColumn #2 the second.  Column #3 the third...");
 
 tcnt++;
 }

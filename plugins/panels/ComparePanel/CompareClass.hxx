@@ -90,8 +90,8 @@ public slots:
     void addNewCSet();
 
 private slots:
-    void addNewTab();
-    void addNewTab(QTabWidget *);
+    void addNewColumn();
+    void addNewColumn(QTabWidget *);
     void removeCSet();
     void removeRaisedTab();
     void removeUserPSet();
