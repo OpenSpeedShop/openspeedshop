@@ -245,9 +245,39 @@ void PreferencesDialog::applyPreferences()
 
   globalRemoteShell = remoteShellEdit->text();
 
+{ // cli specific prefrences
+  extern int64_t OPENSS_VIEW_FIELD_SIZE;
+  extern int64_t OPENSS_VIEW_PRECISION;
+  extern int64_t OPENSS_HISTORY_LIMIT;
+  extern int64_t OPENSS_HISTORY_DEFAULT;
+  extern int64_t OPENSS_MAX_ASYNC_COMMANDS;
+  extern int64_t OPENSS_HELP_LEVEL_DEFAULT;
+  extern bool    OPENSS_VIEW_FULLPATH;
+  extern bool    OPENSS_SAVE_EXPERIMENT_DATABASE;
+  extern bool    OPENSS_ALLOW_PYTHON_COMMANDS;
+  extern bool    OPENSS_LOG_BY_DEFAULT;
+  extern bool    OPENSS_LIMIT_SIGNAL_CATCHING;
+
+
+  OPENSS_SAVE_EXPERIMENT_DATABASE =
+    saveExperimentDatabaseCheckBox->isChecked();
+  OPENSS_ALLOW_PYTHON_COMMANDS = 
+    allowPythonCommandsCheckBox->isChecked();
+  OPENSS_VIEW_FULLPATH =
+    viewFullPathCheckBox->isChecked();
+  OPENSS_HELP_LEVEL_DEFAULT = helpLevelDefaultLineEdit->text().toInt();
+  OPENSS_MAX_ASYNC_COMMANDS = maxAsyncCommandsLineEdit->text().toInt();
+  OPENSS_HISTORY_DEFAULT = historyDefaultLineEdit->text().toInt();
+  OPENSS_HISTORY_LIMIT = historyLimitLineEdit->text().toInt();
+  OPENSS_VIEW_PRECISION = viewPrecisionLineEdit->text().toInt();
+  OPENSS_VIEW_FIELD_SIZE = viewFieldSizeLineEdit->text().toInt();
+} // cli specific preferences
+
+
   // NOTIFY EVERYONE THAT PREFERENCES HAVE CHANGED!
   PreferencesChangedObject msg = PreferencesChangedObject();
   panelContainer->getMasterPC()->notifyAll((char *)&msg);
+
 }
 
 void PreferencesDialog::buttonApplySelected()
