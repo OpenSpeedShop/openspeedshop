@@ -46,9 +46,9 @@ mutatee_SOURCES = \
 
 EXTRA_DIST = \
         README \
-	point_probe_attach.tst.expected \ 
+	point_probe_attach.tst.expected \
 	point_probe_create.tst \
-	point_probe_attach.tst.future \   
+	point_probe_attach.tst.future \
 	point_probe_create.tst.expected \
         runone-dpcl \
         runall-dpcl
