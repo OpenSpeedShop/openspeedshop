@@ -21,9 +21,6 @@ libHYPRE_struct_ls_a_CFLAGS = \
 libHYPRE_struct_ls_a_LDFLAGS = \
         -lm $(MPI_LDFLAGS) $(MPI_LIBS)
 
-libHYPRE_struct_la_a_LIBADD = \
-        -ldl
-
 libHYPRE_struct_ls_a_SOURCES = \
 	headers.h\
 	smg.h\

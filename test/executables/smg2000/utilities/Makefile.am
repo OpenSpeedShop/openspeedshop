@@ -19,9 +19,6 @@ libHYPRE_utilities_a_CFLAGS = \
 libHYPRE_utilities_a_LDFLAGS = \
         -lm $(MPI_LDFLAGS) $(MPI_LIBS)
 
-libHYPRE_utilities_a_LIBADD = \
-        -ldl
-
 libHYPRE_utilities_a_SOURCES = \
 	memory.h\
 	mpistubs.h\

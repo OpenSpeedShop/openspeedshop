@@ -30,7 +30,6 @@ smg2000_LDFLAGS = \
 	-L$(smgtopdir)/utilities
 
 smg2000_LDADD = \
-	-ldl \
 	-lHYPRE_struct_ls\
 	-lHYPRE_struct_mv\
 	-lkrylov\
