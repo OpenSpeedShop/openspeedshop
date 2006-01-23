@@ -125,7 +125,7 @@ class ViewType
  public:
   // The call to generate the view must have this form.
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                             ThreadGroup& tgrp) {
+                             ThreadGroup& tgrp, std::list<CommandResult *>& view_output) {
     {
     	std::string s("The requested view has not been implemented.");
     	Mark_Cmd_With_Soft_Error(cmd,s);
@@ -220,7 +220,8 @@ extern std::list<ViewType *> Available_Views;
 void Define_New_View (ViewType *vnew);
 bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                    ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-                   std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV);
+                   std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
+                   std::list<CommandResult *>& view_output);
 
 CommandResult *Init_Collector_Metric (CommandObject *cmd,
                                       Collector collector,

@@ -82,7 +82,8 @@ void Construct_View (CommandObject *cmd,
                      int64_t percentofcolumn,
                      CommandResult *TotalValue,
                      bool report_Column_summary,
-                     std::vector<std::pair<TE, CommandResult *> >& items) {
+                     std::vector<std::pair<TE, CommandResult *> >& items,
+                     std::list<CommandResult *>& view_output) {
     int64_t i;
 
    // Should we accumulate column sums?
@@ -122,7 +123,6 @@ void Construct_View (CommandObject *cmd,
    // Extract the top "n" items from the sorted list.
     typename std::vector<std::pair<TE, CommandResult *> >::iterator it = items.begin();
     for(int64_t foundn = 0; (foundn < topn); foundn++, it++ ) {
-      CommandResult *percent_of = NULL;
 
      // Check for asnychonous abort command
       if (cmd->Status() == CMD_ABORTED) {
@@ -130,6 +130,8 @@ void Construct_View (CommandObject *cmd,
       }
 
       CommandResult_Columns *C = new CommandResult_Columns ();
+      CommandResult *percent_of = NULL;
+      bool column_one_used = false;
 
      // Add Metrics
       for ( i=0; i < num_columns; i++) {
@@ -140,6 +142,7 @@ void Construct_View (CommandObject *cmd,
         if (vinst->OpCode() == VIEWINST_Display_Metric) {
           if (i == 0) {
             Next_Metric_Value = it->second;
+            column_one_used = true;
           } else if (Values[i].isNull()) {
            // There is no map - look up the individual function.
             Next_Metric_Value = Get_Object_Metric( cmd, it->first, tgrp,
@@ -198,7 +201,12 @@ void Construct_View (CommandObject *cmd,
       }
      // Add ID for row
       C->CommandResult_Columns::Add_Column ( CRPTR(it->first) );
-      cmd->Result_Predefined (C);
+      view_output.push_back (C);
+
+     // These CommandObjects are reused. Avoid deletion in Reclaim_CR_Space.
+      if (column_one_used) {
+        it->second = NULL;
+      }
     }
 
     if (report_Column_summary) {
@@ -210,7 +218,7 @@ void Construct_View (CommandObject *cmd,
       }
      // Add ID
       E->CommandResult_Enders::Add_Ender ( CRPTR ( "Report Summary" ) );
-      cmd->Result_Predefined (E);
+      view_output.push_back (E);
     }
 
 }
@@ -219,11 +227,16 @@ void Construct_View (CommandObject *cmd,
 
 bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                    ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-                   std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV) {
+                   std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
+                   std::list<CommandResult *>& view_output) {
   // Print_View_Params (cerr, CV,MV,IV);
 
   bool report_Column_summary = false;
-
+  CommandResult *TotalValue = NULL;
+  std::vector<std::pair<Function, CommandResult *> > f_items;
+  std::vector<std::pair<Statement, CommandResult *> > s_items;
+  std::vector<std::pair<LinkedObject, CommandResult *> > l_items;
+  int64_t i;
   if (topn == 0) topn = INT_MAX;
 
   try {
@@ -236,7 +249,6 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
    // Set up quick access to instructions for columns.
     int64_t num_columns = 0;
     std::vector<ViewInstruction *> ViewInst;
-    int64_t i;
     for ( i=0; i < IV.size(); i++) {
       ViewInstruction *vinst = Find_Column_Def (IV, i);
       if (vinst == NULL) {
@@ -268,9 +280,6 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
    // Acquire base set of metric values.
     ViewInstruction *vinst0 = ViewInst[0];
     int64_t Column0index = vinst0->TMP1();
-    std::vector<std::pair<Function, CommandResult *> > f_items;
-    std::vector<std::pair<Statement, CommandResult *> > s_items;
-    std::vector<std::pair<LinkedObject, CommandResult *> > l_items;
     std::set<Function> f_objects;
     std::set<Statement> s_objects;
     std::set<LinkedObject> l_objects;
@@ -303,7 +312,6 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     }
 
    // Calculate %?
-    CommandResult *TotalValue = NULL;
     ViewInstruction *totalInst = Find_Total_Def (IV);
     bool Gen_Total_Percent = (totalInst != NULL);
     int64_t totalIndex = 0;
@@ -367,7 +375,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     }
    // Add Entry Object name
     H->CommandResult_Headers::Add_Header ( CRPTR ( EO_Title ) );
-    cmd->Result_Predefined (H);
+    view_output.push_back (H);
 
    // Now format the view.
     switch (vg) {
@@ -375,26 +383,38 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       Construct_View (cmd, topn, tgrp, CV, MV, IV,
                       num_columns,
                       ViewInst, Gen_Total_Percent, percentofcolumn, TotalValue, report_Column_summary,
-                      s_items);
+                      s_items, view_output);
       break;
      case VIEW_LINKEDOBJECTS:
       Construct_View (cmd, topn, tgrp, CV, MV, IV,
                       num_columns,
                       ViewInst, Gen_Total_Percent, percentofcolumn, TotalValue, report_Column_summary,
-                      l_items);
+                      l_items, view_output);
       break;
      default:
       Construct_View (cmd, topn, tgrp, CV, MV, IV,
                       num_columns,
                       ViewInst, Gen_Total_Percent, percentofcolumn, TotalValue, report_Column_summary,
-                      f_items);
+                      f_items, view_output);
       break;
     }
 
   }
   catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
-    return false;
+  }
+
+ // Release space for no longer needed items.
+  Reclaim_CR_Space (s_items);
+  Reclaim_CR_Space (l_items);
+  Reclaim_CR_Space (f_items);
+  if (TotalValue != NULL) delete TotalValue;
+
+ // Release instructions
+  for (i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    delete vp;
+    IV[i] = NULL;
   }
 
   return ((cmd->Status() != CMD_ERROR) && (cmd->Status() != CMD_ABORTED));
@@ -549,7 +569,7 @@ class stats_view : public ViewType {
                             true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                             ThreadGroup& tgrp) {
+                             ThreadGroup& tgrp, std::list<CommandResult *>& view_output) {
     std::vector<Collector> CV;
     std::vector<std::string> MV;
     std::vector<ViewInstruction *>IV;
@@ -568,7 +588,7 @@ class stats_view : public ViewType {
         return false;
       }
     }
-    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
+    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
   }
 };
 

@@ -77,6 +77,63 @@ class CommandResult {
   }
 };
 
+// Reclaim CommandResult objects within other structures.
+inline void Reclaim_CR_Space ( CommandResult *R) {
+  if (R != NULL) delete R;
+}
+
+template <typename TL>
+void Reclaim_CR_Space ( std::list<TL>& L) {
+  typename std::list<TL>::iterator li;
+  for ( li = L.begin(); li != L.end(); li++) {
+    Reclaim_CR_Space (*li);
+  }
+}
+
+template <typename TV>
+void Reclaim_CR_Space ( std::vector<TV>& V) {
+  typename std::vector<TV>::iterator vi;
+  for ( vi = V.begin(); vi != V.end(); vi++) {
+    Reclaim_CR_Space (*vi);
+  }
+}
+
+template  <typename TS>
+void Reclaim_CR_Space ( std::pair<Function, TS>& P ) {
+  Reclaim_CR_Space (P.second);
+}
+
+template  <typename TS>
+void Reclaim_CR_Space ( std::pair<Statement, TS>& P ) {
+  Reclaim_CR_Space (P.second);
+}
+
+template  <typename TS>
+void Reclaim_CR_Space ( std::pair<LinkedObject, TS>& P ) {
+  Reclaim_CR_Space (P.second);
+}
+
+template  <typename TF, typename TS>
+void Reclaim_CR_Space ( std::pair<TF, TS>& P ) {
+  Reclaim_CR_Space (P.first);
+  Reclaim_CR_Space (P.second);
+}
+
+template  <typename TE>
+void Reclaim_CR_Space ( SmartPtr<TE>& P) {
+  Reclaim_CR_Space (*P);
+}
+
+template <typename TV>
+void Reclaim_CR_Space (
+              int64_t starting_with,
+              std::vector<TV>& V) {
+  typename std::vector<TV>::iterator vi;
+  for (vi = (V.begin() + starting_with); vi != V.end(); vi++) {
+    Reclaim_CR_Space (*vi);
+  }
+}
+
 class CommandResult_Uint :
      public CommandResult {
   uint64_t uint_value;
@@ -550,10 +607,7 @@ class CommandResult_CallStackEntry : public CommandResult {
     CallStack = call_stack;
   }
   virtual ~CommandResult_CallStackEntry () {
-    std::vector<CommandResult *>::iterator csi;
-    for (csi = CallStack->begin(); csi != CallStack->end(); csi++) {
-      delete (*csi);
-    }
+    Reclaim_CR_Space (CallStack);
   }
 
   SmartPtr<std::vector<CommandResult *> >& Value () {
@@ -664,10 +718,7 @@ class CommandResult_Headers :
     number_of_columns = 0;
   }
   virtual ~CommandResult_Headers () {
-    std::list<CommandResult *>::iterator hi;
-    for (hi = Headers.begin(); hi != Headers.end(); hi++) {
-      delete (*hi);
-    }
+    Reclaim_CR_Space (Headers);
   }
 
   void Add_Header (CommandResult *R) {
@@ -726,10 +777,7 @@ class CommandResult_Enders :
     number_of_columns = 0;
   }
   virtual ~CommandResult_Enders () {
-    std::list<CommandResult *>::iterator ei;
-    for (ei = Enders.begin(); ei != Enders.end(); ei++) {
-      delete (*ei);
-    }
+    Reclaim_CR_Space (Enders);
   }
 
   void Add_Ender (CommandResult *R) {
@@ -788,10 +836,7 @@ class CommandResult_Columns :
     number_of_columns = 0;
   }
   virtual ~CommandResult_Columns () {
-    std::list<CommandResult *>::iterator ci;
-    for (ci = Columns.begin(); ci != Columns.end(); ci++) {
-      delete (*ci);
-    }
+    Reclaim_CR_Space (Columns);
   }
 
   void Add_Column (CommandResult *R) {
@@ -1282,20 +1327,10 @@ public:
     delete PR;
 
    // Reclaim results
-    std::list<CommandResult *>::iterator cri;
-    for (cri = CMD_Result.begin(); cri != CMD_Result.end(); ) {
-      CommandResult *CR = (*cri);
-      cri++;
-      delete CR;
-    }
+    Reclaim_CR_Space (CMD_Result);
 
    // Reclaim annotations.
-    std::list<CommandResult_RawString *>::iterator crri;
-    for (crri = CMD_Annotation.begin(); crri != CMD_Annotation.end(); ) {
-      CommandResult_RawString *CR = (*crri);
-      crri++;
-      delete CR;
-    }
+    Reclaim_CR_Space (CMD_Annotation);
 
    // Safety check.
     pthread_cond_destroy (&wait_on_dependency);
@@ -1356,7 +1391,7 @@ public:
     CMD_Result.splice( CMD_Result.end(), R);
   }
 
-  std::list<CommandResult *> Result_List () {
+  std::list<CommandResult *>& Result_List () {
     return CMD_Result;
   }
 

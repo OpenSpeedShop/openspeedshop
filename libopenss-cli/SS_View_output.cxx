@@ -47,7 +47,7 @@ void Construct_View_Output (CommandObject *cmd,
                             CommandResult *TotalValue,
                             std::vector<std::pair<CommandResult_CallStackEntry *,
                                                   SmartPtr<std::vector<CommandResult *> > > >& items,
-                            std::list<CommandResult *>& view_result ) {
+                            std::list<CommandResult *>& view_output ) {
   int64_t i;
   bool report_Column_summary = false;
 
@@ -159,7 +159,7 @@ void Construct_View_Output (CommandObject *cmd,
      // Add ID for row
       C->CommandResult_Columns::Add_Column (it->first);
       it->first = NULL;  // allow only 1 pointer to a CommandResult object
-      view_result.push_back (C);  // attach column list to output
+      view_output.push_back (C);  // attach column list to output
 
      // Accumulate Summary Information
       if (report_Column_summary) {
@@ -207,7 +207,7 @@ void Construct_View_Output (CommandObject *cmd,
       }
      // Add ID
       E->CommandResult_Enders::Add_Ender ( CRPTR ( "Report Summary" ) );
-      view_result.push_back (E);  // attach summary list to output
+      view_output.push_back (E);  // attach summary list to output
     }
 
  // Release summary temporaries
