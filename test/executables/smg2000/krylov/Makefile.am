@@ -20,9 +20,6 @@ libkrylov_a_CFLAGS =\
 libkrylov_a_LDFLAGS = \
         -lm $(MPI_LDFLAGS) $(MPI_LIBS)
 
-libkrylov_a_LIBADD = \
-        -ldl
-
 libkrylov_a_SOURCES =\
 	krylov.h \
 	pcg.c \
