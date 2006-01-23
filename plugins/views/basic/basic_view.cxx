@@ -60,7 +60,7 @@ class pcsamp_view : public ViewType {
                             true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                             ThreadGroup& tgrp) {
+                             ThreadGroup& tgrp, std::list<CommandResult *>& view_output) {
     std::vector<Collector> CV;
     std::vector<std::string> MV;
     std::vector<ViewInstruction *>IV;
@@ -72,7 +72,7 @@ class pcsamp_view : public ViewType {
     IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is %
-    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
+    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
   }
 };
 
@@ -127,7 +127,7 @@ class usertime_view : public ViewType {
                               true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                             ThreadGroup& tgrp) {
+                             ThreadGroup& tgrp, std::list<CommandResult *>& view_output) {
     std::vector<Collector> CV;
     std::vector<std::string> MV;
     std::vector<ViewInstruction *>IV;
@@ -173,7 +173,7 @@ class usertime_view : public ViewType {
    // Column[2] is % of  whatever is the first metric in the list.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, ++Max_Column, 0));
 
-    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
+    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
   }
 };
 
@@ -217,7 +217,7 @@ class hwc_view : public ViewType {
                          true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                             ThreadGroup& tgrp) {
+                             ThreadGroup& tgrp, std::list<CommandResult *>& view_output) {
     std::vector<Collector> CV;
     std::vector<std::string> MV;
     std::vector<ViewInstruction *>IV;
@@ -236,7 +236,7 @@ class hwc_view : public ViewType {
     CV[0].getParameterValue ("event", H);
     HV.push_back(H);
 
-    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
+    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
   }
 };
 
@@ -295,7 +295,7 @@ class hwctime_view : public ViewType {
                              true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                             ThreadGroup& tgrp) {
+                             ThreadGroup& tgrp, std::list<CommandResult *>& view_output) {
     std::vector<Collector> CV;
     std::vector<std::string> MV;
     std::vector<ViewInstruction *>IV;
@@ -360,7 +360,7 @@ class hwctime_view : public ViewType {
       HV[CM_Index] = prename + " " + name;
     }
 
-    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
+    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
   }
 };
 

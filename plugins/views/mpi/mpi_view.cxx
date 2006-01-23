@@ -766,45 +766,10 @@ static void Expand_CallStack (
   c_items = result;
 }
 
-/**
- * Method: Reclaim_Space
- *
- * Reclaim remaining CommandResult objects within an item vector.
- * Before deleting a std::vector containing pointers to CommandResult
- * objects, free the space for the objects.
- *
- * The first parameter is an index into the vector where reclaimation
- * will begin.  All items from that point until the end of the vector
- * will be freed.
- *
- * @param   starting index
- * @param   std::vector of items
- *
- * @return  void
- *
- */
-static void Reclaim_Space (
-              int64_t starting_with,
-              std::vector<std::pair<CommandResult_CallStackEntry *,
-                                    SmartPtr<std::vector<CommandResult *> > > >& items) {
-      std::vector<std::pair<CommandResult_CallStackEntry *,
-                            SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
-      for (vpi = (items.begin() + starting_with); vpi != items.end(); vpi++) {
-       // Foreach CallStack entry, free space for CommandResult objects.
-        std::pair<CommandResult_CallStackEntry *,
-                  SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
-        if (cp.first != NULL) { delete cp.first; }
-        for (int64_t i = 0; i < (*cp.second).size(); i++) {
-          CommandResult *it = (*cp.second)[i];
-          if (it != NULL) { delete it; }
-        }
-      }
-
-}
-
 static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                        ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-                       std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV) {
+                       std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
+                       std::list<CommandResult *>& view_output) {
    // Print_View_Params (cerr, CV,MV,IV);
 
   if (CV.size() == 0) {
@@ -969,7 +934,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
         std::sort(c_items.begin(), c_items.end(),
                 sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *,
                                                         SmartPtr<std::vector<CommandResult *> > > >());
-        Reclaim_Space (topn, c_items);
+        Reclaim_CR_Space (topn, c_items);
         c_items.erase ( (c_items.begin() + topn), c_items.end());
       }
      // Sort report in calling tree order.
@@ -1005,7 +970,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
                 sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *,
                                                         SmartPtr<std::vector<CommandResult *> > > >());
       if (topn < (int64_t)c_items.size()) {
-        Reclaim_Space (topn, c_items);
+        Reclaim_CR_Space (topn, c_items);
         c_items.erase ( (c_items.begin() + topn), c_items.end());
       }
     }
@@ -1028,7 +993,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
     }
    // Add Entry Object name
     H->CommandResult_Headers::Add_Header ( CRPTR ( EO_Title ) );
-    cmd->Result_Predefined (H);
+    view_output.push_back(H);
 
    // Convert "0" values to blanks.
     std::vector<std::pair<CommandResult_CallStackEntry *,
@@ -1073,32 +1038,31 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
           Function func = *fsi;
           Extract_Pivot_Items (cmd, exp, IV, TraceBack_Order, c_items, func, result);
           if (!result.empty()) {
-            std::list<CommandResult *> view_output;
+            std::list<CommandResult *> view_unit;
             Construct_View_Output (cmd, tgrp, CV, MV, IV,
                                    num_columns,
                                    Gen_Total_Percent, percentofcolumn, TotalValue,
                                    result,
-                                   view_output);
-            if (!view_output.empty()) {
-              if (MoreThanOne) cmd->Result_RawString("");  // Delimiter between items is a null string.
-              cmd->Result_Predefined (view_output);
+                                   view_unit);
+            if (!view_unit.empty()) {
+              if (MoreThanOne) {
+               // Delimiter between items is a null string.
+                view_output.push_back (new CommandResult_RawString(""));
+               }
+              view_output.splice (view_output.end(), view_unit);
               MoreThanOne = true;
             }
-            Reclaim_Space (0, result);
+            Reclaim_CR_Space (result);
           }
         }
       }
 
     } else {
-      std::list<CommandResult *> view_output;
       Construct_View_Output (cmd, tgrp, CV, MV, IV,
                              num_columns,
                              Gen_Total_Percent, percentofcolumn, TotalValue,
                              c_items,
                              view_output);
-      if (!view_output.empty()) {
-        cmd->Result_Predefined (view_output);
-      }
     }
 
   }
@@ -1107,7 +1071,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
   }
 
  // Release space for no longer needed items.
-  Reclaim_Space (0, c_items);
+  Reclaim_CR_Space (c_items);
   if (TotalValue != NULL) delete TotalValue;
 
  // Release instructions
@@ -1322,7 +1286,7 @@ class mpi_view : public ViewType {
                          true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                             ThreadGroup& tgrp) {
+                             ThreadGroup& tgrp, std::list<CommandResult *>& view_output) {
     std::vector<Collector> CV;
     std::vector<std::string> MV;
     std::vector<ViewInstruction *>IV;
@@ -1330,7 +1294,7 @@ class mpi_view : public ViewType {
 
     CV.push_back (Get_Collector (exp->FW(), "mpi"));  // Define the collector
     if (mpi_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV)) {
-       return Generic_mpi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
+       return Generic_mpi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
     }
     return false;
   }
@@ -1364,7 +1328,7 @@ class mpit_view : public ViewType {
                           true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                             ThreadGroup& tgrp) {
+                             ThreadGroup& tgrp, std::list<CommandResult *>& view_output) {
     std::vector<Collector> CV;
     std::vector<std::string> MV;
     std::vector<ViewInstruction *>IV;
@@ -1372,7 +1336,7 @@ class mpit_view : public ViewType {
 
     CV.push_back (Get_Collector (exp->FW(), "mpit"));  // Define the collector
     if (mpi_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV)) {
-       return Generic_mpi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
+       return Generic_mpi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
     }
     return false;
   }
