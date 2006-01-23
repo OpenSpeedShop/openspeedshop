@@ -214,7 +214,7 @@ CompareClass::addNewColumn(QTabWidget *tabWidget)
   QVBoxLayout *TBlayout = new QVBoxLayout( frame, 1, 1, QString("TBlayout%1-%2").arg(tcnt).arg(ccnt) );
 
 
-{
+{ // Here begins the section to set up the experiment combobox
 QComboBox *cb = NULL;
 // if( experiment_list.size() > 1 )
 {
@@ -228,6 +228,7 @@ QComboBox *cb = NULL;
 
   cb = new QComboBox(FALSE, frame, "experimentComboBox");
   cb->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+  connect( cb, SIGNAL( activated(const QString &) ), this, SLOT( changeExperiment( const QString & ) ) );
 
   QToolTip::add(cb, tr("Select which experiment that you want\nto use in the comparison for this column.") );
   experimentLayout->addWidget(cb);
@@ -248,10 +249,10 @@ for( std::vector<pair_def>::const_iterator it = experiment_list.begin();        
   }
 // printf("str1.ascii()=(%s) str2.ascii()=(%s)\n", str1.ascii(), str2.ascii() );
 }
-}
+} // Here ends the section to set up the experiment combobox
 
-{
-QComboBox *cb = NULL;
+{ // Here begins the section to set up the collector combobox
+  QComboBox *cb = NULL;
 // if( clo->collectorEntryList.size() > 1 )
 {
   QHBoxLayout *collectorLayout = new QHBoxLayout( TBlayout, 1, "collectorLayout" );
@@ -264,6 +265,7 @@ QComboBox *cb = NULL;
 
   cb = new QComboBox(FALSE, frame, "collectorComboBox");
   cb->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+  connect( cb, SIGNAL( activated(const QString &) ), this, SLOT( changeCollector( const QString & ) ) );
 
   QToolTip::add(cb, tr("Select which collector that you want\nto use in the comparison for this column.") );
   collectorLayout->addWidget(cb);
@@ -284,9 +286,9 @@ if( cb )
 // printf("Put this to menu: ce->name=%s ce->short_name\n", ce->name.ascii(), ce->short_name.ascii() );
 }
   }
-}
+} // Here ends the section to set up the collector combobox
   
-{
+{ // Here begins the section to set up the metric/modifier combobox
 
 if( ce )
 {
@@ -320,7 +322,7 @@ if( ce )
   cb->insertItem("percent");
   cb->insertItem("stddev");
 }
-}
+} // Here ends the section to set up the metric/modifier combobox
   
 #ifdef OLDWAY
   l = new QLabel( frame, QString("l%1-%2").arg(tcnt).arg(ccnt)  );
@@ -507,4 +509,14 @@ experiment_list.push_back( std::make_pair(expID, str ) );
       ce = NULL;
     }
   }
+}
+
+void CompareClass::changeExperiment( const QString &path )
+{
+printf("CompareClass::changeExperiment(%s)\n", path.ascii()  );
+}
+
+void CompareClass::changeCollector( const QString &path )
+{
+printf("CompareClass::changeCollector(%s)\n", path.ascii()  );
 }

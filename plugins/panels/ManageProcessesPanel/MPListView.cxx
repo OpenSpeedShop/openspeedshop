@@ -144,20 +144,31 @@ void MPListView::contentsDropEvent( QDropEvent *e )
       return;
   }
 
-if( item->parent() )
-{
-  MPListViewItem *pi = (MPListViewItem *)item->parent();
-  if( pi->text(0).find("pset") == 0 || pi->text(0).find("upset") == 0 )
+
+  if( item->parent() )
+  {
+    MPListViewItem *pi = (MPListViewItem *)item->parent();
+    if( pi->text(0).find("pset") == 0 || pi->text(0).find("upset") == 0 )
+    { // Nope, this is the leaf.  Drop it on the parent or ignore the drop..
+      // For drop it on the parent.
+      item = (MPListViewItem *)pi->parent();
+    }
+  }
+  if( item->text(0).find("pset") == 0 || item->text(0).find("upset") == 0 )
   { // Nope, this is the leaf.  Drop it on the parent or ignore the drop..
     // For drop it on the parent.
-    item = (MPListViewItem *)pi->parent();
+    QListViewItem *top = item;
+    QListViewItem *last = top;
+    while( top )
+    {
+      last = top;
+      top = top->parent();
+    }
+    if( last->text(0) == CPS )
+    {
+      item = (MPListViewItem *)item->parent();
+    }
   }
-}
-if( item->text(0).find("pset") == 0 || item->text(0).find("upset") == 0 )
-{ // Nope, this is the leaf.  Drop it on the parent or ignore the drop..
-  // For drop it on the parent.
-  item = (MPListViewItem *)item->parent();
-}
 
   // Check to make sure we're not dropping it on the "static" dynamic 
   // pset list.   These are not user configurable.

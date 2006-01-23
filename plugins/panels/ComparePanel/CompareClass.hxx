@@ -99,6 +99,9 @@ private slots:
     void focusOnCSetSelected();
     void addProcessesSelected();
 
+    void changeExperiment( const QString &path );
+    void changeCollector( const QString &path );
+
 private:
     void gatherInfo(QString collector_name = QString::null);
     CollectorListObject *clo;
