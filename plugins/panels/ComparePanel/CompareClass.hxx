@@ -46,6 +46,7 @@ class QListViewItem;
 class QSplitter;
 class QToolBox;
 class QTabWidget;
+class QComboBox;
 
 class PanelContainer;
 class ComparePanel;
@@ -78,6 +79,10 @@ protected:
       CompareList compareList;
       QToolBox *csetTB;
       int ccnt;
+
+      QComboBox *experimentComboBox;
+      QComboBox *collectorComboBox;
+      QComboBox *metricComboBox;
 int tcnt;
 
     CLIInterface *cli;
@@ -103,6 +108,7 @@ private slots:
     void changeCollector( const QString &path );
 
 private:
+    void updateInfo();
     void gatherInfo(QString collector_name = QString::null);
     CollectorListObject *clo;
     CollectorEntry *ce;

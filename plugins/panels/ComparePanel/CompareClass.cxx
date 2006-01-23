@@ -71,6 +71,10 @@ tcnt = 0;
   clo = NULL;
   ce = NULL;
 
+  experimentComboBox = NULL;
+  collectorComboBox = NULL;
+  metricComboBox = NULL;
+
   if ( !name ) setName( "CompareClass" );
 
   QVBoxLayout *mainCompareLayout = new QVBoxLayout( this, 1, 1, "mainCompareLayout");
@@ -95,8 +99,6 @@ tcnt = 0;
   csetTB = new QToolBox( splitter, "listOfCompareSets");
 
   compareList.clear();
-
-  gatherInfo();
 
   addNewCSet();
 
@@ -195,6 +197,7 @@ CompareClass::addNewCSet()
 
   csetTB->addItem(tabWidget, QString("cset%1").arg(ccnt) );
 
+  updateInfo();
 }
 
 // Entry point from the menu.  You'll need to lookup the tabWidget
@@ -215,7 +218,6 @@ CompareClass::addNewColumn(QTabWidget *tabWidget)
 
 
 { // Here begins the section to set up the experiment combobox
-QComboBox *cb = NULL;
 // if( experiment_list.size() > 1 )
 {
   QHBoxLayout *experimentLayout = new QHBoxLayout( TBlayout, 1, "experimentLayout" );
@@ -226,33 +228,20 @@ QComboBox *cb = NULL;
   QToolTip::add(cbl, tr("Select which experiment that you want\nto use in the comparison for this column.") );
   experimentLayout->addWidget(cbl);
 
-  cb = new QComboBox(FALSE, frame, "experimentComboBox");
-  cb->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-  connect( cb, SIGNAL( activated(const QString &) ), this, SLOT( changeExperiment( const QString & ) ) );
+  experimentComboBox = new QComboBox(FALSE, frame, "experimentComboBox");
+  experimentComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+  connect( experimentComboBox, SIGNAL( activated(const QString &) ), this, SLOT( changeExperiment( const QString & ) ) );
 
-  QToolTip::add(cb, tr("Select which experiment that you want\nto use in the comparison for this column.") );
-  experimentLayout->addWidget(cb);
+  QToolTip::add(experimentComboBox, tr("Select which experiment that you want\nto use in the comparison for this column.") );
+  experimentLayout->addWidget(experimentComboBox);
 
   QSpacerItem *spacer = new QSpacerItem(1000,1, QSizePolicy::Maximum, QSizePolicy::Fixed);
   experimentLayout->addItem(spacer);
 }
 
-for( std::vector<pair_def>::const_iterator it = experiment_list.begin();         it != experiment_list.end(); it++ )
-{
-// printf("it->first=%d it->second.c_str()=(%s)\n", it->first, it->second.c_str() );
-
-  QString str1 = QString("%1").arg(it->first);
-  QString str2 = QString("%1").arg(it->second.c_str());
-  if( cb )
-  {
-    cb->insertItem( "Exp:"+str1+" "+str2 );
-  }
-// printf("str1.ascii()=(%s) str2.ascii()=(%s)\n", str1.ascii(), str2.ascii() );
-}
 } // Here ends the section to set up the experiment combobox
 
 { // Here begins the section to set up the collector combobox
-  QComboBox *cb = NULL;
 // if( clo->collectorEntryList.size() > 1 )
 {
   QHBoxLayout *collectorLayout = new QHBoxLayout( TBlayout, 1, "collectorLayout" );
@@ -263,35 +252,21 @@ for( std::vector<pair_def>::const_iterator it = experiment_list.begin();        
   QToolTip::add(cbl, tr("Select which collector that you want\nto use in the comparison for this column.") );
   collectorLayout->addWidget(cbl);
 
-  cb = new QComboBox(FALSE, frame, "collectorComboBox");
-  cb->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-  connect( cb, SIGNAL( activated(const QString &) ), this, SLOT( changeCollector( const QString & ) ) );
+  collectorComboBox = new QComboBox(FALSE, frame, "collectorComboBox");
+  collectorComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+  connect( collectorComboBox, SIGNAL( activated(const QString &) ), this, SLOT( changeCollector( const QString & ) ) );
 
-  QToolTip::add(cb, tr("Select which collector that you want\nto use in the comparison for this column.") );
-  collectorLayout->addWidget(cb);
+  QToolTip::add(collectorComboBox, tr("Select which collector that you want\nto use in the comparison for this column.") );
+  collectorLayout->addWidget(collectorComboBox);
 
   QSpacerItem *spacer = new QSpacerItem(1000,1, QSizePolicy::Maximum, QSizePolicy::Fixed);
   collectorLayout->addItem(spacer);
 }
 
-  CollectorEntryList::Iterator it;
-  for( it = clo->collectorEntryList.begin();
-       it != clo->collectorEntryList.end();
-       ++it )
-  {
-    ce = (CollectorEntry *)*it;
-if( cb )
-{
-    cb->insertItem( ce->name );
-// printf("Put this to menu: ce->name=%s ce->short_name\n", ce->name.ascii(), ce->short_name.ascii() );
-}
-  }
 } // Here ends the section to set up the collector combobox
   
 { // Here begins the section to set up the metric/modifier combobox
 
-if( ce )
-{
   QHBoxLayout *metricLayout = new QHBoxLayout( TBlayout, 1, "metricLayout" );
 
   QLabel *cbl = new QLabel(frame, "metricComboBoxLabel");
@@ -300,41 +275,14 @@ if( ce )
   QToolTip::add(cbl, tr("Select which metric/modifier that you want\nto use in the comparison for this column.") );
   metricLayout->addWidget(cbl);
 
-  QComboBox *cb = new QComboBox(FALSE, frame, "metricComboBox");
-  QToolTip::add(cb, tr("Select which metric/modifier that you want\nto use in the comparison for this column.") );
-  metricLayout->addWidget(cb);
+  metricComboBox = new QComboBox(FALSE, frame, "metricComboBox");
+  QToolTip::add(metricComboBox, tr("Select which metric/modifier that you want\nto use in the comparison for this column.") );
+  metricLayout->addWidget(metricComboBox);
 
   QSpacerItem *spacer = new QSpacerItem(1000,1, QSizePolicy::Maximum, QSizePolicy::Fixed);
   metricLayout->addItem(spacer);
 
-  CollectorMetricEntryList::Iterator plit;
-  for( plit = ce->metricList.begin();
-       plit != ce->metricList.end(); ++plit )
-  {
-    CollectorMetricEntry *cpe = (CollectorMetricEntry *)*plit;
-// printf("Put this to a menu: cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
-    cb->insertItem( cpe->name );
-  }
-  cb->insertItem("min");
-  cb->insertItem("max");
-  cb->insertItem("average");
-  cb->insertItem("count");
-  cb->insertItem("percent");
-  cb->insertItem("stddev");
-}
 } // Here ends the section to set up the metric/modifier combobox
-  
-#ifdef OLDWAY
-  l = new QLabel( frame, QString("l%1-%2").arg(tcnt).arg(ccnt)  );
-  l->setText( QString("Modifiers for cset %1-%2").arg(tcnt).arg(ccnt)  );
-  QToolTip::add(l, tr("Select which modifiers (from the list) that you want\nto use in the comparison for this column.") );
-  TBlayout->addWidget(l);
-  
-  l = new QLabel( frame, QString("l%1-%2").arg(tcnt).arg(ccnt)  );
-  l->setText( QString("Sort Key (i.e. functions) for cset %1-%2").arg(tcnt).arg(ccnt)  );
-  QToolTip::add(l, tr("Well, this really won't be a selection ... I don't think.") );
-  TBlayout->addWidget(l);
-#endif // OLDWAY
   
   MPListView *lv = new MPListView( frame, CPS, 0  );
   lv->addColumn("Processes/PSets:");
@@ -519,4 +467,63 @@ printf("CompareClass::changeExperiment(%s)\n", path.ascii()  );
 void CompareClass::changeCollector( const QString &path )
 {
 printf("CompareClass::changeCollector(%s)\n", path.ascii()  );
+}
+
+void
+CompareClass::updateInfo()
+{
+// printf("CompareClass::updateInfo() entered\n");
+  gatherInfo();
+
+// printf("CompareClass::updateInfo() put the data out!\n");
+  // Update the experiment fields
+  for( std::vector<pair_def>::const_iterator it = experiment_list.begin();         it != experiment_list.end(); it++ )
+  {
+// printf("it->first=%d it->second.c_str()=(%s)\n", it->first, it->second.c_str() );
+  
+    QString str1 = QString("%1").arg(it->first);
+    QString str2 = QString("%1").arg(it->second.c_str());
+    if( experimentComboBox )
+    {
+      experimentComboBox->insertItem( "Exp:"+str1+" "+str2 );
+// printf("str1.ascii()=(%s) str2.ascii()=(%s)\n", str1.ascii(), str2.ascii() );
+    }
+  }
+
+
+  // Update the collectors (of the above experiment) fields
+  CollectorEntryList::Iterator it;
+  for( it = clo->collectorEntryList.begin();
+       it != clo->collectorEntryList.end();
+       ++it )
+  {
+    ce = (CollectorEntry *)*it;
+    if( collectorComboBox )
+    {
+        collectorComboBox->insertItem( ce->name );
+// printf("Put this to menu: ce->name=%s ce->short_name\n", ce->name.ascii(), ce->short_name.ascii() );
+    }
+  }
+
+  // Update the metrics (and any other modifiers) of the above collector
+  CollectorMetricEntryList::Iterator plit;
+  for( plit = ce->metricList.begin();
+       plit != ce->metricList.end(); ++plit )
+  {
+    CollectorMetricEntry *cpe = (CollectorMetricEntry *)*plit;
+    if( metricComboBox )
+    {
+      metricComboBox->insertItem( cpe->name );
+    }
+// printf("Put this to a menu: cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
+  }
+  if( metricComboBox )
+  {
+    metricComboBox->insertItem("min");
+    metricComboBox->insertItem("max");
+    metricComboBox->insertItem("average");
+    metricComboBox->insertItem("count");
+    metricComboBox->insertItem("percent");
+    metricComboBox->insertItem("stddev");
+  }
 }
