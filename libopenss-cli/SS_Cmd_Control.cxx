@@ -111,6 +111,9 @@ try {
     break;
 
 // Information Commands
+  case CMD_EXP_COMPARE:
+    cmd_successful = SS_expCompare (cmd);
+    break;
   case CMD_EXP_STATUS:
     cmd_successful = SS_expStatus (cmd);
     break;

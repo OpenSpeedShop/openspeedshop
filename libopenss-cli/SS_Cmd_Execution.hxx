@@ -34,6 +34,7 @@ bool SS_expSave (CommandObject *cmd);
 bool SS_expSetParam (CommandObject *cmd);
 
 // Information level commands
+bool SS_expCompare(CommandObject *cmd);
 bool SS_expStatus(CommandObject *cmd);
 bool SS_expView (CommandObject *cmd);
 

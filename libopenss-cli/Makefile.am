@@ -54,15 +54,16 @@ libopenss_cli_la_SOURCES = \
 	ArgClass.hxx \
 	Clip.hxx \
 	Commander.hxx Commander.cxx \
-	SS_Output.hxx \
 	CommandObject.hxx CommandObject.cxx \
-	SS_Exp.hxx SS_Exp.cxx \
 	Load_Messages.cxx help_cmd_msg.dxx \
 	PY_Input.cxx help_general_msg.dxx \
 	SS_Cmd_Control.hxx SS_Cmd_Control.cxx \
 	SS_Cmd_Execution.hxx SS_Cmd_Execution.cxx \
+	SS_Compare.cxx \
 	SS_Configure.hxx SS_Configure.cxx \
+	SS_Exp.hxx SS_Exp.cxx \
 	SS_Input_Manager.hxx help_grammar_msg.dxx \
+	SS_Output.hxx \
 	SS_Parse_Lex.lxx help_topic_msg.dxx \
 	SS_Parse_Param.hxx SS_Parse_Param.cxx \
 	SS_Parse_Range.hxx SS_Parse_Range.cxx \
@@ -76,8 +77,8 @@ libopenss_cli_la_SOURCES = \
 	SS_View_util.cxx \
 	SS_Watcher.hxx SS_Watcher.cxx \
 	SS_Start.cxx \
-	Start_Modes.cxx \
-	SS_Settings.hxx SS_Settings.cxx
+	SS_Settings.hxx SS_Settings.cxx \
+	Start_Modes.cxx
 
 LFILES = SS_Parse_Lex.lxx
 YFILES = SS_Parse_Yacc.yxx
