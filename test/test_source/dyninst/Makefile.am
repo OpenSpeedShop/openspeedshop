@@ -24,11 +24,11 @@ SUBDIRS = create
 #
 DIST_SUBDIRS = create 
 
-check_SCRIPTS_common = runall-dpcl
+check_SCRIPTS_common = runall-dyninst
 
 check_SCRIPTS = $(check_SCRIPTS_common)
 
 TESTS = $(check_SCRIPTS)
 
-EXTRA_DIST	=	runall-dpcl
+EXTRA_DIST	=	runall-dyninst
 
