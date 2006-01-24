@@ -18,27 +18,27 @@
 
 noinst_PROGRAMS = mutator mutatee
 
-CFLAGS	= \
+AM_CFLAGS	= \
 	-g -gdwarf-2
 
-CXXFLAGS	= \
+AM_CXXFLAGS	= \
 	-g -gdwarf-2
 
-CPPFLAGS	= \
+AM_CPPFLAGS	= \
 	-g -gdwarf-2
 
 mutator_CXXFLAGS = \
 	-DUSE_STL_VECTOR -DTEST_CREATE_PROCESS \
-	-I/usr/include/dyninst 
+	-I$(DYNINST_DIR)/include/dyninst 
 
 mutator_LDFLAGS = \
-	$(DPCL_LDFLAGS) \
-	-ldyninstAPI \
+	$(DYNINST_LDFLAGS) \
+	$(DYNINST_LIBS) \
 	-liberty -ldwarf -lelf -ldl
 
 mutator_LIBS = \
-	$(DPCL_LDFLAGS) \
-	-ldyninstAPI \
+	$(DYNINST_LDFLAGS) \
+	$(DYNINST_LIBS) \
 	-liberty -ldwarf -lelf -ldl
 
 mutator_SOURCES = \

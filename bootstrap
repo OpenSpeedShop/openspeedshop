@@ -22,3 +22,7 @@ libtoolize --ltdl --copy
 autoheader
 automake --foreign --add-missing --copy
 autoconf
+cd test/test_source/dyninst
+aclocal
+automake --foreign --add-missing --copy
+autoconf

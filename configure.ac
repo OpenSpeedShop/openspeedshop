@@ -61,6 +61,7 @@ AC_SUBST(LIBLTDL)
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
 AC_CONFIG_SUBDIRS(libltdl)
+AC_CONFIG_SUBDIRS(test/test_source/dyninst)
 
 AC_PATH_PROG([DOXYGEN], doxygen)
 AC_PROG_INSTALL
@@ -311,8 +312,6 @@ AC_CONFIG_FILES(
 	test/test_source/regression/mpi/mpi1/Makefile
 	test/test_source/regression/mpi/smg2000/Makefile
 	test/test_source/regression/mpi/smg2000/smg1/Makefile
-	test/test_source/dyninst/Makefile
-	test/test_source/dyninst/create/Makefile
 	test/test_source/dpcl/Makefile
 	test/test_source/dpcl/one_shot/Makefile
 	test/test_source/dpcl/probe_module/Makefile

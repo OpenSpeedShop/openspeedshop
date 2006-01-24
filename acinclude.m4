@@ -143,12 +143,13 @@ AC_DEFUN([AC_PKG_DYNINST], [
     AC_ARG_WITH(dyninst,
                 AC_HELP_STRING([--with-dyninst=DIR],
                                [Dyninst installation @<:@/usr@:>@]),
-                dyninst_dir=$withval, dyninst_dir="/usr/")
+                dyninst_dir=$withval, dyninst_dir="/usr")
 
     DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
     DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -DIBM_BPATCH_COMPAT"
     DYNINST_LDFLAGS="-L$dyninst_dir/$abi_libdir"
     DYNINST_LIBS="-ldyninstAPI"
+    DYNINST_DIR="$dyninst_dir"
 
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP
@@ -157,7 +158,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
     dyninst_saved_LDFLAGS=$LDFLAGS
 
     CPPFLAGS="$CPPFLAGS $DYNINST_CPPFLAGS"
-    LDFLAGS="$CXXFLAGS $DYNINST_LDFLAGS $DYNINST_LIBS"
+    LDFLAGS="$CXXFLAGS $DYNINST_LDFLAGS $DYNINST_LIBS -liberty"
 
     AC_MSG_CHECKING([for Dyninst API library and headers])
 
@@ -177,6 +178,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
     AC_SUBST(DYNINST_CPPFLAGS)
     AC_SUBST(DYNINST_LDFLAGS)
     AC_SUBST(DYNINST_LIBS)
+    AC_SUBST(DYNINST_DIR)
 
     AC_DEFINE(HAVE_DYNINST, 1, [Define to 1 if you have Dyninst.])
 
