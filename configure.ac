@@ -61,6 +61,7 @@ AC_SUBST(LIBLTDL)
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
 AC_CONFIG_SUBDIRS(libltdl)
+AC_CONFIG_SUBDIRS(test/executables)
 AC_CONFIG_SUBDIRS(test/test_source/dyninst)
 
 AC_PATH_PROG([DOXYGEN], doxygen)
@@ -197,23 +198,6 @@ AC_CONFIG_FILES(
 	libopenss-cli/Makefile
 	libopenss-gui/Makefile
 	test/Makefile
-	test/executables/Makefile
-	test/executables/smg2000/Makefile
-	test/executables/smg2000/krylov/Makefile
-	test/executables/smg2000/struct_ls/Makefile
-	test/executables/smg2000/struct_mv/Makefile
-	test/executables/smg2000/utilities/Makefile
-	test/executables/smg2000/test/Makefile
-	test/executables/forever/Makefile
-	test/executables/forever_cxx/Makefile
-	test/executables/fredO2/Makefile
-	test/executables/fred/Makefile
-	test/executables/nbody/Makefile
-	test/executables/mutatee/Makefile
-	test/executables/mutatee/c_version/Makefile
-	test/executables/mutatee/cplus_version/Makefile
-	test/executables/mutatee/f77_version/Makefile
-	test/executables/Eon/Makefile
 	test/test_scripts/Makefile
 	test/test_source/Makefile
 	test/test_source/regression/Makefile	

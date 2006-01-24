@@ -18,10 +18,21 @@
 ################################################################################
 
 aclocal
-libtoolize --ltdl --copy
+libtoolize --force --ltdl --copy
 autoheader
 automake --foreign --add-missing --copy
 autoconf
+#
+# configure test executables to allow for alternative compilers
+#
+cd test/executables
+aclocal
+automake --foreign --add-missing --copy
+autoconf
+cd ../..
+#
+# configure dyninst tests for alternative installs of dyninst
+#
 cd test/test_source/dyninst
 aclocal
 automake --foreign --add-missing --copy
