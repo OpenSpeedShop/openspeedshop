@@ -8,7 +8,7 @@
 
 lib_LIBRARIES = libkrylov.a
 
-smgtopdir = $(top_srcdir)/test/executables/smg2000
+smgtopdir = ../.
 
 
 libkrylov_a_CFLAGS =\

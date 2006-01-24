@@ -8,7 +8,7 @@
 
 lib_LIBRARIES = libHYPRE_struct_mv.a
 
-smgtopdir = $(top_srcdir)/test/executables/smg2000
+smgtopdir = ../.
 
 libHYPRE_struct_mv_a_CFLAGS =\
 	$(MPI_CPPFLAGS) \

@@ -8,7 +8,7 @@
 
 noinst_PROGRAMS = smg2000
 
-smgtopdir = $(top_srcdir)/test/executables/smg2000
+smgtopdir = ../.
 
 
 smg2000_CFLAGS = \

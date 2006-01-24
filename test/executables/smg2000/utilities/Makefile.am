@@ -8,7 +8,7 @@
 
 lib_LIBRARIES = libHYPRE_utilities.a
 
-smgtopdir = $(top_srcdir)/test/executables/smg2000
+smgtopdir = ../.
 
 libHYPRE_utilities_a_CFLAGS = \
 	$(MPI_CPPFLAGS) \
