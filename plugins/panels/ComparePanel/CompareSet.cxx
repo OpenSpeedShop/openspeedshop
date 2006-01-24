@@ -23,17 +23,20 @@
 #include "CompareClass.hxx"
 
 
-#include "qtoolbox.h"
+#include <qtoolbox.h>
+#include <qstring.h>
 
 CompareSet::CompareSet(QToolBox *csetTB, CompareClass *compareClass )
 {
 printf("CompareSet::CompareSet() constructor called.\n");
 
+  name = QString("cset%1").arg(ccnt);
+
   QTabWidget *tabWidget = new QTabWidget(compareClass, "tabWidget");
 
   compareClass->addNewColumn(tabWidget);
 
-  csetTB->addItem(tabWidget, QString("cset%1").arg(ccnt) );
+  csetTB->addItem(tabWidget, name );
 
   compareClass->updateInfo();
 

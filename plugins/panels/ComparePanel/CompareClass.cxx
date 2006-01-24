@@ -115,6 +115,16 @@ tcnt = 0;
  */
 CompareClass::~CompareClass()
 {
+/*
+  CompareSetList::Iterator it;
+  for( it = csl->begin(); it != csl->end(); ++it )
+  {
+    CompareSet *cs = (CompareSet *)*it;
+printf("delete cs
+    delete cs;
+  }
+*/
+  csl->clear();
 }
 
 /*
@@ -193,32 +203,14 @@ CompareClass::menu(QPopupMenu* contextMenu)
 void
 CompareClass::addNewCSet()
 {
-#ifdef OLDWAY
-  ccnt++;
-
-  QTabWidget *tabWidget = new QTabWidget(this, "tabWidget");
-
-  addNewColumn(tabWidget);
-
-  csetTB->addItem(tabWidget, QString("cset%1").arg(ccnt) );
-
-  updateInfo();
-#else // OLDWAY
-
-   // Push this down to ComparSet: something like
-
-
-
-CompareSet *cset = new CompareSet( csetTB, this);
-
-if( !csl )
-{
-  csl = new CompareSetList();
-}
-
-csl->push_back(cset);
-
-#endif // OLDWAY
+  CompareSet *cset = new CompareSet( csetTB, this);
+  
+  if( !csl )
+  {
+    csl = new CompareSetList();
+  }
+  
+  csl->push_back(cset);
 }
 
 // Entry point from the menu.  You'll need to lookup the tabWidget
@@ -349,9 +341,30 @@ CompareClass::removeCSet()
 {
   QWidget *currentItem = csetTB->currentItem();
 
-printf("Don't forget to destroy the allocated cset\n");
+  int  currentIndex = csetTB->currentIndex();
 
-  csetTB->removeItem( currentItem );
+  CompareSet *cs_to_delete = NULL;
+  
+  CompareSetList::Iterator it;
+  for( it = csl->begin(); it != csl->end(); ++it )
+  {
+    CompareSet *cs = (CompareSet *)*it;
+    if( cs->name == csetTB->itemLabel(currentIndex) )
+    {
+      cs_to_delete = cs;
+      break;
+    }
+  }
+
+
+  // If we removed a CompareSet from the list, it should be free
+  // to delete.  Delete it.
+  if( cs_to_delete )
+  {
+    csl->remove( cs_to_delete );
+    csetTB->removeItem( currentItem );
+    delete cs_to_delete;
+  }
 }
 
 void

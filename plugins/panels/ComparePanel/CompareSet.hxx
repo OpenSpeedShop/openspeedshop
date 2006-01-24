@@ -20,8 +20,11 @@
 #ifndef COMPARESET_H
 #define COMPARESET_H
 
+#include <qstring.h>
+
 class QToolBox;
 class CompareClass;
+class QString;
 
 class ColumnSet;
 
@@ -32,6 +35,7 @@ public:
     CompareSet( QToolBox *csetTB, CompareClass *compareClass );
     ~CompareSet();
 
+    QString name;
 protected:
 
 private:
