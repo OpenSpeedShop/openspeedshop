@@ -52,6 +52,8 @@ moc_MPListView.cxx: $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView
 ComparePanel_la_SOURCES = \
 	ComparePanel.hxx ComparePanel.cxx moc_ComparePanel.cxx \
 	CompareClass.hxx CompareClass.cxx moc_CompareClass.cxx \
+	CompareSet.hxx CompareSet.cxx \
+	ColumnSet.hxx ColumnSet.cxx \
 	$(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListViewItem.hxx $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListViewItem.cxx \
 	$(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.cxx moc_MPListView.cxx \
 	local_plugin_info.hxx preference_plugin_info.hxx

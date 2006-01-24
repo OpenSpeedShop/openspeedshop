@@ -56,6 +56,8 @@ using namespace OpenSpeedShop::Framework;
 
 #include "CLIInterface.hxx"
 
+#include "CompareSet.hxx"
+
 CompareClass::CompareClass( Panel *_p, QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id )
     : QWidget( parent, name )
 {
@@ -74,6 +76,8 @@ tcnt = 0;
   experimentComboBox = NULL;
   collectorComboBox = NULL;
   metricComboBox = NULL;
+
+  csl = NULL;
 
   if ( !name ) setName( "CompareClass" );
 
@@ -189,6 +193,7 @@ CompareClass::menu(QPopupMenu* contextMenu)
 void
 CompareClass::addNewCSet()
 {
+#ifdef OLDWAY
   ccnt++;
 
   QTabWidget *tabWidget = new QTabWidget(this, "tabWidget");
@@ -198,6 +203,22 @@ CompareClass::addNewCSet()
   csetTB->addItem(tabWidget, QString("cset%1").arg(ccnt) );
 
   updateInfo();
+#else // OLDWAY
+
+   // Push this down to ComparSet: something like
+
+
+
+CompareSet *cset = new CompareSet( csetTB, this);
+
+if( !csl )
+{
+  csl = new CompareSetList();
+}
+
+csl->push_back(cset);
+
+#endif // OLDWAY
 }
 
 // Entry point from the menu.  You'll need to lookup the tabWidget

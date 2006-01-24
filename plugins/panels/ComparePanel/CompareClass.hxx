@@ -52,9 +52,12 @@ class PanelContainer;
 class ComparePanel;
 class CollectorListObject;
 
+class CompareSet;
+
 typedef std::pair<int64_t, std::string> pair_def;
 
 typedef QValueList <QListView *> CompareList;
+typedef QValueList <CompareSet *> CompareSetList;
 
 class CompareClass : public QWidget
 {
@@ -68,6 +71,9 @@ public:
 
     int expID;
     Panel *p;
+
+    CompareSetList *csl;
+    void updateInfo();
 
 protected:
     QHBoxLayout* CompareClassLayout;
@@ -93,10 +99,10 @@ protected slots:
 
 public slots:
     void addNewCSet();
-
-private slots:
     void addNewColumn();
     void addNewColumn(QTabWidget *);
+
+private slots:
     void removeCSet();
     void removeRaisedTab();
     void removeUserPSet();
@@ -108,7 +114,6 @@ private slots:
     void changeCollector( const QString &path );
 
 private:
-    void updateInfo();
     void gatherInfo(QString collector_name = QString::null);
     CollectorListObject *clo;
     CollectorEntry *ce;
