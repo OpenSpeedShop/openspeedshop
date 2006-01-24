@@ -25,10 +25,15 @@
 class QToolBox;
 class CompareClass;
 class QString;
+class QTabWidget;
+class QComboBox;
 
 class ColumnSet;
 
-static int ccnt = 0;
+#include <qvaluelist.h>
+
+typedef QValueList <ColumnSet *> ColumnSetList;
+
 class CompareSet
 {
 public:
@@ -36,6 +41,17 @@ public:
     ~CompareSet();
 
     QString name;
+    QTabWidget *tabWidget;
+
+    int tcnt;
+
+    void updateInfo();
+
+    CompareClass *compareClass;
+
+    ColumnSetList columnSetList;
+
+
 protected:
 
 private:

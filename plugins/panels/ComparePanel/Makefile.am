@@ -45,6 +45,9 @@ moc_ComparePanel.cxx: ComparePanel.hxx
 moc_CompareClass.cxx: CompareClass.hxx
 	-moc -o moc_CompareClass.cxx CompareClass.hxx
 
+moc_ColumnSet.cxx: ColumnSet.hxx
+	-moc -o moc_ColumnSet.cxx ColumnSet.hxx
+
 moc_MPListView.cxx: $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx
 	-moc -o moc_MPListView.cxx $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx
 
@@ -53,9 +56,9 @@ ComparePanel_la_SOURCES = \
 	ComparePanel.hxx ComparePanel.cxx moc_ComparePanel.cxx \
 	CompareClass.hxx CompareClass.cxx moc_CompareClass.cxx \
 	CompareSet.hxx CompareSet.cxx \
-	ColumnSet.hxx ColumnSet.cxx \
+	ColumnSet.hxx ColumnSet.cxx moc_ColumnSet.cxx \
 	$(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListViewItem.hxx $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListViewItem.cxx \
 	$(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.cxx moc_MPListView.cxx \
 	local_plugin_info.hxx preference_plugin_info.hxx
 
-CLEANFILES=moc_ComparePanel.cxx moc_CompareClass.cxx
+CLEANFILES=moc_ComparePanel.cxx moc_CompareClass.cxx moc_ColumnSet.cxx moc_MPListView.cxx 

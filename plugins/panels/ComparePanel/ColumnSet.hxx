@@ -20,15 +20,43 @@
 #ifndef COLUMNSET_H
 #define COLUMNSET_H
 
+class QToolBox;
+class CompareClass;
+class QTabWidget;
+class QComboBox;
+
+#include "ToolAPI.hxx"
+using namespace OpenSpeedShop::Framework;
+#include "Thread.hxx"
+#include "LinkedObject.hxx"
+
+#include <qstring.h>
+
+
+typedef std::pair<int64_t, std::string> pair_def;
+
+
+class CompareSet;
+
 class ColumnSet
 {
-public:
-    ColumnSet( );
+  public:
+    ColumnSet(CompareSet *);
     ~ColumnSet();
 
-protected:
+    QComboBox *experimentComboBox;
+    QComboBox *collectorComboBox;
+    QComboBox *metricComboBox;
 
-private:
+    void updateInfo();
+
+    CompareSet *compareSet;
+
+    QString name;
+
+  protected:
+
+  private:
 
 };
 

@@ -25,7 +25,6 @@
 #include <qframe.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
-#include <qtooltip.h>
 #include <qwhatsthis.h>
 #include <qimage.h>
 #include <qpixmap.h>
@@ -56,7 +55,6 @@ using namespace OpenSpeedShop::Framework;
 
 #include "CLIInterface.hxx"
 
-#include "CompareSet.hxx"
 
 CompareClass::CompareClass( Panel *_p, QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id )
     : QWidget( parent, name )
@@ -64,7 +62,6 @@ CompareClass::CompareClass( Panel *_p, QWidget* parent, const char* name, bool m
 //  nprintf(DEBUG_CONST_DESTRUCT) ("CompareClass::CompareClass() constructor called.\n");
   dprintf("CompareClass::CompareClass() constructor called.\n");
   ccnt = 0;
-tcnt = 0;
   
   p = _p;
   mw = (OpenSpeedshop *)p->getPanelContainer()->getMainWindow();
@@ -73,9 +70,11 @@ tcnt = 0;
   clo = NULL;
   ce = NULL;
 
+#ifdef OLDWAY
   experimentComboBox = NULL;
   collectorComboBox = NULL;
   metricComboBox = NULL;
+#endif // OLDWAY
 
   csl = NULL;
 
@@ -102,6 +101,8 @@ tcnt = 0;
   // existed.
   csetTB = new QToolBox( splitter, "listOfCompareSets");
 
+  updateInfo();
+
   compareList.clear();
 
   addNewCSet();
@@ -115,15 +116,15 @@ tcnt = 0;
  */
 CompareClass::~CompareClass()
 {
-/*
+// printf("CompareClass() destructor called\n");
   CompareSetList::Iterator it;
-  for( it = csl->begin(); it != csl->end(); ++it )
+  for( it = csl->begin(); it != csl->end(); )
   {
     CompareSet *cs = (CompareSet *)*it;
-printf("delete cs
+// printf("delete cs\n");
     delete cs;
+    ++it;
   }
-*/
   csl->clear();
 }
 
@@ -217,109 +218,22 @@ CompareClass::addNewCSet()
 void
 CompareClass::addNewColumn()
 {
-  QWidget *currentItem = csetTB->currentItem();
+  CompareSet *compareSet = findCurrentCompareSet();
 
-  addNewColumn( (QTabWidget *)currentItem );
-}
+  addNewColumn(compareSet);
+} 
 
 void
-CompareClass::addNewColumn(QTabWidget *tabWidget)
+CompareClass::addNewColumn(CompareSet *compareSet)
 {
+  ColumnSet *columnSet = new ColumnSet(compareSet);
 
-  QFrame *frame = new QFrame(tabWidget, QString("frame%1-%2").arg(tcnt).arg(ccnt) );
-  QVBoxLayout *TBlayout = new QVBoxLayout( frame, 1, 1, QString("TBlayout%1-%2").arg(tcnt).arg(ccnt) );
+  compareSet->columnSetList.push_back( columnSet );
 
+  connect( columnSet->experimentComboBox, SIGNAL( activated(const QString &) ), this, SLOT( changeExperiment( const QString & ) ) );
+  connect( columnSet->collectorComboBox, SIGNAL( activated(const QString &) ), this, SLOT( changeCollector( const QString & ) ) );
 
-{ // Here begins the section to set up the experiment combobox
-// if( experiment_list.size() > 1 )
-{
-  QHBoxLayout *experimentLayout = new QHBoxLayout( TBlayout, 1, "experimentLayout" );
-
-  QLabel *cbl = new QLabel(frame, "experimentComboBoxLabel");
-  cbl->setText( tr("Available Experiments:") );
-  cbl->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-  QToolTip::add(cbl, tr("Select which experiment that you want\nto use in the comparison for this column.") );
-  experimentLayout->addWidget(cbl);
-
-  experimentComboBox = new QComboBox(FALSE, frame, "experimentComboBox");
-  experimentComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-  connect( experimentComboBox, SIGNAL( activated(const QString &) ), this, SLOT( changeExperiment( const QString & ) ) );
-
-  QToolTip::add(experimentComboBox, tr("Select which experiment that you want\nto use in the comparison for this column.") );
-  experimentLayout->addWidget(experimentComboBox);
-
-  QSpacerItem *spacer = new QSpacerItem(1000,1, QSizePolicy::Maximum, QSizePolicy::Fixed);
-  experimentLayout->addItem(spacer);
-}
-
-} // Here ends the section to set up the experiment combobox
-
-{ // Here begins the section to set up the collector combobox
-// if( clo->collectorEntryList.size() > 1 )
-{
-  QHBoxLayout *collectorLayout = new QHBoxLayout( TBlayout, 1, "collectorLayout" );
-
-  QLabel *cbl = new QLabel(frame, "collectorComboBoxLabel");
-  cbl->setText( tr("Available Collectors:") );
-  cbl->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-  QToolTip::add(cbl, tr("Select which collector that you want\nto use in the comparison for this column.") );
-  collectorLayout->addWidget(cbl);
-
-  collectorComboBox = new QComboBox(FALSE, frame, "collectorComboBox");
-  collectorComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-  connect( collectorComboBox, SIGNAL( activated(const QString &) ), this, SLOT( changeCollector( const QString & ) ) );
-
-  QToolTip::add(collectorComboBox, tr("Select which collector that you want\nto use in the comparison for this column.") );
-  collectorLayout->addWidget(collectorComboBox);
-
-  QSpacerItem *spacer = new QSpacerItem(1000,1, QSizePolicy::Maximum, QSizePolicy::Fixed);
-  collectorLayout->addItem(spacer);
-}
-
-} // Here ends the section to set up the collector combobox
-  
-{ // Here begins the section to set up the metric/modifier combobox
-
-  QHBoxLayout *metricLayout = new QHBoxLayout( TBlayout, 1, "metricLayout" );
-
-  QLabel *cbl = new QLabel(frame, "metricComboBoxLabel");
-  cbl->setText( tr("Available Metrics/Modifers:") );
-  cbl->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-  QToolTip::add(cbl, tr("Select which metric/modifier that you want\nto use in the comparison for this column.") );
-  metricLayout->addWidget(cbl);
-
-  metricComboBox = new QComboBox(FALSE, frame, "metricComboBox");
-  QToolTip::add(metricComboBox, tr("Select which metric/modifier that you want\nto use in the comparison for this column.") );
-  metricLayout->addWidget(metricComboBox);
-
-  QSpacerItem *spacer = new QSpacerItem(1000,1, QSizePolicy::Maximum, QSizePolicy::Fixed);
-  metricLayout->addItem(spacer);
-
-} // Here ends the section to set up the metric/modifier combobox
-  
-  MPListView *lv = new MPListView( frame, CPS, 0  );
-  lv->addColumn("Processes/PSets:");
-  QToolTip::add(lv->header(), "Process/Process Sets (psets) to be display in this column:");
-  lv->setAllColumnsShowFocus( TRUE );
-  lv->setShowSortIndicator( TRUE );
-  lv->setRootIsDecorated(TRUE);
-  lv->setSelectionMode( QListView::Single );
-  MPListViewItem *dynamic_items = new MPListViewItem( lv, CPS);
-
-  QToolTip::add(lv->viewport(), tr("Drag and drop, psets or individual processes from the\nManageProcessesPanel.  In the StatsPanel, the statistics from\nthese grouped processes will be displayed in\ncolumns relative to this display.") );
-  TBlayout->addWidget(lv);
-  
-  // ??  compareList.push_back(lv);
-  
-  tabWidget->addTab( frame, QString("Column #%1").arg(tcnt)  );
-  int count = tabWidget->count();
-// printf("count=%d\n", count);
-  QWidget *cp = tabWidget->page(count-1);
-  cp->show();
-  tabWidget->showPage(cp);
-  tabWidget->setTabToolTip(cp, "The information in this column will be displayed in\nthe StatsPanel's associated column.  i.e. Column #1\nwill be in the first column of the StatsPanel\nColumn #2 the second.  Column #3 the third...");
-
-tcnt++;
+  columnSet->updateInfo();
 }
 
 void
@@ -341,26 +255,13 @@ CompareClass::removeCSet()
 {
   QWidget *currentItem = csetTB->currentItem();
 
-  int  currentIndex = csetTB->currentIndex();
-
-  CompareSet *cs_to_delete = NULL;
-  
-  CompareSetList::Iterator it;
-  for( it = csl->begin(); it != csl->end(); ++it )
-  {
-    CompareSet *cs = (CompareSet *)*it;
-    if( cs->name == csetTB->itemLabel(currentIndex) )
-    {
-      cs_to_delete = cs;
-      break;
-    }
-  }
-
+  CompareSet *cs_to_delete = findCurrentCompareSet();
 
   // If we removed a CompareSet from the list, it should be free
   // to delete.  Delete it.
   if( cs_to_delete )
   {
+// printf("Don't forget to remove all the tabs!\n");
     csl->remove( cs_to_delete );
     csetTB->removeItem( currentItem );
     delete cs_to_delete;
@@ -370,14 +271,41 @@ CompareClass::removeCSet()
 void
 CompareClass::removeRaisedTab()
 {
+// printf("CompareClass::removeRaisedTab() entered\n");
   // First find the current (raised) cset.\n");
   QTabWidget *currentTabWidget = (QTabWidget* )csetTB->currentItem();
 
+  CompareSet *cs_to_search = findCurrentCompareSet();
 
   QWidget *currentTab = currentTabWidget->currentPage();
 
+// printf("remove Tab labeled (%s)\n", currentTabWidget->tabLabel( currentTab ).ascii() );
 
-  currentTabWidget->removePage(currentTab);
+  
+// printf("NOW FIND AND REMOVE THIS TAB FROM THE columnList!\n");
+
+  // Look for the tab in the CompareSet.   The delete it from the compareSet's
+  // list.
+  if( cs_to_search )
+  {
+// printf("Don't forget to remove all the tabs!\n");
+    ColumnSetList::Iterator it;
+    for( it = cs_to_search->columnSetList.begin(); it != cs_to_search->columnSetList.end(); ++it )
+    {
+      ColumnSet *cs = (ColumnSet *)*it;
+      if( cs->name == currentTabWidget->tabLabel( currentTab ) )
+      {
+// printf("Okay I'm sure you need to delete this (%s) tab\n", cs->name.ascii() );
+        cs_to_search->columnSetList.remove( cs );
+        currentTabWidget->removePage(currentTab);
+        delete cs;
+        break;
+      }
+    }
+
+  }
+
+
   
 }
 
@@ -453,8 +381,8 @@ CompareClass::gatherInfo(QString collectorName)
         QString collector_name = (QString)*it;
 // printf("  collector_name=(%s)\n", collector_name.ascii() );
 
-const char *str = collector_name.ascii();
-experiment_list.push_back( std::make_pair(expID, str ) );
+        const char *str = collector_name.ascii();
+        experiment_list.push_back( std::make_pair(expID, str ) );
       }
     }
   }
@@ -509,55 +437,35 @@ CompareClass::updateInfo()
 // printf("CompareClass::updateInfo() entered\n");
   gatherInfo();
 
-// printf("CompareClass::updateInfo() put the data out!\n");
-  // Update the experiment fields
-  for( std::vector<pair_def>::const_iterator it = experiment_list.begin();         it != experiment_list.end(); it++ )
+  if( csl )
   {
-// printf("it->first=%d it->second.c_str()=(%s)\n", it->first, it->second.c_str() );
-  
-    QString str1 = QString("%1").arg(it->first);
-    QString str2 = QString("%1").arg(it->second.c_str());
-    if( experimentComboBox )
+    CompareSetList::Iterator it;
+    for( it = csl->begin(); it != csl->end(); ++it )
     {
-      experimentComboBox->insertItem( "Exp:"+str1+" "+str2 );
-// printf("str1.ascii()=(%s) str2.ascii()=(%s)\n", str1.ascii(), str2.ascii() );
+      CompareSet *cs = (CompareSet *)*it;
+// printf("attempt to update (%s)'s info\n", cs->name.ascii() );
+      cs->updateInfo();
+    }
+  }
+}
+
+CompareSet *
+CompareClass::findCurrentCompareSet()
+{
+  QWidget *currentItem = csetTB->currentItem();
+
+  int  currentIndex = csetTB->currentIndex();
+
+  CompareSetList::Iterator it;
+  for( it = csl->begin(); it != csl->end(); ++it )
+  {
+    CompareSet *cs = (CompareSet *)*it;
+    if( cs->name == csetTB->itemLabel(currentIndex) )
+    {
+      return( cs );
     }
   }
 
 
-  // Update the collectors (of the above experiment) fields
-  CollectorEntryList::Iterator it;
-  for( it = clo->collectorEntryList.begin();
-       it != clo->collectorEntryList.end();
-       ++it )
-  {
-    ce = (CollectorEntry *)*it;
-    if( collectorComboBox )
-    {
-        collectorComboBox->insertItem( ce->name );
-// printf("Put this to menu: ce->name=%s ce->short_name\n", ce->name.ascii(), ce->short_name.ascii() );
-    }
-  }
-
-  // Update the metrics (and any other modifiers) of the above collector
-  CollectorMetricEntryList::Iterator plit;
-  for( plit = ce->metricList.begin();
-       plit != ce->metricList.end(); ++plit )
-  {
-    CollectorMetricEntry *cpe = (CollectorMetricEntry *)*plit;
-    if( metricComboBox )
-    {
-      metricComboBox->insertItem( cpe->name );
-    }
-// printf("Put this to a menu: cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
-  }
-  if( metricComboBox )
-  {
-    metricComboBox->insertItem("min");
-    metricComboBox->insertItem("max");
-    metricComboBox->insertItem("average");
-    metricComboBox->insertItem("count");
-    metricComboBox->insertItem("percent");
-    metricComboBox->insertItem("stddev");
-  }
+ return( NULL );
 }

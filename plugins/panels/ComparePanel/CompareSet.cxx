@@ -24,23 +24,38 @@
 
 
 #include <qtoolbox.h>
+#include <qtooltip.h>
+#include <qtabwidget.h>
+#include <qframe.h>
+#include <qlayout.h>
+#include <qtooltip.h>
+#include <qlabel.h>
+#include <qcombobox.h>
+#include <qlistview.h>
+#include <qheader.h>
 #include <qstring.h>
 
-CompareSet::CompareSet(QToolBox *csetTB, CompareClass *compareClass )
+CompareSet::CompareSet(QToolBox *csetTB, CompareClass *cc )
 {
-printf("CompareSet::CompareSet() constructor called.\n");
+// printf("CompareSet::CompareSet() constructor called.\n");
+  tcnt = 0;
+  compareClass = cc;
 
-  name = QString("cset%1").arg(ccnt);
+  name = QString("cset%1").arg(compareClass->ccnt);
 
-  QTabWidget *tabWidget = new QTabWidget(compareClass, "tabWidget");
+  tabWidget = new QTabWidget(compareClass, "tabWidget");
 
-  compareClass->addNewColumn(tabWidget);
+  compareClass->addNewColumn(this);
 
   csetTB->addItem(tabWidget, name );
 
-  compareClass->updateInfo();
+  compareClass->ccnt++;
+}
 
-  ccnt++;
+void
+CompareSet::updateInfo()
+{
+// printf("CompareSet::updateInfo() put the data out!\n");
 }
 
 /*
@@ -49,5 +64,17 @@ printf("CompareSet::CompareSet() constructor called.\n");
 CompareSet::~CompareSet()
 {
    // Destroy the list of column information.
-printf("Destroy the list of column information.\n");
+// printf("Destroy the list of column information.\n");
+  ColumnSetList::Iterator it;
+  for( it = columnSetList.begin(); it != columnSetList.end(); )
+  {
+    ColumnSet *cs = (ColumnSet *)*it;
+// printf("attempt to delete (%s)'s info\n", cs->name.ascii() );
+
+    delete(cs);
+    ++it;
+  }
+
+// printf("Finished cleaning up the CompareSet\n");
+  columnSetList.clear();
 }

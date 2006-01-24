@@ -52,9 +52,9 @@ class PanelContainer;
 class ComparePanel;
 class CollectorListObject;
 
-class CompareSet;
+#include "ColumnSet.hxx"
+#include "CompareSet.hxx"
 
-typedef std::pair<int64_t, std::string> pair_def;
 
 typedef QValueList <QListView *> CompareList;
 typedef QValueList <CompareSet *> CompareSetList;
@@ -75,6 +75,13 @@ public:
     CompareSetList *csl;
     void updateInfo();
 
+    int ccnt;
+
+    CollectorListObject *clo;
+    CollectorEntry *ce;
+
+    std::vector<pair_def> experiment_list;
+
 protected:
     QHBoxLayout* CompareClassLayout;
     QHBoxLayout* AddCollectorLayout;
@@ -84,12 +91,6 @@ protected:
 
       CompareList compareList;
       QToolBox *csetTB;
-      int ccnt;
-
-      QComboBox *experimentComboBox;
-      QComboBox *collectorComboBox;
-      QComboBox *metricComboBox;
-int tcnt;
 
     CLIInterface *cli;
     OpenSpeedshop *mw;
@@ -100,7 +101,7 @@ protected slots:
 public slots:
     void addNewCSet();
     void addNewColumn();
-    void addNewColumn(QTabWidget *);
+    void addNewColumn(CompareSet *);
 
 private slots:
     void removeCSet();
@@ -115,10 +116,9 @@ private slots:
 
 private:
     void gatherInfo(QString collector_name = QString::null);
-    CollectorListObject *clo;
-    CollectorEntry *ce;
 
-    std::vector<pair_def> experiment_list;
+    CompareSet *findCurrentCompareSet();
+
 
 };
 
