@@ -22,8 +22,15 @@ SUBDIRS = one_shot point_probe probe_module start_terminate phase module_addr st
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 #
-DIST_SUBDIRS = one_shot point_probe probe_module start_terminate phase module_addr stmt_info daemonRT_locking data_type
+DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = runall-dpcl
+
+check_SCRIPTS_common = runall-dpcl
+
+check_SCRIPTS = $(check_SCRIPTS_common)
+
+TESTS = $(check_SCRIPTS)
+
 
 
