@@ -131,7 +131,7 @@ def hosts_result(testName):
                         break
         tempfileline = outputfileptr.readline()
 	i = 0
-	while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+	while (tempfileline[i] != ' ' and tempfileline[i] != '.' and tempfileline[i] != '\n'):
 		i+=1
         if not tempfileline:
                 return 1
