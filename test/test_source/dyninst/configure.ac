@@ -58,6 +58,7 @@ AC_PKG_DYNINST()
 AC_CONFIG_FILES([
 	Makefile
 	create/Makefile
+	findPoint/Makefile
 ])
 
 AC_OUTPUT

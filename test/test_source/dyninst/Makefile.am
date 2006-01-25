@@ -17,12 +17,12 @@
 ################################################################################
 #
 # directories that will be built
-SUBDIRS = create 
+SUBDIRS = create findPoint
 #
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 #
-DIST_SUBDIRS = create 
+DIST_SUBDIRS = $(SUBDIRS) 
 
 check_SCRIPTS_common = runall-dyninst
 
