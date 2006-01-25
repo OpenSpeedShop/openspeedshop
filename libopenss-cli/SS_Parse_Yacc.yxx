@@ -264,7 +264,7 @@ exp_create_args:
     	    	;
 
     	    /** EXP_COMPARE **/
-    	    /** <expId> = expCompare  <expId_spec> ] [ <modifier_list_spec> ] <target_list> [ <expType_list> ] **/
+    	    /** expCompare [ <expId_spec> ] [ <modifier_list_spec> ] [ <expMetric_list_spec> ] <target_list> [ <expType_list> ] **/
 exp_compare_com:    COMPARE_HEAD exp_compare_args 
   	    	|   COMPARE_HEAD exp_compare_args error END_LINE 
     	    	;
@@ -277,8 +277,10 @@ exp_compare_args:
     	    	|   target_list expId_spec 
     	    	|   modifier_list_spec target_list 
     	    	|   target_list modifier_list_spec 
-    	    	|   expType_list target_list 
+    	    	|   expMetric_list_spec target_list 
+    	    	|   target_list expMetric_list_spec 
     	    	|   target_list expType_list 
+    	    	|   expType_list target_list 
 
     	    	|   expId_spec modifier_list_spec target_list 
     	    	|   expId_spec target_list modifier_list_spec 
@@ -286,44 +288,254 @@ exp_compare_args:
     	    	|   modifier_list_spec target_list expId_spec 
     	    	|   target_list expId_spec modifier_list_spec 
     	    	|   target_list modifier_list_spec expId_spec 
-    	    	|   expId_spec expType_list target_list 
+    	    	|   expId_spec expMetric_list_spec target_list 
+    	    	|   expId_spec target_list expMetric_list_spec 
+    	    	|   expMetric_list_spec expId_spec target_list 
+    	    	|   expMetric_list_spec target_list expId_spec 
+    	    	|   target_list expId_spec expMetric_list_spec 
+    	    	|   target_list expMetric_list_spec expId_spec 
     	    	|   expId_spec target_list expType_list 
-    	    	|   expType_list expId_spec target_list 
-    	    	|   expType_list target_list expId_spec 
+    	    	|   expId_spec expType_list target_list 
     	    	|   target_list expId_spec expType_list 
     	    	|   target_list expType_list expId_spec 
-    	    	|   modifier_list_spec expType_list target_list 
+    	    	|   expType_list expId_spec target_list 
+    	    	|   expType_list target_list expId_spec 
+    	    	|   modifier_list_spec expMetric_list_spec target_list 
+    	    	|   modifier_list_spec target_list expMetric_list_spec 
+    	    	|   expMetric_list_spec modifier_list_spec target_list 
+    	    	|   expMetric_list_spec target_list modifier_list_spec 
+    	    	|   target_list modifier_list_spec expMetric_list_spec 
+    	    	|   target_list expMetric_list_spec modifier_list_spec 
     	    	|   modifier_list_spec target_list expType_list 
-    	    	|   expType_list modifier_list_spec target_list 
-    	    	|   expType_list target_list modifier_list_spec 
+    	    	|   modifier_list_spec expType_list target_list 
     	    	|   target_list modifier_list_spec expType_list 
     	    	|   target_list expType_list modifier_list_spec 
+    	    	|   expType_list modifier_list_spec target_list 
+    	    	|   expType_list target_list modifier_list_spec 
+    	    	|   expMetric_list_spec target_list expType_list 
+    	    	|   expMetric_list_spec expType_list target_list 
+    	    	|   target_list expMetric_list_spec expType_list 
+    	    	|   target_list expType_list expMetric_list_spec 
+    	    	|   expType_list expMetric_list_spec target_list 
+    	    	|   expType_list target_list expMetric_list_spec 
 
-    	    	|   expId_spec modifier_list_spec expType_list target_list 
+    	    	|   expId_spec modifier_list_spec expMetric_list_spec target_list 
+    	    	|   expId_spec modifier_list_spec target_list expMetric_list_spec 
+    	    	|   expId_spec expMetric_list_spec modifier_list_spec target_list 
+    	    	|   expId_spec expMetric_list_spec target_list modifier_list_spec 
+    	    	|   expId_spec target_list modifier_list_spec expMetric_list_spec 
+    	    	|   expId_spec target_list expMetric_list_spec modifier_list_spec 
+    	    	|   modifier_list_spec expId_spec expMetric_list_spec target_list 
+    	    	|   modifier_list_spec expId_spec target_list expMetric_list_spec 
+    	    	|   modifier_list_spec expMetric_list_spec expId_spec target_list 
+    	    	|   modifier_list_spec expMetric_list_spec target_list expId_spec 
+    	    	|   modifier_list_spec target_list expId_spec expMetric_list_spec 
+    	    	|   modifier_list_spec target_list expMetric_list_spec expId_spec 
+    	    	|   expMetric_list_spec expId_spec modifier_list_spec target_list 
+    	    	|   expMetric_list_spec expId_spec target_list modifier_list_spec 
+    	    	|   expMetric_list_spec modifier_list_spec expId_spec target_list 
+    	    	|   expMetric_list_spec modifier_list_spec target_list expId_spec 
+    	    	|   expMetric_list_spec target_list expId_spec modifier_list_spec 
+    	    	|   expMetric_list_spec target_list modifier_list_spec expId_spec 
+    	    	|   target_list expId_spec modifier_list_spec expMetric_list_spec 
+    	    	|   target_list expId_spec expMetric_list_spec modifier_list_spec 
+    	    	|   target_list modifier_list_spec expId_spec expMetric_list_spec 
+    	    	|   target_list modifier_list_spec expMetric_list_spec expId_spec 
+    	    	|   target_list expMetric_list_spec expId_spec modifier_list_spec 
+    	    	|   target_list expMetric_list_spec modifier_list_spec expId_spec 
     	    	|   expId_spec modifier_list_spec target_list expType_list 
-    	    	|   expId_spec expType_list modifier_list_spec target_list 
-    	    	|   expId_spec expType_list target_list modifier_list_spec 
+    	    	|   expId_spec modifier_list_spec expType_list target_list 
     	    	|   expId_spec target_list modifier_list_spec expType_list 
     	    	|   expId_spec target_list expType_list modifier_list_spec 
-    	    	|   modifier_list_spec expId_spec expType_list target_list 
+    	    	|   expId_spec expType_list modifier_list_spec target_list 
+    	    	|   expId_spec expType_list target_list modifier_list_spec 
     	    	|   modifier_list_spec expId_spec target_list expType_list 
-    	    	|   modifier_list_spec expType_list expId_spec target_list 
-    	    	|   modifier_list_spec expType_list target_list expId_spec 
+    	    	|   modifier_list_spec expId_spec expType_list target_list 
     	    	|   modifier_list_spec target_list expId_spec expType_list 
     	    	|   modifier_list_spec target_list expType_list expId_spec 
-    	    	|   expType_list expId_spec modifier_list_spec target_list 
-    	    	|   expType_list expId_spec target_list modifier_list_spec 
-    	    	|   expType_list modifier_list_spec expId_spec target_list 
-    	    	|   expType_list modifier_list_spec target_list expId_spec 
-    	    	|   expType_list target_list expId_spec modifier_list_spec 
-    	    	|   expType_list target_list modifier_list_spec expId_spec 
+    	    	|   modifier_list_spec expType_list expId_spec target_list 
+    	    	|   modifier_list_spec expType_list target_list expId_spec 
     	    	|   target_list expId_spec modifier_list_spec expType_list 
     	    	|   target_list expId_spec expType_list modifier_list_spec 
     	    	|   target_list modifier_list_spec expId_spec expType_list 
     	    	|   target_list modifier_list_spec expType_list expId_spec 
     	    	|   target_list expType_list expId_spec modifier_list_spec 
     	    	|   target_list expType_list modifier_list_spec expId_spec 
+    	    	|   expType_list expId_spec modifier_list_spec target_list 
+    	    	|   expType_list expId_spec target_list modifier_list_spec 
+    	    	|   expType_list modifier_list_spec expId_spec target_list 
+    	    	|   expType_list modifier_list_spec target_list expId_spec 
+    	    	|   expType_list target_list expId_spec modifier_list_spec 
+    	    	|   expType_list target_list modifier_list_spec expId_spec 
+    	    	|   expId_spec expMetric_list_spec target_list expType_list 
+    	    	|   expId_spec expMetric_list_spec expType_list target_list 
+    	    	|   expId_spec target_list expMetric_list_spec expType_list 
+    	    	|   expId_spec target_list expType_list expMetric_list_spec 
+    	    	|   expId_spec expType_list expMetric_list_spec target_list 
+    	    	|   expId_spec expType_list target_list expMetric_list_spec 
+    	    	|   expMetric_list_spec expId_spec target_list expType_list 
+    	    	|   expMetric_list_spec expId_spec expType_list target_list 
+    	    	|   expMetric_list_spec target_list expId_spec expType_list 
+    	    	|   expMetric_list_spec target_list expType_list expId_spec 
+    	    	|   expMetric_list_spec expType_list expId_spec target_list 
+    	    	|   expMetric_list_spec expType_list target_list expId_spec 
+    	    	|   target_list expId_spec expMetric_list_spec expType_list 
+    	    	|   target_list expId_spec expType_list expMetric_list_spec 
+    	    	|   target_list expMetric_list_spec expId_spec expType_list 
+    	    	|   target_list expMetric_list_spec expType_list expId_spec 
+    	    	|   target_list expType_list expId_spec expMetric_list_spec 
+    	    	|   target_list expType_list expMetric_list_spec expId_spec 
+    	    	|   expType_list expId_spec expMetric_list_spec target_list 
+    	    	|   expType_list expId_spec target_list expMetric_list_spec 
+    	    	|   expType_list expMetric_list_spec expId_spec target_list 
+    	    	|   expType_list expMetric_list_spec target_list expId_spec 
+    	    	|   expType_list target_list expId_spec expMetric_list_spec 
+    	    	|   expType_list target_list expMetric_list_spec expId_spec 
+    	    	|   modifier_list_spec expMetric_list_spec target_list expType_list 
+    	    	|   modifier_list_spec expMetric_list_spec expType_list target_list 
+    	    	|   modifier_list_spec target_list expMetric_list_spec expType_list 
+    	    	|   modifier_list_spec target_list expType_list expMetric_list_spec 
+    	    	|   modifier_list_spec expType_list expMetric_list_spec target_list 
+    	    	|   modifier_list_spec expType_list target_list expMetric_list_spec 
+    	    	|   expMetric_list_spec modifier_list_spec target_list expType_list 
+    	    	|   expMetric_list_spec modifier_list_spec expType_list target_list 
+    	    	|   expMetric_list_spec target_list modifier_list_spec expType_list 
+    	    	|   expMetric_list_spec target_list expType_list modifier_list_spec 
+    	    	|   expMetric_list_spec expType_list modifier_list_spec target_list 
+    	    	|   expMetric_list_spec expType_list target_list modifier_list_spec 
+    	    	|   target_list modifier_list_spec expMetric_list_spec expType_list 
+    	    	|   target_list modifier_list_spec expType_list expMetric_list_spec 
+    	    	|   target_list expMetric_list_spec modifier_list_spec expType_list 
+    	    	|   target_list expMetric_list_spec expType_list modifier_list_spec 
+    	    	|   target_list expType_list modifier_list_spec expMetric_list_spec 
+    	    	|   target_list expType_list expMetric_list_spec modifier_list_spec 
+    	    	|   expType_list modifier_list_spec expMetric_list_spec target_list 
+    	    	|   expType_list modifier_list_spec target_list expMetric_list_spec 
+    	    	|   expType_list expMetric_list_spec modifier_list_spec target_list 
+    	    	|   expType_list expMetric_list_spec target_list modifier_list_spec 
+    	    	|   expType_list target_list modifier_list_spec expMetric_list_spec 
+    	    	|   expType_list target_list expMetric_list_spec modifier_list_spec 
 
+    	    	|   expId_spec modifier_list_spec expMetric_list_spec target_list expType_list 
+    	    	|   expId_spec modifier_list_spec expMetric_list_spec expType_list target_list 
+    	    	|   expId_spec modifier_list_spec target_list expMetric_list_spec expType_list 
+    	    	|   expId_spec modifier_list_spec target_list expType_list expMetric_list_spec 
+    	    	|   expId_spec modifier_list_spec expType_list expMetric_list_spec target_list 
+    	    	|   expId_spec modifier_list_spec expType_list target_list expMetric_list_spec 
+    	    	|   expId_spec expMetric_list_spec modifier_list_spec target_list expType_list 
+    	    	|   expId_spec expMetric_list_spec modifier_list_spec expType_list target_list 
+    	    	|   expId_spec expMetric_list_spec target_list modifier_list_spec expType_list 
+    	    	|   expId_spec expMetric_list_spec target_list expType_list modifier_list_spec 
+    	    	|   expId_spec expMetric_list_spec expType_list modifier_list_spec target_list 
+    	    	|   expId_spec expMetric_list_spec expType_list target_list modifier_list_spec 
+    	    	|   expId_spec target_list modifier_list_spec expMetric_list_spec expType_list 
+    	    	|   expId_spec target_list modifier_list_spec expType_list expMetric_list_spec 
+    	    	|   expId_spec target_list expMetric_list_spec modifier_list_spec expType_list 
+    	    	|   expId_spec target_list expMetric_list_spec expType_list modifier_list_spec 
+    	    	|   expId_spec target_list expType_list modifier_list_spec expMetric_list_spec 
+    	    	|   expId_spec target_list expType_list expMetric_list_spec modifier_list_spec 
+    	    	|   expId_spec expType_list modifier_list_spec expMetric_list_spec target_list 
+    	    	|   expId_spec expType_list modifier_list_spec target_list expMetric_list_spec 
+    	    	|   expId_spec expType_list expMetric_list_spec modifier_list_spec target_list 
+    	    	|   expId_spec expType_list expMetric_list_spec target_list modifier_list_spec 
+    	    	|   expId_spec expType_list target_list modifier_list_spec expMetric_list_spec 
+    	    	|   expId_spec expType_list target_list expMetric_list_spec modifier_list_spec 
+    	    	|   modifier_list_spec expId_spec expMetric_list_spec target_list expType_list 
+    	    	|   modifier_list_spec expId_spec expMetric_list_spec expType_list target_list 
+    	    	|   modifier_list_spec expId_spec target_list expMetric_list_spec expType_list 
+    	    	|   modifier_list_spec expId_spec target_list expType_list expMetric_list_spec 
+    	    	|   modifier_list_spec expId_spec expType_list expMetric_list_spec target_list 
+    	    	|   modifier_list_spec expId_spec expType_list target_list expMetric_list_spec 
+    	    	|   modifier_list_spec expMetric_list_spec expId_spec target_list expType_list 
+    	    	|   modifier_list_spec expMetric_list_spec expId_spec expType_list target_list 
+    	    	|   modifier_list_spec expMetric_list_spec target_list expId_spec expType_list 
+    	    	|   modifier_list_spec expMetric_list_spec target_list expType_list expId_spec 
+    	    	|   modifier_list_spec expMetric_list_spec expType_list expId_spec target_list 
+    	    	|   modifier_list_spec expMetric_list_spec expType_list target_list expId_spec 
+    	    	|   modifier_list_spec target_list expId_spec expMetric_list_spec expType_list 
+    	    	|   modifier_list_spec target_list expId_spec expType_list expMetric_list_spec 
+    	    	|   modifier_list_spec target_list expMetric_list_spec expId_spec expType_list 
+    	    	|   modifier_list_spec target_list expMetric_list_spec expType_list expId_spec 
+    	    	|   modifier_list_spec target_list expType_list expId_spec expMetric_list_spec 
+    	    	|   modifier_list_spec target_list expType_list expMetric_list_spec expId_spec 
+    	    	|   modifier_list_spec expType_list expId_spec expMetric_list_spec target_list 
+    	    	|   modifier_list_spec expType_list expId_spec target_list expMetric_list_spec 
+    	    	|   modifier_list_spec expType_list expMetric_list_spec expId_spec target_list 
+    	    	|   modifier_list_spec expType_list expMetric_list_spec target_list expId_spec 
+    	    	|   modifier_list_spec expType_list target_list expId_spec expMetric_list_spec 
+    	    	|   modifier_list_spec expType_list target_list expMetric_list_spec expId_spec 
+    	    	|   expMetric_list_spec expId_spec modifier_list_spec target_list expType_list 
+    	    	|   expMetric_list_spec expId_spec modifier_list_spec expType_list target_list 
+    	    	|   expMetric_list_spec expId_spec target_list modifier_list_spec expType_list 
+    	    	|   expMetric_list_spec expId_spec target_list expType_list modifier_list_spec 
+    	    	|   expMetric_list_spec expId_spec expType_list modifier_list_spec target_list 
+    	    	|   expMetric_list_spec expId_spec expType_list target_list modifier_list_spec 
+    	    	|   expMetric_list_spec modifier_list_spec expId_spec target_list expType_list 
+    	    	|   expMetric_list_spec modifier_list_spec expId_spec expType_list target_list 
+    	    	|   expMetric_list_spec modifier_list_spec target_list expId_spec expType_list 
+    	    	|   expMetric_list_spec modifier_list_spec target_list expType_list expId_spec 
+    	    	|   expMetric_list_spec modifier_list_spec expType_list expId_spec target_list 
+    	    	|   expMetric_list_spec modifier_list_spec expType_list target_list expId_spec 
+    	    	|   expMetric_list_spec target_list expId_spec modifier_list_spec expType_list 
+    	    	|   expMetric_list_spec target_list expId_spec expType_list modifier_list_spec 
+    	    	|   expMetric_list_spec target_list modifier_list_spec expId_spec expType_list 
+    	    	|   expMetric_list_spec target_list modifier_list_spec expType_list expId_spec 
+    	    	|   expMetric_list_spec target_list expType_list expId_spec modifier_list_spec 
+    	    	|   expMetric_list_spec target_list expType_list modifier_list_spec expId_spec 
+    	    	|   expMetric_list_spec expType_list expId_spec modifier_list_spec target_list 
+    	    	|   expMetric_list_spec expType_list expId_spec target_list modifier_list_spec 
+    	    	|   expMetric_list_spec expType_list modifier_list_spec expId_spec target_list 
+    	    	|   expMetric_list_spec expType_list modifier_list_spec target_list expId_spec 
+    	    	|   expMetric_list_spec expType_list target_list expId_spec modifier_list_spec 
+    	    	|   expMetric_list_spec expType_list target_list modifier_list_spec expId_spec 
+    	    	|   target_list expId_spec modifier_list_spec expMetric_list_spec expType_list 
+    	    	|   target_list expId_spec modifier_list_spec expType_list expMetric_list_spec 
+    	    	|   target_list expId_spec expMetric_list_spec modifier_list_spec expType_list 
+    	    	|   target_list expId_spec expMetric_list_spec expType_list modifier_list_spec 
+    	    	|   target_list expId_spec expType_list modifier_list_spec expMetric_list_spec 
+    	    	|   target_list expId_spec expType_list expMetric_list_spec modifier_list_spec 
+    	    	|   target_list modifier_list_spec expId_spec expMetric_list_spec expType_list 
+    	    	|   target_list modifier_list_spec expId_spec expType_list expMetric_list_spec 
+    	    	|   target_list modifier_list_spec expMetric_list_spec expId_spec expType_list 
+    	    	|   target_list modifier_list_spec expMetric_list_spec expType_list expId_spec 
+    	    	|   target_list modifier_list_spec expType_list expId_spec expMetric_list_spec 
+    	    	|   target_list modifier_list_spec expType_list expMetric_list_spec expId_spec 
+    	    	|   target_list expMetric_list_spec expId_spec modifier_list_spec expType_list 
+    	    	|   target_list expMetric_list_spec expId_spec expType_list modifier_list_spec 
+    	    	|   target_list expMetric_list_spec modifier_list_spec expId_spec expType_list 
+    	    	|   target_list expMetric_list_spec modifier_list_spec expType_list expId_spec 
+    	    	|   target_list expMetric_list_spec expType_list expId_spec modifier_list_spec 
+    	    	|   target_list expMetric_list_spec expType_list modifier_list_spec expId_spec 
+    	    	|   target_list expType_list expId_spec modifier_list_spec expMetric_list_spec 
+    	    	|   target_list expType_list expId_spec expMetric_list_spec modifier_list_spec 
+    	    	|   target_list expType_list modifier_list_spec expId_spec expMetric_list_spec 
+    	    	|   target_list expType_list modifier_list_spec expMetric_list_spec expId_spec 
+    	    	|   target_list expType_list expMetric_list_spec expId_spec modifier_list_spec 
+    	    	|   target_list expType_list expMetric_list_spec modifier_list_spec expId_spec 
+    	    	|   expType_list expId_spec modifier_list_spec expMetric_list_spec target_list 
+    	    	|   expType_list expId_spec modifier_list_spec target_list expMetric_list_spec 
+    	    	|   expType_list expId_spec expMetric_list_spec modifier_list_spec target_list 
+    	    	|   expType_list expId_spec expMetric_list_spec target_list modifier_list_spec 
+    	    	|   expType_list expId_spec target_list modifier_list_spec expMetric_list_spec 
+    	    	|   expType_list expId_spec target_list expMetric_list_spec modifier_list_spec 
+    	    	|   expType_list modifier_list_spec expId_spec expMetric_list_spec target_list 
+    	    	|   expType_list modifier_list_spec expId_spec target_list expMetric_list_spec 
+    	    	|   expType_list modifier_list_spec expMetric_list_spec expId_spec target_list 
+    	    	|   expType_list modifier_list_spec expMetric_list_spec target_list expId_spec 
+    	    	|   expType_list modifier_list_spec target_list expId_spec expMetric_list_spec 
+    	    	|   expType_list modifier_list_spec target_list expMetric_list_spec expId_spec 
+    	    	|   expType_list expMetric_list_spec expId_spec modifier_list_spec target_list 
+    	    	|   expType_list expMetric_list_spec expId_spec target_list modifier_list_spec 
+    	    	|   expType_list expMetric_list_spec modifier_list_spec expId_spec target_list 
+    	    	|   expType_list expMetric_list_spec modifier_list_spec target_list expId_spec 
+    	    	|   expType_list expMetric_list_spec target_list expId_spec modifier_list_spec 
+    	    	|   expType_list expMetric_list_spec target_list modifier_list_spec expId_spec 
+    	    	|   expType_list target_list expId_spec modifier_list_spec expMetric_list_spec 
+    	    	|   expType_list target_list expId_spec expMetric_list_spec modifier_list_spec 
+    	    	|   expType_list target_list modifier_list_spec expId_spec expMetric_list_spec 
+    	    	|   expType_list target_list modifier_list_spec expMetric_list_spec expId_spec 
+    	    	|   expType_list target_list expMetric_list_spec expId_spec modifier_list_spec 
+    	    	|   expType_list target_list expMetric_list_spec modifier_list_spec expId_spec 
 
     	    	;
 
