@@ -502,8 +502,10 @@ bool Instrumentor::getGlobal(const Thread& thread,
  * @param thread    Thread from which the MPICH process table should be
  *                  retrieved. 
  * @retval value    Current value of the MPICH process table.
+ * @return          Boolean "true" if the MPICH process table was successfully
+ *                  retrieved, "false" otherwise.
  */
-bool Instrumentor::getGlobalMPICHProcTable(const Thread& thread, Job& value)
+bool Instrumentor::getMPICHProcTable(const Thread& thread, Job& value)
 {
     SmartPtr<Process> process;
      
@@ -521,5 +523,5 @@ bool Instrumentor::getGlobalMPICHProcTable(const Thread& thread, Job& value)
                         Exception::toString(thread.getProcessId()));
     
     // Request the MPICH process table be retrieved from the process
-    return process->getGlobalMPICHProcTable(value);
+    return process->getMPICHProcTable(value);
 }

@@ -679,7 +679,7 @@ void Process::executeNow(const Collector& collector,
     //
     // Create a probe expression for the code sequence:
     //
-    //     callee( StringEncode(argument) )
+    //     callee(StringEncode(argument))
     //
 
     ProbeExp args_exp[1] = { ProbeExp(argument.getStringEncoding().c_str()) };
@@ -751,7 +751,7 @@ void Process::executeAtEntryOrExit(const Collector& collector,
     //
     // Create a probe expression for the code sequence:
     //
-    //     callee( StringEncode(argument) )
+    //     callee(StringEncode(argument))
     //
     
     ProbeExp args_exp[1] = { ProbeExp(argument.getStringEncoding().c_str()) };
@@ -839,6 +839,8 @@ void Process::executeInPlaceOf(const Collector& collector,
     if(is_debug_enabled)
     	debugDPCL("response from balloc_mem", retval);
 #endif
+    if(retval.status() != ASC_success)
+	return;
 
     // Add this variable to the variables for this thread
     callee_entry.first->dm_variables.insert(std::make_pair(thread, flag_exp));
@@ -1112,7 +1114,7 @@ bool Process::getGlobal(const std::string& global, std::string& value)
  * @return          Boolean "true" if the table's value was successfully
  *                  retrieved, "false" otherwise.
  */
-bool Process::getGlobalMPICHProcTable(Job& value)
+bool Process::getMPICHProcTable(Job& value)
 {
     Guard guard_myself(this);
     
@@ -1120,7 +1122,7 @@ bool Process::getGlobalMPICHProcTable(Job& value)
     if(is_debug_enabled) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] "
-	       << "Process::getGlobalMPICHProcTable(<job>) for "
+	       << "Process::getMPICHProcTable(<job>) for "
 	       << formUniqueName(dm_host, dm_pid) 
 	       << std::endl;
 	std::cerr << output.str();
@@ -3337,7 +3339,7 @@ void Process::requestUnloadModule(LibraryEntry& library)
  * @return        Source object for the named function or a source object of
  *                type SOT_unknown_type if the function could not be found.
  */
-SourceObj Process::findFunction(const std::string& name)
+SourceObj Process::findFunction(const std::string& name) const
 {
     // Iterate over each module associated with this process
     SourceObj program = dm_process->get_program_object();
@@ -3378,7 +3380,7 @@ SourceObj Process::findFunction(const std::string& name)
  * @return        Source object for the named variable or a source object of
  *                type SOT_unknown_type if the variable could not be found.
  */
-SourceObj Process::findVariable(const std::string& name)
+SourceObj Process::findVariable(const std::string& name) const
 {
     // Iterate over each module associated with this process
     SourceObj program = dm_process->get_program_object();
@@ -3504,7 +3506,7 @@ Process::findLibraryFunction(const Collector& collector,
  * @return          Boolean "true" if the string's value was successfully
  *                  retrieved, "false" otherwise.
  */
-bool Process::getString(const ProbeExp& where, std::string& value)
+bool Process::getString(const ProbeExp& where, std::string& value) const
 {
     Guard guard_myself(this);
     

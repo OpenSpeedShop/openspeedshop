@@ -79,7 +79,7 @@ namespace OpenSpeedShop { namespace Framework {
 
 	bool getGlobal(const Thread&, const std::string&, int64_t&);
 	bool getGlobal(const Thread&, const std::string&, std::string&);
-	bool getGlobalMPICHProcTable(const Thread&, Job&);	
+	bool getMPICHProcTable(const Thread&, Job&);
     }
     
 } }

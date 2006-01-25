@@ -1298,7 +1298,7 @@ void Experiment::getMPIJobFromMPICH(const Thread& thread, Job& job)
 #endif
 
     // Attempt to access the MPICH process table from this thread
-    is_mpich_job &= Instrumentor::getGlobalMPICHProcTable(thread, table);
+    is_mpich_job &= Instrumentor::getMPICHProcTable(thread, table);
 
 #ifndef NDEBUG
     if(is_debug_mpijob_enabled) {

@@ -97,7 +97,7 @@ namespace OpenSpeedShop { namespace Framework {
 
 	bool getGlobal(const std::string&, int64_t&);
 	bool getGlobal(const std::string&, std::string&);
-	bool getGlobalMPICHProcTable(Job&);
+	bool getMPICHProcTable(Job&);
 	
     private:
 
@@ -248,13 +248,13 @@ namespace OpenSpeedShop { namespace Framework {
 	void requestSuspend();
 	void requestUnloadModule(LibraryEntry&);
 
-	SourceObj findFunction(const std::string&);
-	SourceObj findVariable(const std::string&);
+	SourceObj findFunction(const std::string&) const;
+	SourceObj findVariable(const std::string&) const;
 
 	std::pair<LibraryEntry*, ProbeExp>
 	findLibraryFunction(const Collector&, const std::string&);	
 	
-	bool getString(const ProbeExp&, std::string&);
+	bool getString(const ProbeExp&, std::string&) const;
 	
     };
     
