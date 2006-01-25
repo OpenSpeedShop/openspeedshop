@@ -19,6 +19,8 @@
 
 #include <qsettings.h>
 #include <qapplication.h>
+#include <qvalidator.h>
+#include <qmessagebox.h>
 
 #include "openspeedshop.hxx"
 #include "PluginInfo.hxx"
@@ -267,6 +269,13 @@ void PreferencesDialog::applyPreferences()
     viewFullPathCheckBox->isChecked();
   OPENSS_HELP_LEVEL_DEFAULT = helpLevelDefaultLineEdit->text().toInt();
   OPENSS_MAX_ASYNC_COMMANDS = maxAsyncCommandsLineEdit->text().toInt();
+  if(  OPENSS_MAX_ASYNC_COMMANDS <= 0 )
+  {
+    OPENSS_MAX_ASYNC_COMMANDS = 20;
+    maxAsyncCommandsLineEdit->setText("20");
+    QString msg(tr("Define the maximum number of commands that can be processed at\nthe same time. This is a limit on the parallel execution of\ncommands in Open|SpeedShop and controls the degree to which commands\ncan be overlapped.  The default is 20.  This value must be greater than zero.\n"));
+    QMessageBox::information( (QWidget *)this, "Invalid maximum number of commands...", msg, QMessageBox::Ok );
+  }
   OPENSS_HISTORY_DEFAULT = historyDefaultLineEdit->text().toInt();
   OPENSS_HISTORY_LIMIT = historyLimitLineEdit->text().toInt();
   OPENSS_VIEW_PRECISION = viewPrecisionLineEdit->text().toInt();

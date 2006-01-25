@@ -37,6 +37,7 @@
 #include <qwhatsthis.h>
 #include <qimage.h>
 #include <qpixmap.h>
+#include <qvalidator.h>
 
 #include "preferencesdialog.ui.hxx"
 
@@ -223,6 +224,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     viewFieldSizeLayout->addWidget( viewFieldSizeLabel );
     viewFieldSizeLineEdit = new QLineEdit( GeneralGroupBox, "viewFieldSizeLineEdit" );
     viewFieldSizeLineEdit->setText("123");
+    viewFieldSizeLineEdit->setValidator( new QIntValidator( 1, 99999, viewFieldSizeLineEdit ) );
     viewFieldSizeLayout->addWidget( viewFieldSizeLineEdit );
     rightSideLayout->addLayout( viewFieldSizeLayout );
     }
@@ -233,6 +235,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     viewPrecisionLayout->addWidget( viewPrecisionLabel );
     viewPrecisionLineEdit = new QLineEdit( GeneralGroupBox, "viewPrecisionLineEdit" );
     viewPrecisionLineEdit->setText("123");
+    viewPrecisionLineEdit->setValidator( new QIntValidator( 0, 99999, viewPrecisionLineEdit ) );
     viewPrecisionLayout->addWidget( viewPrecisionLineEdit );
     rightSideLayout->addLayout( viewPrecisionLayout );
     }
@@ -243,6 +246,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     historyLimitLayout->addWidget( historyLimitLabel );
     historyLimitLineEdit = new QLineEdit( GeneralGroupBox, "historyLimitLineEdit" );
     historyLimitLineEdit->setText("123");
+    historyLimitLineEdit->setValidator( new QIntValidator( 0, 99999, historyLimitLineEdit ) );
     historyLimitLayout->addWidget( historyLimitLineEdit );
     rightSideLayout->addLayout( historyLimitLayout );
     }
@@ -253,6 +257,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     historyDefaultLayout->addWidget( historyDefaultLabel );
     historyDefaultLineEdit = new QLineEdit( GeneralGroupBox, "historyDefaultLineEdit" );
     historyDefaultLineEdit->setText("123");
+    historyDefaultLineEdit->setValidator( new QIntValidator( 0, 99999, historyDefaultLineEdit ) );
     historyDefaultLayout->addWidget( historyDefaultLineEdit );
     rightSideLayout->addLayout( historyDefaultLayout );
     }
@@ -263,6 +268,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     maxAsyncCommandsLayout->addWidget( maxAsyncCommandsLabel );
     maxAsyncCommandsLineEdit = new QLineEdit( GeneralGroupBox, "maxAsyncCommandsLineEdit" );
     maxAsyncCommandsLineEdit->setText("123");
+    maxAsyncCommandsLineEdit->setValidator( new QIntValidator( 1, 99999, maxAsyncCommandsLineEdit ) );
     maxAsyncCommandsLayout->addWidget( maxAsyncCommandsLineEdit );
     rightSideLayout->addLayout( maxAsyncCommandsLayout );
     }
@@ -272,6 +278,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     helpLevelDefaultLabel->setText("Help Level Default:");
     helpLevelDefaultLayout->addWidget( helpLevelDefaultLabel );
     helpLevelDefaultLineEdit = new QLineEdit( GeneralGroupBox, "helpLevelDefaultLineEdit" );
+    helpLevelDefaultLineEdit->setValidator( new QIntValidator( 0, 99999, helpLevelDefaultLineEdit ) );
     helpLevelDefaultLineEdit->setText("123");
     helpLevelDefaultLayout->addWidget( helpLevelDefaultLineEdit );
     rightSideLayout->addLayout( helpLevelDefaultLayout );
@@ -345,7 +352,7 @@ QToolTip::add(historyDefaultLineEdit,
 
   maxAsyncCommandsLineEdit->setText( QString("%1").arg(maxAsyncCommands) );
 QToolTip::add(maxAsyncCommandsLineEdit,
-  tr("Define the maximum number of commands that can be processed at\nthe same time. This is a limit on the parallel execution of\ncommands in OpenSS and controls the degree to which commands\ncan be overlapped.  The default is 20.\n") );
+  tr("Define the maximum number of commands that can be processed at\nthe same time. This is a limit on the parallel execution of\ncommands in Open|SpeedShop and controls the degree to which commands\ncan be overlapped.  The default is 20.  This value must be greater than zero.\n") );
 
   helpLevelDefaultLineEdit->setText( QString("%1").arg(helpLevelDefault) );
 QToolTip::add(helpLevelDefaultLineEdit,
@@ -357,11 +364,11 @@ QToolTip::add(viewFullPathCheckBox,
 
   saveExperimentDatabaseCheckBox->setChecked(saveExperimentDatabase);
 QToolTip::add(saveExperimentDatabaseCheckBox,
-  tr("Declare that the database created when an 'expCreate'\ncommand is issued will be saved when the OpenSS session is\nterminated.  The saved database will be in the user's\ncurrent directory and will be of the form:\n \"X<exp_id>_iiiiii.openss\"\nwhere the 'iiiiii' field is an integer, starting with 0,\nthat generates a unique file name.  The default is 'false'\nand experiment databases will be deleted when the OpenSS\nsession terminates unless the user has issued an 'expSave'\ncommand.") );
+  tr("Declare that the database created when an 'expCreate'\ncommand is issued will be saved when the Open|SpeedShop session is\nterminated.  The saved database will be in the user's\ncurrent directory and will be of the form:\n \"X<exp_id>_iiiiii.openss\"\nwhere the 'iiiiii' field is an integer, starting with 0,\nthat generates a unique file name.  The default is 'false'\nand experiment databases will be deleted when the Open|SpeedShop\nsession terminates unless the user has issued an 'expSave'\ncommand.") );
 
   allowPythonCommandsCheckBox->setChecked(allowPythonCommands);
 QToolTip::add(allowPythonCommandsCheckBox,
-  tr("Declare that Python commands may be intermixed with OpenSS\ncommands.  The default is true.") );
+  tr("Declare that Python commands may be intermixed with Open|SpeedShop\ncommands.  The default is true.") );
 
     setCaption( tr( "Preferences Dialog" ) );
     categoryListView->header()->setLabel( 0, tr( "Categories" ) );
