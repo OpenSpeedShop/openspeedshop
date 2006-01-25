@@ -1281,7 +1281,7 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
 // printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
 // if( lvi->descriptionClassObject )
 // {
-  // lvi->descriptionClassObject->Print();
+//   lvi->descriptionClassObject->Print();
 // }
     if( msg == NULL )
     {
@@ -1317,7 +1317,7 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
         }
         std::pair<std::string, std::string> p(host_name,pid_name);
         msg->host_pid_vector.push_back( p );
-// printf("push_back a new vector list..\n");
+// printf("A: push_back a new vector list..\n");
         mpChild = (MPListViewItem *)mpChild->nextSibling();
       }
     } else
@@ -1334,6 +1334,7 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
       }
       std::pair<std::string, std::string> p(host_name,pid_name);
       msg->host_pid_vector.push_back( p );
+// printf("B: push_back a new vector list.. (%s-%s)\n", host_name.ascii(), pid_name.ascii() );
     } 
     
     ++it;
@@ -1343,7 +1344,7 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
 
 
 // If nothing was selected, just return.
-  if( !msg || msg->host_pid_vector.size() == 0 )
+  if( !msg )
   {
     QMessageBox::information( this, tr("Error process selection:"), tr("Unable to focus: No processes selected."), QMessageBox::Ok );
     if( msg )
@@ -1352,7 +1353,6 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
     }
     return;
   }
-
 
 
 // printf("A: focus the StatsPanel...\n");
@@ -1375,6 +1375,7 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
   } else
   {
 // printf("There was a statspanel... send the update message.\n");
+// msg->print();
     sp->listener( (void *)msg );
   }
 }

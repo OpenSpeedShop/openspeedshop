@@ -311,6 +311,8 @@ StatsPanel::listener(void *msg)
       }
     } else
     {
+//printf("Here in StatsPanel::listener()\n");
+//msg->print();
       currentThreadGroupStrList.clear();
       currentThreadsStr = QString::null;
       std::vector<HostPidPair>::const_iterator sit = msg->host_pid_vector.begin();
@@ -328,6 +330,7 @@ StatsPanel::listener(void *msg)
         currentThreadGroupStrList.push_back( sit->second.c_str() );
       }
     }
+//printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
 // Begin determine if there's mpi stats
 try
 {
@@ -1610,7 +1613,7 @@ StatsPanel::updateStatsPanelData()
        about += QString("for metrics %1\n").arg(currentUserSelectedMetricStr);
     }
   }
-  if( !mpi_io_FLAG )
+//  if( !mpi_io_FLAG )
   { 
     if( !currentThreadsStr.isEmpty() )
     {
@@ -1620,7 +1623,7 @@ StatsPanel::updateStatsPanelData()
   }
 
 
-// printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedMetricStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii(), currentMetricStr.ascii() );
+//printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedMetricStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii(), currentMetricStr.ascii() );
 
   if( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) )
   { 

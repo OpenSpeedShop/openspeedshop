@@ -52,4 +52,20 @@ FocusObject::print()
   printf("	host_name=(%s)\n", host_name.ascii());
   printf("	pidString=(%s)\n", pidString.ascii());
   printf("	raiseFLAG=(%d)\n", raiseFLAG);
+  std::vector<HostPidPair>::const_iterator sit = host_pid_vector.begin();
+  for(std::vector<HostPidPair>::const_iterator
+                      sit = host_pid_vector.begin();
+                      sit != host_pid_vector.end(); ++sit)
+  {
+    if( sit->first.size() )
+    {
+      QString str = QString(" -h %1 -p %2").arg(sit->first.c_str()).arg(sit->second.c_str());
+      printf("\t%s\n", str.ascii() );
+    } else
+    {
+      QString str = QString(" -p %1").arg(sit->second.c_str()) ;
+      printf("\t(%s)\n", str.ascii() );
+    }
+  }
+
 }

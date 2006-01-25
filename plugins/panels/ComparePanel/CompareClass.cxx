@@ -356,7 +356,7 @@ printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
 
 
 // If nothing was selected, just return.
-  if( !msg || msg->host_pid_vector.size() == 0 )
+  if( !msg )
   {
     QMessageBox::information( this, tr("Error process selection:"), tr("Unable to focus: No processes selected."), QMessageBox::Ok );
     if( msg )
