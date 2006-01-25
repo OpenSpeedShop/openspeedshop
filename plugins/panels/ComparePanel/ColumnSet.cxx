@@ -128,7 +128,7 @@ ColumnSet::ColumnSet(CompareSet *cc)
 
 } // Here ends the section to set up the metric/modifier combobox
   
-  MPListView *lv = new MPListView( frame, CPS, 0  );
+  lv = new MPListView( frame, CPS, 0  );
   lv->addColumn("Processes/PSets:");
   QToolTip::add(lv->header(), "Process/Process Sets (psets) to be display in this column:");
   lv->setAllColumnsShowFocus( TRUE );

@@ -241,6 +241,159 @@ CompareClass::focusOnCSetSelected()
 {
 printf("CompareClass::focusOnCSetSelected() entered\n");
 printf("Currently unimplemented\n");
+
+
+#ifdef DEBUG
+// For now, dump out all the information....   Eventually focus on just 
+// the highlighted CompareSet
+  CompareSetList::Iterator it;
+  for( it = csl->begin(); it != csl->end(); ++it )
+  {
+    CompareSet *compareSet = (CompareSet *)*it;
+printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
+
+    ColumnSetList::Iterator it;
+    for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
+    {
+      ColumnSet *columnSet = (ColumnSet *)*it;
+printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
+    }
+  }
+#endif // DEBUG
+
+  CompareSet *compareSet = findCurrentCompareSet();
+  if( compareSet )
+  {
+// printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
+    ColumnSetList::Iterator it;
+    for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
+    {
+      ColumnSet *columnSet = (ColumnSet *)*it;
+// printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
+// printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
+// printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
+// printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
+// printf("\t\t: processes:\n");
+
+// Begin real focus logic
+// printf("CompareClass::focusOnCSetSelected() entered.\n");
+
+  FocusObject *msg = NULL;
+  QString pid_name = QString::null;
+  QString pidString = QString::null;
+ 
+  QListViewItemIterator it(columnSet->lv);
+  while( it.current() )
+  {
+    MPListViewItem *lvi = (MPListViewItem *)it.current();
+// printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
+// printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
+// printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+// if( lvi->descriptionClassObject )
+// {
+//  lvi->descriptionClassObject->Print();
+//}
+    if( msg == NULL )
+    {
+      msg = new FocusObject(expID,  NULL, NULL, TRUE);
+    }
+    if( !lvi || !lvi->descriptionClassObject )
+    {
+      ++it;
+      continue;
+//      QMessageBox::information( this, tr("Focus Error:"), tr("Unable to focus on selection: No description for process(es)."), QMessageBox::Ok );
+//      return;
+    }
+
+    if( lvi->descriptionClassObject->all )
+    {
+//printf("Do ALL threads, everywhere.\n");
+        msg->host_pid_vector.clear();
+    } else if( lvi->descriptionClassObject->root )
+    {
+      // Loop through all the children...
+//printf("Loop through all the children.\n");
+      MPListViewItem *mpChild = (MPListViewItem *)lvi->firstChild();
+      while( mpChild )
+      {
+        QString host_name = mpChild->descriptionClassObject->host_name;
+        if( host_name.isEmpty() )
+        {
+          host_name = "localhost";
+        }
+        QString pid_name = mpChild->descriptionClassObject->pid_name;
+        if( pid_name.isEmpty() )
+        {
+          mpChild = (MPListViewItem *)mpChild->nextSibling();
+          continue;
+        }
+        std::pair<std::string, std::string> p(host_name,pid_name);
+        msg->host_pid_vector.push_back( p );
+//printf("A: push_back a new vector list..\n");
+        mpChild = (MPListViewItem *)mpChild->nextSibling();
+      }
+    } else
+    {
+      QString host_name = lvi->descriptionClassObject->host_name;
+      if( host_name.isEmpty() )
+      {
+        host_name = "localhost";
+      }
+      QString pid_name = lvi->descriptionClassObject->pid_name;
+      if( pid_name.isEmpty() )
+      {
+        continue;
+      }
+      std::pair<std::string, std::string> p(host_name,pid_name);
+//printf("B: push_back a new vector list... (%s:%s)\n", host_name.ascii(), pid_name.ascii() );
+      msg->host_pid_vector.push_back( p );
+    } 
+    
+    ++it;
+  }
+
+
+
+
+// If nothing was selected, just return.
+  if( !msg || msg->host_pid_vector.size() == 0 )
+  {
+    QMessageBox::information( this, tr("Error process selection:"), tr("Unable to focus: No processes selected."), QMessageBox::Ok );
+    if( msg )
+    {
+      delete msg;
+    }
+    return;
+  }
+
+
+
+//printf("A: focus the StatsPanel...\n");
+  QString name = QString("Stats Panel [%1]").arg(expID);
+  Panel *sp = p->getPanelContainer()->findNamedPanel(p->getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+  if( !sp )
+  {
+    char *panel_type = "Stats Panel";
+    PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+    sp = p->getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
+    delete ao;
+    if( sp != NULL )
+    {
+//printf("Created a stats panel... First update it's data...\n");
+      UpdateObject *msg =
+        new UpdateObject((void *)Find_Experiment_Object((EXPID)expID), expID, "none", 1);
+      sp->listener( (void *)msg );
+    }
+  } else
+  {
+//printf("There was a statspanel... send the update message.\n");
+    sp->listener( (void *)msg );
+  }
+// End real focus logic
+    }
+  }
+
 }
 
 void

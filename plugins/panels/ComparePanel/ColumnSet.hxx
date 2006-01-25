@@ -24,6 +24,7 @@ class QToolBox;
 class CompareClass;
 class QTabWidget;
 class QComboBox;
+class MPListView;
 
 #include "ToolAPI.hxx"
 using namespace OpenSpeedShop::Framework;
@@ -53,6 +54,7 @@ class ColumnSet
     CompareSet *compareSet;
 
     QString name;
+    MPListView *lv;
 
   protected:
 
