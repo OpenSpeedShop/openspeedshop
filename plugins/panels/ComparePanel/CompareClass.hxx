@@ -99,6 +99,7 @@ protected slots:
     virtual void languageChange();
 
 public slots:
+    void updatePanel();
     void addNewCSet();
     void addNewColumn();
     void addNewColumn(CompareSet *);

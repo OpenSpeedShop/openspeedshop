@@ -144,6 +144,13 @@ CompareClass::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
+  qaction = new QAction( this,  "updatePanel");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Update...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( updatePanel() ) );
+  qaction->setStatusTip( tr("Update the information in this panel.") );
+
+
   qaction = new QAction( this,  "focusOnCSET");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Focus on CSet...") );
@@ -234,6 +241,12 @@ CompareClass::addNewColumn(CompareSet *compareSet)
   connect( columnSet->collectorComboBox, SIGNAL( activated(const QString &) ), this, SLOT( changeCollector( const QString & ) ) );
 
   columnSet->updateInfo();
+}
+
+void
+CompareClass::updatePanel()
+{
+  updateInfo();
 }
 
 void

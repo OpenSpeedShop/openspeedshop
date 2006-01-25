@@ -139,6 +139,7 @@ ComparePanel::listener(void *msg)
     if( msg->raiseFLAG )
       getPanelContainer()->raisePanel((Panel *)this);
     }
+    mcc1->updateInfo();
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
     nprintf(DEBUG_MESSAGES) ("ComparePanel::listener() PreferencesChangedObject!\n");

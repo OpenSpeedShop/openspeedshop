@@ -56,6 +56,15 @@ void
 CompareSet::updateInfo()
 {
 // printf("CompareSet::updateInfo() put the data out!\n");
+  ColumnSetList::Iterator it;
+  for( it = columnSetList.begin(); it != columnSetList.end(); )
+  {
+    ColumnSet *cs = (ColumnSet *)*it;
+// printf("attempt to delete (%s)'s info\n", cs->name.ascii() );
+
+    cs->updateInfo();
+    ++it;
+  }
 }
 
 /*
