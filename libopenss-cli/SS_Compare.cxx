@@ -159,6 +159,10 @@ bool SS_expCompare (CommandObject *cmd) {
  // Pick up the <viewType> from the command.
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<string> *p_slist = p_result->getViewList();
+  if (p_slist->size() > 1) {
+    Mark_Cmd_With_Soft_Error(cmd, "More than 1 view name is not supproted.");
+    return false;
+  }
   if (p_slist->begin() == p_slist->end()) {
    // The user has not selected a view.
     if ((exp == NULL) ||
@@ -254,7 +258,7 @@ bool SS_expCompare (CommandObject *cmd) {
     for (pi = p_list->begin();pi != p_list->end(); pi++) {
       parse_range_t *p_range = pi->getRange();
       parse_val_t *pval1 = &p_range->start_range;
-      parse_val_t *pval2 = pval1;
+      parse_val_t *pval2 = p_range->is_range ? &p_range->end_range : pval1;
 
       pid_t mypid;
       for ( mypid = pval1->num; mypid <= pval2->num; mypid++) {
@@ -305,7 +309,7 @@ bool SS_expCompare (CommandObject *cmd) {
     for (pi = t_list->begin();pi != t_list->end(); pi++) {
       parse_range_t *p_range = pi->getRange();
       parse_val_t *pval1 = &p_range->start_range;
-      parse_val_t *pval2 = pval1;
+      parse_val_t *pval2 = p_range->is_range ? &p_range->end_range : pval1;
 
       int64_t mythreadid;
       for ( mythreadid = pval1->num; mythreadid <= pval2->num; mythreadid++) {
@@ -357,7 +361,7 @@ bool SS_expCompare (CommandObject *cmd) {
     for (pi = r_list->begin();pi != r_list->end(); pi++) {
       parse_range_t *p_range = pi->getRange();
       parse_val_t *pval1 = &p_range->start_range;
-      parse_val_t *pval2 = pval1;
+      parse_val_t *pval2 = p_range->is_range ? &p_range->end_range : pval1;
 
       int64_t mythreadid;
       for ( mythreadid = pval1->num; mythreadid <= pval2->num; mythreadid++) {
