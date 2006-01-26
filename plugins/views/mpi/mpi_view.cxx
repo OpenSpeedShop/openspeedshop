@@ -770,6 +770,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
                        ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
                        std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
                        std::list<CommandResult *>& view_output) {
+  bool success = false;
    // Print_View_Params (cerr, CV,MV,IV);
 
   if (CV.size() == 0) {
@@ -1065,6 +1066,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
                              view_output);
     }
 
+    success = true;
   }
   catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
@@ -1081,7 +1083,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
     IV[i] = NULL;
   }
 
-  return ((cmd->Status() != CMD_ERROR) && (cmd->Status() != CMD_ABORTED));
+  return success;
 }
 
 static void define_columns (CommandObject *cmd,
