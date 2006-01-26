@@ -229,6 +229,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                    ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
                    std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
                    std::list<CommandResult *>& view_output) {
+  bool success = false;
   // Print_View_Params (cerr, CV,MV,IV);
 
   bool report_Column_summary = false;
@@ -399,6 +400,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       break;
     }
 
+    success = true;
   }
   catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
@@ -417,7 +419,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     IV[i] = NULL;
   }
 
-  return ((cmd->Status() != CMD_ERROR) && (cmd->Status() != CMD_ABORTED));
+  return success;
 }
 
 // Select the metrics that the user specified and display only them.
