@@ -590,6 +590,8 @@ class CommandResult_LinkedObject :
   }
 };
 
+CommandResult *Dup_CommandResult (CommandResult *C);  // forward definition
+
 class CommandResult_CallStackEntry : public CommandResult {
  private:
   bool Bottom_up;
@@ -605,6 +607,17 @@ class CommandResult_CallStackEntry : public CommandResult {
       : CommandResult(CMD_RESULT_CALLTRACE) {
     Bottom_up = Reverse;
     CallStack = call_stack;
+  }
+  CommandResult_CallStackEntry (CommandResult_CallStackEntry *CSE)
+      : CommandResult(CMD_RESULT_CALLTRACE) {
+    int64_t len = CSE->CallStack->size();
+    Bottom_up = CSE->Bottom_up;
+    CallStack = Framework::SmartPtr<std::vector<CommandResult *> >(
+                            new std::vector<CommandResult *>(len)
+                            );
+    for (int64_t i = 0; i < len; i++) {
+      (*CallStack)[i] = Dup_CommandResult ((*(CSE->CallStack))[i]);
+    }
   }
   virtual ~CommandResult_CallStackEntry () {
     Reclaim_CR_Space (CallStack);
@@ -727,6 +740,9 @@ class CommandResult_Headers :
   }
   void Value (std::list<CommandResult *>& R) {
     R = Headers;
+  }
+  void Value (int64_t& NC) {
+    NC = number_of_columns;
   }
 
   virtual std::string Form () {
@@ -909,6 +925,10 @@ inline CommandResult *Dup_CommandResult (CommandResult *C) {
      return new CommandResult_Statement((CommandResult_Statement *)C);
    case CMD_RESULT_LINKEDOBJECT:
      return new CommandResult_LinkedObject((CommandResult_LinkedObject *)C);
+   case CMD_RESULT_CALLTRACE:
+     return new CommandResult_CallStackEntry((CommandResult_CallStackEntry *)C);
+   default:
+    Assert (C->Type() == CMD_RESULT_NULL);
   }
   return NULL;
 }
@@ -933,6 +953,8 @@ inline CommandResult *New_CommandResult (CommandResult *C) {
    case CMD_RESULT_RAWSTRING:
      v = new CommandResult_RawString ("");
      break;
+   default:
+    Assert (C->Type() == CMD_RESULT_NULL);
   }
   return v;
 }
@@ -980,6 +1002,24 @@ inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
     }
    case CMD_RESULT_STATEMENT:
     return (*((CommandResult_Statement *)lhs) < *((CommandResult_Statement *)rhs));
+   case CMD_RESULT_CALLTRACE:
+   {
+    SmartPtr<std::vector<CommandResult *> > ls;
+    SmartPtr<std::vector<CommandResult *> > rs;
+    ((CommandResult_CallStackEntry *)lhs)->Value (ls);
+    ((CommandResult_CallStackEntry *)rhs)->Value (rs);
+    int64_t ll = ls->size();
+    int64_t rl = rs->size();
+    int64_t lm = min(ll,rl);
+    for (int64_t i = 0; i < lm; i++) {
+      if (CommandResult_lt ((*ls)[i], (*rs)[i])) {
+        return true;
+      }
+    }
+    return (ll < rl);
+   }
+   default:
+    Assert (lhs->Type() == CMD_RESULT_NULL);
   }
   return false;
 }
@@ -1027,6 +1067,24 @@ inline bool CommandResult_gt (CommandResult *lhs, CommandResult *rhs) {
     }
    case CMD_RESULT_STATEMENT:
     return (*((CommandResult_Statement *)lhs) > *((CommandResult_Statement *)rhs));
+   case CMD_RESULT_CALLTRACE:
+   {
+    SmartPtr<std::vector<CommandResult *> > ls;
+    SmartPtr<std::vector<CommandResult *> > rs;
+    ((CommandResult_CallStackEntry *)lhs)->Value (ls);
+    ((CommandResult_CallStackEntry *)rhs)->Value (rs);
+    int64_t ll = ls->size();
+    int64_t rl = rs->size();
+    int64_t lm = min(ll,rl);
+    for (int64_t i = 0; i < lm; i++) {
+      if (CommandResult_gt ((*ls)[i], (*rs)[i])) {
+        return true;
+      }
+    }
+    return (ll < rl);
+   }
+   default:
+    Assert (lhs->Type() == CMD_RESULT_NULL);
   }
   return false;
 }
