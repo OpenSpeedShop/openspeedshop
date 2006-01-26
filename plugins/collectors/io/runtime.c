@@ -85,6 +85,9 @@ static struct {
  * the experiment's database. Then resets the tracing buffer to the empty state.
  * This is done regardless of whether or not the buffer is actually full.
  */
+/*
+NO DEBUG PRINT STATEMENTS HERE.
+*/
 static void io_send_events()
 {
     /* Set the end time of this data blob */
@@ -114,6 +117,9 @@ static void io_send_events()
  *
  * @param event    Event to be started.
  */
+/*
+NO DEBUG PRINT STATEMENTS HERE.
+*/
 void io_start_event(io_event* event)
 {
     /* Increment the IO function wrapper nesting depth */
@@ -138,6 +144,9 @@ void io_start_event(io_event* event)
  * @param function    Address of the IO function for which the event is being
  *                    recorded.
  */
+/*
+NO DEBUG PRINT STATEMENTS HERE IF TRACING "write, __libc_write".
+*/
 void io_record_event(const io_event* event, uint64_t function)
 {
 #if 0
@@ -211,7 +220,9 @@ fprintf(stderr,"ENTERED io_record_event, sizeof event=%d\n",sizeof(io_event));
 	/* Send events if there is insufficient room for this stack trace */
 	if((tls.data.stacktraces.stacktraces_len + stacktrace_size + 1) >=
 	   StackTraceBufferSize) {
+#if 0
 fprintf(stderr,"StackTraceBufferSize is full, call io_send_events\n");
+#endif
 	    io_send_events();
 	}
 	
@@ -246,7 +257,9 @@ fprintf(stderr,"StackTraceBufferSize is full, call io_send_events\n");
     
     /* Send events if the tracing buffer is now filled with events */
     if(tls.data.events.events_len == EventBufferSize) {
+#if 0
 fprintf(stderr,"Event Buffer is full, call io_send_events\n");
+#endif
 	io_send_events();
     }
 }

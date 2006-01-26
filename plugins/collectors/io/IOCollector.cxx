@@ -53,7 +53,12 @@ namespace {
      */
     const char* TraceableFunctions[] = {
 
+        "__libc_open",
+        "__libc_close",
         "__libc_read",
+        "__libc_write",
+        "__libc_lseek",
+        "__dup2",
 	
 	// End Of Table Entry
 	NULL
