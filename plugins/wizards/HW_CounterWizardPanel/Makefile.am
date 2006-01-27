@@ -19,9 +19,10 @@
 pkglib_LTLIBRARIES = HW_CounterWizardPanel.la
 
 HW_CounterWizardPanel_la_CXXFLAGS = \
-    -I/usr/include \
+	$(PAPI_CPPFLAGS) \
 	$(QTLIB_CPPFLAGS) \
 	$(PYTHON_INCLUDES) \
+    -I/usr/include \
     -I. \
     -I$(top_srcdir)/libopenss-gui \
     -I$(top_srcdir)/libopenss-guiimages \
