@@ -49,8 +49,12 @@ moc_openspeedshop.cxx: openspeedshop.hxx
 moc_preferencesdialog.cxx: preferencesdialog.hxx
 	-moc -o moc_preferencesdialog.cxx preferencesdialog.hxx
 
+moc_AboutClass.cxx: AboutClass.hxx
+	-moc -o moc_AboutClass.cxx AboutClass.hxx
+
 libopenss_gui_la_SOURCES = \
     gui.cxx \
+    AboutClass.cxx AboutClass.hxx moc_AboutClass.cxx \
 	CLIInterface.hxx CLIInterface.cxx moc_CLIInterface.cxx \
     openspeedshop.hxx openspeedshop.cxx moc_openspeedshop.cxx \
     qmake_image_collection.cxx openspeedshop.ui.hxx \

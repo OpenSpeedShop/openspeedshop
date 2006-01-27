@@ -525,11 +525,13 @@ void OpenSpeedshop::helpContents()
  assistant->showPage( QString("%1/index.html").arg(docsPath) );
 }
 
+#include "AboutClass.hxx"
 void OpenSpeedshop::helpAbout()
 {
- dprintf("helpAbout() entered.\n");
+printf("helpAbout() entered.\n");
 
- QMessageBox::about(this, "Open|SpeedShop", "Open|SpeedShop about example....");
+ AboutClass *aboutClass = new AboutClass(topPC);
+ aboutClass->show();
 }
 
 
