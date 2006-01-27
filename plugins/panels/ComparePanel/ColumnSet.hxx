@@ -20,16 +20,25 @@
 #ifndef COLUMNSET_H
 #define COLUMNSET_H
 
+
+
 class QToolBox;
 class CompareClass;
 class QTabWidget;
 class QComboBox;
 class MPListView;
 
+#include "CollectorListObject.hxx"  // For getting pid list off a host...
+#include "CollectorEntryClass.hxx"
+
 #include "ToolAPI.hxx"
 using namespace OpenSpeedShop::Framework;
 #include "Thread.hxx"
 #include "LinkedObject.hxx"
+
+#include "openspeedshop.hxx"
+#include "CLIInterface.hxx"
+#include <qvariant.h>
 
 #include <qstring.h>
 
@@ -39,10 +48,11 @@ typedef std::pair<int64_t, std::string> pair_def;
 
 class CompareSet;
 
-class ColumnSet
+class ColumnSet : public QWidget
 {
+  Q_OBJECT
   public:
-    ColumnSet(CompareSet *);
+    ColumnSet(QWidget *, CompareSet *);
     ~ColumnSet();
 
     QComboBox *experimentComboBox;
@@ -59,6 +69,19 @@ class ColumnSet
   protected:
 
   private:
+    int getExpidFromExperimentComboBoxStr( const QString path );
+    int gatherExperimentInfo();
+    CollectorEntry *gatherCollectorInfo(int);
+    void gatherMetricInfo(CollectorEntry *);
+   
+    CollectorListObject *clo;
+    CollectorEntry *ce;
+
+    std::vector<pair_def> experiment_list;
+
+  public slots:
+    void changeExperiment( const QString &path );
+    void changeCollector( const QString &path );
 
 };
 

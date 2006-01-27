@@ -64,17 +64,7 @@ CompareClass::CompareClass( Panel *_p, QWidget* parent, const char* name, bool m
   ccnt = 0;
   
   p = _p;
-  mw = (OpenSpeedshop *)p->getPanelContainer()->getMainWindow();
-  cli = p->getPanelContainer()->getMainWindow()->cli;
   expID = exp_id;
-  clo = NULL;
-  ce = NULL;
-
-#ifdef OLDWAY
-  experimentComboBox = NULL;
-  collectorComboBox = NULL;
-  metricComboBox = NULL;
-#endif // OLDWAY
 
   csl = NULL;
 
@@ -233,14 +223,11 @@ CompareClass::addNewColumn()
 void
 CompareClass::addNewColumn(CompareSet *compareSet)
 {
-  ColumnSet *columnSet = new ColumnSet(compareSet);
+  ColumnSet *columnSet = new ColumnSet(this, compareSet);
 
   compareSet->columnSetList.push_back( columnSet );
 
-  connect( columnSet->experimentComboBox, SIGNAL( activated(const QString &) ), this, SLOT( changeExperiment( const QString & ) ) );
-  connect( columnSet->collectorComboBox, SIGNAL( activated(const QString &) ), this, SLOT( changeCollector( const QString & ) ) );
-
-  columnSet->updateInfo();
+//  columnSet->updateInfo();
 }
 
 void
@@ -282,11 +269,11 @@ printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
     for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
     {
       ColumnSet *columnSet = (ColumnSet *)*it;
-// printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
-// printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
-// printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
-// printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
-// printf("\t\t: processes:\n");
+printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
+printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
+printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
+printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
+printf("\t\t: processes:\n");
 
 // Begin real focus logic
 // printf("CompareClass::focusOnCSetSelected() entered.\n");
@@ -299,13 +286,13 @@ printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
   while( it.current() )
   {
     MPListViewItem *lvi = (MPListViewItem *)it.current();
-// printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
-// printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
-// printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
-// if( lvi->descriptionClassObject )
-// {
-//  lvi->descriptionClassObject->Print();
-//}
+printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
+printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
+printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+if( lvi->descriptionClassObject )
+{
+  lvi->descriptionClassObject->Print();
+}
     if( msg == NULL )
     {
       msg = new FocusObject(expID,  NULL, NULL, TRUE);
@@ -494,115 +481,11 @@ printf("focusOnCSet() entered.   Now all you need to do is implement it.\n");
 }
 
 
-#include "CollectorListObject.hxx"
-#include "CollectorEntryClass.hxx"
-#include "CollectorMetricEntryClass.hxx"
-void
-CompareClass::gatherInfo(QString collectorName)
-{
-// printf("gatherInfo() entered\n");
-{ // Begin gather experiment info
-
-  std::list<int64_t> int_list;
-  int_list.clear();
-  experiment_list.clear();
-
-  QString command = QString("listExp");
-  InputLineObject *clip = NULL;
-  if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &int_list, clip, TRUE ) )
-  {
-//    printf("Unable to run %s command.\n", command.ascii() );
-    QMessageBox::information(this, QString(tr("Initialization warning:")), QString("Unable to run \"%1\" command.").arg(command.ascii()), QMessageBox::Ok );
-  }
-
-  std::list<int64_t>::iterator it;
-// printf("int_list.size() =%d\n", int_list.size() );
-  for(it = int_list.begin(); it != int_list.end(); it++ )
-  {
-    int64_t expID = (int64_t)(*it);
-// printf("expID=(%d)\n", expID );
-
-
-    QString expStr = QString("%1").arg(expID);
-
-    command = QString("listTypes -x %1").arg(expStr);
-    std::list<std::string> list_of_collectors;
-    if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-           &list_of_collectors, clip, TRUE ) )
-    {
-// printf("Unable to run %s command.\n", command.ascii() );
-      
-      QMessageBox::information(this, QString(tr("Initialization warning:")), QString("Unable to run \"%1\" command.").arg(command.ascii()), QMessageBox::Ok );
-
-      return;
-    }
-  
-    int knownCollectorType = FALSE;
-    QString panel_type = "other";
-    if( list_of_collectors.size() > 0 )
-    {
-      for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
-      {
-//      std::string collector_name = *it;
-        QString collector_name = (QString)*it;
-// printf("  collector_name=(%s)\n", collector_name.ascii() );
-
-        const char *str = collector_name.ascii();
-        experiment_list.push_back( std::make_pair(expID, str ) );
-      }
-    }
-  }
-} // End gather experiment info
-
-  if( clo )
-  {
-    delete(clo);
-  }
-  
-  clo = new CollectorListObject(expID);
-// printf("expID=%d\n", expID);
-
-  ce = NULL;
-  CollectorEntryList::Iterator it;
-  for( it = clo->collectorEntryList.begin();
-       it != clo->collectorEntryList.end();
-       ++it )
-  {
-    ce = (CollectorEntry *)*it;
-// printf("ce->name=%s ce->short_name\n", ce->name.ascii(), ce->short_name.ascii() );
-    if( ce->name == collectorName )
-    {
-      CollectorMetricEntryList::Iterator plit;
-      for( plit = ce->metricList.begin();
-           plit != ce->metricList.end(); ++plit )
-      {
-        CollectorMetricEntry *cpe = (CollectorMetricEntry *)*plit;
-// printf("cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
-      }
-      break;
-    } else
-    {
-      ce = NULL;
-    }
-  }
-}
-
-void CompareClass::changeExperiment( const QString &path )
-{
-printf("CompareClass::changeExperiment(%s)\n", path.ascii()  );
-}
-
-void CompareClass::changeCollector( const QString &path )
-{
-printf("CompareClass::changeCollector(%s)\n", path.ascii()  );
-}
 
 void
 CompareClass::updateInfo()
 {
 // printf("CompareClass::updateInfo() entered\n");
-  gatherInfo();
-
   if( csl )
   {
     CompareSetList::Iterator it;
@@ -635,3 +518,4 @@ CompareClass::findCurrentCompareSet()
 
  return( NULL );
 }
+

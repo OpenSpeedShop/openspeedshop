@@ -27,8 +27,8 @@
 #include "openspeedshop.hxx"
 #include "CLIInterface.hxx"
 
-#include "CollectorListObject.hxx"  // For getting pid list off a host...
-#include "CollectorEntryClass.hxx"
+// #include "CollectorListObject.hxx"  // For getting pid list off a host...
+// #include "CollectorEntryClass.hxx"
 
 #include "GenericProgressDialog.hxx"
 #include "MPListView.hxx"
@@ -50,7 +50,7 @@ class QComboBox;
 
 class PanelContainer;
 class ComparePanel;
-class CollectorListObject;
+// class CollectorListObject;
 
 #include "ColumnSet.hxx"
 #include "CompareSet.hxx"
@@ -77,11 +77,6 @@ public:
 
     int ccnt;
 
-    CollectorListObject *clo;
-    CollectorEntry *ce;
-
-    std::vector<pair_def> experiment_list;
-
 protected:
     QHBoxLayout* CompareClassLayout;
     QHBoxLayout* AddCollectorLayout;
@@ -91,9 +86,6 @@ protected:
 
       CompareList compareList;
       QToolBox *csetTB;
-
-    CLIInterface *cli;
-    OpenSpeedshop *mw;
 
 protected slots:
     virtual void languageChange();
@@ -112,11 +104,7 @@ private slots:
     void focusOnCSetSelected();
     void addProcessesSelected();
 
-    void changeExperiment( const QString &path );
-    void changeCollector( const QString &path );
-
 private:
-    void gatherInfo(QString collector_name = QString::null);
 
     CompareSet *findCurrentCompareSet();
 

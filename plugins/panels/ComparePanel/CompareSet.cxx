@@ -55,7 +55,7 @@ CompareSet::CompareSet(QToolBox *csetTB, CompareClass *cc )
 void
 CompareSet::updateInfo()
 {
-// printf("CompareSet::updateInfo() put the data out!\n");
+// printf("CompareSet::updateInfo() entered\n");
   ColumnSetList::Iterator it;
   for( it = columnSetList.begin(); it != columnSetList.end(); )
   {
