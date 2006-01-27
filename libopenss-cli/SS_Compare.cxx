@@ -37,6 +37,7 @@ struct ltCR {
 };
 
 struct selectionTarget {
+  std:: string viewName;
   std::string headerPrefix;
   int64_t numColumns;
   std::string hostId;
@@ -47,6 +48,7 @@ struct selectionTarget {
   std::map<int64_t, CommandResult *> merge_map;
 
   selectionTarget () {
+    viewName = "";
     headerPrefix = "";
     numColumns = 0;
     hostId = "";
@@ -56,6 +58,7 @@ struct selectionTarget {
   }
 
   selectionTarget (const selectionTarget& S) {
+    viewName = S.viewName;
     headerPrefix = S.headerPrefix;
     numColumns = S.numColumns;
     hostId = S.hostId;
@@ -65,6 +68,7 @@ struct selectionTarget {
   }
 
   void Print (ostream& to) {
+    if (viewName != "") to << " " << viewName;
     if (hostId != "") to << " -h " << hostId;
     if (pidId) to << " -p " << pidId;
     if (threadId) to << " -t " << threadId;
@@ -153,16 +157,14 @@ bool SS_expCompare (CommandObject *cmd) {
   bool view_result = false;
   int64_t i;
 
+  std::vector<selectionTarget> Quick_Compare_Set;
+
  // Prevent this experiment from changing until we are done.
  // if (exp != NULL) exp->Q_Lock (cmd, true);
 
  // Pick up the <viewType> from the command.
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<string> *p_slist = p_result->getViewList();
-  if (p_slist->size() > 1) {
-    Mark_Cmd_With_Soft_Error(cmd, "More than 1 view name is not supproted.");
-    return false;
-  }
   if (p_slist->begin() == p_slist->end()) {
    // The user has not selected a view.
     if ((exp == NULL) ||
@@ -186,16 +188,44 @@ bool SS_expCompare (CommandObject *cmd) {
           ViewType *vt = Find_View (collector_name);
           if (vt != NULL) {
             view_found = true;
-           // Generate the selected view
-            p_slist->push_back (collector_name);
+           // Generate a view for every collector.
+            selectionTarget S;
+            S.viewName = collector_name;
+            Quick_Compare_Set.push_back (S);
           }
         }
 
         if (!view_found) {
          // Use generic view as default
-          p_slist->push_back (std::string("stats"));
+          selectionTarget S;
+          S.viewName = "stats";
         }
       }
+    }
+  } else {
+   // Generate all the views in the list.
+    vector<string>::iterator si;
+    for (si = p_slist->begin(); si != p_slist->end(); si++) {
+   // Determine the availability of the view.
+      std::string viewname = *si;
+      ViewType *vt = Find_View (viewname);
+      if (vt == NULL) {
+        Mark_Cmd_With_Soft_Error(cmd, "The requested view is unavailable.");
+        return false;
+      }
+
+     // Define new compare sets for each view.
+      selectionTarget S;
+      S.viewName = viewname;
+      Quick_Compare_Set.push_back (S);
+    }
+
+  }
+
+  if (Quick_Compare_Set.size() > 1) {
+   // Add the view name to the column headers.
+    for (i = 0; i < Quick_Compare_Set.size(); i++) {
+      Quick_Compare_Set[i].headerPrefix = Quick_Compare_Set[i].viewName + ": ";
     }
   }
   
@@ -219,8 +249,6 @@ bool SS_expCompare (CommandObject *cmd) {
   vector<ParseRange> *p_list = pt.getPidList();
   vector<ParseRange> *t_list = pt.getThreadList();
   vector<ParseRange> *r_list = pt.getRankList();
-
-  std::vector<selectionTarget> Quick_Compare_Set;
 
   if (!((h_list == NULL) || h_list->empty())) {
    // Start by building a vector of all the host names.
@@ -248,6 +276,29 @@ bool SS_expCompare (CommandObject *cmd) {
         Quick_Compare_Set.push_back (S);
       }
     } else {
+      if ((initialSetCnt > 1) && (hosts.size() > 1)) {
+        Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
+        return false;
+      }
+      int64_t segmentStart = 0;
+      for (int64_t j = 0; j < hosts.size(); j++) {
+        if (j < (hosts.size() -1 )) {
+         // There is at least one more iteration, so
+         // preserve a copy of the original sets.
+          for (int64_t k = 0; k < initialSetCnt; k++) {
+            Quick_Compare_Set.push_back (Quick_Compare_Set[segmentStart+k]);
+          }
+        }
+
+       // Append this host to N copies of the original sets.
+        for (int64_t k = 0; k < initialSetCnt; k++) {
+          selectionTarget S;
+          Quick_Compare_Set[segmentStart+k].headerPrefix += "-h " + hosts[j] + ": ";
+          Quick_Compare_Set[segmentStart+k].hostId = Experiment::getCanonicalName(hosts[j]);
+        }
+        segmentStart += initialSetCnt;
+      }
+
     }
   }
 
@@ -279,6 +330,10 @@ bool SS_expCompare (CommandObject *cmd) {
         Quick_Compare_Set.push_back (S);
       }
     } else {
+      if ((initialSetCnt > 1) && (pids.size() > 1)) {
+        Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
+        return false;
+      }
       int64_t segmentStart = 0;
       for (int64_t j = 0; j < pids.size(); j++) {
         if (j < (pids.size() -1 )) {
@@ -330,6 +385,10 @@ bool SS_expCompare (CommandObject *cmd) {
         Quick_Compare_Set.push_back (S);
       }
     } else {
+      if ((initialSetCnt > 1) && (threadids.size() > 1)) {
+        Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
+        return false;
+      }
       int64_t segmentStart = 0;
       for (int64_t j = 0; j < threadids.size(); j++) {
         if (j < (threadids.size() -1 )) {
@@ -382,6 +441,10 @@ bool SS_expCompare (CommandObject *cmd) {
         Quick_Compare_Set.push_back (S);
       }
     } else {
+      if ((initialSetCnt > 1) && (rankids.size() > 1)) {
+        Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
+        return false;
+      }
       int64_t segmentStart = 0;
       for (int64_t j = 0; j < rankids.size(); j++) {
         if (j < (rankids.size() -1 )) {
@@ -438,30 +501,21 @@ bool SS_expCompare (CommandObject *cmd) {
   }
 
  // Generate all the views in the list.
-  vector<string>::iterator si;
-  for (si = p_slist->begin(); si != p_slist->end(); si++) {
- // Determine the availability of the view.
-    std::string viewname = *si;
+  for (i = 0; i < numQuickSets; i++) {
+   // Try to Generate the Requested View for each comparison set!
+    std::string viewname = Quick_Compare_Set[i].viewName;
     ViewType *vt = Find_View (viewname);
-    if (vt == NULL) {
-      Mark_Cmd_With_Soft_Error(cmd, "The requested view is unavailable.");
-      return false;
-    }
-
-    for (i = 0; i < numQuickSets; i++) {
-     // Try to Generate the Requested View for each comparison set!
-      ThreadGroup tgrp;
-      Select_ThreadGroup (Quick_Compare_Set[i], base_tgrp, tgrp);
-      if (tgrp.size() > 0) {
-        bool success = vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),
-                                         tgrp, Quick_Compare_Set[i].partial_view);
-        if (!success) {
-          Reclaim_CR_Space (Quick_Compare_Set[i].partial_view);
-          Quick_Compare_Set[i].partial_view.clear();
-        }
+    Assert (vt != NULL);
+    ThreadGroup tgrp;
+    Select_ThreadGroup (Quick_Compare_Set[i], base_tgrp, tgrp);
+    if (tgrp.size() > 0) {
+      bool success = vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),
+                                       tgrp, Quick_Compare_Set[i].partial_view);
+      if (!success) {
+        Reclaim_CR_Space (Quick_Compare_Set[i].partial_view);
+        Quick_Compare_Set[i].partial_view.clear();
       }
     }
-
   }
 
   if (numQuickSets == 1 ) {
