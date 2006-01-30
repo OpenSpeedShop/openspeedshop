@@ -66,10 +66,10 @@ class ColumnSet : public QWidget
     QString name;
     MPListView *lv;
 
+    int getExpidFromExperimentComboBoxStr( const QString path );
   protected:
 
   private:
-    int getExpidFromExperimentComboBoxStr( const QString path );
     int gatherExperimentInfo();
     CollectorEntry *gatherCollectorInfo(int);
     void gatherMetricInfo(CollectorEntry *);

@@ -49,7 +49,7 @@ using namespace OpenSpeedShop::Framework;
 #include "Thread.hxx"
 #include "LinkedObject.hxx"
 #include "PanelContainer.hxx"
-#include "FocusObject.hxx"
+#include "FocusCompareObject.hxx"
 #include "UpdateObject.hxx"
 #include "ArgumentObject.hxx"
 
@@ -243,6 +243,10 @@ printf("CompareClass::focusOnCSetSelected() entered\n");
 printf("Currently unimplemented\n");
 
 
+  FocusCompareObject *focus_msg = NULL;
+  QString expCompareCommand = "expCompare ";
+QString temp_expCompareCommand = "expCompare ";
+
 #ifdef DEBUG
 // For now, dump out all the information....   Eventually focus on just 
 // the highlighted CompareSet
@@ -269,16 +273,34 @@ printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
     for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
     {
       ColumnSet *columnSet = (ColumnSet *)*it;
-printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
-printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
-printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
-printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
-printf("\t\t: processes:\n");
+// printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
+// printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
+// printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
+// printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
+
+{
+int id = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
+QString collectorName = columnSet->collectorComboBox->currentText().ascii();
+QString metricName = columnSet->metricComboBox->currentText().ascii();
+expCompareCommand += QString("-c -x %1 %2 -m %3 ").arg(id).arg(collectorName).arg(metricName);
+
+if( temp_expCompareCommand.isEmpty() )
+{
+  temp_expCompareCommand += QString("%2 -m %3 ").arg(collectorName).arg(metricName);
+}
+}
+
+
+// printf("\t\t: processes:\n");
+  QString expCompareProcessList = QString::null;
+QString temp_expCompareProcessList = QString::null;
+
+
+
 
 // Begin real focus logic
 // printf("CompareClass::focusOnCSetSelected() entered.\n");
 
-  FocusObject *msg = NULL;
   QString pid_name = QString::null;
   QString pidString = QString::null;
  
@@ -286,16 +308,16 @@ printf("\t\t: processes:\n");
   while( it.current() )
   {
     MPListViewItem *lvi = (MPListViewItem *)it.current();
-printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
-printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
-printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
-if( lvi->descriptionClassObject )
-{
-  lvi->descriptionClassObject->Print();
-}
-    if( msg == NULL )
+// printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
+// printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
+// printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+// if( lvi->descriptionClassObject )
+// {
+//   lvi->descriptionClassObject->Print();
+// }
+    if( focus_msg == NULL )
     {
-      msg = new FocusObject(expID,  NULL, NULL, TRUE);
+      focus_msg = new FocusCompareObject(expID,  NULL, TRUE);
     }
     if( !lvi || !lvi->descriptionClassObject )
     {
@@ -307,12 +329,12 @@ if( lvi->descriptionClassObject )
 
     if( lvi->descriptionClassObject->all )
     {
-//printf("Do ALL threads, everywhere.\n");
-        msg->host_pid_vector.clear();
+// printf("Do ALL threads, everywhere.\n");
+//        focus_msg->host_pid_vector.clear();
     } else if( lvi->descriptionClassObject->root )
     {
       // Loop through all the children...
-//printf("Loop through all the children.\n");
+// printf("Loop through all the children.\n");
       MPListViewItem *mpChild = (MPListViewItem *)lvi->firstChild();
       while( mpChild )
       {
@@ -328,8 +350,10 @@ if( lvi->descriptionClassObject )
           continue;
         }
         std::pair<std::string, std::string> p(host_name,pid_name);
-        msg->host_pid_vector.push_back( p );
-//printf("A: push_back a new vector list..\n");
+//        focus_msg->host_pid_vector.push_back( p );
+// printf("A: push_back a new host:pid entry (%s:%s)\n", host_name.ascii(), pid_name.ascii());
+        expCompareProcessList += QString(" -h %1 -p %1 ").arg(host_name).arg(pid_name);
+temp_expCompareProcessList += QString(" -p %1 ").arg(pid_name);
         mpChild = (MPListViewItem *)mpChild->nextSibling();
       }
     } else
@@ -345,28 +369,39 @@ if( lvi->descriptionClassObject )
         continue;
       }
       std::pair<std::string, std::string> p(host_name,pid_name);
-//printf("B: push_back a new vector list... (%s:%s)\n", host_name.ascii(), pid_name.ascii() );
-      msg->host_pid_vector.push_back( p );
+//printf("B: push_back a new host::pid entry... (%s:%s)\n", host_name.ascii(), pid_name.ascii() );
+        expCompareProcessList += QString(" -h %1 -p %1 ").arg(host_name).arg(pid_name);
+temp_expCompareProcessList += QString(" -p %1 ").arg(pid_name);
+//      focus_msg->host_pid_vector.push_back( p );
     } 
     
     ++it;
   }
 
 
-
-
 // If nothing was selected, just return.
-  if( !msg )
+  if( !focus_msg )
   {
     QMessageBox::information( this, tr("Error process selection:"), tr("Unable to focus: No processes selected."), QMessageBox::Ok );
-    if( msg )
+    if( focus_msg )
     {
-      delete msg;
+      delete focus_msg;
     }
     return;
   }
 
 
+  expCompareCommand += expCompareProcessList;
+  focus_msg->compare_command = expCompareCommand;
+
+
+printf("I think you really want this compare command:\n(%s)\n", expCompareCommand.ascii() );
+
+temp_expCompareCommand += temp_expCompareProcessList;
+focus_msg->compare_command = temp_expCompareCommand;
+
+printf("but really send this for now: command:\n(%s)\n", temp_expCompareCommand.ascii() );
+  }
 
 //printf("A: focus the StatsPanel...\n");
   QString name = QString("Stats Panel [%1]").arg(expID);
@@ -388,11 +423,10 @@ if( lvi->descriptionClassObject )
   } else
   {
 //printf("There was a statspanel... send the update message.\n");
-    sp->listener( (void *)msg );
+    sp->listener( (void *)focus_msg );
   }
 // End real focus logic
     }
-  }
 
 }
 

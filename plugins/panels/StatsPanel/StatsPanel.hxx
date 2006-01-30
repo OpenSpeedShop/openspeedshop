@@ -181,7 +181,8 @@ ThreadGroupStringList currentThreadGroupStrList;
     bool matchUIntSelectedItem( std::string function_name );
     bool matchUInt64SelectedItem( std::string function_name );
 
-    void updateStatsPanelData();
+    void updateStatsPanelData(QString command = QString::null);
+    QString generateCommand();
 
     void resetRedirect();
 

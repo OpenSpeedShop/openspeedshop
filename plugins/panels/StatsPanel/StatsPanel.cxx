@@ -77,6 +77,7 @@ static char *coldToHot_color_names[] = {
 #include "SPListViewItem.hxx"   // Change this to your new class header file name
 #include "UpdateObject.hxx"
 #include "FocusObject.hxx"
+#include "FocusCompareObject.hxx"
 #include "HighlightObject.hxx"
 #include "SourceObject.hxx"
 #include "PreferencesChangedObject.hxx"
@@ -399,6 +400,43 @@ catch(const std::exception& error)
     //printf("no match\n");
         return 0;
     }
+  } else if(  msgObject->msgType  == "FocusCompareObject" && recycleFLAG == TRUE )
+  {
+// printf("StatsPanel got a new FocusCompareObject\n");
+    FocusCompareObject *msg = (FocusCompareObject *)msgObject;
+// msg->print();
+    expID = msg->expID;
+
+    if( !msg->compare_command.isEmpty()  )
+    {
+// printf("StatsPanel::listener() call updatestastPanelData(%s)\n", msg->compare_command.ascii() );
+      updateStatsPanelData(msg->compare_command);
+// printf("StatsPanel::listener() called \n");
+    }
+
+    if( msg->raiseFLAG == TRUE )
+    {
+// printf("StatsPanel::listener() raise this panel.. \n");
+      getPanelContainer()->raisePanel(this);
+    }
+#ifdef LATER
+// now focus a source file that's listening....
+// printf("Now focus the source panel, if it's up..\n");
+    //First get the first item...
+    QListViewItemIterator it( splv );
+    QListViewItem *item = *it;
+
+    // Now call the match routine, this should focus any source panels.
+    if( item && matchSelectedItem( item, std::string(item->text(fieldCount-1).ascii()) ) )
+    {
+    //printf("match\n");
+        return 1;
+    } else
+    {
+    //printf("no match\n");
+        return 0;
+    }
+#endif // LATER
   } else if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {
 // printf("UpdateExperimentDataObject\n");
@@ -1544,11 +1582,10 @@ if( filename != di->getPath() )
 
 
 void
-StatsPanel::updateStatsPanelData()
+StatsPanel::updateStatsPanelData(QString command)
 {
 // printf("StatsPanel::updateStatsPanelData() entered.\n");
 
-  QString modifierStr = QString::null;
 
   levelsToOpen = getPreferenceLevelsToOpen().toInt();
 
@@ -1583,111 +1620,16 @@ StatsPanel::updateStatsPanelData()
 //  fieldCount = 0;
   percentIndex = -1;
 
-  updateCollectorMetricList();
 
-  updateThreadsList();
-
-  lastAbout = about;
-
-  nprintf( DEBUG_PANELS) ("Find_Experiment_Object() for %d\n", expID);
-
-  QString command = QString("expView -x %1").arg(expID);
-  about = QString("Experiment: %1\n").arg(expID);
-  if( currentCollectorStr.isEmpty() )
+  if( command.isEmpty() )
   {
-    command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
-    about += QString("Requested data for all collectors for top %1 items\n").arg(numberItemsToDisplayInStats);
-  } else
-  {
-    command += QString(" %1%2").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-    about += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-
-  }
-  if( !currentUserSelectedMetricStr.isEmpty() && !currentCollectorStr.isEmpty() )
-  {
-    if( currentCollectorStr != currentUserSelectedMetricStr )
-    {  // If these 2 are equal, we want the default display... not a 
-       // specific metric.
-// printf("A: adding currentUserSelectedMetricStr=(%s) currentCollectorStr=(%s)\n", currentUserSelectedMetricStr.ascii(), currentCollectorStr.ascii()  );
-       command += QString(" -m %1").arg(currentUserSelectedMetricStr);
-       about += QString("for metrics %1\n").arg(currentUserSelectedMetricStr);
-    }
-  }
-//  if( !mpi_io_FLAG )
-  { 
-    if( !currentThreadsStr.isEmpty() )
-    {
-       command += QString(" %1").arg(currentThreadsStr);
-       about += QString("for threads %1\n").arg(currentThreadsStr);
-    }
+    command = generateCommand();
   }
 
-
-//printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedMetricStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii(), currentMetricStr.ascii() );
-
-  if( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) )
-  { 
-    if( currentUserSelectedMetricStr.isEmpty() || currentUserSelectedMetricStr == "CallTrees" )
-    {
-      command = QString("expView -x %1 %3%2 -v CallTrees").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
-    } else if ( currentUserSelectedMetricStr == "CallTrees by Selected Function" )
-    {
-      if( selectedFunctionStr.isEmpty() )
-      {
-        selectedFunctionStr = findSelectedFunction();
-      }
-      if( selectedFunctionStr.isEmpty() )
-      {
-        return;
-      }
-      command = QString("expView -x %1 %4%2 -v CallTrees -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
-    } else if ( currentUserSelectedMetricStr == "TraceBacks" )
-    {
-      command = QString("expView -x %1 %3%2 -v TraceBacks").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
-    } else if ( currentUserSelectedMetricStr == "TraceBacks/FullStack" )
-    {
-      command = QString("expView -x %1 %3%2 -v TraceBacks,FullStack").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
-    } else if( currentUserSelectedMetricStr == "Butterfly" )
-    {
-      if( selectedFunctionStr.isEmpty() )
-      {
-        selectedFunctionStr = findSelectedFunction();
-      }
-      if( selectedFunctionStr.isEmpty() )
-      {
-        return;
-      }
-      command = QString("expView -x %1 %4%2 -v Butterfly -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
-    } else
-    {
-      command = QString("expView -x %1 %3%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
-    }
-    if( !currentThreadsStr.isEmpty() )
-    {
-       command += QString(" %1").arg(currentThreadsStr);
-       about += QString("for threads %1\n").arg(currentThreadsStr);
-    }
-  } 
-
-// printf("add any modifiers...\n");
-    for( std::list<std::string>::const_iterator it = current_list_of_modifiers.begin();
-       it != current_list_of_modifiers.end(); it++ )
-    {
-      std::string modifier = (std::string)*it;
-      if( modifierStr.isEmpty() )
-      {
-// printf("A: modifer = (%s)\n", modifier.c_str() );
-        modifierStr = QString(" -m %1").arg(modifier.c_str());
-      } else
-      {
-// printf("B: modifer = (%s)\n", modifier.c_str() );
-        modifierStr += QString(",%1").arg(modifier.c_str());
-      }
-    }
-    if( !modifierStr.isEmpty() )
-    {
-      command += QString(" %1").arg(modifierStr);
-    }
+  if( command.isEmpty() )
+  {
+    return;
+  }
 
 // printf("command=(%s)\n", command.ascii() );
 
@@ -2357,48 +2299,52 @@ StatsPanel::setCurrentMetricStr()
 }
 
 void
-StatsPanel::outputCLIData(QString *data)
+StatsPanel::outputCLIData(QString *incoming_data)
 {
 // printf("StatsPanel::outputCLIData\n");
-// printf("%s", data->ascii() );
+// printf("%s", incoming_data->ascii() );
 
   QString strippedString1 = QString::null; // MPI only.
 
   // Skip any blank lines.
-  if( *data == QString("\n") )
+  if( *incoming_data == QString("\n") )
   {
     return;
   }
 
+  QString data = QString("  ")+(*incoming_data);
+// printf("%s", data.ascii() );
+
   int start_index = 0;
-  QString stripped_data = data->stripWhiteSpace();
-  QRegExp rxp = QRegExp( "  [A-Z,a-z,0-9,%]");
-  start_index = data->find(rxp, start_index);
+  QString stripped_data = data.stripWhiteSpace();
+  QRegExp rxp = QRegExp( "  [A-Z,a-z,\\-,0-9,%]");
+//  QRegExp rxp = QRegExp( "  [A-Z,a-z,-,0-9,%]");
+
+  start_index = data.find( rxp, start_index );
   start_index += 2;
   if( gotHeader == FALSE )
   {
-    QRegExp rxp = QRegExp( "  [A-Z,a-z,0-9,%]");
-    fieldCount = data->contains( rxp );
-// printf("fieldCount... hot off the wire = (%d)\n", fieldCount );
+    fieldCount = data.contains( rxp );
+// printf("fieldCount... hot off the wire = (%d) start_index=(%d)\n", fieldCount, start_index );
 
     int end_index = 99999;
     for(int i=0;i<fieldCount;i++)
     {
-      end_index = data->find(rxp, start_index);
+      end_index = data.find(rxp, start_index);
       columnValueClass[i].start_index = start_index;
       columnValueClass[i].end_index = end_index;
 
       if( end_index == -1 )
       {
         columnValueClass[i].end_index = 99999;
-        columnHeaderList.push_back(data->mid(start_index).stripWhiteSpace());
-        splv->addColumn( data->mid(start_index).stripWhiteSpace() );
+        columnHeaderList.push_back(data.mid(start_index).stripWhiteSpace());
+        splv->addColumn( data.mid(start_index).stripWhiteSpace() );
         break;
       }
-      columnHeaderList.push_back(data->mid(start_index, end_index-start_index).stripWhiteSpace());
-      splv->addColumn( data->mid(start_index, end_index-start_index).stripWhiteSpace() );
+      columnHeaderList.push_back(data.mid(start_index, end_index-start_index).stripWhiteSpace());
+      splv->addColumn( data.mid(start_index, end_index-start_index).stripWhiteSpace() );
 // Find the percent column
-      if( data->find("%") != -1 )
+      if( data.find("%") != -1 )
       {
         percentIndex = i;
       }
@@ -2422,7 +2368,7 @@ StatsPanel::outputCLIData(QString *data)
   {
     int si = columnValueClass[i].start_index;
     int l = columnValueClass[i].end_index-columnValueClass[i].start_index;
-    QString value = data->mid(si,l).stripWhiteSpace();
+    QString value = data.mid(si,l).stripWhiteSpace();
 // printf("si=%d ei=%d (%s)\n", columnValueClass[i].start_index, columnValueClass[i].end_index, value.ascii() );
     if( i == 0 ) // Grab the (some) default metric FIX
     {
@@ -2431,10 +2377,13 @@ StatsPanel::outputCLIData(QString *data)
     }
     if( percentIndex == i )
     {
+if( !value.isEmpty() )
+{
       float f = value.toFloat();
       percent = (int)f;
 // printf("percent=(%d)\n", percent);
       total_percent += f;
+}
     }
     strings[i] = value;
 // printf("        strings[%d]=(%s)\n", i, strings[i].ascii() );
@@ -2585,7 +2534,8 @@ if( currentUserSelectedMetricStr.startsWith("Butterfly") )
       lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1], strings[2] );
     } else
     { // i.e. like usertime
-      lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1], strings[2], strings[3] );
+//      lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1], strings[2], strings[3] );
+      lastlvi = splvi =  MYListViewItem( this, splv, lastlvi, strings);
     }
   }
 
@@ -2621,30 +2571,39 @@ StatsPanel::MYListViewItem( StatsPanel *arg1, QListView *arg2, SPListViewItem *a
     case 0:
       break;
     case 1:
+// printf("Put out SPListViewItem with 1 item (%s)\n", strings[0].ascii() );
       item = new SPListViewItem( arg1, arg2, arg3, strings[0] );
       break;
     case 2:
+// printf("Put out SPListViewItem with 2 item (%s) (%s)\n", strings[0].ascii(), strings[1].ascii() );
       item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1] );
       break;
     case 3:
+// printf("Put out SPListViewItem with 3 item (%s) (%s) (%s)\n", strings[0].ascii(), strings[1].ascii(), strings[2].ascii() );
       item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2] );
       break;
     case 4:
+// printf("Put out SPListViewItem with 4 item (%s) (%s) (%s) (%s)\n", strings[0].ascii(), strings[1].ascii(), strings[2].ascii(), strings[3].ascii() );
       item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3] );
       break;
     case 5:
+// printf("Put out SPListViewItem with 5 item (%s) (%s) (%s) (%s) (%s)\n", strings[0].ascii(), strings[1].ascii(), strings[2].ascii(), strings[3].ascii(), strings[4].ascii() );
       item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4] );
       break;
     case 6:
+// printf("Put out SPListViewItem with 6 item (%s) (%s) (%s) (%s) (%s) (%s)\n", strings[0].ascii(), strings[1].ascii(), strings[2].ascii(), strings[3].ascii(), strings[4].ascii(), strings[5].ascii() );
       item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5] );
       break;
     case 7:
+// printf("Put out SPListViewItem with 7 item (%s) (%s) (%s) (%s) (%s) (%s) (%s)\n", strings[0].ascii(), strings[1].ascii(), strings[2].ascii(), strings[3].ascii(), strings[4].ascii(), strings[5].ascii(), strings[6].ascii() );
       item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6] );
       break;
     case 8:
+// printf("Put out SPListViewItem with 8 item, (%s) (%s) (%s) (%s) (%s) (%s) (%s) (%s)\n", strings[0].ascii(), strings[1].ascii(), strings[2].ascii(), strings[3].ascii(), strings[4].ascii(), strings[5].ascii(), strings[6].ascii(), strings[7].ascii() );
       item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
       break;
     default:
+// printf("Currently we only support 8 columns in the QListView.!\n");
       break;
   }
 
@@ -2737,7 +2696,6 @@ StatsPanel::findSelectedFunction()
 void
 StatsPanel::resetRedirect()
 {
-
 // Just make sure any pending output goes "somewhere".
   Panel *cmdPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), "&Command Panel");
   if( cmdPanel )
@@ -2857,6 +2815,120 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
 
   return(function_name);
 }
+
+QString
+StatsPanel::generateCommand()
+{
+  QString modifierStr = QString::null;
+
+  updateCollectorMetricList();
+
+  updateThreadsList();
+
+  lastAbout = about;
+
+  nprintf( DEBUG_PANELS) ("Find_Experiment_Object() for %d\n", expID);
+
+  QString command = QString("expView -x %1").arg(expID);
+  about = QString("Experiment: %1\n").arg(expID);
+  if( currentCollectorStr.isEmpty() )
+  {
+    command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
+    about += QString("Requested data for all collectors for top %1 items\n").arg(numberItemsToDisplayInStats);
+  } else
+  {
+    command += QString(" %1%2").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+    about += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+
+  }
+  if( !currentUserSelectedMetricStr.isEmpty() && !currentCollectorStr.isEmpty() )
+  {
+    if( currentCollectorStr != currentUserSelectedMetricStr )
+    {  // If these 2 are equal, we want the default display... not a 
+       // specific metric.
+// printf("A: adding currentUserSelectedMetricStr=(%s) currentCollectorStr=(%s)\n", currentUserSelectedMetricStr.ascii(), currentCollectorStr.ascii()  );
+       command += QString(" -m %1").arg(currentUserSelectedMetricStr);
+       about += QString("for metrics %1\n").arg(currentUserSelectedMetricStr);
+    }
+  }
+//  if( !mpi_io_FLAG )
+  { 
+    if( !currentThreadsStr.isEmpty() )
+    {
+       command += QString(" %1").arg(currentThreadsStr);
+       about += QString("for threads %1\n").arg(currentThreadsStr);
+    }
+  }
+
+
+//printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedMetricStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii(), currentMetricStr.ascii() );
+
+  if( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) )
+  { 
+    if( currentUserSelectedMetricStr.isEmpty() || currentUserSelectedMetricStr == "CallTrees" )
+    {
+      command = QString("expView -x %1 %3%2 -v CallTrees").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+    } else if ( currentUserSelectedMetricStr == "CallTrees by Selected Function" )
+    {
+      if( selectedFunctionStr.isEmpty() )
+      {
+        selectedFunctionStr = findSelectedFunction();
+      }
+      if( selectedFunctionStr.isEmpty() )
+      {
+        return( QString::null );
+      }
+      command = QString("expView -x %1 %4%2 -v CallTrees -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+    } else if ( currentUserSelectedMetricStr == "TraceBacks" )
+    {
+      command = QString("expView -x %1 %3%2 -v TraceBacks").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+    } else if ( currentUserSelectedMetricStr == "TraceBacks/FullStack" )
+    {
+      command = QString("expView -x %1 %3%2 -v TraceBacks,FullStack").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+    } else if( currentUserSelectedMetricStr == "Butterfly" )
+    {
+      if( selectedFunctionStr.isEmpty() )
+      {
+        selectedFunctionStr = findSelectedFunction();
+      }
+      if( selectedFunctionStr.isEmpty() )
+      {
+        return( QString::null );
+      }
+      command = QString("expView -x %1 %4%2 -v Butterfly -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+    } else
+    {
+      command = QString("expView -x %1 %3%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+    }
+    if( !currentThreadsStr.isEmpty() )
+    {
+       command += QString(" %1").arg(currentThreadsStr);
+       about += QString("for threads %1\n").arg(currentThreadsStr);
+    }
+  } 
+
+// printf("add any modifiers...\n");
+    for( std::list<std::string>::const_iterator it = current_list_of_modifiers.begin();
+       it != current_list_of_modifiers.end(); it++ )
+    {
+      std::string modifier = (std::string)*it;
+      if( modifierStr.isEmpty() )
+      {
+// printf("A: modifer = (%s)\n", modifier.c_str() );
+        modifierStr = QString(" -m %1").arg(modifier.c_str());
+      } else
+      {
+// printf("B: modifer = (%s)\n", modifier.c_str() );
+        modifierStr += QString(",%1").arg(modifier.c_str());
+      }
+    }
+    if( !modifierStr.isEmpty() )
+    {
+      command += QString(" %1").arg(modifierStr);
+    }
+
+  return( command );
+} // End generateCommand
 
 #if 0
 static void

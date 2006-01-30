@@ -54,6 +54,7 @@ libopenss_guiobjects_la_SOURCES = \
 	SourceObject.hxx SourceObject.cxx \
 	UpdateObject.hxx UpdateObject.cxx \
 	FocusObject.hxx FocusObject.cxx \
+	FocusCompareObject.hxx FocusCompareObject.cxx \
 	ArgumentObject.hxx ArgumentObject.cxx \
 	ClosingDownObject.hxx ClosingDownObject.cxx \
 	PreferencesChangedObject.hxx PreferencesChangedObject.cxx \
