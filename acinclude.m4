@@ -254,7 +254,12 @@ AC_DEFUN([AC_PKG_MPI], [
 
             ]
         )
+    fi
 
+# LAMPI has a level of indirection.  The mpi collector
+# searches the header file for MPI functions
+    if test -f $mpi_dir/include/mpi/mpi.h; then
+	MPI_HEADER="$mpi_dir/include/mpi/mpi.h"
     fi
 
     CPPFLAGS=$mpi_saved_CPPFLAGS
@@ -440,12 +445,27 @@ AC_DEFUN([AM_CHECK_PYTHON_HEADERS],
 [AC_REQUIRE([AM_PATH_PYTHON])
 AC_MSG_CHECKING(for headers required to compile python extensions)
 dnl deduce PYTHON_INCLUDES
+dnl Use user supplied python dir to obtain version info
+PYTHON_VERSION="2.3"
+AC_ARG_WITH(python,
+           AC_HELP_STRING([--with-python=DIR],
+                          [Python ${PYTHON_VERSION} installation @<:@/usr@:>@]),
+           python_dir=$withval, python_dir="/usr")
+
 py_prefix=`$PYTHON -c "import sys; print sys.prefix"`
-py_exec_prefix=`$PYTHON -c "import sys; print sys.exec_prefix"`
+if test "$python_dir" != "$py_prefix"; then
+  PYTHON_EXE=$python_dir/bin/python;
+else
+  PYTHON_EXE=$PYTHON
+fi
+
+py_prefix=`$PYTHON_EXE -c "import sys; print sys.prefix"`
+py_exec_prefix=`$PYTHON_EXE -c "import sys; print sys.exec_prefix"`
 PYTHON_INCLUDES="-I${py_prefix}/include/python${PYTHON_VERSION}"
 if test "$py_prefix" != "$py_exec_prefix"; then
   PYTHON_INCLUDES="$PYTHON_INCLUDES -I${py_exec_prefix}/include/python${PYTHON_VERSION}"
 fi
+
 AC_SUBST(PYTHON_INCLUDES)
 dnl check if the headers exist:
 save_CPPFLAGS="$CPPFLAGS"
@@ -468,7 +488,7 @@ AC_DEFUN([AC_PKG_PYTHON], [
 
     AC_CHECK_FILE([$python_dir/include/python${PYTHON_VERSION}/Python.h], [
         PYTHON_CPPFLAGS="-I$python_dir/include/python${PYTHON_VERSION}"
-        PYTHON_LDFLAGS="-L$python_dir/$abi_libdir"
+        PYTHON_LDFLAGS="-L$python_dir/$abi_libdir/python${PYTHON_VERSION}/config"
     ])
 
     if test -d "$ROOT"; then
@@ -490,7 +510,7 @@ AC_DEFUN([AC_PKG_PYTHON], [
         AC_MSG_CHECKING([for Python ${PYTHON_VERSION} headers and library (in $python_dir/$abi_libdir)])
         python_saved_CPPFLAGS=$CPPFLAGS
         python_saved_LDFLAGS=$LDFLAGS
-        CPPFLAGS="$CPPFLAGS $PYTHON_CPPFLAGS"
+        CPPFLAGS= "$CPPFLAGS $PYTHON_CPPFLAGS"
         LDFLAGS="$CXXFLAGS $PYTHON_LDFLAGS $PYTHON_LIBS"
         AC_LINK_IFELSE(AC_LANG_PROGRAM([[
             #include <Python.h>
@@ -521,9 +541,9 @@ AC_DEFUN([AC_PKG_PYTHON], [
         LDFLAGS=$python_saved_LDFLAGS
     fi
 
-    if test "$FOUND_PYTHON_LIB" == "no"; then
-        AC_MSG_FAILURE(cannot locate Python library and/or headers.)
-    fi
+#    if test "$FOUND_PYTHON_LIB" == "no"; then
+#        AC_MSG_FAILURE(cannot locate Python library and/or headers.)
+#    fi
 
     AC_LANG_POP(C++)
 
@@ -548,13 +568,20 @@ AC_DEFUN([AC_PKG_PYTHON], [
 
 AC_DEFUN([AC_PKG_QTLIB], [
 
+LQTDIR=$QTDIR
+dnl Support the user enabled --with-qtlib option.
+    AC_ARG_WITH(qtlib,
+                AC_HELP_STRING([--with-qtlib=DIR],
+                               [QTLIB installation @<:@/usr@:>@]),
+                [LQTDIR=$withval AC_SUBST($LQTDIR) qtlib_dir=$withval], qtlib_dir="ac_qtlib")
+
 dnl Check for QTDIR environment variable.
 AC_MSG_CHECKING([whether QTDIR environment variable is set])
-if test "x$QTDIR" = "x"; then
+if test "x$LQTDIR" = "x"; then
   AC_MSG_RESULT([no])
   AC_MSG_ERROR([QTDIR must be properly set.])
 else
-  AC_MSG_RESULT([$QTDIR])
+  AC_MSG_RESULT([$LQTDIR])
 fi
 
 dnl Checks for Qt library.
@@ -562,7 +589,7 @@ AC_CACHE_CHECK([for Qt library],
   ac_qtlib, [
   for X in qt-mt qt; do
     if test "x$ac_qtlib" = "x"; then
-      if test -f $QTDIR/$abi_libdir/lib$X.so -o -f $QTDIR/$abi_libdir/lib$X.a; then
+      if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
         ac_qtlib=$X
       fi
     fi
@@ -582,10 +609,10 @@ fi
 AC_SUBST(ac_thread)
 
 dnl Set initial values for QTLIB exports
-QTLIB_CFLAGS="$CFLAGS -I$QTDIR/include -I$KDEDIR/include"
+QTLIB_CFLAGS="$CFLAGS -I$LQTDIR/include -I$KDEDIR/include"
 # QTLIB_CPPFLAGS="$CPPFLAGS -I$QTDIR/include -I$KDEDIR/include -D_REENTRANT  -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
-QTLIB_CPPFLAGS="$CPPFLAGS -I$QTDIR/include -I$KDEDIR/include -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
-QTLIB_LIBS="-L$QTDIR/$abi_libdir -L/usr/X11R6/$abi_libdir"
+QTLIB_CPPFLAGS="$CPPFLAGS -I$LQTDIR/include -I$KDEDIR/include -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
+QTLIB_LIBS="-L$LQTDIR/$abi_libdir -L/usr/X11R6/$abi_libdir"
 QTLIB_LDFLAGS="-l$ac_qtlib"
 
 dnl Save the current CPPFLAGS and LDFLAGS variables prior to qt version test
@@ -664,6 +691,6 @@ dnl Make the QTLIB flags/libs available
     AC_SUBST(QTLIB_CPPFLAGS)
     AC_SUBST(QTLIB_LDFLAGS)
     AC_SUBST(QTLIB_LIBS)
-    AC_DEFINE(HAVE_QTLIB, 1, [Define to 1 if you have Qt library 3.1 >])
+    AC_DEFINE(HAVE_QTLIB, 1, [Define to 1 if you have Qt library 3.3 >])
 
 ])

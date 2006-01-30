@@ -87,6 +87,9 @@ case "$host" in
         ;;
 esac
 
+topdir_execprefix=${exec_prefix}
+AC_SUBST(topdir_execprefix)
+
 ################################################################################
 # Check for POSIX Threads (ISO/IEC 9945-1:1996)
 ################################################################################
@@ -108,7 +111,7 @@ AC_PKG_PAPI()
 AM_CHECK_PYTHON_HEADERS()
 AC_PKG_PYTHON()
 AC_PKG_SQLITE()
-AC_PKG_QTLIB()
+#AC_PKG_QTLIB()
 
 ################################################################################
 # Check for Instrumentor

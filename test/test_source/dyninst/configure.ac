@@ -25,7 +25,6 @@ AM_INIT_AUTOMAKE
 
 AC_PROG_CC()
 AC_PROG_CXX()
-AC_PROG_LIBTOOL
 
 
 ################################################################################
@@ -34,8 +33,8 @@ AC_PROG_LIBTOOL
 
 case "$host" in
     x86_64-*-linux*)
-        if test x"$libdir" == x'${exec_prefix}/lib'; then
-            libdir='${exec_prefix}/lib64'
+        if test x"$libdir" == x'${topdir_execprefix}/lib'; then
+            libdir='${topdir_execprefix}/lib64'
         fi
         abi_libdir="lib64"
         LDFLAGS="-L/usr/lib64 $LDFLAGS"
