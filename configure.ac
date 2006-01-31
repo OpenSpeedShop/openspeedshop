@@ -86,6 +86,8 @@ case "$host" in
         abi_libdir="lib"
         ;;
 esac
+topdir_execprefix=${exec_prefix}
+AC_SUBST(topdir_execprefix)
 
 topdir_execprefix=${exec_prefix}
 AC_SUBST(topdir_execprefix)
@@ -111,7 +113,7 @@ AC_PKG_PAPI()
 AM_CHECK_PYTHON_HEADERS()
 AC_PKG_PYTHON()
 AC_PKG_SQLITE()
-#AC_PKG_QTLIB()
+AC_PKG_QTLIB()
 
 ################################################################################
 # Check for Instrumentor
