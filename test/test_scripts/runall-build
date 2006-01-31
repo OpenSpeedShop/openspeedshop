@@ -34,7 +34,7 @@ not_leaf = 3
 resultsFile = 'testresults'
 testResultsFile = ''
 from_addr = 'helens@sgi.com'   ######INSERT YOUR EMAIL ADDRESS HERE IF YOU WANT RESULTS MAIL
-to_addr = 'helens@sgi.com,jeg@sgi.com'	#####################AND HERE
+to_addr = 'helens@sgi.com jeg@sgi.com'	#####################AND HERE
 
 def whatKindofDirectory():
 
