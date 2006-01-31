@@ -6,7 +6,7 @@ Command: log
 
 ****************************
 log -f file_1
-  
+
 Command: log
 	Target #1 : 
 		FILE: file_1 

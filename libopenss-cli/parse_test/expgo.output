@@ -6,7 +6,7 @@ Command: expGo
 
 ****************************
 expgo -x 6
-  
+
 Command: expGo
 	Experiment Id: 6
 
@@ -17,6 +17,6 @@ Command: expGo
 
 ****************************
 expgo -v all
-  
+
 Command: expGo
 	General Modifier Types: all 

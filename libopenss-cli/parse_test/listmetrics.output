@@ -6,7 +6,7 @@ Command: listMetrics
 
 ****************************
 listmetrics -x 6
-  
+
 Command: listMetrics
 	Experiment Id: 6
 
@@ -17,7 +17,7 @@ Command: listMetrics
 
 ****************************
 listmetrics -v all
-  
+
 Command: listMetrics
 	General Modifier Types: all 
 
@@ -28,42 +28,42 @@ Command: listMetrics
 
 ****************************
 listmetrics pcsamp
- 
+
 Command: listMetrics
 	Experiment Types: pcsamp 
 
 ****************************
 listmetrics usertime
- 
+
 Command: listMetrics
 	Experiment Types: usertime 
 
 ****************************
 listmetrics mpi
- 
+
 Command: listMetrics
 	Experiment Types: mpi 
 
 ****************************
 listmetrics fpe
- 
+
 Command: listMetrics
 	Experiment Types: fpe 
 
 ****************************
 listmetrics hwc
- 
+
 Command: listMetrics
 	Experiment Types: hwc 
 
 ****************************
 listmetrics io
- 
+
 Command: listMetrics
 	Experiment Types: io 
 
 ****************************
 listmetrics pcsamp,usertime,mpi,io
- 
+
 Command: listMetrics
 	Experiment Types: pcsamp usertime mpi io 

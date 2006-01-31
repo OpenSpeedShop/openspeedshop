@@ -5,55 +5,36 @@ listthreads
 Command: listThreads
 
 ****************************
-listthreads -c cluster_1
-  
-Command: listThreads
-	Target #1 : 
-		CLUSTER: cluster_1 
-
-****************************
-listthreads -c cluster_1,cluster_2,cluster_3
-  
-Command: listThreads
-	Target #1 : 
-		CLUSTER: cluster_1 cluster_2 cluster_3 
-
-****************************
-listthreads
-
-Command: listThreads
-
-****************************
 listthreads -h host_1
-  
+
 Command: listThreads
 	Target #1 : 
 		HOST: host_1 
 
 ****************************
 listthreads -h host_1,host_2,host_3
-  
+
 Command: listThreads
 	Target #1 : 
 		HOST: host_1 host_2 host_3 
 
 ****************************
 listthreads -h 128.064.032.008
-  
+
 Command: listThreads
 	Target #1 : 
 		HOST: 0x80402008 
 
 ****************************
 listthreads -h 128.064.032.008,032.002.016.128
-  
+
 Command: listThreads
 	Target #1 : 
 		HOST: 0x80402008 0x20021080 
 
 ****************************
 listthreads -h host_1,128.064.032.008,host_2,032.004.016.128
-  
+
 Command: listThreads
 	Target #1 : 
 		HOST: host_1 0x80402008 host_2 0x20041080 
@@ -65,14 +46,14 @@ Command: listThreads
 
 ****************************
 listthreads -f file_1
-  
+
 Command: listThreads
 	Target #1 : 
 		FILE: file_1 
 
 ****************************
 listthreads -f file_1,file_2,file_3
-  
+
 Command: listThreads
 	Target #1 : 
 		FILE: file_1 file_2 file_3 
@@ -84,28 +65,28 @@ Command: listThreads
 
 ****************************
 listthreads -p 888
-  
+
 Command: listThreads
 	Target #1 : 
 		PID: 888:888 
 
 ****************************
 listthreads -p 888,999,777
-  
+
 Command: listThreads
 	Target #1 : 
 		PID: 888:888 999:999 777:777 
 
 ****************************
 listthreads -p 888:999
-  
+
 Command: listThreads
 	Target #1 : 
 		PID: 888:999 
 
 ****************************
 listthreads -p 777,888:999,666
-  
+
 Command: listThreads
 	Target #1 : 
 		PID: 777:777 888:999 666:666 
@@ -117,28 +98,28 @@ Command: listThreads
 
 ****************************
 listthreads -t 123
-  
+
 Command: listThreads
 	Target #1 : 
 		THREAD: 123:123 
 
 ****************************
 listthreads -t 123,456,789
-  
+
 Command: listThreads
 	Target #1 : 
 		THREAD: 123:123 456:456 789:789 
 
 ****************************
 listthreads -t 123:456
-  
+
 Command: listThreads
 	Target #1 : 
 		THREAD: 123:456 
 
 ****************************
 listthreads -t 123,456:789,987
-  
+
 Command: listThreads
 	Target #1 : 
 		THREAD: 123:123 456:789 987:987 
@@ -150,63 +131,41 @@ Command: listThreads
 
 ****************************
 listthreads -r 100
-  
+
 Command: listThreads
 	Target #1 : 
 		RANK: 100:100 
 
 ****************************
 listthreads -r 100,200,500
-  
+
 Command: listThreads
 	Target #1 : 
 		RANK: 100:100 200:200 500:500 
 
 ****************************
 listthreads -r 100:200
-  
+
 Command: listThreads
 	Target #1 : 
 		RANK: 100:200 
 
 ****************************
 listthreads -r 100,200:500,800
-  
+
 Command: listThreads
 	Target #1 : 
 		RANK: 100:100 200:500 800:800 
 
 ****************************
 listthreads -x 6
-  
-Command: listThreads
-	Experiment Id: 6
 
-****************************
-listthreads -x 6 -c cluster_1
-    
-Command: listThreads
-	Experiment Id: 6
-	Target #1 : 
-		CLUSTER: cluster_1 
-
-****************************
-listthreads -x 6 -c cluster_1,cluster_2,cluster_3
-    
-Command: listThreads
-	Experiment Id: 6
-	Target #1 : 
-		CLUSTER: cluster_1 cluster_2 cluster_3 
-
-****************************
-listthreads -x 6
-  
 Command: listThreads
 	Experiment Id: 6
 
 ****************************
 listthreads -x 6 -h host_1
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -214,7 +173,7 @@ Command: listThreads
 
 ****************************
 listthreads -x 6 -h host_1,host_2,host_3
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -222,7 +181,7 @@ Command: listThreads
 
 ****************************
 listthreads -x 6 -h 128.064.032.008
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -230,7 +189,7 @@ Command: listThreads
 
 ****************************
 listthreads -x 6 -h 128.064.032.008,032.002.016.128
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -238,7 +197,7 @@ Command: listThreads
 
 ****************************
 listthreads -x 6 -h host_1,128.064.032.008,host_2,032.004.016.128
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -246,13 +205,13 @@ Command: listThreads
 
 ****************************
 listthreads -x 6
-  
+
 Command: listThreads
 	Experiment Id: 6
 
 ****************************
 listthreads -x 6 -f file_1
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -260,7 +219,7 @@ Command: listThreads
 
 ****************************
 listthreads -x 6 -f file_1,file_2,file_3
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -268,13 +227,13 @@ Command: listThreads
 
 ****************************
 listthreads -x 6
-  
+
 Command: listThreads
 	Experiment Id: 6
 
 ****************************
 listthreads -x 6 -p 888
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -282,7 +241,7 @@ Command: listThreads
 
 ****************************
 listthreads -x 6 -p 888,999,777
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -290,7 +249,7 @@ Command: listThreads
 
 ****************************
 listthreads -x 6 -p 888:999
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -298,7 +257,7 @@ Command: listThreads
 
 ****************************
 listthreads -x 6 -p 777,888:999,666
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -306,13 +265,13 @@ Command: listThreads
 
 ****************************
 listthreads -x 6
-  
+
 Command: listThreads
 	Experiment Id: 6
 
 ****************************
 listthreads -x 6 -t 123
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -320,7 +279,7 @@ Command: listThreads
 
 ****************************
 listthreads -x 6 -t 123,456,789
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -328,7 +287,7 @@ Command: listThreads
 
 ****************************
 listthreads -x 6 -t 123:456
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -336,7 +295,7 @@ Command: listThreads
 
 ****************************
 listthreads -x 6 -t 123,456:789,987
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -344,13 +303,13 @@ Command: listThreads
 
 ****************************
 listthreads -x 6
-  
+
 Command: listThreads
 	Experiment Id: 6
 
 ****************************
 listthreads -x 6 -r 100
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -358,7 +317,7 @@ Command: listThreads
 
 ****************************
 listthreads -x 6 -r 100,200,500
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -366,7 +325,7 @@ Command: listThreads
 
 ****************************
 listthreads -x 6 -r 100:200
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 
@@ -374,7 +333,7 @@ Command: listThreads
 
 ****************************
 listthreads -x 6 -r 100,200:500,800
-    
+
 Command: listThreads
 	Experiment Id: 6
 	Target #1 : 

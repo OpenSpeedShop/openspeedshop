@@ -6,7 +6,7 @@ Command: listViews
 
 ****************************
 listviews -x 6
-  
+
 Command: listViews
 	Experiment Id: 6
 
@@ -17,7 +17,7 @@ Command: listViews
 
 ****************************
 listviews -v all
-  
+
 Command: listViews
 	General Modifier Types: all 
 
@@ -28,42 +28,42 @@ Command: listViews
 
 ****************************
 listviews pcsamp
- 
+
 Command: listViews
 	Experiment Types: pcsamp 
 
 ****************************
 listviews usertime
- 
+
 Command: listViews
 	Experiment Types: usertime 
 
 ****************************
 listviews mpi
- 
+
 Command: listViews
 	Experiment Types: mpi 
 
 ****************************
 listviews fpe
- 
+
 Command: listViews
 	Experiment Types: fpe 
 
 ****************************
 listviews hwc
- 
+
 Command: listViews
 	Experiment Types: hwc 
 
 ****************************
 listviews io
- 
+
 Command: listViews
 	Experiment Types: io 
 
 ****************************
 listviews pcsamp,usertime,mpi,io
- 
+
 Command: listViews
 	Experiment Types: pcsamp usertime mpi io 

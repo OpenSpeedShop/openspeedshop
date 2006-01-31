@@ -1,48 +1,38 @@
 
 ****************************
-listpids -f file_1
-  SYNTAX ERROR!!!
-Command: listPids
-	listPids: 
-		-f 
+listpids
 
+Command: listPids
 
 ****************************
-listpids -h host_1 -f file_1
-    SYNTAX ERROR!!!
-Command: listPids
-	listPids: 
-		-f 
+listpids -h host_1
 
+Command: listPids
+	Target #1 : 
+		HOST: host_1 
 
 ****************************
-listpids -f file_1
-  SYNTAX ERROR!!!
-Command: listPids
-	listPids: 
-		-f 
+listpids
 
+Command: listPids
 
 ****************************
-listpids -h host_1 -f file_1
-    SYNTAX ERROR!!!
-Command: listPids
-	listPids: 
-		-f 
+listpids -h host_1
 
+Command: listPids
+	Target #1 : 
+		HOST: host_1 
 
 ****************************
-listpids -x 6 -f file_1
-    SYNTAX ERROR!!!
-Command: listPids
-	listPids: 
-		-f 
+listpids -x 6
 
+Command: listPids
+	Experiment Id: 6
 
 ****************************
-listpids -x 6 -h host_1 -f file_1
-      SYNTAX ERROR!!!
-Command: listPids
-	listPids: 
-		-f 
+listpids -x 6 -h host_1
 
+Command: listPids
+	Experiment Id: 6
+	Target #1 : 
+		HOST: host_1 

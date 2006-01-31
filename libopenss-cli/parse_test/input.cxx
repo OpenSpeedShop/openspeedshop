@@ -78,10 +78,9 @@ char *rank_list[] = {
     "100,200:500,800"
 };
 
-#define TARGET_MAX 6
+#define TARGET_MAX 5
 
 arglist_t target_arg[TARGET_MAX] = {
-    3, cluster_list,"-c",
     6, host_list,"-h",
     3, file_list,"-f",
     5, pid_list,"-p",
@@ -879,13 +878,11 @@ main()
 
     // LISTPIDS
     p_os = open_output("listpids.input");
+    one_level("listpids",
+		0,HOST_1_MAX,host_1_arg);
     two_level("listpids",
-		0,HOST_1_MAX,host_1_arg,
-		1,FILE_1_MAX,file_1_arg);
-    three_level("listpids",
     	    	0,EXPID_MAX,exp_id_arg,
-		0,HOST_1_MAX,host_1_arg,
-		1,FILE_1_MAX,file_1_arg);
+		0,HOST_1_MAX,host_1_arg);
 
     dump_close_output(p_os);
 

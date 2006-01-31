@@ -6,7 +6,7 @@ Command: listStatus
 
 ****************************
 liststatus -x 6
-  
+
 Command: listStatus
 	Experiment Id: 6
 
@@ -17,6 +17,6 @@ Command: listStatus
 
 ****************************
 liststatus -v all
-  
+
 Command: listStatus
 	General Modifier Types: all 

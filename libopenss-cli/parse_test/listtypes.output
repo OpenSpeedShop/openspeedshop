@@ -6,7 +6,7 @@ Command: listTypes
 
 ****************************
 listtypes -x 6
-  
+
 Command: listTypes
 	Experiment Id: 6
 
@@ -17,6 +17,6 @@ Command: listTypes
 
 ****************************
 listtypes -v all
-  
+
 Command: listTypes
 	General Modifier Types: all 
