@@ -2100,7 +2100,8 @@ StatsPanel::updateCollectorMetricList()
 {
   // Now get the collectors... and their metrics...
 //  command = QString("listTypes -x %1").arg(expID);
-  QString command = QString("listMetrics -x %1").arg(expID);
+//  QString command = QString("listMetrics -x %1").arg(expID);
+  QString command = QString("list -v metrics -x %1").arg(expID);
 // printf("attempt to run (%s)\n", command.ascii() );
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 list_of_collectors.clear();
@@ -2135,7 +2136,8 @@ void
 StatsPanel::updateThreadsList()
 {
 // Now get the threads.
-  QString command = QString("listPids -x %1").arg(expID);
+//  QString command = QString("listPids -x %1").arg(expID);
+  QString command = QString("list -v pids -x %1").arg(expID);
 // printf("attempt to run (%s)\n", command.ascii() );
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   list_of_pids.clear();

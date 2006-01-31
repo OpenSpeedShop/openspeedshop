@@ -226,7 +226,8 @@ ColumnSet::gatherExperimentInfo()
 
     QString expIDStr = QString("%1").arg(eid);
 
-    command = QString("listTypes -x %1").arg(expIDStr);
+//    command = QString("listTypes -x %1").arg(expIDStr);
+    command = QString("list -v exptypes -x %1").arg(expIDStr);
     std::list<std::string> list_of_collectors;
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
            &list_of_collectors, clip, TRUE ) )

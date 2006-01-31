@@ -343,7 +343,8 @@ if( attachFLAG )
   {
 // printf("Put out local wizard?\n");
 // Now get the threads.
-    QString command = QString("listPids -x %1").arg(expID);
+//    QString command = QString("listPids -x %1").arg(expID);
+    QString command = QString("list -v pids -x %1").arg(expID);
 // printf("attempt to run (%s)\n", command.ascii() );
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     std::list<int64_t> list_of_pids;

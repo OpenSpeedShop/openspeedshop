@@ -204,7 +204,8 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
     QString expStr = QString("%1").arg(expID);
 
     QString command;
-    command = QString("listTypes -x %1").arg(expStr);
+//    command = QString("listTypes -x %1").arg(expStr);
+    command = QString("list -v exptypes -x %1").arg(expStr);
 // printf("run command=(%s)\n", command.ascii() );
     std::list<std::string> list_of_collectors;
     
@@ -1164,7 +1165,8 @@ OpenSpeedshop::lookForExperiment()
 
     QString expStr = QString("%1").arg(expID);
 
-    command = QString("listTypes -x %1").arg(expStr);
+//    command = QString("listTypes -x %1").arg(expStr);
+    command = QString("list -v expTypes -x %1").arg(expStr);
     std::list<std::string> list_of_collectors;
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
            &list_of_collectors, clip, TRUE ) )
