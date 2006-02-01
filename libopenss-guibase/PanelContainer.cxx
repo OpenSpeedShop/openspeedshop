@@ -83,6 +83,7 @@
 #include <TabBarWidget.hxx>
 #include <qevent.h>
 #include <qaction.h>
+#include <qmessagebox.h>
 
 #include <qsizegrip.h>  // Debuggging only.
 
@@ -1547,6 +1548,7 @@ Panel * PanelContainer::raiseToTop(Panel *p)
 void
 PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursive)
 {
+// printf("removeTopLevelPanelContainer(%s-%s)\n", toppc->getInternalName().ascii(), toppc->getExternalName().ascii() );
 
   nprintf(DEBUG_PANELCONTAINERS) ("Here is the panel container to delete (%s-%s):\n", toppc->getInternalName().ascii(), toppc->getExternalName().ascii() );
 
@@ -1564,6 +1566,7 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
     PanelList simplePanelListToDelete;
     int i = toppc->panelList.count();
     nprintf(DEBUG_PANELCONTAINERS) ("You think there are %d panels to iterator over ...\n", i);
+// printf("You think there are %d panels to iterator over ...\n", i);
     for( PanelList::Iterator pit = toppc->panelList.begin();
                pit != toppc->panelList.end(); ++pit )
     {
@@ -1617,18 +1620,16 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
   {
     if( toppc->rightPanelContainer )
     {
-      nprintf(DEBUG_PANELCONTAINERS) ("I think you want to delete right %s-%s\n", 
-        toppc->rightPanelContainer->getInternalName().ascii(),
-        toppc->rightPanelContainer->getExternalName().ascii() );
+      nprintf(DEBUG_PANELCONTAINERS) ("I think you want to delete right %s-%s\n", toppc->rightPanelContainer->getInternalName().ascii(), toppc->rightPanelContainer->getExternalName().ascii() );
+// printf("I think you want to delete right %s-%s\n", toppc->rightPanelContainer->getInternalName().ascii(), toppc->rightPanelContainer->getExternalName().ascii() );
   
       getMasterPC()->removeTopLevelPanelContainer(toppc->rightPanelContainer, TRUE);
     } 
   
     if( toppc->leftPanelContainer )
     {
-      nprintf(DEBUG_PANELCONTAINERS) ("I think you want to delete left %s-%s\n", 
-        toppc->leftPanelContainer->getInternalName().ascii(),
-        toppc->leftPanelContainer->getExternalName().ascii() );
+      nprintf(DEBUG_PANELCONTAINERS) ("I think you want to delete left %s-%s\n", toppc->leftPanelContainer->getInternalName().ascii(), toppc->leftPanelContainer->getExternalName().ascii() );
+// printf("I think you want to delete left %s-%s\n", toppc->leftPanelContainer->getInternalName().ascii(), toppc->leftPanelContainer->getExternalName().ascii() );
   
       getMasterPC()->removeTopLevelPanelContainer(toppc->leftPanelContainer, TRUE);
     }
@@ -1770,6 +1771,7 @@ PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
 
    if( strcmp(p->getName(), "&Command Panel") == 0  )
    {
+// printf("Attempting to remove Command Panel\n");
      OpenSpeedshop *mw = getMainWindow();
      if( mw->shuttingDown == TRUE )
      {
@@ -1778,7 +1780,17 @@ PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
         {
           p->getPanelContainer()->movePanel(p, currentPage, start_pc);
         }
-     }
+     } else
+{
+  PanelContainer *start_pc = findFirstAvailablePanelContainer(getMasterPC());
+
+// printf("start_pc() (%s-%s)\n", start_pc->getInternalName().ascii(), start_pc->getExternalName().ascii() );
+
+  if( start_pc != p->getPanelContainer() )
+  {
+    p->getPanelContainer()->movePanel(p, currentPage, start_pc);
+  }
+}
    } else
    {
      if( currentPageIndex == -1 || p == NULL)
@@ -1787,7 +1799,7 @@ PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
        return;
      }
 
-//printf("%d: Current page (raised tab) = %d (%s) p=(%s)\n", getMasterPC()->_eventsEnabled, currentPageIndex, targetPC->tabWidget->label(currentPageIndex).ascii(), p->getName() );
+// printf("%d: Current page (raised tab) = %d (%s) p=(%s)\n", getMasterPC()->_eventsEnabled, currentPageIndex, targetPC->tabWidget->label(currentPageIndex).ascii(), p->getName() );
       ClosingDownObject *cdo = new ClosingDownObject();
       p->listener((char *)cdo);
    
@@ -1882,6 +1894,8 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   // Prewarn all panels that they're going away...
   ClosingDownObject *cdo = new ClosingDownObject();
 //  getMasterPC()->notifyAllDecendants((char *)cdo, getMasterPC()->_lastPC);   
+
+// printf("removePanelContainer() notify all decendants that we're closing down.\n");
   getMasterPC()->notifyAllDecendants((char *)cdo, targetPC);
  
 
@@ -1899,6 +1913,7 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   }
 
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removePanelContainer(%s-%s) from (%s-%s)\n", targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii(), getInternalName().ascii(), getExternalName().ascii() );
+// printf("PanelContainer::removePanelContainer(%s-%s) from (%s-%s)\n", targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii(), getInternalName().ascii(), getExternalName().ascii() );
   nprintf(DEBUG_PANELCONTAINERS) ("targetPC=0x%x targetPC->parentWidget=0x%x\n", targetPC, targetPC->parentWidget() );
 
   PanelContainer *pcToReparent = NULL;
@@ -1911,6 +1926,7 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   // First remove any panels in the panel container.
   if( targetPC->areTherePanels() )
   {
+// printf("first remove the panels from this panel container.\n");
     getMasterPC()->removePanels(targetPC);
   }
 
@@ -1928,7 +1944,7 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
       if( targetPC->outsidePC == TRUE )
       {
 // We only do this when this is a toplevel, "outside PC"
-// printf("YOU'RE AN OUTSIDE WINDOW... remove don't forget to null the panelContianer reference!!!!\n");
+// printf("YOU'RE AN OUTSIDE WINDOW... remove don't forget to null the panelContainer reference!!!!\n");
   targetPC->topWidget->hide();
   targetPC->topWidget->panelContainer = NULL;
 

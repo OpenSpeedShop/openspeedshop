@@ -64,6 +64,18 @@ TopWidget::closeEvent( QCloseEvent *e )
     ClosingDownObject *cdo = new ClosingDownObject();
     panelContainer->notifyAllDecendants((char *)cdo, panelContainer);
 // printf("TopWidget::closeEvent() you actually removed %s:%s\n", panelContainer->getInternalName(), panelContainer->getExternalName() );
+
+
+    Panel *p = panelContainer->findNamedPanel(panelContainer, "&Command Panel");
+    if( p )
+    {
+// printf("TopWidget::closeEvent() found a CommandPanel to reparent.\n");
+    
+      panelContainer->raisePanel(p);
+    
+      panelContainer->removeRaisedPanel(p->getPanelContainer());
+    }
+
     panelContainer->getMasterPC()->removePanelContainer(panelContainer);
   }
 
