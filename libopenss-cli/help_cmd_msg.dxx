@@ -338,9 +338,9 @@ char *cmd_listThreads_args[] = {
 };
 
 char *cmd_listTypes_args[] = {
-    "<ListOf_expType> = list -v expType",
-    "<ListOf_expType> = list -v expType,all",
-    "<ListOf_expType> = list -v expType -x <expId>"
+    "<ListOf_expType> = list -v expTypes",
+    "<ListOf_expType> = list -v expTypes,all",
+    "<ListOf_expType> = list -v expTypes -x <expId>"
 };
 
 char *cmd_listViews_args[] = {
