@@ -178,7 +178,8 @@ void ManageCollectorsClass::languageChange()
   setCaption( tr( "Manage Processes Panel" ) );
   QString command;
 
-  command = QString("listTypes -v all");
+//  command = QString("listTypes -v all");
+  command = QString("list -v expTypes -v all");
 // printf("command=(%s)\n", command.ascii() );
   InputLineObject *clip = NULL;
   if( !cli->getStringListValueFromCLI( (char *)command.ascii(), 
