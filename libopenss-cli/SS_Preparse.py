@@ -561,6 +561,8 @@ class CLI(code.InteractiveConsole):
         "expsetparam"   : "return_none",
         "expstatus" 	: "return_list",
         "expview"       : "return_list",
+	
+	"setview"   	: "return_int",
 
         "list"  	: "return_list",
         "listexp"       : "return_list",
@@ -600,7 +602,7 @@ class CLI(code.InteractiveConsole):
         "-h"             : "suboption:host_list",
         "-m"             : "suboption:metric_list",
         "-v"             : "suboption:modifier_list",
-        "-c"             : "suboption:cluster_list",
+        "-c"             : "suboption:compare_view_list",
         "-f"             : "suboption:file_list", \
         }
 

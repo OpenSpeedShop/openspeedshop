@@ -78,6 +78,9 @@ extern int ip_number(char *,int);
 "expview"   	{ return VIEW_HEAD; }
 "expView"   	{ return VIEW_HEAD; }
 
+"setView"   	{ return SETVIEW_HEAD; }
+"setview"   	{ return SETVIEW_HEAD; }
+
 "list"  	{ return LIST_GENERIC_HEAD; }
 
 "listbreaks"	{ return LIST_BREAKS_HEAD; }
@@ -131,7 +134,7 @@ extern int ip_number(char *,int);
 "-f"	{ return FILE_ID; }
 "-x"	{ return EXP_ID; }
 "-l"	{ return LINE_ID;}
-"-c"	{ return CLUSTER_ID;}
+"-c"	{ return VIEW_ID;}
 "-m"	{ return METRIC_ID;}
 "-v"	{ return MODIFIER_ID;}
 

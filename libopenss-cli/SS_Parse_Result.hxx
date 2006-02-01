@@ -45,6 +45,8 @@ typedef enum {
     CMD_EXP_STATUS,
     CMD_EXP_VIEW,
 
+    CMD_SET_VIEW,
+
     CMD_LIST_GENERIC,	// Replaces all the other list commands.
 
     CMD_LIST_BREAKS,
@@ -250,12 +252,13 @@ struct cmd_array_desc {
 
 typedef struct a_command_struct {
     cmd_array_desc_t name_table;    /**< General strings */
-    cmd_array_desc_t pid_table;     /**< Process IDs */
+    cmd_array_desc_t pid_table;     /**< Process ids */
     cmd_array_desc_t break_table;   /**< Break ids */
     cmd_array_desc_t address_table; /**< Addresses */
     cmd_array_desc_t rank_table;    /**< Rank values */
-    cmd_array_desc_t thread_table;  /**< Thread IDs */
-    cmd_array_desc_t host_tablenedit ;    /**< Host names */
+    cmd_array_desc_t view_id_table; /**< View set ids */
+    cmd_array_desc_t thread_table;  /**< Thread ids */
+    cmd_array_desc_t host_table;    /**< Host names */
     cmd_array_desc_t file_table;    /**< File names */
     cmd_array_desc_t experiment_table;    /**< Experiment names */
     cmd_array_desc_t param_table;   /**< Parameter names */
@@ -263,7 +266,7 @@ typedef struct a_command_struct {
     cmd_array_desc_t help_table;    /**< Help requests */
     cmd_array_desc_t lineno_table;  /**< Line numbers */
     
-    int 	    exp_id; 	    /**< experiment ID */
+    int 	    exp_id; 	    /**< experiment id */
     oss_cmd_enum    type;   	    /**< type of command */
     bool 	    error_found;    /**< This command has been invalidated */
 } command_t;
@@ -353,6 +356,19 @@ class ParseResult {
     	    dm_view_type_list.push_back(name);
 	}
 
+    	/** Handle list of view set id range values. */
+    	vector<ParseRange> * getViewSet()
+	{
+	    return &dm_view_set_list;
+	}
+    	void pushViewSet(int num) {
+	    ParseRange range(num);
+    	    dm_view_set_list.push_back(range);
+	}
+    	void pushViewSet(int num1, int num2) {
+	    ParseRange view_set(num1,num2);
+    	    dm_view_set_list.push_back(view_set);
+	}
     	/** Handle list of general modifiers. */
     	vector<string> * getModifierList()
 	{
@@ -525,6 +541,8 @@ class ParseResult {
     	vector<string> dm_exp_type_list;
     	/** Container of view types as strings */
     	vector<string> dm_view_type_list;
+    	/** Container of view set Ids as integers */
+    	vector<ParseRange> dm_view_set_list;
     	/** Container of general modifiers as strings */
     	vector<string> dm_modifier_list;
     	/** Container of help requests as strings */

@@ -62,6 +62,8 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "expStatus",    true,   CMD_EXP_STATUS,
     "expView",	    true,   CMD_EXP_VIEW,
 
+    "setView",	    false,  CMD_SET_VIEW,
+
     "list", 	    true,   CMD_LIST_GENERIC,
 
     "listBreaks",   true,   CMD_LIST_BREAKS,
@@ -583,6 +585,9 @@ dumpInfo()
     }
     if (p_ilist->begin() != p_ilist->end())
     	cout << endl ;
+
+    // View set list.
+    s_dumpRange(this->getViewSet(), "VIEW SETS",false /* is_hex */);
 
     // Address list.
     s_dumpRange(this->getAddressList(), "ADDRESSES",true /* is_hex */);
