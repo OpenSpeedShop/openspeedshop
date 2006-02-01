@@ -141,57 +141,60 @@ CompareClass::menu(QPopupMenu* contextMenu)
   qaction->setStatusTip( tr("Update the information in this panel.") );
 
 
-  qaction = new QAction( this,  "focusOnCSET");
-  qaction->addTo( contextMenu );
-  qaction->setText( tr("Focus on CSet...") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnCSet() ) );
-  qaction->setStatusTip( tr("Focus the StatsPanel on compare set (cset) in focus.") );
-
   contextMenu->insertSeparator();
 
   qaction = new QAction( this,  "addNewCSet");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Add new cset (Compare Set)...") );
+  qaction->setText( tr("Add Compare Set") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( addNewCSet() ) );
-  qaction->setStatusTip( tr("Creates a new cset (Compare Set) to be modified.") );
+  qaction->setStatusTip( tr("Creates a new Compare Set  to be modified.") );
+
+  CompareSet *currentCompareSet = findCurrentCompareSet();
+  QString currentCompareSetString = QString::null;
+  QString currentColumnString = QString::null;
+  if( currentCompareSet )
+  {
+    currentCompareSetString = QString(" (%1)").arg(currentCompareSet->name);
+    QTabWidget *currentTabWidget = (QTabWidget* )csetTB->currentItem();
+    QWidget *currentTab = currentTabWidget->currentPage();
+    currentColumnString = QString(" (%1)").arg(currentTabWidget->tabLabel( currentTab ) );
+  }
 
   qaction = new QAction( this,  "removeCSet");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Remove cset...") );
+  qaction->setText( tr(QString("Remove Compare Set")+currentCompareSetString) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( removeCSet() ) );
-  qaction->setStatusTip( tr("Removes this currently raised cset.") );
+  qaction->setStatusTip( tr("Removes this currently raised Compare Set.") );
+
+  qaction = new QAction( this,  "focusOnProcess");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr(QString("Focus on Compare Set...")+currentCompareSetString) );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnCSetSelected() ) );
+  qaction->setStatusTip( tr("Focus the StastPanel on processes in current Compare Set.") );
 
   contextMenu->insertSeparator();
 
   qaction = new QAction( this,  "addNewColumn");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Add new column to current compare set...") );
+  qaction->setText( tr(QString("Add column to Compare Set...")+currentCompareSetString) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( addNewColumn() ) );
-  qaction->setStatusTip( tr("Adds an additional column (tab) to the definition of the current cset.") );
+  qaction->setStatusTip( tr("Adds an additional column (tab) to the definition of the current Compare Set.") );
 
   qaction = new QAction( this,  "removeRaisedTab");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Remove raised column from current compare set...") );
+  qaction->setText( tr(QString("Remove%1 from Compare Set...").arg(currentColumnString)) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( removeRaisedTab() ) );
-  qaction->setStatusTip( tr("Removes column (tab) from the current cset.") );
-
-  contextMenu->insertSeparator();
+  qaction->setStatusTip( tr("Removes the raised column (tab) from the current Compare Set.") );
 
   qaction = new QAction( this,  "removeUserPSet");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Remove process/process set..") );
+  qaction->setText( tr(QString("Remove process/process set..")+currentColumnString) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( removeUserPSet() ) );
   qaction->setStatusTip( tr("Removes process/process set from the current cset.") );
 
-  qaction = new QAction( this,  "focusOnProcess");
-  qaction->addTo( contextMenu );
-  qaction->setText( tr("Focus on Process(es) in compare set...") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnCSetSelected() ) );
-  qaction->setStatusTip( tr("Focus on processes in current cset.") );
-
   qaction = new QAction( this,  "addProcessesSelected");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Add process(es)...") );
+  qaction->setText( tr(QString("Add process(es) to")+currentCompareSetString+currentColumnString) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( addProcessesSelected() ) );
   qaction->setStatusTip( tr("Add processes to the current column of current cset.") );
 
@@ -507,13 +510,6 @@ printf("removeUserPSet() hmmmm\n");
 
 printf("Hmmmm.\n");
 }
-
-void
-CompareClass::focusOnCSet()
-{
-printf("focusOnCSet() entered.   Now all you need to do is implement it.\n");
-}
-
 
 
 void
