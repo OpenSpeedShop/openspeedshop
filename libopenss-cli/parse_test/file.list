@@ -2,6 +2,7 @@ clearbreak
 exit
 expattach
 expclose
+expcompare
 expcreate
 expdetach
 expdisable
@@ -34,3 +35,4 @@ opengui
 playback
 record
 setbreak
+setview

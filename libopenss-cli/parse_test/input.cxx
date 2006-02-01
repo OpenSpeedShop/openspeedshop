@@ -122,6 +122,22 @@ arglist_t exp_id_arg[EXPTYPE_MAX] = {
 //*************************************************************
 
 
+char *viewset_id_list[] = {
+    NULL,
+    "1",
+    "1,2,50",
+    "10:20",
+    "10,2:5,800"
+};
+
+#define VIEWSET_MAX 1
+arglist_t viewset_arg[VIEWSET_MAX] = {
+    5,viewset_id_list,"-c"
+};
+
+//*************************************************************
+
+
 char *all_list[] = {
     NULL,
     "all"
@@ -756,7 +772,7 @@ main()
 
     dump_close_output(p_os);
 
-    // FOCUS
+    // EXPFOCUS
     p_os = open_output("expfocus.input");
     one_level("expfocus",0,EXPID_MAX,exp_id_arg);
 
@@ -810,11 +826,36 @@ main()
 
     // EXPVIEW
     p_os = open_output("expview.input");
-    four_level ("expview",
+    five_level ("expview",
     	    	0,EXPID_MAX,exp_id_arg,NULL,
     	    	1,VIEW_MAX,view_arg,NULL,
     	    	0,METRIC_MAX,metric_arg,NULL,
-    	    	0,TARGET_MAX,target_arg,NULL
+    	    	0,TARGET_MAX,target_arg,NULL,
+		0,VIEWSET_MAX,viewset_arg,NULL
+    	    	);
+
+    dump_close_output(p_os);
+
+    // EXPCOMPARE
+    p_os = open_output("expcompare.input");
+    five_level ("expcompare",
+    	    	0,EXPID_MAX,exp_id_arg,NULL,
+    	    	1,VIEW_MAX,view_arg,NULL,
+    	    	0,METRIC_MAX,metric_arg,NULL,
+    	    	0,TARGET_MAX,target_arg,NULL,
+		0,VIEWSET_MAX,viewset_arg,NULL
+    	    	);
+
+    dump_close_output(p_os);
+
+    // SETVIEW
+    p_os = open_output("setview.input");
+    five_level ("setview",
+    	    	0,EXPID_MAX,exp_id_arg,NULL,
+    	    	1,VIEW_MAX,view_arg,NULL,
+    	    	0,METRIC_MAX,metric_arg,NULL,
+    	    	0,TARGET_MAX,target_arg,NULL,
+		0,VIEWSET_MAX,viewset_arg,NULL
     	    	);
 
     dump_close_output(p_os);
