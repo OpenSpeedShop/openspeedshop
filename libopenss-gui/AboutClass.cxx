@@ -28,7 +28,7 @@
 #include <qpushbutton.h>
 #include <qtabwidget.h>
 
-#include "splash.xpm"
+#include "splash_noborder.xpm"
 AboutClass::AboutClass(QWidget *w) : QDialog(w, "", 0, 0)
 {
 
@@ -45,7 +45,7 @@ AboutClass::AboutClass(QWidget *w) : QDialog(w, "", 0, 0)
   QWidget *tab1Widget = new QWidget( this, "tab1Widget" );
   QVBoxLayout *tab1Layout = new QVBoxLayout( tab1Widget, 1, 2, "tab1Layout" );
   QLabel *label1 = new QLabel(tab1Widget, "label1");
-  QPixmap *splashPixmap = new QPixmap( splash_xpm );
+  QPixmap *splashPixmap = new QPixmap( splash_noborder_xpm );
   label1->setPixmap( *splashPixmap );
   label1->setBackgroundColor( QColor(white) );
   label1->setFrameStyle( QFrame::NoFrame );
