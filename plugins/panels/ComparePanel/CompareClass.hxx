@@ -50,7 +50,7 @@ class QComboBox;
 
 class PanelContainer;
 class ComparePanel;
-// class CollectorListObject;
+class CompareProcessesDialog;
 
 #include "ColumnSet.hxx"
 #include "CompareSet.hxx"
@@ -108,6 +108,7 @@ private:
 
     CompareSet *findCurrentCompareSet();
 
+    CompareProcessesDialog *dialog;
 
 };
 

@@ -21,6 +21,7 @@
 
 #include "debug.hxx"
 
+#include <qapplication.h>
 #include <qvariant.h>
 #include <qframe.h>
 #include <qpushbutton.h>
@@ -67,6 +68,7 @@ CompareClass::CompareClass( Panel *_p, QWidget* parent, const char* name, bool m
   expID = exp_id;
 
   csl = NULL;
+  dialog = NULL;
 
   if ( !name ) setName( "CompareClass" );
 
@@ -441,11 +443,34 @@ printf("but really send this for now: command:\n(%s)\n", temp_expCompareCommand.
 
 }
 
+#include "CompareProcessesDialog.hxx"
 void
 CompareClass::addProcessesSelected()
 {
 printf("CompareClass::addProcessesSelected() entered\n");
-printf("Currently unimplemented\n");
+printf("Currently under construction.\n");
+
+
+  QApplication::setOverrideCursor(QCursor::WaitCursor);
+  if( dialog == NULL )
+  {
+    dialog = new CompareProcessesDialog(this, "Add/Delete/Describe Compare Processes Dialog");
+  }
+  QApplication::restoreOverrideCursor();
+
+  dialog->updateInfo();
+// Call update here!
+
+#ifdef MODAL
+  if( dialog->exec() == QDialog::Accepted )
+  {
+printf("Well, how was that dialog for you?\n");
+  }
+#else // MODAL
+  dialog->show();
+#endif // MODAL
+
+  QApplication::restoreOverrideCursor();
 }
 
 void

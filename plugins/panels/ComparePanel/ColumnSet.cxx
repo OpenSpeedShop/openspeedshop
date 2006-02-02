@@ -137,6 +137,7 @@ ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
   
   lv = new MPListView( frame, CPS, 0  );
   lv->addColumn("Processes/PSets:");
+lv->setResizeMode(QListView::LastColumn);
   QToolTip::add(lv->header(), "Process/Process Sets (psets) to be display in this column:");
   lv->setAllColumnsShowFocus( TRUE );
   lv->setShowSortIndicator( TRUE );
