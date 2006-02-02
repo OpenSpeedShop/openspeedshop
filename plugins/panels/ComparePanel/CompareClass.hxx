@@ -102,6 +102,7 @@ private slots:
     void removeUserPSet();
     void focusOnCSetSelected();
     void addProcessesSelected();
+    void loadAdditionalExperimentSelected();
 
 private:
 

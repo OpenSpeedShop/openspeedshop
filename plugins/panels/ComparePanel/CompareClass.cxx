@@ -198,6 +198,14 @@ CompareClass::menu(QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( addProcessesSelected() ) );
   qaction->setStatusTip( tr("Add processes to the current column of current cset.") );
 
+  contextMenu->insertSeparator();
+
+  qaction = new QAction( this,  "loadAdditionalExperiment");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr(QString("Load another (additional) experiment's data.")  ) );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( loadAdditionalExperimentSelected() ) );
+  qaction->setStatusTip( tr("Loads another experiment's data.") );
+
   return( TRUE );
 }
 
@@ -438,6 +446,27 @@ CompareClass::addProcessesSelected()
 {
 printf("CompareClass::addProcessesSelected() entered\n");
 printf("Currently unimplemented\n");
+}
+
+void
+CompareClass::loadAdditionalExperimentSelected()
+{
+printf("CompareClass::loadAdditionalExperimentSelected() entered\n");
+  QString fn = QString::null;
+  char *cwd = get_current_dir_name();
+  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open for comparison");
+  free(cwd);
+  if( !fn.isEmpty() )
+  {
+//      printf("fn = %s\n", fn.ascii() );
+//      fprintf(stderr, "Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
+    p->getPanelContainer()->getMainWindow()->executableName = QString::null;
+    p->getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn, FALSE);
+    updateInfo();
+  } else
+  {
+    fprintf(stderr, "No experiment file name given.\n");
+  }
 }
 
 void

@@ -480,24 +480,6 @@ pcSamplePanel::compareExperimentsSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::compareExperimentsSelected()\n");
 
-  QString str(tr("This feature is currently under construction.\n") );
-  QMessageBox::information( this, "Informational", str, "Continue" );
-
-  QString fn = QString::null;
-  char *cwd = get_current_dir_name();
-  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open for comparison");
-  free(cwd);
-  if( !fn.isEmpty() )
-  {
-//      printf("fn = %s\n", fn.ascii() );
-//      fprintf(stderr, "Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
-    getPanelContainer()->getMainWindow()->executableName = QString::null;
-    getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn, FALSE);
-  } else
-  {
-    fprintf(stderr, "No experiment file name given.\n");
-  }
-
   QString name = QString("ComparePanel [%1]").arg(expID);
 
   Panel *comparePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
