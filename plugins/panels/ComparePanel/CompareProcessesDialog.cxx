@@ -36,6 +36,11 @@
 #include <qlistview.h>
 #include <qtooltip.h>
 #include <qapplication.h>
+#include <qlineedit.h>
+
+#include "CompareClass.hxx"
+#include "CompareSet.hxx"
+#include "ColumnSet.hxx"
 
 #include "SS_Input_Manager.hxx"
 CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
@@ -52,8 +57,29 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   setSizeGripEnabled( TRUE );
   CompareProcessesDialogLayout = new QVBoxLayout( this, 11, 6, "CompareProcessesDialogLayout"); 
 
-  headerLabel = new QLabel(this, "headerLabel");
+  headerLabel = new QLabel(this, "addProcessesLabel");
+  headerLabel->setText( "Modify Compare Set %%1: Column %%1" );
   CompareProcessesDialogLayout->addWidget( headerLabel );
+
+  QHBoxLayout *addProcessesLayout = new QHBoxLayout( 6, "addProcessesLayout");
+  CompareProcessesDialogLayout->addLayout( addProcessesLayout );
+  
+  addProcessesLabel = new QLabel(this, "addProcessesLabel");
+  addProcessesLayout->addWidget( addProcessesLabel );
+
+  addProcessesRegExpTextEdit = new QLineEdit(this, "addProcessesRegExpTextEdit");
+  addProcessesLayout->addWidget( addProcessesRegExpTextEdit );
+  QToolTip::add(addProcessesRegExpTextEdit, tr("Enter the pid (or regular expression defining the pids) that you want entered into\nthe current Column in the current Compare Set of the Compare Panel.\n\nDrag and drop, psets or individual processes from here to the Compare Panel.") );
+
+  QHBoxLayout *removeProcessesLayout = new QHBoxLayout( 6, "removeProcessesLayout");
+  CompareProcessesDialogLayout->addLayout( removeProcessesLayout );
+  
+  removeProcessesLabel = new QLabel(this, "removeProcessesLabel");
+  removeProcessesLayout->addWidget( removeProcessesLabel );
+  removeProcessesRegExpTextEdit = new QLineEdit(this, "removeProcessesRegExpTextEdit");
+  QToolTip::add(removeProcessesRegExpTextEdit, tr("Enter the pid (or regular expression defining the pids) that you want removed from\nthe current Column in the current Compare Set of the Compare Panel.\n\nDrag and drop, psets or individual processes from here to the ComparePanel.") );
+  removeProcessesLayout->addWidget( removeProcessesRegExpTextEdit );
+
 
   availableProcessesListView = new QListView( this, "availableProcessesListView" );
   availableProcessesListView->addColumn( tr( "Available Processes:" ) );
@@ -64,6 +90,8 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   availableProcessesListView->setSortOrder( Qt::Ascending );
   availableProcessesListView->setRootIsDecorated(TRUE);
   availableProcessesListView->setResizeMode(QListView::LastColumn);
+  QToolTip::add(availableProcessesListView->viewport(), tr("Listed here are all the available processes that can be added to current Column in\nthe current Compare Set of the Compare Panel.\n\nDrag and drop, psets or individual processes from here to the Compare Panel.") );
+
 
   CompareProcessesDialogLayout->addWidget( availableProcessesListView );
 
@@ -93,6 +121,10 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   // signals and slots connections
   connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+
+connect( addProcessesRegExpTextEdit, SIGNAL( returnPressed() ), this, SLOT( addProcessesRegExpTextEditEntered() ) );
+connect( removeProcessesRegExpTextEdit, SIGNAL( returnPressed() ), this, SLOT( removeProcessesRegExpTextEditEntered() ) );
+
 }
 
 /*
@@ -111,7 +143,8 @@ CompareProcessesDialog::~CompareProcessesDialog()
 void CompareProcessesDialog::languageChange()
 {
   setCaption( tr( name() ) );
-  headerLabel->setText( tr( "Add/Delete processes:" ) );
+  addProcessesLabel->setText( tr( "Add processes:" ) );
+  removeProcessesLabel->setText( tr( "Remove processes:" ) );
   buttonHelp->setText( tr( "&Help" ) );
   buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
   buttonOk->setText( tr( "&OK" ) );
@@ -142,4 +175,32 @@ CompareProcessesDialog::updateInfo()
 {
 
   QApplication::restoreOverrideCursor();
+}
+
+void
+CompareProcessesDialog::addProcessesRegExpTextEditEntered()
+{
+printf("addProcessesRegExpTextEditEntered(%s)\n", addProcessesRegExpTextEdit->text().ascii() );
+}
+
+void
+CompareProcessesDialog::removeProcessesRegExpTextEditEntered()
+{
+printf("removeProcessesRegExpTextEditEntered(%s)\n", removeProcessesRegExpTextEdit->text().ascii() );
+}
+
+void
+CompareProcessesDialog::accept()
+{
+printf("accept() entered\n");
+}
+
+void
+CompareProcessesDialog::updateFocus(CompareClass *_compareClass, CompareSet *_compareSet, ColumnSet *_columnSet )
+{
+  compareClass = _compareClass;
+  compareSet = _compareSet;
+  columnSet = _columnSet;
+
+  headerLabel->setText( QString("Modify Compare Set %1: Column %2").arg(compareSet->name).arg(columnSet->name) );
 }

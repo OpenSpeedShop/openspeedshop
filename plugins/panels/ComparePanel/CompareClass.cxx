@@ -458,6 +458,36 @@ printf("Currently under construction.\n");
   }
   QApplication::restoreOverrideCursor();
 
+  CompareSet *compareSet = findCurrentCompareSet();
+
+  ColumnSet *columnSet = NULL;
+{
+
+  QTabWidget *currentTabWidget = (QTabWidget* )csetTB->currentItem();
+
+  QWidget *currentTab = currentTabWidget->currentPage();
+
+  // Look for the tab in the CompareSet.   The delete it from the compareSet's
+  // list.
+  if( compareSet )
+  {
+    ColumnSetList::Iterator it;
+    for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
+    {
+      ColumnSet *cs = (ColumnSet *)*it;
+      if( cs->name == currentTabWidget->tabLabel( currentTab ) )
+      {
+        columnSet = cs;
+        break;
+      }
+    }
+
+  }
+
+
+}
+
+  dialog->updateFocus(this, compareSet, columnSet);
   dialog->updateInfo();
 // Call update here!
 

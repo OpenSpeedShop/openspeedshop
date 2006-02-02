@@ -37,6 +37,11 @@ class QLabel;
 class QComboBox;
 class QListView;
 class QListViewItem;
+class QLineEdit;
+
+class CompareClass;
+class CompareSet;
+class ColumnSet;
 
 class CompareProcessesDialog : public QDialog
 {
@@ -47,6 +52,10 @@ public:
     ~CompareProcessesDialog();
 
     QLabel* headerLabel;
+    QLabel* addProcessesLabel;
+    QLabel* removeProcessesLabel;
+    QLineEdit* addProcessesRegExpTextEdit;
+    QLineEdit* removeProcessesRegExpTextEdit;
     QPushButton* buttonHelp;
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
@@ -56,6 +65,11 @@ public:
     PanelListViewItem *selectedExperiment(int *expID);
     void updateInfo();
 
+    void updateFocus(CompareClass *, CompareSet *, ColumnSet *);
+    CompareClass *compareClass;
+    CompareSet *compareSet;
+    ColumnSet *columnSet;
+
 protected:
     QVBoxLayout* CompareProcessesDialogLayout;
     QHBoxLayout* Layout1;
@@ -63,6 +77,11 @@ protected:
 
     CLIInterface *cli;
     OpenSpeedshop *mw;
+
+private slots:
+    void addProcessesRegExpTextEditEntered();
+    void removeProcessesRegExpTextEditEntered();
+    void accept();
 
 protected slots:
     virtual void languageChange();
