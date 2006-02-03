@@ -1147,7 +1147,7 @@ OpenSpeedshop::lookForExperiment()
 
   pd->show();
 
-  command = QString("listExp");
+  command = QString("list -v exp");
   int_list.clear();
   InputLineObject *clip = NULL;
   if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &int_list, clip, TRUE ) )
