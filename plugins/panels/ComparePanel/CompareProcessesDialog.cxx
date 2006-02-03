@@ -48,6 +48,9 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("CompareProcessesDialog::CompareProcessesDialog() constructor called.\n");
 
+  
+  updateFocus(-1, NULL, NULL, NULL);
+
   mw = (OpenSpeedshop *)parent;
   cli = mw->cli;
 
@@ -100,7 +103,7 @@ addProcessesHostRegExpLineEdit->setText("*");
   removeProcessesLayout->addWidget( removeProcessesRegExpLineEdit );
 
 
-  availableProcessesListView = new QListView( this, "availableProcessesListView" );
+  availableProcessesListView = new MPListView( this, "availableProcessesListView", 0 );
   availableProcessesListView->addColumn( tr( "Available Processes:" ) );
   availableProcessesListView->setSelectionMode( QListView::Single );
   availableProcessesListView->setShowSortIndicator( TRUE );
@@ -141,10 +144,10 @@ addProcessesHostRegExpLineEdit->setText("*");
   connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 
-connect( addProcessesHostRegExpLineEdit, SIGNAL( returnPressed() ), this, SLOT( addProcessesHostRegExpLineEditEntered() ) );
-connect( addProcessesRegExpLineEdit, SIGNAL( returnPressed() ), this, SLOT( addProcessesRegExpLineEditEntered() ) );
-connect( removeProcessesRegExpLineEdit, SIGNAL( returnPressed() ), this, SLOT( removeProcessesRegExpLineEditEntered() ) );
-
+  connect( addProcessesHostRegExpLineEdit, SIGNAL( returnPressed() ), this, SLOT( addProcessesHostRegExpLineEditEntered() ) );
+  connect( addProcessesRegExpLineEdit, SIGNAL( returnPressed() ), this, SLOT( addProcessesRegExpLineEditEntered() ) );
+  connect( removeProcessesRegExpLineEdit, SIGNAL( returnPressed() ), this, SLOT( removeProcessesRegExpLineEditEntered() ) );
+  
 }
 
 /*
@@ -222,11 +225,19 @@ printf("accept() entered\n");
 }
 
 void
-CompareProcessesDialog::updateFocus(CompareClass *_compareClass, CompareSet *_compareSet, ColumnSet *_columnSet )
+CompareProcessesDialog::updateFocus(int _expID, CompareClass *_compareClass, CompareSet *_compareSet, ColumnSet *_columnSet )
 {
   compareClass = _compareClass;
   compareSet = _compareSet;
   columnSet = _columnSet;
+  expID = _expID;
+
+  if( expID == -1 || compareSet == NULL || compareSet == NULL )
+  {
+    return;
+  }
 
   headerLabel->setText( QString("Modify Compare Set %1: Column %2").arg(compareSet->name).arg(columnSet->name) );
+
+  compareSet->updatePSetList();
 }

@@ -42,13 +42,6 @@
 #include <qvaluelist.h>
 #include <qheader.h>
 
-struct StatusStruct
-{
-  QString status;
-  QString host;
-  QString pid;
-};
-
 // #include "SS_Input_Manager.hxx"
 #include "ToolAPI.hxx"
 using namespace OpenSpeedShop::Framework;

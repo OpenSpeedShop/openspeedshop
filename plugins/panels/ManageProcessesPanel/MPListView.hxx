@@ -31,6 +31,13 @@ using namespace std;
 
 #include "MPListViewItem.hxx"
 
+struct StatusStruct
+{
+  QString status;
+  QString host;
+  QString pid;
+};
+
 
 class MPListView : public QListView
 {

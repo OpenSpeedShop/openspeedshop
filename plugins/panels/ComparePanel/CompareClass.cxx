@@ -487,18 +487,10 @@ printf("Currently under construction.\n");
 
 }
 
-  dialog->updateFocus(this, compareSet, columnSet);
+  dialog->updateFocus(expID, this, compareSet, columnSet);
   dialog->updateInfo();
-// Call update here!
 
-#ifdef MODAL
-  if( dialog->exec() == QDialog::Accepted )
-  {
-printf("Well, how was that dialog for you?\n");
-  }
-#else // MODAL
   dialog->show();
-#endif // MODAL
 
   QApplication::restoreOverrideCursor();
 }

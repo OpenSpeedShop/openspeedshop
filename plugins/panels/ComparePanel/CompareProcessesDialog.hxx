@@ -36,6 +36,7 @@ class QPushButton;
 class QLabel;
 class QComboBox;
 class QListView;
+class MPListView;
 class QListViewItem;
 class QLineEdit;
 
@@ -62,15 +63,16 @@ public:
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
 
-    QListView* availableProcessesListView;
+    MPListView* availableProcessesListView;
 
     PanelListViewItem *selectedExperiment(int *expID);
     void updateInfo();
 
-    void updateFocus(CompareClass *, CompareSet *, ColumnSet *);
+    void updateFocus(int, CompareClass *, CompareSet *, ColumnSet *);
     CompareClass *compareClass;
     CompareSet *compareSet;
     ColumnSet *columnSet;
+    int expID;
 
 protected:
     QVBoxLayout* CompareProcessesDialogLayout;

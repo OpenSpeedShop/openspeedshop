@@ -40,8 +40,8 @@ typedef QValueList <ColumnSet *> ColumnSetList;
 
 class CompareSet : public QObject
 {
-  Q_OBJECT
-public:
+    Q_OBJECT
+  public:
     CompareSet( QToolBox *csetTB, CompareClass *compareClass );
     ~CompareSet();
 
@@ -58,10 +58,11 @@ public:
 
     void setNewFocus(QWidget *tab = NULL);
 
+    void updatePSetList();
 
-protected:
+  protected:
 
-private:
+  private:
 
   private slots:
     void currentChanged( QWidget *);

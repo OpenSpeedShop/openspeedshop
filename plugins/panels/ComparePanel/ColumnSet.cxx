@@ -544,6 +544,7 @@ ColumnSet::getExpidFromExperimentComboBoxStr( const QString path )
   return( expID );
 }
 
+#include "CompareProcessesDialog.hxx"
 void 
 ColumnSet::changeExperiment( const QString &path )
 {
@@ -552,6 +553,13 @@ ColumnSet::changeExperiment( const QString &path )
   int expID = getExpidFromExperimentComboBoxStr(path);
 
   ce = gatherCollectorInfo(expID);
+
+  
+  if( compareSet->compareClass->dialog )
+  {
+    compareSet->compareClass->dialog->expID = expID;
+    compareSet->updatePSetList();
+  }
 }
 
 void 
