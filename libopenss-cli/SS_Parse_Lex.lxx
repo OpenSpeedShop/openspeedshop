@@ -83,33 +83,6 @@ extern int ip_number(char *,int);
 
 "list"  	{ return LIST_GENERIC_HEAD; }
 
-"listbreaks"	{ return LIST_BREAKS_HEAD; }
-"listBreaks"	{ return LIST_BREAKS_HEAD; }
-"listexp"   	{ return LIST_EXP_HEAD; }
-"listExp"   	{ return LIST_EXP_HEAD; }
-"listhosts" 	{ return LIST_HOSTS_HEAD; }
-"listHosts" 	{ return LIST_HOSTS_HEAD; }
-"listmetrics"	{ return LIST_METRICS_HEAD; }
-"listMetrics"	{ return LIST_METRICS_HEAD; }
-"listobj"   	{ return LIST_OBJ_HEAD; }
-"listObj"   	{ return LIST_OBJ_HEAD; }
-"listparams"	{ return LIST_PARAMS_HEAD; }
-"listParams"	{ return LIST_PARAMS_HEAD; }
-"listpids"  	{ return LIST_PIDS_HEAD; }
-"listPids"  	{ return LIST_PIDS_HEAD; }
-"listranks"	{ return LIST_RANKS_HEAD; }
-"listRanks"	{ return LIST_RANKS_HEAD; }
-"listsrc"   	{ return LIST_SRC_HEAD; }
-"listSrc"   	{ return LIST_SRC_HEAD; }
-"liststatus"   	{ return LIST_STATUS_HEAD; }
-"listStatus"   	{ return LIST_STATUS_HEAD; }
-"listthreads"	{ return LIST_THREADS_HEAD; }
-"listThreads"	{ return LIST_THREADS_HEAD; }
-"listtypes"	{ return LIST_TYPES_HEAD; }
-"listTypes"	{ return LIST_TYPES_HEAD; }
-"listviews"	{ return LIST_VIEWS_HEAD; }
-"listViews"	{ return LIST_VIEWS_HEAD; }
-
 "clearbreak"	{ return GEN_CLEAR_BREAK_HEAD; }
 "clearBreak"	{ return GEN_CLEAR_BREAK_HEAD; }
 "exit"	    	{ return GEN_EXIT_HEAD; }

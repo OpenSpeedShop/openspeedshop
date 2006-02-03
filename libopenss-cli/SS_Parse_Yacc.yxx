@@ -56,10 +56,6 @@ char *string;
 %token SETVIEW_HEAD
 
 %token LIST_GENERIC_HEAD
-%token LIST_EXP_HEAD LIST_HOSTS_HEAD LIST_OBJ_HEAD LIST_PIDS_HEAD
-%token LIST_SRC_HEAD LIST_METRICS_HEAD LIST_PARAMS_HEAD LIST_VIEWS_HEAD
-%token LIST_BREAKS_HEAD LIST_TYPES_HEAD LIST_RANKS_HEAD LIST_STATUS_HEAD
-%token LIST_THREADS_HEAD
 
 %token GEN_CLEAR_BREAK_HEAD GEN_EXIT_HEAD GEN_OPEN_GUI_HEAD GEN_HELP_HEAD
 %token GEN_HISTORY_HEAD GEN_LOG_HEAD GEN_PLAYBACK_HEAD GEN_RECORD_HEAD
@@ -118,19 +114,6 @@ command_desc: exp_attach_com 	{p_parse_result->setCommandType(CMD_EXP_ATTACH);}
 
 	    | list_generic_com 	{p_parse_result->setCommandType(CMD_LIST_GENERIC);}
 
-	    | list_breaks_com 	{p_parse_result->setCommandType(CMD_LIST_BREAKS);}
-	    | list_exp_com  	{p_parse_result->setCommandType(CMD_LIST_EXP);}
-	    | list_hosts_com 	{p_parse_result->setCommandType(CMD_LIST_HOSTS);}
-	    | list_metrics_com  {p_parse_result->setCommandType(CMD_LIST_METRICS);}
-	    | list_obj_com  	{p_parse_result->setCommandType(CMD_LIST_OBJ);}
-	    | list_params_com 	{p_parse_result->setCommandType(CMD_LIST_PARAMS);}
-	    | list_pids_com 	{p_parse_result->setCommandType(CMD_LIST_PIDS);}
-	    | list_ranks_com	{p_parse_result->setCommandType(CMD_LIST_RANKS);}
-	    | list_views_com	{p_parse_result->setCommandType(CMD_LIST_VIEWS);}
-	    | list_src_com  	{p_parse_result->setCommandType(CMD_LIST_SRC);}
-	    | list_status_com  	{p_parse_result->setCommandType(CMD_LIST_STATUS);}
-	    | list_threads_com 	{p_parse_result->setCommandType(CMD_LIST_THREADS);}
-	    | list_types_com 	{p_parse_result->setCommandType(CMD_LIST_TYPES);}
 	    | gen_clear_break_com 	{p_parse_result->setCommandType(CMD_CLEAR_BREAK);}
 	    | gen_exit_com  	{p_parse_result->setCommandType(CMD_EXIT);}
 	    | gen_open_gui_com	{p_parse_result->setCommandType(CMD_OPEN_GUI);}
@@ -368,171 +351,6 @@ list_generic_element:
 		|   lineno_range_spec
     	    	;
 
-    	    /** LIST_BREAKS **/
-    	    /** <ListOf_breakId> = listBreaks [ -v all || <expId_spec> ] **/
-list_breaks_com:    LIST_BREAKS_HEAD list_breaks_arg
-  	    	|   LIST_BREAKS_HEAD list_breaks_arg error END_LINE 
-      	    	;
-list_breaks_arg:    /* empty */
-		|   expId_spec
-		|   modifier_list_spec
-    	    	;
-
-    	    /** LIST_EXP **/
-    	    /** <listOf_expId> = listExp **/
-list_exp_com:	    LIST_EXP_HEAD 
-  	    	|   LIST_EXP_HEAD error END_LINE 
-      	    	;
-
-    	    /** LIST_HOSTS **/
-    	    /** <ListOf_hostname> = listHosts [ <expId_spec> ] **/
-list_hosts_com:     LIST_HOSTS_HEAD list_hosts_arg
-  	    	|   LIST_HOSTS_HEAD list_hosts_arg error END_LINE 
-      	    	;
-list_hosts_arg:     /* empty */
-    	    	|   expId_spec
-    	    	;
-
-    	    /** LIST_METRICS **/
-    	    /** <ListOf_expMetric> = listMetrics [ -v all || <expId_spec> || <expType_list> ] **/
-list_metrics_com:   LIST_METRICS_HEAD list_metrics_arg
-  	    	|   LIST_METRICS_HEAD list_metrics_arg error END_LINE 
-      	    	;
-list_metrics_arg:   /* empty */
-		|   expId_spec
-		|   modifier_list_spec
-		|   expType_list
-    	    	;
-
-    	    /** LIST_OBJ **/
-    	    /** <ListOf_filename> = listObj [ <expId_spec> ] [ <target> ]  **/
-list_obj_com:	    LIST_OBJ_HEAD list_obj_arg
-  	    	|   LIST_OBJ_HEAD list_obj_arg error END_LINE 
-      	    	;
-list_obj_arg:
-    	    	    /* empty */
-
-    	    	|   expId_spec
-    	    	|   target
-    	    	|   expId_spec target 
-    	    	|   target expId_spec 
-    	    	;
-
-    	    /** LIST_PARAMS **/
-    	    /** <ListOf_expParam> = listParams [ -v all || <expId_spec> || <expType_list> ]  **/
-list_params_com:    LIST_PARAMS_HEAD list_params_arg
-  	    	|   LIST_PARAMS_HEAD list_params_arg error END_LINE 
-      	    	;
-list_params_arg:    /* empty */
-		|   expId_spec
-		|   modifier_list_spec
-		|   expType_list
-    	    	;
-
-    	    /** LIST_PIDS **/
-    	    /** <ListOf_pidname> = listPids [ <expId_spec> ] [ <host_list_spec> ]  **/
-list_pids_com:	    LIST_PIDS_HEAD list_pids_arg
-  	    	|   LIST_PIDS_HEAD list_pids_arg error END_LINE 
-      	    	;
-list_pids_arg:	    
-    	    	    /* empty */
-
-    	    	|   expId_spec
-    	    	|   host_list_spec
-
-    	    	|   expId_spec host_list_spec 
-    	    	|   host_list_spec expId_spec 
-    	    	;
-
-    	    /** LIST_RANKS **/
-    	    /** <ListOf_rankname> = listRanks [ <expId_spec> ] [ <target> ] **/
-list_ranks_com:     LIST_RANKS_HEAD list_ranks_arg
-  	    	|   LIST_RANKS_HEAD list_ranks_arg error END_LINE 
-      	    	;
-list_ranks_arg:
-    	    	    /* empty */
-
-    	    	|   expId_spec
-    	    	|   target
-
-    	    	|   expId_spec target 
-    	    	|   target expId_spec 
-    	    	;
-
-    	    /** LIST_SRC **/
-    	    /** <listOf_filename> = listSrc [ <expId_spec> ] [ <target> ]  **/
-list_src_com:	    LIST_SRC_HEAD list_src_arg
-  	    	|   LIST_SRC_HEAD list_src_arg error END_LINE 
-      	    	;
-list_src_arg:
-    	    	    /* empty */
-
-    	    	|   expId_spec
-    	    	|   lineno_range_spec
-    	    	|   target_list
-
-    	    	|   expId_spec lineno_range_spec 
-    	    	|   lineno_range_spec expId_spec 
-    	    	|   expId_spec target_list 
-    	    	|   target_list expId_spec 
-    	    	|   lineno_range_spec target_list 
-    	    	|   target_list lineno_range_spec 
-
-    	    	|   expId_spec lineno_range_spec target_list 
-    	    	|   expId_spec target_list lineno_range_spec 
-    	    	|   lineno_range_spec expId_spec target_list 
-    	    	|   lineno_range_spec target_list expId_spec 
-    	    	|   target_list expId_spec lineno_range_spec 
-    	    	|   target_list lineno_range_spec expId_spec 
-    	    	;
-
-    	    /** LIST_STATUS **/
-    	    /** <ListOf_statusType> = listStatus [ -v all || <expId_spec> ] **/
-list_status_com:    LIST_STATUS_HEAD list_status_arg
-  	    	|   LIST_STATUS_HEAD list_status_arg error END_LINE 
-      	    	;
-list_status_arg:    /* empty */
-		|   expId_spec
-		|   modifier_list_spec
-    	    	;
-
-    	    /** LIST_THREADS **/
-    	    /** <ListOf_threadname> = listThreads [ <expId_spec> ] [ <target> ] **/
-list_threads_com:   LIST_THREADS_HEAD list_threads_arg
-  	    	|   LIST_THREADS_HEAD list_threads_arg error END_LINE 
-      	    	;
-list_threads_arg:
-    	    	    /* empty */
-
-    	    	|   expId_spec
-    	    	|   target
-
-    	    	|   expId_spec target 
-    	    	|   target expId_spec 
-    	    	;
-
-    	    /** LIST_TYPES **/
-    	    /** <ListOf_expType> = listTypes [ -v all || <expId_spec> ]  **/
-list_types_com:     LIST_TYPES_HEAD list_types_arg
-  	    	|   LIST_TYPES_HEAD list_types_arg error END_LINE 
-      	    	;
-
-list_types_arg:    /* empty */
-		|   expId_spec
-		|   modifier_list_spec
-   	    	;
-
-    	    /** LIST_VIEWS **/
-    	    /** <ListOf_viewType> = listViews [ -v all || <expId_spec> || <expType_list> ] **/
-list_views_com:     LIST_VIEWS_HEAD list_views_arg
-  	    	|   LIST_VIEWS_HEAD list_views_arg error END_LINE 
-      	    	;
-list_views_arg:   /* empty */
-		|   expId_spec
-		|   modifier_list_spec
-		|   expType_list
-    	    	;
-
     	    /** GEN_CLEAR_BREAK **/
     	    /** clearbreak <breakId> **/
 gen_clear_break_com:	GEN_CLEAR_BREAK_HEAD gen_clear_break_arg
@@ -581,20 +399,6 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	|   SETVIEW_HEAD    	    {p_parse_result->pushHelp(cmd_desc[CMD_SET_VIEW].name);}
 
     	    	|   LIST_GENERIC_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_GENERIC].name);}
-
-    	    	|   LIST_BREAKS_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_BREAKS].name);}
-    	    	|   LIST_EXP_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_EXP].name);}
-    	    	|   LIST_HOSTS_HEAD 	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_HOSTS].name);}
-    	    	|   LIST_METRICS_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_METRICS].name);}
-    	    	|   LIST_OBJ_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_OBJ].name);}
-    	    	|   LIST_PARAMS_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_PARAMS].name);}
-    	    	|   LIST_PIDS_HEAD  	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_PIDS].name);}
-    	    	|   LIST_RANKS_HEAD  	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_RANKS].name);}
-    	    	|   LIST_SRC_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_SRC].name);}
-    	    	|   LIST_STATUS_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_STATUS].name);}
-    	    	|   LIST_THREADS_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_THREADS].name);}
-    	    	|   LIST_TYPES_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_TYPES].name);}
-    	    	|   LIST_VIEWS_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_VIEWS].name);}
 
     	    	|   GEN_CLEAR_BREAK_HEAD    {p_parse_result->pushHelp(cmd_desc[CMD_CLEAR_BREAK].name);}
     	    	|   GEN_EXIT_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_EXIT].name);}

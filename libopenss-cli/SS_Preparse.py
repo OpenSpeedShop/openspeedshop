@@ -565,18 +565,6 @@ class CLI(code.InteractiveConsole):
 	"setview"   	: "return_int",
 
         "list"  	: "return_list",
-        "listexp"       : "return_list",
-        "listhosts"     : "return_list",
-        "listmetrics"   : "return_list",
-        "listobj"       : "return_list",
-        "listparams"    : "return_list",
-        "listpids"      : "return_list",
-        "listranks" 	: "return_list",
-        "listsrc"       : "return_string",
-        "liststatus"	: "return_list",
-        "listthreads" 	: "return_list",
-        "listtypes" 	: "return_list",
-        "listviews" 	: "return_list",
 
         "clearbreak"    : "return_none",
         "exit"          : "return_none",
