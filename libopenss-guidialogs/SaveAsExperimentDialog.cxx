@@ -168,7 +168,7 @@ SaveAsExperimentDialog::updateAvailableExperimentList(int *returned_expID, int *
 
   availableExperimentsListView->clear();
 
-  QString command("listExp");
+  QString command("list -v exp");
   std::list<int64_t> int_list;
 
   int_list.clear();

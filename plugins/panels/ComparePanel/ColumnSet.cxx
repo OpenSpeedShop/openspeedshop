@@ -201,7 +201,7 @@ ColumnSet::gatherExperimentInfo()
   int_list.clear();
   experiment_list.clear();
 
-  QString command = QString("listExp");
+  QString command = QString("list -v exp");
   InputLineObject *clip = NULL;
   if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &int_list, clip, TRUE ) )
   {
