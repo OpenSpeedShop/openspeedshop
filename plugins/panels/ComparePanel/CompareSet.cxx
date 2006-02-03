@@ -22,6 +22,7 @@
 #include "ColumnSet.hxx"
 #include "CompareClass.hxx"
 
+#include "CompareProcessesDialog.hxx"
 
 #include <qtoolbox.h>
 #include <qtooltip.h>
@@ -35,7 +36,7 @@
 #include <qheader.h>
 #include <qstring.h>
 
-CompareSet::CompareSet(QToolBox *csetTB, CompareClass *cc )
+CompareSet::CompareSet(QToolBox *csetTB, CompareClass *cc ) : QObject()
 {
 // printf("CompareSet::CompareSet() constructor called.\n");
   tcnt = 0;
@@ -50,6 +51,8 @@ CompareSet::CompareSet(QToolBox *csetTB, CompareClass *cc )
   csetTB->addItem(tabWidget, name );
 
   compareClass->ccnt++;
+
+  connect(tabWidget, SIGNAL( currentChanged(QWidget *)), this, SLOT( currentChanged(QWidget *) ) );
 }
 
 void
@@ -86,4 +89,52 @@ CompareSet::~CompareSet()
 
 // printf("Finished cleaning up the CompareSet\n");
   columnSetList.clear();
+}
+
+void
+CompareSet::currentChanged( QWidget *tab )
+{
+printf("currentChanged() set the focus on a new tab...\n");
+
+
+  setNewFocus(tab);
+
+}
+
+void
+CompareSet::setNewFocus(QWidget *tab)
+{
+  if( !tab )
+  {
+// find the current tab... 
+    tab = tabWidget->currentPage();
+  }
+
+  CompareSet *compareSet = this;
+  if( compareSet )
+  {
+printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
+    ColumnSetList::Iterator it;
+    for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
+    {
+      ColumnSet *columnSet = (ColumnSet *)*it;
+printf("Is it? columnSet->name=(%s) tabWidget->tabLabel()=(%s)\n", columnSet->name.ascii(), tabWidget->tabLabel(tab).ascii()  );
+      if( columnSet->name == tabWidget->tabLabel(tab) )
+      {
+        int id = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
+printf("\t: CompareSet (%s)'s info\n", compareSet->name.ascii() );
+printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
+printf("\t\t: expID=(%d)\n", id );
+printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
+printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
+printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
+if( compareSet->compareClass->dialog )
+{
+  compareSet->compareClass->dialog->updateFocus(compareSet->compareClass, compareSet, columnSet);
+}
+         break;
+       }
+    }
+  }
+
 }

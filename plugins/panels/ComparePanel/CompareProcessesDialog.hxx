@@ -52,10 +52,12 @@ public:
     ~CompareProcessesDialog();
 
     QLabel* headerLabel;
+    QLabel* addProcessesHostLabel;
     QLabel* addProcessesLabel;
     QLabel* removeProcessesLabel;
-    QLineEdit* addProcessesRegExpTextEdit;
-    QLineEdit* removeProcessesRegExpTextEdit;
+    QLineEdit* addProcessesRegExpLineEdit;
+    QLineEdit *addProcessesHostRegExpLineEdit;
+    QLineEdit* removeProcessesRegExpLineEdit;
     QPushButton* buttonHelp;
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
@@ -79,8 +81,9 @@ protected:
     OpenSpeedshop *mw;
 
 private slots:
-    void addProcessesRegExpTextEditEntered();
-    void removeProcessesRegExpTextEditEntered();
+    void addProcessesHostRegExpLineEditEntered();
+    void addProcessesRegExpLineEditEntered();
+    void removeProcessesRegExpLineEditEntered();
     void accept();
 
 protected slots:

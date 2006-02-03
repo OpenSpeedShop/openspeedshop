@@ -20,6 +20,10 @@
 #ifndef COMPARESET_H
 #define COMPARESET_H
 
+#include <qvariant.h>
+#include <qdialog.h>
+#include <qpopupmenu.h>
+
 #include <qstring.h>
 
 class QToolBox;
@@ -34,8 +38,9 @@ class ColumnSet;
 
 typedef QValueList <ColumnSet *> ColumnSetList;
 
-class CompareSet
+class CompareSet : public QObject
 {
+  Q_OBJECT
 public:
     CompareSet( QToolBox *csetTB, CompareClass *compareClass );
     ~CompareSet();
@@ -51,10 +56,15 @@ public:
 
     ColumnSetList columnSetList;
 
+    void setNewFocus(QWidget *tab = NULL);
+
 
 protected:
 
 private:
+
+  private slots:
+    void currentChanged( QWidget *);
 
 };
 

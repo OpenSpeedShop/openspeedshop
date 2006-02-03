@@ -77,6 +77,8 @@ public:
 
     int ccnt;
 
+    CompareProcessesDialog *dialog;
+
 protected:
     QHBoxLayout* CompareClassLayout;
     QHBoxLayout* AddCollectorLayout;
@@ -107,8 +109,6 @@ private slots:
 private:
 
     CompareSet *findCurrentCompareSet();
-
-    CompareProcessesDialog *dialog;
 
 };
 

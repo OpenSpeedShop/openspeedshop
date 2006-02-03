@@ -51,6 +51,7 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   mw = (OpenSpeedshop *)parent;
   cli = mw->cli;
 
+  QToolTip::add(this, tr("This dialog helps define which processes will be display in each focused Compare\nSet/Column of the Compare Panel.\nSelecting on a column in the Compare Panel will change the focus in this display.") );
   
   if ( !name ) setName( "CompareProcessesDialog" );
 
@@ -59,7 +60,21 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
 
   headerLabel = new QLabel(this, "addProcessesLabel");
   headerLabel->setText( "Modify Compare Set %%1: Column %%1" );
+  QToolTip::add(headerLabel, tr("This label details the focused compare set and column within that compare set.\nAny actions in this dialog will perform actions to the focused set.\n") );
+
   CompareProcessesDialogLayout->addWidget( headerLabel );
+
+  QHBoxLayout *addProcessesHostLayout = new QHBoxLayout( 6, "addProcessesHostLayout");
+  CompareProcessesDialogLayout->addLayout( addProcessesHostLayout );
+  
+  addProcessesHostLabel = new QLabel(this, "addProcessesHostLabel");
+addProcessesHostLabel->setText("Target host:");
+  addProcessesHostLayout->addWidget( addProcessesHostLabel );
+
+  addProcessesHostRegExpLineEdit = new QLineEdit(this, "addProcessesHostRegExpLineEdit");
+addProcessesHostRegExpLineEdit->setText("*");
+  addProcessesHostLayout->addWidget( addProcessesHostRegExpLineEdit );
+  QToolTip::add(addProcessesHostRegExpLineEdit, tr("Select which host the process(es) should be farmed.\nThis can be a single host name or a comma separated list of host names.\nRegular expressions will be honored.") );
 
   QHBoxLayout *addProcessesLayout = new QHBoxLayout( 6, "addProcessesLayout");
   CompareProcessesDialogLayout->addLayout( addProcessesLayout );
@@ -67,18 +82,22 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   addProcessesLabel = new QLabel(this, "addProcessesLabel");
   addProcessesLayout->addWidget( addProcessesLabel );
 
-  addProcessesRegExpTextEdit = new QLineEdit(this, "addProcessesRegExpTextEdit");
-  addProcessesLayout->addWidget( addProcessesRegExpTextEdit );
-  QToolTip::add(addProcessesRegExpTextEdit, tr("Enter the pid (or regular expression defining the pids) that you want entered into\nthe current Column in the current Compare Set of the Compare Panel.\n\nDrag and drop, psets or individual processes from here to the Compare Panel.") );
+  addProcessesRegExpLineEdit = new QLineEdit(this, "addProcessesRegExpLineEdit");
+  addProcessesLayout->addWidget( addProcessesRegExpLineEdit );
+  QToolTip::add(addProcessesRegExpLineEdit, tr("Select which process(es), on the selected host, should be added.\nThis can be a single processes name or a comma separated list of processes names.\nRegular expressions will be honored.") );
+
+//  QToolTip::add(addProcessesRegExpLineEdit, tr("Enter the pid (or regular expression defining the pids) that you want entered into\nthe current Column in the current Compare Set of the Compare Panel.\n\nDrag and drop, psets or individual processes from here to the Compare Panel.") );
 
   QHBoxLayout *removeProcessesLayout = new QHBoxLayout( 6, "removeProcessesLayout");
   CompareProcessesDialogLayout->addLayout( removeProcessesLayout );
   
   removeProcessesLabel = new QLabel(this, "removeProcessesLabel");
   removeProcessesLayout->addWidget( removeProcessesLabel );
-  removeProcessesRegExpTextEdit = new QLineEdit(this, "removeProcessesRegExpTextEdit");
-  QToolTip::add(removeProcessesRegExpTextEdit, tr("Enter the pid (or regular expression defining the pids) that you want removed from\nthe current Column in the current Compare Set of the Compare Panel.\n\nDrag and drop, psets or individual processes from here to the ComparePanel.") );
-  removeProcessesLayout->addWidget( removeProcessesRegExpTextEdit );
+  removeProcessesRegExpLineEdit = new QLineEdit(this, "removeProcessesRegExpLineEdit");
+  QToolTip::add(addProcessesRegExpLineEdit, tr("Select which process(es), on the selected host, should be removed.\nThis can be a single processes name or a comma separated list of processes names.\nRegular expressions will be honored.") );
+
+//  QToolTip::add(removeProcessesRegExpLineEdit, tr("Enter the pid (or regular expression defining the pids) that you want removed from\nthe current Column in the current Compare Set of the Compare Panel.\n\nDrag and drop, psets or individual processes from here to the ComparePanel.") );
+  removeProcessesLayout->addWidget( removeProcessesRegExpLineEdit );
 
 
   availableProcessesListView = new QListView( this, "availableProcessesListView" );
@@ -122,8 +141,9 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 
-connect( addProcessesRegExpTextEdit, SIGNAL( returnPressed() ), this, SLOT( addProcessesRegExpTextEditEntered() ) );
-connect( removeProcessesRegExpTextEdit, SIGNAL( returnPressed() ), this, SLOT( removeProcessesRegExpTextEditEntered() ) );
+connect( addProcessesHostRegExpLineEdit, SIGNAL( returnPressed() ), this, SLOT( addProcessesHostRegExpLineEditEntered() ) );
+connect( addProcessesRegExpLineEdit, SIGNAL( returnPressed() ), this, SLOT( addProcessesRegExpLineEditEntered() ) );
+connect( removeProcessesRegExpLineEdit, SIGNAL( returnPressed() ), this, SLOT( removeProcessesRegExpLineEditEntered() ) );
 
 }
 
@@ -178,15 +198,21 @@ CompareProcessesDialog::updateInfo()
 }
 
 void
-CompareProcessesDialog::addProcessesRegExpTextEditEntered()
+CompareProcessesDialog::addProcessesHostRegExpLineEditEntered()
 {
-printf("addProcessesRegExpTextEditEntered(%s)\n", addProcessesRegExpTextEdit->text().ascii() );
+printf("addProcessesHostRegExpLineEditEntered(%s)\n", addProcessesHostRegExpLineEdit->text().ascii() );
 }
 
 void
-CompareProcessesDialog::removeProcessesRegExpTextEditEntered()
+CompareProcessesDialog::addProcessesRegExpLineEditEntered()
 {
-printf("removeProcessesRegExpTextEditEntered(%s)\n", removeProcessesRegExpTextEdit->text().ascii() );
+printf("addProcessesRegExpLineEditEntered(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
+}
+
+void
+CompareProcessesDialog::removeProcessesRegExpLineEditEntered()
+{
+printf("removeProcessesRegExpLineEditEntered(%s)\n", removeProcessesRegExpLineEdit->text().ascii() );
 }
 
 void

@@ -240,7 +240,7 @@ CompareClass::addNewColumn(CompareSet *compareSet)
 
   compareSet->columnSetList.push_back( columnSet );
 
-//  columnSet->updateInfo();
+  compareSet->setNewFocus();
 }
 
 void
