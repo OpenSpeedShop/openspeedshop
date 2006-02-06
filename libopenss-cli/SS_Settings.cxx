@@ -203,7 +203,7 @@ SS_Settings::readBoolEntry(std::string key, bool def = 0, bool *ok=0)
        } else if( value_str.find("false",0) == 0 || value_str.find("FALSE",0) == 0 || 
            value_str.find("False",0) == 0 )
        {
-         ret_bool = true;
+         ret_bool = false;
        } else
        {
          ret_bool = atoi(value_str.c_str());
