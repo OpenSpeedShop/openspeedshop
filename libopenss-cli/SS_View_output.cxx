@@ -45,7 +45,7 @@ void Construct_View_Output (CommandObject *cmd,
                             bool Gen_Total_Percent,
                             int64_t percentofcolumn,
                             CommandResult *TotalValue,
-                            std::vector<std::pair<CommandResult_CallStackEntry *,
+                            std::vector<std::pair<CommandResult *,
                                                   SmartPtr<std::vector<CommandResult *> > > >& items,
                             std::list<CommandResult *>& view_output ) {
   int64_t i;
@@ -85,7 +85,7 @@ void Construct_View_Output (CommandObject *cmd,
   }
 
    // Format the report with the items that are in the vector.
-    std::vector<std::pair<CommandResult_CallStackEntry *,
+    std::vector<std::pair<CommandResult *,
                           SmartPtr<std::vector<CommandResult *> > > >::iterator it;
     for(it = items.begin(); it != items.end(); it++ ) {
 

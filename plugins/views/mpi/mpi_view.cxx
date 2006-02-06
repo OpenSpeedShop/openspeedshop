@@ -45,8 +45,8 @@ struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
 template <class T>
 struct sort_ascending_CallStacks : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
-        SmartPtr<std::vector<CommandResult *> > xs = x.first->Value();
-        SmartPtr<std::vector<CommandResult *> > ys = y.first->Value();
+        SmartPtr<std::vector<CommandResult *> > xs = ((CommandResult_CallStackEntry *)x.first)->Value();
+        SmartPtr<std::vector<CommandResult *> > ys = ((CommandResult_CallStackEntry *)y.first)->Value();
         vector<CommandResult *>::iterator i;
         vector<CommandResult *>::iterator j;
        // Always go for call stack ordering.
@@ -68,8 +68,8 @@ struct sort_ascending_CallStacks : public std::binary_function<T,T,bool> {
 template <class T>
 struct sort_descending_CallStacks : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
-        SmartPtr<std::vector<CommandResult *> > xs = x.first->Value();
-        SmartPtr<std::vector<CommandResult *> > ys = y.first->Value();
+        SmartPtr<std::vector<CommandResult *> > xs = ((CommandResult_CallStackEntry *)x.first)->Value();
+        SmartPtr<std::vector<CommandResult *> > ys = ((CommandResult_CallStackEntry *)y.first)->Value();
         vector<CommandResult *>::iterator i;
         vector<CommandResult *>::iterator j;
        // Always go for call stack ordering.
@@ -91,18 +91,18 @@ struct sort_descending_CallStacks : public std::binary_function<T,T,bool> {
 
 static void Setup_Sort( 
        ViewInstruction *vinst,
-       std::vector<std::pair<CommandResult_CallStackEntry *,
+       std::vector<std::pair<CommandResult *,
                              SmartPtr<std::vector<CommandResult *> > > >& c_items) {
   if ((vinst->OpCode() == VIEWINST_Display_Metric) ||
       (vinst->OpCode() == VIEWINST_Display_Percent_Metric) ||
       (vinst->OpCode() == VIEWINST_Display_Percent_Column)) {
     return;
   }
-  std::vector<std::pair<CommandResult_CallStackEntry *,
+  std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, set the desired sort value into the sort_temp field.
-    std::pair<CommandResult_CallStackEntry *,
+    std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
     CommandResult *Old = (*cp.second)[sort_temp];
     if (Old != NULL) delete Old;
@@ -129,13 +129,13 @@ static void Setup_Sort(
 }
 
 static void Dump_Intermediate_CallStack (ostream &tostream,
-       std::vector<std::pair<CommandResult_CallStackEntry *,
+       std::vector<std::pair<CommandResult *,
                              SmartPtr<std::vector<CommandResult *> > > >& c_items) {
-  std::vector<std::pair<CommandResult_CallStackEntry *,
+  std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, dump the corresponding value and the last call stack function name.
-    std::pair<CommandResult_CallStackEntry *,
+    std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
     tostream << "    ";
     for (int64_t i = 0; i < (*cp.second).size(); i++) {
@@ -243,7 +243,7 @@ static void Function_Report(
               SmartPtr<std::map<Function,
                                 std::map<Framework::StackTrace,
                                          std::vector<double> > > >& raw_items,
-              std::vector<std::pair<CommandResult_CallStackEntry *,
+              std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items) {
  // Combine all the items for each function.
  // Input data is sorted by function.
@@ -287,7 +287,7 @@ static void Function_Report(
                            new std::vector<CommandResult *>()
                            );
       call_stack->push_back(new CommandResult_Function (F, T));
-      CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (call_stack);
+      CommandResult *CSE = new CommandResult_CallStackEntry (call_stack);
       c_items.push_back(std::make_pair(CSE, vcs));
     }
 }
@@ -337,7 +337,7 @@ static void CallStack_Report (
               SmartPtr<std::map<Function,
                                 std::map<Framework::StackTrace,
                                          std::vector<double> > > >& raw_items,
-              std::vector<std::pair<CommandResult_CallStackEntry *,
+              std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items) {
  // Sum the data items for each call stack.
   std::map<Function,
@@ -375,8 +375,7 @@ static void CallStack_Report (
       (*vcs)[cnt_temp] = CRPTR (cnt);
       (*vcs)[ssq_temp] = CRPTR (sum_squares);
       SmartPtr<std::vector<CommandResult *> > call_stack = Construct_CallBack (TraceBack_Order, add_stmts, st);
-      CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (call_stack,
-                                                                            TraceBack_Order);
+      CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
       c_items.push_back(std::make_pair(CSE, vcs));
     }
   }
@@ -530,26 +529,26 @@ static inline void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& 
 
 static void Combine_Duplicate_CallStacks (
               std::vector<ViewInstruction *>& IV,
-              std::vector<std::pair<CommandResult_CallStackEntry *,
+              std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items) {
-  std::vector<std::pair<CommandResult_CallStackEntry *,
+  std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
 
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, look for duplicates.
-    std::vector<std::pair<CommandResult_CallStackEntry *,
+    std::vector<std::pair<CommandResult *,
                           SmartPtr<std::vector<CommandResult *> > > >::iterator nvpi = vpi+1;
     if (nvpi == c_items.end()) break;
-    std::pair<CommandResult_CallStackEntry *,
+    std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
-    SmartPtr<std::vector<CommandResult *> > cs = cp.first->Value();
+    SmartPtr<std::vector<CommandResult *> > cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
     int64_t cs_size = cs->size();
    // Compare the current entry to all following ones.
 
     for ( ; nvpi != c_items.end(); ) {
-      std::pair<CommandResult_CallStackEntry *,
+      std::pair<CommandResult *,
                 SmartPtr<std::vector<CommandResult *> > > ncp = *nvpi;
-      SmartPtr<std::vector<CommandResult *> > ncs = ncp.first->Value();
+      SmartPtr<std::vector<CommandResult *> > ncs = ((CommandResult_CallStackEntry *)ncp.first)->Value();
       if (cs_size > ncs->size()) {
         break;
       }
@@ -585,26 +584,26 @@ static void Combine_Duplicate_CallStacks (
 
 static void Combine_Short_Stacks (
               std::vector<ViewInstruction *>& IV,
-              std::vector<std::pair<CommandResult_CallStackEntry *,
+              std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items) {
-  std::vector<std::pair<CommandResult_CallStackEntry *,
+  std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
 
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, look for duplicates.
-    std::vector<std::pair<CommandResult_CallStackEntry *,
+    std::vector<std::pair<CommandResult *,
                           SmartPtr<std::vector<CommandResult *> > > >::iterator nvpi = vpi+1;
     if (nvpi == c_items.end()) break;
-    std::pair<CommandResult_CallStackEntry *,
+    std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
-    SmartPtr<std::vector<CommandResult *> > cs = cp.first->Value();
+    SmartPtr<std::vector<CommandResult *> > cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
     int64_t cs_size = cs->size();
    // Compare the current entry to all following ones.
 
     for ( ; nvpi != c_items.end(); ) {
-      std::pair<CommandResult_CallStackEntry *,
+      std::pair<CommandResult *,
                 SmartPtr<std::vector<CommandResult *> > > ncp = *nvpi;
-      SmartPtr<std::vector<CommandResult *> > ncs = ncp.first->Value();
+      SmartPtr<std::vector<CommandResult *> > ncs = ((CommandResult_CallStackEntry *)ncp.first)->Value();
       if (cs_size > ncs->size()) {
         break;
       }
@@ -668,26 +667,26 @@ static void Extract_Pivot_Items (
               ExperimentObject *exp,
               std::vector<ViewInstruction *>& IV,
               bool TraceBack_Order,
-              std::vector<std::pair<CommandResult_CallStackEntry *,
+              std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items,
               Function& func,
-              std::vector<std::pair<CommandResult_CallStackEntry *,
+              std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& result) {
   bool pivot_added = false;
-  std::pair<CommandResult_CallStackEntry *,
+  std::pair<CommandResult *,
             SmartPtr<std::vector<CommandResult *> > > pivot;
-  std::vector<std::pair<CommandResult_CallStackEntry *,
+  std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > > pred;
-  std::vector<std::pair<CommandResult_CallStackEntry *,
+  std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > > succ;
 
-  std::vector<std::pair<CommandResult_CallStackEntry *,
+  std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, look for the matching function name.
-    std::pair<CommandResult_CallStackEntry *,
+    std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
-    SmartPtr<std::vector<CommandResult *> > cs = cp.first->Value();
+    SmartPtr<std::vector<CommandResult *> > cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
 
     for (int64_t i = 0; i < cs->size(); i++) {
       CommandResult *cof = (*cs)[i];
@@ -697,8 +696,7 @@ static void Extract_Pivot_Items (
         if (!pivot_added) {
           SmartPtr<std::vector<CommandResult *> > vcs = Copy_CRVector (cp.second);
           SmartPtr<std::vector<CommandResult *> > ncs = Copy_Call_Stack_Entry (i, 0, cs);
-          CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (ncs,
-                                                                                TraceBack_Order);
+          CommandResult *CSE = new CommandResult_CallStackEntry (ncs, TraceBack_Order);
           pivot = std::make_pair(CSE, vcs);
           pivot_added = true;
         } else {
@@ -707,15 +705,13 @@ static void Extract_Pivot_Items (
         if (i != 0) {
           SmartPtr<std::vector<CommandResult *> > vcs = Copy_CRVector (cp.second);
           SmartPtr<std::vector<CommandResult *> > ncs = Copy_Call_Stack_Entry (i, -1, cs);
-          CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (ncs,
-                                                                                !TraceBack_Order);
+          CommandResult *CSE = new CommandResult_CallStackEntry (ncs, !TraceBack_Order);
           pred.push_back (std::make_pair(CSE, vcs));
         }
         if ((i+1) < cs->size()) {
           SmartPtr<std::vector<CommandResult *> > vcs = Copy_CRVector (cp.second);
           SmartPtr<std::vector<CommandResult *> > ncs = Copy_Call_Stack_Entry (i, +1, cs);
-          CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (ncs,
-                                                                                TraceBack_Order);
+          CommandResult *CSE = new CommandResult_CallStackEntry (ncs, TraceBack_Order);
           succ.push_back (std::make_pair(CSE, vcs));
         }
         break;
@@ -737,28 +733,27 @@ static void Extract_Pivot_Items (
 
 static void Expand_CallStack (
               bool TraceBack_Order,
-              std::vector<std::pair<CommandResult_CallStackEntry *,
+              std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items) {
  // Rewrite base report by expanding the call stack.
-  std::vector<std::pair<CommandResult_CallStackEntry *,
+  std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > > result;
-  std::vector<std::pair<CommandResult_CallStackEntry *,
+  std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, look for duplicates and missing intermediates.
-    std::vector<std::pair<CommandResult_CallStackEntry *,
+    std::vector<std::pair<CommandResult *,
                           SmartPtr<std::vector<CommandResult *> > > >::iterator nvpi = vpi+1;
-    std::pair<CommandResult_CallStackEntry *,
+    std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
-    SmartPtr<std::vector<CommandResult *> > cs = cp.first->Value();
+    SmartPtr<std::vector<CommandResult *> > cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
 
     // for (int64_t i = cs->size()-1; i > 0; i--) {
     for (int64_t i = 1; i < cs->size(); i++) {
      // Insert intermediate, dummy entry to fill a gap in the trace.
       SmartPtr<std::vector<CommandResult *> > vcs = Dup_CRVector (cp.second);
       SmartPtr<std::vector<CommandResult *> > ncs = Dup_Call_Stack (i, cs);
-      CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (ncs,
-                                                                            TraceBack_Order);
+      CommandResult *CSE = new CommandResult_CallStackEntry (ncs, TraceBack_Order);
       result.push_back (std::make_pair(CSE, vcs));
     }
     result.push_back (cp);
@@ -784,7 +779,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
     return false;   // There is no collector, return.
   }
 
-  std::vector<std::pair<CommandResult_CallStackEntry *,
+  std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > > c_items;
   CommandResult *TotalValue = NULL;
   int64_t i;
@@ -933,14 +928,14 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
           !Look_For_KeyWord(cmd, "ButterFly")) {
        // Determine the topn items.
         std::sort(c_items.begin(), c_items.end(),
-                sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *,
+                sort_descending_CommandResult<std::pair<CommandResult *,
                                                         SmartPtr<std::vector<CommandResult *> > > >());
         Reclaim_CR_Space (topn, c_items);
         c_items.erase ( (c_items.begin() + topn), c_items.end());
       }
      // Sort report in calling tree order.
       std::sort(c_items.begin(), c_items.end(),
-                sort_descending_CallStacks<std::pair<CommandResult_CallStackEntry *,
+                sort_descending_CallStacks<std::pair<CommandResult *,
                                                      SmartPtr<std::vector<CommandResult *> > > >());
 
      // Should we expand the call stack entries in the report?
@@ -968,7 +963,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
       Function_Report (f_items, c_items);
       Setup_Sort (ViewInst[0], c_items);
       std::sort(c_items.begin(), c_items.end(),
-                sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *,
+                sort_descending_CommandResult<std::pair<CommandResult *,
                                                         SmartPtr<std::vector<CommandResult *> > > >());
       if (topn < (int64_t)c_items.size()) {
         Reclaim_CR_Space (topn, c_items);
@@ -997,11 +992,11 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
     view_output.push_back(H);
 
    // Convert "0" values to blanks.
-    std::vector<std::pair<CommandResult_CallStackEntry *,
+    std::vector<std::pair<CommandResult *,
                           SmartPtr<std::vector<CommandResult *> > > >::iterator xvpi;
     for (xvpi = c_items.begin(); xvpi != c_items.end(); xvpi++) {
      // Foreach CallStack entry, look for duplicates and missing intermediates.
-      std::pair<CommandResult_CallStackEntry *,
+      std::pair<CommandResult *,
                 SmartPtr<std::vector<CommandResult *> > > cp = *xvpi;
       double V;
       ((CommandResult_Float *)(*cp.second)[0])->Value(V);
@@ -1034,7 +1029,7 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
         std::set<Function> FS = exp->FW()->getFunctionsByNamePattern (pval1.name);
         std::set<Function>::iterator fsi;
         for (fsi = FS.begin(); fsi != FS.end(); fsi++) {
-          std::vector<std::pair<CommandResult_CallStackEntry *,
+          std::vector<std::pair<CommandResult *,
                                 SmartPtr<std::vector<CommandResult *> > > > result;
           Function func = *fsi;
           Extract_Pivot_Items (cmd, exp, IV, TraceBack_Order, c_items, func, result);

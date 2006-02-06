@@ -319,6 +319,6 @@ void Construct_View_Output (CommandObject *cmd,
                             bool Gen_Total_Percent,
                             int64_t percentofcolumn,
                             CommandResult *TotalValue,
-                            std::vector<std::pair<CommandResult_CallStackEntry *,
+                            std::vector<std::pair<CommandResult *,
                                                   SmartPtr<std::vector<CommandResult *> > > >& items,
                             std::list<CommandResult *>& view_result );
