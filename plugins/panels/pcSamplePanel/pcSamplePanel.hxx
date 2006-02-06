@@ -179,5 +179,7 @@ private:
   bool exitingFLAG;
 
   QString expStatsInfoStr;
+
+  void resetRedirect();
 };
 #endif // PCSAMPLEPANEL_H

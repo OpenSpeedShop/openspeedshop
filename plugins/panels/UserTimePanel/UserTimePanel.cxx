@@ -932,6 +932,8 @@ UserTimePanel::experimentStatus()
   
   QMessageBox::information( this, "Experiment status", expStatsInfoStr, QMessageBox::Ok );
 
+  resetRedirect();
+
 
   delete epoclass;
 }
@@ -1586,3 +1588,20 @@ UserTimePanel::hideWizard()
       wizardPanel->getPanelContainer()->hidePanel(wizardPanel);
     }
 }
+
+void
+UserTimePanel::resetRedirect()
+{
+// Just make sure any pending output goes "somewhere".
+  Panel *cmdPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), "&Command Panel");
+  if( cmdPanel )
+  {
+    MessageObject *msg = new MessageObject("Redirect_Window_Output()");
+    cmdPanel->listener((void *)msg);
+    delete msg;
+  } else
+  {
+    fprintf(stderr, "Unable to redirect output to the cmdpanel.\n");
+  }
+}
+

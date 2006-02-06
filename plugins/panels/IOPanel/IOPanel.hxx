@@ -179,5 +179,7 @@ private:
   bool exitingFLAG;
 
   QString expStatsInfoStr;
+
+  void resetRedirect();
 };
 #endif // IOPanel_H_H

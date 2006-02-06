@@ -179,5 +179,7 @@ private:
   bool exitingFLAG;
 
   QString expStatsInfoStr;
+
+  void resetRedirect();
 };
 #endif // HW_CounterPanel_H_H
