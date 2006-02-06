@@ -924,10 +924,9 @@ static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
  * @todo    Error handling.
  *
  */
-static ThreadGroup Resolve_Target_List (CommandObject *cmd, ExperimentObject *exp) {
+static void Resolve_Target_List (CommandObject *cmd, ExperimentObject *exp, ThreadGroup &tgrp) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseTarget> *p_tlist = p_result->getTargetList();
-  ThreadGroup tgrp;
   if (p_tlist->begin() != p_tlist->end()) {
     vector<ParseTarget>::iterator ti;
     for (ti = p_tlist->begin(); ti != p_tlist->end(); ti++) {
@@ -936,11 +935,12 @@ static ThreadGroup Resolve_Target_List (CommandObject *cmd, ExperimentObject *ex
       }
       catch(const Exception& error) {
         Mark_Cmd_With_Std_Error (cmd, error);
-        return ThreadGroup();  // return an empty ThreadGroup
+        tgrp.clear(); // return an empty ThreadGroup
+        return;
       }
     }
   }
-  return tgrp;
+  return;
 }
 
 /**
@@ -994,7 +994,7 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
  // Determine the specified (or implied) set of Threads.
   ThreadGroup tgrp;
 
-  tgrp = Resolve_Target_List (cmd, exp);
+  Resolve_Target_List (cmd, exp, tgrp);
   if (tgrp.empty()) {
    // Use the threads that are already part of the experiment.
     try {
