@@ -487,8 +487,15 @@ printf("Currently under construction.\n");
 
 }
 
-  dialog->updateFocus(expID, this, compareSet, columnSet);
   dialog->updateInfo();
+  expID = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
+
+// printf("Focus on expID=%d\n",  expID );
+// printf("CompareClass=%s\n",  name() );
+// printf("compareSet=%s\n",  compareSet->name.ascii() );
+// printf("columnSet=(%s)\n", columnSet->name.ascii() );
+
+  dialog->updateFocus(expID, this, compareSet, columnSet);
 
   dialog->show();
 
