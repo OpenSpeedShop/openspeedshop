@@ -34,6 +34,7 @@
 #include <map>
 #include <pthread.h>
 #include <string>
+#include <vector>
 
 struct sqlite3;
 struct sqlite3_stmt;
@@ -129,9 +130,9 @@ namespace OpenSpeedShop { namespace Framework {
 	 * Database handle.
 	 *
 	 * Structure for a per-thread database handle. Contains an SQLite
-	 * handle for the database, a cache of prepared statements, and various
-	 * information about the statement currently being executed by the
-	 * thread (if any).
+	 * handle for the database, a cache of prepared statements, and
+	 * information about the transaction currently being executed by
+	 * the thread (if any).
 	 *
 	 * @note    Database handles are maintained on a per-thread basis mainly
 	 *          because SQLite does not allow a database handle created via
@@ -150,23 +151,30 @@ namespace OpenSpeedShop { namespace Framework {
 	    sqlite3* dm_database;
 	    
 	    /** Map query strings to their cached prepared statement. */
-	    std::map<std::string, sqlite3_stmt*> dm_cache;
-
-	    /** Currently executing statement. */
-	    sqlite3_stmt* dm_statement;
-	    	    
-	    /** Current transaction nesting level. */
-	    unsigned dm_nesting_level;
+	    std::multimap<std::string, sqlite3_stmt*> dm_cache;
 	    
-	    /** Flag indicating if commit can occur. */
-	    bool dm_is_committable;
+	    /**
+	     * Transaction stack.
+	     *
+	     * Stack for tracking the currently executing transaction. If the
+	     * stack is empty, no transaction is in progress. When an initial,
+	     * outer-most, transaction is started, a null statement is pushed
+	     * onto this stack. Each statement is pushed onto this stack as it
+	     * is prepared for execution, stays on the stack while it executes,
+	     * and is popped after its execution completes. Additional nested
+	     * transactions are indicated by pushing additional null statements
+	     * onto the stack.
+	     */
+	    std::vector<sqlite3_stmt*> dm_transaction;
 
+	    /** Flag indicating if outer-most transaction is commitable. */
+	    bool dm_is_committable;
+	    
 	    /** Default constructor. */
 	    Handle() :
 		dm_database(NULL),
 		dm_cache(),
-		dm_statement(NULL),
-		dm_nesting_level(0),
+		dm_transaction(),
 		dm_is_committable(false)
 	    {
 	    }

@@ -388,10 +388,9 @@ std::string Database::getName() const
 /**
  * Begin a new transaction.
  *
- * Begins a new SQL transaction on this database.
- *
- * @note    Nested transactions (of a sort) are implemented. A given thread may
- *          begin additional transactions before completing the previous one.
+ * Begins a new SQL transaction on this database. Nested transactions (of a
+ * sort) are implemented and a thread may begin another, nested, transaction
+ * before the previous transaction completes.
  */
 void Database::beginTransaction()
 {
@@ -407,9 +406,9 @@ void Database::beginTransaction()
     // Check assertions
     Assert(handle.dm_database != NULL);
     
-    // Is this an outer transaction?
-    if(handle.dm_nesting_level == 0) {
-	
+    // Is this the outermost transaction?
+    if(handle.dm_transaction.empty()) {
+
 	// Execute a SQL query to begin a new transaction
 	Assert(sqlite3_exec(handle.dm_database, "BEGIN DEFERRED TRANSACTION;",
 			    NULL, NULL, NULL) == SQLITE_OK);
@@ -418,9 +417,9 @@ void Database::beginTransaction()
 	handle.dm_is_committable = true;
 	
     }
-    
-    // Increment the transaction nesting level
-    handle.dm_nesting_level++;
+
+    // Push a new transaction onto the transaction stack
+    handle.dm_transaction.push_back(NULL);
 }
 
 
@@ -437,11 +436,6 @@ void Database::beginTransaction()
  *          Any attempt to prepare a statement before beginning a transaction
  *          will result in an assertion failure.
  * 
- * @note    A statement that has been prepared must be executed to completion
- *          via calls to executeStatement(). Any attempt to prepare a statement
- *          before a previously prepared statement has completed will result in
- *          an assertion failure.
- *
  * @note    Preparing multiple SQL statements (separated by ";") via a single
  *          call to this function is not supported. Each statement must be
  *          prepared and executed separately. Any attempt to prepare multiple
@@ -455,34 +449,37 @@ void Database::beginTransaction()
  * @param statement    SQL statement to be executed.
  */
 void Database::prepareStatement(const std::string& statement)
-{
+{    
     // Get our per-thread database handle
     Handle& handle = getHandle();
     
     // Check assertions
     Assert(handle.dm_database != NULL);
-    Assert(handle.dm_nesting_level > 0);
-    Assert(handle.dm_statement == NULL);
+    Assert(!handle.dm_transaction.empty());
 
-    // Determine if this statement has already been cached
-    std::map<std::string, sqlite3_stmt*>::const_iterator i =
-	handle.dm_cache.find(statement);
-    if(i != handle.dm_cache.end()) {
-	
-	// Use the cached prepared statement
-	handle.dm_statement = i->second;
-	
-	// Reset this statement for re-execution
-	Assert(sqlite3_reset(handle.dm_statement) == SQLITE_OK);
-	
-    }
-    else {
+    // Pointer to the statement being used
+    sqlite3_stmt* stmt = NULL;
+    
+    // Iterate over any cached prepared copies of this statement
+    for(std::multimap<std::string, sqlite3_stmt*>::const_iterator
+	    i = handle.dm_cache.lower_bound(statement);
+	(stmt == NULL) && i != handle.dm_cache.upper_bound(statement);
+	++i)
+
+	// Use this cached copy if it is unused within the transaction
+	if(std::find(handle.dm_transaction.begin(),
+		     handle.dm_transaction.end(),
+		     i->second) == handle.dm_transaction.end())
+	    stmt = i->second;
+    
+    // Do we need to prepare a new statement for execution?
+    if(stmt == NULL) {
 	
 	// Prepare this statement for execution
-	const char* tail = NULL;	
+	const char* tail = NULL;
 	int retval = sqlite3_prepare(handle.dm_database, 
 				     statement.c_str(), statement.size(),
-				     &handle.dm_statement, &tail);
+				     &stmt, &tail);
 	if(retval == SQLITE_ERROR) {
 	    std::string errmsg = sqlite3_errmsg(handle.dm_database);
 	    if(errmsg.find("syntax error") == std::string::npos)
@@ -492,16 +489,19 @@ void Database::prepareStatement(const std::string& statement)
 	Assert((tail != NULL) && (*tail == '\0'));
 	
 	// Cache this prepared statement for future use
-	handle.dm_cache[statement] = handle.dm_statement;
-	
+	handle.dm_cache.insert(std::make_pair(statement, stmt));
+
     }
-    
+
     // Check assertions
-    Assert(handle.dm_statement != NULL);
+    Assert(stmt != NULL);
     
     // Bind NULL values to all arguments of this statement
-    for(int i = 1; i <= sqlite3_bind_parameter_count(handle.dm_statement); ++i)
-	Assert(sqlite3_bind_null(handle.dm_statement, i) == SQLITE_OK);
+    for(int i = 1; i <= sqlite3_bind_parameter_count(stmt); ++i)
+	Assert(sqlite3_bind_null(stmt, i) == SQLITE_OK);
+
+    // Push this statement onto the transaction stack
+    handle.dm_transaction.push_back(stmt);
 }
 
 
@@ -532,12 +532,13 @@ void Database::bindArgument(const unsigned& index, const std::string& value)
     Handle& handle = getHandle();
 
     // Check assertions
-    Assert(handle.dm_statement != NULL);
-    Assert((index > 0) && 
-	   (index <= sqlite3_bind_parameter_count(handle.dm_statement)));
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_bind_parameter_count(handle.dm_transaction.back()));
     
     // Bind the argument
-    Assert(sqlite3_bind_text(handle.dm_statement, index,
+    Assert(sqlite3_bind_text(handle.dm_transaction.back(), index,
 			     value.c_str(), value.size(),
 			     SQLITE_TRANSIENT) == SQLITE_OK);
 }
@@ -570,12 +571,14 @@ void Database::bindArgument(const unsigned& index, const int& value)
     Handle& handle = getHandle();
 
     // Check assertions
-    Assert(handle.dm_statement != NULL);
-    Assert((index > 0) && 
-	   (index <= sqlite3_bind_parameter_count(handle.dm_statement)));
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_bind_parameter_count(handle.dm_transaction.back()));
     
     // Bind the argument
-    Assert(sqlite3_bind_int(handle.dm_statement, index, value) == SQLITE_OK);
+    Assert(sqlite3_bind_int(handle.dm_transaction.back(),
+			    index, value) == SQLITE_OK);
 }
 
 
@@ -606,12 +609,14 @@ void Database::bindArgument(const unsigned& index, const double& value)
     Handle& handle = getHandle();
 
     // Check assertions
-    Assert(handle.dm_statement != NULL);
-    Assert((index > 0) && 
-	   (index <= sqlite3_bind_parameter_count(handle.dm_statement)));
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_bind_parameter_count(handle.dm_transaction.back()));
     
     // Bind the argument
-    Assert(sqlite3_bind_double(handle.dm_statement, index, value) == SQLITE_OK);
+    Assert(sqlite3_bind_double(handle.dm_transaction.back(),
+			       index, value) == SQLITE_OK);
 }
 
 
@@ -642,12 +647,13 @@ void Database::bindArgument(const unsigned& index, const Blob& value)
     Handle& handle = getHandle();
 
     // Check assertions
-    Assert(handle.dm_statement != NULL);
-    Assert((index > 0) && 
-	   (index <= sqlite3_bind_parameter_count(handle.dm_statement)));
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_bind_parameter_count(handle.dm_transaction.back()));
     
     // Bind the argument
-    Assert(sqlite3_bind_blob(handle.dm_statement, index, 
+    Assert(sqlite3_bind_blob(handle.dm_transaction.back(), index, 
 			     value.getContents(), value.getSize(), 
 			     SQLITE_TRANSIENT) == SQLITE_OK);
 }
@@ -680,12 +686,13 @@ void Database::bindArgument(const unsigned& index, const Address& value)
     Handle& handle = getHandle();
 
     // Check assertions
-    Assert(handle.dm_statement != NULL);
-    Assert((index > 0) && 
-	   (index <= sqlite3_bind_parameter_count(handle.dm_statement)));
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_bind_parameter_count(handle.dm_transaction.back()));
 
     // Bind the argument
-    Assert(sqlite3_bind_int64(handle.dm_statement, index, 
+    Assert(sqlite3_bind_int64(handle.dm_transaction.back(), index, 
 			      static_cast<int64_t>(value.getValue()) -
 			      signedOffset) == SQLITE_OK);
 }
@@ -718,12 +725,13 @@ void Database::bindArgument(const unsigned& index, const Time& value)
     Handle& handle = getHandle();
 
     // Check assertions
-    Assert(handle.dm_statement != NULL);
-    Assert((index > 0) && 
-	   (index <= sqlite3_bind_parameter_count(handle.dm_statement)));
-
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_bind_parameter_count(handle.dm_transaction.back()));
+    
     // Bind the argument
-    Assert(sqlite3_bind_int64(handle.dm_statement, index, 
+    Assert(sqlite3_bind_int64(handle.dm_transaction.back(), index, 
 			      static_cast<int64_t>(value.getValue()) -
 			      signedOffset) == SQLITE_OK);
 }
@@ -753,17 +761,21 @@ bool Database::executeStatement()
     Handle& handle = getHandle();
 
     // Check assertions
-    Assert(handle.dm_statement != NULL);
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
     
     // Execute the next step of the current statement
-    int retval = sqlite3_step(handle.dm_statement);
+    int retval = sqlite3_step(handle.dm_transaction.back());
     Assert((retval == SQLITE_ROW) || (retval == SQLITE_DONE));
     
     // Handle a completed statement
     if(retval == SQLITE_DONE) {
+
+	// Reset this statement
+	Assert(sqlite3_reset(handle.dm_transaction.back()) == SQLITE_OK);
 	
-	// Indicate there is no longer a current statement
-	handle.dm_statement = NULL;
+	// Pop this statement off the transaction stack
+	handle.dm_transaction.pop_back();
 	
     }
     
@@ -788,12 +800,14 @@ bool Database::getResultIsNull(const unsigned& index)
     Handle& handle = getHandle();
 
     // Check assertions
-    Assert(handle.dm_statement != NULL);
-    Assert((index > 0) &&
-	   (index <= sqlite3_column_count(handle.dm_statement)));
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_column_count(handle.dm_transaction.back()));
 
     // Return the result to the caller
-    return sqlite3_column_type(handle.dm_statement, index - 1) == SQLITE_NULL;
+    return sqlite3_column_type(handle.dm_transaction.back(), index - 1) == 
+	SQLITE_NULL;
 }
 
 
@@ -822,13 +836,14 @@ std::string Database::getResultAsString(const unsigned& index)
     Handle& handle = getHandle();
 
     // Check assertions
-    Assert(handle.dm_statement != NULL);
-    Assert((index > 0) &&
-	   (index <= sqlite3_column_count(handle.dm_statement)));
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_column_count(handle.dm_transaction.back()));
 
     // Return the result to the caller
     return reinterpret_cast<const char*>
-	(sqlite3_column_text(handle.dm_statement, index - 1));
+	(sqlite3_column_text(handle.dm_transaction.back(), index - 1));
 }
 
 
@@ -857,12 +872,13 @@ int Database::getResultAsInteger(const unsigned& index)
     Handle& handle = getHandle();
 
     // Check assertions
-    Assert(handle.dm_statement != NULL);
-    Assert((index > 0) &&
-	   (index <= sqlite3_column_count(handle.dm_statement)));
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_column_count(handle.dm_transaction.back()));
 
     // Return the result to the caller
-    return sqlite3_column_int(handle.dm_statement, index - 1);
+    return sqlite3_column_int(handle.dm_transaction.back(), index - 1);
 }
 
 
@@ -891,12 +907,13 @@ double Database::getResultAsReal(const unsigned& index)
     Handle& handle = getHandle();
 
     // Check assertions
-    Assert(handle.dm_statement != NULL);
-    Assert((index > 0) &&
-	   (index <= sqlite3_column_count(handle.dm_statement)));
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_column_count(handle.dm_transaction.back()));
 
     // Return the result to the caller
-    return sqlite3_column_double(handle.dm_statement, index - 1);
+    return sqlite3_column_double(handle.dm_transaction.back(), index - 1);
 }
 
 
@@ -925,13 +942,14 @@ Blob Database::getResultAsBlob(const unsigned& index)
     Handle& handle = getHandle();
 
     // Check assertions
-    Assert(handle.dm_statement != NULL);
-    Assert((index > 0) &&
-	   (index <= sqlite3_column_count(handle.dm_statement)));
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_column_count(handle.dm_transaction.back()));
     
     // Return the result to the caller
-    return Blob(sqlite3_column_bytes(handle.dm_statement, index - 1),
-		sqlite3_column_blob(handle.dm_statement, index - 1));
+    return Blob(sqlite3_column_bytes(handle.dm_transaction.back(), index - 1),
+		sqlite3_column_blob(handle.dm_transaction.back(), index - 1));
 }
 
 
@@ -960,12 +978,14 @@ Address Database::getResultAsAddress(const unsigned& index)
     Handle& handle = getHandle();
 
     // Check assertions
-    Assert(handle.dm_statement != NULL);
-    Assert((index > 0) &&
-	   (index <= sqlite3_column_count(handle.dm_statement)));
-    
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_column_count(handle.dm_transaction.back()));
+
     // Return the result to the caller
-    return Address(sqlite3_column_int64(handle.dm_statement, index - 1) +
+    return Address(sqlite3_column_int64(handle.dm_transaction.back(),
+					index - 1) +
 		   signedOffset);
 }
 
@@ -995,12 +1015,14 @@ Time Database::getResultAsTime(const unsigned& index)
     Handle& handle = getHandle();
 
     // Check assertions
-    Assert(handle.dm_statement != NULL);
-    Assert((index > 0) &&
-	   (index <= sqlite3_column_count(handle.dm_statement)));
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_column_count(handle.dm_transaction.back()));
     
     // Return the result to the caller
-    return Time(sqlite3_column_int64(handle.dm_statement, index - 1) +
+    return Time(sqlite3_column_int64(handle.dm_transaction.back(),
+				     index - 1) +
 		signedOffset);
 }
 
@@ -1026,7 +1048,7 @@ int Database::getLastInsertedUID()
 
     // Check assertions
     Assert(handle.dm_database != NULL);
-    Assert(handle.dm_nesting_level > 0);
+    Assert(!handle.dm_transaction.empty());
     
     // Return the result to the caller
     return static_cast<int>(sqlite3_last_insert_rowid(handle.dm_database));
@@ -1038,15 +1060,12 @@ int Database::getLastInsertedUID()
  * Commit a transaction.
  *
  * Ends the current SQL transaction on this database by committing any changes
- * that were made.
+ * that were made. Commits within a nested transaction do not actually occur
+ * until the outermost transaction is completed. The commit is negated if any
+ * other nested transaction within our outermost transaction is rolled back.
  *
  * @note    Any attempt to commit a transaction that was not first begun with a
  *          call to beginTransaction() will result in an assertion failure.
- *
- * @note    A commit within a nest transaction does not actually occur until
- *          the outermost transaction is completed. The commit is negated if
- *          any other nested transaction within our outermost transaction is
- *          rolled back.
  */
 void Database::commitTransaction()
 {
@@ -1055,13 +1074,28 @@ void Database::commitTransaction()
 
     // Check assertions
     Assert(handle.dm_database != NULL);
-    Assert(handle.dm_nesting_level > 0);
+    Assert(!handle.dm_transaction.empty());
 
-    // Decrement the transaction nesting level
-    handle.dm_nesting_level--;
-    
-    // Commit for the outermost transaction?
-    if(handle.dm_nesting_level == 0) {
+    // Remove any prepared statements within the current transaction
+    while(!handle.dm_transaction.empty() &&
+	  (handle.dm_transaction.back() != NULL)) {
+	
+	// Reset this statement
+	Assert(sqlite3_reset(handle.dm_transaction.back()) == SQLITE_OK);
+	
+	// Pop this statement off the transaction stack
+	handle.dm_transaction.pop_back();
+	
+    }
+
+    // Check assertions
+    Assert(!handle.dm_transaction.empty());
+
+    // Pop this transaction off the transaction stack
+    handle.dm_transaction.pop_back();
+
+    // Is this a commit for the outermost transaction?
+    if(handle.dm_transaction.empty()) {
 	
 	// Execute a SQL query to commit (or rollback) the transaction
 	Assert(sqlite3_exec(handle.dm_database, handle.dm_is_committable ?
@@ -1083,15 +1117,12 @@ void Database::commitTransaction()
  * Rollback a transaction.
  *
  * Ends the current SQL transaction on this database by rolling back any changes
- * that were made.
+ * that were made. Rollbacks within a nested transaction will cause <em>all</em>
+ * changes made within the outermost transaction to be rolled back. However this
+ * does not occur until the outermost transaction has completed. 
  *
  * @note    Any attempt to rollback a transaction that was not first begun with
  *          a call to beginTransaction() will result in an assertion failure.
- *
- * @note    A rollback within a nested transaction will cause <em>all</em>
- *          changes made within the context of the outermost transaction to
- *          be rolled back. This does not occur, however, until the outermost
- *          transaction has completed.
  */
 void Database::rollbackTransaction()
 {
@@ -1100,25 +1131,29 @@ void Database::rollbackTransaction()
 
     // Check assertions
     Assert(handle.dm_database != NULL);
-    Assert(handle.dm_nesting_level > 0);
+    Assert(!handle.dm_transaction.empty());
 
-    // Is there a current statement?
-    if(handle.dm_statement != NULL) {
+    // Remove any prepared statements within the current transaction
+    while(!handle.dm_transaction.empty() &&
+	  (handle.dm_transaction.back() != NULL)) {
 	
-	// Reset the current statement
-	Assert(sqlite3_reset(handle.dm_statement) == SQLITE_OK);	    
+	// Reset this statement
+	Assert(sqlite3_reset(handle.dm_transaction.back()) == SQLITE_OK);
 	
-	// Indicate there is no longer a current statement
-	handle.dm_statement = NULL;	    
+	// Pop this statement off the transaction stack
+	handle.dm_transaction.pop_back();
 	
     }
 
-    // Decrement the transaction nesting level
-    handle.dm_nesting_level--;
-    
-    // Rollback for the outermost transaction?
-    if(handle.dm_nesting_level == 0) {
+    // Check assertions
+    Assert(!handle.dm_transaction.empty());
 
+    // Pop this transaction off the transaction stack
+    handle.dm_transaction.pop_back();
+    
+    // Is this a rollback for the outermost transaction?
+    if(handle.dm_transaction.empty()) {
+	
 	// Execute a SQL query to rollback the transaction
         Assert(sqlite3_exec(handle.dm_database, "ROLLBACK TRANSACTION;",
         		    NULL, NULL, NULL) == SQLITE_OK);
@@ -1135,7 +1170,7 @@ void Database::rollbackTransaction()
     // Release read access for the transaction lock
     //     (indicate the in-progress transaction has completed)
     //
-    Assert(pthread_rwlock_unlock(&dm_transaction_lock) == 0);
+    Assert(pthread_rwlock_unlock(&dm_transaction_lock) == 0);    
 }
 
 
@@ -1258,10 +1293,10 @@ void Database::releaseAllHandles()
 	
 	// Check assertions
 	Assert(i->second.dm_database != NULL);
-	Assert(i->second.dm_nesting_level == 0);
+	Assert(i->second.dm_transaction.empty());
 	
 	// Finalize all cached prepared statements
-	for(std::map<std::string, sqlite3_stmt*>::const_iterator
+	for(std::multimap<std::string, sqlite3_stmt*>::const_iterator
 		j = i->second.dm_cache.begin();
 	    j != i->second.dm_cache.end();
 	    ++j)
@@ -1269,12 +1304,12 @@ void Database::releaseAllHandles()
 	
 	// Clear the prepared statement cache
 	i->second.dm_cache.clear();
-
+	
 	// Close the SQLite handle for this database
 	Assert(sqlite3_close(i->second.dm_database) == SQLITE_OK);    
 	
     }
-
+    
     // Clear the per-thread database handles
     dm_handles.clear();
 }
