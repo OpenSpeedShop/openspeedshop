@@ -103,6 +103,7 @@ protected slots:
     virtual void languageChange();
 
 public slots:
+    void contextMenuRequested( QListViewItem *item, const QPoint &pos, int col );
     void updatePanel();
     void updateTimerCallback();
 

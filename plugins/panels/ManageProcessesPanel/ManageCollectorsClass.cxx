@@ -42,7 +42,6 @@
 #include <qvaluelist.h>
 #include <qheader.h>
 
-// #include "SS_Input_Manager.hxx"
 #include "ToolAPI.hxx"
 using namespace OpenSpeedShop::Framework;
 #include "Thread.hxx"
@@ -141,6 +140,9 @@ QToolTip::add(psetListView->viewport(), tr("Create a new user defined pset by dr
   ManageCollectorsClassLayout->addWidget( splitter );
 
   languageChange();
+
+  connect(attachCollectorsListView, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint& , int ) ), this, SLOT( contextMenuRequested( QListViewItem *, const QPoint &, int ) ) );
+
   connect( attachCollectorsListView, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( focusOnProcessSelected( QListViewItem* )) );
   connect( psetListView, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( focusOnProcessSelected( QListViewItem* )) );
 }
@@ -1525,7 +1527,7 @@ while( it.current() )
       }
     } else
     {
-      printf("user pressed cancel.\n");
+//  printf("user pressed cancel.\n");
     }
     
   }
@@ -1678,6 +1680,121 @@ ManageCollectorsClass::updateTimerCallback()
   updateTimer->stop();
 
   updatePanel();
+}
+
+
+void
+ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &pos, int col)
+{
+  dprintf("ManageCollectorsClass::contextMenuRequested() entered.\n");
+
+
+  if( item == 0 )
+  {
+    return;
+  }
+  QListViewItem *selected_item = item;
+
+
+  QString field_name = QString::null;
+  if( item )
+  {
+// printf("%s %s\n", attachCollectorsListView->selectedItem()->text(0).ascii(), attachCollectorsListView->selectedItem()->text(1).ascii()  );
+// printf("%s %s\n", item->text(0).ascii(), item->text(1).ascii()  );
+    if( dialogSortType == COLLECTOR_T )
+    {
+      field_name = item->text(0);
+    } else
+    {
+// printf("%s %s\n", item->text(0).ascii(), item->text(1).ascii() );
+// printf("%s %s\n", attachCollectorsListView->selectedItem()->text(0).ascii(), attachCollectorsListView->selectedItem()->text(1).ascii()  );
+      field_name = item->text(1);
+    }
+  } else
+  {
+    return;
+  }
+
+  if( popupMenu != NULL )
+  {
+    delete popupMenu;
+  } 
+  popupMenu = new QPopupMenu(this);
+
+  if( paramMenu != NULL )
+  {
+    delete paramMenu;
+  }
+  paramMenu = NULL;
+  if( collectorPopupMenu != NULL )
+  {
+    delete collectorPopupMenu;
+  }
+  collectorPopupMenu = NULL;
+
+
+
+  // It may make sense to allow other SortTypes to add/delete collectors... 
+  // At this point only this sort type is supported.
+  if( dialogSortType == COLLECTOR_T || dialogSortType == PID_T || 
+      dialogSortType == HOST_T )
+  {
+
+    if( selected_item &&
+       ( dialogSortType == COLLECTOR_T && selected_item->parent() == NULL ) ||
+       ( dialogSortType == PID_T && selected_item->parent() != NULL ) )
+    {
+// printf("Here field_name=(%s)\n", !field_name.isEmpty() ? field_name.ascii() : NULL );
+      CollectorEntry *ce = NULL;
+      CollectorEntryList::Iterator it;
+clo = new CollectorListObject(expID);
+      if( clo )
+      {
+        for( it = clo->collectorEntryList.begin();
+             it != clo->collectorEntryList.end();
+             ++it )
+        {
+          ce = (CollectorEntry *)*it;
+          if( field_name == ce->name )
+          {
+// printf("(%s): parameters are\n", ce->name.ascii() );
+            CollectorParameterEntryList::Iterator pit = ce->paramList.begin();
+            if( ce->paramList.size() == 1 )
+            {
+// printf("size == 1\n");
+              CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
+              popupMenu->insertItem( QString("Modify Parameter ... (%1::%2)").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()), this, SLOT(paramSelected(int)) );
+// printf("done size == 1\n");
+            } else
+            {
+// printf("size != 1\n");
+              if( paramMenu == NULL )
+              {
+                paramMenu = new QPopupMenu(this);
+              }
+              connect( paramMenu, SIGNAL( activated( int ) ),
+                         this, SLOT( paramSelected( int ) ) );
+              popupMenu->insertItem("Modify Parameter", paramMenu);
+// printf("done size != 1\n");
+              for( ;pit != ce->paramList.end();  pit++)
+              {
+                CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
+// printf("\t%s   %s\n", cpe->name.ascii(), cpe->param_value.ascii() );
+                paramMenu->insertItem(QString("%1::%2").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()) );
+// printf("\tdone: %s   %s\n", cpe->name.ascii(), cpe->param_value.ascii() );
+              }
+            }
+            break;
+          }
+        }
+      }
+    }
+// printf("here... popupMenu=0x%x\n", popupMenu );
+  menu(popupMenu);
+  }
+
+
+  popupMenu->popup( pos );
 }
 
 bool
