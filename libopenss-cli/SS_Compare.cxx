@@ -322,8 +322,7 @@ bool SS_expCompare (CommandObject *cmd) {
     if (initialSetCnt == 0) {
      // Define new compare sets for each host.
       for (int64_t j = 0; j < pids.size(); j++) {
-        char s[40];
-        sprintf ( s, "-p %lld: ", pids[j]);
+        int64_t P = pids[j]; char s[40]; sprintf ( s, "-p %lld: ", P);
         selectionTarget S;
         S.headerPrefix = s;
         S.pidId = pids[j];
@@ -346,8 +345,7 @@ bool SS_expCompare (CommandObject *cmd) {
 
        // Append this pid to N copies of the original sets.
         for (int64_t k = 0; k < initialSetCnt; k++) {
-          char s[40];
-          sprintf ( s, "-p %lld: ", pids[j]);
+          int64_t P = pids[j]; char s[40]; sprintf ( s, "-p %lld: ", P);
           selectionTarget S;
           Quick_Compare_Set[segmentStart+k].headerPrefix += s;
           Quick_Compare_Set[segmentStart+k].pidId = pids[j];
@@ -377,8 +375,7 @@ bool SS_expCompare (CommandObject *cmd) {
     if (initialSetCnt == 0) {
      // Define new compare sets for each host.
       for (int64_t j = 0; j < threadids.size(); j++) {
-        char s[40];
-        sprintf ( s, "-t %lld: ", threadids[j]);
+        char s[40]; sprintf ( s, "-t %lld: ", threadids[j]);
         selectionTarget S;
         S.headerPrefix = s;
         S.threadId = threadids[j];
@@ -401,8 +398,7 @@ bool SS_expCompare (CommandObject *cmd) {
 
        // Append this threadid to N copies of the original sets.
         for (int64_t k = 0; k < initialSetCnt; k++) {
-          char s[40];
-          sprintf ( s, "-t %lld: ", threadids[j]);
+          char s[40]; sprintf ( s, "-t %lld: ", threadids[j]);
           selectionTarget S;
           Quick_Compare_Set[segmentStart+k].headerPrefix += s;
           Quick_Compare_Set[segmentStart+k].threadId = threadids[j];
@@ -433,8 +429,7 @@ bool SS_expCompare (CommandObject *cmd) {
     if (initialSetCnt == 0) {
      // Define new compare sets for each host.
       for (int64_t j = 0; j < rankids.size(); j++) {
-        char s[40];
-        sprintf ( s, "-r %lld: ", rankids[j]);
+        char s[40]; sprintf ( s, "-r %lld: ", rankids[j]);
         selectionTarget S;
         S.headerPrefix = s;
         S.rankId = rankids[j];
@@ -457,8 +452,7 @@ bool SS_expCompare (CommandObject *cmd) {
 
        // Append this threadid to N copies of the original sets.
         for (int64_t k = 0; k < initialSetCnt; k++) {
-          char s[40];
-          sprintf ( s, "-r %lld: ", rankids[j]);
+          char s[40]; sprintf ( s, "-r %lld: ", rankids[j]);
           selectionTarget S;
           Quick_Compare_Set[segmentStart+k].headerPrefix += s;
           Quick_Compare_Set[segmentStart+k].rankId = rankids[j];
