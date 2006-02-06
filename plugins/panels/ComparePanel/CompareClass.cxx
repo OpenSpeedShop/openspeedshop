@@ -170,9 +170,9 @@ CompareClass::menu(QPopupMenu* contextMenu)
 
   qaction = new QAction( this,  "focusOnProcess");
   qaction->addTo( contextMenu );
-  qaction->setText( tr(QString("Focus on Compare Set...")+currentCompareSetString) );
+  qaction->setText( tr(QString("Update Stats Panel with defined Compare Set...")+currentCompareSetString) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnCSetSelected() ) );
-  qaction->setStatusTip( tr("Focus the StastPanel on processes in current Compare Set.") );
+  qaction->setStatusTip( tr("Focus the StastPanel on processes defined in the current Compare Set.") );
 
   contextMenu->insertSeparator();
 
@@ -587,11 +587,26 @@ CompareClass::removeUserPSet()
 {
 printf("removeUserPSet() hmmmm\n");
   // First find the current (raised) cset.\n");
-  QTabWidget *currentTabWidget = (QTabWidget* )csetTB->currentItem();
+//  QTabWidget *currentTabWidget = (QTabWidget* )csetTB->currentItem();
 
-  QWidget *currentTab = currentTabWidget->currentPage();
+//  QWidget *currentTab = currentTabWidget->currentPage();
 
-printf("Hmmmm.\n");
+  CompareSet *compareSet = findCurrentCompareSet();
+  if( compareSet )
+  {
+// printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
+    ColumnSetList::Iterator it;
+    for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
+    {
+      ColumnSet *columnSet = (ColumnSet *)*it;
+      QListViewItem *item = columnSet->lv->currentItem();
+// printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
+      if( item )
+      {
+        delete item;
+      }
+    }
+  }
 }
 
 

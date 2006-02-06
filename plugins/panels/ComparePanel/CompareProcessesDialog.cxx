@@ -200,6 +200,7 @@ CompareProcessesDialog::updateInfo()
   QApplication::restoreOverrideCursor();
 }
 
+#include "MPListViewItem.hxx"
 void
 CompareProcessesDialog::addProcessesHostRegExpLineEditEntered()
 {
@@ -210,6 +211,19 @@ void
 CompareProcessesDialog::addProcessesRegExpLineEditEntered()
 {
 printf("addProcessesRegExpLineEditEntered(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
+
+  QString pset_name = QString::null;
+  QString host = QString::null;
+  QString pidstr = addProcessesRegExpLineEdit->text();
+  QString tidstr = QString::null;
+  QString collector_name = QString::null;
+
+
+host = "Unknown";
+
+  MPListViewItem *item = new MPListViewItem( columnSet->lv->firstChild(), pidstr, host, tidstr );
+  DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, host, pidstr);
+  item->descriptionClassObject = dco;
 }
 
 void
