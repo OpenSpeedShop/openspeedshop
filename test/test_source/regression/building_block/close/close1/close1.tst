@@ -22,3 +22,4 @@ echo expgo >> input.script
 echo expclose -v kill,all >> input.script
 echo exit >> input.script
 openss -batch < input.script
+echo 'exited'
