@@ -236,6 +236,8 @@ void
 CompareProcessesDialog::accept()
 {
 printf("accept() entered\n");
+
+  hide();
 }
 
 void
