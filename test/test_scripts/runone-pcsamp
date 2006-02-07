@@ -29,7 +29,7 @@ from threading import *
 
 
 def too_long():
-	os.system('killall -q openss')
+	os.system('killall -s 9 openss')
 
 def createTestList():
 	checktemptestlist = os.system('test -e temptestlist')

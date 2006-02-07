@@ -29,7 +29,7 @@ from threading import *
 
 
 def too_long():
-	os.system('killall -q openss')
+	os.system('killall -s 9 openss')
 
 def createTestList():
 	checktemptestlist = os.system('test -e temptestlist')
@@ -96,7 +96,30 @@ def focus_result(testName):
 			return 2
 	else:
 		return 2	
-			
+		
+def close_result(testName):
+	nooutput = 1
+	outputfilename = testName + '.output'
+	outputfileptr = open(outputfilename, 'r')
+	while 1:
+		tempfileline = outputfileptr.readline()
+		if not tempfileline:
+			break
+		if tempfileline[0:-1] == 'The new focused experiment identifier is:  -x 1':
+			nooutput = 0
+			break
+		tempfileline = outputfileptr.readline()
+		if not tempfileline:
+			return 1
+		if tempfileline[0:-1]=='Start asynchronous execution of experiment:  -x 1':
+			tempfileline = outputfileptr.readline()
+			if not tempfileline:
+				return 2
+			if tempfileline[0:6]=='exited':
+				return 0
+			else:
+				return 2
+		
 def pause_result(testName):
         nooutput = 1
         outputfilename = testName + '.output'
@@ -305,7 +328,7 @@ def CompareResults(testName, fileptr, finished):
 	nooutput = 1
 	resultnum = 1
 	if (testName[0:5] == 'close'):
-		resultnum = 0
+		resultnum = close_result(testName)
 	if (testName[0:5] == 'focus'):
 		resultnum = focus_result(testName)
 	if (testName[0:5] == 'pause'):
