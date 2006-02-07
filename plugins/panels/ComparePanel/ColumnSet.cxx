@@ -145,6 +145,7 @@ lv->addColumn("Host:");
   lv->setRootIsDecorated(TRUE);
   lv->setSelectionMode( QListView::Single );
   MPListViewItem *dynamic_items = new MPListViewItem( lv, CPS);
+dynamic_items->setOpen(TRUE);
 
   QToolTip::add(lv->viewport(), __TR("Drag and drop, psets or individual processes from the\nManageProcessesPanel.  In the StatsPanel, the statistics from\nthese grouped processes will be displayed in\ncolumns relative to this display.") );
   TBlayout->addWidget(lv);

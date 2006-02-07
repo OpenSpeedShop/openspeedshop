@@ -266,36 +266,18 @@ printf("Currently unimplemented\n");
   QString expCompareCommand = "expCompare ";
 QString temp_expCompareCommand = "expCompare ";
 
-#ifdef DEBUG
-// For now, dump out all the information....   Eventually focus on just 
-// the highlighted CompareSet
-  CompareSetList::Iterator it;
-  for( it = csl->begin(); it != csl->end(); ++it )
+  CompareSet *compareSet = findCurrentCompareSet();
+  if( compareSet )
   {
-    CompareSet *compareSet = (CompareSet *)*it;
 printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
-
     ColumnSetList::Iterator it;
     for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
     {
       ColumnSet *columnSet = (ColumnSet *)*it;
 printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
-    }
-  }
-#endif // DEBUG
-
-  CompareSet *compareSet = findCurrentCompareSet();
-  if( compareSet )
-  {
-// printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
-    ColumnSetList::Iterator it;
-    for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
-    {
-      ColumnSet *columnSet = (ColumnSet *)*it;
-// printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
-// printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
-// printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
-// printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
+printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
+printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
+printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
 
 {
 int id = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
@@ -310,7 +292,7 @@ if( temp_expCompareCommand.isEmpty() )
 }
 
 
-// printf("\t\t: processes:\n");
+printf("\t\t: processes:\n");
   QString expCompareProcessList = QString::null;
 QString temp_expCompareProcessList = QString::null;
 
@@ -327,13 +309,13 @@ QString temp_expCompareProcessList = QString::null;
   while( it.current() )
   {
     MPListViewItem *lvi = (MPListViewItem *)it.current();
-// printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
-// printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
-// printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
-// if( lvi->descriptionClassObject )
-// {
-//   lvi->descriptionClassObject->Print();
-// }
+printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
+printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
+printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+if( lvi->descriptionClassObject )
+{
+  lvi->descriptionClassObject->Print();
+}
     if( focus_msg == NULL )
     {
       focus_msg = new FocusCompareObject(expID,  NULL, TRUE);

@@ -161,6 +161,7 @@ printf("updatePSetList(%d) \n", expID );
 
 
   QListViewItem *dynamic_items = new MPListViewItem( psetListView, DPS);
+dynamic_items->setOpen(TRUE);
 
   QString pset_name = QString::null;
 
