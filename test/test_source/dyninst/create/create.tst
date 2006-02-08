@@ -17,4 +17,4 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 export DYNINSTAPI_RT_LIB=/usr/lib/libdyninstAPI_RT.so.1
-./mutator ./mutatee 10
+./mutator ./mutatee
