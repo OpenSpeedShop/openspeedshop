@@ -18,6 +18,11 @@
 #
 # directories that will be built
 SUBDIRS = create findPoint
+
+if HAVE_F77
+SUBDIRS += createf77
+endif
+
 #
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.

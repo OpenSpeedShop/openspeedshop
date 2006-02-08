@@ -25,6 +25,15 @@ AM_INIT_AUTOMAKE
 
 AC_PROG_CC()
 AC_PROG_CXX()
+AC_PROG_F77
+
+if test "$ac_cv_f77_compiler_gnu" = no; then
+        AM_CONDITIONAL(HAVE_F77, false)
+else
+        AM_CONDITIONAL(HAVE_F77, true)
+        AC_DEFINE(HAVE_F77, 1, [Define to 1 if you have F77.])
+fi
+
 
 
 ################################################################################
@@ -59,6 +68,7 @@ AC_CONFIG_FILES([
 	Makefile
 	create/Makefile
 	findPoint/Makefile
+	createf77/Makefile
 ])
 
 AC_OUTPUT
