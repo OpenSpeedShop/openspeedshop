@@ -23,21 +23,16 @@ SUBDIRS = \
 	forever \
 	forever_cxx  \
 	fredO2 \
-	fred \
-	nbody \
-	smg2000
+	fred 
+
+if HAVE_MPI
+SUBDIRS += nbody smg2000
+endif
+
 #
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 #
-DIST_SUBDIRS = \
-	mutatee\
-	Eon \
-	forever\
-	forever_cxx \
-	fredO2 \
-	fred \
-	nbody \
-	smg2000
+DIST_SUBDIRS = $(SUBDIRS) 
 
 
