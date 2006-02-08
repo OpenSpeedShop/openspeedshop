@@ -724,6 +724,60 @@ void Get_Filtered_Objects (CommandObject *cmd,
 }
 
 
+/**
+ * Method: Validate_V_Options(CommandObject *cmd, std::string allowed[])
+ *
+ * Check that every option listed after a '-v' specifier is valid.
+ * The option is valid if it is within the 'allowed' list.
+ *
+ * @param   cmd indicates the CommandObject that points to the parse
+ *          object, that lists the options.   
+ * @param   allowed[] is a null terminated array of <std::string>
+ *          that must contain all supported '-v' options for the view.
+ *
+ * @return  'true' is all options are valid; 'false' if one or more
+ *          option is invalid.  It is up to the calling routine to
+ *          decide what to do with this result.
+ *
+ *          A 'Warning' message is attaached to the command if an
+ *          invalid option is found.
+ *
+ */
+bool Validate_V_Options (CommandObject *cmd,
+                         std::string allowed[]) {
+  bool all_valid = true;
+  Assert (cmd->P_Result() != NULL);
+
+ // Look at general modifier types for a specific KeyWord option.
+  vector<string> *p_slist = cmd->P_Result()->getModifierList();
+  vector<string>::iterator j;
+
+  for (j=p_slist->begin();j != p_slist->end(); j++) {
+    std::string S = *j;
+    if (S.length() != 0) {
+      int64_t i = 0;
+
+      bool match_found = false;
+      while (allowed[i].length() != 0) {
+        if (!strcasecmp (S.c_str(), allowed[i].c_str()) ) {
+          match_found = true;
+          break;
+        }
+        i++;
+      }
+
+      if (!match_found) {
+        all_valid = false;
+        Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-v " + S + "'");
+      }
+
+    }
+  }
+
+  return all_valid;
+}
+
+
 // Utilities for working with class ViewInstruction
 
 ViewInstruction *Find_Total_Def (std::vector<ViewInstruction *>IV) {

@@ -109,10 +109,12 @@ void Construct_View_Output (CommandObject *cmd,
 
         CommandResult *Next_Metric_Value = NULL;
         if (vinst->OpCode() == VIEWINST_Display_Metric) {
-          Next_Metric_Value = (*it->second)[i];
+          Next_Metric_Value = input_temp_used[i] ? Dup_CommandResult( (*it->second)[i] )
+                                                 : (*it->second)[i];
           input_temp_used[i] = true;
         } else if (vinst->OpCode() == VIEWINST_Display_Tmp) {
-          Next_Metric_Value = (*it->second)[vinst->TMP1()];
+          Next_Metric_Value = input_temp_used[CM_Index] ? Dup_CommandResult( (*it->second)[vinst->TMP1()] )
+                                                        : (*it->second)[vinst->TMP1()];
           input_temp_used[CM_Index] = true;
         } else if (vinst->OpCode() == VIEWINST_Display_Percent_Column) {
           if (!Gen_Total_Percent) {

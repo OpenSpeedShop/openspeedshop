@@ -308,6 +308,7 @@ void SS_Get_Views (CommandObject *cmd);
 void SS_Get_Views (CommandObject *cmd, std::string collector_name);
 void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fexp, std::string s = "");
 
+bool Validate_V_Options(CommandObject *cmd, std::string allowed[]);
 bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string viewname);
 
 void Construct_View_Output (CommandObject *cmd,
