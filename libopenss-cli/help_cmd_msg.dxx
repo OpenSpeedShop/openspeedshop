@@ -217,6 +217,11 @@ char *cmd_setBreak_related[] = {
     "<target>"
 };
 
+char *cmd_Wait_related[] = {
+    "expGo",
+    "<expId>"
+};
+
 
 /*********************************************/
 // COMMAND ARGUMENTS
@@ -384,6 +389,10 @@ char *cmd_record_args[] = {
 
 char *cmd_setBreak_args[] = {
     "<breakId> setBreak [-x <expId>] [<target>] <address_description>"
+};
+
+char *cmd_Wait_args[] = {
+    "Wait [ -v terminate [ , all ] ] [ -x <expId> ]"
 };
 
 
@@ -574,6 +583,11 @@ char *cmd_record_brief = {
 
 char *cmd_setBreak_brief = {
     "Enter a breakpoint, which will halt the application when reached."
+};
+
+
+char *cmd_Wait_brief = {
+    "Don't execute any more commands until an experiment terminates."
 };
 
 /*********************************************/
@@ -1504,6 +1518,39 @@ char *cmd_setBreak_detailed[] = {
     " "
 };
 
+
+char *cmd_Wait_detailed[] = {
+    cmd_Wait_args[0],
+    " ",
+    cmd_Wait_brief,
+    " ",
+    "- The 'expGo' command initiates asynchronous execution of",
+    "  applications and allows new commands to be executed while the",
+    "  application is still running and still collecting performance",
+    "  data.  Often times, this is convenient because it allows for the",
+    "  display of intermediate data, before the application completes.",
+    "  However, there may be situations particularly when running a",
+    "  predefined sequence of commands through a 'playback' command,",
+    "  when it is desirable to block the execution of new commands until",
+    "  the application has completed.  The 'Wait' command will do this.",
+    " ",
+    "- If the tool is initiated with the '-batch' option, a 'Wait'",
+    "  command is implied before every 'expView' command.  This behavior",
+    "  greatly reduces the need for the 'Wait' command.",
+    " ",
+    "- If no options are provided, the '-v terminate' option is assumed",
+    "  and command execution will be suspended until the focused",
+    "  experiment stops execution.",
+    " ",
+    "- If only the '-x <expId>' option is provided, the '-v terminate'",
+    "  option is assumed and command execution will be suspended until",
+    "  that experiment stops execution.",
+    " ",
+    "- If the '-v terminate, all' option is provided, command execution",
+    "  will be suspended until all experiments stop execution.",
+    " "
+};
+
 /*********************************************/
 // COMMAND Examples
 /*********************************************/
@@ -1736,6 +1783,21 @@ char *cmd_expStatus_example[] = {
     "expStatus all",
     " ",
     "    Displays the status of all defined experiments.",
+    " "
+};
+
+char *cmd_Wait_example[] = {
+    "  expGo",
+    "  Wait",
+    "  expView",
+    " ",
+    "    This sequence will cause the 'expView' command to issue",
+    "    after the running experiment completes and all the",
+    "    performance data is available.",
+    " ",
+    "    Without the 'Wait' command, the 'expView' command will",
+    "    be issued immediately after the 'expGo' when there may",
+    "    not be any data available to display."
     " "
 };
 
@@ -2031,6 +2093,15 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     NULL,0,
     cmd_setBreak_args,sizeof(cmd_setBreak_args)/sizeof(char **),
 //    CMD_WAIT,
+    -1,cmd_desc[CMD_WAIT].name,
+    cmd_Wait_related,sizeof(cmd_Wait_related)/sizeof(char **),
+    "commands",cmd_Wait_brief,
+    cmd_Wait_detailed,sizeof(cmd_Wait_detailed)/sizeof(char **),
+    NULL,0,     //  Detailed description list of strings
+    cmd_Wait_example,sizeof(cmd_Wait_example)/sizeof(char **),
+    cmd_Wait_args,sizeof(cmd_Wait_args)/sizeof(char **),
+
+//    CMD_MAX
     -1,     	//  Index for error messages
     NULL,   	//  Keyword
     NULL,0, 	//  Related keyword list
@@ -2039,7 +2110,7 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     NULL,0, 	//  Normal description list of strings
     NULL,0, 	//  Detailed description list of strings
     NULL,0, 	//  Example list
-    NULL,0 	//  Argument list
+    NULL,0, 	//  Argument list
 
 };
 

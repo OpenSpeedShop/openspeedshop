@@ -247,6 +247,7 @@ void SS_Watcher () {
             exp->Q_UnLock ();
 
             if ((expStatus == ExpStatus_NonExistent) ||
+                (expStatus == ExpStatus_Paused) ||
                 (expStatus == ExpStatus_Terminated) ||
                 (expStatus == ExpStatus_InError)) {
               if (wi->itemtype == Watch_Item::printTermination) {

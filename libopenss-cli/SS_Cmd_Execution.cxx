@@ -3592,7 +3592,8 @@ bool SS_Wait (CommandObject *cmd) {
  // Wait for all executing commands to terminate.
   Wait_For_Previous_Cmds ();
 
-  if (Look_For_KeyWord (cmd, "terminate")) {
+  if (cmd->P_Result()->getModifierList()->empty() ||
+      Look_For_KeyWord (cmd, "terminate")) {
    // Look for a specified experiment
     Assert(cmd->P_Result() != NULL);
     EXPID ExperimentID = 0;
@@ -3615,6 +3616,13 @@ bool SS_Wait (CommandObject *cmd) {
     if (exp != NULL) {
      // Wait for the execution of the experiment to terminate.
       Wait_For_Exp (cmd, exp);
+    }
+  } else if ( Look_For_KeyWord (cmd, "all")) {
+    std::list<ExperimentObject *>::reverse_iterator expi;
+    for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
+    {
+     // Wait for the execution of the experiment to terminate.
+      Wait_For_Exp (cmd, *expi);
     }
   }
 
