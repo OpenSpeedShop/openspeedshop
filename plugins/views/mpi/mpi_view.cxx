@@ -1081,16 +1081,30 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
   return success;
 }
 
+static std::string allowed_mpi_V_options[] = {
+  "ButterFly",
+  "LinkedObject",
+  "LinkedObjects",
+  "Dso",
+  "Dsos",
+  "Function",
+  "Functions",
+  "Statement",
+  "Statements",
+  "CallTree",
+  "CallTrees",
+  "TraceBack",
+  "TraceBacks",
+  "FullStack",
+  "FullStacks",
+  "DontExpand",
+  "Summary",
+  ""
+};
+
 static void define_columns (CommandObject *cmd,
                            std::vector<ViewInstruction *>& IV,
                            std::vector<std::string>& HV) {
- // Because we use the use the generated CommandResult temp in the final report,
- // and then delete it, we must be sure that we don't try to use it twice.
-  bool sum_used = false;
-  bool min_used = false;
-  bool max_used = false;
-  bool count_used = false;
-
   int64_t last_column = 0;  // Total time is always placed in first column.
 
  // Define combination instructions for predefined temporaries.
@@ -1127,31 +1141,26 @@ static void define_columns (CommandObject *cmd,
      // Try to match the name with built in values.
       if (M_Name.length() > 0) {
         // Select temp values for columns and build column headers
-        if (!strcasecmp(M_Name.c_str(), "exclusive_times") && !sum_used) {
+        if (!strcasecmp(M_Name.c_str(), "exclusive_times")) {
          // first temp is sum of times
-          sum_used = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, sum_temp));
           HV.push_back("Exclusive Time");
           last_column++;
-        } else if (!strcasecmp(M_Name.c_str(), "min") && !min_used) {
+        } else if (!strcasecmp(M_Name.c_str(), "min")) {
          // second temp is min time
-          min_used = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, min_temp));
           HV.push_back("Min Time");
           last_column++;
-        } else if (!strcasecmp(M_Name.c_str(), "max") && !max_used) {
+        } else if (!strcasecmp(M_Name.c_str(), "max")) {
          // third temp is max time
-          max_used = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, max_temp));
           HV.push_back("Max Time");
           last_column++;
-        } else if (!count_used &&
-                   (!strcasecmp(M_Name.c_str(), "count") ||
+        } else if ( !strcasecmp(M_Name.c_str(), "count") ||
                     !strcasecmp(M_Name.c_str(), "counts") ||
                     !strcasecmp(M_Name.c_str(), "call") ||
-                    !strcasecmp(M_Name.c_str(), "calls"))) {
+                    !strcasecmp(M_Name.c_str(), "calls") ) {
          // fourth temp is total counts
-          count_used = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, cnt_temp));
           HV.push_back("Number of Calls");
           last_column++;
@@ -1209,6 +1218,7 @@ static bool mpi_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t 
       return false;
     }
 
+    Validate_V_Options (cmd, allowed_mpi_V_options);
     define_columns (cmd, IV, HV);
 
     return true;
