@@ -604,6 +604,7 @@ ManageCollectorsClass::updatePSetList()
   if( user_defined_psets == NULL )
   {
     user_defined_psets = new MPListViewItem( psetListView, UDPS);
+user_defined_psets->setOpen(TRUE);
   }
 
   if( user_defined_psets )
@@ -617,6 +618,7 @@ ManageCollectorsClass::updatePSetList()
   QListViewItem *dynamic_items = new MPListViewItem( psetListView, DPS);
 
   psetListView->insertItem(user_defined_psets);
+dynamic_items->setOpen(TRUE);
 
 
 
@@ -635,7 +637,8 @@ ManageCollectorsClass::updatePSetList()
         ThreadGroup tgrp = eo->FW()->getThreads();
         ThreadGroup::iterator ti;
         std::vector<std::string> v;
-        pset_name = QString("pset%1").arg(pset_count++);
+//        pset_name = QString("pset%1").arg(pset_count++);
+        pset_name = QString("All");
         MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name, "All" );
         DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
         dco->all = TRUE;
@@ -657,10 +660,17 @@ ManageCollectorsClass::updatePSetList()
         std::vector<std::string>::iterator e 
                         = unique(v.begin(), v.end());
 
+pset_name = QString("Hosts");
+MPListViewItem *host_items = new MPListViewItem( dynamic_items, pset_name );
+DescriptionClassObject *host_dco = new DescriptionClassObject(TRUE, pset_name);
+host_items->descriptionClassObject = host_dco;
+
         for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
         {
-          pset_name = QString("pset%1").arg(pset_count++);
-          MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name, *hi );
+//          pset_name = QString("pset%1").arg(pset_count++);
+          pset_name = QString(*hi);
+//          MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name, *hi );
+          MPListViewItem *item = new MPListViewItem( host_items, pset_name, *hi );
           DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
           item->descriptionClassObject = dco;
 // printf("hi=(%s)\n", hi->c_str() );
@@ -870,7 +880,8 @@ ManageCollectorsClass::updatePSetList()
   if( statusDisconnectedList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusDisconnectedList.begin();
-    pset_name = QString("pset%1").arg(pset_count++);
+//    pset_name = QString("pset%1").arg(pset_count++);
+    pset_name = QString("Disconnected");
 
     MPListViewItem *disconnected_items = new MPListViewItem( dynamic_items, pset_name, "Disconnected" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
@@ -891,7 +902,8 @@ ManageCollectorsClass::updatePSetList()
   if( statusConnectingList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusConnectingList.begin();
-    pset_name = QString("pset%1").arg(pset_count++);
+//    pset_name = QString("pset%1").arg(pset_count++);
+    pset_name = QString("Connecting");
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Connecting" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -907,7 +919,8 @@ ManageCollectorsClass::updatePSetList()
   if( statusNonexistentList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusNonexistentList.begin();
-    pset_name = QString("pset%1").arg(pset_count++);
+//    pset_name = QString("pset%1").arg(pset_count++);
+    pset_name = QString("Non Existent");
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Nonexistent" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -923,7 +936,8 @@ ManageCollectorsClass::updatePSetList()
   if( statusRunningList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusRunningList.begin();
-    pset_name = QString("pset%1").arg(pset_count++);
+//    pset_name = QString("pset%1").arg(pset_count++);
+    pset_name = QString("Running");
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Running" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -939,7 +953,8 @@ ManageCollectorsClass::updatePSetList()
   if( statusSuspendedList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusSuspendedList.begin();
-    pset_name = QString("pset%1").arg(pset_count++);
+//    pset_name = QString("pset%1").arg(pset_count++);
+    pset_name = QString("Suspended");
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Suspended" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -955,7 +970,8 @@ ManageCollectorsClass::updatePSetList()
   if( statusTerminatedList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusTerminatedList.begin();
-    pset_name = QString("pset%1").arg(pset_count++);
+//    pset_name = QString("pset%1").arg(pset_count++);
+    pset_name = QString("Terminated");
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Terminated" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -971,7 +987,8 @@ ManageCollectorsClass::updatePSetList()
   if( statusUnknownList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusUnknownList.begin();
-    pset_name = QString("pset%1").arg(pset_count++);
+//    pset_name = QString("pset%1").arg(pset_count++);
+    pset_name = QString("Unknown");
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Unknown" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -1186,7 +1203,7 @@ ManageCollectorsClass::createUserPSet()
 {
     bool ok;
 // printf("createUserPSet() entered\n");
-  QString res = QInputDialog::getText("Create Named PSet %1 : %2", QString("Pwet Name:"), QLineEdit::Normal, QString("upset%1").arg(userPsetCount), &ok, this);
+  QString res = QInputDialog::getText("Create Named PSet %1 : %2", QString("PSet Name:"), QLineEdit::Normal, QString("upset%1").arg(userPsetCount), &ok, this);
   if( ok )
   {
 // printf("The user named his set %s\n", res.ascii() );

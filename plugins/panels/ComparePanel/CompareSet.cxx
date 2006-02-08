@@ -113,21 +113,21 @@ CompareSet::setNewFocus(QWidget *tab)
   CompareSet *compareSet = this;
   if( compareSet )
   {
-printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
+// printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
     ColumnSetList::Iterator it;
     for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
     {
       ColumnSet *columnSet = (ColumnSet *)*it;
-printf("Is it? columnSet->name=(%s) tabWidget->tabLabel()=(%s)\n", columnSet->name.ascii(), tabWidget->tabLabel(tab).ascii()  );
+// printf("Is it? columnSet->name=(%s) tabWidget->tabLabel()=(%s)\n", columnSet->name.ascii(), tabWidget->tabLabel(tab).ascii()  );
       if( columnSet->name == tabWidget->tabLabel(tab) )
       {
         int expID = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
-printf("\t: CompareSet (%s)'s info\n", compareSet->name.ascii() );
-printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
-printf("\t\t: expID=(%d)\n", expID );
-printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
-printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
-printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
+// printf("\t: CompareSet (%s)'s info\n", compareSet->name.ascii() );
+// printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
+// printf("\t\t: expID=(%d)\n", expID );
+// printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
+// printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
+// printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
          if( compareSet->compareClass->dialog )
          {
            compareSet->compareClass->dialog->updateFocus(expID, compareSet->compareClass, compareSet, columnSet);
@@ -153,7 +153,7 @@ CompareSet::updatePSetList()
 
   MPListView *psetListView = compareClass->dialog->availableProcessesListView;
   int pset_count = 0;
-printf("updatePSetList(%d) \n", expID );
+// printf("updatePSetList(%d) \n", expID );
 
   psetListView->clearSelection();
 
@@ -176,7 +176,8 @@ dynamic_items->setOpen(TRUE);
         ThreadGroup tgrp = eo->FW()->getThreads();
         ThreadGroup::iterator ti;
         std::vector<std::string> v;
-        pset_name = QString("pset%1").arg(pset_count++);
+//        pset_name = QString("pset%1").arg(pset_count++);
+        pset_name = QString("All");
         MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name, "All" );
         DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
         dco->all = TRUE;
@@ -194,17 +195,24 @@ dynamic_items->setOpen(TRUE);
           v.push_back(s);
         }
         std::sort(v.begin(), v.end());
+
+        pset_name = QString("Hosts");
+        MPListViewItem *host_items = new MPListViewItem( dynamic_items, pset_name );
+        DescriptionClassObject *host_dco = new DescriptionClassObject(TRUE, pset_name);
+        host_items->descriptionClassObject = host_dco;
         
         std::vector<std::string>::iterator e 
                         = unique(v.begin(), v.end());
 
         for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
         {
-          pset_name = QString("pset%1").arg(pset_count++);
-          MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name, *hi );
+//          pset_name = QString("pset%1").arg(pset_count++);
+          pset_name = QString(*hi);
+//          MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name, *hi );
+          MPListViewItem *item = new MPListViewItem( host_items, pset_name, *hi );
           DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
           item->descriptionClassObject = dco;
-printf("hi=(%s)\n", hi->c_str() );
+// printf("hi=(%s)\n", hi->c_str() );
           bool atleastone = false;
           for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
           {
@@ -218,7 +226,7 @@ printf("hi=(%s)\n", hi->c_str() );
               }
               QString pidstr = QString("%1").arg(pid);
               std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-printf("pidstr=(%s)\n", pidstr.ascii() );
+// printf("pidstr=(%s)\n", pidstr.ascii() );
               QString tidstr = QString::null;
               if (pthread.first)
               {
@@ -407,7 +415,8 @@ printf("pidstr=(%s)\n", pidstr.ascii() );
   if( statusDisconnectedList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusDisconnectedList.begin();
-    pset_name = QString("pset%1").arg(pset_count++);
+//    pset_name = QString("pset%1").arg(pset_count++);
+    pset_name = QString("Disconnected");
 
     MPListViewItem *disconnected_items = new MPListViewItem( dynamic_items, pset_name, "Disconnected" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
@@ -428,7 +437,8 @@ printf("pidstr=(%s)\n", pidstr.ascii() );
   if( statusConnectingList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusConnectingList.begin();
-    pset_name = QString("pset%1").arg(pset_count++);
+//    pset_name = QString("pset%1").arg(pset_count++);
+    pset_name = QString("Connecting");
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Connecting" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -444,7 +454,8 @@ printf("pidstr=(%s)\n", pidstr.ascii() );
   if( statusNonexistentList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusNonexistentList.begin();
-    pset_name = QString("pset%1").arg(pset_count++);
+//    pset_name = QString("pset%1").arg(pset_count++);
+    pset_name = QString("Non Existent");
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Nonexistent" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -460,7 +471,8 @@ printf("pidstr=(%s)\n", pidstr.ascii() );
   if( statusRunningList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusRunningList.begin();
-    pset_name = QString("pset%1").arg(pset_count++);
+//    pset_name = QString("pset%1").arg(pset_count++);
+    pset_name = QString("Running");
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Running" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -476,7 +488,8 @@ printf("pidstr=(%s)\n", pidstr.ascii() );
   if( statusSuspendedList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusSuspendedList.begin();
-    pset_name = QString("pset%1").arg(pset_count++);
+//    pset_name = QString("pset%1").arg(pset_count++);
+    pset_name = QString("Suspended");
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Suspended" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -492,7 +505,8 @@ printf("pidstr=(%s)\n", pidstr.ascii() );
   if( statusTerminatedList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusTerminatedList.begin();
-    pset_name = QString("pset%1").arg(pset_count++);
+//    pset_name = QString("pset%1").arg(pset_count++);
+    pset_name = QString("Terminated");
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Terminated" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -508,7 +522,8 @@ printf("pidstr=(%s)\n", pidstr.ascii() );
   if( statusUnknownList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusUnknownList.begin();
-    pset_name = QString("pset%1").arg(pset_count++);
+//    pset_name = QString("pset%1").arg(pset_count++);
+    pset_name = QString("Unknown");
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Unknown" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
