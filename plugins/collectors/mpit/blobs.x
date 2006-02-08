@@ -47,6 +47,7 @@ struct mpit_event {
     int tag;           /**< Tag of the message (if any). */
     int communicator;  /**< Communicator used. */
     int datatype;      /**< Data type of the message. */
+    int retval;        /**< Enumerated return value. */
     
 };
 
