@@ -45,7 +45,7 @@ def runTest(testName):
 	#testCommand = test_input.readline()
 	#linesToCompare = test_input.readline()
 	#test_input.close()
-	t = Timer(300, too_long)
+	t = Timer(1000, too_long)
 	t.start()
 	os.system('./'+testName+ '>> '+ testName+'.output')
 	t.cancel()
