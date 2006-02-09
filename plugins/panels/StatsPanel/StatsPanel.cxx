@@ -2306,6 +2306,10 @@ StatsPanel::outputCLIData(QString *incoming_data)
 // printf("StatsPanel::outputCLIData\n");
 // printf("%s", incoming_data->ascii() );
 
+SPListViewItem *highlight_item = NULL;
+bool highlight_line = FALSE;
+QColor highlight_color = QColor("blue");
+
   QString strippedString1 = QString::null; // MPI only.
 
   // Skip any blank lines.
@@ -2418,13 +2422,20 @@ if( currentUserSelectedMetricStr.startsWith("Butterfly") )
 {
   if( indented )
   {
-//    strings[fieldCount-1].replace(0,1,"  "); // This is the bad boy
+    // Right side
+    strings[fieldCount-1].insert(1,"    ");
+// printf("RS: Field (%s)\n", strings[fieldCount-1].ascii() );
   } else if( strings[fieldCount-1].startsWith("<") )
   {
+    // Left side
     strings[fieldCount-1].remove("<");
+// printf("LS: Field (%s)\n", strings[fieldCount-1].ascii() );
   } else
   {
-    strings[fieldCount-1].insert(0," ");
+// printf("Color this one: Field (%s)\n", strings[fieldCount-1].ascii() );
+    // Focused Function
+    strings[fieldCount-1].insert(0,"  ");
+    highlight_line = TRUE;
   }
 // printf("here (%s)\n", strings[fieldCount-1].ascii() );
 }
@@ -2449,6 +2460,7 @@ if( currentUserSelectedMetricStr.startsWith("Butterfly") )
 // printf("Put after (%s) \n", lastlvi->text(fieldCount-1).ascii() );
       }
       lastlvi = splvi =  MYListViewItem( this, splv, lastlvi, strings);
+if( highlight_line ) highlight_item = splvi;
       lastIndentLevel = 0;
     } else
     {
@@ -2475,6 +2487,7 @@ if( currentUserSelectedMetricStr.startsWith("Butterfly") )
         {
 // printf("A: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(fieldCount-1).ascii(), lastlvi->text(fieldCount-1).ascii() );
           lastlvi = splvi =  MYListViewItem( this, lastlvi, lastlvi, strings);
+if( highlight_line ) highlight_item = splvi;
         } else
         {
 // printf("Go figure out the right leaf to put this in...(%s) \n", strings[1].ascii() );
@@ -2507,6 +2520,7 @@ if( currentUserSelectedMetricStr.startsWith("Butterfly") )
           }
 // printf("C: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(fieldCount-1).ascii(), after->text(fieldCount-1).ascii() );
           lastlvi = splvi = MYListViewItem( this, lastlvi, after, strings );
+if( highlight_line ) highlight_item = splvi;
         }
       } else
       {
@@ -2538,6 +2552,7 @@ if( currentUserSelectedMetricStr.startsWith("Butterfly") )
     { // i.e. like usertime
 //      lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1], strings[2], strings[3] );
       lastlvi = splvi =  MYListViewItem( this, splv, lastlvi, strings);
+if( highlight_line ) highlight_item = splvi;
     }
   }
 
@@ -2561,6 +2576,11 @@ if( currentUserSelectedMetricStr.startsWith("Butterfly") )
     }
   }
 
+  if( highlight_line )
+  {
+// printf("Set the highlighted line!\n");
+    highlight_item->setSelected(TRUE);
+  }
 }
 
 
@@ -2606,6 +2626,7 @@ StatsPanel::MYListViewItem( StatsPanel *arg1, QListView *arg2, SPListViewItem *a
       break;
     default:
 // printf("Currently we only support 8 columns in the QListView.!\n");
+printf("Warning: over 8 columns... Notify developer...\n");
       break;
   }
 
@@ -2646,6 +2667,7 @@ StatsPanel::MYListViewItem( StatsPanel *arg1, SPListViewItem *arg2, SPListViewIt
       item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
       break;
     default:
+printf("Warning: over 8 columns... Notify developer...\n");
       break;
   }
 
