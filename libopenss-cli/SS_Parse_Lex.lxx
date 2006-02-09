@@ -78,8 +78,14 @@ extern int ip_number(char *,int);
 "expview"   	{ return VIEW_HEAD; }
 "expView"   	{ return VIEW_HEAD; }
 
-"setView"   	{ return SETVIEW_HEAD; }
-"setview"   	{ return SETVIEW_HEAD; }
+"cViewCreate"	{ return CVIEWCREATE_HEAD; }
+"cviewcreate"	{ return CVIEWCREATE_HEAD; }
+"cViewDelete"	{ return CVIEWDELETE_HEAD; }
+"cviewdelete"	{ return CVIEWDELETE_HEAD; }
+"cViewInfo"   	{ return CVIEWINFO_HEAD; }
+"cviewinfo"   	{ return CVIEWINFO_HEAD; }
+"cView"   	{ return CVIEW_HEAD; }
+"cview"   	{ return CVIEW_HEAD; }
 
 "list"  	{ return LIST_GENERIC_HEAD; }
 

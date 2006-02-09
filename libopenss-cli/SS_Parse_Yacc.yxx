@@ -53,7 +53,7 @@ char *string;
 %token FOCUS_HEAD GO_HEAD PAUSE_HEAD RESTORE_HEAD SAVE_HEAD
 %token SETPARAM_HEAD STATUS_HEAD VIEW_HEAD 
 
-%token SETVIEW_HEAD
+%token CVIEWCREATE_HEAD CVIEWDELETE_HEAD CVIEW_HEAD CVIEWINFO_HEAD
 
 %token LIST_GENERIC_HEAD
 
@@ -110,7 +110,11 @@ command_desc: exp_attach_com 	{p_parse_result->setCommandType(CMD_EXP_ATTACH);}
 	    | exp_setparam_com  {p_parse_result->setCommandType(CMD_EXP_SETPARAM);}
 	    | exp_status_com  	{p_parse_result->setCommandType(CMD_EXP_STATUS);}
 	    | exp_view_com  	{p_parse_result->setCommandType(CMD_EXP_VIEW);}
-	    | set_view_com  	{p_parse_result->setCommandType(CMD_SET_VIEW);}
+
+	    | c_view_create_com {p_parse_result->setCommandType(CMD_C_VIEW_CREATE);}
+	    | c_view_delete_com {p_parse_result->setCommandType(CMD_C_VIEW_DELETE);}
+	    | c_view_info_com  	{p_parse_result->setCommandType(CMD_C_VIEW_INFO);}
+	    | c_view_com  	{p_parse_result->setCommandType(CMD_C_VIEW);}
 
 	    | list_generic_com 	{p_parse_result->setCommandType(CMD_LIST_GENERIC);}
 
@@ -312,10 +316,38 @@ exp_view_com:	    VIEW_HEAD
   	    	|   VIEW_HEAD set_view_args error END_LINE 
       	    	;
 
-    	    /** SETVIEW **/
-    	    /** setView [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <target_list> ] **/
-set_view_com:	    SETVIEW_HEAD set_view_args
-  	    	|   SETVIEW_HEAD set_view_args error END_LINE 
+    	    /** C_VIEW_CREATE **/
+    	    /** cViewCreate [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <target_list> ] **/
+c_view_create_com:  CVIEWCREATE_HEAD
+  	    	|   CVIEWCREATE_HEAD error END_LINE 
+  	    	|   CVIEWCREATE_HEAD set_view_args 
+  	    	|   CVIEWCREATE_HEAD set_view_args error END_LINE 
+      	    	;
+
+    	    /** C_VIEW_DELETE **/
+    	    /** cViewDelete [-v all] [ -c < cvid_list> ] **/
+c_view_delete_com:  CVIEWDELETE_HEAD
+  	    	|   CVIEWDELETE_HEAD error END_LINE 
+  	    	|   CVIEWDELETE_HEAD cvid_args 
+  	    	|   CVIEWDELETE_HEAD cvid_args error END_LINE 
+      	    	;
+
+    	    /** C_VIEW_INFO **/
+    	    /** cViewInfo [-v all] [ -c < cvid_list> ] **/
+c_view_info_com:    CVIEWINFO_HEAD
+  	    	|   CVIEWINFO_HEAD error END_LINE 
+  	    	|   CVIEWINFO_HEAD cvid_args 
+  	    	|   CVIEWINFO_HEAD cvid_args error END_LINE 
+      	    	;
+
+cvid_args:	    view_id_list_spec
+		|   modifier_list_spec
+		;
+
+    	    /** CVIEW **/
+    	    /** cView [-c view_id_list] **/
+c_view_com:	    CVIEW_HEAD view_id_list_spec
+  	    	|   CVIEW_HEAD view_id_list_spec error END_LINE 
       	    	;
 
 set_view_args:	    set_view_element
@@ -396,7 +428,10 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	|   STATUS_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_STATUS].name);}
     	    	|   VIEW_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_VIEW].name);}
 
-    	    	|   SETVIEW_HEAD    	    {p_parse_result->pushHelp(cmd_desc[CMD_SET_VIEW].name);}
+    	    	|   CVIEWCREATE_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_C_VIEW_CREATE].name);}
+    	    	|   CVIEWDELETE_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_C_VIEW_DELETE].name);}
+    	    	|   CVIEWINFO_HEAD    	    {p_parse_result->pushHelp(cmd_desc[CMD_C_VIEW_INFO].name);}
+    	    	|   CVIEW_HEAD    	    {p_parse_result->pushHelp(cmd_desc[CMD_C_VIEW].name);}
 
     	    	|   LIST_GENERIC_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_GENERIC].name);}
 

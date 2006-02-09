@@ -62,7 +62,10 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "expStatus",    true,   CMD_EXP_STATUS,
     "expView",	    true,   CMD_EXP_VIEW,
 
-    "setView",	    false,  CMD_SET_VIEW,
+    "cViewCreate",  false,  CMD_C_VIEW_CREATE,
+    "cViewDelete",  false,  CMD_C_VIEW_DELETE,
+    "cViewInfo",    true,   CMD_C_VIEW_INFO,
+    "cView",	    true,   CMD_C_VIEW,
 
     "list", 	    true,   CMD_LIST_GENERIC,
 
