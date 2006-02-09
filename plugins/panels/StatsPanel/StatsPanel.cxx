@@ -2625,8 +2625,12 @@ StatsPanel::MYListViewItem( StatsPanel *arg1, QListView *arg2, SPListViewItem *a
       item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
       break;
     default:
-// printf("Currently we only support 8 columns in the QListView.!\n");
-printf("Warning: over 8 columns... Notify developer...\n");
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
+printf("Warning: over 9 columns... Notify developer...\n");
+      for( int i=8; i<fieldCount; i++ )
+      {
+        item->setText(i, strings[i]);
+      }
       break;
   }
 
@@ -2667,7 +2671,11 @@ StatsPanel::MYListViewItem( StatsPanel *arg1, SPListViewItem *arg2, SPListViewIt
       item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
       break;
     default:
-printf("Warning: over 8 columns... Notify developer...\n");
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
+      for( int i=8; i<fieldCount; i++ )
+      {
+        item->setText(i, strings[i]);
+      }
       break;
   }
 
