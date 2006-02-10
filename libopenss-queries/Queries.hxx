@@ -147,13 +147,15 @@ namespace OpenSpeedShop {
 
 
 
+template <typename T>
 void operator+=(
-    std::map<OpenSpeedShop::Framework::StackTrace, std::vector<double> >&,
-    const std::map<OpenSpeedShop::Framework::StackTrace, std::vector<double> >&
+    std::map<OpenSpeedShop::Framework::StackTrace, std::vector<T > >&,
+    const std::map<OpenSpeedShop::Framework::StackTrace, std::vector<T > >&
     );
 
 
 
+#include "AdditionAssignment.txx"
 #include "GetMetricInThread.txx"
 #include "GetMetricOfAllInThread.txx"
 #include "GetMetricByStatement.txx"

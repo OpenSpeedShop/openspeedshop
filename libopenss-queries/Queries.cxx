@@ -151,38 +151,3 @@ bool Queries::CompareStatements::operator()(
 	return false;
     return lhs.getLinkedObject().getPath() < rhs.getLinkedObject().getPath();
 }
-
-
-
-/**
- * Addition-assignment operator.
- *
- * Operator "+=" defined for a map of stack traces to a list of doubles. Combine
- * the two maps such that the result contains the superset of stack traces from
- * both of the original two maps. Stack traces contained in the intersection of
- * the two maps will have a value that is the concatentation of the lists of
- * doubles from each map.
- *
- * @param lhs    Resulting, combined, map.
- * @param rhs    Map to be added to this map.
- */
-void operator+=(
-    std::map<Framework::StackTrace, std::vector<double> >& lhs,
-    const std::map<Framework::StackTrace, std::vector<double> >& rhs
-    )
-{
-    // Iterate over each key/value pair in the RHS
-    for(std::map<Framework::StackTrace, std::vector<double> >::const_iterator
-	    i = rhs.begin(); i != rhs.end(); ++i) {
-	
-	// Simply add this pair if the key isn't already found in the LHS
-	if(lhs.find(i->first) == lhs.end())
-	    lhs.insert(*i);
-	
-	// Otherwise insert the RHS's value onto the end of the LHS' value
-	else
-	    lhs[i->first].insert(lhs[i->first].end(),
-				 i->second.begin(), i->second.end());
-	
-    }
-}
