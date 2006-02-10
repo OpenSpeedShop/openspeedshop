@@ -93,6 +93,7 @@ command_line:  END_LINE
     	|   command_desc APPEND NAME END_LINE END_LINE 
 	    	    	{p_parse_result->setAppendTarget($3);p_parse_result->pushParseTarget(); }
 
+    	| error END_LINE
     	;
 
 command_desc: exp_attach_com 	{p_parse_result->setCommandType(CMD_EXP_ATTACH);}
