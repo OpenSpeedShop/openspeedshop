@@ -474,10 +474,11 @@ extern "C"
     }
 
    // Fire off Python.
-//    if (scripting_mode)
+    // OPENSS_ALLOW_PYTHON_COMMANDS = 0;
+    if (OPENSS_ALLOW_PYTHON_COMMANDS)
     	PyRun_SimpleString( "myparse.do_scripting_input ()\n");
-//    else
-//    	PyRun_SimpleString( "myparse.do_flat_input ()\n");
+    else
+    	PyRun_SimpleString( "myparse.do_flat_input ()\n");
 
    // When Python exits, terminate SpeedShop:
     cli_terminate ();

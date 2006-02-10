@@ -716,10 +716,10 @@ class CLI(code.InteractiveConsole):
 		    if count > 3:
     	    	    	arg = PY_Input.Save_ILO()
     	    	    	d_line = PY_Input.ReadILO(arg)
-			# count = len(d_line)
-			# print d_line," ",count
-                        if myparse.cmd_is_assignment is not 0:
-                            PY_Input.SetAssign (1)
+			#count = len(d_line)
+			#print d_line," ",count
+                        #if self.cmd_is_assignment is not 0:
+                        #    PY_Input.SetAssign (1)
 		    	PY_Input.CallParser(d_line)
 
             # Handle CTRL-C
