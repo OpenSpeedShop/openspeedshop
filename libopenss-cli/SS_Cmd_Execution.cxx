@@ -1084,7 +1084,8 @@ static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool 
 
   if (Kill_KeyWord &&
       (exp->FW() != NULL) &&
-       ((exp->Determine_Status() == ExpStatus_Paused) ||
+       ((exp->Determine_Status() == ExpStatus_NonExistent) ||
+        (exp->Status() == ExpStatus_Paused) ||
         (exp->Status() == ExpStatus_Running))) {
    // These are the only states that can be changed.
 
@@ -1475,8 +1476,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   exp->Determine_Status();
   exp->Q_UnLock ();
 
-  if ((exp->FW() == NULL) ||
-      (exp->Status() == ExpStatus_NonExistent)) {
+  if (exp->FW() == NULL) {
     Mark_Cmd_With_Soft_Error(cmd,
                              "The experiment can not be run because "
                              "it is not atached to an application.");
@@ -1492,7 +1492,8 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     return false;
   }
 
-  if ((exp->Status() == ExpStatus_Paused) ||
+  if ((exp->Status() == ExpStatus_NonExistent) ||
+      (exp->Status() == ExpStatus_Paused) ||
       (exp->Status() == ExpStatus_Running)) {
 
    // Verify that there are threads.
