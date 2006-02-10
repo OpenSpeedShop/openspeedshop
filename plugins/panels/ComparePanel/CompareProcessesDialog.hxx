@@ -61,6 +61,7 @@ public:
     QLineEdit* removeProcessesRegExpLineEdit;
     QPushButton* buttonHelp;
     QPushButton* buttonOk;
+    QPushButton* applyOk;
     QPushButton* buttonCancel;
 
     MPListView* availableProcessesListView;
@@ -82,11 +83,14 @@ protected:
     CLIInterface *cli;
     OpenSpeedshop *mw;
 
-private slots:
-    void addProcessesHostRegExpLineEditEntered();
+private:
+    QStringList validatePid(QString host, QString pid);
     void addProcessesRegExpLineEditEntered();
-    void removeProcessesRegExpLineEditEntered();
-    void accept();
+    void removeProcesses();
+
+private slots:
+    void buttonOkSelected();
+    void applyOkSelected();
 
 protected slots:
     virtual void languageChange();
