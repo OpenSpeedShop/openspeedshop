@@ -56,15 +56,21 @@ public:
     ~CompareProcessesDialog();
 
     QLabel* headerLabel;
+#ifdef PULL
     QLabel* addProcessesHostLabel;
+#endif // PULL
     QLabel* addProcessesLabel;
     QLabel* removeProcessesLabel;
     QLineEdit* addProcessesRegExpLineEdit;
+#ifdef PULL
     QLineEdit *addProcessesHostRegExpLineEdit;
     QLineEdit* removeProcessesRegExpLineEdit;
+#endif // PULL
     QPushButton* buttonHelp;
+#ifdef PULL
     QPushButton* buttonOk;
     QPushButton* applyOk;
+#endif // PULL
     QPushButton* buttonCancel;
 
     MPListView* availableProcessesListView;
@@ -88,12 +94,15 @@ protected:
 
 private:
     DescriptionClassObjectList * validateHostPid(QString host_pidstr);
-    void addProcessesRegExpLineEditEntered();
-    void removeProcesses();
 
-private slots:
+#ifdef PULL
     void buttonOkSelected();
     void applyOkSelected();
+#endif // PULL
+
+private slots:
+    void addProcesses();
+    void removeProcesses();
 
 protected slots:
     virtual void languageChange();

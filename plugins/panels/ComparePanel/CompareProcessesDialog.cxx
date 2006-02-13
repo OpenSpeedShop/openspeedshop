@@ -22,6 +22,8 @@
 #include "PanelListViewItem.hxx"
 
 #include "debug.hxx"
+#include "plus.xpm"
+#include "minus.xpm"
 
 #include <qvariant.h>
 #include <qframe.h>
@@ -50,6 +52,13 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("CompareProcessesDialog::CompareProcessesDialog() constructor called.\n");
 
+  QPixmap *plus_pm = new QPixmap( plus_xpm );
+  plus_pm->setMask(plus_pm->createHeuristicMask());
+
+
+  QPixmap *minus_pm = new QPixmap( minus_xpm );
+  minus_pm->setMask(plus_pm->createHeuristicMask());
+
   
   updateFocus(-1, NULL, NULL, NULL);
 
@@ -72,6 +81,7 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   QHBoxLayout *addProcessesHostLayout = new QHBoxLayout( 6, "addProcessesHostLayout");
   CompareProcessesDialogLayout->addLayout( addProcessesHostLayout );
   
+#ifdef PULL
   addProcessesHostLabel = new QLabel(this, "addProcessesHostLabel");
 addProcessesHostLabel->setText("Target host:");
   addProcessesHostLayout->addWidget( addProcessesHostLabel );
@@ -80,6 +90,7 @@ addProcessesHostLabel->setText("Target host:");
 // addProcessesHostRegExpLineEdit->setText("*");
   addProcessesHostLayout->addWidget( addProcessesHostRegExpLineEdit );
   QToolTip::add(addProcessesHostRegExpLineEdit, tr("Select which host the process(es) should be farmed.\nThis can be a single host name or a comma separated list of host names.\nRegular expressions will be honored.") );
+#endif // PULL
 
   QHBoxLayout *addProcessesLayout = new QHBoxLayout( 6, "addProcessesLayout");
   CompareProcessesDialogLayout->addLayout( addProcessesLayout );
@@ -93,6 +104,17 @@ addProcessesHostLabel->setText("Target host:");
 
 //  QToolTip::add(addProcessesRegExpLineEdit, tr("Enter the pid (or regular expression defining the pids) that you want entered into\nthe current Column in the current Compare Set of the Compare Panel.\n\nDrag and drop, psets or individual processes from here to the Compare Panel.") );
 
+QPushButton *addButton = new QPushButton( this, "addButton" );
+addButton->setText("Add");
+addButton->setPixmap(plus_xpm);
+addProcessesLayout->addWidget( addButton );
+
+QPushButton *removeButton = new QPushButton( this, "removeButton" );
+removeButton->setText("Remove");
+		removeButton->setPixmap(minus_xpm);
+addProcessesLayout->addWidget( removeButton );
+
+#ifdef PULL
   QHBoxLayout *removeProcessesLayout = new QHBoxLayout( 6, "removeProcessesLayout");
   CompareProcessesDialogLayout->addLayout( removeProcessesLayout );
   
@@ -103,6 +125,7 @@ addProcessesHostLabel->setText("Target host:");
 
 //  QToolTip::add(removeProcessesRegExpLineEdit, tr("Enter the pid (or regular expression defining the pids) that you want removed from\nthe current Column in the current Compare Set of the Compare Panel.\n\nDrag and drop, psets or individual processes from here to the ComparePanel.") );
   removeProcessesLayout->addWidget( removeProcessesRegExpLineEdit );
+#endif // PULL
 
 
   availableProcessesListView = new MPListView( this, "availableProcessesListView", 0 );
@@ -129,6 +152,7 @@ addProcessesHostLabel->setText("Target host:");
   Horizontal_Spacing2 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   Layout1->addItem( Horizontal_Spacing2 );
 
+#ifdef PULL
   applyOk = new QPushButton( this, "applyOk" );
   applyOk->setAutoDefault( TRUE );
   applyOk->setDefault( TRUE );
@@ -138,6 +162,7 @@ addProcessesHostLabel->setText("Target host:");
   buttonOk->setAutoDefault( TRUE );
   buttonOk->setDefault( TRUE );
   Layout1->addWidget( buttonOk );
+#endif // PULL
 
   buttonCancel = new QPushButton( this, "buttonCancel" );
   buttonCancel->setAutoDefault( TRUE );
@@ -148,13 +173,14 @@ addProcessesHostLabel->setText("Target host:");
   clearWState( WState_Polished );
 
   // signals and slots connections
+#ifdef PULL
   connect( buttonOk, SIGNAL( clicked() ), this, SLOT( buttonOkSelected() ) );
   connect( applyOk, SIGNAL( clicked() ), this, SLOT( applyOkSelected() ) );
+#endif // PULL
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 
-//  connect( addProcessesHostRegExpLineEdit, SIGNAL( returnPressed() ), this, SLOT( addProcessesHostRegExpLineEditEntered() ) );
-//  connect( addProcessesRegExpLineEdit, SIGNAL( returnPressed() ), this, SLOT( addProcessesRegExpLineEditEntered() ) );
-//  connect( removeProcessesRegExpLineEdit, SIGNAL( returnPressed() ), this, SLOT( removeProcesses() ) );
+  connect( addButton, SIGNAL( clicked() ), this, SLOT( addProcesses() ) );
+  connect( removeButton, SIGNAL( clicked() ), this, SLOT( removeProcesses() ) );
   
 }
 
@@ -175,13 +201,17 @@ void CompareProcessesDialog::languageChange()
 {
   setCaption( tr( name() ) );
   addProcessesLabel->setText( tr( "Add processes:" ) );
+#ifdef PULL
   removeProcessesLabel->setText( tr( "Remove processes:" ) );
+#endif // PULL
   buttonHelp->setText( tr( "&Help" ) );
   buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
-  buttonOk->setText( tr( "&OK" ) );
+#ifdef PULL
+  buttonOk->setText( tr( "&Close" ) );
   buttonOk->setAccel( QKeySequence( QString::null ) );
   applyOk->setText( tr( "&Apply" ) );
   applyOk->setAccel( QKeySequence( QString::null ) );
+#endif // PULL
   buttonCancel->setText( tr( "&Cancel" ) );
   buttonCancel->setAccel( QKeySequence( QString::null ) );
 }
@@ -212,9 +242,9 @@ CompareProcessesDialog::updateInfo()
 
 #include "MPListViewItem.hxx"
 void
-CompareProcessesDialog::addProcessesRegExpLineEditEntered()
+CompareProcessesDialog::addProcesses()
 {
-printf("addProcessesRegExpLineEditEntered(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
+printf("addProcesses(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
 
   QString inputText = addProcessesRegExpLineEdit->text();
 
@@ -226,6 +256,7 @@ printf("addProcessesRegExpLineEditEntered(%s)\n", addProcessesRegExpLineEdit->te
 
 
   host = "Unknown";
+#ifdef PULL
   // First get the host scope.
   if( addProcessesHostRegExpLineEdit->text() == "*" )
   {
@@ -234,6 +265,7 @@ printf("addProcessesRegExpLineEditEntered(%s)\n", addProcessesRegExpLineEdit->te
   {
     host = addProcessesHostRegExpLineEdit->text();
   }
+#endif // PULL
 
   QStringList fields = QStringList::split( ",", inputText );
   for ( QStringList::Iterator it = fields.begin(); it != fields.end(); ++it )
@@ -273,11 +305,10 @@ printf("Found a wildcard!\n");
 void
 CompareProcessesDialog::removeProcesses()
 {
-printf("removeProcesses(%s)\n", removeProcessesRegExpLineEdit->text().ascii() );
-
+printf("removeProcesses(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
 
 QString target_pidstr = QString::null;
-QString inputText = removeProcessesRegExpLineEdit->text().stripWhiteSpace();
+QString inputText = addProcessesRegExpLineEdit->text().stripWhiteSpace();
 
 QStringList fields = QStringList::split( ",", inputText );
 for ( QStringList::Iterator it = fields.begin(); it != fields.end(); ++it )
@@ -325,12 +356,11 @@ printf("REMOVE: (%s)\n", pidstr.ascii() );
 }
 
 
+#ifdef PULL
 void
 CompareProcessesDialog::buttonOkSelected()
 {
 printf("buttonOkSelected() entered\n");
-
-  applyOkSelected();
 
   hide();
 }
@@ -344,7 +374,7 @@ printf("applyOkSelected\n");
   // first add the processes selected.
   if( !addProcessesRegExpLineEdit->text().isEmpty() )
   {
-    addProcessesRegExpLineEditEntered();
+    addProcesses();
   } 
   // Now clean any up that were specifically unselected. 
   if( !removeProcessesRegExpLineEdit->text().isEmpty() )
@@ -356,6 +386,7 @@ printf("applyOkSelected\n");
 //    addProcessesHostRegExpLineEditEntered();
 //  }
 }
+#endif // PULL
 
 void
 CompareProcessesDialog::updateFocus(int _expID, CompareClass *_compareClass, CompareSet *_compareSet, ColumnSet *_columnSet )
