@@ -81,17 +81,6 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   QHBoxLayout *addProcessesHostLayout = new QHBoxLayout( 6, "addProcessesHostLayout");
   CompareProcessesDialogLayout->addLayout( addProcessesHostLayout );
   
-#ifdef PULL
-  addProcessesHostLabel = new QLabel(this, "addProcessesHostLabel");
-addProcessesHostLabel->setText("Target host:");
-  addProcessesHostLayout->addWidget( addProcessesHostLabel );
-
-  addProcessesHostRegExpLineEdit = new QLineEdit(this, "addProcessesHostRegExpLineEdit");
-// addProcessesHostRegExpLineEdit->setText("*");
-  addProcessesHostLayout->addWidget( addProcessesHostRegExpLineEdit );
-  QToolTip::add(addProcessesHostRegExpLineEdit, tr("Select which host the process(es) should be farmed.\nThis can be a single host name or a comma separated list of host names.\nRegular expressions will be honored.") );
-#endif // PULL
-
   QHBoxLayout *addProcessesLayout = new QHBoxLayout( 6, "addProcessesLayout");
   CompareProcessesDialogLayout->addLayout( addProcessesLayout );
   
@@ -113,19 +102,6 @@ QPushButton *removeButton = new QPushButton( this, "removeButton" );
 removeButton->setText("Remove");
 		removeButton->setPixmap(minus_xpm);
 addProcessesLayout->addWidget( removeButton );
-
-#ifdef PULL
-  QHBoxLayout *removeProcessesLayout = new QHBoxLayout( 6, "removeProcessesLayout");
-  CompareProcessesDialogLayout->addLayout( removeProcessesLayout );
-  
-  removeProcessesLabel = new QLabel(this, "removeProcessesLabel");
-  removeProcessesLayout->addWidget( removeProcessesLabel );
-  removeProcessesRegExpLineEdit = new QLineEdit(this, "removeProcessesRegExpLineEdit");
-  QToolTip::add(addProcessesRegExpLineEdit, tr("Select which process(es), on the selected host, should be removed.\nThis can be a single processes name or a comma separated list of processes names.\nRegular expressions will be honored.") );
-
-//  QToolTip::add(removeProcessesRegExpLineEdit, tr("Enter the pid (or regular expression defining the pids) that you want removed from\nthe current Column in the current Compare Set of the Compare Panel.\n\nDrag and drop, psets or individual processes from here to the ComparePanel.") );
-  removeProcessesLayout->addWidget( removeProcessesRegExpLineEdit );
-#endif // PULL
 
 
   availableProcessesListView = new MPListView( this, "availableProcessesListView", 0 );
@@ -152,17 +128,6 @@ addProcessesLayout->addWidget( removeButton );
   Horizontal_Spacing2 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   Layout1->addItem( Horizontal_Spacing2 );
 
-#ifdef PULL
-  applyOk = new QPushButton( this, "applyOk" );
-  applyOk->setAutoDefault( TRUE );
-  applyOk->setDefault( TRUE );
-  Layout1->addWidget( applyOk );
-
-  buttonOk = new QPushButton( this, "buttonOk" );
-  buttonOk->setAutoDefault( TRUE );
-  buttonOk->setDefault( TRUE );
-  Layout1->addWidget( buttonOk );
-#endif // PULL
 
   buttonCancel = new QPushButton( this, "buttonCancel" );
   buttonCancel->setAutoDefault( TRUE );
@@ -173,10 +138,6 @@ addProcessesLayout->addWidget( removeButton );
   clearWState( WState_Polished );
 
   // signals and slots connections
-#ifdef PULL
-  connect( buttonOk, SIGNAL( clicked() ), this, SLOT( buttonOkSelected() ) );
-  connect( applyOk, SIGNAL( clicked() ), this, SLOT( applyOkSelected() ) );
-#endif // PULL
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 
   connect( addButton, SIGNAL( clicked() ), this, SLOT( addProcesses() ) );
@@ -201,17 +162,8 @@ void CompareProcessesDialog::languageChange()
 {
   setCaption( tr( name() ) );
   addProcessesLabel->setText( tr( "Add processes:" ) );
-#ifdef PULL
-  removeProcessesLabel->setText( tr( "Remove processes:" ) );
-#endif // PULL
   buttonHelp->setText( tr( "&Help" ) );
   buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
-#ifdef PULL
-  buttonOk->setText( tr( "&Close" ) );
-  buttonOk->setAccel( QKeySequence( QString::null ) );
-  applyOk->setText( tr( "&Apply" ) );
-  applyOk->setAccel( QKeySequence( QString::null ) );
-#endif // PULL
   buttonCancel->setText( tr( "&Cancel" ) );
   buttonCancel->setAccel( QKeySequence( QString::null ) );
 }
@@ -244,7 +196,7 @@ CompareProcessesDialog::updateInfo()
 void
 CompareProcessesDialog::addProcesses()
 {
-printf("addProcesses(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
+// printf("addProcesses(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
 
   QString inputText = addProcessesRegExpLineEdit->text();
 
@@ -256,35 +208,25 @@ printf("addProcesses(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
 
 
   host = "Unknown";
-#ifdef PULL
-  // First get the host scope.
-  if( addProcessesHostRegExpLineEdit->text() == "*" )
-  {
-    host = "Any host";
-  } else
-  {
-    host = addProcessesHostRegExpLineEdit->text();
-  }
-#endif // PULL
 
   QStringList fields = QStringList::split( ",", inputText );
   for ( QStringList::Iterator it = fields.begin(); it != fields.end(); ++it )
   {
     host_pidstr = ((QString)*it).stripWhiteSpace();
 
-printf("host_pidstr = (%s)\n", host_pidstr.ascii() );
+// printf("host_pidstr = (%s)\n", host_pidstr.ascii() );
 
     if( host_pidstr.find("-") > -1 )
     {
-printf("Found a range!\n");
+// printf("Found a range!\n");
     }
     if( host_pidstr.find(":") > -1 )
     {
-printf("Found a host!\n");
+// printf("Found a host!\n");
     }
     if( host_pidstr.find("*") > -1 )
     {
-printf("Found a wildcard!\n");
+// printf("Found a wildcard!\n");
     }
     DescriptionClassObjectList *validatedHostPidList = validateHostPid(host_pidstr);
 
@@ -305,88 +247,119 @@ printf("Found a wildcard!\n");
 void
 CompareProcessesDialog::removeProcesses()
 {
-printf("removeProcesses(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
+// printf("removeProcesses(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
 
-QString target_pidstr = QString::null;
-QString inputText = addProcessesRegExpLineEdit->text().stripWhiteSpace();
+  QString lower_rangestr = QString::null;
+  QString upper_rangestr = QString::null;
+  int lower_range = -1;
+  int upper_range = -1;
 
-QStringList fields = QStringList::split( ",", inputText );
-for ( QStringList::Iterator it = fields.begin(); it != fields.end(); ++it )
-{
-  target_pidstr = ((QString)*it).stripWhiteSpace();
+  QString target_hostpid_str = QString::null;
+  QString target_pidstr = QString::null;
+  QString target_hoststr = QString::null;
+  QString inputText = addProcessesRegExpLineEdit->text().stripWhiteSpace();
 
-  QRegExp pidRegExp = QRegExp(target_pidstr, TRUE, TRUE);
-
-printf("target_pidstr = (%s)\n", target_pidstr.ascii() );
-
-  if( target_pidstr.find(":") > -1 )
+  QStringList fields = QStringList::split( ",", inputText );
+  for ( QStringList::Iterator it = fields.begin(); it != fields.end(); ++it )
   {
-printf("Found a host!\n");
-   
-  }
-  if( target_pidstr.find(":") > -1 )
-  {
-printf("Found a range!\n");
-   
-  }
-  if( target_pidstr.find("*") > -1 )
-  {
-printf("Found a wildcard!\n");
-  }
-  // Loop through and attempt to find and delete this item.
-  QListViewItemIterator it( columnSet->lv );
-  it++;
-  while ( it.current() )
-  {
-    QListViewItem *item = it.current();
-    QString pidstr = item->text(0).stripWhiteSpace();
-    printf("Item: (%s)\n", pidstr.ascii() );
-    ++it;
-    if( pidstr.find(pidRegExp) != -1 )
+    // Do we have a host?
+    target_hostpid_str = (QString)*it;
+    target_hoststr = QString::null;
+    int colon_index = target_hostpid_str.find(":");
+    if( colon_index > -1 )
     {
-printf("REMOVE: (%s)\n", pidstr.ascii() );
+      target_hoststr =  target_hostpid_str.left(colon_index).stripWhiteSpace();
+    
+      int length = target_hostpid_str.length();
+      length--; // We want to skip the ":"
+      target_pidstr = target_hostpid_str.right(length-colon_index).stripWhiteSpace();
+    } else
+    {
+      target_pidstr = target_hostpid_str.stripWhiteSpace();
+    }
+  
+    QRegExp hostRegExp = QRegExp(target_hoststr, TRUE, TRUE);
+    QRegExp pidRegExp = QRegExp(target_pidstr, TRUE, TRUE);
+  
+// printf("target_pidstr = (%s)\n", target_pidstr.ascii() );
+
+    if( target_pidstr.find(":") > -1 )
+    {
+// printf("Found a host!\n");
+    }
+
+    // Do we have a range of pids?
+    lower_range = -1;
+    upper_range = -1;
+    int dash_index = target_pidstr.find("-");
+    if( dash_index > -1 )
+    {
+// printf("Found a range!\n");
+      int lb_index = target_pidstr.findRev("[", dash_index);
+      int rb_index = target_pidstr.findRev("]", dash_index);
+      if( rb_index > lb_index || lb_index == -1 )
+      {
+// printf("There's a RANGE of processes to remove!\n");
+        int length = target_pidstr.length();
+        lower_rangestr = target_pidstr.left(dash_index);
+        if( !lower_rangestr.isEmpty() )
+        {
+          lower_range = lower_rangestr.toInt();
+        }
+        length--; // We want to skip the "-"
+        upper_rangestr = target_pidstr.right(length-dash_index);
+        if( !upper_rangestr.isEmpty() )
+        {
+          upper_range = upper_rangestr.toInt();
+        }
+      }
+    }
+
+// printf("target_hoststr = (%s)\n", target_hoststr.ascii() );
+// printf("target_pidstr = (%s)\n", target_pidstr.ascii() );
+// printf("lower_rangestr=(%s)\n", lower_rangestr.ascii() );
+// printf("upper_rangestr=(%s)\n", upper_rangestr.ascii() );
+
+   
+    if( target_pidstr.find("*") > -1 )
+    {
+// printf("Found a wildcard!\n");
+    }
+    // Loop through and attempt to find and delete this item.
+    QListViewItemIterator it( columnSet->lv );
+    it++;
+    while ( it.current() )
+    {
+      QListViewItem *item = it.current();
+  
+      QString pidstr = item->text(0).stripWhiteSpace();
+// printf("Item: (%s)\n", pidstr.ascii() );
+      ++it;
+      QString host_name = item->text(1).stripWhiteSpace();
+      if( !host_name.isEmpty()  && host_name.find(hostRegExp) == -1 )
+      {
+        continue;
+      }
+// printf("pidstr=(%s)\n", pidstr.ascii() );
+      if( lower_range >= 0 && upper_range >= 0 )
+      {
+        int pid = pidstr.toInt();
+        if( pid < lower_range || pid > upper_range )
+        {
+          continue;
+        }
+      } else
+      {
+        if( pidstr.find(pidRegExp) == -1 )
+        {
+          continue;
+        }
+      }
       delete item;
     }
   }
-
-
 }
 
-
-}
-
-
-#ifdef PULL
-void
-CompareProcessesDialog::buttonOkSelected()
-{
-printf("buttonOkSelected() entered\n");
-
-  hide();
-}
-
-
-void
-CompareProcessesDialog::applyOkSelected()
-{
-printf("applyOkSelected\n");
-
-  // first add the processes selected.
-  if( !addProcessesRegExpLineEdit->text().isEmpty() )
-  {
-    addProcesses();
-  } 
-  // Now clean any up that were specifically unselected. 
-  if( !removeProcessesRegExpLineEdit->text().isEmpty() )
-  {
-    removeProcesses();
-  }
-//  if( !addProcessesHostRegExpLineEdit->text().isEmpty() )
-//  {
-//    addProcessesHostRegExpLineEditEntered();
-//  }
-}
-#endif // PULL
 
 void
 CompareProcessesDialog::updateFocus(int _expID, CompareClass *_compareClass, CompareSet *_compareSet, ColumnSet *_columnSet )
@@ -411,10 +384,14 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
 {
   DescriptionClassObjectList *dcolist = new DescriptionClassObjectList();
 
-printf("validateHostPid (%s) \n", target_host_pidstr.ascii() );
+// printf("validateHostPid (%s) \n", target_host_pidstr.ascii() );
 
   QString target_hoststr = QString::null;
   QString target_pidstr = QString::null;
+  QString lower_rangestr = QString::null;
+  QString upper_rangestr = QString::null;
+  int lower_range = -1;
+  int upper_range = -1;
   // Do we have a host?
   int colon_index = target_host_pidstr.find(":");
   if( colon_index > -1 )
@@ -442,14 +419,27 @@ printf("validateHostPid (%s) \n", target_host_pidstr.ascii() );
     int rb_index = target_pidstr.findRev("]", dash_index);
     if( rb_index > lb_index || lb_index == -1 )
     {
-      printf("There's a RANGE!   We're not quite there yet!\n");
-      printf("Recursively call this routine with a list of pids????\n");
-      return( NULL );
+      printf("There's a RANGE!\n");
+      int length = target_pidstr.length();
+      lower_rangestr = target_pidstr.left(dash_index);
+      if( !lower_rangestr.isEmpty() )
+      {
+        lower_range = lower_rangestr.toInt();
+      }
+      length--; // We want to skip the "-"
+      upper_rangestr = target_pidstr.right(length-dash_index);
+      if( !upper_rangestr.isEmpty() )
+      {
+        upper_range = upper_rangestr.toInt();
+      }
+//      return( NULL );
     }
   }
 
-printf("target_hoststr = (%s)\n", target_hoststr.ascii() );
-printf("target_pidstr = (%s)\n", target_pidstr.ascii() );
+// printf("target_hoststr = (%s)\n", target_hoststr.ascii() );
+// printf("target_pidstr = (%s)\n", target_pidstr.ascii() );
+// printf("lower_rangestr=(%s)\n", lower_rangestr.ascii() );
+// printf("upper_rangestr=(%s)\n", upper_rangestr.ascii() );
 
   QRegExp hostRegExp = QRegExp(target_hoststr, TRUE, TRUE);
   QRegExp pidRegExp = QRegExp(target_pidstr, TRUE, TRUE);
@@ -478,13 +468,13 @@ printf("target_pidstr = (%s)\n", target_pidstr.ascii() );
         for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
         {
           QString pset_name = QString(*hi);
-QString host_name = QString(*hi);
-printf("hi=(%s)\n", hi->c_str() );
+          QString host_name = QString(*hi);
+// printf("hi=(%s)\n", hi->c_str() );
 if( !host_name.isEmpty()  && host_name.find(hostRegExp) == -1 )
 {
   continue;
 }
-printf("We're on the right target host.\n");
+// printf("We're on the right target host.\n");
           bool atleastone = false;
           for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
           {
@@ -498,13 +488,22 @@ printf("We're on the right target host.\n");
               }
               QString pidstr = QString("%1").arg(pid);
               std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-printf("pidstr=(%s)\n", pidstr.ascii() );
-// if( pidstr != target_pidstr )
-if( pidstr.find(pidRegExp) == -1 )
-{
-  continue;
-}
-printf("Found!\n");
+// printf("pidstr=(%s)\n", pidstr.ascii() );
+              if( lower_range > 0 && upper_range > 0 )
+              {
+                int pid = pidstr.toInt();
+                if( pid < lower_range || pid > upper_range )
+                {
+                  continue;
+                }
+              } else
+              {
+                if( pidstr.find(pidRegExp) == -1 )
+                {
+                  continue;
+                }
+              }
+// printf("Found!\n");
               QString tidstr = QString::null;
               if (pthread.first)
               {
@@ -535,19 +534,19 @@ printf("Found!\n");
               }
               if( !tidstr.isEmpty() )
               {
-printf("host_name=(%s) tidstr=(%s)\n", host_name.ascii(), tidstr.ascii() );
-DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, tidstr  );
-dcolist->append(dco);
+// printf("host_name=(%s) tidstr=(%s)\n", host_name.ascii(), tidstr.ascii() );
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, tidstr  );
+                dcolist->append(dco);
               } else if( !ridstr.isEmpty() )
               {
-DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, ridstr  );
-dcolist->append(dco);
-printf("host_name=(%s) ridstr=(%s)\n", host_name.ascii(), ridstr.ascii() );
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, ridstr  );
+                dcolist->append(dco);
+// printf("host_name=(%s) ridstr=(%s)\n", host_name.ascii(), ridstr.ascii() );
               } else
               {
-DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr  );
-dcolist->append(dco);
-printf("host_name=(%s) pidstr=(%s)\n", host_name.ascii(), pidstr.ascii() );
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr  );
+                dcolist->append(dco);
+// printf("host_name=(%s) pidstr=(%s)\n", host_name.ascii(), pidstr.ascii() );
               }
             }
           }

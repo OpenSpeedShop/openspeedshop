@@ -196,9 +196,9 @@ CompareClass::menu(QPopupMenu* contextMenu)
 
   qaction = new QAction( this,  "addProcessesSelected");
   qaction->addTo( contextMenu );
-  qaction->setText( tr(QString("Add process(es) to")+currentCompareSetString+currentColumnString) );
+  qaction->setText( tr(QString("Select process(es) for: ")+currentCompareSetString+currentColumnString) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( addProcessesSelected() ) );
-  qaction->setStatusTip( tr("Add processes to the current column of current cset.") );
+  qaction->setStatusTip( tr("Select processes to be added or removed from the current column of current cset.") );
 
   qaction = new QAction( this,  "removeUserPSet");
   qaction->addTo( contextMenu );
