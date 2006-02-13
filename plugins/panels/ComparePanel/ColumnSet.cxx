@@ -80,13 +80,12 @@ ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
   experimentLayout->addWidget(cbl);
 
   experimentComboBox = new QComboBox(FALSE, frame, "experimentComboBox");
-  experimentComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
   connect( experimentComboBox, SIGNAL( activated(const QString &) ), this, SLOT( changeExperiment( const QString & ) ) );
 
   QToolTip::add(experimentComboBox, __TR("Select which experiment that you want\nto use in the comparison for this column.") );
   experimentLayout->addWidget(experimentComboBox);
 
-  QSpacerItem *spacer = new QSpacerItem(1000,1, QSizePolicy::Preferred, QSizePolicy::Fixed);
+  QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
   experimentLayout->addItem(spacer);
 }
 
@@ -104,13 +103,13 @@ ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
   collectorLayout->addWidget(cbl);
 
   collectorComboBox = new QComboBox(FALSE, frame, "collectorComboBox");
-  collectorComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+//  collectorComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
   connect( collectorComboBox, SIGNAL( activated(const QString &) ), this, SLOT( changeCollector( const QString & ) ) );
 
   QToolTip::add(collectorComboBox, __TR("Select which collector that you want\nto use in the comparison for this column.") );
   collectorLayout->addWidget(collectorComboBox);
 
-  QSpacerItem *spacer = new QSpacerItem(1000,1, QSizePolicy::Maximum, QSizePolicy::Fixed);
+  QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
   collectorLayout->addItem(spacer);
 }
 
@@ -130,9 +129,8 @@ ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
   QToolTip::add(metricComboBox, __TR("Select which metric/modifier that you want\nto use in the comparison for this column.") );
   metricLayout->addWidget(metricComboBox);
 
-  QSpacerItem *spacer = new QSpacerItem(1000,1, QSizePolicy::Maximum, QSizePolicy::Fixed);
+  QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
   metricLayout->addItem(spacer);
-
 } // Here ends the section to set up the metric/modifier combobox
   
   lv = new MPListView( frame, CPS, 0  );

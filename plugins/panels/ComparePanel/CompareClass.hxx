@@ -80,8 +80,7 @@ public:
     CompareProcessesDialog *dialog;
 
 protected:
-    QHBoxLayout* CompareClassLayout;
-    QHBoxLayout* AddCollectorLayout;
+    QVBoxLayout* compareClassLayout;
     QSplitter *splitter;
     QHBoxLayout* Layout1;
     QSpacerItem* Horizontal_Spacing2;

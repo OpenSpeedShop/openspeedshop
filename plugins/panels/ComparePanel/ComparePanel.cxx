@@ -35,13 +35,10 @@ ComparePanel::ComparePanel(PanelContainer *pc, const char *n, ArgumentObject *ao
   setCaption("ComparePanel");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  QSplitter *compareSplitter = new QSplitter(getBaseWidgetFrame(), "compareSplitter");
-  compareSplitter->setOrientation(QSplitter::Vertical);
 
+  mcc1 = new CompareClass( this, getBaseWidgetFrame(), "CompareClass", FALSE, 0, ao->int_data );
 
-  mcc1 = new CompareClass( this, compareSplitter, "CompareClass", FALSE, 0, ao->int_data );
-
-  frameLayout->addWidget(compareSplitter);
+  frameLayout->addWidget(mcc1);
   mcc1->expID = ao->int_data;
   groupID = mcc1->expID;
   getBaseWidgetFrame()->setCaption("ComparePanelBaseWidget");

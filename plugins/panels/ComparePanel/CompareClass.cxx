@@ -79,19 +79,19 @@ CompareClass::CompareClass( Panel *_p, QWidget* parent, const char* name, bool m
   QToolTip::add(header, tr("The Compare Processes Factor is the interface that allows you to compare one set\nof process/thread to another -or- one experiment run against another.\n\nIt allows you manage columns of data that will be displayed in the StatsPanel.\nEach cset defined can have mulitiple columns defined.   Each coloumn can have an\nindividual collector/metric/modifier displayed.\n\nFirst you create the CompareSet (cset) definition, using this panel, then select\n\"Focus on this CSET\" and the StatsPanel (and eventually the SourcePanel) will be\nupdated with the selected statistics.") );
   mainCompareLayout->addWidget(header);
 
-  CompareClassLayout = new QHBoxLayout( mainCompareLayout, 1, "CompareClassLayout"); 
+  compareClassLayout = new QVBoxLayout( mainCompareLayout, 1, "compareClassLayout"); 
 
-// mainCompareLayout->addLayout(CompareClassLayout);
-
-  splitter = new QSplitter(this, "splitter");
-  splitter->setOrientation(QSplitter::Horizontal);
-
-  CompareClassLayout->addWidget( splitter );
+QLabel *myheader = new QLabel(this, "myheader");
+myheader->setText("Hey you!");
+myheader->setAlignment(Qt::AlignRight);
+compareClassLayout->addWidget(myheader);
 
   // Vertical list of compare sets (set of psets) defined by the user.
   // this simple defaults to "All process/threads, as if this pane never
   // existed.
-  csetTB = new QToolBox( splitter, "listOfCompareSets");
+  csetTB = new QToolBox( this, "listOfCompareSets");
+
+  compareClassLayout->addWidget( csetTB );
 
   updateInfo();
 
