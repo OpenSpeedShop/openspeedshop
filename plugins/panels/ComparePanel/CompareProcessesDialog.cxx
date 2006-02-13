@@ -220,7 +220,7 @@ printf("addProcessesRegExpLineEditEntered(%s)\n", addProcessesRegExpLineEdit->te
 
   QString pset_name = QString::null;
   QString host = QString::null;
-  QString pidstr = addProcessesRegExpLineEdit->text().stripWhiteSpace();
+  QString host_pidstr = addProcessesRegExpLineEdit->text().stripWhiteSpace();
   QString tidstr = QString::null;
   QString collector_name = QString::null;
 
@@ -235,32 +235,39 @@ printf("addProcessesRegExpLineEditEntered(%s)\n", addProcessesRegExpLineEdit->te
     host = addProcessesHostRegExpLineEdit->text();
   }
 
-QStringList fields = QStringList::split( ",", inputText );
-for ( QStringList::Iterator it = fields.begin(); it != fields.end(); ++it )
-{
-  pidstr = ((QString)*it).stripWhiteSpace();
-
-printf("pidstr = (%s)\n", pidstr.ascii() );
-
-  if( pidstr.find(":") > -1 )
+  QStringList fields = QStringList::split( ",", inputText );
+  for ( QStringList::Iterator it = fields.begin(); it != fields.end(); ++it )
   {
+    host_pidstr = ((QString)*it).stripWhiteSpace();
+
+printf("host_pidstr = (%s)\n", host_pidstr.ascii() );
+
+    if( host_pidstr.find("-") > -1 )
+    {
 printf("Found a range!\n");
-   
-  }
-  if( pidstr.find("*") > -1 )
-  {
+    }
+    if( host_pidstr.find(":") > -1 )
+    {
+printf("Found a host!\n");
+    }
+    if( host_pidstr.find("*") > -1 )
+    {
 printf("Found a wildcard!\n");
-  }
-  QStringList validatedPidList = validatePid(host, pidstr);
+    }
+    DescriptionClassObjectList *validatedHostPidList = validateHostPid(host_pidstr);
 
-  for ( QStringList::Iterator it = validatedPidList.begin(); it != validatedPidList.end(); ++it )
-  {
-    QString vpidstr = ((QString)*it).stripWhiteSpace();
-    MPListViewItem *item = new MPListViewItem( columnSet->lv->firstChild(), vpidstr, host, tidstr );
-    DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, host, vpidstr);
-    item->descriptionClassObject = dco;
+    if( validatedHostPidList )
+    {
+      for ( DescriptionClassObjectList::Iterator it = validatedHostPidList->begin(); it != validatedHostPidList->end(); ++it )
+      {
+        DescriptionClassObject *dco = (DescriptionClassObject *)*it;
+        MPListViewItem *item = new MPListViewItem( columnSet->lv->firstChild(), dco->pid_name, dco->host_name, tidstr );
+        item->descriptionClassObject = dco;
+      }
+  
+      delete validatedHostPidList;
+    }
   }
-}
 }
 
 void
@@ -281,6 +288,11 @@ for ( QStringList::Iterator it = fields.begin(); it != fields.end(); ++it )
 
 printf("target_pidstr = (%s)\n", target_pidstr.ascii() );
 
+  if( target_pidstr.find(":") > -1 )
+  {
+printf("Found a host!\n");
+   
+  }
   if( target_pidstr.find(":") > -1 )
   {
 printf("Found a range!\n");
@@ -363,15 +375,53 @@ CompareProcessesDialog::updateFocus(int _expID, CompareClass *_compareClass, Com
   compareSet->updatePSetList();
 }
 
-QStringList
-CompareProcessesDialog::validatePid(QString target_host, QString target_pidstr)
+DescriptionClassObjectList *
+CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
 {
-  QStringList vpidlist;
+  DescriptionClassObjectList *dcolist = new DescriptionClassObjectList();
 
-  printf("validatePid (%s:%s) \n", target_host.ascii(), target_pidstr.ascii() );
+printf("validateHostPid (%s) \n", target_host_pidstr.ascii() );
 
+  QString target_hoststr = QString::null;
+  QString target_pidstr = QString::null;
+  // Do we have a host?
+  int colon_index = target_host_pidstr.find(":");
+  if( colon_index > -1 )
+  {
+    target_hoststr =  target_host_pidstr.left(colon_index).stripWhiteSpace();
+  
+    int length = target_host_pidstr.length();
+    length--; // We want to skip the ":"
+    target_pidstr = target_host_pidstr.right(length-colon_index).stripWhiteSpace();
+  } else
+  {
+    target_pidstr = target_host_pidstr.stripWhiteSpace();
+  }
+  
+  if( target_pidstr.isEmpty() )
+  {
+    return( NULL );
+  }
+
+  // Do we have a range of pids?
+  int dash_index = target_pidstr.find("-");
+  if( dash_index > -1 )
+  {
+    int lb_index = target_pidstr.findRev("[", dash_index);
+    int rb_index = target_pidstr.findRev("]", dash_index);
+    if( rb_index > lb_index || lb_index == -1 )
+    {
+      printf("There's a RANGE!   We're not quite there yet!\n");
+      printf("Recursively call this routine with a list of pids????\n");
+      return( NULL );
+    }
+  }
+
+printf("target_hoststr = (%s)\n", target_hoststr.ascii() );
+printf("target_pidstr = (%s)\n", target_pidstr.ascii() );
+
+  QRegExp hostRegExp = QRegExp(target_hoststr, TRUE, TRUE);
   QRegExp pidRegExp = QRegExp(target_pidstr, TRUE, TRUE);
-  QRegExp hostRegExp = QRegExp(target_host, TRUE, TRUE);
 
     try
     {
@@ -455,14 +505,17 @@ printf("Found!\n");
               if( !tidstr.isEmpty() )
               {
 printf("host_name=(%s) tidstr=(%s)\n", host_name.ascii(), tidstr.ascii() );
-vpidlist.append(tidstr);
+DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, tidstr  );
+dcolist->append(dco);
               } else if( !ridstr.isEmpty() )
               {
-vpidlist.append(ridstr);
+DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, ridstr  );
+dcolist->append(dco);
 printf("host_name=(%s) ridstr=(%s)\n", host_name.ascii(), ridstr.ascii() );
               } else
               {
-vpidlist.append(pidstr);
+DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr  );
+dcolist->append(dco);
 printf("host_name=(%s) pidstr=(%s)\n", host_name.ascii(), pidstr.ascii() );
               }
             }
@@ -479,5 +532,5 @@ printf("host_name=(%s) pidstr=(%s)\n", host_name.ascii(), pidstr.ascii() );
       return NULL;;
     }
 
-  return( vpidlist );
+  return( dcolist );
 }

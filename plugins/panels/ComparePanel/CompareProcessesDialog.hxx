@@ -44,6 +44,9 @@ class CompareClass;
 class CompareSet;
 class ColumnSet;
 
+class DescriptionClassObject;
+typedef QValueList<DescriptionClassObject *> DescriptionClassObjectList;
+
 class CompareProcessesDialog : public QDialog
 {
     Q_OBJECT
@@ -84,7 +87,7 @@ protected:
     OpenSpeedshop *mw;
 
 private:
-    QStringList validatePid(QString host, QString pid);
+    DescriptionClassObjectList * validateHostPid(QString host_pidstr);
     void addProcessesRegExpLineEditEntered();
     void removeProcesses();
 
