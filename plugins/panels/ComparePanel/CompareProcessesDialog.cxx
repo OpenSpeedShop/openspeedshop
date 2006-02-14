@@ -93,19 +93,20 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
 
 //  QToolTip::add(addProcessesRegExpLineEdit, tr("Enter the pid (or regular expression defining the pids) that you want entered into\nthe current Column in the current Compare Set of the Compare Panel.\n\nDrag and drop, psets or individual processes from here to the Compare Panel.") );
 
-QPushButton *addButton = new QPushButton( this, "addButton" );
-addButton->setText("Add");
-addButton->setPixmap(plus_xpm);
-addProcessesLayout->addWidget( addButton );
+  QPushButton *addButton = new QPushButton( this, "addButton" );
+  addButton->setText("Add");
+  addButton->setPixmap(plus_xpm);
+  addProcessesLayout->addWidget( addButton );
 
-QPushButton *removeButton = new QPushButton( this, "removeButton" );
-removeButton->setText("Remove");
-		removeButton->setPixmap(minus_xpm);
-addProcessesLayout->addWidget( removeButton );
+  QPushButton *removeButton = new QPushButton( this, "removeButton" );
+  removeButton->setText("Remove");
+  removeButton->setPixmap(minus_xpm);
+  addProcessesLayout->addWidget( removeButton );
 
 
   availableProcessesListView = new MPListView( this, "availableProcessesListView", 0 );
   availableProcessesListView->addColumn( tr( "Available Processes:" ) );
+availableProcessesListView->addColumn( tr( "Host:" ) );
   availableProcessesListView->setSelectionMode( QListView::Single );
   availableProcessesListView->setShowSortIndicator( TRUE );
   availableProcessesListView->setSorting( 0, FALSE );
