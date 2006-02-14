@@ -73,6 +73,8 @@ public:
     ColumnSet *columnSet;
     int expID;
 
+    QStringList psetNameList;
+
 protected:
     QVBoxLayout* CompareProcessesDialogLayout;
     QHBoxLayout* Layout1;
@@ -83,6 +85,7 @@ protected:
 
 private:
     DescriptionClassObjectList * validateHostPid(QString host_pidstr);
+    bool isPSetName(QString name);
 
 private slots:
     void addProcesses();

@@ -65,6 +65,7 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   mw = (OpenSpeedshop *)parent;
   cli = mw->cli;
 
+
   QToolTip::add(this, tr("This dialog helps define which processes will be display in each focused Compare\nSet/Column of the Compare Panel.\nSelecting on a column in the Compare Panel will change the focus in this display.") );
   
   if ( !name ) setName( "CompareProcessesDialog" );
@@ -260,6 +261,8 @@ CompareProcessesDialog::removeProcesses()
   QString target_hoststr = QString::null;
   QString inputText = addProcessesRegExpLineEdit->text().stripWhiteSpace();
 
+
+
   QStringList fields = QStringList::split( ",", inputText );
   for ( QStringList::Iterator it = fields.begin(); it != fields.end(); ++it )
   {
@@ -278,16 +281,35 @@ CompareProcessesDialog::removeProcesses()
     {
       target_pidstr = target_hostpid_str.stripWhiteSpace();
     }
+// Begin PSET delete
+  // First check to see if we have a dynamic pset name.
+    if( isPSetName(target_pidstr) == TRUE )
+    {
+      bool deleted = FALSE;
+      QListViewItemIterator it( columnSet->lv );
+      it++;
+      while ( it.current() )
+      {
+        QListViewItem *item = it.current();
+        if( item->text(0) == target_pidstr || item->text(0) == target_pidstr+"*" )
+        {
+          delete item;
+          deleted = TRUE;
+          break;
+        }
+        it++;
+      }
+      if( deleted == TRUE )
+      {
+        continue;
+      }
+    }
+// End PSET delete
   
     QRegExp hostRegExp = QRegExp(target_hoststr, TRUE, TRUE);
     QRegExp pidRegExp = QRegExp(target_pidstr, TRUE, TRUE);
   
 // printf("target_pidstr = (%s)\n", target_pidstr.ascii() );
-
-    if( target_pidstr.find(":") > -1 )
-    {
-// printf("Found a host!\n");
-    }
 
     // Do we have a range of pids?
     lower_range = -1;
@@ -320,28 +342,41 @@ CompareProcessesDialog::removeProcesses()
 // printf("target_pidstr = (%s)\n", target_pidstr.ascii() );
 // printf("lower_rangestr=(%s)\n", lower_rangestr.ascii() );
 // printf("upper_rangestr=(%s)\n", upper_rangestr.ascii() );
-
    
     if( target_pidstr.find("*") > -1 )
     {
 // printf("Found a wildcard!\n");
     }
     // Loop through and attempt to find and delete this item.
+
     QListViewItemIterator it( columnSet->lv );
     it++;
     while ( it.current() )
     {
       QListViewItem *item = it.current();
-  
-      QString pidstr = item->text(0).stripWhiteSpace();
-// printf("Item: (%s)\n", pidstr.ascii() );
       ++it;
-      QString host_name = item->text(1).stripWhiteSpace();
-      if( !host_name.isEmpty()  && host_name.find(hostRegExp) == -1 )
+
+      if( !item )
       {
         continue;
       }
-// printf("pidstr=(%s)\n", pidstr.ascii() );
+
+      if( item->text(0).isEmpty() )
+      {
+        continue;
+      }
+  
+      QString pidstr = item->text(0).stripWhiteSpace();
+      // Skip any pset names...\n");
+      if( isPSetName(QString(pidstr)) == TRUE )
+      { // skip pset names...
+        continue;
+      }
+      QString host_name = item->text(1).stripWhiteSpace();
+      if( !host_name.isEmpty() && host_name.find(hostRegExp) == -1 )
+      {
+        continue;
+      }
       if( lower_range >= 0 && upper_range >= 0 )
       {
         int pid = pidstr.toInt();
@@ -361,10 +396,28 @@ CompareProcessesDialog::removeProcesses()
   }
 }
 
+bool
+CompareProcessesDialog::isPSetName(QString name)
+{
+// printf("CompareProcessesDialog::isPSetName(%s) entered\n", name.ascii() );
+
+  for ( QStringList::Iterator it = psetNameList.begin(); it != psetNameList.end(); ++it )
+  {
+    QString pset_namestr = (QString)*it;
+// printf("Is it pset named %s\n", pset_namestr.ascii() );
+    if( pset_namestr == name || pset_namestr+"*" == name )
+    {
+// printf("Found pset named %s\n", pset_namestr.ascii() );
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
 
 void
 CompareProcessesDialog::updateFocus(int _expID, CompareClass *_compareClass, CompareSet *_compareSet, ColumnSet *_columnSet )
 {
+  psetNameList.clear();
   compareClass = _compareClass;
   compareSet = _compareSet;
   columnSet = _columnSet;
@@ -445,123 +498,166 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
   QRegExp hostRegExp = QRegExp(target_hoststr, TRUE, TRUE);
   QRegExp pidRegExp = QRegExp(target_pidstr, TRUE, TRUE);
 
-    try
-    {
-      ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  // First check to see if we have an exact match on the dynamic pset names.
+  if( isPSetName(target_pidstr) == TRUE )
+  {
+  QString pset_name = target_pidstr+"*";
+  MPListViewItem *pitem = new MPListViewItem( columnSet->lv->firstChild(), pset_name );
+  DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+if( target_pidstr == "All" )
+{
+  dco->all = TRUE;
+}
 
-      if( eo->FW() != NULL )
+    QListViewItemIterator it( availableProcessesListView );
+    while ( it.current() )
+    {
+      QListViewItem *item = it.current();
+  
+      if( item->text(0) == target_pidstr )
       {
-        ThreadGroup tgrp = eo->FW()->getThreads();
-        ThreadGroup::iterator ti;
-        std::vector<std::string> v;
+        QListViewItem *child = item->firstChild();
+        while( child )
+        {
+          // child->text(0) is the pidstr;
+          // child->text(1) is the hoststr;
+if( target_pidstr == "All" )
+{
+          MPListViewItem *item2 =
+                  new MPListViewItem( pitem, "All pids" );
+} else
+{
+          MPListViewItem *item2 =
+                  new MPListViewItem( pitem, child->text(0), child->text(1)  );
+}
+          DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, child->text(1), child->text(0) );
+//          dcolist->append(dco);
+          child = child->nextSibling();
+        }
+
+        break;
+      }
+      it++;
+    }
+//    return( dcolist );
+    return( NULL );
+  }
+
+  // Now try for a match with the frameworks host/pid entries.
+  try
+  {
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    if( eo->FW() != NULL )
+    {
+      ThreadGroup tgrp = eo->FW()->getThreads();
+      ThreadGroup::iterator ti;
+      std::vector<std::string> v;
+      for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+      {
+        Thread t = *ti;
+        std::string s = t.getHost();
+        
+        v.push_back(s);
+      }
+      std::sort(v.begin(), v.end());
+
+      std::vector<std::string>::iterator e 
+                        = unique(v.begin(), v.end());
+
+      for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
+      {
+        QString pset_name = QString(*hi);
+        QString host_name = QString(*hi);
+// printf("hi=(%s)\n", hi->c_str() );
+        if( !host_name.isEmpty()  && host_name.find(hostRegExp) == -1 ) 
+        {
+          continue;
+        }
+        bool atleastone = false;
         for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
         {
           Thread t = *ti;
-          std::string s = t.getHost();
-        
-          v.push_back(s);
-        }
-        std::sort(v.begin(), v.end());
-
-        std::vector<std::string>::iterator e 
-                        = unique(v.begin(), v.end());
-
-        for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
-        {
-          QString pset_name = QString(*hi);
-          QString host_name = QString(*hi);
-// printf("hi=(%s)\n", hi->c_str() );
-if( !host_name.isEmpty()  && host_name.find(hostRegExp) == -1 )
-{
-  continue;
-}
-// printf("We're on the right target host.\n");
-          bool atleastone = false;
-          for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+          std::string host = t.getHost();
+          if( host == *hi )
           {
-            Thread t = *ti;
-            std::string host = t.getHost();
-            if( host == *hi )
-            {
-              pid_t pid = t.getProcessId();
-              if (!atleastone) {
-                atleastone = true;
-              }
-              QString pidstr = QString("%1").arg(pid);
-              std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+            pid_t pid = t.getProcessId();
+            if (!atleastone) {
+              atleastone = true;
+            }
+            QString pidstr = QString("%1").arg(pid);
+            std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
 // printf("pidstr=(%s)\n", pidstr.ascii() );
-              if( lower_range > 0 && upper_range > 0 )
+            if( lower_range > 0 && upper_range > 0 )
+            {
+              int pid = pidstr.toInt();
+              if( pid < lower_range || pid > upper_range )
               {
-                int pid = pidstr.toInt();
-                if( pid < lower_range || pid > upper_range )
-                {
-                  continue;
-                }
-              } else
-              {
-                if( pidstr.find(pidRegExp) == -1 )
-                {
-                  continue;
-                }
+                continue;
               }
+            } else
+            {
+              if( pidstr.find(pidRegExp) == -1 )
+              {
+                continue;
+              }
+            }
 // printf("Found!\n");
-              QString tidstr = QString::null;
-              if (pthread.first)
+            QString tidstr = QString::null;
+            if (pthread.first)
+            {
+              tidstr = QString("%1").arg(pthread.second);
+            }
+            std::pair<bool, int> rank = t.getMPIRank();
+            QString ridstr = QString::null;
+            if (rank.first)
+            {
+              ridstr = QString("%1").arg(rank.second);
+            }
+            CollectorGroup cgrp = t.getCollectors();
+            CollectorGroup::iterator ci;
+            std::string collectorliststring;
+            int collector_count = 0;
+            for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
+            {
+              Collector c = *ci;
+              Metadata m = c.getMetadata();
+              if (collector_count)
               {
-                tidstr = QString("%1").arg(pthread.second);
-              }
-              std::pair<bool, int> rank = t.getMPIRank();
-              QString ridstr = QString::null;
-              if (rank.first)
-              {
-                ridstr = QString("%1").arg(rank.second);
-              }
-              CollectorGroup cgrp = t.getCollectors();
-              CollectorGroup::iterator ci;
-              std::string collectorliststring;
-              int collector_count = 0;
-              for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
-              {
-                Collector c = *ci;
-                Metadata m = c.getMetadata();
-                if (collector_count)
-                {
-                  collectorliststring += "," + m.getUniqueId();
-                } else
-                {
-                  collector_count = 1;
-                  collectorliststring = m.getUniqueId();
-                }
-              }
-              if( !tidstr.isEmpty() )
-              {
-// printf("host_name=(%s) tidstr=(%s)\n", host_name.ascii(), tidstr.ascii() );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, tidstr  );
-                dcolist->append(dco);
-              } else if( !ridstr.isEmpty() )
-              {
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, ridstr  );
-                dcolist->append(dco);
-// printf("host_name=(%s) ridstr=(%s)\n", host_name.ascii(), ridstr.ascii() );
+                collectorliststring += "," + m.getUniqueId();
               } else
               {
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr  );
-                dcolist->append(dco);
-// printf("host_name=(%s) pidstr=(%s)\n", host_name.ascii(), pidstr.ascii() );
+                collector_count = 1;
+                collectorliststring = m.getUniqueId();
               }
+            }
+            if( !tidstr.isEmpty() )
+            {
+// printf("host_name=(%s) tidstr=(%s)\n", host_name.ascii(), tidstr.ascii() );
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, tidstr  );
+              dcolist->append(dco);
+            } else if( !ridstr.isEmpty() )
+            {
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, ridstr  );
+              dcolist->append(dco);
+// printf("host_name=(%s) ridstr=(%s)\n", host_name.ascii(), ridstr.ascii() );
+            } else
+            {
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr  );
+              dcolist->append(dco);
+// printf("host_name=(%s) pidstr=(%s)\n", host_name.ascii(), pidstr.ascii() );
             }
           }
         }
       }
     }
-    catch(const std::exception& error)
-    {
-      std::cerr << std::endl << "Error: "
-        << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-        "Unknown runtime error." : error.what()) << std::endl
-        << std::endl;
-      return NULL;;
-    }
-
-  return( dcolist );
+  }
+  catch(const std::exception& error)
+  {
+    std::cerr << std::endl << "Error: "
+      << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+      "Unknown runtime error." : error.what()) << std::endl
+      << std::endl;
+    return NULL;;
+  }
+ return( dcolist );
 }
