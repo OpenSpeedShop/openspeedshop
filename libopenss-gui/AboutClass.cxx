@@ -36,7 +36,7 @@ AboutClass::AboutClass(QWidget *w) : QDialog(w, "", 0, 0)
   QVBoxLayout *aboutLayout = new QVBoxLayout( this, 1, 2, "aboutLayout" );
 
   QLabel *version = new QLabel(this, "version");
-  version->setText("Open|SpeedShop(tm) Version 0.5");
+  version->setText("Open|SpeedShop(tm) Version 0.75");
 
   
   QTabWidget *tabWidget = new QTabWidget( this, "aboutLayout" );
