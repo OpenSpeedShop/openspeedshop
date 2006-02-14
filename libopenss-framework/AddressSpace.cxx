@@ -126,9 +126,9 @@ AddressSpace::updateThreads(const ThreadGroup& threads, const Time& when) const
     for(ThreadGroup::const_iterator
 	    t = threads.begin(); t != threads.end(); ++t) {
 	
-	// Begin a transaction on this thread's database
+	// Begin an exclusive transaction on this thread's database
 	SmartPtr<Database> database = EntrySpy(*t).getDatabase();
-	BEGIN_TRANSACTION(database);
+	BEGIN_EXCLUSIVE_TRANSACTION(database);
 	
 	//
 	// Use Time::TheBeginning() as the "time_begin" value of the to-be-

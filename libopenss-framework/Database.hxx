@@ -91,7 +91,7 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	std::string getName() const;
 
-	void beginTransaction();
+	void beginTransaction(const bool& = false);
 	void prepareStatement(const std::string&);
 	
 	void bindArgument(const unsigned&, const std::string&);
@@ -209,10 +209,26 @@ namespace OpenSpeedShop { namespace Framework {
 
 
 /**
+ * Begin an exclusive transaction.
+ *
+ * Convenience wrapper for beginning an exclusive database transaction inside a
+ * try/catch clause. Meant to be used in conjunction with END_TRANSACTION.
+ *
+ * @param db    Pointer to database being accessed.
+ */
+#define BEGIN_EXCLUSIVE_TRANSACTION(db) \
+    try {                               \
+	db->beginTransaction(true);     \
+	if(0)
+
+
+
+/**
  * End a transaction.
  *
  * Convenience wrapper for ending a database transaction inside a try/catch
- * clause. Meant to be used in conjunction with BEGIN_TRANSACTION.
+ * clause. Meant to be used in conjunction with either BEGIN_TRANSACTION or
+ * BEGIN_EXCLUSIVE_TRANSACTION.
  *
  * @param db    Pointer to database being accessed.
  */

@@ -79,8 +79,8 @@ namespace {
     void flushPerformanceData(const SmartPtr<Database>& database,
 			      const SmartPtr<std::deque<Blob> >& queue)
     {
-	// Begin a multi-statement transaction
-	BEGIN_TRANSACTION(database);	
+	// Begin an exclusive multi-statement transaction
+	BEGIN_EXCLUSIVE_TRANSACTION(database);	
 
 	// Iterate over each blob in the queue
 	for(std::deque<Blob>::const_iterator

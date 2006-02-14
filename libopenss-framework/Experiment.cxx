@@ -675,7 +675,7 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
     bool is_attached = false;
 
     // Begin a multi-statement transaction
-    BEGIN_TRANSACTION(dm_database);
+    BEGIN_EXCLUSIVE_TRANSACTION(dm_database);
 
     // Are there any existing thread(s) for this process?
     dm_database->prepareStatement(	
@@ -794,7 +794,7 @@ void Experiment::removeThread(const Thread& thread) const
     Instrumentor::release(thread);
     
     // Begin a multi-statement transaction
-    BEGIN_TRANSACTION(dm_database);
+    BEGIN_EXCLUSIVE_TRANSACTION(dm_database);
     EntrySpy(thread).validate();
 
     // Remove this thread
@@ -952,7 +952,7 @@ void Experiment::removeCollector(const Collector& collector) const
     Assert(dm_database == EntrySpy(collector).getDatabase());
     
     // Begin a multi-statement transaction
-    BEGIN_TRANSACTION(dm_database);
+    BEGIN_EXCLUSIVE_TRANSACTION(dm_database);
     EntrySpy(collector).validate();
     
     // Stop all performance data collection for this collector

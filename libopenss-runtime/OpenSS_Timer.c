@@ -71,11 +71,9 @@ static OpenSS_TimerEventHandler timer_handler = NULL;
  */
 static void signalHandler(int signal, siginfo_t* info, void* ptr)
 {
-    /* Check preconditions */
-    Assert(timer_handler != NULL);
-    
     /* Call this thread's timer event handler */
-    (*timer_handler)((ucontext_t*)ptr);
+    if(timer_handler != NULL)
+	(*timer_handler)((ucontext_t*)ptr);
 }
 
 

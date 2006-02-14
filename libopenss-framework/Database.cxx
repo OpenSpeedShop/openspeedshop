@@ -391,8 +391,15 @@ std::string Database::getName() const
  * Begins a new SQL transaction on this database. Nested transactions (of a
  * sort) are implemented and a thread may begin another, nested, transaction
  * before the previous transaction completes.
+ *
+ * @note    An assertion failure occurs if an exclusive transaction is requested
+ *          nested inside of another transaction. Exclusive transactions must be
+ *          outer transactions.
+ *
+ * @param is_exclusive    Boolean "true" if an exclusive transaction is being
+ *                        requested, "false" otherwise.
  */
-void Database::beginTransaction()
+void Database::beginTransaction(const bool& is_exclusive)
 {
     //
     // Acquire read access for the transaction lock
@@ -405,12 +412,15 @@ void Database::beginTransaction()
 
     // Check assertions
     Assert(handle.dm_database != NULL);
+    Assert(!is_exclusive || handle.dm_transaction.empty());
     
     // Is this the outermost transaction?
     if(handle.dm_transaction.empty()) {
 
 	// Execute a SQL query to begin a new transaction
-	Assert(sqlite3_exec(handle.dm_database, "BEGIN DEFERRED TRANSACTION;",
+	Assert(sqlite3_exec(handle.dm_database, is_exclusive ?
+			    "BEGIN EXCLUSIVE TRANSACTION;" :
+			    "BEGIN DEFERRED TRANSACTION;",
 			    NULL, NULL, NULL) == SQLITE_OK);
 	
 	// Indicate the transaction can be committed
@@ -766,6 +776,18 @@ bool Database::executeStatement()
     
     // Execute the next step of the current statement
     int retval = sqlite3_step(handle.dm_transaction.back());
+    
+    // Note: Despite the use of a busy handler for each thread, there are still
+    //       cases where SQLite can return SQLITE_BUSY above. Specifically, if
+    //       two threads both obtain shared read locks, then both try to promote
+    //       to exclusive write locks, neither can proceed and deadlock would be
+    //       the usual result. SQLite detects this situation and avoids deadlock
+    //       by returning SQLITE_BUSY to both threads allowing them to back off.
+    //       The framework attempts to completely avoid the potential deadlock
+    //       by judicious use of explicit exclusive transactions. The following
+    //       assertion, however, checks for a SQLITE_BUSY value anyway.
+    
+    Assert(retval != SQLITE_BUSY);
     Assert((retval == SQLITE_ROW) || (retval == SQLITE_DONE));
     
     // Handle a completed statement
