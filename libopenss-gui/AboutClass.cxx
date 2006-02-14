@@ -28,6 +28,8 @@
 #include <qpushbutton.h>
 #include <qtabwidget.h>
 
+#include "config.h" // For version (VERSION) number
+
 #include "splash_noborder.xpm"
 AboutClass::AboutClass(QWidget *w) : QDialog(w, "", 0, 0)
 {
@@ -36,7 +38,8 @@ AboutClass::AboutClass(QWidget *w) : QDialog(w, "", 0, 0)
   QVBoxLayout *aboutLayout = new QVBoxLayout( this, 1, 2, "aboutLayout" );
 
   QLabel *version = new QLabel(this, "version");
-  version->setText("Open|SpeedShop(tm) Version 0.75");
+  QString version_str = VERSION;
+  version->setText(QString("Open|SpeedShop(tm) Version %1").arg(version_str));
 
   
   QTabWidget *tabWidget = new QTabWidget( this, "aboutLayout" );
