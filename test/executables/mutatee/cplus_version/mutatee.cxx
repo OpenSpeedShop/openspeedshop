@@ -41,7 +41,7 @@ int work(int size)
  
 int main(int argc, char* argv[])
 {
-   int size = 1000;
+   int size = 500;
 
     work(size);
 }
