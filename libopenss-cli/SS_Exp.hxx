@@ -127,10 +127,15 @@ class ExperimentObject
 
     if (FW_Experiment != NULL) {
       try {
+        std::string Data_File_Name;
         if (Data_File_Has_A_Generated_Name) {
-          FW_Experiment->remove (FW_Experiment->getName());
+         // Delete the file AFTER deleting the experiment object.
+          Data_File_Name = FW_Experiment->getName();
         }
         delete FW_Experiment;
+        if (Data_File_Has_A_Generated_Name) {
+          OpenSpeedShop::Framework::Experiment::remove (Data_File_Name);
+        }
       }
       catch(const Exception& error) {
        // Don't really care why.
