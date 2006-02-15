@@ -49,6 +49,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Database;
     class Experiment;
+    class Extent;
     template <typename> class SmartPtr;
     class Thread;
     class ThreadGroup;
@@ -119,6 +120,8 @@ namespace OpenSpeedShop { namespace Framework {
         void startCollecting(const Thread&) const;	
 	void postponeCollecting(const Thread&) const;
         void stopCollecting(const Thread&) const;
+
+	Extent getExtentIn(const Thread&) const;
 	
     private:
 
