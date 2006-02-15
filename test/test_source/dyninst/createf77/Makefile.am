@@ -53,5 +53,5 @@ mutatee_LDADD = \
 mutatee_SOURCES = \
         mutatee.f
 
-EXTRA_DIST      =       runall-dyninst runone-dyninst createf77.tst createf77.tst.expected
+EXTRA_DIST      =       runall-dyninst runone-dyninst createf77.tst createf77.tst.expected Makefile.am
 

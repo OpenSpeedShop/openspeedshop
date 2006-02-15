@@ -53,5 +53,5 @@ mutatee_LDADD = \
 mutatee_SOURCES = \
 	mutatee.c
 
-EXTRA_DIST      =       runall-dyninst runone-dyninst findPoint.tst findPoint.tst.expected
+EXTRA_DIST      =       runall-dyninst runone-dyninst findPoint.tst findPoint.tst.expected Makefile.am
 
