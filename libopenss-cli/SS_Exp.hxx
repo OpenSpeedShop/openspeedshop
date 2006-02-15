@@ -55,15 +55,19 @@ class ExperimentObject
    // Allocate a data base file for the information connected with the experiment.
     std::string Data_File_Name;
     if (data_base_name.length() == 0) {
+      bool database_not_allocated = true;
+      Data_File_Has_A_Generated_Name = !OPENSS_SAVE_EXPERIMENT_DATABASE;
       if (OPENSS_SAVE_EXPERIMENT_DATABASE) {
        // Try to create a file in the current directory
-       // of the form "X<exp_id>_XXXXXX.openss".
-       // If the genrated name already exists, increment
-       // the "XXXXXX" field and try again with the new name.
+       // of the form "X<exp_id>.XXXX.openss".
+       // If the generated name already exists, increment
+       // the "XXXX" field and try again with the new name.
+       // If we try 1000 times and can't generate a unique name,
+       // fall into logic to use 'tempnam' to generate a name.
         char base[100];
         int64_t cnt = 0;
-        for (cnt = 0; cnt < 1000000; cnt++) {
-          snprintf(base, 100, "./X%lld_%lld.openss",Exp_ID,cnt);
+        for (cnt = 0; cnt < 1000; cnt++) {
+          snprintf(base, 100, "./X%lld.%lld.openss",Exp_ID,cnt);
           int fd;
           if ((fd = open(base, O_RDONLY)) != -1) {
            // File name is already used!
@@ -71,19 +75,18 @@ class ExperimentObject
             continue;
           }
           Data_File_Name = std::string(base);
-          Data_File_Has_A_Generated_Name = false;
+          database_not_allocated = false;
           break;
         }
-        Assert(cnt < 1000000);
-      } else {
+      }
+      if (database_not_allocated) {   
        // Create a file in /tmp, for fastest access,
-       // of the form "ssdb<exp_id>XXXXXX.openss".
+       // of the form "X<exp_id>.XXXXXX.openss".
         char base[L_tmpnam];
-        snprintf(base, L_tmpnam, "ssdb%lld.XXXXXX",Exp_ID);
-        char *tName = tempnam ("/tmp/", &base[0] );
+        snprintf(base, L_tmpnam, "X%lld.",Exp_ID);
+        char *tName = tempnam ( (Data_File_Has_A_Generated_Name ? NULL : "./"), base );
         Assert(tName != NULL);
         Data_File_Name = std::string(tName) + ".openss";
-        Data_File_Has_A_Generated_Name = true;
         free (tName);
       }
       try {
