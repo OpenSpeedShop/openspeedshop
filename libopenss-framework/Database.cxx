@@ -1276,6 +1276,21 @@ Database::Handle& Database::getHandle()
 	
 	// Create a new per-thread database handle
 	Handle handle;
+
+	// Note: It is extremely important to verify the database accessibility
+	//       before EVERY sqlite3_open() call - not just when the database
+	//       object is created. Otherwise cases arise where sqlite3_open()
+	//       below constructs an empty database file. E.g. thread A creates
+	//       a database and a corresponding database object, that object is
+	//       passed to thread B, then the database itself is removed before
+	//       thread B attempts to use the object. When thread B does use the
+	//       object, a pre-existing file isn't found and the following call
+	//       to sqlite3_open() would attempt to create one if the test for
+	//       accessibility wasn't in place.
+	
+	// Verify the database is accessible
+	if(!isAccessible(dm_name))
+	    throw Exception(Exception::DatabaseDoesNotExist, dm_name);
 	
 	// Open the database
 	Assert(sqlite3_open(dm_name.c_str(), &handle.dm_database) == SQLITE_OK);
