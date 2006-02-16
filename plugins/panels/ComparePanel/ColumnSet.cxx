@@ -75,7 +75,7 @@ ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
 
   QLabel *cbl = new QLabel(frame, "experimentComboBoxLabel");
   cbl->setText( __TR("Available Experiments:") );
-  cbl->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+  cbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   QToolTip::add(cbl, __TR("Select which experiment that you want\nto use in the comparison for this column.") );
   experimentLayout->addWidget(cbl);
 
@@ -85,8 +85,8 @@ ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
   QToolTip::add(experimentComboBox, __TR("Select which experiment that you want\nto use in the comparison for this column.") );
   experimentLayout->addWidget(experimentComboBox);
 
-  QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-  experimentLayout->addItem(spacer);
+//  QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+//  experimentLayout->addItem(spacer);
 }
 
 } // Here ends the section to set up the experiment combobox
@@ -98,7 +98,7 @@ ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
 
   QLabel *cbl = new QLabel(frame, "collectorComboBoxLabel");
   cbl->setText( __TR("Available Collectors:") );
-  cbl->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+  cbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   QToolTip::add(cbl, __TR("Select which collector that you want\nto use in the comparison for this column.") );
   collectorLayout->addWidget(cbl);
 
@@ -109,8 +109,8 @@ ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
   QToolTip::add(collectorComboBox, __TR("Select which collector that you want\nto use in the comparison for this column.") );
   collectorLayout->addWidget(collectorComboBox);
 
-  QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-  collectorLayout->addItem(spacer);
+//  QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+//  collectorLayout->addItem(spacer);
 }
 
 } // Here ends the section to set up the collector combobox
@@ -121,7 +121,7 @@ ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
 
   QLabel *cbl = new QLabel(frame, "metricComboBoxLabel");
   cbl->setText( __TR("Available Metrics/Modifers:") );
-  cbl->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+  cbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   QToolTip::add(cbl, __TR("Select which metric/modifier that you want\nto use in the comparison for this column.") );
   metricLayout->addWidget(cbl);
 
@@ -129,8 +129,8 @@ ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
   QToolTip::add(metricComboBox, __TR("Select which metric/modifier that you want\nto use in the comparison for this column.") );
   metricLayout->addWidget(metricComboBox);
 
-  QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-  metricLayout->addItem(spacer);
+//  QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+//  metricLayout->addItem(spacer);
 } // Here ends the section to set up the metric/modifier combobox
   
   lv = new MPListView( frame, CPS, 0  );
