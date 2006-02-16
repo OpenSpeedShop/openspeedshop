@@ -399,21 +399,18 @@ void IntroWizardPanel::vpage1NextButtonSelected()
   {
     if( vpage1LoadExperimentCheckBox->isOn() )
     {
-      QString fn = QString::null;
-      char *cwd = get_current_dir_name();
-      fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open");
-      free(cwd);
-      if( !fn.isEmpty() )
+      p = getPanelContainer()->raiseNamedPanel("Compare Wizard");
+      if( !p )
       {
-//      printf("fn = %s\n", fn.ascii() );
-//      fprintf(stderr, "Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
-getPanelContainer()->getMainWindow()->executableName = QString::null;
-        getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Compare Wizard", getPanelContainer(), ao);
+        delete ao;
       } else
       {
-        fprintf(stderr, "No experiment file name given.\n");
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
       }
-      return;
     }
     if( vpage1pcSampleRB->isOn() )
     {

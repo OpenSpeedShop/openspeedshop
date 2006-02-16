@@ -19,13 +19,13 @@
 
   plugin_entry->grouping = "TOPLEVEL";
   plugin_entry->show_immediate = 0;
-  plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Add collectors to create a new\nexperiment type.";
-  plugin_entry->plugin_name =  "CustomExperimentPanel.so";
+  plugin_entry->plugin_description = "PLUGIN_DESCRIPTCompareN";
+plugin_entry->plugin_short_description = "Manages setup for the Compare Experiment.";
+  plugin_entry->plugin_name =  "CompareWizardPanel.so";
   plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "&File";
-  plugin_entry->sub_menu_heading =  "E&xperiments";
-  plugin_entry->menu_label =  "Custom Experiment";
-  plugin_entry->menu_accel =  "Alt+L";
-  plugin_entry->panel_type =  "Custom Experiment";
+  plugin_entry->sub_menu_heading =  "&Wizards";
+  plugin_entry->menu_label =  "Compare Wizard";
+  plugin_entry->menu_accel =  "Alt+M";
+  plugin_entry->panel_type =  "Compare Wizard";

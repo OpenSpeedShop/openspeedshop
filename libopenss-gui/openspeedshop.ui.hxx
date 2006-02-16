@@ -261,7 +261,8 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
 
     if( knownCollectorType != TRUE )
     {
-      panel_type = "Construct New";
+//      panel_type = "Construct New";
+      panel_type = "Custome Experiment";
     }
   
     PanelContainer *bestFitPC = ((PanelContainer *)topPC)->findBestFitPanelContainer((PanelContainer *)topPC);

@@ -22,7 +22,8 @@ SUBDIRS = \
 	UserTimeWizardPanel \
 	FPE_TracingWizardPanel \
 	IOWizardPanel \
-	MPIWizardPanel
+	MPIWizardPanel \
+	CompareWizardPanel
 
 if HAVE_PAPI
 SUBDIRS += HW_CounterWizardPanel

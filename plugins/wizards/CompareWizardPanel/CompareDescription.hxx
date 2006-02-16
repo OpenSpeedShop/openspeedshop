@@ -17,15 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  plugin_entry->grouping = "TOPLEVEL";
-  plugin_entry->show_immediate = 0;
-  plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Add collectors to create a new\nexperiment type.";
-  plugin_entry->plugin_name =  "CustomExperimentPanel.so";
-  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
-  plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "&File";
-  plugin_entry->sub_menu_heading =  "E&xperiments";
-  plugin_entry->menu_label =  "Custom Experiment";
-  plugin_entry->menu_accel =  "Alt+L";
-  plugin_entry->panel_type =  "Custom Experiment";
+#define vCompareDescription "Helps customize an experiment that compares the output from 2 experiments.\nYou'll first be asked to load the 2 saved experiments.  Then you'll be asked to pick a report to display.\nOnce in the report you'll be able to modify the view and make additional customizations."
+
+
+#define eCompareDescription "Helps customize an experiment that compares the output from 2 experiments."

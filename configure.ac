@@ -189,6 +189,7 @@ AC_CONFIG_FILES(
 	plugins/wizards/HW_CounterWizardPanel/Makefile
 	plugins/wizards/IOWizardPanel/Makefile
 	plugins/wizards/MPIWizardPanel/Makefile
+	plugins/wizards/CompareWizardPanel/Makefile
 	examples/Makefile
 	examples/libopenss-framework/Makefile
 	examples/libopenss-framework/collector/Makefile
