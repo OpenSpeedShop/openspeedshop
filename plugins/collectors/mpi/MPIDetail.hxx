@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -18,11 +18,49 @@
 
 /** @file
  *
- * MPIDetail structure
- * encapsulate the mpi collector details metric (inclusive or exclusive)
+ * Declaration and definition of the MPIDetail structure.
  *
  */
-struct MPIDetail {
-    OpenSpeedShop::Framework::TimeInterval dm_interval;
-    double dm_time;
-};
+
+#ifndef _MPICollector_MPIDetail_
+#define _MPICollector_MPIDetail_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "TotallyOrdered.hxx"
+
+
+
+namespace OpenSpeedShop { namespace Framework {
+
+    /**
+     * MPI event tracing collector details. 
+     *
+     * Encapsulate the details metric (inclusive or exclusive) for the MPI event
+     * tracing collector.
+     */
+    struct MPIDetail :
+	public TotallyOrdered<MPIDetail>
+    {
+	TimeInterval dm_interval;  /**< Begin/End time of the call. */
+	double dm_time;            /**< Time spent in the call. */	
+
+	/** Operator "<" defined for two MPIDetail objects. */
+	bool operator<(const MPIDetail& other) const
+	{
+	    if(dm_interval < other.dm_interval)
+                return true;
+            if(dm_interval > other.dm_interval)
+                return false;
+	    return dm_time;
+        }
+
+    };
+    
+} }
+
+
+
+#endif

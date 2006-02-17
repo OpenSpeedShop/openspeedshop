@@ -23,9 +23,11 @@
  */
  
 #include "MPICollector.hxx"
+#include "MPIDetail.hxx"
 #include "blobs.h"
 
 using namespace OpenSpeedShop::Framework;
+
 
 
 namespace {
@@ -338,7 +340,8 @@ void MPICollector::getMetricValues(const std::string& metric,
 				    void* ptr) const
 {
     // Only the "inclusive_times" and "exclusive_times" metrics return anything
-    if((metric != "inclusive_times") && (metric != "exclusive_times"))
+    if((metric != "inclusive_times") && (metric != "exclusive_times") &&
+       (metric != "inclusive_details") && (metric != "exclusive_details"))
 	return;
     bool is_exclusive = (metric == "exclusive_times"   ||
 			 metric == "exclusive_details"   );

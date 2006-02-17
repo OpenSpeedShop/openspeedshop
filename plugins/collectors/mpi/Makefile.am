@@ -71,7 +71,8 @@ mpi_la_LDFLAGS = \
 
 mpi_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
-	MPICollector.hxx MPICollector.cxx
+	MPICollector.hxx MPICollector.cxx \
+	MPIDetail.hxx
 
 mpi_rt_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \

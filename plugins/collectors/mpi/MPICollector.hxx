@@ -30,7 +30,6 @@
 #endif
 
 #include "CollectorAPI.hxx"
-#include "MPIDetail.hxx"
 
 
 
