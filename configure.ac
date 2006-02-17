@@ -62,6 +62,7 @@ AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
 AC_CONFIG_SUBDIRS(libltdl)
 AC_CONFIG_SUBDIRS(test/executables)
+AC_CONFIG_SUBDIRS(test/executables/mpi)
 AC_CONFIG_SUBDIRS(test/test_source/dyninst)
 
 AC_PATH_PROG([DOXYGEN], doxygen)
