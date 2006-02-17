@@ -1,3 +1,0 @@
-expcreate -f /home/daisy61/helens/workarea/current/tests/regression/pcsamp/pcsamp2/mutatee pcsamp
-expgo
-expview vtop5
