@@ -56,6 +56,7 @@
 #include <qbitmap.h>
 #include "rightarrow.xpm"
 #include "leftarrow.xpm"
+#include "folder.xpm"
 
 #include "LoadAttachObject.hxx"
 
@@ -72,7 +73,16 @@ CompareWizardPanel::CompareWizardPanel(PanelContainer *pc, const char *n, Argume
 	setName( "Compare" );
   }
 
+  QPixmap *folder_pm = new QPixmap( folder_xpm );
+  folder_pm->setMask(folder_pm->createHeuristicMask());
+
   fn = QString::null;
+  leftSideBaseName = QString::null;
+  rightSideBaseName = QString::null;
+  char *cwd = get_current_dir_name();
+  rightSideDirName = cwd;
+  leftSideDirName = cwd;
+  free(cwd);
 
   mpiFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
@@ -213,15 +223,13 @@ CompareWizardPanel::CompareWizardPanel(PanelContainer *pc, const char *n, Argume
   vAttachOrLoadPageLayout->addWidget( vAttachOrLoadPageLine );
 
   vAttachOrLoadPageAttachOrLoadLayout = new QHBoxLayout( 0, 0, 6, "vAttachOrLoadPageAttachOrLoadLayout"); 
-// Look up all experiment files in directory.
-QDir *dir = new QDir( "./", "*.openss" );
-QFileInfoList *fileList = (QFileInfoList*)(dir->entryInfoList());
-
-// End lookup all experiment files in directory.
 
 // Begin LS
 {
-  QVBoxLayout *leftSideLayout = new QVBoxLayout( vAttachOrLoadPageAttachOrLoadLayout, 10, "leftSideLayout");
+QDir *leftSideDir = new QDir( leftSideDirName, "*.openss" );
+QFileInfoList *leftSideFileList = (QFileInfoList*)(leftSideDir->entryInfoList());
+
+  QVBoxLayout *leftSideLayout = new QVBoxLayout( vAttachOrLoadPageAttachOrLoadLayout, 1, "leftSideLayout");
 
   vAttachOrLoadPageProcessListLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageProcessListLabel" );
   vAttachOrLoadPageProcessListLabel->setText("Select first experiment file:");
@@ -230,7 +238,7 @@ QFileInfoList *fileList = (QFileInfoList*)(dir->entryInfoList());
   leftSideLayout->addWidget( vAttachOrLoadPageProcessListLabel );
 
 
-  QHBoxLayout *leftSideExperimentComboBoxLayout = new QHBoxLayout( leftSideLayout, 10, "leftSideExperimentComboBoxLayout");
+  QHBoxLayout *leftSideExperimentComboBoxLayout = new QHBoxLayout( leftSideLayout, 1, "leftSideExperimentComboBoxLayout");
 
  QLabel *cbl = new QLabel(vAttachOrLoadPageWidget, "experimentComboBoxLabel");
  cbl->setText( tr("Available Experiments:") );
@@ -247,22 +255,34 @@ QFileInfoList *fileList = (QFileInfoList*)(dir->entryInfoList());
 
   if( leftSideExperimentComboBox )
   {
-    if( fileList )
+    if( leftSideFileList )
     {
-      QFileInfo *fileInfo = fileList->first();
+      QFileInfo *fileInfo = leftSideFileList->first();
       while( fileInfo )
       {
         leftSideExperimentComboBox->insertItem( fileInfo->fileName().ascii() );
-        fileInfo = fileList->next();
+        fileInfo = leftSideFileList->next();
       }
     }
   }
+
+  QPushButton *leftSideExperimentDirButton = new QPushButton(vAttachOrLoadPageWidget, "leftSideExperimentDirButton");
+  leftSideExperimentDirButton->setPixmap(folder_xpm);
+  // leftSideExperimentDirButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  leftSideExperimentDirButton->setMinimumSize( QSize(22, 18) );
+  leftSideExperimentDirButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  leftSideExperimentDirButton->resize(22,18);
+  connect( leftSideExperimentDirButton, SIGNAL( clicked() ), this, SLOT( leftSideExperimentDirButtonSelected() ) );
+  leftSideExperimentComboBoxLayout->addWidget(leftSideExperimentDirButton);
+
 }
 // End LS
 
 
 // Begin RS
-  QVBoxLayout *rightSideLayout = new QVBoxLayout( vAttachOrLoadPageAttachOrLoadLayout, 10, "leftSideLayout");
+QDir *rightSideDir = new QDir( rightSideDirName, "*.openss" );
+QFileInfoList *rightSideFileList = (QFileInfoList*)(rightSideDir->entryInfoList());
+  QVBoxLayout *rightSideLayout = new QVBoxLayout( vAttachOrLoadPageAttachOrLoadLayout, 1, "leftSideLayout");
 
   vAttachOrLoadPageExecutableLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageExecutableLabel" );
 vAttachOrLoadPageExecutableLabel->setText("Select second experiment file:");
@@ -271,7 +291,7 @@ vAttachOrLoadPageExecutableLabel->setText("Select second experiment file:");
   rightSideLayout->addWidget( vAttachOrLoadPageExecutableLabel );
 
   {
-  QHBoxLayout *rightSideExperimentComboBoxLayout = new QHBoxLayout( rightSideLayout, 10, "rightSideExperimentComboBoxLayout");
+  QHBoxLayout *rightSideExperimentComboBoxLayout = new QHBoxLayout( rightSideLayout, 1, "rightSideExperimentComboBoxLayout");
 
  QLabel *cbl = new QLabel(vAttachOrLoadPageWidget, "rightSideExperimentComboBoxLabel");
  cbl->setText( tr("Available Experiments:") );
@@ -287,16 +307,24 @@ vAttachOrLoadPageExecutableLabel->setText("Select second experiment file:");
 
   if( rightSideExperimentComboBox )
   {
-    if( fileList )
+    if( rightSideFileList )
     {
-      QFileInfo *fileInfo = fileList->first();
+      QFileInfo *fileInfo = rightSideFileList->first();
       while( fileInfo )
       {
         rightSideExperimentComboBox->insertItem( fileInfo->fileName().ascii() );
-        fileInfo = fileList->next();
+        fileInfo = rightSideFileList->next();
       }
     }
   }
+  QPushButton *rightSideExperimentDirButton = new QPushButton(vAttachOrLoadPageWidget, "rightSideExperimentDirButton");
+  rightSideExperimentDirButton->setMinimumSize( QSize(22, 18) );
+  rightSideExperimentDirButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  rightSideExperimentDirButton->resize(22,18);
+  rightSideExperimentDirButton->setPixmap(folder_xpm);
+  connect( rightSideExperimentDirButton, SIGNAL( clicked() ), this, SLOT( rightSideExperimentDirButtonSelected() ) );
+  rightSideExperimentComboBoxLayout->addWidget(rightSideExperimentDirButton);
+
   }
 // End RS
 
@@ -543,6 +571,7 @@ void CompareWizardPanel::vModePageNextButtonSelected()
     vUpdateAttachOrLoadPageWidget();
   } else if( vpage1Load2ExperimentsCheckBox->isChecked() )
   {
+#ifdef TRIED
     if( leftSideExperimentComboBox->currentText().isEmpty() )
     {
       warnOfnoSavedData();
@@ -550,6 +579,9 @@ void CompareWizardPanel::vModePageNextButtonSelected()
     {
       mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
     }
+#else // TRIED
+    mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
+#endif // TRIED
   }
 }
 
@@ -589,7 +621,7 @@ void CompareWizardPanel::vpage1Load2ExperimentsCheckBoxSelected()
 
 void CompareWizardPanel::vAttachOrLoadPageNextButtonSelected()
 {
-printf("vAttachOrLoadPageNextButtonSelected() \n");
+// printf("vAttachOrLoadPageNextButtonSelected() \n");
 
 
 printf("leftSideExperimentComboBox->text()=(%s)\n", leftSideExperimentComboBox->currentText().ascii() );
@@ -603,7 +635,7 @@ printf("rightSideExperimentComboBox->text()=(%s)\n", rightSideExperimentComboBox
   
   fn = QString::null;
 
-  vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment <b>\"%1\"</b> with experiment <b>\"%2\"</b>.  Pressing finish will bring up a Customized Experiment Panel with your requested information.\n").arg(leftSideExperimentComboBox->currentText()).arg(rightSideExperimentComboBox->currentText()) ) );
+  vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment <b>\"%1/%2\"</b> with experiment <b>\"%3/%4\"</b>.  Pressing finish will bring up a Customized Experiment Panel with your requested information.\n").arg(leftSideDirName).arg(leftSideExperimentComboBox->currentText()).arg(rightSideDirName).arg(rightSideExperimentComboBox->currentText()) ) );
 
   mainWidgetStack->raiseWidget(vSummaryPageWidget);
 
@@ -633,8 +665,8 @@ void CompareWizardPanel::vSummaryPageFinishButtonSelected()
 // printf("vSummaryPageFinishButtonSelected() \n");
 if( fn.isEmpty() )
 {
-  printf("leftSideExperimentComboBox->text()=(%s)\n", leftSideExperimentComboBox->currentText().ascii() );
-  printf("rightSideExperimentComboBox->text()=(%s)\n", rightSideExperimentComboBox->currentText().ascii() );
+  printf("leftSideExperimentComboBox->text()=(%s/%s)\n", leftSideDirName.ascii(), leftSideExperimentComboBox->currentText().ascii() );
+  printf("rightSideExperimentComboBox->text()=(%s/%s)\n", rightSideDirName.ascii(), rightSideExperimentComboBox->currentText().ascii() );
 
   if( getPanelContainer()->getMainWindow() )
   { 
@@ -739,5 +771,104 @@ printf("Pop up the dialog box to load an saved file.\n");
 void
 CompareWizardPanel::warnOfnoSavedData()
 {
-    QMessageBox::information(this, tr("No saved data files located."), tr("The ability to compare 2 experiments against one another requires 2 saved\nexperiment files.   To create a saved experiment file, first select an\nexperiment to run, load and run the executable, then using\nthe \"File->Save Experiment Data\", save the experiment to a file.  Likewise, save\nthe second data file from a second run.   Then reissue this wizard to compare the\nresults.\n\nThere are also other ways to access this same functionality (and more).  One\ncan first run and save an initial data file.  Then during the second run, bring\nup the Compare Panel and customize the report you'd like to see.    \n\n  NOTE: This wizard expects data files to end with a \".openss\" suffix and\nonlylooks for files with those names."), "OK"); 
+    QMessageBox::information(this, tr("No saved data files located."), tr("The ability to compare 2 experiments against one another requires 2 saved\nexperiment files.   To create a saved experiment file, first select an\nexperiment to run, load and run the executable, then using\nthe \"File->Save Experiment Data\", save the experiment to a file.  Likewise, save\nthe second data file from a second run.   Then reissue this wizard to compare the\nresults.\n\nThere are also other ways to access this same functionality (and more).  One\ncan first run and save an initial data file.  Then during the second run, bring\nup the Compare Panel and customize the report you'd like to see."), "OK"); 
+}
+
+void
+CompareWizardPanel::leftSideExperimentDirButtonSelected()
+{
+// printf("leftSideExperimentDirButtonSelected() entered\n");
+  QString fn = QString::null;
+
+  fn = QString::null;
+  char *cwd = get_current_dir_name();
+  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "Choose experiment location:", "Choose a directory where experiment files are locate:");
+
+// printf("fn=(%s)\n", fn.ascii() );
+
+  int basename_index = fn.findRev("/");
+  leftSideBaseName = fn;
+  if( basename_index != -1 )
+  {
+    leftSideDirName = fn.left(basename_index);
+    leftSideBaseName = fn.right((fn.length()-basename_index)-1);
+  }
+// printf("leftSideDirName=(%s) leftSideBaseName=(%s)\n", leftSideDirName.ascii(), leftSideBaseName.ascii() );
+
+
+  free(cwd);
+  if( !leftSideDirName.isEmpty() )
+  {
+    char buffer[2048];
+    if( !fn.isEmpty() )
+    {
+      QDir *dir = new QDir( leftSideDirName, "*.openss" );
+      QFileInfoList *fileList = (QFileInfoList*)(dir->entryInfoList());
+      if( leftSideExperimentComboBox )
+      {
+        if( fileList )
+        {
+          leftSideExperimentComboBox->clear();
+          QFileInfo *fileInfo = fileList->first();
+          while( fileInfo )
+          {
+            leftSideExperimentComboBox->insertItem( fileInfo->fileName().ascii() );
+            fileInfo = fileList->next();
+          }
+        }
+      }
+    }
+    leftSideExperimentComboBox->setCurrentText(leftSideBaseName);
+  }
+
+}
+
+
+void
+CompareWizardPanel::rightSideExperimentDirButtonSelected()
+{
+// printf("rightSideExperimentDirButtonSelected() entered\n");
+
+  QString fn = QString::null;
+
+  fn = QString::null;
+  char *cwd = get_current_dir_name();
+  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "Choose experiment location:", "Choose a directory where experiment files are locate:");
+
+// printf("fn=(%s)\n", fn.ascii() );
+
+  int basename_index = fn.findRev("/");
+  rightSideBaseName = fn;
+  if( basename_index != -1 )
+  {
+    rightSideDirName = fn.left(basename_index);
+    rightSideBaseName = fn.right((fn.length()-basename_index)-1);
+  }
+// printf("rightSideDirName=(%s) rightSideBaseName=(%s)\n", rightSideDirName.ascii(), rightSideBaseName.ascii() );
+
+
+  free(cwd);
+  if( !rightSideDirName.isEmpty() )
+  {
+    char buffer[2048];
+    if( !fn.isEmpty() )
+    {
+      QDir *dir = new QDir( rightSideDirName, "*.openss" );
+      QFileInfoList *fileList = (QFileInfoList*)(dir->entryInfoList());
+      if( rightSideExperimentComboBox )
+      {
+        if( fileList )
+        {
+          rightSideExperimentComboBox->clear();
+          QFileInfo *fileInfo = fileList->first();
+          while( fileInfo )
+          {
+            rightSideExperimentComboBox->insertItem( fileInfo->fileName().ascii() );
+            fileInfo = fileList->next();
+          }
+        }
+      }
+    }
+    rightSideExperimentComboBox->setCurrentText(rightSideBaseName);
+  }
 }

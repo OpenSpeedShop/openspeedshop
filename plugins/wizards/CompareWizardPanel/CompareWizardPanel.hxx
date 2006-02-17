@@ -148,6 +148,11 @@ public:
 
     QString fn;
 
+    QString leftSideDirName;
+    QString leftSideBaseName;
+    QString rightSideDirName;
+    QString rightSideBaseName;
+
 public slots:
     virtual void vDescriptionPageNextButtonSelected();
     virtual void vDescriptionPageIntroButtonSelected();
@@ -163,6 +168,10 @@ public slots:
     virtual void vpage1LoadExperimentCheckBoxSelected();
     virtual void vpage1Load2ExperimentsCheckBoxSelected();
     virtual void finishButtonSelected();
+
+private slots:
+    void leftSideExperimentDirButtonSelected();
+    void rightSideExperimentDirButtonSelected();
 
 protected:
     QVBoxLayout* mainFrameLayout;
