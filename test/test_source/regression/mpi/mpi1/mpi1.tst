@@ -20,7 +20,7 @@
 export MPI_TYPE_DEPTH=16
 export MPI_TYPE_MAX=65536
 
-mpirun -np 2 ../../../../executables/nbody/nbody < /dev/null > /dev/null &
+mpirun -np 2 ../../../../executables/mpi/nbody/nbody < /dev/null > /dev/null &
 
 mpipid=mpipid.$$
 rm -rf $mpipid
