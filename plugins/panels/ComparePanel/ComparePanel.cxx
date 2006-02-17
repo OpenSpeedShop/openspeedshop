@@ -19,6 +19,7 @@
 
 #include "ComparePanel.hxx"
 #include "CompareClass.hxx"
+#include "CompareProcessesDialog.hxx"
 #include "PreferencesChangedObject.hxx"
 #include "UpdateObject.hxx"
 #include "PanelContainer.hxx"   // Do not remove
@@ -119,6 +120,28 @@ ComparePanel::listener(void *msg)
 //  if( msgObject->msgType == getName() )
 // printf("ComparePanel::listener() getName=%s\n", getName());
 // msgObject->print();
+
+  if( msgObject->msgType == "ClosingDownObject" )
+  {
+    // When we close down, delete the dialog. (Optionally we could
+    // disconnect the SIGNAL/SLOT connection for the update when 
+    // the current tab changes.  Regardless, destroying the 
+    // dialog (then setting the dialog pointer to null, prevents
+    // updates from occurring as the destructors are being called
+    // to clean up the column information.   This prevents and 
+    // abort from occuring when the following sequence takes
+    // place:  openss pcsamp -f executable; GUI:RUN, GUI:ComparePanel,
+    // GUI:ComparePanel->Dialog, GUI:ComparePanel->Dialog->close,
+    // GUI:TERMINATE (experiment's execution), GUI:Close Experiment.
+    if( mcc1->dialog )
+    {
+      mcc1->dialog->hide();
+      delete mcc1->dialog;
+      mcc1->dialog = NULL;
+    }
+    return 1;
+  }
+
   if( msgObject->msgType == getName() && recycleFLAG == TRUE )
   {
     nprintf(DEBUG_MESSAGES) ("ComparePanel::listener() interested!\n");

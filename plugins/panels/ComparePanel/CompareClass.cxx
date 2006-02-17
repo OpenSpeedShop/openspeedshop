@@ -55,6 +55,7 @@ using namespace OpenSpeedShop::Framework;
 #include "ArgumentObject.hxx"
 
 #include "CLIInterface.hxx"
+#include "CompareProcessesDialog.hxx"
 
 
 CompareClass::CompareClass( Panel *_p, QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id )
@@ -109,6 +110,7 @@ compareClassLayout->addWidget(myheader);
 CompareClass::~CompareClass()
 {
 // printf("CompareClass() destructor called\n");
+
   CompareSetList::Iterator it;
   for( it = csl->begin(); it != csl->end(); )
   {
@@ -258,9 +260,7 @@ CompareClass::updatePanel()
 void
 CompareClass::focusOnCSetSelected()
 {
-printf("CompareClass::focusOnCSetSelected() entered\n");
-printf("Currently unimplemented\n");
-
+// printf("CompareClass::focusOnCSetSelected() entered\n");
 
   FocusCompareObject *focus_msg = NULL;
   QString expCompareCommand = "expCompare ";
@@ -269,15 +269,15 @@ QString temp_expCompareCommand = "expCompare ";
   CompareSet *compareSet = findCurrentCompareSet();
   if( compareSet )
   {
-printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
+// printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
     ColumnSetList::Iterator it;
     for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
     {
       ColumnSet *columnSet = (ColumnSet *)*it;
-printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
-printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
-printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
-printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
+// printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
+// printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
+// printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
+// printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
 
 {
 int id = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
@@ -292,7 +292,7 @@ if( temp_expCompareCommand.isEmpty() )
 }
 
 
-printf("\t\t: processes:\n");
+// printf("\t\t: processes:\n");
   QString expCompareProcessList = QString::null;
 QString temp_expCompareProcessList = QString::null;
 
@@ -309,13 +309,13 @@ QString temp_expCompareProcessList = QString::null;
   while( it.current() )
   {
     MPListViewItem *lvi = (MPListViewItem *)it.current();
-printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
-printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
-printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
-if( lvi->descriptionClassObject )
-{
-  lvi->descriptionClassObject->Print();
-}
+// printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
+// printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
+// printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+// if( lvi->descriptionClassObject )
+// {
+  // lvi->descriptionClassObject->Print();
+// }
     if( focus_msg == NULL )
     {
       focus_msg = new FocusCompareObject(expID,  NULL, TRUE);
@@ -396,12 +396,12 @@ temp_expCompareProcessList += QString(" -p %1 ").arg(pid_name);
   focus_msg->compare_command = expCompareCommand;
 
 
-printf("I think you really want this compare command:\n(%s)\n", expCompareCommand.ascii() );
+// printf("I think you really want this compare command:\n(%s)\n", expCompareCommand.ascii() );
 
 temp_expCompareCommand += temp_expCompareProcessList;
 focus_msg->compare_command = temp_expCompareCommand;
 
-printf("but really send this for now: command:\n(%s)\n", temp_expCompareCommand.ascii() );
+// printf("but really send this for now: command:\n(%s)\n", temp_expCompareCommand.ascii() );
   }
 
 //printf("A: focus the StatsPanel...\n");
@@ -431,12 +431,10 @@ printf("but really send this for now: command:\n(%s)\n", temp_expCompareCommand.
 
 }
 
-#include "CompareProcessesDialog.hxx"
 void
 CompareClass::addProcessesSelected()
 {
-printf("CompareClass::addProcessesSelected() entered\n");
-printf("Currently under construction.\n");
+// printf("CompareClass::addProcessesSelected() entered\n");
 
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
@@ -493,7 +491,7 @@ printf("Currently under construction.\n");
 void
 CompareClass::loadAdditionalExperimentSelected()
 {
-printf("CompareClass::loadAdditionalExperimentSelected() entered\n");
+// printf("CompareClass::loadAdditionalExperimentSelected() entered\n");
   QString fn = QString::null;
   char *cwd = get_current_dir_name();
   fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open for comparison");

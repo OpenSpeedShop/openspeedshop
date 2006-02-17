@@ -94,11 +94,7 @@ CompareSet::~CompareSet()
 void
 CompareSet::currentChanged( QWidget *tab )
 {
-printf("currentChanged() set the focus on a new tab...\n");
-
-
   setNewFocus(tab);
-
 }
 
 void
