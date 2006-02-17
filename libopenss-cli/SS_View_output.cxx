@@ -22,14 +22,16 @@
 static inline void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& IV,
                                                 std::vector<CommandResult *>& A,
                                                 std::vector<CommandResult *>& B) {
-  for (int64_t i = 0; i < IV.size(); i++) {
+  int64_t len = A.size();
+  for (int64_t i = 0; i < len; i++) {
     ViewInstruction *vp = IV[i];
     if (vp != NULL) {
-      if (vp->OpCode() == VIEWINST_Add) {
+      ViewOpCode Vop = vp->OpCode();
+      if (Vop == VIEWINST_Add) {
         Accumulate_CommandResult (A[i], B[i]);
-      } else if (vp->OpCode() == VIEWINST_Min) {
+      } else if (Vop == VIEWINST_Min) {
         Accumulate_Min_CommandResult (A[i], B[i]);
-      } else if (vp->OpCode() == VIEWINST_Max) {
+      } else if (Vop == VIEWINST_Max) {
         Accumulate_Max_CommandResult (A[i], B[i]);
       }
     }
@@ -54,6 +56,7 @@ void Construct_View_Output (CommandObject *cmd,
   std::vector<ViewInstruction *> ViewInst(num_columns);
   int64_t num_input_temps = items[0].second->size();
   std::vector<ViewInstruction *> AccumulateInst(num_input_temps);
+  for ( i=0; i < num_input_temps; i++) AccumulateInst[i] = NULL;
   bool input_temp_used[num_input_temps];
   std::vector<CommandResult *> summary_temp(num_input_temps);
   for ( i=0; i < num_input_temps; i++) summary_temp[i] = NULL;
@@ -74,13 +77,15 @@ void Construct_View_Output (CommandObject *cmd,
       } else if ((vp->OpCode() == VIEWINST_Add) ||
                  (vp->OpCode() == VIEWINST_Min) ||
                  (vp->OpCode() == VIEWINST_Max)) {
-        AccumulateInst[vp->TMP1()] = vp;
+        if (vp->TMP1() < num_input_temps) {
+          AccumulateInst[vp->TMP1()] = vp;
+        }
       }
   }
   if (report_Column_summary) {
     std::vector<CommandResult *> first_row = *(items.begin()->second);
     for ( i=0; i < num_input_temps; i++) {
-      summary_temp[i] = New_CommandResult (first_row[i]);
+      summary_temp[i] = Dup_CommandResult (first_row[i]);
     }
   }
 
@@ -165,7 +170,10 @@ void Construct_View_Output (CommandObject *cmd,
 
      // Accumulate Summary Information
       if (report_Column_summary) {
+       // The first row was copied to initialize the values.
+        if (it != items.begin()) {
           Accumulate_PreDefined_Temps (AccumulateInst, summary_temp, (*it->second));
+        }
       }
 
      // Reclaim space for unused temps.
@@ -213,9 +221,11 @@ void Construct_View_Output (CommandObject *cmd,
     }
 
  // Release summary temporaries
-  for ( i=0; i < num_input_temps; i++) {
-    if (summary_temp[i] != NULL) {
-      delete summary_temp[i];
+  if (report_Column_summary) {
+    for ( i=0; i < num_input_temps; i++) {
+      if (summary_temp[i] != NULL) {
+        delete summary_temp[i];
+      }
     }
   }
 

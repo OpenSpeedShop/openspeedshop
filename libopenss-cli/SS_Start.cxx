@@ -336,11 +336,11 @@ extern "C"
   {
     static bool processing_signal = false;
     if (sig == SIGQUIT) {
-      // abort on user signal for CNTRL-\
+      // abort on user signal for CNTRL-\ 
+
       abort();
-    }
-    if (sig != SIGINT) {
-      // If not a user initiated signal, try a normal shutdown.
+    } else if (sig != SIGINT) {
+     // If not a user initiated signal, try a normal shutdown.
       if (processing_signal) {
         cerr << "Multiple errors - " << sig << " " <<  error_num <<  std::endl;
         abort();
@@ -351,8 +351,13 @@ extern "C"
     	// Internal_Info_Dump(1);
     	// User_Info_Dump(1);
 
-      cli_terminate ();
-      Openss_Basic_Termination();
+      try {
+        cli_terminate ();
+        Openss_Basic_Termination();
+      }
+      catch(const Exception& error) {
+        cerr << "catch secondary exception: " << error.getDescription() << std::endl;
+      }
     }
     exit (1);
   }
@@ -388,7 +393,7 @@ extern "C"
     }
    // Always catch user signals.
     SET_SIGNAL (SIGINT, catch_signal); // CNTRL-C
-    SET_SIGNAL (SIGQUIT, catch_signal); // CNTRL-\
+    SET_SIGNAL (SIGQUIT, catch_signal); // CNTRL-\ 
 
    // Process the execution time arguments for openss.
     int i;

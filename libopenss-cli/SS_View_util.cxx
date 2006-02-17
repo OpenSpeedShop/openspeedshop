@@ -837,6 +837,26 @@ int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV) {
   return Max_Column;
 }
 
+int64_t Find_Max_Temp (std::vector<ViewInstruction *>IV) {
+  int64_t Max_Temp = -1;
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    if (vp->OpCode() == VIEWINST_Display_Tmp) {
+      Max_Temp = max (Max_Temp, vp->TMP1());
+    } else if (vp->OpCode() == VIEWINST_Display_Percent_Tmp) {
+      Max_Temp = max (Max_Temp, vp->TMP1());
+    } else if (vp->OpCode() == VIEWINST_Display_Average_Tmp) {
+      Max_Temp = max (Max_Temp, vp->TMP1());
+      Max_Temp = max (Max_Temp, vp->TMP2());
+    } else if (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp) {
+      Max_Temp = max (Max_Temp, vp->TMP1());
+      Max_Temp = max (Max_Temp, vp->TMP2());
+      Max_Temp = max (Max_Temp, vp->TMP3());
+    }
+  }
+  return Max_Temp;
+}
+
 void Print_View_Params (ostream &to,
                         std::vector<Collector> CV,
                         std::vector<std::string> MV,

@@ -290,6 +290,7 @@ ViewInstruction *Find_Total_Def (std::vector<ViewInstruction *>IV);
 ViewInstruction *Find_Percent_Def (std::vector<ViewInstruction *>IV);
 ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Column);
 int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV);
+int64_t Find_Max_Temp (std::vector<ViewInstruction *>IV);
 bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
                           std::vector<Collector>& CV, std::vector<std::string>& MV,
                           std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV);

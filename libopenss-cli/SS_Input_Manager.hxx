@@ -72,7 +72,9 @@
 
 using namespace std;
 
+// include "MPICollector.hxx"
 #include "ToolAPI.hxx"
+// include "../../collectors/mpi/MPICollector.hxx"
 
 using namespace OpenSpeedShop;
 using namespace OpenSpeedShop::Framework;

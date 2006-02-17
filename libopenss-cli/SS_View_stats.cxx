@@ -225,12 +225,29 @@ void Construct_View (CommandObject *cmd,
 
 // Generic routine to genearte a simple view
 
+static std::string allowed_stats_V_options[] = {
+  "LinkedObject",
+  "LinkedObjects",
+  "Dso",
+  "Dsos",
+  "Function",
+  "Functions",
+  "Statement",
+  "Statements",
+  "Summary",
+  ""
+};
+
+
 bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                    ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
                    std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
                    std::list<CommandResult *>& view_output) {
   bool success = false;
   // Print_View_Params (cerr, CV,MV,IV);
+
+ // Warn about misspelled of meaningless options.
+  Validate_V_Options (cmd, allowed_stats_V_options);
 
   bool report_Column_summary = false;
   CommandResult *TotalValue = NULL;
@@ -272,9 +289,13 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
 
    // What granularity has been requested?
     View_Granularity vg = VIEW_FUNCTIONS;
-    if (Look_For_KeyWord(cmd, "Statements")) {
+    if (Look_For_KeyWord(cmd, "Statement") ||
+        Look_For_KeyWord(cmd, "Statements")) {
       vg = VIEW_STATEMENTS;
-    } else if (Look_For_KeyWord(cmd, "LinkedObjects")) {
+    } else if (Look_For_KeyWord(cmd, "LinkedObject") ||
+               Look_For_KeyWord(cmd, "LinkedObjects") ||
+               Look_For_KeyWord(cmd, "Dso") ||
+               Look_For_KeyWord(cmd, "Dsos")) {
       vg = VIEW_LINKEDOBJECTS;
     }
 
@@ -446,8 +467,10 @@ bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
     } else {
       M_Name = m_range->start_range.name;
       if ((exp != NULL) &&
-          (exp->FW() != NULL)) {
+          (exp->FW() != NULL) &&
+          (M_Name.length() > 0)) {
         CollectorGroup cgrp = exp->FW()->getCollectors();
+        // CollectorGroup cgrp = exp->FW()->getCollectors();
         C_Name = Find_Collector_With_Metric ( cgrp, M_Name);
         if (C_Name.length() == 0) {
           std::string s("The specified metric, " + M_Name +

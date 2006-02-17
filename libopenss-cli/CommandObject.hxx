@@ -28,8 +28,9 @@ enum cmd_result_type_enum {
   CMD_RESULT_RAWSTRING,
   CMD_RESULT_FUNCTION,
   CMD_RESULT_STATEMENT,
-  CMD_RESULT_CALLTRACE,
   CMD_RESULT_LINKEDOBJECT,
+  CMD_RESULT_CALLTRACE,
+  CMD_RESULT_TIME,
   CMD_RESULT_TITLE,
   CMD_RESULT_COLUMN_HEADER,
   CMD_RESULT_COLUMN_VALUES,
@@ -597,7 +598,7 @@ class CommandResult_CallStackEntry : public CommandResult {
   bool Bottom_up;
   SmartPtr<std::vector<CommandResult *> > CallStack;
 
-  CommandResult_CallStackEntry () : CommandResult(CMD_RESULT_EXTENSION) {
+  CommandResult_CallStackEntry () : CommandResult(CMD_RESULT_CALLTRACE) {
     Bottom_up = false;
   }
 
@@ -666,6 +667,70 @@ class CommandResult_CallStackEntry : public CommandResult {
    // Add function name and location information.
     Name += CE->Form();
     return Name;
+  }
+  virtual PyObject * pyValue () {
+    std::string F = Form ();
+    return Py_BuildValue("s",F.c_str());
+  }
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+    std::string string_value = Form ();
+    if (leftjustified) {
+     // Left justification is only done on the last column of a report.
+     // Don't truncate the string if it is bigger than the field size.
+     // This is done to make sure everything gets printed.
+
+      to << std::setiosflags(std::ios::left) << string_value;
+
+     // If there is unused space in the field, pad with blanks.
+      if ((string_value.length() < fieldsize) &&
+          (string_value[string_value.length()-1] != *("\n"))) {
+        for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";      }
+
+    } else {
+     // Right justify the string in the field.
+     // Don't let it exceed the size of the field.
+     // Also, limit the size based on our internal buffer size.
+      to << std::setiosflags(std::ios::right) << std::setw(fieldsize)
+         << ((string_value.length() <= fieldsize) ? string_value : string_value.substr(0, fieldsize));
+    }
+  }
+};
+
+class CommandResult_Time : public CommandResult {
+ private:
+  Time time_value;
+
+ public:
+  CommandResult_Time () : CommandResult(CMD_RESULT_TIME) {
+  }
+  CommandResult_Time (Time t)
+      : CommandResult(CMD_RESULT_TIME) {
+    time_value = t;
+  }
+  CommandResult_Time (CommandResult_Time *T)
+      : CommandResult(CMD_RESULT_TIME) {
+    time_value = T->time_value;
+  }
+  virtual ~CommandResult_Time () {
+  }
+
+  void Min_Time (CommandResult_Time *B) {
+    time_value = min (time_value, B->time_value);
+  }
+  void Max_Time (CommandResult_Time *B) {
+    time_value = max (time_value, B->time_value);
+  }
+  Time& Value () {
+    return time_value;
+  };
+  void Value (Time& t) {
+    t = time_value;
+  };
+
+  virtual std::string Form () {
+    std::ostringstream form(ios::out);
+    form << time_value;
+    return form.ostringstream::str();
   }
   virtual PyObject * pyValue () {
     std::string F = Form ();
@@ -927,6 +992,8 @@ inline CommandResult *Dup_CommandResult (CommandResult *C) {
      return new CommandResult_LinkedObject((CommandResult_LinkedObject *)C);
    case CMD_RESULT_CALLTRACE:
      return new CommandResult_CallStackEntry((CommandResult_CallStackEntry *)C);
+   case CMD_RESULT_TIME:
+     return new CommandResult_Time((CommandResult_Time *)C);
    default:
     Assert (C->Type() == CMD_RESULT_NULL);
   }
@@ -952,6 +1019,9 @@ inline CommandResult *New_CommandResult (CommandResult *C) {
      break;
    case CMD_RESULT_RAWSTRING:
      v = new CommandResult_RawString ("");
+     break;
+   case CMD_RESULT_TIME:
+     v = new CommandResult_Time ();
      break;
    default:
     Assert (C->Type() == CMD_RESULT_NULL);
@@ -1018,6 +1088,13 @@ inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
     }
     return (ll < rl);
    }
+   case CMD_RESULT_TIME:
+   {
+    Time Tvalue1, Tvalue2;
+    ((CommandResult_Time *)lhs)->Value(Tvalue1);
+    ((CommandResult_Time *)rhs)->Value(Tvalue2);
+    return Tvalue1 < Tvalue2;
+   }
    default:
     Assert (lhs->Type() == CMD_RESULT_NULL);
   }
@@ -1083,6 +1160,13 @@ inline bool CommandResult_gt (CommandResult *lhs, CommandResult *rhs) {
     }
     return (ll < rl);
    }
+   case CMD_RESULT_TIME:
+   {
+    Time Tvalue1, Tvalue2;
+    ((CommandResult_Time *)lhs)->Value(Tvalue1);
+    ((CommandResult_Time *)rhs)->Value(Tvalue2);
+    return Tvalue1 > Tvalue2;
+   }
    default:
     Assert (lhs->Type() == CMD_RESULT_NULL);
   }
@@ -1124,6 +1208,9 @@ inline void Accumulate_Min_CommandResult (CommandResult *A, CommandResult *B) {
   case CMD_RESULT_FLOAT:
     ((CommandResult_Float *)A)->Min_Float ((CommandResult_Float *)B);
     break;
+  case CMD_RESULT_TIME:
+    ((CommandResult_Time *)A)->Min_Time ((CommandResult_Time *)B);
+    break;
   }
 }
 
@@ -1139,6 +1226,9 @@ inline void Accumulate_Max_CommandResult (CommandResult *A, CommandResult *B) {
     break;
   case CMD_RESULT_FLOAT:
     ((CommandResult_Float *)A)->Max_Float ((CommandResult_Float *)B);
+    break;
+  case CMD_RESULT_TIME:
+    ((CommandResult_Time *)A)->Max_Time ((CommandResult_Time *)B);
     break;
   }
 }
@@ -1323,6 +1413,7 @@ inline CommandResult *CRPTR (std::string& V) { return new CommandResult_String (
 inline CommandResult *CRPTR (Function& V) { return new CommandResult_Function (V); }
 inline CommandResult *CRPTR (Statement& V) { return new CommandResult_Statement (V); }
 inline CommandResult *CRPTR (LinkedObject& V) { return new CommandResult_LinkedObject (V); }
+inline CommandResult* CRPTR (Time& V) { return new CommandResult_Time (V); }
 
 
 enum Command_Status
