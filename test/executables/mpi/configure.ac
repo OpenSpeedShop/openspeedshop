@@ -25,7 +25,6 @@ AM_INIT_AUTOMAKE
 
 AC_PROG_CC()
 AC_PROG_CXX()
-AC_PROG_LIBTOOL
 AC_PROG_F77 
 
 if test "$ac_cv_f77_compiler_gnu" = no; then
