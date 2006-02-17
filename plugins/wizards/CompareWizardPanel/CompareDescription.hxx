@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#define vCompareDescription "Helps customize an experiment that compares the output from 2 experiments.\nYou'll first be asked to load the 2 saved experiments.  Then you'll be asked to pick a report to display.\nOnce in the report you'll be able to modify the view and make additional customizations."
+#define vCompareDescription "This wizard helps load an experiment from a saved data file or helps customize an experiment that compares the output from 2 experiments.  You'll be asked a series of questions to help lead you through the workflow."
 
 
-#define eCompareDescription "Helps customize an experiment that compares the output from 2 experiments."
+#define eCompareDescription "Helps load saved experiment files."

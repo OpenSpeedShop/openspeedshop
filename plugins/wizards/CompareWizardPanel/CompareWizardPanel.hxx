@@ -196,6 +196,7 @@ protected slots:
     virtual void languageChange();
 
 private:
+    void warnOfnoSavedData();
 
 };
 #endif // COMPAREWIZARDPANEL_H

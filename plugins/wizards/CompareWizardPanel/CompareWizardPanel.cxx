@@ -221,7 +221,7 @@ QFileInfoList *fileList = (QFileInfoList*)(dir->entryInfoList());
 
 // Begin LS
 {
-QVBoxLayout *leftSideLayout = new QVBoxLayout( vAttachOrLoadPageAttachOrLoadLayout, 10, "leftSideLayout");
+  QVBoxLayout *leftSideLayout = new QVBoxLayout( vAttachOrLoadPageAttachOrLoadLayout, 10, "leftSideLayout");
 
   vAttachOrLoadPageProcessListLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageProcessListLabel" );
   vAttachOrLoadPageProcessListLabel->setText("Select first experiment file:");
@@ -230,7 +230,7 @@ QVBoxLayout *leftSideLayout = new QVBoxLayout( vAttachOrLoadPageAttachOrLoadLayo
   leftSideLayout->addWidget( vAttachOrLoadPageProcessListLabel );
 
 
-QHBoxLayout *leftSideExperimentComboBoxLayout = new QHBoxLayout( leftSideLayout, 10, "leftSideExperimentComboBoxLayout");
+  QHBoxLayout *leftSideExperimentComboBoxLayout = new QHBoxLayout( leftSideLayout, 10, "leftSideExperimentComboBoxLayout");
 
  QLabel *cbl = new QLabel(vAttachOrLoadPageWidget, "experimentComboBoxLabel");
  cbl->setText( tr("Available Experiments:") );
@@ -247,22 +247,22 @@ QHBoxLayout *leftSideExperimentComboBoxLayout = new QHBoxLayout( leftSideLayout,
 
   if( leftSideExperimentComboBox )
   {
-if( fileList )
-{
-  QFileInfo *fileInfo = fileList->first();
-  while( fileInfo )
-  {
-// fileInfo->extension();
-    leftSideExperimentComboBox->insertItem( fileInfo->fileName().ascii() );
-    fileInfo = fileList->next();
-  }
-}
+    if( fileList )
+    {
+      QFileInfo *fileInfo = fileList->first();
+      while( fileInfo )
+      {
+        leftSideExperimentComboBox->insertItem( fileInfo->fileName().ascii() );
+        fileInfo = fileList->next();
+      }
+    }
   }
 }
 // End LS
 
 
-QVBoxLayout *rightSideLayout = new QVBoxLayout( vAttachOrLoadPageAttachOrLoadLayout, 10, "leftSideLayout");
+// Begin RS
+  QVBoxLayout *rightSideLayout = new QVBoxLayout( vAttachOrLoadPageAttachOrLoadLayout, 10, "leftSideLayout");
 
   vAttachOrLoadPageExecutableLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageExecutableLabel" );
 vAttachOrLoadPageExecutableLabel->setText("Select second experiment file:");
@@ -270,10 +270,8 @@ vAttachOrLoadPageExecutableLabel->setText("Select second experiment file:");
   vAttachOrLoadPageExecutableLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
   rightSideLayout->addWidget( vAttachOrLoadPageExecutableLabel );
 
-
-// Begin RS
-{
-QHBoxLayout *rightSideExperimentComboBoxLayout = new QHBoxLayout( rightSideLayout, 10, "rightSideExperimentComboBoxLayout");
+  {
+  QHBoxLayout *rightSideExperimentComboBoxLayout = new QHBoxLayout( rightSideLayout, 10, "rightSideExperimentComboBoxLayout");
 
  QLabel *cbl = new QLabel(vAttachOrLoadPageWidget, "rightSideExperimentComboBoxLabel");
  cbl->setText( tr("Available Experiments:") );
@@ -283,25 +281,23 @@ QHBoxLayout *rightSideExperimentComboBoxLayout = new QHBoxLayout( rightSideLayou
 
   rightSideExperimentComboBox = new QComboBox(FALSE, vAttachOrLoadPageWidget, "rightSideExperimentComboBox");
  rightSideExperimentComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-//  connect( rightSideExperimentComboBox, SIGNAL( activated(const QString &) ), this, SLOT( changeExperiment( const QString & ) ) );
 
   QToolTip::add(rightSideExperimentComboBox, tr("Select the first experiment that you want\nto use in the comparison.") );
   rightSideExperimentComboBoxLayout->addWidget(rightSideExperimentComboBox);
 
   if( rightSideExperimentComboBox )
   {
-if( fileList )
-{
-  QFileInfo *fileInfo = fileList->first();
-  while( fileInfo )
-  {
-// fileInfo->extension();
-    rightSideExperimentComboBox->insertItem( fileInfo->fileName().ascii() );
-    fileInfo = fileList->next();
+    if( fileList )
+    {
+      QFileInfo *fileInfo = fileList->first();
+      while( fileInfo )
+      {
+        rightSideExperimentComboBox->insertItem( fileInfo->fileName().ascii() );
+        fileInfo = fileList->next();
+      }
+    }
   }
-}
   }
-}
 // End RS
 
   vAttachOrLoadPageLayout->addLayout( vAttachOrLoadPageAttachOrLoadLayout );
@@ -540,17 +536,21 @@ void CompareWizardPanel::vModePageNextButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vModePageNextButtonSelected() \n");
 
-fn = QString::null;
+  fn = QString::null;
 
-if( vpage1LoadExperimentCheckBox->isChecked() )
-{
-printf("Popup up dialog.. then go to Finish page.\n");
-  vUpdateAttachOrLoadPageWidget();
-} else if( vpage1Load2ExperimentsCheckBox->isChecked() )
-{
-printf("go to next page to select multiple files and the parameters.\n");
-  mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
-}
+  if( vpage1LoadExperimentCheckBox->isChecked() )
+  {
+    vUpdateAttachOrLoadPageWidget();
+  } else if( vpage1Load2ExperimentsCheckBox->isChecked() )
+  {
+    if( leftSideExperimentComboBox->currentText().isEmpty() )
+    {
+      warnOfnoSavedData();
+    } else
+    {
+      mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
+    }
+  }
 }
 
 void CompareWizardPanel::vAttachOrLoadPageBackButtonSelected()
@@ -595,9 +595,15 @@ printf("vAttachOrLoadPageNextButtonSelected() \n");
 printf("leftSideExperimentComboBox->text()=(%s)\n", leftSideExperimentComboBox->currentText().ascii() );
 printf("rightSideExperimentComboBox->text()=(%s)\n", rightSideExperimentComboBox->currentText().ascii() );
 
+  if( leftSideExperimentComboBox->currentText().isEmpty() )
+  {
+    warnOfnoSavedData();
+  }
+
+  
   fn = QString::null;
 
-  vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment %1 with experiment %2.  Pressing finish will bring up a Customized Experiment Panel with your requested information.\n").arg(leftSideExperimentComboBox->currentText()).arg(rightSideExperimentComboBox->currentText()) ) );
+  vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment <b>\"%1\"</b> with experiment <b>\"%2\"</b>.  Pressing finish will bring up a Customized Experiment Panel with your requested information.\n").arg(leftSideExperimentComboBox->currentText()).arg(rightSideExperimentComboBox->currentText()) ) );
 
   mainWidgetStack->raiseWidget(vSummaryPageWidget);
 
@@ -674,7 +680,7 @@ CompareWizardPanel::languageChange()
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
-  vModePageDescriptionText->setText( tr( QString("Select which mode you wish to operate.\n\nIf you want to simple load an existing experiment and check its information, select \"I already have experiment data and would like to analyze it.\"\n\nIf you want to compare experiments, select \"I have data in 2 experiments that I'd like to compare to each other.\"\n\n" ) ) );
+  vModePageDescriptionText->setText( tr( QString("If you want to simply load an existing experiment and check its information, select \"I already have experiment data and would like to analyze it.\"\n\nIf you want to compare experiments, select \"I have data in 2 experiments that I'd like to compare to each other.\"\n\n" ) ) );
 
   vModeHeaderLabel->setText( tr( "Select the mode you wish to operate:" ) );
   vModePageBackButton->setText( tr( "< Back" ) );
@@ -683,7 +689,7 @@ CompareWizardPanel::languageChange()
   QToolTip::add( vModePageNextButton, tr( "Advance to the next wizard page." ) );
   vParameterPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vParameterPageFinishButton, tr( "Advance to the wizard finish page." ) );
-  vLoad2ExecutablesPageDescriptionLabel->setText( tr( "We can load 2 experiments to so the results can be compared.\n\nBelow are 2 columns.   Selected and experiment file to load in each column.\n\nOnce an experiment has been selected you can toggle which report option you'd like to have displayed.\n\nAfter making your selections click on the \"Next\" button to continue.") );
+  vLoad2ExecutablesPageDescriptionLabel->setText( tr( "We can load 2 experiments to so the results can be compared.\n\nBelow are 2 columns.   Select an experiment file to load in each column.  The left side experiment will be compare agains the experiment in the right side.\n\nAfter selecting your 2 experiment files, click on the \"Next\" button to continue.") );
 
   vAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
@@ -718,9 +724,7 @@ printf("Pop up the dialog box to load an saved file.\n");
       getPanelContainer()->getMainWindow()->executableName = QString::null;
   printf("fn = %s\n", fn.ascii() );
   fprintf(stderr, "Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
-      sprintf(buffer, "Summarize that you want to load %s\n", fn.ascii() );
-    vSummaryPageFinishLabel->setText( tr( buffer ) );
-//    getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
+  vSummaryPageFinishLabel->setText( tr( QString("You are requesting to load saved experiment <b>\"%1\"</b>.  Pressing finish will bring up your requested information.\n").arg(fn) ) );
   }
 
     mainWidgetStack->raiseWidget(vSummaryPageWidget);
@@ -730,4 +734,10 @@ printf("Pop up the dialog box to load an saved file.\n");
   }
 
   return;
+}
+
+void
+CompareWizardPanel::warnOfnoSavedData()
+{
+    QMessageBox::information(this, tr("No saved data files located."), tr("The ability to compare 2 experiments against one another requires 2 saved\nexperiment files.   To create a saved experiment file, first select an\nexperiment to run, load and run the executable, then using\nthe \"File->Save Experiment Data\", save the experiment to a file.  Likewise, save\nthe second data file from a second run.   Then reissue this wizard to compare the\nresults.\n\nThere are also other ways to access this same functionality (and more).  One\ncan first run and save an initial data file.  Then during the second run, bring\nup the Compare Panel and customize the report you'd like to see.    \n\n  NOTE: This wizard expects data files to end with a \".openss\" suffix and\nonlylooks for files with those names."), "OK"); 
 }
