@@ -29,7 +29,8 @@ mpit_la_LDFLAGS = \
 
 mpit_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
-	MPITCollector.hxx MPITCollector.cxx
+	MPITCollector.hxx MPITCollector.cxx \
+	MPITDetail.hxx
 
 mpit_rt_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
