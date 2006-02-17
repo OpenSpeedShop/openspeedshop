@@ -66,17 +66,10 @@ AC_PROG_RANLIB
 
 AC_CONFIG_FILES([
         Makefile
-        smg2000/Makefile
-        smg2000/krylov/Makefile
-        smg2000/struct_ls/Makefile
-        smg2000/struct_mv/Makefile
-        smg2000/utilities/Makefile
-        smg2000/test/Makefile
         forever/Makefile
         forever_cxx/Makefile
         fredO2/Makefile
         fred/Makefile
-        nbody/Makefile
         mutatee/Makefile
         mutatee/c_version/Makefile
         mutatee/cplus_version/Makefile
