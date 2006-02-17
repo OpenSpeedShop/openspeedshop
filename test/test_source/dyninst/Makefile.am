@@ -35,5 +35,5 @@ check_SCRIPTS = $(check_SCRIPTS_common)
 
 TESTS = $(check_SCRIPTS)
 
-EXTRA_DIST	=	runall-dyninst configure.ac Makefile.am acinclude.m4 NEWS README
+EXTRA_DIST = runall-dyninst configure.ac Makefile.am acinclude.m4 NEWS README AUTHORS INSTALL COPYING ChangeLog
 
