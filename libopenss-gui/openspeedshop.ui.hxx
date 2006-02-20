@@ -28,6 +28,7 @@
 #include <qassistantclient.h>
 #include <qdir.h>
 #include <qlistview.h>
+#include <qinputdialog.h>
 #include "PluginInfo.hxx"
 
 
@@ -530,7 +531,7 @@ void OpenSpeedshop::helpContents()
 #include "AboutClass.hxx"
 void OpenSpeedshop::helpAbout()
 {
-printf("helpAbout() entered.\n");
+// printf("helpAbout() entered.\n");
 
  AboutClass *aboutClass = new AboutClass(topPC);
  aboutClass->show();
@@ -1028,6 +1029,8 @@ void OpenSpeedshop::loadNewProgram()
       if( lfd->lineedit->text().isEmpty() )
       {
         argsStr = QString::null;
+        bool ok;
+        argsStr = QInputDialog::getText("Enter Arguments Dialog:", QString("Enter command line arguments:"), QLineEdit::Normal, QString::null, &ok, this);
       } else
       {
         argsStr = lfd->lineedit->text();
