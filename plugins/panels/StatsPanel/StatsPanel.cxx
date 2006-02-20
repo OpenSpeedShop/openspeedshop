@@ -1227,7 +1227,7 @@ StatsPanel::doOption(int id)
 bool
 StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 {
-// printf("matchSelectedItem() entered. sf=%s\n", sf.c_str() );
+printf("matchSelectedItem() entered. sf=%s\n", sf.c_str() );
 
 
   if( mpi_io_FLAG )
@@ -1502,10 +1502,11 @@ if( filename.isEmpty() )
 }
 if( filename != di->getPath() )
 {
-  QString msg;
-  msg = QString("Filename mismatch: Confusion exists over which file to use.\nThe choices are %1 and %2.\nUsing the former").arg(filename).arg(di->getPath());
-  QMessageBox::information( (QWidget *)this, tr("Details..."),
-                               msg, QMessageBox::Ok );
+//  QString msg;
+//  msg = QString("Filename mismatch: Confusion exists over which file to use.\nThe choices are %1 and %2.\nUsing the former").arg(di->getPath().arg(filename);
+//  QMessageBox::information( (QWidget *)this, tr("Details..."),
+//                               msg, QMessageBox::Ok );
+filename = di->getPath();
 }
 // printf("PREPARE the hlo and spo.  filename=(%s)\n", filename.ascii() );
         if( mpi_io_FLAG && lineNumberStr != "-1" &&
@@ -1540,7 +1541,7 @@ if( filename != di->getPath() )
     if( spo )
     {
       QString name = QString("Source Panel [%1]").arg(expID);
-//printf("Find a SourcePanel named %s\n", name.ascii() );
+printf("A: Find a SourcePanel named %s\n", name.ascii() );
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
       if( !sourcePanel )
       {
