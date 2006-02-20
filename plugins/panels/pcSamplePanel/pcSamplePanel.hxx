@@ -121,6 +121,7 @@ public:
   QVBoxLayout * frameLayout;
   ProcessControlObject *pco;
 
+  bool abortPanelFLAG;
   bool runnableFLAG;
   bool aboutToRunFLAG;
   bool postProcessFLAG;

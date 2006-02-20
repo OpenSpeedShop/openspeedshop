@@ -103,6 +103,7 @@ if( attachFLAG )
   aboutToRunFLAG = FALSE;
   postProcessFLAG = FALSE;
   readyToRunFLAG = TRUE;
+  abortPanelFLAG = FALSE;
 
   mw = getPanelContainer()->getMainWindow();
   executableNameStr = mw->executableName;
@@ -224,7 +225,7 @@ if( attachFLAG )
 // printf("B: command=(%s)\n", command.ascii() );
     if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ) )
     {
-//      fprintf(stderr, "Error retreiving experiment id. \n");
+// fprintf(stderr, "Error retreiving experiment id. \n");
       QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
       command = QString("expCreate"); 
 // printf("C: command=(%s)\n", command.ascii() );
@@ -362,19 +363,24 @@ if( attachFLAG )
       clip->Set_Results_Used();
     }
 
+    
+
+  if( abortPanelFLAG == FALSE )
+  {
 // printf("size=(%d)\n",  list_of_pids.size()  );
-    if( list_of_pids.size() == 0 )
-    {
-      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" or \"Use the Wizard to begin your experiment...\".") );
-        PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
-      ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
-      topPC->dl_create_and_add_panel("pc Sample Wizard", bestFitPC, ao);
-      delete ao;
-    } else
-    {
-      if( ao && ao->loadedFromSavedFile != TRUE )
+      if( list_of_pids.size() == 0 )
       {
-        loadManageProcessesPanel();
+        statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" or \"Use the Wizard to begin your experiment...\".") );
+          PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
+        topPC->dl_create_and_add_panel("pc Sample Wizard", bestFitPC, ao);
+        delete ao;
+      } else
+      {
+        if( ao && ao->loadedFromSavedFile != TRUE )
+        {
+          loadManageProcessesPanel();
+        }
       }
     }
   }
@@ -399,6 +405,12 @@ bool
 pcSamplePanel::menu(QPopupMenu* contextMenu)
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::menu() requested.\n");
+
+  // If we've disabled this panel, don't allow any menus to be called.
+  if( abortPanelFLAG == TRUE )
+  {
+    return TRUE;
+  }
 
   contextMenu->insertSeparator();
 
@@ -1436,6 +1448,9 @@ optionsStr += QString(" -h %1").arg(mw->hostStr);
       statusLabelText->setText( tr(QString("Unable to load executable name:  "))+mw->executableName);
       loadTimer->stop();
       pd->hide();
+      // We're needing to abort this panel.  Since I can't delete myself
+      // simply disable all actions.
+      abortPanelFLAG = TRUE;
       return 1;
     }
  
