@@ -200,6 +200,7 @@ ThreadGroupStringList currentThreadGroupStrList;
     double total_percent;
     int numberItemsToDisplayInStats;
     int numberItemsToDisplayInChart;
+    char **color_names;
     ChartTextValueList ctvl;
     ChartPercentValueList cpvl;
 

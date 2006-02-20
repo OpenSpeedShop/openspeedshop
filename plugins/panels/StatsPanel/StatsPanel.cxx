@@ -871,6 +871,9 @@ StatsPanel::showChart()
   {
     chartFLAG = TRUE;
     cf->show();
+    // I'm not sure why, but the text won't draw unless the 
+    // piechart is visible.
+    updatePanel();
   }
 
   // Make sure there's not a blank panel.   If the user selected to 
@@ -1596,6 +1599,7 @@ StatsPanel::updateStatsPanelData(QString command)
   cpvl.clear();
   // Text value list (for the chart)
   ctvl.clear();
+  color_names = NULL;
   cf->init();
   total_percent = 0.0;
   numberItemsToDisplayInStats = 10;
@@ -1613,6 +1617,7 @@ StatsPanel::updateStatsPanelData(QString command)
 // printf("numberItemsToDisplayInChart = %d\n", numberItemsToDisplayInChart );
 
   textENUM = getPreferenceShowTextInChart();
+// printf("textENUM=%d\n", textENUM );
 
   lastlvi = NULL;
   gotHeader = FALSE;
@@ -1715,13 +1720,14 @@ StatsPanel::updateStatsPanelData(QString command)
 
 
 // Put out the chart if there is one...
-   char **color_names = hotToCold_color_names;
+   color_names = hotToCold_color_names;
    if( descending_sort != true )
    {
     color_names = coldToHot_color_names;
    }
    if( textENUM == TEXT_NONE )
    {
+// printf("textENUM=%d (TEXT_NONE)\n", textENUM );
      ctvl.clear();
    }
 
@@ -1743,6 +1749,7 @@ StatsPanel::updateStatsPanelData(QString command)
     {
 // printf("add other of %f\n", 100.00-total_percent );
       cpvl.push_back( (int)(100.00-total_percent) );
+// printf("total_percent: textENUM=%d\n", textENUM );
       if( textENUM != TEXT_NONE )
       {
         ctvl.push_back( "other" );
@@ -2569,9 +2576,11 @@ if( highlight_line ) highlight_item = splvi;
 // printf("Push back another one!(%s)\n", strings[percentIndex].stripWhiteSpace().ascii());
     if( textENUM == TEXT_BYVALUE )
     { 
+// printf("TEXT_BYVALUE: textENUM=%d (%s)\n", textENUM, strings[0].stripWhiteSpace().ascii()  );
       ctvl.push_back( strings[0].stripWhiteSpace() );
     } else if( textENUM == TEXT_BYPERCENT )
     {
+// printf("A: TEXT_BYPERCENT: textENUM=%d\n", textENUM );
       ctvl.push_back( strings[percentIndex].stripWhiteSpace() );
     }
   }
@@ -2626,7 +2635,7 @@ StatsPanel::MYListViewItem( StatsPanel *arg1, QListView *arg2, SPListViewItem *a
       break;
     default:
       item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
-printf("Warning: over 9 columns... Notify developer...\n");
+// printf("Warning: over 9 columns... Notify developer...\n");
       for( int i=8; i<fieldCount; i++ )
       {
         item->setText(i, strings[i]);
