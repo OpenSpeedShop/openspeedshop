@@ -118,7 +118,8 @@ ColumnValueClass columnValueClass[10];
     void updateThreadsList();
     void updateCollectorMetricList();
     void outputCLIData(QString *data);
-bool mpi_io_FLAG;
+    bool mpi_io_FLAG;
+bool traceFLAG;
 
   protected:
     //! Sets the language specific strings.
@@ -164,6 +165,8 @@ ThreadGroupStringList currentThreadGroupStrList;
     void updatePanel();
     void gotoSource(bool use_current_item = FALSE);
     void aboutSelected();
+// For debugging trace syntax only.
+void traceSelected();
     void compareSelected();
     void manageProcessesSelected();
 

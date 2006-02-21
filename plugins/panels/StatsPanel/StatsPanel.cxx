@@ -136,6 +136,9 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 // printf("StatsPanel() entered\n");
   setCaption("StatsPanel");
 
+// For debugging trace syntax only...
+traceFLAG == FALSE;
+
   mpi_io_FLAG = FALSE;
   currentThread = NULL;
   currentCollector = NULL;
@@ -535,6 +538,12 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   qaction->setText( "About..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( aboutSelected() ) );
   qaction->setStatusTip( tr("Shows information about what is currently being displayed in the StatsPanel.") );
+
+qaction = new QAction( this,  "-v trace");
+qaction->addTo( contextMenu );
+qaction->setText( "Trace..." );
+connect( qaction, SIGNAL( activated() ), this, SLOT( traceSelected() ) );
+qaction->setStatusTip( tr("Debug hook to test trace syntax - StatsPanel.") );
 
 
   qaction = new QAction( this,  "_updatePanel");
@@ -1068,6 +1077,22 @@ StatsPanel::aboutSelected()
 QString aboutString = about;
 QMessageBox::information(this, "About stats information", aboutString, "Ok");
 }
+
+void
+StatsPanel::traceSelected()
+{
+
+  if( traceFLAG == TRUE )
+  {
+    traceFLAG = FALSE;
+  } else
+  {
+    traceFLAG = TRUE;
+  }
+printf("Trace flag == %d\n", traceFLAG );
+
+}
+
 
 /*! Compare item was selected. */
 void
@@ -2861,6 +2886,14 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
 QString
 StatsPanel::generateCommand()
 {
+// For debugging of mpit trace syntax only.
+QString traceAddition = QString::null;
+if( traceFLAG == TRUE )
+{
+//  traceAddition = "-v trace -f PMPI_Allreduce";
+  traceAddition = "-v trace";
+}
+
   QString modifierStr = QString::null;
 
   updateCollectorMetricList();
@@ -2920,13 +2953,15 @@ StatsPanel::generateCommand()
       {
         return( QString::null );
       }
-      command = QString("expView -x %1 %4%2 -v CallTrees -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+//      command = QString("expView -x %1 %4%2 -v CallTrees -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+      command = QString("expView -x %1 %4%2 -v CallTrees -f %3 %4").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr).arg(traceAddition);
     } else if ( currentUserSelectedMetricStr == "TraceBacks" )
     {
-      command = QString("expView -x %1 %3%2 -v TraceBacks").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+//      command = QString("expView -x %1 %3%2 -v TraceBacks").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+      command = QString("expView -x %1 %3%2 -v TraceBacks %4").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(traceAddition);
     } else if ( currentUserSelectedMetricStr == "TraceBacks/FullStack" )
     {
-      command = QString("expView -x %1 %3%2 -v TraceBacks,FullStack").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+      command = QString("expView -x %1 %3%2 -v TraceBacks,FullStack %4").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(traceAddition);
     } else if( currentUserSelectedMetricStr == "Butterfly" )
     {
       if( selectedFunctionStr.isEmpty() )
