@@ -120,7 +120,7 @@ int mpit_PMPI_Iprobe(
 /*
  * MPI_probe
  */
-int mpit_PMPI_probe(
+int mpit_PMPI_Probe(
     int source, 
     int tag, 
     MPI_Comm comm, 
@@ -132,7 +132,7 @@ int mpit_PMPI_probe(
     mpit_start_event(&event);
     event.start_time = OpenSS_GetTime();
 
-    retval = PMPI_probe(source, tag, comm, status);
+    retval = PMPI_Probe(source, tag, comm, status);
 
     event.stop_time = OpenSS_GetTime();
     event.source = source;
@@ -140,7 +140,7 @@ int mpit_PMPI_probe(
     event.tag = tag;
     event.communicator = comm;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_probe));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Probe));
 
     return retval;
 }
