@@ -82,11 +82,6 @@ CompareClass::CompareClass( Panel *_p, QWidget* parent, const char* name, bool m
 
   compareClassLayout = new QVBoxLayout( mainCompareLayout, 1, "compareClassLayout"); 
 
-QLabel *myheader = new QLabel(this, "myheader");
-myheader->setText("Hey you!");
-myheader->setAlignment(Qt::AlignRight);
-compareClassLayout->addWidget(myheader);
-
   // Vertical list of compare sets (set of psets) defined by the user.
   // this simple defaults to "All process/threads, as if this pane never
   // existed.
@@ -396,12 +391,12 @@ temp_expCompareProcessList += QString(" -p %1 ").arg(pid_name);
   focus_msg->compare_command = expCompareCommand;
 
 
-// printf("I think you really want this compare command:\n(%s)\n", expCompareCommand.ascii() );
+printf("I think you really want this compare command:\n(%s)\n", expCompareCommand.ascii() );
 
 temp_expCompareCommand += temp_expCompareProcessList;
 focus_msg->compare_command = temp_expCompareCommand;
 
-// printf("but really send this for now: command:\n(%s)\n", temp_expCompareCommand.ascii() );
+printf("but really send this for now: command:\n(%s)\n", temp_expCompareCommand.ascii() );
   }
 
 //printf("A: focus the StatsPanel...\n");

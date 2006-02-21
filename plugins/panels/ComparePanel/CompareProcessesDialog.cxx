@@ -66,7 +66,7 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   cli = mw->cli;
 
 
-  QToolTip::add(this, tr("This dialog helps define which processes will be display in each focused Compare\nSet/Column of the Compare Panel.\nSelecting on a column in the Compare Panel will change the focus in this display.") );
+//  QToolTip::add(this, tr("This dialog helps define which processes will be display in each focused Compare\nSet/Column of the Compare Panel.\nSelecting on a column in the Compare Panel will change the focus in this display.") );
   
   if ( !name ) setName( "CompareProcessesDialog" );
 
@@ -90,18 +90,20 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
 
   addProcessesRegExpLineEdit = new QLineEdit(this, "addProcessesRegExpLineEdit");
   addProcessesLayout->addWidget( addProcessesRegExpLineEdit );
-  QToolTip::add(addProcessesRegExpLineEdit, tr("Select which process(es), on the selected host, should be added.\nThis can be a single processes name or a comma separated list of processes names.\nRegular expressions will be honored.(Eventually)") );
+  QToolTip::add(addProcessesRegExpLineEdit, tr("Enter which process(es) to be added/removed.  This can be a single process name\nor a comma separated list of processes.\n\nRegular expressions will be honored. For example:\n  \"8455, 6545, 4500-5000\"\n  \"8455, hostname1:8554, hostname2:0-10000, 1303[12]\"\n  \"5433, hostname1:*, Terminated, 4323\"") );
 
 //  QToolTip::add(addProcessesRegExpLineEdit, tr("Enter the pid (or regular expression defining the pids) that you want entered into\nthe current Column in the current Compare Set of the Compare Panel.\n\nDrag and drop, psets or individual processes from here to the Compare Panel.") );
 
   QPushButton *addButton = new QPushButton( this, "addButton" );
   addButton->setText("Add");
   addButton->setPixmap(plus_xpm);
+  QToolTip::add(addButton, tr("Add the items"));
   addProcessesLayout->addWidget( addButton );
 
   QPushButton *removeButton = new QPushButton( this, "removeButton" );
   removeButton->setText("Remove");
   removeButton->setPixmap(minus_xpm);
+  QToolTip::add(removeButton, tr("Remove the items"));
   addProcessesLayout->addWidget( removeButton );
 
 
@@ -124,9 +126,11 @@ availableProcessesListView->addColumn( tr( "Host:" ) );
 
   Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1"); 
 
+#ifdef LATER
   buttonHelp = new QPushButton( this, "buttonHelp" );
   buttonHelp->setAutoDefault( TRUE );
   Layout1->addWidget( buttonHelp );
+#endif // LATER
   Horizontal_Spacing2 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   Layout1->addItem( Horizontal_Spacing2 );
 
@@ -164,8 +168,10 @@ void CompareProcessesDialog::languageChange()
 {
   setCaption( tr( name() ) );
   addProcessesLabel->setText( tr( "Add processes:" ) );
+#ifdef LATER
   buttonHelp->setText( tr( "&Help" ) );
   buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
+#endif // LATER
   buttonCancel->setText( tr( "&Cancel" ) );
   buttonCancel->setAccel( QKeySequence( QString::null ) );
 }

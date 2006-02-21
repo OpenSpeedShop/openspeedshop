@@ -59,7 +59,9 @@ public:
     QLabel* addProcessesLabel;
     QLabel* removeProcessesLabel;
     QLineEdit* addProcessesRegExpLineEdit;
+#ifdef LATER
     QPushButton* buttonHelp;
+#endif //  LATER
     QPushButton* buttonCancel;
 
     MPListView* availableProcessesListView;
