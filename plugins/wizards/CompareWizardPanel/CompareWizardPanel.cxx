@@ -131,9 +131,11 @@ CompareWizardPanel::CompareWizardPanel(PanelContainer *pc, const char *n, Argume
   vDescriptionPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vDescriptionPageNextButton->sizePolicy().hasHeightForWidth() ) );
   vDescriptionPageButtonLayout->addWidget( vDescriptionPageNextButton );
 
+#ifdef OLDWAY
   vDescriptionPageFinishButton = new QPushButton( vDescriptionPageWidget, "vDescriptionPageFinishButton" );
   vDescriptionPageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vDescriptionPageFinishButton->sizePolicy().hasHeightForWidth() ) );
   vDescriptionPageButtonLayout->addWidget( vDescriptionPageFinishButton );
+#endif // OLDWAY
 
   vDescriptionPageLayout->addLayout( vDescriptionPageButtonLayout );
   mainWidgetStack->addWidget( vDescriptionPageWidget, 0 );
@@ -422,8 +424,10 @@ vAttachOrLoadPageExecutableLabel->setText("Select second experiment file:");
   connect( vwizardMode, SIGNAL( clicked() ), this,
            SLOT( vwizardModeSelected() ) );
 
+#ifdef OLDWAY
   connect( vDescriptionPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
+#endif // OLDWAY
   connect( vParameterPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
   connect( vAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this,
@@ -624,8 +628,8 @@ void CompareWizardPanel::vAttachOrLoadPageNextButtonSelected()
 // printf("vAttachOrLoadPageNextButtonSelected() \n");
 
 
-printf("leftSideExperimentComboBox->text()=(%s)\n", leftSideExperimentComboBox->currentText().ascii() );
-printf("rightSideExperimentComboBox->text()=(%s)\n", rightSideExperimentComboBox->currentText().ascii() );
+// printf("leftSideExperimentComboBox->text()=(%s)\n", leftSideExperimentComboBox->currentText().ascii() );
+// printf("rightSideExperimentComboBox->text()=(%s)\n", rightSideExperimentComboBox->currentText().ascii() );
 
   if( leftSideExperimentComboBox->currentText().isEmpty() )
   {
@@ -663,34 +667,65 @@ void CompareWizardPanel::vSummaryPageFinishButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 // printf("vSummaryPageFinishButtonSelected() \n");
-if( fn.isEmpty() )
-{
-  printf("leftSideExperimentComboBox->text()=(%s/%s)\n", leftSideDirName.ascii(), leftSideExperimentComboBox->currentText().ascii() );
-  printf("rightSideExperimentComboBox->text()=(%s/%s)\n", rightSideDirName.ascii(), rightSideExperimentComboBox->currentText().ascii() );
-
-  if( getPanelContainer()->getMainWindow() )
-  { 
-    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-    if( mw )
+  if( vpage1LoadExperimentCheckBox->isChecked() )
+  {
+    requestExperimentFileName();
+    if( fn.isEmpty() )
     {
-      LoadAttachObject *lao = NULL;
+      vSummaryPageFinishButton->setEnabled(TRUE);
+      vSummaryPageBackButton->setEnabled(TRUE);
+    } else
+    {
       vSummaryPageFinishButton->setEnabled(FALSE);
       vSummaryPageBackButton->setEnabled(FALSE);
-      qApp->flushX();
+      mainWidgetStack->raiseWidget(vSummaryPageWidget);
+      getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
+    }
+  } else
+  {
+    if( fn.isEmpty() )
+    {
+// printf("leftSideExperimentComboBox->text()=(%s/%s)\n", leftSideDirName.ascii(), leftSideExperimentComboBox->currentText().ascii() );
+// printf("rightSideExperimentComboBox->text()=(%s/%s)\n", rightSideDirName.ascii(), rightSideExperimentComboBox->currentText().ascii() );
+
+      leftSideDirName = leftSideExperimentComboBox->currentText();
+      rightSideDirName = rightSideExperimentComboBox->currentText();
+  
+      if( leftSideDirName == rightSideDirName )
+      {
+        int answer = QMessageBox::question ( this, tr("Question:"), tr("You're requesting to compare the same 2 experiments.\n\nIs that what you intended?"),   QMessageBox::Yes,  QMessageBox::No,  QMessageBox::NoButton );
+        if( answer ==  QMessageBox::No )
+        {
+          mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
+          return;
+        }
+      }
+
+      if( getPanelContainer()->getMainWindow() )
+      { 
+        OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+        if( mw )
+        {
+          LoadAttachObject *lao = NULL;
+          vSummaryPageFinishButton->setEnabled(FALSE);
+          vSummaryPageBackButton->setEnabled(FALSE);
+          qApp->flushX();
 
 // printf("Create the CustomExperimentPanel...\n");
 
-      Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Custom Experiment", getPanelContainer());
+          Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Custom Experiment", getPanelContainer());
 
-printf("First expRestore -f exp1; expRestore -f exp2;\n");
-printf("The call the CustomExperimentPanel's listener to load the stats panel with the arguments expCompare -x 1 -x 2 sort of syntax....n");
+// printf("First expRestore -f exp1; expRestore -f exp2;\n");
+// printf("The call the CustomExperimentPanel's listener to load the stats panel with the arguments expCompare -x 1 -x 2 sort of syntax....n");
 //      p->listener((void *)lao);
+        }
+      }
+    } else
+    {
+// printf("fn was not empty\n");
+        getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
     }
   }
-} else
-{
-    getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
-}
 
 }
 
@@ -710,8 +745,10 @@ CompareWizardPanel::languageChange()
   QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
   vDescriptionPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
+#ifdef OLDWAY
   vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
+#endif // OLDWAY
   vModePageDescriptionText->setText( tr( QString("If you want to simply load an existing experiment and check its information, select \"I already have experiment data and would like to analyze it.\"\n\nIf you want to compare experiments, select \"I have data in 2 experiments that I'd like to compare to each other.\"\n\n" ) ) );
 
   vModeHeaderLabel->setText( tr( "Select the mode you wish to operate:" ) );
@@ -744,6 +781,7 @@ void
 CompareWizardPanel::vUpdateAttachOrLoadPageWidget()
 {
 printf("Pop up the dialog box to load an saved file.\n");
+#ifdef OLDWAY
   fn = QString::null;
   char *cwd = get_current_dir_name();
   fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open");
@@ -755,7 +793,7 @@ printf("Pop up the dialog box to load an saved file.\n");
     {
       getPanelContainer()->getMainWindow()->executableName = QString::null;
   printf("fn = %s\n", fn.ascii() );
-  fprintf(stderr, "Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
+printf("Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
   vSummaryPageFinishLabel->setText( tr( QString("You are requesting to load saved experiment <b>\"%1\"</b>.  Pressing finish will bring up your requested information.\n").arg(fn) ) );
   }
 
@@ -764,8 +802,35 @@ printf("Pop up the dialog box to load an saved file.\n");
   {
     fprintf(stderr, "No experiment file name given.\n");
   }
+#else // OLDWAY
+  requestExperimentFileName();
+  if( !fn.isEmpty() )
+  {
+    mainWidgetStack->raiseWidget(vSummaryPageWidget);
+  }
+#endif // OLDWAY
 
   return;
+}
+
+void
+CompareWizardPanel::requestExperimentFileName()
+{
+  fn = QString::null;
+  char *cwd = get_current_dir_name();
+  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open");
+  free(cwd);
+  if( !fn.isEmpty() )
+  {
+    char buffer[2048];
+    if( !fn.isEmpty() )
+    {
+      getPanelContainer()->getMainWindow()->executableName = QString::null;
+printf("fn = %s\n", fn.ascii() );
+printf("A: Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
+      vSummaryPageFinishLabel->setText( tr( QString("You are requesting to load saved experiment <b>\"%1\"</b>.  Pressing finish will bring up your requested information.\n").arg(fn) ) );
+    }
+  }
 }
 
 void

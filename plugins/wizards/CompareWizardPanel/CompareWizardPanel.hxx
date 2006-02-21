@@ -118,7 +118,9 @@ public:
     QTextEdit* vDescriptionPageText;
     QPushButton* vDescriptionPageIntroButton;
     QPushButton* vDescriptionPageNextButton;
+#ifdef OLDWAY
     QPushButton* vDescriptionPageFinishButton;
+#endif // OLDWAY
     QWidget* vModePageWidget;
     QTextEdit* vModePageDescriptionText;
     QFrame* vModePageLine;
@@ -206,6 +208,7 @@ protected slots:
 
 private:
     void warnOfnoSavedData();
+    void requestExperimentFileName();
 
 };
 #endif // COMPAREWIZARDPANEL_H
