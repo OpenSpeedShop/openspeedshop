@@ -57,7 +57,7 @@ int mpit_PMPI_Irecv(void* buf, int count, MPI_Datatype datatype, int source,
 /*
  * MPI_Recv
  */
-int mpit_PMPI_MPI_Recv(
+int mpit_PMPI_Recv(
     void* buf, 
     int count, 
     MPI_Datatype datatype, 
@@ -72,7 +72,7 @@ int mpit_PMPI_MPI_Recv(
     mpit_start_event(&event);
     event.start_time = OpenSS_GetTime();
 
-    retval = PMPI_MPI_Recv(buf, count, datatype, source,  tag, comm, status);
+    retval = PMPI_Recv(buf, count, datatype, source,  tag, comm, status);
 
     event.stop_time = OpenSS_GetTime();
     event.source = source;
@@ -83,7 +83,7 @@ int mpit_PMPI_MPI_Recv(
     event.communicator = comm;
     event.datatype = datatype;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_MPI_Recv));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Recv));
 
     return retval;
 }
