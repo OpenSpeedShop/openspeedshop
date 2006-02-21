@@ -305,8 +305,8 @@ void Collector::startCollecting(const Thread& thread) const
     bool is_collecting = false;
     bool is_postponed = true;
 
-    // Begin an exclusive multi-statement transaction
-    BEGIN_EXCLUSIVE_TRANSACTION(dm_database);
+    // Begin a multi-statement transaction
+    BEGIN_WRITE_TRANSACTION(dm_database);
     validate();
     thread.validate();
 
@@ -398,8 +398,8 @@ void Collector::postponeCollecting(const Thread& thread) const
     bool is_collecting = false;
     bool is_postponed = true;
 
-    // Begin an exclusive multi-statement transaction
-    BEGIN_EXCLUSIVE_TRANSACTION(dm_database);
+    // Begin a multi-statement transaction
+    BEGIN_WRITE_TRANSACTION(dm_database);
     validate();
     thread.validate();
 
@@ -479,8 +479,8 @@ void Collector::stopCollecting(const Thread& thread) const
     bool is_collecting = false;
     bool is_postponed = true;
 
-    // Begin an exclusive multi-statement transaction
-    BEGIN_EXCLUSIVE_TRANSACTION(dm_database);
+    // Begin a multi-statement transaction
+    BEGIN_WRITE_TRANSACTION(dm_database);
     validate();
     thread.validate();
 
@@ -665,7 +665,7 @@ Blob Collector::getParameterData() const
 void Collector::setParameterData(const Blob& data) const
 {
     // Update our parameter data
-    BEGIN_TRANSACTION(dm_database);
+    BEGIN_WRITE_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
 	"UPDATE Collectors SET parameter_data = ? WHERE id = ?;"

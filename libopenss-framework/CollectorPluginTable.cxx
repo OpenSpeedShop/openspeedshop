@@ -97,6 +97,15 @@ CollectorPluginTable::CollectorPluginTable() :
  */
 CollectorPluginTable::~CollectorPluginTable()
 {
+#ifdef WDH_DO_PROPER_CLEANUP
+
+    // Note: The following code to do a proper cleanup was causing problems
+    //       in several circumstances. In particular, when the openss SIGSEGV
+    //       handler calls exit(), it attempts to destroy this table. Since a
+    //       proper cleanup doesn't happen (i.e. the collector objects aren't
+    //       destroyed because of the segmentation fault), the code here will
+    //       cause an assertion. So for now it is just #ifdef'ed out.
+
     // Check preconditions    
     for(std::map<std::string, Entry>::const_iterator
 	    i = dm_unique_id_to_entry.begin();
@@ -108,6 +117,7 @@ CollectorPluginTable::~CollectorPluginTable()
     
     // Exit libltdl
     Assert(lt_dlexit() == 0);
+#endif
 }
 
 

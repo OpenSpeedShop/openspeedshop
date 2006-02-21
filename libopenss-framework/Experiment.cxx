@@ -344,7 +344,7 @@ void Experiment::create(const std::string& name)
     SmartPtr<Database> database = SmartPtr<Database>(new Database(name));
 
     // Apply the experiment database schema
-    BEGIN_TRANSACTION(database);
+    BEGIN_WRITE_TRANSACTION(database);
     for(int i = 0; DatabaseSchema[i] != NULL; ++i) {
 	database->prepareStatement(DatabaseSchema[i]);
 	while(database->executeStatement());
@@ -545,7 +545,7 @@ Thread Experiment::createProcess(const std::string& command,
     std::string canonical = getCanonicalName(host);
 
     // Create the thread entry in the database
-    BEGIN_TRANSACTION(dm_database);
+    BEGIN_WRITE_TRANSACTION(dm_database);
     dm_database->prepareStatement("INSERT INTO Threads (host) VALUES (?);");
     dm_database->bindArgument(1, canonical);
     while(dm_database->executeStatement());
@@ -560,7 +560,7 @@ Thread Experiment::createProcess(const std::string& command,
     catch(...) {
 
 	// Remove this thread from the database
-	BEGIN_TRANSACTION(dm_database);
+	BEGIN_WRITE_TRANSACTION(dm_database);
 	dm_database->prepareStatement("DELETE FROM Threads WHERE id = ?;");
 	dm_database->bindArgument(1, EntrySpy(thread).getEntry());
 	while(dm_database->executeStatement());    
@@ -675,7 +675,7 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
     bool is_attached = false;
 
     // Begin a multi-statement transaction
-    BEGIN_EXCLUSIVE_TRANSACTION(dm_database);
+    BEGIN_WRITE_TRANSACTION(dm_database);
 
     // Are there any existing thread(s) for this process?
     dm_database->prepareStatement(	
@@ -794,7 +794,7 @@ void Experiment::removeThread(const Thread& thread) const
     Instrumentor::release(thread);
     
     // Begin a multi-statement transaction
-    BEGIN_EXCLUSIVE_TRANSACTION(dm_database);
+    BEGIN_WRITE_TRANSACTION(dm_database);
     EntrySpy(thread).validate();
 
     // Remove this thread
@@ -904,7 +904,7 @@ Collector Experiment::createCollector(const std::string& unique_id) const
     Collector collector;
 
     // Begin a multi-statement transaction
-    BEGIN_TRANSACTION(dm_database);
+    BEGIN_WRITE_TRANSACTION(dm_database);
 
     // Create the collector
     dm_database->prepareStatement(
@@ -952,7 +952,7 @@ void Experiment::removeCollector(const Collector& collector) const
     Assert(dm_database == EntrySpy(collector).getDatabase());
     
     // Begin a multi-statement transaction
-    BEGIN_EXCLUSIVE_TRANSACTION(dm_database);
+    BEGIN_WRITE_TRANSACTION(dm_database);
     EntrySpy(collector).validate();
     
     // Stop all performance data collection for this collector

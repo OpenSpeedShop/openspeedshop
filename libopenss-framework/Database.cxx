@@ -392,14 +392,16 @@ std::string Database::getName() const
  * sort) are implemented and a thread may begin another, nested, transaction
  * before the previous transaction completes.
  *
- * @note    An assertion failure occurs if an exclusive transaction is requested
- *          nested inside of another transaction. Exclusive transactions must be
- *          outer transactions.
+ * @note    The will_modify parameter is meant only as a hint to the database
+ *          engine. It allows for improved performance and reduces the number
+ *          times the DatabaseBusy exception occurs. A transaction begun with
+ *          this flag set to "false" can still modify the database. Assuming, 
+ *          of course, that the database doesn't have read-only permissions.
  *
- * @param is_exclusive    Boolean "true" if an exclusive transaction is being
- *                        requested, "false" otherwise.
+ * @param will_modify    Boolean "true" if the transaction will be attempting
+ *                       to modify the database, "false" otherwise.
  */
-void Database::beginTransaction(const bool& is_exclusive)
+void Database::beginTransaction(const bool& will_modify)
 {
     //
     // Acquire read access for the transaction lock
@@ -412,16 +414,25 @@ void Database::beginTransaction(const bool& is_exclusive)
 
     // Check assertions
     Assert(handle.dm_database != NULL);
-    Assert(!is_exclusive || handle.dm_transaction.empty());
     
     // Is this the outermost transaction?
     if(handle.dm_transaction.empty()) {
 
+	// Note: Use a deferred transaction when "will modify" is given for a
+	//       read-only database. The DatabaseReadOnly exception should not
+	//       be raised until when/if the transaction actually tries to
+	//       modify the read-only database.
+	
 	// Execute a SQL query to begin a new transaction
-	Assert(sqlite3_exec(handle.dm_database, is_exclusive ?
-			    "BEGIN EXCLUSIVE TRANSACTION;" :
-			    "BEGIN DEFERRED TRANSACTION;",
-			    NULL, NULL, NULL) == SQLITE_OK);
+	int retval = sqlite3_exec(handle.dm_database, will_modify ?
+				  "BEGIN EXCLUSIVE TRANSACTION;" :
+				  "BEGIN DEFERRED TRANSACTION;",
+				  NULL, NULL, NULL);
+	if(will_modify && (retval == SQLITE_READONLY))
+	    retval = sqlite3_exec(handle.dm_database,
+				  "BEGIN DEFERRED TRANSACTION;",
+				  NULL, NULL, NULL);
+	Assert(retval == SQLITE_OK);
 	
 	// Indicate the transaction can be committed
 	handle.dm_is_committable = true;
@@ -762,6 +773,20 @@ void Database::bindArgument(const unsigned& index, const Time& value)
  *          a call to prepareStatement(). Any attempt to execute a statement
  *          before it is prepared will result in an assertion failure.
  *
+ * @note    A DatabaseReadOnly exception is thrown if an attempt is made to
+ *          write to a read-only database.
+ *
+ * @note    Despite the use of a busy handler for each thread, there are still
+ *          cases where SQLite returns SQLITE_BUSY when executing a statement.
+ *          Specifically, if two threads both obtain shared read locks, then
+ *          both try to promote to exclusive write locks, neither can proceed
+ *          and deadlock would normally result. SQLite detects this situation
+ *          and avoids deadlock by returning SQLITE_BUSY to one thread in an
+ *          attempt to get it to back off. The BEGIN_WRITE_TRANSACTION macro
+ *          is used to reduce the number of cases where SQLITE_BUSY occurs.
+ *          But it cannot be completely eliminated. When it does occur, a
+ *          DatabaseBusy exception is thrown.
+ *
  * @return    Boolean "true" if execution generated a result row and has not
  *            been completed, "false" if execution has completed.
  */
@@ -776,18 +801,10 @@ bool Database::executeStatement()
     
     // Execute the next step of the current statement
     int retval = sqlite3_step(handle.dm_transaction.back());
-    
-    // Note: Despite the use of a busy handler for each thread, there are still
-    //       cases where SQLite can return SQLITE_BUSY above. Specifically, if
-    //       two threads both obtain shared read locks, then both try to promote
-    //       to exclusive write locks, neither can proceed and deadlock would be
-    //       the usual result. SQLite detects this situation and avoids deadlock
-    //       by returning SQLITE_BUSY to both threads allowing them to back off.
-    //       The framework attempts to completely avoid the potential deadlock
-    //       by judicious use of explicit exclusive transactions. The following
-    //       assertion, however, checks for a SQLITE_BUSY value anyway.
-    
-    Assert(retval != SQLITE_BUSY);
+    if((retval == SQLITE_READONLY) || (retval == SQLITE_ERROR))
+	throw Exception(Exception::DatabaseReadOnly, getName());
+    if(retval == SQLITE_BUSY)
+	throw Exception(Exception::DatabaseBusy, getName());
     Assert((retval == SQLITE_ROW) || (retval == SQLITE_DONE));
     
     // Handle a completed statement
@@ -1103,7 +1120,8 @@ void Database::commitTransaction()
 	  (handle.dm_transaction.back() != NULL)) {
 	
 	// Reset this statement
-	Assert(sqlite3_reset(handle.dm_transaction.back()) == SQLITE_OK);
+	int retval = sqlite3_reset(handle.dm_transaction.back());
+	Assert((retval == SQLITE_OK) || (retval == SQLITE_READONLY));
 	
 	// Pop this statement off the transaction stack
 	handle.dm_transaction.pop_back();
@@ -1158,9 +1176,10 @@ void Database::rollbackTransaction()
     // Remove any prepared statements within the current transaction
     while(!handle.dm_transaction.empty() &&
 	  (handle.dm_transaction.back() != NULL)) {
-	
+
 	// Reset this statement
-	Assert(sqlite3_reset(handle.dm_transaction.back()) == SQLITE_OK);
+	int retval = sqlite3_reset(handle.dm_transaction.back());
+	Assert((retval == SQLITE_OK) || (retval == SQLITE_READONLY));
 	
 	// Pop this statement off the transaction stack
 	handle.dm_transaction.pop_back();

@@ -161,9 +161,9 @@ void SymbolTable::addStatement(const Address& begin,
  */
 void SymbolTable::processAndStore(const LinkedObject& linked_object)
 {
-    // Begin an exclusive transaction on this linked object's database
+    // Begin a transaction on this linked object's database
     SmartPtr<Database> database = EntrySpy(linked_object).getDatabase();
-    BEGIN_EXCLUSIVE_TRANSACTION(database);
+    BEGIN_WRITE_TRANSACTION(database);
     
     // Iterate over each function entry
     for(std::map<AddressRange, std::string>::const_iterator

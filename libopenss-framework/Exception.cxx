@@ -52,6 +52,9 @@ namespace {
 	  "plugin cannot be found, has been moved, no longer has a factory "
 	  "method, or has changed metadata." },
 	
+	{ Exception::DatabaseBusy,
+	  "Database \"%1\" is busy." },
+	
 	{ Exception::DatabaseCannotCreate,
 	  "Database \"%1\" cannot be created." },
 
@@ -66,6 +69,9 @@ namespace {
 
 	{ Exception::DatabaseInvalid,
 	  "Database \"%1\" is invalid. %2" },
+
+	{ Exception::DatabaseReadOnly,
+	  "Database \"%1\" has read-only permissions." },
 	
 	{ Exception::EntryNotFound,
 	  "Entry %2 in table \"%1\" no longer exists." },

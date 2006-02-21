@@ -69,11 +69,13 @@ namespace OpenSpeedShop { namespace Framework {
 	enum Code {
 	    CommandNotFound,        /**< Command couldn't be found. */
 	    CollectorUnavailable,   /**< Collector's plugin not available. */
+	    DatabaseBusy,           /**< Database is busy. */
 	    DatabaseCannotCreate,   /**< Database cannot be created. */
 	    DatabaseCannotRemove,   /**< Database cannot be removed. */
 	    DatabaseDoesNotExist,   /**< Database doesn't exist. */
 	    DatabaseExists,         /**< Database already exists. */
 	    DatabaseInvalid,        /**< Database isn't valid. */
+	    DatabaseReadOnly,       /**< Database has read-only permissions. */
 	    EntryNotFound,          /**< Database table entry not found. */
 	    EntryNotUnique,         /**< Database table entry not unique. */
 	    EntryOverlapping,       /**< Database table entries overlap. */

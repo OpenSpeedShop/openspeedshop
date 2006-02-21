@@ -209,16 +209,17 @@ namespace OpenSpeedShop { namespace Framework {
 
 
 /**
- * Begin an exclusive transaction.
+ * Begin a write transaction.
  *
- * Convenience wrapper for beginning an exclusive database transaction inside a
- * try/catch clause. Meant to be used in conjunction with END_TRANSACTION.
+ * Convenience wrapper for beginning a database transaction inside a try/catch
+ * clause that will be modifying the database. Meant to be used in conjunction
+ * with END_TRANSACTION.
  *
  * @param db    Pointer to database being accessed.
  */
-#define BEGIN_EXCLUSIVE_TRANSACTION(db) \
-    try {                               \
-	db->beginTransaction(true);     \
+#define BEGIN_WRITE_TRANSACTION(db) \
+    try {                           \
+	db->beginTransaction(true); \
 	if(0)
 
 
@@ -228,7 +229,7 @@ namespace OpenSpeedShop { namespace Framework {
  *
  * Convenience wrapper for ending a database transaction inside a try/catch
  * clause. Meant to be used in conjunction with either BEGIN_TRANSACTION or
- * BEGIN_EXCLUSIVE_TRANSACTION.
+ * BEGIN_WRITE_TRANSACTION.
  *
  * @param db    Pointer to database being accessed.
  */
