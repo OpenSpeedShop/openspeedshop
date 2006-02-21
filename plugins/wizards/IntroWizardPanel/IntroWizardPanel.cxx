@@ -92,13 +92,17 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vHelpfulLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vHelpfulLabel->sizePolicy().hasHeightForWidth() ) );
   vRBLayout->addWidget( vHelpfulLabel );
 
-  vLoadExperimentLayout = new QHBoxLayout( 0, 0, 6, "vLoadExperimentLayout"); 
+  vLoadExperimentLayout = new QVBoxLayout( 0, 0, 6, "vLoadExperimentLayout"); 
   spacer5_3 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
   vLoadExperimentLayout->addItem( spacer5_3 );
 
   vpage1LoadExperimentCheckBox = new QCheckBox( vWStackPage, "vpage1LoadExperimentCheckBox" );
   vLoadExperimentLayout->addWidget( vpage1LoadExperimentCheckBox );
-  vRBLayout->addLayout( vLoadExperimentLayout );
+//   vRBLayout->addLayout( vLoadExperimentLayout );
+
+  vpage1CompareExperimentsCheckBox = new QCheckBox( vWStackPage, "vpage1CompareExperimentsCheckBox" );
+  vLoadExperimentLayout->addWidget( vpage1CompareExperimentsCheckBox );
+   vRBLayout->addLayout( vLoadExperimentLayout );
 
   line3 = new QFrame( vWStackPage, "line3" );
   line3->setFrameShape( QFrame::HLine );
@@ -167,12 +171,16 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   eHelpfulLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eHelpfulLabel->sizePolicy().hasHeightForWidth() ) );
   eRBLayout->addWidget( eHelpfulLabel );
 
-  eLoadExperimentRBLayout = new QHBoxLayout( 0, 0, 6, "eLoadExperimentRBLayout"); 
+  eLoadExperimentRBLayout = new QVBoxLayout( 0, 0, 6, "eLoadExperimentRBLayout"); 
   spacer5_2_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
   eLoadExperimentRBLayout->addItem( spacer5_2_2 );
 
   epage1LoadExperimentCheckBox = new QCheckBox( eWStackPage, "epage1LoadExperimentCheckBox" );
   eLoadExperimentRBLayout->addWidget( epage1LoadExperimentCheckBox );
+//  eRBLayout->addLayout( eLoadExperimentRBLayout );
+
+  epage1CompareExperimentsCheckBox = new QCheckBox( eWStackPage, "epage1CompareExperimentsCheckBox" );
+  eLoadExperimentRBLayout->addWidget( epage1CompareExperimentsCheckBox );
   eRBLayout->addLayout( eLoadExperimentRBLayout );
 
   line2 = new QFrame( eWStackPage, "line2" );
@@ -272,7 +280,9 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   connect( vpage1MPIRB, SIGNAL( clicked() ), this, SLOT(vpage1MPIRBChanged() ) );
 
 connect( vpage1LoadExperimentCheckBox, SIGNAL( clicked() ), this, SLOT(page1LoadExperimentCheckBoxChanged() ) );
+connect( vpage1CompareExperimentsCheckBox, SIGNAL( clicked() ), this, SLOT(page1CompareExperimentsCheckBoxChanged() ) );
 connect( epage1LoadExperimentCheckBox, SIGNAL( clicked() ), this, SLOT(page1LoadExperimentCheckBoxChanged() ) );
+connect( epage1CompareExperimentsCheckBox, SIGNAL( clicked() ), this, SLOT(page1CompareExperimentsCheckBoxChanged() ) );
 
 
   connect( epage1pcSampleRB, SIGNAL( clicked() ), this, SLOT(epage1pcSampleRBChanged() ) );
@@ -357,6 +367,7 @@ IntroWizardPanel::languageChange()
 
   vHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
   vpage1LoadExperimentCheckBox->setText( tr( "I already have experiment data and would like to analyze it." ) );
+  vpage1CompareExperimentsCheckBox->setText( tr( "I have two saved experiment data files that I'd like to compare to each other." ) );
   vpage1pcSampleRB->setText( tr( "I'm trying to find where my program is spending most of its time. (pcsamp)" ) );
   vpage1UserTimeRB->setText( tr( "I'd like to find out how much time is system time vs. my program's time. (usertime)" ) );
   vpage1HardwareCounterRB->setText( tr( "I'd like to see what the internal Hardware Counters can show me.\n"
@@ -366,7 +377,8 @@ IntroWizardPanel::languageChange()
   vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work. (io)" ) );
   vpage1MPIRB->setText( tr( "I have an MPI program and I'd like measure the mpi calls. (mpi)" ) );
   eHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
-  epage1LoadExperimentCheckBox->setText( tr( "Load experiment data" ) );
+  epage1LoadExperimentCheckBox->setText( tr( "Load experiment data." ) );
+  epage1CompareExperimentsCheckBox->setText( tr( "Compare two experiments." ) );
   epage1pcSampleRB->setText( tr( "pcSampling (profiling)" ) );
   epage1UserTimeRB->setText( tr( "User Time Experiment." ) );
   epage1HardwareCounterRB->setText( tr( "Hardware Counter Tracing." ) );
@@ -398,6 +410,24 @@ void IntroWizardPanel::vpage1NextButtonSelected()
   if( wizardMode->isOn() )
   {
     if( vpage1LoadExperimentCheckBox->isOn() )
+    {
+      QString fn = QString::null;
+      char *cwd = get_current_dir_name();
+      fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open");
+      free(cwd);
+      if( !fn.isEmpty() )
+      {
+//      printf("fn = %s\n", fn.ascii() );
+//      fprintf(stderr, "Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
+getPanelContainer()->getMainWindow()->executableName = QString::null;
+        getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
+      } else
+      {
+        fprintf(stderr, "No experiment file name given.\n");
+      }
+      return;
+    }
+    if( vpage1CompareExperimentsCheckBox->isOn() )
     {
       p = getPanelContainer()->raiseNamedPanel("Compare Wizard");
       if( !p )
@@ -516,13 +546,28 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       {
 //      printf("fn = %s\n", fn.ascii() );
 //      fprintf(stderr, "Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
-getPanelContainer()->getMainWindow()->executableName = QString::null;
+        getPanelContainer()->getMainWindow()->executableName = QString::null;
         getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
       } else
       {
         fprintf(stderr, "No experiment file name given.\n");
       }
       return;
+    }
+    if( epage1CompareExperimentsCheckBox->isOn() )
+    {
+      p = getPanelContainer()->raiseNamedPanel("Compare Wizard");
+      if( !p )
+      {
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Compare Wizard", getPanelContainer(), ao);
+        delete ao;
+      } else
+      {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
     }
     if( epage1pcSampleRB->isOn() )
     {
@@ -653,16 +698,45 @@ void IntroWizardPanel::page1LoadExperimentCheckBoxChanged()
 {
   vSetStateChanged(NULL);
   eSetStateChanged(NULL);
+  vpage1CompareExperimentsCheckBox->setChecked( FALSE );
+  epage1CompareExperimentsCheckBox->setChecked( FALSE );
   if( wizardMode->isOn() )
   {
-    if( !vpage1LoadExperimentCheckBox->isOn() )
+    if( !vpage1LoadExperimentCheckBox->isOn() &&
+        !vpage1CompareExperimentsCheckBox->isOn() )
     {
       vpage1pcSampleRB->setChecked( TRUE );
       epage1pcSampleRB->setChecked( TRUE );
     }
   } else
   {
-    if( !epage1LoadExperimentCheckBox->isOn() )
+    if( !epage1LoadExperimentCheckBox->isOn()  &&
+        !epage1CompareExperimentsCheckBox->isOn() )
+    {
+      vpage1pcSampleRB->setChecked( TRUE );
+      epage1pcSampleRB->setChecked( TRUE );
+    }
+  }
+}
+
+void IntroWizardPanel::page1CompareExperimentsCheckBoxChanged()
+{
+  vSetStateChanged(NULL);
+  eSetStateChanged(NULL);
+  vpage1LoadExperimentCheckBox->setChecked( FALSE );
+  epage1LoadExperimentCheckBox->setChecked( FALSE );
+  if( wizardMode->isOn() )
+  {
+    if( !vpage1LoadExperimentCheckBox->isOn() &&
+        !vpage1CompareExperimentsCheckBox->isOn() )
+    {
+      vpage1pcSampleRB->setChecked( TRUE );
+      epage1pcSampleRB->setChecked( TRUE );
+    }
+  } else
+  {
+    if( !epage1LoadExperimentCheckBox->isOn()  &&
+        !epage1CompareExperimentsCheckBox->isOn() )
     {
       vpage1pcSampleRB->setChecked( TRUE );
       epage1pcSampleRB->setChecked( TRUE );
@@ -683,6 +757,8 @@ void IntroWizardPanel::vSetStateChanged(QRadioButton *rb)
     rb->setChecked(TRUE);
     vpage1LoadExperimentCheckBox->setChecked( FALSE );
     epage1LoadExperimentCheckBox->setChecked( FALSE );
+    vpage1CompareExperimentsCheckBox->setChecked( FALSE );
+    epage1CompareExperimentsCheckBox->setChecked( FALSE );
   }
 }
 
@@ -731,5 +807,7 @@ void IntroWizardPanel::eSetStateChanged(QRadioButton *rb)
     rb->setChecked(TRUE);
     vpage1LoadExperimentCheckBox->setChecked( FALSE );
     epage1LoadExperimentCheckBox->setChecked( FALSE );
+    vpage1CompareExperimentsCheckBox->setChecked( FALSE );
+    epage1CompareExperimentsCheckBox->setChecked( FALSE );
   }
 }

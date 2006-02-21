@@ -101,6 +101,7 @@ public:
     QLabel* vWelcomeHeader;
     QLabel* vHelpfulLabel;
     QCheckBox* vpage1LoadExperimentCheckBox;
+    QCheckBox* vpage1CompareExperimentsCheckBox;
     QFrame* line3;
     QRadioButton* vpage1pcSampleRB;
     QRadioButton* vpage1UserTimeRB;
@@ -113,6 +114,7 @@ public:
     QWidget* eWStackPage;
     QLabel* eHelpfulLabel;
     QCheckBox* epage1LoadExperimentCheckBox;
+    QCheckBox* epage1CompareExperimentsCheckBox;
     QFrame* line2;
     QRadioButton* epage1pcSampleRB;
     QRadioButton* epage1UserTimeRB;
@@ -133,7 +135,7 @@ protected:
     QVBoxLayout* mainFrameLayout;
     QVBoxLayout* vWStackPageLayout;
     QVBoxLayout* vRBLayout;
-    QHBoxLayout* vLoadExperimentLayout;
+    QVBoxLayout* vLoadExperimentLayout;
     QSpacerItem* spacer5_3;
     QHBoxLayout* vpcSampleRBLayout;
     QSpacerItem* spacer5;
@@ -152,7 +154,7 @@ protected:
     QSpacerItem* spacer44;
     QVBoxLayout* WStackPageLayout_2;
     QVBoxLayout* eRBLayout;
-    QHBoxLayout* eLoadExperimentRBLayout;
+    QVBoxLayout* eLoadExperimentRBLayout;
     QSpacerItem* spacer5_2_2;
     QHBoxLayout* epcSampleRBLayout;
     QSpacerItem* spacer5_2;
@@ -184,6 +186,7 @@ public slots:
     void vpage1InputOutputRBChanged();
     void vpage1MPIRBChanged();
     void page1LoadExperimentCheckBoxChanged();
+    void page1CompareExperimentsCheckBoxChanged();
 
     void epage1pcSampleRBChanged();
     void epage1UserTimeRBChanged();
