@@ -1046,6 +1046,56 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
   return success;
 }
 
+// utility
+
+static View_Form_Category Determine_Form_Category (CommandObject *cmd) {
+  if (Look_For_KeyWord(cmd, "Trace")) {
+    return VFC_Trace;
+  } else if (Look_For_KeyWord(cmd, "Statement") ||
+             Look_For_KeyWord(cmd, "Statements") ||
+             Look_For_KeyWord(cmd, "CallTree") ||
+             Look_For_KeyWord(cmd, "CallTrees") ||
+             Look_For_KeyWord(cmd, "TraceBack") ||
+             Look_For_KeyWord(cmd, "TraceBacks") ||
+             Look_For_KeyWord(cmd, "FullStack") ||
+             Look_For_KeyWord(cmd, "FullStacks") ||
+             Look_For_KeyWord(cmd, "ButterFly")) {
+    return VFC_CallStack;
+  }
+  return VFC_Function;
+}
+
+// mpi view
+
+#define def_MPI_values \
+            Time start = Time::TheEnd(); \
+            Time end = Time::TheBeginning(); \
+            int64_t cnt = 0; \
+            double sum = 0.0; \
+            double vmax = 0.0; \
+            double vmin = LONG_MAX; \
+            double sum_squares = 0.0;
+
+#define get_MPI_values(vi) \
+              double v = (*vi).dm_time; \
+              start = min(start,(*vi).dm_interval.getBegin()); \
+              end = max(end,(*vi).dm_interval.getEnd()); \
+              cnt ++; \
+              vmin = min(vmin,v); \
+              vmax = max(vmax,v); \
+              sum += v; \
+              sum_squares += v * v;
+
+#define set_MPI_values  \
+              if (num_temps > sort_temp) (*vcs)[sort_temp] = NULL; \
+              if (num_temps > start_temp) (*vcs)[start_temp] = CRPTR (start); \
+              if (num_temps > stop_temp) (*vcs)[stop_temp] = CRPTR (end); \
+              if (num_temps > time_temp) (*vcs)[time_temp] = CRPTR (vmin); \
+              if (num_temps > min_temp) (*vcs)[min_temp] = CRPTR (vmax); \
+              if (num_temps > max_temp) (*vcs)[max_temp] = CRPTR (sum); \
+              if (num_temps > cnt_temp) (*vcs)[cnt_temp] = CRPTR (cnt); \
+              if (num_temps > ssq_temp) (*vcs)[ssq_temp] = CRPTR (sum_squares);
+
 static bool MPI_Trace_Report(
               CommandObject *cmd, ExperimentObject *exp, int64_t topn,
               ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
@@ -1083,27 +1133,17 @@ static bool MPI_Trace_Report(
             Framework::StackTrace st = (*si).first;
             std::vector<MPIDetail>::iterator vi;
             for (vi = (*si).second.begin(); vi != (*si).second.end(); vi++) {
-              double v = (*vi).dm_time;
-              Time start = (*vi).dm_interval.getBegin();
-              Time end = (*vi).dm_interval.getEnd();
-              int64_t cnt = 1;
-              double vmin = v;
-              double vmax = v;
-              double sum = v;
-              double sum_squares = (v * v);
+             // Use macro to alocate temporaries
+              def_MPI_values
+             // Use macro to assign to temporaries
+              get_MPI_values(vi)
 
+             // Use macro to assign temporaries to the result array
               SmartPtr<std::vector<CommandResult *> > vcs
                        = Framework::SmartPtr<std::vector<CommandResult *> >(
                                    new std::vector<CommandResult *>(num_temps)
                                    );
-              if (num_temps > sort_temp) (*vcs)[sort_temp] = NULL;
-              if (num_temps > start_temp) (*vcs)[start_temp] = CRPTR (start);
-              if (num_temps > stop_temp) (*vcs)[stop_temp] = CRPTR (end);
-              if (num_temps > time_temp) (*vcs)[time_temp] = CRPTR (vmin);
-              if (num_temps > min_temp) (*vcs)[min_temp] = CRPTR (vmax);
-              if (num_temps > max_temp) (*vcs)[max_temp] = CRPTR (sum);
-              if (num_temps > cnt_temp) (*vcs)[cnt_temp] = CRPTR (cnt);
-              if (num_temps > ssq_temp) (*vcs)[ssq_temp] = CRPTR (sum_squares);
+              set_MPI_values
 
               CommandResult *CSE;
               if (base_CSE == NULL) {
@@ -1160,40 +1200,23 @@ static bool MPI_Function_Report(
        // Combine all the items for each function.
         std::map<Function, std::map<Framework::StackTrace, std::vector<MPIDetail> > >::iterator fi;
         for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
-          Time start = Time::TheEnd();
-          Time end = Time::TheBeginning();
-          int64_t cnt = 0;
-          double sum = 0.0;
-          double vmax = 0.0;
-          double vmin = LONG_MAX;
-          double sum_squares = 0.0;
+         // Use macro to allocate imtermediate temporaries
+          def_MPI_values
           std::map<Framework::StackTrace, std::vector<MPIDetail> >:: iterator si;
           for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
             std::vector<MPIDetail>::iterator vi;
             for (vi = (*si).second.begin(); vi != (*si).second.end(); vi++) {
-              double v = (*vi).dm_time;
-              start = min(start,(*vi).dm_interval.getBegin());
-              end = max(end,(*vi).dm_interval.getEnd());
-              cnt ++;
-              vmin = min(vmin,v);
-              vmax = max(vmax,v);
-              sum += v;
-              sum_squares += (v * v);
+             // Use macro to accumulate all the separate samples
+              get_MPI_values(vi)
             }
           }
 
+         // Use macro to construct result array
           SmartPtr<std::vector<CommandResult *> > vcs
                    = Framework::SmartPtr<std::vector<CommandResult *> >(
                                new std::vector<CommandResult *>(num_temps)
                                );
-          if (num_temps > sort_temp) (*vcs)[sort_temp] = NULL;
-          if (num_temps > start_temp) (*vcs)[start_temp] = CRPTR (start);
-          if (num_temps > stop_temp) (*vcs)[stop_temp] = CRPTR (end);
-          if (num_temps > time_temp) (*vcs)[time_temp] = CRPTR (sum);
-          if (num_temps > min_temp) (*vcs)[min_temp] = CRPTR (vmin);
-          if (num_temps > max_temp) (*vcs)[max_temp] = CRPTR (vmax);
-          if (num_temps > cnt_temp) (*vcs)[cnt_temp] = CRPTR (cnt);
-          if (num_temps > ssq_temp) (*vcs)[ssq_temp] = CRPTR (sum_squares);
+          set_MPI_values
 
          // Construct callstack for last entry in the stack trace.
           Function F = (*fi).first;
@@ -1264,41 +1287,25 @@ static bool MPI_CallStack_Report (
           std::map<Framework::StackTrace,
                    std::vector<MPIDetail> >::iterator sti;
           for (sti = (*fi).second.begin(); sti != (*fi).second.end(); sti++) {
-           // Foreach call stack ...
-            Framework::StackTrace st = (*sti).first;
-            Time start = Time::TheEnd();
-            Time end = Time::TheBeginning();
-            int64_t cnt = 0;
-            double sum = 0.0;
-            double vmax = 0.0;
-            double vmin = LONG_MAX;
-            double sum_squares = 0.0;
+           // Use macro to allocate temporary array
+            def_MPI_values
             int64_t len = (*sti).second.size();
             for (int64_t i = 0; i < len; i++) {
-             // Combine all the values.
-              double v = (*sti).second[i].dm_time;
-              start = min(start,(*sti).second[i].dm_interval.getBegin());
-              end = max(end,(*sti).second[i].dm_interval.getEnd());
-              cnt ++;
-              vmin = min(vmin,v);
-              vmax = max(vmax,v);
-              sum += v;
-              sum_squares += v * v;
+             // Use macro to combine all the values.
+              get_MPI_values(&(*sti).second[i])
             }
 
+           // Use macro to set values into return structure.
             SmartPtr<std::vector<CommandResult *> > vcs
                      = Framework::SmartPtr<std::vector<CommandResult *> >(
                                  new std::vector<CommandResult *>(num_temps)
                                  );
-            if (num_temps > sort_temp) (*vcs)[sort_temp] = NULL;
-            if (num_temps > start_temp) (*vcs)[start_temp] = CRPTR (start);
-            if (num_temps > stop_temp) (*vcs)[stop_temp] = CRPTR (end);
-            if (num_temps > time_temp) (*vcs)[time_temp] = CRPTR (sum);
-            if (num_temps > min_temp) (*vcs)[min_temp] = CRPTR (vmin);
-            if (num_temps > max_temp) (*vcs)[max_temp] = CRPTR (vmax);
-            if (num_temps > cnt_temp) (*vcs)[cnt_temp] = CRPTR (cnt);
-            if (num_temps > ssq_temp) (*vcs)[ssq_temp] = CRPTR (sum_squares);
+            set_MPI_values
 
+           // Foreach call stack ...
+            Framework::StackTrace st = (*sti).first;
+
+           // Construct result entry
             SmartPtr<std::vector<CommandResult *> > call_stack = Construct_CallBack (TraceBack_Order, add_stmts, st);
             CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
             c_items.push_back(std::make_pair(CSE, vcs));
@@ -1506,25 +1513,6 @@ TEST */
     return true;
 }
 
-static View_Form_Category Determine_Form_Category (CommandObject *cmd) {
-  if (Look_For_KeyWord(cmd, "Trace")) {
-    return VFC_Trace;
-  } else if (Look_For_KeyWord(cmd, "Statement") ||
-             Look_For_KeyWord(cmd, "Statements") ||
-             Look_For_KeyWord(cmd, "CallTree") ||
-             Look_For_KeyWord(cmd, "CallTrees") ||
-             Look_For_KeyWord(cmd, "TraceBack") ||
-             Look_For_KeyWord(cmd, "TraceBacks") ||
-             Look_For_KeyWord(cmd, "FullStack") ||
-             Look_For_KeyWord(cmd, "FullStacks") ||
-             Look_For_KeyWord(cmd, "ButterFly")) {
-    return VFC_CallStack;
-  }
-  return VFC_Function;
-}
-
-
-// mpi view
 
 static std::string VIEW_mpi_brief = "Mpi Report";
 static std::string VIEW_mpi_short = "Report the time spent in each mpi function.";
@@ -1640,6 +1628,57 @@ class mpi_view : public ViewType {
 
 // mpit view
 
+#define def_MPIT_values \
+            Time start = Time::TheEnd(); \
+            Time end = Time::TheBeginning(); \
+            int64_t cnt = 0; \
+            double sum = 0.0; \
+            double vmax = 0.0; \
+            double vmin = LONG_MAX; \
+            double sum_squares = 0.0; \
+            int64_t detail_source = 0; \
+            int64_t detail_destination = 0; \
+            uint64_t detail_size = 0; \
+            int64_t detail_tag = 0; \
+            int64_t detail_communicator = 0; \
+            int64_t detail_datatype = 0; \
+            int64_t detail_retval = 0;
+
+#define get_MPIT_values(vi) \
+              double v = (*vi).dm_time; \
+              start = min(start,(*vi).dm_interval.getBegin()); \
+              end = max(end,(*vi).dm_interval.getEnd()); \
+              cnt ++; \
+              vmin = min(vmin,v); \
+              vmax = max(vmax,v); \
+              sum += v; \
+              sum_squares += v * v; \
+              detail_source = (*vi).dm_source; \
+              detail_destination = (*vi).dm_destination; \
+              detail_size += (*vi).dm_size; \
+              detail_tag = (*vi).dm_tag; \
+              detail_communicator = (*vi).dm_communicator; \
+              detail_datatype = (*vi).dm_datatype; \
+              detail_retval = (*vi).dm_retval;
+
+#define set_MPIT_values  \
+              if (num_temps > sort_temp) (*vcs)[sort_temp] = NULL; \
+              if (num_temps > start_temp) (*vcs)[start_temp] = CRPTR (start); \
+              if (num_temps > stop_temp) (*vcs)[stop_temp] = CRPTR (end); \
+              if (num_temps > time_temp) (*vcs)[time_temp] = CRPTR (vmin); \
+              if (num_temps > min_temp) (*vcs)[min_temp] = CRPTR (vmax); \
+              if (num_temps > max_temp) (*vcs)[max_temp] = CRPTR (sum); \
+              if (num_temps > cnt_temp) (*vcs)[cnt_temp] = CRPTR (cnt); \
+              if (num_temps > ssq_temp) (*vcs)[ssq_temp] = CRPTR (sum_squares); \
+              if (num_temps > source_temp) (*vcs)[source_temp] = CRPTR (detail_source); \
+              if (num_temps > destination_temp) (*vcs)[destination_temp] = CRPTR (detail_destination); \
+              if (num_temps > size_temp) (*vcs)[size_temp] = CRPTR (detail_size); \
+              if (num_temps > tag_temp) (*vcs)[tag_temp] = CRPTR (detail_tag); \
+              if (num_temps > communicator_temp) (*vcs)[communicator_temp] = CRPTR (detail_communicator); \
+              if (num_temps > datatype_temp) (*vcs)[datatype_temp] = CRPTR (detail_datatype); \
+              if (num_temps > retval_temp) (*vcs)[retval_temp] = CRPTR (detail_retval);
+
+
 static bool MPIT_Trace_Report(
               CommandObject *cmd, ExperimentObject *exp, int64_t topn,
               ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
@@ -1677,44 +1716,17 @@ static bool MPIT_Trace_Report(
             Framework::StackTrace st = (*si).first;
             std::vector<MPITDetail>::iterator vi;
             for (vi = (*si).second.begin(); vi != (*si).second.end(); vi++) {
-              double v = (*vi).dm_time;
-              Time start = (*vi).dm_interval.getBegin();
-              Time end = (*vi).dm_interval.getEnd();
-              int64_t cnt = 1;
-              double vmin = v;
-              double vmax = v;
-              double sum = v;
-              double sum_squares = (v * v);
+              def_MPIT_values
+              get_MPIT_values(vi)
 
-              double detail_source = (*vi).dm_source;
-              double detail_destination = (*vi).dm_destination;
-              double detail_size = (*vi).dm_size;
-              double detail_tag = (*vi).dm_tag;
-              double detail_communicator = (*vi).dm_communicator;
-              double detail_datatype = (*vi).dm_datatype;
-              double detail_retval = (*vi).dm_retval;
-
+            // Use macro to copy desired values.  
               SmartPtr<std::vector<CommandResult *> > vcs
                        = Framework::SmartPtr<std::vector<CommandResult *> >(
                                    new std::vector<CommandResult *>(num_temps)
                                    );
-              if (num_temps > sort_temp) (*vcs)[sort_temp] = NULL;
-              if (num_temps > start_temp) (*vcs)[start_temp] = CRPTR (start);
-              if (num_temps > stop_temp) (*vcs)[stop_temp] = CRPTR (end);
-              if (num_temps > time_temp) (*vcs)[time_temp] = CRPTR (vmin);
-              if (num_temps > min_temp) (*vcs)[min_temp] = CRPTR (vmax);
-              if (num_temps > max_temp) (*vcs)[max_temp] = CRPTR (sum);
-              if (num_temps > cnt_temp) (*vcs)[cnt_temp] = CRPTR (cnt);
-              if (num_temps > ssq_temp) (*vcs)[ssq_temp] = CRPTR (sum_squares);
+              set_MPIT_values 
 
-              if (num_temps > source_temp) (*vcs)[source_temp] = CRPTR (detail_source);
-              if (num_temps > destination_temp) (*vcs)[destination_temp] = CRPTR (detail_destination);
-              if (num_temps > size_temp) (*vcs)[size_temp] = CRPTR (detail_size);
-              if (num_temps > tag_temp) (*vcs)[tag_temp] = CRPTR (detail_tag);
-              if (num_temps > communicator_temp) (*vcs)[communicator_temp] = CRPTR (detail_communicator);
-              if (num_temps > datatype_temp) (*vcs)[datatype_temp] = CRPTR (detail_datatype);
-              if (num_temps > retval_temp) (*vcs)[retval_temp] = CRPTR (detail_retval);
-
+             // Construct the type-independent return entry.
               CommandResult *CSE;
               if (base_CSE == NULL) {
                 SmartPtr<std::vector<CommandResult *> > call_stack = Construct_CallBack (TraceBack_Order, false, st);
@@ -1738,6 +1750,159 @@ static bool MPIT_Trace_Report(
 
  // Generate the report.
   return Generic_mpi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_Trace, c_items, view_output);
+}
+
+static bool MPIT_Function_Report(
+              CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+              ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
+              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
+              std::list<CommandResult *>& view_output) {
+
+  int64_t num_temps = max ((int64_t)time_temp, Find_Max_Temp(IV)) + 1;
+  Collector collector = CV[0];
+  std::string metric = MV[0];
+  std::vector<std::pair<CommandResult *,
+                        SmartPtr<std::vector<CommandResult *> > > > c_items;
+
+ // Get the list of desired functions.
+  std::set<Function> objects;
+  Determine_Objects ( cmd, exp, tgrp, objects);
+
+  if (objects.empty()) {
+    return false;
+  }
+
+  try {
+    collector.lockDatabase();
+
+    SmartPtr<std::map<Function,
+                      std::map<Framework::StackTrace,
+                               std::vector<MPITDetail> > > > raw_items;
+    GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
+       // Combine all the items for each function.
+        std::map<Function, std::map<Framework::StackTrace, std::vector<MPITDetail> > >::iterator fi;
+        for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
+          def_MPIT_values
+
+          std::map<Framework::StackTrace, std::vector<MPITDetail> >:: iterator si;
+          for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
+            std::vector<MPITDetail>::iterator vi;
+            for (vi = (*si).second.begin(); vi != (*si).second.end(); vi++) {
+              get_MPIT_values(vi)
+            }
+          }
+
+         // Use macro to copy desired values.  
+          SmartPtr<std::vector<CommandResult *> > vcs
+                   = Framework::SmartPtr<std::vector<CommandResult *> >(
+                               new std::vector<CommandResult *>(num_temps)
+                               );
+          set_MPIT_values 
+
+         // Construct the type-independent return entry.
+         // Construct callstack for last entry in the stack trace.
+          Function F = (*fi).first;
+          std::map<Framework::StackTrace,
+                   std::vector<MPITDetail> >::iterator first_si = 
+                                      (*fi).second.begin();
+          Framework::StackTrace st = (*first_si).first;
+          std::set<Statement> T = st.getStatementsAt(st.size()-1);
+
+          SmartPtr<std::vector<CommandResult *> > call_stack =
+                   Framework::SmartPtr<std::vector<CommandResult *> >(
+                               new std::vector<CommandResult *>()
+                               );
+          call_stack->push_back(new CommandResult_Function (F, T));
+          CommandResult *CSE = new CommandResult_CallStackEntry (call_stack);
+          c_items.push_back(std::make_pair(CSE, vcs));
+        }
+  }
+  catch (const Exception& error) {
+    Mark_Cmd_With_Std_Error (cmd, error);
+    collector.unlockDatabase();
+    return false;
+  }
+
+  collector.unlockDatabase();
+
+ // Generate the report.
+  return Generic_mpi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_Function, c_items, view_output);
+}
+
+static bool MPIT_CallStack_Report (
+              CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+              ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
+              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
+              std::list<CommandResult *>& view_output) {
+
+  int64_t num_temps = max ((int64_t)time_temp, Find_Max_Temp(IV)) + 1;
+  bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
+  Collector collector = CV[0];
+  std::string metric = MV[0];
+  std::vector<std::pair<CommandResult *,
+                        SmartPtr<std::vector<CommandResult *> > > > c_items;
+  bool add_stmts = (!Look_For_KeyWord(cmd, "ButterFly") ||
+                    Look_For_KeyWord(cmd, "FullStack") ||
+                    Look_For_KeyWord(cmd, "FullStacks"));
+
+ // Get the list of desired functions.
+  std::set<Function> objects;
+  Determine_Objects ( cmd, exp, tgrp, objects);
+
+  if (objects.empty()) {
+    return false;
+  }
+
+  try {
+    collector.lockDatabase();
+
+    SmartPtr<std::map<Function,
+                      std::map<Framework::StackTrace,
+                               std::vector<MPITDetail> > > > raw_items;
+    GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
+       // Construct complete call stack
+        std::map<Function,
+                 std::map<Framework::StackTrace,
+                          std::vector<MPITDetail> > >::iterator fi;
+        for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
+         // Foreach MPIT function ...
+          std::map<Framework::StackTrace,
+                   std::vector<MPITDetail> >::iterator sti;
+          for (sti = (*fi).second.begin(); sti != (*fi).second.end(); sti++) {
+           // Foreach call stack ...
+            def_MPIT_values
+
+            int64_t len = (*sti).second.size();
+            for (int64_t i = 0; i < len; i++) {
+             // Combine all the values.
+              get_MPIT_values(&(*sti).second[i])
+            }
+
+            SmartPtr<std::vector<CommandResult *> > vcs
+                     = Framework::SmartPtr<std::vector<CommandResult *> >(
+                                 new std::vector<CommandResult *>(num_temps)
+                                 );
+           // Use macro to copy desired values.  
+            set_MPIT_values 
+
+           // Construct the type-independent return entry.
+            Framework::StackTrace st = (*sti).first;
+            SmartPtr<std::vector<CommandResult *> > call_stack = Construct_CallBack (TraceBack_Order, add_stmts, st);
+            CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
+            c_items.push_back(std::make_pair(CSE, vcs));
+          }
+        }
+  }
+  catch (const Exception& error) {
+    Mark_Cmd_With_Std_Error (cmd, error);
+    collector.unlockDatabase();
+    return false;
+  }
+
+  collector.unlockDatabase();
+
+ // Generate the report.
+  return Generic_mpi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack,c_items, view_output);
 }
 
 static std::string allowed_mpit_V_options[] = {
@@ -2098,9 +2263,9 @@ class mpit_view : public ViewType {
        case VFC_Trace:
         return MPIT_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
        case VFC_CallStack:
-        return MPI_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
+        return MPIT_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
        case VFC_Function:
-        return MPI_Function_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
+        return MPIT_Function_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
       }
     }
     return false;
