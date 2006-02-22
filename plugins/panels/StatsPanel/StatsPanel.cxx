@@ -581,6 +581,7 @@ qaction->setStatusTip( tr("Debug hook to test trace syntax - StatsPanel.") );
     {
       // Build the static list of mpi modifiers.
       list_of_modifiers.clear();
+      list_of_modifiers.push_back("exclusive_times");
       list_of_modifiers.push_back("min");
       list_of_modifiers.push_back("max");
       list_of_modifiers.push_back("average");
@@ -1074,8 +1075,12 @@ void
 StatsPanel::aboutSelected()
 {
 
-QString aboutString = about;
-QMessageBox::information(this, "About stats information", aboutString, "Ok");
+  QString aboutString = about;
+  // QMessageBox::information(this, "About stats information", aboutString, "Ok");
+  QMessageBox about( "About stats information", aboutString, QMessageBox::Information, QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton, this, "aboutStats", FALSE);
+
+  about.show();
+  about.exec();
 }
 
 void
