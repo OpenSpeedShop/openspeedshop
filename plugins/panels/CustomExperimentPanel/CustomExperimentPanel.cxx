@@ -564,8 +564,74 @@ CustomExperimentPanel::listener(void *msg)
     nprintf( DEBUG_MESSAGES ) ("we've got a ControlObject\n");
   } else if( mo->msgType  == "LoadAttachObject" )
   {
+printf("we've got a LoadAttachObject\n");
     lao = (LoadAttachObject *)msg;
-    nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject\n");
+    if( lao && !lao->leftSideExperiment.isEmpty() )
+    {
+      printf("%s: %s\n", lao->leftSideExperiment.ascii(), lao->rightSideExperiment.ascii() );
+CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+int64_t val = 0;
+int64_t leftSideCval = 0;
+int64_t rightSideCval = 0;
+// Left side
+bool mark_value_for_delete = true;
+QString command = QString("expRestore -f %1").arg(lao->leftSideExperiment); 
+if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ) )
+{
+  printf("Unable to creat restore for %s\n", lao->leftSideExperiment.ascii() );
+  return 0;
+}
+command = QString("cViewCreate -x %1").arg(val); 
+printf("command=(%s)\n", command.ascii() );
+if( !cli->getIntValueFromCLI(command.ascii(), &leftSideCval, mark_value_for_delete ) )
+{
+  printf("Unable to creat cview for %d\n", leftSideCval);
+  return 0;
+}
+// Right side
+command = QString("expRestore -f %1").arg(lao->rightSideExperiment); 
+if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ) )
+{
+  printf("Unable to creat restore for %s\n", lao->rightSideExperiment.ascii() );
+  return 0;
+}
+command = QString("cViewCreate -x %1").arg(val); 
+printf("command=(%s)\n", command.ascii() );
+if( !cli->getIntValueFromCLI(command.ascii(), &rightSideCval, mark_value_for_delete ) )
+{
+  printf("Unable to creat cview for %d\n", rightSideCval);
+  return 0;
+}
+
+
+// Now load the stats panel with the data...
+  QString name = QString("Stats Panel [%1]").arg(expID);
+
+
+  Panel *statsPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+
+  if( statsPanel )
+  { 
+    nprintf( DEBUG_PANELS ) ("loadStatsPanel() found Stats Panel found.. raise it.\n");
+    getPanelContainer()->raisePanel(statsPanel);
+  } else
+  {
+    nprintf( DEBUG_PANELS ) ("loadStatsPanel() no Stats Panel found.. create one.\n");
+    PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+    statsPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel((const char *)"Stats Panel", pc, ao);
+    delete ao;
+
+    nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", statsPanel->getName());
+// printf("CustomExperimentPanel:: call (%s)'s listener routine.\n", statsPanel->getName());
+  }
+
+  command = QString("cview -c %1, %2").arg(leftSideCval).arg(rightSideCval);
+  UpdateObject *msg =
+     new UpdateObject((void *)NULL, -1, command.ascii(), 1);
+  statsPanel->listener( (void *)msg );
+
+}
   } else if( mo->msgType == "ClosingDownObject" )
   {
     nprintf( DEBUG_MESSAGES ) ("CustomExperimentPanel::listener() ClosingDownObject!\n");

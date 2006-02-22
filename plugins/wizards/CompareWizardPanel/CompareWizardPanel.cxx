@@ -701,10 +701,11 @@ void CompareWizardPanel::vSummaryPageFinishButtonSelected()
 // printf("leftSideExperimentComboBox->text()=(%s/%s)\n", leftSideDirName.ascii(), leftSideExperimentComboBox->currentText().ascii() );
 // printf("rightSideExperimentComboBox->text()=(%s/%s)\n", rightSideDirName.ascii(), rightSideExperimentComboBox->currentText().ascii() );
 
-      leftSideDirName = leftSideExperimentComboBox->currentText();
-      rightSideDirName = rightSideExperimentComboBox->currentText();
+//      leftSideDirName = leftSideExperimentComboBox->currentText();
+//      rightSideDirName = rightSideExperimentComboBox->currentText();
   
-      if( leftSideDirName == rightSideDirName )
+      if( leftSideDirName+"/"+leftSideExperimentComboBox->currentText() == 
+          rightSideDirName+"/"+rightSideExperimentComboBox->currentText() )
       {
         int answer = QMessageBox::question ( this, tr("Question:"), tr("You're requesting to compare the same 2 experiments.\n\nIs that what you intended?"),   QMessageBox::Yes,  QMessageBox::No,  QMessageBox::NoButton );
         if( answer ==  QMessageBox::No )
@@ -731,8 +732,12 @@ mainWidgetStack->raiseWidget(vSummaryPageWidget);
           Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Custom Experiment", getPanelContainer());
 
 // printf("First expRestore -f exp1; expRestore -f exp2;\n");
+
 // printf("The call the CustomExperimentPanel's listener to load the stats panel with the arguments expCompare -x 1 -x 2 sort of syntax....n");
-//      p->listener((void *)lao);
+           lao = new LoadAttachObject(QString::null, QString::null, NULL, TRUE);
+           lao->leftSideExperiment = leftSideDirName+"/"+leftSideExperimentComboBox->currentText();
+           lao->rightSideExperiment = rightSideDirName+"/"+rightSideExperimentComboBox->currentText();
+           p->listener((void *)lao);
         }
       }
     } else

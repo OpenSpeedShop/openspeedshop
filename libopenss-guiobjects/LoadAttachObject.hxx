@@ -50,6 +50,11 @@ public:
 //    QString paramList;
     ParamList *paramList;
 
+    //! The left side experiment to compare
+    QString leftSideExperiment;
+
+    //! The right side experiment to compare
+    QString rightSideExperiment;
 
     //! Load now!
     bool loadNowHint;

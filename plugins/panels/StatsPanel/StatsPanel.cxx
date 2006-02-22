@@ -444,6 +444,14 @@ catch(const std::exception& error)
 // printf("UpdateExperimentDataObject\n");
 
     UpdateObject *msg = (UpdateObject *)msgObject;
+    if( msg->expID == -1 )
+    {
+printf("We got the command=(%s)\n", msg->experiment_name.ascii() );
+QString command = msg->experiment_name;
+updateStatsPanelData(command);
+      return(1);
+    }
+    
     expID = msg->expID;
 
 // Begin determine if there's mpi stats
