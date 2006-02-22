@@ -136,8 +136,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 // printf("StatsPanel() entered\n");
   setCaption("StatsPanel");
 
-// For debugging trace syntax only...
-traceFLAG == FALSE;
+  traceFLAG == FALSE;
 
   mpi_io_FLAG = FALSE;
   currentThread = NULL;
@@ -539,13 +538,6 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( aboutSelected() ) );
   qaction->setStatusTip( tr("Shows information about what is currently being displayed in the StatsPanel.") );
 
-qaction = new QAction( this,  "-v trace");
-qaction->addTo( contextMenu );
-qaction->setText( "Trace..." );
-connect( qaction, SIGNAL( activated() ), this, SLOT( traceSelected() ) );
-qaction->setStatusTip( tr("Debug hook to test trace syntax - StatsPanel.") );
-
-
   qaction = new QAction( this,  "_updatePanel");
   qaction->addTo( contextMenu );
   qaction->setText( "Update Panel..." );
@@ -599,50 +591,63 @@ qaction->setStatusTip( tr("Debug hook to test trace syntax - StatsPanel.") );
 
         QString s = QString::null;
 
-        QAction *qaction = new QAction(this, "showFunctions");
+        QAction *qaction = NULL;
+
+        mpi_io_Menu->setCheckable(TRUE);
+        qaction = new QAction(this, "showTraceInfo");
+        qaction->addTo( mpi_io_Menu );
+        qaction->setText( tr("Present Trace Information") );
+        qaction->setToggleAction(traceFLAG);
+        qaction->setOn(traceFLAG);
+        qaction->setToolTip(tr("When available, show traced timings."));
+        connect( qaction, SIGNAL( activated() ), this, SLOT(traceSelected()) );
+
+        mpi_io_Menu->insertSeparator();
+
+        qaction = new QAction(this, "showFunctions");
         qaction->addTo( mpi_io_Menu );
         qaction->setText( tr("Show Metric: Functions") );
-if( QString(collector_name).startsWith("mpi::exclusive_times") )
-{
-        qaction->setToolTip(tr("Show timings for MPI Functions."));
-} else
-{
-        qaction->setToolTip(tr("Show timings for IO Functions."));
-}
+        if( QString(collector_name).startsWith("mpi::exclusive_times") )
+        {
+          qaction->setToolTip(tr("Show timings for MPI Functions."));
+        } else
+        {
+          qaction->setToolTip(tr("Show timings for IO Functions."));
+        }
 
         qaction = new QAction(this, "showTracebacks");
         qaction->addTo( mpi_io_Menu );
         qaction->setText( tr("Show Metric: TraceBacks") );
-if( QString(collector_name).startsWith("mpi::exclusive_times") )
-{
-        qaction->setToolTip(tr("Show tracebacks to MPI Functions."));
-} else
-{
-        qaction->setToolTip(tr("Show tracebacks to IO Functions."));
-}
+        if( QString(collector_name).startsWith("mpi::exclusive_times") )
+        {
+          qaction->setToolTip(tr("Show tracebacks to MPI Functions."));
+        } else
+        {
+          qaction->setToolTip(tr("Show tracebacks to IO Functions."));
+        }
 
 
         qaction = new QAction(this, "showTracebacks/FullStack");
         qaction->addTo( mpi_io_Menu );
         qaction->setText( tr("Show Metric: TraceBacks/FullStack") );
-if( QString(collector_name).startsWith("mpi::exclusive_times") )
-{
-        qaction->setToolTip(tr("Show tracebacks, with full stacks, to MPI Functions."));
-} else
-{
-        qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO Functions."));
-}
+        if( QString(collector_name).startsWith("mpi::exclusive_times") )
+        {
+          qaction->setToolTip(tr("Show tracebacks, with full stacks, to MPI Functions."));
+        } else
+        {
+          qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO Functions."));
+        }
 
         qaction = new QAction(this, "showCallTrees");
         qaction->addTo( mpi_io_Menu );
         qaction->setText( tr("Show Metric: CallTrees") );
-if( QString(collector_name).startsWith("mpi::exclusive_times") )
-{
-        qaction->setToolTip(tr("Show Call Trees to each MPI Functions."));
-} else
-{
-        qaction->setToolTip(tr("Show Call Trees to each IO Functions."));
-}
+        if( QString(collector_name).startsWith("mpi::exclusive_times") )
+        {
+          qaction->setToolTip(tr("Show Call Trees to each MPI Functions."));
+        } else
+        {
+          qaction->setToolTip(tr("Show Call Trees to each IO Functions."));
+        }
 
         qaction = new QAction(this, "showButterfly");
         qaction->addTo( mpi_io_Menu );
@@ -657,13 +662,13 @@ if( QString(collector_name).startsWith("mpi::exclusive_times") )
           qaction = new QAction(this, "showCallTreesBySelectedFunction");
           qaction->addTo( mpi_io_Menu );
           qaction->setText( tr("Show Metric: CallTrees by Selected Function") );
-if( QString(collector_name).startsWith("mpi::exclusive_times") )
-{
-          qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
-} else
-{
-          qaction->setToolTip(tr("Show Call Tree to IO routine for selected function."));
-}
+          if( QString(collector_name).startsWith("mpi::exclusive_times") )
+          {
+            qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
+          } else
+          {
+            qaction->setToolTip(tr("Show Call Tree to IO routine for selected function."));
+          }
         }
         if( modifierMenu )
         {
@@ -1086,7 +1091,6 @@ StatsPanel::aboutSelected()
 void
 StatsPanel::traceSelected()
 {
-
   if( traceFLAG == TRUE )
   {
     traceFLAG = FALSE;
@@ -1094,8 +1098,6 @@ StatsPanel::traceSelected()
   {
     traceFLAG = TRUE;
   }
-printf("Trace flag == %d\n", traceFLAG );
-
 }
 
 
@@ -1959,7 +1961,11 @@ StatsPanel::modifierSelected(int val)
     current_list_of_modifiers.push_back(s);
   }
 
-  updateStatsPanelData();
+// Uncomment this line if the modifier selection to take place immediately.
+// I used to do this, but it seemed wrong to make the use wait as they 
+// selected each modifier.   Now, they select the modifier, then go out and
+// reselect the Query...
+//  updateStatsPanelData();
 }
 
 void
@@ -2906,11 +2912,10 @@ StatsPanel::generateCommand()
 {
 // For debugging of mpit trace syntax only.
 QString traceAddition = QString::null;
-if( traceFLAG == TRUE )
-{
-//  traceAddition = "-v trace -f PMPI_Allreduce";
-  traceAddition = "-v trace";
-}
+  if( traceFLAG == TRUE )
+  {
+    traceAddition = "-v trace";
+  }
 
   QString modifierStr = QString::null;
 

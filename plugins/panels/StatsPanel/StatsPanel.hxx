@@ -119,7 +119,7 @@ ColumnValueClass columnValueClass[10];
     void updateCollectorMetricList();
     void outputCLIData(QString *data);
     bool mpi_io_FLAG;
-bool traceFLAG;
+    bool traceFLAG;
 
   protected:
     //! Sets the language specific strings.
