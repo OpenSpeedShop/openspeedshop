@@ -2406,6 +2406,8 @@ StatsPanel::outputCLIData(QString *incoming_data)
   
       start_index = end_index+2;
     }
+    columnValueClass[fieldCount-1].end_index = 99999;
+
 #if 0
 // Begin debug.
 printf("fieldCount=%d\n", fieldCount);
