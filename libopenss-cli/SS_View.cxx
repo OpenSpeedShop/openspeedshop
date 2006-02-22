@@ -254,7 +254,7 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
       (exp->FW() != NULL)) {
     tgrp = exp->FW()->getThreads();
   }
-  Filter_ThreadGroup (cmd, tgrp);
+  Filter_ThreadGroup (cmd->P_Result(), tgrp);
 
  // Try to Generate the Requested View!
   bool success = vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),

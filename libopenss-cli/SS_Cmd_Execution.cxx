@@ -423,7 +423,7 @@ static bool within_range (std::string S, parse_range_t R) {
  * Determine if any of the <target_list> specifiers
  * make use of the optional -f' field.
  *     
- * @param CommandObject *cmd to access teh parse objects.
+ * @param CommandObject *cmd to access the parse objects.
  *
  * @return bool - true if there is a '-f' field, false otherwise.
  *
@@ -458,14 +458,13 @@ bool Filter_Uses_F (CommandObject *cmd) {
  *
  * Output is done by overwriting the input argument.
  *     
- * @param CommandObject *cmd - containing the parse object.
+ * @param ParseResult *p_result points to the parse object.
  *        ThreadGroup& tgrp  - the original set of threads.
  *
  * @return  void, but one of the input arguments is altered.
  *
  */
-void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
-  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+void Filter_ThreadGroup (OpenSpeedShop::cli::ParseResult *p_result, ThreadGroup& tgrp) {
   vector<ParseTarget> *p_tlist = p_result->getTargetList();
   if (p_tlist->begin() == p_tlist->end()) {
    // There are no filters.
@@ -2344,6 +2343,7 @@ static enum {
     ENUM_THREADS,
     ENUM_TYPES_OLD,
     ENUM_VIEWS,
+    ENUM_CVIEWS,
 } list_enums;
 static char *list_types[] = {
     "breaks",
@@ -2361,6 +2361,7 @@ static char *list_types[] = {
     "threads",
     "types",
     "views",
+    "cviews",
     NULL
 };
 bool SS_ListGeneric (CommandObject *cmd) {
@@ -2404,6 +2405,8 @@ bool SS_ListGeneric (CommandObject *cmd) {
 	    	return SS_ListTypes(cmd);
 	    case ENUM_VIEWS:
 	    	return SS_ListViews(cmd);
+	    case ENUM_CVIEWS:
+	    	return SS_ListCviews(cmd);
 	    default :
 	    	break;
 	}
@@ -2667,7 +2670,7 @@ bool SS_ListObj (CommandObject *cmd) {
 
  // Get a list of the unique threads used in the specified experiment.
   ThreadGroup tgrp = exp->FW()->getThreads();
-  Filter_ThreadGroup (cmd, tgrp);
+  Filter_ThreadGroup (cmd->P_Result(), tgrp);
   std::set<LinkedObject> ulset;
   for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
     Thread t = *ti;
@@ -2847,7 +2850,7 @@ bool SS_ListPids (CommandObject *cmd) {
 
    // Get the list of threads used in the specified experiment.
     ThreadGroup tgrp = exp->FW()->getThreads();
-    Filter_ThreadGroup (cmd, tgrp);
+    Filter_ThreadGroup (cmd->P_Result(), tgrp);
     std::set<pid_t> pset;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
@@ -2907,7 +2910,7 @@ bool SS_ListRanks (CommandObject *cmd) {
 
    // Get the list of threads used in the specified experiment.
     ThreadGroup tgrp = exp->FW()->getThreads();
-    Filter_ThreadGroup (cmd, tgrp);
+    Filter_ThreadGroup (cmd->P_Result(), tgrp);
     std::set<int64_t> rset;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
@@ -2967,7 +2970,7 @@ bool SS_ListSrc (CommandObject *cmd) {
 
  // Get a list of the unique threads used in the specified experiment.
   ThreadGroup tgrp = exp->FW()->getThreads();
-  Filter_ThreadGroup (cmd, tgrp);
+  Filter_ThreadGroup (cmd->P_Result(), tgrp);
   std::set<LinkedObject> ulset;
   for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
     Thread t = *ti;
@@ -3098,7 +3101,7 @@ bool SS_ListThreads (CommandObject *cmd) {
 
    // Get the list of threads used in the specified experiment.
     ThreadGroup tgrp = exp->FW()->getThreads();
-    Filter_ThreadGroup (cmd, tgrp);
+    Filter_ThreadGroup (cmd->P_Result(), tgrp);
     std::set<int64_t> tset;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;

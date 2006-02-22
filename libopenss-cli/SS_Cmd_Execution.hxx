@@ -38,6 +38,12 @@ bool SS_expCompare(CommandObject *cmd);
 bool SS_expStatus(CommandObject *cmd);
 bool SS_expView (CommandObject *cmd);
 
+//Custom View Commands
+bool SS_cvSet (CommandObject *cmd);
+bool SS_cvClear (CommandObject *cmd);
+bool SS_cvInfo (CommandObject *cmd);
+bool SS_cView (CommandObject *cmd);
+
 // Primitive Information level commands
 bool SS_ListGeneric (CommandObject *cmd);
 bool SS_ListBreaks (CommandObject *cmd);
@@ -53,6 +59,7 @@ bool SS_ListStatus (CommandObject *cmd);
 bool SS_ListThreads (CommandObject *cmd);
 bool SS_ListTypes (CommandObject *cmd);
 bool SS_ListViews (CommandObject *cmd);
+bool SS_ListCviews (CommandObject *cmd);
 
 // Session level commands
 bool SS_ClearBreaks (CommandObject *cmd);

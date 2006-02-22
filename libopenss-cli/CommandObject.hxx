@@ -1473,7 +1473,7 @@ public:
   }
   ~CommandObject() {
    // Destroy ParseResult object
-    delete PR;
+    if (PR != NULL) delete PR;
 
    // Reclaim results
     Reclaim_CR_Space (CMD_Result);
@@ -1491,6 +1491,12 @@ public:
   bool Needed_By_Python () { return result_needed_in_python; }
   bool Results_Used () { return results_used; }
   OpenSpeedShop::cli::ParseResult *P_Result () { return PR; }
+  void clearParseResult () { PR = NULL; }
+  OpenSpeedShop::cli::ParseResult *swapParseResult (OpenSpeedShop::cli::ParseResult *P) {
+    OpenSpeedShop::cli::ParseResult *pr = PR;
+    PR = P;
+    return pr;
+  }
   // command_t *P_Result () { return Parse_Result; }
   //command_type_t *P_Result () { return Parse_Result; }
 

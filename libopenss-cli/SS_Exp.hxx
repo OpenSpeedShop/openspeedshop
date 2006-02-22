@@ -249,7 +249,7 @@ ExperimentObject *Find_Experiment_Object (EXPID ExperimentID);
 bool Collector_Used_In_Experiment (OpenSpeedShop::Framework::Experiment *fexp, std::string myname);
 Collector Get_Collector (OpenSpeedShop::Framework::Experiment *fexp, std::string myname);
 bool Filter_Uses_F (CommandObject *cmd);
-void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp);
+void Filter_ThreadGroup (OpenSpeedShop::cli::ParseResult *p_result, ThreadGroup& tgrp);
 
 // Error reporting and stopping the presses
 inline void Mark_Cmd_With_Std_Error (CommandObject *cmd, const Exception& error) {

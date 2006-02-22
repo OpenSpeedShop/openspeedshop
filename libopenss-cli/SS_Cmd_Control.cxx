@@ -121,6 +121,21 @@ try {
     cmd_successful = SS_expView (cmd);
     break;
 
+// Custom View Commands
+  case  CMD_C_VIEW_CREATE:
+    cmd_successful = SS_cvSet (cmd);
+    break;
+  case  CMD_C_VIEW_DELETE:
+    cmd_successful = SS_cvClear (cmd);
+    break;
+  case  CMD_C_VIEW_INFO:
+    cmd_successful = SS_cvInfo (cmd);
+    break;
+  case  CMD_C_VIEW:
+    cmd_successful = SS_cView (cmd);
+    break;
+
+
 // Low Level Information Commands
   case CMD_LIST_GENERIC:
     cmd_successful = SS_ListGeneric (cmd);
