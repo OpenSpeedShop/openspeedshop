@@ -1048,12 +1048,15 @@ inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
     ((CommandResult_Float *)rhs)->Value(Fvalue2);
     return Fvalue1 < Fvalue2;
    case CMD_RESULT_LINKEDOBJECT:
-    return (*((CommandResult_LinkedObject *)lhs) < *((CommandResult_LinkedObject *)rhs));
+    return OpenSpeedShop::Queries::CompareLinkedObjects()(*((CommandResult_LinkedObject *)lhs),
+                                                          *((CommandResult_LinkedObject *)rhs));
    case CMD_RESULT_FUNCTION:
-    if (*((CommandResult_Function *)lhs) < *((CommandResult_Function *)rhs)) {
+    if (OpenSpeedShop::Queries::CompareFunctions()(*((CommandResult_Function *)lhs),
+                                                   *((CommandResult_Function *)rhs))) {
       return true;
     }
-    if (*((CommandResult_Function *)lhs) > *((CommandResult_Function *)rhs)) {
+    if (OpenSpeedShop::Queries::CompareFunctions()(*((CommandResult_Function *)rhs),
+                                                   *((CommandResult_Function *)lhs))) {
       return false;
     } else {
       std::set<Statement> L;
@@ -1071,7 +1074,8 @@ inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
       return (Ls < Rs);
     }
    case CMD_RESULT_STATEMENT:
-    return (*((CommandResult_Statement *)lhs) < *((CommandResult_Statement *)rhs));
+    return OpenSpeedShop::Queries::CompareStatements()(*((CommandResult_Statement *)lhs),
+                                                       *((CommandResult_Statement *)rhs));
    case CMD_RESULT_CALLTRACE:
    {
     SmartPtr<std::vector<CommandResult *> > ls;
@@ -1120,12 +1124,15 @@ inline bool CommandResult_gt (CommandResult *lhs, CommandResult *rhs) {
     ((CommandResult_Float *)rhs)->Value(Fvalue2);
     return Fvalue1 > Fvalue2;
    case CMD_RESULT_LINKEDOBJECT:
-    return (*((CommandResult_LinkedObject *)lhs) > *((CommandResult_LinkedObject *)rhs));
+    return OpenSpeedShop::Queries::CompareLinkedObjects()(*((CommandResult_LinkedObject *)rhs),
+                                                          *((CommandResult_LinkedObject *)lhs));
    case CMD_RESULT_FUNCTION:
-    if (*((CommandResult_Function *)lhs) > *((CommandResult_Function *)rhs)) {
+    if (OpenSpeedShop::Queries::CompareFunctions()(*((CommandResult_Function *)rhs),
+                                                   *((CommandResult_Function *)lhs))) {
       return true;
     }
-    if (*((CommandResult_Function *)lhs) < *((CommandResult_Function *)rhs)) {
+    if (OpenSpeedShop::Queries::CompareFunctions()(*((CommandResult_Function *)lhs),
+                                                   *((CommandResult_Function *)rhs))) {
       return false;
     } else {
       std::set<Statement> L;
@@ -1143,7 +1150,8 @@ inline bool CommandResult_gt (CommandResult *lhs, CommandResult *rhs) {
       return (Ls > Rs);
     }
    case CMD_RESULT_STATEMENT:
-    return (*((CommandResult_Statement *)lhs) > *((CommandResult_Statement *)rhs));
+    return OpenSpeedShop::Queries::CompareStatements()(*((CommandResult_Statement *)rhs),
+                                                       *((CommandResult_Statement *)lhs));
    case CMD_RESULT_CALLTRACE:
    {
     SmartPtr<std::vector<CommandResult *> > ls;
