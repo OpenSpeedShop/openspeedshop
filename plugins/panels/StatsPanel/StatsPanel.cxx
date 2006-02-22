@@ -1257,7 +1257,7 @@ StatsPanel::doOption(int id)
 bool
 StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 {
-printf("matchSelectedItem() entered. sf=%s\n", sf.c_str() );
+// printf("matchSelectedItem() entered. sf=%s\n", sf.c_str() );
 
 
   if( mpi_io_FLAG )
@@ -1571,7 +1571,7 @@ filename = di->getPath();
     if( spo )
     {
       QString name = QString("Source Panel [%1]").arg(expID);
-printf("A: Find a SourcePanel named %s\n", name.ascii() );
+// printf("A: Find a SourcePanel named %s\n", name.ascii() );
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
       if( !sourcePanel )
       {
@@ -2344,9 +2344,9 @@ StatsPanel::outputCLIData(QString *incoming_data)
 // printf("StatsPanel::outputCLIData\n");
 // printf("%s", incoming_data->ascii() );
 
-SPListViewItem *highlight_item = NULL;
-bool highlight_line = FALSE;
-QColor highlight_color = QColor("blue");
+  SPListViewItem *highlight_item = NULL;
+  bool highlight_line = FALSE;
+  QColor highlight_color = QColor("blue");
 
   QString strippedString1 = QString::null; // MPI only.
 
@@ -2361,20 +2361,25 @@ QColor highlight_color = QColor("blue");
 
   int start_index = 0;
   QString stripped_data = data.stripWhiteSpace();
-  QRegExp rxp = QRegExp( "  [A-Z,a-z,\\-,0-9,%]");
-//  QRegExp rxp = QRegExp( "  [A-Z,a-z,-,0-9,%]");
+  QRegExp start_rxp = QRegExp( "  [A-Z,a-z,\\-,0-9,%]");
+  QRegExp end_rxp = QRegExp( "[A-Z,a-z,\\-,0-9,%]  ");
 
-  start_index = data.find( rxp, start_index );
+  start_index = data.find( start_rxp, start_index );
   start_index += 2;
   if( gotHeader == FALSE )
   {
-    fieldCount = data.contains( rxp );
+    fieldCount = data.contains( start_rxp );
 // printf("fieldCount... hot off the wire = (%d) start_index=(%d)\n", fieldCount, start_index );
 
     int end_index = 99999;
     for(int i=0;i<fieldCount;i++)
     {
-      end_index = data.find(rxp, start_index);
+      end_index = data.find(end_rxp, start_index);
+      end_index++;  // Need to include the last letter...
+      if( i == 0 )  // For this first field we always start from zero.
+      {
+        start_index = 0;  
+      }
       columnValueClass[i].start_index = start_index;
       columnValueClass[i].end_index = end_index;
 
@@ -2394,8 +2399,16 @@ QColor highlight_color = QColor("blue");
       }
   
       start_index = end_index+2;
-// printf("columnValueClass[%d].start_index=%d end=%d\n", i, columnValueClass[i].start_index, columnValueClass[i].end_index );
     }
+#if 0
+// Begin debug.
+printf("fieldCount=%d\n", fieldCount);
+for(int i=0;i<fieldCount;i++)
+{
+  printf("columnValueClass[%d].start_index=%d end=%d\n", i, columnValueClass[i].start_index, columnValueClass[i].end_index );
+}
+// End debug.
+#endif // 0
   
     gotHeader = TRUE;
     return;
