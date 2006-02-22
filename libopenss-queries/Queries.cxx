@@ -95,6 +95,8 @@ bool Queries::CompareLinkedObjects::operator()(
     const Framework::LinkedObject& lhs,
     const Framework::LinkedObject& rhs) const
 {
+    if(lhs.inSameDatabase(rhs))
+	return lhs < rhs;
     return lhs.getPath() < rhs.getPath();
 }
 
@@ -114,6 +116,8 @@ bool Queries::CompareFunctions::operator()(
     const Framework::Function& lhs,
     const Framework::Function& rhs) const
 {
+    if(lhs.inSameDatabase(rhs))
+	return lhs < rhs;
     if(lhs.getName() < rhs.getName())
 	return true;
     else if(lhs.getName() > rhs.getName())
@@ -137,6 +141,8 @@ bool Queries::CompareStatements::operator()(
     const Framework::Statement& lhs,
     const Framework::Statement& rhs) const
 {
+    if(lhs.inSameDatabase(rhs))
+	return lhs < rhs;
     if(lhs.getPath() < rhs.getPath())
 	return true;
     else if(lhs.getPath() > rhs.getPath())
