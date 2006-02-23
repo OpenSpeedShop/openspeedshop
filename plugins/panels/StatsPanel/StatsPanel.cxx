@@ -2401,7 +2401,7 @@ StatsPanel::outputCLIData(QString *incoming_data)
       if( end_index == -1 )
       {
         columnValueClass[i].end_index = 99999;
-        headerStr = data.mid(start_index, end_index).stripWhiteSpace();
+        headerStr = data.mid(start_index, end_index-start_index).stripWhiteSpace();
         columnHeaderList.push_back(headerStr);
         splv->addColumn( data.mid(start_index).stripWhiteSpace() );
         break;
@@ -2412,7 +2412,7 @@ StatsPanel::outputCLIData(QString *incoming_data)
         {
           header_end_index = 99999;
         }
-        headerStr = data.mid(start_index, header_end_index).stripWhiteSpace();
+        headerStr = data.mid(start_index, header_end_index-start_index).stripWhiteSpace();
     
       }
       columnHeaderList.push_back(data.mid(start_index, end_index-start_index).stripWhiteSpace());
