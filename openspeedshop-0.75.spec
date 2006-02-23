@@ -2,7 +2,7 @@ Summary: A cross platform open source performance tool.
 Name: openspeedshop
 Version: 0.75
 Release: 1
-Copyright: GPL
+License: GPL
 # %{name}-%{version}.tar.gz is found in RPM/SOURCES.
 Source:%{name}-%{version}.tar.gz
 Obsoletes: openspeedshop openspeedshop-devel
