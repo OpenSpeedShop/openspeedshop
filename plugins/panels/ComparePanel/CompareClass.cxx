@@ -257,28 +257,31 @@ CompareClass::focusOnCSetSelected()
 {
 // printf("CompareClass::focusOnCSetSelected() entered\n");
 
+  QValueList<int64_t> cIntList;
+
   FocusCompareObject *focus_msg = NULL;
-  QString expCompareCommand = "expCompare ";
+  QString cViewCreateCommand = "cViewCreate ";
 QString temp_expCompareCommand = "expCompare ";
 
   CompareSet *compareSet = findCurrentCompareSet();
   if( compareSet )
   {
-// printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
+cIntList.clear();
+printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
     ColumnSetList::Iterator it;
     for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
     {
       ColumnSet *columnSet = (ColumnSet *)*it;
-// printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
-// printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
-// printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
-// printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
+printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
+printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
+printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
+printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
 
 {
 int id = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
 QString collectorName = columnSet->collectorComboBox->currentText().ascii();
 QString metricName = columnSet->metricComboBox->currentText().ascii();
-expCompareCommand += QString("-c -x %1 %2 -m %3 ").arg(id).arg(collectorName).arg(metricName);
+cViewCreateCommand += QString("-x %1 %2 -m %3 ").arg(id).arg(collectorName).arg(metricName);
 
 if( temp_expCompareCommand.isEmpty() )
 {
@@ -287,7 +290,7 @@ if( temp_expCompareCommand.isEmpty() )
 }
 
 
-// printf("\t\t: processes:\n");
+printf("\t\t: processes:\n");
   QString expCompareProcessList = QString::null;
 QString temp_expCompareProcessList = QString::null;
 
@@ -347,7 +350,7 @@ QString temp_expCompareProcessList = QString::null;
         }
         std::pair<std::string, std::string> p(host_name,pid_name);
 //        focus_msg->host_pid_vector.push_back( p );
-// printf("A: push_back a new host:pid entry (%s:%s)\n", host_name.ascii(), pid_name.ascii());
+printf("A: push_back a new host:pid entry (%s:%s)\n", host_name.ascii(), pid_name.ascii());
         expCompareProcessList += QString(" -h %1 -p %1 ").arg(host_name).arg(pid_name);
 temp_expCompareProcessList += QString(" -p %1 ").arg(pid_name);
         mpChild = (MPListViewItem *)mpChild->nextSibling();
@@ -365,7 +368,7 @@ temp_expCompareProcessList += QString(" -p %1 ").arg(pid_name);
         continue;
       }
       std::pair<std::string, std::string> p(host_name,pid_name);
-//printf("B: push_back a new host::pid entry... (%s:%s)\n", host_name.ascii(), pid_name.ascii() );
+printf("B: push_back a new host::pid entry... (%s:%s)\n", host_name.ascii(), pid_name.ascii() );
         expCompareProcessList += QString(" -h %1 -p %1 ").arg(host_name).arg(pid_name);
 temp_expCompareProcessList += QString(" -p %1 ").arg(pid_name);
 //      focus_msg->host_pid_vector.push_back( p );
@@ -387,17 +390,51 @@ temp_expCompareProcessList += QString(" -p %1 ").arg(pid_name);
   }
 
 
-  expCompareCommand += expCompareProcessList;
-  focus_msg->compare_command = expCompareCommand;
+  cViewCreateCommand += expCompareProcessList;
+  focus_msg->compare_command = cViewCreateCommand;
 
 
-printf("I think you really want this compare command:\n(%s)\n", expCompareCommand.ascii() );
+printf("I think you really want this compare command:\n(%s)\n", cViewCreateCommand.ascii() );
+
+{  //Begin build the actual compare commands and store the id's from them
+   // to send to the StatsPanel
+  CLIInterface *cli = p->getPanelContainer()->getMainWindow()->cli;
+  int64_t val = 0;
+  bool mark_value_for_delete = true;
+  QString command = QString(cViewCreateCommand);
+printf("command=(%s)\n", command.ascii() );
+  if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete   ) )
+  {
+    printf("Unable to creat cview for %s\n", command.ascii() );
+    return;
+  }
+printf("pushback %d\n", val);
+  cIntList.push_back(val);
+  // Now start over...
+  cViewCreateCommand = "cViewCreate ";
+}
 
 temp_expCompareCommand += temp_expCompareProcessList;
 focus_msg->compare_command = temp_expCompareCommand;
 
-printf("but really send this for now: command:\n(%s)\n", temp_expCompareCommand.ascii() );
   }
+
+focus_msg->compare_command = QString("cview -c ");
+QValueList<int64_t>::Iterator cit;
+int count = 0;
+for( cit = cIntList.begin(); cit != cIntList.end(); ++cit )
+{
+  int64_t cval = (int64_t)*cit;
+
+  if( count > 0 )
+  {
+  focus_msg->compare_command += QString(", ");
+  }
+  focus_msg->compare_command += QString("%1").arg(cval);
+  count++;
+}
+
+printf("Really send this : command:\n(%s)\n", focus_msg->compare_command.ascii() );
 
 //printf("A: focus the StatsPanel...\n");
   QString name = QString("Stats Panel [%1]").arg(expID);
