@@ -93,7 +93,7 @@ static void signalHandler(int signal, siginfo_t* info, void* ptr)
  *
  * @ingroup RuntimeAPI
  */
-void OpenSS_Timer(uint64_t interval, OpenSS_TimerEventHandler handler)
+void OpenSS_Timer(uint64_t interval, const OpenSS_TimerEventHandler handler)
 {
 #ifdef WDH_PER_THREAD_TIMERS
 
