@@ -446,9 +446,9 @@ catch(const std::exception& error)
     UpdateObject *msg = (UpdateObject *)msgObject;
     if( msg->expID == -1 )
     {
-printf("We got the command=(%s)\n", msg->experiment_name.ascii() );
-QString command = msg->experiment_name;
-updateStatsPanelData(command);
+// printf("We got the command=(%s)\n", msg->experiment_name.ascii() );
+      QString command = msg->experiment_name;
+      updateStatsPanelData(command);
       return(1);
     }
     
@@ -2388,6 +2388,7 @@ StatsPanel::outputCLIData(QString *incoming_data)
     int end_index = 99999;
     for(int i=0;i<fieldCount;i++)
     {
+      QString headerStr = QString::null;
       end_index = data.find(end_rxp, start_index);
       end_index++;  // Need to include the last letter...
       if( i == 0 )  // For this first field we always start from zero.
@@ -2400,16 +2401,31 @@ StatsPanel::outputCLIData(QString *incoming_data)
       if( end_index == -1 )
       {
         columnValueClass[i].end_index = 99999;
-        columnHeaderList.push_back(data.mid(start_index).stripWhiteSpace());
+        headerStr = data.mid(start_index, end_index).stripWhiteSpace();
+        columnHeaderList.push_back(headerStr);
         splv->addColumn( data.mid(start_index).stripWhiteSpace() );
         break;
+      } else
+      {
+        int header_end_index = data.find( start_rxp, start_index );
+        if( header_end_index == -1 )
+        {
+          header_end_index = 99999;
+        }
+        headerStr = data.mid(start_index, header_end_index).stripWhiteSpace();
+    
       }
       columnHeaderList.push_back(data.mid(start_index, end_index-start_index).stripWhiteSpace());
       splv->addColumn( data.mid(start_index, end_index-start_index).stripWhiteSpace() );
-// Find the percent column
-      if( data.find("%") != -1 )
+      // Find the percent column
+// printf("headerStr=(%s)\n", headerStr.ascii() );
+      if( headerStr.find("%") != -1 )
       {
-        percentIndex = i;
+        if( percentIndex == -1 )
+        {
+          percentIndex = i;
+// printf("Found the percentIndex at %d\n", percentIndex);
+        }
       }
   
       start_index = end_index+2;
@@ -2450,18 +2466,18 @@ for(int i=0;i<fieldCount;i++)
     }
     if( percentIndex == i )
     {
-if( !value.isEmpty() )
-{
-      float f = value.toFloat();
-      percent = (int)f;
+      if( !value.isEmpty() )
+      {
+        float f = value.toFloat();
+        percent = (int)f;
 // printf("percent=(%d)\n", percent);
-      total_percent += f;
-}
+        total_percent += f;
+      }
     }
     strings[i] = value;
 // printf("        strings[%d]=(%s)\n", i, strings[i].ascii() );
   }
-// printf("total_percent=%f\n", total_percent );
+// printf("A: total_percent=%f\n", total_percent );
 
 
   if( fieldCount == 0 )
