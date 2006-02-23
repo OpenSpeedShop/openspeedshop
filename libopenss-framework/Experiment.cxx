@@ -1127,6 +1127,42 @@ Experiment::getStatementsByPathPattern(const std::string& pattern) const
 
 
 /**
+ * Get performance data extent.
+ *
+ * Returns the extent of performance data within this experiment. An empty
+ * extent is returned if there is no performance data in this experiment.
+ *
+ * @return    Extent of the performance data in this experiment.
+ */
+Extent Experiment::getPerformanceDataExtent() const
+{
+    Extent extent;
+
+    // Find our performance data extent
+    BEGIN_TRANSACTION(dm_database);
+    dm_database->prepareStatement(
+	"SELECT time_begin, time_end, addr_begin, addr_end FROM Data;"
+	);
+    while(dm_database->executeStatement())
+	if(extent.isEmpty())
+	    extent = Extent(TimeInterval(dm_database->getResultAsTime(1),
+					 dm_database->getResultAsTime(2)),
+			    AddressRange(dm_database->getResultAsAddress(3),
+					 dm_database->getResultAsAddress(4)));
+	else
+	    extent |= Extent(TimeInterval(dm_database->getResultAsTime(1),
+					  dm_database->getResultAsTime(2)),
+			     AddressRange(dm_database->getResultAsAddress(3),
+					  dm_database->getResultAsAddress(4)));
+    END_TRANSACTION(dm_database);
+
+    // Return the extent to the caller
+    return extent;
+}
+
+
+
+/**
  * Get MPI job information from MPT.
  *
  * Returns MPI job information for the specified thread. Looks for specific 

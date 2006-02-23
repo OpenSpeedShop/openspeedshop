@@ -203,6 +203,51 @@ std::set<Metadata> Collector::getMetrics() const
 
 
 /**
+ * Get our extent in a thread.
+ *
+ * Returns the extent of this collector's data within the specified thread. An
+ * empty extent is returned if this collector has no data for the specified
+ * thread.
+ *
+ * @param thread    Thread in which to find our data's extent.
+ * @return          Extent of this collector's data in that thread.
+ */
+Extent Collector::getExtentIn(const Thread& thread) const
+{
+    Extent extent;
+
+    // Find our extent in the specified thread
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    thread.validate();
+    dm_database->prepareStatement(
+	"SELECT time_begin, time_end, "
+	"       addr_begin, addr_end "
+	"FROM Data "
+        "WHERE collector = ? AND thread = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, EntrySpy(thread).getEntry());    
+    while(dm_database->executeStatement())
+	if(extent.isEmpty())
+	    extent = Extent(TimeInterval(dm_database->getResultAsTime(1),
+					 dm_database->getResultAsTime(2)),
+			    AddressRange(dm_database->getResultAsAddress(3),
+					 dm_database->getResultAsAddress(4)));
+	else
+	    extent |= Extent(TimeInterval(dm_database->getResultAsTime(1),
+					  dm_database->getResultAsTime(2)),
+			     AddressRange(dm_database->getResultAsAddress(3),
+					  dm_database->getResultAsAddress(4)));
+    END_TRANSACTION(dm_database);
+
+    // Return the extent to the caller
+    return extent;
+}
+
+
+
+/**
  * Get our threads.
  *
  * Returns all the threads for which this collector is collecting performance
@@ -518,51 +563,6 @@ void Collector::stopCollecting(const Thread& thread) const
 	dm_impl->stopCollecting(*this, thread);
 
     }    
-}
-
-
-
-/**
- * Get our extent in a thread.
- *
- * Returns the extent of this collector's data within the specified thread. An
- * empty extent is returned if this collector has no data for the specified
- * thread.
- *
- * @param thread    Thread in which to find our data's extent.
- * @return          Extent of this collector's data in that thread.
- */
-Extent Collector::getExtentIn(const Thread& thread) const
-{
-    Extent extent;
-
-    // Find our extent in the specified thread
-    BEGIN_TRANSACTION(dm_database);
-    validate();
-    thread.validate();
-    dm_database->prepareStatement(
-	"SELECT time_begin, time_end, "
-	"       addr_begin, addr_end"
-	"FROM Data "
-        "WHERE collector = ? AND thread = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    dm_database->bindArgument(2, EntrySpy(thread).getEntry());    
-    while(dm_database->executeStatement())
-	if(extent.isEmpty())
-	    extent = Extent(TimeInterval(dm_database->getResultAsTime(1),
-					 dm_database->getResultAsTime(2)),
-			    AddressRange(dm_database->getResultAsAddress(3),
-					 dm_database->getResultAsAddress(4)));
-	else
-	    extent |= Extent(TimeInterval(dm_database->getResultAsTime(1),
-					  dm_database->getResultAsTime(2)),
-			     AddressRange(dm_database->getResultAsAddress(3),
-					  dm_database->getResultAsAddress(4)));
-    END_TRANSACTION(dm_database);
-
-    // Return the extent to the caller
-    return extent;
 }
 
 

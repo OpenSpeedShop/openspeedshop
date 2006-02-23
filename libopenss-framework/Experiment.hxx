@@ -49,6 +49,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Collector;
     class CollectorGroup;
+    class Extent;
     class Function;
     class LinkedObject;
     class Statement;
@@ -135,6 +136,8 @@ namespace OpenSpeedShop { namespace Framework {
 	    const std::string&) const;
 	std::set<Statement> getStatementsByPathPattern(
 	    const std::string&) const;
+
+	Extent getPerformanceDataExtent() const;
 	
     private:
 

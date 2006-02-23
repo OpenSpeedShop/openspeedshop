@@ -115,14 +115,14 @@ namespace OpenSpeedShop { namespace Framework {
 	void getMetricValues(const std::string&, const Thread&,
 			     const ExtentGroup&, std::vector<T >&) const;
 	
+	Extent getExtentIn(const Thread&) const;
+	
 	ThreadGroup getThreads() const;
 	ThreadGroup getPostponedThreads() const;
         void startCollecting(const Thread&) const;	
 	void postponeCollecting(const Thread&) const;
         void stopCollecting(const Thread&) const;
 
-	Extent getExtentIn(const Thread&) const;
-	
     private:
 
 	Collector();
