@@ -34,6 +34,7 @@ enum ViewOpCode {
                                         // TMP_index1 is row_tmp# with sums.
                                         // TMP_index2 is row_tmp# with sum of squares
      VIEWINST_Display_Summary,          // Generate column summary.
+     VIEWINST_Sort_Ascending,           // if TMP_index1 is not 0, sort final report in ascending order
      VIEWINST_Add,                      // TMP_index1 is predefined temp# combined with '+' op. 
      VIEWINST_Min,                      // TMP_index1 is predefined temp# combined with 'min' op.
      VIEWINST_Max,                      // TMP_index1 is predefined temp# combined with 'max' op.
@@ -102,6 +103,7 @@ class ViewInstruction
      case VIEWINST_Display_Average_Tmp: op = "Display_Average_Tmp"; break;
      case VIEWINST_Display_StdDeviation_Tmp: op = "Display_StdDeviation_Tmp"; break;
      case VIEWINST_Display_Summary: op = "Display_Summary"; break;
+     case VIEWINST_Sort_Ascending: op = "Ascending_Sort"; break;
      case VIEWINST_Add: op = "Add"; break;
      case VIEWINST_Min: op = "Min"; break;
      case VIEWINST_Max: op = "Max"; break;
@@ -222,6 +224,26 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                    ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
                    std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
                    std::list<CommandResult *>& view_output);
+
+enum View_Form_Category {
+      VFC_Unknown,
+      VFC_Trace,
+      VFC_Function,
+      VFC_CallStack,
+};
+
+// Reserved locations in the std::vector<CommandResult *> of c_items argument to Generic_Multi_View
+#define VMulti_sort_temp 0
+#define VMulti_time_temp 1
+
+bool Generic_Multi_View (
+           CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+           ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
+           std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
+           View_Form_Category vfc,
+           std::vector<std::pair<CommandResult *,
+                                 SmartPtr<std::vector<CommandResult *> > > >& c_items,
+           std::list<CommandResult *>& view_output);
 
 CommandResult *Init_Collector_Metric (CommandObject *cmd,
                                       Collector collector,
