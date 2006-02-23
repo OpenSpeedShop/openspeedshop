@@ -57,17 +57,10 @@ class CustomExperimentPanel  : public Panel
   //! Q_OBJECT is needed as there are slots defined for the class
   Q_OBJECT
 public:
-  //! CustomExperimentPanel(PanelContainer *pc, const char *name)
-    /*! This constructor is the work constructor.   It is called to
-        create the new Panel and attach it to a PanelContainer.
-        \param pc is a pointer to PanelContainer
-               the Panel will be initially attached.
-        \param name is the name give to the Panel.
-
-        This is where the user would create the panel specific Qt code
-        to do whatever functionality the user wanted the panel to perform.
-     */
   CustomExperimentPanel(PanelContainer *pc, const char *n, ArgumentObject *ao);
+  CustomExperimentPanel(PanelContainer *pc, const char *n, ArgumentObject *ao, const char *collector_names);
+
+  void init( PanelContainer *pc, const char *n, ArgumentObject *ao, const char *collector_names);
 
   //! ~CustomExperimentPanel() - The default destructor.
   ~CustomExperimentPanel();  // Active destructor
@@ -117,6 +110,10 @@ public:
   QLabel *statusLabel; 
   QLineEdit *statusLabelText;
   int last_status;
+
+// char *collector_names;
+QString collector_names;
+QString wizardName;
 
   QVBoxLayout * frameLayout;
   ProcessControlObject *pco;

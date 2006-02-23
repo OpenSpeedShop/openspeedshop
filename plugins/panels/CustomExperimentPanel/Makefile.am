@@ -35,6 +35,7 @@ CustomExperimentPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/libopenss-guidialogs \
     -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
     -I$(top_srcdir)/plugins/panels/SourcePanel \
+    -I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
     -I$(top_srcdir)/libopenss-guibase
 
 CustomExperimentPanel_la_LDFLAGS = \

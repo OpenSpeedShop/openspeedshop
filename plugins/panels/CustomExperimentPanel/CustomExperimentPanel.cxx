@@ -73,14 +73,49 @@ class EPOutputClass : public ss_ostream
 /*!  CustomExperimentPanel Class
  */
 
-/*! Constructs a new UserPanel object */
-/*! This is the most often used constructor call.
-    \param pc    The panel container the panel will initially be attached.
-    \param n     The initial name of the panel container
- */
 CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
+  init( pc, n, ao, (const char *)NULL);
+}
+
+CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, ArgumentObject *ao, const char *cn = NULL) : Panel(pc, n)
+{
+  init( pc, n, ao, cn);
+}
+
+void
+CustomExperimentPanel::init( PanelContainer *pc, const char *n, ArgumentObject *ao, const char *cn = NULL)
+{
   nprintf( DEBUG_CONST_DESTRUCT ) ("CustomExperimentPanel::CustomExperimentPanel() constructor called\n");
+
+  collector_names = QString(" ");
+  if( cn )
+  {
+    collector_names = QString(cn);
+  }
+
+  if( collector_names.stripWhiteSpace().startsWith("pcsamp") )
+  {
+    wizardName = "pc Sample Wizard";
+  } else if( collector_names.stripWhiteSpace().startsWith("usertime") )
+  {
+    wizardName = "User Time Wizard";
+  } else if( collector_names.stripWhiteSpace().startsWith("hwc") )
+  {
+    wizardName = "HW Counter Wizard"; 
+  } else if( collector_names.stripWhiteSpace().startsWith("mpi") )
+  {
+    wizardName = "MPI Wizard";
+  } else if( collector_names.stripWhiteSpace().startsWith("io") )
+  {
+    wizardName = "IO Wizard";
+  } else if( collector_names.stripWhiteSpace().startsWith("fpe") )
+  {
+    wizardName = "FPE Tracing Wizard";
+  } else
+  {
+    wizardName = "Custom Experiemnt Wizard";
+  }
 
 
 #ifdef DEBUG_ATTACH_HOOK
@@ -144,7 +179,7 @@ if( attachFLAG )
       if( cgrp.size() == 0 )
       {
         nprintf( DEBUG_PANELS ) ("There are no known collectors for this experiment so add one.\n");
-        QString command = QString("expAttach -x %1  ").arg(expID);
+        QString command = QString("expAttach -x %1 %2").arg(expID).arg(collector_names);
         if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
         {
           command += " -v mpi";
@@ -202,9 +237,9 @@ if( attachFLAG )
 
   if( expID == -1 )
   {
-    // We're coming in cold, or we're coming in from the constructNewExperimentWizardPanel.
+    // We're coming in cold, or we're coming in from the wizard panel.
     QString command = QString::null;
-    command = QString("expCreate  \n");
+    command = QString("expCreate %1\n").arg(collector_names);
     bool mark_value_for_delete = true;
     int64_t val = 0;
 
@@ -373,7 +408,7 @@ if( attachFLAG )
         statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" or \"Use the Wizard to begin your experiment...\".") );
           PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
-        topPC->dl_create_and_add_panel("Custom Experiemnt Wizard", bestFitPC, ao);
+        topPC->dl_create_and_add_panel(wizardName.ascii(), bestFitPC, ao, (const char *)NULL);
         delete ao;
       } else
       {
@@ -509,7 +544,7 @@ CustomExperimentPanel::compareExperimentsSelected()
     PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
 
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-    comparePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ComparePanel", bestFitPC, ao);
+    comparePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ComparePanel", bestFitPC, ao, (const char *)NULL);
     delete ao;
   }
 }   
@@ -564,74 +599,74 @@ CustomExperimentPanel::listener(void *msg)
     nprintf( DEBUG_MESSAGES ) ("we've got a ControlObject\n");
   } else if( mo->msgType  == "LoadAttachObject" )
   {
-printf("we've got a LoadAttachObject\n");
+// printf("we've got a LoadAttachObject\n");
     lao = (LoadAttachObject *)msg;
     if( lao && !lao->leftSideExperiment.isEmpty() )
     {
       printf("%s: %s\n", lao->leftSideExperiment.ascii(), lao->rightSideExperiment.ascii() );
-CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-int64_t val = 0;
-int64_t leftSideCval = 0;
-int64_t rightSideCval = 0;
-// Left side
-bool mark_value_for_delete = true;
-QString command = QString("expRestore -f %1").arg(lao->leftSideExperiment); 
-if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ) )
-{
-  printf("Unable to creat restore for %s\n", lao->leftSideExperiment.ascii() );
-  return 0;
-}
-command = QString("cViewCreate -x %1").arg(val); 
-printf("command=(%s)\n", command.ascii() );
-if( !cli->getIntValueFromCLI(command.ascii(), &leftSideCval, mark_value_for_delete ) )
-{
-  printf("Unable to creat cview for %d\n", leftSideCval);
-  return 0;
-}
-// Right side
-command = QString("expRestore -f %1").arg(lao->rightSideExperiment); 
-if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ) )
-{
-  printf("Unable to creat restore for %s\n", lao->rightSideExperiment.ascii() );
-  return 0;
-}
-command = QString("cViewCreate -x %1").arg(val); 
-printf("command=(%s)\n", command.ascii() );
-if( !cli->getIntValueFromCLI(command.ascii(), &rightSideCval, mark_value_for_delete ) )
-{
-  printf("Unable to creat cview for %d\n", rightSideCval);
-  return 0;
-}
+      CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+      int64_t val = 0;
+      int64_t leftSideCval = 0;
+      int64_t rightSideCval = 0;
+      // Left side
+      bool mark_value_for_delete = true;
+      QString command = QString("expRestore -f %1").arg(lao->leftSideExperiment); 
+      if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ) )
+      {
+        printf("Unable to restore for %s\n", lao->leftSideExperiment.ascii() );
+        return 0;
+      }
+      command = QString("cViewCreate -x %1").arg(val); 
+// printf("command=(%s)\n", command.ascii() );
+      if( !cli->getIntValueFromCLI(command.ascii(), &leftSideCval, mark_value_for_delete ) )
+      {
+        printf("Unable to create cview for %d\n", leftSideCval);
+        return 0;
+      }
+      // Right side
+      command = QString("expRestore -f %1").arg(lao->rightSideExperiment); 
+      if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ) )
+      {
+        printf("Unable to restore for %s\n", lao->rightSideExperiment.ascii() );
+        return 0;
+      }
+      command = QString("cViewCreate -x %1").arg(val); 
+// printf("command=(%s)\n", command.ascii() );
+      if( !cli->getIntValueFromCLI(command.ascii(), &rightSideCval, mark_value_for_delete ) )
+      {
+        printf("Unable to create cview for %d\n", rightSideCval);
+        return 0;
+      }
 
 
-// Now load the stats panel with the data...
-  QString name = QString("Stats Panel [%1]").arg(expID);
+      // Now load the stats panel with the data...
+      QString name = QString("Stats Panel [%1]").arg(expID);
 
 
-  Panel *statsPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
-
-  if( statsPanel )
-  { 
-    nprintf( DEBUG_PANELS ) ("loadStatsPanel() found Stats Panel found.. raise it.\n");
-    getPanelContainer()->raisePanel(statsPanel);
-  } else
-  {
-    nprintf( DEBUG_PANELS ) ("loadStatsPanel() no Stats Panel found.. create one.\n");
-    PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
-    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-    statsPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel((const char *)"Stats Panel", pc, ao);
-    delete ao;
-
-    nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", statsPanel->getName());
+      Panel *statsPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+    
+      if( statsPanel )
+      { 
+        nprintf( DEBUG_PANELS ) ("loadStatsPanel() found Stats Panel found.. raise it.\n");
+        getPanelContainer()->raisePanel(statsPanel);
+      } else
+      {
+        nprintf( DEBUG_PANELS ) ("loadStatsPanel() no Stats Panel found.. create one.\n");
+        PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+        statsPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel((const char *)"Stats Panel", pc, ao);
+        delete ao;
+    
+        nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", statsPanel->getName());
 // printf("CustomExperimentPanel:: call (%s)'s listener routine.\n", statsPanel->getName());
-  }
+      }
 
-  command = QString("cview -c %1, %2").arg(leftSideCval).arg(rightSideCval);
-  UpdateObject *msg =
-     new UpdateObject((void *)NULL, -1, command.ascii(), 1);
-  statsPanel->listener( (void *)msg );
-
-}
+printf("NOTE: Issue a focus not an update message...\n");
+      command = QString("cview -c %1, %2").arg(leftSideCval).arg(rightSideCval);
+      UpdateObject *msg =
+         new UpdateObject((void *)NULL, -1, command.ascii(), 1);
+      statsPanel->listener( (void *)msg );
+    }
   } else if( mo->msgType == "ClosingDownObject" )
   {
     nprintf( DEBUG_MESSAGES ) ("CustomExperimentPanel::listener() ClosingDownObject!\n");
@@ -830,7 +865,7 @@ CLIInterface::interrupt = true;
 // printf("ret_val from processLAO()=%d\n", ret_val );
 // printf("B: Attempt to remove the wizard panel from the  le panel.\n");
     loadManageProcessesPanel();
-    QString name = QString("Custom Experiemnt Wizard");
+    QString name = wizardName;
 // printf("try to find (%s)\n", name.ascii() );
     Panel *wizardPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
     if( wizardPanel )
@@ -918,7 +953,7 @@ nprintf( DEBUG_PANELS ) ("CustomExperimentPanel::loadSourcePanel()\n");
     PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
 //printf("CustomExperimentPanel::loadSourcePanel() create a new Source Panel!!\n");
-    (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", bestFitPC, ao);
+    (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", bestFitPC, ao, (const char *)NULL);
     delete ao;
   } else
   {
@@ -1035,7 +1070,7 @@ CustomExperimentPanel::loadStatsPanel()
     nprintf( DEBUG_PANELS ) ("loadStatsPanel() no Stats Panel found.. create one.\n");
     PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-    statsPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel((const char *)"Stats Panel", pc, ao);
+    statsPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel((const char *)"Stats Panel", pc, ao, (const char *)NULL);
     delete ao;
 
     nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", statsPanel->getName());
@@ -1045,7 +1080,7 @@ CustomExperimentPanel::loadStatsPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, " ", 1);
+        new UpdateObject((void *)experiment, expID, collector_names, 1);
       statsPanel->listener( (void *)msg );
     }
   }
@@ -1073,7 +1108,7 @@ CustomExperimentPanel::loadManageProcessesPanel()
 
     PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-    manageProcessPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ManageProcessesPanel", pc, ao);
+    manageProcessPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ManageProcessesPanel", pc, ao, (const char *)NULL);
     delete ao;
   }
 
@@ -1085,7 +1120,7 @@ CustomExperimentPanel::loadManageProcessesPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, " ", 1);
+        new UpdateObject((void *)experiment, expID, collector_names, 1);
       manageProcessPanel->listener( (void *)msg );
     }
   }
@@ -1135,7 +1170,7 @@ CustomExperimentPanel::loadMain()
           //Find the nearest toplevel and start placement from there...
           PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
           ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-          sourcePanel = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
+          sourcePanel = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao, (const char *)NULL);
           delete ao;
         }
         if( sourcePanel != NULL )
@@ -1489,7 +1524,7 @@ optionsStr += QString(" -h %1").arg(mw->hostStr);
     } else
     {
       return 0;
-//    command = QString("expCreate  \n");
+//    command = QString("expCreate  %1\n").arg(collector_names);
     }
     bool mark_value_for_delete = true;
     int64_t val = 0;
@@ -1660,7 +1695,7 @@ CustomExperimentPanel::loadProgramSelected()
 void
 CustomExperimentPanel::hideWizard()
 {
-    QString name = QString("Custom Experiemnt Wizard");
+    QString name = wizardName;
 // printf("try to find (%s)\n", name.ascii() );
     Panel *wizardPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
     if( wizardPanel )

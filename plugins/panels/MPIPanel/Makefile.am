@@ -35,6 +35,7 @@ MPIPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/libopenss-guidialogs \
     -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
     -I$(top_srcdir)/plugins/panels/SourcePanel \
+    -I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
     -I$(top_srcdir)/libopenss-guibase
 
 MPIPanel_la_LDFLAGS = \
@@ -50,11 +51,6 @@ MPIPanel_la_LDFLAGS = \
 
 MPIPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs
 
-moc_MPIPanel.cxx: MPIPanel.hxx
-	-moc -o moc_MPIPanel.cxx MPIPanel.hxx
-
 MPIPanel_la_SOURCES = \
-	MPIPanel.hxx MPIPanel.cxx moc_MPIPanel.cxx \
+	MPIPanel.hxx MPIPanel.cxx \
 	local_plugin_info.hxx
-
-CLEANFILES=moc_MPIPanel.cxx

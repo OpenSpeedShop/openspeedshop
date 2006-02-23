@@ -35,6 +35,7 @@ IOPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/libopenss-guidialogs \
     -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
     -I$(top_srcdir)/plugins/panels/SourcePanel \
+    -I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
     -I$(top_srcdir)/libopenss-guibase
 
 IOPanel_la_LDFLAGS = \
@@ -50,11 +51,6 @@ IOPanel_la_LDFLAGS = \
 
 IOPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs
 
-moc_IOPanel.cxx: IOPanel.hxx
-	-moc -o moc_IOPanel.cxx IOPanel.hxx
-
 IOPanel_la_SOURCES = \
-	IOPanel.hxx IOPanel.cxx moc_IOPanel.cxx \
+	IOPanel.hxx IOPanel.cxx \
 	local_plugin_info.hxx
-
-CLEANFILES=moc_IOPanel.cxx

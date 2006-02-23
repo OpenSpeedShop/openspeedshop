@@ -35,6 +35,7 @@ pcSamplePanel_la_CXXFLAGS = \
     -I$(top_srcdir)/libopenss-guidialogs \
     -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
     -I$(top_srcdir)/plugins/panels/SourcePanel \
+    -I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
     -I$(top_srcdir)/libopenss-guibase
 
 pcSamplePanel_la_LDFLAGS = \
@@ -50,11 +51,6 @@ pcSamplePanel_la_LDFLAGS = \
 
 pcSamplePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs
 
-moc_pcSamplePanel.cxx: pcSamplePanel.hxx
-	-moc -o moc_pcSamplePanel.cxx pcSamplePanel.hxx
-
 pcSamplePanel_la_SOURCES = \
-	pcSamplePanel.hxx pcSamplePanel.cxx moc_pcSamplePanel.cxx \
+	pcSamplePanel.hxx pcSamplePanel.cxx \
 	local_plugin_info.hxx
-
-CLEANFILES=moc_pcSamplePanel.cxx

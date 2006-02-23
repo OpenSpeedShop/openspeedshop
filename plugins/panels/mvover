@@ -23,7 +23,7 @@
 # views.   It will be obsolted shortly.    It can be removed from the 
 # source tree without any side effects.
 
-for i in `echo "CustomExperimentPanel FPE_TracingPanel HW_CounterPanel IOPanel MPIPanel UserTimePanel"`
+for i in `echo "FPE_TracingPanel HW_CounterPanel IOPanel MPIPanel UserTimePanel"`
 do
   echo Doing $i
 
@@ -33,14 +33,6 @@ do
   echo "y" | mysed "PCSAMPLEPANEL" ${i}_H $i/$i.cxx $i/$i.hxx $i/Makefile.am
   echo "y" | mysed "pcSamplePanel" $i $i/$i.cxx $i/$i.hxx $i/Makefile.am
 
-  if [ $i == "CustomExperimentPanel" ]
-  then
-    echo "echo "y" | mysed \"pc Sample Panel\" \"Custom Experiment Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
-    echo "y" | mysed "pc Sample Panel" "Custom Experiment Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
-    echo "y" | mysed "pcSample" "constructNewExperiment" $i/$i.cxx $i/$i.hxx $i/Makefile.am
-    echo "y" | mysed "pcsamp" " " $i/$i.cxx $i/$i.hxx $i/Makefile.am
-    echo "y" | mysed "pc Sample" "Custom Experiemnt" $i/$i.cxx $i/$i.hxx $i/Makefile.am
-  fi
   if [ $i = "FPE_TracingPanel" ]
   then
     echo "echo "y" | mysed \"pc Sample Panel\" "FPE Tracing Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am"

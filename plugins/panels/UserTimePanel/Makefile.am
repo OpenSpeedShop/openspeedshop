@@ -35,6 +35,7 @@ UserTimePanel_la_CXXFLAGS = \
     -I$(top_srcdir)/libopenss-guidialogs \
     -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
     -I$(top_srcdir)/plugins/panels/SourcePanel \
+    -I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
     -I$(top_srcdir)/libopenss-guibase
 
 UserTimePanel_la_LDFLAGS = \
@@ -50,11 +51,6 @@ UserTimePanel_la_LDFLAGS = \
 
 UserTimePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs
 
-moc_UserTimePanel.cxx: UserTimePanel.hxx
-	-moc -o moc_UserTimePanel.cxx UserTimePanel.hxx
-
 UserTimePanel_la_SOURCES = \
-	UserTimePanel.hxx UserTimePanel.cxx moc_UserTimePanel.cxx \
+	UserTimePanel.hxx UserTimePanel.cxx \
 	local_plugin_info.hxx
-
-CLEANFILES=moc_UserTimePanel.cxx

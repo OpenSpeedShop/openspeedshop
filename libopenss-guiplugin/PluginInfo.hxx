@@ -67,7 +67,7 @@ class PluginInfo {
 
     /*! This gets called on the main menu callback to create
         and add each type of panel. */
-    Panel * (*dl_create_and_add_panel)(void *, void *, ArgumentObject *);
+    Panel * (*dl_create_and_add_panel)(void *, void *, ArgumentObject *, const char *);
 
     //! The plugin preference category listing.
     char *preference_category;

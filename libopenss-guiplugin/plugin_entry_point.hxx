@@ -223,8 +223,8 @@ dprintf("assign the accelerator to %s\n", pluginInfo->menu_accel );
     {
       dprintf("This panel is a top level grouping panel.\n");
       dprintf("Initialize it right away, then continue the menu addition...\n");
-      extern Panel * create_and_add_panel(void *, void *, ArgumentObject *);
-      create_and_add_panel(pluginInfoArg, (void *)pluginInfo->masterPC, NULL);
+      extern Panel * create_and_add_panel(void *, void *, ArgumentObject *, const char *);
+      create_and_add_panel(pluginInfoArg, (void *)pluginInfo->masterPC, NULL, (const char *)NULL);
     }
 
     dprintf("panel_init(success) returning\n");
@@ -244,7 +244,7 @@ dprintf("assign the accelerator to %s\n", pluginInfo->menu_accel );
    */
 //  int
   Panel *
-  create_and_add_panel(void *pluginInfoArg, void *tPC, ArgumentObject *ao)
+  create_and_add_panel(void *pluginInfoArg, void *tPC, ArgumentObject *ao, const char *collector_names)
   {
     PanelContainer *targetPC = (PanelContainer *)tPC;
     PluginInfo *pluginInfo = (PluginInfo *)pluginInfoArg;

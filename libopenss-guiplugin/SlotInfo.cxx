@@ -74,7 +74,7 @@ SlotInfo::dynamicMenuCallback()
     fprintf(stderr, "No create and add panel function to call.  Unable to complete dynamic creation of panel.\n");
     return;
   }
-  Panel *p = (*(pluginInfo->dl_create_and_add_panel))((void *)pluginInfo, NULL, NULL);
+  Panel *p = (*(pluginInfo->dl_create_and_add_panel))((void *)pluginInfo, NULL, NULL, (const char *)NULL);
 
   if( p == NULL )
   {

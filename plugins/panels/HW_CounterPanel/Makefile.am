@@ -35,6 +35,7 @@ HW_CounterPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/libopenss-guidialogs \
     -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
     -I$(top_srcdir)/plugins/panels/SourcePanel \
+    -I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
     -I$(top_srcdir)/libopenss-guibase
 
 HW_CounterPanel_la_LDFLAGS = \
@@ -50,11 +51,6 @@ HW_CounterPanel_la_LDFLAGS = \
 
 HW_CounterPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs
 
-moc_HW_CounterPanel.cxx: HW_CounterPanel.hxx
-	-moc -o moc_HW_CounterPanel.cxx HW_CounterPanel.hxx
-
 HW_CounterPanel_la_SOURCES = \
-	HW_CounterPanel.hxx HW_CounterPanel.cxx moc_HW_CounterPanel.cxx \
+	HW_CounterPanel.hxx HW_CounterPanel.cxx \
 	local_plugin_info.hxx
-
-CLEANFILES=moc_HW_CounterPanel.cxx

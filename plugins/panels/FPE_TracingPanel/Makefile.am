@@ -35,6 +35,7 @@ FPE_TracingPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/libopenss-guidialogs \
     -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
     -I$(top_srcdir)/plugins/panels/SourcePanel \
+    -I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
     -I$(top_srcdir)/libopenss-guibase
 
 FPE_TracingPanel_la_LDFLAGS = \
@@ -50,11 +51,6 @@ FPE_TracingPanel_la_LDFLAGS = \
 
 FPE_TracingPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs
 
-moc_FPE_TracingPanel.cxx: FPE_TracingPanel.hxx
-	-moc -o moc_FPE_TracingPanel.cxx FPE_TracingPanel.hxx
-
 FPE_TracingPanel_la_SOURCES = \
-	FPE_TracingPanel.hxx FPE_TracingPanel.cxx moc_FPE_TracingPanel.cxx \
+	FPE_TracingPanel.hxx FPE_TracingPanel.cxx \
 	local_plugin_info.hxx
-
-CLEANFILES=moc_FPE_TracingPanel.cxx
