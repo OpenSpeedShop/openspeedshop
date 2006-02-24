@@ -91,5 +91,7 @@ libopenss_framework_la_SOURCES += \
 	PapiAPI.h PapiAPI.cxx
 endif
 
+EXTRA_DIST = OpenSSPath.cxx
+ 
 doc:
 	$(DOXYGEN)
