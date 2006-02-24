@@ -32,18 +32,6 @@ struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
     }
 };
 
-static bool Determine_TraceBack_Ordering (CommandObject *cmd) {
- // Determine call stack ordering
-  if (Look_For_KeyWord(cmd, "CallTree") ||
-      Look_For_KeyWord(cmd, "CallTrees")) {
-      return false;
-  } else if (Look_For_KeyWord(cmd, "TraceBack") ||
-             Look_For_KeyWord(cmd, "TraceBacks")) {
-    return true;
-  }
-  return false;
-}
-
 static void Dump_items (std::vector<std::pair<CommandResult *,
                              SmartPtr<std::vector<CommandResult *> > > >& c_items) {
     std::vector<std::pair<CommandResult *,

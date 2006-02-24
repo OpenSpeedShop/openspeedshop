@@ -296,45 +296,6 @@ static void Function_Report(
     }
 }
 
-static inline
-CommandResult *Build_CallBack_Entry (Framework::StackTrace& st, int64_t i, bool add_stmts) {
-    CommandResult *SE = NULL;
-    std::pair<bool, Function> fp = st.getFunctionAt(i);
-    if (fp.first) {
-     // Use Function.
-      if (add_stmts) {
-        std::set<Statement> ss = st.getStatementsAt(i);
-        SE = new CommandResult_Function (fp.second, ss);
-      } else {
-        SE = new CommandResult_Function (fp.second);
-      }
-    } else {
-     // Use Absolute Address.
-      SE = new CommandResult_Uint (st[i].getValue());
-    }
-    return SE;
-}
-
-static SmartPtr<std::vector<CommandResult *> >
-       Construct_CallBack (bool TraceBack_Order, bool add_stmts, Framework::StackTrace& st) {
-  SmartPtr<std::vector<CommandResult *> > call_stack
-             = Framework::SmartPtr<std::vector<CommandResult *> >(
-                           new std::vector<CommandResult *>()
-                           );
-  int64_t len = st.size();
-  int64_t i;
-  if (len == 0) return call_stack;
-  if (TraceBack_Order)
-    for ( i = 0;  i < len; i++) {
-      call_stack->push_back(Build_CallBack_Entry(st, i, add_stmts));
-    }
-  else
-    for ( i = len-1; i >= 0; i--) {
-      call_stack->push_back(Build_CallBack_Entry(st, i, add_stmts));
-    }
-  return call_stack;
-}
-
 static void CallStack_Report (
               bool TraceBack_Order,
               bool add_stmts,

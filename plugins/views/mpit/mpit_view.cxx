@@ -18,13 +18,13 @@
 
 
 #include "SS_Input_Manager.hxx"
-#include "MPICollector.hxx"
-#include "MPIDetail.hxx"
+#include "MPITCollector.hxx"
+#include "MPITDetail.hxx"
 
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
 
-// These are needed to manage mpi collector data.
+// These are needed to manage mpit collector data.
 #define start_temp 2
 #define stop_temp 3
 #define min_temp 4
@@ -32,19 +32,33 @@
 #define cnt_temp 6
 #define ssq_temp 7
 
+#define source_temp 8
+#define destination_temp 9
+#define size_temp 10
+#define tag_temp 11
+#define communicator_temp 12
+#define datatype_temp 13
+#define retval_temp 14
 
-// mpi view
+// mpit view
 
-#define def_MPI_values \
+#define def_MPIT_values \
             Time start = Time::TheEnd(); \
             Time end = Time::TheBeginning(); \
             int64_t cnt = 0; \
             double sum = 0.0; \
             double vmax = 0.0; \
             double vmin = LONG_MAX; \
-            double sum_squares = 0.0;
+            double sum_squares = 0.0; \
+            int64_t detail_source = 0; \
+            int64_t detail_destination = 0; \
+            uint64_t detail_size = 0; \
+            int64_t detail_tag = 0; \
+            int64_t detail_communicator = 0; \
+            int64_t detail_datatype = 0; \
+            int64_t detail_retval = 0;
 
-#define get_MPI_values(vi) \
+#define get_MPIT_values(vi) \
               double v = (*vi).dm_time; \
               start = min(start,(*vi).dm_interval.getBegin()); \
               end = max(end,(*vi).dm_interval.getEnd()); \
@@ -52,9 +66,16 @@
               vmin = min(vmin,v); \
               vmax = max(vmax,v); \
               sum += v; \
-              sum_squares += v * v;
+              sum_squares += v * v; \
+              detail_source = (*vi).dm_source; \
+              detail_destination = (*vi).dm_destination; \
+              detail_size += (*vi).dm_size; \
+              detail_tag = (*vi).dm_tag; \
+              detail_communicator = (*vi).dm_communicator; \
+              detail_datatype = (*vi).dm_datatype; \
+              detail_retval = (*vi).dm_retval;
 
-#define set_MPI_values  \
+#define set_MPIT_values  \
               if (num_temps > VMulti_sort_temp) (*vcs)[VMulti_sort_temp] = NULL; \
               if (num_temps > start_temp) {  \
                 double x = (start-base_time) / 1000000000.0; \
@@ -68,9 +89,17 @@
               if (num_temps > min_temp) (*vcs)[min_temp] = CRPTR (vmax); \
               if (num_temps > max_temp) (*vcs)[max_temp] = CRPTR (sum); \
               if (num_temps > cnt_temp) (*vcs)[cnt_temp] = CRPTR (cnt); \
-              if (num_temps > ssq_temp) (*vcs)[ssq_temp] = CRPTR (sum_squares);
+              if (num_temps > ssq_temp) (*vcs)[ssq_temp] = CRPTR (sum_squares); \
+              if (num_temps > source_temp) (*vcs)[source_temp] = CRPTR (detail_source); \
+              if (num_temps > destination_temp) (*vcs)[destination_temp] = CRPTR (detail_destination); \
+              if (num_temps > size_temp) (*vcs)[size_temp] = CRPTR (detail_size); \
+              if (num_temps > tag_temp) (*vcs)[tag_temp] = CRPTR (detail_tag); \
+              if (num_temps > communicator_temp) (*vcs)[communicator_temp] = CRPTR (detail_communicator); \
+              if (num_temps > datatype_temp) (*vcs)[datatype_temp] = CRPTR (detail_datatype); \
+              if (num_temps > retval_temp) (*vcs)[retval_temp] = CRPTR (detail_retval);
 
-static bool MPI_Trace_Report(
+
+static bool MPIT_Trace_Report(
               CommandObject *cmd, ExperimentObject *exp, int64_t topn,
               ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
               std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
@@ -95,32 +124,31 @@ static bool MPI_Trace_Report(
   try {
     collector.lockDatabase();
     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
-    Time base_time = databaseExtent.getTimeInterval().getBegin();
+    Time base_time = databaseExtent .getTimeInterval().getBegin();
 
     SmartPtr<std::map<Function,
                       std::map<Framework::StackTrace,
-                               std::vector<MPIDetail> > > > raw_items;
+                               std::vector<MPITDetail> > > > raw_items;
     GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
-        std::map<Function, std::map<Framework::StackTrace, std::vector<MPIDetail> > >::iterator fi;
+        std::map<Function, std::map<Framework::StackTrace, std::vector<MPITDetail> > >::iterator fi;
         for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
-          std::map<Framework::StackTrace, std::vector<MPIDetail> >:: iterator si;
+          std::map<Framework::StackTrace, std::vector<MPITDetail> >:: iterator si;
           for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
             CommandResult *base_CSE = NULL;
             Framework::StackTrace st = (*si).first;
-            std::vector<MPIDetail>::iterator vi;
+            std::vector<MPITDetail>::iterator vi;
             for (vi = (*si).second.begin(); vi != (*si).second.end(); vi++) {
-             // Use macro to alocate temporaries
-              def_MPI_values
-             // Use macro to assign to temporaries
-              get_MPI_values(vi)
+              def_MPIT_values
+              get_MPIT_values(vi)
 
-             // Use macro to assign temporaries to the result array
+            // Use macro to copy desired values.  
               SmartPtr<std::vector<CommandResult *> > vcs
                        = Framework::SmartPtr<std::vector<CommandResult *> >(
                                    new std::vector<CommandResult *>(num_temps)
                                    );
-              set_MPI_values
+              set_MPIT_values 
 
+             // Construct the type-independent return entry.
               CommandResult *CSE;
               if (base_CSE == NULL) {
                 SmartPtr<std::vector<CommandResult *> > call_stack = Construct_CallBack (TraceBack_Order, false, st);
@@ -146,7 +174,7 @@ static bool MPI_Trace_Report(
   return Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_Trace, c_items, view_output);
 }
 
-static bool MPI_Function_Report(
+static bool MPIT_Function_Report(
               CommandObject *cmd, ExperimentObject *exp, int64_t topn,
               ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
               std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
@@ -173,33 +201,33 @@ static bool MPI_Function_Report(
 
     SmartPtr<std::map<Function,
                       std::map<Framework::StackTrace,
-                               std::vector<MPIDetail> > > > raw_items;
+                               std::vector<MPITDetail> > > > raw_items;
     GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
        // Combine all the items for each function.
-        std::map<Function, std::map<Framework::StackTrace, std::vector<MPIDetail> > >::iterator fi;
+        std::map<Function, std::map<Framework::StackTrace, std::vector<MPITDetail> > >::iterator fi;
         for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
-         // Use macro to allocate imtermediate temporaries
-          def_MPI_values
-          std::map<Framework::StackTrace, std::vector<MPIDetail> >:: iterator si;
+          def_MPIT_values
+
+          std::map<Framework::StackTrace, std::vector<MPITDetail> >:: iterator si;
           for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
-            std::vector<MPIDetail>::iterator vi;
+            std::vector<MPITDetail>::iterator vi;
             for (vi = (*si).second.begin(); vi != (*si).second.end(); vi++) {
-             // Use macro to accumulate all the separate samples
-              get_MPI_values(vi)
+              get_MPIT_values(vi)
             }
           }
 
-         // Use macro to construct result array
+         // Use macro to copy desired values.  
           SmartPtr<std::vector<CommandResult *> > vcs
                    = Framework::SmartPtr<std::vector<CommandResult *> >(
                                new std::vector<CommandResult *>(num_temps)
                                );
-          set_MPI_values
+          set_MPIT_values 
 
+         // Construct the type-independent return entry.
          // Construct callstack for last entry in the stack trace.
           Function F = (*fi).first;
           std::map<Framework::StackTrace,
-                   std::vector<MPIDetail> >::iterator first_si = 
+                   std::vector<MPITDetail> >::iterator first_si = 
                                       (*fi).second.begin();
           Framework::StackTrace st = (*first_si).first;
           std::set<Statement> T = st.getStatementsAt(st.size()-1);
@@ -225,7 +253,7 @@ static bool MPI_Function_Report(
   return Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_Function, c_items, view_output);
 }
 
-static bool MPI_CallStack_Report (
+static bool MPIT_CallStack_Report (
               CommandObject *cmd, ExperimentObject *exp, int64_t topn,
               ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
               std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
@@ -256,36 +284,35 @@ static bool MPI_CallStack_Report (
 
     SmartPtr<std::map<Function,
                       std::map<Framework::StackTrace,
-                               std::vector<MPIDetail> > > > raw_items;
+                               std::vector<MPITDetail> > > > raw_items;
     GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
        // Construct complete call stack
         std::map<Function,
                  std::map<Framework::StackTrace,
-                          std::vector<MPIDetail> > >::iterator fi;
+                          std::vector<MPITDetail> > >::iterator fi;
         for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
-         // Foreach MPI function ...
+         // Foreach MPIT function ...
           std::map<Framework::StackTrace,
-                   std::vector<MPIDetail> >::iterator sti;
+                   std::vector<MPITDetail> >::iterator sti;
           for (sti = (*fi).second.begin(); sti != (*fi).second.end(); sti++) {
-           // Use macro to allocate temporary array
-            def_MPI_values
+           // Foreach call stack ...
+            def_MPIT_values
+
             int64_t len = (*sti).second.size();
             for (int64_t i = 0; i < len; i++) {
-             // Use macro to combine all the values.
-              get_MPI_values(&(*sti).second[i])
+             // Combine all the values.
+              get_MPIT_values(&(*sti).second[i])
             }
 
-           // Use macro to set values into return structure.
             SmartPtr<std::vector<CommandResult *> > vcs
                      = Framework::SmartPtr<std::vector<CommandResult *> >(
                                  new std::vector<CommandResult *>(num_temps)
                                  );
-            set_MPI_values
+           // Use macro to copy desired values.  
+            set_MPIT_values 
 
-           // Foreach call stack ...
+           // Construct the type-independent return entry.
             Framework::StackTrace st = (*sti).first;
-
-           // Construct result entry
             SmartPtr<std::vector<CommandResult *> > call_stack = Construct_CallBack (TraceBack_Order, add_stmts, st);
             CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
             c_items.push_back(std::make_pair(CSE, vcs));
@@ -304,7 +331,7 @@ static bool MPI_CallStack_Report (
   return Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack,c_items, view_output);
 }
 
-static std::string allowed_mpi_V_options[] = {
+static std::string allowed_mpit_V_options[] = {
   "Function",
   "Functions",
   "Statement",
@@ -322,12 +349,11 @@ static std::string allowed_mpi_V_options[] = {
   ""
 };
 
-static void define_mpi_columns (
+static void define_mpit_columns (
             CommandObject *cmd,
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV,
             View_Form_Category vfc) {
-  int64_t last_column = 0;  // Total time is always placed in first column.
 
  // Define combination instructions for predefined temporaries.
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
@@ -339,15 +365,19 @@ static void define_mpi_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Add, cnt_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, ssq_temp));
 
+ // Most detail fields are not combinable in a meaningful way.
+  IV.push_back(new ViewInstruction (VIEWINST_Add, size_temp));
+
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_Summary = (Look_For_KeyWord(cmd, "Summary") & !Look_For_KeyWord(cmd, "ButterFly"));
 
   if (Generate_Summary) {
-   // Total time is always displayed - also add display of the summary time.
+   // Add display of the summary time.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
   }
 
+  int64_t last_column = 0;
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
     int64_t i = 0;
@@ -438,6 +468,66 @@ static void define_mpi_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m stop_time' only supported for '-v Trace' option.");
           }
+        } else if (!strcasecmp(M_Name.c_str(), "source")) {
+          if (vfc == VFC_Trace) {
+           // display source rank
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, source_temp));
+            HV.push_back("Source Rank");
+            last_column++;
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m source' only supported for '-v Trace' option.");
+          }
+        } else if (!strcasecmp(M_Name.c_str(), "destination")) {
+          if (vfc == VFC_Trace) {
+           // display destination rank
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, destination_temp));
+            HV.push_back("Destination Rank");
+            last_column++;
+            last_column++;
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m destination' only supported for '-v Trace' option.");
+          }
+        } else if (!strcasecmp(M_Name.c_str(), "size")) {
+         // display size of message
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, size_temp));
+          HV.push_back("Message Size");
+          last_column++;
+        } else if (!strcasecmp(M_Name.c_str(), "tag")) {
+          if (vfc == VFC_Trace) {
+           // display tag of the message
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, tag_temp));
+            HV.push_back("Message Tag");
+            last_column++;
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m tag' only supported for '-v Trace' option.");
+          }
+        } else if (!strcasecmp(M_Name.c_str(), "communicator")) {
+          if (vfc == VFC_Trace) {
+           // display communicator used
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, communicator_temp));
+            HV.push_back("Communicator Used");
+            last_column++;
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m communicator' only supported for '-v Trace' option.");
+          }
+        } else if (!strcasecmp(M_Name.c_str(), "datatype")) {
+          if (vfc == VFC_Trace) {
+           // display data type of the message
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, datatype_temp));
+            HV.push_back("Message Type");
+            last_column++;
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m datatype' only supported for '-v Trace' option.");
+          }
+        } else if (!strcasecmp(M_Name.c_str(), "retval")) {
+          if (vfc == VFC_Trace) {
+           // display enumerated return value
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, retval_temp));
+            HV.push_back("Return Value");
+            last_column++;
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m retval' only supported for '-v Trace' option.");
+          }
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
         }
@@ -449,7 +539,7 @@ static void define_mpi_columns (
   } else {
    // If nothing is requested ...
     if (vfc == VFC_Trace) {
-      // Insert start and end times into report.
+      // Insert start times, end times, source rank and destination rank into report.
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, start_temp));
       HV.push_back("Start Time");
       IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
@@ -464,7 +554,7 @@ static void define_mpi_columns (
   }
 }
 
-static bool mpi_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+static bool mpit_definition (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                              ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
                              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
                              View_Form_Category vfc) {
@@ -494,17 +584,16 @@ TEST */
       return false;
     }
 
-    Validate_V_Options (cmd, allowed_mpi_V_options);
-    define_mpi_columns (cmd, IV, HV, vfc);
+    Validate_V_Options (cmd, allowed_mpit_V_options);
+    define_mpit_columns (cmd, IV, HV, vfc);
 
     return true;
 }
 
-
-static std::string VIEW_mpi_brief = "Mpi Report";
-static std::string VIEW_mpi_short = "Report the time spent in each mpi function.";
-static std::string VIEW_mpi_long  = "\nA positive integer can be added to the end of the keyword"
-                                      " 'mpi' to indicate the maximum number of items in the report."
+static std::string VIEW_mpit_brief = "Mpit Report";
+static std::string VIEW_mpit_short = "Report information about the calls to mpi functions.";
+static std::string VIEW_mpit_long  = "\n\nA positive integer can be added to the end of the keyword"
+                                      " 'mpit' to indicate the maximum number of items in the report."
                                       " When the '-v Trace' option is selected, the selected items are"
                                       " the ones that use the most time.  In all other cases"
                                       " the selection will be based on the values displayed in"
@@ -513,27 +602,22 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
                                       " the  '-v' option.  Except for the '-v Trace' option, the report will"
                                       " be sorted in descending order of the value in the left most column"
                                       " displayed on a line. [See '-m' option for controlling this field.]"
-                                      "\n\nThe form of the information displayed can be controlled through"
-                                      " the  '-v' option."
-                                      "\n\t'-v Functions' will produce a summary report that"
-                                      " will be sorted in descending order of the value in the left most"
-                                      " column (see the '-m' option).  This is the default display."
-                                      "\n\t'-v Trace' will produce a report of each individual  call to an mpi"
-                                      " function."
+                                      "\n\t'-v Functions' will produce a summary report for each function."
+                                      " This is the default report, if nothing else is requested."
+                                      "\n\t'-v Trace' will produce a report of each call to an mpi function."
                                       " It will be sorted in ascending order of the starting time for the event."
-                                      " The information available for display from an 'mpi' experiment is very"
-                                      " limited when compared to what is available from an 'mpit' experiment."
-                                      "\n\t'-v CallTrees' will produce a calling stack report that is presented"
-                                      " in calling tree order - from the start of the program to the measured"
-                                      " program."
-                                      "\n\t'-v TraceBacks' will produce a calling stack report that is presented"
-                                      " in traceback order - from the measured function to the start of the"
-                                      " program."
+                                      "\n\t'-v CallTrees' will produce report that expands the call stack for"
+                                      " a trace, providing the sequence of functions called from the start of"
+                                      " the program to the measured function."
+                                      "\n\t'-v TraceBacks' will produce a report that expands the call stack for"
+                                      " a trace, providing the sequence of functions called from the function"
+                                      " back to the start of the program."
                                       "\n\tThe addition of 'FullStack' with either 'CallTrees' of 'TraceBacks'"
                                       " will cause the report to include the full call stack for each measured"
-                                      " function.  Redundant portions of a call stack are suppressed by default."
-                                      "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
-                                      " 'CallTrees' or 'TraceBacks' will result in an additional line of output at"
+                                      " function.  Redundant portions of a call stack are suppressed if this"
+                                      " option is not specified."
+                                      "\n\tThe addition of 'Summary' to the '-v' option list will result in an"
+                                      " additional line of output at"
                                       " the end of the report that summarizes the information in each column."
                                       "\n\t'-v ButterFly' along with a '-f <function_list>' will produce a report"
                                       " that summarizes the calls to a function and the calls from the function."
@@ -545,43 +629,51 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
                                       " listed after the option will be printed and they will be printed in"
                                       " the order that they are listed."
                                       " If no '-m' option is specified, the default is equivalent to"
-                                      " '-m exclusive times'."
-                                      " The full set of available options is: 'exclusive_times',"
-                                      " 'min', 'max', 'average', 'count', 'percent', and 'stddev'."
-                                      " Each option reports information about the set of mpi calls that is"
-                                      " reported for the function on that particular line in the report."
-                                      " \n\t'-m exclusive_times' reports the wall clock time used in the function."
-                                      " \n\t'-m min' reports the minimum time spent in the function."
-                                      " \n\t'-m max' reports the maximum time spent in the function."
-                                      " \n\t'-m average' reports the average time spent in the function."
-                                      " \n\t'-m count' reports the number of times the function was called."
-                                      " \n\t'-m percent' reports the percent of mpi time the function represents."
+                                      " '-m start_time, end_time, exclusive times'."
+                                      " Clearly, not every value will be meaningful with every '-v' option."
+                                      " \n\t'-m exclusive_times' reports the wall clock time used in the event."
+                                      " \n\t'-m min' reports the minimum time spent in the event."
+                                      " \n\t'-m max' reports the maximum time spent in the event."
+                                      " \n\t'-m average' reports the average time spent in the event."
+                                      " \n\t'-m count' reports the number of times the event occured."
+                                      " \n\t'-m percent' reports the percent of mpi time the event represents."
                                       " \n\t'-m stddev' reports the standard deviation of the average mpi time"
-                                      " that the function represents.";
-static std::string VIEW_mpi_example = "\texpView mpi\n"
-                                      "\texpView -v CallTrees,FullStack mpi10 -m min,max,count\n";
-static std::string VIEW_mpi_metrics[] =
+                                      " that the event represents."
+                                      " \n\t'-m start_time' reports the starting time of the event."
+                                      " \n\t'-m stop_time' reports the ending time of the event."
+                                      " \n\t'-m source' reports the source rank of the event."
+                                      " \n\t'-m destination' reports the destination rank of the event."
+                                      " \n\t'-m size' reports the number of bytes in the message."
+                                      " \n\t'-m tag' reports the tag of the event."
+                                      " \n\t'-m communicator' reports the communicator used for the event."
+                                      " \n\t'-m datatype' reports the data type of the message."
+                                      " \n\t'-m retval' reports the return value of the event."
+;
+static std::string VIEW_mpit_example = "\texpView mpit\n"
+                                       "\texpView -v Trace mpit10\n" 
+                                       "\texpView -v Trace mpit100 -m start_time, inclusive_time, size\n";
+static std::string VIEW_mpit_metrics[] =
   { "exclusive_details",
     "exclusive_times",
     "inclusive_details",
     "inclusive_times",
     ""
   };
-static std::string VIEW_mpi_collectors[] =
-  { "mpi",
+static std::string VIEW_mpit_collectors[] =
+  { "mpit",
     ""
   };
-class mpi_view : public ViewType {
+class mpit_view : public ViewType {
 
  public: 
-  mpi_view() : ViewType ("mpi",
-                         VIEW_mpi_brief,
-                         VIEW_mpi_short,
-                         VIEW_mpi_long,
-                         VIEW_mpi_example,
-                        &VIEW_mpi_metrics[0],
-                        &VIEW_mpi_collectors[0],
-                         true) {
+  mpit_view() : ViewType ("mpit",
+                          VIEW_mpit_brief,
+                          VIEW_mpit_short,
+                          VIEW_mpit_long,
+                          VIEW_mpit_example,
+                         &VIEW_mpit_metrics[0],
+                         &VIEW_mpit_collectors[0],
+                          true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                              ThreadGroup& tgrp, std::list<CommandResult *>& view_output) {
@@ -590,9 +682,9 @@ class mpi_view : public ViewType {
     std::vector<ViewInstruction *>IV;
     std::vector<std::string> HV;
 
-    CV.push_back (Get_Collector (exp->FW(), "mpi"));  // Define the collector
+    CV.push_back (Get_Collector (exp->FW(), "mpit"));  // Define the collector
     View_Form_Category vfc = Determine_Form_Category(cmd);
-    if (mpi_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc)) {
+    if (mpit_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc)) {
 
       if ((CV.size() == 0) ||
           (MV.size() == 0)) {
@@ -600,13 +692,13 @@ class mpi_view : public ViewType {
         return false;   // There is no collector, return.
       }
 
-      switch (vfc) {
+      switch (Determine_Form_Category(cmd)) {
        case VFC_Trace:
-        return MPI_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
+        return MPIT_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
        case VFC_CallStack:
-        return MPI_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
+        return MPIT_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
        case VFC_Function:
-        return MPI_Function_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
+        return MPIT_Function_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
       }
     }
     return false;
@@ -616,6 +708,6 @@ class mpi_view : public ViewType {
 
 // This is the only external entrypoint.
 // Calls to the VIEWs needs to be done through the ViewType class objects.
-extern "C" void mpi_view_LTX_ViewFactory () {
-  Define_New_View (new mpi_view());
+extern "C" void mpit_view_LTX_ViewFactory () {
+  Define_New_View (new mpit_view());
 }

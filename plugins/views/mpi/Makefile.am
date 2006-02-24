@@ -26,7 +26,6 @@ mpi_view_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-cli \
 	-I$(top_srcdir)/plugins/collectors/mpi \
-	-I$(top_srcdir)/plugins/collectors/mpit \
 	-I$(top_srcdir)/libopenss-message 
 
 mpi_view_la_LDFLAGS = \
