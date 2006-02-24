@@ -17,25 +17,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef MPIPANEL_H
-#define MPIPANEL_H
-#include "CustomExperimentPanel.hxx"           // Do not remove
-#include "Panel.hxx"           // Do not remove
-
-class PanelContainer;   // Do not remove
-
-class ArgumentObject;
-
-
-#undef PANEL_CLASS_NAME
-#define PANEL_CLASS_NAME MPIPanel   // Change the value of the define
-                                         // to the name of your new class.
-
-class MPIPanel  : public CustomExperimentPanel
-{
-  public: 
-    MPIPanel(PanelContainer *pc, const char *n, ArgumentObject *ao);
-
-    ~MPIPanel();
-};
-#endif // MPIPANEL_H
+  plugin_entry->grouping = "TOPLEVEL";
+  plugin_entry->show_immediate = 0;
+  plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
+  plugin_entry->plugin_short_description = "Manages the MPIT experiment.";
+  plugin_entry->plugin_name =  "MPITPanel.so";
+  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
+  plugin_entry->plugin_entry_point = "panel_init";
+  plugin_entry->menu_heading =  "&File";
+  plugin_entry->sub_menu_heading =  "E&xperiments";
+  plugin_entry->menu_label =  "MPIT";
+  plugin_entry->menu_accel =  "Alt+M";
+  plugin_entry->panel_type =  "MPIT";

@@ -147,9 +147,15 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
 
   vParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageParameterLayout"); 
 
+  vParameterTraceCheckBox = new QCheckBox( vParameterPageWidget, "vParameterTraceComboBox" );
+  vParameterTraceCheckBox->setText(tr("Gather additional information for each MPI function call. (mpit)") );
+  vParameterPageParameterLayout->addWidget( vParameterTraceCheckBox );
+  QToolTip::add( vParameterTraceCheckBox, tr( "Records extra information, with more overhead, including\nsource rank, destination rank, size of message, tag of event,\ncomminicator used, data type of event, and the return value\nof the event.") );
+
   vParameterPageFunctionListHeaderLabel = new QLabel( vParameterPageWidget, "vParameterPageFunctionListHeaderLabel" );
   vParameterPageFunctionListHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
   vParameterPageParameterLayout->addWidget( vParameterPageFunctionListHeaderLabel );
+
 
   vParameterPageFunctionListLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageFunctionListLayout");
 
@@ -343,9 +349,16 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
 
   eParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "eParameterPageParameterLayout"); 
 
+  eParameterTraceCheckBox = new QCheckBox( eParameterPageWidget, "eParameterTraceComboBox" );
+  eParameterTraceCheckBox->setText(tr("Gather additional information for each MPI function call. (mpit)") );
+  eParameterPageParameterLayout->addWidget( eParameterTraceCheckBox );
+  QToolTip::add( eParameterTraceCheckBox, tr( "Records extra information, with more overhead, including\nsource rank, destination rank, size of message, tag of event,\ncomminicator used, data type of event, and the return value\nof the event.") );
+
+
   eParameterPageFunctionListHeaderLabel = new QLabel( eParameterPageWidget, "eParameterPageFunctionListHeaderLabel" );
   eParameterPageFunctionListHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
   eParameterPageParameterLayout->addWidget( eParameterPageFunctionListHeaderLabel );
+
 
   eParameterPageFunctionListLayout = new QHBoxLayout( 0, 0, 6, "eParameterPageFunctionListLayout"); 
 
@@ -1190,8 +1203,17 @@ void MPIWizardPanel::vSummaryPageFinishButtonSelected()
         if( !p )
         {
           ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
-ao->lao = lao;
-          p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI", getPanelContainer(), ao);
+          ao->lao = lao;
+
+          if( (vwizardMode->isChecked() && vParameterTraceCheckBox->isChecked()) ||
+              (ewizardMode->isChecked() && eParameterTraceCheckBox->isChecked()) )
+          {
+              p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPIT", getPanelContainer(), ao);
+          } else 
+          {
+            p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI", getPanelContainer(), ao);
+          }
+
           delete ao;
         } else
         {

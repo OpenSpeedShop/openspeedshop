@@ -149,6 +149,8 @@ public:
     QWidget* eParameterPageWidget;
     QTextEdit* eParameterPageDescriptionLabel;
     QFrame* eParameterPageLine;
+QCheckBox *vParameterTraceCheckBox;
+QCheckBox *eParameterTraceCheckBox;
     QLabel* eParameterPageFunctionListHeaderLabel;
 #ifdef OLDWAY
     QLabel* eParameterPageSampleRateLabel;

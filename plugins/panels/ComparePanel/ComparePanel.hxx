@@ -18,8 +18,8 @@
 
 
 
-#ifndef PROCESSPANEL_H
-#define PROCESSPANEL_H
+#ifndef COMPAREPANEL_H
+#define COMPAREPANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;
@@ -77,4 +77,4 @@ class ComparePanel  : public Panel
   private:
     void raisePreferencePanel();
 };
-#endif // PROCESSPANEL_H
+#endif // COMPAREPANEL_H

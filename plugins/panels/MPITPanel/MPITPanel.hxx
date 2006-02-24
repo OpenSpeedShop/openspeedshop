@@ -17,8 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef MPIPANEL_H
-#define MPIPANEL_H
+#ifndef MPITPANEL_H
+#define MPITPANEL_H
 #include "CustomExperimentPanel.hxx"           // Do not remove
 #include "Panel.hxx"           // Do not remove
 
@@ -28,14 +28,14 @@ class ArgumentObject;
 
 
 #undef PANEL_CLASS_NAME
-#define PANEL_CLASS_NAME MPIPanel   // Change the value of the define
+#define PANEL_CLASS_NAME MPITPanel   // Change the value of the define
                                          // to the name of your new class.
 
-class MPIPanel  : public CustomExperimentPanel
+class MPITPanel  : public CustomExperimentPanel
 {
   public: 
-    MPIPanel(PanelContainer *pc, const char *n, ArgumentObject *ao);
+    MPITPanel(PanelContainer *pc, const char *n, ArgumentObject *ao);
 
-    ~MPIPanel();
+    ~MPITPanel();
 };
-#endif // MPIPANEL_H
+#endif // MPITPANEL_H

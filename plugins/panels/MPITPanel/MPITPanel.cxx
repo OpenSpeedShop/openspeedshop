@@ -17,25 +17,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef MPIPANEL_H
-#define MPIPANEL_H
-#include "CustomExperimentPanel.hxx"           // Do not remove
-#include "Panel.hxx"           // Do not remove
+#include "MPITPanel.hxx"   // Change this to your new class header file name
+#include "PanelContainer.hxx"   // Do not remove
+#include "plugin_entry_point.hxx"   // Do not remove
 
-class PanelContainer;   // Do not remove
-
-class ArgumentObject;
-
-
-#undef PANEL_CLASS_NAME
-#define PANEL_CLASS_NAME MPIPanel   // Change the value of the define
-                                         // to the name of your new class.
-
-class MPIPanel  : public CustomExperimentPanel
+MPITPanel::MPITPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : CustomExperimentPanel(pc, n, ao, (const char *)"mpit")
 {
-  public: 
-    MPIPanel(PanelContainer *pc, const char *n, ArgumentObject *ao);
+}
 
-    ~MPIPanel();
-};
-#endif // MPIPANEL_H
+//! Destroys the object and frees any allocated resources
+/*! The only thing that needs to be cleaned up is the baseWidgetFrame.
+ */
+MPITPanel::~MPITPanel()
+{
+}

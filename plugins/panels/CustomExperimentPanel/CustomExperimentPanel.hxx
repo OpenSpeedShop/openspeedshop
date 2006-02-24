@@ -17,8 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef CustomExperimentPanel_H_H
-#define CustomExperimentPanel_H_H
+#ifndef CUSTOMEXPERIMENTPANEL_H
+#define CUSTOMEXPERIMENTPANEL_H
 #include "Panel.hxx"           // Do not remove
 
 #include "ProcessControlObject.hxx"
@@ -180,4 +180,4 @@ private:
 
   void resetRedirect();
 };
-#endif // CustomExperimentPanel_H_H
+#endif // CUSTOMEXPERIMENTPANEL_H

@@ -17,8 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef PCSTATSPANEL_H
-#define PCSTATSPANEL_H
+#ifndef STATSPANEL_H
+#define STATSPANEL_H
 #include "SPListView.hxx"           // Do not remove
 #include "Panel.hxx"           // Do not remove
 #include "CollectorListObject.hxx"
@@ -250,4 +250,4 @@ void traceSelected();
     SPListViewItem *MYListViewItem( StatsPanel *arg1, QListView *arg2, SPListViewItem *arg3, QString *strings);
 
 };
-#endif // PCSTATSPANEL_H
+#endif // STATSPANEL_H

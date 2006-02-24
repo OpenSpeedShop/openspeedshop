@@ -28,6 +28,7 @@ SUBDIRS = \
 	IOPanel \
 	FPE_TracingPanel \
 	MPIPanel \
+	MPITPanel \
 	CustomExperimentPanel \
 	DebugPanel
 
