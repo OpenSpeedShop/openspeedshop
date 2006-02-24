@@ -20,7 +20,7 @@ pkglib_LTLIBRARIES = mpit_view.la
 
 BUILT_SOURCES =
 
-mpit_view_la_CXXFLAGS = \
+mpit_view_la_CXXFLAGS =  \
 	$(PYTHON_INCLUDES) \
 	-I$(top_srcdir)/libopenss-queries \
 	-I$(top_srcdir)/libopenss-framework \
