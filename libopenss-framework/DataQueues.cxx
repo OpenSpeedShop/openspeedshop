@@ -35,13 +35,14 @@
 #include <deque>
 #include <pthread.h>
 #include <map>
+#include <sstream>
 
 using namespace OpenSpeedShop::Framework;
 
 
 
 namespace {
-
+    
     /** Exclusive access lock for this unnamed namespace's variables. */
     pthread_mutex_t exclusive_access_lock = PTHREAD_MUTEX_INITIALIZER;
     
@@ -57,16 +58,34 @@ namespace {
     /** Map identifiers to their queue. */
     std::map<int, SmartPtr<std::deque<Blob> > > identifier_to_queue;
 
+#ifndef NDEBUG
+
+    /** Flag indicating if debugging for this namespace is enabled. */
+    bool is_debug_enabled = false;
+
+    /** Cumulative number of performance data blobs that have been enqueued. */
+    uint64_t debug_enqueued_count = 0;
+    
+    /** Cumulative number of bytes (within blobs) that have been enqueued. */
+    uint64_t debug_enqueued_bytes = 0;
+    
+    /** Cumulative number of performance data blobs that have been stored. */
+    uint64_t debug_stored_count = 0;
+    
+    /** Cumulative number of bytes (within blobs) that have been stored. */
+    uint64_t debug_stored_bytes = 0;
+
+#endif
+
 
 
     /**
-     * Flush performance data to database.
+     * Store performance data.
      *
-     * Stores the performance data in the specified queue into the specified
-     * experiment database. The blobs containing the data are assumed to have
-     * been encoded by OpenSS_Send and are thus prepended with a performance
-     * data header. That header is decoded in order to create a properly
-     * indexed entry for the actual data.
+     * Stores the specified performance data into the specified experiment
+     * database. The blob is assumed to have been encoded by OpenSS_Send and is
+     * thus prepended with a performance data header. That header is decoded in
+     * order to create a properly indexed entry for the actual data.
      *
      * @note    Various timing issues can result in cases where, for example,
      *          data arrives after a particular collector, or thread has been
@@ -74,65 +93,64 @@ namespace {
      *          data under these circumstances.
      *
      * @param database    Database to contain the performance data.
-     * @param queue       Queue containing the performance data.
+     * @param blob        Blob containing the performance data.
      */
-    void flushPerformanceData(const SmartPtr<Database>& database,
-			      const SmartPtr<std::deque<Blob> >& queue)
+    void storePerformanceData(const SmartPtr<Database>& database,
+			      const Blob& blob)
     {
+	bool ignore_data = false;
+
 	// Begin a multi-statement transaction
 	BEGIN_WRITE_TRANSACTION(database);	
-
-	// Iterate over each blob in the queue
-	for(std::deque<Blob>::const_iterator
-		i = queue->begin(); i != queue->end(); ++i) {
-
-	    // Decode the performance data header
-	    OpenSS_DataHeader header;
-	    memset(&header, 0, sizeof(header));
-	    unsigned header_size = i->getXDRDecoding(
-		reinterpret_cast<xdrproc_t>(xdr_OpenSS_DataHeader), &header
-		);
-	    
-	    // Silently ignore the data if the address range is invalid
-	    if(header.addr_begin >= header.addr_end)
-		continue;
-	    
-	    // Silently ignore the data if the time interval is invalid
-	    if(header.time_begin >= header.time_end)
-		continue;
-
-	    // Note: It is assumed here that the experiment identifier for this
-	    //       blob corresponds to the database into which we are writting
-	    //       this data.
-
-	    // Validate that the specified collector exists
-	    int collector_rows = 0;
-	    database->prepareStatement(
-		"SELECT COUNT(*) FROM Collectors WHERE id = ?;"
-		);
-	    database->bindArgument(1, header.collector);
-	    while(database->executeStatement())		
-		collector_rows = database->getResultAsInteger(1);
-	    if(collector_rows != 1)
-		continue;
 	
-	    // Validate that the specified thread exists
-	    int thread_rows = 0;
-	    database->prepareStatement(
-		"SELECT COUNT(*) FROM Threads WHERE id = ?;"
-		);
-	    database->bindArgument(1, header.thread);
-	    while(database->executeStatement())
-		thread_rows = database->getResultAsInteger(1);
-	    if(thread_rows != 1)
-		continue;
-	    
-	    // Calculate the size and location of the actual data
-	    unsigned data_size = i->getSize() - header_size;
-	    const void* data_ptr =
-		&(reinterpret_cast<const char*>(i->getContents())[header_size]);
-	    
-	    // Create an entry for this data
+	// Decode the performance data header
+	OpenSS_DataHeader header;
+	memset(&header, 0, sizeof(header));
+	unsigned header_size = blob.getXDRDecoding(
+	    reinterpret_cast<xdrproc_t>(xdr_OpenSS_DataHeader), &header
+	    );
+	
+	// Silently ignore the data if the address range is invalid
+	if(header.addr_begin >= header.addr_end)
+	    ignore_data = true;
+	
+	// Silently ignore the data if the time interval is invalid
+	if(header.time_begin >= header.time_end)
+	    ignore_data = true;
+	
+	// Note: It is assumed here that the experiment identifier for this
+	//       blob corresponds to the database into which we are writting
+	//       this data.
+	
+	// Validate that the specified collector exists
+	int collector_rows = 0;
+	database->prepareStatement(
+	    "SELECT COUNT(*) FROM Collectors WHERE id = ?;"
+	    );
+	database->bindArgument(1, header.collector);
+	while(database->executeStatement())		
+	    collector_rows = database->getResultAsInteger(1);
+	if(collector_rows != 1)
+	    ignore_data = true;
+	
+	// Validate that the specified thread exists
+	int thread_rows = 0;
+	database->prepareStatement(
+	    "SELECT COUNT(*) FROM Threads WHERE id = ?;"
+	    );
+	database->bindArgument(1, header.thread);
+	while(database->executeStatement())
+	    thread_rows = database->getResultAsInteger(1);
+	if(thread_rows != 1)
+	    ignore_data = true;
+	
+	// Calculate the size and location of the actual data
+	unsigned data_size = blob.getSize() - header_size;
+	const void* data_ptr =
+	    &(reinterpret_cast<const char*>(blob.getContents())[header_size]);
+	
+	// Create an entry for this data
+	if(!ignore_data) {
 	    database->prepareStatement(
 		"INSERT INTO Data "
 		"(collector, thread, time_begin, time_end, "
@@ -147,9 +165,8 @@ namespace {
 	    database->bindArgument(6, Address(header.addr_end));
 	    database->bindArgument(7, Blob(data_size, data_ptr));
 	    while(database->executeStatement());  
-	    
 	}
-
+	
 	// End this multi-statement transaction
 	END_TRANSACTION(database);
     }
@@ -176,6 +193,12 @@ void DataQueues::addDatabase(const SmartPtr<Database>& database)
 {
     // Acquire exclusive access to our unnamed namespace variables
     Assert(pthread_mutex_lock(&exclusive_access_lock) == 0);
+
+#ifndef NDEBUG
+    // Is debugging enabled?
+    if(getenv("OPENSS_DEBUG_DATAQUEUES") != NULL)
+	is_debug_enabled = true;
+#endif
     
     // Check assertions
     Assert(!database.isNull());
@@ -222,8 +245,27 @@ void DataQueues::removeDatabase(const SmartPtr<Database>& database)
     int identifier = database_to_identifier[database];
 
     // Flush the database's queue if non-empty
-    if(!identifier_to_queue[identifier]->empty())
-	flushPerformanceData(database, identifier_to_queue[identifier]);
+    if(!identifier_to_queue[identifier]->empty()) {
+
+	// Begin a multi-statement transaction
+	BEGIN_WRITE_TRANSACTION(database);
+
+	// Iterate over each blob in the queue
+	while(!identifier_to_queue[identifier]->empty()) {
+
+	    // Store this blob in the correct database
+	    storePerformanceData(database,
+				 identifier_to_queue[identifier]->front());
+
+	    // Pop this blob off the queue
+	    identifier_to_queue[identifier]->pop_front();
+	    
+	}
+
+	// End this multi-statement transaction
+	END_TRANSACTION(database);
+
+    }
     
     // Remove this database
     database_to_identifier.erase(database);
@@ -281,8 +323,6 @@ int DataQueues::getDatabaseIdentifier(const SmartPtr<Database>& database)
  *          its experiment has been removed. It was deemed best to silently
  *          ignore the data under those circumstances.
  *
- * @todo    Add good criteria for flushing the database's queue.
- *
  * @parma blob    Blob containing the performance data.
  */
 void DataQueues::enqueuePerformanceData(const Blob& blob)
@@ -300,27 +340,125 @@ void DataQueues::enqueuePerformanceData(const Blob& blob)
     std::map<int, SmartPtr<std::deque<Blob> > >::iterator
 	i = identifier_to_queue.find(header.experiment);
     if(i != identifier_to_queue.end()) {
+
+#ifndef NDEBUG
+	// Update performance statistics
+	debug_enqueued_count++;
+	debug_enqueued_bytes += blob.getSize();	
+#endif
 	
 	// Add this blob to the database's queue
 	i->second->push_back(blob);
 
-	// Note: Currently we flush the queue after every data blob. So, in
-	//       effect, every data blob is written directly to the database.
-	//       This needs to be replaced with some reasonable criteria that
-	//       groups the blobs into larger transactions while keeping worst
-	//       case latency low. Writing every, say, 1 second might be a
-	//       reasonable first step.
-	
-	// Flush the database's queue if non-empty
-	if(!i->second->empty()) {
-	    flushPerformanceData(identifier_to_database[header.experiment],
-				 identifier_to_queue[header.experiment]);
-	    identifier_to_queue[header.experiment] =
-		SmartPtr<std::deque<Blob> >(new std::deque<Blob>());
-	}
-	
     }
     
+    // Release exclusive access to our unnamed namespace variables
+    Assert(pthread_mutex_unlock(&exclusive_access_lock) == 0);
+}
+
+
+
+/**
+ * Flush performance data.
+ *
+ * Flushes performance data from the data queues to the correct experiment
+ * database. ...
+ */
+void DataQueues::flushPerformanceData()
+{
+    const int64_t maximumFlushTime = 1000 * 1000 * 1000;  // 1 second
+
+    // Keep track of whether we've exceeded the maximum flush time
+    bool is_time_up = false;
+    Time start_time = Time::Now();
+
+#ifndef NDEBUG
+    // Performance statistics
+    uint64_t debug_written_bytes = 0;
+    Time debug_start_time = Time::Now();
+#endif
+    
+    // Acquire exclusive access to our unnamed namespace variables
+    Assert(pthread_mutex_lock(&exclusive_access_lock) == 0);
+
+    // Iterate over each database queue
+    for(std::map<int, SmartPtr<std::deque<Blob> > >::const_iterator
+	    i = identifier_to_queue.begin(); 
+	!is_time_up && (i != identifier_to_queue.end()); 
+	++i)
+	
+	// Flush this queue if it is non-empty
+	if(!i->second->empty()) {
+	    
+	    // Begin a multi-statement transaction
+	    BEGIN_WRITE_TRANSACTION(identifier_to_database[i->first]);	
+
+	    // Iterate over each blob in the queue
+	    while(!is_time_up && !i->second->empty()) {
+		
+#ifndef NDEBUG
+		// Update performance statistics
+		debug_written_bytes += i->second->front().getSize();
+		debug_stored_count++;
+		debug_stored_bytes += i->second->front().getSize();
+#endif
+		
+		// Store this blob in the correct database
+		storePerformanceData(identifier_to_database[i->first],
+				     i->second->front());
+
+		// Pop this blob off the queue
+		i->second->pop_front();
+
+		// Has the maximum flush time been exceeded?
+		if((Time::Now() - start_time) > maximumFlushTime)
+		    is_time_up == true;
+		
+	    }
+	    
+	    // End this multi-statement transaction
+	    END_TRANSACTION(identifier_to_database[i->first]);
+	    
+	}
+
+#ifndef DEBUG
+    // Performance statistics
+    Time debug_stop_time = Time::Now();
+    
+    // Display performance statistics
+    if(is_debug_enabled && (debug_written_bytes > 0)) {
+
+	// Calculate the write rate in kilobytes/second
+	double write_rate = (debug_stop_time <= debug_start_time) ? 0.0 :
+	    (static_cast<double>(debug_written_bytes) * 1000000000.0) /
+	    (static_cast<double>(debug_stop_time - debug_start_time) * 1024.0);
+	
+	// Build the string to be displayed
+	std::stringstream output;
+
+	output << "[ "
+	       << "In: " << debug_enqueued_count
+	       << " (" << debug_enqueued_bytes << ")"
+	       << ", Out: " << debug_stored_count
+	       << " (" << debug_stored_bytes << ")"
+	       << " ]   "
+	       << std::setiosflags(std::ios::fixed)
+	       << std::setprecision(1);	
+
+	if(write_rate < 1024.0)
+	    output << write_rate << " KB/s";
+	else if(write_rate < (1024.0 * 1024.0))
+	    output << (write_rate / 1024.0) << " MB/s";
+	else
+	    output << (write_rate / (1024.0 * 1024.0)) << " GB/s";
+	
+	output << std::endl;
+	
+	// Display the string to the standard error stream
+	std::cerr << output.str();
+    }
+#endif    
+
     // Release exclusive access to our unnamed namespace variables
     Assert(pthread_mutex_unlock(&exclusive_access_lock) == 0);
 }

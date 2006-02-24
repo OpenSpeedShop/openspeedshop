@@ -23,12 +23,15 @@
  */
 
 #include "Assert.hxx"
+#include "DataQueues.hxx"
 #include "Experiment.hxx"
 #include "MainLoop.hxx"
 
 #include <dpcl.h>
 #include <errno.h>
 #include <pthread.h>
+#include <signal.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 using namespace OpenSpeedShop::Framework;
@@ -88,7 +91,22 @@ namespace {
 	// Return the number of bytes read to the caller
 	return 1;
     }
-    
+
+
+
+    /**
+     * Alarm handler.
+     *
+     * Called by the DPCL main loop when our real-time interval timer cause an
+     * alarm signal to be sent. Simply requests that all performance data be
+     * flushed to the appropriate experiment databases.
+     */
+    int alarmHandler(int)
+    {
+	// Request that all performance data be flushed to experiment databases
+	DataQueues::flushPerformanceData();
+    }
+
 
 
     /**       
@@ -99,10 +117,25 @@ namespace {
      * handled in a timely manner. The monitor simply sits in Ais_main_loop()
      * until it is asynchronously interrupted. When such an interrupt occurs,
      * we inform the interrupter that the DPCL main loop is suspended and then
-     * wait for the go-ahead to resume the loop again.
+     * wait for the go-ahead to resume the loop again (unless instructed to
+     * terminate the monitor thread). Also handles the configuration of an
+     * interval timer that is used for periodically flushing performance data
+     * to the appropriate experiment databases.
      */
     void* monitorThread(void*)
     {
+	// Add a DPCL handler for SIGALRM
+	AisStatus retval = Ais_add_signal(SIGALRM, alarmHandler);
+	Assert(retval.status() == ASC_success);
+
+	// Start the interval timer (delivering SIGALRM) for this thread
+	struct itimerval spec;
+	spec.it_interval.tv_sec = 2;
+	spec.it_interval.tv_usec = 0;
+	spec.it_value.tv_sec = spec.it_interval.tv_sec;
+	spec.it_value.tv_usec = spec.it_interval.tv_usec;
+	Assert(setitimer(ITIMER_REAL, &spec, NULL) == 0);
+
 	// Run the DPCL main loop indefinitely
 	while(true) {
 	    
@@ -127,6 +160,17 @@ namespace {
 		break;
 	    
 	}
+
+	// Stop the interval timer for this thread
+	spec.it_interval.tv_sec = 0;
+	spec.it_interval.tv_usec = 0;
+	spec.it_value.tv_sec = spec.it_interval.tv_sec;
+	spec.it_value.tv_usec = spec.it_interval.tv_usec;
+	Assert(setitimer(ITIMER_REAL, &spec, NULL) == 0);
+	
+	// Remove DPCL handler for SIGALRM
+	retval = Ais_remove_signal(SIGALRM);
+	Assert(retval.status() == ASC_success);	    
 	
 	// Empty, unused, return value from this thread
 	return NULL;

@@ -68,6 +68,7 @@ namespace OpenSpeedShop { namespace Framework {
 	int getDatabaseIdentifier(const SmartPtr<Database>&);
 	
 	void enqueuePerformanceData(const Blob&);
+	void flushPerformanceData();
 
     }
 
