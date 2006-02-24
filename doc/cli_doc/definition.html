@@ -307,18 +307,16 @@ the command does nothing. </font><br>
 application.</li>
   <li>Previously collected data is still available and can be viewed or
 saved.</li>
-  <li>The attached applications will not continue executing until an <b>expGo</b>
-command is issued.</li>
+  <li>The execution state of the application will not be changed.</li>
   </dir>
 - See related commands:
-  <dir><li><b>expEnable</b> can be used to restart data collection.</li>
+  <dir>
   <li><b>expSave</b> can be used to save previously collected data.</li>
   <li><b>expClose</b> can be used to destroy the experiment and free
 all data space used to save the collected data.</li>
   </dir>
 - <b>-v all</b> will result in data collection being stopped
-for
-all defined experiments. <br>
+for all defined experiments. <br>
 - If this command is issued with no arguments, data collection is
 stopped for the focused experiment. </font><br>
   <br>
@@ -337,11 +335,9 @@ an <b>expDisable</b> command.
 saved.</li>
   <li>New information will be merged with any previously collected
 data.</li>
-  <li>The attached applications will not continue executing until an <b>expGo</b>
-command is issued.</li>
+  <li>The execution state of the application will not be changed.</li>
   </dir>
-- <b>-v all</b> will result in data collection being
-restarted for
+- <b>-v all</b> will result in data collection being restarted for
 all defined experiments. <br>
 - If this command is issued with no arguments, data collection for
 the focused experiment is restarted. </font><br>
