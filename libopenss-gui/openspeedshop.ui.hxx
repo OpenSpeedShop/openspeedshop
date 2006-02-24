@@ -251,9 +251,19 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
           panel_type = "IO";
           knownCollectorType = TRUE;
           break;
+        } else if( collector_name == "iot" )
+        {
+          panel_type = "IOT";
+          knownCollectorType = TRUE;
+          break;
         } else if( collector_name == "mpi" )
         {
           panel_type = "MPI";
+          knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "mpit" )
+        {
+          panel_type = "MPIT";
           knownCollectorType = TRUE;
           break;
         }

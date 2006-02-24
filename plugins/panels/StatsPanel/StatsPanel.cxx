@@ -359,7 +359,17 @@ try
       {
         mpi_io_FLAG = TRUE;
       }
+      i = name.find("mpit");
+      if( i == 0 )
+      {
+        mpi_io_FLAG = TRUE;
+      }
       i = name.find("io");
+      if( i == 0 )
+      {
+        mpi_io_FLAG = TRUE;
+      }
+      i = name.find("iot");
       if( i == 0 )
       {
         mpi_io_FLAG = TRUE;
@@ -479,7 +489,17 @@ try
       {
         mpi_io_FLAG = TRUE;
       }
+      i = name.find("mpit");
+      if( i == 0 )
+      {
+        mpi_io_FLAG = TRUE;
+      }
       i = name.find("io");
+      if( i == 0 )
+      {
+        mpi_io_FLAG = TRUE;
+      }
+      i = name.find("iot");
       if( i == 0 )
       {
         mpi_io_FLAG = TRUE;
@@ -665,6 +685,8 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         if( !currentCollectorStr.isEmpty() && 
             (currentCollectorStr == "Functions" ||
              currentCollectorStr == "mpi" ||
+             currentCollectorStr == "mpit" ||
+             currentCollectorStr == "iot" ||
              currentCollectorStr == "io" ) )
         {
           qaction = new QAction(this, "showCallTreesBySelectedFunction");
