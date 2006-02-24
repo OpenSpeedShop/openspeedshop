@@ -37,6 +37,11 @@ static std::string VIEW_pcsamp_long  = "The report is sorted in descending order
                                        "\n\t'-v LinkedObjects' will report times by linked object."
                                        "\n\t'-v Functions' will report times by function. This is the default."
                                        "\n\t'-v Statements' will report times by statement."
+                                       " \n\nThe user can select individual metrics for display by listing"
+                                       " them after the '-m' option key."
+                                       " Only the metrics in the list will be displayed."
+                                       " Since there is only one metric available for this view, the use of"
+                                       " the '-m time' option will suppress the calculation of percent."
                                        "\n";
 static std::string VIEW_pcsamp_example = "\texpView pcsamp\n"
                                          "\texpView -v statements pcsamp10\n";
@@ -66,12 +71,22 @@ class pcsamp_view : public ViewType {
     std::vector<ViewInstruction *>IV;
     std::vector<std::string> HV;
 
-   // There is only 1 supported metric.  Use it and ignore what the user may have specified with '-m'.
-    CV.push_back( Get_Collector (exp->FW(), VIEW_pcsamp_collectors[0]) ); // use pcsamp collector
-    MV.push_back(VIEW_pcsamp_metrics[0]);  // Use the Collector with the first metric
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
-    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is %
+    OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+    vector<ParseRange> *p_slist = p_result->getexpMetricList();
+    if (!p_slist->empty()) {
+     // Use the metrics that the user listed.
+      if (!Select_User_Metrics (cmd, exp, CV, MV, IV, HV)) {
+        return false;
+      }
+    } else {
+     // There is only 1 supported metric.  Use it and also generate the percent.
+      CV.push_back( Get_Collector (exp->FW(), VIEW_pcsamp_collectors[0]) ); // use pcsamp collector
+      MV.push_back(VIEW_pcsamp_metrics[0]);  // Use the Collector with the first metric
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is %
+    }
+
     return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
   }
 };
@@ -193,6 +208,11 @@ static std::string VIEW_hwc_long  = "The report is sorted in descending order by
                                     "\n\t'-v LinkedObjects' will report counts by linked object."
                                     "\n\t'-v Functions' will report counts by function. This is the default."
                                     "\n\t'-v Statements' will report counts by statement."
+                                    " \n\nThe user can select individual metrics for display by listing"
+                                    " them after the '-m' option key."
+                                    " Only the metrics in the list will be displayed."
+                                    " Since there is only one metric available for this view, the use of"
+                                    " the '-m overflows' option will suppress the calculation of percent."
                                     "\n";
 static std::string VIEW_hwc_example = "\texpView hwc\n"
                                       "\texpView -v Functions hwc10\n";
@@ -223,12 +243,21 @@ class hwc_view : public ViewType {
     std::vector<ViewInstruction *>IV;
     std::vector<std::string> HV;
 
-   // There is only 1 supported metric.  Use it and ignore what the user may have specified with '-m'.
-    CV.push_back (Get_Collector (exp->FW(), VIEW_hwc_collectors[0]));  // Get the collector
-    MV.push_back(VIEW_hwc_metrics[0]);  // Get the name of the metric
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
-    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // metric is total
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is % of first
+    OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+    vector<ParseRange> *p_slist = p_result->getexpMetricList();
+    if (!p_slist->empty()) {
+     // Use the metrics that the user listed.
+      if (!Select_User_Metrics (cmd, exp, CV, MV, IV, HV)) {
+        return false;
+      }
+    } else {
+     // There is only 1 supported metric.  Use it and add percent for the default view.
+      CV.push_back (Get_Collector (exp->FW(), VIEW_hwc_collectors[0]));  // Get the collector
+      MV.push_back(VIEW_hwc_metrics[0]);  // Get the name of the metric
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // metric is total
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is % of first
+    }
 
    // Get the name of the event that we were collecting.
    // Use this for the column header in the report rather then the name of the metric.
@@ -278,9 +307,6 @@ static std::string VIEW_hwctime_metrics[] =
 static std::string VIEW_hwctime_collectors[] =
   { "hwctime",
     ""
-  };
-static std::string VIEW_hwctime_header[] =
-  { ""
   };
 class hwctime_view : public ViewType {
 
