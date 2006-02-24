@@ -163,6 +163,9 @@ namespace {
 
 }
 
+// Static sources for SetOpenssLibPath()
+#include "OpenSSPath.cxx"
+
 /**
  * View plugin search callback.
  *
@@ -216,58 +219,9 @@ void ViewPluginTable::foreachCallback(const std::string& filename)
 ViewPluginTable::ViewPluginTable()
 {
 
-  if (lt_dlgetsearchpath() == NULL) {
-
-    // Is the following code needed?? 
-    //   It seems so.  We need to find the built-in plugins and need
-    //   this setup sequence to assure that we know the right path,
-    //   since we can not count on the user setting OPENSS_PLUGIN_PATH
-    //   to point us towards the openss install directories.
-
-    // Prepend our compile-time library directory to LD_LIBRARY_PATH
-    std::string ld_library_path = std::string("LD_LIBRARY_PATH=") + LIBRARY_DIR;
-    if(getenv("LD_LIBRARY_PATH") != NULL) {
-        ld_library_path += std::string(":") + getenv("LD_LIBRARY_PATH");
-    }
-    char* ld_library_path_cstr = NULL;
-    Assert((ld_library_path_cstr = strdup(ld_library_path.c_str())) != NULL);
-    Assert(putenv(ld_library_path_cstr) == 0);
-
-    // Initialize libltdl 
-    Assert(lt_dlinit() == 0);
-
-    // Note: For some unknown reason, before returning, lt_dlmutex_register()
-    //       calls libltdl_unlock() - even though it never acquired the lock
-    //       in the first place. When that happens, libltdl_unlock() triggers
-    //       an assertion failure upon calling pthread_mutex_unlock(), which
-    //       returns an EPERM error code. To fix this problem, we acquire the
-    //       lock here, manually, before calling lt_dlmutex_register().
-
-/* There appear to be several bugs in the locking code.  Don't use it! dew 25 Oct 2005 */
-   // libltdl_lock();
-   // Assert(lt_dlmutex_register(libltdl_lock, libltdl_unlock,
-   //                            libltdl_seterror, libltdl_geterror) == 0);
-
-    // Start with an empty libltdl search path
-    Assert(lt_dlsetsearchpath("") == 0);
-
-    // Only set the libltdl user-defined search path if it isn't already
-    if(getenv("OPENSS_PLUGIN_PATH") != NULL)
-        Assert(lt_dlsetsearchpath(getenv("OPENSS_PLUGIN_PATH")) == 0);
-
-    // Add our compile-time plugin directory
-    Assert(lt_dladdsearchdir(PLUGIN_DIR) == 0);
-
-    // Attempt to open the CLI library
-    lt_dlhandle handle = lt_dlopenext("libopenss-cli");
-    if(handle == NULL) {
-        const char* error = lt_dlerror();
-        Assert(error != NULL);
-        std::cerr << std::endl << error << std::endl << std::endl;
-        Assert(lt_dlexit() == 0);
-        return;
-    }
-  }
+    // Set up LD_LIBRARY_PATH and plugin dl_open paths
+    // if not done already.
+    SetOpenssLibPath();
 
     // Search for view plugins in the libltdl user-defined search path
     if(lt_dlgetsearchpath() != NULL)

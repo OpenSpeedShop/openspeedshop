@@ -525,7 +525,7 @@ extern "C"
     char *gui_dl_name = getenv("OPENSS_GUI_RELOCATABLE_NAME");
     char *gui_entry_point = getenv("OPENSS_GUI_ENTRY_POINT");
     char *gui_exit_point = getenv("OPENSS_GUI_EXIT_POINT");
-    char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
+    // char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
 
     // Insure the libltdl user-defined library search path has been set
     Assert(lt_dlgetsearchpath() != NULL);

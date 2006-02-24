@@ -29,6 +29,8 @@
 #include <ltdl.h>
 #include <stdlib.h>
 
+#define BOSCO 1
+
 using namespace OpenSpeedShop::Framework;
 
 
@@ -321,7 +323,8 @@ void CollectorPluginTable::foreachCallback(const std::string& filename)
 	);
 }
 
-
+// Static sources for SetOpenssLibPath()
+#include "OpenSSPath.cxx"
 
 /**
  * Build the table.
@@ -336,10 +339,10 @@ void CollectorPluginTable::build()
     // Check preconditions
     Assert(!dm_is_built);
     
-    // Only set the libltdl user-defined search path if it isn't already
-    if((lt_dlgetsearchpath() == NULL) && (getenv("OPENSS_PLUGIN_PATH") != NULL))
-	Assert(lt_dlsetsearchpath(getenv("OPENSS_PLUGIN_PATH")) == 0);
-    
+    // Set up LD_LIBRARY_PATH and plugin dl_open paths
+    // if not done already.
+    SetOpenssLibPath();
+
     // Search for collector plugins in the libltdl user-defined search path
     if(lt_dlgetsearchpath() != NULL)
 	lt_dlforeachfile(lt_dlgetsearchpath(), ::foreachCallback, this);

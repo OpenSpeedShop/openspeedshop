@@ -23,7 +23,8 @@
 #include <stdlib.h>
 #include <string>
 
-
+#define BOSCO 1
+#define USE_DL_LOCK
 
 /**
  * Check a runtime assertion.
@@ -116,7 +117,8 @@ namespace {
 
 }
 
-
+// Static sources for SetOpenssLibPath()
+#include "OpenSSPath.cxx"
 
 /**
  * Main entry point.
@@ -129,37 +131,9 @@ namespace {
  */
 int main(int argc, char* argv[])
 {
-    // Prepend our compile-time library directory to LD_LIBRARY_PATH
-    std::string ld_library_path = std::string("LD_LIBRARY_PATH=") + LIBRARY_DIR;
-    if(getenv("LD_LIBRARY_PATH") != NULL)
-	ld_library_path += std::string(":") + getenv("LD_LIBRARY_PATH");
-    char* ld_library_path_cstr = NULL;
-    Assert((ld_library_path_cstr = strdup(ld_library_path.c_str())) != NULL);
-    Assert(putenv(ld_library_path_cstr) == 0);    
-
-    // Note: For some unknown reason, before returning, lt_dlmutex_register()
-    //       calls libltdl_unlock() - even though it never acquired the lock
-    //       in the first place. When that happens, libltdl_unlock() triggers
-    //       an assertion failure upon calling pthread_mutex_unlock(), which
-    //       returns an EPERM error code. To fix this problem, we acquire the
-    //       lock here, manually, before calling lt_dlmutex_register().
+    // Set up LD_LIBRARY_PATH and plugin dl_open paths.
+    SetOpenssLibPath();
     
-    // Initialize libltdl
-    Assert(lt_dlinit() == 0); 
-    libltdl_lock();
-    Assert(lt_dlmutex_register(libltdl_lock, libltdl_unlock,
-			       libltdl_seterror, libltdl_geterror) == 0);
-    
-    // Start with an empty libltdl search path
-    Assert(lt_dlsetsearchpath("") == 0);
-    
-    // Add the user-specified plugin path
-    if(getenv("OPENSS_PLUGIN_PATH") != NULL)
-	Assert(lt_dladdsearchdir(getenv("OPENSS_PLUGIN_PATH")) == 0);
-
-    // Add our compile-time plugin directory
-    Assert(lt_dladdsearchdir(PLUGIN_DIR) == 0);
-
     // Attempt to open the CLI library
     lt_dlhandle handle = lt_dlopenext("libopenss-cli");
     if(handle == NULL) {
@@ -169,7 +143,6 @@ int main(int argc, char* argv[])
 	Assert(lt_dlexit() == 0);
 	return 1;
     }
-    
     // Attempt to locate the CLI library's entry point
     void (*entry)(int, char*[]) = (void (*)(int, char*[]))
 	lt_dlsym(handle, "cli_init");
