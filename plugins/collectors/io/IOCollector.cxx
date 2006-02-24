@@ -23,6 +23,7 @@
  */
  
 #include "IOCollector.hxx"
+#include "IODetail.hxx"
 #include "blobs.h"
 
 using namespace OpenSpeedShop::Framework;
@@ -35,6 +36,9 @@ namespace {
     
     /** Type returned for the IO call time metrics. */
     typedef std::map<StackTrace, std::vector<double> > CallTimes;
+
+    /** Type returned for the IO call detail metrics. */
+    typedef std::map<StackTrace, std::vector<IODetail> > CallDetails;
     
     
 
@@ -43,7 +47,7 @@ namespace {
      *
      * Table listing the traceable IO functions. In order for an IO function
      * to actually be traceable, corresponding wrapper(s) must first be written
-     * and coioled into this collector's runtime.
+     * and compiled into this collector's runtime.
      *
      * @note    A function's index position in this table is directly used as
      *          its index position in the io_parameters.traced array. Thus
@@ -113,6 +117,12 @@ IOCollector::IOCollector() :
     declareMetric(Metadata("exclusive_times", "Exclusive Times",
 			   "Exclusive IO call times in seconds.",
 			   typeid(CallTimes)));
+    declareMetric(Metadata("inclusive_details", "Inclusive Details",
+			   "Inclusive IO call details.",
+			   typeid(CallDetails)));
+    declareMetric(Metadata("exclusive_details", "Exclusive Details",
+			   "Exclusive IO call details.",
+			   typeid(CallDetails)));
 }
 
 
@@ -294,16 +304,28 @@ void IOCollector::getMetricValues(const std::string& metric,
 				    void* ptr) const
 {
     // Only the "inclusive_times" and "exclusive_times" metrics return anything
-    if((metric != "inclusive_times") && (metric != "exclusive_times"))
+    if((metric != "inclusive_times") && (metric != "exclusive_times") &&
+       (metric != "inclusive_details") && (metric != "exclusive_details"))
 	return;
-    bool is_exclusive = (metric == "exclusive_times");
+    bool is_exclusive = (metric == "exclusive_times"     ||
+                         metric == "exclusive_details"   );
 
+    bool is_details =   (metric == "inclusive_details"   ||
+                         metric == "exclusive_details"   );
+
+    // Cast the untype pointer into a vector of call details
+    std::vector<CallDetails>* dvalues =
+            reinterpret_cast<std::vector<CallDetails>*>(ptr);
     // Cast the untype pointer into a vector of call times
-    std::vector<CallTimes>* values = 
+    std::vector<CallTimes>* tvalues = 
 	reinterpret_cast<std::vector<CallTimes>*>(ptr);
     
     // Check assertions
-    Assert(values->size() >= subextents.size());
+    if (is_details) {
+        Assert(dvalues->size() >= subextents.size());
+    } else {
+        Assert(tvalues->size() >= subextents.size());
+    }
 
     // Decode this data blob
     io_data data;
@@ -351,12 +373,27 @@ void IOCollector::getMetricValues(const std::string& metric,
 		// subextent (or find an existing stack trace)
 		//
 		
-		CallTimes::iterator l = (*values)[*k].insert(
-		    std::make_pair(trace, std::vector<double>())
-		    ).first;
-		
-		// Add this event's time (in seconds) to the results
-		l->second.push_back(t_intersection / 1000000000.0);
+                if (is_details) {
+                    // metric is for details
+                    CallDetails::iterator l = (*dvalues)[*k].insert(
+                        std::make_pair(trace, std::vector<IODetail>())
+                        ).first;
+
+                    // Add this event's time (in seconds) to the results
+                    IODetail details;
+                    details.dm_interval = interval;
+                    details.dm_time = t_intersection / 1000000000.0;
+
+                    l->second.push_back(details);
+                } else {
+                    // metric is for times
+                    CallTimes::iterator l = (*tvalues)[*k].insert(
+                        std::make_pair(trace, std::vector<double>())
+                        ).first;
+
+                    // Add this event's time (in seconds) to the results
+                    l->second.push_back(t_intersection / 1000000000.0);
+                }
 		
 	    }
 	    

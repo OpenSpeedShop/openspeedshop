@@ -29,7 +29,7 @@ io_la_LDFLAGS = \
 
 io_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
-	IOCollector.hxx IOCollector.cxx
+	IOCollector.hxx IODetail.hxx IOCollector.cxx
 
 io_rt_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
