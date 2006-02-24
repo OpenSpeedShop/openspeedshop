@@ -151,21 +151,6 @@ void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fex
 
       }
 
-      if (!all_collectors_available &&
-          (Metric_List[0].length() > 0)) {
-       // Look for an available collector that produces the required metrics.
-        CollectorGroup::iterator ci;
-
-        for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-          Collector C = *ci;
-          if (Collector_Generates_Metrics ( C, &Metric_List[0] )) {
-            all_collectors_available = true;
-            break;
-          }
-        }
-
-      }
-
       if (all_collectors_available) {
         cmd->Result_String ( s + vt->Unique_Name() );
       }
