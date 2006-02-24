@@ -25,6 +25,7 @@ io_view_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-queries \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-cli \
+	-I$(top_srcdir)/plugins/collectors/io \
 	-I$(top_srcdir)/libopenss-message 
 
 io_view_la_LDFLAGS = \

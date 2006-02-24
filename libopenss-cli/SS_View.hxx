@@ -336,11 +336,6 @@ View_Form_Category Determine_Form_Category (CommandObject *cmd);
 bool Determine_TraceBack_Ordering (CommandObject *cmd);
 SmartPtr<std::vector<CommandResult *> >
        Construct_CallBack (bool TraceBack_Order, bool add_stmts, Framework::StackTrace& st);
-void Determine_Objects (
-               CommandObject *cmd,
-               ExperimentObject *exp,
-               ThreadGroup& tgrp,
-               std::set<Function>& objects);
 bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string viewname);
 
 void Construct_View_Output (CommandObject *cmd,

@@ -847,62 +847,6 @@ SmartPtr<std::vector<CommandResult *> >
   return call_stack;
 }
 
-void Determine_Objects (
-               CommandObject *cmd,
-               ExperimentObject *exp,
-               ThreadGroup& tgrp,
-               std::set<Function>& objects) {
- // Get the list of desired functions.
-  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
-  OpenSpeedShop::cli::ParseTarget pt;
-  if (p_tlist->begin() == p_tlist->end()) {
-   // There is no <target> list for filtering.
-   // Get all the mpi functions for all the threads.
-    objects = exp->FW()->getFunctionsByNamePattern ("PMPI*");
-  } else {
-   // There is a list.  Is there a "-f" specifier?
-    vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
-    pt = *p_tlist->begin(); // There can only be one!
-    f_list = pt.getFileList();
-
-    if ((f_list == NULL) || (f_list->empty()) ||
-        Look_For_KeyWord(cmd, "ButterFly")) {
-     // There is no Function filtering requested or a ButerFly views is requested.
-     // Get all the functions in the already selected thread groups.
-     // Function filtering will be done later for ButerFly views.
-      for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-
-       // Check for asnychonous abort command
-       // Check for asnychonous abort command
-        if (cmd->Status() == CMD_ABORTED) {
-          return;
-        }
-
-        Thread thread = *ti;
-        std::set<Function> threadObjects;
-        OpenSpeedShop::Queries::GetSourceObjects(thread, threadObjects);
-        objects.insert(threadObjects.begin(), threadObjects.end());
-      }
-    } else {
-     // There is some sort of file filter specified.
-     // Determine the names of desired functions and get Function objects for them.
-     // Thread filtering will be done in GetMetricInThreadGroup.
-        vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
-        for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
-          OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
-          OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
-          Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
-          std::string F_Name = pval1.name;
-          std::set<Function> new_objects = exp->FW()->getFunctionsByNamePattern (F_Name);
-          if (!new_objects.empty()) {
-            objects.insert (new_objects.begin(), new_objects.end());
-          }
-        }
-    }
-  }
-}
-
 
 // Utilities for working with class ViewInstruction
 
