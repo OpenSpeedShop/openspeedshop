@@ -337,7 +337,9 @@ if( attachFLAG )
       ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
       if( ao && ao->loadedFromSavedFile == TRUE )
       {
+#ifdef SPLIT
         topPC->splitVertical(40);
+#endif // SPLIT
         postProcessFLAG = TRUE;
 // printf("postProcessFLAG == TRUE!\n");
 
