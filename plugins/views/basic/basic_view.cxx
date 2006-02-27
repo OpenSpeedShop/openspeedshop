@@ -50,7 +50,8 @@ static std::string VIEW_pcsamp_metrics[] =
     ""
   };
 static std::string VIEW_pcsamp_collectors[] =
-  { "pcsamp"
+  { "pcsamp",
+    ""
   };
 class pcsamp_view : public ViewType {
 
