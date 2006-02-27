@@ -2056,6 +2056,28 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
                          + ", " + TmpDB + " database is " + exp->Data_Base_Name ());
   try {
       if (exp->FW() != NULL) {
+        Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
+        if ((databaseExtent.getTimeInterval().getBegin() == Time::TheBeginning()) ||
+            (databaseExtent.getTimeInterval().getBegin() ==
+                             databaseExtent.getTimeInterval().getEnd())) {
+          cmd->Result_String ("    There are no performance measurements recorded in the database,");
+        } else {
+          std::ostringstream lt(ios::out);
+          std::ostringstream st(ios::out);
+          std::ostringstream et(ios::out);
+          Time ST = databaseExtent.getTimeInterval().getBegin();
+          Time ET = databaseExtent.getTimeInterval().getEnd();
+          lt << ((ET -ST) / 1000000000.0);
+          st << databaseExtent.getTimeInterval().getBegin();
+          et << databaseExtent.getTimeInterval().getEnd();
+          cmd->Result_String ("    Performance spans "
+                              + lt.ostringstream::str()
+                              + "ms  from "
+                              + st.ostringstream::str()
+                              + " to "
+                              + et.ostringstream::str());
+        }
+
         ThreadGroup tgrp = exp->FW()->getThreads();
         ThreadGroup::iterator ti;
         bool atleastone = false;
