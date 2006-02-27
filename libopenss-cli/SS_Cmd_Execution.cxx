@@ -2060,7 +2060,7 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
         if ((databaseExtent.getTimeInterval().getBegin() == Time::TheBeginning()) ||
             (databaseExtent.getTimeInterval().getBegin() ==
                              databaseExtent.getTimeInterval().getEnd())) {
-          cmd->Result_String ("    There are no performance measurements recorded in the database,");
+          cmd->Result_String ("    There is no performance data recorded in the database.");
         } else {
           std::ostringstream lt(ios::out);
           std::ostringstream st(ios::out);
@@ -2070,7 +2070,7 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
           lt << ((ET -ST) / 1000000000.0);
           st << databaseExtent.getTimeInterval().getBegin();
           et << databaseExtent.getTimeInterval().getEnd();
-          cmd->Result_String ("    Performance spans "
+          cmd->Result_String ("    Performance data spans "
                               + lt.ostringstream::str()
                               + "ms  from "
                               + st.ostringstream::str()
