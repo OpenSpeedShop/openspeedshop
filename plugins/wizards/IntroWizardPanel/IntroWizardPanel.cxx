@@ -419,7 +419,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       {
 //      printf("fn = %s\n", fn.ascii() );
 //      fprintf(stderr, "Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
-getPanelContainer()->getMainWindow()->executableName = QString::null;
+        getPanelContainer()->getMainWindow()->executableName = QString::null;
         getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
       } else
       {

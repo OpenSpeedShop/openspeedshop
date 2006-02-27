@@ -518,6 +518,7 @@ catch(const std::exception& error)
 }
 // End determine if there's mpi stats
 
+// printf("Call updateStatsPanelData() \n");
     updateStatsPanelData();
     if( msg->raiseFLAG )
     {
@@ -526,6 +527,7 @@ catch(const std::exception& error)
     }
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
+// printf("Call (make this one smarter) updateStatsPanelData() \n");
     updateStatsPanelData();
   } else if( msgObject->msgType == "SaveAsObject" )
   {
@@ -1106,6 +1108,7 @@ StatsPanel::exportData()
 void
 StatsPanel::updatePanel()
 {
+// printf("updatePanel() about to call updateStatsPanelData()\n");
   updateStatsPanelData();
 }
 
@@ -1920,7 +1923,7 @@ StatsPanel::threadSelected(int val)
     }
   }
 
-// printf("currentThreadsStr = %s\n", currentThreadsStr.ascii() );
+// printf("currentThreadsStr = %s call update.\n", currentThreadsStr.ascii() );
 
 
   updateStatsPanelData();
@@ -1970,6 +1973,8 @@ StatsPanel::collectorMetricSelected(int val)
         selectedFunctionStr = QString::null;
       }
     }
+
+// printf("Collector changed call updateStatsPanelData() \n");
     updateStatsPanelData();
   }
 }
@@ -3034,7 +3039,7 @@ StatsPanel::generateCommand()
   { 
     if( currentUserSelectedMetricStr.isEmpty() || currentUserSelectedMetricStr == "CallTrees" )
     {
-      command = QString("expView -x %1 %3%2 -v CallTrees").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+      command = QString("expView -x %1 %3%2 -v CallTrees %4").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(traceAddition);
     } else if ( currentUserSelectedMetricStr == "CallTrees by Selected Function" )
     {
       if( selectedFunctionStr.isEmpty() )
@@ -3045,11 +3050,9 @@ StatsPanel::generateCommand()
       {
         return( QString::null );
       }
-//      command = QString("expView -x %1 %4%2 -v CallTrees -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
       command = QString("expView -x %1 %4%2 -v CallTrees -f %3 %4").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr).arg(traceAddition);
     } else if ( currentUserSelectedMetricStr == "TraceBacks" )
     {
-//      command = QString("expView -x %1 %3%2 -v TraceBacks").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
       command = QString("expView -x %1 %3%2 -v TraceBacks %4").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(traceAddition);
     } else if ( currentUserSelectedMetricStr == "TraceBacks/FullStack" )
     {

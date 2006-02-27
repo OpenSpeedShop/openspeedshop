@@ -278,7 +278,7 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
   
     PanelContainer *bestFitPC = ((PanelContainer *)topPC)->findBestFitPanelContainer((PanelContainer *)topPC);
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", &expStr);
-ao->loadedFromSavedFile = loadedFromSavedFile;
+    ao->loadedFromSavedFile = loadedFromSavedFile;
     topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, ao, (const char *)NULL );
     delete ao;
 

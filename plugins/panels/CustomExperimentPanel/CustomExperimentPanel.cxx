@@ -345,12 +345,12 @@ if( attachFLAG )
         //printf("Split:  Now loadStatsPanel()\n");
         Panel *p = loadStatsPanel();
             
+#ifdef DOUBLEREFRESH
         // Now focus on the first entry...
           //printf("Now focus the statsPanel\n");
         FocusObject *msg = new FocusObject(expID, NULL, NULL, TRUE);
         p->listener(msg);
-
-//        updateInitialStatus();
+#endif // DOUBLEREFRESH
       } else
       {
         statusLabelText->setText( tr(QString("Process Loaded: Click on the \"Run\" button to begin the experiment.")) );
@@ -661,7 +661,7 @@ CustomExperimentPanel::listener(void *msg)
 // printf("CustomExperimentPanel:: call (%s)'s listener routine.\n", statsPanel->getName());
       }
 
-printf("NOTE: Issue a focus not an update message...\n");
+// printf("NOTE: Issue a focus not an update message...\n");
       command = QString("cview -c %1, %2").arg(leftSideCval).arg(rightSideCval);
       UpdateObject *msg =
          new UpdateObject((void *)NULL, -1, command.ascii(), 1);
