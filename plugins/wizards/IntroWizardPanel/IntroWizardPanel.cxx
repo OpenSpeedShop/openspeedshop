@@ -374,8 +374,8 @@ IntroWizardPanel::languageChange()
 "(Hardware Counters are an advanced feature that utilizes machine \n"
 "hardware to measure certain attributes of program execution.) (hwc)" ) );
   vpage1FloatingPointRB->setText( tr( "I need to measure how many times I am causing Floating Point Exceptions. (fpe)" ) );
-  vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work. (io)" ) );
-  vpage1MPIRB->setText( tr( "I have an MPI program and I'd like measure the mpi calls. (mpi)" ) );
+  vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work. (io/iot)" ) );
+  vpage1MPIRB->setText( tr( "I have an MPI program and I'd like measure the mpi calls. (mpi/mpit)" ) );
   eHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
   epage1LoadExperimentCheckBox->setText( tr( "Load experiment data." ) );
   epage1CompareExperimentsCheckBox->setText( tr( "Compare two experiments." ) );

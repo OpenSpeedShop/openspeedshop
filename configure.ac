@@ -174,6 +174,7 @@ AC_CONFIG_FILES(
 	plugins/panels/ComparePanel/Makefile
 	plugins/panels/HW_CounterPanel/Makefile
 	plugins/panels/IOPanel/Makefile
+	plugins/panels/IOTPanel/Makefile
 	plugins/panels/MPIPanel/Makefile
 	plugins/panels/MPITPanel/Makefile
 	plugins/panels/DebugPanel/Makefile

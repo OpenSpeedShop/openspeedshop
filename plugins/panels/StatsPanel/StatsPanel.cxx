@@ -609,9 +609,24 @@ StatsPanel::menu( QPopupMenu* contextMenu)
       list_of_modifiers.push_back("percent");
       list_of_modifiers.push_back("stddev");
 
+if( QString(collector_name).startsWith("mpit::exclusive_times") )
+{
+  list_of_modifiers.push_back("start_time");
+  list_of_modifiers.push_back("stop_time");
+  list_of_modifiers.push_back("source");
+  list_of_modifiers.push_back("destination");
+  list_of_modifiers.push_back("size");
+  list_of_modifiers.push_back("tag");
+  list_of_modifiers.push_back("comminicator");
+  list_of_modifiers.push_back("datatype");
+  list_of_modifiers.push_back("retval");
+}
+
 // printf("currentCollectorStr=%s\n", currentCollectorStr.ascii() );
       if( QString(collector_name).startsWith("mpi::exclusive_times") ||
-          QString(collector_name).startsWith("io::exclusive_times") )
+          QString(collector_name).startsWith("mpit::exclusive_times") ||
+          QString(collector_name).startsWith("io::exclusive_times") ||
+          QString(collector_name).startsWith("iot::exclusive_times") )
       {
         QPopupMenu *mpi_io_Menu = new QPopupMenu(this);
         connect(mpi_io_Menu, SIGNAL( activated(int) ),
@@ -635,7 +650,8 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         qaction = new QAction(this, "showFunctions");
         qaction->addTo( mpi_io_Menu );
         qaction->setText( tr("Show Metric: Functions") );
-        if( QString(collector_name).startsWith("mpi::exclusive_times") )
+        if( QString(collector_name).startsWith("mpi::exclusive_times") || 
+            QString(collector_name).startsWith("mpit::exclusive_times") )
         {
           qaction->setToolTip(tr("Show timings for MPI Functions."));
         } else
@@ -646,7 +662,8 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         qaction = new QAction(this, "showTracebacks");
         qaction->addTo( mpi_io_Menu );
         qaction->setText( tr("Show Metric: TraceBacks") );
-        if( QString(collector_name).startsWith("mpi::exclusive_times") )
+        if( QString(collector_name).startsWith("mpi::exclusive_times") ||
+            QString(collector_name).startsWith("mpit::exclusive_times") )
         {
           qaction->setToolTip(tr("Show tracebacks to MPI Functions."));
         } else
@@ -658,7 +675,8 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         qaction = new QAction(this, "showTracebacks/FullStack");
         qaction->addTo( mpi_io_Menu );
         qaction->setText( tr("Show Metric: TraceBacks/FullStack") );
-        if( QString(collector_name).startsWith("mpi::exclusive_times") )
+        if( QString(collector_name).startsWith("mpi::exclusive_times")  ||
+            QString(collector_name).startsWith("mpit::exclusive_times") )
         {
           qaction->setToolTip(tr("Show tracebacks, with full stacks, to MPI Functions."));
         } else
@@ -669,7 +687,8 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         qaction = new QAction(this, "showCallTrees");
         qaction->addTo( mpi_io_Menu );
         qaction->setText( tr("Show Metric: CallTrees") );
-        if( QString(collector_name).startsWith("mpi::exclusive_times") )
+        if( QString(collector_name).startsWith("mpi::exclusive_times") ||
+            QString(collector_name).startsWith("mpit::exclusive_times") )
         {
           qaction->setToolTip(tr("Show Call Trees to each MPI Functions."));
         } else
@@ -692,7 +711,8 @@ StatsPanel::menu( QPopupMenu* contextMenu)
           qaction = new QAction(this, "showCallTreesBySelectedFunction");
           qaction->addTo( mpi_io_Menu );
           qaction->setText( tr("Show Metric: CallTrees by Selected Function") );
-          if( QString(collector_name).startsWith("mpi::exclusive_times") )
+          if( QString(collector_name).startsWith("mpi::exclusive_times") ||
+              QString(collector_name).startsWith("mpit::exclusive_times") )
           {
             qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
           } else
@@ -727,7 +747,8 @@ StatsPanel::menu( QPopupMenu* contextMenu)
             }
           }
         }
-if( QString(collector_name).startsWith("mpi::exclusive_times") )
+if( QString(collector_name).startsWith("mpi::exclusive_times") ||
+    QString(collector_name).startsWith("mpit::exclusive_times") )
 {
         mpi_io_Menu->insertItem(QString("Show mpi modifiers:"), modifierMenu);
 
@@ -2958,8 +2979,8 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
 QString
 StatsPanel::generateCommand()
 {
-// For debugging of mpit trace syntax only.
-QString traceAddition = QString::null;
+  QString traceAddition = QString::null;
+// printf("GenerateCommand() traceFLAG == %d\n", traceFLAG );
   if( traceFLAG == TRUE )
   {
     traceAddition = "-v trace";
@@ -3007,7 +3028,7 @@ QString traceAddition = QString::null;
   }
 
 
-//printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedMetricStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii(), currentMetricStr.ascii() );
+// printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedMetricStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii(), currentMetricStr.ascii() );
 
   if( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) )
   { 
@@ -3046,7 +3067,7 @@ QString traceAddition = QString::null;
       command = QString("expView -x %1 %4%2 -v Butterfly -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else
     {
-      command = QString("expView -x %1 %3%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+      command = QString("expView -x %1 %3%2 -v Functions %4").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(traceAddition);
     }
     if( !currentThreadsStr.isEmpty() )
     {
@@ -3075,6 +3096,7 @@ QString traceAddition = QString::null;
       command += QString(" %1").arg(modifierStr);
     }
 
+// printf("generateCommand() returning (%s)\n", command.ascii() );
   return( command );
 } // End generateCommand
 

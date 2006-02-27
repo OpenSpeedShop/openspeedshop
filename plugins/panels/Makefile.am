@@ -26,6 +26,7 @@ SUBDIRS = \
 	pcSamplePanel \
 	UserTimePanel \
 	IOPanel \
+	IOTPanel \
 	FPE_TracingPanel \
 	MPIPanel \
 	MPITPanel \

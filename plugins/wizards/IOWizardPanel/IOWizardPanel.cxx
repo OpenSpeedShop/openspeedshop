@@ -147,6 +147,12 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *
 
   vParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageParameterLayout"); 
 
+  vParameterTraceCheckBox = new QCheckBox( vParameterPageWidget, "vParameterTraceComboBox" );
+  vParameterTraceCheckBox->setText(tr("Gather additional information for each IO function call. (iot)") );
+  vParameterPageParameterLayout->addWidget( vParameterTraceCheckBox );
+  QToolTip::add( vParameterTraceCheckBox, tr( "Records extra information, with more overhead, including\nsize of io.") );
+
+
   vParameterPageFunctionListHeaderLabel = new QLabel( vParameterPageWidget, "vParameterPageFunctionListHeaderLabel" );
   vParameterPageFunctionListHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
   vParameterPageParameterLayout->addWidget( vParameterPageFunctionListHeaderLabel );
@@ -342,6 +348,11 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *
   eParameterPageLayout->addWidget( eParameterPageLine );
 
   eParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "eParameterPageParameterLayout"); 
+
+  eParameterTraceCheckBox = new QCheckBox( eParameterPageWidget, "eParameterTraceComboBox" );
+  eParameterTraceCheckBox->setText(tr("Gather additional information for each IO function call. (iot)") );
+  eParameterPageParameterLayout->addWidget( eParameterTraceCheckBox );
+  QToolTip::add( eParameterTraceCheckBox, tr( "Records extra information, with more overhead, including\nsize of io.") );
 
   eParameterPageFunctionListHeaderLabel = new QLabel( eParameterPageWidget, "eParameterPageFunctionListHeaderLabel" );
   eParameterPageFunctionListHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
@@ -1190,8 +1201,15 @@ void IOWizardPanel::vSummaryPageFinishButtonSelected()
         if( !p )
         {
           ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
-ao->lao = lao;
-          p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO", getPanelContainer(), ao);
+          ao->lao = lao;
+          if( (vwizardMode->isChecked() && vParameterTraceCheckBox->isChecked()) ||
+              (ewizardMode->isChecked() && eParameterTraceCheckBox->isChecked()) )
+          {
+            p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IOT", getPanelContainer(), ao);
+          } else
+          {
+            p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO", getPanelContainer(), ao);
+          }
           delete ao;
         } else
         {
