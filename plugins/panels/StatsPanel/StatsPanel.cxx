@@ -832,7 +832,7 @@ if( QString(collector_name).startsWith("mpi::exclusive_times") ||
   qaction->addTo( contextMenu );
   qaction->setText( "Compare..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( compareSelected() ) );
-  qaction->setStatusTip( tr("Compare one experiment to another, one thread to another, ... currently unimplemented.") );
+  qaction->setStatusTip( tr("Compare one experiment to another, one thread to another, or customize the StatsPanel report.") );
 
   contextMenu->insertSeparator();
 
@@ -1716,6 +1716,9 @@ StatsPanel::updateStatsPanelData(QString command)
   if( command.isEmpty() )
   {
     command = generateCommand();
+  } else
+  {
+    about = "Compare/Customize report for:\n  ";
   }
 
   if( command.isEmpty() )

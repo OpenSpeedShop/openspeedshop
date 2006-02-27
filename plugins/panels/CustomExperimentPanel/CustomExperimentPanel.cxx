@@ -508,7 +508,7 @@ if( experiment != NULL )
 
   qaction = new QAction( this,  "compareExperimentsSelected");
   qaction->addTo( contextMenu );
-  qaction->setText( "Compare Experiments..." );
+  qaction->setText( "Compare Experiments/Customize StatsPanel..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( compareExperimentsSelected() ) );
   qaction->setStatusTip( tr("Opens a saved experiment, so it's data can be compared against this experiments data.") );
 

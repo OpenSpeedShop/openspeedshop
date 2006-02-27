@@ -427,6 +427,10 @@ CompareProcessesDialog::updateFocus(int _expID, CompareClass *_compareClass, Com
   compareClass = _compareClass;
   compareSet = _compareSet;
   columnSet = _columnSet;
+if( _expID == expID )
+{
+  return;
+}
   expID = _expID;
 
   if( expID == -1 || compareSet == NULL || compareSet == NULL )
