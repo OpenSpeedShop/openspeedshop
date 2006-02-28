@@ -14,7 +14,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-noinst_PROGRAMS = eut_diag mutatee
+noinst_PROGRAMS = eut_diag
 
 CFLAGS  = \
          -g -gdwarf-2
@@ -23,7 +23,7 @@ CXXFLAGS        = \
          -g -gdwarf-2
 
 CPPFLAGS        = \
-         -g -gdwarf-2
+         -pg -g -gdwarf-2
 
 eut_diag_CXXFLAGS = \
          $(DPCL_CPPFLAGS)
@@ -31,25 +31,14 @@ eut_diag_CXXFLAGS = \
 eut_diag_LDFLAGS = \
         -L$(ROOT)/lib \
         $(DPCL_LDFLAGS) \
-        $(DPCL_LIBS) -lelf
+        $(DPCL_LIBS) -lelf -lunwind
 
 eut_diag_LIBS = \
         $(DPCL_LDFLAGS) \
-        $(DPCL_LIBS) -lelf
+        $(DPCL_LIBS) -lelf -lunwind
 
 eut_diag_SOURCES = \
         eut_diag.cxx
-
-mutatee_CFLAGS = \
-         $(DPCL_CPPFLAGS) \
-         $(CPPFLAGS)
-
-mutatee_LDADD = \
-        -ldl
-
-mutatee_SOURCES = \
-        mutatee.c
-
 
 EXTRA_DIST = \
         README \
@@ -57,37 +46,4 @@ EXTRA_DIST = \
         eut_diag.tst.expected \
         runone-dpcl \
         runall-dpcl
-# This software is subject to the terms of the IBM Public License            
-# You must accept the terms of this license to use this software.            
-#                                                                           
-# Copyright (C) 2001, International Business Machines Corporation            
-#                                                                            
-# Further information about the IBM Public License Version 1.0 is obtained   
-# from URL http://oss.software.ibm.com/developer/opensource/license10.html   
-#(user,"%Z% %I% %W% %D% %T%")
-.SUFFIXES:      .C 
-
-code=eut_diag
-#install = /opt/dpcl
-
-INCDIR	= /usr/include/dpcl
-INC	= -I$(INCDIR)
-
-LIBLOC	= -L/usr/lib 
-
-#LIB	= -ldpcl -lefence -lelf
-LIB	= -ldpcl -lelf -lunwind
-#CCFLAGS	= -pg -g -gdwarf_2 -D__64BIT__
-CCFLAGS	= -pg -g 
-
-all:	${code} 
-
-.C.o:
-	$(CXX) $(CCFLAGS) $(INC) -c $(<)
-
-${code}:	${code}.o
-	$(CXX) -o ${code} ${code}.o $(LIB) $(LIBLOC)
-
-clean:
-	/bin/rm -rf ${code} $(code).o
 
