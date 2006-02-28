@@ -108,7 +108,10 @@ bool Database::isAccessible(const std::string& name)
 	return false;
     Assert(retval == SQLITE_OK);
     Assert(handle != NULL);
-    
+
+    // Specify our busy handler
+    Assert(sqlite3_busy_handler(handle, busyHandler, NULL) == SQLITE_OK);
+
     // Check that we really have a database
     retval = sqlite3_exec(handle,
 			  "SELECT * FROM sqlite_master WHERE type='table';",
