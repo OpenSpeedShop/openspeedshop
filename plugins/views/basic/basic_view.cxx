@@ -384,7 +384,11 @@ class hwctime_view : public ViewType {
       if (blank_at > 0) {
         prename = std::string(prename, 0, blank_at);
       }
-      HV[CM_Index] = prename + " " + name;
+      if (HV.size() > CM_Index) {
+        HV[CM_Index] = prename + " " + name;
+      } else {
+        HV.push_back(prename + " " + name);
+      }
     }
 
     return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
