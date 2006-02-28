@@ -119,6 +119,7 @@ ColumnValueClass columnValueClass[10];
     void updateCollectorMetricList();
     void outputCLIData(QString *data);
     bool mpi_io_FLAG;
+    bool hwc_FLAG;
     bool traceFLAG;
 
   protected:
@@ -174,6 +175,8 @@ void traceSelected();
     void threadSelected(int);
     void modifierSelected(int);
     void collectorMetricSelected(int);
+    void collectorMPIReportSelected(int);
+    void collectorHWCReportSelected(int);
     void showStats();
     void showChart();
     void setOrientation();
@@ -186,6 +189,8 @@ void traceSelected();
 
     void updateStatsPanelData(QString command = QString::null);
     QString generateCommand();
+    void generateModifierMenu();
+
 
     void resetRedirect();
 

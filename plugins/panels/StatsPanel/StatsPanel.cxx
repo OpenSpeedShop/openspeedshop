@@ -139,6 +139,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   traceFLAG == FALSE;
 
   mpi_io_FLAG = FALSE;
+  hwc_FLAG = FALSE;
   currentThread = NULL;
   currentCollector = NULL;
   currentItem = NULL;
@@ -164,6 +165,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   metricHeaderTypeArray = NULL;
   currentThreadStr = QString::null;
   currentCollectorStr = QString::null;
+  collectorStrFromMenu = QString::null;
   groupID = ao->int_data;
   expID = -1;
   descending_sort = true;
@@ -552,6 +554,8 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 {
 // printf("StatsPanel::menu() entered.\n");
 
+  currentCollectorStr = QString::null;
+
   Panel::menu(contextMenu);
 
   popupMenu = contextMenu; // So we can look up the text easily later.
@@ -595,7 +599,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
       it != list_of_collectors.end(); it++ )
   {
      std::string collector_name = (std::string)*it;
-// printf("collector_name=(%s)\n", collector_name.c_str() );
+// printf("A: collector_name=(%s)\n", collector_name.c_str() );
 // Only do this once for the mpi collector.  The mpi menus are not 
 // driven of the metric names, but rather are static.
     if( QString(collector_name).startsWith("mpi") ||
@@ -623,7 +627,6 @@ if( QString(collector_name).startsWith("mpit::exclusive_times") )
   list_of_modifiers.push_back("datatype");
   list_of_modifiers.push_back("retval");
 }
-
 // printf("currentCollectorStr=%s\n", currentCollectorStr.ascii() );
       if( QString(collector_name).startsWith("mpi::exclusive_times") ||
           QString(collector_name).startsWith("mpit::exclusive_times") ||
@@ -632,7 +635,9 @@ if( QString(collector_name).startsWith("mpit::exclusive_times") )
       {
         QPopupMenu *mpi_io_Menu = new QPopupMenu(this);
         connect(mpi_io_Menu, SIGNAL( activated(int) ),
-           this, SLOT(collectorMetricSelected(int)) );
+           this, SLOT(collectorMPIReportSelected(int)) );
+
+// printf("We made an mpi_io_Menu!!\n");
 
         QString s = QString::null;
 
@@ -652,6 +657,7 @@ if( QString(collector_name).startsWith("mpit::exclusive_times") )
         qaction = new QAction(this, "showFunctions");
         qaction->addTo( mpi_io_Menu );
         qaction->setText( tr("Show Metric: Functions") );
+// printf("collector_name=(%s)\n", collector_name.c_str() );
         if( QString(collector_name).startsWith("mpi::exclusive_times") || 
             QString(collector_name).startsWith("mpit::exclusive_times") )
         {
@@ -705,6 +711,7 @@ if( QString(collector_name).startsWith("mpit::exclusive_times") )
 
         if( !currentCollectorStr.isEmpty() && 
             (currentCollectorStr == "Functions" ||
+             collectorStrFromMenu == "Functions" ||
              currentCollectorStr == "mpi" ||
              currentCollectorStr == "mpit" ||
              currentCollectorStr == "iot" ||
@@ -722,39 +729,14 @@ if( QString(collector_name).startsWith("mpit::exclusive_times") )
             qaction->setToolTip(tr("Show Call Tree to IO routine for selected function."));
           }
         }
-        if( modifierMenu )
-        {
-          delete modifierMenu;
-        }
-        modifierMenu = new QPopupMenu(this);
-        modifierMenu->setCheckable(TRUE);
-        connect(modifierMenu, SIGNAL( activated(int) ),
-          this, SLOT(modifierSelected(int)) );
-        for( std::list<std::string>::const_iterator it = list_of_modifiers.begin();
-                it != list_of_modifiers.end(); it++ )
-        {
-          std::string modifier = (std::string)*it;
-    
-          QString s = QString(modifier.c_str() );
-          mid = modifierMenu->insertItem(s);
-          for( std::list<std::string>::const_iterator it = current_list_of_modifiers.begin();
-               it != current_list_of_modifiers.end(); it++ )
-          {
-            std::string current_modifier = (std::string)*it;
-// printf("building menu : current_list_of_modifier here one (%s)\n", current_modifier.c_str() );
-            if( modifier == current_modifier )
-            {
-// printf("WE have a match to check\n");
-              modifierMenu->setItemChecked(mid, TRUE);
-            }
-          }
-        }
+generateModifierMenu();
+// printf("Back from generateModifierMenu()\n");
 if( QString(collector_name).startsWith("mpi::exclusive_times") ||
     QString(collector_name).startsWith("mpit::exclusive_times") )
 {
         mpi_io_Menu->insertItem(QString("Show mpi modifiers:"), modifierMenu);
 
-        contextMenu->insertItem(QString("Show metrics: MPI"), mpi_io_Menu);
+        contextMenu->insertItem(QString("Show Metrics: MPI"), mpi_io_Menu);
 } else
 {
         mpi_io_Menu->insertItem(QString("Show io modifiers:"), modifierMenu);
@@ -762,6 +744,43 @@ if( QString(collector_name).startsWith("mpi::exclusive_times") ||
         contextMenu->insertItem(QString("Show metrics: IO"), mpi_io_Menu);
 }
       }
+    } else if( QString(collector_name).startsWith("hwc::") ||
+               QString(collector_name).startsWith("hwctime::") ) // hwc | hwctime
+    {
+if( QString(collector_name).startsWith("hwctime::exclusive") )
+{
+        // printf("Collector hwc_Menu is being created\n");
+        if( QString(collector_name).startsWith("hwctime::exclusive") )
+        {
+        // printf("Here are the hwctime modifiers!\n");
+          list_of_modifiers.clear();
+          list_of_modifiers.push_back("exclusive_overflows");
+          list_of_modifiers.push_back("inclusive_overflows");
+        }
+
+        QPopupMenu *hwc_Menu = new QPopupMenu(this);
+        connect(hwc_Menu, SIGNAL( activated(int) ),
+           this, SLOT(collectorHWCReportSelected(int)) );
+
+        QString s = QString::null;
+
+        QAction *qaction = NULL;
+
+        qaction = new QAction(this, "showFunctions");
+        qaction->addTo( hwc_Menu );
+        qaction->setText( tr("Show Metric: Functions") );
+        qaction->setToolTip(tr("Show by Functions.") );
+
+        qaction = new QAction(this, "showStatements");
+        qaction->addTo( hwc_Menu );
+        qaction->setText( tr("Show Metric: Statements") );
+        qaction->setToolTip(tr("Show by Statements.") );
+
+        contextMenu->insertItem(QString("Show Metrics: HWC"), hwc_Menu);
+
+        generateModifierMenu();
+        hwc_Menu->insertItem(QString("Show hwctime modifiers:"), modifierMenu);
+}
     } else
     {
       QString s = QString("Show Metric: %1").arg(collector_name.c_str());
@@ -776,9 +795,10 @@ if( QString(collector_name).startsWith("mpi::exclusive_times") ||
         {
           index = s.find("::");
 // printf("index=%d\n", index );
-          currentCollectorStr = s.mid(13, index-13 );
+//          currentCollectorStr = s.mid(13, index-13 );
+          collectorStrFromMenu = s.mid(13, index-13 );
           currentMetricStr = s.mid(index+2);
-// printf("A: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+// printf("AA: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
         }
       }
     }
@@ -914,6 +934,42 @@ if( QString(collector_name).startsWith("mpi::exclusive_times") ||
   }
 
   return( TRUE );
+}
+
+void
+StatsPanel::generateModifierMenu()
+{
+// printf("StatsPanel::generateModifierMenu() entered\n");
+        if( modifierMenu )
+        {
+          delete modifierMenu;
+        }
+        modifierMenu = new QPopupMenu(this);
+        modifierMenu->setCheckable(TRUE);
+        connect(modifierMenu, SIGNAL( activated(int) ),
+          this, SLOT(modifierSelected(int)) );
+        for( std::list<std::string>::const_iterator it = list_of_modifiers.begin();
+                it != list_of_modifiers.end(); it++ )
+        {
+          std::string modifier = (std::string)*it;
+
+// printf("modifier = (%s)\n", modifier.c_str() );
+
+          QString s = QString(modifier.c_str() );
+
+          int mid = modifierMenu->insertItem(s);
+          for( std::list<std::string>::const_iterator it = current_list_of_modifiers.begin();
+               it != current_list_of_modifiers.end(); it++ )
+          {
+            std::string current_modifier = (std::string)*it;
+// printf("building menu : current_list_of_modifier here one (%s)\n", current_modifier.c_str() );
+            if( modifier == current_modifier )
+            {
+// printf("WE have a match to check\n");
+              modifierMenu->setItemChecked(mid, TRUE);
+            }
+          }
+        }
 }
 
 /*! Create the context senstive menu for the report. */
@@ -1315,6 +1371,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 {
 // printf("matchSelectedItem() entered. sf=%s\n", sf.c_str() );
 
+// printf("mpi_io_FLAG =(%d) hwc_FLAG = (%d)\n", mpi_io_FLAG, hwc_FLAG );
 
   if( mpi_io_FLAG )
   { // The mpi tree is different.   We need to look up the highlighted
@@ -1596,10 +1653,10 @@ filename = di->getPath();
 }
 // printf("PREPARE the hlo and spo.  filename=(%s)\n", filename.ascii() );
         if( mpi_io_FLAG && lineNumberStr != "-1" &&
-            ( currentCollectorStr.startsWith("CallTrees") ||
-              currentCollectorStr.startsWith("Functions") ||
-              currentCollectorStr.startsWith("TraceBacks") ||
-              currentCollectorStr.startsWith("TraceBacks/FullStack") ) )
+            ( collectorStrFromMenu.startsWith("CallTrees") ||
+              collectorStrFromMenu.startsWith("Functions") ||
+              collectorStrFromMenu.startsWith("TraceBacks") ||
+              collectorStrFromMenu.startsWith("TraceBacks/FullStack") ) )
         {
           hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite", "N/A");
           highlightList->push_back(hlo);
@@ -1946,7 +2003,94 @@ void
 StatsPanel::collectorMetricSelected(int val)
 { 
 // printf("collectorMetricSelected val=%d\n", val);
-// printf("collectorMetricSelected: Full currentCollectorStr=(%s)\n", popupMenu->text(val).ascii() );
+// printf("collectorMetricSelected: currentCollectorStr=(%s)\n", popupMenu->text(val).ascii() );
+
+hwc_FLAG = FALSE;
+mpi_io_FLAG = FALSE;
+
+  currentUserSelectedMetricStr = QString::null;
+
+  QString s = popupMenu->text(val).ascii();
+
+  int index = s.find("Show Metric:");
+  if( index != -1 )
+  {
+    index = s.find("::");
+    if( index > 0 )
+    { // The user selected one of the metrics
+      collectorStrFromMenu = s.mid(13, index-13 );
+      currentMetricStr = s.mid(index+2);
+      currentUserSelectedMetricStr = currentMetricStr;
+// printf("BB1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+      // This one resets to all...
+    } else 
+    { // The user wants to do all the metrics on the selected threads...
+      currentMetricStr = QString::null;
+      index = s.find(":");
+      currentUserSelectedMetricStr = s.mid(13, index-13);
+// printf("BB2: currentCollectorStr=(NULL) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
+      if( currentUserSelectedMetricStr != "Show Metric: CallTrees by Selected Function" )
+      {
+        selectedFunctionStr = QString::null;
+      }
+    }
+
+// printf("Collector changed call updateStatsPanelData() \n");
+    updateStatsPanelData();
+  }
+}
+
+
+void
+StatsPanel::collectorMPIReportSelected(int val)
+{ 
+// printf("collectorMetricSelected val=%d\n", val);
+// printf("collectorMetricSelected: currentCollectorStr=(%s)\n", popupMenu->text(val).ascii() );
+
+hwc_FLAG = FALSE;
+mpi_io_FLAG = TRUE;
+
+  currentUserSelectedMetricStr = QString::null;
+
+  QString s = popupMenu->text(val).ascii();
+
+  int index = s.find("Show Metric:");
+  if( index != -1 )
+  {
+    index = s.find("::");
+    if( index > 0 )
+    { // The user selected one of the metrics
+      collectorStrFromMenu = s.mid(13, index-13 );
+      currentMetricStr = s.mid(index+2);
+      currentUserSelectedMetricStr = currentMetricStr;
+// printf("CC1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+      // This one resets to all...
+    } else 
+    { // The user wants to do all the metrics on the selected threads...
+      currentMetricStr = QString::null;
+      index = s.find(":");
+      currentUserSelectedMetricStr = s.mid(13, index-13);
+// printf("CC2: currentCollectorStr=(NULL) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
+      if( currentUserSelectedMetricStr != "Show Metric: CallTrees by Selected Function" )
+      {
+        selectedFunctionStr = QString::null;
+      }
+    }
+
+// printf("Collector changed call updateStatsPanelData() \n");
+    updateStatsPanelData();
+  }
+}
+
+
+void
+StatsPanel::collectorHWCReportSelected(int val)
+{ 
+// printf("collectorHWCReportSelected: collectorMetricSelected val=%d\n", val);
+// printf("collectorMetricSelected: currentCollectorStr=(%s)\n", popupMenu->text(val).ascii() );
+
+mpi_io_FLAG = FALSE;
+hwc_FLAG = TRUE;
 
 
   currentUserSelectedMetricStr = QString::null;
@@ -1959,10 +2103,10 @@ StatsPanel::collectorMetricSelected(int val)
     index = s.find("::");
     if( index > 0 )
     { // The user selected one of the metrics
-      currentCollectorStr = s.mid(13, index-13 );
+      collectorStrFromMenu = s.mid(13, index-13 );
       currentMetricStr = s.mid(index+2);
       currentUserSelectedMetricStr = currentMetricStr;
-// printf("B1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+// printf("DD1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
     { // The user wants to do all the metrics on the selected threads...
@@ -1970,7 +2114,7 @@ StatsPanel::collectorMetricSelected(int val)
       index = s.find(":");
 //      currentCollectorStr = s.mid(13, index-13 );
       currentUserSelectedMetricStr = s.mid(13, index-13);
-// printf("B2: currentCollectorStr=(NULL) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
+// printf("DD2: currentCollectorStr=(NULL) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
       if( currentUserSelectedMetricStr != "Show Metric: CallTrees by Selected Function" )
       {
         selectedFunctionStr = QString::null;
@@ -2284,6 +2428,7 @@ StatsPanel::setCurrentCollector()
         if( currentCollectorStr.isEmpty() )
         {
           currentCollectorStr = name;
+// printf("Assigning currentCollectorStr=%s\n", currentCollectorStr.ascii() );
         }
         if( name == currentCollectorStr )
         {
@@ -2540,6 +2685,7 @@ for(int i=0;i<fieldCount;i++)
 
 
   SPListViewItem *splvi;
+// printf("More Function\n");
   if( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) )
   {
     QString indentChar = ">";
@@ -2941,7 +3087,7 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
 
 // printf("function_name=(%s)\n", function_name.ascii() );
 
-  if( mpi_io_FLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("TraceBacks/FullStack") ) )
+  if( mpi_io_FLAG && ( collectorStrFromMenu.startsWith("CallTrees") || collectorStrFromMenu.startsWith("Functions") || collectorStrFromMenu.startsWith("TraceBacks") || collectorStrFromMenu.startsWith("TraceBacks/FullStack") ) )
   {
     int bof = -1;
     int eof = workString.find('(');
@@ -3038,8 +3184,9 @@ StatsPanel::generateCommand()
 
 // printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedMetricStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii(), currentMetricStr.ascii() );
 
-  if( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) )
+  if( ( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ))
   { 
+// printf("It thinks we're mpi!\n");
     if( currentUserSelectedMetricStr.isEmpty() || currentUserSelectedMetricStr == "CallTrees" )
     {
       command = QString("expView -x %1 %3%2 -v CallTrees %4").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(traceAddition);
@@ -3080,7 +3227,18 @@ StatsPanel::generateCommand()
        command += QString(" %1").arg(currentThreadsStr);
        about += QString("for threads %1\n").arg(currentThreadsStr);
     }
-  } 
+  } else if( hwc_FLAG == TRUE && (currentUserSelectedMetricStr.startsWith("Statements") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("hwc") ) )
+{
+  if( currentUserSelectedMetricStr.startsWith("Statements") )
+  { 
+    command = QString("expView -x %1 %3%2 -v Statements").arg(expID).arg(numberItemsToDisplayInStats).arg("hwc");
+  } else
+  {
+    command = QString("expView -x %1 %3%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats).arg("hwc");
+  }
+// printf("hwc command=(%s)\n", command.ascii() );
+  about = command;
+} 
 
 // printf("add any modifiers...\n");
     for( std::list<std::string>::const_iterator it = current_list_of_modifiers.begin();
