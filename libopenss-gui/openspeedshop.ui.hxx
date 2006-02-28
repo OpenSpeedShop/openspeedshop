@@ -378,7 +378,7 @@ void OpenSpeedshop::fileSaveExperiment()
   QString expStr = QString("%1").arg(expID);
   QString collectorName = QString("%1").arg(item->text(1));
   QString databaseName = QString("%1").arg(item->text(2));
-//printf("expStr=(%s) collectorName=(%s) databaseName=(%s)\n", expStr.ascii(), collectorName.ascii(), databaseName.ascii() );
+// printf("expStr=(%s) collectorName=(%s) databaseName=(%s)\n", expStr.ascii(), collectorName.ascii(), databaseName.ascii() );
   QString dirName = "./";
 
   QFileDialog *sed = new QFileDialog(this, "file dialog", TRUE );
@@ -389,7 +389,7 @@ void OpenSpeedshop::fileSaveExperiment()
   sed->setDir(dirName);
 //    const char *n = databaseName.ascii();
 //    char *bn = basename( (char *)n );
-  QString bn = collectorName+".openss";
+  QString bn = QString("X%1.").arg(expID)+collectorName+".openss";
   sed->setSelection(bn);
   
   QString fileName = QString::null;

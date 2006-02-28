@@ -185,7 +185,7 @@ if( attachFLAG )
           command += " -v mpi";
         }
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-// printf("A: command=(%s)\n", command.ascii() );
+printf("A: command=(%s)\n", command.ascii() );
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
           return;
@@ -730,7 +730,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
           fprintf(stderr, "Error (%s).\n", command.ascii());
         }
 */
-        nprintf( DEBUG_MESSAGES ) ("Attach to a process (%s)\n", command.ascii());
+printf("NOOP: Attach to a process (%s)\n", command.ascii());
         ret_val = 1;
         break;
       case  DETACH_PROCESS_T:

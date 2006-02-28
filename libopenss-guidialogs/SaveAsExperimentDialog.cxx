@@ -209,7 +209,8 @@ SaveAsExperimentDialog::updateAvailableExperimentList(int *returned_expID, int *
         std::string name = collector.getMetadata().getUniqueId();
         if( !expName.isEmpty() )
         {
-          expName += QString(" ,");
+//          expName += QString(" ,");
+          expName += QString(".");
         }
         expName += QString(name.c_str());
       }
