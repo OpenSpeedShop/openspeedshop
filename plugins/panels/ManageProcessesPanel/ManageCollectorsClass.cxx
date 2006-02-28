@@ -1076,33 +1076,10 @@ void
 ManageCollectorsClass::disableSelected()
 {
 // printf("disableSelected\n");
-  MPListViewItem *selectedItem = NULL;
-  QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
-  while( it.current() )
+  QString command = QString("expDisable -x %1").arg(expID);
+  if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
   {
-    selectedItem = (MPListViewItem *)it.current();
-    break;
-  }
-    if( selectedItem )
-  {
-    QString ret_value = selectedItem->text(0);
-// printf("disable = (%s)\n", ret_value.ascii() );
-
-
-    QString collector_name = selectedItem->text(0);
-    QString command;
-    command = QString("expDisable -x %1 %2").arg(expID).arg(collector_name);
-// printf("command=(%s)\n", command.ascii() );
-//  QMessageBox::information( this, tr("Under Construction:"), tr("This feature currently under construction.\nIt will eventuall do a:\n%1").arg(command), QMessageBox::Ok );
-//return;
-    if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
-    {
-      QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
-    }
-
-  } else
-  {
-    QMessageBox::information( this, tr("Detach Collector Info:"), tr("You need to select a collector first."), QMessageBox::Ok );
+    QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
   }
   updatePanel();
 }
@@ -1112,33 +1089,10 @@ void
 ManageCollectorsClass::enableSelected()
 {
 // printf("enableSelected\n");
-  MPListViewItem *selectedItem = NULL;
-  QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
-  while( it.current() )
+  QString command = QString("expEnable -x %1").arg(expID);
+  if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
   {
-    selectedItem = (MPListViewItem *)it.current();
-    break;
-  }
-  if( selectedItem )
-  {
-    QString ret_value = selectedItem->text(0);
-// printf("enableSelected = (%s)\n", ret_value.ascii() );
-
-
-    QString collector_name = selectedItem->text(0);
-    QString command;
-    command = QString("expEnable -x %1 %2").arg(expID).arg(collector_name);
-// printf("command=(%s)\n", command.ascii() );
-// QMessageBox::information( this, tr("Under Construction:"), tr("This feature currently under construction.\nIt will eventuall do a:\n%1").arg(command), QMessageBox::Ok );
-// return;
-    if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
-    {
-      QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
-    }
-
-  } else
-  {
-    QMessageBox::information( this, tr("Detach Collector Info:"), tr("You need to select a collector first."), QMessageBox::Ok );
+    QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
   }
   updatePanel();
 }
@@ -1908,6 +1862,8 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
     connect( collectorMenu, SIGNAL( aboutToShow() ),
                        this, SLOT( fileCollectorAboutToShowSelected( ) ) );
   
+if( dialogSortType == COLLECTOR_T )
+{
     contextMenu->insertItem("Add Collector", collectorMenu);
     if( list_of_collectors.size() > 0 ) 
     {
@@ -1921,6 +1877,7 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 // printf("Add item (%s)\n", collector_name.c_str() );
       }
     }
+}
 // printf("A: size =(%d) \n", list_of_collectors.size() );
   
     QPopupMenu *sortByMenu = new QPopupMenu( contextMenu );
@@ -1950,23 +1907,26 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 
     contextMenu->insertItem("Sort By... ", sortByMenu);
 
+if( dialogSortType == COLLECTOR_T )
+{
     qaction = new QAction( this,  "detachCollector");
     qaction->addTo( contextMenu );
     qaction->setText( tr("Detach Collector") );
     connect( qaction, SIGNAL( activated() ), this, SLOT( detachSelected() ) );
     qaction->setStatusTip( tr("Detach the selected (highlighted) collector from the experiment.") );
+}
 
     qaction = new QAction( this,  "enableCollector");
     qaction->addTo( contextMenu );
-    qaction->setText( tr("Enable Collector") );
+    qaction->setText( tr("Enable Collector(s)") );
     connect( qaction, SIGNAL( activated() ), this, SLOT( enableSelected() ) );
-    qaction->setStatusTip( tr("Enable the selected (highlighted) collector from the experiment.") );
+    qaction->setStatusTip( tr("Enable the collectors in the experiment.") );
 
     qaction = new QAction( this,  "disableCollector");
     qaction->addTo( contextMenu );
-    qaction->setText( tr("Disable Collector") );
+    qaction->setText( tr("Disable Collector(s)") );
     connect( qaction, SIGNAL( activated() ), this, SLOT( disableSelected() ) );
-    qaction->setStatusTip( tr("Disable the selected (highlighted) collector from the experiment.") );
+    qaction->setStatusTip( tr("Disable the collectors in the experiment.") );
   } else
   {
 
