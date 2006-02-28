@@ -845,32 +845,231 @@ bool SS_cvClear (CommandObject *cmd) {
   return true;
 }
 
+static void CustomViewInfo (CommandObject *cmd,
+                            CustomView *cvp) {
+  OpenSpeedShop::cli::ParseResult *p_result = cvp->cvPr();
+
+ // Accumulate output in a string.
+  std::ostringstream S(ios::out);
+  S << "-c " << cvp->cvId() << ":";
+
+ // List viewTypes.
+  vector<string> *vtlist = p_result->getViewList();
+  if (!vtlist->empty()) {
+    bool first_item_found = false;
+    vector<string>::iterator p_vtlist;
+    S << " ";
+    for (p_vtlist=vtlist->begin(); p_vtlist != vtlist->end(); p_vtlist++) {
+      if (first_item_found) {
+        first_item_found = true;
+        S << ", ";
+      }
+      S << *p_vtlist;
+    }
+  }
+
+ // Look at general modifier types for a specific KeyWord option.
+  vector<string> *v_list = p_result->getModifierList();
+  if (!v_list->empty()) {
+    bool first_item_found = false;
+    vector<string>::iterator p_vlist;
+    S << " -v ";
+    for (p_vlist=v_list->begin();p_vlist != v_list->end(); p_vlist++) {
+      if (first_item_found) {
+        first_item_found = true;
+        S << ", ";
+      }
+      S << *p_vlist;
+    }
+
+  }
+
+ // Add the '-x' specifier.
+  EXPID ExperimentID = (p_result->isExpId()) ? p_result->getExpId() : 0;
+  if (ExperimentID != 0) {
+    S << " -x " << ExperimentID;
+  }
+
+  
+ // For each set of filter specifications ...
+  bool first_TargetSpec_found = false;
+  vector<ParseTarget> *p_tlist = p_result->getTargetList();
+  vector<ParseTarget>::iterator pi;
+  for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
+    ParseTarget pt = *pi;
+    vector<ParseRange> *h_list = pt.getHostList();
+    vector<ParseRange> *f_list = pt.getFileList();
+    vector<ParseRange> *p_list = pt.getPidList();
+    vector<ParseRange> *t_list = pt.getThreadList();
+    vector<ParseRange> *r_list = pt.getRankList();
+
+    if (first_TargetSpec_found) {
+      first_TargetSpec_found = true;
+      S << " ;";
+    }
+
+   // Add the "-h" list.
+    if (!h_list->empty()) {
+      S << " -h ";
+      bool first_item_found = false;
+      vector<ParseRange>::iterator p_hlist;
+      for (p_hlist=h_list->begin();p_hlist != h_list->end(); p_hlist++) {
+        if (first_item_found) {
+          first_item_found = true;
+          S << ", ";
+        }
+        parse_range_t p_range = *p_hlist->getRange();
+        S << p_range.start_range.name;
+        // S << Experiment::getCanonicalName(p_range.start_range.name);
+        if (p_range.is_range &&
+            (p_range.start_range.name != p_range.end_range.name)) {
+          S << ":" << p_range.end_range.name;
+          // S << ":" << Experiment::getCanonicalName(p_range.end_range.name);
+        }
+      }
+    }
+
+   // Add the "-f" list.
+    if (!f_list->empty()) {
+      S << " -f ";
+      bool first_item_found = false;
+      vector<ParseRange>::iterator p_flist;
+      for (p_flist=f_list->begin();p_flist != f_list->end(); p_flist++) {
+        if (first_item_found) {
+          first_item_found = true;
+          S << ", ";
+        }
+        parse_range_t p_range = *p_flist->getRange();
+        S << Experiment::getCanonicalName(p_range.start_range.name);
+        if (p_range.is_range &&
+            (p_range.start_range.name != p_range.end_range.name)) {
+          S << ":" << Experiment::getCanonicalName(p_range.end_range.name);
+        }
+      }
+    }
+
+   // Add the "-p" list.
+    if (!p_list->empty()) {
+      S << " -p ";
+      bool first_item_found = false;
+      vector<ParseRange>::iterator p_plist;
+      for (p_plist=p_list->begin();p_plist != p_list->end(); p_plist++) {
+        if (first_item_found) {
+          first_item_found = true;
+          S << ", ";
+        }
+        parse_range_t p_range = *p_plist->getRange();
+        S << p_range.start_range.num;
+        if (p_range.is_range &&
+            (p_range.start_range.num != p_range.end_range.num)) {
+          S << ":" << p_range.end_range.num;
+        }
+      }
+    }
+
+   // Add the "-t" list.
+    if (!t_list->empty()) {
+      S << " -t ";
+      bool first_item_found = false;
+      vector<ParseRange>::iterator p_tlist;
+      for (p_tlist=t_list->begin();p_tlist != t_list->end(); p_tlist++) {
+        if (first_item_found) {
+          first_item_found = true;
+          S << ", ";
+        }
+        parse_range_t p_range = *p_tlist->getRange();
+        S << p_range.start_range.num;
+        if (p_range.is_range &&
+            (p_range.start_range.num != p_range.end_range.num)) {
+          S << ":" << p_range.end_range.num;
+        }
+      }
+    }
+
+#if HAS_OPENMP
+   // Add the "-r" list.
+    if (!r_list->empty()) {
+      S << " -r ";
+      bool first_item_found = false;
+      vector<ParseRange>::iterator p_rlist;
+      for (p_rlist=r_list->begin();p_rlist != r_list->end(); p_rlist++) {
+        if (first_item_found) {
+          first_item_found = true;
+          S << ", ";
+        }
+        parse_range_t p_range = *p_rlist->getRange();
+        S << p_range.start_range.num;
+        if (p_range.is_range &&
+            (p_range.start_range.num != p_range.end_range.num)) {
+          S << ":" << p_range.end_range.num;
+        }
+      }
+    }
+#endif
+
+  }
+
+ // Output the '-m' list'
+  vector<ParseRange> *p_mlist = p_result->getexpMetricList();
+  if (!p_mlist->empty()) {
+   // Add modifiers to output list.
+    S << " -m ";
+    bool first_item_found = false;
+    vector<ParseRange>::iterator mi;
+    for (mi = p_mlist->begin(); mi != p_mlist->end(); mi++) {
+      if (first_item_found) {
+        first_item_found = true;
+        S << ", ";
+      }
+      parse_range_t *m_range = (*mi).getRange();
+      std::string Name1 = m_range->start_range.name;
+      S << Name1;
+      if (m_range->is_range) {
+        std::string Name2 = m_range->end_range.name;
+        S << "::" << Name2;
+      }
+    }
+  }
+
+ // Attach result to command.
+  cmd->Result_String (S.ostringstream::str());
+}
+
 bool SS_cvInfo (CommandObject *cmd) {
   if (Look_For_KeyWord (cmd, "all")) {
-   // List all the defined custom views
+   // Print all the defined custom views
     SafeToDoNextCmd ();
     std::list<CustomView *>::reverse_iterator cvi;
     for (cvi = CustomView_List.rbegin(); cvi != CustomView_List.rend(); cvi++)
     {
-      (*cvi)->cvPr()->ParseResult::dumpInfo();
+      CustomViewInfo (cmd, (*cvi));
     }
   } else {
     OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
     vector<ParseRange> *cv_list = p_result->getViewSet ();
-    vector<ParseRange>::iterator cvli;
+    if (cv_list->empty()) {
+      if (!CustomView_List.empty()) {
+       // Print the most recent one.
+        CustomViewInfo (cmd, *CustomView_List.begin());
+      }
+    } else {
+     // Print the ones in the user's list.
+      vector<ParseRange>::iterator cvli;
 
-    for (cvli=cv_list->begin();cvli != cv_list->end(); cvli++) {
-      parse_range_t *c_range = cvli->getRange();
-      parse_val_t *c_val1 = &c_range->start_range;
-      parse_val_t *c_val2 = (c_range->is_range) ? &c_range->end_range : c_val1;
-      int64_t Rvalue1 = c_val1->num;
-      int64_t Rvalue2 = c_val2->num;
+      for (cvli=cv_list->begin();cvli != cv_list->end(); cvli++) {
+        parse_range_t *c_range = cvli->getRange();
+        parse_val_t *c_val1 = &c_range->start_range;
+        parse_val_t *c_val2 = (c_range->is_range) ? &c_range->end_range : c_val1;
+        int64_t Rvalue1 = c_val1->num;
+        int64_t Rvalue2 = c_val2->num;
 
-      for (int64_t i = Rvalue1; i <= Rvalue2; i++) {
-        CustomView *cvp = Find_CustomView (i);
-        if (cvp != NULL) {
-          cvp->cvPr()->ParseResult::dumpInfo();
+        for (int64_t i = Rvalue1; i <= Rvalue2; i++) {
+          CustomView *cvp = Find_CustomView (i);
+          if (cvp != NULL) {
+            CustomViewInfo (cmd, cvp);
+          }
         }
+
       }
 
     }
