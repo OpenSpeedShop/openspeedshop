@@ -124,10 +124,18 @@ namespace {
      */
     void* monitorThread(void*)
     {
+	// Construct a signal mask containing SIGALRM
+	sigset_t signal_mask;
+        Assert(sigemptyset(&signal_mask) == 0);
+        Assert(sigaddset(&signal_mask, SIGALRM) == 0);
+	
 	// Add a DPCL handler for SIGALRM
 	AisStatus retval = Ais_add_signal(SIGALRM, alarmHandler);
 	Assert(retval.status() == ASC_success);
 
+	// Unblock SIGALRM in this thread
+	Assert(pthread_sigmask(SIG_UNBLOCK, &signal_mask, NULL) == 0);
+	
 	// Start the interval timer (delivering SIGALRM) for this thread
 	struct itimerval spec;
 	spec.it_interval.tv_sec = 2;
@@ -167,6 +175,9 @@ namespace {
 	spec.it_value.tv_sec = spec.it_interval.tv_sec;
 	spec.it_value.tv_usec = spec.it_interval.tv_usec;
 	Assert(setitimer(ITIMER_REAL, &spec, NULL) == 0);
+
+	// Block SIGALRM in this thread
+	Assert(pthread_sigmask(SIG_BLOCK, &signal_mask, NULL) == 0);
 	
 	// Remove DPCL handler for SIGALRM
 	retval = Ais_remove_signal(SIGALRM);
@@ -196,6 +207,12 @@ namespace {
  */
 std::string MainLoop::start()
 {
+    // Block SIGALRM in this process (later enabled for the monitor thread only)
+    sigset_t signal_mask;
+    Assert(sigemptyset(&signal_mask) == 0);
+    Assert(sigaddset(&signal_mask, SIGALRM) == 0);
+    Assert(sigprocmask(SIG_BLOCK, &signal_mask, NULL) == 0);
+    
     // Initialize the DPCL client library
     Ais_initialize();
     const char* listener = Ais_allow_manual_start();
