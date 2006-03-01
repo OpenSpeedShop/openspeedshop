@@ -205,6 +205,15 @@ static bool MPIT_Trace_Report(
                                    );
               set_MPIT_values 
 
+#if 0
+              cout << detail_source << " " ;
+              cout << detail_destination << " ";
+              cout << detail_size << " ";
+              cout << detail_tag << " ";
+              cout << detail_communicator << " ";
+              cout << detail_retval << " " << endl;
+#endif
+
              // Construct the type-independent return entry.
               CommandResult *CSE;
               if (base_CSE == NULL) {
@@ -536,7 +545,7 @@ static void define_mpit_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m source' only supported for '-v Trace' option.");
           }
-        } else if (!strcasecmp(M_Name.c_str(), "destination")) {
+        } else if (!strcasecmp(M_Name.c_str(), "dest")) {
           if (vfc == VFC_Trace) {
            // display destination rank
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, destination_temp));
@@ -544,7 +553,7 @@ static void define_mpit_columns (
             last_column++;
             last_column++;
           } else {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m destination' only supported for '-v Trace' option.");
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m dest' only supported for '-v Trace' option.");
           }
         } else if (!strcasecmp(M_Name.c_str(), "size")) {
          // display size of message
@@ -560,14 +569,14 @@ static void define_mpit_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m tag' only supported for '-v Trace' option.");
           }
-        } else if (!strcasecmp(M_Name.c_str(), "communicator")) {
+        } else if (!strcasecmp(M_Name.c_str(), "comm")) {
           if (vfc == VFC_Trace) {
            // display communicator used
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, communicator_temp));
             HV.push_back("Communicator Used");
             last_column++;
           } else {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m communicator' only supported for '-v Trace' option.");
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m comm' only supported for '-v Trace' option.");
           }
         } else if (!strcasecmp(M_Name.c_str(), "datatype")) {
           if (vfc == VFC_Trace) {
@@ -701,10 +710,10 @@ static std::string VIEW_mpit_long  = "\n\nA positive integer can be added to the
                                       " \n\t'-m start_time' reports the starting time of the event."
                                       " \n\t'-m stop_time' reports the ending time of the event."
                                       " \n\t'-m source' reports the source rank of the event."
-                                      " \n\t'-m destination' reports the destination rank of the event."
+                                      " \n\t'-m dest' reports the destination rank of the event."
                                       " \n\t'-m size' reports the number of bytes in the message."
                                       " \n\t'-m tag' reports the tag of the event."
-                                      " \n\t'-m communicator' reports the communicator used for the event."
+                                      " \n\t'-m comm' reports the communicator used for the event."
                                       " \n\t'-m datatype' reports the data type of the message."
                                       " \n\t'-m retval' reports the return value of the event."
 ;
