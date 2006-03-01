@@ -127,10 +127,12 @@ public:
     QFrame* vParameterPageLine;
     QLabel* vParameterPageSampleRateHeaderLabel;
     QLabel* vParameterPageSampleRateLabel;
+    QCheckBox *vParameterTraceCheckBox;
+    QCheckBox *eParameterTraceCheckBox;
     QLineEdit* vParameterPageSampleRateText;
-QLabel* vParamaterPagePAPIDescriptionLabel;
+    QLabel* vParamaterPagePAPIDescriptionLabel;
 // QLineEdit* vParameterPagePAPIDescriptionText;
-QComboBox* vParameterPagePAPIDescriptionText;
+    QComboBox* vParameterPagePAPIDescriptionText;
     QPushButton* vParameterPageBackButton;
     QPushButton* vParameterPageResetButton;
     QPushButton* vParameterPageNextButton;

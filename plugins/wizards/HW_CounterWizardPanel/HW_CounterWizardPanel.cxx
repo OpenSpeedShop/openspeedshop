@@ -152,6 +152,12 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
 
   vParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageParameterLayout"); 
 
+  vParameterTraceCheckBox = new QCheckBox( vParameterPageWidget, "vParameterTraceComboBox" );
+  vParameterTraceCheckBox->setText(tr("Gather additional information for each overflow. (hwctime)") );
+  vParameterPageParameterLayout->addWidget( vParameterTraceCheckBox );
+  QToolTip::add( vParameterTraceCheckBox, tr( "Records extra information, with more overhead.") );
+
+
   vParameterPageSampleRateHeaderLabel = new QLabel( vParameterPageWidget, "vParameterPageSampleRateHeaderLabel" );
 //  vParameterPageSampleRateHeaderLabel->setMinimumSize( QSize(10,10) );
   vParameterPageSampleRateHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
@@ -371,6 +377,12 @@ vParameterPagePAPIDescriptionLayout->addItem( vParameterPageSpacer );
   eParameterPageLayout->addWidget( eParameterPageLine );
 
   eParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "eParameterPageParameterLayout"); 
+
+  eParameterTraceCheckBox = new QCheckBox( eParameterPageWidget, "eParameterTraceComboBox" );
+  eParameterTraceCheckBox->setText(tr("Gather additional information for each overflow. (hwctime)") );
+  eParameterPageParameterLayout->addWidget( eParameterTraceCheckBox );
+  QToolTip::add( eParameterTraceCheckBox, tr( "Records extra information, with more overhead.") );
+
 
   eParameterPageSampleRateHeaderLabel = new QLabel( eParameterPageWidget, "eParameterPageSampleRateHeaderLabel" );
 //  eParameterPageSampleRateHeaderLabel->setMinimumSize( QSize(10,10) );
@@ -1255,7 +1267,14 @@ void HW_CounterWizardPanel::vSummaryPageFinishButtonSelected()
         {
           ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
           ao->lao = lao;
-          p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter", getPanelContainer(), ao);
+          if( (vwizardMode->isChecked() && vParameterTraceCheckBox->isChecked()) ||
+              (ewizardMode->isChecked() && eParameterTraceCheckBox->isChecked()) )
+          {
+            p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HWCTime Panel", getPanelContainer(), ao);
+          } else
+          {
+            p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter", getPanelContainer(), ao);
+          }
           delete ao;
         } else
         {
