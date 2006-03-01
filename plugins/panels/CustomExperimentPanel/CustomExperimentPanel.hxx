@@ -123,6 +123,7 @@ QString wizardName;
   bool aboutToRunFLAG;
   bool postProcessFLAG;
   bool readyToRunFLAG;
+bool staticDataFLAG;
 
   QString executableNameStr;
   QString argsStr;

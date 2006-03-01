@@ -94,6 +94,9 @@ CustomExperimentPanel::init( PanelContainer *pc, const char *n, ArgumentObject *
     collector_names = QString(cn);
   }
 
+// This flag only gets set to true when the data is read from a file
+// or when the program is terminated.
+staticDataFLAG = FALSE;
   if( collector_names.stripWhiteSpace().startsWith("pcsamp") )
   {
     wizardName = "pc Sample Wizard";
@@ -185,7 +188,7 @@ if( attachFLAG )
           command += " -v mpi";
         }
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-printf("A: command=(%s)\n", command.ascii() );
+// printf("A: command=(%s)\n", command.ascii() );
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
           return;
@@ -300,6 +303,7 @@ printf("A: command=(%s)\n", command.ascii() );
         runnableFLAG = FALSE;
         pco->runButton->setEnabled(FALSE);
         pco->runButton->enabledFLAG = FALSE;
+staticDataFLAG == TRUE;
       } else
       {
         statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
@@ -337,10 +341,12 @@ printf("A: command=(%s)\n", command.ascii() );
       ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
       if( ao && ao->loadedFromSavedFile == TRUE )
       {
+staticDataFLAG = TRUE;
 #ifdef SPLIT
         topPC->splitVertical(40);
 #endif // SPLIT
         postProcessFLAG = TRUE;
+staticDataFLAG = TRUE;
 // printf("postProcessFLAG == TRUE!\n");
 
         // If we default a report panel bring it up here...
@@ -730,7 +736,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
           fprintf(stderr, "Error (%s).\n", command.ascii());
         }
 */
-printf("NOOP: Attach to a process (%s)\n", command.ascii());
+// printf("NOOP: Attach to a process (%s)\n", command.ascii());
         ret_val = 1;
         break;
       case  DETACH_PROCESS_T:
@@ -1072,6 +1078,11 @@ CustomExperimentPanel::loadStatsPanel()
     nprintf( DEBUG_PANELS ) ("loadStatsPanel() no Stats Panel found.. create one.\n");
     PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+// printf("loadStatsPanel: staticDataFLAG=%d\n", staticDataFLAG );
+    if( staticDataFLAG == TRUE )
+    {
+      ao->loadedFromSavedFile = TRUE;
+    }
     statsPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel((const char *)"Stats Panel", pc, ao, (const char *)NULL);
     delete ao;
 
@@ -1231,6 +1242,7 @@ CustomExperimentPanel::updateStatus()
     pco->terminateButton->setEnabled(FALSE);
     statusTimer->stop();
     statusLabelText->setText( tr("Save data restored.") );
+staticDataFLAG = TRUE;
     return;
   }
   ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
@@ -1240,11 +1252,12 @@ CustomExperimentPanel::updateStatus()
 // printf(" : eo->Determine_Status()=%d\n", eo->Determine_Status() );
     if( eo->Determine_Status() == ExpStatus_NonExistent || eo->Determine_Status() == ExpStatus_InError || eo->Determine_Status() == ExpStatus_Terminated )
     {
-    statusLabelText->setText( tr(QString("Loaded saved data from file.") ) );
-    runnableFLAG = FALSE;
-    pco->runButton->setEnabled(FALSE);
-    pco->runButton->enabledFLAG = FALSE;
-}
+      statusLabelText->setText( tr(QString("Loaded saved data from file.") ) );
+      runnableFLAG = FALSE;
+      pco->runButton->setEnabled(FALSE);
+      pco->runButton->enabledFLAG = FALSE;
+staticDataFLAG = TRUE;
+    }
     nprintf( DEBUG_PANELS ) ("status=%d\n", status);
     switch( status )
     {
@@ -1364,6 +1377,7 @@ CustomExperimentPanel::updateStatus()
         pco->terminateButton->setEnabled(FALSE);
         statusTimer->stop();
        // If we default a report panel bring it up here...
+staticDataFLAG = TRUE;
        loadStatsPanel();
         break;
       default:

@@ -103,6 +103,8 @@ class StatsPanel  : public Panel
 
     QString lastAbout;
     QString about;
+    QString lastCommand;
+    bool staticDataFLAG;
 
     QHBoxLayout *frameLayout;
     QSplitter *splitterA;

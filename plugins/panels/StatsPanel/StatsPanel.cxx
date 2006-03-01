@@ -152,6 +152,12 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   gotColumns = FALSE;
   about = QString::null;
   lastAbout = QString::null;
+// In an attempt to optimize the update of this panel;
+// If the data file is static (i.e. read from a file or 
+// the processes status is terminated) and the command is
+// the same, don't update this panel. 
+lastCommand = QString::null;
+staticDataFLAG = false;
 // printf("currentItemIndex initialized to 0\n");
 
   f = NULL;
@@ -170,6 +176,12 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   expID = -1;
   descending_sort = true;
   TotalTime = 0;
+
+  if( ao->loadedFromSavedFile == TRUE )
+  {
+//printf("StatsPanel:: static data!!!\n");
+    staticDataFLAG = TRUE;
+  }
 
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
@@ -390,9 +402,7 @@ catch(const std::exception& error)
 }
 // End determine if there's mpi stats
 
-// printf("currentThreadStr=(%s)\n", currentThreadStr.ascii() );
-// Currently this causes a second update when loading from a saved file. FIX
-// printf("Currently this causes a second update when loading from a saved file. FIX\n");
+// printf("StatsPanel::listener call updateStatsPanelData  Do we need to update?\n");
     updateStatsPanelData();
     if( msg->raiseFLAG == TRUE )
     {
@@ -994,6 +1004,7 @@ StatsPanel::showChart()
   } else
   {
     chartFLAG = TRUE;
+lastCommand = QString::null;  // This will force a redraw of the data.
     cf->show();
     // I'm not sure why, but the text won't draw unless the 
     // piechart is visible.
@@ -1165,7 +1176,7 @@ void
 StatsPanel::updatePanel()
 {
 // printf("updatePanel() about to call updateStatsPanelData()\n");
-  updateStatsPanelData();
+  updateStatsPanelData(lastCommand);
 }
 
 /*! Go to source menu item was selected. */
@@ -1783,7 +1794,12 @@ StatsPanel::updateStatsPanelData(QString command)
     return;
   }
 
-// printf("command=(%s)\n", command.ascii() );
+// printf("  lastCommand = %s  command = %s\n", lastCommand.ascii(), command.ascii() );
+  if( staticDataFLAG == TRUE && command == lastCommand )
+  {  // Then we really don't need to update.
+// printf("We really have static data and its the same command... Don't update.\n");
+    return;
+  }
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
@@ -1799,6 +1815,7 @@ StatsPanel::updateStatsPanelData(QString command)
   Redirect_Window_Output( cli->wid, spoclass, spoclass );
 // printf("command: (%s)\n", command.ascii() );
   about += "Command issued: " + command;
+lastCommand = command;
   InputLineObject *clip = Append_Input_String( cli->wid, (char *)command.ascii());
 
   if( clip == NULL )
@@ -1885,7 +1902,6 @@ StatsPanel::updateStatsPanelData(QString command)
 // printf("total_percent=%f splv->childCount()=%d cpvl.count()=%d numberItemsToDisplayInStats=%d\n", total_percent, splv->childCount(), cpvl.count(), numberItemsToDisplayInStats );
 
 // printf("A: cpvl.count()=%d numberItemsToDisplayInChart = %d\n", cpvl.count(), numberItemsToDisplayInChart );
-//  if( splv->childCount() > 0 && total_percent > 0.0 &&
   if( ( total_percent > 0.0 &&
       cpvl.count() < numberItemsToDisplayInStats) ||
       ( total_percent > 0.0 && 
@@ -2597,7 +2613,9 @@ StatsPanel::outputCLIData(QString *incoming_data)
       if( end_index == -1 )
       {
         columnValueClass[i].end_index = 99999;
-        headerStr = data.mid(start_index, end_index-start_index).stripWhiteSpace();
+//        headerStr = data.mid(start_index, end_index-start_index).stripWhiteSpace();
+        headerStr = data.mid(start_index).stripWhiteSpace();
+// printf("A: headerStr=(%s)\n", headerStr.ascii() );
         columnHeaderList.push_back(headerStr);
         splv->addColumn( data.mid(start_index).stripWhiteSpace() );
         break;
@@ -2608,13 +2626,17 @@ StatsPanel::outputCLIData(QString *incoming_data)
         {
           header_end_index = 99999;
         }
-        headerStr = data.mid(start_index, header_end_index-start_index).stripWhiteSpace();
+//        headerStr = data.mid(start_index, header_end_index-start_index).stripWhiteSpace();
+        headerStr = data.mid(start_index, end_index-start_index).stripWhiteSpace();
+// printf("B: headerStr=(%s)\n", headerStr.ascii() );
     
       }
-      columnHeaderList.push_back(data.mid(start_index, end_index-start_index).stripWhiteSpace());
+//      columnHeaderList.push_back(data.mid(start_index, end_index-start_index).stripWhiteSpace());
+      columnHeaderList.push_back(headerStr);
       splv->addColumn( data.mid(start_index, end_index-start_index).stripWhiteSpace() );
       // Find the percent column
-// printf("headerStr=(%s)\n", headerStr.ascii() );
+// printf("find percent: headerStr=(%s) (%s)\n", headerStr.ascii(), data.mid(start_index, end_index-start_index).stripWhiteSpace().ascii() );
+//      if( headerStr.find("%") != -1 )
       if( headerStr.find("%") != -1 )
       {
         if( percentIndex == -1 )

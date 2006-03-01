@@ -225,7 +225,7 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
       {
   //      std::string collector_name = *it;
         QString collector_name = (QString)*it;
-printf("A: collector_name = (%s)\n", collector_name.ascii() );
+// printf("A: collector_name = (%s)\n", collector_name.ascii() );
         if( collector_name == "pcsamp" )
         {
           knownCollectorType = TRUE;
@@ -1209,7 +1209,7 @@ OpenSpeedshop::lookForExperiment()
       {
 //      std::string collector_name = *it;
         QString collector_name = (QString)*it;
-printf("B: collector_name=(%s)\n", collector_name.ascii() );
+// printf("B: collector_name=(%s)\n", collector_name.ascii() );
         if( collector_name == "pcsamp" )
         {
           knownCollectorType = TRUE;
