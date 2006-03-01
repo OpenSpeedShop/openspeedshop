@@ -35,4 +35,5 @@ SUBDIRS = \
 
 if HAVE_PAPI
 SUBDIRS += HW_CounterPanel
+SUBDIRS += HWCTimePanel
 endif

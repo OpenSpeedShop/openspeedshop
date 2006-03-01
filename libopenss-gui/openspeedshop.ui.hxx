@@ -225,7 +225,7 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
       {
   //      std::string collector_name = *it;
         QString collector_name = (QString)*it;
-// printf("(%s)\n", collector_name.ascii() );
+printf("A: collector_name = (%s)\n", collector_name.ascii() );
         if( collector_name == "pcsamp" )
         {
           knownCollectorType = TRUE;
@@ -244,6 +244,11 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
         } else if( collector_name == "hwc" )
         {
           panel_type = "HW Counter";
+          knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "hwctime" )
+        {
+          panel_type = "HWCTime Panel";
           knownCollectorType = TRUE;
           break;
         } else if( collector_name == "io" )
@@ -1204,7 +1209,7 @@ OpenSpeedshop::lookForExperiment()
       {
 //      std::string collector_name = *it;
         QString collector_name = (QString)*it;
-//printf("(%s)\n", collector_name.ascii() );
+printf("B: collector_name=(%s)\n", collector_name.ascii() );
         if( collector_name == "pcsamp" )
         {
           knownCollectorType = TRUE;
@@ -1225,6 +1230,11 @@ OpenSpeedshop::lookForExperiment()
           panel_type = "HW Counter";
           knownCollectorType = TRUE;
           break;
+        } else if( collector_name == "hwctime" )
+        {
+          panel_type = "HWCTime Panel";
+          knownCollectorType = TRUE;
+          break;
         } else if( collector_name == "io" )
         {
           panel_type = "IO";
@@ -1235,13 +1245,19 @@ OpenSpeedshop::lookForExperiment()
           panel_type = "MPI";
           knownCollectorType = TRUE;
           break;
+        } else if( collector_name == "mpit" )
+        {
+          panel_type = "MPIT";
+          knownCollectorType = TRUE;
+          break;
         }
       }
     }
   
     if( knownCollectorType != TRUE )
     {
-      panel_type = "Construct New";
+//      panel_type = "Construct New";
+      panel_type = "Custom Experiment";
     }
 
 // printf("pane_type.ascii() = %s\n", panel_type.ascii() );
