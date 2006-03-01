@@ -1305,8 +1305,8 @@ HW_CounterWizardPanel::languageChange()
   std::string PAPIDescriptionStr;;
 // printf("HW_CounterWizardPanel::languageChange(A) entered\n");
 
-  setCaption( tr( "HW Counter Wizard Panel" ) );
-  vDescriptionPageTitleLabel->setText( tr( "<h1>HW Counter Wizard</h1>" ) );
+  setCaption( tr( "HW Counter/HW Counter Time - Wizard Panel" ) );
+  vDescriptionPageTitleLabel->setText( tr( "<h1>HW Counter/HW Counter Time - Wizard</h1>" ) );
   vDescriptionPageText->setText( tr( vHW_CounterDescription ) );
   vDescriptionPageIntroButton->setText( tr( "<< Intro" ) );
   QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );

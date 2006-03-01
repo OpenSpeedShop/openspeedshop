@@ -1234,8 +1234,8 @@ IOWizardPanel::languageChange()
 {
   unsigned int traced_functions = 100;
 
-  setCaption( tr( "IO Wizard Panel" ) );
-  vDescriptionPageTitleLabel->setText( tr( "<h1>IO Wizard</h1>" ) );
+  setCaption( tr( "IO/IOT - Wizard Panel" ) );
+  vDescriptionPageTitleLabel->setText( tr( "<h1>IO/IOT -  Wizard</h1>" ) );
 //  vDescriptionPageText->setText( tr( vIODescription ) );
   vDescriptionPageIntroButton->setText( tr( "<< Intro" ) );
   QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );

@@ -1238,8 +1238,8 @@ MPIWizardPanel::languageChange()
 {
   unsigned int traced_functions = 100;
 
-  setCaption( tr( "MPI Wizard Panel" ) );
-  vDescriptionPageTitleLabel->setText( tr( "<h1>MPI Wizard</h1>" ) );
+  setCaption( tr( "MPI/MPIT - Wizard Panel" ) );
+  vDescriptionPageTitleLabel->setText( tr( "<h1>MPI/MPIT - Wizard</h1>" ) );
 //  vDescriptionPageText->setText( tr( vMPIDescription ) );
   vDescriptionPageIntroButton->setText( tr( "<< Intro" ) );
   QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
