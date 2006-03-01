@@ -416,6 +416,15 @@ void MPITCollector::getMetricValues(const std::string& metric,
 
                     // Add this event's time (in seconds) to the results
                     MPITDetail details;
+		    
+		    details.dm_source = data.events.events_val[i].source;
+		    details.dm_destination = data.events.events_val[i].destination;
+		    details.dm_size = data.events.events_val[i].size;
+		    details.dm_tag = data.events.events_val[i].tag;
+		    details.dm_communicator = data.events.events_val[i].communicator;
+		    details.dm_datatype = data.events.events_val[i].datatype;
+		    details.dm_retval = data.events.events_val[i].retval;
+
                     details.dm_interval = interval;
                     details.dm_time = t_intersection / 1000000000.0;
 
