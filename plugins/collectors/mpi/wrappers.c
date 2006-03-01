@@ -15,63 +15,19 @@
 ** along with this library; if not, write to the Free Software Foundation, Inc.,
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
-/** MPI Wrapper Function for @FUNCTION@ */
+
+/** @file
+ *
+ * Special-Purpose MPI Wrapper Functions
+ *
+ * Most of the MPI wrapper functions are generated automagically via the custom
+ * `mkwrapper' tool and its associated template file `mkwrapper.template'. The
+ * following functions cannot be generated via that mechanism because they have
+ * specialized implementations that don't fit the template. 
+ */
 
 #include "RuntimeAPI.h"
 #include "blobs.h"
 #include "runtime.h"
 
 #include <mpi.h>
-
-/*
- * Special-Purpose MPI Wrapper Functions
- *
- * Most of the MPI wrapper functions are generated automagically via the custom
- * `mkwrapper' tool and its associated template file `mkwrapper.template'. The
- * following functions cannot be generated via that mechanism because they have
- * specialized implementations that don't fit the template.
- *
- * Note that for each MPI call, we actually have TWO wrapper functions. One is
- * for C and one is for FORTRAN. The FORTRAN version is always completely lower
- * case with a trailing `_' character.
- */
-
-int mpi_PMPI_Init(int *argc, char ***argv) 
-{    
-    int retval, datatype_size;
-    mpi_event event;
-
-    mpi_start_event(&event);
-    event.start_time = OpenSS_GetTime();
-
-    /* Call the real MPI function */
-    retval = PMPI_Init(argc, argv);
-
-    event.stop_time = OpenSS_GetTime();
-
-    /* Record event */
-    mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Init));
-    
-    /* Return the real MPI function's return value to the caller */
-    return retval;
-}
-
-int mpi_PMPI_Finalize(void)
-{
-    int retval, datatype_size;
-    mpi_event event;
-
-    mpi_start_event(&event);
-    event.start_time = OpenSS_GetTime();
-    
-    /* Call the real MPI function */
-    retval = PMPI_Finalize();
-
-    event.stop_time = OpenSS_GetTime();
-
-    /* Record event */
-    mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Finalize));
-
-    /* Return the real MPI function's return value to the caller */
-    return retval;
-}
