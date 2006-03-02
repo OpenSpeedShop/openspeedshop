@@ -914,8 +914,10 @@ void Process::uninstrument(const Collector& collector, const Thread& thread)
 	    i = dm_libraries.begin(); i != dm_libraries.end();) {
 
 	// Ignore this library if it isn't associated with specified collector
-	if(i->second.dm_collector != collector)
+	if(i->second.dm_collector != collector) {
+	    ++i;
 	    continue;
+	}
 
 	// Remove all probes associated with the thread from this process
 	for(std::multimap<Thread, ProbeHandle>::iterator

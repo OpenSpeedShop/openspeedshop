@@ -414,35 +414,37 @@ Experiment::Experiment(const std::string& name) :
  */
 Experiment::~Experiment()
 {
-    // Note: It is fairly common for Experiment objects to be allocated on the
-    //       stack. And exceptions are thrown in postponeCollecting() under the
-    //       right (wrong?) circumstances. So if the tool receives an exception,
-    //       and if the subsequent stack unwind causes this destructor to be
-    //       called, and IF postponeCollecting() also throws an exception, then
+    // Note: Experiment objects can be allocated on the stack and exceptions
+    //       are thrown in several of the following operations under the right
+    //       (wrong?) circumstances. So if the tool receives an exception, and
+    //       if the subsequent stack unwind causes this destructor to be called,
+    //       and IF one of the following operations throws an exception, then
     //       we are in big, big, trouble. The C++ standard specifies that the
     //       terminate() function is called immediately. Since there isn't a
-    //       whole lot we can do about a failure in postponeCollecting() under
-    //       these circumstances, we choose to ignore such failures for now.
-    
-    // Postpone all performance data collection
+    //       whole lot we can do about a failure in any of the following, we
+    //       chose to ignore such failures for now.
+
     try {
+
+	// Postpone all performance data collection
 	getThreads().postponeCollecting(getCollectors());
+
+	// Remove this experiment's database from the data queues
+	DataQueues::removeDatabase(dm_database);
+    
+	// Iterate over each thread in this experiment
+	ThreadGroup threads = getThreads();
+	for(ThreadGroup::const_iterator 
+		i = threads.begin(); i != threads.end(); ++i) {
+	    
+	    // Release this thread in the instrumentor
+	    Instrumentor::release(*i);
+	    
+	}
+	
     }
     catch(...) {
-    }
-    
-    // Remove this experiment's database from the data queues
-    DataQueues::removeDatabase(dm_database);
-    
-    // Iterate over each thread in this experiment
-    ThreadGroup threads = getThreads();
-    for(ThreadGroup::const_iterator 
-	    i = threads.begin(); i != threads.end(); ++i) {
-	
-	// Release this thread in the instrumentor
-	Instrumentor::release(*i);
-	
-    }
+    }    
 }
 
 
