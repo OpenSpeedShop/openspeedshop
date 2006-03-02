@@ -1286,9 +1286,25 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   QString selected_function_qstring = QString(sf).stripWhiteSpace();
   QString lineNumberStr = "-1"; // MPI only
 
-  QString filename = getFilenameFromString( QString(sf).stripWhiteSpace() ); 
+  QString filename = QString::null;
+  QString function_name = QString::null;
 
-  QString function_name = getFunctionNameFromString( QString(sf).stripWhiteSpace(), lineNumberStr );
+
+  if( hwc_FLAG )
+  {
+    filename = getFilenameFromString( QString(sf).stripWhiteSpace() ); 
+    int index = filename.find("(");
+    if( index != -1 )
+    {
+      lineNumberStr = filename.mid(index+1,filename.length()-(index+2));
+      filename = filename.mid(0, index);
+    } 
+    function_name = "";
+  } else
+  {
+    filename = getFilenameFromString( QString(sf).stripWhiteSpace() ); 
+    function_name = getFunctionNameFromString( QString(sf).stripWhiteSpace(), lineNumberStr );
+  }
 
 // printf("AA: filename=(%s)\n", filename.ascii() );
 // printf("AA: function_name=(%s) lineNumberStr=(%s)\n", function_name.ascii(), lineNumberStr.ascii() );
@@ -1329,14 +1345,6 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
         {
           QString ts = (QString)*it;
 // printf("Is it ts=(%s)\n", ts.ascii() );
-#ifdef PULL
-          if( ts.isEmpty() )
-          { // Temporary hack to get initial view to get the right numbers.
-// printf("NULL! !!!!\n");
-            foundFLAG = TRUE;
-            break;
-          }
-#endif // PULL
           if( QString("%1").arg(thread.getProcessId()) == ts )
           {
 // printf("Got it!!!!\n");
@@ -1399,7 +1407,8 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
           }
           currentThread = new Thread(*ti);
 // printf("Getting the next currentThread (%d)\n", currentThread->getProcessId() );
-          if( !mpi_io_FLAG )
+//          if( !mpi_io_FLAG )
+          if( mpi_io_FLAG == FALSE && hwc_FLAG == FALSE )
           {
             if( item->text(0).contains(".") )
             {
@@ -1555,13 +1564,23 @@ filename = di->getPath();
           spo = new SourceObject(function_name.ascii(), filename.ascii(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
         } else
         {
-// printf("spo B:\n");
+// printf("spo C:\n");
 //          spo = new SourceObject(function_name.ascii(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
           spo = new SourceObject(function_name.ascii(), filename, di->getLine()-1, expID, TRUE, highlightList);
 }
         } else
         {
 // printf("No definitioin for thread's function\n");
+// printf("A: hwc_FLAG=%d lineNumberStr=(%s) collectorStrFromMenu.startsWith=(%s)\n", hwc_FLAG, lineNumberStr.ascii(), collectorStrFromMenu.ascii() );
+if( hwc_FLAG == TRUE && lineNumberStr != "-1" /* &&
+                   collectorStrFromMenu.startsWith("Statements") */ )
+{
+          HighlightObject *hlo = NULL;
+          hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Statements", "overflows");
+          highlightList->push_back(hlo);
+// printf("spo B:\n");
+          spo = new SourceObject(function_name.ascii(), filename.ascii(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
+}
         }
       }
     }
@@ -1569,6 +1588,7 @@ filename = di->getPath();
     if( !spo )
     {
 // printf("NO SOURCE PANEL OBJECT to update existing source. Create null one.\n");
+// printf("!spo");
       spo = new SourceObject(NULL, NULL, -1, expID, TRUE, NULL);
     }
     if( spo )
