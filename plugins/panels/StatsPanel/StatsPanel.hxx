@@ -113,16 +113,31 @@ class StatsPanel  : public Panel
 ColumnValueClass columnValueClass[10];
     int *metricHeaderTypeArray;  // matches the QListView # of column entries.
 
+    std::list<std::string> list_of_collectors_metrics;
     std::list<std::string> list_of_collectors;
     std::list<int64_t> list_of_pids;
     std::list<std::string> list_of_modifiers;
     std::list<std::string> current_list_of_modifiers;
+
+    std::list<std::string> list_of_mpi_modifiers;
+    std::list<std::string> current_list_of_mpi_modifiers;
+    std::list<std::string> list_of_io_modifiers;
+    std::list<std::string> current_list_of_io_modifiers;
+    std::list<std::string> list_of_hwc_modifiers;
+    std::list<std::string> current_list_of_hwc_modifiers;
+    std::list<std::string> list_of_pcsamp_modifiers;
+    std::list<std::string> current_list_of_pcsamp_modifiers;
+    std::list<std::string> list_of_usertime_modifiers;
+    std::list<std::string> current_list_of_usertime_modifiers;
+
     void updateThreadsList();
+    void updateCollectorList();
     void updateCollectorMetricList();
     void outputCLIData(QString *data);
     bool mpi_io_FLAG;
     bool hwc_FLAG;
-    bool traceFLAG;
+    bool MPItraceFLAG;
+    bool IOtraceFLAG;
 
   protected:
     //! Sets the language specific strings.
@@ -148,7 +163,19 @@ ThreadGroupStringList currentThreadGroupStrList;
 
     QPopupMenu *threadMenu;
     QPopupMenu *modifierMenu;
+
+    QPopupMenu *mpiModifierMenu;
+    QPopupMenu *ioModifierMenu;
+    QPopupMenu *hwcModifierMenu;
+    QPopupMenu *pcsampModifierMenu;
+    QPopupMenu *usertimeModifierMenu;
+
     QPopupMenu *popupMenu;   // Pointer to the contextMenu
+    QPopupMenu *mpi_menu;
+    QPopupMenu *io_menu;
+    QPopupMenu *hwc_menu;
+    QPopupMenu *usertime_menu;
+    QPopupMenu *pcsamp_menu;
 
     QString currentThreadStr;
     QString currentThreadsStr;
@@ -168,17 +195,28 @@ ThreadGroupStringList currentThreadGroupStrList;
     void updatePanel();
     void gotoSource(bool use_current_item = FALSE);
     void aboutSelected();
-// For debugging trace syntax only.
-void traceSelected();
+    void MPItraceSelected();
+    void IOtraceSelected();
     void compareSelected();
     void manageProcessesSelected();
 
   private slots:
     void threadSelected(int);
     void modifierSelected(int);
+    void mpiModifierSelected(int);
+    void ioModifierSelected(int);
+    void hwcModifierSelected(int);
+    void pcsampModifierSelected(int);
+    void usertimeModifierSelected(int);
     void collectorMetricSelected(int);
     void collectorMPIReportSelected(int);
+    void collectorMPITReportSelected(int);
+    void collectorIOReportSelected(int);
+    void collectorIOTReportSelected(int);
     void collectorHWCReportSelected(int);
+    void collectorHWCTReportSelected(int);
+    void collectorUserTimeReportSelected(int);
+    void collectorPCSampReportSelected(int);
     void showStats();
     void showChart();
     void setOrientation();
@@ -190,10 +228,19 @@ void traceSelected();
     bool matchUInt64SelectedItem( std::string function_name );
 
     void updateStatsPanelData(QString command = QString::null);
+    void generateMPIMenu(QString collectorName);
+    void generateIOMenu(QString collectorName);
+    void generateHWCMenu(QString collectorName);
+    void generateUserTimeMenu();
+    void generatePCSampMenu();
     QString generateCommand();
+    void generateModifierMenu(QPopupMenu *, std::list<std::string>current_list, std::list<std::string>current_local_list);
     void generateModifierMenu();
 
 
+    void MPIReportSelected(int);
+    void IOReportSelected(int);
+    void HWCReportSelected(int);
     void resetRedirect();
 
     SPListViewItem *lastlvi;
