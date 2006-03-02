@@ -36,6 +36,7 @@ CMDWID Embedded_WindowID = 0;
 #define PTMAX 10
 pthread_t phandle[PTMAX];
 
+static bool Trying_to_terminate;
 static bool Watcher_Active;
 static bool need_gui;
 static bool need_tli;
@@ -341,11 +342,11 @@ extern "C"
       abort();
     } else if (sig != SIGINT) {
      // If not a user initiated signal, try a normal shutdown.
-      if (processing_signal) {
-        cerr << "Multiple errors - " << sig << " " <<  error_num <<  std::endl;
+      if (Trying_to_terminate) {
+        cerr << "Error during termination - " << sig << " " <<  error_num <<  std::endl;
         abort();
       }
-      processing_signal = true;
+      Trying_to_terminate = true;
      // the folowing lines are for debugging
     	cerr << "catch_signal " << sig << std::endl;
     	// Internal_Info_Dump(1);
@@ -486,8 +487,14 @@ extern "C"
     	PyRun_SimpleString( "myparse.do_flat_input ()\n");
 
    // When Python exits, terminate SpeedShop:
-    cli_terminate ();
-    Openss_Basic_Termination();
+    Trying_to_terminate = true;
+    try {
+      cli_terminate ();
+      Openss_Basic_Termination();
+    }
+    catch(const Exception& error) {
+      cerr << "catch error during termination: " << error.getDescription() << std::endl;
+    }
 
    // Release allocated space.
     delete argStruct;
@@ -597,6 +604,7 @@ extern "C"
   Openss_Basic_Initialization ()
   {
    // Basic Initialization
+    Trying_to_terminate = false;
     Watcher_Active = false;
     need_gui = false;
     need_tli = false;
@@ -642,6 +650,7 @@ extern "C"
   void
   Openss_Basic_Termination()
   {
+    Trying_to_terminate = true;
     if (Watcher_Active) {
      // Get rid of thread that looks for special conditions.
       Watcher_Active = false;

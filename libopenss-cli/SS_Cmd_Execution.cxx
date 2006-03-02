@@ -54,9 +54,15 @@ void Experiment_Termination () {
   ExperimentObject *exp = NULL;
   std::list<ExperimentObject *>::iterator expi;
   for (expi = ExperimentObject_list.begin(); expi != ExperimentObject_list.end(); ) {
-    ExperimentObject *exp = (*expi);
-    expi++;
-    delete exp;
+    try {
+      ExperimentObject *exp = (*expi);
+      expi++;
+      delete exp;
+    }
+    catch (const Exception& error) {
+     // We are trying to terminate - ignore all the errors.
+     // But stay in the loop and try to clean up other experiments.
+    }
   }
 }
 
@@ -2264,6 +2270,14 @@ bool SS_expView (CommandObject *cmd) {
   if ((exp != NULL) && !Window_Is_Async(WindowID) && (Embedded_WindowID == 0) &&
       !Look_For_KeyWord(cmd, "NoWait")) {
     (void) Wait_For_Exp_State (cmd, ExpStatus_Paused, exp);
+   // Be sure that write buffers are actually written to the database.
+   // This assures us of getting all the data when we generate the view.
+    try {
+      exp->FW()->flushPerformanceData();
+    }
+    catch (const Exception& error) {
+     // Ignore any errors and let them be regenerated when we try to do something else.
+    }
   }
 
  // Prevent this experiment from changing until we are done.
@@ -3642,6 +3656,13 @@ bool SS_Wait (CommandObject *cmd) {
     if (exp != NULL) {
      // Wait for the execution of the experiment to terminate.
       Wait_For_Exp (cmd, exp);
+     // Be sure that write buffers are actually written to the database.
+      try {
+        exp->FW()->flushPerformanceData();
+      }
+      catch (const Exception& error) {
+       // Ignore any errors and let them be regenerated when we try to do something else.
+      }
     }
   } else if ( Look_For_KeyWord (cmd, "all")) {
     std::list<ExperimentObject *>::reverse_iterator expi;
@@ -3649,6 +3670,13 @@ bool SS_Wait (CommandObject *cmd) {
     {
      // Wait for the execution of the experiment to terminate.
       Wait_For_Exp (cmd, *expi);
+     // Be sure that write buffers are actually written to the database.
+      try {
+        (*expi)->FW()->flushPerformanceData();
+      }
+      catch (const Exception& error) {
+       // Ignore any errors and let them be regenerated when we try to do something else.
+      }
     }
   }
 
