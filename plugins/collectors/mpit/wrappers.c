@@ -82,6 +82,7 @@ int mpit_PMPI_Recv(
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Recv));
 
@@ -111,6 +112,7 @@ int mpit_PMPI_Iprobe(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.tag = tag;
     event.communicator = comm;
+    event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Iprobe));
 
@@ -139,6 +141,7 @@ int mpit_PMPI_Probe(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.tag = tag;
     event.communicator = comm;
+    event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Probe));
 
@@ -177,6 +180,8 @@ int mpit_PMPI_Isend(
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Isend));
 
     return retval;
@@ -209,6 +214,7 @@ int mpit_PMPI_Bsend(
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Bsend));
 
@@ -243,6 +249,7 @@ int mpit_PMPI_Ibsend(
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Ibsend));
 
@@ -277,6 +284,7 @@ int mpit_PMPI_Irsend(
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Irsend));
 
@@ -311,6 +319,7 @@ int mpit_PMPI_Issend(
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Issend));
 
@@ -344,6 +353,7 @@ int mpit_PMPI_Rsend(
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Rsend));
 
@@ -377,6 +387,7 @@ int mpit_PMPI_Send(
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Send));
 
@@ -410,6 +421,7 @@ int mpit_PMPI_Ssend(
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Ssend));
 
@@ -434,6 +446,7 @@ int mpit_PMPI_Waitall(
 
     event.stop_time = OpenSS_GetTime();
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Waitall));
 
@@ -458,6 +471,8 @@ int mpit_PMPI_Finalize()
     event.stop_time = OpenSS_GetTime();
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Finalize));
 
     return retval;
@@ -491,6 +506,8 @@ int mpit_PMPI_Waitsome(
     event.stop_time = OpenSS_GetTime();
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Waitsome));
 
     return retval;
@@ -524,6 +541,8 @@ int mpit_PMPI_Testsome(
     event.stop_time = OpenSS_GetTime();
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Testsome));
 
     return retval;
@@ -551,6 +570,8 @@ int mpit_PMPI_Waitany(
     event.stop_time = OpenSS_GetTime();
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Waitany));
 
     return retval;
@@ -589,6 +610,8 @@ int mpit_PMPI_Unpack(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = outcount * datatype_size;
     event.datatype = datatype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Unpack));
 
     return retval;
@@ -614,6 +637,8 @@ int mpit_PMPI_Wait(
     event.stop_time = OpenSS_GetTime();
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Wait));
 
     return retval;
@@ -642,6 +667,8 @@ int mpit_PMPI_Testany(
     event.stop_time = OpenSS_GetTime();
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Testany));
 
     return retval;
@@ -669,6 +696,8 @@ int mpit_PMPI_Testall(
     event.stop_time = OpenSS_GetTime();
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Testall));
 
     return retval;
@@ -695,6 +724,8 @@ int mpit_PMPI_Test(
     event.stop_time = OpenSS_GetTime();
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Test));
 
     return retval;
@@ -729,6 +760,8 @@ int mpit_PMPI_Scan(
     event.size = count * datatype_size;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Scan));
 
     return retval;
@@ -754,6 +787,8 @@ int mpit_PMPI_Request_free(
     event.stop_time = OpenSS_GetTime();
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Request_free));
 
     return retval;
@@ -791,6 +826,8 @@ int mpit_PMPI_Reduce_scatter(
     event.size = *recvcounts * datatype_size;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Reduce_scatter));
 
     return retval;
@@ -826,6 +863,8 @@ int mpit_PMPI_Reduce(
     event.size = count * datatype_size;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Reduce));
 
     return retval;
@@ -862,6 +901,8 @@ int mpit_PMPI_Pack(
     event.size = incount * datatype_size;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Pack));
 
     return retval;
@@ -887,6 +928,8 @@ int mpit_PMPI_Init(
     event.stop_time = OpenSS_GetTime();
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Init));
 
     return retval;
@@ -915,6 +958,8 @@ int mpit_PMPI_Get_count(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = *count * datatype_size;
     event.datatype = datatype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Get_count));
 
     return retval;
@@ -953,6 +998,8 @@ int mpit_PMPI_Gatherv(
     event.size = *recvcounts * datatype_size;
     event.communicator = comm;
     event.datatype = recvtype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Gatherv));
 
     return retval;
@@ -991,6 +1038,8 @@ int mpit_PMPI_Gather(
     event.size = recvcount * datatype_size;
     event.communicator = comm;
     event.datatype = recvtype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Gather));
 
     return retval;
@@ -1016,6 +1065,8 @@ int mpit_PMPI_Cancel(
     event.stop_time = OpenSS_GetTime();
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Cancel));
 
     return retval;
@@ -1049,6 +1100,8 @@ int mpit_PMPI_Bcast(
     event.size = count * datatype_size;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Bcast));
 
     return retval;
@@ -1075,6 +1128,8 @@ int mpit_PMPI_Barrier(
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.communicator = comm;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Barrier));
 
     return retval;
@@ -1114,6 +1169,8 @@ int mpit_PMPI_Alltoallv(
     event.size = *recvcounts * datatype_size;
     event.communicator = comm;
     event.datatype = recvtype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Alltoallv));
 
     return retval;
@@ -1150,6 +1207,8 @@ int mpit_PMPI_Alltoall(
     event.size = recvcount * datatype_size;
     event.communicator = comm;
     event.datatype = recvtype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Alltoall));
 
     return retval;
@@ -1184,6 +1243,8 @@ int mpit_PMPI_Allreduce(
     event.size = count * datatype_size;
     event.communicator = comm;
     event.datatype = datatype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Allreduce));
 
     return retval;
@@ -1222,6 +1283,8 @@ int mpit_PMPI_Allgatherv(
     event.size = *recvcounts * datatype_size;
     event.communicator = comm;
     event.datatype = recvtype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Allgatherv));
 
     return retval;
@@ -1258,8 +1321,97 @@ int mpit_PMPI_Allgather(
     event.size = recvcount * datatype_size;
     event.communicator = comm;
     event.datatype = recvtype;
+    event.retval = retval;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Allgather));
 
+    return retval;
+}
+
+#if 0
+/*
+ * MPI_Scatter
+ */
+
+int mpit_PMPI_Scatter(void* buf, int count, MPI_Datatype datatype, int source, 
+		    int tag, MPI_Comm comm, MPI_Statis* statis)
+{
+    int retval, datatype_size;
+    mpit_event event;
+    
+    mpit_start_event(&event);
+    event.start_time = OpenSS_GetTime();
+    retval = PMPI_Scatter(buf, count, datatype, source, tag, comm, statis);
+    event.stop_time = OpenSS_GetTime();
+    event.source = source;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    PMPI_Type_size(datatype, &datatype_size);
+    event.size = count * datatype_size;
+    event.tag = tag;
+    event.communicator = comm;
+    event.datatype = datatype;
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Scatter));
+    return retval;
+}
+#endif
+
+/*
+ * MPI_Sendrecv
+ */
+
+int 
+mpit_PMPI_Sendrecv(
+    	void*     	sendbuf, 
+    	int 	    	sendcount, 
+    	MPI_Datatype	sendtype, 
+    	int 	    	dest, 
+    	int	    	sendtag, 
+
+    	void*     	recvbuf, 
+    	int 	    	recvcount, 
+    	MPI_Datatype	recvtype, 
+    	int 	    	source, 
+    	int	    	recvtag, 
+
+    	MPI_Comm comm, 
+    	MPI_Status* status)
+{
+    int retval, datatype_size;
+    mpit_event send_event;
+    mpit_event recv_event;
+    
+    /* Set up the send record */
+    mpit_start_event(&send_event);
+    send_event.source = dest;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(send_event.source));
+    PMPI_Type_size(sendtype, &datatype_size);
+    send_event.size = sendcount * datatype_size;
+    send_event.tag = sendtag;
+    send_event.datatype = sendtype;
+    
+    send_event.start_time = OpenSS_GetTime();
+    retval = PMPI_Sendrecv( sendbuf, sendcount, sendtype, dest, sendtag, 
+    	    	    	    recvbuf, recvcount, recvtype, source, recvtag,
+			    comm, status);
+    send_event.stop_time = OpenSS_GetTime();
+    
+    send_event.communicator = comm;
+    send_event.retval = retval;
+    recv_event.start_time = send_event.start_time;
+    recv_event.stop_time = send_event.stop_time;
+    mpit_record_event(&send_event, OpenSS_GetAddressOfFunction(PMPI_Sendrecv));
+
+    /* Set up the recv record */
+    recv_event.source = source;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(recv_event.destination));
+    PMPI_Type_size(recvtype, &datatype_size);
+    recv_event.size = recvcount * datatype_size;
+    recv_event.tag = recvtag;
+    recv_event.datatype = recvtype;
+
+    recv_event.communicator = comm;
+    recv_event.retval = retval;
+    mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(PMPI_Sendrecv));
     return retval;
 }
 

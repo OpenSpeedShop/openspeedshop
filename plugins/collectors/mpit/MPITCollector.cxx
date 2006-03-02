@@ -95,6 +95,7 @@ namespace {
 	"MPI_Allreduce",
 	"MPI_Allgatherv",
 	"MPI_Allgather",
+	"MPI_Sendrecv",
 	
 	// End Of Table Entry
 	NULL
