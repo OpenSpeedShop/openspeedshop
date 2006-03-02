@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
     // Create the process
     Process process;
     extern char** environ;
-    retval = process.bcreate(NULL, argv[1], (const char**)&(argv[1]), environ,
+    retval = process.bcreate(NULL, argv[1], (const char**)&(argv[1]),  (const char**)environ,
 			     stdoutCallback, NULL, stderrCallback, NULL);
     assert(retval.status() == ASC_success);
     
