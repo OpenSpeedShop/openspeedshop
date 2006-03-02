@@ -137,6 +137,7 @@ namespace OpenSpeedShop { namespace Framework {
 	std::set<Statement> getStatementsByPathPattern(
 	    const std::string&) const;
 
+	void flushPerformanceData() const;
 	Extent getPerformanceDataExtent() const;
 	
     private:

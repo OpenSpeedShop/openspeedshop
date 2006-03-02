@@ -64,8 +64,9 @@ namespace OpenSpeedShop { namespace Framework {
     namespace DataQueues {
 
 	void addDatabase(const SmartPtr<Database>&);
-	void removeDatabase(const SmartPtr<Database>&);	
+	void removeDatabase(const SmartPtr<Database>&);
 	int getDatabaseIdentifier(const SmartPtr<Database>&);
+	void flushDatabase(const SmartPtr<Database>&);
 	
 	void enqueuePerformanceData(const Blob&);
 	void flushPerformanceData();

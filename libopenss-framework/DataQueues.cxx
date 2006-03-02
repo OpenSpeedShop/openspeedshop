@@ -29,6 +29,7 @@
 #include "DataQueues.hxx"
 #include "SmartPtr.hxx"
 #include "Time.hxx"
+#include "TimeInterval.hxx"
 
 #include "OpenSS_DataHeader.h"
 
@@ -44,7 +45,8 @@ using namespace OpenSpeedShop::Framework;
 namespace {
     
     /** Exclusive access lock for this unnamed namespace's variables. */
-    pthread_mutex_t exclusive_access_lock = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_t exclusive_access_lock = 
+	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
     
     /** Next available identifier value. */
     int next_identifier = 0;
@@ -59,7 +61,6 @@ namespace {
     std::map<int, SmartPtr<std::deque<Blob> > > identifier_to_queue;
 
 #ifndef NDEBUG
-
     /** Flag indicating if debugging for this namespace is enabled. */
     bool is_debug_enabled = false;
 
@@ -75,7 +76,52 @@ namespace {
     /** Cumulative number of bytes (within blobs) that have been stored. */
     uint64_t debug_stored_bytes = 0;
 
-#endif
+
+
+    /**
+     * Display performance statistics.
+     *
+     * Displays performance statistics for the passed flush operation to the
+     * standard error stream. Reported information includes cumulative number
+     * of data blobs entering/leaving the data queues, and the instantaneous
+     * write rate for the flush.
+     *
+     * @param interval    Time interval over which data was flushed.
+     * @param bytes       Number of bytes flushed.
+     */
+    void debugPerformanceStatistics(const TimeInterval& interval,
+				    const uint64_t& bytes)
+    {
+	// Calculate the write rate in kilobytes/second
+	double write_rate = 
+	    (static_cast<double>(bytes) * 1000000000.0) /
+	    (static_cast<double>(interval.getWidth()) * 1024.0);
+	
+	// Build the string to be displayed
+	std::stringstream output;
+
+	output << "[ "
+	       << "In: " << debug_enqueued_count
+	       << " (" << debug_enqueued_bytes << ")"
+	       << ", Out: " << debug_stored_count
+	       << " (" << debug_stored_bytes << ")"
+	       << " ]   "
+	       << std::setiosflags(std::ios::fixed)
+	       << std::setprecision(1);	
+	
+	if(write_rate < 1024.0)
+	    output << write_rate << " KB/s";
+	else if(write_rate < (1024.0 * 1024.0))
+	    output << (write_rate / 1024.0) << " MB/s";
+	else
+	    output << (write_rate / (1024.0 * 1024.0)) << " GB/s";
+	
+	output << std::endl;
+	
+	// Display the string to the standard error stream
+	std::cerr << output.str();
+    }
+#endif  // NDEBUG
 
 
 
@@ -241,31 +287,11 @@ void DataQueues::removeDatabase(const SmartPtr<Database>& database)
     Assert(database_to_identifier.find(database) !=
 	   database_to_identifier.end());
 
+    // Flush any performance data that might remain in the database's queue
+    flushDatabase(database);
+    
     // Find the database's identifier
     int identifier = database_to_identifier[database];
-
-    // Flush the database's queue if non-empty
-    if(!identifier_to_queue[identifier]->empty()) {
-
-	// Begin a multi-statement transaction
-	BEGIN_WRITE_TRANSACTION(database);
-
-	// Iterate over each blob in the queue
-	while(!identifier_to_queue[identifier]->empty()) {
-
-	    // Store this blob in the correct database
-	    storePerformanceData(database,
-				 identifier_to_queue[identifier]->front());
-
-	    // Pop this blob off the queue
-	    identifier_to_queue[identifier]->pop_front();
-	    
-	}
-
-	// End this multi-statement transaction
-	END_TRANSACTION(database);
-
-    }
     
     // Remove this database
     database_to_identifier.erase(database);
@@ -307,6 +333,83 @@ int DataQueues::getDatabaseIdentifier(const SmartPtr<Database>& database)
     
     // Return the identifier to the caller
     return identifier;
+}
+
+
+
+/**
+ * Flush a database.
+ *
+ * Flushes any performance data in the data queues for the passed database.
+ * Performance data is flushed until the queue has been emptied.
+ *
+ * @note    An assertion failure occurs if an attempt is made to flush a null
+ *          database or to flush a database that isn't currently added.
+ *
+ * @param database    Database to be flushed.
+ */
+void DataQueues::flushDatabase(const SmartPtr<Database>& database)
+{
+    // Acquire exclusive access to our unnamed namespace variables
+    Assert(pthread_mutex_lock(&exclusive_access_lock) == 0);
+    
+#ifndef NDEBUG
+    // Performance statistics
+    uint64_t debug_written_bytes = 0;
+    Time debug_start_time = Time::Now();
+#endif
+
+    // Check assertions
+    Assert(!database.isNull());
+    Assert(database_to_identifier.find(database) !=
+	   database_to_identifier.end());
+
+    // Find the database's identifier and queue
+    int identifier = database_to_identifier[database];
+    SmartPtr<std::deque<Blob> > queue = identifier_to_queue[identifier];
+    
+    // Flush the database's queue if non-empty
+    if(!queue->empty()) {
+	
+	// Begin a multi-statement transaction
+	BEGIN_WRITE_TRANSACTION(database);
+
+	// Iterate over each blob in the queue
+	while(!queue->empty()) {
+
+#ifndef NDEBUG
+	    // Update performance statistics
+	    debug_written_bytes += queue->front().getSize();
+	    debug_stored_count++;
+	    debug_stored_bytes += queue->front().getSize();
+#endif
+
+	    // Store this blob in the correct database
+	    storePerformanceData(database, queue->front());
+
+	    // Pop this blob off the queue
+	    queue->pop_front();
+	    
+	}
+
+	// End this multi-statement transaction
+	END_TRANSACTION(database);
+
+    }
+
+#ifndef DEBUG
+    // Performance statistics
+    Time debug_stop_time = Time::Now();
+    
+    // Display performance statistics
+    if(is_debug_enabled && (debug_written_bytes > 0))
+	debugPerformanceStatistics(TimeInterval(debug_start_time, 
+						debug_stop_time),
+				   debug_written_bytes);    
+#endif    
+
+    // Release exclusive access to our unnamed namespace variables
+    Assert(pthread_mutex_unlock(&exclusive_access_lock) == 0); 
 }
 
 
@@ -362,7 +465,11 @@ void DataQueues::enqueuePerformanceData(const Blob& blob)
  * Flush performance data.
  *
  * Flushes performance data from the data queues to the correct experiment
- * database. ...
+ * databases. Performance data is flushed until either the queues have been
+ * emptied or a set maximum length of time has passed. Any data remaining in
+ * the queues after the maxmium time is exceeded will be left there for the
+ * next flush. Imposing such a maximum flush time prevents the flushing from
+ * monopolizing the time of the calling thread.
  */
 void DataQueues::flushPerformanceData()
 {
@@ -372,15 +479,15 @@ void DataQueues::flushPerformanceData()
     bool is_time_up = false;
     Time start_time = Time::Now();
 
+    // Acquire exclusive access to our unnamed namespace variables
+    Assert(pthread_mutex_lock(&exclusive_access_lock) == 0);
+
 #ifndef NDEBUG
     // Performance statistics
     uint64_t debug_written_bytes = 0;
     Time debug_start_time = Time::Now();
 #endif
     
-    // Acquire exclusive access to our unnamed namespace variables
-    Assert(pthread_mutex_lock(&exclusive_access_lock) == 0);
-
     // Iterate over each database queue
     for(std::map<int, SmartPtr<std::deque<Blob> > >::const_iterator
 	    i = identifier_to_queue.begin(); 
@@ -426,37 +533,10 @@ void DataQueues::flushPerformanceData()
     Time debug_stop_time = Time::Now();
     
     // Display performance statistics
-    if(is_debug_enabled && (debug_written_bytes > 0)) {
-
-	// Calculate the write rate in kilobytes/second
-	double write_rate = (debug_stop_time <= debug_start_time) ? 0.0 :
-	    (static_cast<double>(debug_written_bytes) * 1000000000.0) /
-	    (static_cast<double>(debug_stop_time - debug_start_time) * 1024.0);
-	
-	// Build the string to be displayed
-	std::stringstream output;
-
-	output << "[ "
-	       << "In: " << debug_enqueued_count
-	       << " (" << debug_enqueued_bytes << ")"
-	       << ", Out: " << debug_stored_count
-	       << " (" << debug_stored_bytes << ")"
-	       << " ]   "
-	       << std::setiosflags(std::ios::fixed)
-	       << std::setprecision(1);	
-
-	if(write_rate < 1024.0)
-	    output << write_rate << " KB/s";
-	else if(write_rate < (1024.0 * 1024.0))
-	    output << (write_rate / 1024.0) << " MB/s";
-	else
-	    output << (write_rate / (1024.0 * 1024.0)) << " GB/s";
-	
-	output << std::endl;
-	
-	// Display the string to the standard error stream
-	std::cerr << output.str();
-    }
+    if(is_debug_enabled && (debug_written_bytes > 0))
+	debugPerformanceStatistics(TimeInterval(debug_start_time, 
+						debug_stop_time),
+				   debug_written_bytes);    
 #endif    
 
     // Release exclusive access to our unnamed namespace variables

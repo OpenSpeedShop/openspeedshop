@@ -1127,6 +1127,24 @@ Experiment::getStatementsByPathPattern(const std::string& pattern) const
 
 
 /**
+ * Flush performance data.
+ *
+ * Flushes any queued performance data for this experiment to the experiment's
+ * database. All incoming performance data will eventually be flushed to the
+ * experiment's database irrespective of whether or not this function is ever
+ * called. Utilizing this function simply allows a tool to give hints as to
+ * when it would like to see the flush happen (e.g. immediately after all the
+ * processes in an experiment terminate).
+ */
+void Experiment::flushPerformanceData() const
+{
+    // Flush performance data in the data queues for this experiment's database
+    DataQueues::flushDatabase(dm_database);
+}
+
+
+
+/**
  * Get performance data extent.
  *
  * Returns the extent of performance data within this experiment. An empty
