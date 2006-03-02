@@ -816,7 +816,7 @@ SourcePanel::loadFile(const QString &_fileName)
     if( !fileName.isEmpty() )
     {
       QString msg;
-      msg = QString("Unable to open file: %1\n-or-\n%2").arg(fileName).arg(remapped_fileName);
+      msg = QString("Unable to open file: %1").arg(fileName);
       QMessageBox::information( (QWidget *)this, tr("Details..."),
                                msg, QMessageBox::Ok );
     }
