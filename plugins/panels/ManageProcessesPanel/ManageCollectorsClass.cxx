@@ -1512,14 +1512,24 @@ void
 ManageCollectorsClass::attachCollectorSelected(int val)
 {
 // printf("attachCollectorSelected(val=%d)\n", val);
-//  MPListViewItem *selectedItem = attachCollectorsListView->selectedItem();
-MPListViewItem *selectedItem = NULL;
-QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
-while( it.current() )
-{
-  selectedItem = (MPListViewItem *)it.current();
-  break;
-}
+  MPListViewItem *lvi = NULL;
+  QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+  QString pidStr = QString::null;
+  while( it.current() )
+  {
+    lvi = (MPListViewItem *)it.current();
+// printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
+// printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+    if( pidStr.isEmpty()  )
+    {
+      pidStr = " -p"+lvi->text(0);
+    } else
+    {
+      pidStr += ","+lvi->text(0);
+    }
+    it++;
+  }
+  MPListViewItem *selectedItem = lvi;
   QString param_text = QString::null;
   QString collector_name = QString::null;
   QString target_name = QString::null;
@@ -1536,32 +1546,28 @@ while( it.current() )
 // printf("Can't add a collector from a selected collector.\n");
         QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to add a collector from a selected collector.\nUnselect the highlighted selector first."), QMessageBox::Ok );
         return; }
-    } else if( dialogSortType == PID_T )
-    {
-      if( selectedItem->parent() )
-      {
-        target_name = selectedItem->parent()->text(0);
-      } else
-      {
-        target_name = selectedItem->text(0);
-      }
     }
   }
 // printf("target_name =(%s)\n", target_name.isEmpty() ? "" : target_name.ascii() );
 
   if( collectorPopupMenu != NULL )
   {
-// printf("Get the collector name from the popup menu.\n");
     collector_name = collectorPopupMenu->text(val);
+// printf("Get the collector name (%s) from the popup menu.\n", collector_name.ascii() );
   } else
   {
-// printf("Get the collector name from the file menu.\n");
     collector_name = collectorMenu->text(val);
+// printf("Get the collector name (%s) from the file menu.\n", collector_name.ascii() );
   }
 // printf("collector_name =(%s)\n", collector_name.isEmpty() ? "" : collector_name.ascii() );
 
   QString command;
   command = QString("expAttach -x %1 %2 %3").arg(expID).arg(target_name).arg(collector_name);
+
+  if( dialogSortType == PID_T )
+  {  // Add the PID(s)
+    command += pidStr;
+  }
 
 // printf("command=(%s)\n", command.ascii() );
 
@@ -1862,8 +1868,6 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
     connect( collectorMenu, SIGNAL( aboutToShow() ),
                        this, SLOT( fileCollectorAboutToShowSelected( ) ) );
   
-if( dialogSortType == COLLECTOR_T )
-{
     contextMenu->insertItem("Add Collector", collectorMenu);
     if( list_of_collectors.size() > 0 ) 
     {
@@ -1877,7 +1881,6 @@ if( dialogSortType == COLLECTOR_T )
 // printf("Add item (%s)\n", collector_name.c_str() );
       }
     }
-}
 // printf("A: size =(%d) \n", list_of_collectors.size() );
   
     QPopupMenu *sortByMenu = new QPopupMenu( contextMenu );
