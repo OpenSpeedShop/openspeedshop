@@ -1238,6 +1238,7 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
   FocusObject *msg = NULL;
   QString pid_name = QString::null;
   QString pidString = QString::null;
+
  
   QListViewItemIterator it(lv, QListViewItemIterator::Selected);
   while( it.current() )
@@ -1506,12 +1507,105 @@ while( it.current() )
   updateAttachedList();
 }
 
+void
+ManageCollectorsClass::RS_attachCollectorSelected(int val)
+{
+// printf("RS_attachCollectorSelected(val=%d)\n", val);
+  QString attachStr = QString::null;
+  QString collector_name = QString::null;
 
+  QListViewItemIterator it(psetListView, QListViewItemIterator::Selected);
+  while( it.current() )
+  {
+    MPListViewItem *lvi = (MPListViewItem *)it.current();
+// Begin debug
+//printf("RS_attachCollectorSelected: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
+//printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
+//printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+//if( lvi->descriptionClassObject )
+//{
+//  lvi->descriptionClassObject->Print();
+//}
+// End debug
+
+
+// ***
+  if( collectorPopupMenu != NULL )
+  {
+    collector_name = collectorPopupMenu->text(val);
+// printf("Get the collector name (%s) from the popup menu.\n", collector_name.ascii() );
+  } else
+  {
+    collector_name = collectorMenu->text(val);
+// printf("Get the collector name (%s) from the file menu.\n", collector_name.ascii() );
+  }
+// printf("collector_name =(%s)\n", collector_name.isEmpty() ? "" : collector_name.ascii() );
+
+    if( lvi->descriptionClassObject->all )
+    {
+// printf("Do ALL threads, everywhere.\n");
+//        msg->host_pid_vector.clear();
+    } else if( lvi->descriptionClassObject->root )
+    {
+      // Loop through all the children...
+// printf("Loop through all the children.\n");
+      MPListViewItem *mpChild = (MPListViewItem *)lvi->firstChild();
+      while( mpChild )
+      {
+        QString host_name = mpChild->descriptionClassObject->host_name;
+        if( host_name.isEmpty() )
+        {
+          host_name = "localhost";
+        }
+        QString pid_name = mpChild->descriptionClassObject->pid_name;
+        if( pid_name.isEmpty() )
+        {
+          mpChild = (MPListViewItem *)mpChild->nextSibling();
+          continue;
+        }
+        std::pair<std::string, std::string> p(host_name,pid_name);
+//        msg->host_pid_vector.push_back( p );
+        attachStr += QString(" -h %1 -p %2 ").arg(host_name).arg(pid_name);
+// printf("A: push_back a new vector list..\n");
+        mpChild = (MPListViewItem *)mpChild->nextSibling();
+      }
+    } else
+    {
+      QString host_name = lvi->descriptionClassObject->host_name;
+      if( host_name.isEmpty() )
+      {
+        host_name = "localhost";
+      }
+      QString pid_name = lvi->descriptionClassObject->pid_name;
+      if( pid_name.isEmpty() )
+      {
+        continue;
+      }
+      std::pair<std::string, std::string> p(host_name,pid_name);
+//      msg->host_pid_vector.push_back( p );
+      attachStr += QString(" -h %1 -p %2 ").arg(host_name).arg(pid_name);
+//printf("B: push_back a new vector list.. (%s-%s)\n", host_name.ascii(), pid_name.ascii() );
+    } 
+// ***
+    it++;
+  }
+
+  QString command;
+  command = QString("expAttach -x %1 %2 %3").arg(expID).arg(collector_name).arg(attachStr);
+
+//printf("command=%s\n", command.ascii() );
+  if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
+  {
+    QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
+  }
+
+  updateAttachedList();
+}
 
 void
-ManageCollectorsClass::attachCollectorSelected(int val)
+ManageCollectorsClass::LS_attachCollectorSelected(int val)
 {
-// printf("attachCollectorSelected(val=%d)\n", val);
+// printf("LS_attachCollectorSelected(val=%d)\n", val);
   MPListViewItem *lvi = NULL;
   QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
   QString pidStr = QString::null;
@@ -1860,11 +1954,16 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   }
 
 
-  if( leftSide == TRUE )
-  {
     collectorMenu = new QPopupMenu(contextMenu);
-    connect( collectorMenu, SIGNAL( activated( int ) ),
-                       this, SLOT( attachCollectorSelected( int ) ) );
+    if( leftSide == TRUE )
+    {
+      connect( collectorMenu, SIGNAL( activated( int ) ),
+                       this, SLOT( LS_attachCollectorSelected( int ) ) );
+    } else
+    {
+      connect( collectorMenu, SIGNAL( activated( int ) ),
+                       this, SLOT( RS_attachCollectorSelected( int ) ) );
+    }
     connect( collectorMenu, SIGNAL( aboutToShow() ),
                        this, SLOT( fileCollectorAboutToShowSelected( ) ) );
   
@@ -1883,6 +1982,8 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
     }
 // printf("A: size =(%d) \n", list_of_collectors.size() );
   
+  if( leftSide == TRUE )
+  {
     QPopupMenu *sortByMenu = new QPopupMenu( contextMenu );
     qaction = new QAction( this,  "sortByProcess");
     qaction->addTo( sortByMenu );

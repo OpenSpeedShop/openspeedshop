@@ -108,7 +108,8 @@ public slots:
     void updateTimerCallback();
 
 private slots:
-    void attachCollectorSelected(int);
+    void LS_attachCollectorSelected(int);
+    void RS_attachCollectorSelected(int);
     void detachSelected();
     void disableSelected();
     void enableSelected();
