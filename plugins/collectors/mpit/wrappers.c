@@ -1328,32 +1328,112 @@ int mpit_PMPI_Allgather(
     return retval;
 }
 
-#if 0
 /*
  * MPI_Scatter
  */
 
-int mpit_PMPI_Scatter(void* buf, int count, MPI_Datatype datatype, int source, 
-		    int tag, MPI_Comm comm, MPI_Statis* statis)
+mpit_PMPI_Scatter(
+    	void*     	sendbuf, 
+    	int 	    	sendcount, 
+    	MPI_Datatype	sendtype, 
+
+    	void*     	recvbuf, 
+    	int 	    	recvcount, 
+    	MPI_Datatype	recvtype, 
+
+    	int 	    	root, 
+    	MPI_Comm    	comm)
 {
     int retval, datatype_size;
-    mpit_event event;
+    mpit_event send_event;
+    mpit_event recv_event;
     
-    mpit_start_event(&event);
-    event.start_time = OpenSS_GetTime();
-    retval = PMPI_Scatter(buf, count, datatype, source, tag, comm, statis);
-    event.stop_time = OpenSS_GetTime();
-    event.source = source;
-    PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
-    PMPI_Type_size(datatype, &datatype_size);
-    event.size = count * datatype_size;
-    event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Scatter));
+    mpit_start_event(&send_event);
+    mpit_start_event(&recv_event);
+
+    /* Set up the send record */
+    send_event.source = root;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(send_event.source));
+    PMPI_Type_size(sendtype, &datatype_size);
+    send_event.size = sendcount * datatype_size;
+    send_event.datatype = sendtype;
+    
+    send_event.start_time = OpenSS_GetTime();
+    retval = PMPI_Scatter( sendbuf, sendcount, sendtype,  
+    	    	    	    recvbuf, recvcount, recvtype, 
+			    root, comm);
+    send_event.stop_time = OpenSS_GetTime();
+    
+    send_event.communicator = comm;
+    send_event.retval = retval;
+    recv_event.start_time = send_event.start_time;
+    recv_event.stop_time = send_event.stop_time;
+    mpit_record_event(&send_event, OpenSS_GetAddressOfFunction(MPI_Scatter));
+
+    /* Set up the recv record */
+    PMPI_Type_size(recvtype, &datatype_size);
+    recv_event.size = recvcount * datatype_size;
+    recv_event.datatype = recvtype;
+
+    recv_event.communicator = comm;
+    recv_event.retval = retval;
+    mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(MPI_Scatter));
     return retval;
 }
-#endif
+/*
+ * MPI_Scatterv
+ */
+
+mpit_PMPI_Scatterv(
+    	void*     	sendbuf, 
+    	int* 	    	sendcounts, 
+	int*	    	displs,
+    	MPI_Datatype	sendtype, 
+
+    	void*     	recvbuf, 
+    	int 	    	recvcount, 
+    	MPI_Datatype	recvtype, 
+
+    	int 	    	root, 
+    	MPI_Comm    	comm)
+{
+    int retval, datatype_size;
+    mpit_event send_event;
+    mpit_event recv_event;
+    
+    mpit_start_event(&send_event);
+    mpit_start_event(&recv_event);
+
+    /* Set up the send record */
+    send_event.source = root;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(send_event.source));
+    PMPI_Type_size(sendtype, &datatype_size);
+    /* This is surly wrong */
+    send_event.size = sendcounts[0] * datatype_size;
+    send_event.datatype = sendtype;
+    
+    send_event.start_time = OpenSS_GetTime();
+    retval = PMPI_Scatterv( sendbuf, sendcounts, displs, sendtype,  
+    	    	    	    recvbuf, recvcount, recvtype, 
+			    root, comm);
+    send_event.stop_time = OpenSS_GetTime();
+    
+    send_event.communicator = comm;
+    send_event.retval = retval;
+    recv_event.start_time = send_event.start_time;
+    recv_event.stop_time = send_event.stop_time;
+    mpit_record_event(&send_event, OpenSS_GetAddressOfFunction(MPI_Scatterv));
+
+    /* Set up the recv record */
+    PMPI_Type_size(recvtype, &datatype_size);
+    recv_event.size = recvcount * datatype_size;
+    recv_event.datatype = recvtype;
+
+    recv_event.communicator = comm;
+    recv_event.retval = retval;
+    mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(MPI_Scatterv));
+    return retval;
+}
 
 /*
  * MPI_Sendrecv
@@ -1384,7 +1464,7 @@ mpit_PMPI_Sendrecv(
     mpit_start_event(&recv_event);
 
     /* Set up the send record */
-    send_event.source = dest;
+    send_event.destination = dest;
     PMPI_Comm_rank(MPI_COMM_WORLD, &(send_event.source));
     PMPI_Type_size(sendtype, &datatype_size);
     send_event.size = sendcount * datatype_size;
@@ -1416,5 +1496,66 @@ mpit_PMPI_Sendrecv(
     mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(MPI_Sendrecv));
     return retval;
 }
+
+/*
+ * MPI_Sendrecv
+ */
+
+int 
+mpit_PMPI_Sendrecv_replace(
+    	void*     	buf, 
+    	int 	    	count, 
+    	MPI_Datatype	datatype, 
+    	int 	    	dest, 
+    	int	    	sendtag, 
+
+    	int 	    	source, 
+    	int	    	recvtag, 
+
+    	MPI_Comm    	comm, 
+    	MPI_Status* 	status)
+{
+    int retval, datatype_size;
+    mpit_event send_event;
+    mpit_event recv_event;
+    
+    mpit_start_event(&send_event);
+    mpit_start_event(&recv_event);
+
+    /* Set up the send record */
+    send_event.destination = dest;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(send_event.source));
+    PMPI_Type_size(datatype, &datatype_size);
+    send_event.size = count * datatype_size;
+    send_event.tag = sendtag;
+    send_event.datatype = datatype;
+    
+    send_event.start_time = OpenSS_GetTime();
+    retval = PMPI_Sendrecv_replace( buf, count, datatype, dest, sendtag, 
+    	    	    	    	    source, recvtag,
+			    	    comm, status);
+    send_event.stop_time = OpenSS_GetTime();
+    
+    send_event.communicator = comm;
+    send_event.retval = retval;
+    recv_event.start_time = send_event.start_time;
+    recv_event.stop_time = send_event.stop_time;
+    mpit_record_event(&send_event, OpenSS_GetAddressOfFunction(MPI_Sendrecv_replace));
+
+    /* Set up the recv record */
+    recv_event.source = source;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(recv_event.destination));
+    PMPI_Type_size(datatype, &datatype_size);
+    recv_event.size = count * datatype_size;
+    recv_event.tag = recvtag;
+    recv_event.datatype = datatype;
+
+    recv_event.communicator = comm;
+    recv_event.retval = retval;
+    mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(MPI_Sendrecv_replace));
+    return retval;
+}
+
+
 
 
