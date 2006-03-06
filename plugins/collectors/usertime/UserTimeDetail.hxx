@@ -18,12 +18,12 @@
 
 /** @file
  *
- * Declaration and definition of the MPIDetail structure.
+ * Declaration and definition of the UserTimeDetail structure.
  *
  */
 
-#ifndef _MPIDetail_
-#define _MPIDetail_
+#ifndef _UserTimeDetail_
+#define _UserTimeDetail_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -36,23 +36,23 @@
 namespace OpenSpeedShop { namespace Framework {
 
     /**
-     * MPI event tracing collector details. 
+     * Stack trace sampling collector detail.
      *
-     * Encapsulate the details metric (inclusive or exclusive) for the MPI event
-     * tracing collector.
+     * Encapsulate the detail metric (inclusive or exclusive) for the stack
+     * trace sampling collector.
      */
-    struct MPIDetail :
-	public TotallyOrdered<MPIDetail>
+    struct UserTimeDetail :
+	public TotallyOrdered<UserTimeDetail>
     {
-	TimeInterval dm_interval;  /**< Begin/End time of the call. */
-	double dm_time;            /**< Time spent in the call. */	
+	uint64_t dm_count;  /**< Number of samples at the stack trace. */
+	double dm_time;     /**< Time attributable to the stack trace. */
 
-	/** Operator "<" defined for two MPIDetail objects. */
-	bool operator<(const MPIDetail& other) const
+	/** Operator "<" defined for two UserTimeDetail objects. */
+	bool operator<(const UserTimeDetail& other) const
 	{
-	    if(dm_interval < other.dm_interval)
+	    if(dm_count < other.dm_count)
                 return true;
-            if(dm_interval > other.dm_interval)
+            if(dm_count > other.dm_count)
                 return false;
 	    return dm_time < other.dm_time;
         }

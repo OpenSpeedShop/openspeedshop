@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef _MPITCollector_MPITDetail_
-#define _MPITCollector_MPITDetail_
+#ifndef _MPITDetail_
+#define _MPITDetail_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -38,8 +38,8 @@ namespace OpenSpeedShop { namespace Framework {
     /**
      * MPI extended event tracing collector details. 
      *
-     * Encapsulate the details metric (inclusive or exclusive) for the MPIT event
-     * tracing collector.
+     * Encapsulate the details metric (inclusive or exclusive) for the MPI
+     * extended event tracing collector.
      */
     struct MPITDetail :
 	public TotallyOrdered<MPITDetail>
@@ -62,7 +62,35 @@ namespace OpenSpeedShop { namespace Framework {
                 return true;
             if(dm_interval > other.dm_interval)
                 return false;
-	    return dm_time;
+	    if(dm_time < other.dm_time)
+                return true;
+            if(dm_time > other.dm_time)
+                return false;
+	    if(dm_source < other.dm_source)
+                return true;
+            if(dm_source > other.dm_source)
+                return false;
+	    if(dm_destination < other.dm_destination)
+                return true;
+            if(dm_destination > other.dm_destination)
+                return false;
+	    if(dm_size < other.dm_size)
+                return true;
+            if(dm_size > other.dm_size)
+                return false;
+	    if(dm_tag < other.dm_tag)
+                return true;
+            if(dm_tag > other.dm_tag)
+                return false;
+	    if(dm_communicator < other.dm_communicator)
+                return true;
+            if(dm_communicator > other.dm_communicator)
+                return false;
+	    if(dm_datatype < other.dm_datatype)
+                return true;
+            if(dm_datatype > other.dm_datatype)
+                return false;
+	    return dm_retval < other.dm_retval;
         }
 
     };

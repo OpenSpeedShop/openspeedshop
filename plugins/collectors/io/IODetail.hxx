@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef _IOCollector_IODetail_
-#define _IOCollector_IODetail_
+#ifndef _IODetail_
+#define _IODetail_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -36,9 +36,9 @@
 namespace OpenSpeedShop { namespace Framework {
 
     /**
-     * IO event tracing collector details. 
+     * I/O event tracing collector details. 
      *
-     * Encapsulate the details metric (inclusive or exclusive) for the IO event
+     * Encapsulate the details metric (inclusive or exclusive) for the I/O event
      * tracing collector.
      */
     struct IODetail :
@@ -54,7 +54,7 @@ namespace OpenSpeedShop { namespace Framework {
                 return true;
             if(dm_interval > other.dm_interval)
                 return false;
-	    return dm_time;
+	    return dm_time < other.dm_time;
         }
 
     };

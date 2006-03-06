@@ -36,12 +36,10 @@
 namespace OpenSpeedShop { namespace Framework {
 
     /**
-     * User time sampling collector.
+     * Stack trace sampling collector.
      *
-     * Periodically interrupts the running thread, obtains the current
-     * stack trace, stores each address in stack trace, terminates
-     * stack trace with a NULL address, and allows the thread to
-     * continue execution.
+     * Periodically interrupts the running thread, obtains the current stack
+     * trace, stores it, and allows the thread to continue execution.
      */
     class UserTimeCollector :
 	public CollectorImpl

@@ -29,7 +29,8 @@ usertime_la_LDFLAGS = \
 
 usertime_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
-	UserTimeCollector.hxx UserTimeCollector.cxx
+	UserTimeCollector.hxx UserTimeCollector.cxx \
+	UserTimeDetail.hxx
 
 usertime_rt_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \

@@ -20,13 +20,13 @@ SUBDIRS = \
 	pcsamp
 
 if HAVE_LIBUNWIND
-SUBDIRS += usertime
+SUBDIRS += usertime io
 endif
 
 if HAVE_PAPI
 SUBDIRS += hwc
 if HAVE_LIBUNWIND
-SUBDIRS += hwctime io
+SUBDIRS += hwctime
 endif
 endif
 

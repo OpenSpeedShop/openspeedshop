@@ -23,9 +23,19 @@
  */
  
 #include "UserTimeCollector.hxx"
+#include "UserTimeDetail.hxx"
 #include "blobs.h"
 
 using namespace OpenSpeedShop::Framework;
+
+
+
+namespace {
+
+    /** Type returned for the sample detail metrics. */
+    typedef std::map<StackTrace, UserTimeDetail> SampleDetail;
+
+}
 
 
 
@@ -52,9 +62,9 @@ extern "C" CollectorImpl* usertime_LTX_CollectorFactory()
 UserTimeCollector::UserTimeCollector() :
     CollectorImpl("usertime",
                   "User Time",
-                  "Periodically interrupts the running thread, obtains the "
-                  "current program stack trace (addresses), stores them, and "
-                  "allows the thread to continue execution.")
+		  "Periodically interrupts the running thread, obtains the "
+		  "current stack trace, stores it, and allows the thread to "
+		  "continue execution.")
 {
     // Declare our parameters
     declareParameter(Metadata("sampling_rate", "Sampling Rate",
@@ -62,14 +72,18 @@ UserTimeCollector::UserTimeCollector() :
                               typeid(unsigned)));
 
     // Declare our metrics
-
     declareMetric(Metadata("inclusive_time", "Inclusive Time",
-                           "Inclusive User time in seconds.",
+                           "Inclusive CPU time in seconds.",
                            typeid(double)));
-
     declareMetric(Metadata("exclusive_time", "Exclusive Time",
-                           "Exclusive User time in seconds.",
+                           "Exclusive CPU time in seconds.",
                            typeid(double)));
+    declareMetric(Metadata("inclusive_detail", "Inclusive Detail",
+			   "Inclusive sample detail.",
+			   typeid(SampleDetail)));
+    declareMetric(Metadata("exclusive_detail", "Exclusive Detail",
+			   "Exclusive sample detail.",
+			   typeid(SampleDetail)));
 }
 
 
@@ -154,6 +168,7 @@ void UserTimeCollector::setParameterValue(const std::string& parameter,
 }
 
 
+
 /**
  * Start data collection.
  *
@@ -170,9 +185,11 @@ void UserTimeCollector::startCollecting(const Collector& collector,
     memset(&args, 0, sizeof(args));
     collector.getParameterValue("sampling_rate", args.sampling_rate);
     getECT(collector, thread, args.experiment, args.collector, args.thread);
-    Blob arguments(reinterpret_cast<xdrproc_t>(xdr_usertime_start_sampling_args),
-                   &args);
-
+    Blob arguments(
+	reinterpret_cast<xdrproc_t>(xdr_usertime_start_sampling_args),
+	&args
+	);
+    
     // Execute usertime_stop_sampling() when we enter exit() for the thread
     executeAtEntry(collector, thread, 
 		   "exit", "usertime-rt: usertime_stop_sampling", Blob());
@@ -180,7 +197,6 @@ void UserTimeCollector::startCollecting(const Collector& collector,
     // Execute usertime_start_sampling() in the thread
     executeNow(collector, thread, 
 	       "usertime-rt: usertime_start_sampling", arguments);
-
 }
 
 
@@ -209,13 +225,13 @@ void UserTimeCollector::stopCollecting(const Collector& collector,
 /**
  * Get a metric value.
  *
- * Implement getting one of our metric values over all subextents
+ * Implements getting one of this collector's metric values over all subextents
  * of the specified extent for a particular thread, for one of the collected
  * performance data blobs.
  *
  * @param metric       Unique identifier of the metric.
- * @param collector     Collector for which to get values.
- * @param thread        Thread for which to get values.
+ * @param collector    Collector for which to get values.
+ * @param thread       Thread for which to get values.
  * @param extent       Extent of the performance data blob.
  * @param blob         Blob containing the performance data.
  * @param subextents   Subextents for which to get values.
@@ -229,112 +245,117 @@ void UserTimeCollector::getMetricValues(const std::string& metric,
 					const ExtentGroup& subextents,
 					void* ptr) const
 {
-    // Handle the inclusive_time and exclusive_time metrics.
+    // Only the "[inclusive|exclusive]_[time|detail]" metrics return anything
+    if((metric != "inclusive_time") && (metric != "exclusive_time") &&
+       (metric != "inclusive_detail") && (metric != "exclusive_detail"))
+	return;
 
-    bool incltime = (metric == "inclusive_time") ? true : false;
-    bool excltime = (metric == "exclusive_time") ? true : false;
+    // Is this "exclusive_[time|detail]"?
+    bool is_exclusive = 
+	(metric == "exclusive_time") || (metric == "exclusive_detail");
 
-    if( incltime || excltime ) {
+    // Is this "[inclusive|exclusive]_detail"?
+    bool is_detail = 
+	(metric == "inclusive_detail") || (metric == "exclusive_detail");
 
-	// Cast the untyped pointer into a vector of doubles
-	std::vector<double>* values =
-				reinterpret_cast<std::vector<double>*>(ptr);
-	
-	// Check assertions
-	Assert(values->size() >= subextents.size());
-
-	// Decode this data blob
-	usertime_data data;
-	memset(&data, 0, sizeof(data));
-	blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_usertime_data),&data);
-    
-	// Check assertions
-	Assert(data.bt.bt_len == data.count.count_len);
-
-	// Calculate time (in nS) of data blob's extent
-	double t_blob =
-		static_cast<double>(extent.getTimeInterval().getWidth());
-
-        // Iterate over each of the samples
-
-
-	int mycount = 0;
-	int currentcount = 0;
-        for(unsigned i = 0; i < data.bt.bt_len; i++)
-	{
-		
-	    // Find the subextents that contain this sample
-	    std::set<ExtentGroup::size_type> intersection = 
-	        subextents.getIntersectionWith(
-		    Extent(extent.getTimeInterval(),
-		       AddressRange(data.bt.bt_val[i])) );
-
-	    // Calculate the time (in seconds) attributable to this sample
-	    // If using stacks with counts, an address may appear in
-	    // more than one stack.  Need to find count for each stack
-	    // that the addr is in. How? Search each stack for addr?
-	    // Or make count same size as buffer?
-
-	    bool top_stack_trace = true;
-	    bool add_to_values = true;
-
-	    // A count_val > 0 indicates a valid stack in buffer bt.
-	    if (data.count.count_val[i] > 0) {
-		mycount = data.count.count_val[i];
-		currentcount = mycount;
-	    } else if (data.count.count_val[i] == 0) {
-		top_stack_trace = false;
-		currentcount = mycount;
-	    }
-
-	    double t_sample = 0.0;
-	    if (currentcount > 0)
-		t_sample = static_cast<double>(currentcount) *
-			   static_cast<double>(data.interval) / 1000000000.0;
-	    else
-		continue;
-
-
-	    // The boolean add_to_values is used to determine if we
-	    // include the computed t_sample in values.
-	    // incltime: always add each t_sample (stack frame) to values.
-	    // excltime: only add t_sample for top stack frame to values.
-	    if ( excltime) {
-
-		if (top_stack_trace) {
-		    // "first" PC of call stack, toggle add_to_values to true
-		    // and toggle top_stack_trace to false till next new stack.
-		    add_to_values = true;
-		    top_stack_trace = false;
-		} else {
-		    // t_sample for this stack frame not added to values.
-		    add_to_values = false;
-		}
-	    }
-
-	    // add_to_values always true for incltime...
-	    if (add_to_values) {
-	        // Iterate over each subextent in the intersection
-	        for(std::set<ExtentGroup::size_type>::const_iterator
-		    j = intersection.begin(); j != intersection.end(); ++j) {
-	    
-	            // Calculate intersection time (in nS) of subextent and
-		    // data blob
-	            double t_intersection = static_cast<double>
-		        ((extent.getTimeInterval() & 
-		          subextents[*j].getTimeInterval()).getWidth());	    
-
-	            // Add (to the subextent's metric value) the appropriate
-		    // fraction of the total time attributable to this sample
-	            (*values)[*j] += t_sample * (t_intersection / t_blob);
-	    
-	        } // end for subextent
-	    }
-
-	} // end for samples
-	    
-        // Free the decoded data blob
-        xdr_free(reinterpret_cast<xdrproc_t>(xdr_usertime_data),
-                 reinterpret_cast<char*>(&data));
+    // Check assertions
+    if(is_detail) {
+	Assert(reinterpret_cast<std::vector<SampleDetail>*>(ptr)->size() >=
+	       subextents.size());
+    } else {
+	Assert(reinterpret_cast<std::vector<double>*>(ptr)->size() >=
+	       subextents.size());
     }
+
+    // Decode this data blob
+    usertime_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_usertime_data), &data);
+    
+    // Check assertions
+    Assert(data.bt.bt_len == data.count.count_len);
+
+    // Calculate time (in nS) of data blob's extent
+    double t_blob = static_cast<double>(extent.getTimeInterval().getWidth());
+
+    // Iterate over each stack trace in the data blob    
+    for(unsigned ib = 0, ie = 0; ie < data.bt.bt_len; ib = ie) {
+	
+	// Find the end of the current stack trace
+	for(ie = ib + 1; ie < data.bt.bt_len; ++ie)
+	    if(data.count.count_val[ie] > 0)
+		break;
+	
+	// Calculate the time (in seconds) attributable to this sample
+	double t_sample = static_cast<double>(data.count.count_val[ib]) *
+	    static_cast<double>(data.interval) / 1000000000.0;
+	
+	// Get the stack trace for this sample
+	StackTrace trace(thread, extent.getTimeInterval().getBegin());
+	for(unsigned j = ib; j < ie; ++j)
+	    trace.push_back(Address(data.bt.bt_val[j]));
+	
+	// Iterate over each of the frames in the current stack trace
+	for(StackTrace::const_iterator
+		j = trace.begin(); j != trace.end(); ++j) {
+	    
+	    // Stop after first frame if this is "exclusive_[time|detail]"
+	    if(is_exclusive && (j != trace.begin()))
+		break;
+	    
+	    // Find the subextents that contain this frame
+	    std::set<ExtentGroup::size_type> intersection =
+		subextents.getIntersectionWith(
+		    Extent(extent.getTimeInterval(), AddressRange(*j))
+		    );
+	    
+	    // Iterate over each subextent in the intersection
+	    for(std::set<ExtentGroup::size_type>::const_iterator
+		    k = intersection.begin(); k != intersection.end(); ++k) {
+
+		// Calculate intersection time (in nS) of subextent and blob
+		double t_intersection = static_cast<double>
+		    ((extent.getTimeInterval() &
+		      subextents[*k].getTimeInterval()).getWidth());
+
+		// Handle "[inclusive|exclusive]_detail" metric
+		if(is_detail) {
+
+		    // Find this stack trace in the subextent's metric value
+		    SampleDetail::iterator l =
+			(*reinterpret_cast<std::vector<SampleDetail>*>(ptr))[*k]
+			.insert(
+			    std::make_pair(trace, UserTimeDetail())
+			    ).first;
+		    
+		    // Add (to the subextent's metric value) the appropriate
+		    // fraction of the count and total time attributable to
+		    // this sample
+		    l->second.dm_count += static_cast<uint64_t>(
+			static_cast<double>(data.count.count_val[ib]) * 
+			(t_intersection / t_blob)
+			);
+		    l->second.dm_time += t_sample * (t_intersection / t_blob);
+		    
+		}
+
+		// Handle "[inclusive|exclusive]_time" metric		
+		else {
+
+		    // Add (to the subextent's metric value) the appropriate
+		    // fraction of the total time attributable to this sample
+		    (*reinterpret_cast<std::vector<double>*>(ptr))[*k] +=
+			t_sample * (t_intersection / t_blob);
+		    
+		}
+		
+	    }
+	    
+	}
+	
+    }
+	
+    // Free the decoded data blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_usertime_data),
+             reinterpret_cast<char*>(&data));
 }
