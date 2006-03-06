@@ -520,7 +520,8 @@ CompareClass::addProcessesSelected()
 // printf("compareSet=%s\n",  compareSet->name.ascii() );
 // printf("columnSet=(%s)\n", columnSet->name.ascii() );
 
-  dialog->updateFocus(expID, compareSet, columnSet->lv);
+  dialog->updateFocus(expID, columnSet->lv);
+  compareSet->updatePSetList();
 
   dialog->show();
 

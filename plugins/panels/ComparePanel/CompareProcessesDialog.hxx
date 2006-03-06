@@ -26,6 +26,7 @@
 #include "openspeedshop.hxx"
 #include "CLIInterface.hxx"
 #include "PanelListViewItem.hxx"
+#include "MPListView.hxx"
 
 class QVBoxLayout;
 class QHBoxLayout;
@@ -39,10 +40,6 @@ class QListView;
 class MPListView;
 class QListViewItem;
 class QLineEdit;
-
-class CompareClass;
-class CompareSet;
-class ColumnSet;
 
 class DescriptionClassObject;
 typedef QValueList<DescriptionClassObject *> DescriptionClassObjectList;
@@ -69,8 +66,7 @@ public:
     PanelListViewItem *selectedExperiment(int *expID);
     void updateInfo();
 
-    void updateFocus(int, CompareSet *, MPListView *);
-    CompareSet *compareSet;
+    void updateFocus(int, MPListView *);
     MPListView *lv;
     int expID;
 

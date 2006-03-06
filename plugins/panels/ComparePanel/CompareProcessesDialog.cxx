@@ -42,10 +42,6 @@
 #include <qstringlist.h>
 #include <qregexp.h>
 
-#include "CompareClass.hxx"
-#include "CompareSet.hxx"
-#include "ColumnSet.hxx"
-
 #include "SS_Input_Manager.hxx"
 CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
     : QDialog( parent, name, modal, fl )
@@ -60,7 +56,7 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   minus_pm->setMask(plus_pm->createHeuristicMask());
 
   
-  updateFocus(-1, NULL, NULL);
+  updateFocus(-1, NULL);
 
   mw = (OpenSpeedshop *)parent;
   cli = mw->cli;
@@ -421,10 +417,9 @@ CompareProcessesDialog::isPSetName(QString name)
 }
 
 void
-CompareProcessesDialog::updateFocus(int _expID, CompareSet *_compareSet, MPListView *_lv )
+CompareProcessesDialog::updateFocus(int _expID, MPListView *_lv )
 {
   psetNameList.clear();
-  compareSet = _compareSet;
   lv = _lv;
   if( _expID == expID )
   {
@@ -432,18 +427,18 @@ CompareProcessesDialog::updateFocus(int _expID, CompareSet *_compareSet, MPListV
   }
   expID = _expID;
 
-  if( expID == -1 || compareSet == NULL || compareSet == NULL )
+  if( expID == -1 )
   {
     return;
   }
 
 #if OLDWAY 
   headerLabel->setText( QString("Modify Compare Set %1: Column %2").arg(compareSet->name).arg(lv->name) );
+  compareSet->updatePSetList();
 #else // OLDWAY 
   headerLabel->setText( QString("Modify Compare") );
 #endif  // OLDWAY 
 
-  compareSet->updatePSetList();
 }
 
 DescriptionClassObjectList *
