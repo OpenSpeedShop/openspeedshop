@@ -127,6 +127,8 @@ CompareSet::setNewFocus(QWidget *tab)
          if( compareSet->compareClass->dialog )
          {
            compareSet->compareClass->dialog->updateFocus(expID, columnSet->lv);
+           QString headerStr = QString("Modify Compare Set %1: Column %2").arg(compareSet->name).arg(columnSet->name);
+           compareSet->compareClass->dialog->headerLabel->setText(headerStr);
            compareSet->updatePSetList();
          }
          break;
@@ -138,6 +140,9 @@ CompareSet::setNewFocus(QWidget *tab)
 
 
 
+// This routine is the same/similar to the one in ManageProcessesPanel.
+// At some point this routine and the one in ManageProcesssesPanel should
+// be shared.
 void
 CompareSet::updatePSetList()
 {

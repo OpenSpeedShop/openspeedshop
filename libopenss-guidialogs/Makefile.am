@@ -65,6 +65,7 @@ libopenss_guidialogs_la_SOURCES = \
 	PanelListViewItem.hxx PanelListViewItem.cxx \
 	GenericProgressDialog.hxx GenericProgressDialog.cxx moc_GenericProgressDialog.cxx \
 	SelectExperimentDialog.hxx SelectExperimentDialog.cxx moc_SelectExperimentDialog.cxx \
-	SaveAsExperimentDialog.hxx SaveAsExperimentDialog.cxx moc_SaveAsExperimentDialog.cxx
+	SaveAsExperimentDialog.hxx SaveAsExperimentDialog.cxx moc_SaveAsExperimentDialog.cxx \
+	AboutDialog.hxx AboutDialog.cxx
 
 CLEANFILES=moc_AttachProcessDialog.cxx moc_AttachProgramDialog.cxx moc_SelectExperimentDialog.cxx moc_GenericProgressDialog.cxx moc_ManageCollectorsDialog.cxx 

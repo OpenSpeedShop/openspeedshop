@@ -33,6 +33,8 @@
 #include "GenericProgressDialog.hxx"
 #include "MPListView.hxx"
 
+#include "CompareProcessesDialog.hxx"
+
 enum DialogSortType  { COLLECTOR_T, PID_T, MPIRANK_T, HOST_T };
 
 class QVBoxLayout;
@@ -65,7 +67,7 @@ public:
     QTimer *updateTimer;
     int timerValue;
     void updateAttachedList();
-    void updatePSetList();
+    void updatePSetList(MPListView *lv = NULL);
 
     CollectorListObject *clo;
 
@@ -127,10 +129,13 @@ private slots:
     void sortByMPIRank();
     void createUserPSet();
     void removeUserPSet();
+    void selectProcessesSelected();
 
     void progressUpdate();
 
 private:
+
+    CompareProcessesDialog *dialog;
 
 };
 

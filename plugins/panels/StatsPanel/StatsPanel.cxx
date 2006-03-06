@@ -1064,16 +1064,21 @@ StatsPanel::gotoSource(bool use_current_item)
   itemSelected(lvi);
 }
 
+#include "AboutDialog.hxx"
 void
 StatsPanel::aboutSelected()
 {
 
   QString aboutString = about;
-  // QMessageBox::information(this, "About stats information", aboutString, "Ok");
+#ifdef OLDWAY
   QMessageBox about( "About stats information", aboutString, QMessageBox::Information, QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton, this, "aboutStats", FALSE);
-
   about.show();
   about.exec();
+#else // OLDWAY
+  AboutDialog *aboutDialog = new AboutDialog(this, "About stats information", FALSE, 0, aboutString);
+  aboutDialog->show();
+#endif // OLDWAY
+
 }
 
 void

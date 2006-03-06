@@ -21,6 +21,7 @@
 
 #include "debug.hxx"
 
+#include <qapplication.h>
 #include <qvariant.h>
 #include <qframe.h>
 #include <qpushbutton.h>
@@ -59,6 +60,7 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
 //  nprintf(DEBUG_CONST_DESTRUCT) ("ManageCollectorsClass::ManageCollectorsClass() constructor called.\n");
   dprintf("ManageCollectorsClass::ManageCollectorsClass() constructor called.\n");
   
+  dialog = NULL;
   user_defined_psets = NULL;
   userPsetCount = 0;
   loadTimer = NULL;
@@ -569,8 +571,12 @@ ManageCollectorsClass::updateAttachedList()
 
 
 void
-ManageCollectorsClass::updatePSetList()
+ManageCollectorsClass::updatePSetList(MPListView *lv)
 {
+  if( lv == NULL )
+  {
+    lv = psetListView;
+  }
   int pset_count = 0;
 // printf("updatePSetList(%d) \n", expID );
 
@@ -579,45 +585,58 @@ ManageCollectorsClass::updatePSetList()
     return;
   }
 
+  QStringList *psl = NULL;
+  if( dialog )
+  {
+    psl = &dialog->psetNameList;
+  }
+
   QValueList<QString> openList;
 
   openList.clear();
 
 // Construct an "open list"
-  if( psetListView->childCount() > 0 )
+  if( lv->childCount() > 0 )
   {
-    QListViewItemIterator it( psetListView );
+    QListViewItemIterator it( lv );
     while ( it.current() )
     {
       QListViewItem *item = it.current();
-      if( psetListView->isOpen( item ) )
+      if( lv->isOpen( item ) )
       {
-// printf("psetListView (%s) is open\n", item->text(0).ascii() );
+// printf("lv (%s) is open\n", item->text(0).ascii() );
         openList.push_back(item->text(0));
       }
       ++it;
     }
   }
   
-  psetListView->clearSelection();
+  lv->clearSelection();
 
+
+if( lv == psetListView )
+{
   if( user_defined_psets == NULL )
   {
-    user_defined_psets = new MPListViewItem( psetListView, UDPS);
+    user_defined_psets = new MPListViewItem( lv, UDPS);
 user_defined_psets->setOpen(TRUE);
   }
 
   if( user_defined_psets )
   {
-    psetListView->takeItem(user_defined_psets);
+    lv->takeItem(user_defined_psets);
   }
+}
 
-  psetListView->clear();
+  lv->clear();
 
 
-  QListViewItem *dynamic_items = new MPListViewItem( psetListView, DPS);
+  QListViewItem *dynamic_items = new MPListViewItem( lv, DPS);
 
-  psetListView->insertItem(user_defined_psets);
+if( lv == psetListView )
+{
+  lv->insertItem(user_defined_psets);
+}
 dynamic_items->setOpen(TRUE);
 
 
@@ -640,6 +659,7 @@ dynamic_items->setOpen(TRUE);
 //        pset_name = QString("pset%1").arg(pset_count++);
         pset_name = QString("All");
         MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name, "All" );
+        if( psl ) psl->append("All");
         DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
         dco->all = TRUE;
         item->descriptionClassObject = dco;
@@ -882,6 +902,7 @@ host_items->descriptionClassObject = host_dco;
     QValueList<StatusStruct>::iterator vi = statusDisconnectedList.begin();
 //    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Disconnected");
+    if( psl ) psl->append(pset_name);
 
     MPListViewItem *disconnected_items = new MPListViewItem( dynamic_items, pset_name, "Disconnected" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
@@ -904,6 +925,7 @@ host_items->descriptionClassObject = host_dco;
     QValueList<StatusStruct>::iterator vi = statusConnectingList.begin();
 //    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Connecting");
+    if( psl ) psl->append(pset_name);
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Connecting" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -921,6 +943,7 @@ host_items->descriptionClassObject = host_dco;
     QValueList<StatusStruct>::iterator vi = statusNonexistentList.begin();
 //    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Non Existent");
+    if( psl ) psl->append(pset_name);
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Nonexistent" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -938,6 +961,7 @@ host_items->descriptionClassObject = host_dco;
     QValueList<StatusStruct>::iterator vi = statusRunningList.begin();
 //    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Running");
+    if( psl ) psl->append(pset_name);
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Running" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -955,6 +979,7 @@ host_items->descriptionClassObject = host_dco;
     QValueList<StatusStruct>::iterator vi = statusSuspendedList.begin();
 //    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Suspended");
+    if( psl ) psl->append(pset_name);
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Suspended" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -972,6 +997,7 @@ host_items->descriptionClassObject = host_dco;
     QValueList<StatusStruct>::iterator vi = statusTerminatedList.begin();
 //    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Terminated");
+    if( psl ) psl->append(pset_name);
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Terminated" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -989,6 +1015,7 @@ host_items->descriptionClassObject = host_dco;
     QValueList<StatusStruct>::iterator vi = statusUnknownList.begin();
 //    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Unknown");
+    if( psl ) psl->append(pset_name);
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Unknown" );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
@@ -1003,9 +1030,9 @@ host_items->descriptionClassObject = host_dco;
 
 }
 
-  if( psetListView->childCount() > 0 )
+  if( lv->childCount() > 0 )
   {
-    QListViewItemIterator it( psetListView );
+    QListViewItemIterator it( lv );
     while ( it.current() )
     {
       QListViewItem *item = it.current();
@@ -1018,15 +1045,15 @@ host_items->descriptionClassObject = host_dco;
         {
 // printf("Open %s\n", ols.ascii() );
           bool closeParent = FALSE;
-          if( item->parent() && !psetListView->isOpen(item->parent()) )
+          if( item->parent() && !lv->isOpen(item->parent()) )
           {
 // printf("%s has a parent that is not open. close the parent\n", item->parent()->text(0).ascii() );
             closeParent = TRUE;
           }
-          psetListView->setOpen(item, TRUE);
+          lv->setOpen(item, TRUE);
           if( closeParent )
           {
-            psetListView->setOpen( item->parent(), FALSE );
+            lv->setOpen( item->parent(), FALSE );
           }
         }
       }
@@ -1224,6 +1251,24 @@ ManageCollectorsClass::focusOnProcessSelected()
 }
 
 void
+ManageCollectorsClass::selectProcessesSelected()
+{
+// printf("Bring up the dialog!\n");
+
+  QApplication::setOverrideCursor(QCursor::WaitCursor);
+  if( dialog == NULL )
+  {
+    dialog = new CompareProcessesDialog(this, "Add/Delete/Describe Compare Processes Dialog", TRUE);
+  }
+
+  dialog->updateFocus(expID, psetListView);
+  updatePSetList(dialog->availableProcessesListView);
+  dialog->show();
+
+  QApplication::restoreOverrideCursor();
+}
+
+void
 ManageCollectorsClass::focusOnPSetSelected()
 {
 // printf("ManageCollectorsClass::focusOnPSetSelected() entered\n");
@@ -1249,7 +1294,7 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
 // printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
 // if( lvi->descriptionClassObject )
 // {
-//   lvi->descriptionClassObject->Print();
+  // lvi->descriptionClassObject->Print();
 // }
     if( msg == NULL )
     {
@@ -1268,29 +1313,62 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
     } else if( lvi->descriptionClassObject->root )
     {
       // Loop through all the children...
-// printf("Loop through all the children.\n");
+// printf("Loop through all the children of (%s).\n", lvi->text(0).ascii() );
       MPListViewItem *mpChild = (MPListViewItem *)lvi->firstChild();
-      while( mpChild )
+// printf("mpChild= (%s).\n", mpChild->text(0).ascii() );
+      MPListViewItem *child = (MPListViewItem *)mpChild->firstChild();
+      if( !child )
       {
-        QString host_name = mpChild->descriptionClassObject->host_name;
-        if( host_name.isEmpty() )
+// printf("no nested levels.  Just do the immediate children.\n");
+        while( mpChild )
         {
-          host_name = "localhost";
-        }
-        QString pid_name = mpChild->descriptionClassObject->pid_name;
-        if( pid_name.isEmpty() )
-        {
-          mpChild = (MPListViewItem *)mpChild->nextSibling();
-          continue;
-        }
-        std::pair<std::string, std::string> p(host_name,pid_name);
-        msg->host_pid_vector.push_back( p );
+          QString host_name = mpChild->descriptionClassObject->host_name;
+          if( host_name.isEmpty() )
+          {
+            host_name = "localhost";
+          }
+          QString pid_name = mpChild->descriptionClassObject->pid_name;
+          if( pid_name.isEmpty() )
+          {
+            mpChild = (MPListViewItem *)mpChild->nextSibling();
+            continue;
+          }
+          std::pair<std::string, std::string> p(host_name,pid_name);
+          msg->host_pid_vector.push_back( p );
 // printf("A: push_back a new vector list..\n");
-        mpChild = (MPListViewItem *)mpChild->nextSibling();
+          mpChild = (MPListViewItem *)mpChild->nextSibling();
+        }
+      } else
+      {
+        while( mpChild )
+        {
+          MPListViewItem *nested_child = (MPListViewItem *)mpChild->firstChild();
+          while( nested_child )
+          {
+// printf("A: nested_child...(%s)\n", nested_child->text(0).ascii() );
+            QString host_name = nested_child->descriptionClassObject->host_name;
+            if( host_name.isEmpty() )
+            {
+              host_name = "localhost";
+            }
+            QString pid_name = nested_child->descriptionClassObject->pid_name;
+            if( pid_name.isEmpty() )
+            {
+              nested_child = (MPListViewItem *)nested_child->nextSibling();
+              continue;
+            }
+            std::pair<std::string, std::string> p(host_name,pid_name);
+            msg->host_pid_vector.push_back( p );
+            nested_child = (MPListViewItem *)nested_child->nextSibling();
+          }
+
+          mpChild = (MPListViewItem *)mpChild->nextSibling(); 
+        }
       }
     } else
     {
       QString host_name = lvi->descriptionClassObject->host_name;
+// printf("host_name = (%s)\n", host_name.ascii() );
       if( host_name.isEmpty() )
       {
         host_name = "localhost";
@@ -1875,12 +1953,14 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   psetListView->contentsMouseReleaseEvent(NULL);
 
 
+  bool upsetSelected = FALSE;
   bool selectable = TRUE;
   bool leftSide = TRUE;
 
   MPListViewItem *selectedItem = NULL;
   if( attachCollectorsListView->hasMouse() )
   {
+    // Left Side!
     QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
     while( it.current() )
     {
@@ -1890,6 +1970,7 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
     psetListView->clearSelection();
   } else if( psetListView->hasMouse() )
   {
+    // Right Side!
     attachCollectorsListView->clearSelection();
     leftSide = FALSE;
 
@@ -1904,9 +1985,10 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
     {
       psetListView->clearSelection();
       selectable = FALSE;
-    } else
+    } else if( selectedItem && selectedItem->parent() && selectedItem->parent()->text(0) == UDPS )
     {
-// printf("Right side has selected item\n");
+// printf("Got a user defined processes set!\n");
+      upsetSelected = TRUE;
     }
   }
 
@@ -1945,6 +2027,15 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   // printf("RIGHT SIDE MENU\n");
     connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnPSetSelected() ) );
     qaction->setStatusTip( tr("Focus on selected process(es).") );
+  }
+
+  if( upsetSelected == TRUE )
+  {
+    qaction = new QAction( this,  "selectProcesses");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Select Process(es)...") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( selectProcessesSelected() ) );
+    qaction->setStatusTip( tr("Bring up dialog to selected process(es).") );
   }
 
   // If we can't select this item, leave it here, but disable it.

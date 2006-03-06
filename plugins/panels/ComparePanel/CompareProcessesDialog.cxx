@@ -70,7 +70,7 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   CompareProcessesDialogLayout = new QVBoxLayout( this, 11, 6, "CompareProcessesDialogLayout"); 
 
   headerLabel = new QLabel(this, "addProcessesLabel");
-  headerLabel->setText( "Modify Compare Set %%1: Column %%1" );
+  headerLabel->setText( "Current list:");
   QToolTip::add(headerLabel, tr("This label details the focused compare set and column within that compare set.\nAny actions in this dialog will perform actions to the focused set.\n") );
 
   CompareProcessesDialogLayout->addWidget( headerLabel );
@@ -236,10 +236,34 @@ CompareProcessesDialog::addProcesses()
 
     if( validatedHostPidList )
     {
+      // First look for a selected item in the drop zone.
+      MPListViewItem *selectedItem = NULL;
+      QListViewItemIterator it(lv, QListViewItemIterator::Selected);
+      while( it.current() )
+      {
+        selectedItem = (MPListViewItem *)it.current();
+        break;
+      }
+      // Make sure it the right target
+      if( selectedItem && selectedItem->parent() && selectedItem->parent()->text(0) == UDPS )
+      {
+      printf("Well I think we have a real seletected item to add to ..\n");
+      } else
+      {
+        selectedItem = NULL;
+      }
+      
+      if( !selectedItem )
+      {
+        selectedItem = (MPListViewItem *)lv->firstChild();
+      }
+
+
       for ( DescriptionClassObjectList::Iterator it = validatedHostPidList->begin(); it != validatedHostPidList->end(); ++it )
       {
         DescriptionClassObject *dco = (DescriptionClassObject *)*it;
-        MPListViewItem *item = new MPListViewItem( lv->firstChild(), dco->pid_name, dco->host_name, tidstr );
+//        MPListViewItem *item = new MPListViewItem( lv->firstChild(), dco->pid_name, dco->host_name, tidstr );
+        MPListViewItem *item = new MPListViewItem( selectedItem, dco->pid_name, dco->host_name, tidstr );
         item->descriptionClassObject = dco;
       }
   
@@ -350,7 +374,31 @@ CompareProcessesDialog::removeProcesses()
 // printf("Found a wildcard!\n");
     }
     // Loop through and attempt to find and delete this item.
+// First look for a selected item in the drop zone.
+MPListViewItem *selectedItem = NULL;
+QListViewItemIterator it(lv, QListViewItemIterator::Selected);
+while( it.current() )
+{
+  selectedItem = (MPListViewItem *)it.current();
+  break;
+}
+// Make sure it the right target
+if( selectedItem && selectedItem->parent() && selectedItem->parent()->text(0) == UDPS )
+{
+// printf("Well I think we have a real seletected item to remove to ..\n");
+} else
+{
+  selectedItem = NULL;
+}
 
+if( !selectedItem )
+{
+  selectedItem = (MPListViewItem *)lv->firstChild();
+}
+
+if( !selectedItem )
+{
+// printf("Do it the old way and loop through everyone..\n");
     QListViewItemIterator it( lv );
     it++;
     while ( it.current() )
@@ -395,7 +443,77 @@ CompareProcessesDialog::removeProcesses()
       }
       delete item;
     }
+} else
+{
+// printf("Loop through just the children of (%s)\n", selectedItem->text(0).ascii() );
+    QListViewItemIterator it( lv );
+    it++;
+
+    MPListViewItem *endItem = NULL;
+    // find the start item.
+    while( it.current() )
+    {
+      if( it.current() == selectedItem )
+      {
+        break;
+      }
+      ++it;
+    }
+    endItem = (MPListViewItem *)selectedItem->nextSibling();
+    printf("HereB\n");
+    ++it;
+    while ( it.current() )
+    {
+      QListViewItem *item = it.current();
+      if( endItem != NULL && endItem == item )
+      { // That's the end of the range to remove items from...
+        break;
+      }
+      ++it;
+
+      if( !item )
+      {
+        continue;
+      }
+
+      if( item->text(0).isEmpty() )
+      {
+        continue;
+      }
+  
+      QString pidstr = item->text(0).stripWhiteSpace();
+      // Skip any pset names...\n");
+      if( isPSetName(QString(pidstr)) == TRUE )
+      { // skip pset names...
+        continue;
+      }
+      QString host_name = item->text(1).stripWhiteSpace();
+      if( !host_name.isEmpty() && host_name.find(hostRegExp) == -1 )
+      {
+        continue;
+      }
+      if( lower_range >= 0 && upper_range >= 0 )
+      {
+        int pid = pidstr.toInt();
+        if( pid < lower_range || pid > upper_range )
+        {
+          continue;
+        }
+      } else
+      {
+        if( pidstr.find(pidRegExp) == -1 )
+        {
+          continue;
+        }
+      }
+      if( !item->firstChild() )
+      {
+        delete item;
+      }
+    }
+}
   }
+
 }
 
 bool
@@ -431,14 +549,6 @@ CompareProcessesDialog::updateFocus(int _expID, MPListView *_lv )
   {
     return;
   }
-
-#if OLDWAY 
-  headerLabel->setText( QString("Modify Compare Set %1: Column %2").arg(compareSet->name).arg(lv->name) );
-  compareSet->updatePSetList();
-#else // OLDWAY 
-  headerLabel->setText( QString("Modify Compare") );
-#endif  // OLDWAY 
-
 }
 
 DescriptionClassObjectList *
@@ -509,13 +619,13 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
   // First check to see if we have an exact match on the dynamic pset names.
   if( isPSetName(target_pidstr) == TRUE )
   {
-  QString pset_name = target_pidstr+"*";
-  MPListViewItem *pitem = new MPListViewItem( lv->firstChild(), pset_name );
-  DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
-if( target_pidstr == "All" )
-{
-  dco->all = TRUE;
-}
+    QString pset_name = target_pidstr+"*";
+    MPListViewItem *pitem = new MPListViewItem( lv->firstChild(), pset_name );
+    DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+    if( target_pidstr == "All" )
+    {
+      dco->all = TRUE;
+    }
 
     QListViewItemIterator it( availableProcessesListView );
     while ( it.current() )
@@ -529,15 +639,15 @@ if( target_pidstr == "All" )
         {
           // child->text(0) is the pidstr;
           // child->text(1) is the hoststr;
-if( target_pidstr == "All" )
-{
-          MPListViewItem *item2 =
+          if( target_pidstr == "All" )
+          {
+            MPListViewItem *item2 =
                   new MPListViewItem( pitem, "All pids" );
-} else
-{
-          MPListViewItem *item2 =
+          } else
+          {
+            MPListViewItem *item2 =
                   new MPListViewItem( pitem, child->text(0), child->text(1)  );
-}
+          }
           DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, child->text(1), child->text(0) );
 //          dcolist->append(dco);
           child = child->nextSibling();
