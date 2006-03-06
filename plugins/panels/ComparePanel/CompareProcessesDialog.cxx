@@ -60,7 +60,7 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   minus_pm->setMask(plus_pm->createHeuristicMask());
 
   
-  updateFocus(-1, NULL, NULL, NULL);
+  updateFocus(-1, NULL, NULL);
 
   mw = (OpenSpeedshop *)parent;
   cli = mw->cli;
@@ -243,7 +243,7 @@ CompareProcessesDialog::addProcesses()
       for ( DescriptionClassObjectList::Iterator it = validatedHostPidList->begin(); it != validatedHostPidList->end(); ++it )
       {
         DescriptionClassObject *dco = (DescriptionClassObject *)*it;
-        MPListViewItem *item = new MPListViewItem( columnSet->lv->firstChild(), dco->pid_name, dco->host_name, tidstr );
+        MPListViewItem *item = new MPListViewItem( lv->firstChild(), dco->pid_name, dco->host_name, tidstr );
         item->descriptionClassObject = dco;
       }
   
@@ -292,7 +292,7 @@ CompareProcessesDialog::removeProcesses()
     if( isPSetName(target_pidstr) == TRUE )
     {
       bool deleted = FALSE;
-      QListViewItemIterator it( columnSet->lv );
+      QListViewItemIterator it( lv );
       it++;
       while ( it.current() )
       {
@@ -355,7 +355,7 @@ CompareProcessesDialog::removeProcesses()
     }
     // Loop through and attempt to find and delete this item.
 
-    QListViewItemIterator it( columnSet->lv );
+    QListViewItemIterator it( lv );
     it++;
     while ( it.current() )
     {
@@ -421,16 +421,15 @@ CompareProcessesDialog::isPSetName(QString name)
 }
 
 void
-CompareProcessesDialog::updateFocus(int _expID, CompareClass *_compareClass, CompareSet *_compareSet, ColumnSet *_columnSet )
+CompareProcessesDialog::updateFocus(int _expID, CompareSet *_compareSet, MPListView *_lv )
 {
   psetNameList.clear();
-  compareClass = _compareClass;
   compareSet = _compareSet;
-  columnSet = _columnSet;
-if( _expID == expID )
-{
-  return;
-}
+  lv = _lv;
+  if( _expID == expID )
+  {
+    return;
+  }
   expID = _expID;
 
   if( expID == -1 || compareSet == NULL || compareSet == NULL )
@@ -438,7 +437,11 @@ if( _expID == expID )
     return;
   }
 
-  headerLabel->setText( QString("Modify Compare Set %1: Column %2").arg(compareSet->name).arg(columnSet->name) );
+#if OLDWAY 
+  headerLabel->setText( QString("Modify Compare Set %1: Column %2").arg(compareSet->name).arg(lv->name) );
+#else // OLDWAY 
+  headerLabel->setText( QString("Modify Compare") );
+#endif  // OLDWAY 
 
   compareSet->updatePSetList();
 }
@@ -512,7 +515,7 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
   if( isPSetName(target_pidstr) == TRUE )
   {
   QString pset_name = target_pidstr+"*";
-  MPListViewItem *pitem = new MPListViewItem( columnSet->lv->firstChild(), pset_name );
+  MPListViewItem *pitem = new MPListViewItem( lv->firstChild(), pset_name );
   DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
 if( target_pidstr == "All" )
 {

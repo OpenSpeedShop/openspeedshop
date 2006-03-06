@@ -126,7 +126,7 @@ CompareSet::setNewFocus(QWidget *tab)
 // printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
          if( compareSet->compareClass->dialog )
          {
-           compareSet->compareClass->dialog->updateFocus(expID, compareSet->compareClass, compareSet, columnSet);
+           compareSet->compareClass->dialog->updateFocus(expID, compareSet, columnSet->lv);
          }
          break;
        }

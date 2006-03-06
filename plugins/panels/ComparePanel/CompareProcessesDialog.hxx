@@ -69,10 +69,9 @@ public:
     PanelListViewItem *selectedExperiment(int *expID);
     void updateInfo();
 
-    void updateFocus(int, CompareClass *, CompareSet *, ColumnSet *);
-    CompareClass *compareClass;
+    void updateFocus(int, CompareSet *, MPListView *);
     CompareSet *compareSet;
-    ColumnSet *columnSet;
+    MPListView *lv;
     int expID;
 
     QStringList psetNameList;
