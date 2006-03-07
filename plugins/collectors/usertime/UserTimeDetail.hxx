@@ -58,7 +58,7 @@ namespace OpenSpeedShop { namespace Framework {
         }
 
 	/** Operator "+=" defined for two UserTimeDetail objects. */
-	UserTimeDetail& operator+=(const UserTimeDetail& other) const
+	UserTimeDetail& operator+=(const UserTimeDetail& other)
 	{
 	    dm_count += other.dm_count;
 	    dm_time += other.dm_time;
