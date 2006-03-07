@@ -18,81 +18,81 @@
 # non-sense through here, but it will get caught down
 # the line.
 
-#from oss_classes import *
-#from oss_parse import *
-#from oss_commands import *
+#from openss_classes import *
+#from openss_parse import *
+#from openss_commands import *
 
-import oss
+import openss
 
-my_host = oss.HostList()
+my_host = openss.HostList()
 my_host += ["bosco","111.222.333.444"]
 my_host += ["bimbo","bozo"]
 
-my_rank = oss.RankList([2])
+my_rank = openss.RankList([2])
 my_rank.add( [8])
 my_rank += [6]
 my_rank += [1,3,(22,33),564]
-oss.RankList(my_rank).add(44)
+openss.RankList(my_rank).add(44)
 
-my_rank2 = oss.RankList()
+my_rank2 = openss.RankList()
 my_rank2.add(1234)
 my_rank2.add(34)
 my_rank2 += 888
 
 # The number here is hard coded in a lowlevel routine
-my_id = oss.expCreate(my_host,my_rank2,my_rank)
+my_id = openss.expCreate(my_host,my_rank2,my_rank)
 print "my_id: ", my_id
 
 # I need to identify the argument as an experiment
 # id so you need to get it into an ExpId object.
-exp1 = oss.ExpId(my_id)
-oss.expGo(exp1)
+exp1 = openss.ExpId(my_id)
+openss.expGo(exp1)
 
-oss.expView(exp1,"vtop88")
+openss.expView(exp1,"vtop88")
 
-my_cluster = oss.ClusterList("cluster_1")
+my_cluster = openss.ClusterList("cluster_1")
 my_cluster.add(["cluster_2"])
 my_cluster += ["cluster_3","cluster_4"]
 
-my_id = oss.expCreate(my_cluster)
+my_id = openss.expCreate(my_cluster)
 
-my_thread = oss.ThreadList(987)
+my_thread = openss.ThreadList(987)
 my_thread += 765
 my_thread.add((22,33))
 
-my_id = oss.expCreate(my_thread)
+my_id = openss.expCreate(my_thread)
 
-my_file = oss.FileList("file_1")
+my_file = openss.FileList("file_1")
 my_file.add(["file_2"])
 my_file += ["file_3","file_4"]
 
-my_id = oss.expCreate(my_file)
+my_id = openss.expCreate(my_file)
 
-my_pid = oss.PidList(387)
+my_pid = openss.PidList(387)
 my_pid += 2600
 my_pid.add((1,25))
 
-my_id = oss.expCreate(my_pid)
+my_id = openss.expCreate(my_pid)
 
-my_line = oss.LineList(22222)
+my_line = openss.LineList(22222)
 my_line += 222999
 my_line.add((333,444))
 
-my_id = oss.expCreate(my_line)
+my_id = openss.expCreate(my_line)
 
-my_exptype = oss.ExpTypeList()
+my_exptype = openss.ExpTypeList()
 my_exptype += "pcsamp"
 my_exptype.add("usertime")
 
-my_id = oss.expCreate(my_file, my_exptype)
+my_id = openss.expCreate(my_file, my_exptype)
 
-my_viewtype = oss.ViewTypeList()
+my_viewtype = openss.ViewTypeList()
 my_viewtype += "butterfly"
 my_viewtype.add("inclusive")
 
-my_file_bosco = oss.FileList("bosco")
+my_file_bosco = openss.FileList("bosco")
 
-my_id = oss.expView(my_file_bosco, my_viewtype)
+my_id = openss.expView(my_file_bosco, my_viewtype)
 
-metric_1 = oss.MetricType("mtype_1")
-metric_2 = oss.MetricType("etype_2", "mtype_2")
+metric_1 = openss.MetricType("mtype_1")
+metric_2 = openss.MetricType("etype_2", "mtype_2")
