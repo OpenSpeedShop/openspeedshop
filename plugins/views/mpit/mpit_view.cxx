@@ -79,11 +79,11 @@
 #define set_MPIT_values  \
               if (num_temps > VMulti_sort_temp) (*vcs)[VMulti_sort_temp] = NULL; \
               if (num_temps > start_temp) {  \
-                double x = (start-base_time) / 1000000000.0; \
+                double x = (start-base_time) / 1000000.0; \
                 (*vcs)[start_temp] = CRPTR (x); \
               } \
               if (num_temps > stop_temp) { \
-                double x = (end-base_time) / 1000000000.0; \
+                double x = (end-base_time) / 1000000.0; \
                 (*vcs)[stop_temp] = CRPTR (x); \
               } \
               if (num_temps > VMulti_time_temp) (*vcs)[VMulti_time_temp] = CRPTR (vmin); \
