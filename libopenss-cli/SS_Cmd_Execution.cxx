@@ -2073,7 +2073,7 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
           std::ostringstream et(ios::out);
           Time ST = databaseExtent.getTimeInterval().getBegin();
           Time ET = databaseExtent.getTimeInterval().getEnd();
-          lt << ((ET -ST) / 1000000000.0);
+          lt << ((ET -ST) / 1000000.0);
           st << databaseExtent.getTimeInterval().getBegin();
           et << databaseExtent.getTimeInterval().getEnd();
           cmd->Result_String ("    Performance data spans "
