@@ -1010,6 +1010,7 @@ CustomExperimentPanel::experimentStatus()
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   Redirect_Window_Output(cli->wid, epoclass, epoclass);
 
+  QApplication::setOverrideCursor(QCursor::WaitCursor);
   InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
 
   Input_Line_Status status = ILO_UNKNOWN;
@@ -1042,6 +1043,7 @@ CustomExperimentPanel::experimentStatus()
 
     sleep(1);
   }
+  QApplication::restoreOverrideCursor();
 
   //Test putting the output to statspanel stream.
   Default_TLI_Line_Output(clip);
