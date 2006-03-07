@@ -1954,6 +1954,34 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 {
 // printf("ManageCollectorsClass::menu() entered\n");
 
+  bool runnableFLAG = TRUE;
+
+  try
+  {
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  
+    if( eo->FW() != NULL )
+    {
+      // The following bit of code was snag and modified from SS_View_exp.cxx
+      ThreadGroup tgrp = eo->FW()->getThreads();
+      if( ( (eo->Determine_Status() == ExpStatus_NonExistent) ||
+            (eo->Determine_Status() == ExpStatus_Terminated ) ||
+            (eo->Determine_Status() == ExpStatus_InError ) ) )
+      {
+// printf("We're NOT runnable or attachable!\n");
+        runnableFLAG = FALSE;
+      }
+    }
+  }
+  catch(const std::exception& error)
+  {
+    std::cerr << std::endl << "Error: "
+              << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+              "Unknown runtime error." : error.what()) << std::endl
+              << std::endl;
+    return FALSE;
+  }
+
 // This is going to introduce a bug, where the time needs to be 
 // restarted.   At this point, the timer seems to be messing up 
 // the menus.   Turn off the timer while the menu is active.
@@ -2018,6 +2046,8 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   qaction->setStatusTip( tr("Attempt to update this panel's display with fresh data.") );
 
 
+if( runnableFLAG == TRUE )
+{
   qaction = new QAction( this,  "loadProgram");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Load Program...") );
@@ -2029,6 +2059,7 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   qaction->setText( tr("Attach Process...") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( attachProcessSelected() ) );
   qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
+}
 
   qaction = new QAction( this,  "focusOnProcess");
   qaction->addTo( contextMenu );
@@ -2074,6 +2105,8 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
     connect( collectorMenu, SIGNAL( aboutToShow() ),
                        this, SLOT( fileCollectorAboutToShowSelected( ) ) );
   
+if( runnableFLAG == TRUE )
+{
     contextMenu->insertItem("Add Collector", collectorMenu);
     if( list_of_collectors.size() > 0 ) 
     {
@@ -2088,6 +2121,7 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
       }
     }
 // printf("A: size =(%d) \n", list_of_collectors.size() );
+}
   
   if( leftSide == TRUE )
   {
@@ -2120,6 +2154,8 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 
 if( dialogSortType == COLLECTOR_T )
 {
+if( runnableFLAG == TRUE )
+{
     qaction = new QAction( this,  "detachCollector");
     qaction->addTo( contextMenu );
     qaction->setText( tr("Detach Collector") );
@@ -2138,6 +2174,7 @@ if( dialogSortType == COLLECTOR_T )
     qaction->setText( tr("Disable Collector(s)") );
     connect( qaction, SIGNAL( activated() ), this, SLOT( disableSelected() ) );
     qaction->setStatusTip( tr("Disable the collectors in the experiment.") );
+}
   } else
   {
 
