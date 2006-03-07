@@ -990,6 +990,7 @@ CustomExperimentPanel::editPanelName()
 }
 
 
+#include "AboutDialog.hxx"
 void
 CustomExperimentPanel::experimentStatus()
 {
@@ -1051,7 +1052,12 @@ CustomExperimentPanel::experimentStatus()
   }
 
   
+#ifdef OLD_ABOUT
   QMessageBox::information( this, "Experiment status", expStatsInfoStr, QMessageBox::Ok );
+#else  OLD_ABOUT
+    AboutDialog *aboutDialog = new AboutDialog(this, "Experiment status", FALSE, 0, expStatsInfoStr);
+  aboutDialog->show();
+#endif  OLD_ABOUT
 
   resetRedirect();
 

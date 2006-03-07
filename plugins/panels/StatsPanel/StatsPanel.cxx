@@ -153,12 +153,12 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   gotColumns = FALSE;
   about = QString::null;
   lastAbout = QString::null;
-// In an attempt to optimize the update of this panel;
-// If the data file is static (i.e. read from a file or 
-// the processes status is terminated) and the command is
-// the same, don't update this panel. 
-lastCommand = QString::null;
-staticDataFLAG = false;
+  // In an attempt to optimize the update of this panel;
+  // If the data file is static (i.e. read from a file or 
+  // the processes status is terminated) and the command is
+  // the same, don't update this panel. 
+  lastCommand = QString::null;
+  staticDataFLAG = false;
 // printf("currentItemIndex initialized to 0\n");
 
   f = NULL;
@@ -1070,14 +1070,14 @@ StatsPanel::aboutSelected()
 {
 
   QString aboutString = about;
-#ifdef OLDWAY
+#ifdef OLD_ABOUT
   QMessageBox about( "About stats information", aboutString, QMessageBox::Information, QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton, this, "aboutStats", FALSE);
   about.show();
   about.exec();
-#else // OLDWAY
+#else // OLD_ABOUT
   AboutDialog *aboutDialog = new AboutDialog(this, "About stats information", FALSE, 0, aboutString);
   aboutDialog->show();
-#endif // OLDWAY
+#endif // OLD_ABOUT
 
 }
 
@@ -1718,7 +1718,7 @@ StatsPanel::updateStatsPanelData(QString command)
   QApplication::setOverrideCursor(QCursor::WaitCursor);
   Redirect_Window_Output( cli->wid, spoclass, spoclass );
 // printf("command: (%s)\n", command.ascii() );
-  about += "Command issued: " + command;
+  about += "Command issued: " + command + "\n";
 lastCommand = command;
   InputLineObject *clip = Append_Input_String( cli->wid, (char *)command.ascii());
 
@@ -3532,7 +3532,7 @@ StatsPanel::generateCommand()
     command = QString("expView -x %1 %3%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
   }
 // printf("hwc command=(%s)\n", command.ascii() );
-  about = command;
+  about = command + "\n";
 } 
 
 // printf("add any modifiers...\n");
