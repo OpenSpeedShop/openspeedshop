@@ -1597,12 +1597,12 @@ ManageCollectorsClass::RS_attachCollectorSelected(int val)
   {
     MPListViewItem *lvi = (MPListViewItem *)it.current();
 // Begin debug
-//printf("RS_attachCollectorSelected: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
+// printf("RS_attachCollectorSelected: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
 //printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
 //printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
 //if( lvi->descriptionClassObject )
 //{
-//  lvi->descriptionClassObject->Print();
+  //lvi->descriptionClassObject->Print();
 //}
 // End debug
 
@@ -1649,6 +1649,7 @@ ManageCollectorsClass::RS_attachCollectorSelected(int val)
       }
     } else
     {
+// printf("else host/pid\n");
       QString host_name = lvi->descriptionClassObject->host_name;
       if( host_name.isEmpty() )
       {
@@ -1671,13 +1672,14 @@ ManageCollectorsClass::RS_attachCollectorSelected(int val)
   QString command;
   command = QString("expAttach -x %1 %2 %3").arg(expID).arg(collector_name).arg(attachStr);
 
-//printf("command=%s\n", command.ascii() );
+// printf("command=%s\n", command.ascii() );
   if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
   {
     QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
   }
 
-  updateAttachedList();
+//  updateAttachedList();
+  updatePanel();
 }
 
 void
@@ -1748,7 +1750,8 @@ ManageCollectorsClass::LS_attachCollectorSelected(int val)
     QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
   }
 
-  updateAttachedList();
+//  updateAttachedList();
+  updatePanel();
 }
 
 void
@@ -1835,7 +1838,7 @@ ManageCollectorsClass::updateTimerCallback()
 void
 ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &pos, int col)
 {
-  dprintf("ManageCollectorsClass::contextMenuRequested() entered.\n");
+// printf("ManageCollectorsClass::contextMenuRequested() entered.\n");
 
 
   if( item == 0 )
@@ -1949,6 +1952,19 @@ clo = new CollectorListObject(expID);
 bool
 ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 {
+// printf("ManageCollectorsClass::menu() entered\n");
+
+// This is going to introduce a bug, where the time needs to be 
+// restarted.   At this point, the timer seems to be messing up 
+// the menus.   Turn off the timer while the menu is active.
+// Any further selection or update of the view will reactivate the timer.
+  if( updateTimer )
+  {
+// printf("Stop the timer \n");
+    updateTimer->stop();
+//    updateTimer->start( timerValue, TRUE );
+  }
+
   psetListView->contentsDragLeaveEvent(NULL);
   psetListView->contentsMouseReleaseEvent(NULL);
 
