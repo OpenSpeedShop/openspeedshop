@@ -149,9 +149,12 @@ namespace OpenSpeedShop {
 
 template <typename T>
 void operator+=(
-    std::map<OpenSpeedShop::Framework::StackTrace, std::vector<T > >&,
-    const std::map<OpenSpeedShop::Framework::StackTrace, std::vector<T > >&
+    std::map<OpenSpeedShop::Framework::StackTrace, T >&,
+    const std::map<OpenSpeedShop::Framework::StackTrace, T >&
     );
+
+template <typename T>
+void operator+=(std::vector<T >&, const std::vector<T >&);
 
 
 
