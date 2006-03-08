@@ -1356,6 +1356,24 @@ void Experiment::getMPIJobFromMPICH(const Thread& thread, Job& job)
     // Attempt to access the MPICH process table from this thread
     is_mpich_job &= Instrumentor::getMPICHProcTable(thread, table);
 
+    //    
+    // On LANL's bproc systems running OpenMPI, the host names that appear in
+    // the MPICH "process-finding" interface are the raw node numbers rather
+    // than the real host name. E.g. "128" instead of "n128". The following
+    // code is a hack to fix this... Each host name that consists entirely
+    // of numerals is prepended with "n".
+    //
+    {
+	Job fixed_table;
+	for(Job::const_iterator i = table.begin(); i != table.end(); ++i)
+	    if(i->first.find_first_not_of("0123456789") == std::string::npos)
+		fixed_table.insert(std::make_pair(std::string("n") + i->first,
+						  i->second));
+	    else
+		fixed_table.insert(*i);
+	table = fixed_table;
+    }
+
 #ifndef NDEBUG
     if(is_debug_mpijob_enabled) {
 	std::stringstream output;
