@@ -441,7 +441,7 @@ CompareClass::focusOnCSetSelected()
       count++;
     }
 
-printf("Really send this : command: (%s)\n", focus_msg->compare_command.ascii() );
+// printf("Really send this : command: (%s)\n", focus_msg->compare_command.ascii() );
 
 //printf("A: focus the StatsPanel...\n");
     QString name = QString("Stats Panel [%1]").arg(expID);

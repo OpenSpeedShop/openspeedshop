@@ -126,10 +126,13 @@ CompareSet::setNewFocus(QWidget *tab)
 // printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
          if( compareSet->compareClass->dialog )
          {
-           compareSet->compareClass->dialog->updateFocus(expID, columnSet->lv);
+// printf("call dialogs updateFocus\n");
+           if( compareSet->compareClass->dialog->updateFocus(expID, columnSet->lv) == TRUE )
+           {
+             compareSet->updatePSetList();
+           }
            QString headerStr = QString("Modify Compare Set %1: Column %2").arg(compareSet->name).arg(columnSet->name);
            compareSet->compareClass->dialog->headerLabel->setText(headerStr);
-           compareSet->updatePSetList();
          }
          break;
        }
@@ -155,9 +158,10 @@ CompareSet::updatePSetList()
 
   MPListView *psetListView = compareClass->dialog->availableProcessesListView;
 
-QStringList *psl = &compareClass->dialog->psetNameList;
+  QStringList *psl = &compareClass->dialog->psetNameList;
   int pset_count = 0;
-// printf("updatePSetList(%d) \n", expID );
+
+// printf("CompareSet::updatePSetList(%d) \n", expID );
 
   psetListView->clearSelection();
 

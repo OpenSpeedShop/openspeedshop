@@ -66,7 +66,7 @@ public:
     PanelListViewItem *selectedExperiment(int *expID);
     void updateInfo();
 
-    void updateFocus(int, MPListView *);
+    bool updateFocus(int, MPListView *);  // Returns TRUE if update occured.
     MPListView *lv;
     int expID;
 

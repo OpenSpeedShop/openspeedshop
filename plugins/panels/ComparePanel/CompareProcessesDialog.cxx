@@ -48,6 +48,8 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("CompareProcessesDialog::CompareProcessesDialog() constructor called.\n");
 
+  expID = -1;
+
   QPixmap *plus_pm = new QPixmap( plus_xpm );
   plus_pm->setMask(plus_pm->createHeuristicMask());
 
@@ -247,7 +249,7 @@ CompareProcessesDialog::addProcesses()
       // Make sure it the right target
       if( selectedItem && selectedItem->parent() && selectedItem->parent()->text(0) == UDPS )
       {
-      printf("Well I think we have a real seletected item to add to ..\n");
+// printf("Well I think we have a real seletected item to add to ..\n");
       } else
       {
         selectedItem = NULL;
@@ -534,21 +536,26 @@ CompareProcessesDialog::isPSetName(QString name)
   return FALSE;
 }
 
-void
+bool
 CompareProcessesDialog::updateFocus(int _expID, MPListView *_lv )
 {
+// printf("updateFocus _expID = (%d) (%d)\n", expID, _expID );
+  if( _expID != -1 && _expID == expID )
+  {
+    return FALSE;
+  }
   psetNameList.clear();
   lv = _lv;
-  if( _expID == expID )
-  {
-    return;
-  }
   expID = _expID;
 
+/*
   if( expID == -1 )
   {
-    return;
+    return FALSE;
   }
+*/
+
+  return TRUE;
 }
 
 DescriptionClassObjectList *

@@ -1261,8 +1261,10 @@ ManageCollectorsClass::selectProcessesSelected()
     dialog = new CompareProcessesDialog(this, "Add/Delete/Describe Compare Processes Dialog", TRUE);
   }
 
-  dialog->updateFocus(expID, psetListView);
-  updatePSetList(dialog->availableProcessesListView);
+  if( dialog->updateFocus(expID, psetListView) )
+  {
+    updatePSetList(dialog->availableProcessesListView);
+  }
   dialog->show();
 
   QApplication::restoreOverrideCursor();
