@@ -1056,10 +1056,10 @@ CustomExperimentPanel::experimentStatus()
   
 #ifdef OLD_ABOUT
   QMessageBox::information( this, "Experiment status", expStatsInfoStr, QMessageBox::Ok );
-#else  OLD_ABOUT
+#else  // OLD_ABOUT
     AboutDialog *aboutDialog = new AboutDialog(this, "Experiment status", FALSE, 0, expStatsInfoStr);
   aboutDialog->show();
-#endif  OLD_ABOUT
+#endif  // OLD_ABOUT
 
   resetRedirect();
 
@@ -1470,14 +1470,17 @@ if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT")
         nprintf( DEBUG_MESSAGES ) ("sampling_rate=%u\n", sampling_rate);
         QString command = QString("expSetParam -x %1 sampling_rate = %2").arg(expID).arg(sampling_rate);
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-// printf("E: command=(%s)\n", command.ascii() );
+// printf("E: %s command=(%s)\n", getName(), command.ascii() );
+if( !QString(getName()).startsWith("IO") )  // IO* doesn't have a sampling_rate
+{
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
           return 0;
         }
+}
         if( QString(getName()).contains("HW Counter") )
         {
-//        printf("W'ere the HW Counter Panel!!!\n");
+//        printf("We're the HW Counter Panel!!!\n");
               
           ParamList::Iterator it = lao->paramList->begin();
           it++;
