@@ -128,6 +128,30 @@ class SPOutputClass : public ss_ostream
 };
 
 
+class AboutOutputClass : public ss_ostream
+{
+  public:
+    StatsPanel *sp;
+    void setSP(StatsPanel *_sp) { sp = _sp;line_buffer = QString::null; };
+    QString line_buffer;
+  private:
+    virtual void output_string (std::string s)
+    {
+       line_buffer += s.c_str();
+       if( QString(s).contains("\n") )
+       {
+         QString *data = new QString(line_buffer);
+         sp->outputAboutData(data);
+         line_buffer = QString::null;
+       }
+    }
+    virtual void flush_ostream ()
+    {
+      qApp->flushX();
+    }
+};
+
+
 
 /*! Create a Stats Panel.
 */
@@ -151,6 +175,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   fieldCount = 0;
   percentIndex = -1;
   gotColumns = FALSE;
+  aboutOutputString = QString::null;
   about = QString::null;
   lastAbout = QString::null;
   // In an attempt to optimize the update of this panel;
@@ -698,7 +723,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 
   qaction = new QAction( this,  "compareAction");
   qaction->addTo( contextMenu );
-  qaction->setText( "Compare..." );
+  qaction->setText( "Compare Experiments/Customize StatsPanel..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( compareSelected() ) );
   qaction->setStatusTip( tr("Compare one experiment to another, one thread to another, or customize the StatsPanel report.") );
 
@@ -1068,17 +1093,79 @@ StatsPanel::gotoSource(bool use_current_item)
 void
 StatsPanel::aboutSelected()
 {
+  aboutOutputString = QString("%1\n\n").arg(about);
 
-  QString aboutString = about;
-#ifdef OLD_ABOUT
-  QMessageBox about( "About stats information", aboutString, QMessageBox::Information, QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton, this, "aboutStats", FALSE);
-  about.show();
-  about.exec();
-#else // OLD_ABOUT
-  AboutDialog *aboutDialog = new AboutDialog(this, "About stats information", FALSE, 0, aboutString);
+  QString command = QString::null;
+
+  AboutOutputClass *aboutOutputClass = NULL;
+
+  int cviewinfo_index = lastCommand.find("cview ");
+  if( cviewinfo_index != -1 )
+  {
+    cviewinfo_index += 6;
+    command = QString("cviewinfo ")+lastCommand.mid(cviewinfo_index);
+// printf("fire off new command (%s)\n", command.ascii() );
+    QString info_str = QString::null;
+    int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+
+    aboutOutputClass = new AboutOutputClass();
+    aboutOutputClass->setSP(this);
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    Redirect_Window_Output(cli->wid, aboutOutputClass, aboutOutputClass);
+
+    QApplication::setOverrideCursor(QCursor::WaitCursor);
+    InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
+
+    Input_Line_Status status = ILO_UNKNOWN;
+
+    while( status != ILO_COMPLETE )
+    {
+      status = cli->checkStatus(clip);
+      if( !status || status == ILO_ERROR )
+      { // An error occurred.... A message should have been posted.. return;
+        QApplication::restoreOverrideCursor();
+        if( clip ) 
+        {
+          clip->Set_Results_Used();
+        }
+        return;
+      }
+  
+      qApp->processEvents(1000);
+  
+      if( !cli->shouldWeContinue() )
+      {
+// printf("RETURN FALSE!   COMMAND FAILED!\n");
+        QApplication::restoreOverrideCursor();
+        if( clip ) 
+        {
+          clip->Set_Results_Used();
+        }
+        return;
+      }
+
+      sleep(1);
+    }
+    QApplication::restoreOverrideCursor();
+
+    //Test putting the output to statspanel stream.
+    Default_TLI_Line_Output(clip);
+  
+    if( clip )
+    {
+      clip->Set_Results_Used();
+    }
+  }
+
+  AboutDialog *aboutDialog = new AboutDialog(this, "About StatsPanel:", FALSE, 0, aboutOutputString);
   aboutDialog->show();
-#endif // OLD_ABOUT
 
+  if( aboutOutputClass )
+  {
+    resetRedirect();
+    delete aboutOutputClass;
+  }
 }
 
 void
@@ -3144,6 +3231,12 @@ if( highlight_line ) highlight_item = splvi;
 // printf("Set the highlighted line!\n");
     highlight_item->setSelected(TRUE);
   }
+}
+
+void
+StatsPanel::outputAboutData(QString *incoming_data)
+{
+  aboutOutputString += *incoming_data;
 }
 
 

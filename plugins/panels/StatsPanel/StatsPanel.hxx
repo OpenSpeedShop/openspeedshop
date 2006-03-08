@@ -102,6 +102,7 @@ class StatsPanel  : public Panel
     SPListView *splv;
 
     QString lastAbout;
+    QString aboutOutputString;
     QString about;
     QString lastCommand;
     bool staticDataFLAG;
@@ -133,6 +134,7 @@ ColumnValueClass columnValueClass[10];
     void updateThreadsList();
     void updateCollectorList();
     void updateCollectorMetricList();
+    void outputAboutData(QString *data);
     void outputCLIData(QString *data);
     bool mpi_io_FLAG;
     bool hwc_FLAG;
