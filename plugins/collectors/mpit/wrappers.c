@@ -464,13 +464,15 @@ int mpit_PMPI_Finalize()
     mpit_event event;
     
     mpit_start_event(&event);
+
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+
     event.start_time = OpenSS_GetTime();
 
     retval = PMPI_Finalize();
 
     event.stop_time = OpenSS_GetTime();
 
-    PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Finalize));
