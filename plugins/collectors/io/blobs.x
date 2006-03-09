@@ -39,8 +39,8 @@ struct io_event {
     uint64_t stop_time;   /**< End time of the call. */
     uint16_t stacktrace;  /**< Index of the stack trace. */
 
-    int nbytes;           /**< return value from IO call. */
 #ifdef EXTENDEDIOTRACE
+    int retval;           /**< return value from IO call. */
     int syscallno;        /**< System call number. */
     int nsysargs;         /**< number of arg to the syscall */
     int sysargs[MAXARGS]; /**< Actuall arguments */

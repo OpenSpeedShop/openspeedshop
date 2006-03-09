@@ -57,12 +57,24 @@ namespace {
      */
     const char* TraceableFunctions[] = {
 
-        "__libc_open",
-        "__libc_close",
-        "__libc_read",
-        "__libc_write",
-        "__libc_lseek",
-        "__dup2",
+        "dup",
+        "dup2",
+        "creat",
+        "open",
+        "close",
+        "read",
+        "write",
+        "pipe",
+        "lseek",
+        "pread",
+        "pwrite",
+        "readv",
+        "writev",
+        "open64",
+        "lseek64",
+        "creat64",
+        "pread64",
+        "pwrite64",
 	
 	// End Of Table Entry
 	NULL
@@ -249,6 +261,7 @@ void IOCollector::startCollecting(const Collector& collector,
 	if((traced.find(TraceableFunctions[i]) != traced.end()) &&
 	   traced.find(TraceableFunctions[i])->second) {
 	    // Wrap the IO function
+	    // What if the traceable function is not found???
 	    executeInPlaceOf(
 		collector, thread, 
 		TraceableFunctions[i],
@@ -295,6 +308,7 @@ void IOCollector::stopCollecting(const Collector& collector,
  * @param subextents    Subextents for which to get values.
  * @retval ptr          Untyped pointer to the values of the metric.
  */
+
 void IOCollector::getMetricValues(const std::string& metric,
 				    const Collector& collector,
 				    const Thread& thread,
@@ -343,8 +357,10 @@ void IOCollector::getMetricValues(const std::string& metric,
 	StackTrace trace(thread, interval.getBegin());
 	for(unsigned j = data.events.events_val[i].stacktrace;
 	    data.stacktraces.stacktraces_val[j] != 0;
-	    ++j)
+	    ++j) {
 	    trace.push_back(Address(data.stacktraces.stacktraces_val[j]));
+
+	}
 	
 	// Iterate over each of the frames in this event's stack trace
 	for(StackTrace::const_iterator 
@@ -360,6 +376,7 @@ void IOCollector::getMetricValues(const std::string& metric,
 		    Extent(interval, AddressRange(*j))
 		    );
 	    
+
 	    // Iterate over each subextent in the intersection
 	    for(std::set<ExtentGroup::size_type>::const_iterator
 		    k = intersection.begin(); k != intersection.end(); ++k) {

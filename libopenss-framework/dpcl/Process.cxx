@@ -865,6 +865,11 @@ void Process::executeInPlaceOf(const Collector& collector,
     // Iterate over the entry points to the "where" function
     for(int p = 0; p < where_srcobj.exclusive_point_count(); ++p)
 	if(where_srcobj.exclusive_point(p).get_type() == IPT_function_entry) {
+		char buffer[where_srcobj.get_demangled_name_length() + 1];
+		where_srcobj.get_demangled_name(buffer, sizeof(buffer));
+		char altbuffer[where_srcobj.get_alt_name_length() + 1];
+		where_srcobj.get_alt_name(altbuffer, sizeof(altbuffer));
+
 	    InstPoint point = where_srcobj.exclusive_point(p);
 	    
 	    // Request the instrumentation be inserted into this process
@@ -3356,10 +3361,16 @@ SourceObj Process::findFunction(const std::string& name) const
 		// Get the name of this function
 		char buffer[function.get_demangled_name_length() + 1];
 		function.get_demangled_name(buffer, sizeof(buffer));
-		
+
+		// Get the alternate (weak) name of this function
+		char altbuffer[function.get_alt_name_length() + 1];
+		function.get_alt_name(altbuffer, sizeof(altbuffer));
+
 		// Return this source object if it is the requested function
-		if(std::string(buffer) == name)
+		if(std::string(buffer) == name ||
+		   std::string(altbuffer) == name) {
 		    return function;
+		}
 		
 	    }
 
