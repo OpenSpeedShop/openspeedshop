@@ -399,7 +399,7 @@ class hwctime_view : public ViewType {
 // This is the only external entrypoint.
 // Calls to the VIEWs needs to be done through the ViewType class objects.
 extern "C" void basic_view_LTX_ViewFactory () {
-  Define_New_View (new usertime_view());
+//   Define_New_View (new usertime_view());
   Define_New_View (new pcsamp_view());
   Define_New_View (new hwc_view());
   Define_New_View (new hwctime_view());

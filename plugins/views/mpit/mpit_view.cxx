@@ -168,6 +168,9 @@ static bool MPIT_Trace_Report(
   std::string metric = MV[0];
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > > c_items;
+  bool add_stmts = (!Look_For_KeyWord(cmd, "ButterFly") ||
+                    Look_For_KeyWord(cmd, "FullStack") ||
+                    Look_For_KeyWord(cmd, "FullStacks"));
 
  // Get the list of desired functions.
   std::set<Function> objects;
@@ -217,7 +220,8 @@ static bool MPIT_Trace_Report(
              // Construct the type-independent return entry.
               CommandResult *CSE;
               if (base_CSE == NULL) {
-                SmartPtr<std::vector<CommandResult *> > call_stack = Construct_CallBack (TraceBack_Order, false, st);
+                SmartPtr<std::vector<CommandResult *> > call_stack =
+                                      Construct_CallBack (TraceBack_Order, add_stmts, st);
                 base_CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
                 CSE = base_CSE;
               } else {
@@ -296,13 +300,12 @@ static bool MPIT_Function_Report(
                    std::vector<MPITDetail> >::iterator first_si = 
                                       (*fi).second.begin();
           Framework::StackTrace st = (*first_si).first;
-          std::set<Statement> T = st.getStatementsAt(st.size()-1);
 
           SmartPtr<std::vector<CommandResult *> > call_stack =
                    Framework::SmartPtr<std::vector<CommandResult *> >(
                                new std::vector<CommandResult *>()
                                );
-          call_stack->push_back(new CommandResult_Function (F, T));
+          call_stack->push_back(new CommandResult_Function (F));
           CommandResult *CSE = new CommandResult_CallStackEntry (call_stack);
           c_items.push_back(std::make_pair(CSE, vcs));
         }
@@ -400,8 +403,6 @@ static bool MPIT_CallStack_Report (
 static std::string allowed_mpit_V_options[] = {
   "Function",
   "Functions",
-  "Statement",
-  "Statements",
   "Trace",
   "ButterFly",
   "CallTree",
