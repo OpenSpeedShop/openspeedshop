@@ -16,12 +16,23 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = basic \
-          usertime \
-          mpi \
-          mpi \
-          mpit \
-          io
+pkglib_LTLIBRARIES = usertime_view.la
 
-doc:
-	$(DOXYGEN)
+BUILT_SOURCES =
+
+usertime_view_la_CXXFLAGS = \
+	$(PYTHON_INCLUDES) \
+	-I$(top_srcdir)/libopenss-queries \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-cli \
+	-I$(top_srcdir)/plugins/collectors/usertime \
+	-I$(top_srcdir)/libopenss-message 
+
+usertime_view_la_LDFLAGS = \
+	-no-undefined -module -avoid-version
+
+usertime_view_la_SOURCES = \
+	usertime_view.cxx
+
+SUFFIXES = .x .cxx
+CLEANFILES = $(BUILT_SOURCES)
