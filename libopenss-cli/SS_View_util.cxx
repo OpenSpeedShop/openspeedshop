@@ -782,9 +782,7 @@ bool Validate_V_Options (CommandObject *cmd,
 View_Form_Category Determine_Form_Category (CommandObject *cmd) {
   if (Look_For_KeyWord(cmd, "Trace")) {
     return VFC_Trace;
-  } else if (Look_For_KeyWord(cmd, "Statement") ||
-             Look_For_KeyWord(cmd, "Statements") ||
-             Look_For_KeyWord(cmd, "CallTree") ||
+  } else if (Look_For_KeyWord(cmd, "CallTree") ||
              Look_For_KeyWord(cmd, "CallTrees") ||
              Look_For_KeyWord(cmd, "TraceBack") ||
              Look_For_KeyWord(cmd, "TraceBacks") ||
@@ -792,6 +790,14 @@ View_Form_Category Determine_Form_Category (CommandObject *cmd) {
              Look_For_KeyWord(cmd, "FullStacks") ||
              Look_For_KeyWord(cmd, "ButterFly")) {
     return VFC_CallStack;
+  } else if (Look_For_KeyWord(cmd, "LinkedObject") ||
+             Look_For_KeyWord(cmd, "LinkedObjects") ||
+             Look_For_KeyWord(cmd, "Dso") ||
+             Look_For_KeyWord(cmd, "Dsos")) {
+    return VFC_LinkedObject;
+  } else if (Look_For_KeyWord(cmd, "Statement") ||
+             Look_For_KeyWord(cmd, "Statements")) {
+    return VFC_Statement;
   }
   return VFC_Function;
 }

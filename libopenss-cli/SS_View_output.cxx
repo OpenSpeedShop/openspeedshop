@@ -127,11 +127,9 @@ void Construct_View_Output (CommandObject *cmd,
             continue;
           }
           if ((i > percentofcolumn) &&
-              (percent_of != NULL)) {
+              (percent_of != NULL) &&
+              (!percent_of->isNullValue ())) {
             Next_Metric_Value = Calculate_Percent (percent_of, TotalValue);
-          } else {
-            Mark_Cmd_With_Soft_Error(cmd,"Percent of column is not available for mpi view");
-            return;
           }
         } else if (vinst->OpCode() == VIEWINST_Display_Percent_Metric) {
           if (Gen_Total_Percent) {

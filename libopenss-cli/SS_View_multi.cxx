@@ -101,7 +101,9 @@ static void Setup_Sort(
      // Use value without calculating percent - order will be the same.
       New = Dup_CommandResult (V1);
     } else if (vinst->OpCode() == VIEWINST_Display_Average_Tmp) {
+/*
       if (!V1->isNullValue ()) {
+*/{
         New = Calculate_Average (V1, (*cp.second)[vinst->TMP2()]);
       }
     } else if (vinst->OpCode() ==VIEWINST_Display_StdDeviation_Tmp) {
@@ -468,6 +470,15 @@ static SmartPtr<std::vector<CommandResult *> >
       for (int64_t j = 0; j < crv->size(); j++) {
         vcs->push_back ( New_CommandResult ((*crv)[j]) );
       }
+
+// TEST
+       // Set flag in CommandResult to indicate null value.
+       // The display logic may decide to replace the value with
+       // blanks, if it is easier to read.
+        for (int64_t i = 0; i < crv->size(); i++) {
+          (*vcs)[i]->setNullValue();
+        }
+
   return vcs;
 }
 
@@ -742,9 +753,18 @@ bool Generic_Multi_View (
           Combine_Duplicate_CallStacks (AccumulateInst, c_items);
         }
       }
-    } else if (vfc == VFC_Function) {
-     // Default is the summary report by MPI function.
-      EO_Title = "Function (defining location)";
+    } else {
+
+     if (vfc == VFC_Function) {
+       EO_Title = "Function (defining location)";
+     } else if (vfc == VFC_Statement) {
+       EO_Title = "Statement Location (Line Number)";
+     } else if (vfc == VFC_LinkedObject) {
+       EO_Title = "LinkedObject";
+     } else {
+       return false;
+     }
+
       Gen_Total_Percent = Calculate_Total_For_Percent (cmd, tgrp, CV, MV, IV, percentofcolumn, TotalValue, c_items);
 
      // Sort by the value displayed in the left most column.
@@ -756,8 +776,6 @@ bool Generic_Multi_View (
         Reclaim_CR_Space (topn, c_items);
         c_items.erase ( (c_items.begin() + topn), c_items.end());
       }
-    } else {
-      return false;
     }
 
     if (c_items.empty()) {
@@ -785,6 +803,7 @@ bool Generic_Multi_View (
     view_output.push_back(H);
 
    // Convert "0" values to blanks.
+/* TEST
     std::vector<std::pair<CommandResult *,
                           SmartPtr<std::vector<CommandResult *> > > >::iterator xvpi;
     for (xvpi = c_items.begin(); xvpi != c_items.end(); xvpi++) {
@@ -802,6 +821,7 @@ bool Generic_Multi_View (
         }
       }
     }
+*/
 
    // Now format the view.
     if (Look_For_KeyWord(cmd, "ButterFly")) {

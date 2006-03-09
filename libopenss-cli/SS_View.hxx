@@ -230,6 +230,8 @@ enum View_Form_Category {
       VFC_Trace,
       VFC_Function,
       VFC_CallStack,
+      VFC_LinkedObject,
+      VFC_Statement,
 };
 
 // Reserved locations in the std::vector<CommandResult *> of c_items argument to Generic_Multi_View

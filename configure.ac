@@ -183,6 +183,7 @@ AC_CONFIG_FILES(
 	plugins/panels/CustomExperimentPanel/Makefile
 	plugins/views/Makefile
 	plugins/views/basic/Makefile
+	plugins/views/usertime/Makefile
 	plugins/views/mpi/Makefile
 	plugins/views/mpit/Makefile
 	plugins/views/io/Makefile
