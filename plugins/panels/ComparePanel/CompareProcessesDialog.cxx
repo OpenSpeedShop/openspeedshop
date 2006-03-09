@@ -462,7 +462,6 @@ if( !selectedItem )
       ++it;
     }
     endItem = (MPListViewItem *)selectedItem->nextSibling();
-    printf("HereB\n");
     ++it;
     while ( it.current() )
     {
