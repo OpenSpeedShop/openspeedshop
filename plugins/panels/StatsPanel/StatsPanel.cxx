@@ -896,11 +896,20 @@ StatsPanel::showChart()
   } else
   {
     chartFLAG = TRUE;
-lastCommand = QString::null;  // This will force a redraw of the data.
+// printf("lastCommand=(%s)\n", lastCommand.ascii() );
     cf->show();
-    // I'm not sure why, but the text won't draw unless the 
-    // piechart is visible.
-    updatePanel();
+    if( !lastCommand.startsWith("cview") )
+    {
+      lastCommand = QString::null;  // This will force a redraw of the data.
+      // I'm not sure why, but the text won't draw unless the 
+      // piechart is visible.
+      updatePanel();
+    } else
+    {
+      cf->setValues(cpvl, ctvl, color_names, MAX_COLOR_CNT);
+      updatePanel();
+    }
+    cf->show();
   }
 
   // Make sure there's not a blank panel.   If the user selected to 
@@ -908,7 +917,6 @@ lastCommand = QString::null;  // This will force a redraw of the data.
   if( chartFLAG == FALSE && statsFLAG == FALSE )
   {
     statsFLAG = TRUE;
-    splv->show();
   }
 }
 
