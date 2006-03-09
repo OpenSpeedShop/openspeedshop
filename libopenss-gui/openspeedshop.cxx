@@ -92,7 +92,10 @@ OpenSpeedshop::OpenSpeedshop( int _wid, int _climode, QWidget* parent, const cha
 //  fileSaveSessionAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
 #endif // SAVESESSION
   filePreferencesAction = new QAction( this, "filePreferencesAction" );
-  fileCloseAction = new QAction( this, "fileCloseAction" );
+  if( climode )
+  {
+    fileCloseAction = new QAction( this, "fileCloseAction" );
+  }
   fileExitAction = new QAction( this, "fileExitAction" );
   helpContentsAction = new QAction( this, "helpContentsAction" );
   helpIndexAction = new QAction( this, "helpIndexAction" );
@@ -117,16 +120,19 @@ OpenSpeedshop::OpenSpeedshop( int _wid, int _climode, QWidget* parent, const cha
 #endif // SAVESESSION
 
   fileMenu->insertSeparator();
-QPopupMenu *experimentsMenu = new QPopupMenu(this);
-QPopupMenu *wizardsMenu = new QPopupMenu(this);
-fileMenu->insertItem( "E&xperiments", experimentsMenu, 1 );
-fileMenu->insertItem( "&Wizards", wizardsMenu, 3 );
+  QPopupMenu *experimentsMenu = new QPopupMenu(this);
+  QPopupMenu *wizardsMenu = new QPopupMenu(this);
+  fileMenu->insertItem( "E&xperiments", experimentsMenu, 1 );
+  fileMenu->insertItem( "&Wizards", wizardsMenu, 3 );
 
   fileMenu->insertSeparator();
   filePreferencesAction->addTo( fileMenu );
   fileMenu->insertSeparator();
-  fileCloseAction->addTo( fileMenu );
-  fileMenu->insertSeparator();
+  if( climode )
+  {
+    fileCloseAction->addTo( fileMenu );
+    fileMenu->insertSeparator();
+  }
   fileExitAction->addTo( fileMenu );
   menubar->insertItem( QString("&File"), fileMenu, 1 );
 
@@ -145,7 +151,10 @@ fileMenu->insertItem( "&Wizards", wizardsMenu, 3 );
 #endif // SAVESESSION
   connect( filePreferencesAction, SIGNAL( activated() ), this, SLOT( filePreferences() ) );
   connect( fileExitAction, SIGNAL( activated() ), this, SLOT( fileExit() ) );
-  connect( fileCloseAction, SIGNAL( activated() ), this, SLOT( fileClose() ) );
+  if( climode ) 
+  {
+    connect( fileCloseAction, SIGNAL( activated() ), this, SLOT( fileClose() ) );
+  }
   connect( helpIndexAction, SIGNAL( activated() ), this, SLOT( helpIndex() ) );
   connect( helpContentsAction, SIGNAL( activated() ), this, SLOT( helpContents() ) );
   connect( helpAboutAction, SIGNAL( activated() ), this, SLOT( helpAbout() ) );
@@ -237,13 +246,16 @@ fileSaveExperimentAction->setStatusTip( tr("Save the experiment data to a file f
   filePreferencesAction->setAccel( QString::null );
 filePreferencesAction->setStatusTip( tr("Open the Preferences Panel to set persistent preferences.") );
 
-  fileCloseAction->setText( tr( "Close" ) );
-  fileCloseAction->setMenuText( tr( "C&lose" ) );
-fileCloseAction->setStatusTip( tr("Close the windows, but don't exit the tool.  \"opengui\" form the openss>> prompt reopens the windows.") );
+  if( climode )
+  {
+    fileCloseAction->setText( tr( "Close" ) );
+    fileCloseAction->setMenuText( tr( "C&lose" ) );
+    fileCloseAction->setStatusTip( tr("Close the windows, but don't exit the tool.  \"opengui\" form the openss>> prompt reopens the windows.") );
+  
+    fileCloseAction->setEnabled(climode);
+    fileCloseAction->setAccel( QString::null );
+  }
 
-  fileCloseAction->setEnabled(climode);
-
-  fileCloseAction->setAccel( QString::null );
   fileExitAction->setText( tr( "Exit" ) );
   fileExitAction->setMenuText( tr( "E&xit" ) );
 fileExitAction->setStatusTip( tr("Exit the entire session closing down all experiments.") );
@@ -287,11 +299,24 @@ void
 OpenSpeedshop::closeEvent(QCloseEvent *e)
 {
 //  printf("OpenSpeedshop::closeEvent() entered.\n");
-  int ret_val =  QMessageBox::question(
+
+  int ret_val =  QMessageBox::Cancel;
+
+  if( climode )
+  {
+    ret_val =  QMessageBox::question(
             this,
             tr("Finished?"),
             tr("Do you really want to exit Open|SpeedShop?\n  - Yes will exit.\n  - No will close the gui windows.\n  - Cancel will do nothing."),
             QMessageBox::Yes,  QMessageBox::No,  QMessageBox::Cancel );
+  } else
+  {
+    ret_val =  QMessageBox::question(
+            this,
+            tr("Finished?"),
+            tr("Do you really want to exit Open|SpeedShop?\n  - Yes will exit.\n  - Cancel will do nothing."),
+            QMessageBox::Yes,  QMessageBox::Cancel );
+  }
   if( ret_val ==  QMessageBox::Yes )
   {
     fileExit();
