@@ -1354,6 +1354,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // printf("matchSelectedItem() entered. sf=%s\n", sf.c_str() );
 
 // printf("mpi_io_FLAG =(%d) hwc_FLAG = (%d)\n", mpi_io_FLAG, hwc_FLAG );
+  QString lineNumberStr = "-1"; // MPI* and IO* only
 
   if( mpi_io_FLAG )
   { // The mpi tree is different.   We need to look up the highlighted
@@ -1363,9 +1364,23 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
     if( selectedItem )
     {
 // printf("Got an ITEM!\n");
-      QString ret_value = selectedItem->text(fieldCount-1);
+      QString ret_value = selectedItem->text(fieldCount-1).stripWhiteSpace();
       sf = ret_value.ascii();
 // printf("         (%s)\n", sf.c_str() );
+      int index = ret_value.find("@");
+      if( index == 0 )
+      {
+        int sfi = 0;
+
+        sfi = ret_value.find(" in ");
+        if( sfi != -1 )
+        {
+// printf("sfi=(%d)\n", sfi);
+          lineNumberStr = ret_value.mid(2, sfi-2);
+        }
+// printf("It think we have a line number (%s) just after the @ \n", lineNumberStr.ascii() );
+
+      }
     }
   }
 
@@ -1376,7 +1391,6 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   highlightList->clear();
 
   QString selected_function_qstring = QString(sf).stripWhiteSpace();
-  QString lineNumberStr = "-1"; // MPI only
 
   QString filename = QString::null;
   QString function_name = QString::null;
@@ -1394,8 +1408,13 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
     function_name = "";
   } else
   {
+    QString lns = QString::null;
     filename = getFilenameFromString( QString(sf).stripWhiteSpace() ); 
-    function_name = getFunctionNameFromString( QString(sf).stripWhiteSpace(), lineNumberStr );
+    function_name = getFunctionNameFromString( QString(sf).stripWhiteSpace(), lns );
+    if( !mpi_io_FLAG )
+    {
+      lineNumberStr = lns;
+    }
   }
 
 // printf("AA: filename=(%s)\n", filename.ascii() );
@@ -1651,8 +1670,7 @@ filename = di->getPath();
         {
           hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite", "N/A");
           highlightList->push_back(hlo);
-// printf("spo A:\n");
-//          spo = new SourceObject(function_name.ascii(), di->getPath(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
+// printf("spo A: lineNumberStr=(%s)\n", lineNumberStr.ascii() );
           spo = new SourceObject(function_name.ascii(), filename.ascii(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
         } else
         {
@@ -3555,6 +3573,9 @@ StatsPanel::generateCommand()
 
   QString command = QString("expView -x %1").arg(expID);
   about = QString("Experiment: %1\n").arg(expID);
+
+// printf("currentCollectorStr=(%s)  currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
+
   if( currentCollectorStr.isEmpty() )
   {
     command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
