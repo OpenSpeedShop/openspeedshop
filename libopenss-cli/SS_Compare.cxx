@@ -861,9 +861,9 @@ static void CustomViewInfo (CommandObject *cmd,
     S << " ";
     for (p_vtlist=vtlist->begin(); p_vtlist != vtlist->end(); p_vtlist++) {
       if (first_item_found) {
-        first_item_found = true;
         S << ", ";
       }
+      first_item_found = true;
       S << *p_vtlist;
     }
   }
@@ -876,9 +876,9 @@ static void CustomViewInfo (CommandObject *cmd,
     S << " -v ";
     for (p_vlist=v_list->begin();p_vlist != v_list->end(); p_vlist++) {
       if (first_item_found) {
-        first_item_found = true;
         S << ", ";
       }
+      first_item_found = true;
       S << *p_vlist;
     }
 
@@ -904,28 +904,32 @@ static void CustomViewInfo (CommandObject *cmd,
     vector<ParseRange> *r_list = pt.getRankList();
 
     if (first_TargetSpec_found) {
-      first_TargetSpec_found = true;
       S << " ;";
     }
+    first_TargetSpec_found = true;
 
    // Add the "-h" list.
     if (!h_list->empty()) {
       S << " -h ";
       bool first_item_found = false;
       vector<ParseRange>::iterator p_hlist;
+      std::set<std::string> hset;
       for (p_hlist=h_list->begin();p_hlist != h_list->end(); p_hlist++) {
-        if (first_item_found) {
-          first_item_found = true;
-          S << ", ";
-        }
         parse_range_t p_range = *p_hlist->getRange();
-        S << p_range.start_range.name;
-        // S << Experiment::getCanonicalName(p_range.start_range.name);
+        // std::string N = Experiment::getCanonicalName(p_range.start_range.name);
+        std::string N = p_range.start_range.name;
         if (p_range.is_range &&
             (p_range.start_range.name != p_range.end_range.name)) {
-          S << ":" << p_range.end_range.name;
-          // S << ":" << Experiment::getCanonicalName(p_range.end_range.name);
+          N = N + ":" + p_range.end_range.name;
         }
+        hset.insert (N);
+      }
+      for (std::set<std::string>::iterator hseti = hset.begin(); hseti != hset.end(); hseti++) {
+        if (first_item_found) {
+          S << ", ";
+        }
+        first_item_found = true;
+        S << *hseti;
       }
     }
 
@@ -934,11 +938,30 @@ static void CustomViewInfo (CommandObject *cmd,
       S << " -f ";
       bool first_item_found = false;
       vector<ParseRange>::iterator p_flist;
-      for (p_flist=f_list->begin();p_flist != f_list->end(); p_flist++) {
+      std::set<std::string> fset;
+      for (p_flist=h_list->begin();p_flist != h_list->end(); p_flist++) {
+        parse_range_t p_range = *p_flist->getRange();
+        // std::string N = Experiment::getCanonicalName(p_range.start_range.name);
+        std::string N = p_range.start_range.name;
+        if (p_range.is_range &&
+            (p_range.start_range.name != p_range.end_range.name)) {
+          N = N + ":" + p_range.end_range.name;
+        }
+        fset.insert (N);
+      }
+      for (std::set<std::string>::iterator fseti = fset.begin(); fseti != fset.end(); fseti++) {
         if (first_item_found) {
-          first_item_found = true;
           S << ", ";
         }
+        first_item_found = true;
+        S << *fseti;
+      }
+/*
+      for (p_flist=f_list->begin();p_flist != f_list->end(); p_flist++) {
+        if (first_item_found) {
+          S << ", ";
+        }
+        first_item_found = true;
         parse_range_t p_range = *p_flist->getRange();
         S << Experiment::getCanonicalName(p_range.start_range.name);
         if (p_range.is_range &&
@@ -946,6 +969,7 @@ static void CustomViewInfo (CommandObject *cmd,
           S << ":" << Experiment::getCanonicalName(p_range.end_range.name);
         }
       }
+*/
     }
 
    // Add the "-p" list.
@@ -955,9 +979,9 @@ static void CustomViewInfo (CommandObject *cmd,
       vector<ParseRange>::iterator p_plist;
       for (p_plist=p_list->begin();p_plist != p_list->end(); p_plist++) {
         if (first_item_found) {
-          first_item_found = true;
           S << ", ";
         }
+        first_item_found = true;
         parse_range_t p_range = *p_plist->getRange();
         S << p_range.start_range.num;
         if (p_range.is_range &&
@@ -974,9 +998,9 @@ static void CustomViewInfo (CommandObject *cmd,
       vector<ParseRange>::iterator p_tlist;
       for (p_tlist=t_list->begin();p_tlist != t_list->end(); p_tlist++) {
         if (first_item_found) {
-          first_item_found = true;
           S << ", ";
         }
+        first_item_found = true;
         parse_range_t p_range = *p_tlist->getRange();
         S << p_range.start_range.num;
         if (p_range.is_range &&
@@ -994,9 +1018,9 @@ static void CustomViewInfo (CommandObject *cmd,
       vector<ParseRange>::iterator p_rlist;
       for (p_rlist=r_list->begin();p_rlist != r_list->end(); p_rlist++) {
         if (first_item_found) {
-          first_item_found = true;
           S << ", ";
         }
+        first_item_found = true;
         parse_range_t p_range = *p_rlist->getRange();
         S << p_range.start_range.num;
         if (p_range.is_range &&
@@ -1018,9 +1042,9 @@ static void CustomViewInfo (CommandObject *cmd,
     vector<ParseRange>::iterator mi;
     for (mi = p_mlist->begin(); mi != p_mlist->end(); mi++) {
       if (first_item_found) {
-        first_item_found = true;
         S << ", ";
       }
+      first_item_found = true;
       parse_range_t *m_range = (*mi).getRange();
       std::string Name1 = m_range->start_range.name;
       S << Name1;
