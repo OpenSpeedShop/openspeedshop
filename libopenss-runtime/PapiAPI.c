@@ -24,6 +24,17 @@
 
 #include "PapiAPI.h"
 
+/**
+ * Method: hwc_init_papi()
+ * 
+ * xxx.
+ *     
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 void hwc_init_papi()
 {
     int rval;
@@ -57,6 +68,19 @@ void hwc_init_papi()
 }
 
 #ifdef USE_ALLOC_VALUES
+/**
+ * Method: allocate_test_space()
+ * 
+ * xxx.
+ *     
+ * @param   num_tests - xxx.
+ * @param   num_events - xxx.
+ *
+ * @return  long_long **
+ *
+ * @todo    Error handling.
+ *
+ */
 long_long **allocate_test_space(int num_tests, int num_events)
 {
    long_long **values;
@@ -77,6 +101,17 @@ long_long **allocate_test_space(int num_tests, int num_events)
 }
 #endif
 
+/**
+ * Method: print_hw_info()
+ * 
+ * Print out the hardward information for.
+ * the target platform.
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 void print_hw_info()
 {
 
@@ -98,6 +133,17 @@ void print_hw_info()
   printf("  Cycle time MHz:        %9.4f\n", hw_info->mhz) ;
 }
 
+/**
+ * Method: get_papi_exe_info()
+ * 
+ * xxx.
+ *     
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 void get_papi_exe_info ()
 {
     const PAPI_exe_info_t *exeinfo = NULL;
@@ -116,9 +162,19 @@ void get_papi_exe_info ()
 	exeinfo->address_info.bss_start,exeinfo->address_info.bss_end);
 }
 
+/**
+ * Method: print_papi_events()
+ * 
+ * Scan for all supported native events on this platform.
+ *     
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 void print_papi_events ()
 {
-/* Scan for all supported native events on this platform */
 
     int i = PAPI_PRESET_MASK;;
     PAPI_event_info_t info;
@@ -132,6 +188,20 @@ void print_papi_events ()
     } while (PAPI_enum_event(&i, PAPI_ENUM_ALL) == PAPI_OK);
 }
 
+/**
+ * Method: get_papi_name()
+ * 
+ * Get the name of an event represented by a
+ * numerical code.
+ *     
+ * @param   code - xxx.
+ * @param   ecstr - xxx.
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 void get_papi_name (int code, char *ecstr)
 {
     char EventCodeStr[PAPI_MAX_STR_LEN];
@@ -142,6 +212,19 @@ void get_papi_name (int code, char *ecstr)
     strncpy(ecstr,EventCodeStr,sizeof(EventCodeStr));
 }
 
+/**
+ * Method: get_papi_eventcode()
+ * 
+ * Return the numerical code represented by a
+ * given event string.
+ *     
+ * @param   eventname - xxx.
+ *
+ * @return  int EventCode
+ *
+ * @todo    Error handling.
+ *
+ */
 int get_papi_eventcode (char* eventname)
 {
     int EventCode = PAPI_NULL;
@@ -156,7 +239,22 @@ int get_papi_eventcode (char* eventname)
     return EventCode;
 }
 
+/**
+ * Method: print_papi_error()
+ * 
+ * xxx.
+ *     
+ * @param   errcode - xxx.
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 void print_papi_error (int errcode)
 {
-fprintf(stderr,"print_papi_error: ENTERED!\n");
+    fprintf(stderr,"print_papi_error: ENTERED!\n");
 }
+
+
+
