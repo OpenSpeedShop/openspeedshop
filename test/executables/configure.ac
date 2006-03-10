@@ -74,6 +74,7 @@ AC_CONFIG_FILES([
         mutatee/c_version/Makefile
         mutatee/cplus_version/Makefile
         mutatee/f77_version/Makefile
+	mutatee/io_c_version/Makefile
         Eon/Makefile
 ])
 
