@@ -18,3 +18,4 @@
 ################################################################################
 export DYNINSTAPI_RT_LIB=/usr/lib/libdyninstAPI_RT.so.1
 ./mutator ./mutatee
+killall mutator mutatee
