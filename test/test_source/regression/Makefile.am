@@ -24,7 +24,8 @@ SUBDIRS = \
 	building_block \
 	info \
 	hwctime \
-	mpi
+	mpi \
+	io
 
 DIST_SUBDIRS = $(SUBDIRS)
 
