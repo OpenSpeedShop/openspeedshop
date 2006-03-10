@@ -385,6 +385,12 @@ hwc_register_events_for_help()
     if (we_dun_registered)
     	return;
 
+  // Check if PAPI will work at all
+    int rval = PAPI_library_init(PAPI_VER_CURRENT);
+    if (rval < 0)
+    	return;
+
+
   // Send information to the message czar.
     SS_Message_Czar& czar = theMessageCzar();
 
