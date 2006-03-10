@@ -26,8 +26,22 @@
 #include "blobs.h"
 #include "PapiAPI.h"
 
+#include <vector>
+#include <string>
+#include <iostream>
+
 using namespace std;
+
+#include "SS_Message_Element.hxx"
+#include "SS_Message_Czar.hxx"
+
+using namespace OpenSpeedShop;
+extern SS_Message_Czar& theMessageCzar();
 using namespace OpenSpeedShop::Framework;
+
+
+void
+hwc_register_events_for_help(void);
 
 /**
  * Collector's factory method.
@@ -72,6 +86,10 @@ HWCCollector::HWCCollector() :
     declareMetric(Metadata("overflows", "Overflows",
                            "Exclusive overflows in hardware counter events.",
                            typeid(uint64_t)));
+
+    // Register the event names in the message facility.
+    hwc_register_events_for_help();
+
 }
 
 
@@ -339,3 +357,81 @@ void HWCCollector::getMetricValues(const std::string& metric,
 	     reinterpret_cast<char*>(&data));
 
 }
+
+
+typedef std::pair<std::string, string> papi_preset_event;
+//typedef std::vector<papi_event> papi_available_presets;
+
+/**
+ * Method: hwc_register_events_for_help()
+ * 
+ * We will only know at runtime what events are available
+ * for a given platform. This is where we register them
+ * with the message facility.
+ *     
+ * @param   xxx - xxx.
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
+static bool we_dun_registered = false;
+void
+hwc_register_events_for_help()
+{
+    std::vector<papi_preset_event> papi_available_presets;
+
+    if (we_dun_registered)
+    	return;
+
+  // Send information to the message czar.
+    SS_Message_Czar& czar = theMessageCzar();
+
+    SS_Message_Element element;
+
+   // Set keyword. You really need to have a keyword.
+    element.set_keyword("hwc_events");
+
+   // Related keywords
+    element.add_related("hwc");
+    element.add_related("hwc_time");
+
+   // General topic
+    element.set_topic("expType");
+
+   // Brief, one line description
+    element.set_brief("Available hardware counter events");
+
+   // More than one line description
+    element.add_normal(" ");
+
+   // A wordy explaination
+    element.add_verbose("Available hardware counter events"":\n\n");
+
+   // Standard example for views.
+    element.add_example("\t expsetparam event=PAPI_L1_DCM \n ");
+
+
+    papi_available_presets.clear();
+    papi_available_presets = OpenSS_papi_available_presets();
+    
+    std::vector<papi_preset_event>::const_iterator it;
+    for(    it = papi_available_presets.begin(); 
+    	    it != papi_available_presets.end(); 
+	    ++it)
+    {
+    	string t_string(it->first);
+	t_string+="  ";
+	t_string+=it->second;
+    	element.add_normal(t_string);
+    	element.add_verbose(t_string);
+
+    }
+    
+   // Submit the message to the database
+    czar.Add_Help(element);
+
+    we_dun_registered = true;
+}
+

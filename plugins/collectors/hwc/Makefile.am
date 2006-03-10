@@ -23,6 +23,7 @@ BUILT_SOURCES = \
 
 hwc_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-message \
 	@PAPI_CPPFLAGS@
 
 hwc_la_LDFLAGS = \
