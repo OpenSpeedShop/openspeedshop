@@ -282,6 +282,8 @@ AC_CONFIG_FILES(
 	test/test_source/regression/info/status/status1/Makefile
 	test/test_source/regression/info/status/status2/Makefile
 	test/test_source/regression/info/status/status3/Makefile
+	test/test_source/regression/io/Makefile
+	test/test_source/regression/io/io1/Makefile
 	test/test_source/regression/pcsamp/Makefile
 	test/test_source/regression/pcsamp/pcsamp1/Makefile
 	test/test_source/regression/pcsamp/pcsamp2/Makefile
