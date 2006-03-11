@@ -82,6 +82,10 @@ char *gram_target_related[] = {
     ""
 };
 
+char *gram_hwc_related[] = {
+    "<hwc_events>"
+};
+
 /*********************************************/
 // GRAMMAR ARGUMENTS
 /*********************************************/
@@ -1112,7 +1116,7 @@ char *gram_io_detailed[] = {
 /*********************************************/
 // 
 char *gram_list_example[] = {
-    " -f file1,file2,file3",
+    "-f file1,file2,file3",
     " ",
     "    A list of file name strings.",
     " ",
@@ -1128,6 +1132,27 @@ char *gram_list_example[] = {
     " ",
     "    All the pids for this experiment on host1 from.",
     "    333 ti 400 and all the pids on host2 from 500 to 540",
+    " "
+};
+
+char *gram_hwc_example[] = {
+    " You will need to set which hardware counter event to",
+    " monitor. To see which events are available for your system:",
+    " ",
+    "    help hwc_events",
+    " ",
+    " To set the hardware event for Level 1 Data Cache Misses:",
+    " ",
+    "    expSetParam event=PAPI_LI_DCM",
+    " ",
+    " The usual order for setting up a hwc experiment is to first",
+    " define the experiment with expCreate or expAttach, then",
+    " set the event parameter with expSetParam and finally run",
+    " the experiment using expGo.",
+    " ",
+    " To view the results:",
+    " ",
+    "    expView hwc",
     " "
 };
 
@@ -1402,9 +1427,12 @@ OpenSpeedShop::message_element_t grammar_msg[] = {
     NULL,0,NULL,0,
     NULL,0,
 //    hwc
-    -1,"hwc",NULL,0,"experiments",gram_hwc_brief,
+    -1,"hwc",
+    gram_hwc_related,sizeof(gram_hwc_related)/sizeof(char **),
+    "experiments",gram_hwc_brief,
     gram_hwc_detailed,sizeof(gram_hwc_detailed)/sizeof(char **),
-    NULL,0,NULL,0,
+    NULL,0,
+    gram_hwc_example,sizeof(gram_hwc_example)/sizeof(char **),
     NULL,0,
 //    io
     -1,"io",NULL,0,"experiments",gram_io_brief,
