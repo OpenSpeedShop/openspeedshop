@@ -613,6 +613,7 @@ CompareClass::removeUserPSet()
 {
   // First find the current (raised) cset.\n");
   QTabWidget *currentTabWidget = (QTabWidget* )csetTB->currentItem();
+// printf("removeUserPSet()\n");
 
   QWidget *currentTab = currentTabWidget->currentPage();
 
@@ -634,11 +635,20 @@ CompareClass::removeUserPSet()
 // printf("\t: Delete: ColumnSet (%s)'s info item=(%s)\n", columnSet->name.ascii(), item->text(0).ascii() );
           delete item;
         }
+// printf("Now check for first child\n");
+        // If we've deleted everything, simply add back the default entry.
+        if( !columnSet->lv->firstChild() )
+        {
+// printf("No firstChild...add the default back in.\n");
+          MPListViewItem *cps_item = new MPListViewItem( columnSet->lv, CPS);
+          cps_item->setOpen(TRUE);
+        }
         break;
       }
     }
 
   }
+
 }
 
 

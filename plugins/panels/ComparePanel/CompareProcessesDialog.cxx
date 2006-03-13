@@ -238,6 +238,7 @@ CompareProcessesDialog::addProcesses()
 
     if( validatedHostPidList )
     {
+// printf("There seems to be a list... is there really something to add?\n");
       // First look for a selected item in the drop zone.
       MPListViewItem *selectedItem = NULL;
       QListViewItemIterator it(lv, QListViewItemIterator::Selected);
@@ -249,7 +250,7 @@ CompareProcessesDialog::addProcesses()
       // Make sure it the right target
       if( selectedItem && selectedItem->parent() && selectedItem->parent()->text(0) == UDPS )
       {
-// printf("Well I think we have a real seletected item to add to ..\n");
+// printf("Well I think we have a real selected item to add to ..\n");
       } else
       {
         selectedItem = NULL;
@@ -266,6 +267,7 @@ CompareProcessesDialog::addProcesses()
         DescriptionClassObject *dco = (DescriptionClassObject *)*it;
 //        MPListViewItem *item = new MPListViewItem( lv->firstChild(), dco->pid_name, dco->host_name, tidstr );
         MPListViewItem *item = new MPListViewItem( selectedItem, dco->pid_name, dco->host_name, tidstr );
+// printf("addProcesses() ADD! (%s)\n", item->text(0).ascii() );
         item->descriptionClassObject = dco;
       }
   
@@ -398,7 +400,8 @@ if( !selectedItem )
   selectedItem = (MPListViewItem *)lv->firstChild();
 }
 
-if( !selectedItem )
+// printf("lv->firstChild()->text(0)=(%s)\n", lv->firstChild()->text(0).ascii() );
+if( !selectedItem || lv->firstChild()->text(0) == CPS )
 {
 // printf("Do it the old way and loop through everyone..\n");
     QListViewItemIterator it( lv );
@@ -419,14 +422,17 @@ if( !selectedItem )
       }
   
       QString pidstr = item->text(0).stripWhiteSpace();
+// printf("pidstr=(%s)\n", pidstr.ascii() );
       // Skip any pset names...\n");
       if( isPSetName(QString(pidstr)) == TRUE )
       { // skip pset names...
         continue;
       }
       QString host_name = item->text(1).stripWhiteSpace();
+// printf("host_name=(%s)\n", host_name.ascii() );
       if( !host_name.isEmpty() && host_name.find(hostRegExp) == -1 )
       {
+// printf("NO MATCH FOR HOSTNAME!\n");
         continue;
       }
       if( lower_range >= 0 && upper_range >= 0 )
@@ -440,9 +446,11 @@ if( !selectedItem )
       {
         if( pidstr.find(pidRegExp) == -1 )
         {
+// printf("NO MATCH FOR PID!\n");
           continue;
         }
       }
+// printf("HERE: delete item=(%s)\n", item->text(0).ascii() );
       delete item;
     }
 } else
@@ -483,6 +491,7 @@ if( !selectedItem )
       }
   
       QString pidstr = item->text(0).stripWhiteSpace();
+// printf("pidstr=(%s)\n", pidstr.ascii() );
       // Skip any pset names...\n");
       if( isPSetName(QString(pidstr)) == TRUE )
       { // skip pset names...
@@ -493,6 +502,7 @@ if( !selectedItem )
       {
         continue;
       }
+// printf("host_name=(%s)\n", host_name.ascii() );
       if( lower_range >= 0 && upper_range >= 0 )
       {
         int pid = pidstr.toInt();
@@ -507,8 +517,10 @@ if( !selectedItem )
           continue;
         }
       }
+// printf(" Can you delete?\n");
       if( !item->firstChild() )
       {
+// printf("here: delete item=(%s)\n", item->text(0).ascii() );
         delete item;
       }
     }
@@ -539,12 +551,12 @@ bool
 CompareProcessesDialog::updateFocus(int _expID, MPListView *_lv )
 {
 // printf("updateFocus _expID = (%d) (%d)\n", expID, _expID );
+  lv = _lv;
   if( _expID != -1 && _expID == expID )
   {
     return FALSE;
   }
   psetNameList.clear();
-  lv = _lv;
   expID = _expID;
 
 /*
@@ -597,7 +609,7 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
     int rb_index = target_pidstr.findRev("]", dash_index);
     if( rb_index > lb_index || lb_index == -1 )
     {
-      printf("There's a RANGE!\n");
+// printf("There's a RANGE!\n");
       int length = target_pidstr.length();
       lower_rangestr = target_pidstr.left(dash_index);
       if( !lower_rangestr.isEmpty() )
@@ -756,19 +768,19 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
             }
             if( !tidstr.isEmpty() )
             {
-// printf("host_name=(%s) tidstr=(%s)\n", host_name.ascii(), tidstr.ascii() );
+// printf("A: host_name=(%s) tidstr=(%s)\n", host_name.ascii(), tidstr.ascii() );
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, tidstr  );
               dcolist->append(dco);
             } else if( !ridstr.isEmpty() )
             {
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, ridstr  );
               dcolist->append(dco);
-// printf("host_name=(%s) ridstr=(%s)\n", host_name.ascii(), ridstr.ascii() );
+// printf("B; host_name=(%s) ridstr=(%s)\n", host_name.ascii(), ridstr.ascii() );
             } else
             {
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr  );
               dcolist->append(dco);
-// printf("host_name=(%s) pidstr=(%s)\n", host_name.ascii(), pidstr.ascii() );
+// printf("C: host_name=(%s) pidstr=(%s)\n", host_name.ascii(), pidstr.ascii() );
             }
           }
         }
