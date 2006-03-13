@@ -21,7 +21,7 @@
   plugin_entry->show_immediate = 0;
   plugin_entry->plugin_description = "PLUGIN_DESCRIPTIOTN";
   plugin_entry->plugin_short_description = "Manages the IOT experiment.";
-  plugin_entry->plugin_name =  "MPIPanel.so";
+  plugin_entry->plugin_name =  "IOTPanel.so";
   plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "&File";
