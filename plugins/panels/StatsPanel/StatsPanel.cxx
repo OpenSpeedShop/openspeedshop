@@ -2278,6 +2278,7 @@ StatsPanel::collectorUserTimeReportSelected(int val)
   hwc_FLAG = FALSE;
 // printf("G: mpi_io_FLAG = %d\n", mpi_io_FLAG );
 
+#ifdef OLDWAY
 
   currentUserSelectedMetricStr = QString::null;
 
@@ -2290,6 +2291,48 @@ StatsPanel::collectorUserTimeReportSelected(int val)
 
 // printf("Collector changed call updateStatsPanelData() \n");
     updateStatsPanelData();
+
+#else // OLDWAY
+  currentUserSelectedMetricStr = QString::null;
+  collectorStrFromMenu = QString::null;
+  currentMetricStr = QString::null;
+
+  QString s = contextMenu->text(val).ascii();
+
+// printf("UserTimeReport: (%s)\n", s.ascii() );
+
+  int index = s.find("Show Metric:");
+  if( index != -1 )
+  {
+// printf("DD: NOW FIND ::\n");
+    index = s.find(":");
+    if( index > 0 )
+    { // The user selected one of the metrics
+      collectorStrFromMenu = s.mid(13, index-13 );
+      currentMetricStr = s.mid(index+2);
+      currentUserSelectedMetricStr = currentMetricStr;
+// printf("UT1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+      // This one resets to all...
+    } else 
+    { // The user wants to do all the metrics on the selected threads...
+      currentMetricStr = QString::null;
+      index = s.find(":");
+      currentUserSelectedMetricStr = s.mid(13, index-13);
+// printf("UT2: currentCollectorStr=(%s) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
+      if( currentUserSelectedMetricStr != "Show Metric: CallTrees by Selected Function" )
+      {
+        selectedFunctionStr = QString::null;
+      }
+    }
+
+// printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+
+// printf("Collector changed call updateStatsPanelData() \n");
+  }
+  updateStatsPanelData();
+#endif // OLDWAY
+
+
 }
 
 
@@ -3421,6 +3464,8 @@ StatsPanel::findSelectedFunction()
   }
 
 
+// printf("Return functionStr=(%s)\n", functionStr.stripWhiteSpace().ascii() );
+
   return( functionStr.stripWhiteSpace() );
 }
 
@@ -3617,6 +3662,20 @@ StatsPanel::generateCommand()
 // printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedMetricStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii(), currentMetricStr.ascii() );
 
 // printf("mpi_io_FLAG = %d hwc_FLAG= %d\n", mpi_io_FLAG, hwc_FLAG );
+
+if( currentCollectorStr == "usertime" && currentUserSelectedMetricStr == "Butterfly" )
+{
+  if( selectedFunctionStr.isEmpty() )
+  {
+    selectedFunctionStr = findSelectedFunction();
+  }
+  if( selectedFunctionStr.isEmpty() )
+  {
+    return( QString::null );
+  }
+  command = QString("expView -x %1 %4%2 -v Butterfly -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+// printf("USERTIME! command=(%s)\n", command.ascii() );
+} else
 
   if( ( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ))
   { 
