@@ -3672,7 +3672,7 @@ if( currentCollectorStr == "usertime" && currentUserSelectedMetricStr == "Butter
   {
     return( QString::null );
   }
-  command = QString("expView -x %1 %4%2 -v Butterfly -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+  command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
 // printf("USERTIME! command=(%s)\n", command.ascii() );
 } else
 
@@ -3709,7 +3709,7 @@ if( currentCollectorStr == "usertime" && currentUserSelectedMetricStr == "Butter
       {
         return( QString::null );
       }
-      command = QString("expView -x %1 %4%2 -v Butterfly -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+      command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else
     {
       command = QString("expView -x %1 %3%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
