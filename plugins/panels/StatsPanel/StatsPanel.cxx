@@ -3427,6 +3427,7 @@ StatsPanel::MYListViewItem( StatsPanel *arg1, SPListViewItem *arg2, SPListViewIt
 QString
 StatsPanel::findSelectedFunction()
 {
+// printf("findSelectedFunction() entered\n");
   QString functionStr = QString::null;
   QListViewItem *selected_function_item = NULL;
   QListViewItemIterator it( splv, QListViewItemIterator::Selected );
@@ -3665,10 +3666,7 @@ StatsPanel::generateCommand()
 
 if( currentCollectorStr == "usertime" && currentUserSelectedMetricStr == "Butterfly" )
 {
-  if( selectedFunctionStr.isEmpty() )
-  {
-    selectedFunctionStr = findSelectedFunction();
-  }
+  selectedFunctionStr = findSelectedFunction();
   if( selectedFunctionStr.isEmpty() )
   {
     return( QString::null );
@@ -3679,13 +3677,13 @@ if( currentCollectorStr == "usertime" && currentUserSelectedMetricStr == "Butter
 
   if( ( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ))
   { 
-// printf("It thinks we're mpi!\n");
+// printf("It thinks we're mpi | io!\n");
     if( currentUserSelectedMetricStr.isEmpty() || currentUserSelectedMetricStr == "CallTrees" )
     {
       command = QString("expView -x %1 %3%2 -v CallTrees").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
     } else if ( currentUserSelectedMetricStr == "CallTrees by Selected Function" )
     {
-      if( selectedFunctionStr.isEmpty() )
+//      if( selectedFunctionStr.isEmpty() )
       {
         selectedFunctionStr = findSelectedFunction();
       }
@@ -3702,7 +3700,7 @@ if( currentCollectorStr == "usertime" && currentUserSelectedMetricStr == "Butter
       command = QString("expView -x %1 %3%2 -v TraceBacks,FullStack").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
     } else if( currentUserSelectedMetricStr == "Butterfly" )
     {
-      if( selectedFunctionStr.isEmpty() )
+//      if( selectedFunctionStr.isEmpty() )
       {
         selectedFunctionStr = findSelectedFunction();
       }
