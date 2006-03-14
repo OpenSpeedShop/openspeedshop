@@ -3097,7 +3097,7 @@ for(int i=0;i<fieldCount;i++)
   }
 
 // printf("fieldCount=(%d)\n", fieldCount);
-// printf("currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
+// printf("currentCollectorStr=(%s) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii()  );
 
 
   QString *strings = new QString[fieldCount];
@@ -3140,7 +3140,8 @@ for(int i=0;i<fieldCount;i++)
 
   SPListViewItem *splvi;
 // printf("More Function\n");
-  if( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) )
+  if( (mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ) ||
+      (currentCollectorStr == "usertime" && currentUserSelectedMetricStr == "Butterfly" ) )
   {
     QString indentChar = ">";
 
