@@ -16,14 +16,8 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = \
-	views1 \
-	views2 \
-	views3 \
-	views4
-
-DIST_SUBDIRS = $(SUBDIRS)
-
 EXTRA_DIST = \
+	views4.tst \
+	runone \
 	runall 
 
