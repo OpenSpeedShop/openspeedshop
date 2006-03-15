@@ -16,14 +16,8 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = \
-	listexp1 \
-	listexp2 \
-	listexp3 \
-	listexp4
-
-DIST_SUBDIRS = $(SUBDIRS)
-
 EXTRA_DIST = \
+	listexp4.tst \
+	runone \
 	runall 
 
