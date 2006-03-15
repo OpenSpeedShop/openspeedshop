@@ -132,13 +132,31 @@ static int Wait_For_Exp_State (CommandObject *cmd, int to_state, ExperimentObjec
  *
  */
 static void Wait_For_Thread_Connected (CommandObject *cmd, Thread t) {
+ // Where do we send a message?
+  InputLineObject *clip = cmd->Clip();
+  CMDWID to_window = (clip != NULL) ? clip->Who() : 0;
+
+  const uint64_t sleep_interval = 10000;
+  uint64_t message_interval = sleep_interval * 500;
+  uint64_t current_interval = 0;
+  uint64_t message_count = 0;
+
   while (t.getState() == Thread::Connecting) {
    // Check for asnychonous abort command 
     if ((cmd->Status() == CMD_ERROR) ||
         (cmd->Status() == CMD_ABORTED)) {
       break;
     }
-    usleep (10000);
+    if ((to_window > 0) && (message_interval <= current_interval)) {
+      std::ostringstream S(ios::out);
+      S << "Trying to connect to thread "
+        << t.getProcessId();
+      Send_Message_To_Window ( to_window, S.ostringstream::str());
+      message_count++;
+      current_interval = 0;
+    }
+    usleep (sleep_interval);
+    current_interval += sleep_interval;
   }
 }
 
