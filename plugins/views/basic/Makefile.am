@@ -28,7 +28,19 @@ basic_view_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-message 
 
 basic_view_la_LDFLAGS = \
-	-no-undefined -module -avoid-version
+	-no-undefined \
+	-module \
+	-avoid-version \
+	-L$(top_srcdir)/libopenss-message \
+	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-queries \
+	-L$(top_srcdir)/libopenss-cli 
+
+basic_view_la_LIBADD = \
+	-lopenss-framework \
+	-lopenss-queries \
+	-lopenss-message \
+	-lopenss-cli 
 
 basic_view_la_SOURCES = \
 	basic_view.cxx
