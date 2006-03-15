@@ -195,6 +195,7 @@ def metrics_result(testName):
         nooutput = 1
         outputfilename = testName + '.output'
         outputfileptr = open(outputfilename, 'r')
+        expectedfileptr = open(testName+'.expected', 'r')
         while 1:
                 tempfileline = outputfileptr.readline()
                 if not tempfileline:
@@ -202,22 +203,31 @@ def metrics_result(testName):
                 if tempfileline[0:15] == 'The new focused':
                         nooutput = 0
                         break
-        tempfileline = outputfileptr.readline()
+	tempfileline = outputfileptr.readline()
 	if not tempfileline:
 		return 1
-        i = 0
-        while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
-                i+=1
-        if not tempfileline:
-                return 1
-        if tempfileline[0:i] == 'hwc::overflows':
-                return 0
-        else:
-                return 2
+	while 1:
+		expectedfileline = expectedfileptr.readline()
+		if not expectedfileline:
+			break
+                tempfileline = outputfileptr.readline()
+                if not tempfileline:
+                        return 1
+		j = 0
+		while (expectedfileline[j] != ' ' and expectedfileline[j] != '\n'):
+			j+=1
+		expected = expectedfileline[0:j]
+		print expected
+		
+        	i = 0
+        	while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+               		 i+=1
+        	if tempfileline[0:i] != expected:
+			print tempfileline[0:i]
+                	return 2 
+	return 0
 
 def params_result(testName):
-        nooutput = 1
-	part_one = 0
         outputfilename = testName + '.output'
         outputfileptr = open(outputfilename, 'r')
         while 1:
@@ -230,31 +240,13 @@ def params_result(testName):
 	tempfileline = outputfileptr.readline()
 	if not tempfileline:
 		return 1
-        tempfileline = outputfileptr.readline()
-	if not tempfileline:
-		return 1
         i = 0
-	if not tempfileline:
-		return 1
         while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
                 i+=1
-        if tempfileline[0:i] == 'hwc::event':
-		part_one = 1
-        else:
-                return 2
-	tempfileline = outputfileptr.readline()
-	if not tempfileline:
-		return 1
-        i = 0
-	if not tempfileline:
-		return 1
-        while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
-                i+=1
-        if tempfileline[0:i] == 'hwc::sampling_rate' and part_one == 1:
+        if tempfileline[0:i] == 'io::traced_functions':
 		return 0
         else:
                 return 2
-
 
 def status_result(testName):
         nooutput = 1
@@ -276,20 +268,15 @@ def status_result(testName):
                 i+=1
         if tempfileline[0:i] == 'Paused':
                 first_line_correct = 1
-	tempfileline = outputfileptr.readline()
-	if not tempfileline:
-		return 1
-	tempfileline = outputfileptr.readline()
-	if not tempfileline:
-		return 1
-	i = 0
-	while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
-		i +=1
-	if (tempfileline[0:i] == 'Running') and (first_line_correct == 1):
-		return 0
-	else:
-		return 2
-
+	while 1:
+		tempfileline = outputfileptr.readline()
+		if not tempfileline:
+			return 1
+		if tempfileline[0:10] == 'Terminated':
+			if first_line_correct == 1:
+				return 0
+			else:
+				return 2
 def enable_result(testName):
         nooutput = 1
         outputfilename = testName + '.output'
