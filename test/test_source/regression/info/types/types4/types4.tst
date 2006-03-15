@@ -1,3 +1,4 @@
+#!/bin/sh
 ###############################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 #
@@ -15,15 +16,8 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-
-SUBDIRS = \
-	types1 \
-	types2 \
-	types3 \
-	types4
-
-DIST_SUBDIRS = $(SUBDIRS)
-
-EXTRA_DIST = \
-	runall 
-
+rm -f input.script
+echo expCreate  -f ../../../../../executables/mutatee/io_c_version/mutatee io >> input.script
+echo list -v Types >> input.script
+echo exit >> input.script
+openss -batch < input.script
