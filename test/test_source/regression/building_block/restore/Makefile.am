@@ -16,7 +16,12 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = restore1 restore2 restore3 restore4
+SUBDIRS = \
+	restore1 \
+	restore2 \
+	restore3 \
+	restore4 \
+	restore5
 
 DIST_SUBDIRS = $(SUBDIRS)
 
