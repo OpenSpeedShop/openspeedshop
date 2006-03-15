@@ -16,14 +16,8 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = \
-	status1 \
-	status2 \
-	status3 \
-	status4
-
-DIST_SUBDIRS = $(SUBDIRS)
-
 EXTRA_DIST = \
+	status4.tst \
+	runone \
 	runall 
 
