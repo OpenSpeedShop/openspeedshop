@@ -16,14 +16,9 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = \
-	metrics1 \
-	metrics2 \
-	metrics3 \
-	metrics4
-
-DIST_SUBDIRS = $(SUBDIRS)
-
 EXTRA_DIST = \
+	metrics4.tst \
+	metrics4.tst.expected \
+	runone \
 	runall 
 
