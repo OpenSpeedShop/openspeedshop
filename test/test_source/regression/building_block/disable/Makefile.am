@@ -16,7 +16,12 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = disable1 disable2 disable3 disable4
+SUBDIRS = \
+	disable1 \
+	disable2 \
+	disable3 \
+	disable4 \
+	disable5
 
 DIST_SUBDIRS = $(SUBDIRS)
 

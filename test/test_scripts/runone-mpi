@@ -64,6 +64,17 @@ def CompareResults(testName, fileptr):
 	expectedfileptr = open(expectedfilename, 'r')
 	nooutput = 0
 	failure_reason = 3
+        if testName[0:7] == 'restore':
+                while 1:
+                        tempfileline = outputfileptr.readline()
+                        if not tempfileline:
+                                failure_reason = 3
+                                break
+                        if tempfileline[0:12] == 'The restored':
+				print 'made it here'
+                                nooutput = 0
+                                outputfileptr.readline()
+                                break
 	while 1:
 		expectedfileline = expectedfileptr.readline()
 		if not expectedfileline:
@@ -99,7 +110,7 @@ def CompareResults(testName, fileptr):
 		j = i
 		while (outputfileline[j] != ' '):
 			j +=1
-		actual_inclusive_time = atof(outputfileline[i:j])
+		#actual_inclusive_time = atof(outputfileline[i:j])
 		i = j+1	
 		while outputfileline[i]==' ':
 			i +=1

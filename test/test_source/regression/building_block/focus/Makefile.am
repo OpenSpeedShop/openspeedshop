@@ -16,7 +16,13 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = focus1 focus2 focus3 focus4
+SUBDIRS = \
+	focus1 \
+	focus2 \
+	focus3 \
+	focus4 \
+	focus5
+
 
 DIST_SUBDIRS = $(SUBDIRS)
 

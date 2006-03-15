@@ -16,7 +16,12 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = detach1 detach2 detach3 detach4
+SUBDIRS = \
+	detach1\
+	detach2\
+	detach3 \
+	detach4 \
+	detach5
 
 DIST_SUBDIRS = $(SUBDIRS)
 
