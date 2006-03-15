@@ -22,6 +22,7 @@
 
 #include "qlistview.h"
 #include <qpopupmenu.h>
+#include <qvaluevector.h>
 
 #include <qwidget.h>
 
@@ -35,18 +36,21 @@ public:
 
   ~SPListViewItem( );
 
-#ifdef LATER
-  QString key(int c, bool b) const;
-#endif // LATER
- 
-#ifdef HOLD
-  int compare( QListViewItem *i, int col, bool ascending ) const;
-#endif // HOLD
-
    StatsPanel *statsPanel;
 
-public slots:
+    void paintCell(QPainter *painter, const QColorGroup &cg,
+		       int column, int width, int align);
+    int width(const QFontMetrics &fm, const QListView *lv, int column) const;
+    
+    QFont font(uint column) const;
+    void setFont(uint column, const QFont &font);
+    QColor background(uint column) const;
+    void setBackground(uint column, const QColor &color);
+    
+  private:
+    QValueVector<QFont> fonts;
+    QValueVector<QColor> backgrounds;
 
-private:
+public slots:
 };
 #endif // SPLISTVIEWITEM_H

@@ -664,7 +664,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
       generateHWCMenu(QString(collector_name));
     } else if( QString(collector_name).startsWith("usertime") )
     {
-// printf("Generate an usertime menu (i.e. Butterfly)\n");
+// printf("Generate an usertime menu.\n");
       generateUserTimeMenu();
     } else if( QString(collector_name).startsWith("pcsamp") )
     {
@@ -1281,7 +1281,7 @@ StatsPanel::itemSelected(int index)
     {
       currentItem = (SPListViewItem *)item;
       currentItemIndex = index;
-// printf("A: currentItemIndex set to %d\n", currentItemIndex);
+//printf("A: currentItemIndex set to %d\n", currentItemIndex);
 // highlight the list item
 // Now call the action routine.
       splv->setSelected((QListViewItem *)item, TRUE);
@@ -3315,8 +3315,11 @@ if( highlight_line ) highlight_item = splvi;
 
   if( highlight_line )
   {
-// printf("Set the highlighted line!\n");
-    highlight_item->setSelected(TRUE);
+    //    highlight_item->setSelected(TRUE);
+    for( int i=0;i<fieldCount;i++)
+    {
+      highlight_item->setBackground( i, QColor("red") );
+    }
   }
 }
 
@@ -3668,6 +3671,12 @@ StatsPanel::generateCommand()
 if( currentCollectorStr == "usertime" && currentUserSelectedMetricStr == "Butterfly" )
 {
   selectedFunctionStr = findSelectedFunction();
+if( selectedFunctionStr.isEmpty() )
+{
+  bool ok = FALSE;
+// printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+  selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+}
   if( selectedFunctionStr.isEmpty() )
   {
     return( QString::null );
@@ -3705,6 +3714,12 @@ if( currentCollectorStr == "usertime" && currentUserSelectedMetricStr == "Butter
       {
         selectedFunctionStr = findSelectedFunction();
       }
+if( selectedFunctionStr.isEmpty() )
+{
+  bool ok = FALSE;
+// printf("B: NO FUNCTION SELECTED Prompt for one!\n");
+  selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+}
       if( selectedFunctionStr.isEmpty() )
       {
         return( QString::null );

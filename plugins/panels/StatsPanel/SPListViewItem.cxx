@@ -53,46 +53,65 @@ SPListViewItem::~SPListViewItem( )
   dprintf ("  SPListViewItem::~SPListViewItem( ) destructor called\n");
 }
 
-#ifdef LATER  // OLDWAY
-QString
-SPListViewItem::key(int c, bool b) const
+#include <qpainter.h>
+// This code shameless taken from:
+// http://doc.trolltech.com/qq/qq08-fancy-list-view.html#fancylistviewitems
+QFont
+SPListViewItem::font(uint column) const
 {
-  dprintf("GROWL! c=%d\n", c);
-  // Currently we only sort on column 0;
-  if( c != 0 )
-  {
-    dprintf("You shouldn't be allowed to do this!\n");
-    return QString::null;
-  }
-
-  QString s;
-  if( statsPanel->metricHeaderTypeArray[c] == INT_T )
-  {
-    /* sorting by int */
-    dprintf("sort by int\n");
-    s.sprintf("%08d",text(c).toInt());
-  } else if( statsPanel->metricHeaderTypeArray[c] == FLOAT_T )
-  {
-    dprintf("sort by float %07.2lf\n", text(c).toDouble() );
-    /* sorting by float */
-    s.sprintf("%07.2lf",text(c).toDouble());
-  } else
-  {
-    /* sorting alphanumeric */
-    dprintf("sort by alphanumeric\n");
-    s.sprintf("%s",text(c).ascii());
-  }
-    
-  return s;
+        if (column < fonts.size())
+            return fonts[column];
+        return listView()->font();
 }
-#endif // LATER  // OLDWAY
 
-#ifdef HOLD
+void
+SPListViewItem::setFont(uint column, const QFont &font)
+{
+        if (column >= fonts.size())
+            fonts.resize(column + 1, listView()->font());
+        fonts[column] = font;
+}
+
+QColor
+SPListViewItem::background(uint column) const
+{
+        if (column < backgrounds.size())
+            return backgrounds[column];
+        return listView()->colorGroup().base();
+}
+
+void
+SPListViewItem::setBackground(uint column, const QColor &color)
+{
+        if (column >= backgrounds.size())
+            backgrounds.resize(column + 1, listView()->colorGroup().base());
+        backgrounds[column] = color;
+}
+
+void
+SPListViewItem::paintCell(
+        QPainter *painter, const QColorGroup &cg,
+        int column, int width, int align)
+{
+        painter->save();
+        if (column >= 0 && column < (int)fonts.size())
+            painter->setFont(fonts[column]);
+        QColorGroup grp(cg);
+        if (column >= 0 && column < (int)backgrounds.size())
+            grp.setColor(QColorGroup::Base, backgrounds[column]);
+        QListViewItem::paintCell(painter, grp, column, width, align);
+        painter->restore();
+}
+
 int
-SPListViewItem::compare( QListViewItem *i, int col, bool ascending ) const
+SPListViewItem::width(const QFontMetrics &fm, const QListView *lv, int column) const
 {
-  printf("GRAAAAOOOOWL! %d\n", col);
-
-//  return key( col, ascending ).compare( i->key( col, ascending) );
+        int width;
+        if (column >= 0 && column < (int)fonts.size()) {
+            QFontMetrics fm2(fonts[column]);
+            width = QListViewItem::width(fm2, lv, column);
+        }
+        else
+            width = QListViewItem::width(fm, lv, column);
+        return width;
 }
-#endif // HOLD
