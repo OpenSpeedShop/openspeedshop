@@ -2626,9 +2626,17 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
 	    AddressRange range(static_cast<Address>(module.address_start()),
 			       static_cast<Address>(module.address_end()));
 
-	    // Only expand the module if it doesn't already have children
-	    if(module.child_count() == 0) {
-
+	    //
+	    // Only expand the module if its symbols are needed OR it doesn't
+	    // already have children. The first case insures that the symbol
+	    // table is always filled in properly. The second case insures that
+	    // every module has children, and thus is instrumentable, before
+	    // the process is marked as connected.
+	    //
+	    if((state->dm_symbol_tables.find(range) !=
+		state->dm_symbol_tables.end()) ||
+	       (module.child_count() == 0)) {
+		
 		// Ask DPCL to asynchronously expand this module
 		AisStatus retval = module.expand(
 		    *dm_process, expandCallback, state
