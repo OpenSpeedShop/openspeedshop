@@ -2621,40 +2621,35 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
 	// Iterate over each module associated with this process (again)
 	for(int m = 0; m < program.child_count(); ++m) {
 	    SourceObj module = program.child(m);
-	    
+
 	    // Obtain the address range occupied by the module
 	    AddressRange range(static_cast<Address>(module.address_start()),
 			       static_cast<Address>(module.address_end()));
 
-	    // Note: The following code that requests symbol information is
-	    //       complicated by the fact that we must ALWAYS request the
-	    //       function information, even when we don't intend to store
-	    //       it in the experiment database because we've received the
-	    //       same information for another process. Unfortunately this
-	    //       is required so that we have function objects in each
-	    //       process for experessing instrumentation points to DPCL.
-	    //       Statement information, on the other hand, need only be
-	    //       requested when it will actually be stored in the database.
-	    
-	    // Ask DPCL to asynchronously expand this module
-	    AisStatus retval = module.expand(
-		*dm_process, expandCallback, state
-		);
+	    // Only expand the module if it doesn't already have children
+	    if(module.child_count() == 0) {
+
+		// Ask DPCL to asynchronously expand this module
+		AisStatus retval = module.expand(
+		    *dm_process, expandCallback, state
+		    );
 #ifndef NDEBUG
-	    if(is_debug_enabled) 
-		debugDPCL("request to expand", retval);
+		if(is_debug_enabled) 
+		    debugDPCL("request to expand", retval);
 #endif
 	    
-	    // Increment the pending request count if the request succeeded
-	    if(retval.status() == ASC_success)
-		state->dm_pending_requests++;
+		// Increment the pending request count if the request succeeded
+		if(retval.status() == ASC_success)
+		    state->dm_pending_requests++;
+
+	    }
 
 	    // Only get the module's statements if its symbols are needed
 	    if(state->dm_symbol_tables.find(range) !=
 	       state->dm_symbol_tables.end()) {
 		
 		// Ask DPCL to asynchronously get this module's statements
-		retval = module.get_all_statements(
+		AisStatus retval = module.get_all_statements(
 		    *dm_process, statementsCallback, state, module
 		    );
 #ifndef NDEBUG
