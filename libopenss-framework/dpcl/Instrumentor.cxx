@@ -100,15 +100,15 @@ void Instrumentor::create(const Thread& thread,
 			  const OutputCallback stdout_cb,
 			  const OutputCallback stderr_cb)
 {
+    // Allocate a new Process object for executing this command
+    SmartPtr<Process> process =
+        SmartPtr<Process>(new Process(thread.getHost(), command,
+                                      stdout_cb, stderr_cb));
+    Assert(!process.isNull());
+
     // Critical section touching the process table
     {
 	Guard guard_process_table(ProcessTable::TheTable);
-	
-	// Allocate a new Process object for executing this command
-	SmartPtr<Process> process = 
-	    SmartPtr<Process>(new Process(thread.getHost(), command,
-					  stdout_cb, stderr_cb));
-	Assert(!process.isNull());
 	
 	// Add this process to the process table
 	ProcessTable::TheTable.addProcess(process);
@@ -204,9 +204,6 @@ void Instrumentor::changeState(const Thread& thread, const Thread::State& state)
 	    
 	    // Add this process to the process table
 	    ProcessTable::TheTable.addProcess(process);
-	    
-	    // Return to caller (Process constructor initiates state change)
-	    return;
 	    
 	}
     }

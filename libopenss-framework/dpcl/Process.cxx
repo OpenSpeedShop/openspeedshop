@@ -364,8 +364,9 @@ Process::Process(const std::string& host, const std::string& command,
 /**
  * Constructor from process attachment.
  *
- * Attaches to an existing process. The process is put into the suspended state
- * as the result of attaching.
+ * Creates a new process object for attaching to an existing process. The
+ * object is put into the disconnected state and changeState() must then be
+ * used to begin connecting to the actual process.
  *
  * @param host    Name of the host on which the process resides.
  * @param pid     Process identifier for the process.
@@ -395,11 +396,6 @@ Process::Process(const std::string& host, const pid_t& pid) :
     // Allocate a new DPCL process handle
     dm_process = new ::Process(dm_host.c_str(), dm_pid);
     Assert(dm_process != NULL);
-    
-    // Request a connection to this process
-    MainLoop::suspend();
-    requestConnect();
-    MainLoop::resume();
 }
 
 
