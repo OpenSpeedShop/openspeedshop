@@ -1030,7 +1030,9 @@ inline CommandResult *New_CommandResult (CommandResult *C) {
 }
 
 inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
-  Assert (lhs->Type() == rhs->Type());
+  if (lhs->Type() != rhs->Type()) {
+    return (lhs->Type() < rhs->Type());
+  }
   switch (lhs->Type()) {
    case CMD_RESULT_UINT:
     uint64_t Uvalue1, Uvalue2;
@@ -1106,7 +1108,9 @@ inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
 }
 
 inline bool CommandResult_gt (CommandResult *lhs, CommandResult *rhs) {
-  Assert (lhs->Type() == rhs->Type());
+  if (lhs->Type() != rhs->Type()) {
+    return (lhs->Type() > rhs->Type());
+  }
   switch (lhs->Type()) {
    case CMD_RESULT_UINT:
     uint64_t Uvalue1, Uvalue2;
