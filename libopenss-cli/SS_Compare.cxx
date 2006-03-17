@@ -55,6 +55,22 @@ struct ltCR {
         return false;
       }
     }
+    else if ((CR1->Type() == CMD_RESULT_CALLTRACE) &&
+             (CR2->Type() == CMD_RESULT_CALLTRACE)) {
+      CommandResult_CallStackEntry *lhs = (CommandResult_CallStackEntry *)CR1;
+      CommandResult_CallStackEntry *rhs = (CommandResult_CallStackEntry *)CR2;
+      SmartPtr<std::vector<CommandResult *> > ls;
+      SmartPtr<std::vector<CommandResult *> > rs;
+      lhs->Value (ls);
+      rhs->Value (rs);
+      int64_t ll = ls->size();
+      int64_t rl = rs->size();
+      int64_t lm = min(ll,rl);
+      for (int64_t i = 0; i < lm; i++) {
+        if (ltCR::ltCR() ((*ls)[i], (*rs)[i])) { return true; }
+      }
+      return (ll < rl);
+    }
     return CommandResult_lt (CR1, CR2);
   }
 };
