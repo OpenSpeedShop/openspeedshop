@@ -343,15 +343,25 @@ void OpenSpeedshop::fileOpenSavedExperiment(QString filename, bool openPanel)
   }
 }
 
-void OpenSpeedshop::fileSaveExperiment()
+void OpenSpeedshop::fileSaveExperiment(int uid)
 {
   PanelListViewItem *item = NULL;
 
-  SaveAsExperimentDialog *dialog = new SaveAsExperimentDialog(this, "Select Experiment To Save Dialog", TRUE);
+// printf("fileSaveExperiment(%d)\n", uid);
+
 
   int count = 0;
   int id = 0;
+  SaveAsExperimentDialog *dialog = new SaveAsExperimentDialog(this, "Select Experiment To Save Dialog", TRUE);
+
   item = dialog->updateAvailableExperimentList(&id, &count);
+  
+
+  if( uid > 0 )
+  {
+    count = 1;
+    id = uid;
+  }
 
   if( count == 0 )
   {
@@ -366,7 +376,7 @@ void OpenSpeedshop::fileSaveExperiment()
     expID = id;
   }
 
-  if( count > 1 )
+  if( uid == 0 && count > 1 )
   {
     if( dialog->exec() == QDialog::Accepted )
     {
@@ -376,6 +386,13 @@ void OpenSpeedshop::fileSaveExperiment()
       {
         return;
       }
+    }
+  } else if( uid > 0 ) 
+  {
+    item = dialog->findExperiment(uid);
+    if( item == NULL || expID == 0 )
+    {
+      return;
     }
   }
 
@@ -1152,7 +1169,7 @@ OpenSpeedshop::progressUpdate()
 int
 OpenSpeedshop::lookForExperiment()
 {
-//  printf("The user may have loaded an experiment... as there was something on the command line.\n");
+// printf("The user may have loaded an experiment... as there was something on the command line.\n");
 
   QString command;
   std::list<int64_t> int_list;
@@ -1270,6 +1287,8 @@ OpenSpeedshop::lookForExperiment()
   loadTimer->stop();
   delete loadTimer;
   pd->hide();
+
+// printf("return %d\n", int_list.size() );
 
   return( int_list.size() );
 }

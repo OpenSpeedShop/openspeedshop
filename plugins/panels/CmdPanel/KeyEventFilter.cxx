@@ -32,6 +32,7 @@ KeyEventFilter::KeyEventFilter(QObject *t, CmdPanel *p) : QObject(t)
 bool
 KeyEventFilter::eventFilter( QObject *o, QEvent *e)
 {
+//printf("eventFilter entered type=(%d)\n", e->type() );
   if( e->type() == QEvent::KeyPress )
   {
     if( cmdPanel->editingHistory == FALSE )
@@ -52,10 +53,12 @@ KeyEventFilter::eventFilter( QObject *o, QEvent *e)
       return TRUE;
     } else if( key_event->key() == Qt::Key_Return ) 
     {
+// #ifdef OLDWAY
       cmdPanel->positionToEnd();
       cmdPanel->returnPressed();
       cmdPanel->user_line_buffer = QString::null;
       return TRUE;
+// #endif // OLDWAY
     } else if( key_event->key() == Qt::Key_Backspace )
     {
       QString tstr = QString::null;

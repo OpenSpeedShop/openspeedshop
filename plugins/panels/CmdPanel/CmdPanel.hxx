@@ -43,6 +43,8 @@ typedef QValueList<QString> CmdHistoryList;
 class OutputClass;
 
 
+class CPTextEdit;
+
 //! The command panel that fields input from the user.
 class CmdPanel  : public Panel
 {
@@ -72,10 +74,16 @@ public:
   QString user_line_buffer;
   void returnPressed();
 
+  QString prompt;
+  QString prompt2;
+
+#ifdef OLDWAY // Move back to protected slots:
+  void clicked(int, int);
+#endif // OLDWAY
+
 protected slots:
   void menu1callback();
   void menu2callback();
-  void clicked(int, int);
 
 
 protected:

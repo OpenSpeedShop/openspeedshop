@@ -24,10 +24,10 @@
 #include <qapplication.h>
 #include <qevent.h>
 
+#include "CPTextEdit.hxx"
+
 extern char *Current_OpenSpeedShop_Prompt;
 extern char *Alternate_Current_OpenSpeedShop_Prompt;
-QString prompt = QString::null;
-QString prompt2 = QString::null;
 
 #include "SS_Input_Manager.hxx"
 
@@ -87,6 +87,9 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
 
   closingDown = FALSE;
 
+  prompt = QString::null;
+  prompt2 = QString::null;
+
   editingHistory = FALSE;
   start_history_para = 0;
   start_history_index = 0;
@@ -98,11 +101,14 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
 
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  output = new QTextEdit( getBaseWidgetFrame() );
+//  output = new QTextEdit( getBaseWidgetFrame() );
+  output = new CPTextEdit( this, getBaseWidgetFrame() );
   output->setTextFormat(PlainText);
 
+#ifdef OLDWAY
   connect( output, SIGNAL(clicked(int, int)),
            this, SLOT(clicked(int, int)) );
+#endif // OLDWAY
 
   frameLayout->addWidget(output);
 
@@ -111,6 +117,8 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
   output->setFocus();
 
   KeyEventFilter *keyEventFilter = new KeyEventFilter(output, this);
+  output->installEventFilter( keyEventFilter );
+
   output->installEventFilter( keyEventFilter );
 
   cmdHistoryListIterator = cmdHistoryList.begin();
@@ -150,26 +158,11 @@ void Default_TLI_Line_Output( InputLineObject *clip)
 }
 
 
-void
-CmdPanel::clicked(int para, int pos)
-{
-// printf("CmdPanel::clicked() para=%d pos=%d\n", para, pos);
-// printf("CmdPanel::clicked() start_history_para=%d start_history_index=%d\n", start_history_para, start_history_index);
-  if( para >= start_history_para )
-  {
-// printf("Allow editting of history\n");
-    editingHistory = TRUE;
-  } else // move to the end...
-  {
-    output->moveCursor(QTextEdit::MoveEnd, FALSE);
-  }
-}
-
 typedef QValueList<QString> CommandList;
 void
 CmdPanel::returnPressed()
 {
-  nprintf(DEBUG_PANELS)  ("CmdPanel::returnPressed()\n");
+// printf("CmdPanel::returnPressed(editingHistory=%d)\n", editingHistory);
 
   if( !user_line_buffer.stripWhiteSpace().isEmpty() )
   {
@@ -180,8 +173,8 @@ CmdPanel::returnPressed()
 
   if( editingHistory == TRUE )
   {
-// printf("history_buffer = (%s) prompt=(%s)\n", output->text(start_history_para).ascii(), prompt.ascii() );
     QString history_buffer = output->text(start_history_para);
+// printf("edittingHistory== TRUE: history_buffer = (%s) prompt=(%s)\n", output->text(start_history_para).ascii(), prompt.ascii() );
     if( history_buffer.startsWith(prompt) )
     {
       user_line_buffer = output->text(start_history_para).mid(prompt.length());
@@ -212,7 +205,7 @@ CmdPanel::returnPressed()
   QString command_with_newline = user_line_buffer + "\n";
   commandList.push_back(user_line_buffer);
 
-  nprintf(DEBUG_PANELS) ("commandList.count()=%d\n", commandList.count() );
+// printf("commandList.count()=%d\n", commandList.count() );
 
   for( CommandList::Iterator ci = commandList.begin(); ci != commandList.end(); ci++ )
   {
@@ -222,6 +215,7 @@ CmdPanel::returnPressed()
     Redirect_Window_Output( wid, oclass, oclass );
 
     InputLineObject clip;
+// printf("PUSH BACK (%s) to history.\n", command.ascii() );
     cmdHistoryList.push_back(command);
     cmdHistoryListIterator = cmdHistoryList.end();
     oclass->Set_Issue_Prompt (true);
@@ -366,7 +360,7 @@ CmdPanel::putOutPrompt()
 void
 CmdPanel::appendHistory(QString str)
 {
-// printf("appendHistory entered\n");
+// printf("appendHistory entered (%s)\n", str.ascii() );
 
   output->append(str);
 }

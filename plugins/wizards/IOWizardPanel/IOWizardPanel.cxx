@@ -159,7 +159,23 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *
 
   vParameterPageFunctionListLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageFunctionListLayout");
 
-  vParameterPageFunctionListGridLayout = new QGridLayout( vParameterPageFunctionListLayout, MAXROWS, MAXCOLUMNS, 3, "vParameterPageFunctionListGridLayout"); 
+  sv = new QScrollView( vParameterPageWidget, "scrollView" );
+  big_box_w = new QWidget(sv->viewport(), "big_box(viewport)" );
+  big_box_w->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  const QColor color = vParameterTraceCheckBox->paletteBackgroundColor();
+  sv->viewport()->setBackgroundColor(color);
+  // sv->viewport()->setPaletteBackgroundColor(color);
+  sv->addChild(big_box_w);
+  vParameterPageFunctionListLayout->addWidget( sv );
+  
+  // For debugging layout
+  // big_box_w->setBackgroundColor("Red");
+  
+  
+  QHBoxLayout *glayout = new QHBoxLayout( big_box_w, 0, 6, "glayout");
+
+
+  vParameterPageFunctionListGridLayout = new QGridLayout( glayout, MAXROWS, MAXCOLUMNS, 3, "vParameterPageFunctionListGridLayout"); 
 
   vParameterPageSpacer = new QSpacerItem( 400, 30, QSizePolicy::Preferred, QSizePolicy::Fixed );
   vParameterPageFunctionListLayout->addItem( vParameterPageSpacer );
@@ -1441,58 +1457,82 @@ IOWizardPanel::vUpdateAttachOrLoadPageWidget()
 void
 IOWizardPanel::appendFunctionsToMonitor()
 {
+  std::map<std::string, bool> function_map;
 
-std::map<std::string, bool> function_map;
-
-function_map.insert(std::make_pair("SYS_create", true));
-function_map.insert(std::make_pair("SYS_open", true));
-function_map.insert(std::make_pair("SYS_read", true));
-function_map.insert(std::make_pair("SYS_writ;", true));
-function_map.insert(std::make_pair("SYS_close", true));
-function_map.insert(std::make_pair("SYS_pipe", true));
-function_map.insert(std::make_pair("SYS_dup", true));
-function_map.insert(std::make_pair("SYS_lseek", true));
-function_map.insert(std::make_pair("SYS_pread", true));
-function_map.insert(std::make_pair("SYS_pwrite", true));
-function_map.insert(std::make_pair("SYS_readv", true));
-function_map.insert(std::make_pair("SYS_writev", true));
+  function_map.insert(std::make_pair("SYS_create", true));
+  function_map.insert(std::make_pair("SYS_open", true));
+  function_map.insert(std::make_pair("SYS_read", true));
+  function_map.insert(std::make_pair("SYS_writ;", true));
+  function_map.insert(std::make_pair("SYS_close", true));
+  function_map.insert(std::make_pair("SYS_pipe", true));
+  function_map.insert(std::make_pair("SYS_dup", true));
+  function_map.insert(std::make_pair("SYS_lseek", true));
+  function_map.insert(std::make_pair("SYS_pread", true));
+  function_map.insert(std::make_pair("SYS_pwrite", true));
+  function_map.insert(std::make_pair("SYS_readv", true));
+  function_map.insert(std::make_pair("SYS_writev", true));
 
 
-QCheckBox *vParameterPageCheckBox;
-QCheckBox *eParameterPageCheckBox;
+  QCheckBox *vParameterPageCheckBox;
+  QCheckBox *eParameterPageCheckBox;
 
-int i = 0;
-int r = 0;
-int c = 0;
-for( std::map<std::string, bool>::const_iterator it = function_map.begin();
-     it != function_map.end(); it++)
-{
-
-  vParameterPageCheckBox = new QCheckBox( vParameterPageWidget, "vParameterPageCheckBox3" );
-  vParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  vParameterPageCheckBox->setText( it->first.c_str() );
-  vParameterPageFunctionListGridLayout->addWidget( vParameterPageCheckBox, r, c );
-  vParameterPageCheckBox->setChecked(it->second);
-  vParameterPageCheckBox->setEnabled(FALSE);
-  
-  eParameterPageCheckBox = new QCheckBox( eParameterPageWidget, "eParameterPageCheckBox3" );
-  eParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  eParameterPageCheckBox->setText( it->first.c_str() );
-  eParameterPageFunctionListGridLayout->addWidget( eParameterPageCheckBox, r, c );
-  eParameterPageCheckBox->setChecked(it->second);
-  eParameterPageCheckBox->setEnabled(FALSE);
-
-  i++;
-  if( i%MAXROWS == 0 )
+  int i = 0;
+  int r = 0;
+  int c = 0;
+  for( std::map<std::string, bool>::const_iterator it = function_map.begin();
+       it != function_map.end(); it++)
   {
-    r = -1;  // It's going to be incremented by one...
-    c++;
-    if( c > MAXCOLUMNS )
+  
+    vParameterPageCheckBox = new QCheckBox( big_box_w, "vParameterPageCheckBox3" );
+    vParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+    vParameterPageCheckBox->setText( it->first.c_str() );
+    vParameterPageFunctionListGridLayout->addWidget( vParameterPageCheckBox, r, c );
+    vParameterPageCheckBox->setChecked(it->second);
+    vParameterPageCheckBox->setEnabled(FALSE);
+    
+    eParameterPageCheckBox = new QCheckBox( eParameterPageWidget, "eParameterPageCheckBox3" );
+    eParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+    eParameterPageCheckBox->setText( it->first.c_str() );
+    eParameterPageFunctionListGridLayout->addWidget( eParameterPageCheckBox, r, c );
+    eParameterPageCheckBox->setChecked(it->second);
+    eParameterPageCheckBox->setEnabled(FALSE);
+  
+    i++;
+    if( i%MAXROWS == 0 )
     {
-       fprintf(stderr, "There were over %d function entries.   Not all functions may be displayed.\n", MAXROWS*MAXCOLUMNS);
+      r = -1;  // It's going to be incremented by one...
+      c++;
+      if( c > MAXCOLUMNS )
+      {
+         fprintf(stderr, "There were over %d function entries.   Not all functions may be displayed.\n", MAXROWS*MAXCOLUMNS);
+      }
     }
+    r++;
   }
-  r++;
+
 }
 
+void
+IOWizardPanel::handleSizeEvent(QResizeEvent *e)
+{
+  int numRows = vParameterPageFunctionListGridLayout->numRows();
+  int numCols = vParameterPageFunctionListGridLayout->numCols();
+
+// printf("numRows()=(%d) numCols=(%d)\n", vParameterPageFunctionListGridLayout->numRows(), vParameterPageFunctionListGridLayout->numCols() );
+
+  int calculated_height = 0;
+  int calculated_width = 0;
+
+  // I know I've only 2 columns...
+  QRect rect = vParameterPageFunctionListGridLayout->cellGeometry( 0, 0);
+  calculated_width += rect.width();
+  rect = vParameterPageFunctionListGridLayout->cellGeometry( 0, 1);
+  calculated_width += rect.width();
+
+  // override the calculated_height
+  calculated_height = (vParameterTraceCheckBox->height()+ 6) * numRows;
+// printf("calculated_height=(%d)\n", (vParameterTraceCheckBox->height()+ 6) * numRows );
+
+
+  big_box_w->resize(calculated_width,calculated_height);
 }

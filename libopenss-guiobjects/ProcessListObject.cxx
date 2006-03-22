@@ -401,55 +401,54 @@ ProcessListObject::extract_ps_list ( char *host, FILE *input, int *count, int /*
 void
 ProcessListObject::createProcList(const char *command, char *host)
 {
-    int new_pid = -1;
-	int child_pid;
+  int new_pid = -1;
+  int child_pid;
 
-    char arg0[255];
-    char **ps_args_buf = NULL;
-    int _proc_count = 0;
-    char *login = getlogin();
+  char arg0[255];
+  char **ps_args_buf = NULL;
+  int _proc_count = 0;
+  char *login = getlogin();
   
+  if( login == NULL )
+  {
+    login = getenv("LOGNAME");
+  }
 
-    if( login == NULL )
-    {
-      login = getenv("LOGNAME");
-    }
+  char *ps_command = "/bin/ps";
+  char local_command[255];
+  int in_fd = 0;
 
-	char *ps_command = "/bin/ps";
-    char local_command[255];
-    int in_fd = 0;
-
-    if( strcmp(host, "localhost") == 0 )
-    {
+  if( strcmp(host, "localhost") == 0 )
+  {
 // printf("login=%s\n", login);
-      strcpy(local_command, ps_command);
-      sprintf(arg0, "-lu%s", login );
-      in_fd = do_ps_cmd ( local_command, arg0, &child_pid );
-    } else
-    {
-char arg1[255];
-char arg2[255];
-      strcpy(local_command, command);
-sprintf(arg0, "%s", host);
-sprintf(arg1, "%s", ps_command);
-sprintf(arg2, "-lu%s", login );
-      in_fd = do_ps_cmd ( local_command, arg0, arg1, arg2, &child_pid );
-    }
+    strcpy(local_command, ps_command);
+    sprintf(arg0, "-lu%s", login );
+    in_fd = do_ps_cmd ( local_command, arg0, &child_pid );
+  } else
+  {
+    char arg1[255];
+    char arg2[255];
+    strcpy(local_command, command);
+    sprintf(arg0, "%s", host);
+    sprintf(arg1, "%s", ps_command);
+    sprintf(arg2, "-lu%s", login );
+    in_fd = do_ps_cmd ( local_command, arg0, arg1, arg2, &child_pid );
+  }
 nprintf( DEBUG_PANELS ) ("local_command=(%s)\n", local_command);
 
 
-    if (in_fd < 0)
-    {
-      return;
-    }
+  if (in_fd < 0)
+  {
+    return;
+  }
 
-	FILE *input_stuff = fdopen(in_fd, "r");
-	extract_ps_list ( host, input_stuff, &_proc_count, new_pid );
+  FILE *input_stuff = fdopen(in_fd, "r");
+  extract_ps_list ( host, input_stuff, &_proc_count, new_pid );
 
-	fclose (input_stuff);
-	close (in_fd);
+  fclose (input_stuff);
+  close (in_fd);
 
-	return;
+  return;
 }
 
 

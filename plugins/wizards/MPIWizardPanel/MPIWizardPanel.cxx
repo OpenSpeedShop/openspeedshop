@@ -54,6 +54,8 @@
 #include "rightarrow.xpm"
 #include "leftarrow.xpm"
 
+#include <qrect.h>
+
 #include "LoadAttachObject.hxx"
 
 #include "MPIDescription.hxx"
@@ -159,9 +161,25 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
 
   vParameterPageFunctionListLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageFunctionListLayout");
 
-  vParameterPageFunctionListGridLayout = new QGridLayout( vParameterPageFunctionListLayout, MAXROWS, MAXCOLUMNS, 3, "vParameterPageFunctionListGridLayout"); 
+  sv = new QScrollView( vParameterPageWidget, "scrollView" );
+  big_box_w = new QWidget(sv->viewport(), "big_box(viewport)" );
+  big_box_w->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  const QColor color = vParameterTraceCheckBox->paletteBackgroundColor();
+  sv->viewport()->setBackgroundColor(color);
+  // sv->viewport()->setPaletteBackgroundColor(color);
+  sv->addChild(big_box_w);
+  vParameterPageFunctionListLayout->addWidget( sv );
 
-  vParameterPageSpacer = new QSpacerItem( 400, 30, QSizePolicy::Preferred, QSizePolicy::Fixed );
+  // For debugging layout
+  // big_box_w->setBackgroundColor("Red");
+
+
+  QHBoxLayout *glayout = new QHBoxLayout( big_box_w, 0, 6, "glayout");
+
+  vParameterPageFunctionListGridLayout = new QGridLayout( glayout, MAXROWS, MAXCOLUMNS, 3, "vParameterPageFunctionListGridLayout"); 
+
+//  vParameterPageSpacer = new QSpacerItem( 400, 30, QSizePolicy::Preferred, QSizePolicy::Fixed );
+  vParameterPageSpacer = new QSpacerItem( 400, 30, QSizePolicy::Preferred, QSizePolicy::Expanding );
   vParameterPageFunctionListLayout->addItem( vParameterPageSpacer );
 
   vParameterPageParameterLayout->addLayout( vParameterPageFunctionListLayout );
@@ -1444,91 +1462,130 @@ MPIWizardPanel::vUpdateAttachOrLoadPageWidget()
 void
 MPIWizardPanel::appendFunctionsToMonitor()
 {
+  std::map<std::string, bool> function_map;
 
-std::map<std::string, bool> function_map;
+  std::string str = "MPI_Allgather";
 
-std::string str = "MPI_Allgather";
-
-// function_map.insert(std::make_pair(str, true));
-function_map.insert(std::make_pair("MPI_Allgather", true));
-function_map.insert(std::make_pair("MPI_Allgatherv", true));
-function_map.insert(std::make_pair("MPI_Allreduce", true));
-function_map.insert(std::make_pair("MPI_Alltoall", true));
-function_map.insert(std::make_pair("MPI_Alltoallv", true));
-function_map.insert(std::make_pair("MPI_Barrier", true));
-function_map.insert(std::make_pair("MPI_Bcast", true));
-function_map.insert(std::make_pair("MPI_Bsend", true));
-function_map.insert(std::make_pair("MPI_Cancel", true));
-function_map.insert(std::make_pair("MPI_Finalize", true));
-function_map.insert(std::make_pair("MPI_Gather", true));
-function_map.insert(std::make_pair("MPI_Gatherv", true));
-function_map.insert(std::make_pair("MPI_Get_count", true));
-function_map.insert(std::make_pair("MPI_Ibsend", true));
-function_map.insert(std::make_pair("MPI_Init", true));
-function_map.insert(std::make_pair("MPI_Irecv", true));
-function_map.insert(std::make_pair("MPI_Irsend", true));
-function_map.insert(std::make_pair("MPI_Isend", true));
-function_map.insert(std::make_pair("MPI_Issend", true));
-function_map.insert(std::make_pair("MPI_Pack", true));
-function_map.insert(std::make_pair("MPI_Probe", true));
-function_map.insert(std::make_pair("MPI_Recv", true));
-function_map.insert(std::make_pair("MPI_Reduce", true));
-function_map.insert(std::make_pair("MPI_Reduce_scatter", true));
-function_map.insert(std::make_pair("MPI_Request_free", true));
-function_map.insert(std::make_pair("MPI_Rsend", true));
-function_map.insert(std::make_pair("MPI_Scan", true));
-function_map.insert(std::make_pair("MPI_Scatter", true));
-function_map.insert(std::make_pair("MPI_Scatterv", true));
-function_map.insert(std::make_pair("MPI_Send", true));
-function_map.insert(std::make_pair("MPI_Sendrecv", true));
-function_map.insert(std::make_pair("MPI_Sendrecv_replace", true));
-function_map.insert(std::make_pair("MPI_Ssend", true));
-function_map.insert(std::make_pair("MPI_Test", true));
-function_map.insert(std::make_pair("MPI_Testall", true));
-function_map.insert(std::make_pair("MPI_Testany", true));
-function_map.insert(std::make_pair("MPI_Testsome", true));
-function_map.insert(std::make_pair("MPI_Unpack", true));
-function_map.insert(std::make_pair("MPI_Wait", true));
-function_map.insert(std::make_pair("MPI_Waitall", true));
-function_map.insert(std::make_pair("MPI_Waitany", true));
-function_map.insert(std::make_pair("MPI_Waitsome", true));
+  // function_map.insert(std::make_pair(str, true));
+  function_map.insert(std::make_pair("MPI_Allgather", true));
+  function_map.insert(std::make_pair("MPI_Allgatherv", true));
+  function_map.insert(std::make_pair("MPI_Allreduce", true));
+  function_map.insert(std::make_pair("MPI_Alltoall", true));
+  function_map.insert(std::make_pair("MPI_Alltoallv", true));
+  function_map.insert(std::make_pair("MPI_Barrier", true));
+  function_map.insert(std::make_pair("MPI_Bcast", true));
+  function_map.insert(std::make_pair("MPI_Bsend", true));
+  function_map.insert(std::make_pair("MPI_Cancel", true));
+  function_map.insert(std::make_pair("MPI_Finalize", true));
+  function_map.insert(std::make_pair("MPI_Gather", true));
+  function_map.insert(std::make_pair("MPI_Gatherv", true));
+  function_map.insert(std::make_pair("MPI_Get_count", true));
+  function_map.insert(std::make_pair("MPI_Ibsend", true));
+  function_map.insert(std::make_pair("MPI_Init", true));
+  function_map.insert(std::make_pair("MPI_Irecv", true));
+  function_map.insert(std::make_pair("MPI_Irsend", true));
+  function_map.insert(std::make_pair("MPI_Isend", true));
+  function_map.insert(std::make_pair("MPI_Issend", true));
+  function_map.insert(std::make_pair("MPI_Pack", true));
+  function_map.insert(std::make_pair("MPI_Probe", true));
+  function_map.insert(std::make_pair("MPI_Recv", true));
+  function_map.insert(std::make_pair("MPI_Reduce", true));
+  function_map.insert(std::make_pair("MPI_Reduce_scatter", true));
+  function_map.insert(std::make_pair("MPI_Request_free", true));
+  function_map.insert(std::make_pair("MPI_Rsend", true));
+  function_map.insert(std::make_pair("MPI_Scan", true));
+  function_map.insert(std::make_pair("MPI_Scatter", true));
+  function_map.insert(std::make_pair("MPI_Scatterv", true));
+  function_map.insert(std::make_pair("MPI_Send", true));
+  function_map.insert(std::make_pair("MPI_Sendrecv", true));
+  function_map.insert(std::make_pair("MPI_Sendrecv_replace", true));
+  function_map.insert(std::make_pair("MPI_Ssend", true));
+  function_map.insert(std::make_pair("MPI_Test", true));
+  function_map.insert(std::make_pair("MPI_Testall", true));
+  function_map.insert(std::make_pair("MPI_Testany", true));
+  function_map.insert(std::make_pair("MPI_Testsome", true));
+  function_map.insert(std::make_pair("MPI_Unpack", true));
+  function_map.insert(std::make_pair("MPI_Wait", true));
+  function_map.insert(std::make_pair("MPI_Waitall", true));
+  function_map.insert(std::make_pair("MPI_Waitany", true));
+  function_map.insert(std::make_pair("MPI_Waitsome", true));
 
 
-QCheckBox *vParameterPageCheckBox;
-QCheckBox *eParameterPageCheckBox;
-
-int i = 0;
-int r = 0;
-int c = 0;
-for( std::map<std::string, bool>::const_iterator it = function_map.begin();
-     it != function_map.end(); it++)
-{
-
-  vParameterPageCheckBox = new QCheckBox( vParameterPageWidget, "vParameterPageCheckBox3" );
-  vParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  vParameterPageCheckBox->setText( it->first.c_str() );
-  vParameterPageFunctionListGridLayout->addWidget( vParameterPageCheckBox, r, c );
-  vParameterPageCheckBox->setChecked(it->second);
-  vParameterPageCheckBox->setEnabled(FALSE);
+  QCheckBox *vParameterPageCheckBox;
+  QCheckBox *eParameterPageCheckBox;
   
-  eParameterPageCheckBox = new QCheckBox( eParameterPageWidget, "eParameterPageCheckBox3" );
-  eParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  eParameterPageCheckBox->setText( it->first.c_str() );
-  eParameterPageFunctionListGridLayout->addWidget( eParameterPageCheckBox, r, c );
-  eParameterPageCheckBox->setChecked(it->second);
-  eParameterPageCheckBox->setEnabled(FALSE);
-
-  i++;
-  if( i%MAXROWS == 0 )
+  int i = 0;
+  int r = 0;
+  int c = 0;
+  for( std::map<std::string, bool>::const_iterator it = function_map.begin();
+       it != function_map.end(); it++)
   {
-    r = -1;  // It's going to be incremented by one...
-    c++;
-    if( c > MAXCOLUMNS )
+
+//  vParameterPageCheckBox = new QCheckBox( vParameterPageWidget, "vParameterPageCheckBox3" );
+    vParameterPageCheckBox = new QCheckBox( big_box_w, "vParameterPageCheckBox3" );
+    vParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+    vParameterPageCheckBox->setText( it->first.c_str() );
+    vParameterPageFunctionListGridLayout->addWidget( vParameterPageCheckBox, r, c );
+    vParameterPageCheckBox->setChecked(it->second);
+    vParameterPageCheckBox->setEnabled(FALSE);
+    
+    eParameterPageCheckBox = new QCheckBox( eParameterPageWidget, "eParameterPageCheckBox3" );
+    eParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+    eParameterPageCheckBox->setText( it->first.c_str() );
+    eParameterPageFunctionListGridLayout->addWidget( eParameterPageCheckBox, r, c );
+    eParameterPageCheckBox->setChecked(it->second);
+    eParameterPageCheckBox->setEnabled(FALSE);
+
+    i++;
+    if( i%MAXROWS == 0 )
     {
-       fprintf(stderr, "There were over %d function entries.   Not all functions may be displayed.\n", MAXROWS*MAXCOLUMNS);
+      r = -1;  // It's going to be incremented by one...
+      c++;
+      if( c > MAXCOLUMNS )
+      {
+         fprintf(stderr, "There were over %d function entries.   Not all functions may be displayed.\n", MAXROWS*MAXCOLUMNS);
+      }
     }
+    r++;
   }
-  r++;
+
 }
 
+
+
+void
+MPIWizardPanel::handleSizeEvent(QResizeEvent *e)
+{
+  int numRows = vParameterPageFunctionListGridLayout->numRows();
+  int numCols = vParameterPageFunctionListGridLayout->numCols();
+
+// printf("numRows()=(%d) numCols=(%d)\n", vParameterPageFunctionListGridLayout->numRows(), vParameterPageFunctionListGridLayout->numCols() );
+
+  int calculated_height = 0;
+  int calculated_width = 0;
+
+// I know we only have 6 rows...
+  QRect rect = vParameterPageFunctionListGridLayout->cellGeometry( 0, 0);
+  calculated_width += rect.width();
+  rect = vParameterPageFunctionListGridLayout->cellGeometry( 0, 1);
+  calculated_width += rect.width();
+  rect = vParameterPageFunctionListGridLayout->cellGeometry( 0, 2);
+  calculated_width += rect.width();
+  rect = vParameterPageFunctionListGridLayout->cellGeometry( 0, 3);
+  calculated_width += rect.width();
+  rect = vParameterPageFunctionListGridLayout->cellGeometry( 0, 4);
+  calculated_width += rect.width();
+  rect = vParameterPageFunctionListGridLayout->cellGeometry( 0, 5);
+  calculated_width += rect.width();
+// printf("rect.width=(%d) rect.height=(%d)\n", rect.width(), rect.height() );
+  // Add in some margin material.
+  calculated_width += 12;
+// printf("height=(%d) width=%d\n", calculated_height, calculated_width );
+
+  // override the calculated_height
+  calculated_height = (vParameterTraceCheckBox->height()+ 6) * numRows;
+// printf("calculated_height=(%d)\n", (vParameterTraceCheckBox->height()+ 6) * numRows );
+
+
+  big_box_w->resize(calculated_width,calculated_height);
 }

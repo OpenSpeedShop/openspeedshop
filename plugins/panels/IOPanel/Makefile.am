@@ -46,10 +46,11 @@ IOPanel_la_LDFLAGS = \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-guidialogs \
+	-L$(top_srcdir)/plugins/panels/CustomExperimentPanel \
 	$(QTLIB_LIBS) $(QTLIB_LDFLAGS) \
 	-ldl
 
-IOPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs
+IOPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs  -lopenss-CustomExperimentPanel
 
 IOPanel_la_SOURCES = \
 	IOPanel.hxx IOPanel.cxx \

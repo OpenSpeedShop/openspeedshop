@@ -41,6 +41,7 @@ class QComboBox;
 class QListView;
 class QListViewItem;
 class QRadioButton;
+class QCheckBox;
 class QSplitter;
 class QSettings;
 
@@ -62,7 +63,7 @@ public:
     QComboBox * attachHostComboBox;
     QListView* availableProcessListView;
     QListView* exclusionInclusionList;
-    QRadioButton *mpiRB;
+    QCheckBox *mpiCB;
     QRadioButton *inclusionRB;
     QRadioButton *exclusionRB;
 

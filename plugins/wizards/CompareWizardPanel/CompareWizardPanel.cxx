@@ -50,6 +50,7 @@
 #include <qfiledialog.h>  // For the file dialog box.
 #include <qmessagebox.h>
 #include <qscrollview.h>
+#include <qvbox.h>
 #include <qdir.h>
 #include <qfileinfo.h>
 
@@ -114,13 +115,6 @@ CompareWizardPanel::CompareWizardPanel(PanelContainer *pc, const char *n, Argume
 
   vDescriptionPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vDescriptionPageButtonLayout"); 
 
-  vwizardMode = new QCheckBox( vDescriptionPageWidget, "vwizardMode" );
-  vwizardMode->setMinimumSize( QSize(10,10) );
-  vwizardMode->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  vwizardMode->setChecked( TRUE );
-  vDescriptionPageButtonLayout->addWidget( vwizardMode );
-vwizardMode->hide();
-
   vDescriptionPageButtonSpacer = new QSpacerItem( 1, 10, QSizePolicy::Expanding, QSizePolicy::Fixed );
   vDescriptionPageButtonLayout->addItem( vDescriptionPageButtonSpacer );
 
@@ -132,83 +126,16 @@ vwizardMode->hide();
   vDescriptionPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vDescriptionPageNextButton->sizePolicy().hasHeightForWidth() ) );
   vDescriptionPageButtonLayout->addWidget( vDescriptionPageNextButton );
 
-#ifdef OLDWAY
-  vDescriptionPageFinishButton = new QPushButton( vDescriptionPageWidget, "vDescriptionPageFinishButton" );
-  vDescriptionPageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vDescriptionPageFinishButton->sizePolicy().hasHeightForWidth() ) );
-  vDescriptionPageButtonLayout->addWidget( vDescriptionPageFinishButton );
-#endif // OLDWAY
-
   vDescriptionPageLayout->addLayout( vDescriptionPageButtonLayout );
   mainWidgetStack->addWidget( vDescriptionPageWidget, 0 );
 // End: verbose description page
 
-// Begin: verbose mode page
-  vModePageWidget = new QWidget( mainWidgetStack, "vModePageWidget" );
-  vModePageWidget->setMinimumSize( QSize(10,10) );
-  vModePageLayout = new QVBoxLayout( vModePageWidget, 11, 6, "vModePageLayout"); 
-
-  vModePageDescriptionText = new QTextEdit( vModePageWidget, "vModePageDescriptionText" );
-  vModePageDescriptionText->setMinimumSize( QSize(10,10) );
-
-  vModePageDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
-  vModePageDescriptionText->setMinimumSize( QSize(10,10) );
-  vModePageDescriptionText->setWordWrap( QTextEdit::WidgetWidth );
-  vModePageLayout->addWidget( vModePageDescriptionText );
 
 
-  vModePageLine = new QFrame( vModePageWidget, "vModePageLine" );
-  vModePageLine->setMinimumSize( QSize(10,10) );
-  vModePageLine->setFrameShape( QFrame::HLine );
-  vModePageLine->setFrameShadow( QFrame::Sunken );
-  vModePageLine->setFrameShape( QFrame::HLine );
-  vModePageLayout->addWidget( vModePageLine );
-
-  vParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageParameterLayout"); 
-
-  vModeHeaderLabel = new QLabel( vModePageWidget, "vModeHeaderLabel" );
-  vModeHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  vParameterPageParameterLayout->addWidget( vModeHeaderLabel );
-
-  vParameterPageFunctionListLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageFunctionListLayout");
-
-
-  vpage1LoadExperimentCheckBox = new QCheckBox( vModePageWidget, "vpage1LoadExperimentCheckBox" );
-  vParameterPageFunctionListLayout->addWidget( vpage1LoadExperimentCheckBox );
-  vpage1LoadExperimentCheckBox->setText( tr( "I already have experiment data and would like to analyze it." ) );
-  vpage1LoadExperimentCheckBox->setChecked( TRUE );
-  
-  vpage1Load2ExperimentsCheckBox = new QCheckBox( vModePageWidget, "vpage1Load2ExperimentsCheckBox" );
-  vParameterPageFunctionListLayout->addWidget( vpage1Load2ExperimentsCheckBox );
-  vpage1Load2ExperimentsCheckBox->setText( tr( "I have data in 2 experiment files that I'd like to compare to each other." ) );
-  
-
-  vParameterPageParameterLayout->addLayout( vParameterPageFunctionListLayout );
-  vModePageLayout->addLayout( vParameterPageParameterLayout );
-
-  vParameterPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vParameterPageButtonLayout"); 
-
-  vParameterPageButtonSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-  vParameterPageButtonLayout->addItem( vParameterPageButtonSpacer );
-  vModePageBackButton = new QPushButton( vModePageWidget, "vModePageBackButton" );
-  vModePageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vModePageBackButton->sizePolicy().hasHeightForWidth() ) );
-  vParameterPageButtonLayout->addWidget( vModePageBackButton );
-
-  vModePageNextButton = new QPushButton( vModePageWidget, "vModePageNextButton" );
-  vModePageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vModePageNextButton->sizePolicy().hasHeightForWidth() ) );
-  vParameterPageButtonLayout->addWidget( vModePageNextButton );
-
-  vParameterPageFinishButton = new QPushButton( vModePageWidget, "vParameterPageFinishButton" );
-  vParameterPageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageFinishButton->sizePolicy().hasHeightForWidth() ) );
-  vParameterPageButtonLayout->addWidget( vParameterPageFinishButton );
-
-  vModePageLayout->addLayout( vParameterPageButtonLayout );
-  mainWidgetStack->addWidget( vModePageWidget, 1 );
-// End: verbose parameter page
-
-// Begin: AttachOrLoad page
   vAttachOrLoadPageWidget = new QWidget( mainWidgetStack, "vAttachOrLoadPageWidget" );
   vAttachOrLoadPageWidget->setMinimumSize( QSize(10,10) );
   vAttachOrLoadPageWidget->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Preferred, 0, 0, FALSE ) );
+
 
   vAttachOrLoadPageLayout = new QVBoxLayout( vAttachOrLoadPageWidget, 11, 6, "vAttachOrLoadPageLayout"); 
 
@@ -225,33 +152,52 @@ vwizardMode->hide();
   vAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
   vAttachOrLoadPageLayout->addWidget( vAttachOrLoadPageLine );
 
-  vAttachOrLoadPageAttachOrLoadLayout = new QHBoxLayout( 0, 0, 6, "vAttachOrLoadPageAttachOrLoadLayout"); 
+// Begin: AttachOrLoad page
+  sv = new QScrollView( vAttachOrLoadPageWidget, "scrollView" );
+  big_box_w = new QWidget(sv->viewport(), "big_box(viewport)" );
+big_box_w->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  const QColor color = mainFrame->paletteBackgroundColor();
+  sv->viewport()->setBackgroundColor(color);
+// sv->viewport()->setPaletteBackgroundColor(color);
+  sv->addChild(big_box_w);
+  vAttachOrLoadPageLayout->addWidget( sv );
+
+// For debugging layout
+// big_box_w->setBackgroundColor("Red");
+
+  vAttachOrLoadPageAttachOrLoadLayout = new QHBoxLayout( big_box_w, 0, 6, "vAttachOrLoadPageAttachOrLoadLayout"); 
 
 // Begin LS
 {
-QDir *leftSideDir = new QDir( leftSideDirName, "*.openss" );
-QFileInfoList *leftSideFileList = (QFileInfoList*)(leftSideDir->entryInfoList());
+  QDir *leftSideDir = new QDir( leftSideDirName, "*.openss" );
+  QFileInfoList *leftSideFileList = (QFileInfoList*)(leftSideDir->entryInfoList());
 
   QVBoxLayout *leftSideLayout = new QVBoxLayout( vAttachOrLoadPageAttachOrLoadLayout, 1, "leftSideLayout");
 
-  vAttachOrLoadPageProcessListLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageProcessListLabel" );
-  vAttachOrLoadPageProcessListLabel->setText("Select first experiment file:");
-  vAttachOrLoadPageProcessListLabel->setMinimumSize( QSize(10,10) );
-  vAttachOrLoadPageProcessListLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-  leftSideLayout->addWidget( vAttachOrLoadPageProcessListLabel );
+  QHBoxLayout *leftSideLabelLayout = new QHBoxLayout( leftSideLayout, 1, "leftSideLabelLayout");
+  QSpacerItem *spacer1 = new QSpacerItem(5,5, QSizePolicy::Fixed, QSizePolicy::Fixed);
+  leftSideLabelLayout->addItem(spacer1);
+  leftSideExperimentLabel = new QLabel( big_box_w, "leftSideExperimentLabel" );
+  leftSideExperimentLabel->setText("Select first experiment file:");
+  leftSideExperimentLabel->setMinimumSize( QSize(10,10) );
+  leftSideExperimentLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  leftSideLabelLayout->addWidget( leftSideExperimentLabel );
+QSpacerItem *spacer3 = new QSpacerItem(20,20, QSizePolicy::Preferred, QSizePolicy::Fixed);
+leftSideLabelLayout->addItem( spacer3 );
 
 
   QHBoxLayout *leftSideExperimentComboBoxLayout = new QHBoxLayout( leftSideLayout, 1, "leftSideExperimentComboBoxLayout");
 
- QLabel *cbl = new QLabel(vAttachOrLoadPageWidget, "experimentComboBoxLabel");
- cbl->setText( tr("Available Experiments:") );
- cbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
- QToolTip::add(cbl, tr("Select the first experiment that you want\nto use in the comparison.") );
- leftSideExperimentComboBoxLayout->addWidget(cbl);
+QSpacerItem *spacer2 = new QSpacerItem(5,5, QSizePolicy::Fixed, QSizePolicy::Fixed);
+leftSideExperimentComboBoxLayout->addItem(spacer2);
+  ls_cbl = new QLabel(big_box_w, "experimentComboBoxLabel");
+  ls_cbl->setText( tr("Available Experiments:") );
+  ls_cbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  QToolTip::add(ls_cbl, tr("Select the first experiment that you want\nto use in the comparison.") );
+  leftSideExperimentComboBoxLayout->addWidget(ls_cbl);
 
-  leftSideExperimentComboBox = new QComboBox(FALSE, vAttachOrLoadPageWidget, "leftSideExperimentComboBox");
- leftSideExperimentComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-//  connect( leftSideExperimentComboBox, SIGNAL( activated(const QString &) ), this, SLOT( changeExperiment( const QString & ) ) );
+  leftSideExperimentComboBox = new QComboBox(FALSE, big_box_w, "leftSideExperimentComboBox");
+ leftSideExperimentComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
   QToolTip::add(leftSideExperimentComboBox, tr("Select the first experiment that you want\nto use in the comparison.") );
   leftSideExperimentComboBoxLayout->addWidget(leftSideExperimentComboBox);
@@ -269,41 +215,55 @@ QFileInfoList *leftSideFileList = (QFileInfoList*)(leftSideDir->entryInfoList())
     }
   }
 
-  QPushButton *leftSideExperimentDirButton = new QPushButton(vAttachOrLoadPageWidget, "leftSideExperimentDirButton");
+  leftSideExperimentDirButton = new QPushButton(big_box_w, "leftSideExperimentDirButton");
   leftSideExperimentDirButton->setPixmap(folder_xpm);
-  // leftSideExperimentDirButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   leftSideExperimentDirButton->setMinimumSize( QSize(22, 18) );
   leftSideExperimentDirButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   leftSideExperimentDirButton->resize(22,18);
   connect( leftSideExperimentDirButton, SIGNAL( clicked() ), this, SLOT( leftSideExperimentDirButtonSelected() ) );
   leftSideExperimentComboBoxLayout->addWidget(leftSideExperimentDirButton);
 
+  QSpacerItem *spacer4 = new QSpacerItem(1,1, QSizePolicy::Fixed, QSizePolicy::Expanding);
+  leftSideLayout->addItem( spacer4 );
+
+  QSpacerItem *spacer41 = new QSpacerItem(1,1, QSizePolicy::Fixed, QSizePolicy::Expanding);
+  leftSideLabelLayout->addItem( spacer41 );
 }
 // End LS
 
 
 // Begin RS
-QDir *rightSideDir = new QDir( rightSideDirName, "*.openss" );
-QFileInfoList *rightSideFileList = (QFileInfoList*)(rightSideDir->entryInfoList());
-  QVBoxLayout *rightSideLayout = new QVBoxLayout( vAttachOrLoadPageAttachOrLoadLayout, 1, "leftSideLayout");
+{
+  QDir *rightSideDir = new QDir( rightSideDirName, "*.openss" );
+  QFileInfoList *rightSideFileList = (QFileInfoList*)(rightSideDir->entryInfoList());
 
-  vAttachOrLoadPageExecutableLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageExecutableLabel" );
-vAttachOrLoadPageExecutableLabel->setText("Select second experiment file:");
-    vAttachOrLoadPageExecutableLabel->setMinimumSize( QSize(10,10) );
-  vAttachOrLoadPageExecutableLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-  rightSideLayout->addWidget( vAttachOrLoadPageExecutableLabel );
+  QVBoxLayout *rightSideLayout = new QVBoxLayout( vAttachOrLoadPageAttachOrLoadLayout, 1, "rightSideLayout");
+
+  QHBoxLayout *rightSideLabelLayout = new QHBoxLayout( rightSideLayout, 1, "rightSideLabelLayout");
+  QSpacerItem *spacer11 = new QSpacerItem(5,5, QSizePolicy::Fixed, QSizePolicy::Fixed);
+  rightSideLabelLayout->addItem(spacer11);
+
+  rightSideExperimentLabel = new QLabel( big_box_w, "rightSideExperimentLabel" );
+  rightSideExperimentLabel->setText("Select second experiment file:");
+  rightSideExperimentLabel->setMinimumSize( QSize(10,10) );
+  rightSideExperimentLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  rightSideLabelLayout->addWidget( rightSideExperimentLabel );
+
+  QSpacerItem *spacer12 = new QSpacerItem(5,5, QSizePolicy::Expanding, QSizePolicy::Fixed);
+  rightSideLabelLayout->addItem(spacer12);
+
 
   {
   QHBoxLayout *rightSideExperimentComboBoxLayout = new QHBoxLayout( rightSideLayout, 1, "rightSideExperimentComboBoxLayout");
 
- QLabel *cbl = new QLabel(vAttachOrLoadPageWidget, "rightSideExperimentComboBoxLabel");
- cbl->setText( tr("Available Experiments:") );
- cbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
- QToolTip::add(cbl, tr("Select the first experiment that you want\nto use in the comparison.") );
- rightSideExperimentComboBoxLayout->addWidget(cbl);
+  rs_cbl = new QLabel(big_box_w, "rightSideExperimentComboBoxLabel");
+  rs_cbl->setText( tr("Available Experiments:") );
+  rs_cbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  QToolTip::add(rs_cbl, tr("Select the first experiment that you want\nto use in the comparison.") );
+  rightSideExperimentComboBoxLayout->addWidget(rs_cbl);
 
-  rightSideExperimentComboBox = new QComboBox(FALSE, vAttachOrLoadPageWidget, "rightSideExperimentComboBox");
- rightSideExperimentComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+  rightSideExperimentComboBox = new QComboBox(FALSE, big_box_w, "rightSideExperimentComboBox");
+ rightSideExperimentComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
   QToolTip::add(rightSideExperimentComboBox, tr("Select the first experiment that you want\nto use in the comparison.") );
   rightSideExperimentComboBoxLayout->addWidget(rightSideExperimentComboBox);
@@ -320,7 +280,7 @@ vAttachOrLoadPageExecutableLabel->setText("Select second experiment file:");
       }
     }
   }
-  QPushButton *rightSideExperimentDirButton = new QPushButton(vAttachOrLoadPageWidget, "rightSideExperimentDirButton");
+  rightSideExperimentDirButton = new QPushButton(big_box_w, "rightSideExperimentDirButton");
   rightSideExperimentDirButton->setMinimumSize( QSize(22, 18) );
   rightSideExperimentDirButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   rightSideExperimentDirButton->resize(22,18);
@@ -328,12 +288,21 @@ vAttachOrLoadPageExecutableLabel->setText("Select second experiment file:");
   connect( rightSideExperimentDirButton, SIGNAL( clicked() ), this, SLOT( rightSideExperimentDirButtonSelected() ) );
   rightSideExperimentComboBoxLayout->addWidget(rightSideExperimentDirButton);
 
+  QSpacerItem *spacer = new QSpacerItem(1,1, QSizePolicy::Expanding, QSizePolicy::Expanding);
+  rightSideExperimentComboBoxLayout->addItem( spacer );
+
   }
+  QSpacerItem *spacer5 = new QSpacerItem(1,5, QSizePolicy::Fixed, QSizePolicy::Expanding);
+  rightSideLayout->addItem( spacer5 );
+
+  QSpacerItem *spacer51 = new QSpacerItem(1,1, QSizePolicy::Fixed, QSizePolicy::Expanding);
+  rightSideLabelLayout->addItem( spacer51 );
+}
+
 // End RS
 
-  vAttachOrLoadPageLayout->addLayout( vAttachOrLoadPageAttachOrLoadLayout );
   vAttachOrLoadPageSpacer = new QSpacerItem( 20, 30, QSizePolicy::Minimum, QSizePolicy::Expanding );
-  vAttachOrLoadPageLayout->addItem( vAttachOrLoadPageSpacer );
+  vAttachOrLoadPageAttachOrLoadLayout->addItem( vAttachOrLoadPageSpacer );
 
   vAttachOrLoadPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vAttachOrLoadPageButtonLayout"); 
 
@@ -403,35 +372,18 @@ vAttachOrLoadPageClearButton->hide();
            SLOT( vDescriptionPageNextButtonSelected() ) );
   connect( vDescriptionPageIntroButton, SIGNAL( clicked() ), this,
            SLOT( vDescriptionPageIntroButtonSelected() ) );
-  connect( vModePageBackButton, SIGNAL( clicked() ), this,
-           SLOT( vModePageBackButtonSelected() ) );
-  connect( vModePageNextButton, SIGNAL( clicked() ), this,
-           SLOT( vModePageNextButtonSelected() ) );
 
   connect( vAttachOrLoadPageBackButton, SIGNAL( clicked() ), this,
-           SLOT( vAttachOrLoadPageBackButtonSelected() ) );
-
-  connect( vpage1LoadExperimentCheckBox, SIGNAL( clicked() ), this,
-           SLOT( vpage1LoadExperimentCheckBoxSelected() ) );
-  connect( vpage1Load2ExperimentsCheckBox, SIGNAL( clicked() ), this,
-           SLOT( vpage1Load2ExperimentsCheckBoxSelected() ) );
+           SLOT( loadPageBackButtonSelected() ) );
 
   connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this,
-           SLOT( vAttachOrLoadPageNextButtonSelected() ) );
+           SLOT( loadPageNextButtonSelected() ) );
 
   connect( vSummaryPageBackButton, SIGNAL( clicked() ), this,
            SLOT( vSummaryPageBackButtonSelected() ) );
   connect( vSummaryPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( vSummaryPageFinishButtonSelected() ) );
-  connect( vwizardMode, SIGNAL( clicked() ), this,
-           SLOT( vwizardModeSelected() ) );
 
-#ifdef OLDWAY
-  connect( vDescriptionPageFinishButton, SIGNAL( clicked() ), this,
-           SLOT( finishButtonSelected() ) );
-#endif // OLDWAY
-  connect( vParameterPageFinishButton, SIGNAL( clicked() ), this,
-           SLOT( finishButtonSelected() ) );
   connect( vAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
 
@@ -503,10 +455,7 @@ CompareWizardPanel::listener(void *msg)
     vSummaryPageBackButton->setEnabled(TRUE);
 //    qApp->flushX();
     nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
-    if( vwizardMode->isOn() )
-    {// is it verbose?
-      mainWidgetStack->raiseWidget(vDescriptionPageWidget);
-    }
+    mainWidgetStack->raiseWidget(vDescriptionPageWidget);
     return 1;
   }
   return 0;  // 0 means, did not want this message and did not act on anything.
@@ -521,32 +470,13 @@ CompareWizardPanel::broadcast(char *msg)
   return 0;
 }
 
-void CompareWizardPanel::vwizardModeSelected()
-{
-  vUpdateAttachOrLoadPageWidget();
-}
-
-void CompareWizardPanel::ewizardModeSelected()
-{
-  wizardModeSelected();
-}
-
-
-void CompareWizardPanel::wizardModeSelected()
-{
-  ewizardMode->setChecked( FALSE );
-}
 
 void CompareWizardPanel::vDescriptionPageNextButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vDescriptionPageNextButtonSelected() \n");
 
 
-#ifdef OLDWAy
-  mainWidgetStack->raiseWidget(vModePageWidget);
-#else // OLDWAy
   mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
-#endif // OLDWAy
 }
 
 void CompareWizardPanel::vDescriptionPageIntroButtonSelected()
@@ -563,79 +493,16 @@ void CompareWizardPanel::vDescriptionPageIntroButtonSelected()
   }
 }
 
-void CompareWizardPanel::vModePageBackButtonSelected()
+void CompareWizardPanel::loadPageBackButtonSelected()
 {
-  nprintf(DEBUG_PANELS) ("vModePageBackButtonSelected() \n");
+  nprintf(DEBUG_PANELS) ("loadPageBackButtonSelected() \n");
 
   mainWidgetStack->raiseWidget(vDescriptionPageWidget);
 }
 
-void CompareWizardPanel::vModePageNextButtonSelected()
+void CompareWizardPanel::loadPageNextButtonSelected()
 {
-  nprintf(DEBUG_PANELS) ("vModePageNextButtonSelected() \n");
-
-  fn = QString::null;
-
-  if( vpage1LoadExperimentCheckBox->isChecked() )
-  {
-    vUpdateAttachOrLoadPageWidget();
-  } else if( vpage1Load2ExperimentsCheckBox->isChecked() )
-  {
-#ifdef TRIED
-    if( leftSideExperimentComboBox->currentText().isEmpty() )
-    {
-      warnOfnoSavedData();
-    } else
-    {
-      mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
-    }
-#else // TRIED
-    mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
-#endif // TRIED
-  }
-}
-
-void CompareWizardPanel::vAttachOrLoadPageBackButtonSelected()
-{
-  nprintf(DEBUG_PANELS) ("vAttachOrLoadPageBackButtonSelected() \n");
-
-#ifdef OLDWAY
-  mainWidgetStack->raiseWidget(vModePageWidget);
-#else // OLDWAY
-  mainWidgetStack->raiseWidget(vDescriptionPageWidget);
-#endif // OLDWAY
-}
-
-void CompareWizardPanel::vpage1LoadExperimentCheckBoxSelected()
-{
-  if( vpage1LoadExperimentCheckBox->isChecked() )
-  {
-    vpage1LoadExperimentCheckBox->setChecked(TRUE);
-    vpage1Load2ExperimentsCheckBox->setChecked(FALSE);
-  } else
-  {
-    vpage1LoadExperimentCheckBox->setChecked(FALSE);
-    vpage1Load2ExperimentsCheckBox->setChecked(TRUE);
-  }
-}
-
-void CompareWizardPanel::vpage1Load2ExperimentsCheckBoxSelected()
-{
-  if( vpage1LoadExperimentCheckBox->isChecked() )
-  {
-    vpage1LoadExperimentCheckBox->setChecked(FALSE);
-    vpage1Load2ExperimentsCheckBox->setChecked(TRUE);
-  } else
-  {
-    vpage1LoadExperimentCheckBox->setChecked(TRUE);
-    vpage1Load2ExperimentsCheckBox->setChecked(FALSE);
-  }
-}
-
-
-void CompareWizardPanel::vAttachOrLoadPageNextButtonSelected()
-{
-// printf("vAttachOrLoadPageNextButtonSelected() \n");
+// printf("loadPageNextButtonSelected() \n");
 
 
 // printf("leftSideExperimentComboBox->text()=(%s)\n", leftSideExperimentComboBox->currentText().ascii() );
@@ -644,12 +511,13 @@ void CompareWizardPanel::vAttachOrLoadPageNextButtonSelected()
   if( leftSideExperimentComboBox->currentText().isEmpty() )
   {
     warnOfnoSavedData();
+    return;
   }
 
   
   fn = QString::null;
 
-  vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment <b>\"%1/%2\"</b> with experiment <b>\"%3/%4\"</b>.  Pressing finish will bring up a Customized Experiment Panel with your requested information.\n").arg(leftSideDirName).arg(leftSideExperimentComboBox->currentText()).arg(rightSideDirName).arg(rightSideExperimentComboBox->currentText()) ) );
+  vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment <b>\"%1/%2\"</b> with experiment <b>\"%3/%4\"</b>.  Pressing finish will bring up a Compare Experiments Panel with your requested information.\n").arg(leftSideDirName).arg(leftSideExperimentComboBox->currentText()).arg(rightSideDirName).arg(rightSideExperimentComboBox->currentText()) ) );
 
   mainWidgetStack->raiseWidget(vSummaryPageWidget);
 
@@ -678,23 +546,6 @@ void CompareWizardPanel::vSummaryPageFinishButtonSelected()
   nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 // printf("vSummaryPageFinishButtonSelected() \n");
 
-#ifdef OLDWAY
-  if( vpage1LoadExperimentCheckBox->isChecked() && fn.isEmpty() )
-  {
-    requestExperimentFileName();
-    if( fn.isEmpty() )
-    {
-      vSummaryPageFinishButton->setEnabled(TRUE);
-      vSummaryPageBackButton->setEnabled(TRUE);
-    } else
-    {
-      vSummaryPageFinishButton->setEnabled(FALSE);
-      vSummaryPageBackButton->setEnabled(FALSE);
-      mainWidgetStack->raiseWidget(vSummaryPageWidget);
-      getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
-    }
-  } else
-#endif // OLDWAY
   {
     if( fn.isEmpty() )
     {
@@ -715,8 +566,8 @@ void CompareWizardPanel::vSummaryPageFinishButtonSelected()
         }
       }
 
-vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment <b>\"%1/%2\"</b> with experiment <b>\"%3/%4\"</b>.  Pressing finish will bring up a Customized Experiment Panel with your requested information.\n").arg(leftSideDirName).arg(leftSideExperimentComboBox->currentText()).arg(rightSideDirName).arg(rightSideExperimentComboBox->currentText()) ) );
-mainWidgetStack->raiseWidget(vSummaryPageWidget);
+      vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment <b>\"%1/%2\"</b> with experiment <b>\"%3/%4\"</b>.  Pressing finish will bring up a Compare Experiments Panel with your requested information.\n").arg(leftSideDirName).arg(leftSideExperimentComboBox->currentText()).arg(rightSideDirName).arg(rightSideExperimentComboBox->currentText()) ) );
+      mainWidgetStack->raiseWidget(vSummaryPageWidget);
       if( getPanelContainer()->getMainWindow() )
       { 
         OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
@@ -727,23 +578,29 @@ mainWidgetStack->raiseWidget(vSummaryPageWidget);
           vSummaryPageBackButton->setEnabled(FALSE);
           qApp->flushX();
 
-// printf("Create the CustomExperimentPanel...\n");
+// printf("Create the CompareExperimentsPanel...\n");
 
-          Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Custom Experiment", getPanelContainer());
+          Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Compare Experiments", getPanelContainer());
 
+          if( p )
+          {
 // printf("First expRestore -f exp1; expRestore -f exp2;\n");
 
-// printf("The call the CustomExperimentPanel's listener to load the stats panel with the arguments expCompare -x 1 -x 2 sort of syntax....n");
+// printf("The call the CompareExperimentsPanel's listener to load the stats panel with the arguments expCompare -x 1 -x 2 sort of syntax....n");
            lao = new LoadAttachObject(QString::null, QString::null, NULL, TRUE);
            lao->leftSideExperiment = leftSideDirName+"/"+leftSideExperimentComboBox->currentText();
            lao->rightSideExperiment = rightSideDirName+"/"+rightSideExperimentComboBox->currentText();
            p->listener((void *)lao);
+        } else 
+        {
+          printf("Error creating \"Compare Experiments Panel\"\n");
+        }
         }
       }
     } else
     {
 // printf("fn was not empty\n");
-        getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
+      getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
     }
   }
 }
@@ -764,19 +621,7 @@ CompareWizardPanel::languageChange()
   QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
   vDescriptionPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
-#ifdef OLDWAY
-  vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
-  QToolTip::add( vDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
-#endif // OLDWAY
-  vModePageDescriptionText->setText( tr( QString("If you want to simply load an existing experiment and check its information, select \"I already have experiment data and would like to analyze it.\"\n\nIf you want to compare experiments, select \"I have data in 2 experiments that I'd like to compare to each other.\"\n\n" ) ) );
 
-  vModeHeaderLabel->setText( tr( "Select the mode you wish to operate:" ) );
-  vModePageBackButton->setText( tr( "< Back" ) );
-  QToolTip::add( vModePageBackButton, tr( "Takes you back one page." ) );
-  vModePageNextButton->setText( tr( "> Next" ) );
-  QToolTip::add( vModePageNextButton, tr( "Advance to the next wizard page." ) );
-  vParameterPageFinishButton->setText( tr( ">> Finish" ) );
-  QToolTip::add( vParameterPageFinishButton, tr( "Advance to the wizard finish page." ) );
   vLoad2ExecutablesPageDescriptionLabel->setText( tr( "We can load 2 experiments to so the results can be compared.\n\nBelow are 2 columns.   Select an experiment file to load in each column.  The left side experiment will be compare agains the experiment in the right side.\n\nAfter selecting your 2 experiment files, click on the \"Next\" button to continue.") );
 
   vAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
@@ -793,41 +638,17 @@ CompareWizardPanel::languageChange()
   QToolTip::add( vSummaryPageBackButton, tr( "Takes you back one page." ) );
   vSummaryPageFinishButton->setText( tr( "Finish..." ) );
   QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"mpi\" panel" ) );
-  vwizardMode->setText( tr( "Verbose Wizard Mode" ) );
 }
 
 void
 CompareWizardPanel::vUpdateAttachOrLoadPageWidget()
 {
 // printf("Pop up the dialog box to load an saved file.\n");
-#ifdef OLDWAY
-  fn = QString::null;
-  char *cwd = get_current_dir_name();
-  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open");
-  free(cwd);
-  if( !fn.isEmpty() )
-  {
-    char buffer[2048];
-    if( !fn.isEmpty() )
-    {
-      getPanelContainer()->getMainWindow()->executableName = QString::null;
-  printf("fn = %s\n", fn.ascii() );
-// printf("Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
-  vSummaryPageFinishLabel->setText( tr( QString("You are requesting to load saved experiment <b>\"%1\"</b>.  Pressing finish will bring up your requested information.\n").arg(fn) ) );
-  }
-
-    mainWidgetStack->raiseWidget(vSummaryPageWidget);
-  } else
-  {
-    fprintf(stderr, "No experiment file name given.\n");
-  }
-#else // OLDWAY
   requestExperimentFileName();
   if( !fn.isEmpty() )
   {
     mainWidgetStack->raiseWidget(vSummaryPageWidget);
   }
-#endif // OLDWAY
 
   return;
 }
@@ -955,4 +776,34 @@ CompareWizardPanel::rightSideExperimentDirButtonSelected()
     }
     rightSideExperimentComboBox->setCurrentText(rightSideBaseName);
   }
+}
+
+void
+CompareWizardPanel::handleSizeEvent(QResizeEvent *e)
+{
+  int calculated_height = 0;
+  calculated_height += leftSideExperimentLabel->height();
+  calculated_height += ls_cbl->height();
+  calculated_height += leftSideExperimentComboBox->height();
+  calculated_height += leftSideExperimentDirButton->height();
+
+  int height = getPanelContainer()->parent->height();
+  if( calculated_height > height )
+  {
+    height = calculated_height;
+  }
+
+
+  int calculated_width = 0;
+  calculated_width += leftSideExperimentLabel->width();
+  calculated_width += ls_cbl->width();
+  calculated_width += leftSideExperimentComboBox->width();
+  calculated_width += leftSideExperimentDirButton->width();
+  calculated_width += rightSideExperimentLabel->width();
+  calculated_width += rs_cbl->width();
+  calculated_width += rightSideExperimentComboBox->width();
+  calculated_width += rightSideExperimentDirButton->width();
+
+
+  big_box_w->resize(calculated_width,calculated_height);
 }

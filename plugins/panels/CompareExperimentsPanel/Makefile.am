@@ -16,9 +16,9 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = MPITPanel.la
+pkglib_LTLIBRARIES = CompareExperimentsPanel.la
 
-MPITPanel_la_CXXFLAGS = \
+CompareExperimentsPanel_la_CXXFLAGS = \
 	-c -LANG:std -fpic \
     -I/usr/include \
 	$(QTLIB_CPPFLAGS) \
@@ -38,7 +38,7 @@ MPITPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
     -I$(top_srcdir)/libopenss-guibase
 
-MPITPanel_la_LDFLAGS = \
+CompareExperimentsPanel_la_LDFLAGS = \
 	-fpic \
 	--export-dynamic \
 	--export-all-symbols \
@@ -50,8 +50,8 @@ MPITPanel_la_LDFLAGS = \
 	$(QTLIB_LIBS) $(QTLIB_LDFLAGS) \
 	-ldl
 
-MPITPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs  -lopenss-CustomExperimentPanel
+CompareExperimentsPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs -lopenss-CustomExperimentPanel
 
-MPITPanel_la_SOURCES = \
-	MPITPanel.hxx MPITPanel.cxx \
+CompareExperimentsPanel_la_SOURCES = \
+	CompareExperimentsPanel.hxx CompareExperimentsPanel.cxx \
 	local_plugin_info.hxx

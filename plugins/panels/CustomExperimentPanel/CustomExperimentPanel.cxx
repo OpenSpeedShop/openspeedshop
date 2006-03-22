@@ -463,6 +463,12 @@ CustomExperimentPanel::menu(QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( editPanelName() ) );
   qaction->setStatusTip( tr("Change the name of this panel...") );
 
+  qaction = new QAction( this,  "saveExp");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Save Experiment..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( saveExperiment() ) );
+  qaction->setStatusTip( tr("Save the experiment file...") );
+
   qaction = new QAction( this,  "expStatus");
   qaction->addTo( contextMenu );
   qaction->setText( "About..." );
@@ -987,6 +993,13 @@ CustomExperimentPanel::editPanelName()
   {
     // user entered nothing or pressed Cancel
   }
+}
+
+void
+CustomExperimentPanel::saveExperiment()
+{
+printf("Attempt to save the experiment file.\n");
+  mw->fileSaveExperiment(expID);
 }
 
 

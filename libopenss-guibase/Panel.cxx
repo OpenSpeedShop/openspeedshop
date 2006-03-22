@@ -144,7 +144,7 @@ Panel::languageChange()
     the size of the panel.   Resize the baseWidgetFrame to fit nicely into
     the size of the parent PanelContainer.
 */
-void Panel::handleSizeEvent(QResizeEvent *)
+void Panel::handleSizeEvent(QResizeEvent *e)
 {
   nprintf(DEBUG_PANELS) ("attempt to resize the panel baseWidgetFrame\n");
 }

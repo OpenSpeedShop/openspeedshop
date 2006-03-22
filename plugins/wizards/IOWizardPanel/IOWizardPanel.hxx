@@ -177,6 +177,10 @@ QCheckBox *eParameterTraceCheckBox;
     QCheckBox* vwizardMode;
     QCheckBox* ewizardMode;
 
+    QScrollView *sv;
+    QWidget *big_box_w;
+    void handleSizeEvent(QResizeEvent *e);
+
 public slots:
     virtual void eDescriptionPageNextButtonSelected();
     virtual void eDescriptionPageIntroButtonSelected();

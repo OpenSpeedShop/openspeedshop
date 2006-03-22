@@ -165,6 +165,7 @@ AC_CONFIG_FILES(
 	plugins/collectors/mpi/Makefile
 	plugins/collectors/mpit/Makefile
 	plugins/panels/Makefile
+	plugins/panels/CustomExperimentPanel/Makefile
 	plugins/panels/pcSamplePanel/Makefile
 	plugins/panels/UserTimePanel/Makefile
 	plugins/panels/SourcePanel/Makefile
@@ -180,7 +181,7 @@ AC_CONFIG_FILES(
 	plugins/panels/MPITPanel/Makefile
 	plugins/panels/DebugPanel/Makefile
 	plugins/panels/FPE_TracingPanel/Makefile
-	plugins/panels/CustomExperimentPanel/Makefile
+	plugins/panels/CompareExperimentsPanel/Makefile
 	plugins/views/Makefile
 	plugins/views/basic/Makefile
 	plugins/views/usertime/Makefile

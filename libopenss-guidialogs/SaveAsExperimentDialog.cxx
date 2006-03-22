@@ -158,6 +158,30 @@ return selectedItem;
 }
 
 
+PanelListViewItem *
+SaveAsExperimentDialog::findExperiment(int expID)
+{
+// First get the parent node...
+  QListViewItem *item = availableExperimentsListView->firstChild();
+
+  while(item)
+  {
+// printf("parent_node->text(0)=(%s)\n", item->text(0).ascii() );
+    if( expID == item->text(0).toInt() )
+    {
+// printf("MATCHED: parent_node->text(0)=(%s)\n", item->text(0).ascii() );
+      return (PanelListViewItem *)item;
+    }
+
+    item = item->nextSibling();
+  }
+
+
+
+  return NULL;
+}
+
+
 
 #include "PanelContainer.hxx"
 PanelListViewItem *

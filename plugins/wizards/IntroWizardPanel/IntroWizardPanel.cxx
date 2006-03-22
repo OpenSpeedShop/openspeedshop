@@ -49,7 +49,9 @@
 #include <qfile.h>   // For the file dialog box.
 #include <qfiledialog.h>  // For the file dialog box.
 #include <qmessagebox.h>
-#include "qscrollview.h"
+
+#include <qscrollview.h>
+#include <qvbox.h>
 
 
 
@@ -68,37 +70,47 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
 	setName( "IntroWizardForm" );
   }
 
-  IntroWizardFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 11, 6, "IntroWizardFormLayout"); 
+
+//  IntroWizardFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 11, 6, "IntroWizardFormLayout"); 
+  IntroWizardFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 0, 0, "IntroWizardFormLayout"); 
+
 
   vWelcomeHeader = new QLabel( getBaseWidgetFrame(), "vWelcomeHeader" );
-  vWelcomeHeader->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
+  vWelcomeHeader->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, 0, 0, FALSE ) );
   vWelcomeHeader->setAlignment( int( QLabel::WordBreak | QLabel::AlignCenter ) );
   vWelcomeHeader->setMinimumSize( QSize(10,10) );
 
   IntroWizardFormLayout->addWidget( vWelcomeHeader);
 
-  mainWidgetStack = new QWidgetStack( getBaseWidgetFrame(), "mainWidgetStack" );
+  sv = new QScrollView( getBaseWidgetFrame(), "scrollView" );
+
+  big_box = new QVBox(sv->viewport() );
+  const QColor color = vWelcomeHeader->paletteBackgroundColor();
+  sv->viewport()->setBackgroundColor(color);
+// sv->viewport()->setPaletteBackgroundColor(color);
+  sv->addChild(big_box);
+  IntroWizardFormLayout->addWidget( sv );
+
+  mainWidgetStack = new QWidgetStack( big_box, "mainWidgetStack" );
   mainWidgetStack->setMinimumSize( QSize(10,10) );
-  mainWidgetStack->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding,QSizePolicy::BothDirections, QSizePolicy::BothDirections, FALSE ) );
-   IntroWizardFormLayout->addWidget(mainWidgetStack);
+  mainWidgetStack->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Maximum, 0, 0, FALSE ) );
 
   vWStackPage = new QWidget( mainWidgetStack, "vWStackPage" );
   vWStackPage->setMinimumSize( QSize(10,10) );
   vWStackPageLayout = new QVBoxLayout( vWStackPage, 11, 6, "vWStackPageLayout"); 
   vRBLayout = new QVBoxLayout( 0, 0, 6, "vRBLayout"); 
 
+
   vHelpfulLabel = new QLabel( vWStackPage, "vHelpfulLabel" );
-  vHelpfulLabel->setMinimumSize( QSize(10,10) );
-  vHelpfulLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vHelpfulLabel->sizePolicy().hasHeightForWidth() ) );
   vRBLayout->addWidget( vHelpfulLabel );
 
   vLoadExperimentLayout = new QVBoxLayout( 0, 0, 6, "vLoadExperimentLayout"); 
-  spacer5_3 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+//  spacer5_3 = new QSpacerItem( getBaseWidgetFrame()->width(), 20, QSizePolicy::Minimum, QSizePolicy::Fixed );
+  spacer5_3 = new QSpacerItem( 20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed );
   vLoadExperimentLayout->addItem( spacer5_3 );
 
   vpage1LoadExperimentCheckBox = new QCheckBox( vWStackPage, "vpage1LoadExperimentCheckBox" );
   vLoadExperimentLayout->addWidget( vpage1LoadExperimentCheckBox );
-//   vRBLayout->addLayout( vLoadExperimentLayout );
 
   vpage1CompareExperimentsCheckBox = new QCheckBox( vWStackPage, "vpage1CompareExperimentsCheckBox" );
   vLoadExperimentLayout->addWidget( vpage1CompareExperimentsCheckBox );
@@ -111,7 +123,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vRBLayout->addWidget( line3 );
 
   vpcSampleRBLayout = new QHBoxLayout( 0, 0, 6, "vpcSampleRBLayout"); 
-  spacer5 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  spacer5 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   vpcSampleRBLayout->addItem( spacer5 );
 
   vpage1pcSampleRB = new QRadioButton( vWStackPage, "vpage1pcSampleRB" );
@@ -120,7 +132,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vRBLayout->addLayout( vpcSampleRBLayout );
 
   vUserTimeRBLayout = new QHBoxLayout( 0, 0, 6, "vUserTimeRBLayout"); 
-  spacer6 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  spacer6 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   vUserTimeRBLayout->addItem( spacer6 );
 
   vpage1UserTimeRB = new QRadioButton( vWStackPage, "vpage1UserTimeRB" );
@@ -128,7 +140,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vRBLayout->addLayout( vUserTimeRBLayout );
 
   vHWCounterRBLayout = new QHBoxLayout( 0, 0, 6, "vHWCounterRBLayout"); 
-  spacer7 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  spacer7 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   vHWCounterRBLayout->addItem( spacer7 );
 
   vpage1HardwareCounterRB = new QRadioButton( vWStackPage, "vpage1HardwareCounterRB" );
@@ -136,7 +148,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vRBLayout->addLayout( vHWCounterRBLayout );
 
   vFloatingPointRBLayout = new QHBoxLayout( 0, 0, 6, "vFloatingPointRBLayout"); 
-  spacer7_3 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  spacer7_3 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   vFloatingPointRBLayout->addItem( spacer7_3 );
 
   vpage1FloatingPointRB = new QRadioButton( vWStackPage, "vpage1FloatingPointRB" );
@@ -144,7 +156,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vRBLayout->addLayout( vFloatingPointRBLayout );
 
   vInputOutputRBLayout = new QHBoxLayout( 0, 0, 6, "vInputOutputRBLayout"); 
-  spacer7_4 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  spacer7_4 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   vInputOutputRBLayout->addItem( spacer7_4 );
 
   vpage1InputOutputRB = new QRadioButton( vWStackPage, "vpage1InputOutputRB" );
@@ -152,12 +164,15 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vRBLayout->addLayout( vInputOutputRBLayout );
 
   vMPIRBLayout = new QHBoxLayout( 0, 0, 6, "vMPIRBLayout"); 
-  spacer7_4 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  spacer7_4 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   vMPIRBLayout->addItem( spacer7_4 );
 
   vpage1MPIRB = new QRadioButton( vWStackPage, "vpage1MPIRB" );
   vMPIRBLayout->addWidget( vpage1MPIRB );
   vRBLayout->addLayout( vMPIRBLayout );
+
+  QSpacerItem *bfs = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
+  vRBLayout->addItem( bfs );
 
   vWStackPageLayout->addLayout( vRBLayout );
 
@@ -168,11 +183,11 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   eRBLayout = new QVBoxLayout( 0, 0, 6, "eRBLayout"); 
 
   eHelpfulLabel = new QLabel( eWStackPage, "eHelpfulLabel" );
-  eHelpfulLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eHelpfulLabel->sizePolicy().hasHeightForWidth() ) );
+eHelpfulLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   eRBLayout->addWidget( eHelpfulLabel );
 
   eLoadExperimentRBLayout = new QVBoxLayout( 0, 0, 6, "eLoadExperimentRBLayout"); 
-  spacer5_2_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  spacer5_2_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   eLoadExperimentRBLayout->addItem( spacer5_2_2 );
 
   epage1LoadExperimentCheckBox = new QCheckBox( eWStackPage, "epage1LoadExperimentCheckBox" );
@@ -190,7 +205,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   eRBLayout->addWidget( line2 );
 
   epcSampleRBLayout = new QHBoxLayout( 0, 0, 6, "epcSampleRBLayout"); 
-  spacer5_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  spacer5_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   epcSampleRBLayout->addItem( spacer5_2 );
 
   epage1pcSampleRB = new QRadioButton( eWStackPage, "epage1pcSampleRB" );
@@ -207,7 +222,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   eRBLayout->addLayout( eUserTimeRBLayout );
 
   eHWCounterRBLayout = new QHBoxLayout( 0, 0, 6, "eHWCounterRBLayout"); 
-  spacer7_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  spacer7_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   eHWCounterRBLayout->addItem( spacer7_2 );
 
   epage1HardwareCounterRB = new QRadioButton( eWStackPage, "epage1HardwareCounterRB" );
@@ -215,7 +230,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   eRBLayout->addLayout( eHWCounterRBLayout );
 
   eFloatingPointRBLayout = new QHBoxLayout( 0, 0, 6, "eFloatingPointRBLayout"); 
-  spacer7_3_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  spacer7_3_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   eFloatingPointRBLayout->addItem( spacer7_3_2 );
 
   epage1FloatingPointRB = new QRadioButton( eWStackPage, "epage1FloatingPointRB" );
@@ -223,7 +238,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   eRBLayout->addLayout( eFloatingPointRBLayout );
 
   eInputOutputRBLayout = new QHBoxLayout( 0, 0, 6, "eInputOutputRBLayout"); 
-  spacer7_4_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  spacer7_4_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   eInputOutputRBLayout->addItem( spacer7_4_2 );
 
   epage1InputOutputRB = new QRadioButton( eWStackPage, "epage1InputOutputRB" );
@@ -231,7 +246,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   eRBLayout->addLayout( eInputOutputRBLayout );
 
   eMPIRBLayout = new QHBoxLayout( 0, 0, 6, "eMPIRBLayout"); 
-  spacer7_4_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  spacer7_4_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   eMPIRBLayout->addItem( spacer7_4_2 );
 
   epage1MPIRB = new QRadioButton( eWStackPage, "epage1MPIRB" );
@@ -240,9 +255,15 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
 
   WStackPageLayout_2->addLayout( eRBLayout );
 
+  QSpacerItem *spacer1 = new QSpacerItem( 20, 5, QSizePolicy::Fixed, QSizePolicy::Fixed );
+  IntroWizardFormLayout->addItem( spacer1 );
 
   vNextButtonLayout = new QHBoxLayout( 0, 0, 6, "vNextButtonLayout"); 
   IntroWizardFormLayout->addLayout( vNextButtonLayout );
+
+  QSpacerItem *spacer2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
+  vNextButtonLayout->addItem( spacer2 );
+
 
   wizardMode = new QCheckBox( getBaseWidgetFrame(),  "wizardMode" );
   wizardMode->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, wizardMode->sizePolicy().hasHeightForWidth() ) );
@@ -263,10 +284,16 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vpage1NextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vpage1NextButton->sizePolicy().hasHeightForWidth() ) );
   vNextButtonLayout->addWidget( vpage1NextButton );
 
+  QSpacerItem *spacer3 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
+  vNextButtonLayout->addItem( spacer3 );
+
+
   mainWidgetStack->addWidget( vWStackPage, 0 );
   mainWidgetStack->addWidget( eWStackPage, 1 );
 
-  languageChange();
+
+  QSpacerItem *fill_spacer = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
+  IntroWizardFormLayout->addItem( fill_spacer );
 
 
   // signals and slots connections
@@ -279,10 +306,10 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   connect( vpage1InputOutputRB, SIGNAL( clicked() ), this, SLOT(vpage1InputOutputRBChanged() ) );
   connect( vpage1MPIRB, SIGNAL( clicked() ), this, SLOT(vpage1MPIRBChanged() ) );
 
-connect( vpage1LoadExperimentCheckBox, SIGNAL( clicked() ), this, SLOT(page1LoadExperimentCheckBoxChanged() ) );
-connect( vpage1CompareExperimentsCheckBox, SIGNAL( clicked() ), this, SLOT(page1CompareExperimentsCheckBoxChanged() ) );
-connect( epage1LoadExperimentCheckBox, SIGNAL( clicked() ), this, SLOT(page1LoadExperimentCheckBoxChanged() ) );
-connect( epage1CompareExperimentsCheckBox, SIGNAL( clicked() ), this, SLOT(page1CompareExperimentsCheckBoxChanged() ) );
+  connect( vpage1LoadExperimentCheckBox, SIGNAL( clicked() ), this, SLOT(page1LoadExperimentCheckBoxChanged() ) );
+  connect( vpage1CompareExperimentsCheckBox, SIGNAL( clicked() ), this, SLOT(page1CompareExperimentsCheckBoxChanged() ) );
+  connect( epage1LoadExperimentCheckBox, SIGNAL( clicked() ), this, SLOT(page1LoadExperimentCheckBoxChanged() ) );
+  connect( epage1CompareExperimentsCheckBox, SIGNAL( clicked() ), this, SLOT(page1CompareExperimentsCheckBoxChanged() ) );
 
 
   connect( epage1pcSampleRB, SIGNAL( clicked() ), this, SLOT(epage1pcSampleRBChanged() ) );
@@ -291,7 +318,10 @@ connect( epage1CompareExperimentsCheckBox, SIGNAL( clicked() ), this, SLOT(page1
   connect( epage1FloatingPointRB, SIGNAL( clicked() ), this, SLOT(epage1FloatingPointRBChanged() ) );
   connect( epage1InputOutputRB, SIGNAL( clicked() ), this, SLOT(epage1InputOutputRBChanged() ) );
   connect( epage1MPIRB, SIGNAL( clicked() ), this, SLOT(epage1MPIRBChanged() ) );
+  languageChange();
 
+// printf("Call resize initially\n");
+  handleSizeEvent((QResizeEvent *)NULL);
 }
 
 
@@ -376,6 +406,7 @@ IntroWizardPanel::languageChange()
   vpage1FloatingPointRB->setText( tr( "I need to measure how many times I am causing Floating Point Exceptions. (fpe)" ) );
   vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work. (io/iot)" ) );
   vpage1MPIRB->setText( tr( "I have an MPI program and I'd like measure the mpi calls. (mpi/mpit)" ) );
+
   eHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
   epage1LoadExperimentCheckBox->setText( tr( "Load experiment data." ) );
   epage1CompareExperimentsCheckBox->setText( tr( "Compare two experiments." ) );
@@ -810,4 +841,36 @@ void IntroWizardPanel::eSetStateChanged(QRadioButton *rb)
     vpage1CompareExperimentsCheckBox->setChecked( FALSE );
     epage1CompareExperimentsCheckBox->setChecked( FALSE );
   }
+}
+
+void
+IntroWizardPanel::handleSizeEvent(QResizeEvent *e)
+{
+  int calculated_height = 0;
+  int SPACER_SIZE = 20;
+  calculated_height += vHelpfulLabel->height();
+  calculated_height += vpage1LoadExperimentCheckBox->height();
+  calculated_height += vpage1CompareExperimentsCheckBox->height();
+  calculated_height += line3->height();
+  calculated_height += vpage1pcSampleRB->height();
+  calculated_height += vpage1UserTimeRB->height();
+  calculated_height += vpage1HardwareCounterRB->height();
+  calculated_height += vpage1FloatingPointRB->height();
+  calculated_height += vpage1InputOutputRB->height();
+  calculated_height += vpage1MPIRB->height();
+
+  // add in the 2 spacers..
+  calculated_height += 2*20;
+
+  // add in margins... around the children
+  calculated_height += 10*6;
+
+
+  int height = getPanelContainer()->parent->height();
+  if( calculated_height > height )
+  {
+    height = calculated_height;
+  }
+
+  big_box->resize(vpage1UserTimeRB->width()+100, calculated_height);
 }

@@ -35,6 +35,7 @@
 #include <qlistview.h>
 #include <qlineedit.h>
 #include <qradiobutton.h>
+#include <qcheckbox.h>
 #include <qsplitter.h>
 #include <qsize.h>
 #include <qsettings.h>
@@ -85,9 +86,9 @@ AttachProcessDialog::AttachProcessDialog( QWidget* parent, const char* name, boo
   AttachProcessDialogLayout->addWidget( availableProcessListView );
 
 
-  mpiRB = new QRadioButton( topFrame, "mpiRB");
-  AttachProcessDialogLayout->addWidget( mpiRB );
-  mpiRB->setText(tr("Attach to all mpi related process."));
+  mpiCB = new QCheckBox( topFrame, "mpiCB");
+  AttachProcessDialogLayout->addWidget( mpiCB );
+  mpiCB->setText(tr("Attach to all mpi related process."));
 
 
 
@@ -245,7 +246,7 @@ AttachProcessDialog::selectedProcesses(bool *mpiFLAG)
   QStringList *qsl = new QStringList();
   qsl->clear();
   QListViewItem *selectedItem = availableProcessListView->selectedItem();
-  *mpiFLAG = mpiRB->isChecked();
+  *mpiFLAG = mpiCB->isChecked();
   QListViewItemIterator it( availableProcessListView, QListViewItemIterator::Selected );
   while( it.current() )
   {

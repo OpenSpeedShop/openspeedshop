@@ -46,10 +46,11 @@ HW_CounterPanel_la_LDFLAGS = \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-guidialogs \
+	-L$(top_srcdir)/plugins/panels/CustomExperimentPanel \
 	$(QTLIB_LIBS) $(QTLIB_LDFLAGS) \
 	-ldl
 
-HW_CounterPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs
+HW_CounterPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs  -lopenss-CustomExperimentPanel
 
 HW_CounterPanel_la_SOURCES = \
 	HW_CounterPanel.hxx HW_CounterPanel.cxx \

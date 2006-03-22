@@ -18,6 +18,7 @@
 
 
 SUBDIRS = \
+	CustomExperimentPanel \
 	SourcePanel \
 	CmdPanel \
 	StatsPanel \
@@ -30,7 +31,7 @@ SUBDIRS = \
 	FPE_TracingPanel \
 	MPIPanel \
 	MPITPanel \
-	CustomExperimentPanel \
+	CompareExperimentsPanel \
 	DebugPanel
 
 if HAVE_PAPI

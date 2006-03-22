@@ -72,13 +72,13 @@ public:
       mouse down in the panel.
       /param  contextMenu is the QPopupMenu * that use menus can be attached.
   */
-  bool menu(QPopupMenu* contextMenu);
+  virtual bool menu(QPopupMenu* contextMenu);
 
   //! Calls the user panel function save() request.
-  void save();
+  virtual void save();
 
   //! Calls the user panel function saveas() request.
-  void saveAs();
+  virtual void saveAs();
 
   //! Calls the user panel function listener() request.
   /*! When a message
@@ -90,7 +90,7 @@ public:
       \return 0 means you didn't do anything with the message.
       \return 1 means you handled the message.
    */
-  int listener(void *msg);
+  virtual int listener(void *msg);
 
   QButtonGroup *buttonGroup;
   AnimatedQPushButton *attachCollectorButton;
@@ -111,9 +111,8 @@ public:
   QLineEdit *statusLabelText;
   int last_status;
 
-// char *collector_names;
-QString collector_names;
-QString wizardName;
+  QString collector_names;
+  QString wizardName;
 
   QVBoxLayout * frameLayout;
   ProcessControlObject *pco;
@@ -123,7 +122,7 @@ QString wizardName;
   bool aboutToRunFLAG;
   bool postProcessFLAG;
   bool readyToRunFLAG;
-bool staticDataFLAG;
+  bool staticDataFLAG;
 
   QString executableNameStr;
   QString argsStr;
@@ -135,22 +134,25 @@ bool staticDataFLAG;
   
   void outputCLIData(QString *data);
 
-  void hideWizard();
+  virtual void hideWizard();
+
+  int getExpID() { return expID; }
 
 public slots:
-  void saveAsSelected();
-  void compareExperimentsSelected();
-  void loadSourcePanel();
-  void editPanelName();
-  void experimentStatus();
-  Panel *loadStatsPanel();
-  void loadManageProcessesPanel();
-  void progressUpdate();
+  virtual void saveAsSelected();
+  virtual void compareExperimentsSelected();
+  virtual void loadSourcePanel();
+  virtual void editPanelName();
+  virtual void saveExperiment();
+  virtual void experimentStatus();
+  virtual Panel *loadStatsPanel();
+  virtual void loadManageProcessesPanel();
+  virtual void progressUpdate();
 
 private slots:
-  void statusUpdateTimerSlot();
-  void attachProcessSelected();
-  void loadProgramSelected();
+  virtual void statusUpdateTimerSlot();
+  virtual void attachProcessSelected();
+  virtual void loadProgramSelected();
 
 protected slots:
   virtual void languageChange();
@@ -159,19 +161,19 @@ protected:
 
 private:
   OpenSpeedshop *mw;
-  void wakeUpAndCheckExperimentStatus();
+  virtual void wakeUpAndCheckExperimentStatus();
 
  
   int expID;  // Experiment ID of the expCreate, returned from the cli
   OpenSpeedShop::Framework::Experiment *experiment;
 
-  int processLAO(LoadAttachObject *);
-  void updateInitialStatus();
+  virtual int processLAO(LoadAttachObject *);
+  virtual void updateInitialStatus();
 
   QTimer *statusTimer;
-  void updateStatus();
+  virtual void updateStatus();
 
-  void loadMain();
+  virtual void loadMain();
   GenericProgressDialog *pd;
   int steps;
 
@@ -179,6 +181,6 @@ private:
 
   QString expStatsInfoStr;
 
-  void resetRedirect();
+  virtual void resetRedirect();
 };
 #endif // CUSTOMEXPERIMENTPANEL_H

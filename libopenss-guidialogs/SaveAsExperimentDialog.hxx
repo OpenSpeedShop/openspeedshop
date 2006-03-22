@@ -52,6 +52,7 @@ public:
     QListView* availableExperimentsListView;
 
     PanelListViewItem *selectedExperiment(int *expID);
+    PanelListViewItem *findExperiment(int expID);
     PanelListViewItem * updateAvailableExperimentList(int *, int *);
 
 protected:

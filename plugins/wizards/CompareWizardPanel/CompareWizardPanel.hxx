@@ -48,6 +48,7 @@ class QListBoxItem;
 class QButtonGroup;
 class QTextEdit;
 class QScrollView;
+class QVBox;
 class QComboBox;
 
 #include "ArgumentObject.hxx"
@@ -118,16 +119,8 @@ public:
     QTextEdit* vDescriptionPageText;
     QPushButton* vDescriptionPageIntroButton;
     QPushButton* vDescriptionPageNextButton;
-#ifdef OLDWAY
-    QPushButton* vDescriptionPageFinishButton;
-#endif // OLDWAY
-    QWidget* vModePageWidget;
-    QTextEdit* vModePageDescriptionText;
-    QFrame* vModePageLine;
-    QLabel* vModeHeaderLabel;
+
     QPushButton* vModePageBackButton;
-    QPushButton* vModePageNextButton;
-    QPushButton* vParameterPageFinishButton;
     QWidget* vAttachOrLoadPageWidget;
     QTextEdit* vLoad2ExecutablesPageDescriptionLabel;
     QFrame* vAttachOrLoadPageLine;
@@ -145,8 +138,6 @@ public:
     QComboBox *leftSideExperimentComboBox;
     QComboBox *rightSideExperimentComboBox;
 
-    QCheckBox *vpage1LoadExperimentCheckBox;
-    QCheckBox *vpage1Load2ExperimentsCheckBox;
 
     QString fn;
 
@@ -155,20 +146,22 @@ public:
     QString rightSideDirName;
     QString rightSideBaseName;
 
+    QLabel *ls_cbl;
+    QLabel *rs_cbl;
+    QPushButton *leftSideExperimentDirButton;
+    QPushButton *rightSideExperimentDirButton;
+    QScrollView *sv;
+    QWidget *big_box_w;
+//    QVBox *big_box;
+    void handleSizeEvent(QResizeEvent *e);
+
 public slots:
     virtual void vDescriptionPageNextButtonSelected();
     virtual void vDescriptionPageIntroButtonSelected();
-    virtual void vModePageBackButtonSelected();
-    virtual void vModePageNextButtonSelected();
-    virtual void vAttachOrLoadPageBackButtonSelected();
-    virtual void vAttachOrLoadPageNextButtonSelected();
+    virtual void loadPageBackButtonSelected();
+    virtual void loadPageNextButtonSelected();
     virtual void vSummaryPageBackButtonSelected();
     virtual void vSummaryPageFinishButtonSelected();
-    virtual void ewizardModeSelected();
-    virtual void vwizardModeSelected();
-    virtual void wizardModeSelected();
-    virtual void vpage1LoadExperimentCheckBoxSelected();
-    virtual void vpage1Load2ExperimentsCheckBoxSelected();
     virtual void finishButtonSelected();
 
 private slots:
@@ -180,17 +173,12 @@ protected:
     QVBoxLayout* vDescriptionPageLayout;
     QHBoxLayout* vDescriptionPageButtonLayout;
     QSpacerItem* vDescriptionPageButtonSpacer;
-    QVBoxLayout* vModePageLayout;
-    QSpacerItem* vParameterPageButtonSpacer;
     QVBoxLayout* vAttachOrLoadPageLayout;
     QSpacerItem* vAttachOrLoadPageButtonSpacer;
     QSpacerItem* vParameterPageSpacer;
     QSpacerItem* vAttachOrLoadPageSpacer;
-    QVBoxLayout* vParameterPageParameterLayout;
-    QVBoxLayout* vParameterPageFunctionListLayout;
-    QHBoxLayout* vParameterPageButtonLayout;
-    QLabel *vAttachOrLoadPageProcessListLabel;
-    QLabel *vAttachOrLoadPageExecutableLabel;
+    QLabel *leftSideExperimentLabel;
+    QLabel *rightSideExperimentLabel;
     QHBoxLayout* vAttachOrLoadPageAttachOrLoadLayout;
     QHBoxLayout* vAttachOrLoadPageButtonLayout;
     QVBoxLayout* vSummaryPageLayout;

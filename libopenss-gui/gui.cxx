@@ -51,6 +51,7 @@ extern "C"
   void
   guithreadinit(void *ptr)
   {
+// printf("guithreadinit() entered\n");
     ArgStruct *arg_struct = NULL;
     int argc = 0;
     char **argv = NULL;
@@ -187,12 +188,13 @@ QStringList pidStrList = NULL;
     int number_of_found_experiments = 0;
     // The user specified some arguments on the command line.
     // See if they've defined any experiments.
-    if( argc > 4 )
+//    if( argc > 4 )
     {
       number_of_found_experiments = w->lookForExperiment();
     }
     // If the use has not defined any experiments, then 
     // load the wizard to help them...
+// printf("number_of_found_experiments=%d\n", number_of_found_experiments );
     if( number_of_found_experiments == 0 )
     {
       w->loadTheWizard();
@@ -211,6 +213,7 @@ QStringList pidStrList = NULL;
   int
   gui_init( void *arg_struct, pthread_t *phandle )
   {
+// printf("gui_init entered\n");
     if( isGUIBeenCreate == TRUE )
     {
       if( !qapplication )

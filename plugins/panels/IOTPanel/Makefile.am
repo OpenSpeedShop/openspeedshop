@@ -46,10 +46,11 @@ IOTPanel_la_LDFLAGS = \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-guidialogs \
+	-L$(top_srcdir)/plugins/panels/CustomExperimentPanel \
 	$(QTLIB_LIBS) $(QTLIB_LDFLAGS) \
 	-ldl
 
-IOTPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs
+IOTPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs  -lopenss-CustomExperimentPanel
 
 IOTPanel_la_SOURCES = \
 	IOTPanel.hxx IOTPanel.cxx \

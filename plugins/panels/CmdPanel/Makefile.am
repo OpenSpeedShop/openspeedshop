@@ -39,8 +39,12 @@ CmdPanel_la_LIBADD =  $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
 moc_CmdPanel.cxx: CmdPanel.hxx
 	-moc -o moc_CmdPanel.cxx CmdPanel.hxx
 
+moc_CPTextEdit.cxx: CPTextEdit.hxx
+	-moc -o moc_CPTextEdit.cxx CPTextEdit.hxx
+
 CmdPanel_la_SOURCES = \
 	CmdPanel.hxx CmdPanel.cxx moc_CmdPanel.cxx \
+	CPTextEdit.hxx CPTextEdit.cxx moc_CPTextEdit.cxx \
 	KeyEventFilter.hxx KeyEventFilter.cxx \
 	local_plugin_info.hxx
 

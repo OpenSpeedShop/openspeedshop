@@ -40,6 +40,8 @@ class QRadioButton;
 class QPushButton;
 class QCheckBox;
 class QScrollView;
+class QVBox;
+#include <qvaluelist.h>
 
 
 //! This defines the highest level Wizard class.
@@ -175,6 +177,11 @@ protected:
     QSpacerItem* spacer1;
 
     void languageChange();
+
+    QScrollView *sv;
+    QVBox *big_box;
+    void handleSizeEvent(QResizeEvent *e);
+
 
 public slots:
     virtual void wizardModeSelected();
