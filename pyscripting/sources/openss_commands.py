@@ -214,6 +214,48 @@ def expCreate(*arglist):
     return expid
 
 ##################################################
+# expData
+##################################################
+def expData(*arglist):
+
+    """
+    - Collect data generated from an experiment. This is basically 
+      the same as B{expView} except:
+        - that B{expView} returns formatted strings representing
+	  the data whereas B{expData} returns the data values.
+	- B{expData} does not return column headers.
+	
+    - See B{expView} for more B{expData} options.
+
+      expData [ I{ExpId} ] [ <viewType> ] [ -m <expMetric_list> ] [ I{Target} ] 
+
+    Example::
+    	my_file = openss.FileList("bosco")
+	my_viewtype = openss.ViewTypeList("pcsamp")
+    	my_metric_list = openss.MetricList()
+    	my_metric_list += ("pcsamp","inclusive")
+
+	ret = openss.expData(my_expid,my_viewtype,my_metric_list)
+
+
+    @param arglist: up to 4 optional class objects:
+	- I{ExpId}  (optional) 
+    	- I{ViewType} (optional)
+    	- I{MetricList} (optional)
+	- I{Target} object lists (optional)
+	    - I{ClusterList}
+	    - I{FileList}
+	    - I{HostList}
+	    - I{PidList}
+	    - I{ThreadList}
+	    - I{RankList}
+    
+    """
+
+    cmd_string = deconstruct("expData",*arglist)
+    return return_int_list(cmd_string)
+
+##################################################
 # expDetach
 ##################################################
 def expDetach(*arglist):
@@ -1439,7 +1481,7 @@ def dumpView():
 
     	try :
     	    print "In try part"
-    	    ret = openss.expView()
+    	    ret = openss.expData()
 
     	except openss.error:
     	    print "In except part"
@@ -1466,8 +1508,8 @@ def dumpView():
     """
 
     try :
-    	print "In try part"
-    	ret = expView()
+    	#print "In try part"
+    	ret = expData()
 
     except error:
     	print "In except part"
@@ -1486,7 +1528,12 @@ def dumpView():
     	for row_ndx in range(r_count):
     	    print " "
     	    row =ret[row_ndx]
-    	    c_count = len(row)
-    	    for rel_ndx in range(c_count):
-            	print row[rel_ndx]
+    	    #print type(row)
+    	    if type(row) is types.StringType:
+            	print row
+    	    else:
+    	    	c_count = len(row)
+    	    	for rel_ndx in range(c_count):
+    	    	    #print type(row[rel_ndx])
+            	    print row[rel_ndx]
 

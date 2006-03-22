@@ -117,6 +117,7 @@ try {
   case CMD_EXP_STATUS:
     cmd_successful = SS_expStatus (cmd);
     break;
+  case CMD_EXP_DATA:
   case CMD_EXP_VIEW:
     cmd_successful = SS_expView (cmd);
     break;

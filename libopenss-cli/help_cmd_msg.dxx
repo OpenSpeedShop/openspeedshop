@@ -239,6 +239,10 @@ char *cmd_expCreate_args[] = {
     "<expId> = expCreate [ -v mpi] [ <target_list> ] [ <expType_list> ]"
 };
 
+char *cmd_expData_args[] = {
+    "expData [-v <modifier_list>] [-x <expId>] [<viewType>] [-m <expMetric_list>] [<target_spec>]"
+};
+
 char *cmd_expDetach_args[] = {
     "expDetach [ -x <expId> ] [ <target_list> ] [ <expType_list> ]"
 };
@@ -413,6 +417,10 @@ char *cmd_expCreate_brief = {
     "Start the process of defining an experiment."
 };
 
+
+char *cmd_expData_brief = {
+    "Return data from experiment."
+};
 
 char *cmd_expDetach_brief = {
     "Detach applications from collectors."
@@ -712,6 +720,16 @@ char *cmd_expCreate_detailed[] = {
     " ",
     "- An \'expCreate\' command with no arguments will still return ",
     "  a new <expId> and will set the focus.",
+    " "
+};
+
+
+char *cmd_expData_detailed[] = {
+    cmd_expData_args[0],
+    " ",
+    cmd_expData_brief,
+    " ",
+    "  See expView for full options.",
     " "
 };
 
@@ -1844,6 +1862,14 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     NULL,0,
     cmd_expCreate_example,sizeof(cmd_expCreate_example)/sizeof(char **),
     cmd_expCreate_args,sizeof(cmd_expCreate_args)/sizeof(char **),
+//    CMD_EXP_DATA,
+    -1,cmd_desc[CMD_EXP_DATA].name,
+    cmd_expView_related,sizeof(cmd_expView_related)/sizeof(char **),
+    "commands",cmd_expData_brief,
+    cmd_expData_detailed,sizeof(cmd_expData_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
+    cmd_expData_args,sizeof(cmd_expData_args)/sizeof(char **),
 //    CMD_EXP_DETACH,
     -1,cmd_desc[CMD_EXP_DETACH].name,
     cmd_expDetach_related,sizeof(cmd_expDetach_related)/sizeof(char **),

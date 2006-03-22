@@ -50,6 +50,7 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "expClose",     false,  CMD_EXP_CLOSE,
     "expCreate",    false,  CMD_EXP_CREATE,
     "expCompare",   true,   CMD_EXP_COMPARE,
+    "expData",	    true,   CMD_EXP_DATA,
     "expDetach",    false,  CMD_EXP_DETACH,
     "expDisable",   false,  CMD_EXP_DISABLE,
     "expEnable",    false,  CMD_EXP_ENABLE,

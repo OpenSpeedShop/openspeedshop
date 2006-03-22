@@ -90,9 +90,11 @@ SS_Set_Assign (PyObject *self, PyObject *args) {
 /**
  * Method: Convert_CommandResult_To_Python()
  * 
- * .
+ * Determine if raw data or formatted strings will
+ * be returned in the form of a python object.
  *     
- * @param   cr
+ * @param   cmd - command object for this command
+ * @param   cr	- command result
  *
  * @return  PyObject *
  *
@@ -101,26 +103,35 @@ SS_Set_Assign (PyObject *self, PyObject *args) {
  */
 static PyObject *
 
-Convert_CommandResult_To_Python (CommandResult *cr) {
-  PyObject *p_object = NULL;
+Convert_CommandResult_To_Python (CommandObject *cmd, CommandResult *cr) {
+    PyObject *p_object = NULL;
+  
+    switch (cmd->Type()) {
 
-  switch (cr->Type()) {
+    	case CMD_EXP_VIEW:
+	    // Convert to Python Objects as strings
+    	    return Py_BuildValue("s",cr->Form().c_str());
 
-   case CMD_RESULT_UINT:
-   case CMD_RESULT_INT:
-   case CMD_RESULT_FLOAT:
-   case CMD_RESULT_STRING:
-   case CMD_RESULT_RAWSTRING:
-   case CMD_RESULT_COLUMN_VALUES:
-   case CMD_RESULT_FUNCTION:
-    return cr->pyValue();         // Convert to Python Objects
-   CMD_RESULT_TITLE:              // Ignore for Python
-   CMD_RESULT_COLUMN_HEADER:
-   CMD_RESULT_COLUMN_ENDER:
-   default:
-    return NULL;
-  }
+    	case CMD_EXP_DATA:
+	default:
+    	    switch (cr->Type()) {
 
+    	    	case CMD_RESULT_UINT:
+    	    	case CMD_RESULT_INT:
+    	    	case CMD_RESULT_FLOAT:
+    	    	case CMD_RESULT_STRING:
+    	    	case CMD_RESULT_RAWSTRING:
+    	    	case CMD_RESULT_COLUMN_VALUES:
+    	    	case CMD_RESULT_FUNCTION:
+    	    	    return cr->pyValue();   // Convert to Python Objects
+
+    	    	case CMD_RESULT_TITLE:	    // Ignore for Python
+    	    	case CMD_RESULT_COLUMN_HEADER:
+    	    	case CMD_RESULT_COLUMN_ENDER:
+    	    	default:
+    	    	    return NULL;
+    	}
+    }
 }
 
 /**
@@ -158,7 +169,7 @@ Convert_Cmd_To__Python (CommandObject *cmd) {
     if (cri != NULL) {
       int ret = 0; // python conversion routine error flag
 
-      p_object = Convert_CommandResult_To_Python (*cri);
+      p_object = Convert_CommandResult_To_Python (cmd, *cri);
       if (p_object == NULL) {
         continue;
       }

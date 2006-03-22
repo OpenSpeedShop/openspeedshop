@@ -51,7 +51,7 @@ char *string;
 %token ATTACH_HEAD CLOSE_HEAD CREATE_HEAD COMPARE_HEAD DETACH_HEAD 
 %token DISABLE_HEAD ENABLE_HEAD 
 %token FOCUS_HEAD GO_HEAD PAUSE_HEAD RESTORE_HEAD SAVE_HEAD
-%token SETPARAM_HEAD STATUS_HEAD VIEW_HEAD 
+%token SETPARAM_HEAD STATUS_HEAD VIEW_HEAD DATA_HEAD
 
 %token CVIEWCREATE_HEAD CVIEWDELETE_HEAD CVIEW_HEAD CVIEWINFO_HEAD
 
@@ -100,6 +100,7 @@ command_desc: exp_attach_com 	{p_parse_result->setCommandType(CMD_EXP_ATTACH);}
     	    | exp_close_com 	{p_parse_result->setCommandType(CMD_EXP_CLOSE);}
 	    | exp_create_com 	{p_parse_result->setCommandType(CMD_EXP_CREATE);}
 	    | exp_compare_com 	{p_parse_result->setCommandType(CMD_EXP_COMPARE);}
+	    | exp_data_com  	{p_parse_result->setCommandType(CMD_EXP_DATA);}
 	    | exp_detach_com 	{p_parse_result->setCommandType(CMD_EXP_DETACH);}
 	    | exp_disable_com 	{p_parse_result->setCommandType(CMD_EXP_DISABLE);}
 	    | exp_enable_com 	{p_parse_result->setCommandType(CMD_EXP_ENABLE);}
@@ -317,6 +318,14 @@ exp_view_com:	    VIEW_HEAD
   	    	|   VIEW_HEAD set_view_args error END_LINE 
       	    	;
 
+    	    /** EXP_DATA **/
+    	    /** expData [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <target_list> ] **/
+exp_data_com:	    DATA_HEAD 
+  	    	|   DATA_HEAD set_view_args 
+  	    	|   DATA_HEAD  error END_LINE 
+  	    	|   DATA_HEAD set_view_args error END_LINE 
+      	    	;
+
     	    /** C_VIEW_CREATE **/
     	    /** cViewCreate [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <target_list> ] **/
 c_view_create_com:  CVIEWCREATE_HEAD
@@ -417,6 +426,7 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	|   CLOSE_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_CLOSE].name);}
     	    	|   CREATE_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_CREATE].name);}
     	    	|   COMPARE_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_COMPARE].name);}
+    	    	|   DATA_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_DATA].name);}
     	    	|   DETACH_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_DETACH].name);}
     	    	|   DISABLE_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_DISABLE].name);}
     	    	|   ENABLE_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_ENABLE].name);}

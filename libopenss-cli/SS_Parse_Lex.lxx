@@ -55,6 +55,8 @@ extern int ip_number(char *,int);
 "expCreate" 	{ return CREATE_HEAD; }
 "expcompare" 	{ return COMPARE_HEAD; }
 "expCompare" 	{ return COMPARE_HEAD; }
+"expdata" 	{ return DATA_HEAD; }
+"expData" 	{ return DATA_HEAD; }
 "expdetach" 	{ return DETACH_HEAD; }
 "expDetach" 	{ return DETACH_HEAD; }
 "expdisable" 	{ return DISABLE_HEAD; }

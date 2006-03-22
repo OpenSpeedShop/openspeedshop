@@ -550,6 +550,7 @@ class CLI(code.InteractiveConsole):
         "expclose"      : "return_none",
         "expcreate"     : "return_int",
         "expcompare"	: "return_list",
+        "expdata"   	: "return_list",
         "expdetach"     : "return_none",
         "expdisable"    : "return_none",
         "expenable"     : "return_none",

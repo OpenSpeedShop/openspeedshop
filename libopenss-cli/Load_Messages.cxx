@@ -73,16 +73,18 @@ pcli_load_messages()
     
     // Load command help messages.
     // First command entry is always dummy error so skip.
-    for (int i=1;i<CMD_MAX;++i) {
+    int i = 1;
+    while (cmd_msg[i].topic != NULL) {
     	SS_Message_Element element;
 	
 	element.set_element(&cmd_msg[i],false /* is_topic */);
 	czar.Add_Help(element);
+	++i;
     }
     
     // Load grammar help messages.
     // Table ends when topic is NULL.
-    int i = 0;
+    i = 0;
     while (grammar_msg[i].topic != NULL) {
     	SS_Message_Element element;
 	

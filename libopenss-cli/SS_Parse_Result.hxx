@@ -33,6 +33,7 @@ typedef enum {
     CMD_EXP_CLOSE,
     CMD_EXP_CREATE,
     CMD_EXP_COMPARE,
+    CMD_EXP_DATA,
     CMD_EXP_DETACH,
     CMD_EXP_DISABLE,
     CMD_EXP_ENABLE,
@@ -337,7 +338,7 @@ class ParseResult {
 	{
 	    return dm_experiment_set;
 	}
-
+	
     	/** Handle list of experiment types. */
 //    	const vector<string> * getExpList() const
     	vector<string> * getExpList()
