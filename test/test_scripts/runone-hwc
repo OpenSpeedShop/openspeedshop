@@ -81,7 +81,7 @@ def CompareResults(testName, fileptr):
                        	if not tempfileline:
 				failure_reason = 3
                         	break
-                       	if tempfileline[0:16] == '    The restored':
+                       	if tempfileline[0:12] == 'The restored':
                         	nooutput = 0
                                 outputfileptr.readline()
                                 break
