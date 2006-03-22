@@ -22,8 +22,7 @@ ls -l file
 cat file
 read i < file
 rm file
-echo expCreate  -p $i >> input.script
-echo expattach -x 1 usertime >> input.script
+echo expCreate  -p $i usertime>> input.script
 echo expdisable >> input.script
 echo expstatus >> input.script
 echo expenable >> input.script
