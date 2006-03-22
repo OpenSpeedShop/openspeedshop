@@ -48,23 +48,43 @@ std::set<Thread> Statement::getThreads() const
 {
     std::set<Thread> threads;
 
-    // Find the threads containing our linked object
+    // Note: This query could be, and in fact used to be, implemented in a
+    //       more concise manner as:
+    //
+    //       SELECT AddressSpaces.thread
+    //       FROM AddressSpaces
+    //         JOIN Statements
+    //       ON AddressSpaces.linked_object = Statements.linked_object
+    //       WHERE Statements.id = <dm_entry>;
+    //
+    //       However the implementation below, combined with an index on
+    //       AddressSpaces(linked_object), was found to be quite a bit faster.
+    
+    // Find our linked object
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT DISTINCT AddressSpaces.thread "
-	"FROM Statements "
-	"  JOIN AddressSpaces "
-	"ON Statements.linked_object = AddressSpaces.linked_object "
-	"WHERE Statements.id = ?;"
+	"SELECT linked_object FROM Statements WHERE Statements.id = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	threads.insert(Thread(dm_database, dm_database->getResultAsInteger(1)));
+    while(dm_database->executeStatement()) {
+
+	int linked_object = dm_database->getResultAsInteger(1);	
+
+	// Find all the threads containing our linked object
+	dm_database->prepareStatement(
+	    "SELECT thread FROM AddressSpaces WHERE linked_object = ?;"
+	    );
+	dm_database->bindArgument(1, linked_object);
+	while(dm_database->executeStatement())
+	    threads.insert(Thread(dm_database, 
+				  dm_database->getResultAsInteger(1)));
+	
+    }    
     if(threads.empty())
 	throw Exception(Exception::EntryNotFound, "Threads",
 			"<Statements-Referenced>");
-    END_TRANSACTION(dm_database);    
+    END_TRANSACTION(dm_database);
     
     // Return the threads to the caller
     return threads;
@@ -93,68 +113,99 @@ ExtentGroup Statement::getExtentIn(const Thread& thread) const
     // Check assertions
     Assert(inSameDatabase(thread));
 
-    // Find our extent in the specified thread
+    // Note: This query could be, and in fact used to be, implemented in a
+    //       more concise manner as:
+    //
+    //       SELECT AddressSpaces.time_begin,
+    //              AddressSpaces.time_end,
+    //	            AddressSpaces.addr_begin,
+    //              StatementRanges.addr_begin,
+    //              StatementRanges.addr_end,
+    //              StatementRanges.valid_bitmap
+    //       FROM AddressSpaces
+    //         JOIN Statements
+    //         JOIN StatementRanges
+    //       ON AddressSpaces.linked_object = Statements.linked_object
+    //         AND Statements.id = StatementRanges.statement
+    //       WHERE AddressSpaces.thread = <thread.dm_entry>
+    //         AND StatementRanges.statement = <dm_entry>;
+    //
+    //       However the implementation below, combined with indices on
+    //       AddressSpaces(linked_object, thread) & StatementRanges(statement),
+    //       was found to be quite a bit faster.
+
+    // Find our linked object and address ranges with associated bitmaps
     BEGIN_TRANSACTION(dm_database);
     validate();
     thread.validate();
     dm_database->prepareStatement(
-	"SELECT AddressSpaces.time_begin, "
-	"       AddressSpaces.time_end, "
-	"       AddressSpaces.addr_begin, "
-        "       StatementRanges.addr_begin, "
-        "       StatementRanges.addr_end, "
-        "       StatementRanges.valid_bitmap "
+	"SELECT Statements.linked_object, "
+	"       StatementRanges.addr_begin, "
+	"       StatementRanges.addr_end, "
+	"       StatementRanges.valid_bitmap "
 	"FROM StatementRanges "
 	"  JOIN Statements "
-	"  JOIN AddressSpaces "
 	"ON StatementRanges.statement = Statements.id "
-	"  AND Statements.linked_object = AddressSpaces.linked_object "
-        "WHERE StatementRanges.statement = ? "
-        "  AND AddressSpaces.thread = ?;"
-        );
+	"WHERE Statements.id = ?;"
+	);
     dm_database->bindArgument(1, dm_entry);
-    dm_database->bindArgument(2, EntrySpy(thread).getEntry());
     while(dm_database->executeStatement()) {
 
-        AddressBitmap bitmap(AddressRange(dm_database->getResultAsAddress(4),
-                                          dm_database->getResultAsAddress(5)),
-                             dm_database->getResultAsBlob(6));
-
-        bool in_range = false;
-        Address range_begin;
+	int linked_object = dm_database->getResultAsInteger(1);	
+        AddressBitmap bitmap(AddressRange(dm_database->getResultAsAddress(2),
+                                          dm_database->getResultAsAddress(3)),
+                             dm_database->getResultAsBlob(4));
 	
-        for(Address i = bitmap.getRange().getBegin();
-            i != bitmap.getRange().getEnd();
-            ++i)
-            if(!in_range && bitmap.getValue(i)) {
-                in_range = true;
-                range_begin = i;
-            }
-            else if(in_range && !bitmap.getValue(i)) {
-                in_range = false;
+	// Find all the uses of this linked object in the specified thread
+	dm_database->prepareStatement(
+	    "SELECT time_begin, "
+	    "       time_end, "
+	    "       addr_begin "
+	    "FROM AddressSpaces "
+	    "WHERE thread = ? "
+	    "  AND linked_object = ?;"
+	    );
+	dm_database->bindArgument(1, EntrySpy(thread).getEntry());
+	dm_database->bindArgument(2, linked_object);
+	while(dm_database->executeStatement()) {
+
+	    bool in_range = false;
+	    Address range_begin;
+	
+	    for(Address i = bitmap.getRange().getBegin();
+		i != bitmap.getRange().getEnd();
+		++i)
+		if(!in_range && bitmap.getValue(i)) {
+		    in_range = true;
+		    range_begin = i;
+		}
+		else if(in_range && !bitmap.getValue(i)) {
+		    in_range = false;
+		    extent.push_back(
+			Extent(TimeInterval(dm_database->getResultAsTime(1),
+					    dm_database->getResultAsTime(2)),
+			       AddressRange(dm_database->getResultAsAddress(3) +
+					    range_begin,
+					    dm_database->getResultAsAddress(3) +
+					    i))
+			);
+		}
+	    
+	    if(in_range)
 		extent.push_back(
 		    Extent(TimeInterval(dm_database->getResultAsTime(1),
 					dm_database->getResultAsTime(2)),
 			   AddressRange(dm_database->getResultAsAddress(3) +
 					range_begin,
 					dm_database->getResultAsAddress(3) +
-					i))
-		    );
-            }
-	
-        if(in_range)
-	    extent.push_back(
-		Extent(TimeInterval(dm_database->getResultAsTime(1),
-				    dm_database->getResultAsTime(2)),
-		       AddressRange(dm_database->getResultAsAddress(3) +
-				    range_begin,
-				    dm_database->getResultAsAddress(3) +
-				    bitmap.getRange().getEnd()))
-		);
-	
+					bitmap.getRange().getEnd()))
+		    );	    
+	    
+	}
+
     }
     END_TRANSACTION(dm_database);
-        
+
     // Return the extent to the caller    
     return extent;
 }

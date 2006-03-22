@@ -86,6 +86,8 @@ namespace {
 	");",
 	"CREATE INDEX IndexAddressSpacesByLinkedObject "
 	"  ON AddressSpaces (linked_object);",
+	"CREATE INDEX IndexAddressSpacesByThreadAndLinkedObject "
+	"  ON AddressSpaces (thread, linked_object);",
 
 	// Linked Object Table
 	"CREATE TABLE LinkedObjects ("

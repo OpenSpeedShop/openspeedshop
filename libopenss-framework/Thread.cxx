@@ -272,22 +272,40 @@ std::set<Function> Thread::getFunctions() const
 {
     std::set<Function> functions;
 
-    // Find our functions
+    // Note: This query could be, and in fact used to be, implemented in a
+    //       more concise manner as:
+    //
+    //       SELECT Functions.id
+    //       FROM Functions
+    //         JOIN AddressSpaces
+    //       ON Functions.linked_object = AddressSpaces.linked_object
+    //       WHERE AddressSpaces.thread = <dm_entry>
+    //
+    //       However the implementation below was found to be quite a bit
+    //       faster.
+
+    // Find our linked objects
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT Functions.id "
-	"FROM Functions "
-	"  JOIN AddressSpaces "
-	"ON Functions.linked_object = AddressSpaces.linked_object "
-	"WHERE AddressSpaces.thread = ?;"
+	"SELECT linked_object FROM AddressSpaces WHERE thread = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	functions.insert(Function(dm_database,
-				  dm_database->getResultAsInteger(1)));
+    while(dm_database->executeStatement()) {
+	int linked_object = dm_database->getResultAsInteger(1);
+	
+	// Find all the functions in this linked object
+	dm_database->prepareStatement(
+	    "SELECT id FROM Functions WHERE linked_object = ?;"
+	    );
+	dm_database->bindArgument(1, linked_object);
+	while(dm_database->executeStatement())
+	    functions.insert(Function(dm_database,
+				      dm_database->getResultAsInteger(1)));
+
+    }
     END_TRANSACTION(dm_database);
-    
+
     // Return the functions to the caller
     return functions;
 }
@@ -306,20 +324,38 @@ std::set<Statement> Thread::getStatements() const
 {
     std::set<Statement> statements;
 
-    // Find our statements
+    // Note: This query could be, and in fact used to be, implemented in a
+    //       more concise manner as:
+    //
+    //       SELECT Statements.id
+    //       FROM Statements
+    //         JOIN AddressSpaces
+    //       ON Statements.linked_object = AddressSpaces.linked_object
+    //       WHERE AddressSpaces.thread = <dm_entry>
+    //
+    //       However the implementation below was found to be quite a bit
+    //       faster.
+
+    // Find our linked objects
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT Statements.id "
-	"FROM Statements "
-	"  JOIN AddressSpaces "
-	"ON Statements.linked_object = AddressSpaces.linked_object "
-	"WHERE AddressSpaces.thread = ?;"
+	"SELECT linked_object FROM AddressSpaces WHERE thread = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	statements.insert(Statement(dm_database,
-				    dm_database->getResultAsInteger(1)));
+    while(dm_database->executeStatement()) {
+	int linked_object = dm_database->getResultAsInteger(1);
+	
+	// Find all the statements in this linked object
+	dm_database->prepareStatement(
+	    "SELECT id FROM Statements WHERE linked_object = ?;"
+	    );
+	dm_database->bindArgument(1, linked_object);
+	while(dm_database->executeStatement())
+	    statements.insert(Statement(dm_database,
+					dm_database->getResultAsInteger(1)));
+	
+    }
     END_TRANSACTION(dm_database);
 
     // Return the statements to the caller

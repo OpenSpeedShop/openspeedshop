@@ -70,23 +70,43 @@ std::set<Thread> Function::getThreads() const
 {
     std::set<Thread> threads;
 
-    // Find the threads containing our linked object
+    // Note: This query could be, and in fact used to be, implemented in a
+    //       more concise manner as:
+    //
+    //       SELECT AddressSpaces.thread
+    //       FROM AddressSpaces
+    //         JOIN Functions
+    //       ON AddressSpaces.linked_object = Functions.linked_object
+    //       WHERE Functions.id = <dm_entry>;
+    //
+    //       However the implementation below, combined with an index on
+    //       AddressSpaces(linked_object), was found to be quite a bit faster.
+    
+    // Find our linked object
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT DISTINCT AddressSpaces.thread "
-	"FROM Functions "
-	"  JOIN AddressSpaces "
-	"ON Functions.linked_object = AddressSpaces.linked_object "
-	"WHERE Functions.id = ?;"
+	"SELECT linked_object FROM Functions WHERE Functions.id = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	threads.insert(Thread(dm_database, dm_database->getResultAsInteger(1)));
+    while(dm_database->executeStatement()) {
+
+	int linked_object = dm_database->getResultAsInteger(1);	
+
+	// Find all the threads containing our linked object
+	dm_database->prepareStatement(
+	    "SELECT thread FROM AddressSpaces WHERE linked_object = ?;"
+	    );
+	dm_database->bindArgument(1, linked_object);
+	while(dm_database->executeStatement())
+	    threads.insert(Thread(dm_database, 
+				  dm_database->getResultAsInteger(1)));
+	
+    }	
     if(threads.empty())
 	throw Exception(Exception::EntryNotFound, "Threads",
 			"<Functions-Referenced>");
-    END_TRANSACTION(dm_database);    
+    END_TRANSACTION(dm_database);
     
     // Return the threads to the caller
     return threads;
@@ -115,35 +135,66 @@ ExtentGroup Function::getExtentIn(const Thread& thread) const
     // Check assertions
     Assert(inSameDatabase(thread));
 
-    // Find our extent in the specified thread
+    // Note: This query could be, and in fact used to be, implemented in a
+    //       more concise manner as:
+    //
+    //       SELECT AddressSpaces.time_begin,
+    //              AddressSpaces.time_end,
+    //              AddressSpaces.addr_begin,
+    //              Functions.addr_begin,
+    //              Functions.addr_end
+    //       FROM AddressSpaces
+    //         JOIN Functions
+    //       ON AddressSpaces.linked_object = Functions.linked_object
+    //       WHERE AddressSpaces.thread = <thread.dm_entry>
+    //         AND Functions.id = <dm_entry>
+    //
+    //       However the implementation below, combined with an index on
+    //       AddressSpaces(linked_object, thread), was found to be quite
+    //       a bit faster.
+    
+    // Find our linked object and address range
     BEGIN_TRANSACTION(dm_database);
     validate();
     thread.validate();
     dm_database->prepareStatement(
-	"SELECT AddressSpaces.time_begin, "
-	"       AddressSpaces.time_end, "
-	"       AddressSpaces.addr_begin, "
-	"       Functions.addr_begin, "
-	"       Functions.addr_end "
+	"SELECT linked_object, "
+	"       addr_begin, "
+	"       addr_end "
 	"FROM Functions "
-	"  JOIN AddressSpaces "
-	"ON Functions.linked_object = AddressSpaces.linked_object "
-	"WHERE Functions.id = ? "
-	"  AND AddressSpaces.thread = ?;"
+	"WHERE Functions.id = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
-    dm_database->bindArgument(2, EntrySpy(thread).getEntry());
-    while(dm_database->executeStatement())
-	extent.push_back(
-	    Extent(TimeInterval(dm_database->getResultAsTime(1),
-				dm_database->getResultAsTime(2)),
-		   AddressRange(dm_database->getResultAsAddress(3) +
-				dm_database->getResultAsAddress(4),
-				dm_database->getResultAsAddress(3) +
-				dm_database->getResultAsAddress(5)))
+    while(dm_database->executeStatement()) {
+
+	int linked_object = dm_database->getResultAsInteger(1);	
+	Address addr_begin = dm_database->getResultAsAddress(2);
+	Address addr_end = dm_database->getResultAsAddress(3);
+
+	// Find all the uses of this linked object in the specified thread
+	dm_database->prepareStatement(
+	    "SELECT time_begin, "
+	    "       time_end, "
+	    "       addr_begin "
+	    "FROM AddressSpaces "
+	    "WHERE thread = ? "
+	    "  AND linked_object = ?;"
 	    );
+	dm_database->bindArgument(1, EntrySpy(thread).getEntry());
+	dm_database->bindArgument(2, linked_object);
+	while(dm_database->executeStatement())
+	    extent.push_back(
+		Extent(TimeInterval(dm_database->getResultAsTime(1),
+				    dm_database->getResultAsTime(2)),
+		       AddressRange(dm_database->getResultAsAddress(3) +
+				    addr_begin,
+				    dm_database->getResultAsAddress(3) +
+				    addr_end))
+		);
+
+    }	
     END_TRANSACTION(dm_database);
-    
+
     // Return the extent to the caller    
     return extent;
 }

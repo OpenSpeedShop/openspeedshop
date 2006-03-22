@@ -51,7 +51,7 @@ std::set<Thread> LinkedObject::getThreads() const
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT DISTINCT thread FROM AddressSpaces WHERE linked_object = ?;"
+	"SELECT thread FROM AddressSpaces WHERE linked_object = ?;"
 	);    
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
@@ -98,11 +98,11 @@ ExtentGroup LinkedObject::getExtentIn(const Thread& thread) const
 	"       addr_begin, "
 	"       addr_end "
 	"FROM AddressSpaces "
-	"WHERE linked_object = ? "
-	"  AND thread = ?;"
+	"WHERE thread = ? "
+	"  AND linked_object = ?;"
 	);    
-    dm_database->bindArgument(1, dm_entry);
-    dm_database->bindArgument(2, EntrySpy(thread).getEntry());
+    dm_database->bindArgument(1, EntrySpy(thread).getEntry());
+    dm_database->bindArgument(2, dm_entry);
     while(dm_database->executeStatement())
 	extent.push_back(
 	    Extent(TimeInterval(dm_database->getResultAsTime(1),
