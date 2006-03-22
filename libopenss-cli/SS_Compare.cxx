@@ -32,56 +32,9 @@ static int64_t Get_Trailing_Int (std::string viewname, int64_t start) {
 
 struct ltCR {
   bool operator() (CommandResult *CR1, CommandResult *CR2) {
-    if ((CR1->Type() == CMD_RESULT_FUNCTION) &&
-        (CR2->Type() == CMD_RESULT_FUNCTION)) {
-      CommandResult_Function *lhs = (CommandResult_Function *)CR1;
-      CommandResult_Function *rhs = (CommandResult_Function *)CR2;
-      if(lhs->getName() < rhs->getName())
-          return true;
-      else if(lhs->getName() > rhs->getName())
-          return false;
-      if (lhs->getLinkedObject().getPath() < rhs->getLinkedObject().getPath())
-          return true;
-      else if (lhs->getLinkedObject().getPath() > rhs->getLinkedObject().getPath())
-          return false;
-      std::set<Statement> L = lhs->getDefinitions();
-      std::set<Statement> R = rhs->getDefinitions();
-      if ((L.begin() != L.end()) &&
-          (R.begin() != R.end())) {
-        Statement l = *L.begin();
-        Statement r = *R.begin();
-        if (l.getLine() < r.getLine()) return true;
-        if (l.getLine() > r.getLine()) return false;
-        return false;
-      }
-    }
-    else if ((CR1->Type() == CMD_RESULT_CALLTRACE) &&
-             (CR2->Type() == CMD_RESULT_CALLTRACE)) {
-      CommandResult_CallStackEntry *lhs = (CommandResult_CallStackEntry *)CR1;
-      CommandResult_CallStackEntry *rhs = (CommandResult_CallStackEntry *)CR2;
-      SmartPtr<std::vector<CommandResult *> > ls;
-      SmartPtr<std::vector<CommandResult *> > rs;
-      lhs->Value (ls);
-      rhs->Value (rs);
-      int64_t ll = ls->size();
-      int64_t rl = rs->size();
-      int64_t lm = min(ll,rl);
-      for (int64_t i = 0; i < lm; i++) {
-        if (ltCR::ltCR() ((*ls)[i], (*rs)[i])) { return true; }
-      }
-      return (ll < rl);
-    }
     return CommandResult_lt (CR1, CR2);
   }
 };
-
-/*
-struct ltCR {
-  bool operator() (CommandResult *CR1, CommandResult *CR2) {
-    return CommandResult_lt (CR1, CR2);
-  }
-};
-*/
 
 // Data used to track Custom View definitions.
 pthread_mutex_t CustomView_List_Lock;

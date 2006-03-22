@@ -33,7 +33,29 @@
 #include "Statement.hxx"
 #include "Thread.hxx"
 
+// #include <demangle.h>
+
 using namespace OpenSpeedShop::Framework;
+
+
+
+//
+// Note: Unfortunately some versions (e.g. binutils 2.15) of the <demangle.h>
+//       header file contain a function declaring a parameter named "typename"
+//       which is a reserved word in C++. So instead we declare the few symbols
+//       we use from that header here directly. Hopefully in the future this
+//       can be remedied.
+//
+
+#if !defined (DEMANGLE_H)
+
+#define DMGL_NO_OPTS	 0		/* For readability... */
+#define DMGL_PARAMS	 (1 << 0)	/* Include function args */
+#define DMGL_ANSI	 (1 << 1)	/* Include const, volatile, etc */
+
+extern "C" char* cplus_demangle(const char*, int);
+
+#endif
 
 
 
@@ -158,29 +180,68 @@ LinkedObject Function::getLinkedObject() const
 
 
 /**
- * Get our demangled name.
+ * Get our name.
  *
- * Returns the demangled name of this function.
+ * Returns the name of this function. Equivalent to getDemangledName(false).
  *
- * @return    Demangled name of this function.
+ * @return    Name of this function.
  */
 std::string Function::getName() const
 {
+    return getDemangledName(false);
+}
+
+
+
+/**
+ * Get our mangled name.
+ *
+ * Returns the mangled name of this function.
+ *
+ * @return    Mangled name of this function.
+ */
+std::string Function::getMangledName() const
+{
     std::string name;
 
-    // Find our demangled name
+    // Find our mangled name
     BEGIN_TRANSACTION(dm_database);
     validate();
-    dm_database->prepareStatement(
-	"SELECT name FROM Functions WHERE id = ?;"
-	);
+    dm_database->prepareStatement("SELECT name FROM Functions WHERE id = ?;");
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
 	name = dm_database->getResultAsString(1);
     END_TRANSACTION(dm_database);
     
+    // Return the mangled name to the caller
+    return name;    
+}
+
+
+
+/**
+ * Get our demangled name.
+ *
+ * Returns the demangled name of this funciton. An optional boolean flag is used
+ * to specify if all available information (including const, volatile, function
+ * arguments, etc.) should be included in the demangled name or not.
+ *
+ * @param all    Boolean "true" if all available information should be included
+ *               in the demangled name, "false" otherwise.
+ * @return       Demangled name of this function.
+ */
+std::string Function::getDemangledName(const bool& all) const
+{
+    // Get our mangled name
+    std::string mangled = getMangledName();
+
+    // Demangle the mangled name
+    char* demangled = 
+	cplus_demangle(mangled.c_str(), 
+		       all ? (DMGL_ANSI | DMGL_PARAMS) : DMGL_NO_OPTS);
+
     // Return the demangled name to the caller
-    return name;
+    return demangled ? demangled : mangled;
 }
 
 

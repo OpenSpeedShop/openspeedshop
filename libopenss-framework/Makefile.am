@@ -40,7 +40,7 @@ libopenss_framework_la_LIBADD = \
 	@ARRAYSVCS_LIBS@ \
 	@PAPI_LIBS@ \
 	@SQLITE_LIBS@ \
-	-lpthread -lrt
+	-lpthread -lrt -liberty
 
 libopenss_framework_la_SOURCES = \
 	$(top_srcdir)/libopenss-runtime/OpenSS_DataHeader.c \
@@ -92,6 +92,6 @@ libopenss_framework_la_SOURCES += \
 endif
 
 EXTRA_DIST = OpenSSPath.cxx
- 
+
 doc:
 	$(DOXYGEN)

@@ -1841,9 +1841,9 @@ void Process::expandCallback(GCBSysType, GCBTagType tag,
 		    Address start = function.address_start();
 		    Address end = function.address_end();
 		    
-		    // Get the demangled name of the function
-		    char name[function.get_demangled_name_length() + 1];
-		    function.get_demangled_name(name, sizeof(name));
+		    // Get the mangled name of the function
+		    char name[function.get_mangled_name_length() + 1];
+		    function.get_mangled_name(name, sizeof(name));
 		    
 		    // Add this function to the symbol table
 		    symbol_table.addFunction(start, end, name);

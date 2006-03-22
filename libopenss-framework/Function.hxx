@@ -71,6 +71,8 @@ namespace OpenSpeedShop { namespace Framework {
 	LinkedObject getLinkedObject() const;
 	
 	std::string getName() const;
+	std::string getMangledName() const;
+	std::string getDemangledName(const bool& = true) const;
 	
 	std::set<Statement> getDefinitions() const;
 	std::set<Statement> getStatements() const;
