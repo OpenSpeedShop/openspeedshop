@@ -22,9 +22,9 @@ ls -l file
 cat file
 read i < file
 rm file
-echo expCreate  -p $i >> input.script
-echo expattach -x 1 pcsamp >> input.script
-echo expdetach pcsamp >> input.script
+echo expCreate  -p $i pcsamp>> input.script
+echo expdetach -x 1 pcsamp >> input.script
 echo expstatus >> input.script
 echo exit >> input.script
 openss -batch < input.script
+kill -n 9 $i
