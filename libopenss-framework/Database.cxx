@@ -77,6 +77,204 @@ namespace {
     }
 
 
+
+#ifndef NDEBUG
+    /** Flag indicating if debugging for this class is enabled. */
+    bool is_debug_enabled = false;
+
+    /** Type representing a stack of SQL statements being executed. */
+    typedef std::vector<std::pair<std::string, Time> > DebugExecutionStack;
+    
+    /**
+     * Debugging data.
+     *
+     * Class storing and displaying the debugging data for the database class.
+     * Normally this functionality would have been in separate functions within
+     * this unnamed namespace rather than in a class. Using a class, however,
+     * creates a convenient location (i.e. the singleton's destructor) where
+     * the statement performance data can be printed as the tool terminates.
+     */
+    class DebugData :
+	public Lockable
+    {
+
+    public:
+
+	/** Default constructor. */
+	DebugData()
+	{
+	    // Is debugging enabled?
+	    if(getenv("OPENSS_DEBUG_DATABASE") != NULL)
+		is_debug_enabled = true;	    
+	}
+
+	/** Destructor. */
+	~DebugData()
+	{
+	    // Go no further if debugging is disabled or there are no results
+	    if(!is_debug_enabled || dm_results.empty())
+		return;
+
+	    // Sort the statements by their total execution time
+	    std::multimap<uint64_t, std::pair<uint64_t, std::string> > sorted;
+	    for(std::map<std::string, 
+		    std::pair<uint64_t, uint64_t> >::const_iterator 
+		    i = dm_results.begin(); i != dm_results.end(); ++i)
+		sorted.insert(
+		    std::make_pair(i->second.second,
+				   std::make_pair(i->second.first, i->first))
+		    );
+	    
+	    // Display the statement performance data
+
+	    static const unsigned InitialIndent = 2;
+	    static const unsigned TimeWidth = 8;
+	    static const unsigned CountWidth = 8;
+	    static const unsigned StatementWidth = 58;
+	    static const unsigned StatementIndent =
+		InitialIndent + TimeWidth + CountWidth + 2;
+	    
+	    std::cout << std::endl << std::endl << std::endl
+		      << std::setw(InitialIndent) << " "
+		      << "SUMMARY OF SQL STATEMENT EXECUTION" 
+		      << std::endl << std::endl
+		      << std::setw(InitialIndent) << " "
+		      << std::setw(TimeWidth) << "Time(mS)" << " "
+		      << std::setw(CountWidth) << "Count" << "  "
+		      << "Statement" 
+		      << std::endl << std::endl;
+	    
+	    uint64_t total = 0;
+	    for(std::multimap<uint64_t,
+		    std::pair<uint64_t, std::string> >::reverse_iterator
+		    i = sorted.rbegin(); i != sorted.rend(); ++i) {
+		total += i->first;
+
+		std::cout << std::setw(InitialIndent) << " "
+			  << std::setw(TimeWidth) << (i->first / 1000000) << " "
+			  << std::setw(CountWidth) << i->second.first << " ";
+		
+		// Insert the statement while performing pretty formatting
+		for(std::string::size_type
+			current = i->second.second.find_first_not_of(' ', 0), 
+			next = i->second.second.find(' ', current),
+			length = 0;
+		    current != std::string::npos;
+		    current = i->second.second.find_first_not_of(' ', next), 
+			next = i->second.second.find(' ', current)) {
+		    
+		    // Extract the current word
+		    std::string word = i->second.second.substr(
+			current, 
+			(next == std::string::npos) ? next : next - current
+			);
+		    
+		    // Adjust the length for this word
+		    length += word.size() + 1;
+
+		    // Start a new line before this word?
+		    if((length > StatementWidth) && 
+		       (word.size() < StatementWidth)) {
+
+			// Insert a new line first
+			length = 0;
+			std::cout << std::endl
+				  << std::setw(StatementIndent) << " ";
+			
+			// Adjust the line size for this word (again)
+			length += word.size() + 1;
+
+		    }
+		    
+		    // Output the word
+		    std::cout << " " << word;
+
+		}
+
+		std::cout << std::endl << std::endl;
+
+	    }
+
+	    std::cout << std::setw(InitialIndent) << " "
+		      << std::setw(TimeWidth) << (total / 1000000) << " "
+		      << std::setw(CountWidth) << " " << "  "
+		      << "All Statements" 
+		      << std::endl << std::endl << std::endl << std::endl;
+
+	}
+	
+	/** Indicate the start of a statement's execution. */
+	void start(const std::string& statement)
+	{
+	    Guard guard_myself(this);
+
+	    // Go no further if debugging is disabled
+	    if(!is_debug_enabled)
+		return;
+
+	    // Find per-thread execution stack (if any) for executing thread
+	    std::map<pthread_t, DebugExecutionStack>::iterator i =
+		dm_executing.find(pthread_self());
+
+	    // Create one if an existing stack could not be found
+	    if(i == dm_executing.end())
+		i = dm_executing.insert(
+		    std::make_pair(pthread_self(), DebugExecutionStack())
+		    ).first;
+
+	    // Create an entry for the start of this statement's execution
+	    i->second.push_back(std::make_pair(statement, Time::Now()));
+	}
+
+	/** Indicate the completion of the active statement's execution. */
+	void finish()
+	{
+	    Guard guard_myself(this);
+	    
+	    // Go no further if debugging is disabled
+	    if(!is_debug_enabled)
+		return;
+
+	    // Record the finish time of the active statement's execution
+	    Time t_finish = Time::Now();
+
+	    // Find per-thread execution stack (if any) for executing thread
+	    std::map<pthread_t, DebugExecutionStack>::iterator i =
+		dm_executing.find(pthread_self());
+	    Assert(i != dm_executing.end());
+
+	    // Pop the top statement off the execution stack
+	    std::string statement = i->second.back().first;
+	    Time t_start = i->second.back().second;
+	    i->second.pop_back();
+	    
+	    // Find the results for this statement
+	    std::map<std::string, std::pair<uint64_t, uint64_t> >::iterator
+		j = dm_results.find(statement);
+	    if(j == dm_results.end())
+		j = dm_results.insert(
+		    std::make_pair(statement, std::make_pair(0, 0))
+		    ).first;
+
+	    // Update the results
+	    j->second.first += 1;
+	    j->second.second += t_finish - t_start; 
+	}
+
+    private:
+	
+	/** Per-thread stacks of SQL statements being executed. */
+	std::map<pthread_t, DebugExecutionStack> dm_executing;
+
+	/** Map of SQL statements to their total execution count and time. */
+	std::map<std::string, std::pair<uint64_t, uint64_t> > dm_results;
+	
+    };
+
+    /** Singleton debugging data. */
+    DebugData debug_data;
+    
+#endif
     
 }
 
@@ -526,6 +724,10 @@ void Database::prepareStatement(const std::string& statement)
 
     // Push this statement onto the transaction stack
     handle.dm_transaction.push_back(stmt);
+#ifndef NDEBUG
+    if(is_debug_enabled)
+	debug_data.start(statement);
+#endif	
 }
 
 
@@ -818,7 +1020,11 @@ bool Database::executeStatement()
 	
 	// Pop this statement off the transaction stack
 	handle.dm_transaction.pop_back();
-	
+#ifndef NDEBUG
+	if(is_debug_enabled)
+	    debug_data.finish();
+#endif	
+
     }
     
     // Indicate to the caller whether or not there are results
@@ -1128,6 +1334,10 @@ void Database::commitTransaction()
 	
 	// Pop this statement off the transaction stack
 	handle.dm_transaction.pop_back();
+#ifndef NDEBUG
+	if(is_debug_enabled)
+	    debug_data.finish();
+#endif	
 	
     }
 
@@ -1186,6 +1396,10 @@ void Database::rollbackTransaction()
 	
 	// Pop this statement off the transaction stack
 	handle.dm_transaction.pop_back();
+#ifndef NDEBUG
+	if(is_debug_enabled)
+	    debug_data.finish();
+#endif	
 	
     }
 
