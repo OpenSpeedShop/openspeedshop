@@ -4,27 +4,35 @@ import openss
 
 my_file = openss.FileList("../../usability/phaseIII/fred")
 
+list_type = openss.ModifierList("status")
+
 # Define and run pcsamp experiment
 pcsamp_viewtype = openss.ViewTypeList()
 pcsamp_viewtype += "pcsamp"
 pcsamp_expid = openss.expCreate(my_file,pcsamp_viewtype)
 openss.expGo()
-openss.wait_for_go()
+output = openss.list(list_type,pcsamp_expid)
+print "expect Running"
+print output
+openss.wait()
 
 user_viewtype = openss.ViewTypeList()
 user_viewtype += "usertime"
 user_expid = openss.expCreate(my_file,user_viewtype)
 
-output = openss.listStatus(user_expid)
+output = openss.list(list_type,user_expid)
+print "expect Paused"
 print output
-output = openss.listStatus(pcsamp_expid)
+output = openss.list(list_type,pcsamp_expid)
+print "expect Terminated"
 print output
 
 openss.expGo()
-openss.wait_for_go()
+openss.wait()
 
 #my_modifer = openss.ModifierList("all")
 #output = openss.listStatus(my_modifer)
 
-output = openss.listStatus(user_expid)
+output = openss.list(list_type,user_expid)
+print "expect Terminated"
 print output

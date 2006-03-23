@@ -1,17 +1,24 @@
-# <ListOf_viewType> = listViews [ <expId_spec> || all || <expType_list> ]
+# <ListOf_viewType> = list -v exptype [ <expId_spec> || all || <expType_list> ]
 
 import openss
 
-exp1 = openss.ExpId(7)
-my_modifer = openss.ModifierList("all")
+my_file = openss.FileList("../../usability/phaseIII/fred 900")
 my_exptype = openss.ExpTypeList("pcsamp")
+my_expid = openss.expCreate(my_file,my_exptype)
 
-output = openss.listViews(my_modifer)
+my_modifer = openss.ModifierList("all")
+list_type = openss.ModifierList("views")
 
-output = openss.listViews(exp1)
-
-output = openss.listViews(my_exptype)
-
-output = openss.listViews()
-
+output = openss.list(my_modifer,list_type)
 print output
+
+output = openss.list(my_expid,list_type)
+print output
+
+output = openss.list(my_exptype,list_type)
+print output
+
+output = openss.list(list_type)
+print output
+
+openss.exit()

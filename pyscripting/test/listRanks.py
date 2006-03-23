@@ -2,11 +2,19 @@
 
 import openss
 
-my_id = openss.ExpId(openss.expCreate())
-my_host = openss.HostList(["host1,host2"])
+list_type = openss.ModifierList("status")
 
-output = openss.listRanks()
-output = openss.listRanks(my_id)
-output = openss.listRanks(my_host)
+my_file = openss.FileList("../../usability/phaseIII/fred")
+
+my_host = openss.HostList("localhost")
+my_id = openss.expCreate(my_file,my_host)
+
+output = openss.list(list_type)
+print output
+output = openss.list(list_type,my_id)
+print output
+output = openss.list(list_type,my_host)
 
 print output
+
+openss.exit()

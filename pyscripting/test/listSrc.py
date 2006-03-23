@@ -2,13 +2,15 @@
 
 import openss
 
+list_type = openss.ModifierList("src")
+
 my_viewtype = openss.ViewTypeList("pcsamp")
 my_file = openss.FileList("../../usability/phaseIII/fred")
 
 my_id	= openss.expCreate(my_file,my_viewtype)
-#my_host = openss.HostList(["host1,host2"])
+my_host = openss.HostList(["localhost"])
 
-ret = openss.listSrc()
+ret = openss.list(list_type)
 
 #output = openss.listSrc(my_id)
 #output = openss.listSrc(my_host)

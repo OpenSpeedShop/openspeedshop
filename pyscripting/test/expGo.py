@@ -11,8 +11,6 @@ my_viewtype = openss.ViewTypeList()
 my_viewtype += "pcsamp"
 exp1 = openss.expCreate(my_file,my_viewtype)
 
-print "after expcreate: exp1 = ",exp1
-
 my_modifer = openss.ModifierList()
 my_modifer += "all"
 
@@ -24,16 +22,18 @@ except openss.error:
 
 print "after expgo #1"
 
+# If we don't pause we may get an exception
+# if the experiment has already terminated.
 openss.expGo(my_modifer)
-
+openss.expPause()
 print "after expgo #2"
 
 openss.expGo(exp1)
-
+openss.expPause()
 print "after expgo #3"
 
 openss.expGo()
-
+openss.expPause()
 print "after expgo #4"
 
 openss.exit()

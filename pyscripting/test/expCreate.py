@@ -4,14 +4,14 @@ import openss
 
 try :
 
-    my_file = openss.FileList("../../usability/phaseIII/fred 90")
+    my_file = openss.FileList("../../usability/phaseIII/fred 800")
     my_viewtype = openss.ViewTypeList("pcsamp")
-    openss.expCreate(my_file,my_viewtype,9)
+    openss.expCreate(my_file,my_viewtype)
     openss.expGo()
-    openss.waitForGo()
-    #openss.dumpView()
-    output = openss.expView()
-    print output
+    openss.wait()
+    openss.dumpView()
+    #output = openss.expView()
+    #print output
     openss.exit()
 
 except openss.error,message:

@@ -2,12 +2,25 @@
 
 import openss
 
-my_id = openss.ExpId(openss.expCreate())
-my_host = openss.HostList(["host1,host2"])
+my_id = openss.expCreate()
+my_host = openss.HostList(["localhost"])
+#my_host = openss.HostList(["host1,host2"])
 
-output = openss.listThreads()
-output = openss.listThreads(my_id)
-output = openss.listThreads(my_host)
-output = openss.listThreads(my_id,my_host)
+my_file = openss.FileList("../../usability/phaseIII/fred 900")
+my_exptype = openss.ExpTypeList("pcsamp")
+my_expid = openss.expCreate(my_file,my_exptype,my_host)
 
+list_type = openss.ModifierList("threads")
+
+output = openss.list(list_type)
 print output
+
+output = openss.list(list_type,my_id)
+print output
+
+output = openss.list(list_type,my_host)
+print output
+
+output = openss.list(list_type,my_id,my_host)
+print output
+

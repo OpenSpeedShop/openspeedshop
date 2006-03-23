@@ -2,11 +2,23 @@
 
 import openss
 
-my_id = openss.ExpId(openss.expCreate())
-my_host = openss.HostList(["host1,host2"])
+list_type = openss.ModifierList("pids")
 
-output = openss.listPids()
-output = openss.listPids(my_id)
-output = openss.listPids(my_host)
+my_file = openss.FileList("../../usability/phaseIII/fred 800 ")
+my_type = "pcsamp"
+my_host = openss.HostList("localhost")
+my_id = openss.expCreate(my_file,my_type,my_host)
 
+openss.expGo()
+openss.wait()
+
+output = openss.list(list_type)
 print output
+
+output = openss.list(list_type,my_id)
+print output
+
+#output = openss.list(list_type,my_host)
+#print output
+
+openss.exit()

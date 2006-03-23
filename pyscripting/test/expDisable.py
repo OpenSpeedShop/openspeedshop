@@ -4,7 +4,7 @@ import openss
 
 try :
     # Create an experiment with pcsamp being the experiment type
-    my_file = openss.FileList("../../usability/phaseIII/fred")
+    my_file = openss.FileList("../../usability/phaseIII/fred 700")
     my_exptype = openss.ExpTypeList("pcsamp")
     exp_id = openss.expCreate(my_file,my_exptype)
 
@@ -23,10 +23,11 @@ try :
     	data = openss.expView()
     	if (data  == None):
     	    print "PASSED"
+	    openss.wait() # kluge for late exception return
     	else:
     	    print "FAILED"
     except openss.error,message:
-    	print "ERROR: ", message
+    	print "Expected: ", message
 
 except message:
     print "ERROR: ", message

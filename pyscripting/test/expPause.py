@@ -1,15 +1,37 @@
 # expPause [ <expId_spec> || all ]
 
 import openss
+import os
 
-exp1 = openss.ExpId(7)
+my_file = openss.FileList("../../usability/phaseIII/fred 900")
+my_viewtype = openss.ViewTypeList("pcsamp")
+my_expid = openss.expCreate(my_file,my_viewtype)
 
-my_modifer = openss.ModifierList("all")
+openss.expGo()
+openss.expPause()
+os.system("sleep 20")
+print "Not yet"
+
+openss.expGo()
+openss.expPause()
+os.system("sleep 20")
+print "Not yet"
+
+openss.expGo()
+openss.expPause()
+os.system("sleep 20")
+print "Not yet"
+
+openss.expGo()
+os.system("sleep 20")
+print "Should be done now"
+
+#my_modifer = openss.ModifierList("all")
 
 #openss.expPause(exp1,my_modifer)
 
-openss.expPause(my_modifer)
+#openss.expPause(my_modifer)
 
-openss.expPause(exp1)
+#openss.expPause(exp1)
 
-openss.expPause()
+#openss.expPause()

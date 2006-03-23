@@ -2,10 +2,19 @@
 
 import openss
 
-my_file_bosco = openss.FileList("bosco")
-exp1 = openss.ExpId(7)
-my_break = openss.setBreak(exp1,my_file_bosco,0x400144)
+my_file = openss.FileList("../../usability/phaseIII/fred")
+pcsamp_viewtype = openss.ViewTypeList()
+pcsamp_viewtype += "pcsamp"
+exp1 = openss.expCreate(my_file,pcsamp_viewtype)
 
-output = openss.clearBreak(my_break)
+try :
+    my_break = openss.setBreak(exp1,my_file,0x400144)
+    openss.wait() # kluge for delayed exception
+    output = openss.clearBreak(my_break)
+    openss.wait() # kluge for delayed exception
+    print output
 
-print output
+except openss.error,message:
+    print "ERROR: ", message
+
+openss.exit()

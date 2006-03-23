@@ -4,7 +4,7 @@ import openss
 
 try :
     # Create an experiment with pcsamp being the experiment type
-    my_file = openss.FileList("../../usability/phaseIII/fred")
+    my_file = openss.FileList("../../usability/phaseIII/fred 750")
     my_exptype = openss.ExpTypeList("pcsamp")
     exp_id = openss.expCreate(my_file,my_exptype)
 
@@ -20,9 +20,10 @@ try :
     print "This should say [usertime]: ", openss.list(exp_mod)
     
     openss.expGo(exp_id)
-    openss.waitForGo()
+    openss.wait()
 
     print openss.expView()
+    openss.wait() # kluge for delayed exception
     
 except openss.error,message:
     print "ERROR: ", message
