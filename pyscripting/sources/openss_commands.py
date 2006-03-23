@@ -1467,9 +1467,9 @@ def waitForGo():
 	    	return
 
 ##################################################################
-# dump_view: For testing 
+# dumpData: For testing 
 ##################################################################
-def dumpView():
+def dumpData():
 
     """
     Helper routine used to dump 2 dimensional views.
@@ -1489,7 +1489,7 @@ def dumpView():
 
     	if ret is None:
     	    my_listtype = openss.ModifierList("status")
-    	    print "expView returned None"
+    	    print "expData returned None"
     	    try:
     	    	print "status = ", openss.list(my_listtype)
     	    except openss.error:
@@ -1511,8 +1511,49 @@ def dumpView():
     	#print "In try part"
     	ret = expData()
 
-    except error:
-    	print "In except part"
+    except error,message:
+    	print "expData ERROR: ",message
+	ret = None
+
+    if ret is None:
+    	my_listtype = ModifierList("status")
+    	print "expData returned None"
+    	try:
+    	    print "status = ", list(my_listtype)
+    	except error,message:
+    	    print "listStatus ERROR: ",message
+
+    else:
+    	r_count = len(ret)
+    	for row_ndx in range(r_count):
+    	    print " "
+    	    row =ret[row_ndx]
+    	    #print type(row)
+    	    if type(row) is types.StringType:
+            	print row
+    	    else:
+    	    	c_count = len(row)
+    	    	for rel_ndx in range(c_count):
+    	    	    #print type(row[rel_ndx])
+            	    print row[rel_ndx]
+
+##################################################################
+# dump_view: For testing 
+##################################################################
+def dumpView():
+
+    """
+    Helper routine used to dump 2 dimensional views.
+    Same as dumpData except we call expView() instead
+    and get back lists of strings representing the data.
+
+    """
+
+    try :
+    	ret = expView()
+
+    except error,message:
+    	print "expView ERROR: ",message
 	ret = None
 
     if ret is None:
@@ -1520,8 +1561,8 @@ def dumpView():
     	print "expView returned None"
     	try:
     	    print "status = ", list(my_listtype)
-    	except error:
-    	    print "listStatus failed"
+    	except error,message:
+    	    print "listStatus ERROR: ",message
 
     else:
     	r_count = len(ret)
