@@ -465,7 +465,7 @@ CustomExperimentPanel::menu(QPopupMenu* contextMenu)
 
   qaction = new QAction( this,  "saveExp");
   qaction->addTo( contextMenu );
-  qaction->setText( "Save Experiment..." );
+  qaction->setText( "Save Experiment Data..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( saveExperiment() ) );
   qaction->setStatusTip( tr("Save the experiment file...") );
 
