@@ -148,14 +148,14 @@ void MPListView::contentsDropEvent( QDropEvent *e )
   if( item->parent() )
   {
     MPListViewItem *pi = (MPListViewItem *)item->parent();
-//    if( pi->text(0).find("pset") == 0 || pi->text(0).find("upset") == 0 )
+//    if( pi->text(0).find("pset") == 0 || pi->text(0).find("udpset") == 0 )
     if( pi->parent() && pi->descriptionClassObject->root != TRUE )
     { // Nope, this is the leaf.  Drop it on the parent or ignore the drop..
       // For drop it on the parent.
       item = (MPListViewItem *)pi->parent();
     }
   }
-//  if( item->text(0).find("pset") == 0 || item->text(0).find("upset") == 0 )
+//  if( item->text(0).find("pset") == 0 || item->text(0).find("udpset") == 0 )
   if( item->parent() && item->descriptionClassObject->root == TRUE )
   { // Nope, this is the leaf.  Drop it on the parent or ignore the drop..
     // For drop it on the parent.
@@ -241,7 +241,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
 // }
 
     QString namedSet = QString::null;
-//    if( MPListView::oldCurrent->text(0).find("pset") == 0 || MPListView::oldCurrent->text(0).find("upset") == 0 )
+//    if( MPListView::oldCurrent->text(0).find("pset") == 0 || MPListView::oldCurrent->text(0).find("udpset") == 0 )
     if( MPListView::oldCurrent->descriptionClassObject->root == TRUE )
     {
       namedSet = MPListView::oldCurrent->text(0)+"*";
@@ -438,7 +438,7 @@ MPListView::isThisADuplicate(MPListViewItem *item)
   // If this is a named pset, look for another named pset that's already there.
   QString namedSet = QString::null;
 //  if( MPListView::oldCurrent->text(0).find("pset") == 0 ||
-//      MPListView::oldCurrent->text(0).find("upset") == 0 )
+//      MPListView::oldCurrent->text(0).find("udpset") == 0 )
   if( MPListView::oldCurrent->descriptionClassObject->root == TRUE )
   {
     namedSet = MPListView::oldCurrent->text(0)+"*";
