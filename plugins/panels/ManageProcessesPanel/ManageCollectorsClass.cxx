@@ -1184,7 +1184,7 @@ ManageCollectorsClass::createUserPSet()
 {
     bool ok;
 // printf("createUserPSet() entered\n");
-  QString res = QInputDialog::getText("Create Named PSet %1 : %2", QString("PSet Name:"), QLineEdit::Normal, QString("upset%1").arg(userPsetCount), &ok, this);
+  QString res = QInputDialog::getText("Create Named PSet %1 : %2", QString("PSet Name:"), QLineEdit::Normal, QString("udpset%1").arg(userPsetCount), &ok, this);
   if( ok )
   {
 // printf("The user named his set %s\n", res.ascii() );
@@ -1423,7 +1423,7 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
   } else
   {
 // printf("There was a statspanel... send the update message.\n");
-// msg->print();
+msg->print();
     sp->listener( (void *)msg );
   }
 }
@@ -1999,7 +1999,7 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   psetListView->contentsMouseReleaseEvent(NULL);
 
 
-  bool upsetSelected = FALSE;
+  bool udpsetSelected = FALSE;
   bool selectable = TRUE;
   bool leftSide = TRUE;
 
@@ -2034,7 +2034,7 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
     } else if( selectedItem && selectedItem->parent() && selectedItem->parent()->text(0) == UDPS )
     {
 // printf("Got a user defined processes set!\n");
-      upsetSelected = TRUE;
+      udpsetSelected = TRUE;
     }
   }
 
@@ -2078,7 +2078,7 @@ if( runnableFLAG == TRUE )
     qaction->setStatusTip( tr("Focus on selected process(es).") );
   }
 
-  if( upsetSelected == TRUE )
+  if( udpsetSelected == TRUE )
   {
     qaction = new QAction( this,  "selectProcesses");
     qaction->addTo( contextMenu );
@@ -2184,7 +2184,7 @@ if( runnableFLAG == TRUE )
 
     qaction = new QAction( this,  "createUserPSet");
     qaction->addTo( contextMenu );
-    qaction->setText( tr("Create A New PSet") );
+    qaction->setText( tr("Create A User Define Process Set") );
     connect( qaction, SIGNAL( activated() ), this, SLOT( createUserPSet() ) );
     qaction->setStatusTip( tr("Create a new user defined process set.") );
 
