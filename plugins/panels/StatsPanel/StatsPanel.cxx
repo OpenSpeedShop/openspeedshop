@@ -714,15 +714,18 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         this, SLOT(threadSelected(int)) );
   } else
   {
+#ifdef EXPERIMENT_PANEL_AND_STATSPANEL
     qaction = new QAction( this,  "manageProcessesMenu");
     qaction->addTo( contextMenu );
     qaction->setText( "Manage Processes..." );
     connect( qaction, SIGNAL( activated() ), this, SLOT( manageProcessesSelected() ) );
     qaction->setStatusTip( tr(QString("There are over %1 processes to manage.  This brings up the Manage Processes\nPanel which is designed to handle large number of procesess/threads.").arg(MAX_PROC_MENU_DISPLAY)) );
+#endif // EXPERIMENT_PANEL_AND_STATSPANEL
   }
 
   contextMenu->insertSeparator();
 
+#ifdef EXPERIMENT_PANEL_AND_STATSPANEL
   qaction = new QAction( this,  "compareAction");
   qaction->addTo( contextMenu );
   qaction->setText( "Compare Experiments/Customize StatsPanel..." );
@@ -730,6 +733,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   qaction->setStatusTip( tr("Compare one experiment to another, one thread to another, or customize the StatsPanel report.") );
 
   contextMenu->insertSeparator();
+#endif // EXPERIMENT_PANEL_AND_STATSPANEL
 
   int id = 0;
   QPopupMenu *columnsMenu = new QPopupMenu(this);
