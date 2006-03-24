@@ -101,6 +101,48 @@ char *cmd_expView_related[] = {
     "<lists>"
 };
 
+char *cmd_cViewCreate_related[] = {
+    "<cvId>",
+    "<expId>",
+    "<viewType>",
+    "<expMetric>",
+    "<target>",
+    "listTypes",
+    "listMetrics",
+    "<lists>",
+    "expView",
+    "cViewDelete",
+    "cViewInfo",
+    "cView"
+};
+
+char *cmd_cViewDelete_related[] = {
+    "<cvId>",
+    "<cvId_list>",
+    "expView",
+    "cViewCreate",
+    "cViewInfo",
+    "cView"
+};
+
+char *cmd_cViewInfo_related[] = {
+    "<cvId>",
+    "<cvId_list>",
+    "expView",
+    "cViewCreate",
+    "cViewDelete",
+    "cView"
+};
+
+char *cmd_cView_related[] = {
+    "<cvId>",
+    "<cvId_list>",
+    "expView",
+    "cViewCreate",
+    "cViewDelete",
+    "cViewInfo"
+};
+
 char *cmd_list_related[] = {
     "<listBreaks>",
     "<listExp>",
@@ -285,6 +327,26 @@ char *cmd_expStatus_args[] = {
 
 char *cmd_expView_args[] = {
     "expView [-v <modifier_list>] [-x <expId>] [<viewType>] [-m <expMetric_list>] [<target_spec>]"
+};
+
+char *cmd_cViewCreate_args[] = {
+    "cViewCreate [-v <modifier_list>] [-x <expId>] [<viewType>] [-m <expMetric_list>] [<target_spec>]"
+};
+
+char *cmd_cViewDelete_args[] = {
+    "cViewDelete -v all ",
+    "cViewDelete -c <cvid_list> ",
+    "cViewDelete "
+};
+
+char *cmd_cViewInfo_args[] = {
+    "cViewInfo -v all ",
+    "cViewInfo -c <cvid_list> ",
+    "cViewInfo "
+};
+
+char *cmd_cView_args[] = {
+    "cView -c <cvid_list> "
 };
 
 char *cmd_list_args[] = {
@@ -476,6 +538,22 @@ char *cmd_expView_brief = {
     "View the experiment's output in text form."
 };
 
+char *cmd_cViewCreate_brief = {
+    "Create a custom view id."
+};
+
+char *cmd_cViewDelete_brief = {
+    "Delete a custom view id from the openss database."
+};
+
+char *cmd_cViewInfo_brief = {
+    "Dump the description of one or more custom view ids."
+};
+
+char *cmd_cView_brief = {
+    "Detailed compare view where the user has defined the\n"
+    "contents of each custom view."
+};
 
 char *cmd_list_brief = {
     "List information based on <listType>."
@@ -1096,6 +1174,93 @@ char *cmd_expView_detailed[] = {
     "      help mpi",
     "      help pcsamp",
     "      help hwc",
+    " "
+};
+
+char *cmd_cViewCreate_detailed[] = {
+    cmd_cViewCreate_args[0],
+    " ",
+    cmd_cViewCreate_brief,
+    " ",
+    "Defines the elements of a report. Except for the",
+    "name of the command, the form and meaning of each",
+    "field is identical to that of the 'expView' command.",
+    "In addition, this returns an ID that can be",
+    "referenced on the 'cView' command.",
+    " ",
+    "This command has a different purpose than the",
+    "'expView' command. Where the 'expView' command",
+    "generates a the report immediately, this command",
+    "will not produce a report until the ID is used on a",
+    "'cView' command. This allows the same report to be",
+    "generated multiple times, for different purposes.",
+    " ",
+    "Create an id that represents a defined view. This",
+    "View will then be represented in a single column of",
+    "a cView() command result. ",
+    " "
+};
+
+char *cmd_cViewDelete_detailed[] = {
+    cmd_cViewDelete_args[0],
+    " ",
+    cmd_cViewDelete_brief,
+    " ",
+    "This command purges the definition of previously",
+    "created ID that was returned as the result of a",
+    "'cViewCreate' command.  The ID can no longer be",
+    "referenced on any 'cView' commands.",
+    " ",
+    "Default: delete the last cvid defined.",
+    "-v all:  delete all defined cvids.",
+    "-c <cvid_list>: delete listed cvids.",
+    " "
+};
+
+char *cmd_cViewInfo_detailed[] = {
+    cmd_cViewInfo_args[0],
+    " ",
+    cmd_cViewInfo_brief,
+    " ",
+    "Default: dump the last cvid defined.",
+    "-v all:  dump all defined cvids.",
+    "-c <cvid_list>: dump name cvids.",
+    " ",
+    "This command will echo back the information that was",
+    "specified on a 'cViewCreate' command. If no ID is",
+    "provided, the information of the most recently",
+    "defined cView ID is returned. If an ID list is",
+    "provided, information is returned for each of the",
+    "listed cView IDs. If the '-v all' option is",
+    "specified, information is returned for all of the",
+    "currently defined IDs.",
+    " "
+};
+
+char *cmd_cView_detailed[] = {
+    cmd_cView_args[0],
+    " ",
+    cmd_cView_brief,
+    " ",
+    " Where <cvid_list> represents a list or range of 2 or",
+    " more custom view ids",
+    " ",
+    "This command uses the information provided on",
+    "'cViewCreate commands to generate a report. If there",
+    "is only one ID provided in the '-c <id_list>', the",
+    "output of this command is equivalent to executing an",
+    "'expView' command with the same fields that were on",
+    "the 'cViewCreate' command.",
+    " ",
+    "When multiple IDs are provided in the '-c",
+    "<id_list>', a report is generated for each ID and",
+    "the output from each is merged into a final report,",
+    "using the right most field as a key. The final",
+    "report will have columns for each of the fields that",
+    "the initial reports contain, except that the right",
+    "most column (the key) is only printed once. Keys",
+    "that exist in one of the generated reports and not",
+    "others may have columns that are blank filled.",
     " "
 };
 
@@ -1955,14 +2120,68 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     cmd_expView_related,sizeof(cmd_expView_related)/sizeof(char **),
     "commands",cmd_expView_brief,
     cmd_expView_detailed,sizeof(cmd_expView_detailed)/sizeof(char **),
-    NULL,0,NULL,0,
+    NULL,0,
+    NULL,0,
     cmd_expView_args,sizeof(cmd_expView_args)/sizeof(char **),
+
+//  Compare commands
+
+//    CMD_C_VIEW_CREATE,
+#if 0
+    -1,cmd_desc[CMD_C_VIEW_CREATE].name,
+    cmd_cViewCreate_related,sizeof(cmd_cViewCreate_related)/sizeof(char **),
+    "commands",cmd_cViewCreate_brief,
+    cmd_cViewCreate_detailed,sizeof(cmd_cViewCreate_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expStatus_example,sizeof(cmd_expStatus_example)/sizeof(char **),
+    cmd_expStatus_args,sizeof(cmd_expStatus_args)/sizeof(char **),
+#else
+    -1,cmd_desc[CMD_C_VIEW_CREATE].name,
+    cmd_cViewCreate_related,sizeof(cmd_cViewCreate_related)/sizeof(char **),
+    "commands",cmd_cViewCreate_brief,
+    cmd_cViewCreate_detailed,sizeof(cmd_cViewCreate_detailed)/sizeof(char **),
+    NULL,0, // unused extra detailed
+    NULL,0, // example
+    cmd_cViewCreate_args,sizeof(cmd_cViewCreate_args)/sizeof(char **),
+#endif
+
+//    CMD_C_VIEW_DELETE,
+    -1,cmd_desc[CMD_C_VIEW_DELETE].name,
+    cmd_cViewDelete_related,sizeof(cmd_cViewDelete_related)/sizeof(char **),
+    "commands",cmd_cViewDelete_brief,
+    cmd_cViewDelete_detailed,sizeof(cmd_cViewDelete_detailed)/sizeof(char **),
+    NULL,0, // unused extra detailed
+    NULL,0, // example
+    cmd_cViewDelete_args,sizeof(cmd_cViewDelete_args)/sizeof(char **),
+
+
+//    CMD_C_VIEW_INFO,
+    -1,cmd_desc[CMD_C_VIEW_INFO].name,
+    cmd_cViewInfo_related,sizeof(cmd_cViewInfo_related)/sizeof(char **),
+    "commands",cmd_cViewInfo_brief,
+    cmd_cViewInfo_detailed,sizeof(cmd_cViewInfo_detailed)/sizeof(char **),
+    NULL,0, // unused extra detailed
+    NULL,0, // example
+    cmd_cViewInfo_args,sizeof(cmd_cViewInfo_args)/sizeof(char **),
+
+
+//    CMD_C_VIEW,
+    -1,cmd_desc[CMD_C_VIEW].name,
+    cmd_cView_related,sizeof(cmd_cView_related)/sizeof(char **),
+    "commands",cmd_cView_brief,
+    cmd_cView_detailed,sizeof(cmd_cView_detailed)/sizeof(char **),
+    NULL,0, // unused extra detailed
+    NULL,0, // example
+    cmd_cView_args,sizeof(cmd_cView_args)/sizeof(char **),
+
+
 //    CMD_LIST_GENERIC,
     -1,cmd_desc[CMD_LIST_GENERIC].name,
     cmd_list_related,sizeof(cmd_list_related)/sizeof(char **),
     "commands",cmd_list_brief,
     cmd_list_detailed,sizeof(cmd_list_detailed)/sizeof(char **),
-    NULL,0,NULL,0,
+    NULL,0,
+    NULL,0,
     cmd_list_args,sizeof(cmd_list_args)/sizeof(char **),
 //    CMD_LIST_BREAKS,
     -1,cmd_desc[CMD_LIST_BREAKS].name,
