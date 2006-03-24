@@ -190,6 +190,7 @@ ThreadGroupStringList currentThreadGroupStrList;
 
   public slots:
     void itemSelected( QListViewItem * );
+    void returnPressed( QListViewItem * );
     void itemSelected( int );
     void doOption(int id);
     void exportData();

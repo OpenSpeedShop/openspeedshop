@@ -249,6 +249,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 
   connect( splv, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
 
+  connect( splv, SIGNAL(returnPressed(QListViewItem *)), this, SLOT( returnPressed( QListViewItem* )) );
+
   int width = pc->width();
   int height = pc->height();
   QValueList<int> sizeList;
@@ -1295,6 +1297,18 @@ StatsPanel::itemSelected(int index)
 }
 
 void
+StatsPanel::returnPressed(QListViewItem *item)
+{
+  if( lastCommand.contains("Butterfly") )
+  {
+    updateStatsPanelData();
+  } else
+  {
+    itemSelected( item );
+  }
+}
+
+void
 StatsPanel::itemSelected(QListViewItem *item)
 {
 // printf("StatsPanel::itemSelected(QListViewItem *) entered\n");
@@ -2278,21 +2292,6 @@ StatsPanel::collectorUserTimeReportSelected(int val)
   hwc_FLAG = FALSE;
 // printf("G: mpi_io_FLAG = %d\n", mpi_io_FLAG );
 
-#ifdef OLDWAY
-
-  currentUserSelectedMetricStr = QString::null;
-
-//  QString s = usertime_menu->text(val).ascii();
-//  QString s = contextMenu->text(val).ascii();
-
-  currentMetricStr = QString::null;
-  currentCollectorStr = "usertime";
-  selectedFunctionStr = QString::null;
-
-// printf("Collector changed call updateStatsPanelData() \n");
-    updateStatsPanelData();
-
-#else // OLDWAY
   currentUserSelectedMetricStr = QString::null;
   collectorStrFromMenu = QString::null;
   currentMetricStr = QString::null;
@@ -2330,7 +2329,6 @@ StatsPanel::collectorUserTimeReportSelected(int val)
 // printf("Collector changed call updateStatsPanelData() \n");
   }
   updateStatsPanelData();
-#endif // OLDWAY
 
 
 }
