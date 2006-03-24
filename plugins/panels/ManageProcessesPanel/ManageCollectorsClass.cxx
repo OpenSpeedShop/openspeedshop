@@ -1423,7 +1423,7 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
   } else
   {
 // printf("There was a statspanel... send the update message.\n");
-msg->print();
+//msg->print();
     sp->listener( (void *)msg );
   }
 }
