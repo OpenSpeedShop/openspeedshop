@@ -197,6 +197,13 @@ std::string Entry::getTable() const
  */
 void Entry::validate() const
 {
+#ifdef WDH_DO_PROPER_VALIDATION
+
+    // Note: The following code to do validation was found to be eatting up a
+    //       pretty significant amount of time. It serves primarily as a sanity
+    //       check for when multiple tools are accessing the same database, but
+    //       that never happens right now. So for now it is just #ifdef'ed out.
+
     // Find the number of rows matching our entry's identifier
     int rows = 0;
     dm_database->prepareStatement(
@@ -213,4 +220,5 @@ void Entry::validate() const
     else if(rows > 1)
 	throw Exception(Exception::EntryNotUnique,
 			getTable(), Exception::toString(dm_entry));
+#endif
 }

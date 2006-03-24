@@ -107,6 +107,8 @@ namespace {
 	"    name TEXT"
 	");",
 	"CREATE INDEX IndexFunctionsByName ON Functions (name);",
+	"CREATE INDEX IndexFunctionsByLinkedObject "
+	"  ON Functions (linked_object);",
 
 	// Call Site Table
 	// "CREATE TABLE CallSites ("
@@ -121,6 +123,8 @@ namespace {
 	"    line INTEGER,"
 	"    \"column\" INTEGER"
 	");",
+	"CREATE INDEX IndexStatementsByLinkedObject "
+	"  ON Statements (linked_object);",
 
 	// Statement Range Table
 	"CREATE TABLE StatementRanges ("
