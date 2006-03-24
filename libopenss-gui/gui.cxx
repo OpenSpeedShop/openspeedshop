@@ -45,6 +45,7 @@ QEventLoop *qeventloop;
 
 extern "C" 
 {
+  static bool isGUIBeenCreate = FALSE;
   OpenSpeedshop *w = NULL;
   // This routine starts another QApplication gui.  It is called from 
   // gui_init to have the gui started in it's own thread.
@@ -88,6 +89,21 @@ extern "C"
       }
     }
 
+
+
+// printf("climode=(%d)\n", climode );
+    if( climode == TRUE )
+    {  // Before you intialize the gui, make sure you won't abort just trying
+       // to get started.   Do the obvious here... Check to see if we have a
+       // DIPSLAY set and that we can open it.
+      char *DISPLAY = getenv("DISPLAY");
+    
+      if( DISPLAY == NULL || strcmp(DISPLAY,"") == 0 )
+      {
+        fprintf(stderr, "No DISPLAY variable set...  Unable to start gui.\n");
+        return;
+      }
+    }
 
     qapplication = new QApplication( argc, argv );
 
@@ -200,6 +216,8 @@ QStringList pidStrList = NULL;
       w->loadTheWizard();
     }
 
+    isGUIBeenCreate = TRUE;
+
     qapplication->exec();
 
     return;
@@ -209,7 +227,6 @@ QStringList pidStrList = NULL;
   // thread.   Called from Start.cxx, when the gui is requested at startup.
   // Otherwise, it can be called from the command line at any time to 
   // initialize the gui.
-  static bool isGUIBeenCreate = FALSE;
   int
   gui_init( void *arg_struct, pthread_t *phandle )
   {
@@ -227,7 +244,6 @@ QStringList pidStrList = NULL;
     {
 //      gui_thread_id = pthread_create(&phandle[0], 0, (void *(*)(void *))guithreadinit,arg_struct);
       pthread_create(phandle, 0, (void *(*)(void *))guithreadinit,arg_struct);
-      isGUIBeenCreate = TRUE;
     }
 
     return 1;
