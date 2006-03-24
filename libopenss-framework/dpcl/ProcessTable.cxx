@@ -54,10 +54,6 @@ ProcessTable::ProcessTable() :
     dm_dpcld_listener_port()
 {
 #ifndef NDEBUG
-    // Is debugging enabled?
-    if(getenv("OPENSS_DEBUG_PROCESS") != NULL)
-	Process::is_debug_enabled = true;
-    
     if(Process::is_debug_enabled) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] "

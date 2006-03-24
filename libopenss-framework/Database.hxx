@@ -30,7 +30,11 @@
 #endif
 
 #include "Lockable.hxx"
+#include "Time.hxx"
 
+#ifdef HAVE_INTTYPES_H
+#include <inttypes.h>
+#endif
 #include <map>
 #include <pthread.h>
 #include <string>
@@ -46,7 +50,6 @@ namespace OpenSpeedShop { namespace Framework {
     class Address;
     class Blob;
     class Path;
-    class Time;
 
     /**
      * SQL database.
@@ -118,6 +121,11 @@ namespace OpenSpeedShop { namespace Framework {
 	
     private:
 
+#ifndef NDEBUG
+	/** Map SQL statements to their total execution count and time. */
+	std::map<std::string, std::pair<uint64_t, uint64_t> > dm_debug_stats;
+#endif
+
 	static void copyFile(const Path&, const Path&);
 
 	/** Name of this database. */
@@ -146,7 +154,7 @@ namespace OpenSpeedShop { namespace Framework {
 	 */
 	struct Handle
 	{
-	    
+
 	    /** SQLite handle for this database. */
 	    sqlite3* dm_database;
 	    
@@ -167,6 +175,15 @@ namespace OpenSpeedShop { namespace Framework {
 	     */
 	    std::vector<sqlite3_stmt*> dm_transaction;
 
+#ifndef NDEBUG
+	    /** Start times of the statements on the transaction stack. */
+	    std::vector<Time> dm_debug_start;
+	    
+	    /** Map SQL statements to their total execution count and time. */
+	    std::map<sqlite3_stmt*, 
+		     std::pair<uint64_t, uint64_t> > dm_debug_stats;
+#endif
+
 	    /** Flag indicating if outer-most transaction is commitable. */
 	    bool dm_is_committable;
 	    
@@ -175,6 +192,10 @@ namespace OpenSpeedShop { namespace Framework {
 		dm_database(NULL),
 		dm_cache(),
 		dm_transaction(),
+#ifndef NDEBUG
+		dm_debug_start(),
+		dm_debug_stats(),
+#endif
 		dm_is_committable(false)
 	    {
 	    }
@@ -186,6 +207,14 @@ namespace OpenSpeedShop { namespace Framework {
 
 	Handle& getHandle();
 	void releaseAllHandles();
+
+#ifndef NDEBUG
+	static bool is_debug_enabled;
+	
+	void debugUpdatePerThread(Handle&);
+	void debugUpdatePerDatabase(Handle&);
+	void debugPerformanceStatistics();
+#endif
 
     };
     

@@ -50,6 +50,7 @@
 namespace OpenSpeedShop { namespace Framework {
 
     class Lockable;
+    class ProcessTable;
     struct SymbolTableState;
     class ThreadGroup;
     class Time;
@@ -67,6 +68,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Process :
 	private Lockable
     {
+	friend class ProcessTable;
 
     public:
 
@@ -101,17 +103,6 @@ namespace OpenSpeedShop { namespace Framework {
 	
     private:
 
-	friend class ProcessTable;
-
-#ifndef NDEBUG
-	static bool is_debug_enabled;
-	
-	static void debugCallback(const std::string&, const std::string&);
-	static void debugDPCL(const std::string&, const AisStatus&);
-	void debugState() const;
-	void debugRequest(const std::string&) const;
-#endif
-	
 	static Path searchForExecutable(const Path&);
 
 	static std::pair<std::string, std::string> 
@@ -255,7 +246,16 @@ namespace OpenSpeedShop { namespace Framework {
 	findLibraryFunction(const Collector&, const std::string&);	
 	
 	bool getString(const ProbeExp&, std::string&) const;
+
+#ifndef NDEBUG
+	static bool is_debug_enabled;
 	
+	static void debugCallback(const std::string&, const std::string&);
+	static void debugDPCL(const std::string&, const AisStatus&);
+	void debugState() const;
+	void debugRequest(const std::string&) const;
+#endif
+		
     };
     
 } }

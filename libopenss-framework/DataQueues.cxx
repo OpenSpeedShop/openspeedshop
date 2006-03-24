@@ -62,7 +62,7 @@ namespace {
 
 #ifndef NDEBUG
     /** Flag indicating if debugging for this namespace is enabled. */
-    bool is_debug_enabled = false;
+    bool is_debug_enabled = (getenv("OPENSS_DEBUG_DATAQUEUES") != NULL);
 
     /** Cumulative number of performance data blobs that have been enqueued. */
     uint64_t debug_enqueued_count = 0;
@@ -240,12 +240,6 @@ void DataQueues::addDatabase(const SmartPtr<Database>& database)
     // Acquire exclusive access to our unnamed namespace variables
     Assert(pthread_mutex_lock(&exclusive_access_lock) == 0);
 
-#ifndef NDEBUG
-    // Is debugging enabled?
-    if(getenv("OPENSS_DEBUG_DATAQUEUES") != NULL)
-	is_debug_enabled = true;
-#endif
-    
     // Check assertions
     Assert(!database.isNull());
     Assert(database_to_identifier.find(database) ==

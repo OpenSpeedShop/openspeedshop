@@ -176,7 +176,8 @@ namespace {
 
 #ifndef NDEBUG
 /** Flag indicating if debuging for MPI jobs is enabled. */
-bool Experiment::is_debug_mpijob_enabled = false;
+bool Experiment::is_debug_mpijob_enabled = 
+    (getenv("OPENSS_DEBUG_MPIJOB") != NULL);
 #endif
 
 
@@ -597,10 +598,6 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
     ThreadGroup threads;
 
 #ifndef NDEBUG
-    // Is MPI job debugging enabled?
-    if(getenv("OPENSS_DEBUG_MPIJOB") != NULL)
-	is_debug_mpijob_enabled = true;
-	    
     if(is_debug_mpijob_enabled) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] "
