@@ -143,6 +143,19 @@ char *cmd_cView_related[] = {
     "cViewInfo"
 };
 
+char *cmd_expCompare_related[] = {
+    "<modifier_list>",
+    "<expId_spec>",
+    "<viewType>",
+    "<expMetric_list>",
+    "<target>",
+    "expView",
+    "cViewCreate",
+    "cViewDelete",
+    "cViewInfo"
+    "cView"
+};
+
 char *cmd_list_related[] = {
     "<listBreaks>",
     "<listExp>",
@@ -349,6 +362,14 @@ char *cmd_cView_args[] = {
     "cView -c <cvid_list> "
 };
 
+char *cmd_expCompare_args[] = {
+    "expCompare  [-v <modifier_list> ]\n"
+    "            [ <expId_spec> ]\n"
+    "            [ <viewType> ]\n"
+    "            [ -m <expMetric_list> ]\n"
+    "            [ <target_list> ]"
+};
+
 char *cmd_list_args[] = {
     "<ListOf_info> = list -v <listType> [-v all || -x <expId>]"
 };
@@ -553,6 +574,11 @@ char *cmd_cViewInfo_brief = {
 char *cmd_cView_brief = {
     "Detailed compare view where the user has defined the\n"
     "contents of each custom view."
+};
+
+char *cmd_expCompare_brief = {
+    "Simple compare view. \n"
+    "The tool determines the columninformation."
 };
 
 char *cmd_list_brief = {
@@ -1261,6 +1287,45 @@ char *cmd_cView_detailed[] = {
     "most column (the key) is only printed once. Keys",
     "that exist in one of the generated reports and not",
     "others may have columns that are blank filled.",
+    " "
+};
+
+char *cmd_expCompare_detailed[] = {
+    cmd_expCompare_args[0],
+    " ",
+    cmd_expCompare_brief,
+    " ",
+    "This looks a lot like the 'expView' command, but the",
+    "semantics are slightly different. The purpose of the",
+    "'expView' command is to display a summary that includes",
+    "the specified items from the specified (or implied)",
+    "<target_list>. The whole point of the 'expCompare'",
+    "command is to find multiple things to display in",
+    "side-by-side columns, rather than summarized in a single",
+    "column.",
+    " ",
+    "The semantic routine for the command looks through the",
+    "components of the <target_list> for non-singular",
+    "components. That is what defines the separate",
+    "components to display. For example, the following",
+    "command:",
+    " ",
+    "    expCompare -x 1 usertime -v function -f foo -m time -h host1, host2",
+    " ",
+    "will produce a report that contains a column for the",
+    "time spend in function 'foo' on 'host1', along side the",
+    "time spent in function 'foo' on 'host2'. Similarly, the",
+    "following command:",
+    " ",
+    "    expCompare -x 1 usertime -v function -f foo -m time -h host1, -p 11513,11514",
+    " ",
+    "will produce a report that contains a column for the",
+    "time spend in function 'foo' on 'host1' pid 1153, along",
+    "side the time spent in function 'foo' on 'host1' pid",
+    "1154.",
+    " ",
+    "It is an error to specify more than one sub-list of",
+    "items within the <target_list>.",
     " "
 };
 
@@ -1990,7 +2055,7 @@ char *cmd_Wait_example[] = {
 // COMMAND MESSAGE ARRAY
 /*********************************************/
 // message array to be passed to message czar
-OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
+OpenSpeedShop::message_element_t cmd_msg[CMD_MAX+1] = {
 
 //    CMD_HEAD_ERROR,
     -1,     	//  Index for error messages
@@ -2019,6 +2084,14 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     NULL,0,
     cmd_expClose_example,sizeof(cmd_expClose_example)/sizeof(char **),
     cmd_expClose_args,sizeof(cmd_expClose_args)/sizeof(char **),
+//    CMD_EXP_COMPARE,
+    -1,cmd_desc[CMD_EXP_COMPARE].name,
+    cmd_expCompare_related,sizeof(cmd_expCompare_related)/sizeof(char **),
+    "commands",cmd_expCompare_brief,
+    cmd_expCompare_detailed,sizeof(cmd_expCompare_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
+    cmd_expCompare_args,sizeof(cmd_expCompare_args)/sizeof(char **),
 //    CMD_EXP_CREATE,
     -1,cmd_desc[CMD_EXP_CREATE].name,
     cmd_expCreate_related,sizeof(cmd_expCreate_related)/sizeof(char **),
@@ -2115,6 +2188,9 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     NULL,0,
     cmd_expStatus_example,sizeof(cmd_expStatus_example)/sizeof(char **),
     cmd_expStatus_args,sizeof(cmd_expStatus_args)/sizeof(char **),
+
+//  View commands
+
 //    CMD_EXP_VIEW,
     -1,cmd_desc[CMD_EXP_VIEW].name,
     cmd_expView_related,sizeof(cmd_expView_related)/sizeof(char **),
@@ -2123,19 +2199,7 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     NULL,0,
     NULL,0,
     cmd_expView_args,sizeof(cmd_expView_args)/sizeof(char **),
-
-//  Compare commands
-
 //    CMD_C_VIEW_CREATE,
-#if 0
-    -1,cmd_desc[CMD_C_VIEW_CREATE].name,
-    cmd_cViewCreate_related,sizeof(cmd_cViewCreate_related)/sizeof(char **),
-    "commands",cmd_cViewCreate_brief,
-    cmd_cViewCreate_detailed,sizeof(cmd_cViewCreate_detailed)/sizeof(char **),
-    NULL,0,
-    cmd_expStatus_example,sizeof(cmd_expStatus_example)/sizeof(char **),
-    cmd_expStatus_args,sizeof(cmd_expStatus_args)/sizeof(char **),
-#else
     -1,cmd_desc[CMD_C_VIEW_CREATE].name,
     cmd_cViewCreate_related,sizeof(cmd_cViewCreate_related)/sizeof(char **),
     "commands",cmd_cViewCreate_brief,
@@ -2143,8 +2207,6 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     NULL,0, // unused extra detailed
     NULL,0, // example
     cmd_cViewCreate_args,sizeof(cmd_cViewCreate_args)/sizeof(char **),
-#endif
-
 //    CMD_C_VIEW_DELETE,
     -1,cmd_desc[CMD_C_VIEW_DELETE].name,
     cmd_cViewDelete_related,sizeof(cmd_cViewDelete_related)/sizeof(char **),
@@ -2153,8 +2215,6 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     NULL,0, // unused extra detailed
     NULL,0, // example
     cmd_cViewDelete_args,sizeof(cmd_cViewDelete_args)/sizeof(char **),
-
-
 //    CMD_C_VIEW_INFO,
     -1,cmd_desc[CMD_C_VIEW_INFO].name,
     cmd_cViewInfo_related,sizeof(cmd_cViewInfo_related)/sizeof(char **),
@@ -2163,8 +2223,6 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     NULL,0, // unused extra detailed
     NULL,0, // example
     cmd_cViewInfo_args,sizeof(cmd_cViewInfo_args)/sizeof(char **),
-
-
 //    CMD_C_VIEW,
     -1,cmd_desc[CMD_C_VIEW].name,
     cmd_cView_related,sizeof(cmd_cView_related)/sizeof(char **),
@@ -2180,8 +2238,8 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     cmd_list_related,sizeof(cmd_list_related)/sizeof(char **),
     "commands",cmd_list_brief,
     cmd_list_detailed,sizeof(cmd_list_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0, // unused extra detailed
+    NULL,0, // example
     cmd_list_args,sizeof(cmd_list_args)/sizeof(char **),
 //    CMD_LIST_BREAKS,
     -1,cmd_desc[CMD_LIST_BREAKS].name,
