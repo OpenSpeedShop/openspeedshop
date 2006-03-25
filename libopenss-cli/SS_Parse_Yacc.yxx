@@ -155,6 +155,7 @@ exp_attach_element: expId_spec
     	    /** expClose [ -v kill ] [ -v all || <expId_spec> ] **/
 exp_close_com:	    CLOSE_HEAD exp_close_args 
     	    	|   CLOSE_HEAD exp_close_args error END_LINE 
+  	    	|   CLOSE_HEAD error END_LINE 
     	    	;
 exp_close_args:     exp_close_arg
     	    	;
@@ -192,6 +193,7 @@ exp_create_element: modifier_list_spec
     	    /** expCompare [ <expId_spec> ] [ <modifier_list_spec> ] [ <expMetric_list_spec> ] <target_list> [ <expType_list> ] **/
 exp_compare_com:    COMPARE_HEAD set_view_args 
   	    	|   COMPARE_HEAD set_view_args error END_LINE 
+  	    	|   COMPARE_HEAD error END_LINE 
     	    	;
 
     	    /** EXP_DETACH **/
@@ -215,6 +217,7 @@ exp_detach_element: expId_spec
     	    /** expDisable [ -v all || <expId_spec> ] **/
 exp_disable_com:    DISABLE_HEAD exp_disable_arg
   	    	|   DISABLE_HEAD exp_disable_arg error END_LINE 
+  	    	|   DISABLE_HEAD error END_LINE 
       	    	;
 exp_disable_arg:    /* empty */
     	    	|   expId_spec
@@ -225,6 +228,7 @@ exp_disable_arg:    /* empty */
     	    /** expEnable [ -v all || <expId_spec> ] **/
 exp_enable_com:	    ENABLE_HEAD exp_enable_arg
   	    	|   ENABLE_HEAD exp_enable_arg error END_LINE 
+  	    	|   ENABLE_HEAD error END_LINE 
       	    	;
 exp_enable_arg:	    /* empty */
     	    	|   expId_spec
@@ -235,6 +239,7 @@ exp_enable_arg:	    /* empty */
     	    /** <expId> = expFocus [ <expId_spec> ] **/
 exp_focus_com:	    FOCUS_HEAD exp_focus_arg
   	    	|   FOCUS_HEAD exp_focus_arg error END_LINE 
+  	    	|   FOCUS_HEAD error END_LINE 
       	    	;
 exp_focus_arg:	    /* empty */
     	    	|   expId_spec
@@ -244,6 +249,7 @@ exp_focus_arg:	    /* empty */
     	    /** expGo [ -v all || <expId_spec> ] **/
 exp_go_com:	    GO_HEAD exp_go_arg
   	    	|   GO_HEAD exp_go_arg error END_LINE 
+  	    	|   GO_HEAD error END_LINE 
       	    	;
 exp_go_arg:	    /* empty */
     	    	|   expId_spec
@@ -254,6 +260,7 @@ exp_go_arg:	    /* empty */
     	    /** expPause [ -v all || <expId_spec> ] **/
 exp_pause_com:	    PAUSE_HEAD exp_pause_arg
   	    	|   PAUSE_HEAD exp_pause_arg error END_LINE 
+  	    	|   PAUSE_HEAD error END_LINE 
       	    	;
 exp_pause_arg:	    /* empty */
     	    	|   expId_spec
@@ -303,6 +310,7 @@ exp_setparam_arg:   param_list
     	    /** EXP_STATUS **/
     	    /** expStatus [ -v all || <expId_spec> ] **/
 exp_status_com:     STATUS_HEAD exp_status_arg
+  	    	|   STATUS_HEAD error END_LINE 
   	    	|   STATUS_HEAD exp_status_arg error END_LINE 
       	    	;
 exp_status_arg:     /* empty */
@@ -357,6 +365,7 @@ cvid_args:	    view_id_list_spec
     	    /** CVIEW **/
     	    /** cView [-c view_id_list] **/
 c_view_com:	    CVIEW_HEAD view_id_list_spec
+  	    	|   CVIEW_HEAD error END_LINE 
   	    	|   CVIEW_HEAD view_id_list_spec error END_LINE 
       	    	;
 
@@ -473,6 +482,7 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    /** <string> = history  [ <int> ] **/
 gen_history_com:    GEN_HISTORY_HEAD gen_history_arg
   	    	|   GEN_HISTORY_HEAD gen_history_arg error END_LINE 
+  	    	|   GEN_HISTORY_HEAD error END_LINE 
       	    	;
 gen_history_arg:    /* empty */
     	    	|   NUMBER {p_parse_result->pushHistoryPoint($1);} 
@@ -482,6 +492,7 @@ gen_history_arg:    /* empty */
     	    /** log [ <file_spec> ] **/
 gen_log_com:	    GEN_LOG_HEAD gen_log_arg
   	    	|   GEN_LOG_HEAD gen_log_arg error END_LINE 
+  	    	|   GEN_LOG_HEAD error END_LINE 
       	    	;
 gen_log_arg:	    /* empty */
     	    	|   file_spec
@@ -506,6 +517,7 @@ gen_playback_arg:   file_spec
     	    /** record [ <file_spec> ] **/
 gen_record_com:     GEN_RECORD_HEAD gen_record_arg
   	    	|   GEN_RECORD_HEAD gen_record_arg error END_LINE 
+  	    	|   GEN_RECORD_HEAD error END_LINE 
       	    	;
 gen_record_arg:     /* empty */
     	    	|   file_spec
@@ -537,6 +549,7 @@ gen_setbreak_arg:
     	    /** wait [ -v terminate ] [ <expId_spec> ]  **/
 gen_wait_com:	    GEN_WAIT_HEAD gen_wait_arg
   	    	|   GEN_WAIT_HEAD gen_wait_arg error END_LINE 
+  	    	|   GEN_WAIT_HEAD error END_LINE 
       	    	;
 
 gen_wait_arg:	    /* empty */
