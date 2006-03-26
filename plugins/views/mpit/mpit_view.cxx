@@ -59,22 +59,32 @@
             int64_t detail_datatype = 0; \
             int64_t detail_retval = 0;
 
-#define get_MPIT_values(vi) \
-              double v = (*vi).dm_time; \
-              start = min(start,(*vi).dm_interval.getBegin()); \
-              end = max(end,(*vi).dm_interval.getEnd()); \
+#define get_MPIT_values(primary) \
+              double v = primary.dm_time; \
+              start = min(start,primary.dm_interval.getBegin()); \
+              end = max(end,primary.dm_interval.getEnd()); \
               cnt ++; \
               vmin = min(vmin,v); \
               vmax = max(vmax,v); \
               sum += v; \
               sum_squares += v * v; \
-              detail_source = (*vi).dm_source; \
-              detail_destination = (*vi).dm_destination; \
-              detail_size += (*vi).dm_size; \
-              detail_tag = (*vi).dm_tag; \
-              detail_communicator = (*vi).dm_communicator; \
-              detail_datatype = (*vi).dm_datatype; \
-              detail_retval = (*vi).dm_retval;
+              detail_source = primary.dm_source; \
+              detail_destination = primary.dm_destination; \
+              detail_size += primary.dm_size; \
+              detail_tag = primary.dm_tag; \
+              detail_communicator = primary.dm_communicator; \
+              detail_datatype = primary.dm_datatype; \
+              detail_retval = primary.dm_retval;
+
+#define get_inclusive_values(stdv, num_calls)           \
+{           int64_t len = stdv.size();                  \
+            for (int64_t i = 0; i < len; i++) {         \
+             /* Use macro to combine all the values. */ \
+              get_MPIT_values(stdv[i])                  \
+            }                                           \
+}
+
+#define get_exclusive_values(stdv, num_calls)    { }
 
 #define set_MPIT_values  \
               if (num_temps > VMulti_sort_temp) (*vcs)[VMulti_sort_temp] = NULL; \
@@ -175,39 +185,85 @@ static bool MPIT_Trace_Report(
  // Get the list of desired functions.
   std::set<Function> objects;
   Determine_Objects ( cmd, exp, tgrp, objects);
-
   if (objects.empty()) {
+    Mark_Cmd_With_Soft_Error(cmd, "(There are no functions found for the 'MPIT -v Trace' report.)");
     return false;
   }
 
- // Acquire base set of metric values.
   try {
     collector.lockDatabase();
     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
     Time base_time = databaseExtent .getTimeInterval().getBegin();
 
+   // Acquire base set of metric values.
     SmartPtr<std::map<Function,
                       std::map<Framework::StackTrace,
                                std::vector<MPITDetail> > > > raw_items;
     GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
-        std::map<Function, std::map<Framework::StackTrace, std::vector<MPITDetail> > >::iterator fi;
-        for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
-          std::map<Framework::StackTrace, std::vector<MPITDetail> >:: iterator si;
-          for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
-            CommandResult *base_CSE = NULL;
-            Framework::StackTrace st = (*si).first;
-            std::vector<MPITDetail>::iterator vi;
-            for (vi = (*si).second.begin(); vi != (*si).second.end(); vi++) {
-              def_MPIT_values
-              get_MPIT_values(vi)
+    if (raw_items->begin() == raw_items->end()) {
+      Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested MPIT functions.)");
+      return false;
+    }
 
-            // Use macro to copy desired values.  
-              SmartPtr<std::vector<CommandResult *> > vcs
-                       = Framework::SmartPtr<std::vector<CommandResult *> >(
-                                   new std::vector<CommandResult *>(num_temps)
-                                   );
-              set_MPIT_values 
+   // Combine all the items for each function.
+    std::map<Address, CommandResult *> knownTraces;
+    std::set<Framework::StackTrace, ltST> StackTraces_Processed;
+    std::map<Function, std::map<Framework::StackTrace, std::vector<MPITDetail> > >::iterator fi;
+    for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
+     // Foreach MPI function ...
 
+      Function F = (*fi).first;
+      std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
+      Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
+
+      std::map<Framework::StackTrace, std::vector<MPITDetail> >:: iterator si;
+      for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
+        Framework::StackTrace st = (*si).first;
+        std::vector<MPITDetail> details = (*si).second;
+
+       // If we have already processed this StackTrace, skip it!
+        if (StackTraces_Processed.find(st) != StackTraces_Processed.end()) {
+          continue;
+        }
+
+       // Find the extents associated with the stack trace's thread.
+        std::map<Framework::Thread, Framework::ExtentGroup>::iterator tei
+                                   = SubExtents_Map.find(st.getThread());
+        Framework::ExtentGroup SubExtents;
+        if (tei != SubExtents_Map.end()) {
+          SubExtents = (*tei).second;
+        }
+       // Count the number of recursive calls in the stack.
+       // The count in the Detail metric includes each call,
+       // but the inclusive time has been incremented for each
+       // call and we only want the time for the stack trace.
+        int64_t calls_In_stack = (SubExtents.begin() == SubExtents.end())
+                                   ? 1 : stack_contains_N_calls (st, SubExtents);
+
+        CommandResult *base_CSE = NULL;
+        std::vector<MPITDetail>::iterator vi;
+        for (vi = details.begin(); vi != details.end(); vi++) {
+         // Use macro to alocate temporaries
+          def_MPIT_values
+
+         // Use macro to assign to temporaries
+          get_inclusive_values (details, calls_In_stack)
+
+         // Decide if we accumulate exclusive_time, as well.
+          if (topStack_In_Subextent (st, SubExtents)) {
+           // Bottom of trace is current function.
+           // Exclusive_time is the same as inclusive_time.
+           // Deeper calls must go without exclusive_time.
+            get_exclusive_values (details, calls_In_stack)
+          }
+
+         // Use macro to assign temporaries to the result array
+          SmartPtr<std::vector<CommandResult *> > vcs
+                   = Framework::SmartPtr<std::vector<CommandResult *> >(
+                               new std::vector<CommandResult *>(num_temps)
+                               );
+          set_MPIT_values
+    
 #if 0
               cout << detail_source << " " ;
               cout << detail_destination << " ";
@@ -217,20 +273,22 @@ static bool MPIT_Trace_Report(
               cout << detail_retval << " " << endl;
 #endif
 
-             // Construct the type-independent return entry.
-              CommandResult *CSE;
-              if (base_CSE == NULL) {
-                SmartPtr<std::vector<CommandResult *> > call_stack =
-                                      Construct_CallBack (TraceBack_Order, add_stmts, st);
-                base_CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
-                CSE = base_CSE;
-              } else {
-                CSE = Dup_CommandResult (base_CSE);
-              }
-              c_items.push_back(std::make_pair(CSE, vcs));
-            }
+          CommandResult *CSE;
+          if (base_CSE == NULL) {
+            SmartPtr<std::vector<CommandResult *> > call_stack =
+                                  Construct_CallBack (TraceBack_Order, add_stmts, st, knownTraces);
+            base_CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
+            CSE = base_CSE;
+          } else {
+            CSE = Dup_CommandResult (base_CSE);
           }
+          c_items.push_back(std::make_pair(CSE, vcs));
         }
+
+       // Remember that we have now processed this particular StackTrace.
+        StackTraces_Processed.insert(st);
+      }
+    }
   }
   catch (const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
@@ -259,8 +317,8 @@ static bool MPIT_Function_Report(
  // Get the list of desired functions.
   std::set<Function> objects;
   Determine_Objects ( cmd, exp, tgrp, objects);
-
   if (objects.empty()) {
+    Mark_Cmd_With_Soft_Error(cmd, "(There are no objects specified for the basic MPIT report.)");
     return false;
   }
 
@@ -273,42 +331,50 @@ static bool MPIT_Function_Report(
                       std::map<Framework::StackTrace,
                                std::vector<MPITDetail> > > > raw_items;
     GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
-       // Combine all the items for each function.
-        std::map<Function, std::map<Framework::StackTrace, std::vector<MPITDetail> > >::iterator fi;
-        for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
-          def_MPIT_values
+    if (raw_items->begin() == raw_items->end()) {
+      Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested MPIT functions.)");
+      return false;
+    }
 
-          std::map<Framework::StackTrace, std::vector<MPITDetail> >:: iterator si;
-          for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
-            std::vector<MPITDetail>::iterator vi;
-            for (vi = (*si).second.begin(); vi != (*si).second.end(); vi++) {
-              get_MPIT_values(vi)
-            }
-          }
+   // Combine all the items for each function.
+    std::map<Function, std::map<Framework::StackTrace, std::vector<MPITDetail> > >::iterator fi;
+    for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
+     // Use macro to allocate imtermediate temporaries
+      def_MPIT_values
 
-         // Use macro to copy desired values.  
-          SmartPtr<std::vector<CommandResult *> > vcs
-                   = Framework::SmartPtr<std::vector<CommandResult *> >(
-                               new std::vector<CommandResult *>(num_temps)
-                               );
-          set_MPIT_values 
+      Function F = (*fi).first;
+      std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
+      Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
 
-         // Construct the type-independent return entry.
-         // Construct callstack for last entry in the stack trace.
-          Function F = (*fi).first;
-          std::map<Framework::StackTrace,
-                   std::vector<MPITDetail> >::iterator first_si = 
-                                      (*fi).second.begin();
-          Framework::StackTrace st = (*first_si).first;
+      std::set<Framework::StackTrace, ltST> StackTraces_Processed;
+      std::map<Framework::StackTrace, std::vector<MPITDetail> >:: iterator si;
+      for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
+        std::vector<MPITDetail>::iterator vi;
+        for (vi = (*si).second.begin(); vi != (*si).second.end(); vi++) {
+             // Use macro to accumulate all the separate samples
+          Framework::StackTrace st = (*si).first;
+          std::vector<MPITDetail> details = (*si).second;
 
-          SmartPtr<std::vector<CommandResult *> > call_stack =
-                   Framework::SmartPtr<std::vector<CommandResult *> >(
-                               new std::vector<CommandResult *>()
-                               );
-          call_stack->push_back(new CommandResult_Function (F));
-          CommandResult *CSE = new CommandResult_CallStackEntry (call_stack);
-          c_items.push_back(std::make_pair(CSE, vcs));
+          Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map);
         }
+      }
+
+     // Use macro to construct result array
+      SmartPtr<std::vector<CommandResult *> > vcs
+               = Framework::SmartPtr<std::vector<CommandResult *> >(
+                           new std::vector<CommandResult *>(num_temps)
+                           );
+      set_MPIT_values
+
+     // Construct callstack for last entry in the stack trace.
+      SmartPtr<std::vector<CommandResult *> > call_stack =
+               Framework::SmartPtr<std::vector<CommandResult *> >(
+                           new std::vector<CommandResult *>()
+                           );
+      call_stack->push_back(CRPTR (F));
+      CommandResult *CSE = new CommandResult_CallStackEntry (call_stack);
+      c_items.push_back(std::make_pair(CSE, vcs));
+    }
   }
   catch (const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
@@ -341,8 +407,8 @@ static bool MPIT_CallStack_Report (
  // Get the list of desired functions.
   std::set<Function> objects;
   Determine_Objects ( cmd, exp, tgrp, objects);
-
   if (objects.empty()) {
+    Mark_Cmd_With_Soft_Error(cmd, "(There are no functions found for the 'MPIT -v CallStack' report.)");
     return false;
   }
 
@@ -355,38 +421,49 @@ static bool MPIT_CallStack_Report (
                       std::map<Framework::StackTrace,
                                std::vector<MPITDetail> > > > raw_items;
     GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
-       // Construct complete call stack
-        std::map<Function,
-                 std::map<Framework::StackTrace,
-                          std::vector<MPITDetail> > >::iterator fi;
-        for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
-         // Foreach MPIT function ...
-          std::map<Framework::StackTrace,
-                   std::vector<MPITDetail> >::iterator sti;
-          for (sti = (*fi).second.begin(); sti != (*fi).second.end(); sti++) {
-           // Foreach call stack ...
-            def_MPIT_values
+    if (raw_items->begin() == raw_items->end()) {
+      Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested MPIT functions.)");
+      return false;
+    }
 
-            int64_t len = (*sti).second.size();
-            for (int64_t i = 0; i < len; i++) {
-             // Combine all the values.
-              get_MPIT_values(&(*sti).second[i])
-            }
+   // Combine all the items for each function.
+    std::map<Address, CommandResult *> knownTraces;
+    std::set<Framework::StackTrace, ltST> StackTraces_Processed;
+    std::map<Function,
+             std::map<Framework::StackTrace,
+                      std::vector<MPITDetail> > >::iterator fi;
+    for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
+     // Foreach MPIT function ...
 
-            SmartPtr<std::vector<CommandResult *> > vcs
-                     = Framework::SmartPtr<std::vector<CommandResult *> >(
-                                 new std::vector<CommandResult *>(num_temps)
-                                 );
-           // Use macro to copy desired values.  
-            set_MPIT_values 
+      Function F = (*fi).first;
+      std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
+      Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
 
-           // Construct the type-independent return entry.
-            Framework::StackTrace st = (*sti).first;
-            SmartPtr<std::vector<CommandResult *> > call_stack = Construct_CallBack (TraceBack_Order, add_stmts, st);
-            CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
-            c_items.push_back(std::make_pair(CSE, vcs));
-          }
-        }
+      std::map<Framework::StackTrace,
+               std::vector<MPITDetail> >::iterator sti;
+      for (sti = (*fi).second.begin(); sti != (*fi).second.end(); sti++) {
+        Framework::StackTrace st = (*sti).first;
+        std::vector<MPITDetail> details = (*sti).second;
+
+       // Use macro to allocate temporary array
+        def_MPIT_values
+
+        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map);
+
+       // Use macro to set values into return structure.
+        SmartPtr<std::vector<CommandResult *> > vcs
+                 = Framework::SmartPtr<std::vector<CommandResult *> >(
+                             new std::vector<CommandResult *>(num_temps)
+                             );
+        set_MPIT_values
+
+       // Construct result entry
+        SmartPtr<std::vector<CommandResult *> > call_stack
+                 = Construct_CallBack (TraceBack_Order, add_stmts, st, knownTraces);
+        CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
+        c_items.push_back(std::make_pair(CSE, vcs));
+      }
+    }
   }
   catch (const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
@@ -398,6 +475,101 @@ static bool MPIT_CallStack_Report (
 
  // Generate the report.
   return Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack,c_items, view_output);
+}
+
+static bool MPIT_ButterFly_Report (
+              CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+              ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
+              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
+              std::list<CommandResult *>& view_output) {
+
+  int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
+  Collector collector = CV[0];
+  std::string metric = MV[0];
+  bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
+
+ // Get the list of desired functions.
+  std::set<Function> objects;
+  Determine_Objects (cmd, exp, tgrp, objects);
+
+  if (objects.empty()) {
+    Mark_Cmd_With_Soft_Error(cmd, "(There are no functions found for the 'MPIT -v ButterFly' report.)");
+    return false;
+  }
+
+  try {
+    collector.lockDatabase();
+    Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
+    Time base_time = databaseExtent.getTimeInterval().getBegin();
+
+   // Get raw data for inclusive_time metric.
+    SmartPtr<std::map<Function,
+                      std::map<Framework::StackTrace,
+                               std::vector<MPITDetail> > > > raw_items;
+    GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
+    if (raw_items->begin() == raw_items->end()) {
+      Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested functions.)");
+      return false;
+    }
+
+   // Generate a separate butterfly view for each function in the list.
+    std::map<Address, CommandResult *> knownTraces;
+    std::map<Function, std::map<Framework::StackTrace, std::vector<MPITDetail> > >::iterator fi1;
+    for (fi1 = raw_items->begin(); fi1 != raw_items->end(); fi1++) {
+     // Define set of data for the current function.
+      std::vector<std::pair<CommandResult *,
+                            SmartPtr<std::vector<CommandResult *> > > > c_items;
+
+      Function F = (*fi1).first;
+      std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
+      Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
+
+     // Capture each StackTrace in the inclusive_detail list.
+      std::set<Framework::StackTrace, ltST> StackTraces_Processed;
+      std::map<Framework::StackTrace, std::vector<MPITDetail> >:: iterator si1;
+      for (si1 = (*fi1).second.begin(); si1 != (*fi1).second.end(); si1++) {
+        Framework::StackTrace st = (*si1).first;
+        std::vector<MPITDetail> details = (*si1).second;
+
+       // Use macro to allocate imtermediate temporaries
+        def_MPIT_values
+
+        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map);
+
+       // Use macro to construct result array
+        SmartPtr<std::vector<CommandResult *> > vcs
+                 = Framework::SmartPtr<std::vector<CommandResult *> >(
+                             new std::vector<CommandResult *>(num_temps)
+                             );
+        set_MPIT_values((*vcs), true);
+
+       // Construct result entry
+        SmartPtr<std::vector<CommandResult *> > call_stack
+                 = Construct_CallBack (TraceBack_Order, true, st, knownTraces);
+        CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
+        c_items.push_back(std::make_pair(CSE, vcs));
+      }
+
+     // Generate the report.
+      if (c_items.empty()) {
+        std::string S = "(There are no data samples available for function '";
+        S = S + F.getName() + "'.)";
+        Mark_Cmd_With_Soft_Error(cmd, S);
+      } else {
+        (void) Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack, c_items, view_output);
+      }
+    }
+  }
+  catch (const Exception& error) {
+    Mark_Cmd_With_Std_Error (cmd, error);
+    collector.unlockDatabase();
+    return false;
+  }
+
+  collector.unlockDatabase();
+
+ // Generate the report.
+  return true;
 }
 
 static std::string allowed_mpit_V_options[] = {
@@ -763,7 +935,11 @@ class mpit_view : public ViewType {
 
       switch (Determine_Form_Category(cmd)) {
        case VFC_Trace:
-        return MPIT_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
+        if (Look_For_KeyWord(cmd, "ButterFly")) {
+          return MPIT_ButterFly_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
+        } else {
+          return MPIT_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
+        }
        case VFC_CallStack:
         return MPIT_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
        case VFC_Function:
