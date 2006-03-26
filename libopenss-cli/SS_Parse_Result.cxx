@@ -375,8 +375,12 @@ s_dump_help_topic(CommandObject *cmd,
     	    ++l) {
     	    	    SS_Message_Element *p_el = *l;
     	    	    string * const p_keyword = p_el->get_keyword();
+		    string newstr(*p_keyword);
+		    if ((newstr.length()) < 15)
+		    	newstr.resize(15,' ');
     	    	    string * const p_brief = p_el->get_brief();
-		    string newstr(*p_keyword + " -> " + *p_brief);
+		    newstr.append(" -> " + *p_brief); 
+		    //string newstr(*p_keyword + " -> " + *p_brief);
     	    	    cmd->Result_String (newstr);
     	}
     }
