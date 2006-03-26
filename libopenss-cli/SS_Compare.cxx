@@ -402,6 +402,7 @@ static bool Generate_CustomView (CommandObject *cmd,
           master_index = (*result).second;
         }
        // Map the master_vector index to the start of data for this entry.
+        Assert (Quick_Compare_Set[i].merge_map[master_index] == NULL);
         Quick_Compare_Set[i].merge_map[master_index] = c;
       }
     }
