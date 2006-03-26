@@ -57,6 +57,8 @@ void Construct_View_Output (CommandObject *cmd,
   int64_t num_input_temps = items[0].second->size();
   std::vector<ViewInstruction *> AccumulateInst(num_input_temps);
   for ( i=0; i < num_input_temps; i++) AccumulateInst[i] = NULL;
+  std::vector<ViewInstruction *> SummaryInst(num_input_temps);
+  for ( i=0; i < num_input_temps; i++) SummaryInst[i] = NULL;
   bool input_temp_used[num_input_temps];
   std::vector<CommandResult *> summary_temp(num_input_temps);
   for ( i=0; i < num_input_temps; i++) summary_temp[i] = NULL;
@@ -79,7 +81,12 @@ void Construct_View_Output (CommandObject *cmd,
                  (vp->OpCode() == VIEWINST_Max)) {
         if (vp->TMP1() < num_input_temps) {
           AccumulateInst[vp->TMP1()] = vp;
+          if (SummaryInst[vp->TMP1()] == NULL) {
+            SummaryInst[vp->TMP1()] = vp;
+          }
         }
+      } else if (vp->OpCode() == VIEWINST_Summary_Max) {
+        SummaryInst[vp->TMP1()] = vp;
       }
   }
   if (report_Column_summary) {
@@ -118,15 +125,15 @@ void Construct_View_Output (CommandObject *cmd,
                                                  : (*it->second)[i];
           input_temp_used[i] = true;
         } else if (vinst->OpCode() == VIEWINST_Display_Tmp) {
-          Next_Metric_Value = input_temp_used[CM_Index] ? Dup_CommandResult( (*it->second)[vinst->TMP1()] )
-                                                        : (*it->second)[vinst->TMP1()];
-          input_temp_used[CM_Index] = true;
-        } else if (vinst->OpCode() == VIEWINST_Display_Percent_Column) {
-          if (!Gen_Total_Percent) {
-           // The measured time interval is too small.
-            continue;
+          CommandResult *V = (*it->second)[vinst->TMP1()];
+          if ((V != NULL) &&
+              !V->isNullValue ()) {
+            Next_Metric_Value = input_temp_used[CM_Index] ? Dup_CommandResult( V ) : V;
+            input_temp_used[CM_Index] = true;
           }
-          if ((i > percentofcolumn) &&
+        } else if (vinst->OpCode() == VIEWINST_Display_Percent_Column) {
+          if (Gen_Total_Percent &&
+              (i > percentofcolumn) &&
               (percent_of != NULL) &&
               (!percent_of->isNullValue ())) {
             Next_Metric_Value = Calculate_Percent (percent_of, TotalValue);
@@ -154,6 +161,7 @@ void Construct_View_Output (CommandObject *cmd,
         }
         if (Next_Metric_Value == NULL) {
           Next_Metric_Value = CRPTR ("");
+          Next_Metric_Value->setNullValue();
         }
         C->CommandResult_Columns::Add_Column (Next_Metric_Value);
         if (Gen_Total_Percent &&
@@ -170,7 +178,7 @@ void Construct_View_Output (CommandObject *cmd,
       if (report_Column_summary) {
        // The first row was copied to initialize the values.
         if (it != items.begin()) {
-          Accumulate_PreDefined_Temps (AccumulateInst, summary_temp, (*it->second));
+          Accumulate_PreDefined_Temps (SummaryInst, summary_temp, (*it->second));
         }
       }
 
@@ -186,6 +194,7 @@ void Construct_View_Output (CommandObject *cmd,
     if (report_Column_summary) {
      // Build an Ender summary for the table.
       CommandResult_Enders *E = new CommandResult_Enders ();
+      CommandResult *percent_of = NULL;
      // Add Metrics Summary
       for ( i=0; i < num_columns; i++) {
         ViewInstruction *sinst = ViewInst[i];
@@ -206,9 +215,20 @@ void Construct_View_Output (CommandObject *cmd,
         } else if (sinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
           CommandResult *V = summary_temp[sinst->TMP1()];
           summary = Calculate_Percent (V, TotalValue);
+        } else if (sinst->OpCode() == VIEWINST_Display_Percent_Column) {
+          if (Gen_Total_Percent &&
+              (i > percentofcolumn) &&
+              (percent_of != NULL) &&
+              (!percent_of->isNullValue ())) {
+            summary = Calculate_Percent (percent_of, TotalValue);
+          }
         }
         if (summary == NULL) {
           summary = CRPTR ("");
+        }
+        if (Gen_Total_Percent &&
+            (i == percentofcolumn)) {
+          percent_of = summary;
         }
 
         E->CommandResult_Enders::Add_Ender (summary);

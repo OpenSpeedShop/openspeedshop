@@ -167,8 +167,14 @@ static bool Calculate_Total_For_Percent (
           if (ci != c_items.end()) {
             TotalValue = Dup_CommandResult( (*(*ci++).second)[use_temp] );
           }
-          for ( ; ci != c_items.end(); ci++) {
-            Accumulate_CommandResult (TotalValue, (*(*ci).second)[use_temp]);
+          if (Look_For_KeyWord(cmd, "ButterFly")) {
+            for ( ; ci != c_items.end(); ci++) {
+              Accumulate_Max_CommandResult (TotalValue, (*(*ci).second)[use_temp]);
+            }
+          } else {
+            for ( ; ci != c_items.end(); ci++) {
+              Accumulate_CommandResult (TotalValue, (*(*ci).second)[use_temp]);
+            }
           }
         }
       }
@@ -468,16 +474,14 @@ static SmartPtr<std::vector<CommandResult *> >
                            );
      // Generate initial value for each column.
       for (int64_t j = 0; j < crv->size(); j++) {
-        vcs->push_back ( New_CommandResult ((*crv)[j]) );
-      }
-
 // TEST
        // Set flag in CommandResult to indicate null value.
        // The display logic may decide to replace the value with
        // blanks, if it is easier to read.
-        for (int64_t i = 0; i < crv->size(); i++) {
-          (*vcs)[i]->setNullValue();
-        }
+        CommandResult *next = New_CommandResult ((*crv)[j]);
+        next->setNullValue();
+        vcs->push_back ( next );
+      }
 
   return vcs;
 }
@@ -604,7 +608,7 @@ bool Generic_Multi_View (
                                  SmartPtr<std::vector<CommandResult *> > > >& c_items,
            std::list<CommandResult *>& view_output) {
   bool success = false;
-  // Print_View_Params (cerr, CV,MV,IV);
+//  Print_View_Params (cerr, CV,MV,IV);
   Assert (vfc != VFC_Unknown);
 
   if (Look_For_KeyWord(cmd, "ButterFly") &&
@@ -721,7 +725,9 @@ bool Generic_Multi_View (
                         Look_For_KeyWord(cmd, "FullStacks"));
 
       Combine_Duplicate_CallStacks (AccumulateInst, c_items);
-      Gen_Total_Percent = Calculate_Total_For_Percent (cmd, tgrp, CV, MV, IV, percentofcolumn, TotalValue, c_items);
+      if (!Look_For_KeyWord(cmd, "ButterFly")) {
+        Gen_Total_Percent = Calculate_Total_For_Percent (cmd, tgrp, CV, MV, IV, percentofcolumn, TotalValue, c_items);
+      }
 
      // Sort by the value displayed in the left most column.
       Setup_Sort (ViewInst[0], c_items);
@@ -762,6 +768,7 @@ bool Generic_Multi_View (
      } else if (vfc == VFC_LinkedObject) {
        EO_Title = "LinkedObject";
      } else {
+       Mark_Cmd_With_Soft_Error(cmd, "(Unrecognized report type for multi-data view.)");
        return false;
      }
 
@@ -846,7 +853,10 @@ bool Generic_Multi_View (
                                 SmartPtr<std::vector<CommandResult *> > > > result;
           Function func = *fsi;
           Extract_Pivot_Items (cmd, exp, AccumulateInst, TraceBack_Order, c_items, func, result);
+
           if (!result.empty()) {
+            Gen_Total_Percent = Calculate_Total_For_Percent (cmd, tgrp, CV, MV, IV,
+                                                             percentofcolumn, TotalValue, result);
             std::list<CommandResult *> view_unit;
             Construct_View_Output (cmd, tgrp, CV, MV, IV,
                                    num_columns,
