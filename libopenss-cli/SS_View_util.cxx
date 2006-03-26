@@ -626,6 +626,7 @@ void Filtered_Objects (CommandObject *cmd,
   vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
   OpenSpeedShop::cli::ParseTarget pt;
   vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
+
   if (p_tlist->begin() != p_tlist->end()) {
     // There is a list.  Is there a "-f" specifier?
     pt = *p_tlist->begin(); // There can only be one!
@@ -633,6 +634,8 @@ void Filtered_Objects (CommandObject *cmd,
   }
 
   if ((f_list == NULL) || (f_list->empty())) {
+   // There is no Function filtering requested.
+   // Get all the functions in the already selected thread groups.
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
 
      // Check for asynchronous abort command
@@ -661,6 +664,12 @@ void Filtered_Objects (CommandObject *cmd,
       for (typename std::set<TE>::iterator newi = new_objects.begin();
                 newi != new_objects.end();
                 newi++) {
+
+       // Check for asynchronous abort command
+        if (cmd->Status() == CMD_ABORTED) {
+          return;
+        }
+
         TE new_object = *newi;
         if (objects.find(new_object) == objects.end()) {
          // If the new object is not already included,
@@ -697,7 +706,9 @@ void Filtered_Objects (CommandObject *cmd,
       Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
       std::string F_Name = pval1.name;
       std::set<Function> new_functions = exp->FW()->getFunctionsByNamePattern (F_Name);
-      Get_Objects_By_Function (new_functions, objects );
+      if (!new_functions.empty()) {
+        Get_Objects_By_Function (new_functions, objects );
+      }
     }
   }
 }
@@ -849,6 +860,45 @@ SmartPtr<std::vector<CommandResult *> >
   else
     for ( i = len-1; i >= 0; i--) {
       call_stack->push_back(Build_CallBack_Entry(st, i, add_stmts));
+    }
+  return call_stack;
+}
+
+SmartPtr<std::vector<CommandResult *> >
+       Construct_CallBack (bool TraceBack_Order, bool add_stmts, Framework::StackTrace& st,
+                           std::map<Address, CommandResult *>& knownTraces) {
+  SmartPtr<std::vector<CommandResult *> > call_stack
+             = Framework::SmartPtr<std::vector<CommandResult *> >(
+                           new std::vector<CommandResult *>()
+                           );
+  int64_t len = st.size();
+  int64_t i;
+  if (len == 0) return call_stack;
+  if (TraceBack_Order)
+    for ( i = 0;  i < len; i++) {
+      Address nextAddr = st[i];
+      std::map<Address, CommandResult *>::iterator ki = knownTraces.find(nextAddr);
+      CommandResult *newCR;
+      if (ki == knownTraces.end()) {
+        newCR = Build_CallBack_Entry(st, i, add_stmts);
+        knownTraces[nextAddr] = newCR;
+      } else {
+        newCR = Dup_CommandResult ((*ki).second);
+      }
+      call_stack->push_back(newCR);
+    }
+  else
+    for ( i = len-1; i >= 0; i--) {
+      Address nextAddr = st[i];
+      std::map<Address, CommandResult *>::iterator ki = knownTraces.find(nextAddr);
+      CommandResult *newCR;
+      if (ki == knownTraces.end()) {
+        newCR = Build_CallBack_Entry(st, i, add_stmts);
+        knownTraces[nextAddr] = newCR;
+      } else {
+        newCR = Dup_CommandResult ((*ki).second);
+      }
+      call_stack->push_back(newCR);
     }
   return call_stack;
 }
