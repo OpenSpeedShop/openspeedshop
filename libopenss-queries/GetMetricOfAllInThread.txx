@@ -79,8 +79,7 @@ void Queries::GetMetricOfAllInThread(
     threads.insert(thread);
 
     // Get the metric values in this thread group
-    GetMetricOfAllInThreadGroup(collector, metric, interval,
-				threads, objects, result);
+    GetMetricOfAllInThreadGroup(collector, metric, interval, threads, result);
 }
 
 
