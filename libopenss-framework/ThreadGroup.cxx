@@ -22,7 +22,13 @@
  *
  */
 
+#include "AddressBitmap.hxx"
 #include "CollectorGroup.hxx"
+#include "EntrySpy.hxx"
+#include "ExtentTable.hxx"
+#include "Function.hxx"
+#include "LinkedObject.hxx"
+#include "Statement.hxx"
 #include "ThreadGroup.hxx"
 
 using namespace OpenSpeedShop::Framework;
@@ -209,4 +215,353 @@ void ThreadGroup::stopCollecting(const CollectorGroup& collectors) const
 	for(CollectorGroup::const_iterator
 		j = collectors.begin(); j != collectors.end(); ++j)
 	    j->stopCollecting(*i); 
+}
+
+
+
+/**
+ * Get extents of linked objects for all threads.
+ *
+ * Returns the extents of all the specified linked objects within the threads
+ * in the group. Each extent is interesected with the specified domain extent
+ * before being added to the table.
+ *
+ * @pre    All threads in the thread group must be from the same experiment. An
+ *         assertion failure occurs if more than one experiment is implied.
+ *
+ * @pre    All the specified linked objects must be from the same experiment as
+ *         the threads in the thread group. An assertion failure occurs if more
+ *         than one experiment is implied.
+ *
+ * @param objects    Linked objects for which to get extents.
+ * @param domain     Extent defining the domain of interest.
+ * @return           Table of per-thread extents for the linked objects.
+ */
+ExtentTable<LinkedObject>
+ThreadGroup::getExtentsOf(const std::set<LinkedObject>& objects, 
+			  const Extent& domain) const
+{
+    ExtentTable<LinkedObject> table;
+
+    // Handle special case of an empty thread group
+    if(empty())
+	return table;
+
+    // Check preconditions
+    SmartPtr<Database> database = EntrySpy(*begin()).getDatabase();
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
+	Assert(EntrySpy(*i).getDatabase() == database);
+    for(std::set<LinkedObject>::const_iterator
+	    i = objects.begin(); i != objects.end(); ++i)
+	Assert(EntrySpy(*i).getDatabase() == database);	
+    
+    // Find the extents of all linked objects within any thread of this group
+    BEGIN_TRANSACTION(database);
+    database->prepareStatement(
+	"SELECT thread, "
+	"       linked_object, "
+	"       time_begin, "
+	"       time_end, "
+	"       addr_begin, "
+	"       addr_end "
+	"FROM AddressSpaces;"
+	);
+    while(database->executeStatement()) {
+	
+	Thread thread(database, database->getResultAsInteger(1));
+	LinkedObject linked_object(database, database->getResultAsInteger(2));
+
+	// Is this a thread and linked object of interest?
+	if((find(thread) != end()) && 
+	   (objects.find(linked_object) != objects.end())) {
+	    
+	    // Intersect this linked object's extent with the domain of interest
+	    Extent constrained = 
+		Extent(TimeInterval(database->getResultAsTime(3),
+				    database->getResultAsTime(4)),
+		       AddressRange(database->getResultAsAddress(5),
+				    database->getResultAsAddress(6))) & domain;
+	    
+	    // Add the constrained extent (if it isn't empty) to the table
+	    if(!constrained.isEmpty())
+		table.addExtent(thread, linked_object, constrained);
+	    
+	}
+
+    }
+    END_TRANSACTION(database);
+    
+    // Return the table to the caller
+    return table;
+}
+
+
+
+/**
+ * Get extents of functions for all threads.
+ *
+ * Returns the extents of all the specified functions within the threads in
+ * the group. Each extent is interesected with the specified domain extent
+ * before being added to the table.
+ *
+ * @pre    All threads in the thread group must be from the same experiment. An
+ *         assertion failure occurs if more than one experiment is implied.
+ *
+ * @pre    All the specified functions must be from the same experiment as the
+ *         threads in the thread group. An assertion failure occurs if more than
+ *         one experiment is implied.
+ *
+ * @param objects    Functions for which to get extents.
+ * @param domain     Extent defining the domain of interest.
+ * @return           Table of per-thread extents for the functions.
+ */
+ExtentTable<Function>
+ThreadGroup::getExtentsOf(const std::set<Function>& objects, 
+			  const Extent& domain) const
+{
+    ExtentTable<Function> table;
+
+    // Handle special case of an empty thread group
+    if(empty())
+	return table;
+
+    // Check preconditions
+    SmartPtr<Database> database = EntrySpy(*begin()).getDatabase();
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
+	Assert(EntrySpy(*i).getDatabase() == database);
+    for(std::set<Function>::const_iterator
+	    i = objects.begin(); i != objects.end(); ++i)
+	Assert(EntrySpy(*i).getDatabase() == database);	
+    
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(database);
+
+    // Find the extents of all linked objects within any thread of this group
+    std::multimap<std::pair<int, int>, Extent> linked_objects;
+    database->prepareStatement(
+	"SELECT thread, "
+	"       linked_object, "
+	"       time_begin, "
+	"       time_end, "
+	"       addr_begin, "
+	"       addr_end "
+	"FROM AddressSpaces;"
+	);
+    while(database->executeStatement())
+	if(find(Thread(database, database->getResultAsInteger(1))) != end())
+	    linked_objects.insert(
+		std::make_pair(
+		    std::make_pair(
+			database->getResultAsInteger(1),
+			database->getResultAsInteger(2)),
+		    Extent(
+			TimeInterval(database->getResultAsTime(3),
+				     database->getResultAsTime(4)),
+			AddressRange(database->getResultAsAddress(5),
+				     database->getResultAsAddress(6))
+			)
+		    )
+		);
+    
+    // Iterate over each of the specified functions
+    for(std::set<Function>::const_iterator
+	    i = objects.begin(); i != objects.end(); ++i) {
+
+	// Find this function's linked object and address range
+	EntrySpy(*i).validate();
+	database->prepareStatement(
+	    "SELECT linked_object, "
+	    "       addr_begin, "
+	    "       addr_end "
+	    "FROM Functions "
+	    "WHERE Functions.id = ?;"
+	    );
+	database->bindArgument(1, EntrySpy(*i).getEntry());
+	while(database->executeStatement()) {
+	    
+	    // Iterate over each thread of this group
+	    for(ThreadGroup::const_iterator j = begin(); j != end(); ++j) {
+
+		// Form a search key from the thread and the linked object
+		std::pair<int, int> key = 
+		    std::make_pair(EntrySpy(*j).getEntry(), 
+				   database->getResultAsInteger(1));
+
+		// Iterate over all occurences of this key
+		for(std::multimap<std::pair<int, int>, Extent>::const_iterator
+			k = linked_objects.lower_bound(key);
+		    k != linked_objects.upper_bound(key);
+		    ++k) {
+
+		    // Intersect the function's extent with domain of interest
+		    Extent constrained = 
+			Extent(k->second.getTimeInterval(),
+			       AddressRange(
+				   k->second.getAddressRange().getBegin() +
+				   database->getResultAsAddress(2),
+				   k->second.getAddressRange().getBegin() +
+				   database->getResultAsAddress(3)
+				   )
+			    ) & domain;
+		    
+		    // Add constrained extent (if non-empty) to the table
+		    if(!constrained.isEmpty())
+			table.addExtent(*j, *i, constrained);
+		    
+		}
+		
+	    }
+	
+	}
+
+    }
+
+    // End this multi-statement transaction
+    END_TRANSACTION(database);
+
+    // Return the table to the caller
+    return table;
+}
+
+
+
+/**
+ * Get extents of statements for all threads.
+ *
+ * Returns the extents of all the specified statements within the threads in
+ * the group. Each extent is interesected with the specified domain extent
+ * before being added to the table.
+ *
+ * @pre    All threads in the thread group must be from the same experiment. An
+ *         assertion failure occurs if more than one experiment is implied.
+ *
+ * @pre    All the specified statements must be from the same experiment as the
+ *         threads in the thread group. An assertion failure occurs if more than
+ *         one experiment is implied.
+ *
+ * @param objects    Statements for which to get extents.
+ * @param domain     Extent defining the domain of interest.
+ * @return           Table of per-thread extents for the statements.
+ */
+ExtentTable<Statement>
+ThreadGroup::getExtentsOf(const std::set<Statement>& objects, 
+			  const Extent& domain) const
+{
+    ExtentTable<Statement> table;
+
+    // Handle special case of an empty thread group
+    if(empty())
+	return table;
+
+    // Check preconditions
+    SmartPtr<Database> database = EntrySpy(*begin()).getDatabase();
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
+	Assert(EntrySpy(*i).getDatabase() == database);
+    for(std::set<Statement>::const_iterator
+	    i = objects.begin(); i != objects.end(); ++i)
+	Assert(EntrySpy(*i).getDatabase() == database);	
+    
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(database);
+
+    // Find the extents of all linked objects within any thread of this group
+    std::multimap<std::pair<int, int>, Extent> linked_objects;
+    database->prepareStatement(
+	"SELECT thread, "
+	"       linked_object, "
+	"       time_begin, "
+	"       time_end, "
+	"       addr_begin, "
+	"       addr_end "
+	"FROM AddressSpaces;"
+	);
+    while(database->executeStatement())
+	if(find(Thread(database, database->getResultAsInteger(1))) != end())
+	    linked_objects.insert(
+		std::make_pair(
+		    std::make_pair(
+			database->getResultAsInteger(1),
+			database->getResultAsInteger(2)),
+		    Extent(
+			TimeInterval(database->getResultAsTime(3),
+				     database->getResultAsTime(4)),
+			AddressRange(database->getResultAsAddress(5),
+				     database->getResultAsAddress(6))
+			)
+		    )
+		);
+    
+    // Iterate over each of the specified statements
+    for(std::set<Statement>::const_iterator
+	    i = objects.begin(); i != objects.end(); ++i) {
+
+	// Find this statement's linked object and address ranges + bitmaps
+	EntrySpy(*i).validate();
+	database->prepareStatement(
+	    "SELECT Statements.linked_object, "
+	    "       StatementRanges.addr_begin, "
+	    "       StatementRanges.addr_end, "
+	    "       StatementRanges.valid_bitmap "
+	    "FROM StatementRanges "
+	    "  JOIN Statements "
+	    "ON StatementRanges.statement = Statements.id "
+	    "WHERE Statements.id = ?;"
+	    );
+	database->bindArgument(1, EntrySpy(*i).getEntry());
+	while(database->executeStatement()) {
+	    
+	    std::set<AddressRange> ranges = 
+		AddressBitmap(AddressRange(database->getResultAsAddress(2),
+					   database->getResultAsAddress(3)),
+			      database->getResultAsBlob(4)).
+		getContiguousRanges(true);
+
+	    // Iterate over each thread of this group
+	    for(ThreadGroup::const_iterator j = begin(); j != end(); ++j) {
+
+		// Form a search key from the thread and the linked object
+		std::pair<int, int> key = 
+		    std::make_pair(EntrySpy(*j).getEntry(), 
+				   database->getResultAsInteger(1));
+
+		// Iterate over all occurences of this key
+		for(std::multimap<std::pair<int, int>, Extent>::const_iterator
+			k = linked_objects.lower_bound(key);
+		    k != linked_objects.upper_bound(key);
+		    ++k) {
+
+		    // Iterate over the addresss ranges for this statement
+		    for(std::set<AddressRange>::const_iterator
+			    l = ranges.begin(); l != ranges.end(); ++l) {
+
+			// Intersect this extent with domain of interest
+			Extent constrained =
+			    Extent(k->second.getTimeInterval(),
+				   AddressRange(
+				       k->second.getAddressRange().getBegin() +
+				       l->getBegin(),
+				       k->second.getAddressRange().getBegin() +
+				       l->getEnd()
+				       )
+				) & domain;
+			
+			// Add constrained extent (if non-empty) to table
+			if(!constrained.isEmpty())
+			    table.addExtent(*j, *i, constrained);
+			
+		    }
+		    
+		}
+		
+	    }
+	    
+	}
+	
+    }
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(database);
+
+    // Return the table to the caller
+    return table;
 }

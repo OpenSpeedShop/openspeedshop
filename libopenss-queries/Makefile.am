@@ -32,7 +32,9 @@ libopenss_queries_la_SOURCES = \
 	AdditionAssignment.txx \
 	GetMetricByStatement.txx \
 	GetMetricInThread.txx \
+	GetMetricInThreadGroup.txx \
 	GetMetricOfAllInThread.txx \
+	GetMetricOfAllInThreadGroup.txx \
 	Queries.hxx Queries.cxx
 
 doc:

@@ -74,12 +74,13 @@ void Queries::GetMetricOfAllInThread(
     const Framework::Thread& thread,
     Framework::SmartPtr<std::map<TS, TM > >& result)
 {
-    // Get the set of all source objects in this thread 
-    std::set<TS > objects;
-    GetSourceObjects(thread, objects);
-    
-    // Get the metric values for these source objects
-    GetMetricInThread(collector, metric, interval, thread, objects, result);
+    // Build a thread group containing just this one thread
+    Framework::ThreadGroup threads;
+    threads.insert(thread);
+
+    // Get the metric values in this thread group
+    GetMetricOfAllInThreadGroup(collector, metric, interval,
+				threads, objects, result);
 }
 
 

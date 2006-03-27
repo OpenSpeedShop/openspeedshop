@@ -46,6 +46,7 @@ namespace OpenSpeedShop { namespace Framework {
     template <typename> class SmartPtr;
     class Statement;
     class Thread;
+    class ThreadGroup;
     
     /**
      * Linked object.
@@ -64,6 +65,7 @@ namespace OpenSpeedShop { namespace Framework {
 	friend class Function;
 	friend class Statement;
 	friend class Thread;
+	friend class ThreadGroup;
 	
     public:
 

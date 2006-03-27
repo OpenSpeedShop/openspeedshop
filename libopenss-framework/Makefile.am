@@ -64,6 +64,7 @@ libopenss_framework_la_SOURCES = \
 	Experiment.hxx Experiment.cxx \
 	Extent.hxx \
 	ExtentGroup.hxx ExtentGroup.cxx \
+	ExtentTable.hxx \
 	Function.hxx Function.cxx \
 	Guard.hxx \
 	Instrumentor.hxx \

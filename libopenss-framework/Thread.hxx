@@ -53,6 +53,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Path;
     template <typename> class SmartPtr;
     class Statement;
+    class ThreadGroup;
     
     /**
      * Single thread of code execution.
@@ -82,6 +83,7 @@ namespace OpenSpeedShop { namespace Framework {
 	friend class Function;
 	friend class LinkedObject;
 	friend class Statement;
+	friend class ThreadGroup;
 	
     public:
 	

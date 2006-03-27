@@ -31,6 +31,7 @@
 
 #include "Thread.hxx"
 
+#include <map>
 #include <set>
 
 
@@ -39,6 +40,11 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Collector;
     class CollectorGroup;
+    class Extent;
+    template <typename> class ExtentTable;
+    class Function;
+    class LinkedObject;
+    class Statement;
 
     /**
      * Arbitrary group of threads.
@@ -67,6 +73,13 @@ namespace OpenSpeedShop { namespace Framework {
 	void postponeCollecting(const CollectorGroup&) const;
 	void stopCollecting(const Collector&) const;
 	void stopCollecting(const CollectorGroup&) const;
+
+	ExtentTable<LinkedObject> getExtentsOf(
+	    const std::set<LinkedObject>&, const Extent&) const;
+	ExtentTable<Function> getExtentsOf(
+	    const std::set<Function>&, const Extent&) const;
+	ExtentTable<Statement> getExtentsOf(
+	    const std::set<Statement>&, const Extent&) const;
 	
     };
     

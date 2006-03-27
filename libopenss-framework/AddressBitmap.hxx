@@ -31,6 +31,7 @@
 
 #include "AddressRange.hxx"
 
+#include <set>
 #include <vector>
 
 
@@ -68,6 +69,8 @@ namespace OpenSpeedShop { namespace Framework {
 	bool getValue(const Address&) const;
 	
 	Blob getBlob() const;
+
+	std::set<AddressRange> getContiguousRanges(const bool&) const;
 
     private:
 

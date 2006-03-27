@@ -139,3 +139,46 @@ Blob AddressBitmap::getBlob() const
     // Return the blob to the caller
     return blob;
 }
+
+
+
+/**
+ * Get contiguous address ranges.
+ *
+ * Returns the contiguous address ranges in this bitmap with the specified 
+ * value.
+ *
+ * @param value    Value of interest.
+ * @return         Set of contiguous address ranges with that value.
+ */
+std::set<AddressRange>
+AddressBitmap::getContiguousRanges(const bool& value) const
+{
+    std::set<AddressRange> ranges;
+    bool in_range = false;
+    Address range_begin;
+    
+    // Iterate over each address in the bitmap
+    for(Address i = dm_range.getBegin(); i != dm_range.getEnd(); ++i) {
+
+	// Is this address the beginning of a range?
+	if(!in_range && (getValue(i) == value)) {
+	    in_range = true;
+	    range_begin = i;
+	}
+	
+	// Is this address the end of a range?
+	else if(in_range && (getValue(i) != value)) {
+	    in_range = false;
+	    ranges.insert(AddressRange(range_begin, i));
+	}
+	
+    }
+
+    // Does a range end at the end of the bitmap?
+    if(in_range)
+	ranges.insert(AddressRange(range_begin, dm_range.getEnd()));
+    
+    // Return the ranges to the caller
+    return ranges;
+}

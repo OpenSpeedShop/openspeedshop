@@ -151,10 +151,12 @@ ExtentGroup Statement::getExtentIn(const Thread& thread) const
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement()) {
 
-	int linked_object = dm_database->getResultAsInteger(1);	
-        AddressBitmap bitmap(AddressRange(dm_database->getResultAsAddress(2),
-                                          dm_database->getResultAsAddress(3)),
-                             dm_database->getResultAsBlob(4));
+	int linked_object = dm_database->getResultAsInteger(1);
+	std::set<AddressRange> ranges =
+	    AddressBitmap(AddressRange(dm_database->getResultAsAddress(2),
+				       dm_database->getResultAsAddress(3)),
+			  dm_database->getResultAsBlob(4)).
+	    getContiguousRanges(true);
 	
 	// Find all the uses of this linked object in the specified thread
 	dm_database->prepareStatement(
@@ -169,37 +171,17 @@ ExtentGroup Statement::getExtentIn(const Thread& thread) const
 	dm_database->bindArgument(2, linked_object);
 	while(dm_database->executeStatement()) {
 
-	    bool in_range = false;
-	    Address range_begin;
-	
-	    for(Address i = bitmap.getRange().getBegin();
-		i != bitmap.getRange().getEnd();
-		++i)
-		if(!in_range && bitmap.getValue(i)) {
-		    in_range = true;
-		    range_begin = i;
-		}
-		else if(in_range && !bitmap.getValue(i)) {
-		    in_range = false;
-		    extent.push_back(
-			Extent(TimeInterval(dm_database->getResultAsTime(1),
-					    dm_database->getResultAsTime(2)),
-			       AddressRange(dm_database->getResultAsAddress(3) +
-					    range_begin,
-					    dm_database->getResultAsAddress(3) +
-					    i))
-			);
-		}
-	    
-	    if(in_range)
+	    // Iterate over the addresss ranges for this statement
+	    for(std::set<AddressRange>::const_iterator
+		    i = ranges.begin(); i != ranges.end(); ++i)
 		extent.push_back(
 		    Extent(TimeInterval(dm_database->getResultAsTime(1),
 					dm_database->getResultAsTime(2)),
 			   AddressRange(dm_database->getResultAsAddress(3) +
-					range_begin,
+					i->getBegin(),
 					dm_database->getResultAsAddress(3) +
-					bitmap.getRange().getEnd()))
-		    );	    
+					i->getEnd()))
+		    );
 	    
 	}
 

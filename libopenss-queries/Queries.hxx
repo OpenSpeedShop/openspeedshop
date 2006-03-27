@@ -123,11 +123,30 @@ namespace OpenSpeedShop {
 	    );
 
 	template <typename TS, typename TM>
+	void GetMetricInThreadGroup(
+	    const Framework::Collector&,
+	    const std::string&,
+	    const Framework::TimeInterval&,
+	    const Framework::ThreadGroup&,
+	    const std::set<TS >&,
+	    Framework::SmartPtr<std::map<TS, TM > >&
+	    );
+
+	template <typename TS, typename TM>
 	void GetMetricOfAllInThread(
 	    const Framework::Collector&,
 	    const std::string&,
 	    const Framework::TimeInterval&,
 	    const Framework::Thread&,
+	    Framework::SmartPtr<std::map<TS, TM > >&
+	    );
+
+	template <typename TS, typename TM>
+	void GetMetricOfAllInThreadGroup(
+	    const Framework::Collector&,
+	    const std::string&,
+	    const Framework::TimeInterval&,
+	    const Framework::ThreadGroup&,
 	    Framework::SmartPtr<std::map<TS, TM > >&
 	    );
 
@@ -160,7 +179,9 @@ void operator+=(std::vector<T >&, const std::vector<T >&);
 
 #include "AdditionAssignment.txx"
 #include "GetMetricInThread.txx"
+#include "GetMetricInThreadGroup.txx"
 #include "GetMetricOfAllInThread.txx"
+#include "GetMetricOfAllInThreadGroup.txx"
 #include "GetMetricByStatement.txx"
 
 
