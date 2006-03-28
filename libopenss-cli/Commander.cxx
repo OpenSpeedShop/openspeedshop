@@ -2293,7 +2293,6 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
                                  NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
   }
 
-pthread_exit (0);
  // We have exited the loop and will no longer read input.
   tli_window = 0;
   if (gui_window != 0) {
