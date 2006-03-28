@@ -65,21 +65,21 @@
 
 #define get_exclusive_values(stdv, num_calls)    { }
 
-#define set_MPI_values  \
-              if (num_temps > VMulti_sort_temp) (*vcs)[VMulti_sort_temp] = NULL; \
+#define set_MPI_values(value_array, sort_extime)  \
+              if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL; \
               if (num_temps > start_temp) {  \
                 double x = (start-base_time) / 1000000.0; \
-                (*vcs)[start_temp] = CRPTR (x); \
+                value_array[start_temp] = CRPTR (x); \
               } \
               if (num_temps > stop_temp) { \
                 double x = (end-base_time) / 1000000.0; \
-                (*vcs)[stop_temp] = CRPTR (x); \
+                value_array[stop_temp] = CRPTR (x); \
               } \
-              if (num_temps > VMulti_time_temp) (*vcs)[VMulti_time_temp] = CRPTR (vmin); \
-              if (num_temps > min_temp) (*vcs)[min_temp] = CRPTR (vmax); \
-              if (num_temps > max_temp) (*vcs)[max_temp] = CRPTR (sum); \
-              if (num_temps > cnt_temp) (*vcs)[cnt_temp] = CRPTR (cnt); \
-              if (num_temps > ssq_temp) (*vcs)[ssq_temp] = CRPTR (sum_squares);
+              if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp] = CRPTR (vmin); \
+              if (num_temps > min_temp) value_array[min_temp] = CRPTR (vmax); \
+              if (num_temps > max_temp) value_array[max_temp] = CRPTR (sum); \
+              if (num_temps > cnt_temp) value_array[cnt_temp] = CRPTR (cnt); \
+              if (num_temps > ssq_temp) value_array[ssq_temp] = CRPTR (sum_squares);
 
 static void Determine_Objects (
                CommandObject *cmd,
@@ -136,404 +136,11 @@ static void Determine_Objects (
   }
 }
 
-static bool MPI_Trace_Report(
-              CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-              ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
-              std::list<CommandResult *>& view_output) {
+#define Determine_Metric_Ordering(a) true
+#define def_Detail_values def_MPI_values
+#define set_Detail_values set_MPI_values
+#include "SS_View_detail.txx"
 
-  int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
-  bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
-  Collector collector = CV[0];
-  std::string metric = MV[0];
-  std::vector<std::pair<CommandResult *,
-                        SmartPtr<std::vector<CommandResult *> > > > c_items;
-  bool add_stmts = (!Look_For_KeyWord(cmd, "ButterFly") ||
-                    Look_For_KeyWord(cmd, "FullStack") ||
-                    Look_For_KeyWord(cmd, "FullStacks"));
-
- // Get the list of desired functions.
-  std::set<Function> objects;
-  Determine_Objects ( cmd, exp, tgrp, objects);
-  if (objects.empty()) {
-    Mark_Cmd_With_Soft_Error(cmd, "(There are no functions found for the 'MPI -v Trace' report.)");
-    return false;
-  }
-
-  try {
-    collector.lockDatabase();
-    Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
-    Time base_time = databaseExtent.getTimeInterval().getBegin();
-
-   // Acquire base set of metric values.
-    SmartPtr<std::map<Function,
-                      std::map<Framework::StackTrace,
-                               std::vector<MPIDetail> > > > raw_items;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
-    if (raw_items->begin() == raw_items->end()) {
-      Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested MPI functions.)");
-      return false;
-    }
-
-   // Combine all the items for each function.
-    std::map<Address, CommandResult *> knownTraces;
-    std::set<Framework::StackTrace, ltST> StackTraces_Processed;
-    std::map<Function, std::map<Framework::StackTrace, std::vector<MPIDetail> > >::iterator fi;
-    for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
-     // Foreach MPI function ...
-
-      Function F = (*fi).first;
-      std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
-      Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
-
-      std::map<Framework::StackTrace, std::vector<MPIDetail> >:: iterator si;
-      for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
-        Framework::StackTrace st = (*si).first;
-        std::vector<MPIDetail> details = (*si).second;
-
-       // If we have already processed this StackTrace, skip it!
-        if (StackTraces_Processed.find(st) != StackTraces_Processed.end()) {
-          continue;
-        }
-
-       // Find the extents associated with the stack trace's thread.
-        std::map<Framework::Thread, Framework::ExtentGroup>::iterator tei
-                                   = SubExtents_Map.find(st.getThread());
-        Framework::ExtentGroup SubExtents;
-        if (tei != SubExtents_Map.end()) {
-          SubExtents = (*tei).second;
-        }
-
-       // Count the number of recursive calls in the stack.
-       // The count in the Detail metric includes each call,
-       // but the inclusive time has been incremented for each
-       // call and we only want the time for the stack trace.
-        int64_t calls_In_stack = (SubExtents.begin() == SubExtents.end())
-                                   ? 1 : stack_contains_N_calls (st, SubExtents);
-
-        CommandResult *base_CSE = NULL;
-        std::vector<MPIDetail>::iterator vi;
-        for (vi = details.begin(); vi != details.end(); vi++) {
-         // Use macro to alocate temporaries
-          def_MPI_values
-
-         // Use macro to assign to temporaries
-          get_inclusive_values (details, calls_In_stack)
-
-         // Decide if we accumulate exclusive_time, as well.
-          if (topStack_In_Subextent (st, SubExtents)) {
-           // Bottom of trace is current function.
-           // Exclusive_time is the same as inclusive_time.
-           // Deeper calls must go without exclusive_time.
-            get_exclusive_values (details, calls_In_stack)
-          }
-
-         // Use macro to assign temporaries to the result array
-          SmartPtr<std::vector<CommandResult *> > vcs
-                   = Framework::SmartPtr<std::vector<CommandResult *> >(
-                               new std::vector<CommandResult *>(num_temps)
-                               );
-          set_MPI_values
-
-          CommandResult *CSE;
-          if (base_CSE == NULL) {
-            SmartPtr<std::vector<CommandResult *> > call_stack =
-                                  Construct_CallBack (TraceBack_Order, add_stmts, st, knownTraces);
-            base_CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
-            CSE = base_CSE;
-          } else {
-            CSE = Dup_CommandResult (base_CSE);
-          }
-          c_items.push_back(std::make_pair(CSE, vcs));
-        }
-
-       // Remember that we have now processed this particular StackTrace.
-        StackTraces_Processed.insert(st);
-      }
-    }
-  }
-  catch (const Exception& error) {
-    Mark_Cmd_With_Std_Error (cmd, error);
-    collector.unlockDatabase();
-    return false;
-  }
-
-  collector.unlockDatabase();
-
- // Generate the report.
-  return Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_Trace, c_items, view_output);
-}
-
-static bool MPI_Function_Report(
-              CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-              ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
-              std::list<CommandResult *>& view_output) {
-
-  int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
-  Collector collector = CV[0];
-  std::string metric = MV[0];
-  std::vector<std::pair<CommandResult *,
-                        SmartPtr<std::vector<CommandResult *> > > > c_items;
-
- // Get the list of desired functions.
-  std::set<Function> objects;
-  Determine_Objects ( cmd, exp, tgrp, objects);
-  if (objects.empty()) {
-    Mark_Cmd_With_Soft_Error(cmd, "(There are no objects specified for the basic MPI report.)");
-    return false;
-  }
-
-  try {
-    collector.lockDatabase();
-    Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
-    Time base_time = databaseExtent .getTimeInterval().getBegin();
-
-    SmartPtr<std::map<Function,
-                      std::map<Framework::StackTrace,
-                               std::vector<MPIDetail> > > > raw_items;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
-    if (raw_items->begin() == raw_items->end()) {
-      Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested MPI functions.)");
-      return false;
-    }
-
-   // Combine all the items for each function.
-    std::map<Function, std::map<Framework::StackTrace, std::vector<MPIDetail> > >::iterator fi;
-    for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
-     // Use macro to allocate imtermediate temporaries
-      def_MPI_values
-
-      Function F = (*fi).first;
-      std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
-      Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
-
-      std::set<Framework::StackTrace, ltST> StackTraces_Processed;
-      std::map<Framework::StackTrace, std::vector<MPIDetail> >:: iterator si;
-      for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
-        std::vector<MPIDetail>::iterator vi;
-        for (vi = (*si).second.begin(); vi != (*si).second.end(); vi++) {
-             // Use macro to accumulate all the separate samples
-          Framework::StackTrace st = (*si).first;
-          std::vector<MPIDetail> details = (*si).second;
-
-          Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map);
-        }
-      }
-
-     // Use macro to construct result array
-      SmartPtr<std::vector<CommandResult *> > vcs
-               = Framework::SmartPtr<std::vector<CommandResult *> >(
-                           new std::vector<CommandResult *>(num_temps)
-                           );
-      set_MPI_values
-
-     // Construct callstack for last entry in the stack trace.
-      SmartPtr<std::vector<CommandResult *> > call_stack =
-               Framework::SmartPtr<std::vector<CommandResult *> >(
-                           new std::vector<CommandResult *>()
-                           );
-      call_stack->push_back(CRPTR (F));
-      CommandResult *CSE = new CommandResult_CallStackEntry (call_stack);
-      c_items.push_back(std::make_pair(CSE, vcs));
-    }
-  }
-  catch (const Exception& error) {
-    Mark_Cmd_With_Std_Error (cmd, error);
-    collector.unlockDatabase();
-    return false;
-  }
-
-  collector.unlockDatabase();
-
- // Generate the report.
-  return Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_Function, c_items, view_output);
-}
-
-static bool MPI_CallStack_Report (
-              CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-              ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
-              std::list<CommandResult *>& view_output) {
-
-  int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
-  bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
-  Collector collector = CV[0];
-  std::string metric = MV[0];
-  std::vector<std::pair<CommandResult *,
-                        SmartPtr<std::vector<CommandResult *> > > > c_items;
-  bool add_stmts = (!Look_For_KeyWord(cmd, "ButterFly") ||
-                    Look_For_KeyWord(cmd, "FullStack") ||
-                    Look_For_KeyWord(cmd, "FullStacks"));
-
- // Get the list of desired functions.
-  std::set<Function> objects;
-  Determine_Objects ( cmd, exp, tgrp, objects);
-  if (objects.empty()) {
-    Mark_Cmd_With_Soft_Error(cmd, "(There are no functions found for the 'MPI -v CallStack' report.)");
-    return false;
-  }
-
-  try {
-    collector.lockDatabase();
-    Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
-    Time base_time = databaseExtent .getTimeInterval().getBegin();
-
-    SmartPtr<std::map<Function,
-                      std::map<Framework::StackTrace,
-                               std::vector<MPIDetail> > > > raw_items;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
-    if (raw_items->begin() == raw_items->end()) {
-      Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested MPI functions.)");
-      return false;
-    }
-
-   // Combine all the items for each function.
-    std::map<Address, CommandResult *> knownTraces;
-    std::set<Framework::StackTrace, ltST> StackTraces_Processed;
-    std::map<Function,
-             std::map<Framework::StackTrace,
-                      std::vector<MPIDetail> > >::iterator fi;
-    for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
-     // Foreach MPI function ...
-
-      Function F = (*fi).first;
-      std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
-      Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
-
-      std::map<Framework::StackTrace,
-               std::vector<MPIDetail> >::iterator sti;
-      for (sti = (*fi).second.begin(); sti != (*fi).second.end(); sti++) {
-        Framework::StackTrace st = (*sti).first;
-        std::vector<MPIDetail> details = (*sti).second;
-
-       // Use macro to allocate temporary array
-        def_MPI_values
-
-        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map);
-
-       // Use macro to set values into return structure.
-        SmartPtr<std::vector<CommandResult *> > vcs
-                 = Framework::SmartPtr<std::vector<CommandResult *> >(
-                             new std::vector<CommandResult *>(num_temps)
-                             );
-        set_MPI_values
-
-       // Construct result entry
-        SmartPtr<std::vector<CommandResult *> > call_stack
-                 = Construct_CallBack (TraceBack_Order, add_stmts, st, knownTraces);
-        CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
-        c_items.push_back(std::make_pair(CSE, vcs));
-      }
-    }
-  }
-  catch (const Exception& error) {
-    Mark_Cmd_With_Std_Error (cmd, error);
-    collector.unlockDatabase();
-    return false;
-  }
-
-  collector.unlockDatabase();
-
- // Generate the report.
-  return Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack,c_items, view_output);
-}
-
-
-static bool MPI_ButterFly_Report (
-              CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-              ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
-              std::list<CommandResult *>& view_output) {
-
-  int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
-  Collector collector = CV[0];
-  std::string metric = MV[0];
-  bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
-
- // Get the list of desired functions.
-  std::set<Function> objects;
-  Determine_Objects (cmd, exp, tgrp, objects);
-
-  if (objects.empty()) {
-    Mark_Cmd_With_Soft_Error(cmd, "(There are no functions found for the 'MPI -v ButterFly' report.)");
-    return false;
-  }
-
-  try {
-    collector.lockDatabase();
-    Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
-    Time base_time = databaseExtent.getTimeInterval().getBegin();
-
-   // Get raw data for inclusive_time metric.
-    SmartPtr<std::map<Function,
-                      std::map<Framework::StackTrace,
-                               std::vector<MPIDetail> > > > raw_items;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
-    if (raw_items->begin() == raw_items->end()) {
-      Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested functions.)");
-      return false;
-    }
-
-   // Generate a separate butterfly view for each function in the list.
-    std::map<Address, CommandResult *> knownTraces;
-    std::map<Function, std::map<Framework::StackTrace, std::vector<MPIDetail> > >::iterator fi1;
-    for (fi1 = raw_items->begin(); fi1 != raw_items->end(); fi1++) {
-     // Define set of data for the current function.
-      std::vector<std::pair<CommandResult *,
-                            SmartPtr<std::vector<CommandResult *> > > > c_items;
-
-      Function F = (*fi1).first;
-      std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
-      Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
-
-     // Capture each StackTrace in the inclusive_detail list.
-      std::set<Framework::StackTrace, ltST> StackTraces_Processed;
-      std::map<Framework::StackTrace, std::vector<MPIDetail> >:: iterator si1;
-      for (si1 = (*fi1).second.begin(); si1 != (*fi1).second.end(); si1++) {
-        Framework::StackTrace st = (*si1).first;
-        std::vector<MPIDetail> details = (*si1).second;
-
-       // Use macro to allocate imtermediate temporaries
-        def_MPI_values
-
-        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map);
-
-       // Use macro to construct result array
-        SmartPtr<std::vector<CommandResult *> > vcs
-                 = Framework::SmartPtr<std::vector<CommandResult *> >(
-                             new std::vector<CommandResult *>(num_temps)
-                             );
-        set_MPI_values((*vcs), true);
-
-       // Construct result entry
-        SmartPtr<std::vector<CommandResult *> > call_stack
-                 = Construct_CallBack (TraceBack_Order, true, st, knownTraces);
-        CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
-        c_items.push_back(std::make_pair(CSE, vcs));
-      }
-
-     // Generate the report.
-      if (c_items.empty()) {
-        std::string S = "(There are no data samples available for function '";
-        S = S + F.getName() + "'.)";
-        Mark_Cmd_With_Soft_Error(cmd, S);
-      } else {
-        (void) Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack, c_items, view_output);
-      }
-    }
-  }
-  catch (const Exception& error) {
-    Mark_Cmd_With_Std_Error (cmd, error);
-    collector.unlockDatabase();
-    return false;
-  }
-
-  collector.unlockDatabase();
-
- // Generate the report.
-  return true;
-}
 
 static std::string allowed_mpi_V_options[] = {
   "Function",
@@ -831,7 +438,23 @@ class mpi_view : public ViewType {
         return false;   // There is no collector, return.
       }
 
+      std::vector<MPIDetail> dummyVector;
+      MPIDetail *dummyDetail;
       switch (vfc) {
+       case VFC_Trace:
+        if (Look_For_KeyWord(cmd, "ButterFly")) {
+          return Detail_ButterFly_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, &dummyVector, view_output);
+        } else {
+          return Detail_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, dummyDetail, view_output);
+        }
+       case VFC_CallStack:
+        return Detail_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, &dummyVector, view_output);
+       case VFC_Function:
+        Framework::Function *dummyObject;
+        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                   dummyObject, VFC_Function, &dummyVector, view_output);
+      }
+/*
        case VFC_Trace:
         if (Look_For_KeyWord(cmd, "ButterFly")) {
           return MPI_ButterFly_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
@@ -843,6 +466,7 @@ class mpi_view : public ViewType {
        case VFC_Function:
         return MPI_Function_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
       }
+*/
     }
     Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
     return false;

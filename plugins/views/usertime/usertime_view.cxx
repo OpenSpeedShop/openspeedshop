@@ -57,6 +57,11 @@
               if (num_temps > intime_temp) value_array[intime_temp] = CRPTR (in_time); \
               if (num_temps > incnt_temp) value_array[incnt_temp] = CRPTR (in_cnt);
 
+#define def_Detail_values def_UserTime_values
+#define set_Detail_values set_UserTime_values
+#define Determine_Objects Get_Filtered_Objects
+#include "SS_View_detail.txx"
+
 static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
  // Determine which metric is the primary.
   int64_t master_temp = 0;
@@ -79,274 +84,6 @@ static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
     master_temp = intime_temp;
   }
   return (master_temp == intime_temp);
-}
-
-template <typename TI>
-bool UserTime_Base_Report (
-              CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-              ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
-              std::list<CommandResult *>& view_output,
-              View_Form_Category vfc,
-              TI *item) {
-
-  int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
-  Collector collector = Get_Collector (exp->FW(), "usertime");
-  std::vector<std::pair<CommandResult *,
-                        SmartPtr<std::vector<CommandResult *> > > > c_items;
-
-  std::string primary_metric;
-  std::string secondary_metric;
-  bool primary_is_inclusive = Determine_Metric_Ordering (IV);
-
- // Get the list of desired functions.
-  std::set<TI> objects;
-  Get_Filtered_Objects (cmd, exp, tgrp, objects);
-  if (objects.empty()) {
-    Mark_Cmd_With_Soft_Error(cmd, "(There are no objects specified for the basic UserTime report.)");
-    return false;
-  }
-
-  try {
-    collector.lockDatabase();
-
-   // Get raw data for inclusive_time metric.
-    SmartPtr<std::map<TI,
-                      std::map<Framework::StackTrace,
-                               UserTimeDetail> > > raw_items;
-    GetMetricInThreadGroup (collector, "inclusive_detail", tgrp, objects, raw_items);
-    if (raw_items->begin() == raw_items->end()) {
-      Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested UserTime functions.)");
-      return false;
-    }
-
-   // Combine all the items for each function.
-    typename std::map<TI, std::map<Framework::StackTrace, UserTimeDetail> >::iterator fi1;
-    for (fi1 = raw_items->begin(); fi1 != raw_items->end(); fi1++) {
-     // Use macro to allocate imtermediate temporaries
-      def_UserTime_values
-
-      TI F = (*fi1).first;
-      std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
-      Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
-
-      std::set<Framework::StackTrace, ltST> StackTraces_Processed;
-      std::map<Framework::StackTrace, UserTimeDetail>:: iterator si1;
-      for (si1 = (*fi1).second.begin(); si1 != (*fi1).second.end(); si1++) {
-        Framework::StackTrace st = (*si1).first;
-        UserTimeDetail details = (*si1).second;
-
-        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map);
-      }
-
-     // Use macro to construct result array
-      SmartPtr<std::vector<CommandResult *> > vcs
-               = Framework::SmartPtr<std::vector<CommandResult *> >(
-                           new std::vector<CommandResult *>(num_temps)
-                           );
-      set_UserTime_values((*vcs), primary_is_inclusive)
-
-     // Construct callstack for last entry in the stack trace.
-      SmartPtr<std::vector<CommandResult *> > call_stack =
-               Framework::SmartPtr<std::vector<CommandResult *> >(
-                           new std::vector<CommandResult *>()
-                           );
-      call_stack->push_back(CRPTR (F));
-      CommandResult *CSE = new CommandResult_CallStackEntry (call_stack);
-      c_items.push_back(std::make_pair(CSE, vcs));
-    }
-  }
-  catch (const Exception& error) {
-    Mark_Cmd_With_Std_Error (cmd, error);
-    collector.unlockDatabase();
-    return false;
-  }
-
-  collector.unlockDatabase();
-
- // Generate the report.
-  return Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc, c_items, view_output);
-}
-
-static bool UserTime_CallStack_Report (
-              CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-              ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
-              std::list<CommandResult *>& view_output) {
-
-  int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
-  Collector collector = Get_Collector (exp->FW(), "usertime");
-  bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
-  bool add_stmts = (!Look_For_KeyWord(cmd, "ButterFly") ||
-                    Look_For_KeyWord(cmd, "FullStack") ||
-                    Look_For_KeyWord(cmd, "FullStacks"));
-
-  std::string primary_metric;
-  std::string secondary_metric;
-  bool primary_is_inclusive = Determine_Metric_Ordering (IV);
-
-  std::vector<std::pair<CommandResult *,
-                        SmartPtr<std::vector<CommandResult *> > > > c_items;
-
- // Get the list of desired functions.
-  std::set<Function> objects;
-  Get_Filtered_Objects (cmd, exp, tgrp, objects);
-
-  if (objects.empty()) {
-    Mark_Cmd_With_Soft_Error(cmd, "(There are no objects specified for the UserTime report.)");
-    return false;
-  }
-
-  try {
-    collector.lockDatabase();
-
-   // Get raw data for inclusive_time metric.
-    SmartPtr<std::map<Function,
-                      std::map<Framework::StackTrace,
-                               UserTimeDetail> > > raw_items;
-    GetMetricInThreadGroup (collector, "inclusive_detail", tgrp, objects, raw_items);
-
-   // Combine all the items for each function.
-    std::map<Address, CommandResult *> knownTraces;
-    std::set<Framework::StackTrace, ltST> StackTraces_Processed;
-    std::map<Function, std::map<Framework::StackTrace, UserTimeDetail> >::iterator fi1;
-    for (fi1 = raw_items->begin(); fi1 != raw_items->end(); fi1++) {
-
-      Function F = (*fi1).first;
-      std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
-      Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
-
-      std::map<Framework::StackTrace, UserTimeDetail>:: iterator si1;
-      for (si1 = (*fi1).second.begin(); si1 != (*fi1).second.end(); si1++) {
-        Framework::StackTrace st = (*si1).first;
-        UserTimeDetail details = (*si1).second;
-
-       // Use macro to allocate imtermediate temporaries
-        def_UserTime_values
-
-        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map);
-
-       // Use macro to construct result array
-        SmartPtr<std::vector<CommandResult *> > vcs
-                 = Framework::SmartPtr<std::vector<CommandResult *> >(
-                             new std::vector<CommandResult *>(num_temps)
-                             );
-        set_UserTime_values((*vcs), primary_is_inclusive)
-
-       // Construct result entry for each trace.
-        SmartPtr<std::vector<CommandResult *> > call_stack
-                 = Construct_CallBack (TraceBack_Order, add_stmts, st, knownTraces);
-        CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
-        c_items.push_back(std::make_pair(CSE, vcs));
-      }
-    }
-  }
-  catch (const Exception& error) {
-    Mark_Cmd_With_Std_Error (cmd, error);
-    collector.unlockDatabase();
-    return false;
-  }
-
-  collector.unlockDatabase();
-
- // Generate the report.
-  return Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack, c_items, view_output);
-}
-
-static bool UserTime_ButterFly_Report (
-              CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-              ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
-              std::list<CommandResult *>& view_output) {
-
-  int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
-  Collector collector = Get_Collector (exp->FW(), "usertime");
-  bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
-
-  std::string primary_metric;
-  std::string secondary_metric;
-  bool primary_is_inclusive = true ; // Determine_Metric_Ordering (IV);
-
- // Get the list of desired functions.
-  std::set<Function> objects;
-  Get_Filtered_Objects (cmd, exp, tgrp, objects);
-
-  if (objects.empty()) {
-    Mark_Cmd_With_Soft_Error(cmd, "(There are no functions found for the 'UserTime -v ButterFly' report.)");
-    return false;
-  }
-
-  try {
-    collector.lockDatabase();
-
-   // Get raw data for inclusive_time metric.
-    SmartPtr<std::map<Function,
-                      std::map<Framework::StackTrace,
-                               UserTimeDetail> > > raw_items;
-    GetMetricInThreadGroup (collector, "inclusive_detail", tgrp, objects, raw_items);
-    if (raw_items->begin() == raw_items->end()) {
-      Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested functions.)");
-      return false;
-    }
-
-   // Generate a separate butterfly view for each function in the list.
-    std::map<Address, CommandResult *> knownTraces;
-    std::map<Function, std::map<Framework::StackTrace, UserTimeDetail> >::iterator fi1;
-    for (fi1 = raw_items->begin(); fi1 != raw_items->end(); fi1++) {
-     // Define set of data for the current function.
-      std::vector<std::pair<CommandResult *,
-                            SmartPtr<std::vector<CommandResult *> > > > c_items;
-
-      Function F = (*fi1).first;
-      std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
-      Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
-
-     // Capture each StackTrace in the inclusive_detail list.
-      std::set<Framework::StackTrace, ltST> StackTraces_Processed;
-      std::map<Framework::StackTrace, UserTimeDetail>:: iterator si1;
-      for (si1 = (*fi1).second.begin(); si1 != (*fi1).second.end(); si1++) {
-        Framework::StackTrace st = (*si1).first;
-        UserTimeDetail details = (*si1).second;
-
-       // Use macro to allocate imtermediate temporaries
-        def_UserTime_values
-
-        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map);
-
-       // Use macro to construct result array
-        SmartPtr<std::vector<CommandResult *> > vcs
-                 = Framework::SmartPtr<std::vector<CommandResult *> >(
-                             new std::vector<CommandResult *>(num_temps)
-                             );
-        set_UserTime_values((*vcs), primary_is_inclusive)
-
-       // Construct result entry
-        SmartPtr<std::vector<CommandResult *> > call_stack
-                 = Construct_CallBack (TraceBack_Order, true, st, knownTraces);
-        CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
-        c_items.push_back(std::make_pair(CSE, vcs));
-      }
-
-     // Generate the report.
-      if (c_items.empty()) {
-        std::string S = "(There are not data samples available for function '";
-        S = S + F.getName() + "'.)";
-        Mark_Cmd_With_Soft_Error(cmd, S);
-      } else {
-        (void) Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack, c_items, view_output);
-      }
-    }
-  }
-  catch (const Exception& error) {
-    Mark_Cmd_With_Std_Error (cmd, error);
-    collector.unlockDatabase();
-    return false;
-  }
-
-  collector.unlockDatabase();
-
- // Generate the report.
-  return true;
 }
 
 static std::string allowed_usertime_V_options[] = {
@@ -499,7 +236,7 @@ static void define_usertime_columns (
           last_temp = incnt_temp;
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "percent")) {
-          IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the first metric in CV, MV pairs
+          IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 1));  // total the second metric in CV, MV pairs
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column, 0));
           HV.push_back("% of Total");
           last_column++;
@@ -535,7 +272,7 @@ static void define_usertime_columns (
     HV.push_back("Exclusive Time");
     last_column++;
 
-    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the first metric in CV, MV pairs
+    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 1));  // total the second metric in CV, MV pairs
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column, 0));
     HV.push_back("% of Total");
     last_column++;
@@ -550,6 +287,8 @@ static bool usertime_definition (
 
     Validate_V_Options (cmd, allowed_usertime_V_options);
 
+    CV.push_back (Get_Collector (exp->FW(), "usertime"));  // Define the collector
+    MV.push_back ("inclusive_detail"); // define the metric needed for getting main time values
     CV.push_back (Get_Collector (exp->FW(), "usertime"));  // Define the collector
     MV.push_back ("exclusive_time"); // define the metric needed for calculating total time.
     define_usertime_columns (cmd, IV, HV, vfc);
@@ -653,22 +392,23 @@ class usertime_view : public ViewType {
       }
 */
 
+      UserTimeDetail *dummyDetail;
       switch (vfc) {
        case VFC_CallStack:
         if (Look_For_KeyWord(cmd, "ButterFly")) {
-          return UserTime_ButterFly_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
+          return Detail_ButterFly_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, dummyDetail, view_output);
         } else {
-          return UserTime_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
+          return Detail_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, dummyDetail, view_output);
         }
        case VFC_Function:
         Function *fp;
-        return UserTime_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output, vfc, fp);
+        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, fp, vfc, dummyDetail, view_output);
        case VFC_LinkedObject:
         LinkedObject *lp;
-        return UserTime_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output, vfc, lp);
+        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, lp, vfc, dummyDetail, view_output);
        case VFC_Statement:
         Statement *sp;
-        return UserTime_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output, vfc, sp);
+        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, sp, vfc, dummyDetail, view_output);
       }
     }
     Mark_Cmd_With_Soft_Error(cmd, "(We could not determine which format to use for the report.)");
