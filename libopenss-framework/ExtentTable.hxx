@@ -92,6 +92,10 @@ namespace OpenSpeedShop { namespace Framework {
 	ExtentGroup& getExtents(const Thread& thread)
 	{
 	    std::map<Thread, ExtentGroup>::iterator i = dm_extents.find(thread);
+	    if(i == dm_extents.end())
+		i = dm_extents.insert(
+		    std::make_pair(thread, ExtentGroup())
+		    ).first;
 	    Assert(i != dm_extents.end());
 	    return i->second;
 	}
@@ -101,7 +105,7 @@ namespace OpenSpeedShop { namespace Framework {
 			   const ExtentGroup::size_type& index) const
 	{
 	    typename std::map<Thread, std::vector<T > >::const_iterator
-		i = dm_extent_to_object.find(thread);
+		i = dm_extent_to_object.find(thread);	    
 	    Assert(i != dm_extent_to_object.end());
 	    Assert(index < i->second.size());
 	    return i->second[index];

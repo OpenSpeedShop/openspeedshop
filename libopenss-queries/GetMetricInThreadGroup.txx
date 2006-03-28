@@ -119,6 +119,10 @@ void Queries::GetMetricInThreadGroup(
 
 	// Get the extents for the source objects in this thread
 	Framework::ExtentGroup& extents = extent_table.getExtents(*i);
+
+	// No need to proceed further with this thread if no extents were found
+	if(extents.empty())
+	    continue;
 	
 	// Evaluate the metric values for the necessary extents
 	std::vector<TM > values;

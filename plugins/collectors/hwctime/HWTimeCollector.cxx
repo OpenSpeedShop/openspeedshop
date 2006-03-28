@@ -23,11 +23,23 @@
  */
  
 #include "HWTimeCollector.hxx"
+#include "HWTimeDetail.hxx"
 #include "blobs.h"
 #include "PapiAPI.h"
 
 using namespace std;
 using namespace OpenSpeedShop::Framework;
+
+
+
+namespace {
+
+    /** Type returned for the sample detail metrics. */
+    typedef std::map<StackTrace, HWTimeDetail> SampleDetail;
+
+}
+
+
 
 /**
  * Collector's factory method.
@@ -60,20 +72,23 @@ HWTimeCollector::HWTimeCollector() :
     declareParameter(Metadata("sampling_rate", "Sampling Rate",
                               "Sampling rate in samples/seconds.",
                               typeid(unsigned)));
-
     declareParameter(Metadata("event", "Hardware Time Counter Event",
-                           "HWCTime event.",
-                           typeid(std::string)));
+			      "HWCTime event.",
+			      typeid(std::string)));
 
     // Declare our metrics
-
     declareMetric(Metadata("inclusive_overflows", "Inclusive Overflows",
                            "Inclusive hwc overflow counts.",
                            typeid(uint64_t)));
-
     declareMetric(Metadata("exclusive_overflows", "Exclusive Overflows",
                            "Exclusive hwc overflow counts.",
                            typeid(uint64_t)));
+    declareMetric(Metadata("inclusive_detail", "Inclusive Detail",
+                           "Inclusive sample detail.",
+                           typeid(SampleDetail)));
+    declareMetric(Metadata("exclusive_detail", "Exclusive Detail",
+                           "Exclusive sample detail.",
+                           typeid(SampleDetail)));    
 }
 
 
@@ -195,6 +210,7 @@ void HWTimeCollector::setParameterValue(const std::string& parameter,
 }
 
 
+
 /**
  * Start data collection.
  *
@@ -279,96 +295,149 @@ void HWTimeCollector::getMetricValues(const std::string& metric,
                                       const ExtentGroup& subextents,
 				      void* ptr) const
 {
-    // Handle the "overflows" metric
+    // Only "[inclusive|exclusive]_[overflows|detail]" metrics return anything
+    if((metric != "inclusive_overflows") && (metric != "exclusive_overflows") &&
+       (metric != "inclusive_detail") && (metric != "exclusive_detail"))
+	return;
 
-    bool incloverflows = (metric == "inclusive_overflows") ? true : false;
-    bool excloverflows = (metric == "exclusive_overflows") ? true : false;
+    // Is this "exclusive_[overflows|detail]"?
+    bool is_exclusive = 
+	(metric == "exclusive_overflows") || (metric == "exclusive_detail");
 
-    if( incloverflows || excloverflows ) {
-        // Cast the untyped pointer into a vector of uint64_t
-        std::vector<uint64_t>* values =
-                                reinterpret_cast<std::vector<uint64_t>*>(ptr);
+    // Is this "[inclusive|exclusive]_detail"?
+    bool is_detail = 
+	(metric == "inclusive_detail") || (metric == "exclusive_detail");
 
-        // Check assertions
-        Assert(values->size() >= subextents.size());
-
-        // Decode this data blob
-        hwctime_data data;
-        memset(&data, 0, sizeof(data));
-        blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_hwctime_data),&data
-);
-
-        // Check assertions
-        // Assert(data.bt.bt_len == data.count.count_len);
-
-        // Calculate time (in nS) of data blob's extent
-        uint64_t t_blob =
-                static_cast<uint64_t>(extent.getTimeInterval().getWidth());
-
-        // Iterate over each of the samples
-
-        bool top_stack_trace = true;
-        bool add_to_values = true;
-
-        for(unsigned i = 0; i < data.bt.bt_len; i++)
-        {
-
-            // Find the subextents that contain this sample
-            std::set<ExtentGroup::size_type> intersection =
-                subextents.getIntersectionWith(
-                    Extent(extent.getTimeInterval(),
-                       AddressRange(data.bt.bt_val[i])) );
-
-            // Calculate the time (in seconds) attributable to this sample
-            uint64_t t_sample = static_cast<uint64_t>(data.interval);
-
-            // The boolean add_to_values is used to determine if we
-            // include the computed t_sample in values.
-            // incloverflows: always add each t_sample (stack frame) to values.
-            // excloverflows: only add t_sample for top stack frame to values.
-            if ( excloverflows) {
-
-                if (top_stack_trace) {
-                    // "first" PC of call stack, toggle add_to_values to true
-                    // and toggle top_stack_trace to false till next new stack.
-                    add_to_values = true;
-                    top_stack_trace = false;
-                } else {
-                    // t_sample for this stack frame not added to values.
-                    add_to_values = false;
-                }
-
-                if ( !top_stack_trace && data.bt.bt_val[i] == 0) {
-                    // reached end of stack marker. Next t_sample will
-                    // be top of new stack.
-                    top_stack_trace = true;
-                }
-            }
-
-            // add_to_values always true for incloverflows...
-            if (add_to_values) {
-                // Iterate over each subextent in the intersection
-                for(std::set<ExtentGroup::size_type>::const_iterator
-                    j = intersection.begin(); j != intersection.end(); ++j) {
-
-                    // Calculate intersection time (in nS) of subextent and
-                    // data blob
-                    uint64_t t_intersection = static_cast<uint64_t>
-                        ((extent.getTimeInterval() &
-                          subextents[*j].getTimeInterval()).getWidth());
-
-
-                    // Add (to the subextent's metric value) the appropriate
-                    // fraction of the total time attributable to this sample
-                    (*values)[*j] += t_sample * (t_intersection / t_blob);
-
-                } // end for subextent
-            }
-
-        } // end for samples
-
-        // Free the decoded data blob
-        xdr_free(reinterpret_cast<xdrproc_t>(xdr_hwctime_data),
-                 reinterpret_cast<char*>(&data));
+    // Check assertions
+    if(is_detail) {
+	Assert(reinterpret_cast<std::vector<SampleDetail>*>(ptr)->size() >=
+	       subextents.size());
+    } else {
+	Assert(reinterpret_cast<std::vector<uint64_t>*>(ptr)->size() >=
+	       subextents.size());
     }
+
+    // Decode this data blob
+    hwctime_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_hwctime_data), &data);
+    
+    // Check assertions
+    // Assert(data.bt.bt_len == data.count.count_len);
+
+    // Note: Enable the above assertion once hwctime has been modified to use
+    //       the compression technique from usertime.
+
+    // Calculate time (in nS) of data blob's extent
+    double t_blob = static_cast<double>(extent.getTimeInterval().getWidth());
+
+    // Iterate over each stack trace in the data blob    
+    for(unsigned ib = 0, ie = 0; ie < data.bt.bt_len; ib = ie) {
+	
+	// Find the end of the current stack trace
+	for(ib += (ib > 0), ie = ib + 1; ie < data.bt.bt_len; ++ie)
+	    if(data.bt.bt_val[ie] == 0)
+		break;
+	
+	// Note: Replace the code above to find the end of the current stack
+	//       trace with the following code once hwctime has been modified
+	//       to use the compression technique from usertime.
+
+	// for(ie = ib + 1; ie < data.bt.bt_len; ++ie)
+	//     if(data.count.count_val[ie] > 0)
+	//	   break;
+
+	// Calculate the events attributable to this sample
+	uint64_t e_sample = static_cast<uint64_t>(data.interval);
+
+	// Note: Replace the definition of e_sample above with the following one
+	//       once hwctime has been modified to use the compression technique
+	//       from usertime.
+	
+	// uint64_t e_sample = static_cast<uint64_t>(data.count.count_val[ib]) *
+	//     static_cast<uint64_t>(data.interval);	
+	
+	// Get the stack trace for this sample
+	StackTrace trace(thread, extent.getTimeInterval().getBegin());
+	for(unsigned j = ib; j < ie; ++j)
+	    trace.push_back(Address(data.bt.bt_val[j]));
+	
+	// Iterate over each of the frames in the current stack trace
+	for(StackTrace::const_iterator
+		j = trace.begin(); j != trace.end(); ++j) {
+	    
+	    // Stop after first frame if this is "exclusive_[overflows|detail]"
+	    if(is_exclusive && (j != trace.begin()))
+		break;
+	    
+	    // Find the subextents that contain this frame
+	    std::set<ExtentGroup::size_type> intersection =
+		subextents.getIntersectionWith(
+		    Extent(extent.getTimeInterval(), AddressRange(*j))
+		    );
+	    
+	    // Iterate over each subextent in the intersection
+	    for(std::set<ExtentGroup::size_type>::const_iterator
+		    k = intersection.begin(); k != intersection.end(); ++k) {
+
+		// Calculate intersection time (in nS) of subextent and blob
+		double t_intersection = static_cast<double>
+		    ((extent.getTimeInterval() &
+		      subextents[*k].getTimeInterval()).getWidth());
+
+		// Handle "[inclusive|exclusive]_detail" metric
+		if(is_detail) {
+
+		    // Find this stack trace in the subextent's metric value
+		    SampleDetail::iterator l =
+			(*reinterpret_cast<std::vector<SampleDetail>*>(ptr))[*k]
+			.insert(
+			    std::make_pair(trace, HWTimeDetail())
+			    ).first;
+		    
+		    // Add (to the subextent's metric value) the appropriate
+		    // fraction of the count and events attributable to this
+		    // sample
+		    l->second.dm_count += static_cast<uint64_t>(
+			t_intersection / t_blob
+			);
+
+		    // Note: Replace the definition of dm_count above with the
+		    //       following one once hwctime has been modified to use
+		    //       the compression technique from usertime.
+		    
+		    // l->second.dm_count += static_cast<uint64_t>(
+		    //     static_cast<double>(data.count.count_val[ib]) * 
+		    //     (t_intersection / t_blob)
+		    //     );
+		    
+		    l->second.dm_events += static_cast<uint64_t>(
+			static_cast<double>(e_sample) *
+			(t_intersection / t_blob)
+			);
+		    
+		}
+
+		// Handle "[inclusive|exclusive]_overflows" metric		
+		else {
+
+		    // Add (to the subextent's metric value) the appropriate
+		    // fraction of the events attributable to this sample
+		    (*reinterpret_cast<std::vector<uint64_t>*>(ptr))[*k] +=
+			static_cast<uint64_t>(
+			    static_cast<double>(e_sample) * 
+			    (t_intersection / t_blob)
+			    );
+
+		}
+		
+	    }
+	    
+	}
+	
+    }
+	
+    // Free the decoded data blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_hwctime_data),
+             reinterpret_cast<char*>(&data));
 }

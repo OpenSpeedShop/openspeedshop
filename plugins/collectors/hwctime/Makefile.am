@@ -30,7 +30,8 @@ hwctime_la_LDFLAGS = \
 
 hwctime_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
-	HWTimeCollector.hxx HWTimeCollector.cxx
+	HWTimeCollector.hxx HWTimeCollector.cxx \
+	HWTimeDetail.hxx
 
 hwctime_rt_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
