@@ -50,6 +50,7 @@ void Construct_View_Output (CommandObject *cmd,
                             std::vector<std::pair<CommandResult *,
                                                   SmartPtr<std::vector<CommandResult *> > > >& items,
                             std::list<CommandResult *>& view_output ) {
+// Print_View_Params (cerr, CV,MV,IV);
   int64_t i;
   bool report_Column_summary = false;
 
