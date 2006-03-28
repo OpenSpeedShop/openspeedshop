@@ -130,6 +130,8 @@ ColumnValueClass columnValueClass[10];
     std::list<std::string> current_list_of_pcsamp_modifiers;
     std::list<std::string> list_of_usertime_modifiers;
     std::list<std::string> current_list_of_usertime_modifiers;
+    std::list<std::string> list_of_generic_modifiers;
+    std::list<std::string> current_list_of_generic_modifiers;
 
     void updateThreadsList();
     void updateCollectorList();
@@ -149,7 +151,7 @@ ColumnValueClass columnValueClass[10];
     Thread *currentThread;
     void setCurrentThread();
 
-ThreadGroupStringList currentThreadGroupStrList;
+    ThreadGroupStringList currentThreadGroupStrList;
 
     //! Holds the current collector that is in focus
     Collector *currentCollector;
@@ -171,6 +173,7 @@ ThreadGroupStringList currentThreadGroupStrList;
     QPopupMenu *hwcModifierMenu;
     QPopupMenu *pcsampModifierMenu;
     QPopupMenu *usertimeModifierMenu;
+    QPopupMenu *genericModifierMenu;
 
     QPopupMenu *popupMenu;   // Pointer to the contextMenu
     QPopupMenu *mpi_menu;
@@ -178,6 +181,7 @@ ThreadGroupStringList currentThreadGroupStrList;
     QPopupMenu *hwc_menu;
     QPopupMenu *usertime_menu;
     QPopupMenu *pcsamp_menu;
+    QPopupMenu *generic_menu;
 
     QString currentThreadStr;
     QString currentThreadsStr;
@@ -209,6 +213,7 @@ ThreadGroupStringList currentThreadGroupStrList;
     void mpiModifierSelected(int);
     void ioModifierSelected(int);
     void hwcModifierSelected(int);
+    void genericModifierSelected(int);
     void pcsampModifierSelected(int);
     void usertimeModifierSelected(int);
     void collectorMetricSelected(int);
@@ -220,6 +225,7 @@ ThreadGroupStringList currentThreadGroupStrList;
     void collectorHWCTReportSelected(int);
     void collectorUserTimeReportSelected(int);
     void collectorPCSampReportSelected(int);
+    void collectorGenericReportSelected(int);
     void showStats();
     void showChart();
     void setOrientation();
@@ -236,9 +242,12 @@ ThreadGroupStringList currentThreadGroupStrList;
     void generateHWCMenu(QString collectorName);
     void generateUserTimeMenu();
     void generatePCSampMenu();
+    void generateGenericMenu();
     QString generateCommand();
     void generateModifierMenu(QPopupMenu *, std::list<std::string>current_list, std::list<std::string>current_local_list);
+#ifdef PULL
     void generateModifierMenu();
+#endif // PULL
 
 
     void MPIReportSelected(int);

@@ -675,6 +675,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     } else
     {
 // printf("Generate an other (%s) menu\n", collector_name.c_str() );
+      generateGenericMenu();
     }
 
   }
@@ -815,41 +816,45 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   return( TRUE );
 }
 
+#ifdef PULL
 void
 StatsPanel::generateModifierMenu()
 {
 // printf("StatsPanel::generateModifierMenu() entered (Deprecated)\n");
-        if( modifierMenu )
-        {
-          delete modifierMenu;
-        }
-        modifierMenu = new QPopupMenu(this);
-        modifierMenu->setCheckable(TRUE);
-        connect(modifierMenu, SIGNAL( activated(int) ),
-          this, SLOT(modifierSelected(int)) );
-        for( std::list<std::string>::const_iterator it = list_of_modifiers.begin();
-                it != list_of_modifiers.end(); it++ )
-        {
-          std::string modifier = (std::string)*it;
+  if( modifierMenu )
+  {
+    delete modifierMenu;
+  }
+  modifierMenu = new QPopupMenu(this);
+  modifierMenu->setCheckable(TRUE);
+  connect(modifierMenu, SIGNAL( activated(int) ),
+    this, SLOT(modifierSelected(int)) );
+
+
+  for( std::list<std::string>::const_iterator it = list_of_modifiers.begin();
+          it != list_of_modifiers.end(); it++ )
+  {
+    std::string modifier = (std::string)*it;
 
 // printf("modifier = (%s)\n", modifier.c_str() );
 
-          QString s = QString(modifier.c_str() );
+    QString s = QString(modifier.c_str() );
 
-          int mid = modifierMenu->insertItem(s);
-          for( std::list<std::string>::const_iterator it = current_list_of_modifiers.begin();
-               it != current_list_of_modifiers.end(); it++ )
-          {
-            std::string current_modifier = (std::string)*it;
+    int mid = modifierMenu->insertItem(s);
+    for( std::list<std::string>::const_iterator it = current_list_of_modifiers.begin();
+         it != current_list_of_modifiers.end(); it++ )
+    {
+      std::string current_modifier = (std::string)*it;
 // printf("building menu : current_list_of_modifier here one (%s)\n", current_modifier.c_str() );
-            if( modifier == current_modifier )
-            {
+      if( modifier == current_modifier )
+      {
 // printf("WE have a match to check\n");
-              modifierMenu->setItemChecked(mid, TRUE);
-            }
-          }
-        }
+        modifierMenu->setItemChecked(mid, TRUE);
+      }
+    }
+  }
 }
+#endif // PULL
 
 
 void
@@ -2364,6 +2369,29 @@ StatsPanel::collectorPCSampReportSelected(int val)
 
 
 void
+StatsPanel::collectorGenericReportSelected(int val)
+{ 
+// printf("collectorGenericReportSelected: val=%d\n", val);
+// printf("collectorGenericReportSelected: generic_menu=(%s)\n", generic_menu->text(val).ascii() );
+// printf("collectorGenericReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+
+  mpi_io_FLAG = FALSE;
+  hwc_FLAG = FALSE;
+// printf("H: mpi_io_FLAG = %d\n", mpi_io_FLAG );
+
+
+  currentUserSelectedMetricStr = QString::null;
+
+  currentMetricStr = QString::null;
+  currentCollectorStr = QString::null;
+  selectedFunctionStr = QString::null;
+
+// printf("Collector changed call updateStatsPanelData() \n");
+    updateStatsPanelData();
+}
+
+
+void
 StatsPanel::modifierSelected(int val)
 { 
 // printf("modifierSelected val=%d\n", val);
@@ -2527,6 +2555,44 @@ StatsPanel::hwcModifierSelected(int val)
 
 
 void
+StatsPanel::usertimeModifierSelected(int val)
+{ 
+// printf("usertimeModifierSelected val=%d\n", val);
+// printf("modifierSelected: (%s)\n", usertimeModifierMenu->text(val).ascii() );
+
+
+  std::string s = usertimeModifierMenu->text(val).ascii();
+// printf("B1: modifierStr=(%s)\n", s.c_str() );
+
+  bool FOUND = FALSE;
+  for( std::list<std::string>::const_iterator it = current_list_of_usertime_modifiers.begin();
+       it != current_list_of_usertime_modifiers.end();  )
+  {
+    std::string modifier = (std::string)*it;
+
+    if( modifier ==  s )
+    {   // It's in the list, so take it out...
+// printf("The modifier was in the list ... take it out!\n");
+      FOUND = TRUE;
+    }
+
+    it++;
+
+    if( FOUND == TRUE )
+    {
+      current_list_of_usertime_modifiers.remove(modifier);
+      break;
+    }
+  }
+
+  if( FOUND == FALSE )
+  {
+// printf("The modifier was not in the list ... add it!\n");
+    current_list_of_usertime_modifiers.push_back(s);
+  }
+}
+
+void
 StatsPanel::pcsampModifierSelected(int val)
 { 
 // printf("pcsampModifierSelected val=%d\n", val);
@@ -2566,18 +2632,18 @@ StatsPanel::pcsampModifierSelected(int val)
 
 
 void
-StatsPanel::usertimeModifierSelected(int val)
+StatsPanel::genericModifierSelected(int val)
 { 
-// printf("usertimeModifierSelected val=%d\n", val);
-// printf("modifierSelected: (%s)\n", usertimeModifierMenu->text(val).ascii() );
+// printf("genericModifierSelected val=%d\n", val);
+// printf("modifierSelected: (%s)\n", genericModifierMenu->text(val).ascii() );
 
 
-  std::string s = usertimeModifierMenu->text(val).ascii();
+  std::string s = genericModifierMenu->text(val).ascii();
 // printf("B1: modifierStr=(%s)\n", s.c_str() );
 
   bool FOUND = FALSE;
-  for( std::list<std::string>::const_iterator it = current_list_of_usertime_modifiers.begin();
-       it != current_list_of_usertime_modifiers.end();  )
+  for( std::list<std::string>::const_iterator it = current_list_of_generic_modifiers.begin();
+       it != current_list_of_generic_modifiers.end();  )
   {
     std::string modifier = (std::string)*it;
 
@@ -2591,7 +2657,7 @@ StatsPanel::usertimeModifierSelected(int val)
 
     if( FOUND == TRUE )
     {
-      current_list_of_usertime_modifiers.remove(modifier);
+      current_list_of_generic_modifiers.remove(modifier);
       break;
     }
   }
@@ -2599,9 +2665,10 @@ StatsPanel::usertimeModifierSelected(int val)
   if( FOUND == FALSE )
   {
 // printf("The modifier was not in the list ... add it!\n");
-    current_list_of_usertime_modifiers.push_back(s);
+    current_list_of_generic_modifiers.push_back(s);
   }
 }
+
 
 void
 StatsPanel::raisePreferencePanel()
@@ -2801,7 +2868,8 @@ StatsPanel::updateCollectorMetricList()
   QString command = QString("list -v metrics -x %1").arg(expID);
 // printf("attempt to run (%s)\n", command.ascii() );
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-list_of_collectors_metrics.clear();
+  list_of_collectors_metrics.clear();
+list_of_generic_modifiers.clear();
   InputLineObject *clip = NULL;
   if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
          &list_of_collectors_metrics, clip, TRUE ) )
@@ -2824,6 +2892,7 @@ list_of_collectors_metrics.clear();
         currentCollectorStr = s.mid(0, index );
 // printf("Default the current collector to (%s)\n", collector_name.c_str());
       }
+list_of_generic_modifiers.push_back(collector_name);
     }
   }
 }
@@ -3769,7 +3838,8 @@ if( selectedFunctionStr.isEmpty() )
       modifier_list = &current_list_of_usertime_modifiers;
     } else
     {
-      modifier_list = &current_list_of_modifiers;
+//      modifier_list = &current_list_of_modifiers;
+      modifier_list = &current_list_of_generic_modifiers;
     }
 
     for( std::list<std::string>::const_iterator it = modifier_list->begin();
@@ -4102,7 +4172,7 @@ StatsPanel::generateUserTimeMenu()
   connect(usertimeModifierMenu, SIGNAL( activated(int) ),
     this, SLOT(usertimeModifierSelected(int)) );
   generateModifierMenu(usertimeModifierMenu, list_of_usertime_modifiers, current_list_of_usertime_modifiers);
-  usertime_menu->insertItem(QString("Show usertime modifiers:"), usertimeModifierMenu);
+  usertime_menu->insertItem(QString("Show usertime Metrics:"), usertimeModifierMenu);
 }
 
 void
@@ -4133,7 +4203,41 @@ StatsPanel::generatePCSampMenu()
   connect(pcsampModifierMenu, SIGNAL( activated(int) ),
     this, SLOT(pcsampModifierSelected(int)) );
   generateModifierMenu(pcsampModifierMenu, list_of_pcsamp_modifiers, current_list_of_pcsamp_modifiers);
-  pcsamp_menu->insertItem(QString("Show pcsamp modifiers:"), pcsampModifierMenu);
+  pcsamp_menu->insertItem(QString("Show pcsamp Metrics:"), pcsampModifierMenu);
+}
+
+
+void
+StatsPanel::generateGenericMenu()
+{
+// printf("generateGenericMenu is being created\n");
+
+  generic_menu = new QPopupMenu(this);
+  connect(generic_menu, SIGNAL( activated(int) ),
+           this, SLOT(collectorGenericReportSelected(int)) );
+
+  QString s = QString::null;
+
+  QAction *qaction = NULL;
+
+  generic_menu->insertItem(QString("Show Metric: %1").arg(currentCollectorStr));
+
+  contextMenu->insertItem(QString("Show Metrics: generic"), generic_menu);
+
+//  list_of_generic_modifiers.clear();
+  
+  if( genericModifierMenu )
+  {
+    delete genericModifierMenu;
+  }
+  genericModifierMenu = new QPopupMenu(this);
+  connect(genericModifierMenu, SIGNAL( activated(int) ),
+    this, SLOT(genericModifierSelected(int)) );
+  generateModifierMenu(genericModifierMenu, list_of_generic_modifiers, current_list_of_generic_modifiers);
+
+// printf("Try to generate the genericModifierMenu()\n");
+
+  generic_menu->insertItem(QString("Show generic Metrics:"), genericModifierMenu);
 }
 
 
