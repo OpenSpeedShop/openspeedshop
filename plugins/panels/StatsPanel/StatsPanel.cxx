@@ -205,6 +205,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 
   list_of_mpi_modifiers.clear();
   current_list_of_mpi_modifiers.clear();  // This is this list of user selected modifiers.
+  current_list_of_mpit_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_io_modifiers.clear();
   current_list_of_io_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_hwc_modifiers.clear();
@@ -816,47 +817,6 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   return( TRUE );
 }
 
-#ifdef PULL
-void
-StatsPanel::generateModifierMenu()
-{
-// printf("StatsPanel::generateModifierMenu() entered (Deprecated)\n");
-  if( modifierMenu )
-  {
-    delete modifierMenu;
-  }
-  modifierMenu = new QPopupMenu(this);
-  modifierMenu->setCheckable(TRUE);
-  connect(modifierMenu, SIGNAL( activated(int) ),
-    this, SLOT(modifierSelected(int)) );
-
-
-  for( std::list<std::string>::const_iterator it = list_of_modifiers.begin();
-          it != list_of_modifiers.end(); it++ )
-  {
-    std::string modifier = (std::string)*it;
-
-// printf("modifier = (%s)\n", modifier.c_str() );
-
-    QString s = QString(modifier.c_str() );
-
-    int mid = modifierMenu->insertItem(s);
-    for( std::list<std::string>::const_iterator it = current_list_of_modifiers.begin();
-         it != current_list_of_modifiers.end(); it++ )
-    {
-      std::string current_modifier = (std::string)*it;
-// printf("building menu : current_list_of_modifier here one (%s)\n", current_modifier.c_str() );
-      if( modifier == current_modifier )
-      {
-// printf("WE have a match to check\n");
-        modifierMenu->setItemChecked(mid, TRUE);
-      }
-    }
-  }
-}
-#endif // PULL
-
-
 void
 StatsPanel::generateModifierMenu(QPopupMenu *menu, std::list<std::string> modifier_list, std::list<std::string> current_list)
 {
@@ -875,7 +835,7 @@ StatsPanel::generateModifierMenu(QPopupMenu *menu, std::list<std::string> modifi
          it != current_list.end(); it++ )
     {
       std::string current_modifier = (std::string)*it;
-// printf("building menu : current_list here one (%s)\n", current_modifier.c_str() );
+// printf("building menu : current_list here's one (%s)\n", current_modifier.c_str() );
       if( modifier == current_modifier )
       {
 // printf("WE have a match to check\n");
@@ -2477,6 +2437,46 @@ StatsPanel::mpiModifierSelected(int val)
 
 
 void
+StatsPanel::mpitModifierSelected(int val)
+{ 
+// printf("mpitModifierSelected val=%d\n", val);
+// printf("modifierSelected: (%s)\n", mpitModifierMenu->text(val).ascii() );
+
+
+
+  std::string s = mpitModifierMenu->text(val).ascii();
+// printf("B1: modifierStr=(%s)\n", s.c_str() );
+
+  bool FOUND = FALSE;
+  for( std::list<std::string>::const_iterator it = current_list_of_mpit_modifiers.begin();
+       it != current_list_of_mpit_modifiers.end();  )
+  {
+    std::string modifier = (std::string)*it;
+
+    if( modifier ==  s )
+    {   // It's in the list, so take it out...
+// printf("The modifier was in the list ... take it out!\n");
+      FOUND = TRUE;
+    }
+
+    it++;
+
+    if( FOUND == TRUE )
+    {
+      current_list_of_mpit_modifiers.remove(modifier);
+      break;
+    }
+  }
+
+  if( FOUND == FALSE )
+  {
+// printf("The modifier was not in the list ... add it!\n");
+    current_list_of_mpit_modifiers.push_back(s);
+  }
+}
+
+
+void
 StatsPanel::ioModifierSelected(int val)
 { 
 // printf("ioModifierSelected val=%d\n", val);
@@ -3818,18 +3818,21 @@ if( selectedFunctionStr.isEmpty() )
   about = command + "\n";
 } 
 
-// printf("add any modifiers...\n");
+//printf("add any modifiers...\n");
     std::list<std::string> *modifier_list = NULL;;
-// printf("generateCommand: currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+//printf("generateCommand: currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
     if( currentCollectorStr == "hwc" || currentCollectorStr == "hwctime" )
     {
       modifier_list = &current_list_of_hwc_modifiers;
     } else if( currentCollectorStr == "io" || currentCollectorStr == "iot" )
     {
       modifier_list = &current_list_of_io_modifiers;
-    } else if( currentCollectorStr == "mpi" || currentCollectorStr == "mpit" )
+    } else if( currentCollectorStr == "mpi" )
     {
       modifier_list = &current_list_of_mpi_modifiers;
+    } else if( currentCollectorStr == "mpit" )
+    {
+      modifier_list = &current_list_of_mpit_modifiers;
     } else if( currentCollectorStr == "pcsamp" )
     {
       modifier_list = &current_list_of_pcsamp_modifiers;
@@ -3937,18 +3940,15 @@ StatsPanel::generateMPIMenu(QString collectorName)
   qaction->setText( tr("Show Metric: CallTrees by Selected Function") );
   qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
 
-//  mpi_menu->insertItem(QString("Show mpi modifiers:"), modifierMenu);
+  list_of_mpi_modifiers.clear();
+  list_of_mpit_modifiers.clear();
 if( collectorName == "mpi" )
 {
   contextMenu->insertItem(QString("Show Metrics: MPI"), mpi_menu);
-} else
-{
-  contextMenu->insertItem(QString("Show Metrics: MPIT"), mpi_menu);
-}
-
-  // Build the static list of mpi modifiers.
-  list_of_mpi_modifiers.clear();
-  list_of_mpi_modifiers.push_back("exclusive_times");
+  list_of_mpi_modifiers.push_back("mpi::exclusive_times");
+  list_of_mpi_modifiers.push_back("mpi::inclusive_times");
+  list_of_mpi_modifiers.push_back("mpi::exclusive_details");
+  list_of_mpi_modifiers.push_back("mpi::inclusive_details");
   list_of_mpi_modifiers.push_back("min");
   list_of_mpi_modifiers.push_back("max");
   list_of_mpi_modifiers.push_back("average");
@@ -3973,8 +3973,47 @@ if( collectorName == "mpi" )
   mpiModifierMenu = new QPopupMenu(this);
   connect(mpiModifierMenu, SIGNAL( activated(int) ),
     this, SLOT(mpiModifierSelected(int)) );
+
   generateModifierMenu(mpiModifierMenu, list_of_mpi_modifiers, current_list_of_mpi_modifiers);
-  mpi_menu->insertItem(QString("Show mpi modifiers:"), mpiModifierMenu);
+  mpi_menu->insertItem(QString("Show mpi metrics/modifiers:"), mpiModifierMenu);
+
+} else
+{
+  contextMenu->insertItem(QString("Show Metrics: MPIT"), mpi_menu);
+  list_of_mpit_modifiers.push_back("mpit::exclusive_times");
+  list_of_mpit_modifiers.push_back("mpit::inclusive_times");
+  list_of_mpit_modifiers.push_back("mpit::exclusive_details");
+  list_of_mpit_modifiers.push_back("mpit::inclusive_details");
+  list_of_mpit_modifiers.push_back("min");
+  list_of_mpit_modifiers.push_back("max");
+  list_of_mpit_modifiers.push_back("average");
+  list_of_mpit_modifiers.push_back("count");
+  list_of_mpit_modifiers.push_back("percent");
+  list_of_mpit_modifiers.push_back("stddev");
+
+  list_of_mpit_modifiers.push_back("start_time");
+  list_of_mpit_modifiers.push_back("stop_time");
+  list_of_mpit_modifiers.push_back("source");
+  list_of_mpit_modifiers.push_back("destination");
+  list_of_mpit_modifiers.push_back("size");
+  list_of_mpit_modifiers.push_back("tag");
+  list_of_mpit_modifiers.push_back("commuinicator");
+  list_of_mpit_modifiers.push_back("datatype");
+  list_of_mpit_modifiers.push_back("retval");
+
+  if( mpitModifierMenu )
+  {
+    delete mpitModifierMenu;
+  }
+  mpitModifierMenu = new QPopupMenu(this);
+  connect(mpitModifierMenu, SIGNAL( activated(int) ),
+    this, SLOT(mpitModifierSelected(int)) );
+
+  generateModifierMenu(mpitModifierMenu, list_of_mpit_modifiers, current_list_of_mpit_modifiers);
+  mpi_menu->insertItem(QString("Show mpit metrics/modifiers:"), mpitModifierMenu);
+
+}
+
 }
 
 void
@@ -4042,7 +4081,7 @@ StatsPanel::generateIOMenu(QString collectorName)
   qaction->setText( tr("Show Metric: CallTrees by Selected Function") );
   qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
 
-//  io_menu->insertItem(QString("Show io modifiers:"), modifierMenu);
+//  io_menu->insertItem(QString("Show io metrics/modifiers:"), modifierMenu);
 if( collectorName == "io" )
 {
   contextMenu->insertItem(QString("Show Metrics: IO"), io_menu);
@@ -4053,7 +4092,10 @@ if( collectorName == "io" )
 
   // Build the static list of io modifiers.
   list_of_io_modifiers.clear();
-  list_of_io_modifiers.push_back("exclusive_times");
+  list_of_io_modifiers.push_back("io::exclusive_times");
+  list_of_io_modifiers.push_back("io::inclusive_times");
+  list_of_io_modifiers.push_back("io::exclusive_details");
+  list_of_io_modifiers.push_back("io::inclusive_details");
   list_of_io_modifiers.push_back("min");
   list_of_io_modifiers.push_back("max");
   list_of_io_modifiers.push_back("average");
@@ -4079,7 +4121,7 @@ if( collectorName == "io" )
   connect(ioModifierMenu, SIGNAL( activated(int) ),
     this, SLOT(ioModifierSelected(int)) );
   generateModifierMenu(ioModifierMenu, list_of_io_modifiers, current_list_of_io_modifiers);
-  io_menu->insertItem(QString("Show io modifiers:"), ioModifierMenu);
+  io_menu->insertItem(QString("Show io metrics/modifiers:"), ioModifierMenu);
 }
 
 
@@ -4123,8 +4165,11 @@ StatsPanel::generateHWCMenu(QString collectorName)
   list_of_hwc_modifiers.clear();
   if( collectorName == "hwctime" )
   {
-    list_of_hwc_modifiers.push_back("exclusive_overflows");
-    list_of_hwc_modifiers.push_back("inclusive_overflows");
+    list_of_hwc_modifiers.push_back("hwctime::exclusive_overflows");
+    list_of_hwc_modifiers.push_back("hwctime::exclusive_overflows");
+  } else
+  {
+    list_of_hwc_modifiers.push_back("hwc::hwc_overflows");
   }
 
   if( hwcModifierMenu )
@@ -4135,7 +4180,13 @@ StatsPanel::generateHWCMenu(QString collectorName)
   connect(hwcModifierMenu, SIGNAL( activated(int) ),
     this, SLOT(hwcModifierSelected(int)) );
   generateModifierMenu(hwcModifierMenu, list_of_hwc_modifiers, current_list_of_hwc_modifiers);
-  hwc_menu->insertItem(QString("Show hwctime modifiers:"), hwcModifierMenu);
+  if( collectorName == "hwctime" )
+  {
+    hwc_menu->insertItem(QString("Show hwctime metrics:"), hwcModifierMenu);
+  } else
+  {
+    hwc_menu->insertItem(QString("Show hwc metrics:"), hwcModifierMenu);
+  }
 }
 
 void
@@ -4161,8 +4212,10 @@ StatsPanel::generateUserTimeMenu()
   contextMenu->insertItem(QString("Show Metrics: UserTime"), usertime_menu);
 
   list_of_usertime_modifiers.clear();
-  list_of_usertime_modifiers.push_back("exclusive_time");
-  list_of_usertime_modifiers.push_back("inclusive_time");
+  list_of_usertime_modifiers.push_back("usertime::exclusive_times");
+  list_of_usertime_modifiers.push_back("usertime::inclusive_times");
+  list_of_usertime_modifiers.push_back("usertime::exclusive_details");
+  list_of_usertime_modifiers.push_back("usertime::inclusive_details");
 
   if( usertimeModifierMenu )
   {
@@ -4193,7 +4246,7 @@ StatsPanel::generatePCSampMenu()
   contextMenu->insertItem(QString("Show Metrics: pcsamp"), pcsamp_menu);
 
   list_of_pcsamp_modifiers.clear();
-  list_of_pcsamp_modifiers.push_back("time");
+  list_of_pcsamp_modifiers.push_back("pcsamp::time");
   
   if( pcsampModifierMenu )
   {

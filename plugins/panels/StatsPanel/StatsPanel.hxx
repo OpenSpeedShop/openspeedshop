@@ -122,6 +122,8 @@ ColumnValueClass columnValueClass[10];
 
     std::list<std::string> list_of_mpi_modifiers;
     std::list<std::string> current_list_of_mpi_modifiers;
+    std::list<std::string> list_of_mpit_modifiers;
+    std::list<std::string> current_list_of_mpit_modifiers;
     std::list<std::string> list_of_io_modifiers;
     std::list<std::string> current_list_of_io_modifiers;
     std::list<std::string> list_of_hwc_modifiers;
@@ -169,6 +171,7 @@ ColumnValueClass columnValueClass[10];
     QPopupMenu *modifierMenu;
 
     QPopupMenu *mpiModifierMenu;
+    QPopupMenu *mpitModifierMenu;
     QPopupMenu *ioModifierMenu;
     QPopupMenu *hwcModifierMenu;
     QPopupMenu *pcsampModifierMenu;
@@ -211,6 +214,7 @@ ColumnValueClass columnValueClass[10];
     void threadSelected(int);
     void modifierSelected(int);
     void mpiModifierSelected(int);
+    void mpitModifierSelected(int);
     void ioModifierSelected(int);
     void hwcModifierSelected(int);
     void genericModifierSelected(int);
@@ -245,9 +249,6 @@ ColumnValueClass columnValueClass[10];
     void generateGenericMenu();
     QString generateCommand();
     void generateModifierMenu(QPopupMenu *, std::list<std::string>current_list, std::list<std::string>current_local_list);
-#ifdef PULL
-    void generateModifierMenu();
-#endif // PULL
 
 
     void MPIReportSelected(int);
