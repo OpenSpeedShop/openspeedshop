@@ -43,8 +43,12 @@ public:
     AboutDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0, QString msg = QString::null);
     ~AboutDialog();
 
+#ifdef HELP
     QPushButton* buttonHelp;
+#endif // HELP
+#ifdef OK
     QPushButton* buttonOk;
+#endif // OK
     QPushButton* buttonCancel;
 
     QLabel* availableHostsLabel;

@@ -30,6 +30,7 @@ AboutDialog::AboutDialog( QWidget* parent, const char* name, bool modal, WFlags 
     : QDialog( parent, name, modal, fl )
 {
 // printf("AboutDialog::AboutDialog() constructor called.\n");
+  setCaption( name );
   
   setSizeGripEnabled( TRUE );
   AboutDialogLayout = new QVBoxLayout( this, 11, 6, "AboutDialogLayout"); 
@@ -48,16 +49,20 @@ AboutDialog::AboutDialog( QWidget* parent, const char* name, bool modal, WFlags 
 
   Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1"); 
 
+#ifdef HELP
   buttonHelp = new QPushButton( this, "buttonHelp" );
   buttonHelp->setAutoDefault( TRUE );
   Layout1->addWidget( buttonHelp );
+#endif // HELP
   Horizontal_Spacing2 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   Layout1->addItem( Horizontal_Spacing2 );
 
+#ifdef OK
   buttonOk = new QPushButton( this, "buttonOk" );
   buttonOk->setAutoDefault( TRUE );
   buttonOk->setDefault( TRUE );
   Layout1->addWidget( buttonOk );
+#endif // OK
 
   buttonCancel = new QPushButton( this, "buttonCancel" );
   buttonCancel->setAutoDefault( TRUE );
@@ -68,7 +73,9 @@ AboutDialog::AboutDialog( QWidget* parent, const char* name, bool modal, WFlags 
   clearWState( WState_Polished );
 
   // signals and slots connections
+#ifdef OK
   connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
+#endif // OK
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 
 }
@@ -88,11 +95,14 @@ AboutDialog::~AboutDialog()
  */
 void AboutDialog::languageChange()
 {
-  setCaption( tr( "AboutDialog" ) );
+#ifdef HELP
   buttonHelp->setText( tr( "&Help" ) );
   buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
+#endif // HELP
+#ifdef OK
   buttonOk->setText( tr( "&OK" ) );
   buttonOk->setAccel( QKeySequence( QString::null ) );
+#endif // OK
   buttonCancel->setText( tr( "&Cancel" ) );
   buttonCancel->setAccel( QKeySequence( QString::null ) );
   availableHostsLabel->setText( tr("Information:") );

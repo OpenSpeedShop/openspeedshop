@@ -471,7 +471,7 @@ CustomExperimentPanel::menu(QPopupMenu* contextMenu)
 
   qaction = new QAction( this,  "expStatus");
   qaction->addTo( contextMenu );
-  qaction->setText( "About..." );
+  qaction->setText( "Experiment Status..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( experimentStatus() ) );
   qaction->setStatusTip( tr("Get general information about this experiment...") );
 

@@ -635,10 +635,9 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 
   QAction *qaction = NULL;
 
-//  contextMenu->insertItem("About...", this, SLOT(aboutSelected()) );
   qaction = new QAction( this,  "_aboutStatsPanel");
   qaction->addTo( contextMenu );
-  qaction->setText( "About..." );
+  qaction->setText( "Context..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( aboutSelected() ) );
   qaction->setStatusTip( tr("Shows information about what is currently being displayed in the StatsPanel.") );
 
@@ -1144,7 +1143,7 @@ StatsPanel::aboutSelected()
     }
   }
 
-  AboutDialog *aboutDialog = new AboutDialog(this, "About StatsPanel:", FALSE, 0, aboutOutputString);
+  AboutDialog *aboutDialog = new AboutDialog(this, "StatsPanel Context:", FALSE, 0, aboutOutputString);
   aboutDialog->show();
 
   if( aboutOutputClass )

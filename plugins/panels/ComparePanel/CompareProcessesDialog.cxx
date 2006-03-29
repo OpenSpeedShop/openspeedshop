@@ -124,7 +124,7 @@ availableProcessesListView->addColumn( tr( "Host:" ) );
 
   Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1"); 
 
-#ifdef LATER
+#ifndef LATER
   buttonHelp = new QPushButton( this, "buttonHelp" );
   buttonHelp->setAutoDefault( TRUE );
   Layout1->addWidget( buttonHelp );
@@ -142,6 +142,10 @@ availableProcessesListView->addColumn( tr( "Host:" ) );
   clearWState( WState_Polished );
 
   // signals and slots connections
+#ifndef LATER
+  connect( buttonHelp, SIGNAL( clicked() ), this, SLOT( help() ) );
+#endif // LATER
+
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 
   connect( addButton, SIGNAL( clicked() ), this, SLOT( addProcesses() ) );
@@ -166,7 +170,7 @@ void CompareProcessesDialog::languageChange()
 {
   setCaption( tr( name() ) );
   addProcessesLabel->setText( tr( "Add processes:" ) );
-#ifdef LATER
+#ifndef LATER
   buttonHelp->setText( tr( "&Help" ) );
   buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
 #endif // LATER
@@ -196,6 +200,17 @@ CompareProcessesDialog::updateInfo()
 {
 
   QApplication::restoreOverrideCursor();
+}
+
+#include "AboutDialog.hxx"
+void
+CompareProcessesDialog::help()
+{
+  QString infoStr="Help text for dialog.";
+
+  AboutDialog *helpDialog = new AboutDialog(this, "Help", FALSE, 0, infoStr);
+
+  helpDialog->show();
 }
 
 #include "MPListViewItem.hxx"

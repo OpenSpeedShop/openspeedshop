@@ -56,7 +56,7 @@ public:
     QLabel* addProcessesLabel;
     QLabel* removeProcessesLabel;
     QLineEdit* addProcessesRegExpLineEdit;
-#ifdef LATER
+#ifndef LATER
     QPushButton* buttonHelp;
 #endif //  LATER
     QPushButton* buttonCancel;
@@ -85,6 +85,7 @@ private:
     bool isPSetName(QString name);
 
 private slots:
+    void help();
     void addProcesses();
     void removeProcesses();
 
