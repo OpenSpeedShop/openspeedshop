@@ -26,65 +26,80 @@
 // Additional items may be defined for individual collectors.
 
 // These are needed to manage mpit collector data.
-#define start_temp 2
-#define stop_temp 3
-#define min_temp 4
-#define max_temp 5
-#define cnt_temp 6
-#define ssq_temp 7
+#define intime_temp 2
+#define incnt_temp 3
+#define extime_temp 4
+#define excnt_temp 5
+#define start_temp 6
+#define stop_temp 7
+#define min_temp 8
+#define max_temp 9
+#define ssq_temp 10
 
-#define source_temp 8
-#define destination_temp 9
-#define size_temp 10
-#define tag_temp 11
-#define communicator_temp 12
-#define datatype_temp 13
-#define retval_temp 14
+#define source_temp 11
+#define destination_temp 12
+#define size_temp 13
+#define tag_temp 14
+#define communicator_temp 15
+#define datatype_temp 16
+#define retval_temp 17
 
 // mpit view
 
-#define def_MPIT_values \
-            Time start = Time::TheEnd(); \
-            Time end = Time::TheBeginning(); \
-            int64_t cnt = 0; \
-            double sum = 0.0; \
-            double vmax = 0.0; \
-            double vmin = LONG_MAX; \
-            double sum_squares = 0.0; \
-            int64_t detail_source = 0; \
-            int64_t detail_destination = 0; \
-            uint64_t detail_size = 0; \
-            int64_t detail_tag = 0; \
-            int64_t detail_communicator = 0; \
-            int64_t detail_datatype = 0; \
+#define def_MPIT_values                          \
+            Time start = Time::TheEnd();         \
+            Time end = Time::TheBeginning();     \
+            double intime = 0.0;                 \
+            int64_t incnt = 0;                   \
+            double extime = 0.0;                 \
+            int64_t excnt = 0;                   \
+            double vmax = 0.0;                   \
+            double vmin = LONG_MAX;              \
+            double sum_squares = 0.0;            \
+            int64_t detail_source = 0;           \
+            int64_t detail_destination = 0;      \
+            uint64_t detail_size = 0;            \
+            int64_t detail_tag = 0;              \
+            int64_t detail_communicator = 0;     \
+            int64_t detail_datatype = 0;         \
             int64_t detail_retval = 0;
 
-#define get_MPIT_values(primary) \
-              double v = primary.dm_time; \
+#define get_MPIT_invalues(primary,num_calls)                     \
+              double v = primary.dm_time / num_calls;            \
+              intime += v;                                       \
+              incnt++;                                           \
               start = min(start,primary.dm_interval.getBegin()); \
-              end = max(end,primary.dm_interval.getEnd()); \
-              cnt ++; \
-              vmin = min(vmin,v); \
-              vmax = max(vmax,v); \
-              sum += v; \
-              sum_squares += v * v; \
-              detail_source = primary.dm_source; \
-              detail_destination = primary.dm_destination; \
-              detail_size += primary.dm_size; \
-              detail_tag = primary.dm_tag; \
-              detail_communicator = primary.dm_communicator; \
-              detail_datatype = primary.dm_datatype; \
+              end = max(end,primary.dm_interval.getEnd());       \
+              vmin = min(vmin,v);                                \
+              vmax = max(vmax,v);                                \
+              sum_squares += v * v;                              \
+              detail_source = primary.dm_source;                 \
+              detail_destination = primary.dm_destination;       \
+              detail_size += primary.dm_size;                    \
+              detail_tag = primary.dm_tag;                       \
+              detail_communicator = primary.dm_communicator;     \
+              detail_datatype = primary.dm_datatype;             \
               detail_retval = primary.dm_retval;
+
+#define get_MPIT_exvalues(primary,num_calls)         \
+              extime += primary.dm_time / num_calls; \
+              excnt++;
 
 #define get_inclusive_values(stdv, num_calls)           \
 {           int64_t len = stdv.size();                  \
             for (int64_t i = 0; i < len; i++) {         \
              /* Use macro to combine all the values. */ \
-              get_MPIT_values(stdv[i])                  \
+              get_MPIT_invalues(stdv[i],num_calls)      \
             }                                           \
 }
 
-#define get_exclusive_values(stdv, num_calls)    { }
+#define get_exclusive_values(stdv, num_calls)           \
+{           int64_t len = stdv.size();                  \
+            for (int64_t i = 0; i < len; i++) {         \
+             /* Use macro to combine all the values. */ \
+              get_MPIT_exvalues(stdv[i],num_calls)      \
+            }                                           \
+}
 
 #define set_MPIT_values(value_array, sort_extime) \
               if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL; \
@@ -96,10 +111,14 @@
                 double x = (end-base_time) / 1000000.0; \
                 value_array[stop_temp] = CRPTR (x); \
               } \
-              if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp] = CRPTR (vmin); \
-              if (num_temps > min_temp) value_array[min_temp] = CRPTR (vmax); \
-              if (num_temps > max_temp) value_array[max_temp] = CRPTR (sum); \
-              if (num_temps > cnt_temp) value_array[cnt_temp] = CRPTR (cnt); \
+              if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp] \
+                                                 = CRPTR (sort_extime ? extime : intime); \
+              if (num_temps > intime_temp) value_array[intime_temp] = CRPTR (intime); \
+              if (num_temps > incnt_temp) value_array[incnt_temp] = CRPTR (incnt); \
+              if (num_temps > extime_temp) value_array[extime_temp] = CRPTR (extime); \
+              if (num_temps > excnt_temp) value_array[excnt_temp] = CRPTR (excnt); \
+              if (num_temps > min_temp) value_array[min_temp] = CRPTR (vmin); \
+              if (num_temps > max_temp) value_array[max_temp] = CRPTR (vmax); \
               if (num_temps > ssq_temp) value_array[ssq_temp] = CRPTR (sum_squares); \
               if (num_temps > source_temp) value_array[source_temp] = CRPTR (detail_source); \
               if (num_temps > destination_temp) value_array[destination_temp] = CRPTR (detail_destination); \
@@ -128,44 +147,41 @@ static void Determine_Objects (
     pt = *p_tlist->begin(); // There can only be one!
     f_list = pt.getFileList();
 
-    if ((f_list == NULL) || (f_list->empty()) ||
-        Look_For_KeyWord(cmd, "ButterFly")) {
-     // There is no Function filtering requested or a ButerFly views is requested.
-     // Get all the functions in the already selected thread groups.
-     // Function filtering will be done later for ButerFly views.
-      for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-
-       // Check for asnychonous abort command
-       // Check for asnychonous abort command
-        if (cmd->Status() == CMD_ABORTED) {
-          return;
-        }
-
-        Thread thread = *ti;
-        std::set<Function> threadObjects;
-        OpenSpeedShop::Queries::GetSourceObjects(thread, threadObjects);
-        objects.insert(threadObjects.begin(), threadObjects.end());
-      }
+    if ((f_list == NULL) || (f_list->empty())) { 
+     // There is no <file> list for filtering.
+     // Get all the mpi functions for all, previously selected, threads.
+      objects = exp->FW()->getFunctionsByNamePattern ("PMPI*");
     } else {
-     // There is some sort of file filter specified.
-     // Determine the names of desired functions and get Function objects for them.
-     // Thread filtering will be done in GetMetricInThreadGroup.
-        vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
-        for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
-          OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
-          OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
-          Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
-          std::string F_Name = pval1.name;
-          std::set<Function> new_objects = exp->FW()->getFunctionsByNamePattern (F_Name);
-          if (!new_objects.empty()) {
-            objects.insert (new_objects.begin(), new_objects.end());
-          }
-        }
+     // use the general utility to select the specified threads.
+      Get_Filtered_Objects (cmd, exp, tgrp, objects);
     }
   }
 }
 
-#define Determine_Metric_Ordering(a) true
+static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
+ // Determine which metric is the primary.
+  int64_t master_temp = 0;
+  int64_t search_column = 0;
+
+  while ((search_column == 0) &&
+         (search_column < IV.size())) {
+    ViewInstruction *primary_column = Find_Column_Def (IV, search_column++);
+    if (primary_column == NULL) {
+      break;
+    }
+    if (primary_column->OpCode() == VIEWINST_Display_Tmp) {
+      master_temp = primary_column->TMP1();
+      break;
+    }
+  }
+
+  if ((master_temp != intime_temp) &&
+      (master_temp != extime_temp)) {
+    master_temp = intime_temp;
+  }
+  return (master_temp == intime_temp);
+}
+
 #define def_Detail_values def_MPIT_values
 #define set_Detail_values set_MPIT_values
 #include "SS_View_detail.txx"
@@ -197,28 +213,36 @@ static void define_mpit_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Min, start_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Max, stop_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_time_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, intime_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, incnt_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, extime_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Min, min_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Max, max_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Add, cnt_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, ssq_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
 
  // Most detail fields are not combinable in a meaningful way.
   IV.push_back(new ViewInstruction (VIEWINST_Add, size_temp));
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
-  bool Generate_Summary = (Look_For_KeyWord(cmd, "Summary") & !Look_For_KeyWord(cmd, "ButterFly"));
+  bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
+  bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
 
   if (Generate_Summary) {
-   // Add display of the summary time.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
+    if (Generate_ButterFly) {
+      Generate_Summary = false;
+      Mark_Cmd_With_Soft_Error(cmd,"Warning: 'summary' is not supported with '-v ButterFly'.");
+    } else {
+     // Total time is always displayed - also add display of the summary time.
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
+    }
   }
 
   int64_t last_column = 0;
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
     int64_t i = 0;
-    bool time_metric_selected = false;
     vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
       bool column_is_DateTime = false;
@@ -227,6 +251,13 @@ static void define_mpit_columns (
       std::string M_Name;
       if (m_range->is_range) {
         C_Name = m_range->start_range.name;
+        if (!strcasecmp(M_Name.c_str(), "mpit")) {
+         // We only know what to do with the usertime collector.
+          std::string s("The specified collector, " + C_Name +
+                        ", can not be displayed as part of a 'mpit' view.");
+          Mark_Cmd_With_Soft_Error(cmd,s);
+          continue;
+        }
         M_Name = m_range->end_range.name;
       } else {
         M_Name = m_range->start_range.name;
@@ -235,23 +266,23 @@ static void define_mpit_columns (
      // Try to match the name with built in values.
       if (M_Name.length() > 0) {
         // Select temp values for columns and build column headers
-        if (!time_metric_selected &&
-            !strcasecmp(M_Name.c_str(), "time") ||
+        if (!strcasecmp(M_Name.c_str(), "time") ||
             !strcasecmp(M_Name.c_str(), "times") ||
-            !strcasecmp(M_Name.c_str(), "exclusive_times") ||
-            !strcasecmp(M_Name.c_str(), "exclusive_details")) {
+            !strcasecmp(M_Name.c_str(), "inclusive_time") ||
+            !strcasecmp(M_Name.c_str(), "inclusive_times") ||
+            !strcasecmp(M_Name.c_str(), "inclusive_detail") ||
+            !strcasecmp(M_Name.c_str(), "inclusive_details")) {
          // display sum of times
-          time_metric_selected = true;
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, VMulti_time_temp));
-          HV.push_back("Exclusive Time");
-          last_column++;
-        } else if (!time_metric_selected &&
-                   !strcasecmp(M_Name.c_str(), "inclusive_times") ||
-                   !strcasecmp(M_Name.c_str(), "inclusive_details")) {
-         // display times
-          time_metric_selected = true;
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, VMulti_time_temp));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
           HV.push_back("Inclusive Time");
+          last_column++;
+        } else if (!strcasecmp(M_Name.c_str(), "exclusive_time") ||
+                   !strcasecmp(M_Name.c_str(), "exclusive_times") ||
+                   !strcasecmp(M_Name.c_str(), "exclusive_detail") ||
+                   !strcasecmp(M_Name.c_str(), "exclusive_details")) {
+         // display times
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, extime_temp));
+          HV.push_back("Exclusive Time");
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "min")) {
          // display min time
@@ -265,26 +296,38 @@ static void define_mpit_columns (
           last_column++;
         } else if ( !strcasecmp(M_Name.c_str(), "count") ||
                     !strcasecmp(M_Name.c_str(), "counts") ||
+                    !strcasecmp(M_Name.c_str(), "inclusive_count") ||
+                    !strcasecmp(M_Name.c_str(), "inclusive_counts") ||
                     !strcasecmp(M_Name.c_str(), "call") ||
                     !strcasecmp(M_Name.c_str(), "calls") ) {
          // display total counts
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, cnt_temp));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, incnt_temp));
           HV.push_back("Number of Calls");
+          last_column++;
+        } else if ( !strcasecmp(M_Name.c_str(), "exclusive_count") ||
+                    !strcasecmp(M_Name.c_str(), "exclusive_counts")) {
+         // display total exclusive counts
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, excnt_temp));
+          HV.push_back("Exclusive Calls");
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "average")) {
          // average time is calculated from two temps: sum and total counts.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column, VMulti_time_temp, cnt_temp));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column, VMulti_time_temp, incnt_temp));
           HV.push_back("Average Time");
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "percent")) {
          // percent is calculate from 2 temps: time for this row and total time.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column, VMulti_time_temp));
+          if (Generate_ButterFly) {
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column, intime_temp));
+          } else {
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column, VMulti_time_temp));
+          }
           HV.push_back("% of Total");
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "stddev")) {
          // The standard deviation is calculated from 3 temps: sum, sum of squares and total counts.
           IV.push_back(new ViewInstruction (VIEWINST_Display_StdDeviation_Tmp, last_column,
-                                            VMulti_time_temp, ssq_temp, cnt_temp));
+                                            VMulti_time_temp, ssq_temp, incnt_temp));
           HV.push_back("Standard Deviation");
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "start_time")) {
@@ -374,6 +417,17 @@ static void define_mpit_columns (
         IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, (int64_t)(column_is_DateTime) ? 1 : 0));
       }
     }
+  } else if (Generate_ButterFly) {
+   // Default ButterFly view.
+   // Column[0] is inclusive time
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
+    HV.push_back("Inclusive Time");
+    last_column++;
+
+  // Column[1] in % of inclusive time
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column, intime_temp));
+    HV.push_back("% of Total");
+    last_column++;
   } else {
    // If nothing is requested ...
     if (vfc == VFC_Trace) {
@@ -387,8 +441,8 @@ static void define_mpit_columns (
       last_column++;
     }
    // Always display elapsed time.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, VMulti_time_temp));
-    HV.push_back("Exclusive Time");
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
+    HV.push_back("Inclusive Time");
   }
 }
 
@@ -411,10 +465,7 @@ static bool mpit_definition (CommandObject *cmd, ExperimentObject *exp, int64_t 
       Mark_Cmd_With_Soft_Error(cmd,s);
       return false;
     }
-/* TEST
-    std::string M_Name("exclusive_times");
-TEST */
-    std::string M_Name("exclusive_details");
+    std::string M_Name("inclusive_details");
     MV.push_back(M_Name);
     if (!Collector_Generates_Metric (*CV.begin(), M_Name)) {
       std::string s("The metrics required to generate the view are not available in the experiment.");
