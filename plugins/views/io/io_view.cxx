@@ -460,16 +460,20 @@ class io_view : public ViewType {
       switch (Determine_Form_Category(cmd)) {
        case VFC_Trace:
         if (Look_For_KeyWord(cmd, "ButterFly")) {
-          return Detail_ButterFly_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, &dummyVector, view_output);
+          return Detail_ButterFly_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                          Determine_Metric_Ordering(IV), &dummyVector, view_output);
         } else {
-          return Detail_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, dummyDetail, view_output);
+          return Detail_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                          Determine_Metric_Ordering(IV), dummyDetail, view_output);
         }
        case VFC_CallStack:
-        return Detail_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, &dummyVector, view_output);
+        return Detail_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                          Determine_Metric_Ordering(IV), &dummyVector, view_output);
        case VFC_Function:
         Framework::Function *dummyObject;
         return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                                   dummyObject, VFC_Function, &dummyVector, view_output);
+                                   Determine_Metric_Ordering(IV), dummyObject,
+                                   VFC_Function, &dummyVector, view_output);
       }
     }
     Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");

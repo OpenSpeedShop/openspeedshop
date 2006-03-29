@@ -396,19 +396,24 @@ class usertime_view : public ViewType {
       switch (vfc) {
        case VFC_CallStack:
         if (Look_For_KeyWord(cmd, "ButterFly")) {
-          return Detail_ButterFly_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, dummyDetail, view_output);
+          return Detail_ButterFly_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                          Determine_Metric_Ordering(IV), dummyDetail, view_output);
         } else {
-          return Detail_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, dummyDetail, view_output);
+          return Detail_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                          Determine_Metric_Ordering(IV), dummyDetail, view_output);
         }
        case VFC_Function:
         Function *fp;
-        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, fp, vfc, dummyDetail, view_output);
+        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                   Determine_Metric_Ordering(IV), fp, vfc, dummyDetail, view_output);
        case VFC_LinkedObject:
         LinkedObject *lp;
-        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, lp, vfc, dummyDetail, view_output);
+        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                   Determine_Metric_Ordering(IV), lp, vfc, dummyDetail, view_output);
        case VFC_Statement:
         Statement *sp;
-        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV, sp, vfc, dummyDetail, view_output);
+        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                   Determine_Metric_Ordering(IV), sp, vfc, dummyDetail, view_output);
       }
     }
     Mark_Cmd_With_Soft_Error(cmd, "(We could not determine which format to use for the report.)");

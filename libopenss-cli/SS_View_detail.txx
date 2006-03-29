@@ -89,6 +89,7 @@ bool Detail_Trace_Report(
               CommandObject *cmd, ExperimentObject *exp, int64_t topn,
               ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
               std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
+              bool primary_is_inclusive,
               TDETAIL *dummy,
               std::list<CommandResult *>& view_output) {
 
@@ -96,7 +97,6 @@ bool Detail_Trace_Report(
   Collector collector = CV[0];
   std::string metric = MV[0];
   bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
-  bool primary_is_inclusive = Determine_Metric_Ordering (IV);
   bool add_stmts = (!Look_For_KeyWord(cmd, "ButterFly") ||
                     Look_For_KeyWord(cmd, "FullStack") ||
                     Look_For_KeyWord(cmd, "FullStacks"));
@@ -220,13 +220,13 @@ bool Detail_Base_Report(
               CommandObject *cmd, ExperimentObject *exp, int64_t topn,
               ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
               std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
+              bool primary_is_inclusive,
               TOBJECT *dummyObject, View_Form_Category vfc, TDETAIL *dummyDetail,
               std::list<CommandResult *>& view_output) {
 
   int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
   Collector collector = CV[0];
   std::string metric = MV[0];
-  bool primary_is_inclusive = Determine_Metric_Ordering (IV);
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > > c_items;
 
@@ -305,6 +305,7 @@ bool Detail_CallStack_Report (
               CommandObject *cmd, ExperimentObject *exp, int64_t topn,
               ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
               std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
+              bool primary_is_inclusive,
               TDETAIL *dummy,
               std::list<CommandResult *>& view_output) {
 
@@ -312,7 +313,6 @@ bool Detail_CallStack_Report (
   Collector collector = CV[0];
   std::string metric = MV[0];
   bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
-  bool primary_is_inclusive = Determine_Metric_Ordering (IV);
   bool add_stmts = (!Look_For_KeyWord(cmd, "ButterFly") ||
                     Look_For_KeyWord(cmd, "FullStack") ||
                     Look_For_KeyWord(cmd, "FullStacks"));
@@ -398,6 +398,7 @@ bool Detail_ButterFly_Report (
               CommandObject *cmd, ExperimentObject *exp, int64_t topn,
               ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
               std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
+              bool primary_is_inclusive,
               TDETAIL *dummy,
               std::list<CommandResult *>& view_output) {
 
@@ -405,7 +406,6 @@ bool Detail_ButterFly_Report (
   Collector collector = CV[0];
   std::string metric = MV[0];
   bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
-  bool primary_is_inclusive = true ; // Determine_Metric_Ordering (IV);
 
  // Get the list of desired functions.
   std::set<Function> objects;
