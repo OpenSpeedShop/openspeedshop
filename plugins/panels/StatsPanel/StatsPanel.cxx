@@ -190,8 +190,10 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   modifierMenu = NULL;
 
   mpiModifierMenu = NULL;
+  mpitModifierMenu = NULL;
   ioModifierMenu = NULL;
   hwcModifierMenu = NULL;
+  hwctimeModifierMenu = NULL;
   pcsampModifierMenu = NULL;
   usertimeModifierMenu = NULL;
 
@@ -210,6 +212,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   current_list_of_io_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_hwc_modifiers.clear();
   current_list_of_hwc_modifiers.clear();  // This is this list of user selected modifiers.
+  list_of_hwctime_modifiers.clear();
+  current_list_of_hwctime_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_pcsamp_modifiers.clear();
   current_list_of_pcsamp_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_usertime_modifiers.clear();
@@ -2555,6 +2559,45 @@ StatsPanel::hwcModifierSelected(int val)
 
 
 void
+StatsPanel::hwctimeModifierSelected(int val)
+{ 
+// printf("hwctimeModifierSelected val=%d\n", val);
+// printf("modifierSelected: (%s)\n", hwctimeModifierMenu->text(val).ascii() );
+
+
+  std::string s = hwctimeModifierMenu->text(val).ascii();
+// printf("B1: modifierStr=(%s)\n", s.c_str() );
+
+  bool FOUND = FALSE;
+  for( std::list<std::string>::const_iterator it = current_list_of_hwctime_modifiers.begin();
+       it != current_list_of_hwctime_modifiers.end();  )
+  {
+    std::string modifier = (std::string)*it;
+
+    if( modifier ==  s )
+    {   // It's in the list, so take it out...
+// printf("The modifier was in the list ... take it out!\n");
+      FOUND = TRUE;
+    }
+
+    it++;
+
+    if( FOUND == TRUE )
+    {
+      current_list_of_hwctime_modifiers.remove(modifier);
+      break;
+    }
+  }
+
+  if( FOUND == FALSE )
+  {
+// printf("The modifier was not in the list ... add it!\n");
+    current_list_of_hwctime_modifiers.push_back(s);
+  }
+}
+
+
+void
 StatsPanel::usertimeModifierSelected(int val)
 { 
 // printf("usertimeModifierSelected val=%d\n", val);
@@ -3821,9 +3864,12 @@ if( selectedFunctionStr.isEmpty() )
 //printf("add any modifiers...\n");
     std::list<std::string> *modifier_list = NULL;;
 //printf("generateCommand: currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
-    if( currentCollectorStr == "hwc" || currentCollectorStr == "hwctime" )
+    if( currentCollectorStr == "hwc" )
     {
       modifier_list = &current_list_of_hwc_modifiers;
+    } else if( currentCollectorStr == "hwctime" )
+    {
+      modifier_list = &current_list_of_hwctime_modifiers;
     } else if( currentCollectorStr == "io" || currentCollectorStr == "iot" )
     {
       modifier_list = &current_list_of_io_modifiers;
@@ -4130,21 +4176,12 @@ StatsPanel::generateHWCMenu(QString collectorName)
 {
 // printf("Collector hwc_menu is being created collectorName=(%s)\n");
 
-  hwc_menu = new QPopupMenu(this);
-  if( collectorName == "hwc" )
-  {
-    connect(hwc_menu, SIGNAL( activated(int) ),
-           this, SLOT(collectorHWCReportSelected(int)) );
-  } else
-  {
-    connect(hwc_menu, SIGNAL( activated(int) ),
-           this, SLOT(collectorHWCTReportSelected(int)) );
-  }
-
   QString s = QString::null;
 
   QAction *qaction = NULL;
 
+
+  hwc_menu = new QPopupMenu(this);
 
   hwc_menu->insertItem(QString("Show Metric: %1").arg(collectorName));
 
@@ -4158,35 +4195,44 @@ StatsPanel::generateHWCMenu(QString collectorName)
   qaction->setText( tr("Show Metric: Statements") );
   qaction->setToolTip(tr("Show by Statements.") );
 
-//  contextMenu->insertItem(QString("Show Metrics: HWC"), hwc_menu);
   contextMenu->insertItem(QString("Show Metric: %1").arg(collectorName), hwc_menu);
 
 // printf("Here are the hwctime modifiers!\n");
-  list_of_hwc_modifiers.clear();
-  if( collectorName == "hwctime" )
+  if( collectorName == "hwc" )
   {
-    list_of_hwc_modifiers.push_back("hwctime::exclusive_overflows");
-    list_of_hwc_modifiers.push_back("hwctime::exclusive_overflows");
+    connect(hwc_menu, SIGNAL( activated(int) ),
+           this, SLOT(collectorHWCReportSelected(int)) );
+    list_of_hwc_modifiers.clear();
+    list_of_hwc_modifiers.push_back("hwc::hwc_overflows");
+  
+    if( hwcModifierMenu )
+    {
+      delete hwcModifierMenu;
+    }
+    hwcModifierMenu = new QPopupMenu(this);
+    connect(hwcModifierMenu, SIGNAL( activated(int) ),
+      this, SLOT(hwcModifierSelected(int)) );
+    generateModifierMenu(hwcModifierMenu, list_of_hwc_modifiers, current_list_of_hwc_modifiers);
+    hwc_menu->insertItem(QString("Show hwc metrics:"), hwcModifierMenu);
   } else
   {
-    list_of_hwc_modifiers.push_back("hwc::hwc_overflows");
+    connect(hwc_menu, SIGNAL( activated(int) ),
+           this, SLOT(collectorHWCTReportSelected(int)) );
+    list_of_hwctime_modifiers.clear();
+    list_of_hwc_modifiers.push_back("hwctime::exclusive_overflows");
+    list_of_hwc_modifiers.push_back("hwctime::exclusive_overflows");
+  
+    if( hwctimeModifierMenu )
+    {
+      delete hwctimeModifierMenu;
+    }
+    hwctimeModifierMenu = new QPopupMenu(this);
+    connect(hwctimeModifierMenu, SIGNAL( activated(int) ),
+    this, SLOT(hwctimeModifierSelected(int)) );
+    generateModifierMenu(hwctimeModifierMenu, list_of_hwctime_modifiers, current_list_of_hwctime_modifiers);
+    hwc_menu->insertItem(QString("Show hwctime metrics:"), hwcModifierMenu);
   }
 
-  if( hwcModifierMenu )
-  {
-    delete hwcModifierMenu;
-  }
-  hwcModifierMenu = new QPopupMenu(this);
-  connect(hwcModifierMenu, SIGNAL( activated(int) ),
-    this, SLOT(hwcModifierSelected(int)) );
-  generateModifierMenu(hwcModifierMenu, list_of_hwc_modifiers, current_list_of_hwc_modifiers);
-  if( collectorName == "hwctime" )
-  {
-    hwc_menu->insertItem(QString("Show hwctime metrics:"), hwcModifierMenu);
-  } else
-  {
-    hwc_menu->insertItem(QString("Show hwc metrics:"), hwcModifierMenu);
-  }
 }
 
 void
