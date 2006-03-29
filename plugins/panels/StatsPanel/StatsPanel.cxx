@@ -192,6 +192,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   mpiModifierMenu = NULL;
   mpitModifierMenu = NULL;
   ioModifierMenu = NULL;
+  iotModifierMenu = NULL;
   hwcModifierMenu = NULL;
   hwctimeModifierMenu = NULL;
   pcsampModifierMenu = NULL;
@@ -210,6 +211,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   current_list_of_mpit_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_io_modifiers.clear();
   current_list_of_io_modifiers.clear();  // This is this list of user selected modifiers.
+  list_of_iot_modifiers.clear();
+  current_list_of_iot_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_hwc_modifiers.clear();
   current_list_of_hwc_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_hwctime_modifiers.clear();
@@ -2520,6 +2523,45 @@ StatsPanel::ioModifierSelected(int val)
 
 
 void
+StatsPanel::iotModifierSelected(int val)
+{ 
+// printf("iotModifierSelected val=%d\n", val);
+// printf("modifierSelected: (%s)\n", iotModifierMenu->text(val).ascii() );
+
+
+  std::string s = iotModifierMenu->text(val).ascii();
+// printf("B1: modifierStr=(%s)\n", s.c_str() );
+
+  bool FOUND = FALSE;
+  for( std::list<std::string>::const_iterator it = current_list_of_iot_modifiers.begin();
+       it != current_list_of_iot_modifiers.end();  )
+  {
+    std::string modifier = (std::string)*it;
+
+    if( modifier ==  s )
+    {   // It's in the list, so take it out...
+// printf("The modifier was in the list ... take it out!\n");
+      FOUND = TRUE;
+    }
+
+    it++;
+
+    if( FOUND == TRUE )
+    {
+      current_list_of_iot_modifiers.remove(modifier);
+      break;
+    }
+  }
+
+  if( FOUND == FALSE )
+  {
+// printf("The modifier was not in the list ... add it!\n");
+    current_list_of_iot_modifiers.push_back(s);
+  }
+}
+
+
+void
 StatsPanel::hwcModifierSelected(int val)
 { 
 // printf("hwcModifierSelected val=%d\n", val);
@@ -4072,18 +4114,7 @@ StatsPanel::generateIOMenu(QString collectorName)
 
   QAction *qaction = NULL;
 
-  if( collectorName == "io" )
-  {
-    connect(io_menu, SIGNAL( activated(int) ),
-           this, SLOT(collectorIOReportSelected(int)) );
-  } else 
-  {
-    connect(io_menu, SIGNAL( activated(int) ),
-           this, SLOT(collectorIOTReportSelected(int)) );
-  }
   io_menu->insertItem(QString("Show Metric:"));
-
-// printf("We made an io_menu!!\n");
 
   io_menu->setCheckable(TRUE);
   qaction = new QAction(this, "showTraceInfo");
@@ -4126,48 +4157,85 @@ StatsPanel::generateIOMenu(QString collectorName)
   qaction->addTo( io_menu );
   qaction->setText( tr("Show Metric: CallTrees by Selected Function") );
   qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
-
-//  io_menu->insertItem(QString("Show io metrics/modifiers:"), modifierMenu);
-if( collectorName == "io" )
-{
-  contextMenu->insertItem(QString("Show Metrics: IO"), io_menu);
-} else
-{
-  contextMenu->insertItem(QString("Show Metrics: IOT"), io_menu);
-}
-
-  // Build the static list of io modifiers.
-  list_of_io_modifiers.clear();
-  list_of_io_modifiers.push_back("io::exclusive_times");
-  list_of_io_modifiers.push_back("io::inclusive_times");
-  list_of_io_modifiers.push_back("io::exclusive_details");
-  list_of_io_modifiers.push_back("io::inclusive_details");
-  list_of_io_modifiers.push_back("min");
-  list_of_io_modifiers.push_back("max");
-  list_of_io_modifiers.push_back("average");
-  list_of_io_modifiers.push_back("count");
-  list_of_io_modifiers.push_back("percent");
-  list_of_io_modifiers.push_back("stddev");
-
-  list_of_io_modifiers.push_back("start_time");
-  list_of_io_modifiers.push_back("stop_time");
-  list_of_io_modifiers.push_back("source");
-  list_of_io_modifiers.push_back("destination");
-  list_of_io_modifiers.push_back("size");
-  list_of_io_modifiers.push_back("tag");
-  list_of_io_modifiers.push_back("commuinicator");
-  list_of_io_modifiers.push_back("datatype");
-  list_of_io_modifiers.push_back("retval");
-
-  if( ioModifierMenu )
+  if( collectorName == "io" )
   {
-    delete ioModifierMenu;
+    connect(io_menu, SIGNAL( activated(int) ),
+           this, SLOT(collectorIOReportSelected(int)) );
+    contextMenu->insertItem(QString("Show Metrics: IO"), io_menu);
+    // Build the static list of io modifiers.
+    list_of_io_modifiers.clear();
+    list_of_io_modifiers.push_back("io::exclusive_times");
+    list_of_io_modifiers.push_back("io::inclusive_times");
+    list_of_io_modifiers.push_back("io::exclusive_details");
+    list_of_io_modifiers.push_back("io::inclusive_details");
+    list_of_io_modifiers.push_back("min");
+    list_of_io_modifiers.push_back("max");
+    list_of_io_modifiers.push_back("average");
+    list_of_io_modifiers.push_back("count");
+    list_of_io_modifiers.push_back("percent");
+    list_of_io_modifiers.push_back("stddev");
+
+    list_of_io_modifiers.push_back("start_time");
+    list_of_io_modifiers.push_back("stop_time");
+    list_of_io_modifiers.push_back("source");
+    list_of_io_modifiers.push_back("destination");
+    list_of_io_modifiers.push_back("size");
+    list_of_io_modifiers.push_back("tag");
+    list_of_io_modifiers.push_back("commuinicator");
+    list_of_io_modifiers.push_back("datatype");
+    list_of_io_modifiers.push_back("retval");
+  
+    if( ioModifierMenu )
+    {
+      delete ioModifierMenu;
+    }
+    ioModifierMenu = new QPopupMenu(this);
+    connect(ioModifierMenu, SIGNAL( activated(int) ),
+      this, SLOT(ioModifierSelected(int)) );
+    generateModifierMenu(ioModifierMenu, list_of_io_modifiers, current_list_of_io_modifiers);
+    io_menu->insertItem(QString("Show io metrics/modifiers:"), ioModifierMenu);
+  } else 
+  {
+    connect(io_menu, SIGNAL( activated(int) ),
+           this, SLOT(collectorIOTReportSelected(int)) );
+    contextMenu->insertItem(QString("Show Metrics: IOT"), io_menu);
+    // Build the static list of iot modifiers.
+    list_of_iot_modifiers.clear();
+    list_of_iot_modifiers.push_back("iot::exclusive_times");
+    list_of_iot_modifiers.push_back("iot::inclusive_times");
+    list_of_iot_modifiers.push_back("iot::exclusive_details");
+    list_of_iot_modifiers.push_back("iot::inclusive_details");
+    list_of_iot_modifiers.push_back("min");
+    list_of_iot_modifiers.push_back("max");
+    list_of_iot_modifiers.push_back("average");
+    list_of_iot_modifiers.push_back("count");
+    list_of_iot_modifiers.push_back("percent");
+    list_of_iot_modifiers.push_back("stddev");
+
+    list_of_iot_modifiers.push_back("start_time");
+    list_of_iot_modifiers.push_back("stop_time");
+    list_of_iot_modifiers.push_back("source");
+    list_of_iot_modifiers.push_back("destination");
+    list_of_iot_modifiers.push_back("size");
+    list_of_iot_modifiers.push_back("tag");
+    list_of_iot_modifiers.push_back("commuinicator");
+    list_of_iot_modifiers.push_back("datatype");
+    list_of_iot_modifiers.push_back("retval");
+
+    if( iotModifierMenu )
+    {
+      delete iotModifierMenu;
+    }
+    iotModifierMenu = new QPopupMenu(this);
+    connect(iotModifierMenu, SIGNAL( activated(int) ),
+      this, SLOT(iotModifierSelected(int)) );
+    generateModifierMenu(iotModifierMenu, list_of_iot_modifiers, current_list_of_iot_modifiers);
+    io_menu->insertItem(QString("Show iot metrics/modifiers:"), iotModifierMenu);
   }
-  ioModifierMenu = new QPopupMenu(this);
-  connect(ioModifierMenu, SIGNAL( activated(int) ),
-    this, SLOT(ioModifierSelected(int)) );
-  generateModifierMenu(ioModifierMenu, list_of_io_modifiers, current_list_of_io_modifiers);
-  io_menu->insertItem(QString("Show io metrics/modifiers:"), ioModifierMenu);
+
+// printf("We made an io_menu!!\n");
+
+
 }
 
 
