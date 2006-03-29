@@ -1030,6 +1030,20 @@ inline CommandResult *New_CommandResult (CommandResult *C) {
 }
 
 inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
+  if ((lhs->Type() == CMD_RESULT_CALLTRACE) &&
+      (rhs->Type() != CMD_RESULT_CALLTRACE)) {
+    SmartPtr<std::vector<CommandResult *> > ls;
+    ((CommandResult_CallStackEntry *)lhs)->Value (ls);
+    if(ls->size() == 1)
+      return CommandResult_lt((*ls)[0], rhs);
+  }
+  if ((lhs->Type() != CMD_RESULT_CALLTRACE) &&
+      (rhs->Type() == CMD_RESULT_CALLTRACE)) {
+    SmartPtr<std::vector<CommandResult *> > rs;
+    ((CommandResult_CallStackEntry *)rhs)->Value (rs);
+    if(rs->size() == 1)
+      return CommandResult_lt(lhs, (*rs)[0]);
+  }
   if (lhs->Type() != rhs->Type()) {
     return (lhs->Type() < rhs->Type());
   }
@@ -1094,6 +1108,20 @@ inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
 }
 
 inline bool CommandResult_gt (CommandResult *lhs, CommandResult *rhs) {
+  if ((lhs->Type() == CMD_RESULT_CALLTRACE) &&
+      (rhs->Type() != CMD_RESULT_CALLTRACE)) {
+    SmartPtr<std::vector<CommandResult *> > ls;
+    ((CommandResult_CallStackEntry *)lhs)->Value (ls);
+    if (ls->size() == 1)
+      return CommandResult_gt((*ls)[0], rhs);
+  }
+  if ((lhs->Type() != CMD_RESULT_CALLTRACE) &&
+      (rhs->Type() == CMD_RESULT_CALLTRACE)) {
+    SmartPtr<std::vector<CommandResult *> > rs;
+    ((CommandResult_CallStackEntry *)rhs)->Value (rs);
+    if (rs->size() == 1)
+      return CommandResult_gt(lhs, (*rs)[0]);
+  }
   if (lhs->Type() != rhs->Type()) {
     return (lhs->Type() > rhs->Type());
   }
