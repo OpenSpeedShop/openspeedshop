@@ -65,7 +65,7 @@ namespace OpenSpeedShop { namespace Framework {
     public:
 
 	/** Constructor from thread and time. */
-	StackTrace::StackTrace(const Thread& thread, const Time& time) :
+	StackTrace(const Thread& thread, const Time& time) :
 	    std::vector<Address>(),
 	    dm_thread(thread),
 	    dm_time(time)

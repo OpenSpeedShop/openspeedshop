@@ -60,7 +60,7 @@ namespace OpenSpeedShop { namespace Framework {
     public:
 
 	/** Default constructor. */
-	ExtentTable::ExtentTable() :
+	ExtentTable() :
 	    dm_extents(),
 	    dm_extent_to_object()
 	{

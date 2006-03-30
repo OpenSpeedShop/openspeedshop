@@ -296,10 +296,6 @@ namespace OpenSpeedShop { namespace Framework {
      * Returns one of this collector's metric values over all subextents of the
      * specified extent for a particular thread. 
      * 
-     * @pre    The thread must be in the same experiment as the collector.
-     *         An assertion failure occurs if the thread is in a different
-     *         experiment than the collector.
-     *
      * @pre    Can only be performed on collectors for which an implementation
      *         can be instantiated. A CollectorUnavailable exception is thrown
      *         if the collector's implementation cannot be instantiated.
@@ -325,7 +321,6 @@ namespace OpenSpeedShop { namespace Framework {
 				    std::vector<T >& values) const
     {
 	// Check preconditions
-	Assert(inSameDatabase(thread));
 	if(dm_impl == NULL) {
 	    instantiateImpl();
 	    if(dm_impl == NULL)
