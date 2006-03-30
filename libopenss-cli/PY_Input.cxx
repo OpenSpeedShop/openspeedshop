@@ -172,7 +172,7 @@ Convert_Cmd_To__Python (CommandObject *cmd) {
   }
 
   for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
-    if (cri != NULL) {
+    if (*cri != NULL) {
       int ret = 0; // python conversion routine error flag
 
       p_object = Convert_CommandResult_To_Python (cmd, *cri);
