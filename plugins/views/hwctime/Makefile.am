@@ -16,13 +16,23 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = basic \
-          hwctime \
-          usertime \
-          mpi \
-          mpi \
-          mpit \
-          io
+pkglib_LTLIBRARIES = hwctime_view.la
 
-doc:
-	$(DOXYGEN)
+BUILT_SOURCES =
+
+hwctime_view_la_CXXFLAGS = \
+	$(PYTHON_INCLUDES) \
+	-I$(top_srcdir)/libopenss-queries \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-cli \
+	-I$(top_srcdir)/plugins/collectors/hwctime \
+	-I$(top_srcdir)/libopenss-message 
+
+hwctime_view_la_LDFLAGS = \
+	-no-undefined -module -avoid-version
+
+hwctime_view_la_SOURCES = \
+	hwctime_view.cxx
+
+SUFFIXES = .x .cxx
+CLEANFILES = $(BUILT_SOURCES)

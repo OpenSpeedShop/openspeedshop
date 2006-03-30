@@ -402,5 +402,5 @@ extern "C" void basic_view_LTX_ViewFactory () {
 //   Define_New_View (new usertime_view());
   Define_New_View (new pcsamp_view());
   Define_New_View (new hwc_view());
-  Define_New_View (new hwctime_view());
+//   Define_New_View (new hwctime_view());
 }
