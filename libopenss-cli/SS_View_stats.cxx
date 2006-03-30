@@ -223,7 +223,7 @@ void Construct_View (CommandObject *cmd,
 
 }
 
-// Generic routine to genearte a simple view
+// Generic routine to generate a simple view
 
 static std::string allowed_stats_V_options[] = {
   "LinkedObject",
@@ -235,10 +235,31 @@ static std::string allowed_stats_V_options[] = {
   "Statement",
   "Statements",
   "Summary",
+  "data",   	// Raw data output for scripting
   ""
 };
 
 
+/**
+ * Method: Generic_View
+ *
+ * Generic routine to generate a simple view
+ * 
+ *
+ * @param   CommandObject *cmd
+ * @param   ExperimentObject *exp
+ * @param   int64_t topn
+ * @param   ThreadGroup& tgrp
+ * @param   std::vector<Collector>& CV
+ * @param   std::vector<std::string>& MV
+ * @param   std::vector<ViewInstruction *>& IV
+ * @param   std::vector<std::string>& HV
+ * @param   std::list<CommandResult *>& view_output
+ *
+ * @return  true/false
+ *
+ *
+ */
 bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                    ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
                    std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,

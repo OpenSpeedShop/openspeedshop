@@ -105,12 +105,18 @@ static PyObject *
 
 Convert_CommandResult_To_Python (CommandObject *cmd, CommandResult *cr) {
     PyObject *p_object = NULL;
+    bool KeyWord = Look_For_KeyWord (cmd, "data");;
   
     switch (cmd->Type()) {
 
     	case CMD_EXP_VIEW:
-	    // Convert to Python Objects as strings
-    	    return Py_BuildValue("s",cr->Form().c_str());
+    	case CMD_EXP_COMPARE:
+    	case CMD_C_VIEW:
+    	    if (!KeyWord) {
+	    	// Convert to Python Objects as strings
+    	    	return Py_BuildValue("s",cr->Form().c_str());
+    	    }
+	    // Fall through
 
     	case CMD_EXP_DATA:
 	default:
