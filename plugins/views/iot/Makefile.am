@@ -16,14 +16,23 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = basic \
-          hwctime \
-          usertime \
-          mpi \
-          mpi \
-          mpit \
-          io \
-          iot
+pkglib_LTLIBRARIES = iot_view.la
 
-doc:
-	$(DOXYGEN)
+BUILT_SOURCES =
+
+iot_view_la_CXXFLAGS = \
+	$(PYTHON_INCLUDES) \
+	-I$(top_srcdir)/libopenss-queries \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-cli \
+	-I$(top_srcdir)/plugins/collectors/io \
+	-I$(top_srcdir)/libopenss-message 
+
+iot_view_la_LDFLAGS = \
+	-no-undefined -module -avoid-version
+
+iot_view_la_SOURCES = \
+	iot_view.cxx
+
+SUFFIXES = .x .cxx
+CLEANFILES = $(BUILT_SOURCES)

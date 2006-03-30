@@ -185,10 +185,11 @@ AC_CONFIG_FILES(
 	plugins/views/Makefile
 	plugins/views/basic/Makefile
 	plugins/views/hwctime/Makefile
-	plugins/views/usertime/Makefile
+	plugins/views/io/Makefile
+	plugins/views/iot/Makefile
 	plugins/views/mpi/Makefile
 	plugins/views/mpit/Makefile
-	plugins/views/io/Makefile
+	plugins/views/usertime/Makefile
 	plugins/wizards/Makefile
 	plugins/wizards/IntroWizardPanel/Makefile
 	plugins/wizards/pcSampleWizardPanel/Makefile
