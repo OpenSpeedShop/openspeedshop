@@ -184,6 +184,7 @@ AC_CONFIG_FILES(
 	plugins/panels/CompareExperimentsPanel/Makefile
 	plugins/views/Makefile
 	plugins/views/basic/Makefile
+	plugins/views/hwctime/Makefile
 	plugins/views/usertime/Makefile
 	plugins/views/mpi/Makefile
 	plugins/views/mpit/Makefile
