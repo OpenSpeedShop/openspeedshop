@@ -18,7 +18,8 @@
 
 /** @file
  *
- * Specification of the IO collector's blobs.
+ * Specification of the IO and IOT collector's blobs.
+ * IOT Collector defines EXTENDEDIOTRACE to build the iot collector plugin.
  *
  */
 
@@ -30,7 +31,7 @@ struct io_parameters {
 
 };
 
-#define MAXARGS 6  /*from SpeedShop */
+#define MAXARGS 4
 
 /** Event structure describing a single IO call. */
 struct io_event {
@@ -40,17 +41,21 @@ struct io_event {
     uint16_t stacktrace;  /**< Index of the stack trace. */
 
 #ifdef EXTENDEDIOTRACE
-    int retval;           /**< return value from IO call. */
+    uint64_t retval;           /**< return value from IO call. */
     int syscallno;        /**< System call number. */
     int nsysargs;         /**< number of arg to the syscall */
-    int sysargs[MAXARGS]; /**< Actuall arguments */
+    uint64_t sysargs[MAXARGS]; /**< Actuall arguments */
+    uint16_t pathindex;   /**< Index of the pathnames. */
 #endif
 };
 
 /** Structure of the blob containing our performance data. */
 struct io_data {
     uint64_t stacktraces<>;  /**< Stack traces. */
-    io_event events<>;     /**< IO call events. */
+    io_event events<>;       /**< IO call events. */
+#ifdef EXTENDEDIOTRACE
+    char pathnames<>;	     /**< IO pathnames. */
+#endif
 };
 
 

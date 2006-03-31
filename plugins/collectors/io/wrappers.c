@@ -17,7 +17,13 @@
 *******************************************************************************/
 
 #include "RuntimeAPI.h"
-#include "blobs.h"
+
+#ifdef EXTENDEDIOTRACE
+#include "blobsiot.h"
+#else
+#include "blobsio.h"
+#endif
+
 #include <syscall.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -26,11 +32,9 @@
 #include <dlfcn.h>
 
 /*
- * IO Wrapper Functions
- *
- * The following functions cannot be generated via a mkwrapper mechanism
- * because they have specialized implementations that don't fit a
- * common wrapper template.
+ * IOT Wrapper Functions
+ * These wrappers are identical to the IO wrappers except we
+ * define EXTENDEDIOTRACE to record the extended trace data.
  *
  */
 
@@ -65,6 +69,18 @@ SYS_pwrite64;
 SYS_lseek64;
 */
 
+#ifdef EXTENDEDIOTRACE
+/* used by io_record_event to record pathnames into pathnames buffer */
+/* currentpathname must be set prior to calling io_record_event. */
+/* io_record_event sets pathindex and so we must set event.pathindex */
+/* after the call to io_record_event in each wrapper. */
+/* Currently we record a pathname that is passed as an argument. */
+/* TODO: On linux, we can examine /proc/"mypid"/fd after an syscall is made */
+/* that uses a file descriptor (e.g. read). This is one way to map a */
+/* file descriptor to a pathname. */
+extern char currentpathname[PATH_MAX];
+extern int pathindex;
+#endif
 
 ssize_t ioread(int fd, void *buf, size_t count) 
 {
@@ -82,9 +98,9 @@ ssize_t ioread(int fd, void *buf, size_t count)
 #ifdef EXTENDEDIOTRACE
     event.syscallno = SYS_read;
     event.nsysargs = 3;
-    event.sysargs[0] = (uint64_t) fd;
-    event.sysargs[1] = (uint64_t) buf;
-    event.sysargs[2] = (uint64_t) count;
+    event.sysargs[0] = fd;
+    event.sysargs[1] = (long) buf;
+    event.sysargs[2] = count;
     event.retval = retval;
 #endif
 
@@ -118,9 +134,9 @@ ssize_t iowrite(int fd, void *buf, size_t count)
 #ifdef EXTENDEDIOTRACE
     event.syscallno = SYS_write;
     event.nsysargs = 3;
-    event.sysargs[0] = (uint64_t) fd;
-    event.sysargs[1] = (uint64_t) buf;
-    event.sysargs[2] = (uint64_t) count;
+    event.sysargs[0] = fd;
+    event.sysargs[1] = (long) buf;
+    event.sysargs[2] = count;
     event.retval = retval;
 #endif
 
@@ -153,9 +169,9 @@ off_t iolseek(int fd, off_t offset, int whence)
 #ifdef EXTENDEDIOTRACE
     event.syscallno = SYS_lseek;
     event.nsysargs = 3;
-    event.sysargs[0] = (uint64_t) fd;
-    event.sysargs[1] = (uint64_t) offset;
-    event.sysargs[2] = (uint64_t) whence;
+    event.sysargs[0] = fd;
+    event.sysargs[1] = offset;
+    event.sysargs[2] = whence;
     event.retval = retval;
 #endif
 
@@ -186,11 +202,11 @@ off_t iolseek64(int fd, off_t offset, int whence)
     retval = lseek64(fd, offset, whence);
 
 #ifdef EXTENDEDIOTRACE
-    event.syscallno = SYS_lseek64;
+    event.syscallno = SYS_lseek;
     event.nsysargs = 3;
-    event.sysargs[0] = (uint64_t) fd;
-    event.sysargs[1] = (uint64_t) offset;
-    event.sysargs[2] = (uint64_t) whence;
+    event.sysargs[0] = fd;
+    event.sysargs[1] = offset;
+    event.sysargs[2] = whence;
     event.retval = retval;
 #endif
 
@@ -223,10 +239,11 @@ int ioopen(const char *pathname, int flags, mode_t mode)
 #ifdef EXTENDEDIOTRACE
     event.syscallno = SYS_open;
     event.nsysargs = 3;
-    event.sysargs[0] = (uint64_t) pathname;
-    event.sysargs[1] = (uint64_t) flags;
-    event.sysargs[2] = (uint64_t) mode;
+    event.sysargs[0] = (long) pathname;
+    event.sysargs[1] = flags;
+    event.sysargs[2] = mode;
     event.retval = retval;
+    strncpy(currentpathname,pathname,strlen(pathname));
 #endif
 
     event.stop_time = OpenSS_GetTime();
@@ -239,6 +256,10 @@ int ioopen(const char *pathname, int flags, mode_t mode)
     io_record_event(&event, OpenSS_GetAddressOfFunction(open));
 #endif
     
+#ifdef EXTENDEDIOTRACE
+    event.pathindex = pathindex;
+#endif
+
     /* Return the real IO function's return value to the caller */
     return retval;
 }
@@ -256,12 +277,13 @@ int ioopen64(const char *pathname, int flags, mode_t mode)
     retval = open64(pathname, flags, mode);
 
 #ifdef EXTENDEDIOTRACE
-    event.syscallno = SYS_open64;
+    event.syscallno = SYS_open;
     event.nsysargs = 3;
-    event.sysargs[0] = (uint64_t) pathname;
-    event.sysargs[1] = (uint64_t) flags;
-    event.sysargs[2] = (uint64_t) mode;
+    event.sysargs[0] = (long) pathname;
+    event.sysargs[1] = flags;
+    event.sysargs[2] = mode;
     event.retval = retval;
+    strncpy(currentpathname,pathname,strlen(pathname));
 #endif
 
     event.stop_time = OpenSS_GetTime();
@@ -274,6 +296,10 @@ int ioopen64(const char *pathname, int flags, mode_t mode)
     io_record_event(&event, OpenSS_GetAddressOfFunction(open64));
 #endif
     
+#ifdef EXTENDEDIOTRACE
+    event.pathindex = pathindex;
+#endif
+
     /* Return the real IO function's return value to the caller */
     return retval;
 }
@@ -293,7 +319,7 @@ int ioclose(int fd)
 #ifdef EXTENDEDIOTRACE
     event.syscallno = SYS_close;
     event.nsysargs = 1;
-    event.sysargs[0] = (uint64_t) fd;
+    event.sysargs[0] = fd;
     event.retval = retval;
 #endif
 
@@ -326,7 +352,7 @@ int iodup(int oldfd)
 #ifdef EXTENDEDIOTRACE
     event.syscallno = SYS_dup;
     event.nsysargs = 2;
-    event.sysargs[0] = (uint64_t) oldfd;
+    event.sysargs[0] = oldfd;
     event.retval = retval;
 #endif
 
@@ -360,8 +386,8 @@ int iodup2(int oldfd, int newfd)
 #ifdef EXTENDEDIOTRACE
     event.syscallno = SYS_dup2;
     event.nsysargs = 2;
-    event.sysargs[0] = (uint64_t) oldfd;
-    event.sysargs[1] = (uint64_t) newfd;
+    event.sysargs[0] = oldfd;
+    event.sysargs[1] = newfd;
     event.retval = retval;
 #endif
 
@@ -394,9 +420,10 @@ int iocreat(char *pathname, mode_t mode)
 #ifdef EXTENDEDIOTRACE
     event.syscallno = SYS_creat;
     event.nsysargs = 2;
-    event.sysargs[0] = (uint64_t) pathname;
-    event.sysargs[1] = (uint64_t) mode;
+    event.sysargs[0] = (long) pathname;
+    event.sysargs[1] = mode;
     event.retval = retval;
+    strncpy(currentpathname,pathname,strlen(pathname));
 #endif
 
     event.stop_time = OpenSS_GetTime();
@@ -409,6 +436,10 @@ int iocreat(char *pathname, mode_t mode)
     io_record_event(&event, OpenSS_GetAddressOfFunction(creat));
 #endif
     
+#ifdef EXTENDEDIOTRACE
+    event.pathindex = pathindex;
+#endif
+
     /* Return the real IO function's return value to the caller */
     return retval;
 }
@@ -426,11 +457,12 @@ int iocreat64(char *pathname, mode_t mode)
     retval = creat64(pathname,mode);
 
 #ifdef EXTENDEDIOTRACE
-    event.syscallno = SYS_creat64;
+    event.syscallno = SYS_creat;
     event.nsysargs = 2;
-    event.sysargs[0] = (uint64_t) pathname;
-    event.sysargs[1] = (uint64_t) mode;
+    event.sysargs[0] = (long) pathname;
+    event.sysargs[1] = mode;
     event.retval = retval;
+    strncpy(currentpathname,pathname,strlen(pathname));
 #endif
 
     event.stop_time = OpenSS_GetTime();
@@ -443,6 +475,10 @@ int iocreat64(char *pathname, mode_t mode)
     io_record_event(&event, OpenSS_GetAddressOfFunction(creat64));
 #endif
     
+#ifdef EXTENDEDIOTRACE
+    event.pathindex = pathindex;
+#endif
+
     /* Return the real IO function's return value to the caller */
     return retval;
 }
@@ -462,7 +498,7 @@ int iopipe(int filedes[2])
 #ifdef EXTENDEDIOTRACE
     event.syscallno = SYS_pipe;
     event.nsysargs = 1;
-    event.sysargs[0] = (uint64_t) filedes;
+    event.sysargs[0] = (long) filedes;
     event.retval = retval;
 #endif
 
@@ -493,12 +529,16 @@ ssize_t iopread(int fd, void *buf, size_t count, off_t offset)
     retval = pread(fd, buf, count, offset);
 
 #ifdef EXTENDEDIOTRACE
-    event.syscallno = SYS_pread;
+#if defined(__linux) && (defined(__ia64) || defined(__x86_64) || defined(__i386))
+    event.syscallno = SYS_pread64;
+#else
+#error "Platform/OS Combination Unsupported!"
+#endif
     event.nsysargs = 4;
-    event.sysargs[0] = (uint64_t) fd;
-    event.sysargs[1] = (uint64_t) buf;
-    event.sysargs[2] = (uint64_t) count;
-    event.sysargs[3] = (uint64_t) offset;
+    event.sysargs[0] = fd;
+    event.sysargs[1] = (long) buf;
+    event.sysargs[2] = count;
+    event.sysargs[3] = offset;
     event.retval = retval;
 #endif
 
@@ -531,10 +571,10 @@ ssize_t iopread64(int fd, void *buf, size_t count, off_t offset)
 #ifdef EXTENDEDIOTRACE
     event.syscallno = SYS_pread64;
     event.nsysargs = 4;
-    event.sysargs[0] = (uint64_t) fd;
-    event.sysargs[1] = (uint64_t) buf;
-    event.sysargs[2] = (uint64_t) count;
-    event.sysargs[3] = (uint64_t) offset;
+    event.sysargs[0] = fd;
+    event.sysargs[1] = (long) buf;
+    event.sysargs[2] = count;
+    event.sysargs[3] = offset;
     event.retval = retval;
 #endif
 
@@ -565,12 +605,16 @@ ssize_t iopwrite(int fd, void *buf, size_t count, off_t offset)
     retval = pwrite(fd, buf, count, offset);
 
 #ifdef EXTENDEDIOTRACE
-    event.syscallno = SYS_pwrite;
+#if defined(__linux) && (defined(__ia64) || defined(__x86_64) || defined(__i386))
+    event.syscallno = SYS_pwrite64;
+#else
+#error "Platform/OS Combination Unsupported!"
+#endif
     event.nsysargs = 4;
-    event.sysargs[0] = (uint64_t) fd;
-    event.sysargs[1] = (uint64_t) buf;
-    event.sysargs[2] = (uint64_t) count;
-    event.sysargs[3] = (uint64_t) offset;
+    event.sysargs[0] = fd;
+    event.sysargs[1] = (long) buf;
+    event.sysargs[2] = count;
+    event.sysargs[3] = offset;
     event.retval = retval;
 #endif
 
@@ -603,10 +647,10 @@ ssize_t iopwrite64(int fd, void *buf, size_t count, off_t offset)
 #ifdef EXTENDEDIOTRACE
     event.syscallno = SYS_pwrite64;
     event.nsysargs = 4;
-    event.sysargs[0] = (uint64_t) fd;
-    event.sysargs[1] = (uint64_t) buf;
-    event.sysargs[2] = (uint64_t) count;
-    event.sysargs[3] = (uint64_t) offset;
+    event.sysargs[0] = fd;
+    event.sysargs[1] = (long) buf;
+    event.sysargs[2] = count;
+    event.sysargs[3] = offset;
     event.retval = retval;
 #endif
 
@@ -640,9 +684,9 @@ ssize_t ioreadv(int fd, const struct iovec *vector, size_t count)
 #ifdef EXTENDEDIOTRACE
     event.syscallno = SYS_readv;
     event.nsysargs = 3;
-    event.sysargs[0] = (uint64_t) fd;
-    event.sysargs[1] = (uint64_t) vector;
-    event.sysargs[2] = (uint64_t) count;
+    event.sysargs[0] = fd;
+    event.sysargs[1] = (long) vector;
+    event.sysargs[2] = count;
     event.retval = retval;
 #endif
 
@@ -677,9 +721,9 @@ ssize_t iowritev(int fd, const struct iovec *vector, size_t count)
 #ifdef EXTENDEDIOTRACE
     event.syscallno = SYS_writev;
     event.nsysargs = 3;
-    event.sysargs[0] = (uint64_t) fd;
-    event.sysargs[1] = (uint64_t) vector;
-    event.sysargs[2] = (uint64_t) count;
+    event.sysargs[0] = fd;
+    event.sysargs[1] = (long) vector;
+    event.sysargs[2] = count;
     event.retval = retval;
 #endif
 

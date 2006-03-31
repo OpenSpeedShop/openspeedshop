@@ -18,7 +18,7 @@
 
 /** @file
  *
- * Declaration of the IOCollector class.
+ * Declaration of the IOTCollector and IOCollector class.
  *
  */
 
@@ -41,14 +41,28 @@ namespace OpenSpeedShop { namespace Framework {
      * Intercepts all calls to IO functions that perform any significant amount
      * of work (primarily those that send messages) and records, for each call,
      * the current stack trace and start/end time.
+     *
+     * IOT event tracing collector.
+     *
+     * Same capability as IO event tracing but records extended information:
+     * arguments, return value, syscall number, pathname (if used as an arg).
+     *
      */
+#ifdef EXTENDEDIOTRACE
+    class IOTCollector :
+#else
     class IOCollector :
+#endif
 	public CollectorImpl
     {
 	
     public:
 	
+#ifdef EXTENDEDIOTRACE
+	IOTCollector();    
+#else
 	IOCollector();    
+#endif
 
 	virtual Blob getDefaultParameterValues() const;
         virtual void getParameterValue(const std::string&,
