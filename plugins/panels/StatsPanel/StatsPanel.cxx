@@ -73,6 +73,9 @@ static char *coldToHot_color_names[] = {
 };
 #define MAX_COLOR_CNT 14
 
+
+#define PTI "Present Trace Information"
+
 #include "SPListView.hxx"   // Change this to your new class header file name
 #include "SPListViewItem.hxx"   // Change this to your new class header file name
 #include "UpdateObject.hxx"
@@ -2394,7 +2397,7 @@ StatsPanel::modifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE )
+  if( FOUND == FALSE && s != PTI )
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_modifiers.push_back(s);
@@ -2427,7 +2430,7 @@ StatsPanel::mpiModifierSelected(int val)
 
     if( modifier ==  s )
     {   // It's in the list, so take it out...
-// printf("The modifier was in the list ... take it out!\n");
+// printf("The %s modifier was in the list ... take it out!\n", s.c_str() );
       FOUND = TRUE;
     }
 
@@ -2435,14 +2438,15 @@ StatsPanel::mpiModifierSelected(int val)
 
     if( FOUND == TRUE )
     {
+// printf("The %s modifier was in the list ... remove it!\n", s.c_str() );
       current_list_of_mpi_modifiers.remove(modifier);
       break;
     }
   }
 
-  if( FOUND == FALSE )
+  if( FOUND == FALSE && s != PTI )
   {
-// printf("The modifier was not in the list ... add it!\n");
+// printf("The %s modifier was not in the list ... add it!\n", s.c_str() );
     current_list_of_mpi_modifiers.push_back(s);
   }
 }
@@ -2480,7 +2484,7 @@ StatsPanel::mpitModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE )
+  if( FOUND == FALSE && s != PTI )
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_mpit_modifiers.push_back(s);
@@ -2519,7 +2523,7 @@ StatsPanel::ioModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE )
+  if( FOUND == FALSE && s != PTI )
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_io_modifiers.push_back(s);
@@ -2558,7 +2562,7 @@ StatsPanel::iotModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE )
+  if( FOUND == FALSE && s != PTI )
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_iot_modifiers.push_back(s);
@@ -2597,7 +2601,7 @@ StatsPanel::hwcModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE )
+  if( FOUND == FALSE && s != PTI )
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_hwc_modifiers.push_back(s);
@@ -2636,7 +2640,7 @@ StatsPanel::hwctimeModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE )
+  if( FOUND == FALSE && s != PTI )
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_hwctime_modifiers.push_back(s);
@@ -2675,7 +2679,7 @@ StatsPanel::usertimeModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE )
+  if( FOUND == FALSE && s != PTI )
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_usertime_modifiers.push_back(s);
@@ -2713,7 +2717,7 @@ StatsPanel::pcsampModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE )
+  if( FOUND == FALSE && s != PTI )
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_pcsamp_modifiers.push_back(s);
@@ -2752,7 +2756,7 @@ StatsPanel::genericModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE )
+  if( FOUND == FALSE && s != PTI )
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_generic_modifiers.push_back(s);
@@ -3994,13 +3998,15 @@ StatsPanel::generateMPIMenu(QString collectorName)
 // printf("We made an mpi_menu!!\n");
 
 
+#ifdef MOVE
   qaction = new QAction(this, "showTraceInfo");
   qaction->addTo( mpi_menu );
-  qaction->setText( tr("Present Trace Information") );
+  qaction->setText( tr(PTI) );
   qaction->setToggleAction(MPItraceFLAG);
   qaction->setOn(MPItraceFLAG);
   qaction->setToolTip(tr("When available, show traced timings."));
   connect( qaction, SIGNAL( activated() ), this, SLOT(MPItraceSelected()) );
+#endif // MOVE
 
   mpi_menu->insertSeparator();
 
@@ -4072,6 +4078,13 @@ if( collectorName == "mpi" )
   generateModifierMenu(mpiModifierMenu, list_of_mpi_modifiers, current_list_of_mpi_modifiers);
   mpi_menu->insertItem(QString("Select mpi details:"), mpiModifierMenu);
 
+  qaction = new QAction(this, "showTraceInfo");
+  qaction->addTo( mpiModifierMenu );
+  qaction->setText( tr(PTI) );
+  qaction->setToggleAction(MPItraceFLAG);
+  qaction->setOn(MPItraceFLAG);
+  qaction->setToolTip(tr("When available, show traced timings."));
+  connect( qaction, SIGNAL( activated() ), this, SLOT(MPItraceSelected()) );
 } else
 {
   contextMenu->insertItem(QString("Show Metrics: MPIT"), mpi_menu);
@@ -4107,6 +4120,13 @@ if( collectorName == "mpi" )
   generateModifierMenu(mpitModifierMenu, list_of_mpit_modifiers, current_list_of_mpit_modifiers);
   mpi_menu->insertItem(QString("Select mpit details:"), mpitModifierMenu);
 
+  qaction = new QAction(this, "showTraceInfo");
+  qaction->addTo( mpitModifierMenu );
+  qaction->setText( tr(PTI) );
+  qaction->setToggleAction(MPItraceFLAG);
+  qaction->setOn(MPItraceFLAG);
+  qaction->setToolTip(tr("When available, show traced timings."));
+  connect( qaction, SIGNAL( activated() ), this, SLOT(MPItraceSelected()) );
 }
 
 }
@@ -4125,14 +4145,16 @@ StatsPanel::generateIOMenu(QString collectorName)
   io_menu->insertItem(QString("View Stats:"));
 #endif // DEFAULT_MENU
 
+#ifdef MOVE
   io_menu->setCheckable(TRUE);
   qaction = new QAction(this, "showTraceInfo");
   qaction->addTo( io_menu );
-  qaction->setText( tr("Present Trace Information") );
+  qaction->setText( tr(PTI) );
   qaction->setToggleAction(IOtraceFLAG);
   qaction->setOn(IOtraceFLAG);
   qaction->setToolTip(tr("When available, show traced timings."));
   connect( qaction, SIGNAL( activated() ), this, SLOT(IOtraceSelected()) );
+#endif // MOVE
 
   io_menu->insertSeparator();
 
@@ -4203,6 +4225,15 @@ StatsPanel::generateIOMenu(QString collectorName)
       this, SLOT(ioModifierSelected(int)) );
     generateModifierMenu(ioModifierMenu, list_of_io_modifiers, current_list_of_io_modifiers);
     io_menu->insertItem(QString("Select io details:"), ioModifierMenu);
+
+    io_menu->setCheckable(TRUE);
+    qaction = new QAction(this, "showTraceInfo");
+    qaction->addTo( ioModifierMenu );
+    qaction->setText( tr(PTI) );
+    qaction->setToggleAction(IOtraceFLAG);
+    qaction->setOn(IOtraceFLAG);
+    qaction->setToolTip(tr("When available, show traced timings."));
+    connect( qaction, SIGNAL( activated() ), this, SLOT(IOtraceSelected()) );
   } else 
   {
     connect(io_menu, SIGNAL( activated(int) ),
@@ -4240,6 +4271,15 @@ StatsPanel::generateIOMenu(QString collectorName)
       this, SLOT(iotModifierSelected(int)) );
     generateModifierMenu(iotModifierMenu, list_of_iot_modifiers, current_list_of_iot_modifiers);
     io_menu->insertItem(QString("Select iot details:"), iotModifierMenu);
+
+    io_menu->setCheckable(TRUE);
+    qaction = new QAction(this, "showTraceInfo");
+    qaction->addTo( iotModifierMenu );
+    qaction->setText( tr(PTI) );
+    qaction->setToggleAction(IOtraceFLAG);
+    qaction->setOn(IOtraceFLAG);
+    qaction->setToolTip(tr("When available, show traced timings."));
+    connect( qaction, SIGNAL( activated() ), this, SLOT(IOtraceSelected()) );
   }
 
 // printf("We made an io_menu!!\n");
