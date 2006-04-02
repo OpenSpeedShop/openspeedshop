@@ -1704,14 +1704,37 @@ void Process::expandCallback(GCBSysType, GCBTagType tag,
     }
 #endif
 
-    // Obtain the address range occupied by the module
-    AddressRange range(static_cast<Address>(module->address_start()),
-		       static_cast<Address>(module->address_end()));
-    
     // Critical section touching the symbol table state
     bool requests_completed = false;
     {
 	Guard guard_state(state);
+
+	// Address offset for this module in this process (zero by default)
+	int64_t offset = 0;
+	
+	// Critical section touching the process table
+	{
+	    Guard guard_process_table(ProcessTable::TheTable);
+	    
+	    // Attempt to locate the process by its unique name
+	    SmartPtr<Process> process = 
+		ProcessTable::TheTable.getProcessByName(state->dm_name);
+	    
+	    // Critical section touching the process
+	    if(!process.isNull()) {
+		Guard guard_process(*process);
+		
+		// Obtain address offset for this module in this process
+		offset = module->get_offset_in_process(process->dm_pid);
+		
+	    }
+	}
+
+	// Obtain the address range occupied by the module
+	AddressRange range(
+	    static_cast<Address>(module->address_start() + offset),
+	    static_cast<Address>(module->address_end() + offset)
+	    );
 
 	// Should this module's functions be stored in a symbol table?
 	if(state->dm_symbol_tables.find(range) !=
@@ -1727,8 +1750,8 @@ void Process::expandCallback(GCBSysType, GCBTagType tag,
 		    SourceObj function = module->child(f);
 		    
 		    // Get the start/end address of the function
-		    Address start = function.address_start();
-		    Address end = function.address_end();
+		    Address start = function.address_start() + offset;
+		    Address end = function.address_end() + offset;
 		    
 		    // Get the mangled name of the function
 		    char name[function.get_mangled_name_length() + 1];
@@ -2065,15 +2088,38 @@ void Process::statementsCallback(GCBSysType, GCBTagType tag,
     	debugDPCL("response from get_all_statements", retval->status);
     }
 #endif
-    
-    // Obtain the address range occupied by the module
-    AddressRange range(static_cast<Address>(module->address_start()),
-		       static_cast<Address>(module->address_end()));
 
     // Critical section touching the symbol table state
     bool requests_completed = false;
     {
 	Guard guard_state(state);
+
+	// Address offset for this module in this process (zero by default)
+	int64_t offset = 0;
+	
+	// Critical section touching the process table
+	{
+	    Guard guard_process_table(ProcessTable::TheTable);
+	    
+	    // Attempt to locate the process by its unique name
+	    SmartPtr<Process> process = 
+		ProcessTable::TheTable.getProcessByName(state->dm_name);
+	    
+	    // Critical section touching the process
+	    if(!process.isNull()) {
+		Guard guard_process(*process);
+		
+		// Obtain address offset for this module in this process
+		offset = module->get_offset_in_process(process->dm_pid);
+		
+	    }
+	}
+
+	// Obtain the address range occupied by the module
+	AddressRange range(
+	    static_cast<Address>(module->address_start() + offset),
+	    static_cast<Address>(module->address_end() + offset)
+	    );
 
 	// Should this module's statements be stored in a symbol table?	
 	if(state->dm_symbol_tables.find(range) !=
@@ -2100,8 +2146,8 @@ void Process::statementsCallback(GCBSysType, GCBTagType tag,
 
 			// Add this statement to the symbol table
 			symbol_table.addStatement(
-			    Address(line.get_address_entry(r)),
-			    Address(line.get_address_entry(r + 1)),
+			    Address(line.get_address_entry(r) + offset),
+			    Address(line.get_address_entry(r + 1) + offset),
 			    info.get_filename(), 
 			    line.get_line(), 
 			    line.get_column()
@@ -2426,9 +2472,14 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
     for(int m = 0; m < program.child_count(); ++m) {
 	SourceObj module = program.child(m);
 
+	// Obtain the address offset for this module in this process
+	int64_t offset = module.get_offset_in_process(dm_pid);
+
 	// Obtain the address range occupied by the module
-	AddressRange range(static_cast<Address>(module.address_start()),
-			   static_cast<Address>(module.address_end()));
+	AddressRange range(
+	    static_cast<Address>(module.address_start() + offset),
+	    static_cast<Address>(module.address_end() + offset)
+	    );
 
 	// Obtain the name of the module
 	std::string name = "";
@@ -2507,9 +2558,14 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
 	for(int m = 0; m < program.child_count(); ++m) {
 	    SourceObj module = program.child(m);
 
+	    // Obtain the address offset for this module in this process
+	    int64_t offset = module.get_offset_in_process(dm_pid);
+
 	    // Obtain the address range occupied by the module
-	    AddressRange range(static_cast<Address>(module.address_start()),
-			       static_cast<Address>(module.address_end()));
+	    AddressRange range(
+		static_cast<Address>(module.address_start() + offset),
+		static_cast<Address>(module.address_end() + offset)
+		);
 
 	    //
 	    // Only expand the module if its symbols are needed OR it doesn't
