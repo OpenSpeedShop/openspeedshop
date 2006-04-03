@@ -29,11 +29,12 @@
 #include "config.h"
 #endif
 
-#include <set>
+#include <string>
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 #include <utility>
+#include <vector>
 
 
 
@@ -49,7 +50,7 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * @ingroup Implementation
      */
-    typedef std::set<std::pair<std::string, pid_t> > Job;
+    typedef std::vector<std::pair<std::string, pid_t> > Job;
     
 } }
 
