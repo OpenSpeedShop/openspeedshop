@@ -146,8 +146,8 @@ namespace OpenSpeedShop { namespace Framework {
 	static bool is_debug_mpijob_enabled;
 #endif
 
-	static void getMPIJobFromMPT(const Thread&, Job&);
-	static void getMPIJobFromMPICH(const Thread&, Job&);
+	static bool getMPIJobFromMPT(const Thread&, Job&);
+	static bool getMPIJobFromMPICH(const Thread&, Job&);
 	
 	/** Experiment database. */
 	SmartPtr<Database> dm_database;

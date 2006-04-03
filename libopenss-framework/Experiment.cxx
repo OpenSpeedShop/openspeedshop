@@ -627,15 +627,43 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 	
 	// Look for any available MPI job information for this thread
 	Job job;
-	getMPIJobFromMPT(thread, job);
-	getMPIJobFromMPICH(thread, job);
+	bool is_mpich_job = false;
+	if (!getMPIJobFromMPT(thread, job)) {
+	    is_mpich_job = getMPIJobFromMPICH(thread, job);
+	}
 	
+	int rank = 0;
+
 	// Iterate over any processes found to be in our MPI job
 	for(Job::const_iterator i = job.begin(); i != job.end(); ++i) {
 	    
 	    // Attach to this process
 	    ThreadGroup additional_threads = attachProcess(i->second, i->first);
 	    
+	    if (is_mpich_job) {
+		// In MPICH, a process' position in the MPICHProcTable
+		// indicates its MPI rank, starting with 0.  That
+		// ordering is preserved in the Job object constructed
+		// in getMPIJobFromMPICH(), so the local variable "rank"
+		// here is the correct rank to be put into the
+		// mpi_rank database field for all Thread objects
+		// associated with this process.
+
+		for (ThreadGroup::const_iterator ti = additional_threads.begin();
+		     ti != additional_threads.end(); ++ti) {
+		    const Thread& t(*ti);
+		    BEGIN_WRITE_TRANSACTION(dm_database);
+		    dm_database->prepareStatement(
+			"UPDATE Threads SET mpi_rank = ? WHERE id = ?;"
+			);
+		    dm_database->bindArgument(1, rank);
+		    dm_database->bindArgument(2, EntrySpy(t).getEntry());
+		    while(dm_database->executeStatement());
+		    END_TRANSACTION(dm_database);
+		}
+		rank++;
+	    }
+
 	    // Merge these additional threads into the overall thread group
 	    threads.insert(additional_threads.begin(), 
 			   additional_threads.end());
@@ -1199,7 +1227,7 @@ Extent Experiment::getPerformanceDataExtent() const
  * @param thread    Thread for which to retrieve MPI job information.
  * @retval job      MPI job information for this thread.
  */
-void Experiment::getMPIJobFromMPT(const Thread& thread, Job& job)
+bool Experiment::getMPIJobFromMPT(const Thread& thread, Job& job)
 {
 #ifdef HAVE_ARRAYSVCS
 
@@ -1238,7 +1266,7 @@ void Experiment::getMPIJobFromMPT(const Thread& thread, Job& job)
     
     // Go no further if this thread isn't in an MPT MPI job
     if(!is_mpt_job)
-	return;
+	return false;
     
     // Open the MPT array services server on the host where this thread resides
     asserver_t server = asopenserver(thread.getHost().c_str(), -1);
@@ -1261,7 +1289,7 @@ void Experiment::getMPIJobFromMPT(const Thread& thread, Job& job)
       
     // Go no further if the MPT array services server couldn't be opened
     if(server == 0)
-	return;
+	return false;
 
     // Get the list of hosts and their corresponding pids for this session
     asarraypidlist_t* list =
@@ -1288,7 +1316,7 @@ void Experiment::getMPIJobFromMPT(const Thread& thread, Job& job)
 
     // Go no further if the list couldn't be accessed
     if(list == NULL)
-	return;
+	return false;
         
     // Iterate over each machine in the array
     for(int i = 0; i < list->nummachines; ++i)
@@ -1297,8 +1325,8 @@ void Experiment::getMPIJobFromMPT(const Thread& thread, Job& job)
         for(int j = 0; j < list->machines[i]->numpids; ++j) {
 
 	    // Add this host/pid to the MPI job information
-	    job.insert(std::make_pair(list->machines[i]->machname,
-				      list->machines[i]->pids[j]));
+	    job.push_back(std::make_pair(list->machines[i]->machname,
+                                         list->machines[i]->pids[j]));
 
 #ifndef NDEBUG
 	    if(is_debug_mpijob_enabled) {
@@ -1319,6 +1347,10 @@ void Experiment::getMPIJobFromMPT(const Thread& thread, Job& job)
     // Close our handle to the MPT array services server
     ascloseserver(server);
     
+    return true;
+
+#else
+    return false;
 #endif
 }
 
@@ -1340,7 +1372,7 @@ void Experiment::getMPIJobFromMPT(const Thread& thread, Job& job)
  * @param thread    Thread for which to retrieve MPI job information.
  * @retval job      MPI job information for this thread.
  */
-void Experiment::getMPIJobFromMPICH(const Thread& thread, Job& job)
+bool Experiment::getMPIJobFromMPICH(const Thread& thread, Job& job)
 {
     bool is_mpich_job = true;
     Job table;
@@ -1367,14 +1399,9 @@ void Experiment::getMPIJobFromMPICH(const Thread& thread, Job& job)
     // of numerals is prepended with "n".
     //
     {
-	Job fixed_table;
-	for(Job::const_iterator i = table.begin(); i != table.end(); ++i)
+	for(Job::iterator i = table.begin(); i != table.end(); ++i)
 	    if(i->first.find_first_not_of("0123456789") == std::string::npos)
-		fixed_table.insert(std::make_pair(std::string("n") + i->first,
-						  i->second));
-	    else
-		fixed_table.insert(*i);
-	table = fixed_table;
+		i->first.insert(0, "n");
     }
 
 #ifndef NDEBUG
@@ -1392,8 +1419,10 @@ void Experiment::getMPIJobFromMPICH(const Thread& thread, Job& job)
         
     // Go no further if this thread isn't in an MPICH MPI job
     if(!is_mpich_job)
-	return;
+	return false;
 
     // Add this table to the MPI job information
-    job.insert(table.begin(), table.end());    
+    job.insert(job.end(), table.begin(), table.end());
+
+    return true;
 }

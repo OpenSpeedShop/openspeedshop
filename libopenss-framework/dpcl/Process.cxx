@@ -1100,7 +1100,7 @@ bool Process::getMPICHProcTable(Job& value)
 		succeeded &= getString(ProbeExp(table[i].host_name), host_name);
 		
 		// Insert this host/pid pair into the result
-		value.insert(std::make_pair(host_name, table[i].pid));
+		value.push_back(std::make_pair(host_name, table[i].pid));
 		
 	    }
 	    else {
@@ -1114,7 +1114,7 @@ bool Process::getMPICHProcTable(Job& value)
 		succeeded &= getString(ProbeExp(table[i].host_name), host_name);
 		
 		// Insert this host/pid pair into the result
-		value.insert(std::make_pair(host_name, table[i].pid));
+		value.push_back(std::make_pair(host_name, table[i].pid));
 
 	    }
 
@@ -1300,6 +1300,40 @@ void Process::finishSymbolTableProcessing(SymbolTableState* state)
     
     // Destroy the heap-allocated state structure
     delete state;    
+
+
+    // Now that the process' symbol table is available, look for any
+    // special symbols that we care about.
+
+    {
+	// In MPT, all rank processes are linked against libmpi.so and
+	// therefore have the symbol MPI_debug_rank, a 32-bit integer
+	// containing the MPI rank of the given process.  Retrieve its
+	// value and put it into the mpi_rank database field for all
+	// Thread objects associated with this process.
+
+	int64_t value;
+	if (process->getGlobal("MPI_debug_rank", value)) {
+	    int rank = static_cast<int>(value);
+
+	    ThreadGroup threads =
+		ProcessTable::TheTable.getThreadsByProcess(process);
+
+	    for (ThreadGroup::const_iterator ti = threads.begin();
+		 ti != threads.end(); ++ti) {
+		const Thread& t(*ti);
+		SmartPtr<Database> database = EntrySpy(t).getDatabase();
+		BEGIN_WRITE_TRANSACTION(database);
+		database->prepareStatement(
+		    "UPDATE Threads SET mpi_rank = ? WHERE id = ?;"
+		    );
+		database->bindArgument(1, rank);
+		database->bindArgument(2, EntrySpy(t).getEntry());
+		while(database->executeStatement());
+		END_TRANSACTION(database);
+	    }
+	}
+    }
 }
 
 
