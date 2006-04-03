@@ -243,10 +243,17 @@ std::string MainLoop::start()
  * predominantly thread-unsafe, so most of its functions cannot be called
  * by multiple threads concurrently. The first action taken is to acquire
  * the exclusive-access lock. The monitor thread must then be temporarily
- * suspended as it might be accessing the DPCL client library too.
+ * suspended as it might be accessing the DPCL client library too.  If
+ * this function is called by the monitor thread itself (e.g., in order
+ * to issue a DPCL request in the course of processing a DPCL callback),
+ * no action is taken.
  */
 void MainLoop::suspend()
-{	
+{
+    // Do nothing if called by the monitor thread
+    if (pthread_self() == monitor_tid)
+	return;
+
     // Acquire the exclusive-access lock
     Assert(pthread_mutex_lock(&exclusive_access_lock) == 0);
     
@@ -274,10 +281,16 @@ void MainLoop::suspend()
  *
  * Releases exclusive access to the DPCL client library. The monitor thread
  * is given the go-ahead to resume execution of the DPCL main loop and the
- * exclusive-access lock is then released.
+ * exclusive-access lock is then released.  If this function is called by
+ * the monitor thread itself (e.g., in order to issue a DPCL request in the
+ * course of processing a DPCL callback), no action is taken.
  */
 void MainLoop::resume()
 {
+    // Do nothing if called by the monitor thread
+    if (pthread_self() == monitor_tid)
+	return;
+
     // Tell the monitor thread to resume the DPCL main loop
     Assert(pthread_mutex_lock(&is_suspended.lock) == 0);
     is_suspended.flag = false;
