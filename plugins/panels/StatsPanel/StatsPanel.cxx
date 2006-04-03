@@ -316,6 +316,7 @@ StatsPanel::~StatsPanel()
   nprintf( DEBUG_CONST_DESTRUCT ) ("  StatsPanel::~StatsPanel() destructor called\n");
 // printf("  StatsPanel::~StatsPanel() destructor called\n");
 
+
   // We must reset the directing of output, otherwise the cli goes nuts
   // trying to figure out where the output is suppose to go.
   resetRedirect();
@@ -330,6 +331,8 @@ StatsPanel::~StatsPanel()
   }
 
   delete spoclass;
+
+// printf("  StatsPanel::~StatsPanel() destructor finished\n");
 }
 
 void
@@ -1647,20 +1650,16 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
           currentItemIndex++;
           lvit++;
         }
-// ADD CHECK HERE TO SEE IF filename == di->getPath() 
-if( filename.isEmpty() )
-{
-  filename = di->getPath();
+        // ADD CHECK HERE TO SEE IF filename == di->getPath() 
+        if( filename.isEmpty() )
+        {
+          filename = di->getPath();
 // printf("filename was empty.   setting to di->getPath((%s)\n", filename.ascii() ); 
-}
-if( filename != di->getPath() )
-{
-//  QString msg;
-//  msg = QString("Filename mismatch: Confusion exists over which file to use.\nThe choices are %1 and %2.\nUsing the former").arg(di->getPath().arg(filename);
-//  QMessageBox::information( (QWidget *)this, tr("Details..."),
-//                               msg, QMessageBox::Ok );
-filename = di->getPath();
-}
+        }
+        if( filename != di->getPath() )
+        {
+          filename = di->getPath();
+        }
 // printf("PREPARE the hlo and spo.  filename=(%s)\n", filename.ascii() );
         if( mpi_io_FLAG && lineNumberStr != "-1" &&
             ( collectorStrFromMenu.startsWith("CallTrees") ||
@@ -2087,7 +2086,7 @@ StatsPanel::MPIReportSelected(int val)
 { 
 // printf("MPIReportSelected val=%d\n", val);
 // printf("MPIReportSelected: mpi_menu=(%s)\n", mpi_menu->text(val).ascii() );
-// printf("MPIReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+//  printf("MPIReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
 
   hwc_FLAG = FALSE;
   mpi_io_FLAG = TRUE;
@@ -2097,8 +2096,12 @@ StatsPanel::MPIReportSelected(int val)
   collectorStrFromMenu = QString::null;
   currentMetricStr = QString::null;
 
-//  QString s = mpi_menu->text(val).ascii();
-  QString s = contextMenu->text(val).ascii();
+  QString s = QString::null;
+  s = mpi_menu->text(val).ascii();
+  if( s.isEmpty() )
+  {
+    s = contextMenu->text(val).ascii();
+  }
 
 // printf("B: s=%s\n", s.ascii() );
   int index = s.find(":");
@@ -2163,7 +2166,13 @@ StatsPanel::IOReportSelected(int val)
   currentMetricStr = QString::null;
 
 //  QString s = popupMenu->text(val).ascii();
-  QString s = contextMenu->text(val).ascii();
+//  QString s = contextMenu->text(val).ascii();
+  QString s = QString::null;
+  s = io_menu->text(val).ascii();
+  if( s.isEmpty() )
+  {
+    s = contextMenu->text(val).ascii();
+  }
 
 // printf("C: s=%s\n", s.ascii() );
   int index = s.find(":");
@@ -2228,7 +2237,13 @@ StatsPanel::HWCReportSelected(int val)
   currentMetricStr = QString::null;
 
 //  QString s = popupMenu->text(val).ascii();
-  QString s = contextMenu->text(val).ascii();
+//  QString s = contextMenu->text(val).ascii();
+  QString s = QString::null;
+  s = hwc_menu->text(val).ascii();
+  if( s.isEmpty() )
+  {
+    s = contextMenu->text(val).ascii();
+  }
 
 // printf("D: s=%s\n", s.ascii() );
   int index = s.find(":");
@@ -2279,7 +2294,13 @@ StatsPanel::collectorUserTimeReportSelected(int val)
   collectorStrFromMenu = QString::null;
   currentMetricStr = QString::null;
 
-  QString s = contextMenu->text(val).ascii();
+//  QString s = contextMenu->text(val).ascii();
+  QString s = QString::null;
+  s = usertime_menu->text(val).ascii();
+  if( s.isEmpty() )
+  {
+    s = contextMenu->text(val).ascii();
+  }
 
 // printf("UserTimeReport: (%s)\n", s.ascii() );
 
@@ -2372,6 +2393,11 @@ StatsPanel::modifierSelected(int val)
 // printf("modifierSelected val=%d\n", val);
 // printf("modifierSelected: (%s)\n", modifierMenu->text(val).ascii() );
 
+  if( modifierMenu->text(val).isEmpty() )
+  {
+    return;
+  }
+
 
   std::string s = modifierMenu->text(val).ascii();
 // printf("B1: modifierStr=(%s)\n", s.c_str() );
@@ -2393,6 +2419,7 @@ StatsPanel::modifierSelected(int val)
     if( FOUND == TRUE )
     {
       current_list_of_modifiers.remove(modifier);
+      modifierMenu->setItemChecked(val, FALSE);
       break;
     }
   }
@@ -2400,6 +2427,7 @@ StatsPanel::modifierSelected(int val)
   if( FOUND == FALSE && s != PTI )
   {
 // printf("The modifier was not in the list ... add it!\n");
+    modifierMenu->setItemChecked(val, TRUE);
     current_list_of_modifiers.push_back(s);
   }
 
@@ -2416,7 +2444,24 @@ StatsPanel::mpiModifierSelected(int val)
 { 
 // printf("mpiModifierSelected val=%d\n", val);
 // printf("modifierSelected: (%s)\n", mpiModifierMenu->text(val).ascii() );
+// printf("modifierSelected: (%d)\n", mpiModifierMenu->text(val).toInt() );
 
+
+  if( mpiModifierMenu->text(val).isEmpty() )
+  {
+// printf("Do you want to add the \"duplicate\" submenus?\n");
+    mpiModifierMenu->insertSeparator();
+    if( mpi_menu )
+    {
+      delete mpi_menu;
+    }
+    mpi_menu = new QPopupMenu(this);
+    mpiModifierMenu->insertItem(QString("Select mpi Reports:"), mpi_menu);
+    addMPIReports(mpi_menu);
+    connect(mpi_menu, SIGNAL( activated(int) ),
+      this, SLOT(collectorMPIReportSelected(int)) );
+    return;
+  }
 
 
   std::string s = mpiModifierMenu->text(val).ascii();
@@ -2440,6 +2485,7 @@ StatsPanel::mpiModifierSelected(int val)
     {
 // printf("The %s modifier was in the list ... remove it!\n", s.c_str() );
       current_list_of_mpi_modifiers.remove(modifier);
+      mpiModifierMenu->setItemChecked(val, FALSE);
       break;
     }
   }
@@ -2448,6 +2494,7 @@ StatsPanel::mpiModifierSelected(int val)
   {
 // printf("The %s modifier was not in the list ... add it!\n", s.c_str() );
     current_list_of_mpi_modifiers.push_back(s);
+    mpiModifierMenu->setItemChecked(val, TRUE);
   }
 }
 
@@ -2458,6 +2505,21 @@ StatsPanel::mpitModifierSelected(int val)
 // printf("mpitModifierSelected val=%d\n", val);
 // printf("modifierSelected: (%s)\n", mpitModifierMenu->text(val).ascii() );
 
+
+  if( mpitModifierMenu->text(val).isEmpty() )
+  {
+    mpitModifierMenu->insertSeparator();
+    if( mpi_menu )
+    {
+      delete mpi_menu;
+    }
+    mpi_menu = new QPopupMenu(this);
+    mpitModifierMenu->insertItem(QString("Select mpit Reports:"), mpi_menu);
+    addMPIReports(mpi_menu);
+    connect(mpi_menu, SIGNAL( activated(int) ),
+      this, SLOT(collectorMPITReportSelected(int)) );
+    return;
+  }
 
 
   std::string s = mpitModifierMenu->text(val).ascii();
@@ -2480,6 +2542,7 @@ StatsPanel::mpitModifierSelected(int val)
     if( FOUND == TRUE )
     {
       current_list_of_mpit_modifiers.remove(modifier);
+      mpitModifierMenu->setItemChecked(val, FALSE);
       break;
     }
   }
@@ -2488,6 +2551,7 @@ StatsPanel::mpitModifierSelected(int val)
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_mpit_modifiers.push_back(s);
+    mpitModifierMenu->setItemChecked(val, TRUE);
   }
 }
 
@@ -2497,6 +2561,21 @@ StatsPanel::ioModifierSelected(int val)
 { 
 // printf("ioModifierSelected val=%d\n", val);
 // printf("modifierSelected: (%s)\n", ioModifierMenu->text(val).ascii() );
+
+  if( ioModifierMenu->text(val).isEmpty() )
+  {
+    ioModifierMenu->insertSeparator();
+    if( io_menu )
+    {
+      delete io_menu;
+    }
+    io_menu = new QPopupMenu(this);
+    ioModifierMenu->insertItem(QString("Select io Reports:"), io_menu);
+    addIOReports(io_menu);
+    connect(io_menu, SIGNAL( activated(int) ),
+      this, SLOT(collectorIOReportSelected(int)) );
+    return;
+  }
 
 
   std::string s = ioModifierMenu->text(val).ascii();
@@ -2519,6 +2598,7 @@ StatsPanel::ioModifierSelected(int val)
     if( FOUND == TRUE )
     {
       current_list_of_io_modifiers.remove(modifier);
+      ioModifierMenu->setItemChecked(val, FALSE);
       break;
     }
   }
@@ -2527,6 +2607,7 @@ StatsPanel::ioModifierSelected(int val)
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_io_modifiers.push_back(s);
+    ioModifierMenu->setItemChecked(val, TRUE);
   }
 }
 
@@ -2537,6 +2618,21 @@ StatsPanel::iotModifierSelected(int val)
 // printf("iotModifierSelected val=%d\n", val);
 // printf("modifierSelected: (%s)\n", iotModifierMenu->text(val).ascii() );
 
+
+  if( iotModifierMenu->text(val).isEmpty() )
+  {
+    iotModifierMenu->insertSeparator();
+    if( io_menu )
+    {
+      delete io_menu;
+    }
+    io_menu = new QPopupMenu(this);
+    iotModifierMenu->insertItem(QString("Select iot Reports:"), io_menu);
+    addIOReports(io_menu);
+    connect(io_menu, SIGNAL( activated(int) ),
+      this, SLOT(collectorIOTReportSelected(int)) );
+    return;
+  }
 
   std::string s = iotModifierMenu->text(val).ascii();
 // printf("B1: modifierStr=(%s)\n", s.c_str() );
@@ -2558,6 +2654,7 @@ StatsPanel::iotModifierSelected(int val)
     if( FOUND == TRUE )
     {
       current_list_of_iot_modifiers.remove(modifier);
+      iotModifierMenu->setItemChecked(val, FALSE);
       break;
     }
   }
@@ -2566,6 +2663,7 @@ StatsPanel::iotModifierSelected(int val)
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_iot_modifiers.push_back(s);
+    iotModifierMenu->setItemChecked(val, TRUE);
   }
 }
 
@@ -2575,6 +2673,11 @@ StatsPanel::hwcModifierSelected(int val)
 { 
 // printf("hwcModifierSelected val=%d\n", val);
 // printf("modifierSelected: (%s)\n", hwcModifierMenu->text(val).ascii() );
+
+  if( hwcModifierMenu->text(val).isEmpty() )
+  {
+    return;
+  }
 
 
   std::string s = hwcModifierMenu->text(val).ascii();
@@ -2597,6 +2700,7 @@ StatsPanel::hwcModifierSelected(int val)
     if( FOUND == TRUE )
     {
       current_list_of_hwc_modifiers.remove(modifier);
+      hwcModifierMenu->setItemChecked(val, FALSE);
       break;
     }
   }
@@ -2605,6 +2709,7 @@ StatsPanel::hwcModifierSelected(int val)
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_hwc_modifiers.push_back(s);
+    hwcModifierMenu->setItemChecked(val, TRUE);
   }
 }
 
@@ -2614,6 +2719,11 @@ StatsPanel::hwctimeModifierSelected(int val)
 { 
 // printf("hwctimeModifierSelected val=%d\n", val);
 // printf("modifierSelected: (%s)\n", hwctimeModifierMenu->text(val).ascii() );
+
+  if( hwctimeModifierMenu->text(val).isEmpty() )
+  {
+    return;
+  }
 
 
   std::string s = hwctimeModifierMenu->text(val).ascii();
@@ -2636,6 +2746,7 @@ StatsPanel::hwctimeModifierSelected(int val)
     if( FOUND == TRUE )
     {
       current_list_of_hwctime_modifiers.remove(modifier);
+      hwctimeModifierMenu->setItemChecked(val, FALSE);
       break;
     }
   }
@@ -2644,6 +2755,7 @@ StatsPanel::hwctimeModifierSelected(int val)
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_hwctime_modifiers.push_back(s);
+    hwctimeModifierMenu->setItemChecked(val, TRUE);
   }
 }
 
@@ -2653,6 +2765,21 @@ StatsPanel::usertimeModifierSelected(int val)
 { 
 // printf("usertimeModifierSelected val=%d\n", val);
 // printf("modifierSelected: (%s)\n", usertimeModifierMenu->text(val).ascii() );
+
+  if( usertimeModifierMenu->text(val).isEmpty() )
+  {
+    usertimeModifierMenu->insertSeparator();
+    if( usertime_menu )
+    {
+      delete usertime_menu;
+    }
+    usertime_menu = new QPopupMenu(this);
+    usertimeModifierMenu->insertItem(QString("Select usertime Reports:"), usertime_menu);
+    addUserTimeReports(usertime_menu);
+    connect(usertime_menu, SIGNAL( activated(int) ),
+      this, SLOT(collectorUserTimeReportSelected(int)) );
+    return;
+  }
 
 
   std::string s = usertimeModifierMenu->text(val).ascii();
@@ -2675,6 +2802,7 @@ StatsPanel::usertimeModifierSelected(int val)
     if( FOUND == TRUE )
     {
       current_list_of_usertime_modifiers.remove(modifier);
+      usertimeModifierMenu->setItemChecked(val, FALSE);
       break;
     }
   }
@@ -2683,6 +2811,7 @@ StatsPanel::usertimeModifierSelected(int val)
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_usertime_modifiers.push_back(s);
+    usertimeModifierMenu->setItemChecked(val, TRUE);
   }
 }
 
@@ -2691,6 +2820,11 @@ StatsPanel::pcsampModifierSelected(int val)
 { 
 // printf("pcsampModifierSelected val=%d\n", val);
 // printf("modifierSelected: (%s)\n", pcsampModifierMenu->text(val).ascii() );
+
+  if( pcsampModifierMenu->text(val).isEmpty() )
+  {
+    return;
+  }
 
 
   std::string s = pcsampModifierMenu->text(val).ascii();
@@ -2713,6 +2847,7 @@ StatsPanel::pcsampModifierSelected(int val)
     if( FOUND == TRUE )
     {
       current_list_of_pcsamp_modifiers.remove(modifier);
+      pcsampModifierMenu->setItemChecked(val, FALSE);
       break;
     }
   }
@@ -2721,6 +2856,7 @@ StatsPanel::pcsampModifierSelected(int val)
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_pcsamp_modifiers.push_back(s);
+    pcsampModifierMenu->setItemChecked(val, TRUE);
   }
 }
 
@@ -2730,6 +2866,11 @@ StatsPanel::genericModifierSelected(int val)
 { 
 // printf("genericModifierSelected val=%d\n", val);
 // printf("modifierSelected: (%s)\n", genericModifierMenu->text(val).ascii() );
+
+  if( genericModifierMenu->text(val).isEmpty() )
+  {
+    return;
+  }
 
 
   std::string s = genericModifierMenu->text(val).ascii();
@@ -2752,6 +2893,7 @@ StatsPanel::genericModifierSelected(int val)
     if( FOUND == TRUE )
     {
       current_list_of_generic_modifiers.remove(modifier);
+      genericModifierMenu->setItemChecked(val, FALSE);
       break;
     }
   }
@@ -2760,6 +2902,7 @@ StatsPanel::genericModifierSelected(int val)
   {
 // printf("The modifier was not in the list ... add it!\n");
     current_list_of_generic_modifiers.push_back(s);
+    genericModifierMenu->setItemChecked(val, TRUE);
   }
 }
 
@@ -3318,27 +3461,27 @@ for(int i=0;i<fieldCount;i++)
     int indent_level = 0;
 
 // Pretty the output up a bit.
-if( currentUserSelectedMetricStr.startsWith("Butterfly") )
-{
-  if( indented )
-  {
-    // Right side
-    strings[fieldCount-1].insert(1,"    ");
+    if( currentUserSelectedMetricStr.startsWith("Butterfly") )
+    {
+      if( indented )
+      {
+        // Right side
+        strings[fieldCount-1].insert(1,"    ");
 // printf("RS: Field (%s)\n", strings[fieldCount-1].ascii() );
-  } else if( strings[fieldCount-1].startsWith("<") )
-  {
-    // Left side
-    strings[fieldCount-1].remove("<");
+      } else if( strings[fieldCount-1].startsWith("<") )
+      {
+        // Left side
+        strings[fieldCount-1].remove("<");
 // printf("LS: Field (%s)\n", strings[fieldCount-1].ascii() );
-  } else
-  {
+      } else
+      {
 // printf("Color this one: Field (%s)\n", strings[fieldCount-1].ascii() );
-    // Focused Function
-    strings[fieldCount-1].insert(0,"  ");
-    highlight_line = TRUE;
-  }
+        // Focused Function
+        strings[fieldCount-1].insert(0,"  ");
+        highlight_line = TRUE;
+      }
 // printf("here (%s)\n", strings[fieldCount-1].ascii() );
-}
+    }
 
 
 // printf("indented = (%d)\n", indented );
@@ -3833,24 +3976,28 @@ StatsPanel::generateCommand()
 
 // printf("mpi_io_FLAG = %d hwc_FLAG= %d\n", mpi_io_FLAG, hwc_FLAG );
 
-if( currentCollectorStr == "usertime" && currentUserSelectedMetricStr == "Butterfly" )
-{
-  selectedFunctionStr = findSelectedFunction();
-if( selectedFunctionStr.isEmpty() )
-{
-  bool ok = FALSE;
-// printf("A: NO FUNCTION SELECTED Prompt for one!\n");
-  selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
-}
-  if( selectedFunctionStr.isEmpty() )
+  if( currentCollectorStr == "usertime" && (currentUserSelectedMetricStr == "Butterfly") || (currentUserSelectedMetricStr == "Functions") )
   {
-    return( QString::null );
-  }
-  command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+    if( currentUserSelectedMetricStr == "Butterfly" )
+    {
+      selectedFunctionStr = findSelectedFunction();
+      if( selectedFunctionStr.isEmpty() )
+      {
+        bool ok = FALSE;
+      // printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+      }
+      if( selectedFunctionStr.isEmpty() )
+      {
+        return( QString::null );
+      }
+      command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+     } else
+     {
+        command = QString("expView -x %1 %4%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+     }
 // printf("USERTIME! command=(%s)\n", command.ascii() );
-} else
-
-  if( ( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ))
+  } else if( ( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ))
   { 
 // printf("It thinks we're mpi | io!\n");
     if( currentUserSelectedMetricStr.isEmpty() || currentUserSelectedMetricStr == "CallTrees" )
@@ -3974,6 +4121,7 @@ if( selectedFunctionStr.isEmpty() )
 void
 StatsPanel::generateMPIMenu(QString collectorName)
 {
+// printf("generateMPIMenu(%s)\n", collectorName.ascii() );
   mpi_menu = new QPopupMenu(this);
 
   QString s = QString::null;
@@ -3982,15 +4130,6 @@ StatsPanel::generateMPIMenu(QString collectorName)
 
   mpi_menu->setCheckable(TRUE);
 
-  if( collectorName == "mpi" )
-  {
-    connect(mpi_menu, SIGNAL( activated(int) ),
-           this, SLOT(collectorMPIReportSelected(int)) );
-  } else
-  {
-    connect(mpi_menu, SIGNAL( activated(int) ),
-           this, SLOT(collectorMPITReportSelected(int)) );
-  }
 #ifdef DEFAULT_MENU
   mpi_menu->insertItem(QString("View Stats:"));
 #endif // DEFAULT_MENU
@@ -4010,41 +4149,15 @@ StatsPanel::generateMPIMenu(QString collectorName)
 
   mpi_menu->insertSeparator();
 
-  qaction = new QAction(this, "showFunctions");
-  qaction->addTo( mpi_menu );
-  qaction->setText( tr("Show: Functions") );
-// printf("collector_name=(%s)\n", collector_name.c_str() );
-  qaction->setToolTip(tr("Show timings for MPI Functions."));
 
-  qaction = new QAction(this, "showTracebacks");
-  qaction->addTo( mpi_menu );
-  qaction->setText( tr("Show: TraceBacks") );
-  qaction->setToolTip(tr("Show tracebacks to MPI Functions."));
-
-  qaction = new QAction(this, "showTracebacks/FullStack");
-  qaction->addTo( mpi_menu );
-  qaction->setText( tr("Show: TraceBacks/FullStack") );
-  qaction->setToolTip(tr("Show tracebacks, with full stacks, to MPI Functions."));
-
-  qaction = new QAction(this, "showCallTrees");
-  qaction->addTo( mpi_menu );
-  qaction->setText( tr("Show: CallTrees") );
-  qaction->setToolTip(tr("Show Call Trees to each MPI Functions."));
-
-  qaction = new QAction(this, "showButterfly");
-  qaction->addTo( mpi_menu );
-  qaction->setText( tr("Show: Butterfly") );
-  qaction->setToolTip(tr("Show Butterfly view (caller/callees) for selected function."));
-
-  qaction = new QAction(this, "showCallTreesBySelectedFunction");
-  qaction->addTo( mpi_menu );
-  qaction->setText( tr("Show: CallTrees by Selected Function") );
-  qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
 
   list_of_mpi_modifiers.clear();
   list_of_mpit_modifiers.clear();
 if( collectorName == "mpi" )
 {
+  addMPIReports(mpi_menu);
+  connect(mpi_menu, SIGNAL( activated(int) ),
+           this, SLOT(collectorMPIReportSelected(int)) );
   contextMenu->insertItem(QString("Show Metrics: MPI"), mpi_menu);
   list_of_mpi_modifiers.push_back("mpi::exclusive_times");
   list_of_mpi_modifiers.push_back("mpi::inclusive_times");
@@ -4072,6 +4185,7 @@ if( collectorName == "mpi" )
     delete mpiModifierMenu;
   }
   mpiModifierMenu = new QPopupMenu(this);
+  mpiModifierMenu->insertTearOffHandle();
   connect(mpiModifierMenu, SIGNAL( activated(int) ),
     this, SLOT(mpiModifierSelected(int)) );
 
@@ -4087,6 +4201,9 @@ if( collectorName == "mpi" )
   connect( qaction, SIGNAL( activated() ), this, SLOT(MPItraceSelected()) );
 } else
 {
+  addMPIReports(mpi_menu);
+  connect(mpi_menu, SIGNAL( activated(int) ),
+           this, SLOT(collectorMPITReportSelected(int)) );
   contextMenu->insertItem(QString("Show Metrics: MPIT"), mpi_menu);
   list_of_mpit_modifiers.push_back("mpit::exclusive_times");
   list_of_mpit_modifiers.push_back("mpit::inclusive_times");
@@ -4114,6 +4231,7 @@ if( collectorName == "mpi" )
     delete mpitModifierMenu;
   }
   mpitModifierMenu = new QPopupMenu(this);
+  mpitModifierMenu->insertTearOffHandle();
   connect(mpitModifierMenu, SIGNAL( activated(int) ),
     this, SLOT(mpitModifierSelected(int)) );
 
@@ -4158,38 +4276,9 @@ StatsPanel::generateIOMenu(QString collectorName)
 
   io_menu->insertSeparator();
 
-  qaction = new QAction(this, "showFunctions");
-  qaction->addTo( io_menu );
-  qaction->setText( tr("Show: Functions") );
-// printf("collector_name=(%s)\n", collector_name.c_str() );
-  qaction->setToolTip(tr("Show timings for MPI Functions."));
-
-  qaction = new QAction(this, "showTracebacks");
-  qaction->addTo( io_menu );
-  qaction->setText( tr("Show: TraceBacks") );
-  qaction->setToolTip(tr("Show tracebacks to MPI Functions."));
-
-  qaction = new QAction(this, "showTracebacks/FullStack");
-  qaction->addTo( io_menu );
-  qaction->setText( tr("Show: TraceBacks/FullStack") );
-  qaction->setToolTip(tr("Show tracebacks, with full stacks, to MPI Functions."));
-
-  qaction = new QAction(this, "showCallTrees");
-  qaction->addTo( io_menu );
-  qaction->setText( tr("Show: CallTrees") );
-  qaction->setToolTip(tr("Show Call Trees to each MPI Functions."));
-
-  qaction = new QAction(this, "showButterfly");
-  qaction->addTo( io_menu );
-  qaction->setText( tr("Show: Butterfly") );
-  qaction->setToolTip(tr("Show Butterfly view (caller/callees) for selected function."));
-
-  qaction = new QAction(this, "showCallTreesBySelectedFunction");
-  qaction->addTo( io_menu );
-  qaction->setText( tr("Show: CallTrees by Selected Function") );
-  qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
   if( collectorName == "io" )
   {
+    addIOReports(io_menu);
     connect(io_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorIOReportSelected(int)) );
     contextMenu->insertItem(QString("Show Metrics: IO"), io_menu);
@@ -4221,6 +4310,7 @@ StatsPanel::generateIOMenu(QString collectorName)
       delete ioModifierMenu;
     }
     ioModifierMenu = new QPopupMenu(this);
+    ioModifierMenu->insertTearOffHandle();
     connect(ioModifierMenu, SIGNAL( activated(int) ),
       this, SLOT(ioModifierSelected(int)) );
     generateModifierMenu(ioModifierMenu, list_of_io_modifiers, current_list_of_io_modifiers);
@@ -4236,6 +4326,7 @@ StatsPanel::generateIOMenu(QString collectorName)
     connect( qaction, SIGNAL( activated() ), this, SLOT(IOtraceSelected()) );
   } else 
   {
+    addIOReports(io_menu);
     connect(io_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorIOTReportSelected(int)) );
     contextMenu->insertItem(QString("Show Metrics: IOT"), io_menu);
@@ -4267,6 +4358,7 @@ StatsPanel::generateIOMenu(QString collectorName)
       delete iotModifierMenu;
     }
     iotModifierMenu = new QPopupMenu(this);
+    iotModifierMenu->insertTearOffHandle();
     connect(iotModifierMenu, SIGNAL( activated(int) ),
       this, SLOT(iotModifierSelected(int)) );
     generateModifierMenu(iotModifierMenu, list_of_iot_modifiers, current_list_of_iot_modifiers);
@@ -4330,6 +4422,7 @@ StatsPanel::generateHWCMenu(QString collectorName)
       delete hwcModifierMenu;
     }
     hwcModifierMenu = new QPopupMenu(this);
+    hwcModifierMenu->insertTearOffHandle();
     connect(hwcModifierMenu, SIGNAL( activated(int) ),
       this, SLOT(hwcModifierSelected(int)) );
     generateModifierMenu(hwcModifierMenu, list_of_hwc_modifiers, current_list_of_hwc_modifiers);
@@ -4347,6 +4440,7 @@ StatsPanel::generateHWCMenu(QString collectorName)
       delete hwctimeModifierMenu;
     }
     hwctimeModifierMenu = new QPopupMenu(this);
+    hwctimeModifierMenu->insertTearOffHandle();
     connect(hwctimeModifierMenu, SIGNAL( activated(int) ),
     this, SLOT(hwctimeModifierSelected(int)) );
     generateModifierMenu(hwctimeModifierMenu, list_of_hwctime_modifiers, current_list_of_hwctime_modifiers);
@@ -4369,12 +4463,6 @@ StatsPanel::generateUserTimeMenu()
   QAction *qaction = NULL;
 
 //  usertime_menu->insertItem(QString("Show Metric: %1").arg(currentCollectorStr));
-  usertime_menu->insertItem(QString("View Stats:"));
-
-  qaction = new QAction(this, "showButterfly");
-  qaction->addTo( usertime_menu );
-  qaction->setText( tr("Show: Butterfly") );
-  qaction->setToolTip(tr("Show Butterfly by function.") );
 
   contextMenu->insertItem(QString("Show Metrics: UserTime"), usertime_menu);
 
@@ -4389,6 +4477,8 @@ StatsPanel::generateUserTimeMenu()
     delete usertimeModifierMenu;
   }
   usertimeModifierMenu = new QPopupMenu(this);
+addUserTimeReports(usertime_menu);
+  usertimeModifierMenu->insertTearOffHandle();
   connect(usertimeModifierMenu, SIGNAL( activated(int) ),
     this, SLOT(usertimeModifierSelected(int)) );
   generateModifierMenu(usertimeModifierMenu, list_of_usertime_modifiers, current_list_of_usertime_modifiers);
@@ -4421,6 +4511,7 @@ StatsPanel::generatePCSampMenu()
     delete pcsampModifierMenu;
   }
   pcsampModifierMenu = new QPopupMenu(this);
+  pcsampModifierMenu->insertTearOffHandle();
   connect(pcsampModifierMenu, SIGNAL( activated(int) ),
     this, SLOT(pcsampModifierSelected(int)) );
   generateModifierMenu(pcsampModifierMenu, list_of_pcsamp_modifiers, current_list_of_pcsamp_modifiers);
@@ -4453,6 +4544,7 @@ StatsPanel::generateGenericMenu()
     delete genericModifierMenu;
   }
   genericModifierMenu = new QPopupMenu(this);
+  genericModifierMenu->insertTearOffHandle();
   connect(genericModifierMenu, SIGNAL( activated(int) ),
     this, SLOT(genericModifierSelected(int)) );
   generateModifierMenu(genericModifierMenu, list_of_generic_modifiers, current_list_of_generic_modifiers);
@@ -4518,3 +4610,87 @@ printf("End Debug\n");
 }
 // endif Debug
 #endif // 0
+
+void
+StatsPanel::addMPIReports(QPopupMenu *menu)
+{
+  QAction *qaction = new QAction(this, "showFunctions");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Functions") );
+// printf("collector_name=(%s)\n", collector_name.c_str() );
+  qaction->setToolTip(tr("Show timings for MPI Functions."));
+
+  qaction = new QAction(this, "showTracebacks");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: TraceBacks") );
+  qaction->setToolTip(tr("Show tracebacks to MPI Functions."));
+
+  qaction = new QAction(this, "showTracebacks/FullStack");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: TraceBacks/FullStack") );
+  qaction->setToolTip(tr("Show tracebacks, with full stacks, to MPI Functions."));
+
+  qaction = new QAction(this, "showCallTrees");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees") );
+  qaction->setToolTip(tr("Show Call Trees to each MPI Functions."));
+
+  qaction = new QAction(this, "showButterfly");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Butterfly") );
+  qaction->setToolTip(tr("Show Butterfly view (caller/callees) for selected function."));
+
+  qaction = new QAction(this, "showCallTreesBySelectedFunction");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees by Selected Function") );
+  qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
+}
+
+void
+StatsPanel::addIOReports(QPopupMenu *menu)
+{
+  QAction *qaction = new QAction(this, "showFunctions");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Functions") );
+// printf("collector_name=(%s)\n", collector_name.c_str() );
+  qaction->setToolTip(tr("Show timings for IO Functions."));
+
+  qaction = new QAction(this, "showTracebacks");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: TraceBacks") );
+  qaction->setToolTip(tr("Show tracebacks to IO Functions."));
+
+  qaction = new QAction(this, "showTracebacks/FullStack");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: TraceBacks/FullStack") );
+  qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO Functions."));
+
+  qaction = new QAction(this, "showCallTrees");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees") );
+  qaction->setToolTip(tr("Show Call Trees to each IO Functions."));
+
+  qaction = new QAction(this, "showButterfly");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Butterfly") );
+  qaction->setToolTip(tr("Show Butterfly view (caller/callees) for selected function."));
+
+  qaction = new QAction(this, "showCallTreesBySelectedFunction");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees by Selected Function") );
+  qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
+}
+
+void
+StatsPanel::addUserTimeReports(QPopupMenu *menu )
+{
+  QAction *qaction = new QAction(this, "showFunctions");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Functions") );
+  qaction->setToolTip(tr("Show timings for IO Functions."));
+
+  qaction = new QAction(this, "showButterfly");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Butterfly") );
+  qaction->setToolTip(tr("Show Butterfly by function.") );
+}

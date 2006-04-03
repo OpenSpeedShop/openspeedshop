@@ -111,7 +111,7 @@ class StatsPanel  : public Panel
     QSplitter *splitterA;
     SPChartForm *cf;
     ColumnList columnHeaderList;
-ColumnValueClass columnValueClass[10];
+    ColumnValueClass columnValueClass[10];
     int *metricHeaderTypeArray;  // matches the QListView # of column entries.
 
     std::list<std::string> list_of_collectors_metrics;
@@ -251,9 +251,12 @@ ColumnValueClass columnValueClass[10];
 
     void updateStatsPanelData(QString command = QString::null);
     void generateMPIMenu(QString collectorName);
+void addMPIReports(QPopupMenu *menu);
     void generateIOMenu(QString collectorName);
+void addIOReports(QPopupMenu *menu);
     void generateHWCMenu(QString collectorName);
     void generateUserTimeMenu();
+void addUserTimeReports(QPopupMenu *menu);
     void generatePCSampMenu();
     void generateGenericMenu();
     QString generateCommand();
