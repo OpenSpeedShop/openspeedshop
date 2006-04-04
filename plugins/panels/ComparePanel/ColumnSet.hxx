@@ -65,6 +65,7 @@ class ColumnSet : public QWidget
 
     QString name;
     MPListView *lv;
+    void initializeListView();
 
     int getExpidFromExperimentComboBoxStr( const QString path );
   protected:

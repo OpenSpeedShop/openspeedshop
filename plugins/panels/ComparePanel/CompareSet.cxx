@@ -124,6 +124,8 @@ CompareSet::setNewFocus(QWidget *tab)
 // printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
 // printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
 // printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
+
+
          if( compareSet->compareClass->dialog )
          {
 // printf("call dialogs updateFocus\n");
