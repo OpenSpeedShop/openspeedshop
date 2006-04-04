@@ -109,8 +109,6 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
 ParseResult::
 ParseResult() :
     dm_command_type(CMD_HEAD_ERROR),
-    dm_experiment_id(-1),
-    dm_experiment_set(false),
     dm_help_set(false),
     dm_param_set(false),
     dm_error_set(false),
@@ -522,9 +520,9 @@ dumpInfo()
     // Command name.
     cout << "\nCommand: " << this->getCommandname() << endl;
 
-    // Experimant id.
-    if (this->isExpId())
-    	cout << "\tExperiment Id: " << this->getExpId() << endl;
+    // Experimant id list.
+    s_dumpRange(this->getExpIdList(), "Experiment Id",false /* is_hex */);
+
 
     // Experiment types.
     vector<string> *p_slist = this->getExpList();
@@ -751,7 +749,96 @@ pushParm(char *etype, char * ptype, char * name)
 
     return ;
 }
- 
+
+/////////////////////////////////////////////////
+
+/**
+ * Method: ParseResult::getExpId(void)
+ * 
+ * Used for generic help topic dump
+ *     
+ * @return  int.
+ *
+ * @todo    help facility.
+ *
+ */
+int
+ParseResult::
+getExpId()
+{
+    vector<ParseRange> *p_list = this->getExpIdList();
+    int the_id = 0;
+    
+    if (p_list->begin() != p_list->end()) {
+    	vector<ParseRange>::iterator iter;
+    	iter=p_list->begin();
+    	parse_range_t *p_range = iter->getRange();
+    	the_id = p_range->start_range.num;
+    }
+
+    return the_id;
+}
+
+/**
+ * Method: ParseResult::isExpId()
+ * 
+ * Was there an expId request?
+ *     
+ * @return  true/false.
+ *
+ * @todo    help facility.
+ *
+ */
+bool
+ParseResult::
+isExpId()
+{
+
+    vector<ParseRange> *p_slist = this->getExpIdList();
+
+    if (p_slist->begin() != p_slist->end())
+    	return true;
+
+    return false;
+}
+
+/**
+ * Method: ParseResult::expIdCount()
+ * 
+ * How many experiment IDs were specified?
+ *     
+ * @return  Number of IDs.
+ *
+ * @todo    dunno.
+ *
+ */
+int
+ParseResult::
+expIdCount()
+{
+
+    vector<ParseRange> *p_list = this->getExpIdList();
+    vector<ParseRange>::iterator iter;
+    int count = 0;
+    
+    for (iter=p_list->begin();iter != p_list->end(); iter++) {
+    	parse_range_t *p_range = iter->getRange();
+    	if (p_range->is_range) {
+    	    parse_val_t *p_val1 = &p_range->start_range;
+    	    parse_val_t *p_val2 = &p_range->end_range;
+	    
+	    count += (p_val2->num-p_val1->num)+1;
+    	}
+	else {
+	    ++count;
+	}
+    }
+
+    return count;
+}
+
+/////////////////////////////////////////////////
+
 /**
  * Method: ParseResult::pushHelp(void)
  * 
@@ -810,6 +897,8 @@ pushHelp(char *name)
     
 }
 
+/////////////////////////////////////////////////
+
 /**
  * Method: ParseResult::pushHelp(char * name)
  * 
@@ -843,6 +932,8 @@ setError(char * name1, char * name2)
 {
     ParseRange range(name1,name2);
 
+//cout << "in setError(" << name1 << "," << name2 << ")" << endl;
+
     dm_error_set = true;
     dm_error_list.push_back(range);
 
@@ -863,6 +954,8 @@ ParseResult::
 setError(char * name)
 {
     ParseRange range(name);
+
+//cout << "in setError(" << name << ")" << endl;
 
     dm_error_set = true;
     dm_error_list.push_back(range);

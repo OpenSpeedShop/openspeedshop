@@ -475,8 +475,12 @@ bool SS_expCompare (CommandObject *cmd) {
 
  // Examine the parsed command for a "-x" specifier.
   Assert(cmd->P_Result() != NULL);
-  EXPID ExperimentID = (cmd->P_Result()->isExpId()) ? cmd->P_Result()->getExpId() : Experiment_Focus ( WindowID );
-  ExperimentObject *exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
+  EXPID ExperimentID = (cmd->P_Result()->isExpId()) ? 
+    	    	    	cmd->P_Result()->getExpId() : 
+			Experiment_Focus ( WindowID );
+  ExperimentObject *exp = (ExperimentID != 0) ? 
+    	    	    	    Find_Experiment_Object (ExperimentID) : 
+			    NULL;
   bool view_result = false;
   int64_t i;
 

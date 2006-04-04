@@ -325,22 +325,23 @@ class ParseResult {
 	bool isRetList();
  
     	/** Handle experiment id */
-	void setExpId(int id)
-	{
-	    dm_experiment_id = id;
-	    dm_experiment_set = true;
+	/** Most commands only allow one id */
+	int getExpId();
+	int expIdCount();
+	bool isExpId();
+
+    	vector<ParseRange> * getExpIdList(){return &dm_experiment_id_list;}
+
+    	void pushExpIdPoint(int num) {
+	    ParseRange range(num);
+    	    dm_experiment_id_list.push_back(range);
 	}
-	int getExpId()
-	{
-	    return dm_experiment_id;
-	}
-	bool isExpId()
-	{
-	    return dm_experiment_set;
+    	void pushExpIdRange(int num1, int num2) {
+	    ParseRange range(num1,num2);
+    	    dm_experiment_id_list.push_back(range);
 	}
 	
     	/** Handle list of experiment types. */
-//    	const vector<string> * getExpList() const
     	vector<string> * getExpList()
 	{
 	    return &dm_exp_type_list;
@@ -523,9 +524,8 @@ class ParseResult {
     	/** What command are we representing */
     	oss_cmd_enum dm_command_type;
 
-    	/** What command are we representing */
-    	int dm_experiment_id;
-    	bool dm_experiment_set;
+    	/** Container of break Ids as integers */
+    	vector<ParseRange> dm_experiment_id_list;
 
     	/** Was help called? */
     	bool dm_help_set;

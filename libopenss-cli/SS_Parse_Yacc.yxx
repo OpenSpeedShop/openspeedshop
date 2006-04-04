@@ -145,7 +145,7 @@ exp_attach_args:    exp_attach_element
     	    	|   exp_attach_args exp_attach_element
     	    	;
 
-exp_attach_element: expId_spec
+exp_attach_element: expId_list_spec
     	    	|   modifier_list_spec
 		|   target_list
 		|   expType_list
@@ -160,15 +160,15 @@ exp_close_com:	    CLOSE_HEAD exp_close_args
 exp_close_args:     exp_close_arg
     	    	;
 exp_close_arg:	    /* empty */
-    	    	|   expId_spec
+    	    	|   expId_list_spec
 		|   modifier_list_spec
-    	    	|   modifier_list_spec expId_spec
-    	    	|   expId_spec modifier_list_spec
+    	    	|   modifier_list_spec expId_list_spec
+    	    	|   expId_list_spec modifier_list_spec
 		
 		|   modifier_list_spec modifier_list_spec
-    	    	|   modifier_list_spec modifier_list_spec expId_spec
-    	    	|   expId_spec modifier_list_spec modifier_list_spec
-    	    	|   modifier_list_spec expId_spec modifier_list_spec
+    	    	|   modifier_list_spec modifier_list_spec expId_list_spec
+    	    	|   expId_list_spec modifier_list_spec modifier_list_spec
+    	    	|   modifier_list_spec expId_list_spec modifier_list_spec
 		
    	    	;
 
@@ -208,7 +208,7 @@ exp_detach_args:    exp_detach_element
     	    	|   exp_detach_args exp_detach_element
     	    	;
 
-exp_detach_element: expId_spec
+exp_detach_element: expId_list_spec
 		|   target_list
 		|   expType_list
     	    	;
@@ -220,7 +220,7 @@ exp_disable_com:    DISABLE_HEAD exp_disable_arg
   	    	|   DISABLE_HEAD error END_LINE 
       	    	;
 exp_disable_arg:    /* empty */
-    	    	|   expId_spec
+    	    	|   expId_list_spec
 		|   modifier_list_spec
     	    	;
 
@@ -231,7 +231,7 @@ exp_enable_com:	    ENABLE_HEAD exp_enable_arg
   	    	|   ENABLE_HEAD error END_LINE 
       	    	;
 exp_enable_arg:	    /* empty */
-    	    	|   expId_spec
+    	    	|   expId_list_spec
 		|   modifier_list_spec
     	    	;
 
@@ -242,7 +242,7 @@ exp_focus_com:	    FOCUS_HEAD exp_focus_arg
   	    	|   FOCUS_HEAD error END_LINE 
       	    	;
 exp_focus_arg:	    /* empty */
-    	    	|   expId_spec
+    	    	|   expId_list_spec
     	    	;
 
     	    /** EXP_GO **/
@@ -252,7 +252,7 @@ exp_go_com:	    GO_HEAD exp_go_arg
   	    	|   GO_HEAD error END_LINE 
       	    	;
 exp_go_arg:	    /* empty */
-    	    	|   expId_spec
+    	    	|   expId_list_spec
 		|   modifier_list_spec
     	    	;
 
@@ -263,7 +263,7 @@ exp_pause_com:	    PAUSE_HEAD exp_pause_arg
   	    	|   PAUSE_HEAD error END_LINE 
       	    	;
 exp_pause_arg:	    /* empty */
-    	    	|   expId_spec
+    	    	|   expId_list_spec
 		|   modifier_list_spec
     	    	;
 
@@ -283,17 +283,17 @@ exp_save_com:	    SAVE_HEAD exp_save_arg
 exp_save_arg:	    
     	    	    file_spec
 
-    	    	|   expId_spec file_spec 
-    	    	|   file_spec expId_spec 
+    	    	|   expId_list_spec file_spec 
+    	    	|   file_spec expId_list_spec 
     	    	|   file_spec modifier_list_spec 
     	    	|   modifier_list_spec file_spec 
 
-    	    	|   expId_spec file_spec modifier_list_spec 
-    	    	|   expId_spec modifier_list_spec file_spec 
-    	    	|   file_spec expId_spec modifier_list_spec 
-    	    	|   file_spec modifier_list_spec expId_spec 
-    	    	|   modifier_list_spec expId_spec file_spec 
-    	    	|   modifier_list_spec file_spec expId_spec 
+    	    	|   expId_list_spec file_spec modifier_list_spec 
+    	    	|   expId_list_spec modifier_list_spec file_spec 
+    	    	|   file_spec expId_list_spec modifier_list_spec 
+    	    	|   file_spec modifier_list_spec expId_list_spec 
+    	    	|   modifier_list_spec expId_list_spec file_spec 
+    	    	|   modifier_list_spec file_spec expId_list_spec 
 
     	    	;
 
@@ -304,7 +304,7 @@ exp_setparam_com:   SETPARAM_HEAD exp_setparam_arg
   	    	|   SETPARAM_HEAD exp_setparam_arg error END_LINE 
       	    	;
 exp_setparam_arg:   param_list
-    	    	|   expId_spec param_list
+    	    	|   expId_list_spec param_list
     	    	;
 
     	    /** EXP_STATUS **/
@@ -314,7 +314,7 @@ exp_status_com:     STATUS_HEAD exp_status_arg
   	    	|   STATUS_HEAD exp_status_arg error END_LINE 
       	    	;
 exp_status_arg:     /* empty */
-    	    	|   expId_spec
+    	    	|   expId_list_spec
 		|   modifier_list_spec
     	    	;
 
@@ -373,7 +373,7 @@ set_view_args:	    set_view_element
     	    	|   set_view_args set_view_element
     	    	;
 
-set_view_element:   expId_spec
+set_view_element:   expId_list_spec
     	    	|   modifier_list_spec
 		|   expMetric_list_spec
 		|   target_list
@@ -393,7 +393,7 @@ list_generic_arg:   list_generic_element
     	    	;
 
 list_generic_element:   
-    	    	    expId_spec
+    	    	    expId_list_spec
     	    	|   modifier_list_spec
 
 		|   target_list
@@ -532,17 +532,17 @@ gen_setbreak_com:   GEN_SETBREAK_HEAD gen_setbreak_arg
 gen_setbreak_arg:   
     	    	    address_description
 
-    	    	|   expId_spec address_description 
-    	    	|   address_description expId_spec 
+    	    	|   expId_list_spec address_description 
+    	    	|   address_description expId_list_spec 
     	    	|   target address_description 
     	    	|   address_description target 
 
-    	    	|   expId_spec target address_description 
-    	    	|   expId_spec address_description target 
-    	    	|   target expId_spec address_description 
-    	    	|   target address_description expId_spec 
-    	    	|   address_description expId_spec target 
-    	    	|   address_description target expId_spec 
+    	    	|   expId_list_spec target address_description 
+    	    	|   expId_list_spec address_description target 
+    	    	|   target expId_list_spec address_description 
+    	    	|   target address_description expId_list_spec 
+    	    	|   address_description expId_list_spec target 
+    	    	|   address_description target expId_list_spec 
     	    	;
 
     	    /** WAIT **/
@@ -553,10 +553,10 @@ gen_wait_com:	    GEN_WAIT_HEAD gen_wait_arg
       	    	;
 
 gen_wait_arg:	    /* empty */
-		|   expId_spec
+		|   expId_list_spec
 		|   modifier_list_spec
-		|   expId_spec modifier_list_spec
-		|   modifier_list_spec expId_spec
+		|   expId_list_spec modifier_list_spec
+		|   modifier_list_spec expId_list_spec
    	    	;
 
     	    /** JUST_QUIT **/
@@ -572,8 +572,17 @@ address_description: NUMBER {p_parse_result->pushAddressPoint($1);}
 		|   NAME {p_parse_result->pushAddressPoint($1);}
     	    	;
 
-expId_spec:	    EXP_ID  NUMBER {p_parse_result->setExpId($2);}
-    	    	;
+expId_list_spec:    EXP_ID expId_list
+		|   EXP_ID {p_parse_result->setError("Bad pid list entry.");} error  
+		;
+
+expId_list:  	    expId_range
+    	    	|   expId_list COMMA expId_range
+		;
+
+expId_range:  	    NUMBER {p_parse_result->pushExpIdPoint($1);}
+    	    	|   NUMBER COLON NUMBER {p_parse_result->pushExpIdRange($1,$3);}
+		;
 
 target_list:	    target
     	    	|   target_list SEMICOLON {p_parse_result->pushParseTarget();} target
@@ -625,19 +634,6 @@ file_list:  	    file_name
 
 file_name:  	    NAME {p_parse_result->currentTarget()->pushFilePoint($1);}
     	    	;
-
-/*
-cluster_list_spec:  CLUSTER_ID cluster_list
-		|   CLUSTER_ID {p_parse_result->setError("Bad cluster list entry.");} error  
-		;
-
-cluster_list:  	    cluster_name 
-    	    	|   cluster_list COMMA cluster_name 
-		;
-
-cluster_name:  	    NAME {p_parse_result->currentTarget()->pushClusterPoint($1);}
-    	    	;
-*/
 
 pid_list_spec:	    PROCESS_ID pid_list
 		|   PROCESS_ID {p_parse_result->setError("Bad pid list entry.");} error  
