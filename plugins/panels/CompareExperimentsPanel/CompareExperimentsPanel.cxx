@@ -121,8 +121,7 @@ CompareExperimentsPanel::hideWizard()
 int
 CompareExperimentsPanel::listener(void *msg)
 {
-  CustomExperimentPanel::listener(msg);
-
+  int ret_val = CustomExperimentPanel::listener(msg);
   MessageObject *mo = (MessageObject *)msg;
 // printf("mo->msgType=(%s)\n", mo->msgType.ascii() );
   if( mo->msgType  == "LoadAttachObject" )
@@ -142,5 +141,8 @@ CompareExperimentsPanel::listener(void *msg)
 // printf("Try to delete the ManageProcessses panel.\n");
       p->getPanelContainer()->hidePanel( p );
     }
+
   }
+
+  return( ret_val );
 }

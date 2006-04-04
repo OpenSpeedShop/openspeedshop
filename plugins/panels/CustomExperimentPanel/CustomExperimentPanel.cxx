@@ -561,6 +561,7 @@ CustomExperimentPanel::compareExperimentsSelected()
     comparePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ComparePanel", bestFitPC, ao, (const char *)NULL);
     delete ao;
   }
+
 }   
 
 //! Save ascii version of this panel.
@@ -998,7 +999,6 @@ CustomExperimentPanel::editPanelName()
 void
 CustomExperimentPanel::saveExperiment()
 {
-printf("Attempt to save the experiment file.\n");
   mw->fileSaveExperiment(expID);
 }
 
