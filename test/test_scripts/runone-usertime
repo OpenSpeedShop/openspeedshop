@@ -23,8 +23,11 @@ import sys
 import os
 from time import *
 from string import *
+from threading import *
 #from datetime import *
 
+def too_long():
+	os.system('killall -s 9 openss mutatee')
 
 def createTestList():
 	checktemptestlist = os.system('test -e temptestlist')
@@ -40,7 +43,10 @@ def runTest(testName):
 	#testCommand = test_input.readline()
 	#linesToCompare = test_input.readline()
 	#test_input.close()
+	t = Timer(1000, too_long)
+	t.start()
 	os.system('./'+testName+ '>> '+ testName+'.output')
+	t.cancel()
 
 def iterateThroughTestList(fileptr):
 	con_input = open('temptestlist', 'r')
