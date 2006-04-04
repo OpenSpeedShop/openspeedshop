@@ -123,24 +123,24 @@ CompareExperimentsPanel::listener(void *msg)
 {
   CustomExperimentPanel::listener(msg);
 
-MessageObject *mo = (MessageObject *)msg;
+  MessageObject *mo = (MessageObject *)msg;
 // printf("mo->msgType=(%s)\n", mo->msgType.ascii() );
-if( mo->msgType  == "LoadAttachObject" )
-{
-// printf("listener:: Try to find the stats panel.\n");
-  QString name = QString("Stats Panel [%1]").arg(getExpID());
-  Panel *p = getPanelContainer()->findNamedPanel(getPanelContainer(), (char *)name.ascii() );
-  if( p )
+  if( mo->msgType  == "LoadAttachObject" )
   {
+    QString name = QString("Stats Panel [%1]").arg(getExpID());
+// printf("listener:: Try to find the stats panel =(%s)\n", name.ascii() );
+    Panel *p = getPanelContainer()->findNamedPanel(getPanelContainer(), (char *)name.ascii() );
+    if( p )
+    {
 // printf("Try to raise the stats panel.\n");
-    p->getPanelContainer()->raisePanel(p);
-  }
-  name = QString("ManageProcessesPanel [%1]").arg(getExpID());
-  p = getPanelContainer()->findNamedPanel(getPanelContainer(), (char *)name.ascii() );
-  if( p )
-  {
+      p->getPanelContainer()->raisePanel(p);
+    }
+    name = QString("ManageProcessesPanel [%1]").arg(getExpID());
+    p = getPanelContainer()->findNamedPanel(getPanelContainer(), (char *)name.ascii() );
+    if( p )
+    {
 // printf("Try to delete the ManageProcessses panel.\n");
-    p->getPanelContainer()->hidePanel( p );
+      p->getPanelContainer()->hidePanel( p );
+    }
   }
-}
 }

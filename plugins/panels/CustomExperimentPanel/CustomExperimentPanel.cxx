@@ -117,7 +117,7 @@ staticDataFLAG = FALSE;
     wizardName = "FPE Tracing Wizard";
   } else
   {
-    wizardName = "Custom Experiemnt Wizard";
+    wizardName = "Custom Experiment Wizard";
   }
 
 
@@ -1450,7 +1450,7 @@ int
 CustomExperimentPanel::processLAO(LoadAttachObject *lao)
 {
 //NOTE: ALL the exeriments use the same basic template for the 
-//      experiemnts.   Occassionally you'll see code related 
+//      experiments.   Occassionally you'll see code related 
 //      to a specific collector type in the code.   This is 
 //      done simply to keep all experiment's source bases consistent.
 //      At least until I get time to rearchitect this to 

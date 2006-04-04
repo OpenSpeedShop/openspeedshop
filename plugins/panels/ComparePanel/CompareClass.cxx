@@ -443,11 +443,13 @@ CompareClass::focusOnCSetSelected()
 
 // printf("Really send this : command: (%s)\n", focus_msg->compare_command.ascii() );
 
-//printf("A: focus the StatsPanel...\n");
+// printf("A: focus the StatsPanel...\n");
     QString name = QString("Stats Panel [%1]").arg(expID);
+// printf("find a stats panel named (%s)\n", name.ascii() );
     Panel *sp = p->getPanelContainer()->findNamedPanel(p->getPanelContainer()->getMasterPC(), (char *)name.ascii() );
     if( !sp )
     {
+// printf("Didn't find a stats panel.... Create one.\n");
       char *panel_type = "Stats Panel";
       PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
       ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
@@ -455,14 +457,12 @@ CompareClass::focusOnCSetSelected()
       delete ao;
       if( sp != NULL )
       {
-//printf("Created a stats panel... First update it's data...\n");
-        UpdateObject *msg =
-          new UpdateObject((void *)Find_Experiment_Object((EXPID)expID), expID, "none", 1);
-        sp->listener( (void *)msg );
+// printf("Created a stats panel... First update it's data... expID=%d\n", expID);
+      sp->listener( (void *)focus_msg );
       }
     } else
     {
-//printf("There was a statspanel... send the update message.\n");
+// printf("There was a statspanel... send the update message.\n");
       sp->listener( (void *)focus_msg );
     }
 // End real focus logic
@@ -513,14 +513,14 @@ CompareClass::addProcessesSelected()
 }
 
   dialog->updateInfo();
-  expID = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
+  int expid = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
 
-// printf("Focus on expID=%d\n",  expID );
+// printf("Focus on expID=%d\n",  expid );
 // printf("CompareClass=%s\n",  name() );
 // printf("compareSet=%s\n",  compareSet->name.ascii() );
 // printf("columnSet=(%s)\n", columnSet->name.ascii() );
 
-  dialog->updateFocus(expID, columnSet->lv);
+  dialog->updateFocus(expid, columnSet->lv);
   compareSet->updatePSetList();
 
   dialog->show();
