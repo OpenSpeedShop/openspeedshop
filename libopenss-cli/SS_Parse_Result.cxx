@@ -159,6 +159,18 @@ pushParseTarget()
     	delete this->dm_p_cur_target;
     	this->dm_p_cur_target = new ParseTarget();
     }
+
+    // Most commands only allow a single expId.
+    // Check here.
+    switch(this->dm_command_type) {
+    	case CMD_EXP_COMPARE:
+	    break;
+	default:
+	    if ((this->expIdCount()) > 1) {
+	    	this->setError("Only one expId allowed");
+	    }
+    }
+    
     return ;
 }
  
