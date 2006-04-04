@@ -1,9 +1,10 @@
 
 ****************************
 expsetparam
-SYNTAX ERROR!!!
-Command: expSetparam
 
+Command: expSetparam
+		ERROR: 
+ 
 
 ****************************
 expsetparam pcsamp::parmtype_1=parmval_1
@@ -46,15 +47,17 @@ Command: expSetparam
 
 ****************************
 expsetparam -x 6
-SYNTAX ERROR!!!
-Command: expSetparam
 
+Command: expSetparam
+		Experiment Id: 6 
+		ERROR: 
+ 
 
 ****************************
 expsetparam -x 6 pcsamp::parmtype_1=parmval_1
 
 Command: expSetparam
-	Experiment Id: 6
+		Experiment Id: 6 
 		PARAMS: 
 			pcsamp :: parmtype_1 = parmval_1
 
@@ -62,7 +65,7 @@ Command: expSetparam
 expsetparam -x 6 usertime::parmtype_1=parmval_1,hwc::parmtype_2=parmval_2
 
 Command: expSetparam
-	Experiment Id: 6
+		Experiment Id: 6 
 		PARAMS: 
 			usertime :: parmtype_1 = parmval_1
 			hwc :: parmtype_2 = parmval_2
@@ -71,7 +74,7 @@ Command: expSetparam
 expsetparam -x 6 parmtype_1=parmval_1
 
 Command: expSetparam
-	Experiment Id: 6
+		Experiment Id: 6 
 		PARAMS: 
 			parmtype_1 = parmval_1
 
@@ -79,7 +82,7 @@ Command: expSetparam
 expsetparam -x 6 parmtype_1=parmval_1,parmtype_2=parmval_2
 
 Command: expSetparam
-	Experiment Id: 6
+		Experiment Id: 6 
 		PARAMS: 
 			parmtype_1 = parmval_1
 			parmtype_2 = parmval_2
@@ -88,7 +91,7 @@ Command: expSetparam
 expsetparam -x 6 parmtype_1=parmval_1,parmtype_2=parmval_2,parmtype_3=parmval_3
 
 Command: expSetparam
-	Experiment Id: 6
+		Experiment Id: 6 
 		PARAMS: 
 			parmtype_1 = parmval_1
 			parmtype_2 = parmval_2

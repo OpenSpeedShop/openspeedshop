@@ -120,6 +120,9 @@ int ret;
 
     ret = yyparse();
 
+#if 1
+    	p_parse_result->dumpInfo();
+#else
     // testing code
     if (!p_parse_result->syntaxError())
     	p_parse_result->dumpInfo();
@@ -136,7 +139,8 @@ int ret;
 		    false /* is_hex */,
 		    true /* newline */);
     }
-    
+#endif
+
     fclose(yyin); 
     //delete p_parse_result;
 }
