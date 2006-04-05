@@ -1665,7 +1665,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
             ( collectorStrFromMenu.startsWith("CallTrees") ||
               collectorStrFromMenu.startsWith("Functions") ||
               collectorStrFromMenu.startsWith("TraceBacks") ||
-              collectorStrFromMenu.startsWith("TraceBacks/FullStack") ) )
+              collectorStrFromMenu.startsWith("TraceBacks,FullStack") ) )
         {
           hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite", "N/A");
           highlightList->push_back(hlo);
@@ -3498,12 +3498,12 @@ for(int i=0;i<fieldCount;i++)
 
   SPListViewItem *splvi;
 // printf("More Function\n");
-  if( (mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ) ||
-      (currentCollectorStr == "usertime" && currentUserSelectedMetricStr == "Butterfly" ) )
+  if( (mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ) ||
+      (currentCollectorStr == "usertime" && (currentUserSelectedMetricStr == "Butterfly" || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("CallTrees,FullStack") ) ) )
   {
     QString indentChar = ">";
 
-    if( currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") )
+    if( currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") )
     {
       indentChar = "<";
     } 
@@ -3912,7 +3912,7 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
 
 // printf("function_name=(%s)\n", function_name.ascii() );
 
-  if( mpi_io_FLAG && ( collectorStrFromMenu.startsWith("CallTrees") || collectorStrFromMenu.startsWith("Functions") || collectorStrFromMenu.startsWith("TraceBacks") || collectorStrFromMenu.startsWith("TraceBacks/FullStack") ) )
+  if( mpi_io_FLAG && ( collectorStrFromMenu.startsWith("CallTrees") || collectorStrFromMenu.startsWith("Functions") || collectorStrFromMenu.startsWith("TraceBacks") || collectorStrFromMenu.startsWith("TraceBacks,FullStack") ) )
   {
     int bof = -1;
     int eof = workString.find('(');
@@ -4035,8 +4035,20 @@ StatsPanel::generateCommand()
     }
     command = QString("expView -x %1 %4%2 -v %5").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(currentUserSelectedMetricStr);
 // printf("start of pcsamp generated command (%s)\n", command.ascii() );
-  } else if( currentCollectorStr == "usertime" && (currentUserSelectedMetricStr == "Butterfly") || (currentUserSelectedMetricStr == "Functions") )
+  } else if( currentCollectorStr == "usertime" &&
+            (currentUserSelectedMetricStr == "Butterfly") ||
+            (currentUserSelectedMetricStr == "Functions") ||
+            (currentUserSelectedMetricStr == "LinkedObjects") ||
+            (currentUserSelectedMetricStr == "Statements") ||
+            (currentUserSelectedMetricStr == "CallTrees") ||
+            (currentUserSelectedMetricStr == "CallTrees,FullStack") ||
+            (currentUserSelectedMetricStr == "TraceBacks") ||
+            (currentUserSelectedMetricStr == "TraceBacks,FullStack") )
   {
+    if( currentUserSelectedMetricStr.isEmpty() )
+    { 
+      currentUserSelectedMetricStr = "Functions";
+    }
     if( currentUserSelectedMetricStr == "Butterfly" )
     {
       selectedFunctionStr = findSelectedFunction();
@@ -4053,10 +4065,10 @@ StatsPanel::generateCommand()
       command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
      } else
      {
-        command = QString("expView -x %1 %4%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+        command = QString("expView -x %1 %4%2 -v %5").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(currentUserSelectedMetricStr);
      }
 // printf("USERTIME! command=(%s)\n", command.ascii() );
-  } else if( ( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks/FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ))
+  } else if( ( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ))
   { 
 // printf("It thinks we're mpi | io!\n");
     if( currentUserSelectedMetricStr.isEmpty() || currentUserSelectedMetricStr == "CallTrees" )
@@ -4076,7 +4088,7 @@ StatsPanel::generateCommand()
     } else if ( currentUserSelectedMetricStr == "TraceBacks" )
     {
       command = QString("expView -x %1 %3%2 -v TraceBacks").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
-    } else if ( currentUserSelectedMetricStr == "TraceBacks/FullStack" )
+    } else if ( currentUserSelectedMetricStr == "TraceBacks,FullStack" )
     {
       command = QString("expView -x %1 %3%2 -v TraceBacks,FullStack").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
     } else if( currentUserSelectedMetricStr == "Butterfly" )
@@ -4530,6 +4542,8 @@ StatsPanel::generateUserTimeMenu()
   list_of_usertime_modifiers.push_back("usertime::inclusive_times");
   list_of_usertime_modifiers.push_back("usertime::exclusive_details");
   list_of_usertime_modifiers.push_back("usertime::inclusive_details");
+  list_of_usertime_modifiers.push_back("usertime::count");
+  list_of_usertime_modifiers.push_back("usertime::percent");
 
   if( usertimeModifierMenu )
   {
@@ -4685,9 +4699,9 @@ StatsPanel::addMPIReports(QPopupMenu *menu)
   qaction->setText( tr("Show: TraceBacks") );
   qaction->setToolTip(tr("Show tracebacks to MPI Functions."));
 
-  qaction = new QAction(this, "showTracebacks/FullStack");
+  qaction = new QAction(this, "showTracebacks,FullStack");
   qaction->addTo( menu );
-  qaction->setText( tr("Show: TraceBacks/FullStack") );
+  qaction->setText( tr("Show: TraceBacks,FullStack") );
   qaction->setToolTip(tr("Show tracebacks, with full stacks, to MPI Functions."));
 
   qaction = new QAction(this, "showCallTrees");
@@ -4720,9 +4734,9 @@ StatsPanel::addIOReports(QPopupMenu *menu)
   qaction->setText( tr("Show: TraceBacks") );
   qaction->setToolTip(tr("Show tracebacks to IO Functions."));
 
-  qaction = new QAction(this, "showTracebacks/FullStack");
+  qaction = new QAction(this, "showTracebacks,FullStack");
   qaction->addTo( menu );
-  qaction->setText( tr("Show: TraceBacks/FullStack") );
+  qaction->setText( tr("Show: TraceBacks,FullStack") );
   qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO Functions."));
 
   qaction = new QAction(this, "showCallTrees");
@@ -4747,7 +4761,32 @@ StatsPanel::addUserTimeReports(QPopupMenu *menu )
   QAction *qaction = new QAction(this, "showFunctions");
   qaction->addTo( menu );
   qaction->setText( tr("Show: Functions") );
-  qaction->setToolTip(tr("Show timings for IO Functions."));
+  qaction->setToolTip(tr("Show timings for Functions."));
+
+  qaction = new QAction(this, "showStatements");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Statements") );
+  qaction->setToolTip(tr("Show timings for statements."));
+
+  qaction = new QAction(this, "showCallTrees");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees") );
+  qaction->setToolTip(tr("Show call trees for each function."));
+
+  qaction = new QAction(this, "showCallTrees,FullStack");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees,FullStack") );
+  qaction->setToolTip(tr("Show call trees, with full stacks, to Functions."));
+
+  qaction = new QAction(this, "showTraceBacks");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: TraceBacks") );
+  qaction->setToolTip(tr("Show trace backs for each function."));
+
+  qaction = new QAction(this, "showTracebacks,FullStack");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: TraceBacks,FullStack") );
+  qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO Functions."));
 
   qaction = new QAction(this, "showButterfly");
   qaction->addTo( menu );
