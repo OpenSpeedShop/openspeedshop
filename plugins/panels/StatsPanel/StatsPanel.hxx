@@ -258,6 +258,7 @@ void addIOReports(QPopupMenu *menu);
     void generateUserTimeMenu();
 void addUserTimeReports(QPopupMenu *menu);
     void generatePCSampMenu();
+void addPCSampReports(QPopupMenu *menu);
     void generateGenericMenu();
     QString generateCommand();
     void generateModifierMenu(QPopupMenu *, std::list<std::string>current_list, std::list<std::string>current_local_list);

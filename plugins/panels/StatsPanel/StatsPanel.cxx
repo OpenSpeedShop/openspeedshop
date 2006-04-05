@@ -2348,19 +2348,54 @@ StatsPanel::collectorPCSampReportSelected(int val)
 
   mpi_io_FLAG = FALSE;
   hwc_FLAG = FALSE;
-// printf("H: mpi_io_FLAG = %d\n", mpi_io_FLAG );
-
+// printf("G: mpi_io_FLAG = %d\n", mpi_io_FLAG );
 
   currentUserSelectedMetricStr = QString::null;
-
-//  QString s = pcsamp_menu->text(val).ascii();
-
-  currentMetricStr = QString::null;
   currentCollectorStr = "pcsamp";
-  selectedFunctionStr = QString::null;
+  collectorStrFromMenu = QString::null;
+  currentMetricStr = QString::null;
+
+//  QString s = contextMenu->text(val).ascii();
+  QString s = QString::null;
+  s = pcsamp_menu->text(val).ascii();
+  if( s.isEmpty() )
+  {
+    s = contextMenu->text(val).ascii();
+  }
+
+// printf("PCSampReport: (%s)\n", s.ascii() );
+
+// printf("E: s=%s\n", s.ascii() );
+  int index = s.find(":");
+  if( index != -1 )
+  {
+// printf("DD: NOW FIND :\n");
+    index = s.find(":");
+    if( index > 0 )
+    { // The user selected one of the metrics
+      collectorStrFromMenu = s.mid(13, index-13 );
+      currentMetricStr = s.mid(index+2);
+      currentUserSelectedMetricStr = currentMetricStr;
+// printf("UT1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+      // This one resets to all...
+    } else 
+    { // The user wants to do all the metrics on the selected threads...
+      currentMetricStr = QString::null;
+      index = s.find(":");
+      currentUserSelectedMetricStr = s.mid(13, index-13);
+// printf("UT2: currentCollectorStr=(%s) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
+      if( !currentUserSelectedMetricStr.contains("CallTrees by Selected Function") )
+      {
+        selectedFunctionStr = QString::null;
+      }
+    }
+
+// printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
 
 // printf("Collector changed call updateStatsPanelData() \n");
-    updateStatsPanelData();
+  }
+  updateStatsPanelData();
+
 }
 
 
@@ -2823,6 +2858,21 @@ StatsPanel::pcsampModifierSelected(int val)
 
   if( pcsampModifierMenu->text(val).isEmpty() )
   {
+    if( pcsampModifierMenu->text(val).isEmpty() )
+    {
+      pcsampModifierMenu->insertSeparator();
+      if( pcsamp_menu )
+      {
+        delete pcsamp_menu;
+      }
+      pcsamp_menu = new QPopupMenu(this);
+      pcsampModifierMenu->insertItem(QString("Select pcsamp Reports:"), pcsamp_menu);
+      addPCSampReports(pcsamp_menu);
+      connect(pcsamp_menu, SIGNAL( activated(int) ),
+        this, SLOT(collectorPCSampReportSelected(int)) );
+      return;
+    }
+
     return;
   }
 
@@ -3976,7 +4026,16 @@ StatsPanel::generateCommand()
 
 // printf("mpi_io_FLAG = %d hwc_FLAG= %d\n", mpi_io_FLAG, hwc_FLAG );
 
-  if( currentCollectorStr == "usertime" && (currentUserSelectedMetricStr == "Butterfly") || (currentUserSelectedMetricStr == "Functions") )
+  if( currentCollectorStr == "pcsamp" && (currentUserSelectedMetricStr
+== "Functions") || (currentUserSelectedMetricStr == "LinkedObjects") || (currentUserSelectedMetricStr == "Statements") )
+  {
+    if( currentUserSelectedMetricStr.isEmpty() )
+    { 
+      currentUserSelectedMetricStr = "Functions";
+    }
+    command = QString("expView -x %1 %4%2 -v %5").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(currentUserSelectedMetricStr);
+// printf("start of pcsamp generated command (%s)\n", command.ascii() );
+  } else if( currentCollectorStr == "usertime" && (currentUserSelectedMetricStr == "Butterfly") || (currentUserSelectedMetricStr == "Functions") )
   {
     if( currentUserSelectedMetricStr == "Butterfly" )
     {
@@ -4477,7 +4536,7 @@ StatsPanel::generateUserTimeMenu()
     delete usertimeModifierMenu;
   }
   usertimeModifierMenu = new QPopupMenu(this);
-addUserTimeReports(usertime_menu);
+  addUserTimeReports(usertime_menu);
   usertimeModifierMenu->insertTearOffHandle();
   connect(usertimeModifierMenu, SIGNAL( activated(int) ),
     this, SLOT(usertimeModifierSelected(int)) );
@@ -4491,25 +4550,26 @@ StatsPanel::generatePCSampMenu()
 // printf("Collector pcsamp_menu is being created\n");
 
   pcsamp_menu = new QPopupMenu(this);
-  connect(pcsamp_menu, SIGNAL( activated(int) ),
-           this, SLOT(collectorPCSampReportSelected(int)) );
 
   QString s = QString::null;
 
   QAction *qaction = NULL;
 
-//  pcsamp_menu->insertItem(QString("Show Metric: %1").arg(currentCollectorStr));
-  pcsamp_menu->insertItem(QString("View Stats:"));
 
+  addPCSampReports(pcsamp_menu);
+  connect(pcsamp_menu, SIGNAL( activated(int) ),
+           this, SLOT(collectorPCSampReportSelected(int)) );
+  
   contextMenu->insertItem(QString("Show Metrics: pcsamp"), pcsamp_menu);
 
   list_of_pcsamp_modifiers.clear();
   list_of_pcsamp_modifiers.push_back("pcsamp::time");
-  
+
   if( pcsampModifierMenu )
   {
     delete pcsampModifierMenu;
   }
+
   pcsampModifierMenu = new QPopupMenu(this);
   pcsampModifierMenu->insertTearOffHandle();
   connect(pcsampModifierMenu, SIGNAL( activated(int) ),
@@ -4693,4 +4753,24 @@ StatsPanel::addUserTimeReports(QPopupMenu *menu )
   qaction->addTo( menu );
   qaction->setText( tr("Show: Butterfly") );
   qaction->setToolTip(tr("Show Butterfly by function.") );
+}
+
+
+void
+StatsPanel::addPCSampReports(QPopupMenu *menu )
+{
+  QAction *qaction = new QAction(this, "showFunctions");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Functions") );
+  qaction->setToolTip(tr("Show timings for IO Functions."));
+
+  qaction = new QAction(this, "showLinkedObjects");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: LinkedObjects") );
+  qaction->setToolTip(tr("Show LinkedObjects.") );
+
+  qaction = new QAction(this, "showStatements");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Statements") );
+  qaction->setToolTip(tr("Show Statements.") );
 }
