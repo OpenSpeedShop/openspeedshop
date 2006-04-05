@@ -2459,11 +2459,14 @@ StatsPanel::modifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE && s != PTI )
+  if( FOUND == FALSE )
   {
 // printf("The modifier was not in the list ... add it!\n");
+    if( s != PTI )
+    {
+      current_list_of_modifiers.push_back(s);
+    }
     modifierMenu->setItemChecked(val, TRUE);
-    current_list_of_modifiers.push_back(s);
   }
 
 // Uncomment this line if the modifier selection to take place immediately.
@@ -2525,10 +2528,13 @@ StatsPanel::mpiModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE && s != PTI )
+  if( FOUND == FALSE )
   {
 // printf("The %s modifier was not in the list ... add it!\n", s.c_str() );
-    current_list_of_mpi_modifiers.push_back(s);
+    if( s != PTI )
+    {
+      current_list_of_mpi_modifiers.push_back(s);
+    }
     mpiModifierMenu->setItemChecked(val, TRUE);
   }
 }
@@ -2582,10 +2588,13 @@ StatsPanel::mpitModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE && s != PTI )
+  if( FOUND == FALSE )
   {
 // printf("The modifier was not in the list ... add it!\n");
-    current_list_of_mpit_modifiers.push_back(s);
+    if( s != PTI )
+    {
+      current_list_of_mpit_modifiers.push_back(s);
+    }
     mpitModifierMenu->setItemChecked(val, TRUE);
   }
 }
@@ -2638,10 +2647,13 @@ StatsPanel::ioModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE && s != PTI )
+  if( FOUND == FALSE )
   {
 // printf("The modifier was not in the list ... add it!\n");
-    current_list_of_io_modifiers.push_back(s);
+    if( s != PTI )
+    {
+      current_list_of_io_modifiers.push_back(s);
+    }
     ioModifierMenu->setItemChecked(val, TRUE);
   }
 }
@@ -2694,10 +2706,13 @@ StatsPanel::iotModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE && s != PTI )
+  if( FOUND == FALSE )
   {
 // printf("The modifier was not in the list ... add it!\n");
-    current_list_of_iot_modifiers.push_back(s);
+    if( s != PTI )
+    {
+      current_list_of_iot_modifiers.push_back(s);
+    }
     iotModifierMenu->setItemChecked(val, TRUE);
   }
 }
@@ -2740,10 +2755,13 @@ StatsPanel::hwcModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE && s != PTI )
+  if( FOUND == FALSE )
   {
 // printf("The modifier was not in the list ... add it!\n");
-    current_list_of_hwc_modifiers.push_back(s);
+    if( s != PTI )
+    {
+      current_list_of_hwc_modifiers.push_back(s);
+    }
     hwcModifierMenu->setItemChecked(val, TRUE);
   }
 }
@@ -2786,10 +2804,13 @@ StatsPanel::hwctimeModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE && s != PTI )
+  if( FOUND == FALSE )
   {
 // printf("The modifier was not in the list ... add it!\n");
-    current_list_of_hwctime_modifiers.push_back(s);
+    if( s != PTI )
+    {
+      current_list_of_hwctime_modifiers.push_back(s);
+    }
     hwctimeModifierMenu->setItemChecked(val, TRUE);
   }
 }
@@ -2842,10 +2863,13 @@ StatsPanel::usertimeModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE && s != PTI )
+  if( FOUND == FALSE )
   {
 // printf("The modifier was not in the list ... add it!\n");
-    current_list_of_usertime_modifiers.push_back(s);
+    if( s != PTI )
+    {
+      current_list_of_usertime_modifiers.push_back(s);
+    }
     usertimeModifierMenu->setItemChecked(val, TRUE);
   }
 }
@@ -2902,10 +2926,13 @@ StatsPanel::pcsampModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE && s != PTI )
+  if( FOUND == FALSE )
   {
 // printf("The modifier was not in the list ... add it!\n");
-    current_list_of_pcsamp_modifiers.push_back(s);
+    if( s != PTI )
+    {
+      current_list_of_pcsamp_modifiers.push_back(s);
+    }
     pcsampModifierMenu->setItemChecked(val, TRUE);
   }
 }
@@ -2948,10 +2975,13 @@ StatsPanel::genericModifierSelected(int val)
     }
   }
 
-  if( FOUND == FALSE && s != PTI )
+  if( FOUND == FALSE )
   {
 // printf("The modifier was not in the list ... add it!\n");
-    current_list_of_generic_modifiers.push_back(s);
+    if( s != PTI )
+    {
+      current_list_of_generic_modifiers.push_back(s);
+    }
     genericModifierMenu->setItemChecked(val, TRUE);
   }
 }
@@ -3497,8 +3527,8 @@ for(int i=0;i<fieldCount;i++)
 
 
   SPListViewItem *splvi;
-// printf("More Function\n");
-  if( (mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ) ||
+// printf("More Function MPItraceFLAG=(%d)\n", MPItraceFLAG);
+  if( (mpi_io_FLAG && (MPItraceFLAG == FALSE && !currentUserSelectedMetricStr.startsWith("Functions")) &&  ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("CallTrees,FullStack") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ) ||
       (currentCollectorStr == "usertime" && (currentUserSelectedMetricStr == "Butterfly" || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("CallTrees,FullStack") ) ) )
   {
     QString indentChar = ">";
@@ -4068,7 +4098,7 @@ StatsPanel::generateCommand()
         command = QString("expView -x %1 %4%2 -v %5").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(currentUserSelectedMetricStr);
      }
 // printf("USERTIME! command=(%s)\n", command.ascii() );
-  } else if( ( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ))
+  } else if( ( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("CallTrees,FullStack") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ))
   { 
 // printf("It thinks we're mpi | io!\n");
     if( currentUserSelectedMetricStr.isEmpty() || currentUserSelectedMetricStr == "CallTrees" )
@@ -4201,23 +4231,6 @@ StatsPanel::generateMPIMenu(QString collectorName)
 
   mpi_menu->setCheckable(TRUE);
 
-#ifdef DEFAULT_MENU
-  mpi_menu->insertItem(QString("View Stats:"));
-#endif // DEFAULT_MENU
-
-// printf("We made an mpi_menu!!\n");
-
-
-#ifdef MOVE
-  qaction = new QAction(this, "showTraceInfo");
-  qaction->addTo( mpi_menu );
-  qaction->setText( tr(PTI) );
-  qaction->setToggleAction(MPItraceFLAG);
-  qaction->setOn(MPItraceFLAG);
-  qaction->setToolTip(tr("When available, show traced timings."));
-  connect( qaction, SIGNAL( activated() ), this, SLOT(MPItraceSelected()) );
-#endif // MOVE
-
   mpi_menu->insertSeparator();
 
 
@@ -4231,9 +4244,9 @@ if( collectorName == "mpi" )
            this, SLOT(collectorMPIReportSelected(int)) );
   contextMenu->insertItem(QString("Show Metrics: MPI"), mpi_menu);
   list_of_mpi_modifiers.push_back("mpi::exclusive_times");
-  list_of_mpi_modifiers.push_back("mpi::inclusive_times");
-  list_of_mpi_modifiers.push_back("mpi::exclusive_details");
-  list_of_mpi_modifiers.push_back("mpi::inclusive_details");
+//  list_of_mpi_modifiers.push_back("mpi::inclusive_times");
+//  list_of_mpi_modifiers.push_back("mpi::exclusive_details");
+//  list_of_mpi_modifiers.push_back("mpi::inclusive_details");
   list_of_mpi_modifiers.push_back("min");
   list_of_mpi_modifiers.push_back("max");
   list_of_mpi_modifiers.push_back("average");
@@ -4241,15 +4254,15 @@ if( collectorName == "mpi" )
   list_of_mpi_modifiers.push_back("percent");
   list_of_mpi_modifiers.push_back("stddev");
 
-  list_of_mpi_modifiers.push_back("start_time");
-  list_of_mpi_modifiers.push_back("stop_time");
-  list_of_mpi_modifiers.push_back("source");
-  list_of_mpi_modifiers.push_back("destination");
-  list_of_mpi_modifiers.push_back("size");
-  list_of_mpi_modifiers.push_back("tag");
-  list_of_mpi_modifiers.push_back("commuinicator");
-  list_of_mpi_modifiers.push_back("datatype");
-  list_of_mpi_modifiers.push_back("retval");
+//  list_of_mpi_modifiers.push_back("start_time");
+//  list_of_mpi_modifiers.push_back("stop_time");
+//  list_of_mpi_modifiers.push_back("source");
+//  list_of_mpi_modifiers.push_back("dest");
+//  list_of_mpi_modifiers.push_back("size");
+//  list_of_mpi_modifiers.push_back("tag");
+//  list_of_mpi_modifiers.push_back("commuinicator");
+//  list_of_mpi_modifiers.push_back("datatype");
+//  list_of_mpi_modifiers.push_back("retval");
 
   if( mpiModifierMenu )
   {
@@ -4277,9 +4290,9 @@ if( collectorName == "mpi" )
            this, SLOT(collectorMPITReportSelected(int)) );
   contextMenu->insertItem(QString("Show Metrics: MPIT"), mpi_menu);
   list_of_mpit_modifiers.push_back("mpit::exclusive_times");
-  list_of_mpit_modifiers.push_back("mpit::inclusive_times");
-  list_of_mpit_modifiers.push_back("mpit::exclusive_details");
-  list_of_mpit_modifiers.push_back("mpit::inclusive_details");
+//  list_of_mpit_modifiers.push_back("mpit::inclusive_times");
+//  list_of_mpit_modifiers.push_back("mpit::exclusive_details");
+//  list_of_mpit_modifiers.push_back("mpit::inclusive_details");
   list_of_mpit_modifiers.push_back("min");
   list_of_mpit_modifiers.push_back("max");
   list_of_mpit_modifiers.push_back("average");
@@ -4290,7 +4303,7 @@ if( collectorName == "mpi" )
   list_of_mpit_modifiers.push_back("start_time");
   list_of_mpit_modifiers.push_back("stop_time");
   list_of_mpit_modifiers.push_back("source");
-  list_of_mpit_modifiers.push_back("destination");
+  list_of_mpit_modifiers.push_back("dest");
   list_of_mpit_modifiers.push_back("size");
   list_of_mpit_modifiers.push_back("tag");
   list_of_mpit_modifiers.push_back("commuinicator");
@@ -4330,21 +4343,6 @@ StatsPanel::generateIOMenu(QString collectorName)
 
   QAction *qaction = NULL;
 
-#ifdef DEFAULT_MENU
-  io_menu->insertItem(QString("View Stats:"));
-#endif // DEFAULT_MENU
-
-#ifdef MOVE
-  io_menu->setCheckable(TRUE);
-  qaction = new QAction(this, "showTraceInfo");
-  qaction->addTo( io_menu );
-  qaction->setText( tr(PTI) );
-  qaction->setToggleAction(IOtraceFLAG);
-  qaction->setOn(IOtraceFLAG);
-  qaction->setToolTip(tr("When available, show traced timings."));
-  connect( qaction, SIGNAL( activated() ), this, SLOT(IOtraceSelected()) );
-#endif // MOVE
-
   io_menu->insertSeparator();
 
   if( collectorName == "io" )
@@ -4369,7 +4367,7 @@ StatsPanel::generateIOMenu(QString collectorName)
     list_of_io_modifiers.push_back("start_time");
     list_of_io_modifiers.push_back("stop_time");
     list_of_io_modifiers.push_back("source");
-    list_of_io_modifiers.push_back("destination");
+    list_of_io_modifiers.push_back("dest");
     list_of_io_modifiers.push_back("size");
     list_of_io_modifiers.push_back("tag");
     list_of_io_modifiers.push_back("commuinicator");
@@ -4417,7 +4415,7 @@ StatsPanel::generateIOMenu(QString collectorName)
     list_of_iot_modifiers.push_back("start_time");
     list_of_iot_modifiers.push_back("stop_time");
     list_of_iot_modifiers.push_back("source");
-    list_of_iot_modifiers.push_back("destination");
+    list_of_iot_modifiers.push_back("dest");
     list_of_iot_modifiers.push_back("size");
     list_of_iot_modifiers.push_back("tag");
     list_of_iot_modifiers.push_back("commuinicator");
@@ -4462,11 +4460,6 @@ StatsPanel::generateHWCMenu(QString collectorName)
 
 
   hwc_menu = new QPopupMenu(this);
-
-//  hwc_menu->insertItem(QString("Show Metrics: %1").arg(collectorName));
-#ifdef DEFAULT_MENU
-  hwc_menu->insertItem(QString("View Stats:"));
-#endif // DEFAULT_MENU
 
   qaction = new QAction(this, "showFunctions");
   qaction->addTo( hwc_menu );
@@ -4708,6 +4701,11 @@ StatsPanel::addMPIReports(QPopupMenu *menu)
   qaction->addTo( menu );
   qaction->setText( tr("Show: CallTrees") );
   qaction->setToolTip(tr("Show Call Trees to each MPI Functions."));
+
+  qaction = new QAction(this, "showCallTrees,FullStack");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees,FullStack") );
+  qaction->setToolTip(tr("Show Call Trees, with full stacks, to each MPI Functions."));
 
   qaction = new QAction(this, "showButterfly");
   qaction->addTo( menu );
