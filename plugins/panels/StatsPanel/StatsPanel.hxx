@@ -235,7 +235,7 @@ class StatsPanel  : public Panel
     void collectorIOReportSelected(int);
     void collectorIOTReportSelected(int);
     void collectorHWCReportSelected(int);
-    void collectorHWCTReportSelected(int);
+    void collectorHWCTimeReportSelected(int);
     void collectorUserTimeReportSelected(int);
     void collectorPCSampReportSelected(int);
     void collectorGenericReportSelected(int);
@@ -251,14 +251,17 @@ class StatsPanel  : public Panel
 
     void updateStatsPanelData(QString command = QString::null);
     void generateMPIMenu(QString collectorName);
-void addMPIReports(QPopupMenu *menu);
+    void addMPIReports(QPopupMenu *menu);
     void generateIOMenu(QString collectorName);
-void addIOReports(QPopupMenu *menu);
+    void addIOReports(QPopupMenu *menu);
     void generateHWCMenu(QString collectorName);
+    void addHWCReports(QPopupMenu *menu);
+    void generateHWCTimeMenu(QString collectorName);
+    void addHWCTimeReports(QPopupMenu *menu);
     void generateUserTimeMenu();
-void addUserTimeReports(QPopupMenu *menu);
+    void addUserTimeReports(QPopupMenu *menu);
     void generatePCSampMenu();
-void addPCSampReports(QPopupMenu *menu);
+    void addPCSampReports(QPopupMenu *menu);
     void generateGenericMenu();
     QString generateCommand();
     void generateModifierMenu(QPopupMenu *, std::list<std::string>current_list, std::list<std::string>current_local_list);
@@ -267,6 +270,7 @@ void addPCSampReports(QPopupMenu *menu);
     void MPIReportSelected(int);
     void IOReportSelected(int);
     void HWCReportSelected(int);
+    void HWCTimeReportSelected(int);
     void resetRedirect();
 
     SPListViewItem *lastlvi;

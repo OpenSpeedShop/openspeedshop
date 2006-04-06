@@ -204,6 +204,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   mpi_menu = NULL;
   io_menu = NULL;
   hwc_menu = NULL;
+  hwctime_menu = NULL;
   pcsamp_menu = NULL;
   usertime_menu = NULL;
 
@@ -673,9 +674,13 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     {
 // printf("Generate an io* menu\n");
       generateIOMenu(QString(collector_name));
+    } else if( QString(collector_name).startsWith("hwctime") )
+    {
+// printf("Generate an hwctime menu\n");
+      generateHWCTimeMenu(QString(collector_name));
     } else if( QString(collector_name).startsWith("hwc") )
     {
-// printf("Generate an hwc* menu\n");
+// printf("Generate an hwc menu\n");
       generateHWCMenu(QString(collector_name));
     } else if( QString(collector_name).startsWith("usertime") )
     {
@@ -1433,7 +1438,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   // Begin Find the file/function pair.
   try
   {
-    std::set<Statement>::const_iterator di = NULL;
+    std::set<Statement>::const_iterator di;
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
     if( eo != NULL )
     {
@@ -2213,10 +2218,10 @@ StatsPanel::collectorHWCReportSelected(int val)
 }
 
 void
-StatsPanel::collectorHWCTReportSelected(int val)
+StatsPanel::collectorHWCTimeReportSelected(int val)
 { 
   currentCollectorStr = "hwctime";
-  HWCReportSelected(val);
+  HWCTimeReportSelected(val);
 }
 
 
@@ -2240,6 +2245,64 @@ StatsPanel::HWCReportSelected(int val)
 //  QString s = contextMenu->text(val).ascii();
   QString s = QString::null;
   s = hwc_menu->text(val).ascii();
+  if( s.isEmpty() )
+  {
+    s = contextMenu->text(val).ascii();
+  }
+
+// printf("D: s=%s\n", s.ascii() );
+  int index = s.find(":");
+  if( index != -1 )
+  {
+    index = s.find(":");
+    if( index > 0 )
+    { // The user selected one of the metrics
+      collectorStrFromMenu = s.mid(13, index-13 );
+      currentMetricStr = s.mid(index+2);
+      currentUserSelectedMetricStr = currentMetricStr;
+// printf("DD1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+      // This one resets to all...
+    } else 
+    { // The user wants to do all the metrics on the selected threads...
+      currentMetricStr = QString::null;
+      index = s.find(":");
+      currentUserSelectedMetricStr = s.mid(13, index-13);
+// printf("DD2: currentCollectorStr=(NULL) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
+      if( !currentUserSelectedMetricStr.contains("CallTrees by Selected Function") )
+      {
+        selectedFunctionStr = QString::null;
+      }
+    }
+
+
+// printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+
+// printf("Collector changed call updateStatsPanelData() \n");
+    updateStatsPanelData();
+  }
+}
+
+
+void
+StatsPanel::HWCTimeReportSelected(int val)
+{ 
+// printf("HWCTimeReportSelected: collectorMetricSelected val=%d\n", val);
+// printf("HWCTimeReportSelected: hwctime_menu=(%s)\n", hwctime_menu->text(val).ascii() );
+// printf("HWCTimeReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+
+  mpi_io_FLAG = FALSE;
+  hwc_FLAG = TRUE;
+// printf("F: mpi_io_FLAG = %d\n", mpi_io_FLAG );
+
+
+  currentUserSelectedMetricStr = QString::null;
+  collectorStrFromMenu = QString::null;
+  currentMetricStr = QString::null;
+
+//  QString s = popupMenu->text(val).ascii();
+//  QString s = contextMenu->text(val).ascii();
+  QString s = QString::null;
+  s = hwctime_menu->text(val).ascii();
   if( s.isEmpty() )
   {
     s = contextMenu->text(val).ascii();
@@ -2726,6 +2789,16 @@ StatsPanel::hwcModifierSelected(int val)
 
   if( hwcModifierMenu->text(val).isEmpty() )
   {
+    hwcModifierMenu->insertSeparator();
+    if( hwc_menu )
+    {
+      delete hwc_menu;
+    }
+    hwc_menu = new QPopupMenu(this);
+    hwcModifierMenu->insertItem(QString("Select hwc Reports:"), hwc_menu);
+    addHWCReports(hwc_menu);
+    connect(hwc_menu, SIGNAL( activated(int) ),
+      this, SLOT(collectorHWCReportSelected(int)) );
     return;
   }
 
@@ -2775,6 +2848,16 @@ StatsPanel::hwctimeModifierSelected(int val)
 
   if( hwctimeModifierMenu->text(val).isEmpty() )
   {
+    hwctimeModifierMenu->insertSeparator();
+    if( hwctime_menu )
+    {
+      delete hwctime_menu;
+    }
+    hwctime_menu = new QPopupMenu(this);
+    hwctimeModifierMenu->insertItem(QString("Select hwctime Reports:"), hwctime_menu);
+    addHWCTimeReports(hwctime_menu);
+    connect(hwctime_menu, SIGNAL( activated(int) ),
+      this, SLOT(collectorHWCTimeReportSelected(int)) );
     return;
   }
 
@@ -3529,7 +3612,8 @@ for(int i=0;i<fieldCount;i++)
   SPListViewItem *splvi;
 // printf("More Function MPItraceFLAG=(%d)\n", MPItraceFLAG);
   if( (mpi_io_FLAG && (MPItraceFLAG == FALSE && !currentUserSelectedMetricStr.startsWith("Functions")) &&  ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("CallTrees,FullStack") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ) ||
-      (currentCollectorStr == "usertime" && (currentUserSelectedMetricStr == "Butterfly" || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("CallTrees,FullStack") ) ) )
+      (currentCollectorStr == "usertime" && (currentUserSelectedMetricStr == "Butterfly" || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("CallTrees,FullStack") ) )  ||
+      (currentCollectorStr.startsWith("hwc") && (currentUserSelectedMetricStr == "Butterfly" || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("CallTrees,FullStack") ) ) )
   {
     QString indentChar = ">";
 
@@ -4147,14 +4231,27 @@ if( selectedFunctionStr.isEmpty() )
        command += QString(" %1").arg(currentThreadsStr);
        about += QString("for threads %1\n").arg(currentThreadsStr);
     }
-  } else if( hwc_FLAG == TRUE && (currentUserSelectedMetricStr.startsWith("Statements") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("hwc") ) )
+  } else if( hwc_FLAG == TRUE && (currentCollectorStr == "hwc" || currentCollectorStr == "hwctime") &&
+            (currentUserSelectedMetricStr == "Butterfly") ||
+            (currentUserSelectedMetricStr == "Functions") ||
+            (currentUserSelectedMetricStr == "LinkedObjects") ||
+            (currentUserSelectedMetricStr == "Statements") ||
+            (currentUserSelectedMetricStr == "CallTrees") ||
+            (currentUserSelectedMetricStr == "CallTrees,FullStack") ||
+            (currentUserSelectedMetricStr == "TraceBacks") ||
+            (currentUserSelectedMetricStr == "TraceBacks,FullStack") )
 {
+    if( currentUserSelectedMetricStr.isEmpty() )
+    { 
+      currentUserSelectedMetricStr = "Functions";
+    }
   if( currentUserSelectedMetricStr.startsWith("Statements") )
   { 
     command = QString("expView -x %1 %3%2 -v Statements").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
   } else
   {
-    command = QString("expView -x %1 %3%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+//    command = QString("expView -x %1 %3%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+      command = QString("expView -x %1 %4%2 -v %5").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(currentUserSelectedMetricStr);
   }
 // printf("hwc command=(%s)\n", command.ascii() );
   about = command + "\n";
@@ -4452,7 +4549,7 @@ StatsPanel::generateIOMenu(QString collectorName)
 void
 StatsPanel::generateHWCMenu(QString collectorName)
 {
-// printf("Collector hwc_menu is being created collectorName=(%s)\n");
+// printf("Collector hwc_menu is being created collectorName=(%s)\n", collectorName.ascii() );
 
   QString s = QString::null;
 
@@ -4461,57 +4558,62 @@ StatsPanel::generateHWCMenu(QString collectorName)
 
   hwc_menu = new QPopupMenu(this);
 
-  qaction = new QAction(this, "showFunctions");
-  qaction->addTo( hwc_menu );
-  qaction->setText( tr("Show: Functions") );
-  qaction->setToolTip(tr("Show by Functions.") );
+  contextMenu->insertItem(QString("Show Metrics: hwc"), hwc_menu);
 
-  qaction = new QAction(this, "showStatements");
-  qaction->addTo( hwc_menu );
-  qaction->setText( tr("Show: Statements") );
-  qaction->setToolTip(tr("Show by Statements.") );
+  addHWCReports(hwc_menu);
+  connect(hwc_menu, SIGNAL( activated(int) ),
+         this, SLOT(collectorHWCReportSelected(int)) );
 
-  contextMenu->insertItem(QString("Show Metrics: %1").arg(collectorName), hwc_menu);
-
-// printf("Here are the hwctime modifiers!\n");
-  if( collectorName == "hwc" )
-  {
-    connect(hwc_menu, SIGNAL( activated(int) ),
-           this, SLOT(collectorHWCReportSelected(int)) );
-    list_of_hwc_modifiers.clear();
-    list_of_hwc_modifiers.push_back("hwc::hwc_overflows");
+  list_of_hwc_modifiers.clear();
+  list_of_hwc_modifiers.push_back("hwc::hwc_overflows");
   
-    if( hwcModifierMenu )
-    {
-      delete hwcModifierMenu;
-    }
-    hwcModifierMenu = new QPopupMenu(this);
-    hwcModifierMenu->insertTearOffHandle();
-    connect(hwcModifierMenu, SIGNAL( activated(int) ),
-      this, SLOT(hwcModifierSelected(int)) );
-    generateModifierMenu(hwcModifierMenu, list_of_hwc_modifiers, current_list_of_hwc_modifiers);
-    hwc_menu->insertItem(QString("Select hwc details:"), hwcModifierMenu);
-  } else
+  if( hwcModifierMenu )
   {
-    connect(hwc_menu, SIGNAL( activated(int) ),
-           this, SLOT(collectorHWCTReportSelected(int)) );
-    list_of_hwctime_modifiers.clear();
-    list_of_hwc_modifiers.push_back("hwctime::exclusive_overflows");
-    list_of_hwc_modifiers.push_back("hwctime::exclusive_overflows");
-  
-    if( hwctimeModifierMenu )
-    {
-      delete hwctimeModifierMenu;
-    }
-    hwctimeModifierMenu = new QPopupMenu(this);
-    hwctimeModifierMenu->insertTearOffHandle();
-    connect(hwctimeModifierMenu, SIGNAL( activated(int) ),
-    this, SLOT(hwctimeModifierSelected(int)) );
-    generateModifierMenu(hwctimeModifierMenu, list_of_hwctime_modifiers, current_list_of_hwctime_modifiers);
-    hwc_menu->insertItem(QString("Select hwctime details:"), hwcModifierMenu);
+    delete hwcModifierMenu;
   }
-
+  hwcModifierMenu = new QPopupMenu(this);
+  hwcModifierMenu->insertTearOffHandle();
+  connect(hwcModifierMenu, SIGNAL( activated(int) ),
+    this, SLOT(hwcModifierSelected(int)) );
+  generateModifierMenu(hwcModifierMenu, list_of_hwc_modifiers, current_list_of_hwc_modifiers);
+  hwc_menu->insertItem(QString("Select hwc details:"), hwcModifierMenu);
 }
+
+
+void
+StatsPanel::generateHWCTimeMenu(QString collectorName)
+{
+// printf("Collector hwctime_menu is being created collectorName=(%s)\n", collectorName.ascii() );
+
+  QString s = QString::null;
+
+  QAction *qaction = NULL;
+
+
+  hwctime_menu = new QPopupMenu(this);
+  contextMenu->insertItem(QString("Show Metrics: hwctime"), hwctime_menu);
+
+  addHWCTimeReports(hwctime_menu);
+  connect(hwctime_menu, SIGNAL( activated(int) ),
+         this, SLOT(collectorHWCTimeReportSelected(int)) );
+  list_of_hwctime_modifiers.clear();
+  list_of_hwctime_modifiers.push_back("hwctime::exclusive_overflows");
+  list_of_hwctime_modifiers.push_back("hwctime::inclusive_overflows");
+  list_of_hwctime_modifiers.push_back("hwctime::count");
+  list_of_hwctime_modifiers.push_back("hwctime::percent");
+
+  if( hwctimeModifierMenu )
+  {
+    delete hwctimeModifierMenu;
+  }
+  hwctimeModifierMenu = new QPopupMenu(this);
+  hwctimeModifierMenu->insertTearOffHandle();
+  connect(hwctimeModifierMenu, SIGNAL( activated(int) ),
+    this, SLOT(hwctimeModifierSelected(int)) );
+  generateModifierMenu(hwctimeModifierMenu, list_of_hwctime_modifiers, current_list_of_hwctime_modifiers);
+  hwctime_menu->insertItem(QString("Select hwctime details:"), hwctimeModifierMenu);
+}
+
 
 void
 StatsPanel::generateUserTimeMenu()
@@ -4810,4 +4912,67 @@ StatsPanel::addPCSampReports(QPopupMenu *menu )
   qaction->addTo( menu );
   qaction->setText( tr("Show: Statements") );
   qaction->setToolTip(tr("Show Statements.") );
+}
+
+void
+StatsPanel::addHWCReports(QPopupMenu *menu )
+{
+  QAction *qaction = new QAction(this, "showFunctions");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Functions") );
+  qaction->setToolTip(tr("Show by Functions.") );
+
+  qaction = new QAction(this, "showStatements");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Statements") );
+  qaction->setToolTip(tr("Show by Statements.") );
+
+  qaction = new QAction(this, "showLinkedObjects");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: LinkedObjects") );
+  qaction->setToolTip(tr("Show by LinkedObjects.") );
+}
+
+void
+StatsPanel::addHWCTimeReports(QPopupMenu *menu )
+{
+  QAction *qaction = new QAction(this, "showFunctions");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Functions") );
+  qaction->setToolTip(tr("Show by Functions.") );
+
+  qaction = new QAction(this, "showStatements");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Statements") );
+  qaction->setToolTip(tr("Show by Statements.") );
+
+  qaction = new QAction(this, "showLinkedObjects");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: LinkedObjects") );
+  qaction->setToolTip(tr("Show by LinkedObjects.") );
+
+  qaction = new QAction(this, "showCallTrees");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees") );
+  qaction->setToolTip(tr("Show by CallTrees.") );
+
+  qaction = new QAction(this, "showCallTrees,FullStack");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees,FullStack") );
+  qaction->setToolTip(tr("Show call trees, with full stacks, to Functions."));
+
+  qaction = new QAction(this, "showTraceBacks");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: TraceBacks") );
+  qaction->setToolTip(tr("Show by TraceBacks.") );
+
+  qaction = new QAction(this, "showTraceBacks,FullStack");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: TraceBacks,FullStack") );
+  qaction->setToolTip(tr("Show trace backs, with full stacks, to Functions."));
+
+  qaction = new QAction(this, "showButterfly");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Butterfly") );
+  qaction->setToolTip(tr("Show Butterfly by function.") );
 }
