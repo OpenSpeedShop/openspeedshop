@@ -1668,6 +1668,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // printf("PREPARE the hlo and spo.  filename=(%s)\n", filename.ascii() );
         if( mpi_io_FLAG && lineNumberStr != "-1" &&
             ( collectorStrFromMenu.startsWith("CallTrees") ||
+              collectorStrFromMenu.startsWith("CallTrees,FullStack") ||
               collectorStrFromMenu.startsWith("Functions") ||
               collectorStrFromMenu.startsWith("TraceBacks") ||
               collectorStrFromMenu.startsWith("TraceBacks,FullStack") ) )
@@ -4341,7 +4342,7 @@ if( collectorName == "mpi" )
            this, SLOT(collectorMPIReportSelected(int)) );
   contextMenu->insertItem(QString("Show Metrics: MPI"), mpi_menu);
   list_of_mpi_modifiers.push_back("mpi::exclusive_times");
-//  list_of_mpi_modifiers.push_back("mpi::inclusive_times");
+  list_of_mpi_modifiers.push_back("mpi::inclusive_times");
 //  list_of_mpi_modifiers.push_back("mpi::exclusive_details");
 //  list_of_mpi_modifiers.push_back("mpi::inclusive_details");
   list_of_mpi_modifiers.push_back("min");
@@ -4387,7 +4388,7 @@ if( collectorName == "mpi" )
            this, SLOT(collectorMPITReportSelected(int)) );
   contextMenu->insertItem(QString("Show Metrics: MPIT"), mpi_menu);
   list_of_mpit_modifiers.push_back("mpit::exclusive_times");
-//  list_of_mpit_modifiers.push_back("mpit::inclusive_times");
+  list_of_mpit_modifiers.push_back("mpit::inclusive_times");
 //  list_of_mpit_modifiers.push_back("mpit::exclusive_details");
 //  list_of_mpit_modifiers.push_back("mpit::inclusive_details");
   list_of_mpit_modifiers.push_back("min");
@@ -4452,8 +4453,8 @@ StatsPanel::generateIOMenu(QString collectorName)
     list_of_io_modifiers.clear();
     list_of_io_modifiers.push_back("io::exclusive_times");
     list_of_io_modifiers.push_back("io::inclusive_times");
-    list_of_io_modifiers.push_back("io::exclusive_details");
-    list_of_io_modifiers.push_back("io::inclusive_details");
+//    list_of_io_modifiers.push_back("io::exclusive_details");
+//    list_of_io_modifiers.push_back("io::inclusive_details");
     list_of_io_modifiers.push_back("min");
     list_of_io_modifiers.push_back("max");
     list_of_io_modifiers.push_back("average");
@@ -4461,15 +4462,15 @@ StatsPanel::generateIOMenu(QString collectorName)
     list_of_io_modifiers.push_back("percent");
     list_of_io_modifiers.push_back("stddev");
 
-    list_of_io_modifiers.push_back("start_time");
-    list_of_io_modifiers.push_back("stop_time");
-    list_of_io_modifiers.push_back("source");
-    list_of_io_modifiers.push_back("dest");
-    list_of_io_modifiers.push_back("size");
-    list_of_io_modifiers.push_back("tag");
-    list_of_io_modifiers.push_back("commuinicator");
-    list_of_io_modifiers.push_back("datatype");
-    list_of_io_modifiers.push_back("retval");
+//    list_of_io_modifiers.push_back("start_time");
+//    list_of_io_modifiers.push_back("stop_time");
+//    list_of_io_modifiers.push_back("source");
+//    list_of_io_modifiers.push_back("dest");
+//    list_of_io_modifiers.push_back("size");
+//    list_of_io_modifiers.push_back("tag");
+//    list_of_io_modifiers.push_back("commuinicator");
+//    list_of_io_modifiers.push_back("datatype");
+//    list_of_io_modifiers.push_back("retval");
   
     if( ioModifierMenu )
     {
@@ -4500,8 +4501,8 @@ StatsPanel::generateIOMenu(QString collectorName)
     list_of_iot_modifiers.clear();
     list_of_iot_modifiers.push_back("iot::exclusive_times");
     list_of_iot_modifiers.push_back("iot::inclusive_times");
-    list_of_iot_modifiers.push_back("iot::exclusive_details");
-    list_of_iot_modifiers.push_back("iot::inclusive_details");
+//    list_of_iot_modifiers.push_back("iot::exclusive_details");
+//    list_of_iot_modifiers.push_back("iot::inclusive_details");
     list_of_iot_modifiers.push_back("min");
     list_of_iot_modifiers.push_back("max");
     list_of_iot_modifiers.push_back("average");
@@ -4843,6 +4844,11 @@ StatsPanel::addIOReports(QPopupMenu *menu)
   qaction->addTo( menu );
   qaction->setText( tr("Show: CallTrees") );
   qaction->setToolTip(tr("Show Call Trees to each IO Functions."));
+
+  qaction = new QAction(this, "showCallTrees,FullStack");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees,FullStack") );
+  qaction->setToolTip(tr("Show call trees, with full stacks, to Functions."));
 
   qaction = new QAction(this, "showButterfly");
   qaction->addTo( menu );
