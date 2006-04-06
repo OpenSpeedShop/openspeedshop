@@ -426,139 +426,214 @@ AC_DEFUN([AC_PKG_SQLITE], [
 
 ])
 
-
-
-
-
 ################################################################################
-# Check for python (http://www.python.org)
+# Check for PYTHON libraries
+# Some of this code was found by an internet search for python configuration/
+# checking, so credit to those who originally created parts or all 
+# of the code below.
 ################################################################################
-## Find the install dirs for the python installation.
+dnl @synopsis AC_PYTHON_DEVEL([version])
+dnl
+dnl Checks for Python and tries to get the include path to 'Python.h'.
+dnl It provides the $(PYTHON_CPPFLAGS) and $(PYTHON_LDFLAGS) output
+dnl variables. Also exports $(PYTHON_EXTRA_LIBS) and
+dnl $(PYTHON_EXTRA_LDFLAGS) for embedding Python in your code.
+dnl
+dnl You can search for some particular version of Python by passing a
+dnl parameter to this macro, for example ">= '2.3.1'", or "== '2.4'".
+dnl Please note that you *have* to pass also an operator along with the
+dnl version to match, and pay special attention to the single quotes
+dnl surrounding the version number.
+dnl
+dnl If the user wants to employ a particular version of Python, she can
+dnl now pass to configure the PYTHON_VERSION environment variable. This
+dnl is only limited by the macro parameter set by the packager.
+dnl
+dnl This macro should work for all versions of Python >= 2.1.0. You can
+dnl disable the check for the python version by setting the
+dnl PYTHON_NOVERSIONCHECK environment variable to something else than
+dnl the empty string.
+dnl
+dnl If you need to use this macro for an older Python version, please
+dnl contact the authors. We're always open for feedback.
+dnl
+dnl @category InstalledPackages
+dnl @author Sebastian Huber <sebastian-huber@web.de>
+dnl @author Alan W. Irwin <irwin@beluga.phys.uvic.ca>
+dnl @author Rafael Laboissiere <laboissiere@psy.mpg.de>
+dnl @author Andrew Collier <colliera@nu.ac.za>
+dnl @author Matteo Settenvini <matteo@member.fsf.org>
+dnl @version 2006-02-05
+dnl @license GPLWithACException
 
-## Credits for this particular version of AM_CHECK_PYTHON_HEADERS 
-## By James Henstridge from http://source.macgimp.org/acinclude.m4
+AC_DEFUN([AC_PYTHON_DEVEL],[
+        #
+        # Allow the use of a (user set) custom python version
+        #
+        AC_ARG_VAR([PYTHON_VERSION],[The installed Python
+                version to use, for example '2.3'. This string
+                will be appended to the Python interpreter
+                canonical name.])
 
-dnl a macro to check for ability to create python extensions
-dnl AM_CHECK_PYTHON_HEADERS([ACTION-IF-POSSIBLE], [ACTION-IF-NOT-POSSIBLE])
-dnl function also defines PYTHON_INCLUDES
-AC_DEFUN([AM_CHECK_PYTHON_HEADERS],
-[AC_REQUIRE([AM_PATH_PYTHON])
-AC_MSG_CHECKING(for headers required to compile python extensions)
-dnl deduce PYTHON_INCLUDES
-dnl Use user supplied python dir to obtain version info
-PYTHON_VERSION="2.3"
-AC_ARG_WITH(python,
-           AC_HELP_STRING([--with-python=DIR],
-                          [Python ${PYTHON_VERSION} installation @<:@/usr@:>@]),
-           python_dir=$withval, python_dir="/usr")
-
-py_prefix=`$PYTHON -c "import sys; print sys.prefix"`
-if test "$python_dir" != "$py_prefix"; then
-  PYTHON_EXE=$python_dir/bin/python;
-else
-  PYTHON_EXE=$PYTHON
-fi
-
-py_prefix=`$PYTHON_EXE -c "import sys; print sys.prefix"`
-py_exec_prefix=`$PYTHON_EXE -c "import sys; print sys.exec_prefix"`
-PYTHON_INCLUDES="-I${py_prefix}/include/python${PYTHON_VERSION}"
-if test "$py_prefix" != "$py_exec_prefix"; then
-  PYTHON_INCLUDES="$PYTHON_INCLUDES -I${py_exec_prefix}/include/python${PYTHON_VERSION}"
-fi
-
-AC_SUBST(PYTHON_INCLUDES)
-dnl check if the headers exist:
-save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS $PYTHON_INCLUDES"
-AC_TRY_CPP([#include <Python.h>],dnl
-[AC_MSG_RESULT(found)
-$1],dnl
-[AC_MSG_RESULT(not found)
-$2])
-CPPFLAGS="$save_CPPFLAGS"
-])
-
-
-AC_DEFUN([AC_PKG_PYTHON], [
-
+dnl Support the user enabled --with-python option.
+    AC_MSG_CHECKING(for --with-python)
     AC_ARG_WITH(python,
-                AC_HELP_STRING([--with-python=DIR],
-                               [Python ${PYTHON_VERSION} installation @<:@/usr@:>@]),
-                python_dir=$withval, python_dir="/usr")
+                AC_HELP_STRING([--with-python=PYTHON],
+                               [path name of Python libraries]),
+                [ if test "$withval" != "yes"
+                  then
+                    PYTHON="$withval/bin/python"
+                    AC_MSG_RESULT($withval)
+                  else
+                    AC_MSG_RESULT(no)
+                  fi
+                ],
+                [ AC_MSG_RESULT(no)
+                ])
 
-    AC_CHECK_FILE([$python_dir/include/python${PYTHON_VERSION}/Python.h], [
-        PYTHON_CPPFLAGS="-I$python_dir/include/python${PYTHON_VERSION}"
-        PYTHON_LDFLAGS="-L$python_dir/$abi_libdir/python${PYTHON_VERSION}/config"
-    ])
+        AC_PATH_PROG([PYTHON],[python[$PYTHON_VERSION]])
+        if test -z "$PYTHON"; then
+           AC_MSG_ERROR([Cannot find python$PYTHON_VERSION in your system path])
+        fi
 
-    if test -d "$ROOT"; then
-        AC_CHECK_FILE([$ROOT/include/python2.3/Python.h], [
-            PYTHON_CPPFLAGS="-I$ROOT/include/python2.3"
-            PYTHON_LDFLAGS=""
-            PYTHON_VERSION="2.3"
-	
-        ])
-    fi
+        #
+        # Check for a version of Python >= 2.1.0
+        #
+        AC_MSG_CHECKING([for a version of Python >= '2.1.0'])
+        ac_supports_python_ver=`$PYTHON -c "import sys, string; \
+                ver = string.split(sys.version)[[0]]; \
+                print ver >= '2.1.0'"`
+        if test "$ac_supports_python_ver" != "True"; then
+                if test -z "$PYTHON_NOVERSIONCHECK"; then
+                        AC_MSG_RESULT([no])
+                        AC_MSG_FAILURE([
+This version of the AC@&t@_PYTHON_DEVEL macro
+doesn't work properly with versions of Python before
+2.1.0. You may need to re-run configure, setting the
+variables PYTHON_CPPFLAGS, PYTHON_LDFLAGS, PYTHON_SITE_PKG,
+PYTHON_EXTRA_LIBS and PYTHON_EXTRA_LDFLAGS by hand.
+Moreover, to disable this check, set PYTHON_NOVERSIONCHECK
+to something else than an empty string.
+])dnl
+                else
+                        AC_MSG_RESULT([skip at user request])
+                fi
+        else
+                AC_MSG_RESULT([yes])
+        fi
 
-    PYTHON_LIBS="-lpython${PYTHON_VERSION}"
+        #
+        # if the macro parameter ``version'' is set, honour it
+        #
+        if test -n "$1"; then
+                AC_MSG_CHECKING([for a version of Python $1])
+                ac_supports_python_ver=`$PYTHON -c "import sys, string; \
+                        ver = string.split(sys.version)[[0]]; \
+                        print ver $1"`
+                if test "$ac_supports_python_ver" = "True"; then
+                   AC_MSG_RESULT([yes])
+                else
+                        AC_MSG_RESULT([no])
+                        AC_MSG_ERROR([this package requires Python $1.
+If you have it installed, but it isn't the default Python
+interpreter in your system path, please pass the PYTHON_VERSION
+variable to configure. See ``configure --help'' for reference.
+])dnl
+                fi
+        fi
 
-    AC_LANG_PUSH(C++)
+        #
+        # Check if you have distutils, else fail
+        #
+        AC_MSG_CHECKING([for the distutils Python package])
+        ac_distutils_result=`$PYTHON -c "import distutils" 2>&1`
+        if test -z "$ac_distutils_result"; then
+                AC_MSG_RESULT([yes])
+        else
+                AC_MSG_RESULT([no])
+                AC_MSG_ERROR([cannot import Python module "distutils".
+Please check your Python installation. The error was:
+$ac_distutils_result])
+        fi
 
-    FOUND_PYTHON_LIB="no" 
+        #
+        # Check for Python include path
+        #
+        AC_MSG_CHECKING([for Python include path])
+        if test -z "$PYTHON_CPPFLAGS"; then
+                python_path=`$PYTHON -c "import distutils.sysconfig; \
+                        print distutils.sysconfig.get_python_inc();"`
+                if test -n "${python_path}"; then
+                        python_path="-I$python_path"
+                fi
+                PYTHON_CPPFLAGS=$python_path
+        fi
+        AC_MSG_RESULT([$PYTHON_CPPFLAGS])
+        AC_SUBST([PYTHON_CPPFLAGS])
 
-    if test "$FOUND_PYTHON_LIB" == "no"; then
-        AC_MSG_CHECKING([for Python ${PYTHON_VERSION} headers and library (in $python_dir/$abi_libdir)])
-        python_saved_CPPFLAGS=$CPPFLAGS
-        python_saved_LDFLAGS=$LDFLAGS
-        CPPFLAGS= "$CPPFLAGS $PYTHON_CPPFLAGS"
-        LDFLAGS="$CXXFLAGS $PYTHON_LDFLAGS $PYTHON_LIBS"
-        AC_LINK_IFELSE(AC_LANG_PROGRAM([[
-            #include <Python.h>
-            ]], [[
-            Py_Initialize();
-            ]]), [ AC_MSG_RESULT(yes); FOUND_PYTHON_LIB="yes" ], [ AC_MSG_RESULT(no) ]
-        )
-        CPPFLAGS=$python_saved_CPPFLAGS
-        LDFLAGS=$python_saved_LDFLAGS
-    fi
+        #
+        # Check for Python library path
+        #
+        AC_MSG_CHECKING([for Python library path])
+        if test -z "$PYTHON_LDFLAGS"; then
+                # (makes two attempts to ensure we've got a version number
+                # from the interpreter)
+                py_version=`$PYTHON -c "from distutils.sysconfig import *; \
+                        from string import join; \
+                        print join(get_config_vars('VERSION'))"`
+                if test "$py_version" == "[None]"; then
+                        if test -n "$PYTHON_VERSION"; then
+                                py_version=$PYTHON_VERSION
+                        else
+                                py_version=`$PYTHON -c "import sys; \
+                                        print sys.version[[:3]]"`
+                        fi
+                fi
 
-    if test "$FOUND_PYTHON_LIB" == "no"; then
+                PYTHON_LDFLAGS=`$PYTHON -c "from distutils.sysconfig import *; \
+                        from string import join; \
+                        print '-L' + get_python_lib(0,1), \
+                        '-lpython';"`$py_version
+        fi
+        AC_MSG_RESULT([$PYTHON_LDFLAGS])
+        AC_SUBST([PYTHON_LDFLAGS])
 
-        PYTHON_LDFLAGS="-L$python_dir/$abi_libdir/python${PYTHON_VERSION}/config"
+        #
+        # Check for site packages
+        #
+        AC_MSG_CHECKING([for Python site-packages path])
+        if test -z "$PYTHON_SITE_PKG"; then
+                PYTHON_SITE_PKG=`$PYTHON -c "import distutils.sysconfig; \
+                        print distutils.sysconfig.get_python_lib(0,0);"`
+        fi
+        AC_MSG_RESULT([$PYTHON_SITE_PKG])
+        AC_SUBST([PYTHON_SITE_PKG])
 
-        AC_MSG_CHECKING([for Python ${PYTHON_VERSION} headers and library (in /usr/$abi_libdir/python${PYTHON_VERSION}/config)])
-        python_saved_CPPFLAGS=$CPPFLAGS
-        python_saved_LDFLAGS=$LDFLAGS
-        CPPFLAGS="$CPPFLAGS $PYTHON_CPPFLAGS"
-        LDFLAGS="$CXXFLAGS $PYTHON_LDFLAGS $PYTHON_LIBS"
-        AC_LINK_IFELSE(AC_LANG_PROGRAM([[
-            #include <Python.h>
-            ]], [[
-            Py_Initialize();
-            ]]), [ AC_MSG_RESULT(yes); FOUND_PYTHON_LIB="yes" ], [ AC_MSG_RESULT(no) ] 
-        )
-        CPPFLAGS=$python_saved_CPPFLAGS
-        LDFLAGS=$python_saved_LDFLAGS
-    fi
+        #
+        # libraries which must be linked in when embedding
+        #
+        AC_MSG_CHECKING(python extra libraries)
+        if test -z "$PYTHON_EXTRA_LIBS"; then
+           PYTHON_EXTRA_LIBS=`$PYTHON -c "import distutils.sysconfig; \
+                conf = distutils.sysconfig.get_config_var; \
+                print conf('LOCALMODLIBS'), conf('LIBS')"`
+        fi
+        AC_MSG_RESULT([$PYTHON_EXTRA_LIBS])
+        AC_SUBST(PYTHON_EXTRA_LIBS)
 
-#    if test "$FOUND_PYTHON_LIB" == "no"; then
-#        AC_MSG_FAILURE(cannot locate Python library and/or headers.)
-#    fi
-
-    AC_LANG_POP(C++)
-
-    AC_SUBST(PYTHON_CPPFLAGS)
-    AC_SUBST(PYTHON_LDFLAGS)
-    AC_SUBST(PYTHON_LIBS)
-#
-# Comment out until a working check can be created
-#    if PYTHON_VERSION < 2.2; then
-#	AC_MSG_ERROR([** PYTHON version 2.2 or greater is required for the Open|SpeedShop.])
-#    fi
-
-    AC_DEFINE(HAVE_PYTHON, 1, [Define to 1 if you have Python ${PYTHON_VERSION} ])
-
+        #
+        # linking flags needed when embedding
+        #
+        AC_MSG_CHECKING(python extra linking flags)
+        if test -z "$PYTHON_EXTRA_LDFLAGS"; then
+                PYTHON_EXTRA_LDFLAGS=`$PYTHON -c "import distutils.sysconfig; \
+                        conf = distutils.sysconfig.get_config_var; \
+                        print conf('LINKFORSHARED')"`
+        fi
+        AC_MSG_RESULT([$PYTHON_EXTRA_LDFLAGS])
+        AC_SUBST(PYTHON_EXTRA_LDFLAGS)
 ])
+
 
 ################################################################################
 # Check for QT libraries
