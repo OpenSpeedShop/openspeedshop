@@ -58,7 +58,8 @@
 #define SS_SAVE_SLOTS
 #undef  slots
 #endif
-#include "Python.h"
+//#include "Python.h"
+#include <Python.h>
 #ifdef SS_SAVE_SLOTS
 #undef SS_SAVE_SLOTS
 #define slots		// it needs to be redefined and blanks seem to work.
