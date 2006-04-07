@@ -1,0 +1,217 @@
+#!/bin/sh
+# This is a shell archive (produced by GNU sharutils 4.2c).
+# To extract the files from this archive, save it to some FILE, remove
+# everything before the `!/bin/sh' line above, then type `sh FILE'.
+#
+# Made on 2006-04-07 16:25 CDT by <sos@hope2>.
+# Source directory was `/disk1/usr/people/sos/OpenSpeedShop.auxfiles'.
+#
+# Existing files will *not* be overwritten unless `-c' is specified.
+#
+# This shar contains:
+# length mode       name
+# ------ ---------- ------------------------------------------
+#   3061 -rwxr-xr-x do_chrooted_make
+#
+save_IFS="${IFS}"
+IFS="${IFS}:"
+gettext_dir=FAILED
+locale_dir=FAILED
+first_param="$1"
+for dir in $PATH
+do
+  if test "$gettext_dir" = FAILED && test -f $dir/gettext \
+     && ($dir/gettext --version >/dev/null 2>&1)
+  then
+    set `$dir/gettext --version 2>&1`
+    if test "$3" = GNU
+    then
+      gettext_dir=$dir
+    fi
+  fi
+  if test "$locale_dir" = FAILED && test -f $dir/shar \
+     && ($dir/shar --print-text-domain-dir >/dev/null 2>&1)
+  then
+    locale_dir=`$dir/shar --print-text-domain-dir`
+  fi
+done
+IFS="$save_IFS"
+if test "$locale_dir" = FAILED || test "$gettext_dir" = FAILED
+then
+  echo=echo
+else
+  TEXTDOMAINDIR=$locale_dir
+  export TEXTDOMAINDIR
+  TEXTDOMAIN=sharutils
+  export TEXTDOMAIN
+  echo="$gettext_dir/gettext -s"
+fi
+if (echo "testing\c"; echo 1,2,3) | grep c >/dev/null; then
+  if (echo -n testing; echo 1,2,3) | sed s/-n/xn/ | grep xn >/dev/null; then
+    shar_n= shar_c='
+'
+  else
+    shar_n=-n shar_c=
+  fi
+else
+  shar_n= shar_c='\c'
+fi
+if touch -am -t 200112312359.59 $$.touch >/dev/null 2>&1 && test ! -f 200112312359.59 -a -f $$.touch; then
+  shar_touch='touch -am -t $1$2$3$4$5$6.$7 "$8"'
+elif touch -am 123123592001.59 $$.touch >/dev/null 2>&1 && test ! -f 123123592001.59 -a ! -f 123123592001.5 -a -f $$.touch; then
+  shar_touch='touch -am $3$4$5$6$1$2.$7 "$8"'
+elif touch -am 1231235901 $$.touch >/dev/null 2>&1 && test ! -f 1231235901 -a -f $$.touch; then
+  shar_touch='touch -am $3$4$5$6$2 "$8"'
+else
+  shar_touch=:
+  echo
+  $echo 'WARNING: not restoring timestamps.  Consider getting and'
+  $echo "installing GNU \`touch', distributed in GNU File Utilities..."
+  echo
+fi
+rm -f 200112312359.59 123123592001.59 123123592001.5 1231235901 $$.touch
+#
+$echo $shar_n 'x -' 'lock directory' "\`_sh23983': "$shar_c
+if mkdir _sh23983; then
+  $echo 'created'
+else
+  $echo 'failed to create'
+  exit 1
+fi
+# ============= do_chrooted_make ==============
+if test -f 'do_chrooted_make' && test "$first_param" != -c; then
+  $echo 'x -' SKIPPING 'do_chrooted_make' '(file already exists)'
+else
+  $echo 'x -' extracting 'do_chrooted_make' '(text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'do_chrooted_make' &&
+#!/bin/ksh
+################################################################################
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+X
+X
+X
+# 07Apr06[sos]: This script (do_chrooted_make) was adapted from the do_build script
+#               for use in building in a Stout5 chrooted build environment.
+X
+X
+#set -x
+X
+if [ "$WORKAREA" = "" ] 
+then echo "WORKAREA not set. exiting..."
+X     exit 1
+fi
+X
+# get complete path to this script (path include this filename)
+HERE=`which $0`
+X
+# now remove everything after and including last / (just the path)
+MYCURRENT=${HERE%/*}
+X
+# directory above MYCURRENT
+TOPLEVEL=${MYCURRENT%/*}
+X
+# install the build from the workarea here if OPENSS_INSTALL_DIR is not set:
+export MYOSSINSTALLDIR=$TOPLEVEL/OpensSpeedShop/usr/local
+X
+if [ "$OPENSS_INSTALL_DIR" = "" ] 
+then echo "NOTE: OPENSS_INSTALL_DIR not set."
+X     echo "NOTE: Defaulting to $MYOSSINSTALLDIR ..."
+X     export OPENSS_INSTALL_DIR=$MYOSSINSTALLDIR
+else echo "OPENSS_INSTALL_DIR is set: $OPENSS_INSTALL_DIR"
+fi
+X
+echo
+echo "$0: configure workarea build/install using:"
+echo "configure --prefix=$OPENSS_INSTALL_DIR"
+X
+MYPWD=`pwd`
+echo
+X
+if [ ! -f ./.bootstrap_ran ]
+then echo "+ ./bootstrap"
+X     if ./bootstrap
+X     then echo
+X          echo
+X          echo 
+X          echo "### \"./bootstrap\" ran successfully."
+X          touch ./.bootstrap_ran
+X     else echo
+X          echo
+X          echo 
+X          echo "### \"./bootstrap\" failed!  Bailing out."
+X          exit 1
+X     fi
+fi
+X
+# configure the workarea build
+if [ ! -f ./.configure_ran ]
+then echo "+ ./configure --prefix=$OPENSS_INSTALL_DIR"
+X     if ./configure --prefix=$OPENSS_INSTALL_DIR
+X     then echo
+X          echo
+X          echo
+X          echo "### \"./configure --prefix=$OPENSS_INSTALL_DIR\" ran successfully."
+X          touch ./.configure_ran
+X     else echo
+X          echo
+X          echo
+X          echo "### \"./configure --prefix=$OPENSS_INSTALL_DIR\" failed!  Bailing out."
+X          exit 1
+X     fi 
+fi
+X
+# build from the configured workarea source
+echo "+ make"
+if make
+then echo
+X     echo
+X     echo
+X     echo "### \"make\" ran successfully."
+X     exit 0
+else echo
+X     echo
+X     echo
+X     echo "### \"make\" failed!  Bailing out."
+X     exit 1
+fi
+X
+# We shouldn't be able to get here, but if we do, fail.
+exit 1
+SHAR_EOF
+  (set 20 06 04 07 16 03 40 'do_chrooted_make'; eval "$shar_touch") &&
+  chmod 0755 'do_chrooted_make' ||
+  $echo 'restore of' 'do_chrooted_make' 'failed'
+  if ( md5sum --help </dev/null 2>&1 | grep 'sage: md5sum \[' ) >/dev/null 2>&1 \
+  && ( md5sum --version </dev/null 2>&1 | grep -v 'textutils 1.12' ) >/dev/null; then
+    md5sum -c << SHAR_EOF >/dev/null 2>&1 \
+    || $echo 'do_chrooted_make': 'MD5 check failed'
+db74fb25943dd08bc66f5db18fbaedb4  do_chrooted_make
+SHAR_EOF
+  else
+    shar_count="`LC_ALL=C wc -c < 'do_chrooted_make'`"
+    test 3061 -eq "$shar_count" ||
+    $echo 'do_chrooted_make': 'original size' '3061,' 'current size' "$shar_count!"
+  fi
+fi
+$echo $shar_n 'x -' 'lock directory' "\`_sh23983': " $shar_c
+if rm -fr _sh23983; then
+  $echo 'removed'
+else
+  $echo 'failed to remove'
+fi
+exit 0
