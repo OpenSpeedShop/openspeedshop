@@ -21,7 +21,7 @@ pkglib_LTLIBRARIES = usertime_view.la
 BUILT_SOURCES =
 
 usertime_view_la_CXXFLAGS = \
-	$(PYTHON_INCLUDES) \
+	@PYTHON_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-queries \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-cli \
