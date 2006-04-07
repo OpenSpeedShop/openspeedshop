@@ -22,6 +22,7 @@ IOPanel_la_CXXFLAGS = \
 	-c -LANG:std -fpic \
     -I/usr/include \
 	$(QTLIB_CPPFLAGS) \
+	@PYTHON_CPPFLAGS@ \
 	-I. \
 	-I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/libopenss-queries \
@@ -35,8 +36,7 @@ IOPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
     -I$(top_srcdir)/plugins/panels/SourcePanel \
     -I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
-    -I$(top_srcdir)/libopenss-guibase \
-	-I@PYTHON_CPPFLAGS@
+    -I$(top_srcdir)/libopenss-guibase
 
 IOPanel_la_LDFLAGS = \
 	-fpic \

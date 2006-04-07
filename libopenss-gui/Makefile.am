@@ -22,6 +22,7 @@ libopenss_gui_la_CXXFLAGS =  \
 	-g \
 	-I/usr/include \
 	$(QTLIB_CPPFLAGS) \
+	@PYTHON_CPPFLAGS@ \
 	-I. \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-queries \
@@ -32,8 +33,7 @@ libopenss_gui_la_CXXFLAGS =  \
 	-I$(top_srcdir)/libopenss-guidialogs \
 	-I$(top_srcdir)/plugins/panels/DebugPanel \
 	-I$(top_srcdir)/libopenss-guiobjects \
-	-I$(top_srcdir)/libopenss-guibase \
-	@PYTHON_CPPFLAGS@
+	-I$(top_srcdir)/libopenss-guibase
 
 libopenss_gui_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0

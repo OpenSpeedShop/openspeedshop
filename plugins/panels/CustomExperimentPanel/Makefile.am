@@ -20,6 +20,7 @@ lib_LTLIBRARIES = libopenss-CustomExperimentPanel.la
 pkglib_LTLIBRARIES = CustomExperimentPanel.la
 
 CustomExperimentPanel_la_CXXFLAGS = \
+	@PYTHON_CPPFLAGS@ \
 	-c -LANG:std -fpic \
     -I/usr/include \
 	$(QTLIB_CPPFLAGS) \
@@ -36,8 +37,7 @@ CustomExperimentPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
     -I$(top_srcdir)/plugins/panels/SourcePanel \
     -I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
-    -I$(top_srcdir)/libopenss-guibase \
-	-I@PYTHON_CPPFLAGS@
+    -I$(top_srcdir)/libopenss-guibase
 
 CustomExperimentPanel_la_LDFLAGS = \
 	-fpic \
@@ -64,7 +64,7 @@ libopenss_CustomExperimentPanel_la_CXXFLAGS = \
 	-c -LANG:std -fpic \
     -I/usr/include \
 	$(QTLIB_CPPFLAGS) \
-	$(PYTHON_INCLUDES) \
+	@PYTHON_CPPFLAGS@ \
 	-I. \
 	-I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/libopenss-queries \

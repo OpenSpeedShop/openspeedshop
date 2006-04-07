@@ -22,6 +22,7 @@ SourcePanel_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-guiobjects \
     -I/usr/include \
     $(QTLIB_CPPFLAGS) \
+	@PYTHON_CPPFLAGS@ \
     -I. \
     -I$(top_srcdir)/libopenss-queries \
     -I$(top_srcdir)/libopenss-cli \
@@ -29,8 +30,7 @@ SourcePanel_la_CXXFLAGS = \
     -I$(top_srcdir)/libopenss-gui \
     -I$(top_srcdir)/libopenss-guiplugin \
     -I$(top_srcdir)/libopenss-framework \
-    -I$(top_srcdir)/libopenss-guibase \
-	-I@PYTHON_CPPFLAGS@
+    -I$(top_srcdir)/libopenss-guibase
 
 SourcePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
