@@ -33,7 +33,7 @@ libopenss_guiobjects_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-gui \
 	-I$(top_srcdir)/libopenss-guiplugin \
 	-I$(QTDIR) \
-	@PYTHON_CPPFLAGS@
+	-I@PYTHON_CPPFLAGS@
 
 libopenss_guiobjects_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
