@@ -21,7 +21,6 @@ pkglib_LTLIBRARIES = HW_CounterWizardPanel.la
 HW_CounterWizardPanel_la_CXXFLAGS = \
 	$(PAPI_CPPFLAGS) \
 	$(QTLIB_CPPFLAGS) \
-	$(PYTHON_INCLUDES) \
     -I/usr/include \
     -I. \
     -I$(top_srcdir)/libopenss-gui \
@@ -33,7 +32,8 @@ HW_CounterWizardPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/libopenss-message \
     -I$(top_srcdir)/libopenss-guidialogs \
     -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guibase
+    -I$(top_srcdir)/libopenss-guibase \
+	-I@PYTHON_CPPFLAGS@
 
 HW_CounterWizardPanel_la_LDFLAGS = --export-dynamic \
 	--export-all-symbols \

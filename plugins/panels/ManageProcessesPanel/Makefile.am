@@ -21,7 +21,6 @@ pkglib_LTLIBRARIES = ManageProcessesPanel.la
 ManageProcessesPanel_la_CXXFLAGS = \
     -I/usr/include \
      $(QTLIB_CPPFLAGS) \
-     $(PYTHON_INCLUDES) \
     -I. \
     -I$(top_srcdir) \
     -I$(top_srcdir)/libopenss-framework \
@@ -33,7 +32,8 @@ ManageProcessesPanel_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-guidialogs \
     -I$(top_srcdir)/libopenss-guiplugin \
     -I$(top_srcdir)/plugins/panels/ComparePanel \
-    -I$(top_srcdir)/libopenss-guibase
+    -I$(top_srcdir)/libopenss-guibase \
+	-I@PYTHON_CPPFLAGS@
 
 ManageProcessesPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 

@@ -21,7 +21,6 @@ pkglib_LTLIBRARIES = StatsPanel.la
 StatsPanel_la_CXXFLAGS = \
     -I/usr/include \
 	$(QTLIB_CPPFLAGS) \
-	$(PYTHON_INCLUDES) \
     -I. \
     -I$(top_srcdir)/libopenss-guiobjects \
     -I$(top_srcdir)/libopenss-framework \
@@ -34,7 +33,8 @@ StatsPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/libopenss-guiexprinfo \
     -I$(top_srcdir)/libopenss-guiplugin \
     -I$(top_srcdir)/libopenss-guidialogs \
-    -I$(top_srcdir)/libopenss-guibase
+    -I$(top_srcdir)/libopenss-guibase \
+	-I@PYTHON_CPPFLAGS@
 
 StatsPanel_la_LDFLAGS = -fpic --export-dynamic --export-all-symbols -module -avoid-version -ldl
 

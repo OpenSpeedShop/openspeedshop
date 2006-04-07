@@ -21,7 +21,6 @@ pkglib_LTLIBRARIES = CompareWizardPanel.la
 CompareWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
 	$(QTLIB_CPPFLAGS) \
-	$(PYTHON_INCLUDES) \
     -I. \
     -I$(top_srcdir)/libopenss-gui \
     -I$(top_srcdir)/libopenss-guiimages \
@@ -32,7 +31,8 @@ CompareWizardPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/libopenss-message \
     -I$(top_srcdir)/libopenss-guidialogs \
     -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guibase
+    -I$(top_srcdir)/libopenss-guibase \
+	-I@PYTHON_CPPFLAGS@
 
 CompareWizardPanel_la_LDFLAGS = --export-dynamic \
 	--export-all-symbols \

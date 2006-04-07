@@ -22,7 +22,6 @@ lib_LTLIBRARIES = libopenss-guiobjects.la
 libopenss_guiobjects_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
-	$(PYTHON_INCLUDES) \
 	-I. \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/libopenss-guiimages \
@@ -33,7 +32,8 @@ libopenss_guiobjects_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-gui \
 	-I$(top_srcdir)/libopenss-guiplugin \
-	-I$(QTDIR)
+	-I$(QTDIR) \
+	@PYTHON_CPPFLAGS@
 
 libopenss_guiobjects_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
