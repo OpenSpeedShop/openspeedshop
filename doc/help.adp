@@ -12,10 +12,7 @@
             <keyword ref="users_guide/index.html">Main Page</keyword>
             <keyword ref="cli_doc/index.html">Command Line Interface Guide</keyword>
             <keyword ref="plugin_guide/index.html">Plugin Guide</keyword>
-            <keyword ref="usability_plan/index.html">Usability Plan</keyword>
-            <keyword ref="test_plan/index.html">Test Plan</keyword>
             <keyword ref="pyscripting_doc/index.html">Python Scripting</keyword>
-            <keyword ref="demonstrations/index.html">Demonstrations</keyword>
             <keyword ref="design_doc/index.html">Design Document</keyword>
         </section>
    </DCF>
