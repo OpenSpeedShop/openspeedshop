@@ -141,45 +141,6 @@ try {
   case CMD_LIST_GENERIC:
     cmd_successful = SS_ListGeneric (cmd);
     break;
-  case CMD_LIST_BREAKS:
-    cmd_successful = SS_ListBreaks (cmd);
-    break;
-  case CMD_LIST_EXP:
-    cmd_successful = SS_ListExp (cmd);
-    break;
-  case CMD_LIST_HOSTS:
-    cmd_successful = SS_ListHosts (cmd);
-    break;
-  case CMD_LIST_OBJ:
-    cmd_successful = SS_ListObj (cmd);
-    break;
-  case CMD_LIST_PIDS:
-    cmd_successful = SS_ListPids (cmd);
-    break;
-  case CMD_LIST_METRICS:
-    cmd_successful = SS_ListMetrics (cmd);
-    break;
-  case CMD_LIST_PARAMS:
-    cmd_successful = SS_ListParams (cmd);
-    break;
-  case CMD_LIST_SRC:
-    cmd_successful = SS_ListSrc (cmd);
-    break;
-  case CMD_LIST_STATUS:
-    cmd_successful = SS_ListStatus (cmd);
-    break;
-  case CMD_LIST_RANKS:
-    cmd_successful = SS_ListRanks (cmd);
-    break;
-  case CMD_LIST_THREADS:
-    cmd_successful = SS_ListThreads (cmd);
-    break;
-  case CMD_LIST_TYPES:
-    cmd_successful = SS_ListTypes (cmd);
-    break;
-  case CMD_LIST_VIEWS:
-    cmd_successful = SS_ListViews (cmd);
-    break;
 
 // Session Commands
   case CMD_CLEAR_BREAK:
