@@ -199,6 +199,8 @@ private:
 
     int steps;
     GenericProgressDialog *pd;
+
+    const char *doc_dir;
 };
 
 #endif // OPENSPEEDSHOP_H

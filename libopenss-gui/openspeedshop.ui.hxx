@@ -541,25 +541,47 @@ void OpenSpeedshop::helpIndex()
 void OpenSpeedshop::helpContents()
 {
  dprintf("helpContents() entered.\n");
-printf("helpContents() entered.\n");
 
- char *plugin_directory = NULL;
+  QString sub_path = QString::null;
+  char *plugin_directory = NULL;
+
+  doc_dir = getenv("OPENSS_DOC_DIR");
+
+
+  if( assistant == NULL )
+  {
+    assistant = new QAssistantClient(NULL);
+    assistant->setArguments(QStringList("-hideSidebar"));
+    QStringList slist;
+    slist.append("-profile");
+
+
+    if( !doc_dir )
+    {
+      const char *lt_dlpath = lt_dlgetsearchpath();
+      QStringList fields = QStringList::split(":", lt_dlpath);
+      for ( QStringList::Iterator it = fields.begin(); it != fields.end(); ++it )
+      {
+        sub_path = ((QString)*it).stripWhiteSpace();
+        sub_path += "/../../doc/";
+        QFileInfo *fileInfo = new QFileInfo(QDir(sub_path), "help.adp");
+        if( fileInfo->exists() )
+        {
+//          doc_dir = strdup(sub_path.ascii());
+          doc_dir = sub_path.ascii();
+          break;
+        }
   
- plugin_directory = getenv("OPENSS_DOC_DIR");
-printf("plugin_directory =(%s)\n", plugin_directory );
- if( plugin_directory )
- {
-   assistant->showPage( QString("%1/users_guide/index.html").arg(plugin_directory) );
-
-   return;
- }
- plugin_directory = getenv("OPENSS_PLUGIN_PATH");
-
- QString base_dir(plugin_directory);
- QString relative_dir("/../../../OpenSpeedShop/current/doc");
-
- QString docsPath = QDir(base_dir+relative_dir).absPath();
- assistant->showPage( QString("%1/users_guide/index.html").arg(docsPath) );
+      }
+    }
+    slist.append(QString(doc_dir)+"/help.adp");
+   
+    assistant->setArguments(slist);
+  }
+  
+  assistant->openAssistant();
+  QString s = QString("%1/users_guide/index.html").arg(doc_dir);
+  assistant->showPage( s );
 }
 
 #include "AboutClass.hxx"

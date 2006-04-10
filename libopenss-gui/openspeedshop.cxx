@@ -170,25 +170,7 @@ OpenSpeedshop::OpenSpeedshop( int _wid, int _climode, QWidget* parent, const cha
   helpAboutAction->addTo( helpMenu );
   menubar->insertItem( tr("&Help"), helpMenu );
 
-  assistant = new QAssistantClient(NULL);
-//    assistant->setArguments(QStringList("-hideSidebar"));
-  QStringList slist;
-  slist.append("-profile");
-
-
- char *doc_dir = getenv("OPENSS_DOC_DIR");
- if( !doc_dir ) 
- {
-   doc_dir = getenv("OPENSS_PLUGIN_PATH");
-   QString base_dir(doc_dir);
- }
- slist.append(QString(doc_dir)+"/help.adp");
-
-printf("Look for (%s/%s)\n", doc_dir, "/help.adp" );
- 
-//  slist.append("doc/help.adp");
-//    slist.append("-hideSidebar");
-  assistant->setArguments(slist);
+  assistant = NULL;
 
   languageChange();
 
