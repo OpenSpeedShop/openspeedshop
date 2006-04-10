@@ -4,22 +4,19 @@
     <property name="name">OpenSpeedShopDoc</property>
     <property name="title">OpenSpeedShop Documentation</property>
     <property name="applicationicon">logo.png</property>
-    <property name="startpage">../doc/users_guide/OpenSpeedShopUsersGuide.html</property>
-    <property name="aboutmenutext">About Help</property>
-    <property name="abouturl">../about.txt</property>
-    <property name="assistantdocs">../../../doc/html</property>
+    <property name="startpage">users_guide/index.html</property>
 </profile>
 
-    <DCF ref="../doc/users_guide/OpenSpeedShopUsersGuide.html" icon="handbook.png" title="OpenSpeedShop">
-        <section ref="../doc/users_guide/OpenSpeedShopUsersGuide.html" title="OpenSpeedShop Documentation">
-            <keyword ref="../doc/users_guide/OpenSpeedShopUsersGuide.html">Main Page</keyword>
-            <keyword ref="../doc/hierarchy.html">Class Hierarchy</keyword>
-            <keyword ref="../doc/classes.html">Alphabetical List</keyword>
-            <keyword ref="../doc/annotated.html">Class List</keyword>
-            <keyword ref="../doc/files.html">File List</keyword>
-            <keyword ref="../doc/functions.html">Class Members</keyword>
-            <keyword ref="../doc/globals.html">File Members</keyword>
-            <keyword ref="../doc/pages.html">Related Pages</keyword>
+    <DCF ref="users_guide/index.html" icon="handbook.png" title="OpenSpeedShop">
+        <section ref="users_guide/index.html" title="OpenSpeedShop Documentation">
+            <keyword ref="users_guide/index.html">Main Page</keyword>
+            <keyword ref="cli_doc/index.html">Command Line Interface Guide</keyword>
+            <keyword ref="plugin_guide/index.html">Plugin Guide</keyword>
+            <keyword ref="usability_plan/index.html">Usability Plan</keyword>
+            <keyword ref="test_plan/index.html">Test Plan</keyword>
+            <keyword ref="pyscripting_doc/index.html">Python Scripting</keyword>
+            <keyword ref="demonstrations/index.html">Demonstrations</keyword>
+            <keyword ref="design_doc/index.html">Design Document</keyword>
         </section>
    </DCF>
 

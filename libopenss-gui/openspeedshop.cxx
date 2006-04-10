@@ -181,9 +181,10 @@ OpenSpeedshop::OpenSpeedshop( int _wid, int _climode, QWidget* parent, const cha
  {
    doc_dir = getenv("OPENSS_PLUGIN_PATH");
    QString base_dir(doc_dir);
-   QString relative_dir("/../../../OpenSpeedShop/current/doc");
  }
  slist.append(QString(doc_dir)+"/help.adp");
+
+printf("Look for (%s/%s)\n", doc_dir, "/help.adp" );
  
 //  slist.append("doc/help.adp");
 //    slist.append("-hideSidebar");
