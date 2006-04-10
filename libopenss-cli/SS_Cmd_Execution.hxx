@@ -46,19 +46,6 @@ bool SS_cView (CommandObject *cmd);
 
 // Primitive Information level commands
 bool SS_ListGeneric (CommandObject *cmd);
-bool SS_ListBreaks (CommandObject *cmd);
-bool SS_ListExp (CommandObject *cmd);
-bool SS_ListHosts (CommandObject *cmd);
-bool SS_ListObj (CommandObject *cmd);
-bool SS_ListPids (CommandObject *cmd);
-bool SS_ListMetrics (CommandObject *cmd);
-bool SS_ListParams (CommandObject *cmd);
-bool SS_ListRanks (CommandObject *cmd);
-bool SS_ListSrc (CommandObject *cmd);
-bool SS_ListStatus (CommandObject *cmd);
-bool SS_ListThreads (CommandObject *cmd);
-bool SS_ListTypes (CommandObject *cmd);
-bool SS_ListViews (CommandObject *cmd);
 bool SS_ListCviews (CommandObject *cmd);
 
 // Session level commands
