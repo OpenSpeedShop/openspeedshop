@@ -2120,14 +2120,14 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
           if (pthread.first) {
             int64_t t = pthread.second;
             char tid[20]; sprintf(&tid[0],"%lld",t);
-            S = S + std::string(&tid[0]);
+            S = S + " -t " + std::string(&tid[0]);
           }
 #ifdef HAVE_MPI
           std::pair<bool, int> rank = t.getMPIRank();
           if (rank.first) {
             int64_t r = rank.second;
             char rid[20]; sprintf(&rid[0],"%lld",r);
-            S = S + std::string(&rid[0]);
+            S = S + " -r " + std::string(&rid[0]);
           }
 #endif
           CollectorGroup cgrp = t.getCollectors();
@@ -2367,116 +2367,6 @@ bool SS_expView (CommandObject *cmd) {
 // Primitive Information Commands
 
 /**
- * Method: SS_ListGeneric()
- * 
- * Look at general modifier types for list 
- * type modifiers and then call respective
- * list command function.
- *     
- * @param   cmd Standard command object.
- *
- * @return  bool
- *
- * @todo    Error handling for multiple type modifiers.
- * @todo    Error handling for no type modifiers.
- *
- */
-static enum {
-    ENUM_BREAK,
-    ENUM_EXP,
-    ENUM_EXPID,
-    ENUM_TYPES_NEW,
-    ENUM_HOSTS,
-    ENUM_METRICS,
-    ENUM_OBJ,
-    ENUM_PARAMS,
-    ENUM_PIDS,
-    ENUM_RANKS,
-    ENUM_SRC,
-    ENUM_STATUS,
-    ENUM_THREADS,
-    ENUM_TYPES_OLD,
-    ENUM_VIEWS,
-    ENUM_CVIEWS,
-} list_enums;
-static char *list_types[] = {
-    "breaks",
-    "exp",
-    "expid",
-    "exptypes",
-    "hosts",
-    "metrics",
-    "obj",
-    "params",
-    "pids",
-    "ranks",
-    "src",
-    "status",
-    "threads",
-    "types",
-    "views",
-    "cviews",
-    NULL
-};
-bool SS_ListGeneric (CommandObject *cmd) {
-  Assert(cmd->P_Result() != NULL);
-
-  int i = 0;
-  // Keep looking until NULL
-  while(list_types[i]) {
-    bool KeyWord = Look_For_KeyWord (cmd, list_types[i]);
-
-    if (KeyWord) {
-    	// If I was clever I would have incorporated
-	// the function name into the list_types array
-	// and have made this a single call.
-    	switch(i) {
-	    case ENUM_BREAK:
-	    	return SS_ListBreaks(cmd);
-	    case ENUM_EXP:
-	    case ENUM_EXPID:
-	    	return SS_ListExp(cmd);
-	    case ENUM_HOSTS:
-	    	return SS_ListHosts(cmd);
-	    case ENUM_METRICS:
-	    	return SS_ListMetrics(cmd);
-	    case ENUM_OBJ:
-	    	return SS_ListObj(cmd);
-	    case ENUM_PARAMS:
-	    	return SS_ListParams(cmd);
-	    case ENUM_PIDS:
-	    	return SS_ListPids(cmd);
-	    case ENUM_RANKS:
-	    	return SS_ListRanks(cmd);
-	    case ENUM_SRC:
-	    	return SS_ListSrc(cmd);
-	    case ENUM_STATUS:
-	    	return SS_ListStatus(cmd);
-	    case ENUM_THREADS:
-	    	return SS_ListThreads(cmd);
-	    case ENUM_TYPES_OLD:
-	    case ENUM_TYPES_NEW:
-	    	return SS_ListTypes(cmd);
-	    case ENUM_VIEWS:
-	    	return SS_ListViews(cmd);
-	    case ENUM_CVIEWS:
-	    	return SS_ListCviews(cmd);
-	    default :
-	    	break;
-	}
-    }
-    ++i;
-  }
-
-//  cmd->P_Result()->setError("Non valid list command argument.");
-  std::string s1("Non valid list command argument.\n");
-  std::string s2("Try: help list");
-  Mark_Cmd_With_Soft_Error(cmd,s1+s2);
-  cmd->set_Status(CMD_ERROR);
-  return false;
-}
-
-/**
  * Method: ()
  * 
  * .
@@ -2488,10 +2378,10 @@ bool SS_ListGeneric (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-bool SS_ListBreaks (CommandObject *cmd) {
+static bool SS_ListBreaks (CommandObject *cmd) {
   ExperimentObject *exp = Find_Specified_Experiment (cmd);
 
-  cmd->Result_String ("not yet implemented");
+  cmd->Result_String ("'List -v Breaks' is not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -2508,7 +2398,7 @@ bool SS_ListBreaks (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-bool SS_ListExp (CommandObject *cmd) {
+static bool SS_ListExp (CommandObject *cmd) {
  // List all the allocated experiments
   SafeToDoNextCmd ();
   std::list<ExperimentObject *>::reverse_iterator expi;
@@ -2534,7 +2424,7 @@ bool SS_ListExp (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-bool SS_ListHosts (CommandObject *cmd) {
+static bool SS_ListHosts (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
@@ -2545,7 +2435,7 @@ bool SS_ListHosts (CommandObject *cmd) {
   if (All_KeyWord) {
    // List all the Hosts on the system.
    // We have decided not to support this option.
-    Mark_Cmd_With_Soft_Error(cmd, "Selection based on 'all' is not supported.");
+    Mark_Cmd_With_Soft_Error(cmd, "'list -v hosts, all' is not supported.");
     return false;
   } else {
    // Get the Hosts for a specified Experiment or the focused Experiment.
@@ -2587,7 +2477,7 @@ bool SS_ListHosts (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-bool SS_ListMetrics (CommandObject *cmd) {
+static bool SS_ListMetrics (CommandObject *cmd) {
   bool cmd_error = false;
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -2704,7 +2594,7 @@ bool SS_ListMetrics (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-bool SS_ListObj (CommandObject *cmd) {
+static bool SS_ListObj (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
@@ -2715,7 +2605,7 @@ bool SS_ListObj (CommandObject *cmd) {
   }
 
   if (Filter_Uses_F(cmd)) {
-    Mark_Cmd_With_Soft_Error(cmd, "Selection based on file name is not supported.");
+    Mark_Cmd_With_Soft_Error(cmd, "'list -v obj' does not support the '-f' option.");
     return false;
   }
 
@@ -2759,7 +2649,7 @@ bool SS_ListObj (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-bool SS_ListParams (CommandObject *cmd) {
+static bool SS_ListParams (CommandObject *cmd) {
   bool cmd_error = false;
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -2874,7 +2764,7 @@ bool SS_ListParams (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-bool SS_ListPids (CommandObject *cmd) {
+static bool SS_ListPids (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
@@ -2885,7 +2775,7 @@ bool SS_ListPids (CommandObject *cmd) {
   if (All_KeyWord) {
    // List all the PIDs on the system.
    // We have decided not to support this option.
-    Mark_Cmd_With_Soft_Error(cmd, "Selection based on 'all' is not supported.");
+    Mark_Cmd_With_Soft_Error(cmd, "'list -v pids, all' is not supported.");
     return false;
   } else {
    // Get the Pids for a specified Experiment or the focused Experiment.
@@ -2895,7 +2785,7 @@ bool SS_ListPids (CommandObject *cmd) {
     }
 
     if (Filter_Uses_F(cmd)) {
-      Mark_Cmd_With_Soft_Error(cmd, "Selection based on file name is not supported.");
+      Mark_Cmd_With_Soft_Error(cmd, "'list -v pids' does not support the '-f' option.");
       return false;
     }
 
@@ -2933,7 +2823,7 @@ bool SS_ListPids (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-bool SS_ListRanks (CommandObject *cmd) {
+static bool SS_ListRanks (CommandObject *cmd) {
 #ifdef HAVE_MPI
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -2945,7 +2835,7 @@ bool SS_ListRanks (CommandObject *cmd) {
   if (All_KeyWord) {
    // List all the PIDs on the system.
    // We have decided not to support this option.
-    Mark_Cmd_With_Soft_Error(cmd, "Selection based on 'all' is not supported.");
+    Mark_Cmd_With_Soft_Error(cmd, "'list -v ranks, all' is not supported.");
     return false;
   } else {
    // Get the Rankss for a specified Experiment or the focused Experiment.
@@ -2955,7 +2845,7 @@ bool SS_ListRanks (CommandObject *cmd) {
     }
 
     if (Filter_Uses_F(cmd)) {
-      Mark_Cmd_With_Soft_Error(cmd, "Selection based on file name is not supported.");
+      Mark_Cmd_With_Soft_Error(cmd, "'list -v ranks' does not support the '-f' option.");
       return false;
     }
 
@@ -3009,7 +2899,7 @@ bool SS_ListRanks (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-bool SS_ListSrc (CommandObject *cmd) {
+static bool SS_ListSrc (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
@@ -3034,6 +2924,7 @@ bool SS_ListSrc (CommandObject *cmd) {
       ulset.insert ( *lseti );
     }
   }
+
  // Now go through the list of unique LinkedObjects and find the functions.
   for (std::set<LinkedObject>::iterator lseti = ulset.begin(); lseti != ulset.end(); lseti++) {
     LinkedObject lobj = *lseti;
@@ -3048,7 +2939,7 @@ bool SS_ListSrc (CommandObject *cmd) {
       std::set<Statement> sobj = fobj.getDefinitions();
       if( sobj.size() > 0 ) {
         std::set<Statement>::const_iterator sobji = sobj.begin();
-        std::string F = sobji->getPath();
+        std::string F = (OPENSS_VIEW_FULLPATH) ? sobji->getPath() : sobji->getPath().getBaseName();
         mset.insert ( F );
       }
     }
@@ -3076,7 +2967,7 @@ bool SS_ListSrc (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-bool SS_ListStatus (CommandObject *cmd) {
+static bool SS_ListStatus (CommandObject *cmd) {
 
  // Look at general modifier types for "all" option.
   Assert(cmd->P_Result() != NULL);
@@ -3124,7 +3015,7 @@ bool SS_ListStatus (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-bool SS_ListThreads (CommandObject *cmd) {
+static bool SS_ListThreads (CommandObject *cmd) {
 #ifdef HAVE_OPENMP
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -3136,7 +3027,7 @@ bool SS_ListThreads (CommandObject *cmd) {
   if (All_KeyWord) {
    // List all the Threads on the system.
    // We have decided not to support this option.
-    Mark_Cmd_With_Soft_Error(cmd, "Selection based on 'all' is not supported.");
+    Mark_Cmd_With_Soft_Error(cmd, "'list -v threads, all' is not supported.");
     return false;
   } else {
    // Get the Threads for a specified Experiment or the focused Experiment.
@@ -3146,7 +3037,7 @@ bool SS_ListThreads (CommandObject *cmd) {
     }
 
     if (Filter_Uses_F(cmd)) {
-      Mark_Cmd_With_Soft_Error(cmd, "Selection based on file name is not supported.");
+      Mark_Cmd_With_Soft_Error(cmd, "'list -v threads' does not support the '-f' option.");
       return false;
     }
 
@@ -3189,7 +3080,7 @@ bool SS_ListThreads (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-bool SS_ListTypes (CommandObject *cmd) {
+static bool SS_ListTypes (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
@@ -3265,7 +3156,7 @@ SS_ViewTypeHint(CommandObject *cmd)
  * @todo    Error handling.
  *
  */
-bool SS_ListViews (CommandObject *cmd) {
+static bool SS_ListViews (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
@@ -3322,6 +3213,168 @@ bool SS_ListViews (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: SS_ListGeneric()
+ * 
+ * Look at general modifier types for list 
+ * type modifiers and then call respective
+ * list command function.
+ *     
+ * @param   cmd Standard command object.
+ *
+ * @return  bool
+ *
+ * @todo    Error handling for multiple type modifiers.
+ * @todo    Error handling for no type modifiers.
+ *
+ */
+static enum {
+    ENUM_BREAK,
+    ENUM_EXP,
+    ENUM_EXPID,
+    ENUM_TYPES_NEW,
+    ENUM_HOSTS,
+    ENUM_METRICS,
+    ENUM_OBJ,
+    ENUM_PARAMS,
+    ENUM_PIDS,
+    ENUM_RANKS,
+    ENUM_SRC,
+    ENUM_STATUS,
+    ENUM_THREADS,
+    ENUM_TYPES_OLD,
+    ENUM_VIEWS,
+    ENUM_CVIEWS,
+} list_enums;
+static char *list_types[] = {
+    "breaks",
+    "exp",
+    "expid",
+    "exptypes",
+    "hosts",
+    "metrics",
+    "obj",
+    "params",
+    "pids",
+    "ranks",
+    "src",
+    "status",
+    "threads",
+    "types",
+    "views",
+    "cviews",
+    NULL
+};
+bool SS_ListGeneric (CommandObject *cmd) {
+  Assert(cmd->P_Result() != NULL);
+
+ // Look for a recognized option.
+  bool first_listtype_found = false;
+  bool result_of_first_list = false;
+  vector<string> *p_slist = cmd->P_Result()->getModifierList();
+  vector<string>::iterator j;
+
+  for (j=p_slist->begin();j != p_slist->end(); j++) {
+    bool valid_list_type_found = false;
+    std::string S = *j;
+
+    if (!strcasecmp(S.c_str(),"all")) {
+      continue;
+    }
+
+   // Keep looking until NULL
+    int i = 0;
+    while(list_types[i]) {
+      if (!strcasecmp(S.c_str(),list_types[i])) {
+        valid_list_type_found = true;
+
+        if (first_listtype_found) {
+          std::string s1("More than one valid 'list -v' command argument is not supported.\n");
+          s1 = s1 + "The '" + S + "' argument was not processed.\n";
+          std::string s2("Try: help list");
+          Mark_Cmd_With_Soft_Error(cmd,s1+s2);
+          cmd->set_Status(CMD_ERROR);
+          break;
+        }
+
+       // If I were clever I would have incorporated
+       // the function name into the list_types array
+       // and have made this a single call.
+    	switch(i) {
+	    case ENUM_BREAK:
+	    	result_of_first_list = SS_ListBreaks(cmd);
+                break;
+	    case ENUM_EXP:
+	    case ENUM_EXPID:
+	    	result_of_first_list = SS_ListExp(cmd);
+                break;
+	    case ENUM_HOSTS:
+	    	result_of_first_list = SS_ListHosts(cmd);
+                break;
+	    case ENUM_METRICS:
+	    	result_of_first_list = SS_ListMetrics(cmd);
+                break;
+	    case ENUM_OBJ:
+	    	result_of_first_list = SS_ListObj(cmd);
+                break;
+	    case ENUM_PARAMS:
+	    	result_of_first_list = SS_ListParams(cmd);
+                break;
+	    case ENUM_PIDS:
+	    	result_of_first_list = SS_ListPids(cmd);
+                break;
+	    case ENUM_RANKS:
+	    	result_of_first_list = SS_ListRanks(cmd);
+                break;
+	    case ENUM_SRC:
+	    	result_of_first_list = SS_ListSrc(cmd);
+                break;
+	    case ENUM_STATUS:
+	    	result_of_first_list = SS_ListStatus(cmd);
+                break;
+	    case ENUM_THREADS:
+	    	result_of_first_list = SS_ListThreads(cmd);
+                break;
+	    case ENUM_TYPES_OLD:
+	    case ENUM_TYPES_NEW:
+	    	result_of_first_list = SS_ListTypes(cmd);
+                break;
+	    case ENUM_VIEWS:
+	    	result_of_first_list = SS_ListViews(cmd);
+                break;
+	    case ENUM_CVIEWS:
+	    	result_of_first_list = SS_ListCviews(cmd);
+                break;
+	    default :
+               // This sould be an Assert!
+	    	break;
+	}
+        first_listtype_found = true;
+        break;
+      }
+      ++i;
+    }
+
+    if (!valid_list_type_found) {
+      std::string s1("Non valid list command argument '");
+      s1 = s1 + S + "'.\n";
+      std::string s2("Try: help list");
+      Mark_Cmd_With_Soft_Error(cmd,s1+s2);
+      cmd->set_Status(CMD_ERROR);
+    }
+  }
+
+  if (!first_listtype_found) {
+//  cmd->P_Result()->setError("Non valid list command argument.");
+    std::string s1("Missing list command argument.\n");
+    std::string s2("Try: help list");
+    Mark_Cmd_With_Soft_Error(cmd,s1+s2);
+    cmd->set_Status(CMD_ERROR);
+  }
+
+  return result_of_first_list;
+}
+
 // Session Commands
 
 /**
@@ -3340,7 +3393,7 @@ bool SS_ClearBreaks (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-  cmd->Result_String ("not yet implemented");
+  cmd->Result_String ("'clearBreak' is not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -3626,7 +3679,7 @@ bool SS_SetBreak (CommandObject *cmd) {
     return false;
   }
 
-  cmd->Result_String ("not yet implemented");
+  cmd->Result_String ("'setBreak' is not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
