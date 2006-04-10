@@ -47,7 +47,7 @@ libopenss_cli_la_LIBADD = \
 	-lopenss-queries \
 	-lopenss-message \
 	$(LIBLTDL) \
-	@PYTHON_LIBS@ \
+	@PYTHON_EXTRA_LIBS@ \
 	-lpthread -lutil
 
 libopenss_cli_la_SOURCES = \
