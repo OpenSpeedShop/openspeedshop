@@ -20,3 +20,5 @@
 SUBDIRS = users_guide 
 
 DIST_SUBDIRS = users_guide
+
+EXTRA_DIST = help.adp
