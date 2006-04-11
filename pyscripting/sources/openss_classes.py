@@ -165,15 +165,6 @@ class ThreadList(OssList):
 
     pass
 
-class ClusterList(OssList):
-    """
-    Object for creating a list of cluster names.
-
-    Currently clusters are represented as strings.
-    """
-
-    pass
-
 class MetricList(OssList):
     """
     Object for creating a list of MetricTypes.
@@ -242,6 +233,27 @@ class ExpId:
     experiments, sometimes simutaniously, it is
     neccesary to use the experiment id to execute
     a command on the intended experiment.
+    """
+    
+    def __init__(self,expid) :
+    	self._openss_expid = expid
+    	return
+    def __getattr__(self,expid):
+    	return getattr(self._openss_expid,expid)
+    
+class CVIdList:
+    """
+    Object for containing CustomView id.
+    
+    Currently this is just an integer and may not
+    need to have a unique class.
+    
+    The CustomView id represents a custom view that
+    was created using B{CViewCreate}().
+    
+    Ususally the CVId will represent a single column
+    of information of an output view. It is most often
+    used for comparison views.
     """
     
     def __init__(self,expid) :

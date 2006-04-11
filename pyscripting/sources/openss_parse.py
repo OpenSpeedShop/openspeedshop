@@ -67,7 +67,7 @@ def deconstruct(cmd_name,*args):
 	    	sublist = parse_list("-p",None,*args[ndx])
     	    elif isinstance(args[ndx],ThreadList):
 	    	sublist = parse_list("-t",None,*args[ndx])
-    	    elif isinstance(args[ndx],ClusterList):
+    	    elif isinstance(args[ndx],CVIdList):
 	    	sublist = parse_list("-c",None,*args[ndx])
     	    elif isinstance(args[ndx],MetricList):
 	    	sublist = parse_list("-m","MetricType",*args[ndx])

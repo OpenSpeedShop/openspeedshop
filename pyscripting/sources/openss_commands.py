@@ -80,7 +80,6 @@ def expAttach(*arglist):
     	- I{ModifierList} object with B{mpi}
 	- I{ExpId} object 
 	- I{Target} object lists
-	    - I{ClusterList}
 	    - I{FileList}
 	    - I{HostList}
 	    - I{PidList}
@@ -151,6 +150,95 @@ def expClose(*arglist):
     return return_none(cmd_string)
 
 ##################################################
+# expCompare
+##################################################
+def expCompare(*arglist):
+
+    """
+    Simple compare view.
+
+    This looks a lot like the B{expView} command, but the
+    semantics are slightly different. The purpose of the
+    B{expView} command is to display a summary that includes the
+    specified items from the specified (or implied)
+    I{target_list}. The whole point of the B{expCompare} command
+    is to find multiple things to display in side-by-side
+    columns, rather than summarized in a single column.
+
+	- The semantic routine for the command looks through the
+	  components of the I{target_list} for non-singular
+	  components. That is what defines the separate
+	  components to display. Look at example_1 below.
+      
+	  This will produce a report that contains a column for the
+	  time spend in function 'foo' on 'host1', along side
+	  the time spent in function 'foo' on 'host2'.
+	  Similarly, example_2 (see below)
+
+	  This will produce a report that contains a column for the
+	  time spend in function 'foo' on 'host1' pid 1153,
+	  along side the time spent in function 'foo' on 'host1'
+	  pid 1154.
+
+    	- It is an error to specify more than one sub-list of
+    	  items within the I{target_list}.
+
+    	- The use of the I{Target} option acts like a filter on the 
+    	  output.
+	- The absence of any I{HostList} specification will
+	  cause all  the information available for all hosts in
+	  the specifed  experiment to be included.
+	- The default cluster contains only localhost and can
+	  be  specified by using -h localhost.
+        - Use of I{FileList} is not supported.
+	- Use of I{PidList} will result in only the Threads
+	  associated  with that Pid being included for the
+	  selected hosts.
+	- Use of I{ThreadList} will result in only that specific
+	  Thread  being included, if it exists on the selected
+	  hosts.
+
+          expcompare [ I{ExpId} ] [ <viewType> ] [ -m <expMetric_list> ] [ I{Target} ] 
+
+    Example_1::
+    	# Experiment 1 has already been defined and run.
+	#
+	my_viewtype = openss.ViewTypeList("usertime")
+    	my_metric_list = openss.MetricList("time")
+	my_host_list = openss.HostList("host1","host2")
+	my_modifier = openss.ModifierList("function")
+
+	ret = openss.expCompare(my_modifier,my_viewtype,my_metric_list,my_host_list)
+
+    Example_2::
+    	# Experiment 1 has already been defined and run.
+	#
+	my_viewtype = openss.ViewTypeList("usertime")
+    	my_metric = openss.MetricList("time")
+	my_hosts = openss.HostList("host1","host2")
+	my_mod = openss.ModifierList("function")
+	my_func = openss.FileList("foo")
+
+	ret = openss.expCompare(my_mod,my_viewtype,my_metric,my_hosts,my_func)
+
+
+    @param arglist: up to 4 optional class objects:
+	- I{ExpId}  (optional) 
+    	- I{ViewType} (optional)
+    	- I{MetricList} (optional)
+	- I{Target} object lists (optional)
+	    - I{FileList}
+	    - I{HostList}
+	    - I{PidList}
+	    - I{ThreadList}
+	    - I{RankList}
+    
+    """
+
+    cmd_string = deconstruct("expCompare",*arglist)
+    return return_int_list(cmd_string)
+
+##################################################
 # expCreate
 ##################################################
 def expCreate(*arglist):
@@ -197,7 +285,6 @@ def expCreate(*arglist):
     @param arglist: up to 3 optional class objects:
     	- I{ModifierList} object with B{mpi}
 	- I{Target} object lists
-	    - I{ClusterList}
 	    - I{FileList}
 	    - I{HostList}
 	    - I{PidList}
@@ -243,7 +330,6 @@ def expData(*arglist):
     	- I{ViewType} (optional)
     	- I{MetricList} (optional)
 	- I{Target} object lists (optional)
-	    - I{ClusterList}
 	    - I{FileList}
 	    - I{HostList}
 	    - I{PidList}
@@ -311,7 +397,6 @@ def expDetach(*arglist):
     @param arglist: up to 3 optional class objects:
 	- I{ExpId} object 
 	- I{Target} object lists
-	    - I{ClusterList}
 	    - I{HostList}
 	    - I{PidList}
 	    - I{ThreadList}
@@ -794,7 +879,6 @@ def expView(*arglist):
     	- I{ViewType} (optional)
     	- I{MetricList} (optional)
 	- I{Target} object lists (optional)
-	    - I{ClusterList}
 	    - I{FileList}
 	    - I{HostList}
 	    - I{PidList}
@@ -804,6 +888,122 @@ def expView(*arglist):
     """
 
     cmd_string = deconstruct("expView",*arglist)
+    return return_int_list(cmd_string)
+
+##################################################
+# cViewCreate
+##################################################
+def cViewCreate(*arglist):
+
+    """
+    - .
+
+
+      cViewCreate [ I{ExpId} ] [ <viewType> ] [ -m <expMetric_list> ] [ I{Target} ] 
+
+    Example::
+    	my_file = openss.FileList("bosco")
+	my_viewtype = openss.ViewTypeList("pcsamp")
+    	my_metric_list = openss.MetricList()
+    	my_metric_list += ("pcsamp","inclusive")
+
+	ret = openss.cViewCreate(my_expid,my_viewtype,my_metric_list)
+
+
+    @param arglist: xxx:
+	- 
+    	- 
+    
+    """
+
+    cmd_string = deconstruct("cViewCreate",*arglist)
+    return return_int(cmd_string)
+
+##################################################
+# cViewDelete
+##################################################
+def cViewDelete(*arglist):
+
+    """
+    - .
+
+
+      cViewDelete [ I{ExpId} ] [ <viewType> ] [ -m <expMetric_list> ] [ I{Target} ] 
+
+    Example::
+    	my_file = openss.FileList("bosco")
+	my_viewtype = openss.ViewTypeList("pcsamp")
+    	my_metric_list = openss.MetricList()
+    	my_metric_list += ("pcsamp","inclusive")
+
+	ret = openss.cViewDelete(my_expid,my_viewtype,my_metric_list)
+
+
+    @param arglist: :
+	- 
+    	- 
+    
+    """
+
+    cmd_string = deconstruct("cViewDelete",*arglist)
+    return return_void(cmd_string)
+
+##################################################
+# cViewInfo
+##################################################
+def cViewInfo(*arglist):
+
+    """
+    - .
+
+
+      cViewInfo [ I{ExpId} ] [ <viewType> ] [ -m <expMetric_list> ] [ I{Target} ] 
+
+    Example::
+    	my_file = openss.FileList("bosco")
+	my_viewtype = openss.ViewTypeList("pcsamp")
+    	my_metric_list = openss.MetricList()
+    	my_metric_list += ("pcsamp","inclusive")
+
+	ret = openss.cViewInfo(my_expid,my_viewtype,my_metric_list)
+
+
+    @param arglist: xxx:
+	- 
+    	- 
+    
+    """
+
+    cmd_string = deconstruct("cViewInfo",*arglist)
+    return return_int_list(cmd_string)
+
+##################################################
+# cView
+##################################################
+def cView(*arglist):
+
+    """
+    - .
+
+
+      cView [ I{ExpId} ] [ <viewType> ] [ -m <expMetric_list> ] [ I{Target} ] 
+
+    Example::
+    	my_file = openss.FileList("bosco")
+	my_viewtype = openss.ViewTypeList("pcsamp")
+    	my_metric_list = openss.MetricList()
+    	my_metric_list += ("pcsamp","inclusive")
+
+	ret = openss.cView(my_expid,my_viewtype,my_metric_list)
+
+
+    @param arglist: xxx:
+	- 
+    	- 
+    
+    """
+
+    cmd_string = deconstruct("cView",*arglist)
     return return_int_list(cmd_string)
 
 ##################################################
@@ -975,7 +1175,6 @@ def list(*arglist):
 	    - I{<list args>}: Up to 2 optional class objects:
 	    	- I{ExpId} object  (optional)
 	    	- I{Target} object lists (optional)
-	    	    - I{ClusterList}
 	    	    - I{HostList}
 	    	    - I{PidList}
 	    	    - I{ThreadList}
@@ -1103,7 +1302,6 @@ def list(*arglist):
 	    - I{<list args>}: 
 	    	- I{ExpId} object  (optional)
 	    	- I{Target} object lists (optional)
-	    	    - I{ClusterList}
 	    	    - I{HostList}
 	    	    - I{PidList}
 	    	    - I{ThreadList}
@@ -1144,7 +1342,6 @@ def list(*arglist):
 	    - I{<list args>}: 
 	    	- I{ExpId} object  (optional)
 	    	- I{Target} object lists (optional)
-	    	    - I{ClusterList}
 	    	    - I{HostList}
 	    	    - I{PidList}
 	    	    - I{ThreadList}
@@ -1237,7 +1434,6 @@ def list(*arglist):
 	    - I{<list args>}: 
 	    	- I{ExpId} object  (optional)
 	    	- I{Target} object lists (optional)
-	    	    - I{ClusterList}
 	    	    - I{HostList}
 	    	    - I{PidList}
 	    	    - I{ThreadList}
@@ -1569,6 +1765,40 @@ def dumpView():
     	for row_ndx in range(r_count):
     	    print " "
     	    row =ret[row_ndx]
+    	    #print type(row)
+    	    if type(row) is types.StringType:
+            	print row
+    	    else:
+    	    	c_count = len(row)
+    	    	for rel_ndx in range(c_count):
+    	    	    #print type(row[rel_ndx])
+            	    print row[rel_ndx]
+
+##################################################################
+# dump_info: For testing 
+##################################################################
+def dumpInfo(data):
+
+    """
+    Helper routine used to dump 2 dimensional views.
+    Same as dumpData and dumpView except we instead
+    pass the data object in.
+
+    """
+
+    if data is None:
+    	my_listtype = ModifierList("status")
+    	print "data was None"
+    	try:
+    	    print "status = ", list(my_listtype)
+    	except error,message:
+    	    print "listStatus ERROR: ",message
+
+    else:
+    	r_count = len(data)
+    	for row_ndx in range(r_count):
+    	    print " "
+    	    row =data[row_ndx]
     	    #print type(row)
     	    if type(row) is types.StringType:
             	print row
