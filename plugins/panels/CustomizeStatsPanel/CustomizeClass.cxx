@@ -63,7 +63,8 @@ CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bo
 {
 //  nprintf(DEBUG_CONST_DESTRUCT) ("CustomizeClass::CustomizeClass() constructor called.\n");
   dprintf("CustomizeClass::CustomizeClass() constructor called.\n");
-  ccnt = 0;
+//  ccnt = 0;
+  ccnt = 1;
   
   p = _p;
   expID = exp_id;
@@ -156,41 +157,48 @@ CustomizeClass::menu(QPopupMenu* contextMenu)
 
   qaction = new QAction( this,  "focusOnProcess");
   qaction->addTo( contextMenu );
-  qaction->setText( tr(QString("Focus Stats Panel with defined info...")+currentCompareSetString) );
+//  qaction->setText( tr(QString("Focus Stats Panel with defined info...")+currentCompareSetString) );
+  qaction->setText( tr(QString("Focus StatsPanel")) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnCSetSelected() ) );
-  qaction->setStatusTip( tr("Focus the StastPanel on processes defined.") );
+  qaction->setStatusTip( tr("Focus the StastPanel on defined set of information.") );
 
 
   contextMenu->insertSeparator();
 
   qaction = new QAction( this,  "addNewColumn");
   qaction->addTo( contextMenu );
-  qaction->setText( tr(QString("Add column to Compare Set...")+currentCompareSetString) );
+//  qaction->setText( tr(QString("Add column to Compare Set...")+currentCompareSetString) );
+  qaction->setText( tr(QString("Add column") ) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( addNewColumn() ) );
-  qaction->setStatusTip( tr("Adds an additional column (tab) to the definition of the current Compare Set.") );
+  qaction->setStatusTip( tr("Adds an additional column (tab) to the definition of the current set.") );
 
   qaction = new QAction( this,  "removeRaisedTab");
   qaction->addTo( contextMenu );
-  qaction->setText( tr(QString("Remove%1 from Compare Set...").arg(currentColumnString)) );
+//  qaction->setText( tr(QString("Remove%1 from Compare Set...").arg(currentColumnString)) );
+  qaction->setText( tr(QString("Remove column %1").arg(currentColumnString)) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( removeRaisedTab() ) );
-  qaction->setStatusTip( tr("Removes the raised column (tab) from the current Compare Set.") );
+  qaction->setStatusTip( tr("Removes the raised column (tab).") );
 
   contextMenu->insertSeparator();
 
   qaction = new QAction( this,  "addProcessesSelected");
   qaction->addTo( contextMenu );
-  qaction->setText( tr(QString("Select process(es) for: ")+currentCompareSetString+currentColumnString) );
+//  qaction->setText( tr(QString("Select process(es) for: ")+currentCompareSetString+currentColumnString) );
+  qaction->setText( tr(QString("Add Process(es)...") ) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( addProcessesSelected() ) );
-  qaction->setStatusTip( tr("Select processes to be added or removed from the current column of current cset.") );
+//  qaction->setStatusTip( tr("Select processes to be added or removed from the current column of current cset.") );
+  qaction->setStatusTip( tr("Add -and/or- remove processes from the set.") );
 
   qaction = new QAction( this,  "removeUserPSet");
   qaction->addTo( contextMenu );
-  qaction->setText( tr(QString("Remove process/process set..")+currentColumnString) );
+  qaction->setText( tr(QString("Remove process(es)") ) );
+//  qaction->setText( tr(QString("Remove process/process set..")+currentColumnString) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( removeUserPSet() ) );
-  qaction->setStatusTip( tr("Removes process/process set from the current cset.") );
+  qaction->setStatusTip( tr("Removes process(es) from the set.") );
 
   contextMenu->insertSeparator();
 
+#ifdef DONT_PULL
   qaction = new QAction( this,  "addNewCSet");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Add Compare Set") );
@@ -204,6 +212,7 @@ CustomizeClass::menu(QPopupMenu* contextMenu)
   qaction->setStatusTip( tr("Removes this currently raised Compare Set.") );
 
   contextMenu->insertSeparator();
+#endif // DONT_PULL
 
   qaction = new QAction( this,  "loadAdditionalExperiment");
   qaction->addTo( contextMenu );

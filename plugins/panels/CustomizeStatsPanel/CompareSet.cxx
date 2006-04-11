@@ -39,7 +39,8 @@
 CompareSet::CompareSet(QToolBox *csetTB, CustomizeClass *cc ) : QObject()
 {
 // printf("CompareSet::CompareSet() constructor called.\n");
-  tcnt = 0;
+//  tcnt = 0;
+  tcnt = 1;
   compareClass = cc;
 
   name = QString("cset%1").arg(compareClass->ccnt);

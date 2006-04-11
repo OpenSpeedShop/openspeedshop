@@ -469,6 +469,12 @@ CustomExperimentPanel::menu(QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( saveExperiment() ) );
   qaction->setStatusTip( tr("Save the experiment file...") );
 
+  qaction = new QAction( this,  "CustomExperimentPanelSaveAs");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Export Data..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( saveAsSelected() ) );
+  qaction->setStatusTip( tr("Export data from all the related windows to an ascii file.") );
+
   qaction = new QAction( this,  "expStatus");
   qaction->addTo( contextMenu );
   qaction->setText( "Experiment Status..." );
@@ -509,7 +515,7 @@ if( experiment != NULL )
   connect( qaction, SIGNAL( activated() ), this, SLOT( loadSourcePanel() ) );
   qaction->setStatusTip( tr("Bring up the source panel.") );
 
-  contextMenu->insertSeparator();
+//  contextMenu->insertSeparator();
 
   qaction = new QAction( this,  "manageProcessesPanel");
   qaction->addTo( contextMenu );
@@ -523,14 +529,6 @@ if( experiment != NULL )
   qaction->setText( "Customize StatsPanel..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( customizeExperimentsSelected() ) );
   qaction->setStatusTip( tr("Customize column data in the StatsPanel.") );
-
-  contextMenu->insertSeparator();
-
-  qaction = new QAction( this,  "CustomExperimentPanelSaveAs");
-  qaction->addTo( contextMenu );
-  qaction->setText( "Export Data..." );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( saveAsSelected() ) );
-  qaction->setStatusTip( tr("Export data from all the related windows to an ascii file.") );
 
   return( TRUE );
 }

@@ -64,6 +64,12 @@ CompareExperimentsPanel::menu(QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( editPanelName() ) );
   qaction->setStatusTip( tr("Change the name of this panel...") );
 
+  qaction = new QAction( this,  "CustomExperimentPanelSaveAs");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Export Data..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( saveAsSelected() ) );
+  qaction->setStatusTip( tr("Export data from all the CustomExperimentPanel's windows to an ascii file.") );
+
   qaction = new QAction( this,  "expStatus");
   qaction->addTo( contextMenu );
   qaction->setText( "Experiment Status..." );
@@ -84,21 +90,13 @@ CompareExperimentsPanel::menu(QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( loadSourcePanel() ) );
   qaction->setStatusTip( tr("Bring up the source panel.") );
 
-  contextMenu->insertSeparator();
+//  contextMenu->insertSeparator();
 
   qaction = new QAction( this,  "customizeExperimentsSelected");
   qaction->addTo( contextMenu );
   qaction->setText( "Customize StatsPanel..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( customizeExperimentsSelected() ) );
   qaction->setStatusTip( tr("Customize column data in the StatsPanel.") );
-
-  contextMenu->insertSeparator();
-
-  qaction = new QAction( this,  "CustomExperimentPanelSaveAs");
-  qaction->addTo( contextMenu );
-  qaction->setText( "Export Data..." );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( saveAsSelected() ) );
-  qaction->setStatusTip( tr("Export data from all the CustomExperimentPanel's windows to an ascii file.") );
 
   return( TRUE );
 }
