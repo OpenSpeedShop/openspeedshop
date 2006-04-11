@@ -140,7 +140,7 @@ public:
 
 public slots:
   virtual void saveAsSelected();
-  virtual void compareExperimentsSelected();
+  virtual void customizeExperimentsSelected();
   virtual void loadSourcePanel();
   virtual void editPanelName();
   virtual void saveExperiment();

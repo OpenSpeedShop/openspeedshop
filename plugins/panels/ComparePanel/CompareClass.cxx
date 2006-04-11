@@ -163,20 +163,6 @@ CompareClass::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-  qaction = new QAction( this,  "addNewCSet");
-  qaction->addTo( contextMenu );
-  qaction->setText( tr("Add Compare Set") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( addNewCSet() ) );
-  qaction->setStatusTip( tr("Creates a new Compare Set  to be modified.") );
-
-  qaction = new QAction( this,  "removeCSet");
-  qaction->addTo( contextMenu );
-  qaction->setText( tr(QString("Remove Compare Set")+currentCompareSetString) );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( removeCSet() ) );
-  qaction->setStatusTip( tr("Removes this currently raised Compare Set.") );
-
-  contextMenu->insertSeparator();
-
   qaction = new QAction( this,  "addNewColumn");
   qaction->addTo( contextMenu );
   qaction->setText( tr(QString("Add column to Compare Set...")+currentCompareSetString) );
@@ -205,11 +191,26 @@ CompareClass::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
+  qaction = new QAction( this,  "addNewCSet");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Add Compare Set") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( addNewCSet() ) );
+  qaction->setStatusTip( tr("Creates a new Compare Set  to be modified.") );
+
+  qaction = new QAction( this,  "removeCSet");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr(QString("Remove Compare Set")+currentCompareSetString) );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( removeCSet() ) );
+  qaction->setStatusTip( tr("Removes this currently raised Compare Set.") );
+
+  contextMenu->insertSeparator();
+
   qaction = new QAction( this,  "loadAdditionalExperiment");
   qaction->addTo( contextMenu );
   qaction->setText( tr(QString("Load another (additional) experiment's data.")  ) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( loadAdditionalExperimentSelected() ) );
   qaction->setStatusTip( tr("Loads another experiment's data.") );
+
 
   return( TRUE );
 }

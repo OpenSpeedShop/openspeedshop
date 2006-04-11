@@ -86,11 +86,11 @@ CompareExperimentsPanel::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-  qaction = new QAction( this,  "compareExperimentsSelected");
+  qaction = new QAction( this,  "customizeExperimentsSelected");
   qaction->addTo( contextMenu );
-  qaction->setText( "Compare Experiments/Customize StatsPanel..." );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( compareExperimentsSelected() ) );
-  qaction->setStatusTip( tr("Opens a saved experiment, so it's data can be compared against this experiments data.") );
+  qaction->setText( "Customize StatsPanel..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( customizeExperimentsSelected() ) );
+  qaction->setStatusTip( tr("Customize column data in the StatsPanel.") );
 
   contextMenu->insertSeparator();
 

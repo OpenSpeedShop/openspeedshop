@@ -518,11 +518,11 @@ if( experiment != NULL )
   qaction->setStatusTip( tr("Bring up the process and collector manager.") );
 
 
-  qaction = new QAction( this,  "compareExperimentsSelected");
+  qaction = new QAction( this,  "customizeExperimentsSelected");
   qaction->addTo( contextMenu );
-  qaction->setText( "Compare Experiments/Customize StatsPanel..." );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( compareExperimentsSelected() ) );
-  qaction->setStatusTip( tr("Opens a saved experiment, so it's data can be compared against this experiments data.") );
+  qaction->setText( "Customize StatsPanel..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( customizeExperimentsSelected() ) );
+  qaction->setStatusTip( tr("Customize column data in the StatsPanel.") );
 
   contextMenu->insertSeparator();
 
@@ -530,35 +530,35 @@ if( experiment != NULL )
   qaction->addTo( contextMenu );
   qaction->setText( "Export Data..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( saveAsSelected() ) );
-  qaction->setStatusTip( tr("Export data from all the CustomExperimentPanel's windows to an ascii file.") );
+  qaction->setStatusTip( tr("Export data from all the related windows to an ascii file.") );
 
   return( TRUE );
 }
 
 
 void
-CustomExperimentPanel::compareExperimentsSelected()
+CustomExperimentPanel::customizeExperimentsSelected()
 {
-  nprintf( DEBUG_PANELS ) ("CustomExperimentPanel::compareExperimentsSelected()\n");
+  nprintf( DEBUG_PANELS ) ("CustomExperimentPanel::customizeExperimentsSelected()\n");
 
   QString name = QString("ComparePanel [%1]").arg(expID);
 
-  Panel *comparePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+  Panel *customizePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
 
 
-  if( comparePanel )
+  if( customizePanel )
   { 
-    nprintf( DEBUG_PANELS ) ("comparePanel() found comparePanel found.. raise it.\n");
-    getPanelContainer()->raisePanel(comparePanel);
+    nprintf( DEBUG_PANELS ) ("customizePanel() found customizePanel found.. raise it.\n");
+    getPanelContainer()->raisePanel(customizePanel);
   } else
   {
-//    nprintf( DEBUG_PANELS ) ("comparePanel() no comparePanel found.. create one.\n");
+//    nprintf( DEBUG_PANELS ) ("customizePanel() no customizePanel found.. create one.\n");
 
     PanelContainer *startPC = getPanelContainer();
     PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
 
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-    comparePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ComparePanel", bestFitPC, ao, (const char *)NULL);
+    customizePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ComparePanel", bestFitPC, ao, (const char *)NULL);
     delete ao;
   }
 
