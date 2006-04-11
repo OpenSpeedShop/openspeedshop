@@ -32,7 +32,7 @@ ManageProcessesPanel_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-guiobjects \
 	-I$(top_srcdir)/libopenss-guidialogs \
     -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/plugins/panels/ComparePanel \
+    -I$(top_srcdir)/plugins/panels/CustomizeStatsPanel \
     -I$(top_srcdir)/libopenss-guibase
 
 ManageProcessesPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
