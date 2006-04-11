@@ -53,12 +53,7 @@ namespace OpenSpeedShop {
     namespace Queries
     {
 
-	void GetSourceObjects(const Framework::Thread&,
-                              std::set<Framework::LinkedObject>&);
-        void GetSourceObjects(const Framework::Thread&,
-                              std::set<Framework::Function>&);
-        void GetSourceObjects(const Framework::Thread&,
-                              std::set<Framework::Statement>&);
+	Framework::ThreadGroup MakeThreadGroup(const Framework::Thread&);
 
 	/**
 	 * Strict weak ordering predicate for linked objects.
@@ -112,53 +107,163 @@ namespace OpenSpeedShop {
 			    const Framework::Statement&) const;
 	};
 
-	template <typename TS, typename TM>
-	void GetMetricInThread(
-	    const Framework::Collector&,
-	    const std::string&,
-	    const Framework::TimeInterval&,
-	    const Framework::Thread&,
-	    const std::set<TS >&,
-	    Framework::SmartPtr<std::map<TS, TM > >&
-	    );
+
 
 	template <typename TS, typename TM>
-	void GetMetricInThreadGroup(
+	void GetMetricValues(
 	    const Framework::Collector&,
 	    const std::string&,
 	    const Framework::TimeInterval&,
 	    const Framework::ThreadGroup&,
 	    const std::set<TS >&,
-	    Framework::SmartPtr<std::map<TS, TM > >&
+	    Framework::SmartPtr<
+	        std::map<TS, std::map<Framework::Thread, TM > > >&
 	    );
 
-	template <typename TS, typename TM>
-	void GetMetricOfAllInThread(
-	    const Framework::Collector&,
-	    const std::string&,
-	    const Framework::TimeInterval&,
-	    const Framework::Thread&,
-	    Framework::SmartPtr<std::map<TS, TM > >&
-	    );
 
-	template <typename TS, typename TM>
-	void GetMetricOfAllInThreadGroup(
-	    const Framework::Collector&,
-	    const std::string&,
-	    const Framework::TimeInterval&,
-	    const Framework::ThreadGroup&,
-	    Framework::SmartPtr<std::map<TS, TM > >&
-	    );
 
-	template <typename TM>
-	void GetMetricByStatementOfFileInThread(
-	    const Framework::Collector&,
-	    const std::string&,
-	    const Framework::TimeInterval&,
-	    const Framework::Thread&,
-	    const Framework::Path&,
-	    Framework::SmartPtr<std::map<int, TM > >&
-	    );
+	namespace Reduction {
+
+	    template <typename TM>
+	    TM Summation(const std::map<Framework::Thread, TM >&);
+
+	    template <typename TM>
+	    TM ArithmeticMean(const std::map<Framework::Thread, TM >&);
+
+	    template <typename TM>
+	    TM Minimum(const std::map<Framework::Thread, TM >&);
+
+	    template <typename TM>
+	    TM Maximum(const std::map<Framework::Thread, TM >&);
+
+	    template <typename TS, typename TM>
+	    Framework::SmartPtr<std::map<TS, TM > > Apply(
+		const Framework::SmartPtr<
+	            std::map<TS, std::map<Framework::Thread, TM > > >&,
+		TM (*)(const std::map<Framework::Thread, TM>&)
+		);
+
+	    template <typename TS, typename TM>
+	    TM GetTotal(const Framework::SmartPtr<std::map<TS, TM > >&);
+
+	    template <typename TS, typename TM>
+	    Framework::SmartPtr<
+		std::map<TS, std::map<Framework::Thread, TM > > > GetSubset(
+		const Framework::SmartPtr<
+	            std::map<TS, std::map<Framework::Thread, TM > > >&,
+		const Framework::ThreadGroup&
+		);
+
+	}
+
+
+
+	namespace ClusterAnalysis {
+
+	    template <typename TS, typename TM>
+	    TM ManhattanDistance(
+		const std::map<TS, std::map<Framework::Thread, TM > >&,
+		const Framework::Thread&,
+		const Framework::Thread&
+		);
+
+	    template <typename TS, typename TM> class DistanceMatrix;
+	    	    
+	    template <typename TS, typename TM>
+	    TM CompleteLinkageDistance(const DistanceMatrix<TS, TM >&,
+				       const Framework::ThreadGroup&,
+				       const Framework::ThreadGroup&);
+
+	    template <typename TS, typename TM>
+	    TM SingleLinkageDistance(const DistanceMatrix<TS, TM >&,
+				     const Framework::ThreadGroup&,
+				     const Framework::ThreadGroup&);
+
+	    template <typename TS, typename TM>
+	    TM AverageLinkageDistance(const DistanceMatrix<TS, TM >&,
+				      const Framework::ThreadGroup&,
+				      const Framework::ThreadGroup&);
+	    
+	    /**
+	     * Clustering termination predicate (numerical #1).
+	     *
+	     * Defines a cluster termination predicate that terminates the
+	     * formation of clusters when the number of clusters reaches a
+	     * constant value (specified at object construction).
+	     *
+	     * @sa    http://en.wikipedia.org/wiki/Cluster_analysis#
+	     *        Agglomerative_hierarchical_clustering
+	     */
+	    template <typename TS, typename TM>
+	    struct NumberCriterion1 {
+
+		bool operator()(const DistanceMatrix<TS, TM >&,
+				const std::set<Framework::ThreadGroup>&,
+				const TM&, const Framework::ThreadGroup&,
+				const Framework::ThreadGroup&) const;
+		
+		/** Constructor from maximum cluster count. */
+		NumberCriterion1(const unsigned& count) : dm_count(count) { }
+		
+	    private:
+
+		/** Maximum cluster count. */
+		unsigned dm_count;
+		
+	    };
+
+	    /**
+	     * Clustering termination predicate (distance #1).
+	     *
+	     * Defines a cluster termination predicate that terminates the
+	     * formation of clusters when the ratio of the minimum distance
+	     * between any two clusters and the maximum of those cluster's
+	     * average inter-cluster distance exceeds a constant value
+	     * (specified at object construction).
+	     *
+	     * @sa    http://en.wikipedia.org/wiki/Cluster_analysis#
+	     *        Agglomerative_hierarchical_clustering
+	     */
+	    template <typename TS, typename TM>
+	    struct DistanceCriterion1 {
+
+		bool operator()(const DistanceMatrix<TS, TM >&,
+				const std::set<Framework::ThreadGroup>&,
+				const TM&, 
+				const Framework::ThreadGroup&,
+				const Framework::ThreadGroup&) const;
+		
+		/** Constructor from maximum distance ratio. */
+		DistanceCriterion1(const TM& ratio) : dm_ratio(ratio) { }
+
+	    private:
+		
+		/** Maximum distance ratio. */
+		TM dm_ratio;
+		
+	    };
+
+	    template <typename TS, typename TM, typename TC>
+	    std::set<Framework::ThreadGroup> Apply(
+		const Framework::SmartPtr<
+	            std::map<TS, std::map<Framework::Thread, TM > > >&,
+		TM (*)(const std::map<TS, std::map<Framework::Thread, TM > >&,
+		       const Framework::Thread&, const Framework::Thread&),
+		TM (*)(const DistanceMatrix<TS, TM >&,
+		       const Framework::ThreadGroup&,
+		       const Framework::ThreadGroup&),
+		const TC&
+		);
+
+	    template <typename TS, typename TM>
+	    std::set<Framework::ThreadGroup> ApplySimple(
+		const Framework::SmartPtr<
+	            std::map<TS, std::map<Framework::Thread, TM > > >&
+		);
+	    
+	}
+
+
 
     }
 
@@ -178,11 +283,9 @@ void operator+=(std::vector<T >&, const std::vector<T >&);
 
 
 #include "AdditionAssignment.txx"
-#include "GetMetricInThread.txx"
-#include "GetMetricInThreadGroup.txx"
-#include "GetMetricOfAllInThread.txx"
-#include "GetMetricOfAllInThreadGroup.txx"
-#include "GetMetricByStatement.txx"
+#include "ClusterAnalysis.txx"
+#include "GetMetricValues.txx"
+#include "Reduction.txx"
 
 
 

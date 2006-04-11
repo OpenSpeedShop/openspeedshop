@@ -18,12 +18,12 @@
 
 /** @file
  *
- * Definition of the GetMetricInThreadGroup template function.
+ * Definition of the GetMetricValues template function.
  *
  */
 
-#ifndef _OpenSpeedShop_Queries_GetMetricInThreadGroup_
-#define _OpenSpeedShop_Queries_GetMetricInThreadGroup_
+#ifndef _OpenSpeedShop_Queries_GetMetricValues_
+#define _OpenSpeedShop_Queries_GetMetricValues_
 
 #include "Queries.hxx"
 #include "ToolAPI.hxx"
@@ -50,13 +50,13 @@ namespace OpenSpeedShop {
 
 
 /**
- * Get metric values in a thread group.
+ * Get metric values.
  *
- * Evalutes the specified collector's metric, over the specified time interval,
- * for the specified source objects, totaled over the specified thread group.
- * Results are provided in a map of source objects to metric values. An
- * initially-empty map is allocated if one is not provided. Source objects with
- * non-zero metric values will then be added into the (new or existing) map.
+ * Evaluates the individual values of the specified collector's metric, over the
+ * specified time interval, for the specified source objects, in each thread of
+ * the specified thread group. Results are returned in a map of source objects
+ * to threads to values. An empty map is allocated if one isn't provided. Non-
+ * zero metric values are then added to the (new or existing) map.
  *
  * @pre    The specified collector and all threads in the thread group must be
  *         in the same experiment. An assertion failure occurs if more than one
@@ -71,18 +71,17 @@ namespace OpenSpeedShop {
  * @param interval     Time interval over which to get the metric values. 
  * @param threads      Thread group for which to get metric values.
  * @param objects      Source objects for which to get metric values.
- * @retval result      Smart pointer to a map of the source objects to their
- *                     metric values. A new map is allocated if a null smart
- *                     pointer is passed.
+ * @retval results     Smart pointer to the results map.
  */
 template <typename TS, typename TM>
-void Queries::GetMetricInThreadGroup(
+void Queries::GetMetricValues(
     const Framework::Collector& collector,
     const std::string& metric,
     const Framework::TimeInterval& interval,
     const Framework::ThreadGroup& threads,
     const std::set<TS >& objects,
-    Framework::SmartPtr<std::map<TS, TM > >& result)
+    Framework::SmartPtr<
+        std::map<TS, std::map<Framework::Thread, TM > > >& results)
 {
     // Check preconditions
     for(Framework::ThreadGroup::const_iterator
@@ -91,15 +90,18 @@ void Queries::GetMetricInThreadGroup(
     for(typename std::set<TS >::const_iterator
 	    i = objects.begin(); i != objects.end(); ++i)
 	Assert(collector.inSameDatabase(*i));
-    
-    // Allocate (if necessary) a new map of source objects to values
-    if(result.isNull())
-        result = Framework::SmartPtr<std::map<TS, TM > >(
-            new std::map<TS, TM >()
-            );
-    Assert(!result.isNull());
 
-    // Construct extent restricting evaluation to requested time interval
+    // Allocate (if necessary) a new results map
+    if(results.isNull())
+	results = 
+	    Framework::SmartPtr<
+                std::map<TS, std::map<Framework::Thread, TM > > 
+	    >(
+		new std::map<TS, std::map<Framework::Thread, TM > >()
+	     );
+    Assert(!results.isNull());
+    
+    // Construct extent restricting evaluation to the requested time interval
     Framework::Extent restriction(
         interval,
         Framework::AddressRange(Framework::Address::TheLowest(),
@@ -137,11 +139,20 @@ void Queries::GetMetricInThreadGroup(
 		// Get the source object corresponding to this evaluated extent
 		const TS& object = extent_table.getObject(*i, j);
 		
-		// Add this value into the results
-		if(result->find(object) == result->end())
-		    result->insert(std::make_pair(object, values[j]));
-		else
-		    (*result)[object] += values[j];
+		// Incorporate this value into the results map
+		typename std::map<TS, std::map<Framework::Thread, TM > >::
+		    iterator k = results->find(object);
+		if(k == results->end())
+		    k = results->insert(
+			std::make_pair(
+			    object, std::map<Framework::Thread, TM >()
+			    )
+			).first;
+		typename std::map<Framework::Thread, TM >::iterator
+		    l = k->second.find(*i);
+		if(l == k->second.end())
+		    l = k->second.insert(std::make_pair(*i, TM())).first;
+		l->second += values[j];
 		
 	    }
 	    

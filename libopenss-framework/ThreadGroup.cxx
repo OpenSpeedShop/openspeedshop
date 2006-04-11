@@ -220,6 +220,170 @@ void ThreadGroup::stopCollecting(const CollectorGroup& collectors) const
 
 
 /**
+ * Get linked objects for all threads.
+ *
+ * Returns the linked objects within the threads in the group. An empty set is
+ * returned if no linked objects are found.
+ *
+ * @pre    All threads in the thread group must be from the same experiment. An
+ *         assertion failure occurs if more than one experiment is implied.
+ *
+ * @return    Linked objects contained within this group.
+ */
+std::set<LinkedObject> ThreadGroup::getLinkedObjects() const
+{
+    std::set<LinkedObject> linked_objects;
+    
+    // Handle special case of an empty thread group
+    if(empty())
+	return linked_objects;
+
+    // Check preconditions
+    SmartPtr<Database> database = EntrySpy(*begin()).getDatabase();
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
+	Assert(EntrySpy(*i).getDatabase() == database);
+
+    // Find all of the linked objects within any thread of this group
+    BEGIN_TRANSACTION(database);
+    database->prepareStatement(
+	"SELECT thread, "
+	"       linked_object "
+	"FROM AddressSpaces;"
+	);
+    while(database->executeStatement())
+	if(find(Thread(database, database->getResultAsInteger(1))) != end())
+	    linked_objects.insert(
+		LinkedObject(database, database->getResultAsInteger(2))
+		);
+    END_TRANSACTION(database);
+    
+    // Return the linked objects to the caller
+    return linked_objects;
+}
+
+
+
+/**
+ * Get functions for all threads.
+ *
+ * Returns the functions within the threads in the group. An empty set is
+ * returned if no functions are found.
+ *
+ * @pre    All threads in the thread group must be from the same experiment. An
+ *         assertion failure occurs if more than one experiment is implied.
+ *
+ * @return    Functions contained within this group.
+ */
+std::set<Function> ThreadGroup::getFunctions() const
+{
+    std::set<Function> functions;
+    
+    // Handle special case of an empty thread group
+    if(empty())
+	return functions;
+
+    // Check preconditions
+    SmartPtr<Database> database = EntrySpy(*begin()).getDatabase();
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
+	Assert(EntrySpy(*i).getDatabase() == database);
+
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(database);
+    
+    // Find all of the linked objects within any thread of this group
+    std::set<int> linked_objects;
+    database->prepareStatement(
+	"SELECT thread, "
+	"       linked_object "
+	"FROM AddressSpaces;"
+	);
+    while(database->executeStatement())
+	if(find(Thread(database, database->getResultAsInteger(1))) != end())
+	    linked_objects.insert(database->getResultAsInteger(2));
+
+    // Find all of the functions in any of these linked objects
+    database->prepareStatement(
+	"SELECT id, "
+	"       linked_object "
+	"FROM Functions;"
+	);
+    while(database->executeStatement())
+	if(linked_objects.find(database->getResultAsInteger(2)) !=
+	   linked_objects.end())
+	    functions.insert(
+		Function(database, database->getResultAsInteger(1))
+		);
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(database);
+    
+    // Return the functions to the caller
+    return functions;
+}
+
+
+
+/**
+ * Get statements for all threads.
+ *
+ * Returns the statements within the threads in the group. An empty set is
+ * returned if no statements are found.
+ *
+ * @pre    All threads in the thread group must be from the same experiment. An
+ *         assertion failure occurs if more than one experiment is implied.
+ *
+ * @return    Statements contained within this group.
+ */
+std::set<Statement> ThreadGroup::getStatements() const
+{
+    std::set<Statement> statements;
+    
+    // Handle special case of an empty thread group
+    if(empty())
+	return statements;
+
+    // Check preconditions
+    SmartPtr<Database> database = EntrySpy(*begin()).getDatabase();
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
+	Assert(EntrySpy(*i).getDatabase() == database);
+
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(database);
+    
+    // Find all of the linked objects within any thread of this group
+    std::set<int> linked_objects;
+    database->prepareStatement(
+	"SELECT thread, "
+	"       linked_object "
+	"FROM AddressSpaces;"
+	);
+    while(database->executeStatement())
+	if(find(Thread(database, database->getResultAsInteger(1))) != end())
+	    linked_objects.insert(database->getResultAsInteger(2));
+
+    // Find all of the statements in any of these linked objects
+    database->prepareStatement(
+	"SELECT id, "
+	"       linked_object "
+	"FROM Statements;"
+	);
+    while(database->executeStatement())
+	if(linked_objects.find(database->getResultAsInteger(2)) !=
+	   linked_objects.end())
+	    statements.insert(
+		Statement(database, database->getResultAsInteger(1))
+		);
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(database);
+    
+    // Return the statements to the caller
+    return statements;
+}
+
+
+
+/**
  * Get extents of linked objects for all threads.
  *
  * Returns the extents of all the specified linked objects within the threads

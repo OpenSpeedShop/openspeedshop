@@ -91,18 +91,18 @@ static void Show(const std::string& name)
 {
     // Open the existing experiment
     Experiment experiment(name);
-
-    // Find the first collector and thread in this experiment
-    Collector collector = *(experiment.getCollectors().begin());
-    Thread thread = *(experiment.getThreads().begin());
-
-    // Evaluate the collector's time metric for all functions in thread
-    SmartPtr<std::map<Function, double> > data;
-    Queries::GetMetricOfAllInThread(
-	collector, "time", TimeInterval(Time::TheBeginning(), Time::TheEnd()),
-	thread, data
-	);
-
+    
+    // Evaluate the first collector's time metric for all functions
+    SmartPtr<std::map<Function, std::map<Thread, double> > > individual;
+    Queries::GetMetricValues(*experiment.getCollectors().begin(), "time",
+	                     TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+			     experiment.getThreads(),
+			     experiment.getThreads().getFunctions(),
+			     individual);
+    SmartPtr<std::map<Function, double> > data =
+	Queries::Reduction::Apply(individual, Queries::Reduction::Summation);
+    individual = SmartPtr<std::map<Function, std::map<Thread, double> > >();
+    
     // Sort the results
     std::multimap<double, Function> sorted;
     for(std::map<Function, double>::const_iterator

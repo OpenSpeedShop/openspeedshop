@@ -30,52 +30,19 @@ using namespace OpenSpeedShop;
 
 
 /**
- * Get a thread's linked objects.
- * 
- * Returns the linked objects contained within the specified thread. An empty
- * set is returned if no linked objects are found.
+ * Make a thread group from a thread.
  *
- * @param thread     Thread for which to get linked objects.
- * @param objects    Linked objects contained within this thread.
- */
-void Queries::GetSourceObjects(const Framework::Thread& thread,
-			       std::set<Framework::LinkedObject>& objects)
-{
-    objects = thread.getLinkedObjects();
-}
-
-
-
-/**
- * Get a thread's functions.
- * 
- * Returns the functions contained within the specified thread. An empty set is
- * returned if no functions are found.
+ * Constructs a thread group containing the one specified thread.
  *
- * @param thread     Thread for which to get functions.
- * @param objects    Functions contained within this thread.
+ * @param thread    Thread from which to construct the thread group.
+ * @return          Thread group containing that thread.
  */
-void Queries::GetSourceObjects(const Framework::Thread& thread,
-			       std::set<Framework::Function>& objects)
+Framework::ThreadGroup
+Queries::MakeThreadGroup(const Framework::Thread& thread)
 {
-    objects = thread.getFunctions();
-}
-
-
-
-/**
- * Get a thread's statements.
- * 
- * Returns the statements contained within the specified thread. An empty set is
- * returned if no statements are found.
- *
- * @param thread     Thread for which to get statements.
- * @param objects    Statements contained within this thread.
- */
-void Queries::GetSourceObjects(const Framework::Thread& thread,
-			       std::set<Framework::Statement>& objects)
-{
-    objects = thread.getStatements();
+    Framework::ThreadGroup threads;
+    threads.insert(thread);
+    return threads;
 }
 
 

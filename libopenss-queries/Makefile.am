@@ -30,12 +30,10 @@ libopenss_queries_la_LIBADD = \
 
 libopenss_queries_la_SOURCES = \
 	AdditionAssignment.txx \
-	GetMetricByStatement.txx \
-	GetMetricInThread.txx \
-	GetMetricInThreadGroup.txx \
-	GetMetricOfAllInThread.txx \
-	GetMetricOfAllInThreadGroup.txx \
-	Queries.hxx Queries.cxx
+	ClusterAnalysis.txx \
+	GetMetricValues.txx \
+	Queries.hxx Queries.cxx \
+	Reduction.txx
 
 doc:
 	$(DOXYGEN)

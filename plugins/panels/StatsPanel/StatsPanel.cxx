@@ -103,6 +103,45 @@ struct sort_descending : public std::binary_function<T,T,bool> {
     }
 };
 
+#include <map>
+
+template <typename T>
+void GetMetricByStatementOfFileInThread(
+    const Collector& collector,
+    const std::string& metric,
+    const TimeInterval& interval,
+    const Thread& thread,
+    const Path& file,
+    SmartPtr<std::map<int, T > >& result)
+{
+    // Allocate (if necessary) a new map of statement line numbers to values
+    if(result.isNull())
+        result = SmartPtr<std::map<int, T > >(new std::map<int, T >());
+    Assert(!result.isNull());
+
+    // Get the set of statements for the specified file in this thread
+    std::set<Statement> objects = thread.getStatementsBySourceFile(file);
+
+    // Get the summation reduced metric values for these statements
+    SmartPtr<std::map<Statement, std::map<Thread, T > > > individual;
+    Queries::GetMetricValues(collector, metric, interval,
+			     Queries::MakeThreadGroup(thread), 
+			     objects, individual);
+    SmartPtr<std::map<Statement, T > > reduced =
+	Queries::Reduction::Apply(individual, Queries::Reduction::Summation);
+    individual = SmartPtr<std::map<Statement, std::map<Thread, T > > >();
+
+    // Merge the temporary reduction into the actual results while stripping
+    // out everything but the line numbers for the statments
+    for(typename std::map<Statement, T >::const_iterator
+	    i = reduced->begin(); i != reduced->end(); ++i)
+	if(result->find(i->first.getLine()) == result->end())
+	    result->insert(std::make_pair(i->first.getLine(), i->second));
+	else
+	    (*result)[i->first.getLine()] += i->second;
+}
+
+
 
 // This is the stream the cli will write the output from the 
 // expView commands that are sent its way.
@@ -1538,7 +1577,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 
 // printf("GetMetric... %s:%s %d %s\n", currentCollectorStr.ascii(), currentMetricStr.ascii(), currentThread->getProcessId(), Path(di->getPath()).c_str() );
 
-              Queries::GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(di->getPath()), double_statement_data);
+              GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(di->getPath()), double_statement_data);
 
               // Begin try to highlight source for doubles....
 // printf("Build/append to a list of highlights for the source panel to update.\n");
@@ -1590,7 +1629,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // printf("NOT DOUBLE\n");
               // Not a double value...
               SmartPtr<std::map<int, uint64_t> > uint64_statement_data = Framework::SmartPtr<std::map<int, uint64_t> >(new std::map<int, uint64_t>() );;
-            Queries::GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(di->getPath()), uint64_statement_data);
+            GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(di->getPath()), uint64_statement_data);
       
 // printf("uint64_statement_data->size(%d)\n", uint64_statement_data->size() );
 

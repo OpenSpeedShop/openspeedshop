@@ -613,6 +613,28 @@ static void Get_Objects_By_Function (std::set<Function>& named_functions,
   }
 }
 
+
+
+static void Get_Source_Objects(const Thread& thread,
+			       std::set<LinkedObject>& objects)
+{
+    objects = thread.getLinkedObjects();
+}
+
+static void Get_Source_Objects(const Thread& thread,
+			       std::set<Function>& objects)
+{
+    objects = thread.getFunctions();
+}
+
+static void Get_Source_Objects(const Thread& thread,
+			       std::set<Statement>& objects)
+{
+    objects = thread.getStatements();
+}
+
+
+
 static inline bool Force_Long_Compare (std::set<LinkedObject>& objects) { return true; }
 static inline bool Force_Long_Compare (std::set<Function>& objects) { return false; }
 static inline bool Force_Long_Compare (std::set<Statement>& objects) { return false; }
@@ -645,7 +667,7 @@ void Filtered_Objects (CommandObject *cmd,
 
       Thread thread = *ti;
       std::set<TE> new_objects;
-      OpenSpeedShop::Queries::GetSourceObjects(thread, new_objects);
+      Get_Source_Objects(thread, new_objects);
       objects.insert(new_objects.begin(), new_objects.end());
     }
   } else if (Force_Long_Compare(objects) || Uses_Path_Name(cmd)) {
@@ -659,7 +681,7 @@ void Filtered_Objects (CommandObject *cmd,
      // Only include selected objects.
       Thread thread = *ti;
       std::set<TE> new_objects;
-      OpenSpeedShop::Queries::GetSourceObjects(thread, new_objects);
+      Get_Source_Objects(thread, new_objects);
       vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
       for (typename std::set<TE>::iterator newi = new_objects.begin();
                 newi != new_objects.end();

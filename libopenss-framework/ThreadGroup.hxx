@@ -61,7 +61,7 @@ namespace OpenSpeedShop { namespace Framework {
     {
 	
     public:
-	
+
 	ThreadGroup getSubsetWithState(const Thread::State&) const;
 	bool isAnyState(const Thread::State&) const;
 	bool areAllState(const Thread::State&) const;
@@ -73,6 +73,10 @@ namespace OpenSpeedShop { namespace Framework {
 	void postponeCollecting(const CollectorGroup&) const;
 	void stopCollecting(const Collector&) const;
 	void stopCollecting(const CollectorGroup&) const;
+
+	std::set<LinkedObject> getLinkedObjects() const;
+	std::set<Function> getFunctions() const;
+	std::set<Statement> getStatements() const;
 
 	ExtentTable<LinkedObject> getExtentsOf(
 	    const std::set<LinkedObject>&, const Extent&) const;

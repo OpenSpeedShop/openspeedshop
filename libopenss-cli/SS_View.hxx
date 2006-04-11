@@ -199,12 +199,29 @@ void GetMetricInThreadGroup(
     const std::string& metric,
     const ThreadGroup& tgrp,
     const std::set<TO >& objects,
-    SmartPtr<std::map<TO, TS> >& result)
+    SmartPtr<std::map<TO, TS > >& result)
 {
-    Queries::GetMetricInThreadGroup(
-	collector, metric, TimeInterval(Time::TheBeginning(), Time::TheEnd()),
-	tgrp, objects,result
-	);
+    // Allocate (if necessary) a new map of source objects to values
+    if(result.isNull())
+        result = SmartPtr<std::map<TO, TS > >(new std::map<TO, TS >());
+    Assert(!result.isNull());
+
+    // Get the summation reduced metric values
+    SmartPtr<std::map<TO, std::map<Thread, TS > > > individual;
+    Queries::GetMetricValues(collector, metric,
+	                     TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+			     tgrp, objects, individual);
+    SmartPtr<std::map<TO, TS > > reduced =
+	Queries::Reduction::Apply(individual, Queries::Reduction::Summation);
+    individual = SmartPtr<std::map<TO, std::map<Thread, TS > > >();
+
+    // Merge the temporary reduction into the actual results
+    for(typename std::map<TO, TS >::const_iterator
+	    i = reduced->begin(); i != reduced->end(); ++i)
+	if(result->find(i->first) == result->end())
+	    result->insert(std::make_pair(i->first, i->second));
+	else
+	    (*result)[i->first] += i->second;
 }
 
 
