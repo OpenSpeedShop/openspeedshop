@@ -17,8 +17,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "ManageProcessesPanel.hxx"
-#include "ManageCollectorsClass.hxx"
+#include "CustomizeStatsPanel.hxx"
+#include "CustomizeClass.hxx"
+#include "CompareProcessesDialog.hxx"
 #include "PreferencesChangedObject.hxx"
 #include "UpdateObject.hxx"
 #include "PanelContainer.hxx"   // Do not remove
@@ -28,21 +29,20 @@
 #include "preference_plugin_info.hxx"
 
 #include <qtextedit.h>  // For QTextEdit in example below...
-ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
+CustomizeStatsPanel::CustomizeStatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   expID = ao->int_data;
 
-  setCaption("ManageProcessesPanel");
+  setCaption("CustomizeStatsPanel");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  mcc = new ManageCollectorsClass( this, getBaseWidgetFrame() );
 
-  frameLayout->addWidget(mcc);
+  mcc1 = new CustomizeClass( this, getBaseWidgetFrame(), "CustomizeClass", FALSE, 0, ao->int_data );
 
-  mcc->show();
-  mcc->expID = ao->int_data;
-  groupID = mcc->expID;
-  getBaseWidgetFrame()->setCaption("ManageProcessesPanelBaseWidget");
+  frameLayout->addWidget(mcc1);
+  mcc1->expID = ao->int_data;
+  groupID = mcc1->expID;
+  getBaseWidgetFrame()->setCaption("CustomizeStatsPanelBaseWidget");
 
   char name_buffer[100];
   sprintf(name_buffer, "%s [%d]", getName(), expID);
@@ -55,15 +55,15 @@ ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, Ar
 /*! The only thing that needs to be cleaned is anything allocated in this
     class.  By default that is nothing.
  */
-ManageProcessesPanel::~ManageProcessesPanel()
+CustomizeStatsPanel::~CustomizeStatsPanel()
 {
   // Delete anything you new'd from the constructor.
-// printf("ManageProcessPanel::destructo called.\n");
-  delete mcc;
+// printf("CustomizeStatsPanel::destructor called.\n");
+  delete mcc1;
 }
 
 void
-ManageProcessesPanel::languageChange()
+CustomizeStatsPanel::languageChange()
 {
   // Set language specific information here.
 }
@@ -76,26 +76,20 @@ ManageProcessesPanel::languageChange()
     /param  contextMenu is the QPopupMenu * that use menus can be attached.
  */
 bool
-ManageProcessesPanel::menu(QPopupMenu* contextMenu)
+CustomizeStatsPanel::menu(QPopupMenu* contextMenu)
 {
   Panel::menu(contextMenu);
 
-  QAction *qaction = new QAction( this,  "openCustomizeStatsPanel");
-  qaction->addTo( contextMenu );
-  qaction->setText( tr("Compare Panel") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( openCustomizeStatsPanel() ) );
-  qaction->setStatusTip( tr("Open panel to set the compare properties.") );
-
-  return( mcc->menu(contextMenu) );
+  return( mcc1->menu(contextMenu) );
 }
 
 /*! If the user panel save functionality, their function
      should provide the saving.
  */
 void 
-ManageProcessesPanel::save()
+CustomizeStatsPanel::save()
 {
-  dprintf("ManageProcessesPanel::save() requested.\n");
+  dprintf("CustomizeStatsPanel::save() requested.\n");
 }
 
 /*! If the user panel provides save to functionality, their function
@@ -103,9 +97,9 @@ ManageProcessesPanel::save()
      for a file name.
  */
 void 
-ManageProcessesPanel::saveAs()
+CustomizeStatsPanel::saveAs()
 {
-  dprintf("ManageProcessesPanel::saveAs() requested.\n");
+  dprintf("CustomizeStatsPanel::saveAs() requested.\n");
 }
 
 
@@ -118,17 +112,39 @@ ManageProcessesPanel::saveAs()
     \return 1 means you handled the message.
  */
 int 
-ManageProcessesPanel::listener(void *msg)
+CustomizeStatsPanel::listener(void *msg)
 {
   PreferencesChangedObject *pco = NULL;
 
   MessageObject *msgObject = (MessageObject *)msg;
 //  if( msgObject->msgType == getName() )
-// printf("ManageProcessesPanel::listener() getName=%s\n", getName());
+// printf("CustomizeStatsPanel::listener() getName=%s\n", getName());
 // msgObject->print();
+
+  if( msgObject->msgType == "ClosingDownObject" )
+  {
+    // When we close down, delete the dialog. (Optionally we could
+    // disconnect the SIGNAL/SLOT connection for the update when 
+    // the current tab changes.  Regardless, destroying the 
+    // dialog (then setting the dialog pointer to null, prevents
+    // updates from occurring as the destructors are being called
+    // to clean up the column information.   This prevents and 
+    // abort from occuring when the following sequence takes
+    // place:  openss pcsamp -f executable; GUI:RUN, GUI:CustomizeStatsPanel,
+    // GUI:CustomizeStatsPanel->Dialog, GUI:CustomizeStatsPanel->Dialog->close,
+    // GUI:TERMINATE (experiment's execution), GUI:Close Experiment.
+    if( mcc1->dialog )
+    {
+      mcc1->dialog->hide();
+      delete mcc1->dialog;
+      mcc1->dialog = NULL;
+    }
+    return 1;
+  }
+
   if( msgObject->msgType == getName() && recycleFLAG == TRUE )
   {
-    nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() interested!\n");
+    nprintf(DEBUG_MESSAGES) ("CustomizeStatsPanel::listener() interested!\n");
     getPanelContainer()->raisePanel(this);
     return 1;
   }
@@ -136,26 +152,24 @@ ManageProcessesPanel::listener(void *msg)
   if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
-    nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() UpdateExperimentDataObject!\n");
-
-    mcc->expID = msg->expID;
-    mcc->updatePanel();
+    nprintf(DEBUG_MESSAGES) ("CustomizeStatsPanel::listener() UpdateExperimentDataObject!\n");
 
     if( msg->raiseFLAG )
     {
     if( msg->raiseFLAG )
       getPanelContainer()->raisePanel((Panel *)this);
     }
+    mcc1->updateInfo();
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
-    nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() PreferencesChangedObject!\n");
+    nprintf(DEBUG_MESSAGES) ("CustomizeStatsPanel::listener() PreferencesChangedObject!\n");
     pco = (PreferencesChangedObject *)msgObject;
 // Currently ignored.
     preferencesChanged();
   } else if( msgObject->msgType == "SaveAsObject" )
   {
 //    SaveAsObject *sao = (SaveAsObject *)msg;
-  dprintf("ManageProcessesPanel!!!!! Save as!\n");
+  dprintf("CustomizeStatsPanel!!!!! Save as!\n");
 //    if( !sao )
 //    {
 //      return 0;  // 0 means, did not act on message.
@@ -177,63 +191,21 @@ ManageProcessesPanel::listener(void *msg)
     message.
  */
 int 
-ManageProcessesPanel::broadcast(char *msg)
+CustomizeStatsPanel::broadcast(char *msg)
 {
-  dprintf("ManageProcessesPanel::broadcast() requested.\n");
+  dprintf("CustomizeStatsPanel::broadcast() requested.\n");
   return 0;
 }
 
 void
-ManageProcessesPanel::raisePreferencePanel()
+CustomizeStatsPanel::raisePreferencePanel()
 {
-// printf("ManageProcessesPanel::raisePreferencePanel() \n");
+// printf("CustomizeStatsPanel::raisePreferencePanel() \n");
   getPanelContainer()->getMainWindow()->filePreferences( manageProcessesPanelStackPage, QString(pluginInfo->panel_type) );
 }
 
 void
-ManageProcessesPanel::updateTimerCallback()
+CustomizeStatsPanel::preferencesChanged()
 {
-  mcc->updateTimerCallback();
-}
-
-void
-ManageProcessesPanel::openCustomizeStatsPanel()
-{
-  QString name = QString("CustomizeStatsPanel [%1]").arg(expID);
-
-
-  Panel *comparePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
-
-  if( comparePanel )
-  { 
-    nprintf( DEBUG_PANELS ) ("comparePanel() found comparePanel found.. raise it.\n");
-    getPanelContainer()->raisePanel(comparePanel);
-  } else
-  {
-//    nprintf( DEBUG_PANELS ) ("comparePanel() no comparePanel found.. create one.\n");
-
-    PanelContainer *startPC = getPanelContainer();
-    PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
-
-    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-    comparePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("CustomizeStatsPanel", startPC, ao);
-    delete ao;
-  }
-}
-
-
-void
-ManageProcessesPanel::preferencesChanged()
-{
-  getSortPreference();
-  if( getUpdateOnPreference() )
-  {
-    mcc->updateTimer = new QTimer( mcc, "updateTimer" );
-    connect( mcc->updateTimer, SIGNAL(timeout()), mcc, SLOT(updateTimerCallback()) );
-  }
-  getUpdateDisplayLineEdit();
-
-//printf("getUpdateDisplayLineEdit()=%s\n", getUpdateDisplayLineEdit().ascii() );
-  mcc->timerValue = getUpdateDisplayLineEdit().toInt() * 1000;
-  mcc->updatePanel();
+  // Place holder for eventual preferenceChange callback.
 }

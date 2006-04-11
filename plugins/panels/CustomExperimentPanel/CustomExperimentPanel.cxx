@@ -541,7 +541,7 @@ CustomExperimentPanel::customizeExperimentsSelected()
 {
   nprintf( DEBUG_PANELS ) ("CustomExperimentPanel::customizeExperimentsSelected()\n");
 
-  QString name = QString("ComparePanel [%1]").arg(expID);
+  QString name = QString("CustomizeStatsPanel [%1]").arg(expID);
 
   Panel *customizePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
 
@@ -558,7 +558,7 @@ CustomExperimentPanel::customizeExperimentsSelected()
     PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
 
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-    customizePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ComparePanel", bestFitPC, ao, (const char *)NULL);
+    customizePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("CustomizeStatsPanel", bestFitPC, ao, (const char *)NULL);
     delete ao;
   }
 

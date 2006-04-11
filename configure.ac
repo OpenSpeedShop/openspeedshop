@@ -171,7 +171,7 @@ AC_CONFIG_FILES(
 	plugins/panels/CmdPanel/Makefile	
 	plugins/panels/StatsPanel/Makefile
 	plugins/panels/ManageProcessesPanel/Makefile
-	plugins/panels/ComparePanel/Makefile
+	plugins/panels/CustomizeStatsPanel/Makefile
 	plugins/panels/HW_CounterPanel/Makefile
 	plugins/panels/HWCTimePanel/Makefile
 	plugins/panels/IOPanel/Makefile

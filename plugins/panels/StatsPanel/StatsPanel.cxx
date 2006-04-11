@@ -1193,7 +1193,7 @@ StatsPanel::IOtraceSelected()
 void
 StatsPanel::compareSelected()
 {
-  QString name = QString("ComparePanel [%1]").arg(expID);
+  QString name = QString("CustomizeStatsPanel [%1]").arg(expID);
 
   Panel *comparePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
 
@@ -1209,7 +1209,7 @@ StatsPanel::compareSelected()
     PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
 
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-    comparePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ComparePanel", startPC, ao);
+    comparePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("CustomizeStatsPanel", startPC, ao);
     delete ao;
   }
 }

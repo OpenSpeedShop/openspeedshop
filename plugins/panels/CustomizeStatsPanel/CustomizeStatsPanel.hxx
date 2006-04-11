@@ -18,30 +18,30 @@
 
 
 
-#ifndef MANAGEPROCESSPANEL_H
-#define MANAGEPROCESSPANEL_H
+#ifndef CUSTOMIZESTATSPANEL_H
+#define CUSTOMIZESTATSPANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;
-class ManageCollectorsClass;
+class CustomizeClass;
 class QHBoxLayout;
 class ArgumentObject;
 class QAction;
 
 #undef PANEL_CLASS_NAME
-#define PANEL_CLASS_NAME ManageProcessesPanel   // Change the value of the define
+#define PANEL_CLASS_NAME CustomizeStatsPanel   // Change the value of the define
                                          // to the name of your new class.
-//! ManageProcessesPanel Class
-class ManageProcessesPanel  : public Panel
+//! CustomizeStatsPanel Class
+class CustomizeStatsPanel  : public Panel
 {
     //! Q_OBJECT is needed as there are slots defined for the class
     Q_OBJECT
   public:
-    //! ManageProcessesPanel(PanelContainer *pc, const char *name)
-    ManageProcessesPanel(PanelContainer *pc, const char *n, ArgumentObject *ao);
+    //! CustomizeStatsPanel(PanelContainer *pc, const char *name)
+    CustomizeStatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao);
 
-    //! ~ManageProcessesPanel() - The default destructor.
-    ~ManageProcessesPanel();  // Active destructor
+    //! ~CustomizeStatsPanel() - The default destructor.
+    ~CustomizeStatsPanel();  // Active destructor
 
     //! Adds use panel menus (if any).
     bool menu(QPopupMenu* contextMenu);
@@ -61,16 +61,14 @@ class ManageProcessesPanel  : public Panel
     //! Controls the base layout of the Panel's widgets.
     QHBoxLayout * frameLayout;
 
-    ManageCollectorsClass *mcc;
+    CustomizeClass *mcc;
+    CustomizeClass *mcc1;
 
     void preferencesChanged();
 
     int expID;
-    
-  public slots:
 
-    void updateTimerCallback();
-    void openCustomizeStatsPanel();
+  public slots:
 
   protected:
     //! Sets the language specific strings.
@@ -79,4 +77,4 @@ class ManageProcessesPanel  : public Panel
   private:
     void raisePreferencePanel();
 };
-#endif // MANAGEPROCESSPANEL_H
+#endif // CUSTOMIZESTATSPANEL_H
