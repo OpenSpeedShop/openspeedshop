@@ -202,7 +202,7 @@ TM Queries::Reduction::GetTotal(
     TM total = TM();
 
     // Check preconditions
-    Assert(!individual.isNull());  
+    Assert(!results.isNull());  
 
     // Iterate over each source object in the results
     for(typename std::map<TS, TM >::const_iterator
