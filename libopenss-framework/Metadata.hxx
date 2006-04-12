@@ -98,6 +98,12 @@ namespace OpenSpeedShop { namespace Framework {
 	{ 
 	    return dm_description; 
 	}
+
+	/** Read-only data member accessor function. */
+	const std::string& getType() const
+	{ 
+	    return dm_type; 
+	}
 	
 	/** Test if underlying type is the specified type. */
 	bool isType(const std::type_info& type) const

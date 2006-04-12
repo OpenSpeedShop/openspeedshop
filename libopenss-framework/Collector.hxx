@@ -39,6 +39,7 @@
 #include "Metadata.hxx"
 #include "TimeInterval.hxx"
 
+#include <cxxabi.h>
 #include <set>
 #include <string>
 #include <vector>
@@ -334,7 +335,20 @@ namespace OpenSpeedShop { namespace Framework {
 	
         // Check preconditions
 	Assert(i != dm_impl->getMetrics().end());
-	Assert(i->isType(typeid(T)));
+	if(!i->isType(typeid(T))) {
+	    int status;
+	    fprintf(stderr, "Assertion \"%s\" failed in file %s at line %d. ",
+		    "!i->isType(typeid(T))", __FILE__, __LINE__);
+	    fprintf(stderr,
+		    "Metric \"%s::%s\" is of type \"%s\" rather than \"%s\".\n",
+		    getMetadata().getUniqueId().c_str(), unique_id.c_str(),
+		    abi::__cxa_demangle(i->getType().c_str(), NULL, NULL,
+					&status),
+		    abi::__cxa_demangle(typeid(T).name(), NULL, NULL,
+					&status));
+	    fflush(stderr);
+	    abort();
+	}
 	
 	// Insure vector of values is large enough to contain the results
 	if(values.size() < subextents.size())
