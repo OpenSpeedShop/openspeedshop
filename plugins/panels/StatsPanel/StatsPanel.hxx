@@ -34,7 +34,9 @@ class PanelContainer;   // Do not remove
 class QVBoxLayout;
 class QHBoxLayout;
 class QFile;
+class SourceObject;
 #include "SPChartForm.hxx"
+#include "HighlightObject.hxx"
 
 
 #include <qlistview.h>
@@ -332,6 +334,8 @@ class StatsPanel  : public Panel
     SPListViewItem *MYListViewItem( StatsPanel *arg1, SPListViewItem *arg2, SPListViewItem *arg3, QString *strings);
 
     SPListViewItem *MYListViewItem( StatsPanel *arg1, QListView *arg2, SPListViewItem *arg3, QString *strings);
+
+    SourceObject *lookUpFileHighlights(QString function_name, Thread thread, ThreadGroup::iterator ti, QListViewItem *item, QString filename, QString lineNumberStr, HighlightList *highlightList);
 
 };
 #endif // STATSPANEL_H

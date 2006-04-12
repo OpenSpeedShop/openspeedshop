@@ -833,7 +833,7 @@ SourcePanel::loadFile(const QString &_fileName)
                                msg, QMessageBox::Ok );
     textEdit->clear();
     textEdit->clearScrollBar();
-    label->setText(tr("No file found."));
+    label->setText(tr("No file found. (Including remapped names.)"));
     textEdit->clear();
     textEdit->append(msg);
     return FALSE;
@@ -914,7 +914,7 @@ SourcePanel::loadFile(const QString &_fileName)
   return TRUE;
 }
 
-/*! Get more information about the current posotion (if any). */
+/*! Get more information about the current position (if any). */
 void
 SourcePanel::details()
 {
@@ -1188,9 +1188,12 @@ SourcePanel::doFileHighlights()
        it != highlightList->end();
        ++it)
   {
+// printf("A:\n");
     hlo = (HighlightObject *)*it;
-    if( hlo->fileName == fileName )
+// printf("SP: hlo->fileName=(%s) fileName=(%s)\n", hlo->fileName.ascii(), fileName.ascii() );
+//    if( hlo->fileName == fileName )
     {
+//printf("highlight = (%d)\n", hlo->line );
       highlightLine(hlo->line, hlo->color, TRUE);
     }
   }
@@ -1314,11 +1317,11 @@ SourcePanel::remapPath(QString _fileName)
     QString fromStr = lsle->text();
     QString toStr = rsle->text();
 
-    if( fromStr.isEmpty() )
+    if( fromStr.isEmpty() && toStr.isEmpty() )
     {
       continue;
     }
-    if( _fileName.startsWith(fromStr) )
+    if( !fromStr.isEmpty() && _fileName.startsWith(fromStr) )
     {
       int i = _fileName.find(fromStr);
       if( i > -1 )
@@ -1326,10 +1329,14 @@ SourcePanel::remapPath(QString _fileName)
         newStr = toStr + _fileName.right( _fileName.length()-fromStr.length() );
       }
       break;
-    }
+    } else if( fromStr.isEmpty() && !toStr.isEmpty() )
+    {
+      newStr = toStr + _fileName;
+      break;
+    } 
   }
 
-// printf("Return newStr=(%s)\n", newStr.ascii() );
+// printf("    Return newStr=(%s)\n", newStr.ascii() );
   return( newStr );
 }
 
