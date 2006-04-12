@@ -658,7 +658,8 @@ CompareWizardPanel::requestExperimentFileName()
 {
   fn = QString::null;
   char *cwd = get_current_dir_name();
-  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open");
+//  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open");
+  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss);;Any Files (*.*)", this, "Choose experiment location:", "Choose a directory where experiment files are locate:");
   free(cwd);
   if( !fn.isEmpty() )
   {
@@ -687,9 +688,10 @@ CompareWizardPanel::leftSideExperimentDirButtonSelected()
 
   fn = QString::null;
   char *cwd = get_current_dir_name();
-  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "Choose experiment location:", "Choose a directory where experiment files are locate:");
+  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss);;Any Files (*.*)", this, "Choose experiment location:", "Choose a directory where experiment files are locate:");
 
-// printf("fn=(%s)\n", fn.ascii() );
+// printf("A: fn=(%s)\n", fn.ascii() );
+  QFileInfo fi(fn);
 
   int basename_index = fn.findRev("/");
   leftSideBaseName = fn;
@@ -707,18 +709,24 @@ CompareWizardPanel::leftSideExperimentDirButtonSelected()
     char buffer[2048];
     if( !fn.isEmpty() )
     {
-      QDir *dir = new QDir( leftSideDirName, "*.openss" );
-      QFileInfoList *fileList = (QFileInfoList*)(dir->entryInfoList());
-      if( leftSideExperimentComboBox )
+      if( fi.isFile() )
+      { // The user gave us a direct, possibly non .openss conforming filename.
+        leftSideExperimentComboBox->insertItem( fn );
+      } else
       {
-        if( fileList )
+        QDir *dir = new QDir( leftSideDirName, "*.openss" );
+        QFileInfoList *fileList = (QFileInfoList*)(dir->entryInfoList());
+        if( leftSideExperimentComboBox )
         {
-          leftSideExperimentComboBox->clear();
-          QFileInfo *fileInfo = fileList->first();
-          while( fileInfo )
+          if( fileList )
           {
-            leftSideExperimentComboBox->insertItem( fileInfo->fileName().ascii() );
-            fileInfo = fileList->next();
+            leftSideExperimentComboBox->clear();
+            QFileInfo *fileInfo = fileList->first();
+            while( fileInfo )
+            {
+              leftSideExperimentComboBox->insertItem( fileInfo->fileName().ascii() );
+              fileInfo = fileList->next();
+            }
           }
         }
       }
@@ -738,9 +746,10 @@ CompareWizardPanel::rightSideExperimentDirButtonSelected()
 
   fn = QString::null;
   char *cwd = get_current_dir_name();
-  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "Choose experiment location:", "Choose a directory where experiment files are locate:");
+  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss);;Any Files (*.*)", this, "Choose experiment location:", "Choose a directory where experiment files are locate:");
 
 // printf("fn=(%s)\n", fn.ascii() );
+  QFileInfo fi(fn);
 
   int basename_index = fn.findRev("/");
   rightSideBaseName = fn;
@@ -758,18 +767,24 @@ CompareWizardPanel::rightSideExperimentDirButtonSelected()
     char buffer[2048];
     if( !fn.isEmpty() )
     {
-      QDir *dir = new QDir( rightSideDirName, "*.openss" );
-      QFileInfoList *fileList = (QFileInfoList*)(dir->entryInfoList());
-      if( rightSideExperimentComboBox )
+      if( fi.isFile() )
+      { // The user gave us a direct, possibly non .openss conforming filename.
+        rightSideExperimentComboBox->insertItem( fn );
+      } else
       {
-        if( fileList )
+        QDir *dir = new QDir( rightSideDirName, "*.openss" );
+        QFileInfoList *fileList = (QFileInfoList*)(dir->entryInfoList());
+        if( rightSideExperimentComboBox )
         {
-          rightSideExperimentComboBox->clear();
-          QFileInfo *fileInfo = fileList->first();
-          while( fileInfo )
+          if( fileList )
           {
-            rightSideExperimentComboBox->insertItem( fileInfo->fileName().ascii() );
-            fileInfo = fileList->next();
+            rightSideExperimentComboBox->clear();
+            QFileInfo *fileInfo = fileList->first();
+            while( fileInfo )
+            {
+              rightSideExperimentComboBox->insertItem( fileInfo->fileName().ascii() );
+              fileInfo = fileList->next();
+            }
           }
         }
       }

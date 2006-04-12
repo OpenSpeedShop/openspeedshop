@@ -315,7 +315,7 @@ void OpenSpeedshop::fileOpenSavedExperiment(QString filename, bool openPanel)
   {
     fn = QFileDialog::getOpenFileName(
                     "./",
-                    "Open|SpeedShop files (*.openss);;",
+                    "Open|SpeedShop files (*.openss);;Any Files(*.*)",
                     this,
                     "open file dialog",
                     "Choose a experiment file to open" );
@@ -406,7 +406,7 @@ void OpenSpeedshop::fileSaveExperiment(int uid)
   QFileDialog *sed = new QFileDialog(this, "file dialog", TRUE );
   sed->setCaption( QFileDialog::tr("Enter session name:") );
   sed->setMode( QFileDialog::AnyFile );
-  QString types( "Open|SpeedShop files (*.openss);;");
+  QString types( "Open|SpeedShop files (*.openss);;Any Files(*.*)");
   sed->setFilters( types );
   sed->setDir(dirName);
 //    const char *n = databaseName.ascii();

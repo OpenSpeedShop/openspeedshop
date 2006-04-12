@@ -444,7 +444,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     {
       QString fn = QString::null;
       char *cwd = get_current_dir_name();
-      fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open");
+      fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss);;AnyFiles (*.*)", this, "open experiment dialog", "Choose an experiment file to open");
       free(cwd);
       if( !fn.isEmpty() )
       {
@@ -571,7 +571,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     {
       QString fn = QString::null;
       char *cwd = get_current_dir_name();
-      fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open");
+      fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss);;AnyFiles (*.*)", this, "open experiment dialog", "Choose an experiment file to open");
       free(cwd);
       if( !fn.isEmpty() )
       {

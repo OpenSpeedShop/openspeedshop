@@ -544,7 +544,7 @@ CustomizeClass::loadAdditionalExperimentSelected()
 // printf("CustomizeClass::loadAdditionalExperimentSelected() entered\n");
   QString fn = QString::null;
   char *cwd = get_current_dir_name();
-  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open for comparison");
+  fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss);;Any Files(*.*)", this, "open experiment dialog", "Choose an experiment file to open for comparison");
   free(cwd);
   if( !fn.isEmpty() )
   {
