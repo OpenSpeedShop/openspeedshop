@@ -463,110 +463,23 @@ std::string gen_F_name (Function F) {
 
 // Utilities for processing '-f' specifier on expView commands.
 
-template <typename TE>
-bool Cmp_F2Object (std::string F_Name, TE object) {
-  if (F_Name.size() == 0) return false;
-  int64_t len = F_Name.size();
-  int64_t pos = F_Name.find( "/" );
-  if ((pos >= 0) &&
-      (pos < len) &&
-      ((pos != 1) || (F_Name[0] != *"."))) {
-   // Compare path name.
-    return (F_Name == object.getPath());
-  } else {
-   // Compare basename.
-    int64_t dot = F_Name.find( "." );
-    if ((dot >= 0) &&
-        (dot < len)) {
-     // look for exact match.
-      return (F_Name == object.getPath().getBaseName());
-    } else {
-     // Look for partial match.
-      std::string baseName = object.getPath().getBaseName();
-      int64_t subl = baseName.size();
-      int64_t subs = baseName.find (F_Name);
-      return ((subs >= 0) && (subs < subl));
+static inline bool Is_Full_Path_Name (std::string F_Name) {
+ // If the name starts with "/" or contains "*" it is a full path names.
+  if (F_Name.size() != 0) {
+    int64_t len = F_Name.size();
+    if (F_Name[0] == *"/") {
+      return true;
+    }
+    if (F_Name.find( "*" ) != len) {
+      return true;
     }
   }
+  return false; 
 }
 
-static bool Include_Object (std::string F_Name, Thread thread, LinkedObject object) {
- // F_Name can only be a LinkedObject name.
-  return Cmp_F2Object (F_Name, object);
-}
-
-static  bool Include_Object (std::string F_Name, Thread thread, Function object) {
- // Is the object in the set of previously selected threads?
-  std::set<Thread> tt = object.getThreads();
-  if (tt.find(thread) == tt.end()) return false;
-
- // Is F_Name a function name?
-  if (F_Name == object.getName()) return true;
-
- // Is F_Name a LinkedObject name?
-  LinkedObject L = object.getLinkedObject();
-  if (Cmp_F2Object (F_Name, L)) return true;
-
- // Is F_Name a containing file name?
-  std::set<Statement> T = object.getDefinitions();
-  for (std::set<Statement>::iterator ti = T.begin(); ti != T.end(); ti++) {
-    Statement st = *ti;
-    std::set<Thread> ts = st.getThreads();
-    if (ts.find(thread) == ts.end()) continue;
-    std::set<Function> tf = st.getFunctions();
-    if (tf.find(object) == tf.end()) continue;
-    if (Cmp_F2Object (F_Name, st)) return true;
-  }
-
-  return false;
-}
-
-static bool Include_Object (std::string F_Name, Thread thread, Statement object) {
- // Is the object in the set of previously selected threads?
-  std::set<Thread> tt = object.getThreads();
-  if (tt.find(thread) == tt.end()) return false;
-
- // Is F_Name a function name?
-  std::set<Function> tf = object.getFunctions();
-  for (std::set<Function>::iterator fi = tf.begin(); fi != tf.end(); fi++) {
-    Function f = *fi;
-    std::set<Thread> tt = f.getThreads();
-    if (tt.find(thread) == tt.end()) continue;
-    if (F_Name == f.getName()) return true;
-  }
-
- // Is F_Name a LinkedObject name?
-  LinkedObject L = object.getLinkedObject();
-  if (Cmp_F2Object (F_Name, L)) return true;
-
- // Is F_Name a containing file name?
-  if (Cmp_F2Object (F_Name, object)) return true;
-
-  return false;
-}
-
-static bool Uses_Path_Name (CommandObject *cmd) {
-  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
-  bool has_f = false;
-  OpenSpeedShop::cli::ParseTarget pt;
-  vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
-  if (p_tlist->begin() != p_tlist->end()) {
-    // There is a list.  Is there a "-f" specifier?
-    pt = *p_tlist->begin(); // There can only be one!
-    f_list = pt.getFileList();
-    has_f = !((f_list == NULL) || f_list->empty());
-  }
-  if (!has_f) return false;
-  vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
-  for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
-    OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
-    OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
-    Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
-    std::string F_Name = pval1.name;
-
-   // If the name contains a "/" or "." we need to compare path names.
-    if (F_Name.size() == 0) continue;
+static inline bool Is_Path_Name (std::string F_Name) {
+ // If the name contains a "/" or "." we need to compare path names.
+  if (F_Name.size() != 0) {
     int64_t len = F_Name.size();
     int64_t pos = F_Name.find( "/" );
     if ((pos >= 0) &&
@@ -579,9 +492,25 @@ static bool Uses_Path_Name (CommandObject *cmd) {
         return true;
       }
     }
-
   }
   return false;
+}
+
+static void Merge_LinkedObject_Into_Objects (std::set<LinkedObject>& named_linkedobjects,
+                                             std::set<LinkedObject>& objects) {
+  if (!named_linkedobjects.empty()) {
+    objects.insert (named_linkedobjects.begin(), named_linkedobjects.end());
+  }
+}
+
+static void Merge_LinkedObject_Into_Objects (std::set<LinkedObject>& named_linkedobjects,
+                                             std::set<Statement>& objects) {
+ // This routine should never be called.
+}
+
+static void Merge_LinkedObject_Into_Objects (std::set<LinkedObject>& named_linkedobjects,
+                                             std::set<Function>& objects) {
+ // This routine should never be called.
 }
 
 static void Get_Objects_By_Function (std::set<Function>& named_functions,
@@ -613,8 +542,6 @@ static void Get_Objects_By_Function (std::set<Function>& named_functions,
   }
 }
 
-
-
 static void Get_Source_Objects(const Thread& thread,
 			       std::set<LinkedObject>& objects)
 {
@@ -635,15 +562,49 @@ static void Get_Source_Objects(const Thread& thread,
 
 
 
-static inline bool Force_Long_Compare (std::set<LinkedObject>& objects) { return true; }
-static inline bool Force_Long_Compare (std::set<Function>& objects) { return false; }
-static inline bool Force_Long_Compare (std::set<Statement>& objects) { return false; }
+static inline bool Object_Is_LinkedObject (std::set<LinkedObject>& objects) { return true; }
+static inline bool Object_Is_LinkedObject (std::set<Function>& objects) { return false; }
+static inline bool Object_Is_LinkedObject (std::set<Statement>& objects) { return false; }
 
+/**
+ * Template: Filtered_Objects
+ *
+ * Determine the set of objects that needs to be processed
+ * after applying the "-f" filtering rules.
+ *
+ * The semantic rules are:
+ *
+ * 1) If there is no "-f" specification, call Queries::GetSourceObjects
+ *    to do all the work.
+ * 2) Otherwise, go through the list of "-f" strings, in the parse object,
+ *    and for each one, look for:
+ *        a) LinkedObjects with that name,
+ *        b) Files with that name, and
+ *        c) Functions with that name.
+ *    For all the found items, Add all the associated objects of the result
+ *    type to the result set.
+ * 3) If step 2) doesn't find a match with at least one search and the string
+ *    does not specify a full path name (i.e. starts with a "/" or contains
+ *    a "*"), try the setp 2) search again with a wildcard character (i.e. "*")
+ *    at the end of the string.
+ *
+ * @param CommandObject *cmd to access the parse objects.
+ * @param ExperimentObject *exp to access the experiment
+ * @param ThreadGroup& tgrp to define the set of Threads that is
+ *        the result of a call to 'Filter_ThreadGroup' which will
+ *        have applied all the other filtering rules for the
+ *        <target> specification.
+ * @param std::set<TE >& objects the result is returned here.
+ *
+ * @return through the last param.
+ *
+ */
 template <typename TE>
 void Filtered_Objects (CommandObject *cmd,
                        ExperimentObject *exp,
                        ThreadGroup& tgrp,
                        std::set<TE >& objects ) {
+
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
   OpenSpeedShop::cli::ParseTarget pt;
@@ -657,7 +618,7 @@ void Filtered_Objects (CommandObject *cmd,
 
   if ((f_list == NULL) || (f_list->empty())) {
    // There is no Function filtering requested.
-   // Get all the functions in the already selected thread groups.
+   // Get all the objects in the already selected thread groups.
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
 
      // Check for asynchronous abort command
@@ -670,51 +631,13 @@ void Filtered_Objects (CommandObject *cmd,
       Get_Source_Objects(thread, new_objects);
       objects.insert(new_objects.begin(), new_objects.end());
     }
-  } else if (Force_Long_Compare(objects) || Uses_Path_Name(cmd)) {
-    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-
-     // Check for asynchronous abort command
-      if (cmd->Status() == CMD_ABORTED) {
-        return;
-      }
-
-     // Only include selected objects.
-      Thread thread = *ti;
-      std::set<TE> new_objects;
-      Get_Source_Objects(thread, new_objects);
-      vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
-      for (typename std::set<TE>::iterator newi = new_objects.begin();
-                newi != new_objects.end();
-                newi++) {
-
-       // Check for asynchronous abort command
-        if (cmd->Status() == CMD_ABORTED) {
-          return;
-        }
-
-        TE new_object = *newi;
-        if (objects.find(new_object) == objects.end()) {
-         // If the new object is not already included,
-         // look to see if it is selected by any of the items in the list.
-          for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
-            OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
-            OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
-            Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
-            std::string F_Name = pval1.name;
-            if (Include_Object (F_Name, thread, new_object)) {
-              objects.insert(new_object);
-              break;
-            }
-          }
-        }
-      }
-    }
-  } else {
-   // There is some sort of function name filter specified.
-   // Determine the names of desired functions and get Function objects for them.
-   // Then get the objects that we want for these fucntions.
-   // Thread filtering will be done in GetMetricInThreadGroup.
-    std::map<Function, std::map<Framework::StackTrace, std::vector<double> > >::iterator fi;
+    return;
+  } else if (!Object_Is_LinkedObject(objects)) {
+   // There is some sort of "-f name" filter specified.
+   // We get here because we want Function or Statement objects.
+   // Determine the names of desired objects and get Function objects for them.
+   // Then get the objects that we want for these functions.
+    std::set<Function> new_functions;
     vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
     for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
 
@@ -726,15 +649,237 @@ void Filtered_Objects (CommandObject *cmd,
       OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
       OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
       Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
+
+      std::set<Function> new_f;
       std::string F_Name = pval1.name;
-      std::set<Function> new_functions = exp->FW()->getFunctionsByNamePattern (F_Name);
-      if (!new_functions.empty()) {
-        Get_Objects_By_Function (new_functions, objects );
+      std::string Wild_Name = Is_Full_Path_Name(F_Name) ? F_Name : "*" + F_Name;
+      bool found_something = false;
+
+     // First, find any LinkedObject names that match.
+      std::set<LinkedObject> new_LinkedObjects = exp->FW()->getLinkedObjectsByPathPattern (Wild_Name);
+      if (!new_LinkedObjects.empty()) {
+        std::set<LinkedObject>::iterator loi;
+        for (loi = new_LinkedObjects.begin(); loi != new_LinkedObjects.end(); loi++) {
+          new_f = (*loi).getFunctions();
+          if (!new_f.empty()) {
+            found_something = true;
+            new_functions.insert(new_f.begin(), new_f.end());
+          }
+        }
+      }
+
+     // Second, find any files that match.
+      new_f = exp->FW()->getFunctionsByPathPattern (Wild_Name);
+      if (!new_f.empty()) {
+        found_something = true;
+        new_functions.insert(new_f.begin(), new_f.end());
+      }
+
+     // Third, the name might also be a function name.
+      if (!Is_Path_Name(F_Name)) {
+        new_f = exp->FW()->getFunctionsByNamePattern (F_Name);
+        if (!new_f.empty()) {
+          found_something = true;
+          new_functions.insert(new_f.begin(), new_f.end());
+        }
+      }
+
+     // Final attempt by appending a wildcard to the function name.
+      if (!found_something &&
+          !Is_Path_Name(F_Name) &&
+          (F_Name[F_Name.size()-1] != *"*")) {
+        new_f.empty();
+        Wild_Name = F_Name + "*";
+
+       // Look for LinkedObject names.
+        std::set<LinkedObject> new_LinkedObjects = exp->FW()->getLinkedObjectsByPathPattern (Wild_Name);
+        if (!new_LinkedObjects.empty()) {
+          std::set<LinkedObject>::iterator loi;
+          for (loi = new_LinkedObjects.begin(); loi != new_LinkedObjects.end(); loi++) {
+            new_f = (*loi).getFunctions();
+            if (!new_f.empty()) {
+              found_something = true;
+              new_functions.insert(new_f.begin(), new_f.end());
+            }
+          }
+        }
+
+       // Look for file names.
+        new_f = exp->FW()->getFunctionsByPathPattern (Wild_Name);
+        if (!new_f.empty()) {
+          found_something = true;
+          new_functions.insert(new_f.begin(), new_f.end());
+        }
+
+       // Look for function names.
+        new_f = exp->FW()->getFunctionsByNamePattern (Wild_Name);
+        if (!new_f.empty()) {
+          found_something = true;
+          new_functions.insert(new_f.begin(), new_f.end());
+        }
       }
     }
+
+    if (!new_functions.empty()) {
+     // There maybe too many functions in the list.
+     // Restrict the set to ones in the desired ThreadGroup.
+
+     // First, build a set of all the LinkedObjects in the desired Threads.
+      std::set<LinkedObject> allowed_L;
+      for (ThreadGroup::const_iterator tgi = tgrp.begin(); tgi != tgrp.end(); ++tgi) {
+        Thread T = *tgi;
+        std::set<LinkedObject> Ls = T.getLinkedObjects();
+        if (!Ls.empty()) {
+          allowed_L.insert(Ls.begin(), Ls.end());
+        }
+      }
+
+     // Then, if one of the new functions isn't in the desired LinkedObject set, toss it.
+      for (std::set<Function>::iterator fi = new_functions.begin(); fi != new_functions.end(); fi++) {
+        Function F = *fi;
+        LinkedObject L = F.getLinkedObject();
+        if (allowed_L.find(L) == allowed_L.end()) {
+          new_functions.erase(F);
+        }
+      }
+
+     // Get the desired function or statement objects.
+      Get_Objects_By_Function (new_functions, objects );
+    }
+    return;
   }
+
+ // There is some sort of "-f name" filter specified.
+ // We get here because we want LinkedObjects.
+    std::set<LinkedObject> new_objects;
+    vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
+    for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
+
+     // Check for asynchronous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        return;
+      }
+
+      OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
+      OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
+      Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
+
+      std::set<Function> new_f;
+      std::string F_Name = pval1.name;
+      std::string Wild_Name = Is_Full_Path_Name(F_Name) ? F_Name : "*" + F_Name;
+      bool found_something = false;
+
+     // First, find any LinkedObject names that match.
+      std::set<LinkedObject> new_lo = exp->FW()->getLinkedObjectsByPathPattern (Wild_Name);
+      if (!new_lo.empty()) {
+        found_something = true;
+        new_objects.insert(new_lo.begin(), new_lo.end());
+      }
+
+     // Second, find any files that match and add their LinkedObject to the set.
+      new_f = exp->FW()->getFunctionsByPathPattern (Wild_Name);
+      if (!new_f.empty()) {
+        for (std::set<Function>::iterator fi = new_f.begin(); fi != new_f.end(); fi++) {
+          Function F = *fi;
+          LinkedObject L = F.getLinkedObject();
+          new_objects.insert(L);
+        }
+      }
+
+     // Third, the name might also be a function name.
+     // Find those functions andd add their LinkedObject to the set.
+      if (!Is_Path_Name(F_Name)) {
+        new_f = exp->FW()->getFunctionsByNamePattern (F_Name);
+        if (!new_f.empty()) {
+          for (std::set<Function>::iterator fi = new_f.begin(); fi != new_f.end(); fi++) {
+            Function F = *fi;
+            LinkedObject L = F.getLinkedObject();
+            new_objects.insert(L);
+          }
+        }
+      }
+
+     // Final attempt by appending a wildcard to the function name.
+      if (!found_something &&
+          !Is_Path_Name(F_Name) &&
+          (F_Name[F_Name.size()-1] != *"*")) {
+        new_f.empty();
+        Wild_Name = F_Name + "*";
+
+       // Look for LinkedObject names.
+        std::set<LinkedObject> new_lo = exp->FW()->getLinkedObjectsByPathPattern (Wild_Name);
+        if (!new_lo.empty()) {
+          found_something = true;
+          new_objects.insert(new_lo.begin(), new_lo.end());
+        }
+
+       // Look for file names.
+        new_f = exp->FW()->getFunctionsByPathPattern (Wild_Name);
+        if (!new_f.empty()) {
+          for (std::set<Function>::iterator fi = new_f.begin(); fi != new_f.end(); fi++) {
+            Function F = *fi;
+            LinkedObject L = F.getLinkedObject();
+            new_objects.insert(L);
+          }
+        }
+
+       // Look for function names.
+        if (!Is_Path_Name(F_Name)) {
+          new_f = exp->FW()->getFunctionsByNamePattern (F_Name);
+          if (!new_f.empty()) {
+            for (std::set<Function>::iterator fi = new_f.begin(); fi != new_f.end(); fi++) {
+              Function F = *fi;
+              LinkedObject L = F.getLinkedObject();
+              new_objects.insert(L);
+            }
+          }
+        }
+      }
+    }
+
+    if (!new_objects.empty()) {
+     // There maybe too many functions in the list.
+     // Restrict the set to ones in the desired ThreadGroup.
+
+     // First, build a set of all the LinkedObjects in the desired Threads.
+      std::set<LinkedObject> allowed_L;
+      for (ThreadGroup::const_iterator tgi = tgrp.begin(); tgi != tgrp.end(); ++tgi) {
+        Thread T = *tgi;
+        std::set<LinkedObject> Ls = T.getLinkedObjects();
+        if (!Ls.empty()) {
+          allowed_L.insert(Ls.begin(), Ls.end());
+        }
+      }
+
+     // Then, if one of the new LinkedObjects isn't in the desired LinkedObject set, toss it.
+      for (std::set<LinkedObject>::iterator li = new_objects.begin(); li != new_objects.end(); li++) {
+        LinkedObject L = *li;
+        if (allowed_L.find(L) == allowed_L.end()) {
+          new_objects.erase(L);
+        }
+      }
+
+     // The resulting set is the result!
+      Merge_LinkedObject_Into_Objects (new_objects, objects);
+    }
+    return;
 }
 
+/**
+ * Utility: Filter_Uses_F()
+ *
+ * Overloaded function for types: LinkedObject, Function or Statement.
+ *
+ * The call to these routines is made after determining which type
+ * is needed for a view that is being generated, and after first calling
+ * 'Filter_ThreadGroup' to handle all the other components of the <target>
+ * specification.
+ *
+ * These routines just call the template 'Filtered_Objects' to complete
+ * the semantic filtering rules for the "-f" component of a <target>
+ * specification.
+ *
+ */
 void Get_Filtered_Objects (CommandObject *cmd,
                            ExperimentObject *exp,
                            ThreadGroup& tgrp,
