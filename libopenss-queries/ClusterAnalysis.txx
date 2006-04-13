@@ -66,17 +66,19 @@ TM AverageInterClusterDistance(
     const Framework::ThreadGroup& cluster)
 {
     Assert(!cluster.empty());
+    unsigned n = 0;
     TM value = TM();
     for(Framework::ThreadGroup::const_iterator
 	    i = cluster.begin(); i != cluster.end(); ++i) {
 	Framework::ThreadGroup::const_iterator j = i; 
 	++j;
 	while(j != cluster.end()) {
+	    n++;
 	    value += distances.getDistance(*i, *j);
 	    ++j;
 	}
     }
-    return value / cluster.size();
+    return value / n;
 }
 } }
 
@@ -342,7 +344,7 @@ bool Queries::ClusterAnalysis::NumberCriterion1<TS, TM >::operator()(
     const Framework::ThreadGroup& first,
     const Framework::ThreadGroup& second) const
 {
-    return dm_count > clusters.size();
+    return dm_count >= clusters.size();
 }
 
 
@@ -517,7 +519,7 @@ std::set<Framework::ThreadGroup> Queries::ClusterAnalysis::ApplySimple(
     const Framework::SmartPtr<
         std::map<TS, std::map<Framework::Thread, TM > > >& individual)
 {
-    DistanceCriterion1<TS, TM> criterion(3.0);
+    DistanceCriterion1<TS, TM> criterion(2.0);
     return Apply(individual, ManhattanDistance, 
 		 AverageLinkageDistance, criterion);
 }
