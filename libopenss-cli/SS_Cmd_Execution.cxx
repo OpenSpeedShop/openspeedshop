@@ -2604,26 +2604,17 @@ static bool SS_ListObj (CommandObject *cmd) {
     return false;
   }
 
-  if (Filter_Uses_F(cmd)) {
-    Mark_Cmd_With_Soft_Error(cmd, "'list -v obj' does not support the '-f' option.");
-    return false;
-  }
-
  // Prevent this experiment from changing until we are done.
   exp->Q_Lock (cmd, true);
 
  // Get a list of the unique threads used in the specified experiment.
   ThreadGroup tgrp = exp->FW()->getThreads();
   Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+ // Filter that thread list with any "-f" specification and get a LinkedObject list.
   std::set<LinkedObject> ulset;
-  for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-    Thread t = *ti;
-    std::set<LinkedObject> lset = t.getLinkedObjects();
-    for (std::set<LinkedObject>::iterator lseti = lset.begin(); lseti != lset.end(); lseti++) {
-     // Build a set of unique LinkedObjects.
-      ulset.insert ( *lseti );
-    }
-  }
+  Get_Filtered_Objects (cmd, exp, tgrp, ulset);
+
  // Now go through the list of unique LinkedObjects and list their names.
   for (std::set<LinkedObject>::iterator lseti = ulset.begin(); lseti != ulset.end(); lseti++) {
     LinkedObject lobj = *lseti;
@@ -2915,38 +2906,26 @@ static bool SS_ListSrc (CommandObject *cmd) {
  // Get a list of the unique threads used in the specified experiment.
   ThreadGroup tgrp = exp->FW()->getThreads();
   Filter_ThreadGroup (cmd->P_Result(), tgrp);
-  std::set<LinkedObject> ulset;
-  for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-    Thread t = *ti;
-    std::set<LinkedObject> lset = t.getLinkedObjects();
-    for (std::set<LinkedObject>::iterator lseti = lset.begin(); lseti != lset.end(); lseti++) {
-     // Build a set of unique LinkedObjects.
-      ulset.insert ( *lseti );
+
+ // Filter that thread list with any "-f" specification and get a Function list.
+  std::set<Function> flset;
+  Get_Filtered_Objects (cmd, exp, tgrp, flset);
+
+ // Put the names of all the functions in a set to eliminate duplicates.
+  std::set<std::string> mset;
+  for (std::set<Function>:: iterator fi = flset.begin(); fi != flset.end(); fi++) {
+    Function fobj = *fi;
+    std::set<Statement> sobj = fobj.getDefinitions();
+    if( sobj.size() > 0 ) {
+      std::set<Statement>::const_iterator sobji = sobj.begin();
+      std::string F = (OPENSS_VIEW_FULLPATH) ? sobji->getPath() : sobji->getPath().getBaseName();
+      mset.insert ( F );
     }
   }
 
- // Now go through the list of unique LinkedObjects and find the functions.
-  for (std::set<LinkedObject>::iterator lseti = ulset.begin(); lseti != ulset.end(); lseti++) {
-    LinkedObject lobj = *lseti;
-    std::string L = lobj.getPath();
-    std::set<Function> fset = lobj.getFunctions();
-    std::set<std::string> mset;
-   // For each function in the LinkedObject, get the file name it is in
-   // and build a set of these file names.  Take advantage of the property
-   // of std::set operation that eliminates duplicates.
-    for (std::set<Function>::iterator fseti = fset.begin(); fseti != fset.end(); fseti++) {
-      Function fobj = *fseti;
-      std::set<Statement> sobj = fobj.getDefinitions();
-      if( sobj.size() > 0 ) {
-        std::set<Statement>::const_iterator sobji = sobj.begin();
-        std::string F = (OPENSS_VIEW_FULLPATH) ? sobji->getPath() : sobji->getPath().getBaseName();
-        mset.insert ( F );
-      }
-    }
-   // Now we're ready to list the file names.
-    for (std::set<std::string>::iterator mseti = mset.begin(); mseti != mset.end(); mseti++) {
-      cmd->Result_String ( *mseti );
-    }
+ // Now we're ready to list the file names.
+  for (std::set<std::string>::iterator mseti = mset.begin(); mseti != mset.end(); mseti++) {
+    cmd->Result_String ( *mseti );
   }
 
   exp->Q_UnLock ();
