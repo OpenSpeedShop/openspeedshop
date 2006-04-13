@@ -470,7 +470,8 @@ static inline bool Is_Full_Path_Name (std::string F_Name) {
     if (F_Name[0] == *"/") {
       return true;
     }
-    if (F_Name.find( "*" ) != len) {
+    int64_t pos = F_Name.find( "*" );
+    if ((pos >= 0) && (pos < len)) {
       return true;
     }
   }
@@ -482,13 +483,11 @@ static inline bool Is_Path_Name (std::string F_Name) {
   if (F_Name.size() != 0) {
     int64_t len = F_Name.size();
     int64_t pos = F_Name.find( "/" );
-    if ((pos >= 0) &&
-        (pos < len)) {
+    if ((pos >= 0) && (pos < len)) {
       return true;
     } else {
       int64_t dot = F_Name.find( "." );
-      if ((dot >= 0) &&
-          (dot < len)) {
+      if ((pos >= 0) && (dot < len)) {
         return true;
       }
     }
@@ -689,7 +688,7 @@ void Filtered_Objects (CommandObject *cmd,
           !Is_Path_Name(F_Name) &&
           (F_Name[F_Name.size()-1] != *"*")) {
         new_f.empty();
-        Wild_Name = F_Name + "*";
+        Wild_Name = Wild_Name + "*";
 
        // Look for LinkedObject names.
         std::set<LinkedObject> new_LinkedObjects = exp->FW()->getLinkedObjectsByPathPattern (Wild_Name);
@@ -712,7 +711,7 @@ void Filtered_Objects (CommandObject *cmd,
         }
 
        // Look for function names.
-        new_f = exp->FW()->getFunctionsByNamePattern (Wild_Name);
+        new_f = exp->FW()->getFunctionsByNamePattern (F_Name + "*");
         if (!new_f.empty()) {
           found_something = true;
           new_functions.insert(new_f.begin(), new_f.end());
@@ -804,7 +803,7 @@ void Filtered_Objects (CommandObject *cmd,
           !Is_Path_Name(F_Name) &&
           (F_Name[F_Name.size()-1] != *"*")) {
         new_f.empty();
-        Wild_Name = F_Name + "*";
+        Wild_Name = Wild_Name + "*";
 
        // Look for LinkedObject names.
         std::set<LinkedObject> new_lo = exp->FW()->getLinkedObjectsByPathPattern (Wild_Name);
@@ -825,7 +824,7 @@ void Filtered_Objects (CommandObject *cmd,
 
        // Look for function names.
         if (!Is_Path_Name(F_Name)) {
-          new_f = exp->FW()->getFunctionsByNamePattern (F_Name);
+          new_f = exp->FW()->getFunctionsByNamePattern (F_Name + "*");
           if (!new_f.empty()) {
             for (std::set<Function>::iterator fi = new_f.begin(); fi != new_f.end(); fi++) {
               Function F = *fi;
@@ -866,7 +865,7 @@ void Filtered_Objects (CommandObject *cmd,
 }
 
 /**
- * Utility: Filter_Uses_F()
+ * Utility: Get_Filtered_Objects
  *
  * Overloaded function for types: LinkedObject, Function or Statement.
  *
