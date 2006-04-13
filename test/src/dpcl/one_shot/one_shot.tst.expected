@@ -1,0 +1,5 @@
+Process::bexecute of one-shot probe() succeeded: ASC_success
+ONE SHOT Hello world from myprobe module
+
+task 0 execute is completed w/status 0
+SUCCESS
