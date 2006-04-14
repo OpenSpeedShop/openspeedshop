@@ -131,6 +131,7 @@ printf("collector name=(%s)\n", name.ascii() );
 printf("metric=(%s)\n", metric.c_str() );
 // End debug
 #endif // 0
+// printf("query: metric=(%s)\n", metric.c_str() );
     Queries::GetMetricValues(collector, metric, interval,
 			     Queries::MakeThreadGroup(thread), 
 			     objects, individual);
@@ -2836,31 +2837,6 @@ StatsPanel::raisePreferencePanel()
   getPanelContainer()->getMainWindow()->filePreferences( statsPanelStackPage, QString(pluginInfo->panel_type) );
 }
 
-#ifdef PULL
-void 
-StatsPanel::clearSourceFile(int expID)
-{
-// printf("clearSourceFile() entered\n");
-  SourceObject *spo = NULL;
-  QString name = QString("Source Panel [%1]").arg(expID);
-  Panel *sp = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
-  if( !sp )
-  {
-    char *panel_type = "Source Panel";
-    //Find the nearest toplevel and start placement from there...
-    PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(getPanelContainer());
-    ArgumentObject *ao = new ArgumentObject("ArgumentObject", groupID);
-//printf("StatsPanel::clearSourceFile() creating Source Panel\n");
-    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
-    delete ao;
-    if( p != NULL ) 
-    {
-      p->listener((void *)spo);
-    }
-  }
-}
-#endif // PULL
-
 int
 StatsPanel::getLineColor(double value)
 {
@@ -3203,6 +3179,13 @@ StatsPanel::setCurrentMetricStr()
 {
 // printf("StatsPanel::setCurrentMetricStr() entered\n");
 
+  if( !currentMetricStr.isEmpty() )
+  {
+// printf("StatsPanel::setCurrentMetricStr() current metric = %s\n", currentMetricStr.ascii() );
+    return;
+  }
+
+
   // The cli (by default) focuses on the last metric.   We should to 
   // otherwise, when trying to focus on the related source panel, we 
   // don't get the correct statistics showing up.
@@ -3224,6 +3207,7 @@ StatsPanel::setCurrentMetricStr()
 // printf("A: currentCollectorStr=(%s) currentMetricStr=(%s) currentThreadStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii(), currentThreadStr.ascii() );
       }
   }
+// printf("metric=currentMetricStr=(%s)\n", currentMetricStr.ascii() );
 }
 
 void
@@ -4021,9 +4005,10 @@ StatsPanel::generateCommand()
   about = command + "\n";
 } 
 
-//printf("add any modifiers...\n");
+// printf("command sofar... =(%s)\n", command.ascii() );
+// printf("add any modifiers...\n");
     std::list<std::string> *modifier_list = NULL;;
-//printf("generateCommand: currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+// printf("generateCommand: currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
     if( currentCollectorStr == "hwc" )
     {
       modifier_list = &current_list_of_hwc_modifiers;
@@ -4059,7 +4044,9 @@ StatsPanel::generateCommand()
       if( modifierStr.isEmpty() )
       {
 // printf("A: modifer = (%s)\n", modifier.c_str() );
+
         modifierStr = QString(" -m %1").arg(modifier.c_str());
+        currentMetricStr = modifier.c_str();
       } else
       {
 // printf("B: modifer = (%s)\n", modifier.c_str() );
