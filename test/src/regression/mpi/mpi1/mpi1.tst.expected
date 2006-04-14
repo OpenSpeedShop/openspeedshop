@@ -1,0 +1,6 @@
+PMPI_Finalize(libmpi.so)
+PMPI_Allreduce(libmpi.so)
+PMPI_Irecv(libmpi.so)
+PMPI_Waitall(libmpi.so)
+PMPI_Isend(libmpi.so)
+PMPI_Gatherv(libmpi.so)
