@@ -123,6 +123,14 @@ void GetMetricByStatementOfFileInThread(
 
     // Get the summation reduced metric values for these statements
     SmartPtr<std::map<Statement, std::map<Thread, T > > > individual;
+#if 0
+// Begin debug
+Metadata cm = collector.getMetadata();
+QString name = QString(cm.getUniqueId().c_str());
+printf("collector name=(%s)\n", name.ascii() );
+printf("metric=(%s)\n", metric.c_str() );
+// End debug
+#endif // 0
     Queries::GetMetricValues(collector, metric, interval,
 			     Queries::MakeThreadGroup(thread), 
 			     objects, individual);
@@ -204,8 +212,6 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   IOtraceFLAG = FALSE;
   MPItraceFLAG = FALSE;
 
-  mpi_io_FLAG = FALSE;
-  hwc_FLAG = FALSE;
   currentThread = NULL;
   currentCollector = NULL;
   currentItem = NULL;
@@ -268,7 +274,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   selectedFunctionStr = QString::null;
   threadMenu = NULL;
   currentMetricStr = QString::null;
-  currentUserSelectedMetricStr = QString::null;
+  currentUserSelectedReportStr = QString::null;
   metricHeaderTypeArray = NULL;
   currentThreadStr = QString::null;
   currentCollectorStr = QString::null;
@@ -474,27 +480,6 @@ try
       QString name = QString(cm.getUniqueId().c_str());
 
 // printf("B: Try to match: name.ascii()=%s currentCollectorStr.ascii()=%s\n", name.ascii(), currentCollectorStr.ascii() );
-      int i = name.find("mpi");
-      if( i == 0 )
-      {
-        mpi_io_FLAG = TRUE;
-      }
-      i = name.find("mpit");
-      if( i == 0 )
-      {
-        mpi_io_FLAG = TRUE;
-      }
-      i = name.find("io");
-      if( i == 0 )
-      {
-        mpi_io_FLAG = TRUE;
-      }
-      i = name.find("iot");
-      if( i == 0 )
-      {
-        mpi_io_FLAG = TRUE;
-      }
-// printf("A: mpi_io_FLAG = %d\n", mpi_io_FLAG );
     }
   }
 }
@@ -601,29 +586,6 @@ try
       Collector collector = *ci;
       Metadata cm = collector.getMetadata();
       QString name = QString(cm.getUniqueId().c_str());
-
-// printf("A: Try to match: name.ascii()=%s currentCollectorStr.ascii()=%s\n", name.ascii(), currentCollectorStr.ascii() );
-      int i = name.find("mpi");
-      if( i == 0 )
-      {
-        mpi_io_FLAG = TRUE;
-      }
-      i = name.find("mpit");
-      if( i == 0 )
-      {
-        mpi_io_FLAG = TRUE;
-      }
-      i = name.find("io");
-      if( i == 0 )
-      {
-        mpi_io_FLAG = TRUE;
-      }
-      i = name.find("iot");
-      if( i == 0 )
-      {
-        mpi_io_FLAG = TRUE;
-      }
-// printf("B: mpi_io_FLAG = %d\n", mpi_io_FLAG );
     }
   }
 }
@@ -672,9 +634,11 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 {
 // printf("StatsPanel::menu() entered.\n");
 
-  currentCollectorStr = QString::null;
-
   Panel::menu(contextMenu);
+
+// printf("B: currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
+// printf("B: currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
+
 
   popupMenu = contextMenu; // So we can look up the text easily later.
 
@@ -1307,7 +1271,7 @@ StatsPanel::itemSelected(int index)
     {
       currentItem = (SPListViewItem *)item;
       currentItemIndex = index;
-//printf("A: currentItemIndex set to %d\n", currentItemIndex);
+// printf("A: currentItemIndex set to %d\n", currentItemIndex);
 // highlight the list item
 // Now call the action routine.
       splv->setSelected((QListViewItem *)item, TRUE);
@@ -1335,7 +1299,7 @@ StatsPanel::returnPressed(QListViewItem *item)
 void
 StatsPanel::itemSelected(QListViewItem *item)
 {
-// printf("StatsPanel::itemSelected(QListViewItem *) entered\n");
+// printf("StatsPanel::itemSelected(QListViewItem *) item=%s\n", item->text(0).ascii() );
 
   if( item )
   {
@@ -1343,12 +1307,16 @@ StatsPanel::itemSelected(QListViewItem *item)
 
     SPListViewItem *nitem = (SPListViewItem *)item;
     int index = 0;
-    while( nitem->parent() )
+
+    if( currentUserSelectedReportStr != "Butterfly" )
     {
+      while( nitem->parent() )
+      {
 // printf("looking for 0x%x\n", nitem->parent() );
-      nitem = (SPListViewItem *)nitem->parent();
-      index++;
-    } 
+        nitem = (SPListViewItem *)nitem->parent();
+        index++;
+      } 
+    }
 
   
     
@@ -1399,13 +1367,13 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 {
 // printf("matchSelectedItem() entered. sf=%s\n", sf.c_str() );
 
-// printf("currentUserSelectedMetricStr=(%s)\n", currentUserSelectedMetricStr.ascii() );
+// printf("A: currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
+// printf("A: currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
 
-// printf("mpi_io_FLAG =(%d) hwc_FLAG = (%d)\n", mpi_io_FLAG, hwc_FLAG );
   QString lineNumberStr = "-1"; // MPI* and IO* only
 
-  if( mpi_io_FLAG )
-  { // The mpi tree is different.   We need to look up the highlighted
+  if( currentUserSelectedReportStr.contains("CallTrees") || currentUserSelectedReportStr.contains("TraceBacks") )
+  {
     // text directly.
     SPListViewItem *selectedItem = (SPListViewItem *)splv->selectedItem();
     if( selectedItem )
@@ -1433,6 +1401,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // First lets try to find the function/file pair.
 
   SourceObject *spo = NULL;
+  QString ssf = QString(sf).stripWhiteSpace();
 
   QString selected_function_qstring = QString(sf).stripWhiteSpace();
 
@@ -1440,16 +1409,26 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   QString function_name = QString::null;
 
 
-  if( hwc_FLAG )
+// printf("ssf=(%s)\n", ssf.ascii() );
+  if( currentCollectorStr == "hwc" || currentCollectorStr == "hwctime" )
   {
-    filename = getFilenameFromString( QString(sf).stripWhiteSpace() ); 
+    filename = getFilenameFromString( ssf ); 
     function_name = "";
+    int index = ssf.find(",");
+// printf("index=%d \n", index);
+    if( index != -1 )
+    {
+      lineNumberStr = ssf.mid(index+1,ssf.length()-(index+2));
+// printf("lineNumberStr=(%s)\n", lineNumberStr.ascii() );
+      filename = filename.mid(0, index);
+    } 
   } else
   {
     QString lns = QString::null;
-    filename = getFilenameFromString( QString(sf).stripWhiteSpace() ); 
-    function_name = getFunctionNameFromString( QString(sf).stripWhiteSpace(), lns );
-    if( !mpi_io_FLAG )
+    filename = getFilenameFromString( ssf ); 
+    function_name = getFunctionNameFromString( ssf, lns );
+    if( currentCollectorStr != "mpi" && currentCollectorStr != "mpit" &&
+        currentCollectorStr != "io" && currentCollectorStr != "iot" )
     {
       lineNumberStr = lns;
     }
@@ -1461,15 +1440,13 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
     filename = filename.mid(0, index);
   } 
 
-  if( currentUserSelectedMetricStr == "Statements" )
+  if( currentUserSelectedReportStr == "Statements" )
   {
     function_name = "";
   }
 
 // printf("AA: filename=(%s)\n", filename.ascii() );
 // printf("AA: function_name=(%s) lineNumberStr=(%s)\n", function_name.ascii(), lineNumberStr.ascii() );
-
-// printf("mpi_io_FLAG=(%d) currentCollectorStr=(%s)\n", mpi_io_FLAG, currentCollectorStr.ascii() );
 
   // Explicitly make sure the highlightList is clear.
   HighlightList *highlightList = new HighlightList();
@@ -1855,11 +1832,7 @@ StatsPanel::collectorMetricSelected(int val)
 // printf("collectorMetricSelected val=%d\n", val);
 // printf("collectorMetricSelected: currentCollectorStr=(%s)\n", popupMenu->text(val).ascii() );
 
-  hwc_FLAG = FALSE;
-  mpi_io_FLAG = FALSE;
-// printf("C: mpi_io_FLAG = %d\n", mpi_io_FLAG );
-
-  currentUserSelectedMetricStr = QString::null;
+  currentUserSelectedReportStr = QString::null;
 
   QString s = popupMenu->text(val).ascii();
 
@@ -1873,16 +1846,15 @@ StatsPanel::collectorMetricSelected(int val)
 //      collectorStrFromMenu = s.mid(13, index-13 );
       currentCollectorStr = s.mid(13, index-13 );
       currentMetricStr = s.mid(index+2);
-      currentUserSelectedMetricStr = currentMetricStr;
+      currentUserSelectedReportStr = currentMetricStr;
 // printf("BB1: s=(%s) currentCollectorStr=(%s) currentMetricStr=(%s)\n", s.ascii(), currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
     { // The user wants to do all the metrics on the selected threads...
       currentMetricStr = QString::null;
       index = s.find(":");
-      currentUserSelectedMetricStr = s.mid(13, index-13);
-// printf("BB2: s=(%s) currentCollectorStr=(NULL) currentUserSelectedMetricStr=(%s)\n", s.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
-      if( !currentUserSelectedMetricStr.contains("CallTrees by Selected Function") )
+      currentUserSelectedReportStr = s.mid(13, index-13);
+      if( !currentUserSelectedReportStr.contains("CallTrees by Selected Function") )
       {
         selectedFunctionStr = QString::null;
       }
@@ -1914,11 +1886,7 @@ StatsPanel::MPIReportSelected(int val)
 // printf("MPIReportSelected: mpi_menu=(%s)\n", mpi_menu->text(val).ascii() );
 //  printf("MPIReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
 
-  hwc_FLAG = FALSE;
-  mpi_io_FLAG = TRUE;
-// printf("D: mpi_io_FLAG = %d\n", mpi_io_FLAG );
-
-  currentUserSelectedMetricStr = QString::null;
+  currentUserSelectedReportStr = QString::null;
   collectorStrFromMenu = QString::null;
   currentMetricStr = QString::null;
 
@@ -1939,16 +1907,15 @@ StatsPanel::MPIReportSelected(int val)
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
       currentMetricStr = s.mid(index+2);
-      currentUserSelectedMetricStr = currentMetricStr;
+      currentUserSelectedReportStr = currentMetricStr;
 // printf("MPI1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
     { // The user wants to do all the metrics on the selected threads...
       currentMetricStr = QString::null;
       index = s.find(":");
-      currentUserSelectedMetricStr = s.mid(13, index-13);
-// printf("MPI2: currentCollectorStr=(%s) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
-      if( !currentUserSelectedMetricStr.contains("CallTrees by Selected Function") )
+      currentUserSelectedReportStr = s.mid(13, index-13);
+      if( !currentUserSelectedReportStr.contains("CallTrees by Selected Function") )
       {
         selectedFunctionStr = QString::null;
       }
@@ -1983,11 +1950,7 @@ StatsPanel::IOReportSelected(int val)
 // printf("IOReportSelected: io_menu=(%s)\n", io_menu->text(val).ascii() );
 // printf("IOReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
 
-  hwc_FLAG = FALSE;
-  mpi_io_FLAG = TRUE;
-// printf("E: mpi_io_FLAG = %d\n", mpi_io_FLAG );
-
-  currentUserSelectedMetricStr = QString::null;
+  currentUserSelectedReportStr = QString::null;
   collectorStrFromMenu = QString::null;
   currentMetricStr = QString::null;
 
@@ -2009,16 +1972,15 @@ StatsPanel::IOReportSelected(int val)
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
       currentMetricStr = s.mid(index+2);
-      currentUserSelectedMetricStr = currentMetricStr;
+      currentUserSelectedReportStr = currentMetricStr;
 // printf("IO1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
     { // The user wants to do all the metrics on the selected threads...
       currentMetricStr = QString::null;
       index = s.find(":");
-      currentUserSelectedMetricStr = s.mid(13, index-13);
-// printf("IO2: currentCollectorStr=(NULL) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
-      if( !currentUserSelectedMetricStr.contains("CallTrees by Selected Function") )
+      currentUserSelectedReportStr = s.mid(13, index-13);
+      if( !currentUserSelectedReportStr.contains("CallTrees by Selected Function") )
       {
         selectedFunctionStr = QString::null;
       }
@@ -2053,12 +2015,7 @@ StatsPanel::HWCReportSelected(int val)
 // printf("HWCReportSelected: hwc_menu=(%s)\n", hwc_menu->text(val).ascii() );
 // printf("HWCReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
 
-  mpi_io_FLAG = FALSE;
-  hwc_FLAG = TRUE;
-// printf("F: mpi_io_FLAG = %d\n", mpi_io_FLAG );
-
-
-  currentUserSelectedMetricStr = QString::null;
+  currentUserSelectedReportStr = QString::null;
   collectorStrFromMenu = QString::null;
   currentMetricStr = QString::null;
 
@@ -2080,18 +2037,18 @@ StatsPanel::HWCReportSelected(int val)
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
       currentMetricStr = s.mid(index+2);
-      currentUserSelectedMetricStr = currentMetricStr;
+      currentUserSelectedReportStr = currentMetricStr;
 // printf("DD1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
     { // The user wants to do all the metrics on the selected threads...
       currentMetricStr = QString::null;
       index = s.find(":");
-      currentUserSelectedMetricStr = s.mid(13, index-13);
-// printf("DD2: currentCollectorStr=(NULL) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
-      if( !currentUserSelectedMetricStr.contains("CallTrees by Selected Function") )
+      currentUserSelectedReportStr = s.mid(13, index-13);
+      if( !currentUserSelectedReportStr.contains("CallTrees by Selected Function") )
       {
         selectedFunctionStr = QString::null;
+// printf("A: NULLING OUT selectedFunctionStr\n");
       }
     }
 
@@ -2111,12 +2068,7 @@ StatsPanel::HWCTimeReportSelected(int val)
 // printf("HWCTimeReportSelected: hwctime_menu=(%s)\n", hwctime_menu->text(val).ascii() );
 // printf("HWCTimeReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
 
-  mpi_io_FLAG = FALSE;
-  hwc_FLAG = TRUE;
-// printf("F: mpi_io_FLAG = %d\n", mpi_io_FLAG );
-
-
-  currentUserSelectedMetricStr = QString::null;
+  currentUserSelectedReportStr = QString::null;
   collectorStrFromMenu = QString::null;
   currentMetricStr = QString::null;
 
@@ -2138,18 +2090,18 @@ StatsPanel::HWCTimeReportSelected(int val)
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
       currentMetricStr = s.mid(index+2);
-      currentUserSelectedMetricStr = currentMetricStr;
+      currentUserSelectedReportStr = currentMetricStr;
 // printf("DD1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
     { // The user wants to do all the metrics on the selected threads...
       currentMetricStr = QString::null;
       index = s.find(":");
-      currentUserSelectedMetricStr = s.mid(13, index-13);
-// printf("DD2: currentCollectorStr=(NULL) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
-      if( !currentUserSelectedMetricStr.contains("CallTrees by Selected Function") )
+      currentUserSelectedReportStr = s.mid(13, index-13);
+      if( !currentUserSelectedReportStr.contains("CallTrees by Selected Function") )
       {
         selectedFunctionStr = QString::null;
+// printf("B: NULLING OUT selectedFunctionStr\n");
       }
     }
 
@@ -2169,11 +2121,7 @@ StatsPanel::collectorUserTimeReportSelected(int val)
 // printf("collectorUserTimeReportSelected: usertime_menu=(%s)\n", usertime_menu->text(val).ascii() );
 // printf("collectorUserTimeReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
 
-  mpi_io_FLAG = FALSE;
-  hwc_FLAG = FALSE;
-// printf("G: mpi_io_FLAG = %d\n", mpi_io_FLAG );
-
-  currentUserSelectedMetricStr = QString::null;
+  currentUserSelectedReportStr = QString::null;
   currentCollectorStr = "usertime";
   collectorStrFromMenu = QString::null;
   currentMetricStr = QString::null;
@@ -2198,16 +2146,15 @@ StatsPanel::collectorUserTimeReportSelected(int val)
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
       currentMetricStr = s.mid(index+2);
-      currentUserSelectedMetricStr = currentMetricStr;
+      currentUserSelectedReportStr = currentMetricStr;
 // printf("UT1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
     { // The user wants to do all the metrics on the selected threads...
       currentMetricStr = QString::null;
       index = s.find(":");
-      currentUserSelectedMetricStr = s.mid(13, index-13);
-// printf("UT2: currentCollectorStr=(%s) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
-      if( !currentUserSelectedMetricStr.contains("CallTrees by Selected Function") )
+      currentUserSelectedReportStr = s.mid(13, index-13);
+      if( !currentUserSelectedReportStr.contains("CallTrees by Selected Function") )
       {
         selectedFunctionStr = QString::null;
       }
@@ -2230,11 +2177,7 @@ StatsPanel::collectorPCSampReportSelected(int val)
 // printf("collectorPCSampReportSelected: pcsamp_menu=(%s)\n", pcsamp_menu->text(val).ascii() );
 // printf("collectorPCSampReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
 
-  mpi_io_FLAG = FALSE;
-  hwc_FLAG = FALSE;
-// printf("G: mpi_io_FLAG = %d\n", mpi_io_FLAG );
-
-  currentUserSelectedMetricStr = QString::null;
+  currentUserSelectedReportStr = QString::null;
   currentCollectorStr = "pcsamp";
   collectorStrFromMenu = QString::null;
   currentMetricStr = QString::null;
@@ -2259,16 +2202,15 @@ StatsPanel::collectorPCSampReportSelected(int val)
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
       currentMetricStr = s.mid(index+2);
-      currentUserSelectedMetricStr = currentMetricStr;
+      currentUserSelectedReportStr = currentMetricStr;
 // printf("UT1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
     { // The user wants to do all the metrics on the selected threads...
       currentMetricStr = QString::null;
       index = s.find(":");
-      currentUserSelectedMetricStr = s.mid(13, index-13);
-// printf("UT2: currentCollectorStr=(%s) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
-      if( !currentUserSelectedMetricStr.contains("CallTrees by Selected Function") )
+      currentUserSelectedReportStr = s.mid(13, index-13);
+      if( !currentUserSelectedReportStr.contains("CallTrees by Selected Function") )
       {
         selectedFunctionStr = QString::null;
       }
@@ -2290,16 +2232,12 @@ StatsPanel::collectorGenericReportSelected(int val)
 // printf("collectorGenericReportSelected: generic_menu=(%s)\n", generic_menu->text(val).ascii() );
 // printf("collectorGenericReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
 
-  mpi_io_FLAG = FALSE;
-  hwc_FLAG = FALSE;
-// printf("H: mpi_io_FLAG = %d\n", mpi_io_FLAG );
-
-
-  currentUserSelectedMetricStr = QString::null;
+  currentUserSelectedReportStr = QString::null;
 
   currentMetricStr = QString::null;
   currentCollectorStr = QString::null;
   selectedFunctionStr = QString::null;
+// printf("C: NULLING OUT selectedFunctionStr\n");
 
 // printf("Collector changed call updateStatsPanelData() \n");
     updateStatsPanelData();
@@ -3388,10 +3326,6 @@ for(int i=0;i<fieldCount;i++)
     return;
   }
 
-// printf("fieldCount=(%d)\n", fieldCount);
-// printf("currentCollectorStr=(%s) currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii()  );
-
-
   QString *strings = new QString[fieldCount];
  
   int percent = 0;
@@ -3429,16 +3363,15 @@ for(int i=0;i<fieldCount;i++)
     return;
   }
 
-
   SPListViewItem *splvi;
 // printf("More Function MPItraceFLAG=(%d)\n", MPItraceFLAG);
-  if( (mpi_io_FLAG && (MPItraceFLAG == FALSE && !currentUserSelectedMetricStr.startsWith("Functions")) &&  ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("CallTrees,FullStack") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ) ||
-      (currentCollectorStr == "usertime" && (currentUserSelectedMetricStr == "Butterfly" || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("CallTrees,FullStack") ) )  ||
-      (currentCollectorStr.startsWith("hwc") && (currentUserSelectedMetricStr == "Butterfly" || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("CallTrees,FullStack") ) ) )
+  if( (( currentCollectorStr == "mpi" || currentCollectorStr == "mpit" || currentCollectorStr == "io" || currentCollectorStr == "iot" ) && (MPItraceFLAG == FALSE && !currentUserSelectedReportStr.startsWith("Functions")) &&  ( currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") || currentUserSelectedReportStr.startsWith("Functions") || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("Butterfly") ) ) ||
+      (currentCollectorStr == "usertime" && (currentUserSelectedReportStr == "Butterfly" || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) )  ||
+      (currentCollectorStr.startsWith("hwc") && (currentUserSelectedReportStr == "Butterfly" || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) ) )
   {
     QString indentChar = ">";
 
-    if( currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") )
+    if( currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") )
     {
       indentChar = "<";
     } 
@@ -3446,7 +3379,7 @@ for(int i=0;i<fieldCount;i++)
     int indent_level = 0;
 
 // Pretty the output up a bit.
-    if( currentUserSelectedMetricStr.startsWith("Butterfly") )
+    if( currentUserSelectedReportStr.startsWith("Butterfly") )
     {
       if( indented )
       {
@@ -3500,7 +3433,7 @@ if( highlight_line ) highlight_item = splvi;
         strings[fieldCount-1] = strippedString1;
 
         // Pretty up the format a bit.
-        if( currentUserSelectedMetricStr.startsWith("Butterfly") )
+        if( currentUserSelectedReportStr.startsWith("Butterfly") )
         {
           strings[fieldCount-1].replace(0,0,QString("  ")); // This is the bad boy
         }
@@ -3762,6 +3695,20 @@ StatsPanel::findSelectedFunction()
   }
 
 
+// Before we return... make sure this is really a function and not a filename.
+QFileInfo fi(functionStr);
+if( fi.exists() )
+{
+  functionStr = QString::null;
+}
+// Well that doesn't always work... If the source moved... Then we 
+// need to apply an additional heuristic... FIX (i.e. Make this better!)
+if( functionStr.contains(".") || functionStr.contains("/") )
+{
+  functionStr = QString::null;
+}
+
+
 // printf("Return functionStr=(%s)\n", functionStr.stripWhiteSpace().ascii() );
 
   return( functionStr.stripWhiteSpace() );
@@ -3847,7 +3794,7 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
 
 // printf("function_name=(%s)\n", function_name.ascii() );
 
-  if( mpi_io_FLAG && ( collectorStrFromMenu.startsWith("CallTrees") || collectorStrFromMenu.startsWith("Functions") || collectorStrFromMenu.startsWith("TraceBacks") || collectorStrFromMenu.startsWith("TraceBacks,FullStack") ) )
+  if( ( currentCollectorStr == "mpi" || currentCollectorStr == "mpit" || currentCollectorStr == "io" || currentCollectorStr == "iot" ) && ( collectorStrFromMenu.startsWith("CallTrees") || collectorStrFromMenu.startsWith("Functions") || collectorStrFromMenu.startsWith("TraceBacks") || collectorStrFromMenu.startsWith("TraceBacks,FullStack") ) )
   {
     int bof = -1;
     int eof = workString.find('(');
@@ -3894,7 +3841,8 @@ QString
 StatsPanel::generateCommand()
 {
   QString traceAddition = QString::null;
-// printf("GenerateCommand(%s) MPItraceFLAG = (%d) IOtraceFLAG == %d\n", currentCollectorStr.ascii(), MPItraceFLAG, IOtraceFLAG );
+// printf("GenerateCommand(%s) MPItraceFLAG = (%d) currentUserSelectedReportStr=(%s) IOtraceFLAG == %d\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), MPItraceFLAG, IOtraceFLAG );
+
   if( currentCollectorStr == "io" || currentCollectorStr == "iot" )
   {
     if( IOtraceFLAG == TRUE )
@@ -3925,8 +3873,6 @@ StatsPanel::generateCommand()
   QString command = QString("expView -x %1").arg(expID);
   about = QString("Experiment: %1\n").arg(expID);
 
-// printf("currentCollectorStr=(%s)  currentUserSelectedMetricStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii() );
-
   if( currentCollectorStr.isEmpty() )
   {
     command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
@@ -3937,60 +3883,55 @@ StatsPanel::generateCommand()
     about += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
 
   }
-  if( !currentUserSelectedMetricStr.isEmpty() && !currentCollectorStr.isEmpty() )
+  if( !currentUserSelectedReportStr.isEmpty() && !currentCollectorStr.isEmpty() )
   {
-    if( currentCollectorStr != currentUserSelectedMetricStr )
+    if( currentCollectorStr != currentUserSelectedReportStr )
     {  // If these 2 are equal, we want the default display... not a 
        // specific metric.
-// printf("A: adding currentUserSelectedMetricStr=(%s) currentCollectorStr=(%s)\n", currentUserSelectedMetricStr.ascii(), currentCollectorStr.ascii()  );
-       command += QString(" -m %1").arg(currentUserSelectedMetricStr);
-       about += QString("for metrics %1\n").arg(currentUserSelectedMetricStr);
+       command += QString(" -m %1").arg(currentUserSelectedReportStr);
+       about += QString("for metrics %1\n").arg(currentUserSelectedReportStr);
     }
   }
-//  if( !mpi_io_FLAG )
-  { 
-    if( !currentThreadsStr.isEmpty() )
-    {
-       command += QString(" %1").arg(currentThreadsStr);
-       about += QString("for threads %1\n").arg(currentThreadsStr);
-    }
-  }
-
-
-// printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedMetricStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedMetricStr.ascii(), currentMetricStr.ascii() );
-
-// printf("mpi_io_FLAG = %d hwc_FLAG= %d\n", mpi_io_FLAG, hwc_FLAG );
-
-  if( currentCollectorStr == "pcsamp" && (currentUserSelectedMetricStr
-== "Functions") || (currentUserSelectedMetricStr == "LinkedObjects") || (currentUserSelectedMetricStr == "Statements") )
+  if( !currentThreadsStr.isEmpty() )
   {
-    if( currentUserSelectedMetricStr.isEmpty() )
+     command += QString(" %1").arg(currentThreadsStr);
+     about += QString("for threads %1\n").arg(currentThreadsStr);
+  }
+
+
+// printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedReportStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), currentMetricStr.ascii() );
+
+
+  if( currentCollectorStr == "pcsamp" && (currentUserSelectedReportStr
+== "Functions") || (currentUserSelectedReportStr == "LinkedObjects") || (currentUserSelectedReportStr == "Statements") )
+  {
+    if( currentUserSelectedReportStr.isEmpty() )
     { 
-      currentUserSelectedMetricStr = "Functions";
+      currentUserSelectedReportStr = "Functions";
     }
-    command = QString("expView -x %1 %4%2 -v %5").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(currentUserSelectedMetricStr);
+    command = QString("expView -x %1 %4%2 -v %5").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
 // printf("start of pcsamp generated command (%s)\n", command.ascii() );
   } else if( currentCollectorStr == "usertime" &&
-            (currentUserSelectedMetricStr == "Butterfly") ||
-            (currentUserSelectedMetricStr == "Functions") ||
-            (currentUserSelectedMetricStr == "LinkedObjects") ||
-            (currentUserSelectedMetricStr == "Statements") ||
-            (currentUserSelectedMetricStr == "CallTrees") ||
-            (currentUserSelectedMetricStr == "CallTrees,FullStack") ||
-            (currentUserSelectedMetricStr == "TraceBacks") ||
-            (currentUserSelectedMetricStr == "TraceBacks,FullStack") )
+            (currentUserSelectedReportStr == "Butterfly") ||
+            (currentUserSelectedReportStr == "Functions") ||
+            (currentUserSelectedReportStr == "LinkedObjects") ||
+            (currentUserSelectedReportStr == "Statements") ||
+            (currentUserSelectedReportStr == "CallTrees") ||
+            (currentUserSelectedReportStr == "CallTrees,FullStack") ||
+            (currentUserSelectedReportStr == "TraceBacks") ||
+            (currentUserSelectedReportStr == "TraceBacks,FullStack") )
   {
-    if( currentUserSelectedMetricStr.isEmpty() )
+    if( currentUserSelectedReportStr.isEmpty() )
     { 
-      currentUserSelectedMetricStr = "Functions";
+      currentUserSelectedReportStr = "Functions";
     }
-    if( currentUserSelectedMetricStr == "Butterfly" )
+    if( currentUserSelectedReportStr == "Butterfly" )
     {
       selectedFunctionStr = findSelectedFunction();
       if( selectedFunctionStr.isEmpty() )
       {
         bool ok = FALSE;
-      // printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+// printf("A: NO FUNCTION SELECTED Prompt for one!\n");
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
       }
       if( selectedFunctionStr.isEmpty() )
@@ -4000,16 +3941,35 @@ StatsPanel::generateCommand()
       command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
      } else
      {
-        command = QString("expView -x %1 %4%2 -v %5").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(currentUserSelectedMetricStr);
+        command = QString("expView -x %1 %4%2 -v %5").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
      }
 // printf("USERTIME! command=(%s)\n", command.ascii() );
-  } else if( ( mpi_io_FLAG && ( currentUserSelectedMetricStr.startsWith("CallTrees") || currentUserSelectedMetricStr.startsWith("CallTrees,FullStack") || currentUserSelectedMetricStr.startsWith("Functions") || currentUserSelectedMetricStr.startsWith("mpi") || currentUserSelectedMetricStr.startsWith("io") || currentUserSelectedMetricStr.startsWith("TraceBacks") || currentUserSelectedMetricStr.startsWith("TraceBacks,FullStack") || currentUserSelectedMetricStr.startsWith("Butterfly") ) ))
+  } else if( ( ( currentCollectorStr == "hwc" || currentCollectorStr == "hwctime" || currentCollectorStr == "mpi" || currentCollectorStr == "mpit" || currentCollectorStr == "io" || currentCollectorStr == "iot" ) && ( currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") || currentUserSelectedReportStr.startsWith("Functions") || currentUserSelectedReportStr.startsWith("mpi") || currentUserSelectedReportStr.startsWith("io") || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("Butterfly") ) ))
   { 
 // printf("It thinks we're mpi | io!\n");
-    if( currentUserSelectedMetricStr.isEmpty() || currentUserSelectedMetricStr == "CallTrees" )
+    if( currentUserSelectedReportStr.isEmpty() || currentUserSelectedReportStr == "CallTrees" )
     {
       command = QString("expView -x %1 %3%2 -v CallTrees").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
-    } else if ( currentUserSelectedMetricStr == "CallTrees by Selected Function" )
+    } else if ( currentUserSelectedReportStr == "CallTrees by Selected Function" )
+    {
+//      if( selectedFunctionStr.isEmpty() )
+      {
+        selectedFunctionStr = findSelectedFunction();
+        bool ok = FALSE;
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+      }
+      if( selectedFunctionStr.isEmpty() )
+      {
+        return( QString::null );
+      }
+      command = QString("expView -x %1 %4%2 -v CallTrees -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+    } else if ( currentUserSelectedReportStr == "TraceBacks" )
+    {
+      command = QString("expView -x %1 %3%2 -v TraceBacks").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+    } else if ( currentUserSelectedReportStr == "TraceBacks,FullStack" )
+    {
+      command = QString("expView -x %1 %3%2 -v TraceBacks,FullStack").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+    } else if( currentUserSelectedReportStr == "Butterfly" )
     {
 //      if( selectedFunctionStr.isEmpty() )
       {
@@ -4017,27 +3977,10 @@ StatsPanel::generateCommand()
       }
       if( selectedFunctionStr.isEmpty() )
       {
-        return( QString::null );
-      }
-      command = QString("expView -x %1 %4%2 -v CallTrees -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
-    } else if ( currentUserSelectedMetricStr == "TraceBacks" )
-    {
-      command = QString("expView -x %1 %3%2 -v TraceBacks").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
-    } else if ( currentUserSelectedMetricStr == "TraceBacks,FullStack" )
-    {
-      command = QString("expView -x %1 %3%2 -v TraceBacks,FullStack").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
-    } else if( currentUserSelectedMetricStr == "Butterfly" )
-    {
-//      if( selectedFunctionStr.isEmpty() )
-      {
-        selectedFunctionStr = findSelectedFunction();
-      }
-if( selectedFunctionStr.isEmpty() )
-{
-  bool ok = FALSE;
+        bool ok = FALSE;
 // printf("B: NO FUNCTION SELECTED Prompt for one!\n");
-  selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
-}
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+      }
       if( selectedFunctionStr.isEmpty() )
       {
         return( QString::null );
@@ -4052,27 +3995,27 @@ if( selectedFunctionStr.isEmpty() )
        command += QString(" %1").arg(currentThreadsStr);
        about += QString("for threads %1\n").arg(currentThreadsStr);
     }
-  } else if( hwc_FLAG == TRUE && (currentCollectorStr == "hwc" || currentCollectorStr == "hwctime") &&
-            (currentUserSelectedMetricStr == "Butterfly") ||
-            (currentUserSelectedMetricStr == "Functions") ||
-            (currentUserSelectedMetricStr == "LinkedObjects") ||
-            (currentUserSelectedMetricStr == "Statements") ||
-            (currentUserSelectedMetricStr == "CallTrees") ||
-            (currentUserSelectedMetricStr == "CallTrees,FullStack") ||
-            (currentUserSelectedMetricStr == "TraceBacks") ||
-            (currentUserSelectedMetricStr == "TraceBacks,FullStack") )
+  } else if( (currentCollectorStr == "hwc" || currentCollectorStr == "hwctime") &&
+            (currentUserSelectedReportStr == "Butterfly") ||
+            (currentUserSelectedReportStr == "Functions") ||
+            (currentUserSelectedReportStr == "LinkedObjects") ||
+            (currentUserSelectedReportStr == "Statements") ||
+            (currentUserSelectedReportStr == "CallTrees") ||
+            (currentUserSelectedReportStr == "CallTrees,FullStack") ||
+            (currentUserSelectedReportStr == "TraceBacks") ||
+            (currentUserSelectedReportStr == "TraceBacks,FullStack") )
 {
-    if( currentUserSelectedMetricStr.isEmpty() )
+    if( currentUserSelectedReportStr.isEmpty() )
     { 
-      currentUserSelectedMetricStr = "Functions";
+      currentUserSelectedReportStr = "Functions";
     }
-  if( currentUserSelectedMetricStr.startsWith("Statements") )
+  if( currentUserSelectedReportStr.startsWith("Statements") )
   { 
     command = QString("expView -x %1 %3%2 -v Statements").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
   } else
   {
 //    command = QString("expView -x %1 %3%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
-      command = QString("expView -x %1 %4%2 -v %5").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(currentUserSelectedMetricStr);
+      command = QString("expView -x %1 %4%2 -v %5").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
   }
 // printf("hwc command=(%s)\n", command.ascii() );
   about = command + "\n";
@@ -4718,6 +4661,7 @@ StatsPanel::addUserTimeReports(QPopupMenu *menu )
   qaction->addTo( menu );
   qaction->setText( tr("Show: Butterfly") );
   qaction->setToolTip(tr("Show Butterfly by function.") );
+
 }
 
 
@@ -4801,12 +4745,17 @@ StatsPanel::addHWCTimeReports(QPopupMenu *menu )
   qaction->addTo( menu );
   qaction->setText( tr("Show: Butterfly") );
   qaction->setToolTip(tr("Show Butterfly by function.") );
+
 }
 
 
 SourceObject *
 StatsPanel::lookUpFileHighlights(QString function_name, Thread thread, ThreadGroup::iterator ti, QListViewItem *item, QString filename, QString lineNumberStr, HighlightList *highlightList)
 {
+
+// printf("lookUpFileHighlights: currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
+// printf("lookUpFileHighlights: currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
+
   SourceObject *spo = NULL;
   HighlightObject *hlo = NULL;
   
@@ -4825,19 +4774,16 @@ StatsPanel::lookUpFileHighlights(QString function_name, Thread thread, ThreadGro
   {
     di = statement_definition.begin();
 // printf("FOUND THE FUNCTION in FILE (%s) line=%d\n", di->getPath().c_str(), di->getLine() );
-//    filename = Path(di->getPath()).c_str();
     filename = di->getPath();
     lineNumberStr = QString("%1").arg(di->getLine());
   }
-  if( 1) 
-  {
 
 // printf("Try to query the metrics.\n");
 
 // printf("currentItemIndex=%d\n", currentItemIndex);
 
-    hlo = new HighlightObject(filename, lineNumberStr.toInt(), hotToCold_color_names[currentItemIndex], QString::null, QString("Beginning of function %1").arg(function_name.ascii()), (QString)*columnHeaderList.begin() );
-    highlightList->push_back(hlo);
+  hlo = new HighlightObject(filename, lineNumberStr.toInt(), hotToCold_color_names[currentItemIndex], QString::null, QString("Beginning of function %1").arg(function_name.ascii()), (QString)*columnHeaderList.begin() );
+  highlightList->push_back(hlo);
 // printf("push_back function entry (currentItemIndex=%d\n", currentItemIndex);
 // hlo->print();
 
@@ -4847,212 +4793,255 @@ StatsPanel::lookUpFileHighlights(QString function_name, Thread thread, ThreadGro
 // printf("  %s\n", !currentMetricStr.isEmpty() ? currentMetricStr.ascii() : "NULL");
 
  
-    // First, determine if we can simply set the defaults to the only
-    // possible settings.
-    if( list_of_collectors_metrics.size() == 1 && list_of_pids.size() == 1 )
-    {
+  // First, determine if we can simply set the defaults to the only
+  // possible settings.
+  if( list_of_collectors_metrics.size() == 1 && list_of_pids.size() == 1 )
+  {
 // printf("There's no confusion (and there's not defaults) simply set the defaults.\n");
-      setCurrentCollector();
-      setCurrentThread();
-      setCurrentMetricStr();
-    }
-
     setCurrentCollector();
+    setCurrentThread();
     setCurrentMetricStr();
-    if( currentThread )
-    {
-      delete currentThread;
-    }
-    currentThread = new Thread(*ti);
+  }
+
+  setCurrentCollector();
+  setCurrentMetricStr();
+  if( currentThread )
+  {
+    delete currentThread;
+  }
+  currentThread = new Thread(*ti);
 // printf("Getting the next currentThread (%d)\n", currentThread->getProcessId() );
-//          if( !mpi_io_FLAG )
-    if( mpi_io_FLAG == FALSE && hwc_FLAG == FALSE )
-    {
-      if( item->text(0).contains(".") )
-      {
+
+  Metadata m = Find_Metadata(*currentCollector, std::string(currentMetricStr.ascii()) );
+
+#if 0
+// Begin DEBUG
+printf("lookUpFileHighlights: metric=(%s)\n", currentMetricStr.ascii() );
+std::string  id = m.getUniqueId();
+
+if( m.isType(typeid(unsigned int)) )
+{
+printf("type: unsigned int\n");
+} else if( m.isType(typeid(uint64_t)) )
+{ 
+printf("type: uint64_t\n");
+} else if( m.isType(typeid(int)) ) 
+{
+printf("type: int\n");
+} else if( m.isType(typeid(int64_t)) )
+{
+printf("type: int64_t\n");
+} else if( m.isType(typeid(float)) )
+{
+printf("type: float\n");
+} else if( m.isType(typeid(double)) )
+{
+printf("type: double\n");
+} else if( m.isType(typeid(string)) )
+{
+printf("type: string\n");
+} else
+{
+printf("UNknown type.\n");
+}
+// END DEBUG
+#endif // 0
+
+  if( m.isType(typeid(double)) )
+  {
 // printf("DOUBLE\n");
-        // If double
-        SmartPtr<std::map<int, double> > double_statement_data = Framework::SmartPtr<std::map<int, double> >(new std::map<int, double>() );;
+    // If double
+    SmartPtr<std::map<int, double> > double_statement_data = Framework::SmartPtr<std::map<int, double> >(new std::map<int, double>() );;
 
 // printf("GetMetric... %s:%s %d %s\n", currentCollectorStr.ascii(), currentMetricStr.ascii(), currentThread->getProcessId(), Path(filename.ascii()).c_str() );
 
-        GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, filename.ascii(), double_statement_data);
+    GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, filename.ascii(), double_statement_data);
 
-        // Begin try to highlight source for doubles....
+    // Begin try to highlight source for doubles....
 // printf("Build/append to a list of highlights for the source panel to update.\n");
-        for(std::map<int, double>::const_iterator
-              sit = double_statement_data->begin();
-              sit != double_statement_data->end(); ++sit)
-        {
-
-          int64_t line = 1;
-          int color_index = getLineColor(sit->second);
-
-          // first check to see if there's already a hlo for this line number.
-          // If there is, bump the value... Otherwise, push back a new one.
-          bool FOUND = FALSE;
-// printf("Do we have a duplicate? (%d) %f \n", sit->first, sit->second );
-          for( HighlightList::Iterator it = highlightList->begin();
-                 it != highlightList->end();
-                 ++it)
-          {
-            hlo = (HighlightObject *)*it;
-// printf("\thlo->line=(%d)\n", hlo->line );
-            if( hlo->line == sit->first )
-            {
-// printf("We have a duplicate at line (%d)\n", sit->first );
-              float v = hlo->value.toFloat();
-// printf("%f + %f =%f\n", v, sit->second, v+sit->second );
-              v += sit->second;
-              hlo->value = QString("%1").arg(v);
-// printf("  new value=(%s)\n", hlo->value.ascii() );
-              hlo->description = QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(v);
-              hlo->value_description = (QString)*columnHeaderList.begin();
-              color_index = getLineColor(v);
-              hlo->color = hotToCold_color_names[color_index];
-              FOUND = TRUE;
-              break;
-            }
-          }
-
-          if( !FOUND )
-          {
-            hlo = new HighlightObject(filename, sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), QString("\nMetric %1 %2.").arg(currentMetricStr).arg(sit->second), (QString)*columnHeaderList.begin() );
-            highlightList->push_back(hlo);
-// printf("A: Push_back a hlo for %d %f (%s)\n", sit->first, sit->second, hlo->description.ascii() );
-          }
-// hlo->print();
-        }
-      } else
+      for(std::map<int, double>::const_iterator
+          sit = double_statement_data->begin();
+          sit != double_statement_data->end(); ++sit)
       {
+
+        int64_t line = 1;
+        int color_index = getLineColor(sit->second);
+  
+        // first check to see if there's already a hlo for this line number.
+        // If there is, bump the value... Otherwise, push back a new one.
+        bool FOUND = FALSE;
+// printf("Do we have a duplicate? (%d) %f \n", sit->first, sit->second );
+        for( HighlightList::Iterator it = highlightList->begin();
+               it != highlightList->end();
+               ++it)
+        {
+          hlo = (HighlightObject *)*it;
+// printf("\thlo->line=(%d)\n", hlo->line );
+          if( hlo->line == sit->first )
+          {
+// printf("We have a duplicate at line (%d)\n", sit->first );
+            float v = hlo->value.toFloat();
+// printf("%f + %f =%f\n", v, sit->second, v+sit->second );
+            v += sit->second;
+            hlo->value = QString("%1").arg(v);
+// printf("  new value=(%s)\n", hlo->value.ascii() );
+            hlo->description = QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(v);
+            hlo->value_description = (QString)*columnHeaderList.begin();
+            color_index = getLineColor(v);
+            hlo->color = hotToCold_color_names[color_index];
+            FOUND = TRUE;
+            break;
+          }
+        }
+
+        if( !FOUND )
+        {
+          hlo = new HighlightObject(filename, sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), QString("\nMetric %1 %2.").arg(currentMetricStr).arg(sit->second), (QString)*columnHeaderList.begin() );
+          highlightList->push_back(hlo);
+// printf("A: Push_back a hlo for %d %f (%s)\n", sit->first, sit->second, hlo->description.ascii() );
+        }
+// hlo->print();
+      }
+    } else
+    {
+      // Not a double value...
 // printf("NOT DOUBLE\n");
-        // Not a double value...
-        SmartPtr<std::map<int, uint64_t> > uint64_statement_data = Framework::SmartPtr<std::map<int, uint64_t> >(new std::map<int, uint64_t>() );;
-      GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(filename.ascii()), uint64_statement_data);
+      if( !m.isType(typeid(uint64_t)) )
+      {
+// printf("WARNING: ATTEMPTING TOO LOOK UP TYPE uint64_t WHEN METRIC IS NOT uint64_t\n");
+//        fprintf(stderr, "report name=(%s)\n", currentUserSelectedReportStr.ascii() );
+//        fprintf(stderr, "metric name=(%s)\n", currentCollectorStr.ascii() );
+  
+std::string  id = m.getUniqueId();
+fprintf(stderr, "Unsupported type: Unable to display per statement source metrics for type:  ");
+if( m.isType(typeid(unsigned int)) )
+{
+fprintf(stderr, " unsigned int\n");
+} else if( m.isType(typeid(uint64_t)) )
+{ 
+fprintf(stderr, " uint64_t\n");
+} else if( m.isType(typeid(int)) ) 
+{
+fprintf(stderr, " int\n");
+} else if( m.isType(typeid(int64_t)) )
+{
+fprintf(stderr, "type: int64_t\n");
+} else if( m.isType(typeid(float)) )
+{
+fprintf(stderr, " float\n");
+} else if( m.isType(typeid(double)) )
+{
+fprintf(stderr, " double\n");
+} else if( m.isType(typeid(string)) )
+{
+fprintf(stderr, " string\n");
+} else
+{
+fprintf(stderr, "UNknown type.\n");
+}
+      }
+
+      SmartPtr<std::map<int, uint64_t> > uint64_statement_data = Framework::SmartPtr<std::map<int, uint64_t> >(new std::map<int, uint64_t>() );;
+
+      if( m.isType(typeid(uint64_t)) )
+      {
+        GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(filename.ascii()), uint64_statement_data);
+      }
       
 // printf("uint64_statement_data->size(%d)\n", uint64_statement_data->size() );
 
-        // Begin try to highlight source for doubles....
-        for(std::map<int, uint64_t>::const_iterator
-              sit = uint64_statement_data->begin();
-              sit != uint64_statement_data->end(); ++sit)
-        {
+      // Begin try to highlight source for doubles....
+      for(std::map<int, uint64_t>::const_iterator
+            sit = uint64_statement_data->begin();
+            sit != uint64_statement_data->end(); ++sit)
+      {
 // printf("Build a list of highlights for the source panel to update.\n");
-          int64_t line = 1;
+        int64_t line = 1;
 
-          int color_index = getLineColor(sit->second);
+        int color_index = getLineColor(sit->second);
 
-          // first check to see if there's already a hlo for this line number.
-          // If there is, bump the value... Otherwise, push back a new one.
-          bool FOUND = FALSE;
+        // first check to see if there's already a hlo for this line number.
+        // If there is, bump the value... Otherwise, push back a new one.
+        bool FOUND = FALSE;
 // printf("Do we have a duplicate? (%d)\n", sit->first );
-          for( HighlightList::Iterator it = highlightList->begin();
-                 it != highlightList->end();
-                 ++it)
-          {
-            hlo = (HighlightObject *)*it;
+        for( HighlightList::Iterator it = highlightList->begin();
+               it != highlightList->end();
+               ++it)
+        {
+          hlo = (HighlightObject *)*it;
 // printf("\thlo->line=(%d)\n", hlo->line );
-            if( hlo->line == sit->first )
-            {
-// printf("We have a duplicate at line (%d)\n", sit->first );
-              uint64_t v = hlo->value.toUInt();
-// printf("v=%f\n", v );
-              v += sit->second;
-              hlo->value = QString("%1").arg(v);
-              hlo->description = QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(v);
-
-              hlo->value_description = (QString)*columnHeaderList.begin();
-              color_index = getLineColor(v);
-              hlo->color = hotToCold_color_names[color_index];
-              FOUND = TRUE;
-              break;
-            }
-          }
-          if( !FOUND )
+          if( hlo->line == sit->first )
           {
-            hlo = new HighlightObject(filename, sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(sit->second), (QString)*columnHeaderList.begin() );
-            highlightList->push_back(hlo);
+// printf("We have a duplicate at line (%d)\n", sit->first );
+            uint64_t v = hlo->value.toUInt();
+// printf("v=%f\n", v );
+            v += sit->second;
+            hlo->value = QString("%1").arg(v);
+            hlo->description = QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(v);
+
+            hlo->value_description = (QString)*columnHeaderList.begin();
+            color_index = getLineColor(v);
+            hlo->color = hotToCold_color_names[color_index];
+            FOUND = TRUE;
+            break;
+          }
+        }
+        if( !FOUND )
+        {
+          hlo = new HighlightObject(filename, sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(sit->second), (QString)*columnHeaderList.begin() );
+          highlightList->push_back(hlo);
 // printf("B: Push_back a hlo for %d %f\n", sit->first, sit->second);
 // hlo->print();
-          }
         }
       }
     }
 
 
 
-    currentItemIndex = 0;
-    QListViewItemIterator lvit = (splv);
-    while( lvit.current() )
+  currentItemIndex = 0;
+  QListViewItemIterator lvit = (splv);
+  while( lvit.current() )
+  {
+    QListViewItem *this_item = lvit.current();
+  
+    if( this_item == item )
     {
-      QListViewItem *this_item = lvit.current();
-    
-      if( this_item == item )
-      {
-        break;
-      }
-    
-      currentItemIndex++;
-      lvit++;
+      break;
     }
-#ifdef OLDWAY
-    // ADD CHECK HERE TO SEE IF filename == filename 
-    if( filename.isEmpty() )
-    {
-      filename = di->getPath();
-// printf("filename was empty.   setting to di->getPath((%s)\n", filename.ascii() ); 
-    }
-    if( filename != di->getPath() )
-    {
-      filename = di->getPath();
-    }
-#endif // OLDWAY
+  
+    currentItemIndex++;
+    lvit++;
+  }
 // printf("PREPARE the hlo and spo.  filename=(%s)\n", filename.ascii() );
-    if( mpi_io_FLAG && lineNumberStr != "-1" &&
-      ( collectorStrFromMenu.startsWith("CallTrees") ||
-        collectorStrFromMenu.startsWith("CallTrees,FullStack") ||
-        collectorStrFromMenu.startsWith("Functions") ||
-        collectorStrFromMenu.startsWith("TraceBacks") ||
-        collectorStrFromMenu.startsWith("TraceBacks,FullStack") ) )
-    {
+  if( lineNumberStr != "-1" &&
+    ( collectorStrFromMenu.startsWith("CallTrees") ||
+      collectorStrFromMenu.startsWith("CallTrees,FullStack") ||
+      collectorStrFromMenu.startsWith("Functions") ||
+      collectorStrFromMenu.startsWith("TraceBacks") ||
+      collectorStrFromMenu.startsWith("TraceBacks,FullStack") ) )
+  {
       hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite", "N/A");
-      highlightList->push_back(hlo);
+    highlightList->push_back(hlo);
 // printf("spo A: lineNumberStr=(%s)\n", lineNumberStr.ascii() );
-      spo = new SourceObject(function_name.ascii(), filename.ascii(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
-    } else
-    {
-      spo = new SourceObject(function_name.ascii(), filename, lineNumberStr.toInt()-1, expID, TRUE, highlightList);
-    }
+    spo = new SourceObject(function_name.ascii(), filename.ascii(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
   } else
   {
-// printf("No definitioin for thread's function\n");
-// printf("A: hwc_FLAG=%d lineNumberStr=(%s) collectorStrFromMenu.startsWith=(%s)\n", hwc_FLAG, lineNumberStr.ascii(), collectorStrFromMenu.ascii() );
-#ifdef OLDWAY
-    if( hwc_FLAG == TRUE && lineNumberStr != "-1" /* &&
-        collectorStrFromMenu.startsWith("Statements") */ )
-#else // OLDWAY
-    if( ( hwc_FLAG == TRUE && lineNumberStr != "-1" ) || 
-      currentUserSelectedMetricStr == "Statements" )
-#endif // OLDWAY
-    {
-// printf("Try to simply put these out!\n");
-      HighlightObject *hlo = NULL;
-      hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Statements", "overflows");
-      highlightList->push_back(hlo);
-      spo = new SourceObject(function_name.ascii(), filename.ascii(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
-    }
+// printf("spo B: lineNumberStr=(%s)\n", lineNumberStr.ascii() );
+    spo = new SourceObject(function_name.ascii(), filename, lineNumberStr.toInt()-1, expID, TRUE, highlightList);
   }
 
 
+#if 0
 // Begin debug
   for( HighlightList::Iterator it = spo->highlightList->begin();
        it != spo->highlightList->end();
        ++it)
   {
     HighlightObject *dhlo = (HighlightObject *)*it;
-// printf("A: (%d)\n", dhlo->line );
+printf("A: (%d)\n", dhlo->line );
   }
 // End debug
+#endif // 0
 
 
 

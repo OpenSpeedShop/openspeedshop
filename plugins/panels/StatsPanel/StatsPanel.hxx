@@ -146,8 +146,6 @@ class StatsPanel  : public Panel
     void updateCollectorMetricList();
     void outputAboutData(QString *data);
     void outputCLIData(QString *data);
-    bool mpi_io_FLAG;
-    bool hwc_FLAG;
     bool MPItraceFLAG;
     bool IOtraceFLAG;
 
@@ -167,7 +165,7 @@ class StatsPanel  : public Panel
 
     QString currentMetricStr;
     void setCurrentMetricStr();
-    QString currentUserSelectedMetricStr;
+    QString currentUserSelectedReportStr;
 
     //! Current selected chart item.
     SPListViewItem *currentItem;
