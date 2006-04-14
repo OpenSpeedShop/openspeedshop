@@ -1142,87 +1142,84 @@ bool SS_cView (CommandObject *cmd) {
 
     for (int64_t i = Rvalue1; i <= Rvalue2; i++) {
       CustomView *cvp = Find_CustomView (i);
-      if (cvp != NULL) {
-        OpenSpeedShop::cli::ParseResult *p_result = cvp->cvPr();
-  vector<string> *p_slist = p_result->getViewList();
-        EXPID ExperimentID = (p_result)->isExpId() ? cvp->cvPr()->getExpId() : exp_focus;
-        std::ostringstream N(ios::out);
-        N << i;
-        ExperimentObject *exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
+      if (cvp == NULL) {
+        std::ostringstream S(ios::out);
+        S << "The requested Custom View ID, '-c " << i << "', is invalid on the 'cView' command.";
+        Mark_Cmd_With_Soft_Error(cmd, S.ostringstream::str());
+        continue;
+      }
+      OpenSpeedShop::cli::ParseResult *p_result = cvp->cvPr();
+      vector<string> *p_slist = p_result->getViewList();
+      EXPID ExperimentID = (p_result)->isExpId() ? cvp->cvPr()->getExpId() : exp_focus;
+      std::ostringstream N(ios::out);
+      N << i;
+      ExperimentObject *exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
 
- // Pick up the <viewType> from the command.
-  if (p_slist->begin() == p_slist->end()) {
-   // The user has not selected a view.
-    if ((exp == NULL) ||
-        (exp->FW() == NULL)) {
-     // No experiment was specified, so we can't find a useful view to generate.
-      Mark_Cmd_With_Soft_Error(cmd, "No valid experiment was specified.");
-    } else {
-     // Look for a view that would be meaningful.
-      CollectorGroup cgrp = exp->FW()->getCollectors();
-      if (cgrp.begin() == cgrp.end()) {
-       // No collector was used.
-        Mark_Cmd_With_Soft_Error(cmd, "No performance measurements were made for the experiment.");
-      } else {
-        bool view_found = false;
-        CollectorGroup::iterator cgi;
-        for (cgi = cgrp.begin(); cgi != cgrp.end(); cgi++) {
-         // See if there is a view by the same name.
-          Collector c = *cgi;
-          Metadata m = c.getMetadata();
-          std::string collector_name = m.getUniqueId();
-          ViewType *vt = Find_View (collector_name);
-          if (vt != NULL) {
-            view_found = true;
-           // Generate a view for every collector.
-            selectionTarget S;
-        S.pResult = p_result;
-        S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
-        S.Exp = exp;
-            S.viewName = collector_name;
-            Quick_Compare_Set.push_back (S);
+     // Pick up the <viewType> from the command.
+      if (p_slist->begin() == p_slist->end()) {
+       // The user has not selected a view.
+        if ((exp == NULL) ||
+            (exp->FW() == NULL)) {
+         // No experiment was specified, so we can't find a useful view to generate.
+          Mark_Cmd_With_Soft_Error(cmd, "No valid experiment was specified.");
+        } else {
+         // Look for a view that would be meaningful.
+          CollectorGroup cgrp = exp->FW()->getCollectors();
+          if (cgrp.begin() == cgrp.end()) {
+           // No collector was used.
+            Mark_Cmd_With_Soft_Error(cmd, "No performance measurements were made for the experiment.");
+          } else {
+            bool view_found = false;
+            CollectorGroup::iterator cgi;
+            for (cgi = cgrp.begin(); cgi != cgrp.end(); cgi++) {
+             // See if there is a view by the same name.
+              Collector c = *cgi;
+              Metadata m = c.getMetadata();
+              std::string collector_name = m.getUniqueId();
+              ViewType *vt = Find_View (collector_name);
+              if (vt != NULL) {
+                view_found = true;
+               // Generate a view for every collector.
+                selectionTarget S;
+                S.pResult = p_result;
+                S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
+                S.Exp = exp;
+                S.viewName = collector_name;
+                Quick_Compare_Set.push_back (S);
+              }
+            }
+
+            if (!view_found) {
+             // Use generic view as default
+              selectionTarget S;
+              S.pResult = p_result;
+              S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
+              S.Exp = exp;
+              S.viewName = "stats";
+            }
           }
         }
+      } else {
+       // Generate all the views in the list.
+        vector<string>::iterator si;
+        for (si = p_slist->begin(); si != p_slist->end(); si++) {
+       // Determine the availability of the view.
+          std::string viewname = *si;
+          ViewType *vt = Find_View (viewname);
+          if (vt == NULL) {
+            Mark_Cmd_With_Soft_Error(cmd, "The requested view is unavailable.");
+            return false;
+          }
 
-        if (!view_found) {
-         // Use generic view as default
+         // Define new compare sets for each view.
           selectionTarget S;
-        S.pResult = p_result;
-        S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
-        S.Exp = exp;
-          S.viewName = "stats";
+          S.pResult = p_result;
+          S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
+          S.Exp = exp;
+          S.viewName = viewname;
+          Quick_Compare_Set.push_back (S);
         }
-      }
-    }
-  } else {
-   // Generate all the views in the list.
-    vector<string>::iterator si;
-    for (si = p_slist->begin(); si != p_slist->end(); si++) {
-   // Determine the availability of the view.
-      std::string viewname = *si;
-      ViewType *vt = Find_View (viewname);
-      if (vt == NULL) {
-        Mark_Cmd_With_Soft_Error(cmd, "The requested view is unavailable.");
-        return false;
-      }
 
-     // Define new compare sets for each view.
-      selectionTarget S;
-        S.pResult = p_result;
-        S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
-        S.Exp = exp;
-      S.viewName = viewname;
-      Quick_Compare_Set.push_back (S);
-    }
-
-  }
-/*
-        selectionTarget S;
-        S.pResult = p_result;
-        S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
-        S.Exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
-        Quick_Compare_Set.push_back (S);
-*/
       }
     }
 
