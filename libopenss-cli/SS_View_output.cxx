@@ -87,7 +87,9 @@ void Construct_View_Output (CommandObject *cmd,
           }
         }
       } else if (vp->OpCode() == VIEWINST_Summary_Max) {
-        SummaryInst[vp->TMP1()] = vp;
+        if (vp->TMP1() < num_input_temps) {
+          SummaryInst[vp->TMP1()] = vp;
+        }
       }
   }
   if (report_Column_summary) {
