@@ -34,6 +34,7 @@
 */
 
 #include "CLIInterface.hxx"
+#include "debug.hxx"
 
 #include "qcursor.h"
 #include "qapplication.h"
@@ -57,6 +58,14 @@ CLIInterface::~CLIInterface()
 {
 }
 
+InputLineObject *
+CLIInterface::run_Append_Input_String( int wid, const char *command )
+{
+nprintf(DEBUG_COMMANDS) ("run_Append_Input_String(2) command = (%s)\n", command );
+  InputLineObject *clip = Append_Input_String( wid, (char *)command);
+  return clip;
+}
+
 /*! Run a synchronous command.   No values from the cli are return. 
     \param command   The command line interface (cli) command to execute.
 
@@ -72,6 +81,7 @@ CLIInterface::runSynchronousCLI(const char *command, int mt, bool wot )
   maxTime = mt;
   warn_of_time = wot;
   QApplication::setOverrideCursor(QCursor::WaitCursor);
+nprintf(DEBUG_COMMANDS) ("runSynchronousCLI() command = (%s)\n", command );
   InputLineObject *clip = Append_Input_String( wid, (char *)command);
   if( clip == NULL )
   {
@@ -135,6 +145,7 @@ CLIInterface::getIntValueFromCLI(const char *command, int64_t *val, bool mark_va
   warn_of_time = wot;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
+nprintf(DEBUG_COMMANDS) ("getIntValueFromCLI() command = (%s)\n", command );
   InputLineObject *clip = Append_Input_String( wid, (char *)command);
   if( clip == NULL )
   {
@@ -228,6 +239,7 @@ CLIInterface::getIntListValueFromCLI(const char *command, std::list<int64_t> *in
   warn_of_time = wot;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
+nprintf(DEBUG_COMMANDS) ("getIntListValueFromCLI() command = (%s)\n", command );
   clip = Append_Input_String( wid, (char *)command);
 //printf("clip = 0x%x\n", clip);
   if( clip == NULL )
@@ -338,6 +350,7 @@ CLIInterface::getStringValueFromCLI(const char *command, std::string *str_val, b
   warn_of_time = wot;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
+nprintf(DEBUG_COMMANDS) ("getStringValueFromCLI() command = (%s)\n", command );
   InputLineObject *clip = Append_Input_String( wid, (char *)command);
   if( clip == NULL )
   {
@@ -439,6 +452,7 @@ CLIInterface::getStringListValueFromCLI(const char *command, std::list<std::stri
   warn_of_time = wot;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
+nprintf(DEBUG_COMMANDS) ("getStringListValueFromCLI() command = (%s)\n", command );
   clip = Append_Input_String( wid, (char *)command);
   if( clip == NULL )
   {

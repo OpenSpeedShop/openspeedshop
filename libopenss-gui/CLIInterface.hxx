@@ -54,8 +54,12 @@ class CLIInterface : QObject
     //! Return an int value from a given cli command.
     bool getIntValueFromCLI(const char *command, int64_t *val, bool mark_value_for_delete = true , int maxTime = MAXTIME, bool warn_of_time = true  );
 
+
     //! Run a command and return a success or failure result.
     bool runSynchronousCLI(const char *command, int maxTime = MAXTIME, bool warn_of_time = false );
+
+    //! Run a simple command in the cli.  The caller must manage all cli returns
+    InputLineObject *run_Append_Input_String( int wid, const char *command );
 
     //! The flag set when a command has been interrupted.
     static bool interrupt;

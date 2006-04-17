@@ -60,22 +60,28 @@ DebugPanel::DebugPanel(PanelContainer *pc, const char *n, void *argument) : Pane
   debugAllOffButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, debugAllOffButton->sizePolicy().hasHeightForWidth() ) );
   frameLayout->addWidget( debugAllOffButton );
 
-  topLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, "topLayout" );
+//  topLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, "topLayout" );
+  topLayout = new QHBoxLayout( 0, 0, 2, "topLayout" );
   frameLayout->addLayout(topLayout);
 
-  guiLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, "guiLayout" );
+//  guiLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, "guiLayout" );
+  guiLayout = new QVBoxLayout( 0, 0, 2, "guiLayout" );
   topLayout->addLayout(guiLayout);
 
-  cliLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, "cliLayout" );
+//  cliLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, "cliLayout" );
+  cliLayout = new QVBoxLayout( 0, 0, 2, "cliLayout" );
   topLayout->addLayout(cliLayout);
 
-  frameWorkLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, "frameWorkLayout" );
+//  frameWorkLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, "frameWorkLayout" );
+  frameWorkLayout = new QVBoxLayout( 0, 0, 2, "frameWorkLayout" );
   topLayout->addLayout(frameWorkLayout);
 
-  backendLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, "backendLayout" );
+//  backendLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, "backendLayout" );
+  backendLayout = new QVBoxLayout( 0, 0, 2, "backendLayout" );
   topLayout->addLayout(backendLayout);
 
-  bottomLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, "bottomLayout" );
+//  bottomLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, "bottomLayout" );
+  bottomLayout = new QHBoxLayout( 0, 0, 2, "bottomLayout" );
   frameLayout->addLayout(bottomLayout);
 
 // GUI DEBUG DEFINITIONS
@@ -110,6 +116,9 @@ DebugPanel::DebugPanel(PanelContainer *pc, const char *n, void *argument) : Pane
 
   debugSaveAsCheckBox = new QCheckBox( tr("Debug SaveAs"), getBaseWidgetFrame(), "debugSaveAsCheckBox");
   guiLayout->addWidget( debugSaveAsCheckBox );
+
+  debugCommandsCheckBox = new QCheckBox( tr("Debug Commands"), getBaseWidgetFrame(), "debugCommandsCheckBox");
+  guiLayout->addWidget( debugCommandsCheckBox );
 
   debugPanelContainerTreeButton = new QPushButton( tr("Dump PanelContainer Tree"), getBaseWidgetFrame(), "debugPanelContainerTreeButton" );
   guiLayout->addWidget( debugPanelContainerTreeButton );
@@ -344,6 +353,7 @@ DebugPanel::debugGUIOnButtonSelected()
   debugMessagesCheckBox->setChecked(TRUE);;
   debugPrintingCheckBox->setChecked(TRUE);;
   debugSaveAsCheckBox->setChecked(TRUE);;
+  debugCommandsCheckBox->setChecked(TRUE);;
 }
 
 void
@@ -357,6 +367,7 @@ DebugPanel::debugGUIOffButtonSelected()
   debugMessagesCheckBox->setChecked(FALSE);;
   debugPrintingCheckBox->setChecked(FALSE);;
   debugSaveAsCheckBox->setChecked(FALSE);;
+  debugCommandsCheckBox->setChecked(FALSE);;
 }
 
 void
@@ -450,6 +461,15 @@ DebugPanel::applyButtonSelected()
   if( debugSaveAsCheckBox->isOn() )
   {
   }
+
+  if( debugCommandsCheckBox->isOn() )
+  {
+    __internal_debug_setting |= DEBUG_COMMANDS;
+  } else
+  {
+    __internal_debug_setting &= ~DEBUG_COMMANDS;
+  }
+
 }
 
 void

@@ -35,8 +35,9 @@ extern unsigned int __internal_debug_setting;
 #define DEBUG_DND                (1<<4)
 #define DEBUG_MESSAGES           (1<<5)
 #define DEBUG_PRINTING           (1<<6)
-#define DEBUG_SAVEAS             (1<<7)
+#define DEBUG_COMMANDS           (1<<7)
 #define DEBUG_CONST_DESTRUCT     (1<<8)
+#define DEBUG_SAVEAS             (1<<9)
 
 enum DebugKind { MaximumDebugKind = 31 };
 #ifdef DEBUG_OUTPUT_REQUESTED

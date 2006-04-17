@@ -696,7 +696,6 @@ CustomExperimentPanel::listener(void *msg)
               QString::null, 0, 1 ) )
       {
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-//        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
         cli->runSynchronousCLI(command.ascii());
       }
@@ -803,7 +802,6 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
         statusLabelText->setText( tr("Process running...") );
 
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-//        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
   
         cli->runSynchronousCLI(command.ascii());
         ret_val = 1;
@@ -814,7 +812,6 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
         nprintf( DEBUG_MESSAGES ) ("Pause\n");
         command = QString("expPause -x %1\n").arg(expID);
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-//        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
         cli->runSynchronousCLI(command.ascii());
         statusLabelText->setText( tr("Process Paused...") );
         }
@@ -826,7 +823,6 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
         nprintf( DEBUG_MESSAGES ) ("Continue\n");
         command = QString("expCont -x %1\n").arg(expID);
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-//        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii() );
         cli->runSynchronousCLI(command.ascii());
         statusLabelText->setText( tr("Process continued...") );
         }
@@ -858,7 +854,6 @@ CLIInterface::interrupt = true;
 //        command = QString("expClose -x %1 -kill\n").arg(expID);
         command = QString("expPause -x %1\n").arg(expID);
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-//        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii() );
         cli->runSynchronousCLI(command.ascii());
         ret_val = 1;
         nprintf( DEBUG_MESSAGES ) ("Terminate\n");
@@ -1022,7 +1017,7 @@ CustomExperimentPanel::experimentStatus()
   Redirect_Window_Output(cli->wid, epoclass, epoclass);
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
-  InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
+  InputLineObject *clip = cli->run_Append_Input_String( wid, (char *)command.ascii());
 
   Input_Line_Status status = ILO_UNKNOWN;
 

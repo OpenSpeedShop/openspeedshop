@@ -489,8 +489,9 @@ void OpenSpeedshop::fileExit()
   topPC->closeAllExternalPanelContainers();
 
 // printf("fileExit() now send the exit to the cli\n");
+  CLIInterface *cli = topPC->getMainWindow()->cli;
   int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
-  InputLineObject *ilp = Append_Input_String( wid, "exit\n");
+  InputLineObject *clip = cli->run_Append_Input_String( wid, "exit\n");
 
   qapplication->exit(0);
 }

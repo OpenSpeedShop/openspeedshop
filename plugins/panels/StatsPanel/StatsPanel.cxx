@@ -1114,7 +1114,7 @@ StatsPanel::aboutSelected()
     Redirect_Window_Output(cli->wid, aboutOutputClass, aboutOutputClass);
 
     QApplication::setOverrideCursor(QCursor::WaitCursor);
-    InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
+    InputLineObject *clip = cli->run_Append_Input_String( wid, (char *)command.ascii());
 
     Input_Line_Status status = ILO_UNKNOWN;
 
@@ -1628,7 +1628,7 @@ StatsPanel::updateStatsPanelData(QString command)
 // printf("command: (%s)\n", command.ascii() );
   about += "Command issued: " + command + "\n";
   lastCommand = command;
-  InputLineObject *clip = Append_Input_String( cli->wid, (char *)command.ascii());
+  InputLineObject *clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
 
   if( clip == NULL )
   {

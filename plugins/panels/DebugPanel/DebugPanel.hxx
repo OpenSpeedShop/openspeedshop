@@ -82,6 +82,7 @@ class DebugPanel  : public Panel
           QCheckBox *debugMessagesCheckBox;
           QCheckBox *debugPrintingCheckBox;
           QCheckBox *debugSaveAsCheckBox;
+          QCheckBox *debugCommandsCheckBox;
           QPushButton *debugPanelContainerTreeButton;
           QPushButton *debugAllWidgetsButton;
 
