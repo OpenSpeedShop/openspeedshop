@@ -113,6 +113,7 @@ static void define_usertime_columns (
             std::vector<std::string>& HV,
             View_Form_Category vfc) {
   int64_t last_column = 0;  // Total time is always placed in first column.
+  int64_t first_time_temp = 0;
   int64_t last_temp = 0;
 
  // Define combination instructions for predefined temporaries.
@@ -175,6 +176,7 @@ static void define_usertime_columns (
           if (last_column == 0) {
             IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
           }
+          if (first_time_temp == 0) first_time_temp = intime_temp;
           last_temp = intime_temp;
           last_column++;
         } else if (Generate_ButterFly &&
@@ -189,7 +191,8 @@ static void define_usertime_columns (
           last_column++;
         } else if (Generate_ButterFly &&
                    !strcasecmp(M_Name.c_str(), "percent")) {
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column, intime_temp));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column,
+                       (first_time_temp == 0) ? intime_temp : first_time_temp));
           HV.push_back("% of Total");
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "time") ||
@@ -202,6 +205,7 @@ static void define_usertime_columns (
           time_metric_selected = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, extime_temp));
           HV.push_back("Exclusive Time");
+          if (first_time_temp == 0) first_time_temp = extime_temp;
           last_temp = extime_temp;
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "inclusive_time") ||
@@ -215,6 +219,7 @@ static void define_usertime_columns (
           if (last_column == 0) {
             IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
           }
+          if (first_time_temp == 0) first_time_temp = intime_temp;
           last_temp = intime_temp;
           last_column++;
         } else if ( !strcasecmp(M_Name.c_str(), "count") ||
@@ -236,8 +241,9 @@ static void define_usertime_columns (
           last_temp = incnt_temp;
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "percent")) {
-          IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 1));  // total the second metric in CV, MV pairs
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column, 0));
+         // percent is calculate from 2 temps: time for this row and total time.
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column,
+                       (first_time_temp == 0) ? intime_temp : first_time_temp));
           HV.push_back("% of Total");
           last_column++;
         } else {
@@ -272,8 +278,8 @@ static void define_usertime_columns (
     HV.push_back("Exclusive Time");
     last_column++;
 
-    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 1));  // total the second metric in CV, MV pairs
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column, 0));
+   // Column[2] is percent, calculated from 2 temps: time for this row and total inclusive time.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column, intime_temp));
     HV.push_back("% of Total");
     last_column++;
   }
@@ -297,7 +303,7 @@ static bool usertime_definition (
 }
 
 static std::string VIEW_usertime_brief = "UserTime Report";
-static std::string VIEW_usertime_short = "Report the amount of time spent in a code unit.";
+static std::string VIEW_usertime_short = "Report the amount of sample time spent in a code unit.";
 static std::string VIEW_usertime_long  = "\nA positive integer can be added to the end of the keyword"
                                       " 'usertime' to indicate the maximum number of items in the report."
                                       "\n\nThe form of the information displayed can be controlled through"
@@ -329,7 +335,7 @@ static std::string VIEW_usertime_long  = "\nA positive integer can be added to t
                                       " called functions afterwards, by default, although the addition of"
                                       " 'TraceBacks' to the '-v' specifier will reverse this ordering."
                                       " If no '-m' options are specified, the default report is equivalent to"
-                                      " '-m inclusive_time, percent'."
+                                      " '-m inclusive_time, exclusive_time, percent'."
                                       "\n\nThe information included in the report can be controlled with the"
                                       " '-m' option.  More than one item can be selected but only the items"
                                       " listed after the option will be printed and they will be printed in"
