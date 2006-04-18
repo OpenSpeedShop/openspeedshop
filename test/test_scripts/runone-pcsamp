@@ -121,8 +121,12 @@ def CompareResults(testName, fileptr):
 		while outputfileline[i] == ' ':
 			i += 1
 		j = i
-		while (outputfileline[j] != '\n') and (outputfileline[j] != ' ') and (outputfileline[j] != '('):
-			j +=1
+		if testName[0:5]== 'state':
+			while (outputfileline[j] != '\n') and (outputfileline[j]!=' '):
+				j += 1
+		else:
+			while (outputfileline[j] != '\n') and (outputfileline[j] != ' ') and (outputfileline[j] != '(') and (outputfileline[j] != '_'):
+				j +=1
 		actual_function = outputfileline[i:j]
 		i = 0
                 while expectedfileline[i] == ' ':
