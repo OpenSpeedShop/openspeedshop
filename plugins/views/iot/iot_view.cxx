@@ -16,10 +16,9 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
-
 #include "SS_Input_Manager.hxx"
-#include "IOCollector.hxx"
-#include "IODetail.hxx"
+#include "IOTCollector.hxx"
+#include "IOTDetail.hxx"
 
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
@@ -455,8 +454,8 @@ class iot_view : public ViewType {
         return false;   // There is no collector, return.
       }
 
-      std::vector<IODetail> dummyVector;
-      IODetail *dummyDetail;
+      std::vector<IOTDetail> dummyVector;
+      IOTDetail *dummyDetail;
       switch (Determine_Form_Category(cmd)) {
        case VFC_Trace:
         if (Look_For_KeyWord(cmd, "ButterFly")) {
