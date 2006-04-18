@@ -40,40 +40,19 @@ namespace OpenSpeedShop { namespace Framework {
      * Encapsulate the details metric (inclusive or exclusive) for the I/O event
      * tracing collector.
      */
-#ifdef EXTENDEDIOTRACE
-    struct IOTDetail :
-	public TotallyOrdered<IOTDetail>
-#else
     struct IODetail :
 	public TotallyOrdered<IODetail>
-#endif
     {
 	TimeInterval dm_interval;  /**< Begin/End time of the call. */
 	double dm_time;            /**< Time spent in the call. */	
-#ifdef EXTENDEDIOTRACE
-	int dm_syscallno;          /**< Which syscallno is this */
-	int dm_nsysargs;           /**< Number of args for this syscall*/
-	int dm_retval;             /**< Enumerated return value. */
-	int dm_sysargs[4];         /**< sysargs. */
-	int pathindex;		   /**< index into pathnames buffer. */
-#endif
 
 	/** Operator "<" defined for two IOTDetail objects. */
-#ifdef EXTENDEDIOTRACE
-	bool operator<(const IOTDetail& other) const
-#else
 	bool operator<(const IODetail& other) const
-#endif
 	{
 	    if(dm_interval < other.dm_interval)
                 return true;
             if(dm_interval > other.dm_interval)
                 return false;
-#ifdef EXTENDEDIOTRACE
-// FIXME: Need to complete the compare rules here.
-            if(dm_retval < other.dm_retval)
-                return true;
-#endif
 	    return dm_time < other.dm_time;
         }
 

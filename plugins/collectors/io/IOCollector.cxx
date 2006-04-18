@@ -18,18 +18,14 @@
 
 /** @file
  *
- * Definition of the IOTCollector and IOCollector class.
+ * Definition of the IOCollector class.
  *
  */
  
 #include "IOCollector.hxx"
 #include "IODetail.hxx"
 
-#ifdef EXTENDEDIOTRACE
-#include "blobsiot.h"
-#else
-#include "blobsio.h"
-#endif
+#include "blobs.h"
 
 using namespace OpenSpeedShop::Framework;
 
@@ -43,11 +39,7 @@ namespace {
     typedef std::map<StackTrace, std::vector<double> > CallTimes;
 
     /** Type returned for the IO call detail metrics. */
-#ifdef EXTENDEDIOTRACE
-    typedef std::map<StackTrace, std::vector<IOTDetail> > CallDetails;
-#else
     typedef std::map<StackTrace, std::vector<IODetail> > CallDetails;
-#endif
     
     
 
@@ -72,6 +64,7 @@ namespace {
         "open",
         "close",
         "read",
+#define DEBUG
 #ifndef DEBUG
         "write",
 #endif
@@ -105,17 +98,10 @@ namespace {
  *
  * @return    New instance of this collector's implementation.
  */
-#ifdef EXTENDEDIOTRACE
-extern "C" CollectorImpl* iot_LTX_CollectorFactory()
-{
-    return new IOTCollector();
-}
-#else
 extern "C" CollectorImpl* io_LTX_CollectorFactory()
 {
     return new IOCollector();
 }
-#endif
 
 
 
@@ -124,18 +110,6 @@ extern "C" CollectorImpl* io_LTX_CollectorFactory()
  *
  * Constructs a new IO collector with the proper metadata.
  */
-#ifdef EXTENDEDIOTRACE
-IOTCollector::IOTCollector() :
-    CollectorImpl("iot",
-                  "IO Extended Event Tracing",
-		  "Intercepts all calls to IO functions that perform any "
-		  "significant amount of work (primarily those that send "
-		  "messages) and records, for each call, the current stack "
-		  "trace and start/end time. Detailed ancillary data is also "
-		  "stored such as the source and destination rank, number of "
-		  "bytes sent, message tag, communicator used, and message "
-		  "data type.")
-#else
 IOCollector::IOCollector() :
     CollectorImpl("io",
                   "IO Event Tracing",
@@ -143,7 +117,6 @@ IOCollector::IOCollector() :
 		  "significant amount of work (primarily those that send "
 		  "messages) and records, for each call, the current stack "
 		  "trace and start/end time.")
-#endif
 {
     // Declare our parameters
     declareParameter(Metadata("traced_functions", "Traced Functions",
@@ -152,32 +125,16 @@ IOCollector::IOCollector() :
     
     // Declare our metrics
     declareMetric(Metadata("inclusive_times", "Inclusive Times",
-#ifdef EXTENDEDIOTRACE
-			   "Inclusive IOT call times in seconds.",
-#else
 			   "Inclusive IO call times in seconds.",
-#endif
 			   typeid(CallTimes)));
     declareMetric(Metadata("exclusive_times", "Exclusive Times",
-#ifdef EXTENDEDIOTRACE
-			   "Exclusive IOT call times in seconds.",
-#else
 			   "Exclusive IO call times in seconds.",
-#endif
 			   typeid(CallTimes)));
     declareMetric(Metadata("inclusive_details", "Inclusive Details",
-#ifdef EXTENDEDIOTRACE
-			   "Inclusive IOT call details.",
-#else
 			   "Inclusive IO call details.",
-#endif
 			   typeid(CallDetails)));
     declareMetric(Metadata("exclusive_details", "Exclusive Details",
-#ifdef EXTENDEDIOTRACE
-			   "Exclusive IOT call details.",
-#else
 			   "Exclusive IO call details.",
-#endif
 			   typeid(CallDetails)));
 }
 
@@ -190,11 +147,7 @@ IOCollector::IOCollector() :
  *
  * @return    Blob containing the default parameter values.
  */
-#ifdef EXTENDEDIOTRACE
-Blob IOTCollector::getDefaultParameterValues() const
-#else
 Blob IOCollector::getDefaultParameterValues() const
-#endif
 {
     // Setup an empty parameter structure    
     io_parameters parameters;
@@ -219,13 +172,8 @@ Blob IOCollector::getDefaultParameterValues() const
  * @param data         Blob containing the parameter values.
  * @retval ptr         Untyped pointer to the parameter value.
  */
-#ifdef EXTENDEDIOTRACE
-void IOTCollector::getParameterValue(const std::string& parameter,
-				      const Blob& data, void* ptr) const
-#else
 void IOCollector::getParameterValue(const std::string& parameter,
 				      const Blob& data, void* ptr) const
-#endif
 {
     // Decode the blob containing the parameter values
     io_parameters parameters;
@@ -254,13 +202,8 @@ void IOCollector::getParameterValue(const std::string& parameter,
  * @param ptr          Untyped pointer to the parameter value.
  * @retval data        Blob containing the parameter values.
  */
-#ifdef EXTENDEDIOTRACE
-void IOTCollector::setParameterValue(const std::string& parameter,
-				      const void* ptr, Blob& data) const
-#else
 void IOCollector::setParameterValue(const std::string& parameter,
 				      const void* ptr, Blob& data) const
-#endif
 {
     // Decode the blob containing the parameter values
     io_parameters parameters;
@@ -292,13 +235,8 @@ void IOCollector::setParameterValue(const std::string& parameter,
  * @param collector    Collector starting data collection.
  * @param thread       Thread for which to start collecting data.
  */
-#ifdef EXTENDEDIOTRACE
-void IOTCollector::startCollecting(const Collector& collector,
-				    const Thread& thread) const
-#else
 void IOCollector::startCollecting(const Collector& collector,
 				    const Thread& thread) const
-#endif
 {
     // Get the set of traced functions for this collector
     std::map<std::string, bool> traced;
@@ -313,19 +251,11 @@ void IOCollector::startCollecting(const Collector& collector,
     
     // Execute io_stop_tracing() when we enter exit() for the thread
     executeAtEntry(collector, thread,
-#ifdef EXTENDEDIOTRACE
-                   "exit", "iot-rt: io_stop_tracing", Blob());
-#else
                    "exit", "io-rt: io_stop_tracing", Blob());
-#endif
     
     // Execute io_start_tracing() in the thread
     executeNow(collector, thread,
-#ifdef EXTENDEDIOTRACE
-               "iot-rt: io_start_tracing", arguments);
-#else
                "io-rt: io_start_tracing", arguments);
-#endif
 
     // Execute our wrappers in place of the real IO functions
     for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)	
@@ -336,11 +266,7 @@ void IOCollector::startCollecting(const Collector& collector,
 	    executeInPlaceOf(
 		collector, thread, 
 		TraceableFunctions[i],
-#ifdef EXTENDEDIOTRACE
-		std::string("iot-rt: io") + TraceableFunctions[i]
-#else
 		std::string("io-rt: io") + TraceableFunctions[i]
-#endif
 		);
 	}
 }
@@ -355,21 +281,12 @@ void IOCollector::startCollecting(const Collector& collector,
  * @param collector    Collector stopping data collection.
  * @param thread       Thread for which to stop collecting data.
  */
-#ifdef EXTENDEDIOTRACE
-void IOTCollector::stopCollecting(const Collector& collector,
-				   const Thread& thread) const
-#else
 void IOCollector::stopCollecting(const Collector& collector,
 				   const Thread& thread) const
-#endif
 {
     // Execute io_stop_tracing() in the thread
     executeNow(collector, thread,
-#ifdef EXTENDEDIOTRACE
-               "iot-rt: io_stop_tracing", Blob());
-#else
                "io-rt: io_stop_tracing", Blob());
-#endif
     
     // Remove all instrumentation associated with this collector/thread pairing
     uninstrument(collector, thread);
@@ -393,11 +310,7 @@ void IOCollector::stopCollecting(const Collector& collector,
  * @retval ptr          Untyped pointer to the values of the metric.
  */
 
-#ifdef EXTENDEDIOTRACE
-void IOTCollector::getMetricValues(const std::string& metric,
-#else
 void IOCollector::getMetricValues(const std::string& metric,
-#endif
 				    const Collector& collector,
 				    const Thread& thread,
 				    const Extent& extent,
@@ -422,24 +335,27 @@ void IOCollector::getMetricValues(const std::string& metric,
     std::vector<CallTimes>* tvalues = 
 	reinterpret_cast<std::vector<CallTimes>*>(ptr);
     
+
+    // Decode this data blob
+    io_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_io_data), &data);
+
     // Check assertions
     if (is_details) {
         Assert(dvalues->size() >= subextents.size());
     } else {
         Assert(tvalues->size() >= subextents.size());
     }
-
-    // Decode this data blob
-    io_data data;
-    memset(&data, 0, sizeof(data));
-    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_io_data), &data);
     
+
     // Iterate over each of the events
     for(unsigned i = 0; i < data.events.events_len; ++i) {
 
 	// Get the time interval attributable to this event
 	TimeInterval interval(Time(data.events.events_val[i].start_time),
 			      Time(data.events.events_val[i].stop_time));
+
 
 	// Get the stack trace for this event
 	StackTrace trace(thread, interval.getBegin());
@@ -480,36 +396,15 @@ void IOCollector::getMetricValues(const std::string& metric,
 		
                 if (is_details) {
                     // metric is for details
-#ifdef EXTENDEDIOTRACE
-                    CallDetails::iterator l = (*dvalues)[*k].insert(
-                        std::make_pair(trace, std::vector<IOTDetail>())
-                        ).first;
-
-                    IOTDetail details;
-#else
                     CallDetails::iterator l = (*dvalues)[*k].insert(
                         std::make_pair(trace, std::vector<IODetail>())
                         ).first;
 
                     IODetail details;
-#endif
 
                     // Add this event's time (in seconds) to the results
                     details.dm_interval = interval;
                     details.dm_time = t_intersection / 1000000000.0;
-
-#ifdef EXTENDEDIOTRACE
-		    details.dm_retval = data.events.events_val[i].retval;
-		    details.dm_nsysargs = data.events.events_val[i].nsysargs;
-		    details.dm_syscallno = data.events.events_val[i].syscallno;
-
-		    for (int sysarg = 0;
-				sysarg < data.events.events_val[i].nsysargs;
-				sysarg++ ) {
-			details.dm_sysargs[sysarg] =
-				data.events.events_val[i].sysargs[sysarg];
-		    }
-#endif
 
                     l->second.push_back(details);
                 } else {

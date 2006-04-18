@@ -18,7 +18,7 @@
 
 /** @file
  *
- * Definition of the IO and IOT event tracing collector's runtime.
+ * Definition of the IO event tracing collector's runtime.
  *
  */
 
@@ -29,12 +29,7 @@
 #include "config.h"
 #endif
 
-#ifdef EXTENDEDIOTRACE
-#include "blobsiot.h"
-#else
-#include "blobsio.h"
-#endif
-
+#include "blobs.h"
 
 
 void io_start_event(io_event*);

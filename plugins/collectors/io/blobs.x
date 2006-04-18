@@ -41,11 +41,13 @@ struct io_event {
     uint16_t stacktrace;  /**< Index of the stack trace. */
 
 #ifdef EXTENDEDIOTRACE
-    uint64_t retval;           /**< return value from IO call. */
-    int syscallno;        /**< System call number. */
-    int nsysargs;         /**< number of arg to the syscall */
-    uint64_t sysargs[MAXARGS]; /**< Actuall arguments */
     uint16_t pathindex;   /**< Index of the pathnames. */
+#if 0
+    uint64_t sysargs[MAXARGS]; /**< Actuall arguments */
+    uint16_t syscallno;        /**< System call number. */
+    uint16_t nsysargs;         /**< number of arg to the syscall */
+    int retval;           /**< return value from IO call. */
+#endif
 #endif
 };
 
@@ -53,7 +55,7 @@ struct io_event {
 struct io_data {
     uint64_t stacktraces<>;  /**< Stack traces. */
     io_event events<>;       /**< IO call events. */
-#ifdef EXTENDEDIOTRACE
+#ifdef EXTENDEDIOTRACEXXX
     char pathnames<>;	     /**< IO pathnames. */
 #endif
 };

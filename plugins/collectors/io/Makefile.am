@@ -16,46 +16,12 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-IOT_BUILT_SOURCES = \
-	blobsiot.x blobsiot.h blobsiot.c
-
 IO_BUILT_SOURCES = \
-	blobsio.x blobsio.h blobsio.c
+	blobs.h blobs.c
 
-BUILT_SOURCES = $(IOT_BUILT_SOURCES) $(IO_BUILT_SOURCES)
+BUILT_SOURCES = $(IO_BUILT_SOURCES)
 
-pkglib_LTLIBRARIES = io.la io-rt.la iot.la iot-rt.la
-
-### IOT
-
-iot_la_CXXFLAGS = \
-	-DEXTENDEDIOTRACE -I$(top_srcdir)/libopenss-framework
-
-iot_la_LDFLAGS = \
-	-no-undefined -module -avoid-version
-
-iot_la_SOURCES = \
-	blobsiot.x $(IOT_BUILT_SOURCES) \
-	IOCollector.hxx IODetail.hxx IOCollector.cxx
-
-iot_rt_la_CFLAGS = \
-	-DEXTENDEDIOTRACE -I$(top_srcdir)/libopenss-runtime \
-	@LIBUNWIND_CPPFLAGS@
-
-iot_rt_la_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-runtime \
-	@LIBUNWIND_LDFLAGS@ \
-	-no-undefined -module -avoid-version
-
-iot_rt_la_LIBADD = \
-	-lopenss-runtime \
-	@LIBUNWIND_LIBS@ \
-	-lpthread -lrt
-
-iot_rt_la_SOURCES = \
-	blobsiot.x $(IOT_BUILT_SOURCES) \
-	wrappers.c \
-	runtime.h runtime.c
+pkglib_LTLIBRARIES = io.la io-rt.la
 
 ### IO
 
@@ -66,7 +32,7 @@ io_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 io_la_SOURCES = \
-	blobsio.x $(IO_BUILT_SOURCES) \
+	blobs.x $(IO_BUILT_SOURCES) \
 	IOCollector.hxx IODetail.hxx IOCollector.cxx
 
 io_rt_la_CFLAGS = \
@@ -84,7 +50,7 @@ io_rt_la_LIBADD = \
 	-lpthread -lrt
 
 io_rt_la_SOURCES = \
-	blobsio.x $(IO_BUILT_SOURCES) \
+	blobs.x $(IO_BUILT_SOURCES) \
 	wrappers.c \
 	runtime.h runtime.c
 
@@ -92,17 +58,7 @@ SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
 EXTRA_DIST = blobs.x
 
-blobsiot.x blobsio.x : blobs.x
-	rm -f blobsiot.x blobsio.x
-	cp blobs.x blobsiot.x
-	cp blobs.x blobsio.x
-
-blobsiot.h blobsiot.c : blobsiot.x
-	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
-	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) -DEXTENDEDIOTRACE $<
-	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) -DEXTENDEDIOTRACE $<
-
-blobsio.h blobsio.c : blobsio.x
+blobs.h blobs.c : blobs.x
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<

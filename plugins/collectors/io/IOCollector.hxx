@@ -18,7 +18,7 @@
 
 /** @file
  *
- * Declaration of the IOTCollector and IOCollector class.
+ * Declaration of the IOCollector class.
  *
  */
 
@@ -48,21 +48,13 @@ namespace OpenSpeedShop { namespace Framework {
      * arguments, return value, syscall number, pathname (if used as an arg).
      *
      */
-#ifdef EXTENDEDIOTRACE
-    class IOTCollector :
-#else
     class IOCollector :
-#endif
 	public CollectorImpl
     {
 	
     public:
 	
-#ifdef EXTENDEDIOTRACE
-	IOTCollector();    
-#else
 	IOCollector();    
-#endif
 
 	virtual Blob getDefaultParameterValues() const;
         virtual void getParameterValue(const std::string&,

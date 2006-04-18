@@ -18,7 +18,7 @@
 
 /** @file
  *
- * Definition of the IOT event tracing collector's runtime.
+ * Definition of the IO event tracing collector's runtime.
  *
  */
 
@@ -50,13 +50,7 @@ const unsigned OverheadFrameCount = 2;
 
 
 /** Number of event entries in the tracing buffer. */
-#ifdef EXTENDEDIOTRACE
-/* assume a pathname has at most 256 chars with terminating NULL.*/
-#define PathBufferSize  2048 /* space for pathnames */ 
-#define EventBufferSize 140  /* io_event is 80 bytes */
-#else
 #define EventBufferSize 415  /* io_event is 32 bytes */
-#endif
 
 /** Thread-local storage. */
 #ifdef WDH_PER_THREAD_DATA_COLLECTION
@@ -75,17 +69,9 @@ static struct {
     struct {
 	uint64_t stacktraces[StackTraceBufferSize];  /**< Stack traces. */
 	io_event events[EventBufferSize];          /**< IO call events. */
-#ifdef EXTENDEDIOTRACE
-	char     pathnames[PathBufferSize];
-#endif
     } buffer;    
     
 } tls;
-
-#ifdef EXTENDEDIOTRACE
-char currentpathname[PATH_MAX];
-int pathindex;
-#endif
 
 /**
  * Send events.
@@ -114,10 +100,6 @@ static void io_send_events()
     /* Re-initialize the actual data blob */
     tls.data.stacktraces.stacktraces_len = 0;
     tls.data.events.events_len = 0;    
-#ifdef EXTENDEDIOTRACE
-    tls.data.pathnames.pathnames_len = 1;
-    tls.buffer.pathnames[0] = 0;
-#endif
 }
     
 
@@ -141,9 +123,6 @@ void io_start_event(io_event* event)
     /* Initialize the event record. */
     memset(event, 0, sizeof(io_event));
 
-#ifdef EXTENDEDIOTRACE
-    memset(currentpathname,0, sizeof(currentpathname));
-#endif
 }
 
 
@@ -169,77 +148,10 @@ void io_record_event(const io_event* event, uint64_t function)
     uint64_t stacktrace[MaxFramesPerStackTrace];
     unsigned stacktrace_size = 0;
     unsigned entry = 0, start, i;
+    unsigned pathindex = 0;
 
 #ifdef DEBUG
 fprintf(stderr,"ENTERED io_record_event, sizeof event=%d, sizeof stacktrace=%d\n",sizeof(io_event),sizeof(stacktrace));
-#endif
-
-#ifdef EXTENDEDIOTRACE
-    /* need to search pathnames to see if this pathname already exists. */
-    int curpathlen = 0;
-    if (currentpathname[0] > 0) {
-	curpathlen = strlen(currentpathname);
-    }
-
-    for(start = 0, i = 0;
-	(i < curpathlen) &&
-	    ((start + i) < tls.data.pathnames.pathnames_len);
-	++i)
-    {
-	/* Do the i'th charactes differ? */
-	if(currentpathname[i] != tls.buffer.pathnames[start + i]) {
-	    
-	    /* Advance in the tracing buffer to the end of this stack trace */
-	    for(start += i;
-		(tls.buffer.pathnames[start] != 0) &&
-		    (start < tls.data.pathnames.pathnames_len);
-		++start);
-	    
-	    /* Advance in the pathnames buffer past the terminating zero */
-	    ++start;
-
-	    /* Begin comparing at the zero'th frame again */
-	    i = 0;
-	}
-    }
-
-    /* Did we find a match in the pathnames buffer? */
-    if(i == curpathlen) {
-	entry = pathindex = start;
-#ifdef DEBUG
-	char *s = &(tls.buffer.pathnames[entry]);
-	printf("io_record_event: tls.buffer.pathnames[%d]=%s, currentpathname=%s\n",entry, s, currentpathname );
-#endif
-
-    /* Otherwise add this pathname to the pathnames buffer */
-    } else {
-	
-	/* Send events if there is insufficient room for this pathname */
-	if((tls.data.pathnames.pathnames_len + curpathlen + 1) >=
-	   PathBufferSize) {
-#ifdef DEBUG
-fprintf(stderr,"PathBufferSize is full, call io_send_events\n");
-#endif
-	    io_send_events();
-	}
-	
-	/* Add each char in the pathname to the pathnames buffer. */	
-	entry = tls.data.pathnames.pathnames_len;
-	for(i = 0; i < curpathlen; ++i) {
-	    
-	    /* Add the i'th frame to the tracing buffer */
-	    tls.buffer.pathnames[entry + i] = currentpathname[i];
-	}
-
-	pathindex = entry;
-	
-	/* Add a terminating zero  to the pathnames buffer */
-	tls.buffer.pathnames[entry + curpathlen] = 0;
-	
-	/* Set the new size of the pathnames buffer */
-	tls.data.pathnames.pathnames_len += (curpathlen + 1);
-	
-    }
 #endif
 
     /* Decrement the IO function wrapper nesting depth */
@@ -348,6 +260,7 @@ fprintf(stderr,"Event Buffer is full, call io_send_events\n");
 #endif
 	io_send_events();
     }
+
 }
 
 
@@ -387,11 +300,6 @@ void io_start_tracing(const char* arguments)
     tls.data.stacktraces.stacktraces_val = tls.buffer.stacktraces;
     tls.data.events.events_len = 0;
     tls.data.events.events_val = tls.buffer.events;
-#ifdef EXTENDEDIOTRACE
-    tls.data.pathnames.pathnames_len = 1;
-    tls.buffer.pathnames[0] = 0;
-    tls.data.pathnames.pathnames_val = tls.buffer.pathnames;
-#endif
 
     /* Set the begin time of this data blob */
     tls.header.time_begin = OpenSS_GetTime();
