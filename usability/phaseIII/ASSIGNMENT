@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -23,18 +23,19 @@
 Introduction:
 -------------
 
-For this assignment you'll be asked to do a simple
-performance tuning task.  There is no time constraint to "correctly"
-complete this task.
+For this assignment you'll be asked to analyze some performance
+output from a previously executed performance expeiment..  
+
+There is no time constraint to "correctly" complete this task.
 
 Please try to "think aloud" as you work through the scenario.   
 It will help us understand where our problems are.
 
-Your task is to take a simple program ("fred") and using only the
-command line interface, (openss -cli) determine which routine(s) are
-taking the most time.    The program, "fred", is provided in
-the current directory.
-
+Your work is to perform the two tasks below.   In brief, the first task is 
+to compare the data files collected from two separate runs of the
+program (nbody).   You do not have to run this application, the data has
+already been gathered.   The second task will be analyze one of the 
+experiments to determine which process is taking the most time and why.
 
 
 Remember:  You are not being tested.    The user interface and it's
@@ -42,73 +43,48 @@ ease of use, is being analyzed.   Your initial feedback and thoughts as you
 navigate through this set of tasks will enable us to see our problem
 areas.
 
+
+Open|SpeedShop is a tool designed by SGI in cooperation with several national
+labs.   The executable is, "openss".   There is a man page, "man openss".
+
 Enjoy.
 
 
+
+
+The Scenario:
+------------
+
+There are 2 data files X1.nbody_mpiA.openss and X2.nbody_mpiB.openss that
+are from 2 executions.  Both used the pc Sampling experiment, sampling
+data with the default settings.   
+
+
+Both versions of the experiment get the correct answers.  There was an
+'obvious' algorithm change that caused one version of the program to run
+slower than the other.
+
+
+The first task is to determine which of the 2 versions of the experiment
+actually runs the most efficient.  (Fastest)
+
+The second part of the task is to determine why the slower down occured.
+HUGE HINT: One thread took much more time due to algorithm change.   Can you 
+find which process took the longest and why?
+
+
+
 Step 1:
-  Type the following command at the prompt:
-    $ make 
-
-  This should have made the test case "fred".   It's a
-  very simple 'c' example that has a few straight forward function
-  calls and a few variables.
+  From the 2 data files in the current directory, determine which execution
+took the least time to run.  i.e. Which one ran the fastest, using the least
+amount of cpu time.  (In this test case, the one using the least amount
+off cpu time also took the shortest amount of wall-clock time.)
 
 
+Step 2 is based on your answer in Step 1.
 Step 2:
-  Run the executable "fred".
+  ... more words ...
+  Determine which thread of the slower algorithm took the most time.
 
-  Type:
-    $ fred
-    Usage: fred <size>
-    No size argument given.   Defaulting to 750.
-    fred: succesfully competed.
-    $
-
-
-Step 3:
-  The Open|Speedshop performance tool is 'openss'.    'man openss' gives you
-  a typical 'man' description of the command.
-
-
-Step 4:
-  Launch the Open|Speedshop command so you can run performance debugging
-  on the executable named "fred".
-
-  Remember to use the -cli option to only bring up the command line 
-  interface.
-
-
-Step 5: 
-  Determine which performance experiment will show you where the application
-  is spending it's time.   
-
-
-Step 6:
-  Using the experiment you determined (in Step 5) gather the performance
-  date for it on the application "fred".
-
-
-Step 7:
-  Once the application has run to completion, find which routine took the
-  most time.   
-
-  Which routine took the most time?
-
-  What source file is this top routine located?
-
-  Which routine took the second most time?
-
-Step 8:
-  Save the experment's data to a file for later viewing.
-
-
-Step 9:
-  List out all the paramaters (option) that you could have
-  set to non default values for this experiment.
-
-
-Step 10:
-  Set the value for the parameter to a new value.
-
-Step 9:
+Step n:
   Exit the Open|Speedshop tool.
