@@ -1,0 +1,7 @@
+            CPU Time  Statement Location (Line Number)
+             18.0000  mutatee.c(28)
+             16.0000  mutatee.c(19)
+              8.0000  mutatee.c(27)
+              8.0000  mutatee.c(10)
+              1.5000  mutatee.c(18)
+              1.0000  mutatee.c(9)
