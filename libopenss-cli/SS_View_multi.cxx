@@ -785,11 +785,14 @@ bool Generic_Multi_View (
       }
     }
 
+/* Don't issue this message - just go ahead an print the headers and an empty report.
+   Consider turning this message into a Annotation.
     if (c_items.empty()) {
       std::string s("(There are no data samples for " + MV[Column0index] + " available.)");
       Mark_Cmd_With_Soft_Error(cmd,s);
       return false;   // There is no data, return.
     }
+*/
 
 
    // Add Header for each column in the table.

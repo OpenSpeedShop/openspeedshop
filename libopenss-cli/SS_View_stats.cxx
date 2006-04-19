@@ -348,11 +348,14 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       EO_Title = "Function Name";
       break;
     }
+/* Don't issue this message - just go ahead an print the headers and an empty report.
+   Consider turning this message into a Annotation.
     if (!first_column_found) {
       std::string s("(There are no data samples for " + MV[Column0index] + " available.)");
       Mark_Cmd_With_Soft_Error(cmd,s);
       return false;   // There is no data, return.
     }
+*/
 
    // Calculate %?
     ViewInstruction *totalInst = Find_Total_Def (IV);
