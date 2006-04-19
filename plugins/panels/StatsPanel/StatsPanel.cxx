@@ -1118,7 +1118,7 @@ StatsPanel::aboutSelected()
 
     Input_Line_Status status = ILO_UNKNOWN;
 
-    while( status != ILO_COMPLETE )
+    while( !clip->Semantics_Complete() )
     {
       status = cli->checkStatus(clip);
       if( !status || status == ILO_ERROR )
@@ -1638,7 +1638,7 @@ StatsPanel::updateStatsPanelData(QString command)
   }
   Input_Line_Status status = ILO_UNKNOWN;
 
-  while( status != ILO_COMPLETE )
+  while( !clip->Semantics_Complete() )
   {
 // printf("ping!\n");
     status = cli->checkStatus(clip, command);
