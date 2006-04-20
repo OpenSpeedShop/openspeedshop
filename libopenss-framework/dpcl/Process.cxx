@@ -157,6 +157,9 @@ Process::Process(const std::string& host, const std::string& command,
 		 const OutputCallback stdout_callback, 
 		 const OutputCallback stderr_callback) :
     Lockable(),
+#ifndef NDEBUG
+    dm_previous_getstate(std::make_pair(false, Thread::Disconnected)),
+#endif
     dm_process(NULL),
     dm_host(host),
     dm_pid(0),
@@ -262,6 +265,9 @@ Process::Process(const std::string& host, const std::string& command,
  */
 Process::Process(const std::string& host, const pid_t& pid) :  
     Lockable(),
+#ifndef NDEBUG
+    dm_previous_getstate(std::make_pair(false, Thread::Disconnected)),
+#endif
     dm_process(NULL),
     dm_host(host),
     dm_pid(pid),
@@ -367,7 +373,10 @@ Thread::State Process::getState() const
     Guard guard_myself(this);
 
 #ifndef NDEBUG
-    if(is_debug_enabled) {
+    if(is_debug_enabled &&
+       (!dm_previous_getstate.first || 
+	(dm_previous_getstate.second != dm_current_state))) {
+	dm_previous_getstate = std::make_pair(true, dm_current_state);
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] "
 	       << "Process::getState() for " << formUniqueName(dm_host, dm_pid)
@@ -1123,6 +1132,117 @@ bool Process::getMPICHProcTable(Job& value)
     // Indicate to the caller if the value was retrieved
     return succeeded;
 }
+
+
+
+#ifndef NDEBUG
+/** Flag indicating if debugging for this class is enabled. */
+bool Process::is_debug_enabled = (getenv("OPENSS_DEBUG_PROCESS") != NULL);
+
+
+
+/**
+ * Display callback debugging information.
+ *
+ * Displays debugging information for the passed callback, and process unique
+ * name, to the standard error stream. Reported information includes the active
+ * thread, the name of the callback function being called, and the unique name
+ * of the process for which the callback was called.
+ *
+ * @param callback    String name of the callback (e.g. "attach").
+ * @param name        Unique name of the process for which callback is called.
+ */
+void Process::debugCallback(const std::string& callback,
+			    const std::string& name)
+{
+    // Build the string to be displayed
+    std::stringstream output;
+    output << "[TID " << pthread_self() << "] "
+	   << "Process::" << callback << "Callback() on " << name
+	   << std::endl;
+    
+    // Display the string to the standard error stream
+    std::cerr << output.str();
+}
+
+
+
+/**
+ * Display DPCL call debugging information.
+ *
+ * Displays debugging information for the passed DPCL call to the standard error
+ * stream. Reported information includes the active thread, the name of the DPCL
+ * call being made, and the return value from DPCL.
+ *
+ * @param function    String name of the DPCL function (e.g. "Process::attach").
+ * @param retval      Return value from that function.
+ */
+void Process::debugDPCL(const std::string& function, const AisStatus& retval)
+{
+    // Build the string to be displayed
+    std::stringstream output;
+    output << "[TID " << pthread_self() << "] "
+	   << "DPCL " << function << "() = " << retval.status_name()
+	   << std::endl;
+    
+    // Display the string to the standard error stream
+    std::cerr << output.str();
+}
+
+
+
+/**
+ * Display state debugging information.
+ *
+ * Displays debugging information for the state of this process to the standard
+ * error stream. Reported information includes the active thread, the unique
+ * name of the process, its current state, a boolean indicating whether it has
+ * a pending state change, and its future state.
+ */
+void Process::debugState() const
+{
+    Guard guard_myself(this);
+
+    // Build the string to be displayed
+    std::stringstream output;
+    output << "[TID " << pthread_self() << "] "
+	   << "State of " << formUniqueName(dm_host, dm_pid) << " is "
+	   << toString(dm_current_state);
+    if(dm_is_state_changing)
+	output << " --> " << toString(dm_future_state);
+    output << std::endl;
+    
+    // Display the string to the standard error stream
+    std::cerr << output.str();
+}
+
+
+
+/**
+ * Display request debugging information.
+ *
+ * Displays debugging information for the passed request, on this process, to
+ * the standard error stream. Reported information includes the active thread,
+ * the name of the request function being called, and the unique name of the
+ * process on which the request was made.
+ *
+ * @param request    String name of the request (e.g. "Attach").
+ */
+void Process::debugRequest(const std::string& request) const
+{
+    Guard guard_myself(this);
+
+    // Build the string to be displayed
+    std::stringstream output;
+    output << "[TID " << pthread_self() << "] "
+	   << "Process::request" << request << "() on "
+	   << formUniqueName(dm_host, dm_pid)
+	   << std::endl;
+    
+    // Display the string to the standard error stream
+    std::cerr << output.str();
+}
+#endif  // NDEBUG 
 
 
 
@@ -3560,117 +3680,6 @@ bool Process::getString(const ProbeExp& where, std::string& value) const
     // Indicate to the caller if the value was retrieved
     return retval.status() == ASC_success; 
 }
-
-
-
-#ifndef NDEBUG
-/** Flag indicating if debugging for this class is enabled. */
-bool Process::is_debug_enabled = (getenv("OPENSS_DEBUG_PROCESS") != NULL);
-
-
-
-/**
- * Display callback debugging information.
- *
- * Displays debugging information for the passed callback, and process unique
- * name, to the standard error stream. Reported information includes the active
- * thread, the name of the callback function being called, and the unique name
- * of the process for which the callback was called.
- *
- * @param callback    String name of the callback (e.g. "attach").
- * @param name        Unique name of the process for which callback is called.
- */
-void Process::debugCallback(const std::string& callback,
-			    const std::string& name)
-{
-    // Build the string to be displayed
-    std::stringstream output;
-    output << "[TID " << pthread_self() << "] "
-	   << "Process::" << callback << "Callback() on " << name
-	   << std::endl;
-    
-    // Display the string to the standard error stream
-    std::cerr << output.str();
-}
-
-
-
-/**
- * Display DPCL call debugging information.
- *
- * Displays debugging information for the passed DPCL call to the standard error
- * stream. Reported information includes the active thread, the name of the DPCL
- * call being made, and the return value from DPCL.
- *
- * @param function    String name of the DPCL function (e.g. "Process::attach").
- * @param retval      Return value from that function.
- */
-void Process::debugDPCL(const std::string& function, const AisStatus& retval)
-{
-    // Build the string to be displayed
-    std::stringstream output;
-    output << "[TID " << pthread_self() << "] "
-	   << "DPCL " << function << "() = " << retval.status_name()
-	   << std::endl;
-    
-    // Display the string to the standard error stream
-    std::cerr << output.str();
-}
-
-
-
-/**
- * Display state debugging information.
- *
- * Displays debugging information for the state of this process to the standard
- * error stream. Reported information includes the active thread, the unique
- * name of the process, its current state, a boolean indicating whether it has
- * a pending state change, and its future state.
- */
-void Process::debugState() const
-{
-    Guard guard_myself(this);
-
-    // Build the string to be displayed
-    std::stringstream output;
-    output << "[TID " << pthread_self() << "] "
-	   << "State of " << formUniqueName(dm_host, dm_pid) << " is "
-	   << toString(dm_current_state);
-    if(dm_is_state_changing)
-	output << " --> " << toString(dm_future_state);
-    output << std::endl;
-    
-    // Display the string to the standard error stream
-    std::cerr << output.str();
-}
-
-
-
-/**
- * Display request debugging information.
- *
- * Displays debugging information for the passed request, on this process, to
- * the standard error stream. Reported information includes the active thread,
- * the name of the request function being called, and the unique name of the
- * process on which the request was made.
- *
- * @param request    String name of the request (e.g. "Attach").
- */
-void Process::debugRequest(const std::string& request) const
-{
-    Guard guard_myself(this);
-
-    // Build the string to be displayed
-    std::stringstream output;
-    output << "[TID " << pthread_self() << "] "
-	   << "Process::request" << request << "() on "
-	   << formUniqueName(dm_host, dm_pid)
-	   << std::endl;
-    
-    // Display the string to the standard error stream
-    std::cerr << output.str();
-}
-#endif  // NDEBUG 
 
 
 

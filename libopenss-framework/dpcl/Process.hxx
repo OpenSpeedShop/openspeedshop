@@ -103,6 +103,18 @@ namespace OpenSpeedShop { namespace Framework {
 	
     private:
 
+#ifndef NDEBUG
+	static bool is_debug_enabled;
+	
+	/** Previous value returned by getState(). */
+	mutable std::pair<bool, Thread::State> dm_previous_getstate;
+	
+	static void debugCallback(const std::string&, const std::string&);
+	static void debugDPCL(const std::string&, const AisStatus&);
+	void debugState() const;
+	void debugRequest(const std::string&) const;
+#endif
+		
 	static Path searchForExecutable(const Path&);
 
 	static std::pair<std::string, std::string> 
@@ -247,15 +259,6 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	bool getString(const ProbeExp&, std::string&) const;
 
-#ifndef NDEBUG
-	static bool is_debug_enabled;
-	
-	static void debugCallback(const std::string&, const std::string&);
-	static void debugDPCL(const std::string&, const AisStatus&);
-	void debugState() const;
-	void debugRequest(const std::string&) const;
-#endif
-		
     };
     
 } }
