@@ -160,13 +160,14 @@ static bool Calculate_Total_For_Percent (
         std::vector<std::pair<CommandResult *,
                               SmartPtr<std::vector<CommandResult *> > > >::iterator ci;
         ci = c_items.begin();
-        if (use_temp >= (*ci++).second->size()) {
+        if (use_temp >= (*ci).second->size()) {
          // Clearly, this is an error.
           Gen_Total_Percent = false;
         } else {
           if (ci != c_items.end()) {
-            TotalValue = Dup_CommandResult( (*(*ci++).second)[use_temp] );
+            TotalValue = Dup_CommandResult( (*(*ci).second)[use_temp] );
           }
+          ci++;
           if (Look_For_KeyWord(cmd, "ButterFly")) {
             for ( ; ci != c_items.end(); ci++) {
               Accumulate_Max_CommandResult (TotalValue, (*(*ci).second)[use_temp]);
