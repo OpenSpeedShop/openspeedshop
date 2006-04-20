@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -17,35 +17,39 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+
 from sys import *
 import sys
 import os
+import threading
 from time import *
 from string import *
-from array import *
 from threading import *
 #from datetime import *
 
-def too_long():
-	os.system('killall -s 9 openss mutatee nbody')
 
-def createTestList():	
+def too_long():
+	os.system('killall -s 9 openss')
+
+def createTestList():
 	checktemptestlist = os.system('test -e temptestlist')
 	if checktemptestlist == 0:
         	os.system('rm -f temptestlist')
 	os.system('ls -1 *.tst >> temptestlist')
+
 def runTest(testName):
 	checkinput = os.system('test -e input.script')
 	if checkinput == 0:
 		os.system('rm -f input.script')
 	#test_input = open(testName, 'r')
-	#testCommand = test_input.readline(
+	#testCommand = test_input.readline()
 	#linesToCompare = test_input.readline()
 	#test_input.close()
 	t = Timer(1000, too_long)
 	t.start()
 	os.system('./'+testName+ '>> '+ testName+'.output')
 	t.cancel()
+
 def iterateThroughTestList(fileptr):
 	con_input = open('temptestlist', 'r')
         while 1:
@@ -60,49 +64,28 @@ def iterateThroughTestList(fileptr):
                 	else:
                         	i += 1
         	testName = test_name[0:i+4]
+
 		runTest(testName)
 		CompareResults(testName, fileptr)
-	con_input.close()
+               
+        con_input.close()
+
 def CompareResults(testName, fileptr):
-	expected_functions = [] 
-	expected_functions_counter = 0
 	outputfilename = testName + '.output'
 	expectedfilename = testName + '.expected'
 	outputfileptr = open(outputfilename, 'r')
 	expectedfileptr = open(expectedfilename, 'r')
-	nooutput = 0
-	failure_reason = 3
-        if testName[0:7] == 'restore':
-                while 1:
-                        tempfileline = outputfileptr.readline()
-                        if not tempfileline:
-                                failure_reason = 3
-                                break
-                        if tempfileline[0:12] == 'The restored':
-                                nooutput = 0
-                                outputfileptr.readline()
-                                break
+	nooutput = 1 	
+	failure_reason = 0
 	while 1:
-		expectedfileline = expectedfileptr.readline()
-		if not expectedfileline:
-			break
-		k = 0
-		while expectedfileline[k] != '(' and expectedfileline[k] !=' ':
-			k +=1
-		expected_functions.append(expectedfileline[0:k])
-		expected_functions_counter += 1
-		
-      	while 1:
 		tempfileline = outputfileptr.readline()
-
 		if not tempfileline:
-			nooutput = 1
 			break
 		if tempfileline[0:9] == '      Exc':
- 			break
-
-	failure_reason = 0
-	output_function_counter = 0
+			nooutput = 0
+			break
+	test_status = 0
+	passing_ratio = 1
 	while 1:
 		if (nooutput == 1):
 			failure_reason = 3
@@ -111,44 +94,46 @@ def CompareResults(testName, fileptr):
 		outputfileline = outputfileptr.readline()
 		if not outputfileline:
 			break
-		i = 0
-		while outputfileline[i] == ' ':
-			i +=1
-		j = i
-		while (outputfileline[j] != ' '):
+		expectedfileline = expectedfileptr.readline()
+		if not expectedfileline:
+			break
+		j = 0
+		while (outputfileline[j] != '\n') and (outputfileline[j] != '>') and (outputfileline[j] != '_'):
 			j +=1
-		#actual_inclusive_time = atof(outputfileline[i:j])
-		i = j+1	
-		while outputfileline[i]==' ':
+		i = j	
+		while (outputfileline[i] != ')') and (outputfileline[i] != '\n'):
 			i +=1
-		j = i
-		while (outputfileline[j]!='') and (outputfileline[j]!=' ') and (outputfileline[j]!= '(' ):
-			j +=1
-		actual_function = outputfileline[i:j]
-		output_function_counter += expected_functions.count(actual_function)
-	if output_function_counter != expected_functions_counter:
-		failure_reason = 2
-		
-	if (failure_reason == 0 ):
-		fileptr.write(testName + ' has PASSED.\n ')
+		if outputfileline[i]==')':
+			i+=1
+		actual_function = outputfileline[j:i]
+                expected_function = expectedfileline[0:-1]
+		if (expected_function != actual_function):
+			passing_ratio = 0
+			failure_reason = 2
+
+	if (passing_ratio== 1) :
+		fileptr.write(testName + ' has PASSED \n')
 	else:
-		fileptr.write(testName + ' has FAILED. ')
-
+		fileptr.write(testName + ' has FAILED.  ')
 		if (failure_reason == 3):
-			fileptr.write('Looks like openss crashed. \n')
+			fileptr.write('Looks like openss crashed or ran too long. \n')
 		if (failure_reason == 2):
-			fileptr.write('Some of the expected functions are missing. \n')
+			fileptr.write('The ordering of the functions is incorrect.\n')
+		
 
+
+	 	
 
 if __name__ == '__main__':
 	checkoutput = os.system('test -e *.output')
         if checkoutput == 0:
                 os.system('rm -f *.output')
+
 	currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
         resultsFile =  'testresults_' + currTime
         resultfileptr = open(resultsFile, 'w')
 	tempfileptr = open('testresultsfilename', 'w')
 	tempfileptr.write(resultsFile)
+
 	createTestList()
 	iterateThroughTestList(resultfileptr)
-
