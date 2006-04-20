@@ -160,6 +160,7 @@ static void define_hwctime_columns (
 
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
+    int64_t first_event_temp = 0;
     int64_t i = 0;
     vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
@@ -212,6 +213,7 @@ static void define_hwctime_columns (
          // display events
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, inevents_temp));
           Event_Name_Header (CV[0], "inclusive_overflows", HV);
+          if (first_event_temp == 0) first_event_temp = inevents_temp;
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "exclusive_overflow") ||
                    !strcasecmp(M_Name.c_str(), "exclusive_overflows") ||
@@ -220,6 +222,7 @@ static void define_hwctime_columns (
          // display sum of exclusive events
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, exevents_temp));
           Event_Name_Header (CV[0], "exclusive_overflows", HV);
+          if (first_event_temp == 0) first_event_temp = exevents_temp;
           last_column++;
         } else if ( !strcasecmp(M_Name.c_str(), "count") ||
                     !strcasecmp(M_Name.c_str(), "counts") ||
@@ -238,8 +241,9 @@ static void define_hwctime_columns (
           HV.push_back("Exclusive Calls");
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "percent")) {
-          IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 1));  // total the second metric in CV, MV pairs
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column, 0));
+         // percent is calculate from 2 temps: number of events for this row and total exclusive events.
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column,
+                       (first_event_temp == 0) ? inevents_temp : first_event_temp));
           HV.push_back("% of Total");
           last_column++;
         } else {
@@ -272,8 +276,7 @@ static void define_hwctime_columns (
     Event_Name_Header (CV[0], "exclusive_overflows", HV);
     last_column++;
 
-    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 1));  // total the second metric in CV, MV pairs
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column, 0));
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column, exevents_temp));
     HV.push_back("% of Total");
     last_column++;
   }
