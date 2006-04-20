@@ -1,6 +1,3 @@
-bootstrap
-
-
 # if mpich
 configure --with-mpi=/opt/mpich --prefix=$OPENSS_INSTALL_DIR
 
@@ -8,4 +5,8 @@ configure --with-mpi=/opt/mpich --prefix=$OPENSS_INSTALL_DIR
 configure --prefix=$OPENSS_INSTALL_DIR
 
 
-make install
+make
+
+
+mpirun -np 4 smg2000A/test/smg2000 -n 100 100 100
+mpirun -np 4 smg2000B/test/smg2000 -n 100 100 100
