@@ -1,0 +1,11 @@
+bootstrap
+
+
+# if mpich
+configure --with-mpi=/opt/mpich --prefix=$OPENSS_INSTALL_DIR
+
+# if Altix
+configure --prefix=$OPENSS_INSTALL_DIR
+
+
+make install

@@ -340,7 +340,6 @@ AC_CONFIG_FILES(
 	test/test_source/dpcl/data_type/Makefile
 	usability/Makefile
 	usability/phaseII/Makefile
-	usability/phaseIII/Makefile
 	usability/phaseIII_scripting/Makefile
 )
 
