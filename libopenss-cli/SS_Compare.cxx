@@ -336,7 +336,7 @@ static bool Generate_CustomView (CommandObject *cmd,
   }
 
   if (num_columns == 0) {
-    Mark_Cmd_With_Soft_Error(cmd, "(There was not data available to compare.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(There was no data available to compare.)");
     return false;
   }
 
@@ -473,96 +473,191 @@ bool SS_expCompare (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
- // Examine the parsed command for a "-x" specifier.
   Assert(cmd->P_Result() != NULL);
-  EXPID ExperimentID = (cmd->P_Result()->isExpId()) ? 
-    	    	    	cmd->P_Result()->getExpId() : 
-			Experiment_Focus ( WindowID );
-  ExperimentObject *exp = (ExperimentID != 0) ? 
-    	    	    	    Find_Experiment_Object (ExperimentID) : 
-			    NULL;
-  bool view_result = false;
-  int64_t i;
 
+  int64_t i;
   std::vector<selectionTarget> Quick_Compare_Set;
 
- // Pick up the <viewType> from the command.
-  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<string> *p_slist = p_result->getViewList();
-  if (p_slist->begin() == p_slist->end()) {
-   // The user has not selected a view.
+ // Pick up the <expID> from the command.
+ // Note: we must always generate at least one compare set for this list.
+  vector<ParseRange> *p_elist = cmd->P_Result()->getExpIdList();
+  if (p_elist->begin() == p_elist->end()) {
+   // The user has not selected a view look for the focused experiment.
+    EXPID ExperimentID = Experiment_Focus ( WindowID );
+    ExperimentObject *exp = (ExperimentID != 0) ?
+                            Find_Experiment_Object (ExperimentID) :
+                            NULL;
     if ((exp == NULL) ||
         (exp->FW() == NULL)) {
      // No experiment was specified, so we can't find a useful view to generate.
       Mark_Cmd_With_Soft_Error(cmd, "No valid experiment was specified.");
+      return false;
     } else {
-     // Look for a view that would be meaningful.
-      CollectorGroup cgrp = exp->FW()->getCollectors();
-      if (cgrp.begin() == cgrp.end()) {
-       // No collector was used.
-        Mark_Cmd_With_Soft_Error(cmd, "No performance measurements were made for the experiment.");
-      } else {
-        bool view_found = false;
-        CollectorGroup::iterator cgi;
-        for (cgi = cgrp.begin(); cgi != cgrp.end(); cgi++) {
-         // See if there is a view by the same name.
-          Collector c = *cgi;
-          Metadata m = c.getMetadata();
-          std::string collector_name = m.getUniqueId();
-          ViewType *vt = Find_View (collector_name);
-          if (vt != NULL) {
-            view_found = true;
-           // Generate a view for every collector.
-            selectionTarget S;
-            S.Exp = ((exp != NULL) && (exp->FW() != NULL)) ? exp : NULL;
-            S.viewName = collector_name;
-            Quick_Compare_Set.push_back (S);
-          }
-        }
-
-        if (!view_found) {
-         // Use generic view as default
-          selectionTarget S;
-          S.viewName = "stats";
-        }
-      }
+     // Initialize a single compare set for the focused experiment.
+      selectionTarget S;
+      S.Exp = exp;
+      Quick_Compare_Set.push_back (S);
     }
   } else {
-   // Generate all the views in the list.
-    vector<string>::iterator si;
-    for (si = p_slist->begin(); si != p_slist->end(); si++) {
-   // Determine the availability of the view.
-      std::string viewname = *si;
-      ViewType *vt = Find_View (viewname);
-      if (vt == NULL) {
-        Mark_Cmd_With_Soft_Error(cmd, "The requested view is unavailable.");
+   // Generate compare sets for every experiment.
+    vector<ParseRange>::iterator ei;
+    for (ei = p_elist->begin(); ei != p_elist->end(); ei++) {
+     // Determine the experiment needed for the next set.
+      parse_range_t *e_range = (*ei).getRange();
+      Assert (e_range != NULL);
+      Assert (!e_range->is_range);
+      parse_val_t eval1 = e_range->start_range;
+      Assert (eval1.tag == VAL_NUMBER);
+      EXPID ExperimentID = eval1.num;
+      ExperimentObject *exp = (ExperimentID != 0) ?
+                            Find_Experiment_Object (ExperimentID) :
+                            NULL;
+      if ((exp == NULL) ||
+          (exp->FW() == NULL)) {
+       // This is an error and should be reported.
+        std::ostringstream M;
+        M << "Experiment ID '-x " << ExperimentID << "' is not valid.";
+        Mark_Cmd_With_Soft_Error(cmd, M.ostringstream::str());
         return false;
       }
 
-     // Define new compare sets for each view.
+     // Define new compare sets for each experiment.
+      std::ostringstream M;
+      M << "-x " << ExperimentID << ": ";
       selectionTarget S;
-      S.Exp = ((exp != NULL) && (exp->FW() != NULL)) ? exp : NULL;
-      S.viewName = viewname;
+      S.Exp = exp;
+      S.headerPrefix = M.ostringstream::str();
       Quick_Compare_Set.push_back (S);
     }
 
   }
 
-  if (Quick_Compare_Set.size() > 1) {
-   // Add the view name to the column headers.
-    for (i = 0; i < Quick_Compare_Set.size(); i++) {
-      Quick_Compare_Set[i].headerPrefix = Quick_Compare_Set[i].viewName + ": ";
+
+ // Pick up the <viewType> from the command or the experiment
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<string> *p_slist = p_result->getViewList();
+  if (p_slist->begin() == p_slist->end()) {
+   // The user has not selected a view.
+   // Look for a view that would be meaningful.
+    for (int64_t k = 0; k < Quick_Compare_Set.size(); k++) {
+      ExperimentObject *exp = Quick_Compare_Set[k].Exp;
+
+      CollectorGroup cgrp = exp->FW()->getCollectors();
+      if (cgrp.begin() == cgrp.end()) {
+       // No collector was used.
+        Mark_Cmd_With_Soft_Error(cmd, "No performance measurements were made for the experiment.");
+        return false;
+      }
+
+      bool view_found = false;
+      std::vector<std::string> views;
+      CollectorGroup::iterator cgi;
+      for (cgi = cgrp.begin(); cgi != cgrp.end(); cgi++) {
+       // See if there is a view by the same name.
+        Collector c = *cgi;
+        Metadata m = c.getMetadata();
+        std::string collector_name = m.getUniqueId();
+        ViewType *vt = Find_View (collector_name);
+        if (vt != NULL) {
+          view_found = true;
+         // Generate a view for every collector.
+          views.push_back (collector_name);
+        }
+      }
+
+      if (!view_found) {
+       // Nothing defined - we can't generate a report.
+        std::ostringstream M;
+        M << "No usable view available for '-x " << exp->ExperimentObject_ID() << "'.";
+        Mark_Cmd_With_Soft_Error(cmd, M.ostringstream::str());
+        return false;
+      }
+
+      if ((Quick_Compare_Set.size() > 1) && (views.size() > 1)) {
+       // Too much stuff - we don't know what to compare.
+        std::ostringstream M;
+        M << "Multiple views possible for '-x " << exp->ExperimentObject_ID() << "'.";
+        Mark_Cmd_With_Soft_Error(cmd, M.ostringstream::str());
+        return false;
+      }
+
+     // For every viewname, create a compare set.
+      if (views.size() == 1) {
+       // One view for this experiment.
+       // Add the view to the compare set for this experiment.
+        Quick_Compare_Set[k].viewName = views[0];
+        Quick_Compare_Set[k].headerPrefix += views[0] + ": ";
+
+
+       // Continue the "k" loop to find one view for each experiment.
+        continue;
+      } else {
+       // Multiple views, but only one experiment.
+        int64_t j;
+
+       // Create enough compare sets for all the views.
+        for (j = 1; j < views.size(); j++) {
+          Quick_Compare_Set.push_back (Quick_Compare_Set[0]);
+        }
+
+       // Fill in the view for each compare set.
+        for (j = 0; j < views.size(); j++) {
+          Quick_Compare_Set[j].viewName = views[j];
+          Quick_Compare_Set[j].headerPrefix += views[j] + ": ";
+        }
+
+       // Don't continue the "k" loop.
+       // There was originaly one experiment, but we just created
+       // multiple compare sets, so out original loop is invalid.
+        break;
+      }
+
     }
+  } else {
+   // Generate all the views in the list.
+
+    std::vector<std::string> views;
+    vector<string>::iterator vi;
+    for (vi=p_slist->begin();vi != p_slist->end(); vi++) {
+      std::string viewname = *vi;
+      ViewType *vt = Find_View (viewname);
+      if (vt == NULL) {
+        std::ostringstream M;
+        M << "The requested view, '" << viewname << "' is not available.";
+        Mark_Cmd_With_Soft_Error(cmd, M.ostringstream::str());
+        return false;
+      }
+      views.push_back (viewname);
+    }
+
+   // For every viewname, create a compare set.
+    if ((Quick_Compare_Set.size() > 1) && (views.size() > 1)) {
+      Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
+      return false;
+    }
+    int64_t initialSetCnt = Quick_Compare_Set.size();
+    int64_t segmentStart = 0;
+    for (int64_t j = 0; j < views.size(); j++) {
+      if (j < (views.size() -1 )) {
+       // There is at least one more iteration, so
+       // preserve a copy of the original sets.
+        for (int64_t k = 0; k < initialSetCnt; k++) {
+          Quick_Compare_Set.push_back (Quick_Compare_Set[j]);
+        }
+      }
+
+      for (int64_t k = 0; k < initialSetCnt; k++) {
+        Quick_Compare_Set[segmentStart+k].viewName = views[j];
+        Quick_Compare_Set[segmentStart+k].headerPrefix += views[j] + ": ";
+      }
+      segmentStart += initialSetCnt;
+    }
+
   }
   
 
  // The <target_spec> will define the comparisons.
   vector<ParseTarget> *p_tlist = p_result->getTargetList();
-  if (p_tlist->begin() == p_tlist->end()) {
-   // There are no filters.
-    Mark_Cmd_With_Soft_Error(cmd, "There is no target specification.");
-    return false;
-  }
   if (p_tlist->size() > 1) {
    // There are no filters.
     Mark_Cmd_With_Soft_Error(cmd, "There is more than one target specification.");
@@ -570,11 +665,17 @@ bool SS_expCompare (CommandObject *cmd) {
   }
 
  // Scan the <target_spec> and determine the comparison sets.
-  ParseTarget pt = (*p_tlist)[0];
-  vector<ParseRange> *h_list = pt.getHostList();
-  vector<ParseRange> *p_list = pt.getPidList();
-  vector<ParseRange> *t_list = pt.getThreadList();
-  vector<ParseRange> *r_list = pt.getRankList();
+  vector<ParseRange> *h_list = NULL;
+  vector<ParseRange> *p_list = NULL;
+  vector<ParseRange> *t_list = NULL;
+  vector<ParseRange> *r_list = NULL;
+  if ((p_tlist != NULL) && (!(*p_tlist).empty())){
+    ParseTarget pt = (*p_tlist)[0];
+    h_list = pt.getHostList();
+    p_list = pt.getPidList();
+    t_list = pt.getThreadList();
+    r_list = pt.getRankList();
+  }
 
   if (!((h_list == NULL) || h_list->empty())) {
    // Start by building a vector of all the host names.
@@ -629,7 +730,7 @@ bool SS_expCompare (CommandObject *cmd) {
   }
 
   if (!((p_list == NULL) || p_list->empty())) {
-   // Start by building a vector of all the host names.
+   // Start by building a vector of all the pids.
     std::vector<pid_t> pids;;
     vector<ParseRange>::iterator pi;
     for (pi = p_list->begin();pi != p_list->end(); pi++) {
