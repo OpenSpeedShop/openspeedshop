@@ -20,7 +20,7 @@
 SUBDIRS = phaseII
 
 if HAVE_MPI
-SUBDIRS += phaseIII
+# SUBDIRS += phaseIII
 endif 
 
 # directories that will be packaged into tar.gz.
