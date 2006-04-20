@@ -101,7 +101,7 @@ def CompareResults(testName, fileptr):
 		while (outputfileline[j] != '\n') and (outputfileline[j] != '>') and (outputfileline[j] != '_'):
 			j +=1
 		i = j	
-		while (outputfileline[i] != ')') and (outputfileline[i] != '\n'):
+		while (outputfileline[i] != '(') and (outputfileline[i] != '\n'):
 			i +=1
 		if outputfileline[i]==')':
 			i+=1
