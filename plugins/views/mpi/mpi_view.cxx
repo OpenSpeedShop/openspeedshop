@@ -82,22 +82,27 @@
 #define set_MPI_values(value_array, sort_extime)                                          \
               if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;     \
               if (num_temps > start_temp) {                                               \
-                double x = (start-base_time) / 1000000.0;                                 \
-                value_array[start_temp] = CRPTR (x);                                      \
+                int64_t x= (start-base_time);                                             \
+                value_array[start_temp] = new CommandResult_Duration (x);                 \
               }                                                                           \
               if (num_temps > stop_temp) {                                                \
-                double x = (end-base_time) / 1000000.0;                                   \
-                value_array[stop_temp] = CRPTR (x);                                       \
+                int64_t x= (end-base_time);                                               \
+                value_array[stop_temp] = new CommandResult_Duration (x);                  \
               }                                                                           \
               if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp]             \
-                                                 = CRPTR (sort_extime ? extime : intime); \
-              if (num_temps > intime_temp) value_array[intime_temp] = CRPTR (intime);     \
+                            = new CommandResult_Interval (sort_extime ? extime : intime); \
+              if (num_temps > intime_temp) value_array[intime_temp]                       \
+                            = new CommandResult_Interval (intime);                        \
               if (num_temps > incnt_temp) value_array[incnt_temp] = CRPTR (incnt);        \
-              if (num_temps > extime_temp) value_array[extime_temp] = CRPTR (extime);     \
+              if (num_temps > extime_temp) value_array[extime_temp]                       \
+                            = new CommandResult_Interval (extime);                        \
               if (num_temps > excnt_temp) value_array[excnt_temp] = CRPTR (excnt);        \
-              if (num_temps > min_temp) value_array[min_temp] = CRPTR (vmin);             \
-              if (num_temps > max_temp) value_array[max_temp] = CRPTR (vmax);             \
-              if (num_temps > ssq_temp) value_array[ssq_temp] = CRPTR (sum_squares);
+              if (num_temps > min_temp) value_array[min_temp]                             \
+                            = new CommandResult_Interval (vmin);                          \
+              if (num_temps > max_temp) value_array[max_temp]                             \
+                            = new CommandResult_Interval (vmax);                          \
+              if (num_temps > ssq_temp) value_array[ssq_temp]                             \
+                            = new CommandResult_Interval (sum_squares);
 
 static void Determine_Objects (
                CommandObject *cmd,
@@ -244,7 +249,7 @@ static void define_mpi_columns (
             !strcasecmp(M_Name.c_str(), "inclusive_details")) {
          // display sum of times
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
-          HV.push_back("Inclusive Time");
+          HV.push_back("Inclusive Time(ms)");
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "exclusive_time") ||
                    !strcasecmp(M_Name.c_str(), "exclusive_times") ||
@@ -252,17 +257,17 @@ static void define_mpi_columns (
                    !strcasecmp(M_Name.c_str(), "exclusive_details")) {
          // display times
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, extime_temp));
-          HV.push_back("Exclusive Time");
+          HV.push_back("Exclusive Time(ms)");
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "min")) {
          // display min time
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, min_temp));
-          HV.push_back("Min Time");
+          HV.push_back("Min Time(ms)");
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "max")) {
          // display max time
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, max_temp));
-          HV.push_back("Max Time");
+          HV.push_back("Max Time(ms)");
           last_column++;
         } else if ( !strcasecmp(M_Name.c_str(), "count") ||
                     !strcasecmp(M_Name.c_str(), "counts") ||
@@ -284,7 +289,7 @@ static void define_mpi_columns (
         } else if (!strcasecmp(M_Name.c_str(), "average")) {
          // average time is calculated from two temps: sum and total counts.
           IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column, VMulti_time_temp, intime_temp));
-          HV.push_back("Average Time");
+          HV.push_back("Average Time(ms)");
           last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "percent")) {
          // percent is calculate from 2 temps: time for this row and total time.
@@ -301,7 +306,7 @@ static void define_mpi_columns (
           if (vfc == VFC_Trace) {
            // display start time
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, start_temp));
-            HV.push_back("Start Time");
+            HV.push_back("Start Time(d:h:m:s)");
             last_column++;
             column_is_DateTime = true;
           } else {
@@ -311,7 +316,7 @@ static void define_mpi_columns (
           if (vfc == VFC_Trace) {
            // display stop time
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, stop_temp));
-            HV.push_back("Stop Time");
+            HV.push_back("Stop Time(d:h:m:s)");
             last_column++;
             column_is_DateTime = true;
           } else {
@@ -329,7 +334,7 @@ static void define_mpi_columns (
    // Default ButterFly view.
    // Column[0] is inclusive time
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
-    HV.push_back("Inclusive Time");
+    HV.push_back("Inclusive Time(ms)");
     last_column++;
 
   // Column[1] in % of inclusive time
@@ -341,16 +346,16 @@ static void define_mpi_columns (
     if (vfc == VFC_Trace) {
       // Insert start and end times into report.
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, start_temp));
-      HV.push_back("Start Time");
+      HV.push_back("Start Time(d:h:m:s)");
       IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
       last_column++;
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, stop_temp));
-      HV.push_back("Stop Time");
+      HV.push_back("Stop Time(d:h:m:s)");
       last_column++;
     }
    // Always display elapsed time.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, VMulti_time_temp));
-    HV.push_back("Exclusive Time");
+    HV.push_back("Exclusive Time(ms)");
   }
 }
 
