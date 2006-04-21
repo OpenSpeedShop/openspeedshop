@@ -505,29 +505,33 @@ bool SS_expCompare (CommandObject *cmd) {
      // Determine the experiment needed for the next set.
       parse_range_t *e_range = (*ei).getRange();
       Assert (e_range != NULL);
-      Assert (!e_range->is_range);
       parse_val_t eval1 = e_range->start_range;
+      parse_val_t eval2 = (e_range->is_range) ? e_range->end_range : eval1;
       Assert (eval1.tag == VAL_NUMBER);
-      EXPID ExperimentID = eval1.num;
-      ExperimentObject *exp = (ExperimentID != 0) ?
-                            Find_Experiment_Object (ExperimentID) :
-                            NULL;
-      if ((exp == NULL) ||
-          (exp->FW() == NULL)) {
-       // This is an error and should be reported.
+
+      for (int64_t i = eval1.num; i <= eval2.num; i++) {
+        EXPID ExperimentID = i;
+        ExperimentObject *exp = (ExperimentID != 0) ?
+                              Find_Experiment_Object (ExperimentID) :
+                              NULL;
+        if ((exp == NULL) ||
+            (exp->FW() == NULL)) {
+         // This is an error and should be reported.
+          std::ostringstream M;
+          M << "Experiment ID '-x " << ExperimentID << "' is not valid.";
+          Mark_Cmd_With_Soft_Error(cmd, M.ostringstream::str());
+          return false;
+        }
+
+       // Define new compare sets for each experiment.
         std::ostringstream M;
-        M << "Experiment ID '-x " << ExperimentID << "' is not valid.";
-        Mark_Cmd_With_Soft_Error(cmd, M.ostringstream::str());
-        return false;
+        M << "-x " << ExperimentID << ": ";
+        selectionTarget S;
+        S.Exp = exp;
+        S.headerPrefix = M.ostringstream::str();
+        Quick_Compare_Set.push_back (S);
       }
 
-     // Define new compare sets for each experiment.
-      std::ostringstream M;
-      M << "-x " << ExperimentID << ": ";
-      selectionTarget S;
-      S.Exp = exp;
-      S.headerPrefix = M.ostringstream::str();
-      Quick_Compare_Set.push_back (S);
     }
 
   }
