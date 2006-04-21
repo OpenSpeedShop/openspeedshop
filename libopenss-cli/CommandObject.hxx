@@ -31,6 +31,8 @@ enum cmd_result_type_enum {
   CMD_RESULT_LINKEDOBJECT,
   CMD_RESULT_CALLTRACE,
   CMD_RESULT_TIME,
+  CMD_RESULT_DURATION,
+  CMD_RESULT_INTERVAL,
   CMD_RESULT_TITLE,
   CMD_RESULT_COLUMN_HEADER,
   CMD_RESULT_COLUMN_VALUES,
@@ -696,6 +698,7 @@ class CommandResult_CallStackEntry : public CommandResult {
   }
 };
 
+// A Time is nano-second time that is displayed in date-time format.
 class CommandResult_Time : public CommandResult {
  private:
   Time time_value;
@@ -731,6 +734,194 @@ class CommandResult_Time : public CommandResult {
     std::ostringstream form(ios::out);
     form << time_value;
     return form.ostringstream::str();
+  }
+  virtual PyObject * pyValue () {
+    std::string F = Form ();
+    return Py_BuildValue("s",F.c_str());
+  }
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+    std::string string_value = Form ();
+    if (leftjustified) {
+     // Left justification is only done on the last column of a report.
+     // Don't truncate the string if it is bigger than the field size.
+     // This is done to make sure everything gets printed.
+
+      to << std::setiosflags(std::ios::left) << string_value;
+
+     // If there is unused space in the field, pad with blanks.
+      if ((string_value.length() < fieldsize) &&
+          (string_value[string_value.length()-1] != *("\n"))) {
+        for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";      }
+
+    } else {
+     // Right justify the string in the field.
+     // Don't let it exceed the size of the field.
+     // Also, limit the size based on our internal buffer size.
+      to << std::setiosflags(std::ios::right) << std::setw(fieldsize)
+         << ((string_value.length() <= fieldsize) ? string_value : string_value.substr(0, fieldsize));
+    }
+  }
+};
+
+// A Duration is nano-second time that is displayed as days:hours:minutes:seconds.
+class CommandResult_Duration : public CommandResult {
+ private:
+  int64_t duration_value;
+
+ public:
+  CommandResult_Duration () : CommandResult(CMD_RESULT_DURATION) {
+  }
+  CommandResult_Duration (int64_t d)
+      : CommandResult(CMD_RESULT_TIME) {
+    duration_value = d;
+  }
+  CommandResult_Duration (CommandResult_Duration *D)
+      : CommandResult(CMD_RESULT_DURATION) {
+    duration_value = D->duration_value;
+  }
+  virtual ~CommandResult_Duration () {
+  }
+
+  void Min_Duration (CommandResult_Duration *B) {
+    duration_value = min (duration_value, B->duration_value);
+  }
+  void Max_Duration (CommandResult_Duration *B) {
+    duration_value = max (duration_value, B->duration_value);
+  }
+  int64_t& Value () {
+    return duration_value;
+  };
+  void Value (int64_t& d) {
+    d = duration_value;
+  };
+
+  virtual std::string Form () {
+    std::ostringstream form(ios::ate);
+    int64_t time_scale = 1000000000;
+    int64_t remaining = duration_value;
+    int64_t next_threshold = (time_scale * 60 * 60 * 24);
+    bool output_started = false;
+    if (remaining >= next_threshold) {
+     // Output days
+      form << (remaining / next_threshold) << ":";
+      remaining = (remaining % next_threshold);
+      output_started = true;
+    }
+    next_threshold = (time_scale * 60 * 60);
+    if (remaining >= next_threshold) {
+     // Output hours
+      form << (remaining / next_threshold) << ":";
+      remaining = (remaining % next_threshold);
+      output_started = true;
+    }
+    next_threshold = (time_scale * 60);
+    if (output_started ||
+        (remaining >= next_threshold)) {
+     // output minutes
+      form << (remaining / next_threshold) << ":";
+      remaining = (remaining % next_threshold);
+      output_started = true;
+    }
+    if (output_started ||
+        (remaining >= time_scale)) {
+     // output seconds
+      form << (remaining / time_scale) << ".";
+      remaining = (remaining % time_scale);
+      output_started = true;
+    }
+    if (!output_started) {
+      form << "0.";
+    }
+    if (remaining == 0) {
+      form << "0";
+    } else if (!output_started &&
+               (remaining < 1000000)) {
+     // number is less than 1 milli-second
+     // ouput to nano-second precision
+      form << remaining;
+    } else {
+     // output normal precision
+      std::ostringstream s(ios::ate);
+      s << remaining;
+      if (s.ostringstream::str().size() < OPENSS_VIEW_PRECISION) {
+        form << s.ostringstream::str();
+      } else {
+        form << s.ostringstream::str().substr(0,OPENSS_VIEW_PRECISION);
+      }
+    }
+    return form.ostringstream::str();
+  }
+  virtual PyObject * pyValue () {
+    std::string F = Form ();
+    return Py_BuildValue("s",F.c_str());
+  }
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+    std::string string_value = Form ();
+    if (leftjustified) {
+     // Left justification is only done on the last column of a report.
+     // Don't truncate the string if it is bigger than the field size.
+     // This is done to make sure everything gets printed.
+
+      to << std::setiosflags(std::ios::left) << string_value;
+
+     // If there is unused space in the field, pad with blanks.
+      if ((string_value.length() < fieldsize) &&
+          (string_value[string_value.length()-1] != *("\n"))) {
+        for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";      }
+
+    } else {
+     // Right justify the string in the field.
+     // Don't let it exceed the size of the field.
+     // Also, limit the size based on our internal buffer size.
+      to << std::setiosflags(std::ios::right) << std::setw(fieldsize)
+         << ((string_value.length() <= fieldsize) ? string_value : string_value.substr(0, fieldsize));
+    }
+  }
+};
+
+// An Interval is a double precision value of seconds that is displayed in milli-seconds.
+class CommandResult_Interval : public CommandResult {
+ private:
+  double interval_value;
+
+ public:
+  CommandResult_Interval () : CommandResult(CMD_RESULT_INTERVAL) {
+  }
+  CommandResult_Interval (double d)
+      : CommandResult(CMD_RESULT_TIME) {
+    interval_value = d;
+  }
+  CommandResult_Interval (CommandResult_Interval *D)
+      : CommandResult(CMD_RESULT_DURATION) {
+    interval_value = D->interval_value;
+  }
+  virtual ~CommandResult_Interval () {
+  }
+
+  void Min_Interval (CommandResult_Interval *B) {
+    interval_value = min (interval_value, B->interval_value);
+  }
+  void Max_Interval (CommandResult_Interval *B) {
+    interval_value = max (interval_value, B->interval_value);
+  }
+  double& Value () {
+    return interval_value;
+  };
+  void Value (double& d) {
+    d = interval_value;
+  };
+
+  virtual std::string Form () {
+    std::ostringstream form(ios::ate);
+    double float_value = interval_value * 1000; // Convert to milli-seconds
+
+    char F[20];
+    F[0] = *("%"); // left justify in field
+    sprintf(&F[1], "%lld.%lldf\0", OPENSS_VIEW_FIELD_SIZE, OPENSS_VIEW_PRECISION);
+
+    char s[20];
+    sprintf ( s, &F[0], float_value);
+    return std::string (s);
   }
   virtual PyObject * pyValue () {
     std::string F = Form ();
@@ -994,6 +1185,10 @@ inline CommandResult *Dup_CommandResult (CommandResult *C) {
      return new CommandResult_CallStackEntry((CommandResult_CallStackEntry *)C);
    case CMD_RESULT_TIME:
      return new CommandResult_Time((CommandResult_Time *)C);
+   case CMD_RESULT_DURATION:
+     return new CommandResult_Duration((CommandResult_Duration *)C);
+   case CMD_RESULT_INTERVAL:
+     return new CommandResult_Interval((CommandResult_Interval *)C);
    default:
     Assert (C->Type() == CMD_RESULT_NULL);
   }
@@ -1022,6 +1217,12 @@ inline CommandResult *New_CommandResult (CommandResult *C) {
      break;
    case CMD_RESULT_TIME:
      v = new CommandResult_Time ();
+     break;
+   case CMD_RESULT_DURATION:
+     v = new CommandResult_Duration ();
+     break;
+   case CMD_RESULT_INTERVAL:
+     v = new CommandResult_Interval ();
      break;
    default:
     Assert (C->Type() == CMD_RESULT_NULL);
@@ -1101,6 +1302,20 @@ inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
     ((CommandResult_Time *)rhs)->Value(Tvalue2);
     return Tvalue1 < Tvalue2;
    }
+   case CMD_RESULT_DURATION:
+   {
+    int64_t Dvalue1, Dvalue2;
+    ((CommandResult_Duration *)lhs)->Value(Dvalue1);
+    ((CommandResult_Duration *)rhs)->Value(Dvalue2);
+    return Dvalue1 < Dvalue2;
+   }
+   case CMD_RESULT_INTERVAL:
+   {
+    double Dvalue1, Dvalue2;
+    ((CommandResult_Interval *)lhs)->Value(Dvalue1);
+    ((CommandResult_Interval *)rhs)->Value(Dvalue2);
+    return Dvalue1 < Dvalue2;
+   }
    default:
     Assert (lhs->Type() == CMD_RESULT_NULL);
   }
@@ -1108,6 +1323,8 @@ inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
 }
 
 inline bool CommandResult_gt (CommandResult *lhs, CommandResult *rhs) {
+Assert (lhs != NULL);
+Assert (rhs != NULL);
   if ((lhs->Type() == CMD_RESULT_CALLTRACE) &&
       (rhs->Type() != CMD_RESULT_CALLTRACE)) {
     SmartPtr<std::vector<CommandResult *> > ls;
@@ -1193,6 +1410,20 @@ inline bool CommandResult_gt (CommandResult *lhs, CommandResult *rhs) {
     ((CommandResult_Time *)rhs)->Value(Tvalue2);
     return Tvalue1 > Tvalue2;
    }
+   case CMD_RESULT_DURATION:
+   {
+    int64_t Dvalue1, Dvalue2;
+    ((CommandResult_Duration *)lhs)->Value(Dvalue1);
+    ((CommandResult_Duration *)rhs)->Value(Dvalue2);
+    return Dvalue1 > Dvalue2;
+   }
+   case CMD_RESULT_INTERVAL:
+   {
+    double Dvalue1, Dvalue2;
+    ((CommandResult_Interval *)lhs)->Value(Dvalue1);
+    ((CommandResult_Interval *)rhs)->Value(Dvalue2);
+    return Dvalue1 > Dvalue2;
+   }
    default:
     Assert (lhs->Type() == CMD_RESULT_NULL);
   }
@@ -1237,6 +1468,12 @@ inline void Accumulate_Min_CommandResult (CommandResult *A, CommandResult *B) {
   case CMD_RESULT_TIME:
     ((CommandResult_Time *)A)->Min_Time ((CommandResult_Time *)B);
     break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Min_Duration ((CommandResult_Duration *)B);
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Min_Interval ((CommandResult_Interval *)B);
+    break;
   }
 }
 
@@ -1255,6 +1492,12 @@ inline void Accumulate_Max_CommandResult (CommandResult *A, CommandResult *B) {
     break;
   case CMD_RESULT_TIME:
     ((CommandResult_Time *)A)->Max_Time ((CommandResult_Time *)B);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Max_Duration ((CommandResult_Duration *)B);
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Max_Interval ((CommandResult_Interval *)B);
     break;
   }
 }
