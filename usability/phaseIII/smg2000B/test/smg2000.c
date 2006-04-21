@@ -15,6 +15,7 @@
  * as command line arguments.  Do `driver -help' for usage info.
  *----------------------------------------------------------------------*/
 
+int myid;
 int
 main( int   argc,
       char *argv[] )
@@ -39,7 +40,10 @@ main( int   argc,
    int                 time_index;
    double              final_res_norm;
 
+/*
    int                 num_procs, myid;
+*/
+   int                 num_procs;
 
    int                 p, q, r;
    int                 dim;
@@ -219,6 +223,10 @@ main( int   argc,
       printf("  dim             = %d\n", dim);
       printf("  solver ID       = %d\n", solver_id);
    }
+
+printf("Processor: %d Ready to rumble!\n", myid );
+sleep(30);
+printf("Processor: %d rumbling!!\n", myid );
 
    /*-----------------------------------------------------------
     * Synchronize so that timings make sense

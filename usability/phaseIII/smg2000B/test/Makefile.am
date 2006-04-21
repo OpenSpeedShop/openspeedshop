@@ -8,8 +8,8 @@
 
 noinst_PROGRAMS = smg2000
 
-MPICC	= mpicc
-CC	= $(MPICC)
+# MPICC	= mpicc
+# CC	= $(MPICC)
 
 smgtopdir = ../.
 

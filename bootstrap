@@ -39,7 +39,7 @@ automake --foreign --add-missing --copy
 autoconf
 cd ../../..
 #
-# configure test mpi executables to allow for alternative compilers
+# configure the phaseIII directory smg2000 builds.
 #
 cd usability/phaseIII
 aclocal

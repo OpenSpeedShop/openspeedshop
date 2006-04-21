@@ -150,6 +150,10 @@ hypre_SMGResidual( void               *residual_vdata,
                    hypre_StructVector *b,
                    hypre_StructVector *r              )
 {
+extern int myid;
+int myi;
+int myval;
+
    int ierr = 0;
 
    hypre_SMGResidualData  *residual_data = residual_vdata;
@@ -201,6 +205,13 @@ hypre_SMGResidual( void               *residual_vdata,
 
    for (compute_i = 0; compute_i < 2; compute_i++)
    {
+if( myid == 2 )
+{
+  for(myi = 0; myi < 1000;myi++)
+  {
+    myval = myi+stencil_size;
+  }
+}
       switch(compute_i)
       {
          case 0:

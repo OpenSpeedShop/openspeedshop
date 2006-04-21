@@ -220,6 +220,10 @@ main( int   argc,
       printf("  solver ID       = %d\n", solver_id);
    }
 
+printf("Processor: %d Ready to rumble!\n", myid );
+sleep(30);
+printf("Processor: %d rumbling!!\n", myid );
+
    /*-----------------------------------------------------------
     * Synchronize so that timings make sense
     *-----------------------------------------------------------*/
