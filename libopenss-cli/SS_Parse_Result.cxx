@@ -70,20 +70,6 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
 
     "list", 	    true,   CMD_LIST_GENERIC,
 
-    "listBreaks",   true,   CMD_LIST_BREAKS,
-    "listExp",	    true,   CMD_LIST_EXP,
-    "listHosts",    true,   CMD_LIST_HOSTS,
-    "listMetrics",  true,   CMD_LIST_METRICS,
-    "listObj",	    true,   CMD_LIST_OBJ,
-    "listParams",   true,   CMD_LIST_PARAMS,
-    "listPids",     true,   CMD_LIST_PIDS,
-    "listRanks",    true,   CMD_LIST_RANKS,
-    "listSrc",	    true,   CMD_LIST_SRC,
-    "listStatus",   true,   CMD_LIST_STATUS,
-    "listThreads",  true,   CMD_LIST_THREADS,
-    "listTypes",    true,   CMD_LIST_TYPES,
-    "listViews",    true,   CMD_LIST_VIEWS,
-
     "clearBreak",   false,  CMD_CLEAR_BREAK,
     "exit", 	    false,  CMD_EXIT,
     "help", 	    true,   CMD_HELP,

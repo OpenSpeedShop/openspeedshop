@@ -354,7 +354,7 @@ OpenSpeedShop::message_element_t script_msg[] = {
     script_expView_args,sizeof(script_expView_args)/sizeof(char **),
 
 //    CMD_LIST,
-    -1,cmd_desc[CMD_LIST_BREAKS].name,
+    -1,cmd_desc[CMD_LIST_GENERIC].name,
     NULL,0,
     "scripting",
     NULL,

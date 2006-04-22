@@ -53,20 +53,6 @@ typedef enum {
 
     CMD_LIST_GENERIC,	// Replaces all the other list commands.
 
-    CMD_LIST_BREAKS,
-    CMD_LIST_EXP,
-    CMD_LIST_HOSTS,
-    CMD_LIST_METRICS,
-    CMD_LIST_OBJ,
-    CMD_LIST_PARAMS,
-    CMD_LIST_PIDS,
-    CMD_LIST_RANKS,
-    CMD_LIST_SRC,
-    CMD_LIST_STATUS,
-    CMD_LIST_THREADS,
-    CMD_LIST_TYPES,
-    CMD_LIST_VIEWS,
-
     CMD_CLEAR_BREAK,
     CMD_EXIT,
     CMD_HELP,

@@ -220,24 +220,6 @@ build_return(ParseResult *p_parse_result)
     	    p_object = build_view(p_parse_result);
 	    break;
 
-    	case CMD_LIST_TYPES:
-    	case CMD_LIST_STATUS:
-    	case CMD_LIST_SRC:
-    	case CMD_LIST_PARAMS:
-	case CMD_LIST_OBJ:
-    	case CMD_LIST_METRICS:
-    	case CMD_LIST_HOSTS:
-    	    p_object = build_strlist(p_parse_result);
-	    break;
-
-    	case CMD_LIST_THREADS:
-    	case CMD_LIST_RANKS:
-    	case CMD_LIST_PIDS:
-    	case CMD_LIST_EXP:
-    	case CMD_LIST_BREAKS:
-    	    p_object = build_intlist(p_parse_result);
-	    break;
-
     	case CMD_HISTORY:
     	case CMD_HELP:
     	    p_object = Py_BuildValue("s",generic_str);
