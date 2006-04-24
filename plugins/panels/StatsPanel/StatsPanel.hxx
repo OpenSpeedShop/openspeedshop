@@ -101,6 +101,9 @@ class StatsPanel  : public Panel
     //! Routine to popup dynamic menu.
     bool createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos );
 
+    InputLineObject *statspanel_clip;
+    void dump_clip(InputLineObject *statspanel_clip);
+
     SPListView *splv;
 
     QString lastAbout;
@@ -242,6 +245,8 @@ class StatsPanel  : public Panel
     void showStats();
     void showChart();
     void setOrientation();
+
+    void dumpClipEntry();
 
   private:
     bool matchSelectedItem( QListViewItem *item, std::string function_name );

@@ -127,8 +127,8 @@ void GetMetricByStatementOfFileInThread(
 // Begin debug
 Metadata cm = collector.getMetadata();
 QString name = QString(cm.getUniqueId().c_str());
-printf("collector name=(%s)\n", name.ascii() );
-printf("metric=(%s)\n", metric.c_str() );
+  printf("collector name=(%s)\n", name.ascii() );
+  printf("metric=(%s)\n", metric.c_str() );
 // End debug
 #endif // 0
 // printf("query: metric=(%s)\n", metric.c_str() );
@@ -209,6 +209,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 {
 // printf("StatsPanel() entered\n");
   setCaption("StatsPanel");
+
+  statspanel_clip = NULL;
 
   IOtraceFLAG = FALSE;
   MPItraceFLAG = FALSE;
@@ -833,6 +835,14 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     connect( qaction, SIGNAL( activated() ), this, SLOT( showStats() ) );
     qaction->setStatusTip( tr("Show the statistics display.") );
   }
+#if 1
+// Debug only.
+qaction = new QAction( this,  "dumpClipEntry");
+qaction->addTo( contextMenu );
+qaction->setText( "Dump Clip Entry...(Temporary Debug hack!)" );
+connect( qaction, SIGNAL( activated() ), this, SLOT( dumpClipEntry() ) );
+qaction->setStatusTip( tr("(DEBUG ONLY) Dump clip information.") );
+#endif // 1
 
   return( TRUE );
 }
@@ -933,6 +943,12 @@ StatsPanel::showStats()
     chartFLAG = TRUE;
     cf->show();
   }
+}
+
+void
+StatsPanel::dumpClipEntry()
+{
+  dump_clip(statspanel_clip);
 }
 
 
@@ -1067,6 +1083,7 @@ void
 StatsPanel::updatePanel()
 {
 // printf("updatePanel() about to call updateStatsPanelData()\n");
+
   updateStatsPanelData(lastCommand);
 }
 
@@ -1628,9 +1645,17 @@ StatsPanel::updateStatsPanelData(QString command)
 // printf("command: (%s)\n", command.ascii() );
   about += "Command issued: " + command + "\n";
   lastCommand = command;
-  InputLineObject *clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
 
-  if( clip == NULL )
+  if( statspanel_clip )
+  {
+// printf("C: statspanel_clip->Set_Results_Used()\n");
+    statspanel_clip->Set_Results_Used();
+    statspanel_clip = NULL;
+  }
+
+  statspanel_clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
+
+  if( statspanel_clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
     QApplication::restoreOverrideCursor();
@@ -1638,16 +1663,18 @@ StatsPanel::updateStatsPanelData(QString command)
   }
   Input_Line_Status status = ILO_UNKNOWN;
 
-  while( !clip->Semantics_Complete() )
+  while( !statspanel_clip->Semantics_Complete() )
   {
 // printf("ping!\n");
-    status = cli->checkStatus(clip, command);
+    status = cli->checkStatus(statspanel_clip, command);
     if( !status || status == ILO_ERROR )
     { // An error occurred.... A message should have been posted.. return;
       QApplication::restoreOverrideCursor();
-      if( clip )
+      if( statspanel_clip )
       {
-        clip->Set_Results_Used();
+// printf("A: statspanel_clip->Set_Results_Used()\n");
+        statspanel_clip->Set_Results_Used();
+        statspanel_clip = NULL;
       }
       splv->addColumn( "No data available:" );
       resetRedirect();
@@ -1660,9 +1687,11 @@ StatsPanel::updateStatsPanelData(QString command)
     {
 // printf("RETURN FALSE!   COMMAND FAILED!\n");
       QApplication::restoreOverrideCursor();
-      if( clip )
+      if( statspanel_clip )
       {
-        clip->Set_Results_Used();
+// printf("B: statspanel_clip->Set_Results_Used()\n");
+        statspanel_clip->Set_Results_Used();
+        statspanel_clip = NULL;
       }
       splv->addColumn( "Command failed to complete." );
       resetRedirect();
@@ -1674,7 +1703,7 @@ StatsPanel::updateStatsPanelData(QString command)
 // printf("done pinging...\n");
 
   //Test putting the output to statspanel stream.
-  Default_TLI_Line_Output(clip);
+  Default_TLI_Line_Output(statspanel_clip);
 
   // make sure you redirect the output back to the cli...\n");
   // We have a strange (temporary problem) because we're currently using
@@ -1748,9 +1777,13 @@ StatsPanel::updateStatsPanelData(QString command)
 
   QApplication::restoreOverrideCursor();
 
-  if( clip )
+  if( statspanel_clip )
   {
-    clip->Set_Results_Used();
+
+//    dump_clip(statspanel_clip);
+
+//    statspanel_clip->Set_Results_Used();
+//    statspanel_clip = NULL;
   }
 
 
@@ -3298,7 +3331,7 @@ StatsPanel::outputCLIData(QString *incoming_data)
 
 #if 0
 // Begin debug.
-printf("fieldCount=%d\n", fieldCount);
+  printf("fieldCount=%d\n", fieldCount);
 for(int i=0;i<fieldCount;i++)
 {
   printf("columnValueClass[%d].start_index=%d end=%d\n", i, columnValueClass[i].start_index, columnValueClass[i].end_index );
@@ -4482,7 +4515,7 @@ debugList(QListView *splv)
 {
 // Debug print
 SPListViewItem *top = (SPListViewItem *)splv->firstChild();
-printf("Debug:\n");
+  printf("Debug:\n");
 while( top )
 {
   printf("  %s, %s", top->text(0).ascii(), top->text(fieldCount-1).ascii() );
@@ -4526,7 +4559,7 @@ while( top )
   
   top = (SPListViewItem *)top->nextSibling();
 }
-printf("End Debug\n");
+  printf("End Debug\n");
 }
 // endif Debug
 #endif // 0
@@ -4803,33 +4836,33 @@ StatsPanel::lookUpFileHighlights(QString function_name, Thread thread, ThreadGro
 
 #if 0
 // Begin DEBUG
-printf("lookUpFileHighlights: metric=(%s)\n", currentMetricStr.ascii() );
+  printf("lookUpFileHighlights: metric=(%s)\n", currentMetricStr.ascii() );
 std::string  id = m.getUniqueId();
 
 if( m.isType(typeid(unsigned int)) )
 {
-printf("type: unsigned int\n");
+  printf("type: unsigned int\n");
 } else if( m.isType(typeid(uint64_t)) )
 { 
-printf("type: uint64_t\n");
+  printf("type: uint64_t\n");
 } else if( m.isType(typeid(int)) ) 
 {
-printf("type: int\n");
+  printf("type: int\n");
 } else if( m.isType(typeid(int64_t)) )
 {
-printf("type: int64_t\n");
+  printf("type: int64_t\n");
 } else if( m.isType(typeid(float)) )
 {
-printf("type: float\n");
+  printf("type: float\n");
 } else if( m.isType(typeid(double)) )
 {
-printf("type: double\n");
+  printf("type: double\n");
 } else if( m.isType(typeid(string)) )
 {
-printf("type: string\n");
+  printf("type: string\n");
 } else
 {
-printf("UNknown type.\n");
+  printf("UNknown type.\n");
 }
 // END DEBUG
 #endif // 0
@@ -5025,7 +5058,7 @@ fprintf(stderr, "UNknown type.\n");
        ++it)
   {
     HighlightObject *dhlo = (HighlightObject *)*it;
-printf("A: (%d)\n", dhlo->line );
+  printf("A: (%d)\n", dhlo->line );
   }
 // End debug
 #endif // 0
@@ -5034,3 +5067,150 @@ printf("A: (%d)\n", dhlo->line );
 
   return spo;
 }
+
+void
+StatsPanel::dump_clip(InputLineObject *statspanel_clip)
+{ // Begin debug
+  if( statspanel_clip == NULL )
+  {
+    cerr << "No clip to dump.\n";
+  }
+// printf("Begin fred\n");
+  std::list<CommandObject *>::iterator coi;
+
+
+// printf("fred A: statspanel_clip->CmdObj_List().size()=%d\n", statspanel_clip->CmdObj_List().size());
+  coi = statspanel_clip->CmdObj_List().begin();
+  CommandObject *co = (CommandObject *)(*coi);
+
+  std::list<CommandResult *>::iterator cri;
+  std::list<CommandResult *> cmd_result = co->Result_List();
+  for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++)
+  {
+    if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES)
+    {
+/* You have found the next row!! */
+  printf("You have found the next row!!\n");
+// Here's a formatted row
+  cerr << (*cri)->Form().c_str() << "\n";
+/* Scan the list of items for the column and pick up what you are
+looking for. */
+   std::list<CommandResult *> columns;
+   CommandResult_Columns *ccp = (CommandResult_Columns *)*cri;
+   ccp->Value(columns);
+
+std::list<CommandResult *>::iterator column_it;
+int i = 0;
+for (column_it = columns.begin(); column_it != columns.end(); column_it++)
+{
+  printf("column[%d]\n", i);
+
+cerr << (*column_it)->Form().c_str() << "\n";
+
+CommandResult *cr = (CommandResult *)(*column_it);
+switch( cr->Type() )
+{
+  case CMD_RESULT_NULL:
+    cerr << "Got CMD_RESULT_NULL ";
+    break;
+  case CMD_RESULT_UINT:
+    cerr << "Got CMD_RESULT_UINT ";
+    break;
+  case CMD_RESULT_INT:
+    cerr << "Got CMD_RESULT_INT ";
+    break;
+  case CMD_RESULT_FLOAT:
+{
+    cerr << "Got CMD_RESULT_FLOAT ";
+
+// float _float = cr->Value();
+}
+    break;
+  case CMD_RESULT_STRING:
+    cerr << "Got CMD_RESULT_STRING ";
+    break;
+  case CMD_RESULT_RAWSTRING:
+    cerr << "Got CMD_RESULT_RAWSTRING ";
+    break;
+  case CMD_RESULT_FUNCTION:
+    cerr << "Got CMD_RESULT_FUNCTION ";
+    break;
+  case CMD_RESULT_STATEMENT:
+    cerr << "Got CMD_RESULT_STATEMENT ";
+    break;
+  case CMD_RESULT_LINKEDOBJECT:
+    cerr << "Got CMD_RESULT_LINKEDOBJECT ";
+    break;
+  case CMD_RESULT_CALLTRACE:
+{
+CommandResult_CallStackEntry *call_stack = (CommandResult_CallStackEntry *)cr;
+// cr->Value( call_stack );
+
+cerr << "A: " << call_stack->Form().c_str() << "\n";
+
+SmartPtr<std::vector<CommandResult *> > fly;
+call_stack->Value(fly);
+// CommandResult *CE = (*call_stack)[sz - 1];
+int64_t sz = fly->size();
+CommandResult *CE = (*fly)[sz-1];
+if( CE->Type() == CMD_RESULT_FUNCTION )
+{
+cerr << "  A: WAHOO it's a CMD_RESULT_FUNCTION" << "\n";
+cerr << "  A: sz=" << sz << " and function =" << CE->Form().c_str() << "\n";
+  std::string Function_Name;
+  ((CommandResult_Function *)CE)->Value(Function_Name);
+cerr << "    Function_Name: " << Function_Name.c_str() << "\n";
+
+//  std::set<Statement> MT;
+//  ((CommandResult_Function *)CE)->Value(MT);
+
+ 
+  std::string S = ((CommandResult_Function *)CE)->getName();
+cerr << "    S=" << S << "\n";
+  LinkedObject L = ((CommandResult_Function *)CE)->getLinkedObject(); 
+cerr << "    L.getPath()=" << L.getPath() << "\n";
+
+  std::set<Statement> T = ((CommandResult_Function *)CE)->getDefinitions();
+  if( T.size() > 0 )
+  {
+    std::set<Statement>::const_iterator ti = T.begin();
+    Statement s = *ti;
+cerr << "    s.getPath()=" << s.getPath() << "\n";
+cerr << "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
+  }
+  
+}
+
+    cerr << "Got CMD_RESULT_CALLTRACE ";
+}
+    break;
+  case CMD_RESULT_TIME:
+    cerr << "Got CMD_RESULT_TIME ";
+    break;
+  case CMD_RESULT_TITLE:
+    cerr << "Got CMD_RESULT_TITLE ";
+    break;
+  case CMD_RESULT_COLUMN_HEADER:
+    cerr << "Got CMD_RESULT_COLUMN_HEADER ";
+    break;
+  case CMD_RESULT_COLUMN_VALUES:
+    cerr << "Got CMD_RESULT_COLUMN_VALUES ";
+    break;
+  case CMD_RESULT_COLUMN_ENDER:
+    cerr << "Got CMD_RESULT_COLUMN_ENDER ";
+    break;
+  case CMD_RESULT_EXTENSION:
+    cerr << "Got CMD_RESULT_EXTENSION ";
+    break;
+  default:
+    cerr << "Got CMD_RESULT_EXTENSION ";
+    break;
+}
+  cerr << "cr->Type=" << cr->Type() << "\n";
+
+  i++;
+}
+
+    }
+  }
+} // End debug
