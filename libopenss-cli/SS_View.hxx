@@ -343,9 +343,9 @@ void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fex
 bool Validate_V_Options(CommandObject *cmd, std::string allowed[]);
 View_Form_Category Determine_Form_Category (CommandObject *cmd);
 bool Determine_TraceBack_Ordering (CommandObject *cmd);
-SmartPtr<std::vector<CommandResult *> >
+std::vector<CommandResult *> *
        Construct_CallBack (bool TraceBack_Order, bool add_stmts, Framework::StackTrace& st);
-SmartPtr<std::vector<CommandResult *> >
+std::vector<CommandResult *> *
        Construct_CallBack (bool TraceBack_Order, bool add_stmts, Framework::StackTrace& st,
                            std::map<Address, CommandResult *>& knownTraces);
 bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string viewname);

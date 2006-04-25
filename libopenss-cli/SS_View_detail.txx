@@ -188,7 +188,7 @@ bool Detail_Trace_Report(
 
           CommandResult *CSE;
           if (base_CSE == NULL) {
-            SmartPtr<std::vector<CommandResult *> > call_stack =
+            std::vector<CommandResult *> *call_stack =
                                   Construct_CallBack (TraceBack_Order, add_stmts, st, knownTraces);
             base_CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
             CSE = base_CSE;
@@ -279,10 +279,7 @@ bool Detail_Base_Report(
       set_Detail_values((*vcs), primary_is_inclusive)
 
      // Construct callstack for last entry in the stack trace.
-      SmartPtr<std::vector<CommandResult *> > call_stack =
-               Framework::SmartPtr<std::vector<CommandResult *> >(
-                           new std::vector<CommandResult *>()
-                           );
+      std::vector<CommandResult *> *call_stack = new std::vector<CommandResult *>();
       call_stack->push_back(CRPTR (F));
       CommandResult *CSE = new CommandResult_CallStackEntry (call_stack);
       c_items.push_back(std::make_pair(CSE, vcs));
@@ -373,7 +370,7 @@ bool Detail_CallStack_Report (
         set_Detail_values((*vcs), primary_is_inclusive)
 
        // Construct result entry
-        SmartPtr<std::vector<CommandResult *> > call_stack
+        std::vector<CommandResult *> *call_stack
                  = Construct_CallBack (TraceBack_Order, add_stmts, st, knownTraces);
         CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
         c_items.push_back(std::make_pair(CSE, vcs));
@@ -463,7 +460,7 @@ bool Detail_ButterFly_Report (
         set_Detail_values((*vcs), primary_is_inclusive)
 
        // Construct result entry
-        SmartPtr<std::vector<CommandResult *> > call_stack
+        std::vector<CommandResult *> *call_stack
                  = Construct_CallBack (TraceBack_Order, true, st, knownTraces);
         CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
         c_items.push_back(std::make_pair(CSE, vcs));

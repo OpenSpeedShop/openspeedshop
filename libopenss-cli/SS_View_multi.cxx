@@ -210,15 +210,13 @@ static bool Calculate_Total_For_Percent (
   return Gen_Total_Percent;
 }
 
-static SmartPtr<std::vector<CommandResult *> > 
+static std::vector<CommandResult *> *
        Dup_Call_Stack (int64_t len,
-                       SmartPtr<std::vector<CommandResult *> >& cs) {
-  SmartPtr<std::vector<CommandResult *> > call_stack;
+                       std::vector<CommandResult *> *cs) {
+  std::vector<CommandResult *> *call_stack;
   if (len == 0) return call_stack;
   Assert (len <= cs->size());
-  call_stack = Framework::SmartPtr<std::vector<CommandResult *> >(
-                           new std::vector<CommandResult *>()
-                           );
+  call_stack = new std::vector<CommandResult *>();
   for (int64_t i = 0; i < len; i++) {
     CommandResult *CE = (*cs)[i];
     CommandResult *NCE;
@@ -228,14 +226,12 @@ static SmartPtr<std::vector<CommandResult *> >
   return call_stack;
 }
 
-static SmartPtr<std::vector<CommandResult *> > 
+static std::vector<CommandResult *> *
        Copy_Call_Stack_Entry (int64_t idx,
                               int64_t bias,
-                              SmartPtr<std::vector<CommandResult *> >& cs) {
-  SmartPtr<std::vector<CommandResult *> > call_stack;
-  call_stack = Framework::SmartPtr<std::vector<CommandResult *> >(
-                           new std::vector<CommandResult *>()
-                           );
+                              std::vector<CommandResult *> *cs) {
+  std::vector<CommandResult *> *call_stack;
+  call_stack = new std::vector<CommandResult *>();
   if (bias < 0) {
     call_stack->push_back (CRPTR(""));
     call_stack->push_back (Dup_CommandResult ((*cs)[idx-1]) );
@@ -251,8 +247,8 @@ static SmartPtr<std::vector<CommandResult *> >
   return call_stack;
 }
 
-static int64_t Match_Call_Stack (SmartPtr<std::vector<CommandResult *> >& cs,
-                                 SmartPtr<std::vector<CommandResult *> >& ncs) {
+static int64_t Match_Call_Stack (std::vector<CommandResult *> *cs,
+                                 std::vector<CommandResult *> *ncs) {
   int64_t csz = cs->size();
   int64_t ncsz = ncs->size();
   int64_t minsz = min(csz, ncsz);
@@ -301,6 +297,7 @@ static int64_t Match_Call_Stack (SmartPtr<std::vector<CommandResult *> >& cs,
   return minsz;
 }
 
+// I don't think this fucntion is needed anymore.
 static int64_t Match_Short_Stack (SmartPtr<std::vector<CommandResult *> >& cs,
                                   SmartPtr<std::vector<CommandResult *> >& ncs) {
   int64_t csz = cs->size();
@@ -373,14 +370,14 @@ static void Combine_Duplicate_CallStacks (
     if (nvpi == c_items.end()) break;
     std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
-    SmartPtr<std::vector<CommandResult *> > cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
+    std::vector<CommandResult *> *cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
     int64_t cs_size = cs->size();
    // Compare the current entry to all following ones.
 
     for ( ; nvpi != c_items.end(); ) {
       std::pair<CommandResult *,
                 SmartPtr<std::vector<CommandResult *> > > ncp = *nvpi;
-      SmartPtr<std::vector<CommandResult *> > ncs = ((CommandResult_CallStackEntry *)ncp.first)->Value();
+      std::vector<CommandResult *> *ncs = ((CommandResult_CallStackEntry *)ncp.first)->Value();
       if (cs_size > ncs->size()) {
         break;
       }
@@ -428,14 +425,14 @@ static void Combine_Short_Stacks (
     if (nvpi == c_items.end()) break;
     std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
-    SmartPtr<std::vector<CommandResult *> > cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
+    std::vector<CommandResult *> *cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
     int64_t cs_size = cs->size();
    // Compare the current entry to all following ones.
 
     for ( ; nvpi != c_items.end(); ) {
       std::pair<CommandResult *,
                 SmartPtr<std::vector<CommandResult *> > > ncp = *nvpi;
-      SmartPtr<std::vector<CommandResult *> > ncs = ((CommandResult_CallStackEntry *)ncp.first)->Value();
+      std::vector<CommandResult *> *ncs = ((CommandResult_CallStackEntry *)ncp.first)->Value();
       if (cs_size > ncs->size()) {
         break;
       }
@@ -525,7 +522,7 @@ static void Extract_Pivot_Items (
    // Foreach CallStack entry, look for the matching function name.
     std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
-    SmartPtr<std::vector<CommandResult *> > cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
+    std::vector<CommandResult *> *cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
 
     for (int64_t i = 0; i < cs->size(); i++) {
       CommandResult *cof = (*cs)[i];
@@ -534,7 +531,7 @@ static void Extract_Pivot_Items (
        // Insert intermediate, dummy entry to fill a gap in the trace.
         if (!pivot_added) {
           SmartPtr<std::vector<CommandResult *> > vcs = Copy_CRVector (cp.second);
-          SmartPtr<std::vector<CommandResult *> > ncs = Copy_Call_Stack_Entry (i, 0, cs);
+          std::vector<CommandResult *> *ncs = Copy_Call_Stack_Entry (i, 0, cs);
           CommandResult *CSE = new CommandResult_CallStackEntry (ncs, TraceBack_Order);
           pivot = std::make_pair(CSE, vcs);
           pivot_added = true;
@@ -543,13 +540,13 @@ static void Extract_Pivot_Items (
         }
         if (i != 0) {
           SmartPtr<std::vector<CommandResult *> > vcs = Copy_CRVector (cp.second);
-          SmartPtr<std::vector<CommandResult *> > ncs = Copy_Call_Stack_Entry (i, -1, cs);
+          std::vector<CommandResult *> *ncs = Copy_Call_Stack_Entry (i, -1, cs);
           CommandResult *CSE = new CommandResult_CallStackEntry (ncs, !TraceBack_Order);
           pred.push_back (std::make_pair(CSE, vcs));
         }
         if ((i+1) < cs->size()) {
           SmartPtr<std::vector<CommandResult *> > vcs = Copy_CRVector (cp.second);
-          SmartPtr<std::vector<CommandResult *> > ncs = Copy_Call_Stack_Entry (i, +1, cs);
+          std::vector<CommandResult *> *ncs = Copy_Call_Stack_Entry (i, +1, cs);
           CommandResult *CSE = new CommandResult_CallStackEntry (ncs, TraceBack_Order);
           succ.push_back (std::make_pair(CSE, vcs));
         }
@@ -585,13 +582,13 @@ static void Expand_CallStack (
                           SmartPtr<std::vector<CommandResult *> > > >::iterator nvpi = vpi+1;
     std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
-    SmartPtr<std::vector<CommandResult *> > cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
+    std::vector<CommandResult *> *cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
 
     // for (int64_t i = cs->size()-1; i > 0; i--) 
     for (int64_t i = 1; i < cs->size(); i++) {
      // Insert intermediate, dummy entry to fill a gap in the trace.
       SmartPtr<std::vector<CommandResult *> > vcs = Dup_CRVector (cp.second);
-      SmartPtr<std::vector<CommandResult *> > ncs = Dup_Call_Stack (i, cs);
+      std::vector<CommandResult *> *ncs = Dup_Call_Stack (i, cs);
       CommandResult *CSE = new CommandResult_CallStackEntry (ncs, TraceBack_Order);
       result.push_back (std::make_pair(CSE, vcs));
     }

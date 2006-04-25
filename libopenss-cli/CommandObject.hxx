@@ -168,7 +168,7 @@ class CommandResult_Uint :
   }
 
   virtual std::string Form () {
-    char s[20];
+    char s[OPENSS_VIEW_FIELD_SIZE];
     sprintf ( s, "%lld", uint_value);
     return std::string (s);
   }
@@ -217,7 +217,7 @@ class CommandResult_Int :
   }
 
   virtual std::string Form () {
-    char s[20];
+    char s[OPENSS_VIEW_FIELD_SIZE];
     sprintf ( s, "%lld", int_value);
     return std::string (s);
   }
@@ -275,7 +275,7 @@ class CommandResult_Float :
     F[0] = *("%"); // left justify in field
     sprintf(&F[1], "%lld.%lldf\0", OPENSS_VIEW_FIELD_SIZE, OPENSS_VIEW_PRECISION);
 
-    char s[20];
+    char s[OPENSS_VIEW_FIELD_SIZE];
     sprintf ( s, &F[0], float_value);
     return std::string (s);
   }
@@ -426,7 +426,7 @@ class CommandResult_Function :
           break;
         }
         Statement s = *ti;
-        char l[20];
+        char l[50];
         sprintf( &l[0], "%lld", (int64_t)s.getLine());
         S = S + ": "
               + ((OPENSS_VIEW_FULLPATH)
@@ -594,49 +594,59 @@ class CommandResult_LinkedObject :
 };
 
 CommandResult *Dup_CommandResult (CommandResult *C);  // forward definition
-
 class CommandResult_CallStackEntry : public CommandResult {
  private:
+
+  class CallStackEntry {
+   public:
+    std::vector<CommandResult *> *CSV;
+    CallStackEntry () {
+    }
+    CallStackEntry (std::vector<CommandResult *> *call_vector) {
+      CSV = call_vector;
+    }
+    ~CallStackEntry () {
+      Reclaim_CR_Space (*CSV);
+    }
+  };
+
   bool Bottom_up;
-  SmartPtr<std::vector<CommandResult *> > CallStack;
+  SmartPtr<CallStackEntry> CallStack;
 
   CommandResult_CallStackEntry () : CommandResult(CMD_RESULT_CALLTRACE) {
     Bottom_up = false;
   }
 
  public:
-  CommandResult_CallStackEntry (SmartPtr<std::vector<CommandResult *> >& call_stack,
+  CommandResult_CallStackEntry (std::vector<CommandResult *> *call_vector,
                                 bool Reverse=false)
       : CommandResult(CMD_RESULT_CALLTRACE) {
     Bottom_up = Reverse;
-    CallStack = call_stack;
+    if (CallStack.isNull()) {
+      CallStack = SmartPtr<CallStackEntry>(new CallStackEntry(call_vector));
+    } else {
+      CallStack->CSV = call_vector;
+    }
   }
   CommandResult_CallStackEntry (CommandResult_CallStackEntry *CSE)
       : CommandResult(CMD_RESULT_CALLTRACE) {
-    int64_t len = CSE->CallStack->size();
+    int64_t len = CSE->CallStack->CSV->size();
     Bottom_up = CSE->Bottom_up;
-    CallStack = Framework::SmartPtr<std::vector<CommandResult *> >(
-                            new std::vector<CommandResult *>(len)
-                            );
-    for (int64_t i = 0; i < len; i++) {
-      (*CallStack)[i] = Dup_CommandResult ((*(CSE->CallStack))[i]);
-    }
+    CallStack = CSE->CallStack;
   }
   virtual ~CommandResult_CallStackEntry () {
-    Reclaim_CR_Space (CallStack);
+   // Only delete std::vector<CommandResult *> when last SmartPtr is released.
   }
 
-  SmartPtr<std::vector<CommandResult *> >& Value () {
-    return CallStack;
-  };
-  void Value (SmartPtr<std::vector<CommandResult *> >& call_stack) {
-    call_stack = CallStack;
+  std::vector<CommandResult *> *Value () {
+    return (CallStack->CSV);
   };
 
   virtual std::string Form () {
-    int64_t sz = CallStack->size();
+    int64_t sz = CallStack->CSV->size();
     if (sz <= 0) return std::string("");
-    CommandResult *CE = (*CallStack)[sz - 1];
+    std::vector<CommandResult *> *C1 = CallStack->CSV;
+    CommandResult *CE = (*C1)[sz - 1];
     std::string Name;
    // Add indentation.
     for (int64_t i = 1; i < sz; i++) {
@@ -919,7 +929,7 @@ class CommandResult_Interval : public CommandResult {
     F[0] = *("%"); // left justify in field
     sprintf(&F[1], "%lld.%lldf\0", OPENSS_VIEW_FIELD_SIZE, OPENSS_VIEW_PRECISION);
 
-    char s[20];
+    char s[OPENSS_VIEW_FIELD_SIZE];
     sprintf ( s, &F[0], float_value);
     return std::string (s);
   }
@@ -1004,16 +1014,22 @@ class CommandResult_Headers :
   virtual std::string Form () {
     std::string S;
     std::list<CommandResult *>::iterator cri = Headers.begin();
+    int64_t num_results = 0;
     for (cri = Headers.begin(); cri != Headers.end(); cri++) {
+      if (num_results++ != 0) S += "  "; // 2 spaces between strings
       std::string R = (*cri)->Form ();
-      if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
-        R.resize (OPENSS_VIEW_FIELD_SIZE);
-      } else if (R.size () < OPENSS_VIEW_FIELD_SIZE) {
-        std::string T;
-        T.resize ((OPENSS_VIEW_FIELD_SIZE - R.size ()), *" ");
-        R = T + R;
+      if (num_results >= number_of_columns) {
+       // Except for the last column ...
+        if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
+         // Shorten the original string.
+          R.resize (OPENSS_VIEW_FIELD_SIZE);
+        } else if (R.size () < OPENSS_VIEW_FIELD_SIZE) {
+         // Lengthen the original string.
+          std::string T;
+          T.resize ((OPENSS_VIEW_FIELD_SIZE - R.size ()), *" ");
+          R = T + R;
+        }
       }
-      if (S.size() > 0) S.append (std::string("  ")); // 2 spaces between string
       S += R;
     }
     return S;
@@ -1063,16 +1079,22 @@ class CommandResult_Enders :
   virtual std::string Form () {
     std::string S;
     std::list<CommandResult *>::iterator cri = Enders.begin();
+    int64_t num_results = 0;
     for (cri = Enders.begin(); cri != Enders.end(); cri++) {
+      if (num_results++ != 0) S += "  "; // 2 spaces between strings
       std::string R = (*cri)->Form ();
-      if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
-        R.resize (OPENSS_VIEW_FIELD_SIZE);
-      } else if (R.size () < OPENSS_VIEW_FIELD_SIZE) {
-        std::string T;
-        T.resize ((OPENSS_VIEW_FIELD_SIZE - R.size ()), *" ");
-        R = T + R;
+      if (num_results >= number_of_columns) {
+       // Except for the last column ...
+        if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
+         // shorten the original string.
+          R.resize (OPENSS_VIEW_FIELD_SIZE);
+        } else if (R.size () < OPENSS_VIEW_FIELD_SIZE) {
+         // lengthen the original string.
+          std::string T;
+          T.resize ((OPENSS_VIEW_FIELD_SIZE - R.size ()), *" ");
+          R = T + R;
+        }
       }
-      if (S.size() > 0) S.append (std::string("  ")); // 2 spaces between string
       S += R;
     }
     return S;
@@ -1122,16 +1144,22 @@ class CommandResult_Columns :
   virtual std::string Form () {
     std::string S;
     std::list<CommandResult *>::iterator cri = Columns.begin();
+    int64_t num_results = 0;
     for (cri = Columns.begin(); cri != Columns.end(); cri++) {
+      if (num_results++ != 0) S += "  "; // 2 spaces between strings
       std::string R = (*cri)->Form ();
-      if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
-        R.resize (OPENSS_VIEW_FIELD_SIZE);
-      } else if (R.size () < OPENSS_VIEW_FIELD_SIZE) {
-        std::string T;
-        T.resize ((OPENSS_VIEW_FIELD_SIZE - R.size ()), *" ");
-        R = T + R;
+      if (num_results >= number_of_columns) {
+       // Except for the last column ...
+        if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
+         // Shorten the original string.
+          R.resize (OPENSS_VIEW_FIELD_SIZE);
+        } else if (R.size () < OPENSS_VIEW_FIELD_SIZE) {
+         // Lengthen the original string.
+          std::string T;
+          T.resize ((OPENSS_VIEW_FIELD_SIZE - R.size ()), *" ");
+          R = T + R;
+        }
       }
-      if (S.size() > 0) S.append (std::string("  ")); // 2 spaces between string
       S += R;
     }
     return S;
@@ -1233,15 +1261,15 @@ inline CommandResult *New_CommandResult (CommandResult *C) {
 inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
   if ((lhs->Type() == CMD_RESULT_CALLTRACE) &&
       (rhs->Type() != CMD_RESULT_CALLTRACE)) {
-    SmartPtr<std::vector<CommandResult *> > ls;
-    ((CommandResult_CallStackEntry *)lhs)->Value (ls);
+    std::vector<CommandResult *> *ls;
+    ls = ((CommandResult_CallStackEntry *)lhs)->Value ();
     if(ls->size() == 1)
       return CommandResult_lt((*ls)[0], rhs);
   }
   if ((lhs->Type() != CMD_RESULT_CALLTRACE) &&
       (rhs->Type() == CMD_RESULT_CALLTRACE)) {
-    SmartPtr<std::vector<CommandResult *> > rs;
-    ((CommandResult_CallStackEntry *)rhs)->Value (rs);
+    std::vector<CommandResult *> *rs;
+    rs = ((CommandResult_CallStackEntry *)rhs)->Value ();
     if(rs->size() == 1)
       return CommandResult_lt(lhs, (*rs)[0]);
   }
@@ -1281,10 +1309,10 @@ inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
 	);
    case CMD_RESULT_CALLTRACE:
    {
-    SmartPtr<std::vector<CommandResult *> > ls;
-    SmartPtr<std::vector<CommandResult *> > rs;
-    ((CommandResult_CallStackEntry *)lhs)->Value (ls);
-    ((CommandResult_CallStackEntry *)rhs)->Value (rs);
+    std::vector<CommandResult *> *ls;
+    std::vector<CommandResult *> *rs;
+    ls = ((CommandResult_CallStackEntry *)lhs)->Value ();
+    rs = ((CommandResult_CallStackEntry *)rhs)->Value ();
     int64_t ll = ls->size();
     int64_t rl = rs->size();
     int64_t lm = min(ll,rl);
@@ -1327,15 +1355,15 @@ Assert (lhs != NULL);
 Assert (rhs != NULL);
   if ((lhs->Type() == CMD_RESULT_CALLTRACE) &&
       (rhs->Type() != CMD_RESULT_CALLTRACE)) {
-    SmartPtr<std::vector<CommandResult *> > ls;
-    ((CommandResult_CallStackEntry *)lhs)->Value (ls);
+    std::vector<CommandResult *> *ls;
+    ls = ((CommandResult_CallStackEntry *)lhs)->Value ();
     if (ls->size() == 1)
       return CommandResult_gt((*ls)[0], rhs);
   }
   if ((lhs->Type() != CMD_RESULT_CALLTRACE) &&
       (rhs->Type() == CMD_RESULT_CALLTRACE)) {
-    SmartPtr<std::vector<CommandResult *> > rs;
-    ((CommandResult_CallStackEntry *)rhs)->Value (rs);
+    std::vector<CommandResult *> *rs;
+    rs = ((CommandResult_CallStackEntry *)rhs)->Value ();
     if (rs->size() == 1)
       return CommandResult_gt(lhs, (*rs)[0]);
   }
@@ -1389,10 +1417,10 @@ Assert (rhs != NULL);
                                                        *((CommandResult_Statement *)lhs));
    case CMD_RESULT_CALLTRACE:
    {
-    SmartPtr<std::vector<CommandResult *> > ls;
-    SmartPtr<std::vector<CommandResult *> > rs;
-    ((CommandResult_CallStackEntry *)lhs)->Value (ls);
-    ((CommandResult_CallStackEntry *)rhs)->Value (rs);
+    std::vector<CommandResult *> *ls;
+    std::vector<CommandResult *> *rs;
+    ls = ((CommandResult_CallStackEntry *)lhs)->Value ();
+    rs = ((CommandResult_CallStackEntry *)rhs)->Value ();
     int64_t ll = ls->size();
     int64_t rl = rs->size();
     int64_t lm = min(ll,rl);

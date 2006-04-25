@@ -106,8 +106,8 @@ inline void Dump_StackTrace (const Framework::StackTrace& st) {
   }
 }
 
-inline void Dump_CallStack (SmartPtr<std::vector<CommandResult *> >& call_stack,
-                            SmartPtr<std::vector<CommandResult *> >& vcs) {
+inline void Dump_CallStack (std::vector<CommandResult *> *call_stack,
+                            std::vector<CommandResult *> *vcs) {
   cerr << "CallStack: ";
   for (int64_t i = 0; i < vcs->size(); i++) {
     CommandResult *p = (*vcs)[i];

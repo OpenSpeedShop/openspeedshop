@@ -1010,12 +1010,10 @@ CommandResult *Build_CallBack_Entry (Framework::StackTrace& st, int64_t i, bool 
     return SE;
 }
 
-SmartPtr<std::vector<CommandResult *> >
+std::vector<CommandResult *> *
        Construct_CallBack (bool TraceBack_Order, bool add_stmts, Framework::StackTrace& st) {
-  SmartPtr<std::vector<CommandResult *> > call_stack
-             = Framework::SmartPtr<std::vector<CommandResult *> >(
-                           new std::vector<CommandResult *>()
-                           );
+  std::vector<CommandResult *> *call_stack
+             = new std::vector<CommandResult *>();
   int64_t len = st.size();
   int64_t i;
   if (len == 0) return call_stack;
@@ -1030,13 +1028,11 @@ SmartPtr<std::vector<CommandResult *> >
   return call_stack;
 }
 
-SmartPtr<std::vector<CommandResult *> >
+std::vector<CommandResult *> *
        Construct_CallBack (bool TraceBack_Order, bool add_stmts, Framework::StackTrace& st,
                            std::map<Address, CommandResult *>& knownTraces) {
-  SmartPtr<std::vector<CommandResult *> > call_stack
-             = Framework::SmartPtr<std::vector<CommandResult *> >(
-                           new std::vector<CommandResult *>()
-                           );
+  std::vector<CommandResult *> *call_stack
+             = new std::vector<CommandResult *>();
   int64_t len = st.size();
   int64_t i;
   if (len == 0) return call_stack;
