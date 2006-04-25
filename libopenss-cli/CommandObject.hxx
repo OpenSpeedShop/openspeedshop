@@ -1018,7 +1018,7 @@ class CommandResult_Headers :
     for (cri = Headers.begin(); cri != Headers.end(); cri++) {
       if (num_results++ != 0) S += "  "; // 2 spaces between strings
       std::string R = (*cri)->Form ();
-      if (num_results >= number_of_columns) {
+      if (num_results < number_of_columns) {
        // Except for the last column ...
         if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
          // Shorten the original string.
@@ -1083,7 +1083,7 @@ class CommandResult_Enders :
     for (cri = Enders.begin(); cri != Enders.end(); cri++) {
       if (num_results++ != 0) S += "  "; // 2 spaces between strings
       std::string R = (*cri)->Form ();
-      if (num_results >= number_of_columns) {
+      if (num_results < number_of_columns) {
        // Except for the last column ...
         if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
          // shorten the original string.
@@ -1148,7 +1148,7 @@ class CommandResult_Columns :
     for (cri = Columns.begin(); cri != Columns.end(); cri++) {
       if (num_results++ != 0) S += "  "; // 2 spaces between strings
       std::string R = (*cri)->Form ();
-      if (num_results >= number_of_columns) {
+      if (num_results < number_of_columns) {
        // Except for the last column ...
         if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
          // Shorten the original string.
