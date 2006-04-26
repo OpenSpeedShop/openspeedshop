@@ -721,6 +721,8 @@ AppEventFilter::eventFilter( QObject *obj, QEvent *e )
           PanelContainer *bestFitPC = masterPC->findBestFitPanelContainer(masterPC);
           DebugPanel *debugPanel = new DebugPanel(bestFitPC, "Debug Panel", NULL);
           bestFitPC->addPanel((Panel *)debugPanel, bestFitPC, "Debug Panel");
+
+          return(TRUE);
         }
       }
     }

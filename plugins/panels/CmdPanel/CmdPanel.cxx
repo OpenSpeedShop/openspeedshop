@@ -386,7 +386,6 @@ CmdPanel::save()
 void 
 CmdPanel::saveAs()
 {
-  nprintf(DEBUG_SAVEAS) ("CmdPanel::saveAs() requested.\n");
 }
 
 /* 

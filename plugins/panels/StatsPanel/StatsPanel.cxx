@@ -4663,6 +4663,10 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 void
 StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highlightList=NULL, bool dumpClipFLAG=FALSE)
 {
+  if( __internal_debug_setting & DEBUG_CLIPS )
+  {
+    dumpClipFLAG = TRUE;
+  }
   if( statspanel_clip == NULL )
   {
     cerr << "No clip to process.\n";

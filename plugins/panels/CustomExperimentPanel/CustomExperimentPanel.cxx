@@ -580,7 +580,6 @@ CustomExperimentPanel::save()
 void 
 CustomExperimentPanel::saveAs()
 {
-  nprintf( DEBUG_SAVEAS ) ("CustomExperimentPanel::saveAs() requested.\n");
 }
 
 //! This function listens for messages.

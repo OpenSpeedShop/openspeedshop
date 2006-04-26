@@ -35,7 +35,6 @@
   flags.
 */
 
-
 /*! The default constructor.   Unused. */
 DebugPanel::DebugPanel()
 { // Unused... Here for completeness...
@@ -114,8 +113,8 @@ DebugPanel::DebugPanel(PanelContainer *pc, const char *n, void *argument) : Pane
   debugPrintingCheckBox = new QCheckBox( tr("Debug Printing"), getBaseWidgetFrame(), "debugPrintingCheckBox");
   guiLayout->addWidget( debugPrintingCheckBox );
 
-  debugSaveAsCheckBox = new QCheckBox( tr("Debug SaveAs"), getBaseWidgetFrame(), "debugSaveAsCheckBox");
-  guiLayout->addWidget( debugSaveAsCheckBox );
+  debugClipCheckBox = new QCheckBox( tr("Debug Clip"), getBaseWidgetFrame(), "debugClipCheckBox");
+  guiLayout->addWidget( debugClipCheckBox );
 
   debugCommandsCheckBox = new QCheckBox( tr("Debug Commands"), getBaseWidgetFrame(), "debugCommandsCheckBox");
   guiLayout->addWidget( debugCommandsCheckBox );
@@ -242,7 +241,10 @@ DebugPanel::DebugPanel(PanelContainer *pc, const char *n, void *argument) : Pane
 
   // debugPrintingCheckBox->setChecked( TRUE );
 
-  // debugSaveAsCheckBox->setChecked( TRUE );
+  if( __internal_debug_setting & DEBUG_CLIPS )
+  {
+    debugClipCheckBox->setChecked( TRUE );
+  }
 }
 
 
@@ -352,7 +354,7 @@ DebugPanel::debugGUIOnButtonSelected()
   debugDNDCheckBox->setChecked(TRUE);;
   debugMessagesCheckBox->setChecked(TRUE);;
   debugPrintingCheckBox->setChecked(TRUE);;
-  debugSaveAsCheckBox->setChecked(TRUE);;
+  debugClipCheckBox->setChecked(TRUE);;
   debugCommandsCheckBox->setChecked(TRUE);;
 }
 
@@ -366,7 +368,7 @@ DebugPanel::debugGUIOffButtonSelected()
   debugDNDCheckBox->setChecked(FALSE);;
   debugMessagesCheckBox->setChecked(FALSE);;
   debugPrintingCheckBox->setChecked(FALSE);;
-  debugSaveAsCheckBox->setChecked(FALSE);;
+  debugClipCheckBox->setChecked(FALSE);;
   debugCommandsCheckBox->setChecked(FALSE);;
 }
 
@@ -458,8 +460,12 @@ DebugPanel::applyButtonSelected()
   {
   }
 
-  if( debugSaveAsCheckBox->isOn() )
+  if( debugClipCheckBox->isOn() )
   {
+    __internal_debug_setting |= DEBUG_CLIPS;
+  } else
+  {
+    __internal_debug_setting &= ~DEBUG_CLIPS;
   }
 
   if( debugCommandsCheckBox->isOn() )
