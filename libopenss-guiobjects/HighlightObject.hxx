@@ -60,7 +60,10 @@ public:
 
     void print()
     {
-      printf("%d %s %s %s\n", line, color.ascii(), value.ascii(), description.ascii() );
+      printf("line:  %d\n", line);
+      printf("color:  %s\n", color.isEmpty() ? "" : color.ascii() );
+      printf("value:  %s\n", value.isEmpty() ? "" : value.ascii() );
+      printf("description: %s\n", description.isEmpty() ? "" : description.ascii() );
     }
 
     QString fileName;

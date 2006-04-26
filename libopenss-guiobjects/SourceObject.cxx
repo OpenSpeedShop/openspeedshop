@@ -67,4 +67,13 @@ SourceObject::print()
   printf("	group_id=(%d)\n", group_id);
   printf("	raiseFLAG=(%d)\n", raiseFLAG);
   printf("	highlightList=(0x%x)\n", highlightList);
+
+  for( HighlightList::Iterator it = highlightList->begin();
+       it != highlightList->end();
+       ++it)
+  {
+    HighlightObject *dhlo = (HighlightObject *)*it;
+    dhlo->print();
+  }
+
 }

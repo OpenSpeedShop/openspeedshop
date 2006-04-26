@@ -1274,45 +1274,7 @@ StatsPanel::itemSelected(QListViewItem *item)
 
   if( item )
   {
-// printf("  item->depth()=%d\n", item->depth() );
-
-    SPListViewItem *nitem = (SPListViewItem *)item;
-    int index = 0;
-
-    if( currentUserSelectedReportStr != "Butterfly" )
-    {
-      while( nitem->parent() )
-      {
-// printf("looking for 0x%x\n", nitem->parent() );
-        nitem = (SPListViewItem *)nitem->parent();
-        index++;
-      } 
-    }
-
-  
-    
-    // Now set the currentIndexItem so we can look up the correctl
-    // color for the function later.
-    if( nitem )
-    {
-      currentItem = (SPListViewItem *)nitem;
-
-      index = 0;
-      QListViewItemIterator it( splv );
-      while( it.current() )
-      {
-        QListViewItem *item = *it;
-        if( item->isSelected() )
-        {
-          currentItemIndex = index;
-          break;
-        }
-        index++;
-        it++;
-      }
-
-      matchSelectedItem( nitem, std::string(nitem->text(fieldCount-1).ascii()) );
-    }
+    matchSelectedItem( item, std::string(item->text(fieldCount-1).ascii()) );
   }
 }
 
@@ -1511,6 +1473,7 @@ StatsPanel::updateStatsPanelData(QString command)
         statspanel_clip->Set_Results_Used();
         statspanel_clip = NULL;
       }
+// splv->clear();
       splv->addColumn( "No data available:" );
       return;
     }
@@ -1527,6 +1490,7 @@ StatsPanel::updateStatsPanelData(QString command)
         statspanel_clip->Set_Results_Used();
         statspanel_clip = NULL;
       }
+// splv->clear();
       splv->addColumn( "Command failed to complete." );
       return;
     }
@@ -4930,8 +4894,11 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
     if( dumpClipFLAG) cerr << (*cri)->Form().c_str() << "\n";
 
     // DUMP THIS TO OUR OLD FORMAT ROUTINE.
-    QString s = QString((*cri)->Form().c_str());
-    outputCLIData( &s, xxxfileName, xxxlineNumber );
+    if( highlightList == NULL )
+    {
+      QString s = QString((*cri)->Form().c_str());
+      outputCLIData( &s, xxxfileName, xxxlineNumber );
+    }
 
   }
 }
