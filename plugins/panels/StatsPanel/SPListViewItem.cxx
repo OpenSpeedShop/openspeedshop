@@ -34,17 +34,19 @@
 /*! Work constructor.   Set's the name of the frame, the pointer to the
     parent panel container, and the frame shape and shadow characteristics.
 */
-SPListViewItem::SPListViewItem( StatsPanel *sp, QString _fileName, int _lineNumber, QListView * parent, SPListViewItem *after, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
+SPListViewItem::SPListViewItem( StatsPanel *sp, QString _funcName, QString _fileName, int _lineNumber, QListView * parent, SPListViewItem *after, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
      : QListViewItem( parent, after, label1, label2, label3, label4, label5, label6, label7, label8 )
 {
+  funcName = _funcName;
   fileName = _fileName;
   lineNumber = _lineNumber;
   statsPanel = sp;
 }
 
-SPListViewItem::SPListViewItem( StatsPanel *sp, QString _fileName, int _lineNumber, SPListViewItem * parent, SPListViewItem *after, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
+SPListViewItem::SPListViewItem( StatsPanel *sp, QString _funcName, QString _fileName, int _lineNumber, SPListViewItem * parent, SPListViewItem *after, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
      : QListViewItem( (SPListViewItem *)parent, (SPListViewItem *)after, label1, label2, label3, label4, label5, label6, label7, label8 )
 {
+  funcName = _funcName;
   fileName = _fileName;
   lineNumber = _lineNumber;
   statsPanel = sp;

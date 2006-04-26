@@ -146,7 +146,7 @@ class StatsPanel  : public Panel
     void updateCollectorList();
     void updateCollectorMetricList();
     void outputAboutData(QString *data);
-    void outputCLIData(QString *data, QString xxxfileName, int xxxlineNumber);
+    void outputCLIData(QString *data, QString xxxfuncName, QString xxxfileName, int xxxlineNumber);
     bool MPItraceFLAG;
     bool IOtraceFLAG;
 
@@ -244,9 +244,11 @@ class StatsPanel  : public Panel
 
   private:
     bool matchSelectedItem( QListViewItem *item, std::string function_name );
+#ifdef PULL
     bool matchDoubleSelectedItem( std::string function_name );
     bool matchUIntSelectedItem( std::string function_name );
     bool matchUInt64SelectedItem( std::string function_name );
+#endif // PULL
 
     void updateStatsPanelData(QString command = QString::null);
     void generateMPIMenu(QString collectorName);
@@ -330,9 +332,9 @@ class StatsPanel  : public Panel
     QString findSelectedFunction();
     QString selectedFunctionStr;
 
-    SPListViewItem *MYListViewItem( StatsPanel *arg1, QString xxxfileName, int xxxlineNumber, SPListViewItem *arg2, SPListViewItem *arg3, QString *strings);
+    SPListViewItem *MYListViewItem( StatsPanel *arg1, QString xxxfuncName, QString xxxfileName, int xxxlineNumber, SPListViewItem *arg2, SPListViewItem *arg3, QString *strings);
 
-    SPListViewItem *MYListViewItem( StatsPanel *arg1, QString xxxfileName, int xxxlineNumber, QListView *arg2, SPListViewItem *arg3, QString *strings);
+    SPListViewItem *MYListViewItem( StatsPanel *arg1, QString xxxfuncName, QString xxxfileName, int xxxlineNumber, QListView *arg2, SPListViewItem *arg3, QString *strings);
 
     SourceObject *lookUpFileHighlights(QString filename, QString lineNumberStr, HighlightList *highlightList);
 
