@@ -31,8 +31,8 @@ class StatsPanel;
 class SPListViewItem : public QListViewItem
 {
 public:
-  SPListViewItem( StatsPanel *sp, QListView * parent, SPListViewItem *after, QString label1, QString label2 = QString::null, QString label3 = QString::null, QString label4 = QString::null, QString label5 = QString::null, QString label6 = QString::null, QString label7 = QString::null, QString label8 = QString::null );
-  SPListViewItem( StatsPanel *sp, SPListViewItem * parent, SPListViewItem *after, QString label1, QString label2 = QString::null, QString label3 = QString::null, QString label4 = QString::null, QString label5 = QString::null, QString label6 = QString::null, QString label7 = QString::null, QString label8 = QString::null );
+  SPListViewItem( StatsPanel *sp, QString _fileName, int _lineNumber, QListView * parent, SPListViewItem *after, QString label1, QString label2 = QString::null, QString label3 = QString::null, QString label4 = QString::null, QString label5 = QString::null, QString label6 = QString::null, QString label7 = QString::null, QString label8 = QString::null );
+  SPListViewItem( StatsPanel *sp, QString _fileName, int _lineNumber, SPListViewItem * parent, SPListViewItem *after, QString label1, QString label2 = QString::null, QString label3 = QString::null, QString label4 = QString::null, QString label5 = QString::null, QString label6 = QString::null, QString label7 = QString::null, QString label8 = QString::null );
 
   ~SPListViewItem( );
 
@@ -46,6 +46,9 @@ public:
     void setFont(uint column, const QFont &font);
     QColor background(uint column) const;
     void setBackground(uint column, const QColor &color);
+
+QString fileName;
+int lineNumber;
     
   private:
     QValueVector<QFont> fonts;

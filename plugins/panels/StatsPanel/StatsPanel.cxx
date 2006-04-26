@@ -102,6 +102,7 @@ struct sort_descending : public std::binary_function<T,T,bool> {
     }
 };
 
+#ifdef PULL
 #include <map>
 
 template <typename T>
@@ -148,34 +149,8 @@ QString name = QString(cm.getUniqueId().c_str());
 	else
 	    (*result)[i->first.getLine()] += i->second;
 }
+#endif // PULL
 
-
-
-// This is the stream the cli will write the output from the 
-// expView commands that are sent its way.
-class SPOutputClass : public ss_ostream
-{
-  public:
-    StatsPanel *sp;
-    void setSP(StatsPanel *_sp) { sp = _sp;line_buffer = QString::null; };
-    QString line_buffer;
-  private:
-    virtual void output_string (std::string s)
-    {
-       line_buffer += s.c_str();
-       if( QString(s).contains("\n") )
-       {
-         QString *data = new QString(line_buffer);
-//         sp->postCustomEvent(data);
-           sp->outputCLIData(data);
-         line_buffer = QString::null;
-       }
-    }
-    virtual void flush_ostream ()
-    {
-      qApp->flushX();
-    }
-};
 
 
 class AboutOutputClass : public ss_ostream
@@ -346,12 +321,6 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   sprintf(name_buffer, "%s [%d]", getName(), groupID);
   setName(name_buffer);
 
-  spoclass = new SPOutputClass();
-  spoclass->setSP(this);
-
-
-
-
 }
 
 
@@ -377,9 +346,6 @@ StatsPanel::~StatsPanel()
 // printf("Destructor delete the currentCollector\n");
     delete currentCollector;
   }
-
-  delete spoclass;
-
 // printf("  StatsPanel::~StatsPanel() destructor finished\n");
 }
 
@@ -637,6 +603,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 {
 // printf("StatsPanel::menu() entered.\n");
 
+
   Panel::menu(contextMenu);
 
 // printf("B: currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
@@ -835,14 +802,6 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     connect( qaction, SIGNAL( activated() ), this, SLOT( showStats() ) );
     qaction->setStatusTip( tr("Show the statistics display.") );
   }
-#if 1
-// Debug only.
-qaction = new QAction( this,  "dumpClipEntry");
-qaction->addTo( contextMenu );
-qaction->setText( "Dump Clip Entry...(Temporary Debug hack!)" );
-connect( qaction, SIGNAL( activated() ), this, SLOT( dumpClipEntry() ) );
-qaction->setStatusTip( tr("(DEBUG ONLY) Dump clip information.") );
-#endif // 1
 
   return( TRUE );
 }
@@ -943,12 +902,6 @@ StatsPanel::showStats()
     chartFLAG = TRUE;
     cf->show();
   }
-}
-
-void
-StatsPanel::dumpClipEntry()
-{
-  dump_clip(statspanel_clip);
 }
 
 
@@ -1385,86 +1338,21 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 {
 // printf("matchSelectedItem() entered. sf=%s\n", sf.c_str() );
 
+  SPListViewItem *spitem = (SPListViewItem *)item;
+
 // printf("A: currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
 // printf("A: currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
 
-  QString lineNumberStr = "-1"; // MPI* and IO* only
-
-  if( currentUserSelectedReportStr.contains("CallTrees") || currentUserSelectedReportStr.contains("TraceBacks") )
-  {
-    // text directly.
-    SPListViewItem *selectedItem = (SPListViewItem *)splv->selectedItem();
-    if( selectedItem )
-    {
-      QString ret_value = selectedItem->text(fieldCount-1).stripWhiteSpace();
-      sf = ret_value.ascii();
-// printf("         (%s)\n", sf.c_str() );
-      int index = ret_value.find("@");
-      if( index == 0 )
-      {
-        int sfi = 0;
-
-        sfi = ret_value.find(" in ");
-        if( sfi != -1 )
-        {
-// printf("sfi=(%d)\n", sfi);
-          lineNumberStr = ret_value.mid(2, sfi-2);
-        }
-// printf("It think we have a line number (%s) just after the @ \n", lineNumberStr.ascii() );
-
-      }
-    }
-  }
-
-// First lets try to find the function/file pair.
-
+  QString lineNumberStr = "-1";
+  QString filename = QString::null;
   SourceObject *spo = NULL;
   QString ssf = QString(sf).stripWhiteSpace();
 
-  QString selected_function_qstring = QString(sf).stripWhiteSpace();
+// printf("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
+// printf("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
 
-  QString filename = QString::null;
-  QString function_name = QString::null;
-
-
-// printf("ssf=(%s)\n", ssf.ascii() );
-  if( currentCollectorStr == "hwc" || currentCollectorStr == "hwctime" )
-  {
-    filename = getFilenameFromString( ssf ); 
-    function_name = "";
-    int index = ssf.find(",");
-// printf("index=%d \n", index);
-    if( index != -1 )
-    {
-      lineNumberStr = ssf.mid(index+1,ssf.length()-(index+2));
-// printf("lineNumberStr=(%s)\n", lineNumberStr.ascii() );
-      filename = filename.mid(0, index);
-    } 
-  } else
-  {
-    QString lns = QString::null;
-    filename = getFilenameFromString( ssf ); 
-    function_name = getFunctionNameFromString( ssf, lns );
-    if( currentCollectorStr != "mpi" && currentCollectorStr != "mpit" &&
-        currentCollectorStr != "io" && currentCollectorStr != "iot" )
-    {
-      lineNumberStr = lns;
-    }
-  }
-  int index = filename.find("(");
-  if( index != -1 )
-  {
-    lineNumberStr = filename.mid(index+1,filename.length()-(index+2));
-    filename = filename.mid(0, index);
-  } 
-
-  if( currentUserSelectedReportStr == "Statements" )
-  {
-    function_name = "";
-  }
-
-// printf("AA: filename=(%s)\n", filename.ascii() );
-// printf("AA: function_name=(%s) lineNumberStr=(%s)\n", function_name.ascii(), lineNumberStr.ascii() );
+  filename = spitem->fileName.ascii();
+  lineNumberStr = QString("%1").arg(spitem->lineNumber);
 
   // Explicitly make sure the highlightList is clear.
   HighlightList *highlightList = new HighlightList();
@@ -1473,65 +1361,19 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
 
-  // Begin Find the file/function pair.
-  try
-  {
-    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-    if( eo != NULL )
-    {
-      Experiment *fw_experiment = eo->FW();
-      ThreadGroup tgrp = fw_experiment->getThreads();
-      ThreadGroup::iterator ti = tgrp.begin();
-      if( tgrp.size() == 0 )
-      { // No threads to look up the data...
-        return FALSE;
-      }
+// printf("LOOK UP FILE HIGHLIGHTS THE NEW WAY!\n");
+    spo = lookUpFileHighlights(filename, lineNumberStr, highlightList);
 
-      for( ; ti != tgrp.end(); ti++ )
-      {
-        Thread thread = *ti;
-        //  Check to see if we're in the focused group!
-        bool foundFLAG = FALSE;
-        if( currentThreadGroupStrList.size() == 0 )
-        {
-          foundFLAG = TRUE;
-        }
-// printf("Is %d one of us\n", thread.getProcessId() );
-        for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); it != currentThreadGroupStrList.end(); ++it)
-        {
-          QString ts = (QString)*it;
-// printf("Is it ts=(%s)\n", ts.ascii() );
-          if( QString("%1").arg(thread.getProcessId()) == ts )
-          {
-// printf("Got it!!!!\n");
-            foundFLAG = TRUE;
-            break;
-          }
-        }
-        if( foundFLAG == FALSE )
-        {
-          continue;
-        }
-// printf("We've got a match, now can we look up the function (%s)?\n", function_name.ascii() );
-
-        spo = lookUpFileHighlights(function_name, thread, ti, item, filename, lineNumberStr, highlightList);
-
-      }
-    }
-    // If no spo, make one so the source panel is placed correctly.
     if( !spo )
     {
-// printf("NO SOURCE PANEL OBJECT to update existing source. Create null one.\n");
       spo = new SourceObject(NULL, NULL, -1, expID, TRUE, NULL);
     }
     if( spo )
     {
       QString name = QString("Source Panel [%1]").arg(expID);
-// printf("A: Find a SourcePanel named %s\n", name.ascii() );
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
       if( !sourcePanel )
       {
-// printf("no source view up, place the source panel.\n");
         char *panel_type = "Source Panel";
         PanelContainer *startPC = NULL;
         if( getPanelContainer()->parentPanelContainer != NULL )
@@ -1547,23 +1389,11 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
       }
       if( sourcePanel )
       {
-// printf("send the spo to the source panel.\n");
-// spo->print();
        sourcePanel->listener((void *)spo);
+// printf("Returned from sending of spo!\n");
       }
     }
     QApplication::restoreOverrideCursor( );
-  }
-  catch(const std::exception& error)
-  { 
-    std::cerr << std::endl << "Error: "
-              << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-              "Unknown runtime error." : error.what()) << std::endl
-              << std::endl;
-    QApplication::restoreOverrideCursor( );
-    return FALSE;
-  }
-// End Find the file/function pair.
 
 }
 
@@ -1572,6 +1402,10 @@ void
 StatsPanel::updateStatsPanelData(QString command)
 {
 // printf("StatsPanel::updateStatsPanelData() entered.\n");
+
+
+
+// resetRedirect();
 
 
   levelsToOpen = getPreferenceLevelsToOpen().toInt();
@@ -1641,7 +1475,7 @@ StatsPanel::updateStatsPanelData(QString command)
   splv->setSorting ( -1 );
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
-  Redirect_Window_Output( cli->wid, spoclass, spoclass );
+
 // printf("command: (%s)\n", command.ascii() );
   about += "Command issued: " + command + "\n";
   lastCommand = command;
@@ -1654,6 +1488,7 @@ StatsPanel::updateStatsPanelData(QString command)
   }
 
   statspanel_clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
+
 
   if( statspanel_clip == NULL )
   {
@@ -1677,7 +1512,6 @@ StatsPanel::updateStatsPanelData(QString command)
         statspanel_clip = NULL;
       }
       splv->addColumn( "No data available:" );
-      resetRedirect();
       return;
     }
 
@@ -1694,7 +1528,6 @@ StatsPanel::updateStatsPanelData(QString command)
         statspanel_clip = NULL;
       }
       splv->addColumn( "Command failed to complete." );
-      resetRedirect();
       return;
     }
 
@@ -1702,26 +1535,10 @@ StatsPanel::updateStatsPanelData(QString command)
   }
 // printf("done pinging...\n");
 
-  //Test putting the output to statspanel stream.
-  Default_TLI_Line_Output(statspanel_clip);
-
-  // make sure you redirect the output back to the cli...\n");
-  // We have a strange (temporary problem) because we're currently using
-  // Redirect_Window_Output( cli->wid, spoclass, spoclass ); to push the 
-  // cli output to a parser that then generates the 
-  // This is (obviously) paired with the CmdPanel.   When you pull this,
-  // pull that one too.
-  Panel *cmdPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), "&Command Panel");
-  if( cmdPanel )
-  {
-    MessageObject *msg = new MessageObject("Redirect_Window_Output()");
-    cmdPanel->listener((void *)msg);
-    delete msg;
-  } else
-  {
-    fprintf(stderr, "Unable to redirect output to the cmdpanel.\n");
-  }
-
+  process_clip(statspanel_clip, NULL, FALSE);
+//  process_clip(statspanel_clip, NULL, TRUE);
+  statspanel_clip->Set_Results_Used();
+  statspanel_clip = NULL;
 
 
 // Put out the chart if there is one...
@@ -1776,17 +1593,6 @@ StatsPanel::updateStatsPanelData(QString command)
   cf->setHeader( (QString)*columnHeaderList.begin() );
 
   QApplication::restoreOverrideCursor();
-
-  if( statspanel_clip )
-  {
-
-//    dump_clip(statspanel_clip);
-
-//    statspanel_clip->Set_Results_Used();
-//    statspanel_clip = NULL;
-  }
-
-
 }
 
 
@@ -1863,7 +1669,7 @@ StatsPanel::threadSelected(int val)
 void
 StatsPanel::collectorMetricSelected(int val)
 { 
-// printf("collectorMetricSelected val=%d\n", val);
+ printf("collectorMetricSelected val=%d\n", val);
 // printf("collectorMetricSelected: currentCollectorStr=(%s)\n", popupMenu->text(val).ascii() );
 
   currentUserSelectedReportStr = QString::null;
@@ -1879,8 +1685,12 @@ StatsPanel::collectorMetricSelected(int val)
     { // The user selected one of the metrics
 //      collectorStrFromMenu = s.mid(13, index-13 );
       currentCollectorStr = s.mid(13, index-13 );
+#ifdef OLDWAY
       currentMetricStr = s.mid(index+2);
       currentUserSelectedReportStr = currentMetricStr;
+#else // OLDWAY
+      currentUserSelectedReportStr = s.mid(index+2);
+#endif // OLDWAY
 // printf("BB1: s=(%s) currentCollectorStr=(%s) currentMetricStr=(%s)\n", s.ascii(), currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -1940,8 +1750,12 @@ StatsPanel::MPIReportSelected(int val)
     if( index > 0 )
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
+#ifdef OLDWAY
       currentMetricStr = s.mid(index+2);
       currentUserSelectedReportStr = currentMetricStr;
+#else // OLDWAY
+      currentUserSelectedReportStr = s.mid(index+2);
+#endif // OLDWAY
 // printf("MPI1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -2005,8 +1819,12 @@ StatsPanel::IOReportSelected(int val)
     if( index > 0 )
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
+#ifdef OLDWAY
       currentMetricStr = s.mid(index+2);
       currentUserSelectedReportStr = currentMetricStr;
+#else // OLDWAY
+      currentUserSelectedReportStr = s.mid(index+2);
+#endif // OLDWAY
 // printf("IO1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -2070,8 +1888,12 @@ StatsPanel::HWCReportSelected(int val)
     if( index > 0 )
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
+#ifdef OLDWAY
       currentMetricStr = s.mid(index+2);
       currentUserSelectedReportStr = currentMetricStr;
+#else // OLDWAY
+      currentUserSelectedReportStr = s.mid(index+2);
+#endif // OLDWAY
 // printf("DD1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -2123,8 +1945,12 @@ StatsPanel::HWCTimeReportSelected(int val)
     if( index > 0 )
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
+#ifdef OLDWAY
       currentMetricStr = s.mid(index+2);
       currentUserSelectedReportStr = currentMetricStr;
+#else // OLDWAY
+      currentUserSelectedReportStr = s.mid(index+2);
+#endif // OLDWAY
 // printf("DD1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -2179,8 +2005,12 @@ StatsPanel::collectorUserTimeReportSelected(int val)
     if( index > 0 )
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
+#ifdef OLDWAY
       currentMetricStr = s.mid(index+2);
       currentUserSelectedReportStr = currentMetricStr;
+#else // OLDWAY
+      currentUserSelectedReportStr = s.mid(index+2);
+#endif // OLDWAY
 // printf("UT1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -2235,8 +2065,12 @@ StatsPanel::collectorPCSampReportSelected(int val)
     if( index > 0 )
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
+#ifdef OLDWAY
       currentMetricStr = s.mid(index+2);
       currentUserSelectedReportStr = currentMetricStr;
+#else // OLDWAY
+      currentUserSelectedReportStr = s.mid(index+2);
+#endif // OLDWAY
 // printf("UT1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -3244,10 +3078,10 @@ StatsPanel::setCurrentMetricStr()
 }
 
 void
-StatsPanel::outputCLIData(QString *incoming_data)
+StatsPanel::outputCLIData(QString *incoming_data, QString xxxfileName, int xxxlineNumber)
 {
 // printf("StatsPanel::outputCLIData\n");
-// printf("%s", incoming_data->ascii() );
+// printf("(%s)\n", incoming_data->ascii() );
 
   SPListViewItem *highlight_item = NULL;
   bool highlight_line = FALSE;
@@ -3262,10 +3096,9 @@ StatsPanel::outputCLIData(QString *incoming_data)
   }
 
   QString data = QString("  ")+(*incoming_data);
-// printf("%s", data.ascii() );
+// printf("(%s)\n", data.ascii() );
 
   int start_index = 0;
-  QString stripped_data = data.stripWhiteSpace();
   QRegExp start_rxp = QRegExp( "  [A-Z,a-z,\\-,0-9,%]");
   QRegExp end_rxp = QRegExp( "[A-Z,a-z,\\-,0-9,%]  ");
 
@@ -3292,7 +3125,6 @@ StatsPanel::outputCLIData(QString *incoming_data)
       if( end_index == -1 )
       {
         columnValueClass[i].end_index = 99999;
-//        headerStr = data.mid(start_index, end_index-start_index).stripWhiteSpace();
         headerStr = data.mid(start_index).stripWhiteSpace();
 // printf("A: headerStr=(%s)\n", headerStr.ascii() );
         columnHeaderList.push_back(headerStr);
@@ -3305,17 +3137,14 @@ StatsPanel::outputCLIData(QString *incoming_data)
         {
           header_end_index = 99999;
         }
-//        headerStr = data.mid(start_index, header_end_index-start_index).stripWhiteSpace();
         headerStr = data.mid(start_index, end_index-start_index).stripWhiteSpace();
 // printf("B: headerStr=(%s)\n", headerStr.ascii() );
     
       }
-//      columnHeaderList.push_back(data.mid(start_index, end_index-start_index).stripWhiteSpace());
       columnHeaderList.push_back(headerStr);
       splv->addColumn( data.mid(start_index, end_index-start_index).stripWhiteSpace() );
       // Find the percent column
 // printf("find percent: headerStr=(%s) (%s)\n", headerStr.ascii(), data.mid(start_index, end_index-start_index).stripWhiteSpace().ascii() );
-//      if( headerStr.find("%") != -1 )
       if( headerStr.find("%") != -1 )
       {
         if( percentIndex == -1 )
@@ -3437,7 +3266,7 @@ for(int i=0;i<fieldCount;i++)
         }
 // printf("Put after (%s) \n", lastlvi->text(fieldCount-1).ascii() );
       }
-      lastlvi = splvi =  MYListViewItem( this, splv, lastlvi, strings);
+      lastlvi = splvi =  MYListViewItem( this, xxxfileName, xxxlineNumber, splv, lastlvi, strings);
 if( highlight_line ) highlight_item = splvi;
       lastIndentLevel = 0;
     } else
@@ -3464,7 +3293,7 @@ if( highlight_line ) highlight_item = splvi;
         if( indent_level > lastIndentLevel )
         {
 // printf("A: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(fieldCount-1).ascii(), lastlvi->text(fieldCount-1).ascii() );
-          lastlvi = splvi =  MYListViewItem( this, lastlvi, lastlvi, strings);
+          lastlvi = splvi =  MYListViewItem( this, xxxfileName, xxxlineNumber, lastlvi, lastlvi, strings);
 if( highlight_line ) highlight_item = splvi;
         } else
         {
@@ -3497,7 +3326,7 @@ if( highlight_line ) highlight_item = splvi;
             after = (SPListViewItem *)after->nextSibling();
           }
 // printf("C: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(fieldCount-1).ascii(), after->text(fieldCount-1).ascii() );
-          lastlvi = splvi = MYListViewItem( this, lastlvi, after, strings );
+          lastlvi = splvi = MYListViewItem( this, xxxfileName, xxxlineNumber, lastlvi, after, strings );
 if( highlight_line ) highlight_item = splvi;
         }
       } else
@@ -3522,14 +3351,14 @@ if( highlight_line ) highlight_item = splvi;
   {
     if( fieldCount == 2 )
     {
-      lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1] );
+      lastlvi = splvi =  new SPListViewItem( this, xxxfileName, xxxlineNumber, splv, lastlvi, strings[0], strings[1] );
     } else if( fieldCount == 3 )
     { // i.e. like pcsamp
-      lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1], strings[2] );
+      lastlvi = splvi =  new SPListViewItem( this, xxxfileName, xxxlineNumber, splv, lastlvi, strings[0], strings[1], strings[2] );
     } else
     { // i.e. like usertime
-//      lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1], strings[2], strings[3] );
-      lastlvi = splvi =  MYListViewItem( this, splv, lastlvi, strings);
+//      lastlvi = splvi =  new SPListViewItem( this, xxxfileName, xxxlineNumber, splv, lastlvi, strings[0], strings[1], strings[2], strings[3] );
+      lastlvi = splvi =  MYListViewItem( this, xxxfileName, xxxlineNumber, splv, lastlvi, strings);
 if( highlight_line ) highlight_item = splvi;
     }
   }
@@ -3574,7 +3403,7 @@ StatsPanel::outputAboutData(QString *incoming_data)
 
 
 SPListViewItem *
-StatsPanel::MYListViewItem( StatsPanel *arg1, QListView *arg2, SPListViewItem *arg3, QString *strings)
+StatsPanel::MYListViewItem( StatsPanel *arg1, QString xxxfileName, int xxxlineNumber, QListView *arg2, SPListViewItem *arg3, QString *strings)
 {
   SPListViewItem *item = NULL;
   switch( fieldCount )
@@ -3583,38 +3412,38 @@ StatsPanel::MYListViewItem( StatsPanel *arg1, QListView *arg2, SPListViewItem *a
       break;
     case 1:
 // printf("Put out SPListViewItem with 1 item (%s)\n", strings[0].ascii() );
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0] );
       break;
     case 2:
 // printf("Put out SPListViewItem with 2 item (%s) (%s)\n", strings[0].ascii(), strings[1].ascii() );
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1] );
       break;
     case 3:
 // printf("Put out SPListViewItem with 3 item (%s) (%s) (%s)\n", strings[0].ascii(), strings[1].ascii(), strings[2].ascii() );
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1], strings[2] );
       break;
     case 4:
 // printf("Put out SPListViewItem with 4 item (%s) (%s) (%s) (%s)\n", strings[0].ascii(), strings[1].ascii(), strings[2].ascii(), strings[3].ascii() );
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1], strings[2], strings[3] );
       break;
     case 5:
 // printf("Put out SPListViewItem with 5 item (%s) (%s) (%s) (%s) (%s)\n", strings[0].ascii(), strings[1].ascii(), strings[2].ascii(), strings[3].ascii(), strings[4].ascii() );
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4] );
       break;
     case 6:
 // printf("Put out SPListViewItem with 6 item (%s) (%s) (%s) (%s) (%s) (%s)\n", strings[0].ascii(), strings[1].ascii(), strings[2].ascii(), strings[3].ascii(), strings[4].ascii(), strings[5].ascii() );
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5] );
       break;
     case 7:
 // printf("Put out SPListViewItem with 7 item (%s) (%s) (%s) (%s) (%s) (%s) (%s)\n", strings[0].ascii(), strings[1].ascii(), strings[2].ascii(), strings[3].ascii(), strings[4].ascii(), strings[5].ascii(), strings[6].ascii() );
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6] );
       break;
     case 8:
 // printf("Put out SPListViewItem with 8 item, (%s) (%s) (%s) (%s) (%s) (%s) (%s) (%s)\n", strings[0].ascii(), strings[1].ascii(), strings[2].ascii(), strings[3].ascii(), strings[4].ascii(), strings[5].ascii(), strings[6].ascii(), strings[7].ascii() );
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
       break;
     default:
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
 // printf("Warning: over 9 columns... Notify developer...\n");
       for( int i=8; i<fieldCount; i++ )
       {
@@ -3628,7 +3457,7 @@ StatsPanel::MYListViewItem( StatsPanel *arg1, QListView *arg2, SPListViewItem *a
 
 
 SPListViewItem *
-StatsPanel::MYListViewItem( StatsPanel *arg1, SPListViewItem *arg2, SPListViewItem *arg3, QString *strings)
+StatsPanel::MYListViewItem( StatsPanel *arg1, QString xxxfileName, int xxxlineNumber, SPListViewItem *arg2, SPListViewItem *arg3, QString *strings)
 {
   SPListViewItem *item = NULL;
   switch( fieldCount )
@@ -3636,31 +3465,31 @@ StatsPanel::MYListViewItem( StatsPanel *arg1, SPListViewItem *arg2, SPListViewIt
     case 0:
       break;
     case 1:
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0] );
       break;
     case 2:
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1] );
       break;
     case 3:
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1], strings[2] );
       break;
     case 4:
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1], strings[2], strings[3] );
       break;
     case 5:
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4] );
       break;
     case 6:
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5] );
       break;
     case 7:
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6] );
       break;
     case 8:
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
       break;
     default:
-      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
+      item = new SPListViewItem( arg1, xxxfileName, xxxlineNumber, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
       for( int i=8; i<fieldCount; i++ )
       {
         item->setText(i, strings[i]);
@@ -4770,296 +4599,94 @@ StatsPanel::addHWCTimeReports(QPopupMenu *menu )
 
 
 SourceObject *
-StatsPanel::lookUpFileHighlights(QString function_name, Thread thread, ThreadGroup::iterator ti, QListViewItem *item, QString filename, QString lineNumberStr, HighlightList *highlightList)
+StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, HighlightList *highlightList)
 {
-
-// printf("lookUpFileHighlights: currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
-// printf("lookUpFileHighlights: currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
-
   SourceObject *spo = NULL;
   HighlightObject *hlo = NULL;
-  
-  std::set<Statement>::const_iterator di;
+// printf("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n", filename.ascii(), lineNumberStr.ascii() );
 
-  Time time = Time::Now();
-  const std::string lookup_string = std::string(function_name.ascii());
-  std::pair<bool, Function> function = thread.getFunctionByName(lookup_string);
-  std::set<Statement> statement_definition;
-  statement_definition.clear();
-  if( function.first )
-  {
-    statement_definition = function.second.getDefinitions();
-  }
-  if( statement_definition.size() > 0 )
-  {
-    di = statement_definition.begin();
-// printf("FOUND THE FUNCTION in FILE (%s) line=%d\n", di->getPath().c_str(), di->getLine() );
-    filename = di->getPath();
-    lineNumberStr = QString("%1").arg(di->getLine());
-  }
-
-// printf("Try to query the metrics.\n");
-
-// printf("currentItemIndex=%d\n", currentItemIndex);
-
-  hlo = new HighlightObject(filename, lineNumberStr.toInt(), hotToCold_color_names[currentItemIndex], QString::null, QString("Beginning of function %1").arg(function_name.ascii()), (QString)*columnHeaderList.begin() );
+  hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite", "N/A");
   highlightList->push_back(hlo);
-// printf("push_back function entry (currentItemIndex=%d\n", currentItemIndex);
+
 // hlo->print();
 
-// printf("Query:\n");
-// printf("  %s\n", !currentCollectorStr.isEmpty() ? currentCollectorStr.ascii() : "NULL");
-// printf("  %s\n", !currentThreadStr.isEmpty() ? currentThreadStr.ascii() : "NULL");
-// printf("  %s\n", !currentMetricStr.isEmpty() ? currentMetricStr.ascii() : "NULL");
+// BEGIN LOOKUP STATEMENT INFORMATION HERE
 
- 
-  // First, determine if we can simply set the defaults to the only
-  // possible settings.
-  if( list_of_collectors_metrics.size() == 1 && list_of_pids.size() == 1 )
+// printf("currentMetricStr=%s\n", currentMetricStr.ascii() );
+// printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+// printf("currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
+
+  QString command = QString::null;
+
+  QFileInfo qfi(filename);
+  QString _fileName  = qfi.fileName();
+  if( currentMetricStr.isEmpty() )
   {
-// printf("There's no confusion (and there's not defaults) simply set the defaults.\n");
-    setCurrentCollector();
-    setCurrentThread();
-    setCurrentMetricStr();
-  }
-
-  setCurrentCollector();
-  setCurrentMetricStr();
-  if( currentThread )
-  {
-    delete currentThread;
-  }
-  currentThread = new Thread(*ti);
-// printf("Getting the next currentThread (%d)\n", currentThread->getProcessId() );
-
-  Metadata m = Find_Metadata(*currentCollector, std::string(currentMetricStr.ascii()) );
-
-#if 0
-// Begin DEBUG
-  printf("lookUpFileHighlights: metric=(%s)\n", currentMetricStr.ascii() );
-std::string  id = m.getUniqueId();
-
-if( m.isType(typeid(unsigned int)) )
-{
-  printf("type: unsigned int\n");
-} else if( m.isType(typeid(uint64_t)) )
-{ 
-  printf("type: uint64_t\n");
-} else if( m.isType(typeid(int)) ) 
-{
-  printf("type: int\n");
-} else if( m.isType(typeid(int64_t)) )
-{
-  printf("type: int64_t\n");
-} else if( m.isType(typeid(float)) )
-{
-  printf("type: float\n");
-} else if( m.isType(typeid(double)) )
-{
-  printf("type: double\n");
-} else if( m.isType(typeid(string)) )
-{
-  printf("type: string\n");
-} else
-{
-  printf("UNknown type.\n");
-}
-// END DEBUG
-#endif // 0
-
-  if( m.isType(typeid(double)) )
-  {
-// printf("DOUBLE\n");
-    // If double
-    SmartPtr<std::map<int, double> > double_statement_data = Framework::SmartPtr<std::map<int, double> >(new std::map<int, double>() );;
-
-// printf("GetMetric... %s:%s %d %s\n", currentCollectorStr.ascii(), currentMetricStr.ascii(), currentThread->getProcessId(), Path(filename.ascii()).c_str() );
-
-    GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, filename.ascii(), double_statement_data);
-
-    // Begin try to highlight source for doubles....
-// printf("Build/append to a list of highlights for the source panel to update.\n");
-      for(std::map<int, double>::const_iterator
-          sit = double_statement_data->begin();
-          sit != double_statement_data->end(); ++sit)
-      {
-
-        int64_t line = 1;
-        int color_index = getLineColor(sit->second);
-  
-        // first check to see if there's already a hlo for this line number.
-        // If there is, bump the value... Otherwise, push back a new one.
-        bool FOUND = FALSE;
-// printf("Do we have a duplicate? (%d) %f \n", sit->first, sit->second );
-        for( HighlightList::Iterator it = highlightList->begin();
-               it != highlightList->end();
-               ++it)
-        {
-          hlo = (HighlightObject *)*it;
-// printf("\thlo->line=(%d)\n", hlo->line );
-          if( hlo->line == sit->first )
-          {
-// printf("We have a duplicate at line (%d)\n", sit->first );
-            float v = hlo->value.toFloat();
-// printf("%f + %f =%f\n", v, sit->second, v+sit->second );
-            v += sit->second;
-            hlo->value = QString("%1").arg(v);
-// printf("  new value=(%s)\n", hlo->value.ascii() );
-            hlo->description = QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(v);
-            hlo->value_description = (QString)*columnHeaderList.begin();
-            color_index = getLineColor(v);
-            hlo->color = hotToCold_color_names[color_index];
-            FOUND = TRUE;
-            break;
-          }
-        }
-
-        if( !FOUND )
-        {
-          hlo = new HighlightObject(filename, sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), QString("\nMetric %1 %2.").arg(currentMetricStr).arg(sit->second), (QString)*columnHeaderList.begin() );
-          highlightList->push_back(hlo);
-// printf("A: Push_back a hlo for %d %f (%s)\n", sit->first, sit->second, hlo->description.ascii() );
-        }
-// hlo->print();
-      }
-    } else
+    if( _fileName.isEmpty() )
     {
-      // Not a double value...
-// printf("NOT DOUBLE\n");
-      if( !m.isType(typeid(uint64_t)) )
-      {
-// printf("WARNING: ATTEMPTING TOO LOOK UP TYPE uint64_t WHEN METRIC IS NOT uint64_t\n");
-//        fprintf(stderr, "report name=(%s)\n", currentUserSelectedReportStr.ascii() );
-//        fprintf(stderr, "metric name=(%s)\n", currentCollectorStr.ascii() );
-  
-std::string  id = m.getUniqueId();
-fprintf(stderr, "Unsupported type: Unable to display per statement source metrics for type:  ");
-if( m.isType(typeid(unsigned int)) )
-{
-fprintf(stderr, " unsigned int\n");
-} else if( m.isType(typeid(uint64_t)) )
-{ 
-fprintf(stderr, " uint64_t\n");
-} else if( m.isType(typeid(int)) ) 
-{
-fprintf(stderr, " int\n");
-} else if( m.isType(typeid(int64_t)) )
-{
-fprintf(stderr, "type: int64_t\n");
-} else if( m.isType(typeid(float)) )
-{
-fprintf(stderr, " float\n");
-} else if( m.isType(typeid(double)) )
-{
-fprintf(stderr, " double\n");
-} else if( m.isType(typeid(string)) )
-{
-fprintf(stderr, " string\n");
-} else
-{
-fprintf(stderr, "UNknown type.\n");
-}
-      }
-
-      SmartPtr<std::map<int, uint64_t> > uint64_statement_data = Framework::SmartPtr<std::map<int, uint64_t> >(new std::map<int, uint64_t>() );;
-
-      if( m.isType(typeid(uint64_t)) )
-      {
-        GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(filename.ascii()), uint64_statement_data);
-      }
-      
-// printf("uint64_statement_data->size(%d)\n", uint64_statement_data->size() );
-
-      // Begin try to highlight source for doubles....
-      for(std::map<int, uint64_t>::const_iterator
-            sit = uint64_statement_data->begin();
-            sit != uint64_statement_data->end(); ++sit)
-      {
-// printf("Build a list of highlights for the source panel to update.\n");
-        int64_t line = 1;
-
-        int color_index = getLineColor(sit->second);
-
-        // first check to see if there's already a hlo for this line number.
-        // If there is, bump the value... Otherwise, push back a new one.
-        bool FOUND = FALSE;
-// printf("Do we have a duplicate? (%d)\n", sit->first );
-        for( HighlightList::Iterator it = highlightList->begin();
-               it != highlightList->end();
-               ++it)
-        {
-          hlo = (HighlightObject *)*it;
-// printf("\thlo->line=(%d)\n", hlo->line );
-          if( hlo->line == sit->first )
-          {
-// printf("We have a duplicate at line (%d)\n", sit->first );
-            uint64_t v = hlo->value.toUInt();
-// printf("v=%f\n", v );
-            v += sit->second;
-            hlo->value = QString("%1").arg(v);
-            hlo->description = QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(v);
-
-            hlo->value_description = (QString)*columnHeaderList.begin();
-            color_index = getLineColor(v);
-            hlo->color = hotToCold_color_names[color_index];
-            FOUND = TRUE;
-            break;
-          }
-        }
-        if( !FOUND )
-        {
-          hlo = new HighlightObject(filename, sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(sit->second), (QString)*columnHeaderList.begin() );
-          highlightList->push_back(hlo);
-// printf("B: Push_back a hlo for %d %f\n", sit->first, sit->second);
-// hlo->print();
-        }
-      }
+      return(spo);
     }
-
-
-
-  currentItemIndex = 0;
-  QListViewItemIterator lvit = (splv);
-  while( lvit.current() )
-  {
-    QListViewItem *this_item = lvit.current();
-  
-    if( this_item == item )
-    {
-      break;
-    }
-  
-    currentItemIndex++;
-    lvit++;
-  }
-// printf("PREPARE the hlo and spo.  filename=(%s)\n", filename.ascii() );
-  if( lineNumberStr != "-1" &&
-    ( collectorStrFromMenu.startsWith("CallTrees") ||
-      collectorStrFromMenu.startsWith("CallTrees,FullStack") ||
-      collectorStrFromMenu.startsWith("Functions") ||
-      collectorStrFromMenu.startsWith("TraceBacks") ||
-      collectorStrFromMenu.startsWith("TraceBacks,FullStack") ) )
-  {
-      hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite", "N/A");
-    highlightList->push_back(hlo);
-// printf("spo A: lineNumberStr=(%s)\n", lineNumberStr.ascii() );
-    spo = new SourceObject(function_name.ascii(), filename.ascii(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
+    command = QString("expView -v Statements -f %1").arg(_fileName);
   } else
   {
-// printf("spo B: lineNumberStr=(%s)\n", lineNumberStr.ascii() );
-    spo = new SourceObject(function_name.ascii(), filename, lineNumberStr.toInt()-1, expID, TRUE, highlightList);
+    command = QString("expView -v Statements -f %1 -m %2").arg(_fileName).arg(currentMetricStr);
+  }
+// printf("command=(%s)\n", command.ascii() );
+
+  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  InputLineObject *clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
+
+
+  if( clip == NULL )
+  {
+    fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
+    QApplication::restoreOverrideCursor();
+  }
+  Input_Line_Status status = ILO_UNKNOWN;
+
+  while( !clip->Semantics_Complete() )
+  {
+    status = cli->checkStatus(clip, command);
+    if( !status || status == ILO_ERROR )
+    { // An error occurred.... A message should have been posted.. return;
+      QApplication::restoreOverrideCursor();
+      if( clip )
+      {
+        clip->Set_Results_Used();
+        clip = NULL;
+      }
+      break;
+    }
+
+    qApp->processEvents(1000);
+
+    if( !cli->shouldWeContinue() )
+    {
+      QApplication::restoreOverrideCursor();
+      if( clip )
+      {
+        clip->Set_Results_Used();
+        clip = NULL;
+      }
+      break;
+    }
+
+    sleep(1);
   }
 
+  process_clip(clip, highlightList, FALSE);
+//  process_clip(clip, highlightList, TRUE);
+  clip->Set_Results_Used();
+  clip = NULL;
+
+
+// END LOOKUP STATEMENT INFORMATION HERE
+
+  spo = new SourceObject("functionName", filename.ascii(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
 
 #if 0
 // Begin debug
-  for( HighlightList::Iterator it = spo->highlightList->begin();
-       it != spo->highlightList->end();
-       ++it)
-  {
-    HighlightObject *dhlo = (HighlightObject *)*it;
-  printf("A: (%d)\n", dhlo->line );
-  }
+  spo->print();
 // End debug
 #endif // 0
 
@@ -5068,18 +4695,21 @@ fprintf(stderr, "UNknown type.\n");
   return spo;
 }
 
+
 void
-StatsPanel::dump_clip(InputLineObject *statspanel_clip)
-{ // Begin debug
+StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highlightList=NULL, bool dumpClipFLAG=FALSE)
+{
   if( statspanel_clip == NULL )
   {
-    cerr << "No clip to dump.\n";
+    cerr << "No clip to process.\n";
   }
-// printf("Begin fred\n");
+  QString valueStr = QString::null;
+  QString xxxfileName = QString::null;
+  int xxxlineNumber = -1;
+  HighlightObject *hlo = NULL;
+
   std::list<CommandObject *>::iterator coi;
 
-
-// printf("fred A: statspanel_clip->CmdObj_List().size()=%d\n", statspanel_clip->CmdObj_List().size());
   coi = statspanel_clip->CmdObj_List().begin();
   CommandObject *co = (CommandObject *)(*coi);
 
@@ -5087,130 +4717,221 @@ StatsPanel::dump_clip(InputLineObject *statspanel_clip)
   std::list<CommandResult *> cmd_result = co->Result_List();
   for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++)
   {
+    if( dumpClipFLAG) cerr<< "TYPE: " << (*cri)->Type() << "\n";
     if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES)
     {
-/* You have found the next row!! */
-  printf("You have found the next row!!\n");
-// Here's a formatted row
-  cerr << (*cri)->Form().c_str() << "\n";
-/* Scan the list of items for the column and pick up what you are
-looking for. */
-   std::list<CommandResult *> columns;
-   CommandResult_Columns *ccp = (CommandResult_Columns *)*cri;
-   ccp->Value(columns);
+      std::list<CommandResult *> columns;
+      CommandResult_Columns *ccp = (CommandResult_Columns *)*cri;
+      ccp->Value(columns);
 
-std::list<CommandResult *>::iterator column_it;
-int i = 0;
-for (column_it = columns.begin(); column_it != columns.end(); column_it++)
-{
-  printf("column[%d]\n", i);
+      std::list<CommandResult *>::iterator column_it;
+      int i = 0;
+      for (column_it = columns.begin(); column_it != columns.end(); column_it++)
+      {
+      
+        if( dumpClipFLAG) cerr << (*column_it)->Form().c_str() << "\n";
 
-cerr << (*column_it)->Form().c_str() << "\n";
+        CommandResult *cr = (CommandResult *)(*column_it);
+        if( dumpClipFLAG) cerr << "cr->Type=" << cr->Type() << "\n";
+        if( i == 0 && highlightList )
+        {
+          valueStr = QString::null;
+        }
+        switch( cr->Type() )
+        {
+          case CMD_RESULT_NULL:
+            if( dumpClipFLAG) cerr << "Got CMD_RESULT_NULL ";
+            if( i == 0 && highlightList )
+            {
+              valueStr = (*column_it)->Form().c_str();
+            }
+            break;
+          case CMD_RESULT_UINT:
+            if( dumpClipFLAG) cerr << "Got CMD_RESULT_UINT ";
+            if( i == 0 && highlightList )
+            {
+              valueStr = (*column_it)->Form().c_str();
+            }
+            break;
+          case CMD_RESULT_INT:
+            if( dumpClipFLAG) cerr << "Got CMD_RESULT_INT ";
+            if( i == 0 && highlightList )
+            {
+              valueStr = (*column_it)->Form().c_str();
+            }
+            break;
+          case CMD_RESULT_FLOAT:
+            {
+            if( dumpClipFLAG) cerr << "Got CMD_RESULT_FLOAT ";
+            if( i == 0 && highlightList )
+            {
+              valueStr = (*column_it)->Form().c_str();
+            }
+            }
+            break;
+          case CMD_RESULT_STRING:
+            if( dumpClipFLAG) cerr << "Got CMD_RESULT_STRING ";
+            if( i == 0 && highlightList )
+            {
+              valueStr = (*column_it)->Form().c_str();
+            }
+            break;
+          case CMD_RESULT_RAWSTRING:
+            if( dumpClipFLAG) cerr << "Got CMD_RESULT_RAWSTRING ";
+            if( i == 0 && highlightList )
+            {
+              valueStr = (*column_it)->Form().c_str();
+            }
+            break;
+          case CMD_RESULT_FUNCTION:
+          {
+              if( dumpClipFLAG) cerr << "Got CMD_RESULT_FUNCTION ";
+              CommandResult_Function *crf = (CommandResult_Function *)cr;
+              std::string S = crf->getName();
+              if( dumpClipFLAG) cerr << "    S=" << S << "\n";
+//            LinkedObject L = crf->getLinkedObject();
+//            if( dumpClipFLAG) cerr << "    L.getPath()=" << L.getPath() << "\n";
 
-CommandResult *cr = (CommandResult *)(*column_it);
-switch( cr->Type() )
-{
-  case CMD_RESULT_NULL:
-    cerr << "Got CMD_RESULT_NULL ";
-    break;
-  case CMD_RESULT_UINT:
-    cerr << "Got CMD_RESULT_UINT ";
-    break;
-  case CMD_RESULT_INT:
-    cerr << "Got CMD_RESULT_INT ";
-    break;
-  case CMD_RESULT_FLOAT:
-{
-    cerr << "Got CMD_RESULT_FLOAT ";
+              std::set<Statement> T = crf->getDefinitions();
+              if( T.size() > 0 )
+              {
+                std::set<Statement>::const_iterator ti = T.begin();
+                Statement s = *ti;
+                if( dumpClipFLAG) cerr << "    s.getPath()=" << s.getPath() << "\n";
+                if( dumpClipFLAG) cerr << "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
 
-// float _float = cr->Value();
-}
-    break;
-  case CMD_RESULT_STRING:
-    cerr << "Got CMD_RESULT_STRING ";
-    break;
-  case CMD_RESULT_RAWSTRING:
-    cerr << "Got CMD_RESULT_RAWSTRING ";
-    break;
-  case CMD_RESULT_FUNCTION:
-    cerr << "Got CMD_RESULT_FUNCTION ";
-    break;
-  case CMD_RESULT_STATEMENT:
-    cerr << "Got CMD_RESULT_STATEMENT ";
-    break;
-  case CMD_RESULT_LINKEDOBJECT:
-    cerr << "Got CMD_RESULT_LINKEDOBJECT ";
-    break;
-  case CMD_RESULT_CALLTRACE:
-{
-CommandResult_CallStackEntry *call_stack = (CommandResult_CallStackEntry *)cr;
-// cr->Value( call_stack );
+                xxxfileName = QString( s.getPath().c_str() );
+//                xxxfileName = QString( s.getPath().getBaseName().c_str() );
+                xxxlineNumber = s.getLine();
+              }
 
-cerr << "A: " << call_stack->Form().c_str() << "\n";
+              
+          }
+            break;
+          case CMD_RESULT_STATEMENT:
+            if( dumpClipFLAG) cerr << "Got CMD_RESULT_STATEMENT ";
+            {
 
-SmartPtr<std::vector<CommandResult *> > fly;
-call_stack->Value(fly);
-// CommandResult *CE = (*call_stack)[sz - 1];
-int64_t sz = fly->size();
-CommandResult *CE = (*fly)[sz-1];
-if( CE->Type() == CMD_RESULT_FUNCTION )
-{
-cerr << "  A: WAHOO it's a CMD_RESULT_FUNCTION" << "\n";
-cerr << "  A: sz=" << sz << " and function =" << CE->Form().c_str() << "\n";
-  std::string Function_Name;
-  ((CommandResult_Function *)CE)->Value(Function_Name);
-cerr << "    Function_Name: " << Function_Name.c_str() << "\n";
 
-//  std::set<Statement> MT;
-//  ((CommandResult_Function *)CE)->Value(MT);
+              CommandResult_Statement *T = (CommandResult_Statement *)cr;
+              Statement s = (Statement)*T;
+              if( dumpClipFLAG) cerr << "    s.getPath()=" << s.getPath() << "\n";
+              if( dumpClipFLAG) cerr << "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
 
- 
-  std::string S = ((CommandResult_Function *)CE)->getName();
-cerr << "    S=" << S << "\n";
-  LinkedObject L = ((CommandResult_Function *)CE)->getLinkedObject(); 
-cerr << "    L.getPath()=" << L.getPath() << "\n";
+              xxxfileName = QString( s.getPath().c_str() );
+//              xxxfileName = QString( s.getPath().getBaseName().c_str() );
+              xxxlineNumber = s.getLine();
+              if( highlightList )
+              {
+                QString colheader = (QString)*columnHeaderList.begin();
+                int color_index = getLineColor((unsigned int)valueStr.toUInt());
+                hlo = new HighlightObject(xxxfileName, xxxlineNumber, hotToCold_color_names[currentItemIndex], valueStr.stripWhiteSpace(), QString("Value for %1:%2=%3").arg(xxxfileName).arg(xxxlineNumber).arg(valueStr.ascii()), (QString)*columnHeaderList.begin() );
 
-  std::set<Statement> T = ((CommandResult_Function *)CE)->getDefinitions();
-  if( T.size() > 0 )
-  {
-    std::set<Statement>::const_iterator ti = T.begin();
-    Statement s = *ti;
-cerr << "    s.getPath()=" << s.getPath() << "\n";
-cerr << "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
-  }
+                if( dumpClipFLAG ) hlo->print();
+                highlightList->push_back(hlo);
+              }
+
+            }
+            break;
+          case CMD_RESULT_LINKEDOBJECT:
+            if( dumpClipFLAG) cerr << "Got CMD_RESULT_LINKEDOBJECT ";
+            break;
+          case CMD_RESULT_CALLTRACE:
+          {
+            if( dumpClipFLAG) cerr << "Got CMD_RESULT_CALLTRACE ";
+            CommandResult_CallStackEntry *CSE = (CommandResult_CallStackEntry *)cr;
+
+            std::vector<CommandResult *> *CSV = CSE->Value();
+            int64_t sz = CSV->size();
+            std::vector<CommandResult *> *C1 = CSV;
+            CommandResult *CE = (*C1)[sz - 1];
+            if( CE->Type() == CMD_RESULT_FUNCTION )
+            {
+              if( dumpClipFLAG) cerr << "  CMD_RESULT_FUNCTION: sz=" << sz << " and function =" << CE->Form().c_str() << "\n";
+
+              std::string S = ((CommandResult_Function *)CE)->getName();
+              if( dumpClipFLAG) cerr << "    S=" << S << "\n";
+//            LinkedObject L = ((CommandResult_Function *)CE)->getLinkedObject(); 
+//            if( dumpClipFLAG) cerr << "    L.getPath()=" << L.getPath() << "\n";
+
+              std::set<Statement> T = ((CommandResult_Function *)CE)->getDefinitions();
+              if( T.size() > 0 )
+              {
+                std::set<Statement>::const_iterator ti = T.begin();
+                Statement s = *ti;
+                if( dumpClipFLAG) cerr << "    s.getPath()=" << s.getPath() << "\n";
+                if( dumpClipFLAG) cerr << "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
+
+                xxxfileName = QString( s.getPath().c_str() );
+//                xxxfileName = QString( s.getPath().getBaseName().c_str() );
+                xxxlineNumber = s.getLine();
+              }
   
-}
+            } else if( CE->Type() == CMD_RESULT_STATEMENT )
+            {
+              if( dumpClipFLAG) cerr << "  CMD_RESULT_STATEMENT: sz=" << sz << " and function =" << CE->Form().c_str() << "\n";
 
-    cerr << "Got CMD_RESULT_CALLTRACE ";
-}
-    break;
-  case CMD_RESULT_TIME:
-    cerr << "Got CMD_RESULT_TIME ";
-    break;
-  case CMD_RESULT_TITLE:
-    cerr << "Got CMD_RESULT_TITLE ";
-    break;
-  case CMD_RESULT_COLUMN_HEADER:
-    cerr << "Got CMD_RESULT_COLUMN_HEADER ";
-    break;
-  case CMD_RESULT_COLUMN_VALUES:
-    cerr << "Got CMD_RESULT_COLUMN_VALUES ";
-    break;
-  case CMD_RESULT_COLUMN_ENDER:
-    cerr << "Got CMD_RESULT_COLUMN_ENDER ";
-    break;
-  case CMD_RESULT_EXTENSION:
-    cerr << "Got CMD_RESULT_EXTENSION ";
-    break;
-  default:
-    cerr << "Got CMD_RESULT_EXTENSION ";
-    break;
-}
-  cerr << "cr->Type=" << cr->Type() << "\n";
+              CommandResult_Statement *T = (CommandResult_Statement *)CE;
+              Statement s = (Statement)*T;
+              if( dumpClipFLAG) cerr << "    s.getPath()=" << s.getPath() << "\n";
+              if( dumpClipFLAG) cerr << "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
 
-  i++;
-}
+              xxxfileName = QString( s.getPath().c_str() );
+//              xxxfileName = QString( s.getPath().getBaseName().c_str() );
+              xxxlineNumber = s.getLine();
+              if( highlightList )
+              {
+                QString colheader = (QString)*columnHeaderList.begin();
+                int color_index = getLineColor((unsigned int)valueStr.toUInt());
+                hlo = new HighlightObject(xxxfileName, xxxlineNumber, hotToCold_color_names[currentItemIndex], valueStr.stripWhiteSpace(), QString("Value for %1:%2=%3").arg(xxxfileName).arg(xxxlineNumber).arg(valueStr.ascii()), (QString)*columnHeaderList.begin() );
 
+                if( dumpClipFLAG ) hlo->print();
+                highlightList->push_back(hlo);
+              }
+
+            } else
+            {
+              if( dumpClipFLAG ) cerr << "How do I handle this type? CE->Type() " << CE->Type() << "\n";
+            }
+          }
+          break;
+        case CMD_RESULT_TIME:
+          if( dumpClipFLAG) cerr << "Got CMD_RESULT_TIME ";
+            if( i == 0 && highlightList )
+            {
+              valueStr = (*column_it)->Form().c_str();
+            }
+          break;
+        case CMD_RESULT_TITLE:
+          if( dumpClipFLAG) cerr << "Got CMD_RESULT_TITLE ";
+          break;
+        case CMD_RESULT_COLUMN_HEADER:
+          if( dumpClipFLAG) cerr << "Got CMD_RESULT_COLUMN_HEADER ";
+          break;
+        case CMD_RESULT_COLUMN_VALUES:
+          if( dumpClipFLAG) cerr << "Got CMD_RESULT_COLUMN_VALUES ";
+          break;
+        case CMD_RESULT_COLUMN_ENDER:
+          if( dumpClipFLAG) cerr << "Got CMD_RESULT_COLUMN_ENDER ";
+          break;
+        case CMD_RESULT_EXTENSION:
+          if( dumpClipFLAG) cerr << "Got CMD_RESULT_EXTENSION ";
+          break;
+        default:
+          if( dumpClipFLAG) cerr << "Got CMD_RESULT_EXTENSION ";
+          break;
+        }
+
+        i++;
+      }
     }
+    /* You have found the next row!! */
+    // Here's a formatted row
+    if( dumpClipFLAG) cerr << (*cri)->Form().c_str() << "\n";
+
+    // DUMP THIS TO OUR OLD FORMAT ROUTINE.
+    QString s = QString((*cri)->Form().c_str());
+    outputCLIData( &s, xxxfileName, xxxlineNumber );
+
   }
-} // End debug
+}

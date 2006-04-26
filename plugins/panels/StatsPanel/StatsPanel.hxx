@@ -62,8 +62,6 @@ typedef std::pair<Function, uint64_t> Function_uint64_pair;
 
 #include <qsettings.h>
 
-class SPOutputClass;
-
 class ColumnValueClass
 {
   public:
@@ -102,7 +100,7 @@ class StatsPanel  : public Panel
     bool createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos );
 
     InputLineObject *statspanel_clip;
-    void dump_clip(InputLineObject *statspanel_clip);
+    void process_clip(InputLineObject *statspanel_clip, HighlightList *highlightList, bool dumpClipFLAG);
 
     SPListView *splv;
 
@@ -148,7 +146,7 @@ class StatsPanel  : public Panel
     void updateCollectorList();
     void updateCollectorMetricList();
     void outputAboutData(QString *data);
-    void outputCLIData(QString *data);
+    void outputCLIData(QString *data, QString xxxfileName, int xxxlineNumber);
     bool MPItraceFLAG;
     bool IOtraceFLAG;
 
@@ -203,8 +201,6 @@ class StatsPanel  : public Panel
 
     QFile *f;
 
-    SPOutputClass *spoclass;
-
   public slots:
     void itemSelected( QListViewItem * );
     void returnPressed( QListViewItem * );
@@ -245,8 +241,6 @@ class StatsPanel  : public Panel
     void showStats();
     void showChart();
     void setOrientation();
-
-    void dumpClipEntry();
 
   private:
     bool matchSelectedItem( QListViewItem *item, std::string function_name );
@@ -313,9 +307,11 @@ class StatsPanel  : public Panel
 
     bool descending_sort;
 
+#ifdef PULL
     double Get_Double_Total_Time();
     double Get_UInt_Total_Time();
     double Get_UInt64_Total_Time();
+#endif // PULL
 
     int expID;
 
@@ -334,11 +330,11 @@ class StatsPanel  : public Panel
     QString findSelectedFunction();
     QString selectedFunctionStr;
 
-    SPListViewItem *MYListViewItem( StatsPanel *arg1, SPListViewItem *arg2, SPListViewItem *arg3, QString *strings);
+    SPListViewItem *MYListViewItem( StatsPanel *arg1, QString xxxfileName, int xxxlineNumber, SPListViewItem *arg2, SPListViewItem *arg3, QString *strings);
 
-    SPListViewItem *MYListViewItem( StatsPanel *arg1, QListView *arg2, SPListViewItem *arg3, QString *strings);
+    SPListViewItem *MYListViewItem( StatsPanel *arg1, QString xxxfileName, int xxxlineNumber, QListView *arg2, SPListViewItem *arg3, QString *strings);
 
-    SourceObject *lookUpFileHighlights(QString function_name, Thread thread, ThreadGroup::iterator ti, QListViewItem *item, QString filename, QString lineNumberStr, HighlightList *highlightList);
+    SourceObject *lookUpFileHighlights(QString filename, QString lineNumberStr, HighlightList *highlightList);
 
 };
 #endif // STATSPANEL_H
