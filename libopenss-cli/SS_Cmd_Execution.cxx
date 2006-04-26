@@ -2338,6 +2338,16 @@ bool SS_expView (CommandObject *cmd) {
         if (!view_found) {
          // Use generic view as default
           std::string use_view = "stats";
+
+         // On second though, just report this situation as an error.
+          std::string S("A view can not be created for the experiment because ");
+          if (cgrp.empty()) {
+            S += "no data collectors were attached.";
+          } else {
+            S += "the view plugin could not be found.";
+          }
+          Mark_Cmd_With_Soft_Error(cmd, S);
+          return false;
         }
       }
     }
