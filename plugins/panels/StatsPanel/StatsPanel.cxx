@@ -102,56 +102,6 @@ struct sort_descending : public std::binary_function<T,T,bool> {
     }
 };
 
-#ifdef PULL
-#include <map>
-
-template <typename T>
-void GetMetricByStatementOfFileInThread(
-    const Collector& collector,
-    const std::string& metric,
-    const TimeInterval& interval,
-    const Thread& thread,
-    const Path& file,
-    SmartPtr<std::map<int, T > >& result)
-{
-    // Allocate (if necessary) a new map of statement line numbers to values
-    if(result.isNull())
-        result = SmartPtr<std::map<int, T > >(new std::map<int, T >());
-    Assert(!result.isNull());
-
-    // Get the set of statements for the specified file in this thread
-    std::set<Statement> objects = thread.getStatementsBySourceFile(file);
-
-    // Get the summation reduced metric values for these statements
-    SmartPtr<std::map<Statement, std::map<Thread, T > > > individual;
-#if 0
-// Begin debug
-Metadata cm = collector.getMetadata();
-QString name = QString(cm.getUniqueId().c_str());
-  printf("collector name=(%s)\n", name.ascii() );
-  printf("metric=(%s)\n", metric.c_str() );
-// End debug
-#endif // 0
-// printf("query: metric=(%s)\n", metric.c_str() );
-    Queries::GetMetricValues(collector, metric, interval,
-			     Queries::MakeThreadGroup(thread), 
-			     objects, individual);
-    SmartPtr<std::map<Statement, T > > reduced =
-	Queries::Reduction::Apply(individual, Queries::Reduction::Summation);
-    individual = SmartPtr<std::map<Statement, std::map<Thread, T > > >();
-
-    // Merge the temporary reduction into the actual results while stripping
-    // out everything but the line numbers for the statments
-    for(typename std::map<Statement, T >::const_iterator
-	    i = reduced->begin(); i != reduced->end(); ++i)
-	if(result->find(i->first.getLine()) == result->end())
-	    result->insert(std::make_pair(i->first.getLine(), i->second));
-	else
-	    (*result)[i->first.getLine()] += i->second;
-}
-#endif // PULL
-
-
 
 class AboutOutputClass : public ss_ostream
 {
@@ -4534,13 +4484,6 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
   HighlightObject *hlo = NULL;
 // printf("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n", filename.ascii(), lineNumberStr.ascii() );
 
-  hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite", "N/A");
-  highlightList->push_back(hlo);
-
-// hlo->print();
-
-// BEGIN LOOKUP STATEMENT INFORMATION HERE
-
 // printf("currentMetricStr=%s\n", currentMetricStr.ascii() );
 // printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
 // printf("currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
@@ -4608,8 +4551,50 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
   clip->Set_Results_Used();
   clip = NULL;
 
+  int lineNumber = lineNumberStr.toInt();
+  QString value = QString::null;
+  QString description = QString::null;
+  QString value_description = QString::null;
+  QString color = QString::null;
+  for( HighlightList::Iterator it = highlightList->begin();
+       it != highlightList->end();
+       ++it)
+  {
+    hlo = (HighlightObject *)*it;
+    if( value_description.isEmpty() )
+    {
+      value_description = hlo->value_description;
+    }
+    if( hlo->line == lineNumber )
+    {
+      value = hlo->value;
+      description = hlo->description;
+      break;
+    }
+  }
 
-// END LOOKUP STATEMENT INFORMATION HERE
+  if( value.isEmpty() )
+  {
+    hlo = new HighlightObject(filename, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite for this function", value_description);
+  } else
+  {
+    highlightList->remove(hlo);
+    hlo = new HighlightObject(filename, lineNumberStr.toInt(), color, QString(">> %1").arg(value), QString("Callsite for this function.\n%1").arg(description), value_description);
+  }
+  highlightList->push_back(hlo);
+
+
+#if 0
+  for( HighlightList::Iterator it = highlightList->begin();
+       it != highlightList->end();
+       ++it)
+  {
+    hlo = (HighlightObject *)*it;
+    hlo->print();
+  }
+#endif // 0
+
+
 
   spo = new SourceObject("functionName", filename.ascii(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
 
@@ -4773,7 +4758,7 @@ xxxfuncName = S.c_str();
               {
                 QString colheader = (QString)*columnHeaderList.begin();
                 int color_index = getLineColor((unsigned int)valueStr.toUInt());
-                hlo = new HighlightObject(xxxfileName, xxxlineNumber, hotToCold_color_names[currentItemIndex], valueStr.stripWhiteSpace(), QString("Value for %1:%2=%3").arg(xxxfileName).arg(xxxlineNumber).arg(valueStr.ascii()), (QString)*columnHeaderList.begin() );
+                hlo = new HighlightObject(xxxfileName, xxxlineNumber, hotToCold_color_names[currentItemIndex], valueStr.stripWhiteSpace(), QString("%1 = %2").arg(colheader).arg(valueStr.ascii()), colheader);
 
                 if( dumpClipFLAG ) hlo->print();
                 highlightList->push_back(hlo);
@@ -4844,7 +4829,7 @@ xxxfuncName = CE->Form().c_str();
               {
                 QString colheader = (QString)*columnHeaderList.begin();
                 int color_index = getLineColor((unsigned int)valueStr.toUInt());
-                hlo = new HighlightObject(xxxfileName, xxxlineNumber, hotToCold_color_names[currentItemIndex], valueStr.stripWhiteSpace(), QString("Value for %1:%2=%3").arg(xxxfileName).arg(xxxlineNumber).arg(valueStr.ascii()), (QString)*columnHeaderList.begin() );
+                hlo = new HighlightObject(xxxfileName, xxxlineNumber, hotToCold_color_names[currentItemIndex], valueStr.stripWhiteSpace(), QString("%1 = %2").arg(colheader).arg(valueStr.ascii()), colheader );
 
                 if( dumpClipFLAG ) hlo->print();
                 highlightList->push_back(hlo);

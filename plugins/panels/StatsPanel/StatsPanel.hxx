@@ -244,11 +244,6 @@ class StatsPanel  : public Panel
 
   private:
     bool matchSelectedItem( QListViewItem *item, std::string function_name );
-#ifdef PULL
-    bool matchDoubleSelectedItem( std::string function_name );
-    bool matchUIntSelectedItem( std::string function_name );
-    bool matchUInt64SelectedItem( std::string function_name );
-#endif // PULL
 
     void updateStatsPanelData(QString command = QString::null);
     void generateMPIMenu(QString collectorName);
@@ -308,12 +303,6 @@ class StatsPanel  : public Panel
     QString getFunctionNameFromString( QString, QString & );
 
     bool descending_sort;
-
-#ifdef PULL
-    double Get_Double_Total_Time();
-    double Get_UInt_Total_Time();
-    double Get_UInt64_Total_Time();
-#endif // PULL
 
     int expID;
 
