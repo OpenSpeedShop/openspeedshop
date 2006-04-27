@@ -327,9 +327,11 @@ SourcePanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
   textEdit->setCursorPosition(textEdit->paragraphAt(pos), 0);
   if( whatIsAtPos(pos) )
   {
-    contextMenu->insertItem("Tell Me MORE!!!", this, SLOT(details()), CTRL+Key_1 );
+    contextMenu->insertItem("Details...", this, SLOT(details()), CTRL+Key_1 );
+#ifdef LATER
     contextMenu->insertItem("Who calls this routine?", this, SLOT(whoCallsMe()), CTRL+Key_2 );
     contextMenu->insertItem("What routines are called from here?", this, SLOT(whoDoICall()), CTRL+Key_2 );
+#endif // LATER
   }
 }
 
