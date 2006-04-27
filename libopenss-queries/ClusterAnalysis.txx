@@ -380,16 +380,18 @@ bool Queries::ClusterAnalysis::DistanceCriterion1<TS, TM >::operator()(
     // Handle special case where only one cluster contains a single thread
     if((first.size() < 2) && (second.size() >= 2))
 	return dm_ratio <= 
-	    (distance / AverageInterClusterDistance(distances, second));
+	    (static_cast<double>(distance) / static_cast<double>(
+		AverageInterClusterDistance(distances, second)));
     if((first.size() >= 2) && (second.size() < 2))
 	return dm_ratio <= 
-	    (distance / AverageInterClusterDistance(distances, first));
+	    (static_cast<double>(distance) / static_cast<double>( 
+		AverageInterClusterDistance(distances, first)));
 
     // Handle default case where both clusters have more than one thread
     return dm_ratio <= 
-	(distance /
-	 std::max(AverageInterClusterDistance(distances, first),
-		  AverageInterClusterDistance(distances, second)));
+	(static_cast<double>(distance) / static_cast<double>(
+	    std::max(AverageInterClusterDistance(distances, first),
+		     AverageInterClusterDistance(distances, second))));
 }
 
 

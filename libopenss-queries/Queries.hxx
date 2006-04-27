@@ -234,12 +234,12 @@ namespace OpenSpeedShop {
 				const Framework::ThreadGroup&) const;
 		
 		/** Constructor from maximum distance ratio. */
-		DistanceCriterion1(const TM& ratio) : dm_ratio(ratio) { }
+		DistanceCriterion1(const double& ratio) : dm_ratio(ratio) { }
 
 	    private:
 		
 		/** Maximum distance ratio. */
-		TM dm_ratio;
+		double dm_ratio;
 		
 	    };
 
