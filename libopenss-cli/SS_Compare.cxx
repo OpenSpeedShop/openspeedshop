@@ -46,12 +46,22 @@ class CustomView
  private:
   EXPID Exp_ID;
   OpenSpeedShop::cli::ParseResult *p_result;
+  Framework::ThreadGroup Custom_tgrp;
 
  public:
   CustomView (OpenSpeedShop::cli::ParseResult *p) {
     Assert(pthread_mutex_lock(&Experiment_List_Lock) == 0);
     Exp_ID = ++Experiment_Sequence_Number;
     p_result = p;
+    CustomView_List.push_front(this);
+    Assert(pthread_mutex_unlock(&Experiment_List_Lock) == 0);
+  }
+  CustomView (OpenSpeedShop::cli::ParseResult *p,
+              const Framework::ThreadGroup& tgrp) {
+    Assert(pthread_mutex_lock(&Experiment_List_Lock) == 0);
+    Exp_ID = ++Experiment_Sequence_Number;
+    p_result = p;
+    Custom_tgrp = tgrp;
     CustomView_List.push_front(this);
     Assert(pthread_mutex_unlock(&Experiment_List_Lock) == 0);
   }
@@ -66,6 +76,7 @@ class CustomView
 
   EXPID cvId () { return Exp_ID; }
   OpenSpeedShop::cli::ParseResult *cvPr () { return p_result; }
+  Framework::ThreadGroup *cvTgrp() { return &Custom_tgrp; }
 };
 
 CustomView *Find_CustomView (EXPID ID)
@@ -89,6 +100,7 @@ struct selectionTarget {
   int64_t numColumns;
   OpenSpeedShop::cli::ParseResult *pResult;
   ExperimentObject *Exp;
+  ThreadGroup *base_tgrp;
   std:: string viewName;
   std::string hostId;
   pid_t pidId;
@@ -113,6 +125,7 @@ struct selectionTarget {
     headerPrefix = S.headerPrefix;
     numColumns = S.numColumns;
     pResult = S.pResult;
+    base_tgrp = S.base_tgrp;
     Exp = S.Exp;
     viewName = S.viewName;
     hostId = S.hostId;
@@ -188,13 +201,15 @@ void Select_ThreadGroup (selectionTarget& S, ThreadGroup& base_grp, ThreadGroup&
         } else include_thread = false;
       }
 
-#if HAS_OPENMP
-      if (include_thread && (S.rankId != 0)) {
+      if (include_thread && (S.rankId != 0) && t.getOpenMPThreadId().first) {
        // Does it match a rank ID?
-        int64_t rid = t.getOmpThreadId();
+        int64_t rid = t.getOpenMPThreadId().second;
         include_thread = (rid == S.rankId);
-      }
-#endif
+      } else if (include_thread && (S.rankId != 0) && t.getMPIRank().first) {
+       // Does it match a rank ID?
+        int64_t rid = t.getMPIRank().second;
+        include_thread = (rid == S.rankId);
+      } else include_thread = false;
 
      // Add matching threads to rgrp.
       if (include_thread) {
@@ -231,19 +246,30 @@ static bool Generate_CustomView (CommandObject *cmd,
     ExperimentObject *exp = Quick_Compare_Set[i].Exp;
     std::string viewname = Quick_Compare_Set[i].viewName;
     ViewType *vt = Find_View (viewname);
-    Assert (vt != NULL);
-   // Get all the threads that are in the experiment.
-    ThreadGroup base_tgrp = exp->FW()->getThreads();
+    if (vt == NULL) {
+      std::ostringstream M;
+      M << "The requested view, '" << viewname << "' is not available.";
+      Mark_Cmd_With_Soft_Error(cmd, M.ostringstream::str());
+      return false;
+    }
 
     OpenSpeedShop::cli::ParseResult *sResult = NULL;
     ThreadGroup tgrp;
     if (Quick_Compare_Set[i].pResult != NULL) {
      // Use the parse object from the cView definition.
       sResult = cmd->swapParseResult (Quick_Compare_Set[i].pResult);
-     // Retain only the threads that may be of interest with this parse object.
-      Filter_ThreadGroup (cmd->P_Result(), base_tgrp);
-      tgrp = base_tgrp;
+      if ((Quick_Compare_Set[i].base_tgrp != NULL) &&
+          (!Quick_Compare_Set[i].base_tgrp->empty())) {
+        tgrp = *Quick_Compare_Set[i].base_tgrp;
+      } else {
+       // Get all the threads that are in the experiment.
+        tgrp = exp->FW()->getThreads();
+       // Retain only the threads that may be of interest with this parse object.
+        Filter_ThreadGroup (cmd->P_Result(), tgrp);
+      }
     } else {
+     // Get all the threads that are in the experiment.
+        ThreadGroup base_tgrp = exp->FW()->getThreads();
      // Retain only the threads that may be of interest.
       Filter_ThreadGroup (cmd->P_Result(), base_tgrp);
      // Select specific ones.
@@ -839,7 +865,6 @@ bool SS_expCompare (CommandObject *cmd) {
     }
   }
 
-#if HAS_OPENMP
   if (!((r_list == NULL) || r_list->empty())) {
    // Start by building a vector of all the host names.
     std::vector<int64_t> rankids;;
@@ -892,7 +917,6 @@ bool SS_expCompare (CommandObject *cmd) {
       }
     }
   }
-#endif
 
   bool success = Generate_CustomView (cmd, Quick_Compare_Set);
 
@@ -1002,6 +1026,7 @@ static void CustomViewInfo (CommandObject *cmd,
 
   
  // For each set of filter specifications ...
+  int64_t header_length = S.ostringstream::str().size();
   bool first_TargetSpec_found = false;
   vector<ParseTarget> *p_tlist = p_result->getTargetList();
   vector<ParseTarget>::iterator pi;
@@ -1015,6 +1040,8 @@ static void CustomViewInfo (CommandObject *cmd,
 
     if (first_TargetSpec_found) {
       S << " ;";
+      S << "\n";
+      S << std::string(header_length, *" ");
     }
     first_TargetSpec_found = true;
 
@@ -1120,7 +1147,6 @@ static void CustomViewInfo (CommandObject *cmd,
       }
     }
 
-#if HAS_OPENMP
    // Add the "-r" list.
     if (!r_list->empty()) {
       S << " -r ";
@@ -1139,7 +1165,6 @@ static void CustomViewInfo (CommandObject *cmd,
         }
       }
     }
-#endif
 
   }
 
@@ -1232,8 +1257,11 @@ bool SS_cView (CommandObject *cmd) {
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   EXPID exp_focus = Experiment_Focus ( WindowID );
 
-  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseRange> *cv_list = p_result->getViewSet ();
+  OpenSpeedShop::cli::ParseResult *old_presult = cmd->P_Result();
+  vector<string> *view_list = old_presult->getViewList();
+  vector<string> *mod_list = old_presult->getModifierList();
+  vector<ParseRange> *met_list = old_presult->getexpMetricList();
+  vector<ParseRange> *cv_list = old_presult->getViewSet ();
   vector<ParseRange>::iterator cvli;
 
   std::vector<selectionTarget> Quick_Compare_Set;
@@ -1304,6 +1332,28 @@ bool SS_cView (CommandObject *cmd) {
             }
           }
         }
+      } if (!view_list->empty()) {
+       // Override any view in the Custom View Definition with view named on cView command.
+        vector<string>::iterator si;
+        for (si = view_list->begin(); si != view_list->end(); si++) {
+       // Determine the availability of the view.
+          std::string viewname = *si;
+          ViewType *vt = Find_View (viewname);
+          if (vt == NULL) {
+            Mark_Cmd_With_Soft_Error(cmd, "The requested view is unavailable.");
+            return false;
+          }
+
+         // Define new compare sets for each view.
+          selectionTarget S;
+          S.pResult = p_result;
+          S.base_tgrp = cvp->cvTgrp();
+          S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
+          S.Exp = exp;
+          S.viewName = viewname;
+          Quick_Compare_Set.push_back (S);
+        }
+
       } else {
        // Generate all the views in the list.
         vector<string>::iterator si;
@@ -1319,6 +1369,7 @@ bool SS_cView (CommandObject *cmd) {
          // Define new compare sets for each view.
           selectionTarget S;
           S.pResult = p_result;
+          S.base_tgrp = cvp->cvTgrp();
           S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
           S.Exp = exp;
           S.viewName = viewname;
@@ -1330,8 +1381,408 @@ bool SS_cView (CommandObject *cmd) {
 
   }
 
+  if (!mod_list->empty() ||
+      !met_list->empty()) {
+   // Override Custome View Definitions of modifiers and/or metrics.
+   // This involves duplicating the ParseObject and replacing certain lists.
+    int64_t numQuickSets = Quick_Compare_Set.size();
+    for (int64_t i = 0; i < numQuickSets; i++) {
+      OpenSpeedShop::cli::ParseResult *old_result = Quick_Compare_Set[i].pResult;
+      OpenSpeedShop::cli::ParseResult *new_result = new ParseResult();
+      *new_result = *old_result;
+
+   // Copy ModifierList from original ParseResult to new ParseResult.
+      if (!mod_list->empty()) {
+// TODO: clear old vector        new_result->getModifierList()->clear();
+        for (vector<string>::const_iterator
+                 modl = mod_list->begin(); modl != mod_list->end(); modl++) {
+          new_result->pushModifiers ((char *)((*modl).c_str()));
+        }
+      }
+
+   // Copy MetricList from original ParseResult to new ParseResult.
+      if (!met_list->empty()) {
+// TODO: clear old vector        new_result->getexpMetricList()->clear();
+        for (vector<ParseRange>::iterator
+                 metl = met_list->begin(); metl != met_list->end(); metl++) {
+          parse_range_t *m_range = (*metl).getRange();
+          parse_val_t pval1 = m_range->start_range;
+          Assert (pval1.tag == VAL_STRING);
+          if (m_range->is_range) {
+            parse_val_t pval2 = m_range->end_range;
+            Assert (pval2.tag == VAL_STRING);
+            new_result->pushExpMetric ((char *)(pval1.name.c_str()), (char *)(pval2.name.c_str()));
+          } else {
+            new_result->pushExpMetric ((char *)(pval1.name.c_str()));
+          }
+        }
+      }
+
+      Quick_Compare_Set[i].pResult = new_result;
+    }
+  }
+
   bool success = Generate_CustomView (cmd, Quick_Compare_Set);
+
+  if (!mod_list->empty() ||
+      !met_list->empty()) {
+   // Need to delete the copies made of the overriding Parse components.
+    int64_t numQuickSets = Quick_Compare_Set.size();
+    for (int64_t i = 0; i < numQuickSets; i++) {
+      OpenSpeedShop::cli::ParseResult *tmp_result = Quick_Compare_Set[i].pResult;
+      if (!mod_list->empty()) {
+        vector<string> *mod_list = tmp_result->getModifierList();
+        delete tmp_result->getModifierList();
+      }
+      if (!met_list->empty()) {
+        vector<ParseRange> *met_list = tmp_result->getexpMetricList();
+        delete tmp_result->getexpMetricList();
+      }
+    }
+  }
 
   cmd->set_Status(CMD_COMPLETE);
   return success;
+}
+
+template <typename TOBJECT>
+bool Cluster_Analysis (
+          CommandObject *cmd, ExperimentObject *exp, ThreadGroup& tgrp,
+          Collector &collector, std::string &metric,
+          TOBJECT *dummyObject,
+          std::set<Framework::ThreadGroup> &clusters) {
+
+  Framework::Experiment *experiment = exp->FW();
+
+ // Get the list of desired objects.
+  std::set<TOBJECT> objects;
+  Get_Filtered_Objects (cmd, exp, tgrp, objects);
+  if (objects.empty()) {
+    Mark_Cmd_With_Soft_Error(cmd, "(There are no objects specified for cluster analysis.)");
+    return false;
+  }
+
+/*
+  SmartPtr<std::map<TOBJECT, std::map<Thread, double> > > individual;
+  Queries::GetMetricValues(collector, metric,
+                           TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+                           tgrp, objects, individual);
+  if (individual->begin() == individual->end()) {
+    Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested cluster analysis.)");
+    return false;
+  }
+
+  clusters = Queries::ClusterAnalysis::ApplySimple(individual);
+*/
+
+  Metadata m = Find_Metadata ( collector, metric );
+  std::string id = m.getUniqueId();
+
+  if( m.isType(typeid(unsigned int)) ) {
+    SmartPtr<std::map<TOBJECT, std::map<Thread, uint> > > individual;
+    Queries::GetMetricValues(collector, metric,
+                             TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+                             tgrp, objects, individual);
+    clusters = Queries::ClusterAnalysis::ApplySimple(individual);
+  } else if( m.isType(typeid(uint64_t)) ) {
+    SmartPtr<std::map<TOBJECT, std::map<Thread, uint64_t> > > individual;
+    Queries::GetMetricValues(collector, metric,
+                             TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+                             tgrp, objects, individual);
+    clusters = Queries::ClusterAnalysis::ApplySimple(individual);
+  } else if( m.isType(typeid(int)) ) {
+    SmartPtr<std::map<TOBJECT, std::map<Thread, int> > > individual;
+    Queries::GetMetricValues(collector, metric,
+                             TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+                             tgrp, objects, individual);
+    clusters = Queries::ClusterAnalysis::ApplySimple(individual);
+  } else if( m.isType(typeid(int64_t)) ) {
+    SmartPtr<std::map<TOBJECT, std::map<Thread, int64_t> > > individual;
+    Queries::GetMetricValues(collector, metric,
+                             TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+                             tgrp, objects, individual);
+    clusters = Queries::ClusterAnalysis::ApplySimple(individual);
+  } else if( m.isType(typeid(float)) ) {
+    SmartPtr<std::map<TOBJECT, std::map<Thread, float> > > individual;
+    Queries::GetMetricValues(collector, metric,
+                             TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+                             tgrp, objects, individual);
+    clusters = Queries::ClusterAnalysis::ApplySimple(individual);
+  } else if( m.isType(typeid(double)) ) {
+    SmartPtr<std::map<TOBJECT, std::map<Thread, double> > > individual;
+    Queries::GetMetricValues(collector, metric,
+                             TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+                             tgrp, objects, individual);
+    clusters = Queries::ClusterAnalysis::ApplySimple(individual);
+  } else {
+    std::string S("(Cluster Analysis can not be performed on metric '");
+    S = S +  metric + "' of type '" + m.getType() + "'.)";
+    Mark_Cmd_With_Soft_Error(cmd, S);
+    return false;
+  }
+
+  return true;
+}
+
+bool SS_cvClusters (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  EXPID ExperimentID = (cmd->P_Result()->isExpId()) ? cmd->P_Result()->getExpId() : 0;
+  if (ExperimentID == 0) {
+    ExperimentID = Experiment_Focus ( WindowID );
+    if (ExperimentID == 0) {
+      Mark_Cmd_With_Soft_Error(cmd, "There is no focused experiment.");
+      return false;
+    }
+  }
+  ExperimentObject *exp = Find_Experiment_Object (ExperimentID);
+
+  if ((exp == NULL) ||
+      (exp->FW() == NULL)) {
+   // No experiment was specified, so we can't do any resonable work.
+    Mark_Cmd_With_Soft_Error(cmd, "No valid experiment was specified.");
+    return false;
+  }
+
+ // Get a list of the unique threads used in the specified experiment.
+  Framework::Experiment *experiment = exp->FW();
+  ThreadGroup tgrp = experiment->getThreads();
+  Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+ // Pick up components of the parse object.
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<string> *p_slist = p_result->getViewList();
+  vector<string> *mod_list = p_result->getModifierList();
+  vector<ParseRange> *met_list = p_result->getexpMetricList();
+
+ // Is there a potential viewname?
+  if (p_slist->begin() == p_slist->end()) {
+     // Look for a view that would be meaningful.
+      CollectorGroup cgrp = exp->FW()->getCollectors();
+      if (cgrp.begin() != cgrp.end()) {
+        bool view_found = false;
+        CollectorGroup::iterator cgi;
+        for (cgi = cgrp.begin(); cgi != cgrp.end(); cgi++) {
+         // Push the name onto the parse list.
+          Collector c = *cgi;
+          Metadata m = c.getMetadata();
+          std::string collector_name = m.getUniqueId();
+          p_slist->push_back(collector_name);
+        }
+      }
+  }
+
+  std::string viewname;
+  if (!p_slist->empty()) {
+    viewname = *(p_slist->begin());
+  }
+
+ // Determine the collector and metric.
+  std::string C_Name = viewname;
+  std::string M_Name;
+  if (met_list->empty()) {
+   // Use the first metric in the view definition.
+   // But be sure there is exactly one choice.
+    if (p_slist->empty()) {
+     // No view was specified, so we can't do any resonable work.
+      Mark_Cmd_With_Soft_Error(cmd, "No valid view name was specified.");
+      return false;
+    } else if (p_slist->size() != 1) {
+     // Too many views are specified, we don't handle this yet.
+      Mark_Cmd_With_Soft_Error(cmd, "Too many view names were specified.");
+      return false;
+    }
+
+    ViewType *vt = Find_View (viewname);
+    if (vt == NULL) {
+      std::string S("The requested view, '");
+      S = S + viewname + "', is unavailable.";
+      Mark_Cmd_With_Soft_Error(cmd,S);
+      return false;
+    }
+    viewname = vt->Unique_Name();
+    C_Name = vt->Unique_Name();
+    M_Name = vt->Metrics()[0];
+  } else if (!met_list->empty()) {
+   // Use the first item on the '-m' list as a metric.
+    vector<ParseRange>::iterator mi = met_list->begin();
+    parse_range_t *m_range = (*mi).getRange();
+    if (m_range->is_range) {
+      C_Name = m_range->start_range.name;
+      M_Name = m_range->end_range.name;
+    } else {
+      C_Name = viewname;
+      M_Name = m_range->start_range.name;
+    }
+  }
+
+  if (M_Name == "") {
+   // Unable to determine a metric.
+    Mark_Cmd_With_Soft_Error(cmd, "There is no metric available.");
+    return false;
+  }
+  if (C_Name == "") {
+   // Unable to determine a collector.
+    Mark_Cmd_With_Soft_Error(cmd, "There is no collector specified.");
+    return false;
+  }
+
+ // Perform Cluster Analysis.
+  View_Form_Category vfc = Determine_Form_Category(cmd);
+  Collector C = Get_Collector (experiment, C_Name);
+  std::set<Framework::ThreadGroup> clusters;
+  bool Analysis_Okay = false;
+  switch (Determine_Form_Category(cmd)) {
+   case VFC_Statement:
+   {
+    Framework::Statement *dummyObject;
+    Analysis_Okay = Cluster_Analysis (cmd, exp, tgrp, C, M_Name,
+                                      dummyObject, clusters);
+    break;
+   }
+   case VFC_LinkedObject:
+   {
+    Framework::LinkedObject *dummyObject;
+    Analysis_Okay = Cluster_Analysis (cmd, exp, tgrp, C, M_Name,
+                                      dummyObject, clusters);
+    break;
+   }
+   case VFC_Function:
+   {
+    Framework::Function *dummyObject;
+    Analysis_Okay = Cluster_Analysis (cmd, exp, tgrp, C, M_Name,
+                                      dummyObject, clusters);
+    break;
+   }
+   default:
+    Mark_Cmd_With_Soft_Error(cmd, "(There is no supported grouping of objects.)");
+    return false;
+  }
+
+ // Build parse objects for each cluster and perform cViewCreate.
+  bool first_cluster = true;
+  std::set<string> file_list;
+
+ // Find all the functions that the user listed.
+  vector<ParseTarget> *p_tlist = p_result->getTargetList();
+  for (vector<ParseTarget>::iterator
+        pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
+    ParseTarget pt = *pi;
+    vector<ParseRange> *f_list = pt.getFileList();
+    if ((f_list != NULL) || !f_list->empty()) {
+      for (vector<ParseRange>::iterator
+             f_iter = f_list->begin(); f_iter != f_list->end(); f_iter++) {
+        parse_range_t *f_range = f_iter->getRange();
+        parse_val_t f_val1 = f_range->start_range;
+        Assert (!f_range->is_range);
+        Assert (f_val1.tag == VAL_STRING);
+        file_list.insert (f_val1.name);
+      }
+    }
+  }
+
+  for(std::set<ThreadGroup>::const_iterator
+         i = clusters.begin(); i != clusters.end(); ++i) {
+   // Create new ParseResult and define ExpId and viewType.
+    OpenSpeedShop::cli::ParseResult *new_result = new ParseResult();
+    new_result->setCommandType (CMD_C_VIEW_CREATE);
+    new_result->pushExpIdPoint (ExperimentID);
+
+   // Copy viewType list from original ParseResult to new ParseResult.
+    for (vector<string>::const_iterator
+             vl = p_slist->begin(); vl != p_slist->end(); vl++) {
+      new_result->pushViewType ((char *)((*vl).c_str()));
+    }
+
+   // Copy ModifierList from original ParseResult to new ParseResult.
+    for (vector<string>::const_iterator
+             modl = mod_list->begin(); modl != mod_list->end(); modl++) {
+      new_result->pushModifiers ((char *)((*modl).c_str()));
+
+    }
+
+   // Copy MetricList from original ParseResult to new ParseResult.
+    for (vector<ParseRange>::iterator
+             metl = met_list->begin(); metl != met_list->end(); metl++) {
+      parse_range_t *m_range = (*metl).getRange();
+      parse_val_t pval1 = m_range->start_range;
+      Assert (pval1.tag == VAL_STRING);
+      if (m_range->is_range) {
+        parse_val_t pval2 = m_range->end_range;
+        Assert (pval2.tag == VAL_STRING);
+        new_result->pushExpMetric ((char *)(pval1.name.c_str()), (char *)(pval2.name.c_str()));
+      } else {
+        new_result->pushExpMetric ((char *)(pval1.name.c_str()));
+      }
+    }
+
+   // Each thread in the cluster is a distinct ParseTarget specification.
+    for(ThreadGroup::const_iterator
+             j = i->begin(); j != i->end(); ++j) {
+     // Pick up the prevously defined ParseTarget information and copy it.
+      ParseTarget *new_pt = new_result->currentTarget();
+
+     // Copy the sum of all functions from the original set of target specs.
+      for (std::set<string>::iterator
+              fi = file_list.begin(); fi != file_list.end(); fi++) {
+        // char *c = (char *)((*fi).c_str());
+        // new_pt->dm_file_list.push_back (range(c));
+        new_pt->pushFilePoint ((char *)((*fi).c_str()));
+      }
+
+     // Get host, pid, thread and rank info from original target spec.
+      std::string hid = j->getHost();
+      new_pt->pushHostPoint ((char *)(hid.c_str()));
+
+      pid_t pid = j->getProcessId();
+      new_pt->pushPidPoint (pid);
+
+      if (j->getPosixThreadId().first) {
+        new_pt->pushThreadPoint (j->getPosixThreadId().second);
+      }
+
+      if (j->getMPIRank().first) {
+        new_pt->pushRankPoint (j->getMPIRank().second);
+      }
+
+     // New ParseTarget is complete, commit it and create a new currentTarget..
+      new_result->pushParseTarget();
+    }
+
+   // Construct a new CustomView.
+    CustomView *cvp = new CustomView (new_result, *i);
+
+    if (first_cluster) {
+     // Annotate the command
+      cmd->Result_Annotation ("The new custom view identifiers for the clusters are:\n");
+      first_cluster = false;
+    }
+
+   // Return the EXPID for this command.
+    cmd->Result_Int (cvp->cvId());
+  }
+
+/*
+  for(std::set<ThreadGroup>::const_iterator
+         i = clusters.begin(); i != clusters.end(); ++i) {
+     printf("[");
+     for(ThreadGroup::const_iterator
+             j = i->begin(); j != i->end(); ++j) {
+       pid_t pid = j->getProcessId();
+       int64_t p = pid;
+       printf(" %lld",p);
+       std::pair<bool, pthread_t> pthread = j->getPosixThreadId();
+       if (pthread.first) {
+         int64_t t = pthread.second;
+         printf(", %lld1)", t);
+       } else {
+        printf(", %d(2)", j->getMPIRank().second);
+       }
+     }
+     printf(" ]\n\n");
+  }
+*/
+
+  cmd->set_Status(CMD_COMPLETE);
+  return Analysis_Okay;
 }

@@ -129,6 +129,9 @@ try {
   case  CMD_C_VIEW_DELETE:
     cmd_successful = SS_cvClear (cmd);
     break;
+  case  CMD_C_VIEW_CLUSTERS:
+    cmd_successful = SS_cvClusters (cmd);
+    break;
   case  CMD_C_VIEW_INFO:
     cmd_successful = SS_cvInfo (cmd);
     break;

@@ -48,6 +48,7 @@ typedef enum {
 
     CMD_C_VIEW_CREATE,
     CMD_C_VIEW_DELETE,
+    CMD_C_VIEW_CLUSTERS,
     CMD_C_VIEW_INFO,
     CMD_C_VIEW,
 

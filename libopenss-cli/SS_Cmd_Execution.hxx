@@ -44,6 +44,7 @@ void SS_cvClear_All ();
 bool SS_cvClear (CommandObject *cmd);
 bool SS_cvInfo (CommandObject *cmd);
 bool SS_cView (CommandObject *cmd);
+bool SS_cvClusters (CommandObject *cmd);
 
 // Primitive Information level commands
 bool SS_ListGeneric (CommandObject *cmd);
