@@ -151,6 +151,9 @@ if( attachFLAG )
   expStatsInfoStr = QString::null;
 
   expID = -1;
+  leftSideExpID = -1;
+  rightSideExpID = -1;
+
   if( ao && ao->qstring_data )
   {
     // We have an existing experiment, load the executable or pid if we 
@@ -300,6 +303,8 @@ if( attachFLAG )
       if( eo->Determine_Status() == ExpStatus_NonExistent || eo->Determine_Status() == ExpStatus_InError || eo->Determine_Status() == ExpStatus_Terminated )
       {
         statusLabelText->setText( tr(QString("Loaded saved data from file.") ) );
+        loadStatsPanel();
+
         runnableFLAG = FALSE;
         pco->runButton->setEnabled(FALSE);
         pco->runButton->enabledFLAG = FALSE;
@@ -593,6 +598,9 @@ CustomExperimentPanel::listener(void *msg)
   LoadAttachObject *lao = NULL;
   UpdateObject *uo = NULL;
 
+  int64_t leftSideCval = 0;
+  int64_t rightSideCval = 0;
+
   MessageObject *mo = (MessageObject *)msg;
 
   nprintf( DEBUG_MESSAGES ) ("CustomExperimentPanel::listener(%s) requested.\n", mo->msgType.ascii() );
@@ -618,8 +626,6 @@ CustomExperimentPanel::listener(void *msg)
       printf("%s: %s\n", lao->leftSideExperiment.ascii(), lao->rightSideExperiment.ascii() );
       CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
       int64_t val = 0;
-      int64_t leftSideCval = 0;
-      int64_t rightSideCval = 0;
       // Left side
       bool mark_value_for_delete = true;
       QString command = QString("expRestore -f %1").arg(lao->leftSideExperiment); 
@@ -629,6 +635,7 @@ CustomExperimentPanel::listener(void *msg)
         return 0;
       }
       command = QString("cViewCreate -x %1").arg(val); 
+      leftSideExpID = val;
 // printf("command=(%s)\n", command.ascii() );
       if( !cli->getIntValueFromCLI(command.ascii(), &leftSideCval, mark_value_for_delete ) )
       {
@@ -643,6 +650,7 @@ CustomExperimentPanel::listener(void *msg)
         return 0;
       }
       command = QString("cViewCreate -x %1").arg(val); 
+      rightSideExpID = val;
 // printf("command=(%s)\n", command.ascii() );
       if( !cli->getIntValueFromCLI(command.ascii(), &rightSideCval, mark_value_for_delete ) )
       {
@@ -673,11 +681,13 @@ CustomExperimentPanel::listener(void *msg)
 // printf("CustomExperimentPanel:: call (%s)'s listener routine.\n", statsPanel->getName());
       }
 
-// printf("NOTE: Issue a focus not an update message...\n");
       command = QString("cview -c %1, %2").arg(leftSideCval).arg(rightSideCval);
       UpdateObject *msg =
          new UpdateObject((void *)NULL, -1, command.ascii(), 1);
       statsPanel->listener( (void *)msg );
+
+      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Experiment %1 is being compared with experiment %2").arg(leftSideExpID).arg(rightSideExpID) );
+
     }
   } else if( mo->msgType == "ClosingDownObject" )
   {
@@ -729,10 +739,10 @@ CustomExperimentPanel::listener(void *msg)
     {
       case  ATTACH_PROCESS_T:
         command = QString("expAttach  -x %1\n").arg(expID);
-if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
-{
-  command += " -v mpi";
-}
+        if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
+        {
+          command += " -v mpi";
+        }
 /*
         if( !cli->runSynchronousCLI(command.ascii()) )
         {
@@ -755,10 +765,10 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
         break;
       case  ATTACH_COLLECTOR_T:
         command = QString("expAttach -x %1\n").arg(expID);
-if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
-{
-  command += " -v mpi";
-}
+        if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
+        {
+          command += " -v mpi";
+        }
 /*
         if( !cli->runSynchronousCLI(command.ascii()) )
         {
@@ -1059,12 +1069,8 @@ CustomExperimentPanel::experimentStatus()
   }
 
   
-#ifdef OLD_ABOUT
-  QMessageBox::information( this, "Experiment status", expStatsInfoStr, QMessageBox::Ok );
-#else  // OLD_ABOUT
-    AboutDialog *aboutDialog = new AboutDialog(this, "Experiment status", FALSE, 0, expStatsInfoStr);
+  AboutDialog *aboutDialog = new AboutDialog(this, "Experiment status", FALSE, 0, expStatsInfoStr);
   aboutDialog->show();
-#endif  // OLD_ABOUT
 
   resetRedirect();
 

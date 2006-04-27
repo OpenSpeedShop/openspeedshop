@@ -137,6 +137,8 @@ public:
   virtual void hideWizard();
 
   int getExpID() { return expID; }
+  int64_t leftSideExpID;   // Used by CompareExperimentsPanel ONLY
+  int64_t rightSideExpID;   // Used by CompareExperimentsPanel ONLY
 
 public slots:
   virtual void saveAsSelected();

@@ -33,6 +33,7 @@ class ArgumentObject;
 
 class CompareExperimentsPanel  : public CustomExperimentPanel
 {
+  Q_OBJECT
   public: 
     CompareExperimentsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao);
 
@@ -42,5 +43,9 @@ class CompareExperimentsPanel  : public CustomExperimentPanel
     void hideWizard();
 
     int listener(void *msg);
+
+  public slots:
+    void loadLSExperimentPanel();
+    void loadRSExperimentPanel();
 };
 #endif // CompareExperimentsPANEL_H

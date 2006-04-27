@@ -52,6 +52,10 @@ CompareExperimentsPanel_la_LDFLAGS = \
 
 CompareExperimentsPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs -lopenss-CustomExperimentPanel
 
+moc_CompareExperimentsPanel.cxx: CompareExperimentsPanel.hxx
+	-moc -o moc_CompareExperimentsPanel.cxx CompareExperimentsPanel.hxx
+
+
 CompareExperimentsPanel_la_SOURCES = \
-	CompareExperimentsPanel.hxx CompareExperimentsPanel.cxx \
+	CompareExperimentsPanel.hxx CompareExperimentsPanel.cxx moc_CompareExperimentsPanel.cxx \
 	local_plugin_info.hxx

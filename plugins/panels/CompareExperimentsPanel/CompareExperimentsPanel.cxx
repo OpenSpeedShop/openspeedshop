@@ -70,11 +70,13 @@ CompareExperimentsPanel::menu(QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( saveAsSelected() ) );
   qaction->setStatusTip( tr("Export data from all the CustomExperimentPanel's windows to an ascii file.") );
 
+#if 0
   qaction = new QAction( this,  "expStatus");
   qaction->addTo( contextMenu );
   qaction->setText( "Experiment Status..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( experimentStatus() ) );
   qaction->setStatusTip( tr("Get general information about this experiment...") );
+#endif // 0
 
   contextMenu->insertSeparator();
 
@@ -90,7 +92,21 @@ CompareExperimentsPanel::menu(QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( loadSourcePanel() ) );
   qaction->setStatusTip( tr("Bring up the source panel.") );
 
-//  contextMenu->insertSeparator();
+  contextMenu->insertSeparator();
+
+  qaction = new QAction( this,  "lsPanel");
+  qaction->addTo( contextMenu );
+  qaction->setText( QString("Open Experiment %1...").arg(leftSideExpID) );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( loadLSExperimentPanel() ) );
+  qaction->setStatusTip( tr("Openss %1 experiment (left side) in it's own panel.") );
+
+  qaction = new QAction( this,  "exp2Panel");
+  qaction->addTo( contextMenu );
+  qaction->setText( QString("Open Experiment %2...").arg(rightSideExpID) );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( loadRSExperimentPanel() ) );
+  qaction->setStatusTip( tr("Openss %1 (right side) experiment in it's own panel.") );
+
+  contextMenu->insertSeparator();
 
   qaction = new QAction( this,  "customizeExperimentsSelected");
   qaction->addTo( contextMenu );
@@ -116,6 +132,24 @@ CompareExperimentsPanel::hideWizard()
 }
 
 
+void
+CompareExperimentsPanel::loadLSExperimentPanel()
+{
+// printf("loadLSExperimentPanel() entered\n");
+// printf("leftSideExpID=%d\n", leftSideExpID );
+  getPanelContainer()->getMainWindow()->fileOpenExperiment(leftSideExpID);
+}
+
+void
+CompareExperimentsPanel::loadRSExperimentPanel()
+{
+// printf("loadRSExperimentPanel() entered\n");
+// printf("rightSideExpID=%d\n", rightSideExpID );
+
+  getPanelContainer()->getMainWindow()->fileOpenExperiment(rightSideExpID);
+}
+
+
 int
 CompareExperimentsPanel::listener(void *msg)
 {
@@ -129,7 +163,6 @@ CompareExperimentsPanel::listener(void *msg)
     Panel *p = getPanelContainer()->findNamedPanel(getPanelContainer(), (char *)name.ascii() );
     if( p )
     {
-// printf("Try to raise the stats panel.\n");
       p->getPanelContainer()->raisePanel(p);
     }
     name = QString("ManageProcessesPanel [%1]").arg(getExpID());
