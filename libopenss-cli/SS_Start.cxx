@@ -657,6 +657,9 @@ extern "C"
       pthread_kill (phandle[0], SIGUSR1);
     }
 
+   // Delete any Custom View definitiions.
+    SS_cvClear_All ();
+
    // Close any open experiments.
     Experiment_Termination ();
 

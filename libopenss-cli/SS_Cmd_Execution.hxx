@@ -40,6 +40,7 @@ bool SS_expView (CommandObject *cmd);
 
 //Custom View Commands
 bool SS_cvSet (CommandObject *cmd);
+void SS_cvClear_All ();
 bool SS_cvClear (CommandObject *cmd);
 bool SS_cvInfo (CommandObject *cmd);
 bool SS_cView (CommandObject *cmd);
