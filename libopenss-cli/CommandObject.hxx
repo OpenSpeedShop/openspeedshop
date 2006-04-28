@@ -782,7 +782,7 @@ class CommandResult_Duration : public CommandResult {
   CommandResult_Duration () : CommandResult(CMD_RESULT_DURATION) {
   }
   CommandResult_Duration (int64_t d)
-      : CommandResult(CMD_RESULT_TIME) {
+      : CommandResult(CMD_RESULT_DURATION) {
     duration_value = d;
   }
   CommandResult_Duration (CommandResult_Duration *D)
@@ -898,11 +898,11 @@ class CommandResult_Interval : public CommandResult {
   CommandResult_Interval () : CommandResult(CMD_RESULT_INTERVAL) {
   }
   CommandResult_Interval (double d)
-      : CommandResult(CMD_RESULT_TIME) {
+      : CommandResult(CMD_RESULT_INTERVAL) {
     interval_value = d;
   }
   CommandResult_Interval (CommandResult_Interval *D)
-      : CommandResult(CMD_RESULT_DURATION) {
+      : CommandResult(CMD_RESULT_INTERVAL) {
     interval_value = D->interval_value;
   }
   virtual ~CommandResult_Interval () {
