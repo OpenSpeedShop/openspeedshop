@@ -201,15 +201,17 @@ void Select_ThreadGroup (selectionTarget& S, ThreadGroup& base_grp, ThreadGroup&
         } else include_thread = false;
       }
 
-      if (include_thread && (S.rankId != 0) && t.getOpenMPThreadId().first) {
-       // Does it match a rank ID?
-        int64_t rid = t.getOpenMPThreadId().second;
-        include_thread = (rid == S.rankId);
-      } else if (include_thread && (S.rankId != 0) && t.getMPIRank().first) {
-       // Does it match a rank ID?
-        int64_t rid = t.getMPIRank().second;
-        include_thread = (rid == S.rankId);
-      } else include_thread = false;
+      if (include_thread && (S.rankId != 0)) {
+        if (t.getOpenMPThreadId().first) {
+         // Does it match a rank ID?
+          int64_t rid = t.getOpenMPThreadId().second;
+          include_thread = (rid == S.rankId);
+        } else if (t.getMPIRank().first) {
+         // Does it match a rank ID?
+          int64_t rid = t.getMPIRank().second;
+          include_thread = (rid == S.rankId);
+        } else include_thread = false;
+      }
 
      // Add matching threads to rgrp.
       if (include_thread) {
@@ -694,226 +696,224 @@ bool SS_expCompare (CommandObject *cmd) {
     return false;
   }
 
- // Scan the <target_spec> and determine the comparison sets.
-  vector<ParseRange> *h_list = NULL;
-  vector<ParseRange> *p_list = NULL;
-  vector<ParseRange> *t_list = NULL;
-  vector<ParseRange> *r_list = NULL;
-  if ((p_tlist != NULL) && (!(*p_tlist).empty())){
-    ParseTarget pt = (*p_tlist)[0];
-    h_list = pt.getHostList();
-    p_list = pt.getPidList();
-    t_list = pt.getThreadList();
-    r_list = pt.getRankList();
-  }
+ // Pick up the field definitions from the first ParseTarget.
+  if (!p_tlist->empty()) {
+    ParseTarget *pt = &((*p_tlist)[0]);
+    vector<ParseRange> *h_list = pt->getHostList();
+    vector<ParseRange> *p_list = pt->getPidList();
+    vector<ParseRange> *t_list = pt->getThreadList();
+    vector<ParseRange> *r_list = pt->getRankList();
 
-  if (!((h_list == NULL) || h_list->empty())) {
-   // Start by building a vector of all the host names.
-    std::vector<std::string> hosts;
-    vector<ParseRange>::iterator hi;
-    for (hi=h_list->begin();hi != h_list->end(); hi++) {
-      parse_range_t *pr = hi->getRange();
-      parse_val_t pval1 = pr->start_range;
-      Assert (pval1.tag == VAL_STRING);
-      std::string hid = Experiment::getCanonicalName(pval1.name);
-      if (pr->is_range) {
-        Assert (!pr->is_range);
-      } else {
-        hosts.push_back (pval1.name);
-      }
-    }
-
-    int64_t initialSetCnt = Quick_Compare_Set.size();
-    if (initialSetCnt == 0) {
-     // Define new compare sets for each host.
-      for (int64_t j = 0; j < hosts.size(); j++) {
-        selectionTarget S;
-        S.headerPrefix = "-h " + hosts[j] + ": ";
-        S.hostId = Experiment::getCanonicalName(hosts[j]);
-        Quick_Compare_Set.push_back (S);
-      }
-    } else {
-      if ((initialSetCnt > 1) && (hosts.size() > 1)) {
-        Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
-        return false;
-      }
-      int64_t segmentStart = 0;
-      for (int64_t j = 0; j < hosts.size(); j++) {
-        if (j < (hosts.size() -1 )) {
-         // There is at least one more iteration, so
-         // preserve a copy of the original sets.
-          for (int64_t k = 0; k < initialSetCnt; k++) {
-            Quick_Compare_Set.push_back (Quick_Compare_Set[segmentStart+k]);
-          }
+    if ((h_list != NULL) && !h_list->empty()) {
+     // Start by building a vector of all the host names.
+      std::vector<std::string> hosts;
+      vector<ParseRange>::iterator hi;
+      for (hi=h_list->begin();hi != h_list->end(); hi++) {
+        parse_range_t *pr = hi->getRange();
+        parse_val_t pval1 = pr->start_range;
+        Assert (pval1.tag == VAL_STRING);
+        std::string hid = Experiment::getCanonicalName(pval1.name);
+        if (pr->is_range) {
+          Assert (!pr->is_range);
+        } else {
+          hosts.push_back (pval1.name);
         }
+      }
 
-       // Append this host to N copies of the original sets.
-        for (int64_t k = 0; k < initialSetCnt; k++) {
+      int64_t initialSetCnt = Quick_Compare_Set.size();
+      if (initialSetCnt == 0) {
+       // Define new compare sets for each host.
+        for (int64_t j = 0; j < hosts.size(); j++) {
           selectionTarget S;
-          Quick_Compare_Set[segmentStart+k].headerPrefix += "-h " + hosts[j] + ": ";
-          Quick_Compare_Set[segmentStart+k].hostId = Experiment::getCanonicalName(hosts[j]);
+          S.headerPrefix = "-h " + hosts[j] + ": ";
+          S.hostId = Experiment::getCanonicalName(hosts[j]);
+          Quick_Compare_Set.push_back (S);
         }
-        segmentStart += initialSetCnt;
-      }
+      } else {
+        if ((initialSetCnt > 1) && (hosts.size() > 1)) {
+          Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
+          return false;
+        }
+        int64_t segmentStart = 0;
+        for (int64_t j = 0; j < hosts.size(); j++) {
+          if (j < (hosts.size() -1 )) {
+           // There is at least one more iteration, so
+           // preserve a copy of the original sets.
+            for (int64_t k = 0; k < initialSetCnt; k++) {
+              Quick_Compare_Set.push_back (Quick_Compare_Set[segmentStart+k]);
+            }
+          }
 
-    }
-  }
-
-  if (!((p_list == NULL) || p_list->empty())) {
-   // Start by building a vector of all the pids.
-    std::vector<pid_t> pids;;
-    vector<ParseRange>::iterator pi;
-    for (pi = p_list->begin();pi != p_list->end(); pi++) {
-      parse_range_t *p_range = pi->getRange();
-      parse_val_t *pval1 = &p_range->start_range;
-      parse_val_t *pval2 = p_range->is_range ? &p_range->end_range : pval1;
-
-      pid_t mypid;
-      for ( mypid = pval1->num; mypid <= pval2->num; mypid++) {
-        pids.push_back (mypid);
-      }
-
-    }
-
-    int64_t initialSetCnt = Quick_Compare_Set.size();
-    if (initialSetCnt == 0) {
-     // Define new compare sets for each host.
-      for (int64_t j = 0; j < pids.size(); j++) {
-        int64_t P = pids[j]; char s[40]; sprintf ( s, "-p %lld: ", P);
-        selectionTarget S;
-        S.headerPrefix = s;
-        S.pidId = pids[j];
-        Quick_Compare_Set.push_back (S);
-      }
-    } else {
-      if ((initialSetCnt > 1) && (pids.size() > 1)) {
-        Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
-        return false;
-      }
-      int64_t segmentStart = 0;
-      for (int64_t j = 0; j < pids.size(); j++) {
-        if (j < (pids.size() -1 )) {
-         // There is at least one more iteration, so
-         // preserve a copy of the original sets.
+         // Append this host to N copies of the original sets.
           for (int64_t k = 0; k < initialSetCnt; k++) {
-            Quick_Compare_Set.push_back (Quick_Compare_Set[segmentStart+k]);
-          } 
+            selectionTarget S;
+            Quick_Compare_Set[segmentStart+k].headerPrefix += "-h " + hosts[j] + ": ";
+            Quick_Compare_Set[segmentStart+k].hostId = Experiment::getCanonicalName(hosts[j]);
+          }
+          segmentStart += initialSetCnt;
         }
 
-       // Append this pid to N copies of the original sets.
-        for (int64_t k = 0; k < initialSetCnt; k++) {
+      }
+    }
+
+    if ((p_list != NULL) && !p_list->empty()) {
+     // Start by building a vector of all the pids.
+      std::vector<pid_t> pids;;
+      vector<ParseRange>::iterator pi;
+      for (pi = p_list->begin();pi != p_list->end(); pi++) {
+        parse_range_t *p_range = pi->getRange();
+        parse_val_t pval1 = p_range->start_range;
+        parse_val_t pval2 = p_range->is_range ? p_range->end_range : pval1;
+Assert   (pval1.tag == VAL_NUMBER);
+Assert   (pval2.tag == VAL_NUMBER);
+
+        pid_t mypid;
+        for ( mypid = pval1.num; mypid <= pval2.num; mypid++) {
+          pids.push_back (mypid);
+        }
+
+      }
+
+      int64_t initialSetCnt = Quick_Compare_Set.size();
+      if (initialSetCnt == 0) {
+       // Define new compare sets for each pid.
+        for (int64_t j = 0; j < pids.size(); j++) {
           int64_t P = pids[j]; char s[40]; sprintf ( s, "-p %lld: ", P);
           selectionTarget S;
-          Quick_Compare_Set[segmentStart+k].headerPrefix += s;
-          Quick_Compare_Set[segmentStart+k].pidId = pids[j];
+          S.headerPrefix = s;
+          S.pidId = pids[j];
+          Quick_Compare_Set.push_back (S);
         }
-        segmentStart += initialSetCnt;
-      }
-    }
-  }
+      } else {
+        if ((initialSetCnt > 1) && (pids.size() > 1)) {
+          Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
+          return false;
+        }
+        int64_t segmentStart = 0;
+        for (int64_t j = 0; j < pids.size(); j++) {
+          if (j < (pids.size() -1 )) {
+           // There is at least one more iteration, so
+           // preserve a copy of the original sets.
+            for (int64_t k = 0; k < initialSetCnt; k++) {
+              Quick_Compare_Set.push_back (Quick_Compare_Set[segmentStart+k]);
+            } 
+          }
 
-  if (!((t_list == NULL) || t_list->empty())) {
-   // Start by building a vector of all the host names.
-    std::vector<int64_t> threadids;;
-    vector<ParseRange>::iterator pi;
-    for (pi = t_list->begin();pi != t_list->end(); pi++) {
-      parse_range_t *p_range = pi->getRange();
-      parse_val_t *pval1 = &p_range->start_range;
-      parse_val_t *pval2 = p_range->is_range ? &p_range->end_range : pval1;
-
-      int64_t mythreadid;
-      for ( mythreadid = pval1->num; mythreadid <= pval2->num; mythreadid++) {
-        threadids.push_back (mythreadid);
-      }
-
-    }
-
-    int64_t initialSetCnt = Quick_Compare_Set.size();
-    if (initialSetCnt == 0) {
-     // Define new compare sets for each host.
-      for (int64_t j = 0; j < threadids.size(); j++) {
-        char s[40]; sprintf ( s, "-t %lld: ", threadids[j]);
-        selectionTarget S;
-        S.headerPrefix = s;
-        S.threadId = threadids[j];
-        Quick_Compare_Set.push_back (S);
-      }
-    } else {
-      if ((initialSetCnt > 1) && (threadids.size() > 1)) {
-        Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
-        return false;
-      }
-      int64_t segmentStart = 0;
-      for (int64_t j = 0; j < threadids.size(); j++) {
-        if (j < (threadids.size() -1 )) {
-         // There is at least one more iteration, so
-         // preserve a copy of the original sets.
+         // Append this pid to N copies of the original sets.
           for (int64_t k = 0; k < initialSetCnt; k++) {
-            Quick_Compare_Set.push_back (Quick_Compare_Set[segmentStart+k]);
-          } 
+            int64_t P = pids[j]; char s[40]; sprintf ( s, "-p %lld: ", P);
+            selectionTarget S;
+            Quick_Compare_Set[segmentStart+k].headerPrefix += s;
+            Quick_Compare_Set[segmentStart+k].pidId = pids[j];
+          }
+          segmentStart += initialSetCnt;
+        }
+      }
+    }
+
+    if ((t_list != NULL) || !t_list->empty()) {
+     // Start by building a vector of all the host names.
+      std::vector<int64_t> threadids;;
+      vector<ParseRange>::iterator pi;
+      for (pi = t_list->begin();pi != t_list->end(); pi++) {
+        parse_range_t *p_range = pi->getRange();
+        parse_val_t *pval1 = &p_range->start_range;
+        parse_val_t *pval2 = p_range->is_range ? &p_range->end_range : pval1;
+
+        int64_t mythreadid;
+        for ( mythreadid = pval1->num; mythreadid <= pval2->num; mythreadid++) {
+          threadids.push_back (mythreadid);
         }
 
-       // Append this threadid to N copies of the original sets.
-        for (int64_t k = 0; k < initialSetCnt; k++) {
+      }
+
+      int64_t initialSetCnt = Quick_Compare_Set.size();
+      if (initialSetCnt == 0) {
+       // Define new compare sets for each host.
+        for (int64_t j = 0; j < threadids.size(); j++) {
           char s[40]; sprintf ( s, "-t %lld: ", threadids[j]);
           selectionTarget S;
-          Quick_Compare_Set[segmentStart+k].headerPrefix += s;
-          Quick_Compare_Set[segmentStart+k].threadId = threadids[j];
+          S.headerPrefix = s;
+          S.threadId = threadids[j];
+          Quick_Compare_Set.push_back (S);
         }
-        segmentStart += initialSetCnt;
-      }
-    }
-  }
+      } else {
+        if ((initialSetCnt > 1) && (threadids.size() > 1)) {
+          Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
+          return false;
+        }
+        int64_t segmentStart = 0;
+        for (int64_t j = 0; j < threadids.size(); j++) {
+          if (j < (threadids.size() -1 )) {
+           // There is at least one more iteration, so
+           // preserve a copy of the original sets.
+            for (int64_t k = 0; k < initialSetCnt; k++) {
+              Quick_Compare_Set.push_back (Quick_Compare_Set[segmentStart+k]);
+            } 
+          }
 
-  if (!((r_list == NULL) || r_list->empty())) {
-   // Start by building a vector of all the host names.
-    std::vector<int64_t> rankids;;
-    vector<ParseRange>::iterator pi;
-    for (pi = r_list->begin();pi != r_list->end(); pi++) {
-      parse_range_t *p_range = pi->getRange();
-      parse_val_t *pval1 = &p_range->start_range;
-      parse_val_t *pval2 = p_range->is_range ? &p_range->end_range : pval1;
-
-      int64_t mythreadid;
-      for ( mythreadid = pval1->num; mythreadid <= pval2->num; mythreadid++) {
-        rankids.push_back (mythreadid);
-      }
-
-    }
-
-    int64_t initialSetCnt = Quick_Compare_Set.size();
-    if (initialSetCnt == 0) {
-     // Define new compare sets for each host.
-      for (int64_t j = 0; j < rankids.size(); j++) {
-        char s[40]; sprintf ( s, "-r %lld: ", rankids[j]);
-        selectionTarget S;
-        S.headerPrefix = s;
-        S.rankId = rankids[j];
-        Quick_Compare_Set.push_back (S);
-      }
-    } else {
-      if ((initialSetCnt > 1) && (rankids.size() > 1)) {
-        Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
-        return false;
-      }
-      int64_t segmentStart = 0;
-      for (int64_t j = 0; j < rankids.size(); j++) {
-        if (j < (rankids.size() -1 )) {
-         // There is at least one more iteration, so
-         // preserve a copy of the original sets.
+         // Append this threadid to N copies of the original sets.
           for (int64_t k = 0; k < initialSetCnt; k++) {
-            Quick_Compare_Set.push_back (Quick_Compare_Set[segmentStart+k]);
-          } 
+            char s[40]; sprintf ( s, "-t %lld: ", threadids[j]);
+            selectionTarget S;
+            Quick_Compare_Set[segmentStart+k].headerPrefix += s;
+            Quick_Compare_Set[segmentStart+k].threadId = threadids[j];
+          }
+          segmentStart += initialSetCnt;
+        }
+      }
+    }
+
+    if ((r_list != NULL) && !r_list->empty()) {
+     // Start by building a vector of all the host names.
+      std::vector<int64_t> rankids;;
+      vector<ParseRange>::iterator pi;
+      for (pi = r_list->begin();pi != r_list->end(); pi++) {
+        parse_range_t *p_range = pi->getRange();
+        parse_val_t *pval1 = &p_range->start_range;
+        parse_val_t *pval2 = p_range->is_range ? &p_range->end_range : pval1;
+
+        int64_t mythreadid;
+        for ( mythreadid = pval1->num; mythreadid <= pval2->num; mythreadid++) {
+          rankids.push_back (mythreadid);
         }
 
-       // Append this threadid to N copies of the original sets.
-        for (int64_t k = 0; k < initialSetCnt; k++) {
+      }
+
+      int64_t initialSetCnt = Quick_Compare_Set.size();
+      if (initialSetCnt == 0) {
+       // Define new compare sets for each host.
+        for (int64_t j = 0; j < rankids.size(); j++) {
           char s[40]; sprintf ( s, "-r %lld: ", rankids[j]);
           selectionTarget S;
-          Quick_Compare_Set[segmentStart+k].headerPrefix += s;
-          Quick_Compare_Set[segmentStart+k].rankId = rankids[j];
+          S.headerPrefix = s;
+          S.rankId = rankids[j];
+          Quick_Compare_Set.push_back (S);
         }
-        segmentStart += initialSetCnt;
+      } else {
+        if ((initialSetCnt > 1) && (rankids.size() > 1)) {
+          Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
+          return false;
+        }
+        int64_t segmentStart = 0;
+        for (int64_t j = 0; j < rankids.size(); j++) {
+          if (j < (rankids.size() -1 )) {
+           // There is at least one more iteration, so
+           // preserve a copy of the original sets.
+            for (int64_t k = 0; k < initialSetCnt; k++) {
+              Quick_Compare_Set.push_back (Quick_Compare_Set[segmentStart+k]);
+            } 
+          }
+
+         // Append this threadid to N copies of the original sets.
+          for (int64_t k = 0; k < initialSetCnt; k++) {
+            char s[40]; sprintf ( s, "-r %lld: ", rankids[j]);
+            selectionTarget S;
+            Quick_Compare_Set[segmentStart+k].headerPrefix += s;
+            Quick_Compare_Set[segmentStart+k].rankId = rankids[j];
+          }
+          segmentStart += initialSetCnt;
+        }
       }
     }
   }
