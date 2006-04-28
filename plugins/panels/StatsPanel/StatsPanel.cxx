@@ -666,15 +666,6 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-#ifdef EXPERIMENT_PANEL_AND_STATSPANEL
-  qaction = new QAction( this,  "compareAction");
-  qaction->addTo( contextMenu );
-  qaction->setText( "Compare Experiments/Customize StatsPanel..." );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( compareSelected() ) );
-  qaction->setStatusTip( tr("Compare one experiment to another, one thread to another, or customize the StatsPanel report.") );
-
-  contextMenu->insertSeparator();
-#endif // EXPERIMENT_PANEL_AND_STATSPANEL
 
   int id = 0;
   QPopupMenu *columnsMenu = new QPopupMenu(this);
@@ -753,8 +744,45 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     qaction->setStatusTip( tr("Show the statistics display.") );
   }
 
+  contextMenu->insertSeparator();
+
+  qaction = new QAction( this,  "customizeExperimentsSelected");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Customize StatsPanel..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( customizeExperimentsSelected() ) );
+  qaction->setStatusTip( tr("Customize column data in the StatsPanel.") );
+
   return( TRUE );
 }
+
+
+void
+StatsPanel::customizeExperimentsSelected()
+{
+  nprintf( DEBUG_PANELS ) ("StatsPanel::customizeExperimentsSelected()\n");
+
+  QString name = QString("CustomizeStatsPanel [%1]").arg(expID);
+
+  Panel *customizePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+
+
+  if( customizePanel )
+  { 
+    nprintf( DEBUG_PANELS ) ("customizePanel() found customizePanel found.. raise it.\n");
+    getPanelContainer()->raisePanel(customizePanel);
+  } else
+  {
+//    nprintf( DEBUG_PANELS ) ("customizePanel() no customizePanel found.. create one.\n");
+
+    PanelContainer *startPC = getPanelContainer();
+    PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
+
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+    customizePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("CustomizeStatsPanel", bestFitPC, ao, (const char *)NULL);
+    delete ao;
+  }
+
+}   
 
 void
 StatsPanel::generateModifierMenu(QPopupMenu *menu, std::list<std::string> modifier_list, std::list<std::string> current_list)
@@ -1112,32 +1140,6 @@ StatsPanel::IOtraceSelected()
 }
 
 
-/*! Compare item was selected. */
-void
-StatsPanel::compareSelected()
-{
-  QString name = QString("CustomizeStatsPanel [%1]").arg(expID);
-
-  Panel *comparePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
-
-  if( comparePanel )
-  { 
-    nprintf( DEBUG_PANELS ) ("comparePanel() found comparePanel found.. raise it.\n");
-    getPanelContainer()->raisePanel(comparePanel);
-  } else
-  {
-//    nprintf( DEBUG_PANELS ) ("comparePanel() no comparePanel found.. create one.\n");
-
-    PanelContainer *startPC = getPanelContainer();
-    PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
-
-    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-    comparePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("CustomizeStatsPanel", startPC, ao);
-    delete ao;
-  }
-}
-
-/*! Compare item was selected. */
 void
 StatsPanel::manageProcessesSelected()
 {

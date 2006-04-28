@@ -529,16 +529,19 @@ if( experiment != NULL )
   qaction->setStatusTip( tr("Bring up the process and collector manager.") );
 
 
+#ifdef MOVED_TO_STATSPANEL
   qaction = new QAction( this,  "customizeExperimentsSelected");
   qaction->addTo( contextMenu );
   qaction->setText( "Customize StatsPanel..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( customizeExperimentsSelected() ) );
   qaction->setStatusTip( tr("Customize column data in the StatsPanel.") );
+#endif // MOVED_TO_STATSPANEL
 
   return( TRUE );
 }
 
 
+#ifdef MOVED_TO_STATSPANEL
 void
 CustomExperimentPanel::customizeExperimentsSelected()
 {
@@ -566,6 +569,7 @@ CustomExperimentPanel::customizeExperimentsSelected()
   }
 
 }   
+#endif // MOVED_TO_STATSPANEL
 
 //! Save ascii version of this panel.
 /*! If the user panel provides save to ascii functionality, their function

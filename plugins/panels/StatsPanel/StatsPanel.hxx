@@ -213,7 +213,7 @@ class StatsPanel  : public Panel
     void aboutSelected();
     void MPItraceSelected();
     void IOtraceSelected();
-    void compareSelected();
+    void customizeExperimentsSelected();
     void manageProcessesSelected();
 
   private slots:

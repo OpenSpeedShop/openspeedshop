@@ -438,7 +438,7 @@ fprintf(stderr, "WARNING: ColumnSet::gatherMetricInfo() returned\n");
       metricComboBox->removeItem(cb_count-1);
     }
   }
-// printf("Now look up up the metrics of the (%s) collector\n", ce->name.ascii() );
+// printf("Now look up up the metrics of the ce->name (%s) collector\n", ce->name.ascii() );
 
   CollectorMetricEntryList::Iterator plit;
   for( plit = ce->metricList.begin();
@@ -463,45 +463,119 @@ fprintf(stderr, "WARNING: ColumnSet::gatherMetricInfo() returned\n");
     }
 // printf("Put this to a menu: cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
   }
+#ifdef HOLD_FOR_WHEN_WE_SUPPORT_THIS
   if( metricComboBox )
   {
-    metricComboBox->insertItem("min");
-if( metricStr == "min" )
-{
-  metricStrFoundFLAG = TRUE;
-  metricStr = "min";
-}
-    metricComboBox->insertItem("max");
-if( metricStr == "max" )
-{
-  metricStrFoundFLAG = TRUE;
-  metricStr = "max";
-}
-    metricComboBox->insertItem("average");
-if( metricStr == "average" )
-{
-  metricStrFoundFLAG = TRUE;
-  metricStr = "average";
-}
-    metricComboBox->insertItem("count");
-if( metricStr == "count" )
-{
-  metricStrFoundFLAG = TRUE;
-  metricStr = "count";
-}
-    metricComboBox->insertItem("percent");
-if( metricStr == "percent" )
-{
-  metricStrFoundFLAG = TRUE;
-  metricStr = "percent";
-}
-    metricComboBox->insertItem("stddev");
-if( metricStr == "stddev" )
-{
-  metricStrFoundFLAG = TRUE;
-  metricStr = "stddev";
-}
+    if( ce->name == "pcsamp" || ce->name == "hwc" )
+    { // Nothing extra here... only the collector defined metric.
+    }
+
+    if( ce->name == "usertime" || ce->name == "hwctime" ||
+        ce->name == "mpi" || ce->name == "mpit" ||\
+        ce->name == "io" || ce->name == "iot" )
+    { // count, percent
+      metricComboBox->insertItem("count");
+      if( metricStr == "count" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "count";
+      }
+      metricComboBox->insertItem("percent");
+      if( metricStr == "percent" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "percent";
+      }
+    }
+
+    if(  ce->name == "mpi" || ce->name == "mpit" ||
+         ce->name == "io" || ce->name == "iot" )
+    { // min, max, average, stddev
+      metricComboBox->insertItem("min");
+      if( metricStr == "min" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "min";
+      }
+      metricComboBox->insertItem("max");
+      if( metricStr == "max" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "max";
+      }
+      metricComboBox->insertItem("average");
+      if( metricStr == "average" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "average";
+      }
+      metricComboBox->insertItem("stddev");
+      if( metricStr == "stddev" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "stddev";
+      }
+    }
+
+    if( ce->name == "mpit" )
+    { // start_time, stop_time, source, dest, size, tag, comm, datatype, retval
+      metricComboBox->insertItem("start_time");
+      if( metricStr == "start_time" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "start_time";
+      }
+      metricComboBox->insertItem("stop_time");
+      if( metricStr == "stop_time" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "stop_time";
+      }
+      metricComboBox->insertItem("source");
+      if( metricStr == "source" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "source";
+      }
+      metricComboBox->insertItem("dest");
+      if( metricStr == "dest" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "dest";
+      }
+      metricComboBox->insertItem("size");
+      if( metricStr == "size" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "size";
+      }
+      metricComboBox->insertItem("tag");
+      if( metricStr == "tag" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "tag";
+      }
+      metricComboBox->insertItem("comm");
+      if( metricStr == "comm" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "comm";
+      }
+      metricComboBox->insertItem("datatype");
+      if( metricStr == "datatype" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "datatype";
+      }
+      metricComboBox->insertItem("retval");
+      if( metricStr == "retval" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "retval";
+      }
+    }
   }
+#endif // HOLD_FOR_WHEN_WE_SUPPORT_THIS
 // printf("down here!  metricStr=(%s)\n", metricStr.ascii() );
   if( metricStrFoundFLAG == FALSE )
   {

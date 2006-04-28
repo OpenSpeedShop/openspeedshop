@@ -140,9 +140,12 @@ public:
   int64_t leftSideExpID;   // Used by CompareExperimentsPanel ONLY
   int64_t rightSideExpID;   // Used by CompareExperimentsPanel ONLY
 
+#ifdef MOVED_TO_STATSPANEL 
+  // Move back to "public slots:" if reimplementing
+  virtual void customizeExperimentsSelected();
+#endif // MOVED_TO_STATSPANEL
 public slots:
   virtual void saveAsSelected();
-  virtual void customizeExperimentsSelected();
   virtual void loadSourcePanel();
   virtual void editPanelName();
   virtual void saveExperiment();
