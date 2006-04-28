@@ -143,21 +143,14 @@ CompareWizardPanel::CompareWizardPanel(PanelContainer *pc, const char *n, Argume
   vLoad2ExecutablesPageDescriptionLabel = new QTextEdit( vAttachOrLoadPageWidget, "vLoad2ExecutablesPageDescriptionLabel" );
   vLoad2ExecutablesPageDescriptionLabel->setReadOnly(TRUE);
   vLoad2ExecutablesPageDescriptionLabel->setMinimumSize( QSize(10,10) );
-  vLoad2ExecutablesPageDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
+  vLoad2ExecutablesPageDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Preferred, 0, 0, FALSE ) );
   vAttachOrLoadPageLayout->addWidget( vLoad2ExecutablesPageDescriptionLabel );
-
-  vAttachOrLoadPageLine = new QFrame( vAttachOrLoadPageWidget, "vAttachOrLoadPageLine" );
-  vAttachOrLoadPageLine->setMinimumSize( QSize(10,10) );
-  vAttachOrLoadPageLine->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Preferred, 0, 0, FALSE ) );
-  vAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
-  vAttachOrLoadPageLine->setFrameShadow( QFrame::Sunken );
-  vAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
-  vAttachOrLoadPageLayout->addWidget( vAttachOrLoadPageLine );
 
 // Begin: AttachOrLoad page
   sv = new QScrollView( vAttachOrLoadPageWidget, "scrollView" );
+  sv->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Maximum, 0, 0, FALSE ) );
   big_box_w = new QWidget(sv->viewport(), "big_box(viewport)" );
-big_box_w->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  big_box_w->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Maximum, 0, 0, FALSE ) );
   const QColor color = mainFrame->paletteBackgroundColor();
   sv->viewport()->setBackgroundColor(color);
 // sv->viewport()->setPaletteBackgroundColor(color);
@@ -184,22 +177,20 @@ big_box_w->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   leftSideExperimentLabel->setMinimumSize( QSize(10,10) );
   leftSideExperimentLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   leftSideLabelLayout->addWidget( leftSideExperimentLabel );
-QSpacerItem *spacer3 = new QSpacerItem(20,20, QSizePolicy::Preferred, QSizePolicy::Fixed);
-leftSideLabelLayout->addItem( spacer3 );
+  QSpacerItem *spacer3 = new QSpacerItem(20,20, QSizePolicy::Preferred, QSizePolicy::Fixed);
+  leftSideLabelLayout->addItem( spacer3 );
 
 
   QHBoxLayout *leftSideExperimentComboBoxLayout = new QHBoxLayout( leftSideLayout, 1, "leftSideExperimentComboBoxLayout");
 
-QSpacerItem *spacer2 = new QSpacerItem(5,5, QSizePolicy::Fixed, QSizePolicy::Fixed);
-leftSideExperimentComboBoxLayout->addItem(spacer2);
+  QSpacerItem *spacer2 = new QSpacerItem(5,5, QSizePolicy::Fixed, QSizePolicy::Fixed);
+  leftSideExperimentComboBoxLayout->addItem(spacer2);
   ls_cbl = new QLabel(big_box_w, "experimentComboBoxLabel");
   ls_cbl->setText( tr("Available Experiments:") );
-  ls_cbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   QToolTip::add(ls_cbl, tr("Select the first experiment that you want\nto use in the comparison.") );
   leftSideExperimentComboBoxLayout->addWidget(ls_cbl);
 
   leftSideExperimentComboBox = new QComboBox(FALSE, big_box_w, "leftSideExperimentComboBox");
- leftSideExperimentComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
   QToolTip::add(leftSideExperimentComboBox, tr("Select the first experiment that you want\nto use in the comparison.") );
   leftSideExperimentComboBoxLayout->addWidget(leftSideExperimentComboBox);
@@ -260,12 +251,10 @@ leftSideExperimentComboBoxLayout->addItem(spacer2);
 
   rs_cbl = new QLabel(big_box_w, "rightSideExperimentComboBoxLabel");
   rs_cbl->setText( tr("Available Experiments:") );
-  rs_cbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   QToolTip::add(rs_cbl, tr("Select the first experiment that you want\nto use in the comparison.") );
   rightSideExperimentComboBoxLayout->addWidget(rs_cbl);
 
   rightSideExperimentComboBox = new QComboBox(FALSE, big_box_w, "rightSideExperimentComboBox");
- rightSideExperimentComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
   QToolTip::add(rightSideExperimentComboBox, tr("Select the first experiment that you want\nto use in the comparison.") );
   rightSideExperimentComboBoxLayout->addWidget(rightSideExperimentComboBox);
@@ -302,9 +291,6 @@ leftSideExperimentComboBoxLayout->addItem(spacer2);
 }
 
 // End RS
-
-  vAttachOrLoadPageSpacer = new QSpacerItem( 20, 30, QSizePolicy::Minimum, QSizePolicy::Expanding );
-  vAttachOrLoadPageAttachOrLoadLayout->addItem( vAttachOrLoadPageSpacer );
 
   vAttachOrLoadPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vAttachOrLoadPageButtonLayout"); 
 
@@ -520,7 +506,7 @@ void CompareWizardPanel::loadPageNextButtonSelected()
   
   fn = QString::null;
 
-  vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment <b>\"%1/%2\"</b> with experiment <b>\"%3/%4\"</b>.  Pressing finish will bring up a Compare Experiments Panel with your requested information.\n").arg(leftSideDirName).arg(leftSideExperimentComboBox->currentText()).arg(rightSideDirName).arg(rightSideExperimentComboBox->currentText()) ) );
+  vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment <b>\"%1/%2\"</b> with experiment <b>\"%3/%4\"</b>.  <p><p>Pressing finish will bring up a Compare Experiments Panel with your requested information.\n").arg(leftSideDirName).arg(leftSideExperimentComboBox->currentText()).arg(rightSideDirName).arg(rightSideExperimentComboBox->currentText()) ) );
 
   mainWidgetStack->raiseWidget(vSummaryPageWidget);
 
@@ -625,7 +611,7 @@ CompareWizardPanel::languageChange()
   vDescriptionPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
 
-  vLoad2ExecutablesPageDescriptionLabel->setText( tr( "This wizard helps load 2 experiments to so the results can be compared.\n\nBelow are 2 columns.   The left side experiment will be compare against the experiment in the right side.\n\nBy default, files ending with a \".openss\" suffix are shown in the pulldown menu.  If the experiment files you wish to load don't end in \".openss\" or they are in a different directory, use the dialog box (Click on the folder icon.) to change the directory/and or suffix.\n\nAfter selecting your 2 experiment files, click on the \"Next\" button to continue.") );
+  vLoad2ExecutablesPageDescriptionLabel->setText( tr( "This wizard helps load 2 experiments to so the results can be compared.\n\nBelow are 2 columns.   The left side experiment will be compared with the experiment from the right side.\n\nBy default, files ending with a \".openss\" suffix are shown in the pulldown menu.  If the experiment files you wish to load don't end in \".openss\" or they are in a different directory, use the dialog box (Click on the folder icon.) to change the directory/and or suffix.\n\nAfter selecting the 2 experiment files, click on the \"Next\" button to continue.") );
 
   vAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
@@ -680,7 +666,7 @@ CompareWizardPanel::requestExperimentFileName()
 void
 CompareWizardPanel::warnOfnoSavedData()
 {
-    QMessageBox::information(this, tr("No saved data files located."), tr("The ability to compare 2 experiments against one another requires 2 saved\nexperiment files.   To create a saved experiment file, first select an\nexperiment to run, load and run the executable, then using\nthe \"File->Save Experiment Data\", save the experiment to a file.  Likewise, save\nthe second data file from a second run.   Then reissue this wizard to compare the\nresults.\n\nThere are also other ways to access this same functionality (and more).  One\ncan first run and save an initial data file.  Then during the second run, bring\nup the Compare Panel and customize the report you'd like to see."), "OK"); 
+    QMessageBox::information(this, tr("No saved data files located."), tr("The ability to compare 2 experiments with one another requires 2 saved\nexperiment files.   To create a saved experiment file, first select an\nexperiment to run, load and run the executable, then using\nthe \"File->Save Experiment Data\", save the experiment to a file.  Likewise, save\nthe second data file from a second run.   Then reissue this wizard to compare the\nresults.\n\nThere are also other ways to access this same functionality (and more).  One\ncan first run and save an initial data file.  Then during the second run, bring\nup the Customize StatsPanel and customize the report you'd like to see."), "OK"); 
 }
 
 void
@@ -796,6 +782,7 @@ CompareWizardPanel::rightSideExperimentDirButtonSelected()
   }
 }
 
+#ifdef PULL
 void
 CompareWizardPanel::handleSizeEvent(QResizeEvent *e)
 {
@@ -814,14 +801,14 @@ CompareWizardPanel::handleSizeEvent(QResizeEvent *e)
 
   int calculated_width = 0;
   calculated_width += leftSideExperimentLabel->width();
-  calculated_width += ls_cbl->width();
   calculated_width += leftSideExperimentComboBox->width();
   calculated_width += leftSideExperimentDirButton->width();
   calculated_width += rightSideExperimentLabel->width();
-  calculated_width += rs_cbl->width();
   calculated_width += rightSideExperimentComboBox->width();
   calculated_width += rightSideExperimentDirButton->width();
 
+  calculated_width += 50; // Margins
 
   big_box_w->resize(calculated_width,calculated_height);
 }
+#endif // PULL

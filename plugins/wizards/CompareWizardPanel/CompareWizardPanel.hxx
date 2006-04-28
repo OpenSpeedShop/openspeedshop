@@ -123,7 +123,6 @@ public:
     QPushButton* vModePageBackButton;
     QWidget* vAttachOrLoadPageWidget;
     QTextEdit* vLoad2ExecutablesPageDescriptionLabel;
-    QFrame* vAttachOrLoadPageLine;
     QCheckBox* vAttachOrLoadPageAttachToProcessCheckBox;
     QPushButton* vAttachOrLoadPageBackButton;
     QPushButton* vAttachOrLoadPageNextButton;
@@ -152,8 +151,9 @@ public:
     QPushButton *rightSideExperimentDirButton;
     QScrollView *sv;
     QWidget *big_box_w;
-//    QVBox *big_box;
+#ifdef PULL
     void handleSizeEvent(QResizeEvent *e);
+#endif // PULL
 
 public slots:
     virtual void vDescriptionPageNextButtonSelected();
