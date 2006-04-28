@@ -113,6 +113,7 @@ struct selectionTarget {
     headerPrefix = "";
     numColumns = 0;
     pResult = NULL;
+    base_tgrp = NULL;
     Exp = NULL;
     viewName = "";
     hostId = "";
@@ -242,7 +243,7 @@ static bool Generate_CustomView (CommandObject *cmd,
 */
 
 
- // Generate all the views in the list.
+ // /enerate all t e views in the list.
   for (i = 0; i < numQuickSets; i++) {
    // Try to Generate the Requested View for each comparison set!
     ExperimentObject *exp = Quick_Compare_Set[i].Exp;
