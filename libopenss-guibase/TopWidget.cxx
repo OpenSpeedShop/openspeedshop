@@ -70,10 +70,15 @@ TopWidget::closeEvent( QCloseEvent *e )
     if( p )
     {
 // printf("TopWidget::closeEvent() found a CommandPanel to reparent.\n");
-    
-      panelContainer->raisePanel(p);
-    
-      panelContainer->removeRaisedPanel(p->getPanelContainer());
+
+      // Only do this if we're removing the top widget that contains the
+      // CommandPanel.
+      if( panelContainer == p->getPanelContainer() )
+      {
+        panelContainer->raisePanel(p);
+      
+        panelContainer->removeRaisedPanel(p->getPanelContainer());
+      }
     }
 
     panelContainer->getMasterPC()->removePanelContainer(panelContainer);
