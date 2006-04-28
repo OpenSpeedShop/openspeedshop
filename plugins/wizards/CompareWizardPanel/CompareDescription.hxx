@@ -17,7 +17,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#define vCompareDescription "This wizard helps load an experiment from a saved data file or helps customize an experiment that compares the output from 2 experiments.  You'll be asked a series of questions to help lead you through the workflow."
+#define vCompareDescription "This wizard helps compare 2 previously saved experiment files."
+
+
+
+
+
 
 
 #define eCompareDescription "Helps load saved experiment files."

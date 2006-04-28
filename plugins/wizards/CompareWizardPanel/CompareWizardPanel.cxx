@@ -107,6 +107,7 @@ CompareWizardPanel::CompareWizardPanel(PanelContainer *pc, const char *n, Argume
   vDescriptionPageLayout->addWidget( vDescriptionPageTitleLabel );
 
   vDescriptionPageText = new QTextEdit( vDescriptionPageWidget, "vDescriptionPageText" );
+  vDescriptionPageText->setReadOnly(TRUE);
   vDescriptionPageText->setMinimumSize( QSize(10,10) );
   vDescriptionPageText->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
   vDescriptionPageText->setMinimumSize( QSize(10,10) );
@@ -140,6 +141,7 @@ CompareWizardPanel::CompareWizardPanel(PanelContainer *pc, const char *n, Argume
   vAttachOrLoadPageLayout = new QVBoxLayout( vAttachOrLoadPageWidget, 11, 6, "vAttachOrLoadPageLayout"); 
 
   vLoad2ExecutablesPageDescriptionLabel = new QTextEdit( vAttachOrLoadPageWidget, "vLoad2ExecutablesPageDescriptionLabel" );
+  vLoad2ExecutablesPageDescriptionLabel->setReadOnly(TRUE);
   vLoad2ExecutablesPageDescriptionLabel->setMinimumSize( QSize(10,10) );
   vLoad2ExecutablesPageDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
   vAttachOrLoadPageLayout->addWidget( vLoad2ExecutablesPageDescriptionLabel );
@@ -336,6 +338,7 @@ vAttachOrLoadPageClearButton->hide();
 
   vSummaryPageLabelLayout = new QVBoxLayout( 0, 0, 6, "vSummaryPageLabelLayout"); 
   vSummaryPageFinishLabel = new QTextEdit( vSummaryPageWidget, "vSummaryPageFinishLabel" );
+  vSummaryPageFinishLabel->setReadOnly(TRUE);
   vSummaryPageFinishLabel->setMinimumSize( QSize(10,10) );
   vSummaryPageFinishLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Preferred, 0, 0, FALSE ) );
   vSummaryPageLabelLayout->addWidget( vSummaryPageFinishLabel );
@@ -622,7 +625,7 @@ CompareWizardPanel::languageChange()
   vDescriptionPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
 
-  vLoad2ExecutablesPageDescriptionLabel->setText( tr( "We can load 2 experiments to so the results can be compared.\n\nBelow are 2 columns.   Select an experiment file to load in each column.  The left side experiment will be compare agains the experiment in the right side.\n\nAfter selecting your 2 experiment files, click on the \"Next\" button to continue.") );
+  vLoad2ExecutablesPageDescriptionLabel->setText( tr( "This wizard helps load 2 experiments to so the results can be compared.\n\nBelow are 2 columns.   The left side experiment will be compare against the experiment in the right side.\n\nBy default, files ending with a \".openss\" suffix are shown in the pulldown menu.  If the experiment files you wish to load don't end in \".openss\" or they are in a different directory, use the dialog box (Click on the folder icon.) to change the directory/and or suffix.\n\nAfter selecting your 2 experiment files, click on the \"Next\" button to continue.") );
 
   vAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );

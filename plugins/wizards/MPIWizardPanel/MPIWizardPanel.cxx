@@ -93,6 +93,7 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
   vDescriptionPageLayout->addWidget( vDescriptionPageTitleLabel );
 
   vDescriptionPageText = new QTextEdit( vDescriptionPageWidget, "vDescriptionPageText" );
+  vDescriptionPageText->setReadOnly(TRUE);
   vDescriptionPageText->setMinimumSize( QSize(10,10) );
   vDescriptionPageText->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
   vDescriptionPageText->setMinimumSize( QSize(10,10) );
@@ -132,6 +133,7 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
   vParameterPageLayout = new QVBoxLayout( vParameterPageWidget, 11, 6, "vParameterPageLayout"); 
 
   vParameterPageDescriptionText = new QTextEdit( vParameterPageWidget, "vParameterPageDescriptionText" );
+  vParameterPageDescriptionText->setReadOnly(TRUE);
   vParameterPageDescriptionText->setMinimumSize( QSize(10,10) );
 
   vParameterPageDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
@@ -217,6 +219,7 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
   vAttachOrLoadPageLayout = new QVBoxLayout( vAttachOrLoadPageWidget, 11, 6, "vAttachOrLoadPageLayout"); 
 
   vAttachOrLoadPageDescriptionLabel = new QTextEdit( vAttachOrLoadPageWidget, "vAttachOrLoadPageDescriptionLabel" );
+  vAttachOrLoadPageDescriptionLabel->setReadOnly(TRUE);
   vAttachOrLoadPageDescriptionLabel->setMinimumSize( QSize(10,10) );
   vAttachOrLoadPageDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
   vAttachOrLoadPageLayout->addWidget( vAttachOrLoadPageDescriptionLabel );
@@ -289,6 +292,7 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
 
   vSummaryPageLabelLayout = new QVBoxLayout( 0, 0, 6, "vSummaryPageLabelLayout"); 
   vSummaryPageFinishLabel = new QTextEdit( vSummaryPageWidget, "vSummaryPageFinishLabel" );
+  vSummaryPageFinishLabel->setReadOnly(TRUE);
   vSummaryPageFinishLabel->setMinimumSize( QSize(10,10) );
   vSummaryPageFinishLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Preferred, 0, 0, FALSE ) );
   vSummaryPageLabelLayout->addWidget( vSummaryPageFinishLabel );
@@ -355,6 +359,7 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
   eParameterPageLayout = new QVBoxLayout( eParameterPageWidget, 11, 6, "eParameterPageLayout"); 
 
   eParameterPageDescriptionLabel = new QTextEdit( eParameterPageWidget, "eParameterPageDescriptionLabel" );
+  eParameterPageDescriptionLabel->setReadOnly(TRUE);
   eParameterPageDescriptionLabel->setMinimumSize( QSize(10,10) );
   eParameterPageDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
   eParameterPageLayout->addWidget( eParameterPageDescriptionLabel );
@@ -486,6 +491,7 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
   eSummaryPageLayout = new QVBoxLayout( eSummaryPageWidget, 11, 6, "eSummaryPageLayout"); 
 
   eSummaryPageFinishLabel = new QTextEdit( eSummaryPageWidget, "eSummaryPageFinishLabel" );
+  eSummaryPageFinishLabel->setReadOnly(TRUE);
   eSummaryPageFinishLabel->setMinimumSize( QSize(10,10) );
   eSummaryPageFinishLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
   eSummaryPageLayout->addWidget( eSummaryPageFinishLabel );
