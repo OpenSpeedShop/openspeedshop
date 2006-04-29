@@ -44,6 +44,30 @@ using namespace OpenSpeedShop;
 
 extern SS_Message_Czar& theMessageCzar();
 
+//////////////////////////////////////////////////////////////////
+//
+//  If you are going to edit this array you will
+//  probably need to change a number of other files.
+//
+//  SS_Parse_result.hxx -> the original enum for commands.
+//  ATTENTION! The enumerations and this array need to be
+//  in the same order. We now have a sanity check
+//  at startup time for this. The table is already setup for
+//  the check because it has the enum value embedded in each
+//  struct entry of the array.
+//
+//  SS_Parse_yacc.yxx -> The grammar for the commands.
+//
+//  SS_Parse_Lex.lxx -> The lexical analizer for the commands.
+//  The name needs to be recognized as being special and tokenized.
+//
+//  SS_Preparse.py -> The preparser. You need to register the
+//  command name and return type.
+//
+//  help_cmd_msg.dxx -> Database for HELP entries for the known
+//  commands.
+//
+//////////////////////////////////////////////////////////////////
 command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "Syntax_Error", false,  CMD_HEAD_ERROR, /* used in error reporting */
     "expAttach",    false,  CMD_EXP_ATTACH,
@@ -65,6 +89,7 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
 
     "cViewCreate",  false,  CMD_C_VIEW_CREATE,
     "cViewDelete",  false,  CMD_C_VIEW_DELETE,
+    "cViewCluster", true,   CMD_C_VIEW_CLUSTERS,
     "cViewInfo",    true,   CMD_C_VIEW_INFO,
     "cView",	    true,   CMD_C_VIEW,
 

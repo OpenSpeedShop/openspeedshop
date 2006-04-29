@@ -80,6 +80,8 @@ extern int ip_number(char *,int);
 "expview"   	{ return VIEW_HEAD; }
 "expView"   	{ return VIEW_HEAD; }
 
+"cviewcluster"	{ return CVIEWCLUSTER_HEAD; }
+"cViewCluster"	{ return CVIEWCLUSTER_HEAD; }
 "cViewCreate"	{ return CVIEWCREATE_HEAD; }
 "cviewcreate"	{ return CVIEWCREATE_HEAD; }
 "cViewDelete"	{ return CVIEWDELETE_HEAD; }

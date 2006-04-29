@@ -54,6 +54,7 @@ char *string;
 %token SETPARAM_HEAD STATUS_HEAD VIEW_HEAD DATA_HEAD
 
 %token CVIEWCREATE_HEAD CVIEWDELETE_HEAD CVIEW_HEAD CVIEWINFO_HEAD
+%token CVIEWCLUSTER_HEAD
 
 %token LIST_GENERIC_HEAD
 
@@ -113,6 +114,7 @@ command_desc: exp_attach_com 	{p_parse_result->setCommandType(CMD_EXP_ATTACH);}
 	    | exp_status_com  	{p_parse_result->setCommandType(CMD_EXP_STATUS);}
 	    | exp_view_com  	{p_parse_result->setCommandType(CMD_EXP_VIEW);}
 
+	    | c_view_cluster_create_com {p_parse_result->setCommandType(CMD_C_VIEW_CLUSTERS);}
 	    | c_view_create_com {p_parse_result->setCommandType(CMD_C_VIEW_CREATE);}
 	    | c_view_delete_com {p_parse_result->setCommandType(CMD_C_VIEW_DELETE);}
 	    | c_view_info_com  	{p_parse_result->setCommandType(CMD_C_VIEW_INFO);}
@@ -334,6 +336,14 @@ exp_data_com:	    DATA_HEAD
   	    	|   DATA_HEAD set_view_args error END_LINE 
       	    	;
 
+    	    /** C_VIEW_CLUSTER **/
+    	    /** cViewCreate [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <target_list> ] **/
+c_view_cluster_create_com:  CVIEWCLUSTER_HEAD
+  	    	|   CVIEWCLUSTER_HEAD error END_LINE 
+  	    	|   CVIEWCLUSTER_HEAD set_view_args 
+  	    	|   CVIEWCLUSTER_HEAD set_view_args error END_LINE 
+      	    	;
+
     	    /** C_VIEW_CREATE **/
     	    /** cViewCreate [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <target_list> ] **/
 c_view_create_com:  CVIEWCREATE_HEAD
@@ -448,6 +458,7 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	|   STATUS_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_STATUS].name);}
     	    	|   VIEW_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_VIEW].name);}
 
+    	    	|   CVIEWCLUSTER_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_C_VIEW_CLUSTERS].name);}
     	    	|   CVIEWCREATE_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_C_VIEW_CREATE].name);}
     	    	|   CVIEWDELETE_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_C_VIEW_DELETE].name);}
     	    	|   CVIEWINFO_HEAD    	    {p_parse_result->pushHelp(cmd_desc[CMD_C_VIEW_INFO].name);}

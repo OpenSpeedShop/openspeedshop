@@ -27,6 +27,15 @@
 
 #include "SS_Parse_Param.hxx"
 
+//////////////////////////////////////////////////////////////////
+//
+//  If you are going to edit this array you will
+//  probably need to change a number of other files.
+//
+//  See the comments for the OpenSpeedShop::cli::cmd_desc
+//  array in SS_Parse_Result.cxx
+//
+//////////////////////////////////////////////////////////////////
 typedef enum {
     CMD_HEAD_ERROR,	    /* used for error processing */
     CMD_EXP_ATTACH,
@@ -57,6 +66,7 @@ typedef enum {
     CMD_CLEAR_BREAK,
     CMD_EXIT,
     CMD_HELP,
+    oh_fuck,
     CMD_HISTORY,
     CMD_LOG,
     CMD_OPEN_GUI,

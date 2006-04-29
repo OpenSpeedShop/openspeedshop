@@ -405,6 +405,16 @@ extern "C"
       cerr << "ERROR: can not retrieve host name\n";
       abort ();
     }
+    
+    // Sanity check that the command enum is not broken.
+    // See oss_cmd_enum definition in SS_Parse_Result.hxx.
+    for (i=1;i<CMD_MAX;++i) {
+    	if (i != OpenSpeedShop::cli::cmd_desc[i].ndx) {
+      	    cerr << "ERROR: cmd_desc array out of synch with oss_cmd_enum \n";
+      	    cerr << "       See oss_cmd_enum definition in SS_Parse_Result.hxx \n";
+      	    abort ();
+	}
+    }
 
     read_stdin_file = (stdin && !isatty(fileno(stdin)));
     executable_encountered = false;

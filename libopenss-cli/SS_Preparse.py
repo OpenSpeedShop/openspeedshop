@@ -563,6 +563,7 @@ class CLI(code.InteractiveConsole):
         "expstatus" 	: "return_list",
         "expview"       : "return_list",
 	
+	"cviewcluster"	: "return_list",
 	"cviewcreate"	: "return_int",
 	"cviewdelete"	: "return_none",
 	"cviewinfo"   	: "return_list",
