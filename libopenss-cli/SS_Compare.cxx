@@ -1573,36 +1573,34 @@ bool SS_cvClusters (CommandObject *cmd) {
       }
   }
 
-  std::string viewname;
-  if (!p_slist->empty()) {
-    viewname = *(p_slist->begin());
+ // Be sure that there is exactly one viewType specified.
+  if (p_slist->empty()) {
+   // No view was specified, so we can't do any resonable work.
+    Mark_Cmd_With_Soft_Error(cmd, "No valid view name was specified.");
+    return false;
+  } else if (p_slist->size() != 1) {
+   // Too many views are specified, we don't handle this yet.
+    Mark_Cmd_With_Soft_Error(cmd, "Too many view names were specified.");
+    return false;
   }
+
+ // Make sure the view name is valid.
+  std::string viewname = *(p_slist->begin());
+  ViewType *vt = Find_View (viewname);
+  if (vt == NULL) {
+    std::string S("The requested view, '");
+    S = S + viewname + "', is unavailable.";
+    Mark_Cmd_With_Soft_Error(cmd,S);
+    return false;
+  }
+  viewname = vt->Unique_Name();
 
  // Determine the collector and metric.
   std::string C_Name = viewname;
   std::string M_Name;
   if (met_list->empty()) {
    // Use the first metric in the view definition.
-   // But be sure there is exactly one choice.
-    if (p_slist->empty()) {
-     // No view was specified, so we can't do any resonable work.
-      Mark_Cmd_With_Soft_Error(cmd, "No valid view name was specified.");
-      return false;
-    } else if (p_slist->size() != 1) {
-     // Too many views are specified, we don't handle this yet.
-      Mark_Cmd_With_Soft_Error(cmd, "Too many view names were specified.");
-      return false;
-    }
-
-    ViewType *vt = Find_View (viewname);
-    if (vt == NULL) {
-      std::string S("The requested view, '");
-      S = S + viewname + "', is unavailable.";
-      Mark_Cmd_With_Soft_Error(cmd,S);
-      return false;
-    }
-    viewname = vt->Unique_Name();
-    C_Name = vt->Unique_Name();
+    C_Name = viewname;
     M_Name = vt->Metrics()[0];
   } else if (!met_list->empty()) {
    // Use the first item on the '-m' list as a metric.
@@ -1611,6 +1609,12 @@ bool SS_cvClusters (CommandObject *cmd) {
     if (m_range->is_range) {
       C_Name = m_range->start_range.name;
       M_Name = m_range->end_range.name;
+      if (C_Name != viewname) {
+        std::string S("The specified collector, '" + C_Name +
+                      "', can not be displayed as part of a '" + viewname + "' view.");
+        Mark_Cmd_With_Soft_Error(cmd,S);
+        return false;
+      }
     } else {
       C_Name = viewname;
       M_Name = m_range->start_range.name;
