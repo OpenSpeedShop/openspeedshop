@@ -17,7 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#define vCompareDescription "This wizard helps compare 2 previously saved experiment files."
+// #define vCompareDescription "This wizard helps compare 2 previously saved experiment files."
+#define vCompareDescription "This wizard helps compare 2 previously saved experiment files.\n\nDepending on the experiment types being compared, the result of this wizard will be a CompareExperimentsPanel showing the details of 2 experiment files side-by-side.\n\nFrom there one will be able to further customize the display."
 
 
 

@@ -187,10 +187,8 @@ dynamic_items->setOpen(TRUE);
         ThreadGroup tgrp = eo->FW()->getThreads();
         ThreadGroup::iterator ti;
         std::vector<std::string> v;
-//        pset_name = QString("pset%1").arg(pset_count++);
         pset_name = QString("All");
-//        MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name, "All" );
-psl->append("All");
+        psl->append("All");
         MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name );
         DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
         dco->all = TRUE;
@@ -220,9 +218,7 @@ psl->append("All");
 
         for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
         {
-//          pset_name = QString("pset%1").arg(pset_count++);
           pset_name = QString(*hi);
-//          MPListViewItem *item = new MPListViewItem( host_items, pset_name, *hi );
           MPListViewItem *item = new MPListViewItem( host_items, pset_name );
           DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
           item->descriptionClassObject = dco;
@@ -269,20 +265,29 @@ psl->append("All");
                   collectorliststring = m.getUniqueId();
                 }
               }
-              if( !tidstr.isEmpty() )
+              if( !pidstr.isEmpty() )
               {
+                MPListViewItem *item2 = 
+                  new MPListViewItem( item, pidstr, collectorliststring  );
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, collectorliststring);
+                item2->descriptionClassObject = dco;
+              } else if( !tidstr.isEmpty() )
+              {
+// printf("tidStr!\n");
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, tidstr, collectorliststring );
                 DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               } else if( !ridstr.isEmpty() )
               {
+// printf("ridStr!\n");
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, ridstr, collectorliststring );
                 DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), ridstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               } else
               {
+// printf("!tidStr && !ridStr!\n");
                 MPListViewItem *item2 = 
                   new MPListViewItem( item, pidstr, collectorliststring  );
                 DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, collectorliststring);

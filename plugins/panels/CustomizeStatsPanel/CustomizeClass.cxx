@@ -324,7 +324,7 @@ CustomizeClass::focusOnCSetSelected()
 // printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
 // if( lvi->descriptionClassObject )
 // {
-  // lvi->descriptionClassObject->Print();
+//  lvi->descriptionClassObject->Print();
 // }
         if( focus_msg == NULL )
         {

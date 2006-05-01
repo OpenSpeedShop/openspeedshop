@@ -608,7 +608,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   }
   threadMenu = new QPopupMenu(this);
   int MAX_PROC_MENU_DISPLAY = 8;
-  if( list_of_pids.size() <= MAX_PROC_MENU_DISPLAY )
+  if( list_of_pids.size() > 1 && list_of_pids.size() <= MAX_PROC_MENU_DISPLAY )
   {
     contextMenu->insertItem(QString("Show Thread/Process"), threadMenu);
     for( std::list<int64_t>::const_iterator it = list_of_pids.begin();
@@ -635,20 +635,12 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     }
     connect(threadMenu, SIGNAL( activated(int) ),
         this, SLOT(threadSelected(int)) );
-  } else
-  {
-#ifdef EXPERIMENT_PANEL_AND_STATSPANEL
-    qaction = new QAction( this,  "manageProcessesMenu");
-    qaction->addTo( contextMenu );
-    qaction->setText( "Manage Processes..." );
-    connect( qaction, SIGNAL( activated() ), this, SLOT( manageProcessesSelected() ) );
-    qaction->setStatusTip( tr(QString("There are over %1 processes to manage.  This brings up the Manage Processes\nPanel which is designed to handle large number of procesess/threads.").arg(MAX_PROC_MENU_DISPLAY)) );
-#endif // EXPERIMENT_PANEL_AND_STATSPANEL
   }
 
   contextMenu->insertSeparator();
 
 
+#ifndef COLUMNS_MENU
   int id = 0;
   QPopupMenu *columnsMenu = new QPopupMenu(this);
   columnsMenu->setCaption("Columns Menu");
@@ -669,6 +661,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     }
     id++;
   }
+#endif // COLUMNS_MENU
 
   qaction = new QAction( this,  "exportDataAction");
   qaction->addTo( contextMenu );

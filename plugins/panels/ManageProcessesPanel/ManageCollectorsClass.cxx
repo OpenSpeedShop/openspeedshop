@@ -298,7 +298,13 @@ ManageCollectorsClass::updateAttachedList()
                   }
                   if( m.getUniqueId() == ce->name.ascii() )
                   {
-                    if( !tidstr.isEmpty() )
+                    if( !pidstr.isEmpty() )
+                    {
+                      MPListViewItem *item2 =
+                        new MPListViewItem( item, host, pidstr );
+                      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr  );
+                      item2->descriptionClassObject = dco;
+                    } else if( !tidstr.isEmpty() )
                     {
                       MPListViewItem *item2 =
                         new MPListViewItem( item, host, pidstr, tidstr );
@@ -519,7 +525,13 @@ ManageCollectorsClass::updateAttachedList()
                   collectorliststring = m.getUniqueId();
                 }
               }
-              if( !tidstr.isEmpty() )
+              if( !pidstr.isEmpty() )
+              {
+                MPListViewItem *item2 = 
+                  new MPListViewItem( item, pidstr, collectorliststring  );
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, collectorliststring  );
+                item2->descriptionClassObject = dco;
+              } else if( !tidstr.isEmpty() )
               {
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, tidstr, collectorliststring );
@@ -735,7 +747,13 @@ host_items->descriptionClassObject = host_dco;
                   collectorliststring = m.getUniqueId();
                 }
               }
-              if( !tidstr.isEmpty() )
+              if( !pidstr.isEmpty() )
+              {
+                MPListViewItem *item2 = 
+                  new MPListViewItem( item, pidstr, collectorliststring  );
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, collectorliststring);
+                item2->descriptionClassObject = dco;
+              } else if( !tidstr.isEmpty() )
               {
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, tidstr, collectorliststring );
