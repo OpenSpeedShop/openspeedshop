@@ -463,7 +463,7 @@ fprintf(stderr, "WARNING: ColumnSet::gatherMetricInfo() returned\n");
     }
 // printf("Put this to a menu: cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
   }
-#ifdef HOLD_FOR_WHEN_WE_SUPPORT_THIS
+#ifndef HOLD_FOR_WHEN_WE_SUPPORT_THIS
   if( metricComboBox )
   {
     if( ce->name == "pcsamp" || ce->name == "hwc" )

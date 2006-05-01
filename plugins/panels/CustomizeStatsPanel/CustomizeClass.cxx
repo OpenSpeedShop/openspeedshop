@@ -291,11 +291,6 @@ CustomizeClass::focusOnCSetSelected()
       int id = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
       QString collectorName = columnSet->collectorComboBox->currentText().ascii();
       QString metricName = columnSet->metricComboBox->currentText().ascii();
-      // Add the following FIX ME until the cli doesn't put out the % by default
-      if( collectorName == "pcsamp" || collectorName == "usertime" || collectorName == "hwc" || collectorName == "hwct" )
-      {
-        collectorName = "stats";
-      }
       cViewCreateCommand += QString("-x %1 %2 -m %3 ").arg(id).arg(collectorName).arg(metricName);
 
       if( temp_expCompareCommand.isEmpty() )

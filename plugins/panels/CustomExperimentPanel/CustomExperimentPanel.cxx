@@ -638,7 +638,29 @@ CustomExperimentPanel::listener(void *msg)
         printf("Unable to restore for %s\n", lao->leftSideExperiment.ascii() );
         return 0;
       }
-      command = QString("cViewCreate -x %1").arg(val); 
+      QString collector_name = "stats";
+      {
+        command = QString("list -v exptypes -x %1").arg(val);
+        std::list<std::string> list_of_collectors;
+      
+        InputLineObject *clip = NULL;
+        if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
+                   &list_of_collectors, clip, TRUE ) )
+        {
+          printf("Unable to run %s command.\n", command.ascii() );
+        }
+        if( list_of_collectors.size() > 0 )
+        {
+          if( list_of_collectors.size() == 1 ) 
+          {
+            for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
+            {
+              collector_name = (QString)*it;
+            }
+          }
+        }
+      }
+      command = QString("cViewCreate -x %1 %2").arg(val).arg(collector_name); 
       leftSideExpID = val;
 // printf("command=(%s)\n", command.ascii() );
       if( !cli->getIntValueFromCLI(command.ascii(), &leftSideCval, mark_value_for_delete ) )
@@ -653,7 +675,29 @@ CustomExperimentPanel::listener(void *msg)
         printf("Unable to restore for %s\n", lao->rightSideExperiment.ascii() );
         return 0;
       }
-      command = QString("cViewCreate -x %1").arg(val); 
+      collector_name = "stats";
+      {
+        command = QString("list -v exptypes -x %1").arg(val);
+        std::list<std::string> list_of_collectors;
+      
+        InputLineObject *clip = NULL;
+        if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
+                   &list_of_collectors, clip, TRUE ) )
+        {
+          printf("Unable to run %s command.\n", command.ascii() );
+        }
+        if( list_of_collectors.size() > 0 )
+        {
+          if( list_of_collectors.size() == 1 ) 
+          {
+            for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
+            {
+              collector_name = (QString)*it;
+            }
+          }
+        }
+      }
+      command = QString("cViewCreate -x %1 %2").arg(val).arg(collector_name); 
       rightSideExpID = val;
 // printf("command=(%s)\n", command.ascii() );
       if( !cli->getIntValueFromCLI(command.ascii(), &rightSideCval, mark_value_for_delete ) )

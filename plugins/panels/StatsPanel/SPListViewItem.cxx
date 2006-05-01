@@ -56,7 +56,7 @@ SPListViewItem::SPListViewItem( StatsPanel *sp, QString _funcName, QString _file
 SPListViewItem::~SPListViewItem( )
 {
   // default destructor.
-  dprintf ("  SPListViewItem::~SPListViewItem( ) destructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ("  SPListViewItem::~SPListViewItem( ) destructor called\n");
 }
 
 #include <qpainter.h>

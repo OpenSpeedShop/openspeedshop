@@ -380,37 +380,37 @@ StatsPanel::listener(void *msg)
     }
 //printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
 // Begin determine if there's mpi stats
-try
-{
-  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-  if( eo && eo->FW() )
-  {
-    Experiment *fw_experiment = eo->FW();
-    CollectorGroup cgrp = fw_experiment->getCollectors();
+    try
+    {
+      ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+      if( eo && eo->FW() )
+      {
+        Experiment *fw_experiment = eo->FW();
+        CollectorGroup cgrp = fw_experiment->getCollectors();
 // printf("Is says you have %d collectors.\n", cgrp.size() );
-    if( cgrp.size() == 0 )
-    {
-      fprintf(stderr, "There are no known collectors for this experiment.\n");
-    }
-    for(CollectorGroup::iterator ci = cgrp.begin();ci != cgrp.end();ci++)
-    {
-      Collector collector = *ci;
-      Metadata cm = collector.getMetadata();
-      QString name = QString(cm.getUniqueId().c_str());
+        if( cgrp.size() == 0 )
+        {
+          fprintf(stderr, "There are no known collectors for this experiment.\n");
+        }
+        for(CollectorGroup::iterator ci = cgrp.begin();ci != cgrp.end();ci++)
+        {
+          Collector collector = *ci;
+          Metadata cm = collector.getMetadata();
+          QString name = QString(cm.getUniqueId().c_str());
 
 // printf("B: Try to match: name.ascii()=%s currentCollectorStr.ascii()=%s\n", name.ascii(), currentCollectorStr.ascii() );
+        }
+      }
     }
-  }
-}
-catch(const std::exception& error)
-{ 
-  std::cerr << std::endl << "Error: "
-            << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-            "Unknown runtime error." : error.what()) << std::endl
-            << std::endl;
-  QApplication::restoreOverrideCursor( );
-  return FALSE;
-}
+    catch(const std::exception& error)
+    { 
+      std::cerr << std::endl << "Error: "
+                << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                "Unknown runtime error." : error.what()) << std::endl
+                << std::endl;
+      QApplication::restoreOverrideCursor( );
+      return FALSE;
+    }
 // End determine if there's mpi stats
 
 // printf("StatsPanel::listener call updateStatsPanelData  Do we need to update?\n");
@@ -454,24 +454,6 @@ catch(const std::exception& error)
 // printf("StatsPanel::listener() raise this panel.. \n");
       getPanelContainer()->raisePanel(this);
     }
-#ifdef LATER
-// now focus a source file that's listening....
-// printf("Now focus the source panel, if it's up..\n");
-    //First get the first item...
-    QListViewItemIterator it( splv );
-    QListViewItem *item = *it;
-
-    // Now call the match routine, this should focus any source panels.
-    if( item && matchSelectedItem( item, std::string(item->text(fieldCount-1).ascii()) ) )
-    {
-    //printf("match\n");
-        return 1;
-    } else
-    {
-    //printf("no match\n");
-        return 0;
-    }
-#endif // LATER
   } else if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {
 // printf("UpdateExperimentDataObject\n");
@@ -487,36 +469,36 @@ catch(const std::exception& error)
     
     expID = msg->expID;
 
-// Begin determine if there's mpi stats
-try
-{
-  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-  if( eo && eo->FW() )
-  {
-    Experiment *fw_experiment = eo->FW();
-    CollectorGroup cgrp = fw_experiment->getCollectors();
+    // Begin determine if there's mpi stats
+    try
+    {
+      ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+      if( eo && eo->FW() )
+      {
+        Experiment *fw_experiment = eo->FW();
+        CollectorGroup cgrp = fw_experiment->getCollectors();
 // printf("Is says you have %d collectors.\n", cgrp.size() );
-    if( cgrp.size() == 0 )
-    {
-      fprintf(stderr, "There are no known collectors for this experiment.\n");
+        if( cgrp.size() == 0 )
+        {
+          fprintf(stderr, "There are no known collectors for this experiment.\n");
+        }
+        for(CollectorGroup::iterator ci = cgrp.begin();ci != cgrp.end();ci++)
+        {
+          Collector collector = *ci;
+          Metadata cm = collector.getMetadata();
+          QString name = QString(cm.getUniqueId().c_str());
+        }
+      }
     }
-    for(CollectorGroup::iterator ci = cgrp.begin();ci != cgrp.end();ci++)
-    {
-      Collector collector = *ci;
-      Metadata cm = collector.getMetadata();
-      QString name = QString(cm.getUniqueId().c_str());
+    catch(const std::exception& error)
+    { 
+      std::cerr << std::endl << "Error: "
+                << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                "Unknown runtime error." : error.what()) << std::endl
+                << std::endl;
+      QApplication::restoreOverrideCursor( );
+      return FALSE;
     }
-  }
-}
-catch(const std::exception& error)
-{ 
-  std::cerr << std::endl << "Error: "
-            << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-            "Unknown runtime error." : error.what()) << std::endl
-            << std::endl;
-  QApplication::restoreOverrideCursor( );
-  return FALSE;
-}
 // End determine if there's mpi stats
 
 // printf("Call updateStatsPanelData() \n");
