@@ -415,10 +415,10 @@ static std::string VIEW_iot_long  = "\nA positive integer can be added to the en
 static std::string VIEW_iot_example = "\texpView io\n"
                                       "\texpView -v CallTrees,FullStack io10 -m min,max,count\n";
 static std::string VIEW_iot_metrics[] =
-  { "exclusive_details",
-    "exclusive_times",
+  { "inclusive_times",
     "inclusive_details",
-    "inclusive_times",
+    "exclusive_details",
+    "exclusive_times",
     ""
   };
 static std::string VIEW_iot_collectors[] =

@@ -355,10 +355,10 @@ static std::string VIEW_hwctime_example = "\texpView hwctime\n"
                                            "\texpView hwctime20 -m inclusive_overflows, exclusive_overflows\n"
                                            "\texpView -v CallTrees,FullStack hwctime10 -m count\n";
 static std::string VIEW_hwctime_metrics[] =
-  { "exclusive_detail",
-    "exclusive_overflows",
+  { "inclusive_overflows",
     "inclusive_detail",
-    "inclusive_overflows",
+    "exclusive_overflows",
+    "exclusive_detail",
     ""
   };
 static std::string VIEW_hwctime_collectors[] =

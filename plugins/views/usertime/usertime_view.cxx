@@ -358,10 +358,10 @@ static std::string VIEW_usertime_example = "\texpView usertime\n"
                                            "\texpView usertime20 -m inclusive_time, exclusive_time\n"
                                            "\texpView -v CallTrees,FullStack usertime10 -m count\n";
 static std::string VIEW_usertime_metrics[] =
-  { "exclusive_details",
-    "exclusive_time",
+  { "inclusive_time",
     "inclusive_details",
-    "inclusive_time",
+    "exclusive_time",
+    "exclusive_details",
     ""
   };
 static std::string VIEW_usertime_collectors[] =
