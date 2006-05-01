@@ -161,7 +161,9 @@ CompareExperimentsPanel::listener(void *msg)
   if( mo->msgType  == "LoadAttachObject" )
   {
     QString name = QString("Stats Panel [%1]").arg(getExpID());
+    LoadAttachObject *lao = (LoadAttachObject *)mo;
 // printf("listener:: Try to find the stats panel =(%s)\n", name.ascii() );
+// printf("lse=%s rse=%s\n", lao->leftSideExperiment.ascii(),  lao->leftSideExperiment.ascii() );
     Panel *p = getPanelContainer()->findNamedPanel(getPanelContainer(), (char *)name.ascii() );
     if( p )
     {

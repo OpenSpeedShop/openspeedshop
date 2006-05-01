@@ -94,6 +94,8 @@ CustomExperimentPanel::init( PanelContainer *pc, const char *n, ArgumentObject *
     collector_names = QString(cn);
   }
 
+  original_cview_command = QString::null;
+
 // This flag only gets set to true when the data is read from a file
 // or when the program is terminated.
 staticDataFLAG = FALSE;
@@ -486,25 +488,25 @@ CustomExperimentPanel::menu(QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( experimentStatus() ) );
   qaction->setStatusTip( tr("Get general information about this experiment...") );
 
-if( experiment != NULL )
-{
-  ThreadGroup tgrp = experiment->getThreads();
-  ThreadGroup::iterator ti = tgrp.begin();
-  if( tgrp.size() == 0 )
+  if( experiment != NULL )
   {
-    qaction = new QAction( this,  "loadProgram");
-    qaction->addTo( contextMenu );
-    qaction->setText( tr("Load Program...") );
-    connect( qaction, SIGNAL( activated() ), this, SLOT( loadProgramSelected() ) );
-    qaction->setStatusTip( tr("Opens dialog box to load application from disk.") );
-
-    qaction = new QAction( this,  "attachProcess");
-    qaction->addTo( contextMenu );
-    qaction->setText( tr("Attach Process...") );
-    connect( qaction, SIGNAL( activated() ), this, SLOT( attachProcessSelected() ) );
-    qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
+    ThreadGroup tgrp = experiment->getThreads();
+    ThreadGroup::iterator ti = tgrp.begin();
+    if( tgrp.size() == 0 )
+    {
+      qaction = new QAction( this,  "loadProgram");
+      qaction->addTo( contextMenu );
+      qaction->setText( tr("Load Program...") );
+      connect( qaction, SIGNAL( activated() ), this, SLOT( loadProgramSelected() ) );
+      qaction->setStatusTip( tr("Opens dialog box to load application from disk.") );
+  
+      qaction = new QAction( this,  "attachProcess");
+      qaction->addTo( contextMenu );
+      qaction->setText( tr("Attach Process...") );
+      connect( qaction, SIGNAL( activated() ), this, SLOT( attachProcessSelected() ) );
+      qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
+    }
   }
-}
 
   contextMenu->insertSeparator();
 
@@ -529,47 +531,9 @@ if( experiment != NULL )
   qaction->setStatusTip( tr("Bring up the process and collector manager.") );
 
 
-#ifdef MOVED_TO_STATSPANEL
-  qaction = new QAction( this,  "customizeExperimentsSelected");
-  qaction->addTo( contextMenu );
-  qaction->setText( "Customize StatsPanel..." );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( customizeExperimentsSelected() ) );
-  qaction->setStatusTip( tr("Customize column data in the StatsPanel.") );
-#endif // MOVED_TO_STATSPANEL
-
   return( TRUE );
 }
 
-
-#ifdef MOVED_TO_STATSPANEL
-void
-CustomExperimentPanel::customizeExperimentsSelected()
-{
-  nprintf( DEBUG_PANELS ) ("CustomExperimentPanel::customizeExperimentsSelected()\n");
-
-  QString name = QString("CustomizeStatsPanel [%1]").arg(expID);
-
-  Panel *customizePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
-
-
-  if( customizePanel )
-  { 
-    nprintf( DEBUG_PANELS ) ("customizePanel() found customizePanel found.. raise it.\n");
-    getPanelContainer()->raisePanel(customizePanel);
-  } else
-  {
-//    nprintf( DEBUG_PANELS ) ("customizePanel() no customizePanel found.. create one.\n");
-
-    PanelContainer *startPC = getPanelContainer();
-    PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
-
-    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-    customizePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("CustomizeStatsPanel", bestFitPC, ao, (const char *)NULL);
-    delete ao;
-  }
-
-}   
-#endif // MOVED_TO_STATSPANEL
 
 //! Save ascii version of this panel.
 /*! If the user panel provides save to ascii functionality, their function
@@ -627,7 +591,7 @@ CustomExperimentPanel::listener(void *msg)
     lao = (LoadAttachObject *)msg;
     if( lao && !lao->leftSideExperiment.isEmpty() )
     {
-      printf("%s: %s\n", lao->leftSideExperiment.ascii(), lao->rightSideExperiment.ascii() );
+// printf("%s: %s\n", lao->leftSideExperiment.ascii(), lao->rightSideExperiment.ascii() );
       CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
       int64_t val = 0;
       // Left side
@@ -730,6 +694,7 @@ CustomExperimentPanel::listener(void *msg)
       }
 
       command = QString("cview -c %1, %2").arg(leftSideCval).arg(rightSideCval);
+      original_cview_command = command;
       UpdateObject *msg =
          new UpdateObject((void *)NULL, -1, command.ascii(), 1);
       statsPanel->listener( (void *)msg );
@@ -1155,13 +1120,23 @@ CustomExperimentPanel::loadStatsPanel()
 
     nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", statsPanel->getName());
 // printf("CustomExperimentPanel:: call (%s)'s listener routine.\n", statsPanel->getName());
-    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-    if( eo && eo->FW() )
+    if( original_cview_command.isEmpty() )
     {
-      experiment = eo->FW();
+      ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+      if( eo && eo->FW() )
+      {
+        experiment = eo->FW();
+        UpdateObject *msg =
+          new UpdateObject((void *)experiment, expID, collector_names, 1);
+        statsPanel->listener( (void *)msg );
+      }
+    } else
+    {
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, collector_names, 1);
+         new UpdateObject((void *)NULL, -1, original_cview_command.ascii(), 1);
       statsPanel->listener( (void *)msg );
+
+      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Experiment %1 is being compared with experiment %2").arg(leftSideExpID).arg(rightSideExpID) );
     }
   }
 
@@ -1453,7 +1428,7 @@ staticDataFLAG = TRUE;
           statusTimer->stop();
         break;
     }
-last_status = status;
+    last_status = status;
     
   } else
   {

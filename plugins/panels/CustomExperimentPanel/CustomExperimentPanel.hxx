@@ -110,6 +110,7 @@ public:
   QLabel *statusLabel; 
   QLineEdit *statusLabelText;
   int last_status;
+  QString original_cview_command;
 
   QString collector_names;
   QString wizardName;
