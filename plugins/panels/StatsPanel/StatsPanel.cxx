@@ -759,7 +759,8 @@ StatsPanel::customizeExperimentsSelected()
     PanelContainer *startPC = getPanelContainer();
     PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
 
-    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+//    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", groupID);
     customizePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("CustomizeStatsPanel", bestFitPC, ao, (const char *)NULL);
     delete ao;
   }
