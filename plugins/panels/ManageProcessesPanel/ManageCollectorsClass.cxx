@@ -88,6 +88,7 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   attachCollectorsListView = new MPListView( splitter, "attachCollectorsListView", 0 );
   attachCollectorsListView->addColumn( 
     tr( QString("Collectors attached to experiment: '%1':").arg(expID) ) );
+  attachCollectorsListView->addColumn("                   ");
   attachCollectorsListView->addColumn( tr( QString("Name") ) );
   attachCollectorsListView->setColumnWidthMode(0, QListView::Manual);
   attachCollectorsListView->setColumnWidthMode(1, QListView::Maximum);
@@ -250,7 +251,7 @@ ManageCollectorsClass::updateAttachedList()
         {
           ce = (CollectorEntry *)*it;
           MPListViewItem *item = new MPListViewItem( attachCollectorsListView, ce->name, ce->short_name );
-          DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null, ce->name );
+          DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null, QString::null, ce->name );
           item->descriptionClassObject = dco;
           try
           {
@@ -302,25 +303,25 @@ ManageCollectorsClass::updateAttachedList()
                     {
                       MPListViewItem *item2 =
                         new MPListViewItem( item, host, pidstr );
-                      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr  );
+                      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr  );
                       item2->descriptionClassObject = dco;
                     } else if( !tidstr.isEmpty() )
                     {
                       MPListViewItem *item2 =
                         new MPListViewItem( item, host, pidstr, tidstr );
-                      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, tidstr  );
+                      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, tidstr, ridstr  );
                       item2->descriptionClassObject = dco;
                     } else if( !ridstr.isEmpty() )
                     {
                       MPListViewItem *item2 =
                         new MPListViewItem( item, host, pidstr, ridstr );
-                      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, ridstr  );
+                      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr  );
                       item2->descriptionClassObject = dco;
                     } else
                     {
                       MPListViewItem *item2 =
                         new MPListViewItem( item, host, pidstr );
-                      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr  );
+                      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr  );
                       item2->descriptionClassObject = dco;
                     }
                   }
@@ -339,9 +340,147 @@ ManageCollectorsClass::updateAttachedList()
         }
       attachCollectorsListView->setColumnText( 0, tr( QString("Collectors")) );
       attachCollectorsListView->setColumnText( 1, tr( QString("Name") ) );
+      attachCollectorsListView->setColumnText( 2, "            " );
       }
       break;
     case PID_T:
+    {
+// printf("PID_T: expID=%d\n", expID );
+      QString ridstr = QString::null;
+      try
+      {
+        ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  
+        if( eo->FW() != NULL )
+        {
+// printf("got an experiment.\n");
+  // The following bit of code was snag and modified from SS_View_exp.cxx
+          ThreadGroup tgrp = eo->FW()->getThreads();
+// printf("eo->Determine_Status() = (%d)\n", eo->Determine_Status() );
+          if( ( (eo->Determine_Status() == ExpStatus_NonExistent) ||
+            (eo->Determine_Status() == ExpStatus_Terminated ) ||
+            (eo->Determine_Status() == ExpStatus_InError ) ) && updateTimer )
+          {
+            updateTimer->stop();
+            updateTimer = NULL;
+          }
+          ThreadGroup::iterator ti;
+          bool atleastone = false;
+          for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+          {
+            Thread t = *ti;
+            std::string host = t.getHost();
+            pid_t pid = t.getProcessId();
+
+            // Add some status to each thread.
+            QString threadStatusStr;
+            switch( t.getState() )
+            {
+              case Thread::Disconnected:
+                threadStatusStr = "Disconnected";
+                break;
+              case Thread::Connecting:
+                threadStatusStr = "Connecting";
+                break;
+              case Thread::Nonexistent:
+                threadStatusStr = "Nonexistent";
+                break;
+              case Thread::Running:
+                threadStatusStr = "Running";
+                break;
+              case Thread::Suspended:
+                threadStatusStr = "Suspended";
+                break;
+              case Thread::Terminated:
+                threadStatusStr = "Terminate";
+                break;
+              default:
+                threadStatusStr = "Unknown";
+                break;
+            }
+// printf("threadStatusStr=(%s)\n", threadStatusStr.ascii() );
+  
+            if (!atleastone)
+            {
+              atleastone = true;
+            }
+            QString pidstr = QString("%1").arg(pid);
+            std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+            QString tidstr = QString::null;
+            if (pthread.first)
+            {
+              tidstr = QString("%1").arg(pthread.second);
+            }
+            std::pair<bool, int> rank = t.getMPIRank();
+            if (rank.first)
+            {
+              ridstr = QString("%1").arg(rank.second);
+// printf("GOT A RIDSTR=(%s)\n", ridstr.ascii() );
+            }
+            CollectorGroup cgrp = t.getCollectors();
+            CollectorGroup::iterator ci;
+            int collector_count = 0;
+            MPListViewItem *item = NULL;
+            if( ridstr.isEmpty() )
+            {
+              item = new MPListViewItem( attachCollectorsListView, pidstr, threadStatusStr );
+            } else
+            {
+              item =
+              new MPListViewItem( attachCollectorsListView, pidstr, ridstr, threadStatusStr );
+            }
+            DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr  );
+            item->descriptionClassObject = dco;
+            for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
+            {
+              Collector c = *ci;
+              Metadata m = c.getMetadata();
+              if (collector_count)
+              {
+              } else
+              {
+                collector_count = 1;
+              }
+              MPListViewItem *item2 = NULL;
+              if( ridstr.isEmpty() )
+              {
+                item2 = new MPListViewItem( item, host, m.getUniqueId());
+              } else
+              {
+                item2 = new MPListViewItem( item, host, ridstr, m.getUniqueId());
+              }
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr  );
+              item2->descriptionClassObject = dco;
+            }
+          }
+        }
+      }
+      catch(const std::exception& error)
+      {
+        std::cerr << std::endl << "Error: "
+          << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+          "Unknown runtime error." : error.what()) << std::endl
+          << std::endl;
+        return;
+      }
+      if( ridstr.isEmpty() )
+      {
+        attachCollectorsListView->setColumnText( 0, tr( QString("Processes:")) );
+        attachCollectorsListView->setColumnText( 1, tr( QString("Status") ) );
+        attachCollectorsListView->setColumnText( 2, "            " );
+      } else
+      {
+        attachCollectorsListView->setColumnText( 0, tr( QString("Processes:")) );
+        attachCollectorsListView->setColumnText( 1, tr( QString("Rank") ) );
+        attachCollectorsListView->setColumnText( 2, tr( QString("Status") ) );
+      }
+    }
+    break;
+  case  MPIRANK_T:
+// Does this one make sense?
+    attachCollectorsListView->setColumnText( 0, tr( QString("Ranks")) );
+    attachCollectorsListView->setColumnText( 1, tr( QString("Process ID") ) );
+    attachCollectorsListView->setColumnText( 2, "            " );
     {
 // printf("expID=%d\n", expID );
       try
@@ -417,9 +556,9 @@ ManageCollectorsClass::updateAttachedList()
             CollectorGroup cgrp = t.getCollectors();
             CollectorGroup::iterator ci;
             int collector_count = 0;
-            MPListViewItem *item =
-              new MPListViewItem( attachCollectorsListView, pidstr, threadStatusStr );
-            DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr  );
+            MPListViewItem *item = NULL;
+            item = new MPListViewItem( attachCollectorsListView, ridstr, threadStatusStr );
+            DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr  );
             item->descriptionClassObject = dco;
             for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
             {
@@ -431,8 +570,9 @@ ManageCollectorsClass::updateAttachedList()
               {
                 collector_count = 1;
               }
-              MPListViewItem *item2 = new MPListViewItem( item, host, m.getUniqueId());
-              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr  );
+              MPListViewItem *item2 = NULL;
+              item2 = new MPListViewItem( item, host, m.getUniqueId());
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr  );
               item2->descriptionClassObject = dco;
             }
           }
@@ -448,12 +588,8 @@ ManageCollectorsClass::updateAttachedList()
       }
       attachCollectorsListView->setColumnText( 0, tr( QString("Processes:")) );
       attachCollectorsListView->setColumnText( 1, tr( QString("Status") ) );
+      attachCollectorsListView->setColumnText( 2, tr( QString("      ") ) );
     }
-    break;
-  case  MPIRANK_T:
-// Does this one make sense?
-    attachCollectorsListView->setColumnText( 0, tr( QString("Ranks")) );
-    attachCollectorsListView->setColumnText( 1, tr( QString("Process ID") ) );
     break;
   case  HOST_T:
     try
@@ -482,7 +618,7 @@ ManageCollectorsClass::updateAttachedList()
         for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
         {
           MPListViewItem *item = new MPListViewItem( attachCollectorsListView, *hi );
-          DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null  );
+          DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null, QString::null  );
           item->descriptionClassObject = dco;
           bool atleastone = false;
           for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
@@ -529,25 +665,25 @@ ManageCollectorsClass::updateAttachedList()
               {
                 MPListViewItem *item2 = 
                   new MPListViewItem( item, pidstr, collectorliststring  );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, collectorliststring  );
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr, collectorliststring  );
                 item2->descriptionClassObject = dco;
               } else if( !tidstr.isEmpty() )
               {
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, tidstr, collectorliststring );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, tidstr, collectorliststring  );
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, tidstr, ridstr, collectorliststring  );
                 item2->descriptionClassObject = dco;
               } else if( !ridstr.isEmpty() )
               {
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, ridstr, collectorliststring );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, ridstr, collectorliststring  );
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr, collectorliststring  );
                 item2->descriptionClassObject = dco;
               } else
               {
                 MPListViewItem *item2 = 
                   new MPListViewItem( item, pidstr, collectorliststring  );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, collectorliststring  );
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr, collectorliststring  );
                 item2->descriptionClassObject = dco;
               }
             }
@@ -564,7 +700,8 @@ ManageCollectorsClass::updateAttachedList()
       return;
     }
     attachCollectorsListView->setColumnText( 0, tr( QString("Hosts:")) );
-    attachCollectorsListView->setColumnText( 1, tr( QString("N/A") ) );
+    attachCollectorsListView->setColumnText( 1, tr( QString("        ") ) );
+    attachCollectorsListView->setColumnText( 2, tr( QString("        ") ) );
     break;
   }
 
@@ -751,25 +888,25 @@ host_items->descriptionClassObject = host_dco;
               {
                 MPListViewItem *item2 = 
                   new MPListViewItem( item, pidstr, collectorliststring  );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, collectorliststring);
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               } else if( !tidstr.isEmpty() )
               {
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, tidstr, collectorliststring );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, collectorliststring);
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, ridstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               } else if( !ridstr.isEmpty() )
               {
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, ridstr, collectorliststring );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), ridstr, collectorliststring);
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               } else
               {
                 MPListViewItem *item2 = 
                   new MPListViewItem( item, pidstr, collectorliststring  );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, collectorliststring);
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               }
             }
@@ -1441,7 +1578,7 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
   } else
   {
 // printf("There was a statspanel... send the update message.\n");
-//msg->print();
+msg->print();
     sp->listener( (void *)msg );
   }
 }
@@ -1872,13 +2009,13 @@ ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &
   if( item )
   {
 // printf("%s %s\n", attachCollectorsListView->selectedItem()->text(0).ascii(), attachCollectorsListView->selectedItem()->text(1).ascii()  );
-// printf("%s %s\n", item->text(0).ascii(), item->text(1).ascii()  );
     if( dialogSortType == COLLECTOR_T )
     {
       field_name = item->text(0);
+// printf("A: %s %s\n", item->text(0).ascii(), item->text(1).ascii()  );
     } else
     {
-// printf("%s %s\n", item->text(0).ascii(), item->text(1).ascii() );
+// printf("B: %s %s\n", item->text(0).ascii(), item->text(1).ascii() );
 // printf("%s %s\n", attachCollectorsListView->selectedItem()->text(0).ascii(), attachCollectorsListView->selectedItem()->text(1).ascii()  );
       field_name = item->text(1);
     }
@@ -1909,17 +2046,18 @@ ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &
   // It may make sense to allow other SortTypes to add/delete collectors... 
   // At this point only this sort type is supported.
   if( dialogSortType == COLLECTOR_T || dialogSortType == PID_T || 
-      dialogSortType == HOST_T )
+      dialogSortType == HOST_T || dialogSortType == MPIRANK_T )
   {
 
     if( selected_item &&
        ( dialogSortType == COLLECTOR_T && selected_item->parent() == NULL ) ||
-       ( dialogSortType == PID_T && selected_item->parent() != NULL ) )
+       ( dialogSortType == PID_T && selected_item->parent() != NULL ) || 
+       ( dialogSortType == MPIRANK_T && selected_item->parent() != NULL ) )
     {
 // printf("Here field_name=(%s)\n", !field_name.isEmpty() ? field_name.ascii() : NULL );
       CollectorEntry *ce = NULL;
       CollectorEntryList::Iterator it;
-clo = new CollectorListObject(expID);
+      clo = new CollectorListObject(expID);
       if( clo )
       {
         for( it = clo->collectorEntryList.begin();
@@ -2057,6 +2195,7 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   }
 
 
+// printf("Now add the rest of the menu entries\n");
   contextMenu->insertSeparator();
 
   QAction *qaction = new QAction( this,  "_updatePanel");
@@ -2066,20 +2205,20 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   qaction->setStatusTip( tr("Attempt to update this panel's display with fresh data.") );
 
 
-if( runnableFLAG == TRUE )
-{
-  qaction = new QAction( this,  "loadProgram");
-  qaction->addTo( contextMenu );
-  qaction->setText( tr("Load Program...") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( loadProgramSelected() ) );
-  qaction->setStatusTip( tr("Opens dialog box to load application from disk.") );
-
-  qaction = new QAction( this,  "attachProcess");
-  qaction->addTo( contextMenu );
-  qaction->setText( tr("Attach Process...") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( attachProcessSelected() ) );
-  qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
-}
+  if( runnableFLAG == TRUE )
+  {
+    qaction = new QAction( this,  "loadProgram");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Load Program...") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( loadProgramSelected() ) );
+    qaction->setStatusTip( tr("Opens dialog box to load application from disk.") );
+  
+    qaction = new QAction( this,  "attachProcess");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Attach Process...") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( attachProcessSelected() ) );
+    qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
+  }
 
   qaction = new QAction( this,  "focusOnProcess");
   qaction->addTo( contextMenu );
@@ -2112,21 +2251,21 @@ if( runnableFLAG == TRUE )
   }
 
 
-    collectorMenu = new QPopupMenu(contextMenu);
-    if( leftSide == TRUE )
-    {
-      connect( collectorMenu, SIGNAL( activated( int ) ),
-                       this, SLOT( LS_attachCollectorSelected( int ) ) );
-    } else
-    {
-      connect( collectorMenu, SIGNAL( activated( int ) ),
-                       this, SLOT( RS_attachCollectorSelected( int ) ) );
-    }
-    connect( collectorMenu, SIGNAL( aboutToShow() ),
-                       this, SLOT( fileCollectorAboutToShowSelected( ) ) );
-  
-if( runnableFLAG == TRUE )
-{
+  collectorMenu = new QPopupMenu(contextMenu);
+  if( leftSide == TRUE )
+  {
+    connect( collectorMenu, SIGNAL( activated( int ) ),
+                     this, SLOT( LS_attachCollectorSelected( int ) ) );
+  } else
+  {
+    connect( collectorMenu, SIGNAL( activated( int ) ),
+                     this, SLOT( RS_attachCollectorSelected( int ) ) );
+  }
+  connect( collectorMenu, SIGNAL( aboutToShow() ),
+                     this, SLOT( fileCollectorAboutToShowSelected( ) ) );
+
+  if( runnableFLAG == TRUE )
+  {
     contextMenu->insertItem("Add Collector", collectorMenu);
     if( list_of_collectors.size() > 0 ) 
     {
@@ -2141,8 +2280,9 @@ if( runnableFLAG == TRUE )
       }
     }
 // printf("A: size =(%d) \n", list_of_collectors.size() );
-}
+  }
   
+// printf("leftSide=(%d)\n", leftSide );
   if( leftSide == TRUE )
   {
     QPopupMenu *sortByMenu = new QPopupMenu( contextMenu );

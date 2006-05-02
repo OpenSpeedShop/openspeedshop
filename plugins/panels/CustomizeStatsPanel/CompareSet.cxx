@@ -269,28 +269,28 @@ dynamic_items->setOpen(TRUE);
               {
                 MPListViewItem *item2 = 
                   new MPListViewItem( item, pidstr, collectorliststring  );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, collectorliststring);
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               } else if( !tidstr.isEmpty() )
               {
 // printf("tidStr!\n");
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, tidstr, collectorliststring );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, collectorliststring);
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, ridstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               } else if( !ridstr.isEmpty() )
               {
 // printf("ridStr!\n");
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, ridstr, collectorliststring );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), ridstr, collectorliststring);
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               } else
               {
 // printf("!tidStr && !ridStr!\n");
                 MPListViewItem *item2 = 
                   new MPListViewItem( item, pidstr, collectorliststring  );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, collectorliststring);
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               }
             }

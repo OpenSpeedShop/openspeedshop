@@ -78,6 +78,7 @@ ManageProcessesPanel::languageChange()
 bool
 ManageProcessesPanel::menu(QPopupMenu* contextMenu)
 {
+// printf("ManageProcessesPanel::menu() entered\n");
   Panel::menu(contextMenu);
 
   QAction *qaction = new QAction( this,  "openCustomizeStatsPanel");

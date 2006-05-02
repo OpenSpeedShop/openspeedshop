@@ -267,7 +267,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
       {
         MPListViewItem *namedSetItem =
                 new MPListViewItem( item, namedSet );
-        DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null, namedSet );
+        DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null, QString::null, namedSet );
         namedSetItem->descriptionClassObject = dco;
         item = namedSetItem;
       }
@@ -303,7 +303,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
           {
             MPListViewItem *namedSetItem =
                     new MPListViewItem( item, namedSet );
-            DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null, namedSet );
+            DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null, QString::null, namedSet );
             namedSetItem->descriptionClassObject = dco;
             item = namedSetItem;
           }

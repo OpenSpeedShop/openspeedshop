@@ -781,19 +781,23 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
                 collectorliststring = m.getUniqueId();
               }
             }
-            if( !tidstr.isEmpty() )
+            if( !pidstr.isEmpty() )
+            {
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr, ridstr  );
+              dcolist->append(dco);
+            } else if( !tidstr.isEmpty() )
             {
 // printf("A: host_name=(%s) tidstr=(%s)\n", host_name.ascii(), tidstr.ascii() );
-              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, tidstr  );
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, tidstr, ridstr  );
               dcolist->append(dco);
             } else if( !ridstr.isEmpty() )
             {
-              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, ridstr  );
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr, ridstr  );
               dcolist->append(dco);
 // printf("B; host_name=(%s) ridstr=(%s)\n", host_name.ascii(), ridstr.ascii() );
             } else
             {
-              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr  );
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr, ridstr  );
               dcolist->append(dco);
 // printf("C: host_name=(%s) pidstr=(%s)\n", host_name.ascii(), pidstr.ascii() );
             }
