@@ -100,23 +100,17 @@ def CompareResults(testName, fileptr):
 		j = 0
 		while ( ofl[j]!= '\n' and ofl[j] != '('):
 			if ofl[j:j+5] == 'pread':
-				print 'pread'
 				pread = 1
 			if ofl[j:j+4] == 'open':
-				print 'open'
 				f_open = 1
 			if ofl[j:j+5] == 'close':
-				print 'close'
 				f_close = 1
 			if ofl[j:j+4] == 'read':
 				f_read = 1
-				print 'read'
 			if ofl[j:j+4] == 'pipe':
 				pipe = 1
-				print 'pipe'
 			if ofl[j:j+5] == 'lseek':
 				lseek = 1	
-				print 'lseek'
 			j +=1
 		
 	if pread and f_open and f_close and f_read and pipe and lseek :
