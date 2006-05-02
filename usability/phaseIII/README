@@ -26,5 +26,5 @@ configure --prefix=$OPENSS_INSTALL_DIR
 make
 
 
-mpirun -np 4 smg2000A/test/smg2000 -n 100 100 100
-mpirun -np 4 smg2000B/test/smg2000 -n 100 100 100
+mpirun -np 4 smg2000A/test/smg2000 -n 75 75 75
+mpirun -np 4 smg2000B/test/smg2000 -n 75 75 75
