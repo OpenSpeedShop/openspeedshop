@@ -1,0 +1,153 @@
+#!/usr/bin/env python
+#
+#Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+#
+
+
+from sys import *
+import sys
+import os
+import threading
+from time import *
+from string import *
+from threading import *
+#from datetime import *
+
+
+def too_long():
+	os.system('killall -s 9 openss')
+
+def createTestList():
+	checktemptestlist = os.system('test -e temptestlist')
+	if checktemptestlist == 0:
+        	os.system('rm -f temptestlist')
+	os.system('ls -1 *.tst >> temptestlist')
+
+def runTest(testName):
+	checkinput = os.system('test -e input.script')
+	if checkinput == 0:
+		os.system('rm -f input.script')
+	#test_input = open(testName, 'r')
+	#testCommand = test_input.readline()
+	#linesToCompare = test_input.readline()
+	#test_input.close()
+	t = Timer(1000, too_long)
+	t.start()
+	os.system('./'+testName+ '>> '+ testName+'.output')
+	t.cancel()
+
+def iterateThroughTestList(fileptr):
+	con_input = open('temptestlist', 'r')
+        while 1:
+                config_line = con_input.readline()
+                if not config_line:
+                        break
+                test_name = config_line
+		i = 0
+	        while 1:
+                	if test_name[i] == '.':
+                        	break
+                	else:
+                        	i += 1
+        	testName = test_name[0:i+4]
+
+		runTest(testName)
+		CompareResults(testName, fileptr)
+               
+        con_input.close()
+
+def CompareResults(testName, fileptr):
+	outputfilename = testName + '.output'
+	outputfileptr = open(outputfilename, 'r')
+	pread = 0
+	f_open = 0
+	f_close = 0
+	f_read = 0
+	pipe = 0
+	lseek = 0
+	nooutput = 1 	
+	failure_reason = 0
+	while 1:
+		tempfileline = outputfileptr.readline()
+		if not tempfileline:
+			break
+		if tempfileline[0:9] == '      Exc':
+			nooutput = 0
+			break
+	test_status = 0
+	passing_ratio = 0 
+	while 1:
+		if (nooutput == 1):
+			failure_reason = 3
+			break
+		ofl = outputfileptr.readline()
+		if not ofl:
+			break
+		j = 0
+		while ( ofl[j]!= '\n' and ofl[j] != '('):
+			if ofl[j:j+5] == 'pread':
+				print 'pread'
+				pread = 1
+			if ofl[j:j+4] == 'open':
+				print 'open'
+				f_open = 1
+			if ofl[j:j+5] == 'close':
+				print 'close'
+				f_close = 1
+			if ofl[j:j+4] == 'read':
+				f_read = 1
+				print 'read'
+			if ofl[j:j+4] == 'pipe':
+				pipe = 1
+				print 'pipe'
+			if ofl[j:j+5] == 'lseek':
+				lseek = 1	
+				print 'lseek'
+			j +=1
+		
+	if pread and f_open and f_close and f_read and pipe and lseek :
+		passing_ratio = 1
+	else:
+		if nooutput == 0:
+			failure_reason = 2
+		
+	if (passing_ratio== 1) :
+		fileptr.write(testName + ' has PASSED \n')
+	else:
+		fileptr.write(testName + ' has FAILED.  ')
+		if (failure_reason == 3):
+			fileptr.write('Looks like openss crashed or ran too long. \n')
+		if (failure_reason == 2):
+			fileptr.write('There is a missing call to an io function.\n')
+		
+
+
+	 	
+
+if __name__ == '__main__':
+	checkoutput = os.system('test -e *.output')
+        if checkoutput == 0:
+                os.system('rm -f *.output')
+
+	currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
+        resultsFile =  'testresults_' + currTime
+        resultfileptr = open(resultsFile, 'w')
+	tempfileptr = open('testresultsfilename', 'w')
+	tempfileptr.write(resultsFile)
+
+	createTestList()
+	iterateThroughTestList(resultfileptr)
