@@ -18,39 +18,44 @@
 
 /** @file
  *
- * Specification of the IOT collector's blobs.
+ * Specification of the I/O extended event tracing collector's blobs.
  *
  */
+
+
 
 /** Structure of the blob containing our parameters. */
 struct iot_parameters {
 
-    /** Flags indicating if each IO function is to be traced. */
+    /** Flags indicating if each I/O function is to be traced. */
     uint8_t traced[1024];
 
 };
 
+
+
 #define MAXARGS 4
 
-/** Event structure describing a single IO call. */
+/** Event structure describing a single I/O call. */
 struct iot_event {
 
     uint64_t start_time;  /**< Start time of the call. */
     uint64_t stop_time;   /**< End time of the call. */
     uint16_t stacktrace;  /**< Index of the stack trace. */
 
-    uint16_t pathindex;        /**< Index of the pathnames. */
-    uint16_t syscallno;        /**< System call number. */
-    uint16_t nsysargs;         /**< number of arg to the syscall */
-    uint64_t sysargs[MAXARGS]; /**< Actuall arguments as ints*/
-    int retval;                /**< return value from IO call. */
+    uint16_t pathindex;         /**< Index of the pathnames. */
+    uint16_t syscallno;         /**< System call number. */
+    uint16_t nsysargs;          /**< Number of arg to the syscall. */
+    uint64_t sysargs[MAXARGS];  /**< Actual arguments as integers. */
+    int retval;                 /**< Return value from I/O call. */
+
 };
 
 /** Structure of the blob containing our performance data. */
 struct iot_data {
     uint64_t stacktraces<>;  /**< Stack traces. */
-    iot_event events<>;      /**< IOT call events. */
-    char pathnames<>;	     /**< IOT pathnames. */
+    iot_event events<>;      /**< I/O call events. */
+    char pathnames<>;	     /**< I/O pathnames. */
 };
 
 

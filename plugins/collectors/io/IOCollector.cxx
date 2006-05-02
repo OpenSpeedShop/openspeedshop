@@ -35,10 +35,10 @@ namespace {
 
 
     
-    /** Type returned for the IO call time metrics. */
+    /** Type returned for the I/O call time metrics. */
     typedef std::map<StackTrace, std::vector<double> > CallTimes;
 
-    /** Type returned for the IO call detail metrics. */
+    /** Type returned for the I/O call detail metrics. */
     typedef std::map<StackTrace, std::vector<IODetail> > CallDetails;
     
     
@@ -46,7 +46,7 @@ namespace {
     /**
      * Traceable function table.
      *
-     * Table listing the traceable IO functions. In order for an IO function
+     * Table listing the traceable I/O functions. In order for an I/O function
      * to actually be traceable, corresponding wrapper(s) must first be written
      * and compiled into this collector's runtime.
      *
@@ -54,7 +54,7 @@ namespace {
      *          its index position in the io_parameters.traced array. Thus
      *          the order the functions are listed here is significant. If it
      *          is changed, users will find that any saved databases suddenly
-     *          trace different IO functions than they did previously.
+     *          trace different I/O functions than they did previously.
      */
     const char* TraceableFunctions[] = {
 
@@ -108,33 +108,36 @@ extern "C" CollectorImpl* io_LTX_CollectorFactory()
 /**
  * Default constructor.
  *
- * Constructs a new IO collector with the proper metadata.
+ * Constructs a new I/O collector with the proper metadata.
  */
 IOCollector::IOCollector() :
     CollectorImpl("io",
-                  "IO Event Tracing",
-		  "Intercepts all calls to IO functions that perform any "
-		  "significant amount of work (primarily those that send "
-		  "messages) and records, for each call, the current stack "
-		  "trace and start/end time.")
+                  "I/O Event Tracing",
+		  "Intercepts all calls to I/O functions that perform any "
+		  "significant amount of work (primarily those that read/write "
+		  "data) and records, for each call, the current stack trace "
+		  "and start/end time.")
 {
     // Declare our parameters
     declareParameter(Metadata("traced_functions", "Traced Functions",
-			      "Set of IO functions to be traced.",
+			      "Set of I/O functions to be traced.",
 			      typeid(std::map<std::string, bool>)));
     
     // Declare our metrics
+    declareMetric(Metadata("time", "I/O Call Time",
+			   "Exclusive I/O call time in seconds.",
+			   typeid(double)));
     declareMetric(Metadata("inclusive_times", "Inclusive Times",
-			   "Inclusive IO call times in seconds.",
+			   "Inclusive I/O call times in seconds.",
 			   typeid(CallTimes)));
     declareMetric(Metadata("exclusive_times", "Exclusive Times",
-			   "Exclusive IO call times in seconds.",
+			   "Exclusive I/O call times in seconds.",
 			   typeid(CallTimes)));
     declareMetric(Metadata("inclusive_details", "Inclusive Details",
-			   "Inclusive IO call details.",
+			   "Inclusive I/O call details.",
 			   typeid(CallDetails)));
     declareMetric(Metadata("exclusive_details", "Exclusive Details",
-			   "Exclusive IO call details.",
+			   "Exclusive I/O call details.",
 			   typeid(CallDetails)));
 }
 
@@ -173,7 +176,7 @@ Blob IOCollector::getDefaultParameterValues() const
  * @retval ptr         Untyped pointer to the parameter value.
  */
 void IOCollector::getParameterValue(const std::string& parameter,
-				      const Blob& data, void* ptr) const
+				    const Blob& data, void* ptr) const
 {
     // Decode the blob containing the parameter values
     io_parameters parameters;
@@ -203,7 +206,7 @@ void IOCollector::getParameterValue(const std::string& parameter,
  * @retval data        Blob containing the parameter values.
  */
 void IOCollector::setParameterValue(const std::string& parameter,
-				      const void* ptr, Blob& data) const
+				    const void* ptr, Blob& data) const
 {
     // Decode the blob containing the parameter values
     io_parameters parameters;
@@ -236,7 +239,7 @@ void IOCollector::setParameterValue(const std::string& parameter,
  * @param thread       Thread for which to start collecting data.
  */
 void IOCollector::startCollecting(const Collector& collector,
-				    const Thread& thread) const
+				  const Thread& thread) const
 {
     // Get the set of traced functions for this collector
     std::map<std::string, bool> traced;
@@ -257,11 +260,11 @@ void IOCollector::startCollecting(const Collector& collector,
     executeNow(collector, thread,
                "io-rt: io_start_tracing", arguments);
 
-    // Execute our wrappers in place of the real IO functions
+    // Execute our wrappers in place of the real I/O functions
     for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)	
 	if((traced.find(TraceableFunctions[i]) != traced.end()) &&
 	   traced.find(TraceableFunctions[i])->second) {
-	    // Wrap the IO function
+	    // Wrap the I/O function
 	    // What if the traceable function is not found???
 	    executeInPlaceOf(
 		collector, thread, 
@@ -282,7 +285,7 @@ void IOCollector::startCollecting(const Collector& collector,
  * @param thread       Thread for which to stop collecting data.
  */
 void IOCollector::stopCollecting(const Collector& collector,
-				   const Thread& thread) const
+				 const Thread& thread) const
 {
     // Execute io_stop_tracing() in the thread
     executeNow(collector, thread,
@@ -311,43 +314,44 @@ void IOCollector::stopCollecting(const Collector& collector,
  */
 
 void IOCollector::getMetricValues(const std::string& metric,
-				    const Collector& collector,
-				    const Thread& thread,
-				    const Extent& extent,
-				    const Blob& blob,
-				    const ExtentGroup& subextents,
-				    void* ptr) const
+				  const Collector& collector,
+				  const Thread& thread,
+				  const Extent& extent,
+				  const Blob& blob,
+				  const ExtentGroup& subextents,
+				  void* ptr) const
 {
-    // Only the "inclusive_times" and "exclusive_times" metrics return anything
-    if((metric != "inclusive_times") && (metric != "exclusive_times") &&
-       (metric != "inclusive_details") && (metric != "exclusive_details"))
+    // Determine which metric was specified
+    bool is_time = (metric == "time");
+    bool is_inclusive_times = (metric == "inclusive_times");
+    bool is_exclusive_times = (metric == "exclusive_times");
+    bool is_inclusive_details = (metric == "inclusive_details");
+    bool is_exclusive_details = (metric == "exclusive_details");
+
+    // Don't return anything if an invalid metric was specified
+    if(!is_time &&
+       !is_inclusive_times && !is_exclusive_times &&
+       !is_inclusive_details && !is_exclusive_details)
 	return;
-    bool is_exclusive = (metric == "exclusive_times"     ||
-                         metric == "exclusive_details"   );
-
-    bool is_details =   (metric == "inclusive_details"   ||
-                         metric == "exclusive_details"   );
-
-    // Cast the untype pointer into a vector of call details
-    std::vector<CallDetails>* dvalues =
-            reinterpret_cast<std::vector<CallDetails>*>(ptr);
-    // Cast the untype pointer into a vector of call times
-    std::vector<CallTimes>* tvalues = 
-	reinterpret_cast<std::vector<CallTimes>*>(ptr);
-    
+     
+    // Check assertions
+    if(is_time) {
+	Assert(reinterpret_cast<std::vector<double>*>(ptr)->size() >=
+	       subextents.size());
+    }
+    else if(is_inclusive_times || is_exclusive_times) {
+	Assert(reinterpret_cast<std::vector<CallTimes>*>(ptr)->size() >=
+	       subextents.size());
+    }
+    else if(is_inclusive_details || is_exclusive_details) {
+	Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
+	       subextents.size()); 
+    }
 
     // Decode this data blob
     io_data data;
     memset(&data, 0, sizeof(data));
     blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_io_data), &data);
-
-    // Check assertions
-    if (is_details) {
-        Assert(dvalues->size() >= subextents.size());
-    } else {
-        Assert(tvalues->size() >= subextents.size());
-    }
-    
 
     // Iterate over each of the events
     for(unsigned i = 0; i < data.events.events_len; ++i) {
@@ -356,30 +360,27 @@ void IOCollector::getMetricValues(const std::string& metric,
 	TimeInterval interval(Time(data.events.events_val[i].start_time),
 			      Time(data.events.events_val[i].stop_time));
 
-
 	// Get the stack trace for this event
 	StackTrace trace(thread, interval.getBegin());
 	for(unsigned j = data.events.events_val[i].stacktrace;
 	    data.stacktraces.stacktraces_val[j] != 0;
-	    ++j) {
+	    ++j)
 	    trace.push_back(Address(data.stacktraces.stacktraces_val[j]));
-
-	}
 	
 	// Iterate over each of the frames in this event's stack trace
 	for(StackTrace::const_iterator 
 		j = trace.begin(); j != trace.end(); ++j) {
 
-	    // Stop after the first frame if this is "exclusive_times"
-	    if(is_exclusive && (j != trace.begin()))
+	    // Stop after the first frame if this is "exclusive" anything
+	    if((is_time || is_exclusive_times || is_exclusive_details) &&
+	       (j != trace.begin()))
 		break;
-	    
+
 	    // Find the subextents that contain this frame
 	    std::set<ExtentGroup::size_type> intersection =
 		subextents.getIntersectionWith(
 		    Extent(interval, AddressRange(*j))
 		    );
-	    
 
 	    // Iterate over each subextent in the intersection
 	    for(std::set<ExtentGroup::size_type>::const_iterator
@@ -389,34 +390,44 @@ void IOCollector::getMetricValues(const std::string& metric,
 		double t_intersection = static_cast<double>
 		    ((interval & subextents[*k].getTimeInterval()).getWidth());
 
-		//
-		// Add this event's stack trace to the results for this
-		// subextent (or find an existing stack trace)
-		//
-		
-                if (is_details) {
-                    // metric is for details
-                    CallDetails::iterator l = (*dvalues)[*k].insert(
-                        std::make_pair(trace, std::vector<IODetail>())
-                        ).first;
+		// Add this event to the results for this subextent
+		if(is_time) {
 
-                    IODetail details;
+		    // Add this event's time (in seconds) to the results
+		    (*reinterpret_cast<std::vector<double>*>(ptr))[*k] +=
+			t_intersection / 1000000000.0;
+		    
+		}
+		else if(is_inclusive_times || is_exclusive_times) {
 
-                    // Add this event's time (in seconds) to the results
-                    details.dm_interval = interval;
-                    details.dm_time = t_intersection / 1000000000.0;
+		    // Find this event's stack trace in the results (or add it)
+		    CallTimes::iterator l =
+			(*reinterpret_cast<std::vector<CallTimes>*>(ptr))
+			[*k].insert(
+			    std::make_pair(trace, std::vector<double>())
+			    ).first;
 
-                    l->second.push_back(details);
-                } else {
-                    // metric is for times
-                    CallTimes::iterator l = (*tvalues)[*k].insert(
-                        std::make_pair(trace, std::vector<double>())
-                        ).first;
+		    // Add this event's time (in seconds) to the results
+		    l->second.push_back(t_intersection / 1000000000.0);
 
-                    // Add this event's time (in seconds) to the results
-                    l->second.push_back(t_intersection / 1000000000.0);
-                }
-		
+		}
+		else if(is_inclusive_details || is_exclusive_details) {
+
+		    // Find this event's stack trace in the results (or add it)
+		    CallDetails::iterator l =
+			(*reinterpret_cast<std::vector<CallDetails>*>(ptr))
+			[*k].insert(
+			    std::make_pair(trace, std::vector<IODetail>())
+			    ).first;
+		    
+		    // Add this event's details structure to the results
+		    IODetail details;
+		    details.dm_interval = interval;
+		    details.dm_time = t_intersection / 1000000000.0;
+		    l->second.push_back(details);
+		    
+		}
+
 	    }
 	    
 	}

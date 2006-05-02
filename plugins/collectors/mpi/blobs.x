@@ -34,7 +34,6 @@ struct mpi_parameters {
 
 /** Event structure describing a single MPI call. */
 struct mpi_event {
-
     uint64_t start_time;  /**< Start time of the call. */
     uint64_t stop_time;   /**< End time of the call. */
     uint16_t stacktrace;  /**< Index of the stack trace. */
@@ -43,7 +42,7 @@ struct mpi_event {
 /** Structure of the blob containing our performance data. */
 struct mpi_data {
     uint64_t stacktraces<>;  /**< Stack traces. */
-    mpi_event events<>;     /**< MPI call events. */
+    mpi_event events<>;      /**< MPI call events. */
 };
 
 

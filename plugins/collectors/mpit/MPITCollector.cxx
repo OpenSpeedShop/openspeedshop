@@ -147,6 +147,12 @@ MPITCollector::MPITCollector() :
 			      typeid(std::map<std::string, bool>)));
     
     // Declare our metrics
+    declareMetric(Metadata("time", "MPI Call Time",
+			   "Exclusive MPI call time in seconds.",
+			   typeid(double)));
+    declareMetric(Metadata("bytes", "MPI Bytes Sent/Received",
+			   "Exclusive MPI call bytes sent/recevied.",
+			   typeid(uint64_t)));
     declareMetric(Metadata("inclusive_times", "Inclusive Times",
 			   "Inclusive MPI call times in seconds.",
 			   typeid(CallTimes)));
@@ -341,29 +347,36 @@ void MPITCollector::getMetricValues(const std::string& metric,
 				    const ExtentGroup& subextents,
 				    void* ptr) const
 {
-    // Only the "inclusive_times" and "exclusive_times" metrics return anything
-    if((metric != "inclusive_times") && (metric != "exclusive_times") &&
-       (metric != "inclusive_details") && (metric != "exclusive_details"))
+    // Determine which metric was specified
+    bool is_time = (metric == "time");
+    bool is_bytes = (metric == "bytes");
+    bool is_inclusive_times = (metric == "inclusive_times");
+    bool is_exclusive_times = (metric == "exclusive_times");
+    bool is_inclusive_details = (metric == "inclusive_details");
+    bool is_exclusive_details = (metric == "exclusive_details");
+
+    // Don't return anything if an invalid metric was specified
+    if(!is_time && !is_bytes &&
+       !is_inclusive_times && !is_exclusive_times &&
+       !is_inclusive_details && !is_exclusive_details)
 	return;
-    bool is_exclusive = (metric == "exclusive_times"   ||
-                         metric == "exclusive_details"   );
 
-    bool is_details =   (metric == "inclusive_details"   ||
-                         metric == "exclusive_details"   );
-
-
-    // Cast the untype pointer into a vector of call details
-    std::vector<CallDetails>* dvalues =
-            reinterpret_cast<std::vector<CallDetails>*>(ptr);
-    // Cast the untype pointer into a vector of call times
-    std::vector<CallTimes>* tvalues =
-            reinterpret_cast<std::vector<CallTimes>*>(ptr);
-    
     // Check assertions
-    if (is_details) {
-        Assert(dvalues->size() >= subextents.size());
-    } else {
-        Assert(tvalues->size() >= subextents.size());
+    if(is_time) {
+	Assert(reinterpret_cast<std::vector<double>*>(ptr)->size() >=
+	       subextents.size());
+    }
+    else if(is_bytes) {
+	Assert(reinterpret_cast<std::vector<uint64_t>*>(ptr)->size() >=
+	       subextents.size());
+    }
+    else if(is_inclusive_times || is_exclusive_times) {
+	Assert(reinterpret_cast<std::vector<CallTimes>*>(ptr)->size() >=
+	       subextents.size());
+    }
+    else if(is_inclusive_details || is_exclusive_details) {
+	Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
+	       subextents.size());
     }
 
     // Decode this data blob
@@ -389,8 +402,10 @@ void MPITCollector::getMetricValues(const std::string& metric,
 	for(StackTrace::const_iterator 
 		j = trace.begin(); j != trace.end(); ++j) {
 
-	    // Stop after the first frame if this is "exclusive_times"
-	    if(is_exclusive && (j != trace.begin()))
+	    // Stop after the first frame if this is "exclusive" anything
+	    if((is_time || is_bytes || 
+		is_exclusive_times || is_exclusive_details) &&
+	       (j != trace.begin()))
 		break;
 	    
 	    // Find the subextents that contain this frame
@@ -407,41 +422,59 @@ void MPITCollector::getMetricValues(const std::string& metric,
 		double t_intersection = static_cast<double>
 		    ((interval & subextents[*k].getTimeInterval()).getWidth());
 
-		//
-		// Add this event's stack trace to the results for this
-		// subextent (or find an existing stack trace)
-		//
+		// Add this event to the results for this subextent
+		if(is_time) {
 
-                if (is_details) {
-                    // metric is for details
-                    CallDetails::iterator l = (*dvalues)[*k].insert(
-                        std::make_pair(trace, std::vector<MPITDetail>())
-                        ).first;
-
-                    // Add this event's time (in seconds) to the results
-                    MPITDetail details;
+		    // Add this event's time (in seconds) to the results
+		    (*reinterpret_cast<std::vector<double>*>(ptr))[*k] +=
+			t_intersection / 1000000000.0;
 		    
+		}
+		else if(is_bytes) {
+
+		    // Add this event's bytes sent/received to the results
+		    (*reinterpret_cast<std::vector<double>*>(ptr))[*k] +=
+			data.events.events_val[i].size;
+		    
+		}
+		else if(is_inclusive_times || is_exclusive_times) {
+
+		    // Find this event's stack trace in the results (or add it)
+		    CallTimes::iterator l =
+			(*reinterpret_cast<std::vector<CallTimes>*>(ptr))
+			[*k].insert(
+			    std::make_pair(trace, std::vector<double>())
+			    ).first;
+
+		    // Add this event's time (in seconds) to the results
+		    l->second.push_back(t_intersection / 1000000000.0);
+
+		}
+		else if(is_inclusive_details || is_exclusive_details) {
+
+		    // Find this event's stack trace in the results (or add it)
+		    CallDetails::iterator l =
+			(*reinterpret_cast<std::vector<CallDetails>*>(ptr))
+			[*k].insert(
+			    std::make_pair(trace, std::vector<MPITDetail>())
+			    ).first;
+		    
+		    // Add this event's details structure to the results
+		    MPITDetail details;
+		    details.dm_interval = interval;
+		    details.dm_time = t_intersection / 1000000000.0;
 		    details.dm_source = data.events.events_val[i].source;
-		    details.dm_destination = data.events.events_val[i].destination;
+		    details.dm_destination = 
+			data.events.events_val[i].destination;
 		    details.dm_size = data.events.events_val[i].size;
 		    details.dm_tag = data.events.events_val[i].tag;
-		    details.dm_communicator = data.events.events_val[i].communicator;
+		    details.dm_communicator = 
+			data.events.events_val[i].communicator;
 		    details.dm_datatype = data.events.events_val[i].datatype;
 		    details.dm_retval = data.events.events_val[i].retval;
-
-                    details.dm_interval = interval;
-                    details.dm_time = t_intersection / 1000000000.0;
-
-                    l->second.push_back(details);
-                } else {
-                    // metric is for times
-                    CallTimes::iterator l = (*tvalues)[*k].insert(
-                        std::make_pair(trace, std::vector<double>())
-                        ).first;
-
-                    // Add this event's time (in seconds) to the results
-                    l->second.push_back(t_intersection / 1000000000.0);
-                }
+		    l->second.push_back(details);
+		    
+		}
 
 	    }
 	    
