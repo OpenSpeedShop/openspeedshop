@@ -19,6 +19,5 @@
 EXTRA_DIST = \
 	runall \
 	call1.tst \
-	call1.tst.expected \
 	runone
 
