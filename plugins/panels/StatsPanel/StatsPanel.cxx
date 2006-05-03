@@ -4035,7 +4035,7 @@ StatsPanel::generateHWCMenu(QString collectorName)
          this, SLOT(collectorHWCReportSelected(int)) );
 
   list_of_hwc_modifiers.clear();
-  list_of_hwc_modifiers.push_back("hwc::hwc_overflows");
+  list_of_hwc_modifiers.push_back("hwc::overflows");
   
   if( hwcModifierMenu )
   {
@@ -4848,6 +4848,13 @@ xxxfuncName = CE->Form().c_str();
 
         i++;
       }
+
+    } else if ((*cri)->Type() == CMD_RESULT_STRING)
+    {  // This looks to be a message we should display
+      QString s = QString((*cri)->Form().c_str());
+        
+      QMessageBox::information( (QWidget *)this, tr("Info:"), s, QMessageBox::Ok );
+      break;
     }
     /* You have found the next row!! */
     // Here's a formatted row
