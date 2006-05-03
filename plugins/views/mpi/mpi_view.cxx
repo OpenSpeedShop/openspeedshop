@@ -453,7 +453,8 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
 static std::string VIEW_mpi_example = "\texpView mpi\n"
                                       "\texpView -v CallTrees,FullStack mpi10 -m min,max,count\n";
 static std::string VIEW_mpi_metrics[] =
-  { "inclusive_times",
+  { "time",
+    "inclusive_times",
     "inclusive_details",
     "exclusive_times",
     "exclusive_details",

@@ -547,7 +547,8 @@ static std::string VIEW_mpit_example = "\texpView mpit\n"
                                        "\texpView -v Trace mpit10\n" 
                                        "\texpView -v Trace mpit100 -m start_time, inclusive_time, size\n";
 static std::string VIEW_mpit_metrics[] =
-  { "inclusive_times",
+  { "time",
+    "inclusive_times",
     "inclusive_details",
     "exclusive_times",
     "exclusive_details",

@@ -416,7 +416,8 @@ static std::string VIEW_io_long  = "\nA positive integer can be added to the end
 static std::string VIEW_io_example = "\texpView io\n"
                                       "\texpView -v CallTrees,FullStack io10 -m min,max,count\n";
 static std::string VIEW_io_metrics[] =
-  { "inclusive_times",
+  { "time",
+    "inclusive_times",
     "inclusive_details",
     "exclusive_times",
     "exclusive_details",
