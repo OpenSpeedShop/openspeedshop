@@ -495,108 +495,126 @@ void Filter_ThreadGroup (OpenSpeedShop::cli::ParseResult *p_result, ThreadGroup&
     return;
   }
 
-  ThreadGroup dgrp;
-  ThreadGroup rgrp;
-
- // For each set of filter specifications ...
-  vector<ParseTarget>::iterator pi;
-  for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
-    ParseTarget pt = *pi;
-    vector<ParseRange> *c_list = pt.getClusterList();
-    vector<ParseRange> *h_list = pt.getHostList();
-    vector<ParseRange> *f_list = pt.getFileList();
-    vector<ParseRange> *p_list = pt.getPidList();
-    vector<ParseRange> *t_list = pt.getThreadList();
-    vector<ParseRange> *r_list = pt.getRankList();
-
-    bool has_h = !((h_list == NULL) || h_list->empty());
-    bool has_f = !((f_list == NULL) || f_list->empty());
-    bool has_p = !((p_list == NULL) || p_list->empty());
-    bool has_t = !((t_list == NULL) || t_list->empty());
-    bool has_r = !((r_list == NULL) || r_list->empty());
+  Thread firstThread(*tgrp.begin());
+  try {
+    firstThread.lockDatabase();
+    ThreadGroup dgrp;
+    ThreadGroup rgrp;
 
    // Go through every thread and decide if it is included.
     ThreadGroup::iterator ti;
     for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
       Thread t = *ti;
-      bool include_thread = true;
-
-      if (has_h) {
-       // Does it match a host?
-        bool within_list = false;
-        std::string hid = Experiment::getCanonicalName(t.getHost());
-        vector<ParseRange>::iterator pr_iter;
-        for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
-          if (within_range(hid, *pr_iter->getRange())) {
-            within_list = true;
-            break;
-          }
+      std::string hid = t.getHost();
+      pid_t pid = t.getProcessId();
+      std::pair<bool, int> pthread = t.getOpenMPThreadId();
+      bool threadHasThreadId = false;
+      int64_t pthreadid = -1;
+      if (pthread.first) {
+        threadHasThreadId = true;
+        pthreadid = pthread.second;
+      } else {
+        std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
+        if (posixthread.first) {
+          threadHasThreadId = true;
+          pthreadid = posixthread.second;
         }
-        include_thread = within_list;
       }
+      std::pair<bool, int> prank = t.getMPIRank();
+      int64_t rank = prank.first ? prank.second : -1;
 
-      if (include_thread && has_p) {
-       // Does it match a pid?
-        pid_t pid = t.getProcessId();
-        bool within_list = false;
+     // For each set of filter specifications ...
+      vector<ParseTarget>::iterator pi;
+      for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
+        bool include_thread = true;
 
-        vector<ParseRange>::iterator pr_iter;
-        for (pr_iter=p_list->begin();pr_iter != p_list->end(); pr_iter++) {
-          if (within_range(pid, *pr_iter->getRange())) {
-            within_list = true;
-            break;
-          }
-        }
-        include_thread = within_list;
-      }
+        ParseTarget pt = *pi;
+        vector<ParseRange> *h_list = pt.getHostList();
+        vector<ParseRange> *f_list = pt.getFileList();
+        vector<ParseRange> *p_list = pt.getPidList();
+        vector<ParseRange> *t_list = pt.getThreadList();
+        vector<ParseRange> *r_list = pt.getRankList();
 
-      if (include_thread && has_t) {
-       // Does it match a pthread ID?
-        std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-        if (pthread.first) {
-          int64_t tid = pthread.second;
+        bool has_h = !((h_list == NULL) || h_list->empty());
+        bool has_f = !((f_list == NULL) || f_list->empty());
+        bool has_p = !((p_list == NULL) || p_list->empty());
+        bool has_t = !((t_list == NULL) || t_list->empty());
+        bool has_r = !((r_list == NULL) || r_list->empty());
+
+        if (include_thread && has_r && prank.first) {
+         // Does it match a rank ID?
           bool within_list = false;
 
           vector<ParseRange>::iterator pr_iter;
-          for (pr_iter=t_list->begin();pr_iter != t_list->end(); pr_iter++) {
-            if (within_range(tid, *pr_iter->getRange())) {
+          for (pr_iter=r_list->begin();pr_iter != r_list->end(); pr_iter++) {
+            if (within_range(rank, *pr_iter->getRange())) {
               within_list = true;
               break;
             }
           }
           include_thread = within_list;
-        } else include_thread = false;
-      }
-
-#if HAS_OPENMP
-      if (include_thread && has_r) {
-       // Does it match a rank ID?
-        int64_t rid = t.getOmpThreadId();
-        bool within_list = false;
-
-        vector<ParseRange>::iterator pr_iter;
-        for (pr_iter=r_list->begin();pr_iter != r_list->end(); pr_iter++) {
-          if (within_range(rid, *pr_iter->getRange())) {
-            within_list = true;
-            break;
-          }
         }
-        include_thread = within_list;
-      }
-#endif
 
-     // Add matching threads to rgrp.
-      if (include_thread) {
-        rgrp.insert(t);
+        if (include_thread && has_t && threadHasThreadId) {
+         // Does it match a pthread ID?
+          bool within_list = false;
+
+          vector<ParseRange>::iterator pr_iter;
+          for (pr_iter=t_list->begin();pr_iter != t_list->end(); pr_iter++) {
+            if (within_range(pthreadid, *pr_iter->getRange())) {
+              within_list = true;
+              break;
+            }
+          }
+          include_thread = within_list;
+        }
+
+        if (include_thread && has_p) {
+         // Does it match a pid?
+          bool within_list = false;
+
+          vector<ParseRange>::iterator pr_iter;
+          for (pr_iter=p_list->begin();pr_iter != p_list->end(); pr_iter++) {
+            if (within_range(pid, *pr_iter->getRange())) {
+              within_list = true;
+              break;
+            }
+          }
+          include_thread = within_list;
+        }
+
+        if (include_thread && has_h) {
+         // Does it match a host?
+          bool within_list = false;
+          vector<ParseRange>::iterator pr_iter;
+          for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
+            if (within_range(hid, *pr_iter->getRange())) {
+              within_list = true;
+              break;
+            }
+          }
+          include_thread = within_list;
+        }
+
+
+       // Add matching threads to rgrp.
+        if (include_thread) {
+          rgrp.insert(t);
+          break;
+        }
       }
 
     }
 
+   // Copy selected threads to output argument.
+    tgrp.clear();
+    tgrp = rgrp;
   }
-
- // Copy selected threads to output argument.
-  tgrp.clear();
-  tgrp = rgrp;
+  catch(const Exception& error) {
+    tgrp.clear();
+  }
+  firstThread.unlockDatabase();
 }
 
 // Utilities to decode <target_list> and attach or detach
@@ -737,7 +755,6 @@ static void Resolve_T_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 
     int64_t mythread;
     for ( mythread = t_val1->num; mythread <= t_val2->num; mythread++) {
-#ifdef HAVE_OPENMP
       try {
         Thread t = exp->FW()->attachOpenMPThread(mypid, mythread, host_name);
         tgrp->insert(t);
@@ -746,7 +763,6 @@ static void Resolve_T_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
         Mark_Cmd_With_Std_Error (cmd, error);
         return;
       }
-#endif
     }
   }
 }
@@ -879,7 +895,6 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 // Look through the parse results objects and figure out the host specification.
 static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadGroup *tgrp, ParseTarget pt) {
 
-  vector<ParseRange> *c_list = pt.getClusterList();
   vector<ParseRange> *h_list = pt.getHostList();
   vector<ParseRange> *f_list = pt.getFileList();
   vector<ParseRange> *p_list = pt.getPidList();
@@ -2107,29 +2122,42 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
         bool atleastone = false;
         for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
           Thread t = *ti;
-          std::string host = Experiment::getCanonicalName(t.getHost());
-          pid_t pid = t.getProcessId();
           if (!atleastone) {
             atleastone = true;
             cmd->Result_String ("  Currently Specified Components:");
           }
+
+          std::string host = t.getHost();
+          pid_t pid = t.getProcessId();
           int64_t p = pid;
           char spid[20]; sprintf(&spid[0],"%lld",p);
           std::string S = "    -h " + host + " -p " + std::string(&spid[0]);
-          std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+
+          std::pair<bool, int> pthread = t.getOpenMPThreadId();
+          bool threadHasThreadId = false;
+          int64_t pthreadid = 0;
           if (pthread.first) {
-            int64_t t = pthread.second;
-            char tid[20]; sprintf(&tid[0],"%lld",t);
+            threadHasThreadId = true;
+            pthreadid = pthread.second;
+          } else {
+            std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
+            if (posixthread.first) {
+              threadHasThreadId = true;
+              pthreadid = posixthread.second;
+            }
+          }
+          if (threadHasThreadId) {
+            char tid[20]; sprintf(&tid[0],"%lld",pthreadid);
             S = S + " -t " + std::string(&tid[0]);
           }
-#ifdef HAVE_MPI
+
           std::pair<bool, int> rank = t.getMPIRank();
           if (rank.first) {
             int64_t r = rank.second;
             char rid[20]; sprintf(&rid[0],"%lld",r);
             S = S + " -r " + std::string(&rid[0]);
           }
-#endif
+
           CollectorGroup cgrp = t.getCollectors();
           CollectorGroup::iterator ci;
           int collector_count = 0;
@@ -2462,7 +2490,7 @@ static bool SS_ListHosts (CommandObject *cmd) {
     std::set<std::string> hset;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
-      hset.insert (Experiment::getCanonicalName(t.getHost()));
+      hset.insert (t.getHost());
     }
     for (std::set<std::string>::iterator hseti = hset.begin(); hseti != hset.end(); hseti++) {
       cmd->Result_String ( *hseti );
@@ -2825,7 +2853,6 @@ static bool SS_ListPids (CommandObject *cmd) {
  *
  */
 static bool SS_ListRanks (CommandObject *cmd) {
-#ifdef HAVE_MPI
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
@@ -2859,18 +2886,10 @@ static bool SS_ListRanks (CommandObject *cmd) {
     std::set<int64_t> rset;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
-      int64_t rank = 0;
-#ifdef HAVE_MPI
-      if (t.getPosixThreadId().first &&
-          t.getMPIRank().first) {
-        rank = t.getMPIRank().second;
+      std::pair<bool, int> prank = t.getMPIRank();
+      if (prank.first) {
+        rset.insert ( prank.second );
       }
-#else
-      if (t.getPosixThreadId().first) {
-        rank = t.getPosixThreadId().second;
-      }
-#endif
-      rset.insert ( rank );
     }
     for (std::set<int64_t>::iterator rseti = rset.begin(); rseti != rset.end(); rseti++) {
       cmd->Result_Int ( *rseti );
@@ -2881,11 +2900,6 @@ static bool SS_ListRanks (CommandObject *cmd) {
 
   cmd->set_Status(CMD_COMPLETE);
   return true;
-
-#else
-  Mark_Cmd_With_Soft_Error(cmd, "The system does not support MPI Ranks.");
-  return false;
-#endif
 }
 
 /**
@@ -3005,7 +3019,6 @@ static bool SS_ListStatus (CommandObject *cmd) {
  *
  */
 static bool SS_ListThreads (CommandObject *cmd) {
-#ifdef HAVE_OPENMP
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
@@ -3039,7 +3052,19 @@ static bool SS_ListThreads (CommandObject *cmd) {
     std::set<int64_t> tset;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
-      tset.insert ( (int64_t)t.getOmpThreadId() );
+
+      std::pair<bool, int> pthread = t.getOpenMPThreadId();
+      int64_t pthreadid = 0;
+      if (pthread.first) {
+        pthreadid = pthread.second;
+        tset.insert (pthreadid);
+      } else {
+        std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
+        if (posixthread.first) {
+          pthreadid = posixthread.second;
+          tset.insert (pthreadid);
+        }
+      }
     }
     for (std::set<int64_t>::iterator tseti = tset.begin(); tseti != tset.end(); tseti++) {
       cmd->Result_Int ( *tseti );
@@ -3050,11 +3075,6 @@ static bool SS_ListThreads (CommandObject *cmd) {
 
   cmd->set_Status(CMD_COMPLETE);
   return true;
-
-#else
-  Mark_Cmd_With_Soft_Error(cmd, "The system does not support OpenMp Threads.");
-  return false;
-#endif
 }
 
 /**

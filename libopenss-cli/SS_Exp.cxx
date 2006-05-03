@@ -104,22 +104,25 @@ void ExperimentObject::Print(ostream &mystream) {
       bool atleastone = false;
       for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
         Thread t = *ti;
-        std::string host = Experiment::getCanonicalName(t.getHost());
+        std::string host = t.getHost();
         pid_t pid = t.getProcessId();
         if (!atleastone) {
           atleastone = true;
         }
         mystream << "    -h " << host << " -p " << pid;
-        std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+        std::pair<bool, int> pthread = t.getOpenMPThreadId();
         if (pthread.first) {
           mystream << " -t " << pthread.second;
+        } else {
+          std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+          if (pthread.first) {
+            mystream << " -t " << pthread.second;
+          }
         }
-#ifdef HAVE_MPI
         std::pair<bool, int> rank = t.getMPIRank();
         if (rank.first) {
           mystream << " -r " << rank.second;
         }
-#endif
         CollectorGroup cgrp = t.getCollectors();
         CollectorGroup::iterator ci;
         int collector_count = 0;

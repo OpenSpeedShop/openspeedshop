@@ -159,8 +159,8 @@ struct selectionTarget {
  * determine which of the original set of threads are
  * begin requested.
  *
- * A thread is selected if one of the itees in each  of
- * the specified -h -p -r -t lists matchs the similar
+ * A thread is selected if one of the items in each  of
+ * the specified -h -p -r -t lists matches the similar
  * information for the thread for one of the <target>
  * specifiers in the given <target_list>. The -f option
  * is ignored.
@@ -181,10 +181,27 @@ void Select_ThreadGroup (selectionTarget& S, ThreadGroup& base_grp, ThreadGroup&
       Thread t = *ti;
       bool include_thread = true;
 
-      if (S.hostId != "") {
-       // Does it match the host?
-        std::string hid = Experiment::getCanonicalName(t.getHost());
-        include_thread = (hid == S.hostId);
+      if (include_thread && (S.rankId != 0)) {
+        std::pair<bool, int> prank = t.getMPIRank();
+        include_thread = (prank.first && (prank.second == S.rankId));
+      }
+
+      if (include_thread && (S.threadId != 0)) {
+       // Does it match a pthread ID?
+        std::pair<bool, int> pthread = t.getOpenMPThreadId();
+        bool threadHasThreadId = false;
+        int64_t pthreadid = 0;
+        if (pthread.first) {
+          threadHasThreadId = true;
+          pthreadid = pthread.second;
+        } else {
+          std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
+          if (posixthread.first) {
+            threadHasThreadId = true;
+            pthreadid = posixthread.second;
+          }
+        }
+        include_thread = (threadHasThreadId && (pthreadid == S.threadId));
       }
 
       if (include_thread && (S.pidId != 0)) {
@@ -193,25 +210,10 @@ void Select_ThreadGroup (selectionTarget& S, ThreadGroup& base_grp, ThreadGroup&
         include_thread = (pid == S.pidId);
       }
 
-      if (include_thread && (S.threadId != 0)) {
-       // Does it match a pthread ID?
-        std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-        if (pthread.first) {
-          int64_t tid = pthread.second;
-          include_thread = (tid == S.threadId);
-        } else include_thread = false;
-      }
-
-      if (include_thread && (S.rankId != 0)) {
-        if (t.getOpenMPThreadId().first) {
-         // Does it match a rank ID?
-          int64_t rid = t.getOpenMPThreadId().second;
-          include_thread = (rid == S.rankId);
-        } else if (t.getMPIRank().first) {
-         // Does it match a rank ID?
-          int64_t rid = t.getMPIRank().second;
-          include_thread = (rid == S.rankId);
-        } else include_thread = false;
+      if (include_thread && (S.hostId != "")) {
+       // Does it match the host?
+        std::string hid = t.getHost();
+        include_thread = (hid == S.hostId);
       }
 
      // Add matching threads to rgrp.
@@ -243,7 +245,7 @@ static bool Generate_CustomView (CommandObject *cmd,
 */
 
 
- // /enerate all t e views in the list.
+ // Generate all the views in the list.
   for (i = 0; i < numQuickSets; i++) {
    // Try to Generate the Requested View for each comparison set!
     ExperimentObject *exp = Quick_Compare_Set[i].Exp;
@@ -259,6 +261,7 @@ static bool Generate_CustomView (CommandObject *cmd,
     OpenSpeedShop::cli::ParseResult *sResult = NULL;
     ThreadGroup tgrp;
     if (Quick_Compare_Set[i].pResult != NULL) {
+     // This path implies that we have a custom view definition.
      // Use the parse object from the cView definition.
       sResult = cmd->swapParseResult (Quick_Compare_Set[i].pResult);
       if ((Quick_Compare_Set[i].base_tgrp != NULL) &&
@@ -271,6 +274,7 @@ static bool Generate_CustomView (CommandObject *cmd,
         Filter_ThreadGroup (cmd->P_Result(), tgrp);
       }
     } else {
+     // This path implies we are processing an expCompare command.
      // Get all the threads that are in the experiment.
         ThreadGroup base_tgrp = exp->FW()->getThreads();
      // Retain only the threads that may be of interest.
@@ -1463,19 +1467,6 @@ bool Cluster_Analysis (
     return false;
   }
 
-/*
-  SmartPtr<std::map<TOBJECT, std::map<Thread, double> > > individual;
-  Queries::GetMetricValues(collector, metric,
-                           TimeInterval(Time::TheBeginning(), Time::TheEnd()),
-                           tgrp, objects, individual);
-  if (individual->begin() == individual->end()) {
-    Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested cluster analysis.)");
-    return false;
-  }
-
-  clusters = Queries::ClusterAnalysis::ApplySimple(individual);
-*/
-
   Metadata m = Find_Metadata ( collector, metric );
   std::string id = m.getUniqueId();
 
@@ -1742,12 +1733,14 @@ bool SS_cvClusters (CommandObject *cmd) {
       pid_t pid = j->getProcessId();
       new_pt->pushPidPoint (pid);
 
-      if (j->getPosixThreadId().first) {
-        new_pt->pushThreadPoint (j->getPosixThreadId().second);
+      std::pair<bool, pthread_t> posixthread = j->getPosixThreadId();
+      if (posixthread.first) {
+        new_pt->pushThreadPoint (posixthread.second);
       }
 
-      if (j->getMPIRank().first) {
-        new_pt->pushRankPoint (j->getMPIRank().second);
+      std::pair<bool, int> prank = j->getMPIRank();
+      if (prank.first) {
+        new_pt->pushRankPoint (prank.second);
       }
 
      // New ParseTarget is complete, commit it and create a new currentTarget..
@@ -1767,6 +1760,7 @@ bool SS_cvClusters (CommandObject *cmd) {
     cmd->Result_Int (cvp->cvId());
   }
 
+/* TEST */
 /*
   for(std::set<ThreadGroup>::const_iterator
          i = clusters.begin(); i != clusters.end(); ++i) {
