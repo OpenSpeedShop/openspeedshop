@@ -79,6 +79,9 @@ def CompareResults(testName, fileptr):
 	f_read = 0
 	pipe = 0
 	lseek = 0
+	creat =0
+	dup =0
+	dup2 = 0
 	nooutput = 1 	
 	failure_reason = 0
 	while 1:
@@ -111,9 +114,15 @@ def CompareResults(testName, fileptr):
 				pipe = 1
 			if ofl[j:j+5] == 'lseek':
 				lseek = 1	
+			if ofl[j:j+5] == 'creat':
+				creat =1
+			if ofl[j:j+3] == 'dup':
+				dup =1
+			if ofl[j:j+4] == 'dup2':
+				dup2 = 1
 			j +=1
 		
-	if pread and f_open and f_close and f_read and pipe and lseek :
+	if pread and f_open and f_close and f_read and pipe and lseek and creat and dup and dup2 :
 		passing_ratio = 1
 	else:
 		if nooutput == 0:
@@ -127,6 +136,25 @@ def CompareResults(testName, fileptr):
 			fileptr.write('Looks like openss crashed or ran too long. \n')
 		if (failure_reason == 2):
 			fileptr.write('There is a missing call to an io function.\n')
+			if pread == 0:
+				fileptr.write('A call to pread is missing. \n')
+			if f_open == 0:
+				fileptr.write('A call to open is missing. \n')
+			if f_close == 0:
+				fileptr.write('A call to close is missing. \n')
+			if f_read == 0:
+				fileptr.write('A call to read is missing. \n')
+			if pipe == 0:
+				fileptr.write('A call to pipe is missing. \n')
+			if lseek == 0:
+				fileptr.write('A call to lseek is missing. \n')
+			if creat == 0:
+				fileptr.write('A call to creat is missing. \n')
+			if dup == 0:
+				fileptr.write('A call to dup is missing. \n')
+			if dup2 == 0:
+				fileptr.write('A call to dup2 is missing. \n')
+
 		
 
 
