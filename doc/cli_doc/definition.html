@@ -62,7 +62,24 @@ Building Block Commands
         <ul>
           <li><a href="#mozTocId575758">expStatus
             </a></li>
+          <li><a href="#mozTocId575757">expCompare
+            </a></li>
           <li><a href="#mozTocId575759">expView
+            </a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId688300">Custom View Commands
+        </a>
+        <ul>
+          <li><a href="#mozTocId688310">cViewCluster
+            </a></li>
+          <li><a href="#mozTocId688320">cViewCreate
+            </a></li>
+          <li><a href="#mozTocId688330">cViewDelete
+            </a></li>
+          <li><a href="#mozTocId688340">cViewInfo
+            </a></li>
+          <li><a href="#mozTocId688350">cView
             </a></li>
         </ul>
       </li>
@@ -70,6 +87,8 @@ Building Block Commands
         </a>
         <ul>
           <li><a href="#mozTocId842989">list -v breaks
+            </a></li>
+          <li><a href="#mozTocId221381">list -v cviews
             </a></li>
           <li><a href="#mozTocId332313">list -v expid
             </a></li>
@@ -546,8 +565,7 @@ executed. </font><br>
 <br>
 <font size="+0"></font>
 <h2><a name="mozTocId688200" class="mozTocH2"></a><font face="Arial"><font
- size="+0"><a name="INFORMATION_COMMANDS"></a><big>Experiment
-Information Commands</big><br>
+ size="+0"><a name="INFORMATION_COMMANDS"></a><big>Experiment Information Commands</big><br>
 </font></font></h2>
 <p></p>
 <p></p>
@@ -567,6 +585,63 @@ reported for all the known experiments. </li>
   </font><br>
   <font size="-1"><b>expStatus</b> [ <b>-v all</b> ||
 <b>-x</b> &lt;expId&gt; ]</font>
+</ul>
+<h3><a name="mozTocId575757" class="mozTocH3"></a><font size="+0"><b><a
+ name="expCompare"></a><li>expCompare</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- Display a simple partitioning of the data samples that
+have been collected and saved in an experiment data base.<br>
+- The display is organized to provide a side-by-side comparison of items
+that are specified (or implied) by a user provided list.<br>
+- The list of side-by-side items can be specified with the <b>-x</b>,
+<b>-h</b>, <b>-p</b>, <b>-t</b> or <b>-r</b> options. <br>
+- If more than one list is provided, the command is ambiguous and can not
+be executed.<br>
+- The meaning of the <b>-v</b>, <b>-m</b>, &lt;viewType&gt; and other, non-list,
+fields is the same meaning as if they were attached to an <b>expView</b> command. <br><br>
+- If this command is issued with no <b>-x</b> &lt;expId&gt;, the focused
+experiment is used. <br>
+- If this command is issued with no &lt;viewType&gt;, the specified
+experiment is examined and an attempt is made to find a &lt;viewType&gt;
+with the same name as the &lt;expType&gt; used in the experiment. If
+there is no matching &lt;viewType&gt;, or if there is more than one
+&lt;expType&gt; used in the experiment, the command can not be executed. <br>
+- This command does not change the execution state of the experiment,
+although the nature of the requested data may require that the experiment
+complete execution before the information can be provided.<br>
+- The use of the "&lt;expMetric_list&gt;" option allows control over
+the data
+that is included in the report.
+  <dir><li>Only the metrics specified in the list will be included in
+the report.</li>
+  <li>The meterics will be reported in the order that they occur in the
+list.</li>
+  <li>The report will be sorted in descending order of the first metric
+in the list.</li>
+  <li>If no list is provided, a default will be provided that depends on
+the &lt;expType&gt; that is being used.</li>
+  </dir>
+- The use of the "&lt;target&gt;" option acts like a filter on the
+output, if it is not a list.
+  <dir><li>The absence of any "<b>-h</b> &lt;hostname&gt;"
+specification will cause all the information available for all hosts in
+the specifed experiment to be included.</li>
+  <li>The default cluster contains only localhost and can be specified
+by using <b>-h localhost</b>. </li>
+  <li>Use of the <b>-f</b> option is will result in only the function
+associated with that name being included.</li>
+  <li>Use of the <b>-p</b> option will result in only the Threads
+associated with that Pid being included. </li>
+  <li>Use of the <b>-t</b> option will result in only that specific
+Thread being included, if it exists on the selected hosts. </li>
+  <li>Use of the <b>-r</b> option will result in only that specific
+Rank being included, if it exists on the selected hosts. </li>
+  </dir>
+  </font> <br>
+  <font size="-1"><b>expCompare </b>[ <b>-v</b> &lt;modifier_list&gt; ] 
+  [ <b>-x</b> &lt;expId_list&gt; ] [ &lt;viewType&gt; ]
+[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target&gt; ]</font>
 </ul>
 <h3><a name="mozTocId575759" class="mozTocH3"></a><font size="+0"><b><a
  name="expView"></a><li>expView</li>
@@ -612,11 +687,94 @@ associated with that name being included.</li>
 associated with that Pid being included. </li>
   <li>Use of the <b>-t</b> option will result in only that specific
 Thread being included, if it exists on the selected hosts. </li>
+  <li>Use of the <b>-r</b> option will result in only that specific
+Rank being included, if it exists on the selected hosts. </li>
   </dir>
   </font> <br>
   <font size="-1"><b>expView </b>[ <b>-v</b> &lt;modifier_list&gt; ] 
   [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
 [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
+</ul>
+<br>
+<font size="+0"></font>
+<h2><a name="mozTocId688300" class="mozTocH2"></a><font face="Arial"><font
+ size="+0"><a name="INFORMATION_COMMANDS"></a><big>Custom View Commands</big><br>
+</font></font></h2>
+<p></p>
+<p></p>
+<h3><a name="mozTocId688310" class="mozTocH3"></a><font size="+0"><b><a
+ name="cViewCluster"></a><li>cViewCluster</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- Use agglomerative hierarchical clustering techniques to
+group processes that are doing "the same thing" into custom view definitions.<br>
+- Each grouping will create a unique custom view and the entire list of
+ID's is returned from the command.<br>
+- The <b>cViewInfo</b> command can be used, along with these ID's to display
+the components of the custom view definitions.<br>
+- These ID's can be used, individually or in a list, with the <b>cView</b>
+command to produce a report.<br>
+  </font> <br>
+<font size="-1">&lt;cvId_list&gt;
+  <b>= cViewCluster</b> [<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
+  [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
+</ul>
+<h3><a name="mozTocId688320" class="mozTocH3"></a><font size="+0"><b><a
+ name="cViewCreate"></a><li>cViewCreate</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- Define a custom view.<br>
+- The meaning of the fields on this command is identical to those on the
+<b>expView</b> command. <br>
+- This command does not produce a report, but returns an ID that can be used
+on a <b>cView</b> command, alone or with other ID's, to produce reports.<br>
+  </font> <br>
+<font size="-1">&lt;cvId&gt;
+  <b>= cViewCreate</b> [<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
+  [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
+</ul>
+<h3><a name="mozTocId688330" class="mozTocH3"></a><a name="cViewDelete"></a><b><font
+ size="+0"><li>cViewDelete</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Delete custom views.<br>
+- If the <b>-c</b> option is used, delete only the views defined for the Id's that
+are specified in the &lt;cvId_list&gt;.<br>
+- If the <b>-v all</b> option is specified, delete all the defined custom views.<br>
+- After execution of this command, the Id's for the deleted views can not be used.<br>
+  </font><br>
+<font size="-1"><b>cViewDelete</b> [ <b>-v all</b> || <b>-c</b> &lt;cvId_list&gt; ]</font>
+</ul>
+<h3><a name="mozTocId688340" class="mozTocH3"></a><a name="cViewInfo"></a><b><font
+ size="+0"><li>cViewInfo</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Report all the components of a custom view.<br>
+- If the <b>-c</b> option is used, provide information only for the Id's that
+are specified in the &lt;cvId_list&gt;.<br>
+- If the <b>-v all</b> option is specified, provide information for all the
+defined custom views.<br>
+  </font><br>
+<font size="-1"><b>cViewInfo</b> [ <b>-v all</b> || <b>-c</b> &lt;cvId_list&gt; ]</font>
+</ul>
+<h3><a name="mozTocId688350" class="mozTocH3"></a><a name="cView"></a><b><font
+ size="+0"><li>cView</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Generate the list of custom views in a side-by-side manner.<br>
+- This command uses the information provided on <b>cViewCreate</b> commands or
+provided by <b>cViewCluster</b> commands, from implicitly created custom view definitions,
+to generate a report.<br>
+- If there is only one ID provided in the <b>-c &lt;cvId_list&gt;</b>, the output of this
+command is equivalent to executing an <b>expView</b> command with the same fields that
+were on the <b>cViewCreate</b> command.<br>
+- When multiple IDs are provided in the <b>-c &lt;cvId_list&gt;</b>, a report is generated
+for each ID and the output from each is merged into a final report, using the right most
+field as a key. The final report will have columns for each of the fields that
+the initial reports contain, except that the right most column (the key) is only printed once.
+Keys that exist in one of the generated reports and not others may have columns that are blank filled.<br>
+  </font><br>
+  <font size="-1"><b>cView</b> <b>-c</b> &lt;cvId_list&gt;</font>
 </ul>
 <br>
 <font size="+0"></font>
@@ -645,6 +803,23 @@ for all of the experiments defined by the user, to be listed. </li>
   <br>
   <font size="-1">&lt;ListOf_breakId&gt;
   <b>= list</b> <b>-v breaks , all</b>  [ <b>-x</b> &lt;expId&gt; ] </font>
+</ul>
+<h3><a class="mozTocH3" name="mozTocId221381"></a><font size="-1"><font
+ size="-1"><font size="-1"><a name="mozTocId460797" class="mozTocH3"></a><b><font
+ size="+0"><a name="listCviews"></a><li>listCviews</li>
+</font></b></font></font></font></h3>
+<ul>
+  <font size="-1"><font size="-1"><font size="-1"> <font size="-1">-
+  List the Id's of all the custom view that are defined.
+This will include all of that were explicitly defined with <b>cViewCreate</b> commands
+and those created through the execution of <b>cViewCluster</b> commands.<br>
+  </font> <br>
+  <font size="-1">&lt;ListOf_cvId&gt;
+  <b>= list</b> <b>-v cviews</b></font>
+  <br>
+  <font size="-1">&lt;ListOf_cvId&gt;
+  <b>= list</b> <b>-v cviews , all</b></font>
+  </font></font></font>
 </ul>
 <h3><a name="mozTocId332313" class="mozTocH3"></a><a name="listExp"></a><b><font
  size="+0"><li>listExp</li>
@@ -1113,13 +1288,14 @@ must be valid on every host and executable attached to the experiment. </font><b
 </font></b></font></font></font></font></font></font></h3>
 <ul>
   <font size="-1"><font size="-1"><font size="-1"><font size="-1"><font
- size="-1"><font size="-1"> <font size="-1">- This command will cause openss to wait for an event before processing
-any more commands. <br>
-- If <b>-v terminate </b> is not provided, the wait will be until every preceding command
-is completed. <br>
-- With <b>-v terminate </b>,  the wait will be until the specified
-experiment, or the focused experiment has completed execution, either
-normally or in error.
+ size="-1"><font size="-1"> <font size="-1">- This command will cause openss to wait for an
+event before processing any more commands. <br>
+- With <b>-v terminate</b>,  the wait will be until the specified experiment,
+or the focused experiment has completed execution, either normally or in error.<br>
+- Since <b>-v terminate</b> is the only option currently available,
+if it is not provided, the command will behave as if it were provided. <br>
+- In addition, a <b>-v all</b> option can be supplied.  It will cause command processing to
+wait until all defined experiments have terminated.
 </font><br>
   <br>
  <font size="-1"><b>wait</b>

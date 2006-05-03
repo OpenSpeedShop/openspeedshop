@@ -28,6 +28,7 @@ and Status Defintions</a>
         <ul>
           <li><a href="#mozTocId133354">address_description</a></li>
           <li><a href="#mozTocId296052">breakId</a></li>
+          <li><a href="#mozTocId968018">cvId</a></li>
           <li><a href="#mozTocId968019">expId</a></li>
           <li><a href="#mozTocId784977">expMetric</a></li>
           <li><a href="#mozTocId932908">expParam</a></li>
@@ -60,6 +61,14 @@ address.</font>
 <ul>
   <p><font size="2">&lt;<b>breakId</b>&gt; ::= &lt;int&gt;<b></b></font></p>
 </ul>
+<h3><a name="mozTocId968018" class="mozTocH3"></a><b><b><font size="3"><li><a
+ name="cvId"></a>cvId</li>
+</font></b></b></h3>
+<b><font size="3"></font></b><font size="2"> is a custom view identifier.</font>
+<ul>
+  <p><font size="2">&lt;<b>cvId</b>&gt; ::= &lt;int&gt;</font></p>
+  <p><font size="2">&lt;<b>cvId_list</b>&gt; ::= &lt;cvId&gt [ , &lt;cvId&gt ] +</font></p>
+</ul>
 <h3><a name="mozTocId968019" class="mozTocH3"></a><b><b><font size="3"><li><a
  name="expId"></a>expId</li>
 </font></b></b></h3>
@@ -67,14 +76,12 @@ address.</font>
 identifier.</font>
 <ul>
   <p><font size="2">&lt;<b>expId</b>&gt; ::= &lt;int&gt;</font></p>
-  <p><font size="2">&lt;<b>expId_spec</b>&gt; ::= <b>-x</b>
-&lt;expId&gt;</font></p>
+  <p><font size="2">&lt;<b>expId_list</b>&gt; ::= &lt;expId&gt; [ , &lt;expId&gt; ] +</font></p>
 </ul>
 <h3><a name="mozTocId784977" class="mozTocH3"></a><b><font
  size="3"><li><a name="expMetric"></a>expMetric</li>
 </font></b></h3>
-<font size="3"></font><font size="2"> is a result that an
-experiment can return.
+<font size="3"></font><font size="2"> is a result that an experiment can return.
 It could be a full report, a value or a set of values. </font>
 <ul>
   <p><font size="2">&lt;<b>metric_name</b>&gt; ::= &lt;string&gt;</font></p>
@@ -189,17 +196,8 @@ along with a specific process, thread, or rank identifier.</font>
   <font size="2">&lt;<b>host_list_spec</b>&gt;
 ::= <b>-h</b> &lt;host_list&gt;</font>
   <p></p>
-  <font size="2">&lt;<b>clustername</b>&gt;
-::= &lt;string&gt; || <b>"</b>&lt;string&gt;<b>"</b></font>
-  <br>
-  <font size="2">&lt;<b>cluster_list</b>&gt;
-::= &lt;clustername&gt; [ <b>,</b> &lt;clustername&gt; ] +</font>
-  <br>
-  <font size="2">&lt;<b>cluster_list_spec</b>&gt;
-::= <b>-c</b> &lt;cluster_list&gt;</font>
-  <p></p>
   <font size="2">&lt;<b>target</b>&gt;
-::= [ &lt;cluster_list_spec&gt; ]
+::=
 [ &lt;host_list_spec&gt; ]
 [ &lt;file_list_spec&gt; ]
 [ &lt;pid_list_spec&gt; ]

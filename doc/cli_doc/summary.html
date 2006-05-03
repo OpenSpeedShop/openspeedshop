@@ -8,7 +8,6 @@
          Texts.  A copy of the license is included in the section entitled "GNU
       Free Documentation License".
 >
-dd
 <html>
 <head>
   <title>OpenSpeedShop command summary</title>
@@ -29,6 +28,8 @@ Command Summary
       <li><a href="#mozTocId860173">Experiment Building Block Commands
         </a></li>
       <li><a href="#mozTocId327520">Experiment Information Commands
+        </a></li>
+      <li><a href="#mozTocId327522">Custom View Commands
         </a></li>
       <li><a href="#mozTocId327521">Low Level Information Commands
         </a></li>
@@ -85,8 +86,30 @@ Command Summary
 <font face="Arial"><font size="+0"></font></font></h2>
 <font size="-1"><b>expStatus</b> [ <b>-v all</b> || <b>-x</b> &lt;expId&gt; ]</font>
 <br>
+<font size="-1"><b>expCompare </b>[<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId_list&gt; ] [ &lt;viewType&gt; ]
+[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target&gt; ]</font>
+<br>
 <font size="-1"><b>expView </b>[<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
 [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
+<br>
+<br>
+<br>
+<h2><a name="mozTocId327522" class="mozTocH2"></a><a
+ name="Information_Commands"></a><small>Custom View Commands</small><br>
+<font face="Arial"><font size="+0"></font></font></h2>
+<font size="-1">&lt;cvId_list&gt;
+<b>= cViewCluster</b> [<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
+[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
+<br>
+<font size="-1">&lt;cvId&gt;
+<b>= cViewCreate</b> [<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
+[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
+<br>
+<font size="-1"><b>cViewDelete</b> [ <b>-v all</b> || <b>-c</b> &lt;cvId_list&gt; ]</font>
+<br>
+<font size="-1"><b>cViewInfo</b> [ <b>-v all</b> || <b>-c</b> &lt;cvId_list&gt; ]</font>
+<br>
+<font size="-1"><b>cView</b> <b>-c</b> &lt;cvId_list&gt;</font>
 <br>
 <br>
 <br>
@@ -99,6 +122,11 @@ Command Summary
 <br>
 <font size="-1">&lt;ListOf_breakId&gt;
 <b>= list</b> <b>-v breaks , all</b>  [ <b>-x</b> &lt;expId&gt; ] </font>
+<br>
+<br>
+
+<font size="-1">&lt;listOf_cvId&gt;
+<b>= list</b> <b>-v cviews</b> </font>
 <br>
 <br>
 
