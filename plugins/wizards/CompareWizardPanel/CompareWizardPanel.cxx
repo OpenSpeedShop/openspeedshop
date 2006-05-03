@@ -575,7 +575,7 @@ void CompareWizardPanel::vSummaryPageFinishButtonSelected()
           {
 // printf("First expRestore -f exp1; expRestore -f exp2;\n");
 
-// printf("The call the CompareExperimentsPanel's listener to load the stats panel with the arguments expCompare -x 1 -x 2 sort of syntax....n");
+// printf("The call the CompareExperimentsPanel's listener to load the stats panel with the arguments expCompare -x 1 -x 2 sort of syntax....\n");
            lao = new LoadAttachObject(QString::null, QString::null, NULL, TRUE);
            lao->leftSideExperiment = leftSideDirName+"/"+leftSideExperimentComboBox->currentText();
            lao->rightSideExperiment = rightSideDirName+"/"+rightSideExperimentComboBox->currentText();

@@ -140,11 +140,8 @@ public:
   int getExpID() { return expID; }
   int64_t leftSideExpID;   // Used by CompareExperimentsPanel ONLY
   int64_t rightSideExpID;   // Used by CompareExperimentsPanel ONLY
+  QString getMostImportantMetric(QString collector_name);
 
-#ifdef MOVED_TO_STATSPANEL 
-  // Move back to "public slots:" if reimplementing
-  virtual void customizeExperimentsSelected();
-#endif // MOVED_TO_STATSPANEL
 public slots:
   virtual void saveAsSelected();
   virtual void loadSourcePanel();

@@ -624,9 +624,11 @@ CustomExperimentPanel::listener(void *msg)
           }
         }
       }
-      command = QString("cViewCreate -x %1 %2").arg(val).arg(collector_name); 
+      QString metric = getMostImportantMetric(collector_name);
+
+      command = QString("cViewCreate -x %1 %2 %3").arg(val).arg(collector_name).arg(metric); 
       leftSideExpID = val;
-// printf("command=(%s)\n", command.ascii() );
+// printf("            CustomExperimentPanel.cxx command=(%s)\n", command.ascii() );
       if( !cli->getIntValueFromCLI(command.ascii(), &leftSideCval, mark_value_for_delete ) )
       {
         printf("Unable to create cview for %d\n", leftSideCval);
@@ -661,9 +663,11 @@ CustomExperimentPanel::listener(void *msg)
           }
         }
       }
-      command = QString("cViewCreate -x %1 %2").arg(val).arg(collector_name); 
+      metric = getMostImportantMetric(collector_name);
+
+      command = QString("cViewCreate -x %1 %2 %3").arg(val).arg(collector_name).arg(metric); 
       rightSideExpID = val;
-// printf("command=(%s)\n", command.ascii() );
+// printf("            CustomExperimentPanel.cxx: command=(%s)\n", command.ascii() );
       if( !cli->getIntValueFromCLI(command.ascii(), &rightSideCval, mark_value_for_delete ) )
       {
         printf("Unable to create cview for %d\n", rightSideCval);
@@ -1782,3 +1786,38 @@ CustomExperimentPanel::resetRedirect()
   }
 }
 
+// These defaults are pulled directly from the -cli documentation.
+QString
+CustomExperimentPanel::getMostImportantMetric(QString collector_name)
+{
+  QString metric = QString::null;
+
+
+  if( collector_name == "pcsamp" )
+  {
+    metric = "-m pcsamp::time";
+  } else if( collector_name == "usertime" )
+  {
+    metric = "-m usertime::exclusive_time";
+  } else if( collector_name == "hwc" )
+  {
+    metric = "-m hwc::overflows";
+  } else if( collector_name == "hwctime" )
+  {
+    metric = "-m hwc::exclusive_overflows";
+  } else if( collector_name == "mpi" )
+  {
+    metric = "-m mpi::exclusive_times";
+  } else if( collector_name == "mpit" )
+  {
+    metric = "-m mpit::start_time, mpit::end_time, mpit::exclusive";
+  } else if( collector_name == "io" )
+  {
+    metric = "-m io::exclusive_times";
+  } else if( collector_name == "iot" )
+  {
+    metric = "-m io::exclusive_times";
+  }
+  
+  return(metric);
+}

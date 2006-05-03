@@ -99,7 +99,7 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   attachCollectorsListView->setRootIsDecorated(TRUE);
   attachCollectorsListView->setAcceptDrops( FALSE );
   attachCollectorsListView->viewport()->setAcceptDrops(TRUE);
-QToolTip::add(attachCollectorsListView->viewport(), tr("Drag and drop onto a user defined pset (see right side this panel) to create\nuser defined psets.\n\nSelect one or more of these process and then select the menu\nitem \"Focus on Process(es)\" and the statistics for these processes will be dispalyed .") );
+QToolTip::add(attachCollectorsListView->viewport(), tr("Drag and drop onto a user defined process set (see right side this panel) to create\nuser defined process set.\n\nSelect one or more of these process(es) and then select the menu\nitem \"Focus on Process(es)\" and the statistics for these processes will be dispalyed .") );
 
 
   psetListView = new MPListView( (QWidget *)splitter, (const char *)"psetlist", 0 );
@@ -111,7 +111,7 @@ QToolTip::add(attachCollectorsListView->viewport(), tr("Drag and drop onto a use
   psetListView->setColumnWidthMode(1, QListView::Manual);
   psetListView->setColumnWidth(1, 100);
   psetListView->setColumnWidthMode(2, QListView::Maximum);
-QToolTip::add(psetListView->viewport(), tr("Create a new user defined pset by drag and drop processes or process sets on the the new definition.\n\nSelect one of the psets and then select the menuitem \"Focus on Process(es)\"\nand the statistics for these processes will be dispalyed.") );
+QToolTip::add(psetListView->viewport(), tr("Create a new user defined process set by dragging and dropping processes or process sets on the the new definition.\n\nSelect one of the process sets and then select the menu item \"Focus on Process(es)\"\nand the statistics for these processes will be dispalyed.") );
 
   psetListView->setAllColumnsShowFocus( TRUE );
   psetListView->setShowSortIndicator( TRUE );
