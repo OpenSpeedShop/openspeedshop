@@ -900,7 +900,7 @@ StatsPanel::showDiff()
   if( insertDiffColumnFLAG == TRUE )
   {
 // printf("Remove the diff column.\n");
-    removeDiffColumn(0); // zero is always the "Diff" column.
+    removeDiffColumn(0); // zero is always the "|Difference|" column.
     // Force a resort in this case...
     splv->setSorting ( 0, FALSE );
     splv->sort();
@@ -1223,7 +1223,7 @@ StatsPanel::headerSelected(int index)
   QString headerStr = splv->columnText(index);
 // printf("StatsPanel::%d headerSelected(%s)\n", index, headerStr.ascii() );
 
-  if(  headerStr == "Diff (abs)" )
+  if(  headerStr == "|Diff|" )
   {
     absDiffFLAG = TRUE; // Major hack to do sort based on absolute values.
   }
@@ -4961,7 +4961,7 @@ StatsPanel::insertDiffColumn(int insertAtIndex)
 // the "Difference" column.
   QPtrList<QListViewItem> lst;
   QListViewItemIterator it( splv );
-  int index = splv->addColumn("Diff (abs)");
+  int index = splv->addColumn("|Difference|");
   int columnCount = splv->columns();
 
   int i=index;
@@ -4971,7 +4971,7 @@ StatsPanel::insertDiffColumn(int insertAtIndex)
     splv->setColumnText( i, splv->columnText(i-1)  );
 splv->setColumnWidth( i, splv->columnWidth(i-1) );
   }
-  splv->setColumnText( i, "Diff (abs)" );
+  splv->setColumnText( i, "|Difference|" );
 
   while ( it.current() )
   {
