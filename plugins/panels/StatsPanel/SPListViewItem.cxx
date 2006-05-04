@@ -150,12 +150,12 @@ SPListViewItem::compare(QListViewItem *other, int c, bool b) const
   d = text(c).toDouble(&ok1);
   if( absFLAG )
   {
-    d = abs(d);
+    d = fabs(d);
   }
   other_d = other->text(c).toDouble(&ok2);
   if( absFLAG )
   {
-    other_d = abs(other_d);
+    other_d = fabs(other_d);
   }
   int i = 0;
   int other_i = 0;
@@ -169,12 +169,12 @@ SPListViewItem::compare(QListViewItem *other, int c, bool b) const
       d = s.toDouble();
       if( absFLAG )
       {
-        d = abs(d);
+        d = fabs(d);
       }
       other_d = other_s.toDouble();
       if( absFLAG )
       {
-        other_d = abs(other_d);
+        other_d = fabs(other_d);
       }
 // printf("sort by double %f vs %f\n", d, other_d );
   
