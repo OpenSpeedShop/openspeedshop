@@ -145,18 +145,8 @@ SPListViewItem::compare(QListViewItem *other, int c, bool b) const
   double d = 0;
   double other_d = 0;
 
-  bool absFLAG = statsPanel->absDiffFLAG;
- 
   d = text(c).toDouble(&ok1);
-  if( absFLAG )
-  {
-    d = fabs(d);
-  }
   other_d = other->text(c).toDouble(&ok2);
-  if( absFLAG )
-  {
-    other_d = fabs(other_d);
-  }
   int i = 0;
   int other_i = 0;
   
@@ -167,15 +157,7 @@ SPListViewItem::compare(QListViewItem *other, int c, bool b) const
 // printf("sort by double %s vs %s\n", s.ascii(), other_s.ascii() );
       /* sorting by double */
       d = s.toDouble();
-      if( absFLAG )
-      {
-        d = fabs(d);
-      }
       other_d = other_s.toDouble();
-      if( absFLAG )
-      {
-        other_d = fabs(other_d);
-      }
 // printf("sort by double %f vs %f\n", d, other_d );
   
       if( d < other_d )
@@ -196,15 +178,7 @@ SPListViewItem::compare(QListViewItem *other, int c, bool b) const
       /* sorting by int */
 // printf("sort by int %s vs %s\n", s.ascii(), other_s.ascii());
       i = s.toInt();
-      if( absFLAG )
-      {
-        i = abs(i);
-      }
       other_i = other_s.toInt();
-      if( absFLAG )
-      {
-        other_i = abs(other_i);
-      }
   
       if( i < other_i )
       {

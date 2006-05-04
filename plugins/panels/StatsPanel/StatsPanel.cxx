@@ -146,7 +146,6 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   MPItraceFLAG = FALSE;
 
   insertDiffColumnFLAG = FALSE;
-  absDiffFLAG = FALSE;
 
   currentThread = NULL;
   currentCollector = NULL;
@@ -239,10 +238,12 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   splv = new SPListView(this, splitterA, getName(), 0);
   splv->setSorting ( 0, FALSE );
 
+#ifdef OLDWAY
 QHeader *header = splv->header();
 header->setMovingEnabled(FALSE);
 header->setClickEnabled(TRUE);
 connect( header, SIGNAL(clicked(int)), this, SLOT( headerSelected( int )) );
+#endif // OLDWAY
 
   connect( splv, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
 
@@ -902,7 +903,6 @@ StatsPanel::showDiff()
     removeDiffColumn(0); // zero is always the "Diff" column.
     // Force a resort in this case...
     splv->setSorting ( 0, FALSE );
-    absDiffFLAG = FALSE; // Major hack to do sort based on absolute values.
     splv->sort();
     insertDiffColumnFLAG = FALSE;
   } else
@@ -914,9 +914,7 @@ StatsPanel::showDiff()
 
     // Force a resort in this case...
     splv->setSorting ( insertColumn, FALSE );
-    absDiffFLAG = TRUE; // Major hack to do sort based on absolute values.
     splv->sort();
-    absDiffFLAG = FALSE; // Major hack to do sort based on absolute values.
   }
 }
 
@@ -1218,11 +1216,10 @@ StatsPanel::manageProcessesSelected()
 
 }
 
+#ifdef OLDWAY
 void
 StatsPanel::headerSelected(int index)
 {
-  absDiffFLAG = FALSE; // Major hack to do sort based on absolute values.
-  
   QString headerStr = splv->columnText(index);
 // printf("StatsPanel::%d headerSelected(%s)\n", index, headerStr.ascii() );
 
@@ -1231,6 +1228,7 @@ StatsPanel::headerSelected(int index)
     absDiffFLAG = TRUE; // Major hack to do sort based on absolute values.
   }
 }
+#endif // OLDWAY
 
 void
 StatsPanel::itemSelected(int index)
@@ -1368,13 +1366,6 @@ void
 StatsPanel::updateStatsPanelData(QString command)
 {
 // printf("StatsPanel::updateStatsPanelData() entered.\n");
-
-
-  absDiffFLAG = FALSE; // Major hack to do sort based on absolute values.
-
-
-
-// resetRedirect();
 
 
   levelsToOpen = getPreferenceLevelsToOpen().toInt();
@@ -1531,9 +1522,7 @@ StatsPanel::updateStatsPanelData(QString command)
     // Force a resort in this case...
 //    splv->setSorting ( insertColumn+1, FALSE );
     splv->setSorting ( insertColumn, FALSE );
-    absDiffFLAG = TRUE; // Major hack to do sort based on absolute values.
     splv->sort();
-    absDiffFLAG = FALSE; // Major hack to do sort based on absolute values.
   }
 
 
@@ -4993,12 +4982,13 @@ splv->setColumnWidth( i, splv->columnWidth(i-1) );
     double lsd = ls.toDouble();
     double rsd = rs.toDouble();
     double dd = lsd-rsd;
+    double add = fabs(dd);
 
     for(i=index;i>insertAtIndex;i--)
     {
       item->setText(i,     item->text(i-1)  );
     }
-    item->setText(i, QString("%1").arg(dd));
+    item->setText(i, QString("%1").arg(add));
 
     ++it;
   }

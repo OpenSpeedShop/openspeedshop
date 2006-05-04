@@ -209,8 +209,10 @@ class StatsPanel  : public Panel
 
     QFile *f;
 
-  public slots:
+#ifdef OLDWAY // move back to public slots:
     void headerSelected( int );
+#endif // OLDWAY
+  public slots:
     void itemSelected( QListViewItem * );
     void returnPressed( QListViewItem * );
     void itemSelected( int );
