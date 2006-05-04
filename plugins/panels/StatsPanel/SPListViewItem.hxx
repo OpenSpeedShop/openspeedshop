@@ -36,6 +36,9 @@ public:
 
   ~SPListViewItem( );
 
+  int compare(QListViewItem *other, int c, bool b) const;
+
+
    StatsPanel *statsPanel;
 
     void paintCell(QPainter *painter, const QColorGroup &cg,

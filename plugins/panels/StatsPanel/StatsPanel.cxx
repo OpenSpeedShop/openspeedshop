@@ -37,6 +37,8 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 #include "ManageProcessesPanel.hxx"
 
 
+#include "GenericProgressDialog.hxx"
+
 
 // These are the pie chart colors..
 static char *hotToCold_color_names[] = { 
@@ -89,6 +91,7 @@ static char *coldToHot_color_names[] = {
 using namespace OpenSpeedShop::Framework;
 
 
+#ifdef PULL
 template <class T>
 struct sort_ascending : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
@@ -101,6 +104,7 @@ struct sort_descending : public std::binary_function<T,T,bool> {
         return x.second > y.second;
     }
 };
+#endif // PULL
 
 
 class AboutOutputClass : public ss_ostream
@@ -136,9 +140,13 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   setCaption("StatsPanel");
 
   statspanel_clip = NULL;
+  pd = NULL;
 
   IOtraceFLAG = FALSE;
   MPItraceFLAG = FALSE;
+
+  insertDiffColumnFLAG = FALSE;
+  absDiffFLAG = FALSE;
 
   currentThread = NULL;
   currentCollector = NULL;
@@ -229,7 +237,12 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   cf->setCaption("SPChartFormIntoSplitterA");
 
   splv = new SPListView(this, splitterA, getName(), 0);
-  splv->setSorting ( -1 );
+  splv->setSorting ( 0, FALSE );
+
+QHeader *header = splv->header();
+header->setMovingEnabled(FALSE);
+header->setClickEnabled(TRUE);
+connect( header, SIGNAL(clicked(int)), this, SLOT( headerSelected( int )) );
 
   connect( splv, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
 
@@ -719,6 +732,26 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     qaction->setStatusTip( tr("Show the statistics display.") );
   }
 
+  if( canWeDiff() )
+  {
+    if( insertDiffColumnFLAG == TRUE )
+    {
+      qaction = new QAction( this,  "hideDifference");
+      qaction->addTo( contextMenu );
+      qaction->setText( "Hide Difference..." );
+      connect( qaction, SIGNAL( activated() ), this, SLOT( showDiff() ) );
+      qaction->setStatusTip( tr("Hide the difference column.") );
+    } else
+    {
+      qaction = new QAction( this,  "showDifference");
+      qaction->addTo( contextMenu );
+      qaction->setText( "Show Difference..." );
+      connect( qaction, SIGNAL( activated() ), this, SLOT( showDiff() ) );
+      qaction->setStatusTip( tr("Show the difference column.") );
+    }
+  }
+
+
   contextMenu->insertSeparator();
 
   qaction = new QAction( this,  "customizeExperimentsSelected");
@@ -855,6 +888,35 @@ StatsPanel::showStats()
   {
     chartFLAG = TRUE;
     cf->show();
+  }
+}
+
+
+void
+StatsPanel::showDiff()
+{
+// printf("StatsPanel::showDiff() entered\n");
+  if( insertDiffColumnFLAG == TRUE )
+  {
+// printf("Remove the diff column.\n");
+    removeDiffColumn(0); // zero is always the "Diff" column.
+    // Force a resort in this case...
+    splv->setSorting ( 0, FALSE );
+    absDiffFLAG = FALSE; // Major hack to do sort based on absolute values.
+    splv->sort();
+    insertDiffColumnFLAG = FALSE;
+  } else
+  {
+// printf("insert the diff column.\n");
+    int insertColumn = 0;
+    insertDiffColumn(insertColumn);
+    insertDiffColumnFLAG = TRUE;
+
+    // Force a resort in this case...
+    splv->setSorting ( insertColumn, FALSE );
+    absDiffFLAG = TRUE; // Major hack to do sort based on absolute values.
+    splv->sort();
+    absDiffFLAG = FALSE; // Major hack to do sort based on absolute values.
   }
 }
 
@@ -1157,6 +1219,20 @@ StatsPanel::manageProcessesSelected()
 }
 
 void
+StatsPanel::headerSelected(int index)
+{
+  absDiffFLAG = FALSE; // Major hack to do sort based on absolute values.
+  
+  QString headerStr = splv->columnText(index);
+// printf("StatsPanel::%d headerSelected(%s)\n", index, headerStr.ascii() );
+
+  if(  headerStr == "Diff (abs)" )
+  {
+    absDiffFLAG = TRUE; // Major hack to do sort based on absolute values.
+  }
+}
+
+void
 StatsPanel::itemSelected(int index)
 {
 // printf("StatsPanel::itemSelected(%d)\n", index);
@@ -1294,6 +1370,9 @@ StatsPanel::updateStatsPanelData(QString command)
 // printf("StatsPanel::updateStatsPanelData() entered.\n");
 
 
+  absDiffFLAG = FALSE; // Major hack to do sort based on absolute values.
+
+
 
 // resetRedirect();
 
@@ -1362,11 +1441,8 @@ StatsPanel::updateStatsPanelData(QString command)
     splv->removeColumn(i-1);
   }
 
-  splv->setSorting ( -1 );
-
   QApplication::setOverrideCursor(QCursor::WaitCursor);
 
-// printf("command: (%s)\n", command.ascii() );
   about += "Command issued: " + command + "\n";
   lastCommand = command;
 
@@ -1376,6 +1452,15 @@ StatsPanel::updateStatsPanelData(QString command)
     statspanel_clip->Set_Results_Used();
     statspanel_clip = NULL;
   }
+
+// printf("StatsPanel: about to issue: command: (%s)\n", command.ascii() );
+
+
+  steps = 0;
+  pd = new GenericProgressDialog(this, "Executing Command:", TRUE );
+  pd->infoLabel->setText( tr("Waiting for completion of command: %1").arg(command) );
+  pd->show();
+
 
   statspanel_clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
 
@@ -1403,9 +1488,12 @@ StatsPanel::updateStatsPanelData(QString command)
       }
 // splv->clear();
       splv->addColumn( "No data available:" );
+      pd->hide();
+      delete pd;
       return;
     }
 
+    progressUpdate();
     qApp->processEvents(1000);
 
     if( !cli->shouldWeContinue() )
@@ -1420,6 +1508,8 @@ StatsPanel::updateStatsPanelData(QString command)
       }
 // splv->clear();
       splv->addColumn( "Command failed to complete." );
+      pd->hide();
+      delete pd;
       return;
     }
 
@@ -1431,6 +1521,22 @@ StatsPanel::updateStatsPanelData(QString command)
 //  process_clip(statspanel_clip, NULL, TRUE);
   statspanel_clip->Set_Results_Used();
   statspanel_clip = NULL;
+
+  if( command.startsWith("cview -c") && canWeDiff() )
+  {
+    int insertColumn = 0;
+    insertDiffColumn(insertColumn);
+    insertDiffColumnFLAG = TRUE;
+
+    // Force a resort in this case...
+//    splv->setSorting ( insertColumn+1, FALSE );
+    splv->setSorting ( insertColumn, FALSE );
+    absDiffFLAG = TRUE; // Major hack to do sort based on absolute values.
+    splv->sort();
+    absDiffFLAG = FALSE; // Major hack to do sort based on absolute values.
+  }
+
+
 
 
 // Put out the chart if there is one...
@@ -1483,6 +1589,9 @@ StatsPanel::updateStatsPanelData(QString command)
 
   cf->setValues(cpvl, ctvl, color_names, MAX_COLOR_CNT);
   cf->setHeader( (QString)*columnHeaderList.begin() );
+
+  pd->hide();
+  delete pd;
 
   QApplication::restoreOverrideCursor();
 }
@@ -1577,12 +1686,7 @@ StatsPanel::collectorMetricSelected(int val)
     { // The user selected one of the metrics
 //      collectorStrFromMenu = s.mid(13, index-13 );
       currentCollectorStr = s.mid(13, index-13 );
-#ifdef OLDWAY
-      currentMetricStr = s.mid(index+2);
-      currentUserSelectedReportStr = currentMetricStr;
-#else // OLDWAY
       currentUserSelectedReportStr = s.mid(index+2);
-#endif // OLDWAY
 // printf("BB1: s=(%s) currentCollectorStr=(%s) currentMetricStr=(%s)\n", s.ascii(), currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -1642,12 +1746,7 @@ StatsPanel::MPIReportSelected(int val)
     if( index > 0 )
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
-#ifdef OLDWAY
-      currentMetricStr = s.mid(index+2);
-      currentUserSelectedReportStr = currentMetricStr;
-#else // OLDWAY
       currentUserSelectedReportStr = s.mid(index+2);
-#endif // OLDWAY
 // printf("MPI1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -1711,12 +1810,7 @@ StatsPanel::IOReportSelected(int val)
     if( index > 0 )
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
-#ifdef OLDWAY
-      currentMetricStr = s.mid(index+2);
-      currentUserSelectedReportStr = currentMetricStr;
-#else // OLDWAY
       currentUserSelectedReportStr = s.mid(index+2);
-#endif // OLDWAY
 // printf("IO1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -1780,12 +1874,7 @@ StatsPanel::HWCReportSelected(int val)
     if( index > 0 )
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
-#ifdef OLDWAY
-      currentMetricStr = s.mid(index+2);
-      currentUserSelectedReportStr = currentMetricStr;
-#else // OLDWAY
       currentUserSelectedReportStr = s.mid(index+2);
-#endif // OLDWAY
 // printf("DD1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -1837,12 +1926,7 @@ StatsPanel::HWCTimeReportSelected(int val)
     if( index > 0 )
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
-#ifdef OLDWAY
-      currentMetricStr = s.mid(index+2);
-      currentUserSelectedReportStr = currentMetricStr;
-#else // OLDWAY
       currentUserSelectedReportStr = s.mid(index+2);
-#endif // OLDWAY
 // printf("DD1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -1897,12 +1981,7 @@ StatsPanel::collectorUserTimeReportSelected(int val)
     if( index > 0 )
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
-#ifdef OLDWAY
-      currentMetricStr = s.mid(index+2);
-      currentUserSelectedReportStr = currentMetricStr;
-#else // OLDWAY
       currentUserSelectedReportStr = s.mid(index+2);
-#endif // OLDWAY
 // printf("UT1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -1957,12 +2036,7 @@ StatsPanel::collectorPCSampReportSelected(int val)
     if( index > 0 )
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
-#ifdef OLDWAY
-      currentMetricStr = s.mid(index+2);
-      currentUserSelectedReportStr = currentMetricStr;
-#else // OLDWAY
       currentUserSelectedReportStr = s.mid(index+2);
-#endif // OLDWAY
 // printf("UT1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -4860,7 +4934,7 @@ xxxfuncName = CE->Form().c_str();
     // Here's a formatted row
     if( dumpClipFLAG) cerr << (*cri)->Form().c_str() << "\n";
 
-    // DUMP THIS TO OUR OLD FORMAT ROUTINE.
+    // DUMP THIS TO OUR "OLD" FORMAT ROUTINE.
     if( highlightList == NULL )
     {
       QString s = QString((*cri)->Form().c_str());
@@ -4868,4 +4942,111 @@ xxxfuncName = CE->Form().c_str();
     }
 
   }
+}
+
+static bool step_forward = TRUE;
+void
+StatsPanel::progressUpdate()
+{
+  pd->qs->setValue( steps );
+  if( step_forward )
+  {
+    steps++;
+  } else
+  {
+    steps--;
+  }
+  if( steps == 10 )
+  {
+    step_forward = FALSE;
+  } else if( steps == 0 )
+  {
+    step_forward = TRUE;
+  }
+}
+
+void 
+StatsPanel::insertDiffColumn(int insertAtIndex)
+{
+// The output out has been added to the StatsPanel.   Do you want to add
+// the "Difference" column.
+  QPtrList<QListViewItem> lst;
+  QListViewItemIterator it( splv );
+  int index = splv->addColumn("Diff (abs)");
+  int columnCount = splv->columns();
+
+  int i=index;
+  // First move the header columns.
+  for(;i>insertAtIndex;i--)
+  {
+    splv->setColumnText( i, splv->columnText(i-1)  );
+splv->setColumnWidth( i, splv->columnWidth(i-1) );
+  }
+  splv->setColumnText( i, "Diff (abs)" );
+
+  while ( it.current() )
+  {
+    QListViewItem *item = it.current();
+// printf("ls=%s rs=%s\n", item->text(0).ascii(), item->text(1).ascii() );
+    QString ls = item->text(0);
+    QString rs = item->text(1);
+    double lsd = ls.toDouble();
+    double rsd = rs.toDouble();
+    double dd = lsd-rsd;
+
+    for(i=index;i>insertAtIndex;i--)
+    {
+      item->setText(i,     item->text(i-1)  );
+    }
+    item->setText(i, QString("%1").arg(dd));
+
+    ++it;
+  }
+}
+
+
+void 
+StatsPanel::removeDiffColumn(int removeIndex)
+{
+  splv->removeColumn(removeIndex);
+}
+
+bool
+StatsPanel::canWeDiff()
+{
+  int diffIndex = -1;
+  if( splv->columns() < 2 )
+  {
+    return( FALSE );
+  }
+
+  QString c1header = splv->columnText(0);
+  QString c2header = splv->columnText(1);
+
+
+  if( c1header == c2header )
+  {
+// printf("c1header==c2header\n");
+    return(TRUE);
+  }
+
+  diffIndex = c1header.find(":");
+  if( diffIndex > 0 )
+  {
+    c1header = c1header.right(diffIndex+1);
+  }
+  diffIndex = c2header.find(":");
+  if( diffIndex > 0 )
+  {
+    c2header = c2header.right(diffIndex+1);
+  }
+    
+  if( c1header == c2header )
+  {
+// printf("new c1header==c2header\n");
+    return(TRUE);
+  }
+
+
+  return(FALSE);
 }

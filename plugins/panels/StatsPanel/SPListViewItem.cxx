@@ -121,3 +121,115 @@ SPListViewItem::width(const QFontMetrics &fm, const QListView *lv, int column) c
             width = QListViewItem::width(fm, lv, column);
         return width;
 }
+
+int
+SPListViewItem::compare(QListViewItem *other, int c, bool b) const
+{
+
+  bool ok1 = 0;
+  bool ok2 = 0;
+
+// printf("statsPanel->splv->sortColumn=(%d)\n", statsPanel->splv->sortColumn() );
+
+  if( c != statsPanel->splv->sortColumn() )
+  {
+    return 0;
+  }
+
+
+
+// printf("other->text(%d)=%s text(%d)=%s\n", c, other->text(c).ascii(), c, text(c).ascii() );
+  
+  QString s = text(c);
+  QString other_s = other->text(c);
+  double d = 0;
+  double other_d = 0;
+
+  bool absFLAG = statsPanel->absDiffFLAG;
+ 
+  d = text(c).toDouble(&ok1);
+  if( absFLAG )
+  {
+    d = abs(d);
+  }
+  other_d = other->text(c).toDouble(&ok2);
+  if( absFLAG )
+  {
+    other_d = abs(other_d);
+  }
+  int i = 0;
+  int other_i = 0;
+  
+  if( ok1 && ok2 )
+  {  // It's numeric!
+    if( s.contains(".") || other_s.contains(".") )
+    { // Treat the compare as a doubles.
+// printf("sort by double %s vs %s\n", s.ascii(), other_s.ascii() );
+      /* sorting by double */
+      d = s.toDouble();
+      if( absFLAG )
+      {
+        d = abs(d);
+      }
+      other_d = other_s.toDouble();
+      if( absFLAG )
+      {
+        other_d = abs(other_d);
+      }
+// printf("sort by double %f vs %f\n", d, other_d );
+  
+      if( d < other_d )
+      {
+// printf("     <   \n");
+        return -1;
+      } else if( d > other_d )
+      {
+// printf("     >   \n");
+        return 1;
+      } else 
+      {
+// printf("     ==   \n");
+        return 0;
+      }
+    } else 
+    { // Threat the compare as integers.
+      /* sorting by int */
+// printf("sort by int %s vs %s\n", s.ascii(), other_s.ascii());
+      i = s.toInt();
+      if( absFLAG )
+      {
+        i = abs(i);
+      }
+      other_i = other_s.toInt();
+      if( absFLAG )
+      {
+        other_i = abs(other_i);
+      }
+  
+      if( i < other_i )
+      {
+        return -1;
+      } else if( i > other_i )
+      {
+        return 1;
+      } else 
+      {
+        return 0;
+      }
+    }
+  } else
+  {
+// printf("sort by other %s vs %s\n", s.ascii(), other_s.ascii());
+    if( s < other_s )
+    {
+      return -1;
+    } else if( s > other_s )
+    {
+      return 1;
+    } else 
+    {
+      return 0;
+    }
+  }
+    
+}

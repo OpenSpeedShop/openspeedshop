@@ -34,6 +34,7 @@ class PanelContainer;   // Do not remove
 class QVBoxLayout;
 class QHBoxLayout;
 class QFile;
+class GenericProgressDialog;
 class SourceObject;
 #include "SPChartForm.hxx"
 #include "HighlightObject.hxx"
@@ -101,6 +102,13 @@ class StatsPanel  : public Panel
 
     InputLineObject *statspanel_clip;
     void process_clip(InputLineObject *statspanel_clip, HighlightList *highlightList, bool dumpClipFLAG);
+    GenericProgressDialog *pd;
+    void progressUpdate();
+    bool insertDiffColumnFLAG;
+    bool absDiffFLAG;
+    void insertDiffColumn(int insertAtIndex=0);
+    void removeDiffColumn(int removeIndex);
+    bool canWeDiff();
 
     SPListView *splv;
 
@@ -202,6 +210,7 @@ class StatsPanel  : public Panel
     QFile *f;
 
   public slots:
+    void headerSelected( int );
     void itemSelected( QListViewItem * );
     void returnPressed( QListViewItem * );
     void itemSelected( int );
@@ -239,6 +248,7 @@ class StatsPanel  : public Panel
     void collectorPCSampReportSelected(int);
     void collectorGenericReportSelected(int);
     void showStats();
+    void showDiff();
     void showChart();
     void setOrientation();
 
@@ -278,6 +288,8 @@ class StatsPanel  : public Panel
     void raisePreferencePanel();
 
     int levelsToOpen;
+
+    int steps;
 
     double TotalTime;
     double total_percent;
