@@ -28,7 +28,7 @@
 #define RELATIVE_OPENSS_PLUGIN_PATH "/openspeedshop"
 
 #ifndef LIBRARY_DIR
-#define LIBRARY_DIR 0
+#define LIBRARY_DIR "/usr/lib:/usr/local/lib"
 #endif
 
 #ifndef PLUGIN_DIR
