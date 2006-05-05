@@ -121,10 +121,13 @@ bool Detail_Trace_Report(
                       std::map<Framework::StackTrace,
                                std::vector<TDETAIL> > > > raw_items;
     GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
+/* Don't issue this message - just go ahead an print the headers and an empty report.
+   Consider turning this message into a Annotation.
     if (raw_items->begin() == raw_items->end()) {
       Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested Detail functions.)");
       return false;
     }
+*/
 
    // Combine all the items for each function.
     std::map<Address, CommandResult *> knownTraces;
@@ -247,10 +250,13 @@ bool Detail_Base_Report(
                       std::map<Framework::StackTrace,
                                TDETAIL> > > raw_items;
     GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
+/* Don't issue this message - just go ahead an print the headers and an empty report.
+   Consider turning this message into a Annotation.
     if (raw_items->begin() == raw_items->end()) {
       Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested Detail functions.)");
       return false;
     }
+*/
 
    // Combine all the items for each function.
     typename std::map<TOBJECT, std::map<Framework::StackTrace, TDETAIL > >::iterator fi;
@@ -333,10 +339,13 @@ bool Detail_CallStack_Report (
                       std::map<Framework::StackTrace,
                                TDETAIL > > > raw_items;
     GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
+/* Don't issue this message - just go ahead an print the headers and an empty report.
+   Consider turning this message into a Annotation.
     if (raw_items->begin() == raw_items->end()) {
       Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested Detail functions.)");
       return false;
     }
+*/
 
    // Combine all the items for each function.
     std::map<Address, CommandResult *> knownTraces;
@@ -423,10 +432,13 @@ bool Detail_ButterFly_Report (
                       std::map<Framework::StackTrace,
                                TDETAIL > > > raw_items;
     GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
+/* Don't issue this message - just go ahead an print the headers and an empty report.
+   Consider turning this message into a Annotation.
     if (raw_items->begin() == raw_items->end()) {
       Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested functions.)");
       return false;
     }
+*/
 
    // Generate a separate butterfly view for each function in the list.
     std::map<Address, CommandResult *> knownTraces;
@@ -467,13 +479,15 @@ bool Detail_ButterFly_Report (
       }
 
      // Generate the report.
+/* Don't issue this message - just go ahead an print the headers and an empty report.
+   Consider turning this message into a Annotation.
       if (c_items.empty()) {
         std::string S = "(There are no data samples available for function '";
         S = S + F.getName() + "'.)";
         Mark_Cmd_With_Soft_Error(cmd, S);
-      } else {
-        (void) Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack, c_items, view_output);
-      }
+      } else
+*/
+      (void) Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack, c_items, view_output);
     }
   }
   catch (const Exception& error) {
