@@ -153,7 +153,7 @@ struct selectionTarget {
 };
 
 /**
- * Method: Selectr_ThreadGroup()
+ * Method: Select_ThreadGroup()
  * 
  * Scan ths <target_list> specifier for a command and
  * determine which of the original set of threads are
@@ -1536,16 +1536,22 @@ bool SS_cvClusters (CommandObject *cmd) {
     return false;
   }
 
- // Get a list of the unique threads used in the specified experiment.
-  Framework::Experiment *experiment = exp->FW();
-  ThreadGroup tgrp = experiment->getThreads();
-  Filter_ThreadGroup (cmd->P_Result(), tgrp);
-
  // Pick up components of the parse object.
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<string> *p_slist = p_result->getViewList();
   vector<string> *mod_list = p_result->getModifierList();
   vector<ParseRange> *met_list = p_result->getexpMetricList();
+  vector<ParseTarget> *p_tlist = p_result->getTargetList();
+
+ // Get a list of the unique threads used in the specified experiment.
+  Framework::Experiment *experiment = exp->FW();
+  ThreadGroup tgrp = experiment->getThreads();
+
+ // Do we need to select a subset of these threads?
+  bool threadgroupSubset = (p_tlist->begin() != p_tlist->end());
+  if (threadgroupSubset) {
+    Filter_ThreadGroup (cmd->P_Result(), tgrp);
+  }
 
  // Is there a potential viewname?
   if (p_slist->begin() == p_slist->end()) {
@@ -1660,7 +1666,6 @@ bool SS_cvClusters (CommandObject *cmd) {
   std::set<string> file_list;
 
  // Find all the functions that the user listed.
-  vector<ParseTarget> *p_tlist = p_result->getTargetList();
   for (vector<ParseTarget>::iterator
         pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
     ParseTarget pt = *pi;
@@ -1677,8 +1682,29 @@ bool SS_cvClusters (CommandObject *cmd) {
     }
   }
 
+  std::vector<std::vector<ThreadInfo> > TIG(clusters.size());
+  int64_t ix = 0;
   for(std::set<ThreadGroup>::const_iterator
-         i = clusters.begin(); i != clusters.end(); ++i) {
+         i = clusters.begin(); i != clusters.end(); ++i, ix++) {
+    ThreadGroup tgrp = *i;
+
+   // Each thread in the cluster is a distinct ParseTarget specification.
+    for(ThreadGroup::const_iterator
+             j = tgrp.begin(); j != tgrp.end(); ++j) {
+    }
+
+   // Build the informational set needed to compress the thread descriptions.
+    Build_ThreadInfo (tgrp, TIG[ix]);
+  }
+
+ // Determine the best way to compress the description.
+  if (!threadgroupSubset) {
+    Remove_Unnecessary_ThreadInfo (TIG);
+  }
+
+  ix = 0;
+  for(std::set<ThreadGroup>::const_iterator
+         i = clusters.begin(); i != clusters.end(); i++, ix++) {
    // Create new ParseResult and define ExpId and viewType.
     OpenSpeedShop::cli::ParseResult *new_result = new ParseResult();
     new_result->setCommandType (CMD_C_VIEW_CREATE);
@@ -1721,30 +1747,53 @@ bool SS_cvClusters (CommandObject *cmd) {
      // Copy the sum of all functions from the original set of target specs.
       for (std::set<string>::iterator
               fi = file_list.begin(); fi != file_list.end(); fi++) {
-        // char *c = (char *)((*fi).c_str());
-        // new_pt->dm_file_list.push_back (range(c));
         new_pt->pushFilePoint ((char *)((*fi).c_str()));
       }
 
-     // Get host, pid, thread and rank info from original target spec.
-      std::string hid = j->getHost();
-      new_pt->pushHostPoint ((char *)(hid.c_str()));
+    }
 
-      pid_t pid = j->getProcessId();
-      new_pt->pushPidPoint (pid);
+   // Try to merge consecutive fields into range specifications.
+    std::vector<ThreadRangeInfo> Out;
+    Compress_ThreadInfo (TIG[ix], Out);
 
-      std::pair<bool, pthread_t> posixthread = j->getPosixThreadId();
-      if (posixthread.first) {
-        new_pt->pushThreadPoint (posixthread.second);
+   // Create the target specification for the itesm in the cluster.
+    for (std::vector<ThreadRangeInfo>::iterator tri = Out.begin(); tri != Out.end(); tri++) {
+     // Pick up the prevously defined ParseTarget information and copy it.
+      ParseTarget *new_pt = new_result->currentTarget();
+
+     // Get host, pid, thread and rank info from the compressed spec.
+      std::string hid = tri->hostName;
+      if (tri->hostName != "") {
+        new_pt->pushHostPoint ((char *)(tri->hostName.c_str()));
       }
 
-      std::pair<bool, int> prank = j->getMPIRank();
-      if (prank.first) {
-        new_pt->pushRankPoint (prank.second);
+      if (tri->processId_b != 0) {
+        if (tri->processId_b == tri->processId_e) {
+          new_pt->pushPidPoint (tri->processId_b);
+        } else {
+          new_pt->pushPidRange (tri->processId_b, tri->processId_e);
+        }
+      }
+
+      if (tri->threadId_b >= 0) {;
+        if (tri->threadId_b == tri->threadId_e) {
+          new_pt->pushThreadPoint (tri->threadId_b);
+        } else {
+          new_pt->pushThreadRange (tri->threadId_b, tri->threadId_e);
+        }
+      }
+
+      if (tri->rankId_b >= 0) {
+        if (tri->rankId_b == tri->rankId_e) {
+          new_pt->pushRankPoint (tri->rankId_b);
+        } else {
+          new_pt->pushRankRange (tri->rankId_b, tri->rankId_e);
+        }
       }
 
      // New ParseTarget is complete, commit it and create a new currentTarget..
       new_result->pushParseTarget();
+
     }
 
    // Construct a new CustomView.
@@ -1759,28 +1808,6 @@ bool SS_cvClusters (CommandObject *cmd) {
    // Return the EXPID for this command.
     cmd->Result_Int (cvp->cvId());
   }
-
-/* TEST */
-/*
-  for(std::set<ThreadGroup>::const_iterator
-         i = clusters.begin(); i != clusters.end(); ++i) {
-     printf("[");
-     for(ThreadGroup::const_iterator
-             j = i->begin(); j != i->end(); ++j) {
-       pid_t pid = j->getProcessId();
-       int64_t p = pid;
-       printf(" %lld",p);
-       std::pair<bool, pthread_t> pthread = j->getPosixThreadId();
-       if (pthread.first) {
-         int64_t t = pthread.second;
-         printf(", %lld1)", t);
-       } else {
-        printf(", %d(2)", j->getMPIRank().second);
-       }
-     }
-     printf(" ]\n\n");
-  }
-*/
 
   cmd->set_Status(CMD_COMPLETE);
   return Analysis_Okay;

@@ -98,6 +98,7 @@ extern SS_Message_Czar& theMessageCzar();
 #include "CommandObject.hxx"
 #include "Clip.hxx"
 #include "SS_Exp.hxx"
+#include "SS_ThreadInfo.hxx"
 #include "SS_View.hxx"
 
 #include "SS_Watcher.hxx"
