@@ -108,6 +108,9 @@ class StatsPanel  : public Panel
     bool absDiffFLAG;
     void insertDiffColumn(int insertAtIndex=0);
     void removeDiffColumn(int removeIndex);
+int firstExpID;
+int secondExpID;
+    void analyzeTheCView();
     bool canWeDiff();
 
     SPListView *splv;

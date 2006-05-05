@@ -91,22 +91,6 @@ static char *coldToHot_color_names[] = {
 using namespace OpenSpeedShop::Framework;
 
 
-#ifdef PULL
-template <class T>
-struct sort_ascending : public std::binary_function<T,T,bool> {
-    bool operator()(const T& x, const T& y) const {
-        return x.second < y.second;
-    }
-};
-template <class T>
-struct sort_descending : public std::binary_function<T,T,bool> {
-    bool operator()(const T& x, const T& y) const {
-        return x.second > y.second;
-    }
-};
-#endif // PULL
-
-
 class AboutOutputClass : public ss_ostream
 {
   public:
@@ -146,6 +130,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   MPItraceFLAG = FALSE;
 
   insertDiffColumnFLAG = FALSE;
+firstExpID = -1;
+secondExpID = -1;
 
   currentThread = NULL;
   currentCollector = NULL;
@@ -733,8 +719,10 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     qaction->setStatusTip( tr("Show the statistics display.") );
   }
 
+// printf("menu: canWeDiff()?\n");
   if( canWeDiff() )
   {
+// printf("menu: canWeDiff() says we can!\n");
     if( insertDiffColumnFLAG == TRUE )
     {
       qaction = new QAction( this,  "hideDifference");
@@ -1223,7 +1211,7 @@ StatsPanel::headerSelected(int index)
   QString headerStr = splv->columnText(index);
 // printf("StatsPanel::%d headerSelected(%s)\n", index, headerStr.ascii() );
 
-  if(  headerStr == "|Diff|" )
+  if(  headerStr == "|Difference|" )
   {
     absDiffFLAG = TRUE; // Major hack to do sort based on absolute values.
   }
@@ -1513,6 +1501,9 @@ StatsPanel::updateStatsPanelData(QString command)
   statspanel_clip->Set_Results_Used();
   statspanel_clip = NULL;
 
+
+analyzeTheCView();
+#ifdef SHOW_DIFF_BY_DEFAULT
   if( command.startsWith("cview -c") && canWeDiff() )
   {
     int insertColumn = 0;
@@ -1524,6 +1515,7 @@ StatsPanel::updateStatsPanelData(QString command)
     splv->setSorting ( insertColumn, FALSE );
     splv->sort();
   }
+#endif // SHOW_DIFF_BY_DEFAULT
 
 
 
@@ -4539,10 +4531,22 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
     {
       return(spo);
     }
-    command = QString("expView -v Statements -f %1").arg(_fileName);
+if( expID > 0 )
+{
+    command = QString("expView -x %1 -v Statements -f %2").arg(expID).arg(_fileName);
+} else
+{
+    command = QString("expView -x %1 -v Statements -f %2").arg(firstExpID).arg(_fileName);
+}
   } else
   {
-    command = QString("expView -v Statements -f %1 -m %2").arg(_fileName).arg(currentMetricStr);
+if( expID > 0 )
+{
+    command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(expID).arg(_fileName).arg(currentMetricStr);
+} else
+{
+    command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(firstExpID).arg(_fileName).arg(currentMetricStr);
+}
   }
 // printf("command=(%s)\n", command.ascii() );
 
@@ -5001,9 +5005,126 @@ StatsPanel::removeDiffColumn(int removeIndex)
   splv->removeColumn(removeIndex);
 }
 
+class CInfoClass
+{
+  public:
+    CInfoClass( int _cid, QString _collector_name, int _expID, QString _metricStr) { cid = _cid; collector_name = _collector_name, expID = _expID; metricStr = _metricStr; };
+    ~CInfoClass() {} ;
+
+    void Print() { printf("%d %s %d %s\n", cid, collector_name.ascii(), expID, metricStr.ascii() ); };
+
+    int cid;
+    QString collector_name;
+    int expID;
+    QString metricStr;
+};
+typedef QValueList<CInfoClass *> CInfoClassList;
+
+void
+StatsPanel::analyzeTheCView()
+{
+
+  if( !lastCommand.startsWith("cview -c") )
+  {
+    return;
+  }
+  
+
+  CInfoClassList cInfoClassList;
+
+  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  std::list<std::string> list_of_strings;
+
+  list_of_strings.clear();
+  InputLineObject *clip = NULL;
+  QString command = QString("cviewinfo -v all");
+  if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
+         &list_of_strings, clip, TRUE ) )
+  {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+  for( std::list<std::string>::const_iterator it = list_of_strings.begin();
+      it != list_of_strings.end(); it++ )
+  {
+    std::string string_name = (std::string)*it;
+
+    QString str = QString( string_name.c_str() );
+    int cid = -1;
+    int expID = -1;
+    QString collectorStr = QString::null;
+    QString metricStr = QString::null;
+    int start_index = 3;
+    int end_index = str.find(":");
+
+    // Look up cid
+    QString cidStr = str.mid(start_index, end_index-start_index);
+    cid = cidStr.toInt();
+
+    // Look up collector name.
+    start_index = end_index+1;
+    end_index = str.find("-x");
+    collectorStr = str.mid(start_index, end_index-start_index).stripWhiteSpace();
+
+    // Look up expID
+    start_index = end_index+3;
+    end_index = str.find("-m");
+    QString expIDStr = str.mid(start_index, end_index-start_index);
+    expID = expIDStr.toInt();
+
+    // Look up metricStr
+    start_index = str.find("-m");
+    // metricStr = str.right(start_index);
+    metricStr = str.mid(start_index, 9999999);
+
+    CInfoClass *cic = new CInfoClass( cid, collectorStr, expID, metricStr );
+    cInfoClassList.push_back( cic );
+// printf("string_name=(%s)\n", string_name.c_str() );
+// cic->Print();
+  }
+
+
+// I eventually want a info class per column of cview data...
+firstExpID = -1;
+secondExpID = -1;
+  for(int i=0;i < splv->columns(); i++ )
+  {
+    QString header = splv->columnText(i);
+    int end_index = header.find(":");
+    if( header.startsWith("-c ") && end_index > 0 )
+    {
+      int start_index = 3;
+      QString cviewIDStr = header.mid(start_index, end_index-start_index);
+      int cid = cviewIDStr.toInt();
+      if( firstExpID == -1 )
+      {
+  for( CInfoClassList::Iterator it = cInfoClassList.begin(); it != cInfoClassList.end(); ++it)
+  {
+    CInfoClass *cic = (CInfoClass *)*it;
+    if( cic->cid == cid )
+    {
+      firstExpID = cic->expID;
+    }
+  }
+      } else if( secondExpID == -1 )
+      {
+  for( CInfoClassList::Iterator it = cInfoClassList.begin(); it != cInfoClassList.end(); ++it)
+  {
+    CInfoClass *cic = (CInfoClass *)*it;
+    if( cic->cid == cid )
+    {
+      secondExpID = cic->expID;
+    }
+  }
+      }
+      
+    }
+  }
+}
+
 bool
 StatsPanel::canWeDiff()
 {
+// printf("canWeDiff() entered\n");
   int diffIndex = -1;
   if( splv->columns() < 2 )
   {
@@ -5013,6 +5134,12 @@ StatsPanel::canWeDiff()
   QString c1header = splv->columnText(0);
   QString c2header = splv->columnText(1);
 
+  if( c1header == "|Difference|" )
+  {
+    return(TRUE);
+  }
+
+// printf("c1header=(%s) c2header=(%s)\n", c1header.ascii(), c2header.ascii() );
 
   if( c1header == c2header )
   {
