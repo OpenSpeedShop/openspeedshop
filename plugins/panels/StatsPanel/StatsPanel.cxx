@@ -1073,70 +1073,28 @@ StatsPanel::aboutSelected()
   int cviewinfo_index = lastCommand.find("cview ");
   if( cviewinfo_index != -1 )
   {
-    cviewinfo_index += 6;
-    command = QString("cviewinfo ")+lastCommand.mid(cviewinfo_index);
-// printf("fire off new command (%s)\n", command.ascii() );
-    QString info_str = QString::null;
-    int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-
-    aboutOutputClass = new AboutOutputClass();
-    aboutOutputClass->setSP(this);
-
-    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-    Redirect_Window_Output(cli->wid, aboutOutputClass, aboutOutputClass);
-
-    QApplication::setOverrideCursor(QCursor::WaitCursor);
-    InputLineObject *clip = cli->run_Append_Input_String( wid, (char *)command.ascii());
-
-    Input_Line_Status status = ILO_UNKNOWN;
-
-    while( !clip->Semantics_Complete() )
+    aboutOutputString = QString("%1\n\n").arg(about);
+    aboutOutputString += QString("Where:\n");
+    for( CInfoClassList::Iterator it = cInfoClassList.begin(); it != cInfoClassList.end(); ++it)
     {
-      status = cli->checkStatus(clip);
-      if( !status || status == ILO_ERROR )
-      { // An error occurred.... A message should have been posted.. return;
-        QApplication::restoreOverrideCursor();
-        if( clip ) 
-        {
-          clip->Set_Results_Used();
-        }
-        return;
-      }
-  
-      qApp->processEvents(1000);
-  
-      if( !cli->shouldWeContinue() )
+      CInfoClass *cic = (CInfoClass *)*it;
+// cic->print();
+      aboutOutputString += QString("-c %1:\n").arg(cic->cid);
+      aboutOutputString += QString("  Experiment: %1\n").arg(cic->expID);
+      aboutOutputString += QString("  Collector: %1\n").arg(cic->collector_name);
+      if( cic->host_pid_names.isEmpty() )
       {
-// printf("RETURN FALSE!   COMMAND FAILED!\n");
-        QApplication::restoreOverrideCursor();
-        if( clip ) 
-        {
-          clip->Set_Results_Used();
-        }
-        return;
+        aboutOutputString += QString("  Host/pids: All\n");
+      } else
+      {
+        aboutOutputString += QString("  Host/pids: %1\n").arg(cic->host_pid_names);
       }
-
-      sleep(1);
-    }
-    QApplication::restoreOverrideCursor();
-
-    //Test putting the output to statspanel stream.
-    Default_TLI_Line_Output(clip);
-  
-    if( clip )
-    {
-      clip->Set_Results_Used();
+      aboutOutputString += QString("  Metric: %1\n").arg(cic->metricStr);
     }
   }
 
   AboutDialog *aboutDialog = new AboutDialog(this, "StatsPanel Context:", FALSE, 0, aboutOutputString);
   aboutDialog->show();
-
-  if( aboutOutputClass )
-  {
-    resetRedirect();
-    delete aboutOutputClass;
-  }
 }
 
 void
@@ -1454,43 +1412,8 @@ StatsPanel::updateStatsPanelData(QString command)
 
   while( !statspanel_clip->Semantics_Complete() )
   {
-// printf("ping!\n");
-    status = cli->checkStatus(statspanel_clip, command);
-    if( !status || status == ILO_ERROR )
-    { // An error occurred.... A message should have been posted.. return;
-      QApplication::restoreOverrideCursor();
-      if( statspanel_clip )
-      {
-// printf("A: statspanel_clip->Set_Results_Used()\n");
-        statspanel_clip->Set_Results_Used();
-        statspanel_clip = NULL;
-      }
-// splv->clear();
-      splv->addColumn( "No data available:" );
-      pd->hide();
-      delete pd;
-      return;
-    }
-
     progressUpdate();
     qApp->processEvents(1000);
-
-    if( !cli->shouldWeContinue() )
-    {
-// printf("RETURN FALSE!   COMMAND FAILED!\n");
-      QApplication::restoreOverrideCursor();
-      if( statspanel_clip )
-      {
-// printf("B: statspanel_clip->Set_Results_Used()\n");
-        statspanel_clip->Set_Results_Used();
-        statspanel_clip = NULL;
-      }
-// splv->clear();
-      splv->addColumn( "Command failed to complete." );
-      pd->hide();
-      delete pd;
-      return;
-    }
 
     sleep(1);
   }
@@ -1501,6 +1424,7 @@ StatsPanel::updateStatsPanelData(QString command)
   statspanel_clip->Set_Results_Used();
   statspanel_clip = NULL;
 
+// printf("Done processing the clip\n");
 
 analyzeTheCView();
 #ifdef SHOW_DIFF_BY_DEFAULT
@@ -3066,6 +2990,7 @@ StatsPanel::outputCLIData(QString *incoming_data, QString xxxfuncName, QString x
       {
         start_index = 0;  
       }
+columnValueClass[i].init();
       columnValueClass[i].start_index = start_index;
       columnValueClass[i].end_index = end_index;
 
@@ -4681,9 +4606,12 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
   std::list<CommandResult *> cmd_result = co->Result_List();
   for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++)
   {
+// printf("Here A:\n");
+int skipFLAG = FALSE;
     if( dumpClipFLAG) cerr<< "TYPE: " << (*cri)->Type() << "\n";
     if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES)
     {
+// printf("Here B:\n");
       std::list<CommandResult *> columns;
       CommandResult_Columns *ccp = (CommandResult_Columns *)*cri;
       ccp->Value(columns);
@@ -4918,19 +4846,24 @@ xxxfuncName = CE->Form().c_str();
 
     } else if ((*cri)->Type() == CMD_RESULT_STRING)
     {  // This looks to be a message we should display
+// printf("Here C:\n");
       QString s = QString((*cri)->Form().c_str());
         
       QMessageBox::information( (QWidget *)this, tr("Info:"), s, QMessageBox::Ok );
-      break;
+skipFLAG = TRUE;
+//      break;
     }
     /* You have found the next row!! */
     // Here's a formatted row
     if( dumpClipFLAG) cerr << (*cri)->Form().c_str() << "\n";
 
     // DUMP THIS TO OUR "OLD" FORMAT ROUTINE.
-    if( highlightList == NULL )
+//    if( highlightList == NULL )
+// printf("skipFLAG == FALSE\n");
+    if( highlightList == NULL && skipFLAG == FALSE )
     {
       QString s = QString((*cri)->Form().c_str());
+// printf("output %s\n", s.ascii() );
       outputCLIData( &s, xxxfuncName, xxxfileName, xxxlineNumber );
     }
 
@@ -5005,21 +4938,6 @@ StatsPanel::removeDiffColumn(int removeIndex)
   splv->removeColumn(removeIndex);
 }
 
-class CInfoClass
-{
-  public:
-    CInfoClass( int _cid, QString _collector_name, int _expID, QString _metricStr) { cid = _cid; collector_name = _collector_name, expID = _expID; metricStr = _metricStr; };
-    ~CInfoClass() {} ;
-
-    void Print() { printf("%d %s %d %s\n", cid, collector_name.ascii(), expID, metricStr.ascii() ); };
-
-    int cid;
-    QString collector_name;
-    int expID;
-    QString metricStr;
-};
-typedef QValueList<CInfoClass *> CInfoClassList;
-
 void
 StatsPanel::analyzeTheCView()
 {
@@ -5028,27 +4946,45 @@ StatsPanel::analyzeTheCView()
   {
     return;
   }
+
+  QValueList<QString> cidList;
+
+// printf("lastCommand =(%s)\n", lastCommand.ascii() );
+  QString ws = lastCommand.mid(9,999999);
+  int cnt = ws.contains(",");
+  if( cnt > 0 )
+  {
+    for(int i=0;i<=cnt;i++)
+    {
+      cidList.push_back( ws.section(",", i, i).stripWhiteSpace() );
+// printf("cidList push back (%s)\n", ws.section(",", i, i).stripWhiteSpace().ascii() );
+    }
+  }
+
   
 
-  CInfoClassList cInfoClassList;
+  for( CInfoClassList::Iterator it = cInfoClassList.begin(); it != cInfoClassList.end(); ++it)
+  {
+    CInfoClass *cic = (CInfoClass *)*it;
+    delete(cic);
+  }
+  cInfoClassList.clear();
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-  std::list<std::string> list_of_strings;
 
-  list_of_strings.clear();
   InputLineObject *clip = NULL;
-  QString command = QString("cviewinfo -v all");
-  if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-         &list_of_strings, clip, TRUE ) )
+  std::string cstring;
+  for( QValueList<QString>::Iterator it = cidList.begin(); it != cidList.end(); ++it)
   {
-    printf("Unable to run %s command.\n", command.ascii() );
-  }
-  for( std::list<std::string>::const_iterator it = list_of_strings.begin();
-      it != list_of_strings.end(); it++ )
-  {
-    std::string string_name = (std::string)*it;
-
-    QString str = QString( string_name.c_str() );
+    QString cid_str = (QString)*it;
+    QString command = QString("cviewinfo -c %1").arg(cid_str);
+    if( !cli->getStringValueFromCLI( (char *)command.ascii(),
+           &cstring, clip, TRUE ) )
+    {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+    QString str = QString( cstring.c_str() );
+// printf("str=(%s)\n", str.ascii() );
     int cid = -1;
     int expID = -1;
     QString collectorStr = QString::null;
@@ -5067,19 +5003,37 @@ StatsPanel::analyzeTheCView()
 
     // Look up expID
     start_index = end_index+3;
-    end_index = str.find("-m");
+    end_index = str.find("-h");
+    int start_host = -1;
+    if( end_index == -1 )
+    {
+      end_index = str.find("-m");
+    } else
+    {
+      start_host = end_index;
+    }
     QString expIDStr = str.mid(start_index, end_index-start_index);
     expID = expIDStr.toInt();
 
+
+    QString host_pid_names = QString::null;
+    if( start_host != -1 )
+    {
+      start_index = start_host;
+      end_index = str.find("-m");
+      host_pid_names = str.mid(start_index, end_index-start_index);
+    }
+
     // Look up metricStr
     start_index = str.find("-m");
+    start_index += 3;  // Skip the -m
     // metricStr = str.right(start_index);
     metricStr = str.mid(start_index, 9999999);
 
-    CInfoClass *cic = new CInfoClass( cid, collectorStr, expID, metricStr );
+    CInfoClass *cic = new CInfoClass( cid, collectorStr, expID, host_pid_names, metricStr );
     cInfoClassList.push_back( cic );
 // printf("string_name=(%s)\n", string_name.c_str() );
-// cic->Print();
+// cic->print();
   }
 
 
@@ -5097,26 +5051,37 @@ secondExpID = -1;
       int cid = cviewIDStr.toInt();
       if( firstExpID == -1 )
       {
-  for( CInfoClassList::Iterator it = cInfoClassList.begin(); it != cInfoClassList.end(); ++it)
-  {
-    CInfoClass *cic = (CInfoClass *)*it;
-    if( cic->cid == cid )
-    {
-      firstExpID = cic->expID;
-    }
-  }
+        for( CInfoClassList::Iterator it = cInfoClassList.begin(); it != cInfoClassList.end(); ++it)
+        {
+          CInfoClass *cic = (CInfoClass *)*it;
+          if( cic->cid == cid )
+          {
+            firstExpID = cic->expID;
+          }
+        }
       } else if( secondExpID == -1 )
       {
-  for( CInfoClassList::Iterator it = cInfoClassList.begin(); it != cInfoClassList.end(); ++it)
-  {
-    CInfoClass *cic = (CInfoClass *)*it;
-    if( cic->cid == cid )
-    {
-      secondExpID = cic->expID;
-    }
-  }
+        for( CInfoClassList::Iterator it = cInfoClassList.begin(); it != cInfoClassList.end(); ++it)
+        {
+          CInfoClass *cic = (CInfoClass *)*it;
+          if( cic->cid == cid )
+          {
+            secondExpID = cic->expID;
+          }
+        }
       }
-      
+      // Log this into the Column
+      for( CInfoClassList::Iterator it = cInfoClassList.begin(); it != cInfoClassList.end(); ++it)
+      {
+        CInfoClass *cic = (CInfoClass *)*it;
+        if( cic->cid == cid )
+        {
+          columnValueClass[i].cic = cic;
+// columnValueClass[i].print();
+          break;
+        }
+      }
+
     }
   }
 }

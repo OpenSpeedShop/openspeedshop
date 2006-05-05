@@ -63,19 +63,44 @@ typedef std::pair<Function, uint64_t> Function_uint64_pair;
 
 #include <qsettings.h>
 
+class CInfoClass
+{
+  public:
+    CInfoClass( ) { };
+    CInfoClass( int _cid, QString _collector_name, int _expID, QString _host_pid_names, QString _metricStr) { cid = _cid; collector_name = _collector_name, expID = _expID; host_pid_names = _host_pid_names; metricStr = _metricStr; };
+//    ~CInfoClass() { printf("CInfoClass() Destructor called!\n"); } ;
+    ~CInfoClass() { } ;
+
+    void print() { printf("%d %s %d %s %s\n", cid, collector_name.ascii(), expID, host_pid_names.ascii(), metricStr.ascii() ); };
+
+    int cid;
+    QString collector_name;
+    int expID;
+    QString host_pid_names;
+    QString metricStr;
+};
+typedef QValueList<CInfoClass *> CInfoClassList;
+
 class ColumnValueClass
 {
   public:
-    void init() { start_index = -1; end_index = -1; };
+    ColumnValueClass( ) { };
+    ~ColumnValueClass( ) { };
+    void init() { start_index = -1; end_index = -1; cic = NULL; };
 
     int start_index;
     int end_index;
 
+    CInfoClass *cic;
+
     void print()
     {
       cout << start_index << " " << end_index << "\n";
+      cic->print();
     }
 };
+typedef QValueList<ColumnValueClass *> ColumnValueClassList;
+
 
 
 #define PANEL_CLASS_NAME StatsPanel   // Change the value of the define
@@ -110,6 +135,8 @@ class StatsPanel  : public Panel
     void removeDiffColumn(int removeIndex);
 int firstExpID;
 int secondExpID;
+    CInfoClassList cInfoClassList;
+
     void analyzeTheCView();
     bool canWeDiff();
 
@@ -125,7 +152,7 @@ int secondExpID;
     QSplitter *splitterA;
     SPChartForm *cf;
     ColumnList columnHeaderList;
-    ColumnValueClass columnValueClass[10];
+    ColumnValueClass columnValueClass[80];
     int *metricHeaderTypeArray;  // matches the QListView # of column entries.
 
     std::list<std::string> list_of_collectors_metrics;
