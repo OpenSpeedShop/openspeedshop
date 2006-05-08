@@ -23,6 +23,8 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define PATH_DELIMITER ':'
 #define RELATIVE_OPENSS_PLUGIN_PATH "/openspeedshop"
@@ -36,6 +38,80 @@
 #endif
 
 using namespace std;
+
+/**
+ * Method: s_make_path_from_pid
+ * 
+ * Based on the current pid in /proc we find the
+ * full path of openss and see if it is under
+ * a "bin" directory. If so, strip everything
+ * below "bin" and append "lib" and add to the
+ * library lookup paths. 
+ *
+ * Yes, I know, this code is stupid and I am sure
+ * there is a more elegant way to do it. Go ahead
+ * knock your self out and make it better.
+ *     
+ * @param   string *input_str: string to add if unique
+ * @param   vector<string> *v_string: list of stored strings
+ *     
+ * @return  bool for whether we have a path or not.
+ *
+ * @todo    Error handling.
+ * @todo    Example.
+ *
+ */
+#define MY_BUFSIZE 512
+static bool
+s_make_path_from_pid(string *newpath)
+{
+    char symlink[MY_BUFSIZE];
+    char name[MY_BUFSIZE];
+    bool go_for_it = false;
+    
+    pid_t cur_pid = getpid(); // This had better be openss.
+//    pid_t parent_pid =getppid();
+    
+    // Cobble together "/proc/<pid>/exe"
+    strcpy(symlink,"/proc/");
+    sprintf(&name[0],"%d",cur_pid);
+    strcat(symlink,name);
+    strcat(symlink,"/exe");
+
+    // Get the real name and full path of the executable.
+    readlink(symlink,name,MY_BUFSIZE);
+    
+    int len;
+    len = strlen(name);
+    
+    go_for_it = 0;
+    for (int i=len-1;i>0;--i){
+    	if (name[i] == '/') {
+	    if (i && i > 4) { /* Look for "/bin/" */
+	    	if (
+		    name[i-1] == 'n' &&
+		    name[i-2] == 'i' &&
+		    name[i-3] == 'b' &&
+		    name[i-4] == '/'
+		    ) {
+		    	// Replace with "/lib" and truncate
+		    	name[i] = '\0';
+		    	name[i-1] = 'b';
+		    	name[i-2] = 'i';
+		    	name[i-3] = 'l';
+		    	name[i-4] = '/';
+
+			go_for_it = 1;
+			
+			*newpath=name;
+		    }
+	    }
+	}
+    }
+    
+    return go_for_it;
+
+}
 
 /**
  * Method: s_check_add_unique
@@ -168,35 +244,37 @@ static void
 SetOpenssLibPath()
 {
 
-    char* ld_library_path_cstr = NULL;
+    static char* ld_library_path_cstr = NULL;
+    string ld_library_path("LD_LIBRARY_PATH=");
     
     //std::cout << "in SetOpenssLibPath() before check" << std::endl;
 
     if (lt_dlgetsearchpath() == NULL) {
-
-    	//std::cout << "in SetOpenssLibPath() after check" << std::endl;
+    
+    	// Start off with the oritinal LD_LIBRARY_PATH
+    	if(getenv("LD_LIBRARY_PATH") != NULL)
+    	    ld_library_path += getenv("LD_LIBRARY_PATH") + std::string(":");
 
     	// Append our compile-time library directory to LD_LIBRARY_PATH
     	// for the runtime linker to find the core OpenSpeedShop libraries.
     	if (LIBRARY_DIR) {
-    	    std::string ld_library_path = std::string("LD_LIBRARY_PATH=");
     
-    	    if(getenv("LD_LIBRARY_PATH") != NULL)
-    	    	ld_library_path += getenv("LD_LIBRARY_PATH") + std::string(":");
-
     	    ld_library_path += (char *)LIBRARY_DIR;
-
-    	    // Set new LD_LIBRARY_PATH
-
-    	    Assert((ld_library_path_cstr = strdup(ld_library_path.c_str())) != NULL);
-    	    Assert(putenv(ld_library_path_cstr) == 0);    
     	}
-	else {
-    	    if(getenv("LD_LIBRARY_PATH") != NULL){
-    	    	string ld_library_path = string(getenv("LD_LIBRARY_PATH"));
-    	     	Assert((ld_library_path_cstr = strdup(ld_library_path.c_str())) != NULL);
+
+#if 1
+	// add the path relative to where the a.out is
+	if (1) {
+	    string t_name;
+
+	    if (s_make_path_from_pid(&t_name)){
+	    	ld_library_path += ":" + t_name;
 	    }
 	}
+#endif
+    	    // Set new LD_LIBRARY_PATH
+    	Assert((ld_library_path_cstr = strdup(ld_library_path.c_str())) != NULL);
+    	Assert(putenv(ld_library_path_cstr) == 0);    
 
     	// Set the plugin search paths for the dynamic loading
     	//    
@@ -227,8 +305,8 @@ SetOpenssLibPath()
 			      false /* don't append /openss */ ) ;
 	}
 
-    	// Add the LD_LIBRARY_PATH re;ativ plugin path
-    	if(getenv("LD_LIBRARY_PATH") != NULL) {
+    	// Add the LD_LIBRARY_PATH relativ plugin path
+    	if((getenv("LD_LIBRARY_PATH")) != NULL) {
     	    s_add_plugin_path((char *)getenv("LD_LIBRARY_PATH"), 
 	    	    	      &v_string,
 			      true /* do append /openss */ ) ;
