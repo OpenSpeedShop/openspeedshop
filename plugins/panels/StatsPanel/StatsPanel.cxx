@@ -1313,7 +1313,6 @@ StatsPanel::updateStatsPanelData(QString command)
 {
 // printf("StatsPanel::updateStatsPanelData() entered.\n");
 
-
   levelsToOpen = getPreferenceLevelsToOpen().toInt();
 
   SPListViewItem *splvi;
@@ -1326,7 +1325,7 @@ StatsPanel::updateStatsPanelData(QString command)
   color_names = NULL;
   cf->init();
   total_percent = 0.0;
-  numberItemsToDisplayInStats = 10;
+  numberItemsToDisplayInStats = -1;
   if( !getPreferenceTopNLineEdit().isEmpty() )
   {
     bool ok;
@@ -1369,6 +1368,10 @@ StatsPanel::updateStatsPanelData(QString command)
 // printf("We really have static data and its the same command... Don't update.\n");
     return;
   }
+
+// Always set the resort to be the first column when a new repor is requested.
+splv->setSorting ( 0, FALSE );
+
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
@@ -3561,12 +3564,26 @@ StatsPanel::generateCommand()
 
   if( currentCollectorStr.isEmpty() )
   {
+if( numberItemsToDisplayInStats > 0 )
+{
     command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
     about += QString("Requested data for all collectors for top %1 items\n").arg(numberItemsToDisplayInStats);
+} else
+{
+    command += QString(" %1").arg("stats");
+    about += QString("Requested data for all collectors\n");
+}
   } else
   {
+if( numberItemsToDisplayInStats > 0 )
+{
     command += QString(" %1%2").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
     about += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+} else
+{
+    command += QString(" %1").arg(currentCollectorStr);
+    about += QString("Requested data for collector %1\n");
+}
 
   }
   if( !currentUserSelectedReportStr.isEmpty() && !currentCollectorStr.isEmpty() )
@@ -3595,7 +3612,13 @@ StatsPanel::generateCommand()
     { 
       currentUserSelectedReportStr = "Functions";
     }
-    command = QString("expView -x %1 %4%2 -v %5").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
+if( numberItemsToDisplayInStats > 0 )
+{
+    command = QString("expView -x %1 %2%3 -v %4").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
+} else
+{
+    command = QString("expView -x %1 %2 -v %4").arg(expID).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
+}
 // printf("start of pcsamp generated command (%s)\n", command.ascii() );
   } else if( currentCollectorStr == "usertime" &&
             (currentUserSelectedReportStr == "Butterfly") ||
@@ -3627,7 +3650,13 @@ StatsPanel::generateCommand()
       command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
      } else
      {
-        command = QString("expView -x %1 %4%2 -v %5").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
+if( numberItemsToDisplayInStats > 0 )
+{
+        command = QString("expView -x %1 %2%3 -v %4").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
+} else
+{
+        command = QString("expView -x %1 %2 -v %4").arg(expID).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
+}
      }
 // printf("USERTIME! command=(%s)\n", command.ascii() );
   } else if( ( ( currentCollectorStr == "hwc" || currentCollectorStr == "hwctime" || currentCollectorStr == "mpi" || currentCollectorStr == "mpit" || currentCollectorStr == "io" || currentCollectorStr == "iot" ) && ( currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") || currentUserSelectedReportStr.startsWith("Functions") || currentUserSelectedReportStr.startsWith("mpi") || currentUserSelectedReportStr.startsWith("io") || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("Butterfly") ) ))
@@ -3635,7 +3664,13 @@ StatsPanel::generateCommand()
 // printf("It thinks we're mpi | io!\n");
     if( currentUserSelectedReportStr.isEmpty() || currentUserSelectedReportStr == "CallTrees" )
     {
-      command = QString("expView -x %1 %3%2 -v CallTrees").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+if( numberItemsToDisplayInStats > 0 )
+{
+      command = QString("expView -x %1 %2%3 -v CallTrees").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+} else
+{
+      command = QString("expView -x %1 %2 -v CallTrees").arg(expID).arg(currentCollectorStr);
+}
     } else if ( currentUserSelectedReportStr == "CallTrees by Selected Function" )
     {
       selectedFunctionStr = findSelectedFunction();
@@ -3648,13 +3683,31 @@ StatsPanel::generateCommand()
       {
         return( QString::null );
       }
-      command = QString("expView -x %1 %4%2 -v CallTrees -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+if( numberItemsToDisplayInStats > 0 )
+{
+      command = QString("expView -x %1 %2%3 -v CallTrees -f %4").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
+} else
+{
+      command = QString("expView -x %1 %2 -v CallTrees -f %4").arg(expID).arg(currentCollectorStr).arg(selectedFunctionStr);
+}
     } else if ( currentUserSelectedReportStr == "TraceBacks" )
     {
-      command = QString("expView -x %1 %3%2 -v TraceBacks").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+if( numberItemsToDisplayInStats > 0 )
+{
+      command = QString("expView -x %1 %2%3 -v TraceBacks").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+} else
+{
+      command = QString("expView -x %1 %2%3 -v TraceBacks").arg(expID).arg(currentCollectorStr);
+}
     } else if ( currentUserSelectedReportStr == "TraceBacks,FullStack" )
     {
-      command = QString("expView -x %1 %3%2 -v TraceBacks,FullStack").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+if( numberItemsToDisplayInStats > 0 )
+{
+      command = QString("expView -x %1 %2%3 -v TraceBacks,FullStack").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+} else
+{
+      command = QString("expView -x %1 %2 -v TraceBacks,FullStack").arg(expID).arg(currentCollectorStr);
+}
     } else if( currentUserSelectedReportStr == "Butterfly" )
     {
       selectedFunctionStr = findSelectedFunction();
@@ -3668,10 +3721,22 @@ StatsPanel::generateCommand()
       {
         return( QString::null );
       }
-      command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+if( numberItemsToDisplayInStats > 0 )
+{
+      command = QString("expView -x %1 %2%3 -v Butterfly -f \"%4\"").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
+} else
+{
+      command = QString("expView -x %1 %2 -v Butterfly -f \"%4\"").arg(expID).arg(currentCollectorStr).arg(selectedFunctionStr);
+}
     } else
     {
-      command = QString("expView -x %1 %3%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+if( numberItemsToDisplayInStats > 0 )
+{
+      command = QString("expView -x %1 %2%3 -v Functions").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+} else
+{
+      command = QString("expView -x %1 %2 -v Functions").arg(expID).arg(currentCollectorStr);
+}
     }
     if( !currentThreadsStr.isEmpty() )
     {
@@ -3694,11 +3759,22 @@ StatsPanel::generateCommand()
     }
   if( currentUserSelectedReportStr.startsWith("Statements") )
   { 
-    command = QString("expView -x %1 %3%2 -v Statements").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
+if( numberItemsToDisplayInStats > 0 )
+{
+    command = QString("expView -x %1 %2%3 -v Statements").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+} else
+{
+    command = QString("expView -x %1 %2 -v Statements").arg(expID).arg(currentCollectorStr);
+}
   } else
   {
-//    command = QString("expView -x %1 %3%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr);
-      command = QString("expView -x %1 %4%2 -v %5").arg(expID).arg(numberItemsToDisplayInStats).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
+if( numberItemsToDisplayInStats > 0 )
+{
+      command = QString("expView -x %1 %2%3 -v %4").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
+} else 
+{
+      command = QString("expView -x %1 %2 -v %4").arg(expID).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
+}
   }
 // printf("hwc command=(%s)\n", command.ascii() );
   about = command + "\n";

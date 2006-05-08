@@ -63,7 +63,7 @@ extern "C"
   {
     sortPreferenceCheckBox->setChecked(FALSE);
     updateOnCheckBox->setChecked(TRUE);
-    updateDisplayLineEdit->setText( "15" );
+    updateDisplayLineEdit->setText( "60" );
   }
 
   QString getPreferenceUpdateDisplayLineEdit()
@@ -139,7 +139,7 @@ QHBoxLayout *updateDisplayLayout = new QHBoxLayout( layout6, 11, "updateDisplayL
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, updateDisplayLineEdit->name() );
       updateDisplayLineEdit->setText(
-        settings->readEntry(settings_buffer, "15") );
+        settings->readEntry(settings_buffer, "60") );
     }
 
     return( manageProcessesPanelStackPage );

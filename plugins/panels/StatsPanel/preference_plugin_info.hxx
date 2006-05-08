@@ -28,6 +28,7 @@
 #include <qcheckbox.h>
 #include <qsettings.h>
 #include <qlistview.h>
+#include <qtooltip.h>
 
 #include <SPCheckBox.hxx>
 
@@ -120,7 +121,7 @@ extern "C"
 // printf("StatsPanel: initPreferenceSettings(%s)\n", pname);
     sortDecendingCheckBox->setChecked(TRUE);
     levelsToOpenLineEdit->setText( "-1" );
-    showTopNLineEdit->setText( "10" );
+    showTopNLineEdit->setText( "20" );
     showTopNChartLineEdit->setText( "5" );
     showColumnToSortLineEdit->setText( "0" );
     showTextInChartCheckBox->setChecked(TRUE);
@@ -265,7 +266,7 @@ extern "C"
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showTopNLineEdit->name() );
       showTopNLineEdit->setText(
-        settings->readEntry(settings_buffer, "10") );
+        settings->readEntry(settings_buffer, "20") );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showTopNChartLineEdit->name() );
@@ -292,6 +293,11 @@ extern "C"
       showTextByPercentCheckBox->setChecked(
         settings->readBoolEntry(settings_buffer, TRUE) );
     }
+
+    QToolTip::add(showTopNLineEdit,
+      "Define the top number of statistic entries to display.\nTo show all entries set to -1 or blank the field.  The default is 10." );
+    QToolTip::add(showTopNChartLineEdit,
+      "Define the top number of entries to display in the graphic.\nThe default is 5.");
 
     return statsPanelStackPage;
   }
