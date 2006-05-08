@@ -17,8 +17,8 @@
 ################################################################################
 
 # directories that will be affected
-SUBDIRS = users_guide 
+SUBDIRS = users_guide cli_doc
 
-DIST_SUBDIRS = users_guide
+DIST_SUBDIRS = users_guide cli_doc
 
 EXTRA_DIST = help.adp

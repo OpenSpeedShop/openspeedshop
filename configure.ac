@@ -146,6 +146,10 @@ AC_SUBST(INSTRUMENTOR)
 
 AC_CONFIG_FILES(
 	Makefile
+	doc/Makefile
+	doc/users_guide/Makefile
+	doc/users_guide/TroubleShootingGuide/Makefile
+	doc/cli_doc/Makefile
 	libopenss-message/Makefile
 	libopenss-runtime/Makefile
 	libopenss-runtime/dpcl/Makefile

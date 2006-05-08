@@ -160,6 +160,7 @@ cat << EOF > $RPMMACROSFILES
 %_includedir      %{_prefix}/include
 %_infodir         %{_prefix}/info
 %_mandir          %{_prefix}/man
+%_defaultdocdir   %{_prefix}/doc/openspeedshop
 
 # do not generate debugging packages by default
 %debug_package %{nil}
