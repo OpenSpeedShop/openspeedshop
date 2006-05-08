@@ -55,7 +55,7 @@ void Construct_View_Output (CommandObject *cmd,
   bool report_Column_summary = false;
 
   std::vector<ViewInstruction *> ViewInst(num_columns);
-  int64_t num_input_temps = items[0].second->size();
+  int64_t num_input_temps = (items.empty()) ? 0 : items[0].second->size();
   std::vector<ViewInstruction *> AccumulateInst(num_input_temps);
   for ( i=0; i < num_input_temps; i++) AccumulateInst[i] = NULL;
   std::vector<ViewInstruction *> SummaryInst(num_input_temps);
@@ -76,7 +76,7 @@ void Construct_View_Output (CommandObject *cmd,
           (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
         ViewInst[vp->TR()] = vp;
       } else if (vp->OpCode() == VIEWINST_Display_Summary) {
-        report_Column_summary = true;
+        report_Column_summary = (num_input_temps != 0);
       } else if ((vp->OpCode() == VIEWINST_Add) ||
                  (vp->OpCode() == VIEWINST_Min) ||
                  (vp->OpCode() == VIEWINST_Max)) {
