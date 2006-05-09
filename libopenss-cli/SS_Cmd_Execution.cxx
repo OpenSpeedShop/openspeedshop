@@ -713,8 +713,8 @@ static void Resolve_R_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
     int64_t myrank;
     for ( myrank = r_val1->num; myrank <= r_val2->num; myrank++) {
       try {
-        Thread t = exp->FW()->attachPosixThread(mypid, myrank, host_name);
-        tgrp->insert(t);
+//        Thread t = exp->FW()->attachPosixThread(mypid, myrank, host_name);
+//        tgrp->insert(t);
       }
       catch(const Exception& error) {
         Mark_Cmd_With_Std_Error (cmd, error);
@@ -756,8 +756,8 @@ static void Resolve_T_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
     int64_t mythread;
     for ( mythread = t_val1->num; mythread <= t_val2->num; mythread++) {
       try {
-        Thread t = exp->FW()->attachOpenMPThread(mypid, mythread, host_name);
-        tgrp->insert(t);
+//        Thread t = exp->FW()->attachOpenMPThread(mypid, mythread, host_name);
+//        tgrp->insert(t);
       }
       catch(const Exception& error) {
         Mark_Cmd_With_Std_Error (cmd, error);

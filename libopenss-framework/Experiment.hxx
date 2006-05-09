@@ -117,10 +117,6 @@ namespace OpenSpeedShop { namespace Framework {
 				 const std::string& = getLocalHost()) const;
 	ThreadGroup attachProcess(const pid_t&,
 				  const std::string& = getLocalHost()) const;
-	Thread attachPosixThread(const pid_t&, const pthread_t&,
-				 const std::string& = getLocalHost()) const;
-	Thread attachOpenMPThread(const pid_t&, const int&,
-				  const std::string& = getLocalHost()) const;
 	
 	void removeThread(const Thread&) const;
 	

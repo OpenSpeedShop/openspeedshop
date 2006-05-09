@@ -431,27 +431,29 @@ Experiment::~Experiment()
     //       whole lot we can do about a failure in any of the following, we
     //       chose to ignore such failures for now.
 
+    // Postpone all performance data collection
     try {
-
-	// Postpone all performance data collection
 	getThreads().postponeCollecting(getCollectors());
-
-	// Remove this experiment's database from the data queues
-	DataQueues::removeDatabase(dm_database);
-    
-	// Iterate over each thread in this experiment
-	ThreadGroup threads = getThreads();
-	for(ThreadGroup::const_iterator 
-		i = threads.begin(); i != threads.end(); ++i) {
-	    
-	    // Release this thread in the instrumentor
-	    Instrumentor::release(*i);
-	    
-	}
-	
     }
     catch(...) {
     }    
+
+    // Remove this experiment's database from the data queues
+    try {
+	DataQueues::removeDatabase(dm_database);
+    }
+    catch(...) {
+    }    
+
+    // Iterate over each thread in this experiment
+    ThreadGroup threads = getThreads();
+    for(ThreadGroup::const_iterator 
+	    i = threads.begin(); i != threads.end(); ++i) {
+	    
+	// Release this thread in the instrumentor
+	Instrumentor::release(*i);
+	
+    }
 }
 
 
@@ -628,40 +630,45 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 	// Look for any available MPI job information for this thread
 	Job job;
 	bool is_mpich_job = false;
-	if (!getMPIJobFromMPT(thread, job)) {
+	if(!getMPIJobFromMPT(thread, job))
 	    is_mpich_job = getMPIJobFromMPICH(thread, job);
-	}
 	
-	int rank = 0;
-
 	// Iterate over any processes found to be in our MPI job
+	int rank = 0;
 	for(Job::const_iterator i = job.begin(); i != job.end(); ++i) {
 	    
 	    // Attach to this process
 	    ThreadGroup additional_threads = attachProcess(i->second, i->first);
 	    
-	    if (is_mpich_job) {
-		// In MPICH, a process' position in the MPICHProcTable
-		// indicates its MPI rank, starting with 0.  That
-		// ordering is preserved in the Job object constructed
-		// in getMPIJobFromMPICH(), so the local variable "rank"
-		// here is the correct rank to be put into the
-		// mpi_rank database field for all Thread objects
-		// associated with this process.
+	    if(is_mpich_job) {
 
-		for (ThreadGroup::const_iterator ti = additional_threads.begin();
-		     ti != additional_threads.end(); ++ti) {
-		    const Thread& t(*ti);
+		// Note: A process' position in the MPICH process table also
+		//       indicates its MPI rank, starting with zero. That same
+		//       ordering is preserved in the Job object constructed
+		//       by getMPIJobFromMPICH(). So the local variable "rank"
+		//       here is the correct rank to be put into the mpi_rank
+		//       database field for all Thread objects associated with
+		//       this process.
+
+		// Iterate over each thread in this process
+		for(ThreadGroup::const_iterator 
+			t = additional_threads.begin();
+		    t != additional_threads.end(); 
+		     ++t) {
+
+		    // Update this thread's MPI rank in the database
 		    BEGIN_WRITE_TRANSACTION(dm_database);
 		    dm_database->prepareStatement(
 			"UPDATE Threads SET mpi_rank = ? WHERE id = ?;"
 			);
 		    dm_database->bindArgument(1, rank);
-		    dm_database->bindArgument(2, EntrySpy(t).getEntry());
+		    dm_database->bindArgument(2, EntrySpy(*t).getEntry());
 		    while(dm_database->executeStatement());
 		    END_TRANSACTION(dm_database);
+
 		}
-		rank++;
+
+		++rank;
 	    }
 
 	    // Merge these additional threads into the overall thread group
@@ -754,48 +761,6 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
     
     // Return the threads to the caller
     return threads;  
-}
-
-
-
-/**
- * Attach to a POSIX thread.
- *
- * Attaches to an existing POSIX thread and adds that thread to this experiment.
- * The thread is suspended as a result of attaching.
- *
- * @todo    Currently this routine is unimplemented.
- *
- * @param pid     Process identifier of the process in which the thread resides.
- * @param tid     Thread identifier for the thread.
- * @param host    Name of the host on which the thread resides.
- * @return        Attached thread.
- */
-Thread Experiment::attachPosixThread(const pid_t& pid, const pthread_t& tid,
-				     const std::string& host) const
-{
-    return Thread();
-}
-
-
-
-/**
- * Attach to an OpenMP thread.
- *
- * Attaches to an existing OpenMP thread and adds that thread to this
- * experiment.  The thread is suspended as a result of attaching.
- *
- * @todo    Currently this routine is unimplemented.
- *
- * @param pid     Process identifier of the process in which the thread resides.
- * @param tid     Thread identifier for the thread.
- * @param host    Name of the host on which the thread resides.
- * @return        Attached thread.
- */
-Thread Experiment::attachOpenMPThread(const pid_t& pid, const int& tid,
-				      const std::string& host) const
-{
-    return Thread();
 }
 
 

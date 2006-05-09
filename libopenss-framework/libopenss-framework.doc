@@ -18,13 +18,15 @@
 
 /** @namespace OpenSpeedShop
 
-Enclosing namespace for all <em>Open|SpeedShop</em> libraries.
+Enclosing namespace for all <b>Open</b>|SpeedShop<small><sup>TM</sup></small>
+libraries.
 
 */
 
 /** @namespace OpenSpeedShop::Framework
 
-Enclosing namespace for the <em>Open|SpeedShop</em> framework library.
+Enclosing namespace for the <b>Open</b>|SpeedShop<small><sup>TM</sup></small>
+framework library.
 
 */
 
@@ -34,12 +36,12 @@ Enclosing namespace for the <em>Open|SpeedShop</em> framework library.
 
 /** @mainpage
 
-<em>Open</em>/SpeedShop comes with fully featured text-based and graphical user
-interfaces, but it is certainly possible that some users will find them
-inadequate or simply not to their liking. Hooks are provided in these standard
-user interfaces to allow for customization and their use is encouraged. But,
-for whatever reason, some adventurous users may wish to take the road less
-traveled and create their own tool.
+<b>Open</b>|SpeedShop<small><sup>TM</sup></small> comes with fully featured
+text-based and graphical user interfaces, but it is certainly possible that
+some users will find them inadequate or simply not to their liking. Hooks are
+provided in these standard user interfaces to allow for customization and their
+use is encouraged. But, for whatever reason, some adventurous users may wish to
+take the road less traveled and create their own tool.
 
 Creating an application performance tool completely from scratch, however, is
 an arduous task. In addition to designing and implementing the user interface
@@ -48,12 +50,13 @@ executable debugging and symbol table formats, application instrumentation,
 data collection, and management of large-scale data sets. Several past and
 current projects have provided pieces of the necessary infrastructure.
 
-The <em>Open</em>/SpeedShop Framework Library, elsewhere simply "the framework",
-provides a unified application program interface (API) to the various components
-required for building a complete application performance tool. This framework
-has helped facilitate the creation of <em>Open</em>/SpeedShop's user interfaces.
-One of the common goals of most open source projects is to encourage innovation.
-It is hoped that this framework will do precisely that.
+The <b>Open</b>|SpeedShop<small><sup>TM</sup></small> Framework Library,
+elsewhere simply "the framework", provides a unified application program
+interface (API) to the various components required for building a complete
+application performance tool. This framework has helped facilitate the creation
+of <b>Open</b>|SpeedShop<small><sup>TM</sup></small>'s user interfaces. One of
+the common goals of most open source projects is to encourage innovation. It is
+hoped that this framework will do precisely that.
 
 @section MainPage_S1 How to Use This Documentation
 
@@ -115,13 +118,14 @@ most of these platform dependent elements so that that tool developer can focus
 on presenting the data in an insightful manner.
 
 Many aspects of this API are similar (or even identical) to concepts found in
-<a href="http://oss.software.ibm.com/developerworks/opensource/dpcl/">DPCL</a>
+<a href="http://dpcl.sourceforge.net/">DPCL</a>
 and
 <a href="http://www.dyninst.org/">Dyninst</a>
 . That should not be suprising considering they are fundamental components used
-by <em>Open</em>/SpeedShop. Much as DPCL extends Dyninst with additional
-concepts for working in a cluster environment, this framework extends DPCL with
-additional concepts to ease the creation of application performance tools.
+by <b>Open</b>|SpeedShop<small><sup>TM</sup></small>. Much as DPCL extends
+Dyninst with additional concepts for working in a cluster environment, this
+framework extends DPCL with additional concepts to ease the creation of
+application performance tools.
 
 @section ToolAPI_S1 Getting Started
 
@@ -169,40 +173,42 @@ Each of these is outlined in a separate section below.
 
 An experiment's current list of threads is found by calling
 @link OpenSpeedShop::Framework::Experiment::getThreads getThreads() @endlink
-for the experiment. Member functions such as
+for the experiment. The member function
 @link
 OpenSpeedShop::Framework::Experiment::createProcess createProcess()
 @endlink
-allow the tool to create a new process while also adding that process to the
-experiment. If, instead, the tool wishes to attach to existing jobs, processes,
-or threads, member functions such as
-@link
-OpenSpeedShop::Framework::Experiment::attachArraySession attachArraySession()
-@endlink
-,
+allows the tool to create a new process (or
+<a href="http://www.mpi-forum.org/">MPI</a>
+job) and add that process(es)' threads to the experiment. If, instead, the
+tool wishes to attach to an existing process or
+<a href="http://www.mpi-forum.org/">MPI</a>
+job, the member
+functions
 @link
 OpenSpeedShop::Framework::Experiment::attachProcess attachProcess()
 @endlink
-, or
+and
 @link
-OpenSpeedShop::Framework::Experiment::attachPosixThread attachPosixThread()
+OpenSpeedShop::Framework::Experiment::attachMPIJob attachMPIJob()
 @endlink
-, are available for this purpose. These also add their respective thread(s) to
-the experiment on which they are called. All of these member functions return
-either a single
-@link OpenSpeedShop::Framework::Thread Thread @endlink
-instance, or a
+are available for this purpose. These also add their respective thread(s) to
+the experiment on which they are called. All three of these member functions
+return a
 @link OpenSpeedShop::Framework::ThreadGroup ThreadGroup @endlink
-containing multiple
+containing one or more
 @link OpenSpeedShop::Framework::Thread Thread @endlink
-instances, that can be used to further query and manipulate the newly created
-or attached thread(s). 
+instances that can be used to further query and manipulate the newly created
+or attached thread(s).
 
 Threads are also added to an experiment automatically by the framework. For
 example, the framework monitors threads in all open experiments for the creation
-of additional threads via fork(), pthread_create(), etc. When this occurs, the
-resulting child thread is automatically added to all open experiments containing
-the parent thread.
+of additional threads via
+<a href="http://www.die.net/doc/linux/man/man2/fork.2.html">fork()</a>
+, 
+<a href="http://www.die.net/doc/linux/man/man3/pthread_create.3.html">
+pthread_create()</a>
+, etc. When this occurs, the resulting child thread is automatically added to
+all open experiments containing the parent thread.
 
 Instances of
 @link OpenSpeedShop::Framework::Thread Thread @endlink
@@ -266,7 +272,7 @@ over time. New software or hardware platforms are introduced that require new
 types of data be collected. By moving the collection mechanisms into plugins,
 new types of data can be accomodated by creating additional plugins.
 
-Upon tool startup the framework library is loaded and searches for collector
+Upon tool startup the framework library is loaded and it searches for collector
 plugins in several predefined locations. Tools access the list of available
 collectors at run-time by calling
 @link OpenSpeedShop::Framework::Collector::getAvailable getAvailable() @endlink
@@ -360,7 +366,7 @@ OpenSpeedShop::Framework::Collector::setParameterValue setParameterValue()
 @endlink
 . Both of these are template functions on the parameter's value type.
 
-Collectors cannot actually <em>do</em> anything until they are attached to one
+Collectors don't actually <em>do</em> anything until they are attached to one
 or more threads. This is accomplished by passing the thread to
 @link OpenSpeedShop::Framework::Collector::attachThread attachThread() @endlink
 . A collector's current list of attachments is accessed via
