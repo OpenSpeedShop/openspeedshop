@@ -40,7 +40,7 @@ MYCURRENT=${HERE%/*}
 TOPLEVEL=${MYCURRENT%/*}
 
 # install the build from the workarea here if OPENSS_INSTALL_DIR is not set:
-export MYOSSINSTALLDIR=$TOPLEVEL/OpensSpeedShop/usr/local
+export MYOSSINSTALLDIR=$TOPLEVEL/OpensSpeedShop/usr
 
 if [ "$OPENSS_INSTALL_DIR" = "" ] 
 then echo "NOTE: OPENSS_INSTALL_DIR not set."
