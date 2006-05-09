@@ -278,7 +278,7 @@ void Compress_ThreadInfo (std::vector<ThreadInfo>& In,
 
     bool merging_ranks = (i->rank_required);
     bool merging_threads = (!(merging_ranks) && (i->thread_required));
-    bool merging_pids = (!(merging_threads));
+    bool merging_pids = (!(merging_threads) && (i->pid_required));
     bool have_hosts = i->host_required;
 
    // Create the first result entry.
