@@ -130,8 +130,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   MPItraceFLAG = FALSE;
 
   insertDiffColumnFLAG = FALSE;
-firstExpID = -1;
-secondExpID = -1;
+  focusedExpID = -1;
+  experimentGroupList.clear();
 
   currentThread = NULL;
   currentCollector = NULL;
@@ -156,6 +156,7 @@ secondExpID = -1;
 
   f = NULL;
   modifierMenu = NULL;
+  experimentsMenu = NULL;
 
   mpiModifierMenu = NULL;
   mpitModifierMenu = NULL;
@@ -671,12 +672,42 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 
   if( splv->selectedItem() )
   {
-//    contextMenu->insertItem("Tell Me MORE about %d!!!", this, SLOT(details()), CTRL+Key_1 );
     qaction = new QAction( this,  "gotoSource");
     qaction->addTo( contextMenu );
     qaction->setText( "Go to source location..." );
     connect( qaction, SIGNAL( activated() ), this, SLOT( gotoSource() ) );
     qaction->setStatusTip( tr("Position at source location of this item.") );
+
+    // If we have more than one experiment... figure out focus. 
+  }
+
+
+  if( experimentGroupList.count() > 1 )
+  {
+    int id = 0;
+    experimentsMenu = new QPopupMenu(this);
+    columnsMenu->setCaption("Select Focused Experiment:");
+    contextMenu->insertItem("&Select Focused Experiment:", experimentsMenu, CTRL+Key_M);
+  
+    for(ExperimentGroupList::iterator egi = experimentGroupList.begin();egi != experimentGroupList.end();egi++)
+    {
+      QString s = (QString)*egi;
+      int index = s.find(":");
+      if( index != -1 )
+      {
+        index++;
+        int exp_id = s.mid(index,9999).stripWhiteSpace().toInt();
+        s = QString("Experiment: %1").arg(exp_id);
+        id = experimentsMenu->insertItem(s);
+        if( exp_id == focusedExpID )
+        {
+          experimentsMenu->setItemChecked(id, TRUE);
+        }
+      }
+    }
+
+    connect(experimentsMenu, SIGNAL( activated(int) ),
+      this, SLOT(focusOnExp(int)) );
   }
 
 
@@ -776,11 +807,10 @@ StatsPanel::customizeExperimentsSelected()
 
 //    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
    ArgumentObject *ao = new ArgumentObject("ArgumentObject", groupID);
-// printf("firstExpID=%d\n", firstExpID );
-   if( firstExpID != -1 )
+   if( focusedExpID != -1 )
    {
 // printf("assing qstring_data\n");
-     ao->qstring_data = QString("%1").arg(firstExpID);
+     ao->qstring_data = QString("%1").arg(focusedExpID);
    } else
    {
      ao->qstring_data = QString("%1").arg(groupID);
@@ -1049,6 +1079,24 @@ StatsPanel::updatePanel()
 // printf("updatePanel() about to call updateStatsPanelData()\n");
 
   updateStatsPanelData(lastCommand);
+}
+
+void
+StatsPanel::focusOnExp(int val)
+{
+// printf("Just set the focus to the first for now... val=%d\n", val );
+// printf("Menu item %s selected \n", experimentsMenu->text(val).ascii() );
+
+  QString valStr = experimentsMenu->text(val).ascii();
+  int index = valStr.find(":");
+  if( index != -1 )
+  {
+    index++;
+    int id = valStr.mid(index,9999).stripWhiteSpace().toInt();
+    focusedExpID = id;
+
+// printf("You just assigned the focusedExpID=%d\n", focusedExpID);
+  }
 }
 
 /*! Go to source menu item was selected. */
@@ -4546,7 +4594,7 @@ if( expID > 0 )
     command = QString("expView -x %1 -v Statements -f %2").arg(expID).arg(_fileName);
 } else
 {
-    command = QString("expView -x %1 -v Statements -f %2").arg(firstExpID).arg(_fileName);
+    command = QString("expView -x %1 -v Statements -f %2").arg(focusedExpID).arg(_fileName);
 }
   } else
   {
@@ -4555,7 +4603,7 @@ if( expID > 0 )
     command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(expID).arg(_fileName).arg(currentMetricStr);
 } else
 {
-    command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(firstExpID).arg(_fileName).arg(currentMetricStr);
+    command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(focusedExpID).arg(_fileName).arg(currentMetricStr);
 }
   }
 // printf("command=(%s)\n", command.ascii() );
@@ -5130,9 +5178,8 @@ StatsPanel::analyzeTheCView()
   }
 
 
+  experimentGroupList.clear();
 // I eventually want a info class per column of cview data...
-firstExpID = -1;
-secondExpID = -1;
   for(int i=0;i < splv->columns(); i++ )
   {
     QString header = splv->columnText(i);
@@ -5142,24 +5189,15 @@ secondExpID = -1;
       int start_index = 3;
       QString cviewIDStr = header.mid(start_index, end_index-start_index);
       int cid = cviewIDStr.toInt();
-      if( firstExpID == -1 )
+      for( CInfoClassList::Iterator it = cInfoClassList.begin(); it != cInfoClassList.end(); ++it)
       {
-        for( CInfoClassList::Iterator it = cInfoClassList.begin(); it != cInfoClassList.end(); ++it)
+        CInfoClass *cic = (CInfoClass *)*it;
+        if( cic->cid == cid )
         {
-          CInfoClass *cic = (CInfoClass *)*it;
-          if( cic->cid == cid )
+          experimentGroupList.push_back( QString("Experiment: %1").arg(cic->expID) );
+          if( focusedExpID == -1 )
           {
-            firstExpID = cic->expID;
-          }
-        }
-      } else if( secondExpID == -1 )
-      {
-        for( CInfoClassList::Iterator it = cInfoClassList.begin(); it != cInfoClassList.end(); ++it)
-        {
-          CInfoClass *cic = (CInfoClass *)*it;
-          if( cic->cid == cid )
-          {
-            secondExpID = cic->expID;
+            focusedExpID = cic->expID;
           }
         }
       }

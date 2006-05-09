@@ -56,6 +56,7 @@ class SourceObject;
 #include <qvaluelist.h>
 typedef QValueList<QString> ColumnList;
 typedef QValueList<QString> ThreadGroupStringList;
+typedef QValueList<QString> ExperimentGroupList;
 
 typedef std::pair<Function, double> Function_double_pair;
 typedef std::pair<Function, unsigned int> Function_uint_pair;
@@ -133,8 +134,9 @@ class StatsPanel  : public Panel
     bool absDiffFLAG;
     void insertDiffColumn(int insertAtIndex=0);
     void removeDiffColumn(int removeIndex);
-int firstExpID;
-int secondExpID;
+
+    int focusedExpID;
+    ExperimentGroupList experimentGroupList;
     CInfoClassList cInfoClassList;
 
     void analyzeTheCView();
@@ -232,6 +234,8 @@ int secondExpID;
     QPopupMenu *pcsamp_menu;
     QPopupMenu *generic_menu;
 
+    QPopupMenu *experimentsMenu;
+
     QString currentThreadStr;
     QString currentThreadsStr;
     QString currentCollectorStr;
@@ -250,6 +254,7 @@ int secondExpID;
     void exportData();
     void details();
     void updatePanel();
+    void focusOnExp(int);
     void gotoSource(bool use_current_item = FALSE);
     void aboutSelected();
     void MPItraceSelected();
