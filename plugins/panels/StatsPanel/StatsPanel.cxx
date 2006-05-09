@@ -775,7 +775,16 @@ StatsPanel::customizeExperimentsSelected()
     PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
 
 //    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-    ArgumentObject *ao = new ArgumentObject("ArgumentObject", groupID);
+   ArgumentObject *ao = new ArgumentObject("ArgumentObject", groupID);
+// printf("firstExpID=%d\n", firstExpID );
+   if( firstExpID != -1 )
+   {
+// printf("assing qstring_data\n");
+     ao->qstring_data = QString("%1").arg(firstExpID);
+   } else
+   {
+     ao->qstring_data = QString("%1").arg(groupID);
+   }
     customizePanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("CustomizeStatsPanel", bestFitPC, ao, (const char *)NULL);
     delete ao;
   }

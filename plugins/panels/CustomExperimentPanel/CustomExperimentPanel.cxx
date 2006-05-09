@@ -156,17 +156,20 @@ if( attachFLAG )
   leftSideExpID = -1;
   rightSideExpID = -1;
 
-  if( ao && ao->qstring_data )
+// printf("CustomExperimentPanel::init()\n");
+
+  if( ao && !ao->qstring_data.isEmpty() )
   {
     // We have an existing experiment, load the executable or pid if we 
     // have one associated.  (TODO)
-    QString *expIDString = ao->qstring_data;
-    if( expIDString->toInt() == -1 )
+    QString expIDString = ao->qstring_data;
+// printf("CustomExperimentPanel::init(%s)\n", expIDString.ascii());
+    if( expIDString.toInt() == -1 )
     {
       nprintf( DEBUG_PANELS ) ("we're coming in from the constructNewExperimentWizardPanel.\n");
-    } else if( expIDString->toInt() > 0 )
+    } else if( expIDString.toInt() > 0 )
     {
-      expID = expIDString->toInt();
+      expID = expIDString.toInt();
       nprintf( DEBUG_PANELS ) ("we're coming in with an expID=%d\n", expID);
       // Look to see if any collectors have already been assigned.   If not, we
       // need to attach the  le collector.

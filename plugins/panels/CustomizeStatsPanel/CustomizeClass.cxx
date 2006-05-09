@@ -58,7 +58,7 @@ using namespace OpenSpeedShop::Framework;
 #include "CompareProcessesDialog.hxx"
 
 
-CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id )
+CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id, QString focusedExpIDStr )
     : QWidget( parent, name )
 {
 //  nprintf(DEBUG_CONST_DESTRUCT) ("CustomizeClass::CustomizeClass() constructor called.\n");
@@ -67,6 +67,13 @@ CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bo
   ccnt = 1;
   
   p = _p;
+  if( focusedExpIDStr.isEmpty() )
+  {
+    focusedExpID = -1;
+  } else
+  {
+    focusedExpID = focusedExpIDStr.toInt();
+  }
   expID = exp_id;
 
   csl = NULL;

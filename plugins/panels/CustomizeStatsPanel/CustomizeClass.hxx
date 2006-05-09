@@ -64,12 +64,13 @@ class CustomizeClass : public QWidget
     Q_OBJECT
 
 public:
-    CustomizeClass( Panel *p, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0, int exp_id = -1 );
+    CustomizeClass( Panel *p, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0, int exp_id = -1,  QString expIDStr = QString::null );
     ~CustomizeClass();
 
     bool menu(QPopupMenu* contextMenu);
 
     int expID;
+    int focusedExpID;
     Panel *p;
 
     CompareSetList *csl;

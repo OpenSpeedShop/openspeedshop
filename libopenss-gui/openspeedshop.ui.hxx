@@ -282,7 +282,7 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
     }
   
     PanelContainer *bestFitPC = ((PanelContainer *)topPC)->findBestFitPanelContainer((PanelContainer *)topPC);
-    ArgumentObject *ao = new ArgumentObject("ArgumentObject", &expStr);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expStr);
     ao->loadedFromSavedFile = loadedFromSavedFile;
     topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, ao, (const char *)NULL );
     delete ao;
@@ -1306,7 +1306,7 @@ OpenSpeedshop::lookForExperiment()
 
 // printf("pane_type.ascii() = %s\n", panel_type.ascii() );
     PanelContainer *bestFitPC = ((PanelContainer *)topPC)->findBestFitPanelContainer((PanelContainer *)topPC);
-    ArgumentObject *ao = new ArgumentObject("ArgumentObject", &expStr);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expStr);
     topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, ao);
     delete ao;
   }

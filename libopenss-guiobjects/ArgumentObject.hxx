@@ -32,7 +32,7 @@ public:
     ArgumentObject();
     ArgumentObject(QString  msg_type, int);
     ArgumentObject(QString  msg_type, Panel *);
-    ArgumentObject(QString  msg_type, QString *);
+    ArgumentObject(QString  msg_type, QString);
     void init();
     ~ArgumentObject();
 
@@ -41,7 +41,7 @@ public:
     QString msgType;
     int int_data;
     Panel *panel_data;
-    QString *qstring_data;
+    QString qstring_data;
     bool loadedFromSavedFile;
 
 LoadAttachObject *lao;

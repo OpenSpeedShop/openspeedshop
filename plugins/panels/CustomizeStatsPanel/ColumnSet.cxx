@@ -222,11 +222,8 @@ ColumnSet::gatherExperimentInfo()
     {
       saved_eid = eid;
     }
-
-
     QString expIDStr = QString("%1").arg(eid);
 
-//    command = QString("listTypes -x %1").arg(expIDStr);
     command = QString("list -v exptypes -x %1").arg(expIDStr);
     std::list<std::string> list_of_collectors;
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
@@ -281,8 +278,16 @@ ColumnSet::gatherExperimentInfo()
     {
       expStr = experimentComboBox->currentText();
       saved_eid = getExpidFromExperimentComboBoxStr(expStr);
+// printf("There was a combo box.  It was (%s)\n", expStr.ascii() );
+    } else
+    {
+      // THIS IS A BUG.   This code block should be look "back"
+      // for the previous columns experiment string and attempting
+      // to focus this information with that information.
+// printf("There was a combo box.  IT WAS EMPTY!!\n");
     }
-// printf("expStr = (%s)\n", expStr.ascii() );
+    
+// printf("expStr = (%s) saved_eid=%d\n", expStr.ascii(), saved_eid );
   
     int cb_count = 0;
     for(cb_count = experimentComboBox->count(); cb_count > 0; cb_count--)
@@ -298,14 +303,35 @@ ColumnSet::gatherExperimentInfo()
 // printf("str1=(%s) str2=(%s)\n", str1.ascii(), str2.ascii() );
     if( experimentComboBox )
     {
+// printf("WE HAVE AN experimentComboBox!\n");
       QString label(str2);
       experimentComboBox->insertItem( label );
-// printf("str1.ascii()=(%s) str2.ascii()=(%s)\n", str1.ascii(), str2.ascii() );
-      if( label == expStr )
+// printf("label.ascii()=(%s) expStr.ascii()=(%s)\n", label.ascii(), expStr.ascii() );
+      if( compareSet->compareClass->focusedExpID > 0 )
+      {
+        if( getExpidFromExperimentComboBoxStr(str2) == compareSet->compareClass->focusedExpID )
+        {
+// printf("FORCE THE FOCUS\n");
+          expStrFoundFLAG = TRUE;
+          saved_eid = getExpidFromExperimentComboBoxStr(str2);
+          // Unset this...
+// Not until you fix the "BUG" (See above comment) above.
+//          compareSet->compareClass->focusedExpID = -1;
+
+          expStr = str2;
+        } else if( label == expStr )
+        {
+          expStrFoundFLAG = TRUE;
+          saved_eid = getExpidFromExperimentComboBoxStr(str2);
+// printf("A: We found the existing label, prepare to reset it.\n");
+          expStr = str2;
+        }
+      } else if( label == expStr )
       {
         expStrFoundFLAG = TRUE;
         saved_eid = getExpidFromExperimentComboBoxStr(str2);
-// printf("We found the existing label, prepare to reset it.\n");
+// printf("B: We found the existing label, prepare to reset it.\n");
+        expStr = str2;
       }
     }
   }
@@ -319,6 +345,11 @@ ColumnSet::gatherExperimentInfo()
   if( saved_eid > 0 )
   {
     eid = saved_eid;
+  }
+  if( compareSet->compareClass->focusedExpID > 0 )
+  {
+// printf("If saved_eid <= 0 force the new one!\n");
+    saved_eid = compareSet->compareClass->focusedExpID;
   }
 // printf("Sending eid=(%d) down to gatherCollectorInfo()\n", eid) ;
   ce = gatherCollectorInfo(eid);

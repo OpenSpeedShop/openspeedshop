@@ -37,7 +37,7 @@ CustomizeStatsPanel::CustomizeStatsPanel(PanelContainer *pc, const char *n, Argu
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
 
-  mcc1 = new CustomizeClass( this, getBaseWidgetFrame(), "CustomizeClass", FALSE, 0, ao->int_data );
+  mcc1 = new CustomizeClass( this, getBaseWidgetFrame(), "CustomizeClass", FALSE, 0, ao->int_data, ao->qstring_data );
 
   frameLayout->addWidget(mcc1);
   mcc1->expID = ao->int_data;

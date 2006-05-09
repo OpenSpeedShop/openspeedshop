@@ -39,7 +39,7 @@ ArgumentObject::init()
 {
   int_data = 0;
   panel_data = NULL;
-  qstring_data = NULL;
+  qstring_data = QString::null;
   loadedFromSavedFile = FALSE;
   lao = NULL;
 }
@@ -51,9 +51,10 @@ ArgumentObject::ArgumentObject(QString msg_type, int d)
   msgType = msg_type;
   init();
   int_data = d;
+  qstring_data = QString::null;
 }
 
-ArgumentObject::ArgumentObject(QString msg_type, QString *d)
+ArgumentObject::ArgumentObject(QString msg_type, QString d)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("ArgumentObject::ArgumentObject(%s)\n", msg_type.ascii() );
 
@@ -69,6 +70,7 @@ ArgumentObject::ArgumentObject(QString msg_type, Panel *d)
   msgType = msg_type;
   init();
   panel_data = d;
+  qstring_data = QString::null;
 }
 
 ArgumentObject::~ArgumentObject()
@@ -83,7 +85,7 @@ ArgumentObject::print()
   printf("	msgType=(%s)\n", msgType.ascii() );
   printf("  panel_data=0x%x\n", panel_data);
   printf("  int_data=%d\n", int_data);
-  printf("  qstring_data=%s\n", qstring_data ? qstring_data->ascii() : "NULL");
+  printf("  qstring_data=%s\n", qstring_data.ascii());
   printf("  loadedFromSavedFile=%d\n", loadedFromSavedFile);
   printf("  lao:\n");
   if( lao )
