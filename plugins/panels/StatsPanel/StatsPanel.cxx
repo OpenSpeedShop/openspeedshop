@@ -5057,6 +5057,8 @@ StatsPanel::analyzeTheCView()
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
+// printf("coming ing: currentMetricStr was %s\n", currentMetricStr.ascii() );
+  currentMetricStr = QString::null;
   InputLineObject *clip = NULL;
   std::string cstring;
   for( QValueList<QString>::Iterator it = cidList.begin(); it != cidList.end(); ++it)
@@ -5114,6 +5116,12 @@ StatsPanel::analyzeTheCView()
     start_index += 3;  // Skip the -m
     // metricStr = str.right(start_index);
     metricStr = str.mid(start_index, 9999999);
+
+    if( currentMetricStr.isEmpty() )
+    {
+      currentMetricStr = metricStr;
+// printf("currentMetricStr set to %s\n", currentMetricStr.ascii() );
+    }
 
     CInfoClass *cic = new CInfoClass( cid, collectorStr, expID, host_pid_names, metricStr );
     cInfoClassList.push_back( cic );
