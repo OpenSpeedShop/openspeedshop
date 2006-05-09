@@ -21,8 +21,7 @@ SUBDIRS = TroubleShootingGuide
 
 DIST_SUBDIRS = TroubleShootingGuide
 
-EXTRA_DIST = BuildingInstallingDPCL \
-	BuildingInstallingDPCL.html \
+EXTRA_DIST = BuildingInstallingDPCL.html \
 	FileMenu.png \
 	HelpMenu.png \
 	index.html \
