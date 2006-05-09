@@ -27,7 +27,7 @@
  * this information is redundant.  These classes are provided
  * in order to detect redundancy and compress the required
  * information that needs to be communicated to the user for
- * the porpose of uniquely identifing an object.
+ * the purpose of uniquely identifing an object.
  *
  * The usual processing steps are:
  *
@@ -43,7 +43,7 @@
  * range information.  This is usually accomplished by using the
  * utility 'Compress_ThreadInfo'.
  *
- * The desired form of output that is neded to cummunicate wiht the
+ * The desired form of output that is neded to cummunicate with the
  * user can then be generated from the resulting ThreadRangeInfo
  * entries.
  */
@@ -51,24 +51,28 @@
 class ThreadRangeInfo
 {
  public:
+  bool host_required;
+  bool pid_required;
+  bool thread_required;
+  bool rank_required;
+
   std::string hostName;
-  pid_t processId_b;
-  pid_t processId_e;
-  int64_t threadId_b;
-  int64_t threadId_e;
-  int64_t rankId_b;
-  int64_t rankId_e;
+  std::vector<std::pair<pid_t,pid_t> > processId;
+  std::vector<std::pair<int64_t,int64_t> > threadId;
+  std::vector<std::pair<int64_t,int64_t> > rankId;
 
  public:
-  ThreadRangeInfo (std::string hid, pid_t pid_b, int64_t tid_b, int64_t rid_b,
-                                    pid_t pid_e, int64_t tid_e, int64_t rid_e) {
-    hostName = hid;
-    processId_b = pid_b;
-    processId_e = pid_e;
-    threadId_b = tid_b;
-    threadId_e = tid_e;
-    rankId_b = rid_b;
-    rankId_e = rid_e;
+  ThreadRangeInfo (bool HasHost, bool HasPid, bool HasThread, bool HasRank,
+                   std::string hid, pid_t pid, int64_t tid, int64_t rid) {
+    host_required = HasHost;
+    pid_required = HasPid;
+    thread_required = HasThread;
+    rank_required = HasRank;
+
+    if (HasHost) hostName = hid;
+    if (HasPid) processId.push_back (std::make_pair(pid,pid));
+    if (HasThread) threadId.push_back (std::make_pair(tid,tid));
+    if (HasRank) rankId.push_back (std::make_pair(rid,rid));
   }
 
 };
@@ -76,13 +80,24 @@ class ThreadRangeInfo
 class ThreadInfo
 {
  private:
+  bool host_required;
+  bool pid_required;
+  bool thread_required;
+  bool rank_required;
+
   std::string hostName;
   pid_t processId;
   int64_t threadId;
   int64_t rankId;
 
  public:
-  ThreadInfo (std::string hid, pid_t pid, int64_t tid, int64_t rid) {
+  ThreadInfo (bool thread_present, bool rank_present,
+              std::string hid, pid_t pid, int64_t tid, int64_t rid) {
+    host_required = true;
+    pid_required = true;
+    thread_required = thread_present;
+    rank_required = rank_present;
+
     hostName = hid;
     processId = pid;
     threadId = tid;

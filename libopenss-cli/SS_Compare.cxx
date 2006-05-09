@@ -1682,6 +1682,7 @@ bool SS_cvClusters (CommandObject *cmd) {
     }
   }
 
+ // Step 1: collect the identifying information for each thread.
   std::vector<std::vector<ThreadInfo> > TIG(clusters.size());
   int64_t ix = 0;
   for(std::set<ThreadGroup>::const_iterator
@@ -1697,11 +1698,13 @@ bool SS_cvClusters (CommandObject *cmd) {
     Build_ThreadInfo (tgrp, TIG[ix]);
   }
 
+ // Step 2: determine the minimum set of identifying information needed.
  // Determine the best way to compress the description.
   if (!threadgroupSubset) {
     Remove_Unnecessary_ThreadInfo (TIG);
   }
 
+ // Step 3: build cViewCreate descriptions for each cluster.
   ix = 0;
   for(std::set<ThreadGroup>::const_iterator
          i = clusters.begin(); i != clusters.end(); i++, ix++) {
@@ -1756,38 +1759,44 @@ bool SS_cvClusters (CommandObject *cmd) {
     std::vector<ThreadRangeInfo> Out;
     Compress_ThreadInfo (TIG[ix], Out);
 
-   // Create the target specification for the itesm in the cluster.
+   // Create the target specification for the items in the cluster.
     for (std::vector<ThreadRangeInfo>::iterator tri = Out.begin(); tri != Out.end(); tri++) {
      // Pick up the prevously defined ParseTarget information and copy it.
       ParseTarget *new_pt = new_result->currentTarget();
 
      // Get host, pid, thread and rank info from the compressed spec.
       std::string hid = tri->hostName;
-      if (tri->hostName != "") {
+      if (tri->host_required) {
         new_pt->pushHostPoint ((char *)(tri->hostName.c_str()));
       }
 
-      if (tri->processId_b != 0) {
-        if (tri->processId_b == tri->processId_e) {
-          new_pt->pushPidPoint (tri->processId_b);
-        } else {
-          new_pt->pushPidRange (tri->processId_b, tri->processId_e);
+      if (tri->pid_required) {
+        for (pid_t pi = 0; pi < tri->processId.size(); pi++) {
+          if (tri->processId[pi].first == tri->processId[pi].second) {
+            new_pt->pushPidPoint (tri->processId[pi].first);
+          } else {
+            new_pt->pushPidRange (tri->processId[pi].first, tri->processId[pi].second);
+          }
         }
       }
 
-      if (tri->threadId_b >= 0) {;
-        if (tri->threadId_b == tri->threadId_e) {
-          new_pt->pushThreadPoint (tri->threadId_b);
-        } else {
-          new_pt->pushThreadRange (tri->threadId_b, tri->threadId_e);
+      if (tri->thread_required) {;
+        for (int64_t ti = 0; ti < tri->threadId.size(); ti++) {
+          if (tri->threadId[ti].first == tri->threadId[ti].second) {
+            new_pt->pushThreadPoint (tri->threadId[ti].first);
+          } else {
+            new_pt->pushThreadRange (tri->threadId[ti].first, tri->threadId[ti].second);
+          }
         }
       }
 
-      if (tri->rankId_b >= 0) {
-        if (tri->rankId_b == tri->rankId_e) {
-          new_pt->pushRankPoint (tri->rankId_b);
-        } else {
-          new_pt->pushRankRange (tri->rankId_b, tri->rankId_e);
+      if (tri->rank_required) {
+        for (int64_t ri = 0; ri < tri->rankId.size(); ri++) {
+          if (tri->rankId[ri].first == tri->rankId[ri].second) {
+            new_pt->pushRankPoint (tri->rankId[ri].first);
+          } else {
+            new_pt->pushRankRange (tri->rankId[ri].first, tri->rankId[ri].second);
+          }
         }
       }
 

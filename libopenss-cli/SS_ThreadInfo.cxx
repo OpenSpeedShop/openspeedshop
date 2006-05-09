@@ -54,8 +54,8 @@ struct sort_ascending_ThreadInfo : public std::binary_function<T,T,bool> {
  * Utility: Build_ThreadInfo
  *
  * Access the information from the database that is associated with each
- * Framework::Thread in the passed-in THreadGroup.  Build a single ThreadInfo
- * object for each of these Threads and put them into a std:vector that can
+ * Framework::Thread in the passed-in ThreadGroup.  Build a single ThreadInfo
+ * object for each of these Threads and put them into a std::vector that can
  * be used by other utilities for the purpose of determining what fields
  * are neded to uniquely identify the Thread.
  *
@@ -73,21 +73,21 @@ void Build_ThreadInfo (ThreadGroup& tgrp, std::vector<ThreadInfo>& Out) {
     std::string hid = j->getHost();
     pid_t pid = j->getProcessId();
     std::pair<bool, int> pthread = t.getOpenMPThreadId();
-    bool threadHasThreadId = false;
+    bool HasThreadId = false;
     int64_t pthreadid = -1;
     if (pthread.first) {
-      threadHasThreadId = true;
+      HasThreadId = true;
       pthreadid = pthread.second;
     } else {
       std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
       if (posixthread.first) {
-        threadHasThreadId = true;
+        HasThreadId = true;
         pthreadid = posixthread.second;
       }
     }
     std::pair<bool, int> prank = j->getMPIRank();
     int64_t rank = prank.first ? prank.second : -1;
-    Out.push_back(ThreadInfo(hid, pid, pthreadid, rank));
+    Out.push_back(ThreadInfo(HasThreadId, prank.first, hid, pid, pthreadid, rank));
   }
 }
 
@@ -161,28 +161,28 @@ void Remove_Unnecessary_ThreadInfo (std::vector<std::vector<ThreadInfo> >& Info)
       }
       if (threads_are_unique) {
         int64_t s = i->threadId;
-        if (s < 0) {
-          threads_are_unique = false;
-          threadset.clear();
-        } else {
+        if (i->thread_required) {
           if (threadset.find(s) != threadset.end()) {
             threads_are_unique = false;
           } else {
             threadset.insert(s);
           }
+        } else {
+          threads_are_unique = false;
+          threadset.clear();
         }
       }
       if (ranks_are_unique) {
         int64_t s = i->rankId;
-        if (s < 0) {
-          ranks_are_unique = false;
-          rankset.clear();
-        } else {
+        if (i->rank_required) {
           if (rankset.find(s) != rankset.end()) {
             ranks_are_unique = false;
           } else {
             rankset.insert(s);
           }
+        } else {
+          ranks_are_unique = false;
+          rankset.clear();
         }
       }
     }
@@ -194,9 +194,11 @@ void Remove_Unnecessary_ThreadInfo (std::vector<std::vector<ThreadInfo> >& Info)
     for (int64_t ix = 0; ix < len; ix++) {
       std::vector<ThreadInfo>::iterator i;
       for (i = Info[ix].begin(); i != Info[ix].end(); i++) {
-        i->hostName = "";
+        i->host_required = false;
+        i->pid_required = false;
+        i->thread_required = false;
         i->processId = 0;
-        i->threadId = -1;
+        i->threadId = 0;
       }
     }
   } else if (threads_are_unique && !threadset.empty()) {
@@ -205,9 +207,11 @@ void Remove_Unnecessary_ThreadInfo (std::vector<std::vector<ThreadInfo> >& Info)
     for (int64_t ix = 0; ix < len; ix++) {
       std::vector<ThreadInfo>::iterator i;
       for (i = Info[ix].begin(); i != Info[ix].end(); i++) {
-        i->hostName = "";
+        i->host_required = false;
+        i->pid_required = false;
+        i->rank_required = false;
         i->processId = 0;
-        i->rankId = -1;
+        i->rankId = 0;
       }
     }
   } else if (pids_are_unique && !pidset.empty()) {
@@ -216,13 +220,27 @@ void Remove_Unnecessary_ThreadInfo (std::vector<std::vector<ThreadInfo> >& Info)
     for (int64_t ix = 0; ix < len; ix++) {
       std::vector<ThreadInfo>::iterator i;
       for (i = Info[ix].begin(); i != Info[ix].end(); i++) {
-        i->hostName = "";
-        i->threadId = -1;;
-        i->rankId = -1;
+        i->host_required = false;
+        i->thread_required = false;
+        i->rank_required = false;
+        i->threadId = 0;
+        i->rankId = 0;
+      }
+    }
+  } else {
+   // Preserve host and pid, which is enough to uniquely identify the item.
+   // We could keep thread and rank Id's, but it is not necessary and will
+   // prevent us from finding ranges for the pids.
+    for (int64_t ix = 0; ix < len; ix++) {
+      std::vector<ThreadInfo>::iterator i;
+      for (i = Info[ix].begin(); i != Info[ix].end(); i++) {
+        i->thread_required = false;
+        i->rank_required = false;
+        i->threadId = 0;
+        i->rankId = 0;
       }
     }
   }
- // else - Preserve everything!
 }
 
 /**
@@ -231,37 +249,42 @@ void Remove_Unnecessary_ThreadInfo (std::vector<std::vector<ThreadInfo> >& Info)
  * A vector of ThreadInfo entries is sorted and then scanned to
  * detect ranges of values.  This allows multiple descriptions to
  * be expressed in a single description by using the range notation
- * that is available in the CLI command language.
+ * that is available in the CLI command language and described in
+ * documentation as <target_list>.
  *
- * @param  std::vector<ThreadInfo>&.
- * @param  std::vector<ThreadRangeInfo>&.
+ * @param  std::vector<ThreadInfo>& In.
+ * @param  std::vector<ThreadRangeInfo>& Out.
  *
  * @return  void - data is returned through the second argument.
  *
  */
+
 void Compress_ThreadInfo (std::vector<ThreadInfo>& In,
-                          std::vector<ThreadRangeInfo>& Out) {
+			  std::vector<ThreadRangeInfo>& Out) {
 
   if (!In.empty()) {
    // Order them for the next step.
     std::sort (In.begin(), In.end(),
-               sort_ascending_ThreadInfo<ThreadInfo>());
+	       sort_ascending_ThreadInfo<ThreadInfo>());
 
    // Determine the ranges that are covered.
     std::vector<ThreadInfo>::iterator i = In.begin();
 
    // Initialize base information with first information definition.
     std::string current_host = i->hostName;
-    pid_t begin_pid = i->processId;
-    pid_t end_pid = begin_pid;
-    int64_t begin_thread = i->threadId;
-    int64_t end_thread = begin_thread;
-    int64_t begin_rank = i->rankId;
-    int64_t end_rank = begin_rank;
+    pid_t end_pid = i->processId;
+    int64_t end_thread = i->threadId;
+    int64_t end_rank = i->rankId;
 
-    bool merging_ranks = (begin_rank >= 0);
-    bool merging_threads = (!(merging_ranks) && (begin_thread >= 0));
-    bool merging_pids = (!(merging_threads) && (begin_pid > 0));
+    bool merging_ranks = (i->rank_required);
+    bool merging_threads = (!(merging_ranks) && (i->thread_required));
+    bool merging_pids = (!(merging_threads));
+    bool have_hosts = i->host_required;
+
+   // Create the first result entry.
+    Out.push_back(ThreadRangeInfo(have_hosts, merging_pids, merging_threads, merging_ranks,
+                                  current_host, end_pid,   end_thread,   end_rank));
+    ThreadRangeInfo *currentTRI = &Out[0];
 
    // Go through the rest of the information definitions.
     for (i++; i != In.end(); i++) {
@@ -270,77 +293,59 @@ void Compress_ThreadInfo (std::vector<ThreadInfo>& In,
       int64_t next_thread = i->threadId;
       int64_t next_rank = i->rankId;
 
-      if ((next_host != current_host) ||
-          (!merging_pids && (next_pid != begin_pid)) ||
-          (!merging_threads && (next_thread != begin_thread)) ||
-          (!merging_ranks && (next_rank != begin_rank))) {
-       // Add last set of compressed information to the output vector.
-        Out.push_back(ThreadRangeInfo(current_host, begin_pid, begin_thread, begin_rank,
-                                                      end_pid,   end_thread,   end_rank));
+      if (have_hosts && (next_host != current_host) ||
+	  (!merging_pids && (next_pid != end_pid)) ||
+	  (!merging_threads && (next_thread != end_thread)) ||
+	  (!merging_ranks && (next_rank != end_rank))) {
+
        // Reinitialize.
-        current_host = next_host;
-        begin_pid = next_pid;
-        end_pid = begin_pid;
-        begin_thread = next_thread;
-        end_thread = begin_thread;
-        begin_rank = next_rank;
-        end_rank = begin_rank;
+	current_host = next_host;
+	end_pid = next_pid;
+	end_thread = next_thread;
+	end_rank = next_rank;
 
-        merging_ranks = (begin_rank >= 0);
-        merging_threads = (!(merging_ranks) && (begin_thread >= 0));
-        merging_pids = (!(merging_threads) && (begin_pid > 0));
+        merging_ranks = (i->rank_required);
+        merging_threads = (!(merging_ranks) && (i->thread_required));
+        merging_pids = (!(merging_threads));
+        have_hosts = i->host_required;
 
-        continue;
+       // Add new item to <target_list>.
+        Out.push_back(ThreadRangeInfo(have_hosts, merging_pids, merging_threads, merging_ranks,
+                                      current_host, end_pid,   end_thread,   end_rank));
+        currentTRI = &Out[Out.size()-1];
+	continue;
       }
 
       if (merging_ranks) {
-        if (begin_rank == -1) {
-          begin_rank = next_rank;
-          end_rank = next_rank;
-        } else if (next_rank == (end_rank+1)) {
-          end_rank = next_rank;
-        } else {
-         // Add to output vector.
-          Out.push_back(ThreadRangeInfo(current_host, begin_pid, begin_thread, begin_rank,
-                                                        end_pid,   end_thread,   end_rank));
-         // Reinitialize.
-          begin_rank = next_rank;
-          end_rank = next_rank;
+	if (next_rank == (end_rank+1)) {
+         // Extend current range.
+          currentTRI->rankId[currentTRI->rankId.size()-1].second = next_rank;
+	} else {
+	 // Add new range.
+          currentTRI->rankId.push_back(std::make_pair(next_rank,next_rank));
         }
+        end_rank = next_rank;
       } else if (merging_threads) {
-        if (begin_thread == -1) {
-          begin_thread = next_thread;
-          end_thread = next_thread;
-        } else if (next_thread == (end_thread+1)) {
-          end_thread = next_thread;
-        } else {
-         // Add to output vector.
-          Out.push_back(ThreadRangeInfo(current_host, begin_pid, begin_thread, begin_rank,
-                                                        end_pid,   end_thread,   end_rank));
-         // Reinitialize.
-          begin_thread = next_thread;
-          end_thread = next_thread;
-        }
+	if (next_thread == (end_thread+1)) {
+         // Extend current range.
+          currentTRI->threadId[currentTRI->threadId.size()-1].second = next_thread;
+	} else {
+	 // Add new range.
+          currentTRI->threadId.push_back(std::make_pair(next_thread,next_thread));
+	}
+        end_thread = next_thread;
       } else if (merging_pids) {
-        if (begin_pid == -1) {
-          begin_pid = next_pid;
-          end_pid = next_pid;
-        } else if (next_pid == (end_pid+1)) {
-          end_pid = next_pid;
-        } else {
-         // Add to output vector.
-          Out.push_back(ThreadRangeInfo(current_host, begin_pid, begin_thread, begin_rank,
-                                                        end_pid,   end_thread,   end_rank));
-         // Reinitialize.
-          begin_pid = next_pid;
-          end_pid = next_pid;
-        }
+	if (next_pid == (end_pid+1)) {
+         // Extend current range.
+          currentTRI->processId[currentTRI->processId.size()-1].second = next_pid;
+	} else {
+	 // Add new range.
+          currentTRI->threadId.push_back(std::make_pair(next_pid,next_pid));
+	}
+        end_pid = next_pid;
       }
     }
 
-   // Add last item to output vector.
-    Out.push_back(ThreadRangeInfo(current_host, begin_pid, begin_thread, begin_rank,
-                                                  end_pid,   end_thread,   end_rank));
   }
 
 }
