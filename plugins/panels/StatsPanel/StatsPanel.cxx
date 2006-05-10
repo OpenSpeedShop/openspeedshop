@@ -1366,7 +1366,14 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
     }
     if( spo )
     {
-      QString name = QString("Source Panel [%1]").arg(expID);
+      QString name = QString::null;
+      if( expID == -1  )
+      {
+        name = QString("Source Panel [%1]").arg(groupID);
+      } else
+      {
+        name = QString("Source Panel [%1]").arg(expID);
+      }
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
       if( !sourcePanel )
       {
