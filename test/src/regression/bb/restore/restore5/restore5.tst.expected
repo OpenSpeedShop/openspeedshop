@@ -1,0 +1,6 @@
+__libc_write(libc.so.6)
+__libc_open(libc.so.6)
+__libc_read(libc.so.6)
+__dup2(libc.so.6)
+__libc_lseek(libc.so.6)
+__libc_close(libc.so.6)

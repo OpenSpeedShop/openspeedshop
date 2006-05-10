@@ -17,24 +17,14 @@
 ################################################################################
 
 SUBDIRS = \
-	pcsamp \
-	usertime \
-	pvs \
-	hwc \
-	bb \
-	info \
-	hwctime \
-	mpi \
-	io \
-	views
+	pause1 \
+	pause2 \
+	pause3 \
+	pause4 \
+	pause5
 
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
 	runall 
 
-check_SCRIPTS_common = runall
-
-check_SCRIPTS = $(check_SCRIPTS_common)
-
-TESTS = $(check_SCRIPTS)

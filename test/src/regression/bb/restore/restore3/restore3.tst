@@ -1,5 +1,6 @@
-###############################################################################
-# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#!/bin/sh
+#
+#Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -14,27 +15,18 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
-################################################################################
-
-SUBDIRS = \
-	pcsamp \
-	usertime \
-	pvs \
-	hwc \
-	bb \
-	info \
-	hwctime \
-	mpi \
-	io \
-	views
-
-DIST_SUBDIRS = $(SUBDIRS)
-
-EXTRA_DIST = \
-	runall 
-
-check_SCRIPTS_common = runall
-
-check_SCRIPTS = $(check_SCRIPTS_common)
-
-TESTS = $(check_SCRIPTS)
+#
+rm -f input*
+rm -f results.data
+echo expCreate  -f ../../../../../executables/mutatee/cplus_version/mutatee hwc>> input1.script
+echo expgo >> input1.script 
+echo wait >> input1.script
+#echo expview  >> input1.script
+echo expSave -f results.data >> input1.script
+echo exit >> input1.script
+openss -batch < input1.script
+echo exprestore -f results.data >> input2.script
+#echo expgo >> input2.script
+echo expview  >> input2.script
+echo exit >> input2.script
+openss -batch < input2.script

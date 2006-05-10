@@ -16,25 +16,10 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = \
-	pcsamp \
-	usertime \
-	pvs \
-	hwc \
-	bb \
-	info \
-	hwctime \
-	mpi \
-	io \
-	views
+SUBDIRS = close detach disable enable focus pause restore
 
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
 	runall 
 
-check_SCRIPTS_common = runall
-
-check_SCRIPTS = $(check_SCRIPTS_common)
-
-TESTS = $(check_SCRIPTS)

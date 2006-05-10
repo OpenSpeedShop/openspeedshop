@@ -1,5 +1,6 @@
-###############################################################################
-# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#!/bin/sh
+#
+#Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -14,27 +15,17 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
-################################################################################
-
-SUBDIRS = \
-	pcsamp \
-	usertime \
-	pvs \
-	hwc \
-	bb \
-	info \
-	hwctime \
-	mpi \
-	io \
-	views
-
-DIST_SUBDIRS = $(SUBDIRS)
-
-EXTRA_DIST = \
-	runall 
-
-check_SCRIPTS_common = runall
-
-check_SCRIPTS = $(check_SCRIPTS_common)
-
-TESTS = $(check_SCRIPTS)
+#
+rm -f input.script
+../../../../../executables/forever_cxx/forever >> file &
+ls -l file
+cat file
+read i < file
+rm file
+echo expCreate  -p $i usertime>> input.script
+echo expgo -x 1 >> input.script 
+echo exppause -x 1 >> input.script
+echo expstatus -x 1 >> input.script
+echo exit >> input.script
+openss -batch < input.script
+kill -n 9 $i

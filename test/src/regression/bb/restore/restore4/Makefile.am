@@ -16,25 +16,9 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = \
-	pcsamp \
-	usertime \
-	pvs \
-	hwc \
-	bb \
-	info \
-	hwctime \
-	mpi \
-	io \
-	views
-
-DIST_SUBDIRS = $(SUBDIRS)
-
 EXTRA_DIST = \
+	restore4.tst \
+	restore4.tst.expected \
+	runone \
 	runall 
 
-check_SCRIPTS_common = runall
-
-check_SCRIPTS = $(check_SCRIPTS_common)
-
-TESTS = $(check_SCRIPTS)
