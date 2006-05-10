@@ -37,15 +37,18 @@ public:
     HighlightObject()
     {
       // Default constructor.  Not used.
+      funcName = QString::null;
+      fileName = QString::null;
       line = 0;
       value = QString::null;
       description = "none";
       value_description = QString::null;
     };
 
-    HighlightObject(QString fn, int l, QString c="red", QString v=QString::null, QString d="N/A", QString vd="Stats")
+    HighlightObject(QString _funcName, QString _fileName, int l, QString c="red", QString v=QString::null, QString d="N/A", QString vd="Stats")
     {
-      fileName = fn;
+      funcName = _funcName;
+      fileName = _fileName;
       line = l;
       color = c;
       value = v;
@@ -60,12 +63,15 @@ public:
 
     void print()
     {
+      printf("funcName:  %s\n", funcName.ascii());
+      printf("fileName:  %s\n", fileName.ascii());
       printf("line:  %d\n", line);
       printf("color:  %s\n", color.isEmpty() ? "" : color.ascii() );
       printf("value:  %s\n", value.isEmpty() ? "" : value.ascii() );
       printf("description: %s\n", description.isEmpty() ? "" : description.ascii() );
     }
 
+    QString funcName;
     QString fileName;
     int line;
     QString color;

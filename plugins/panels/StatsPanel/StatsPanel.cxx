@@ -1319,8 +1319,9 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   SourceObject *spo = NULL;
   QString ssf = QString(sf).stripWhiteSpace();
 
-// printf("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
-// printf("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
+//printf("spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
+//printf("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
+//printf("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
 
   filename = spitem->fileName.ascii();
   lineNumberStr = QString("%1").arg(spitem->lineNumber);
@@ -4589,7 +4590,9 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 {
   SourceObject *spo = NULL;
   HighlightObject *hlo = NULL;
+
 // printf("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n", filename.ascii(), lineNumberStr.ascii() );
+// printf("expID=%d focusedExpID=%d\n", expID, focusedExpID );
 
 // printf("currentMetricStr=%s\n", currentMetricStr.ascii() );
 // printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
@@ -4599,6 +4602,16 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 
   QFileInfo qfi(filename);
   QString _fileName  = qfi.fileName();
+
+
+  QString fn  = filename;
+  int basename_index = filename.findRev("/");
+  if( basename_index != -1 )
+  {
+    fn =  filename.right((filename.length()-basename_index)-1);
+  }
+// printf("file BaseName=(%s)\n", fn.ascii() );
+
   if( currentMetricStr.isEmpty() )
   {
     if( _fileName.isEmpty() )
@@ -4608,19 +4621,19 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 // printf("expID=%d focusedExpID=%d\n", expID, focusedExpID );
     if( expID > 0 )
     {
-      command = QString("expView -x %1 -v Statements -f %2").arg(expID).arg(_fileName);
+      command = QString("expView -x %1 -v Statements -f %2").arg(expID).arg(fn);
     } else
     {
-      command = QString("expView -x %1 -v Statements -f %2").arg(focusedExpID).arg(_fileName);
+      command = QString("expView -x %1 -v Statements -f %2").arg(focusedExpID).arg(fn);
     }
   } else
   {
     if( expID > 0 )
     {
-      command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(expID).arg(_fileName).arg(currentMetricStr);
+      command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(expID).arg(fn).arg(currentMetricStr);
     } else
     {
-      command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(focusedExpID).arg(_fileName).arg(currentMetricStr);
+      command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(focusedExpID).arg(fn).arg(currentMetricStr);
     }
   }
 // printf("command=(%s)\n", command.ascii() );
@@ -4668,6 +4681,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 
   process_clip(clip, highlightList, FALSE);
 //  process_clip(clip, highlightList, TRUE);
+
   clip->Set_Results_Used();
   clip = NULL;
 
@@ -4676,11 +4690,17 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
   QString description = QString::null;
   QString value_description = QString::null;
   QString color = QString::null;
+  HighlightObject *focusedHLO = NULL;
   for( HighlightList::Iterator it = highlightList->begin();
        it != highlightList->end();
        ++it)
   {
     hlo = (HighlightObject *)*it;
+    if( hlo && focusedHLO == NULL )
+    {
+      focusedHLO = hlo;
+//      hlo->print();
+    }
     if( value_description.isEmpty() )
     {
       value_description = hlo->value_description;
@@ -4695,11 +4715,11 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 
   if( value.isEmpty() )
   {
-    hlo = new HighlightObject(filename, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite for this function", value_description);
+    hlo = new HighlightObject(QString::null, filename, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite for this function", value_description);
   } else
   {
     highlightList->remove(hlo);
-    hlo = new HighlightObject(filename, lineNumberStr.toInt(), color, QString(">> %1").arg(value), QString("Callsite for this function.\n%1").arg(description), value_description);
+    hlo = new HighlightObject(QString::null, focusedHLO->fileName, lineNumberStr.toInt(), color, QString(">> %1").arg(value), QString("Callsite for this function.\n%1").arg(description), value_description);
   }
   highlightList->push_back(hlo);
 
@@ -4714,9 +4734,23 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
   }
 #endif // 0
 
+  if( focusedHLO )
+  {
+//  focusedHLO->print();
+    if( focusedHLO->fileName != filename )
+    {
+// printf("THE FILE NAMES %s != %s\n", focusedHLO->fileName.ascii(), filename.ascii() );
+      if( !focusedHLO->fileName.isEmpty() )
+      {
+// printf("CHANGE THE FILENAME!!!\n");
+        filename = focusedHLO->fileName;
+      }
+    }
+  }
 
 
   spo = new SourceObject("functionName", filename.ascii(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
+// printf("spo->fileName=(%s)\n", spo->fileName.ascii() );
 
 #if 0
 // Begin debug
@@ -4867,7 +4901,7 @@ xxxfuncName = S.c_str();
               if( dumpClipFLAG) cerr << "    s.getPath()=" << s.getPath() << "\n";
               if( dumpClipFLAG) cerr << "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
 
-// xxxfuncName =
+xxxfuncName = QString::null;
               xxxfileName = QString( s.getPath().c_str() );
 //              xxxfileName = QString( s.getPath().getBaseName().c_str() );
               xxxlineNumber = s.getLine();
@@ -4881,7 +4915,7 @@ xxxfuncName = S.c_str();
               {
                 QString colheader = (QString)*columnHeaderList.begin();
                 int color_index = getLineColor((unsigned int)valueStr.toUInt());
-                hlo = new HighlightObject(xxxfileName, xxxlineNumber, hotToCold_color_names[currentItemIndex], valueStr.stripWhiteSpace(), QString("%1 = %2").arg(colheader).arg(valueStr.ascii()), colheader);
+                hlo = new HighlightObject(xxxfuncName, xxxfileName, xxxlineNumber, hotToCold_color_names[currentItemIndex], valueStr.stripWhiteSpace(), QString("%1 = %2").arg(colheader).arg(valueStr.ascii()), colheader);
 
                 if( dumpClipFLAG ) hlo->print();
                 highlightList->push_back(hlo);
@@ -4952,7 +4986,7 @@ xxxfuncName = CE->Form().c_str();
               {
                 QString colheader = (QString)*columnHeaderList.begin();
                 int color_index = getLineColor((unsigned int)valueStr.toUInt());
-                hlo = new HighlightObject(xxxfileName, xxxlineNumber, hotToCold_color_names[currentItemIndex], valueStr.stripWhiteSpace(), QString("%1 = %2").arg(colheader).arg(valueStr.ascii()), colheader );
+                hlo = new HighlightObject(xxxfuncName, xxxfileName, xxxlineNumber, hotToCold_color_names[currentItemIndex], valueStr.stripWhiteSpace(), QString("%1 = %2").arg(colheader).arg(valueStr.ascii()), colheader );
 
                 if( dumpClipFLAG ) hlo->print();
                 highlightList->push_back(hlo);
