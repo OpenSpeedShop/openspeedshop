@@ -292,9 +292,7 @@ calling
 @link
 OpenSpeedShop::Framework::Experiment::getCollectors getCollectors()
 @endlink
-. As with
-@link OpenSpeedShop::Framework::Thread Thread @endlink
-objects, a
+. As with threads, a
 @link OpenSpeedShop::Framework::Collector Collector @endlink
 is simply a proxy for the collector that the tool can throw away at any time.
 Once instantiated and added to an experiment, collectors are only removed by
@@ -366,40 +364,65 @@ OpenSpeedShop::Framework::Collector::setParameterValue setParameterValue()
 @endlink
 . Both of these are template functions on the parameter's value type.
 
-Collectors don't actually <em>do</em> anything until they are attached to one
-or more threads. This is accomplished by passing the thread to
-@link OpenSpeedShop::Framework::Collector::attachThread attachThread() @endlink
-. A collector's current list of attachments is accessed via
-@link OpenSpeedShop::Framework::Collector::getThreads getThreads() @endlink
-and threads can be detached from a collector by calling
-@link OpenSpeedShop::Framework::Collector::detachThread detachThread() @endlink
-on the collector.
-
-Once attached to one or more threads a collector may begin gathering
-performance data. This is accomplished by calling
+Collectors don't actually <em>do</em> anything until they are instructed to
+collect performance data for one or more threads. This is accomplished by
+passing a thread to
 @link
-OpenSpeedShop::Framework::Collector::startCollecting startCollecting()
+OpenSpeedShop::Framework::Collector::startCollecting startCollecting() 
 @endlink
-and the converse
+at which time the collector will immediately start collecting data for that
+thread. The list of threads for which a collector is currently collecting data
+is accessed via
+@link OpenSpeedShop::Framework::Collector::getThreads getThreads() @endlink
+. Data collection can be stopped for a particular thread by passing it to
 @link
 OpenSpeedShop::Framework::Collector::stopCollecting stopCollecting()
 @endlink
-which can be used to stop data collection. Note that data collection
-for a particular collector can be started and stopped any number of times. All
-collected data is tagged with time stamps and multiple start/stops simply
-result in gaps in the collected data.
+. Note that data collection for a particular thread can be started and stopped
+any number of times. All collected data is tagged with time stamps and multiple
+start/stops simply result in gaps in the collected data.
+
+There is also an ancillary concept of postponing data collection for a
+particular thread by calling
+@link
+OpenSpeedShop::Framework::Collector::postponeCollecting postponeCollecting()
+@endlink
+. This has the same effect as calling
+@link
+OpenSpeedShop::Framework::Collector::stopCollecting stopCollecting()
+@endlink
+with the addition that the thread is recorded in the experiment's database as
+being postponed. The list of currently postponed threads for a collector is
+available via
+@link
+OpenSpeedShop::Framework::Collector::getPostponedThreads getPostponedThreads()
+@endlink
+. Postponement's primary use is to allow the tool to record the state of data
+collection when exiting and restore it upon a subsequent invocation of the tool.
+
+Finally, the
+@link OpenSpeedShop::Framework::CollectorGroup CollectorGroup @endlink
+and
+@link OpenSpeedShop::Framework::ThreadGroup ThreadGroup @endlink
+classes provide numerous operations for starting, stopping, and postponing data
+collection on groups of collectors and/or threads. For example, executing:
+<br><br><code>
+experiment.getCollectors().startCollecting(experiment.getThreads());
+</code><br><br>
+would start data collection for all collectors on all threads in the given
+experiment.
 
 @section ToolAPI_S4 Data Analysis
 
 In addition to its parameters, collector plugins specify one or more metrics
 that provide a higher-level view of the collected performance data for the tool.
 As an example, the raw data gathered by a typical PC sampling collector consists
-of count buffers for disjoint address ranges. Rather than presenting this raw
-data directly to the tool, the PC sampling collector might provide an "exclusive
-CPU time" metric. The tool can ask questions such as "What was the exclusive
-CPU time spent in function f() over the time interval [0.0, 10,0) seconds?"
-rather than having to interpret the raw data directly. This interpretation is
-encapsulated within the collector plugin as it should be.
+of individual PC values at which samples were taken. Rather than presenting this
+raw data directly to the tool, the PC sampling collector might provide an
+"exclusive CPU time" metric. The tool can ask questions such as "What was the 
+exclusive CPU time spent in function f() over the time interval [0.0, 10,0)
+seconds?" rather than having to interpret the raw data directly. This
+interpretation is encapsulated within the collector plugin as it should be.
 
 Tools determine the metrics for a collector via
 @link OpenSpeedShop::Framework::Collector::getMetrics getMetrics() @endlink
@@ -415,32 +438,58 @@ metric types. However there is nothing that prevents this same collector from
 defining a "functions taking more than 90% of the exclusive CPU time" metric
 that returns a list of functions (<code>std::list<Function></code>).
 
-The tool can query the value of a metric using
-@link
-OpenSpeedShop::Framework::Collector::getMetricValue getMetricValue()
-@endlink
-which is a template function on the metric's type. When getting a metric value,
-the tool must specify the thread, address range, and time interval over which
-to get the value. By calling
-@link
-OpenSpeedShop::Framework::Collector::getMetricValue getMetricValue()
-@endlink
-multiple times and summing the results, questions like "How much exclusive CPU
-time was spent executing function f() across all threads?" can be answered.
-
 In order to be able to calculate and display metric data that is of use to a
 user in improving application performance, it is crucial that the tool be able
-to map the various source code entities (source statements, functions,
-libraries, etc.) to particular address ranges in a thread. The
+to identify the various source code entities (libraries, functions, source
+statements, etc.) in a thread. Each
 @link OpenSpeedShop::Framework::Thread Thread @endlink
-objects provide various member functions such as
+object provides various member functions such as
+@link 
+OpenSpeedShop::Framework::Thread::getLinkedObjects getLinkedObjects()
+@endlink
+,
 @link OpenSpeedShop::Framework::Thread::getFunctions getFunctions() @endlink
-for navigating the application's source structure and obtaining address ranges
-that can then be used with
+, and
+@link OpenSpeedShop::Framework::Thread::getStatements getStatements() @endlink
+for navigating the application's source structure. These functions return
+corrsponding sets of
+@link OpenSpeedShop::Framework::LinkedObject LinkedObject @endlink
+,
+@link OpenSpeedShop::Framework::Function Function @endlink
+, and
+@link OpenSpeedShop::Framework::Statement Statement @endlink
+objects that all, in turn, have member functions that cross-reference between
+each other and also provide information such as function names, etc.
+
+Such objects also have a function
+@link OpenSpeedShop::Framework::LinkedObject::getExtentIn getExtentIn() @endlink
+that returns the location of that particular source object within a thread. The
+location is expressed in terms of an
+@link OpenSpeedShop::Framework::ExtentGroup ExtentGroup @endlink
+object that contains zero or more
+@link OpenSpeedShop::Framework::Extent Extent @endlink
+objects. Each of these, in turn, describes the location (
+@link OpenSpeedShop::Framework::AddressRange AddressRange @endlink
+) of the
+source object during a particular period of time (
+@link OpenSpeedShop::Framework::TimeInterval TimeInterval @endlink
+), reflecting the
+fact that libraries can be loaded, unloaded, and loaded again into processes at
+varying locations.
+
+After obtaining these extents, the tool can query the value of a metric using
 @link
 OpenSpeedShop::Framework::Collector::getMetricValue getMetricValue()
 @endlink
-.
+, or preferably
+@link
+OpenSpeedShop::Framework::Collector::getMetricValues getMetricValues()
+@endlink
+, which are template functions on the metric's type. When getting a metric
+value, the tool must specify the thread, address range and time interval (or
+extents) over which to get the value. By calling these functions multiple times
+and summing the results, questions like "How much exclusive CPU time was spent
+executing function f() across all threads?" can be answered.
 
 @section ToolAPI_S5 Complete Example
 
@@ -448,6 +497,11 @@ The following annotated C++ source code provides a complete example of how this
 API can be used to build a working application performance tool. Obviously real
 tools will be more complex than this, but all the basics of using the API are
 illustrated here.
+
+@par Aside:
+The data analysis portion of this example could be simplified even further
+by making use of the <b>Open</b>|SpeedShop<small><sup>TM</sup></small> Query
+Library.
 
 First the ToolAPI.hxx header file is included and the OpenSpeedShop::Framework
 namespace is used:
@@ -458,33 +512,27 @@ namespace is used:
 #include &lt;iostream>
 #include &lt;stdexcept>
 #include &lt;string>
-#include &lt;unistd.h>
 
 using namespace OpenSpeedShop::Framework;
 </pre></code>
 
-Arguments are checked and the executable, along with its arguments, are
-assembled into a command string:
+Arguments are checked and the specified executable, along with its arguments,
+are assembled into a single command string:
 
 <code><pre>
 int main(int argc, char* argv[])
 {
     // Display usage information when necessary
-    if(argc < 3) {
-        std::cout << "Usage: "
-                  << ((argc > 0) ? argv[0] : "???")
-                  << " <function> <a.out> <args>" << std::endl;
+    if(argc < 2) {
+        std::cout << "Usage: " << argv[0] << " <a.out> <args>" << std::endl;
         return 1;
     }
 
     // Build a command string from the passed arguments
     std::string command;
-    for(int i = 2; i < argc; ++i) {
-        if(i > 2)
-            command += " ";
-        command += argv[i];
-    }
-
+    for(int i = 1; i < argc; ++i)
+        command += argv[i] + std::string(" ");	
+    
     try {
 </pre></code>
 
@@ -493,84 +541,102 @@ experiment database's name:
 
 <code><pre>
         // Create and open an experiment
-        std::string name = std::string(argv[2]) + ".openss";
+        std::string name = std::string(argv[1]) + ".openss";
         Experiment::create(name);
         Experiment experiment(name);
 </pre></code>
 
-A process to execute the command string is created and the specified function
-to be monitored is located within the resulting thread:
+A process is created for executing the command string and we wait until the
+framework has finished connecting to that process:
 
 <code><pre>
         // Create a process for the command in the suspended state
         Thread thread = experiment.createProcess(command);
 
-        // Find the requested function within this thread
-        Optional<Function> function = thread.getFunctionByName(argv[1]);
-        if(!function.hasValue())
-            throw std::runtime_error("Cannot find function " +
-                                     std::string(argv[1]) +
-                                     "() in this process.");
+	// Wait until we've finished connecting to the process
+	while(thread.getState() == Thread::Connecting)
+	    sleep(1);
 </pre></code>
 
-An "example" collector is instantiated and the function to be monitored is
-passed to that collector as a parameter:
+The PC sampling collector is instantiated, its sampling rate is set, and it is
+instructed to start collecting performance data for the process' single thread:
 
 <code><pre>
-        // Create the example collector and set its parameter
-        Collector collector = experiment.createCollector("example");
-        collector.setParameterValue("function", function.getValue());
+        // Create a PC sampling collector and set its sampling rate
+        Collector collector = experiment.createCollector("pcsamp");
+        collector.setParameterValue("sampling_rate", (unsigned)100);
+
+        // Start collecting data for the process' thread
+        collector.startCollecting(thread);
 </pre></code>
 
-The thread is attached to the collector and the collector is instructed to
-start collecting performance data:
+Execution of that thread is now resumed and we wait for all threads to
+terminate:
 
 <code><pre>
-        // Attach this process to the collector and start collecting data
-        collector.attachThread(thread);
-        collector.startCollecting();
-</pre></code>
-
-Execution of the thread is now resumed and we wait for the thread to terminate:
-
-<code><pre>
-        // Resume all threads and wait for them to terminate
-        experiment.getThreads().changeState(Thread::Running);
+	// Resume the process' thread and wait for all threads to terminate
+        thread.changeState(Thread::Running);
         while(!experiment.getThreads().areAllState(Thread::Terminated))
             sleep(1);
 </pre></code>
 
-The "time" metric of the "example" collector is evaluated and displayed for the
-function that was monitored, over the entire available time interval:
+The "time" metric of the collector is then evaluated and displayed for all
+functions within the executable:
 
 <code><pre>
-        // Evaluate the time metric for this function
-        double t;
-        collector.getMetricValue("time", thread,
-                                 function.getValue().getAddressRange(),
-                                 TimeInterval(Time::TheBeginning(),
-                                              Time::TheEnd()),
-                                 t);
+	// Find the executable for the process' thread
+	std::pair<bool, LinkedObject> executable = thread.getExecutable();
+	if(executable.first) {
+	    
+	    // Display report
+	    std::cout << std::endl << std::endl << std::setw(10) << "Time"
+		      << "    " << "Function" << std::endl << std::endl;
+	    
+	    // Iterate over each function in the executable
+	    std::set<Function> functions = executable.second.getFunctions();
+	    for(std::set<Function>::const_iterator
+		    i = functions.begin(); i != functions.end(); ++i) {
+		
+		// Find the extents of the function
+		ExtentGroup extents = i->getExtentIn(thread);
 
-        // Show the amount of time spent in this function
-        std::cout << std::endl
-                  << "Spent " << t << " seconds executing "
-                  << function.getValue().getName() << "()." << std::endl
-                  << std::endl;
+		// Evaluate the time metric for these extents
+		std::vector<double> time(extents.size(), 0.0);
+		collector.getMetricValues("time", thread, extents, time);
+
+		// Total the time across all extents
+		double t = 0.0;
+		for(std::vector<double>::const_iterator 
+			j = time.begin(); j != time.end(); ++j)
+		    t += *j;
+		
+		// Display report
+		std::cout << std::setw(10) << std::fixed << std::setprecision(3)
+			  << t << "    " << i->getName() << std::endl;
+		
+	    }
+	    
+	    // Display report
+	    std::cout << std::endl;
+	    
+	}
 </pre></code>
 
-And finally the last little bit of code to catch any exceptions thrown by the
-framework and display an appropriate error message:
+And finally the last little bit of code to catch any exceptions thrown and
+display an appropriate error message:
 
 <code><pre>
     }
+    catch(const Exception& error) {
+	std::cerr << std::endl << "Error: " << error.getDescription() 
+		  << std::endl << std::endl;
+	return 1;
+    }
     catch(const std::exception& error) {
-        std::cerr
-            << std::endl
-            << "Error: "
-            << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                "Unknown runtime error." : error.what()) << std::endl
-            << std::endl;
+        std::cerr << std::endl << "Error: "
+		  << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+		      "Unknown runtime error." : error.what()) << std::endl
+		  << std::endl;
         return 1;
     }
 
