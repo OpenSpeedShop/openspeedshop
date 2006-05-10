@@ -272,6 +272,7 @@ connect( header, SIGNAL(clicked(int)), this, SLOT( headerSelected( int )) );
   sprintf(name_buffer, "%s [%d]", getName(), groupID);
   setName(name_buffer);
 
+  pd = new GenericProgressDialog(this, "Executing Command:", TRUE );
 }
 
 
@@ -438,10 +439,13 @@ StatsPanel::listener(void *msg)
     }
   } else if(  msgObject->msgType  == "FocusCompareObject" && recycleFLAG == TRUE )
   {
-// printf("StatsPanel got a new FocusCompareObject\n");
+// printf("StatsPanel got a new FocusCompareObject expID was %d\n", expID);
     FocusCompareObject *msg = (FocusCompareObject *)msgObject;
 // msg->print();
-    expID = msg->expID;
+    if( !msg->compare_command.startsWith("cview -c") )
+    {
+      expID = msg->expID;
+    }
 
     if( !msg->compare_command.isEmpty()  )
     {
@@ -1454,7 +1458,6 @@ splv->setSorting ( 0, FALSE );
 
 
   steps = 0;
-  pd = new GenericProgressDialog(this, "Executing Command:", TRUE );
   pd->infoLabel->setText( tr("Waiting for completion of command: %1").arg(command) );
   pd->show();
 
@@ -1472,8 +1475,9 @@ splv->setSorting ( 0, FALSE );
 
   while( !statspanel_clip->Semantics_Complete() )
   {
+// printf("pinging...\n");
+pd->infoLabel->setText( tr("Waiting for completion of command: %1").arg(command) );
     progressUpdate();
-    qApp->processEvents(1000);
 
     sleep(1);
   }
@@ -1556,7 +1560,7 @@ analyzeTheCView();
   cf->setHeader( (QString)*columnHeaderList.begin() );
 
   pd->hide();
-  delete pd;
+//  delete pd;
 
   QApplication::restoreOverrideCursor();
 }
@@ -3199,7 +3203,10 @@ for(int i=0;i<fieldCount;i++)
 // printf("Put after (%s) \n", lastlvi->text(fieldCount-1).ascii() );
       }
       lastlvi = splvi =  MYListViewItem( this, xxxfuncName, xxxfileName, xxxlineNumber, splv, lastlvi, strings);
-if( highlight_line ) highlight_item = splvi;
+      if( highlight_line )
+      {
+        highlight_item = splvi;
+      }
       lastIndentLevel = 0;
     } else
     {
@@ -3226,7 +3233,10 @@ if( highlight_line ) highlight_item = splvi;
         {
 // printf("A: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(fieldCount-1).ascii(), lastlvi->text(fieldCount-1).ascii() );
           lastlvi = splvi =  MYListViewItem( this, xxxfuncName, xxxfileName, xxxlineNumber, lastlvi, lastlvi, strings);
-if( highlight_line ) highlight_item = splvi;
+          if( highlight_line )
+          {
+            highlight_item = splvi;
+          }
         } else
         {
 // printf("Go figure out the right leaf to put this in...(%s) \n", strings[1].ascii() );
@@ -3259,7 +3269,10 @@ if( highlight_line ) highlight_item = splvi;
           }
 // printf("C: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(fieldCount-1).ascii(), after->text(fieldCount-1).ascii() );
           lastlvi = splvi = MYListViewItem( this, xxxfuncName, xxxfileName, xxxlineNumber, lastlvi, after, strings );
-if( highlight_line ) highlight_item = splvi;
+          if( highlight_line )
+          {
+            highlight_item = splvi;
+          }
         }
       } else
       {
@@ -3291,7 +3304,10 @@ if( highlight_line ) highlight_item = splvi;
     { // i.e. like usertime
 //      lastlvi = splvi =  new SPListViewItem( this, xxxfuncName, xxxfileName, xxxlineNumber, splv, lastlvi, strings[0], strings[1], strings[2], strings[3] );
       lastlvi = splvi =  MYListViewItem( this, xxxfuncName, xxxfileName, xxxlineNumber, splv, lastlvi, strings);
-if( highlight_line ) highlight_item = splvi;
+      if( highlight_line )
+      {
+        highlight_item = splvi;
+      }
     }
   }
 
@@ -3621,26 +3637,26 @@ StatsPanel::generateCommand()
 
   if( currentCollectorStr.isEmpty() )
   {
-if( numberItemsToDisplayInStats > 0 )
-{
-    command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
-    about += QString("Requested data for all collectors for top %1 items\n").arg(numberItemsToDisplayInStats);
-} else
-{
-    command += QString(" %1").arg("stats");
-    about += QString("Requested data for all collectors\n");
-}
+    if( numberItemsToDisplayInStats > 0 )
+    {
+      command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
+      about += QString("Requested data for all collectors for top %1 items\n").arg(numberItemsToDisplayInStats);
+    } else
+    {
+      command += QString(" %1").arg("stats");
+      about += QString("Requested data for all collectors\n");
+    }
   } else
   {
-if( numberItemsToDisplayInStats > 0 )
-{
-    command += QString(" %1%2").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-    about += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-} else
-{
-    command += QString(" %1").arg(currentCollectorStr);
-    about += QString("Requested data for collector %1\n");
-}
+    if( numberItemsToDisplayInStats > 0 )
+    {
+      command += QString(" %1%2").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+      about += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+    } else
+    {
+      command += QString(" %1").arg(currentCollectorStr);
+      about += QString("Requested data for collector %1\n");
+    }
 
   }
   if( !currentUserSelectedReportStr.isEmpty() && !currentCollectorStr.isEmpty() )
@@ -3669,13 +3685,13 @@ if( numberItemsToDisplayInStats > 0 )
     { 
       currentUserSelectedReportStr = "Functions";
     }
-if( numberItemsToDisplayInStats > 0 )
-{
-    command = QString("expView -x %1 %2%3 -v %4").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
-} else
-{
-    command = QString("expView -x %1 %2 -v %4").arg(expID).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
-}
+    if( numberItemsToDisplayInStats > 0 )
+    {
+      command = QString("expView -x %1 %2%3 -v %4").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
+    } else
+    {
+      command = QString("expView -x %1 %2 -v %4").arg(expID).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
+    }
 // printf("start of pcsamp generated command (%s)\n", command.ascii() );
   } else if( currentCollectorStr == "usertime" &&
             (currentUserSelectedReportStr == "Butterfly") ||
@@ -3705,29 +3721,29 @@ if( numberItemsToDisplayInStats > 0 )
         return( QString::null );
       }
       command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
-     } else
-     {
-if( numberItemsToDisplayInStats > 0 )
-{
+    } else
+    {
+      if( numberItemsToDisplayInStats > 0 )
+      {
         command = QString("expView -x %1 %2%3 -v %4").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
-} else
-{
+      } else
+      {
         command = QString("expView -x %1 %2 -v %4").arg(expID).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
-}
-     }
+      }
+    }
 // printf("USERTIME! command=(%s)\n", command.ascii() );
   } else if( ( ( currentCollectorStr == "hwc" || currentCollectorStr == "hwctime" || currentCollectorStr == "mpi" || currentCollectorStr == "mpit" || currentCollectorStr == "io" || currentCollectorStr == "iot" ) && ( currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") || currentUserSelectedReportStr.startsWith("Functions") || currentUserSelectedReportStr.startsWith("mpi") || currentUserSelectedReportStr.startsWith("io") || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("Butterfly") ) ))
   { 
 // printf("It thinks we're mpi | io!\n");
     if( currentUserSelectedReportStr.isEmpty() || currentUserSelectedReportStr == "CallTrees" )
     {
-if( numberItemsToDisplayInStats > 0 )
-{
-      command = QString("expView -x %1 %2%3 -v CallTrees").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-} else
-{
-      command = QString("expView -x %1 %2 -v CallTrees").arg(expID).arg(currentCollectorStr);
-}
+      if( numberItemsToDisplayInStats > 0 )
+      {
+        command = QString("expView -x %1 %2%3 -v CallTrees").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+      } else
+      {
+        command = QString("expView -x %1 %2 -v CallTrees").arg(expID).arg(currentCollectorStr);
+      }
     } else if ( currentUserSelectedReportStr == "CallTrees by Selected Function" )
     {
       selectedFunctionStr = findSelectedFunction();
@@ -3740,31 +3756,31 @@ if( numberItemsToDisplayInStats > 0 )
       {
         return( QString::null );
       }
-if( numberItemsToDisplayInStats > 0 )
-{
-      command = QString("expView -x %1 %2%3 -v CallTrees -f %4").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
-} else
-{
-      command = QString("expView -x %1 %2 -v CallTrees -f %4").arg(expID).arg(currentCollectorStr).arg(selectedFunctionStr);
-}
+      if( numberItemsToDisplayInStats > 0 )
+      {
+        command = QString("expView -x %1 %2%3 -v CallTrees -f %4").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
+      } else
+      {
+        command = QString("expView -x %1 %2 -v CallTrees -f %4").arg(expID).arg(currentCollectorStr).arg(selectedFunctionStr);
+      }
     } else if ( currentUserSelectedReportStr == "TraceBacks" )
     {
-if( numberItemsToDisplayInStats > 0 )
-{
-      command = QString("expView -x %1 %2%3 -v TraceBacks").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-} else
-{
-      command = QString("expView -x %1 %2%3 -v TraceBacks").arg(expID).arg(currentCollectorStr);
-}
+      if( numberItemsToDisplayInStats > 0 )
+      {
+        command = QString("expView -x %1 %2%3 -v TraceBacks").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+      } else
+      {
+        command = QString("expView -x %1 %2%3 -v TraceBacks").arg(expID).arg(currentCollectorStr);
+      }
     } else if ( currentUserSelectedReportStr == "TraceBacks,FullStack" )
     {
-if( numberItemsToDisplayInStats > 0 )
-{
-      command = QString("expView -x %1 %2%3 -v TraceBacks,FullStack").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-} else
-{
-      command = QString("expView -x %1 %2 -v TraceBacks,FullStack").arg(expID).arg(currentCollectorStr);
-}
+      if( numberItemsToDisplayInStats > 0 )
+      {
+        command = QString("expView -x %1 %2%3 -v TraceBacks,FullStack").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+      } else
+      {
+        command = QString("expView -x %1 %2 -v TraceBacks,FullStack").arg(expID).arg(currentCollectorStr);
+      }
     } else if( currentUserSelectedReportStr == "Butterfly" )
     {
       selectedFunctionStr = findSelectedFunction();
@@ -3778,22 +3794,22 @@ if( numberItemsToDisplayInStats > 0 )
       {
         return( QString::null );
       }
-if( numberItemsToDisplayInStats > 0 )
-{
-      command = QString("expView -x %1 %2%3 -v Butterfly -f \"%4\"").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
-} else
-{
-      command = QString("expView -x %1 %2 -v Butterfly -f \"%4\"").arg(expID).arg(currentCollectorStr).arg(selectedFunctionStr);
-}
+      if( numberItemsToDisplayInStats > 0 )
+      {
+        command = QString("expView -x %1 %2%3 -v Butterfly -f \"%4\"").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
+      } else
+      {
+        command = QString("expView -x %1 %2 -v Butterfly -f \"%4\"").arg(expID).arg(currentCollectorStr).arg(selectedFunctionStr);
+      }
     } else
     {
-if( numberItemsToDisplayInStats > 0 )
-{
-      command = QString("expView -x %1 %2%3 -v Functions").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-} else
-{
-      command = QString("expView -x %1 %2 -v Functions").arg(expID).arg(currentCollectorStr);
-}
+      if( numberItemsToDisplayInStats > 0 )
+      {
+        command = QString("expView -x %1 %2%3 -v Functions").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+      } else
+      {
+        command = QString("expView -x %1 %2 -v Functions").arg(expID).arg(currentCollectorStr);
+      }
     }
     if( !currentThreadsStr.isEmpty() )
     {
@@ -3816,22 +3832,22 @@ if( numberItemsToDisplayInStats > 0 )
     }
   if( currentUserSelectedReportStr.startsWith("Statements") )
   { 
-if( numberItemsToDisplayInStats > 0 )
-{
-    command = QString("expView -x %1 %2%3 -v Statements").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-} else
-{
-    command = QString("expView -x %1 %2 -v Statements").arg(expID).arg(currentCollectorStr);
-}
+    if( numberItemsToDisplayInStats > 0 )
+    {
+      command = QString("expView -x %1 %2%3 -v Statements").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+    } else
+    {
+      command = QString("expView -x %1 %2 -v Statements").arg(expID).arg(currentCollectorStr);
+    }
   } else
   {
-if( numberItemsToDisplayInStats > 0 )
-{
+    if( numberItemsToDisplayInStats > 0 )
+    {
       command = QString("expView -x %1 %2%3 -v %4").arg(expID).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
-} else 
-{
+    } else 
+    {
       command = QString("expView -x %1 %2 -v %4").arg(expID).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
-}
+    }
   }
 // printf("hwc command=(%s)\n", command.ascii() );
   about = command + "\n";
@@ -3917,22 +3933,22 @@ StatsPanel::generateMPIMenu(QString collectorName)
 
   list_of_mpi_modifiers.clear();
   list_of_mpit_modifiers.clear();
-if( collectorName == "mpi" )
-{
-  addMPIReports(mpi_menu);
-  connect(mpi_menu, SIGNAL( activated(int) ),
+  if( collectorName == "mpi" )
+  {
+    addMPIReports(mpi_menu);
+    connect(mpi_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorMPIReportSelected(int)) );
-  contextMenu->insertItem(QString("Show Metrics: MPI"), mpi_menu);
-  list_of_mpi_modifiers.push_back("mpi::exclusive_times");
-  list_of_mpi_modifiers.push_back("mpi::inclusive_times");
+    contextMenu->insertItem(QString("Show Metrics: MPI"), mpi_menu);
+    list_of_mpi_modifiers.push_back("mpi::exclusive_times");
+    list_of_mpi_modifiers.push_back("mpi::inclusive_times");
 //  list_of_mpi_modifiers.push_back("mpi::exclusive_details");
 //  list_of_mpi_modifiers.push_back("mpi::inclusive_details");
-  list_of_mpi_modifiers.push_back("min");
-  list_of_mpi_modifiers.push_back("max");
-  list_of_mpi_modifiers.push_back("average");
-  list_of_mpi_modifiers.push_back("count");
-  list_of_mpi_modifiers.push_back("percent");
-  list_of_mpi_modifiers.push_back("stddev");
+    list_of_mpi_modifiers.push_back("min");
+    list_of_mpi_modifiers.push_back("max");
+    list_of_mpi_modifiers.push_back("average");
+    list_of_mpi_modifiers.push_back("count");
+    list_of_mpi_modifiers.push_back("percent");
+    list_of_mpi_modifiers.push_back("stddev");
 
 //  list_of_mpi_modifiers.push_back("start_time");
 //  list_of_mpi_modifiers.push_back("stop_time");
@@ -3944,72 +3960,72 @@ if( collectorName == "mpi" )
 //  list_of_mpi_modifiers.push_back("datatype");
 //  list_of_mpi_modifiers.push_back("retval");
 
-  if( mpiModifierMenu )
+    if( mpiModifierMenu )
+    {
+      delete mpiModifierMenu;
+    }
+    mpiModifierMenu = new QPopupMenu(this);
+    mpiModifierMenu->insertTearOffHandle();
+    connect(mpiModifierMenu, SIGNAL( activated(int) ),
+      this, SLOT(mpiModifierSelected(int)) );
+
+    generateModifierMenu(mpiModifierMenu, list_of_mpi_modifiers, current_list_of_mpi_modifiers);
+    mpi_menu->insertItem(QString("Select mpi details:"), mpiModifierMenu);
+
+    qaction = new QAction(this, "showTraceInfo");
+    qaction->addTo( mpiModifierMenu );
+    qaction->setText( tr(PTI) );
+    qaction->setToggleAction(MPItraceFLAG);
+    qaction->setOn(MPItraceFLAG);
+    qaction->setToolTip(tr("When available, show traced timings."));
+    connect( qaction, SIGNAL( activated() ), this, SLOT(MPItraceSelected()) );
+  } else
   {
-    delete mpiModifierMenu;
-  }
-  mpiModifierMenu = new QPopupMenu(this);
-  mpiModifierMenu->insertTearOffHandle();
-  connect(mpiModifierMenu, SIGNAL( activated(int) ),
-    this, SLOT(mpiModifierSelected(int)) );
-
-  generateModifierMenu(mpiModifierMenu, list_of_mpi_modifiers, current_list_of_mpi_modifiers);
-  mpi_menu->insertItem(QString("Select mpi details:"), mpiModifierMenu);
-
-  qaction = new QAction(this, "showTraceInfo");
-  qaction->addTo( mpiModifierMenu );
-  qaction->setText( tr(PTI) );
-  qaction->setToggleAction(MPItraceFLAG);
-  qaction->setOn(MPItraceFLAG);
-  qaction->setToolTip(tr("When available, show traced timings."));
-  connect( qaction, SIGNAL( activated() ), this, SLOT(MPItraceSelected()) );
-} else
-{
-  addMPIReports(mpi_menu);
-  connect(mpi_menu, SIGNAL( activated(int) ),
+    addMPIReports(mpi_menu);
+    connect(mpi_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorMPITReportSelected(int)) );
-  contextMenu->insertItem(QString("Show Metrics: MPIT"), mpi_menu);
-  list_of_mpit_modifiers.push_back("mpit::exclusive_times");
-  list_of_mpit_modifiers.push_back("mpit::inclusive_times");
+    contextMenu->insertItem(QString("Show Metrics: MPIT"), mpi_menu);
+    list_of_mpit_modifiers.push_back("mpit::exclusive_times");
+    list_of_mpit_modifiers.push_back("mpit::inclusive_times");
 //  list_of_mpit_modifiers.push_back("mpit::exclusive_details");
 //  list_of_mpit_modifiers.push_back("mpit::inclusive_details");
-  list_of_mpit_modifiers.push_back("min");
-  list_of_mpit_modifiers.push_back("max");
-  list_of_mpit_modifiers.push_back("average");
-  list_of_mpit_modifiers.push_back("count");
-  list_of_mpit_modifiers.push_back("percent");
-  list_of_mpit_modifiers.push_back("stddev");
+    list_of_mpit_modifiers.push_back("min");
+    list_of_mpit_modifiers.push_back("max");
+    list_of_mpit_modifiers.push_back("average");
+    list_of_mpit_modifiers.push_back("count");
+    list_of_mpit_modifiers.push_back("percent");
+    list_of_mpit_modifiers.push_back("stddev");
 
-  list_of_mpit_modifiers.push_back("start_time");
-  list_of_mpit_modifiers.push_back("stop_time");
-  list_of_mpit_modifiers.push_back("source");
-  list_of_mpit_modifiers.push_back("dest");
-  list_of_mpit_modifiers.push_back("size");
-  list_of_mpit_modifiers.push_back("tag");
-  list_of_mpit_modifiers.push_back("commuinicator");
-  list_of_mpit_modifiers.push_back("datatype");
-  list_of_mpit_modifiers.push_back("retval");
+    list_of_mpit_modifiers.push_back("start_time");
+    list_of_mpit_modifiers.push_back("stop_time");
+    list_of_mpit_modifiers.push_back("source");
+    list_of_mpit_modifiers.push_back("dest");
+    list_of_mpit_modifiers.push_back("size");
+    list_of_mpit_modifiers.push_back("tag");
+    list_of_mpit_modifiers.push_back("commuinicator");
+    list_of_mpit_modifiers.push_back("datatype");
+    list_of_mpit_modifiers.push_back("retval");
 
-  if( mpitModifierMenu )
-  {
-    delete mpitModifierMenu;
+    if( mpitModifierMenu )
+    {
+      delete mpitModifierMenu;
+    }
+    mpitModifierMenu = new QPopupMenu(this);
+    mpitModifierMenu->insertTearOffHandle();
+    connect(mpitModifierMenu, SIGNAL( activated(int) ),
+      this, SLOT(mpitModifierSelected(int)) );
+
+    generateModifierMenu(mpitModifierMenu, list_of_mpit_modifiers, current_list_of_mpit_modifiers);
+    mpi_menu->insertItem(QString("Select mpit details:"), mpitModifierMenu);
+  
+    qaction = new QAction(this, "showTraceInfo");
+    qaction->addTo( mpitModifierMenu );
+    qaction->setText( tr(PTI) );
+    qaction->setToggleAction(MPItraceFLAG);
+    qaction->setOn(MPItraceFLAG);
+    qaction->setToolTip(tr("When available, show traced timings."));
+    connect( qaction, SIGNAL( activated() ), this, SLOT(MPItraceSelected()) );
   }
-  mpitModifierMenu = new QPopupMenu(this);
-  mpitModifierMenu->insertTearOffHandle();
-  connect(mpitModifierMenu, SIGNAL( activated(int) ),
-    this, SLOT(mpitModifierSelected(int)) );
-
-  generateModifierMenu(mpitModifierMenu, list_of_mpit_modifiers, current_list_of_mpit_modifiers);
-  mpi_menu->insertItem(QString("Select mpit details:"), mpitModifierMenu);
-
-  qaction = new QAction(this, "showTraceInfo");
-  qaction->addTo( mpitModifierMenu );
-  qaction->setText( tr(PTI) );
-  qaction->setToggleAction(MPItraceFLAG);
-  qaction->setOn(MPItraceFLAG);
-  qaction->setToolTip(tr("When available, show traced timings."));
-  connect( qaction, SIGNAL( activated() ), this, SLOT(MPItraceSelected()) );
-}
 
 }
 
@@ -4589,22 +4605,23 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
     {
       return(spo);
     }
-if( expID > 0 )
-{
-    command = QString("expView -x %1 -v Statements -f %2").arg(expID).arg(_fileName);
-} else
-{
-    command = QString("expView -x %1 -v Statements -f %2").arg(focusedExpID).arg(_fileName);
-}
+// printf("expID=%d focusedExpID=%d\n", expID, focusedExpID );
+    if( expID > 0 )
+    {
+      command = QString("expView -x %1 -v Statements -f %2").arg(expID).arg(_fileName);
+    } else
+    {
+      command = QString("expView -x %1 -v Statements -f %2").arg(focusedExpID).arg(_fileName);
+    }
   } else
   {
-if( expID > 0 )
-{
-    command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(expID).arg(_fileName).arg(currentMetricStr);
-} else
-{
-    command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(focusedExpID).arg(_fileName).arg(currentMetricStr);
-}
+    if( expID > 0 )
+    {
+      command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(expID).arg(_fileName).arg(currentMetricStr);
+    } else
+    {
+      command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(focusedExpID).arg(_fileName).arg(currentMetricStr);
+    }
   }
 // printf("command=(%s)\n", command.ascii() );
 
@@ -5022,6 +5039,8 @@ StatsPanel::progressUpdate()
   {
     step_forward = TRUE;
   }
+//  qApp->processEvents(1000);
+  qApp->processEvents(10000);
 }
 
 void 
@@ -5074,6 +5093,10 @@ StatsPanel::removeDiffColumn(int removeIndex)
 void
 StatsPanel::analyzeTheCView()
 {
+// printf("analyzeTheCView(%s) entered: focusedExpID was=%d\n", lastCommand.ascii(), focusedExpID );
+
+// printf("RESETTING focusedExpID to -1\n");
+  focusedExpID = -1;
 
   if( !lastCommand.startsWith("cview -c") )
   {
@@ -5092,6 +5115,12 @@ StatsPanel::analyzeTheCView()
       cidList.push_back( ws.section(",", i, i).stripWhiteSpace() );
 // printf("cidList push back (%s)\n", ws.section(",", i, i).stripWhiteSpace().ascii() );
     }
+  }
+
+  if( cnt == 0 )
+  {
+// printf("We only have one cview... option (%s).\n", ws.ascii() );
+    cidList.push_back( ws );
   }
 
   
@@ -5215,6 +5244,7 @@ StatsPanel::analyzeTheCView()
 
     }
   }
+// printf(" focusedExpID=%d\n", focusedExpID );
 }
 
 bool

@@ -52,6 +52,8 @@ CLIInterface::CLIInterface(int _wid) : QObject()
   wid = _wid;
   CLIInterface::interrupt = false;
   timer = NULL;
+  maxTime = 99999;
+  warn_of_time = FALSE;
 }
 
 CLIInterface::~CLIInterface()
@@ -61,6 +63,8 @@ CLIInterface::~CLIInterface()
 InputLineObject *
 CLIInterface::run_Append_Input_String( int wid, const char *command )
 {
+  maxTime = 99999;
+  warn_of_time = FALSE;
 nprintf(DEBUG_COMMANDS) ("run_Append_Input_String(2) command = (%s)\n", command );
   InputLineObject *clip = Append_Input_String( wid, (char *)command);
   return clip;
@@ -625,7 +629,6 @@ CLIInterface::shouldWeContinue()
       timer->start(maxTime, TRUE);
     }
   }
-//  if( getInterrupt() )
   if( CLIInterface::interrupt )
   {
     // First cancel the timer..
