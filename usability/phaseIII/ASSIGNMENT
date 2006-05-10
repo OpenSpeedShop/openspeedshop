@@ -86,5 +86,11 @@ Step 2:
   ... more words ...
   Determine which thread of the slower algorithm took the most time.
 
+
+Step 3: Changing gears slightly.
+   Can you display a StatsPanel that displays the "exlusive_time" metric from
+one of the processs in one of the experiments in one column and displaying the 
+same metric for all the processes in the same experiment in a second column?
+
 Step n:
   Exit the Open|Speedshop tool.
