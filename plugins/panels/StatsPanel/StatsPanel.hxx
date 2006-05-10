@@ -147,6 +147,7 @@ class StatsPanel  : public Panel
     QString lastAbout;
     QString aboutOutputString;
     QString about;
+    QString originalCommand;
     QString lastCommand;
     bool staticDataFLAG;
 
@@ -253,6 +254,7 @@ class StatsPanel  : public Panel
     void doOption(int id);
     void exportData();
     void details();
+    void originalQuery();
     void updatePanel();
     void focusOnExp(int);
     void gotoSource(bool use_current_item = FALSE);
