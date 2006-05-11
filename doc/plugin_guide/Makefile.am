@@ -31,3 +31,43 @@ EXTRA_DIST	=  \
 	ToolStartCollectingView.dia \
 	ToolStartCollectingView.dia~ \
 	ToolStartCollectingView.png
+
+package = @PACKAGE@
+packver = @PACKAGE@-@VERSION@
+docdir  = ${prefix}/share/doc/openspeedshop/plugin_guide
+docdir3  = ${prefix}/share/doc/openspeedshop
+
+install-reference: index.html
+	@$(NORMAL_INSTALL)
+	${mkinstalldirs} ${DESTDIR}${docdir}
+	if test -f index.html ; then \
+		for file in *.html ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
+		done ; \
+		for file in *.dia ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
+		done ; \
+		for file in *.png ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
+		done ; \
+		${INSTALL_DATA} OpenSpeedShop_Logo.jpg ${DESTDIR}${docdir} ;\
+	fi
+
+uninstall-reference: index.html
+	@$(NORMAL_UNINSTALL)
+	@dir='${<D}'; \
+	echo "dir =@dir"
+	for file in $$dir/* ; do \
+		basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+		rm -f ${DESTDIR}${docdir}/$$basefile; \
+	done
+	-rm -rf ${DESTDIR}${docdir}/
+
+all-local: index.html
+
+install-data-am: install-reference
+
+uninstall: uninstall-reference

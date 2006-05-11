@@ -65,3 +65,59 @@ EXTRA_DIST = BuildingInstallingDPCL.html \
 	StatsPanel.png \
 	ToolsMenu.png \
 	valid-html401.png
+
+
+package = @PACKAGE@
+packver = @PACKAGE@-@VERSION@
+#docdir  = ${prefix}/share/doc/@PACKAGE@-@VERSION@/users_guide
+#docdir2  = ${prefix}/share/doc/@PACKAGE@-@VERSION@/users_guide/TroubleShootingGuide
+#docdir3  = ${prefix}/share/doc/@PACKAGE@-@VERSION@
+docdir  = ${prefix}/share/doc/openspeedshop/users_guide
+docdir2  = ${prefix}/share/doc/openspeedshop/users_guide/TroubleShootingGuide
+docdir3  = ${prefix}/share/doc/openspeedshop
+
+install-reference: index.html
+	@$(NORMAL_INSTALL)
+	${mkinstalldirs} ${DESTDIR}${docdir}
+	${mkinstalldirs} ${DESTDIR}${docdir2}
+	if test -f index.html ; then \
+		for file in *.html ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
+		done ; \
+		for file in *.png ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
+		done ; \
+		${INSTALL_DATA} OpenSpeedShop_Logo.jpg ${DESTDIR}${docdir} ;\
+	fi
+	if test -f TroubleShootingGuide/index.html ; then \
+		for file in TroubleShootingGuide/*.html ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir2}/$$basefile; \
+		done ; \
+		for file in TroubleShootingGuide/*.png ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir2}/$$basefile; \
+		done ; \
+		${INSTALL_DATA} TroubleShootingGuide/doxygen.css ${DESTDIR}${docdir2} ;\
+	fi
+
+uninstall-reference: index.html
+	@$(NORMAL_UNINSTALL)
+	@dir='${<D}'; \
+	echo "dir =@dir"
+	for file in $$dir/* ; do \
+		basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+		rm -f ${DESTDIR}${docdir}/$$basefile; \
+		rm -f ${DESTDIR}${docdir2}/$$basefile; \
+	done
+	-rm -rf ${DESTDIR}${docdir}/
+	-rm -rf ${DESTDIR}${docdir2}/
+	-rm -rf ${DESTDIR}${docdir3}/
+
+all-local: index.html
+
+install-data-am: install-reference
+
+uninstall: uninstall-reference

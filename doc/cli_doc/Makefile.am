@@ -31,3 +31,39 @@ EXTRA_DIST	=  \
 	s2.html \
 	s3.html \
 	summary.html
+
+
+package = @PACKAGE@
+packver = @PACKAGE@-@VERSION@
+#docdir  = ${prefix}/share/doc/@PACKAGE@-@VERSION@/cli_doc
+#docdir3  = ${prefix}/share/doc/@PACKAGE@-@VERSION@
+docdir  = ${prefix}/share/doc/openspeedshop/cli_doc
+docdir3  = ${prefix}/share/doc/openspeedshop
+
+install-reference: index.html
+	@$(NORMAL_INSTALL)
+	${mkinstalldirs} ${DESTDIR}${docdir}
+	if test -f index.html ; then \
+		for file in *.html ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
+		done ; \
+		${INSTALL_DATA} OpenSpeedShop_Logo.jpg ${DESTDIR}${docdir} ;\
+		${INSTALL_DATA} README ${DESTDIR}${docdir} ;\
+	fi
+
+uninstall-reference: index.html
+	@$(NORMAL_UNINSTALL)
+	@dir='${<D}'; \
+	echo "dir =@dir"
+	for file in $$dir/* ; do \
+		basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+		rm -f ${DESTDIR}${docdir}/$$basefile; \
+	done
+	-rm -rf ${DESTDIR}${docdir}
+
+all-local: index.html
+
+install-data-am: install-reference
+
+uninstall: uninstall-reference
