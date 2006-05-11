@@ -3130,13 +3130,22 @@ StatsPanel::outputCLIData(QString *incoming_data, QString xxxfuncName, QString x
     for(int i=0;i<fieldCount;i++)
     {
       QString headerStr = QString::null;
+#ifdef OLDWAY
       end_index = data.find(end_rxp, start_index);
       end_index++;  // Need to include the last letter...
+#else // OLDWAY
+      end_index = data.find(start_rxp, start_index);
+      if( end_index == -1 )
+      {
+        end_index++;
+      }
+#endif  // OLDWAY
+// printf("top: start_index=%d end_index=%d\n", start_index, end_index );
       if( i == 0 )  // For this first field we always start from zero.
       {
         start_index = 0;  
       }
-columnValueClass[i].init();
+      columnValueClass[i].init();
       columnValueClass[i].start_index = start_index;
       columnValueClass[i].end_index = end_index;
 
