@@ -1,7 +1,7 @@
 Summary: A cross platform open source performance tool.
 Name: openspeedshop
 Version: 0.875
-Release: 1
+Release: 2
 License: GPL
 # %{name}-%{version}.tar.gz is found in RPM/SOURCES.
 Source:%{name}-%{version}.tar.gz
@@ -41,9 +41,9 @@ processing performance tool.
 # show the current build environment for rpmbuild.
 # show the current build environment for rpmbuild.
 %ifarch x86_64 x86-64
-    %define LIBDIR /usr/local/lib64
+    %define LIBDIR /usr/lib64
 %else
-    %define LIBDIR /usr/local/lib
+    %define LIBDIR /usr/lib
 %endif
 env
 
@@ -54,49 +54,27 @@ env
 # (how do we remove the jardcoded qt version?)
 set QTDIR=$ROOT/usr/lib/qt-3.3/
 export QTDIR
+#
 # show our ROOT, LD_LIBRARY_PATH, PATH for debug purposes.
+#
 echo $ROOT
 echo $LD_LIBRARY_PATH
 echo $PATH
-# use $RPM_BUILD_ROOT/usr/local for rpmbuild install target.
+#
+# use $RPM_BUILD_ROOT/usr/for rpmbuild install target.
 # This will be used to populate the binary rpm.
-sh configure --prefix=$RPM_BUILD_ROOT/usr/local
+#
+sh configure --prefix=$RPM_BUILD_ROOT/usr/
+#
 # Just build the software. (make all is default).
+#
 make
 
 %install
-# install into --prefix dir. ($RPM_BUILD_ROOT/usr/local)
+#
+# install into --prefix dir. ($RPM_BUILD_ROOT/usr/
+#
 make install 
-
-rm -rf $RPM_BUILD_ROOT/usr/local/doc
-mkdir $RPM_BUILD_ROOT/usr/local/doc
-rm -rf $RPM_BUILD_ROOT/usr/local/doc/openspeedshop
-mkdir $RPM_BUILD_ROOT/usr/local/doc/openspeedshop
-rm -rf $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/users_guide
-mkdir $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/users_guide
-rm -rf $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide
-mkdir $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide
-
-cd doc/users_guide
-cp -rf * $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/users_guide/.
-rm -f $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/users_guide/Makefile
-rm -f $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/users_guide/Makefile.am
-rm -f $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/users_guide/Makefile.in
-
-cd ../../doc/users_guide/TroubleShootingGuide
-cp -rf * $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide/.
-rm -f $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide/Makefile
-rm -f $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide/Makefile.am
-rm -f $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide/Makefile.in
-
-rm -rf $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/cli_doc
-mkdir $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/cli_doc
-cd ../../cli_doc
-cp -rf * $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/cli_doc/.
-rm -f $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/cli_doc/Makefile
-rm -f $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/cli_doc/Makefile.am
-rm -f $RPM_BUILD_ROOT/usr/local/doc/openspeedshop/cli_doc/Makefile.in
-cd ../..
 
 %clean
 # comment out for now.
@@ -105,79 +83,23 @@ cd ../..
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
+rm -rf /usr/share/doc/openspeedshop
 
+
+# installation is in --prefix dir. ($RPM_BUILD_ROOT/usr/
+%files
+#
 # The %docdir directive is used to add a directory
 # to the list of directories that will contain documentation.
-# RPM includes the directories /usr/doc, /usr/info, and /usr/man
-# in the %docdir list by default.
-%docdir /usr/local/doc/openspeedshop
-
-# installation is in --prefix dir. ($RPM_BUILD_ROOT/usr/local)
-%files
-/usr/local/doc/openspeedshop/users_guide/BuildingInstallingDPCL
-/usr/local/doc/openspeedshop/users_guide/BuildingInstallingDPCL.html
-/usr/local/doc/openspeedshop/users_guide/FileMenu.png
-/usr/local/doc/openspeedshop/users_guide/HelpMenu.png
-/usr/local/doc/openspeedshop/users_guide/index.html
-/usr/local/doc/openspeedshop/users_guide/InitialPanel.png
-/usr/local/doc/openspeedshop/users_guide/IntroWizardRightMouseDown.png
-/usr/local/doc/openspeedshop/users_guide/OpenSpeedShop_Logo.jpg
-/usr/local/doc/openspeedshop/users_guide/OpenSpeedShopPackageNotes.html
-/usr/local/doc/openspeedshop/users_guide/PC_SampleExperiment-2.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleExperiment-3-RESULTS.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleExperiment-4-Split.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleExperiment-5-f3click.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleExperiment-non-wizard-1.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleExperiment-non-wizard-2.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleExperiment-non-wizard-3.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleExperiment-non-wizard-4.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleExperiment-non-wizard-5.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleExperiment-non-wizard-6.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleExperiment-non-wizard-7.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleWizard-AttachToRunningProcess-fred1.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleWizard-AttachToRunningProcess-fred.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleWizard-AttachToRunningProcess-GUI-nonwizard1.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleWizard-AttachToRunningProcess-GUI-nonwizard.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleWizard-AttachToRunningProcess-MPIJOB1.png
-/usr/local/doc/openspeedshop/users_guide/PC_SampleWizard-AttachToRunningProcess.png
-/usr/local/doc/openspeedshop/users_guide/PCSampling-StatsPanel.png
-/usr/local/doc/openspeedshop/users_guide/PCSampling-StatsPanel-Split.png
-/usr/local/doc/openspeedshop/users_guide/PC_SamplingWizard-2.png
-/usr/local/doc/openspeedshop/users_guide/PC_SamplingWizard-3A.png
-/usr/local/doc/openspeedshop/users_guide/PC_SamplingWizard-3.png
-/usr/local/doc/openspeedshop/users_guide/PC_SamplingWizard-4.png
-/usr/local/doc/openspeedshop/users_guide/PC_SamplingWizard-5.png
-/usr/local/doc/openspeedshop/users_guide/PC_SamplingWizard-6_OR_PC_SampleExperiment-1.png
-/usr/local/doc/openspeedshop/users_guide/Preferences-General.png
-/usr/local/doc/openspeedshop/users_guide/Preferences-Source.png
-/usr/local/doc/openspeedshop/users_guide/Preferences-Stats.png
-/usr/local/doc/openspeedshop/users_guide/rpmQuery.asc
-/usr/local/doc/openspeedshop/users_guide/snapshot_ExperimentsMenuItems.png
-/usr/local/doc/openspeedshop/users_guide/snapshot_WizardsMenuItems.png
-/usr/local/doc/openspeedshop/users_guide/SourcePanel.png
-/usr/local/doc/openspeedshop/users_guide/StatsPanel.png
-/usr/local/doc/openspeedshop/users_guide/ToolsMenu.png
-/usr/local/doc/openspeedshop/users_guide/valid-html401.png
-/usr/local/doc/openspeedshop/cli_doc/OpenSpeedShop_Logo.jpg
-/usr/local/doc/openspeedshop/cli_doc/README
-/usr/local/doc/openspeedshop/cli_doc/definition.html
-/usr/local/doc/openspeedshop/cli_doc/fields.html
-/usr/local/doc/openspeedshop/cli_doc/index.html
-/usr/local/doc/openspeedshop/cli_doc/invocation.html
-/usr/local/doc/openspeedshop/cli_doc/overview.html
-/usr/local/doc/openspeedshop/cli_doc/s1.html
-/usr/local/doc/openspeedshop/cli_doc/s2.html
-/usr/local/doc/openspeedshop/cli_doc/s3.html
-/usr/local/doc/openspeedshop/cli_doc/summary.html
-/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide/doxygen.css
-/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide/doxygen.png
-/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide/files.html
-/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide/globals.html
-/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide/globals_func.html
-/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide/globals_vars.html
-/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide/index.html
-/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide/mainpage_8hxx-source.html
-/usr/local/doc/openspeedshop/users_guide/TroubleShootingGuide/mainpage_8hxx.html
+#%docdir /usr/share/doc/%{name}-%{version}-%{release}
+#
+%docdir /usr/share/doc/openspeedshop
+%docdir /usr/share/doc/openspeedshop/users_guide
+/usr/share/doc/openspeedshop/users_guide
+%docdir /usr/share/doc/openspeedshop/cli_doc
+/usr/share/doc/openspeedshop/cli_doc
+%docdir /usr/share/doc/openspeedshop/plugin_guide
+/usr/share/doc/openspeedshop/plugin_guide
 
 # installation attributes for files installed from the rpm packages.
 %defattr(-,root,root)
@@ -188,6 +110,8 @@ cd ../..
 %{LIBDIR}/*
 
 %changelog
+* Thu May 11 2006  Jim Galarowicz
+- Install in /usr instead of /usr/local and add documentation installation
 * Sat Mar 25 2006  Jim Galarowicz
 - Change version to 0.875 to match the milestone 7 release
 * Tue Feb 14 2006  Jim Galarowicz

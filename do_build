@@ -33,7 +33,7 @@ MYCURRENT=${HERE%/*}
 TOPLEVEL=${MYCURRENT%/*}
 
 # install the build from the workarea here if OPENSS_INSTALL_DIR is not set:
-export MYOSSINSTALLDIR=$TOPLEVEL/OpensSpeedShop/usr/local
+export MYOSSINSTALLDIR=$TOPLEVEL/OpensSpeedShop/usr
 
 if [ "$OPENSS_INSTALL_DIR" = "" ] ; then
   echo "NOTE: OPENSS_INSTALL_DIR not set."
@@ -119,11 +119,11 @@ fi
 # The above expands to $WORKAREA/rpminstall and the spec file
 # uses $WORKAREA/rpminstall for $RPM_BUILD_ROOT.
 # The openspeedshop-0.875.spec configures the build to use:
-# configure --prefix=$RPM_BUILD_ROOT/usr/local
+# configure --prefix=$RPM_BUILD_ROOT/usr
 # Setting your environment (i.e. PATH, LD_LIBRARY_PATH,OPENSS_PLUGIN_PATH)
 # to this installation allows you to test the software that
 # a user would build (not the software in you workare build).
-# i.e. $RPM_BUILD_ROOT/usr/local is the $OPENSS_INSTALL_DIR
+# i.e. $RPM_BUILD_ROOT/usr is the $OPENSS_INSTALL_DIR
 # for the software built from the tarball.
 ##############################################################################
 
@@ -147,7 +147,7 @@ rm -f $RPMMACROSFILES
 cat << EOF > $RPMMACROSFILES
 #! /bin/ksh
 %_topdir          $RPMBUILDDIR
-%_prefix          /usr/local
+%_prefix          /usr
 %_exec_prefix     %{_prefix}
 %_bindir          %{_exec_prefix}/bin
 %_sbindir         %{_exec_prefix}/sbin
@@ -160,7 +160,7 @@ cat << EOF > $RPMMACROSFILES
 %_includedir      %{_prefix}/include
 %_infodir         %{_prefix}/info
 %_mandir          %{_prefix}/man
-%_defaultdocdir   %{_prefix}/doc/openspeedshop
+%_defaultdocdir   %{_prefix}/share/doc/openspeedshop
 
 # do not generate debugging packages by default
 %debug_package %{nil}
