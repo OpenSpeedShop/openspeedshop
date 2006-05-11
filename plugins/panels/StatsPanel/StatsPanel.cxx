@@ -1462,8 +1462,18 @@ StatsPanel::updateStatsPanelData(QString command)
     return;
   }
 
-// Always set the resort to be the first column when a new repor is requested.
-splv->setSorting ( 0, FALSE );
+  if( command.contains("-v Butterfly") || command.contains("-v CallTrees") || command.contains("-v TraceBacks") )
+  {
+    // Don't sor these report types..  If you get a request to sort then only
+    // sort on the last column.
+// printf("Don't sort this display.\n");
+    splv->setSorting ( -1 );
+  } else
+  {
+    // Set the resort to be the first column when a new report is requested.
+// printf("Sort this display on column 0.\n");
+    splv->setSorting ( 0, FALSE );
+  }
 
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
