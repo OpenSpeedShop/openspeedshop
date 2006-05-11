@@ -81,10 +81,12 @@ case "$host" in
             libdir='${exec_prefix}/lib64'
         fi
         abi_libdir="lib64"
+        alt_abi_libdir="lib"
         LDFLAGS="-L/usr/lib64 $LDFLAGS"
         ;;
     *)
         abi_libdir="lib"
+        alt_abi_libdir="lib64"
         ;;
 esac
 topdir_execprefix=${exec_prefix}
@@ -150,6 +152,7 @@ AC_CONFIG_FILES(
 	doc/users_guide/Makefile
 	doc/users_guide/TroubleShootingGuide/Makefile
 	doc/cli_doc/Makefile
+	doc/plugin_guide/Makefile
 	libopenss-message/Makefile
 	libopenss-runtime/Makefile
 	libopenss-runtime/dpcl/Makefile
