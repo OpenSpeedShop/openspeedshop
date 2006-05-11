@@ -49,7 +49,7 @@ cd ../..
 #
 # configure dyninst tests for alternative installs of dyninst
 #
-cd test/test_source/dyninst
+cd test/src/dyninst
 aclocal
 automake --foreign --add-missing --copy
 autoconf
