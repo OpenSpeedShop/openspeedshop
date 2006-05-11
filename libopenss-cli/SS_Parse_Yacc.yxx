@@ -337,7 +337,7 @@ exp_data_com:	    DATA_HEAD
       	    	;
 
     	    /** C_VIEW_CLUSTER **/
-    	    /** cViewCreate [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <target_list> ] **/
+    	    /** cViewCluster [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <target_list> ] **/
 c_view_cluster_create_com:  CVIEWCLUSTER_HEAD
   	    	|   CVIEWCLUSTER_HEAD error END_LINE 
   	    	|   CVIEWCLUSTER_HEAD set_view_args 
@@ -374,9 +374,9 @@ cvid_args:	    view_id_list_spec
 
     	    /** CVIEW **/
     	    /** cView [-c view_id_list] **/
-c_view_com:	    CVIEW_HEAD view_id_list_spec
+c_view_com:	    CVIEW_HEAD set_view_args
   	    	|   CVIEW_HEAD error END_LINE 
-  	    	|   CVIEW_HEAD view_id_list_spec error END_LINE 
+  	    	|   CVIEW_HEAD set_view_args error END_LINE 
       	    	;
 
 set_view_args:	    set_view_element
