@@ -16,7 +16,8 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-# directories that will be built
-SUBDIRS = executables src test_scripts
+EXTRA_DIST = \
+	views1.tst \
+	runone \
+	runall 
 
-DIST_SUBDIRS = executables src test_scripts

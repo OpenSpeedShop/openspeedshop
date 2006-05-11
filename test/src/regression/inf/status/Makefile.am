@@ -16,7 +16,14 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-# directories that will be built
-SUBDIRS = executables src test_scripts
+SUBDIRS = \
+	status1 \
+	status2 \
+	status3 \
+	status4
 
-DIST_SUBDIRS = executables src test_scripts
+DIST_SUBDIRS = $(SUBDIRS)
+
+EXTRA_DIST = \
+	runall 
+

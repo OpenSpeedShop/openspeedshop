@@ -1,3 +1,4 @@
+#!/bin/sh
 ###############################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 #
@@ -15,8 +16,16 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-
-# directories that will be built
-SUBDIRS = executables src test_scripts
-
-DIST_SUBDIRS = executables src test_scripts
+rm -f input.script
+rm -f *.expected*
+../../../../../executables/forever_cxx/forever >> file &
+ls -l file
+cat file
+read i < file
+echo $i >> pids3.tst.expected
+rm file
+echo expCreate  -p $i hwc >> input.script
+echo list -v pids >> input.script
+echo exit >> input.script
+openss -batch < input.script
+kill -n 9 $i

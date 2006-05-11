@@ -22,7 +22,7 @@ SUBDIRS = \
 	pvs \
 	hwc \
 	bb \
-	info \
+	inf \
 	hwctime \
 	mpi \
 	io \
