@@ -219,9 +219,11 @@ void ViewPluginTable::foreachCallback(const std::string& filename)
 ViewPluginTable::ViewPluginTable()
 {
 
+    string new_cmdline;
+
     // Set up LD_LIBRARY_PATH and plugin dl_open paths
     // if not done already.
-    SetOpenssLibPath();
+    SetOpenssLibPath(new_cmdline);
 
     // Search for view plugins in the libltdl user-defined search path
     if(lt_dlgetsearchpath() != NULL)

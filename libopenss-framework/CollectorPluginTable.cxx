@@ -341,7 +341,8 @@ void CollectorPluginTable::build()
     
     // Set up LD_LIBRARY_PATH and plugin dl_open paths
     // if not done already.
-    SetOpenssLibPath();
+    string new_cmdline;
+    SetOpenssLibPath(new_cmdline);
 
     // Search for collector plugins in the libltdl user-defined search path
     if(lt_dlgetsearchpath() != NULL)

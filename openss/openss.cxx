@@ -22,8 +22,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <unistd.h>
 
-#define BOSCO 1
 #define USE_DL_LOCK
 
 /**
@@ -120,6 +120,8 @@ namespace {
 // Static sources for SetOpenssLibPath()
 #include "OpenSSPath.cxx"
 
+#define RE_EXEC_FLAG "-OSS_NEW_PATH"
+
 /**
  * Main entry point.
  *
@@ -131,9 +133,67 @@ namespace {
  */
 int main(int argc, char* argv[])
 {
-    // Set up LD_LIBRARY_PATH and plugin dl_open paths.
-    SetOpenssLibPath();
+
+    string new_cmdline;
+
+#if 0
+    // string new_ld_library_path;
     
+    // Check to see if we need to redo the search path.
+    //
+    // We look at the last argument for the defined 
+    // string for RE_EXEC_FLAG.
+    //
+    // If it doesn't match it means that openss is
+    // exec'ed directly from the user. We need to 
+    // look up the current path for this execution of
+    // openss and from that  guess the path to the openss
+    // libraries and set LD_LIBRARY_PATH. Then we reinvoke
+    // openss with the RE_EXEC_FLAG added to the argument
+    // list.
+    //
+    // If it does match we decrement argc and move on.
+    //
+    if (((strcmp(argv[argc -1], RE_EXEC_FLAG)) != 0)) {
+
+    	// Set up LD_LIBRARY_PATH and plugin dl_open paths.
+    	SetOpenssLibPath(new_cmdline);
+	
+	char *t_path = getenv("LD_LIBRARY_PATH");
+	if (t_path != NULL) {
+	    cout << "My path: " << t_path << endl;
+	    cout << "My exe: " << new_cmdline << endl;
+
+    	    // Start with the executable name
+    	    string new_cmdline(argv[0]);
+	    int i;
+	
+	    // Add the old arguments
+    	    for (i=1;i<argc;++i) {
+	    	new_cmdline += " ";
+	    	new_cmdline += argv[i];
+	    }
+	    // Add our sentinel flag
+	    new_cmdline += " ";
+	    new_cmdline += RE_EXEC_FLAG;
+	    
+	    // Execute the commandline again
+	    system(new_cmdline.c_str());
+	    return 0;
+	}
+	else {
+	    cout << "My path is NULL!" << endl;
+    	}
+    }
+    else {
+    	// Pretend the last argument is not there.
+	--argc;
+    }
+#endif
+    
+    // Set up LD_LIBRARY_PATH and plugin dl_open paths.
+    SetOpenssLibPath(new_cmdline);
+
     // Attempt to open the CLI library
     lt_dlhandle handle = lt_dlopenext("libopenss-cli");
     if(handle == NULL) {

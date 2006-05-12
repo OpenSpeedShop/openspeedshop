@@ -52,8 +52,7 @@ using namespace std;
  * there is a more elegant way to do it. Go ahead
  * knock your self out and make it better.
  *     
- * @param   string *input_str: string to add if unique
- * @param   vector<string> *v_string: list of stored strings
+ * @param   string& lib_path : string to be filled with library path
  *     
  * @return  bool for whether we have a path or not.
  *
@@ -63,54 +62,38 @@ using namespace std;
  */
 #define MY_BUFSIZE 512
 static bool
-s_make_path_from_pid(string *newpath)
+s_make_path_from_pid(string& exe_path,string& lib_path)
 {
-    char symlink[MY_BUFSIZE];
     char name[MY_BUFSIZE];
-    bool go_for_it = false;
     
     pid_t cur_pid = getpid(); // This had better be openss.
-//    pid_t parent_pid =getppid();
     
     // Cobble together "/proc/<pid>/exe"
-    strcpy(symlink,"/proc/");
+    string symlink ("/proc/");
     sprintf(&name[0],"%d",cur_pid);
-    strcat(symlink,name);
-    strcat(symlink,"/exe");
+    symlink += name;
+    symlink += "/exe";
 
     // Get the real name and full path of the executable.
-    readlink(symlink,name,MY_BUFSIZE);
+    readlink(symlink.c_str(),name,MY_BUFSIZE);
+    exe_path = name;
     
-    int len;
-    len = strlen(name);
-    
-    go_for_it = 0;
-    for (int i=len-1;i>0;--i){
-    	if (name[i] == '/') {
-	    if (i && i > 4) { /* Look for "/bin/" */
-	    	if (
-		    name[i-1] == 'n' &&
-		    name[i-2] == 'i' &&
-		    name[i-3] == 'b' &&
-		    name[i-4] == '/'
-		    ) {
-		    	// Replace with "/lib" and truncate
-		    	name[i] = '\0';
-		    	name[i-1] = 'b';
-		    	name[i-2] = 'i';
-		    	name[i-3] = 'l';
-		    	name[i-4] = '/';
+    string::size_type endIdx;
+    lib_path = name;
+    string path = name;
 
-			go_for_it = 1;
-			
-			*newpath=name;
-		    }
-	    }
-	}
+    if (!path.empty()						// string not empty 
+    	&& (*path.rbegin() != '/')				// and does not end with a slash
+    	&& ((endIdx = path.find_last_of("/")) != string::npos)) // but has at least one slash
+	{
+    	endIdx -=  4;
+    	if (!path.compare(endIdx, 4, "/bin")) {
+    	    lib_path.replace(endIdx, 4, "/lib");
+    	    lib_path.erase(endIdx + 4);
+    	    return true;
+    	}
     }
-    
-    return go_for_it;
-
+    return false;
 }
 
 /**
@@ -241,7 +224,7 @@ s_add_plugin_path(char *path_str, vector<string> *v_string, bool add_dir)
  *
  */
 static void
-SetOpenssLibPath()
+SetOpenssLibPath(string& exe_path)
 {
 
     static char* ld_library_path_cstr = NULL;
@@ -262,16 +245,15 @@ SetOpenssLibPath()
     	    ld_library_path += (char *)LIBRARY_DIR;
     	}
 
-#if 1
 	// add the path relative to where the a.out is
 	if (1) {
 	    string t_name;
 
-	    if (s_make_path_from_pid(&t_name)){
+	    if (s_make_path_from_pid(exe_path,t_name)){
 	    	ld_library_path += ":" + t_name;
 	    }
 	}
-#endif
+
     	    // Set new LD_LIBRARY_PATH
     	Assert((ld_library_path_cstr = strdup(ld_library_path.c_str())) != NULL);
     	Assert(putenv(ld_library_path_cstr) == 0);    
