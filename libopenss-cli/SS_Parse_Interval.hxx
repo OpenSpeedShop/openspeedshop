@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -18,52 +18,56 @@
 
 /** @file
  *
- * Parser param description.
+ * Parser interval description.
  *
  */
 
-#ifndef __OpenSpeedShop_Parse_Param_HXX__
-#define __OpenSpeedShop_Parse_Param_HXX__
+#ifndef __OpenSpeedShop_Parse_Interval_HXX__
+#define __OpenSpeedShop_Parse_Interval_HXX__
 
 namespace OpenSpeedShop { namespace cli {
 
 /**
- * Parser Param class.
+ * Parser time interval class.
  *
- *  Describes the results from parsing an openss param.
+ *  Describes the results from parsing a time
+ *  interval for viewing.
  *
  * @todo    Copy constructors.
  *          Unit testing.
  */
-class ParseParam {
+class ParseInterval {
 
     public:
 
 //	/** Constructor. */
-	ParseParam(char * exp_type, char * parm_type, int val);
-	ParseParam(char * exp_type, char * parm_type, char * name);
+	ParseInterval(int begin, int end);
+	ParseInterval(int begin, double end);
+	ParseInterval(double begin, int end);
+	ParseInterval(double begin, double end);
 
 //	/** Destructor. */
-//	~ParseRange();
+//	~TimeInterval();
 
-    	char *getParmExpType() {return dm_exptype;}
-    	char *getParmParamType() {return dm_param_type;}
-	bool isValString() {return dm_val_is_string;}
-	char *getStingVal() {return dm_param_val_string;}
-	int getnumVal() {return dm_param_val_num;}
+	bool   isStartInt()  	    {return dm_start_is_int;}
+	int    getStartInt() 	    {return dm_start_int;}
+	double getStartdouble()     {return dm_start_double;}
+
+	bool   isEndInt()  	    {return dm_end_is_int;}
+	int    getEndInt() 	    {return dm_end_int;}
+	double getEndDouble() 	    {return dm_end_double;}
 
     private:
     	/** range struct to fill */
-    	bool dm_has_exptype;
-    	char * dm_exptype;
-    	char * dm_param_type;
+    	bool	dm_start_is_int;
+    	int 	dm_start_int;
+    	double  dm_start_double;
 
-    	bool dm_val_is_string;
-    	int dm_param_val_num;
-    	char * dm_param_val_string;
-
+    	bool	dm_end_is_int;
+    	int 	dm_end_int;
+    	double  dm_end_double;
 };
 
 } }
 
-#endif // __OpenSpeedShop_Parse_Param_HXX__
+#endif // __OpenSpeedShop_Parse_Interval_HXX__

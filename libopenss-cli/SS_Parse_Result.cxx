@@ -35,6 +35,7 @@ using namespace std;
 #include "SS_Message_Czar.hxx"
 
 #include "SS_Parse_Param.hxx"
+#include "SS_Parse_Interval.hxx"
 #include "SS_Parse_Range.hxx"
 #include "SS_Parse_Target.hxx"
 #include "SS_Parse_Result.hxx"
@@ -125,7 +126,9 @@ ParseResult() :
     dm_error_set(false),
     dm_p_param(NULL),
     dm_redirect(),
-    dm_append()
+    dm_append(),
+    dm_interval_attribute_set(false),
+    dm_interval_attribute()
     
 {
     // Create first ParseTarget object.
@@ -185,6 +188,44 @@ pushParseTarget()
     return ;
 }
  
+/**
+ * Method: s_dumpInterval()
+ * 
+ * Dump time interval information
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+static void 
+s_dumpInterval(ParseResult* p_result, vector<ParseInterval> *p_list, char *label)
+{
+    vector<ParseInterval>::iterator iter;
+
+    if (p_list->begin() != p_list->end())
+    	cout << "\t" << label << ": " << endl;
+
+    if (p_result->isIntervalAttribute()) {
+    	cout << "\t\t" << "Attribute: " << *p_result->getIntervalAttribute() << endl;
+    }
+
+    for (iter=p_list->begin();iter != p_list->end(); iter++) {
+    	    cout << "\t\t\t";
+    
+    	if (iter->isStartInt()) 
+	    cout << iter->getStartInt() << " : ";
+	else
+	    cout << iter->getStartdouble() << " : ";
+
+    	if (iter->isEndInt()) 
+	    cout << iter->getEndInt() << endl;
+	else
+	    cout << iter->getEndDouble() << endl;
+    }
+}
+
 /**
  * Method: s_dumpParam()
  * 
@@ -627,6 +668,9 @@ dumpInfo()
     // Metric list.
     s_dumpRange(this->getexpMetricList(), "METRICS",false /* is_hex */);
 
+    // Interval list.
+    s_dumpInterval(this, this->getParseIntervalList(), "INTERVALS");
+
     // Param list.
     s_dumpParam(this->getParmList(), "PARAMS");
 
@@ -984,6 +1028,142 @@ setError(char * name)
     dm_error_list.push_back(range);
 
     return ;
+}
+ 
+/**
+ * Method: ParseResult::pushInterval(int begin, int end, char *attribute)
+ * 
+ * @param   begin    	integer begin point.
+ * @param   end 	integer end point.
+ * @param   attribute	What the begin/end numbers represent.
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+pushInterval(int begin, int end)
+{
+    ParseInterval interval(begin,end);
+
+    dm_interval_list.push_back(interval);
+
+    return ;
+}
+ 
+/**
+ * Method: ParseResult::pushInterval(int begin, int end, char *attribute)
+ * 
+ * @param   begin    	integer begin point.
+ * @param   end 	double end point.
+ * @param   attribute	What the begin/end numbers represent.
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+pushInterval(int begin, double end)
+{
+    ParseInterval interval(begin,end);
+
+    dm_interval_list.push_back(interval);
+
+    return ;
+}
+ 
+/**
+ * Method: ParseResult::pushInterval(int begin, int end, char *attribute)
+ * 
+ * @param   begin    	double begin point.
+ * @param   end 	integer end point.
+ * @param   attribute	What the begin/end numbers represent.
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+pushInterval(double begin, int end)
+{
+    ParseInterval interval(begin,end);
+
+    dm_interval_list.push_back(interval);
+
+    return ;
+}
+ 
+/**
+ * Method: ParseResult::pushInterval(int begin, int end, char *attribute)
+ * 
+ * @param   begin    	double begin point.
+ * @param   end 	double end point.
+ * @param   attribute	What the begin/end numbers represent.
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+pushInterval(double begin, double end)
+{
+    ParseInterval interval(begin,end);
+
+    dm_interval_list.push_back(interval);
+
+    return ;
+}
+ 
+/**
+ * Method: ParseResult::pushInterval(int begin, int end, char *attribute)
+ * 
+ * @param   begin    	double begin point.
+ * @param   end 	double end point.
+ * @param   attribute	What the begin/end numbers represent.
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+setIntervalAttribute(char *attribute)
+{
+    dm_interval_attribute = attribute;
+    dm_interval_attribute_set = true;
+
+    return ;
+}
+ 
+/**
+ * Method: ParseResult::pushInterval(int begin, int end, char *attribute)
+ * 
+ * @param   begin    	double begin point.
+ * @param   end 	double end point.
+ * @param   attribute	What the begin/end numbers represent.
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+const string *
+ParseResult::
+getIntervalAttribute()
+{
+    if (dm_interval_attribute_set)
+    	return &dm_interval_attribute;
+    else
+    	return (const string *)NULL;
 }
  
 /**

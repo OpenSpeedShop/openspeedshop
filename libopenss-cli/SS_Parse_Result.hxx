@@ -271,6 +271,16 @@ class ParseResult {
 	bool syntaxError( ) { return dm_error_set;}
     	vector<ParseRange> * getErrorList() {return &dm_error_list;}
 
+    	/** Handle list of view intervals. */
+	void setIntervalAttribute(char *attribute);
+	bool isIntervalAttribute(){return dm_interval_attribute_set;}
+	const string * getIntervalAttribute();
+    	void pushInterval(int begin, int end);
+    	void pushInterval(int begin, double end);
+    	void pushInterval(double begin, int end);
+    	void pushInterval(double begin, double end);
+    	vector<ParseInterval> * getParseIntervalList() {return &dm_interval_list;}
+
     	/** Handle list of expMetrics. */
     	void pushExpMetric(char * name1, char * name2);
     	void pushExpMetric(char * name);
@@ -435,6 +445,8 @@ class ParseResult {
     	vector<ParseParam> dm_param_list;
     	/** Container of syntax error symbols */
     	vector<ParseRange> dm_error_list;
+    	/** Container of view interval tuples */
+    	vector<ParseInterval> dm_interval_list;
     	/** Container of expMetric tuples */
     	vector<ParseRange> dm_exp_metric_list;
 
@@ -445,6 +457,10 @@ class ParseResult {
     	/** Redirect target strings */
 	string dm_redirect;
 	string dm_append;
+
+    	/** Is there an interval attribute? */
+	bool dm_interval_attribute_set;
+    	string dm_interval_attribute;
 
 //    protected:
 //    	/** Things I don't want to happen so don't define!*/

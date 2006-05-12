@@ -35,6 +35,7 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 
+#include "SS_Parse_Interval.hxx"
 #include "SS_Parse_Param.hxx"
 #include "SS_Parse_Range.hxx"
 #include "SS_Parse_Target.hxx"

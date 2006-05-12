@@ -66,6 +66,7 @@ libopenss_cli_la_SOURCES = \
 	SS_Output.hxx \
 	SS_Parse_Lex.lxx help_topic_msg.dxx \
 	SS_Parse_Param.hxx SS_Parse_Param.cxx \
+	SS_Parse_Interval.hxx SS_Parse_Interval.cxx \
 	SS_Parse_Range.hxx SS_Parse_Range.cxx \
 	SS_Parse_Result.hxx SS_Parse_Result.cxx \
 	SS_Parse_Target.hxx SS_Parse_Target.cxx \

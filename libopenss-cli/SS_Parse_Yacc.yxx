@@ -28,6 +28,7 @@
 
 using namespace std;
 
+#include "SS_Parse_Interval.hxx"
 #include "SS_Parse_Range.hxx"
 #include "SS_Parse_Target.hxx"
 #include "SS_Parse_Result.hxx"
@@ -44,7 +45,8 @@ extern ParseResult *p_parse_result;
 
 
 %union {
-int val;
+int ival;
+double dval;
 char *string;
 }
 
@@ -65,17 +67,18 @@ char *string;
 %token JUST_QUIT_HEAD
 
 %token RANK_ID HOST_ID THREAD_ID FILE_ID EXP_ID PROCESS_ID
-%token LINE_ID VIEW_ID METRIC_ID MODIFIER_ID
+%token LINE_ID VIEW_ID METRIC_ID MODIFIER_ID INTERVAL_ID
 
 %token COMMA SEMICOLON COLON END_LINE EQUAL DOUBLE_COLON REDIRECT APPEND
 
-%token <val> IPNUMBER_32
-%token <val> HEXNUMBER
-%token <val> NUMBER
+%token <ival> IPNUMBER_32
+%token <ival> HEXNUMBER
+%token <ival> NUMBER
+%token <dval> DOUBLE
 %token <string> NAME
 
-%type <val> lineno
-%type <val> ip_address
+%type <ival> lineno
+%type <ival> ip_address
 %type <string>  param_name expType
 
 %%
@@ -389,6 +392,7 @@ set_view_element:   expId_list_spec
 		|   target_list
 		|   view_id_list_spec
 		|   viewType_list
+		|   expInterval_list_spec
     	    	;
 
     	    /** GENERIC LIST COMMAND **/
@@ -713,6 +717,34 @@ param:	    	    expType DOUBLE_COLON param_name EQUAL NUMBER
 		;
 
 param_name: 	    NAME	    	    	    	 
+		;
+
+expInterval_list_spec:	
+    	    	    INTERVAL_ID NAME expInterval_list
+    	    	    	    	{p_parse_result->setIntervalAttribute($2);}
+		|   INTERVAL_ID expInterval_list
+		;
+
+expInterval_list:   expInterval
+    	    	|   expInterval_list COMMA expInterval 
+		;
+
+/*
+<time_interval> ::= 
+( <int> || <float> ) ":" ( <int> || <float> ) [ "%" || "s" || "ms" || "us" || "ns" ]
+*/
+expInterval:	    NUMBER COLON NUMBER
+		    	{p_parse_result->pushInterval($1,$3);}
+
+    	    	|   NUMBER COLON DOUBLE
+		    	{p_parse_result->pushInterval($1,$3);}
+
+    	    	|   DOUBLE COLON NUMBER
+		    	{p_parse_result->pushInterval($1,$3);}
+
+    	    	|   DOUBLE COLON DOUBLE
+		    	{p_parse_result->pushInterval($1,$3);}
+
 		;
 
 expMetric_list_spec:  METRIC_ID expMetric_list
