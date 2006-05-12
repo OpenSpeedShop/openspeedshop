@@ -673,7 +673,23 @@ AC_CACHE_CHECK([for Qt library],
 AC_MSG_RESULT([Temporary output: ac_qtlib=$ac_qtlib])
 
 if test "x$ac_qtlib" = "x"; then
-  AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
+dnl ANOTHER CHECK FOR QT LIB HERE look in lib or lib64
+dnl depending on where the first check looked. See configure.ac
+dnl section for determining abi_libdir.
+  AC_CACHE_CHECK([for Qt library],
+    ac_qtlib, [
+    for X in qt-mt qt; do
+      if test "x$ac_qtlib" = "x"; then
+        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
+          ac_qtlib=$X
+        fi
+      fi
+    done
+  ])
+  AC_MSG_RESULT([Temporary output: ac_qtlib=$ac_qtlib])
+  if test "x$ac_qtlib" = "x"; then
+    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
+  fi
 fi
 AC_SUBST(ac_qtlib)
 
