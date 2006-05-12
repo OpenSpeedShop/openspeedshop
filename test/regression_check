@@ -26,8 +26,8 @@ cat testresults_* > $HOMEDIR/regression_results
 cd $HOMEDIR/src/regression/usertime/usertime1
 rm -f testresults*
 ./runall
-cat testresults_* > $HOMEDIR/regression_results
+cat testresults_* >> $HOMEDIR/regression_results
 cd $HOMEDIR/src/regression/hwc/hwc1
 rm -f testresults*
 ./runall
-cat testresults_* > $HOMEDIR/regression_results
+cat testresults_* >> $HOMEDIR/regression_results
