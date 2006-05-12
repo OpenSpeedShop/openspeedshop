@@ -27,19 +27,19 @@ fredO2_SOURCES = \
 	work.c \
 	fred.c
 
-fred_mpi_CFLAGS = \
-	-O2 -gdwarf-2
-
-fred_mpi_LDADD = \
-	-ldl -lmpi
-
-fred_mpi_SOURCES = \
-	f1.c \
-	f2.c \
-	f3.c \
-	work.c \
-	fred_mpi.c
-
+#fred_mpi_CFLAGS = \
+#	-O2 -gdwarf-2
+#
+#fred_mpi_LDADD = \
+#	-ldl -lmpi
+#
+#fred_mpi_SOURCES = \
+#	f1.c \
+#	f2.c \
+#	f3.c \
+#	work.c \
+#	fred_mpi.c
+#
 forever_CFLAGS = \
 	-g -gdwarf-2
 
