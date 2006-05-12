@@ -488,10 +488,12 @@ ssize_t iotpread(int fd, void *buf, size_t count, off_t offset)
     /* Call the real IO function */
     retval = pread(fd, buf, count, offset);
 
-#if defined(__linux) && (defined(__ia64) || defined(__x86_64) || defined(__i386))
+#if   defined(__linux) && defined(SYS_pread)
+    event.syscallno = SYS_pread;
+#elif defined(__linux) && defined(SYS_pread64)
     event.syscallno = SYS_pread64;
 #else
-#error "Platform/OS Combination Unsupported!"
+#error "SYS_pread or SYS_pread64 is not defined"
 #endif
     event.nsysargs = 4;
     event.sysargs[0] = fd;
@@ -560,10 +562,12 @@ ssize_t iotpwrite(int fd, void *buf, size_t count, off_t offset)
     /* Call the real IO function */
     retval = pwrite(fd, buf, count, offset);
 
-#if defined(__linux) && (defined(__ia64) || defined(__x86_64) || defined(__i386))
+#if   defined(__linux) && defined(SYS_pwrite)
+    event.syscallno = SYS_pwrite;
+#elif defined(__linux) && defined(SYS_pwrite64)
     event.syscallno = SYS_pwrite64;
 #else
-#error "Platform/OS Combination Unsupported!"
+#error "SYS_pwrite or SYS_pwrite64 is not defined"
 #endif
     event.nsysargs = 4;
     event.sysargs[0] = fd;
