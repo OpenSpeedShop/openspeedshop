@@ -2075,6 +2075,7 @@ StatsPanel::collectorUserTimeReportSelected(int val)
       {
         selectedFunctionStr = QString::null;
       }
+// printf("UT2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
     }
 
 // printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
@@ -3635,7 +3636,19 @@ StatsPanel::findSelectedFunction()
 // printf("spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
 // printf("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
 // printf("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
-    return( spitem->funcName );
+
+    // Clean up the function name if it needs to be...
+    int index = spitem->funcName.find("(");
+// printf("index=%d\n", index);
+    if( index != -1 )
+    {
+      QString clean_funcName = spitem->funcName.mid(0, index-1);
+// // printf("Return the cleaned funcName (%s)\n", clean_funcName.ascii() );
+      return( clean_funcName );
+    } else
+    {
+        return( spitem->funcName );
+    }
   } else
   {
     return( QString::null );
@@ -3843,13 +3856,6 @@ StatsPanel::generateCommand()
        about += QString("for metrics %1\n").arg(currentUserSelectedReportStr);
     }
   }
-#ifdef DUPLICATE
-  if( !currentThreadsStr.isEmpty() )
-  {
-     command += QString(" %1").arg(currentThreadsStr);
-     about += QString("for threads %1\n").arg(currentThreadsStr);
-  }
-#endif // DUPLICATE
 
 
 // printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedReportStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), currentMetricStr.ascii() );
@@ -3870,23 +3876,24 @@ StatsPanel::generateCommand()
       command = QString("expView -x %1 %2 -v %4").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
     }
 // printf("start of pcsamp generated command (%s)\n", command.ascii() );
-  } else if( currentCollectorStr == "usertime" &&
-            (currentUserSelectedReportStr == "Butterfly") ||
-            (currentUserSelectedReportStr == "Functions") ||
-            (currentUserSelectedReportStr == "LinkedObjects") ||
-            (currentUserSelectedReportStr == "Statements") ||
-            (currentUserSelectedReportStr == "CallTrees") ||
-            (currentUserSelectedReportStr == "CallTrees,FullStack") ||
-            (currentUserSelectedReportStr == "TraceBacks") ||
-            (currentUserSelectedReportStr == "TraceBacks,FullStack") )
+  } else if( currentCollectorStr == "usertime" )
+//            (currentUserSelectedReportStr == "Butterfly") ||
+//            (currentUserSelectedReportStr == "Functions") ||
+//            (currentUserSelectedReportStr == "LinkedObjects") ||
+//            (currentUserSelectedReportStr == "Statements") ||
+//            (currentUserSelectedReportStr == "CallTrees") ||
+//            (currentUserSelectedReportStr == "CallTrees,FullStack") ||
+//            (currentUserSelectedReportStr == "TraceBacks") ||
+//            (currentUserSelectedReportStr == "TraceBacks,FullStack") )
   {
+    selectedFunctionStr = findSelectedFunction();
     if( currentUserSelectedReportStr.isEmpty() )
     { 
       currentUserSelectedReportStr = "Functions";
     }
     if( currentUserSelectedReportStr == "Butterfly" )
     {
-      selectedFunctionStr = findSelectedFunction();
+//      selectedFunctionStr = findSelectedFunction();
       if( selectedFunctionStr.isEmpty() )
       {
         bool ok = FALSE;
@@ -3898,8 +3905,29 @@ StatsPanel::generateCommand()
         return( QString::null );
       }
       command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+    } else if( currentUserSelectedReportStr == "Statements by Function" )
+    {
+// printf("Statements by Function\n");
+      command = QString("expView -x %1 %4%2 -v Statements -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+    } else if( currentUserSelectedReportStr == "CallTrees by Function" )
+    {
+// printf("CallTrees by Function\n");
+      command = QString("expView -x %1 %4%2 -v CallTrees -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+    } else if( currentUserSelectedReportStr == "CallTrees,FullStack by Function" )
+    {
+// printf("CallTrees,FullStack by Function\n");
+      command = QString("expView -x %1 %4%2 -v CallTrees,FullStack -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+    } else if( currentUserSelectedReportStr == "Tracebacks by Function" )
+    {
+// printf("Tracebacks by Function\n");
+      command = QString("expView -x %1 %4%2 -v Tracebacks -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+    } else if( currentUserSelectedReportStr == "Tracebacks,FullStack by Function" )
+    {
+// printf("Tracebacks,FullStack by Function\n");
+      command = QString("expView -x %1 %4%2 -v Tracebacks,FullStack -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else
     {
+// printf("Here's the usertime menu work stuff.\n");
       if( numberItemsToDisplayInStats > 0 )
       {
         command = QString("expView -x %1 %2%3 -v %4").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
@@ -4653,25 +4681,51 @@ StatsPanel::addUserTimeReports(QPopupMenu *menu )
   qaction->setText( tr("Show: Statements") );
   qaction->setToolTip(tr("Show timings for statements."));
 
+qaction = new QAction(this, "showStatementsByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: Statements by Function") );
+qaction->setToolTip(tr("Show timings for statements by function"));
+
   qaction = new QAction(this, "showCallTrees");
   qaction->addTo( menu );
   qaction->setText( tr("Show: CallTrees") );
   qaction->setToolTip(tr("Show call trees for each function."));
+
+qaction = new QAction(this, "showCallTreesByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: CallTrees by Function") );
+qaction->setToolTip(tr("Show call trees for each function by function"));
 
   qaction = new QAction(this, "showCallTrees,FullStack");
   qaction->addTo( menu );
   qaction->setText( tr("Show: CallTrees,FullStack") );
   qaction->setToolTip(tr("Show call trees, with full stacks, to Functions."));
 
+qaction = new QAction(this, "showCallTrees,FullStackbyFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: CallTrees,FullStack by Function") );
+qaction->setToolTip(tr("Show call trees, with full stacks, to functions by function"));
+
   qaction = new QAction(this, "showTraceBacks");
   qaction->addTo( menu );
   qaction->setText( tr("Show: TraceBacks") );
   qaction->setToolTip(tr("Show trace backs for each function."));
 
+qaction = new QAction(this, "showTraceBacksByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: TraceBacks by Function") );
+qaction->setToolTip(tr("Show trace backs for each function by function"));
+
+
   qaction = new QAction(this, "showTracebacks,FullStack");
   qaction->addTo( menu );
   qaction->setText( tr("Show: TraceBacks,FullStack") );
   qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO Functions."));
+
+qaction = new QAction(this, "showTracebacks,FullStackByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: TraceBacks,FullStack by Function") );
+qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO functions by function."));
 
   qaction = new QAction(this, "showButterfly");
   qaction->addTo( menu );
@@ -5060,7 +5114,7 @@ int skipFLAG = FALSE;
                 if( dumpClipFLAG) cerr << "    s.getPath()=" << s.getPath() << "\n";
                 if( dumpClipFLAG) cerr << "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
 
-xxxfuncName = S.c_str();
+                xxxfuncName = S.c_str();
                 xxxfileName = QString( s.getPath().c_str() );
 //                xxxfileName = QString( s.getPath().getBaseName().c_str() );
                 xxxlineNumber = s.getLine();
@@ -5085,7 +5139,7 @@ xxxfuncName = S.c_str();
               if( dumpClipFLAG) cerr << "    s.getPath()=" << s.getPath() << "\n";
               if( dumpClipFLAG) cerr << "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
 
-xxxfuncName = QString::null;
+              xxxfuncName = QString::null;
               xxxfileName = QString( s.getPath().c_str() );
 //              xxxfileName = QString( s.getPath().getBaseName().c_str() );
               xxxlineNumber = s.getLine();
@@ -5124,7 +5178,7 @@ xxxfuncName = QString::null;
               if( dumpClipFLAG) cerr << "  CMD_RESULT_FUNCTION: sz=" << sz << " and function =" << CE->Form().c_str() << "\n";
 
               std::string S = ((CommandResult_Function *)CE)->getName();
-xxxfuncName = S.c_str();
+              xxxfuncName = S.c_str();
               if( dumpClipFLAG) cerr << "    S=" << S << "\n";
 //            LinkedObject L = ((CommandResult_Function *)CE)->getLinkedObject(); 
 //            if( dumpClipFLAG) cerr << "    L.getPath()=" << L.getPath() << "\n";
@@ -5156,7 +5210,7 @@ xxxfuncName = S.c_str();
               if( dumpClipFLAG) cerr << "    s.getPath()=" << s.getPath() << "\n";
               if( dumpClipFLAG) cerr << "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
 
-xxxfuncName = CE->Form().c_str();
+              xxxfuncName = CE->Form().c_str();
               xxxfileName = QString( s.getPath().c_str() );
 //              xxxfileName = QString( s.getPath().getBaseName().c_str() );
               xxxlineNumber = s.getLine();
