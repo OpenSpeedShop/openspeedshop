@@ -26,5 +26,23 @@ configure --prefix=$OPENSS_INSTALL_DIR
 make
 
 
-mpirun -np 4 smg2000A/test/smg2000 -n 75 75 75
-mpirun -np 4 smg2000B/test/smg2000 -n 75 75 75
+#mpirun -np 4 smg2000A/test/smg2000 -n 75 75 75
+#mpirun -np 4 smg2000B/test/smg2000 -n 75 75 75
+
+#mpirun -array openss hope,hope2 2 smg2000A/test/smg2000 -n 75 75 75  &
+#mpirun -array openss hope,hope2 2 smg2000B/test/smg2000 -n 75 75 75  &
+
+mpirun -array openss hope 1,hope2 2 smg2000A/test/smg2000 -n 75 75 75  &
+mpirun -array openss hope 1,hope2 2 smg2000B/test/smg2000 -n 75 75 75  &
+
+openss -cli -v mpi usertime -p nnnn
+
+
+cd sweep3d;
+make mpi
+cd sweep3d_A/
+mpirun -array openss hope 2,hope2 2 ./sweep3d.mpi &
+cd sweep3d_B/
+mpirun -array openss hope 2,hope2 2 ./sweep3d.mpi &
+
+openss -cli -v mpi usertime -p nnnn

@@ -470,10 +470,14 @@ StatsPanel::listener(void *msg)
 // printf("We got the command=(%s)\n", msg->experiment_name.ascii() );
       QString command = msg->experiment_name;
       updateStatsPanelData(command);
+//Hack - NOTE: You may have to snag the expID out of the command.
+expID = groupID;
+updateCollectorList();
       return(1);
     }
     
     expID = msg->expID;
+
 
     // Begin determine if there's mpi stats
     try
@@ -582,10 +586,12 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   int mid = -1;
   QString defaultStatsReportStr = QString::null;
 
+// printf("Do you have a list of collectors?\n");
   for( std::list<std::string>::const_iterator it = list_of_collectors.begin();
       it != list_of_collectors.end(); it++ )
   {
      std::string collector_name = (std::string)*it;
+// printf("collector_name = (%s)\n", collector_name.c_str() );
     if( QString(collector_name).startsWith("mpi") )
     {
 // printf("Generate an mpi* menu\n");
@@ -1456,6 +1462,39 @@ StatsPanel::updateStatsPanelData(QString command)
   }
 
 // printf("  lastCommand = %s  command = %s\n", lastCommand.ascii(), command.ascii() );
+
+  if( recycleFLAG == FALSE )
+  {
+    // fire up a new stats panel and send "command" to it.
+// printf("fire up a new stats panel and send (%s) to it.\n", command.ascii() );
+    int exp_id = expID;
+    if( expID == -1  )
+    {
+      exp_id = groupID;
+    }
+     
+    QString name = QString("Stats Panel [%1]").arg(exp_id);
+    Panel *sp = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+    if( !sp )
+    {
+      char *panel_type = "Stats Panel";
+      ArgumentObject *ao = new ArgumentObject("ArgumentObject", exp_id);
+      sp = getPanelContainer()->dl_create_and_add_panel(panel_type, getPanelContainer(), ao);
+      delete ao;
+    } 
+
+    if( sp )
+    {
+      UpdateObject *msg =
+        new UpdateObject((void *)NULL, -1, command.ascii(), 1);
+      sp->listener( (void *)msg );
+    }
+
+//  statusLabelText->setText( "" );
+    return;
+  }
+
+
   if( staticDataFLAG == TRUE && command == lastCommand )
   {  // Then we really don't need to update.
 // printf("We really have static data and its the same command... Don't update.\n");
@@ -1477,6 +1516,7 @@ StatsPanel::updateStatsPanelData(QString command)
 
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  insertDiffColumnFLAG = FALSE;
 
   splv->clear();
   for(int i=splv->columns();i>=0;i--)
@@ -1537,21 +1577,17 @@ pd->infoLabel->setText( tr("Waiting for completion of command: %1").arg(command)
 
 // printf("Done processing the clip\n");
 
-analyzeTheCView();
-#ifdef SHOW_DIFF_BY_DEFAULT
+  analyzeTheCView();
   if( command.startsWith("cview -c") && canWeDiff() )
   {
     int insertColumn = 0;
     insertDiffColumn(insertColumn);
     insertDiffColumnFLAG = TRUE;
-
+  
     // Force a resort in this case...
-//    splv->setSorting ( insertColumn+1, FALSE );
     splv->setSorting ( insertColumn, FALSE );
     splv->sort();
   }
-#endif // SHOW_DIFF_BY_DEFAULT
-
 
 
 
@@ -2828,11 +2864,12 @@ StatsPanel::getLineColor(uint64_t value)
 void
 StatsPanel::updateCollectorList()
 {
+// printf("updateCollectorList() entered\n");
   if( experimentGroupList.count() > 0 )
   {
     list_of_collectors.clear();
     QString command = QString("list -v expTypes -x %1").arg(focusedExpID);
-// printf("attempt to run (%s)\n", command.ascii() );
+// printf("A: attempt to run (%s)\n", command.ascii() );
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     InputLineObject *clip = NULL;
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
@@ -2851,7 +2888,7 @@ StatsPanel::updateCollectorList()
     {
       command = QString("list -v expTypes -x %1").arg(focusedExpID);
     }
-// printf("attempt to run (%s)\n", command.ascii() );
+// printf("B: attempt to run (%s)\n", command.ascii() );
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     list_of_collectors.clear();
     InputLineObject *clip = NULL;
@@ -2860,7 +2897,15 @@ StatsPanel::updateCollectorList()
     {
       printf("Unable to run %s command.\n", command.ascii() );
     }
-// printf("ran %s\n", command.ascii() );
+#if 0
+  printf("ran %s\n", command.ascii() );
+for( std::list<std::string>::const_iterator it = list_of_collectors.begin();
+      it != list_of_collectors.end(); it++ )
+{
+  std::string collector_name = (std::string)*it;
+  printf("DEBUG:A: collector_name = (%s)\n", collector_name.c_str() );
+}
+#endif // 0
   }
 }
 
@@ -5191,7 +5236,7 @@ StatsPanel::insertDiffColumn(int insertAtIndex)
   for(;i>insertAtIndex;i--)
   {
     splv->setColumnText( i, splv->columnText(i-1)  );
-splv->setColumnWidth( i, splv->columnWidth(i-1) );
+    splv->setColumnWidth( i, splv->columnWidth(i-1) );
   }
   splv->setColumnText( i, "|Difference|" );
 
