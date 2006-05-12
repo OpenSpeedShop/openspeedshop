@@ -127,7 +127,10 @@ def CompareResults(testName, fileptr):
 	else:
 		if nooutput == 0:
 			failure_reason = 2
-		
+	fileptr.write('The test run from: ')
+	fileptr.write(os.getcwd())
+	fileptr.write('\n')
+	fileptr.write('has the following result: ')
 	if (passing_ratio== 1) :
 		fileptr.write(testName + ' has PASSED \n')
 	else:
@@ -154,6 +157,8 @@ def CompareResults(testName, fileptr):
 				fileptr.write('A call to dup is missing. \n')
 			if dup2 == 0:
 				fileptr.write('A call to dup2 is missing. \n')
+	fileptr.write('*******************************************************')
+	fileptr.write('\n')	
 
 		
 

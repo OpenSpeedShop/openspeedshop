@@ -108,8 +108,14 @@ def CompareResults(testName, fileptr):
 		actual_function = outputfileline[j:i]
                 expected_function = expectedfileline[0:-1]
 		if (expected_function != actual_function):
+			print actual_function
+			print expected_function
 			passing_ratio = 0
 			failure_reason = 2
+        fileptr.write('The test run from: ')
+        fileptr.write(os.getcwd())
+        fileptr.write('\n')
+        fileptr.write('has the following result: ')
 
 	if (passing_ratio== 1) :
 		fileptr.write(testName + ' has PASSED \n')
@@ -119,6 +125,8 @@ def CompareResults(testName, fileptr):
 			fileptr.write('Looks like openss crashed or ran too long. \n')
 		if (failure_reason == 2):
 			fileptr.write('The ordering of the functions is incorrect.\n')
+        fileptr.write('*******************************************************')
+        fileptr.write('\n')
 		
 
 

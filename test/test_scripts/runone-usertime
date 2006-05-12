@@ -151,6 +151,10 @@ def CompareResults(testName, fileptr):
 				failure_reason = 2
 		previous_inclusive_actual = actual_inclusive_time
 		previous_inclusive_expected = expected_inclusive_time
+        fileptr.write('The test run from: ')
+        fileptr.write(os.getcwd())
+        fileptr.write('\n')
+        fileptr.write('has the following result: ')
 
 	if ( inclusive_passing_ratio == 1 and failure_reason == 0 ):
 		fileptr.write(testName + ' has PASSED \n')
@@ -164,6 +168,8 @@ def CompareResults(testName, fileptr):
 			fileptr.write('The ordering of the functions is incorrect.\n')
 		if (failure_reason == 4):
 			fileptr.write('The functions time ratios are incorrect.\n')
+        fileptr.write('*******************************************************')
+        fileptr.write('\n')
 		
 
 

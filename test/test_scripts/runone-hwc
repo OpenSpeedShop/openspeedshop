@@ -175,6 +175,10 @@ def CompareResults(testName, fileptr):
 		previous_cycles_expected = expected_cycles_time
 		previous_percent_expected = expected_percentage
 		previous_percent_actual = actual_percentage
+        fileptr.write('The test run from: ')
+        fileptr.write(os.getcwd())
+        fileptr.write('\n')
+        fileptr.write('has the following result: ')	
 
 	if ( passing_ratio == 1 and failure_reason != 2 and nooutput == 0):
 		fileptr.write(testName + ' has PASSED \n')
@@ -188,7 +192,8 @@ def CompareResults(testName, fileptr):
 			fileptr.write('The ordering of the functions is incorrect.\n')
 		if (failure_reason == 4):
 			fileptr.write('The functions time ratios are incorrect.\n')
-		
+	fileptr.write('*******************************************************')
+        fileptr.write('\n')	
 
 
 	 	

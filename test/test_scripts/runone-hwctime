@@ -151,6 +151,10 @@ def CompareResults(testName, fileptr):
 				failure_reason = 2
 		previous_cycles_actual = actual_cycles_time
 		previous_cycles_expected = expected_cycles_time
+        fileptr.write('The test run from: ')
+        fileptr.write(os.getcwd())
+        fileptr.write('\n')
+        fileptr.write('has the following result: ')
 
 	if ( passing_ratio == 1 and failure_reason != 2 and nooutput == 0):
 		fileptr.write(testName + ' has PASSED \n')
@@ -162,6 +166,8 @@ def CompareResults(testName, fileptr):
 			fileptr.write('The ordering of the functions is incorrect.\n')
 		if (failure_reason == 4):
 			fileptr.write('The inclusive overflows ratios are incorrect.\n')
+        fileptr.write('*******************************************************')
+        fileptr.write('\n')
 		
 
 

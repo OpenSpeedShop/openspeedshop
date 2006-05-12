@@ -116,6 +116,8 @@ def CompareResults(testName, fileptr):
 		j = i
 		while outputfileline[j] != ' ':
 			j += 1
+		if outputfileline[i:j] == 'Experiment':
+			break
 		actual_time = atof(outputfileline[i:j])
 		i = j+ 1
 		while outputfileline[i] == ' ':
@@ -156,6 +158,10 @@ def CompareResults(testName, fileptr):
 				failure_reason = 2
 		previous_actual = actual_time
 		previous_expected = expected_time
+        fileptr.write('The test run from: ')
+        fileptr.write(os.getcwd())
+        fileptr.write('\n')
+        fileptr.write('has the following result: ')
 
 	if (passing_ratio== 1) :
 		fileptr.write(testName + ' has PASSED \n')
@@ -167,6 +173,8 @@ def CompareResults(testName, fileptr):
 			fileptr.write('Looks like openss crashed or ran too long. \n')
 		if (failure_reason == 2):
 			fileptr.write('The ordering of the functions is incorrect.\n')
+        fileptr.write('*******************************************************')
+        fileptr.write('\n')
 		
 
 

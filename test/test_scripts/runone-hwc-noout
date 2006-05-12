@@ -371,6 +371,10 @@ def CompareResults(testName, fileptr, finished):
 			passed = 1
 	if (passed != 1) or (nooutput != 0) :
 		finished = 0
+        fileptr.write('The test run from: ')
+        fileptr.write(os.getcwd())
+        fileptr.write('\n')
+        fileptr.write('has the following result: ')
 
 	if (finished == 1):
 		fileptr.write(testName + ' has PASSED \n')
@@ -379,6 +383,8 @@ def CompareResults(testName, fileptr, finished):
 			fileptr.write(testName + ' has FAILED.  Openss has timed out or crashed. \n')
 		else:
 			fileptr.write(testName + ' has FAILED. The output is incorrect. \n ')
+        fileptr.write('*******************************************************')
+        fileptr.write('\n')
 
 
 	 	

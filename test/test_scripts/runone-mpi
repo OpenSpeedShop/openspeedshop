@@ -128,6 +128,10 @@ def CompareResults(testName, fileptr):
 		output_function_counter += expected_functions.count(actual_function)
 	if output_function_counter != expected_functions_counter:
 		failure_reason = 2
+        fileptr.write('The test run from: ')
+        fileptr.write(os.getcwd())
+        fileptr.write('\n')
+        fileptr.write('has the following result: ')
 		
 	if (failure_reason == 0 ):
 		fileptr.write(testName + ' has PASSED.\n ')
@@ -138,7 +142,8 @@ def CompareResults(testName, fileptr):
 			fileptr.write('Looks like openss crashed. \n')
 		if (failure_reason == 2):
 			fileptr.write('Some of the expected functions are missing. \n')
-
+        fileptr.write('*******************************************************')
+        fileptr.write('\n')
 
 if __name__ == '__main__':
 	checkoutput = os.system('test -e *.output')
