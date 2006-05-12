@@ -340,6 +340,7 @@ StatsPanel::listener(void *msg)
     FocusObject *msg = (FocusObject *)msgObject;
 // msg->print();
     expID = msg->expID;
+// printf("B: expID = %d\n", expID);
 
     if( msg->host_pid_vector.size() == 0 && !msg->pidString.isEmpty() )
     { // Soon to be obsoleted
@@ -446,6 +447,7 @@ StatsPanel::listener(void *msg)
     if( !msg->compare_command.startsWith("cview -c") )
     {
       expID = msg->expID;
+// printf("C: expID = %d\n", expID);
     }
 
     if( !msg->compare_command.isEmpty()  )
@@ -471,12 +473,39 @@ StatsPanel::listener(void *msg)
       QString command = msg->experiment_name;
       updateStatsPanelData(command);
 //Hack - NOTE: You may have to snag the expID out of the command.
+#ifdef OLDWAY
 expID = groupID;
+// printf("D: expID = %d\n", expID);
 updateCollectorList();
+#else // OLDWAY
+int start_index = command.find("-x");
+if( start_index != -1 )
+{
+  QString s = command.mid(start_index+3);
+// printf("Got a -x in the command s=(%s)\n", s.ascii() );
+  int end_index = s.find(" ");
+  if( end_index == -1 )
+  {
+    end_index == 99999;
+  }
+
+  QString exp_x = s.mid(0, end_index);
+// printf("exp_x=%s\n", exp_x.ascii() );
+  expID = exp_x.toInt();
+// printf("E: expID = %d\n", expID);
+updateCollectorList();
+} else
+{
+// printf("no -x in the command\n");
+// expID = groupID;
+// printf("G: expID = %d\n", expID);
+}
+#endif // OLDWAY
       return(1);
     }
     
     expID = msg->expID;
+// printf("H: expID = %d\n", expID);
 
 
     // Begin determine if there's mpi stats
@@ -1349,9 +1378,9 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   SourceObject *spo = NULL;
   QString ssf = QString(sf).stripWhiteSpace();
 
-//printf("spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
-//printf("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
-//printf("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
+// printf("spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
+// printf("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
+// printf("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
 
   filename = spitem->fileName.ascii();
   lineNumberStr = QString("%1").arg(spitem->lineNumber);
@@ -1416,6 +1445,7 @@ StatsPanel::updateStatsPanelData(QString command)
 
   SPListViewItem *splvi;
   columnHeaderList.clear();
+
 
   // Percent value list (for the chart)
   cpvl.clear();
@@ -1490,7 +1520,7 @@ StatsPanel::updateStatsPanelData(QString command)
       sp->listener( (void *)msg );
     }
 
-//  statusLabelText->setText( "" );
+    about = lastAbout;
     return;
   }
 
@@ -3813,11 +3843,13 @@ StatsPanel::generateCommand()
        about += QString("for metrics %1\n").arg(currentUserSelectedReportStr);
     }
   }
+#ifdef DUPLICATE
   if( !currentThreadsStr.isEmpty() )
   {
      command += QString(" %1").arg(currentThreadsStr);
      about += QString("for threads %1\n").arg(currentThreadsStr);
   }
+#endif // DUPLICATE
 
 
 // printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedReportStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), currentMetricStr.ascii() );
@@ -3871,9 +3903,11 @@ StatsPanel::generateCommand()
       if( numberItemsToDisplayInStats > 0 )
       {
         command = QString("expView -x %1 %2%3 -v %4").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
+// printf("A: USERTIME! command=(%s)\n", command.ascii() );
       } else
       {
         command = QString("expView -x %1 %2 -v %4").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
+// printf("B: USERTIME! command=(%s)\n", command.ascii() );
       }
     }
 // printf("USERTIME! command=(%s)\n", command.ascii() );
@@ -3956,11 +3990,6 @@ StatsPanel::generateCommand()
         command = QString("expView -x %1 %2 -v Functions").arg(exp_id).arg(currentCollectorStr);
       }
     }
-    if( !currentThreadsStr.isEmpty() )
-    {
-       command += QString(" %1").arg(currentThreadsStr);
-       about += QString("for threads %1\n").arg(currentThreadsStr);
-    }
   } else if( (currentCollectorStr == "hwc" || currentCollectorStr == "hwctime") &&
             (currentUserSelectedReportStr == "Butterfly") ||
             (currentUserSelectedReportStr == "Functions") ||
@@ -3970,7 +3999,7 @@ StatsPanel::generateCommand()
             (currentUserSelectedReportStr == "CallTrees,FullStack") ||
             (currentUserSelectedReportStr == "TraceBacks") ||
             (currentUserSelectedReportStr == "TraceBacks,FullStack") )
-{
+  {
     if( currentUserSelectedReportStr.isEmpty() )
     { 
       currentUserSelectedReportStr = "Functions";
@@ -3996,8 +4025,15 @@ StatsPanel::generateCommand()
   }
 // printf("hwc command=(%s)\n", command.ascii() );
   about = command + "\n";
-} 
+  } 
 
+  // Add any focus.
+  if( !currentThreadsStr.isEmpty() )
+  {
+// printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+    command += QString(" %1").arg(currentThreadsStr);
+    about += QString("for threads %1\n").arg(currentThreadsStr);
+  }
 // printf("command sofar... =(%s)\n", command.ascii() );
 // printf("add any modifiers...\n");
     std::list<std::string> *modifier_list = NULL;;
@@ -4736,7 +4772,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
   HighlightObject *hlo = NULL;
 
 // printf("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n", filename.ascii(), lineNumberStr.ascii() );
-// printf("expID=%d focusedExpID=%d\n", expID, focusedExpID );
+// printf("lfhA: expID=%d focusedExpID=%d\n", expID, focusedExpID );
 
 // printf("currentMetricStr=%s\n", currentMetricStr.ascii() );
 // printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
@@ -4762,7 +4798,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
     {
       return(spo);
     }
-// printf("expID=%d focusedExpID=%d\n", expID, focusedExpID );
+// printf("lfhB: expID=%d focusedExpID=%d\n", expID, focusedExpID );
     if( expID > 0 )
     {
       command = QString("expView -x %1 -v Statements -f %2").arg(expID).arg(fn);
@@ -4779,6 +4815,10 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
     {
       command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(focusedExpID).arg(fn).arg(currentMetricStr);
     }
+  }
+  if( !currentThreadStr.isEmpty() )
+  {
+    command += QString(" %1").arg(currentThreadsStr);
   }
 // printf("command=(%s)\n", command.ascii() );
 
@@ -5357,6 +5397,7 @@ StatsPanel::analyzeTheCView()
     }
     QString expIDStr = str.mid(start_index, end_index-start_index);
     expID = expIDStr.toInt();
+// printf("A: expID = %d\n", expID);
 
 
     QString host_pid_names = QString::null;
