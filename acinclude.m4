@@ -659,6 +659,11 @@ else
   AC_MSG_RESULT([$LQTDIR])
 fi
 
+dnl Use temporary variable to hold initial library abi setting.
+dnl This will be changed if initial checks don't find qt libs.
+dnl Then the temporary variable will be checked for the alternative lib location.
+tmp_abi_libdir=$abi_libdir
+
 dnl Checks for Qt library.
 AC_CACHE_CHECK([for Qt library],
   ac_qtlib, [
@@ -673,7 +678,7 @@ AC_CACHE_CHECK([for Qt library],
 AC_MSG_RESULT([Temporary output: ac_qtlib=$ac_qtlib])
 
 if test "x$ac_qtlib" = "x"; then
-dnl ANOTHER CHECK FOR QT LIB HERE look in lib or lib64
+dnl Conduct another check for the QT libs HERE look in lib or lib64
 dnl depending on where the first check looked. See configure.ac
 dnl section for determining abi_libdir.
   AC_CACHE_CHECK([for Qt library],
@@ -682,6 +687,7 @@ dnl section for determining abi_libdir.
       if test "x$ac_qtlib" = "x"; then
         if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
           ac_qtlib=$X
+	  tmp_abi_libdir=$alt_abi_libdir
         fi
       fi
     done
@@ -703,7 +709,10 @@ dnl Set initial values for QTLIB exports
 QTLIB_CFLAGS="$CFLAGS -I$LQTDIR/include -I$KDEDIR/include"
 # QTLIB_CPPFLAGS="$CPPFLAGS -I$QTDIR/include -I$KDEDIR/include -D_REENTRANT  -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
 QTLIB_CPPFLAGS="$CPPFLAGS -I$LQTDIR/include -I$KDEDIR/include -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
-QTLIB_LIBS="-L$LQTDIR/$abi_libdir -L/usr/X11R6/$abi_libdir"
+
+dnl Use temporary abi library setting to set the QT library variables
+QTLIB_LIBS="-L$LQTDIR/$tmp_abi_libdir -L/usr/X11R6/$tmp_abi_libdir"
+
 QTLIB_LDFLAGS="-l$ac_qtlib"
 
 dnl Save the current CPPFLAGS and LDFLAGS variables prior to qt version test
