@@ -133,9 +133,37 @@ ParseResult() :
 {
     // Create first ParseTarget object.
     this->dm_p_cur_target = new ParseTarget();
-
 }
  
+
+/**
+ * Copy constructor: ParseResult::ParseResult()
+ *
+ * Copy the contents of one ParseResult object into a new one.
+ * Allocate a new ParseTarget object for dm_p_cur_target in
+ * the new ParseResult object and clear any other poitner fields
+ * in the new object.
+ *
+ * @param   the ParseResult to copy
+ *
+ * @todo    Error handling.
+ *
+ */
+ParseResult::
+ParseResult(const ParseResult& other) :
+    dm_command_type(CMD_HEAD_ERROR),
+    dm_help_set(false),
+    dm_param_set(false),
+    dm_error_set(false),
+    dm_p_param(NULL),
+    dm_redirect(),
+    dm_append()
+{
+    *this = other;
+    this->dm_p_cur_target = new ParseTarget();
+    this->dm_p_param = NULL;
+}
+
 /**
  * Destructor: ParseResult::~ParseResult()
  * 

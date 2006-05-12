@@ -276,7 +276,7 @@ static bool Generate_CustomView (CommandObject *cmd,
     } else {
      // This path implies we are processing an expCompare command.
      // Get all the threads that are in the experiment.
-        ThreadGroup base_tgrp = exp->FW()->getThreads();
+      ThreadGroup base_tgrp = exp->FW()->getThreads();
      // Retain only the threads that may be of interest.
       Filter_ThreadGroup (cmd->P_Result(), base_tgrp);
      // Select specific ones.
@@ -1262,16 +1262,12 @@ bool SS_cView (CommandObject *cmd) {
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   EXPID exp_focus = Experiment_Focus ( WindowID );
 
-  OpenSpeedShop::cli::ParseResult *old_presult = cmd->P_Result();
-  vector<string> *view_list = old_presult->getViewList();
-  vector<string> *mod_list = old_presult->getModifierList();
-  vector<ParseRange> *met_list = old_presult->getexpMetricList();
-  vector<ParseRange> *cv_list = old_presult->getViewSet ();
-  vector<ParseRange>::iterator cvli;
-
   std::vector<selectionTarget> Quick_Compare_Set;
 
-  for (cvli=cv_list->begin();cvli != cv_list->end(); cvli++) {
+  OpenSpeedShop::cli::ParseResult *primary_result = cmd->P_Result();
+  vector<ParseRange> *cv_list = primary_result->getViewSet ();
+  for (vector<ParseRange>::iterator
+             cvli=cv_list->begin();cvli != cv_list->end(); cvli++) {
     parse_range_t *c_range = cvli->getRange();
     parse_val_t *c_val1 = &c_range->start_range;
     parse_val_t *c_val2 = (c_range->is_range) ? &c_range->end_range : c_val1;
@@ -1286,15 +1282,57 @@ bool SS_cView (CommandObject *cmd) {
         Mark_Cmd_With_Soft_Error(cmd, S.ostringstream::str());
         continue;
       }
-      OpenSpeedShop::cli::ParseResult *p_result = cvp->cvPr();
-      vector<string> *p_slist = p_result->getViewList();
-      EXPID ExperimentID = (p_result)->isExpId() ? cvp->cvPr()->getExpId() : exp_focus;
+
+     // Make a copy of the current parse object to pick up any defined fields.
+      OpenSpeedShop::cli::ParseResult *new_result = new ParseResult((*primary_result));
+      vector<string> *new_view_list = new_result->getViewList();
+      vector<string> *new_mod_list = new_result->getModifierList();
+      vector<ParseRange> *new_met_list = new_result->getexpMetricList();
+      vector<ParseTarget> *new_target_list = new_result->getTargetList();
+      vector<ParseRange> *new_cv_list = new_result->getViewSet ();
+      new_cv_list->clear();
+
+     // Get access to the parse object defined with the custom view.
+      OpenSpeedShop::cli::ParseResult *old_result = cvp->cvPr();
+      vector<string> *old_view_list = old_result->getViewList();
+      vector<string> *old_mod_list = old_result->getModifierList();
+      vector<ParseRange> *old_met_list = old_result->getexpMetricList();
+      vector<ParseTarget> *old_target_list = old_result->getTargetList();
+
       std::ostringstream N(ios::out);
       N << i;
-      ExperimentObject *exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
 
-     // Pick up the <viewType> from the command.
-      if (p_slist->begin() == p_slist->end()) {
+     // Try to use the ID in the new parse object.
+      EXPID ExperimentID = (new_result)->isExpId() ? (new_result)->getExpId() : 0;
+      ExperimentObject *exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
+      if (exp == NULL) {
+       // Try to get an Experiment ID from the old parse object or use the focused experiment.
+        ExperimentID = new_result->isExpId() ? (new_result)->getExpId() : exp_focus;
+        exp = Find_Experiment_Object (ExperimentID);
+      }
+
+     // If there is no modifier list, get one from the custom view definition.
+      if (new_mod_list->empty()) {
+        (*new_mod_list) = (*old_mod_list);
+      }
+
+     // If there is no metric list, get one from the custom view definition.
+      if (new_met_list->empty()) {
+        (*new_met_list) = (*old_met_list);
+      }
+
+     // If there is no target list, get one from the custom view definition.
+      if (new_target_list->empty()) {
+        (*new_target_list) = (*old_target_list);
+      }
+
+     // If there is no view already defined, pick up the <viewType> from the custom definition.
+      if (new_view_list->empty()) {
+        (*new_view_list) = (*old_view_list);
+      }
+
+     // If there still is no view list, get one from the view definition.
+      if (new_view_list->empty()) {
        // The user has not selected a view.
         if ((exp == NULL) ||
             (exp->FW() == NULL)) {
@@ -1310,140 +1348,65 @@ bool SS_cView (CommandObject *cmd) {
             bool view_found = false;
             CollectorGroup::iterator cgi;
             for (cgi = cgrp.begin(); cgi != cgrp.end(); cgi++) {
-             // See if there is a view by the same name.
+             // Generate a view for every collector.
               Collector c = *cgi;
               Metadata m = c.getMetadata();
               std::string collector_name = m.getUniqueId();
-              ViewType *vt = Find_View (collector_name);
-              if (vt != NULL) {
-                view_found = true;
-               // Generate a view for every collector.
-                selectionTarget S;
-                S.pResult = p_result;
-                S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
-                S.Exp = exp;
-                S.viewName = collector_name;
-                Quick_Compare_Set.push_back (S);
-              }
-            }
-
-            if (!view_found) {
-             // Use generic view as default
-              selectionTarget S;
-              S.pResult = p_result;
-              S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
-              S.Exp = exp;
-              S.viewName = "stats";
+              new_view_list->push_back(collector_name);
             }
           }
         }
-      } if (!view_list->empty()) {
-       // Override any view in the Custom View Definition with view named on cView command.
-        vector<string>::iterator si;
-        for (si = view_list->begin(); si != view_list->end(); si++) {
-       // Determine the availability of the view.
-          std::string viewname = *si;
-          ViewType *vt = Find_View (viewname);
-          if (vt == NULL) {
-            Mark_Cmd_With_Soft_Error(cmd, "The requested view is unavailable.");
-            return false;
-          }
-
-         // Define new compare sets for each view.
-          selectionTarget S;
-          S.pResult = p_result;
-          S.base_tgrp = cvp->cvTgrp();
-          S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
-          S.Exp = exp;
-          S.viewName = viewname;
-          Quick_Compare_Set.push_back (S);
-        }
-
-      } else {
-       // Generate all the views in the list.
-        vector<string>::iterator si;
-        for (si = p_slist->begin(); si != p_slist->end(); si++) {
-       // Determine the availability of the view.
-          std::string viewname = *si;
-          ViewType *vt = Find_View (viewname);
-          if (vt == NULL) {
-            Mark_Cmd_With_Soft_Error(cmd, "The requested view is unavailable.");
-            return false;
-          }
-
-         // Define new compare sets for each view.
-          selectionTarget S;
-          S.pResult = p_result;
-          S.base_tgrp = cvp->cvTgrp();
-          S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
-          S.Exp = exp;
-          S.viewName = viewname;
-          Quick_Compare_Set.push_back (S);
-        }
-
       }
+
+     // If there still are no views, use generic view as default.
+      if (new_view_list->empty()) {
+        new_view_list->push_back("stats");
+      }
+
+     // Generate all the views in the list.
+      vector<string>::iterator si;
+      for (si = new_view_list->begin(); si != new_view_list->end(); si++) {
+       // Determine the availability of the view.
+        std::string viewname = *si;
+        ViewType *vt = Find_View (viewname);
+        if (vt == NULL) {
+          Mark_Cmd_With_Soft_Error(cmd, "The requested view '" + viewname + "' is unavailable.");
+          return false;
+        }
+
+       // Every compare set must have a unique ParseResult object.
+        if (si != new_view_list->begin()) {
+          new_result = new ParseResult((*new_result));
+        }
+
+       // Define new compare sets for each view.
+        selectionTarget S;
+        S.pResult = new_result;
+        S.base_tgrp = cvp->cvTgrp();
+        S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
+        S.Exp = exp;
+        S.viewName = viewname;
+        Quick_Compare_Set.push_back (S);
+      }
+
     }
 
   }
-
-  if (!mod_list->empty() ||
-      !met_list->empty()) {
-   // Override Custome View Definitions of modifiers and/or metrics.
-   // This involves duplicating the ParseObject and replacing certain lists.
-    int64_t numQuickSets = Quick_Compare_Set.size();
-    for (int64_t i = 0; i < numQuickSets; i++) {
-      OpenSpeedShop::cli::ParseResult *old_result = Quick_Compare_Set[i].pResult;
-      OpenSpeedShop::cli::ParseResult *new_result = new ParseResult();
-      *new_result = *old_result;
-
-   // Copy ModifierList from original ParseResult to new ParseResult.
-      if (!mod_list->empty()) {
-// TODO: clear old vector        new_result->getModifierList()->clear();
-        for (vector<string>::const_iterator
-                 modl = mod_list->begin(); modl != mod_list->end(); modl++) {
-          new_result->pushModifiers ((char *)((*modl).c_str()));
-        }
-      }
-
-   // Copy MetricList from original ParseResult to new ParseResult.
-      if (!met_list->empty()) {
-// TODO: clear old vector        new_result->getexpMetricList()->clear();
-        for (vector<ParseRange>::iterator
-                 metl = met_list->begin(); metl != met_list->end(); metl++) {
-          parse_range_t *m_range = (*metl).getRange();
-          parse_val_t pval1 = m_range->start_range;
-          Assert (pval1.tag == VAL_STRING);
-          if (m_range->is_range) {
-            parse_val_t pval2 = m_range->end_range;
-            Assert (pval2.tag == VAL_STRING);
-            new_result->pushExpMetric ((char *)(pval1.name.c_str()), (char *)(pval2.name.c_str()));
-          } else {
-            new_result->pushExpMetric ((char *)(pval1.name.c_str()));
-          }
-        }
-      }
-
-      Quick_Compare_Set[i].pResult = new_result;
-    }
+/* TEST */
+/*
+  cerr << "Number of Quick_Compare_Sets is " << Quick_Compare_Set.size() << std::endl;
+  for (int64_t i = 0; i < Quick_Compare_Set.size(); i++) {
+    cerr << i;
+    Quick_Compare_Set[i].Print(cerr);
   }
+*/
 
   bool success = Generate_CustomView (cmd, Quick_Compare_Set);
 
-  if (!mod_list->empty() ||
-      !met_list->empty()) {
-   // Need to delete the copies made of the overriding Parse components.
-    int64_t numQuickSets = Quick_Compare_Set.size();
-    for (int64_t i = 0; i < numQuickSets; i++) {
-      OpenSpeedShop::cli::ParseResult *tmp_result = Quick_Compare_Set[i].pResult;
-      if (!mod_list->empty()) {
-        vector<string> *mod_list = tmp_result->getModifierList();
-        delete tmp_result->getModifierList();
-      }
-      if (!met_list->empty()) {
-        vector<ParseRange> *met_list = tmp_result->getexpMetricList();
-        delete tmp_result->getexpMetricList();
-      }
-    }
+ // Need to delete the copies made of the overriding Parse components.
+  int64_t numQuickSets = Quick_Compare_Set.size();
+  for (int64_t i = 0; i < numQuickSets; i++) {
+    delete Quick_Compare_Set[i].pResult;
   }
 
   cmd->set_Status(CMD_COMPLETE);

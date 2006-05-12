@@ -166,6 +166,9 @@ class ParseResult {
 	/** Constructor. */
 	ParseResult();
 
+	/** Copy constructor. */
+	ParseResult(const ParseResult& other);
+
 	/** Destructor. */
 	~ParseResult();
 
