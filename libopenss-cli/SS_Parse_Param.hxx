@@ -27,6 +27,48 @@
 
 namespace OpenSpeedShop { namespace cli {
 
+typedef enum {
+    PARAM_VAL_STRING,
+    PARAM_VAL_INT,
+    PARAM_VAL_DOUBLE
+    
+} oss_param_val_enum;
+
+/**
+ * Parser Param value class.
+ *
+ *  Describes the values assigned to a param.
+ *
+ * @todo    Copy constructors.
+ *          Unit testing.
+ */
+class ParamVal {
+
+    public:
+
+//	/** Constructor. */
+	ParamVal(char * name);
+	ParamVal(int    ival);
+	ParamVal(double dval);
+
+//	/** Destructor. */
+//	~ParseRange();
+
+	char	*getSVal() {return dm_sval;}
+	int 	 getIVal() {return dm_ival;}
+	double	 getDVal() {return dm_dval;}
+	oss_param_val_enum getValType()
+	    	    {return dm_val_type;}
+
+    private:
+    	/** type of value */
+    	oss_param_val_enum dm_val_type;
+
+    	char * dm_sval;
+    	int    dm_ival;
+    	double dm_dval;
+};
+
 /**
  * Parser Param class.
  *
@@ -39,18 +81,40 @@ class ParseParam {
 
     public:
 
-//	/** Constructor. */
-	ParseParam(char * exp_type, char * parm_type, int val);
-	ParseParam(char * exp_type, char * parm_type, char * name);
+//	/** Constructors. */
+	ParseParam();
+	ParseParam(char *s1,char *s2);
 
 //	/** Destructor. */
 //	~ParseRange();
 
-    	char *getParmExpType() {return dm_exptype;}
-    	char *getParmParamType() {return dm_param_type;}
-	bool isValString() {return dm_val_is_string;}
-	char *getStingVal() {return dm_param_val_string;}
-	int getnumVal() {return dm_param_val_num;}
+    	void setExpType(char * name) {
+	    dm_exptype = name;
+	}
+    	void setParamType(char * name) {
+	    dm_param_type = name;
+	}
+    	char *getExpType() {return dm_exptype;}
+    	char *getParamType() {return dm_param_type;}
+
+    	/** Handle list of line numbers. */
+    	vector<ParamVal> * getValList()
+	{
+	    return &dm_param_val_list;
+	}
+
+    	void pushVal(char * sval) {
+	    ParamVal value(sval);
+    	    dm_param_val_list.push_back(value);
+	}
+    	void pushVal(int ival) {
+	    ParamVal value(ival);
+    	    dm_param_val_list.push_back(value);
+	}
+    	void pushVal(double dval) {
+	    ParamVal value(dval);
+    	    dm_param_val_list.push_back(value);
+	}
 
     private:
     	/** range struct to fill */
@@ -58,10 +122,8 @@ class ParseParam {
     	char * dm_exptype;
     	char * dm_param_type;
 
-    	bool dm_val_is_string;
-    	int dm_param_val_num;
-    	char * dm_param_val_string;
-
+    	/** Container of param values */
+    	vector<ParamVal> dm_param_val_list;
 };
 
 } }

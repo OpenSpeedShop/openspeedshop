@@ -299,10 +299,10 @@ arglist_t metric_arg[METRIC_MAX] = {
 char *param_list[] = {
     NULL,
     "pcsamp::parmtype_1=parmval_1",
-    "usertime::parmtype_1=parmval_1,hwc::parmtype_2=parmval_2",
+    "usertime::parmtype_1=parmval_1,parmval_2",
     "parmtype_1=parmval_1",
-    "parmtype_1=parmval_1,parmtype_2=parmval_2",
-    "parmtype_1=parmval_1,parmtype_2=parmval_2,parmtype_3=parmval_3"
+    "bosco::bimbo=1,2,5,4.3,blammo,3.99",
+    "parmtype_1=1,2,5,4.3,blammo,3.99"
 };
 
 #define PARAM_MAX 1

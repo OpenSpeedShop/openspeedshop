@@ -331,7 +331,7 @@ char *cmd_expSave_args[] = {
 };
 
 char *cmd_expSetParam_args[] = {
-    "expSetParam [-x <expId>] <expParam>=<expParamValue> [, <expParam>=<expParamValue>] ... "
+    "expSetParam [-x <expId>] <expParam>=<expParamValue> [,<expParamValue>] ... "
 };
 
 char *cmd_expStatus_args[] = {

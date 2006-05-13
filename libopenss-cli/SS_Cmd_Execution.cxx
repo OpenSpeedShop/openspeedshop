@@ -1840,18 +1840,19 @@ bool SS_expSave (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * Method: setparam()
  * 
  * .
  *     
  * @param   .
  *
- * @return  void
+ * @return  bool
  *
  * @todo    Error handling.
  *
  */
 static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
+#if  0
      // Stop the collector so we can change the parameter value.
   ThreadGroup active;
 
@@ -1936,12 +1937,14 @@ static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
  // Restart the collector with the old parameter value.
   active.startCollecting(C);
 
+#endif
+
  // We didn't find the named parameter in this collector.
   return false;
 }
 
 /**
- * Method: ()
+ * Method: SS_expSetParam()
  * 
  * .
  *     
@@ -1953,6 +1956,9 @@ static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
  *
  */
 bool SS_expSetParam (CommandObject *cmd) {
+
+#if 0
+
   ExperimentObject *exp = Find_Specified_Experiment (cmd);
   if (exp == NULL) {
     return false;
@@ -2012,6 +2018,8 @@ bool SS_expSetParam (CommandObject *cmd) {
       (cmd->Status() == CMD_ABORTED)) {
     return false;
   }
+
+#endif
 
   cmd->set_Status(CMD_COMPLETE);
   return true;

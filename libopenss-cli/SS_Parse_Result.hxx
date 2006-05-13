@@ -368,9 +368,11 @@ class ParseResult {
 
     	/** Handle Params. */
 	bool isParam();
-    	vector<ParseParam> *getParmList();
-    	void pushParm(char *etype, char *ptype, int num);
-    	void pushParm(char *etype, char *ptype, char *name);
+    	ParseParam *getParam();
+    	void setParam(char *etype, char *ptype);
+   	void pushParamVal(char   *sval);
+    	void pushParamVal(int     ival);
+    	void pushParamVal(double  dval);
 
     	/** Handle list of help modifiers. */
     	vector<string> * getHelpModifierList()
@@ -421,8 +423,8 @@ class ParseResult {
     	/** Were there any parsing errors? */
     	bool dm_error_set;
 
-	/** Param values */
-	ParseParam *dm_p_param;
+	/** Param that is being filled */
+	ParseParam dm_param;
 
     	/** Container of break Ids as integers */
     	vector<int> dm_break_id_list;
@@ -444,8 +446,10 @@ class ParseResult {
     	vector<ParseRange> dm_history_list;
     	/** Container of line numbers */
     	vector<ParseRange> dm_lineno_list;
+#if 0
     	/** Container of parameter info as class param_tuple */
     	vector<ParseParam> dm_param_list;
+#endif
     	/** Container of syntax error symbols */
     	vector<ParseRange> dm_error_list;
     	/** Container of view interval tuples */

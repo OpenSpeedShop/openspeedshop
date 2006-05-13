@@ -308,8 +308,8 @@ exp_setparam_com:   SETPARAM_HEAD exp_setparam_arg
   	    	|   SETPARAM_HEAD error END_LINE 
   	    	|   SETPARAM_HEAD exp_setparam_arg error END_LINE 
       	    	;
-exp_setparam_arg:   param_list
-    	    	|   expId_list_spec param_list
+exp_setparam_arg:   param
+    	    	|   expId_list_spec param
     	    	;
 
     	    /** EXP_STATUS **/
@@ -702,19 +702,26 @@ ip_address: 	    NUMBER
     	    	|   IPNUMBER_32
     	    	;
 
+/*
 param_list:  	    param
     	    	|   param_list COMMA param
 		;
+*/
 
-param:	    	    expType DOUBLE_COLON param_name EQUAL NUMBER
-		     {p_parse_result->pushParm($1,$3,$5);}
-    	    	|   expType DOUBLE_COLON param_name EQUAL NAME
-		     {p_parse_result->pushParm($1,$3,$5); }
-    	    	|   param_name EQUAL NUMBER
-		     {p_parse_result->pushParm(NULL,$1,$3);}
-    	    	|   param_name EQUAL NAME
-		     {p_parse_result->pushParm(NULL,$1,$3);}
+param:	    	    expType DOUBLE_COLON param_name EQUAL param_val_list
+    	    	    	{p_parse_result->setParam($1,$3);}
+    	    	|   param_name EQUAL param_val_list
+		     	{p_parse_result->setParam(NULL,$1);}
 		;
+
+param_val_list:     param_val
+    	    	|   param_val_list COMMA param_val
+		;
+
+param_val: 	    NUMBER  {p_parse_result->pushParamVal($1);}
+    	    	|   DOUBLE  {p_parse_result->pushParamVal($1);}
+		|   NAME    {p_parse_result->pushParamVal($1);}
+    	    	;
 
 param_name: 	    NAME	    	    	    	 
 		;

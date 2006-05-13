@@ -31,60 +31,100 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 
+////////////////////////////////////////////////////
+// Definition of ParseParam objects
+////////////////////////////////////////////////////
 /**
  * Method: ParseParam::ParseParam()
  * 
- *     
- * @param   exp_type    	
- * @param   parm_type 	.
- * @param   val	 	.
+ *     This is how it is invoked from the parser.
  *
  * @todo    Error handling.
  *
  */
 ParseParam::
-ParseParam(char * exp_type, char * parm_type, int val) :
+ParseParam() :
     dm_has_exptype(false),
-    dm_exptype(exp_type),
-    dm_param_type(parm_type),
-    dm_val_is_string(false),
-    dm_param_val_num(val),
-    dm_param_val_string(NULL)
-{
+    dm_exptype(NULL),
+    dm_param_type(NULL)
+ {
 
-    /* I decided this is less complicated than 
-       making more constructors */
-    if (exp_type)
-    	dm_has_exptype = true;
-
-    /* I should allocate and copy the strings */
 }
 
 /**
  * Method: ParseParam::ParseParam()
  * 
- *     
+ *     Do we need this constructor?
+ *
  * @param   exp_type    	
  * @param   parm_type 	.
- * @param   val	 	.
  *
  * @todo    Error handling.
  *
  */
 ParseParam::
-ParseParam(char * exp_type, char * parm_type, char * val) :
+ParseParam(char * exp_type, char * parm_type) :
     dm_has_exptype(false),
     dm_exptype(exp_type),
-    dm_param_type(parm_type),
-    dm_val_is_string(true),
-    dm_param_val_num(0),
-    dm_param_val_string(val)
+    dm_param_type(parm_type)
 {
     /* I decided this is less complicated than 
        making more constructors */
     if (exp_type)
     	dm_has_exptype = true;
+}
 
-    /* I should allocate and copy the strings */
+////////////////////////////////////////////////////
+// Definition of ParamVal objects
+////////////////////////////////////////////////////
+/**
+ * Method: ParamVal::ParamVal()
+ * 
+ *     Set a string value
+ *
+ * @param   sval value string    	
+ *
+ * @todo    Error handling.
+ *
+ */
+ParamVal::
+ParamVal(char * sval) :
+    dm_sval(sval),
+    dm_val_type(PARAM_VAL_STRING)
+{
+}
+
+/**
+ * Method: ParamVal::ParamVal()
+ * 
+ *     Set an integer value
+ *
+ * @param   ival int value    	
+ *
+ * @todo    Error handling.
+ *
+ */
+ParamVal::
+ParamVal(int ival) :
+    dm_ival(ival),
+    dm_val_type(PARAM_VAL_INT)
+{
+}
+
+/**
+ * Method: ParamVal::ParamVal()
+ * 
+ *     Set a double value
+ *
+ * @param   dval value string    	
+ *
+ * @todo    Error handling.
+ *
+ */
+ParamVal::
+ParamVal(double dval) :
+    dm_dval(dval),
+    dm_val_type(PARAM_VAL_DOUBLE)
+{
 }
 

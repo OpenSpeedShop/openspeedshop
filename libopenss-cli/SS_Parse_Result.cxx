@@ -124,7 +124,6 @@ ParseResult() :
     dm_help_set(false),
     dm_param_set(false),
     dm_error_set(false),
-    dm_p_param(NULL),
     dm_redirect(),
     dm_append(),
     dm_interval_attribute_set(false),
@@ -155,13 +154,13 @@ ParseResult(const ParseResult& other) :
     dm_help_set(false),
     dm_param_set(false),
     dm_error_set(false),
-    dm_p_param(NULL),
     dm_redirect(),
-    dm_append()
+    dm_append(),
+    dm_interval_attribute_set(false),
+    dm_interval_attribute()
 {
     *this = other;
     this->dm_p_cur_target = new ParseTarget();
-    this->dm_p_param = NULL;
 }
 
 /**
@@ -178,8 +177,6 @@ ParseResult::
 {
     if (this->dm_p_cur_target)
     	delete this->dm_p_cur_target;
-    if (this->dm_p_param)
-    	delete this->dm_p_param;
 }
  
 /**
@@ -266,27 +263,52 @@ s_dumpInterval(ParseResult* p_result, vector<ParseInterval> *p_list, char *label
  *
  */
 static void 
-s_dumpParam(vector<ParseParam> *p_list, char *label)
+s_dumpParam(ParseParam *p_parm, char *label)
 {
-    vector<ParseParam>::iterator iter;
+#if 1
+    cout << "\t\t" << label << ": " << endl;
 
-    if (p_list->begin() != p_list->end())
-    	cout << "\t\t" << label << ": " << endl;
+    cout << "\t\t";
+    if (p_parm->getExpType()) {
+    	cout << p_parm->getExpType() << "::";
+    }
+	
+    cout << p_parm->getParamType() << " = " << endl;
+	
+    vector<ParamVal>::iterator iter;
+
+    vector<ParamVal> * p_list = p_parm->getValList();
+    for (iter=p_list->begin();iter != p_list->end(); iter++) {
+    	cout << "\t\t\t";
+    
+    	switch(iter->getValType()) {
+	    case PARAM_VAL_STRING:
+	    	cout << iter->getSVal() << endl;
+	    	break;
+	    case PARAM_VAL_INT:
+	    	cout << iter->getIVal() << endl;
+	    	break;
+	    case PARAM_VAL_DOUBLE:
+	    	cout << iter->getDVal() << endl;
+	    	break;
+	    default :
+	    	cout << "UNKNOWN VALUE TYPE: " << iter->getValType() << endl;
+	    	break;
+	}
+    }
+
+#else
+    vector<ParseParam>::iterator iter;
 
     for (iter=p_list->begin();iter != p_list->end(); iter++) {
     	    cout << "\t\t\t";
     
-    	if (iter->getParmExpType()) {
-	    cout << iter->getParmExpType() << " :: ";
-	}
-	
-	cout << iter->getParmParamType() << " = ";
-	
     	if (iter->isValString()) 
 	    cout << iter->getStingVal() << endl;
 	else
 	    cout << iter->getnumVal() << endl;
     }
+#endif
 }
 
 /**
@@ -700,7 +722,8 @@ dumpInfo()
     s_dumpInterval(this, this->getParseIntervalList(), "INTERVALS");
 
     // Param list.
-    s_dumpParam(this->getParmList(), "PARAMS");
+    if (this->isParam())
+    	s_dumpParam(this->getParam(), "PARAMS");
 
     // Syntax error.
     s_dumpRange(this->getErrorList(), "ERROR", false /* is_hex */);
@@ -790,43 +813,23 @@ isParam()
 }
  
 /**
- * Method: ParseResult::getParmList()
+ * Method: ParseResult::getParam()
  * 
  *     
- * @return  vector<ParseParam> *
+ * @return  <ParseParam> *
  *
  * @todo    Error handling.
  *
  */
-vector<ParseParam> *
+ParseParam *
 ParseResult::
-getParmList()
+getParam()
 {
-    return &this->dm_param_list;
+    return &this->dm_param;
 }
  
 /**
- * Method: ParseResult::pushParm(char *etype, char * ptype, int num)
- * 
- *     
- * @return  true/false.
- *
- * @todo    Error handling.
- *
- */
-void
-ParseResult::
-pushParm(char *etype, char * ptype, int num)
-{
-    ParseParam param(etype,ptype,num);
-    
-    dm_param_list.push_back(param);
-
-    return ;
-}
- 
-/**
- * Method: ParseResult::pushParm(char *etype, char * ptype, char * name)
+ * Method: ParseResult::setParam(char *etype, char * ptype)
  * 
  *     
  * @return  void.
@@ -836,12 +839,63 @@ pushParm(char *etype, char * ptype, int num)
  */
 void
 ParseResult::
-pushParm(char *etype, char * ptype, char * name)
+setParam(char *etype, char * ptype)
 {
-    ParseParam param(etype,ptype,name);
+    dm_param.setExpType(etype);
+    dm_param.setParamType(ptype);
+    dm_param_set = true;
+    
+    return ;
+}
+ 
+/**
+ * Method: ParseResult::pushParmVal(char * name)
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+pushParamVal(char * sval)
+{
+    dm_param.pushVal(sval);
+    return ;
+}
 
-    dm_param_list.push_back(param);
+/**
+ * Method: ParseResult::pushParmVal(int ival)
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+pushParamVal(int ival)
+{
+    dm_param.pushVal(ival);
+    return ;
+}
 
+/**
+ * Method: ParseResult::pushParmVal(double dval)
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+pushParamVal(double dval)
+{
+    dm_param.pushVal(dval);
     return ;
 }
 
