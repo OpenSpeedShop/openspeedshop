@@ -524,9 +524,9 @@ class CLI(code.InteractiveConsole):
     #
     ################################################################################
     def my_showtraceback(self):
-
-	#arg = PY_Input.ParseError()
-	print "Jack"
+    	code.InteractiveConsole.showtraceback()
+	arg = PY_Input.ParseError()
+	#print "Jack"
 
     ################################################################################
     #
@@ -849,6 +849,8 @@ def StartDPCL(template="*", installed="/usr"):
     ...' before actual execution.
     """
 
+    bosco = 7/0
+    
     # Locate the DPCL dameon
     daemon = installed + "/bin/dpcld"
     if not os.path.isfile(daemon):
