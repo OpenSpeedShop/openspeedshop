@@ -24,7 +24,11 @@
 #include <string>
 #include <unistd.h>
 
+extern char **environ;
+
 #define USE_DL_LOCK
+#define BOSCO 0
+#define BOZO 1
 
 /**
  * Check a runtime assertion.
@@ -112,9 +116,6 @@ namespace {
     {
 	return libltdl_error;
     }
-
-
-
 }
 
 // Static sources for SetOpenssLibPath()
@@ -123,20 +124,23 @@ namespace {
 #define RE_EXEC_FLAG "-OSS_NEW_PATH"
 
 /**
- * Main entry point.
+ * Function s_recall_openss.
  *
- * Main entry point for the application. Sets up library and plugin paths, then
- * loads the CLI library and calls its entry point.
+ * If this is the first call to openss, check if the 
+ * LD_LIBRARY_PATH is redone. If so, reexec openss with
+ * the new environment.
  *
  * @param argc    Number of command-line arguments.
  * @param argv    Array of command-line arguments.
  */
-int main(int argc, char* argv[])
+
+/* no more than 100 args to any program being called */
+#define MAXARGS 100
+
+static int 
+s_recall_openss(int argc, char* argv[], string& new_cmdline)
 {
 
-    string new_cmdline;
-
-#if 0
     // string new_ld_library_path;
     
     // Check to see if we need to redo the search path.
@@ -154,45 +158,82 @@ int main(int argc, char* argv[])
     //
     // If it does match we decrement argc and move on.
     //
-    if (((strcmp(argv[argc -1], RE_EXEC_FLAG)) != 0)) {
 
-    	// Set up LD_LIBRARY_PATH and plugin dl_open paths.
-    	SetOpenssLibPath(new_cmdline);
+    // Set up LD_LIBRARY_PATH and plugin dl_open paths.
+    SetOpenssLibPath(new_cmdline);
+
+#if BOZO
+    if (((strcmp(argv[argc -1], RE_EXEC_FLAG)) != 0)) {
 	
 	char *t_path = getenv("LD_LIBRARY_PATH");
 	if (t_path != NULL) {
-	    cout << "My path: " << t_path << endl;
-	    cout << "My exe: " << new_cmdline << endl;
+    	    char *  args[MAXARGS];
+    	    int     i;
+
+	    //cout << "My path: " << t_path << endl;
+	    //cout << "My exe: " << new_cmdline << endl;
 
     	    // Start with the executable name
-    	    string new_cmdline(argv[0]);
-	    int i;
-	
+	    args[0] = (char *)malloc(new_cmdline.length()+1);
+	    strcpy(args[0],new_cmdline.c_str());
+
 	    // Add the old arguments
     	    for (i=1;i<argc;++i) {
-	    	new_cmdline += " ";
-	    	new_cmdline += argv[i];
+	    	args[i] = argv[i];
 	    }
 	    // Add our sentinel flag
-	    new_cmdline += " ";
-	    new_cmdline += RE_EXEC_FLAG;
+	    args[i++] = RE_EXEC_FLAG;
+	    args[i] = NULL;
 	    
 	    // Execute the commandline again
-	    system(new_cmdline.c_str());
-	    return 0;
+	    execv(new_cmdline.c_str(),args);
+	    //cout << "AFTER execv() " << new_cmdline.c_str() << endl;
 	}
 	else {
-	    cout << "My path is NULL!" << endl;
+	    //cout << "My path is NULL!" << endl;
+	    return argc;
     	}
     }
     else {
     	// Pretend the last argument is not there.
-	--argc;
+	return --argc;
     }
 #endif
+    return argc;
+}
+
+/**
+ * Main entry point.
+ *
+ * Main entry point for the application. Sets up library and plugin paths, then
+ * loads the CLI library and calls its entry point.
+ *
+ * @param argc    Number of command-line arguments.
+ * @param argv    Array of command-line arguments.
+ */
+int main(int argc, char* argv[])
+{
+
+    string new_cmdline;
+
     
     // Set up LD_LIBRARY_PATH and plugin dl_open paths.
-    SetOpenssLibPath(new_cmdline);
+#if BOSCO
+    cout << "before s_recall_openss()" << endl;
+    cout << "argc:" << argc << endl;
+    for (int i=0;i<argc;++i) {
+    	cout << "argv[" << i << "]:" << argv[i] << endl;
+    }
+#endif
+    argc = s_recall_openss(argc, argv, new_cmdline);
+
+#if BOSCO
+    cout << "after s_recall_openss()" << endl;
+    cout << "argc:" << argc << endl;
+    for (int i=0;i<argc;++i) {
+    	cout << "argv[" << i << "]:" << argv[i] << endl;
+    }
+#endif
 
     // Attempt to open the CLI library
     lt_dlhandle handle = lt_dlopenext("libopenss-cli");

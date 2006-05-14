@@ -65,31 +65,40 @@ static bool
 s_make_path_from_pid(string& exe_path,string& lib_path)
 {
     char name[MY_BUFSIZE];
+    char name2[MY_BUFSIZE];
     
     pid_t cur_pid = getpid(); // This had better be openss.
     
     // Cobble together "/proc/<pid>/exe"
     string symlink ("/proc/");
-    sprintf(&name[0],"%d",cur_pid);
-    symlink += name;
+    sprintf(&name2[0],"%d",cur_pid);
+    symlink += name2;
     symlink += "/exe";
 
     // Get the real name and full path of the executable.
+    memset(name,'\0',MY_BUFSIZE);
     readlink(symlink.c_str(),name,MY_BUFSIZE);
-    exe_path = name;
+    // Do I need the strdup() or will string make a copy?
+    exe_path = strdup(name);
     
-    string::size_type endIdx;
-    lib_path = name;
-    string path = name;
+    string::size_type end_ndx;
+
+    // Do I need the strdup() or will string make a copy?
+    lib_path = strdup(name);
+    string path = strdup(name);
 
     if (!path.empty()						// string not empty 
     	&& (*path.rbegin() != '/')				// and does not end with a slash
-    	&& ((endIdx = path.find_last_of("/")) != string::npos)) // but has at least one slash
+    	&& ((end_ndx = path.find_last_of("/")) != string::npos)) // but has at least one slash
 	{
-    	endIdx -=  4;
-    	if (!path.compare(endIdx, 4, "/bin")) {
-    	    lib_path.replace(endIdx, 4, "/lib");
-    	    lib_path.erase(endIdx + 4);
+    	end_ndx -=  4;
+    	if (!path.compare(end_ndx, 4, "/bin")) {
+    	    lib_path.replace(end_ndx, 4, "/lib");
+    	    lib_path.erase(end_ndx + 4);
+	    
+	    //cout << "X-exe_path:" << exe_path << endl;
+	    //cout << "X-lib_path:" << lib_path << endl;
+	    
     	    return true;
     	}
     }
