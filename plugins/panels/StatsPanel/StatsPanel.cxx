@@ -574,6 +574,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 {
 
 // printf("StatsPanel::menu() entered.\n");
+// printf("  focusedExpID=%d\n", focusedExpID );
 
   Panel::menu(contextMenu);
 
@@ -730,7 +731,13 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   {
     qaction = new QAction( this,  "gotoSource");
     qaction->addTo( contextMenu );
-    qaction->setText( "Go to source location..." );
+    if( focusedExpID != -1 )
+    {
+      qaction->setText( QString("Go to source location (for Exp %1) ...").arg(focusedExpID) );
+    } else
+    {
+      qaction->setText( "Go to source location..." );
+    }
     connect( qaction, SIGNAL( activated() ), this, SLOT( gotoSource() ) );
     qaction->setStatusTip( tr("Position at source location of this item.") );
 
@@ -768,12 +775,15 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 
 
   contextMenu->insertSeparator();
-
-  qaction = new QAction( this,  "re-orientate");
-  qaction->addTo( contextMenu );
-  qaction->setText( "Re-orientate" );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( setOrientation() ) );
-  qaction->setStatusTip( tr("Display chart/statistics horizontal/vertical.") );
+ 
+  if( chartFLAG == TRUE && statsFLAG == TRUE )
+  {
+    qaction = new QAction( this,  "re-orientate");
+    qaction->addTo( contextMenu );
+    qaction->setText( "Re-orientate" );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( setOrientation() ) );
+    qaction->setStatusTip( tr("Display chart/statistics horizontal/vertical.") );
+  }
 
   if( chartFLAG == TRUE )
   {
@@ -4194,7 +4204,13 @@ StatsPanel::generateMPIMenu(QString collectorName)
     addMPIReports(mpi_menu);
     connect(mpi_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorMPIReportSelected(int)) );
-    contextMenu->insertItem(QString("Show Metrics: MPI"), mpi_menu);
+    if( focusedExpID != -1 )
+    {
+      contextMenu->insertItem(QString("Show Metrics (Exp: %1) : MPI").arg(focusedExpID), mpi_menu);
+    } else
+    {
+      contextMenu->insertItem(QString("Show Metrics: MPI"), mpi_menu);
+    }
     list_of_mpi_modifiers.push_back("mpi::exclusive_times");
     list_of_mpi_modifiers.push_back("mpi::inclusive_times");
 //  list_of_mpi_modifiers.push_back("mpi::exclusive_details");
@@ -4240,7 +4256,13 @@ StatsPanel::generateMPIMenu(QString collectorName)
     addMPIReports(mpi_menu);
     connect(mpi_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorMPITReportSelected(int)) );
-    contextMenu->insertItem(QString("Show Metrics: MPIT"), mpi_menu);
+    if( focusedExpID != -1 )
+    {
+      contextMenu->insertItem(QString("Show Metrics (Exp: %1) : MPIT").arg(focusedExpID), mpi_menu);
+    } else
+    {
+      contextMenu->insertItem(QString("Show Metrics: MPIT"), mpi_menu);
+    }
     list_of_mpit_modifiers.push_back("mpit::exclusive_times");
     list_of_mpit_modifiers.push_back("mpit::inclusive_times");
 //  list_of_mpit_modifiers.push_back("mpit::exclusive_details");
@@ -4302,7 +4324,13 @@ StatsPanel::generateIOMenu(QString collectorName)
     addIOReports(io_menu);
     connect(io_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorIOReportSelected(int)) );
-    contextMenu->insertItem(QString("Show Metrics: IO"), io_menu);
+    if( focusedExpID != -1 )
+    {
+      contextMenu->insertItem(QString("Show Metrics: (Exp: %1) IO").arg(focusedExpID), io_menu);
+    } else
+    {
+      contextMenu->insertItem(QString("Show Metrics: IO"), io_menu);
+    }
     // Build the static list of io modifiers.
     list_of_io_modifiers.clear();
     list_of_io_modifiers.push_back("io::exclusive_times");
@@ -4350,7 +4378,13 @@ StatsPanel::generateIOMenu(QString collectorName)
     addIOReports(io_menu);
     connect(io_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorIOTReportSelected(int)) );
-    contextMenu->insertItem(QString("Show Metrics: IOT"), io_menu);
+    if( focusedExpID != -1 )
+    {
+      contextMenu->insertItem(QString("Show Metrics: (Exp: %1) IOT").arg(focusedExpID), io_menu);
+    } else
+    {
+      contextMenu->insertItem(QString("Show Metrics: IOT"), io_menu);
+    }
     // Build the static list of iot modifiers.
     list_of_iot_modifiers.clear();
     list_of_iot_modifiers.push_back("iot::exclusive_times");
@@ -4413,7 +4447,13 @@ StatsPanel::generateHWCMenu(QString collectorName)
 
   hwc_menu = new QPopupMenu(this);
 
-  contextMenu->insertItem(QString("Show Metrics: hwc"), hwc_menu);
+  if( focusedExpID != -1 )
+  {
+    contextMenu->insertItem(QString("Show Metrics: (Exp: %1) hwc").arg(focusedExpID), hwc_menu);
+  } else
+  {
+    contextMenu->insertItem(QString("Show Metrics: hwc"), hwc_menu);
+  }
 
   addHWCReports(hwc_menu);
   connect(hwc_menu, SIGNAL( activated(int) ),
@@ -4446,7 +4486,14 @@ StatsPanel::generateHWCTimeMenu(QString collectorName)
 
 
   hwctime_menu = new QPopupMenu(this);
-  contextMenu->insertItem(QString("Show Metrics: hwctime"), hwctime_menu);
+
+  if( focusedExpID != -1 )
+  {
+    contextMenu->insertItem(QString("Show Metrics: (Exp: %1) hwctime").arg(focusedExpID), hwctime_menu);
+  } else
+  {
+    contextMenu->insertItem(QString("Show Metrics: hwctime"), hwctime_menu);
+  }
 
   addHWCTimeReports(hwctime_menu);
   connect(hwctime_menu, SIGNAL( activated(int) ),
@@ -4483,9 +4530,14 @@ StatsPanel::generateUserTimeMenu()
 
   QAction *qaction = NULL;
 
-//  usertime_menu->insertItem(QString("Show Metric: %1").arg(currentCollectorStr));
 
-  contextMenu->insertItem(QString("Show Metrics: UserTime"), usertime_menu);
+  if( focusedExpID != -1 )
+  {
+    contextMenu->insertItem(QString("Show Metrics: (Exp: %1) UserTime").arg(focusedExpID), usertime_menu);
+  } else
+  {
+    contextMenu->insertItem(QString("Show Metrics: UserTime"), usertime_menu);
+  }
 
   list_of_usertime_modifiers.clear();
   list_of_usertime_modifiers.push_back("usertime::exclusive_times");
@@ -4524,7 +4576,13 @@ StatsPanel::generatePCSampMenu()
   connect(pcsamp_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorPCSampReportSelected(int)) );
   
-  contextMenu->insertItem(QString("Show Metrics: pcsamp"), pcsamp_menu);
+  if( focusedExpID != -1 )
+  {
+    contextMenu->insertItem(QString("Show Metrics: (Exp: %1) pcsamp").arg(focusedExpID), pcsamp_menu);
+  } else
+  {
+    contextMenu->insertItem(QString("Show Metrics: pcsamp"), pcsamp_menu);
+  }
 
   list_of_pcsamp_modifiers.clear();
   list_of_pcsamp_modifiers.push_back("pcsamp::time");
@@ -4556,7 +4614,6 @@ StatsPanel::generateGenericMenu()
 
   QAction *qaction = NULL;
 
-//  generic_menu->insertItem(QString("Show Metric: %1").arg(currentCollectorStr));
   generic_menu->insertItem(QString("View Stats:"));
 
   contextMenu->insertItem(QString("Select %1 Metrics:").arg(currentCollectorStr), generic_menu);
