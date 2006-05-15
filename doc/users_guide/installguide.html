@@ -1,0 +1,1142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<!--
+      Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+      Permission is granted to copy, distribute and/or modify this document
+      under the terms of the GNU Free Documentation License, Version 1.2
+      or any later version published by the Free Software Foundation;
+      with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+         Texts.  A copy of the license is included in the section entitled "GNU
+      Free Documentation License".
+-->
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Open/SpeedShop User's Guide</title>
+  <style type="text/css">
+   H1 {border-width: 1; border: solid; text-align: center}
+  <style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+  </style>
+  <meta content="Jim Galarowicz" name="author">
+</head>
+<body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"
+ alink="#000099" lang="EN-US" link="blue" vlink="purple">
+<div style="text-align: left;"><br>
+<span style="text-decoration: underline;"></span>
+<span style="text-decoration: underline;"></span></div>
+<div class="moz-text-html" lang="x-western">
+<div style="text-align: center;">
+<div class="Section1"><br>
+<p class="MsoNormal" style="text-align: center; color: rgb(0, 0, 102);"
+ align="center"><b style=""><span
+ style="font-size: 22pt; font-family: SGIAlt;"><img
+ alt="Open|SpeedShop logo" src="OpenSpeedShop_Logo.jpg"
+ style="width: 303px; height: 38px;"><br>
+Build and Installation Guide<br>
+</span></b><big><span style="font-weight: bold;">Milestone 7 Release</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">March 20, 2006</span></big><br>
+</p>
+<div class="Section2"><b style=""><br style="" clear="all">
+</b>
+<p style="text-align: left;" class="MsoNormal"><b style=""><b style=""><span
+ style="font-size: 16pt; font-family: Arial; color: teal;"><a
+ name="Contents"></a><span style="color: rgb(0, 0, 128);"> Table of
+Contents<br>
+</span></span></b></b></p>
+<ul style="text-align: left;" id="mozToc">
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId71414">Introduction
+to Open|SpeedShop
+    </a>
+    <ul>
+      <li><a href="#mozTocId406387">Brief
+Open|SpeedShop Overview
+        </a></li>
+      <li><a href="#mozTocId958848">Common Terminology
+        </a></li>
+    </ul>
+  </li>
+  <li><a href="#mozTocId334016">Open|SpeedShop
+Build and Installation</a>
+    <ul>
+      <li><a href="#mozTocId733358">Building
+Open|SpeedShop
+and
+Open|SpeedShop
+Development RPM Usage Information</a>
+        <ul>
+          <li><a href="#mozTocId435044">Open|SpeedShop Tested
+Platforms:</a></li>
+          <li><a href="#mozTocId293268">Open|SpeedShop
+Build
+component RPM versions:
+            </a></li>
+          <li><a href="#mozTocId883409">Overview
+- Setting up
+new machine for development on Open|SpeedShop
+            </a>
+            <ul>
+              <li><a href="#mozTocId985149">Step
+1 - Check for
+the correct version of the development components</a></li>
+              <li><a href="#mozTocId722671">Step
+2 - Checkout
+OpenSpeedShop_ROOT/current</a></li>
+              <li><a href="#mozTocId104541">Step
+3 - Install
+missing RPMS</a></li>
+              <li><a href="#mozTocId664892">Step
+4 - Build
+Open|SpeedShop
+                </a></li>
+            </ul>
+          </li>
+          <li><a href="#mozTocId132468">Key
+Environment Variables</a>
+            <ul>
+              <li><a href="#mozTocId520988">Open|SpeedShop
+Developer/Build
+Related Environment Variables</a>
+                <ul>
+                  <li><a href="#mozTocId227574">Generally used
+environment variables
+                    </a></li>
+                  <li><a href="#mozTocId365139">Special purpose
+environment variables</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId347664">Open|SpeedShop User
+Related Environment Variables</a></li>
+            </ul>
+          </li>
+          <li><a href="#mozTocId110359">Building
+Open|SpeedShop
+from Source</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId940195">Installing
+Open|SpeedShop
+from Executable RPM package(s)&nbsp; and required RPMS</a>
+        <ul>
+          <li><a href="#mozTocId973912">Open|SpeedShop
+RPM
+and Installation </a></li>
+          <li><a href="#mozTocId429415">RPMs Required for
+Open|SpeedShop
+Execution</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#mozTocId70473">Open|SpeedShop
+Test
+Information</a>
+    <ul>
+      <li><a href="#mozTocId968100">Location and
+Organization of Tests</a></li>
+      <li><a href="#mozTocId768338">How to Run the
+Open|SpeedShop Tests</a></li>
+    </ul>
+  </li>
+  <li><a href="#mozTocId84094">Open|SpeedShop
+Tools Information</a>
+    <ul>
+      <li><a href="#mozTocId800987">Open|SpeedShop
+Invocation Command&nbsp; "openss"</a>
+        <ul>
+          <li><a href="#mozTocId171398">openss -gui</a></li>
+          <li><a href="#mozTocId654701">openss -cli:</a></li>
+          <li><a href="#mozTocId3287">openss -batch:</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId805334">Open|SpeedShop Quick Start
+Information</a>
+        <ul>
+          <li><a href="#mozTocId931138">Example 1:&nbsp;
+Using GUI </a></li>
+          <li><a href="#mozTocId717950">Example 2:&nbsp;
+Using Interactive CLI </a></li>
+          <li><a href="#mozTocId985939">Example 3:&nbsp;
+Using Batch </a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<p style="text-align: left;" class="MsoNormal"><br>
+<b style=""><b style=""><span
+ style="font-size: 16pt; font-family: Arial; color: teal;"><span
+ style="color: rgb(0, 0, 128);"></span></span></b></b></p>
+<p style="text-align: left;" class="MsoToc1"><!--if supportFields><span
+style='text-transform:none;font-weight:normal'><span style='mso-element:field-begin'></span><span
+style='mso-spacerun:yes'>&nbsp;</span>TOC \o &quot;1-4&quot; <span
+style='mso-element:field-separator'></span></span><![endif]--></p>
+</div>
+<div style="text-align: left;"><span
+ style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;"></span>
+</div>
+<div class="Section3">
+<h1 style="margin-left: 40px; text-align: left;"><a class="mozTocH1"
+ name="mozTocId71414"></a><b style=""><a
+ name="Introduction_to_OpenSpeedShop_"></a><!--[if !supportLists]--><span
+ style="color: rgb(0, 0, 128);">Introduction
+to Open|SpeedShop</span><br>
+</b></h1>
+<p style="text-align: left;" class="MsoBodyText"><span
+ style="font-family: times new roman,times,serif;"></span></p>
+<h2 style="margin-left: 40px; text-align: left;"><a class="mozTocH2"
+ name="mozTocId406387"></a><b style=""><a name="Brief_Overview"></a>Brief
+Open|SpeedShop Overview<br>
+</b></h2>
+<div style="margin-left: 40px; text-align: left;"><span
+ style="font-family: times new roman,times,serif;">Open|SpeedShop
+provides open source performance measurement and performance analysis
+capabilities for a wide
+range of platforms.&nbsp;&nbsp; </span>Open|SpeedShop
+is based
+on the concepts of SGI's IRIX SpeedShop performance analysis
+tool.&nbsp; Open|SpeedShop is being co-funded by the Department of
+Energy (DOE) and
+will have the infrastructure and base components released as open
+source under the GPL and LGPL licenses. <br>
+</div>
+<div style="text-align: left;">
+<blockquote> Open|SpeedShop was designed to be modular and
+extensible.&nbsp;
+It
+supports the concept of plugins which allow users, if they so desire,
+to create their own performance experiments.&nbsp;&nbsp; The project is
+designed
+in such a way as to enable
+value-added plugins to be added to the open source version.&nbsp; <br>
+  <br>
+Another key feature of the performance tool is its usability.&nbsp; The
+user
+interface is designed so that a degree in computer science
+is not required to use it.&nbsp; To
+make
+the tool usable for a greater range of users, the performance tool will
+provide novice user Wizards, easily understood language in the user
+interface components, and interactive help. <br>
+  <br>
+SGI will release, primarily under the GPL and LGPL Open Source
+licenses, the Open|SpeedShop baseline functionality.&nbsp;
+Support for single system image (SSI) machines, support for clusters
+(i.e., multiple OS kernels), exclusive and inclusive user time, program
+counter (PC) sampling, MPI call tracing, Input/Output tracing, Floating
+point exception tracing and CPU hardware performance counter
+experiments are the key components of the baseline functionality.&nbsp;
+The
+performance tool will be designed in such a manner that will allow
+users to easily extend the tool by adding their own experiments. <br>
+  <br>
+The performance tool will use dynamic probe class library (DPCL) as a
+building block component for cluster system support.&nbsp;&nbsp; The
+use of
+DPCL
+will provide a portable means for the performance tool to supply
+cluster support for platforms supported by the Dyninst dynamic
+instruction package.&nbsp; DPCL uses the Dyninst
+application programming interface (API) to provide its instrumentation
+capability. <br>
+  <br>
+Availability of the new performance tool based on SpeedShop technology
+on Linux platforms will enable Fortran (77, 90, and 95), C, and C++
+programmers to use an advanced performance analysis tool within the
+Open Source environment.<br>
+  <br>
+Open|SpeedShop is oriented towards gathering and displaying performance
+data gathered from an application and relating that performance data
+back to the application's source file, function, and/or line number(s).<br>
+  <b style=""> </b></blockquote>
+</div>
+<h2 style="margin-left: 40px; text-align: left;"><a class="mozTocH2"
+ name="mozTocId958848"></a><b style=""><span
+ style="font-family: times new roman,times,serif;"><a
+ name="Common_Terminology"></a>Common Terminology</span></b><br>
+</h2>
+<div style="text-align: left;">
+<blockquote>Technical terms can have multiple and/or context
+sensitive
+meanings,
+therefore this section attempts to explain and clarify the meanings of
+the terms used in this document.&nbsp; <br>
+</blockquote>
+<div style="text-align: left; margin-left: 40px;"><big>
+</big>
+<ul>
+  <big> </big> <li><i style="font-weight: bold;">Experiment</i><span
+ style="font-weight: bold;">:</span>&nbsp;
+A set of collectors and executables
+bound together to generate performance metrics. </li>
+  <li><i style="font-weight: bold;">Focused Experiment</i><span
+ style="font-weight: bold;">:</span>&nbsp;
+The current experiment commands operate on. The user may run or view
+multiple experiments simultaneously and unless
+a particular experiment is specified directly, the focused
+experiment will used. Experiments are given an enumeration
+(expId) for identification. </li>
+  <li><i style="font-weight: bold;">Component(s)</i><span
+ style="font-weight: bold;">:</span>&nbsp;
+A somewhat self-contained section of the <b>Open|SpeedShop</b>
+performance
+tool.&nbsp;&nbsp; This section of code does a set of specific related
+tasks for the tool.&nbsp;&nbsp; For example, the GUI component does all
+the tasks related to displaying <b>Open|SpeedShop</b> wizards,
+experiment
+creation, and results using a graphical user interface.&nbsp;&nbsp; The
+CLI component does similar functions but uses the interactive command
+line delivery method.</li>
+  <li><i style="font-weight: bold;">Collector</i><span
+ style="font-weight: bold;">:</span>&nbsp;
+The portion of the tool containing logic that is
+responsible for the gathering of the performance
+metric.&nbsp;&nbsp;&nbsp; A collector is a portion of the code that is
+included in the experiment plugin.</li>
+  <li><i style="font-weight: bold;">Metric</i><span
+ style="font-weight: bold;">:</span>&nbsp;
+The entity, which the collector/experiment is gathering.&nbsp;
+A time, occurrence counter, or other entity, which reflects in some way
+on the applications performance and is gathered by a performance
+experiment (by the collector). </li>
+  <li><i style="font-weight: bold;">Param</i><span
+ style="font-weight: bold;">:</span>&nbsp;
+Each collector allows the user to set certain values that control the
+way a collector behaves. The parameter or <b>param</b> may cause the
+collector to
+perform various operations at certain time intervals or it may cause a
+collector to measure certain types of data. Although <b>Open|SpeedShop</b>
+provides a
+standard way to set a parameter, it is up to the individual collector
+to
+decide what to do with that information.
+Detailed documentation about the available parameters is part of the
+collector's documentation. </li>
+  <li><i style="font-weight: bold;">Framework</i><span
+ style="font-weight: bold;">:</span>&nbsp;
+The set of API functions that
+allows the user
+interface to manage the creation and viewing of performance
+experiments.&nbsp; It is the interface between the&nbsp; user interface
+and the cluster support and dynamic instrumentation components.</li>
+  <li> <i style="font-weight: bold;">Plugin:</i>&nbsp;
+A portion of the performance tool that can be loaded and included in
+the
+tool at tool start-up time.&nbsp; Development of the plugin uses a tool
+specific interface (API) so that the plugin, and the tool it is to be
+included in, know how to interact with each other.&nbsp;&nbsp; Plugins
+are normally placed in a specific directory so that the tool knows
+where to find the plugins.</li>
+  <li><i style="font-weight: bold;">Target</i><span
+ style="font-weight: bold;">:</span>&nbsp;
+This is the application or part of the application one is running the
+experiment on. In order to fine tune what is
+being targeted, <b>Open|SpeedShop</b> gives target options that
+describes file names, host names, thread identifiers, rank identifiers
+and process identifiers.</li>
+</ul>
+</div>
+</div>
+<br>
+</div>
+<div style="text-align: left;"><span
+ style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;">
+</span></div>
+<div style="text-align: left;" class="Section4">
+<div style="text-align: left;"></div>
+<h1 style="margin-left: 40px; text-align: left;"><a class="mozTocH1"
+ name="mozTocId334016"></a><b style=""><a
+ name="OpenSpeedShop_Installation_Information"></a><!--[if !supportLists]--><span
+ style="color: rgb(0, 0, 128);">Open|SpeedShop
+Build and Installation<br>
+</span></b></h1>
+<blockquote>The following sections describe how to build
+and install <b>Open|SpeedShop</b>.&nbsp;&nbsp; The RPM packages that
+are
+needed to build <b>Open|SpeedShop</b> and the RPM packages that are
+needed to
+run <b>Open|SpeedShop</b> are defined below.<b style=""><br>
+  </b></blockquote>
+<h2 style="margin-left: 40px;"><a class="mozTocH2" name="mozTocId733358"></a><b
+ style=""><a name="Building_OpenSpeedShop.html"></a>Building
+Open|SpeedShop</b>
+and
+Open|SpeedShop
+Development RPM Usage Information</h2>
+<h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId435044"></a><a
+ name="OpenSpeedShop_Tested_Platforms:"></a>Open|SpeedShop Tested
+Platforms:</h3>
+<div style="margin-left: 40px;"><b>Open|SpeedShop</b> has been run
+successfully on IA32, IA64, and X86_64 platforms using the RPM
+components listed in the next section.&nbsp; There are Linux operating
+system differences that can cause problems.&nbsp;&nbsp; The following
+combinations have been tried and/or successfully tested:<br>
+<ul>
+  <li>SuSE Professional 9.1 on IA32</li>
+  <li>SLES 9 SP2 and SP3 on IA32, X86_64, and IA64</li>
+  <li>Fedora Core 3 on IA32, problems on X86_64 using dyninst-20050812
+version<br>
+  </li>
+  <li>RedHat 9.0 on IA32</li>
+  <li>SuSE Professional 9.3, problems on IA32</li>
+  <li>SuSE 10.0 on IA32</li>
+  <li>SLES 10.0 on IA64<br>
+  </li>
+</ul>
+</div>
+<br>
+<h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId293268"></a>Open|SpeedShop
+Build
+component RPM versions:<br>
+</h3>
+<div style="margin-left: 40px;">This file documents the list of
+software packages used by the
+<b>Open|SpeedShop</b> developers when building <b>Open|SpeedShop</b>
+or developing
+plugin modules
+for it.&nbsp; For each package, a minimum and maximum version is given.
+These are the
+KNOWN minimum and maximum versions that have been found to work with
+<b>Open|SpeedShop</b>.<br>
+<br>
+You may find newer (or older) versions of these packages work just
+fine.&nbsp;&nbsp; Let us know if they do and we can update this
+document when you do!&nbsp;&nbsp;
+Packages <span style="font-weight: bold;">not </span>commonly found
+in recent (e.g. SuSE Professional 9.1, SLES 9, Fedora Core 3) Linux
+distributions are provided here in this (OpenSpeedShop_ROOT/current)
+directory as
+source tarballs and binary RPMs
+for key platforms.&nbsp;&nbsp; The source and binary RPM components
+currently supplied in OpenSpeedShop_ROOT because they are not readily
+available
+in RPM form are:<br>
+</div>
+<ul style="margin-left: 40px;">
+  <li>dpcl-20051215-11 based on dpcl 3.4.2<br>
+  </li>
+  <li>libunwind-0.98.5-2</li>
+  <li>libdwarf-20051201-1</li>
+  <li>sqlite-3.2.7-3</li>
+  <li>tmake-1.11</li>
+  <li>dyninst-4.2.1-17</li>
+  <li>xxdiff-3.1-1</li>
+</ul>
+<div style="margin-left: 40px;"><br>
+In addition, the components listed below are also needed for building
+<b>Open|SpeedShop</b>.<br>
+</div>
+<br>
+<table
+ style="width: 684px; height: 513px; text-align: left; margin-right: auto; margin-left: 40px;"
+ border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td>Component Name </td>
+      <td>Minimum </td>
+      <td>Maximum </td>
+      <td>Notes</td>
+    </tr>
+    <tr>
+      <td>autoconf </td>
+      <td>2.59 </td>
+      <td>2.59 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>automake </td>
+      <td>1.7.9 </td>
+      <td>1.9.5 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>binutils </td>
+      <td>2.15 </td>
+      <td>2.15 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>doxygen </td>
+      <td>1.3.6 </td>
+      <td>1.4.2 </td>
+      <td>(2)</td>
+    </tr>
+    <tr>
+      <td>dpcl </td>
+      <td>see-note-1 </td>
+      <td>see-note-1 </td>
+      <td>(1)</td>
+    </tr>
+    <tr>
+      <td>dyninst </td>
+      <td>see-note-1 </td>
+      <td>see-note-2 </td>
+      <td>(1)</td>
+    </tr>
+    <tr>
+      <td>gcc/g++ </td>
+      <td>3.3.3 </td>
+      <td>3.4.3 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>libdwarf </td>
+      <td>2004/02/03 </td>
+      <td>2005/12/15 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>libelf </td>
+      <td>0.8.5 </td>
+      <td>0.8.5 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>libtool </td>
+      <td>1.5.14 </td>
+      <td>1.5.2 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>libunwind </td>
+      <td>0.98.5 </td>
+      <td>0.98.5 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">papi<br>
+      </td>
+      <td style="vertical-align: top;">3.0.8.1<br>
+      </td>
+      <td style="vertical-align: top;">3.0.8.1<br>
+      </td>
+      <td style="vertical-align: top;">none<br>
+      </td>
+    </tr>
+    <tr>
+      <td>python </td>
+      <td>2.3.3 </td>
+      <td>2.3.4 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">python-devel<br>
+      </td>
+      <td style="vertical-align: top;">2.3.3<br>
+      </td>
+      <td style="vertical-align: top;">2.3.4<br>
+      </td>
+      <td style="vertical-align: top;">none<br>
+      </td>
+    </tr>
+    <tr>
+      <td>sqlite </td>
+      <td>3.0.8 </td>
+      <td>3.2.7 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>qt </td>
+      <td>3.3.1 </td>
+      <td>3.3.4 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">qt-devel<br>
+      </td>
+      <td style="vertical-align: top;">3.3.1<br>
+      </td>
+      <td style="vertical-align: top;">3.3.4<br>
+      </td>
+      <td style="vertical-align: top;">(3)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">tmake<br>
+      </td>
+      <td style="vertical-align: top;">1.11<br>
+      </td>
+      <td style="vertical-align: top;">1.11<br>
+      </td>
+      <td style="vertical-align: top;">none<br>
+      </td>
+    </tr>
+    <tr>
+      <td>xxdiff </td>
+      <td>3.0.2 </td>
+      <td>3.1 </td>
+      <td>(2)</td>
+    </tr>
+  </tbody>
+</table>
+<div style="margin-left: 40px;"><br>
+NOTES:<br>
+</div>
+<ol style="margin-left: 40px;">
+  <li>Always use the Dyninst and DPCL versions supplied with <b>Open|SpeedShop</b>.&nbsp;
+Others will almost certainly not work with <b>Open|SpeedShop</b>.&nbsp;
+For
+advanced users click <a href="BuildingInstallingDPCL.html">here </a>for
+instructions on building and installing DPCL.<br>
+  </li>
+  <li>Utilities commonly used by the <b>Open|SpeedShop</b> developers
+but not
+strictly need to build <b>Open|SpeedShop</b>.</li>
+  <li>On SLES 9 Linux distributions the necessary qt development
+components require qt3-devel-doc and qt3-devel-tools in addition to
+qt3-devel.<br>
+  </li>
+</ol>
+<h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId883409"></a>Overview
+- Setting up
+new machine for development on <b>Open|SpeedShop</b><br>
+</h3>
+<div style="margin-left: 40px;">So, how do you prepare a machine for
+building O|SS?&nbsp;&nbsp; <br>
+</div>
+<h4 style="margin-left: 80px;"><a class="mozTocH4" name="mozTocId985149"></a>Step
+1 - Check for
+the correct version of the development components</h4>
+<div style="margin-left: 40px;">The query option of rpm can be used to
+verify whether the correct
+version of the component is installed.&nbsp;&nbsp; The rpm command "rpm
+--query
+--all | grep component_rpm_name" can be used for this
+purpose.&nbsp;&nbsp;&nbsp; A rpm
+query script, <a href="./rpmQuery">rpmQuery</a>,
+that searches for the
+necessary components has been created.&nbsp;&nbsp;&nbsp; This script
+can be found in the top level directory in the OpenSpeedShop_ROOT cvs
+repository.&nbsp; Once you know
+what components are available on the prospective development machine,
+you can determine what components you may have to install.<br>
+</div>
+<br>
+<h4 style="margin-left: 80px;"><a class="mozTocH4" name="mozTocId722671"></a>Step
+2 - Checkout
+OpenSpeedShop_ROOT/current</h4>
+<div style="margin-left: 40px;">Use the OpenSpeedShop_ROOT repository
+and checkout the current
+directory.&nbsp;&nbsp; The RPMs not readily available on all systems
+can be found in that directory and it's sub-directories.<br>
+</div>
+<br>
+<h4 style="margin-left: 80px;"><a class="mozTocH4" name="mozTocId104541"></a>Step
+3 - Install
+missing RPMS</h4>
+<div style="margin-left: 40px;">For IA32, go into
+OpenSpeedShop_ROOT/current/RPMS/i586 and install all
+the
+RPMs that you find there. Assuming, of course, you are on a Linux/IA32
+system...&nbsp;
+There are also IA64 RPMS checked in.&nbsp;&nbsp;&nbsp; These RPMs are
+found in OpenSpeedShop_ROOT/current/RPMS/ia64.<br>
+<br>
+The installation of
+the RPMs is a per system task.&nbsp; Once the RPMs are installed, all
+users of the system will be using the
+components that were installed via the rpm command.&nbsp;&nbsp;
+Currently all the RPMs in
+the ROOT/current/RPMS/{$ARCH} directory are installed in default
+locations, like
+/usr/lib.&nbsp;&nbsp; For example, the dyninst and dpcl libraries are
+installed in /usr/lib:<br>
+<br>
+lnx-jeg.americas.sgi.com-&gt;ls -lastr /usr/lib/libdyn* /usr/lib/libdpc*<br>
+2128 &nbsp; -rwxr-xr-x&nbsp; 1 root root 2166984 Jun 29 13:12
+/usr/lib/libdpcl.so*<br>
+&nbsp; 72 &nbsp; &nbsp; -rwxr-xr-x&nbsp; 1 root root&nbsp;&nbsp; 63988
+Jun 29 13:12
+/usr/lib/libdpclRT.so*<br>
+&nbsp;&nbsp; 4&nbsp;&nbsp; lrwxrwxrwx&nbsp; 1 root
+root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 21 Jun 29 15:10
+/usr/lib/libdpcl.so.1.0 -&gt; /usr/lib/libdpcl.so.1*<br>
+&nbsp;&nbsp; 4 &nbsp; lrwxrwxrwx&nbsp; 1 root
+root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 19 Jun 29 15:10
+/usr/lib/libdpcl.so.1 -&gt; /usr/lib/libdpcl.so*<br>
+&nbsp;&nbsp; 4&nbsp; lrwxrwxrwx&nbsp; 1 root
+root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 23 Jun 29 15:10
+/usr/lib/libdpclRT.so.1.0 -&gt; /usr/lib/libdpclRT.so.1*<br>
+&nbsp;&nbsp; 4&nbsp; lrwxrwxrwx&nbsp; 1 root
+root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 21 Jun 29 15:10
+/usr/lib/libdpclRT.so.1 -&gt; /usr/lib/libdpclRT.so*<br>
+6312 -rwxr-xr-x&nbsp; 1 root root 6443551 Jul 20 17:28
+/usr/lib/libdyninstAPI.so*<br>
+&nbsp; 36 &nbsp; -rwxr-xr-x&nbsp; 1 root root&nbsp;&nbsp; 30418 Jul 20
+17:28
+/usr/lib/libdyninstAPI_RT.so.1*<br>
+<br>
+</div>
+<h4 style="margin-left: 80px;"><a class="mozTocH4" name="mozTocId664892"></a>Step
+4 - Build
+Open|SpeedShop<br>
+</h4>
+<div style="margin-left: 40px;">
+Rebuild your source tree from scratch. i.e. get rid of ALL generated
+files,&nbsp; then do the following commands in the
+OpenSpeedShop/current directory:<br>
+<br>
+<b>Open|SpeedShop</b> uses
+automake/autoconf
+in it's build process.&nbsp; The sequence used to build <b>Open|SpeedShop</b>
+is as follows:<br>
+</div>
+<br>
+<div style="margin-left: 40px;">
+<ul>
+  <li># Go to the <b>Open|SpeedShop</b>
+top level
+source directory</li>
+  <li><span style="font-weight: bold;">cd &lt;openspeedshop source
+directory&gt;</span></li>
+  <li># Create initial build files</li>
+  <li><span style="font-weight: bold;">bootstrap</span></li>
+  <li># Configure <b>Open|SpeedShop</b> with or without optional
+installation
+directory designation</li>
+  <li><span style="font-weight: bold;">configure
+[--prefix=&lt;Open|SpeedShop Install Directory Path&gt;]</span></li>
+  <li># Make and install <b>Open|SpeedShop</b></li>
+  <li><span style="font-weight: bold;">make install</span></li>
+</ul>
+</div>
+<br>
+<div style="margin-left: 40px;">The Open|SpeedShop build should find
+all of the necessary libraries and
+headers in /usr now.<br>
+<br>
+If this doesn't work, read OpenSpeedShop_ROOT/current/README (that file
+should have the most accurate list of RPM versions) and see if
+your Linux distribution is lacking one of the packages (or versions)
+mentioned.&nbsp; With SuSE 9.1 or SLES 9 you should be able to install
+the RPMS and go.&nbsp;
+Nothing else should be required. <br>
+<br>
+Red Hat distributions e.g. Fedora Core 3 require libelf-0.8.5 be
+installed. &nbsp; This RPM can
+be found in
+OpenSpeedShop_ROOT/current/RPMS/i586/FedoraCore3/.&nbsp; You can use
+"rpm
+--query --all" to find out what packages are on your system.&nbsp;
+Grepping
+is
+recommended when doing the queries:&nbsp; "rpm
+--query --all |&nbsp; grep rpm_name"&nbsp; You can use the rpm
+query script, <a href="./rpmQuery">rpmQuery</a>
+for querying all the
+packages needed.<br>
+</div>
+<b style=""><br>
+</b>
+<h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId132468"></a><b
+ style="">Key
+Environment Variables</b></h3>
+<h4 style="margin-left: 120px;"><a class="mozTocH4"
+ name="mozTocId520988"></a><a name="OpenSpeedShop_developer_related"></a>Open|SpeedShop
+Developer/Build
+Related Environment Variables</h4>
+<h5 style="margin-left: 160px;"><a class="mozTocH5"
+ name="mozTocId227574"></a>Generally used environment variables<br>
+</h5>
+<ul style="margin-left: 200px;">
+  <li>OPENSS_INSTALL_DIR
+- This environment variable
+specifies where the <b>Open|SpeedShop</b> binaries and libraries will
+be
+installed.&nbsp; Set this variable to a path, (e.g. "setenv
+OPENSS_INSTALL_DIR /scratch/jeg/openss/install).&nbsp;&nbsp; After
+installation, a bin and lib directory containing the <b>Open|SpeedShop</b>
+components, will be present under the /scratch/jeg/openss/install
+directory. </li>
+</ul>
+<h5 style="margin-left: 160px;"><a class="mozTocH5"
+ name="mozTocId365139"></a>Special purpose environment variables</h5>
+<div style="margin-left: 200px;">
+<ul>
+  <li>OPENSS_PLUGIN_PATH
+-
+This environment variable
+specifies where the <b>Open|SpeedShop</b> main program will look for
+experiment plugins.&nbsp; This is in addition to the normal search
+path, which is "&lt;installdir&gt;/lib/openspeedshop"&nbsp; Prior to <b>Open|SpeedShop</b>
+initialization set this
+variable to the path to your non-default plugins,&nbsp; (e.g.
+"setenv OPENSS_PLUGIN_PATH /g2/install/lib/openspeedshop) </li>
+</ul>
+<ul>
+  <li>LD_LIBRARY_PATH
+- This
+environment variable points to the
+plugin directory.&nbsp;&nbsp; This is needed for running the testing
+scenarios found in the "tests" directory.&nbsp; The plugins can be
+found in &lt;install directory&gt;/lib/openspeedshop. </li>
+</ul>
+</div>
+<h4 style="margin-left: 120px;"><a class="mozTocH4"
+ name="mozTocId347664"></a><a
+ name="OpenSpeedShop_User_Related_Environment"></a>Open|SpeedShop User
+Related Environment Variables</h4>
+<div style="margin-left: 160px;">
+<ul>
+  <li>None as of
+this time, although we've had cases
+where OPENSS_PLUGIN_PATH needed to be set to find the plugins.</li>
+</ul>
+</div>
+<b style=""><br>
+</b>
+<h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId110359"></a><b
+ style=""><a name="Building_OpenSpeedShop_from_Source"></a>Building
+Open|SpeedShop
+from Source</b></h3>
+<b style=""><br>
+</b>
+<div style="margin-left: 40px;"><b>Open|SpeedShop</b> uses
+automake/autoconf
+in it's build process.&nbsp; The sequence used to build <b>Open|SpeedShop</b>
+is as follows:<br>
+<div style="margin-left: 40px;"># Go to the <b>Open|SpeedShop</b>
+top level
+source directory<br>
+<span style="font-weight: bold;">cd &lt;openspeedshop source
+directory&gt;</span><br>
+# Optional remove files from the last build<br>
+<span style="font-weight: bold;">bootstrap --clean</span><br>
+# Create initial build files<br>
+<span style="font-weight: bold;">bootstrap</span><br>
+# Configure <b>Open|SpeedShop</b> with or without optional
+installation
+directory designation<br>
+<span style="font-weight: bold;">configure [--prefix=&lt;Open|SpeedShop
+Install Directory Path&gt;]</span><br>
+# optional uninstall step<br>
+<span style="font-weight: bold;">make uninstall</span><br>
+# Make and install Open|SpeedShop<br>
+<span style="font-weight: bold;">make install</span><b style=""><br>
+<br>
+</b></div>
+</div>
+</div>
+<div style="text-align: left;">
+<blockquote>
+  <h2><a class="mozTocH2" name="mozTocId940195"></a><b style="">Installing
+Open|SpeedShop
+from Executable RPM package(s)&nbsp; and required RPMS</b></h2>
+  <h3><a class="mozTocH3" name="mozTocId973912"></a><b>Open|SpeedShop</b>
+RPM
+and Installation<br>
+  </h3>
+</blockquote>
+<blockquote>The rpm command:<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <span style="font-weight: bold;">rpm
+--install --nodeps
+openspeedshop-1.0-1.ia64.rpm </span><br>
+will install <b>Open|SpeedShop</b> executables into /usr/local/bin and
+the <b>Open|SpeedShop</b> plugins into /usr/local/lib.<br>
+  <b style=""><br>
+  </b><span style="font-family: arial;"><span style="font-weight: bold;"></span></span>
+  <h3><a class="mozTocH3" name="mozTocId429415"></a>RPMs Required for <b>Open|SpeedShop</b>
+Execution</h3>
+  <br>
+The following table defines the RPMs
+that need to be installed on your system to run <b>Open|SpeedShop</b>.<br>
+  <br>
+  <table style="width: 684px; height: 513px; margin-left: 40px;"
+ border="1" cellpadding="2" cellspacing="2">
+    <tbody>
+      <tr>
+        <td>Component Name </td>
+        <td>Minimum </td>
+        <td>Maximum </td>
+        <td>Notes</td>
+      </tr>
+      <tr>
+        <td>dpcl </td>
+        <td>see-note-1 </td>
+        <td>see-note-1 </td>
+        <td>(1)</td>
+      </tr>
+      <tr>
+        <td>dyninst </td>
+        <td>see-note-1 </td>
+        <td>see-note-1 </td>
+        <td>(1)</td>
+      </tr>
+      <tr>
+        <td>libdwarf </td>
+        <td>2004/02/03 </td>
+        <td>2005/12/15 </td>
+        <td>none</td>
+      </tr>
+      <tr>
+        <td>libelf </td>
+        <td>0.8.5 </td>
+        <td>0.8.5 </td>
+        <td>(2)<br>
+        </td>
+      </tr>
+      <tr>
+        <td>libunwind </td>
+        <td>0.98.5 </td>
+        <td>0.98.5 </td>
+        <td>none</td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">papi<br>
+        </td>
+        <td style="vertical-align: top;">3.0.8.1<br>
+        </td>
+        <td style="vertical-align: top;">3.0.8.1<br>
+        </td>
+        <td style="vertical-align: top; text-align: left;">(3)<br>
+        </td>
+      </tr>
+      <tr>
+        <td>python </td>
+        <td>2.3.3 </td>
+        <td>2.3.4 </td>
+        <td>none</td>
+      </tr>
+      <tr>
+        <td>sqlite </td>
+        <td>3.0.8 </td>
+        <td>3.2.7 </td>
+        <td>none</td>
+      </tr>
+      <tr>
+        <td>qt </td>
+        <td>3.3.1 </td>
+        <td>3.3.4 </td>
+        <td>none</td>
+      </tr>
+    </tbody>
+  </table>
+  <br>
+</blockquote>
+</div>
+<div style="margin-left: 80px; text-align: left;">NOTES:<br>
+<ol>
+  <li>Always use the Dyninst and DPCL versions supplied with <b>Open|SpeedShop</b>.&nbsp;
+Others will almost certainly not work with <b>Open|SpeedShop</b>.&nbsp;
+For
+advanced users click <a href="BuildingInstallingDPCL.html">here </a>for
+instructions on building and installing DPCL.</li>
+  <li>There are issues with using a version of libelf other than
+0.8.5.&nbsp;&nbsp; This version of libelf comes as the default on SUSE
+and SLES distributions.&nbsp;&nbsp; RedHat does not.<br>
+  </li>
+  <li>See this PAPI URL for platforms and patches needed for PAPI to
+successfully execute.&nbsp; These requirements must be met for the
+"hwc" and "hwctime" <b>Open|SpeedShop</b> experiments to execute
+correctly.: <a
+ href="http://icl.cs.utk.edu/papi/custom/index.html?lid=62&amp;slid=96">http://icl.cs.utk.edu/papi/custom/index.html?lid=62&amp;slid=96
+    </a><br>
+  </li>
+</ol>
+<br>
+</div>
+<h1 style="margin-left: 40px; text-align: left;"><a class="mozTocH1"
+ name="mozTocId70473"></a><b><b style=""><span
+ style="color: rgb(0, 0, 128);"><a name="OpenSpeedShop_Test_Information"></a>Open|SpeedShop
+Test
+Information</span></b></b></h1>
+<div style="margin-left: 80px; text-align: left;">
+<h2><a class="mozTocH2" name="mozTocId968100"></a><a
+ name="Location_and_Organization_of_Tests"></a>Location and
+Organization of Tests</h2>
+The <b>Open|SpeedShop</b> test suite can be found under the test
+subdirectory
+in the <b>Open|SpeedShop</b> source repository.&nbsp;&nbsp; Under the
+test
+subdirectory there are three directories:<br>
+<ul>
+  <li>"test_scripts" contains the testing scripts that are used to run
+the tests, compare results, and output test reports.</li>
+  <li>"test_source" contains the tests with compare files and other
+essential files to run the tests.</li>
+  <li>"executables" contains subdirectories for the executables used in
+the regression and dpcl tests.<br>
+  </li>
+</ul>
+<br>
+<h2><a class="mozTocH2" name="mozTocId768338"></a><a
+ name="How_to_Run_the_OpenSpeedShop_Tests"></a>How to Run the
+Open|SpeedShop Tests</h2>
+To execute the <b>Open|SpeedShop</b> set of regression tests.&nbsp;
+Change you
+directory path to "&lt;top_srcdir&gt;/test/test_source/regression" and
+invoke the runall script.&nbsp;&nbsp; The runall script will execute
+all the tests in the subdirectories below the "regression" directory
+and create a test report.&nbsp;&nbsp; Currently the <b>Open|SpeedShop</b>
+tests are only available in the source distribution.<br>
+<br>
+</div>
+<div style="text-align: left;" class="Section6">
+<div style="text-align: left;"></div>
+<h1 style="margin-left: 40px; text-align: left;"><a class="mozTocH1"
+ name="mozTocId84094"></a><b><b style=""><span
+ style="color: rgb(0, 0, 128);"><a name="OpenSpeedShop_Tools"></a>Open|SpeedShop
+Tools Information</span></b></b></h1>
+<blockquote> <b style=""> </b>
+  <p class="MsoBodyText"><span style=""><span style=""><span style=""><span
+ style="">The tools that are the basis for <b>Open|SpeedShop</b>
+are the
+performance tool graphical user interface (GUI), the
+interactive
+command line (CLI), and the batch command.&nbsp;&nbsp; These are the
+three <b>Open|SpeedShop</b>
+tools that have user interfaces.&nbsp; <b style=""><br>
+  </b></span></span></span></span></p>
+</blockquote>
+<blockquote> <b style=""> </b>
+  <h2><a class="mozTocH2" name="mozTocId800987"></a><b style=""><a
+ name="OpenSpeedShop_Invocation_Command_"></a>Open|SpeedShop
+Invocation Command&nbsp; "openss"</b></h2>
+  <b style=""> <br>
+  </b>The <b>Open|SpeedShop</b> program will be invoked by the user
+typing the
+"openss" command.&nbsp; When the user invokes <b>Open|SpeedShop</b>
+command
+there are
+three options for it's mode of operation:<br>
+</blockquote>
+<blockquote>
+  <ul>
+    <li>
+      <h3><a class="mozTocH3" name="mozTocId171398"></a>openss -gui</h3>
+    </li>
+  </ul>
+  <div style="margin-left: 40px;">This invocation of <b>Open|SpeedShop</b>
+causes the GUI to be raised then a command
+panel is also
+created.&nbsp; This command panel window becomes the interactive CLI
+window.&nbsp; Under this invocation <b>Open|SpeedShop</b> interactive
+commands
+can be entered
+into the GUI's command panel and have the same effect as if they were
+entered under the "openss -cli" option.</div>
+  <ul>
+    <li>
+      <h3><a class="mozTocH3" name="mozTocId654701"></a>openss -cli:</h3>
+    </li>
+  </ul>
+  <div style="margin-left: 40px;">This invocation of <b>Open|SpeedShop</b>
+causes the window terminal becomes the interactive
+CLI window.&nbsp;&nbsp; </div>
+  <ul>
+    <li>
+      <h3><a class="mozTocH3" name="mozTocId3287"></a>openss -batch:</h3>
+    </li>
+  </ul>
+  <div style="margin-left: 40px;">This invocation of <b>Open|SpeedShop</b>
+causes <b>Open|SpeedShop</b> to execute a performance experiment.
+specified by
+additional arguments, directly without user interaction.&nbsp;&nbsp;
+The -batch operation can be used in scripts and batch processing
+environments.<br>
+  <b style=""><br>
+  </b></div>
+  <h2><a class="mozTocH2" name="mozTocId805334"></a><b><b style=""><span
+ style=""><span style=""><span style=""><span style=""><span style=""><span
+ style="">Open|SpeedShop Quick Start Information</span></span></span></span></span></span></b></b></h2>
+  <br>
+  <b>Open|SpeedShop</b> can be invoked in a
+number of ways.&nbsp; This section gives a few examples that will
+hopefully help the first time users to get started and serve as an
+introduction to the following sections about <b>Open|SpeedShop</b>
+tool usage.<br>
+  <br>
+As stated above in the "openss" command section, the <b>Open|SpeedShop</b>
+command "openss" will initiate the <b>Open|SpeedShop</b> performance
+tool.&nbsp;&nbsp; The type of execution of <b>Open|SpeedShop</b>
+arguments to
+the openss command are "-batch", "-cli", and "-gui".&nbsp; The default
+type of execution is GUI.&nbsp;&nbsp; So, "openss" with no parameters
+will invoke the <b>Open|SpeedShop</b> GUI tool.&nbsp;&nbsp; The
+following
+examples show a few simple typical usage scenarios for <b>Open|SpeedShop</b>.<br>
+  <br>
+  <h3><a class="mozTocH3" name="mozTocId931138"></a>Example 1:&nbsp;
+Using GUI<br>
+  </h3>
+Using the <b>Open|SpeedShop</b> GUI,&nbsp; you know your
+executable and the experiment you want to run (PC Sampling)<br>
+  <br>
+prompt:&gt; openss -f &lt;pathTOexecutable&gt;/executable_name pcsamp<br>
+  <br>
+The above command will bring up the GUI window with the executable
+loaded to run the PC Sampling experiment on localhost.&nbsp; All the
+user would need to do is push the "Run" button on the GUI and wait for
+the results to be displayed.&nbsp; The path to the executable can be a
+relative path.<br>
+  <br>
+  <h3><a class="mozTocH3" name="mozTocId717950"></a>Example 2:&nbsp;
+Using Interactive CLI<br>
+  </h3>
+The user
+wants use the command line interface, knows their executable,&nbsp;
+knows the experiment they want to run (User Time), and knows the host
+(bigiron.sgi.com) on which the performance experiment will be run.<br>
+  <br>
+prompt:&gt;
+openss -cli<br>
+expcreate -hbigiron.sgi.com -f &lt;pathTOexecutable&gt;/executable_name
+usertime<br>
+expgo<br>
+expview stats<br>
+  <br>
+The openss command above will invoke the command line interface in it's
+initial state.&nbsp;&nbsp; The user would then type the experiment
+create command (expcreate) and specify the host, executable file and
+experiment name.&nbsp;&nbsp; The command to run the experiment (expgo)
+will start the user application and performance experiment
+running.&nbsp;&nbsp; Currently the <b>Open|SpeedShop</b> command line
+interface is asynchronous.&nbsp;&nbsp; The user will get a prompt back
+immediately after issuing the expgo command.&nbsp;&nbsp; This allows
+the user to issue other commands and/or monitor performance data prior
+to completion of a long running job.&nbsp;&nbsp; If performance
+experiment data is available, the performance result viewing command
+(expview) can be used to view the data on demand.&nbsp; <b>Open|SpeedShop</b>
+will return the data that it currently knows about.<br>
+  <br>
+  <h3><a class="mozTocH3" name="mozTocId985939"></a>Example 3:&nbsp;
+Using Batch<br>
+  </h3>
+The user
+wants use the batch interface, knows their executable,&nbsp; knows the
+experiment
+they want to run (PC Sampling), and knows the host (bigiron.sgi.com) on
+which the performance experiment will be run.<br>
+  <br>
+Create a file (batch.input) containing the command line commands:<br>
+expcreate -h bigiron.sgi.com
+-f &lt;pathTOexecutable&gt;/executable_name pcsamp<br>
+expgo<br>
+expview<br>
+exit<br>
+  <br>
+Then execute the <b>Open|SpeedShop</b> batch tool by using the
+"-batch"
+argument on the "openss" command:<br>
+  <br>
+openss -batch &lt; batch.input<br>
+  <br>
+The <b>Open|SpeedShop</b> PC Sampling experiment will be run and the
+output
+will be output to stout.<span style="font-weight: bold;"><br>
+  </span><br>
+  <br>
+</blockquote>
+</div>
+<div class="Section13">
+<p class="MsoBodyText"><!--[endif]--></p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
