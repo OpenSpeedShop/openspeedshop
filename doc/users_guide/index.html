@@ -37,9 +37,9 @@ w\:* {behavior:url(#default#VML);}
  alt="Open|SpeedShop logo" src="OpenSpeedShop_Logo.jpg"
  style="width: 303px; height: 38px;"><br>
 Users Guide<br>
-</span></b><big><span style="font-weight: bold;">Milestone 7 Release</span><br
- style="font-weight: bold;">
-<span style="font-weight: bold;">March 20, 2006</span></big><br>
+</span></b><big><span style="font-weight: bold;">Preliminary to
+Milestone 8 Release</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">May 15, 2006</span></big><br>
 </p>
 <div class="Section2"><b style=""><br style="" clear="all">
 </b>
@@ -50,11 +50,14 @@ Contents<br>
 </span></span></b></b></p>
 <ul style="text-align: left;" id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId71414">Introduction
-to Open|SpeedShop </a>
+to Open|SpeedShop
+    </a>
     <ul>
       <li><a href="#mozTocId406387">Brief
-Open|SpeedShop Overview </a></li>
-      <li><a href="#mozTocId958848">Common Terminology </a></li>
+Open|SpeedShop Overview
+        </a></li>
+      <li><a href="#mozTocId958848">Common Terminology
+        </a></li>
       <li><a href="#mozTocId760931">Open|SpeedShop
 General Usage</a>
         <ul>
@@ -70,71 +73,7 @@ Re-examining Performance Data With Open|SpeedShop</a></li>
     </ul>
   </li>
   <li><a href="#mozTocId334016">Open|SpeedShop
-Build and Installation Information</a>
-    <ul>
-      <li><a href="#mozTocId733358">Building Open|SpeedShop
-and
-Open|SpeedShop
-Development RPM Usage Information</a>
-        <ul>
-          <li><a href="#mozTocId435044">Open|SpeedShop Tested
-Platforms:</a></li>
-          <li><a href="#mozTocId293268">Open|SpeedShop
-Build
-component RPM versions: </a></li>
-          <li><a href="#mozTocId883409">Overview
-- Setting up
-new machine for development on Open|SpeedShop </a>
-            <ul>
-              <li><a href="#mozTocId985149">Step
-1 - Check for
-the correct version of the development components</a></li>
-              <li><a href="#mozTocId722671">Step
-2 - Checkout
-OpenSpeedShop_ROOT/current</a></li>
-              <li><a href="#mozTocId104541">Step
-3 - Install
-missing RPMS</a></li>
-              <li><a href="#mozTocId664892">Step
-4 - Build
-Open|SpeedShop </a></li>
-            </ul>
-          </li>
-          <li><a href="#mozTocId132468">Key
-Environment Variables</a>
-            <ul>
-              <li><a href="#mozTocId520988">Open|SpeedShop
-Developer/Build
-Related Environment Variables</a>
-                <ul>
-                  <li><a href="#mozTocId227574">Generally used
-environment variables </a></li>
-                  <li><a href="#mozTocId365139">Special purpose
-environment variables</a></li>
-                </ul>
-              </li>
-              <li><a href="#mozTocId347664">Open|SpeedShop User
-Related Environment Variables</a></li>
-            </ul>
-          </li>
-          <li><a href="#mozTocId110359">Building
-Open|SpeedShop
-from Source</a></li>
-        </ul>
-      </li>
-      <li><a href="#mozTocId940195">Installing
-Open|SpeedShop
-from Executable RPM package(s)&nbsp; and required RPMS</a>
-        <ul>
-          <li><a href="#mozTocId973912">Open|SpeedShop
-RPM
-and Installation </a></li>
-          <li><a href="#mozTocId429415">RPMs Required for
-Open|SpeedShop Execution</a></li>
-        </ul>
-      </li>
-    </ul>
-  </li>
+Build and Installation Information</a></li>
   <li><a href="#mozTocId70473">Open|SpeedShop
 Test
 Information</a>
@@ -157,16 +96,7 @@ Invocation Command&nbsp; "openss"</a>
         </ul>
       </li>
       <li><a href="#mozTocId805334">Open|SpeedShop Quick Start
-Information</a>
-        <ul>
-          <li><a href="#mozTocId931138">Example 1:&nbsp;
-Using GUI </a></li>
-          <li><a href="#mozTocId717950">Example 2:&nbsp;
-Using Interactive CLI </a></li>
-          <li><a href="#mozTocId985939">Example 3:&nbsp;
-Using Batch </a></li>
-        </ul>
-      </li>
+Information</a></li>
       <li><a href="#mozTocId97653">Running
 Open|SpeedShop on a cluster or multiple partitions</a></li>
       <li><a href="#mozTocId696903">Using
@@ -191,6 +121,8 @@ Existing Experiment</a></li>
               <li><a href="#mozTocId527863">Experiments
 Menu</a>
                 <ul>
+                  <li><a href="#mozTocId840467">Custom
+Experiment</a></li>
                   <li><a href="#mozTocId653796">FPE Tracing Experiment</a></li>
                   <li><a href="#mozTocId746748">HW Counter Experiments</a>
                     <ul>
@@ -200,9 +132,14 @@ Hardware Counter Experiment</a></li>
 Hardware Counter Experiment</a></li>
                     </ul>
                   </li>
-                  <li><a href="#mozTocId845390">I/O
+                  <li><a href="#mozTocId845390">Input/Output (I/O)
+Experiment</a></li>
+                  <li><a href="#mozTocId279794">Input/Output Trace
+(IOT)
 Experiment</a></li>
                   <li><a href="#mozTocId466177">MPI
+Experiment</a></li>
+                  <li><a href="#mozTocId611799">MPIT
 Experiment</a></li>
                   <li><a href="#mozTocId993712">PC Sampling Experiment</a>
                     <ul>
@@ -254,8 +191,7 @@ Panel</a></li>
 Panel</a></li>
                   <li><a href="#mozTocId757134">Stats
 Panel</a></li>
-                  <li><a href="#mozTocId527350"> </a><br>
-                  </li>
+                  <li><a href="#mozTocId527350"> </a></li>
                 </ul>
               </li>
             </ul>
@@ -265,8 +201,7 @@ Open|SpeedShop GUI Wizard Usage </a>
             <ul>
               <li><a href="#mozTocId943081">Introductory Wizard Display
                 </a></li>
-              <li><a href="#mozTocId549331"> </a><br>
-              </li>
+              <li><a href="#mozTocId549331"> </a></li>
               <li><a href="#mozTocId197580">PC Sampling Wizard
 - Initial Display </a></li>
               <li><a href="#mozTocId68517">PC Sampling
@@ -295,8 +230,9 @@ Experiment - Source and Statistics Relationship Display</a></li>
           </li>
           <li><a href="#mozTocId439377">Typical
 Open|SpeedShop GUI non-Wizard Usage</a></li>
-          <li><a href="#mozTocId439657">Comparing Performance Data
-using the Open|SpeedShop GUI</a></li>
+          <li><a href="#mozTocId439657">Comparing Performance
+Data using the Open|SpeedShop GUI
+            </a></li>
           <li><a href="#mozTocId956211">Open|SpeedShop GUI Usage on
 MPI Applications</a>
             <ul>
@@ -305,7 +241,8 @@ Running MPI Applications</a>
                 <ul>
                   <li><a href="#mozTocId291888">Gui Wizard Information</a></li>
                   <li><a href="#mozTocId112115">Gui Non-Wizard
-Information&nbsp; </a></li>
+Information&nbsp;
+                    </a></li>
                 </ul>
               </li>
               <li><a href="#mozTocId271423">Loading and Starting
@@ -330,7 +267,8 @@ Command Tool </a></li>
     </ul>
   </li>
   <li><a href="#mozTocId54031">Scripting
-API </a></li>
+API
+    </a></li>
   <li><a href="#mozTocId525838">Plugin
 API (Extensibility)&nbsp; Description</a></li>
   <li><a href="#mozTocId145888">Appendix
@@ -545,7 +483,13 @@ reasons why you might want to choose a specific
 experiment. The Clues column shows when you might use an experiment.
 The Data Collected column indicates performance data collected by the
 experiment. For detailed information on the experiments, see the
-relevant section in the remainder of this chapter.<br>
+relevant section in the remainder of this chapter.&nbsp;&nbsp;&nbsp;
+OpenSpeedShop provides wizards in the Graphical User Interface that
+"walk" users through the process of selecting the performance data to
+be gathered.&nbsp;&nbsp; The wizards ask a set of "plain" language
+questions to focus on the desired performance monitoring experiment
+and, therefore also, the desired performance monitoring information to
+be gathered and analyzed.<br>
 </p>
 <div class="table">
 <p><b>Table: Summary of Experiments</b></p>
@@ -717,7 +661,7 @@ output or as a GUI panel.
 All the stock experiments are in plugin form. </p>
   <p>Plugins can be written for advanced/enhanced
 versions of experiment collectors, and views
-for all the UIs. These plugins allow the <b>Open|SpeedShop</b>
+for all the User Interfaces. These plugins allow the <b>Open|SpeedShop</b>
 performance tool to be enhanced by the open source community
 for either a general or specific need. </p>
 See the </span><span style="color: rgb(0, 0, 128);"><a
@@ -739,7 +683,7 @@ API (Extensibility)&nbsp; Description</a> <span
  style="color: rgb(0, 0, 128);">Open|SpeedShop
 Build and Installation Information</span></b></h1>
 <blockquote>The <a href="installguide.html">Open|SpeedShop
-Installation Guide</a> describes how to build
+Build and Installation Guide</a> describes how to build
 and install <b>Open|SpeedShop</b>.&nbsp;&nbsp; <b style=""><br>
   </b></blockquote>
 <br>
@@ -764,7 +708,7 @@ the tests, compare results, and output test reports.</li>
   <li>"test_source" contains the tests with compare files and other
 essential files to run the tests.</li>
   <li>"executables" contains subdirectories for the executables used in
-the regression and dpcl tests.<br>
+the regression and DPCL tests.<br>
   </li>
 </ul>
 <br>
@@ -822,7 +766,8 @@ created.&nbsp; This command panel window becomes the interactive CLI
 window.&nbsp; Under this invocation <b>Open|SpeedShop</b> interactive
 commands
 can be entered
-into the GUI's command panel and have the same effect as if they were
+into the Graphical User Interface's command panel and have the same
+effect as if they were
 entered under the "openss -cli" option.</div>
   <ul>
     <li>
@@ -850,99 +795,22 @@ environments.<br>
  style="">Open|SpeedShop Quick Start Information</span></span></span></span></span></span></b></b></h2>
   <br>
   <b>Open|SpeedShop</b> can be invoked in a
-number of ways.&nbsp; This section gives a few examples that will
+number of ways.&nbsp; The <a href="QuickStartGuide.html">OpenSpeedShop
+Quick Start Guide</a> gives a few examples that will
 hopefully help the first time users to get started and serve as an
 introduction to the following sections about <b>Open|SpeedShop</b>
 tool usage.<br>
   <br>
-As stated above in the "openss" command section, the <b>Open|SpeedShop</b>
-command "openss" will initiate the <b>Open|SpeedShop</b> performance
-tool.&nbsp;&nbsp; The type of execution of <b>Open|SpeedShop</b>
-arguments to
-the openss command are "-batch", "-cli", and "-gui".&nbsp; The default
-type of execution is GUI.&nbsp;&nbsp; So, "openss" with no parameters
-will invoke the <b>Open|SpeedShop</b> GUI tool.&nbsp;&nbsp; The
-following
-examples show a few simple typical usage scenarios for <b>Open|SpeedShop</b>.<br>
-  <br>
-  <h3><a class="mozTocH3" name="mozTocId931138"></a>Example 1:&nbsp;
-Using GUI<br>
-  </h3>
-Using the <b>Open|SpeedShop</b> GUI,&nbsp; you know your
-executable and the experiment you want to run (PC Sampling)<br>
-  <br>
-prompt:&gt; openss -f &lt;pathTOexecutable&gt;/executable_name pcsamp<br>
-  <br>
-The above command will bring up the GUI window with the executable
-loaded to run the PC Sampling experiment on localhost.&nbsp; All the
-user would need to do is push the "Run" button on the GUI and wait for
-the results to be displayed.&nbsp; The path to the executable can be a
-relative path.<br>
-  <br>
-  <h3><a class="mozTocH3" name="mozTocId717950"></a>Example 2:&nbsp;
-Using Interactive CLI<br>
-  </h3>
-The user
-wants use the command line interface, knows their executable,&nbsp;
-knows the experiment they want to run (User Time), and knows the host
-(bigiron.sgi.com) on which the performance experiment will be run.<br>
-  <br>
-prompt:&gt;
-openss -cli<br>
-expcreate -hbigiron.sgi.com -f &lt;pathTOexecutable&gt;/executable_name
-usertime<br>
-expgo<br>
-expview stats<br>
-  <br>
-The openss command above will invoke the command line interface in it's
-initial state.&nbsp;&nbsp; The user would then type the experiment
-create command (expcreate) and specify the host, executable file and
-experiment name.&nbsp;&nbsp; The command to run the experiment (expgo)
-will start the user application and performance experiment
-running.&nbsp;&nbsp; Currently the <b>Open|SpeedShop</b> command line
-interface is asynchronous.&nbsp;&nbsp; The user will get a prompt back
-immediately after issuing the expgo command.&nbsp;&nbsp; This allows
-the user to issue other commands and/or monitor performance data prior
-to completion of a long running job.&nbsp;&nbsp; If performance
-experiment data is available, the performance result viewing command
-(expview) can be used to view the data on demand.&nbsp; <b>Open|SpeedShop</b>
-will return the data that it currently knows about.<br>
-  <br>
-  <h3><a class="mozTocH3" name="mozTocId985939"></a>Example 3:&nbsp;
-Using Batch<br>
-  </h3>
-The user
-wants use the batch interface, knows their executable,&nbsp; knows the
-experiment
-they want to run (PC Sampling), and knows the host (bigiron.sgi.com) on
-which the performance experiment will be run.<br>
-  <br>
-Create a file (batch.input) containing the command line commands:<br>
-expcreate -h bigiron.sgi.com
--f &lt;pathTOexecutable&gt;/executable_name pcsamp<br>
-expgo<br>
-expview<br>
-exit<br>
-  <br>
-Then execute the <b>Open|SpeedShop</b> batch tool by using the
-"-batch"
-argument on the "openss" command:<br>
-  <br>
-openss -batch &lt; batch.input<br>
-  <br>
-The <b>Open|SpeedShop</b> PC Sampling experiment will be run and the
-output
-will be output to stout.<span style="font-weight: bold;"><br>
-  </span><br>
   <h2><a class="mozTocH2" name="mozTocId97653"></a><a
  name="Running_OpenSpeedShop_on_a_cluster_or"></a>Running
 Open|SpeedShop on a cluster or multiple partitions</h2>
   <br>
 To run <b>Open|SpeedShop</b> on a multiple
 node machine configuration, each node must have DPCL and Dyninst
-installed.&nbsp; <b>Open|SpeedShop</b> support for multiple nodes is
+installed, as <b>Open|SpeedShop's</b> support for multiple nodes is
 through
-DPCL daemons.&nbsp;&nbsp;&nbsp; See the attaching to <a
+DPCL daemons. &nbsp; If OpenSpeedShop is properly installed, this will
+be transparent an OpenSpeedShop user.&nbsp;&nbsp; See the attaching to <a
  href="#Attaching_to_Already_Running_MPI">MPI jobs section </a>for
 information on attaching to processes running on other hosts or
 partitions.<br>
@@ -1013,21 +881,23 @@ This section briefly discusses the <b>Open|SpeedShop</b> GUI
 menus and their
 corresponding menu items.&nbsp;&nbsp; We will touch on the&nbsp; File
 menu, Tools menu, Experiments menu, and the Wizards menu, as shown at
-the top of the <b>Open|SpeedShop</b> window below.<b style=""><br>
+the top of the <b>Open|SpeedShop</b> window below.<br>
     <br>
+    <b style=""> <img alt="Initial OpenSpeedShop GUI Panel"
+ title="Initial OpenSpeedShop GUI Panel" src="InitialPanel2.png"
+ style="width: 851px; height: 655px;"><br>
     </b></blockquote>
-  <b style=""><img style="height: 644px; width: 860px;"
- src="InitialPanel.png" alt="Initial Open!SpeedShop Introduction Panel"></b><br>
-  <blockquote><b style=""> <br>
-    </b>
+  <br>
+  <blockquote><b style=""></b>
     <h4><a class="mozTocH4" name="mozTocId909976"></a><b style=""><a
  name="File_Menu_"></a>File
 Menu </b></h4>
-The File menu contains the menu items shown below:<b style=""><br>
+The File menu contains the menu items shown below:<br>
     <br>
-    <img alt="Open|SpeedShop File Menu" src="FileMenu.png"
- style="width: 224px; height: 238px;"><br>
-    <br>
+    <img alt="Open|SpeedShop GUI File Menu"
+ title="Open|SpeedShop GUI File Menu" src="FileMenu2.png"
+ style="width: 256px; height: 217px;"><br>
+    <b style=""> <br>
     </b>
     <h5><a class="mozTocH5" name="mozTocId185104"></a><b style=""><a
  name="Open_Experiment"></a>Open
@@ -1066,12 +936,15 @@ the experiments
 that are installed in the tool.&nbsp;
 In this example six experiments are available.&nbsp; The experiment
 panel can be accessed by clicking on the
-corresponding menu items.<b style=""><br>
+corresponding menu items.<br>
     <br>
-    <img alt="Experiment Menu" src="snapshot_ExperimentsMenuItems.png"
- style="width: 178px; height: 167px;"><br>
+    <img alt="Open|SpeedShop Experiment Menu Items"
+ title="Open|SpeedShop Experiment Menu Items"
+ src="ExperimentMenuItems.png" style="width: 215px; height: 281px;"><br>
+    <b style=""> <br>
     <br>
-    </b>At this the milestone 7 delivery,&nbsp; all the
+    </b>At this time, preliminary to the Milestone 8 delivery,&nbsp;
+all the
 experiments, with the exception of the floating point exception,
 FPE,&nbsp; experiment are developed.&nbsp; Clicking on the menu item
 will bring up that particular experiment panel.&nbsp; For example,
@@ -1079,7 +952,8 @@ clicking on the PC Sampling menu item will bring up
 the program counter (PC) Sampling experiment panel as shown in the PC
 Sampling Experiment section.<b style=""><br>
     </b>
-    <h5><b><b style=""><a name="FPE_Tracing_Experiment"></a>Custom
+    <h5><a class="mozTocH5" name="mozTocId840467"></a><b><b style=""><a
+ name="FPE_Tracing_Experiment"></a>Custom
 Experiment</b></b></h5>
 The custom experiment allows users to define their own
 experiment.&nbsp;&nbsp;&nbsp; Details are TBD at this point.<br>
@@ -1148,11 +1022,12 @@ Experiment</b></h5>
 The input/output (I/O) experiment captures several of the input and
 output system calls and records the time spent and the number of calls
 in each routine.&nbsp; The call stack is also recorded.&nbsp; This
-allows the user to interagate the call stacks to find out where each
+allows the user to intearagate the call stacks to find out where each
 call has been made in the application program<b style=""><br>
     <br>
     </b>
-    <h5><b><b style="">Input/Output Trace (IOT)
+    <h5><a class="mozTocH5" name="mozTocId279794"></a><b><b style="">Input/Output
+Trace (IOT)
 Experiment</b></b></h5>
 The input/output trace (IOT) experiment captures several of the input
 and
@@ -1160,7 +1035,7 @@ output system calls and records the time spent, the number of calls
 in each routine, and also other data items that are related to the
 specific I/O system call.&nbsp;&nbsp; Call stacks are also recorded,
 &nbsp; allowing the
-user to interegate the call stacks to find out where each call has been
+user to interagate the call stacks to find out where each call has been
 made in the application program<b style=""><br>
     <br>
     </b>
@@ -1175,7 +1050,8 @@ format.&nbsp;&nbsp; When using the trace format each event is presented
 individually showing the start end end time for the MPI function call.<b
  style=""><br>
     </b>
-    <h5><b><b style=""><a name="MPIT_Experiment"></a>MPIT
+    <h5><a class="mozTocH5" name="mozTocId611799"></a><b><b style=""><a
+ name="MPIT_Experiment"></a>MPIT
 Experiment</b></b></h5>
 This experiment captures each MPI function call event and records
 specific data corresponding to that particular call.&nbsp; The user is
@@ -1271,9 +1147,9 @@ from run to run.</p>
     <h4><a class="mozTocH4" name="mozTocId150174"></a><b style=""><a
  name="Wizard_Menu_"></a>Wizard
 Menu</b></h4>
-    <b style=""> <br>
-    <img alt="Wizards Menu items" src="snapshot_WizardsMenuItems.png"
- style="width: 202px; height: 186px;"><br>
+    <b style=""> <img alt="Open|SpeedShop GUI Wizard Menu Items"
+ title="Open|SpeedShop GUI Wizard Menu Items" src="WizardMenuItems.png"
+ style="width: 200px; height: 206px;"><br>
     <br>
     </b>
     <h5><a class="mozTocH5" name="mozTocId104652"></a><b style=""><a
@@ -1323,8 +1199,10 @@ changes and exit the preference processing window.<br>
 Currently there are three areas of preference processing:<b style=""><br>
     </b>
     <h6><a class="mozTocH6" name="mozTocId166891"></a>General:</h6>
-    <img alt="General Preference Processing Window"
- src="Preferences-General.png" style="width: 630px; height: 414px;"><br>
+    <img alt="Open|SpeedShop General Preference Panel"
+ title="Open|SpeedShop General Preference Panel"
+ src="Preferences-General2.png" style="width: 630px; height: 593px;"><br>
+    <br>
     <br>
 The General preferences are, as
 the general title implies, for setting
@@ -1335,8 +1213,10 @@ command processing are now supported.<br>
     <b style=""> <br>
     </b>
     <h6><a class="mozTocH6" name="mozTocId683332"></a>Statistics Related</h6>
-    <img alt="Statistics Preference Processing Window"
- src="Preferences-Stats.png" style="width: 630px; height: 414px;"><br>
+    <img alt="Open|SpeedShop Statistics Preference Panel"
+ title="Open|SpeedShop Statistics Preference Panel"
+ src="Preferences-Stats2.png" style="width: 630px; height: 593px;"><br>
+    <br>
     <br>
 The statistics related preferences
 apply to the performance experiment
@@ -1344,8 +1224,10 @@ results presentation.&nbsp;&nbsp; How to sort the results, what column
 to sort from, and how many result items do you want displayed are the
 current options supported.<br>
     <h6><a class="mozTocH6" name="mozTocId603411"></a>Source Related</h6>
-    <img alt="Source Preference Processing Window"
- src="Preferences-Source.png" style="width: 630px; height: 414px;"><br>
+    <img alt="Open|SpeedShop Source Preference Panel"
+ title="Open|SpeedShop Source Preference Panel"
+ src="Preferences-Source2.png" style="width: 630px; height: 593px;"><br>
+    <br>
     <br>
 The source panel preferences are
 show line numbers and
@@ -1353,8 +1235,15 @@ statistics.&nbsp;&nbsp; Statistics when set will present the
 performance results integrated with the source.&nbsp;&nbsp;&nbsp; See
 the source panel with statistics image at this <a
  href="#Source_Panel_Statistics">link</a>.<br>
-    <b style=""> <br>
-    </b>
+    <br>
+    <h6><a name="Manage_Process_Panel_Related"></a>Manage Process Panel
+Related</h6>
+    <img alt="Open|SpeedShop Manage Process Preference Panel"
+ title="Open|SpeedShop Manage Process Preference Panel"
+ src="Preferences-ManageProcessPanel.png"
+ style="width: 630px; height: 593px;"><br>
+    <br>
+    <br>
     <h5><a class="mozTocH5" name="mozTocId940600"></a><b style=""><a
  name="Close_Menu_Item"></a>Close
 Menu Item</b></h5>
@@ -1400,13 +1289,13 @@ more information.<b style=""><br>
 Panel</b></h5>
 This menu item brings up the source panel window.&nbsp;
 There are a number of options available in the source panel that can be
-viewed by holding right mouse button:<b style=""><br>
+viewed by holding right mouse button:<br>
     <br>
-    </b></blockquote>
-  <b style=""><img alt="Source Panel and Options" src="SourcePanel.png"
- style="width: 860px; height: 644px;"></b><br>
-  <blockquote><b style=""> <br>
-    </b> <b style=""> </b>
+    <img alt="Open|SpeedShop Source Panel"
+ title="Open|SpeedShop Source Panel" src="SourcePanel2.png"
+ style="width: 851px; height: 655px;"><br>
+    <b style=""> </b></blockquote>
+  <blockquote><b style=""></b> <b style=""> </b>
     <h5><a class="mozTocH5" name="mozTocId757134"></a><b style="">Stats
 Panel</b></h5>
 Although the Stats Panel isn't
@@ -1423,11 +1312,12 @@ available (viewed by right mouse down click in Stats Panel tab) include:<br>
       <li>Exporting/Saving result data <br>
       </li>
     </ul>
-    <br>
+    <img alt="Open|SpeedShop Statistics Panel"
+ title="Open|SpeedShop Statistics Panel" src="StatsPanel2.png"
+ style="width: 851px; height: 655px;"><br>
   </blockquote>
-  <img alt="Statistics Panel with Right Mouse Down Menu"
- src="StatsPanel.png" style="width: 860px; height: 644px;"><br>
-  <blockquote> <br>
+  <br>
+  <blockquote>
     <h5><a class="mozTocH5" name="mozTocId527350"></a><b style=""> </b></h5>
     <h3><a class="mozTocH3" name="mozTocId464050"></a><b style=""><a
  name="Typical_OpenSpeedShop_GUI_Wizard_Usage"></a>Typical
