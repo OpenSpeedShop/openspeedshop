@@ -256,6 +256,7 @@ class StatsPanel  : public Panel
     void exportData();
     void details();
     void originalQuery();
+    void cviewQueryStatements();
     void updatePanel();
     void focusOnExp(int);
     void gotoSource(bool use_current_item = FALSE);

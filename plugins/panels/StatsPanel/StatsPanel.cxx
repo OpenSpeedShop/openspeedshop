@@ -606,6 +606,12 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     qaction->setText( QString("Original Query (%1) ...").arg(originalCommand) );
     connect( qaction, SIGNAL( activated() ), this, SLOT( originalQuery() ) );
     qaction->setStatusTip( tr("Update this panel with the data from the initial query.") );
+
+    qaction = new QAction( this,  "_cviewQueryStatemnts");
+    qaction->addTo( contextMenu );
+    qaction->setText( QString("Query Statements (%1) ...").arg(originalCommand) );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( cviewQueryStatements() ) );
+    qaction->setStatusTip( tr("Update this panel with the statemets related to the initial query.") );
   }
 
   // Over all the collectors....
@@ -1137,6 +1143,14 @@ StatsPanel::originalQuery()
 // printf("updatePanel() about to call originalQuery()\n");
 
   updateStatsPanelData(originalCommand);
+}
+
+void
+StatsPanel::cviewQueryStatements()
+{
+// printf("updatePanel() about to call cviewQueryStatements(%s)\n", QString(originalCommand + " -v Statements").ascii() );
+
+  updateStatsPanelData(originalCommand + " -v Statements");
 }
 
 
@@ -5410,7 +5424,16 @@ StatsPanel::analyzeTheCView()
   QValueList<QString> cidList;
 
 // printf("lastCommand =(%s)\n", lastCommand.ascii() );
-  QString ws = lastCommand.mid(9,999999);
+int vindex = lastCommand.find("-v");
+  QString ws = QString::null;
+  if( vindex == -1 )
+  {
+    ws = lastCommand.mid(9,999999);
+  } else
+  {
+    ws = lastCommand.mid(9,vindex-10);
+  }
+// printf("ws=(%s)\n", ws.ascii() );
   int cnt = ws.contains(",");
   if( cnt > 0 )
   {
@@ -5505,9 +5528,10 @@ StatsPanel::analyzeTheCView()
 // printf("currentMetricStr set to %s\n", currentMetricStr.ascii() );
     }
 
+// printf("new CInfoClass: cid=%d collectorStr=(%s) expID=(%d) host_pid_names=(%s) metricStr=(%s)\n", cid, collectorStr.ascii(), expID, host_pid_names.ascii(), metricStr.ascii() );
     CInfoClass *cic = new CInfoClass( cid, collectorStr, expID, host_pid_names, metricStr );
     cInfoClassList.push_back( cic );
-// printf("string_name=(%s)\n", string_name.c_str() );
+// printf("push this out..\n");
 // cic->print();
   }
 
