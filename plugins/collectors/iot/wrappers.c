@@ -528,7 +528,13 @@ ssize_t iotpread64(int fd, void *buf, size_t count, off_t offset)
     /* Call the real IO function */
     retval = pread64(fd, buf, count, offset);
 
+#if   defined(__linux) && defined(SYS_pread)
+    event.syscallno = SYS_pread;
+#elif defined(__linux) && defined(SYS_pread64)
     event.syscallno = SYS_pread64;
+#else
+#error "SYS_pread or SYS_pread64 is not defined"
+#endif
     event.nsysargs = 4;
     event.sysargs[0] = fd;
     event.sysargs[1] = (long) buf;
@@ -602,7 +608,13 @@ ssize_t iotpwrite64(int fd, void *buf, size_t count, off_t offset)
     /* Call the real IO function */
     retval = pwrite64(fd, buf, count, offset);
 
+#if   defined(__linux) && defined(SYS_pwrite)
+    event.syscallno = SYS_pwrite;
+#elif defined(__linux) && defined(SYS_pwrite64)
     event.syscallno = SYS_pwrite64;
+#else
+#error "SYS_pwrite or SYS_pwrite64 is not defined"
+#endif
     event.nsysargs = 4;
     event.sysargs[0] = fd;
     event.sysargs[1] = (long) buf;
