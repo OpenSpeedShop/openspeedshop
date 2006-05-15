@@ -124,6 +124,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   setCaption("StatsPanel");
 
   statspanel_clip = NULL;
+  progressTimer = NULL;
   pd = NULL;
 
   IOtraceFLAG = FALSE;
@@ -273,7 +274,6 @@ connect( header, SIGNAL(clicked(int)), this, SLOT( headerSelected( int )) );
   sprintf(name_buffer, "%s [%d]", getName(), groupID);
   setName(name_buffer);
 
-  pd = new GenericProgressDialog(this, "Executing Command:", TRUE );
 }
 
 
@@ -1531,9 +1531,27 @@ StatsPanel::updateStatsPanelData(QString command)
     return;
   }
 
+  if( pd )
+  {
+    delete pd;
+  }
+  if( progressTimer )
+  {
+    delete progressTimer;
+  }
+
+// printf("create the progressTimer\n");
+  steps = 0;
+  progressTimer = new QTimer( this, "progressTimer" );
+  connect( progressTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+  pd = new GenericProgressDialog(this, "Executing Command:", TRUE );
+  pd->show();
+  progressTimer->start(0);
+  pd->infoLabel->setText( QString("Running command - %1").arg(command) );
+
   if( command.contains("-v Butterfly") || command.contains("-v CallTrees") || command.contains("-v TraceBacks") )
   {
-    // Don't sor these report types..  If you get a request to sort then only
+    // Don't sort these report types..  If you get a request to sort then only
     // sort on the last column.
 // printf("Don't sort this display.\n");
     splv->setSorting ( -1 );
@@ -1574,9 +1592,7 @@ StatsPanel::updateStatsPanelData(QString command)
 // printf("StatsPanel: about to issue: command: (%s)\n", command.ascii() );
 
 
-  steps = 0;
-  pd->infoLabel->setText( tr("Waiting for completion of command: %1").arg(command) );
-  pd->show();
+
 
 
   statspanel_clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
@@ -1586,6 +1602,13 @@ StatsPanel::updateStatsPanelData(QString command)
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
     QApplication::restoreOverrideCursor();
+    progressTimer->stop();
+    delete progressTimer;
+    progressTimer = NULL;
+    pd->hide();
+    delete pd;
+    pd = NULL;
+    
 //    return;
   }
   Input_Line_Status status = ILO_UNKNOWN;
@@ -1593,12 +1616,15 @@ StatsPanel::updateStatsPanelData(QString command)
   while( !statspanel_clip->Semantics_Complete() )
   {
 // printf("pinging...\n");
-pd->infoLabel->setText( tr("Waiting for completion of command: %1").arg(command) );
-    progressUpdate();
-
+    qApp->processEvents(1000);
     sleep(1);
   }
 // printf("done pinging...\n");
+
+
+
+  pd->infoLabel->setText( tr("Processing information for display") );
+  pd->show();
 
   process_clip(statspanel_clip, NULL, FALSE);
 //  process_clip(statspanel_clip, NULL, TRUE);
@@ -1606,6 +1632,9 @@ pd->infoLabel->setText( tr("Waiting for completion of command: %1").arg(command)
   statspanel_clip = NULL;
 
 // printf("Done processing the clip\n");
+
+  pd->infoLabel->setText( tr("Analyze and sort the view.") );
+  pd->show();
 
   analyzeTheCView();
   if( command.startsWith("cview -c") && canWeDiff() )
@@ -1672,8 +1701,12 @@ pd->infoLabel->setText( tr("Waiting for completion of command: %1").arg(command)
   cf->setValues(cpvl, ctvl, color_names, MAX_COLOR_CNT);
   cf->setHeader( (QString)*columnHeaderList.begin() );
 
+  progressTimer->stop();
+  delete progressTimer;
+  progressTimer = NULL;
   pd->hide();
-//  delete pd;
+  delete pd;
+  pd = NULL;
 
   QApplication::restoreOverrideCursor();
 }
@@ -5311,8 +5344,6 @@ StatsPanel::progressUpdate()
   {
     step_forward = TRUE;
   }
-//  qApp->processEvents(1000);
-  qApp->processEvents(10000);
 }
 
 void 

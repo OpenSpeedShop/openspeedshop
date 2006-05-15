@@ -63,6 +63,7 @@ typedef std::pair<Function, unsigned int> Function_uint_pair;
 typedef std::pair<Function, uint64_t> Function_uint64_pair;
 
 #include <qsettings.h>
+#include <qtimer.h>
 
 class CInfoClass
 {
@@ -129,7 +130,7 @@ class StatsPanel  : public Panel
     InputLineObject *statspanel_clip;
     void process_clip(InputLineObject *statspanel_clip, HighlightList *highlightList, bool dumpClipFLAG);
     GenericProgressDialog *pd;
-    void progressUpdate();
+    QTimer *progressTimer;
     bool insertDiffColumnFLAG;
     bool absDiffFLAG;
     void insertDiffColumn(int insertAtIndex=0);
@@ -263,6 +264,7 @@ class StatsPanel  : public Panel
     void IOtraceSelected();
     void customizeExperimentsSelected();
     void manageProcessesSelected();
+    void progressUpdate();
 
   private slots:
     void threadSelected(int);
