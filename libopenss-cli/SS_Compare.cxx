@@ -138,14 +138,13 @@ struct selectionTarget {
   void Print (ostream& to) {
     if (pResult != NULL) {
       pResult->ParseResult::dumpInfo();
-    } else {
-      if (Exp != NULL) to << " -x " << Exp->ExperimentObject_ID();
-      if (viewName != "") to << " " << viewName;
-      if (hostId != "") to << " -h " << hostId;
-      if (pidId) to << " -p " << pidId;
-      if (threadId) to << " -t " << threadId;
-      if (rankId) to << " -r " << rankId;
     }
+    if (Exp != NULL) to << " -x " << Exp->ExperimentObject_ID();
+    if (viewName != "") to << " " << viewName;
+    if (hostId != "") to << " -h " << hostId;
+    if (pidId) to << " -p " << pidId;
+    if (threadId) to << " -t " << threadId;
+    if (rankId) to << " -r " << rankId;
     to << " (numColumns = " << numColumns << ")";
     to << " prefix = " << headerPrefix;
     to << std::endl;
@@ -1307,7 +1306,7 @@ bool SS_cView (CommandObject *cmd) {
       ExperimentObject *exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
       if (exp == NULL) {
        // Try to get an Experiment ID from the old parse object or use the focused experiment.
-        ExperimentID = new_result->isExpId() ? (new_result)->getExpId() : exp_focus;
+        ExperimentID = old_result->isExpId() ? (old_result)->getExpId() : exp_focus;
         exp = Find_Experiment_Object (ExperimentID);
       }
 
