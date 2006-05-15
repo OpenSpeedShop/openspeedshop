@@ -1,0 +1,36 @@
+ SWEEP3D - Method 5 - Pipelined Wavefront with Line-Recursion
+ Version 2.2b
+ S6P1   -  6 angles/octant,  4 moments
+ global grid:  50x 50x 50
+ 6 domains   -  2 x 3 decomposition
+ 10 domain pipelined blocks - 10 k-planes by 3 angles each
+ estimated memory usage per domain:    2.8 MB
+ 560 global messages per iteration
+ 88.89% domain parallel efficiency - due to decomposition & blocking
+ 72.44% multitasking efficiency on  16 processors
+ 64.39% combined efficiency on a cluster of    6  16-way SMPs
+ DSA leakage calculation: ON
+ Flux fixups: ON (after 7 iterations)
+ Iteration Monitor:
+  its =  1  err =  1.00000000000000000   fixs =  0
+  its =  2  err =  1.77512975262900663   fixs =  0
+  its =  3  err =  0.659083802218004111   fixs =  0
+  its =  4  err =  0.305348671948976524   fixs =  0
+  its =  5  err =  0.141234079272600122   fixs =  0
+  its =  6  err =  0.627896461395282685E-01   fixs =  0
+  its =  7  err =  0.266955948954897340E-01   fixs =  0
+  its =  8  err =  0.199563042302687288E-01   fixs =  12000
+  its =  9  err =  0.568793011796733545E-02   fixs =  11712
+  its =  10  err =  0.185412756334039897E-02   fixs =  11664
+  its =  11  err =  0.681074826574155846E-03   fixs =  11664
+  its =  12  err =  0.261752203210804436E-03   fixs =  11664
+ Balance quantities:
+  External Source:  4.09599999999977094
+  Absorption:       3.34341746482852331
+  I-leakages:       -0.125419419635145524 0.125419419635145524
+  J-leakages:       -0.125419419635145024 0.125419419635145024
+  K-leakages:       -0.125419421915667795 0.125419421915667767
+ CPU     time was:  13.6199999999999992
+ Elapsed time was:  32.7249200344085693
+ CPU grind time:    .189    
+ Wall grind time:   .455    
