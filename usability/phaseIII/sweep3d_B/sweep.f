@@ -180,6 +180,7 @@ c Begin: My little attempted performance slow down.
                 END DO ! ij 
               END DO ! ii
             endif
+c            print *, 'ij_val=', ij_val
 c End: My little attempted performance slow down.  
             if (k2.lt.0 .or. kbc.eq.0) then
                do mi = 1, mmi

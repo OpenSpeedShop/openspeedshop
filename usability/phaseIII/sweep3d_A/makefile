@@ -2,7 +2,8 @@ SHELL=/bin/csh
 
 FC = g77 
 CPP = cpp
-OPTIMIZE = -g -O2
+#OPTIMIZE = -g -O2
+OPTIMIZE = -g -O0
 FFLAGS = $(OPTIMIZE)
 CC=gcc
 CFLAGS = $(OPTIMIZE)
