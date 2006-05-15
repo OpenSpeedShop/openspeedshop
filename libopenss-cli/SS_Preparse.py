@@ -849,8 +849,6 @@ def StartDPCL(template="*", installed="/usr"):
     ...' before actual execution.
     """
 
-    bosco = 7/0
-    
     # Locate the DPCL dameon
     daemon = installed + "/bin/dpcld"
     if not os.path.isfile(daemon):
