@@ -116,11 +116,16 @@ bool Detail_Trace_Report(
     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
     Time base_time = databaseExtent.getTimeInterval().getBegin();
 
+   // Acquire the specified set of time intervals.
+    std::vector<std::pair<Time,Time> > intervals;
+    Parse_Interval_Specification (cmd, exp, intervals);
+
    // Acquire base set of metric values.
     SmartPtr<std::map<Function,
                       std::map<Framework::StackTrace,
                                std::vector<TDETAIL> > > > raw_items;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
+    GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, raw_items);
+
 /* Don't issue this message - just go ahead an print the headers and an empty report.
    Consider turning this message into a Annotation.
     if (raw_items->begin() == raw_items->end()) {
@@ -246,10 +251,17 @@ bool Detail_Base_Report(
     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
     Time base_time = databaseExtent .getTimeInterval().getBegin();
 
+
+   // Acquire the specified set of time intervals.
+    std::vector<std::pair<Time,Time> > intervals;
+    Parse_Interval_Specification (cmd, exp, intervals);
+
+   // Acquire base set of metric values.
     SmartPtr<std::map<TOBJECT,
                       std::map<Framework::StackTrace,
                                TDETAIL> > > raw_items;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
+    GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, raw_items);
+
 /* Don't issue this message - just go ahead an print the headers and an empty report.
    Consider turning this message into a Annotation.
     if (raw_items->begin() == raw_items->end()) {
@@ -335,10 +347,16 @@ bool Detail_CallStack_Report (
     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
     Time base_time = databaseExtent .getTimeInterval().getBegin();
 
+   // Acquire the specified set of time intervals.
+    std::vector<std::pair<Time,Time> > intervals;
+    Parse_Interval_Specification (cmd, exp, intervals);
+
+   // Acquire base set of metric values.
     SmartPtr<std::map<Function,
                       std::map<Framework::StackTrace,
                                TDETAIL > > > raw_items;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
+    GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, raw_items);
+
 /* Don't issue this message - just go ahead an print the headers and an empty report.
    Consider turning this message into a Annotation.
     if (raw_items->begin() == raw_items->end()) {
@@ -427,11 +445,16 @@ bool Detail_ButterFly_Report (
     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
     Time base_time = databaseExtent.getTimeInterval().getBegin();
 
-   // Get raw data for inclusive_time metric.
+   // Acquire the specified set of time intervals.
+    std::vector<std::pair<Time,Time> > intervals;
+    Parse_Interval_Specification (cmd, exp, intervals);
+
+   // Acquire base set of metric values.
     SmartPtr<std::map<Function,
                       std::map<Framework::StackTrace,
                                TDETAIL > > > raw_items;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, raw_items);
+    GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, raw_items);
+
 /* Don't issue this message - just go ahead an print the headers and an empty report.
    Consider turning this message into a Annotation.
     if (raw_items->begin() == raw_items->end()) {

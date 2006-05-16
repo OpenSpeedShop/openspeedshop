@@ -95,12 +95,12 @@ extern SS_Message_Czar& theMessageCzar();
 #include "SS_Parse_Result.hxx"
 
 #include "SS_Cmd_Control.hxx"
-#include "SS_Cmd_Execution.hxx"
 #include "CommandObject.hxx"
 #include "Clip.hxx"
 #include "SS_Exp.hxx"
 #include "SS_ThreadInfo.hxx"
 #include "SS_View.hxx"
+#include "SS_Cmd_Execution.hxx"
 
 #include "SS_Watcher.hxx"
 

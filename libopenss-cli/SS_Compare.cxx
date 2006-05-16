@@ -106,6 +106,7 @@ struct selectionTarget {
   pid_t pidId;
   pthread_t threadId;
   int64_t rankId;
+  std::vector<ParseInterval> timeSegment;
   std::list<CommandResult *> partial_view;
   std::map<int64_t, CommandResult *> merge_map;
 
@@ -280,6 +281,13 @@ static bool Generate_CustomView (CommandObject *cmd,
       Filter_ThreadGroup (cmd->P_Result(), base_tgrp);
      // Select specific ones.
       Select_ThreadGroup (Quick_Compare_Set[i], base_tgrp, tgrp);
+
+     // Are we processing a restricted time range?
+      if (!Quick_Compare_Set[i].timeSegment.empty()) {
+        vector<ParseInterval> *interval_list = cmd->P_Result()->getParseIntervalList();
+        interval_list->clear();
+        interval_list->push_back(Quick_Compare_Set[i].timeSegment[0]);
+      }
     }
     if (tgrp.size() > 0) {
       bool success = vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),
@@ -922,6 +930,78 @@ Assert   (pval2.tag == VAL_NUMBER);
     }
   }
 
+ // Pick up the time interval definitions from the ParseResult.
+  vector<ParseInterval> *interval_list = p_result->getParseIntervalList();
+  if (interval_list->size() > 1) {
+   // More than 1 implies that we want to compare across time segments.
+
+    int64_t initialSetCnt = Quick_Compare_Set.size();
+    if (initialSetCnt == 0) {
+     // Define new compare sets for each time interval.
+      for (vector<ParseInterval>::iterator
+              iv = interval_list->begin(); iv != interval_list->end(); iv++) {
+        std::ostringstream H;
+        ParseInterval P = *iv;
+        H << "-I ";
+        if (P.isStartInt()) {
+          H << P.getStartInt();
+        } else {
+          H << P.getStartdouble();
+        }
+        if (P.isEndInt()) {
+          H << ":" << P.getEndInt();
+        } else {
+          H << ":" << P.getEndDouble();
+        }
+
+        selectionTarget S;
+        S.headerPrefix = H.ostringstream::str() + ": ";
+        S.timeSegment.push_back(*iv);
+        Quick_Compare_Set.push_back (S);
+      }
+    } else {
+      if (initialSetCnt > 1) {
+        Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
+        return false;
+      }
+
+      int64_t segmentStart = 0;
+      for (int64_t j = 0; j < interval_list->size(); j++) {
+        if (j < (interval_list->size() -1 )) {
+         // There is at least one more iteration, so
+         // preserve a copy of the original sets.
+          for (int64_t k = 0; k < initialSetCnt; k++) {
+            Quick_Compare_Set.push_back (Quick_Compare_Set[segmentStart+k]);
+          }
+        }
+
+       // Append this time interval to N copies of the original sets.
+        std::ostringstream H;
+        ParseInterval P = (*interval_list)[j];
+        H << "-I ";
+        if (P.isStartInt()) {
+          H << P.getStartInt();
+        } else {
+          H << P.getStartdouble();
+        }
+        if (P.isEndInt()) {
+          H << ":" << P.getEndInt();
+        } else {
+          H << ":" << P.getEndDouble();
+        }
+        H << ": ";
+
+        for (int64_t k = 0; k < initialSetCnt; k++) {
+          Quick_Compare_Set[segmentStart+k].headerPrefix += H.ostringstream::str();
+          Quick_Compare_Set[segmentStart+k].timeSegment.push_back((*interval_list)[j]);
+        }
+        segmentStart += initialSetCnt;
+      }
+
+    }
+
+  }
+
   bool success = Generate_CustomView (cmd, Quick_Compare_Set);
 
   cmd->set_Status(CMD_COMPLETE);
@@ -1290,6 +1370,7 @@ bool SS_cView (CommandObject *cmd) {
       vector<ParseTarget> *new_target_list = new_result->getTargetList();
       vector<ParseRange> *new_cv_list = new_result->getViewSet ();
       new_cv_list->clear();
+      vector<ParseInterval> *new_interval_list = new_result->getParseIntervalList();
 
      // Get access to the parse object defined with the custom view.
       OpenSpeedShop::cli::ParseResult *old_result = cvp->cvPr();
@@ -1297,6 +1378,7 @@ bool SS_cView (CommandObject *cmd) {
       vector<string> *old_mod_list = old_result->getModifierList();
       vector<ParseRange> *old_met_list = old_result->getexpMetricList();
       vector<ParseTarget> *old_target_list = old_result->getTargetList();
+      vector<ParseInterval> *old_interval_list = old_result->getParseIntervalList();
 
       std::ostringstream N(ios::out);
       N << i;
@@ -1328,6 +1410,14 @@ bool SS_cView (CommandObject *cmd) {
      // If there is no view already defined, pick up the <viewType> from the custom definition.
       if (new_view_list->empty()) {
         (*new_view_list) = (*old_view_list);
+      }
+
+     // If there is no time interval specified, get one from the custom definition.
+      if (new_interval_list->empty()) {
+        (*new_interval_list) = (*old_interval_list);
+        if (old_result->isIntervalAttribute()) {
+          new_result->setIntervalAttribute ((char *)(old_result->getIntervalAttribute()->c_str()));
+        }
       }
 
      // If there still is no view list, get one from the view definition.

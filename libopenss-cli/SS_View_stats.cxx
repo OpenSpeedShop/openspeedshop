@@ -40,6 +40,7 @@ struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
 
 template <typename TE>
 bool First_Column (CommandObject *cmd,
+                   ExperimentObject *exp,
                    ThreadGroup& tgrp,
                    std::vector<Collector>& CV,
                    std::vector<std::string>& MV,
@@ -57,7 +58,7 @@ bool First_Column (CommandObject *cmd,
     if (objects.empty()) {
       return false;
     }
-    GetMetricByObjectSet (cmd, tgrp, CV[Column0index], MV[Column0index], objects, initial_items);
+    GetMetricByObjectSet (cmd, exp, tgrp, CV[Column0index], MV[Column0index], objects, initial_items);
     typename std::map <TE, CommandResult *>::const_iterator ii;
     for(ii = initial_items->begin(); ii != initial_items->end(); ii++ ) {
       items.push_back (std::make_pair(ii->first, ii->second));
@@ -71,6 +72,7 @@ bool First_Column (CommandObject *cmd,
 
 template <typename TE>
 void Construct_View (CommandObject *cmd,
+                     ExperimentObject *exp,
                      int64_t topn,
                      ThreadGroup& tgrp,
                      std::vector<Collector>& CV,
@@ -115,7 +117,7 @@ void Construct_View (CommandObject *cmd,
             Framework::SmartPtr<std::map<TE, CommandResult *> >(
                 new std::map<TE, CommandResult * >()
                 );
-        GetMetricByObjectSet (cmd, tgrp, CV[CM_Index], MV[CM_Index], objects, column_values);
+        GetMetricByObjectSet (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, column_values);
         Values[i] = column_values;
       }
     }
@@ -145,7 +147,7 @@ void Construct_View (CommandObject *cmd,
             column_one_used = true;
           } else if (Values[i].isNull()) {
            // There is no map - look up the individual function.
-            Next_Metric_Value = Get_Object_Metric( cmd, it->first, tgrp,
+            Next_Metric_Value = Get_Object_Metric( cmd, exp, it->first, tgrp,
                                                      CV[CM_Index], MV[CM_Index] );
           } else {
            // The entry should be in the column's values map for this function.
@@ -172,7 +174,7 @@ void Construct_View (CommandObject *cmd,
           } else {
             ViewInstruction *percentInst = Find_Column_Def (IV, vinst->TMP1());
             int64_t percentIndex = percentInst->TMP1();
-            CommandResult *Metric_Result = Get_Object_Metric( cmd, it->first, tgrp,
+            CommandResult *Metric_Result = Get_Object_Metric( cmd, exp, it->first, tgrp,
                                                                CV[percentIndex], MV[percentIndex] );
             Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
           }
@@ -183,7 +185,7 @@ void Construct_View (CommandObject *cmd,
            // The measured time interval is too small.
             continue;
           }
-          CommandResult *Metric_Result = Get_Object_Metric( cmd, it->first, tgrp,
+          CommandResult *Metric_Result = Get_Object_Metric( cmd, exp, it->first, tgrp,
                                                                CV[CM_Index], MV[CM_Index] );
           Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
         }
@@ -331,19 +333,19 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     switch (vg) {
      case VIEW_STATEMENTS:
       Get_Filtered_Objects (cmd, exp, tgrp, s_objects);
-      first_column_found = First_Column (cmd, tgrp, CV, MV, Column0index, s_objects, s_items);
+      first_column_found = First_Column (cmd, exp, tgrp, CV, MV, Column0index, s_objects, s_items);
       topn = min(topn, (int64_t)s_items.size());
       EO_Title = "Statement Location (Line Number)";
       break;
      case VIEW_LINKEDOBJECTS:
       Get_Filtered_Objects (cmd, exp, tgrp, l_objects);
-      first_column_found = First_Column (cmd, tgrp, CV, MV, Column0index, l_objects, l_items);
+      first_column_found = First_Column (cmd, exp, tgrp, CV, MV, Column0index, l_objects, l_items);
       topn = min(topn, (int64_t)l_items.size());
       EO_Title = "LinkedObject";
       break;
      default:
       Get_Filtered_Objects (cmd, exp, tgrp, f_objects);
-      first_column_found = First_Column (cmd, tgrp, CV, MV, Column0index, f_objects, f_items);
+      first_column_found = First_Column (cmd, exp, tgrp, CV, MV, Column0index, f_objects, f_items);
       topn = min(topn, (int64_t)f_items.size());
       EO_Title = "Function Name";
       break;
@@ -426,19 +428,19 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
    // Now format the view.
     switch (vg) {
      case VIEW_STATEMENTS:
-      Construct_View (cmd, topn, tgrp, CV, MV, IV,
+      Construct_View (cmd, exp, topn, tgrp, CV, MV, IV,
                       num_columns,
                       ViewInst, Gen_Total_Percent, percentofcolumn, TotalValue, report_Column_summary,
                       s_items, view_output);
       break;
      case VIEW_LINKEDOBJECTS:
-      Construct_View (cmd, topn, tgrp, CV, MV, IV,
+      Construct_View (cmd, exp, topn, tgrp, CV, MV, IV,
                       num_columns,
                       ViewInst, Gen_Total_Percent, percentofcolumn, TotalValue, report_Column_summary,
                       l_items, view_output);
       break;
      default:
-      Construct_View (cmd, topn, tgrp, CV, MV, IV,
+      Construct_View (cmd, exp, topn, tgrp, CV, MV, IV,
                       num_columns,
                       ViewInst, Gen_Total_Percent, percentofcolumn, TotalValue, report_Column_summary,
                       f_items, view_output);

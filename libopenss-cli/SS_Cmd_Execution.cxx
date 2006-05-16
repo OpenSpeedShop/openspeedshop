@@ -617,6 +617,143 @@ void Filter_ThreadGroup (OpenSpeedShop::cli::ParseResult *p_result, ThreadGroup&
   firstThread.unlockDatabase();
 }
 
+/**
+ * Utility: Parse_Interval_Specification()
+ *
+ * Look for a "-I" specification and determine the actual
+ * 'Time' values that specify the beginning and ending
+ * values of each range.
+ *     
+ * @param  CommandObject *
+ * @param  ExperimentObject *
+ * @param  std::vector<std::pair<Time,Time> >&
+ *
+ * @return  bool to indicate success(true) or failure(false),
+ *          also the resulting ranges are placed in the last param.
+ *
+ * @errors  out-of-range errors cause the range be redefined
+ *          as first-to-last, thus it is possible to use the
+ *          result vector to generate a report although it may
+ *          not reflect the user's intent.
+ *
+ */
+bool Parse_Interval_Specification (
+        CommandObject *cmd,
+        ExperimentObject *exp,
+        std::vector<std::pair<Time,Time> >& intervals) {
+  Assert (exp != NULL);
+  Assert (exp->FW() != NULL);
+  OpenSpeedShop::cli::ParseResult *parse_result = cmd->P_Result();
+  vector<ParseInterval> *I_list = parse_result->getParseIntervalList();
+  Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
+  Time first_time = databaseExtent.getTimeInterval().getBegin();
+  Time last_time = databaseExtent.getTimeInterval().getEnd();
+
+  if (I_list->empty()) {
+    intervals.push_back(make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
+    return true;
+  }
+
+  enum { percent, s, ms, us, ns } units = ms;
+  if (parse_result->isIntervalAttribute()) {
+    const string *unit_string = parse_result->getIntervalAttribute();
+    if (!strcasecmp(unit_string->c_str(), "%")) {
+      units = percent;
+    } else if (!strcasecmp(unit_string->c_str(), "s")) {
+      units = s;
+    } else if (!strcasecmp(unit_string->c_str(), "ms")) {
+      units = ms;
+    } else if (!strcasecmp(unit_string->c_str(), "us")) {
+      units = us;
+    } else if (!strcasecmp(unit_string->c_str(), "ns")) {
+      units = ns;
+    } else {
+      std::ostringstream S("The attribute for the specified range '");
+      S << unit_string << "'  is not valid.";
+      Mark_Cmd_With_Soft_Error(cmd, S.ostringstream::str());
+      intervals.push_back(make_pair<Time,Time>(first_time,last_time));
+      return true;
+    }
+  }
+
+  for (vector<ParseInterval>::iterator
+          pi = I_list->begin(); pi != I_list->end(); pi++) {
+    ParseInterval P = *pi;
+    Time Istart = first_time;
+    Time Iend = last_time;
+
+    if (units == percent) {
+      double span = last_time - first_time;
+      double fstart = 0.0;
+      double fend = 1.0;
+      if (P.isStartInt()) {
+        fstart = P.getStartInt();
+      } else {
+        fstart = P.getStartdouble();
+      }
+      if (P.isEndInt()) {
+        fend = P.getEndInt();
+      } else {
+        fend = P.getEndDouble();
+      }
+      Istart = first_time + static_cast<int64_t>(span * (fstart / 100));
+      Iend = first_time + static_cast<int64_t>(span * (fend / 100));
+    } else {
+      if (P.isStartInt()) {
+        int64_t offset = P.getStartInt();
+        switch (units) {
+         case s: offset *= 1000;
+         case ms: offset *= 1000;
+         case us: offset *= 1000;
+        }
+        Istart += offset;
+      } else {
+        double fstart = P.getStartdouble();
+        switch (units) {
+         case s: fstart *= 1000.0;
+         case ms: fstart *= 1000.0;
+         case us: fstart *= 1000.0;
+        }
+        Istart += static_cast<int64_t>(fstart);
+      }
+      if (P.isEndInt()) {
+        int64_t offset = P.getEndInt();
+        switch (units) {
+         case s: offset *= 1000;
+         case ms: offset *= 1000;
+         case us: offset *= 1000;
+        }
+        Iend = first_time + offset;
+      } else {
+        double fend = P.getEndDouble();
+        switch (units) {
+         case s: fend *= 1000.0;
+         case ms: fend *= 1000.0;
+         case us: fend *= 1000.0;
+        }
+        Iend  = first_time + static_cast<int64_t>(fend);
+      }
+    }
+
+    if ((Istart < first_time) || (Iend > last_time) || (Istart >= Iend)) {
+      std::ostringstream S("The specified range '");
+      S << Istart << ":" << Iend
+        << "' does not fit inside the available range "
+        << first_time << ":" << last_time;  
+      Mark_Cmd_With_Soft_Error(cmd, S.ostringstream::str());
+      intervals.clear();
+      intervals.push_back(make_pair<Time,Time>(first_time, last_time));
+      return true;
+    }
+
+    intervals.push_back(std::make_pair<Time,Time>(Istart, Iend));
+  }
+
+  return true;
+}
+
+
+
 // Utilities to decode <target_list> and attach or detach
 
 /**

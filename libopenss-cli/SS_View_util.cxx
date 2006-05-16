@@ -51,18 +51,22 @@ struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
 
 template <typename TE>
 void GetMetricBySet (CommandObject *cmd,
+                     ExperimentObject *exp,
                      ThreadGroup& tgrp,
                      Collector& collector,
                      std::string& metric,
                      std::set<TE>& objects,
                      SmartPtr<std::map<TE, CommandResult *> >& items) {
 
+  std::vector<std::pair<Time,Time> > intervals;
+  Parse_Interval_Specification (cmd, exp, intervals);
+
   Metadata m = Find_Metadata ( collector, metric );
   std::string id = m.getUniqueId();
 
   if( m.isType(typeid(unsigned int)) ) {
     SmartPtr<std::map<TE, uint> > data;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, data);
+    GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, data);
     for(typename std::map<TE, uint>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
       std::pair<TE, uint> p = *item;
@@ -70,7 +74,7 @@ void GetMetricBySet (CommandObject *cmd,
     }
   } else if( m.isType(typeid(uint64_t)) ) {
     SmartPtr<std::map<TE, uint64_t> > data;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, data);
+    GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, data);
     for(typename std::map<TE, uint64_t>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
       std::pair<TE, uint64_t> p = *item;
@@ -78,7 +82,7 @@ void GetMetricBySet (CommandObject *cmd,
     }
   } else if( m.isType(typeid(int)) ) {
     SmartPtr<std::map<TE, int> > data;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, data);
+    GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, data);
     for(typename std::map<TE, int>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
       std::pair<TE, int> p = *item;
@@ -86,7 +90,7 @@ void GetMetricBySet (CommandObject *cmd,
     }
   } else if( m.isType(typeid(int64_t)) ) {
     SmartPtr<std::map<TE, int64_t> > data;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, data);
+    GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, data);
     for(typename std::map<TE, int64_t>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
       std::pair<TE, int64_t> p = *item;
@@ -94,7 +98,7 @@ void GetMetricBySet (CommandObject *cmd,
     }
   } else if( m.isType(typeid(float)) ) {
     SmartPtr<std::map<TE, float> > data;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, data);
+    GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, data);
     for(typename std::map<TE, float>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
       std::pair<TE, float> p = *item;
@@ -102,7 +106,7 @@ void GetMetricBySet (CommandObject *cmd,
     }
   } else if( m.isType(typeid(double)) ) {
     SmartPtr<std::map<TE, double> > data;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, data);
+    GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, data);
     for(typename std::map<TE, double>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
       std::pair<TE, double> p = *item;
@@ -110,7 +114,7 @@ void GetMetricBySet (CommandObject *cmd,
     }
   } else if( m.isType(typeid(string)) ) {
     SmartPtr<std::map<TE, string> > data;
-    GetMetricInThreadGroup (collector, metric, tgrp, objects, data);
+    GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, data);
     for(typename std::map<TE, string>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
       std::pair<TE, string> p = *item;
@@ -122,30 +126,33 @@ void GetMetricBySet (CommandObject *cmd,
 }
 
 void GetMetricByObjectSet (CommandObject *cmd,
+                           ExperimentObject *exp,
                            ThreadGroup& tgrp,
                            Collector& collector,
                            std::string& metric,
                            std::set<Function>& objects,
                            SmartPtr<std::map<Function, CommandResult *> >& items) {
-  GetMetricBySet (cmd, tgrp, collector, metric, objects, items);
+  GetMetricBySet (cmd, exp, tgrp, collector, metric, objects, items);
 }
 
 void GetMetricByObjectSet (CommandObject *cmd,
+                           ExperimentObject *exp,
                            ThreadGroup& tgrp,
                            Collector& collector,
                            std::string& metric,
                            std::set<Statement>& objects,
                            SmartPtr<std::map<Statement, CommandResult *> >& items) {
-  GetMetricBySet (cmd, tgrp, collector, metric, objects, items);
+  GetMetricBySet (cmd, exp, tgrp, collector, metric, objects, items);
 }
 
 void GetMetricByObjectSet (CommandObject *cmd,
+                           ExperimentObject *exp,
                            ThreadGroup& tgrp,
                            Collector& collector,
                            std::string& metric,
                            std::set<LinkedObject>& objects,
                            SmartPtr<std::map<LinkedObject, CommandResult *> >& items) {
-  GetMetricBySet (cmd, tgrp, collector, metric, objects, items);
+  GetMetricBySet (cmd, exp, tgrp, collector, metric, objects, items);
 }
 
 CommandResult *Init_Collector_Metric (CommandObject *cmd,

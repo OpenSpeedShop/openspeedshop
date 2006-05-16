@@ -19,6 +19,12 @@
 // A utility used to look at command options
 bool Look_For_KeyWord (CommandObject *cmd, std::string Key);
 
+// One to convert time interval specifications to unix time.
+bool Parse_Interval_Specification (
+        CommandObject *cmd,
+        ExperimentObject *exp,
+        std::vector<std::pair<Time,Time> >& intervals);
+
 // Experiment level commands
 bool SS_expAttach (CommandObject *cmd);
 bool SS_expClose (CommandObject *cmd);

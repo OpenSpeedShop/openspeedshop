@@ -197,6 +197,7 @@ template <typename TO, typename TS>
 void GetMetricInThreadGroup(
     const Collector& collector,
     const std::string& metric,
+          std::vector<std::pair<Time,Time> >& intervals,
     const ThreadGroup& tgrp,
     const std::set<TO >& objects,
     SmartPtr<std::map<TO, TS > >& result)
@@ -208,9 +209,14 @@ void GetMetricInThreadGroup(
 
     // Get the summation reduced metric values
     SmartPtr<std::map<TO, std::map<Thread, TS > > > individual;
-    Queries::GetMetricValues(collector, metric,
-	                     TimeInterval(Time::TheBeginning(), Time::TheEnd()),
-			     tgrp, objects, individual);
+    for (std::vector<std::pair<Time,Time> >::iterator
+                 iv = intervals.begin(); iv != intervals.end(); iv++) {
+      Time Start_Time = iv->first;
+      Time End_Time = iv->second;
+      Queries::GetMetricValues(collector, metric,
+	                       TimeInterval(Start_Time, End_Time),
+			       tgrp, objects, individual);
+    }
     SmartPtr<std::map<TO, TS > > reduced =
 	Queries::Reduction::Apply(individual, Queries::Reduction::Summation);
     individual = SmartPtr<std::map<TO, std::map<Thread, TS > > >();
@@ -263,18 +269,21 @@ CommandResult *Get_Total_Metric (CommandObject *cmd,
                                  std::string metric);
 
 void GetMetricByObjectSet (CommandObject *cmd,
+                            ExperimentObject *exp,
                             ThreadGroup& tgrp,
                             Collector& collector,
                             std::string& metric,
                             std::set<Function>& objects,
                             SmartPtr<std::map<Function, CommandResult *> >& items);
 void GetMetricByObjectSet (CommandObject *cmd,
+                           ExperimentObject *exp,
                            ThreadGroup& tgrp,
                            Collector& collector,
                            std::string& metric,
                            std::set<Statement>& objects,
                            SmartPtr<std::map<Statement, CommandResult *> >& items);
 void GetMetricByObjectSet (CommandObject *cmd,
+                           ExperimentObject *exp,
                            ThreadGroup& tgrp,
                            Collector& collector,
                            std::string& metric,
@@ -283,6 +292,7 @@ void GetMetricByObjectSet (CommandObject *cmd,
 
 template <typename TE>
 CommandResult *Get_Object_Metric (CommandObject *cmd,
+                                  ExperimentObject *exp,
                                   TE F,
                                   ThreadGroup tgrp,
                                   Collector collector,
@@ -292,7 +302,7 @@ CommandResult *Get_Object_Metric (CommandObject *cmd,
              Framework::SmartPtr<std::map<TE, CommandResult *> >(
                 new std::map<TE, CommandResult * >()
                 );;
-  GetMetricByObjectSet (cmd, tgrp, collector ,metric ,objects, items);
+  GetMetricByObjectSet (cmd, exp, tgrp, collector ,metric ,objects, items);
   return (items->begin() != items->end()) ? (*(items->begin())).second : NULL;
 }
 
