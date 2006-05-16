@@ -22,6 +22,7 @@ SUBDIRS = TroubleShootingGuide
 DIST_SUBDIRS = TroubleShootingGuide
 
 EXTRA_DIST = BuildingInstallingDPCL.html \
+	ExperimentMenuItems.png \
 	FileMenu.png \
 	HelpMenu.png \
 	index.html \
@@ -58,13 +59,13 @@ EXTRA_DIST = BuildingInstallingDPCL.html \
 	Preferences-General.png \
 	Preferences-Source.png \
 	Preferences-Stats.png \
+	Preferences-ManageProcessPanel.png \
 	rpmQuery.asc \
-	snapshot_ExperimentsMenuItems.png \
-	snapshot_WizardsMenuItems.png \
 	SourcePanel.png \
 	StatsPanel.png \
 	ToolsMenu.png \
-	valid-html401.png
+	valid-html401.png \
+	WizardMenuItems.png 
 
 
 package = @PACKAGE@
