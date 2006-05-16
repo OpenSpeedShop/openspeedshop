@@ -51,6 +51,7 @@ cd ../..
 #
 cd test/src/dyninst
 aclocal
+libtoolize --force --ltdl --copy
 automake --foreign --add-missing --copy
 autoconf
 
