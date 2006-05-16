@@ -1988,12 +1988,10 @@ bool SS_expSave (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
-#if  0
-     // Stop the collector so we can change the parameter value.
-  ThreadGroup active;
+static bool setparam (Collector C, std::string pname, vector<ParamVal> *value_list) {
 
  // Stop the collector so we can change the parameter value.
+  ThreadGroup active;
   active = C.getThreads();
   active.postponeCollecting(C);
 
@@ -2006,66 +2004,94 @@ static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
       continue;
     }
 
-    if( m.isType(typeid(int)) ) {
-      int ival;
-      if (pvalue.isValString()) {
-        sscanf ( pvalue.getStingVal(), "%d", &ival);
-      } else {
-        ival = (int)(pvalue.getnumVal());
+    if ( m.isType(typeid(std::map<std::string, bool>)) ) {
+     // Set strings in the value_list to true.
+      std::map<std::string, bool> Value;
+      C.getParameterValue(pname, Value);
+
+     // Set all the booleans to true, if the corresponding name is in the list,
+     // and false otherwise.
+      for (std::map<std::string, bool>::iterator
+                 im = Value.begin(); im != Value.end(); im++) {
+        bool name_in_list = false;
+        for (vector<ParamVal>::iterator
+                iv = value_list->begin(); iv != value_list->end(); iv++) {
+          Assert (iv->getValType() == PARAM_VAL_STRING);
+          if (!strcasecmp( im->first.c_str(), iv->getSVal() )) {
+            name_in_list = true;
+            break;
+          }
+        }
+        im->second = name_in_list;
       }
-      C.setParameterValue(pname,(int)ival);
-    } else if( m.isType(typeid(int64_t)) ) {
-      int64_t i64val;
-      if (pvalue.isValString()) {
-        sscanf ( pvalue.getStingVal(), "%lld", &i64val);
-      } else {
-        i64val = (int64_t)(pvalue.getnumVal());
+
+      C.setParameterValue(pname,Value);
+    } else {
+      ParamVal pvalue = (*value_list)[0];
+
+      if( m.isType(typeid(int)) ) {
+        int ival;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%d", &ival);
+        } else {
+          ival = (int)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(int)ival);
+      } else if( m.isType(typeid(int64_t)) ) {
+        int64_t i64val;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%lld", &i64val);
+        } else {
+          i64val = (int64_t)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(int64_t)i64val);
+      } else if( m.isType(typeid(uint)) ) {
+        uint uval;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%d", &uval);
+        } else {
+          uval = (uint)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(uint)uval);
+      } else if( m.isType(typeid(uint64_t)) ) {
+        uint64_t u64val;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%lld", &u64val);
+        } else {
+          u64val = (uint64_t)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(uint64_t)u64val);
+      } else if( m.isType(typeid(float)) ) {
+        float fval;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%f", &fval);
+        } else {
+          fval = (float)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(float)fval);
+      } else if( m.isType(typeid(double)) ) {
+        double dval;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%llf", &dval);
+        } else {
+          dval = (double)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(double)dval);
+      } else if( m.isType(typeid(string)) ) {
+        std::string sval;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sval = std::string(pvalue.getSVal());
+        } else {
+          char cval[20];
+          sprintf( cval, "%d", pvalue.getIVal());
+          sval = std::string(&cval[0]);
+        }
+        C.setParameterValue(pname,(std::string)sval);
       }
-      C.setParameterValue(pname,(int64_t)i64val);
-    } else if( m.isType(typeid(uint)) ) {
-      uint uval;
-      if (pvalue.isValString()) {
-        sscanf ( pvalue.getStingVal(), "%d", &uval);
-      } else {
-        uval = (uint)(pvalue.getnumVal());
-      }
-      C.setParameterValue(pname,(uint)uval);
-    } else if( m.isType(typeid(uint64_t)) ) {
-      uint64_t u64val;
-      if (pvalue.isValString()) {
-        sscanf ( pvalue.getStingVal(), "%lld", &u64val);
-      } else {
-        u64val = (uint64_t)(pvalue.getnumVal());
-      }
-      C.setParameterValue(pname,(uint64_t)u64val);
-    } else if( m.isType(typeid(float)) ) {
-      float fval;
-      if (pvalue.isValString()) {
-        sscanf ( pvalue.getStingVal(), "%f", &fval);
-      } else {
-        fval = (float)(pvalue.getnumVal());
-      }
-      C.setParameterValue(pname,(float)fval);
-    } else if( m.isType(typeid(double)) ) {
-      double dval;
-      if (pvalue.isValString()) {
-        sscanf ( pvalue.getStingVal(), "%llf", &dval);
-      } else {
-        dval = (double)(pvalue.getnumVal());
-      }
-      C.setParameterValue(pname,(double)dval);
-    } else if( m.isType(typeid(string)) ) {
-      std::string sval;
-      if (pvalue.isValString()) {
-        sval = std::string(pvalue.getStingVal());
-      } else {
-        char cval[20];
-        sprintf( cval, "%d", pvalue.getnumVal());
-        sval = std::string(&cval[0]);
-      }
-      C.setParameterValue(pname,(std::string)sval);
     }
 
+   // There should only be one name that matches!
+   // Once we find and set it, we are done.
    // Restart the collector with a different parameter value.
     active.startCollecting(C);
     return true;
@@ -2073,8 +2099,6 @@ static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
 
  // Restart the collector with the old parameter value.
   active.startCollecting(C);
-
-#endif
 
  // We didn't find the named parameter in this collector.
   return false;
@@ -2094,8 +2118,6 @@ static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
  */
 bool SS_expSetParam (CommandObject *cmd) {
 
-#if 0
-
   ExperimentObject *exp = Find_Specified_Experiment (cmd);
   if (exp == NULL) {
     return false;
@@ -2103,26 +2125,26 @@ bool SS_expSetParam (CommandObject *cmd) {
 
   Assert(cmd->P_Result() != NULL);
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseParam> *p_list = p_result->getParmList();
-  vector<ParseParam>::iterator iter;
+  if (p_result->isParam()) {
+    ParseParam *p_param = p_result->getParam();
+    char *type_name = p_param->getExpType();
+    char *param_name = p_param->getParamType();
+    vector<ParamVal> *value_list = p_param->getValList();
 
- // Prevent this experiment from changing until we are done.
-  exp->Q_Lock (cmd, true);
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
 
-  for (iter=p_list->begin();iter != p_list->end(); iter++) {
-    std::string param_name = iter->getParmParamType();
-    if (iter->getParmExpType()) {
+    if (type_name != NULL) {
      // The user has specified a particular collector.
      // Set the paramater for just that one collector.
-      std::string C_name = std::string(iter->getParmExpType());
+      std::string C_name = std::string(type_name);
       try {
         Collector C = Get_Collector (exp->FW(), C_name);
-        (void) setparam(C, param_name, *iter);
+        (void) setparam(C, param_name, value_list);
       }
       catch(const Exception& error) {
        // Return message, but continue to process other collectors.
         Mark_Cmd_With_Std_Error (cmd, error);
-        continue;
       }
     } else {
      // Get the list of collectors used in the specified experiment.
@@ -2132,7 +2154,7 @@ bool SS_expSetParam (CommandObject *cmd) {
       CollectorGroup::iterator ci;
       for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
         try {
-          param_was_set |= setparam(*ci, param_name, *iter);
+          param_was_set |= setparam(*ci, param_name, value_list);
         }
         catch(const Exception& error) {
          // Return message, but continue to process other collectors.
@@ -2143,20 +2165,19 @@ bool SS_expSetParam (CommandObject *cmd) {
 
       if (!param_was_set) {
        // Record the error but continue to try to set other parameters.
-    	std::string s("The specified parameter, " + param_name + 
-	    	    	", was not set for any collector.");
+    	std::string s("The specified parameter, ");
+        s = s + param_name + ", was not set for any collector.";
     	Mark_Cmd_With_Soft_Error(cmd,s);
       }
     }
-  }
-  exp->Q_UnLock ();
+    exp->Q_UnLock ();
 
-  if ((cmd->Status() == CMD_ERROR) ||
-      (cmd->Status() == CMD_ABORTED)) {
-    return false;
-  }
+    if ((cmd->Status() == CMD_ERROR) ||
+        (cmd->Status() == CMD_ABORTED)) {
+      return false;
+    }
 
-#endif
+  }
 
   cmd->set_Status(CMD_COMPLETE);
   return true;
@@ -2208,6 +2229,23 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
     std::string Value;
     c.getParameterValue(id, Value);
     Param_Value = CRPTR (Value);
+  } else if( m.isType(typeid(std::map<std::string, bool>))) {
+    std::map<std::string, bool> Value;
+    c.getParameterValue(id, Value);
+
+   // Get the names of all the functions that are marked as true.
+    std::string s;
+    bool need_comma = false;
+    for (std::map<std::string, bool>::iterator
+               im = Value.begin(); im != Value.end(); im++) {
+      if (im->second) {
+        if (need_comma) s += ", ";
+        s += im->first;
+        need_comma = true;
+      }
+    }
+
+    Param_Value = CRPTR (s);
   } else {
     Param_Value = CRPTR ("Unknown type.");
   }
