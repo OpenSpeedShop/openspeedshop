@@ -23,8 +23,8 @@
 Introduction:
 -------------
 
-For this assignment you'll be asked to analyze some performance
-output from a previously executed performance expeiment..  
+For this assignment you'll be asked to analyze performance
+output from 2 previously executed performance experiments.
 
 There is no time constraint to "correctly" complete this task.
 
@@ -50,17 +50,19 @@ The Scenario:
 
 There are 2 directories, sweep3d_A and sweep3d_B that contain 2 versions of 
 the application sweep3d.   Experiment data has already been collected on both
-these apps.   X1.sweep3d_A.usertime.openss corresponds to the application built
-in the sweep3d_A directory and is considered the baseline version.  
+these applications.   X1.sweep3d_A.usertime.openss corresponds to the
+application built in the sweep3d_A directory and is considered the baseline
+version.  
 
 There was an algorithm change made to sweep3d in the sweep3d_B directory and
 performance data has been collected in the data file
 X1.sweep3d_B.usertime.openss.   
 
-The first task is to compare the 2 experiment files to see if you can determine
-where the performance problem occurs.
+In general, the first task is to compare the 2 experiment files to see if
+you can determine where the performance problem occurs.
 
-The second task will be to generate a detail report comparing the offending
+The second task will be to determine which processes is causing the 
+degradation and generate a detail report comparing the offending
 process against the other processes in the run.
 
 
@@ -78,9 +80,12 @@ Step 3:
   Determine which statement/statements are the culprits of the slow down.
 
 Step 4:
+  Determine which process is most relevant to the slow down.
+
+Step 5:
   In the StatsPanel, show the exclusive time for the process that took
-the most time in one column, caparing it to one of the other processes
-in another column.
+the most time in one column, comparing it to one (or all) of the other
+processes in another column.
 
 Step n:
   Exit the Open|Speedshop tool.
