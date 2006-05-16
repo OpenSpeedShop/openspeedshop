@@ -57,8 +57,7 @@ using namespace OpenSpeedShop::Framework;
 ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id )
     : QWidget( parent, name )
 {
-//  nprintf(DEBUG_CONST_DESTRUCT) ("ManageCollectorsClass::ManageCollectorsClass() constructor called.\n");
-  dprintf("ManageCollectorsClass::ManageCollectorsClass() constructor called.\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ("ManageCollectorsClass::ManageCollectorsClass() constructor called.\n");
   
   dialog = NULL;
   user_defined_psets = NULL;
