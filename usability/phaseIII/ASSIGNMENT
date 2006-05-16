@@ -31,13 +31,6 @@ There is no time constraint to "correctly" complete this task.
 Please try to "think aloud" as you work through the scenario.   
 It will help us understand where our problems are.
 
-Your work is to perform the two tasks below.   In brief, the first task is 
-to compare the data files collected from two separate runs of the
-program (nbody).   You do not have to run this application, the data has
-already been gathered.   The second task will be analyze one of the 
-experiments to determine which process is taking the most time and why.
-
-
 Remember:  You are not being tested.    The user interface and it's
 ease of use, is being analyzed.   Your initial feedback and thoughts as you 
 navigate through this set of tasks will enable us to see our problem
@@ -53,44 +46,41 @@ Enjoy.
 
 
 The Scenario:
-------------
+-------------
 
-There are 2 data files X1.nbody_mpiA.openss and X2.nbody_mpiB.openss that
-are from 2 executions.  Both used the pc Sampling experiment, sampling
-data with the default settings.   
+There are 2 directories, sweep3d_A and sweep3d_B that contain 2 versions of 
+the application sweep3d.   Experiment data has already been collected on both
+these apps.   X1.sweep3d_A.usertime.openss corresponds to the application built
+in the sweep3d_A directory and is considered the baseline version.  
 
+There was an algorithm change made to sweep3d in the sweep3d_B directory and
+performance data has been collected in the data file
+X1.sweep3d_B.usertime.openss.   
 
-Both versions of the experiment get the correct answers.  There was an
-'obvious' algorithm change that caused one version of the program to run
-slower than the other.
+The first task is to compare the 2 experiment files to see if you can determine
+where the performance problem occurs.
 
-
-The first task is to determine which of the 2 versions of the experiment
-actually runs the most efficient.  (Fastest)
-
-The second part of the task is to determine why the slower down occured.
-HUGE HINT: One thread took much more time due to algorithm change.   Can you 
-find which process took the longest and why?
-
+The second task will be to generate a detail report comparing the offending
+process against the other processes in the run.
 
 
 Step 1:
   From the 2 data files in the current directory, determine which execution
 took the least time to run.  i.e. Which one ran the fastest, using the least
 amount of cpu time.  (In this test case, the one using the least amount
-off cpu time also took the shortest amount of wall-clock time.)
+of cpu time also took the shortest amount of wall-clock time.)
 
-
-Step 2 is based on your answer in Step 1.
 Step 2:
-  ... more words ...
-  Determine which thread of the slower algorithm took the most time.
+  Determine which routine is the most likely to have caused the performance
+degradation.
 
+Step 3:
+  Determine which statement/statements are the culprits of the slow down.
 
-Step 3: Changing gears slightly.
-   Can you display a StatsPanel that displays the "exlusive_time" metric from
-one of the processs in one of the experiments in one column and displaying the 
-same metric for all the processes in the same experiment in a second column?
+Step 4:
+  In the StatsPanel, show the exclusive time for the process that took
+the most time in one column, caparing it to one of the other processes
+in another column.
 
 Step n:
   Exit the Open|Speedshop tool.

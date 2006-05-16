@@ -109,48 +109,4 @@ EXAMPLES:
  
   To run Open|Speed shop without the GUI use the -cli option:
   $ openss -cli
-
-
-COMMAND LINE:
-  Available commands:
-openss>>help commands
-
-Lists all available commands
-
-expAttach -> Attach applications or collectors to an experiment.
-expClose -> Close/Terminate the experiment.
-expCreate -> Start the process of defining an experiment.
-expDetach -> Detach applications from collectors.
-expDisable -> Turn off data collection.
-expEnable -> Restart data collection.
-expFocus -> Focus the current input window on a specified experiment.
-expPause -> Temporarily interrupt the specified experiment.
-expRestore -> Restore experiment's definition and previously saved
-.data from a data base that was saved with an expSave command.
-expGo -> Start execution or continue running the experiment.
-expSave -> Save the experiment data for further analysis.
-expSetparm -> Change the value an experiment's argument.
-expView -> View the experiment's output in text form.
-listBreaks -> List the breakpoints that have been defined.
-listExp -> List the experiments that have been defined.
-listHosts -> Lists the hosts that define the specified cluster.
-listMetrics -> List the measurements that an experiment is capable of making.
-listObj -> List the object files that are known.
-listParams -> Report the current values assigned to all the parameters
-that are part of a specific experiment.
-listPids -> List the process Id's that are known.
-listRanks -> List the mpi ranks that are known.
-listSrc -> Display a source file.
-listStatus -> List the current status of an experiment.
-listThreads -> List the threads that are known.
-listTypes -> List available performance measurement utilities.
-listViews -> List the reports that can be produced by an experiment.
-clearBreak -> Remove a breakpoint.
-exit -> Terminate the session.
-help -> Request information about a topic.
-history -> Print a list of previously executed commands.
-log -> Echo executed commands and their results to a file.
-openGui -> Open the Graphical User Interface.
-playback -> Read and execute commands stored in a file.
-record -> Begin echoing executed commands to a file.
-setBreak -> Enter a breakpoint, which will halt the application when reached.
+  openss>>
