@@ -128,8 +128,8 @@ extern int ip_number(char *,int);
 -[0-9]+   { yylval.ival = atoi(yytext); return NUMBER; }
 [0-9]+[.][0-9]+   { yylval.dval = atof(yytext); return DOUBLE; }
 -[0-9]+[.][0-9]+   { yylval.dval = atof(yytext); return DOUBLE; }
-[a-zA-Z./_\*%][a-zA-Z0-9_./\-\+\*]+  { yylval.string = strdup(yytext); return NAME; }
-[<][a-zA-Z./\*][a-zA-Z0-9_./\-\+\*]+[>] { yylval.string = strdup(yytext); return NAME; }
+[a-zA-Z./_\*\%][a-zA-Z0-9_./\-\+\*\%]*  { yylval.string = strdup(yytext); return NAME; }
+[<][a-zA-Z./\*\%][a-zA-Z0-9_./\-\+\*\%]*[>] { yylval.string = strdup(yytext); return NAME; }
 
 [\n]	{ return END_LINE; }
 ">" 	{ return REDIRECT; } 
