@@ -265,7 +265,6 @@ s_dumpInterval(ParseResult* p_result, vector<ParseInterval> *p_list, char *label
 static void 
 s_dumpParam(ParseParam *p_parm, char *label)
 {
-#if 1
     cout << "\t\t" << label << ": " << endl;
 
     cout << "\t\t";
@@ -297,18 +296,6 @@ s_dumpParam(ParseParam *p_parm, char *label)
 	}
     }
 
-#else
-    vector<ParseParam>::iterator iter;
-
-    for (iter=p_list->begin();iter != p_list->end(); iter++) {
-    	    cout << "\t\t\t";
-    
-    	if (iter->isValString()) 
-	    cout << iter->getStingVal() << endl;
-	else
-	    cout << iter->getnumVal() << endl;
-    }
-#endif
 }
 
 /**
