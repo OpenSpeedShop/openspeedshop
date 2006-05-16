@@ -32,7 +32,6 @@ EXTRA_DIST = BuildingInstallingDPCL.html \
 	OpenSpeedShop_Logo.jpg \
 	OpenSpeedShopPackageNotes.html \
 	PC_SampleExperiment-2.png \
-	PC_SampleExperiment-3-RESULTS.png \
 	PC_SampleExperiment-4-Split.png \
 	PC_SampleExperiment-5-f3click.png \
 	PC_SampleExperiment-non-wizard-1.png \
