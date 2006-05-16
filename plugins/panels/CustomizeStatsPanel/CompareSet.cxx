@@ -43,7 +43,8 @@ CompareSet::CompareSet(QToolBox *csetTB, CustomizeClass *cc ) : QObject()
   tcnt = 1;
   compareClass = cc;
 
-  name = QString("cset%1").arg(compareClass->ccnt);
+//  name = QString("cset%1").arg(compareClass->ccnt);
+  name = QString("Generate Customized Stats Panel.");
 
   tabWidget = new QTabWidget(compareClass, "tabWidget");
 

@@ -88,6 +88,9 @@ CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bo
   QToolTip::add(header, tr("The Customize StatsPanel Factory is the interface that allows you to compare one set\nof process/thread to another -or- one experiment run against another.\n\nIt allows you manage columns of data that will be displayed in the StatsPanel.\nEach cset defined can have mulitiple columns defined.   Each coloumn can have an\nindividual collector/metric/modifier displayed.\n\nFirst you create the CompareSet (cset) definition, using this panel, then select\n\"Focus on this CSET\" and the StatsPanel (and eventually the SourcePanel) will be\nupdated with the selected statistics.") );
   mainCompareLayout->addWidget(header);
 
+// I'm not sure this header makes much sense here.   Hide for now.
+header->hide();
+
   compareClassLayout = new QVBoxLayout( mainCompareLayout, 1, "compareClassLayout"); 
 
   // Vertical list of compare sets (set of psets) defined by the user.
@@ -172,6 +175,7 @@ CustomizeClass::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
+#ifdef NONWALKING
   qaction = new QAction( this,  "addNewColumn");
   qaction->addTo( contextMenu );
 //  qaction->setText( tr(QString("Add column to Compare Set...")+currentCompareSetString) );
@@ -185,8 +189,29 @@ CustomizeClass::menu(QPopupMenu* contextMenu)
   qaction->setText( tr(QString("Remove column %1").arg(currentColumnString)) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( removeRaisedTab() ) );
   qaction->setStatusTip( tr("Removes the raised column (tab).") );
+#else // NONWALKING
+
+  QPopupMenu *addDeleteMenu = new QPopupMenu(this);
+  contextMenu->setCaption("Add/Delete Columns");
+  contextMenu->insertItem("Add/Delete Columns", addDeleteMenu);
+
+  qaction = new QAction( this,  "addNewColumn");
+  qaction->addTo( addDeleteMenu );
+//  qaction->setText( tr(QString("Add column to Compare Set...")+currentCompareSetString) );
+  qaction->setText( tr(QString("Add column") ) );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( addNewColumn() ) );
+  qaction->setStatusTip( tr("Adds an additional column (tab) to the definition of the current set.") );
+
+  qaction = new QAction( this,  "removeRaisedTab");
+  qaction->addTo( addDeleteMenu );
+//  qaction->setText( tr(QString("Remove%1 from Compare Set...").arg(currentColumnString)) );
+  qaction->setText( tr(QString("Remove column %1").arg(currentColumnString)) );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( removeRaisedTab() ) );
+  qaction->setStatusTip( tr("Removes the raised column (tab).") );
+#endif // NONWALKING
 
   contextMenu->insertSeparator();
+
 
   qaction = new QAction( this,  "addProcessesSelected");
   qaction->addTo( contextMenu );

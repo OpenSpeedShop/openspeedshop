@@ -90,7 +90,7 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   addProcessesLayout->addWidget( addProcessesRegExpLineEdit );
   QToolTip::add(addProcessesRegExpLineEdit, tr("Enter which process(es) to be added/removed.  This can be a single process name\nor a comma separated list of processes.\n\nRegular expressions will be honored. For example:\n  \"8455, 6545, 4500-5000\"\n  \"8455, hostname1:8554, hostname2:0-10000, 1303[12]\"\n  \"5433, hostname1:*, Terminated, 4323\"") );
 
-//  QToolTip::add(addProcessesRegExpLineEdit, tr("Enter the pid (or regular expression defining the pids) that you want entered into\nthe current Column in the current Compare Set of the Compare Panel.\n\nDrag and drop, psets or individual processes from here to the Compare Panel.") );
+//  QToolTip::add(addProcessesRegExpLineEdit, tr("Enter the pid (or regular expression defining the pids) that you want entered into\nthe current Column in the current Compare Set of the Compare Panel.\n\nDrag and drop, process sets or individual processes from here to the Compare Panel.") );
 
   QPushButton *addButton = new QPushButton( this, "addButton" );
   addButton->setText("Add");
@@ -115,7 +115,7 @@ availableProcessesListView->addColumn( tr( "Host:" ) );
   availableProcessesListView->setSortOrder( Qt::Ascending );
   availableProcessesListView->setRootIsDecorated(TRUE);
   availableProcessesListView->setResizeMode(QListView::LastColumn);
-  QToolTip::add(availableProcessesListView->viewport(), tr("Listed here are all the available processes that can be added to current Column in\nthe current Compare Set of the Compare Panel.\n\nDrag and drop, psets or individual processes from here to the Compare Panel.") );
+  QToolTip::add(availableProcessesListView->viewport(), tr("Listed here are all the available processes that can be added to current Column in\nthe current Compare Set of the Compare Panel.\n\nDrag and drop, process sets or individual processes from here to the Compare Panel.") );
 
 
   CompareProcessesDialogLayout->addWidget( availableProcessesListView );

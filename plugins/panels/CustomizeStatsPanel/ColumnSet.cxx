@@ -137,14 +137,14 @@ ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
   lv->addColumn("Processes/PSets:");
   lv->addColumn("Host:");
   lv->setResizeMode(QListView::LastColumn);
-  QToolTip::add(lv->header(), "Process/Process Sets (psets) to be display in this column:");
+  QToolTip::add(lv->header(), "Process/Process Sets to be display in this column:");
   lv->setAllColumnsShowFocus( TRUE );
   lv->setShowSortIndicator( TRUE );
   lv->setRootIsDecorated(TRUE);
   lv->setSelectionMode( QListView::Single );
   initializeListView();
 
-  QToolTip::add(lv->viewport(), __TR("Drag and drop, psets or individual processes from the\nManageProcessesPanel.  In the StatsPanel, the statistics from\nthese grouped processes will be displayed in\ncolumns relative to this display.") );
+  QToolTip::add(lv->viewport(), __TR("Drag and drop, process sets or individual processes from the\nManageProcessesPanel.  In the StatsPanel, the statistics from\nthese grouped processes will be displayed in\ncolumns relative to this display.") );
   TBlayout->addWidget(lv);
   
   // ??  compareList.push_back(lv);
