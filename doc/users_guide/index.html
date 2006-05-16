@@ -134,8 +134,8 @@ Hardware Counter Experiment</a></li>
                   </li>
                   <li><a href="#mozTocId845390">Input/Output (I/O)
 Experiment</a></li>
-                  <li><a href="#mozTocId279794">Input/Output Trace
-(IOT)
+                  <li><a href="#mozTocId279794">Input/Output
+Trace (IOT)
 Experiment</a></li>
                   <li><a href="#mozTocId466177">MPI
 Experiment</a></li>
@@ -174,6 +174,9 @@ Wizard </a></li>
                       <li><a href="#mozTocId166891">General:</a></li>
                       <li><a href="#mozTocId683332">Statistics Related</a></li>
                       <li><a href="#mozTocId603411">Source Related</a></li>
+                      <li><a href="#mozTocId939535">Manage Process
+Panel
+Related</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId940600">Close
@@ -236,6 +239,11 @@ Data using the Open|SpeedShop GUI
           <li><a href="#mozTocId956211">Open|SpeedShop GUI Usage on
 MPI Applications</a>
             <ul>
+              <li><a href="#mozTocId441124">General Concepts</a></li>
+              <li><a href="#mozTocId963085">Multiple MPI version
+Implications</a></li>
+              <li><a href="#mozTocId847028">Loading/Creating a MPI
+Application with Open|SpeedShop</a></li>
               <li><a href="#mozTocId956978">Attaching to Already
 Running MPI Applications</a>
                 <ul>
@@ -259,6 +267,14 @@ CLI Tool </a>
 Information: </a></li>
           <li><a href="#mozTocId252535">Typical Open|SpeedShop CLI
 Usage </a></li>
+          <li><a href="#mozTocId466298">Open|SpeedShop CLI Usage on MPI
+applications</a>
+            <ul>
+              <li><a href="#mozTocId737510">General Concepts</a></li>
+              <li><a href="#mozTocId491994">Multiple MPI version
+implications</a></li>
+            </ul>
+          </li>
         </ul>
       </li>
       <li><a href="#mozTocId59849">Using
@@ -452,8 +468,20 @@ and process identifiers.</li>
 <h2 style="margin-left: 40px; text-align: left;"><a class="mozTocH2"
  name="mozTocId760931"></a><span style="color: rgb(0, 0, 102);">Open|SpeedShop
 General Usage</span></h2>
-<div style="text-align: left;"><br>
+<div style="text-align: left; margin-left: 80px;">Open|SpeedShop was
+designed to be used by users with various levels of performance
+monitoring expertice.&nbsp; The Open|SpeedShop Graphical User Interface
+wizards are designed to guide a user through the process of setting up
+Open|SpeedShop to analyze their program.&nbsp;&nbsp; The wizard will
+ultimately create a performance monitoring experiment.&nbsp;&nbsp; This
+is explained in the next section.&nbsp;&nbsp; Expert users can go
+directly to the Experiment menu and create their experiment
+directly.&nbsp;&nbsp; There is also an interactive command line option
+and a batch option for users who prefer or need this
+functionality.&nbsp;&nbsp; These options are described in detail in
+future sections of this document.<br>
 </div>
+<br>
 <h3 style="margin-left: 80px; text-align: left;"><a class="mozTocH3"
  name="mozTocId170405"></a><a name="Concept_of_an_Experiment"></a>Concept
 of an Experiment</h3>
@@ -810,8 +838,8 @@ node machine configuration, each node must have DPCL and Dyninst
 installed, as <b>Open|SpeedShop's</b> support for multiple nodes is
 through
 DPCL daemons. &nbsp; If OpenSpeedShop is properly installed, this will
-be transparent an OpenSpeedShop user.&nbsp;&nbsp; See the attaching to <a
- href="#Attaching_to_Already_Running_MPI">MPI jobs section </a>for
+be transparent to an OpenSpeedShop user.&nbsp;&nbsp; See the attaching
+to <a href="#Attaching_to_Already_Running_MPI">MPI jobs section </a>for
 information on attaching to processes running on other hosts or
 partitions.<br>
   <br>
@@ -1236,7 +1264,8 @@ performance results integrated with the source.&nbsp;&nbsp;&nbsp; See
 the source panel with statistics image at this <a
  href="#Source_Panel_Statistics">link</a>.<br>
     <br>
-    <h6><a name="Manage_Process_Panel_Related"></a>Manage Process Panel
+    <h6><a class="mozTocH6" name="mozTocId939535"></a><a
+ name="Manage_Process_Panel_Related"></a>Manage Process Panel
 Related</h6>
     <img alt="Open|SpeedShop Manage Process Preference Panel"
  title="Open|SpeedShop Manage Process Preference Panel"
@@ -1759,7 +1788,14 @@ comparison display.&nbsp;&nbsp; <br>
 <h3><a class="mozTocH3" name="mozTocId956211"></a><b><b style=""><a
  name="OpenSpeedShop_GUI_Usage_on_MPI_"></a>Open|SpeedShop GUI Usage on
 MPI Applications</b></b></h3>
-<br>
+<h4><a class="mozTocH4" name="mozTocId441124"></a><a
+ name="General_Concepts_"></a>General Concepts</h4>
+<h4><a class="mozTocH4" name="mozTocId963085"></a><a
+ name="Multiple_MPI_version_Implications"></a>Multiple MPI version
+Implications</h4>
+<h4><a class="mozTocH4" name="mozTocId847028"></a><a
+ name="LoadingCreating_a_MPI_Application_with"></a>Loading/Creating a
+MPI Application with Open|SpeedShop</h4>
 <h4><a class="mozTocH4" name="mozTocId956978"></a><a
  name="Attaching_to_Already_Running_MPI"></a>Attaching to Already
 Running MPI Applications</h4>
@@ -1989,7 +2025,17 @@ to the expView command<br>
 # Open|SpeedShop prompt for additional command input<br>
 openss&gt;&gt;<b style=""><br>
     <br>
-    </b></blockquote>
+    </b>
+    <h3><a class="mozTocH3" name="mozTocId466298"></a><b><b style=""><a
+ name="OpenSpeedShop_CLI_Usage_on_MPI_"></a>Open|SpeedShop CLI Usage on
+MPI applications</b></b></h3>
+    <h4><a class="mozTocH4" name="mozTocId737510"></a><a
+ name="General_Concepts"></a>General Concepts</h4>
+    <h4><a class="mozTocH4" name="mozTocId491994"></a><a
+ name="Multiple_MPI_version_implications"></a>Multiple MPI version
+implications</h4>
+    <br>
+  </blockquote>
 </blockquote>
 <blockquote> <b style=""> </b>
   <blockquote><b style=""> </b>
