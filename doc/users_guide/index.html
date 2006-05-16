@@ -733,7 +733,7 @@ subdirectory there are three directories:<br>
 <ul>
   <li>"test_scripts" contains the testing scripts that are used to run
 the tests, compare results, and output test reports.</li>
-  <li>"test_source" contains the tests with compare files and other
+  <li>"src" contains the tests with compare files and other
 essential files to run the tests.</li>
   <li>"executables" contains subdirectories for the executables used in
 the regression and DPCL tests.<br>
@@ -745,7 +745,7 @@ the regression and DPCL tests.<br>
 Open|SpeedShop Tests</h2>
 To execute the <b>Open|SpeedShop</b> set of regression tests.&nbsp;
 Change you
-directory path to "&lt;top_srcdir&gt;/test/test_source/regression" and
+directory path to "&lt;top_srcdir&gt;/test/src/regression" and
 invoke the runall script.&nbsp;&nbsp; The runall script will execute
 all the tests in the subdirectories below the "regression" directory
 and create a test report.&nbsp;&nbsp; Currently the <b>Open|SpeedShop</b>
@@ -764,8 +764,8 @@ Tools Information</span></b></b></h1>
 are the
 performance tool graphical user interface (GUI), the
 interactive
-command line (CLI), and the batch command.&nbsp;&nbsp; These are the
-three <b>Open|SpeedShop</b>
+command line (CLI), the batch command, and the Python Scriping
+API.&nbsp;&nbsp; These are the four <b>Open|SpeedShop</b>
 tools that have user interfaces.&nbsp; <b style=""><br>
   </b></span></span></span></span></p>
 </blockquote>
@@ -816,8 +816,19 @@ specified by
 additional arguments, directly without user interaction.&nbsp;&nbsp;
 The -batch operation can be used in scripts and batch processing
 environments.<br>
-  <b style=""><br>
-  </b></div>
+  </div>
+</blockquote>
+<div style="margin-left: 40px;">
+<ul>
+  <li>
+    <h3><b style="">Python Scripting API</b></h3>
+  </li>
+</ul>
+<div style="margin-left: 40px;">Follow this<a
+ href="../../../../OpenSpeedShop/doc/pyscripting_doc/index.html"> link </a>to
+the documentations associated with the Python scripting API definition.</div>
+</div>
+<blockquote><b style=""> </b>
   <h2><a class="mozTocH2" name="mozTocId805334"></a><b><b style=""><span
  style=""><span style=""><span style=""><span style=""><span style=""><span
  style="">Open|SpeedShop Quick Start Information</span></span></span></span></span></span></b></b></h2>
@@ -931,10 +942,21 @@ The File menu contains the menu items shown below:<br>
  name="Open_Experiment"></a>Open
 Existing Experiment</b></h5>
 This menu item allows the user to open an experiment
-that was started and subsequently closed.&nbsp; By opening the
-experiment, the user regains access to the performance data gathered so
-far and control over the running experiment.<b style=""><br>
+that was started or was being run via the interactive command
+line.&nbsp; By opening the
+experiment, the user focuses the graphical user interface to that
+experiment and gains access to the performance data gathered so
+far and control over the experiment.&nbsp;&nbsp; In the example dialog
+below, the user is about to focus on Experiment 2 which is a usertime
+experiment.&nbsp;&nbsp; By selecting the experiment and clicking the OK
+button experiment 2 becomes the focused (current)
+experiment.&nbsp;&nbsp; Actions taken in the graphical user interface
+will now affect this experiment.<br>
     <br>
+    <img alt="Open Existing Experiment Dialog"
+ title="Open Existing Experiment Dialog"
+ src="OpenExistingExperiment.png" style="width: 545px; height: 377px;"><br>
+    <b style=""> <br>
     </b>
     <h5><a class="mozTocH5" name="mozTocId25302"></a><b style=""><a
  name="Open_Saved_Experiment"></a>Open Saved Experiment</b></h5>
@@ -942,8 +964,14 @@ This menu item allows the user to re-open a saved
 experiment that was saved via the <a href="Save%20Experiment%20Data">Save
 Experiment Data</a> menu item.&nbsp; Performance data contained in the
 experiment may be reexamined and redisplayed once the experiment is
-opened again.<b style=""><br>
+opened again.&nbsp;&nbsp; In this example the user has chosen to open a
+saved Open|SpeedShop experiment file named
+sweep3d-256.openss.&nbsp;&nbsp; ".openss" is the default name for
+experiment files created by Open|SpeedShop.<br>
     <br>
+    <b style=""> <img alt="Open A Saved Experiment Dialog"
+ title="Open A Saved Experiment Dialog" src="OpenSavedExperiment.png"
+ style="width: 637px; height: 302px;"><br>
     </b>
     <h5><a class="mozTocH5" name="mozTocId577794"></a><b style=""><a
  name="Save_Experiment_Data"></a>Save Experiment Data</b></h5>
@@ -953,9 +981,26 @@ to a
 filename specified by the user.&nbsp;&nbsp; The information saved will
 allow the user to examine and display performance information at a
 later time by opening this saved file with the <a
- href="Save_Experiment_Data">Open Saved Experiment</a> menu item.<br>
-    <b style=""><br>
-    </b>
+ href="Save_Experiment_Data">Open Saved Experiment</a> menu
+item.&nbsp;&nbsp; In this example, the user has chosen to save the
+usertime experiment whose experiment identification number is two
+(2).&nbsp;&nbsp;&nbsp; <br>
+    <br>
+    <b style=""><img alt="Save a Experiment File Dialog"
+ title="Save a Experiment File Dialog" src="SaveExperiment.png"
+ style="width: 521px; height: 306px;"><br>
+    <br>
+    </b>After clicking the OK button this dialog will bring up another
+dialog box asking the user to name the file to be saved.<br>
+    <br>
+    <img alt="Give a name to the file to be saved."
+ title="Give a name to the file to be saved."
+ src="SaveExperimentGiveName.png" style="width: 637px; height: 302px;"><br>
+    <br>
+Clicking the "Save" button saves the Open|SpeedShop performance
+experiment data file.&nbsp;&nbsp; This file can be opened using the "<a
+ href="#Open_Saved_Experiment">Open Saved Experiment</a>" menu item for
+viewing and analysis of the performance data saved within that file.<br>
     <h4><a class="mozTocH4" name="mozTocId527863"></a><b style=""><a
  name="Experiments_Menu"></a>Experiments
 Menu</b></h4>
