@@ -3699,8 +3699,9 @@ StatsPanel::findSelectedFunction()
 // printf("index=%d\n", index);
     if( index != -1 )
     {
-      QString clean_funcName = spitem->funcName.mid(0, index-1);
-// // printf("Return the cleaned funcName (%s)\n", clean_funcName.ascii() );
+//      QString clean_funcName = spitem->funcName.mid(0, index-1);
+      QString clean_funcName = spitem->funcName.mid(0, index);
+// printf("Return the cleaned funcName (%s)\n", clean_funcName.ascii() );
       return( clean_funcName );
     } else
     {
@@ -3934,14 +3935,6 @@ StatsPanel::generateCommand()
     }
 // printf("start of pcsamp generated command (%s)\n", command.ascii() );
   } else if( currentCollectorStr == "usertime" )
-//            (currentUserSelectedReportStr == "Butterfly") ||
-//            (currentUserSelectedReportStr == "Functions") ||
-//            (currentUserSelectedReportStr == "LinkedObjects") ||
-//            (currentUserSelectedReportStr == "Statements") ||
-//            (currentUserSelectedReportStr == "CallTrees") ||
-//            (currentUserSelectedReportStr == "CallTrees,FullStack") ||
-//            (currentUserSelectedReportStr == "TraceBacks") ||
-//            (currentUserSelectedReportStr == "TraceBacks,FullStack") )
   {
     selectedFunctionStr = findSelectedFunction();
     if( currentUserSelectedReportStr.isEmpty() )
@@ -3969,18 +3962,42 @@ StatsPanel::generateCommand()
     } else if( currentUserSelectedReportStr == "CallTrees by Function" )
     {
 // printf("CallTrees by Function\n");
+      if( selectedFunctionStr.isEmpty() )
+      {
+        bool ok = FALSE;
+// printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+      }
       command = QString("expView -x %1 %4%2 -v CallTrees -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else if( currentUserSelectedReportStr == "CallTrees,FullStack by Function" )
     {
 // printf("CallTrees,FullStack by Function\n");
+      if( selectedFunctionStr.isEmpty() )
+      {
+        bool ok = FALSE;
+// printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+      }
       command = QString("expView -x %1 %4%2 -v CallTrees,FullStack -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else if( currentUserSelectedReportStr == "Tracebacks by Function" )
     {
 // printf("Tracebacks by Function\n");
+      if( selectedFunctionStr.isEmpty() )
+      {
+        bool ok = FALSE;
+// printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+      }
       command = QString("expView -x %1 %4%2 -v Tracebacks -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else if( currentUserSelectedReportStr == "Tracebacks,FullStack by Function" )
     {
 // printf("Tracebacks,FullStack by Function\n");
+      if( selectedFunctionStr.isEmpty() )
+      {
+        bool ok = FALSE;
+// printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+      }
       command = QString("expView -x %1 %4%2 -v Tracebacks,FullStack -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else
     {
