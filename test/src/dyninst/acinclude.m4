@@ -31,9 +31,17 @@ AC_DEFUN([AC_PKG_DYNINST], [
 
     DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
     DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -DIBM_BPATCH_COMPAT"
-    DYNINST_LDFLAGS="-L$dyninst_dir/$abi_libdir"
     DYNINST_LIBS="-ldyninstAPI"
     DYNINST_DIR="$dyninst_dir"
+    echo "host is $host"
+	case "$host" in
+        x86_64-*-linux* | ia64-*-linux* | x86_64-redhat-linux-gnu)
+		DYNINST_LDFLAGS="-L$dyninst_dir/lib64"
+		;;
+	*)
+		DYNINST_LDFLAGS="-L$dyninst_dir/lib"
+		;;
+	esac
 
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP

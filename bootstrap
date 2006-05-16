@@ -17,6 +17,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+echo "running bootstrap on top level source directory"
 aclocal
 libtoolize --force --ltdl --copy
 autoheader
@@ -25,6 +26,7 @@ autoconf
 #
 # configure test executables to allow for alternative compilers
 #
+echo "running bootstrap on test/executables"
 cd test/executables
 aclocal
 automake --foreign --add-missing --copy
@@ -33,6 +35,7 @@ cd ../..
 #
 # configure test mpi executables to allow for alternative compilers
 #
+echo "running bootstrap on test/executables/mpi"
 cd test/executables/mpi
 aclocal
 automake --foreign --add-missing --copy
@@ -41,6 +44,7 @@ cd ../../..
 #
 # configure the phaseIII directory smg2000 builds.
 #
+echo "running bootstrap on usability/phaseIII"
 cd usability/phaseIII
 aclocal
 automake --foreign --add-missing --copy
@@ -49,10 +53,12 @@ cd ../..
 #
 # configure dyninst tests for alternative installs of dyninst
 #
+echo "running bootstrap on test/src/dyninst"
 cd test/src/dyninst
 aclocal
 libtoolize --force --ltdl --copy
 automake --foreign --add-missing --copy
 autoconf
 
+echo "finished - running bootstrap on all directories"
 
