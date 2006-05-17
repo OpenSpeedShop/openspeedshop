@@ -59,6 +59,7 @@ class CompareSet : public QObject
     void setNewFocus(QWidget *tab = NULL);
 
     void updatePSetList();
+    void relabel();
 
   protected:
 

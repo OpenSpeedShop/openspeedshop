@@ -192,8 +192,8 @@ CustomizeClass::menu(QPopupMenu* contextMenu)
 #else // NONWALKING
 
   QPopupMenu *addDeleteMenu = new QPopupMenu(this);
-  contextMenu->setCaption("Add/Delete Columns");
-  contextMenu->insertItem("Add/Delete Columns", addDeleteMenu);
+  contextMenu->setCaption("Add/Remove Columns");
+  contextMenu->insertItem("Add/Remove Columns", addDeleteMenu);
 
   qaction = new QAction( this,  "addNewColumn");
   qaction->addTo( addDeleteMenu );
@@ -284,6 +284,8 @@ CustomizeClass::addNewColumn(CompareSet *compareSet)
   ColumnSet *columnSet = new ColumnSet(this, compareSet);
 
   compareSet->columnSetList.push_back( columnSet );
+
+  compareSet->relabel();
 
   compareSet->setNewFocus();
 }
@@ -638,6 +640,7 @@ CustomizeClass::removeRaisedTab()
         break;
       }
     }
+cs_to_search->relabel();
 
   }
 

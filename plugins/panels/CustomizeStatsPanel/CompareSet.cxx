@@ -109,10 +109,10 @@ CompareSet::setNewFocus(QWidget *tab)
   }
 
   CompareSet *compareSet = this;
+  ColumnSetList::Iterator it;
   if( compareSet )
   {
 // printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
-    ColumnSetList::Iterator it;
     for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
     {
       ColumnSet *columnSet = (ColumnSet *)*it;
@@ -590,4 +590,26 @@ dynamic_items->setOpen(TRUE);
 // dco->Print();
     }
   }
+}
+
+
+void
+CompareSet::relabel()
+{
+  int i = 0;
+  ColumnSetList::Iterator it;
+  for( it = columnSetList.begin(); it != columnSetList.end(); ++it )
+  {
+    ColumnSet *columnSet = (ColumnSet *)*it;
+    QWidget *thisTab = tabWidget->page(i);
+// printf("OLD: columnSet->name=(%s) tabWidget->tabLabel()=(%s)\n", columnSet->name.ascii(), tabWidget->tabLabel(thisTab).ascii()  );
+
+    QString header = QString("Column #%1").arg(i+1);
+    columnSet->name = header;
+    tabWidget->setTabLabel(thisTab, header);
+// printf("NEW: columnSet->name=(%s) tabWidget->tabLabel()=(%s)\n", columnSet->name.ascii(), tabWidget->tabLabel(thisTab).ascii()  );
+    i++;
+  }
+
+  tcnt = i+1;
 }
