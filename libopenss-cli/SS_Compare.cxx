@@ -1502,6 +1502,26 @@ bool SS_cView (CommandObject *cmd) {
   return success;
 }
 
+template <typename TOBJECT, typename TI>
+void Do_Analysis (
+          TI *dummyType,
+          Collector& collector,
+          std::string& metric,
+          std::vector<std::pair<Time,Time> >& intervals,
+          ThreadGroup& tgrp,
+          std::set<TOBJECT>& objects,
+          std::set<Framework::ThreadGroup>& clusters) {
+
+  SmartPtr<std::map<TOBJECT, std::map<Thread, TI> > > individual;
+  for (std::vector<std::pair<Time,Time> >::iterator
+               iv = intervals.begin(); iv != intervals.end(); iv++) {
+    Queries::GetMetricValues(collector, metric,
+                             TimeInterval(iv->first, iv->second),
+                             tgrp, objects, individual);
+  }
+  clusters = Queries::ClusterAnalysis::ApplySimple(individual);
+}
+
 template <typename TOBJECT>
 bool Cluster_Analysis (
           CommandObject *cmd, ExperimentObject *exp, ThreadGroup& tgrp,
@@ -1519,45 +1539,30 @@ bool Cluster_Analysis (
     return false;
   }
 
+  std::vector<std::pair<Time,Time> > intervals;
+  Parse_Interval_Specification (cmd, exp, intervals);
+
   Metadata m = Find_Metadata ( collector, metric );
   std::string id = m.getUniqueId();
 
   if( m.isType(typeid(unsigned int)) ) {
-    SmartPtr<std::map<TOBJECT, std::map<Thread, uint> > > individual;
-    Queries::GetMetricValues(collector, metric,
-                             TimeInterval(Time::TheBeginning(), Time::TheEnd()),
-                             tgrp, objects, individual);
-    clusters = Queries::ClusterAnalysis::ApplySimple(individual);
+    uint *V;
+    Do_Analysis (V, collector, metric, intervals, tgrp, objects, clusters);
   } else if( m.isType(typeid(uint64_t)) ) {
-    SmartPtr<std::map<TOBJECT, std::map<Thread, uint64_t> > > individual;
-    Queries::GetMetricValues(collector, metric,
-                             TimeInterval(Time::TheBeginning(), Time::TheEnd()),
-                             tgrp, objects, individual);
-    clusters = Queries::ClusterAnalysis::ApplySimple(individual);
+    uint64_t *V;
+    Do_Analysis (V, collector, metric, intervals, tgrp, objects, clusters);
   } else if( m.isType(typeid(int)) ) {
-    SmartPtr<std::map<TOBJECT, std::map<Thread, int> > > individual;
-    Queries::GetMetricValues(collector, metric,
-                             TimeInterval(Time::TheBeginning(), Time::TheEnd()),
-                             tgrp, objects, individual);
-    clusters = Queries::ClusterAnalysis::ApplySimple(individual);
+    int *V;
+    Do_Analysis (V, collector, metric, intervals, tgrp, objects, clusters);
   } else if( m.isType(typeid(int64_t)) ) {
-    SmartPtr<std::map<TOBJECT, std::map<Thread, int64_t> > > individual;
-    Queries::GetMetricValues(collector, metric,
-                             TimeInterval(Time::TheBeginning(), Time::TheEnd()),
-                             tgrp, objects, individual);
-    clusters = Queries::ClusterAnalysis::ApplySimple(individual);
+    int64_t *V;
+    Do_Analysis (V, collector, metric, intervals, tgrp, objects, clusters);
   } else if( m.isType(typeid(float)) ) {
-    SmartPtr<std::map<TOBJECT, std::map<Thread, float> > > individual;
-    Queries::GetMetricValues(collector, metric,
-                             TimeInterval(Time::TheBeginning(), Time::TheEnd()),
-                             tgrp, objects, individual);
-    clusters = Queries::ClusterAnalysis::ApplySimple(individual);
+    float *V;
+    Do_Analysis (V, collector, metric, intervals, tgrp, objects, clusters);
   } else if( m.isType(typeid(double)) ) {
-    SmartPtr<std::map<TOBJECT, std::map<Thread, double> > > individual;
-    Queries::GetMetricValues(collector, metric,
-                             TimeInterval(Time::TheBeginning(), Time::TheEnd()),
-                             tgrp, objects, individual);
-    clusters = Queries::ClusterAnalysis::ApplySimple(individual);
+    double *V;
+    Do_Analysis (V, collector, metric, intervals, tgrp, objects, clusters);
   } else {
     std::string S("(Cluster Analysis can not be performed on metric '");
     S = S +  metric + "' of type '" + m.getType() + "'.)";
@@ -1591,7 +1596,6 @@ bool SS_cvClusters (CommandObject *cmd) {
  // Pick up components of the parse object.
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<string> *p_slist = p_result->getViewList();
-  vector<string> *mod_list = p_result->getModifierList();
   vector<ParseRange> *met_list = p_result->getexpMetricList();
   vector<ParseTarget> *p_tlist = p_result->getTargetList();
 
@@ -1766,30 +1770,20 @@ bool SS_cvClusters (CommandObject *cmd) {
     new_result->pushExpIdPoint (ExperimentID);
 
    // Copy viewType list from original ParseResult to new ParseResult.
-    for (vector<string>::const_iterator
-             vl = p_slist->begin(); vl != p_slist->end(); vl++) {
-      new_result->pushViewType ((char *)((*vl).c_str()));
-    }
+    (*new_result->getViewList()) = (*p_slist);
 
    // Copy ModifierList from original ParseResult to new ParseResult.
-    for (vector<string>::const_iterator
-             modl = mod_list->begin(); modl != mod_list->end(); modl++) {
-      new_result->pushModifiers ((char *)((*modl).c_str()));
-
-    }
+    (*new_result->getModifierList()) = (*p_result->getModifierList());
 
    // Copy MetricList from original ParseResult to new ParseResult.
-    for (vector<ParseRange>::iterator
-             metl = met_list->begin(); metl != met_list->end(); metl++) {
-      parse_range_t *m_range = (*metl).getRange();
-      parse_val_t pval1 = m_range->start_range;
-      Assert (pval1.tag == VAL_STRING);
-      if (m_range->is_range) {
-        parse_val_t pval2 = m_range->end_range;
-        Assert (pval2.tag == VAL_STRING);
-        new_result->pushExpMetric ((char *)(pval1.name.c_str()), (char *)(pval2.name.c_str()));
-      } else {
-        new_result->pushExpMetric ((char *)(pval1.name.c_str()));
+    (*new_result->getexpMetricList()) = (*met_list);
+
+   // Copy time interval list from original ParseResult to new ParseResult.
+    vector<ParseInterval> *interval_list = p_result->getParseIntervalList();
+    if (!interval_list->empty()) {
+      (*new_result->getParseIntervalList()) = (*interval_list);
+      if (p_result->isIntervalAttribute()) {
+        new_result->setIntervalAttribute ((char *)(p_result->getIntervalAttribute()->c_str()));
       }
     }
 
