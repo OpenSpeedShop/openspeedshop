@@ -20,4 +20,5 @@ rm -f input.script
 echo expcreate -f ../../../../../../executables/mutatee/c_version/mutatee pcsamp >> input.script
 echo expgo >> input.script
 echo expview -v statements -m time >>input.script
+echo exit >> input.script
 openss -batch < input.script
