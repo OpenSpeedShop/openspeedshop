@@ -158,7 +158,9 @@ def CompareResults(testName, fileptr):
 
 	if ( inclusive_passing_ratio == 1 and failure_reason == 0 ):
 		fileptr.write(testName + ' has PASSED \n')
+		print testName + ' has PASSED. \n'
 	else:
+		print testName + ' has FAILED. \n'
 		fileptr.write(testName + ' has FAILED.  ')
 		if (failure_reason == 1):
 			fileptr.write('The functions exclusive time ratios are incorrect.\n')

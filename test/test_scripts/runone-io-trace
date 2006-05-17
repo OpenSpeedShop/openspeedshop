@@ -133,8 +133,10 @@ def CompareResults(testName, fileptr):
 	fileptr.write('has the following result: ')
 	if (passing_ratio== 1) :
 		fileptr.write(testName + ' has PASSED \n')
+		print testName + ' has PASSED. \n'
 	else:
 		fileptr.write(testName + ' has FAILED.  ')
+		print testName + ' has FAILED. \n'
 		if (failure_reason == 3):
 			fileptr.write('Looks like openss crashed or ran too long. \n')
 		if (failure_reason == 2):

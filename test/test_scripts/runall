@@ -209,8 +209,6 @@ if __name__ == '__main__':
 		isHere = os.path.isfile(resultsFileName)
 		do_mail = 1
 		if (from_addr =='' or to_addr==''):
-			print 'You must add your email address to the top of runall'
-			print 'in order for the result file to mail.'
 			do_mail = 0 
 	
 		if isHere and do_mail:
