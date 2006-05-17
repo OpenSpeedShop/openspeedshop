@@ -58,13 +58,16 @@ There was an algorithm change made to sweep3d in the sweep3d_B directory and
 performance data has been collected in the data file
 X1.sweep3d_B.usertime.openss.   
 
-In general, the first task is to compare the 2 experiment files to see if
-you can determine where the performance problem occurs.
+In general we'll be asking you to compare the 2 experiment files to see if 
+you can determine where the performance problem occurs.   Then we'll be
+looking to have you generate a detail report comparing the offending
+processs against the other processes in the run.
 
-The second task will be to determine which processes is causing the 
-degradation and generate a detail report comparing the offending
-process against the other processes in the run.
 
+
+
+The Assignment:
+---------------
 
 Step 1:
   From the 2 data files in the current directory, determine which execution
