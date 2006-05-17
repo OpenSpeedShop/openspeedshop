@@ -1569,9 +1569,11 @@ StatsPanel::updateStatsPanelData(QString command)
   progressTimer = new QTimer( this, "progressTimer" );
   connect( progressTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
   pd = new GenericProgressDialog(this, "Executing Command:", TRUE );
+  pd->infoLabel->setText( QString("Running command - %1").arg(command) );
+qApp->flushX();
+qApp->processEvents(1000);
   pd->show();
   progressTimer->start(0);
-  pd->infoLabel->setText( QString("Running command - %1").arg(command) );
 
   if( command.contains("-v Butterfly") || command.contains("-v CallTrees") || command.contains("-v TraceBacks") )
   {
