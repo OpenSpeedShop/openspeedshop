@@ -199,9 +199,12 @@ if __name__ == '__main__':
 		resultsfilenameinput = open('testresultsfilename', 'r')
 		resultsFileName = resultsfilenameinput.readline()
 		resultsfilenameinput.close()
-		os.system('rm -f /tmp/dpcl.*')
-        	os.system('rm -f /tmp/ssdb*')
-        	os.system('rm -f /tmp/dpclProbeModule*')
+		os.system('rm -f /tmp/dpcl.* >& /tmp/bosco_1234_asd')
+		os.system('rm -f /tmp/bosco_1234_asd')
+        	os.system('rm -f /tmp/ssdb* >& /tmp/bosco_1234?sdf')
+		os.system('rm -f /tmp/bosco_1234?sdf')
+        	os.system('rm -f /tmp/dpclProbeModule* >& /tmp/bosco1234_asd')
+		os.system('rm -f /tmp/bosco1234_asd')
 			
 		isHere = os.path.isfile(resultsFileName)
 		do_mail = 1
