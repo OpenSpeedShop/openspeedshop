@@ -20,4 +20,5 @@ rm -f input.script
 echo expcreate -f ../../../../../../executables/mutatee/io_c_version/mutatee io >> input.script
 echo expgo >> input.script
 echo expview -v calltrees,fullstack -m exclusive_time >>input.script
+echo exit >> input.script
 openss -batch < input.script
