@@ -36,6 +36,8 @@ struct StatusStruct
   QString status;
   QString host;
   QString pid;
+  QString tid;
+  QString rid;
 };
 
 

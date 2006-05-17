@@ -177,219 +177,59 @@ dynamic_items->setOpen(TRUE);
 
   QString pset_name = QString::null;
 
-{ // For each host, create a dynamic collector 
-    try
+// printf("for each host,c reate a dynamic collector\n");
+  try
+  {
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    if( eo->FW() != NULL )
     {
-      ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-
-      if( eo->FW() != NULL )
-      {
 // The following bit of code was snag and modified from SS_View_exp.cxx
-        ThreadGroup tgrp = eo->FW()->getThreads();
-        ThreadGroup::iterator ti;
-        std::vector<std::string> v;
-        pset_name = QString("All");
-        psl->append("All");
-        MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name );
-        DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
-        dco->all = TRUE;
-        item->descriptionClassObject = dco;
+      ThreadGroup tgrp = eo->FW()->getThreads();
+      ThreadGroup::iterator ti;
+      std::vector<std::string> v;
+      pset_name = QString("All");
+      psl->append("All");
+      MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name );
+      DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+      dco->all = TRUE;
+      item->descriptionClassObject = dco;
 
-        MPListViewItem *item2 = new MPListViewItem(item, QString("All (%1) pids...").arg(tgrp.size()) );
-        dco = new DescriptionClassObject(FALSE, "All");
-        dco->all = TRUE;
-        item2->descriptionClassObject = dco;
+      MPListViewItem *item2 = new MPListViewItem(item, QString("All (%1) pids...").arg(tgrp.size()) );
+      dco = new DescriptionClassObject(FALSE, "All");
+      dco->all = TRUE;
+      item2->descriptionClassObject = dco;
+      for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+      {
+        Thread t = *ti;
+        std::string s = t.getHost();
+      
+        v.push_back(s);
+      }
+      std::sort(v.begin(), v.end());
+
+      pset_name = QString("Hosts");
+      MPListViewItem *host_items = new MPListViewItem( dynamic_items, pset_name );
+      DescriptionClassObject *host_dco = new DescriptionClassObject(TRUE, pset_name);
+      host_items->descriptionClassObject = host_dco;
+      
+      std::vector<std::string>::iterator e 
+                      = unique(v.begin(), v.end());
+      for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
+      {
+        pset_name = QString(*hi);
+        MPListViewItem *item = new MPListViewItem( host_items, pset_name );
+        DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+        item->descriptionClassObject = dco;
+// printf("hi=(%s)\n", hi->c_str() );
+        bool atleastone = false;
         for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
         {
           Thread t = *ti;
-          std::string s = t.getHost();
-        
-          v.push_back(s);
-        }
-        std::sort(v.begin(), v.end());
-
-        pset_name = QString("Hosts");
-// psl->append("Hosts");
-        MPListViewItem *host_items = new MPListViewItem( dynamic_items, pset_name );
-        DescriptionClassObject *host_dco = new DescriptionClassObject(TRUE, pset_name);
-        host_items->descriptionClassObject = host_dco;
-        
-        std::vector<std::string>::iterator e 
-                        = unique(v.begin(), v.end());
-
-        for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
-        {
-          pset_name = QString(*hi);
-          MPListViewItem *item = new MPListViewItem( host_items, pset_name );
-          DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
-          item->descriptionClassObject = dco;
-// printf("hi=(%s)\n", hi->c_str() );
-          bool atleastone = false;
-          for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+          std::string host = t.getHost();
+          if( host == *hi )
           {
-            Thread t = *ti;
-            std::string host = t.getHost();
-            if( host == *hi )
-            {
-              pid_t pid = t.getProcessId();
-              if (!atleastone) {
-                atleastone = true;
-              }
-              QString pidstr = QString("%1").arg(pid);
-              std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-// printf("pidstr=(%s)\n", pidstr.ascii() );
-              QString tidstr = QString::null;
-              if (pthread.first)
-              {
-                tidstr = QString("%1").arg(pthread.second);
-              }
-              std::pair<bool, int> rank = t.getMPIRank();
-              QString ridstr = QString::null;
-              if (rank.first)
-              {
-                ridstr = QString("%1").arg(rank.second);
-              }
-              CollectorGroup cgrp = t.getCollectors();
-              CollectorGroup::iterator ci;
-              std::string collectorliststring;
-              int collector_count = 0;
-              for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
-              {
-                Collector c = *ci;
-                Metadata m = c.getMetadata();
-                if (collector_count)
-                {
-                  collectorliststring += "," + m.getUniqueId();
-                } else
-                {
-                  collector_count = 1;
-                  collectorliststring = m.getUniqueId();
-                }
-              }
-              if( !pidstr.isEmpty() )
-              {
-                MPListViewItem *item2 = 
-                  new MPListViewItem( item, pidstr, collectorliststring  );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
-                item2->descriptionClassObject = dco;
-              } else if( !tidstr.isEmpty() )
-              {
-// printf("tidStr!\n");
-                MPListViewItem *item2 =
-                  new MPListViewItem(item, pidstr, tidstr, collectorliststring );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, ridstr, collectorliststring);
-                item2->descriptionClassObject = dco;
-              } else if( !ridstr.isEmpty() )
-              {
-// printf("ridStr!\n");
-                MPListViewItem *item2 =
-                  new MPListViewItem(item, pidstr, ridstr, collectorliststring );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
-                item2->descriptionClassObject = dco;
-              } else
-              {
-// printf("!tidStr && !ridStr!\n");
-                MPListViewItem *item2 = 
-                  new MPListViewItem( item, pidstr, collectorliststring  );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
-                item2->descriptionClassObject = dco;
-              }
-            }
-          }
-        }
-      }
-    }
-    catch(const std::exception& error)
-    {
-      std::cerr << std::endl << "Error: "
-        << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-        "Unknown runtime error." : error.what()) << std::endl
-        << std::endl;
-      return;
-    }
-}
-{ // For each thread status , create a dynamic pset.
-      QValueList<StatusStruct> statusDisconnectedList;
-      QValueList<StatusStruct> statusConnectingList;
-      QValueList<StatusStruct> statusNonexistentList;
-      QValueList<StatusStruct> statusRunningList;
-      QValueList<StatusStruct> statusSuspendedList;
-      QValueList<StatusStruct> statusTerminatedList;
-      QValueList<StatusStruct> statusUnknownList;
-      statusDisconnectedList.clear();
-      statusConnectingList.clear();
-      statusNonexistentList.clear();
-      statusRunningList.clear();
-      statusSuspendedList.clear();
-      statusTerminatedList.clear();
-      statusUnknownList.clear();
-
-      StatusStruct statusStruct;
-
-
-      try
-      {
-        ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-  
-        if( eo->FW() != NULL )
-        {
-// printf("got an experiment.\n");
-  // The following bit of code was snag and modified from SS_View_exp.cxx
-          ThreadGroup tgrp = eo->FW()->getThreads();
-          ThreadGroup::iterator ti;
-          bool atleastone = false;
-          for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
-          {
-            Thread t = *ti;
-            std::string host = t.getHost();
             pid_t pid = t.getProcessId();
-            statusStruct.host = QString(host.c_str());
-            statusStruct.pid = QString("%1").arg(pid);
-
-            // Add some status to each thread.
-            QString threadStatusStr;
-            switch( t.getState() )
-            {
-              case Thread::Disconnected:
-                threadStatusStr = "Disconnected";
-                statusStruct.status = threadStatusStr;
-                statusDisconnectedList.push_back(statusStruct);
-                break;
-              case Thread::Connecting:
-                threadStatusStr = "Connecting";
-                statusStruct.status = threadStatusStr;
-                statusConnectingList.push_back(statusStruct);
-                break;
-                break;
-              case Thread::Nonexistent:
-                threadStatusStr = "Nonexistent";
-                statusStruct.status = threadStatusStr;
-                statusNonexistentList.push_back(statusStruct);
-                break;
-              case Thread::Running:
-                threadStatusStr = "Running";
-                statusStruct.status = threadStatusStr;
-                statusRunningList.push_back(statusStruct);
-                break;
-              case Thread::Suspended:
-                threadStatusStr = "Suspended";
-                statusStruct.status = threadStatusStr;
-                statusSuspendedList.push_back(statusStruct);
-                break;
-              case Thread::Terminated:
-                threadStatusStr = "Terminate";
-                statusStruct.status = threadStatusStr;
-                statusTerminatedList.push_back(statusStruct);
-                break;
-              default:
-                threadStatusStr = "Unknown";
-                statusStruct.status = threadStatusStr;
-                statusUnknownList.push_back(statusStruct);
-                break;
-            }
-  
-            if (!atleastone)
-            {
+            if (!atleastone) {
               atleastone = true;
             }
             QString pidstr = QString("%1").arg(pid);
@@ -405,9 +245,12 @@ dynamic_items->setOpen(TRUE);
             {
               ridstr = QString("%1").arg(rank.second);
             }
-
+// printf("A: pidstr=(%s)\n", pidstr.ascii() );
+// printf("A: tidstr=(%s)\n", tidstr.ascii() );
+// printf("A: ridstr=(%s)\n", ridstr.ascii() );
             CollectorGroup cgrp = t.getCollectors();
             CollectorGroup::iterator ci;
+            std::string collectorliststring;
             int collector_count = 0;
             for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
             {
@@ -415,31 +258,200 @@ dynamic_items->setOpen(TRUE);
               Metadata m = c.getMetadata();
               if (collector_count)
               {
+                collectorliststring += "," + m.getUniqueId();
               } else
               {
                 collector_count = 1;
+                collectorliststring = m.getUniqueId();
               }
+            }
+            if( !pidstr.isEmpty() )
+            {
+              MPListViewItem *item2 = 
+//                new MPListViewItem( item, pidstr, collectorliststring  );
+                new MPListViewItem( item, pidstr, collectorliststring, ridstr  );
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
+              item2->descriptionClassObject = dco;
+// printf("A: Put pidstr out: \n");
+// dco->Print();
+            } else if( !tidstr.isEmpty() )
+            {
+              MPListViewItem *item2 =
+                new MPListViewItem(item, pidstr, tidstr, collectorliststring );
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, ridstr, collectorliststring);
+              item2->descriptionClassObject = dco;
+// printf("A: Put tidstr out: \n");
+// dco->Print();
+            } else if( !ridstr.isEmpty() )
+            {
+              MPListViewItem *item2 =
+                new MPListViewItem(item, pidstr, ridstr, collectorliststring );
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
+              item2->descriptionClassObject = dco;
+// printf("A: Put ridstr out: \n");
+// dco->Print();
+            } else
+            {
+              MPListViewItem *item2 = 
+                new MPListViewItem( item, pidstr, collectorliststring  );
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
+              item2->descriptionClassObject = dco;
+// printf("A: Put \"other\" out: \n");
+// dco->Print();
             }
           }
         }
       }
-      catch(const std::exception& error)
+    }
+  }
+  catch(const std::exception& error)
+  {
+    std::cerr << std::endl << "Error: "
+      << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+      "Unknown runtime error." : error.what()) << std::endl
+      << std::endl;
+    return;
+  }
+
+
+
+  QValueList<StatusStruct> statusDisconnectedList;
+  QValueList<StatusStruct> statusConnectingList;
+  QValueList<StatusStruct> statusNonexistentList;
+  QValueList<StatusStruct> statusRunningList;
+  QValueList<StatusStruct> statusSuspendedList;
+  QValueList<StatusStruct> statusTerminatedList;
+  QValueList<StatusStruct> statusUnknownList;
+  statusDisconnectedList.clear();
+  statusConnectingList.clear();
+  statusNonexistentList.clear();
+  statusRunningList.clear();
+  statusSuspendedList.clear();
+  statusTerminatedList.clear();
+  statusUnknownList.clear();
+
+  StatusStruct statusStruct;
+
+
+  try
+  {
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  
+    if( eo->FW() != NULL )
+    {
+// printf("got an experiment.\n");
+  // The following bit of code was snag and modified from SS_View_exp.cxx
+      ThreadGroup tgrp = eo->FW()->getThreads();
+      ThreadGroup::iterator ti;
+      bool atleastone = false;
+      for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
       {
-        std::cerr << std::endl << "Error: "
+        Thread t = *ti;
+        std::string host = t.getHost();
+        pid_t pid = t.getProcessId();
+        statusStruct.host = QString(host.c_str());
+        statusStruct.pid = QString("%1").arg(pid);
+
+        // Add some status to each thread.
+        QString threadStatusStr;
+        switch( t.getState() )
+        {
+          case Thread::Disconnected:
+            threadStatusStr = "Disconnected";
+            statusStruct.status = threadStatusStr;
+            statusDisconnectedList.push_back(statusStruct);
+            break;
+          case Thread::Connecting:
+            threadStatusStr = "Connecting";
+            statusStruct.status = threadStatusStr;
+            statusConnectingList.push_back(statusStruct);
+            break;
+            break;
+          case Thread::Nonexistent:
+            threadStatusStr = "Nonexistent";
+            statusStruct.status = threadStatusStr;
+            statusNonexistentList.push_back(statusStruct);
+            break;
+          case Thread::Running:
+            threadStatusStr = "Running";
+            statusStruct.status = threadStatusStr;
+            statusRunningList.push_back(statusStruct);
+            break;
+          case Thread::Suspended:
+            threadStatusStr = "Suspended";
+            statusStruct.status = threadStatusStr;
+            statusSuspendedList.push_back(statusStruct);
+            break;
+          case Thread::Terminated:
+            threadStatusStr = "Terminate";
+            statusStruct.status = threadStatusStr;
+            statusTerminatedList.push_back(statusStruct);
+            break;
+          default:
+            threadStatusStr = "Unknown";
+            statusStruct.status = threadStatusStr;
+            statusUnknownList.push_back(statusStruct);
+            break;
+        }
+  
+        if (!atleastone)
+        {
+          atleastone = true;
+        }
+        QString pidstr = QString("%1").arg(pid);
+        std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+        QString tidstr = QString::null;
+        if (pthread.first)
+        {
+          tidstr = QString("%1").arg(pthread.second);
+          statusStruct.tid = tidstr;
+        }
+        std::pair<bool, int> rank = t.getMPIRank();
+        QString ridstr = QString::null;
+        if (rank.first)
+        {
+          ridstr = QString("%1").arg(rank.second);
+          statusStruct.rid = ridstr;
+        }
+// printf("B: pidstr=(%s)\n", pidstr.ascii() );
+// printf("B: tidstr=(%s)\n", tidstr.ascii() );
+// printf("B: ridstr=(%s)\n", ridstr.ascii() );
+
+        CollectorGroup cgrp = t.getCollectors();
+        CollectorGroup::iterator ci;
+        int collector_count = 0;
+        for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
+        {
+          Collector c = *ci;
+          Metadata m = c.getMetadata();
+          if (collector_count)
+          {
+          } else
+          {
+            collector_count = 1;
+          }
+        }
+      }
+    }
+  }
+  catch(const std::exception& error)
+  {
+    std::cerr << std::endl << "Error: "
           << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
           "Unknown runtime error." : error.what()) << std::endl
           << std::endl;
-        return;
-      }
+    return;
+  }
+
+
+
   // Put out the Disconnected Dynamic pset (if there is one.)
   if( statusDisconnectedList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusDisconnectedList.begin();
-//    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Disconnected");
-psl->append(pset_name);
+    psl->append(pset_name);
 
-//    MPListViewItem *disconnected_items = new MPListViewItem( dynamic_items, pset_name, "Disconnected" );
     MPListViewItem *disconnected_items = new MPListViewItem( dynamic_items, pset_name );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     disconnected_items->descriptionClassObject = dco;
@@ -449,19 +461,22 @@ psl->append(pset_name);
 // printf("ss.status=(%s)\n", ss.status.ascii() );
 // printf("ss.host=(%s)\n", ss.host.ascii() );
 // printf("ss.pid=(%s)\n", ss.pid.ascii() );
+// printf("ss.rid=(%s)\n", ss.rid.ascii() );
 
-      MPListViewItem *item = new MPListViewItem( disconnected_items, ss.pid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+//          MPListViewItem *item = new MPListViewItem( disconnected_items, ss.pid, ss.host);
+            MPListViewItem *item = new MPListViewItem( disconnected_items, ss.pid, ss.rid, ss.host);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
       item->descriptionClassObject = dco;
+// printf("B: Put \"disconnected\" out: \n");
+// dco->Print();
     }
   }
   // Put out the Connecting Dynamic pset (if there is one.)
   if( statusConnectingList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusConnectingList.begin();
-//    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Connecting");
-psl->append(pset_name);
+    psl->append(pset_name);
 //    MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Connecting" );
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
@@ -469,107 +484,112 @@ psl->append(pset_name);
     for( ;vi != statusConnectingList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+//      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
+      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.rid, ss.host);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
       item->descriptionClassObject = dco;
+// printf("B: Put \"connecting\" out: \n");
+// dco->Print();
     }
   }
   // Put out the Nonexistent Dynamic pset (if there is one.)
   if( statusNonexistentList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusNonexistentList.begin();
-//    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Non Existent");
-psl->append(pset_name);
-//    MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Nonexistent" );
+    psl->append(pset_name);
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
     for( ;vi != statusNonexistentList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+//      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
+      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.rid, ss.host);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
       item->descriptionClassObject = dco;
+// printf("B: Put \"nonexistent\" out: \n");
+// dco->Print();
     }
   }
   // Put out the Running Dynamic pset (if there is one.)
   if( statusRunningList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusRunningList.begin();
-//    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Running");
-psl->append(pset_name);
-//    MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Running" );
+    psl->append(pset_name);
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
     for( ;vi != statusRunningList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+//      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
+      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.rid, ss.host);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
       item->descriptionClassObject = dco;
+// printf("B: Put \"running\" out: \n");
+// dco->Print();
     }
   }
   // Put out the Suspended Dynamic pset (if there is one.)
   if( statusSuspendedList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusSuspendedList.begin();
-//    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Suspended");
-psl->append(pset_name);
-//    MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Suspended" );
+    psl->append(pset_name);
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
     for( ;vi != statusSuspendedList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+//      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
+      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.rid, ss.host);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
       item->descriptionClassObject = dco;
+// printf("B: Put \"suspended\" out: \n");
+// dco->Print();
     }
   }
   // Put out the status Terminated Dynamic pset (if there is one.)
   if( statusTerminatedList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusTerminatedList.begin();
-//    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Terminated");
-psl->append(pset_name);
-//    MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Terminated" );
+    psl->append(pset_name);
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
     for( ;vi != statusTerminatedList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+//      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
+      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.rid, ss.host);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
       item->descriptionClassObject = dco;
+// printf("B: Put \"terminated\" out: \n");
+// dco->Print();
     }
   }
   // Put out the Unknown Dynamic pset (if there is one.)
   if( statusUnknownList.size() > 0 )
   {
     QValueList<StatusStruct>::iterator vi = statusUnknownList.begin();
-//    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Unknown");
-psl->append(pset_name);
-//    MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Unknown" );
+    psl->append(pset_name);
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
     items->descriptionClassObject = dco;
     for( ;vi != statusUnknownList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+//      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
+      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.rid, ss.host);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
       item->descriptionClassObject = dco;
+// printf("B: Put \"unknown\" out: \n");
+// dco->Print();
     }
   }
-
-}
-
 }

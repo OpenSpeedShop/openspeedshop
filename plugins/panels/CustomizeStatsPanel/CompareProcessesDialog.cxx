@@ -74,6 +74,9 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   headerLabel = new QLabel(this, "addProcessesLabel");
   headerLabel->setText( "Current list:");
   QToolTip::add(headerLabel, tr("This label details the focused compare set and column within that compare set.\nAny actions in this dialog will perform actions to the focused set.\n") );
+// I'm not sure this header label makes sense.  Hide it for now.
+headerLabel->hide();
+
 
   CompareProcessesDialogLayout->addWidget( headerLabel );
 
@@ -108,6 +111,7 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   availableProcessesListView = new MPListView( this, "availableProcessesListView", 0 );
   availableProcessesListView->addColumn( tr( "Available Processes:" ) );
 availableProcessesListView->addColumn( tr( "Host:" ) );
+availableProcessesListView->addColumn( tr( "Rank:" ) );
   availableProcessesListView->setSelectionMode( QListView::Single );
   availableProcessesListView->setShowSortIndicator( TRUE );
   availableProcessesListView->setSorting( 0, FALSE );
