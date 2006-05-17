@@ -76,8 +76,7 @@ Command Summary
 &lt;file_spec&gt;</font>
 <br>
 <font size="-1"><b>expSetParam </b> [ <b>-x</b> &lt;expId&gt; ]
-&lt;expParam&gt; <b>=</b> &lt;expParamValue&gt;
-[ <b>,</b> &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt; ]+</font>
+&lt;expParam&gt; <b>=</b> &lt;expParamValue&gt; [ <b>,</b> &lt;expParamValue&gt; ]+</font>
 <br>
 <br>
 <br>
@@ -87,10 +86,10 @@ Command Summary
 <font size="-1"><b>expStatus</b> [ <b>-v all</b> || <b>-x</b> &lt;expId&gt; ]</font>
 <br>
 <font size="-1"><b>expCompare </b>[<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId_list&gt; ] [ &lt;viewType&gt; ]
-[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target&gt; ]</font>
+[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target&gt; ] [ <b>-I</b> &lt;time_interval_list&gt; ]</font>
 <br>
 <font size="-1"><b>expView </b>[<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
-[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
+[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ] [ <b>-I</b> &lt;time_interval_list&gt; ]</font>
 <br>
 <br>
 <br>
@@ -99,17 +98,19 @@ Command Summary
 <font face="Arial"><font size="+0"></font></font></h2>
 <font size="-1">&lt;cvId_list&gt;
 <b>= cViewCluster</b> [<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
-[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
+[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ] [ <b>-I</b> &lt;time_interval_list&gt; ]</font>
 <br>
 <font size="-1">&lt;cvId&gt;
 <b>= cViewCreate</b> [<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
-[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
+[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ] [ <b>-I</b> &lt;time_interval_list&gt; ]</font>
 <br>
 <font size="-1"><b>cViewDelete</b> [ <b>-v all</b> || <b>-c</b> &lt;cvId_list&gt; ]</font>
 <br>
 <font size="-1"><b>cViewInfo</b> [ <b>-v all</b> || <b>-c</b> &lt;cvId_list&gt; ]</font>
 <br>
-<font size="-1"><b>cView</b> <b>-c</b> &lt;cvId_list&gt;</font>
+<font size="-1"><b>cView</b> <b>-c</b> &lt;cvId_list&gt; [<b>-v</b> &lt;modifier_list&gt; ]
+[ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ] [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]
+[ <b>-I</b> &lt;time_interval_list&gt; ]</font>
 <br>
 <br>
 <br>

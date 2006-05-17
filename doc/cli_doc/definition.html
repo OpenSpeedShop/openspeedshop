@@ -551,6 +551,8 @@ executed. </font><br>
 </b></font></h3>
 <ul>
   <font size="-1">- Change the value an experiment's argument. <br>
+- Only one parameter can be changed.  The list is provided for parameters
+  that can receive multiple values. <br>
 - &lt;expParam&gt; will be unique within the experiment. <br>
 - The parameter names can be used by other experiments. <br>
 - This command does not change the execution state of the experiment,
@@ -560,7 +562,7 @@ executed. </font><br>
   <br>
   <font size="-1"><b>expSetParam </b> [ <b>-x</b> &lt;expId&gt; ]
 &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt;
-[ <b>,</b> &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt; ]+</font>
+[ <b>,</b> &lt;expParamValue&gt; ]+</font>
 </ul>
 <br>
 <font size="+0"></font>
@@ -595,7 +597,7 @@ have been collected and saved in an experiment data base.<br>
 - The display is organized to provide a side-by-side comparison of items
 that are specified (or implied) by a user provided list.<br>
 - The list of side-by-side items can be specified with the <b>-x</b>,
-<b>-h</b>, <b>-p</b>, <b>-t</b> or <b>-r</b> options. <br>
+<b>-h</b>, <b>-p</b>, <b>-t</b>, <b>-r</b> or <b>-I</b> options. <br>
 - If more than one list is provided, the command is ambiguous and can not
 be executed.<br>
 - The meaning of the <b>-v</b>, <b>-m</b>, &lt;viewType&gt; and other, non-list,
@@ -611,8 +613,7 @@ there is no matching &lt;viewType&gt;, or if there is more than one
 although the nature of the requested data may require that the experiment
 complete execution before the information can be provided.<br>
 - The use of the "&lt;expMetric_list&gt;" option allows control over
-the data
-that is included in the report.
+the data that is included in the report.
   <dir><li>Only the metrics specified in the list will be included in
 the report.</li>
   <li>The meterics will be reported in the order that they occur in the
@@ -638,10 +639,14 @@ Thread being included, if it exists on the selected hosts. </li>
   <li>Use of the <b>-r</b> option will result in only that specific
 Rank being included, if it exists on the selected hosts. </li>
   </dir>
+- The use of the "<b>-I</b> &lt;time_interval_list&gt;" option allows control over
+the data that is included in the report.
+  <dir><li>Only the time ranges specified in the list will be included in the report.</li>
+  </dir>
   </font> <br>
   <font size="-1"><b>expCompare </b>[ <b>-v</b> &lt;modifier_list&gt; ] 
   [ <b>-x</b> &lt;expId_list&gt; ] [ &lt;viewType&gt; ]
-[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target&gt; ]</font>
+  [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target&gt; ] [ <b>-I</b> &lt;time_interval_list&gt; ]</font>
 </ul>
 <h3><a name="mozTocId575759" class="mozTocH3"></a><font size="+0"><b><a
  name="expView"></a><li>expView</li>
@@ -690,10 +695,14 @@ Thread being included, if it exists on the selected hosts. </li>
   <li>Use of the <b>-r</b> option will result in only that specific
 Rank being included, if it exists on the selected hosts. </li>
   </dir>
+- The use of the "<b>-I</b> &lt;time_interval_list&gt;" option allows control over
+the data that is included in the report.
+  <dir><li>Only the time ranges specified in the list will be included in the report.</li>
+  </dir>
   </font> <br>
   <font size="-1"><b>expView </b>[ <b>-v</b> &lt;modifier_list&gt; ] 
   [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
-[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
+  [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ] [ <b>-I</b> &lt;time_interval_list&gt; ]</font>
 </ul>
 <br>
 <font size="+0"></font>
@@ -717,7 +726,7 @@ command to produce a report.<br>
   </font> <br>
 <font size="-1">&lt;cvId_list&gt;
   <b>= cViewCluster</b> [<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
-  [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
+  [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ] [ <b>-I</b> &lt;time_interval_list&gt; ]</font>
 </ul>
 <h3><a name="mozTocId688320" class="mozTocH3"></a><font size="+0"><b><a
  name="cViewCreate"></a><li>cViewCreate</li>
@@ -773,8 +782,13 @@ for each ID and the output from each is merged into a final report, using the ri
 field as a key. The final report will have columns for each of the fields that
 the initial reports contain, except that the right most column (the key) is only printed once.
 Keys that exist in one of the generated reports and not others may have columns that are blank filled.<br>
+- The use of the <b>-v</b>, <b>-x</b>, &lt;viewType&gt;, <b>-m</b>, &lt;target_list&gt; or <b>-I</b>
+   option will override any specification of the same option that is on the custom view description
+  of the items in the &lt;cvId_list&gt;.
   </font><br>
-  <font size="-1"><b>cView</b> <b>-c</b> &lt;cvId_list&gt;</font>
+  <font size="-1"><b>cView</b> <b>-c</b> &lt;cvId_list&gt;
+  [ <b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
+  [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ] [ <b>-I</b> &lt;time_interval_list&gt; ]</font>
 </ul>
 <br>
 <font size="+0"></font>
@@ -816,9 +830,6 @@ and those created through the execution of <b>cViewCluster</b> commands.<br>
   </font> <br>
   <font size="-1">&lt;ListOf_cvId&gt;
   <b>= list</b> <b>-v cviews</b></font>
-  <br>
-  <font size="-1">&lt;ListOf_cvId&gt;
-  <b>= list</b> <b>-v cviews , all</b></font>
   </font></font></font>
 </ul>
 <h3><a name="mozTocId332313" class="mozTocH3"></a><a name="listExp"></a><b><font
