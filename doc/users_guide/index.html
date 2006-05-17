@@ -50,14 +50,11 @@ Contents<br>
 </span></span></b></b></p>
 <ul style="text-align: left;" id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId71414">Introduction
-to Open|SpeedShop
-    </a>
+to Open|SpeedShop </a>
     <ul>
       <li><a href="#mozTocId406387">Brief
-Open|SpeedShop Overview
-        </a></li>
-      <li><a href="#mozTocId958848">Common Terminology
-        </a></li>
+Open|SpeedShop Overview </a></li>
+      <li><a href="#mozTocId958848">Common Terminology </a></li>
       <li><a href="#mozTocId760931">Open|SpeedShop
 General Usage</a>
         <ul>
@@ -195,7 +192,8 @@ Panel</a></li>
 Panel</a></li>
                   <li><a href="#mozTocId757134">Stats
 Panel</a></li>
-                  <li><a href="#mozTocId527350"> </a></li>
+                  <li><a href="#mozTocId527350"> </a><br>
+                  </li>
                 </ul>
               </li>
             </ul>
@@ -205,7 +203,8 @@ Open|SpeedShop GUI Wizard Usage </a>
             <ul>
               <li><a href="#mozTocId943081">Introductory Wizard Display
                 </a></li>
-              <li><a href="#mozTocId549331"> </a></li>
+              <li><a href="#mozTocId549331"> </a><br>
+              </li>
               <li><a href="#mozTocId197580">PC Sampling Wizard
 - Initial Display </a></li>
               <li><a href="#mozTocId68517">PC Sampling
@@ -235,8 +234,7 @@ Experiment - Source and Statistics Relationship Display</a></li>
           <li><a href="#mozTocId439377">Typical
 Open|SpeedShop GUI non-Wizard Usage</a></li>
           <li><a href="#mozTocId439657">Comparing Performance
-Data using the Open|SpeedShop GUI
-            </a></li>
+Data using the Open|SpeedShop GUI </a></li>
           <li><a href="#mozTocId956211">Open|SpeedShop GUI Usage on
 MPI Applications</a>
             <ul>
@@ -250,8 +248,7 @@ Running MPI Applications</a>
                 <ul>
                   <li><a href="#mozTocId291888">Gui Wizard Information</a></li>
                   <li><a href="#mozTocId112115">Gui Non-Wizard
-Information&nbsp;
-                    </a></li>
+Information&nbsp; </a></li>
                 </ul>
               </li>
               <li><a href="#mozTocId271423">Loading and Starting
@@ -284,8 +281,7 @@ Command Tool </a></li>
     </ul>
   </li>
   <li><a href="#mozTocId54031">Scripting
-API
-    </a></li>
+API </a></li>
   <li><a href="#mozTocId525838">Plugin
 API (Extensibility)&nbsp; Description</a></li>
   <li><a href="#mozTocId145888">Appendix
@@ -661,17 +657,17 @@ Time Experiment (usertime)&#8221;</a>.</p>
 <h3><a class="mozTocH3" name="mozTocId965967"></a><a
  name="Gathering_Saving_and_Re-examining"></a>Gathering, Saving, and
 Re-examining Performance Data With Open|SpeedShop</h3>
-<br>
 <b>Open|SpeedShop</b> tools allow for the gathering of performance data
-through the specification of experiments as mentioned in the sections
+through the specification of experiments, as mentioned in the sections
 above.&nbsp;&nbsp; This performance data can be saved into an
 experiment file.&nbsp;&nbsp; Once the experiment data is saved into a
-named experiment file, <b>Open|SpeedShop</b> can be exited without
+named experiment file, <b>Open|SpeedShop</b> can be exited, without
 losing any
 performance data.&nbsp;&nbsp;&nbsp; <b>Open|SpeedShop</b> can be
 invoked at a
-later date to analyze or print the saved experiment performance data by
-using the open saved experiment menu item under the "File" menu.<br>
+later time or date to analyze or print the saved experiment performance
+data.&nbsp; To do this the user would use the open saved experiment
+menu item under the "File" menu.<br>
 <br>
 </div>
 <p style="text-align: left;" class="MsoBodyText"><span
@@ -685,8 +681,9 @@ performance tool is designed to
 be extensible for both users and developers of <b>Open|SpeedShop</b>
 itself.
   <p></p>
-  <p>The principle concept is the plugin. Plugins are in
-the form of shared libraries and data files. The plugins control
+  <p>The principle concept is the plugin.&nbsp; Plugins are in
+the form of shared libraries and data files.&nbsp; <span
+ style="font-weight: bold;">Open|SpeedShop</span> plugins control
 experiment definition, data collection and data display, whether ASCII
 output or as a GUI panel.
 All the stock experiments are in plugin form. </p>
@@ -857,6 +854,13 @@ be transparent to an Open|SpeedShop user.&nbsp;&nbsp; See the attaching
 to <a href="#Attaching_to_Already_Running_MPI">MPI jobs section </a>for
 information on attaching to processes running on other hosts or
 partitions.<br>
+  <br>
+MPI implementations that support the MPIR<span id="mail-highlight-id"
+ style="background-color: yellow;"></span>_proctable interface allow
+Open|SpeedShop to automatically attach to all of the users MPI ranked
+processes. &nbsp; Currently, OpenSpeedShop automatically attaches to
+all ranked processes for MPI applications using MPT, MPICH, OpenMPI, or
+LAMPI MPI implementations.&nbsp; <br>
   <br>
 </blockquote>
 <p class="MsoBodyText"><span style=""><span style=""><span style=""><span
