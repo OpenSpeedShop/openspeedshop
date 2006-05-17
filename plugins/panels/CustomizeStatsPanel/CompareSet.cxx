@@ -351,6 +351,23 @@ dynamic_items->setOpen(TRUE);
         pid_t pid = t.getProcessId();
         statusStruct.host = QString(host.c_str());
         statusStruct.pid = QString("%1").arg(pid);
+        std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+        QString tidstr = QString::null;
+        if (pthread.first)
+        {
+          tidstr = QString("%1").arg(pthread.second);
+          statusStruct.tid = tidstr;
+        }
+        std::pair<bool, int> rank = t.getMPIRank();
+        QString ridstr = QString::null;
+        if (rank.first)
+        {
+          ridstr = QString("%1").arg(rank.second);
+          statusStruct.rid = ridstr;
+        }
+// printf("B: pid=(%s)\n", statusStruct.pid.ascii() );
+// printf("B: tid=(%s)\n", statusStruct.tid.ascii() );
+// printf("B: rid=(%s)\n", statusStruct.rid.ascii() );
 
         // Add some status to each thread.
         QString threadStatusStr;
@@ -398,24 +415,6 @@ dynamic_items->setOpen(TRUE);
         {
           atleastone = true;
         }
-        QString pidstr = QString("%1").arg(pid);
-        std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-        QString tidstr = QString::null;
-        if (pthread.first)
-        {
-          tidstr = QString("%1").arg(pthread.second);
-          statusStruct.tid = tidstr;
-        }
-        std::pair<bool, int> rank = t.getMPIRank();
-        QString ridstr = QString::null;
-        if (rank.first)
-        {
-          ridstr = QString("%1").arg(rank.second);
-          statusStruct.rid = ridstr;
-        }
-// printf("B: pidstr=(%s)\n", pidstr.ascii() );
-// printf("B: tidstr=(%s)\n", tidstr.ascii() );
-// printf("B: ridstr=(%s)\n", ridstr.ascii() );
 
         CollectorGroup cgrp = t.getCollectors();
         CollectorGroup::iterator ci;
@@ -452,9 +451,9 @@ dynamic_items->setOpen(TRUE);
     pset_name = QString("Disconnected");
     psl->append(pset_name);
 
-    MPListViewItem *disconnected_items = new MPListViewItem( dynamic_items, pset_name );
+    MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
-    disconnected_items->descriptionClassObject = dco;
+    items->descriptionClassObject = dco;
     for( ;vi != statusDisconnectedList.end(); vi++)
     {
       StatusStruct ss = *vi;
@@ -463,8 +462,7 @@ dynamic_items->setOpen(TRUE);
 // printf("ss.pid=(%s)\n", ss.pid.ascii() );
 // printf("ss.rid=(%s)\n", ss.rid.ascii() );
 
-//          MPListViewItem *item = new MPListViewItem( disconnected_items, ss.pid, ss.host);
-            MPListViewItem *item = new MPListViewItem( disconnected_items, ss.pid, ss.rid, ss.host);
+      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.rid, ss.host);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
       item->descriptionClassObject = dco;
 // printf("B: Put \"disconnected\" out: \n");
