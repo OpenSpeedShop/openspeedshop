@@ -241,18 +241,20 @@ CompareProcessesDialog::addProcesses()
 
 // printf("host_pidstr = (%s)\n", host_pidstr.ascii() );
 
+#if 0
     if( host_pidstr.find("-") > -1 )
     {
-// printf("Found a range!\n");
+printf("Found a range!\n");
     }
     if( host_pidstr.find(":") > -1 )
     {
-// printf("Found a host!\n");
+printf("Found a host!\n");
     }
     if( host_pidstr.find("*") > -1 )
     {
-// printf("Found a wildcard!\n");
+printf("Found a wildcard!\n");
     }
+#endif // 0
     DescriptionClassObjectList *validatedHostPidList = validateHostPid(host_pidstr);
 
     if( validatedHostPidList )
@@ -284,7 +286,6 @@ CompareProcessesDialog::addProcesses()
       for ( DescriptionClassObjectList::Iterator it = validatedHostPidList->begin(); it != validatedHostPidList->end(); ++it )
       {
         DescriptionClassObject *dco = (DescriptionClassObject *)*it;
-//        MPListViewItem *item = new MPListViewItem( lv->firstChild(), dco->pid_name, dco->host_name, tidstr );
         MPListViewItem *item = new MPListViewItem( selectedItem, dco->pid_name, dco->host_name, tidstr );
 // printf("addProcesses() ADD! (%s)\n", item->text(0).ascii() );
         item->descriptionClassObject = dco;
@@ -594,6 +595,24 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
   DescriptionClassObjectList *dcolist = new DescriptionClassObjectList();
 
 // printf("validateHostPid (%s) \n", target_host_pidstr.ascii() );
+  bool rangeFLAG = FALSE;
+  if( target_host_pidstr.find("-") > -1 )
+  {
+// printf("Found a range!\n");
+    rangeFLAG = TRUE;
+  }
+  bool colonFLAG = FALSE;
+  if( target_host_pidstr.find(":") > -1 )
+  {
+// printf("Found a host!\n");
+    colonFLAG = TRUE;
+  }
+  bool wildcardFLAG = FALSE;
+  if( target_host_pidstr.find("*") > -1 )
+  {
+// printf("Found a wildcard!\n");
+    wildcardFLAG = TRUE;
+  }
 
   QString target_hoststr = QString::null;
   QString target_pidstr = QString::null;
@@ -651,7 +670,9 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
 // printf("upper_rangestr=(%s)\n", upper_rangestr.ascii() );
 
   QRegExp hostRegExp = QRegExp(target_hoststr, TRUE, TRUE);
-  QRegExp pidRegExp = QRegExp(target_pidstr, TRUE, TRUE);
+  QRegExp pidRegExp = QRegExp(target_pidstr+" ", TRUE, TRUE);
+// printf("pidRegExpr was based on target_pidstr (%s)\n", target_pidstr.ascii() );
+// printf("pidRegExp was (%s)\n", pidRegExp.pattern().ascii() );
 
   // First check to see if we have an exact match on the dynamic pset names.
   if( isPSetName(target_pidstr) == TRUE )
@@ -686,7 +707,6 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
                   new MPListViewItem( pitem, child->text(0), child->text(1)  );
           }
           DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, child->text(1), child->text(0) );
-//          dcolist->append(dco);
           child = child->nextSibling();
         }
 
@@ -694,7 +714,6 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
       }
       it++;
     }
-//    return( dcolist );
     return( NULL );
   }
 
@@ -751,8 +770,18 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
               }
             } else
             {
-              if( pidstr.find(pidRegExp) == -1 )
+// printf("pidstr=(%s) target_pidstr=(%s)\n", pidstr.ascii(), target_pidstr.ascii() );
+              // Add blanks before and after to help qt delineate the items.
+              QString tpidstr = " "+pidstr+" ";
+              if( pidstr == target_pidstr )
+              { 
+// printf("pidstr == target_pidstr: Found!\n");
+              } else if( wildcardFLAG == TRUE && tpidstr.find(pidRegExp) != -1 )
               {
+// printf("regexp: Found! (%s)\n", pidRegExp.pattern().ascii() );
+              } else
+              {
+// printf("NOPE: NOT ONE OF THESE!\n");
                 continue;
               }
             }
