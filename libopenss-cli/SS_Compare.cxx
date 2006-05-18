@@ -343,7 +343,7 @@ static bool Generate_CustomView (CommandObject *cmd,
  // Start by determining the new column headers.
   int64_t num_columns = 0;
   int64_t rows_in_Set0 = 0;
-  CommandResult_Columns *C = new CommandResult_Columns ();
+  CommandResult_Headers *C = new CommandResult_Headers ();
   CommandResult *last_header = NULL;
   std::list<CommandResult *>::iterator coi;
   for (i = 0; i < numQuickSets; i++) {
@@ -361,8 +361,18 @@ static bool Generate_CustomView (CommandObject *cmd,
           for (hi = H.begin(), cnt--; (hi != H.end()) && (cnt > 0); hi++, cnt--) {
             std::string s;
             ((CommandResult_String *)(*hi))->Value(s);
-            C->CommandResult_Columns::Add_Column (
-                      new CommandResult_String (Quick_Compare_Set[i].headerPrefix + s));
+            std::string p = Quick_Compare_Set[i].headerPrefix;
+            int64_t h_len = p.size();
+            if (h_len > 0) {
+              if (p[h_len-1] == *" ") {
+               // Use "," between origial header and prefix.
+                p.replace((h_len-1), 1, ", ");
+              }
+              p += s;
+              C->CommandResult_Headers::Add_Header (CRPTR (p));
+            } else {
+              C->CommandResult_Headers::Add_Header (CRPTR (s));
+            }
           }
           if (last_header == NULL) {
            // Save the first right-most column header for the final report.
@@ -390,7 +400,7 @@ static bool Generate_CustomView (CommandObject *cmd,
 */
 
  // Add the header for the last column and attach all of them to the output report.
-  C->CommandResult_Columns::Add_Column ( Dup_CommandResult (last_header) );
+  C->CommandResult_Headers::Add_Header ( Dup_CommandResult (last_header) );
   cmd->Result_Predefined (C); // attach column headers to output
 
  // Build the master maps.
@@ -565,7 +575,7 @@ bool SS_expCompare (CommandObject *cmd) {
 
        // Define new compare sets for each experiment.
         std::ostringstream M;
-        M << "-x " << ExperimentID << ": ";
+        M << "-x " << ExperimentID << " ";
         selectionTarget S;
         S.Exp = exp;
         S.headerPrefix = M.ostringstream::str();
@@ -630,7 +640,7 @@ bool SS_expCompare (CommandObject *cmd) {
        // One view for this experiment.
        // Add the view to the compare set for this experiment.
         Quick_Compare_Set[k].viewName = views[0];
-        Quick_Compare_Set[k].headerPrefix += views[0] + ": ";
+        Quick_Compare_Set[k].headerPrefix += views[0] + " ";
 
 
        // Continue the "k" loop to find one view for each experiment.
@@ -647,7 +657,7 @@ bool SS_expCompare (CommandObject *cmd) {
        // Fill in the view for each compare set.
         for (j = 0; j < views.size(); j++) {
           Quick_Compare_Set[j].viewName = views[j];
-          Quick_Compare_Set[j].headerPrefix += views[j] + ": ";
+          Quick_Compare_Set[j].headerPrefix += views[j] + " ";
         }
 
        // Don't continue the "k" loop.
@@ -692,7 +702,7 @@ bool SS_expCompare (CommandObject *cmd) {
 
       for (int64_t k = 0; k < initialSetCnt; k++) {
         Quick_Compare_Set[segmentStart+k].viewName = views[j];
-        Quick_Compare_Set[segmentStart+k].headerPrefix += views[j] + ": ";
+        Quick_Compare_Set[segmentStart+k].headerPrefix += views[j] + " ";
       }
       segmentStart += initialSetCnt;
     }
@@ -737,7 +747,7 @@ bool SS_expCompare (CommandObject *cmd) {
        // Define new compare sets for each host.
         for (int64_t j = 0; j < hosts.size(); j++) {
           selectionTarget S;
-          S.headerPrefix = "-h " + hosts[j] + ": ";
+          S.headerPrefix = "-h " + hosts[j] + " ";
           S.hostId = Experiment::getCanonicalName(hosts[j]);
           Quick_Compare_Set.push_back (S);
         }
@@ -759,7 +769,7 @@ bool SS_expCompare (CommandObject *cmd) {
          // Append this host to N copies of the original sets.
           for (int64_t k = 0; k < initialSetCnt; k++) {
             selectionTarget S;
-            Quick_Compare_Set[segmentStart+k].headerPrefix += "-h " + hosts[j] + ": ";
+            Quick_Compare_Set[segmentStart+k].headerPrefix += "-h " + hosts[j] + " ";
             Quick_Compare_Set[segmentStart+k].hostId = Experiment::getCanonicalName(hosts[j]);
           }
           segmentStart += initialSetCnt;
@@ -790,7 +800,7 @@ Assert   (pval2.tag == VAL_NUMBER);
       if (initialSetCnt == 0) {
        // Define new compare sets for each pid.
         for (int64_t j = 0; j < pids.size(); j++) {
-          int64_t P = pids[j]; char s[40]; sprintf ( s, "-p %lld: ", P);
+          int64_t P = pids[j]; char s[40]; sprintf ( s, "-p %lld ", P);
           selectionTarget S;
           S.headerPrefix = s;
           S.pidId = pids[j];
@@ -813,7 +823,7 @@ Assert   (pval2.tag == VAL_NUMBER);
 
          // Append this pid to N copies of the original sets.
           for (int64_t k = 0; k < initialSetCnt; k++) {
-            int64_t P = pids[j]; char s[40]; sprintf ( s, "-p %lld: ", P);
+            int64_t P = pids[j]; char s[40]; sprintf ( s, "-p %lld ", P);
             selectionTarget S;
             Quick_Compare_Set[segmentStart+k].headerPrefix += s;
             Quick_Compare_Set[segmentStart+k].pidId = pids[j];
@@ -843,7 +853,7 @@ Assert   (pval2.tag == VAL_NUMBER);
       if (initialSetCnt == 0) {
        // Define new compare sets for each host.
         for (int64_t j = 0; j < threadids.size(); j++) {
-          char s[40]; sprintf ( s, "-t %lld: ", threadids[j]);
+          char s[40]; sprintf ( s, "-t %lld ", threadids[j]);
           selectionTarget S;
           S.headerPrefix = s;
           S.threadId = threadids[j];
@@ -866,7 +876,7 @@ Assert   (pval2.tag == VAL_NUMBER);
 
          // Append this threadid to N copies of the original sets.
           for (int64_t k = 0; k < initialSetCnt; k++) {
-            char s[40]; sprintf ( s, "-t %lld: ", threadids[j]);
+            char s[40]; sprintf ( s, "-t %lld ", threadids[j]);
             selectionTarget S;
             Quick_Compare_Set[segmentStart+k].headerPrefix += s;
             Quick_Compare_Set[segmentStart+k].threadId = threadids[j];
@@ -896,7 +906,7 @@ Assert   (pval2.tag == VAL_NUMBER);
       if (initialSetCnt == 0) {
        // Define new compare sets for each host.
         for (int64_t j = 0; j < rankids.size(); j++) {
-          char s[40]; sprintf ( s, "-r %lld: ", rankids[j]);
+          char s[40]; sprintf ( s, "-r %lld ", rankids[j]);
           selectionTarget S;
           S.headerPrefix = s;
           S.rankId = rankids[j];
@@ -919,7 +929,7 @@ Assert   (pval2.tag == VAL_NUMBER);
 
          // Append this threadid to N copies of the original sets.
           for (int64_t k = 0; k < initialSetCnt; k++) {
-            char s[40]; sprintf ( s, "-r %lld: ", rankids[j]);
+            char s[40]; sprintf ( s, "-r %lld ", rankids[j]);
             selectionTarget S;
             Quick_Compare_Set[segmentStart+k].headerPrefix += s;
             Quick_Compare_Set[segmentStart+k].rankId = rankids[j];
@@ -943,6 +953,9 @@ Assert   (pval2.tag == VAL_NUMBER);
         std::ostringstream H;
         ParseInterval P = *iv;
         H << "-I ";
+        if (p_result->isIntervalAttribute()) {
+          H << (*p_result->getIntervalAttribute()) << " ";
+        }
         if (P.isStartInt()) {
           H << P.getStartInt();
         } else {
@@ -955,7 +968,7 @@ Assert   (pval2.tag == VAL_NUMBER);
         }
 
         selectionTarget S;
-        S.headerPrefix = H.ostringstream::str() + ": ";
+        S.headerPrefix = H.ostringstream::str() + " ";
         S.timeSegment.push_back(*iv);
         Quick_Compare_Set.push_back (S);
       }
@@ -979,6 +992,9 @@ Assert   (pval2.tag == VAL_NUMBER);
         std::ostringstream H;
         ParseInterval P = (*interval_list)[j];
         H << "-I ";
+        if (p_result->isIntervalAttribute()) {
+          H << (*p_result->getIntervalAttribute()) << " ";
+        }
         if (P.isStartInt()) {
           H << P.getStartInt();
         } else {
@@ -989,7 +1005,7 @@ Assert   (pval2.tag == VAL_NUMBER);
         } else {
           H << ":" << P.getEndDouble();
         }
-        H << ": ";
+        H << " ";
 
         for (int64_t k = 0; k < initialSetCnt; k++) {
           Quick_Compare_Set[segmentStart+k].headerPrefix += H.ostringstream::str();
@@ -1472,7 +1488,7 @@ bool SS_cView (CommandObject *cmd) {
         selectionTarget S;
         S.pResult = new_result;
         S.base_tgrp = cvp->cvTgrp();
-        S.headerPrefix = std::string("-c ") + N.ostringstream::str() + ": ";
+        S.headerPrefix = std::string("-c ") + N.ostringstream::str() + " ";
         S.Exp = exp;
         S.viewName = viewname;
         Quick_Compare_Set.push_back (S);
