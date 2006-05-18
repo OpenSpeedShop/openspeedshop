@@ -54,6 +54,7 @@ libopenss_guiobjects_la_SOURCES = \
 	MessageObject.hxx MessageObject.cxx \
 	SourceObject.hxx SourceObject.cxx \
 	UpdateObject.hxx UpdateObject.cxx \
+	ExpIDInUseObject.hxx ExpIDInUseObject.cxx \
 	FocusObject.hxx FocusObject.cxx \
 	FocusCompareObject.hxx FocusCompareObject.cxx \
 	ArgumentObject.hxx ArgumentObject.cxx \

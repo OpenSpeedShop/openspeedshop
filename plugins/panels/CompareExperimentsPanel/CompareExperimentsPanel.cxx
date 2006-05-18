@@ -22,6 +22,8 @@
 #include "plugin_entry_point.hxx"   // Do not remove
 #include "ArgumentObject.hxx"   // Do not remove
 
+#include "ExpIDInUseObject.hxx"
+
 #include <qbuttongroup.h>
 
 CompareExperimentsPanel::CompareExperimentsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : CustomExperimentPanel(pc, n, ao, (const char *)"")
@@ -177,6 +179,18 @@ CompareExperimentsPanel::listener(void *msg)
       p->getPanelContainer()->hidePanel( p );
     }
 
+  } else if ( mo->msgType == "ExpIDInUseObject" )
+  {
+// printf("CompareExperimentsPanel::listener() ExpIDInUseObject\n");
+     ExpIDInUseObject *expIDInUseObject = (ExpIDInUseObject *)mo;
+     if( expIDInUseObject->expID == leftSideExpID || 
+         expIDInUseObject->expID == rightSideExpID )
+     {
+       ret_val = TRUE;
+     } else
+     {
+       ret_val = FALSE;
+     }
   }
 
   return( ret_val );

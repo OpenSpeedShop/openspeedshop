@@ -34,6 +34,7 @@
 
 #include "SourcePanel.hxx"
 #include "UpdateObject.hxx"
+#include "ExpIDInUseObject.hxx"
 #include "SourceObject.hxx"
 #include "ArgumentObject.hxx"
 #include "FocusObject.hxx"
@@ -716,6 +717,15 @@ CustomExperimentPanel::listener(void *msg)
     {
       QString command = QString::null;
       command = QString("expClose -x %1").arg(expID);
+
+      // First check to see if anyone (compare experiment namely) still
+      // has a need for this expID.
+      ExpIDInUseObject *expIDInUseObject = new ExpIDInUseObject(expID);
+      bool ret_val = broadcast((char *)expIDInUseObject, ALL_T);
+      if( ret_val == TRUE )
+      {
+        return TRUE;
+      }
 
       if( !QMessageBox::question( NULL,
               tr("Delete (expClose) the experiment?"),
