@@ -64,7 +64,6 @@ namespace {
         "open",
         "close",
         "read",
-#define DEBUG
 #ifndef DEBUG
         "write",
 #endif
