@@ -241,20 +241,6 @@ CompareProcessesDialog::addProcesses()
 
 // printf("host_pidstr = (%s)\n", host_pidstr.ascii() );
 
-#if 0
-    if( host_pidstr.find("-") > -1 )
-    {
-printf("Found a range!\n");
-    }
-    if( host_pidstr.find(":") > -1 )
-    {
-printf("Found a host!\n");
-    }
-    if( host_pidstr.find("*") > -1 )
-    {
-printf("Found a wildcard!\n");
-    }
-#endif // 0
     DescriptionClassObjectList *validatedHostPidList = validateHostPid(host_pidstr);
 
     if( validatedHostPidList )
@@ -286,7 +272,7 @@ printf("Found a wildcard!\n");
       for ( DescriptionClassObjectList::Iterator it = validatedHostPidList->begin(); it != validatedHostPidList->end(); ++it )
       {
         DescriptionClassObject *dco = (DescriptionClassObject *)*it;
-        MPListViewItem *item = new MPListViewItem( selectedItem, dco->pid_name, dco->host_name, tidstr );
+        MPListViewItem *item = new MPListViewItem( selectedItem, dco->pid_name, dco->host_name, dco->rid_name );
 // printf("addProcesses() ADD! (%s)\n", item->text(0).ascii() );
         item->descriptionClassObject = dco;
       }

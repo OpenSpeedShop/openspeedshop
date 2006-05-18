@@ -241,7 +241,6 @@ void MPListView::contentsDropEvent( QDropEvent *e )
 // }
 
     QString namedSet = QString::null;
-//    if( MPListView::oldCurrent->text(0).find("pset") == 0 || MPListView::oldCurrent->text(0).find("udpset") == 0 )
     if( MPListView::oldCurrent->descriptionClassObject->root == TRUE )
     {
       namedSet = MPListView::oldCurrent->text(0)+"*";
@@ -287,7 +286,8 @@ void MPListView::contentsDropEvent( QDropEvent *e )
         }
 
         MPListViewItem *item2 =
-          new MPListViewItem( item, pid_name, host_name );
+//          new MPListViewItem( item, pid_name, host_name );
+          new MPListViewItem( item, pid_name, host_name, mpChild->descriptionClassObject->rid_name );
         item2->descriptionClassObject = mpChild->descriptionClassObject;
 
         mpChild = (MPListViewItem *)mpChild->nextSibling();
@@ -319,7 +319,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
       } else
       {
         MPListViewItem *item2 =
-          new MPListViewItem( item, MPListView::oldCurrent->descriptionClassObject->pid_name, MPListView::oldCurrent->descriptionClassObject->host_name );
+          new MPListViewItem( item, MPListView::oldCurrent->descriptionClassObject->pid_name, MPListView::oldCurrent->descriptionClassObject->host_name, MPListView::oldCurrent->descriptionClassObject->rid_name );
         item2->descriptionClassObject = MPListView::oldCurrent->descriptionClassObject;
       }
     }

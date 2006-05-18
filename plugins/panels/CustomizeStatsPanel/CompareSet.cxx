@@ -268,7 +268,6 @@ dynamic_items->setOpen(TRUE);
             if( !pidstr.isEmpty() )
             {
               MPListViewItem *item2 = 
-//                new MPListViewItem( item, pidstr, collectorliststring  );
                 new MPListViewItem( item, pidstr, collectorliststring, ridstr  );
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
               item2->descriptionClassObject = dco;

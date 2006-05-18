@@ -136,6 +136,7 @@ ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
   lv = new MPListView( frame, CPS, 0  );
   lv->addColumn("Processes/PSets:");
   lv->addColumn("Host:");
+  lv->addColumn("Rank:");
   lv->setResizeMode(QListView::LastColumn);
   QToolTip::add(lv->header(), "Process/Process Sets to be display in this column:");
   lv->setAllColumnsShowFocus( TRUE );
@@ -494,7 +495,6 @@ fprintf(stderr, "WARNING: ColumnSet::gatherMetricInfo() returned\n");
     }
 // printf("Put this to a menu: cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
   }
-#ifndef HOLD_FOR_WHEN_WE_SUPPORT_THIS
   if( metricComboBox )
   {
     if( ce->name == "pcsamp" || ce->name == "hwc" )
@@ -606,7 +606,6 @@ fprintf(stderr, "WARNING: ColumnSet::gatherMetricInfo() returned\n");
       }
     }
   }
-#endif // HOLD_FOR_WHEN_WE_SUPPORT_THIS
 // printf("down here!  metricStr=(%s)\n", metricStr.ascii() );
   if( metricStrFoundFLAG == FALSE )
   {
