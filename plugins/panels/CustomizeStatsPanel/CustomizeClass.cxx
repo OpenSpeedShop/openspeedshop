@@ -617,6 +617,14 @@ CustomizeClass::removeRaisedTab()
 
   QWidget *currentTab = currentTabWidget->currentPage();
 
+
+  // Always keep one column...
+  if( currentTabWidget->count() == 1 )
+  {
+// printf("DUDE YOU CAN'T REMOVE ANY.  YOU ONLY HAVE ONE LEFT!\n");
+    return;
+  }
+
 // printf("remove Tab labeled (%s)\n", currentTabWidget->tabLabel( currentTab ).ascii() );
 
   
