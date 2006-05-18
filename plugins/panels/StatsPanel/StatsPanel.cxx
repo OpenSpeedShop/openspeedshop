@@ -36,6 +36,7 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 
 #include "ManageProcessesPanel.hxx"
 
+#define CLUSTERANALYSIS 1
 
 #include "GenericProgressDialog.hxx"
 
@@ -600,7 +601,8 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-  if( focusedExpID != -1 )
+// printf("expID=(%d) focusedExpID=(%d)\n", expID, focusedExpID );
+  if( focusedExpID > 0 )
   {
     qaction = new QAction( this,  "_originalQuery");
     qaction->addTo( contextMenu );
@@ -837,6 +839,19 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     }
   }
 
+#ifdef CLUSTERANALYSIS
+if( focusedExpID == -1 && currentCollectorStr == "usertime" )
+{
+  contextMenu->insertSeparator();
+  qaction = new QAction( this,  "clusterAnalysisSelected");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Cluster Analysis...(Experimental command)" );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( clusterAnalysisSelected() ) );
+  qaction->setStatusTip( tr("Perform cluser analysis on this experiment to show outliers.") );
+}
+
+#endif// CLUSTERANALYSIS
+
 
   contextMenu->insertSeparator();
 
@@ -849,6 +864,51 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   return( TRUE );
 }
 
+void
+StatsPanel::clusterAnalysisSelected()
+{
+  QString command = "cviewCluster";
+  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  std::list<int64_t> list_of_cids;
+  list_of_cids.clear();
+  InputLineObject *clip = NULL;
+  if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
+         &list_of_cids, clip, TRUE ) )
+  {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+// printf("ran %s\n", command.ascii() );
+
+  if( clip )
+  {
+    clip->Set_Results_Used();
+  }
+
+  QString pidlist = QString::null;
+  if( list_of_cids.size() > 1 )
+  {
+    for( std::list<int64_t>::const_iterator it = list_of_cids.begin();
+         it != list_of_cids.end(); it++ )
+    {
+      int pid = (int64_t)*it;
+      if( pidlist.isEmpty() )
+      { 
+        pidlist = QString("%1").arg(pid);
+      } else 
+      {
+        pidlist += QString(", %1").arg(pid);
+      }
+    }
+  } else
+  {
+// printf("No outliers...\n");
+    return;
+  }
+
+  command = QString("cview -c %1 -m usertime::exclusive_time").arg(pidlist);
+
+  updateStatsPanelData(command);
+}
 
 void
 StatsPanel::customizeExperimentsSelected()
@@ -1575,10 +1635,16 @@ qApp->processEvents(1000);
   pd->show();
   progressTimer->start(0);
 
+// printf("sort command?\n");
+
   if( command.contains("-v Butterfly") || command.contains("-v CallTrees") || command.contains("-v TraceBacks") )
   {
     // Don't sort these report types..  If you get a request to sort then only
     // sort on the last column.
+// printf("Don't sort this display.\n");
+    splv->setSorting ( -1 );
+  } else if( command.startsWith("cview -c") && command.contains("-m ") )
+  { // CLUSTER.. Don't sort this one...
 // printf("Don't sort this display.\n");
     splv->setSorting ( -1 );
   } else
@@ -5500,14 +5566,27 @@ StatsPanel::analyzeTheCView()
   QValueList<QString> cidList;
 
 // printf("lastCommand =(%s)\n", lastCommand.ascii() );
-int vindex = lastCommand.find("-v");
-  QString ws = QString::null;
+  int vindex = lastCommand.find("-v");
+// printf("vindex = %d\n", vindex);
+  int mindex = lastCommand.find("-m");
+// printf("mindex = %d\n", mindex);
+  int end_index = vindex;
   if( vindex == -1 )
+  {
+    end_index = mindex;
+  }
+  if( mindex != -1 && mindex < vindex )
+  {
+    end_index = mindex;
+  }
+// printf("end_index= %d\n", end_index);
+  QString ws = QString::null;
+  if( end_index == -1 )
   {
     ws = lastCommand.mid(9,999999);
   } else
   {
-    ws = lastCommand.mid(9,vindex-10);
+    ws = lastCommand.mid(9,end_index-10);
   }
 // printf("ws=(%s)\n", ws.ascii() );
   int cnt = ws.contains(",");
@@ -5579,24 +5658,55 @@ int vindex = lastCommand.find("-v");
     {
       start_host = end_index;
     }
+if( end_index == -1 )
+{
+  end_index = str.find("-p");
+  if( end_index != -1 )
+  {
+    start_host = end_index;
+  }
+} else
+{
+  start_host = end_index;
+}
     QString expIDStr = str.mid(start_index, end_index-start_index);
     expID = expIDStr.toInt();
 // printf("A: expID = %d\n", expID);
 
 
     QString host_pid_names = QString::null;
+// printf("start_host = (%d)\n", start_host);
     if( start_host != -1 )
     {
       start_index = start_host;
       end_index = str.find("-m");
+if( end_index == -1 )
+{
+  end_index = 999999;
+}
       host_pid_names = str.mid(start_index, end_index-start_index);
     }
 
     // Look up metricStr
+// printf("look up the metricStr in str? str=(%s)\n", str.ascii() );
     start_index = str.find("-m");
-    start_index += 3;  // Skip the -m
-    // metricStr = str.right(start_index);
-    metricStr = str.mid(start_index, 9999999);
+if( start_index == -1 )
+{  // see if there's one on the original command?
+  // HACK! HACK!   HACK!!
+
+  str = lastCommand;
+  start_index = str.find("-m");
+}
+
+    if( start_index != -1 )
+    {
+      start_index += 3;  // Skip the -m
+      // metricStr = str.right(start_index);
+      metricStr = str.mid(start_index, 9999999);
+    } else
+    {
+      metricStr = QString::null;
+    }
 
     if( currentMetricStr.isEmpty() )
     {
@@ -5605,6 +5715,7 @@ int vindex = lastCommand.find("-v");
     }
 
 // printf("new CInfoClass: cid=%d collectorStr=(%s) expID=(%d) host_pid_names=(%s) metricStr=(%s)\n", cid, collectorStr.ascii(), expID, host_pid_names.ascii(), metricStr.ascii() );
+
     CInfoClass *cic = new CInfoClass( cid, collectorStr, expID, host_pid_names, metricStr );
     cInfoClassList.push_back( cic );
 // printf("push this out..\n");
@@ -5667,6 +5778,14 @@ StatsPanel::canWeDiff()
   {
     return( FALSE );
   }
+
+#ifdef CLUSTERANALYSIS
+if( lastCommand.startsWith("cview -c") && lastCommand.contains("-m ") )
+{
+// printf("lastCommand was (%s) and we're not going to sort!\n", lastCommand.ascii() );
+  return( FALSE );
+}
+#endif // CLUSTERANALYSIS
 
   QString c1header = splv->columnText(0);
   QString c2header = splv->columnText(1);

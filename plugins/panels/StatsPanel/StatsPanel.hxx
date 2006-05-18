@@ -264,6 +264,7 @@ class StatsPanel  : public Panel
     void MPItraceSelected();
     void IOtraceSelected();
     void customizeExperimentsSelected();
+    void clusterAnalysisSelected();
     void manageProcessesSelected();
     void progressUpdate();
 
