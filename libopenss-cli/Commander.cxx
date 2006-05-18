@@ -2477,7 +2477,7 @@ read_another_window:
       if (!Shut_Down) {
        // We must have encountered an EOF on all the input streams.
        // Create an 'exit' command to terminate command processing.
-        clip = new InputLineObject (readfromwindow, "Exit\n");
+        clip = new InputLineObject (readfromwindow, "exit\n");
       } else {
        // An 'Exit' command has been processed.  
         I_HAVE_ASYNC_INPUT_LOCK = false;
