@@ -359,6 +359,23 @@ def Process_ILO (arg):
 
 ##################################################################
 #
+# no_python_command_processing
+#
+# There is no python simulation, but we still want
+# to lowercase the OSS command to be user friendly.
+#
+##################################################################
+def no_python_command_processing(line):
+
+    blank_delim = " "
+    parts = line.split()
+    t_part = string.lower(parts[0])
+    parts[0] = t_part
+    new_line = blank_delim.join(parts)
+    return new_line
+
+##################################################################
+#
 # preParseArgs
 #
 # Determine if there is an O/SS command in the line and
@@ -723,6 +740,8 @@ class CLI(code.InteractiveConsole):
 			#print d_line," ",count
                         #if self.cmd_is_assignment is not 0:
                         #    PY_Input.SetAssign (1)
+			d_line = no_python_command_processing(d_line)
+			#print d_line," ",count
 		    	PY_Input.CallParser(d_line)
 
             # Handle CTRL-C
