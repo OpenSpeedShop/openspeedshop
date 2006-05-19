@@ -90,7 +90,8 @@ Invocation Command&nbsp; "openss"</a>
           <li><a href="#mozTocId171398">openss -gui</a></li>
           <li><a href="#mozTocId654701">openss -cli:</a></li>
           <li><a href="#mozTocId3287">openss -batch:</a></li>
-          <li><a href="#mozTocId252988">Python Scripting API</a></li>
+          <li><a href="#mozTocId252988">Python
+Scripting API</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId805334">Open|SpeedShop Quick Start
@@ -157,8 +158,9 @@ Experiment </a></li>
               <li><a href="#mozTocId150174">Wizard
 Menu</a>
                 <ul>
-                  <li><a href="#mozTocId104652">FPE Tracing Experiment
-Wizard </a></li>
+                  <li><a href="#mozTocId528369">Compare Wizard </a></li>
+                  <li><a href="#mozTocId104652">Floating Point
+Exception (FPE) Tracing Experiment Wizard</a></li>
                   <li><a href="#mozTocId370594">HW Counter Experiment
 Wizard </a></li>
                   <li><a href="#mozTocId594761">I/O Experiment Wizard </a></li>
@@ -192,8 +194,6 @@ Panel</a></li>
 Panel</a></li>
                   <li><a href="#mozTocId757134">Stats
 Panel</a></li>
-                  <li><a href="#mozTocId527350"> </a><br>
-                  </li>
                 </ul>
               </li>
             </ul>
@@ -566,8 +566,7 @@ clock cycles, graduated instructions, primary instruction cache misses,
 secondary instruction cache misses, primary data cache misses,
 secondary data cache misses, translation lookaside buffer (TLB) misses,
 and graduated floating-point instructions.&nbsp; PC sampling is
-used.&nbsp;&nbsp; <br>
-See&nbsp;<a href="index.html#HW_Counter_Experiment">"Hardware
+used.&nbsp;&nbsp; See&nbsp;<a href="index.html#HW_Counter_Experiment">"Hardware
 Counter Experiments (hwc)"</a></p>
       </td>
     </tr>
@@ -580,8 +579,8 @@ Counter Experiments (hwc)"</a></p>
       </td>
       <td char="c" align="left" valign="top">
       <p>Similar to <tt>hwc</tt> experiment, except that callstack
-sampling is used. <br>
-See <a href="index.html#HW_Counter_Experiment"
+sampling is used.&nbsp;&nbsp; See <a
+ href="index.html#HW_Counter_Experiment"
  title="Hardware Counter Experiments (*_hwc, *_hwctime)">&#8220;Hardware
 Counter Experiments (hwctime)&#8221;</a>.</p>
       </td>
@@ -629,8 +628,8 @@ Available as of December 15, 2005.<br>
       <td char="c" align="left" valign="top">
       <p>Actual CPU time at the
 source line, machine instruction, and function levels by sampling the
-program counter at 10 or 1-millisecond intervals. <br>
-See <a href="index.html#PC_Sampling_Experiment"
+program counter at 10 or 1-millisecond intervals.&nbsp;&nbsp; See <a
+ href="index.html#PC_Sampling_Experiment"
  title="PC Sampling Experiment (pcsamp)">&#8220;PC
 Sampling Experiment (pcsamp)&#8221;</a>.</p>
       </td>
@@ -644,8 +643,8 @@ Sampling Experiment (pcsamp)&#8221;</a>.</p>
       </td>
       <td char="c" align="left" valign="top">
       <p>Inclusive and exclusive CPU time for each function by sampling
-the callstack at 30-millisecond intervals. <br>
-See <a href="index.html#User_Time_Experiment"
+the callstack at 30-millisecond intervals.&nbsp;&nbsp; See <a
+ href="index.html#User_Time_Experiment"
  title="Call Stack Profiling Experiment (usertime/totaltime)">&#8220;User
 Time Experiment (usertime)&#8221;</a>.</p>
       </td>
@@ -694,9 +693,8 @@ performance tool to be enhanced by the open source community
 for either a general or specific need. </p>
 See the </span><span style="color: rgb(0, 0, 128);"><a
  href="#Plugin_API_Extensibility_Description_">Plugin
-API (Extensibility)&nbsp; Description</a> <span
- style="color: rgb(0, 0, 0);">section for a detailed description.</span><b
- style=""><br>
+API (Extensibility) Description</a> <span style="color: rgb(0, 0, 0);">section
+for a detailed description.</span><b style=""><br>
   </b></span></blockquote>
 </div>
 </div>
@@ -736,8 +734,7 @@ the tests, compare results, and output test reports.</li>
   <li>"src" contains the tests with compare files and other
 essential files to run the tests.</li>
   <li>"executables" contains subdirectories for the executables used in
-the regression and DPCL tests.<br>
-  </li>
+the regression and DPCL tests.</li>
 </ul>
 <br>
 <h2><a class="mozTocH2" name="mozTocId768338"></a><a
@@ -837,7 +834,7 @@ the documentations associated with the Python scripting API definition.</div>
   <b>Open|SpeedShop</b> can be invoked in a
 number of ways.&nbsp; The <a href="QuickStartGuide.html"><span
  style="font-weight: bold;">Open|SpeedShop</span>
-Quick Start Guide</a> gives a few examples that will
+Quick Start Guide</a> gives a few short examples that will
 hopefully help the first time users to get started and serve as an
 introduction to the following sections about <b>Open|SpeedShop</b>
 tool usage.<br>
@@ -933,7 +930,7 @@ window below.<br>
     <br>
     <b style=""> <img alt="Initial OpenSpeedShop GUI Panel"
  title="Initial OpenSpeedShop GUI Panel" src="InitialPanel.png"
- style="width: 851px; height: 655px;"><br>
+ style="height: 655px; width: 851px;"><br>
     </b></blockquote>
   <br>
   <blockquote><b style=""></b>
@@ -1109,7 +1106,6 @@ in each routine.&nbsp; The call stack is also recorded.&nbsp; This
 allows the user to<span style="font-weight: bold;"> </span>interrogate
 the call stacks to find out where each
 call has been made in the application program<b style=""><br>
-    <br>
     </b>
     <h5><a class="mozTocH5" name="mozTocId279794"></a><b><b style="">Input/Output
 Trace (IOT)
@@ -1123,7 +1119,6 @@ recorded,&nbsp; allowing the
 user to interrogate the call stacks to find out where each call has
 been
 made in the application program<b style=""><br>
-    <br>
     </b>
     <h5><a class="mozTocH5" name="mozTocId466177"></a><b style=""><a
  name="MPI_Experiment"></a>MPI
@@ -1149,7 +1144,6 @@ command line interface (CLI)..<br>
     <h6><a class="mozTocH6" name="mozTocId450283"></a><big><tt><span
  style="font-family: helvetica;">pcsamp</span></tt> PC
 Sampling Experiment</big></h6>
-    <br>
 The <tt>pcsamp</tt>
 experiment estimates
 the actual CPU time for each source code line, machine code line, and
@@ -1239,38 +1233,89 @@ Menu</b></h4>
  style="width: 200px; height: 206px;"><br>
     <br>
     </b>
-    <h5><a class="mozTocH5" name="mozTocId104652"></a><b style=""><a
- name="FPE_Tracing_Experiment_Wizard"></a>FPE Tracing Experiment Wizard<br>
+    <h5><a class="mozTocH5" name="mozTocId528369"></a><b style=""><a
+ name="Compare_Wizard"></a>Compare Wizard<br>
     </b></h5>
-    <b style="">TBD<br>
-    </b>
-    <h5><a class="mozTocH5" name="mozTocId370594"></a><b style=""><a
- name="HW_Counter_Experiment_Wizard"></a>HW Counter Experiment Wizard<br>
-    </b></h5>
-    <b style="">TBD<br>
-    </b>
-    <h5><a class="mozTocH5" name="mozTocId594761"></a><b style=""><a
- name="IO_Experiment_Wizard"></a>I/O Experiment Wizard<br>
-    </b></h5>
-    <b style="">TBD<br>
-    </b>
-    <h5><a class="mozTocH5" name="mozTocId275633"></a><b style=""><a
- name="MPI_Experiment_Wizard"></a>MPI Experiment Wizard<br>
-    </b></h5>
-    <b style="">TBD<br>
-    </b>
-    <h5><a class="mozTocH5" name="mozTocId373490"></a><b style=""><a
- name="PC_Sampling_Experiment_Wizard_"></a>PC Sampling Experiment Wizard<br>
-    </b></h5>
-    <b style="">See the Wizard description for <a
+See the Wizard description for <a
  href="index.html#Typical_OpenSpeedShop_GUI_Wizard_Usage">Typical
 Open|SpeedShop
 GUI Wizard Usage</a><br>
-    </b>
+for the general pattern of wizard usage.<br>
+    <h5><a class="mozTocH5" name="mozTocId104652"></a><b style=""><a
+ name="FPE_Tracing_Experiment_Wizard"></a>Floating Point Exception
+(FPE) Tracing Experiment Wizard</b></h5>
+The Floating Point Exception (FPE) Trace wizard uses the basic
+Open|SpeedShop wizard functionality while guiding the user through the
+selection of parameters and executables that will be included in the
+Floating Point Exception trace experiment.&nbsp; See the Wizard
+description for <a
+ href="index.html#Typical_OpenSpeedShop_GUI_Wizard_Usage">Typical
+Open|SpeedShop
+GUI Wizard Usage</a> for the general pattern of wizard usage.<br>
+    <h5><a class="mozTocH5" name="mozTocId370594"></a><b style=""><a
+ name="HW_Counter_Experiment_Wizard"></a>HW Counter Experiment Wizard<br>
+    </b></h5>
+The Hardware Counter (HWC) wizard uses the basic Open|SpeedShop wizard
+functionality
+while guiding the user through the selection of parameters and
+executables that will be included in the hardware counter trace
+experiment.&nbsp;&nbsp; See the Wizard description for <a
+ href="index.html#Typical_OpenSpeedShop_GUI_Wizard_Usage">Typical
+Open|SpeedShop
+GUI Wizard Usage</a> for the general pattern of wizard usage.&nbsp; The
+differences from the typical usages are explained in this
+section.&nbsp;&nbsp; <br>
+    <h5><a class="mozTocH5" name="mozTocId594761"></a><b style=""><a
+ name="IO_Experiment_Wizard"></a>I/O Experiment Wizard<br>
+    </b></h5>
+See the Wizard description for <a
+ href="index.html#Typical_OpenSpeedShop_GUI_Wizard_Usage">Typical
+Open|SpeedShop
+GUI Wizard Usage</a> for the general pattern of wizard usage.<br>
+    <h5><a class="mozTocH5" name="mozTocId275633"></a><b style=""><a
+ name="MPI_Experiment_Wizard"></a>MPI Experiment Wizard<br>
+    </b></h5>
+See the Wizard description for <a
+ href="index.html#Typical_OpenSpeedShop_GUI_Wizard_Usage">Typical
+Open|SpeedShop
+GUI Wizard Usage</a> for the general pattern of wizard usage.<br>
+    <h5><a class="mozTocH5" name="mozTocId373490"></a><b style=""><a
+ name="PC_Sampling_Experiment_Wizard_"></a>PC Sampling Experiment Wizard<br>
+    </b></h5>
+See the Wizard description for <a
+ href="index.html#Typical_OpenSpeedShop_GUI_Wizard_Usage">Typical
+Open|SpeedShop
+GUI Wizard Usage</a> for the general pattern of wizard usage.<br>
+    <b style=""> </b>
     <h5><a class="mozTocH5" name="mozTocId501416"></a><b style=""><a
  name="User_Time_Experiment_Wizard"></a>User Time Experiment Wizard<br>
     </b></h5>
-    <b style="">TBD</b><br>
+See the Wizard description for <a
+ href="index.html#Typical_OpenSpeedShop_GUI_Wizard_Usage">Typical
+Open|SpeedShop
+GUI Wizard Usage</a> for the general pattern of wizard usage.<br>
+    <br>
+    <img alt="Choosing the Usertime Experiment"
+ title="Choosing the Usertime Experiment" src="UserTimeIntroWizard.png"
+ style="width: 860px; height: 644px;"><br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <img alt="Usertime Wizard Overview" title="Usertime Wizard Overview"
+ src="UserTimeWizard2.png" style="width: 860px; height: 644px;"><br>
+    <br>
+    <br>
+    <br>
+    <img alt="Pick Arguments for Usertime Experiment via the Wizard"
+ title="Pick Arguments for Usertime Experiment via the Wizard"
+ src="UserTimeWizardArgs.png" style="width: 860px; height: 644px;"><br>
+    <br>
+    <img
+ alt="PIck the Executables for the Usertime Experiment via the Wizard"
+ title="PIck the Executables for the Usertime Experiment via the Wizard"
+ src="UserTimeWizardExecutables.png"
+ style="width: 860px; height: 644px;"><br>
     <h5><a class="mozTocH5" name="mozTocId167122"></a><b style=""><a
  name="Preferences_Menu_Item"></a>Preferences Menu Item <br>
     </b></h5>
@@ -1405,8 +1450,8 @@ available (viewed by right mouse down click in Stats Panel tab) include:<br>
  style="width: 851px; height: 655px;"><br>
   </blockquote>
   <br>
-  <blockquote>
-    <h5><a class="mozTocH5" name="mozTocId527350"></a><b style=""> </b></h5>
+  <blockquote> <a class="mozTocH5" name="mozTocId527350"></a><b
+ style=""> </b>
     <h3><a class="mozTocH3" name="mozTocId464050"></a><b style=""><a
  name="Typical_OpenSpeedShop_GUI_Wizard_Usage"></a>Typical
 Open|SpeedShop GUI Wizard Usage<br>
@@ -1431,11 +1476,9 @@ or -gui options), the initial window will look like this:<b style=""><br>
  src="InitialPanel.png" style="width: 860px; height: 644px;"><br>
 </b></p>
 <blockquote></blockquote>
-<b style=""><br>
-</b>
-<blockquote><b style=""> </b>
-  <blockquote><b style=""> </b> <br>
-Given this window the user can answer the wizard
+<b style=""></b><b style=""> </b> <br>
+<blockquote>
+  <blockquote>Given this window the user can answer the wizard
 questions and
 proceed by clicking on the Next button on the lower right hand side of
 the <b>Open|SpeedShop</b> GUI window.&nbsp; In this example the user
@@ -1641,8 +1684,8 @@ the previous step(s).<b style=""><br>
  name="PC_Sampling_Experiment_-_Running"></a>PC Sampling
 Experiment - Running Experiment Display</h4>
     <br>
-    <b style=""> <br>
-    </b></blockquote>
+    <br>
+    <b style=""> </b></blockquote>
   <div style="margin-left: 40px;"><b style=""><img
  alt="Running Experiment" src="PC_SampleExperiment-2.png"
  style="width: 860px; height: 644px;"></b><br>
@@ -1659,7 +1702,6 @@ on the right hand side of the PC Sampling panel.<br>
 <h4><a class="mozTocH4" name="mozTocId441285"></a><a
  name="PC_Sampling_Experiment_-_Statistics"></a>PC Sampling
 Experiment - Statistics Display</h4>
-<br>
 <b style=""><br>
 </b></div>
 <div style="margin-left: 80px;"><b style=""><img

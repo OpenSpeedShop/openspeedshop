@@ -64,7 +64,17 @@ EXTRA_DIST = BuildingInstallingDPCL.html \
 	StatsPanel.png \
 	ToolsMenu.png \
 	valid-html401.png \
-	WizardMenuItems.png 
+	WizardMenuItems.png \
+	HWC-WizardInto.png  \
+	HWC-Wizard2.png  \
+	UserTimeIntroWizard.png  \
+	UserTimeWizard2.png  \
+	UserTimeWizardArgs.png  \
+	UserTimeWizardExecutables.png  \
+	UserTimeWizardLoadFred.png  \
+	UserTimeWizardSummary.png  \
+	UserTimeExperiment.png  \
+	UserTimeExperimentResults.png
 
 
 package = @PACKAGE@
