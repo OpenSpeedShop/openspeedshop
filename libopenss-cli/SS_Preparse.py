@@ -372,6 +372,7 @@ def no_python_command_processing(line):
     t_part = string.lower(parts[0])
     parts[0] = t_part
     new_line = blank_delim.join(parts)
+
     return new_line
 
 ##################################################################
@@ -742,7 +743,8 @@ class CLI(code.InteractiveConsole):
                         #    PY_Input.SetAssign (1)
 			d_line = no_python_command_processing(d_line)
 			#print d_line," ",count
-		    	PY_Input.CallParser(d_line)
+			if d_line[0] != "#":
+		    	    PY_Input.CallParser(d_line)
 
             # Handle CTRL-C
             except KeyboardInterrupt:                
