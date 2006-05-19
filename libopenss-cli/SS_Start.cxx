@@ -296,11 +296,11 @@ extern "C"
     if (gui_window != 0)
     {
       CMDWID w = gui_window;
-      gui_window = 0;
-      Window_Termination(w);
       extern void killTheGUI();
       killTheGUI();
       pthread_cancel (phandle[2]);
+      gui_window = 0;
+      Window_Termination(w);
     }
     if (tli_window != 0)
     {
