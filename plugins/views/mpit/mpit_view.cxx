@@ -207,7 +207,7 @@ static std::string allowed_mpit_V_options[] = {
   ""
 };
 
-static void define_mpit_columns (
+static bool define_mpit_columns (
             CommandObject *cmd,
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV,
@@ -449,6 +449,7 @@ static void define_mpit_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
     HV.push_back("Inclusive Time(ms)");
   }
+  return (HV.size() > 0);
 }
 
 static bool mpit_definition (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
@@ -479,9 +480,7 @@ static bool mpit_definition (CommandObject *cmd, ExperimentObject *exp, int64_t 
     }
 
     Validate_V_Options (cmd, allowed_mpit_V_options);
-    define_mpit_columns (cmd, IV, HV, vfc);
-
-    return true;
+    return define_mpit_columns (cmd, IV, HV, vfc);
 }
 
 static std::string VIEW_mpit_brief = "Mpit Report";
@@ -606,8 +605,10 @@ class mpit_view : public ViewType {
         return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                    Determine_Metric_Ordering(IV), dummyObject, VFC_Function, &dummyVector, view_output);
       }
+      Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
+      return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report.)");
     return false;
   }
 };

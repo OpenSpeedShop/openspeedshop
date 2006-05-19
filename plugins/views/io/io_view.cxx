@@ -143,7 +143,7 @@ static std::string allowed_io_V_options[] = {
   ""
 };
 
-static void define_io_columns (
+static bool define_io_columns (
             CommandObject *cmd,
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV,
@@ -320,6 +320,7 @@ static void define_io_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
     HV.push_back("Inclusive Time");
   }
+  return (HV.size() > 0);
 }
 
 static bool io_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t topn,
@@ -350,9 +351,7 @@ static bool io_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t t
     }
 
     Validate_V_Options (cmd, allowed_io_V_options);
-    define_io_columns (cmd, IV, HV, vfc);
-
-    return true;
+    return define_io_columns (cmd, IV, HV, vfc);
 }
 
 
@@ -476,8 +475,10 @@ class io_view : public ViewType {
                                    Determine_Metric_Ordering(IV), dummyObject,
                                    VFC_Function, &dummyVector, view_output);
       }
+      Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
+      return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report.)");
     return false;
   }
 };

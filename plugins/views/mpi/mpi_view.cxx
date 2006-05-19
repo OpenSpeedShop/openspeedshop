@@ -179,7 +179,7 @@ static std::string allowed_mpi_V_options[] = {
   ""
 };
 
-static void define_mpi_columns (
+static bool define_mpi_columns (
             CommandObject *cmd,
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV,
@@ -387,9 +387,7 @@ static bool mpi_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t 
     }
 
     Validate_V_Options (cmd, allowed_mpi_V_options);
-    define_mpi_columns (cmd, IV, HV, vfc);
-
-    return true;
+    return define_mpi_columns (cmd, IV, HV, vfc);
 }
 
 
@@ -512,8 +510,10 @@ class mpi_view : public ViewType {
         return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                    Determine_Metric_Ordering(IV), dummyObject, VFC_Function, &dummyVector, view_output);
       }
+      Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
+      return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report.)");
     return false;
   }
 };

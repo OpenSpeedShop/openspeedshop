@@ -107,7 +107,7 @@ static std::string allowed_usertime_V_options[] = {
   ""
 };
 
-static void define_usertime_columns (
+static bool define_usertime_columns (
             CommandObject *cmd,
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV,
@@ -156,7 +156,7 @@ static void define_usertime_columns (
           std::string s("The specified collector, " + C_Name +
                         ", can not be displayed as part of a 'usertime' view.");
           Mark_Cmd_With_Soft_Error(cmd,s);
-          return;
+          return false;
         }
         M_Name = m_range->end_range.name;
       } else {
@@ -283,6 +283,7 @@ static void define_usertime_columns (
     HV.push_back("% of Total");
     last_column++;
   }
+  return (HV.size() > 0);
 }
 
 static bool usertime_definition (
@@ -297,9 +298,8 @@ static bool usertime_definition (
     MV.push_back ("inclusive_detail"); // define the metric needed for getting main time values
     CV.push_back (Get_Collector (exp->FW(), "usertime"));  // Define the collector
     MV.push_back ("exclusive_time"); // define the metric needed for calculating total time.
-    define_usertime_columns (cmd, IV, HV, vfc);
 
-    return true;
+    return define_usertime_columns (cmd, IV, HV, vfc);
 }
 
 static std::string VIEW_usertime_brief = "UserTime Report";
@@ -390,13 +390,11 @@ class usertime_view : public ViewType {
     View_Form_Category vfc = Determine_Form_Category(cmd);
     if (usertime_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc)) {
 
-/*
       if ((CV.size() == 0) ||
           (MV.size() == 0)) {
         Mark_Cmd_With_Soft_Error(cmd, "(There are no metrics specified to report.)");
         return false;   // There is no collector, return.
       }
-*/
 
       UserTimeDetail *dummyDetail;
       switch (vfc) {
@@ -421,8 +419,10 @@ class usertime_view : public ViewType {
         return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                    Determine_Metric_Ordering(IV), sp, vfc, dummyDetail, view_output);
       }
+      Mark_Cmd_With_Soft_Error(cmd, "(We could not determine which format to use for the report.)");
+      return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine which format to use for the report.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report.)");
     return false;
   }
 };

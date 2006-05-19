@@ -126,7 +126,7 @@ static void Event_Name_Header (Collector& collector, std::string metric, std::ve
       HV.push_back(prename + " " + name);
 }
 
-static void define_hwctime_columns (
+static bool define_hwctime_columns (
             CommandObject *cmd,
             std::vector<Collector>& CV,
             std::vector<ViewInstruction *>& IV,
@@ -174,7 +174,7 @@ static void define_hwctime_columns (
           std::string s("The specified collector, " + C_Name +
                         ", can not be displayed as part of a 'hwctime' view.");
           Mark_Cmd_With_Soft_Error(cmd,s);
-          return;
+          return false;
         }
         M_Name = m_range->end_range.name;
       } else {
@@ -280,6 +280,7 @@ static void define_hwctime_columns (
     HV.push_back("% of Total");
     last_column++;
   }
+  return (HV.size() > 0);
 }
 
 static bool hwctime_definition (
@@ -294,9 +295,7 @@ static bool hwctime_definition (
     MV.push_back ("inclusive_detail"); // define the metric needed for getting main time values
     CV.push_back (Get_Collector (exp->FW(), "hwctime"));  // Define the collector
     MV.push_back ("exclusive_overflows"); // define the metric needed for calculating total time.
-    define_hwctime_columns (cmd, CV, IV, HV, vfc);
-
-    return true;
+    return define_hwctime_columns (cmd, CV, IV, HV, vfc);
 }
 
 static std::string VIEW_hwctime_brief = "Hardware Counter Report";
@@ -409,8 +408,10 @@ class hwctime_view : public ViewType {
         return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                    Determine_Metric_Ordering(IV), sp, vfc, dummyDetail, view_output);
       }
+      Mark_Cmd_With_Soft_Error(cmd, "(We could not determine which format to use for the report.)");
+      return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine which format to use for the report.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report.)");
     return false;
   }
 };
