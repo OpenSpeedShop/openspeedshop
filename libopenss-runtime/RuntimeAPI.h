@@ -62,16 +62,34 @@ typedef struct {
     
 } OpenSS_PCData;
 
-
+/** Type representing different floating-point exception (FPE) types. */
+/* Some systems fail to properly fill in the si_code. So we have an
+   Unknown fpe that we must handle.
+*/
+typedef enum {
+    DivideByZero,        /**< Divide by zero. */
+    Overflow,            /**< Overflow. */
+    Underflow,           /**< Underflow. */
+    InexactResult,       /**< Inexact result. */
+    InvalidOperation,    /**< Invalid operation. */
+    SubscriptOutOfRange, /**< Subscript out of range. */
+    Unknown,             /**< got an unknown si_code. */
+    AllFPE               /**< Toggle on all FPE's. */
+} OpenSS_FPEType; 
 
 /** Type representing a function pointer to a timer event handler. */
 typedef void (*OpenSS_TimerEventHandler)(const ucontext_t*);
 
+/** Type representing a function pointer to a fpe event handler. */
+typedef void (*OpenSS_FPEEventHandler)(const OpenSS_FPEType, const ucontext_t*);
 
+void OpenSS_FPEHandler(const OpenSS_FPEType, const OpenSS_FPEEventHandler);
 
 void OpenSS_DecodeParameters(const char*, const xdrproc_t, void*);
 uint64_t OpenSS_GetAddressOfFunction(const void*);
 uint64_t OpenSS_GetPCFromContext(const ucontext_t*);
+void     OpenSS_SetPCInContext(const uint64_t, ucontext_t*);
+int      OpenSS_GetInstrLength(const uint64_t);
 uint64_t OpenSS_GetTime();
 void OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
 void OpenSS_Timer(uint64_t, const OpenSS_TimerEventHandler);

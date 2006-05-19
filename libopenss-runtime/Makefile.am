@@ -36,7 +36,7 @@ libopenss_runtime_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-runtime-@INSTRUMENTOR@.la \
 	@LIBUNWIND_LIBS@ \
 	@PAPI_LIBS@ \
-	-lpthread -lrt
+	-lpthread -lrt -lbfd -lopcodes-2.15.90.0.1.1
 
 libopenss_runtime_la_SOURCES = \
 	Assert.h \
@@ -48,6 +48,9 @@ libopenss_runtime_la_SOURCES = \
 	OpenSS_GetTime.c \
 	OpenSS_Send.c \
 	OpenSS_Timer.c \
+	OpenSS_FPEHandler.c \
+	OpenSS_SetPCInContext.c \
+	OpenSS_GetInstrLength.c \
 	RuntimeAPI.h
 
 if HAVE_LIBUNWIND
