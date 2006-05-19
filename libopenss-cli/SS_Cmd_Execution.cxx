@@ -623,6 +623,15 @@ void Filter_ThreadGroup (OpenSpeedShop::cli::ParseResult *p_result, ThreadGroup&
  * Look for a "-I" specification and determine the actual
  * 'Time' values that specify the beginning and ending
  * values of each range.
+ *
+ * The framework will include all the samples between the
+ * start and end of the given range.  It will also include
+ * any samples collected at exactly the start time and will
+ * exclude any samples taken at the end time.
+ *
+ * To provide a way to ge the last data sample included,
+ * the end time is adjusted (here) if the user specifies
+ * an end of 100% or gives the exact end time.
  *     
  * @param  CommandObject *
  * @param  ExperimentObject *
@@ -645,9 +654,6 @@ bool Parse_Interval_Specification (
   Assert (exp->FW() != NULL);
   OpenSpeedShop::cli::ParseResult *parse_result = cmd->P_Result();
   vector<ParseInterval> *I_list = parse_result->getParseIntervalList();
-  Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
-  Time first_time = databaseExtent.getTimeInterval().getBegin();
-  Time last_time = databaseExtent.getTimeInterval().getEnd();
 
   if (I_list->empty()) {
     intervals.push_back(make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
@@ -671,10 +677,14 @@ bool Parse_Interval_Specification (
       std::ostringstream S("The attribute for the specified range '");
       S << unit_string << "'  is not valid.";
       Mark_Cmd_With_Soft_Error(cmd, S.ostringstream::str());
-      intervals.push_back(make_pair<Time,Time>(first_time,last_time));
+      intervals.push_back(make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
       return true;
     }
   }
+
+  Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
+  Time first_time = databaseExtent.getTimeInterval().getBegin();
+  Time last_time = databaseExtent.getTimeInterval().getEnd();
 
   for (vector<ParseInterval>::iterator
           pi = I_list->begin(); pi != I_list->end(); pi++) {
@@ -696,8 +706,14 @@ bool Parse_Interval_Specification (
       } else {
         fend = P.getEndDouble();
       }
-      Istart = first_time + static_cast<int64_t>(span * (fstart / 100));
-      Iend = first_time + static_cast<int64_t>(span * (fend / 100));
+      Istart = first_time + static_cast<int64_t>((span * fstart) / 100.0);
+      if (fend == 100.0) {
+       // The end point is critical and must be exact. 
+       // We can not tolerate the inaccuracies of floating point computation.
+        Iend = last_time;
+      } else {
+        Iend = first_time + static_cast<int64_t>((span * fend) / 100.0);
+      }
     } else {
       if (P.isStartInt()) {
         int64_t offset = P.getStartInt();
@@ -735,18 +751,17 @@ bool Parse_Interval_Specification (
       }
     }
 
-    if ((Istart < first_time) || (Iend > last_time) || (Istart >= Iend)) {
-      std::ostringstream S("The specified range '");
-      S << Istart << ":" << Iend
-        << "' does not fit inside the available range "
-        << first_time << ":" << last_time;  
+    if (Istart >= Iend) {
+      std::ostringstream S;
+      S << "The start time, " << Istart << ", is greater than the end time, " << Iend << ".";
       Mark_Cmd_With_Soft_Error(cmd, S.ostringstream::str());
       intervals.clear();
-      intervals.push_back(make_pair<Time,Time>(first_time, last_time));
+      intervals.push_back(make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
       return true;
     }
 
-    intervals.push_back(std::make_pair<Time,Time>(Istart, Iend));
+    intervals.push_back(std::make_pair<Time,Time>(Istart,
+                                                  ((Iend == last_time) ? Iend + 1 :  Iend)));
   }
 
   return true;
