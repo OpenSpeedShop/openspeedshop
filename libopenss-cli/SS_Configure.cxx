@@ -27,6 +27,8 @@ int64_t OPENSS_HISTORY_DEFAULT = 24;
 int64_t OPENSS_MAX_ASYNC_COMMANDS = 20;
 int64_t OPENSS_HELP_LEVEL_DEFAULT = 1;
 bool    OPENSS_VIEW_FULLPATH = false;
+bool    OPENSS_VIEW_DEFINING_LOCATION = true;
+bool    OPENSS_VIEW_MANGLED_NAME = false;
 bool    OPENSS_SAVE_EXPERIMENT_DATABASE = false;
 bool    OPENSS_ALLOW_PYTHON_COMMANDS = true;
 bool    OPENSS_LOG_BY_DEFAULT = false;
@@ -143,6 +145,21 @@ void SS_Configure () {
             "be displayed.");
   Bvalue = settings->readBoolEntry(std::string("viewFullPath"), OPENSS_VIEW_FULLPATH, &ok);
   if (ok) OPENSS_VIEW_FULLPATH = Bvalue;
+
+  Add_Help (czar, "viewDefiningLocation", "a boolean, preference",
+            "Declare whether or not the defining location is displayed "
+            "when a function name is displayed as part of an 'expView' "
+            "command.  The default is true");
+  Bvalue = settings->readBoolEntry(std::string("viewDefiningLocation"), OPENSS_VIEW_DEFINING_LOCATION, &ok);
+  if (ok) OPENSS_VIEW_DEFINING_LOCATION = Bvalue;
+
+  Add_Help (czar, "viewMangledName", "a boolean, preference",
+            "Declare whether or not a mangled name is displayed "
+            "when a function is displayed as part of an 'expView' command. "
+            "The default is false, allowing the demangled names, that are "
+            "used in the source code, to be displayed.");
+  Bvalue = settings->readBoolEntry(std::string("viewMangledName"), OPENSS_VIEW_MANGLED_NAME, &ok);
+  if (ok) OPENSS_VIEW_MANGLED_NAME = Bvalue;
 
   Add_Help (czar, "saveExperimentDatabase", "a boolean, preference",
             "Declare that the database created when an 'expCreate' "

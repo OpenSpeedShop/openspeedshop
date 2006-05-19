@@ -403,39 +403,41 @@ class CommandResult_Function :
   virtual ~CommandResult_Function () { }
 
   void Value (std::string& F) {
-    F = getName();
+    F = OPENSS_VIEW_MANGLED_NAME ? getMangledName() : getDemangledName();
   }
   void Value (std::set<Statement>& st) {
     st = ST;
   }
 
   virtual std::string Form () {
-    std::string S = getName();
+    std::string S = OPENSS_VIEW_MANGLED_NAME ? getMangledName() : getDemangledName();
     LinkedObject L = getLinkedObject();
     std::set<Statement> T = getDefinitions();
 
-    S = S + "(" + ((OPENSS_VIEW_FULLPATH)
-                      ? L.getPath()
-                      : L.getPath().getBaseName());
+    if (OPENSS_VIEW_DEFINING_LOCATION) {
+      S = S + "(" + ((OPENSS_VIEW_FULLPATH)
+                        ? L.getPath()
+                        : L.getPath().getBaseName());
 
-    if (T.size() > 0) {
-      std::set<Statement>::const_iterator ti;
-      for (ti = T.begin(); ti != T.end(); ti++) {
-        if (ti != T.begin()) {
-          S += "  &...";
-          break;
+      if (T.size() > 0) {
+        std::set<Statement>::const_iterator ti;
+        for (ti = T.begin(); ti != T.end(); ti++) {
+          if (ti != T.begin()) {
+            S += "  &...";
+            break;
+          }
+          Statement s = *ti;
+          char l[50];
+          sprintf( &l[0], "%lld", (int64_t)s.getLine());
+          S = S + ": "
+                + ((OPENSS_VIEW_FULLPATH)
+                        ? s.getPath()
+                        : s.getPath().getBaseName())
+                + "," + &l[0];
         }
-        Statement s = *ti;
-        char l[50];
-        sprintf( &l[0], "%lld", (int64_t)s.getLine());
-        S = S + ": "
-              + ((OPENSS_VIEW_FULLPATH)
-                      ? s.getPath()
-                      : s.getPath().getBaseName())
-              + "," + &l[0];
       }
+      S += ")";
     }
-    S += ")";
 
     return S;
   }
