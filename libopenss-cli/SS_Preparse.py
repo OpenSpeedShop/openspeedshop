@@ -23,8 +23,8 @@ import sys
 import types
 
 import PY_Input
-global terminate_SS
-global cmd_is_assignment
+#global terminate_SS
+#global cmd_is_assignment
 
 ################################################################################
 #
@@ -393,6 +393,8 @@ def no_python_command_processing(line):
 ##################################################################
 def assignment_splitting(line):
 
+    myparse.cmd_is_assignment = 0
+
     blank_delim = " "
     parts = line.split()
     count = len(parts)
@@ -627,6 +629,9 @@ def Delay_ILO_Processing(pad):
 class CLI(code.InteractiveConsole):
     """Simple test of a Python interpreter augmented with custom commands."""
 
+    global terminate_SS
+    global cmd_is_assignment
+
     ################################################################################
     #
     # write
@@ -759,8 +764,8 @@ class CLI(code.InteractiveConsole):
         code.InteractiveConsole.__init__(self, locals, "<console>")
         
         # Compile regular expression for finding commmands
-        self.regexp = re.compile( '[a-zA-Z_]*')
-        self.sub_regexp = re.compile('rhfptx')
+        #self.regexp = re.compile( '[a-zA-Z_]*')
+        #self.sub_regexp = re.compile('rhfptx')
         
     ##################################################################
     #
