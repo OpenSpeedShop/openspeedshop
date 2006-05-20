@@ -377,6 +377,104 @@ def no_python_command_processing(line):
 
 ##################################################################
 #
+# assignment_splitting
+#
+# We need to know if this is an assignment command
+# and if so the parts should be separate from each other.
+#
+# it would be cool if we only had to search for "="
+# in the input line, but there can be assignments within
+# openss commands them selves that we don't want to muck
+# with.
+#
+# This code is way too complicated for what we are trying
+# to accomplish and needs to be rewritten.
+#
+##################################################################
+def assignment_splitting(line):
+
+    blank_delim = " "
+    parts = line.split()
+    count = len(parts)
+    python_needs_result = 0
+    
+    n = string.count(line,'=')
+    if n == None:
+    	return line
+    
+    if count is 0:
+    	return line
+
+    # Check for <result> = <command>
+    if count > 2 and parts[1] == '=':
+            # Don't process target of assignment
+            myparse.cmd_is_assignment = 1
+            python_needs_result = 1
+
+    	    #print "First: ",parts
+    	    new_line = blank_delim.join(parts)
+    	    #print "First #2: ",new_line
+    	    return new_line
+
+    # Check for <result>= <command>
+    str_len = len(parts[0])
+    if parts[0][str_len-1] == '=':
+    	t_parts = parts[0].split("=")
+    	tt_parts = [t_parts[0]]
+   	tt_parts.append('=')
+	if count > 1:
+    	    tt_parts = tt_parts + parts[1:]
+    	parts = tt_parts
+    	myparse.cmd_is_assignment = 1
+    	python_needs_result = 1
+
+    	#print "Second #4: ",parts
+    	new_line = blank_delim.join(parts)
+    	return new_line
+
+    # Check for <result> =<command>
+    if count > 1 and parts[1][0] is "=":
+	    t_parts = parts[1].split("=")
+	    t_len = len(t_parts)
+	    if t_len > 1:
+	    	tt_parts = [parts[0]]
+	    	tt_parts.append('=')
+		tt_parts.append(t_parts[t_len-1])
+		if count > 2:
+		    tt_parts = tt_parts + parts[2:]
+
+		parts = tt_parts
+		myparse.cmd_is_assignment = 1
+		python_needs_result = 1
+
+		#print "Third: ",parts
+    	    	new_line = blank_delim.join(parts)
+    	    	return new_line
+
+    # Check for <result>=<command>
+    else:
+	    t_parts = parts[0].split("=")
+	    t_len = len(t_parts)
+	    if t_len > 1:
+	    	tt_parts = [t_parts[0]]
+		
+		tt_parts.append('=')
+		tt_parts.append(t_parts[1])
+
+    	    	if count > 1:
+		    tt_parts = tt_parts + parts[1:]
+		parts = tt_parts
+		myparse.cmd_is_assignment = 1
+		python_needs_result = 1
+
+		#print "Fourth: ",parts
+    	    	new_line = blank_delim.join(parts)
+    	    	return new_line
+
+    return line
+
+##################################################################
+#
 # preParseArgs
 #
 # Determine if there is an O/SS command in the line and
@@ -393,21 +491,16 @@ def no_python_command_processing(line):
 ##################################################################
 def preParseArgs(line, command_dict, str_opts_dict, num_opts_dict):
     
+    line = assignment_splitting(line)
+
     parts = line.split()
     count = len(parts)
     blank_delim = " "
     global_dict = globals()
-    myparse.cmd_is_assignment = 0
-    python_needs_result = 0
 
     for ndx in range(count):
 
-        if ndx is 0 and count > 2 and parts[1] == '=':
-            # Don't process target of assignment
-            myparse.cmd_is_assignment = 1
-            python_needs_result = 1
-            continue
-
+	    
         # Find the function for this command in the command dictionary
     	function = None
 	t_part = string.lower(parts[ndx])
@@ -739,10 +832,8 @@ class CLI(code.InteractiveConsole):
     	    	    	d_line = PY_Input.ReadILO(arg)
 			#count = len(d_line)
 			#print d_line," ",count
-                        #if self.cmd_is_assignment is not 0:
-                        #    PY_Input.SetAssign (1)
 			d_line = no_python_command_processing(d_line)
-			#print d_line," ",count
+			# This is a kluge to have limited comments.
 			if d_line[0] != "#":
 		    	    PY_Input.CallParser(d_line)
 
