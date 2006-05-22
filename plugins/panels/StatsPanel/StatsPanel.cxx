@@ -5616,7 +5616,7 @@ StatsPanel::analyzeTheCView()
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
-// printf("coming ing: currentMetricStr was %s\n", currentMetricStr.ascii() );
+// printf("coming: currentMetricStr was %s\n", currentMetricStr.ascii() );
   currentMetricStr = QString::null;
   InputLineObject *clip = NULL;
   std::string cstring;
@@ -5729,6 +5729,12 @@ if( start_index == -1 )
   {
     QString header = splv->columnText(i);
     int end_index = header.find(":");
+int commaIndex = header.find(",");
+// printf("B: commaIndex=%d\n", commaIndex);
+if(commaIndex != -1 )
+{
+  end_index = commaIndex;
+}
     if( header.startsWith("-c ") && end_index > 0 )
     {
       int start_index = 3;
@@ -5776,13 +5782,16 @@ StatsPanel::canWeDiff()
   int diffIndex = -1;
   if( splv->columns() < 2 )
   {
+// printf("canWeDiff() return FALSE(A)\n");
     return( FALSE );
   }
 
 #ifdef CLUSTERANALYSIS
+// printf("canWeDiff:  lastCommand (%s)\n", lastCommand.ascii() );
 if( lastCommand.startsWith("cview -c") && lastCommand.contains("-m ") )
 {
 // printf("lastCommand was (%s) and we're not going to sort!\n", lastCommand.ascii() );
+// printf("canWeDiff() return FALSE(B)\n");
   return( FALSE );
 }
 #endif // CLUSTERANALYSIS
@@ -5792,6 +5801,7 @@ if( lastCommand.startsWith("cview -c") && lastCommand.contains("-m ") )
 
   if( c1header == "|Difference|" )
   {
+// printf("A: return TRUE\n");
     return(TRUE);
   }
 
@@ -5800,26 +5810,44 @@ if( lastCommand.startsWith("cview -c") && lastCommand.contains("-m ") )
   if( c1header == c2header )
   {
 // printf("c1header==c2header\n");
+// printf("B: return TRUE\n");
     return(TRUE);
   }
 
   diffIndex = c1header.find(":");
+// printf("A: diffInde=%d\n", diffIndex);
+int commaIndex = c1header.find(",");
+// printf("B: commaIndex=%d\n", commaIndex);
+if(commaIndex != -1 )
+{
+  diffIndex = commaIndex;
+}
   if( diffIndex > 0 )
   {
-    c1header = c1header.right(diffIndex+1);
+    c1header = c1header.mid(diffIndex+1);
   }
   diffIndex = c2header.find(":");
+// printf("B: diffInde=%d\n", diffIndex);
+commaIndex = c2header.find(",");
+// printf("B: commaIndex=%d\n", commaIndex);
+if(commaIndex != -1 )
+{
+  diffIndex = commaIndex;
+}
   if( diffIndex > 0 )
   {
-    c2header = c2header.right(diffIndex+1);
+    c2header = c2header.mid(diffIndex+1);
   }
     
+// printf("B: c1header=(%s) c2header=(%s)\n", c1header.ascii(), c2header.ascii() );
   if( c1header == c2header )
   {
 // printf("new c1header==c2header\n");
+// printf("C: return TRUE\n");
     return(TRUE);
   }
 
 
+// printf("canWeDiff() return FALSE(C)\n");
   return(FALSE);
 }
