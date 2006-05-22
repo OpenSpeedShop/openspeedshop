@@ -340,7 +340,7 @@ void Compress_ThreadInfo (std::vector<ThreadInfo>& In,
           currentTRI->processId[currentTRI->processId.size()-1].second = next_pid;
 	} else {
 	 // Add new range.
-          currentTRI->threadId.push_back(std::make_pair(next_pid,next_pid));
+          currentTRI->processId.push_back(std::make_pair(next_pid,next_pid));
 	}
         end_pid = next_pid;
       }
