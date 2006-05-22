@@ -50,11 +50,14 @@ Contents<br>
 </span></span></b></b></p>
 <ul style="text-align: left;" id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId71414">Introduction
-to Open|SpeedShop </a>
+to Open|SpeedShop
+    </a>
     <ul>
       <li><a href="#mozTocId406387">Brief
-Open|SpeedShop Overview </a></li>
-      <li><a href="#mozTocId958848">Common Terminology </a></li>
+Open|SpeedShop Overview
+        </a></li>
+      <li><a href="#mozTocId958848">Common Terminology
+        </a></li>
       <li><a href="#mozTocId760931">Open|SpeedShop
 General Usage</a>
         <ul>
@@ -160,7 +163,8 @@ Menu</a>
                 <ul>
                   <li><a href="#mozTocId528369">Compare Wizard </a></li>
                   <li><a href="#mozTocId104652">Floating Point
-Exception (FPE) Tracing Experiment Wizard</a></li>
+Exception
+(FPE) Tracing Experiment Wizard</a></li>
                   <li><a href="#mozTocId370594">HW Counter Experiment
 Wizard </a></li>
                   <li><a href="#mozTocId594761">I/O Experiment Wizard </a></li>
@@ -203,8 +207,6 @@ Open|SpeedShop GUI Wizard Usage </a>
             <ul>
               <li><a href="#mozTocId943081">Introductory Wizard Display
                 </a></li>
-              <li><a href="#mozTocId549331"> </a><br>
-              </li>
               <li><a href="#mozTocId197580">PC Sampling Wizard
 - Initial Display </a></li>
               <li><a href="#mozTocId68517">PC Sampling
@@ -234,21 +236,21 @@ Experiment - Source and Statistics Relationship Display</a></li>
           <li><a href="#mozTocId439377">Typical
 Open|SpeedShop GUI non-Wizard Usage</a></li>
           <li><a href="#mozTocId439657">Comparing Performance
-Data using the Open|SpeedShop GUI </a></li>
+Data using the Open|SpeedShop GUI
+            </a></li>
           <li><a href="#mozTocId956211">Open|SpeedShop GUI Usage on
 MPI Applications</a>
             <ul>
               <li><a href="#mozTocId441124">General Concepts</a></li>
               <li><a href="#mozTocId963085">Multiple MPI version
-Implications</a></li>
-              <li><a href="#mozTocId847028">Loading/Creating a
-MPI Application with Open|SpeedShop</a></li>
+Implementations</a></li>
               <li><a href="#mozTocId956978">Attaching to Already
 Running MPI Applications</a>
                 <ul>
                   <li><a href="#mozTocId291888">Gui Wizard Information</a></li>
                   <li><a href="#mozTocId112115">Gui Non-Wizard
-Information&nbsp; </a></li>
+Information&nbsp;
+                    </a></li>
                 </ul>
               </li>
               <li><a href="#mozTocId271423">Loading and Starting
@@ -281,7 +283,8 @@ Command Tool </a></li>
     </ul>
   </li>
   <li><a href="#mozTocId54031">Scripting
-API </a></li>
+API
+    </a></li>
   <li><a href="#mozTocId525838">Plugin
 API (Extensibility)&nbsp; Description</a></li>
   <li><a href="#mozTocId145888">Appendix
@@ -1515,8 +1518,7 @@ or -gui options), the initial window will look like this:<b style=""><br>
     <h4><a class="mozTocH4" name="mozTocId943081"></a><a
  name="Initial_Wizard_Display"></a>Introductory Wizard Display<br>
     </h4>
-    <h4><a class="mozTocH4" name="mozTocId549331"></a><b style=""> </b></h4>
-  </blockquote>
+    <a class="mozTocH4" name="mozTocId549331"></a><b style=""> </b> </blockquote>
 </blockquote>
 <blockquote> <b style=""> </b> </blockquote>
 <p style="margin-left: 80px;"><b style=""><img
@@ -1940,17 +1942,128 @@ comparison views by defining what will be shown in each column of the
 comparison display.&nbsp;&nbsp; <br>
 <b style=""><br>
 </b>
+<h3><a name="Finding_Out_of_Range_Processes_Threads"></a>Finding
+Processes, Threads, or Ranks that have out of range values <b><b><b><b
+ style="">using the Open|SpeedShop GUI</b></b></b></b></h3>
+As of May 22, 2006 there is an experimental version of a feature which
+automatically groups processes, threads, or ranks into sets which have
+similar values.&nbsp; This techinique which is called, cluster
+analysis, is used to find processes, threads, or ranks which are
+outside the majority of its siblings and therefore, also the
+performance bottleneck process, thread, or rank.&nbsp;&nbsp; To access
+this feature you must have run an Open|SpeedShop experiment with
+multiple processes, threads, or ranks or opened an Open|SpeedShop
+experiment that was run on an applicaiton with multiple processes,
+threads, or ranks.&nbsp;&nbsp; In the "Stats" panel menu there is an
+option to invoke the cluster analysis feature.&nbsp; See below:<br>
+<br>
+<img alt="View of cluster analysis menu item"
+ title="View of cluster analysis menu item" src="ClusterAnalysis1.png"
+ style="width: 860px; height: 644px;"><br>
+<br>
+Note: The cluster analysis is experimental at this point and is only
+supported in the user time (usertime) experiment.&nbsp;&nbsp; When this
+command is invoked, Open|SpeedShop analyzes the all the performance
+data for the individual processes, threads, or ranks that were included
+in the&nbsp; Open|SpeedShop experiment and separates them into groups
+with similar performance numbers.&nbsp;&nbsp; Here is a simple example
+in which a MPI version of sweep3d was run on four processors over two
+hosts.<br>
+<br>
+<img alt="Cluster Analysis Output View"
+ title="Cluster Analysis Output View" src="ClusterAnalysis2.png"
+ style="width: 860px; height: 644px;"><br>
+<br>
+The current implementation of this feature does not have the context
+sensitive help enabled for showing what processes, threads, or ranks
+are included in each column of the output view.&nbsp;&nbsp; For now,
+one can view this information by using the "Context" menu item (see
+above "Stats" panel menu".&nbsp;&nbsp; By selecting "Context", the
+processes, threads, or ranks corresponding to the column designators
+(-c &lt;number&gt;) are shown.<br>
+<br>
+In this example, column 3 (-c 3) is an process that is outside the
+other processes by a wide margin for time spent in the function <span
+ style="font-style: italic;">sweep</span>_.<br>
+<br>
+<img alt="Context of View Generation" title="Context of View Generation"
+ src="ClusterAnalysis3.png" style="width: 268px; height: 630px;"><br>
+<br>
+By double clicking on the <span style="font-style: italic;">sweep_</span>
+line in the cluster analysis view the user is focused on the <span
+ style="font-style: italic;">sweep_</span> function.&nbsp; By browsing
+the source display (with the statistics preference enabled) one can
+locate the code that is taking a large amount of time (see
+below).&nbsp;&nbsp;&nbsp; The loop that is being focused on is taking
+29.2571 seconds.&nbsp;&nbsp; It appears this is only being done when
+the rank is equal to one (contrived example to illustrate the use of
+this feature).<br>
+<br>
+<img alt="Source of sweep_ performance problem"
+ title="Source of sweep_ performance problem" src="ClusterAnalysis4.png"
+ style="width: 860px; height: 644px;"><br>
+<br>
+<b style=""></b>
 <h3><a class="mozTocH3" name="mozTocId956211"></a><b><b style=""><a
  name="OpenSpeedShop_GUI_Usage_on_MPI_"></a>Open|SpeedShop GUI Usage on
 MPI Applications</b></b></h3>
 <h4><a class="mozTocH4" name="mozTocId441124"></a><a
  name="General_Concepts_"></a>General Concepts</h4>
+<span style="font-weight: bold;">Open|SpeedShop</span> supports
+automatically attaching to all the ranks/processes in a MPI application
+provided the MPI implementation is using the MPIR defacto standard for
+finding all the ranked processes within a MPI application.&nbsp;&nbsp;
+This is discussed more in the sections below.&nbsp;&nbsp; <span
+ style="font-weight: bold;">Open|SpeedShop</span> allows the user to
+use the rank number of the ranked processes as input to <span
+ style="font-weight: bold;">Open|SpeedShop</span> for selecting and
+filtering just as a process or thread number would be used.&nbsp; <span
+ style="font-weight: bold;">Open|SpeedShop</span> also displays the
+rank number for each ranked process in the GUI panel output and in the
+GUI command window text output views.<br>
+<br>
 <h4><a class="mozTocH4" name="mozTocId963085"></a><a
  name="Multiple_MPI_version_Implications"></a>Multiple MPI version
-Implications</h4>
-<h4><a class="mozTocH4" name="mozTocId847028"></a><a
- name="LoadingCreating_a_MPI_Application_with"></a>Loading/Creating a
-MPI Application with Open|SpeedShop</h4>
+Implementations</h4>
+<span style="font-weight: bold;">Open|SpeedShop</span> supports
+multiple MPI with a single <span style="font-weight: bold;">Open|SpeedShop</span>
+executable.&nbsp; However, the user must be aware that in certain
+versions of MPI the data <span style="font-weight: bold;">Open|SpeedShop</span>
+needs to automatically attach to a running MPI application resides in
+the "mpirun" process on some MPI implementations and in any of the
+ranked processes in other MPI implementations.&nbsp;&nbsp; A table is
+provided below to aid in the selection process:<br>
+<br>
+<table style="text-align: left; width: 473px; height: 118px;" border="1"
+ cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><span
+ style="font-weight: bold; font-style: italic;">MPI IMPLEMENTATION</span><br>
+      </td>
+      <td style="vertical-align: top;"><span
+ style="font-weight: bold; font-style: italic;">WHAT TO ATTACH TO</span><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SGI MPT<br>
+      </td>
+      <td style="vertical-align: top;"><span
+ style="font-weight: bold; font-style: italic;">mpirun</span> process<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">MPICH, OPENMPI, LAMPI<br>
+      </td>
+      <td style="vertical-align: top;">any ranked process<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+This information is needed when attaching to an already running MPI
+application which is described in the sections below.<br>
+<br>
 <h4><a class="mozTocH4" name="mozTocId956978"></a><a
  name="Attaching_to_Already_Running_MPI"></a>Attaching to Already
 Running MPI Applications</h4>
