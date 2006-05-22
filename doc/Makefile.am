@@ -22,3 +22,24 @@ SUBDIRS = users_guide cli_doc plugin_guide
 DIST_SUBDIRS = users_guide cli_doc plugin_guide
 
 EXTRA_DIST = help.adp
+
+package = @PACKAGE@
+packver = @PACKAGE@-@VERSION@
+#docdir  = ${prefix}/share/doc/@PACKAGE@-@VERSION@
+docdir  = ${prefix}/share/doc/openspeedshop
+
+install-reference: help.adp
+	@$(NORMAL_INSTALL)
+	${mkinstalldirs} ${DESTDIR}${docdir}
+	${INSTALL_DATA} help.adp ${DESTDIR}${docdir}
+
+uninstall-reference: help.adp
+	@$(NORMAL_UNINSTALL)
+	-rm -rf ${DESTDIR}${docdir}
+
+all-local: help.adp
+
+install-data-am: install-reference
+
+uninstall: uninstall-reference
+
