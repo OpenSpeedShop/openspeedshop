@@ -43,9 +43,14 @@ namespace {
     /** Identifier of the monitor thread. */
     pthread_t monitor_tid;
     
-    /** Lock used for insuring exclusive access to DPCL client library. */
-    pthread_mutex_t exclusive_access_lock = PTHREAD_MUTEX_INITIALIZER;
-    
+    /** Lock used for insuring exclusive access to the DPCL client library. */
+    struct {
+	pthread_mutex_t lock;  /**< Mutual exclusion lock. */
+	unsigned count;        /**< Recursion count for this lock. */
+    } exclusive_access = {
+	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP, 0
+    };
+
     /** Pipe used to asynchronously interrupt the DPCL main loop. */
     int pipe_fds[2] = { -1, -1 };
     
@@ -250,28 +255,33 @@ std::string MainLoop::start()
  */
 void MainLoop::suspend()
 {
-    // Do nothing if called by the monitor thread
-    if (pthread_self() == monitor_tid)
+    // The monitor thread doesn't ever have to suspend itself
+    if(pthread_self() == monitor_tid)
 	return;
 
     // Acquire the exclusive-access lock
-    Assert(pthread_mutex_lock(&exclusive_access_lock) == 0);
+    Assert(pthread_mutex_lock(&exclusive_access.lock) == 0);
+    exclusive_access.count++;
+
+    // Is this the first time this thread has acquired the lock?
+    if(exclusive_access.count == 1) {
+
+	// Send one-byte message down the pipe to interrupt the DPCL main loop
+	char message = 0;
+	while(1) {
+	    int retval = write(pipe_fds[1], &message, 1);
+	    Assert((retval >= 0) || ((retval == -1) && (errno == EINTR)));
+	    if(retval > 0)
+		break;
+	}
     
-    // Send one-byte message down the pipe to interrupt the DPCL main loop
-    char message = 0;
-    while(1) {
-	int retval = write(pipe_fds[1], &message, 1);
-	Assert((retval >= 0) || ((retval == -1) && (errno == EINTR)));
-	if(retval > 0)
-	    break;
+	// Wait until the monitor thread has suspended
+	Assert(pthread_mutex_lock(&is_suspended.lock) == 0);
+	while(is_suspended.flag == false)
+	    Assert(pthread_cond_wait(&is_suspended.cv,
+				     &is_suspended.lock) == 0);
+	Assert(pthread_mutex_unlock(&is_suspended.lock) == 0);
     }
-    
-    // Wait until the monitor thread has suspended
-    Assert(pthread_mutex_lock(&is_suspended.lock) == 0);
-    while(is_suspended.flag == false)
-	Assert(pthread_cond_wait(&is_suspended.cv,
-				 &is_suspended.lock) == 0);
-    Assert(pthread_mutex_unlock(&is_suspended.lock) == 0);
 }
 
 
@@ -287,18 +297,24 @@ void MainLoop::suspend()
  */
 void MainLoop::resume()
 {
-    // Do nothing if called by the monitor thread
-    if (pthread_self() == monitor_tid)
+    // The monitor thread doesn't ever have to resume itself
+    if(pthread_self() == monitor_tid)
 	return;
 
-    // Tell the monitor thread to resume the DPCL main loop
-    Assert(pthread_mutex_lock(&is_suspended.lock) == 0);
-    is_suspended.flag = false;
-    Assert(pthread_mutex_unlock(&is_suspended.lock) == 0);
-    Assert(pthread_cond_signal(&is_suspended.cv) == 0);
-    
+    // Is this the last time this thread is releasing the lock?
+    if(exclusive_access.count == 1) {
+	
+	// Tell the monitor thread to resume the DPCL main loop
+	Assert(pthread_mutex_lock(&is_suspended.lock) == 0);
+	is_suspended.flag = false;
+	Assert(pthread_mutex_unlock(&is_suspended.lock) == 0);
+	Assert(pthread_cond_signal(&is_suspended.cv) == 0);
+	
+    }
+
     // Release the exclusive-access lock
-    Assert(pthread_mutex_unlock(&exclusive_access_lock) == 0);
+    exclusive_access.count--;
+    Assert(pthread_mutex_unlock(&exclusive_access.lock) == 0);
 }
 
 

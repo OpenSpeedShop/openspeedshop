@@ -30,6 +30,7 @@ libopenss_framework_dpcl_la_LIBADD = \
 	-lpthread
 
 libopenss_framework_dpcl_la_SOURCES = \
+	DataBucket.hxx \
 	Instrumentor.cxx \
 	MainLoop.hxx MainLoop.cxx \
 	Process.hxx Process.cxx \

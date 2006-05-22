@@ -24,6 +24,7 @@
 
 #include "AddressSpace.hxx"
 #include "Blob.hxx"
+#include "DataBucket.hxx"
 #include "DataQueues.hxx"
 #include "EntrySpy.hxx"
 #include "Exception.hxx"
@@ -88,6 +89,7 @@ typedef std::map<AddressRange, std::pair<SymbolTable, std::set<LinkedObject> > >
 struct SymbolTableState :
     public Lockable
 {
+
     /** Flag indicating if requestAddressSpace() has finished constructing
 	this object. */
     bool dm_constructed;
@@ -941,19 +943,27 @@ bool Process::getGlobal(const std::string& global, int64_t& value)
     };
 
     ProbeExp expression = Ais_send.call(3, args_exp);
+
+    // Define a data bucket to hold the retrieved integer
+    DataBucket<int64_t> bucket;
     
     // Ask DPCL to execute the probe expression in this process
     MainLoop::suspend();
     AisStatus retval =
-	dm_process->bexecute(expression, getIntegerCallback, &value);
+	dm_process->bexecute(expression, getIntegerCallback, &bucket);
     MainLoop::resume();
 #ifndef NDEBUG
     if(is_debug_enabled)
     	debugDPCL("response from bexecute", retval);
 #endif
-    
-    // Indicate to the caller if the value was retrieved
-    return retval.status() == ASC_success;
+    if(retval.status() != ASC_success)
+	return false;
+
+    // Wait until the incoming integer arrives in the data bucket
+    value = bucket.getValue();
+
+    // Indicate to the caller that the value was retrieved
+    return true;
 }
 
 
@@ -1078,19 +1088,24 @@ bool Process::getMPICHProcTable(Job& value)
 
     ProbeExp expression = Ais_send.call(3, args_exp);
     
-    // Define a pointer to the retrieved process table
-    void* buffer = NULL;
-    
+    // Define a data bucket to hold the retrieved process table
+    DataBucket<char*> bucket;
+
     // Ask DPCL to execute the probe expression in this process
     MainLoop::suspend();
     AisStatus retval = 
-	dm_process->bexecute(expression, getBlobCallback, &buffer);
+	dm_process->bexecute(expression, getBlobCallback, &bucket);
     MainLoop::resume();
 #ifndef NDEBUG
     if(is_debug_enabled)
     	debugDPCL("response from bexecute", retval);
 #endif
     bool succeeded = (retval.status() == ASC_success);
+    if(!succeeded)
+	return false;
+
+    // Wait until the incoming process table arrives in the data bucket    
+    char* buffer = bucket.getValue();
     
     // Extract the table data if it was retrieved
     if(buffer != NULL) {
@@ -1127,6 +1142,8 @@ bool Process::getMPICHProcTable(Job& value)
 
 	    }
 
+	// Free the process table
+	delete [] buffer;
     }
 
     // Indicate to the caller if the value was retrieved
@@ -1420,40 +1437,6 @@ void Process::finishSymbolTableProcessing(SymbolTableState* state)
     
     // Destroy the heap-allocated state structure
     delete state;    
-
-
-    // Now that the process' symbol table is available, look for any
-    // special symbols that we care about.
-
-    {
-	// In MPT, all rank processes are linked against libmpi.so and
-	// therefore have the symbol MPI_debug_rank, a 32-bit integer
-	// containing the MPI rank of the given process.  Retrieve its
-	// value and put it into the mpi_rank database field for all
-	// Thread objects associated with this process.
-
-	int64_t value;
-	if (process->getGlobal("MPI_debug_rank", value)) {
-	    int rank = static_cast<int>(value);
-
-	    ThreadGroup threads =
-		ProcessTable::TheTable.getThreadsByProcess(process);
-
-	    for (ThreadGroup::const_iterator ti = threads.begin();
-		 ti != threads.end(); ++ti) {
-		const Thread& t(*ti);
-		SmartPtr<Database> database = EntrySpy(t).getDatabase();
-		BEGIN_WRITE_TRANSACTION(database);
-		database->prepareStatement(
-		    "UPDATE Threads SET mpi_rank = ? WHERE id = ?;"
-		    );
-		database->bindArgument(1, rank);
-		database->bindArgument(2, EntrySpy(t).getEntry());
-		while(database->executeStatement());
-		END_TRANSACTION(database);
-	    }
-	}
-    }
 }
 
 
@@ -1964,15 +1947,15 @@ void Process::freeMemCallback(GCBSysType, GCBTagType tag,
  *
  * Callback function called by the DPCL main loop when a blob of data is being
  * returned. Allocates and stores a copy of the returned data, placing a pointer
- * to this copy in the specified location.
+ * to this copy in the specified data bucket.
  */
 void Process::getBlobCallback(GCBSysType sys, GCBTagType tag,
 			      GCBObjType, GCBMsgType msg)
 {
-    char** value = reinterpret_cast<char**>(tag);
+    DataBucket<char*>* bucket = reinterpret_cast<DataBucket<char*>*>(tag);
 
     // Check assertions
-    Assert(value != NULL);
+    Assert(bucket != NULL);
 
 #ifndef NDEBUG
     if(is_debug_enabled) {
@@ -1984,10 +1967,11 @@ void Process::getBlobCallback(GCBSysType sys, GCBTagType tag,
     }
 #endif
 
-    // Store a copy of the character array in the specified location
+    // Store a copy of the character array in the specified data bucket
     if(sys.msg_size > 0) {
-	*value = new char[sys.msg_size];
-	memcpy(*value, msg, sys.msg_size);
+	char* temp = new char[sys.msg_size];
+	memcpy(temp, msg, sys.msg_size);
+	bucket->setValue(temp);
     }
 }
 
@@ -1997,8 +1981,8 @@ void Process::getBlobCallback(GCBSysType sys, GCBTagType tag,
  * Get integer callback.
  *
  * Callback function called by the DPCL main loop when an integer is being
- * returned. Stores the integer in the specified location, promoting the integer
- * to 64-bit when necessary.
+ * returned. Stores the integer in the specified data bucket, promoting the
+ * integer to 64-bit when necessary.
  *
  * @todo    Problems will occur here if the endianness of the processor running
  *          the instrumented process and the processor running the tool differ.
@@ -2008,10 +1992,10 @@ void Process::getBlobCallback(GCBSysType sys, GCBTagType tag,
 void Process::getIntegerCallback(GCBSysType sys, GCBTagType tag,
 				 GCBObjType, GCBMsgType msg)
 {
-    int64_t* value = reinterpret_cast<int64_t*>(tag); 
+    DataBucket<int64_t>* bucket = reinterpret_cast<DataBucket<int64_t>*>(tag);
 
     // Check assertions
-    Assert(value != NULL);
+    Assert(bucket != NULL);
     Assert((sys.msg_size == sizeof(int8_t)) ||
 	   (sys.msg_size == sizeof(int16_t)) ||
 	   (sys.msg_size == sizeof(int32_t)) ||
@@ -2027,15 +2011,23 @@ void Process::getIntegerCallback(GCBSysType sys, GCBTagType tag,
     }
 #endif
 
-    // Store the integer in the specified location
+    // Store the integer in the specified data bucket
     if(sys.msg_size == sizeof(int8_t))
-	*value = static_cast<int64_t>(*reinterpret_cast<int8_t*>(msg));
+	bucket->setValue(
+	    static_cast<int64_t>(*reinterpret_cast<int8_t*>(msg))
+	    );
     else if(sys.msg_size == sizeof(int16_t))
-	*value = static_cast<int64_t>(*reinterpret_cast<int16_t*>(msg));    
+	bucket->setValue(
+	    static_cast<int64_t>(*reinterpret_cast<int16_t*>(msg))
+	    );
     else if(sys.msg_size == sizeof(int32_t))
-	*value = static_cast<int64_t>(*reinterpret_cast<int32_t*>(msg));
+	bucket->setValue(
+	    static_cast<int64_t>(*reinterpret_cast<int32_t*>(msg))
+	    );
     else
-	*value = static_cast<int64_t>(*reinterpret_cast<int64_t*>(msg));
+	bucket->setValue(
+	    static_cast<int64_t>(*reinterpret_cast<int64_t*>(msg))
+	    );
 }
 
 
@@ -3658,27 +3650,32 @@ bool Process::getString(const ProbeExp& where, std::string& value) const
 	Ais_send.call(3, send_empty_args_exp)
 	);
     
-    // Define a pointer to the retrieved character array
-    char* buffer = NULL;
-    
+    // Define a data bucket to hold the retrieved character array
+    DataBucket<char*> bucket;
+
     // Ask DPCL to execute the probe expression in this process
     MainLoop::suspend();
     AisStatus retval = 
-	dm_process->bexecute(expression, getBlobCallback, &buffer);
+	dm_process->bexecute(expression, getBlobCallback, &bucket);
     MainLoop::resume();
 #ifndef NDEBUG
     if(is_debug_enabled)
     	debugDPCL("response from bexecute", retval);
 #endif
+    if(retval.status() != ASC_success)
+	return false;
 
+    // Wait until the incoming character array arrives in the data bucket
+    char* buffer = bucket.getValue();
+	
     // Extract and return the string's value if it was retrieved
     if(buffer != NULL) {
 	value = std::string(buffer);
-	delete [] buffer;	
+	delete [] buffer;
     }
-    
-    // Indicate to the caller if the value was retrieved
-    return retval.status() == ASC_success; 
+
+    // Indicate to the caller that the value was retrieved
+    return true;
 }
 
 

@@ -594,6 +594,12 @@ Thread Experiment::createProcess(const std::string& command,
  * threads within that job to this experiment. The thread(s) are suspended as a
  * result of attaching.
  *
+ * @todo    Obtaining MPT rank numbers from MPI_debug_rank inside each process
+ *          needs to be added here. Originally this was implemented down in
+ *          Process::finishSymbolTableProcessing(). Unfortunately that won't
+ *          work because the thread that is accessing the global is the same
+ *          thread that needs to receive the data and a deadlock occurs.
+ *
  * @param pid     Process identifier for the process.
  * @param host    Name of the host on which the process resides.
  * @return        Attached threads.
