@@ -200,7 +200,11 @@ void MPListView::contentsDropEvent( QDropEvent *e )
     if( pitem->parent() && pitem->descriptionClassObject->root == TRUE )
     {
       item = (MPListViewItem *)pitem;
+    } else if( pitem )
+    {
+      item = (MPListViewItem *)pitem;
     }
+    
   }
 
 
