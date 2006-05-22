@@ -36,7 +36,7 @@ libopenss_runtime_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-runtime-@INSTRUMENTOR@.la \
 	@LIBUNWIND_LIBS@ \
 	@PAPI_LIBS@ \
-	-lpthread -lrt -lbfd -lopcodes-2.15.90.0.1.1
+	-lpthread -lrt -lbfd -lopcodes
 
 libopenss_runtime_la_SOURCES = \
 	Assert.h \
