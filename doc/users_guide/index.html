@@ -238,12 +238,14 @@ Open|SpeedShop GUI non-Wizard Usage</a></li>
           <li><a href="#mozTocId439657">Comparing Performance
 Data using the Open|SpeedShop GUI
             </a></li>
+          <li><a href="#mozTocId444537">Finding Processes, Threads, or
+Ranks that have out of range values using the Open|SpeedShop GUI</a></li>
           <li><a href="#mozTocId956211">Open|SpeedShop GUI Usage on
 MPI Applications</a>
             <ul>
               <li><a href="#mozTocId441124">General Concepts</a></li>
               <li><a href="#mozTocId963085">Multiple MPI version
-Implementations</a></li>
+Implementation Implications</a></li>
               <li><a href="#mozTocId956978">Attaching to Already
 Running MPI Applications</a>
                 <ul>
@@ -271,8 +273,10 @@ Usage </a></li>
 MPI applications</a>
             <ul>
               <li><a href="#mozTocId737510">General Concepts</a></li>
-              <li><a href="#mozTocId491994">Multiple MPI version
-implications</a></li>
+              <li><a href="#mozTocId405869">Multiple MPI version
+Implementation Implications with the CLI</a></li>
+              <li><a href="#mozTocId94012">Attaching to Already
+Running MPI Applications with the CLI</a></li>
             </ul>
           </li>
         </ul>
@@ -1419,6 +1423,19 @@ performance results integrated with the source.&nbsp;&nbsp;&nbsp; See
 the source panel with statistics image at this <a
  href="#Source_Panel_Statistics">link</a>.<br>
     <br>
+The source panel preferences also allow the user to map the original
+build path to the new location of the source, if the source and program
+have been moved.&nbsp;&nbsp; In the example below, the source for the
+program being analyzed was originally located in /data/clink/a45/stipek
+but was relocated to /work/jeg.&nbsp;&nbsp;&nbsp; By inputing this
+information to the preference panel (see below) the user will be able
+to view the source for the program at the new location (/work/jeg).<br>
+    <br>
+    <img alt="Remap the path to program source files"
+ title="Remap the path to program source files"
+ src="PreferencePanel-SourcePathRedirection.png"
+ style="width: 630px; height: 593px;"><br>
+    <br>
     <h6><a class="mozTocH6" name="mozTocId939535"></a><a
  name="Manage_Process_Panel_Related"></a>Manage Process Panel
 Related</h6>
@@ -1942,9 +1959,10 @@ comparison views by defining what will be shown in each column of the
 comparison display.&nbsp;&nbsp; <br>
 <b style=""><br>
 </b>
-<h3><a name="Finding_Out_of_Range_Processes_Threads"></a>Finding
-Processes, Threads, or Ranks that have out of range values <b><b><b><b
- style="">using the Open|SpeedShop GUI</b></b></b></b></h3>
+<h3><a class="mozTocH3" name="mozTocId444537"></a><a
+ name="Finding_Out_of_Range_Processes_Threads"></a>Finding Processes,
+Threads, or Ranks that have out of range values <b><b><b><b style="">using
+the Open|SpeedShop GUI</b></b></b></b></h3>
 As of May 22, 2006 there is an experimental version of a feature which
 automatically groups processes, threads, or ranks into sets which have
 similar values.&nbsp; This techinique which is called, cluster
@@ -2024,7 +2042,8 @@ GUI command window text output views.<br>
 <br>
 <h4><a class="mozTocH4" name="mozTocId963085"></a><a
  name="Multiple_MPI_version_Implications"></a>Multiple MPI version
-Implementations</h4>
+Implementation Implications<br>
+</h4>
 <span style="font-weight: bold;">Open|SpeedShop</span> supports
 multiple MPI with a single <span style="font-weight: bold;">Open|SpeedShop</span>
 executable.&nbsp; However, the user must be aware that in certain
@@ -2299,10 +2318,361 @@ openss&gt;&gt;<b style=""><br>
 MPI applications</b></b></h3>
     <h4><a class="mozTocH4" name="mozTocId737510"></a><a
  name="General_Concepts"></a>General Concepts</h4>
-    <h4><a class="mozTocH4" name="mozTocId491994"></a><a
- name="Multiple_MPI_version_implications"></a>Multiple MPI version
-implications</h4>
+    <span style="font-weight: bold;">Open|SpeedShop</span> supports
+automatically attaching to all the ranks/processes in a MPI application
+provided the MPI implementation is using the MPIR defacto standard for
+finding all the ranked processes within a MPI application.&nbsp;&nbsp;
+This is
+discussed more in the sections below.&nbsp;&nbsp; <span
+ style="font-weight: bold;">Open|SpeedShop</span> allows the user to
+use the rank number of the ranked processes as input to <span
+ style="font-weight: bold;">Open|SpeedShop</span> for selecting and
+filtering just as a process or thread number would be used.&nbsp; <span
+ style="font-weight: bold;">Open|SpeedShop</span> also displays the
+rank number for each ranked process in the interactive command line
+window text output views.<br>
     <br>
+    <h4><a class="mozTocH4" name="mozTocId405869"></a><a
+ name="Multiple_MPI_version_Implementation_cli"></a>Multiple MPI
+version Implementation Implications with the CLI<br>
+    </h4>
+    <span style="font-weight: bold;">Open|SpeedShop</span> supports
+multiple MPI with a single <span style="font-weight: bold;">Open|SpeedShop</span>
+executable.&nbsp; However, the user must be aware that in certain
+versions of MPI the data <span style="font-weight: bold;">Open|SpeedShop</span>
+needs to automatically attach to a running MPI application resides in
+the "mpirun" process on some MPI implementations and in any of the
+ranked processes in other MPI implementations.&nbsp;&nbsp; A table is
+provided
+below to aid in the selection process:<br>
+    <br>
+    <table style="text-align: left; width: 586px; height: 196px;"
+ border="1" cellpadding="2" cellspacing="2">
+      <tbody>
+        <tr>
+          <td style="vertical-align: top;"><span
+ style="font-weight: bold; font-style: italic;">MPI IMPLEMENTATION</span><br>
+          </td>
+          <td style="vertical-align: top;"><span
+ style="font-weight: bold; font-style: italic;">WHAT TO ATTACH TO</span><br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;">SGI MPT, OPENMPI, LAMPI<br>
+SLURM&nbsp; </td>
+          <td style="vertical-align: top;"><span
+ style="font-weight: bold; font-style: italic;">mpirun</span> process<br>
+          <span style="font-style: italic; font-weight: bold;">srun</span>
+process on SLURM<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;">MPICH download or any other
+MPI implementations where mpirun is a script, not an executable.<br>
+          </td>
+          <td style="vertical-align: top;">rank 0 process<br>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+This information is needed when attaching to an already running MPI
+application which is described in the sections below.<br>
+    <br>
+    <h4><a class="mozTocH4" name="mozTocId94012"></a><span
+ class="mozTocH4"></span><a name="Attaching_to_Already_Running_MPI_"></a>Attaching
+to Already
+Running MPI Applications with the CLI</h4>
+When running <span style="font-weight: bold;">Open|SpeedShop</span> on
+an MPI application and attaching to all the ranks within the MPI job,
+one must use the information provided in the <a
+ href="#Multiple_MPI_version_Implementation_cli">Multiple MPI version
+Implementation Implication </a>section above.&nbsp; First a list of
+the running processes is needed.&nbsp;&nbsp; This can be obtained
+either in another xterm window or from the openss command line
+interface itself.&nbsp;&nbsp; The <span style="font-weight: bold;">Open|SpeedShop</span>
+interactive command line interface (CLI) allows for the execution of
+simple Linux commands from within the CLI interface.&nbsp; <br>
+    <br>
+    <h5><a name="Example_1:_Attach_to_mpirun"></a>Example 1: Attach to
+mpirun</h5>
+The first example is on a system using a MPI implementation that
+requires attaching to the mpirun process to automatically attatch to
+the entire list of ranks in the MPI application.<br>
+    <br>
+[machine
+prompt]:openss -cli<br>
+openss&gt;&gt;<b style=""><span style="font-weight: bold;"><br>
+    </span></b>openss&gt;<span style="font-weight: bold;">&gt;!ps </span><span
+ id="mail-highlight-id"
+ style="background-color: yellow; font-weight: bold;"></span><span
+ style="font-weight: bold;">-efl | grep userid | grep mpirun
+    </span><br>
+0 S userid &nbsp; <span style="font-weight: bold; font-style: italic;">19207</span>&nbsp;&nbsp;
+6068&nbsp; 0&nbsp; 71&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp; -&nbsp; &nbsp;
+803 do_sel&nbsp; 08:12 pts/0&nbsp; &nbsp;&nbsp; 00:00:00 mpirun -np 16
+sweep3d.mpi
+    <br>
+0 S userid &nbsp; 19233 19232&nbsp; 0&nbsp; 77&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp; -&nbsp; 1235 wait4 &nbsp; 08:13 ttyp0&nbsp;&nbsp;
+&nbsp; 00:00:00 sh -c ps -efl | grep userid | grep mpirun ?
+    <br>
+0 S userid &nbsp; 19236 19233&nbsp; 0&nbsp; 77&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp; -&nbsp; 1094 pipe_w 08:13 ttyp0&nbsp;&nbsp;&nbsp;
+00:00:00 grep mpirun
+    <br>
+    <br>
+openss&gt;&gt;<span style="font-weight: bold;">expcreate pcsamp -v mpi
+-p </span><span style="font-weight: bold; font-style: italic;">19207
+    <br>
+    <br>
+    </span>NOTE: The "-v mpi" option to expcreate tells the interactive
+command line interface to attach to the entire MPI job, not just the
+process 19207.&nbsp;&nbsp; Open|SpeedShop, if the "-v mpi" option is
+present, will <span style="font-weight: bold; font-style: italic;"><br>
+    <br>
+    </span>
+    <h5><a name="Example_2:_Attach_to_MPI_rank_0_process_"></a>Example
+2: Attach to MPI rank 0 process <span
+ style="font-weight: bold; font-style: italic;"></span></h5>
+    <h5><span style="font-weight: bold; font-style: italic;"></span></h5>
+The second example is on a system using a MPI implementation that
+requires attaching to a MPI rank process to automatically attatch to
+the entire list of ranks in the MPI application.<br>
+    <br>
+Here is a possible set of instructions on how to attach to the MPI rank
+0 process to attach to the entire MPI job (all ranked processes).<br>
+    <br>
+In window 1:&nbsp; Start OpenSpeedShop via the&nbsp; "openss -cli"
+command<br>
+In window 2:&nbsp; cd to the application directory, smg2000/test in
+this example<br>
+In window 3 or in the openss CLI window:&nbsp; Use ps -ef | grep
+smg2000 to find the ranked process
+    <br>
+    <br>
+window #1, start openss -cli, select hwc
+    <br>
+[machine prompt]: ./openss -cli
+    <br>
+Welcome to Open|SpeedShop, version 0.875.
+    <br>
+Type 'help' for more information.
+    <br>
+openss&gt;&gt;expcreate hwctime
+    <br>
+openss&gt;&gt;The new focused experiment identifier is:&nbsp; -x 1
+    <br>
+    <br>
+In window #2:&nbsp; Start the MPI application, smg2000, in this example<br>
+[machine prompt]:&nbsp; /opt/mpich/ch-p4/bin/mpirun -np 4 smg2000 -n 75
+75 75
+    <br>
+    <br>
+In window #3:&nbsp; Issue the command to find the ranked
+processes:&nbsp; ps -ef | grep smg2000.
+    <br>
+Find the first instance of smg2000 with CPU time &gt; 0 and that does
+not have any rank info in the process command line info.
+    <br>
+e.g. pid <span style="font-weight: bold;">7824</span> is such a
+process.
+    <br>
+[machine prompt]: ps -ef | grep smg2000
+    <br>
+userid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7695 30159&nbsp; 0 13:53
+pts/0&nbsp;&nbsp;&nbsp; 00:00:00 /bin/sh /opt/mpich/ch-p4/bin/mpirun
+-np 4 smg2000 -n 75 75 75
+    <br>
+userid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span
+ style="font-weight: bold;">7824</span>&nbsp; 7695&nbsp; 0 13:53
+pts/0&nbsp;&nbsp;&nbsp; 00:00:03 /scratch/userid/smg2000/test/smg2000
+-n 75 75 75 -p4pg /scratch/userid/smg2000/test/PI7695 -p4wd
+/scratch/userid/smg2000/test
+    <br>
+userid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7825&nbsp; 7824&nbsp; 0
+13:53 pts/0&nbsp;&nbsp;&nbsp; 00:00:00
+/scratch/userid/smg2000/test/smg2000 -n 75 75 75 -p4pg
+/scratch/userid/smg2000/test/PI7695 -p4wd /scratch/userid/smg2000/test
+    <br>
+userid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7826&nbsp; 7824&nbsp; 0
+13:53 pts/0&nbsp;&nbsp;&nbsp; 00:00:00 /usr/bin/ssh localhost -l userid
+-n
+/scratch/userid/smg2000/test/smg2000 wsopenss2 34618 \-p4amslave
+\-p4yourname localhost \-p4rmrank 1
+    <br>
+userid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7831&nbsp; 7830&nbsp; 0
+13:53 ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 00:00:00 csh -c
+/scratch/userid/smg2000/test/smg2000 wsopenss2 34618 \-p4amslave
+\-p4yourname localhost \-p4rmrank 1
+    <br>
+userid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7841&nbsp; 7831&nbsp; 0
+13:53 ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 00:00:04
+/scratch/userid/smg2000/test/smg2000 wsopenss2 34618&nbsp;&nbsp;
+4amslave -p4yourname localhost -p4rmrank 1
+    <br>
+userid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7842&nbsp; 7824&nbsp; 0
+13:53 pts/0&nbsp;&nbsp;&nbsp; 00:00:00 /usr/bin/ssh localhost -l userid
+-n
+/scratch/userid/smg2000/test/smg2000 wsopenss2 34618 \-p4amslave
+\-p4yourname localhost \-p4rmrank 2
+    <br>
+userid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7843&nbsp; 7841&nbsp; 0
+13:53 ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 00:00:00
+/scratch/userid/smg2000/test/smg2000 wsopenss2 34618&nbsp;&nbsp;
+4amslave -p4yourname localhost -p4rmrank 1
+    <br>
+userid &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7695 30159&nbsp; 0 13:53
+pts/0&nbsp;&nbsp;&nbsp; 00:00:00 /bin/sh /opt/mpich/ch-p4/bin/mpirun
+-np 4 smg2000 -n 75 75 75
+    <br>
+    <br>
+In window #1 (openss) attach to the ranked process.
+    <br>
+openss&gt;&gt; expattach -v mpi -p <span style="font-weight: bold;">7824<br>
+    </span>openss&gt;&gt;expgo<br>
+openss&gt;&gt;Start asynchronous execution of experiment:&nbsp; -x 1
+    <br>
+openss&gt;&gt;expview
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+PAPI_TOT_CYC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+% of Total&nbsp; Function Name
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+39162720000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+13.2517&nbsp; hypre_SMGResidual(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+24302400000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+8.4087&nbsp; hypre_CyclicReduction(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2350560000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.6919&nbsp; hypre_SemiInterp(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1474080000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.2661&nbsp; hypre_SemiRestrict(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+756960000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.3725&nbsp; MPIR_UnPack_Hvector(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+717120000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.1064&nbsp; memcpy(libc.so.6)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+438240000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.1064&nbsp; hypre_StructAxpy(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+398400000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.2661&nbsp; hypre_SMGAxpy(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+398400000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0532&nbsp; hypre_InitializeCommunication(smg2000)
+    <br>
+...<br>
+...<br>
+...<br>
+openss&gt;&gt;expstatus
+    <br>
+openss&gt;&gt;
+    <br>
+Experiment definition
+    <br>
+{ # ExpId is 1, Status is Terminated, Temporary database is
+/tmp/ssdb1pJkmpG.openss
+    <br>
+&nbsp; Currently Specified Components:
+    <br>
+&nbsp;&nbsp;&nbsp; -h wsopenss2 -p 7824 hwc
+    <br>
+&nbsp;&nbsp;&nbsp; -h localhost -p 7841 hwc
+    <br>
+&nbsp;&nbsp;&nbsp; -h localhost -p 7861 hwc
+    <br>
+&nbsp;&nbsp;&nbsp; -h localhost -p 7878 hwc
+    <br>
+&nbsp; Metrics:
+    <br>
+&nbsp;&nbsp;&nbsp; hwc::overflows
+    <br>
+&nbsp; Parameter Values:
+    <br>
+&nbsp;&nbsp;&nbsp; hwc::event =&nbsp; PAPI_TOT_CYC
+    <br>
+&nbsp;&nbsp;&nbsp; hwc::sampling_rate =&nbsp; 39840000
+    <br>
+&nbsp; Available Views:
+    <br>
+&nbsp;&nbsp;&nbsp; hwc
+    <br>
+}
+    <br>
+openss&gt;&gt;expview hwc -p 7824
+&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+PAPI_TOT_CYC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+% of Total&nbsp; Function Name
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+9920160000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+53.4335&nbsp; hypre_SMGResidual(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+6294720000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+33.9056&nbsp; hypre_CyclicReduction(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+517920000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2.7897&nbsp; hypre_SemiInterp(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+278880000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.5021&nbsp; MPIR_UnPack_Hvector(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+199200000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.0730&nbsp; hypre_SemiRestrict(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+199200000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.0730&nbsp; hypre_SMGAxpy(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+119520000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.6438&nbsp; MPIR_Unpack2(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+119520000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.6438&nbsp; MPID_CH_Eagerb_isend_short(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+119520000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.6438&nbsp; hypre_SMGSetStructVectorConstantValues(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+79680000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.4292&nbsp; memcpy(libc.so.6)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+79680000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.4292&nbsp; hypre_StructAxpy(smg2000)
+    <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+39840000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.2146&nbsp; _int_malloc(libc.so.6)
+\<br>
+...<br>
+...<br>
+...<br>
+openss&gt;&gt;<br>
+&nbsp;<br>
+    <span style="font-weight: bold;"></span><br>
   </blockquote>
 </blockquote>
 <blockquote> <b style=""> </b>
