@@ -110,8 +110,10 @@ headerLabel->hide();
 
   availableProcessesListView = new MPListView( this, "availableProcessesListView", 0 );
   availableProcessesListView->addColumn( tr( "Available Processes:" ) );
-availableProcessesListView->addColumn( tr( "Host:" ) );
-availableProcessesListView->addColumn( tr( "Rank:" ) );
+// availableProcessesListView->addColumn( tr( "Rank:" ) );
+// availableProcessesListView->addColumn( tr( "Host:" ) );
+availableProcessesListView->addColumn( tr( "         " ) );
+availableProcessesListView->addColumn( tr( "         " ) );
   availableProcessesListView->setSelectionMode( QListView::Single );
   availableProcessesListView->setShowSortIndicator( TRUE );
   availableProcessesListView->setSorting( 0, FALSE );
