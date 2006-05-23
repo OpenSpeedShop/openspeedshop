@@ -20,7 +20,7 @@ SUBDIRS = \
 	pcsamp
 
 if HAVE_LIBUNWIND
-SUBDIRS += usertime io iot
+SUBDIRS += usertime io iot fpe
 endif
 
 if HAVE_PAPI

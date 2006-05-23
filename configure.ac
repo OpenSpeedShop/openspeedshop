@@ -172,6 +172,7 @@ AC_CONFIG_FILES(
 	plugins/collectors/iot/Makefile
 	plugins/collectors/mpi/Makefile
 	plugins/collectors/mpit/Makefile
+	plugins/collectors/fpe/Makefile
 	plugins/panels/Makefile
 	plugins/panels/CustomExperimentPanel/Makefile
 	plugins/panels/pcSamplePanel/Makefile
