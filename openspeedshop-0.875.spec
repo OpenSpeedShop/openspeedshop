@@ -94,6 +94,7 @@ rm -rf /usr/share/doc/openspeedshop
 #%docdir /usr/share/doc/%{name}-%{version}-%{release}
 #
 %docdir /usr/share/doc/openspeedshop
+/usr/share/doc/openspeedshop
 %docdir /usr/share/doc/openspeedshop/users_guide
 /usr/share/doc/openspeedshop/users_guide
 %docdir /usr/share/doc/openspeedshop/cli_doc
