@@ -160,7 +160,10 @@ static bool Calculate_Total_For_Percent (
         std::vector<std::pair<CommandResult *,
                               SmartPtr<std::vector<CommandResult *> > > >::iterator ci;
         ci = c_items.begin();
-        if (use_temp >= (*ci).second->size()) {
+        if (ci == c_items.end()) {
+         // Clearly, we can not add up a sequence if there is none.
+          Gen_Total_Percent = false;
+        } else if (use_temp >= (*ci).second->size()) {
          // Clearly, this is an error.
           Gen_Total_Percent = false;
         } else {
