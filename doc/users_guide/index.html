@@ -2052,8 +2052,7 @@ needs to automatically attach to a running MPI application resides in
 the "mpirun" process on some MPI implementations and in any of the
 ranked processes in other MPI implementations.&nbsp;&nbsp; A table is
 provided below to aid in the selection process:<br>
-<br>
-<table style="text-align: left; width: 473px; height: 118px;" border="1"
+<table style="text-align: left; width: 586px; height: 196px;" border="1"
  cellpadding="2" cellspacing="2">
   <tbody>
     <tr>
@@ -2065,16 +2064,19 @@ provided below to aid in the selection process:<br>
       </td>
     </tr>
     <tr>
-      <td style="vertical-align: top;">SGI MPT<br>
-      </td>
+      <td style="vertical-align: top;">SGI MPT, OPENMPI, LAMPI<br>
+SLURM&nbsp; </td>
       <td style="vertical-align: top;"><span
  style="font-weight: bold; font-style: italic;">mpirun</span> process<br>
+      <span style="font-style: italic; font-weight: bold;">srun</span>
+process on SLURM<br>
       </td>
     </tr>
     <tr>
-      <td style="vertical-align: top;">MPICH, OPENMPI, LAMPI<br>
+      <td style="vertical-align: top;">MPICH download or any other MPI
+implementations where mpirun is a script, not an executable.<br>
       </td>
-      <td style="vertical-align: top;">any ranked process<br>
+      <td style="vertical-align: top;">rank 0 process<br>
       </td>
     </tr>
   </tbody>
