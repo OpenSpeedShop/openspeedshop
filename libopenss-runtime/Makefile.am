@@ -26,17 +26,20 @@ noinst_LTLIBRARIES = libopenss-runtime.la
 
 libopenss_runtime_la_CFLAGS = \
 	@LIBUNWIND_CPPFLAGS@ \
+	@BINUTILS_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
 
 libopenss_runtime_la_LDFLAGS = \
 	@LIBUNWIND_LDFLAGS@ \
+	@BINUTILS_LDFLAGS@ \
 	@PAPI_LDFLAGS@
 
 libopenss_runtime_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-runtime-@INSTRUMENTOR@.la \
 	@LIBUNWIND_LIBS@ \
+	@BINUTILS_LIBS@ \
 	@PAPI_LIBS@ \
-	-lpthread -lrt -lbfd -lopcodes
+	-lpthread -lrt
 
 libopenss_runtime_la_SOURCES = \
 	Assert.h \
