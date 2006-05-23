@@ -1585,6 +1585,10 @@ bool Cluster_Analysis (
     Mark_Cmd_With_Soft_Error(cmd, S);
     return false;
   }
+  if (clusters.size() == 0) {
+    Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for cluster analysis.)");
+    return false;
+  }
 
   return true;
 }
