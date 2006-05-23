@@ -385,6 +385,72 @@ AC_DEFUN([AC_PKG_PAPI], [
 ])
 
 ################################################################################
+# Check for binutils
+################################################################################
+
+AC_DEFUN([AC_PKG_BINUTILS], [
+
+    AC_ARG_WITH(binutils,
+                AC_HELP_STRING([--with-binutils=DIR],
+                               [binutils installation @<:@/usr@:>@]),
+                binutils_dir=$withval, binutils_dir="/usr")
+
+    case "$host" in
+	ia64-*-linux*)
+	    BINUTILS_CPPFLAGS=""
+	    BINUTILS_LDFLAGS=""
+	    BINUTILS_LIBS=""
+            ;;
+	x86_64-*-linux*)
+	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
+	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
+	    BINUTILS_LIBS="-lbfd /usr/lib64/libopcodes.so"
+            ;;
+	*)
+	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
+	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
+	    BINUTILS_LIBS="-lbfd -lopcodes"
+            ;;
+    esac
+
+    binutils_saved_CPPFLAGS=$CPPFLAGS
+    binutils_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $BINUTILS_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $BINUTILS_LDFLAGS $BINUTILS_LIBS"
+
+    AC_MSG_CHECKING([for binutils librarys and headers])
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+        #include <bfd.h>
+        #include <dis-asm.h>
+        ]], [[
+	bfd_init();
+        ]]), [ AC_MSG_RESULT(yes)
+
+            AM_CONDITIONAL(HAVE_BINUTILS, true)
+            AC_DEFINE(HAVE_BINUTILS, 1, [Define to 1 if you have BINUTILS.])
+
+        ], [ AC_MSG_RESULT(no)
+
+            AM_CONDITIONAL(HAVE_BINUTILS, false)
+            BINUTILS_CPPFLAGS=""
+            BINUTILS_LDFLAGS=""
+            BINUTILS_LIBS=""
+
+        ]
+    )
+
+    CPPFLAGS=$binutils_saved_CPPFLAGS
+    LDFLAGS=$binutils_saved_LDFLAGS
+
+    AC_SUBST(BINUTILS_CPPFLAGS)
+    AC_SUBST(BINUTILS_LDFLAGS)
+    AC_SUBST(BINUTILS_LIBS)
+
+])
+
+################################################################################
 # Check for SQLite (http://www.sqlite.org)
 ################################################################################
 
