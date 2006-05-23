@@ -800,6 +800,9 @@ class CommandResult_Duration : public CommandResult {
   void Max_Duration (CommandResult_Duration *B) {
     duration_value = max (duration_value, B->duration_value);
   }
+  void Accumulate_Duration (CommandResult_Duration *B) {
+    duration_value += B->duration_value;
+  }
   int64_t& Value () {
     return duration_value;
   };
@@ -915,6 +918,9 @@ class CommandResult_Interval : public CommandResult {
   }
   void Max_Interval (CommandResult_Interval *B) {
     interval_value = max (interval_value, B->interval_value);
+  }
+  void Accumulate_Interval (CommandResult_Interval *B) {
+    interval_value += B->interval_value;
   }
   double& Value () {
     return interval_value;
@@ -1479,6 +1485,14 @@ inline void Accumulate_CommandResult (CommandResult *A, CommandResult *B) {
   case CMD_RESULT_RAWSTRING:
     ((CommandResult_RawString *)A)->Accumulate_RawString ((CommandResult_RawString *)B);
     break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Accumulate_Duration ((CommandResult_Duration *)B);
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Accumulate_Interval ((CommandResult_Interval *)B);
+    break;
+  default:
+    Assert (A->Type() == CMD_RESULT_NULL);
   }
 }
 
@@ -1544,6 +1558,7 @@ inline CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
 
   double Avalue;
   double Bvalue;
+  int64_t Ivalue;
 
   switch (A->Type()) {
    case CMD_RESULT_UINT:
@@ -1552,12 +1567,18 @@ inline CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
     Avalue = Uvalue;
     break;
    case CMD_RESULT_INT:
-    int64_t Ivalue;
     ((CommandResult_Int *)A)->Value(Ivalue);
     Avalue = Ivalue;
     break;
    case CMD_RESULT_FLOAT:
     ((CommandResult_Float *)A)->Value(Avalue);
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(Ivalue);
+    Avalue = Ivalue;
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(Avalue);
     break;
   }
   switch (B->Type()) {
@@ -1567,12 +1588,18 @@ inline CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
     Bvalue = Uvalue;
     break;
    case CMD_RESULT_INT:
-    int64_t Ivalue;
     ((CommandResult_Int *)B)->Value(Ivalue);
     Bvalue = Ivalue;
     break;
    case CMD_RESULT_FLOAT:
     ((CommandResult_Float *)B)->Value(Bvalue);
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)B)->Value(Ivalue);
+    Bvalue = Ivalue;
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)B)->Value(Bvalue);
     break;
   }
 
@@ -1593,6 +1620,7 @@ inline CommandResult *Calculate_StdDev  (CommandResult *A,
   double Avalue;
   double Bvalue;
   double Cvalue;
+  int64_t Ivalue;
 
   switch (A->Type()) {
    case CMD_RESULT_UINT:
@@ -1601,12 +1629,18 @@ inline CommandResult *Calculate_StdDev  (CommandResult *A,
     Avalue = Uvalue;
     break;
    case CMD_RESULT_INT:
-    int64_t Ivalue;
     ((CommandResult_Int *)A)->Value(Ivalue);
     Avalue = Ivalue;
     break;
    case CMD_RESULT_FLOAT:
     ((CommandResult_Float *)A)->Value(Avalue);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(Ivalue);
+    Avalue = Ivalue;
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(Avalue);
     break;
   }
   switch (B->Type()) {
@@ -1616,12 +1650,18 @@ inline CommandResult *Calculate_StdDev  (CommandResult *A,
     Bvalue = Uvalue;
     break;
    case CMD_RESULT_INT:
-    int64_t Ivalue;
     ((CommandResult_Int *)B)->Value(Ivalue);
     Bvalue = Ivalue;
     break;
    case CMD_RESULT_FLOAT:
     ((CommandResult_Float *)B)->Value(Bvalue);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)B)->Value(Ivalue);
+    Bvalue = Ivalue;
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)B)->Value(Bvalue);
     break;
   }
   switch (C->Type()) {
@@ -1631,12 +1671,18 @@ inline CommandResult *Calculate_StdDev  (CommandResult *A,
     Cvalue = Uvalue;
     break;
    case CMD_RESULT_INT:
-    int64_t Ivalue;
     ((CommandResult_Int *)C)->Value(Ivalue);
     Cvalue = Ivalue;
     break;
    case CMD_RESULT_FLOAT:
     ((CommandResult_Float *)C)->Value(Cvalue);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)C)->Value(Ivalue);
+    Cvalue = Ivalue;
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)C)->Value(Cvalue);
     break;
   }
   if (Cvalue <= 1.0) {
@@ -1658,6 +1704,7 @@ inline CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
 
   double Avalue;
   double Bvalue;
+  int64_t Ivalue;
 
   switch (A->Type()) {
    case CMD_RESULT_UINT:
@@ -1666,12 +1713,18 @@ inline CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
     Avalue = Uvalue;
     break;
    case CMD_RESULT_INT:
-    int64_t Ivalue;
     ((CommandResult_Int *)A)->Value(Ivalue);
     Avalue = Ivalue;
     break;
    case CMD_RESULT_FLOAT:
     ((CommandResult_Float *)A)->Value(Avalue);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(Ivalue);
+    Avalue = Ivalue;
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(Avalue);
     break;
   }
   switch (B->Type()) {
@@ -1681,12 +1734,18 @@ inline CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
     Bvalue = Uvalue;
     break;
    case CMD_RESULT_INT:
-    int64_t Ivalue;
     ((CommandResult_Int *)B)->Value(Ivalue);
     Bvalue = Ivalue;
     break;
    case CMD_RESULT_FLOAT:
     ((CommandResult_Float *)B)->Value(Bvalue);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)B)->Value(Ivalue);
+    Bvalue = Ivalue;
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)B)->Value(Bvalue);
     break;
   }
 
