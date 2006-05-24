@@ -199,6 +199,7 @@ AC_CONFIG_FILES(
 	plugins/views/mpi/Makefile
 	plugins/views/mpit/Makefile
 	plugins/views/usertime/Makefile
+	plugins/views/fpe/Makefile
 	plugins/wizards/Makefile
 	plugins/wizards/IntroWizardPanel/Makefile
 	plugins/wizards/pcSampleWizardPanel/Makefile

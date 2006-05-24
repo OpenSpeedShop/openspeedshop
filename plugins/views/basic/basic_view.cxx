@@ -25,6 +25,21 @@ using namespace OpenSpeedShop::cli;
 
 // pcsamp view
 
+static std::string allowed_pcsamp_V_options[] = {
+  "LinkedObject",
+  "LinkedObjects",
+  "Dso",
+  "Dsos",
+  "Function", 
+  "Functions",
+  "Statement",
+  "Statements",
+  "Summary",
+  "data",       // Raw data output for scripting
+  ""
+};
+
+
 static bool define_pcsamp_columns (
             CommandObject *cmd,
             ExperimentObject *exp,
@@ -36,42 +51,65 @@ static bool define_pcsamp_columns (
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   int64_t last_column = 0;
   int64_t last_metric = 0;
-  vector<ParseRange>::iterator mi;
-  for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
-    parse_range_t *m_range = (*mi).getRange();
-    std::string C_Name;
-    std::string M_Name;
-    if (m_range->is_range) {
-      C_Name = m_range->start_range.name;
-      if (strcasecmp(C_Name.c_str(), "pcsamp")) {
-       // We only know what to do with the pcsamp collector.
-        std::string s("The specified collector, " + C_Name +
-                      ", can not be displayed as part of a 'pcsamp' view.");
-        Mark_Cmd_With_Soft_Error(cmd,s);
-        return false;
+
+  bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+
+  if (Generate_Summary) {
+   // Total time is always displayed - also add display of the summary time.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
+  }
+
+  if (p_slist->begin() != p_slist->end()) {
+   // Add modifiers to output list.
+    vector<ParseRange>::iterator mi;
+    for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
+      parse_range_t *m_range = (*mi).getRange();
+      std::string C_Name;
+      std::string M_Name;
+      if (m_range->is_range) {
+        C_Name = m_range->start_range.name;
+        if (strcasecmp(C_Name.c_str(), "pcsamp")) {
+         // We only know what to do with the pcsamp collector.
+          std::string s("The specified collector, " + C_Name +
+                        ", can not be displayed as part of a 'pcsamp' view.");
+          Mark_Cmd_With_Soft_Error(cmd,s);
+          return false;
+        }
+        M_Name = m_range->end_range.name;
+      } else {
+        M_Name = m_range->start_range.name;
       }
-      M_Name = m_range->end_range.name;
-    } else {
-      M_Name = m_range->start_range.name;
+
+      if (!strcasecmp(M_Name.c_str(), "time") ||
+          !strcasecmp(M_Name.c_str(), "times")) {
+        IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column, last_metric));
+        HV.push_back("CPU Time");
+        last_column++;
+        last_metric++;
+      } else if (!strcasecmp(M_Name.c_str(), "percent") ||
+                 !strcmp(M_Name.c_str(), "%")           ||
+                 !strcasecmp(M_Name.c_str(), "%time")   ||
+                 !strcasecmp(M_Name.c_str(), "%times")) {
+       // percent is calculate from 2 temps: time for this row and total time.
+        IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
+        IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is %
+        HV.push_back("% of Total CPU Time");
+        last_column++;
+      } else {
+       // Unrecognized '-m' option.
+        Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
+      }
     }
 
-    if (!strcasecmp(M_Name.c_str(), "time") ||
-        !strcasecmp(M_Name.c_str(), "times")) {
-      Collector C = Get_Collector (exp->FW(), "pcsamp");
-      CV.push_back(C);
-      MV.push_back("time");
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column, last_metric));
-      last_column++;
-      last_metric++;
-    } else {
-     // We only know what to do with the pcsamp collector.
-      std::string s("The specified metric, " + M_Name +
-                    ", is not available as part of a 'pcsamp' view.");
-      Mark_Cmd_With_Soft_Error(cmd,s);
-      return false;
-    }
+  } else {
+   // If nothing is requested ...
+   // There is only 1 supported metric.  Use it and also generate the percent.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
+    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is %
+    last_column += 2;
   }
-  return true;
+  return (last_column > 0);
 }
 
 static std::string VIEW_pcsamp_brief = "PC (Program Counter) report";
@@ -120,21 +158,17 @@ class pcsamp_view : public ViewType {
     std::vector<std::string> MV;
     std::vector<ViewInstruction *>IV;
     std::vector<std::string> HV;
+    MV.push_back(VIEW_pcsamp_metrics[0]);  // Use the Collector with the first metric
 
-    OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-    vector<ParseRange> *p_slist = p_result->getexpMetricList();
-    if (!p_slist->empty()) {
-     // Use the metrics that the user listed.
-      if (!define_pcsamp_columns (cmd, exp, CV, MV, IV, HV)) {
-        return false;
-      }
-    } else {
-     // There is only 1 supported metric.  Use it and also generate the percent.
-      CV.push_back( Get_Collector (exp->FW(), VIEW_pcsamp_collectors[0]) ); // use pcsamp collector
-      MV.push_back(VIEW_pcsamp_metrics[0]);  // Use the Collector with the first metric
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
-      IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is %
+   // Warn about misspelled of meaningless options.
+    Validate_V_Options (cmd, allowed_pcsamp_V_options);
+
+   // Initialize the one supported metric.
+    CV.push_back( Get_Collector (exp->FW(), VIEW_pcsamp_collectors[0]) ); // use pcsamp collector
+
+   // Look for user override of '-m' options.
+    if (!define_pcsamp_columns (cmd, exp, CV, MV, IV, HV)) {
+      return false;
     }
 
     return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
@@ -143,7 +177,22 @@ class pcsamp_view : public ViewType {
 
 // Hardware Counter Report
 
-static bool define_hwctime_columns (
+static std::string allowed_hwc_V_options[] = {
+  "LinkedObject",
+  "LinkedObjects",
+  "Dso",
+  "Dsos",
+  "Function",
+  "Functions",
+  "Statement",
+  "Statements",
+  "Summary",
+  "data",       // Raw data output for scripting
+  ""
+};
+
+
+static bool define_hwc_columns (
             CommandObject *cmd,
             ExperimentObject *exp,
             std::vector<Collector>& CV,
@@ -154,47 +203,78 @@ static bool define_hwctime_columns (
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   int64_t last_column = 0;
   int64_t last_metric = 0;
-  vector<ParseRange>::iterator mi;
-  for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
-    parse_range_t *m_range = (*mi).getRange();
-    std::string C_Name;
-    std::string M_Name;
-    if (m_range->is_range) {
-      C_Name = m_range->start_range.name;
-      if (strcasecmp(C_Name.c_str(), "hwc")) {
-       // We only know what to do with the hwc collector.
-        std::string s("The specified collector, " + C_Name +
-                      ", can not be displayed as part of a 'hwc' view.");
-        Mark_Cmd_With_Soft_Error(cmd,s);
-        return false;
+
+  bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  
+  if (Generate_Summary) {
+   // Total time is always displayed - also add display of the summary time.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
+  }
+
+  if (p_slist->begin() != p_slist->end()) {
+   // Add modifiers to output list.
+    vector<ParseRange>::iterator mi;
+    for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
+      parse_range_t *m_range = (*mi).getRange();
+      std::string C_Name;
+      std::string M_Name;
+      if (m_range->is_range) {
+        C_Name = m_range->start_range.name;
+        if (strcasecmp(C_Name.c_str(), "hwc")) {
+         // We only know what to do with the hwc collector.
+          std::string s("The specified collector, " + C_Name +
+                        ", can not be displayed as part of a 'hwc' view.");
+          Mark_Cmd_With_Soft_Error(cmd,s);
+          return false;
+        }
+        M_Name = m_range->end_range.name;
+      } else {
+        M_Name = m_range->start_range.name;
       }
-      M_Name = m_range->end_range.name;
-    } else {
-      M_Name = m_range->start_range.name;
+
+      if (!strcasecmp(M_Name.c_str(), "overflow") ||
+          !strcasecmp(M_Name.c_str(), "overflows")) {
+        Collector C = Get_Collector (exp->FW(), "hwc");
+        CV.push_back(C);
+        MV.push_back("overflows");
+        IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column, last_metric));
+       // Get the name of the event that we were collecting.
+       // Use this for the column header in the report rather then the name of the metric.
+        std::string H;
+        C.getParameterValue ("event", H);
+        HV.push_back(H);
+        last_column++;
+        last_metric++;
+      } else if (!strcasecmp(M_Name.c_str(), "percent") ||
+                 !strcmp(M_Name.c_str(), "%")           ||
+                 !strcasecmp(M_Name.c_str(), "%overflow")   ||
+                 !strcasecmp(M_Name.c_str(), "%overflows")) {
+       // percent is calculate from 2 temps: time for this row and total time.
+        IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
+        IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is %
+        HV.push_back("% of Total Overflows");
+        last_column++;
+      } else {
+       // Unrecognized '-m' option.
+        Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
+      }
     }
 
-    if (!strcasecmp(M_Name.c_str(), "overflow") ||
-        !strcasecmp(M_Name.c_str(), "overflows")) {
-      Collector C = Get_Collector (exp->FW(), "hwc");
-      CV.push_back(C);
-      MV.push_back("overflows");
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column, last_metric));
-     // Get the name of the event that we were collecting.
-     // Use this for the column header in the report rather then the name of the metric.
-      std::string H;
-      C.getParameterValue ("event", H);
-      HV.push_back(H);
-      last_column++;
-      last_metric++;
-    } else {
-     // We only know what to do with the hwc collector.
-      std::string s("The specified metric, " + M_Name +
-                    ", is not available as part of a 'hwc' view.");
-      Mark_Cmd_With_Soft_Error(cmd,s);
-      return false;
-    }
+  } else {
+   // If nothing is requested ...
+   // There is only 1 supported metric.  Use it and also generate the percent.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
+    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // metric is total
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is % of first
+
+   // Get the name of the event that we were collecting.
+   // Use this for the column header in the report rather then the name of the metric.
+    std::string H;
+    CV[0].getParameterValue ("event", H);
+    HV.push_back(H);
+    HV.push_back("% of Total Overflows");
   }
-  return true;
+  return (last_column > 0);
 }
 
 static std::string VIEW_hwc_brief = "Hardware counter report";
@@ -246,26 +326,15 @@ class hwc_view : public ViewType {
     std::vector<ViewInstruction *>IV;
     std::vector<std::string> HV;
 
-    OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-    vector<ParseRange> *p_slist = p_result->getexpMetricList();
-    if (!p_slist->empty()) {
-     // Use the metrics that the user listed.
-      if (!define_hwctime_columns (cmd, exp, CV, MV, IV, HV)) {
-        return false;
-      }
-    } else {
-     // There is only 1 supported metric.  Use it and add percent for the default view.
-      CV.push_back (Get_Collector (exp->FW(), VIEW_hwc_collectors[0]));  // Get the collector
-      MV.push_back(VIEW_hwc_metrics[0]);  // Get the name of the metric
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
-      IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // metric is total
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is % of first
-
-     // Get the name of the event that we were collecting.
-     // Use this for the column header in the report rather then the name of the metric.
-      std::string H;
-      CV[0].getParameterValue ("event", H);
-      HV.push_back(H);
+   // Warn about misspelled of meaningless options.
+    Validate_V_Options (cmd, allowed_hwc_V_options);
+  
+   // Initialize the one supported metric.
+    CV.push_back( Get_Collector (exp->FW(), VIEW_hwc_collectors[0]) ); // use hwc collector
+    
+   // Look for user override of '-m' options.
+    if (!define_hwc_columns (cmd, exp, CV, MV, IV, HV)) {
+      return false;
     }
 
     return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);

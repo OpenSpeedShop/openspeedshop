@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -16,15 +16,23 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = basic \
-          hwctime \
-          usertime \
-          mpi \
-          mpi \
-          mpit \
-          io \
-          iot \
-          fpe
+pkglib_LTLIBRARIES = fpe_view.la
 
-doc:
-	$(DOXYGEN)
+BUILT_SOURCES =
+
+fpe_view_la_CXXFLAGS = \
+	@PYTHON_CPPFLAGS@ \
+	-I$(top_srcdir)/libopenss-queries \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-cli \
+	-I$(top_srcdir)/plugins/collectors/fpe \
+	-I$(top_srcdir)/libopenss-message 
+
+fpe_view_la_LDFLAGS = \
+	-no-undefined -module -avoid-version
+
+fpe_view_la_SOURCES = \
+	fpe_view.cxx
+
+SUFFIXES = .x .cxx
+CLEANFILES = $(BUILT_SOURCES)
