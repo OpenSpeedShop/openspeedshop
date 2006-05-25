@@ -26,7 +26,7 @@ EXTRA_DIST = help.adp
 package = @PACKAGE@
 packver = @PACKAGE@-@VERSION@
 #docdir  = ${prefix}/share/doc/@PACKAGE@-@VERSION@
-docdir  = ${prefix}/share/doc/openspeedshop
+docdir  = ${prefix}/share/doc/packages/OpenSpeedShop
 
 install-reference: help.adp
 	@$(NORMAL_INSTALL)

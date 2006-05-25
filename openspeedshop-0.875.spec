@@ -83,7 +83,7 @@ make install
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
-rm -rf /usr/share/doc/openspeedshop
+rm -rf /usr/share/doc/packages/OpenSpeedShop
 
 
 # installation is in --prefix dir. ($RPM_BUILD_ROOT/usr/
@@ -93,14 +93,14 @@ rm -rf /usr/share/doc/openspeedshop
 # to the list of directories that will contain documentation.
 #%docdir /usr/share/doc/%{name}-%{version}-%{release}
 #
-%docdir /usr/share/doc/openspeedshop
-/usr/share/doc/openspeedshop
-%docdir /usr/share/doc/openspeedshop/users_guide
-/usr/share/doc/openspeedshop/users_guide
-%docdir /usr/share/doc/openspeedshop/cli_doc
-/usr/share/doc/openspeedshop/cli_doc
-%docdir /usr/share/doc/openspeedshop/plugin_guide
-/usr/share/doc/openspeedshop/plugin_guide
+%docdir /usr/share/doc/packages/OpenSpeedShop
+/usr/share/doc/packages/OpenSpeedShop
+%docdir /usr/share/doc/packages/OpenSpeedShop/users_guide
+/usr/share/doc/packages/OpenSpeedShop/users_guide
+%docdir /usr/share/doc/packages/OpenSpeedShop/cli_doc
+/usr/share/doc/packages/OpenSpeedShop/cli_doc
+%docdir /usr/share/doc/packages/OpenSpeedShop/plugin_guide
+/usr/share/doc/packages/OpenSpeedShop/plugin_guide
 
 # installation attributes for files installed from the rpm packages.
 %defattr(-,root,root)

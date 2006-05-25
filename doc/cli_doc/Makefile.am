@@ -37,8 +37,8 @@ package = @PACKAGE@
 packver = @PACKAGE@-@VERSION@
 #docdir  = ${prefix}/share/doc/@PACKAGE@-@VERSION@/cli_doc
 #docdir3  = ${prefix}/share/doc/@PACKAGE@-@VERSION@
-docdir  = ${prefix}/share/doc/openspeedshop/cli_doc
-docdir3  = ${prefix}/share/doc/openspeedshop
+docdir  = ${prefix}/share/doc/packages/OpenSpeedShop/cli_doc
+docdir3  = ${prefix}/share/doc/packages/OpenSpeedShop
 
 install-reference: index.html
 	@$(NORMAL_INSTALL)

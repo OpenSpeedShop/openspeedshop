@@ -82,9 +82,9 @@ packver = @PACKAGE@-@VERSION@
 #docdir  = ${prefix}/share/doc/@PACKAGE@-@VERSION@/users_guide
 #docdir2  = ${prefix}/share/doc/@PACKAGE@-@VERSION@/users_guide/TroubleShootingGuide
 #docdir3  = ${prefix}/share/doc/@PACKAGE@-@VERSION@
-docdir  = ${prefix}/share/doc/openspeedshop/users_guide
-docdir2  = ${prefix}/share/doc/openspeedshop/users_guide/TroubleShootingGuide
-docdir3  = ${prefix}/share/doc/openspeedshop
+docdir  = ${prefix}/share/doc/packages/OpenSpeedShop/users_guide
+docdir2  = ${prefix}/share/doc/packages/OpenSpeedShop/users_guide/TroubleShootingGuide
+docdir3  = ${prefix}/share/doc/packages/OpenSpeedShop
 
 install-reference: index.html
 	@$(NORMAL_INSTALL)

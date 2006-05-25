@@ -34,8 +34,8 @@ EXTRA_DIST	=  \
 
 package = @PACKAGE@
 packver = @PACKAGE@-@VERSION@
-docdir  = ${prefix}/share/doc/openspeedshop/plugin_guide
-docdir3  = ${prefix}/share/doc/openspeedshop
+docdir  = ${prefix}/share/doc/packages/OpenSpeedShop/plugin_guide
+docdir3  = ${prefix}/share/doc/packages/OpenSpeedShop
 
 install-reference: index.html
 	@$(NORMAL_INSTALL)
