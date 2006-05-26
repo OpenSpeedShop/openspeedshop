@@ -26,38 +26,25 @@
 // Additional items may be defined for individual collectors.
 
 // These are needed to manage fpe collector data.
-#define intime_temp 2
-#define incnt_temp 3
-#define extime_temp 4
-#define excnt_temp 5
-#define start_temp 6
-#define stop_temp 7
-#define min_temp 8
-#define max_temp 9
-#define ssq_temp 10
+#define excnt_temp VMulti_free_temp
+#define incnt_temp VMulti_free_temp+1
+#define start_temp VMulti_free_temp+2
+#define fpeType_temp VMulti_free_temp+3
 
 // fpe view
 
-#define def_FPE_values                           \
-            Time start = Time::TheEnd();         \
-            Time end = Time::TheBeginning();     \
-            double intime = 0.0;                 \
-            int64_t incnt = 0;                   \
-            double extime = 0.0;                 \
-            int64_t excnt = 0;                   \
-            double vmax = 0.0;                   \
-            double vmin = LONG_MAX;              \
-            double sum_squares = 0.0;
+#define def_FPE_values                                 \
+            Time start = Time::TheEnd();               \
+            int64_t incnt = 0;                         \
+            int64_t excnt = 0;                         \
+            int64_t fpeType = 0;
 
-#define get_FPE_invalues(primary,num_calls)                      \
-              double v; /* = primary.dm_time / num_calls; */         \
-              intime += v;                                       \
-              incnt++;                                           \
-              vmin = min(vmin,v);                                \
-              vmax = max(vmax,v);                                \
-              sum_squares += v * v;
+#define get_FPE_invalues(primary, num_calls)           \
+              start = min(start,primary.dm_time);      \
+              fpeType = primary.dm_type;               \
+              incnt++;
 
-#define get_FPE_exvalues(secondary,num_calls)          \
+#define get_FPE_exvalues(secondary,num_calls)           \
               excnt++;
 
 #define get_inclusive_values(stdv, num_calls)           \
@@ -76,54 +63,19 @@
             }                                           \
 }
 
-#define set_FPE_values(value_array, sort_extime)                                          \
-              if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;     \
-              if (num_temps > start_temp) {                                               \
-                int64_t x= (start-base_time);                                             \
-                value_array[start_temp] = new CommandResult_Duration (x);                 \
-              }                                                                           \
-              if (num_temps > stop_temp) {                                                \
-                int64_t x= (end-base_time);                                               \
-                value_array[stop_temp] = new CommandResult_Duration (x);                  \
-              }                                                                           \
-              if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp]             \
-                            = new CommandResult_Interval (sort_extime ? extime : intime); \
-              if (num_temps > intime_temp) value_array[intime_temp]                       \
-                            = new CommandResult_Interval (intime);                        \
-              if (num_temps > incnt_temp) value_array[incnt_temp] = CRPTR (incnt);        \
-              if (num_temps > extime_temp) value_array[extime_temp]                       \
-                            = new CommandResult_Interval (extime);                        \
-              if (num_temps > excnt_temp) value_array[excnt_temp] = CRPTR (excnt);        \
-              if (num_temps > min_temp) value_array[min_temp]                             \
-                            = new CommandResult_Interval (vmin);                          \
-              if (num_temps > max_temp) value_array[max_temp]                             \
-                            = new CommandResult_Interval (vmax);                          \
-              if (num_temps > ssq_temp) value_array[ssq_temp]                             \
-                            = new CommandResult_Interval (sum_squares);
-
-static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
- // Determine which metric is the primary.
-  int64_t master_temp = 0;
-  int64_t search_column = 0;
-
-  while ((search_column == 0) &&
-         (search_column < IV.size())) {
-    ViewInstruction *primary_column = Find_Column_Def (IV, search_column++);
-    if (primary_column == NULL) {
-      break;
-    }
-    if (primary_column->OpCode() == VIEWINST_Display_Tmp) {
-      master_temp = primary_column->TMP1();
-      break;
-    }
-  }
-
-  if ((master_temp != intime_temp) &&
-      (master_temp != extime_temp)) {
-    master_temp = intime_temp;
-  }
-  return (master_temp == intime_temp);
-}
+#define set_FPE_values(value_array, sort_excnt)                                              \
+              if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;        \
+              if (num_temps > start_temp) {                                                  \
+                int64_t x= (start-base_time);                                                \
+                value_array[start_temp] = new CommandResult_Duration (x);                    \
+              }                                                                              \
+              if (num_temps > VMulti_time_temp)  {                                           \
+               /* By default, sort on counts, not time. */                                   \
+                value_array[VMulti_time_temp]  = CRPTR (sort_excnt ? excnt : incnt);         \
+              }                                                                              \
+              if (num_temps > incnt_temp) value_array[incnt_temp] = CRPTR (incnt);           \
+              if (num_temps > excnt_temp) value_array[excnt_temp] = CRPTR (excnt);           \
+              if (num_temps > fpeType_temp) value_array[fpeType_temp] = CRPTR (fpeType);
 
 #define def_Detail_values def_FPE_values
 #define set_Detail_values set_FPE_values
@@ -132,8 +84,14 @@ static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
 
 
 static std::string allowed_fpe_V_options[] = {
+  "LinkedObject",
+  "LinkedObjects",
+  "Dso",
+  "Dsos",
   "Function",
   "Functions",
+  "Statement",
+  "Statements",
   "Trace",
   "ButterFly",
   "CallTree",
@@ -149,23 +107,19 @@ static std::string allowed_fpe_V_options[] = {
 
 static bool define_fpe_columns (
             CommandObject *cmd,
+            std::vector<std::string>& MV,
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV,
             View_Form_Category vfc) {
   int64_t last_column = 0;  // Total time is always placed in first column.
+  bool user_defined = false;
 
  // Define combination instructions for predefined temporaries.
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Min, start_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Max, stop_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_time_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Add, intime_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, incnt_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Add, extime_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Min, min_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Max, max_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Add, ssq_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, excnt_temp));
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
@@ -209,86 +163,58 @@ static bool define_fpe_columns (
      // Try to match the name with built in values.
       if (M_Name.length() > 0) {
         // Select temp values for columns and build column headers
-        if (!strcasecmp(M_Name.c_str(), "time") ||
-            !strcasecmp(M_Name.c_str(), "times") ||
-            !strcasecmp(M_Name.c_str(), "inclusive_time") ||
-            !strcasecmp(M_Name.c_str(), "inclusive_times") ||
-            !strcasecmp(M_Name.c_str(), "inclusive_detail") ||
-            !strcasecmp(M_Name.c_str(), "inclusive_details")) {
-         // display sum of times
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
-          HV.push_back("Inclusive Time(ms)");
-          last_column++;
-        } else if (!strcasecmp(M_Name.c_str(), "exclusive_time") ||
-                   !strcasecmp(M_Name.c_str(), "exclusive_times") ||
-                   !strcasecmp(M_Name.c_str(), "exclusive_detail") ||
-                   !strcasecmp(M_Name.c_str(), "exclusive_details")) {
-         // display times
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, extime_temp));
-          HV.push_back("Exclusive Time(ms)");
-          last_column++;
-        } else if (!strcasecmp(M_Name.c_str(), "min")) {
-         // display min time
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, min_temp));
-          HV.push_back("Min Time(ms)");
-          last_column++;
-        } else if (!strcasecmp(M_Name.c_str(), "max")) {
-         // display max time
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, max_temp));
-          HV.push_back("Max Time(ms)");
-          last_column++;
-        } else if ( !strcasecmp(M_Name.c_str(), "count") ||
-                    !strcasecmp(M_Name.c_str(), "counts") ||
-                    !strcasecmp(M_Name.c_str(), "inclusive_count") ||
-                    !strcasecmp(M_Name.c_str(), "inclusive_counts") ||
-                    !strcasecmp(M_Name.c_str(), "call") ||
-                    !strcasecmp(M_Name.c_str(), "calls") ) {
-         // display total counts
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, incnt_temp));
-          HV.push_back("Number of Calls");
-          last_column++;
-          last_column++;
-        } else if ( !strcasecmp(M_Name.c_str(), "exclusive_count") ||
-                    !strcasecmp(M_Name.c_str(), "exclusive_counts")) {
+         if ( !strcasecmp(M_Name.c_str(), "count") ||
+              !strcasecmp(M_Name.c_str(), "counts") ||
+              !strcasecmp(M_Name.c_str(), "exclusive_count") ||
+              !strcasecmp(M_Name.c_str(), "exclusive_counts") ||
+              !strcasecmp(M_Name.c_str(), "exclusive_detail") ||
+              !strcasecmp(M_Name.c_str(), "exclusive_details") ||
+              !strcasecmp(M_Name.c_str(), "call") ||
+              !strcasecmp(M_Name.c_str(), "calls") ) {
          // display total exclusive counts
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, excnt_temp));
-          HV.push_back("Exclusive Calls");
-          last_column++;
-        } else if (!strcasecmp(M_Name.c_str(), "average")) {
-         // average time is calculated from two temps: sum and total counts.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column, VMulti_time_temp, intime_temp));
-          HV.push_back("Average Time(ms)");
-          last_column++;
-        } else if (!strcasecmp(M_Name.c_str(), "percent")) {
-         // percent is calculate from 2 temps: time for this row and total time.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column, intime_temp));
-          HV.push_back("% of Total");
-          last_column++;
-        } else if (!strcasecmp(M_Name.c_str(), "stddev")) {
-         // The standard deviation is calculated from 3 temps: sum, sum of squares and total counts.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_StdDeviation_Tmp, last_column,
-                                            VMulti_time_temp, ssq_temp, intime_temp));
-          HV.push_back("Standard Deviation");
-          last_column++;
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
+          HV.push_back("Number of Events");
+          user_defined = true;
+        } else if ( !strcasecmp(M_Name.c_str(), "inclusive_count") ||
+                    !strcasecmp(M_Name.c_str(), "inclusive_counts") ||
+                    !strcasecmp(M_Name.c_str(), "inclusive_detail") ||
+                    !strcasecmp(M_Name.c_str(), "inclusive_details")) {
+         // display total inclusive counts
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, incnt_temp));
+          HV.push_back("Inclusive Events");
+          user_defined = true;
+        } else if ( !strcasecmp(M_Name.c_str(), "Type") ||
+                    !strcasecmp(M_Name.c_str(), "Types")) {
+         // display the event type
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, fpeType_temp));
+          HV.push_back("Inclusive Events");
+          user_defined = true;
         } else if (!strcasecmp(M_Name.c_str(), "start_time")) {
           if (vfc == VFC_Trace) {
-           // display start time
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, start_temp));
-            HV.push_back("Start Time(d:h:m:s)");
-            last_column++;
+           // display event time
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
+            HV.push_back("Event Time(d:h:m:s)");
             column_is_DateTime = true;
+            user_defined = true;
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m start_time' only supported for '-v Trace' option.");
           }
-        } else if (!strcasecmp(M_Name.c_str(), "stop_time")) {
-          if (vfc == VFC_Trace) {
-           // display stop time
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, stop_temp));
-            HV.push_back("Stop Time(d:h:m:s)");
-            last_column++;
-            column_is_DateTime = true;
+        } else if ( !strcasecmp(M_Name.c_str(), "division_by_zero_count") ||
+                    !strcasecmp(M_Name.c_str(), "inexact_result_count") ||
+                    !strcasecmp(M_Name.c_str(), "invalid_count") ||
+                    !strcasecmp(M_Name.c_str(), "overflow_count") ||
+                    !strcasecmp(M_Name.c_str(), "underflow_count") ||
+                    !strcasecmp(M_Name.c_str(), "unknown_count") ||
+                    !strcasecmp(M_Name.c_str(), "unnormal_count")) {
+         // display specific exception counts
+         // Accomplish this by changing the requested metric.
+          if (MV[0] == "inclusive_details") {
+            MV[0] = M_Name;
           } else {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m stop_time' only supported for '-v Trace' option.");
+            std::string S("Error: a single view can not display both ");
+            S = S + MV[0] + " and " + M_Name;
+            Mark_Cmd_With_Soft_Error(cmd,S);
+            return false;
           }
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
@@ -298,33 +224,28 @@ static bool define_fpe_columns (
         IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, (int64_t)(column_is_DateTime) ? 1 : 0));
       }
     }
-  } else if (Generate_ButterFly) {
-   // Default ButterFly view.
-   // Column[0] is inclusive time
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
-    HV.push_back("Inclusive Time(ms)");
-    last_column++;
+  } 
 
-  // Column[1] in % of inclusive time
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column, intime_temp));
-    HV.push_back("% of Total");
-    last_column++;
-  } else {
-   // If nothing is requested ...
-    if (vfc == VFC_Trace) {
-      // Insert start and end times into report.
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, start_temp));
-      HV.push_back("Start Time(d:h:m:s)");
-      IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
-      last_column++;
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, stop_temp));
-      HV.push_back("Stop Time(d:h:m:s)");
-      last_column++;
+  if (!user_defined) {
+    if (Generate_ButterFly) {
+     // Default ButterFly view.
+     // Column[0] is inclusive time
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
+      HV.push_back("Event Counts");
+    } else {
+     // If nothing is requested ...
+      if (vfc == VFC_Trace) {
+        // Insert event time into report.
+        IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
+        HV.push_back("Event Time(d:h:m:s)");
+        IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
+      }
+     // Always display counts.
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, VMulti_time_temp));
+      HV.push_back("Event Counts");
     }
-   // Always display elapsed time.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, VMulti_time_temp));
-    HV.push_back("Exclusive Time(ms)");
   }
+  return (HV.size() > 0);
 }
 
 static bool fpe_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t topn,
@@ -355,7 +276,7 @@ static bool fpe_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t 
     }
 
     Validate_V_Options (cmd, allowed_fpe_V_options);
-    return define_fpe_columns (cmd, IV, HV, vfc);
+    return define_fpe_columns (cmd, MV, IV, HV, vfc);
 }
 
 
@@ -419,8 +340,8 @@ static std::string VIEW_fpe_long  = "\nA positive integer can be added to the en
 static std::string VIEW_fpe_example = "\texpView fpe\n"
                                       "\texpView -v CallTrees,FullStack fpe10 -m min,max,count\n";
 static std::string VIEW_fpe_metrics[] =
-  { "inclusive_details",
-    "exclusive_details",
+  { "exclusive_details",
+    "inclusive_details",
     "division_by_zero_count",
     "inexact_result_count",
     "invalid_count",
@@ -469,23 +390,31 @@ class fpe_view : public ViewType {
        case VFC_Trace:
         if (Look_For_KeyWord(cmd, "ButterFly")) {
           return Detail_ButterFly_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                                          Determine_Metric_Ordering(IV), &dummyVector, view_output);
+                                          true, &dummyVector, view_output);
         } else {
           return Detail_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                                      Determine_Metric_Ordering(IV), dummyDetail, view_output);
+                                      true, dummyDetail, view_output);
         }
        case VFC_CallStack:
         return Detail_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                                        Determine_Metric_Ordering(IV), &dummyVector, view_output);
+                                        true, &dummyVector, view_output);
        case VFC_Function:
-        Framework::Function *dummyObject;
+        Framework::Function *fp;
         return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                                   Determine_Metric_Ordering(IV), dummyObject, VFC_Function, &dummyVector, view_output);
+                                   true, fp, vfc, &dummyVector, view_output);
+       case VFC_LinkedObject:
+        LinkedObject *lp;
+        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                   true, lp, vfc, &dummyVector, view_output);
+       case VFC_Statement:
+        Statement *sp;
+        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                   true, sp, vfc, &dummyVector, view_output);
       }
-      Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
+      Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name supplied.)");
       return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(There is no requested information to report.)");
     return false;
   }
 };
