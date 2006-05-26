@@ -33,7 +33,7 @@ Four candidates were chosen for the study conducted on 05/24/06.
 This time the users were asked to do a much more difficult task
 than in the previous 2 studies.    It was hit-or-miss on whether the
 candidates completed the first half of the task.   However, the information
-gained while watching their stuggles will greatly help move the GUI further
+gained while watching their struggles will greatly help move the GUI further
 along to be easier to use.
 
 In this study the users were asked to compare 2 runs of a benchmark
@@ -82,7 +82,7 @@ first section is, in my opinion, the big ticket items.
     and bring up an experiment panel for each experiment being
     compared.   For example: In the scenario for the usability
     study, once the user completed the CompareWizard, three panels
-    should be displayed.  CompareExperimentPanel, UserTime for
+    should be displayed.  CompareExperimentsPanel, UserTime for
     experiment 1, and UserTime for experiment 2.
 
     Additionally, menu items to bring these panels back up (in case
@@ -99,7 +99,7 @@ first section is, in my opinion, the big ticket items.
       - Open Experiment #1 (data file name)
       - Open Experiment #2 (data file name)
 
-4 - The online help needs to be relevent.  For this study, help
+4 - The online help needs to be relevant.  For this study, help
     was made available and many users went down the path.  
     Unfortunately, the help text still isn't ready for this sort
     of usage and needs major work.
@@ -155,7 +155,7 @@ first section is, in my opinion, the big ticket items.
     "Query Source Lines" -or- "Show Source Lines".
 
 10- There needs to be an easier way to generate a report, "Show by 
-    Proceesses", from the reports (metric?) menu.   Some simple
+    Processes", from the reports (metric?) menu.   Some simple
     "Show Each,  "Show each by",  aka a "top' sort of command,
     allowing the user to provide a metric.  This would duplicate
     the functionality of the Customize Stats Panel, but would limit
@@ -188,7 +188,7 @@ More minor, but important items:
     to the users that selecting pids was actually changing the
     data they were seeing.   (This may be learning process, but
     changing per column header help, header text, and "somehow"
-    labeling the report better may aleviate much of this confusion.
+    labeling the report better may alleviate much of this confusion.
 
 4 - Customize Stats Panel makes a reference to "process set".   We're
     migrating away from this term.   Something more appropriate
@@ -334,7 +334,7 @@ Other comments and requests:
 16- Change the wording for the "Recycle" flag to "Recycle Window" or 
     "Recycle Panel".
 
-17- Consider making "File->Open Exising Experiment" into a panel.  This
+17- Consider making "File->Open Existing Experiment" into a panel.  This
     has navigational features as well that may be very useful to an 
     advanced user who wants to manage many open panels.
 
