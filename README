@@ -16,49 +16,76 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-First you need to pull down and build a $ROOT.    (On hope there's one
-already
-built in /perftools/ROOT .
+	
+Open|SpeedShop™ Source Access Information
 
-hope.americas.sgi.com$ pwd
-/data/clink/tools/builds/perftools
-hope.americas.sgi.com$ ls
-autoconf-2.59.tgz    dpcl-dyninst-hybrid-20040617.tgz  qt-3.3.1.tgz
-automake-1.7.9.tgz   gcc-3.3.3.tgz                     setenv.csh
-binutils-2.14.tgz    libdwarf-20040203.tgz             setenv.sh
-boost_1_31_0.tar.gz  libelf-0.8.5.tgz                  tmake-1.11.tgz
-Build-Hybrid         libtool-1.5.2.tgz                 xxdiff-3.0.2.tgz
-Build-ROOT           libunwind-0.96-uwmadison.tgz
-doxygen-1.3.6.tgz    Python-2.3.4.tgz
+The Open|SpeedShop product consists of an "OpenSpeedShop" cvs 
+repository for the primary Open|SpeedShop code, including the 
+framework and user interface,  and the "OpenSpeedShop_ROOT" 
+cvs repository which includes supporting components which may, 
+or may not, already be installed on the system.   Two supporting 
+components, DPCL and Dyninst, must be installed from the OpenSpeedShop_ROOT 
+repository.   These two components are not available anywhere else at this 
+point.  They are provided in RPM and SRPM form.  
 
-$ su
-Password: xxxxxxxxxx
-# cd /
-# mkdir /perftools
-# chmod 777 /perftools
-exit
-$ cd /perftools
-$ rcp clink.americas.sgi.com:/data/clink/tools/builds/perftools/* .
-$ ./Build-ROOT /perftools/ROOT /perftools
-(Wait a very long time...)
-$ cd
+There are two ways to access the OpenSpeedShop  and OpenSpeedShop_ROOT code.
 
-The interesting environment variables are:
-. /perftools/ROOT/setenv.sh
-export OPENSPEEDSHOP_INSTALL_DIR=/tmp/OpenSpeedshop
-export OPENSPEEDSHOP_PLUGIN_PATH=$OPENSPEEDSHOP_INSTALL_DIR/lib/open-speedshop
-# You only need to set the following four entry points if you've
-# overridden them...
-# export OPENSPEEDSHOP_GUI_ENTRY_POINT=gui_init
-# export OPENSPEEDSHOP_CLI_ENTRY_POINT=cli_init
-# export OPENSPEEDSHOP_GUI_RELOCATABLE_NAME=ossgui.so
-# export OPENSPEEDSHOP_CLI_RELOCATABLE_NAME=posscli.so
-PATH=$PATH:.:$OPENSPEEDSHOP_INSTALL_DIR/bin
+    * SGI Releases
+      SGI provides a more stable release than the nightly cvs source 
+      tree.  These release(s) can be found in the download area
+      on oss.sgi.com/openspeedshop
+
+    * CVS trees
+      Direct CVS access to the most recent OpenSpeedShop changes. See below.
+
+Using CVS trees
+
+CVS for new users contains links to general CVS documentation.
+
+Set the CVSROOT environment variable.
+
+$ export CVSROOT=':pserver:cvs@oss.sgi.com:/oss/CVS_OpenSpeedShop'
+(for sh, bash, ksh, or similar shells)
+$ setenv CVSROOT  :pserver:cvs@oss.sgi.com:/oss/CVS_OpenSpeedShop
+(for csh or tcsh shells)
+ 
+
+Login to the CVS server (this only needs to be done ONCE, not every time you access CVS).
+
+$ cvs login
+(the password is "cvs")
+ 
+
+Now grab the OpenSpeedShop and OpenSpeedShop_ROOT source trees: 
+
+$ cvs checkout OpenSpeedShop
+$ cvs checkout OpenSpeedShop_ROOT
+ 
+
+Subsequently, you can checkout new code using: 
+
+$ cvs update -d
+ 
+
+export OPENSS_INSTALL_DIR=/tmp/OpenSpeedshop
+PATH=$PATH:.:$OPENSS_INSTALL_DIR/bin
 
 
-Set up your .workarea and from the directory named "current" directory type:
-$ p_tupdate
-$ ./mc
+Do the following commands in the OpenSpeedShop directory:
+
+Open|SpeedShop uses automake/autoconf in it's build process.  
+The sequence used to build Open|SpeedShop is as follows:
+
+    * # Go to the Open|SpeedShop top level source directory
+    * cd <openspeedshop source directory>
+    * # Create initial build files
+    * bootstrap
+    * # Configure Open|SpeedShop with or without optional installation directory designation
+    * configure [--prefix=<Open|SpeedShop Install Directory Path>]
+    * # Make and install Open|SpeedShop
+    * make install
+
+
 This will configure and build the GUI and framework portion of OpenSpeedShop.
 When the build completes you should be able to run.  The script to 
 launch the tool is openss. 
@@ -66,13 +93,4 @@ $ openss
 
 $ openss --help 
 Gives a simple usage command.
-
-
-To make the doxygen documentation: (again from the .../current directory)
-$ make doc
-$ export OPENSPEEDSHOP_DOC_DIR=<path_to_current_dir>/current/doc
-(Or whereever the documentation was moved to...)
-By default this is in the workarea/current/doc directory.
-
-
 
