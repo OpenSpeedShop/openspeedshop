@@ -1,0 +1,388 @@
+Candidates #1   (Helgi)
+
+  - Read scenario
+
+  - openss
+
+  - going to pcsampling experiment
+
+    wasn't obvious from Intro.   Went directly to CompareWizard
+
+    (Comments he usually ignores wizards.)
+
+  - Loaded Compare feature via wizard.
+
+  - User comments (asks) if red lines are diffs between files.
+  
+  - User was looking for expid #2 (first exeriment)
+  
+  - scrolling source.
+
+  - Source Panel, looking for key (Legend) for what red lines mean.
+
+* - Wants source diff from source panel to show both sides of the 
+    compare.
+
+    (User still hasn't found StatsPanel menu.)
+
+  - Repetively brings up new wizard panels.  (Overloading the 
+    area for tabs.)
+
+  - It's not obvious how to load 2 programs.   User goes back to
+    the wizard.
+
+* - Progress bar is blank too often.  ??? (Bug)
+
+  - User is absolutely frustrated and is having difficulties figuring
+    out where to go next.
+
+  - Looking for the top level menu.   (Al comment: Maybe put the 
+    context sensitive menu to the top menu bar.)
+
+* - Popup for deleting experiment (when hitting 'x' and deleting 
+    an experiment) should include a "Cancel" selection.
+
+* - Source Panel, when selecting on MPI* ?? takes you to the wrong
+    function.
+
+* - Don't bring up the Source Panel by default when selecting pid.
+
+Candidates #2  (Phillip)
+
+  - Finish was selected rather than next and this temporarily (very
+    minor) confused the user as it blew right past the summary text 
+    and loaded the files without giving the user any time to examine
+    the text.
+
+* - 2 vs 4 is confusing.  ("Why 4" was the comment.)  
+ 
+    This pertains to overloading cids and expIds.   This text 
+    "should" be exp1 and exp2 or the actual text of the experiment
+    file names.
+
+* - -c 3   -c5,    ??????    Very confused of the "-c".
+
+  - User found the menus.
+
+  - User went to main help.    This was not much help as it's very 
+    incomplete and unformated for GUI interactive help.   
+
+  - StatsPanel.   User was looking for "Summary Line", which the 
+    GUI currently doesn't support.
+
+  - Confused over exp numbers.  (who is who?)   The information in 
+    the headers is lacking (StatsPanel) as well as the headers are
+    in no way intuitive themselves.
+
+  - Confused over exp numbers and how they relate to experiment A and
+    B.
+  
+  - Looking (patiently) for line that took the most time.
+
+  - Did "Query Statements" and commented "Ahh, interesting."
+
+  - Trying to open source for second experiment.
+
+* - Wants a diff of the 2 source files.   (Can't find menu to 
+    select focused experiment.
+
+  - Tries "help" to get to the second source file.
+
+  - (Al comment)  Would it help to have a separate "Goto Source"
+    for each experiment.
+
+  - User went to separate experiment ... only working with "B".
+
+* - Compare experiment.   User went directly to the compare experiment
+    and a black panel container was displayed.   
+
+  - Reordered the compare.
+
+  - Queried Statements.
+
+  - IDS ARE SOURCE OF MAJOR CONFUSION
+
+  - User requests source diff of experiments.
+
+  - Chart for statements report is not relevant and comes up 
+    as N/A (Mars ball....)
+
+  - Trying to determine which process.
+
+* - Looking for process report off metric menu.
+
+  - Looking for processes selection that was a 'per' experiment
+    but is laking from the CEP.
+
+  - Stumbled on the CustomizeStatsPanel.
+
+  - Looking at "help" again.  (We need to do more here.)
+
+* - Looking in help for ManageProcessesPanel (because the 
+    popup help in the CSP is wrong/misleading.)
+
+* - Bug: In compare experiment panel, changing manage processes
+    panel's preferences caused major focus issue and gave menu
+    for pid list.
+
+  - Trying to attach sweep to a pid.  Looking for preference for
+    this functionality.
+
+* - Can't get to process fromt he statspanel directly.
+
+* - Going to "B" alone, to get the per pid information.
+    
+* - (Again) don't bring up the source panel when changing pids.
+
+  - User selects multiple pids, thinking its an exclusive selection,      but is getting aggragate values.  (Which, as it turns out, he 
+    doesn't realize are aggragate values.)
+
+* - Don't raise the source panel when selecting pids.
+*** This is really leading the user down the wrong path.   They've
+    seen this sourcepanel popup so much they believe the tools is
+    trying to tell them this is were a problem lies.
+
+* - Sort expview (usertime) default report by exclusive_time.
+
+* - Context sensitive help is wrong in the CSP.  It's leading the
+    user to the ManageProcessesPanel.
+
+* - CSP - Confusion exists about "process set".  (This should be 
+    removed.)
+    The user was looking at the "function view" then went to CSP
+    and the term "Process Set" was confusing and further confused
+    the workflow.
+
+    (Asked what the user was looking for)  A: Expected CSP to 
+    display state of the current StatsPanel.
+
+  - Pids list off the StatsPanel should be "All" by default.
+
+  - User was looking for a "top"-like feature display per 
+    process information in a unix-like top command way.
+
+  
+
+Candidate #3  (Patti)
+
+  - Wanted to select both the experiment and the compare feature.
+    Because or ordering, indentation, and lack of labels these seem
+    like a selection should be made in both areas.   (But openss
+    prevents the selection.)   Users ends up confused.
+ 
+  - Did the initial comparison.
+
+  - Looking for Total Times (summary)
+
+    Assumption is made that the order, in the statspanel, is the 
+    same as was selected in the comparewizard.
+    (i.e. We need better header information.)
+
+* - Bug: Clicked on first MPI* entry and went direcly to the wrong
+    function.  (I beleive this is a dwarf issue.)
+
+  - Assumes red marks are where function call sites are.
+
+  - Clicking on a source panel (header) ??? thinking they could
+    get to second source file ???
+
+  (Al comment: Maybe highlight a column to change/show focused
+   experiment.)
+ 
+  - "Open New" from source panel to pull data in from second data
+    file.
+
+  - Went to help to figure out how to get to 2nd "B"'s source file.
+    (i.e. Help needs work...)
+
+  - Was looking for way to input data from data file into source
+    panel.
+
+  - Distinguish (better) between the "Load experiment data" and the
+    "Collect experiment data".    This relates to the Intro wizard
+    panel.   Users were having trouble figuring out how many 
+    selections they could/should make.
+
+  - Load experiment from IntroWizard for second experiment.
+
+* NOTE: I think the usertime experiment shold be sorted the same 
+   as the compare.
+
+* - Wants to navigate to functions by clicking a function in the 
+   source panel.
+
+  - Back to "help"
+
+* - Looking for Diff of SourcePanel.
+
+* - Better (more obvious) labeling of what report is being shown
+    is needed in the statspanel.
+
+  - Selected "set focused experiment".  Should be be updating the
+    statspanel.
+
+  - Need to make it more obvious on additional queries, which exp
+    is in focus.
+
+* - Blank progress bar. (Bug)
+
+* - Sums don't seem correct in Callstack views.  (They don't seem
+    to match the function view.)
+
+    (Martin comment: Also fill in all time steps in callstack views.)
+
+  - Statements reports can be for function or files.
+
+* - "Statements" is confusing.   It should be more "source line" 
+    related.
+
+* - Statement query should be sorted by function, then line number.
+
+* - GROUP COMMENT: Remove the 'focus' from the Compare and bring up
+    individual experiment panels from the get-go.  Also include in the
+    tab (somehow) the name of the data file.
+
+* - Martin comment: Intro wizard should have 3 selections:
+    - Load 1 saved experiment
+    - Compare 2 saved experments
+    - Attach or Run executable
+      o pcsamp
+      o usertime
+      o ...
+
+  - Show per pid more easily.
+
+Candidate #4 (Reese- self admitted non-gui user)
+  - Intro Wizard: Try to select from both saved data and executable
+    section.
+
+    (Alignment implies sub options i.e. multiple selections.)`
+
+* - Wording: "From there," on will.  (Wording change to add comma.)
+
+  - Went down compare path.
+
+* - Global problem.  Exp 2 vs 4.  Confusion!
+
+* - Pull -c n, from headers.
+
+* - Add summary line to reports.
+
+  - The work "Column #n" still aren't clues.
+
+  - 2 & 4 don't relate to A & B.
+
+* - StatsPanel should not be 'tree' for reports that can't 
+   be openned and closed.  (i.e. remove the left side ladder.)
+
+  - Wants summary line.
+
+  - Confused why |Difference| is in column 1 and why its sorted by 
+    column 1.
+
+  - Column headers are >bad<.
+
+* - Diff.  Show +/- sign.  Sort by ABS but display signed values.
+
+  - user comments: tkdiff is a good iterface.
+
+  - Doesn't know what blue/red stands for in the source panel.
+    (needs legend)
+
+  - Wants source diff.
+
+* - User makes leap (incorrectly) that the red marking in the source
+    are showing differences between A & B.
+
+  - It's not obviuos how to get to source B.
+
+  - Looking for pid balance.
+  
+  - (Al comment)  "Compare process set"   Why choose these words
+    in CSP.
+
+  - CSP - non intuitive as to how to add processes.
+
+* - CSP - need sloppy drop.
+
+* - CSP - multi select.
+
+* - CSP - Need OK button at bottom to add highlighted item.
+
+* - CSP - Need to support + to do the same as "OK" button.
+
+* - Show only rank pids, with toggle to display all pids.
+
+  - What does Column #1 stand for?
+
+* - To delete items.   Support highlight, then delete button.
+
+
+Global comments:
+
+   - Don't bring up the source panel when focusing on a pid.
+
+   - By default select all the pids, allowing users to go to none.
+
+   - Filter out non-ranked processes when mpi.
+
+   - Separate out (if possible in cli) -x ids and -c ids.
+
+   - In Status, when loading from a file, associate the expids 
+     with the data file.   Something like:
+     Experiment (id 2) from sweep3d-A.openss is being compared with experiment (id 4) sweep3d-B.openss.
+     (Or something more meaningful.)
+
+   - Don't show -c ids in headers.  They confuse way too much.
+     Change headers to reflect how they were created.
+     i.e. When coming from the CSP show the column #n the are 
+     associated with in the header, "Exclusive Time (Column #1)"
+
+   - In CSP when creating new Column, start with the previous
+     columns information.
+
+   - Add summary line to the GUI for the StatsPanel.
+
+Marin's additions:
+
+   - Would like see toolbar for StatsPanel's important reports.
+
+   
+   - In customize stats panel, start with the set up that is already
+   in the StatsPanel.   Then let the user modify that.
+
+  
+   - Include direcotory names (in compare wizard) over the 
+   experiment names to show where the saved experiment names
+   are from.
+
+   - Add additional wizard to load one experiment (for completeness).
+
+   - Tie "Column *1" to headers of StatsPanel.
+   i.e. "Exclusive Time (Column #1)"
+
+   - SP, columns menu doesn't show |Difference| option.
+
+   - Hide statistics is in wrong mode and won't undisplay the stats
+   
+   - Show source line lines.   ;-)   The Query Statements isn't
+     meaningful to the user.   "Statements" is too geeky.  This
+     should be something like "Show Source Lines".
+
+   - Truncate long tab names, or shrink them, or stack them... when 
+     too many tabs are displayed in the panel container.
+
+   - Put "Cancel" button on wizards to help the user back out.
+
+   - Intro wizard hangs around after bringing up a view.
+
+   - When opening an experiment for the second instance, prompt the
+     user to make sure they want multiple experiments off the 
+     same data file or if they should just raise the one they
+     already have open.
+
+  - Change "Recycle" to "Recycle Window" or "Recycle Panel"
+
+  - Make the "Open existing experiments" a panel??
+     
+

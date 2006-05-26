@@ -1,0 +1,343 @@
+################################################################################
+# Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+
+                 Phase III Usability Study   5/24/06
+         Conducted by Scott Cranford, Martin Shulz, and Al Stipek
+
+
+It's amazing!  There's still room for improvement...  ;-)
+
+
+Great candidates Scott.   Thanks for making the arrangements for 
+all the candidates.  And thanks for their time and input.
+
+Four candidates were chosen for the study conducted on 05/24/06.
+
+
+This time the users were asked to do a much more difficult task
+than in the previous 2 studies.    It was hit-or-miss on whether the
+candidates completed the first half of the task.   However, the information
+gained while watching their stuggles will greatly help move the GUI further
+along to be easier to use.
+
+In this study the users were asked to compare 2 runs of a benchmark
+program (sweep3d).   The baseline data set was done without any
+source modifications, using a User Time experiment of the complete execution
+taking the default settings.    In the second data set, a artificial
+performance degradation was inserted.  Again, a User Time experiment
+was completed on the execution taking the default settings.
+
+The users were then asked to see if they could determine which 
+execution was most efficient (fastest).  They were asked to 
+see if they could find the source of the problem, which was a large
+dead loop in one of the routines.   
+
+No one successfully completed (independently) the second half of the
+experiment which was to customize a Stats Panel.    I believe they were
+already fried from managing the first half.
+
+
+Please feel free to correct/add/delete anything you interpreted differently.
+
+
+Below is the summary (highlights) of the observations.   The
+first section is, in my opinion, the big ticket items.   
+
+1 - Experiment ids and especially cids (-c) are way too confusing for
+    users and should be hidden as much as reasonably possible.
+
+    o -c #, should be stripped from all headers.   Information
+      tying the headers back to the "data file" should be added
+      to all header information.
+
+    o It's also suggested that the pool of experiment ids and cids
+      be separated.   (When users saw the first experiment they
+      loaded come out as 2, and the second one as 4, they (mostly)
+      wondered why they were incremental.  ? adjacent?   They were
+      expecting 1, 2.  (As would I.)
+
+2 - The users all wanted summary information for each view.
+    The study question itself may have been leading,
+    because of the scenario was directly asking for this sort of data,
+    but the information should be added as it will be relevant in many/most
+    cases.  Especially when doing a compare.
+
+3 - Remove the "focus" approach in the CompareExperimentsPanel
+    and bring up an experiment panel for each experiment being
+    compared.   For example: In the scenario for the usability
+    study, once the user completed the CompareWizard, three panels
+    should be displayed.  CompareExperimentPanel, UserTime for
+    experiment 1, and UserTime for experiment 2.
+
+    Additionally, menu items to bring these panels back up (in case
+    the use closes them down) should be added.  Placing menu items
+    in both the CompareExperimentsPanel and the relative Stats Panel
+    should be adequate.
+
+    Remove all the focus logic and menu items for going to source
+    from the CompareExperimentsPanel.   Only have menu items
+    related to the compare.   For now that would be:
+      - Original Query
+      - Show Source Lines Data  (was Query Statements)
+      - Show Source Diff (to be added eventually)
+      - Open Experiment #1 (data file name)
+      - Open Experiment #2 (data file name)
+
+4 - The online help needs to be relevent.  For this study, help
+    was made available and many users went down the path.  
+    Unfortunately, the help text still isn't ready for this sort
+    of usage and needs major work.
+
+5 - There was confusion in the Intro Wizard over how many and
+    which selections should be made.   All candidates (fairly)
+    quickly were able to figure this out, but it could be improved.
+
+    Suggested fixes:
+    Put additional titles around the selections.   i.e. "Select
+    one of the following:"
+
+    Group all the items to make it clear there is only one selection
+    required.
+
+    (See item 6 for related changes.)
+
+    
+6 - Add an additional wizard, for completeness, to load just one
+    experiment data file.   Basically like the Compare Wizard with
+    only one selection.  It will be a simple, straightforward wizard,
+    but it will make the Intro Wizard more complete.
+
+    Something like:
+    [ ] Load 1 saved experiment   (Selection followed by simple wizard.)
+    [ ] Compare 2 saved experments   (Selection followed by compare wizard.)
+    [x] Attach or Run executable  (Additional selection indented required.)
+        o pcsamp
+        o usertime
+        o ...
+
+
+
+7 - Diff, diff, diff.  Every (EVERY) user wanted a source diff for
+    the exeriment data, with performance annotations.
+
+
+8 - The headings, in general, need more information "connecting"
+    their meaning back to what is being presented.   
+
+    If there is a compare being done, column headers should reflect
+    better what (experiment) the column is associated with.   
+
+    If the Stats Panel was generated from the Customize Stats Panel,
+    the header should have some connection to the "Column #n" that
+    generated it.  
+
+    Certainly this can be accomplished with better labels, but also
+    dynamic popup help could/should make this more understandable.
+
+9 - Query Statements.  "Statements" had no meaning to users and 
+    is too much of an internal word.   Use something, like
+    "Query Source Lines" -or- "Show Source Lines".
+
+10- There needs to be an easier way to generate a report, "Show by 
+    Proceesses", from the reports (metric?) menu.   Some simple
+    "Show Each,  "Show each by",  aka a "top' sort of command,
+    allowing the user to provide a metric.  This would duplicate
+    the functionality of the Customize Stats Panel, but would limit
+    what the user would need to select as it would be experiment specific.
+    It would further be easier for the user to understand as it 
+    would use the same metric the user has currently in focus
+    Stats Panel.
+
+11- Each report needs a header describing the report.   A title that
+    volunteers more information.
+
+ 
+More minor, but important items:
+
+1 - Add key (legend) to Source Panel so users know what the
+    colors/markings mean.
+
+2 - Don't bring up the Source Panel by default when selecting
+    from the Stats Panel pids menu.
+
+    This was very confusing... to users and shouldn't be done.
+
+    Additionally, this was really leading the user down the wrong
+    path.   The user was seeing the Source Panel pop up so much they
+    believed the tool was trying to tell them there was a problem in
+    the source file being displayed.
+
+3 - (See 10 above.)  The user needs a clearer way of selecting
+    pids to change the stats in a panel.   Also, it was unclear
+    to the users that selecting pids was actually changing the
+    data they were seeing.   (This may be learning process, but
+    changing per column header help, header text, and "somehow"
+    labeling the report better may aleviate much of this confusion.
+
+4 - Customize Stats Panel makes a reference to "process set".   We're
+    migrating away from this term.   Something more appropriate
+    should takes it's place.
+
+5 - The user brought up the Customize Stats Panel, from the Stats
+    Panel.   They were looking at the Function view.   When going
+    to the Stats Panel, they were expecting something "Function 
+    View" related.   Context should be carried to the 
+    Customize Stats Panel when invoked from the Stats Panel.
+
+6 - The user was looking for a "top" like command for pids.
+    This should be doable via the expCompare or expClusterView
+    commands.
+
+7 - All the pids should be selected in the Stats Panel pids menu
+    by default.   Allow the user to go to zero, rather than giving
+    them All when they've unselected everything.
+
+Bugs:
+
+
+1 - Progress bar is blank too often (mostly) when requesting new
+    reports.
+
+2 - When deleting an experiment (via the 'x') the user needs a
+    "Cancel" option.
+
+    Currently the options are "Yes" and "No".   There needs to be
+    an "I didn't want to hit that button option."
+
+3 - When selecting the MPI_SGI_shared_progress(), which is 
+    in libmpi.so, we're taking the user to the wrong function.
+    (sweep.f)   This maybe (likely?) is a dwarf issue.
+
+4 - The graphical chart (Stats Panel) for "Show Statements" is not
+    relevant and should be prevented from being displayed.
+
+5 - Popup help text in Customize Stats Panel is wrong.   It suggests
+    the user should try the Manage Processes Panel.   This text needs
+    to be change to reflect correct help.
+
+6 - Sort consistently.  A usertime compare sorts on exclusive_time.
+    A usertime experiment sorts on inclusive_time.   These should
+    be consistent.
+
+7?- Sums in Function view don't seem to match other views calculations.
+    Particularly the calltree? view's values.
+
+8 - Change wording in Compare Wizard to:
+    "From there," one will   ....   i.e. add a comma after the word "there".
+
+9 - Difference column should show signed values.   The sort should be 
+    done as an ABS, but the actual display should indicate the sign.
+
+10- In the Stats Panel's column menu, the |Difference| column is missing.
+    (This is the menu that allows the user to hide/read columns after
+     the report has been generated.)
+
+11- Hide statistics mode flag is wrong in the Stats Panel and requires
+    multiple selections to get it to act correctly.
+
+12- Intro Wizard sometime hangs around after experiment is loaded.
+
+
+Other comments and requests:
+
+1 - Help text in the Stats Panel could easily be made column 
+    sensitive.   Help text could then be issued that would more 
+    easily relate the data back to the metric being displayed.
+    This, as well as, help text when hovering over the header
+    text.
+
+2 - One user wanted to "import" data while in the Source Panel.
+    They brought up the source they were interested in and then 
+    they wanted to do "queries" from there.   This could be 
+    very useful as nearly all reports could be invoked off the
+    Source Panel.
+
+3 - User wants to source navigate via the Source Panel.  i.e. They
+    had a function in the Source Panel that they wanted to "dive" 
+    to, but couldn't.   Additionally, per function queries "could"
+    be provided via the Source Panel when a user is over a function.
+
+4 - Detail information about what/how a particular metric is calculated
+    could be most useful.  This could be displayed in each reports popup
+    help, not only title.  Additional wording could explain what the
+    metric is showing.
+
+5 - When generating a report that doesn't have a tree... remove the
+    "ladder" from the list view.
+
+
+6 - It's non-intuitive how add a process in the Customize Stats Panel.
+    Several ways should be support. 
+
+     - First we need a sloppy drop.  The current drop target is too 
+       restrictive.
+     - Needs to support multi select.
+     - Needs "OK" button (Maybe "Add/Delete") to change the current list
+       based on the highlighted item.
+     - Should also support +/- for the "OK/Add/Delete" functionality.
+     - The dialog should only show rank pids by default, and then 
+       give the user and option via a toggle to show all processes.
+
+7 - In the Customize Stats Panel, its not immediately clear what "Column #1"
+    stands for.   I'm not sure, other than to add more popup help to make
+    this more clear.  Anyone?
+
+8 - In Status, when loading from a file, associate the experiment ids
+    with the data file.   Something like:
+    Experiment (id 2) from sweep3d-A.openss is being compared with
+    experiment (id 4) sweep3d-B.openss.  (Or something more meaningful.)
+
+9 - In Customize Stats Panel, when creating a new column copy the previous
+    columns information.  See other comment 8 from the first section (above)
+    for initial column settings.
+
+10- Would like see toolbar for Stats Panel's important reports.
+    This toolbar would be located just under the Stats Panel's tab, and above 
+    the report.
+
+11- Include directory names in the compare wizard to show what the directory
+    of the loaded data file is...
+
+12- When focusing from the Customize Stats Panel, tie the column headers 
+    in the Stats Panel, to the "Column #" that it was generated from.
+
+13- Truncate, shrink, wrap column tabs when too many columns have been added
+    and the < > arrows start to require the user to scroll tabs.
+
+14- Put "Cancel" button on each wizard panel to allow the user to abort out.
+    (This may likely have prevented the user from overloading the tab panel
+     with so many tabs.  Of course the user could have simply done an 'x', but
+     they hadn't yet discover that functionality.   "Cancel" gives another
+     meaningful way out.)
+
+15- When fielding a request to open an experiment for a second time, and 
+    that experiment is already loaded, prompt the user to make sure they 
+    want another one raise.  (NOTE: This sort of relates to a 'recycle' 
+    functionality.   hmmm.)
+
+16- Change the wording for the "Recycle" flag to "Recycle Window" or 
+    "Recycle Panel".
+
+17- Consider making "File->Open Exising Experiment" into a panel.  This
+    has navigational features as well that may be very useful to an 
+    advanced user who wants to manage many open panels.
+
+18- Scott was "concerned" about a sluggish feel to the tool.  I think
+    there's ample room to improve this but we're still so busy adding
+    functionality.
