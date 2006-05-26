@@ -26,10 +26,10 @@
 // Additional items may be defined for individual collectors.
 
 // These are needed to manage fpe collector data.
-#define excnt_temp VMulti_free_temp
-#define incnt_temp VMulti_free_temp+1
-#define start_temp VMulti_free_temp+2
-#define fpeType_temp VMulti_free_temp+3
+#define excnt_temp 2
+#define incnt_temp 3
+#define start_temp 4
+#define fpeType_temp 5
 
 // fpe view
 
