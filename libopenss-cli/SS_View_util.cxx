@@ -1102,6 +1102,7 @@ ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Colu
     ViewInstruction *vp = IV[i];
     if (vp->TR() == Column) {
       if ((vp->OpCode() == VIEWINST_Display_Metric) ||
+          (vp->OpCode() == VIEWINST_Display_ByThread_Metric) ||
           (vp->OpCode() == VIEWINST_Display_Tmp) ||
           (vp->OpCode() == VIEWINST_Display_Percent_Column) ||
           (vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
@@ -1120,6 +1121,7 @@ int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV) {
   for (int64_t i = 0; i < IV.size(); i++) {
     ViewInstruction *vp = IV[i];
     if ((vp->OpCode() == VIEWINST_Display_Metric) ||
+        (vp->OpCode() == VIEWINST_Display_ByThread_Metric) ||
         (vp->OpCode() == VIEWINST_Display_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_Percent_Column) ||
         (vp->OpCode() == VIEWINST_Display_Percent_Metric) ||

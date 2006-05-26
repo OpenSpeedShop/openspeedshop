@@ -38,16 +38,177 @@ struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
     }
 };
 
+template <typename TI, typename TOBJECT>
+void GetReducedSet (
+          TI *dummyType,
+          Collector& collector,
+          std::string& metric,
+          std::vector<std::pair<Time,Time> >& intervals,
+          ThreadGroup& tgrp,
+          std::set<TOBJECT>& objects,
+          int64_t reduction_index,
+          SmartPtr<std::map<TOBJECT, CommandResult *> >& items) {
+
+  SmartPtr<std::map<TOBJECT, std::map<Thread, TI> > > individual;
+  for (std::vector<std::pair<Time,Time> >::iterator
+               iv = intervals.begin(); iv != intervals.end(); iv++) {
+    Queries::GetMetricValues(collector, metric,
+                             TimeInterval(iv->first, iv->second),
+                             tgrp, objects, individual);
+  }
+
+ // Reduce the per-thread values.
+  SmartPtr<std::map<TOBJECT, TI > > result;
+  switch (reduction_index) {
+   case ViewReduction_min:
+    ReduceMetricByThread (individual, Queries::Reduction::Minimum, result);
+    break;
+   case ViewReduction_max:
+    ReduceMetricByThread (individual, Queries::Reduction::Maximum, result);
+    break;
+   default:
+    ReduceMetricByThread (individual, Queries::Reduction::ArithmeticMean, result);
+    break;
+  }
+
+ // Convert to typeless CommandResult objects.
+  for(typename std::map<TOBJECT, TI>::const_iterator
+      item = result->begin(); item != result->end(); ++item) {
+    std::pair<TOBJECT, TI> p = *item;
+    items->insert( std::make_pair(p.first, CRPTR (p.second)) );
+  }
+}
+
+template <typename TOBJECT>
+bool GetReducedMetrics (
+          CommandObject *cmd,
+          ExperimentObject *exp,
+          ThreadGroup& tgrp,
+          Collector &collector,
+          std::string &metric,
+          std::set<TOBJECT>& objects,
+          int64_t reduction_index,
+          SmartPtr<std::map<TOBJECT, CommandResult *> >& items) {
+
+  Framework::Experiment *experiment = exp->FW();
+
+ // Get the list of desired objects.
+  if (objects.empty()) {
+    Mark_Cmd_With_Soft_Error(cmd, "(There are no objects specified for metric reduction.)");
+    return false;
+  }
+
+  std::vector<std::pair<Time,Time> > intervals;
+  Parse_Interval_Specification (cmd, exp, intervals);
+
+  Metadata m = Find_Metadata ( collector, metric );
+  std::string id = m.getUniqueId();
+
+  if( m.isType(typeid(unsigned int)) ) {
+    uint *V;
+    GetReducedSet (V, collector, metric, intervals, tgrp, objects, reduction_index, items);
+  } else if( m.isType(typeid(uint64_t)) ) {
+    uint64_t *V;
+    GetReducedSet (V, collector, metric, intervals, tgrp, objects, reduction_index, items);
+  } else if( m.isType(typeid(int)) ) {
+    int *V;
+    GetReducedSet (V, collector, metric, intervals, tgrp, objects, reduction_index, items);
+  } else if( m.isType(typeid(int64_t)) ) {
+    int64_t *V;
+    GetReducedSet (V, collector, metric, intervals, tgrp, objects, reduction_index, items);
+  } else if( m.isType(typeid(float)) ) {
+    float *V;
+    GetReducedSet (V, collector, metric, intervals, tgrp, objects, reduction_index, items);
+  } else if( m.isType(typeid(double)) ) {
+    double *V;
+    GetReducedSet (V, collector, metric, intervals, tgrp, objects, reduction_index, items);
+  } else {
+    std::string S("(Cluster Analysis can not be performed on metric '");
+    S = S +  metric + "' of type '" + m.getType() + "'.)";
+    Mark_Cmd_With_Soft_Error(cmd, S);
+    return false;
+  }
+  if (items->size() == 0) {
+    Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for metric reduction.)");
+    return false;
+  }
+
+  return true;
+}
+
+template <typename TE>
+void GetExtraMetrics(CommandObject *cmd,
+                     ExperimentObject *exp,
+                     ThreadGroup& tgrp,
+                     std::vector<Collector>& CV,
+                     std::vector<std::string>& MV,
+                     std::vector<ViewInstruction *>& IV,
+                     int64_t num_columns,
+                     std::vector<ViewInstruction *>& ViewInst,
+                     std::vector<std::pair<TE, CommandResult *> >& items,
+                     std::vector<SmartPtr<std::map<TE, CommandResult *> > >& Values) {
+    int64_t i;
+
+   // Get all the metric values.
+    std::set<TE> objects;   // Build set of objects only once.
+    for ( i=1; i < num_columns; i++) {
+      ViewInstruction *vinst = ViewInst[i];
+      if ((vinst->OpCode() == VIEWINST_Display_Metric) ||
+          (vinst->OpCode() == VIEWINST_Display_ByThread_Metric)) {
+        int64_t CM_Index = vinst->TMP1();
+
+        if (objects.empty()) {
+          typename std::vector<std::pair<TE, CommandResult *> >::const_iterator it = items.begin();
+          for(int64_t foundn = 0; foundn < items.size(); foundn++, it++ ) {
+            objects.insert(it->first);
+          }
+        }
+
+        SmartPtr<std::map<TE, CommandResult *> > column_values =
+            Framework::SmartPtr<std::map<TE, CommandResult *> >(
+                new std::map<TE, CommandResult * >()
+                );
+        if (vinst->OpCode() == VIEWINST_Display_Metric) {
+          GetMetricByObjectSet (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, column_values);
+        } else {
+          int64_t reductionIndex = vinst->TMP2();
+          Assert((reductionIndex == ViewReduction_mean) ||
+                 (reductionIndex == ViewReduction_min) ||
+                 (reductionIndex == ViewReduction_max));
+          GetReducedMetrics (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, reductionIndex, column_values);
+        }
+        Values[i] = column_values;
+      }
+    }
+
+}
+
 template <typename TE>
 bool First_Column (CommandObject *cmd,
                    ExperimentObject *exp,
                    ThreadGroup& tgrp,
                    std::vector<Collector>& CV,
                    std::vector<std::string>& MV,
-                   int64_t Column0index,
+                   std::vector<ViewInstruction *>& IV,
                    std::set<TE>& objects,
                    std::vector<std::pair<TE, CommandResult *> >& items) {
     int64_t i;
+
+   // Determine the metric value we need to fetch.
+    ViewInstruction *vp = Find_Column_Def (IV, 0);
+    int64_t Column0metric = 0;
+    if (vp->OpCode() == VIEWINST_Display_Percent_Column) {
+      vp = Find_Column_Def (IV, vp->TMP1());
+      Assert (vp != NULL);
+    }
+    if ((vp->OpCode() == VIEWINST_Display_Metric) ||
+        (vp->OpCode() == VIEWINST_Display_Percent_Metric)) {
+      Column0metric = vp->TMP1();
+    } else {
+     // This is more than we can handle!
+     // Pick the first metric and use it!
+      Column0metric = 0;
+    }
 
    // Generate data for the first column.
    // Be sure we sort the items based on the metric displayed in the first column.
@@ -58,7 +219,7 @@ bool First_Column (CommandObject *cmd,
     if (objects.empty()) {
       return false;
     }
-    GetMetricByObjectSet (cmd, exp, tgrp, CV[Column0index], MV[Column0index], objects, initial_items);
+    GetMetricByObjectSet (cmd, exp, tgrp, CV[Column0metric], MV[Column0metric], objects, initial_items);
     typename std::map <TE, CommandResult *>::const_iterator ii;
     for(ii = initial_items->begin(); ii != initial_items->end(); ii++ ) {
       items.push_back (std::make_pair(ii->first, ii->second));
@@ -73,7 +234,6 @@ bool First_Column (CommandObject *cmd,
 template <typename TE>
 void Construct_View (CommandObject *cmd,
                      ExperimentObject *exp,
-                     int64_t topn,
                      ThreadGroup& tgrp,
                      std::vector<Collector>& CV,
                      std::vector<std::string>& MV,
@@ -88,43 +248,17 @@ void Construct_View (CommandObject *cmd,
                      std::list<CommandResult *>& view_output) {
     int64_t i;
 
-   // Should we accumulate column sums?
-    std::vector<CommandResult *> Column_Sum(topn);
-    if (report_Column_summary) {
-      for ( i=0; i < num_columns; i++) {
-        ViewInstruction *vinst = ViewInst[i];
-        int64_t CM_Index = vinst->TMP1();
-        Column_Sum[i] = Init_Collector_Metric ( cmd, CV[CM_Index], MV[CM_Index] );
-      }
-    }
-
-   // Extract the top "n" items from the sorted list and get all the metric values.
-    std::set<TE> objects;   // Build set of objects only once.
+   // Get all the metric values.
     std::vector<SmartPtr<std::map<TE, CommandResult *> > > Values(num_columns);
-    for ( i=1; i < num_columns; i++) {
-      ViewInstruction *vinst = ViewInst[i];
-      if (vinst->OpCode() == VIEWINST_Display_Metric) {
-        int64_t CM_Index = vinst->TMP1();
+    GetExtraMetrics (cmd, exp, tgrp, CV, MV, IV, num_columns, ViewInst, items, Values);
 
-        if (objects.empty()) {
-          typename std::vector<std::pair<TE, CommandResult *> >::const_iterator it = items.begin();
-          for(int64_t foundn = 0; (foundn < topn); foundn++, it++ ) {
-            objects.insert(it->first);
-          }
-        }
+   // Set up to accumulate column sums.
+    std::vector<CommandResult *> Column_Sum(num_columns);
+    for ( i=0; i < num_columns; i++)  Column_Sum[i] = NULL;
 
-        SmartPtr<std::map<TE, CommandResult *> > column_values =
-            Framework::SmartPtr<std::map<TE, CommandResult *> >(
-                new std::map<TE, CommandResult * >()
-                );
-        GetMetricByObjectSet (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, column_values);
-        Values[i] = column_values;
-      }
-    }
-
-   // Extract the top "n" items from the sorted list.
+   // Extract the top "n" items from the sorted list and merge in other columns of information.
     typename std::vector<std::pair<TE, CommandResult *> >::iterator it = items.begin();
-    for(int64_t foundn = 0; (foundn < topn); foundn++, it++ ) {
+    for(int64_t foundn = 0; foundn < items.size(); foundn++, it++ ) {
 
      // Check for asnychonous abort command
       if (cmd->Status() == CMD_ABORTED) {
@@ -141,7 +275,8 @@ void Construct_View (CommandObject *cmd,
         int64_t CM_Index = vinst->TMP1();
 
         CommandResult *Next_Metric_Value = NULL;
-        if (vinst->OpCode() == VIEWINST_Display_Metric) {
+        if ((vinst->OpCode() == VIEWINST_Display_Metric) ||
+            (vinst->OpCode() == VIEWINST_Display_ByThread_Metric)) {
           if (i == 0) {
             Next_Metric_Value = it->second;
             column_one_used = true;
@@ -155,7 +290,7 @@ void Construct_View (CommandObject *cmd,
             SmartPtr<std::map<TE, CommandResult *> > column_values = Values[i];
             typename std::map<TE, CommandResult *>::iterator sm = column_values->find(it->first);
             if (sm != column_values->end()) {
-              Next_Metric_Value = sm->second;
+              Next_Metric_Value = Dup_CommandResult (sm->second);
             }
           }
           if (Next_Metric_Value == NULL) {
@@ -194,7 +329,12 @@ void Construct_View (CommandObject *cmd,
         }
         C->CommandResult_Columns::Add_Column (Next_Metric_Value);
         if (report_Column_summary) {
-          Accumulate_CommandResult (Column_Sum[i], Next_Metric_Value);
+         // Coipy the first row to initialize the summary values.
+          if (foundn == 0) {
+            Column_Sum[i] = Dup_CommandResult (Next_Metric_Value);
+          } else {
+            Accumulate_CommandResult (Column_Sum[i], Next_Metric_Value);
+          }
         }
         if (Gen_Total_Percent &&
             (i == percentofcolumn)) {
@@ -216,7 +356,11 @@ void Construct_View (CommandObject *cmd,
       CommandResult_Enders *E = new CommandResult_Enders ();
      // Add Metrics Summary
       for ( i=0; i < num_columns; i++) {
-        E->CommandResult_Enders::Add_Ender (Column_Sum[i]);
+        CommandResult *sum = Column_Sum[i];
+        if (sum == NULL) {
+          sum = CRPTR ("");
+        }
+        E->CommandResult_Enders::Add_Ender (sum);
       }
      // Add ID
       E->CommandResult_Enders::Add_Ender ( CRPTR ( "Report Summary" ) );
@@ -281,7 +425,8 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
   if (topn == 0) topn = INT_MAX;
 
   try {
-    if (CV.size() == 0) {
+    if ((CV.size() == 0) ||
+        (MV.size() == 0)) {
       std::string s("(There are no metrics specified to report.)");
       Mark_Cmd_With_Soft_Error(cmd,s);
       return false;   // There is no collector, return.
@@ -290,6 +435,13 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
    // Set up quick access to instructions for columns.
     int64_t num_columns = 0;
     std::vector<ViewInstruction *> ViewInst;
+    for ( i=0; i < IV.size(); i++) {
+      ViewInstruction *vp = IV[i];
+      if (vp->OpCode() == VIEWINST_Display_Summary) {
+        report_Column_summary = true;
+        break;
+      }
+    }
     for ( i=0; i < IV.size(); i++) {
       ViewInstruction *vinst = Find_Column_Def (IV, i);
       if (vinst == NULL) {
@@ -303,11 +455,6 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       std::string s("(There is no display requested.)");
       Mark_Cmd_With_Soft_Error(cmd,s);
       return false;   // There is no column[0] defined, return.
-    }
-    if (ViewInst[0]->OpCode() != VIEWINST_Display_Metric) {
-      std::string s("(The first column is not a metric.)");
-      Mark_Cmd_With_Soft_Error(cmd,s);
-      return false;   // There is nothing to sort on.
     }
 
    // What granularity has been requested?
@@ -323,32 +470,42 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     }
 
    // Acquire base set of metric values.
-    ViewInstruction *vinst0 = ViewInst[0];
-    int64_t Column0index = vinst0->TMP1();
-    std::set<Function> f_objects;
-    std::set<Statement> s_objects;
-    std::set<LinkedObject> l_objects;
     bool first_column_found = false;
     std::string EO_Title;
     switch (vg) {
-     case VIEW_STATEMENTS:
+     case VIEW_STATEMENTS: {
+      std::set<Statement> s_objects;
       Get_Filtered_Objects (cmd, exp, tgrp, s_objects);
-      first_column_found = First_Column (cmd, exp, tgrp, CV, MV, Column0index, s_objects, s_items);
-      topn = min(topn, (int64_t)s_items.size());
+      first_column_found = First_Column (cmd, exp, tgrp, CV, MV, IV, s_objects, s_items);
+      if (topn < (int64_t)s_items.size()) {
+        s_items.erase ( (s_items.begin() + topn), s_items.end());
+      }
+      topn = (int64_t)s_items.size();
       EO_Title = "Statement Location (Line Number)";
       break;
-     case VIEW_LINKEDOBJECTS:
+     }
+     case VIEW_LINKEDOBJECTS: {
+      std::set<LinkedObject> l_objects;
       Get_Filtered_Objects (cmd, exp, tgrp, l_objects);
-      first_column_found = First_Column (cmd, exp, tgrp, CV, MV, Column0index, l_objects, l_items);
-      topn = min(topn, (int64_t)l_items.size());
+      first_column_found = First_Column (cmd, exp, tgrp, CV, MV, IV, l_objects, l_items);
+      if (topn < (int64_t)l_items.size()) {
+        l_items.erase ( (l_items.begin() + topn), l_items.end());
+      }
+      topn = (int64_t)l_items.size();
       EO_Title = "LinkedObject";
       break;
-     default:
+     }
+     default: {
+      std::set<Function> f_objects;
       Get_Filtered_Objects (cmd, exp, tgrp, f_objects);
-      first_column_found = First_Column (cmd, exp, tgrp, CV, MV, Column0index, f_objects, f_items);
-      topn = min(topn, (int64_t)f_items.size());
-      EO_Title = "Function Name";
+      first_column_found = First_Column (cmd, exp, tgrp, CV, MV, IV, f_objects, f_items);
+      if (topn < (int64_t)f_items.size()) {
+        f_items.erase ( (f_items.begin() + topn), f_items.end());
+      }
+      topn = (int64_t)f_items.size();
+      EO_Title = "Function (defining location)";
       break;
+     }
     }
 /* Don't issue this message - just go ahead an print the headers and an empty report.
    Consider turning this message into a Annotation.
@@ -399,14 +556,19 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       int64_t CM_Index = vinst->TMP1();
 
       std::string column_header;
-      if (vinst->OpCode() == VIEWINST_Display_Metric) {
-        if (HV.begin() != HV.end()) {
-          column_header = HV[i];
-        } else if (Metadata_hasName( CV[CM_Index], MV[CM_Index] )) {
+      if (i < HV.size()) {
+       // Pick up pre-defined header.
+        column_header = HV[i];
+      } else if ((vinst->OpCode() == VIEWINST_Display_Metric) ||
+                 (vinst->OpCode() == VIEWINST_Display_ByThread_Metric)) {
+        if (Metadata_hasName( CV[CM_Index], MV[CM_Index] )) {
           Metadata m = Find_Metadata ( CV[CM_Index], MV[CM_Index] );
           column_header = m.getShortName();
         } else {
           column_header = MV[CM_Index];
+        }
+        if (vinst->OpCode() == VIEWINST_Display_ByThread_Metric) {
+          column_header += " By Thread";
         }
       } else if (vinst->OpCode() == VIEWINST_Display_Tmp) {
         column_header = std::string("Temp" + CM_Index);
@@ -428,19 +590,19 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
    // Now format the view.
     switch (vg) {
      case VIEW_STATEMENTS:
-      Construct_View (cmd, exp, topn, tgrp, CV, MV, IV,
+      Construct_View (cmd, exp, tgrp, CV, MV, IV,
                       num_columns,
                       ViewInst, Gen_Total_Percent, percentofcolumn, TotalValue, report_Column_summary,
                       s_items, view_output);
       break;
      case VIEW_LINKEDOBJECTS:
-      Construct_View (cmd, exp, topn, tgrp, CV, MV, IV,
+      Construct_View (cmd, exp, tgrp, CV, MV, IV,
                       num_columns,
                       ViewInst, Gen_Total_Percent, percentofcolumn, TotalValue, report_Column_summary,
                       l_items, view_output);
       break;
      default:
-      Construct_View (cmd, exp, topn, tgrp, CV, MV, IV,
+      Construct_View (cmd, exp, tgrp, CV, MV, IV,
                       num_columns,
                       ViewInst, Gen_Total_Percent, percentofcolumn, TotalValue, report_Column_summary,
                       f_items, view_output);

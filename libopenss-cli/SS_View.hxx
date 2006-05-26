@@ -19,11 +19,19 @@
 #include "Queries.hxx"
 
 enum ViewOpCode {
-     VIEWINST_Define_Total,
-     VIEWINST_Display_Metric,
-     VIEWINST_Display_Tmp,
-     VIEWINST_Display_Percent_Column,
-     VIEWINST_Display_Percent_Metric,
+     VIEWINST_Define_Total,             // TMP_index1 is CV & MV index of value that, when summed, is the Total.
+     VIEWINST_Display_Metric,           // TmpResult is column# to display in.
+                                        // TMP_index1 is CV & MV index of the value to display.
+     VIEWINST_Display_ByThread_Metric,  // TmpResult is column# to display in.
+                                        // TMP_index1 is CV & MV index of the value to display.
+                                        // TMP_index2 is the indicator of the reduction that is applied.
+     VIEWINST_Display_Tmp,              // TmpResult is column# to display in.
+                                        // TMP_index1 is predefined temp# of the value to display..
+     VIEWINST_Display_Percent_Column,   // TmpResult is column# to display in.
+                                        // Column[TMP_index1]*100/Total is value to display in the column.
+     VIEWINST_Display_Percent_Metric,   // TmpResult is column# to display in.
+                                        // TMP_index1 is CV & MV index of the numerator.
+                                        // Total is calculated seperately and used in the denominator.
      VIEWINST_Display_Percent_Tmp,      // TmpResult is column# to display in.
                                         // TMP_index1 is row_tmp# with numerator.
                                         // TMP_index2 is row_tmp# with denominator.
@@ -40,6 +48,11 @@ enum ViewOpCode {
      VIEWINST_Max,                      // TMP_index1 is predefined temp# combined with 'max' op.
      VIEWINST_Summary_Max,              // TMP_index1 is predefined temp# combined with 'max' op.
 };
+
+// Reduction function Indicators.
+#define ViewReduction_mean 0
+#define ViewReduction_min  1
+#define ViewReduction_max  2
 
 class ViewInstruction
 {
@@ -97,6 +110,7 @@ class ViewInstruction
     switch (Instruction) {
      case VIEWINST_Define_Total: op = "Define_Total"; break;
      case VIEWINST_Display_Metric: op = "Display_Metric"; break;
+     case VIEWINST_Display_ByThread_Metric: op = "Display_ByThread_Metric"; break;
      case VIEWINST_Display_Tmp: op = "Display_Tmp"; break;
      case VIEWINST_Display_Percent_Column: op = "Display_Percent_Column"; break;
      case VIEWINST_Display_Percent_Metric: op = "Display_Percent_Metric"; break;
@@ -194,6 +208,54 @@ class ViewType
 
 
 template <typename TO, typename TS>
+void GetMetricInThreadGroupByThread (
+    const Collector& collector,
+    const std::string& metric,
+          std::vector<std::pair<Time,Time> >& intervals,
+    const ThreadGroup& tgrp,
+    const std::set<TO >& objects,
+    SmartPtr<std::map<TO, std::map<Thread, TS > > >& individual)
+{
+   // Get the metric values for all the threads over all specified time intervals.
+    for (std::vector<std::pair<Time,Time> >::iterator
+                 iv = intervals.begin(); iv != intervals.end(); iv++) {
+      Time Start_Time = iv->first;
+      Time End_Time = iv->second;
+      Queries::GetMetricValues(collector, metric,
+                               TimeInterval(Start_Time, End_Time),
+                               tgrp, objects, individual);
+    }
+
+}
+
+template <typename TO, typename TS>
+void ReduceMetricByThread (
+    SmartPtr<std::map<TO, std::map<Thread, TS > > >& individual,
+    TS (*reduction)(const std::map<Framework::Thread, TS >&),
+    SmartPtr<std::map<TO, TS > >& result)
+{
+   // Allocate (if necessary) a new map of source objects to values
+    if(result.isNull()) {
+      result = SmartPtr<std::map<TO, TS > >(new std::map<TO, TS >());
+      Assert(!result.isNull());
+    }
+
+   // Reduce the per-thread values.
+    SmartPtr<std::map<TO, TS > > reduced =
+        Queries::Reduction::Apply(individual, reduction);
+
+   // Merge the temporary reduction into the actual results
+    for(typename std::map<TO, TS >::const_iterator
+            i = reduced->begin(); i != reduced->end(); ++i) {
+        if(result->find(i->first) == result->end())
+            result->insert(std::make_pair(i->first, i->second));
+        else
+            (*result)[i->first] += i->second;
+    }
+
+}
+
+template <typename TO, typename TS>
 void GetMetricInThreadGroup(
     const Collector& collector,
     const std::string& metric,
@@ -202,32 +264,21 @@ void GetMetricInThreadGroup(
     const std::set<TO >& objects,
     SmartPtr<std::map<TO, TS > >& result)
 {
-    // Allocate (if necessary) a new map of source objects to values
-    if(result.isNull())
-        result = SmartPtr<std::map<TO, TS > >(new std::map<TO, TS >());
-    Assert(!result.isNull());
-
-    // Get the summation reduced metric values
-    SmartPtr<std::map<TO, std::map<Thread, TS > > > individual;
-    for (std::vector<std::pair<Time,Time> >::iterator
-                 iv = intervals.begin(); iv != intervals.end(); iv++) {
-      Time Start_Time = iv->first;
-      Time End_Time = iv->second;
-      Queries::GetMetricValues(collector, metric,
-	                       TimeInterval(Start_Time, End_Time),
-			       tgrp, objects, individual);
+   // Allocate (if necessary) a new map of source objects to values
+    if(result.isNull()) {
+      result = SmartPtr<std::map<TO, TS > >(new std::map<TO, TS >());
+      Assert(!result.isNull());
     }
-    SmartPtr<std::map<TO, TS > > reduced =
-	Queries::Reduction::Apply(individual, Queries::Reduction::Summation);
-    individual = SmartPtr<std::map<TO, std::map<Thread, TS > > >();
 
-    // Merge the temporary reduction into the actual results
-    for(typename std::map<TO, TS >::const_iterator
-	    i = reduced->begin(); i != reduced->end(); ++i)
-	if(result->find(i->first) == result->end())
-	    result->insert(std::make_pair(i->first, i->second));
-	else
-	    (*result)[i->first] += i->second;
+   // Get the metric values for all the threads over all specified time intervals.
+    SmartPtr<std::map<TO, std::map<Thread, TS > > > individual;
+    GetMetricInThreadGroupByThread (collector, metric, intervals, tgrp, objects, individual);
+
+   // Reduce the per-thread values.
+    ReduceMetricByThread (individual, Queries::Reduction::Summation, result);
+
+   // Reclaim space.
+    individual = SmartPtr<std::map<TO, std::map<Thread, TS > > >();
 }
 
 
@@ -250,6 +301,7 @@ enum View_Form_Category {
 // Reserved locations in the std::vector<CommandResult *> of c_items argument to Generic_Multi_View
 #define VMulti_sort_temp 0
 #define VMulti_time_temp 1
+#define VMulti_free_temp 2
 
 bool Generic_Multi_View (
            CommandObject *cmd, ExperimentObject *exp, int64_t topn,

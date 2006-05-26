@@ -50,7 +50,6 @@ static bool define_pcsamp_columns (
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   int64_t last_column = 0;
-  int64_t last_metric = 0;
 
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
 
@@ -82,19 +81,29 @@ static bool define_pcsamp_columns (
 
       if (!strcasecmp(M_Name.c_str(), "time") ||
           !strcasecmp(M_Name.c_str(), "times")) {
-        IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column, last_metric));
-        HV.push_back("CPU Time");
-        last_column++;
-        last_metric++;
+        IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column++, 0));
+        HV.push_back("CPU Time(ms)");
       } else if (!strcasecmp(M_Name.c_str(), "percent") ||
                  !strcmp(M_Name.c_str(), "%")           ||
                  !strcasecmp(M_Name.c_str(), "%time")   ||
                  !strcasecmp(M_Name.c_str(), "%times")) {
        // percent is calculate from 2 temps: time for this row and total time.
         IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
-        IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is %
+        IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0));  // second column is %
         HV.push_back("% of Total CPU Time");
-        last_column++;
+      } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
+                 !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
+       // Do a By-Thread average.
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_mean));
+        HV.push_back("Average CPU Time(ms) Across Threads");
+      } else if (!strcasecmp(M_Name.c_str(), "ThreadMin")) {
+       // Find the By-Thread Min.
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_min));
+        HV.push_back("Min CPU Time(ms) Across Threads");
+      } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
+       // Find the By-Thread Max.
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_max));
+        HV.push_back("Max CPU Time(ms) Across Threads");
       } else {
        // Unrecognized '-m' option.
         Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
@@ -104,10 +113,11 @@ static bool define_pcsamp_columns (
   } else {
    // If nothing is requested ...
    // There is only 1 supported metric.  Use it and also generate the percent.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column++, 0));  // first column is metric
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is %
-    last_column += 2;
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0));  // second column is %
+    HV.push_back("CPU Time(ms)");
+    HV.push_back("% of Total CPU Time");
   }
   return (last_column > 0);
 }
@@ -124,12 +134,22 @@ static std::string VIEW_pcsamp_long  = "The report is sorted in descending order
                                        "\n\t'-v LinkedObjects' will report times by linked object."
                                        "\n\t'-v Functions' will report times by function. This is the default."
                                        "\n\t'-v Statements' will report times by statement."
-                                       " \n\nThe user can select individual metrics for display by listing"
-                                       " them after the '-m' option key."
-                                       " Only the metrics in the list will be displayed."
-                                       " Since there is only one metric available for this view, the use of"
-                                       " the '-m time' option will suppress the calculation of percent."
-                                       "\n";
+                                      "\n\nThe information included in the report can be controlled with the"
+                                      " '-m' option.  More than one item can be selected but only the items"
+                                      " listed after the option will be printed and they will be printed in"
+                                      " the order that they are listed."
+                                      " If no '-m' option is specified, the default is equivalent to"
+                                      " '-m time, percent'."
+                                      " Each value pertains to the function, statement or linked object that is"
+                                      " on that row of the report.  The 'Thread...' selections pertain to the"
+                                      " process unit that the program was partitioned into: Pid's,"
+                                      " Posix threads, Mpi threads or Ranks."
+                                      " \n\t'-m time' reports the total cpu time for all the processes."
+                                      " \n\t'-m percent' reports the percent of total cpu time for all the processes."
+                                      " \n\t'-m ThreadAverage' reports the average cpu time for a process."
+                                      " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
+                                      " \n\t'-m ThreadMin' reports the maximum cpu time for a process."
+                                      "\n";
 static std::string VIEW_pcsamp_example = "\texpView pcsamp\n"
                                          "\texpView -v statements pcsamp10\n";
 static std::string VIEW_pcsamp_metrics[] =
@@ -202,7 +222,6 @@ static bool define_hwc_columns (
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   int64_t last_column = 0;
-  int64_t last_metric = 0;
 
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
   
@@ -235,25 +254,33 @@ static bool define_hwc_columns (
       if (!strcasecmp(M_Name.c_str(), "overflow") ||
           !strcasecmp(M_Name.c_str(), "overflows")) {
         Collector C = Get_Collector (exp->FW(), "hwc");
-        CV.push_back(C);
-        MV.push_back("overflows");
-        IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column, last_metric));
+        IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column++, 0));
        // Get the name of the event that we were collecting.
        // Use this for the column header in the report rather then the name of the metric.
         std::string H;
         C.getParameterValue ("event", H);
         HV.push_back(H);
-        last_column++;
-        last_metric++;
       } else if (!strcasecmp(M_Name.c_str(), "percent") ||
                  !strcmp(M_Name.c_str(), "%")           ||
                  !strcasecmp(M_Name.c_str(), "%overflow")   ||
                  !strcasecmp(M_Name.c_str(), "%overflows")) {
        // percent is calculate from 2 temps: time for this row and total time.
         IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
-        IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is %
+        IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0));  // second column is %
         HV.push_back("% of Total Overflows");
-        last_column++;
+      } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
+                 !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
+       // Do a By-Thread average.
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_mean));
+        HV.push_back("Average Overflows Across Threads");
+      } else if (!strcasecmp(M_Name.c_str(), "ThreadMin")) {
+       // Find the By-Thread Min.
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_min));
+        HV.push_back("Minimum Overflows Across Threads");
+      } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
+       // Find the By-Thread Max.
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_max));
+        HV.push_back("Maximum Overflows Across Threads");
       } else {
        // Unrecognized '-m' option.
         Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
@@ -263,9 +290,9 @@ static bool define_hwc_columns (
   } else {
    // If nothing is requested ...
    // There is only 1 supported metric.  Use it and also generate the percent.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column++, 0));  // first column is metric
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // metric is total
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is % of first
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0));  // second column is % of first
 
    // Get the name of the event that we were collecting.
    // Use this for the column header in the report rather then the name of the metric.
@@ -291,11 +318,21 @@ static std::string VIEW_hwc_long  = "The report is sorted in descending order by
                                     "\n\t'-v LinkedObjects' will report counts by linked object."
                                     "\n\t'-v Functions' will report counts by function. This is the default."
                                     "\n\t'-v Statements' will report counts by statement."
-                                    " \n\nThe user can select individual metrics for display by listing"
-                                    " them after the '-m' option key."
-                                    " Only the metrics in the list will be displayed."
-                                    " Since there is only one metric available for this view, the use of"
-                                    " the '-m overflows' option will suppress the calculation of percent."
+                                    "\n\nThe information included in the report can be controlled with the"
+                                    " '-m' option.  More than one item can be selected but only the items"
+                                    " listed after the option will be printed and they will be printed in"
+                                    " the order that they are listed."
+                                    " If no '-m' option is specified, the default is equivalent to"
+                                    " '-m overflows, percent'."
+                                    " Each value pertains to the function, statement or linked object that is"
+                                    " on that row of the report.  The 'Thread...' selections pertain to the"
+                                    " process unit that the program was partitioned into: Pid's,"
+                                    " Posix threads, Mpi threads or Ranks."
+                                    " \n\t'-m overflows' reports the total counts for all the processes."
+                                    " \n\t'-m percent' reports the percent of total counts for all the processes."
+                                    " \n\t'-m ThreadAverage' reports the average counts for a process."
+                                    " \n\t'-m ThreadMin' reports the minimum number of counts for a process."
+                                    " \n\t'-m ThreadMin' reports the maximum counts for a process."
                                     "\n";
 static std::string VIEW_hwc_example = "\texpView hwc\n"
                                       "\texpView -v Functions hwc10\n";
@@ -331,6 +368,7 @@ class hwc_view : public ViewType {
   
    // Initialize the one supported metric.
     CV.push_back( Get_Collector (exp->FW(), VIEW_hwc_collectors[0]) ); // use hwc collector
+    MV.push_back("overflows");
     
    // Look for user override of '-m' options.
     if (!define_hwc_columns (cmd, exp, CV, MV, IV, HV)) {
