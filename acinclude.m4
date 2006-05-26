@@ -404,7 +404,7 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 	x86_64-*-linux*)
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
-	    BINUTILS_LIBS="-lbfd /usr/lib64/libopcodes.so"
+	    BINUTILS_LIBS="-lbfd -lopcodes"
             ;;
 	*)
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
