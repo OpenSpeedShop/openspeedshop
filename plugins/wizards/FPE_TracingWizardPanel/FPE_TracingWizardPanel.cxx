@@ -1470,52 +1470,15 @@ FPE_TracingWizardPanel::appendFunctionsToMonitor()
 {
   std::map<std::string, bool> function_map;
 
-  std::string str = "MPI_Allgather";
+  //std::string str = "MPI_Allgather";
 
   // function_map.insert(std::make_pair(str, true));
-  function_map.insert(std::make_pair("MPI_Allgather", true));
-  function_map.insert(std::make_pair("MPI_Allgatherv", true));
-  function_map.insert(std::make_pair("MPI_Allreduce", true));
-  function_map.insert(std::make_pair("MPI_Alltoall", true));
-  function_map.insert(std::make_pair("MPI_Alltoallv", true));
-  function_map.insert(std::make_pair("MPI_Barrier", true));
-  function_map.insert(std::make_pair("MPI_Bcast", true));
-  function_map.insert(std::make_pair("MPI_Bsend", true));
-  function_map.insert(std::make_pair("MPI_Cancel", true));
-  function_map.insert(std::make_pair("MPI_Finalize", true));
-  function_map.insert(std::make_pair("MPI_Gather", true));
-  function_map.insert(std::make_pair("MPI_Gatherv", true));
-  function_map.insert(std::make_pair("MPI_Get_count", true));
-  function_map.insert(std::make_pair("MPI_Ibsend", true));
-  function_map.insert(std::make_pair("MPI_Init", true));
-  function_map.insert(std::make_pair("MPI_Irecv", true));
-  function_map.insert(std::make_pair("MPI_Irsend", true));
-  function_map.insert(std::make_pair("MPI_Isend", true));
-  function_map.insert(std::make_pair("MPI_Issend", true));
-  function_map.insert(std::make_pair("MPI_Pack", true));
-  function_map.insert(std::make_pair("MPI_Probe", true));
-  function_map.insert(std::make_pair("MPI_Recv", true));
-  function_map.insert(std::make_pair("MPI_Reduce", true));
-  function_map.insert(std::make_pair("MPI_Reduce_scatter", true));
-  function_map.insert(std::make_pair("MPI_Request_free", true));
-  function_map.insert(std::make_pair("MPI_Rsend", true));
-  function_map.insert(std::make_pair("MPI_Scan", true));
-  function_map.insert(std::make_pair("MPI_Scatter", true));
-  function_map.insert(std::make_pair("MPI_Scatterv", true));
-  function_map.insert(std::make_pair("MPI_Send", true));
-  function_map.insert(std::make_pair("MPI_Sendrecv", true));
-  function_map.insert(std::make_pair("MPI_Sendrecv_replace", true));
-  function_map.insert(std::make_pair("MPI_Ssend", true));
-  function_map.insert(std::make_pair("MPI_Test", true));
-  function_map.insert(std::make_pair("MPI_Testall", true));
-  function_map.insert(std::make_pair("MPI_Testany", true));
-  function_map.insert(std::make_pair("MPI_Testsome", true));
-  function_map.insert(std::make_pair("MPI_Unpack", true));
-  function_map.insert(std::make_pair("MPI_Wait", true));
-  function_map.insert(std::make_pair("MPI_Waitall", true));
-  function_map.insert(std::make_pair("MPI_Waitany", true));
-  function_map.insert(std::make_pair("MPI_Waitsome", true));
-
+  function_map.insert(std::make_pair("inexact result", true));
+  function_map.insert(std::make_pair("division by zero", true));
+  function_map.insert(std::make_pair("underflow", true));
+  function_map.insert(std::make_pair("overflow", true));
+  function_map.insert(std::make_pair("invalid operation", true));
+  function_map.insert(std::make_pair("all supported exceptions", true));
 
   QCheckBox *vParameterPageCheckBox;
   QCheckBox *eParameterPageCheckBox;
