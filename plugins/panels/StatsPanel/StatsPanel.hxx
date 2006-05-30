@@ -181,6 +181,8 @@ class StatsPanel  : public Panel
     std::list<std::string> current_list_of_pcsamp_modifiers;
     std::list<std::string> list_of_usertime_modifiers;
     std::list<std::string> current_list_of_usertime_modifiers;
+std::list<std::string> list_of_fpe_modifiers;
+std::list<std::string> current_list_of_fpe_modifiers;
     std::list<std::string> list_of_generic_modifiers;
     std::list<std::string> current_list_of_generic_modifiers;
 
@@ -225,6 +227,7 @@ class StatsPanel  : public Panel
     QPopupMenu *hwctimeModifierMenu;
     QPopupMenu *pcsampModifierMenu;
     QPopupMenu *usertimeModifierMenu;
+QPopupMenu *fpeModifierMenu;
     QPopupMenu *genericModifierMenu;
 
     QPopupMenu *popupMenu;   // Pointer to the contextMenu
@@ -234,6 +237,7 @@ class StatsPanel  : public Panel
     QPopupMenu *hwctime_menu;
     QPopupMenu *usertime_menu;
     QPopupMenu *pcsamp_menu;
+QPopupMenu *fpe_menu;
     QPopupMenu *generic_menu;
 
     QPopupMenu *experimentsMenu;
@@ -280,6 +284,7 @@ class StatsPanel  : public Panel
     void genericModifierSelected(int);
     void pcsampModifierSelected(int);
     void usertimeModifierSelected(int);
+void fpeModifierSelected(int);
     void collectorMetricSelected(int);
     void collectorMPIReportSelected(int);
     void collectorMPITReportSelected(int);
@@ -289,6 +294,7 @@ class StatsPanel  : public Panel
     void collectorHWCTimeReportSelected(int);
     void collectorUserTimeReportSelected(int);
     void collectorPCSampReportSelected(int);
+void collectorFPEReportSelected(int);
     void collectorGenericReportSelected(int);
     void showStats();
     void showDiff();
@@ -311,6 +317,8 @@ class StatsPanel  : public Panel
     void addUserTimeReports(QPopupMenu *menu);
     void generatePCSampMenu();
     void addPCSampReports(QPopupMenu *menu);
+void generateFPEMenu();
+void addFPEReports(QPopupMenu *menu);
     void generateGenericMenu();
     QString generateCommand();
     void generateModifierMenu(QPopupMenu *, std::list<std::string>current_list, std::list<std::string>current_local_list);

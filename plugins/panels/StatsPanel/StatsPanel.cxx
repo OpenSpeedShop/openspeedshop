@@ -169,6 +169,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   hwctimeModifierMenu = NULL;
   pcsampModifierMenu = NULL;
   usertimeModifierMenu = NULL;
+fpeModifierMenu = NULL;
 
   mpi_menu = NULL;
   io_menu = NULL;
@@ -176,6 +177,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   hwctime_menu = NULL;
   pcsamp_menu = NULL;
   usertime_menu = NULL;
+fpe_menu = NULL;
 
   list_of_modifiers.clear(); // This is the global known list of modifiers.
 
@@ -194,6 +196,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   current_list_of_pcsamp_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_usertime_modifiers.clear();
   current_list_of_usertime_modifiers.clear();  // This is this list of user selected modifiers.
+list_of_fpe_modifiers.clear();
+current_list_of_fpe_modifiers.clear();  // This is this list of user selected modifiers.
 
   current_list_of_modifiers.clear();  // This is this list of user selected modifiers.
   selectedFunctionStr = QString::null;
@@ -654,6 +658,10 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     {
 // printf("Generate a pcsamp menu\n");
       generatePCSampMenu();
+    } else if( QString(collector_name).startsWith("fpe") )
+    {
+// printf("Generate a fpe menu\n");
+      generateFPEMenu();
     } else
     {
 // printf("Generate an other (%s) menu\n", collector_name.c_str() );
@@ -2268,6 +2276,62 @@ StatsPanel::collectorPCSampReportSelected(int val)
 
 
 void
+StatsPanel::collectorFPEReportSelected(int val)
+{ 
+printf("collectorFPEReportSelected: val=%d\n", val);
+printf("collectorFPEReportSelected: fpe_menu=(%s)\n", fpe_menu->text(val).ascii() );
+printf("collectorFPEReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+
+  currentUserSelectedReportStr = QString::null;
+  currentCollectorStr = "fpe";
+  collectorStrFromMenu = QString::null;
+  currentMetricStr = QString::null;
+
+//  QString s = contextMenu->text(val).ascii();
+  QString s = QString::null;
+  s = fpe_menu->text(val).ascii();
+  if( s.isEmpty() )
+  {
+    s = contextMenu->text(val).ascii();
+  }
+
+printf("FPE Report: (%s)\n", s.ascii() );
+
+// printf("E: s=%s\n", s.ascii() );
+  int index = s.find(":");
+  if( index != -1 )
+  {
+// printf("DD: NOW FIND :\n");
+    index = s.find(":");
+    if( index > 0 )
+    { // The user selected one of the metrics
+      collectorStrFromMenu = s.mid(13, index-13 );
+      currentUserSelectedReportStr = s.mid(index+2);
+// printf("UT1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+      // This one resets to all...
+    } else 
+    { // The user wants to do all the metrics on the selected threads...
+      currentMetricStr = QString::null;
+      index = s.find(":");
+      currentUserSelectedReportStr = s.mid(13, index-13);
+      if( !currentUserSelectedReportStr.contains("CallTrees by Selected Function") )
+      {
+        selectedFunctionStr = QString::null;
+      }
+// printf("UT2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+    }
+
+// printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+
+// printf("Collector changed call updateStatsPanelData() \n");
+  }
+  updateStatsPanelData();
+
+
+}
+
+
+void
 StatsPanel::collectorGenericReportSelected(int val)
 { 
 // printf("collectorGenericReportSelected: val=%d\n", val);
@@ -2821,6 +2885,64 @@ StatsPanel::pcsampModifierSelected(int val)
   }
 }
 
+
+void
+StatsPanel::fpeModifierSelected(int val)
+{ 
+printf("fpeModifierSelected val=%d\n", val);
+printf("modifierSelected: (%s)\n", fpeModifierMenu->text(val).ascii() );
+
+  if( fpeModifierMenu->text(val).isEmpty() )
+  {
+    fpeModifierMenu->insertSeparator();
+    if( fpe_menu )
+    {
+      delete fpe_menu;
+    }
+    fpe_menu = new QPopupMenu(this);
+    fpeModifierMenu->insertItem(QString("Select fpe Reports:"), fpe_menu);
+    addFPEReports(fpe_menu);
+    connect(fpe_menu, SIGNAL( activated(int) ),
+      this, SLOT(collectorFPEReportSelected(int)) );
+    return;
+  }
+
+
+  std::string s = fpeModifierMenu->text(val).ascii();
+printf("B1: modifierStr=(%s)\n", s.c_str() );
+
+  bool FOUND = FALSE;
+  for( std::list<std::string>::const_iterator it = current_list_of_fpe_modifiers.begin();
+       it != current_list_of_fpe_modifiers.end();  )
+  {
+    std::string modifier = (std::string)*it;
+
+    if( modifier ==  s )
+    {   // It's in the list, so take it out...
+printf("The modifier was in the list ... take it out!\n");
+      FOUND = TRUE;
+    }
+
+    it++;
+
+    if( FOUND == TRUE )
+    {
+      current_list_of_fpe_modifiers.remove(modifier);
+      fpeModifierMenu->setItemChecked(val, FALSE);
+      break;
+    }
+  }
+
+  if( FOUND == FALSE )
+  {
+printf("The modifier was not in the list ... add it!\n");
+    if( s != PTI )
+    {
+      current_list_of_fpe_modifiers.push_back(s);
+    }
+    fpeModifierMenu->setItemChecked(val, TRUE);
+  }
+}
 
 void
 StatsPanel::genericModifierSelected(int val)
@@ -4229,6 +4351,9 @@ StatsPanel::generateCommand()
     } else if( currentCollectorStr == "usertime" )
     {
       modifier_list = &current_list_of_usertime_modifiers;
+    } else if( currentCollectorStr == "fpe" )
+    {
+      modifier_list = &current_list_of_fpe_modifiers;
     } else
     {
 //      modifier_list = &current_list_of_modifiers;
@@ -4687,6 +4812,53 @@ StatsPanel::generatePCSampMenu()
 
 
 void
+StatsPanel::generateFPEMenu()
+{
+printf("Collector fpe_menu is being created\n");
+
+  fpe_menu = new QPopupMenu(this);
+  connect(fpe_menu, SIGNAL( activated(int) ),
+           this, SLOT(collectorFPEReportSelected(int)) );
+
+  QString s = QString::null;
+
+  QAction *qaction = NULL;
+
+
+  if( focusedExpID != -1 )
+  {
+    contextMenu->insertItem(QString("Show Metrics: (Exp: %1) FPE").arg(focusedExpID), fpe_menu);
+  } else
+  {
+    contextMenu->insertItem(QString("Show Metrics: FPE"), fpe_menu);
+  }
+
+  list_of_fpe_modifiers.clear();
+  list_of_fpe_modifiers.push_back("fpe::time");
+  list_of_fpe_modifiers.push_back("fpe::counts");
+  list_of_fpe_modifiers.push_back("fpe::inexact_result_count");
+  list_of_fpe_modifiers.push_back("fpe::underflow_count");
+  list_of_fpe_modifiers.push_back("fpe::overflow_count");
+  list_of_fpe_modifiers.push_back("fpe::division_by_zero_count");
+  list_of_fpe_modifiers.push_back("fpe::unnormal_count");
+  list_of_fpe_modifiers.push_back("fpe::invalid_count");
+  list_of_fpe_modifiers.push_back("fpe::unknown_count");
+
+  if( fpeModifierMenu )
+  {
+    delete fpeModifierMenu;
+  }
+  fpeModifierMenu = new QPopupMenu(this);
+  addFPEReports(fpe_menu);
+  fpeModifierMenu->insertTearOffHandle();
+  connect(fpeModifierMenu, SIGNAL( activated(int) ),
+    this, SLOT(fpeModifierSelected(int)) );
+  generateModifierMenu(fpeModifierMenu, list_of_fpe_modifiers, current_list_of_fpe_modifiers);
+  fpe_menu->insertItem(QString("Select fpe Metrics:"), fpeModifierMenu);
+}
+
+
+void
 StatsPanel::generateGenericMenu()
 {
 // printf("generateGenericMenu is being created\n");
@@ -4941,6 +5113,73 @@ StatsPanel::addPCSampReports(QPopupMenu *menu )
   qaction->addTo( menu );
   qaction->setText( tr("Show: Statements") );
   qaction->setToolTip(tr("Show Statements.") );
+}
+
+
+void
+StatsPanel::addFPEReports(QPopupMenu *menu )
+{
+  QAction *qaction = new QAction(this, "showFunctions");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Functions") );
+  qaction->setToolTip(tr("Show timings for Functions."));
+
+  qaction = new QAction(this, "showStatements");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Statements") );
+  qaction->setToolTip(tr("Show timings for statements."));
+
+qaction = new QAction(this, "showStatementsByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: Statements by Function") );
+qaction->setToolTip(tr("Show timings for statements by function"));
+
+  qaction = new QAction(this, "showCallTrees");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees") );
+  qaction->setToolTip(tr("Show call trees for each function."));
+
+qaction = new QAction(this, "showCallTreesByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: CallTrees by Function") );
+qaction->setToolTip(tr("Show call trees for each function by function"));
+
+  qaction = new QAction(this, "showCallTrees,FullStack");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees,FullStack") );
+  qaction->setToolTip(tr("Show call trees, with full stacks, to Functions."));
+
+qaction = new QAction(this, "showCallTrees,FullStackbyFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: CallTrees,FullStack by Function") );
+qaction->setToolTip(tr("Show call trees, with full stacks, to functions by function"));
+
+  qaction = new QAction(this, "showTraceBacks");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: TraceBacks") );
+  qaction->setToolTip(tr("Show trace backs for each function."));
+
+qaction = new QAction(this, "showTraceBacksByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: TraceBacks by Function") );
+qaction->setToolTip(tr("Show trace backs for each function by function"));
+
+
+  qaction = new QAction(this, "showTracebacks,FullStack");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: TraceBacks,FullStack") );
+  qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO Functions."));
+
+qaction = new QAction(this, "showTracebacks,FullStackByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: TraceBacks,FullStack by Function") );
+qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO functions by function."));
+
+  qaction = new QAction(this, "showButterfly");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Butterfly") );
+  qaction->setToolTip(tr("Show Butterfly by function.") );
+
 }
 
 void
