@@ -26,6 +26,7 @@ class PanelContainer;   // Do not remove
 #include <qvariant.h>
 #include <qwidget.h>
 
+class QLayout;
 class QVBoxLayout;
 class QHBoxLayout;
 class QGridLayout;
@@ -35,6 +36,7 @@ class QWidgetStack;
 class QLabel;
 class QTextEdit;
 class QCheckBox;
+class QGridLayout;
 class QFrame;
 class QRadioButton;
 class QPushButton;
@@ -107,7 +109,7 @@ public:
   int broadcast(char *msg);
 
 
-  QVBoxLayout * fpeTracingFormLayout;
+  QVBoxLayout * fpeFormLayout;
     QFrame* mainFrame;
     QWidgetStack* mainWidgetStack;
     QWidget* vDescriptionPageWidget;
@@ -119,9 +121,7 @@ public:
     QWidget* vParameterPageWidget;
     QTextEdit* vParameterPageDescriptionText;
     QFrame* vParameterPageLine;
-    QLabel* vParameterPageSampleRateHeaderLabel;
-    QLabel* vParameterPageSampleRateLabel;
-    QLineEdit* vParameterPageSampleRateText;
+    QLabel* vParameterPageFunctionListHeaderLabel;
     QPushButton* vParameterPageBackButton;
     QPushButton* vParameterPageResetButton;
     QPushButton* vParameterPageNextButton;
@@ -149,9 +149,13 @@ public:
     QWidget* eParameterPageWidget;
     QTextEdit* eParameterPageDescriptionLabel;
     QFrame* eParameterPageLine;
-    QLabel* eParameterPageSampleRateHeaderLabel;
+QCheckBox *vParameterTraceCheckBox;
+QCheckBox *eParameterTraceCheckBox;
+    QLabel* eParameterPageFunctionListHeaderLabel;
+#ifdef OLDWAY
     QLabel* eParameterPageSampleRateLabel;
     QLineEdit* eParameterPageSampleRateText;
+#endif // OLDWAY
     QPushButton* eParameterPageBackButton;
     QPushButton* eParameterPageResetButton;
     QPushButton* eParameterPageNextButton;
@@ -172,6 +176,10 @@ public:
     QPushButton* eSummaryPageFinishButton;
     QCheckBox* vwizardMode;
     QCheckBox* ewizardMode;
+
+    QScrollView *sv;
+    QWidget *big_box_w;
+    void handleSizeEvent(QResizeEvent *e);
 
 public slots:
     virtual void eDescriptionPageNextButtonSelected();
@@ -219,7 +227,9 @@ protected:
     QSpacerItem* vParameterPageSpacer;
     QSpacerItem* vAttachOrLoadPageSpacer;
     QVBoxLayout* vParameterPageParameterLayout;
-    QHBoxLayout* vParameterPageSampleRateLayout;
+    QVBoxLayout* vParameterPageFunctionListLayout;
+    QGridLayout* vParameterPageFunctionListGridLayout;
+    QGridLayout* eParameterPageFunctionListGridLayout;
     QHBoxLayout* vParameterPageButtonLayout;
     QLabel *vAttachOrLoadPageProcessListLabel;
     QLabel *vAttachOrLoadPageExecutableLabel;
@@ -230,9 +240,6 @@ protected:
     QVBoxLayout* vSummaryPageLayout;
     QVBoxLayout* vSummaryPageLabelLayout;
     QSpacerItem* vSummaryPageButtonSpacer;
-#ifdef OLDWAY
-    QSpacerItem* vSummaryPageSpacer;
-#endif // OLDWAY
     QHBoxLayout* vSummaryPageButtonLayout;
     QVBoxLayout* eDescriptionPageLayout;
     QHBoxLayout* eDescriptionPageButtonLayout;
@@ -242,7 +249,7 @@ protected:
     QVBoxLayout* eAttachOrLoadPageLayout;
     QSpacerItem* eAttachOrLoadPageSpacer;
     QVBoxLayout* eParameterPageParameterLayout;
-    QHBoxLayout* eParameterPageSampleRateLayout;
+    QHBoxLayout* eParameterPageFunctionListLayout;
     QHBoxLayout* eParameterPageButtonLayout;
     QSpacerItem* eParameterPageButtonSpacer;
     QLabel *eAttachOrLoadPageExecutableLabel;
@@ -267,6 +274,8 @@ protected slots:
 private:
     QString sampleRate;
 
-    Panel *fpeTracingPanel;
+    Panel *fpePanel;
+
+    void appendFunctionsToMonitor();
 };
 #endif // PCSAMPLEWIZARDPANEL_H

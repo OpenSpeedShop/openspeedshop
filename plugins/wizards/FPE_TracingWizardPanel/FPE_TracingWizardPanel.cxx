@@ -23,6 +23,9 @@
 #include "plugin_entry_point.hxx"   // Do not remove
 #include "AttachProcessDialog.hxx"
 
+#define MAXROWS 8
+#define MAXCOLUMNS 8
+
 #include <qapplication.h>
 #include <qvariant.h>
 #include <qpushbutton.h>
@@ -30,6 +33,7 @@
 #include <qlabel.h>
 #include <qtextedit.h>
 #include <qcheckbox.h>
+#include <qgroupbox.h>
 #include <qframe.h>
 #include <qradiobutton.h>
 #include <qlineedit.h>
@@ -50,6 +54,8 @@
 #include "rightarrow.xpm"
 #include "leftarrow.xpm"
 
+#include <qrect.h>
+
 #include "LoadAttachObject.hxx"
 
 #include "FPE_TracingDescription.hxx"
@@ -62,10 +68,10 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n
   nprintf(DEBUG_CONST_DESTRUCT) ("FPE_TracingWizardPanel::FPE_TracingWizardPanel() constructor called\n");
   if ( !getName() )
   {
-	setName( "FPE Tracing" );
+	setName( "FPE_Tracing" );
   }
 
-  fpeTracingFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
+  fpeFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
   mainFrame = new QFrame( getBaseWidgetFrame(), "mainFrame" );
   mainFrame->setMinimumSize( QSize(10,10) );
@@ -145,25 +151,41 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n
 
   vParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageParameterLayout"); 
 
-  vParameterPageSampleRateHeaderLabel = new QLabel( vParameterPageWidget, "vParameterPageSampleRateHeaderLabel" );
-//  vParameterPageSampleRateHeaderLabel->setMinimumSize( QSize(10,10) );
-  vParameterPageSampleRateHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  vParameterPageParameterLayout->addWidget( vParameterPageSampleRateHeaderLabel );
+  vParameterTraceCheckBox = new QCheckBox( vParameterPageWidget, "vParameterTraceComboBox" );
+  vParameterTraceCheckBox->setText(tr("Gather additional information for each FPE call. (fpet)") );
+  vParameterPageParameterLayout->addWidget( vParameterTraceCheckBox );
+vParameterTraceCheckBox->hide();
+  QToolTip::add( vParameterTraceCheckBox, tr( "Records extra information, with more overhead, including\nsource rank, destination rank, size of message, tag of event,\ncomminicator used, data type of event, and the return value\nof the event.") );
 
-  vParameterPageSampleRateLayout = new QHBoxLayout( 0, 0, 6, "vParameterPageSampleRateLayout"); 
+  vParameterPageFunctionListHeaderLabel = new QLabel( vParameterPageWidget, "vParameterPageFunctionListHeaderLabel" );
+  vParameterPageFunctionListHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
+  vParameterPageParameterLayout->addWidget( vParameterPageFunctionListHeaderLabel );
 
-  vParameterPageSampleRateLabel = new QLabel( vParameterPageWidget, "vParameterPageSampleRateLabel" );
-  vParameterPageSampleRateLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  vParameterPageSampleRateLayout->addWidget( vParameterPageSampleRateLabel );
 
-  vParameterPageSampleRateText = new QLineEdit( vParameterPageWidget, "vParameterPageSampleRateText" );
-  vParameterPageSampleRateText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  vParameterPageSampleRateLayout->addWidget( vParameterPageSampleRateText );
+  vParameterPageFunctionListLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageFunctionListLayout");
 
-  vParameterPageSpacer = new QSpacerItem( 400, 30, QSizePolicy::Preferred, QSizePolicy::Fixed );
-  vParameterPageSampleRateLayout->addItem( vParameterPageSpacer );
+  sv = new QScrollView( vParameterPageWidget, "scrollView" );
+  big_box_w = new QWidget(sv->viewport(), "big_box(viewport)" );
+  big_box_w->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  const QColor color = vParameterTraceCheckBox->paletteBackgroundColor();
+  sv->viewport()->setBackgroundColor(color);
+  // sv->viewport()->setPaletteBackgroundColor(color);
+  sv->addChild(big_box_w);
+  vParameterPageFunctionListLayout->addWidget( sv );
 
-  vParameterPageParameterLayout->addLayout( vParameterPageSampleRateLayout );
+  // For debugging layout
+  // big_box_w->setBackgroundColor("Red");
+
+
+  QHBoxLayout *glayout = new QHBoxLayout( big_box_w, 0, 6, "glayout");
+
+  vParameterPageFunctionListGridLayout = new QGridLayout( glayout, MAXROWS, MAXCOLUMNS, 3, "vParameterPageFunctionListGridLayout"); 
+
+//  vParameterPageSpacer = new QSpacerItem( 400, 30, QSizePolicy::Preferred, QSizePolicy::Fixed );
+  vParameterPageSpacer = new QSpacerItem( 400, 30, QSizePolicy::Preferred, QSizePolicy::Expanding );
+  vParameterPageFunctionListLayout->addItem( vParameterPageSpacer );
+
+  vParameterPageParameterLayout->addLayout( vParameterPageFunctionListLayout );
   vParameterPageLayout->addLayout( vParameterPageParameterLayout );
 
   vParameterPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vParameterPageButtonLayout"); 
@@ -351,25 +373,26 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n
 
   eParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "eParameterPageParameterLayout"); 
 
-  eParameterPageSampleRateHeaderLabel = new QLabel( eParameterPageWidget, "eParameterPageSampleRateHeaderLabel" );
-//  eParameterPageSampleRateHeaderLabel->setMinimumSize( QSize(10,10) );
-  eParameterPageSampleRateHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  eParameterPageParameterLayout->addWidget( eParameterPageSampleRateHeaderLabel );
+  eParameterTraceCheckBox = new QCheckBox( eParameterPageWidget, "eParameterTraceComboBox" );
+  eParameterTraceCheckBox->setText(tr("Gather additional information for each FPE function call.") );
+  eParameterPageParameterLayout->addWidget( eParameterTraceCheckBox );
+eParameterTraceCheckBox->hide();
+  QToolTip::add( eParameterTraceCheckBox, tr( "Records extra information, with more overhead, including\nsource rank, destination rank, size of message, tag of event,\ncomminicator used, data type of event, and the return value\nof the event.") );
 
-  eParameterPageSampleRateLayout = new QHBoxLayout( 0, 0, 6, "eParameterPageSampleRateLayout"); 
 
-  eParameterPageSampleRateLabel = new QLabel( eParameterPageWidget, "eParameterPageSampleRateLabel" );
-  eParameterPageSampleRateLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  eParameterPageSampleRateLayout->addWidget( eParameterPageSampleRateLabel );
+  eParameterPageFunctionListHeaderLabel = new QLabel( eParameterPageWidget, "eParameterPageFunctionListHeaderLabel" );
+  eParameterPageFunctionListHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
+  eParameterPageParameterLayout->addWidget( eParameterPageFunctionListHeaderLabel );
 
-  eParameterPageSampleRateText = new QLineEdit( eParameterPageWidget, "eParameterPageSampleRateText" );
-  eParameterPageSampleRateText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  eParameterPageSampleRateLayout->addWidget( eParameterPageSampleRateText );
+
+  eParameterPageFunctionListLayout = new QHBoxLayout( 0, 0, 6, "eParameterPageFunctionListLayout"); 
+
+  eParameterPageFunctionListGridLayout = new QGridLayout( eParameterPageFunctionListLayout, MAXROWS, MAXCOLUMNS, 3, "eParameterPageFunctionListGridLayout"); 
 
   eParameterPageSpacer = new QSpacerItem( 20, 1, QSizePolicy::Preferred, QSizePolicy::Fixed );
-  eParameterPageSampleRateLayout->addItem( eParameterPageSpacer );
+  eParameterPageFunctionListLayout->addItem( eParameterPageSpacer );
 
-  eParameterPageParameterLayout->addLayout( eParameterPageSampleRateLayout );
+  eParameterPageParameterLayout->addLayout( eParameterPageFunctionListLayout );
   eParameterPageLayout->addLayout( eParameterPageParameterLayout );
   eParameterPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eParameterPageButtonLayout"); 
 
@@ -489,11 +512,12 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n
   eSummaryPageLayout->addLayout( eSummaryPageButtonLayout );
   mainWidgetStack->addWidget( eSummaryPageWidget, 7 );
   mainFrameLayout->addWidget( mainWidgetStack );
-  fpeTracingFormLayout->addWidget( mainFrame );
+  fpeFormLayout->addWidget( mainFrame );
 // End: advance (expert) summary page
 
 
   languageChange();
+
   resize( QSize(631, 508).expandedTo(minimumSizeHint()) );
   clearWState( WState_Polished );
 
@@ -508,9 +532,6 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n
            SLOT( eParameterPageNextButtonSelected() ) );
   connect( eParameterPageResetButton, SIGNAL( clicked() ), this,
            SLOT( eParameterPageResetButtonSelected() ) );
-  connect( eParameterPageSampleRateText, SIGNAL( returnPressed() ), this,
-           SLOT( eParameterPageSampleRateTextReturnPressed() ) );
-
   connect( eAttachOrLoadPageBackButton, SIGNAL( clicked() ), this,
            SLOT( eAttachOrLoadPageBackButtonSelected() ) );
   connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this,
@@ -526,8 +547,6 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n
            SLOT( vDescriptionPageNextButtonSelected() ) );
   connect( vDescriptionPageIntroButton, SIGNAL( clicked() ), this,
            SLOT( vDescriptionPageIntroButtonSelected() ) );
-  connect( vParameterPageSampleRateText, SIGNAL( returnPressed() ), this,
-           SLOT( vParameterPageSampleRateTextReturnPressed() ) );
   connect( vParameterPageBackButton, SIGNAL( clicked() ), this,
            SLOT( vParameterPageBackButtonSelected() ) );
   connect( vParameterPageResetButton, SIGNAL( clicked() ), this,
@@ -594,14 +613,14 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n
   }
 
 // This is way ugly and only a temporary hack to get a handle on the 
-// parent fpeTracingPanel's hook.    
+// parent fpePanel's hook.    
 // This should only be > 1 when we're calling this wizard from within
-// a fpeTracingPanel session to help the user load an executable.
-  fpeTracingPanel = NULL;
+// a fpePanel session to help the user load an executable.
+  fpePanel = NULL;
 //  if( (int)argument > 1 )
   if( ao && ao->panel_data != NULL )
   {
-    fpeTracingPanel = (Panel *)ao->panel_data;
+    fpePanel = (Panel *)ao->panel_data;
   }
 
 // end debug
@@ -652,7 +671,6 @@ int
 FPE_TracingWizardPanel::listener(void *msg)
 {
   nprintf(DEBUG_PANELS) ("FPE_TracingWizardPanel::listener() requested.\n");
-// printf("FPE_TracingWizardPanel::listener() requested.\n");
 
   MessageObject *messageObject = (MessageObject *)msg;
   nprintf(DEBUG_PANELS) ("  messageObject->msgType = %s\n", messageObject->msgType.ascii() );
@@ -806,9 +824,6 @@ void FPE_TracingWizardPanel::eParameterPageNextButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("eParameterPageNextButtonSelected() \n");
 
-  sampleRate = eParameterPageSampleRateText->text();
-vParameterPageSampleRateText->setText(eParameterPageSampleRateText->text());
-
 //  eUpdateAttachOrLoadPageWidget();
   vUpdateAttachOrLoadPageWidget();
 
@@ -902,7 +917,7 @@ void FPE_TracingWizardPanel::eAttachOrLoadPageNextButtonSelected()
       {
         return;
       }
-      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with a sampling rate of \"%s\".<br><br></p>", mw->pidStr.ascii(), mw->hostStr.ascii(), eParameterPageSampleRateText->text().ascii() );
+      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" fpe functions.<br><br></p>", mw->pidStr.ascii(), mw->hostStr.ascii(), "ALL" );
     }
   }
   if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
@@ -921,7 +936,7 @@ void FPE_TracingWizardPanel::eAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with a sampling rate of \"%s\".<br><br></p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" fpe functions.<br><br></p>", mw->executableName.ascii(), mw->hostStr.ascii(), "ALL" );
   }
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -973,9 +988,6 @@ void FPE_TracingWizardPanel::vParameterPageNextButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vParameterPageNextButtonSelected() \n");
 
-  sampleRate = vParameterPageSampleRateText->text();
-eParameterPageSampleRateText->setText(vParameterPageSampleRateText->text());
-
   vUpdateAttachOrLoadPageWidget();
 
   mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
@@ -998,9 +1010,10 @@ void FPE_TracingWizardPanel::vAttachOrLoadPageClearButtonSelected()
   nprintf(DEBUG_PANELS) ("vAttachOrLoadPageClearButtonSelected() \n");
 
   vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
   vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+
+  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
   eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
 
@@ -1113,7 +1126,7 @@ void FPE_TracingWizardPanel::vAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">You've selected a FPE Tracing experiment for process \"%s\" running on host \"%s\".  Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpeTracing\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a FPE experiment for process \"%s\" running on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" fpe functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpe\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), "ALL" );
   }
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
       vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
@@ -1131,7 +1144,7 @@ void FPE_TracingWizardPanel::vAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">You've selected a FPE Tracing experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpeTracing\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a FPE experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" fpe functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpe\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), "ALL" );
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1183,7 +1196,7 @@ void FPE_TracingWizardPanel::vSummaryPageFinishButtonSelected()
   nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 // printf("vSummaryPageFinishButtonSelected() \n");
 
-  Panel *p = fpeTracingPanel;
+  Panel *p = fpePanel;
   if( getPanelContainer()->getMainWindow() )
   { 
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
@@ -1191,7 +1204,6 @@ void FPE_TracingWizardPanel::vSummaryPageFinishButtonSelected()
     {
       LoadAttachObject *lao = NULL;
       ParamList *paramList = new ParamList();
-      paramList->push_back(vParameterPageSampleRateText->text() );
 // printf("A: push_back (%s)\n", vParameterPageSampleRateText->text().ascii() );
       if( !mw->executableName.isEmpty() )
       {
@@ -1216,8 +1228,17 @@ void FPE_TracingWizardPanel::vSummaryPageFinishButtonSelected()
         if( !p )
         {
           ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
-ao->lao = lao;
-          p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing", getPanelContainer(), ao);
+          ao->lao = lao;
+
+          if( (vwizardMode->isChecked() && vParameterTraceCheckBox->isChecked()) ||
+              (ewizardMode->isChecked() && eParameterTraceCheckBox->isChecked()) )
+          {
+              p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing", getPanelContainer(), ao);
+          } else 
+          {
+            p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing", getPanelContainer(), ao);
+          }
+
           delete ao;
         } else
         {
@@ -1240,28 +1261,19 @@ ao->lao = lao;
 void
 FPE_TracingWizardPanel::languageChange()
 {
-  unsigned int sampling_rate = 100;
+  unsigned int traced_functions = 100;
 
-  setCaption( tr( "FPE Tracing Wizard Panel" ) );
-  vDescriptionPageTitleLabel->setText( tr( "<h1>FPE Tracing Wizard</h1>" ) );
-  vDescriptionPageText->setText( tr( vFPE_TracingDescription ) );
+  setCaption( tr( "FPE Tracing - Wizard Panel" ) );
+  vDescriptionPageTitleLabel->setText( tr( "<h1>FPE Tracing - Wizard</h1>" ) );
   vDescriptionPageIntroButton->setText( tr( "<< Intro" ) );
   QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
   vDescriptionPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
-  vParameterPageDescriptionText->setText( tr( QString("The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
-"The larger the number used for the sample rate, the more\n"
-"FPE Tracing detail will be shown.   However, the trade off will be slower\n"
-"performance and a larger data file.<br><br>\n"
-"It may take a little experimenting to find the right setting for your \n"
-"particular executable.   We suggest starting with the default setting\n"
-"of %1.").arg(sampling_rate) ) );
-  vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
-  vParameterPageSampleRateLabel->setText( tr( "sample rate:" ) );
-  vParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
-  QToolTip::add( vParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(sampling_rate) ) );
+  vParameterPageDescriptionText->setText( tr( QString("The following options (paramaters) are available to adjust.   These are the list of functions that the FPE collector is able to monitor.<br><br>\n") ) );
+
+  vParameterPageFunctionListHeaderLabel->setText( tr( "You can monitor the following fpe functions(s):" ) );
   vParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vParameterPageBackButton, tr( "Takes you back one page." ) );
   vParameterPageResetButton->setText( tr( "Reset" ) );
@@ -1270,6 +1282,8 @@ FPE_TracingWizardPanel::languageChange()
   QToolTip::add( vParameterPageNextButton, tr( "Advance to the next wizard page." ) );
   vParameterPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vParameterPageFinishButton, tr( "Advance to the wizard finish page." ) );
+
+  appendFunctionsToMonitor();
 
   vAttachOrLoadPageDescriptionLabel->setText( tr( "We can attach to an existing process (or processes) or load an executable from disk .  Please select the desired action.<br><br>Note: A dialog will be posted prompting for the information.</p>") );
   vAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more processes." ) );
@@ -1288,19 +1302,16 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
   vSummaryPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vSummaryPageBackButton, tr( "Takes you back one page." ) );
   vSummaryPageFinishButton->setText( tr( "Finish..." ) );
-  QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"fpeTracing\" panel" ) );
+  QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"fpe\" panel" ) );
   eDescriptionPageTitleLabel->setText( tr( "<h1>FPE Tracing Wizard</h1>" ) );
-  eDescriptionPageText->setText( tr( eFPE_TracingDescription ) );
+  eDescriptionPageText->setText( tr( vFPE_TracingDescription ) );
   eDescriptionPageIntroButton->setText( tr( "<< Intro" ) );
   eDescriptionPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( eDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   eDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( eDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
   eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
-  eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
-  eParameterPageSampleRateLabel->setText( tr( "sample rate:" ) );
-  eParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
-  QToolTip::add( eParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(sampling_rate) ) );
+  eParameterPageFunctionListHeaderLabel->setText( tr( "You can monitor the following fpe function(s):" ) );
   eParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eParameterPageBackButton, tr( "Takes you back one page." ) );
   eParameterPageResetButton->setText( tr( "Reset" ) );
@@ -1356,23 +1367,25 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
       return;
     }
 
-    Collector fpeTracingCollector = dummy_experiment.createCollector("fpe");
+    Collector fpeCollector = dummy_experiment.createCollector("fpe");
 
-    Metadata cm = fpeTracingCollector.getMetadata();
-      std::set<Metadata> md =fpeTracingCollector.getParameters();
-      std::set<Metadata>::const_iterator mi;
-      for (mi = md.begin(); mi != md.end(); mi++) {
+    Metadata cm = fpeCollector.getMetadata();
+    std::set<Metadata> md =fpeCollector.getParameters();
+    std::set<Metadata>::const_iterator mi;
+    for (mi = md.begin(); mi != md.end(); mi++)
+    {
         Metadata m = *mi;
-//        printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-//        printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-//        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
-      }
-      fpeTracingCollector.getParameterValue("sampling_rate", sampling_rate);
-// printf("sampling_rate=%d\n", sampling_rate);
-//    fpeTracingCollector.setParameterValue("sampling_rate", (unsigned)100);
-// printf("Initialize the text fields... (%d)\n", sampling_rate);
-    vParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
-    eParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
+printf("A: %s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+printf("B: %s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+printf("C: %s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+
+      vDescriptionPageText->setText( tr( cm.getDescription().c_str() ) );
+    }
+std::map<std::string,bool> tracedFunctions;
+      fpeCollector.getParameterValue("traced_fpes", tracedFunctions);
+// printf("Initialize the text fields... (%s)\n", tracedFunctions.first);
+//    vParameterPageSampleRateText->setText(QString("%1").arg(tracedFunctions.first));
+//    eParameterPageSampleRateText->setText(QString("%1").arg(tracedFunctions.first));
 
     if( temp_name )
     {
@@ -1388,9 +1401,11 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
   vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
   vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+//  vAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
   eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
   eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+//  eAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
 }
 
 void
@@ -1413,10 +1428,10 @@ FPE_TracingWizardPanel::vUpdateAttachOrLoadPageWidget()
         eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
         vAttachOrLoadPageExecutableLabel->setText( mw->executableName );
         eAttachOrLoadPageExecutableLabel->setText( mw->executableName );
-        vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load the following executable from disk." ) );
-        eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load the following executable from disk." ) );
         vAttachOrLoadPageExecutableLabel->show();
         eAttachOrLoadPageExecutableLabel->show();
+        vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load the following executable from disk." ) );
+        eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load the following executable from disk." ) );
         vAttachOrLoadPageLoadDifferentExecutableCheckBox->show();
         eAttachOrLoadPageLoadDifferentExecutableCheckBox->show();
       } else if( !mw->pidStr.isEmpty() )
@@ -1448,4 +1463,135 @@ FPE_TracingWizardPanel::vUpdateAttachOrLoadPageWidget()
       eAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
     }
   }
+}
+
+void
+FPE_TracingWizardPanel::appendFunctionsToMonitor()
+{
+  std::map<std::string, bool> function_map;
+
+  std::string str = "MPI_Allgather";
+
+  // function_map.insert(std::make_pair(str, true));
+  function_map.insert(std::make_pair("MPI_Allgather", true));
+  function_map.insert(std::make_pair("MPI_Allgatherv", true));
+  function_map.insert(std::make_pair("MPI_Allreduce", true));
+  function_map.insert(std::make_pair("MPI_Alltoall", true));
+  function_map.insert(std::make_pair("MPI_Alltoallv", true));
+  function_map.insert(std::make_pair("MPI_Barrier", true));
+  function_map.insert(std::make_pair("MPI_Bcast", true));
+  function_map.insert(std::make_pair("MPI_Bsend", true));
+  function_map.insert(std::make_pair("MPI_Cancel", true));
+  function_map.insert(std::make_pair("MPI_Finalize", true));
+  function_map.insert(std::make_pair("MPI_Gather", true));
+  function_map.insert(std::make_pair("MPI_Gatherv", true));
+  function_map.insert(std::make_pair("MPI_Get_count", true));
+  function_map.insert(std::make_pair("MPI_Ibsend", true));
+  function_map.insert(std::make_pair("MPI_Init", true));
+  function_map.insert(std::make_pair("MPI_Irecv", true));
+  function_map.insert(std::make_pair("MPI_Irsend", true));
+  function_map.insert(std::make_pair("MPI_Isend", true));
+  function_map.insert(std::make_pair("MPI_Issend", true));
+  function_map.insert(std::make_pair("MPI_Pack", true));
+  function_map.insert(std::make_pair("MPI_Probe", true));
+  function_map.insert(std::make_pair("MPI_Recv", true));
+  function_map.insert(std::make_pair("MPI_Reduce", true));
+  function_map.insert(std::make_pair("MPI_Reduce_scatter", true));
+  function_map.insert(std::make_pair("MPI_Request_free", true));
+  function_map.insert(std::make_pair("MPI_Rsend", true));
+  function_map.insert(std::make_pair("MPI_Scan", true));
+  function_map.insert(std::make_pair("MPI_Scatter", true));
+  function_map.insert(std::make_pair("MPI_Scatterv", true));
+  function_map.insert(std::make_pair("MPI_Send", true));
+  function_map.insert(std::make_pair("MPI_Sendrecv", true));
+  function_map.insert(std::make_pair("MPI_Sendrecv_replace", true));
+  function_map.insert(std::make_pair("MPI_Ssend", true));
+  function_map.insert(std::make_pair("MPI_Test", true));
+  function_map.insert(std::make_pair("MPI_Testall", true));
+  function_map.insert(std::make_pair("MPI_Testany", true));
+  function_map.insert(std::make_pair("MPI_Testsome", true));
+  function_map.insert(std::make_pair("MPI_Unpack", true));
+  function_map.insert(std::make_pair("MPI_Wait", true));
+  function_map.insert(std::make_pair("MPI_Waitall", true));
+  function_map.insert(std::make_pair("MPI_Waitany", true));
+  function_map.insert(std::make_pair("MPI_Waitsome", true));
+
+
+  QCheckBox *vParameterPageCheckBox;
+  QCheckBox *eParameterPageCheckBox;
+  
+  int i = 0;
+  int r = 0;
+  int c = 0;
+  for( std::map<std::string, bool>::const_iterator it = function_map.begin();
+       it != function_map.end(); it++)
+  {
+
+//  vParameterPageCheckBox = new QCheckBox( vParameterPageWidget, "vParameterPageCheckBox3" );
+    vParameterPageCheckBox = new QCheckBox( big_box_w, "vParameterPageCheckBox3" );
+    vParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+    vParameterPageCheckBox->setText( it->first.c_str() );
+    vParameterPageFunctionListGridLayout->addWidget( vParameterPageCheckBox, r, c );
+    vParameterPageCheckBox->setChecked(it->second);
+    vParameterPageCheckBox->setEnabled(FALSE);
+    
+    eParameterPageCheckBox = new QCheckBox( eParameterPageWidget, "eParameterPageCheckBox3" );
+    eParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+    eParameterPageCheckBox->setText( it->first.c_str() );
+    eParameterPageFunctionListGridLayout->addWidget( eParameterPageCheckBox, r, c );
+    eParameterPageCheckBox->setChecked(it->second);
+    eParameterPageCheckBox->setEnabled(FALSE);
+
+    i++;
+    if( i%MAXROWS == 0 )
+    {
+      r = -1;  // It's going to be incremented by one...
+      c++;
+      if( c > MAXCOLUMNS )
+      {
+         fprintf(stderr, "There were over %d function entries.   Not all functions may be displayed.\n", MAXROWS*MAXCOLUMNS);
+      }
+    }
+    r++;
+  }
+
+}
+
+
+
+void
+FPE_TracingWizardPanel::handleSizeEvent(QResizeEvent *e)
+{
+  int numRows = vParameterPageFunctionListGridLayout->numRows();
+  int numCols = vParameterPageFunctionListGridLayout->numCols();
+
+// printf("numRows()=(%d) numCols=(%d)\n", vParameterPageFunctionListGridLayout->numRows(), vParameterPageFunctionListGridLayout->numCols() );
+
+  int calculated_height = 0;
+  int calculated_width = 0;
+
+// I know we only have 6 rows...
+  QRect rect = vParameterPageFunctionListGridLayout->cellGeometry( 0, 0);
+  calculated_width += rect.width();
+  rect = vParameterPageFunctionListGridLayout->cellGeometry( 0, 1);
+  calculated_width += rect.width();
+  rect = vParameterPageFunctionListGridLayout->cellGeometry( 0, 2);
+  calculated_width += rect.width();
+  rect = vParameterPageFunctionListGridLayout->cellGeometry( 0, 3);
+  calculated_width += rect.width();
+  rect = vParameterPageFunctionListGridLayout->cellGeometry( 0, 4);
+  calculated_width += rect.width();
+  rect = vParameterPageFunctionListGridLayout->cellGeometry( 0, 5);
+  calculated_width += rect.width();
+// printf("rect.width=(%d) rect.height=(%d)\n", rect.width(), rect.height() );
+  // Add in some margin material.
+  calculated_width += 12;
+// printf("height=(%d) width=%d\n", calculated_height, calculated_width );
+
+  // override the calculated_height
+  calculated_height = (vParameterTraceCheckBox->height()+ 6) * numRows;
+// printf("calculated_height=(%d)\n", (vParameterTraceCheckBox->height()+ 6) * numRows );
+
+
+  big_box_w->resize(calculated_width,calculated_height);
 }

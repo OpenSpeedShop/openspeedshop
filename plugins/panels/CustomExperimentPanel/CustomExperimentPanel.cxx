@@ -1495,9 +1495,9 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
 //      have a base class of experiment and have all the 
 //      experiments inherit from that...   Not hard, just timeconsuming.
 // printf("ProcessLOA entered mpiFLAG=%d\n", getPanelContainer()->getMainWindow()->mpiFLAG );
-if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT") )
+if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT")  || QString(getName()).startsWith("FPE") )
 {
-  // Currently we don't set any mpi parameters.
+  // Currently we don't set any mpi or fpe parameters.
 } else if( lao->paramList )
   {
     QString sample_rate_str = (QString)*lao->paramList->begin();
