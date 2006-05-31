@@ -21,8 +21,6 @@
 # get complete path to this script (path include this filename)
 HERE=`which $0`
 
-echo "$HERE"
-
 # now remove everything after and including last / (just the path)
 MYCURRENT=${HERE%/*}
 
@@ -94,7 +92,7 @@ fi
 # a user would and then creates rpm packages. The rpmbuild command
 # reads OpenSpeedShop/openspeedshop-0.875.spec which controls the
 # configure/build/install. The openspeedshop-0.875.spec file is aware
-# the the $ROOT and $QTDIR environment variables.
+# the $QTDIR environment variable.
 # Please review openspeedshop-0.875.spec
 # for the details. The key configuration directories are:
 # 
