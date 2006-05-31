@@ -34,17 +34,20 @@ fpe_la_SOURCES = \
 
 fpe_rt_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
+	@BINUTILS_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
 
 fpe_rt_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_LDFLAGS@ \
+	@BINUTILS_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 fpe_rt_la_LIBADD = \
 	-lopenss-runtime \
 	@LIBUNWIND_LIBS@ \
-	-lpthread -lrt
+	@BINUTILS_LIBS@ \
+	-lpthread -lrt -lm
 
 fpe_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \

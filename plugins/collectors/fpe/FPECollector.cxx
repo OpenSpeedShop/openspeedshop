@@ -407,7 +407,8 @@ void FPECollector::getMetricValues(const std::string& metric,
 		    // Add this event's details structure to the results
 		    FPEDetail details;
 		    details.dm_time = Time(data.events.events_val[i].start_time);
-		    details.dm_type = data.events.events_val[i].fpexception;
+		    // FIXME: match types to FPEType
+		    //details.dm_type = data.events.events_val[i].fpexception;
 		    l->second.push_back(details);
 		    
 		}

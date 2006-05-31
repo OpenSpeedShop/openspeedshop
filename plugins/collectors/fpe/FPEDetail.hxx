@@ -31,9 +31,19 @@
 
 #include "TotallyOrdered.hxx"
 
-#include "blobs.h"
-
 namespace OpenSpeedShop { namespace Framework {
+
+// see /usr/include/fenv.h and /usr/include/bits/fenv.h
+
+    enum FPEType {
+       InexactResult,
+       Underflow,
+       Overflow,
+       DivisionByZero,
+       Unnormal,
+       Invalid,
+       Unknown
+    };
 
     /**
      * FPE event tracing collector details. 
@@ -44,7 +54,7 @@ namespace OpenSpeedShop { namespace Framework {
 	public TotallyOrdered<FPEDetail>
     {
 	Time   dm_time;            /**< Time spent in the call. */	
-        fpe_type dm_type;  /**< Type of floating-point exception. */ 
+        FPEType dm_type;  /**< Type of floating-point exception. */ 
 
 	/** Operator "<" defined for two FPEDetail objects. */
 	bool operator<(const FPEDetail& other) const
