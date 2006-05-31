@@ -18,11 +18,6 @@
 ################################################################################
 #set -x
 
-if [ "$WORKAREA" = "" ] ; then
-  echo "WORKAREA not set. exiting..."
-  exit 1
-fi
-
 # get complete path to this script (path include this filename)
 HERE=`which $0`
 
@@ -47,11 +42,7 @@ echo
 echo "$0: configure workarea build/install using:"
 echo "configure --prefix=$OPENSS_INSTALL_DIR"
 
-MYPWD=`pwd`
-echo
-
-if [ "$MYPWD" == "$MYCURRENT" ] ; then
- if test "$1" == ""  ; then
+if test "$1" == ""  ; then
   echo "$0: Running build in $MYCURRENT"
   # prepare workarea to be configured
   echo "$0: Running bootstrap"
@@ -81,9 +72,6 @@ if [ "$MYPWD" == "$MYCURRENT" ] ; then
   rm -f openspeedshop-0.875.tar.gz
   echo "$0: Running make dist"
   make dist
- fi
-else
-  echo $0: This must be run from the WORKAREA 'current' directory...
 fi
 
 # ensure we have a valid tarball before proceeding. 
@@ -98,26 +86,26 @@ else
 fi
 
 #############################################################################
-# At this point, the tarball has been generated in $WORKAREA/current.
-# If there were no errors, $WORKAREA/current/openspeedshop-0.875.tar.gz
+# At this point, the tarball has been generated in OpenSpeedShop (%{_topdir}).
+# If there were no errors, OpenSpeedShop/openspeedshop-0.875.tar.gz
 # should exist. The next step configures, builds and installs your tarball as
 # a user would and then creates rpm packages. The rpmbuild command
-# reads $WORKAREA/current/openspeedshop-0.875.spec which controls the
+# reads OpenSpeedShop/openspeedshop-0.875.spec which controls the
 # configure/build/install. The openspeedshop-0.875.spec file is aware
 # the the $ROOT and $QTDIR environment variables.
 # Please review openspeedshop-0.875.spec
 # for the details. The key configuration directories are:
 # 
-# $WORKAREA/RPM
+# %{_topdir}/../RPM
 # directory where all rpm related work is performed.
 # This can be changed to /tmp or made an option if desired.
 # 
-# $WORKAREA/RPM/BUILD 
+# %{_topdir}/../RPM/BUILD 
 # directory where tarball is expanded and built.
 # 
 # %{_topdir}/../rpminstall
-# The above expands to $WORKAREA/rpminstall and the spec file
-# uses $WORKAREA/rpminstall for $RPM_BUILD_ROOT.
+# The above expands to %{_topdir}/../rpminstall and the spec file
+# uses %{_topdir}/../rpminstall for $RPM_BUILD_ROOT.
 # The openspeedshop-0.875.spec configures the build to use:
 # configure --prefix=$RPM_BUILD_ROOT/usr
 # Setting your environment (i.e. PATH, LD_LIBRARY_PATH,OPENSS_PLUGIN_PATH)
@@ -139,7 +127,7 @@ RPMBUILDDIR=$TOPLEVEL/RPM
 # build, install of the tarball source and creation rpm packages.
 # This overides the users $HOME/.rpmmacros file if it exists
 # since this is specific to this instance of the OSS software
-# in this specific WORKAREA.
+# in this specific OpenSpeedShop cvs tree.
 #
 RPMMACROSFILES=$MYCURRENT/RPMMACROS
 rm -f $RPMMACROSFILES
