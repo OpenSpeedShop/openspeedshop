@@ -1496,10 +1496,7 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
 //      experiments inherit from that...   Not hard, just timeconsuming.
 // printf("ProcessLOA entered (%s) mpiFLAG=%d\n", getName(), getPanelContainer()->getMainWindow()->mpiFLAG );
 
-  if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT") )
-  {
-    // Currently we don't set any mpi or fpe parameters.
-  } else if( QString(getName()).startsWith("FPE") || QString(getName()).startsWith("IO") )
+  if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT") || QString(getName()).startsWith("FPE") || QString(getName()).startsWith("IO") )
   {
 // printf("WHY AREN'T YOU HERE!\n");
     QString paramStr = QString::null;
@@ -1528,6 +1525,17 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
       {
         command = QString("expSetParam -x %1 io::traced_functions=%2").arg(expID).arg(paramStr);
 // printf("paramStr: IO =(%s)\n", paramStr.ascii() );
+      } else if( QString(getName()).startsWith("MPIT") )
+      {
+        command = QString("expSetParam -x %1 mpit::traced_functions=%2").arg(expID).arg(paramStr);
+printf("paramStr: MPIT =(%s)\n", paramStr.ascii() );
+      } else if( QString(getName()).startsWith("MPI") )
+      {
+        command = QString("expSetParam -x %1 mpi::traced_functions=%2").arg(expID).arg(paramStr);
+printf("paramStr: MPI =(%s)\n", paramStr.ascii() );
+      } else
+      {
+        return 0;
       }
       CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 // printf("%s command=(%s)\n", getName(), command.ascii() );

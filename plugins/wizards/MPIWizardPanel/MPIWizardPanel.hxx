@@ -49,6 +49,18 @@ class QButtonGroup;
 class QTextEdit;
 class QScrollView;
 
+#include <qvaluelist.h>
+class CheckBoxInfoClass
+{
+  public:
+    CheckBoxInfoClass() {};
+    ~CheckBoxInfoClass() {};
+
+    QCheckBox *checkbox;
+};
+typedef QValueList<CheckBoxInfoClass *> CheckBoxInfoClassList;
+
+
 #include "ArgumentObject.hxx"
 
 
@@ -148,14 +160,12 @@ public:
     QPushButton* eDescriptionPageFinishButton;
     QWidget* eParameterPageWidget;
     QTextEdit* eParameterPageDescriptionLabel;
+    CheckBoxInfoClassList vCheckBoxInfoClassList;
+    CheckBoxInfoClassList eCheckBoxInfoClassList;
     QFrame* eParameterPageLine;
-QCheckBox *vParameterTraceCheckBox;
-QCheckBox *eParameterTraceCheckBox;
+    QCheckBox *vParameterTraceCheckBox;
+    QCheckBox *eParameterTraceCheckBox;
     QLabel* eParameterPageFunctionListHeaderLabel;
-#ifdef OLDWAY
-    QLabel* eParameterPageSampleRateLabel;
-    QLineEdit* eParameterPageSampleRateText;
-#endif // OLDWAY
     QPushButton* eParameterPageBackButton;
     QPushButton* eParameterPageResetButton;
     QPushButton* eParameterPageNextButton;
@@ -180,6 +190,9 @@ QCheckBox *eParameterTraceCheckBox;
     QScrollView *sv;
     QWidget *big_box_w;
     void handleSizeEvent(QResizeEvent *e);
+
+    ParamList paramList;
+    QString paramString;
 
 public slots:
     virtual void eDescriptionPageNextButtonSelected();
@@ -214,6 +227,8 @@ public slots:
     virtual void eAttachOrLoadPageLoadExecutableCheckBoxSelected();
     virtual void eAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected();
     virtual void finishButtonSelected();
+    virtual void vParameterPageCheckBoxSelected();
+    virtual void eParameterPageCheckBoxSelected();
 
 protected:
     QVBoxLayout* mainFrameLayout;
