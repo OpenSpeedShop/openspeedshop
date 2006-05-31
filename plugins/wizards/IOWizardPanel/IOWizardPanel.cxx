@@ -1467,18 +1467,23 @@ IOWizardPanel::appendFunctionsToMonitor()
 {
   std::map<std::string, bool> function_map;
 
-  function_map.insert(std::make_pair("SYS_create", true));
-  function_map.insert(std::make_pair("SYS_open", true));
-  function_map.insert(std::make_pair("SYS_read", true));
-  function_map.insert(std::make_pair("SYS_write", true));
-  function_map.insert(std::make_pair("SYS_close", true));
-  function_map.insert(std::make_pair("SYS_pipe", true));
-  function_map.insert(std::make_pair("SYS_dup", true));
-  function_map.insert(std::make_pair("SYS_lseek", true));
-  function_map.insert(std::make_pair("SYS_pread", true));
-  function_map.insert(std::make_pair("SYS_pwrite", true));
-  function_map.insert(std::make_pair("SYS_readv", true));
-  function_map.insert(std::make_pair("SYS_writev", true));
+  function_map.insert(std::make_pair("creat", true));
+  function_map.insert(std::make_pair("creat64", true));
+  function_map.insert(std::make_pair("open", true));
+  function_map.insert(std::make_pair("read", true));
+  function_map.insert(std::make_pair("write", true));
+  function_map.insert(std::make_pair("close", true));
+  function_map.insert(std::make_pair("pipe", true));
+  function_map.insert(std::make_pair("dup", true));
+  function_map.insert(std::make_pair("dup2", true));
+  function_map.insert(std::make_pair("lseek", true));
+  function_map.insert(std::make_pair("lseek64", true));
+  function_map.insert(std::make_pair("pread", true));
+  function_map.insert(std::make_pair("pread64", true));
+  function_map.insert(std::make_pair("pwrite", true));
+  function_map.insert(std::make_pair("pwrite64", true));
+  function_map.insert(std::make_pair("readv", true));
+  function_map.insert(std::make_pair("writev", true));
 
 
   QCheckBox *vParameterPageCheckBox;
