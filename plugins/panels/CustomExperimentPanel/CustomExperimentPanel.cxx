@@ -1494,35 +1494,49 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
 //      At least until I get time to rearchitect this to 
 //      have a base class of experiment and have all the 
 //      experiments inherit from that...   Not hard, just timeconsuming.
-// printf("ProcessLOA entered mpiFLAG=%d\n", getPanelContainer()->getMainWindow()->mpiFLAG );
-if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT") )
-{
-  // Currently we don't set any mpi or fpe parameters.
-} else if( QString(getName()).startsWith("FPE") )
-{
-  QString paramStr = QString::null;
-  bool checkAll = FALSE;
-  for( ParamList::Iterator it = lao->paramList->begin(); it != lao->paramList->end(); ++it)
+// printf("ProcessLOA entered (%s) mpiFLAG=%d\n", getName(), getPanelContainer()->getMainWindow()->mpiFLAG );
+
+  if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT") )
   {
-    QString val = (QString)*it;
-    if( paramStr.isEmpty() )
+    // Currently we don't set any mpi or fpe parameters.
+  } else if( QString(getName()).startsWith("FPE") || QString(getName()).startsWith("IO") )
+  {
+// printf("WHY AREN'T YOU HERE!\n");
+    QString paramStr = QString::null;
+    bool checkAll = FALSE;
+    for( ParamList::Iterator it = lao->paramList->begin(); it != lao->paramList->end(); ++it)
     {
-      paramStr = QString("%1").arg(val);
-    } else
-    {
-      paramStr += QString(",%1").arg(val);
-    }                   
+      QString val = (QString)*it;
+      if( paramStr.isEmpty() )
+      {
+        paramStr = QString("%1").arg(val);
+      } else
+      {
+        paramStr += QString(",%1").arg(val);
+      }                   
+    }
 // printf("paramStr: (%s)\n", paramStr.ascii() );
 
-    QString command = QString("expSetParam -x %1 fpe::traced_fpes=%2").arg(expID).arg(paramStr);
-    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-// printf("%s command=(%s)\n", getName(), command.ascii() );
-    if( !cli->runSynchronousCLI((char *)command.ascii() ) )
+    QString command = QString::null;
+    if( !paramStr.isEmpty() )
     {
-      return 0;
+      if( QString(getName()).startsWith("FPE") )
+      {
+        command = QString("expSetParam -x %1 fpe::traced_fpes=%2").arg(expID).arg(paramStr);
+// printf("paramStr: fpe =(%s)\n", paramStr.ascii() );
+      } else if( QString(getName()).startsWith("IO") )
+      {
+        command = QString("expSetParam -x %1 io::traced_functions=%2").arg(expID).arg(paramStr);
+// printf("paramStr: IO =(%s)\n", paramStr.ascii() );
+      }
+      CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+// printf("%s command=(%s)\n", getName(), command.ascii() );
+      if( !cli->runSynchronousCLI((char *)command.ascii() ) )
+      {
+        return 0;
+      }
     }
-  }
-} else if( lao->paramList )
+  } else if( lao->paramList )
   {
     QString sample_rate_str = (QString)*lao->paramList->begin();
 // printf("sample_rate_str=(%s)\n", sample_rate_str.ascii() );
@@ -1546,13 +1560,13 @@ if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT")
         QString command = QString("expSetParam -x %1 sampling_rate = %2").arg(expID).arg(sampling_rate);
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 // printf("E: %s command=(%s)\n", getName(), command.ascii() );
-if( !QString(getName()).startsWith("IO") )  // IO* doesn't have a sampling_rate
-{
-        if( !cli->runSynchronousCLI((char *)command.ascii() ) )
+        if( !QString(getName()).startsWith("IO") )  // IO* doesn't have a sampling_rate
         {
-          return 0;
+          if( !cli->runSynchronousCLI((char *)command.ascii() ) )
+          {
+            return 0;
+          }
         }
-}
         if( QString(getName()).contains("HW Counter") )
         {
 //        printf("We're the HW Counter Panel!!!\n");
@@ -1573,7 +1587,6 @@ if( !QString(getName()).startsWith("IO") )  // IO* doesn't have a sampling_rate
           }
         }
       }
-
     }
     catch(const std::exception& error)
     {

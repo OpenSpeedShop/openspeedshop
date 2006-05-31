@@ -160,15 +160,11 @@ public:
     QWidget* eParameterPageWidget;
     QTextEdit* eParameterPageDescriptionLabel;
     QFrame* eParameterPageLine;
-QCheckBox *vParameterTraceCheckBox;
-QCheckBox *eParameterTraceCheckBox;
+    QCheckBox *vParameterTraceCheckBox;
+    QCheckBox *eParameterTraceCheckBox;
     QLabel* eParameterPageFunctionListHeaderLabel;
-CheckBoxInfoClassList vCheckBoxInfoClassList;
-CheckBoxInfoClassList eCheckBoxInfoClassList;
-#ifdef OLDWAY
-    QLabel* eParameterPageSampleRateLabel;
-    QLineEdit* eParameterPageSampleRateText;
-#endif // OLDWAY
+    CheckBoxInfoClassList vCheckBoxInfoClassList;
+    CheckBoxInfoClassList eCheckBoxInfoClassList;
     QPushButton* eParameterPageBackButton;
     QPushButton* eParameterPageResetButton;
     QPushButton* eParameterPageNextButton;

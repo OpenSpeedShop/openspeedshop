@@ -911,7 +911,7 @@ void IOWizardPanel::eAttachOrLoadPageNextButtonSelected()
       {
         return;
       }
-      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" io functions.<br><br></p>", mw->pidStr.ascii(), mw->hostStr.ascii(), "ALL" );
+      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" io functions.<br><br></p>", mw->pidStr.ascii(), mw->hostStr.ascii(), paramString.ascii() );
     }
   }
   if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
@@ -930,7 +930,7 @@ void IOWizardPanel::eAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" io functions.<br><br></p>", mw->executableName.ascii(), mw->hostStr.ascii(), "ALL" );
+    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" io functions.<br><br></p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
   }
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1121,7 +1121,7 @@ void IOWizardPanel::vAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">You've selected a IO experiment for process \"%s\" running on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" io functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"io\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), "ALL" );
+    sprintf(buffer, "<p align=\"left\">You've selected a IO experiment for process \"%s\" running on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" io functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"io\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), paramString.ascii() );
   }
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
       vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
@@ -1139,7 +1139,7 @@ void IOWizardPanel::vAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">You've selected a IO experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" io functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"io\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), "ALL" );
+    sprintf(buffer, "<p align=\"left\">You've selected a IO experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" io functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"io\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1198,16 +1198,16 @@ void IOWizardPanel::vSummaryPageFinishButtonSelected()
     if( mw )
     {
       LoadAttachObject *lao = NULL;
-      ParamList *paramList = new ParamList();
+//      ParamList *paramList = new ParamList();
 // printf("A: push_back (%s)\n", vParameterPageSampleRateText->text().ascii() );
       if( !mw->executableName.isEmpty() )
       {
 //printf("executable name was specified.\n");
-        lao = new LoadAttachObject(mw->executableName, (char *)NULL, paramList, TRUE);
+        lao = new LoadAttachObject(mw->executableName, (char *)NULL, &paramList, TRUE);
       } else if( !mw->pidStr.isEmpty() )
       {
 // printf("pid was specified.\n");
-        lao = new LoadAttachObject((char *)NULL, mw->pidStr, paramList, TRUE);
+        lao = new LoadAttachObject((char *)NULL, mw->pidStr, &paramList, TRUE);
       } else
       {
 // printf("Warning: No attach or load paramaters available.\n");
@@ -1401,6 +1401,8 @@ std::map<std::string,bool> tracedFunctions;
   eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
   eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
 //  eAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
+
+  vParameterPageCheckBoxSelected();
 }
 
 void
@@ -1468,7 +1470,7 @@ IOWizardPanel::appendFunctionsToMonitor()
   function_map.insert(std::make_pair("SYS_create", true));
   function_map.insert(std::make_pair("SYS_open", true));
   function_map.insert(std::make_pair("SYS_read", true));
-  function_map.insert(std::make_pair("SYS_writ;", true));
+  function_map.insert(std::make_pair("SYS_write", true));
   function_map.insert(std::make_pair("SYS_close", true));
   function_map.insert(std::make_pair("SYS_pipe", true));
   function_map.insert(std::make_pair("SYS_dup", true));
@@ -1485,6 +1487,11 @@ IOWizardPanel::appendFunctionsToMonitor()
   int i = 0;
   int r = 0;
   int c = 0;
+
+CheckBoxInfoClass *cbic = NULL;
+vCheckBoxInfoClassList.clear();
+eCheckBoxInfoClassList.clear();
+
   for( std::map<std::string, bool>::const_iterator it = function_map.begin();
        it != function_map.end(); it++)
   {
@@ -1494,14 +1501,28 @@ IOWizardPanel::appendFunctionsToMonitor()
     vParameterPageCheckBox->setText( it->first.c_str() );
     vParameterPageFunctionListGridLayout->addWidget( vParameterPageCheckBox, r, c );
     vParameterPageCheckBox->setChecked(it->second);
-    vParameterPageCheckBox->setEnabled(FALSE);
+    vParameterPageCheckBox->setEnabled(TRUE);
+
+cbic = new CheckBoxInfoClass();
+cbic->checkbox = vParameterPageCheckBox;
+vCheckBoxInfoClassList.push_back(cbic);
+connect( cbic->checkbox, SIGNAL( clicked() ), this,
+           SLOT( vParameterPageCheckBoxSelected() ) );
+
     
     eParameterPageCheckBox = new QCheckBox( eParameterPageWidget, "eParameterPageCheckBox3" );
     eParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
     eParameterPageCheckBox->setText( it->first.c_str() );
     eParameterPageFunctionListGridLayout->addWidget( eParameterPageCheckBox, r, c );
     eParameterPageCheckBox->setChecked(it->second);
-    eParameterPageCheckBox->setEnabled(FALSE);
+    eParameterPageCheckBox->setEnabled(TRUE);
+
+cbic = new CheckBoxInfoClass();
+cbic->checkbox = eParameterPageCheckBox;
+eCheckBoxInfoClassList.push_back(cbic);
+connect( cbic->checkbox, SIGNAL( clicked() ), this,
+           SLOT( eParameterPageCheckBoxSelected() ) );
+
   
     i++;
     if( i%MAXROWS == 0 )
@@ -1541,4 +1562,74 @@ IOWizardPanel::handleSizeEvent(QResizeEvent *e)
 
 
   big_box_w->resize(calculated_width,calculated_height);
+}
+
+void IOWizardPanel::vParameterPageCheckBoxSelected()
+{
+// printf("vParameterPageCheckBoxSelected() entered\n");
+  paramList.clear();
+  bool allChecked = TRUE;
+  paramString = QString::null;
+  for( CheckBoxInfoClassList::Iterator it = vCheckBoxInfoClassList.begin(); it != vCheckBoxInfoClassList.end(); ++it)
+  {
+    CheckBoxInfoClass *cbic = (CheckBoxInfoClass *)*it;
+// printf("v: cbic: (%s) == (%d)\n", cbic->checkbox->text().ascii(), cbic->checkbox->isChecked() );
+    if( !cbic->checkbox->isChecked() )
+    {
+      allChecked = FALSE;
+    }
+    if( cbic->checkbox->isChecked() )
+    {
+      paramList.push_back(cbic->checkbox->text());
+      if( paramString.isEmpty() )
+      {
+        paramString = QString("%1").arg(cbic->checkbox->text());
+      } else
+      {
+        paramString += QString(",%1").arg(cbic->checkbox->text());
+      }
+    }
+  }
+  if( allChecked == TRUE )
+  { // simplify the parsing and clear this ... the default is all.
+    paramList.clear();
+    paramString = "All";
+  }
+// printf("paramString = (%s)\n", paramString.ascii() );
+}
+
+void IOWizardPanel::eParameterPageCheckBoxSelected()
+{
+// printf("vParameterPageCheckBoxSelected() entered\n");
+  paramList.clear();
+  bool allChecked = TRUE;
+  paramString = QString::null;
+  for( CheckBoxInfoClassList::Iterator it = eCheckBoxInfoClassList.begin(); it != eCheckBoxInfoClassList.end(); ++it)
+  {
+    CheckBoxInfoClass *cbic = (CheckBoxInfoClass *)*it;
+// printf("e: cbic: (%s) == (%d)\n", cbic->checkbox->text().ascii(), cbic->checkbox->isChecked() );
+    if( !cbic->checkbox->isChecked() )
+    {
+      allChecked = FALSE;
+    }
+    if( cbic->checkbox->isChecked() )
+    {
+      paramList.push_back(cbic->checkbox->text());
+      if( paramString.isEmpty() )
+      {
+        paramString = QString("%1").arg(cbic->checkbox->text());
+      } else
+      {
+        paramString += QString(",%1").arg(cbic->checkbox->text());
+      }
+    }
+  }
+  
+  if( allChecked == TRUE )
+  { // simplify the parsing and clear this ... the default is all.
+    paramList.clear();
+    paramString = "All";
+  }
+
+// printf("paramString = (%s)\n", paramString.ascii() );
 }
