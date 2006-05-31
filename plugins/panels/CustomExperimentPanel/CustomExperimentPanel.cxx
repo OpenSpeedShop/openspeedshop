@@ -1495,9 +1495,33 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
 //      have a base class of experiment and have all the 
 //      experiments inherit from that...   Not hard, just timeconsuming.
 // printf("ProcessLOA entered mpiFLAG=%d\n", getPanelContainer()->getMainWindow()->mpiFLAG );
-if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT")  || QString(getName()).startsWith("FPE") )
+if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT") )
 {
   // Currently we don't set any mpi or fpe parameters.
+} else if( QString(getName()).startsWith("FPE") )
+{
+  QString paramStr = QString::null;
+  bool checkAll = FALSE;
+  for( ParamList::Iterator it = lao->paramList->begin(); it != lao->paramList->end(); ++it)
+  {
+    QString val = (QString)*it;
+    if( paramStr.isEmpty() )
+    {
+      paramStr = QString("%1").arg(val);
+    } else
+    {
+      paramStr += QString(",%1").arg(val);
+    }                   
+// printf("paramStr: (%s)\n", paramStr.ascii() );
+
+    QString command = QString("expSetParam -x %1 fpe::traced_fpes=%2").arg(expID).arg(paramStr);
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+// printf("%s command=(%s)\n", getName(), command.ascii() );
+    if( !cli->runSynchronousCLI((char *)command.ascii() ) )
+    {
+      return 0;
+    }
+  }
 } else if( lao->paramList )
   {
     QString sample_rate_str = (QString)*lao->paramList->begin();

@@ -70,6 +70,7 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n
   {
 	setName( "FPE_Tracing" );
   }
+  paramList.clear();
 
   fpeFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
@@ -917,7 +918,7 @@ void FPE_TracingWizardPanel::eAttachOrLoadPageNextButtonSelected()
       {
         return;
       }
-      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" fpe functions.<br><br></p>", mw->pidStr.ascii(), mw->hostStr.ascii(), "ALL" );
+      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" fpe functions.<br><br></p>", mw->pidStr.ascii(), mw->hostStr.ascii(), paramString.ascii() );
     }
   }
   if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
@@ -936,7 +937,7 @@ void FPE_TracingWizardPanel::eAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" fpe functions.<br><br></p>", mw->executableName.ascii(), mw->hostStr.ascii(), "ALL" );
+    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" fpe functions.<br><br></p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
   }
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1126,7 +1127,7 @@ void FPE_TracingWizardPanel::vAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">You've selected a FPE experiment for process \"%s\" running on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" fpe functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpe\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), "ALL" );
+    sprintf(buffer, "<p align=\"left\">You've selected a FPE experiment for process \"%s\" running on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" fpe functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpe\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), paramString.ascii() );
   }
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
       vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
@@ -1144,7 +1145,7 @@ void FPE_TracingWizardPanel::vAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">You've selected a FPE experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" fpe functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpe\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), "ALL" );
+    sprintf(buffer, "<p align=\"left\">You've selected a FPE experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" fpe functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpe\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1203,19 +1204,20 @@ void FPE_TracingWizardPanel::vSummaryPageFinishButtonSelected()
     if( mw )
     {
       LoadAttachObject *lao = NULL;
-      ParamList *paramList = new ParamList();
-// printf("A: push_back (%s)\n", vParameterPageSampleRateText->text().ascii() );
+//      ParamList *paramList = new ParamList();
+// printf("A: push_back the parameters... well, the checked ones.\n");
+// printf("valueList=(%s)\n", valueList.ascii() );
       if( !mw->executableName.isEmpty() )
       {
-//printf("executable name was specified.\n");
-        lao = new LoadAttachObject(mw->executableName, (char *)NULL, paramList, TRUE);
+// printf("executable name was specified.\n");
+        lao = new LoadAttachObject(mw->executableName, (char *)NULL, &paramList, TRUE);
       } else if( !mw->pidStr.isEmpty() )
       {
 // printf("pid was specified.\n");
-        lao = new LoadAttachObject((char *)NULL, mw->pidStr, paramList, TRUE);
+        lao = new LoadAttachObject((char *)NULL, mw->pidStr, &paramList, TRUE);
       } else
       {
-// printf("Warning: No attach or load paramaters available.\n");
+printf("Warning: No attach or load paramaters available.\n");
       }
       if( lao != NULL )
       {
@@ -1242,6 +1244,7 @@ void FPE_TracingWizardPanel::vSummaryPageFinishButtonSelected()
           delete ao;
         } else
         {
+// printf("Send the param list to the new panel\n");
           p->listener((void *)lao);
         }
 
@@ -1375,9 +1378,9 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
     for (mi = md.begin(); mi != md.end(); mi++)
     {
         Metadata m = *mi;
-printf("A: %s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-printf("B: %s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-printf("C: %s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+// printf("A: %s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+// printf("B: %s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+// printf("C: %s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
 
       vDescriptionPageText->setText( tr( cm.getDescription().c_str() ) );
     }
@@ -1406,6 +1409,8 @@ std::map<std::string,bool> tracedFunctions;
   eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
 //  eAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
+ 
+  vParameterPageCheckBoxSelected();
 }
 
 void
@@ -1473,12 +1478,13 @@ FPE_TracingWizardPanel::appendFunctionsToMonitor()
   //std::string str = "MPI_Allgather";
 
   // function_map.insert(std::make_pair(str, true));
-  function_map.insert(std::make_pair("inexact result", true));
-  function_map.insert(std::make_pair("division by zero", true));
+  function_map.insert(std::make_pair("inexact_result", true));
+  function_map.insert(std::make_pair("division_by_zero", true));
   function_map.insert(std::make_pair("underflow", true));
   function_map.insert(std::make_pair("overflow", true));
-  function_map.insert(std::make_pair("invalid operation", true));
-  function_map.insert(std::make_pair("all supported exceptions", true));
+  function_map.insert(std::make_pair("invalid_operation", true));
+//  function_map.insert(std::make_pair("all_supported_exceptions", true));
+  function_map.insert(std::make_pair("all", true));
 
   QCheckBox *vParameterPageCheckBox;
   QCheckBox *eParameterPageCheckBox;
@@ -1486,24 +1492,38 @@ FPE_TracingWizardPanel::appendFunctionsToMonitor()
   int i = 0;
   int r = 0;
   int c = 0;
+CheckBoxInfoClass *cbic = NULL;
+vCheckBoxInfoClassList.clear();
+eCheckBoxInfoClassList.clear();
   for( std::map<std::string, bool>::const_iterator it = function_map.begin();
        it != function_map.end(); it++)
   {
 
-//  vParameterPageCheckBox = new QCheckBox( vParameterPageWidget, "vParameterPageCheckBox3" );
     vParameterPageCheckBox = new QCheckBox( big_box_w, "vParameterPageCheckBox3" );
     vParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
     vParameterPageCheckBox->setText( it->first.c_str() );
     vParameterPageFunctionListGridLayout->addWidget( vParameterPageCheckBox, r, c );
     vParameterPageCheckBox->setChecked(it->second);
-    vParameterPageCheckBox->setEnabled(FALSE);
+    vParameterPageCheckBox->setEnabled(TRUE);
+
+cbic = new CheckBoxInfoClass();
+cbic->checkbox = vParameterPageCheckBox;
+vCheckBoxInfoClassList.push_back(cbic);
+connect( cbic->checkbox, SIGNAL( clicked() ), this,
+           SLOT( vParameterPageCheckBoxSelected() ) );
     
     eParameterPageCheckBox = new QCheckBox( eParameterPageWidget, "eParameterPageCheckBox3" );
     eParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
     eParameterPageCheckBox->setText( it->first.c_str() );
     eParameterPageFunctionListGridLayout->addWidget( eParameterPageCheckBox, r, c );
     eParameterPageCheckBox->setChecked(it->second);
-    eParameterPageCheckBox->setEnabled(FALSE);
+    eParameterPageCheckBox->setEnabled(TRUE);
+
+cbic = new CheckBoxInfoClass();
+cbic->checkbox = eParameterPageCheckBox;
+eCheckBoxInfoClassList.push_back(cbic);
+connect( cbic->checkbox, SIGNAL( clicked() ), this,
+           SLOT( eParameterPageCheckBoxSelected() ) );
 
     i++;
     if( i%MAXROWS == 0 )
@@ -1557,4 +1577,79 @@ FPE_TracingWizardPanel::handleSizeEvent(QResizeEvent *e)
 
 
   big_box_w->resize(calculated_width,calculated_height);
+}
+
+void FPE_TracingWizardPanel::vParameterPageCheckBoxSelected()
+{
+// printf("vParameterPageCheckBoxSelected() entered\n");
+  bool checkAll = FALSE;
+  paramList.clear();
+paramString = QString::null;
+  for( CheckBoxInfoClassList::Iterator it = vCheckBoxInfoClassList.begin(); it != vCheckBoxInfoClassList.end(); ++it)
+  {
+    CheckBoxInfoClass *cbic = (CheckBoxInfoClass *)*it;
+// printf("v: cbic: (%s) == (%d)\n", cbic->checkbox->text().ascii(), cbic->checkbox->isChecked() );
+    if( cbic->checkbox->isChecked() && cbic->checkbox->text() == "all" )
+    {
+      checkAll = TRUE;
+    }
+    if( checkAll == TRUE )
+    {
+     cbic->checkbox->setChecked(TRUE);
+    }
+    if( cbic->checkbox->isChecked() )
+    {
+      paramList.push_back(cbic->checkbox->text());
+      if( paramString.isEmpty() )
+      {
+        paramString = QString("%1").arg(cbic->checkbox->text());
+      } else
+      {
+        paramString += QString(",%1").arg(cbic->checkbox->text());
+      }
+    }
+  }
+  if( checkAll == TRUE )
+  { // simplify the parsing and clear this ... the default is all.
+    paramList.clear();
+    paramString = "All";
+  }
+}
+
+void FPE_TracingWizardPanel::eParameterPageCheckBoxSelected()
+{
+// printf("vParameterPageCheckBoxSelected() entered\n");
+  bool checkAll = FALSE;
+  paramList.clear();
+  paramString = QString::null;
+  for( CheckBoxInfoClassList::Iterator it = eCheckBoxInfoClassList.begin(); it != eCheckBoxInfoClassList.end(); ++it)
+  {
+    CheckBoxInfoClass *cbic = (CheckBoxInfoClass *)*it;
+// printf("e: cbic: (%s) == (%d)\n", cbic->checkbox->text().ascii(), cbic->checkbox->isChecked() );
+    if( cbic->checkbox->isChecked() && cbic->checkbox->text() == "all" )
+    {
+      checkAll = TRUE;
+    }
+    if( checkAll == TRUE )
+    {
+     cbic->checkbox->setChecked(TRUE);
+    }
+    if( cbic->checkbox->isChecked() )
+    {
+      paramList.push_back(cbic->checkbox->text());
+      if( paramString.isEmpty() )
+      {
+        paramString = QString("%1").arg(cbic->checkbox->text());
+      } else
+      {
+        paramString += QString(",%1").arg(cbic->checkbox->text());
+      }
+    }
+  }
+  
+  if( checkAll == TRUE )
+  { // simplify the parsing and clear this ... the default is all.
+    paramList.clear();
+    paramString = "All";
+  }
 }
