@@ -857,12 +857,13 @@ connect( qaction, SIGNAL( activated() ), this, SLOT(timeSliceSelected()) );
   }
 
 #ifdef CLUSTERANALYSIS
-if( focusedExpID == -1 && currentCollectorStr == "usertime" )
+// if( focusedExpID == -1 && currentCollectorStr == "usertime" )
+if( focusedExpID == -1 )
 {
   contextMenu->insertSeparator();
   qaction = new QAction( this,  "clusterAnalysisSelected");
   qaction->addTo( contextMenu );
-  qaction->setText( "Cluster Analysis...(Experimental command)" );
+  qaction->setText( "Cluster Analysis..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( clusterAnalysisSelected() ) );
   qaction->setStatusTip( tr("Perform cluser analysis on this experiment to show outliers.") );
 }
@@ -884,7 +885,14 @@ if( focusedExpID == -1 && currentCollectorStr == "usertime" )
 void
 StatsPanel::clusterAnalysisSelected()
 {
-  QString command = QString("cviewCluster %1").arg(timeIntervalString);
+  QString command = QString::null;
+  if( focusedExpID == -1 )
+  {
+    command = QString("cviewCluster -x %1 %2").arg(expID).arg(timeIntervalString);
+  } else
+  {
+    command = QString("cviewCluster -x %1 %2").arg(focusedExpID).arg(timeIntervalString);
+  }
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   std::list<int64_t> list_of_cids;
   list_of_cids.clear();
@@ -902,7 +910,7 @@ StatsPanel::clusterAnalysisSelected()
   }
 
   QString pidlist = QString::null;
-  if( list_of_cids.size() > 1 )
+  if( list_of_cids.size() >= 1 )
   {
     for( std::list<int64_t>::const_iterator it = list_of_cids.begin();
          it != list_of_cids.end(); it++ )
@@ -922,7 +930,9 @@ StatsPanel::clusterAnalysisSelected()
     return;
   }
 
-  command = QString("cview -c %1 -m usertime::exclusive_time %2").arg(pidlist).arg(timeIntervalString);
+//  command = QString("cview -c %1 -m usertime::exclusive_time %2").arg(pidlist).arg(timeIntervalString);
+  command = QString("cview -c %1 %2").arg(pidlist).arg(timeIntervalString);
+// printf("run %s\n", command.ascii() );
 
   updateStatsPanelData(command);
 }
