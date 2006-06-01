@@ -66,6 +66,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    helpLevelDefault = 2; 
    viewFullPath = FALSE;  
    saveExperimentDatabase = FALSE; 
+   viewMangledName = FALSE; 
    allowPythonCommands = TRUE; 
 
 
@@ -296,6 +297,11 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     saveExperimentDatabaseCheckBox->setChecked( TRUE );
     saveExperimentDatabaseCheckBox->setText( tr( "Save Experiment Database" ) );
     rightSideLayout->addWidget( saveExperimentDatabaseCheckBox );
+    viewMangledNameCheckBox = new QCheckBox( GeneralGroupBox, "viewMangledNameCheckBox" );
+    viewMangledNameCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, viewMangledNameCheckBox->sizePolicy().hasHeightForWidth() ) );
+    viewMangledNameCheckBox->setChecked( TRUE );
+    viewMangledNameCheckBox->setText( tr( "View Mangle Names" ) );
+    rightSideLayout->addWidget( viewMangledNameCheckBox );
     }
     { // ALLOW_PYTHON_COMMANDS
     allowPythonCommandsCheckBox = new QCheckBox( GeneralGroupBox, "allowPythonCommandsCheckBox" );
@@ -365,6 +371,10 @@ QToolTip::add(viewFullPathCheckBox,
   saveExperimentDatabaseCheckBox->setChecked(saveExperimentDatabase);
 QToolTip::add(saveExperimentDatabaseCheckBox,
   tr("Declare that the database created when an 'expCreate'\ncommand is issued will be saved when the Open|SpeedShop session is\nterminated.  The saved database will be in the user's\ncurrent directory and will be of the form:\n \"X<exp_id>_iiiiii.openss\"\nwhere the 'iiiiii' field is an integer, starting with 0,\nthat generates a unique file name.  The default is 'false'\nand experiment databases will be deleted when the Open|SpeedShop\nsession terminates unless the user has issued an 'expSave'\ncommand.") );
+
+  viewMangledNameCheckBox->setChecked(viewMangledName);
+QToolTip::add(viewMangledNameCheckBox,
+  tr("Declare whether or not a mangled name is displayed when a function is displayed\nas part of an 'expView' command. The default is false, allowing the demangled\nnames, that are used in the source code, to be displayed.") );
 
   allowPythonCommandsCheckBox->setChecked(allowPythonCommands);
 QToolTip::add(allowPythonCommandsCheckBox,

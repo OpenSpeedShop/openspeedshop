@@ -96,6 +96,9 @@ void PreferencesDialog::readPreferencesOnEntry()
   saveExperimentDatabaseCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/saveExperimentDatabase") );
 
+  viewMangledNameCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/viewMangledName") );
+
   allowPythonCommandsCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/allowPythonCommands") );
 
@@ -139,6 +142,7 @@ void PreferencesDialog::resetPreferenceDefaults()
    viewFullPathCheckBox->setChecked(viewFullPath);
    saveExperimentDatabase = FALSE;
    saveExperimentDatabaseCheckBox->setChecked(saveExperimentDatabase);
+   viewMangledNameCheckBox->setChecked(viewMangledName);
    allowPythonCommands = TRUE;
    allowPythonCommandsCheckBox->setChecked(allowPythonCommands);
 
@@ -259,10 +263,13 @@ void PreferencesDialog::applyPreferences()
   extern bool    OPENSS_ALLOW_PYTHON_COMMANDS;
   extern bool    OPENSS_LOG_BY_DEFAULT;
   extern bool    OPENSS_LIMIT_SIGNAL_CATCHING;
+  extern bool OPENSS_VIEW_MANGLED_NAME;
 
 
   OPENSS_SAVE_EXPERIMENT_DATABASE =
     saveExperimentDatabaseCheckBox->isChecked();
+  OPENSS_VIEW_MANGLED_NAME =
+    viewMangledNameCheckBox->isChecked();
   OPENSS_ALLOW_PYTHON_COMMANDS = 
     allowPythonCommandsCheckBox->isChecked();
   OPENSS_VIEW_FULLPATH =
@@ -384,6 +391,11 @@ void PreferencesDialog::savePreferences()
   if( !settings->writeEntry( "/openspeedshop/general/saveExperimentDatabase", saveExperimentDatabaseCheckBox->isChecked() ) )
   {
     printf("Unable to write saveExperimentDatabase.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/viewMangledName", viewMangledNameCheckBox->isChecked() ) )
+  {
+    printf("Unable to write viewMangeledName.\n");
   }
 
   if( !settings->writeEntry( "/openspeedshop/general/allowPythonCommands", allowPythonCommandsCheckBox->isChecked() ) )
