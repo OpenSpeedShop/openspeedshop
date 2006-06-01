@@ -58,12 +58,16 @@ moc_SaveAsExperimentDialog.cxx: SaveAsExperimentDialog.hxx
 moc_GenericProgressDialog.cxx: GenericProgressDialog.hxx
 	-moc -o moc_GenericProgressDialog.cxx GenericProgressDialog.hxx
 
+moc_SelectTimeSegmentDialog.cxx: SelectTimeSegmentDialog.hxx
+	-moc -o moc_SelectTimeSegmentDialog.cxx SelectTimeSegmentDialog.hxx
+
 libopenss_guidialogs_la_SOURCES = \
 	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx \
 	AttachProgramDialog.hxx AttachProgramDialog.cxx moc_AttachProgramDialog.cxx \
 	ManageProcessesDialog.hxx ManageProcessesDialog.cxx moc_ManageProcessesDialog.cxx \
 	PanelListViewItem.hxx PanelListViewItem.cxx \
 	GenericProgressDialog.hxx GenericProgressDialog.cxx moc_GenericProgressDialog.cxx \
+	SelectTimeSegmentDialog.hxx SelectTimeSegmentDialog.cxx moc_SelectTimeSegmentDialog.cxx \
 	SelectExperimentDialog.hxx SelectExperimentDialog.cxx moc_SelectExperimentDialog.cxx \
 	SaveAsExperimentDialog.hxx SaveAsExperimentDialog.cxx moc_SaveAsExperimentDialog.cxx \
 	AboutDialog.hxx AboutDialog.cxx

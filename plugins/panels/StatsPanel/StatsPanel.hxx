@@ -23,6 +23,7 @@
 #include "Panel.hxx"           // Do not remove
 #include "CollectorListObject.hxx"
 #include "GenericProgressDialog.hxx"
+#include "SelectTimeSegmentDialog.hxx"
 
 #include "ToolAPI.hxx"
 #include "Queries.hxx"
@@ -130,6 +131,8 @@ class StatsPanel  : public Panel
     InputLineObject *statspanel_clip;
     void process_clip(InputLineObject *statspanel_clip, HighlightList *highlightList, bool dumpClipFLAG);
     GenericProgressDialog *pd;
+    SelectTimeSegmentDialog *timeSegmentDialog;
+    QString timeIntervalString;
     QTimer *progressTimer;
     bool insertDiffColumnFLAG;
     bool absDiffFLAG;
@@ -284,7 +287,7 @@ QPopupMenu *fpe_menu;
     void genericModifierSelected(int);
     void pcsampModifierSelected(int);
     void usertimeModifierSelected(int);
-void fpeModifierSelected(int);
+    void fpeModifierSelected(int);
     void collectorMetricSelected(int);
     void collectorMPIReportSelected(int);
     void collectorMPITReportSelected(int);
@@ -294,12 +297,14 @@ void fpeModifierSelected(int);
     void collectorHWCTimeReportSelected(int);
     void collectorUserTimeReportSelected(int);
     void collectorPCSampReportSelected(int);
-void collectorFPEReportSelected(int);
+    void collectorFPEReportSelected(int);
     void collectorGenericReportSelected(int);
     void showStats();
     void showDiff();
     void showChart();
     void setOrientation();
+
+    void timeSliceSelected();
 
   private:
     bool matchSelectedItem( QListViewItem *item, std::string function_name );

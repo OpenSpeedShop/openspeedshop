@@ -123,6 +123,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 {
 // printf("StatsPanel() entered\n");
   setCaption("StatsPanel");
+  timeSegmentDialog = NULL;;
 
   statspanel_clip = NULL;
   progressTimer = NULL;
@@ -148,6 +149,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   aboutOutputString = QString::null;
   about = QString::null;
   lastAbout = QString::null;
+  timeIntervalString = QString::null;
   // In an attempt to optimize the update of this panel;
   // If the data file is static (i.e. read from a file or 
   // the processes status is terminated) and the command is
@@ -629,6 +631,13 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   QString defaultStatsReportStr = QString::null;
 
 // printf("Do you have a list of collectors?\n");
+qaction = new QAction(this, "selectTimeSlice");
+qaction->addTo( contextMenu );
+qaction->setText( tr("Select: Time Segment") );
+qaction->setToolTip(tr("Select a time segment to limiting future reports.") );
+connect( qaction, SIGNAL( activated() ), this, SLOT(timeSliceSelected()) );
+
+
   for( std::list<std::string>::const_iterator it = list_of_collectors.begin();
       it != list_of_collectors.end(); it++ )
   {
@@ -875,7 +884,7 @@ if( focusedExpID == -1 && currentCollectorStr == "usertime" )
 void
 StatsPanel::clusterAnalysisSelected()
 {
-  QString command = "cviewCluster";
+  QString command = QString("cviewCluster %1").arg(timeIntervalString);
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   std::list<int64_t> list_of_cids;
   list_of_cids.clear();
@@ -913,7 +922,7 @@ StatsPanel::clusterAnalysisSelected()
     return;
   }
 
-  command = QString("cview -c %1 -m usertime::exclusive_time").arg(pidlist);
+  command = QString("cview -c %1 -m usertime::exclusive_time %2").arg(pidlist).arg(timeIntervalString);
 
   updateStatsPanelData(command);
 }
@@ -1231,6 +1240,23 @@ StatsPanel::cviewQueryStatements()
   updateStatsPanelData(originalCommand + " -v Statements");
 }
 
+void
+StatsPanel::timeSliceSelected()
+{
+// printf("WE have a SELECT_TIME_SEGMENT\n");
+  if( timeSegmentDialog == NULL )
+  {
+    timeSegmentDialog = new SelectTimeSegmentDialog(getPanelContainer()->getMainWindow(), "Select Time Interval:");
+  }
+  if( timeSegmentDialog->exec() == QDialog::Accepted )
+  { 
+// printf("The user hit accept.\n");
+// printf("start=%s end=%s\n", timeSegmentDialog->startValue->text().ascii(), timeSegmentDialog->endValue->text().ascii() );
+
+    timeIntervalString = QString(" -I % %1:%2").arg(timeSegmentDialog->startValue->text()).arg(timeSegmentDialog->endValue->text());
+  }
+  return;
+}
 
 void
 StatsPanel::focusOnExp(int val)
@@ -1584,6 +1610,8 @@ StatsPanel::updateStatsPanelData(QString command)
   }
 
 // printf("  lastCommand = %s  command = %s\n", lastCommand.ascii(), command.ascii() );
+
+command += timeIntervalString;
 
   if( recycleFLAG == FALSE )
   {
@@ -2278,9 +2306,9 @@ StatsPanel::collectorPCSampReportSelected(int val)
 void
 StatsPanel::collectorFPEReportSelected(int val)
 { 
-printf("collectorFPEReportSelected: val=%d\n", val);
-printf("collectorFPEReportSelected: fpe_menu=(%s)\n", fpe_menu->text(val).ascii() );
-printf("collectorFPEReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+// printf("collectorFPEReportSelected: val=%d\n", val);
+// printf("collectorFPEReportSelected: fpe_menu=(%s)\n", fpe_menu->text(val).ascii() );
+// printf("collectorFPEReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
 
   currentUserSelectedReportStr = QString::null;
   currentCollectorStr = "fpe";
@@ -2295,7 +2323,7 @@ printf("collectorFPEReportSelected: contextMenu=(%s)\n", contextMenu->text(val).
     s = contextMenu->text(val).ascii();
   }
 
-printf("FPE Report: (%s)\n", s.ascii() );
+// printf("FPE Report: (%s)\n", s.ascii() );
 
 // printf("E: s=%s\n", s.ascii() );
   int index = s.find(":");
@@ -2889,8 +2917,8 @@ StatsPanel::pcsampModifierSelected(int val)
 void
 StatsPanel::fpeModifierSelected(int val)
 { 
-printf("fpeModifierSelected val=%d\n", val);
-printf("modifierSelected: (%s)\n", fpeModifierMenu->text(val).ascii() );
+// printf("fpeModifierSelected val=%d\n", val);
+// printf("modifierSelected: (%s)\n", fpeModifierMenu->text(val).ascii() );
 
   if( fpeModifierMenu->text(val).isEmpty() )
   {
@@ -2909,7 +2937,7 @@ printf("modifierSelected: (%s)\n", fpeModifierMenu->text(val).ascii() );
 
 
   std::string s = fpeModifierMenu->text(val).ascii();
-printf("B1: modifierStr=(%s)\n", s.c_str() );
+// printf("B1: modifierStr=(%s)\n", s.c_str() );
 
   bool FOUND = FALSE;
   for( std::list<std::string>::const_iterator it = current_list_of_fpe_modifiers.begin();
@@ -2919,7 +2947,7 @@ printf("B1: modifierStr=(%s)\n", s.c_str() );
 
     if( modifier ==  s )
     {   // It's in the list, so take it out...
-printf("The modifier was in the list ... take it out!\n");
+// printf("The modifier was in the list ... take it out!\n");
       FOUND = TRUE;
     }
 
@@ -2935,7 +2963,7 @@ printf("The modifier was in the list ... take it out!\n");
 
   if( FOUND == FALSE )
   {
-printf("The modifier was not in the list ... add it!\n");
+// printf("The modifier was not in the list ... add it!\n");
     if( s != PTI )
     {
       current_list_of_fpe_modifiers.push_back(s);
@@ -4814,7 +4842,7 @@ StatsPanel::generatePCSampMenu()
 void
 StatsPanel::generateFPEMenu()
 {
-printf("Collector fpe_menu is being created\n");
+// printf("Collector fpe_menu is being created\n");
 
   fpe_menu = new QPopupMenu(this);
   connect(fpe_menu, SIGNAL( activated(int) ),
@@ -5283,19 +5311,19 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 // printf("lfhB: expID=%d focusedExpID=%d\n", expID, focusedExpID );
     if( expID > 0 )
     {
-      command = QString("expView -x %1 -v Statements -f %2").arg(expID).arg(fn);
+      command = QString("expView -x %1 -v Statements -f %2 %3").arg(expID).arg(fn).arg(timeIntervalString);
     } else
     {
-      command = QString("expView -x %1 -v Statements -f %2").arg(focusedExpID).arg(fn);
+      command = QString("expView -x %1 -v Statements -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
     }
   } else
   {
     if( expID > 0 )
     {
-      command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(expID).arg(fn).arg(currentMetricStr);
+      command = QString("expView -x %1 -v Statements -f %2 -m %3 %4").arg(expID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
     } else
     {
-      command = QString("expView -x %1 -v Statements -f %2 -m %3").arg(focusedExpID).arg(fn).arg(currentMetricStr);
+      command = QString("expView -x %1 -v Statements -f %2 -m %3 %4").arg(focusedExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
     }
   }
   if( !currentThreadStr.isEmpty() )
@@ -5862,7 +5890,7 @@ StatsPanel::analyzeTheCView()
   for( QValueList<QString>::Iterator it = cidList.begin(); it != cidList.end(); ++it)
   {
     QString cid_str = (QString)*it;
-    QString command = QString("cviewinfo -c %1").arg(cid_str);
+    QString command = QString("cviewinfo -c %1 %2").arg(cid_str).arg(timeIntervalString);
     if( !cli->getStringValueFromCLI( (char *)command.ascii(),
            &cstring, clip, TRUE ) )
     {
