@@ -923,13 +923,13 @@ host_items->descriptionClassObject = host_dco;
     }
 }
 { // For each thread status , create a dynamic pset.
-      QValueList<StatusStruct> statusDisconnectedList;
-      QValueList<StatusStruct> statusConnectingList;
-      QValueList<StatusStruct> statusNonexistentList;
-      QValueList<StatusStruct> statusRunningList;
-      QValueList<StatusStruct> statusSuspendedList;
-      QValueList<StatusStruct> statusTerminatedList;
-      QValueList<StatusStruct> statusUnknownList;
+      QValueList<StatusStruct *> statusDisconnectedList;
+      QValueList<StatusStruct *> statusConnectingList;
+      QValueList<StatusStruct *> statusNonexistentList;
+      QValueList<StatusStruct *> statusRunningList;
+      QValueList<StatusStruct *> statusSuspendedList;
+      QValueList<StatusStruct *> statusTerminatedList;
+      QValueList<StatusStruct *> statusUnknownList;
       statusDisconnectedList.clear();
       statusConnectingList.clear();
       statusNonexistentList.clear();
@@ -938,7 +938,7 @@ host_items->descriptionClassObject = host_dco;
       statusTerminatedList.clear();
       statusUnknownList.clear();
 
-      StatusStruct statusStruct;
+      StatusStruct *statusStruct = new StatusStruct();
 
 
       try
@@ -957,42 +957,45 @@ host_items->descriptionClassObject = host_dco;
             Thread t = *ti;
             std::string host = t.getHost();
             pid_t pid = t.getProcessId();
-            statusStruct.host = QString(host.c_str());
-            statusStruct.pid = QString("%1").arg(pid);
+            statusStruct->host = QString(host.c_str());
+            statusStruct->pid = QString("%1").arg(pid);
+// printf("statusStruct->host=(%s)\n", statusStruct->host.ascii() );
+// printf("statusStruct->pid=(%s)\n", statusStruct->pid.ascii() );
 
             // Add some status to each thread.
-            QString threadStatusStr;
+            QString threadStatusStr = QString::null;
             switch( t.getState() )
             {
               case Thread::Disconnected:
                 threadStatusStr = "Disconnected";
-                statusStruct.status = threadStatusStr;
+                statusStruct->status = threadStatusStr;
                 statusDisconnectedList.push_back(statusStruct);
                 break;
               case Thread::Connecting:
                 threadStatusStr = "Connecting";
-                statusStruct.status = threadStatusStr;
+                statusStruct->status = threadStatusStr;
                 statusConnectingList.push_back(statusStruct);
                 break;
                 break;
               case Thread::Nonexistent:
                 threadStatusStr = "Nonexistent";
-                statusStruct.status = threadStatusStr;
+                statusStruct->status = threadStatusStr;
                 statusNonexistentList.push_back(statusStruct);
                 break;
               case Thread::Running:
                 threadStatusStr = "Running";
-                statusStruct.status = threadStatusStr;
+                statusStruct->status = threadStatusStr;
                 statusRunningList.push_back(statusStruct);
                 break;
               case Thread::Suspended:
                 threadStatusStr = "Suspended";
-                statusStruct.status = threadStatusStr;
+                statusStruct->status = threadStatusStr;
                 statusSuspendedList.push_back(statusStruct);
+// printf("statusSuspendedList.pushback() \n");
                 break;
               case Thread::Terminated:
                 threadStatusStr = "Terminate";
-                statusStruct.status = threadStatusStr;
+                statusStruct->status = threadStatusStr;
                 statusTerminatedList.push_back(statusStruct);
                 if( updateTimer )
                 {
@@ -1002,7 +1005,7 @@ host_items->descriptionClassObject = host_dco;
                 break;
               default:
                 threadStatusStr = "Unknown";
-                statusStruct.status = threadStatusStr;
+                statusStruct->status = threadStatusStr;
                 statusUnknownList.push_back(statusStruct);
                 break;
             }
@@ -1053,7 +1056,8 @@ host_items->descriptionClassObject = host_dco;
   // Put out the Disconnected Dynamic pset (if there is one.)
   if( statusDisconnectedList.size() > 0 )
   {
-    QValueList<StatusStruct>::iterator vi = statusDisconnectedList.begin();
+// printf("statusDisconnectedList.size() = (%d)\n", statusDisconnectedList.size() );
+    QValueList<StatusStruct *>::iterator vi = statusDisconnectedList.begin();
 //    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Disconnected");
     if( psl ) psl->append(pset_name);
@@ -1063,21 +1067,21 @@ host_items->descriptionClassObject = host_dco;
     disconnected_items->descriptionClassObject = dco;
     for( ;vi != statusDisconnectedList.end(); vi++)
     {
-      StatusStruct ss = *vi;
-//      printf("ss.status=(%s)\n", ss.status.ascii() );
-//      printf("ss.host=(%s)\n", ss.host.ascii() );
-//      printf("ss.pid=(%s)\n", ss.pid.ascii() );
+      StatusStruct *ss = (StatusStruct *)*vi;
+// printf("ss->status=(%s)\n", ss->status.ascii() );
+// printf("ss->host=(%s)\n", ss->host.ascii() );
+// printf("ss->pid=(%s)\n", ss->pid.ascii() );
 
-      MPListViewItem *item = new MPListViewItem( disconnected_items, ss.pid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+      MPListViewItem *item = new MPListViewItem( disconnected_items, ss->pid, ss->host);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss->host, ss->pid );
       item->descriptionClassObject = dco;
     }
   }
   // Put out the Connecting Dynamic pset (if there is one.)
   if( statusConnectingList.size() > 0 )
   {
-    QValueList<StatusStruct>::iterator vi = statusConnectingList.begin();
-//    pset_name = QString("pset%1").arg(pset_count++);
+// printf("statusConnectingList.size() = (%d)\n", statusConnectingList.size() );
+    QValueList<StatusStruct *>::iterator vi = statusConnectingList.begin();
     pset_name = QString("Connecting");
     if( psl ) psl->append(pset_name);
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Connecting" );
@@ -1085,17 +1089,19 @@ host_items->descriptionClassObject = host_dco;
     items->descriptionClassObject = dco;
     for( ;vi != statusConnectingList.end(); vi++)
     {
-      StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+      StatusStruct *ss = (StatusStruct *)*vi;
+// printf("ss->status=(%s)\n", ss->status.ascii() );
+// printf("ss->host=(%s)\n", ss->host.ascii() );
+// printf("ss->pid=(%s)\n", ss->pid.ascii() );
+      MPListViewItem *item = new MPListViewItem( items, ss->pid, ss->host);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss->host, ss->pid );
       item->descriptionClassObject = dco;
     }
   }
   // Put out the Nonexistent Dynamic pset (if there is one.)
   if( statusNonexistentList.size() > 0 )
   {
-    QValueList<StatusStruct>::iterator vi = statusNonexistentList.begin();
-//    pset_name = QString("pset%1").arg(pset_count++);
+    QValueList<StatusStruct *>::iterator vi = statusNonexistentList.begin();
     pset_name = QString("Non Existent");
     if( psl ) psl->append(pset_name);
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Nonexistent" );
@@ -1103,16 +1109,16 @@ host_items->descriptionClassObject = host_dco;
     items->descriptionClassObject = dco;
     for( ;vi != statusNonexistentList.end(); vi++)
     {
-      StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+      StatusStruct *ss = (StatusStruct *)*vi;
+      MPListViewItem *item = new MPListViewItem( items, ss->pid, ss->host);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss->host, ss->pid );
       item->descriptionClassObject = dco;
     }
   }
   // Put out the Running Dynamic pset (if there is one.)
   if( statusRunningList.size() > 0 )
   {
-    QValueList<StatusStruct>::iterator vi = statusRunningList.begin();
+    QValueList<StatusStruct *>::iterator vi = statusRunningList.begin();
 //    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Running");
     if( psl ) psl->append(pset_name);
@@ -1121,17 +1127,17 @@ host_items->descriptionClassObject = host_dco;
     items->descriptionClassObject = dco;
     for( ;vi != statusRunningList.end(); vi++)
     {
-      StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+      StatusStruct *ss = (StatusStruct *)*vi;
+      MPListViewItem *item = new MPListViewItem( items, ss->pid, ss->host);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss->host, ss->pid );
       item->descriptionClassObject = dco;
     }
   }
   // Put out the Suspended Dynamic pset (if there is one.)
   if( statusSuspendedList.size() > 0 )
   {
-    QValueList<StatusStruct>::iterator vi = statusSuspendedList.begin();
-//    pset_name = QString("pset%1").arg(pset_count++);
+// printf("statusSuspendedList.size() = (%d)\n", statusSuspendedList.size() );
+    QValueList<StatusStruct *>::iterator vi = statusSuspendedList.begin();
     pset_name = QString("Suspended");
     if( psl ) psl->append(pset_name);
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Suspended" );
@@ -1139,16 +1145,19 @@ host_items->descriptionClassObject = host_dco;
     items->descriptionClassObject = dco;
     for( ;vi != statusSuspendedList.end(); vi++)
     {
-      StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+      StatusStruct *ss = (StatusStruct *)*vi;
+// printf("ss->status=(%s)\n", ss->status.ascii() );
+// printf("ss->host=(%s)\n", ss->host.ascii() );
+// printf("ss->pid=(%s)\n", ss->pid.ascii() );
+      MPListViewItem *item = new MPListViewItem( items, ss->pid, ss->host);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss->host, ss->pid );
       item->descriptionClassObject = dco;
     }
   }
   // Put out the status Terminated Dynamic pset (if there is one.)
   if( statusTerminatedList.size() > 0 )
   {
-    QValueList<StatusStruct>::iterator vi = statusTerminatedList.begin();
+    QValueList<StatusStruct *>::iterator vi = statusTerminatedList.begin();
 //    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Terminated");
     if( psl ) psl->append(pset_name);
@@ -1157,16 +1166,16 @@ host_items->descriptionClassObject = host_dco;
     items->descriptionClassObject = dco;
     for( ;vi != statusTerminatedList.end(); vi++)
     {
-      StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+      StatusStruct *ss = (StatusStruct *)*vi;
+      MPListViewItem *item = new MPListViewItem( items, ss->pid, ss->host);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss->host, ss->pid );
       item->descriptionClassObject = dco;
     }
   }
   // Put out the Unknown Dynamic pset (if there is one.)
   if( statusUnknownList.size() > 0 )
   {
-    QValueList<StatusStruct>::iterator vi = statusUnknownList.begin();
+    QValueList<StatusStruct *>::iterator vi = statusUnknownList.begin();
 //    pset_name = QString("pset%1").arg(pset_count++);
     pset_name = QString("Unknown");
     if( psl ) psl->append(pset_name);
@@ -1175,9 +1184,9 @@ host_items->descriptionClassObject = host_dco;
     items->descriptionClassObject = dco;
     for( ;vi != statusUnknownList.end(); vi++)
     {
-      StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+      StatusStruct *ss = (StatusStruct *)*vi;
+      MPListViewItem *item = new MPListViewItem( items, ss->pid, ss->host);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss->host, ss->pid );
       item->descriptionClassObject = dco;
     }
   }
@@ -1301,7 +1310,7 @@ ManageCollectorsClass::attachProcessSelected()
 // printf("A: command=(%s)\n", command.ascii() );
 
     steps = 0;
-    pd = new GenericProgressDialog(this, "Loading process...", TRUE);
+    pd = new GenericProgressDialog(this, "Loading process->..", TRUE);
     loadTimer = new QTimer( this, "progressTimer" );
     connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
     loadTimer->start( 0 );
