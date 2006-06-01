@@ -189,6 +189,7 @@ static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
 
 #define def_Detail_values def_MPIT_values
 #define set_Detail_values set_MPIT_values
+#define set_ExtraMetric_values(value_array, ExtraValues, index)
 #include "SS_View_detail.txx"
 
 static std::string allowed_mpit_V_options[] = {

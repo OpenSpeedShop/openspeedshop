@@ -79,6 +79,7 @@
 
 #define def_Detail_values def_FPE_values
 #define set_Detail_values set_FPE_values
+#define set_ExtraMetric_values(value_array, ExtraValues, index)
 #define Determine_Objects Get_Filtered_Objects
 #include "SS_View_detail.txx"
 

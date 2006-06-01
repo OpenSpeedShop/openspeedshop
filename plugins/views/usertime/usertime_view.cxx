@@ -26,36 +26,71 @@
 // Additional items may be defined for individual collectors.
 
 // These are needed to manage usertime collector data.
-#define extime_temp 2
-#define excnt_temp 3
-#define intime_temp 4
-#define incnt_temp 5
+#define extime_temp VMulti_free_temp
+#define excnt_temp  VMulti_free_temp+1
+#define intime_temp VMulti_free_temp+2
+#define incnt_temp  VMulti_free_temp+3
+#define tmean_temp  VMulti_free_temp+4
+#define tmin_temp  VMulti_free_temp+5
+#define tmax_temp  VMulti_free_temp+6
 
 
 // usertime view
 
-#define def_UserTime_values \
-            double ex_time = 0.0; \
-            uint64_t ex_cnt = 0; \
-            double in_time = 0.0; \
-            uint64_t in_cnt = 0;
+#define def_UserTime_values          \
+            double ex_time = 0.0;    \
+            uint64_t ex_cnt = 0;     \
+            double in_time = 0.0;    \
+            uint64_t in_cnt = 0;     \
+            double tmean_time = 0.0; \
+            double tmin_time = 0.0;  \
+            double tmax_time = 0.0;
 
-#define get_inclusive_values(primary, num_calls) \
+#define get_inclusive_values(primary, num_calls)        \
                 in_time += primary.dm_time / num_calls; \
                 in_cnt +=  primary.dm_count;
 
-#define get_exclusive_values(secondary, num_calls) \
+#define get_exclusive_values(secondary, num_calls)        \
                 ex_time += secondary.dm_time / num_calls; \
                 ex_cnt +=  secondary.dm_count;
 
-#define set_UserTime_values(value_array, sort_extime)  \
-              if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL; \
-              if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp] \
+#define set_UserTime_values(value_array, sort_extime)                                       \
+              if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;       \
+              if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp]               \
                                                  = CRPTR (sort_extime ? ex_time : in_time); \
               if (num_temps > VMulti_time_temp) value_array[extime_temp] = CRPTR (ex_time); \
-              if (num_temps > excnt_temp) value_array[excnt_temp] = CRPTR (ex_cnt); \
-              if (num_temps > intime_temp) value_array[intime_temp] = CRPTR (in_time); \
+              if (num_temps > excnt_temp) value_array[excnt_temp] = CRPTR (ex_cnt);         \
+              if (num_temps > intime_temp) value_array[intime_temp] = CRPTR (in_time);      \
               if (num_temps > incnt_temp) value_array[incnt_temp] = CRPTR (in_cnt);
+
+#define set_ExtraMetric_values(value_array, ExtraValues, index)                                      \
+              if (num_temps > tmean_temp) {                                                          \
+                if (ExtraValues[ViewReduction_mean]->find(index)                                     \
+                                                      != ExtraValues[ViewReduction_mean]->end()) {   \
+                  value_array[tmean_temp]                                                            \
+                       = Dup_CommandResult(ExtraValues[ViewReduction_mean]->find(index)->second);    \
+                } else {                                                                             \
+                  value_array[tmean_temp] = CRPTR (tmean_time);                                      \
+                }                                                                                    \
+              }                                                                                      \
+              if (num_temps > tmin_temp) {                                                           \
+                if (ExtraValues[ViewReduction_min]->find(index)                                      \
+                                                      != ExtraValues[ViewReduction_min]->end()) {    \
+                  value_array[tmin_temp]                                                             \
+                       = Dup_CommandResult(ExtraValues[ViewReduction_min]->find(index)->second);     \
+                } else {                                                                             \
+                  value_array[tmin_temp] = CRPTR (tmin_time);                                        \
+                }                                                                                    \
+              }                                                                                      \
+              if (num_temps > tmax_temp) {                                                           \
+                if (ExtraValues[ViewReduction_max]->find(index)                                      \
+                                                      != ExtraValues[ViewReduction_max]->end()) {    \
+                  value_array[tmax_temp]                                                             \
+                       = Dup_CommandResult(ExtraValues[ViewReduction_max]->find(index)->second);     \
+                } else {                                                                             \
+                  value_array[tmax_temp] = CRPTR (tmax_time);                                        \
+                }                                                                                    \
+              }
 
 #define def_Detail_values def_UserTime_values
 #define set_Detail_values set_UserTime_values
@@ -173,9 +208,6 @@ static bool define_usertime_columns (
           time_metric_selected = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
           HV.push_back("Inclusive Time");
-          if (last_column == 0) {
-            IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
-          }
           if (first_time_temp == 0) first_time_temp = intime_temp;
           last_temp = intime_temp;
           last_column++;
@@ -204,7 +236,7 @@ static bool define_usertime_columns (
          // display sum of times
           time_metric_selected = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, extime_temp));
-          HV.push_back("Exclusive Time");
+          HV.push_back("Exclusive Time(ms)");
           if (first_time_temp == 0) first_time_temp = extime_temp;
           last_temp = extime_temp;
           last_column++;
@@ -215,10 +247,7 @@ static bool define_usertime_columns (
          // display times
           time_metric_selected = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
-          HV.push_back("Inclusive Time");
-          if (last_column == 0) {
-            IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
-          }
+          HV.push_back("Inclusive Time(ms)");
           if (first_time_temp == 0) first_time_temp = intime_temp;
           last_temp = intime_temp;
           last_column++;
@@ -240,12 +269,43 @@ static bool define_usertime_columns (
           HV.push_back("Exclusive Calls");
           last_temp = incnt_temp;
           last_column++;
-        } else if (!strcasecmp(M_Name.c_str(), "percent")) {
+        } else if (!strcasecmp(M_Name.c_str(), "percent") ||
+                   !strcmp(M_Name.c_str(), "%")           ||
+                   !strcasecmp(M_Name.c_str(), "%time")   ||
+                   !strcasecmp(M_Name.c_str(), "%times")) {
          // percent is calculate from 2 temps: time for this row and total time.
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column,
                        (first_time_temp == 0) ? intime_temp : first_time_temp));
           HV.push_back("% of Total");
           last_column++;
+        } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
+                   !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
+         // Do a By-Thread average.
+          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
+          } else {
+            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
+            HV.push_back("Average Exclusive Time(ms) Across Threads");
+          }
+        } else if (!strcasecmp(M_Name.c_str(), "ThreadMin")) { 
+         // Find the By-Thread Min.
+          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
+          } else {
+            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
+            HV.push_back("Min Exclusive Time(ms) Across Threads");
+          }
+        } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
+         // Find the By-Thread Max.
+          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
+          } else {
+            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
+            HV.push_back("Max Exclusive Time(ms) Across Threads");
+          }
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
         }
@@ -255,33 +315,27 @@ static bool define_usertime_columns (
   } else if (Generate_ButterFly) {
    // Default ButterFly view.
    // Column[0] is inclusive time
-    IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
     HV.push_back("Inclusive Time");
-    last_column++;
 
   // Column[1] in % of inclusive time
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column, intime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp));
     HV.push_back("% of Total");
     last_column++;
 
   } else {
    // If nothing is requested ...
-   // Column[0] is inclusive time
-    IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
-    HV.push_back("Inclusive Time");
-    last_column++;
+   // Column[0] is exclusive time
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
+    HV.push_back("Exclusive Time(ms)");
 
-   // Column[1] is exclusive time
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, extime_temp));
-    HV.push_back("Exclusive Time");
-    last_column++;
+   // Column[1] is inclusive time
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
+    HV.push_back("Inclusive Time(ms)");
 
    // Column[2] is percent, calculated from 2 temps: time for this row and total inclusive time.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column, intime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp));
     HV.push_back("% of Total");
-    last_column++;
   }
   return (HV.size() > 0);
 }
@@ -340,17 +394,21 @@ static std::string VIEW_usertime_long  = "\nA positive integer can be added to t
                                       " '-m' option.  More than one item can be selected but only the items"
                                       " listed after the option will be printed and they will be printed in"
                                       " the order that they are listed."
+                                      " Each value pertains to the function, statement or linked object that is"
+                                      " on that row of the report.  The 'Thread...' selections pertain to the"
+                                      " process unit that the program was partitioned into: Pid's,"
+                                      " Posix threads, Mpi threads or Ranks."
                                       " If no '-m' option is specified, the default is equivalent to"
                                       " '-m exclusive_time'."
-                                      " The full set of available options is: 'exclusive_time',"
-                                      " 'count' and 'percent'."
-                                      " Each option reports information"
-                                      " reported for the code unitn on that particular line in the report."
                                       " \n\t'-m exclusive_time' reports the wall clock time used in the code unit."
                                       " \n\t'-m inclusive_time' reports the wall clock time used in the aggregate"
                                       " by the unit and all the units it calls."
-                                      " \n\t'-m count' reports the number of times the function was called."
-                                      " \n\t'-m percent' reports the percent of usertime time the function represents.";
+                                      " \n\t'-m count' reports the number calls into the code unit."
+                                      " \n\t'-m percent' reports the percent of usertime time for all the processes."
+                                      " \n\t'-m ThreadAverage' reports the average cpu time for a process."
+                                      " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
+                                      " \n\t'-m ThreadMin' reports the maximum cpu time for a process."
+                                      "\n";
 static std::string VIEW_usertime_example = "\texpView usertime\n"
                                            "\texpView -v LinkedObjects usertime\n"
                                            "\texpView -v Statements usertime20\n"
@@ -358,10 +416,10 @@ static std::string VIEW_usertime_example = "\texpView usertime\n"
                                            "\texpView usertime20 -m inclusive_time, exclusive_time\n"
                                            "\texpView -v CallTrees,FullStack usertime10 -m count\n";
 static std::string VIEW_usertime_metrics[] =
-  { "inclusive_time",
-    "inclusive_details",
-    "exclusive_time",
+  { "exclusive_time",
     "exclusive_details",
+    "inclusive_time",
+    "inclusive_details",
     ""
   };
 static std::string VIEW_usertime_collectors[] =

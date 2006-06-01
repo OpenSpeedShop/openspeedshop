@@ -160,6 +160,7 @@ static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
 
 #define def_Detail_values def_MPI_values
 #define set_Detail_values set_MPI_values
+#define set_ExtraMetric_values(value_array, ExtraValues, index)
 #include "SS_View_detail.txx"
 
 
@@ -508,7 +509,7 @@ class mpi_view : public ViewType {
        case VFC_Function:
         Framework::Function *dummyObject;
         return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                                   Determine_Metric_Ordering(IV), dummyObject, VFC_Function, &dummyVector, view_output);
+               Determine_Metric_Ordering(IV), dummyObject, VFC_Function, &dummyVector, view_output);
       }
       Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
       return false;
