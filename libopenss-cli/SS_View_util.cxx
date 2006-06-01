@@ -155,6 +155,79 @@ void GetMetricByObjectSet (CommandObject *cmd,
   GetMetricBySet (cmd, exp, tgrp, collector, metric, objects, items);
 }
 
+template <typename TE>
+bool GetAllReducedMetrics(
+                       CommandObject *cmd,
+                       ExperimentObject *exp,
+                       ThreadGroup& tgrp,
+                       std::vector<Collector>& CV,
+                       std::vector<std::string>& MV,
+                       std::vector<ViewInstruction *>& IV,
+                       std::set<TE>& objects,
+                       std::vector<SmartPtr<std::map<TE, CommandResult *> > >& Values) {
+    Assert (!objects.empty());
+    bool thereAreExtraMetrics = false;
+    int64_t i;
+    int64_t num_vinst = IV.size();
+
+   // Get all the metric values.
+    for ( i=0; i < Values.size(); i++) {
+      Values[i] = Framework::SmartPtr<std::map<TE, CommandResult *> >(
+                                  new std::map<TE, CommandResult * >()
+                                  );
+    }
+
+    for ( i=0; i < num_vinst; i++) {
+      ViewInstruction *vinst = IV[i];
+
+      if (vinst->OpCode() == VIEWINST_Define_ByThread_Metric) {
+        int64_t CM_Index = vinst->TMP1();
+        int64_t reductionIndex = vinst->TMP2();
+        Assert((reductionIndex == ViewReduction_mean) ||
+               (reductionIndex == ViewReduction_min) ||
+               (reductionIndex == ViewReduction_max));
+        GetReducedType (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, reductionIndex, Values[reductionIndex]);
+        thereAreExtraMetrics = true;
+      }
+
+    }
+
+    return thereAreExtraMetrics;
+}
+
+bool GetReducedMetrics(CommandObject *cmd,
+                       ExperimentObject *exp,
+                       ThreadGroup& tgrp,
+                       std::vector<Collector>& CV,
+                       std::vector<std::string>& MV,
+                       std::vector<ViewInstruction *>& IV,
+                       std::set<Function>& objects,
+                       std::vector<SmartPtr<std::map<Function, CommandResult *> > >& Values) {
+  return GetAllReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Values);
+}
+
+bool GetReducedMetrics(CommandObject *cmd,
+                       ExperimentObject *exp,
+                       ThreadGroup& tgrp,
+                       std::vector<Collector>& CV,
+                       std::vector<std::string>& MV,
+                       std::vector<ViewInstruction *>& IV,
+                       std::set<Statement>& objects,
+                       std::vector<SmartPtr<std::map<Statement, CommandResult *> > >& Values) {
+  return GetAllReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Values);
+}
+
+bool GetReducedMetrics(CommandObject *cmd,
+                       ExperimentObject *exp,
+                       ThreadGroup& tgrp,
+                       std::vector<Collector>& CV,
+                       std::vector<std::string>& MV,
+                       std::vector<ViewInstruction *>& IV,
+                       std::set<LinkedObject>& objects,
+                       std::vector<SmartPtr<std::map<LinkedObject, CommandResult *> > >& Values) {
+  return GetAllReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Values);
+}
+
 CommandResult *Init_Collector_Metric (CommandObject *cmd,
                                       Collector collector,
                                       std::string metric) {
@@ -1092,6 +1165,18 @@ ViewInstruction *Find_Percent_Def (std::vector<ViewInstruction *>IV) {
         (vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
         (vp->OpCode() == VIEWINST_Display_Percent_Tmp)) {
       return vp;
+    }
+  }
+  return NULL;
+}
+
+ViewInstruction *Find_Tmp_Accumulation (std::vector<ViewInstruction *>IV, int64_t temp_num) {
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    if ((vp->OpCode() == VIEWINST_Add) ||
+        (vp->OpCode() == VIEWINST_Min) ||
+        (vp->OpCode() == VIEWINST_Max)) {
+      if (vp->TMP1() == temp_num) return vp;
     }
   }
   return NULL;

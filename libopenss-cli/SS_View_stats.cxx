@@ -38,106 +38,8 @@ struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
     }
 };
 
-template <typename TI, typename TOBJECT>
-void GetReducedSet (
-          TI *dummyType,
-          Collector& collector,
-          std::string& metric,
-          std::vector<std::pair<Time,Time> >& intervals,
-          ThreadGroup& tgrp,
-          std::set<TOBJECT>& objects,
-          int64_t reduction_index,
-          SmartPtr<std::map<TOBJECT, CommandResult *> >& items) {
-
-  SmartPtr<std::map<TOBJECT, std::map<Thread, TI> > > individual;
-  for (std::vector<std::pair<Time,Time> >::iterator
-               iv = intervals.begin(); iv != intervals.end(); iv++) {
-    Queries::GetMetricValues(collector, metric,
-                             TimeInterval(iv->first, iv->second),
-                             tgrp, objects, individual);
-  }
-
- // Reduce the per-thread values.
-  SmartPtr<std::map<TOBJECT, TI > > result;
-  switch (reduction_index) {
-   case ViewReduction_min:
-    ReduceMetricByThread (individual, Queries::Reduction::Minimum, result);
-    break;
-   case ViewReduction_max:
-    ReduceMetricByThread (individual, Queries::Reduction::Maximum, result);
-    break;
-   default:
-    ReduceMetricByThread (individual, Queries::Reduction::ArithmeticMean, result);
-    break;
-  }
-
- // Convert to typeless CommandResult objects.
-  for(typename std::map<TOBJECT, TI>::const_iterator
-      item = result->begin(); item != result->end(); ++item) {
-    std::pair<TOBJECT, TI> p = *item;
-    items->insert( std::make_pair(p.first, CRPTR (p.second)) );
-  }
-}
-
-template <typename TOBJECT>
-bool GetReducedMetrics (
-          CommandObject *cmd,
-          ExperimentObject *exp,
-          ThreadGroup& tgrp,
-          Collector &collector,
-          std::string &metric,
-          std::set<TOBJECT>& objects,
-          int64_t reduction_index,
-          SmartPtr<std::map<TOBJECT, CommandResult *> >& items) {
-
-  Framework::Experiment *experiment = exp->FW();
-
- // Get the list of desired objects.
-  if (objects.empty()) {
-    Mark_Cmd_With_Soft_Error(cmd, "(There are no objects specified for metric reduction.)");
-    return false;
-  }
-
-  std::vector<std::pair<Time,Time> > intervals;
-  Parse_Interval_Specification (cmd, exp, intervals);
-
-  Metadata m = Find_Metadata ( collector, metric );
-  std::string id = m.getUniqueId();
-
-  if( m.isType(typeid(unsigned int)) ) {
-    uint *V;
-    GetReducedSet (V, collector, metric, intervals, tgrp, objects, reduction_index, items);
-  } else if( m.isType(typeid(uint64_t)) ) {
-    uint64_t *V;
-    GetReducedSet (V, collector, metric, intervals, tgrp, objects, reduction_index, items);
-  } else if( m.isType(typeid(int)) ) {
-    int *V;
-    GetReducedSet (V, collector, metric, intervals, tgrp, objects, reduction_index, items);
-  } else if( m.isType(typeid(int64_t)) ) {
-    int64_t *V;
-    GetReducedSet (V, collector, metric, intervals, tgrp, objects, reduction_index, items);
-  } else if( m.isType(typeid(float)) ) {
-    float *V;
-    GetReducedSet (V, collector, metric, intervals, tgrp, objects, reduction_index, items);
-  } else if( m.isType(typeid(double)) ) {
-    double *V;
-    GetReducedSet (V, collector, metric, intervals, tgrp, objects, reduction_index, items);
-  } else {
-    std::string S("(Cluster Analysis can not be performed on metric '");
-    S = S +  metric + "' of type '" + m.getType() + "'.)";
-    Mark_Cmd_With_Soft_Error(cmd, S);
-    return false;
-  }
-  if (items->size() == 0) {
-    Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for metric reduction.)");
-    return false;
-  }
-
-  return true;
-}
-
 template <typename TE>
-void GetExtraMetrics(CommandObject *cmd,
+bool GetExtraMetrics(CommandObject *cmd,
                      ExperimentObject *exp,
                      ThreadGroup& tgrp,
                      std::vector<Collector>& CV,
@@ -148,6 +50,14 @@ void GetExtraMetrics(CommandObject *cmd,
                      std::vector<std::pair<TE, CommandResult *> >& items,
                      std::vector<SmartPtr<std::map<TE, CommandResult *> > >& Values) {
     int64_t i;
+    bool thereAreExtraMetrics = false;
+
+   // Define all the SmartPtrs
+    for ( i=0; i < Values.size(); i++) {
+      Values[i] = Framework::SmartPtr<std::map<TE, CommandResult *> >(
+                                  new std::map<TE, CommandResult * >()
+                                  );
+    }
 
    // Get all the metric values.
     std::set<TE> objects;   // Build set of objects only once.
@@ -164,20 +74,16 @@ void GetExtraMetrics(CommandObject *cmd,
           }
         }
 
-        SmartPtr<std::map<TE, CommandResult *> > column_values =
-            Framework::SmartPtr<std::map<TE, CommandResult *> >(
-                new std::map<TE, CommandResult * >()
-                );
         if (vinst->OpCode() == VIEWINST_Display_Metric) {
-          GetMetricByObjectSet (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, column_values);
+          GetMetricByObjectSet (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, Values[i]);
         } else {
           int64_t reductionIndex = vinst->TMP2();
           Assert((reductionIndex == ViewReduction_mean) ||
                  (reductionIndex == ViewReduction_min) ||
                  (reductionIndex == ViewReduction_max));
-          GetReducedMetrics (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, reductionIndex, column_values);
+          GetReducedType (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, reductionIndex, Values[i]);
         }
-        Values[i] = column_values;
+        thereAreExtraMetrics = true;
       }
     }
 
@@ -250,7 +156,7 @@ void Construct_View (CommandObject *cmd,
 
    // Get all the metric values.
     std::vector<SmartPtr<std::map<TE, CommandResult *> > > Values(num_columns);
-    GetExtraMetrics (cmd, exp, tgrp, CV, MV, IV, num_columns, ViewInst, items, Values);
+    bool ExtraMetrics = GetExtraMetrics (cmd, exp, tgrp, CV, MV, IV, num_columns, ViewInst, items, Values);
 
    // Set up to accumulate column sums.
     std::vector<CommandResult *> Column_Sum(num_columns);
@@ -329,7 +235,7 @@ void Construct_View (CommandObject *cmd,
         }
         C->CommandResult_Columns::Add_Column (Next_Metric_Value);
         if (report_Column_summary) {
-         // Coipy the first row to initialize the summary values.
+         // Copy the first row to initialize the summary values.
           if (foundn == 0) {
             Column_Sum[i] = Dup_CommandResult (Next_Metric_Value);
           } else {
@@ -367,6 +273,14 @@ void Construct_View (CommandObject *cmd,
       view_output.push_back (E);
     }
 
+    if (ExtraMetrics) {
+      for (int64_t i = 0; i < Values.size(); i++) {
+        if (!Values[i].isNull() &&
+            !Values[i]->empty()) {
+          Reclaim_CR_Space (Values[i]);
+        }
+      }
+    }
 }
 
 // Generic routine to generate a simple view

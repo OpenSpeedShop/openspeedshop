@@ -19,10 +19,10 @@
 
 #include "SS_Input_Manager.hxx"
 
-static inline void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& IV,
-                                                std::vector<CommandResult *>& A,
-                                                std::vector<CommandResult *>& B) {
-  int64_t len = A.size();
+static void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& IV,
+                                         std::vector<CommandResult *>& A,
+                                         std::vector<CommandResult *>& B) {
+  int64_t len = min(IV.size(),A.size());
   for (int64_t i = 0; i < len; i++) {
     ViewInstruction *vp = IV[i];
     if (vp != NULL) {
@@ -31,7 +31,8 @@ static inline void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& 
         Accumulate_CommandResult (A[i], B[i]);
       } else if (Vop == VIEWINST_Min) {
         Accumulate_Min_CommandResult (A[i], B[i]);
-      } else if (Vop == VIEWINST_Max) {
+      } else if ((Vop == VIEWINST_Max) ||
+                 (Vop == VIEWINST_Summary_Max)) {
         Accumulate_Max_CommandResult (A[i], B[i]);
       }
     }
@@ -50,7 +51,6 @@ void Construct_View_Output (CommandObject *cmd,
                             std::vector<std::pair<CommandResult *,
                                                   SmartPtr<std::vector<CommandResult *> > > >& items,
                             std::list<CommandResult *>& view_output ) {
-// Print_View_Params (cerr, CV,MV,IV);
   int64_t i;
   bool report_Column_summary = false;
 
@@ -58,8 +58,6 @@ void Construct_View_Output (CommandObject *cmd,
   int64_t num_input_temps = (items.empty()) ? 0 : items[0].second->size();
   std::vector<ViewInstruction *> AccumulateInst(num_input_temps);
   for ( i=0; i < num_input_temps; i++) AccumulateInst[i] = NULL;
-  std::vector<ViewInstruction *> SummaryInst(num_input_temps);
-  for ( i=0; i < num_input_temps; i++) SummaryInst[i] = NULL;
   bool input_temp_used[num_input_temps];
   std::vector<CommandResult *> summary_temp(num_input_temps);
   for ( i=0; i < num_input_temps; i++) summary_temp[i] = NULL;
@@ -68,35 +66,25 @@ void Construct_View_Output (CommandObject *cmd,
   for (i = 0; i < IV.size(); i++) {
     ViewInstruction *vp = IV[i];
       if ((vp->OpCode() == VIEWINST_Display_Metric) ||
-          (vp->OpCode() == VIEWINST_Display_Tmp) ||
           (vp->OpCode() == VIEWINST_Display_Percent_Column) ||
           (vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
           (vp->OpCode() == VIEWINST_Display_Percent_Tmp) ||
           (vp->OpCode() == VIEWINST_Display_Average_Tmp) ||
           (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
-        ViewInst[vp->TR()] = vp;
-      } else if (vp->OpCode() == VIEWINST_Display_Summary) {
-        report_Column_summary = (num_input_temps != 0);
+        // Assert (vp->TR() < num_input_temps);
+        if (vp->TR() < num_input_temps) ViewInst[vp->TR()] = vp;
+      } else if (vp->OpCode() == VIEWINST_Display_Tmp) {
+        // Assert (vp->TR() < num_input_temps);
+        if (vp->TR() < num_input_temps) ViewInst[vp->TR()] = vp;
       } else if ((vp->OpCode() == VIEWINST_Add) ||
                  (vp->OpCode() == VIEWINST_Min) ||
                  (vp->OpCode() == VIEWINST_Max)) {
-        if (vp->TMP1() < num_input_temps) {
-          AccumulateInst[vp->TMP1()] = vp;
-          if (SummaryInst[vp->TMP1()] == NULL) {
-            SummaryInst[vp->TMP1()] = vp;
-          }
-        }
+        if (vp->TMP1() < num_input_temps) AccumulateInst[vp->TMP1()] = vp;
+      } else if (vp->OpCode() == VIEWINST_Display_Summary) {
+        report_Column_summary = (num_input_temps != 0);
       } else if (vp->OpCode() == VIEWINST_Summary_Max) {
-        if (vp->TMP1() < num_input_temps) {
-          SummaryInst[vp->TMP1()] = vp;
-        }
+        if (vp->TMP1() < num_input_temps) AccumulateInst[vp->TMP1()] = vp;
       }
-  }
-  if (report_Column_summary) {
-    std::vector<CommandResult *> first_row = *(items.begin()->second);
-    for ( i=0; i < num_input_temps; i++) {
-      summary_temp[i] = Dup_CommandResult (first_row[i]);
-    }
   }
 
    // Format the report with the items that are in the vector.
@@ -128,7 +116,7 @@ void Construct_View_Output (CommandObject *cmd,
                                                  : (*it->second)[i];
           input_temp_used[i] = true;
         } else if (vinst->OpCode() == VIEWINST_Display_Tmp) {
-          CommandResult *V = (*it->second)[vinst->TMP1()];
+          CommandResult *V = (*it->second)[CM_Index];
           if ((V != NULL) &&
               !V->isNullValue ()) {
             Next_Metric_Value = input_temp_used[CM_Index] ? Dup_CommandResult( V ) : V;
@@ -179,9 +167,15 @@ void Construct_View_Output (CommandObject *cmd,
 
      // Accumulate Summary Information
       if (report_Column_summary) {
-       // The first row was copied to initialize the values.
-        if (it != items.begin()) {
-          Accumulate_PreDefined_Temps (SummaryInst, summary_temp, (*it->second));
+        if (it == items.begin()) {
+         // Copy the first row to initialize the summary values.
+          std::vector<CommandResult *> first_row = *(items.begin()->second);
+          for ( i=0; i < num_input_temps; i++) {
+            // summary_temp[i] = Dup_CommandResult (first_row[i]);
+            summary_temp[i] = Dup_CommandResult ((*it->second)[i]);
+          }
+        } else {
+          Accumulate_PreDefined_Temps (AccumulateInst, summary_temp, (*it->second));
         }
       }
 
@@ -203,7 +197,10 @@ void Construct_View_Output (CommandObject *cmd,
         ViewInstruction *sinst = ViewInst[i];
         CommandResult *summary = NULL;
         Assert (sinst != NULL);
-        if (sinst->OpCode() == VIEWINST_Display_Tmp) {
+        if ((sinst->OpCode() == VIEWINST_Display_Tmp) &&
+            (sinst->TMP1() < AccumulateInst.size()) &&
+            (AccumulateInst[sinst->TMP1()] != NULL)) {
+         // Only display the temp if we accumulation is defined.
           summary = Dup_CommandResult (summary_temp[sinst->TMP1()]);
         } else if (sinst->OpCode() == VIEWINST_Display_Average_Tmp) {
           CommandResult *V = summary_temp[sinst->TMP1()];

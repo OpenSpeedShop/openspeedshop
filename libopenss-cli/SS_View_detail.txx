@@ -57,6 +57,9 @@
  *         set_Detail_values - to convert values to type-independant CommandResult
  *            objects and store them into the intermediate array that the
  *            ViewInstructions that the output routine will extract them from.
+ *         set_ExtraMetric_values - to merge any independetly calculated values
+ *            into the intermediate array that the will be used to generate the
+ *            output values.
  *         Accumulate_Stack - can be used in place of 'get_inclusive_values', and
  *            'get_exclusive_values' while providing common code to check the
  *            uniqueness of a call stack and to handle recusion.
@@ -270,7 +273,11 @@ bool Detail_Base_Report(
     }
 */
 
-   // Combine all the items for each function.
+   // Get any required intermediate reduction temps.
+    std::vector<SmartPtr<std::map<TOBJECT, CommandResult *> > > Extra_Values(ViewReduction_Count);
+    bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
+
+   // Combine all the items for each function, statement or linked object.
     typename std::map<TOBJECT, std::map<Framework::StackTrace, TDETAIL > >::iterator fi;
     for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
      // Use macro to allocate imtermediate temporaries
@@ -295,12 +302,24 @@ bool Detail_Base_Report(
                            new std::vector<CommandResult *>(num_temps)
                            );
       set_Detail_values((*vcs), primary_is_inclusive)
+      if (ExtraTemps) {
+        set_ExtraMetric_values((*vcs), Extra_Values, F)
+      }
 
      // Construct callstack for last entry in the stack trace.
       std::vector<CommandResult *> *call_stack = new std::vector<CommandResult *>();
       call_stack->push_back(CRPTR (F));
       CommandResult *CSE = new CommandResult_CallStackEntry (call_stack);
       c_items.push_back(std::make_pair(CSE, vcs));
+    }
+
+    if (ExtraTemps) {
+      for (int64_t i = 0; i < Extra_Values.size(); i++) {
+        if (!Extra_Values[i].isNull() &&
+            !Extra_Values[i]->empty()) {
+          Reclaim_CR_Space (Extra_Values[i]);
+        }
+      }
     }
   }
   catch (const Exception& error) {
@@ -463,6 +482,10 @@ bool Detail_ButterFly_Report (
     }
 */
 
+   // Get any required intermediate reduction temps.
+    std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(ViewReduction_Count);
+    bool ExtraTemps = false; // GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
+
    // Generate a separate butterfly view for each function in the list.
     std::map<Address, CommandResult *> knownTraces;
     typename std::map<Function, std::map<Framework::StackTrace, TDETAIL > >::iterator fi1;
@@ -493,6 +516,9 @@ bool Detail_ButterFly_Report (
                              new std::vector<CommandResult *>(num_temps)
                              );
         set_Detail_values((*vcs), primary_is_inclusive)
+        if (ExtraTemps) {
+          set_ExtraMetric_values((*vcs), Extra_Values, F)
+        }
 
        // Construct result entry
         std::vector<CommandResult *> *call_stack

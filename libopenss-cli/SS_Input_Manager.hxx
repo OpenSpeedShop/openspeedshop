@@ -106,6 +106,8 @@ extern SS_Message_Czar& theMessageCzar();
 
 #include "ArgClass.hxx"
 
+#include "SS_View_getmetrics.txx"
+
 using namespace OpenSpeedShop::cli;
 
 #endif // SS_INPUT_MANAGER_H

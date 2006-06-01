@@ -20,6 +20,8 @@
 
 enum ViewOpCode {
      VIEWINST_Define_Total,             // TMP_index1 is CV & MV index of value that, when summed, is the Total.
+     VIEWINST_Define_ByThread_Metric,   // TMP_index1 is CV & MV index of the value to display.
+                                        // TMP_index2 is the indicator of the reduction that is applied.
      VIEWINST_Display_Metric,           // TmpResult is column# to display in.
                                         // TMP_index1 is CV & MV index of the value to display.
      VIEWINST_Display_ByThread_Metric,  // TmpResult is column# to display in.
@@ -50,9 +52,11 @@ enum ViewOpCode {
 };
 
 // Reduction function Indicators.
-#define ViewReduction_mean 0
-#define ViewReduction_min  1
-#define ViewReduction_max  2
+#define ViewReduction_sum   0
+#define ViewReduction_mean  1
+#define ViewReduction_min   2
+#define ViewReduction_max   3
+#define ViewReduction_Count 4
 
 class ViewInstruction
 {
@@ -109,6 +113,7 @@ class ViewInstruction
     std::string op;
     switch (Instruction) {
      case VIEWINST_Define_Total: op = "Define_Total"; break;
+     case VIEWINST_Define_ByThread_Metric: op = "Define_ByThread_Metric"; break;
      case VIEWINST_Display_Metric: op = "Display_Metric"; break;
      case VIEWINST_Display_ByThread_Metric: op = "Display_ByThread_Metric"; break;
      case VIEWINST_Display_Tmp: op = "Display_Tmp"; break;
@@ -207,81 +212,6 @@ class ViewType
 };
 
 
-template <typename TO, typename TS>
-void GetMetricInThreadGroupByThread (
-    const Collector& collector,
-    const std::string& metric,
-          std::vector<std::pair<Time,Time> >& intervals,
-    const ThreadGroup& tgrp,
-    const std::set<TO >& objects,
-    SmartPtr<std::map<TO, std::map<Thread, TS > > >& individual)
-{
-   // Get the metric values for all the threads over all specified time intervals.
-    for (std::vector<std::pair<Time,Time> >::iterator
-                 iv = intervals.begin(); iv != intervals.end(); iv++) {
-      Time Start_Time = iv->first;
-      Time End_Time = iv->second;
-      Queries::GetMetricValues(collector, metric,
-                               TimeInterval(Start_Time, End_Time),
-                               tgrp, objects, individual);
-    }
-
-}
-
-template <typename TO, typename TS>
-void ReduceMetricByThread (
-    SmartPtr<std::map<TO, std::map<Thread, TS > > >& individual,
-    TS (*reduction)(const std::map<Framework::Thread, TS >&),
-    SmartPtr<std::map<TO, TS > >& result)
-{
-   // Allocate (if necessary) a new map of source objects to values
-    if(result.isNull()) {
-      result = SmartPtr<std::map<TO, TS > >(new std::map<TO, TS >());
-      Assert(!result.isNull());
-    }
-
-   // Reduce the per-thread values.
-    SmartPtr<std::map<TO, TS > > reduced =
-        Queries::Reduction::Apply(individual, reduction);
-
-   // Merge the temporary reduction into the actual results
-    for(typename std::map<TO, TS >::const_iterator
-            i = reduced->begin(); i != reduced->end(); ++i) {
-        if(result->find(i->first) == result->end())
-            result->insert(std::make_pair(i->first, i->second));
-        else
-            (*result)[i->first] += i->second;
-    }
-
-}
-
-template <typename TO, typename TS>
-void GetMetricInThreadGroup(
-    const Collector& collector,
-    const std::string& metric,
-          std::vector<std::pair<Time,Time> >& intervals,
-    const ThreadGroup& tgrp,
-    const std::set<TO >& objects,
-    SmartPtr<std::map<TO, TS > >& result)
-{
-   // Allocate (if necessary) a new map of source objects to values
-    if(result.isNull()) {
-      result = SmartPtr<std::map<TO, TS > >(new std::map<TO, TS >());
-      Assert(!result.isNull());
-    }
-
-   // Get the metric values for all the threads over all specified time intervals.
-    SmartPtr<std::map<TO, std::map<Thread, TS > > > individual;
-    GetMetricInThreadGroupByThread (collector, metric, intervals, tgrp, objects, individual);
-
-   // Reduce the per-thread values.
-    ReduceMetricByThread (individual, Queries::Reduction::Summation, result);
-
-   // Reclaim space.
-    individual = SmartPtr<std::map<TO, std::map<Thread, TS > > >();
-}
-
-
 extern std::list<ViewType *> Available_Views;
 void Define_New_View (ViewType *vnew);
 bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
@@ -342,6 +272,31 @@ void GetMetricByObjectSet (CommandObject *cmd,
                            std::set<LinkedObject>& objects,
                            SmartPtr<std::map<LinkedObject, CommandResult *> >& items);
 
+bool GetReducedMetrics(CommandObject *cmd,
+                       ExperimentObject *exp,
+                       ThreadGroup& tgrp,
+                       std::vector<Collector>& CV,
+                       std::vector<std::string>& MV,
+                       std::vector<ViewInstruction *>& IV,
+                       std::set<Function>& objects,
+                       std::vector<SmartPtr<std::map<Function, CommandResult *> > >& Values);
+bool GetReducedMetrics(CommandObject *cmd,
+                       ExperimentObject *exp,
+                       ThreadGroup& tgrp,
+                       std::vector<Collector>& CV,
+                       std::vector<std::string>& MV,
+                       std::vector<ViewInstruction *>& IV,
+                       std::set<Statement>& objects,
+                       std::vector<SmartPtr<std::map<Statement, CommandResult *> > >& Values);
+bool GetReducedMetrics(CommandObject *cmd,
+                       ExperimentObject *exp,
+                       ThreadGroup& tgrp,
+                       std::vector<Collector>& CV,
+                       std::vector<std::string>& MV,
+                       std::vector<ViewInstruction *>& IV,
+                       std::set<LinkedObject>& objects,
+                       std::vector<SmartPtr<std::map<LinkedObject, CommandResult *> > >& Values);
+
 template <typename TE>
 CommandResult *Get_Object_Metric (CommandObject *cmd,
                                   ExperimentObject *exp,
@@ -381,6 +336,7 @@ Metadata Find_Metadata (Collector C, std::string name);
 ViewInstruction *Find_Base_Def (std::vector<ViewInstruction *>IV);
 ViewInstruction *Find_Total_Def (std::vector<ViewInstruction *>IV);
 ViewInstruction *Find_Percent_Def (std::vector<ViewInstruction *>IV);
+ViewInstruction *Find_Tmp_Accumulation (std::vector<ViewInstruction *>IV, int64_t temp_num);
 ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Column);
 int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV);
 int64_t Find_Max_Temp (std::vector<ViewInstruction *>IV);

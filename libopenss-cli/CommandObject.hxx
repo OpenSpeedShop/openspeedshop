@@ -93,6 +93,14 @@ void Reclaim_CR_Space ( std::list<TL>& L) {
   }
 }
 
+template <typename TE>
+void Reclaim_CR_Space ( std::map<TE, CommandResult *>& V) {
+  typename std::map<TE, CommandResult *>::iterator vi;
+  for ( vi = V.begin(); vi != V.end(); vi++) {
+    Reclaim_CR_Space ((*vi).second);
+  }
+}
+
 template <typename TV>
 void Reclaim_CR_Space ( std::vector<TV>& V) {
   typename std::vector<TV>::iterator vi;
@@ -1760,12 +1768,12 @@ inline CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
 }
 
 // Overloaded utility that will generate the right CommandResult object.
-inline CommandResult *CRPTR (uint& V) { return new CommandResult_Uint (V); }
-inline CommandResult *CRPTR (uint64_t& V) { return new CommandResult_Uint (V); }
-inline CommandResult *CRPTR (int& V) { return new CommandResult_Int (V); }
-inline CommandResult *CRPTR (int64_t& V) { return new CommandResult_Int (V); }
-inline CommandResult *CRPTR (float& V) { return new CommandResult_Float (V); }
-inline CommandResult *CRPTR (double& V) { return new CommandResult_Float (V); }
+inline CommandResult *CRPTR (uint V) { return new CommandResult_Uint (V); }
+inline CommandResult *CRPTR (uint64_t V) { return new CommandResult_Uint (V); }
+inline CommandResult *CRPTR (int V) { return new CommandResult_Int (V); }
+inline CommandResult *CRPTR (int64_t V) { return new CommandResult_Int (V); }
+inline CommandResult *CRPTR (float V) { return new CommandResult_Float (V); }
+inline CommandResult *CRPTR (double V) { return new CommandResult_Float (V); }
 inline CommandResult *CRPTR (char *V) { return new CommandResult_String (std::string(V)); }
 inline CommandResult *CRPTR (std::string& V) { return new CommandResult_String (V); }
 inline CommandResult *CRPTR (Function& V) { return new CommandResult_Function (V); }

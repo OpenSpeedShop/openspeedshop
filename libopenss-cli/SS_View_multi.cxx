@@ -43,8 +43,8 @@ cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
     int64_t i;
     for (i = 0; i < (*cp.second).size(); i++ ) {
-      cerr << "  ";
       CommandResult *p = (*cp.second)[i];
+      cerr << "  ";
       if (p != NULL) {
         p->Print(cerr); cerr << "\n";
       } else {
