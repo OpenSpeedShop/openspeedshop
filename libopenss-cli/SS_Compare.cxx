@@ -343,6 +343,7 @@ static bool Generate_CustomView (CommandObject *cmd,
  // Start by determining the new column headers.
   int64_t num_columns = 0;
   int64_t rows_in_Set0 = 0;
+  int64_t enders_in_allSets = 0;
   CommandResult_Headers *C = new CommandResult_Headers ();
   CommandResult *last_header = NULL;
   std::list<CommandResult *>::iterator coi;
@@ -381,6 +382,8 @@ static bool Generate_CustomView (CommandObject *cmd,
         }
       } else if (c->Type() == CMD_RESULT_COLUMN_VALUES) {
         if (i == 0) rows_in_Set0++;
+      } else if (c->Type() == CMD_RESULT_COLUMN_ENDER) {
+        enders_in_allSets++;
       }
     }
   }
@@ -409,6 +412,9 @@ static bool Generate_CustomView (CommandObject *cmd,
   int64_t num_rows = 0;
   std::vector<CommandResult *> master_vector(rows_in_Set0);
   std::map<CommandResult *, int64_t, ltCR> master_map;
+  int64_t num_enders = 0;
+  std::vector<std::vector<CommandResult *> > master_ender_vector(enders_in_allSets,numQuickSets);
+  std::map<CommandResult *, int64_t, ltCR> master_ender_map;
 
  // Initial the master maps with information from Quick_Compare_Set[0].
   for (coi = Quick_Compare_Set[0].partial_view.begin(); coi != Quick_Compare_Set[0].partial_view.end(); coi++) {
@@ -422,6 +428,15 @@ static bool Generate_CustomView (CommandObject *cmd,
       Assert (last_column != NULL);
       master_map[last_column] = num_rows;
       master_vector[num_rows++] = last_column;
+    } else if (c->Type() == CMD_RESULT_COLUMN_ENDER) {
+      std::list<CommandResult *> L;
+      ((CommandResult_Enders *)c)->Value(L);
+      CommandResult *last_column = NULL;
+      std::list<CommandResult *>::iterator li;
+      for (li = L.begin(); li != L.end(); li++) { last_column = *li; }
+      Assert (last_column != NULL);
+      master_ender_map[last_column] = num_enders;
+      master_ender_vector[num_enders++][0] = c;
     }
   }
   int64_t Set0_rows = num_rows;
@@ -454,6 +469,26 @@ static bool Generate_CustomView (CommandObject *cmd,
        // Map the master_vector index to the start of data for this entry.
         Assert (Quick_Compare_Set[i].merge_map[master_index] == NULL);
         Quick_Compare_Set[i].merge_map[master_index] = c;
+      } else if (c->Type() == CMD_RESULT_COLUMN_ENDER) {
+        std::list<CommandResult *> L;
+        ((CommandResult_Enders *)c)->Value(L);
+        CommandResult *last_column = NULL;
+        std::list<CommandResult *>::iterator li;
+        for (li = L.begin(); li != L.end(); li++) { last_column = *li; }
+        Assert (last_column != NULL);
+        std::map<CommandResult *, int64_t, ltCR>::iterator result = master_ender_map.find(last_column);
+        int64_t master_ender_index = -1;
+        if (master_ender_map.end() == result) {
+         // Need to add a new entry into the master.
+          master_ender_index = num_enders++;
+          master_ender_map[last_column] = master_ender_index;
+        } else {
+         // Use the index to an existing entry.
+          master_ender_index = (*result).second;
+        }
+       // Map the master_ender_vector index to the start of data for this entry.
+        Assert (master_ender_vector[master_ender_index][i] == NULL);
+        master_ender_vector[master_ender_index][i] = c;
       }
     }
   }
@@ -507,6 +542,40 @@ static bool Generate_CustomView (CommandObject *cmd,
     }
 
     NC->CommandResult_Columns::Add_Column ( Dup_CommandResult (master_vector[rc]) );
+    cmd->Result_Predefined (NC);
+  }
+
+ // Append the Enders.
+  for (int64_t ec = 0; ec < num_enders; ec++) {
+    CommandResult_Enders *NC = new CommandResult_Enders ();
+    CommandResult *last_column = NULL;
+
+   // Get data for each ender of each Quick_Compare_Set.
+    for (i = 0; i < numQuickSets; i++) {
+      int64_t numColumns = Quick_Compare_Set[i].numColumns;
+      CommandResult *Qset_Ender = master_ender_vector[ec][i];
+      if (Qset_Ender !=NULL) {
+       // Copy the column data from the original ender.
+        std::list<CommandResult *> DL;
+        ((CommandResult_Enders *)Qset_Ender)->Value(DL);
+
+        std::list<CommandResult *>::iterator Di;
+        for (Di = DL.begin(); Di != DL.end(); Di++) { last_column = *Di; }
+
+        Di = DL.begin();
+        for (int64_t j = 0; j < numColumns; j ++, Di++) {
+          NC->CommandResult_Enders::Add_Ender ( Dup_CommandResult (*Di) );
+        }
+      } else {
+       // Fill the columns with place holders.
+        for (int64_t j = 0; j < numColumns; j++) {
+          NC->CommandResult_Enders::Add_Ender ( CRPTR("") );
+        }
+      }
+    }
+
+    Assert (last_column != NULL);
+    NC->CommandResult_Enders::Add_Ender ( Dup_CommandResult (last_column) );
     cmd->Result_Predefined (NC);
   }
 

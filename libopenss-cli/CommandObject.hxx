@@ -1339,6 +1339,20 @@ inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
     }
     return (ll < rl);
    }
+   case CMD_RESULT_STRING:
+   {
+     std::string s1, s2;
+     ((CommandResult_String *)lhs)->Value(s1);
+     ((CommandResult_String *)rhs)->Value(s2);
+     return (s1 < s2);
+   }
+   case CMD_RESULT_RAWSTRING:
+   {
+     std::string r1, r2;
+     ((CommandResult_RawString *)lhs)->Value(r1);
+     ((CommandResult_RawString *)rhs)->Value(r2);
+     return (r1 < r2);
+   }
    case CMD_RESULT_TIME:
    {
     Time Tvalue1, Tvalue2;
@@ -1446,6 +1460,20 @@ Assert (rhs != NULL);
       }
     }
     return (ll < rl);
+   }
+   case CMD_RESULT_STRING:
+   {
+     std::string s1, s2;
+     ((CommandResult_String *)lhs)->Value(s1);
+     ((CommandResult_String *)rhs)->Value(s2);
+     return (s1 > s2);
+   }
+   case CMD_RESULT_RAWSTRING:
+   {
+     std::string r1, r2;
+     ((CommandResult_RawString *)lhs)->Value(r1);
+     ((CommandResult_RawString *)rhs)->Value(r2);
+     return (r1 > r2);
    }
    case CMD_RESULT_TIME:
    {
