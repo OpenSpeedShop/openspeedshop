@@ -321,8 +321,8 @@ void FPECollector::getMetricValues(const std::string& metric,
 				   void* ptr) const
 {
     // Don't return anything if an invalid metric was specified
-    if((metric != "exclusive_detail") &&
-       (metric != "inclusive_detail") &&
+    if((metric != "exclusive_details") &&
+       (metric != "inclusive_details") &&
        (metric != "inexact_result_count") &&
        (metric != "division_by_zero_count") &&
        (metric != "underflow_count") &&
@@ -334,8 +334,8 @@ void FPECollector::getMetricValues(const std::string& metric,
     }
 
     // Determine which metric was specified
-    bool is_details = ((metric == "inclusive_detail") ||
-		       (metric == "exclusive_detail") );
+    bool is_details = ((metric == "inclusive_details") ||
+		       (metric == "exclusive_details") );
 
     bool is_count = (metric == "inexact_result_count" ||
 		     metric == "division_by_zero_count" ||
@@ -376,7 +376,7 @@ void FPECollector::getMetricValues(const std::string& metric,
 		j = trace.begin(); j != trace.end(); ++j) {
 
 	    // Stop after the first frame if this is "exclusive" anything
-            if((is_count || (metric == "exclusive_detail") ) &&
+            if((is_count || (metric == "exclusive_details") ) &&
                (j != trace.begin()))
                 break;
 
