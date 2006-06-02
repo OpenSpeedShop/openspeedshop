@@ -106,7 +106,7 @@ void OpenSS_FPEHandler(const OpenSS_FPEType fpe_type,
 {
 #ifdef WDH_PER_THREAD_TIMERS
 
-    /* FIXME: How to handle fpe's for threads.
+    /* FIXME: How to handle fpe's for threads. */
 
 #else
 
