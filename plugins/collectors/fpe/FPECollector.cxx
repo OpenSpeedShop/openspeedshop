@@ -328,6 +328,7 @@ void FPECollector::getMetricValues(const std::string& metric,
        (metric != "underflow_count") &&
        (metric != "overflow_count") &&
        (metric != "invalid_count") &&
+       (metric != "unnormal_count") &&
        (metric != "unknown_count") ) {
 
 	return;
@@ -342,6 +343,7 @@ void FPECollector::getMetricValues(const std::string& metric,
 		     metric == "underflow_count" ||
 		     metric == "overflow_count" ||
 		     metric == "invalid_count" ||
+		     metric == "unnormal_count" ||
 		     metric == "unknown_count" );
      
     // Check assertions
@@ -395,7 +397,7 @@ void FPECollector::getMetricValues(const std::string& metric,
 		    ((interval & subextents[*k].getTimeInterval()).getWidth());
 
 		// Add this event to the results for this subextent
-		if(is_details) {
+		if (is_details) {
 
 		    // Find this event's stack trace in the results (or add it)
 		    ExceptionDetails::iterator l =
@@ -411,19 +413,26 @@ void FPECollector::getMetricValues(const std::string& metric,
 		    switch(data.events.events_val[i].fpexception) {
     			case FPE_FE_INEXACT:
         		    details.dm_type = InexactResult;
+			    break;
 			case FPE_FE_UNDERFLOW:
         		    details.dm_type = Underflow;
+			    break;
 			case FPE_FE_OVERFLOW:
         		    details.dm_type = Overflow;
+			    break;
 			case FPE_FE_DIVBYZERO:
         		    details.dm_type = DivisionByZero;
+			    break;
 			case FPE_FE_UNNORMAL:
         		    details.dm_type = Unnormal;
+			    break;
 			case FPE_FE_INVALID:
         		    details.dm_type = Invalid;
+			    break;
 			case FPE_FE_UNKNOWN:
 			default:
 		            details.dm_type = Unknown;
+			    break;
 		    }
 
 		    l->second.push_back(details);
@@ -434,9 +443,44 @@ void FPECollector::getMetricValues(const std::string& metric,
 
                     // Add (to the subextent's metric value) the appropriate
                     // fraction of the total time attributable to this sample
-                    (*reinterpret_cast<std::vector<uint64_t>*>(ptr))[*k] +=
-                        (data.events.events_val[i].fpexception);
 
+		    bool updatecount = false;
+		    switch(data.events.events_val[i].fpexception) {
+    			case FPE_FE_INEXACT:
+			    if (metric == "inexact_result_count")
+				updatecount = true;
+			    break;
+			case FPE_FE_UNDERFLOW:
+			    if (metric == "underflow_count")
+				updatecount = true;
+			    break;
+			case FPE_FE_OVERFLOW:
+			    if (metric == "overflow_count")
+				updatecount = true;
+			    break;
+			case FPE_FE_DIVBYZERO:
+			    if (metric == "division_by_zero_count")
+				updatecount = true;
+			    break;
+			case FPE_FE_UNNORMAL:
+			    if (metric == "unnormal_count")
+				updatecount = true;
+			    break;
+			case FPE_FE_INVALID:
+			    if (metric == "invalid_count")
+				updatecount = true;
+			    break;
+			case FPE_FE_UNKNOWN:
+			default:
+			    if (metric == "unknown_count")
+				updatecount = true;
+			    break;
+		    }
+
+		    if (updatecount) {
+		      (*reinterpret_cast<std::vector<uint64_t>*>(ptr))[*k] += 1;
+		      updatecount = false;
+		    }
                 }
 	    }
 	    

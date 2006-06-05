@@ -27,6 +27,7 @@
 
 #include <pthread.h>
 #include <signal.h>
+//#include <bits/siginfo.h>
 #include <fenv.h>
 
 
@@ -42,7 +43,6 @@ static __thread OpenSS_FPEEventHandler fpe_handler = NULL;
 static OpenSS_FPEEventHandler fpe_handler = NULL;
 
 #endif
-
 
 
 /**
@@ -64,24 +64,48 @@ static void fpeSignalHandler(int signal, siginfo_t* info, void* ptr)
     if(fpe_handler != NULL) {
         Assert(signal == SIGFPE);
 
-/* These should be ignored.
-      FPE_INTDIV , "integer divide by zero"
-      FPE_INTOVF , "integer overflow"
-*/
 
 	OpenSS_FPEType fpetype;
 
 	switch (info->si_code) {
-	    case FPE_FLTDIV:	fpetype = DivideByZero;
-	    case FPE_FLTOVF:	fpetype = Overflow;
-	    case FPE_FLTUND:	fpetype = Underflow;
-	    case FPE_FLTRES:	fpetype = InexactResult;
-	    case FPE_FLTINV:	fpetype = InvalidOperation;
-	    case FPE_FLTSUB:	fpetype = SubscriptOutOfRange;
-	    default:		fpetype = Unknown;
+
+	    case FPE_FLTDIV:
+				fpetype = DivideByZero;
+				break;
+
+	    case FPE_FLTOVF:
+				fpetype = Overflow;
+				break;
+
+	    case FPE_FLTUND:
+				fpetype = Underflow;
+				break;
+
+	    case FPE_FLTRES:
+				fpetype = InexactResult;
+				break;
+
+	    case FPE_FLTINV:
+				fpetype = InvalidOperation;
+				break;
+
+	    case FPE_FLTSUB:
+				fpetype = SubscriptOutOfRange;
+				break;
+
+/* These should be ignored.
+      FPE_INTDIV , "integer divide by zero"
+      FPE_INTOVF , "integer overflow"
+*/
+	    case FPE_INTDIV:
+	    case FPE_INTOVF:
+	    default:
+				fpetype = Unknown;
+				break;
 	}
 
 	(*fpe_handler)(fpetype, (ucontext_t*)ptr);
+
     }
 }
 

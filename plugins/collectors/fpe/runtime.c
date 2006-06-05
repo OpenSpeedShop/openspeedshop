@@ -206,7 +206,34 @@ static void fpeHandler(const OpenSS_FPEType fpetype, const ucontext_t* context)
     fpe_event event;
     memset(&event, 0, sizeof(fpe_event));
 
-    event.fpexception = fpetype;
+    fpe_type fpexception = FPE_FE_UNKNOWN;
+
+    switch (fpetype) {
+	case Overflow:
+			fpexception = FPE_FE_OVERFLOW;
+			break;
+	case Underflow:
+			fpexception = FPE_FE_UNDERFLOW;
+			break;
+	case DivideByZero:
+			fpexception = FPE_FE_DIVBYZERO;
+			break;
+	case InexactResult:
+			fpexception = FPE_FE_INEXACT;
+			break;
+	case InvalidOperation:
+			fpexception = FPE_FE_INVALID;
+			break;
+	case SubscriptOutOfRange:
+			fpexception = FPE_FE_UNNORMAL;
+			break;
+	case Unknown:
+	default:
+			fpexception = FPE_FE_UNKNOWN;
+			break;
+    }
+
+    event.fpexception = fpexception;
     event.start_time = OpenSS_GetTime();
 
     fpe_record_event(&event, context);
