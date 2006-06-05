@@ -3601,6 +3601,7 @@ for(int i=0;i<fieldCount;i++)
 // printf("More Function MPItraceFLAG=(%d)\n", MPItraceFLAG);
   if( (( currentCollectorStr == "mpi" || currentCollectorStr == "mpit" || currentCollectorStr == "io" || currentCollectorStr == "iot" ) && (MPItraceFLAG == FALSE && !currentUserSelectedReportStr.startsWith("Functions")) &&  ( currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") || currentUserSelectedReportStr.startsWith("Functions") || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("Butterfly") ) ) ||
       (currentCollectorStr == "usertime" && (currentUserSelectedReportStr == "Butterfly" || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) )  ||
+      (currentCollectorStr == "fpe" && (currentUserSelectedReportStr == "Butterfly" || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) )  ||
       (currentCollectorStr.startsWith("hwc") && (currentUserSelectedReportStr == "Butterfly" || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) ) )
   {
     QString indentChar = ">";
@@ -3939,6 +3940,7 @@ StatsPanel::findSelectedFunction()
   {
     return( QString::null );
   }
+  return( QString::null );
 }
 
 void
@@ -4162,8 +4164,9 @@ StatsPanel::generateCommand()
       command = QString("expView -x %1 %2 -v %4").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
     }
 // printf("start of pcsamp generated command (%s)\n", command.ascii() );
-  } else if( currentCollectorStr == "usertime" )
+  } else if( currentCollectorStr == "usertime" || currentCollectorStr == "fpe" )
   {
+// printf("currentCollectorStr =(%s) currentUserSelectedReportStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
     selectedFunctionStr = findSelectedFunction();
     if( currentUserSelectedReportStr.isEmpty() )
     { 
@@ -4186,6 +4189,16 @@ StatsPanel::generateCommand()
     } else if( currentUserSelectedReportStr == "Statements by Function" )
     {
 // printf("Statements by Function\n");
+      if( selectedFunctionStr.isEmpty() )
+      {
+        bool ok = FALSE;
+// printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+      }
+      if( selectedFunctionStr.isEmpty() )
+      {
+        return( QString::null );
+      }
       command = QString("expView -x %1 %4%2 -v Statements -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else if( currentUserSelectedReportStr == "CallTrees by Function" )
     {
@@ -4207,9 +4220,9 @@ StatsPanel::generateCommand()
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
       }
       command = QString("expView -x %1 %4%2 -v CallTrees,FullStack -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
-    } else if( currentUserSelectedReportStr == "Tracebacks by Function" )
+    } else if( currentUserSelectedReportStr == "TraceBacks by Function" )
     {
-// printf("Tracebacks by Function\n");
+// printf("TraceBacks by Function\n");
       if( selectedFunctionStr.isEmpty() )
       {
         bool ok = FALSE;
@@ -4217,9 +4230,9 @@ StatsPanel::generateCommand()
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
       }
       command = QString("expView -x %1 %4%2 -v Tracebacks -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
-    } else if( currentUserSelectedReportStr == "Tracebacks,FullStack by Function" )
+    } else if( currentUserSelectedReportStr == "TraceBacks,FullStack by Function" )
     {
-// printf("Tracebacks,FullStack by Function\n");
+// printf("TraceBacks,FullStack by Function\n");
       if( selectedFunctionStr.isEmpty() )
       {
         bool ok = FALSE;
