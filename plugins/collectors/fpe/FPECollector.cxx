@@ -407,8 +407,25 @@ void FPECollector::getMetricValues(const std::string& metric,
 		    // Add this event's details structure to the results
 		    FPEDetail details;
 		    details.dm_time = Time(data.events.events_val[i].start_time);
-		    // FIXME: match types to FPEType
-		    //details.dm_type = data.events.events_val[i].fpexception;
+
+		    switch(data.events.events_val[i].fpexception) {
+    			case FPE_FE_INEXACT:
+        		    details.dm_type = InexactResult;
+			case FPE_FE_UNDERFLOW:
+        		    details.dm_type = Underflow;
+			case FPE_FE_OVERFLOW:
+        		    details.dm_type = Overflow;
+			case FPE_FE_DIVBYZERO:
+        		    details.dm_type = DivisionByZero;
+			case FPE_FE_UNNORMAL:
+        		    details.dm_type = Unnormal;
+			case FPE_FE_INVALID:
+        		    details.dm_type = Invalid;
+			case FPE_FE_UNKNOWN:
+			default:
+		            details.dm_type = Unknown;
+		    }
+
 		    l->second.push_back(details);
 		    
 		}
