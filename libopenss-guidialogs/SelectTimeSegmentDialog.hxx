@@ -60,8 +60,9 @@ public:
     QPushButton* buttonDefaults;
 
 protected:
-    QVBoxLayout* SelectTimeSegmentDialogLayout;
-    QHBoxLayout* Layout1;
+    QVBoxLayout* selectTimeSegmentDialogLayout;
+    QHBoxLayout* startStopLayout;
+    QHBoxLayout* buttonLayout;
     QSpacerItem* Horizontal_Spacing2;
 
     CLIInterface *cli;

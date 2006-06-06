@@ -49,49 +49,51 @@ SelectTimeSegmentDialog::SelectTimeSegmentDialog( QWidget* parent, const char* n
   if ( !name ) setName( "SelectTimeSegmentDialog" );
 
   setSizeGripEnabled( TRUE );
-  SelectTimeSegmentDialogLayout = new QVBoxLayout( this, 11, 6, "SelectTimeSegmentDialogLayout"); 
+  selectTimeSegmentDialogLayout = new QVBoxLayout( this, 11, 6, "selectTimeSegmentDialogLayout"); 
 
   headerLabel = new QLabel(this, "headerLabel");
-  SelectTimeSegmentDialogLayout->addWidget( headerLabel );
+  selectTimeSegmentDialogLayout->addWidget( headerLabel );
 
   // Insert your timesegment stuff here!
+  startStopLayout = new QHBoxLayout( 0, 0, 6, "startStopLayout"); 
   startLabel = new QLabel(this, "startLabel");
-  SelectTimeSegmentDialogLayout->addWidget( startLabel );
+  startStopLayout->addWidget( startLabel );
   startValue = new QLineEdit(this, "startValue");
-  SelectTimeSegmentDialogLayout->addWidget( startValue );
+  startStopLayout->addWidget( startValue );
 
   endLabel = new QLabel(this, "endLabel");
-  SelectTimeSegmentDialogLayout->addWidget( endLabel );
+  startStopLayout->addWidget( endLabel );
   endValue = new QLineEdit(this, "endValue");
-  SelectTimeSegmentDialogLayout->addWidget( endValue );
+  startStopLayout->addWidget( endValue );
 
+  selectTimeSegmentDialogLayout->addLayout( startStopLayout );
 
-  Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1"); 
+  buttonLayout = new QHBoxLayout( 0, 0, 6, "buttonLayout"); 
 
 #if 0
   buttonHelp = new QPushButton( this, "buttonHelp" );
   buttonHelp->setAutoDefault( TRUE );
-  Layout1->addWidget( buttonHelp );
+  buttonLayout->addWidget( buttonHelp );
   Horizontal_Spacing2 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-  Layout1->addItem( Horizontal_Spacing2 );
+  buttonLayout->addItem( Horizontal_Spacing2 );
 #endif // 0
 
   buttonDefaults = new QPushButton( this, "buttonDefaults" );
-  Layout1->addWidget( buttonDefaults );
+  buttonLayout->addWidget( buttonDefaults );
   Horizontal_Spacing2 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-  Layout1->addItem( Horizontal_Spacing2 );
+  buttonLayout->addItem( Horizontal_Spacing2 );
 
   buttonOk = new QPushButton( this, "buttonOk" );
   buttonOk->setAutoDefault( TRUE );
   buttonOk->setDefault( TRUE );
-  Layout1->addWidget( buttonOk );
+  buttonLayout->addWidget( buttonOk );
 
   buttonCancel = new QPushButton( this, "buttonCancel" );
   buttonCancel->setAutoDefault( TRUE );
-  Layout1->addWidget( buttonCancel );
-  SelectTimeSegmentDialogLayout->addLayout( Layout1 );
+  buttonLayout->addWidget( buttonCancel );
+  selectTimeSegmentDialogLayout->addLayout( buttonLayout );
   languageChange();
-  resize( QSize(511, 282).expandedTo(minimumSizeHint()) );
+//  resize( QSize(511, 282).expandedTo(minimumSizeHint()) );
   clearWState( WState_Polished );
 
   // signals and slots connections
