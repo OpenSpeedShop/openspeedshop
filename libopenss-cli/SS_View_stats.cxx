@@ -234,7 +234,8 @@ void Construct_View (CommandObject *cmd,
           Next_Metric_Value = CRPTR ("");
         }
         C->CommandResult_Columns::Add_Column (Next_Metric_Value);
-        if (report_Column_summary) {
+        if (report_Column_summary &&
+            (vinst->OpCode() != VIEWINST_Display_ByThread_Metric)) {
          // Copy the first row to initialize the summary values.
           if (foundn == 0) {
             Column_Sum[i] = Dup_CommandResult (Next_Metric_Value);
