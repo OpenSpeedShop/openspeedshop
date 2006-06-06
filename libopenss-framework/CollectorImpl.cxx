@@ -287,6 +287,7 @@ void CollectorImpl::uninstrument(const Collector& collector,
  */
 std::string CollectorImpl::getMPIImplementationName(const Thread& /*thread*/) const
 {
+#ifdef HAVE_MPI
     /*
      * The environment variable OPENSS_MPI_IMPLEMENTATION can be set
      * to override the automatic MPI implementation detection process.
@@ -315,5 +316,10 @@ std::string CollectorImpl::getMPIImplementationName(const Thread& /*thread*/) co
      * help of the new AC_PKG_MPI code.
      */
     return DEFAULT_MPI_IMPL_NAME;
+
+#else /* ifndef HAVE_MPI */
+    Assert(false);
+    return "";
+#endif /* ifndef HAVE_MPI */
 }
 
