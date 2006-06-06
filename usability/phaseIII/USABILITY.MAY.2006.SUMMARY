@@ -99,6 +99,16 @@ first section is, in my opinion, the big ticket items.
       - Open Experiment #1 (data file name)
       - Open Experiment #2 (data file name)
 
+    One or two users also commented that any selection or context
+    sensitive menu reachable from a compare panel should be based
+    on the column it was invoked in. E.g., in a two experiment view,
+    a double click on performance data for experiment A should
+    open the source panel with code A, a click on data from B should
+    open the source panel for code B.
+
+    Users tried to get to experiment B and were confused that
+    when clicking on data from B they only ended up in A. 
+
 4 - The online help needs to be relevant.  For this study, help
     was made available and many users went down the path.  
     Unfortunately, the help text still isn't ready for this sort
@@ -190,6 +200,10 @@ More minor, but important items:
     changing per column header help, header text, and "somehow"
     labeling the report better may alleviate much of this confusion.
 
+    We also discussed getting rid of the shorter version for less
+    than eight processes and always open the full dialog. I'm not
+    sure, though, what the best option is. 
+
 4 - Customize Stats Panel makes a reference to "process set".   We're
     migrating away from this term.   Something more appropriate
     should takes it's place.
@@ -220,12 +234,26 @@ Bugs:
     Currently the options are "Yes" and "No".   There needs to be
     an "I didn't want to hit that button option."
 
+    "No" should never close the window, though. The options should
+    be "Yes and delete experiment", "Yes and keep experiment",
+    or "No". 
+
 3 - When selecting the MPI_SGI_shared_progress(), which is 
     in libmpi.so, we're taking the user to the wrong function.
     (sweep.f)   This maybe (likely?) is a dwarf issue.
 
+    The same thing happened when clicking on "Other" in a pie chart. 
+
 4 - The graphical chart (Stats Panel) for "Show Statements" is not
     relevant and should be prevented from being displayed.
+
+    (Martin comment: I don't remember that and I am also not sure what you
+    mean. However, we discussed that a pie chart should never be based
+    on inclusive time.)
+
+    (Al follow-up:  My comment is related to getting the "mars planet" with
+    a "N/A" text.   You're right this should not be based on inclusive time.
+    More follow work (thought) needs to go into this graphic.)
 
 5 - Popup help text in Customize Stats Panel is wrong.   It suggests
     the user should try the Manage Processes Panel.   This text needs
@@ -243,6 +271,8 @@ Bugs:
 
 9 - Difference column should show signed values.   The sort should be 
     done as an ABS, but the actual display should indicate the sign.
+
+    We also discussed color coding the sign.
 
 10- In the Stats Panel's column menu, the |Difference| column is missing.
     (This is the menu that allows the user to hide/read columns after
@@ -293,6 +323,9 @@ Other comments and requests:
      - Should also support +/- for the "OK/Add/Delete" functionality.
      - The dialog should only show rank pids by default, and then 
        give the user and option via a toggle to show all processes.
+     - There should also be an option to add a new column from within the
+       process panel, e.g., by having a "add to this column" and a "add to
+       a new column". 
 
 7 - In the Customize Stats Panel, its not immediately clear what "Column #1"
     stands for.   I'm not sure, other than to add more popup help to make
@@ -310,6 +343,10 @@ Other comments and requests:
 10- Would like see toolbar for Stats Panel's important reports.
     This toolbar would be located just under the Stats Panel's tab, and above 
     the report.
+
+    Several users didn't find the report selection and hence I think
+    they should be prominent. A toolbar is only one of the
+    options, but users might be most familiar with this concept. 
 
 11- Include directory names in the compare wizard to show what the directory
     of the loaded data file is...
@@ -338,6 +375,44 @@ Other comments and requests:
     has navigational features as well that may be very useful to an 
     advanced user who wants to manage many open panels.
 
+    If we make this a panel, it should probably be persistent and added
+    to the screen by default. I'm thinking of a layout and usage
+    scenario similar to Microsoft's Visual Studio (the project settings,
+    typically on the left side of the screen).
+
+
 18- Scott was "concerned" about a sluggish feel to the tool.  I think
     there's ample room to improve this but we're still so busy adding
     functionality.
+
+
+19- One user suggested to have precanned comparison experiments
+    for individual experiment types, not only one generic one.
+    I'm not sure, though, how this would be done.
+
+20- Several users were confused by the results shown in the stack
+    views - they differ from the tabular views.
+
+21- One user didn't like context sensitive menus - is there a way
+    we can help users like him? Perhaps adding a "menu" icon to each
+    panel that can be activated with the left mouse button. Also
+    providing popup help to remind users that the context menus
+    are present could help.
+
+22- Some users commented that the difference between "saved" and
+    "existing" experiments is not clear.
+
+23- We discussed the option to add statements/source line views
+    in the function view as "fold-out options" for each function.
+
+24- The sorting of line numbers is currently based on strings and
+    hence not always correct - it should be based on the real
+    numerical value.
+
+25- Several users had problems finding the "Focus StatsPanel"
+    option in the CustomStatsPanel - there should be an easy
+    way to do this, e.g., a "Show StatsPanel" button directly
+    in the panel that focuses the StatsPanel and changes to it.
+
+26- One user suggested graphs showing results across processes/
+    MPI ranks.
