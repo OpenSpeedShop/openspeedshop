@@ -88,6 +88,10 @@ namespace {
 	{ Exception::LibraryNotFound,
 	  "Library \"%1\" could not be found (%2)." },
 
+	{ Exception::MPIImplChoiceInvalid,
+	  "Invalid choice of MPI implementation: \"%1\"\n"
+	  "Possible choices are:  %2" },
+
 	{ Exception::ParameterValueInvalid,
 	  "Specified parameter value is invalid. %1" },
 

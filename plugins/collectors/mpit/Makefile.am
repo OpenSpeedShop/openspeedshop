@@ -19,7 +19,19 @@
 BUILT_SOURCES = \
 	blobs.h blobs.c	
 
-pkglib_LTLIBRARIES = mpit.la mpit-rt.la
+pkglib_LTLIBRARIES = mpit.la
+if HAVE_LAMPI
+pkglib_LTLIBRARIES += mpit-rt-lampi.la
+endif
+if HAVE_MPICH
+pkglib_LTLIBRARIES += mpit-rt-mpich.la
+endif
+if HAVE_MPT
+pkglib_LTLIBRARIES += mpit-rt-mpt.la
+endif
+if HAVE_OPENMPI
+pkglib_LTLIBRARIES += mpit-rt-openmpi.la
+endif
 
 mpit_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -32,27 +44,88 @@ mpit_la_SOURCES = \
 	MPITCollector.hxx MPITCollector.cxx \
 	MPITDetail.hxx
 
-mpit_rt_la_CFLAGS = \
+
+# Common definitions for all MPI implementations
+#
+# See comments in plugins/collectors/mpi/Makefile.am.  Remarks there
+# concerning the generated wrapper sources also apply to wrappers.c
+# here.
+
+rt_CFLAGS_generate = \
 	-I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@ \
-	@MPI_CPPFLAGS@
+	$(1)
 
-mpit_rt_la_LDFLAGS = \
+rt_LDFLAGS_generate = \
 	-L$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_LDFLAGS@ \
-	@MPI_LDFLAGS@ \
-	-no-undefined -module -avoid-version
+	$(1) \
+	-no-undefined -avoid-version
 
-mpit_rt_la_LIBADD = \
+rt_LIBADD_generate = \
 	-lopenss-runtime \
 	@LIBUNWIND_LIBS@ \
-	@MPI_LIBS@ \
+	$(1) \
 	-lpthread -lrt
 
-mpit_rt_la_SOURCES = \
+rt_sources = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.h runtime.c \
 	wrappers.c
+
+
+# LAMPI
+
+if HAVE_LAMPI
+
+mpit_rt_lampi_la_CFLAGS = $(call rt_CFLAGS_generate,@LAMPI_CPPFLAGS@)
+mpit_rt_lampi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@LAMPI_LDFLAGS@)
+mpit_rt_lampi_la_LIBADD = $(call rt_LIBADD_generate,@LAMPI_LIBS@)
+mpit_rt_lampi_la_DEPENDENCIES =
+mpit_rt_lampi_la_SOURCES = $(rt_sources)
+
+endif
+
+
+# MPICH
+
+if HAVE_MPICH
+
+mpit_rt_mpich_la_CFLAGS = $(call rt_CFLAGS_generate,@MPICH_CPPFLAGS@)
+mpit_rt_mpich_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPICH_LDFLAGS@)
+mpit_rt_mpich_la_LIBADD = $(call rt_LIBADD_generate,@MPICH_LIBS@)
+mpit_rt_mpich_la_DEPENDENCIES =
+mpit_rt_mpich_la_SOURCES = $(rt_sources)
+
+endif
+
+
+# MPT
+
+if HAVE_MPT
+
+mpit_rt_mpt_la_CFLAGS = $(call rt_CFLAGS_generate,@MPT_CPPFLAGS@)
+mpit_rt_mpt_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPT_LDFLAGS@)
+mpit_rt_mpt_la_LIBADD = $(call rt_LIBADD_generate,@MPT_LIBS@)
+mpit_rt_mpt_la_DEPENDENCIES =
+mpit_rt_mpt_la_SOURCES = $(rt_sources)
+
+endif
+
+
+# OpenMPI
+
+if HAVE_OPENMPI
+
+mpit_rt_openmpi_la_CFLAGS = $(call rt_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
+mpit_rt_openmpi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
+mpit_rt_openmpi_la_LIBADD = $(call rt_LIBADD_generate,@OPENMPI_LIBS@)
+mpit_rt_openmpi_la_DEPENDENCIES =
+mpit_rt_openmpi_la_SOURCES = $(rt_sources)
+
+endif
+
+
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)

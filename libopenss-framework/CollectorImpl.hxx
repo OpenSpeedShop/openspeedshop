@@ -208,6 +208,8 @@ namespace OpenSpeedShop { namespace Framework {
 
 	void uninstrument(const Collector&, const Thread&) const;
 	
+	std::string getMPIImplementationName(const Thread&) const;
+
     private:
 
 	/** Set of parameters. */

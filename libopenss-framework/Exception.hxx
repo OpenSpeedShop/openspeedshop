@@ -81,6 +81,7 @@ namespace OpenSpeedShop { namespace Framework {
 	    EntryOverlapping,       /**< Database table entries overlap. */
 	    LibraryFuncNotFound,    /**< Library function could not be found. */
 	    LibraryNotFound,        /**< Library could not be found. */
+	    MPIImplChoiceInvalid,   /**< User-specified MPI Implementation is not one of the available choices. */
 	    ParameterValueInvalid,  /**< Passed parameter value isn't valid. */
 	    StateAlreadyChanging,   /**< Thread state change in progress. */
 	    StateChangeInvalid,     /**< Thread state change is invalid. */

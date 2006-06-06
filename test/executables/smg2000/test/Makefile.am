@@ -8,14 +8,16 @@
 
 noinst_PROGRAMS = smg2000
 
-MPICC	= mpicc
+MPI_IMPL = @DEFAULT_MPI_IMPL@
+
+MPICC	= $($(MPI_IMPL)_CC)
 CC	= $(MPICC)
 
 smgtopdir = ../.
 
 
 smg2000_CFLAGS = \
-	$(MPI_CPPFLAGS) \
+	$($(MPI_IMPL)_CPPFLAGS) \
 	-I$(smgtopdir)\
 	-I$(smgtopdir)/utilities\
 	-I$(smgtopdir)/struct_mv\
@@ -25,7 +27,7 @@ smg2000_CFLAGS = \
 	-DHYPRE_TIMING
 
 smg2000_LDFLAGS = \
-        -lm $(MPI_LDFLAGS) $(MPI_LIBS) \
+        -lm $($(MPI_IMPL)_LDFLAGS) $($(MPI_IMPL)_LIBS) \
 	-L.\
 	-L$(smgtopdir)/struct_ls\
 	-L$(smgtopdir)/struct_mv\

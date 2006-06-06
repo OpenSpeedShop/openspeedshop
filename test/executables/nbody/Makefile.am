@@ -18,12 +18,17 @@
 
 noinst_PROGRAMS = nbody
 
+MPI_IMPL = @DEFAULT_MPI_IMPL@
+
+MPICC	= $($(MPI_IMPL)_CC)
+CC	= $(MPICC)
+
 CFLAGS = \
-	$(MPI_CPPFLAGS) \
+	$($(MPI_IMPL)_CPPFLAGS) \
 	-g -gdwarf-2 -O1 
 
 nbody_LDFLAGS = \
-	-lm $(MPI_LDFLAGS) $(MPI_LIBS)
+	-lm $($(MPI_IMPL)_LDFLAGS) $($(MPI_IMPL)_LIBS)
 
 nbody_LDADD = \
 	-ldl

@@ -66,6 +66,10 @@ namespace OpenSpeedShop { namespace Framework {
 				     const Extent&, const Blob&, 
 				     const ExtentGroup&, void*) const;
 	
+    private:
+
+	std::string getRuntimeLibraryName(const Thread&) const;
+	
     };
     
 } }

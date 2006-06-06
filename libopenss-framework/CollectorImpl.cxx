@@ -274,3 +274,46 @@ void CollectorImpl::uninstrument(const Collector& collector,
 {
     Instrumentor::uninstrument(thread, collector);
 }
+
+
+
+/**
+ * Determine the name of the MPI implementation being used by the
+ * given thread.  Possibilities are "mpich", "mpt", "openmpi".
+ *
+ * @param thread            The thread
+ *
+ * @return    string containing the name of the MPI implementation
+ */
+std::string CollectorImpl::getMPIImplementationName(const Thread& /*thread*/) const
+{
+    /*
+     * The environment variable OPENSS_MPI_IMPLEMENTATION can be set
+     * to override the automatic MPI implementation detection process.
+     */
+
+    char* env_variable_name = "OPENSS_MPI_IMPLEMENTATION";
+    char* value = getenv(env_variable_name);
+    if (value) {
+	std::string impl_names = ALL_MPI_IMPL_NAMES;
+	std::string search_target = std::string(" ") + value + " ";
+	if (impl_names.find(search_target) == std::string::npos) {
+	    throw Exception(Exception::MPIImplChoiceInvalid,
+			    value, impl_names);
+	}
+	return value;
+    }
+
+
+    /* Automatic MPI Implementation Detection (coming soon) */
+
+
+    /*
+     * The old AC_PKG_MPI code in acinclude.m4 caused the entire
+     * OpenSpeedShop build to use the first MPI implementation it
+     * found.  This temporary code reproduces that behavior, with the
+     * help of the new AC_PKG_MPI code.
+     */
+    return DEFAULT_MPI_IMPL_NAME;
+}
+

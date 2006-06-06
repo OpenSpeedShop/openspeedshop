@@ -275,22 +275,26 @@ void MPICollector::startCollecting(const Collector& collector,
     
     // Execute mpi_stop_tracing() when we enter exit() for the thread
     executeAtEntry(collector, thread,
-                   "exit", "mpi-rt: mpi_stop_tracing", Blob());
+                   "exit",
+		   getRuntimeLibraryName(thread) + ": mpi_stop_tracing",
+		   Blob());
     
     // Execute mpi_start_tracing() in the thread
     executeNow(collector, thread,
-               "mpi-rt: mpi_start_tracing", arguments);
+               getRuntimeLibraryName(thread) + ": mpi_start_tracing",
+	       arguments);
 
     // Execute our wrappers in place of the real MPI functions
     for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)	
 	if((traced.find(TraceableFunctions[i]) != traced.end()) &&
 	   traced.find(TraceableFunctions[i])->second) {
 	    
+	    std::string P_name = std::string("P") + TraceableFunctions[i];
+
 	    // Wrap the MPI function
 	    executeInPlaceOf(
-		collector, thread, 
-		std::string("P") + TraceableFunctions[i],
-		std::string("mpi-rt: mpi_P") + TraceableFunctions[i]
+		collector, thread,
+		P_name, getRuntimeLibraryName(thread) + ": mpi_" + P_name
 		);
 	    
 	}
@@ -311,7 +315,7 @@ void MPICollector::stopCollecting(const Collector& collector,
 {
     // Execute mpi_stop_tracing() in the thread
     executeNow(collector, thread,
-               "mpi-rt: mpi_stop_tracing", Blob());
+               getRuntimeLibraryName(thread) + ": mpi_stop_tracing", Blob());
     
     // Remove all instrumentation associated with this collector/thread pairing
     uninstrument(collector, thread);
@@ -459,3 +463,17 @@ void MPICollector::getMetricValues(const std::string& metric,
     xdr_free(reinterpret_cast<xdrproc_t>(xdr_mpi_data),
 	     reinterpret_cast<char*>(&data));
 }
+
+
+
+std::string MPICollector::getRuntimeLibraryName(const Thread& thread) const
+{
+    /*
+     * A cache could be maintained here to avoid repeated calls to
+     * CollectorImpl::getMPIImplementationName() for the same threads.
+     */
+    std::string mpi_implementation_name = getMPIImplementationName(thread);
+
+    return (std::string("mpi-rt-") + mpi_implementation_name);
+}
+
