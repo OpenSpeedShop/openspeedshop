@@ -91,7 +91,7 @@ def CompareResults(testName, fileptr):
 		tempfileline = outputfileptr.readline()
 		if not tempfileline:
 			break
-		if tempfileline[0:15] == '            CPU':
+		if tempfileline[0:11] == '        CPU' or tempfileline[0:15] == '            CPU':
 			nooutput = 0
 			break
 	expectedfileptr.readline()
