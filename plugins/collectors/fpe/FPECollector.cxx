@@ -47,12 +47,12 @@ namespace {
      */
     const char* TraceableFPE[] = {
 
-        "inexact result",
-        "division by zero",
+        "inexact_result",
+        "division_by_zero",
         "underflow",
         "overflow",
-        "invalid operation",
-        "all supported exceptions",
+        "invalid_operation",
+	"all",
 	
 	// End Of Table Entry
 	NULL
@@ -96,6 +96,11 @@ FPECollector::FPECollector() :
 			      typeid(std::map<std::string, bool>)));
     
     // Declare our metrics
+    declareMetric(Metadata("total_count",
+			   "Total Fpe Counts",
+                           "Number of Floating Point Events.",
+                           typeid(uint64_t)));
+
     declareMetric(Metadata("inexact_result_count",
 			   "Inexact Result Count",
                            "Number of inexact results.",
@@ -187,9 +192,19 @@ void FPECollector::getParameterValue(const std::string& parameter,
     if(parameter == "traced_fpes") {
 	std::map<std::string, bool>* value =
 	    reinterpret_cast<std::map<std::string, bool>*>(ptr);    
-        for(unsigned i = 0; TraceableFPE[i] != NULL; ++i)
+	bool All_Traced = true;
+	for(unsigned i = 0; TraceableFPE[i] != NULL; ++i) {
+	    if ((std::string("all") != TraceableFPE[i]) &&
+	       (!parameters.traced[i])) {
+		All_Traced = false;
+		break;
+	    }
+	}
+        if (All_Traced) value->insert(std::make_pair("all",true));
+        for(unsigned i = 0; TraceableFPE[i] != NULL; ++i) {
 	    value->insert(std::make_pair(TraceableFPE[i],
 					  parameters.traced[i]));
+	}
     }
 }
 
@@ -217,10 +232,17 @@ void FPECollector::setParameterValue(const std::string& parameter,
     if(parameter == "traced_fpes") {
 	const std::map<std::string, bool>* value = 
 	    reinterpret_cast<const std::map<std::string, bool>*>(ptr);
-	for(unsigned i = 0; TraceableFPE[i] != NULL; ++i)
-	    parameters.traced[i] =
+        if ((value->find("all") != value->end()) &&
+             value->find("all")->second) {
+          for(unsigned i = 0; TraceableFPE[i] != NULL; ++i)
+	      parameters.traced[i] = true;
+	} else {
+          for(unsigned i = 0; TraceableFPE[i] != NULL; ++i) {
+	      parameters.traced[i] =
 		(value->find(TraceableFPE[i]) != value->end()) &&
 		value->find(TraceableFPE[i])->second;
+          }
+        }
     }
     
     // Re-encode the blob containing the parameter values
@@ -323,6 +345,7 @@ void FPECollector::getMetricValues(const std::string& metric,
     // Don't return anything if an invalid metric was specified
     if((metric != "exclusive_details") &&
        (metric != "inclusive_details") &&
+       (metric != "total_count") &&
        (metric != "inexact_result_count") &&
        (metric != "division_by_zero_count") &&
        (metric != "underflow_count") &&
@@ -338,7 +361,8 @@ void FPECollector::getMetricValues(const std::string& metric,
     bool is_details = ((metric == "inclusive_details") ||
 		       (metric == "exclusive_details") );
 
-    bool is_count = (metric == "inexact_result_count" ||
+    bool is_count = (metric == "total_count" ||
+                     metric == "inexact_result_count" ||
 		     metric == "division_by_zero_count" ||
 		     metric == "underflow_count" ||
 		     metric == "overflow_count" ||
@@ -445,7 +469,9 @@ void FPECollector::getMetricValues(const std::string& metric,
                     // fraction of the total time attributable to this sample
 
 		    bool updatecount = false;
-		    switch(data.events.events_val[i].fpexception) {
+		    if (metric == "total_count")
+			updatecount = true;
+		    else switch(data.events.events_val[i].fpexception) {
     			case FPE_FE_INEXACT:
 			    if (metric == "inexact_result_count")
 				updatecount = true;
