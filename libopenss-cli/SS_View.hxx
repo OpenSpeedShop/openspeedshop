@@ -20,7 +20,8 @@
 
 enum ViewOpCode {
      VIEWINST_Define_Total,             // TMP_index1 is CV & MV index of value that, when summed, is the Total.
-     VIEWINST_Define_ByThread_Metric,   // TMP_index1 is CV & MV index of the value to display.
+     VIEWINST_Define_ByThread_Metric,   // TmpResult is the ExtraMetric index that contains the values.
+                                        // TMP_index1 is CV & MV index of the value to display.
                                         // TMP_index2 is the indicator of the reduction that is applied.
      VIEWINST_Display_Metric,           // TmpResult is column# to display in.
                                         // TMP_index1 is CV & MV index of the value to display.
@@ -340,6 +341,8 @@ ViewInstruction *Find_Tmp_Accumulation (std::vector<ViewInstruction *>IV, int64_
 ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Column);
 int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV);
 int64_t Find_Max_Temp (std::vector<ViewInstruction *>IV);
+int64_t Find_Max_ExtraMetrics (std::vector<ViewInstruction *>IV);
+
 bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
                           std::vector<Collector>& CV, std::vector<std::string>& MV,
                           std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV);

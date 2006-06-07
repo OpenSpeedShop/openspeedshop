@@ -181,12 +181,20 @@ bool GetAllReducedMetrics(
       ViewInstruction *vinst = IV[i];
 
       if (vinst->OpCode() == VIEWINST_Define_ByThread_Metric) {
+        int64_t reductionIndex = vinst->TR();
         int64_t CM_Index = vinst->TMP1();
-        int64_t reductionIndex = vinst->TMP2();
-        Assert((reductionIndex == ViewReduction_mean) ||
-               (reductionIndex == ViewReduction_min) ||
-               (reductionIndex == ViewReduction_max));
-        GetReducedType (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, reductionIndex, Values[reductionIndex]);
+        int64_t reductionType  = vinst->TMP2();
+        if (reductionIndex < ViewReduction_Count) {
+          Assert ((reductionType == ViewReduction_sum) ||
+                  (reductionType == ViewReduction_mean) ||
+                  (reductionType == ViewReduction_min) ||
+                  (reductionType == ViewReduction_max));
+         // Get a by-thread reduced metric.
+          GetReducedType (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, reductionType, Values[reductionType]);
+        } else {
+         // Get a simple metric for the entire tgrp.
+          GetMetricByObjectSet (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, Values[reductionIndex]);
+        }
         thereAreExtraMetrics = true;
       }
 
@@ -1234,6 +1242,17 @@ int64_t Find_Max_Temp (std::vector<ViewInstruction *>IV) {
       Max_Temp = max (Max_Temp, vp->TMP1());
       Max_Temp = max (Max_Temp, vp->TMP2());
       Max_Temp = max (Max_Temp, vp->TMP3());
+    }
+  }
+  return Max_Temp;
+}
+
+int64_t Find_Max_ExtraMetrics (std::vector<ViewInstruction *> IV) {
+  int64_t Max_Temp = ViewReduction_Count-1;
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    if (vp->OpCode() == VIEWINST_Define_ByThread_Metric) {
+      Max_Temp = max (Max_Temp, vp->TR());
     }
   }
   return Max_Temp;

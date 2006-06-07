@@ -136,6 +136,10 @@ bool Detail_Trace_Report(
       return false;
     }
 */
+  
+   // Get any required intermediate reduction temps.
+    std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(Find_Max_ExtraMetrics(IV)+1);
+    bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
 
    // Combine all the items for each function.
     std::map<Address, CommandResult *> knownTraces;
@@ -196,6 +200,7 @@ bool Detail_Trace_Report(
                                new std::vector<CommandResult *>(num_temps)
                                );
           set_Detail_values((*vcs), primary_is_inclusive)
+          set_ExtraMetric_values((*vcs), Extra_Values, F)
 
           CommandResult *CSE;
           if (base_CSE == NULL) {
@@ -211,6 +216,15 @@ bool Detail_Trace_Report(
 
        // Remember that we have now processed this particular StackTrace.
         StackTraces_Processed.insert(st);
+      }
+    }
+
+    if (ExtraTemps) {
+      for (int64_t i = 0; i < Extra_Values.size(); i++) {
+        if (!Extra_Values[i].isNull() &&
+            !Extra_Values[i]->empty()) {
+          Reclaim_CR_Space (Extra_Values[i]);
+        }
       }
     }
   }
@@ -274,7 +288,7 @@ bool Detail_Base_Report(
 */
 
    // Get any required intermediate reduction temps.
-    std::vector<SmartPtr<std::map<TOBJECT, CommandResult *> > > Extra_Values(ViewReduction_Count);
+    std::vector<SmartPtr<std::map<TOBJECT, CommandResult *> > > Extra_Values(Find_Max_ExtraMetrics(IV)+1);
     bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
 
    // Combine all the items for each function, statement or linked object.
@@ -302,9 +316,7 @@ bool Detail_Base_Report(
                            new std::vector<CommandResult *>(num_temps)
                            );
       set_Detail_values((*vcs), primary_is_inclusive)
-      if (ExtraTemps) {
-        set_ExtraMetric_values((*vcs), Extra_Values, F)
-      }
+      set_ExtraMetric_values((*vcs), Extra_Values, F)
 
      // Construct callstack for last entry in the stack trace.
       std::vector<CommandResult *> *call_stack = new std::vector<CommandResult *>();
@@ -384,6 +396,10 @@ bool Detail_CallStack_Report (
     }
 */
 
+   // Get any required intermediate reduction temps.
+    std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(Find_Max_ExtraMetrics(IV)+1);
+    bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
+
    // Combine all the items for each function.
     std::map<Address, CommandResult *> knownTraces;
     std::set<Framework::StackTrace, ltST> StackTraces_Processed;
@@ -414,12 +430,22 @@ bool Detail_CallStack_Report (
                              new std::vector<CommandResult *>(num_temps)
                              );
         set_Detail_values((*vcs), primary_is_inclusive)
+        set_ExtraMetric_values((*vcs), Extra_Values, F)
 
        // Construct result entry
         std::vector<CommandResult *> *call_stack
                  = Construct_CallBack (TraceBack_Order, add_stmts, st, knownTraces);
         CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
         c_items.push_back(std::make_pair(CSE, vcs));
+      }
+    }
+
+    if (ExtraTemps) {
+      for (int64_t i = 0; i < Extra_Values.size(); i++) {
+        if (!Extra_Values[i].isNull() &&
+            !Extra_Values[i]->empty()) {
+          Reclaim_CR_Space (Extra_Values[i]);
+        }
       }
     }
   }
@@ -483,8 +509,8 @@ bool Detail_ButterFly_Report (
 */
 
    // Get any required intermediate reduction temps.
-    std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(ViewReduction_Count);
-    bool ExtraTemps = false; // GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
+    std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(Find_Max_ExtraMetrics(IV)+1);
+    bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
 
    // Generate a separate butterfly view for each function in the list.
     std::map<Address, CommandResult *> knownTraces;
@@ -516,9 +542,7 @@ bool Detail_ButterFly_Report (
                              new std::vector<CommandResult *>(num_temps)
                              );
         set_Detail_values((*vcs), primary_is_inclusive)
-        if (ExtraTemps) {
-          set_ExtraMetric_values((*vcs), Extra_Values, F)
-        }
+        set_ExtraMetric_values((*vcs), Extra_Values, F)
 
        // Construct result entry
         std::vector<CommandResult *> *call_stack
@@ -537,6 +561,15 @@ bool Detail_ButterFly_Report (
       } else
 */
       (void) Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack, c_items, view_output);
+    }
+
+    if (ExtraTemps) {
+      for (int64_t i = 0; i < Extra_Values.size(); i++) {
+        if (!Extra_Values[i].isNull() &&
+            !Extra_Values[i]->empty()) {
+          Reclaim_CR_Space (Extra_Values[i]);
+        }
+      }
     }
   }
   catch (const Exception& error) {

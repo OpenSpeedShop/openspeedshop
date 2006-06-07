@@ -343,8 +343,10 @@ static int64_t Match_Short_Stack (SmartPtr<std::vector<CommandResult *> >& cs,
 static inline void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& IV,
                                                 std::vector<CommandResult *>& A,
                                                 std::vector<CommandResult *>& B) {
-  int64_t len = A.size();
+  int64_t len = min(IV.size(),A.size());
   for (int64_t i = 0; i < len; i++) {
+    if ((A[i] == NULL) &&
+        (B[i] == NULL)) continue;
     ViewInstruction *vp = IV[i];
     if (vp != NULL) {
       ViewOpCode Vop = vp->OpCode();
@@ -609,7 +611,7 @@ bool Generic_Multi_View (
                                  SmartPtr<std::vector<CommandResult *> > > >& c_items,
            std::list<CommandResult *>& view_output) {
   bool success = false;
-//  Print_View_Params (cerr, CV,MV,IV);
+// Print_View_Params (cerr, CV,MV,IV);
   Assert (vfc != VFC_Unknown);
 
   if (Look_For_KeyWord(cmd, "ButterFly") &&
