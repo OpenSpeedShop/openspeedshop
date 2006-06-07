@@ -41,10 +41,7 @@
             double ex_time = 0.0;    \
             uint64_t ex_cnt = 0;     \
             double in_time = 0.0;    \
-            uint64_t in_cnt = 0;     \
-            double tmean_time = 0.0; \
-            double tmin_time = 0.0;  \
-            double tmax_time = 0.0;
+            uint64_t in_cnt = 0;
 
 #define get_inclusive_values(primary, num_calls)        \
                 in_time += primary.dm_time / num_calls; \
@@ -70,7 +67,7 @@
                   value_array[tmean_temp]                                                            \
                        = Dup_CommandResult(ExtraValues[ViewReduction_mean]->find(index)->second);    \
                 } else {                                                                             \
-                  value_array[tmean_temp] = CRPTR (tmean_time);                                      \
+                  value_array[tmean_temp] = CRPTR ((double)0.0);                                     \
                 }                                                                                    \
               }                                                                                      \
               if (num_temps > tmin_temp) {                                                           \
@@ -79,7 +76,7 @@
                   value_array[tmin_temp]                                                             \
                        = Dup_CommandResult(ExtraValues[ViewReduction_min]->find(index)->second);     \
                 } else {                                                                             \
-                  value_array[tmin_temp] = CRPTR (tmin_time);                                        \
+                  value_array[tmin_temp] = CRPTR ((double)0.0);                                      \
                 }                                                                                    \
               }                                                                                      \
               if (num_temps > tmax_temp) {                                                           \
@@ -88,7 +85,7 @@
                   value_array[tmax_temp]                                                             \
                        = Dup_CommandResult(ExtraValues[ViewReduction_max]->find(index)->second);     \
                 } else {                                                                             \
-                  value_array[tmax_temp] = CRPTR (tmax_time);                                        \
+                  value_array[tmax_temp] = CRPTR ((double)0.0);                                      \
                 }                                                                                    \
               }
 
@@ -144,12 +141,13 @@ static std::string allowed_usertime_V_options[] = {
 
 static bool define_usertime_columns (
             CommandObject *cmd,
+            std::vector<Collector>& CV,
+            std::vector<std::string>& MV,
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV,
             View_Form_Category vfc) {
-  int64_t last_column = 0;  // Total time is always placed in first column.
+  int64_t last_column = 0;
   int64_t first_time_temp = 0;
-  int64_t last_temp = 0;
 
  // Define combination instructions for predefined temporaries.
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
@@ -178,7 +176,6 @@ static bool define_usertime_columns (
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
     int64_t i = 0;
-    bool time_metric_selected = false;
     vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
       parse_range_t *m_range = (*mi).getRange();
@@ -203,30 +200,23 @@ static bool define_usertime_columns (
         // Select temp values for columns and build column headers
         if (Generate_ButterFly &&
             (!strcasecmp(M_Name.c_str(), "time") ||
-             !strcasecmp(M_Name.c_str(), "times"))) {
-         // display inclusive times
-          time_metric_selected = true;
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
-          HV.push_back("Inclusive Time");
-          if (first_time_temp == 0) first_time_temp = intime_temp;
-          last_temp = intime_temp;
-          last_column++;
+             !strcasecmp(M_Name.c_str(), "times")) ) {
+         // display total inclusive counts
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
+          HV.push_back( Find_Metadata ( CV[0], "inclusive_time" ).getDescription() );
         } else if (Generate_ButterFly &&
                    (!strcasecmp(M_Name.c_str(), "count") ||
                     !strcasecmp(M_Name.c_str(), "counts") ||
                     !strcasecmp(M_Name.c_str(), "call") ||
                     !strcasecmp(M_Name.c_str(), "calls"))) {
            // display total inclusive counts
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, incnt_temp));
-          HV.push_back("Number of Calls");
-          last_temp = incnt_temp;
-          last_column++;
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, incnt_temp));
+          HV.push_back("Number of Counts");
         } else if (Generate_ButterFly &&
                    !strcasecmp(M_Name.c_str(), "percent")) {
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column,
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++,
                        (first_time_temp == 0) ? intime_temp : first_time_temp));
-          HV.push_back("% of Total");
-          last_column++;
+          HV.push_back("% of Total Exclusive CPU Time");
         } else if (!strcasecmp(M_Name.c_str(), "time") ||
                    !strcasecmp(M_Name.c_str(), "times") ||
                    !strcasecmp(M_Name.c_str(), "exclusive_time") ||
@@ -234,50 +224,61 @@ static bool define_usertime_columns (
                    !strcasecmp(M_Name.c_str(), "exclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "exclusive_details")) {
          // display sum of times
-          time_metric_selected = true;
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, extime_temp));
-          HV.push_back("Exclusive Time(ms)");
-          if (first_time_temp == 0) first_time_temp = extime_temp;
-          last_temp = extime_temp;
-          last_column++;
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
+          HV.push_back( Find_Metadata ( CV[0], "exclusive_time" ).getDescription() );
         } else if (!strcasecmp(M_Name.c_str(), "inclusive_time") ||
                    !strcasecmp(M_Name.c_str(), "inclusive_times") ||
                    !strcasecmp(M_Name.c_str(), "inclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "inclusive_details")) {
          // display times
-          time_metric_selected = true;
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
-          HV.push_back("Inclusive Time(ms)");
-          if (first_time_temp == 0) first_time_temp = intime_temp;
-          last_temp = intime_temp;
-          last_column++;
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
+          HV.push_back( Find_Metadata ( CV[0], "inclusive_time" ).getDescription() );
         } else if ( !strcasecmp(M_Name.c_str(), "count") ||
                     !strcasecmp(M_Name.c_str(), "counts") ||
-                    !strcasecmp(M_Name.c_str(), "inclusive_count") ||
-                    !strcasecmp(M_Name.c_str(), "inclusive_counts") ||
+                    !strcasecmp(M_Name.c_str(), "exclusive_count") ||
+                    !strcasecmp(M_Name.c_str(), "exclusive_counts") ||
                     !strcasecmp(M_Name.c_str(), "call") ||
                     !strcasecmp(M_Name.c_str(), "calls") ) {
          // display total exclusive counts
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, incnt_temp));
-          HV.push_back("Number of Calls");
-          last_temp = excnt_temp;
-          last_column++;
-        } else if ( !strcasecmp(M_Name.c_str(), "exclusive_count") ||
-                    !strcasecmp(M_Name.c_str(), "exclusive_counts")) {
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
+          HV.push_back("Number of Exclusive Counts");
+        } else if ( !strcasecmp(M_Name.c_str(), "inclusive_count") ||
+                    !strcasecmp(M_Name.c_str(), "inclusive_counts")) {
          // display total inclusive counts
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, excnt_temp));
-          HV.push_back("Exclusive Calls");
-          last_temp = incnt_temp;
-          last_column++;
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, incnt_temp));
+          HV.push_back("Number of Inclusive Counts");
         } else if (!strcasecmp(M_Name.c_str(), "percent") ||
                    !strcmp(M_Name.c_str(), "%")           ||
                    !strcasecmp(M_Name.c_str(), "%time")   ||
-                   !strcasecmp(M_Name.c_str(), "%times")) {
-         // percent is calculate from 2 temps: time for this row and total time.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column,
-                       (first_time_temp == 0) ? intime_temp : first_time_temp));
-          HV.push_back("% of Total");
-          last_column++;
+                   !strcasecmp(M_Name.c_str(), "%times") ||
+                   !strcasecmp(M_Name.c_str(), "%exclusive_time") ||
+                   !strcasecmp(M_Name.c_str(), "%exclusive_times") ||
+                   !strcasecmp(M_Name.c_str(), "%exclusive_detail") ||
+                   !strcasecmp(M_Name.c_str(), "%exclusive_details") ) {
+         // percent is calculate from 2 temps: time for this row and total exclusive time.
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp));
+          HV.push_back("% of Total Exclusive Time");
+        } else if (!strcasecmp(M_Name.c_str(), "%inclusive_time") ||
+                   !strcasecmp(M_Name.c_str(), "%inclusive_times") ||
+                   !strcasecmp(M_Name.c_str(), "%inclusive_detail") ||
+                   !strcasecmp(M_Name.c_str(), "%inclusive_details")) {
+         // percent is calculate from 2 temps: time for this row and total inclusive time.
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
+          HV.push_back("% of Total Inclusive Time");
+        } else if (!strcasecmp(M_Name.c_str(), "%count") ||
+                   !strcasecmp(M_Name.c_str(), "%counts") ||
+                   !strcasecmp(M_Name.c_str(), "%call") ||
+                   !strcasecmp(M_Name.c_str(), "%calls") ||
+                   !strcasecmp(M_Name.c_str(), "%exclusive_count") ||
+                   !strcasecmp(M_Name.c_str(), "%exclusive_counts") ) {
+         // percent is calculate from 2 temps: number of events for this row and total exclusive events.
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp));
+          HV.push_back("% of Total Exclusive Counts");
+        } else if (!strcasecmp(M_Name.c_str(), "%inclusive_count") ||
+                   !strcasecmp(M_Name.c_str(), "%inclusive_counts") ) {
+         // percent is calculate from 2 temps: number of events for this row and total exclusive events.
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp));
+          HV.push_back("% of Total Inclusive Counts");
         } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
                    !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
          // Do a By-Thread average.
@@ -286,7 +287,8 @@ static bool define_usertime_columns (
           } else {
             IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
-            HV.push_back("Average Exclusive Time(ms) Across Threads");
+            std::string H = Find_Metadata ( CV[1], MV[1] ).getDescription();
+            HV.push_back(std::string("Average ") + H + " Across Threads");
           }
         } else if (!strcasecmp(M_Name.c_str(), "ThreadMin")) { 
          // Find the By-Thread Min.
@@ -295,7 +297,8 @@ static bool define_usertime_columns (
           } else {
             IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
-            HV.push_back("Min Exclusive Time(ms) Across Threads");
+            std::string H = Find_Metadata ( CV[1], MV[1] ).getDescription();
+            HV.push_back(std::string("Min ") + H + " Across Threads");
           }
         } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
          // Find the By-Thread Max.
@@ -304,7 +307,8 @@ static bool define_usertime_columns (
           } else {
             IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
-            HV.push_back("Max Exclusive Time(ms) Across Threads");
+            std::string H = Find_Metadata ( CV[1], MV[1] ).getDescription();
+            HV.push_back(std::string("Max ") + H + " Across Threads");
           }
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
@@ -316,26 +320,27 @@ static bool define_usertime_columns (
    // Default ButterFly view.
    // Column[0] is inclusive time
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
-    HV.push_back("Inclusive Time");
+    HV.push_back( Find_Metadata( CV[0], "inclusive_time" ).getDescription() );
 
   // Column[1] in % of inclusive time
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp));
-    HV.push_back("% of Total");
-    last_column++;
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp));
+    HV.push_back("% of Total Exclusive CPU Time");
 
   } else {
    // If nothing is requested ...
    // Column[0] is exclusive time
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
-    HV.push_back("Exclusive Time(ms)");
+    Metadata m = Find_Metadata ( CV[0], "exclusive_time");
+    std::string H = m.getDescription();
+    HV.push_back(m.getDescription());
 
    // Column[1] is inclusive time
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
-    HV.push_back("Inclusive Time(ms)");
+    HV.push_back( Find_Metadata( CV[0], "inclusive_time" ).getDescription() );
 
    // Column[2] is percent, calculated from 2 temps: time for this row and total inclusive time.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp));
-    HV.push_back("% of Total");
+    HV.push_back("% of Total Exclusive CPU Time");
   }
   return (HV.size() > 0);
 }
@@ -353,62 +358,63 @@ static bool usertime_definition (
     CV.push_back (Get_Collector (exp->FW(), "usertime"));  // Define the collector
     MV.push_back ("exclusive_time"); // define the metric needed for calculating total time.
 
-    return define_usertime_columns (cmd, IV, HV, vfc);
+    return define_usertime_columns (cmd, CV, MV, IV, HV, vfc);
 }
 
 static std::string VIEW_usertime_brief = "UserTime Report";
 static std::string VIEW_usertime_short = "Report the amount of sample time spent in a code unit.";
-static std::string VIEW_usertime_long  = "\nA positive integer can be added to the end of the keyword"
-                                      " 'usertime' to indicate the maximum number of items in the report."
-                                      "\n\nThe form of the information displayed can be controlled through"
-                                      " the  '-v' option.  The report will"
-                                      " be sorted in descending order of the value in the left most column"
-                                      " displayed on a line. [See '-m' option for controlling this field.]"
-                                      "\n\nThe form of the information displayed can be controlled through"
-                                      " the  '-v' option."
-                                      "\n\t'-v LinkedObjects' will report times by linked object."
-                                      "\n\t'-v Statements' will report times by statement."
-                                      "\n\t'-v Functions' will report times by function. This is the default."
-                                      " will be sorted in descending order of the value in the left most"
-                                      " column (see the '-m' option).  This is the default display."
-                                      "\n\t'-v CallTrees' will produce a calling stack report that is presented"
-                                      " in calling tree order - from the start of the program to the measured"
-                                      " program."
-                                      "\n\t'-v TraceBacks' will produce a calling stack report that is presented"
-                                      " in traceback order - from the measured function to the start of the"
-                                      " program."
-                                      "\n\tThe addition of 'FullStack' with either 'CallTrees' of 'TraceBacks'"
-                                      " will cause the report to include the full call stack for each measured"
-                                      " function.  Redundant portions of a call stack are suppressed by default."
-                                      "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
-                                      " 'CallTrees' or 'TraceBacks' will result in an additional line of output at"
-                                      " the end of the report that summarizes the information in each column."
-                                      "\n\t'-v ButterFly' along with a '-f <function_list>' will produce a report"
-                                      " that summarizes the calls to a function and the calls from the function."
-                                      " The calling functions will be listed before the named function and the"
-                                      " called functions afterwards, by default, although the addition of"
-                                      " 'TraceBacks' to the '-v' specifier will reverse this ordering."
-                                      " If no '-m' options are specified, the default report is equivalent to"
-                                      " '-m inclusive_time, exclusive_time, percent'."
-                                      "\n\nThe information included in the report can be controlled with the"
-                                      " '-m' option.  More than one item can be selected but only the items"
-                                      " listed after the option will be printed and they will be printed in"
-                                      " the order that they are listed."
-                                      " Each value pertains to the function, statement or linked object that is"
-                                      " on that row of the report.  The 'Thread...' selections pertain to the"
-                                      " process unit that the program was partitioned into: Pid's,"
-                                      " Posix threads, Mpi threads or Ranks."
-                                      " If no '-m' option is specified, the default is equivalent to"
-                                      " '-m exclusive_time'."
-                                      " \n\t'-m exclusive_time' reports the wall clock time used in the code unit."
-                                      " \n\t'-m inclusive_time' reports the wall clock time used in the aggregate"
-                                      " by the unit and all the units it calls."
-                                      " \n\t'-m count' reports the number calls into the code unit."
-                                      " \n\t'-m percent' reports the percent of usertime time for all the processes."
-                                      " \n\t'-m ThreadAverage' reports the average cpu time for a process."
-                                      " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
-                                      " \n\t'-m ThreadMin' reports the maximum cpu time for a process."
-                                      "\n";
+static std::string VIEW_usertime_long  =
+                  "\nA positive integer can be added to the end of the keyword"
+                  " 'usertime' to indicate the maximum number of items in the report."
+                  "\n\nThe form of the information displayed can be controlled through"
+                  " the  '-v' option.  The report will"
+                  " be sorted in descending order of the value in the left most column"
+                  " displayed on a line. [See '-m' option for controlling this field.]"
+                  "\n\nThe form of the information displayed can be controlled through"
+                  " the  '-v' option."
+                  "\n\t'-v LinkedObjects' will report times by linked object."
+                  "\n\t'-v Statements' will report times by statement."
+                  "\n\t'-v Functions' will report times by function. This is the default."
+                  " will be sorted in descending order of the value in the left most"
+                  " column (see the '-m' option).  This is the default display."
+                  "\n\t'-v CallTrees' will produce a calling stack report that is presented"
+                  " in calling tree order - from the start of the program to the measured"
+                  " program."
+                  "\n\t'-v TraceBacks' will produce a calling stack report that is presented"
+                  " in traceback order - from the measured function to the start of the"
+                  " program."
+                  "\n\tThe addition of 'FullStack' with either 'CallTrees' of 'TraceBacks'"
+                  " will cause the report to include the full call stack for each measured"
+                  " function.  Redundant portions of a call stack are suppressed by default."
+                  "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
+                  " 'CallTrees' or 'TraceBacks' will result in an additional line of output at"
+                  " the end of the report that summarizes the information in each column."
+                  "\n\t'-v ButterFly' along with a '-f <function_list>' will produce a report"
+                  " that summarizes the calls to a function and the calls from the function."
+                  " The calling functions will be listed before the named function and the"
+                  " called functions afterwards, by default, although the addition of"
+                  " 'TraceBacks' to the '-v' specifier will reverse this ordering."
+                  " If no '-m' options are specified, the default report is equivalent to"
+                  " '-m inclusive_time, exclusive_time, percent'."
+                  "\n\nThe information included in the report can be controlled with the"
+                  " '-m' option.  More than one item can be selected but only the items"
+                  " listed after the option will be printed and they will be printed in"
+                  " the order that they are listed."
+                  " If no '-m' option is specified, the default is equivalent to"
+                  " '-m exclusive_time, inclusive_time, percent'."
+                  " Each value pertains to the function, statement or linked object that is"
+                  " on that row of the report.  The 'Thread...' selections pertain to the"
+                  " process unit that the program was partitioned into: Pid's,"
+                  " Posix threads, Mpi threads or Ranks."
+                  " \n\t'-m exclusive_time' reports the wall clock time used in the code unit."
+                  " \n\t'-m inclusive_time' reports the wall clock time used in the aggregate"
+                  " by the unit and all the units it calls."
+                  " \n\t'-m percent' reports the percent of total cpu the code unit represents."
+                  " \n\t'-m count' reports the number calls into the code unit."
+                  " \n\t'-m ThreadAverage' reports the average cpu time for a process."
+                  " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
+                  " \n\t'-m ThreadMin' reports the maximum cpu time for a process."
+                  "\n";
 static std::string VIEW_usertime_example = "\texpView usertime\n"
                                            "\texpView -v LinkedObjects usertime\n"
                                            "\texpView -v Statements usertime20\n"

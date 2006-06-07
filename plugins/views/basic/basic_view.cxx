@@ -82,7 +82,7 @@ static bool define_pcsamp_columns (
       if (!strcasecmp(M_Name.c_str(), "time") ||
           !strcasecmp(M_Name.c_str(), "times")) {
         IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column++, 0));
-        HV.push_back("CPU Time(ms)");
+        HV.push_back( Find_Metadata ( CV[0], MV[0] ).getDescription() );
       } else if (!strcasecmp(M_Name.c_str(), "percent") ||
                  !strcmp(M_Name.c_str(), "%")           ||
                  !strcasecmp(M_Name.c_str(), "%time")   ||
@@ -90,20 +90,23 @@ static bool define_pcsamp_columns (
        // percent is calculate from 2 temps: time for this row and total time.
         IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
         IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0));  // second column is %
-        HV.push_back("% of Total CPU Time");
+        HV.push_back( std::string("% of ") + Find_Metadata ( CV[0], MV[0] ).getShortName() );
       } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
                  !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
        // Do a By-Thread average.
         IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_mean));
-        HV.push_back("Average CPU Time(ms) Across Threads");
+        HV.push_back( std::string("Average ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
+                      + " Across Threads");
       } else if (!strcasecmp(M_Name.c_str(), "ThreadMin")) {
        // Find the By-Thread Min.
         IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_min));
-        HV.push_back("Min CPU Time(ms) Across Threads");
+        HV.push_back( std::string("Min ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
+                      + " Across Threads");
       } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
        // Find the By-Thread Max.
         IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_max));
-        HV.push_back("Max CPU Time(ms) Across Threads");
+        HV.push_back( std::string("Max ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
+                      + " Across Threads");
       } else {
        // Unrecognized '-m' option.
         Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
@@ -116,40 +119,41 @@ static bool define_pcsamp_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column++, 0));  // first column is metric
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0));  // second column is %
-    HV.push_back("CPU Time(ms)");
-    HV.push_back("% of Total CPU Time");
+    HV.push_back( Find_Metadata ( CV[0], MV[0] ).getDescription() );
+    HV.push_back( std::string("% of ") + Find_Metadata ( CV[0], MV[0] ).getShortName() );
   }
   return (last_column > 0);
 }
 
 static std::string VIEW_pcsamp_brief = "PC (Program Counter) report";
 static std::string VIEW_pcsamp_short = "Report the amount and percent of program time spent in a code unit.";
-static std::string VIEW_pcsamp_long  = "The report is sorted in descending order by the amount of time that"
-                                       " was used in each unit. Also included in the report is the"
-                                       " percent of total time that each unit uses."
-                                       " A positive integer can be added to the end of the keyword"
-                                       " 'pcsamp' to indicate the maximum number of items in the report."
-                                       "\n\nThe type of unit displayed can be selected with the '-v'"
-                                       " option."
-                                       "\n\t'-v LinkedObjects' will report times by linked object."
-                                       "\n\t'-v Functions' will report times by function. This is the default."
-                                       "\n\t'-v Statements' will report times by statement."
-                                      "\n\nThe information included in the report can be controlled with the"
-                                      " '-m' option.  More than one item can be selected but only the items"
-                                      " listed after the option will be printed and they will be printed in"
-                                      " the order that they are listed."
-                                      " If no '-m' option is specified, the default is equivalent to"
-                                      " '-m time, percent'."
-                                      " Each value pertains to the function, statement or linked object that is"
-                                      " on that row of the report.  The 'Thread...' selections pertain to the"
-                                      " process unit that the program was partitioned into: Pid's,"
-                                      " Posix threads, Mpi threads or Ranks."
-                                      " \n\t'-m time' reports the total cpu time for all the processes."
-                                      " \n\t'-m percent' reports the percent of total cpu time for all the processes."
-                                      " \n\t'-m ThreadAverage' reports the average cpu time for a process."
-                                      " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
-                                      " \n\t'-m ThreadMin' reports the maximum cpu time for a process."
-                                      "\n";
+static std::string VIEW_pcsamp_long  =
+                   "The report is sorted in descending order by the amount of time that"
+                   " was used in each unit. Also included in the report is the"
+                   " percent of total time that each unit uses."
+                   " A positive integer can be added to the end of the keyword"
+                   " 'pcsamp' to indicate the maximum number of items in the report."
+                   "\n\nThe type of unit displayed can be selected with the '-v'"
+                   " option."
+                   "\n\t'-v LinkedObjects' will report times by linked object."
+                   "\n\t'-v Functions' will report times by function. This is the default."
+                   "\n\t'-v Statements' will report times by statement."
+                  "\n\nThe information included in the report can be controlled with the"
+                  " '-m' option.  More than one item can be selected but only the items"
+                  " listed after the option will be printed and they will be printed in"
+                  " the order that they are listed."
+                  " If no '-m' option is specified, the default is equivalent to"
+                  " '-m time, percent'."
+                  " Each value pertains to the function, statement or linked object that is"
+                  " on that row of the report.  The 'Thread...' selections pertain to the"
+                  " process unit that the program was partitioned into: Pid's,"
+                  " Posix threads, Mpi threads or Ranks."
+                  " \n\t'-m time' reports the total cpu time for all the processes."
+                  " \n\t'-m percent' reports the percent of total cpu time for all the processes."
+                  " \n\t'-m ThreadAverage' reports the average cpu time for a process."
+                  " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
+                  " \n\t'-m ThreadMin' reports the maximum cpu time for a process."
+                  "\n";
 static std::string VIEW_pcsamp_example = "\texpView pcsamp\n"
                                          "\texpView -v statements pcsamp10\n";
 static std::string VIEW_pcsamp_metrics[] =
@@ -251,36 +255,41 @@ static bool define_hwc_columns (
         M_Name = m_range->start_range.name;
       }
 
-      if (!strcasecmp(M_Name.c_str(), "overflow") ||
+      if (!strcasecmp(M_Name.c_str(), "count") ||
+          !strcasecmp(M_Name.c_str(), "counts") ||
+          !strcasecmp(M_Name.c_str(), "overflow") ||
           !strcasecmp(M_Name.c_str(), "overflows")) {
-        Collector C = Get_Collector (exp->FW(), "hwc");
         IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column++, 0));
        // Get the name of the event that we were collecting.
        // Use this for the column header in the report rather then the name of the metric.
         std::string H;
-        C.getParameterValue ("event", H);
-        HV.push_back(H);
+        CV[0].getParameterValue ("event", H);
+        HV.push_back(std::string("Exclusive ") + H + " Counts");
       } else if (!strcasecmp(M_Name.c_str(), "percent") ||
                  !strcmp(M_Name.c_str(), "%")           ||
+                 !strcasecmp(M_Name.c_str(), "%count")   ||
+                 !strcasecmp(M_Name.c_str(), "%counts")   ||
                  !strcasecmp(M_Name.c_str(), "%overflow")   ||
                  !strcasecmp(M_Name.c_str(), "%overflows")) {
        // percent is calculate from 2 temps: time for this row and total time.
         IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
         IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0));  // second column is %
-        HV.push_back("% of Total Overflows");
+        std::string H;
+        CV[0].getParameterValue ("event", H);
+        HV.push_back(std::string("% of Total ") + H + " Counts");
       } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
                  !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
        // Do a By-Thread average.
         IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_mean));
-        HV.push_back("Average Overflows Across Threads");
+        HV.push_back("Average Counts Across Threads");
       } else if (!strcasecmp(M_Name.c_str(), "ThreadMin")) {
        // Find the By-Thread Min.
         IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_min));
-        HV.push_back("Minimum Overflows Across Threads");
+        HV.push_back("Minimum Counts Across Threads");
       } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
        // Find the By-Thread Max.
         IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_max));
-        HV.push_back("Maximum Overflows Across Threads");
+        HV.push_back("Maximum Counts Across Threads");
       } else {
        // Unrecognized '-m' option.
         Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
@@ -298,42 +307,43 @@ static bool define_hwc_columns (
    // Use this for the column header in the report rather then the name of the metric.
     std::string H;
     CV[0].getParameterValue ("event", H);
-    HV.push_back(H);
-    HV.push_back("% of Total Overflows");
+    HV.push_back(std::string("Exclusive ") + H + " Counts");
+    HV.push_back(std::string("% of Total ") + H + " Counts");
   }
   return (last_column > 0);
 }
 
 static std::string VIEW_hwc_brief = "Hardware counter report";
 static std::string VIEW_hwc_short = "Report the hardware counts spent in a code unit.";
-static std::string VIEW_hwc_long  = "The report is sorted in descending order by the number of counts that"
-                                    " were accumulated in each unit.  The reported counter is the one"
-                                    " set in the 'event' parameter when the experiment was run."
-                                    " Also included in the report is the percent of total cycles"
-                                    " that each unit uses."
-                                    " A positive integer can be added to the end of the keyword 'hwc'"
-                                    " to indicate the maximum number of items in the report."
-                                    "\n\nThe type of unit displayed can be selected with the '-v'"
-                                    " option."
-                                    "\n\t'-v LinkedObjects' will report counts by linked object."
-                                    "\n\t'-v Functions' will report counts by function. This is the default."
-                                    "\n\t'-v Statements' will report counts by statement."
-                                    "\n\nThe information included in the report can be controlled with the"
-                                    " '-m' option.  More than one item can be selected but only the items"
-                                    " listed after the option will be printed and they will be printed in"
-                                    " the order that they are listed."
-                                    " If no '-m' option is specified, the default is equivalent to"
-                                    " '-m overflows, percent'."
-                                    " Each value pertains to the function, statement or linked object that is"
-                                    " on that row of the report.  The 'Thread...' selections pertain to the"
-                                    " process unit that the program was partitioned into: Pid's,"
-                                    " Posix threads, Mpi threads or Ranks."
-                                    " \n\t'-m overflows' reports the total counts for all the processes."
-                                    " \n\t'-m percent' reports the percent of total counts for all the processes."
-                                    " \n\t'-m ThreadAverage' reports the average counts for a process."
-                                    " \n\t'-m ThreadMin' reports the minimum number of counts for a process."
-                                    " \n\t'-m ThreadMin' reports the maximum counts for a process."
-                                    "\n";
+static std::string VIEW_hwc_long  = 
+                "The report is sorted in descending order by the number of counts that"
+                " were accumulated in each unit.  The reported counter is the one"
+                " set in the 'event' parameter when the experiment was run."
+                " Also included in the report is the percent of total cycles"
+                " that each unit uses."
+                " A positive integer can be added to the end of the keyword 'hwc'"
+                " to indicate the maximum number of items in the report."
+                "\n\nThe type of unit displayed can be selected with the '-v'"
+                " option."
+                "\n\t'-v LinkedObjects' will report counts by linked object."
+                "\n\t'-v Functions' will report counts by function. This is the default."
+                "\n\t'-v Statements' will report counts by statement."
+                "\n\nThe information included in the report can be controlled with the"
+                " '-m' option.  More than one item can be selected but only the items"
+                " listed after the option will be printed and they will be printed in"
+                " the order that they are listed."
+                " If no '-m' option is specified, the default is equivalent to"
+                " '-m counts, percent'."
+                " Each value pertains to the function, statement or linked object that is"
+                " on that row of the report.  The 'Thread...' selections pertain to the"
+                " process unit that the program was partitioned into: Pid's,"
+                " Posix threads, Mpi threads or Ranks."
+                " \n\t'-m counts' reports the total hardware event counts for all the processes."
+                " \n\t'-m percent' reports the percent of total counts for all the processes."
+                " \n\t'-m ThreadAverage' reports the average counts for a process."
+                " \n\t'-m ThreadMin' reports the minimum number of counts for a process."
+                " \n\t'-m ThreadMin' reports the maximum counts for a process."
+                "\n";
 static std::string VIEW_hwc_example = "\texpView hwc\n"
                                       "\texpView -v Functions hwc10\n";
 static std::string VIEW_hwc_metrics[] =
