@@ -34,12 +34,12 @@ mutator_CXXFLAGS = \
 mutator_LDFLAGS = \
 	$(DYNINST_LDFLAGS) \
 	$(DYNINST_LIBS) \
-	-liberty -ldwarf -lelf -ldl
+	-liberty -ldl
 
 mutator_LIBS = \
 	$(DYNINST_LDFLAGS) \
 	$(DYNINST_LIBS) \
-	-liberty -ldwarf -lelf -ldl
+	-liberty -ldl
 
 mutator_SOURCES = \
 	mutator.cxx
