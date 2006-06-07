@@ -28,7 +28,7 @@ extern char **environ;
 
 #define USE_DL_LOCK
 #define BOSCO 0
-#define BOZO 1
+#define BOZO 0
 
 /**
  * Check a runtime assertion.
@@ -130,8 +130,17 @@ namespace {
  * LD_LIBRARY_PATH is redone. If so, reexec openss with
  * the new environment.
  *
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ *
  * @param argc    Number of command-line arguments.
  * @param argv    Array of command-line arguments.
+ * @param new_cmdline	command-line to be built.
  */
 
 /* no more than 100 args to any program being called */
@@ -141,8 +150,15 @@ static int
 s_recall_openss(int argc, char* argv[], string& new_cmdline)
 {
 
-    // string new_ld_library_path;
+    // Set up LD_LIBRARY_PATH and plugin dl_open paths.
+    SetOpenssLibPath(new_cmdline);
     
+    // This is for gdb because the execv() call seems to throw it
+    // for a loop
+    if ( (getenv("OPENSS_DEBUG_OPENSS") != NULL)) {
+        return argc;
+    }
+
     // Check to see if we need to redo the search path.
     //
     // We look at the last argument for the defined 
@@ -158,11 +174,6 @@ s_recall_openss(int argc, char* argv[], string& new_cmdline)
     //
     // If it does match we decrement argc and move on.
     //
-
-    // Set up LD_LIBRARY_PATH and plugin dl_open paths.
-    SetOpenssLibPath(new_cmdline);
-
-#if BOZO
     if (((strcmp(argv[argc -1], RE_EXEC_FLAG)) != 0)) {
 	
 	char *t_path = getenv("LD_LIBRARY_PATH");
@@ -198,7 +209,7 @@ s_recall_openss(int argc, char* argv[], string& new_cmdline)
     	// Pretend the last argument is not there.
 	return --argc;
     }
-#endif
+
     return argc;
 }
 
@@ -216,24 +227,8 @@ int main(int argc, char* argv[])
 
     string new_cmdline;
 
-    
     // Set up LD_LIBRARY_PATH and plugin dl_open paths.
-#if BOSCO
-    cout << "before s_recall_openss()" << endl;
-    cout << "argc:" << argc << endl;
-    for (int i=0;i<argc;++i) {
-    	cout << "argv[" << i << "]:" << argv[i] << endl;
-    }
-#endif
     argc = s_recall_openss(argc, argv, new_cmdline);
-
-#if BOSCO
-    cout << "after s_recall_openss()" << endl;
-    cout << "argc:" << argc << endl;
-    for (int i=0;i<argc;++i) {
-    	cout << "argv[" << i << "]:" << argv[i] << endl;
-    }
-#endif
 
     // Attempt to open the CLI library
     lt_dlhandle handle = lt_dlopenext("libopenss-cli");
@@ -244,6 +239,7 @@ int main(int argc, char* argv[])
 	Assert(lt_dlexit() == 0);
 	return 1;
     }
+
     // Attempt to locate the CLI library's entry point
     void (*entry)(int, char*[]) = (void (*)(int, char*[]))
 	lt_dlsym(handle, "cli_init");
