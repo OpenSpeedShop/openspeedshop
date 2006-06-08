@@ -4,9 +4,8 @@
       integer work 
       integer size 
 
-      size = 1000
+      size = 100
       n=work(size)
-      goto 100
 100   continue
       end
 
