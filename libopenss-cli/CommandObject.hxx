@@ -1785,13 +1785,12 @@ inline CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
     break;
   }
 
-  if (Bvalue <= 0.0) {
-    return NULL;
+  double percent = 0.0;
+  if (Bvalue > 0.0) {
+    percent = (Avalue *100) / Bvalue;
+    // if (percent > 100.0) percent = 100.0;
+    if (percent < 0.0) percent = 0.0;
   }
-
-  double percent = (Avalue *100) / Bvalue;
-  // if (percent > 100.0) percent = 100.0;
-  if (percent < 0.0) percent = 0.0;
   return new CommandResult_Float (percent);
 }
 

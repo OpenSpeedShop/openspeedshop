@@ -23,6 +23,7 @@ enum ViewOpCode {
      VIEWINST_Define_ByThread_Metric,   // TmpResult is the ExtraMetric index that contains the values.
                                         // TMP_index1 is CV & MV index of the value to display.
                                         // TMP_index2 is the indicator of the reduction that is applied.
+     VIEWINST_Require_Field_Equal,      // TMP_index1 is row_tmp# of fields in the records that must match.
      VIEWINST_Display_Metric,           // TmpResult is column# to display in.
                                         // TMP_index1 is CV & MV index of the value to display.
      VIEWINST_Display_ByThread_Metric,  // TmpResult is column# to display in.

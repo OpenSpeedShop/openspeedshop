@@ -300,7 +300,7 @@ static int64_t Match_Call_Stack (std::vector<CommandResult *> *cs,
   return minsz;
 }
 
-// I don't think this fucntion is needed anymore.
+// I don't think this function is needed anymore.
 static int64_t Match_Short_Stack (SmartPtr<std::vector<CommandResult *> >& cs,
                                   SmartPtr<std::vector<CommandResult *> >& ncs) {
   int64_t csz = cs->size();
@@ -340,6 +340,28 @@ static int64_t Match_Short_Stack (SmartPtr<std::vector<CommandResult *> >& cs,
   return minsz;
 }
 
+static bool Match_Field_Requirements (std::vector<ViewInstruction *>& IV,
+                                      std::vector<CommandResult *>& A,
+                                      std::vector<CommandResult *>& B) {
+  int64_t len =IV.size();
+  for (int64_t i = 0; i < len; i++) {
+    ViewInstruction *vp = IV[i];
+    if (vp->OpCode() == VIEWINST_Require_Field_Equal) {
+      int64_t field = vp->TMP1();
+      if ((field < 0) ||
+          (A.size() <= field) ||
+          (B.size() <= field)) continue;
+      CommandResult *X = A[field];
+      CommandResult *Y = B[field];
+      if ((X == NULL) ||
+          (Y == NULL)) continue;
+      if (CommandResult_lt(X, Y) ||
+          CommandResult_lt(Y, X)) return false;
+    }
+  }
+  return true;
+}
+
 static inline void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& IV,
                                                 std::vector<CommandResult *>& A,
                                                 std::vector<CommandResult *>& B) {
@@ -363,6 +385,7 @@ static inline void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& 
 
 static void Combine_Duplicate_CallStacks (
               std::vector<ViewInstruction *>& IV,
+              std::vector<ViewInstruction *>& FieldRequirements,
               std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items) {
   std::vector<std::pair<CommandResult *,
@@ -394,7 +417,8 @@ static void Combine_Duplicate_CallStacks (
       int64_t matchcount = Match_Call_Stack (cs, ncs);
       if ((matchcount >= 0) &&
           (matchcount == cs->size()) &&
-          (matchcount == ncs->size())) {
+          (matchcount == ncs->size()) &&
+          Match_Field_Requirements(FieldRequirements, (*cp.second), (*ncp.second))) {
        // Call stacks are identical - combine values.
         Accumulate_PreDefined_Temps (IV, (*cp.second), (*ncp.second));
         nvpi = c_items.erase(nvpi);
@@ -418,6 +442,7 @@ static void Combine_Duplicate_CallStacks (
 
 static void Combine_Short_Stacks (
               std::vector<ViewInstruction *>& IV,
+              std::vector<ViewInstruction *>& FieldRequirements,
               std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items) {
   std::vector<std::pair<CommandResult *,
@@ -449,7 +474,8 @@ static void Combine_Short_Stacks (
       int64_t matchcount = Match_Call_Stack (cs, ncs);
       if ((matchcount >= 0) &&
           (matchcount == cs->size()) &&
-          (matchcount == ncs->size())) {
+          (matchcount == ncs->size()) &&
+          Match_Field_Requirements(FieldRequirements, (*cp.second), (*ncp.second))) {
        // Call stacks are identical - combine values.
         Accumulate_PreDefined_Temps (IV, (*cp.second), (*ncp.second));
         nvpi = c_items.erase(nvpi);
@@ -507,6 +533,7 @@ static void Extract_Pivot_Items (
               CommandObject * cmd,
               ExperimentObject *exp,
               std::vector<ViewInstruction *>& IV,
+              std::vector<ViewInstruction *>& FieldRequirements,
               bool TraceBack_Order,
               std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items,
@@ -561,12 +588,12 @@ static void Extract_Pivot_Items (
   }
   if (pivot_added) {
     if (!pred.empty()) {
-      Combine_Short_Stacks (IV, pred);
+      Combine_Short_Stacks (IV, FieldRequirements, pred);
       result.insert(result.end(), pred.begin(), pred.end());
     }
     result.push_back (pivot);
     if (!succ.empty()) {
-      Combine_Short_Stacks (IV, succ);
+      Combine_Short_Stacks (IV, FieldRequirements, succ);
       result.insert(result.end(), succ.begin(), succ.end());
     }
   }
@@ -647,6 +674,7 @@ bool Generic_Multi_View (
    // Set up quick access to instructions for data combining.
     int64_t num_temps_used = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
     std::vector<ViewInstruction *> AccumulateInst(num_temps_used);
+    std::vector<ViewInstruction *> FieldRequirements;
     ViewInstruction *sortInst = NULL;
     for ( i = 0; i < num_temps_used; i++) AccumulateInst[i] = NULL;
     for ( i = 0; i < IV.size(); i++) {
@@ -659,6 +687,8 @@ bool Generic_Multi_View (
         }
       } else if (vp->OpCode() == VIEWINST_Sort_Ascending) {
        sortInst = vp;
+      } else if (vp->OpCode() == VIEWINST_Require_Field_Equal) {
+       FieldRequirements.push_back(vp);
       }
     }
 
@@ -715,7 +745,7 @@ bool Generic_Multi_View (
          // Should we eliminate redundant entries in the report?
           if (!Look_For_KeyWord(cmd, "FullStack") &&
               !Look_For_KeyWord(cmd, "FullStacks")) {
-            Combine_Duplicate_CallStacks (AccumulateInst, c_items);
+            Combine_Duplicate_CallStacks (AccumulateInst, FieldRequirements, c_items);
           }
 */
         }
@@ -727,7 +757,7 @@ bool Generic_Multi_View (
                         Look_For_KeyWord(cmd, "FullStack") ||
                         Look_For_KeyWord(cmd, "FullStacks"));
 
-      Combine_Duplicate_CallStacks (AccumulateInst, c_items);
+      Combine_Duplicate_CallStacks (AccumulateInst, FieldRequirements, c_items);
       if (!Look_For_KeyWord(cmd, "ButterFly")) {
         Gen_Total_Percent = Calculate_Total_For_Percent (cmd, tgrp, CV, MV, IV, percentofcolumn, TotalValue, c_items);
       }
@@ -759,7 +789,7 @@ bool Generic_Multi_View (
        // Should we eliminate redundant entries in the report?
         if (!Look_For_KeyWord(cmd, "FullStack") &&
             !Look_For_KeyWord(cmd, "FullStacks")) {
-          Combine_Duplicate_CallStacks (AccumulateInst, c_items);
+          Combine_Duplicate_CallStacks (AccumulateInst, FieldRequirements, c_items);
         }
       }
     } else {
@@ -858,7 +888,7 @@ bool Generic_Multi_View (
           std::vector<std::pair<CommandResult *,
                                 SmartPtr<std::vector<CommandResult *> > > > result;
           Function func = *fsi;
-          Extract_Pivot_Items (cmd, exp, AccumulateInst, TraceBack_Order, c_items, func, result);
+          Extract_Pivot_Items (cmd, exp, AccumulateInst, FieldRequirements, TraceBack_Order, c_items, func, result);
 
           if (!result.empty()) {
             Gen_Total_Percent = Calculate_Total_For_Percent (cmd, tgrp, CV, MV, IV,
