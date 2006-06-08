@@ -238,6 +238,7 @@ static bool define_fpe_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Add, extra_unknown_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, extra_unnormal_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, incnt_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Require_Field_Equal, -1, fpeType_temp));
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
