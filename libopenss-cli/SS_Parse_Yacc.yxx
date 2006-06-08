@@ -276,6 +276,8 @@ exp_pause_arg:	    /* empty */
     	    /** <expId> = expRestore  <file_spec> **/
 exp_restore_com:    RESTORE_HEAD file_spec
   	    	|   RESTORE_HEAD file_spec error END_LINE 
+  	    	|   RESTORE_HEAD file_name
+  	    	|   RESTORE_HEAD file_name error END_LINE 
   	    	|   RESTORE_HEAD error END_LINE 
       	    	;
 
