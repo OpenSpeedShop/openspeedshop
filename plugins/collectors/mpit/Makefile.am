@@ -53,19 +53,19 @@ mpit_la_SOURCES = \
 
 rt_CFLAGS_generate = \
 	-I$(top_srcdir)/libopenss-runtime \
-	@LIBUNWIND_CPPFLAGS@ \
-	$(1)
+	$(1) \
+	@LIBUNWIND_CPPFLAGS@
 
 rt_LDFLAGS_generate = \
 	-L$(top_srcdir)/libopenss-runtime \
-	@LIBUNWIND_LDFLAGS@ \
 	$(1) \
+	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined -avoid-version
 
 rt_LIBADD_generate = \
 	-lopenss-runtime \
-	@LIBUNWIND_LIBS@ \
 	$(1) \
+	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt
 
 rt_sources = \
