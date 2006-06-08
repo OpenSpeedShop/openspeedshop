@@ -50,7 +50,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
     dyninst_saved_LDFLAGS=$LDFLAGS
 
     CPPFLAGS="$CPPFLAGS $DYNINST_CPPFLAGS"
-    LDFLAGS="$CXXFLAGS $DYNINST_LDFLAGS $DYNINST_LIBS -liberty -ldwarf -lelf -ldl"
+    LDFLAGS="$CXXFLAGS $DYNINST_LDFLAGS $DYNINST_LIBS -liberty -ldl"
 
     AC_MSG_CHECKING([for Dyninst API library and headers])
 
