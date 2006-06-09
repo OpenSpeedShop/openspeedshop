@@ -16,7 +16,13 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-BUILT_SOURCES = SS_Preparse.py
+#BUILT_SOURCES = SS_Preparse.py
+BUILT_SOURCES = \
+	SS_Parse_Lex.cxx \
+	SS_Parse_Yacc.cxx \
+	SS_Parse_Yacc.h \
+	SS_Parse_Yacc.hxx
+
 AM_YFLAGS = -d
 YFLAGS = -d
 
@@ -108,6 +114,8 @@ SS_Parse_Lex.cxx: $(LFILES) SS_Parse_Yacc.hxx
 
 EXTRA_DIST = help_cmd_msg.dxx  help_general_msg.dxx  \
 		help_scripting_msg.dxx help_grammar_msg.dxx  help_topic_msg.dxx 
+
+CLEANFILES = $(BUILT_SOURCES)
 
 doc:
 	$(DOXYGEN)
