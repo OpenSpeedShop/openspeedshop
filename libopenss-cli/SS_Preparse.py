@@ -168,7 +168,7 @@ def cloak_list_range(parts,i,count,is_name):
 
     arg = parts[i]
 
-    # Check for prequoated symbols.
+    # Check for prequoted symbols.
     if arg[0] == '"':
     	(parts,i,count) = match_quotes(parts,i,count)
     	return (parts,i,count)
