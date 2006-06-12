@@ -546,8 +546,8 @@ void OpenSpeedshop::helpContents()
   QString sub_path = QString::null;
   char *plugin_directory = NULL;
 
+//  doc_dir = getenv("OPENSS_DOC_DIR");
   doc_dir = getenv("OPENSS_DOC_DIR");
-
 
   if( assistant == NULL )
   {
@@ -564,7 +564,8 @@ void OpenSpeedshop::helpContents()
       for ( QStringList::Iterator it = fields.begin(); it != fields.end(); ++it )
       {
         sub_path = ((QString)*it).stripWhiteSpace();
-        sub_path += "/../../doc/";
+        sub_path += "/../../share/doc/openspeedshop";
+// printf("sub_path=(%s)\n", sub_path.ascii() );
         QFileInfo *fileInfo = new QFileInfo(QDir(sub_path), "help.adp");
         if( fileInfo->exists() )
         {
