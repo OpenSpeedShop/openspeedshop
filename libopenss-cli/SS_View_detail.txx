@@ -180,18 +180,20 @@ bool Detail_Trace_Report(
         CommandResult *base_CSE = NULL;
         typename std::vector<TDETAIL>::iterator vi;
         for (vi = details.begin(); vi != details.end(); vi++) {
+          TDETAIL detail = *vi;
+
          // Use macro to alocate temporaries
           def_Detail_values
 
          // Use macro to assign to temporaries
-          get_inclusive_values(details, calls_In_stack);
+          get_inclusive_trace(detail, calls_In_stack);
 
          // Decide if we accumulate exclusive_time, as well.
           if (topStack_In_Subextent (st, SubExtents)) {
            // Bottom of trace is current function.
            // Exclusive_time is the same as inclusive_time.
            // Deeper calls must go without exclusive_time.
-            get_exclusive_values(details, calls_In_stack);
+            get_exclusive_trace(detail, calls_In_stack);
           }
 
          // Use macro to assign temporaries to the result array
