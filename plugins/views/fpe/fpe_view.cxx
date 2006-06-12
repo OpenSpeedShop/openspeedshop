@@ -188,6 +188,8 @@
               }
 
 #define def_Detail_values def_FPE_values
+#define get_inclusive_trace get_FPE_invalues
+#define get_exclusive_trace get_FPE_exvalues
 #define set_Detail_values set_FPE_values
 #define Determine_Objects Get_Filtered_Objects
 #include "SS_View_detail.txx"
@@ -202,6 +204,7 @@ static std::string allowed_fpe_V_options[] = {
   "Functions",
   "Statement",
   "Statements",
+  "Trace",
   "ButterFly",
   "CallTree",
   "CallTrees",
@@ -238,7 +241,6 @@ static bool define_fpe_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Add, extra_unknown_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, extra_unnormal_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, incnt_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Require_Field_Equal, -1, fpeType_temp));
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
@@ -307,6 +309,7 @@ static bool define_fpe_columns (
         } else if ( !strcasecmp(M_Name.c_str(), "Type") ||
                     !strcasecmp(M_Name.c_str(), "Types")) {
          // display the event type
+          IV.push_back(new ViewInstruction (VIEWINST_Require_Field_Equal, -1, fpeType_temp));
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, fpeType_temp));
           HV.push_back("Fpe Event Type");
           user_defined = true;
@@ -328,7 +331,7 @@ static bool define_fpe_columns (
                    !strcasecmp(M_Name.c_str(), "%inclusive_counts") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_details") ) {
-         // percent is calculate from 2 temps: number of events for this row and total exclusive events.
+         // percent is calculate from 2 temps: number of events for this row and total inclusive events.
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp));
           HV.push_back("% of Total Inclusive Fpe Events");
           user_defined = true;
@@ -479,7 +482,7 @@ static std::string VIEW_fpe_long  =
                   " 'fpe' to indicate the maximum number of items in the report."
                   " The selection will be based on the number of times events occurred."
                   "\n\nThe form of the information displayed can be controlled through"
-                  " the  '-v' option.  The report will"
+                  " the  '-v' option.  Except for the '-v Trace' option, the report will"
                   " be sorted in descending order of the number of times events occurred."
                   "\n\t'-v Functions' will produce a summary report of the function the"
                   " in descending order of the number of times each fpe event"
@@ -488,6 +491,8 @@ static std::string VIEW_fpe_long  =
                   " event occurred in."
                   "\n\t'-v LinkeObjects' will produce a summary report of the linked object"
                   " the event occurred in."
+                  "\n\t'-v Trace' will produce a report of each call to an mpi function."
+                  " It will be sorted in ascending order of the starting time for the event."
                   "\n\t'-v CallTrees' will produce a calling stack report that is presented"
                   " in calling tree order - from the start of the program to the measured"
                   " program."
@@ -578,7 +583,7 @@ class fpe_view : public ViewType {
     CV.push_back (Get_Collector (exp->FW(), "fpe"));  // Define the collector
     MV.push_back ("inclusive_details"); // define the metric needed for getting main time values
     CV.push_back (Get_Collector (exp->FW(), "fpe"));  // Define the collector
-    MV.push_back ("total_count"); // define the metric needed for calculating total time.
+    MV.push_back ("total_count"); // define the metric needed for calculating total counts.
     View_Form_Category vfc = Determine_Form_Category(cmd);
     if (fpe_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc)) {
 
@@ -592,13 +597,8 @@ class fpe_view : public ViewType {
       FPEDetail *dummyDetail;
       switch (vfc) {
        case VFC_Trace:
-        if (Look_For_KeyWord(cmd, "ButterFly")) {
-          return Detail_ButterFly_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                                          true, &dummyVector, view_output);
-        } else {
-          return Detail_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                                      true, dummyDetail, view_output);
-        }
+        return Detail_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                    true, dummyDetail, view_output);
        case VFC_CallStack:
         if (Look_For_KeyWord(cmd, "ButterFly")) {
           return Detail_ButterFly_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,

@@ -25,16 +25,19 @@
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
 
-// These are needed to manage mpi collector data.
-#define intime_temp 2
-#define incnt_temp 3
-#define extime_temp 4
-#define excnt_temp 5
-#define start_temp 6
-#define stop_temp 7
-#define min_temp 8
-#define max_temp 9
-#define ssq_temp 10
+
+#define intime_temp VMulti_free_temp
+#define incnt_temp VMulti_free_temp+1
+#define extime_temp VMulti_free_temp+2
+#define excnt_temp VMulti_free_temp+3
+#define start_temp VMulti_free_temp+4
+#define stop_temp VMulti_free_temp+5
+#define min_temp VMulti_free_temp+6
+#define max_temp VMulti_free_temp+7
+#define ssq_temp VMulti_free_temp+8
+#define tmean_temp  VMulti_free_temp+9
+#define tmin_temp  VMulti_free_temp+10
+#define tmax_temp  VMulti_free_temp+11
 
 // mpi view
 
@@ -104,6 +107,35 @@
               if (num_temps > ssq_temp) value_array[ssq_temp]                             \
                             = new CommandResult_Interval (sum_squares);
 
+#define set_ExtraMetric_values(value_array, ExtraValues, index)                                      \
+              if (num_temps > tmean_temp) {                                                          \
+                if (ExtraValues[ViewReduction_mean]->find(index)                                     \
+                                                      != ExtraValues[ViewReduction_mean]->end()) {   \
+                  value_array[tmean_temp]                                                            \
+                       = Dup_CommandResult(ExtraValues[ViewReduction_mean]->find(index)->second);    \
+                } else {                                                                             \
+                  value_array[tmean_temp] = CRPTR ((double)0.0);                                     \
+                }                                                                                    \
+              }                                                                                      \
+              if (num_temps > tmin_temp) {                                                           \
+                if (ExtraValues[ViewReduction_min]->find(index)                                      \
+                                                      != ExtraValues[ViewReduction_min]->end()) {    \
+                  value_array[tmin_temp]                                                             \
+                       = Dup_CommandResult(ExtraValues[ViewReduction_min]->find(index)->second);     \
+                } else {                                                                             \
+                  value_array[tmin_temp] = CRPTR ((double)0.0);                                      \
+                }                                                                                    \
+              }                                                                                      \
+              if (num_temps > tmax_temp) {                                                           \
+                if (ExtraValues[ViewReduction_max]->find(index)                                      \
+                                                      != ExtraValues[ViewReduction_max]->end()) {    \
+                  value_array[tmax_temp]                                                             \
+                       = Dup_CommandResult(ExtraValues[ViewReduction_max]->find(index)->second);     \
+                } else {                                                                             \
+                  value_array[tmax_temp] = CRPTR ((double)0.0);                                      \
+                }                                                                                    \
+              }
+
 static void Determine_Objects (
                CommandObject *cmd,
                ExperimentObject *exp,
@@ -159,8 +191,9 @@ static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
 }
 
 #define def_Detail_values def_MPI_values
+#define get_inclusive_trace get_MPI_invalues
+#define get_exclusive_trace get_MPI_exvalues
 #define set_Detail_values set_MPI_values
-#define set_ExtraMetric_values(value_array, ExtraValues, index)
 #include "SS_View_detail.txx"
 
 
@@ -182,6 +215,8 @@ static std::string allowed_mpi_V_options[] = {
 
 static bool define_mpi_columns (
             CommandObject *cmd,
+            std::vector<Collector>& CV,
+            std::vector<std::string>& MV,
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV,
             View_Form_Category vfc) {
@@ -204,6 +239,7 @@ static bool define_mpi_columns (
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  std::string Default_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
 
   if (Generate_Summary) {
     if (Generate_ButterFly) {
@@ -244,71 +280,77 @@ static bool define_mpi_columns (
         // Select temp values for columns and build column headers
         if (!strcasecmp(M_Name.c_str(), "time") ||
             !strcasecmp(M_Name.c_str(), "times") ||
-            !strcasecmp(M_Name.c_str(), "inclusive_time") ||
-            !strcasecmp(M_Name.c_str(), "inclusive_times") ||
-            !strcasecmp(M_Name.c_str(), "inclusive_detail") ||
-            !strcasecmp(M_Name.c_str(), "inclusive_details")) {
+            !strcasecmp(M_Name.c_str(), "exclusive_time") ||
+            !strcasecmp(M_Name.c_str(), "exclusive_times") ||
+            !strcasecmp(M_Name.c_str(), "exclusive_detail") ||
+            !strcasecmp(M_Name.c_str(), "exclusive_details")) {
          // display sum of times
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
-          HV.push_back("Inclusive Time(ms)");
-          last_column++;
-        } else if (!strcasecmp(M_Name.c_str(), "exclusive_time") ||
-                   !strcasecmp(M_Name.c_str(), "exclusive_times") ||
-                   !strcasecmp(M_Name.c_str(), "exclusive_detail") ||
-                   !strcasecmp(M_Name.c_str(), "exclusive_details")) {
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
+          HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
+        } else if (!strcasecmp(M_Name.c_str(), "inclusive_time") ||
+                   !strcasecmp(M_Name.c_str(), "inclusive_times") ||
+                   !strcasecmp(M_Name.c_str(), "inclusive_detail") ||
+                   !strcasecmp(M_Name.c_str(), "inclusive_details")) {
          // display times
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, extime_temp));
-          HV.push_back("Exclusive Time(ms)");
-          last_column++;
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
+          HV.push_back(std::string("Inclusive ") + Default_Header + "(ms)");
         } else if (!strcasecmp(M_Name.c_str(), "min")) {
          // display min time
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, min_temp));
-          HV.push_back("Min Time(ms)");
-          last_column++;
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, min_temp));
+          HV.push_back(std::string("Minimum ") + Default_Header + "(ms)");
         } else if (!strcasecmp(M_Name.c_str(), "max")) {
          // display max time
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, max_temp));
-          HV.push_back("Max Time(ms)");
-          last_column++;
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, max_temp));
+          HV.push_back(std::string("Maximum ") + Default_Header + "(ms)");
         } else if ( !strcasecmp(M_Name.c_str(), "count") ||
                     !strcasecmp(M_Name.c_str(), "counts") ||
-                    !strcasecmp(M_Name.c_str(), "inclusive_count") ||
-                    !strcasecmp(M_Name.c_str(), "inclusive_counts") ||
+                    !strcasecmp(M_Name.c_str(), "exclusive_count") ||
+                    !strcasecmp(M_Name.c_str(), "exclusive_counts") ||
                     !strcasecmp(M_Name.c_str(), "call") ||
                     !strcasecmp(M_Name.c_str(), "calls") ) {
          // display total counts
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, incnt_temp));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
           HV.push_back("Number of Calls");
-          last_column++;
-          last_column++;
-        } else if ( !strcasecmp(M_Name.c_str(), "exclusive_count") ||
-                    !strcasecmp(M_Name.c_str(), "exclusive_counts")) {
+        } else if ( !strcasecmp(M_Name.c_str(), "inclusive_count") ||
+                    !strcasecmp(M_Name.c_str(), "inclusive_counts")) {
          // display total exclusive counts
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, excnt_temp));
-          HV.push_back("Exclusive Calls");
-          last_column++;
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, incnt_temp));
+          HV.push_back("Inclusive Calls");
         } else if (!strcasecmp(M_Name.c_str(), "average")) {
          // average time is calculated from two temps: sum and total counts.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column, VMulti_time_temp, intime_temp));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, extime_temp));
           HV.push_back("Average Time(ms)");
-          last_column++;
-        } else if (!strcasecmp(M_Name.c_str(), "percent")) {
+        } else if (!strcasecmp(M_Name.c_str(), "percent") ||
+                   !strcasecmp(M_Name.c_str(), "%") ||
+                   !strcasecmp(M_Name.c_str(), "%time") ||
+                   !strcasecmp(M_Name.c_str(), "%times") ||
+                   !strcasecmp(M_Name.c_str(), "%exclusive_time") ||
+                   !strcasecmp(M_Name.c_str(), "%exclusive_times")) {
          // percent is calculate from 2 temps: time for this row and total time.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column, intime_temp));
-          HV.push_back("% of Total");
-          last_column++;
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp));
+          HV.push_back("% of Total Time");
+        } else if (!strcasecmp(M_Name.c_str(), "%count") ||
+                   !strcasecmp(M_Name.c_str(), "%counts") ||
+                   !strcasecmp(M_Name.c_str(), "%exclusive_count") ||
+                   !strcasecmp(M_Name.c_str(), "%exclusive_counts")) {
+         // percent is calculate from 2 temps: counts for this row and total counts.
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp));
+          HV.push_back("% of Total Counts");
+        } else if (!strcasecmp(M_Name.c_str(), "%inclusive_count") ||
+                   !strcasecmp(M_Name.c_str(), "%inclusive_counts")) {
+         // percent is calculate from 2 temps: number of counts for this row and total inclusive counts.
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp));
+          HV.push_back("% of Total Inclusive Counts");
         } else if (!strcasecmp(M_Name.c_str(), "stddev")) {
          // The standard deviation is calculated from 3 temps: sum, sum of squares and total counts.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_StdDeviation_Tmp, last_column,
-                                            VMulti_time_temp, ssq_temp, intime_temp));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_StdDeviation_Tmp, last_column++,
+                                            VMulti_time_temp, ssq_temp, extime_temp));
           HV.push_back("Standard Deviation");
-          last_column++;
         } else if (!strcasecmp(M_Name.c_str(), "start_time")) {
           if (vfc == VFC_Trace) {
            // display start time
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, start_temp));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
             HV.push_back("Start Time(d:h:m:s)");
-            last_column++;
             column_is_DateTime = true;
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m start_time' only supported for '-v Trace' option.");
@@ -316,12 +358,39 @@ static bool define_mpi_columns (
         } else if (!strcasecmp(M_Name.c_str(), "stop_time")) {
           if (vfc == VFC_Trace) {
            // display stop time
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, stop_temp));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, stop_temp));
             HV.push_back("Stop Time(d:h:m:s)");
-            last_column++;
             column_is_DateTime = true;
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m stop_time' only supported for '-v Trace' option.");
+          }
+        } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
+                   !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
+         // Do a By-Thread average.
+          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
+          } else {
+            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
+            HV.push_back(std::string("Average ") + Default_Header + " Across Threads");
+          }
+        } else if (!strcasecmp(M_Name.c_str(), "ThreadMin")) {
+         // Find the By-Thread Min.
+          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
+          } else {
+            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
+            HV.push_back(std::string("Min ") + Default_Header + " Across Threads");
+          }
+        } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
+         // Find the By-Thread Max.
+          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
+          } else {
+            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
+            HV.push_back(std::string("Max ") + Default_Header + " Across Threads");
           }
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
@@ -334,29 +403,27 @@ static bool define_mpi_columns (
   } else if (Generate_ButterFly) {
    // Default ButterFly view.
    // Column[0] is inclusive time
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, intime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
     HV.push_back("Inclusive Time(ms)");
-    last_column++;
 
   // Column[1] in % of inclusive time
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column, intime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp));
     HV.push_back("% of Total");
-    last_column++;
   } else {
    // If nothing is requested ...
     if (vfc == VFC_Trace) {
-      // Insert start and end times into report.
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, start_temp));
+      // Insert start times into report.
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
       HV.push_back("Start Time(d:h:m:s)");
       IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
-      last_column++;
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, stop_temp));
-      HV.push_back("Stop Time(d:h:m:s)");
-      last_column++;
     }
    // Always display elapsed time.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column, VMulti_time_temp));
-    HV.push_back("Exclusive Time(ms)");
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
+    HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
+
+  // and include % of exclusive time
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp));
+    HV.push_back("% of Total");
   }
 }
 
@@ -365,12 +432,6 @@ static bool mpi_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t 
                              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
                              View_Form_Category vfc) {
     Assert (CV.begin() != CV.end());
-    CV.erase(++CV.begin(), CV.end());  // Save the collector name
-   // Clean the other vectors
-    MV.erase(MV.begin(), MV.end());
-    IV.erase(IV.begin(), IV.end());
-    HV.erase(HV.begin(), HV.end());
-
     CollectorGroup cgrp = exp->FW()->getCollectors();
     Collector C = *CV.begin();
     if (cgrp.find(C) == std::set<Collector>::iterator(cgrp.end())) {
@@ -379,8 +440,7 @@ static bool mpi_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t 
       Mark_Cmd_With_Soft_Error(cmd,s);
       return false;
     }
-    std::string M_Name("inclusive_details");
-    MV.push_back(M_Name);
+    std::string M_Name = MV[0];
     if (!Collector_Generates_Metric (*CV.begin(), M_Name)) {
       std::string s("The metrics required to generate the view are not available in the experiment.");
       Mark_Cmd_With_Soft_Error(cmd,s);
@@ -388,67 +448,72 @@ static bool mpi_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t 
     }
 
     Validate_V_Options (cmd, allowed_mpi_V_options);
-    return define_mpi_columns (cmd, IV, HV, vfc);
+    return define_mpi_columns (cmd, CV, MV, IV, HV, vfc);
 }
 
 
 static std::string VIEW_mpi_brief = "Mpi Report";
 static std::string VIEW_mpi_short = "Report the time spent in each mpi function.";
 static std::string VIEW_mpi_long  = "\nA positive integer can be added to the end of the keyword"
-                                      " 'mpi' to indicate the maximum number of items in the report."
-                                      " When the '-v Trace' option is selected, the selected items are"
-                                      " the ones that use the most time.  In all other cases"
-                                      " the selection will be based on the values displayed in"
-                                      " left most column of the report."
-                                      "\n\nThe form of the information displayed can be controlled through"
-                                      " the  '-v' option.  Except for the '-v Trace' option, the report will"
-                                      " be sorted in descending order of the value in the left most column"
-                                      " displayed on a line. [See '-m' option for controlling this field.]"
-                                      "\n\nThe form of the information displayed can be controlled through"
-                                      " the  '-v' option."
-                                      "\n\t'-v Functions' will produce a summary report that"
-                                      " will be sorted in descending order of the value in the left most"
-                                      " column (see the '-m' option).  This is the default display."
-                                      "\n\t'-v Trace' will produce a report of each individual  call to an mpi"
-                                      " function."
-                                      " It will be sorted in ascending order of the starting time for the event."
-                                      " The information available for display from an 'mpi' experiment is very"
-                                      " limited when compared to what is available from an 'mpit' experiment."
-                                      "\n\t'-v CallTrees' will produce a calling stack report that is presented"
-                                      " in calling tree order - from the start of the program to the measured"
-                                      " program."
-                                      "\n\t'-v TraceBacks' will produce a calling stack report that is presented"
-                                      " in traceback order - from the measured function to the start of the"
-                                      " program."
-                                      "\n\tThe addition of 'FullStack' with either 'CallTrees' of 'TraceBacks'"
-                                      " will cause the report to include the full call stack for each measured"
-                                      " function.  Redundant portions of a call stack are suppressed by default."
-                                      "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
-                                      " 'CallTrees' or 'TraceBacks' will result in an additional line of output at"
-                                      " the end of the report that summarizes the information in each column."
-                                      "\n\t'-v ButterFly' along with a '-f <function_list>' will produce a report"
-                                      " that summarizes the calls to a function and the calls from the function."
-                                      " The calling functions will be listed before the named function and the"
-                                      " called functions afterwards, by default, although the addition of"
-                                      " 'TraceBacks' to the '-v' specifier will reverse this ordering."
-                                      "\n\nThe information included in the report can be controlled with the"
-                                      " '-m' option.  More than one item can be selected but only the items"
-                                      " listed after the option will be printed and they will be printed in"
-                                      " the order that they are listed."
-                                      " If no '-m' option is specified, the default is equivalent to"
-                                      " '-m exclusive times'."
-                                      " The full set of available options is: 'exclusive_times',"
-                                      " 'min', 'max', 'average', 'count', 'percent', and 'stddev'."
-                                      " Each option reports information about the set of mpi calls that is"
-                                      " reported for the function on that particular line in the report."
-                                      " \n\t'-m exclusive_times' reports the wall clock time used in the function."
-                                      " \n\t'-m min' reports the minimum time spent in the function."
-                                      " \n\t'-m max' reports the maximum time spent in the function."
-                                      " \n\t'-m average' reports the average time spent in the function."
-                                      " \n\t'-m count' reports the number of times the function was called."
-                                      " \n\t'-m percent' reports the percent of mpi time the function represents."
-                                      " \n\t'-m stddev' reports the standard deviation of the average mpi time"
-                                      " that the function represents.";
+                  " 'mpi' to indicate the maximum number of items in the report."
+                  " When the '-v Trace' option is selected, the selected items are"
+                  " the ones that use the most time.  In all other cases"
+                  " the selection will be based on the values displayed in"
+                  " left most column of the report."
+                  "\n\nThe form of the information displayed can be controlled through"
+                  " the  '-v' option.  Except for the '-v Trace' option, the report will"
+                  " be sorted in descending order of the value in the left most column"
+                  " displayed on a line. [See '-m' option for controlling this field.]"
+                  "\n\nThe form of the information displayed can be controlled through"
+                  " the  '-v' option."
+                  "\n\t'-v Functions' will produce a summary report that"
+                  " will be sorted in descending order of the value in the left most"
+                  " column (see the '-m' option).  This is the default display."
+                  "\n\t'-v Trace' will produce a report of each individual  call to an mpi"
+                  " function."
+                  " It will be sorted in ascending order of the starting time for the event."
+                  " The information available for display from an 'mpi' experiment is very"
+                  " limited when compared to what is available from an 'mpit' experiment."
+                  "\n\t'-v CallTrees' will produce a calling stack report that is presented"
+                  " in calling tree order - from the start of the program to the measured"
+                  " program."
+                  "\n\t'-v TraceBacks' will produce a calling stack report that is presented"
+                  " in traceback order - from the measured function to the start of the"
+                  " program."
+                  "\n\tThe addition of 'FullStack' with either 'CallTrees' of 'TraceBacks'"
+                  " will cause the report to include the full call stack for each measured"
+                  " function.  Redundant portions of a call stack are suppressed by default."
+                  "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
+                  " 'CallTrees' or 'TraceBacks' will result in an additional line of output at"
+                  " the end of the report that summarizes the information in each column."
+                  "\n\t'-v ButterFly' along with a '-f <function_list>' will produce a report"
+                  " that summarizes the calls to a function and the calls from the function."
+                  " The calling functions will be listed before the named function and the"
+                  " called functions afterwards, by default, although the addition of"
+                  " 'TraceBacks' to the '-v' specifier will reverse this ordering."
+                  "\n\nThe information included in the report can be controlled with the"
+                  " '-m' option.  More than one item can be selected but only the items"
+                  " listed after the option will be printed and they will be printed in"
+                  " the order that they are listed."
+                  " Each value pertains to the MPI function that is"
+                  " on that row of the report.  The 'Thread...' selections pertain to the"
+                  " process unit that the program was partitioned into: Pid's,"
+                  " Posix threads, Mpi threads or Ranks."
+                  " If no '-m' option is specified, the default is equivalent to"
+                  " '-m exclusive times, percent'."
+                  " The available '-m' options are:"
+                  " \n\t'-m exclusive_times' reports the wall clock time used in the function."
+                  " \n\t'-m min' reports the minimum time spent in the function."
+                  " \n\t'-m max' reports the maximum time spent in the function."
+                  " \n\t'-m average' reports the average time spent in the function."
+                  " \n\t'-m count' reports the number of times the function was called."
+                  " \n\t'-m percent' reports the percent of mpi time the function represents."
+                  " \n\t'-m stddev' reports the standard deviation of the average mpi time"
+                  " that the function represents."
+                  " \n\t'-m ThreadAverage' reports the average cpu time for a process."
+                  " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
+                  " \n\t'-m ThreadMin' reports the maximum cpu time for a process."
+                  "\n";
 static std::string VIEW_mpi_example = "\texpView mpi\n"
                                       "\texpView -v CallTrees,FullStack mpi10 -m min,max,count\n";
 static std::string VIEW_mpi_metrics[] =
@@ -483,6 +548,9 @@ class mpi_view : public ViewType {
     std::vector<std::string> HV;
 
     CV.push_back (Get_Collector (exp->FW(), "mpi"));  // Define the collector
+    MV.push_back ("inclusive_details"); // define the metric needed for getting main time values
+    CV.push_back (Get_Collector (exp->FW(), "mpi"));  // Define the collector
+    MV.push_back ("time"); // define the metric needed for calculating total time.
     View_Form_Category vfc = Determine_Form_Category(cmd);
     if (mpi_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc)) {
 
@@ -496,16 +564,16 @@ class mpi_view : public ViewType {
       MPIDetail *dummyDetail;
       switch (vfc) {
        case VFC_Trace:
+        return Detail_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                    Determine_Metric_Ordering(IV), dummyDetail, view_output);
+       case VFC_CallStack:
         if (Look_For_KeyWord(cmd, "ButterFly")) {
           return Detail_ButterFly_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                           Determine_Metric_Ordering(IV), &dummyVector, view_output);
         } else {
-          return Detail_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                                      Determine_Metric_Ordering(IV), dummyDetail, view_output);
+          return Detail_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                          Determine_Metric_Ordering(IV), &dummyVector, view_output);
         }
-       case VFC_CallStack:
-        return Detail_CallStack_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                                        Determine_Metric_Ordering(IV), &dummyVector, view_output);
        case VFC_Function:
         Framework::Function *dummyObject;
         return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
