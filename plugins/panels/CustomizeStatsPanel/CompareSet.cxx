@@ -265,7 +265,15 @@ dynamic_items->setOpen(TRUE);
                 collectorliststring = m.getUniqueId();
               }
             }
-            if( !pidstr.isEmpty() )
+            if( !ridstr.isEmpty() )
+            {
+              MPListViewItem *item2 =
+                new MPListViewItem(item, pidstr, ridstr, collectorliststring );
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
+              item2->descriptionClassObject = dco;
+// printf("A: Put ridstr out: \n");
+// dco->Print();
+            } else if( !pidstr.isEmpty() )
             {
               MPListViewItem *item2 = 
                 new MPListViewItem( item, pidstr, collectorliststring, ridstr  );
@@ -280,14 +288,6 @@ dynamic_items->setOpen(TRUE);
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, ridstr, collectorliststring);
               item2->descriptionClassObject = dco;
 // printf("A: Put tidstr out: \n");
-// dco->Print();
-            } else if( !ridstr.isEmpty() )
-            {
-              MPListViewItem *item2 =
-                new MPListViewItem(item, pidstr, ridstr, collectorliststring );
-              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
-              item2->descriptionClassObject = dco;
-// printf("A: Put ridstr out: \n");
 // dco->Print();
             } else
             {

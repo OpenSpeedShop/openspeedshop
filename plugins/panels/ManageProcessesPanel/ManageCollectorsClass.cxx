@@ -660,13 +660,7 @@ ManageCollectorsClass::updateAttachedList()
                   collectorliststring = m.getUniqueId();
                 }
               }
-              if( !pidstr.isEmpty() )
-              {
-                MPListViewItem *item2 = 
-                  new MPListViewItem( item, pidstr, collectorliststring  );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr, collectorliststring  );
-                item2->descriptionClassObject = dco;
-              } else if( !tidstr.isEmpty() )
+              if( !tidstr.isEmpty() )
               {
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, tidstr, collectorliststring );
@@ -676,6 +670,12 @@ ManageCollectorsClass::updateAttachedList()
               {
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, ridstr, collectorliststring );
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr, collectorliststring  );
+                item2->descriptionClassObject = dco;
+              } else if( !pidstr.isEmpty() )
+              {
+                MPListViewItem *item2 = 
+                  new MPListViewItem( item, pidstr, collectorliststring  );
                 DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr, collectorliststring  );
                 item2->descriptionClassObject = dco;
               } else
@@ -883,13 +883,7 @@ host_items->descriptionClassObject = host_dco;
                   collectorliststring = m.getUniqueId();
                 }
               }
-              if( !pidstr.isEmpty() )
-              {
-                MPListViewItem *item2 = 
-                  new MPListViewItem( item, pidstr, collectorliststring  );
-                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
-                item2->descriptionClassObject = dco;
-              } else if( !tidstr.isEmpty() )
+              if( !tidstr.isEmpty() )
               {
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, tidstr, collectorliststring );
@@ -899,6 +893,12 @@ host_items->descriptionClassObject = host_dco;
               {
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, ridstr, collectorliststring );
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
+                item2->descriptionClassObject = dco;
+              } else if( !pidstr.isEmpty() )
+              {
+                MPListViewItem *item2 = 
+                  new MPListViewItem( item, pidstr, collectorliststring  );
                 DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               } else
