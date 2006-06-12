@@ -1263,6 +1263,8 @@ StatsPanel::timeSliceSelected()
 // printf("The user hit accept.\n");
 // printf("start=%s end=%s\n", timeSegmentDialog->startValue->text().ascii(), timeSegmentDialog->endValue->text().ascii() );
 
+
+
     timeIntervalString = QString(" -I % %1:%2").arg(timeSegmentDialog->startValue->text()).arg(timeSegmentDialog->endValue->text());
   }
   return;

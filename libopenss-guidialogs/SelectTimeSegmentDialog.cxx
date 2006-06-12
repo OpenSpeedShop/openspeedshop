@@ -33,6 +33,7 @@
 #include <qlineedit.h>
 #include <qcombobox.h>
 #include <qlistview.h>
+#include <qslider.h>
 #include <qtooltip.h>
 #include <qapplication.h>
 
@@ -55,6 +56,26 @@ SelectTimeSegmentDialog::SelectTimeSegmentDialog( QWidget* parent, const char* n
   selectTimeSegmentDialogLayout->addWidget( headerLabel );
 
   // Insert your timesegment stuff here!
+  sliderLayout = new QVBoxLayout( 0, 0, 6, "sliderLayout"); 
+
+int min = 0;
+int max = 100;
+int pageInterval = 10;
+  startSlider = new QSlider(min, max, pageInterval, 0, Qt::Horizontal, this, "startSlider");
+startSlider->setTickmarks(QSlider::Below);
+startSlider->setTickInterval(max/pageInterval);
+connect( startSlider, SIGNAL( sliderMoved(int) ), this, SLOT( startSliderMoved(int) ) );
+  sliderLayout->addWidget( startSlider );
+
+  endSlider = new QSlider(min, max, pageInterval, 100, Qt::Horizontal, this, "endSlider");
+connect( endSlider, SIGNAL( sliderMoved(int) ), this, SLOT( endSliderMoved(int) ) );
+// endSlider->setTickmarks(QSlider::Below);
+endSlider->setTickInterval(max/pageInterval);
+
+  sliderLayout->addWidget( endSlider );
+
+  selectTimeSegmentDialogLayout->addLayout( sliderLayout );
+
   startStopLayout = new QHBoxLayout( 0, 0, 6, "startStopLayout"); 
   startLabel = new QLabel(this, "startLabel");
   startStopLayout->addWidget( startLabel );
@@ -139,4 +160,18 @@ void
 SelectTimeSegmentDialog::buttonDefaultsSelected()
 {
   languageChange();
+}
+
+void
+SelectTimeSegmentDialog::startSliderMoved(int val)
+{
+// printf("startSliderMoved(%d)\n", val);
+  startValue->setText( tr( QString("%1").arg(val) ) );
+}
+
+void
+SelectTimeSegmentDialog::endSliderMoved(int val)
+{
+// printf("endSliderMoved(%d)\n", val);
+  endValue->setText( tr( QString("%1").arg(val) ) );
 }

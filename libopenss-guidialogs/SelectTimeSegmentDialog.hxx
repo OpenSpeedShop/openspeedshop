@@ -38,6 +38,7 @@ class QComboBox;
 class QListView;
 class QListViewItem;
 class QLineEdit;
+class QSlider;
 
 class SelectTimeSegmentDialog : public QDialog
 {
@@ -48,6 +49,8 @@ public:
     ~SelectTimeSegmentDialog();
 
     QLabel* headerLabel;
+    QSlider *startSlider;
+    QSlider *endSlider;
     QLabel* startLabel;
     QLabel* endLabel;
     QLineEdit* startValue;
@@ -61,6 +64,7 @@ public:
 
 protected:
     QVBoxLayout* selectTimeSegmentDialogLayout;
+    QVBoxLayout* sliderLayout;
     QHBoxLayout* startStopLayout;
     QHBoxLayout* buttonLayout;
     QSpacerItem* Horizontal_Spacing2;
@@ -73,6 +77,8 @@ protected slots:
 
 public slots:
     void buttonDefaultsSelected();
+    void startSliderMoved(int);
+    void endSliderMoved(int);
 
 };
 
