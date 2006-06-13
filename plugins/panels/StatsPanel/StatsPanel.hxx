@@ -55,6 +55,7 @@ class SourceObject;
 #include "SS_Input_Manager.hxx"
 
 #include <qvaluelist.h>
+typedef QValueList<QString> FieldList;
 typedef QValueList<QString> ColumnList;
 typedef QValueList<QString> ThreadGroupStringList;
 typedef QValueList<QString> ExperimentGroupList;
@@ -159,6 +160,7 @@ class StatsPanel  : public Panel
     QSplitter *splitterA;
     SPChartForm *cf;
     ColumnList columnHeaderList;
+    FieldList columnFieldList;
     ColumnValueClass columnValueClass[80];
     int *metricHeaderTypeArray;  // matches the QListView # of column entries.
 
@@ -184,8 +186,8 @@ class StatsPanel  : public Panel
     std::list<std::string> current_list_of_pcsamp_modifiers;
     std::list<std::string> list_of_usertime_modifiers;
     std::list<std::string> current_list_of_usertime_modifiers;
-std::list<std::string> list_of_fpe_modifiers;
-std::list<std::string> current_list_of_fpe_modifiers;
+    std::list<std::string> list_of_fpe_modifiers;
+    std::list<std::string> current_list_of_fpe_modifiers;
     std::list<std::string> list_of_generic_modifiers;
     std::list<std::string> current_list_of_generic_modifiers;
 
@@ -193,7 +195,7 @@ std::list<std::string> current_list_of_fpe_modifiers;
     void updateCollectorList();
     void updateCollectorMetricList();
     void outputAboutData(QString *data);
-    void outputCLIData(QString *data, QString xxxfuncName, QString xxxfileName, int xxxlineNumber);
+    void outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineNumber);
     bool MPItraceFLAG;
     bool IOtraceFLAG;
 

@@ -3458,10 +3458,10 @@ StatsPanel::setCurrentMetricStr()
 }
 
 void
-StatsPanel::outputCLIData(QString *incoming_data, QString xxxfuncName, QString xxxfileName, int xxxlineNumber)
+StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineNumber)
 {
 // printf("StatsPanel::outputCLIData\n");
-// printf("(%s)\n", incoming_data->ascii() );
+  int i = 0;
 
   SPListViewItem *highlight_item = NULL;
   bool highlight_line = FALSE;
@@ -3469,108 +3469,42 @@ StatsPanel::outputCLIData(QString *incoming_data, QString xxxfuncName, QString x
 
   QString strippedString1 = QString::null; // MPI only.
 
-  // Skip any blank lines.
-  if( *incoming_data == QString("\n") )
-  {
-    return;
-  }
-
-  QString data = QString("  ")+(*incoming_data);
-// printf("(%s)\n", data.ascii() );
-
-  int start_index = 0;
-  QRegExp start_rxp = QRegExp( "  [A-Z,a-z,\\-,0-9,%]");
-  QRegExp end_rxp = QRegExp( "[A-Z,a-z,\\-,0-9,%]  ");
-
-  start_index = data.find( start_rxp, start_index );
-  start_index += 2;
+  QString *strings = NULL;
   if( gotHeader == FALSE )
   {
-    fieldCount = data.contains( start_rxp );
 // printf("fieldCount... hot off the wire = (%d) start_index=(%d)\n", fieldCount, start_index );
-
-    int end_index = 99999;
-    for(int i=0;i<fieldCount;i++)
+    for( FieldList::Iterator it = columnFieldList.begin();
+       it != columnFieldList.end();
+       ++it)
     {
-      QString headerStr = QString::null;
-#ifdef OLDWAY
-      end_index = data.find(end_rxp, start_index);
-      end_index++;  // Need to include the last letter...
-#else // OLDWAY
-      end_index = data.find(start_rxp, start_index);
-      if( end_index == -1 )
-      {
-        end_index++;
-      }
-#endif  // OLDWAY
-// printf("top: start_index=%d end_index=%d\n", start_index, end_index );
-      if( i == 0 )  // For this first field we always start from zero.
-      {
-        start_index = 0;  
-      }
-      columnValueClass[i].init();
-      columnValueClass[i].start_index = start_index;
-      columnValueClass[i].end_index = end_index;
-
-      if( end_index == -1 )
-      {
-        columnValueClass[i].end_index = 99999;
-        headerStr = data.mid(start_index).stripWhiteSpace();
-// printf("A: headerStr=(%s)\n", headerStr.ascii() );
-        columnHeaderList.push_back(headerStr);
-        splv->addColumn( data.mid(start_index).stripWhiteSpace() );
-        break;
-      } else
-      {
-        int header_end_index = data.find( start_rxp, start_index );
-        if( header_end_index == -1 )
-        {
-          header_end_index = 99999;
-        }
-        headerStr = data.mid(start_index, end_index-start_index).stripWhiteSpace();
-// printf("B: headerStr=(%s)\n", headerStr.ascii() );
-    
-      }
-      columnHeaderList.push_back(headerStr);
-      splv->addColumn( data.mid(start_index, end_index-start_index).stripWhiteSpace() );
-      // Find the percent column
-// printf("find percent: headerStr=(%s) (%s)\n", headerStr.ascii(), data.mid(start_index, end_index-start_index).stripWhiteSpace().ascii() );
-      if( headerStr.find("%") != -1 )
-      {
-        if( percentIndex == -1 )
-        {
-          percentIndex = i;
-// printf("Found the percentIndex at %d\n", percentIndex);
-        }
-      }
-  
-      start_index = end_index+2;
+      QString s = (QString)*it;
+      columnHeaderList.push_back(s);
+// printf("    s=(%s)\n", s.ascii() );
+      splv->addColumn( s );
     }
-    columnValueClass[fieldCount-1].end_index = 99999;
-
-#if 0
-// Begin debug.
-  printf("fieldCount=%d\n", fieldCount);
-for(int i=0;i<fieldCount;i++)
-{
-  printf("columnValueClass[%d].start_index=%d end=%d\n", i, columnValueClass[i].start_index, columnValueClass[i].end_index );
-}
-// End debug.
-#endif // 0
   
     gotHeader = TRUE;
     return;
+  } else
+  {
+    strings = new QString[columnFieldList.count()];
+    int i = 0;
+    for( FieldList::Iterator it = columnFieldList.begin();
+       it != columnFieldList.end();
+       ++it)
+    {
+      QString s = (QString)*it;
+      strings[i] = s;
+      i++;
+    }
+    fieldCount = i;
   }
 
-  QString *strings = new QString[fieldCount];
  
   int percent = 0;
-  for( int i = 0; i<fieldCount; i++)
+  for( i = 0; i<fieldCount; i++)
   {
-    int si = columnValueClass[i].start_index;
-    int l = columnValueClass[i].end_index-columnValueClass[i].start_index;
-    QString value = data.mid(si,l).stripWhiteSpace();
-// printf("si=%d ei=%d (%s)\n", columnValueClass[i].start_index, columnValueClass[i].end_index, value.ascii() );
+    QString value = strings[i];
     if( i == 0 ) // Grab the (some) default metric FIX
     {
       float f = value.toFloat();
@@ -3586,8 +3520,6 @@ for(int i=0;i<fieldCount;i++)
         total_percent += f;
       }
     }
-    strings[i] = value;
-// printf("        strings[%d]=(%s)\n", i, strings[i].ascii() );
   }
 // printf("A: total_percent=%f\n", total_percent );
 
@@ -3796,6 +3728,8 @@ for(int i=0;i<fieldCount;i++)
       highlight_item->setBackground( i, QColor("red") );
     }
   }
+
+  delete []strings;
 }
 
 void
@@ -5509,22 +5443,25 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
   std::list<CommandResult *> cmd_result = co->Result_List();
   for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++)
   {
-// printf("Here A:\n");
-int skipFLAG = FALSE;
+    int skipFLAG = FALSE;
     if( dumpClipFLAG) cerr<< "TYPE: " << (*cri)->Type() << "\n";
     if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES)
     {
-// printf("Here B:\n");
+// printf("Here CMD_RESULT_COLUMN_VALUES:\n");
       std::list<CommandResult *> columns;
       CommandResult_Columns *ccp = (CommandResult_Columns *)*cri;
       ccp->Value(columns);
 
       std::list<CommandResult *>::iterator column_it;
       int i = 0;
+      columnFieldList.clear();
       for (column_it = columns.begin(); column_it != columns.end(); column_it++)
       {
       
         if( dumpClipFLAG) cerr << (*column_it)->Form().c_str() << "\n";
+// cerr << "  " << (*column_it)->Form().c_str() << "\n";
+        QString vs = (*column_it)->Form().c_str();
+        columnFieldList.push_back(vs);
 
         CommandResult *cr = (CommandResult *)(*column_it);
         if( dumpClipFLAG) cerr << "cr->Type=" << cr->Type() << "\n";
@@ -5749,12 +5686,31 @@ int skipFLAG = FALSE;
 
     } else if ((*cri)->Type() == CMD_RESULT_STRING)
     {  // This looks to be a message we should display
-// printf("Here C:\n");
+// printf("Here CMD_RESULT_STRING:\n");
       QString s = QString((*cri)->Form().c_str());
         
       QMessageBox::information( (QWidget *)this, tr("Info:"), s, QMessageBox::Ok );
-skipFLAG = TRUE;
+        skipFLAG = TRUE;
 //      break;
+    } else if( (*cri)->Type() == CMD_RESULT_COLUMN_HEADER )
+    {
+// printf("Here CMD_RESULT_COLUMN_HEADER:\n");
+      std::list<CommandResult *> columns;
+      CommandResult_Columns *ccp = (CommandResult_Columns *)*cri;
+      ccp->Value(columns);
+
+      std::list<CommandResult *>::iterator column_it;
+      int i = 0;
+      columnFieldList.clear();
+      for (column_it = columns.begin(); column_it != columns.end(); column_it++)
+      {
+//cerr << "  " << (*column_it)->Form().c_str() << "\n";
+        QString vs = (*column_it)->Form().c_str();
+        columnFieldList.push_back(vs);
+      }
+    } else
+    {
+// printf("Here OTHER:\n");
     }
     /* You have found the next row!! */
     // Here's a formatted row
@@ -5767,7 +5723,7 @@ skipFLAG = TRUE;
     {
       QString s = QString((*cri)->Form().c_str());
 // printf("output %s\n", s.ascii() );
-      outputCLIData( &s, xxxfuncName, xxxfileName, xxxlineNumber );
+      outputCLIData( xxxfuncName, xxxfileName, xxxlineNumber );
     }
 
   }
