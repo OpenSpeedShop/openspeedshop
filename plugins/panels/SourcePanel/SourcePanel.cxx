@@ -785,7 +785,14 @@ SourcePanel::loadFile(const QString &_fileName)
   nprintf(DEBUG_PANELS) ("SourcePanel::loadFile() entered\n");
 
 // printf("attempt to remap the path to _fileName=(%s)\n", _fileName.ascii() );
-  QString remapped_fileName = remapPath(_fileName);
+
+
+  QString remapped_fileName = QString::null;
+
+  if( !_fileName.isEmpty() )
+  {
+    remapped_fileName = remapPath(_fileName);
+  }
 
 // printf("attempt to remap the path to remapped_fileName=(%s)\n", remapped_fileName.ascii() );
 
