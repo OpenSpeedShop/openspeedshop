@@ -3613,7 +3613,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
        it != columnFieldList.end();
        ++it)
     {
-      QString s = (QString)*it;
+      QString s = ((QString)*it).stripWhiteSpace();
       columnHeaderList.push_back(s);
 // printf("    s=(%s)\n", s.ascii() );
       if( s.find("%") != -1 )
@@ -3637,7 +3637,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
        it != columnFieldList.end();
        ++it)
     {
-      QString s = (QString)*it;
+      QString s = ((QString)*it).stripWhiteSpace();
       strings[i] = s;
       i++;
     }
