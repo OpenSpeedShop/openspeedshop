@@ -1323,31 +1323,31 @@ QString mim = CustomExperimentPanel::getMostImportantMetric(currentCollectorStr)
           switch( cr->Type() )
           {
             case CMD_RESULT_NULL:
-    cerr << "Got CMD_RESULT_NULL\n";
+//    cerr << "Got CMD_RESULT_NULL\n";
               value = 0;
               skylineValues.push_back(value);
               skylineText.push_back(vs.stripWhiteSpace());
               break;
             case CMD_RESULT_UINT:
-    cerr << "Got CMD_RESULT_UINT\n";
+//    cerr << "Got CMD_RESULT_UINT\n";
               value = vs.toUInt();;
               skylineValues.push_back(value);
               skylineText.push_back(vs.stripWhiteSpace());
               break;
             case CMD_RESULT_INT:
-    cerr << "Got CMD_RESULT_INT\n";
+//    cerr << "Got CMD_RESULT_INT\n";
               value = vs.toInt();;
               skylineValues.push_back(value);
               skylineText.push_back(vs.stripWhiteSpace());
               break;
             case CMD_RESULT_FLOAT:
-    cerr << "Got CMD_RESULT_FLOAT\n";
+//    cerr << "Got CMD_RESULT_FLOAT\n";
               value = (int)(vs.toFloat());
               skylineValues.push_back(value);
               skylineText.push_back(vs.stripWhiteSpace());
               break;
             case CMD_RESULT_STRING:
-    cerr << "Got CMD_RESULT_STRING\n";
+//    cerr << "Got CMD_RESULT_STRING\n";
 //              value = vs.toInt();;
               value = 1; // FIX
               skylineValues.push_back(value);
@@ -1376,14 +1376,14 @@ for( ChartPercentValueList::Iterator it = skylineValues.begin();
   int v = (int)*it;
   printf("v=(%d)\n", v);
 }
-#endif // 0
 for( ChartTextValueList::Iterator it = skylineText.begin();
        it != skylineText.end();
        ++it)
 {
   QString s = (QString)*it;
-  printf("s=(%s)\n", s.ascii() );
+printf("s=(%s)\n", s.ascii() );
 }
+#endif // 0
 // For now don't show text.
 skylineText.clear();
 //  timeSegmentDialog->cf->setValues(skylineValues, skylineText, blue_color_names, 1);
