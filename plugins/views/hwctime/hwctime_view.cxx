@@ -164,7 +164,8 @@ static bool define_hwctime_columns (
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV,
             View_Form_Category vfc) {
-  int64_t last_column = 0;  // Total time is always placed in first column.
+  int64_t last_column = 0;  // Number of columns of information displayed.
+  int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
 
  // Define combination instructions for predefined temporaries.
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
@@ -265,13 +266,27 @@ static bool define_hwctime_columns (
                    !strcasecmp(M_Name.c_str(), "%exclusive_overflow") ||
                    !strcasecmp(M_Name.c_str(), "%exclusive_overflows") ) {
          // percent is calculate from 2 temps: number of events for this row and total exclusive events.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, exevents_temp));
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // Use the metric needed for calculating total overflows.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+          } else {
+           // Sum the exevent_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, exevents_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, exevents_temp, totalIndex++));
           std::string H = Event_Name_Header (CV[0], "exclusive_overflows");
           HV.push_back(std::string("% of Total ") + H + " Overflows");
         } else if (!strcasecmp(M_Name.c_str(), "%inclusive_overflow") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_overflows")) {
          // percent is calculate from 2 temps: number of events for this row and total exclusive events.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, inevents_temp));
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // Use the metric needed for calculating total overflows.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+          } else {
+           // Sum the exevent_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, exevents_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, inevents_temp, totalIndex++));
           std::string H = Event_Name_Header (CV[0], "inclusive_overflows");
           HV.push_back(std::string("% of Total ") + H + " Overflows");
         } else if (!strcasecmp(M_Name.c_str(), "percent") ||
@@ -283,7 +298,15 @@ static bool define_hwctime_columns (
                    !strcasecmp(M_Name.c_str(), "%exclusive_count") ||
                    !strcasecmp(M_Name.c_str(), "%exclusive_counts") ) {
          // percent is calculate from 2 temps: number of events for this row and total exclusive events.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp));
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // There is no metric available for calculating total counts.
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m exclusive_counts' is not supported with '-f' option.");
+            continue;
+          } else {
+           // Sum the excnt_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, excnt_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp, totalIndex++));
           std::string H = Event_Name_Header (CV[0], "exclusive_overflows");
           HV.push_back(std::string("% of Total ") + H + " Counts");
         } else if (!strcasecmp(M_Name.c_str(), "%inclusive_count") ||
@@ -291,7 +314,15 @@ static bool define_hwctime_columns (
                    !strcasecmp(M_Name.c_str(), "%inclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_details") ) {
          // percent is calculate from 2 temps: number of events for this row and total exclusive events.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp));
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // There is no metric available for calculating total counts.
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m inclusive_counts' is not supported with '-f' option.");
+            continue;
+          } else {
+           // Sum the excnt_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, excnt_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
           std::string H = Event_Name_Header (CV[0], "inclusive_overflows");
           HV.push_back(std::string("% of Total ") + H + " Counts");
         } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
@@ -338,7 +369,8 @@ static bool define_hwctime_columns (
     HV.push_back(H + " Counts");
 
   // Column[1] in % of inclusive events
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, inevents_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, exevents_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, inevents_temp, totalIndex++));
     HV.push_back(std::string("% of Total ") + H + " Counts");
 
   } else {
@@ -352,7 +384,15 @@ static bool define_hwctime_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, inevents_temp));
     HV.push_back(Event_Name_Header (CV[0], "inclusive_overflows") + " Counts");
 
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, exevents_temp));
+   // and include % of exclusive time
+    if (Filter_Uses_F(cmd)) {
+     // Use the metric needed for calculating total time.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+    } else {
+     // Sum the exevent_temp values.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, exevents_temp));
+    }
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, exevents_temp, totalIndex++));
     HV.push_back(std::string("% of Total ") + H + " Counts");
   }
   return (HV.size() > 0);
@@ -439,10 +479,10 @@ static std::string VIEW_hwctime_example = "\texpView hwctime\n"
                                            "\texpView hwctime20 -m inclusive_overflows, exclusive_overflows\n"
                                            "\texpView -v CallTrees,FullStack hwctime10 -m count\n";
 static std::string VIEW_hwctime_metrics[] =
-  { "exclusive_detail",
-    "exclusive_overflows",
+  { "exclusive_overflows",
+    "exclusive_detail",
+    "inclusive_overflow",
     "inclusive_detail",
-    "inclusive_overflows",
     ""
   };
 static std::string VIEW_hwctime_collectors[] =

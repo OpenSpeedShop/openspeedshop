@@ -183,16 +183,18 @@ static bool define_iot_columns (
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV,
             View_Form_Category vfc) {
-  int64_t last_column = 0;  // Total time is always placed in first column.
+  int64_t last_column = 0;  // Number of columns of information displayed.
+  int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
 
  // Define combination instructions for predefined temporaries.
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Min, start_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Max, stop_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_time_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, intime_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, incnt_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, extime_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, excnt_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Min, start_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Max, stop_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Min, min_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Max, max_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, ssq_temp));
@@ -290,24 +292,54 @@ static bool define_iot_columns (
                    !strcasecmp(M_Name.c_str(), "%exclusive_time") ||
                    !strcasecmp(M_Name.c_str(), "%exclusive_times")) {
          // percent is calculate from 2 temps: time for this row and total time.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp));
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // Use the metric needed for calculating total time.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+          } else {
+           // Sum the extime_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
           HV.push_back("% of Total");
         } else if (!strcasecmp(M_Name.c_str(), "%inclusive_time") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_times")) {
          // percent is calculate from 2 temps: number of counts for this row and total inclusive counts.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp));
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // Use the metric needed for calculating total time.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+          } else {
+           // Sum the extime_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
           HV.push_back("% of Total Inclusive Counts");
         } else if (!strcasecmp(M_Name.c_str(), "%count") ||
                    !strcasecmp(M_Name.c_str(), "%counts") ||
                    !strcasecmp(M_Name.c_str(), "%exclusive_count") ||
                    !strcasecmp(M_Name.c_str(), "%exclusive_counts")) {
          // percent is calculate from 2 temps: counts for this row and total counts.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp));
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // There is no metric available for calculating total counts.
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m exclusive_counts' is not supported with '-f' option.");
+            continue;
+          } else {
+           // Sum the extime_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, excnt_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp, totalIndex++));
           HV.push_back("% of Total Counts");
         } else if (!strcasecmp(M_Name.c_str(), "%inclusive_count") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_counts")) {
          // percent is calculate from 2 temps: number of counts for this row and total inclusive counts.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp));
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // There is no metric available for calculating total counts.
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m inclusive_counts' is not supported with '-f' option.");
+            continue;
+          } else {
+           // Sum the extime_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, incnt_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
           HV.push_back("% of Total Inclusive Counts");
         } else if (!strcasecmp(M_Name.c_str(), "stddev")) {
          // The standard deviation is calculated from 3 temps: sum, sum of squares and total counts.
@@ -378,7 +410,8 @@ static bool define_iot_columns (
     HV.push_back("Inclusive Time");
 
   // Column[1] in % of inclusive time
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
     HV.push_back("% of Total");
   } else {
    // If nothing is requested ...
@@ -393,7 +426,14 @@ static bool define_iot_columns (
     HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
 
   // and include % of exclusive time
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp));
+    if (Filter_Uses_F(cmd)) {
+     // Use the metric needed for calculating total time.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+    } else {
+     // Sum the extime_temp values.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+    }
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back("% of Total");
   }
   return (HV.size() > 0);

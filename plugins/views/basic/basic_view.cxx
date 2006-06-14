@@ -88,8 +88,8 @@ static bool define_pcsamp_columns (
                  !strcasecmp(M_Name.c_str(), "%time")   ||
                  !strcasecmp(M_Name.c_str(), "%times")) {
        // percent is calculate from 2 temps: time for this row and total time.
-        IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
-        IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0));  // second column is %
+        IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, 0, 0));  // total the metric in first column
+        IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0, 0));  // second column is %
         HV.push_back( std::string("% of ") + Find_Metadata ( CV[0], MV[0] ).getShortName() );
       } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
                  !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
@@ -117,8 +117,8 @@ static bool define_pcsamp_columns (
    // If nothing is requested ...
    // There is only 1 supported metric.  Use it and also generate the percent.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column++, 0));  // first column is metric
-    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0));  // second column is %
+    IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, 0, 0));  // total the metric in first column
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0, 0));  // second column is %
     HV.push_back( Find_Metadata ( CV[0], MV[0] ).getDescription() );
     HV.push_back( std::string("% of ") + Find_Metadata ( CV[0], MV[0] ).getShortName() );
   }
@@ -272,8 +272,8 @@ static bool define_hwc_columns (
                  !strcasecmp(M_Name.c_str(), "%overflow")   ||
                  !strcasecmp(M_Name.c_str(), "%overflows")) {
        // percent is calculate from 2 temps: time for this row and total time.
-        IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
-        IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0));  // second column is %
+        IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, 0, 0));  // total the metric in first column
+        IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0, 0));  // second column is %
         std::string H;
         CV[0].getParameterValue ("event", H);
         HV.push_back(std::string("% of Total ") + H + " Counts");
@@ -300,8 +300,8 @@ static bool define_hwc_columns (
    // If nothing is requested ...
    // There is only 1 supported metric.  Use it and also generate the percent.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column++, 0));  // first column is metric
-    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // metric is total
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0));  // second column is % of first
+    IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, 0, 0));  // metric is total
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, last_column++, 0, 0));  // second column is % of first
 
    // Get the name of the event that we were collecting.
    // Use this for the column header in the report rather then the name of the metric.

@@ -146,7 +146,8 @@ static bool define_usertime_columns (
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV,
             View_Form_Category vfc) {
-  int64_t last_column = 0;
+  int64_t last_column = 0;  // Number of columns of information displayed.
+  int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
   int64_t first_time_temp = 0;
 
  // Define combination instructions for predefined temporaries.
@@ -214,9 +215,10 @@ static bool define_usertime_columns (
           HV.push_back("Number of Counts");
         } else if (Generate_ButterFly &&
                    !strcasecmp(M_Name.c_str(), "percent")) {
+          IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++,
-                       (first_time_temp == 0) ? intime_temp : first_time_temp));
-          HV.push_back("% of Total Exclusive CPU Time");
+                       (first_time_temp == 0) ? intime_temp : first_time_temp, totalIndex++));
+          HV.push_back("% of Total Inclusive CPU Time");
         } else if (!strcasecmp(M_Name.c_str(), "time") ||
                    !strcasecmp(M_Name.c_str(), "times") ||
                    !strcasecmp(M_Name.c_str(), "exclusive_time") ||
@@ -256,15 +258,29 @@ static bool define_usertime_columns (
                    !strcasecmp(M_Name.c_str(), "%exclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "%exclusive_details") ) {
          // percent is calculate from 2 temps: time for this row and total exclusive time.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp));
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // Use the metric needed for calculating total time.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+          } else {
+           // Sum the extime_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
           HV.push_back("% of Total Exclusive Time");
         } else if (!strcasecmp(M_Name.c_str(), "%inclusive_time") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_times") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_details")) {
          // percent is calculate from 2 temps: time for this row and total inclusive time.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
-          HV.push_back("% of Total Inclusive Time");
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // Use the metric needed for calculating total time.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+          } else {
+           // Sum the extime_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
+          HV.push_back("% of Total Exclusive Time");
         } else if (!strcasecmp(M_Name.c_str(), "%count") ||
                    !strcasecmp(M_Name.c_str(), "%counts") ||
                    !strcasecmp(M_Name.c_str(), "%call") ||
@@ -272,12 +288,28 @@ static bool define_usertime_columns (
                    !strcasecmp(M_Name.c_str(), "%exclusive_count") ||
                    !strcasecmp(M_Name.c_str(), "%exclusive_counts") ) {
          // percent is calculate from 2 temps: number of events for this row and total exclusive events.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp));
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // There is no metric available for calculating total counts.
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m exclusive_counts' is not supported with '-f' option.");
+            continue;
+          } else {
+           // Sum the extime_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, excnt_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp, totalIndex++));
           HV.push_back("% of Total Exclusive Counts");
         } else if (!strcasecmp(M_Name.c_str(), "%inclusive_count") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_counts") ) {
          // percent is calculate from 2 temps: number of events for this row and total exclusive events.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp));
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // There is no metric available for calculating total counts.
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m inclusive_counts' is not supported with '-f' option.");
+            continue;
+          } else {
+           // Sum the extime_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, incnt_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
           HV.push_back("% of Total Inclusive Counts");
         } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
                    !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
@@ -323,7 +355,8 @@ static bool define_usertime_columns (
     HV.push_back( Find_Metadata( CV[0], "inclusive_time" ).getDescription() );
 
   // Column[1] in % of inclusive time
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
     HV.push_back("% of Total Exclusive CPU Time");
 
   } else {
@@ -339,7 +372,14 @@ static bool define_usertime_columns (
     HV.push_back( Find_Metadata( CV[0], "inclusive_time" ).getDescription() );
 
    // Column[2] is percent, calculated from 2 temps: time for this row and total inclusive time.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp));
+    if (Filter_Uses_F(cmd)) {
+     // Use the metric needed for calculating total time.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+    } else {
+     // Sum the extime_temp values.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+    }
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back("% of Total Exclusive CPU Time");
   }
   return (HV.size() > 0);

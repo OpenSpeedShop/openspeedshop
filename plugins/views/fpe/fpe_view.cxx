@@ -224,15 +224,16 @@ static bool define_fpe_columns (
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV,
             View_Form_Category vfc) {
-  int64_t last_column = 0;  // Total time is always placed in first column.
+  int64_t last_column = 0;  // Number of columns of information displayed.
+  int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
   bool user_defined = false;
 
  // Define combination instructions for predefined temporaries.
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Min, start_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_time_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Add, incnt_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, excnt_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, incnt_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Min, start_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, extra_division_by_zero_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, extra_inexact_result_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, extra_invalid_temp));
@@ -324,7 +325,14 @@ static bool define_fpe_columns (
                    !strcasecmp(M_Name.c_str(), "%exclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "%exclusive_details") ) {
          // percent is calculate from 2 temps: number of events for this row and total exclusive events.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp));
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // Use the metric needed for calculating total counts.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+          } else {
+           // Sum the extime_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, excnt_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp, totalIndex++));
           HV.push_back("% of Total Exclusive Fpe Events");
           user_defined = true;
         } else if (!strcasecmp(M_Name.c_str(), "%inclusive_count") ||
@@ -332,7 +340,14 @@ static bool define_fpe_columns (
                    !strcasecmp(M_Name.c_str(), "%inclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_details") ) {
          // percent is calculate from 2 temps: number of events for this row and total inclusive events.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp));
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // Use the metric needed for calculating total counts.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+          } else {
+           // Sum the extime_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, incnt_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
           HV.push_back("% of Total Inclusive Fpe Events");
           user_defined = true;
         } else if (!strcasecmp(M_Name.c_str(), "time") ||
@@ -425,7 +440,8 @@ static bool define_fpe_columns (
       HV.push_back("Inclusive Fpe Event Counts");
 
     // Column[1] in % of exclusive events
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp));
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, excnt_temp));
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
       HV.push_back("% of Total Counts");
     } else {
      // If nothing is requested ...
@@ -442,8 +458,15 @@ static bool define_fpe_columns (
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, incnt_temp));
       HV.push_back("Inclusive Fpe Event Counts");
 
-    // And display % of exclusive events
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp));
+     // And display % of exclusive events
+      if (Filter_Uses_F(cmd)) {
+       // Use the metric needed for calculating total counts.
+        IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+      } else {
+       // Sum the excnt_temp values.
+        IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, excnt_temp));
+      }
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp, totalIndex++));
       HV.push_back("% of Total Counts");
     }
   }
