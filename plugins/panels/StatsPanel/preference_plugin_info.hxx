@@ -65,6 +65,8 @@ extern "C"
   SPCheckBox* showTextByValueCheckBox;
   SPCheckBox* showTextByPercentCheckBox;
 
+  QCheckBox* showSkylineCheckBox;
+
   static char *pname = NULL;
 
   bool getPreferenceSortDecending()
@@ -97,7 +99,6 @@ extern "C"
     return( showTopNChartLineEdit->text() );
   }
 
-
   STATSPANEL_TEXT_ENUM getPreferenceShowTextInChart()
   {
 // printf("getPreferenceShowTextInChart(%s)\n", pname);
@@ -114,6 +115,12 @@ extern "C"
     return( TEXT_NONE );
   }
 
+  bool getPreferenceShowSkyline()
+  {
+// printf("getPreferenceShowSkyline(%s)\n", pname);
+    return( showSkylineCheckBox->isChecked() );
+  }
+
 
   void initPreferenceSettings()
   {
@@ -127,6 +134,7 @@ extern "C"
     showTextInChartCheckBox->setChecked(TRUE);
     showTextByValueCheckBox->setChecked(TRUE);
     showTextByPercentCheckBox->setChecked(FALSE);
+    showSkylineCheckBox->setChecked(FALSE);
   }
 
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
@@ -211,6 +219,11 @@ extern "C"
     textLabelLayout->addWidget( showTextByPercentCheckBox );
     checkBoxList.push_back( showTextByPercentCheckBox );
 
+    showSkylineCheckBox =
+      new QCheckBox( textLabelGroupBox, "showSkylineCheckBox" );
+    showSkylineCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showSkylineCheckBox->sizePolicy().hasHeightForWidth() ) );
+    textLabelLayout->addWidget( showSkylineCheckBox );
+
     layout8->addWidget( textLabelGroupBox );
 
 
@@ -247,6 +260,7 @@ extern "C"
     showTextInChartCheckBox->setText( "Show text in chart:" );
     showTextByValueCheckBox->setText( "  Show text by value:" );
     showTextByPercentCheckBox->setText( "  Show text by percent:" );
+    showSkylineCheckBox->setText( "  Show skyline view in time dialog:" );
 
     initPreferenceSettings();
 
@@ -292,6 +306,11 @@ extern "C"
         "openspeedshop", name, showTextByPercentCheckBox->name() );
       showTextByPercentCheckBox->setChecked(
         settings->readBoolEntry(settings_buffer, TRUE) );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, showSkylineCheckBox->name() );
+      showSkylineCheckBox->setChecked(
+        settings->readBoolEntry(settings_buffer, FALSE) );
     }
 
     QToolTip::add(showTopNLineEdit,
@@ -335,6 +354,9 @@ extern "C"
       "openspeedshop", name, showTextByPercentCheckBox->name() );
     settings->writeEntry(settings_buffer, showTextByPercentCheckBox->isChecked() );
 
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, showSkylineCheckBox->name() );
+    settings->writeEntry(settings_buffer, showSkylineCheckBox->isChecked() );
   }
 }
 

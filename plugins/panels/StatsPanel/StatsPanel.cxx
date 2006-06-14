@@ -1266,11 +1266,12 @@ StatsPanel::timeSliceSelected()
 
 
 // int skylineFLAG = TRUE;
-int skylineFLAG = FALSE;
+// int skylineFLAG = FALSE;
+int skylineFLAG = getPreferenceShowSkyline();
 if( skylineFLAG )
 {
 // printf("look up the skyline....\n");
-printf("currentCollectorStr=%s\n", currentCollectorStr.ascii() );
+// printf("currentCollectorStr=%s\n", currentCollectorStr.ascii() );
 //  if( currentCollectorStr == "usertime" )
   {
     InputLineObject *clip = NULL;
@@ -1279,7 +1280,7 @@ printf("currentCollectorStr=%s\n", currentCollectorStr.ascii() );
 //    QString command = "expCompare -m exclusive_time usertime1 -I % 0:10 -I % 11:20 -I % 21:30 -I % 31:40 -I % 41:50 -I % 51:60 -I % 61:70 -I % 71:80 -I % 81:90 -I % 91:100";
 QString mim = CustomExperimentPanel::getMostImportantMetric(currentCollectorStr);
     QString command = QString("expCompare %1 %21 -I % 0:20 -I % 21:40 -I % 41:60 -I % 61:80 -I % 81:100").arg(mim).arg(currentCollectorStr);
-printf("do command=(%s)\n", command.ascii() );
+// printf("do command=(%s)\n", command.ascii() );
     skylineValues.clear();
     skylineText.clear();
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -1308,7 +1309,7 @@ printf("do command=(%s)\n", command.ascii() );
     {
       if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES)
       {
-printf("Here CMD_RESULT_COLUMN_VALUES:\n");
+// printf("Here CMD_RESULT_COLUMN_VALUES:\n");
         std::list<CommandResult *> columns;
         CommandResult_Columns *ccp = (CommandResult_Columns *)*cri;
         ccp->Value(columns);
@@ -1317,7 +1318,7 @@ printf("Here CMD_RESULT_COLUMN_VALUES:\n");
         {
           CommandResult *cr = (CommandResult *)(*column_it);
           QString vs = (*column_it)->Form().c_str();
-printf("  vs=(%s)\n", vs.ascii() );
+// printf("  vs=(%s)\n", vs.ascii() );
           unsigned int value = 0;
           switch( cr->Type() )
           {
@@ -1356,7 +1357,7 @@ printf("  vs=(%s)\n", vs.ascii() );
               continue;
               break;
           }
-printf("int value = (%d)\n", value );
+// printf("int value = (%d)\n", value );
         }
         break;  // Only process one line regardless of how much data there is...
       }
@@ -1386,6 +1387,7 @@ for( ChartTextValueList::Iterator it = skylineText.begin();
 // For now don't show text.
 skylineText.clear();
 //  timeSegmentDialog->cf->setValues(skylineValues, skylineText, blue_color_names, 1);
+  timeSegmentDialog->cf->show();
   timeSegmentDialog->cf->setValues(skylineValues, skylineText, color_names, MAX_COLOR_CNT);
 } else
 {
