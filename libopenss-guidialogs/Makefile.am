@@ -33,6 +33,7 @@ libopenss_guidialogs_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-guibase \
 	-I$(top_srcdir)/libopenss-guiplugin \
     -I$(top_srcdir)/libopenss-guiobjects \
+    -I$(top_srcdir)/libopenss-guichart \
 	-I$(QTDIR)
 
 libopenss_guidialogs_la_LDFLAGS = \

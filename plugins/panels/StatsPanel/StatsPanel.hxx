@@ -160,6 +160,8 @@ class StatsPanel  : public Panel
     QSplitter *splitterA;
     SPChartForm *cf;
     ColumnList columnHeaderList;
+ChartPercentValueList skylineValues;
+ChartTextValueList skylineText;
     FieldList columnFieldList;
     ColumnValueClass columnValueClass[80];
     int *metricHeaderTypeArray;  // matches the QListView # of column entries.
@@ -324,8 +326,8 @@ QPopupMenu *fpe_menu;
     void addUserTimeReports(QPopupMenu *menu);
     void generatePCSampMenu();
     void addPCSampReports(QPopupMenu *menu);
-void generateFPEMenu();
-void addFPEReports(QPopupMenu *menu);
+    void generateFPEMenu();
+    void addFPEReports(QPopupMenu *menu);
     void generateGenericMenu();
     QString generateCommand();
     void generateModifierMenu(QPopupMenu *, std::list<std::string>current_list, std::list<std::string>current_local_list);

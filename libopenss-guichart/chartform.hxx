@@ -90,6 +90,7 @@ public:
     void init();
 
     void setHeader( QString );
+    void setChartType( ChartType chartType );
 protected:
     virtual void closeEvent( QCloseEvent * );
 
@@ -122,7 +123,6 @@ private:
     QString valueLabel( const QString& label, double value, double total );
     void updateRecentFiles( const QString& filename );
     void updateRecentFilesMenu();
-    void setChartType( ChartType chartType );
 
     QPopupMenu *fileMenu;
     QAction *optionsPieChartActionWithShadow;

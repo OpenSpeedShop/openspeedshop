@@ -34,10 +34,13 @@
 #include <qcombobox.h>
 #include <qlistview.h>
 #include <qslider.h>
+#include <qsplitter.h>
 #include <qtooltip.h>
 #include <qapplication.h>
 
 #include "SS_Input_Manager.hxx"
+
+#include "chartform.hxx"
 SelectTimeSegmentDialog::SelectTimeSegmentDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
@@ -55,39 +58,72 @@ SelectTimeSegmentDialog::SelectTimeSegmentDialog( QWidget* parent, const char* n
   headerLabel = new QLabel(this, "headerLabel");
   selectTimeSegmentDialogLayout->addWidget( headerLabel );
 
-  // Insert your timesegment stuff here!
-  sliderLayout = new QVBoxLayout( 0, 0, 6, "sliderLayout"); 
 
-int min = 0;
-int max = 100;
-int pageInterval = 10;
-  startSlider = new QSlider(min, max, pageInterval, 0, Qt::Horizontal, this, "startSlider");
-startSlider->setTickmarks(QSlider::Below);
-startSlider->setTickInterval(max/pageInterval);
-connect( startSlider, SIGNAL( sliderMoved(int) ), this, SLOT( startSliderMoved(int) ) );
+  splitter = new QSplitter( this, "timeSegmentSplitter");
+  splitter->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
+  splitter->setCaption("TimeSegmentSplitter");
+  splitter->setOrientation(QSplitter::Vertical);
+  selectTimeSegmentDialogLayout->addWidget(splitter);
+
+  // Insert your skyline layout here.
+#ifdef OLDWAY
+  QWidget *topWidget = new QWidget( splitter );
+  skylineLayout = new QVBoxLayout( topWidget );
+
+QLabel *tempLabel = new QLabel(topWidget, "tempLabel");
+tempLabel->setText("Sky line");
+skylineLayout->addWidget(tempLabel);
+
+QLabel *tempLabel2 = new QLabel(topWidget, "tempLabel");
+tempLabel2->setText("Sky line2");
+skylineLayout->addWidget(tempLabel2);
+#else // OLDWAY
+cf = new ChartForm(splitter, "skylineChartForm", 0);
+cf->setChartType(VERTICAL_BAR);
+cf->show();
+#endif // OLDWAY
+
+
+  // Insert your timesegment stuff here!
+  QWidget *bottomWidget = new QWidget( splitter );
+  bottomWidget->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
+  sliderLayout = new QVBoxLayout( bottomWidget );
+
+  int min = 0;
+  int max = 100;
+  int pageInterval = 10;
+  startSlider = new QSlider(min, max, pageInterval, 0, Qt::Horizontal, bottomWidget, "startSlider");
+startSlider->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
+  startSlider->setTickmarks(QSlider::Below);
+  startSlider->setTickInterval(max/pageInterval);
+  connect( startSlider, SIGNAL( sliderMoved(int) ), this, SLOT( startSliderMoved(int) ) );
   sliderLayout->addWidget( startSlider );
 
-  endSlider = new QSlider(min, max, pageInterval, 100, Qt::Horizontal, this, "endSlider");
-connect( endSlider, SIGNAL( sliderMoved(int) ), this, SLOT( endSliderMoved(int) ) );
-// endSlider->setTickmarks(QSlider::Below);
-endSlider->setTickInterval(max/pageInterval);
+  endSlider = new QSlider(min, max, pageInterval, 100, Qt::Horizontal, bottomWidget, "endSlider");
+endSlider->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
+  connect( endSlider, SIGNAL( sliderMoved(int) ), this, SLOT( endSliderMoved(int) ) );
+  endSlider->setTickInterval(max/pageInterval);
 
   sliderLayout->addWidget( endSlider );
 
-  selectTimeSegmentDialogLayout->addLayout( sliderLayout );
+//  selectTimeSegmentDialogLayout->addLayout( sliderLayout );
 
   startStopLayout = new QHBoxLayout( 0, 0, 6, "startStopLayout"); 
-  startLabel = new QLabel(this, "startLabel");
+  startLabel = new QLabel(bottomWidget, "startLabel");
+startLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   startStopLayout->addWidget( startLabel );
-  startValue = new QLineEdit(this, "startValue");
+  startValue = new QLineEdit(bottomWidget, "startValue");
+startValue->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   startStopLayout->addWidget( startValue );
 
-  endLabel = new QLabel(this, "endLabel");
+  endLabel = new QLabel(bottomWidget, "endLabel");
+endLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   startStopLayout->addWidget( endLabel );
-  endValue = new QLineEdit(this, "endValue");
+  endValue = new QLineEdit(bottomWidget, "endValue");
+endValue->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   startStopLayout->addWidget( endValue );
 
-  selectTimeSegmentDialogLayout->addLayout( startStopLayout );
+  sliderLayout->addLayout( startStopLayout );
 
   buttonLayout = new QHBoxLayout( 0, 0, 6, "buttonLayout"); 
 

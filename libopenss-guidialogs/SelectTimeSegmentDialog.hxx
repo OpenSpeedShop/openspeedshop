@@ -39,6 +39,7 @@ class QListView;
 class QListViewItem;
 class QLineEdit;
 class QSlider;
+class ChartForm;
 
 class SelectTimeSegmentDialog : public QDialog
 {
@@ -51,6 +52,7 @@ public:
     QLabel* headerLabel;
     QSlider *startSlider;
     QSlider *endSlider;
+QSplitter *splitter;
     QLabel* startLabel;
     QLabel* endLabel;
     QLineEdit* startValue;
@@ -62,8 +64,10 @@ public:
     QPushButton* buttonCancel;
     QPushButton* buttonDefaults;
 
+    ChartForm *cf;
 protected:
     QVBoxLayout* selectTimeSegmentDialogLayout;
+    QVBoxLayout* skylineLayout;
     QVBoxLayout* sliderLayout;
     QHBoxLayout* startStopLayout;
     QHBoxLayout* buttonLayout;

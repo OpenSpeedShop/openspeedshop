@@ -75,6 +75,9 @@ static char *coldToHot_color_names[] = {
   "red", 
 };
 #define MAX_COLOR_CNT 14
+static char *blue_color_names[] = { 
+  "blue", 
+};
 
 
 #define PTI "Present Trace Information"
@@ -1258,6 +1261,133 @@ StatsPanel::timeSliceSelected()
   {
     timeSegmentDialog = new SelectTimeSegmentDialog(getPanelContainer()->getMainWindow(), "Select Time Interval:");
   }
+
+
+
+// int skylineFLAG = TRUE;
+int skylineFLAG = FALSE;
+if( skylineFLAG )
+{
+printf("look up the skyline....\n");
+printf("currentCollectorStr=%s\n", currentCollectorStr.ascii() );
+  if( currentCollectorStr == "usertime" )
+  {
+    InputLineObject *clip = NULL;
+//    QString command = "expCompare -m exclusive_time usertime1 -I % 0:25 -I % 26:50 -I % 51:75 -I % 76:100";
+    QString command = "expCompare -m exclusive_time usertime1 -I % 0:20 -I % 21:40 -I % 41:60 -I % 61:80 -I % 81:100";
+//    QString command = "expCompare -m exclusive_time usertime1 -I % 0:10 -I % 11:20 -I % 21:30 -I % 31:40 -I % 41:50 -I % 51:60 -I % 61:70 -I % 71:80 -I % 81:90 -I % 91:100";
+printf("do command=(%s)\n", command.ascii() );
+    skylineValues.clear();
+    skylineText.clear();
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
+    if( clip == NULL )
+    {
+      cerr << "No skyline available for this experiment.\n";
+      return;
+    }
+    Input_Line_Status status = ILO_UNKNOWN;
+
+    while( !clip->Semantics_Complete() )
+    {
+      qApp->processEvents(1000);
+      sleep(1);
+    }
+
+    std::list<CommandObject *>::iterator coi;
+
+    coi = clip->CmdObj_List().begin();
+    CommandObject *co = (CommandObject *)(*coi);
+
+    std::list<CommandResult *>::iterator cri;
+    std::list<CommandResult *> cmd_result = co->Result_List();
+    for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++)
+    {
+      if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES)
+      {
+printf("Here CMD_RESULT_COLUMN_VALUES:\n");
+        std::list<CommandResult *> columns;
+        CommandResult_Columns *ccp = (CommandResult_Columns *)*cri;
+        ccp->Value(columns);
+        std::list<CommandResult *>::iterator column_it;
+        for (column_it = columns.begin(); column_it != columns.end(); column_it++)
+        {
+          CommandResult *cr = (CommandResult *)(*column_it);
+          QString vs = (*column_it)->Form().c_str();
+printf("  vs=(%s)\n", vs.ascii() );
+          unsigned int value = 0;
+          switch( cr->Type() )
+          {
+            case CMD_RESULT_NULL:
+    cerr << "Got CMD_RESULT_NULL\n";
+              value = 0;
+              skylineValues.push_back(value);
+              skylineText.push_back(vs.stripWhiteSpace());
+              break;
+            case CMD_RESULT_UINT:
+    cerr << "Got CMD_RESULT_UINT\n";
+              value = vs.toUInt();;
+              skylineValues.push_back(value);
+              skylineText.push_back(vs.stripWhiteSpace());
+              break;
+            case CMD_RESULT_INT:
+    cerr << "Got CMD_RESULT_INT\n";
+              value = vs.toInt();;
+              skylineValues.push_back(value);
+              skylineText.push_back(vs.stripWhiteSpace());
+              break;
+            case CMD_RESULT_FLOAT:
+    cerr << "Got CMD_RESULT_FLOAT\n";
+              value = (int)(vs.toFloat());
+              skylineValues.push_back(value);
+              skylineText.push_back(vs.stripWhiteSpace());
+              break;
+            case CMD_RESULT_STRING:
+    cerr << "Got CMD_RESULT_STRING\n";
+//              value = vs.toInt();;
+              value = 1; // FIX
+              skylineValues.push_back(value);
+              skylineText.push_back(vs.stripWhiteSpace());
+              break;
+            default:
+              continue;
+              break;
+          }
+printf("int value = (%d)\n", value );
+        }
+        break;  // Only process one line regardless of how much data there is...
+      }
+    }
+    clip->Set_Results_Used();
+  }
+
+
+  
+  
+#if 0
+for( ChartPercentValueList::Iterator it = skylineValues.begin();
+       it != skylineValues.end();
+       ++it)
+{
+  int v = (int)*it;
+  printf("v=(%d)\n", v);
+}
+#endif // 0
+for( ChartTextValueList::Iterator it = skylineText.begin();
+       it != skylineText.end();
+       ++it)
+{
+  QString s = (QString)*it;
+  printf("s=(%s)\n", s.ascii() );
+}
+// For now don't show text.
+skylineText.clear();
+  timeSegmentDialog->cf->setValues(skylineValues, skylineText, blue_color_names, 1);
+} else
+{
+  timeSegmentDialog->cf->hide();
+}
+
   if( timeSegmentDialog->exec() == QDialog::Accepted )
   { 
 // printf("The user hit accept.\n");
@@ -1623,7 +1753,7 @@ StatsPanel::updateStatsPanelData(QString command)
 
 // printf("  lastCommand = %s  command = %s\n", lastCommand.ascii(), command.ascii() );
 
-command += timeIntervalString;
+  command += timeIntervalString;
 
   if( recycleFLAG == FALSE )
   {
@@ -3480,6 +3610,14 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
       QString s = (QString)*it;
       columnHeaderList.push_back(s);
 // printf("    s=(%s)\n", s.ascii() );
+      if( s.find("%") != -1 )
+      {
+        if( percentIndex == -1 )
+        {
+          percentIndex = i;
+// printf("Found the percentIndex at %d\n", percentIndex);
+        }
+      }
       splv->addColumn( s );
     }
   
@@ -3522,6 +3660,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
     }
   }
 // printf("A: total_percent=%f\n", total_percent );
+
 
 
   if( fieldCount == 0 )
@@ -3698,6 +3837,16 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
     }
   }
 
+#if 0
+printf("Are there and cpvl values?\n");
+for( ChartPercentValueList::Iterator it = cpvl.begin();
+       it != cpvl.end();
+       ++it)
+{
+  int v = (int)*it;
+  printf("v=(%d)\n", v);
+}
+#endif // 0
 
   if( total_percent > 0.0 && cpvl.count() < numberItemsToDisplayInStats  &&
       ctvl.count() < numberItemsToDisplayInChart )
@@ -5728,6 +5877,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
 
   }
 }
+
 
 static bool step_forward = TRUE;
 void
