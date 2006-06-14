@@ -19,7 +19,10 @@
 #include "Queries.hxx"
 
 enum ViewOpCode {
-     VIEWINST_Define_Total,             // TMP_index1 is CV & MV index of value that, when summed, is the Total.
+     VIEWINST_Define_Total_Metric,      // TmpResult is the id of the total.
+                                        // TMP_index1 is CV & MV index of value that, when summed, is the Total.
+     VIEWINST_Define_Total_Tmp,         // TmpResult is the id of the total.
+                                        // TMP_index1 is row_tmp# of fields in the records that are summed.
      VIEWINST_Define_ByThread_Metric,   // TmpResult is the ExtraMetric index that contains the values.
                                         // TMP_index1 is CV & MV index of the value to display.
                                         // TMP_index2 is the indicator of the reduction that is applied.
@@ -33,12 +36,10 @@ enum ViewOpCode {
                                         // TMP_index1 is predefined temp# of the value to display..
      VIEWINST_Display_Percent_Column,   // TmpResult is column# to display in.
                                         // Column[TMP_index1]*100/Total is value to display in the column.
-     VIEWINST_Display_Percent_Metric,   // TmpResult is column# to display in.
-                                        // TMP_index1 is CV & MV index of the numerator.
-                                        // Total is calculated seperately and used in the denominator.
+                                        // TMP_index2 is the id of the Total that is used.
      VIEWINST_Display_Percent_Tmp,      // TmpResult is column# to display in.
                                         // TMP_index1 is row_tmp# with numerator.
-                                        // TMP_index2 is row_tmp# with denominator.
+                                        // TMP_index2 is the id of the Total that is used.
      VIEWINST_Display_Average_Tmp,      // TmpResult is column# to display in.
                                         // TMP_index1 is row_tmp# with numerator.
                                         // TMP_index2 is row_tmp# with denominator.
@@ -114,13 +115,14 @@ class ViewInstruction
   void Print (ostream &to) {
     std::string op;
     switch (Instruction) {
-     case VIEWINST_Define_Total: op = "Define_Total"; break;
+     case VIEWINST_Define_Total_Metric: op = "Define_Total_Metric"; break;
+     case VIEWINST_Define_Total_Tmp: op = "Define_Total_Tmp"; break;
      case VIEWINST_Define_ByThread_Metric: op = "Define_ByThread_Metric"; break;
+     case VIEWINST_Require_Field_Equal: op = "Require_Field_Equal"; break;
      case VIEWINST_Display_Metric: op = "Display_Metric"; break;
      case VIEWINST_Display_ByThread_Metric: op = "Display_ByThread_Metric"; break;
      case VIEWINST_Display_Tmp: op = "Display_Tmp"; break;
      case VIEWINST_Display_Percent_Column: op = "Display_Percent_Column"; break;
-     case VIEWINST_Display_Percent_Metric: op = "Display_Percent_Metric"; break;
      case VIEWINST_Display_Percent_Tmp: op = "Display_Percent_Tmp"; break;
      case VIEWINST_Display_Average_Tmp: op = "Display_Average_Tmp"; break;
      case VIEWINST_Display_StdDeviation_Tmp: op = "Display_StdDeviation_Tmp"; break;
@@ -335,22 +337,18 @@ std::string Find_Collector_With_Metric (CollectorGroup cgrp,
                                         std::string Metric_Name);
 bool Metadata_hasName (Collector C, std::string name);
 Metadata Find_Metadata (Collector C, std::string name);
-ViewInstruction *Find_Base_Def (std::vector<ViewInstruction *>IV);
-ViewInstruction *Find_Total_Def (std::vector<ViewInstruction *>IV);
-ViewInstruction *Find_Percent_Def (std::vector<ViewInstruction *>IV);
-ViewInstruction *Find_Tmp_Accumulation (std::vector<ViewInstruction *>IV, int64_t temp_num);
-ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Column);
-int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV);
-int64_t Find_Max_Temp (std::vector<ViewInstruction *>IV);
-int64_t Find_Max_ExtraMetrics (std::vector<ViewInstruction *>IV);
+ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>& IV, int64_t Column);
+int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>& IV);
+int64_t Find_Max_Temp (std::vector<ViewInstruction *>& IV);
+int64_t Find_Max_ExtraMetrics (std::vector<ViewInstruction *>& IV);
 
 bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
                           std::vector<Collector>& CV, std::vector<std::string>& MV,
                           std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV);
 void Print_View_Params (ostream &to,
-                        std::vector<Collector> CV,
-                        std::vector<std::string> MV,
-                        std::vector<ViewInstruction *>IV);
+                        std::vector<Collector>& CV,
+                        std::vector<std::string>& MV,
+                        std::vector<ViewInstruction *>& IV);
 
 void Add_Column_Headers (CommandResult_Headers *H, std::string *column_titles);
 void Add_Header (CommandObject *cmd, std::string *column_titles);
@@ -373,14 +371,12 @@ std::vector<CommandResult *> *
 bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string viewname);
 
 void Construct_View_Output (CommandObject *cmd,
+                            ExperimentObject *exp,
                             ThreadGroup& tgrp,
                             std::vector<Collector>& CV,
                             std::vector<std::string>& MV,
                             std::vector<ViewInstruction *>& IV,
-                            int64_t num_columns,
-                            bool Gen_Total_Percent,
-                            int64_t percentofcolumn,
-                            CommandResult *TotalValue,
+                            std::vector<CommandResult *>& Total_Value,
                             std::vector<std::pair<CommandResult *,
                                                   SmartPtr<std::vector<CommandResult *> > > >& items,
                             std::list<CommandResult *>& view_result );

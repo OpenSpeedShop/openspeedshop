@@ -1,4 +1,5 @@
 /*******************************************************************************
+      std::vector<CommandResult *>& Total_Values) {
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
@@ -40,17 +41,17 @@ static void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& IV,
 }
 
 void Construct_View_Output (CommandObject *cmd,
+                            ExperimentObject *exp,
                             ThreadGroup& tgrp,
                             std::vector<Collector>& CV,
                             std::vector<std::string>& MV,
                             std::vector<ViewInstruction *>& IV,
-                            int64_t num_columns,
-                            bool Gen_Total_Percent,
-                            int64_t percentofcolumn,
-                            CommandResult *TotalValue,
+                            std::vector<CommandResult *>& Total_Value,
                             std::vector<std::pair<CommandResult *,
                                                   SmartPtr<std::vector<CommandResult *> > > >& items,
                             std::list<CommandResult *>& view_output ) {
+// Print_View_Params (cerr, CV,MV,IV);
+  int64_t num_columns = Find_Max_Column_Def (IV) + 1;
   int64_t i;
   bool report_Column_summary = false;
 
@@ -65,26 +66,40 @@ void Construct_View_Output (CommandObject *cmd,
  // Reformat the instructions for easier access.
   for (i = 0; i < IV.size(); i++) {
     ViewInstruction *vp = IV[i];
-      if ((vp->OpCode() == VIEWINST_Display_Metric) ||
-          (vp->OpCode() == VIEWINST_Display_Percent_Column) ||
-          (vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
-          (vp->OpCode() == VIEWINST_Display_Percent_Tmp) ||
-          (vp->OpCode() == VIEWINST_Display_Average_Tmp) ||
-          (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
-        // Assert (vp->TR() < num_input_temps);
-        if (vp->TR() < num_input_temps) ViewInst[vp->TR()] = vp;
-      } else if (vp->OpCode() == VIEWINST_Display_Tmp) {
-        // Assert (vp->TR() < num_input_temps);
-        if (vp->TR() < num_input_temps) ViewInst[vp->TR()] = vp;
-      } else if ((vp->OpCode() == VIEWINST_Add) ||
-                 (vp->OpCode() == VIEWINST_Min) ||
-                 (vp->OpCode() == VIEWINST_Max)) {
-        if (vp->TMP1() < num_input_temps) AccumulateInst[vp->TMP1()] = vp;
-      } else if (vp->OpCode() == VIEWINST_Display_Summary) {
-        report_Column_summary = (num_input_temps != 0);
-      } else if (vp->OpCode() == VIEWINST_Summary_Max) {
-        if (vp->TMP1() < num_input_temps) AccumulateInst[vp->TMP1()] = vp;
+    if ((vp->OpCode() == VIEWINST_Display_Metric) ||
+        (vp->OpCode() == VIEWINST_Display_Percent_Column) ||
+        (vp->OpCode() == VIEWINST_Display_Percent_Tmp) ||
+        (vp->OpCode() == VIEWINST_Display_Average_Tmp) ||
+        (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
+     // Assert (vp->TR() < num_input_temps);
+      if (vp->TR() < num_input_temps) ViewInst[vp->TR()] = vp;
+    } else if (vp->OpCode() == VIEWINST_Display_Tmp) {
+     // Assert (vp->TR() < num_input_temps);
+      if (vp->TR() < num_input_temps) ViewInst[vp->TR()] = vp;
+    } else if ((vp->OpCode() == VIEWINST_Add) ||
+               (vp->OpCode() == VIEWINST_Min) ||
+               (vp->OpCode() == VIEWINST_Max)) {
+      if (vp->TMP1() < num_input_temps) AccumulateInst[vp->TMP1()] = vp;
+    } else if (vp->OpCode() == VIEWINST_Display_Summary) {
+      report_Column_summary = (num_input_temps != 0);
+    } else if (vp->OpCode() == VIEWINST_Summary_Max) {
+      if (vp->TMP1() < num_input_temps) AccumulateInst[vp->TMP1()] = vp;
+    }
+  }
+
+ // Calculate any Totals that are needed to do percentages.
+  int64_t percentofcolumn = -1;
+  bool Gen_Total_Percent = (Total_Value.size() > 0);
+  if (Gen_Total_Percent) {
+    for (i = 0; i < IV.size(); i++) {
+      ViewInstruction *vp = IV[i];
+      if (vp->OpCode() == VIEWINST_Display_Percent_Column) {
+       // We only support 1 column selection.
+        Assert(percentofcolumn == -1);
+        percentofcolumn = vp->TMP1();
+        break;
       }
+    }
   }
 
    // Format the report with the items that are in the vector.
@@ -123,21 +138,17 @@ void Construct_View_Output (CommandObject *cmd,
             input_temp_used[CM_Index] = true;
           }
         } else if (vinst->OpCode() == VIEWINST_Display_Percent_Column) {
-          if (Gen_Total_Percent &&
-              (i > percentofcolumn) &&
-              (percent_of != NULL) &&
-              (!percent_of->isNullValue ())) {
-            Next_Metric_Value = Calculate_Percent (percent_of, TotalValue);
-          }
-        } else if (vinst->OpCode() == VIEWINST_Display_Percent_Metric) {
           if (Gen_Total_Percent) {
-            Mark_Cmd_With_Soft_Error(cmd,"Percent Metric value is not available for mpi view");
-            return;
+            if ((i > percentofcolumn) &&
+                (percent_of != NULL) &&
+                (!percent_of->isNullValue ())) {
+              Next_Metric_Value = Calculate_Percent (percent_of, Total_Value[vinst->TMP2()]);
+            }
           }
         } else if (vinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
           CommandResult *V = (*it->second)[CM_Index];
           if (!V->isNullValue ()) {
-            Next_Metric_Value = Calculate_Percent (V, TotalValue);
+            Next_Metric_Value = Calculate_Percent (V, Total_Value[vinst->TMP2()]);
           }
         } else if (vinst->OpCode() == VIEWINST_Display_Average_Tmp) {
           CommandResult *V = (*it->second)[CM_Index];
@@ -161,8 +172,9 @@ void Construct_View_Output (CommandObject *cmd,
         }
       }
      // Add ID for row
-      C->CommandResult_Columns::Add_Column (it->first);
-      it->first = NULL;  // allow only 1 pointer to a CommandResult object
+      // C->CommandResult_Columns::Add_Column (it->first);
+      C->CommandResult_Columns::Add_Column (Dup_CommandResult(it->first));
+      // it->first = NULL;  // allow only 1 pointer to a CommandResult object
       view_output.push_back (C);  // attach column list to output
 
      // Accumulate Summary Information
@@ -214,13 +226,13 @@ void Construct_View_Output (CommandObject *cmd,
           summary = Calculate_StdDev (V1, V2, V3);
         } else if (sinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
           CommandResult *V = summary_temp[sinst->TMP1()];
-          summary = Calculate_Percent (V, TotalValue);
+          summary = Calculate_Percent (V, Total_Value[sinst->TMP2()]);
         } else if (sinst->OpCode() == VIEWINST_Display_Percent_Column) {
           if (Gen_Total_Percent &&
               (i > percentofcolumn) &&
               (percent_of != NULL) &&
               (!percent_of->isNullValue ())) {
-            summary = Calculate_Percent (percent_of, TotalValue);
+            summary = Calculate_Percent (percent_of, Total_Value[sinst->TMP2()]);
           }
         }
         if (summary == NULL) {
@@ -244,6 +256,13 @@ void Construct_View_Output (CommandObject *cmd,
       if (summary_temp[i] != NULL) {
         delete summary_temp[i];
       }
+    }
+  }
+
+ // Release Total temporaries
+  for ( i=0; i < Total_Value.size(); i++) {
+    if (Total_Value[i] != NULL) {
+      delete Total_Value[i];
     }
   }
 

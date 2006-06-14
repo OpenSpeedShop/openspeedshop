@@ -239,7 +239,15 @@ bool Detail_Trace_Report(
   collector.unlockDatabase();
 
  // Generate the report.
-  return Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_Trace, c_items, view_output);
+  bool view_built = Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_Trace, c_items, view_output);
+
+ // Release instructions
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    delete vp;
+    IV[i] = NULL;
+  }
+  return view_built;
 }
 
 template <typename TOBJECT, typename TDETAIL>
@@ -345,7 +353,15 @@ bool Detail_Base_Report(
   collector.unlockDatabase();
 
  // Generate the report.
-  return Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc, c_items, view_output);
+  bool view_built = Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc, c_items, view_output);
+
+ // Release instructions
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    delete vp;
+    IV[i] = NULL;
+  }
+  return view_built;
 }
 
 template <typename TDETAIL>
@@ -460,7 +476,15 @@ bool Detail_CallStack_Report (
   collector.unlockDatabase();
 
  // Generate the report.
-  return Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack,c_items, view_output);
+  bool view_built = Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack,c_items, view_output);
+
+ // Release instructions
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    delete vp;
+    IV[i] = NULL;
+  }
+  return view_built;
 }
 
 
@@ -582,6 +606,11 @@ bool Detail_ButterFly_Report (
 
   collector.unlockDatabase();
 
- // Generate the report.
+ // Release instructions
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    delete vp;
+    IV[i] = NULL;
+  }
   return true;
 }

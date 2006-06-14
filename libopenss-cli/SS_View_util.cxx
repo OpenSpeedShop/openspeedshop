@@ -991,7 +991,7 @@ void Get_Filtered_Objects (CommandObject *cmd,
 // Utilites to deciding what data to retrieve from a database.
 
 /**
- * Method: Validate_V_Options(CommandObject *cmd, std::string allowed[])
+ * Utility: Validate_V_Options(CommandObject *cmd, std::string allowed[])
  *
  * Check that every option listed after a '-v' specifier is valid.
  * The option is valid if it is within the 'allowed' list.
@@ -1044,6 +1044,18 @@ bool Validate_V_Options (CommandObject *cmd,
 }
 
 
+/**
+ * Utility: Determine_Form_Category(CommandObject *cmd)
+ * 
+ * Look at the standard set of '-v' options for a 'view' command
+ * and determine which type fof report needs to be generated.
+ * 
+ * @param   cmd indicates the CommandObject that points to the parse
+ *          object, that lists the options.   
+ *
+ * @return  the View_Form_Category enumerator of the required report type.
+ *
+ */
 View_Form_Category Determine_Form_Category (CommandObject *cmd) {
   if (Look_For_KeyWord(cmd, "Trace") &&
       !Look_For_KeyWord(cmd, "ButterFly")) {
@@ -1068,6 +1080,22 @@ View_Form_Category Determine_Form_Category (CommandObject *cmd) {
   return VFC_Function;
 }
 
+/**
+ * Utility: Determine_TraceBack_Ordering (CommandObject *cmd)
+ *
+ * Look at the standard set of '-v' options for a 'view' command
+ * and determine which order the calling stack needs to be presented
+ * to the user.
+ *
+ * @param   cmd indicates the CommandObject that points to the parse
+ *          object, that lists the options.
+ *
+ * @return  'true' if the requested order is with the root routine first
+ *          followed by the routiens that called it, or 'false' if the
+ *          the program entry routine is first followed by the routines
+ *          it calls until the root routine is encoutnered.
+ *
+ */
 bool Determine_TraceBack_Ordering (CommandObject *cmd) {
  // Determine call stack ordering
   if (Look_For_KeyWord(cmd, "CallTree") ||
@@ -1080,6 +1108,21 @@ bool Determine_TraceBack_Ordering (CommandObject *cmd) {
   return false;
 }
 
+/**
+ * Utility: Build_CallBack_Entry (Framework::StackTrace& st, int64_t i, bool add_stmts)
+ *
+ * Convert a specific element in a Framework::StackTrace array to a
+ * CommandResult entry.
+ *
+ * @param   st - the Framework::StackTrace array
+ * @param   i  - the index to the element in the array
+ * @param   add_stmts - a boolean variable, if 'true' the statements
+ *          associated with the related element are also included in
+ *          the created CommandResult entry.
+ *
+ * @return  a pointer to the created CommandResult entry.
+ *
+ */
 static inline
 CommandResult *Build_CallBack_Entry (Framework::StackTrace& st, int64_t i, bool add_stmts) {
     CommandResult *SE = NULL;
@@ -1087,18 +1130,35 @@ CommandResult *Build_CallBack_Entry (Framework::StackTrace& st, int64_t i, bool 
     if (fp.first) {
      // Use Function.
       if (add_stmts) {
+       // Inlcude associated statements.
         std::set<Statement> ss = st.getStatementsAt(i);
         SE = new CommandResult_Function (fp.second, ss);
       } else {
         SE = new CommandResult_Function (fp.second);
       }
     } else {
-     // Use Absolute Address.
+     // There is no Function entry available - use the absolute address.
       SE = new CommandResult_Uint (st[i].getValue());
     }
     return SE;
 }
 
+/**
+ * Utility: Construct_CallBack [with 3 arguments]
+ *
+ * Convert an array of Framework::StackTrace elements into a vector
+ * of CommandResult entries.
+ *
+ * @param   TraceBack_Order - 'true' if the root routine needs to be
+ *          first, followed by the routines that call it.
+ * @param   add_stmts - a boolean variable, if 'true' the statements
+ *          associated with the related element are also included in
+ *          the created CommandResult entry.
+ * @param   st - the Framework::StackTrace array
+ *
+ * @return  a pointer to the created std::vector<CommandResult *> entry.
+ *
+ */
 std::vector<CommandResult *> *
        Construct_CallBack (bool TraceBack_Order, bool add_stmts, Framework::StackTrace& st) {
   std::vector<CommandResult *> *call_stack
@@ -1117,6 +1177,29 @@ std::vector<CommandResult *> *
   return call_stack;
 }
 
+/**
+ * Utility: Construct_CallBack [with 4 arguments]
+ *
+ * Convert an array of Framework::StackTrace elements into a vector
+ * of CommandResult entries. 
+ *
+ * @param   TraceBack_Order - 'true' if the root routine needs to be
+ *          first, followed by the routines that call it.
+ * @param   add_stmts - a boolean variable, if 'true' the statements
+ *          associated with the related element are also included in
+ *          the created CommandResult entry.
+ * @param   st - the Framework::StackTrace array
+ * @param   knownTraces a map that records previous element conversions
+ *          so that previous copies can be used and database accesses,
+ *          that are needed to construct new entries, can be avoided.
+ *
+ * @return  a pointer to the created std::vector<CommandResult *> entry.
+ *
+ * Note: since the lifetime of the data returned from this routine may be
+ *       different from the lifetime of the 'knownTraces' structure, it
+ *       is necessary to use different entries in each structure.
+ *
+ */
 std::vector<CommandResult *> *
        Construct_CallBack (bool TraceBack_Order, bool add_stmts, Framework::StackTrace& st,
                            std::map<Address, CommandResult *>& knownTraces) {
@@ -1125,73 +1208,51 @@ std::vector<CommandResult *> *
   int64_t len = st.size();
   int64_t i;
   if (len == 0) return call_stack;
-  if (TraceBack_Order)
+  if (TraceBack_Order) {
+   // Framework::StackTrace entries are in this order, so go through the array
+   // in a forward direction.
     for ( i = 0;  i < len; i++) {
+     // Check to see if we have already converted this entry.
       Address nextAddr = st[i];
       std::map<Address, CommandResult *>::iterator ki = knownTraces.find(nextAddr);
-      CommandResult *newCR;
+      CommandResult *NewCR;
       if (ki == knownTraces.end()) {
-        newCR = Build_CallBack_Entry(st, i, add_stmts);
-        knownTraces[nextAddr] = newCR;
+       // There is no existing entry, so a new entry needs to be created.
+        NewCR = Build_CallBack_Entry(st, i, add_stmts);
+        knownTraces[nextAddr] = NewCR;
       } else {
-        newCR = Dup_CommandResult ((*ki).second);
+       // There is an existing entry, so just copy it.
+        NewCR = (*ki).second;
       }
-      call_stack->push_back(newCR);
+     // Always duplicate the saved entry.
+      call_stack->push_back(Dup_CommandResult (NewCR));
     }
-  else
+  } else {
+   // Framework::StackTrace entries are in the reverse order, so go through the array
+   // in a backward direction.
     for ( i = len-1; i >= 0; i--) {
       Address nextAddr = st[i];
       std::map<Address, CommandResult *>::iterator ki = knownTraces.find(nextAddr);
-      CommandResult *newCR;
+      CommandResult *NewCR;
       if (ki == knownTraces.end()) {
-        newCR = Build_CallBack_Entry(st, i, add_stmts);
-        knownTraces[nextAddr] = newCR;
+       // There is no existing entry, so a new entry needs to be created.
+        NewCR = Build_CallBack_Entry(st, i, add_stmts);
+        knownTraces[nextAddr] = NewCR;
       } else {
-        newCR = Dup_CommandResult ((*ki).second);
+       // There is an existing entry, so just use it.
+        NewCR = (*ki).second;
       }
-      call_stack->push_back(newCR);
+     // Always duplicate the saved entry.
+      call_stack->push_back(Dup_CommandResult (NewCR));
     }
+  }
   return call_stack;
 }
 
 
 // Utilities for working with class ViewInstruction
 
-ViewInstruction *Find_Total_Def (std::vector<ViewInstruction *>IV) {
-  for (int64_t i = 0; i < IV.size(); i++) {
-    ViewInstruction *vp = IV[i];
-    if (vp->OpCode() == VIEWINST_Define_Total) {
-      return vp;
-    }
-  }
-  return NULL;
-}
-
-ViewInstruction *Find_Percent_Def (std::vector<ViewInstruction *>IV) {
-  for (int64_t i = 0; i < IV.size(); i++) {
-    ViewInstruction *vp = IV[i];
-    if ((vp->OpCode() == VIEWINST_Display_Percent_Column) ||
-        (vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
-        (vp->OpCode() == VIEWINST_Display_Percent_Tmp)) {
-      return vp;
-    }
-  }
-  return NULL;
-}
-
-ViewInstruction *Find_Tmp_Accumulation (std::vector<ViewInstruction *>IV, int64_t temp_num) {
-  for (int64_t i = 0; i < IV.size(); i++) {
-    ViewInstruction *vp = IV[i];
-    if ((vp->OpCode() == VIEWINST_Add) ||
-        (vp->OpCode() == VIEWINST_Min) ||
-        (vp->OpCode() == VIEWINST_Max)) {
-      if (vp->TMP1() == temp_num) return vp;
-    }
-  }
-  return NULL;
-}
-
-ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Column) {
+ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>& IV, int64_t Column) {
   for (int64_t i = 0; i < IV.size(); i++) {
     ViewInstruction *vp = IV[i];
     if (vp->TR() == Column) {
@@ -1199,7 +1260,6 @@ ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Colu
           (vp->OpCode() == VIEWINST_Display_ByThread_Metric) ||
           (vp->OpCode() == VIEWINST_Display_Tmp) ||
           (vp->OpCode() == VIEWINST_Display_Percent_Column) ||
-          (vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
           (vp->OpCode() == VIEWINST_Display_Percent_Tmp) ||
           (vp->OpCode() == VIEWINST_Display_Average_Tmp) ||
           (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
@@ -1210,7 +1270,7 @@ ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Colu
   return NULL;
 }
 
-int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV) {
+int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>& IV) {
   int64_t Max_Column = -1;
   for (int64_t i = 0; i < IV.size(); i++) {
     ViewInstruction *vp = IV[i];
@@ -1218,7 +1278,6 @@ int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV) {
         (vp->OpCode() == VIEWINST_Display_ByThread_Metric) ||
         (vp->OpCode() == VIEWINST_Display_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_Percent_Column) ||
-        (vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
         (vp->OpCode() == VIEWINST_Display_Percent_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_Average_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
@@ -1228,7 +1287,7 @@ int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV) {
   return Max_Column;
 }
 
-int64_t Find_Max_Temp (std::vector<ViewInstruction *>IV) {
+int64_t Find_Max_Temp (std::vector<ViewInstruction *>& IV) {
   int64_t Max_Temp = -1;
   for (int64_t i = 0; i < IV.size(); i++) {
     ViewInstruction *vp = IV[i];
@@ -1243,12 +1302,14 @@ int64_t Find_Max_Temp (std::vector<ViewInstruction *>IV) {
       Max_Temp = max (Max_Temp, vp->TMP1());
       Max_Temp = max (Max_Temp, vp->TMP2());
       Max_Temp = max (Max_Temp, vp->TMP3());
+    } else if (vp->OpCode() == VIEWINST_Define_Total_Tmp) {
+      Max_Temp = max (Max_Temp, vp->TMP1());
     }
   }
   return Max_Temp;
 }
 
-int64_t Find_Max_ExtraMetrics (std::vector<ViewInstruction *> IV) {
+int64_t Find_Max_ExtraMetrics (std::vector<ViewInstruction *> & IV) {
   int64_t Max_Temp = ViewReduction_Count-1;
   for (int64_t i = 0; i < IV.size(); i++) {
     ViewInstruction *vp = IV[i];
@@ -1260,9 +1321,9 @@ int64_t Find_Max_ExtraMetrics (std::vector<ViewInstruction *> IV) {
 }
 
 void Print_View_Params (ostream &to,
-                        std::vector<Collector> CV,
-                        std::vector<std::string> MV,
-                        std::vector<ViewInstruction *>IV) {
+                        std::vector<Collector>& CV,
+                        std::vector<std::string>& MV,
+                        std::vector<ViewInstruction *>& IV) {
   int i;
   to << std::endl << "List Collectors" << std::endl;
   for ( i=0; i < CV.size(); i++) {

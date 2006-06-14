@@ -107,8 +107,7 @@ bool First_Column (CommandObject *cmd,
       vp = Find_Column_Def (IV, vp->TMP1());
       Assert (vp != NULL);
     }
-    if ((vp->OpCode() == VIEWINST_Display_Metric) ||
-        (vp->OpCode() == VIEWINST_Display_Percent_Metric)) {
+    if (vp->OpCode() == VIEWINST_Display_Metric) {
       Column0metric = vp->TMP1();
     } else {
      // This is more than we can handle!
@@ -221,14 +220,6 @@ void Construct_View (CommandObject *cmd,
           }
         } else if (vinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
           // Next_Metric_Value = NULL; /?? not sure how to implement this
-        } else if (vinst->OpCode() == VIEWINST_Display_Percent_Metric) {
-          if (!Gen_Total_Percent) {
-           // The measured time interval is too small.
-            continue;
-          }
-          CommandResult *Metric_Result = Get_Object_Metric( cmd, exp, it->first, tgrp,
-                                                               CV[CM_Index], MV[CM_Index] );
-          Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
         }
         if (Next_Metric_Value == NULL) {
           Next_Metric_Value = CRPTR ("");
@@ -432,35 +423,29 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
 */
 
    // Calculate %?
-    ViewInstruction *totalInst = Find_Total_Def (IV);
-    bool Gen_Total_Percent = (totalInst != NULL);
-    int64_t totalIndex = 0;
+    bool Gen_Total_Percent = false;
+    ViewInstruction *totalInst = NULL;
     int64_t percentofcolumn = -1;
-    if (Gen_Total_Percent) {
-      totalIndex = totalInst->TMP1(); // this is a CV/MV index, not a column number!
-      ViewInstruction *vinst = Find_Percent_Def (IV);
-      if (vinst != NULL) {
-        if (vinst->OpCode() == VIEWINST_Display_Percent_Column) {
-         // This is the column number!  Save to avoid recalculateion.
-          percentofcolumn = vinst->TMP1(); // this is the column number!
-        } else if (vinst->OpCode() == VIEWINST_Display_Percent_Metric) {
-         // We will recalcualte the value when we generate the %.
-        } else {
-         // Note yet implemented??
-          Gen_Total_Percent = false;
-        }
-      } else {
-       // No % displayed, so why calcualte total?
-        Gen_Total_Percent = false;
+    int64_t totalIndex = 0;
+    for (i = 0; i < IV.size(); i++) {
+      ViewInstruction *vinst = IV[i];
+      if (vinst->OpCode() == VIEWINST_Define_Total_Metric) {
+       // Current support is for only 1 total value.
+        Assert (totalInst == NULL);
+        Assert (vinst->TR() == 0);
+        totalInst = vinst;
+        totalIndex = totalInst->TMP1(); // this is a CV/MV index, not a column number!
+      } else if (vinst->OpCode() == VIEWINST_Display_Percent_Column) {
+       // Current support is for only 1 percent calculation.
+        Assert (percentofcolumn == -1);
+        Assert (vinst->TMP2() == 0);
+        percentofcolumn = vinst->TMP1();
       }
     }
-    if (Gen_Total_Percent) {
+    if ((totalInst != NULL) && (percentofcolumn != -1)) {
      // We calculate Total by adding all the values that were recorded for the thread group.
       TotalValue = Get_Total_Metric ( cmd, tgrp, CV[totalIndex], MV[totalIndex] );
-      if (TotalValue == NULL) {
-       // Something went wrong, delete the column of % from the report.
-        Gen_Total_Percent = false;
-      }
+      Gen_Total_Percent = (TotalValue != NULL);
     }
 
    // Build a Header for each column in the table.
@@ -488,7 +473,6 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       } else if (vinst->OpCode() == VIEWINST_Display_Tmp) {
         column_header = std::string("Temp" + CM_Index);
       } else if ((vinst->OpCode() == VIEWINST_Display_Percent_Column) ||
-                 (vinst->OpCode() == VIEWINST_Display_Percent_Metric) ||
                  (vinst->OpCode() == VIEWINST_Display_Percent_Tmp)) {
         if (!Gen_Total_Percent) {
          // The measured time interval is too small.

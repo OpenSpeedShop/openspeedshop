@@ -56,6 +56,64 @@ cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
 
 }
 
+
+static void Calculate_Totals (
+      CommandObject *cmd,
+      ThreadGroup& tgrp,
+      std::vector<Collector>& CV,
+      std::vector<std::string>& MV,
+      std::vector<ViewInstruction *>& IV,
+      std::vector<std::pair<CommandResult *,
+                            SmartPtr<std::vector<CommandResult *> > > >& c_items,
+      std::vector<CommandResult *>& Total_Values) {
+
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    CommandResult *TotalValue = NULL;
+    bool Gen_Total_Percent = false;
+
+    if (vp->OpCode() == VIEWINST_Define_Total_Metric) {
+     // We calculate Total by adding all the values that were recorded for the thread group.
+      int64_t metricIndex = vp->TMP1(); // this is a CV/MV index, not a column number!
+      TotalValue = Get_Total_Metric ( cmd, tgrp, CV[metricIndex], MV[metricIndex] );
+      Gen_Total_Percent = true;
+    } else if (vp->OpCode() == VIEWINST_Define_Total_Tmp) {
+     // Sum the specified temp.
+      int64_t tmpIndex = vp->TMP1();
+      std::vector<std::pair<CommandResult *,
+                            SmartPtr<std::vector<CommandResult *> > > >::iterator ci;
+      ci = c_items.begin();
+      if (ci == c_items.end()) {
+       // Clearly, we can not add up a sequence if there is none.
+        Gen_Total_Percent = false;
+      } else if (tmpIndex >= (*ci).second->size()) {
+       // Clearly, this is an error.
+        Gen_Total_Percent = false;
+      } else {
+        if (ci != c_items.end()) {
+          Gen_Total_Percent = true;
+          TotalValue = Dup_CommandResult( (*(*ci).second)[tmpIndex] );
+        }
+        ci++;
+        if (Look_For_KeyWord(cmd, "ButterFly")) {
+          for ( ; ci != c_items.end(); ci++) {
+            Accumulate_Max_CommandResult (TotalValue, (*(*ci).second)[tmpIndex]);
+          }
+        } else {
+          for ( ; ci != c_items.end(); ci++) {
+            Accumulate_CommandResult (TotalValue, (*(*ci).second)[tmpIndex]);
+          }
+        }
+      }
+    }
+
+    if (Gen_Total_Percent) {
+      Assert(vp->TR() >= 0);
+      Total_Values[vp->TR()] = TotalValue;
+    }
+  }
+}
+
 static void Setup_Sort( 
        int64_t temp_index,
        std::vector<std::pair<CommandResult *,
@@ -81,7 +139,6 @@ static void Setup_Sort(
        std::vector<std::pair<CommandResult *,
                              SmartPtr<std::vector<CommandResult *> > > >& c_items) {
   if ((vinst->OpCode() == VIEWINST_Display_Metric) ||
-      (vinst->OpCode() == VIEWINST_Display_Percent_Metric) ||
       (vinst->OpCode() == VIEWINST_Display_Percent_Column)) {
     return;
   }
@@ -132,85 +189,6 @@ static void Dump_Intermediate_CallStack (ostream &tostream,
     }
     ((CommandResult *)(cp.first))->Print(tostream); tostream << std::endl;
   }
-}
-
-static bool Calculate_Total_For_Percent (
-              CommandObject *cmd,
-              ThreadGroup& tgrp,
-              std::vector<Collector>& CV,
-              std::vector<std::string>& MV,
-              std::vector<ViewInstruction *>& IV,
-              int64_t &percentofcolumn,
-              CommandResult *&TotalValue,
-              std::vector<std::pair<CommandResult *,
-                                    SmartPtr<std::vector<CommandResult *> > > >& c_items) {
-   // Calculate %?
-    ViewInstruction *totalInst = Find_Total_Def (IV);
-    int64_t totalIndex = 0;
-    TotalValue = NULL;
-    percentofcolumn = -1;
-    bool Gen_Total_Percent = true;
-
-    if (totalInst == NULL) {
-      ViewInstruction *vinst = Find_Percent_Def (IV);
-      if ((vinst != NULL) &&
-          (vinst->OpCode() == VIEWINST_Display_Percent_Tmp)) {
-       // Sum the specified temp.
-        int64_t use_temp = vinst->TMP1();
-        std::vector<std::pair<CommandResult *,
-                              SmartPtr<std::vector<CommandResult *> > > >::iterator ci;
-        ci = c_items.begin();
-        if (ci == c_items.end()) {
-         // Clearly, we can not add up a sequence if there is none.
-          Gen_Total_Percent = false;
-        } else if (use_temp >= (*ci).second->size()) {
-         // Clearly, this is an error.
-          Gen_Total_Percent = false;
-        } else {
-          if (ci != c_items.end()) {
-            TotalValue = Dup_CommandResult( (*(*ci).second)[use_temp] );
-          }
-          ci++;
-          if (Look_For_KeyWord(cmd, "ButterFly")) {
-            for ( ; ci != c_items.end(); ci++) {
-              Accumulate_Max_CommandResult (TotalValue, (*(*ci).second)[use_temp]);
-            }
-          } else {
-            for ( ; ci != c_items.end(); ci++) {
-              Accumulate_CommandResult (TotalValue, (*(*ci).second)[use_temp]);
-            }
-          }
-        }
-      }
-    } else {
-      totalIndex = totalInst->TMP1(); // this is a CV/MV index, not a column number!
-      ViewInstruction *vinst = Find_Percent_Def (IV);
-      if (vinst != NULL) {
-        if (vinst->OpCode() == VIEWINST_Display_Percent_Column) {
-         // This is the column number!  Save to avoid recalculateion.
-          percentofcolumn = vinst->TMP1(); // this is the column number!
-        } else if (vinst->OpCode() == VIEWINST_Display_Percent_Metric) {
-         // We will recalcualte the value when we generate the %.
-        } else {
-         // Not yet implemented??
-          Gen_Total_Percent = false;
-        }
-      } else {
-       // No % displayed, so why calcualte total?
-        Gen_Total_Percent = false;
-      }
-      if (Gen_Total_Percent) {
-       // We calculate Total by adding all the values that were recorded for the thread group.
-        TotalValue = Get_Total_Metric ( cmd, tgrp, CV[totalIndex], MV[totalIndex] );
-      }
-    }
-    if (Gen_Total_Percent) {
-      if (TotalValue == NULL) {
-       // Something went wrong, delete the column of % from the report.
-        Gen_Total_Percent = false;
-      }
-    }
-  return Gen_Total_Percent;
 }
 
 static std::vector<CommandResult *> *
@@ -630,9 +608,14 @@ static void Expand_CallStack (
 }
 
 bool Generic_Multi_View (
-           CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-           ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-           std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
+           CommandObject *cmd,
+           ExperimentObject *exp,
+           int64_t topn,
+           ThreadGroup& tgrp,
+           std::vector<Collector>& CV,
+           std::vector<std::string>& MV,
+           std::vector<ViewInstruction *>& IV,
+           std::vector<std::string>& HV,
            View_Form_Category vfc,
            std::vector<std::pair<CommandResult *,
                                  SmartPtr<std::vector<CommandResult *> > > >& c_items,
@@ -647,9 +630,6 @@ bool Generic_Multi_View (
     return false;   // There is no collector, return.
   }
 
-  CommandResult *TotalValue = NULL;
-  bool Gen_Total_Percent = false;
-  int64_t percentofcolumn = -1;
   int64_t i;
   if (topn == 0) topn = LONG_MAX;
 
@@ -695,6 +675,29 @@ bool Generic_Multi_View (
    // Acquire base set of metric values.
     int64_t Column0index = (ViewInst[0]->OpCode() == VIEWINST_Display_Metric) ? ViewInst[0]->TMP1() : 0;
 
+   // Calculate any Totals that are needed to do percentages.
+    std::vector<CommandResult *> Total_Value(0);
+    bool Gen_Total_Percent = false;
+    int64_t max_percent_index = -1;
+    for (i = 0; i < IV.size(); i++) {
+      ViewInstruction *vp = IV[i];
+      if (vp->OpCode() == VIEWINST_Display_Percent_Tmp) {
+        max_percent_index = max(max_percent_index,vp->TMP2());
+      } else if (vp->OpCode() == VIEWINST_Display_Percent_Column) {
+        max_percent_index = max(max_percent_index,vp->TMP2());
+      }
+    }
+    if (max_percent_index >= 0) {
+      Gen_Total_Percent = true;
+      Total_Value.reserve(max_percent_index+1);
+      for (i = 0; i < (max_percent_index+1); i++) Total_Value[i] = NULL;
+      if (!Look_For_KeyWord(cmd, "ButterFly")) {
+       // Totals must be determined before we get rid of unneeded records
+       // when we eliminate all but the "topN" items.
+        Calculate_Totals (cmd, tgrp, CV, MV, IV, c_items, Total_Value);
+      }
+    }
+
    // Determine call stack ordering
     bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
 
@@ -702,8 +705,6 @@ bool Generic_Multi_View (
     std::string EO_Title;
     if (vfc == VFC_Trace) {
       EO_Title = "Call Stack Function (defining location)";
-
-      Gen_Total_Percent = Calculate_Total_For_Percent (cmd, tgrp, CV, MV, IV, percentofcolumn, TotalValue, c_items);
 
       if ((topn < (int64_t)c_items.size()) &&
           !Look_For_KeyWord(cmd, "ButterFly")) {
@@ -758,9 +759,6 @@ bool Generic_Multi_View (
                         Look_For_KeyWord(cmd, "FullStacks"));
 
       Combine_Duplicate_CallStacks (AccumulateInst, FieldRequirements, c_items);
-      if (!Look_For_KeyWord(cmd, "ButterFly")) {
-        Gen_Total_Percent = Calculate_Total_For_Percent (cmd, tgrp, CV, MV, IV, percentofcolumn, TotalValue, c_items);
-      }
 
      // Sort by the value displayed in the left most column.
       Setup_Sort (ViewInst[0], c_items);
@@ -804,8 +802,6 @@ bool Generic_Multi_View (
        Mark_Cmd_With_Soft_Error(cmd, "(Unrecognized report type for multi-data view.)");
        return false;
      }
-
-      Gen_Total_Percent = Calculate_Total_For_Percent (cmd, tgrp, CV, MV, IV, percentofcolumn, TotalValue, c_items);
 
      // Sort by the value displayed in the left most column.
       Setup_Sort (ViewInst[0], c_items);
@@ -891,14 +887,11 @@ bool Generic_Multi_View (
           Extract_Pivot_Items (cmd, exp, AccumulateInst, FieldRequirements, TraceBack_Order, c_items, func, result);
 
           if (!result.empty()) {
-            Gen_Total_Percent = Calculate_Total_For_Percent (cmd, tgrp, CV, MV, IV,
-                                                             percentofcolumn, TotalValue, result);
             std::list<CommandResult *> view_unit;
-            Construct_View_Output (cmd, tgrp, CV, MV, IV,
-                                   num_columns,
-                                   Gen_Total_Percent, percentofcolumn, TotalValue,
-                                   result,
-                                   view_unit);
+            if (Gen_Total_Percent) {
+              Calculate_Totals (cmd, tgrp, CV, MV, IV, result, Total_Value);
+            }
+            Construct_View_Output (cmd, exp, tgrp, CV, MV, IV, Total_Value, result, view_unit);
             if (!view_unit.empty()) {
               if (MoreThanOne) {
                // Delimiter between items is a null string.
@@ -908,16 +901,22 @@ bool Generic_Multi_View (
               MoreThanOne = true;
             }
             Reclaim_CR_Space (result);
+
+           // Reclaim Total_Value results.
+            for ( i = 0; i < Total_Value.size(); i++) {
+              delete Total_Value[i];
+            }
           }
         }
       }
 
     } else {
-      Construct_View_Output (cmd, tgrp, CV, MV, IV,
-                             num_columns,
-                             Gen_Total_Percent, percentofcolumn, TotalValue,
-                             c_items,
-                             view_output);
+      Construct_View_Output (cmd, exp, tgrp, CV, MV, IV, Total_Value, c_items, view_output);
+
+     // Reclaim Total_Value results.
+      for ( i = 0; i < Total_Value.size(); i++) {
+        delete Total_Value[i];
+      }
     }
 
     success = true;
@@ -928,14 +927,6 @@ bool Generic_Multi_View (
 
  // Release space for no longer needed items.
   Reclaim_CR_Space (c_items);
-  if (TotalValue != NULL) delete TotalValue;
-
- // Release instructions
-  for (i = 0; i < IV.size(); i++) {
-    ViewInstruction *vp = IV[i];
-    delete vp;
-    IV[i] = NULL;
-  }
 
   return success;
 }
