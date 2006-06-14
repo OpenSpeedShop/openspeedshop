@@ -140,7 +140,7 @@ public:
   int getExpID() { return expID; }
   int64_t leftSideExpID;   // Used by CompareExperimentsPanel ONLY
   int64_t rightSideExpID;   // Used by CompareExperimentsPanel ONLY
-  QString getMostImportantMetric(QString collector_name);
+  static QString getMostImportantMetric(QString collector_name);
 
 public slots:
   virtual void saveAsSelected();

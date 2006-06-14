@@ -29,6 +29,7 @@ StatsPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/libopenss-cli \
     -I$(top_srcdir)/libopenss-message \
     -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
+    -I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
     -I$(top_srcdir)/libopenss-guichart \
     -I$(top_srcdir)/libopenss-gui \
     -I$(top_srcdir)/libopenss-guiexprinfo \

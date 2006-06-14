@@ -1253,6 +1253,7 @@ StatsPanel::cviewQueryStatements()
   updateStatsPanelData(originalCommand + " -v Statements");
 }
 
+#include "CustomExperimentPanel.hxx"
 void
 StatsPanel::timeSliceSelected()
 {
@@ -1268,14 +1269,16 @@ StatsPanel::timeSliceSelected()
 int skylineFLAG = FALSE;
 if( skylineFLAG )
 {
-printf("look up the skyline....\n");
+// printf("look up the skyline....\n");
 printf("currentCollectorStr=%s\n", currentCollectorStr.ascii() );
-  if( currentCollectorStr == "usertime" )
+//  if( currentCollectorStr == "usertime" )
   {
     InputLineObject *clip = NULL;
 //    QString command = "expCompare -m exclusive_time usertime1 -I % 0:25 -I % 26:50 -I % 51:75 -I % 76:100";
-    QString command = "expCompare -m exclusive_time usertime1 -I % 0:20 -I % 21:40 -I % 41:60 -I % 61:80 -I % 81:100";
+//    QString command = "expCompare -m exclusive_time usertime1 -I % 0:20 -I % 21:40 -I % 41:60 -I % 61:80 -I % 81:100";
 //    QString command = "expCompare -m exclusive_time usertime1 -I % 0:10 -I % 11:20 -I % 21:30 -I % 31:40 -I % 41:50 -I % 51:60 -I % 61:70 -I % 71:80 -I % 81:90 -I % 91:100";
+QString mim = CustomExperimentPanel::getMostImportantMetric(currentCollectorStr);
+    QString command = QString("expCompare %1 %21 -I % 0:20 -I % 21:40 -I % 41:60 -I % 61:80 -I % 81:100").arg(mim).arg(currentCollectorStr);
 printf("do command=(%s)\n", command.ascii() );
     skylineValues.clear();
     skylineText.clear();
@@ -1382,7 +1385,8 @@ for( ChartTextValueList::Iterator it = skylineText.begin();
 }
 // For now don't show text.
 skylineText.clear();
-  timeSegmentDialog->cf->setValues(skylineValues, skylineText, blue_color_names, 1);
+//  timeSegmentDialog->cf->setValues(skylineValues, skylineText, blue_color_names, 1);
+  timeSegmentDialog->cf->setValues(skylineValues, skylineText, color_names, MAX_COLOR_CNT);
 } else
 {
   timeSegmentDialog->cf->hide();
