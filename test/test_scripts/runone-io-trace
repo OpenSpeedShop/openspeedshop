@@ -88,7 +88,9 @@ def CompareResults(testName, fileptr):
 		tempfileline = outputfileptr.readline()
 		if not tempfileline:
 			break
-		if tempfileline[0:9] == '      Exc':
+		if tempfileline[0:9] == '      Exc' or tempfileline[0:5] == '  Exc':
+			if tempfileline[0:5] == '  Exc':
+				outputfileptr.readline()
 			nooutput = 0
 			break
 	test_status = 0
