@@ -320,13 +320,13 @@ AC_DEFUN([AC_PKG_MPI], [
 	default_mpi=LAMPI;    default_mpi_name=lampi
 	all_mpi_names=" lampi $all_mpi_names"
     fi
-    if test x"$MPT_LIBS" != x""; then
-	default_mpi=MPT;      default_mpi_name=mpt
-	all_mpi_names=" mpt $all_mpi_names"
-    fi
     if test x"$MPICH_LIBS" != x""; then
 	default_mpi=MPICH;    default_mpi_name=mpich
 	all_mpi_names=" mpich $all_mpi_names"
+    fi
+    if test x"$MPT_LIBS" != x""; then
+	default_mpi=MPT;      default_mpi_name=mpt
+	all_mpi_names=" mpt $all_mpi_names"
     fi
 
     if test x"$default_mpi" != x""; then
