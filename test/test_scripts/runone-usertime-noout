@@ -208,7 +208,7 @@ def metrics_result(testName):
                 i+=1
         if not tempfileline:
                 return 1
-        if tempfileline[0:i] == 'usertime::exclusive_time':
+        if tempfileline[0:i] == 'usertime::exclusive_detail':
                 return 0
         else:
                 return 2
