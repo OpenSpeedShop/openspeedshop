@@ -89,7 +89,7 @@ def CompareResults(testName, fileptr):
 		tempfileline = outputfileptr.readline()
 		if not tempfileline:
 			break
-		if tempfileline[0:12] == '        PAPI':
+		if tempfileline[0:5] == ' PAPI':
 			nooutput = 0
 			break
 	expectedfileptr.readline()
@@ -184,7 +184,7 @@ def CompareResults(testName, fileptr):
 		print testName + ' has PASSED. \n'
 		fileptr.write(testName + ' has PASSED \n')
 	else:
-		print testName + 'has FAILED. \n'
+		print testName + ' has FAILED. \n'
 		fileptr.write(testName + ' has FAILED.  ')
 		if (failure_reason == 1):
 			fileptr.write('The functions exclusive time ratios are incorrect.\n')
