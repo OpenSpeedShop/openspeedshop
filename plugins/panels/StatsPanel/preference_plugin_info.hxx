@@ -66,6 +66,7 @@ extern "C"
   SPCheckBox* showTextByPercentCheckBox;
 
   QCheckBox* showSkylineCheckBox;
+  QLineEdit* showSkylineLineEdit;
 
   static char *pname = NULL;
 
@@ -121,6 +122,11 @@ extern "C"
     return( showSkylineCheckBox->isChecked() );
   }
 
+  QString getPreferenceShowSkyLineLineEdit()
+  {
+// printf("getPreferenceshowSkylineLineEdit(%s)\n", pname);
+    return( showSkylineLineEdit->text() );
+  }
 
   void initPreferenceSettings()
   {
@@ -135,6 +141,7 @@ extern "C"
     showTextByValueCheckBox->setChecked(TRUE);
     showTextByPercentCheckBox->setChecked(FALSE);
     showSkylineCheckBox->setChecked(FALSE);
+    showSkylineLineEdit->setText("25");
   }
 
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
@@ -224,6 +231,10 @@ extern "C"
     showSkylineCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showSkylineCheckBox->sizePolicy().hasHeightForWidth() ) );
     textLabelLayout->addWidget( showSkylineCheckBox );
 
+    showSkylineLineEdit =
+      new QLineEdit( textLabelGroupBox, "showSkylineLineEdit" );
+    textLabelLayout->addWidget( showSkylineLineEdit );
+
     layout8->addWidget( textLabelGroupBox );
 
 
@@ -311,6 +322,11 @@ extern "C"
         "openspeedshop", name, showSkylineCheckBox->name() );
       showSkylineCheckBox->setChecked(
         settings->readBoolEntry(settings_buffer, FALSE) );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, showSkylineLineEdit->name() );
+      showSkylineLineEdit->setText(
+        settings->readEntry(settings_buffer, "25") );
     }
 
     QToolTip::add(showTopNLineEdit,
@@ -357,6 +373,10 @@ extern "C"
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showSkylineCheckBox->name() );
     settings->writeEntry(settings_buffer, showSkylineCheckBox->isChecked() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, showSkylineLineEdit->name() );
+    settings->writeEntry(settings_buffer, showSkylineLineEdit->text() );
   }
 }
 

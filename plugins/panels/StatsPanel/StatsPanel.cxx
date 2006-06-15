@@ -77,6 +77,8 @@ static char *coldToHot_color_names[] = {
 #define MAX_COLOR_CNT 14
 static char *blue_color_names[] = { 
   "blue", 
+  "blue", 
+  "blue", 
 };
 
 
@@ -1265,29 +1267,53 @@ StatsPanel::timeSliceSelected()
 
 
 
-// int skylineFLAG = TRUE;
-// int skylineFLAG = FALSE;
-int skylineFLAG = getPreferenceShowSkyline();
-if( skylineFLAG )
-{
+  int skylineFLAG = getPreferenceShowSkyline();
+  if( skylineFLAG )
+  {
 // printf("look up the skyline....\n");
 // printf("currentCollectorStr=%s\n", currentCollectorStr.ascii() );
-//  if( currentCollectorStr == "usertime" )
-  {
+
     InputLineObject *clip = NULL;
+    QString mim = CustomExperimentPanel::getMostImportantMetric(currentCollectorStr);
+
+// int segmentSize = 10;
+int segmentSize = getPreferenceShowSkyLineLineEdit().toInt();
+int startSegment = 0;
+int endSegment=segmentSize;
+QString segmentString = QString::null;
+while( startSegment < 100 )
+{
+  segmentString += QString(" -I % %1:%2").arg(startSegment).arg(endSegment);
+  startSegment = endSegment+1;
+  endSegment += segmentSize;
+  if( endSegment > 100 )
+  {
+    endSegment = 100;
+  }
+}
+
 //    QString command = "expCompare -m exclusive_time usertime1 -I % 0:25 -I % 26:50 -I % 51:75 -I % 76:100";
 //    QString command = "expCompare -m exclusive_time usertime1 -I % 0:20 -I % 21:40 -I % 41:60 -I % 61:80 -I % 81:100";
 //    QString command = "expCompare -m exclusive_time usertime1 -I % 0:10 -I % 11:20 -I % 21:30 -I % 31:40 -I % 41:50 -I % 51:60 -I % 61:70 -I % 71:80 -I % 81:90 -I % 91:100";
-QString mim = CustomExperimentPanel::getMostImportantMetric(currentCollectorStr);
-    QString command = QString("expCompare %1 %21 -I % 0:20 -I % 21:40 -I % 41:60 -I % 61:80 -I % 81:100").arg(mim).arg(currentCollectorStr);
+
+//    QString command = QString("expCompare -x %1 %2 %3 -v Summary -I % 0:20 -I % 21:40 -I % 41:60 -I % 61:80 -I % 81:100").arg(expID).arg(mim).arg(currentCollectorStr);
+//    QString command = QString("expCompare -x %1 %2 %3 -v Summary -I % 0:10 -I % 11:20 -I % 21:30 -I % 31:40 -I % 41:50 -I % 51:60 -I % 61:70 -I % 71:80 -I % 81:90 -I % 91:100").arg(expID).arg(mim).arg(currentCollectorStr);
+
+
+QString command = QString("expCompare -x %1 %2 %3 -v Summary %4").arg(expID).arg(mim).arg(currentCollectorStr).arg(segmentString);
+command += QString(" %1").arg(currentThreadsStr);
 // printf("do command=(%s)\n", command.ascii() );
     skylineValues.clear();
     skylineText.clear();
+
+    QApplication::setOverrideCursor(QCursor::WaitCursor);
+ 
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
     if( clip == NULL )
     {
       cerr << "No skyline available for this experiment.\n";
+      QApplication::restoreOverrideCursor( );
       return;
     }
     Input_Line_Status status = ILO_UNKNOWN;
@@ -1307,9 +1333,11 @@ QString mim = CustomExperimentPanel::getMostImportantMetric(currentCollectorStr)
     std::list<CommandResult *> cmd_result = co->Result_List();
     for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++)
     {
-      if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES)
+// cerr << "TYPE: = " << (*cri)->Type() << "\n";
+//      if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES)
+      if ((*cri)->Type() == CMD_RESULT_COLUMN_ENDER)
       {
-// printf("Here CMD_RESULT_COLUMN_VALUES:\n");
+// printf("Here CMD_RESULT_COLUMN_ENDER:\n");
         std::list<CommandResult *> columns;
         CommandResult_Columns *ccp = (CommandResult_Columns *)*cri;
         ccp->Value(columns);
@@ -1323,31 +1351,31 @@ QString mim = CustomExperimentPanel::getMostImportantMetric(currentCollectorStr)
           switch( cr->Type() )
           {
             case CMD_RESULT_NULL:
-//    cerr << "Got CMD_RESULT_NULL\n";
+// cerr << "Got CMD_RESULT_NULL\n";
               value = 0;
               skylineValues.push_back(value);
               skylineText.push_back(vs.stripWhiteSpace());
               break;
             case CMD_RESULT_UINT:
-//    cerr << "Got CMD_RESULT_UINT\n";
+// cerr << "Got CMD_RESULT_UINT\n";
               value = vs.toUInt();;
               skylineValues.push_back(value);
               skylineText.push_back(vs.stripWhiteSpace());
               break;
             case CMD_RESULT_INT:
-//    cerr << "Got CMD_RESULT_INT\n";
+// cerr << "Got CMD_RESULT_INT\n";
               value = vs.toInt();;
               skylineValues.push_back(value);
               skylineText.push_back(vs.stripWhiteSpace());
               break;
             case CMD_RESULT_FLOAT:
-//    cerr << "Got CMD_RESULT_FLOAT\n";
+// cerr << "Got CMD_RESULT_FLOAT\n";
               value = (int)(vs.toFloat());
               skylineValues.push_back(value);
               skylineText.push_back(vs.stripWhiteSpace());
               break;
             case CMD_RESULT_STRING:
-//    cerr << "Got CMD_RESULT_STRING\n";
+// cerr << "Got CMD_RESULT_STRING\n";
 //              value = vs.toInt();;
               value = 1; // FIX
               skylineValues.push_back(value);
@@ -1359,47 +1387,28 @@ QString mim = CustomExperimentPanel::getMostImportantMetric(currentCollectorStr)
           }
 // printf("int value = (%d)\n", value );
         }
-        break;  // Only process one line regardless of how much data there is...
       }
     }
+    QApplication::restoreOverrideCursor( );
     clip->Set_Results_Used();
+
+
+  
+  
+    // For now don't show text.
+    skylineText.clear();
+    timeSegmentDialog->cf->show();
+timeSegmentDialog->cf->setValues(skylineValues, skylineText, blue_color_names, 1);
+//     timeSegmentDialog->cf->setValues(skylineValues, skylineText, color_names, MAX_COLOR_CNT);
+  } else
+  {
+    timeSegmentDialog->cf->hide();
   }
-
-
-  
-  
-#if 0
-for( ChartPercentValueList::Iterator it = skylineValues.begin();
-       it != skylineValues.end();
-       ++it)
-{
-  int v = (int)*it;
-  printf("v=(%d)\n", v);
-}
-for( ChartTextValueList::Iterator it = skylineText.begin();
-       it != skylineText.end();
-       ++it)
-{
-  QString s = (QString)*it;
-printf("s=(%s)\n", s.ascii() );
-}
-#endif // 0
-// For now don't show text.
-skylineText.clear();
-//  timeSegmentDialog->cf->setValues(skylineValues, skylineText, blue_color_names, 1);
-  timeSegmentDialog->cf->show();
-  timeSegmentDialog->cf->setValues(skylineValues, skylineText, color_names, MAX_COLOR_CNT);
-} else
-{
-  timeSegmentDialog->cf->hide();
-}
 
   if( timeSegmentDialog->exec() == QDialog::Accepted )
   { 
 // printf("The user hit accept.\n");
 // printf("start=%s end=%s\n", timeSegmentDialog->startValue->text().ascii(), timeSegmentDialog->endValue->text().ascii() );
-
-
 
     timeIntervalString = QString(" -I % %1:%2").arg(timeSegmentDialog->startValue->text()).arg(timeSegmentDialog->endValue->text());
   }
