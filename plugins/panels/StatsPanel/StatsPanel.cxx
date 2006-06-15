@@ -4264,7 +4264,7 @@ StatsPanel::generateCommand()
       command = QString("expView -x %1 %2 -v %4").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
     }
 // printf("start of pcsamp generated command (%s)\n", command.ascii() );
-  } else if( currentCollectorStr == "usertime" || currentCollectorStr == "fpe" || currentCollectorStr == "io" || currentCollectorStr == "iot" )
+  } else if( currentCollectorStr == "usertime" || currentCollectorStr == "fpe" || currentCollectorStr == "io" || currentCollectorStr == "iot" || currentCollectorStr == "hwctime" )
   {
 // printf("currentCollectorStr =(%s) currentUserSelectedReportStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
     selectedFunctionStr = findSelectedFunction();
@@ -5387,6 +5387,11 @@ StatsPanel::addHWCTimeReports(QPopupMenu *menu )
   qaction->setText( tr("Show: Statements") );
   qaction->setToolTip(tr("Show by Statements.") );
 
+qaction = new QAction(this, "showStatementsByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: Statements by Function") );
+qaction->setToolTip(tr("Show timings for statements by function"));
+
   qaction = new QAction(this, "showLinkedObjects");
   qaction->addTo( menu );
   qaction->setText( tr("Show: LinkedObjects") );
@@ -5397,20 +5402,40 @@ StatsPanel::addHWCTimeReports(QPopupMenu *menu )
   qaction->setText( tr("Show: CallTrees") );
   qaction->setToolTip(tr("Show by CallTrees.") );
 
+qaction = new QAction(this, "showCallTreesByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: CallTrees by Function") );
+qaction->setToolTip(tr("Show call trees for each function by function"));
+
   qaction = new QAction(this, "showCallTrees,FullStack");
   qaction->addTo( menu );
   qaction->setText( tr("Show: CallTrees,FullStack") );
   qaction->setToolTip(tr("Show call trees, with full stacks, to Functions."));
+
+qaction = new QAction(this, "showCallTrees,FullStackbyFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: CallTrees,FullStack by Function") );
+qaction->setToolTip(tr("Show call trees, with full stacks, to functions by function"));
 
   qaction = new QAction(this, "showTraceBacks");
   qaction->addTo( menu );
   qaction->setText( tr("Show: TraceBacks") );
   qaction->setToolTip(tr("Show by TraceBacks.") );
 
+qaction = new QAction(this, "showTraceBacksByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: TraceBacks by Function") );
+qaction->setToolTip(tr("Show trace backs for each function by function"));
+
   qaction = new QAction(this, "showTraceBacks,FullStack");
   qaction->addTo( menu );
   qaction->setText( tr("Show: TraceBacks,FullStack") );
   qaction->setToolTip(tr("Show trace backs, with full stacks, to Functions."));
+
+qaction = new QAction(this, "showTracebacks,FullStackByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: TraceBacks,FullStack by Function") );
+qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO functions by function."));
 
   qaction = new QAction(this, "showButterfly");
   qaction->addTo( menu );
