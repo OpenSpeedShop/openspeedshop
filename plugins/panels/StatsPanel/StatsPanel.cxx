@@ -4264,7 +4264,7 @@ StatsPanel::generateCommand()
       command = QString("expView -x %1 %2 -v %4").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
     }
 // printf("start of pcsamp generated command (%s)\n", command.ascii() );
-  } else if( currentCollectorStr == "usertime" || currentCollectorStr == "fpe" || currentCollectorStr == "io" || currentCollectorStr == "iot" || currentCollectorStr == "hwctime" )
+  } else if( currentCollectorStr == "usertime" || currentCollectorStr == "fpe" || currentCollectorStr == "io" || currentCollectorStr == "iot" || currentCollectorStr == "hwctime" || currentCollectorStr == "mpi" || currentCollectorStr == "mpit" )
   {
 // printf("currentCollectorStr =(%s) currentUserSelectedReportStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
     selectedFunctionStr = findSelectedFunction();
@@ -5114,30 +5114,52 @@ StatsPanel::addMPIReports(QPopupMenu *menu)
   qaction->setText( tr("Show: TraceBacks") );
   qaction->setToolTip(tr("Show tracebacks to MPI Functions."));
 
+qaction = new QAction(this, "showTraceBacksByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: TraceBacks by Function") );
+qaction->setToolTip(tr("Show trace backs for each function by function"));
+
   qaction = new QAction(this, "showTracebacks,FullStack");
   qaction->addTo( menu );
   qaction->setText( tr("Show: TraceBacks,FullStack") );
   qaction->setToolTip(tr("Show tracebacks, with full stacks, to MPI Functions."));
+
+qaction = new QAction(this, "showTracebacks,FullStackByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: TraceBacks,FullStack by Function") );
+qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO functions by function."));
 
   qaction = new QAction(this, "showCallTrees");
   qaction->addTo( menu );
   qaction->setText( tr("Show: CallTrees") );
   qaction->setToolTip(tr("Show Call Trees to each MPI Functions."));
 
+qaction = new QAction(this, "showCallTreesByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: CallTrees by Function") );
+qaction->setToolTip(tr("Show call trees for each function by function"));
+
   qaction = new QAction(this, "showCallTrees,FullStack");
   qaction->addTo( menu );
   qaction->setText( tr("Show: CallTrees,FullStack") );
   qaction->setToolTip(tr("Show Call Trees, with full stacks, to each MPI Functions."));
+
+qaction = new QAction(this, "showCallTrees,FullStackbyFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: CallTrees,FullStack by Function") );
+qaction->setToolTip(tr("Show call trees, with full stacks, to functions by function"));
 
   qaction = new QAction(this, "showButterfly");
   qaction->addTo( menu );
   qaction->setText( tr("Show: Butterfly") );
   qaction->setToolTip(tr("Show Butterfly view (caller/callees) for selected function."));
 
+#ifdef PULL
   qaction = new QAction(this, "showCallTreesBySelectedFunction");
   qaction->addTo( menu );
   qaction->setText( tr("Show: CallTrees by Selected Function") );
   qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
+#endif // PULL
 }
 
 void
