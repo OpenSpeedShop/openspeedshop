@@ -13,7 +13,7 @@ Module "mutatee.cxx"
     GLOBAL_float (DEN_float32_type)
     GLOBAL_double (DEN_float64_type)
     GLOBAL_char_ptr (DEN_pointer_type)
-    GLOBAL_char_array (DEN_unspecified_type)
+    GLOBAL_char_array (DEN_array_type)
     GLOBAL_char_ref (DEN_reference_type)
     GLOBAL_enum (DEN_union_type)
     GLOBAL_struct (DEN_struct_type)
