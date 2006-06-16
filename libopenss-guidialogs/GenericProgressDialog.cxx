@@ -46,7 +46,7 @@ GenericProgressDialog::GenericProgressDialog( QWidget* parent, const char* name,
   GenericProgressDialogLayout->addWidget( qs );
 
   languageChange();
-  resize( QSize(200, 60).expandedTo(minimumSizeHint()) );
+  resize( QSize(500, 60).expandedTo(minimumSizeHint()) );
   clearWState( WState_Polished );
 }
 

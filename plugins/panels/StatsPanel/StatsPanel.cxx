@@ -1819,14 +1819,16 @@ StatsPanel::updateStatsPanelData(QString command)
 
 // printf("create the progressTimer\n");
   steps = 0;
+  pd = new GenericProgressDialog(this, "Executing Command:", TRUE );
+  pd->infoLabel->setText( QString("Running command") );
   progressTimer = new QTimer( this, "progressTimer" );
   connect( progressTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
-  pd = new GenericProgressDialog(this, "Executing Command:", TRUE );
-  pd->infoLabel->setText( QString("Running command - %1").arg(command) );
-qApp->flushX();
-qApp->processEvents(1000);
   pd->show();
+//progressUpdate();
   progressTimer->start(0);
+  pd->infoLabel->setText( QString("Running command - %1").arg(command) );
+  qApp->flushX();
+  qApp->processEvents(1000);
 
 // printf("sort command?\n");
 
@@ -1883,6 +1885,7 @@ qApp->processEvents(1000);
   statspanel_clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
 
 
+#if 0
   if( statspanel_clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
@@ -1896,11 +1899,13 @@ qApp->processEvents(1000);
     
 //    return;
   }
+#endif // 0
   Input_Line_Status status = ILO_UNKNOWN;
 
   while( !statspanel_clip->Semantics_Complete() )
   {
 // printf("pinging...\n");
+    qApp->flushX();
     qApp->processEvents(1000);
     sleep(1);
   }
@@ -1986,6 +1991,7 @@ qApp->processEvents(1000);
   cf->setValues(cpvl, ctvl, color_names, MAX_COLOR_CNT);
   cf->setHeader( (QString)*columnHeaderList.begin() );
 
+// printf("now clean up the timer...\n");
   progressTimer->stop();
   delete progressTimer;
   progressTimer = NULL;
@@ -5967,6 +5973,7 @@ static bool step_forward = TRUE;
 void
 StatsPanel::progressUpdate()
 {
+// printf("progressUpdate() entered\n");
   pd->qs->setValue( steps );
   if( step_forward )
   {
