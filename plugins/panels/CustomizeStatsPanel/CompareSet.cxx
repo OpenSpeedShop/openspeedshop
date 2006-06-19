@@ -269,7 +269,7 @@ dynamic_items->setOpen(TRUE);
             {
               MPListViewItem *item2 =
                 new MPListViewItem(item, pidstr, ridstr, collectorliststring );
-              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
               item2->descriptionClassObject = dco;
 // printf("A: Put ridstr out: \n");
 // dco->Print();
@@ -277,7 +277,7 @@ dynamic_items->setOpen(TRUE);
             {
               MPListViewItem *item2 = 
                 new MPListViewItem( item, pidstr, collectorliststring, ridstr  );
-              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
               item2->descriptionClassObject = dco;
 // printf("A: Put pidstr out: \n");
 // dco->Print();
@@ -285,7 +285,7 @@ dynamic_items->setOpen(TRUE);
             {
               MPListViewItem *item2 =
                 new MPListViewItem(item, pidstr, tidstr, collectorliststring );
-              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, ridstr, collectorliststring);
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, ridstr, tidstr, collectorliststring);
               item2->descriptionClassObject = dco;
 // printf("A: Put tidstr out: \n");
 // dco->Print();
@@ -293,7 +293,7 @@ dynamic_items->setOpen(TRUE);
             {
               MPListViewItem *item2 = 
                 new MPListViewItem( item, pidstr, collectorliststring  );
-              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, collectorliststring);
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
               item2->descriptionClassObject = dco;
 // printf("A: Put \"other\" out: \n");
 // dco->Print();

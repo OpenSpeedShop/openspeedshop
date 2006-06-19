@@ -37,13 +37,14 @@ class DescriptionClassObject
 {
   public:
     DescriptionClassObject();
-    DescriptionClassObject(bool r, QString p, QString h=QString::null, QString pn=QString::null, QString rn=QString::null, QString c=QString::null)
+    DescriptionClassObject(bool r, QString p, QString h=QString::null, QString pn=QString::null, QString rn=QString::null, QString tn = QString::null, QString c=QString::null)
     {
       root = r;
       pset_name = p;
       host_name = h;
       pid_name = pn;
       rid_name = rn;
+      tid_name = tn;
       collector_name = c;
       all = FALSE;
     }
@@ -57,6 +58,7 @@ class DescriptionClassObject
     QString host_name;
     QString pid_name;
     QString rid_name;
+    QString tid_name;
     QString collector_name;
 
     void Print()
@@ -78,6 +80,10 @@ class DescriptionClassObject
       if( !rid_name.isEmpty() )
       {
         cout << "rid_name=" << rid_name << endl;
+      }
+      if( !tid_name.isEmpty() )
+      {
+        cout << "tid_name=" << rid_name << endl;
       }
       if( !collector_name.isEmpty() )
       {
