@@ -2234,81 +2234,87 @@ catch_TLI_signal (int sig, int error_num)
 // This routine continuously reads from /dev/tty and appends the string to an input window.
 // It is intended that this routine execute in it's own thread.
 void SS_Direct_stdin_Input (void * attachtowindow) {
-  Assert ((CMDWID)attachtowindow != 0);
-  CommandWindowID *cw = Find_Command_Window ((CMDWID)attachtowindow);
-  Assert (cw);
-  int64_t Buffer_Size= DEFAULT_INPUT_BUFFER_SIZE;
-  char Buffer[Buffer_Size];
-  Buffer[Buffer_Size-1] = *"\0";
-  ttyin = fopen ( "/dev/tty", "r" );  // Read directly from the xterm window
+  try{
+    Assert ((CMDWID)attachtowindow != 0);
+    CommandWindowID *cw = Find_Command_Window ((CMDWID)attachtowindow);
+    Assert (cw);
+    int64_t Buffer_Size= DEFAULT_INPUT_BUFFER_SIZE;
+    char Buffer[Buffer_Size];
+    Buffer[Buffer_Size-1] = *"\0";
+    ttyin = fopen ( "/dev/tty", "r" );  // Read directly from the xterm window
 
- // Set up to catch keyboard control signals
-  SET_SIGNAL (SIGINT, catch_TLI_signal);   // CNTRL-C
-  SET_SIGNAL (SIGUSR1, catch_TLI_signal);  // request to terminate processing
+   // Set up to catch keyboard control signals
+    SET_SIGNAL (SIGINT, catch_TLI_signal);   // CNTRL-C
+    SET_SIGNAL (SIGUSR1, catch_TLI_signal);  // request to terminate processing
 
- // Allow us to be terminated from the main thread.
-  int previous_value;
-  pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, &previous_value);
-  pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &previous_value);
+   // Allow us to be terminated from the main thread.
+    int previous_value;
+    pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, &previous_value);
+    pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &previous_value);
 
- // If this is the only window, send a welcome message to the user.
-  if ((command_line_window == 0) &&
-      (gui_window == 0) &&
-      (Embedded_WindowID == 0)) {
-    ss_ttyout->acquireLock();
-    ss_ttyout->mystream() << "Welcome to " << PACKAGE_STRING  << std::endl;
-    ss_ttyout->Issue_Prompt();
-    ss_ttyout->releaseLock();
-  }
-
- // Infinite loop to read user input.
-  for(;;) {
-    // usleep (10000); /* DEBUG - give testing code time to react before splashing screen with prompt */
-    Buffer[0] == *("\0");
-    pthread_testcancel();
-    char *read_result = fgets (&Buffer[0], Buffer_Size, ttyin);
-    pthread_testcancel();
-    if (Buffer[Buffer_Size-1] != (char)0) {
+   // If this is the only window, send a welcome message to the user.
+    if ((command_line_window == 0) &&
+        (gui_window == 0) &&
+        (Embedded_WindowID == 0)) {
       ss_ttyout->acquireLock();
-      ss_ttyout->mystream() << "ERROR: Input line is too long for buffer." << std::endl;
+      ss_ttyout->mystream() << "Welcome to " << PACKAGE_STRING  << std::endl;
+      ss_ttyout->Issue_Prompt();
       ss_ttyout->releaseLock();
-      Buffer[Buffer_Size-1] = *"\0";
-      continue; // Don't terminate the thread - allow user to retry.
     }
-    if (read_result == NULL) {
-     // This indicates an EOF or error.
-     // This could be a CNTRL-D signal.
-      break; // terminate the thread
-    }
-    if (Buffer[0] == *("\0")) {
-     // This indicates an EOF.
-      break; // terminate the thread
-    }
-    if (cw->ID() == 0) {
-     // This indicates that someone freed the input window
-      break; // terminate the thread
-    }
-    ss_ttyout->Set_Issue_Prompt (true);
-    (void) Append_Input_String ((CMDWID)attachtowindow, &Buffer[0], 
-                                 NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
-  }
 
- // We have exited the loop and will no longer read input.
-  tli_window = 0;
-  if (gui_window != 0) {
-   // Stop this thread but keep the GUI runnning.
-   // The user can stop OpenSS through the GUI.
-    /* pthread_exit (0); */
-  } else if (command_line_window == 0) {
-   // This is the only window open, terminate Openss with a normal exit
-   // so that all previously read commands finish first.
-    (void) Append_Input_String ((CMDWID)attachtowindow, "exit",
-                                 NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
-  } else {
-   // Add an Exit command to the end of the command line input stream
-   // so that the command line arguments and input files are processed first.
-    (void) Append_Input_String (command_line_window, "exit",
-                                NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
+   // Infinite loop to read user input.
+    for(;;) {
+      // usleep (10000); /* DEBUG - give testing code time to react before splashing screen with prompt */
+      Buffer[0] == *("\0");
+      pthread_testcancel();
+      char *read_result = fgets (&Buffer[0], Buffer_Size, ttyin);
+      pthread_testcancel();
+      if (Buffer[Buffer_Size-1] != (char)0) {
+        ss_ttyout->acquireLock();
+        ss_ttyout->mystream() << "ERROR: Input line is too long for buffer." << std::endl;
+        ss_ttyout->releaseLock();
+        Buffer[Buffer_Size-1] = *"\0";
+        continue; // Don't terminate the thread - allow user to retry.
+      }
+      if (read_result == NULL) {
+       // This indicates an EOF or error.
+       // This could be a CNTRL-D signal.
+        break; // terminate the thread
+      }
+      if (Buffer[0] == *("\0")) {
+       // This indicates an EOF.
+        break; // terminate the thread
+      }
+      if (cw->ID() == 0) {
+       // This indicates that someone freed the input window
+        break; // terminate the thread
+      }
+      ss_ttyout->Set_Issue_Prompt (true);
+      (void) Append_Input_String ((CMDWID)attachtowindow, &Buffer[0], 
+                                   NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
+    }
+
+   // We have exited the loop and will no longer read input.
+    tli_window = 0;
+    if (gui_window != 0) {
+     // Stop this thread but keep the GUI runnning.
+     // The user can stop OpenSS through the GUI.
+      /* pthread_exit (0); */
+    } else if (command_line_window == 0) {
+     // This is the only window open, terminate Openss with a normal exit
+     // so that all previously read commands finish first.
+      (void) Append_Input_String ((CMDWID)attachtowindow, "exit",
+                                   NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
+    } else {
+     // Add an Exit command to the end of the command line input stream
+     // so that the command line arguments and input files are processed first.
+      (void) Append_Input_String (command_line_window, "exit",
+                                  NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
+    }
+  }
+  catch (std::bad_alloc) {
+    cerr << "ERROR: Unable to allocate memory to read input." << std::endl;
+    abort();
   }
 }
 
@@ -2385,148 +2391,154 @@ static void There_Must_Be_More_Input (CommandWindowID *cw) {
 
 InputLineObject *SpeedShop_ReadLine (int is_more)
 {
-  CommandWindowID *cw = (Last_ReadWindow != 0)
-                          ? Find_Command_Window (Last_ReadWindow) : NULL;
-  if ((Waiting_For_Complex_Cmd == false) &&
-      is_more &&
-      (cw != 0) &&
-      (cw->Cmds_BeingProcessed())) {
-   // We are going through a transition!
-   // Force previous commands to complete before
-   // we allow Python to execute nested commands.
-    cw->Wait_Until_Cmds_Complete ();
-  }
+  try {
+    CommandWindowID *cw = (Last_ReadWindow != 0)
+                            ? Find_Command_Window (Last_ReadWindow) : NULL;
+    if ((Waiting_For_Complex_Cmd == false) &&
+        is_more &&
+        (cw != 0) &&
+        (cw->Cmds_BeingProcessed())) {
+     // We are going through a transition!
+     // Force previous commands to complete before
+     // we allow Python to execute nested commands.
+      cw->Wait_Until_Cmds_Complete ();
+    }
 
-  char *save_prompt = Current_OpenSpeedShop_Prompt;
-  InputLineObject *clip;
+    char *save_prompt = Current_OpenSpeedShop_Prompt;
+    InputLineObject *clip;
 
-  CMDWID readfromwindow = select_input_window(is_more);
-  CMDWID firstreadwindow = readfromwindow;
-  bool I_HAVE_ASYNC_INPUT_LOCK = false;
-  
-  Waiting_For_Complex_Cmd = is_more;
+    CMDWID readfromwindow = select_input_window(is_more);
+    CMDWID firstreadwindow = readfromwindow;
+    bool I_HAVE_ASYNC_INPUT_LOCK = false;
+    
+    Waiting_For_Complex_Cmd = is_more;
 
 read_another_window:
 
-  cw = Find_Command_Window (readfromwindow);
-  Assert (cw);
+    cw = Find_Command_Window (readfromwindow);
+    Assert (cw);
 
-  do {
-    clip = cw->Read_Command ();
-    if (clip == NULL) {
-     // The read failed.  Why?  Can we find something else to read?
+    do {
+      clip = cw->Read_Command ();
+      if (clip == NULL) {
+       // The read failed.  Why?  Can we find something else to read?
 
-     // It might be possible to read from a different window.
-     // Try all of them so we can pick up commands that are waiting.
-      readfromwindow = select_input_window(is_more);
-      if (readfromwindow != firstreadwindow) {
-       // There is another window to read from.
-        goto read_another_window;
-      }
-
-     // After checking all windows for waiting input,
-     // we might look for input from the gui or a terminal.
-      if (Async_Inputs) {
-        if (I_HAVE_ASYNC_INPUT_LOCK) {
-         // Force a wait until data is ready.
-          More_Input_Needed_From_Window = (is_more) ? readfromwindow : 0;
-          if (More_Input_Needed_From_Window &&
-              cw->has_outstream ()) {
-           // Re-issue the prompt
-            Current_OpenSpeedShop_Prompt = Alternate_Current_OpenSpeedShop_Prompt;
-            ss_ostream *this_ss_stream = cw->ss_outstream();
-            this_ss_stream->acquireLock();
-            this_ss_stream->Issue_Prompt();
-            this_ss_stream->releaseLock();
-          }
-          Assert(pthread_cond_wait(&Async_Input_Available,&Async_Input_Lock) == 0);
-          I_HAVE_ASYNC_INPUT_LOCK = false;
-          Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
-        } else {
-  
-          if (is_more) {
-            There_Must_Be_More_Input (cw);
-          }
-
-         // Get the lock and try again to read from each of the input windows
-         // because something might have arrived after our first check of the
-         // window.
-          Assert(pthread_mutex_lock(&Async_Input_Lock) == 0);
-          Looking_for_Async_Inputs = true;
-          I_HAVE_ASYNC_INPUT_LOCK = true;
-          if (Shut_Down) {
-            clip = NULL;  // Signal an EOF to Python
-            break;
-          }
+       // It might be possible to read from a different window.
+       // Try all of them so we can pick up commands that are waiting.
+        readfromwindow = select_input_window(is_more);
+        if (readfromwindow != firstreadwindow) {
+         // There is another window to read from.
+          goto read_another_window;
         }
-        goto read_another_window;
-      }
 
-     // The end of all window inputs has been reached.
-      if (is_more) {
-       // We MUST read from this window!
-       // This is an error situation.  How can we recover?
-        There_Must_Be_More_Input(NULL);
-      }
+       // After checking all windows for waiting input,
+       // we might look for input from the gui or a terminal.
+        if (Async_Inputs) {
+          if (I_HAVE_ASYNC_INPUT_LOCK) {
+           // Force a wait until data is ready.
+            More_Input_Needed_From_Window = (is_more) ? readfromwindow : 0;
+            if (More_Input_Needed_From_Window &&
+                cw->has_outstream ()) {
+             // Re-issue the prompt
+              Current_OpenSpeedShop_Prompt = Alternate_Current_OpenSpeedShop_Prompt;
+              ss_ostream *this_ss_stream = cw->ss_outstream();
+              this_ss_stream->acquireLock();
+              this_ss_stream->Issue_Prompt();
+              this_ss_stream->releaseLock();
+            }
+            Assert(pthread_cond_wait(&Async_Input_Available,&Async_Input_Lock) == 0);
+            I_HAVE_ASYNC_INPUT_LOCK = false;
+            Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
+          } else {
+    
+            if (is_more) {
+              There_Must_Be_More_Input (cw);
+            }
 
-     // Enter termination processing.
-      if (!I_HAVE_ASYNC_INPUT_LOCK) {
-        Assert(pthread_mutex_lock(&Async_Input_Lock) == 0);
+           // Get the lock and try again to read from each of the input windows
+           // because something might have arrived after our first check of the
+           // window.
+            Assert(pthread_mutex_lock(&Async_Input_Lock) == 0);
+            Looking_for_Async_Inputs = true;
+            I_HAVE_ASYNC_INPUT_LOCK = true;
+            if (Shut_Down) {
+              clip = NULL;  // Signal an EOF to Python
+              break;
+            }
+          }
+          goto read_another_window;
+        }
+
+       // The end of all window inputs has been reached.
+        if (is_more) {
+         // We MUST read from this window!
+         // This is an error situation.  How can we recover?
+          There_Must_Be_More_Input(NULL);
+        }
+
+       // Enter termination processing.
+        if (!I_HAVE_ASYNC_INPUT_LOCK) {
+          Assert(pthread_mutex_lock(&Async_Input_Lock) == 0);
+          I_HAVE_ASYNC_INPUT_LOCK = true;
+        }
+        if (!Shut_Down) {
+         // We must have encountered an EOF on all the input streams.
+         // Create an 'exit' command to terminate command processing.
+          clip = new InputLineObject (readfromwindow, "exit\n");
+        } else {
+         // An 'Exit' command has been processed.  
+          I_HAVE_ASYNC_INPUT_LOCK = false;
+          Assert(pthread_cond_wait(&Async_Input_Available,&Async_Input_Lock) == 0);
+          clip = NULL;  // Signal an EOF to Python
+        }
         I_HAVE_ASYNC_INPUT_LOCK = true;
+        break;
       }
-      if (!Shut_Down) {
-       // We must have encountered an EOF on all the input streams.
-       // Create an 'exit' command to terminate command processing.
-        clip = new InputLineObject (readfromwindow, "exit\n");
-      } else {
-       // An 'Exit' command has been processed.  
-        I_HAVE_ASYNC_INPUT_LOCK = false;
-        Assert(pthread_cond_wait(&Async_Input_Available,&Async_Input_Lock) == 0);
-        clip = NULL;  // Signal an EOF to Python
+      const char *s = clip->Command().c_str();
+      (void) strlen(s);
+      if (!Isa_SS_Command(readfromwindow, s)) {
+        clip = NULL;
+        continue;
       }
-      I_HAVE_ASYNC_INPUT_LOCK = true;
-      break;
-    }
-    const char *s = clip->Command().c_str();
-    (void) strlen(s);
-    if (!Isa_SS_Command(readfromwindow, s)) {
-      clip = NULL;
-      continue;
-    }
-  } while (clip == NULL);
+    } while (clip == NULL);
 
-  if (I_HAVE_ASYNC_INPUT_LOCK) {
-    I_HAVE_ASYNC_INPUT_LOCK = false;
-    Looking_for_Async_Inputs = false;
-    Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
+    if (I_HAVE_ASYNC_INPUT_LOCK) {
+      I_HAVE_ASYNC_INPUT_LOCK = false;
+      Looking_for_Async_Inputs = false;
+      Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
+    }
+
+    Current_OpenSpeedShop_Prompt = save_prompt;
+    if (clip == NULL) {
+      return NULL;
+    }
+
+//   Initialize fields in the Clip:
+   // Assign a sequence number to the command.
+    clip->SetSeq (++Command_Sequence_Number);
+   // Reflect internal state in the command and log it to the log file.
+    clip->SetStatus (ILO_IN_PARSER);
+   // Mark nested commands
+    if (is_more)   clip-> Set_Complex_Exp ();
+
+   // Add command to the history file.
+    History.push_back(clip->Command());
+    History_Count++;
+    if (History_Count > OPENSS_HISTORY_LIMIT) {
+      (void) History.pop_front();
+      History_Count--;
+    }
+
+   // Track it until completion
+    cw->TrackCmd(clip);
+
+   // Log the command to any user defined record file.
+    cw->Record(clip);
+
+    return clip;
   }
-
-  Current_OpenSpeedShop_Prompt = save_prompt;
-  if (clip == NULL) {
+  catch (std::bad_alloc) {
+    cerr << "ERROR: Unable to allocate memory to process input." << std::endl;
     return NULL;
   }
-
-// Initialize fields in the Clip:
- // Assign a sequence number to the command.
-  clip->SetSeq (++Command_Sequence_Number);
- // Reflect internal state in the command and log it to the log file.
-  clip->SetStatus (ILO_IN_PARSER);
- // Mark nested commands
-  if (is_more)   clip-> Set_Complex_Exp ();
-
- // Add command to the history file.
-  History.push_back(clip->Command());
-  History_Count++;
-  if (History_Count > OPENSS_HISTORY_LIMIT) {
-    (void) History.pop_front();
-    History_Count--;
-  }
-
- // Track it until completion
-  cw->TrackCmd(clip);
-
- // Log the command to any user defined record file.
-  cw->Record(clip);
-
-  return clip;
 }

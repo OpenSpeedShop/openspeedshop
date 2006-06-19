@@ -183,6 +183,10 @@ try {
   }
 
 }
+catch (std::bad_alloc) {
+  Mark_Cmd_With_Soft_Error(cmd,"The command could not be executed because a memory allocation error has occurred.");
+  cmd_successful = false;
+}
 catch(const Exception& error) {
   cmd->Result_String ("An unrecoverable error was encountered while trying to execute this command.");
   Mark_Cmd_With_Std_Error (cmd, error);
@@ -403,7 +407,24 @@ void SS_Execute_Cmd (CommandObject *cmd) {
          // Allocate a new process to execute comamnds.
           pthread_t EXT_handle;
           EXT_Allocated++;
-          int stat = pthread_create(&EXT_handle, 0, (void *(*)(void *))Cmd_EXT_Create,(void *)NULL);
+          int stat = 0;
+          try {
+            stat = pthread_create(&EXT_handle, 0, (void *(*)(void *))Cmd_EXT_Create,(void *)NULL);
+            if (stat == 0) {
+              EXT_Created++;
+            }
+          }
+          catch (std::bad_alloc) {
+            if (EXT_Allocated <= 1) {
+             // Attempt to gracefully terminate.
+              stat = -1;
+            } else {
+             // Silently recover and continue executing with the existing execution threads.
+              EXT_Allocated--;
+              OPENSS_MAX_ASYNC_COMMANDS = EXT_Allocated;
+              stat == 0;
+            }
+          }
           if (stat != 0) {
            // Attempt error recovery and exit.
             EXT_Allocated--;
@@ -412,7 +433,6 @@ void SS_Execute_Cmd (CommandObject *cmd) {
             Cmd_Obj_Complete (cmd);
             Shut_Down = true;
           }
-          EXT_Created++;
         }
       }
 

@@ -510,6 +510,9 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
 
     success = true;
   }
+  catch (std::bad_alloc) {
+    Mark_Cmd_With_Soft_Error (cmd, "ERROR: unable to allocate enough memory to generate the View.");
+  }
   catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
   }

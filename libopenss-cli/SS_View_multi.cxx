@@ -631,6 +631,7 @@ bool Generic_Multi_View (
   }
 
   int64_t i;
+  std::vector<CommandResult *> Total_Value(0); // Values needed for % computations.
   if (topn == 0) topn = LONG_MAX;
 
   try {
@@ -676,7 +677,6 @@ bool Generic_Multi_View (
     int64_t Column0index = (ViewInst[0]->OpCode() == VIEWINST_Display_Metric) ? ViewInst[0]->TMP1() : 0;
 
    // Calculate any Totals that are needed to do percentages.
-    std::vector<CommandResult *> Total_Value(0);
     bool Gen_Total_Percent = false;
     int64_t max_percent_index = -1;
     for (i = 0; i < IV.size(); i++) {
@@ -905,6 +905,7 @@ bool Generic_Multi_View (
            // Reclaim Total_Value results.
             for ( i = 0; i < Total_Value.size(); i++) {
               delete Total_Value[i];
+              Total_Value[i] = NULL;
             }
           }
         }
@@ -912,14 +913,12 @@ bool Generic_Multi_View (
 
     } else {
       Construct_View_Output (cmd, exp, tgrp, CV, MV, IV, Total_Value, c_items, view_output);
-
-     // Reclaim Total_Value results.
-      for ( i = 0; i < Total_Value.size(); i++) {
-        delete Total_Value[i];
-      }
     }
 
     success = true;
+  }
+  catch (std::bad_alloc) {
+    Mark_Cmd_With_Soft_Error (cmd, "ERROR: unable to allocate enough memory to generate the View.");
   }
   catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
@@ -927,6 +926,13 @@ bool Generic_Multi_View (
 
  // Release space for no longer needed items.
   Reclaim_CR_Space (c_items);
+
+ // Reclaim Total_Value results.
+  for ( i = 0; i < Total_Value.size(); i++) {
+    if (Total_Value[i] != NULL) {
+      delete Total_Value[i];
+    }
+  }
 
   return success;
 }

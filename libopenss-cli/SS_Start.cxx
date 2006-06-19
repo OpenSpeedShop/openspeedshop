@@ -379,138 +379,145 @@ extern "C"
   int
   cli_init(int argc, char **argv)
   {
-   // Basic Initialization
-    Openss_Basic_Initialization();
+    try {
 
-    if (!OPENSS_LIMIT_SIGNAL_CATCHING) {
-     // Optionally, set up to catch bad errors
-      SET_SIGNAL (SIGILL, catch_signal);
-      SET_SIGNAL (SIGFPE, catch_signal);
-      SET_SIGNAL (SIGBUS, catch_signal);
-      SET_SIGNAL (SIGSEGV, catch_signal);
-      SET_SIGNAL (SIGSYS, catch_signal);
-      // SET_SIGNAL (SIGPIPE, catch_signal);
-      // SET_SIGNAL (SIGCLD, catch_signal);
-    }
-   // Always catch user signals.
-    SET_SIGNAL (SIGINT, catch_signal); // CNTRL-C
-    SET_SIGNAL (SIGQUIT, catch_signal); // CNTRL-\ 
+     // Basic Initialization
+      Openss_Basic_Initialization();
 
-   // Process the execution time arguments for openss.
-    int i;
-    ArgStruct *argStruct = new ArgStruct(argc, argv);
-    pid_t my_pid = getpid();
-    char HostName[MAXHOSTNAMELEN+1];
-    if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
-      cerr << "ERROR: can not retrieve host name\n";
-      abort ();
-    }
-    
-    // Sanity check that the command enum is not broken.
-    // See oss_cmd_enum definition in SS_Parse_Result.hxx.
-    for (i=1;i<CMD_MAX;++i) {
-    	if (i != OpenSpeedShop::cli::cmd_desc[i].ndx) {
-      	    cerr << "ERROR: cmd_desc array out of synch with oss_cmd_enum \n";
-      	    cerr << "       See oss_cmd_enum definition in SS_Parse_Result.hxx \n";
-      	    abort ();
+      if (!OPENSS_LIMIT_SIGNAL_CATCHING) {
+       // Optionally, set up to catch bad errors
+        SET_SIGNAL (SIGILL, catch_signal);
+        SET_SIGNAL (SIGFPE, catch_signal);
+        SET_SIGNAL (SIGBUS, catch_signal);
+        SET_SIGNAL (SIGSEGV, catch_signal);
+        SET_SIGNAL (SIGSYS, catch_signal);
+        // SET_SIGNAL (SIGPIPE, catch_signal);
+        // SET_SIGNAL (SIGCLD, catch_signal);
+      }
+     // Always catch user signals.
+      SET_SIGNAL (SIGINT, catch_signal); // CNTRL-C
+      SET_SIGNAL (SIGQUIT, catch_signal); // CNTRL-\ 
+
+     // Process the execution time arguments for openss.
+      int i;
+      ArgStruct *argStruct = new ArgStruct(argc, argv);
+      pid_t my_pid = getpid();
+      char HostName[MAXHOSTNAMELEN+1];
+      if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
+        cerr << "ERROR: can not retrieve host name\n";
+        abort ();
+      }
+      
+      // Sanity check that the command enum is not broken.
+      // See oss_cmd_enum definition in SS_Parse_Result.hxx.
+      for (i=1;i<CMD_MAX;++i) {
+      	if (i != OpenSpeedShop::cli::cmd_desc[i].ndx) {
+        	    cerr << "ERROR: cmd_desc array out of synch with oss_cmd_enum \n";
+        	    cerr << "       See oss_cmd_enum definition in SS_Parse_Result.hxx \n";
+        	    abort ();
 	}
-    }
+      }
 
-    read_stdin_file = (stdin && !isatty(fileno(stdin)));
-    executable_encountered = false;
-    collector_encountered = false;
-    Process_Command_Line (argc, argv);
+      read_stdin_file = (stdin && !isatty(fileno(stdin)));
+      executable_encountered = false;
+      collector_encountered = false;
+      Process_Command_Line (argc, argv);
 
-   // Load in pcli messages into message czar
-    pcli_load_messages();
+     // Load in pcli messages into message czar
+      pcli_load_messages();
 
-   // Open the Python interpreter.
-    Initial_Python ();
+     // Open the Python interpreter.
+      Initial_Python ();
 
-   // Create the input windows that we will need.
-    if (need_command_line || read_stdin_file) {
-      command_line_window = Default_Window ("COMMAND_LINE",
-      	    	    	    	    	    &HostName[0],
-					    my_pid,
-					    0,
-					    false);
-    }
-    if (need_tli) {
-      tli_window = TLI_Window ("TLI",&HostName[0],my_pid,0,true);
-    }
-    if (need_gui) {
-      gui_window = GUI_Window ("GUI",&HostName[0],my_pid,0,true);
-    }
+     // Create the input windows that we will need.
+      if (need_command_line || read_stdin_file) {
+        command_line_window = Default_Window ("COMMAND_LINE",
+        	    	    	    	    	    &HostName[0],
+					      my_pid,
+					      0,
+					      false);
+      }
+      if (need_tli) {
+        tli_window = TLI_Window ("TLI",&HostName[0],my_pid,0,true);
+      }
+      if (need_gui) {
+        gui_window = GUI_Window ("GUI",&HostName[0],my_pid,0,true);
+      }
 
-   // Complete set up for each input window.
-    if (command_line_window != 0) {
-     // Move the command line options to an input control window.
-      if ( !Start_COMMAND_LINE_Mode( command_line_window, 
-      	    	    	    	     argc, 
-				     argv, 
-				     need_batch) ) {
+     // Complete set up for each input window.
+      if (command_line_window != 0) {
+       // Move the command line options to an input control window.
+        if ( !Start_COMMAND_LINE_Mode( command_line_window, 
+        	    	    	    	     argc, 
+				       argv, 
+				       need_batch) ) {
+          return -1;
+        }
+      } else if (need_batch && (argc <= 2) && !read_stdin_file) {
+        cerr << "Missing command line arguments\n";
         return -1;
       }
-    } else if (need_batch && (argc <= 2) && !read_stdin_file) {
-      cerr << "Missing command line arguments\n";
-      return -1;
+
+      if (need_tli)
+      {
+       // Start up the Text Line Interface to read from the keyboard.
+        int stat = pthread_create(&phandle[1], 
+        	    	    	    	0, 
+				(void   *(*)(void *))SS_Direct_stdin_Input,
+				(void   *)tli_window);
+      }
+
+      if (need_gui)
+      {
+
+        // The following is a timing hack -
+        // if the TLI window hasn't been opened or
+        // didn't specify async input, the input
+        // routines may think they are at the end of
+        // file before the GUI can open and define an
+        // async input window. The hack is to define a
+        // dummy async window before python starts. We
+        // will need to sort this out at some point in
+        // the future.
+
+        argStruct->addArg("-gui");
+        argStruct->addArg("-wid");
+        char buffer[10];
+        sprintf(buffer, "%d", gui_window);
+        argStruct->addArg(buffer);
+       // The gui will be started in a pthread and do it's own initialization.
+        extern void loadTheGUI(ArgStruct *);
+//        loadTheGUI((ArgStruct *)NULL); // argStruct);
+        loadTheGUI((ArgStruct *)argStruct); // NULL);
+      }
+
+     // Fire off Python.
+      // OPENSS_ALLOW_PYTHON_COMMANDS = 0;
+      if (OPENSS_ALLOW_PYTHON_COMMANDS)
+      	PyRun_SimpleString( "myparse.do_scripting_input ()\n");
+      else
+      	PyRun_SimpleString( "myparse.do_flat_input ()\n");
+
+     // When Python exits, terminate SpeedShop:
+      Trying_to_terminate = true;
+      try {
+        cli_terminate ();
+        Openss_Basic_Termination();
+      }
+      catch(const Exception& error) {
+        cerr << "catch error during termination: " << error.getDescription() << std::endl;
+      }
+
+     // Release allocated space.
+      delete argStruct;
+
+     // exit from openss.
+      exit(0);
     }
-
-    if (need_tli)
-    {
-     // Start up the Text Line Interface to read from the keyboard.
-      int stat = pthread_create(&phandle[1], 
-      	    	    	    	0, 
-				(void *(*)(void *))SS_Direct_stdin_Input,
-				(void *)tli_window);
+    catch (std::bad_alloc) {
+      cerr << "ERROR: A Memory Allocation Error Has Occurred" << std::endl;
+      abort();
     }
-
-    if (need_gui)
-    {
-
-      // The following is a timing hack -
-      // if the TLI window hasn't been opened or
-      // didn't specify async input, the input
-      // routines may think they are at the end of
-      // file before the GUI can open and define an
-      // async input window. The hack is to define a
-      // dummy async window before python starts. We
-      // will need to sort this out at some point in
-      // the future.
-
-      argStruct->addArg("-gui");
-      argStruct->addArg("-wid");
-      char buffer[10];
-      sprintf(buffer, "%d", gui_window);
-      argStruct->addArg(buffer);
-     // The gui will be started in a pthread and do it's own initialization.
-      extern void loadTheGUI(ArgStruct *);
-//      loadTheGUI((ArgStruct *)NULL); // argStruct);
-      loadTheGUI((ArgStruct *)argStruct); // NULL);
-    }
-
-   // Fire off Python.
-    // OPENSS_ALLOW_PYTHON_COMMANDS = 0;
-    if (OPENSS_ALLOW_PYTHON_COMMANDS)
-    	PyRun_SimpleString( "myparse.do_scripting_input ()\n");
-    else
-    	PyRun_SimpleString( "myparse.do_flat_input ()\n");
-
-   // When Python exits, terminate SpeedShop:
-    Trying_to_terminate = true;
-    try {
-      cli_terminate ();
-      Openss_Basic_Termination();
-    }
-    catch(const Exception& error) {
-      cerr << "catch error during termination: " << error.getDescription() << std::endl;
-    }
-
-   // Release allocated space.
-    delete argStruct;
-
-   // exit from openss.
-    exit(0);
   }
 
 /**

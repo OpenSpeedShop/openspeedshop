@@ -560,25 +560,33 @@ static CMDID Scripting_Sequence_Number = 0;
   char *input_line = NULL;
   Assert (Embedded_WindowID != 0);  // Did we forget to initialize??
   
-    
-  if (!PyArg_ParseTuple(args, "s", &input_line)) {
-  	;
+  try {
+    if (!PyArg_ParseTuple(args, "s", &input_line)) {
+  	  ;
+    }
+    Current_ILO = new InputLineObject (Embedded_WindowID, std::string(input_line));
+    Current_ILO->SetSeq (++Scripting_Sequence_Number);
+    Current_ILO->SetStatus (ILO_IN_PARSER);;
+    Current_CO = NULL;
+
+    PyObject *result = SS_CallParser (self, args);
+
+    delete Current_ILO;
+
+    if (Shut_Down) {
+      // We have seen an Exit command - close down the CLI.
+      (void)SS_ExitEmbeddedInterface (self, args);
+    }
+
+    return result;
   }
-  Current_ILO = new InputLineObject (Embedded_WindowID, std::string(input_line));
-  Current_ILO->SetSeq (++Scripting_Sequence_Number);
-  Current_ILO->SetStatus (ILO_IN_PARSER);;
-  Current_CO = NULL;
+  catch (std::bad_alloc) {
+    Shut_Down = true;
 
-  PyObject *result = SS_CallParser (self, args);
-
-  delete Current_ILO;
-
-  if (Shut_Down) {
-    // We have seen an Exit command - close down the CLI.
-    (void)SS_ExitEmbeddedInterface (self, args);
+   // I should be reporting exactly what went wrong here.
+    PyObject *p_object = Py_BuildValue("");
+    return p_object;
   }
-
-  return result;
 }
 
 // Define a basic class with a constructor and destructor
