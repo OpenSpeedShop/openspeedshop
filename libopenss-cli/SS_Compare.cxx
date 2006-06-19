@@ -889,8 +889,8 @@ bool SS_expCompare (CommandObject *cmd) {
       }
     }
 
-    if ((t_list != NULL) || !t_list->empty()) {
-     // Start by building a vector of all the host names.
+    if ((t_list != NULL) && !t_list->empty()) {
+     // Start by building a vector of all the threads names.
       std::vector<int64_t> threadids;;
       vector<ParseRange>::iterator pi;
       for (pi = t_list->begin();pi != t_list->end(); pi++) {
@@ -959,6 +959,7 @@ bool SS_expCompare (CommandObject *cmd) {
           Quick_Compare_Set.push_back (S);
         }
       } else if (Quick_Compare_Set.size() > 1) {
+cerr << "  error 2\n";
           Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
           return false;
       } else {
@@ -1011,6 +1012,7 @@ bool SS_expCompare (CommandObject *cmd) {
         Quick_Compare_Set.push_back (S);
       }
     } else if (Quick_Compare_Set.size() > 1) {
+cerr << "  error 3\n";
       Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
       return false;
     } else {
@@ -1776,7 +1778,7 @@ bool SS_cvClusters (CommandObject *cmd) {
         pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
     ParseTarget pt = *pi;
     vector<ParseRange> *f_list = pt.getFileList();
-    if ((f_list != NULL) || !f_list->empty()) {
+    if ((f_list != NULL) && !f_list->empty()) {
       for (vector<ParseRange>::iterator
              f_iter = f_list->begin(); f_iter != f_list->end(); f_iter++) {
         parse_range_t *f_range = f_iter->getRange();

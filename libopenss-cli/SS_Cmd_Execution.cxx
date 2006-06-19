@@ -461,7 +461,7 @@ bool Filter_Uses_F (CommandObject *cmd) {
   for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
     ParseTarget pt = *pi;
     vector<ParseRange> *f_list = pt.getFileList();
-    if ((f_list != NULL) || !f_list->empty()) return true;
+    if ((f_list != NULL) && !f_list->empty()) return true;
   }
 
   return false;
