@@ -26,6 +26,8 @@
 
 typedef std::pair<std::string, std::string> HostPidPair;
 
+#include "DescriptionClassObject.hxx"
+
 //! The message object for focusing an experiment
 class FocusObject : public MessageObject
 {
@@ -50,6 +52,8 @@ public:
     QString pidString;
 
     std::vector< HostPidPair > host_pid_vector;
+
+    QValueList<DescriptionClassObject> descriptionClassList;
 
     //! The raise FLAG...
     bool raiseFLAG;

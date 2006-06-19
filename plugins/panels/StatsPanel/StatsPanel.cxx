@@ -353,7 +353,6 @@ StatsPanel::listener(void *msg)
 // msg->print();
     expID = msg->expID;
 // printf("B: expID = %d\n", expID);
-
     if( msg->host_pid_vector.size() == 0 && !msg->pidString.isEmpty() )
     { // Soon to be obsoleted
       currentThreadsStr = msg->pidString;
@@ -375,6 +374,27 @@ StatsPanel::listener(void *msg)
       }
     } else
     {
+      currentThreadGroupStrList.clear();
+      currentThreadsStr = QString::null;
+if( msg->descriptionClassList.count() > 0 )
+{
+// printf("Focusing with the new (more robust) syntax.\n");
+  for( QValueList<DescriptionClassObject>::iterator it = msg->descriptionClassList.begin(); it != msg->descriptionClassList.end(); it++)
+    {
+      DescriptionClassObject dco = (DescriptionClassObject)*it;
+      if( !dco.rid_name.isEmpty() )
+      {
+        currentThreadsStr += QString(" -h %1 -r %2").arg(dco.host_name).arg(dco.rid_name);
+      } else if( !dco.tid_name.isEmpty() )
+      {
+        currentThreadsStr += QString(" -h %1 -t %2").arg(dco.host_name).arg(dco.tid_name);
+      } else // pid...
+      {
+        currentThreadsStr += QString(" -h %1 -p %2").arg(dco.host_name).arg(dco.pid_name);
+      }
+    }
+} else
+{
 //printf("Here in StatsPanel::listener()\n");
 //msg->print();
       currentThreadGroupStrList.clear();
@@ -393,6 +413,7 @@ StatsPanel::listener(void *msg)
         }
         currentThreadGroupStrList.push_back( sit->second.c_str() );
       }
+}
     }
 //printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
 // Begin determine if there's mpi stats

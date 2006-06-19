@@ -1491,22 +1491,26 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
   QString pid_name = QString::null;
   QString pidString = QString::null;
 
+
  
   QListViewItemIterator it(lv, QListViewItemIterator::Selected);
   while( it.current() )
   {
     MPListViewItem *lvi = (MPListViewItem *)it.current();
-// printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
-// printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
-// printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
-// if( lvi->descriptionClassObject )
-// {
-  // lvi->descriptionClassObject->Print();
-// }
+#if 0
+printf("PSetSelection: lvi->text(0)=(%s) (%s)\n", lvi->text(0).ascii(), lvi->text(1).ascii() );
+if( lvi->descriptionClassObject )
+{
+  lvi->descriptionClassObject->Print();
+}
+#endif // 0
     if( msg == NULL )
     {
+// printf("About to create the FocusObject()\n");
       msg = new FocusObject(expID,  NULL, NULL, TRUE);
     }
+msg->descriptionClassList.clear();
+// printf("Created the FocusObject()\n");
     if( !lvi || !lvi->descriptionClassObject )
     {
       QMessageBox::information( this, tr("Focus Error:"), tr("Unable to focus on selection: No description for process(es)."), QMessageBox::Ok );
@@ -1540,8 +1544,12 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
             mpChild = (MPListViewItem *)mpChild->nextSibling();
             continue;
           }
+#ifdef OLDWAY
           std::pair<std::string, std::string> p(host_name,pid_name);
           msg->host_pid_vector.push_back( p );
+#endif // OLDWAY
+
+          msg->descriptionClassList.push_back(*mpChild->descriptionClassObject);
 #if 0
 printf("A: push_back a new vector list.\n");
 mpChild->descriptionClassObject->Print();
@@ -1567,8 +1575,11 @@ mpChild->descriptionClassObject->Print();
               nested_child = (MPListViewItem *)nested_child->nextSibling();
               continue;
             }
+#ifdef OLDWAY
             std::pair<std::string, std::string> p(host_name,pid_name);
             msg->host_pid_vector.push_back( p );
+#endif // OLDWAY
+msg->descriptionClassList.push_back(*nested_child->descriptionClassObject);
             nested_child = (MPListViewItem *)nested_child->nextSibling();
           }
 
@@ -1588,8 +1599,11 @@ mpChild->descriptionClassObject->Print();
       {
         continue;
       }
+#ifdef OLDWAY
       std::pair<std::string, std::string> p(host_name,pid_name);
       msg->host_pid_vector.push_back( p );
+#endif // OLDWAY
+msg->descriptionClassList.push_back(*lvi->descriptionClassObject);
 // printf("B: push_back a new vector list.. (%s-%s)\n", host_name.ascii(), pid_name.ascii() );
     } 
     

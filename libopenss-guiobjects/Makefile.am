@@ -70,6 +70,7 @@ libopenss_guiobjects_la_SOURCES = \
 	LocalToolbar.hxx LocalToolbar.cxx \
 	InfoEventFilter.hxx InfoEventFilter.cxx \
 	ProcessControlObject.hxx ProcessControlObject.cxx \
+	DescriptionClassObject.hxx DescriptionClassObject.cxx \
 	CollectorParameterEntryClass.hxx \
 	CollectorMetricEntryClass.hxx
 

@@ -36,6 +36,7 @@ FocusObject::FocusObject(int id, QString hn, QString pn, bool rf) : MessageObjec
   pidString = pn;
   raiseFLAG = rf;
   host_pid_vector.clear();
+  descriptionClassList.clear();
 }
 
 /*! Destructor */
@@ -68,4 +69,11 @@ FocusObject::print()
     }
   }
 
+
+  for( QValueList<DescriptionClassObject>::iterator it = descriptionClassList.begin(); it != descriptionClassList.end(); it++)
+  {
+    DescriptionClassObject dco = (DescriptionClassObject)*it;
+
+    dco.Print();
+  }
 }
