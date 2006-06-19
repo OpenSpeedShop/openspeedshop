@@ -54,6 +54,6 @@ ManageProcessesPanel_la_SOURCES = \
 	ManageCollectorsClass.hxx ManageCollectorsClass.cxx moc_ManageCollectorsClass.cxx \
 	MPListViewItem.hxx MPListViewItem.cxx \
 	MPListView.hxx MPListView.cxx moc_MPListView.cxx \
-	local_plugin_info.hxx preference_plugin_info.hxx DescriptionClassObject.hxx
+	local_plugin_info.hxx preference_plugin_info.hxx
 
 CLEANFILES=moc_ManageProcessesPanel.cxx
