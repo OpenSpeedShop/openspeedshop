@@ -461,12 +461,12 @@ static std::string VIEW_hwctime_long  =
                   " Posix threads, Mpi threads or Ranks."
                   " \n\t'-m exclusive_counts' reports the number of times the measured event"
                   " occurred in the code unit."
-                  " \n\t'-m inclusive_overflows' reports the number of times the hardware's counters"
+                  " \n\t'-m exclusive_overflows' reports the number of times the hardware's counters"
                   " overflowed and samples were recorded for the code unit."
                   " \n\t'-m inclusive_counts' reports the number of times the measured event"
                   " occurred in the code unit and all the units it calls."
                   " \n\t'-m inclusive_overflows' reports the number of times the hardware's counters"
-                  " overflowed and samples were recorded for the code unit."
+                  " overflowed and samples were recorded for the code unit and all the units it calls."
                   " \n\t'-m percent' reports the percent of total counts the code unit represents."
                   " \n\t'-m ThreadAverage' reports the average counts for a process."
                   " \n\t'-m ThreadMin' reports the minimum counts for a process."
@@ -475,9 +475,9 @@ static std::string VIEW_hwctime_long  =
 static std::string VIEW_hwctime_example = "\texpView hwctime\n"
                                            "\texpView -v LinkedObjects hwctime\n"
                                            "\texpView -v Statements hwctime20\n"
-                                           "\texpView -v Functions hwctime10 -m hwctime::inclusive_overflows\n"
-                                           "\texpView hwctime20 -m inclusive_overflows, exclusive_overflows\n"
-                                           "\texpView -v CallTrees,FullStack hwctime10 -m count\n";
+                                           "\texpView -v Functions hwctime10 -m hwctime::exclusive_overflows\n"
+                                           "\texpView hwctime20 -m exclusive_overflows, inclusive_overflows\n"
+                                           "\texpView -v CallTrees,FullStack hwctime10 -m exclusive_counts\n";
 static std::string VIEW_hwctime_metrics[] =
   { "exclusive_overflows",
     "exclusive_detail",
