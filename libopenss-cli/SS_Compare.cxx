@@ -232,24 +232,27 @@ static bool Generate_CustomView (CommandObject *cmd,
   int64_t i;
 
   if (numQuickSets == 0) {
-    Mark_Cmd_With_Soft_Error(cmd, "There are no valid comparisons specified.");
+    Mark_Cmd_With_Soft_Error(cmd, "There are no valid comparisons requested.");
     return false;
   }
 
 /* TEST */
 /*
-  cerr << "Number of Quick_Compare_Sets is " << numQuickSets << std::endl;
   for (i = 0; i < numQuickSets; i++) {
     cerr << i;
     Quick_Compare_Set[i].Print(cerr);
   }
 */
 
-
  // Generate all the views in the list.
   for (i = 0; i < numQuickSets; i++) {
    // Try to Generate the Requested View for each comparison set!
     ExperimentObject *exp = Quick_Compare_Set[i].Exp;
+    if ((exp == NULL) ||
+        (exp->FW() == NULL)) {
+      Mark_Cmd_With_Soft_Error(cmd, "(There was no experiment available to compare.)");
+      return false;
+    }
     std::string viewname = Quick_Compare_Set[i].viewName;
     ViewType *vt = Find_View (viewname);
     if (vt == NULL) {
@@ -312,13 +315,11 @@ static bool Generate_CustomView (CommandObject *cmd,
 
 /* TEST */
 /*
-  cerr << "Number of Quick_Compare_Sets is " << numQuickSets << std::endl;
   for (i = 0; i < numQuickSets; i++) {
     cerr << i;
     Quick_Compare_Set[i].Print(cerr);
   }
 */
-
 /* TEST */
 /*
   cerr << "Display generated views\n";
@@ -396,13 +397,11 @@ static bool Generate_CustomView (CommandObject *cmd,
 
 /* TEST */
 /*
-  cerr << "Number of Quick_Compare_Sets is " << numQuickSets << std::endl;
   for (i = 0; i < numQuickSets; i++) {
     cerr << i;
     Quick_Compare_Set[i].Print(cerr);
   }
 */
-
  // Add the header for the last column and attach all of them to the output report.
   C->CommandResult_Headers::Add_Header ( Dup_CommandResult (last_header) );
   cmd->Result_Predefined (C); // attach column headers to output
@@ -610,7 +609,7 @@ bool SS_expCompare (CommandObject *cmd) {
     if ((exp == NULL) ||
         (exp->FW() == NULL)) {
      // No experiment was specified, so we can't find a useful view to generate.
-      Mark_Cmd_With_Soft_Error(cmd, "No valid experiment was specified.");
+      Mark_Cmd_With_Soft_Error(cmd, "No valid experiment was specified for comparison.");
       return false;
     } else {
      // Initialize a single compare set for the focused experiment.
@@ -1438,6 +1437,14 @@ bool SS_cView (CommandObject *cmd) {
        // Try to get an Experiment ID from the old parse object or use the focused experiment.
         ExperimentID = old_result->isExpId() ? (old_result)->getExpId() : exp_focus;
         exp = Find_Experiment_Object (ExperimentID);
+        if ((exp == NULL) ||
+            (exp->FW() == NULL)) {
+         // No experiment was specified, so we can't find a useful view to generate.
+          Mark_Cmd_With_Soft_Error(cmd,
+                                   "No valid experiment was specified for -c "
+                                      + N.ostringstream::str() + ".");
+          continue;
+        }
       }
 
      // If there is no modifier list, get one from the custom view definition.
@@ -1471,26 +1478,24 @@ bool SS_cView (CommandObject *cmd) {
      // If there still is no view list, get one from the view definition.
       if (new_view_list->empty()) {
        // The user has not selected a view.
-        if ((exp == NULL) ||
-            (exp->FW() == NULL)) {
-         // No experiment was specified, so we can't find a useful view to generate.
-          Mark_Cmd_With_Soft_Error(cmd, "No valid experiment was specified.");
+       // Look for a view that would be meaningful.
+        Assert ((exp != NULL) && (exp->FW() != NULL));
+        CollectorGroup cgrp = exp->FW()->getCollectors();
+        if (cgrp.begin() == cgrp.end()) {
+         // No collector was used.
+          Mark_Cmd_With_Soft_Error(cmd,
+                                   "No performance measurements were made for the experiment of -c "
+                                      + N.ostringstream::str() + ".");
+          continue;
         } else {
-         // Look for a view that would be meaningful.
-          CollectorGroup cgrp = exp->FW()->getCollectors();
-          if (cgrp.begin() == cgrp.end()) {
-           // No collector was used.
-            Mark_Cmd_With_Soft_Error(cmd, "No performance measurements were made for the experiment.");
-          } else {
-            bool view_found = false;
-            CollectorGroup::iterator cgi;
-            for (cgi = cgrp.begin(); cgi != cgrp.end(); cgi++) {
-             // Generate a view for every collector.
-              Collector c = *cgi;
-              Metadata m = c.getMetadata();
-              std::string collector_name = m.getUniqueId();
-              new_view_list->push_back(collector_name);
-            }
+          bool view_found = false;
+          CollectorGroup::iterator cgi;
+          for (cgi = cgrp.begin(); cgi != cgrp.end(); cgi++) {
+           // Generate a view for every collector.
+            Collector c = *cgi;
+            Metadata m = c.getMetadata();
+            std::string collector_name = m.getUniqueId();
+            new_view_list->push_back(collector_name);
           }
         }
       }
@@ -1507,7 +1512,8 @@ bool SS_cView (CommandObject *cmd) {
         std::string viewname = *si;
         ViewType *vt = Find_View (viewname);
         if (vt == NULL) {
-          Mark_Cmd_With_Soft_Error(cmd, "The requested view '" + viewname + "' is unavailable.");
+          Mark_Cmd_With_Soft_Error(cmd, "The requested view '" + viewname + "' on -c "
+                                          + N.ostringstream::str() + " is unavailable.");
           return false;
         }
 
@@ -1531,13 +1537,11 @@ bool SS_cView (CommandObject *cmd) {
   }
 /* TEST */
 /*
-  cerr << "Number of Quick_Compare_Sets is " << Quick_Compare_Set.size() << std::endl;
   for (int64_t i = 0; i < Quick_Compare_Set.size(); i++) {
     cerr << i;
     Quick_Compare_Set[i].Print(cerr);
   }
 */
-
   bool success = Generate_CustomView (cmd, Quick_Compare_Set);
 
  // Need to delete the copies made of the overriding Parse components.
@@ -1641,7 +1645,7 @@ bool SS_cvClusters (CommandObject *cmd) {
   if ((exp == NULL) ||
       (exp->FW() == NULL)) {
    // No experiment was specified, so we can't do any resonable work.
-    Mark_Cmd_With_Soft_Error(cmd, "No valid experiment was specified.");
+    Mark_Cmd_With_Soft_Error(cmd, "No valid experiment was specified for cluster analysis.");
     return false;
   }
 
