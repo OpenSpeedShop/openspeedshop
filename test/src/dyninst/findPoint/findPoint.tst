@@ -17,13 +17,18 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 BUILDPROCESSOR=`uname -p`
-case $BUILDPROCESSOR in
-  x86_64)
-    export DYNINSTAPI_RT_LIB=/usr/lib64/libdyninstAPI_RT.so.1
-    ;;
-  *)
-    export DYNINSTAPI_RT_LIB=/usr/lib/libdyninstAPI_RT.so.1
-    ;;
-esac
+
+if [ "DYNINSTAPI_RT_LIB" = "" ]
+then
+  case $BUILDPROCESSOR in
+    x86_64)
+      export DYNINSTAPI_RT_LIB=/usr/lib64/libdyninstAPI_RT.so.1
+      ;;
+    *)
+      export DYNINSTAPI_RT_LIB=/usr/lib/libdyninstAPI_RT.so.1
+      ;;
+  esac
+fi
+
 ./mutator ./mutatee 10
 killall mutator mutatee

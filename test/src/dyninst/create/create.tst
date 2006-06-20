@@ -18,13 +18,17 @@
 ################################################################################
 #export DYNINSTAPI_RT_LIB=/usr/lib/libdyninstAPI_RT.so.1
 BUILDPROCESSOR=`uname -p`
-case $BUILDPROCESSOR in
-  x86_64)
-    export DYNINSTAPI_RT_LIB=/usr/lib64/libdyninstAPI_RT.so.1
-    ;;
-  *)
-    export DYNINSTAPI_RT_LIB=/usr/lib/libdyninstAPI_RT.so.1
-    ;;
-esac
+if [ "$DYNINSTAPI_RT_LIB" = "" ]
+then
+  case $BUILDPROCESSOR in
+    x86_64)
+      export DYNINSTAPI_RT_LIB=/usr/lib64/libdyninstAPI_RT.so.1
+      ;;
+    *)
+      export DYNINSTAPI_RT_LIB=/usr/lib/libdyninstAPI_RT.so.1
+      ;;
+  esac
+fi
+
 ./mutator ./mutatee
 killall mutator mutatee
