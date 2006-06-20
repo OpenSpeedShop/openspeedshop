@@ -4801,7 +4801,7 @@ StatsPanel::generateIOMenu(QString collectorName)
     // Build the static list of io modifiers.
     list_of_io_modifiers.clear();
     list_of_io_modifiers.push_back("io::exclusive_times");
-    list_of_io_modifiers.push_back("io::inclusive_times");
+//    list_of_io_modifiers.push_back("io::inclusive_times");
 //    list_of_io_modifiers.push_back("io::exclusive_details");
 //    list_of_io_modifiers.push_back("io::inclusive_details");
     list_of_io_modifiers.push_back("min");
@@ -4810,6 +4810,9 @@ StatsPanel::generateIOMenu(QString collectorName)
     list_of_io_modifiers.push_back("count");
     list_of_io_modifiers.push_back("percent");
     list_of_io_modifiers.push_back("stddev");
+    list_of_io_modifiers.push_back("ThreadAverage");
+    list_of_io_modifiers.push_back("ThreadMin");
+    list_of_io_modifiers.push_back("ThreadMax");
 
 //    list_of_io_modifiers.push_back("start_time");
 //    list_of_io_modifiers.push_back("stop_time");
@@ -4928,6 +4931,11 @@ StatsPanel::generateHWCMenu(QString collectorName)
 
   list_of_hwc_modifiers.clear();
   list_of_hwc_modifiers.push_back("hwc::overflows");
+  list_of_hwc_modifiers.push_back("hwc::counts");
+  list_of_hwc_modifiers.push_back("hwc::percent");
+  list_of_hwc_modifiers.push_back("hwc::ThreadAverage");
+  list_of_hwc_modifiers.push_back("hwc::ThreadMin");
+  list_of_hwc_modifiers.push_back("hwc::ThreadMax");
   
   if( hwcModifierMenu )
   {
@@ -4966,10 +4974,14 @@ StatsPanel::generateHWCTimeMenu(QString collectorName)
   connect(hwctime_menu, SIGNAL( activated(int) ),
          this, SLOT(collectorHWCTimeReportSelected(int)) );
   list_of_hwctime_modifiers.clear();
+  list_of_hwctime_modifiers.push_back("hwctime::exclusive_counts");
   list_of_hwctime_modifiers.push_back("hwctime::exclusive_overflows");
   list_of_hwctime_modifiers.push_back("hwctime::inclusive_overflows");
-  list_of_hwctime_modifiers.push_back("hwctime::count");
+  list_of_hwctime_modifiers.push_back("hwctime::inclusive_counts");
   list_of_hwctime_modifiers.push_back("hwctime::percent");
+  list_of_hwctime_modifiers.push_back("hwctime::ThreadAverage");
+  list_of_hwctime_modifiers.push_back("hwctime::ThreadMin");
+  list_of_hwctime_modifiers.push_back("hwctime::ThreadMax");
 
   if( hwctimeModifierMenu )
   {
@@ -5009,10 +5021,13 @@ StatsPanel::generateUserTimeMenu()
   list_of_usertime_modifiers.clear();
   list_of_usertime_modifiers.push_back("usertime::exclusive_times");
   list_of_usertime_modifiers.push_back("usertime::inclusive_times");
-  list_of_usertime_modifiers.push_back("usertime::exclusive_details");
-  list_of_usertime_modifiers.push_back("usertime::inclusive_details");
-  list_of_usertime_modifiers.push_back("usertime::count");
   list_of_usertime_modifiers.push_back("usertime::percent");
+  list_of_usertime_modifiers.push_back("usertime::count");
+//  list_of_usertime_modifiers.push_back("usertime::exclusive_details");
+//  list_of_usertime_modifiers.push_back("usertime::inclusive_details");
+  list_of_usertime_modifiers.push_back("usertime::ThreadAverage");
+  list_of_usertime_modifiers.push_back("usertime::ThreadMin");
+  list_of_usertime_modifiers.push_back("usertime::ThreadMax");
 
   if( usertimeModifierMenu )
   {
@@ -5053,6 +5068,10 @@ StatsPanel::generatePCSampMenu()
 
   list_of_pcsamp_modifiers.clear();
   list_of_pcsamp_modifiers.push_back("pcsamp::time");
+  list_of_pcsamp_modifiers.push_back("pcsamp::percent");
+  list_of_pcsamp_modifiers.push_back("pcsamp::ThreadAverage");
+  list_of_pcsamp_modifiers.push_back("pcsamp::ThreadMin");
+  list_of_pcsamp_modifiers.push_back("pcsamp::ThreadMax");
 
   if( pcsampModifierMenu )
   {
@@ -5093,6 +5112,10 @@ StatsPanel::generateFPEMenu()
   list_of_fpe_modifiers.clear();
   list_of_fpe_modifiers.push_back("fpe::time");
   list_of_fpe_modifiers.push_back("fpe::counts");
+  list_of_fpe_modifiers.push_back("fpe::percent");
+  list_of_fpe_modifiers.push_back("fpe::ThreadAverage");
+  list_of_fpe_modifiers.push_back("fpe::ThreadMin");
+  list_of_fpe_modifiers.push_back("fpe::ThreadMax");
   list_of_fpe_modifiers.push_back("fpe::inexact_result_count");
   list_of_fpe_modifiers.push_back("fpe::underflow_count");
   list_of_fpe_modifiers.push_back("fpe::overflow_count");
