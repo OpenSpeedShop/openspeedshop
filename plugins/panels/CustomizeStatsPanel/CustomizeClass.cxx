@@ -316,11 +316,12 @@ CustomizeClass::focusOnCSetSelected()
     for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
     {
       ColumnSet *columnSet = (ColumnSet *)*it;
-// printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
-// printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
-// printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
-// printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
-
+#if 0
+printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
+printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
+printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
+printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
+#endif // 0
       {
       int id = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
       QString collectorName = columnSet->collectorComboBox->currentText().ascii();
@@ -336,10 +337,6 @@ CustomizeClass::focusOnCSetSelected()
 
 // printf("\t\t: processes:\n");
       QString expCompareProcessList = QString::null;
-      QString temp_expCompareProcessList = QString::null;
-
-
-
 
 // Begin real focus logic
 // printf("CustomizeClass::focusOnCSetSelected() entered.\n");
@@ -349,17 +346,18 @@ CustomizeClass::focusOnCSetSelected()
  
       QListViewItemIterator it(columnSet->lv);
       expCompareProcessList = QString::null;
-      temp_expCompareProcessList = QString::null;
       while( it.current() )
       {
         MPListViewItem *lvi = (MPListViewItem *)it.current();
-// printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
-// printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
-// printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
-// if( lvi->descriptionClassObject )
-// {
-//  lvi->descriptionClassObject->Print();
-// }
+#if 0
+printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
+printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
+printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+if( lvi->descriptionClassObject )
+{
+  lvi->descriptionClassObject->Print();
+}
+#endif // 1
         if( focus_msg == NULL )
         {
           focus_msg = new FocusCompareObject(expID,  NULL, TRUE);
@@ -375,7 +373,6 @@ CustomizeClass::focusOnCSetSelected()
         if( lvi->descriptionClassObject->all )
         {
 // printf("Do ALL threads, everywhere.\n");
-//        focus_msg->host_pid_vector.clear();
         } else if( lvi->descriptionClassObject->root )
         {
           // Loop through all the children...
@@ -394,11 +391,19 @@ CustomizeClass::focusOnCSetSelected()
               mpChild = (MPListViewItem *)mpChild->nextSibling();
               continue;
             }
-            std::pair<std::string, std::string> p(host_name,pid_name);
-//        focus_msg->host_pid_vector.push_back( p );
 // printf("A: push_back a new host:pid entry (%s:%s)\n", host_name.ascii(), pid_name.ascii());
-            expCompareProcessList += QString(" -h %1 -p %1 ").arg(host_name).arg(pid_name);
-            temp_expCompareProcessList += QString(" -p %1 ").arg(pid_name);
+            QString rid_name = mpChild->descriptionClassObject->rid_name;
+            QString tid_name = mpChild->descriptionClassObject->tid_name;
+            if( !rid_name.isEmpty() )
+            {
+              expCompareProcessList += QString(" -h %1 -r %1 ").arg(host_name).arg(rid_name);
+            } else if( !tid_name.isEmpty() )
+            {
+              expCompareProcessList += QString(" -h %1 -t %1 ").arg(host_name).arg(tid_name);
+            } else  // Default to pid.. We should get here if its null.
+            {
+                        expCompareProcessList += QString(" -h %1 -p %1 ").arg(host_name).arg(pid_name);
+            }
             mpChild = (MPListViewItem *)mpChild->nextSibling();
             ++it;
           }
@@ -414,11 +419,19 @@ CustomizeClass::focusOnCSetSelected()
           {
             continue;
           }
-          std::pair<std::string, std::string> p(host_name,pid_name);
 // printf("B: push_back a new host::pid entry... (%s:%s)\n", host_name.ascii(), pid_name.ascii() );
-          expCompareProcessList += QString(" -h %1 -p %1 ").arg(host_name).arg(pid_name);
-          temp_expCompareProcessList += QString(" -p %1 ").arg(pid_name);
-//      focus_msg->host_pid_vector.push_back( p );
+          QString rid_name = lvi->descriptionClassObject->rid_name;
+          QString tid_name = lvi->descriptionClassObject->tid_name;
+          if( !rid_name.isEmpty() )
+          {
+            expCompareProcessList += QString(" -h %1 -r %1 ").arg(host_name).arg(rid_name);
+          } else if( !tid_name.isEmpty() )
+          {
+            expCompareProcessList += QString(" -h %1 -t %1 ").arg(host_name).arg(tid_name);
+          } else  // Default to pid.. We should get here if its null.
+          {
+            expCompareProcessList += QString(" -h %1 -p %1 ").arg(host_name).arg(pid_name);
+          }
         } 
         ++it;
       }
@@ -459,10 +472,6 @@ CustomizeClass::focusOnCSetSelected()
       // Now start over...
       cViewCreateCommand = "cViewCreate ";
       }
-
-      temp_expCompareCommand += temp_expCompareProcessList;
-      focus_msg->compare_command = temp_expCompareCommand;
-
     }
 
     focus_msg->compare_command = QString("cview -c ");
