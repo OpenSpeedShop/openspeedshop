@@ -95,12 +95,6 @@ rm -rf /usr/share/doc/packages/OpenSpeedShop
 #
 %docdir /usr/share/doc/packages/OpenSpeedShop
 /usr/share/doc/packages/OpenSpeedShop
-%docdir /usr/share/doc/packages/OpenSpeedShop/users_guide
-/usr/share/doc/packages/OpenSpeedShop/users_guide
-%docdir /usr/share/doc/packages/OpenSpeedShop/cli_doc
-/usr/share/doc/packages/OpenSpeedShop/cli_doc
-%docdir /usr/share/doc/packages/OpenSpeedShop/plugin_guide
-/usr/share/doc/packages/OpenSpeedShop/plugin_guide
 
 # installation attributes for files installed from the rpm packages.
 %defattr(-,root,root)
