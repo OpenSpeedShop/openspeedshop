@@ -557,7 +557,7 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
                   " that the function represents."
                   " \n\t'-m ThreadAverage' reports the average cpu time for a process."
                   " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
-                  " \n\t'-m ThreadMin' reports the maximum cpu time for a process."
+                  " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
                   "\n";
 static std::string VIEW_mpi_example = "\texpView mpi\n"
                                       "\texpView -v CallTrees,FullStack mpi10 -m min,max,count\n";

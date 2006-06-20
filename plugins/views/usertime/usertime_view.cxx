@@ -453,7 +453,7 @@ static std::string VIEW_usertime_long  =
                   " \n\t'-m count' reports the number calls into the code unit."
                   " \n\t'-m ThreadAverage' reports the average cpu time for a process."
                   " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
-                  " \n\t'-m ThreadMin' reports the maximum cpu time for a process."
+                  " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
                   "\n";
 static std::string VIEW_usertime_example = "\texpView usertime\n"
                                            "\texpView -v LinkedObjects usertime\n"

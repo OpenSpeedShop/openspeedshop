@@ -635,7 +635,7 @@ static std::string VIEW_mpit_long  =
                   " that the event represents."
                   " \n\t'-m ThreadAverage' reports the average cpu time for a process."
                   " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
-                  " \n\t'-m ThreadMin' reports the maximum cpu time for a process."
+                  " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
                   " \n\t'-m start_time' reports the starting time of the event."
                   " \n\t'-m stop_time' reports the ending time of the event."
                   " \n\t'-m source' reports the source rank of the event."

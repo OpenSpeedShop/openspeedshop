@@ -152,7 +152,7 @@ static std::string VIEW_pcsamp_long  =
                   " \n\t'-m percent' reports the percent of total cpu time for all the processes."
                   " \n\t'-m ThreadAverage' reports the average cpu time for a process."
                   " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
-                  " \n\t'-m ThreadMin' reports the maximum cpu time for a process."
+                  " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
                   "\n";
 static std::string VIEW_pcsamp_example = "\texpView pcsamp\n"
                                          "\texpView -v statements pcsamp10\n";
@@ -342,7 +342,7 @@ static std::string VIEW_hwc_long  =
                 " \n\t'-m percent' reports the percent of total counts for all the processes."
                 " \n\t'-m ThreadAverage' reports the average counts for a process."
                 " \n\t'-m ThreadMin' reports the minimum number of counts for a process."
-                " \n\t'-m ThreadMin' reports the maximum counts for a process."
+                " \n\t'-m ThreadMax' reports the maximum counts for a process."
                 "\n";
 static std::string VIEW_hwc_example = "\texpView hwc\n"
                                       "\texpView -v Functions hwc10\n";

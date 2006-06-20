@@ -526,7 +526,7 @@ static std::string VIEW_io_long  =
                   " that the function represents."
                   " \n\t'-m ThreadAverage' reports the average cpu time for a process."
                   " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
-                  " \n\t'-m ThreadMin' reports the maximum cpu time for a process."
+                  " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
                   "\n"; 
 static std::string VIEW_io_example = "\texpView io\n"
                                       "\texpView -v CallTrees,FullStack io10 -m min,max,count\n";
