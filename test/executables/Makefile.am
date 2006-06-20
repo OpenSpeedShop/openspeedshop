@@ -22,6 +22,7 @@ SUBDIRS = \
 	Eon \
 	forever \
 	forever_cxx  \
+	fpetest \
 	fredO2 \
 	fred 
 

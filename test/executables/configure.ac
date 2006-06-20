@@ -68,6 +68,7 @@ AC_CONFIG_FILES([
         Makefile
         forever/Makefile
         forever_cxx/Makefile
+	fpetest/Makefile
         fredO2/Makefile
         fred/Makefile
         mutatee/Makefile
