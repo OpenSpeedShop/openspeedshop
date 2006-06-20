@@ -67,6 +67,9 @@ typedef std::pair<Function, uint64_t> Function_uint64_pair;
 #include <qsettings.h>
 #include <qtimer.h>
 
+enum CURRENTTHREADSTR_ENUM { UNKNOWN, RANK,  THREAD, PID };
+
+
 class CInfoClass
 {
   public:
@@ -160,8 +163,8 @@ class StatsPanel  : public Panel
     QSplitter *splitterA;
     SPChartForm *cf;
     ColumnList columnHeaderList;
-ChartPercentValueList skylineValues;
-ChartTextValueList skylineText;
+    ChartPercentValueList skylineValues;
+    ChartTextValueList skylineText;
     FieldList columnFieldList;
     ColumnValueClass columnValueClass[80];
     int *metricHeaderTypeArray;  // matches the QListView # of column entries.
@@ -250,6 +253,7 @@ QPopupMenu *fpe_menu;
     QPopupMenu *experimentsMenu;
 
     QString currentThreadStr;
+    CURRENTTHREADSTR_ENUM currentThreadStrENUM;
     QString currentThreadsStr;
     QString currentCollectorStr;
     QString collectorStrFromMenu;

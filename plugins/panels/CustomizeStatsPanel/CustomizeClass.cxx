@@ -394,6 +394,10 @@ if( lvi->descriptionClassObject )
 // printf("A: push_back a new host:pid entry (%s:%s)\n", host_name.ascii(), pid_name.ascii());
             QString rid_name = mpChild->descriptionClassObject->rid_name;
             QString tid_name = mpChild->descriptionClassObject->tid_name;
+            if( !expCompareProcessList.isEmpty() )
+            {
+              expCompareProcessList += " ; ";
+            }
             if( !rid_name.isEmpty() )
             {
               expCompareProcessList += QString(" -h %1 -r %1 ").arg(host_name).arg(rid_name);
@@ -422,6 +426,10 @@ if( lvi->descriptionClassObject )
 // printf("B: push_back a new host::pid entry... (%s:%s)\n", host_name.ascii(), pid_name.ascii() );
           QString rid_name = lvi->descriptionClassObject->rid_name;
           QString tid_name = lvi->descriptionClassObject->tid_name;
+          if( !expCompareProcessList.isEmpty() )
+          {
+            expCompareProcessList += " ; ";
+          }
           if( !rid_name.isEmpty() )
           {
             expCompareProcessList += QString(" -h %1 -r %1 ").arg(host_name).arg(rid_name);

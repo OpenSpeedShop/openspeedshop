@@ -713,7 +713,7 @@ connect( qaction, SIGNAL( activated() ), this, SLOT(timeSliceSelected()) );
   int MAX_PROC_MENU_DISPLAY = 8;
   if( list_of_pids.size() > 1 && list_of_pids.size() <= MAX_PROC_MENU_DISPLAY )
   {
-    contextMenu->insertItem(QString("Show Thread/Process"), threadMenu);
+    contextMenu->insertItem(QString("Show Rank/Thread/Process"), threadMenu);
     for( std::list<int64_t>::const_iterator it = list_of_pids.begin();
          it != list_of_pids.end(); it++ )
     {
@@ -722,10 +722,13 @@ connect( qaction, SIGNAL( activated() ), this, SLOT(timeSliceSelected()) );
       QString pidStr = QString("%1").arg(pid);
       int mid = threadMenu->insertItem(pidStr);
       threadMenu->setCheckable(TRUE);
+      if( currentThreadGroupStrList.count() == 0 )
+      {
+        threadMenu->setItemChecked(mid, TRUE);
+      }
       if( currentThreadStr.isEmpty() || currentThreadStr == pidStr )
       {
         currentThreadStr = pidStr;
-//        threadMenu->setItemChecked(mid, TRUE);
       }
       for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); it != currentThreadGroupStrList.end(); ++it)
       {
@@ -738,6 +741,16 @@ connect( qaction, SIGNAL( activated() ), this, SLOT(timeSliceSelected()) );
     }
     connect(threadMenu, SIGNAL( activated(int) ),
         this, SLOT(threadSelected(int)) );
+    // By default select them all...
+    if( currentThreadGroupStrList.count() == 0 )
+    {
+      for( std::list<int64_t>::const_iterator it = list_of_pids.begin();
+           it != list_of_pids.end(); it++ )
+      {
+        int pid = (int64_t)*it;
+        currentThreadGroupStrList.push_back(QString("%1").arg(pid));
+      }
+    }
   }
 
   contextMenu->insertSeparator();
@@ -2069,6 +2082,27 @@ StatsPanel::threadSelected(int val)
       continue;
     }
 
+
+if( currentThreadStrENUM == RANK )
+{
+    if( currentThreadsStr.isEmpty() )
+    {
+      currentThreadsStr = "-r "+ts;
+    } else
+    {
+      currentThreadsStr += ","+ts;
+    }
+} else if( currentThreadStrENUM == THREAD )
+{
+    if( currentThreadsStr.isEmpty() )
+    {
+      currentThreadsStr = "-t "+ts;
+    } else
+    {
+      currentThreadsStr += ","+ts;
+    }
+} else if( currentThreadStrENUM == PID )
+{
     if( currentThreadsStr.isEmpty() )
     {
       currentThreadsStr = "-p "+ts;
@@ -2076,6 +2110,7 @@ StatsPanel::threadSelected(int val)
     {
       currentThreadsStr += ","+ts;
     }
+}
   }
 
 // printf("currentThreadsStr = %s call update.\n", currentThreadsStr.ascii() );
@@ -3451,13 +3486,15 @@ StatsPanel::updateThreadsList()
 // Now get the threads.
   QString command = QString::null;
 
+  currentThreadStrENUM = UNKNOWN;
   if( focusedExpID == -1 )
   {
-    command = QString("list -v pids -x %1").arg(expID);
+    command = QString("list -v ranks -x %1").arg(expID);
   } else
   {
-    command = QString("list -v pids -x %1").arg(focusedExpID);
+    command = QString("list -v ranks -x %1").arg(focusedExpID);
   }
+  currentThreadStrENUM = RANK;
 // printf("attempt to run (%s)\n", command.ascii() );
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   list_of_pids.clear();
@@ -3468,6 +3505,48 @@ StatsPanel::updateThreadsList()
     printf("Unable to run %s command.\n", command.ascii() );
   }
 // printf("ran %s\n", command.ascii() );
+  if( list_of_pids.size() == 0 )
+  {
+    currentThreadStrENUM = THREAD;
+    if( focusedExpID == -1 )
+    {
+      command = QString("list -v threads -x %1").arg(expID);
+    } else
+    {
+      command = QString("list -v threads -x %1").arg(focusedExpID);
+    }
+// printf("attempt to run (%s)\n", command.ascii() );
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    list_of_pids.clear();
+    InputLineObject *clip = NULL;
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
+           &list_of_pids, clip, TRUE ) )
+    {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+// printf("ran %s\n", command.ascii() );
+  } 
+  if( list_of_pids.size() == 0 )
+  {
+    currentThreadStrENUM = PID;
+    if( focusedExpID == -1 )
+    {
+      command = QString("list -v pids -x %1").arg(expID);
+    } else
+    {
+      command = QString("list -v pids -x %1").arg(focusedExpID);
+    }
+// printf("attempt to run (%s)\n", command.ascii() );
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    list_of_pids.clear();
+    InputLineObject *clip = NULL;
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
+           &list_of_pids, clip, TRUE ) )
+    {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+// printf("ran %s\n", command.ascii() );
+  } 
 
   if( clip )
   {
