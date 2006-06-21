@@ -30,6 +30,26 @@
 
 #include <qvaluelist.h>
 #include <qmessagebox.h>
+#include <qtoolbar.h>
+#include <qtoolbutton.h>
+#include <qdockwindow.h>
+#include <qdockarea.h>
+
+#include <qpixmap.h>
+#include "functions.xpm"
+#include "linkedObjects.xpm"
+#include "statements.xpm"
+#include "statementsByFunction.xpm"
+#include "calltrees.xpm"
+#include "calltreesByFunction.xpm"
+#include "calltreesfull.xpm"
+#include "calltreesfullByFunction.xpm"
+#include "tracebacks.xpm"
+#include "tracebacksByFunction.xpm"
+#include "tracebacksfull.xpm"
+#include "tracebacksfullByFunction.xpm"
+#include "butterfly.xpm"
+
 class MetricHeaderInfo;
 typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 #include "CLIInterface.hxx"
@@ -226,7 +246,7 @@ current_list_of_fpe_modifiers.clear();  // This is this list of user selected mo
     staticDataFLAG = TRUE;
   }
 
-  frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
+  frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
   splitterA = new QSplitter( getBaseWidgetFrame(), "splitterA");
   splitterA->setCaption("StatsPanelSplitterA");
@@ -266,6 +286,23 @@ connect( header, SIGNAL(clicked(int)), this, SLOT( headerSelected( int )) );
   splitterA->setSizes(sizeList);
 
 
+bool toolbarFLAG = FALSE;
+  fileTools = new QToolBar( QString("label"), getPanelContainer()->getMainWindow(), (QWidget *)getBaseWidgetFrame(), "file operations" );
+  fileTools->setOrientation( Qt::Horizontal );
+  fileTools->setLabel( "File Operations" );
+//  fileTools->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, fileTools->sizePolicy().hasHeightForWidth() ) );
+  fileTools->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, 0, 0, fileTools->sizePolicy().hasHeightForWidth() ) );
+if( toolbarFLAG == TRUE )
+{
+  generateToolBar();
+} else
+{
+  fileTools->hide();
+}
+  
+
+  frameLayout->addWidget(fileTools);
+
   frameLayout->addWidget( splitterA );
 
   if( pc->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
@@ -285,7 +322,6 @@ connect( header, SIGNAL(clicked(int)), this, SLOT( headerSelected( int )) );
   char name_buffer[100];
   sprintf(name_buffer, "%s [%d]", getName(), groupID);
   setName(name_buffer);
-
 }
 
 
@@ -4380,7 +4416,6 @@ StatsPanel::generateCommand()
     }
     if( currentUserSelectedReportStr == "Butterfly" )
     {
-//      selectedFunctionStr = findSelectedFunction();
       if( selectedFunctionStr.isEmpty() )
       {
         bool ok = FALSE;
@@ -4391,6 +4426,7 @@ StatsPanel::generateCommand()
       {
         return( QString::null );
       }
+// printf("selectedFunctionStr=(%s)\n", selectedFunctionStr.ascii() );
       command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else if( currentUserSelectedReportStr == "Statements by Function" )
     {
@@ -6462,4 +6498,253 @@ if(commaIndex != -1 )
 
 // printf("canWeDiff() return FALSE(C)\n");
   return(FALSE);
+}
+
+void
+StatsPanel::generateToolBar()
+{
+  QPixmap *functions_icon = new QPixmap( functions_xpm );
+  new QToolButton(*functions_icon, "Show Functions", QString::null, this, SLOT( functionsSelected()), fileTools, "show functions");
+
+if(  currentCollectorStr != "mpi" && currentCollectorStr != "mpit" )
+{
+  QPixmap *linkedObjects_icon = new QPixmap( linkedObjects_xpm );
+  new QToolButton(*linkedObjects_icon, "Show LinkedObjects", QString::null, this, SLOT( linkedObjectsSelected()), fileTools, "show linked objects");
+}
+
+  QPixmap *statements_icon = new QPixmap( statements_xpm );
+  new QToolButton(*statements_icon, "Show Statements", QString::null, this, SLOT( statementsSelected()), fileTools, "show statements");
+
+  QPixmap *statementsByFunction_icon = new QPixmap( statementsByFunction_xpm );
+  new QToolButton(*statementsByFunction_icon, "Show Statements by Function", QString::null, this, SLOT( statementsByFunctionSelected()), fileTools, "show statements by function");
+
+if(  currentCollectorStr != "pcsamp" && currentCollectorStr != "hwc" )
+{
+  QPixmap *calltrees_icon = new QPixmap( calltrees_xpm );
+  new QToolButton(*calltrees_icon, "Show CallTrees", QString::null, this, SLOT( calltreesSelected()), fileTools, "show calltrees");
+
+  QPixmap *calltreesByFunction_icon = new QPixmap( calltreesByFunction_xpm );
+  new QToolButton(*calltreesByFunction_icon, "Show CallTrees by Function", QString::null, this, SLOT( calltreesByFunctionSelected()), fileTools, "show calltrees by function");
+
+  QPixmap *calltreesfull_icon = new QPixmap( calltreesfull_xpm );
+  new QToolButton(*calltreesfull_icon, "Show CallTrees,FullStack", QString::null, this, SLOT( calltreesFullStackSelected()), fileTools, "calltrees,fullstack");
+
+  QPixmap *calltreesfullByFunction_icon = new QPixmap( calltreesfullByFunction_xpm );
+  new QToolButton(*calltreesfullByFunction_icon, "Show CallTrees,FullStack by Function", QString::null, this, SLOT( calltreesFullStackByFunctionSelected()), fileTools, "calltrees,fullstack by function");
+
+  QPixmap *tracebacks_icon = new QPixmap( tracebacks_xpm );
+  new QToolButton(*tracebacks_icon, "Show TraceBacks", QString::null, this, SLOT( tracebacksSelected()), fileTools, "show tracebacks");
+
+  QPixmap *tracebacksByFunction_icon = new QPixmap( tracebacksByFunction_xpm );
+  new QToolButton(*tracebacksByFunction_icon, "Show TraceBacks by Function", QString::null, this, SLOT( tracebacksByFunctionSelected()), fileTools, "show tracebacks by function");
+
+  QPixmap *tracebacksfull_icon = new QPixmap( tracebacksfull_xpm );
+  new QToolButton(*tracebacksfull_icon, "Show TraceBacks,FullStack", QString::null, this, SLOT( tracebacksFullStackSelected()), fileTools, "show tracebacks,fullstack");
+
+  QPixmap *tracebacksfullByFunction_icon = new QPixmap( tracebacksfullByFunction_xpm );
+  new QToolButton(*tracebacksfullByFunction_icon, "Show TraceBacks,FullStack by Function", QString::null, this, SLOT( tracebacksFullStackByFunctionSelected()), fileTools, "show tracebacks,fullstack by function");
+
+  QPixmap *butterfly_icon = new QPixmap( butterfly_xpm );
+  new QToolButton(*butterfly_icon, "Show Butterfly", QString::null, this, SLOT( butterflySelected()), fileTools, "show butterfly");
+}
+
+  toolbar_status_label = new QLabel(fileTools,"toolbar_status_label");
+  toolbar_status_label->setText("Showing Functions Report:");
+  fileTools->setStretchableWidget(toolbar_status_label);
+
+  fileTools->show();
+
+}
+
+void
+StatsPanel::functionsSelected()
+{
+// printf("functionsSelected()\n");
+// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+
+  currentUserSelectedReportStr = "Functions";
+
+  toolbar_status_label->setText("Generating Functions Report...");
+
+  updateStatsPanelData();
+
+  toolbar_status_label->setText("Showing Functions Report:");
+}
+
+void
+StatsPanel::linkedObjectsSelected()
+{
+// printf("linkedObjectsSelected()\n");
+// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+
+  currentUserSelectedReportStr = "LinkedObjects";
+
+  toolbar_status_label->setText("Generating Linked Objects Report...");
+
+  updateStatsPanelData();
+
+  toolbar_status_label->setText("Showing Linked Objects Report:");
+}
+
+
+void
+StatsPanel::statementsSelected()
+{
+// printf("statementsSelected()\n");
+// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+
+  currentUserSelectedReportStr = "Statements";
+
+  toolbar_status_label->setText("Generating Statements Report...");
+
+  updateStatsPanelData();
+
+  toolbar_status_label->setText("Showing Statements Report:");
+}
+
+void
+StatsPanel::statementsByFunctionSelected()
+{
+// printf("statementsByFunctionSelected()\n");
+// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+
+  currentUserSelectedReportStr = "Statements by Function";
+
+  toolbar_status_label->setText("Generating Statements by Function Report...");
+
+  updateStatsPanelData();
+
+  toolbar_status_label->setText("Showing Statements by Function Report:");
+}
+
+void
+StatsPanel::calltreesSelected()
+{
+// printf("calltreesSelected()\n");
+// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+
+  currentUserSelectedReportStr = "CallTrees";
+
+  toolbar_status_label->setText("Generating CallTrees Report...");
+
+  updateStatsPanelData();
+
+  toolbar_status_label->setText("Showing CallTrees Report:");
+}
+
+void
+StatsPanel::calltreesByFunctionSelected()
+{
+// printf("calltreesByFunctionSelected()\n");
+// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+
+  currentUserSelectedReportStr = "CallTrees by Function";
+
+  toolbar_status_label->setText("Generating CallTrees by Function Report...");
+
+  updateStatsPanelData();
+
+  toolbar_status_label->setText("Showing CallTrees by Function Report:");
+}
+
+void
+StatsPanel::calltreesFullStackSelected()
+{
+// printf("calltreesFullStackSelected()\n");
+// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+
+  currentUserSelectedReportStr = "CallTrees,FullStack";
+
+  toolbar_status_label->setText("Generating CallTrees,FullStack Report...");
+
+  updateStatsPanelData();
+
+  toolbar_status_label->setText("Showing CallTrees,FullStack Report:");
+}
+
+void
+StatsPanel::calltreesFullStackByFunctionSelected()
+{
+// printf("calltreesFullStackByFunctionSelected()\n");
+// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+
+  currentUserSelectedReportStr = "CallTrees,FullStack by Function";
+
+  toolbar_status_label->setText("Generating CallTrees,FullStack by Function Report...");
+
+  updateStatsPanelData();
+
+  toolbar_status_label->setText("Showing CallTrees,FullStack by Function Report:");
+}
+
+void
+StatsPanel::tracebacksSelected()
+{
+// printf("tracebacksSelected()\n");
+// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+
+  currentUserSelectedReportStr = "TraceBacks";
+
+  toolbar_status_label->setText("Generating TraceBacks Report...");
+
+  updateStatsPanelData();
+
+  toolbar_status_label->setText("Showing TraceBacks Report:");
+}
+
+void
+StatsPanel::tracebacksByFunctionSelected()
+{
+// printf("tracebacksByFunctionSelected()\n");
+// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+
+  currentUserSelectedReportStr = "TraceBacks by Function";
+
+  toolbar_status_label->setText("Generating TraceBacks by Function Report...");
+
+  updateStatsPanelData();
+
+  toolbar_status_label->setText("Showing TraceBacks by Function Report:");
+}
+
+void
+StatsPanel::tracebacksFullStackSelected()
+{
+// printf("tracebacksFullStackSelected()\n");
+// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+  currentUserSelectedReportStr = "TraceBacks,FullStack";
+
+  toolbar_status_label->setText("Generating TraceBacks,FullStack Report...");
+
+  updateStatsPanelData();
+
+  toolbar_status_label->setText("Showing TraceBacks,FullStack Report:");
+}
+
+void
+StatsPanel::tracebacksFullStackByFunctionSelected()
+{
+// printf("tracebacksFullStackByFunctionSelected()\n");
+// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+  currentUserSelectedReportStr = "TraceBacks,FullStack by Function";
+
+  toolbar_status_label->setText("Generating TraceBacks,FullStack by Function Report...");
+
+  updateStatsPanelData();
+
+  toolbar_status_label->setText("Showing TraceBacks,FullStack by Function Report:");
+}
+
+void
+StatsPanel::butterflySelected()
+{
+// printf("butterflySelected()\n");
+// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+  currentUserSelectedReportStr = "Butterfly";
+
+  toolbar_status_label->setText("Generating Butterfly Report:");
+
+  updateStatsPanelData();
+
+  toolbar_status_label->setText("Showing Butterfly Report:");
 }

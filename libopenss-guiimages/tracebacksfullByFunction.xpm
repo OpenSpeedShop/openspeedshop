@@ -1,0 +1,58 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+////////////////////////////////////////////////////////////////////////////////
+
+/* XPM */
+static const char *tracebacksfullByFunction_xpm[]={
+"32 32 5 1",
+". c None",
+"# c #000000",
+"b c #585858",
+"a c #c3c3c3",
+"c c #ff0000",
+"..#####.........................",
+".#aaaaa#........................",
+"#aaaaaaa########################",
+"#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#",
+"#aaaaaaaabbabbbaaabbbbbbbbbaaaa#",
+"#aaaaaaaaaaaaaaaaaaaacccccaaaaa#",
+"#a###aaaaaaaaaaaaaaccaaaa#ccaaa#",
+"#aa#aaaaaaaaaaaaaacaa##aa#aacaa#",
+"#aaa###aaaaaaaaaacaaa#aa#a#aaca#",
+"#aaaa#aaaaaaaaaaacaa###a#a#aaca#",
+"#aaaaa###aaaaaaaacaaa#aa#a#aaca#",
+"#aaaaaa#aaaaaaaaaacaa#aaa#aacaa#",
+"#aaaaaaa###aaaaaaaaccaaaa#ccaaa#",
+"#aaaaaaaa#aaaaaaaaaaacccccaaaaa#",
+"#aaaaaaaaaa###a##abbbbbbbbbbbba#",
+"#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#",
+"#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#",
+"#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#",
+"#a###aaaaaaaaaaaaaaaaaaaaaaaaaa#",
+"#aa#aaaaaaaaaaaaaaaaaaaaaaaaaaa#",
+"#aaa###aaaaaaaaaaaaaaaaaaaaaaaa#",
+"#aaaa#aaaaaaaaaaaaaaaaaaaaaaaaa#",
+"#aaaaa###aaaaaaaaaaaaaaaaaaaaaa#",
+"#aaaaaa#aaaaaaaaaaaaaaaaaaaaaaa#",
+"#aaaaaaa###aaaaaaaaaaaaaaaaaaaa#",
+"#aaaaaaaa#aaaaaaaaaaaaaaaaaaaaa#",
+"#aaaaaaaaaa###a##abbbbbbbbbbbba#",
+"#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#",
+"#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#",
+"#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#",
+"#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#",
+"################################"};

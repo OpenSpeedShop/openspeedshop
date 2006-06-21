@@ -37,6 +37,7 @@ class QHBoxLayout;
 class QFile;
 class GenericProgressDialog;
 class SourceObject;
+class QToolBar;
 #include "SPChartForm.hxx"
 #include "HighlightObject.hxx"
 
@@ -159,7 +160,8 @@ class StatsPanel  : public Panel
     QString lastCommand;
     bool staticDataFLAG;
 
-    QHBoxLayout *frameLayout;
+    QVBoxLayout *frameLayout;
+QToolBar * fileTools;
     QSplitter *splitterA;
     SPChartForm *cf;
     ColumnList columnHeaderList;
@@ -237,7 +239,7 @@ class StatsPanel  : public Panel
     QPopupMenu *hwctimeModifierMenu;
     QPopupMenu *pcsampModifierMenu;
     QPopupMenu *usertimeModifierMenu;
-QPopupMenu *fpeModifierMenu;
+    QPopupMenu *fpeModifierMenu;
     QPopupMenu *genericModifierMenu;
 
     QPopupMenu *popupMenu;   // Pointer to the contextMenu
@@ -247,7 +249,7 @@ QPopupMenu *fpeModifierMenu;
     QPopupMenu *hwctime_menu;
     QPopupMenu *usertime_menu;
     QPopupMenu *pcsamp_menu;
-QPopupMenu *fpe_menu;
+    QPopupMenu *fpe_menu;
     QPopupMenu *generic_menu;
 
     QPopupMenu *experimentsMenu;
@@ -259,6 +261,8 @@ QPopupMenu *fpe_menu;
     QString collectorStrFromMenu;
 
     QFile *f;
+    void generateToolBar();
+    QLabel *toolbar_status_label;
 
 #ifdef OLDWAY // move back to public slots:
     void headerSelected( int );
@@ -282,6 +286,21 @@ QPopupMenu *fpe_menu;
     void clusterAnalysisSelected();
     void manageProcessesSelected();
     void progressUpdate();
+
+// TOOLBAR SLOTS
+    void functionsSelected();
+    void linkedObjectsSelected();
+    void statementsSelected();
+    void statementsByFunctionSelected();
+    void calltreesSelected();
+    void calltreesByFunctionSelected();
+    void calltreesFullStackSelected();
+    void calltreesFullStackByFunctionSelected();
+    void tracebacksSelected();
+    void tracebacksByFunctionSelected();
+    void tracebacksFullStackSelected();
+    void tracebacksFullStackByFunctionSelected();
+    void butterflySelected();
 
   private slots:
     void threadSelected(int);
