@@ -1110,13 +1110,9 @@ bool SS_cvClear (CommandObject *cmd) {
   return true;
 }
 
-static void CustomViewInfo (CommandObject *cmd,
-                            CustomView *cvp) {
+static std::string CustomViewInfo (CustomView *cvp) {
   OpenSpeedShop::cli::ParseResult *p_result = cvp->cvPr();
-
- // Accumulate output in a string.
   std::ostringstream S(ios::out);
-  S << "-c " << cvp->cvId() << ":";
 
  // List viewTypes.
   vector<string> *vtlist = p_result->getViewList();
@@ -1321,8 +1317,18 @@ static void CustomViewInfo (CommandObject *cmd,
     }
   }
 
- // Attach result to command.
-  cmd->Result_String (S.ostringstream::str());
+ // Return the accumulated result
+  return S.ostringstream::str();
+}
+
+static void Report_CustomViewInfo (CommandObject *cmd,
+                                   CustomView *cvp) {
+  OpenSpeedShop::cli::ParseResult *p_result = cvp->cvPr();
+
+ // Accumulate output in a string.
+  std::ostringstream S(ios::out);
+  S << "-c " << cvp->cvId() << ":";
+  cmd->Result_String (S.ostringstream::str() + CustomViewInfo (cvp));
 }
 
 bool SS_cvInfo (CommandObject *cmd) {
@@ -1332,7 +1338,7 @@ bool SS_cvInfo (CommandObject *cmd) {
     std::list<CustomView *>::reverse_iterator cvi;
     for (cvi = CustomView_List.rbegin(); cvi != CustomView_List.rend(); cvi++)
     {
-      CustomViewInfo (cmd, (*cvi));
+      Report_CustomViewInfo (cmd, (*cvi));
     }
   } else {
     OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
@@ -1340,7 +1346,7 @@ bool SS_cvInfo (CommandObject *cmd) {
     if (cv_list->empty()) {
       if (!CustomView_List.empty()) {
        // Print the most recent one.
-        CustomViewInfo (cmd, *CustomView_List.begin());
+        Report_CustomViewInfo (cmd, *CustomView_List.begin());
       }
     } else {
      // Print the ones in the user's list.
@@ -1356,7 +1362,7 @@ bool SS_cvInfo (CommandObject *cmd) {
         for (int64_t i = Rvalue1; i <= Rvalue2; i++) {
           CustomView *cvp = Find_CustomView (i);
           if (cvp != NULL) {
-            CustomViewInfo (cmd, cvp);
+            Report_CustomViewInfo (cmd, cvp);
           }
         }
 
@@ -1526,7 +1532,8 @@ bool SS_cView (CommandObject *cmd) {
         selectionTarget S;
         S.pResult = new_result;
         S.base_tgrp = cvp->cvTgrp();
-        S.headerPrefix = std::string("-c ") + N.ostringstream::str() + " ";
+        // S.headerPrefix = std::string("-c ") + N.ostringstream::str() + " ";
+        S.headerPrefix = CustomViewInfo(cvp) + " ";
         S.Exp = exp;
         S.viewName = viewname;
         Quick_Compare_Set.push_back (S);
