@@ -1,4 +1,5 @@
 clearbreak
+echo
 exit
 expattach
 expclose
@@ -17,6 +18,7 @@ expstatus
 expview
 help
 history
+info
 log
 opengui
 playback

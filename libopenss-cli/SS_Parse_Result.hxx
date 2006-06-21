@@ -55,6 +55,8 @@ typedef enum {
     CMD_EXP_STATUS,
     CMD_EXP_VIEW,
 
+    CMD_VIEW,
+
     CMD_C_VIEW_CREATE,
     CMD_C_VIEW_DELETE,
     CMD_C_VIEW_CLUSTERS,
@@ -64,9 +66,11 @@ typedef enum {
     CMD_LIST_GENERIC,	// Replaces all the other list commands.
 
     CMD_CLEAR_BREAK,
+    CMD_ECHO,
     CMD_EXIT,
     CMD_HELP,
     CMD_HISTORY,
+    CMD_INFO,
     CMD_LOG,
     CMD_OPEN_GUI,
     CMD_PLAYBACK,
@@ -293,6 +297,11 @@ class ParseResult {
     	vector<int> * getBreakList(){return &dm_break_id_list;}
 
     	void pushBreakId(int break_id) {dm_break_id_list.push_back(break_id);}
+	
+	/** Handle list of generic strings */
+    	vector<string> * getStringList(){return &dm_generic_string_list;}
+    	void pushString(string name) {dm_generic_string_list.push_back(name);}
+	
 
     	/** Handle list of file names. */
     	vector<ParseRange> * getAddressList(){return &dm_address_list;}
@@ -446,10 +455,8 @@ class ParseResult {
     	vector<ParseRange> dm_history_list;
     	/** Container of line numbers */
     	vector<ParseRange> dm_lineno_list;
-#if 0
-    	/** Container of parameter info as class param_tuple */
-    	vector<ParseParam> dm_param_list;
-#endif
+    	/** Container of strings */
+    	vector<string> dm_generic_string_list;
     	/** Container of syntax error symbols */
     	vector<ParseRange> dm_error_list;
     	/** Container of view interval tuples */

@@ -1,0 +1,22 @@
+
+****************************
+info
+
+Command: info
+
+****************************
+info -x 6
+
+Command: info
+		Experiment Id: 6 
+
+****************************
+info
+
+Command: info
+
+****************************
+info -v all
+
+Command: info
+	General Modifier Types: all 

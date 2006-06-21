@@ -1,0 +1,12 @@
+
+****************************
+echo This_is_an_echo
+
+Command: echo
+	Generic strings: This_is_an_echo 
+
+****************************
+echo "This is another echo"
+
+Command: echo
+	Generic strings: This is another echo 

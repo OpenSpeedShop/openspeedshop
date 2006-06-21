@@ -680,6 +680,8 @@ class CLI(code.InteractiveConsole):
         "expstatus" 	: "return_list",
         "expview"       : "return_list",
 	
+        "view"	    	: "return_list",
+	
 	"cviewcluster"	: "return_list",
 	"cviewcreate"	: "return_int",
 	"cviewdelete"	: "return_none",
@@ -689,10 +691,12 @@ class CLI(code.InteractiveConsole):
         "list"  	: "return_list",
 
         "clearbreak"    : "return_none",
+        "echo"          : "return_list",
         "exit"          : "return_none",
         "opengui"       : "return_none",
         "help"          : "return_list",
         "history"       : "return_list",
+        "info"          : "return_list",
         "log"           : "return_none",
         "playback"      : "return_none",
         "record"        : "return_none",

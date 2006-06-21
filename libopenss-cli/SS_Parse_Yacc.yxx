@@ -53,7 +53,7 @@ char *string;
 %token ATTACH_HEAD CLOSE_HEAD CREATE_HEAD COMPARE_HEAD DETACH_HEAD 
 %token DISABLE_HEAD ENABLE_HEAD 
 %token FOCUS_HEAD GO_HEAD PAUSE_HEAD RESTORE_HEAD SAVE_HEAD
-%token SETPARAM_HEAD STATUS_HEAD VIEW_HEAD DATA_HEAD
+%token SETPARAM_HEAD STATUS_HEAD VIEW_HEAD VIEW_HEAD_OLD DATA_HEAD
 
 %token CVIEWCREATE_HEAD CVIEWDELETE_HEAD CVIEW_HEAD CVIEWINFO_HEAD
 %token CVIEWCLUSTER_HEAD
@@ -62,7 +62,7 @@ char *string;
 
 %token GEN_CLEAR_BREAK_HEAD GEN_EXIT_HEAD GEN_OPEN_GUI_HEAD GEN_HELP_HEAD
 %token GEN_HISTORY_HEAD GEN_LOG_HEAD GEN_PLAYBACK_HEAD GEN_RECORD_HEAD
-%token GEN_SETBREAK_HEAD GEN_WAIT_HEAD
+%token GEN_SETBREAK_HEAD GEN_WAIT_HEAD GEN_ECHO_HEAD GEN_INFO_HEAD
 
 %token JUST_QUIT_HEAD
 
@@ -117,6 +117,8 @@ command_desc: exp_attach_com 	{p_parse_result->setCommandType(CMD_EXP_ATTACH);}
 	    | exp_status_com  	{p_parse_result->setCommandType(CMD_EXP_STATUS);}
 	    | exp_view_com  	{p_parse_result->setCommandType(CMD_EXP_VIEW);}
 
+	    | view_com  	{p_parse_result->setCommandType(CMD_VIEW);}
+
 	    | c_view_cluster_create_com {p_parse_result->setCommandType(CMD_C_VIEW_CLUSTERS);}
 	    | c_view_create_com {p_parse_result->setCommandType(CMD_C_VIEW_CREATE);}
 	    | c_view_delete_com {p_parse_result->setCommandType(CMD_C_VIEW_DELETE);}
@@ -126,10 +128,12 @@ command_desc: exp_attach_com 	{p_parse_result->setCommandType(CMD_EXP_ATTACH);}
 	    | list_generic_com 	{p_parse_result->setCommandType(CMD_LIST_GENERIC);}
 
 	    | gen_clear_break_com 	{p_parse_result->setCommandType(CMD_CLEAR_BREAK);}
+	    | gen_echo_com  	{p_parse_result->setCommandType(CMD_ECHO);}
 	    | gen_exit_com  	{p_parse_result->setCommandType(CMD_EXIT);}
 	    | gen_open_gui_com	{p_parse_result->setCommandType(CMD_OPEN_GUI);}
 	    | gen_help_com  	{p_parse_result->setCommandType(CMD_HELP);}
 	    | gen_history_com	{p_parse_result->setCommandType(CMD_HISTORY);}
+	    | gen_info_com   	{p_parse_result->setCommandType(CMD_INFO);}
 	    | gen_log_com   	{p_parse_result->setCommandType(CMD_LOG);}
 	    | gen_playback_com	{p_parse_result->setCommandType(CMD_PLAYBACK);}
 	    | gen_record_com	{p_parse_result->setCommandType(CMD_RECORD);}
@@ -326,11 +330,12 @@ exp_status_arg:     /* empty */
     	    	;
 
     	    /** EXP_VIEW **/
+    	    /** This will be supplanted by view **/
     	    /** expView [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <target_list> ] **/
-exp_view_com:	    VIEW_HEAD 
-  	    	|   VIEW_HEAD set_view_args 
-  	    	|   VIEW_HEAD  error END_LINE 
-  	    	|   VIEW_HEAD set_view_args error END_LINE 
+exp_view_com:	    VIEW_HEAD_OLD 
+  	    	|   VIEW_HEAD_OLD set_view_args 
+  	    	|   VIEW_HEAD_OLD  error END_LINE 
+  	    	|   VIEW_HEAD_OLD set_view_args error END_LINE 
       	    	;
 
     	    /** EXP_DATA **/
@@ -378,10 +383,19 @@ cvid_args:	    view_id_list_spec
 		;
 
     	    /** CVIEW **/
+    	    /** This will be supplanted by view **/
     	    /** cView [-c view_id_list] **/
 c_view_com:	    CVIEW_HEAD set_view_args
   	    	|   CVIEW_HEAD error END_LINE 
   	    	|   CVIEW_HEAD set_view_args error END_LINE 
+      	    	;
+
+    	    /** VIEW **/
+    	    /** This will supplant cview and expview **/
+    	    /** expView [ <expId_spec> ] [-v modifier_list] [-c view_id_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <target_list> ] **/
+view_com:	    VIEW_HEAD set_view_args
+  	    	|   VIEW_HEAD error END_LINE 
+  	    	|   VIEW_HEAD set_view_args error END_LINE 
       	    	;
 
 set_view_args:	    set_view_element
@@ -427,6 +441,13 @@ gen_clear_break_com:	GEN_CLEAR_BREAK_HEAD gen_clear_break_arg
 gen_clear_break_arg:	NUMBER {p_parse_result->pushBreakId($1);}
     	    	;
 
+    	    /** GEN_ECHO **/
+    	    /** exit **/
+gen_echo_com:	    GEN_ECHO_HEAD NAME {p_parse_result->pushString($2);}
+  	    	|   GEN_ECHO_HEAD NAME error END_LINE 
+  	    	|   GEN_ECHO_HEAD error END_LINE 
+      	    	;
+
     	    /** GEN_EXIT **/
     	    /** exit **/
 gen_exit_com:	    GEN_EXIT_HEAD
@@ -462,7 +483,9 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	|   SAVE_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_SAVE].name);}
    	    	|   SETPARAM_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_SETPARAM].name);}
     	    	|   STATUS_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_STATUS].name);}
-    	    	|   VIEW_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_VIEW].name);}
+    	    	|   VIEW_HEAD_OLD   	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_VIEW].name);}
+
+    	    	|   VIEW_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_VIEW].name);}
 
     	    	|   CVIEWCLUSTER_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_C_VIEW_CLUSTERS].name);}
     	    	|   CVIEWCREATE_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_C_VIEW_CREATE].name);}
@@ -473,9 +496,11 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	|   LIST_GENERIC_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_GENERIC].name);}
 
     	    	|   GEN_CLEAR_BREAK_HEAD    {p_parse_result->pushHelp(cmd_desc[CMD_CLEAR_BREAK].name);}
+    	    	|   GEN_ECHO_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_ECHO].name);}
     	    	|   GEN_EXIT_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_EXIT].name);}
     	    	|   GEN_HELP_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_HELP].name);}
     	    	|   GEN_HISTORY_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_HISTORY].name);}
+    	    	|   GEN_INFO_HEAD    	    {p_parse_result->pushHelp(cmd_desc[CMD_INFO].name);}
     	    	|   GEN_LOG_HEAD    	    {p_parse_result->pushHelp(cmd_desc[CMD_LOG].name);}
     	    	|   GEN_OPEN_GUI_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_OPEN_GUI].name);}
     	    	|   GEN_PLAYBACK_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_PLAYBACK].name);}
@@ -503,6 +528,17 @@ gen_history_com:    GEN_HISTORY_HEAD gen_history_arg
       	    	;
 gen_history_arg:    /* empty */
     	    	|   NUMBER {p_parse_result->pushHistoryPoint($1);} 
+    	    	;
+
+    	    /** INFO **/
+    	    /** info [ -v all || <expId_spec> ] **/
+gen_info_com:	    GEN_INFO_HEAD info_arg
+  	    	|   GEN_INFO_HEAD error END_LINE 
+  	    	|   GEN_INFO_HEAD info_arg error END_LINE 
+      	    	;
+info_arg:     	    /* empty */
+    	    	|   expId_list_spec
+		|   modifier_list_spec
     	    	;
 
     	    /** GEN_LOG **/

@@ -88,6 +88,8 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "expStatus",    true,   CMD_EXP_STATUS,
     "expView",	    true,   CMD_EXP_VIEW,
 
+    "View",	    true,   CMD_VIEW,
+
     "cViewCreate",  false,  CMD_C_VIEW_CREATE,
     "cViewDelete",  false,  CMD_C_VIEW_DELETE,
     "cViewCluster", true,   CMD_C_VIEW_CLUSTERS,
@@ -97,9 +99,11 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "list", 	    true,   CMD_LIST_GENERIC,
 
     "clearBreak",   false,  CMD_CLEAR_BREAK,
+    "echo", 	    false,  CMD_ECHO,
     "exit", 	    false,  CMD_EXIT,
     "help", 	    true,   CMD_HELP,
     "history",	    true,   CMD_HISTORY,
+    "info",	    true,   CMD_INFO,
     "log",  	    false,  CMD_LOG,
     "openGui",	    false,  CMD_OPEN_GUI,
     "playBack",     false,  CMD_PLAYBACK,
@@ -631,6 +635,18 @@ dumpInfo()
 	
     if (p_slist->begin() != p_slist->end())
     	cout << "\tExperiment Types: " ;
+    for (j=p_slist->begin();j != p_slist->end(); j++) {
+    	cout << *j << " " ;
+    }
+    if (p_slist->begin() != p_slist->end())
+    	cout << endl ;
+
+    // Generic strings. 
+    // Currently used by echo.
+    p_slist = this->getStringList();
+	
+    if (p_slist->begin() != p_slist->end())
+    	cout << "\tGeneric strings: " ;
     for (j=p_slist->begin();j != p_slist->end(); j++) {
     	cout << *j << " " ;
     }

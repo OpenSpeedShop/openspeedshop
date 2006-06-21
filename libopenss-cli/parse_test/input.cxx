@@ -122,6 +122,20 @@ arglist_t exp_id_arg[EXPTYPE_MAX] = {
 //*************************************************************
 
 
+char *cvid_list[] = {
+    NULL,
+    "6",
+    "6,3,8"
+};
+
+#define CVID_MAX 1
+arglist_t cvid_arg[CVID_MAX] = {
+    3,cvid_list,"-c"
+};
+
+//*************************************************************
+
+
 char *viewset_id_list[] = {
     NULL,
     "1",
@@ -824,10 +838,25 @@ main()
 
     dump_close_output(p_os);
 
-    // EXPVIEW
+    // INFO
+    p_os = open_output("info.input");
+    one_level("info",0,EXPID_MAX,exp_id_arg);
+    one_level("info",0,ALL_MAX,all_arg);
+
+    dump_close_output(p_os);
+
+    // VIEW
     p_os = open_output("expview.input");
-    five_level ("expview",
+    five_level ("view",
     	    	0,EXPID_MAX,exp_id_arg,NULL,
+    	    	1,VIEW_MAX,view_arg,NULL,
+    	    	0,METRIC_MAX,metric_arg,NULL,
+    	    	0,TARGET_MAX,target_arg,NULL,
+		0,VIEWSET_MAX,viewset_arg,NULL
+    	    	);
+
+    five_level ("view",
+    	    	0,CVID_MAX,cvid_arg,NULL,
     	    	1,VIEW_MAX,view_arg,NULL,
     	    	0,METRIC_MAX,metric_arg,NULL,
     	    	0,TARGET_MAX,target_arg,NULL,
@@ -869,6 +898,13 @@ main()
     // EXIT
     p_os = open_output("exit.input");
     out_stream << "exit" << endl;
+
+    dump_close_output(p_os);
+
+    // ECHO
+    p_os = open_output("echo.input");
+    out_stream << "echo This_is_an_echo" << endl;
+    out_stream << "echo \"This is another echo\"" << endl;
 
     dump_close_output(p_os);
 

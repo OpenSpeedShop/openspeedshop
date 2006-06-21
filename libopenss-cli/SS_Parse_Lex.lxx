@@ -83,8 +83,10 @@ extern int ip_number(char *,int);
 "expSetParam"	{ return SETPARAM_HEAD; }
 "expstatus"   	{ return STATUS_HEAD; }
 "expStatus"   	{ return STATUS_HEAD; }
-"expview"   	{ return VIEW_HEAD; }
-"expView"   	{ return VIEW_HEAD; }
+"expview"   	{ return VIEW_HEAD_OLD; }
+"expView"   	{ return VIEW_HEAD_OLD; }
+
+"view"   	{ return VIEW_HEAD; }
 
 "cviewcluster"	{ return CVIEWCLUSTER_HEAD; }
 "cViewCluster"	{ return CVIEWCLUSTER_HEAD; }
@@ -101,11 +103,13 @@ extern int ip_number(char *,int);
 
 "clearbreak"	{ return GEN_CLEAR_BREAK_HEAD; }
 "clearBreak"	{ return GEN_CLEAR_BREAK_HEAD; }
+"echo"	    	{ return GEN_ECHO_HEAD; }
 "exit"	    	{ return GEN_EXIT_HEAD; }
 "opengui"   	{ return GEN_OPEN_GUI_HEAD; }
 "openGui"   	{ return GEN_OPEN_GUI_HEAD; }
 "help"	    	{ return GEN_HELP_HEAD; }
 "history"   	{ return GEN_HISTORY_HEAD; }
+"info"	    	{ return GEN_INFO_HEAD; }
 "log"	    	{ return GEN_LOG_HEAD; }
 "playback"  	{ return GEN_PLAYBACK_HEAD; }
 "playBack"  	{ return GEN_PLAYBACK_HEAD; }
