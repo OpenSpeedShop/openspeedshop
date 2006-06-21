@@ -459,6 +459,23 @@ SS_ParseError (PyObject *self, PyObject *args) {
 
 }
 
+/**
+ * Method: SS_Do_Scripting()
+ * 
+ * Convert the boolean variable OPENSS_ALLOW_PYTHON_COMMANDS to
+ * an integer 1 or 0 and build a Python object for the result.
+ *     
+ * @param   self
+ * @param   args
+ *
+ * @return  PyObject *
+ *
+ */
+static PyObject *
+SS_Do_Scripting (PyObject *self, PyObject *args) {
+  return Py_BuildValue("l", (OPENSS_ALLOW_PYTHON_COMMANDS ? 1 : 0) );
+}
+
 // Definitions for basic initialization / termination sequences.
 void Openss_Basic_Initialization ();
 void Openss_Basic_Termination();
@@ -486,6 +503,9 @@ SS_InitEmbeddedInterface (PyObject *self, PyObject *args) {
 
  // Initialize the basic CLI mechanisms.
   Openss_Basic_Initialization ();
+
+ // Always allow Python commands to be intermixed with Openss commands.
+  OPENSS_ALLOW_PYTHON_COMMANDS = true;
 
  // Define a default input window as an anchor 
  // for tracking commands
@@ -589,6 +609,9 @@ static CMDID Scripting_Sequence_Number = 0;
   }
 }
 
+static CMDID Scripting_Sequence_Number = 0;
+
+
 // Define a basic class with a constructor and destructor
 // to catch dlopens and dlclose on use of the Embedded interface.
 // The constructor could initialize OpenSpeedShop, but Python
@@ -632,6 +655,9 @@ PYopenss_Methods[] = {
 
     {"ParseError",  SS_ParseError, METH_VARARGS,
      "Python or Yacc parser error marking."},
+
+    {"Do_Scripting",  SS_Do_Scripting, METH_VARARGS,
+     "Return the value of the OPENSS_ALLOW_PYTHON_COMMANDS varible."},
 
     {"OSS_Init",  SS_InitEmbeddedInterface, METH_VARARGS,
      "Initialize openss for use as an embedded utility."},

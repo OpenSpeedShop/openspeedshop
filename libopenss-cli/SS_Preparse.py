@@ -775,7 +775,7 @@ class CLI(code.InteractiveConsole):
     # my main application as though on a python commandline.
     #
     ##################################################################
-    def interact(self,scripting):
+    def interact(self):
         myparse.terminate_SS = 0
         nesting_depth = 0
 
@@ -807,7 +807,7 @@ class CLI(code.InteractiveConsole):
                    line = 'EOF'
 
     	    	# Scripting
-    	    	if scripting == 1:
+    	    	if PY_Input.Do_Scripting() == 1:
                     if check_compound_stmt(line, self.python_compound_stmts):
     	    	    	nesting_depth = nesting_depth + 1
                     elif is_more and not line.isspace():
@@ -866,7 +866,7 @@ class CLI(code.InteractiveConsole):
     ##################################################################
     def do_flat_input(self):
 
-        self.interact(0)
+        self.interact()
         pass
 
     ##################################################################
@@ -879,7 +879,7 @@ class CLI(code.InteractiveConsole):
     ##################################################################
     def do_scripting_input(self):
 
-        self.interact(1)
+        self.interact()
         pass
 
 
