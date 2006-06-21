@@ -1815,7 +1815,80 @@ Adding a <span
  style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-stretch: normal; font-size-adjust: none;"></span></span></span><!--[endif]-->Regression
 test</span></a></span></span></span></span></h2>
 <div style="margin-left: 80px;"><span style=""><span style=""><span
- style=""><span style=""><span style=""></span></span></span></span></span><br>
+ style=""><span style=""><span style=""></span></span></span></span></span>
+<meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
+<title></title>
+<meta name="GENERATOR" content="OpenOffice.org 1.1.3  (Linux)">
+<meta name="CREATED" content="20060606;12585500">
+<meta name="CHANGED" content="20060620;11411900">
+<style>
+	<!--
+		@page { size: 8.27in 11.69in; margin: 0.79in }
+		P { margin-bottom: 0.08in }
+	-->
+	</style>
+<p style="margin-bottom: 0in;">Our test suite can be found in
+<b>OpenSpeedShop/test</b>. In this directory there are three
+relevant directories: test_scripts, src, and executables. </p>
+<p style="margin-bottom: 0in;">The <b>test_scripts</b> directory
+contains all the scripts used for running the tests and parsing the
+results. Scripts are named <b>runall</b> or a version of <b>runone-*</b>.
+The * represents what specific type of experiment the <b>runone</b>
+script is used for. For example, <b>runone-pcsamp</b> runs and
+parses the results of a pcsamp experiment. Given the wide range of
+outputs one can expect from an Open|SpeedShop experiment, there are
+many different <b>runone-*</b> scripts. Each one is tailor made for
+a different format of output.</p>
+<p style="margin-bottom: 0in;">The <b>src </b>directory contains all
+the different tests, each contained in its own directory. There are
+four different directories in <b>src</b>: <b>dpcl</b>, <b>dyninst</b>,
+<b>regression</b> and <b>unit</b>. The <b>dpcl</b> and <b>dyninst</b>
+directories contain tests that verify if dpcl and dyninst are
+working. They are useful to run when Open|SpeedShop is initially
+installed on a system to determine whether or not two of its
+necessary components are functioning. </p>
+<p style="margin-bottom: 0in;"><b>OpenSpeedShop/test/src/regression</b>
+contains the meat of the test suite. All of the regression tests are
+contained in this directory, and it is how one can test various
+command line options and experiments. Within <b>regression</b> there
+are the following directories: <b>bb</b> (which contains all the
+command line building block command tests, i.e. expEnable, expClose,
+etc.), <b>hwc</b> (contains tests for the hwc experiment), <b>hwctime</b>
+(contains tests for the hwctime experiment), <b>inf </b><span style="">(contains
+all the information tests, i.e. all the list -v options), </span><b>io</b><span
+ style="">
+(contains tests for the io experiment), </span><b>mpi</b><span style="">
+(contains tests for the mpi experiment), </span><b>pcsamp</b><span
+ style="">
+(contains tests for the pcsamp experiment), </span><b>usertime</b><span
+ style="">
+(contains tests for the usertime experiment)and </span><b>views</b><span
+ style="">
+(contains tests for the various views, i.e. calltrees).</span></p>
+<p style="margin-bottom: 0in;"><span style="">A
+typical test directory contains a runall, a runone, a .tst file, a
+Makefile.am and sometimes and .tst.expected file. </span><b>runall
+</b><span style="">links to a copy in
+OpenSpeedShop/test/test_scripts. r</span><b>unall</b><span style="">
+is a general script that traverses the directory tree and runs all
+the tests, produces a report, and mails it out. For each directory
+below OpenSpeedShop/test/src/regression there should be a </span><b>runall</b><span
+ style="">. </span><b>runone</b><span style=""> is a script
+that is tailor-made for each type of collector, and for some of the
+different views. All of the </span><b>runone</b><span style="">
+scripts are identical with the exception of the 'CompareResults'
+function. Each one differs according to what kind of output is being
+parsed, and what type of results are being searched for. Some
+'CompareResults' functions compare the output from the OpenSpeedShop
+run to the ratios and functions that are contained in the
+*.tst.expected file. In other cases, the script contains all the
+function names or data that the user is looking for. The *.tst file
+is a simple shell script that contains the list of commands that are
+being passed to OpenSpeedShop, creates a file called </span><b>input.script</b><span
+ style="">
+that contains the commands and is then passed to OpenSpeedShop
+through the batch command (openss -batch). </span>
+</p>
 </div>
 <span style=""><span style=""><span style=""><span style=""><span
  style=""></span></span></span></span></span>
