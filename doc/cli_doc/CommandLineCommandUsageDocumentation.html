@@ -1,0 +1,354 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Command Line Documentation</title>
+</head>
+<body>
+<ul id="mozToc">
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId322610">Command
+Line Documentation:</a>
+    <ul>
+      <li><a href="#mozTocId439980">help:</a></li>
+      <li><a href="#mozTocId517087">expCreate:</a></li>
+      <li><a href="#mozTocId84601">expGo:</a></li>
+      <li><a href="#mozTocId996000">expView:</a></li>
+      <li><a href="#mozTocId593519">exit:</a></li>
+      <li><a href="#mozTocId554026">expAttach:</a></li>
+      <li><a href="#mozTocId33953">expClose:</a></li>
+      <li><a href="#mozTocId157037">expCompare:</a></li>
+      <li><a href="#mozTocId318844">expData:</a></li>
+      <li><a href="#mozTocId904211">expDetach:</a></li>
+      <li><a href="#mozTocId936380">expDisable:</a></li>
+      <li><a href="#mozTocId89056">expEnable:</a></li>
+      <li><a href="#mozTocId46050">expFocus:</a></li>
+      <li><a href="#mozTocId653327">expPause:</a></li>
+      <li><a href="#mozTocId15701">expRestore:</a></li>
+      <li><a href="#mozTocId18761">expSave:</a></li>
+      <li><a href="#mozTocId667631">expSetParam:</a></li>
+      <li><a href="#mozTocId82398">expStatus:</a></li>
+      <li><a href="#mozTocId837919">cViewCreate:</a></li>
+      <li><a href="#mozTocId95519">cViewDelete:</a></li>
+      <li><a href="#mozTocId598642">cViewInfo:</a></li>
+      <li><a href="#mozTocId706967">cViews:</a></li>
+      <li><a href="#mozTocId929490">list:</a></li>
+      <li><a href="#mozTocId772731">clearBreak:</a></li>
+      <li><a href="#mozTocId301537">history:</a></li>
+      <li><a href="#mozTocId639448">log:</a></li>
+      <li><a href="#mozTocId614912">openGUI:</a></li>
+      <li><a href="#mozTocId665080">playBack:</a></li>
+      <li><a href="#mozTocId43021">record:</a></li>
+      <li><a href="#mozTocId301021">setBreak:</a></li>
+      <li><a href="#mozTocId423510">wait:</a></li>
+    </ul>
+  </li>
+</ul>
+<h4><a class="mozTocH4" name="mozTocId322610"></a><big><big><span
+ style="font-weight: bold;"></span></big></big><big><span
+ style="font-weight: bold;">Command Line Documentation:</span></big><span
+ style="font-weight: bold;"></span></h4>
+<p>For those Open|SpeedShop users who do not want to use the GUI, or
+are
+more comfortable with command line control, that option is
+available.&nbsp; In this section we will discuss the various Command
+Line Interface (CLI)&nbsp; options, and how to set up basic experiments
+using them.<br>
+</p>
+<p><br>
+For starters, to invoke Open|SpeedShop on the command line, once
+installed on a system:</p>
+<p>%openss -cli</p>
+<br>
+Open|SpeedShop will start up and the user will see the following:<br>
+<br>
+Welcome to OpenSpeedShop 0.875<br>
+openss&gt;&gt;<br>
+<br>
+At this point, one may begin performance analysis at will.&nbsp; Below
+we list all the possible CLI commands, their definitions, and how one
+may use them.<br>
+<br>
+To begin, should all else fail, the help command is very useful.&nbsp; <br>
+<h5><a class="mozTocH5" name="mozTocId439980"></a><big
+ style="font-weight: bold;"><big>help</big></big>:</h5>
+<pre>&lt;string&gt; = <span style="font-weight: bold;">help </span>[-v &lt;help_modifier_list&gt;] [&lt;string&gt;]<br><br>Request information about a topic.<br><br>Here are the available help topics:<br><br><span
+ style="font-weight: bold;">commands&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>-&gt; Lists all available commands<br><span
+ style="font-weight: bold;">grammar&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>-&gt; Lists command grammar elements<br><span
+ style="font-weight: bold;">experiments&nbsp;&nbsp;&nbsp;&nbsp; </span>-&gt; Lists available experiments<br><span
+ style="font-weight: bold;">man&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>-&gt; How to access the Open|SpeedShop man page<br><span
+ style="font-weight: bold;">terms&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>-&gt; Lists general Open|SpeedShop nomenclature<br><span
+ style="font-weight: bold;">preferences&nbsp;&nbsp;&nbsp;&nbsp; </span>-&gt; Lists general Open|SpeedShop preference variables<br><br>To get details for a particular topic,<br>type "<span
+ style="font-weight: bold;">help </span>&lt;topic&gt;".<br>For instance, to get help list of the topic "commands"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; openss&gt;&gt;<span
+ style="font-weight: bold;">help </span>commands<br>To get help on an individual command type, such as "<span
+ style="font-weight: bold;">expCreate</span>"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; openss&gt;&gt;<span
+ style="font-weight: bold;">help </span>expCreate<br><br><br>To begin, let us look at an exapmle for running a simple pcsamp experiment on an executable called 'mutatee'.  <br>The following snippet demonstrated how the user would set up and run the experiment:<small><i><big
+ style="font-family: courier new,courier,monospace;"><b style=""><br><br></b>openss&gt;&gt;<b
+ style=""><span style="font-weight: bold;">expcreate -f /home/openss/demo/Simple/mutatee pcsamp<br></span></b># Below a "1" is returned to indicate the experiment number<br>openss&gt;&gt;&nbsp;&nbsp; 1<b
+ style=""><br></b># The next user command is "expGo" which runs the experiment<br>openss&gt;&gt;<b
+ style=""><span style="font-weight: bold;">expGo</span><br>o</b>penss&gt;&gt;<br># The next three lines are output from the executable's execution<br>Usage: /home/openss/demo/Simple/mutatee &lt;size&gt;<br>No size argument given.&nbsp;&nbsp; Defaulting to 250.<br>/home/openss/demo/Simple/mutatee: successfully completed.<b
+ style=""><br></b># The next user command tells Open|SpeedShop to print the results of the experiment<br># NOTE - the 5 at the end of the stats parameter indicates you want to view the top 5 functions.<br># If you had specified 33, as in stats33, you would see the top 33 functions in the performance report.<br>openss&gt;&gt;<b
+ style=""><span style="font-weight: bold;">expView stats5<br><br></span></b># The next four lines are the output of the experiment due to the expView command<br>&nbsp; CPU Time<br>(Seconds)&nbsp; Function<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <br>2.090000&nbsp; f3<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <br>1.320000&nbsp; f2<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>0.650000&nbsp; f1<br># Open|SpeedShop prompt for additional command input<br>openss&gt;&gt;<span
+ style="font-weight: bold;">exit</span></big></i></small><br></pre>
+<h5><a class="mozTocH5" name="mozTocId517087"></a><big><big><span
+ style="font-weight: bold;"><small>expCreate</small>:</span></big></big></h5>
+<big><big><span style="font-weight: bold;"></span></big></big><span
+ style="font-family: monospace;"><br>
+</span>&lt;expId&gt; = <span style="font-weight: bold;">expCreate </span>[
+-v mpi] [ &lt;target_list&gt; ] [ &lt;expType_list&gt; ]<br>
+<pre>                   <br>Start the process of defining an experiment.<br>                   <br>   o define a new experiment identifier,<br>                   <br>   o set the current focus to the new identifier and<br>                   <br>   o return the experiment identification identifier.<br>                   <br>   o The experiment will not execute until an '<span
+ style="font-weight: bold;">expGo</span>' command<br>     is issued.       <br>                   <br>- If the -v mpi option is selected, all the threads that<br> are part of a running application will be included<br> in the experiment.<br>                   <br>- If the -v mpi option is not present, only those<br> threads that are running application will be included<br> in the experiment.<br>                   <br>- The &lt;target_list&gt; will associate the specified executable<br> with the experiment being defined.<br>                   <br>- The experiment type argument, &lt;expType_list&gt;, can be<br> used to specify the types of data that will be collected<br> during the experiment.<br>                   <br>- Missing arguments can be supplied later with the '<span
+ style="font-weight: bold;">expAttach</span>'<br> command.          <br>                   <br>- An '<span
+ style="font-weight: bold;">expCreate</span>' command with no arguments will still return<br> a new &lt;expId&gt; and will set the focus.<br>                   <br><big>Examples</big>:<br><br><span
+ style="font-weight: bold;">expCreate </span>-f my_prog usertime<br>                   <br>   Creates an experiment targeting the application<br>   'my_prog' using the usertime performance measurement<br>   utility.        <br>                   <br>   The next logical action would be to run the experiment<br>   using <span
+ style="font-weight: bold;">expGo</span>.    <br>                   <br>   If you need to add more attributes to this experiment<br>   before running it, use the <span
+ style="font-weight: bold;">expAttach </span>command.<br>                   <br>   ExpCreate changes the focus to the newly created<br>   experiment. If you wish to change the focus back to an<br>   existing experiment use the expFocus command.<br>                   <br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId84601"></a><big><big><span
+ style="font-weight: bold;">expGo</span></big></big>:</h5>
+<pre><br><span style="font-weight: bold;">expGo </span>[ -v all || -x &lt;expId&gt; ]<br>                   <br>Start execution or continue running the experiment.<br>                   <br>- If the experiment has already begun execution,<br> this command causes execution to continue from<br> where it was interrupted.<br>                   <br>- The experiment will continue to run until either:<br>                   <br>    * the application terminates, or<br>                   <br>    * the application executes a programmed halt, or<br>                   <br>    * the user issues another exp... command that refers<br>      to this experiment Id. or<br>                   <br>    * the OpenSS tool terminates due to an exit command,<br>      an external interrupt, or abnormal, internal event.<br>                   <br>- Except when executed in batch mode, the execution of the<br> application and the collection of performance data does not,<br> automatically, prevent other commands from being issued:<br>                   <br>    A following command that depends on the result of this<br>    experiment may not be able to execute and may block<br>    further commands from being issued.<br>                   <br>    Independent commands may be issued and completed before<br>    this experiment completes.<br>    The status of any experiment can be determined through the<br>    <span
+ style="font-weight: bold;">listStatus </span>command.<br>                   <br>    Depending on the type of data collection that is taking<br>    place, it may be possible to view the results before the<br>    application completes.<br>                   <br>- The absence of the -x &lt;expId&gt; and all keyword will result<br> in only the focused experiment being run.<br>                   <br>- The use of -x &lt;expId&gt; will result in only that experiment<br> being run.        <br>                   <br>- The use of the all option will result in every defined experiment<br> being run.        <br><br><big>Examples</big>:<br><br><span
+ style="font-weight: bold;">expGo               </span><br>                   <br>   Run the currently focused experiment.<br>                   <br><span
+ style="font-weight: bold;">expGo </span>-x 5          <br>                   <br>   Run experiment #5. If #5 was not the currently focused<br>   experiment this will NOT bring it into focus. Use<br>   '<span
+ style="font-weight: bold;">expFocus</span>' to do that.<br>                   <br>The next logical action would be to display the<br>experiment results using <span
+ style="font-weight: bold;">expView</span>.<br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId996000"></a><big
+ style="font-weight: bold;"><big>expView</big></big>:</h5>
+<pre><br><span style="font-weight: bold;">expView </span>[-v &lt;modifier_list&gt;] [-x &lt;expId&gt;] [&lt;viewType&gt;] [-m <br>&lt;expMetric_list&gt;] [&lt;target_spec&gt;]<br><br>View the experiment's output in text form.<br><br>- If this command is issued with no -x &lt;expId&gt;, the<br> focused experiment is used.<br><br>- Output can be directed to a file by the use of '&gt;' or '&gt;&gt;'<br> followed with a file name, at the end of the command.  If<br> the output is not redirected, it will be sent to stdout.<br><br>- If &lt;expMetric_list_spec&gt; is present, only those metrics<br> in the list will be included in the report.<br><br>- If a &lt;target_list&gt; is specified, only the data for the<br> specified targets will be included in the report.<br><br>- The report may also be controlled through &lt;modifier_list&gt;<br> or &lt;expMetric_list&gt; specifiers.  The meaning of these options<br> is unique to each &lt;viewType&gt;, although the convention is<br> that the '-v &lt;modifier_list&gt;' will select a version of the<br> report that will be generated and '-m &lt;expMetric_list&gt;' will<br> determines which metrics or data items are included in that<br> report.  The specific options available for a view can be<br> determined by requesting '<span
+ style="font-weight: bold;">help </span>&lt;viewType&gt;'.<br><br>- This command does not change the execution state of the<br> experiment, although the nature of the requested data may<br> require that the experiment complete execution before the<br> information can be provided.<br><br>- To find the viewtypes available for your experiment use<br>   <span
+ style="font-weight: bold;">list </span>-v views.<br><br>- To find the all the viewtypes available to you use<br>   <span
+ style="font-weight: bold;">list </span>-v views,all.<br><br>- To get detailed information for a specific viewtype use:<br><br>   <span
+ style="font-weight: bold;">help </span>&lt;viewType&gt; where &lt;viewType&gt; is the view type.<br><big><br> Examples</big>:<br>     <span
+ style="font-weight: bold;">help </span>mpi<br>     <span
+ style="font-weight: bold;">help </span>pcsamp<br>     <span
+ style="font-weight: bold;">help </span>hwc<br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId593519"></a><big
+ style="font-weight: bold;"><big>exit</big></big>:</h5>
+<pre><br><span style="font-weight: bold;">exit</span><br><br>Terminate the session.<br><br>- Suspend execution or all executables<br><br>- Suspend data collection.<br><br>- Remove instrumentation from all applications.<br><br>- Release all applications from control of the OpenSS tool<br><br>- Allow all applications to continue executing.<br><br>- Close all data base files.<br><br>- Delete all temporary files.<br><br>- Close the GUI and Command windows.<br><br>- Terminate execution of the OpenSS tool.<br><br>The commands detailed below (<span
+ style="font-weight: bold;">expAttach</span>, <span
+ style="font-weight: bold;">expClose</span>, <span
+ style="font-weight: bold;">expData</span>, <span
+ style="font-weight: bold;">expDetach</span>, <span
+ style="font-weight: bold;">expDisable</span>, <span
+ style="font-weight: bold;">expEnable</span>, <span
+ style="font-weight: bold;">expFocus</span>, <br><span
+ style="font-weight: bold;">expPause</span>, <span
+ style="font-weight: bold;">expRestore</span>, <span
+ style="font-weight: bold;">expSave</span>, <span
+ style="font-weight: bold;">expSetParam</span>, and <span
+ style="font-weight: bold;">expStatus</span>) are all used to control various aspects of the <br>experiment.  Explanations and examples of each command are given. <br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId554026"></a><big
+ style="font-weight: bold;"><big>expAttach</big></big>:</h5>
+<pre><br><span style="font-weight: bold;">expAttach </span>[ -v mpi] [ -x &lt;expId&gt; ] [ &lt;target_list&gt; ] [ &lt;expType_list&gt; ]<br><br>Attach applications or collectors to an experiment.<br><br>        The attached applications will not execute until<br>        an <span
+ style="font-weight: bold;">expGo </span>command is issued.<br><br>- If there is no -x &lt;expId&gt; provided, information is<br> attached to the focused experiment.<br><br>- If the -v mpi option is selected, all the threads that<br> are part of a running application will be included<br> in the experiment.<br><br>- If the -v mpi option is not present, only those<br> threads that are running application will be included<br> in the experiment.<br><br>- The &lt;target_list&gt; is used to restrict the knowledge<br> of the experiment or data collection to certain portions<br> of an appliaction.<br><br>- It is ambiguous to use both the -f and -p options.<br><br>        The -f option implies that an executable is to be<br>        loaded into the OpenSS tool from a file.<br><br>        The use of -p option implies that the OpenSS tool<br>        is to attach to a program that is already executing.<br><br>- If &lt;target_list&gt; is provided without &lt;expType_list&gt;,<br> those applications are attached to all the &lt;expType&gt;s<br> that are already attached of the experiment.<br><br>- If &lt;expType_list&gt; is provided without &lt;target_list&gt;,<br> the specified data collectors are used to instrument<br> all the executable routines that are already attached<br> to the indicated experiment.<br><br>- If both &lt;target_list&gt; and &lt;expType_list&gt; are provided,<br> only those portions of the application in the &lt;target_list&gt;<br> are linked to the specified collectors in &lt;expType_list&gt;.<br><br>- If neither &lt;target_list&gt; nor &lt;expType_list&gt; is provided,<br> the command does nothing.<br><br><big>Examples</big>:<br><br><span
+ style="font-weight: bold;">expAttach </span>-x 2 -f my_prog pcsamp<br>   Includes the executable program 'my_prog' into experiment<br>   #2 and adds the performance measurement utility 'pcsamp'<br>   to the experiment. The executable is loaded into the<br>   system and instrumented to provide performance measurements.<br><br>   Experiment #2 must have been previously defined with an<br>   <span
+ style="font-weight: bold;">expCreate </span>or <span
+ style="font-weight: bold;">expRestore </span>command.<br><br>   The program will not start execution until a subsequent<br>   '<span
+ style="font-weight: bold;">expGo </span>-x 2' command is issued.<br><br><span
+ style="font-weight: bold;">expAttach </span>-x 1 -v mpi -h localhost -p 1234 pcsamp<br><br>   Which will, for the previously created experiment #1,<br>   find pid 1234 and attach the pcsamp data collector to<br>   all the associated pids that are part of the same mpi<br>   job. The assumption is that the given pid is the<br>   original one that the system allocated for an<br>   'mpirun...' command.<br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId33953"></a><big
+ style="font-weight: bold;"><big>expClose</big></big>:</h5>
+<pre><br><span style="font-weight: bold;">expClose </span>[ -v kill,all ]<br><br>Close/Terminate the experiment.<br><br>        The OpenSS tool is NOT terminated. Use exit to<br>        terminate the session.<br><br>        All data collectors attached to the experiment<br>        are removed from the attached applications.<br><br>        All attached applications are removed from the experiment.<br><br>        If '-v kill' is not provided, attached applications<br>        will continue executing.<br><br>        If '-v kill' is provided, attached applications<br>        will be terminated.<br><br>        The data base file that was used to save information<br>        about the applications and the collected data, is deleted<br>        if it is a temporary file, or closed if it is a user<br>        defined file. Use '<span
+ style="font-weight: bold;">expSave</span>' for saving information.<br><br>- Because important information may accidently be lost,<br> the absence of any arguments will not cause the focused<br> experiment to be deleted. This can only be done by<br> specifying the expId of the focused experiment.<br><br>- Use of '-v all' will cause all defined experiments<br> to be deleted.<br><br><big>Examples</big>:<br><br><span
+ style="font-weight: bold;">expClose </span>-x 3<br><br>   Closes experiment #3.<br><br><span
+ style="font-weight: bold;">expClose </span>all<br><br>   Closes all experiments<br><br>   In all the above cases, if the target application is<br>   running it will be left running. To kill the<br>   application(s) you will need to add '-v kill'.<br><br>This command will also delete all performance measurements<br>that were not explicitly saved with an '<span
+ style="font-weight: bold;">expSave</span>' command.<br>This means that the results of the experiment will not be<br>available to look at.<br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId157037"></a><big
+ style="font-weight: bold;"><big>expCompare</big></big>:</h5>
+<pre><br><span style="font-weight: bold;">expCompare  </span>[-v &lt;modifier_list&gt; ]<br>           [ &lt;expId_spec&gt; ]<br>           [ &lt;viewType&gt; ]<br>           [ -m &lt;expMetric_list&gt; ]<br>           [ &lt;target_list&gt; ]<br><br>Simple compare view.<br>The tool determines the columninformation.<br><br>This looks a lot like the '<span
+ style="font-weight: bold;">expView</span>' command, but the<br>semantics are slightly different. The purpose of the<br>'<span
+ style="font-weight: bold;">expView</span>' command is to display a summary that includes<br>the specified items from the specified (or implied)<br>&lt;target_list&gt;. The whole point of the '<span
+ style="font-weight: bold;">expCompare</span>'<br>command is to find multiple things to display in<br>side-by-side columns, rather than summarized in a single<br>column.<br><br>The semantic routine for the command looks through the<br>components of the &lt;target_list&gt; for non-singular<br>components. That is what defines the separate<br>components to display. For example, the following<br>command:<br><br>   <span
+ style="font-weight: bold;">expCompare </span>-x 1 usertime -v function -f foo -m time -h host1, host2<br><br>will produce a report that contains a column for the<br>time spend in function 'foo' on 'host1', along side the<br>time spent in function 'foo' on 'host2'. Similarly, the<br>following command:<br><br>   <span
+ style="font-weight: bold;">expCompare </span>-x 1 usertime -v function -f foo -m time -h host1, -p <br>11513,11514<br><br>will produce a report that contains a column for the<br>time spend in function 'foo' on 'host1' pid 1153, along<br>side the time spent in function 'foo' on 'host1' pid<br>1154.<br><br>It is an error to specify more than one sub-list of<br>items within the &lt;target_list&gt;.<br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId318844"></a><big
+ style="font-weight: bold;"><big>expData</big></big>:</h5>
+<pre><br><span style="font-weight: bold;">expData </span>[-v &lt;modifier_list&gt;] [-x &lt;expId&gt;] [&lt;viewType&gt;] [-m <br>&lt;expMetric_list&gt;] [&lt;target_spec&gt;]<br><br>Return data from experiment.<br><br> See <span
+ style="font-weight: bold;">expView </span>for full options.<br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId904211"></a><big
+ style="font-weight: bold;"><big>expDetach</big></big>:</h5>
+<pre><br><span style="font-weight: bold;">expDetach </span>[ -x &lt;expId&gt; ] [ &lt;target_list&gt; ] [ &lt;expType_list&gt; ]<br><br>Detach applications from collectors.<br><br>        The remaining applications will not execute until an<br>        '<span
+ style="font-weight: bold;">expGo</span>' command is issued.<br><br>        The experiment retains knowledge of both the applications<br>        and the collectors and they can be referenced on later commands.<br><br>        All previously collected data samples will be retained.<br><br>        No new data, of the specified type, will be collected<br>        for the specified application.<br><br>- If there is no -x &lt;expId&gt; provided, the focused experiment<br> is used.<br><br>- If &lt;target_list&gt; is provided without &lt;expType_list&gt;,<br> all collectors are detached for those applications.<br><br>- If &lt;expType_list&gt; is provided without &lt;target_list&gt;,<br> the specified data collectors are detached from all<br> the executable routines that are ttached to the indicated<br> experiment.<br><br>- If both &lt;target_list&gt; and &lt;expType_list&gt; are provided,<br> only the specified collectores in &lt;expType_list&gt; are<br> detached from just those applications described in &lt;target_list&gt;.<br><br>- If neither &lt;target_list&gt; nor &lt;expType_list&gt; is provided,<br> the command does nothing.<br><br><big>Examples</big>:<br><br><span
+ style="font-weight: bold;">expDetach </span>-f my_prog pcsamp<br><br>   Detach the pcsampling plugin from the targeted<br>   application 'my_prog' in the focused experiment.<br><br><span
+ style="font-weight: bold;">expDetach </span>-x 2 -f my_prog pcsamp<br><br>   Detach the pcsampling plugin from the targeted<br>   application 'my_prog' in experiment #2 only.<br><br><span
+ style="font-weight: bold;">expDetach </span>-x 2 pcsamp<br><br>   Detach the pcsampling plugin from the a.out and all dsos<br>   in experiment #2.<br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId936380"></a><big
+ style="font-weight: bold;"><big>expDisable</big></big>:</h5>
+<pre><br><span style="font-weight: bold;">expDisable </span>[ -v all || -x &lt;expId&gt; ]<br><br>Turn off data collection.<br><br>        The experiment remains defined.<br><br>        Data collection is "turned off" and no new<br>        information is saved.<br><br>        Instrumentation is disabled but may not removed<br>        from the application.<br><br>        Previously collected data is still available and<br>        can be viewed or saved.<br><br>        The execution state of the application will not be changed.<br>        If running, it will continue to do so.<br><br>- See related commands:<br><br>        '<span
+ style="font-weight: bold;">expEnable</span>' can be used to restart data collection.<br><br>        '<span
+ style="font-weight: bold;">expSave</span>' can be used to save previously collected data.<br><br>        '<span
+ style="font-weight: bold;">expClose</span>' can be used to destroy the experiment and<br>        free all data space used to save the collected data.<br><br>- '-v all' will result in data collection being<br> stopped for all defined experiments.<br><br>- If this command is issued with no arguments, data<br> collection is stopped for the focused experiment.<br><br><big>Examples</big>:<br><br><span
+ style="font-weight: bold;">expDisable</span><br><br>   Turn off collection of performance data in the focused<br>   experiment.<br><br><span
+ style="font-weight: bold;">expDisable </span>all<br><br>   Turn off collection of performance data in all defined<br>   experiments.<br><br><span
+ style="font-weight: bold;">expDisable </span>-x 3<br><br>   Turn off collection of performance data in the defined<br>   experiment #3.<br></pre>
+<br>
+<h5><a class="mozTocH5" name="mozTocId89056"></a><big
+ style="font-weight: bold;"><big>expEnable</big></big>:</h5>
+<br>
+<pre><span style="font-weight: bold;">expEnable </span>[ -v all || -x &lt;expId&gt; ]<br><br>Restart data collection.<br><br>        Existing instrumentation is enabled.<br><br>        Data collection is "turned on" and new information<br>        will be saved.<br><br>        New information will be merged with any previously<br>        collected data.<br><br>        The execution state of the application will not be changed.<br>        If running, it will continue to do so. If not running, an<br>        '<span
+ style="font-weight: bold;">expGo</span>' command must be issued before it will start running,<br><br>- The all keyword will result in data collection being<br> restarted for all defined experiments.<br><br>- If this command is issued with no arguments, data<br> collection for the focused experiment is restarted.<br><br><big>Examples</big>:<br><br><span
+ style="font-weight: bold;">expEnable</span><br><br>   Turn on collection of performance data in the focused<br>   experiment that was previously disabled by an expDisable<br>   command.<br><br><span
+ style="font-weight: bold;">expEnable </span>all<br><br>   Turn on collection of performance data in all defined<br>   experiments that was previously disabled by an<br>   '<span
+ style="font-weight: bold;">expDisable</span>' command.<br><br><span
+ style="font-weight: bold;">expEnable </span>-x 3<br><br>   Turn on collection of performance data in the defined<br>   experiment #3 that was previously disabled by an<br>   '<span
+ style="font-weight: bold;">expDisable</span>' command.<br><br>   If #3 was not the currently focused experiment this will<br>   NOT bring it into focus. Use '<span
+ style="font-weight: bold;">expFocus </span>-x 3' to do that.<br><br>   The next logical action would be to run the experiment<br>   using '<span
+ style="font-weight: bold;">expGo </span>-x 3'.</pre>
+<br>
+<h5><a class="mozTocH5" name="mozTocId46050"></a><big
+ style="font-weight: bold;"><big>expFocus</big></big>:</h5>
+<br>
+&lt;expId&gt; = <span style="font-weight: bold;">expFocus </span>[ -x
+&lt;expId&gt; ]<br>
+<br>
+Focus the current input window on a specified experiment.<br>
+<br>
+- In many commands -x &lt;expId&gt; is optional. When omitted,<br>
+&nbsp; the currently "focused" experiment is used.<br>
+&nbsp;- If no argument is present on this command, return<br>
+&nbsp; the focused experiment.<br>
+&nbsp;- If the -x &lt;expId&gt; argument has an experiment id<br>
+&nbsp; of zero (0), then clear the experiment focus.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A command that uses an
+experiment id of zero is illegal<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; and will produce a
+fatal error.<br>
+&nbsp;- This command does not change the execution state of<br>
+&nbsp; an experiment.<br>
+<br>
+Examples<small>:</small><br>
+<br>
+<span style="font-weight: bold;">expFocus</span><br>
+<br>
+&nbsp;&nbsp;&nbsp; Return the id of the currently focused experiment<br>
+<br>
+<span style="font-weight: bold;">expFocus </span>-x 5<br>
+<br>
+&nbsp;&nbsp;&nbsp; Bring into focus experiment #5.<br>
+<br>
+Only one experiment can be in focus at a time.<br>
+<br>
+<h5><a class="mozTocH5" name="mozTocId653327"></a><big><big><span
+ style="font-weight: bold;">expPause</span></big></big>:</h5>
+<pre><span style="font-weight: bold;">expPause </span>[ -v all || -x &lt;expId&gt; ]<br><br>Temporarily interrupt the specified experiment.<br><br>       o The experiment will remain suspended until an <span
+ style="font-weight: bold;">expGo </span>is<br>         issued or until the performance tool is exited, at which time<br>         all the instrumentation is removed from the experiment and<br>         the program is allowed to continue running.<br><br>- If -x &lt;expId&gt; is not provided, the focused experiment is used.<br><br>- If the keywork all is present, every defined experiment is halted.<br><br><big>Examples</big>:<br><br><span
+ style="font-weight: bold;">expPause</span><br><br>   Suspend/stop execution of the currently focused<br>   experiment<br><br><span
+ style="font-weight: bold;">expPause </span>-x 5<br><br>   Suspend/stop execution of experiment #5. If #5 was not<br>   the currently focused experiment this will NOT bring it<br>   into focus. Use '<span
+ style="font-weight: bold;">expFocus</span>' to do that.<br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId15701"></a><big><big><span
+ style="font-weight: bold;">expRestore</span></big></big>:</h5>
+<pre><br>&lt;exp_Id&gt; = <span style="font-weight: bold;">expRestore </span>-f &lt;file_name&gt;<br><br>Restore experiment's definition and previously saved<br>data from a data base that was saved with an <span
+ style="font-weight: bold;">expSave </span>command.<br><br>        A new experiment is created and intitialize with<br>        this information.<br><br>        This command also sets the focus to the new experiment's<br>        Identifier.<br><br>        The new experiment will be in the same state as that<br>        established with the expDisable command.<br><br>        If the original applications are still running, the<br>        user can reconnect to them and reinsert instrumentation<br>        into them, through them, through use of the <span
+ style="font-weight: bold;">expEnable </span>command.<br>        Doing this will interrupt the executing application and an<br>        <span
+ style="font-weight: bold;">expGo </span>command will be required before the application continues<br>        and new data samples can be collected.<br><br>        Previously collected data can be looked at with the<br>        <span
+ style="font-weight: bold;">expView </span>command without reconnecting to the original<br>        applications.<br><br>        If an <span
+ style="font-weight: bold;">expGo </span>command is issued, new data samples will<br>        be placed into the data base specified by -f &lt;file_name&gt;.<br>        A different data base can be specified with the expSave command.<br><br><big>Examples</big>:<br><br><span
+ style="font-weight: bold;">expRestore </span>-f my_experiment.data<br><br>   Reads the data stored in 'my_experiment.data' and<br>   defines a new experiment that is initialized with<br>   information in the file. The focus is set to<br>   this new experiment.<br><br>   No attempt is made to determine if the saved information<br>   refers to a still running application however, a subsequent<br>   '<span
+ style="font-weight: bold;">expGo</span>' command will attempt to find and attach to it.<br></pre>
+<br>
+<h5><a class="mozTocH5" name="mozTocId18761"></a><big
+ style="font-weight: bold;"><big>expSave</big></big>:</h5>
+<br>
+<pre><span style="font-weight: bold;">expSave </span>[-v copy] [-x &lt;expId&gt;] -f &lt;file_name&gt;<br><br>Save the experiment data for further analysis.<br><br>        For each experiment, information about the executable<br>        programs that are instrumented, information about the<br>        instrumentation that is used and any performance data<br>        that is collected are saved in a data base.<br><br>        The data base is created by the OpenSS tool in a temporary<br>        location and will be deleted when an <span
+ style="font-weight: bold;">expClose </span>command is<br>        issued for the experiment, or when an <span
+ style="font-weight: bold;">exit </span>command is<br>        issued that terminates the OpenSS tool.<br><br>        The entire data base can be saved with the <span
+ style="font-weight: bold;">expSave </span>command<br>        and can be reloaded into the OpenSS tool with the expRestore<br>        command.<br><br>        The data base is in a special format that supports the<br>        opertaions that the OpenSS tool must perform.<br><br>- Without '-v copy'<br><br>        If the original, temporary data base file is still in use,<br>        it is copied to the specified file name and the OpenSS tool<br>        will use the new file to collect any new information about<br>        the experiment. When the experiment completes, this data<br>        base will be retained.<br><br>        If a previous expSave command has caused the experiment's<br>        information to be directed to a user defined data base<br><br>        The contents of the previous data base<br><br>- without any of the data samples<br><br>- is copied to the new data base.<br><br>        The previous data base is closed.<br><br>        The new data base is used by the OpenSS tool to collect any<br>        new information that is added to or collected for, the experiment.<br><br>- With '-v copy' the given location receives a copy<br> of the current state of the data base.<br><br>        The current contents of the data base is duplicated and<br>        saved to the given location.<br><br>        No new information will be added to the given location.<br><br>        New information will be added to the original data base.<br><br>- This command does not change the execution state of the<br> experiment, although it may temporarily suspend execution<br> while the command is being executed.<br><br><big>Examples</big>:<br><br><span
+ style="font-weight: bold;">expSave </span>-f my_experiment.data<br><br>   Saves data and state of the focused experiment to the<br>   file 'my_experiment.data'.<br><br><span
+ style="font-weight: bold;">expSave </span>-x 3 -f my_experiment.data<br><br>   Saves data and state of experiment #3 to the<br>   file 'my_experiment.data'.</pre>
+<br>
+<h5><a class="mozTocH5" name="mozTocId667631"></a><big><big><span
+ style="font-weight: bold;">expSetParam</span></big></big>:</h5>
+<br>
+<pre><span style="font-weight: bold;">expSetParam </span>[-x &lt;expId&gt;] &lt;expParam&gt;=&lt;expParamValue&gt; [, <br>&lt;expParam&gt;=&lt;expParamValue&gt;] ...<br><br>Change the value an experiment's argument.<br><br>- &lt;expParam&gt; will be unique within the experiment.<br><br>- The parameter names can be used by other experiments.<br><br>- This command does not change the execution state of<br>the experiment, although it may temporarily suspend<br>execution while the command is being executed.<br><br><big>Examples</big>:<br><br><span
+ style="font-weight: bold;">expSetParam </span>pcsamp::sampling_rate=10<br><br>  Will set the sampling rate in the pcsamp collector for<br>  the focused experiment.<br><br><span
+ style="font-weight: bold;">expSetParam </span>-x 3 pcsamp::sampling_rate=10, usertime::sampling_rate=20<br><br>  Will set the sampling rate of the pcsamp collector to 10<br>  and the sampling rate of the usertime collector to 20,<br>  both in experiment #3.<br><br><span
+ style="font-weight: bold;">expSetParam </span>-x 5 sampling_rate=10<br><br>  Will set the sampling_rate to 10 in all the collectors<br>  that are part of experiment #5.<br><br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId82398"></a><big><big><span
+ style="font-weight: bold;">expStatus</span></big></big>:</h5>
+<pre><br><span style="font-weight: bold;">expStatus </span>[-v all || -x &lt;expId&gt;]<br><br>Report the current state of user define experiments.<br><br>- The absence of any option will result in information<br> Being reported for the focused experiment<br><br>- The use of -x &lt;expId&gt; will result in imformation<br> being reported for the specified experiment.<br><br>- The use of '-v all' will result in information being<br> reported for all the known experiments.<br><br><big>Examples</big>:<br><br><span
+ style="font-weight: bold;">expStatus</span><br><br>   Displays the status of the currently focused experiment.<br><br><span
+ style="font-weight: bold;">expStatus </span>-x 2<br><br>   Displays the status of experiment #2.<br><br><span
+ style="font-weight: bold;">expStatus </span>all<br><br>   Displays the status of all defined experiments.<br><br><br>Users may want to create their own custom views for their experiments.   The commands<br><span
+ style="font-weight: bold;">cViewCreate</span>, <span
+ style="font-weight: bold;">cViewDelete</span>, <span
+ style="font-weight: bold;">cViewInfo</span>, and <span
+ style="font-weight: bold;">cView </span>are for that use. <br><br><big
+ style="font-weight: bold;"><big><br></big></big></pre>
+<h5><a class="mozTocH5" name="mozTocId837919"></a><big
+ style="font-weight: bold;"><big>cViewCreate</big></big>:</h5>
+<pre><br><span style="font-weight: bold;">cViewCreate </span>[-v &lt;modifier_list&gt;] [-x &lt;expId&gt;] [&lt;viewType&gt;] [-m <br>&lt;expMetric_list&gt;] [&lt;target_spec&gt;]<br><br>Create a custom view id.<br><br>Defines the elements of a report. Except for the<br>name of the command, the form and meaning of each<br>field is identical to that of the '<span
+ style="font-weight: bold;">expView</span>' command.<br>In addition, this returns an ID that can be<br>referenced on the '<span
+ style="font-weight: bold;">cView</span>' command.<br><br>This command has a different purpose than the<br>'<span
+ style="font-weight: bold;">expView</span>' command. Where the '<span
+ style="font-weight: bold;">expView</span>' command<br>generates a the report immediately, this command<br>will not produce a report until the ID is used on a<br>'<span
+ style="font-weight: bold;">cView</span>' command. This allows the same report to be<br>generated multiple times, for different purposes.<br><br>Create an id that represents a defined view. This<br>View will then be represented in a single column of<br>a <span
+ style="font-weight: bold;">cView</span>() command result.<br><br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId95519"></a><big
+ style="font-weight: bold;"><big>cViewDelete</big></big>:</h5>
+<pre><br><span style="font-weight: bold;">cViewDelete </span>-v all<br><br>Delete a custom view id from the openss database.<br><br>This command purges the definition of previously<br>created ID that was returned as the result of a<br>'<span
+ style="font-weight: bold;">cViewCreate</span>' command.  The ID can no longer be<br>referenced on any '<span
+ style="font-weight: bold;">cView</span>' commands.<br><br>Default: delete the last cvid defined.<br>-v all:  delete all defined cvids.<br>-c &lt;cvid_list&gt;: delete listed cvids.<br><br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId598642"></a><big><big><span
+ style="font-weight: bold;">cViewInfo</span></big></big>:</h5>
+<pre><br><span style="font-weight: bold;">cViewInfo </span>-v all<br><br>Dump the description of one or more custom view ids.<br><br>Default: dump the last cvid defined.<br>-v all:  dump all defined cvids.<br>-c &lt;cvid_list&gt;: dump name cvids.<br><br>This command will echo back the information that was<br>specified on a '<span
+ style="font-weight: bold;">cViewCreate</span>' command. If no ID is<br>provided, the information of the most recently<br>defined cView ID is returned. If an ID list is<br>provided, information is returned for each of the<br>listed cView IDs. If the '-v all' option is<br>specified, information is returned for all of the<br>currently defined IDs.<br><br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId706967"></a><big><big><span
+ style="font-weight: bold;">cViews</span></big></big>:</h5>
+<pre><br><span style="font-weight: bold;">cView </span>-c &lt;cvid_list&gt;<br><br>Detailed compare view where the user has defined the<br>contents of each custom view.<br><br>Where &lt;cvid_list&gt; represents a list or range of 2 or<br>more custom view ids<br><br>This command uses the information provided on<br>'<span
+ style="font-weight: bold;">cViewCreate </span>commands to generate a report. If there<br>is only one ID provided in the '-c &lt;id_list&gt;', the<br>output of this command is equivalent to executing an<br>'<span
+ style="font-weight: bold;">expView</span>' command with the same fields that were on<br>the '<span
+ style="font-weight: bold;">cViewCreate</span>' command.<br><br>When multiple IDs are provided in the '-c<br>&lt;id_list&gt;', a report is generated for each ID and<br>the output from each is merged into a final report,<br>using the right most field as a key. The final<br>report will have columns for each of the fields that<br>the initial reports contain, except that the right<br>most column (the key) is only printed once. Keys<br>that exist in one of the generated reports and not<br>others may have columns that are blank filled.<br><br><big>Example</big>:<br><br>cViewCreate -x 4 usertime -m usertime::exclusive_time<br>cview -c 3, 5<br><br><br>Below are commands (list, clearBreak, exit, history, log, openGui, playBack<br>record, setBreak, and wait) that are used to control Open|SpeedShop.  <br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId929490"></a><big
+ style="font-weight: bold;"><big>list</big></big>:</h5>
+<pre><br>&lt;ListOf_info&gt; = <span style="font-weight: bold;">list </span>-v &lt;listType&gt; [-v all || -x &lt;expId&gt;]<br><br>List information based on &lt;listType&gt;.<br><br>        Where &lt;listType&gt; is one of:<br><br>                <span
+ style="font-weight: bold;">breaks</span>:    List breakpoints (help listBreaks)<br>                <span
+ style="font-weight: bold;">expId</span>:     List the experiments that have been defined.<br>                           (help listExpId)<br>                <span
+ style="font-weight: bold;">exptypes</span>:  List the available performance measurement<br>                           utilities that can be used to collect data in<br>                           an experiment. (help listExpTypes)<br>                <span
+ style="font-weight: bold;">hosts</span>:     Lists the hosts that define the specified cluster.<br>                           (help listHosts)<br>                <span
+ style="font-weight: bold;">metrics</span>:   Lists the metrics that are associated with a<br>                           ViewTypeList object. (help listMetrics)<br>                <span
+ style="font-weight: bold;">obj</span>:       List the objects of the applications that are part<br>                           of the specified experiment. (help listObj)<br>                <span
+ style="font-weight: bold;">params</span>:    List the parameters that are associated with a<br>                           particular &lt;viewType&gt; or set of &lt;viewType&gt;s.<br>                           (help listParams)<br>                <span
+ style="font-weight: bold;">pids</span>:      List running processes associated with a specific<br>                           experiment and, optionally, on a specific machine.<br>                           (help listPids)<br>                <span
+ style="font-weight: bold;">ranks</span>:     List the mpi ranks associated with a specific<br>                           experiment, a specific Pid or on a specific machine.<br>                           (help listRanks)<br><span
+ style="font-weight: bold;">                src</span>:       List the source filenames of the modules that are part<br>                           of the specified experiment. (help listSrc)<br>                <span
+ style="font-weight: bold;">status</span>:    List the status of user experiments. (help listStatus)<br>                <span
+ style="font-weight: bold;">threads</span>:   List the Threads associated with a specific experiment,<br>                           a specific Pid or on a specific machine.<br>                           (help listThreads)<br>                <span
+ style="font-weight: bold;">views</span>:     List the views that are available for an ExpTypeList.<br>                           (help listViews)<br><br>        The format of the output list is dependant on the type<br>        of list requested.<br><br><br><br>   *********<br>&lt;list&gt; ::= &lt;list element&gt; [ , &lt;list element&gt; ]*<br><br>Comma delimited list of elements.<br><br>A list element can consist of a single item such as<br>a filename or a range tuple.<br><br>The only time a list delimiter is NOT a comma ','is when<br>the list elements are &lt;target&gt;. In this case the delimiter<br>is a semicolon ';'.<br><br><big>Examples</big>:<br><br>-f file1,file2,file3<br><br>   A list of file name strings.<br><br>-r 44,55,66:69,77<br><br>   A list of the rank numbers 44,55,66,67,68,69 and 77.<br>   Note that a &lt;range can be an element of a list.<br><br>An example of a list of &lt;target&gt;<br>-h host1 -p 333:400 ; -h host2 -p 500:540<br><br>   An example of a list of &lt;target&gt;<br><br>   All the pids for this experiment on host1 from.<br>   333 ti 400 and all the pids on host2 from 500 to 540<br><br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId772731"></a><big
+ style="font-weight: bold;"><big>clearBreak</big></big>:</h5>
+<pre><br><span style="font-weight: bold;">clearBreak </span>&lt;breakId&gt;<br><br>Remove a breakpoint.<br><br>- This command does not change the execution state of an<br> experiment, although it may be temporarily suspended<br> during execution of the command.<br><br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId301537"></a><big
+ style="font-weight: bold;"><big>history</big></big>:</h5>
+<pre><br><span style="font-weight: bold;">history </span>[&lt;integer&gt;]<br><br>Print a list of previously executed commands.<br><br>- If no &lt;integer&gt; is provided, print out only<br> requested number of history entries.<br><br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId639448"></a><big
+ style="font-weight: bold;"><big>log</big></big>:</h5>
+<pre><br><br><span style="font-weight: bold;">log </span>[-f &lt;file_name&gt;]<br><br>Echo executed commands and their results to a file.<br><br>- Stop echoing if no file is specified on a log command.<br><br>- This is primarily intended to be an internal debug aid<br> for the OpenSS tool developer since the generated files<br> can quickly become huge.<br><br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId614912"></a><big
+ style="font-weight: bold;"><big>openGUI</big></big>:</h5>
+<pre><br>openGui<br><br>Open the Graphical User Interface.<br><br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId665080"></a><big><big><span
+ style="font-weight: bold;">playBack</span></big></big>:</h5>
+<pre><br><span style="font-weight: bold;">playBack </span>-f &lt;file_name&gt;<br><br>Read and execute commands stored in a file.<br><br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId43021"></a><big
+ style="font-weight: bold;"><big>record</big></big>:</h5>
+<pre><br><br><span style="font-weight: bold;">record </span>[-f &lt;file_name&gt;]<br><br>Begin echoing executed commands to a file.<br><br>       Recording is preformed relative to the input source that<br>       issues this command.<br><br>       This design causes commands issued by the GUI to be<br>       recorded separately from commands issued by the Command window.<br><br>- Commands read from a file specified on a succeeding playback<br>command will not be echoed.<br><br>- Stop echoing if no file is specified on a record command.<br><br>- Stop echoing if the end of the input file containing the<br>original record command is encountered.<br><br><br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId301021"></a><big><big><span
+ style="font-weight: bold;">setBreak</span></big></big>:</h5>
+<pre><br>&lt;breakId&gt; <span style="font-weight: bold;">setBreak </span>[-x &lt;expId&gt;] [&lt;target&gt;] &lt;address_description&gt;<br><br>Enter a breakpoint, which will halt the application when reached.<br><br>- If -x &lt;expId&gt; is not provided, the focused experiment is used.<br><br>- The break location is specified through the combination of the<br>  &lt;target&gt; and &lt;address_description&gt; arguments.<br><br>- The break location must be a location in the specified experiment.<br><br>- If &lt;target&gt; is not provided, the &lt;address_description&gt; must be<br>  valid on every host and executable attached to the experiment.<br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId423510"></a><big
+ style="font-weight: bold;">wait</big>:</h5>
+<pre><br><span style="font-weight: bold;">Wait </span>[ -v terminate [ , all ] ] [ -x &lt;expId&gt; ]<br><br>Don't execute any more commands until an experiment terminates.<br><br>- The '<span
+ style="font-weight: bold;">expGo</span>' command initiates asynchronous execution of<br>  applications and allows new commands to be executed while the<br>  application is still running and still collecting performance<br>  data.  Often times, this is convenient because it allows for the<br>  display of intermediate data, before the application completes.<br>  However, there may be situations particularly when running a<br>  predefined sequence of commands through a 'playback' command,<br>  when it is desirable to block the execution of new commands until<br>  the application has completed.  The '<span
+ style="font-weight: bold;">Wait</span>' command will do this.<br><br>- If the tool is initiated with the '-batch' option, a '<span
+ style="font-weight: bold;">Wait</span>'<br>  command is implied before every '<span
+ style="font-weight: bold;">expView</span>' command.  This behavior<br>  greatly reduces the need for the '<span
+ style="font-weight: bold;">Wait</span>' command.<br><br>- If no options are provided, the '-v terminate' option is assumed<br>  and command execution will be suspended until the focused<br>  experiment stops execution.<br><br>- If only the '-x &lt;expId&gt;' option is provided, the '-v terminate'<br>  option is assumed and command execution will be suspended until<br>  that experiment stops execution.<br><br>- If the '-v terminate, all' option is provided, command execution<br>  will be suspended until all experiments stop execution.<br><br><big>Examples</big>:<br><br>  <span
+ style="font-weight: bold;">expGo</span><br>  <span
+ style="font-weight: bold;">Wait</span><br>  <span
+ style="font-weight: bold;">expView</span><br><br>    This sequence will cause the 'expView' command to issue<br>    after the running experiment completes and all the<br>    performance data is available.<br><br>    Without the '<span
+ style="font-weight: bold;">Wait</span>' command, the '<span
+ style="font-weight: bold;">expView</span>' command will<br>    be issued immediately after the '<span
+ style="font-weight: bold;">expGo</span>' when there may<br>    not be any data available to display.<br><br><br><br><br></pre>
+<br>
+<br>
+</body>
+</html>
