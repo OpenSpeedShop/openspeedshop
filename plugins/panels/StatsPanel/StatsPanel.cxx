@@ -286,19 +286,26 @@ connect( header, SIGNAL(clicked(int)), this, SLOT( headerSelected( int )) );
   splitterA->setSizes(sizeList);
 
 
-bool toolbarFLAG = FALSE;
+  bool toolbarFLAG = getPreferenceShowToolbarCheckBox();
+
+// Begin - Move to Panel.cxx
   fileTools = new QToolBar( QString("label"), getPanelContainer()->getMainWindow(), (QWidget *)getBaseWidgetFrame(), "file operations" );
   fileTools->setOrientation( Qt::Horizontal );
   fileTools->setLabel( "File Operations" );
 //  fileTools->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, fileTools->sizePolicy().hasHeightForWidth() ) );
   fileTools->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, 0, 0, fileTools->sizePolicy().hasHeightForWidth() ) );
-if( toolbarFLAG == TRUE )
-{
+// End - Move to Panel.cxx
+
   generateToolBar();
-} else
-{
-  fileTools->hide();
-}
+  if( getPreferenceShowToolbarCheckBox() == TRUE )
+  {
+    fileTools->show();
+  } else
+  {
+    fileTools->hide();
+  }
+
+
   
 
   frameLayout->addWidget(fileTools);
@@ -619,6 +626,13 @@ updateCollectorList();
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
 // printf("Call (make this one smarter) updateStatsPanelData() \n");
+    if( getPreferenceShowToolbarCheckBox() == TRUE )
+    {
+      fileTools->show();
+    } else
+    {
+      fileTools->hide();
+    }
     updateStatsPanelData();
   } else if( msgObject->msgType == "SaveAsObject" )
   {
@@ -6552,8 +6566,9 @@ if(  currentCollectorStr != "pcsamp" && currentCollectorStr != "hwc" )
   toolbar_status_label->setText("Showing Functions Report:");
   fileTools->setStretchableWidget(toolbar_status_label);
 
-  fileTools->show();
+//   fileTools->show();
 
+    fileTools->hide();
 }
 
 void

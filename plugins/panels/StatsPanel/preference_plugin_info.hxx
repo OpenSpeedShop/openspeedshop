@@ -65,7 +65,10 @@ extern "C"
   SPCheckBox* showTextByValueCheckBox;
   SPCheckBox* showTextByPercentCheckBox;
 
+  QHBoxLayout* layoutSkyline;
+  QCheckBox* showToolbarCheckBox;
   QCheckBox* showSkylineCheckBox;
+  QLabel* showSkylineLabel;
   QLineEdit* showSkylineLineEdit;
 
   static char *pname = NULL;
@@ -116,6 +119,12 @@ extern "C"
     return( TEXT_NONE );
   }
 
+  bool getPreferenceShowToolbarCheckBox()
+  {
+// printf("getPreferenceShowToolbarCheckBox(%s)\n", pname);
+    return( showToolbarCheckBox->isChecked() );
+  }
+
   bool getPreferenceShowSkyline()
   {
 // printf("getPreferenceShowSkyline(%s)\n", pname);
@@ -140,7 +149,9 @@ extern "C"
     showTextInChartCheckBox->setChecked(TRUE);
     showTextByValueCheckBox->setChecked(TRUE);
     showTextByPercentCheckBox->setChecked(FALSE);
+    showToolbarCheckBox->setChecked(FALSE);
     showSkylineCheckBox->setChecked(FALSE);
+    showSkylineLabel->setText("Percentage breakdown for skyline view:");
     showSkylineLineEdit->setText("25");
   }
 
@@ -226,16 +237,27 @@ extern "C"
     textLabelLayout->addWidget( showTextByPercentCheckBox );
     checkBoxList.push_back( showTextByPercentCheckBox );
 
+    layout8->addWidget( textLabelGroupBox );
+
+    showToolbarCheckBox =
+      new QCheckBox( statsPanelGroupBox, "showSkylineCheckBox" );
+    showToolbarCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showToolbarCheckBox->sizePolicy().hasHeightForWidth() ) );
+    layout8->addWidget( showToolbarCheckBox );
+
     showSkylineCheckBox =
-      new QCheckBox( textLabelGroupBox, "showSkylineCheckBox" );
+      new QCheckBox( statsPanelGroupBox, "showSkylineCheckBox" );
     showSkylineCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showSkylineCheckBox->sizePolicy().hasHeightForWidth() ) );
-    textLabelLayout->addWidget( showSkylineCheckBox );
+    layout8->addWidget( showSkylineCheckBox );
+
+    layoutSkyline = new QHBoxLayout( 0, 0, 6, "layoutSkyline");
+    showSkylineLabel =
+      new QLabel( statsPanelGroupBox, "showSkylineLabel" );
+    layoutSkyline->addWidget( showSkylineLabel );
 
     showSkylineLineEdit =
-      new QLineEdit( textLabelGroupBox, "showSkylineLineEdit" );
-    textLabelLayout->addWidget( showSkylineLineEdit );
-
-    layout8->addWidget( textLabelGroupBox );
+      new QLineEdit( statsPanelGroupBox, "showSkylineLineEdit" );
+    layoutSkyline->addWidget( showSkylineLineEdit );
+    layout8->addLayout( layoutSkyline );
 
 
     sortDecendingCheckBox =
@@ -270,7 +292,9 @@ extern "C"
     showColumnToSortTextLabel->setText( "Column to sort:" );
     showTextInChartCheckBox->setText( "Show text in chart:" );
     showTextByValueCheckBox->setText( "  Show text by value:" );
+    showSkylineLabel->setText("Percentage breakdown for skyline view:");
     showTextByPercentCheckBox->setText( "  Show text by percent:" );
+    showToolbarCheckBox->setText( "  Show toolbar:" );
     showSkylineCheckBox->setText( "  Show skyline view in time dialog:" );
 
     initPreferenceSettings();
@@ -317,6 +341,11 @@ extern "C"
         "openspeedshop", name, showTextByPercentCheckBox->name() );
       showTextByPercentCheckBox->setChecked(
         settings->readBoolEntry(settings_buffer, TRUE) );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, showToolbarCheckBox->name() );
+      showToolbarCheckBox->setChecked(
+        settings->readBoolEntry(settings_buffer, FALSE) );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showSkylineCheckBox->name() );
@@ -369,6 +398,10 @@ extern "C"
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showTextByPercentCheckBox->name() );
     settings->writeEntry(settings_buffer, showTextByPercentCheckBox->isChecked() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, showToolbarCheckBox->name() );
+    settings->writeEntry(settings_buffer, showToolbarCheckBox->isChecked() );
 
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showSkylineCheckBox->name() );
