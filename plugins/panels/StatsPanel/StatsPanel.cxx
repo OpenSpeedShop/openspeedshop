@@ -2043,11 +2043,14 @@ StatsPanel::updateStatsPanelData(QString command)
 // printf("total_percent=%f splv->childCount()=%d cpvl.count()=%d numberItemsToDisplayInStats=%d\n", total_percent, splv->childCount(), cpvl.count(), numberItemsToDisplayInStats );
 
 // printf("A: cpvl.count()=%d numberItemsToDisplayInChart = %d\n", cpvl.count(), numberItemsToDisplayInChart );
+
+/*
   if( ( total_percent > 0.0 &&
       cpvl.count() < numberItemsToDisplayInStats) ||
       ( total_percent > 0.0 && 
         cpvl.count() < numberItemsToDisplayInStats &&
         numberItemsToDisplayInChart < numberItemsToDisplayInStats) )
+*/
   {
     if( total_percent < 100.00 )
     {
@@ -3790,6 +3793,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
         }
       }
       splv->addColumn( s );
+      i++;
     }
   
     gotHeader = TRUE;
@@ -3810,28 +3814,6 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
   }
 
  
-  int percent = 0;
-  for( i = 0; i<fieldCount; i++)
-  {
-    QString value = strings[i];
-    if( i == 0 ) // Grab the (some) default metric FIX
-    {
-      float f = value.toFloat();
-      TotalTime += f;
-    }
-    if( percentIndex == i )
-    {
-      if( !value.isEmpty() )
-      {
-        float f = value.toFloat();
-        percent = (int)f;
-// printf("percent=(%d)\n", percent);
-        total_percent += f;
-      }
-    }
-  }
-// printf("A: total_percent=%f\n", total_percent );
-
 
 
   if( fieldCount == 0 )
@@ -4019,16 +4001,33 @@ for( ChartPercentValueList::Iterator it = cpvl.begin();
 }
 #endif // 0
 
-  if( total_percent > 0.0 && cpvl.count() < numberItemsToDisplayInStats  &&
-      ctvl.count() < numberItemsToDisplayInChart )
-  {
-// printf("put out data for the chart. %d %s\n", percent, strings[percentIndex].stripWhiteSpace().ascii() );
-    cpvl.push_back( percent );
-  } 
-  if( total_percent > 0.0 && cpvl.count() <= numberItemsToDisplayInChart &&
+// printf("total_percent=(%f) cpvl.count()=%d numberItemsToDisplayInStats=%d ctvl.count()=%d numberItemsToDisplayInChart=%d\n", total_percent, cpvl.count(), numberItemsToDisplayInStats, ctvl.count(), numberItemsToDisplayInChart );
+  if( cpvl.count() <= numberItemsToDisplayInChart &&
       ctvl.count() < numberItemsToDisplayInChart )
   {
 // printf("Push back another one!(%s)\n", strings[percentIndex].stripWhiteSpace().ascii());
+    int percent = 0;
+    for( i = 0; i<fieldCount; i++)
+    {
+      QString value = strings[i];
+      if( i == 0 ) // Grab the (some) default metric FIX
+      {
+        float f = value.toFloat();
+        TotalTime += f;
+      }
+      if( percentIndex == i )
+      {
+        if( !value.isEmpty() )
+        {
+          float f = value.toFloat();
+          percent = (int)f;
+// printf("percent=(%d)\n", percent);
+          total_percent += f;
+        }
+      }
+    }
+// printf("A: total_percent=%f\n", total_percent );
+
     if( textENUM == TEXT_BYVALUE )
     { 
 // printf("TEXT_BYVALUE: textENUM=%d (%s)\n", textENUM, strings[0].stripWhiteSpace().ascii()  );
@@ -4038,6 +4037,7 @@ for( ChartPercentValueList::Iterator it = cpvl.begin();
 // printf("A: TEXT_BYPERCENT: textENUM=%d\n", textENUM );
       ctvl.push_back( strings[percentIndex].stripWhiteSpace() );
     }
+    cpvl.push_back( percent );
   }
 
   if( highlight_line )
