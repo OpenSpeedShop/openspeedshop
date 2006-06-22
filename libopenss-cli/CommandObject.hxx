@@ -423,7 +423,7 @@ class CommandResult_Function :
     std::set<Statement> T = getDefinitions();
 
     if (OPENSS_VIEW_DEFINING_LOCATION) {
-      S = S + "(" + ((OPENSS_VIEW_FULLPATH)
+      S = S + " (" + ((OPENSS_VIEW_FULLPATH)
                         ? L.getPath()
                         : L.getPath().getBaseName());
 
