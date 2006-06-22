@@ -119,7 +119,12 @@ try {
     break;
   case CMD_EXP_DATA:
   case CMD_EXP_VIEW:
-    cmd_successful = SS_expView (cmd);
+  case CMD_C_VIEW:
+  case CMD_VIEW:
+    cmd_successful = SS_View (cmd);
+    break;
+  case CMD_INFO:
+    cmd_successful = SS_Info (cmd);
     break;
 
 // Custom View Commands
@@ -135,9 +140,6 @@ try {
   case  CMD_C_VIEW_INFO:
     cmd_successful = SS_cvInfo (cmd);
     break;
-  case  CMD_C_VIEW:
-    cmd_successful = SS_cView (cmd);
-    break;
 
 
 // Low Level Information Commands
@@ -148,6 +150,9 @@ try {
 // Session Commands
   case CMD_CLEAR_BREAK:
     cmd_successful = SS_ClearBreaks (cmd);
+    break;
+  case CMD_ECHO:
+    cmd_successful = SS_Echo (cmd);
     break;
   case CMD_EXIT:
     cmd_successful = SS_Exit (cmd);

@@ -34,20 +34,23 @@ std::list<ExperimentObject *> ExperimentObject_list;
 static std::string tmpdb = std::string("./ssdbtmpcmd.openss");
 
 /**
- * Method: ()
+ * Utility: Experiment_Termination ()
  * 
- * .
+ * This routine is called when closing down Openss, to
+ * gracefully terminate all definied experiments  by
+ * freeing files and reclaiming memory space.
  *     
- * @param   .
+ * @param   none.
  *
  * @return  void
  *
- * @todo    Error handling.
+ * @error   None reported, but thrown exceptions are caught and
+ *          ignored so that we can do as good a job as possible.
  *
  */
 // Global Termination Call -
 
-// Terminate all experiments and free associated files.
+// Terminate all experiments and frees the associated files.
 // Called from the drivers to clean up after an "Exit" command or fatal error.
 void Experiment_Termination () {
   (void) remove (tmpdb.c_str());
@@ -69,15 +72,13 @@ void Experiment_Termination () {
 // Experiment Utilities.
 
 /**
- * Method: ()
+ * Utility: int2str ()
  * 
- * .
+ * Convert an int64_t value to a string.
  *     
- * @param   .
+ * @param   e - the int64_t value.
  *
- * @return  void
- *
- * @todo    Error handling.
+ * @return  std::string the character representation of the value.
  *
  */
 inline std::string int2str (int64_t e) {
@@ -87,15 +88,21 @@ inline std::string int2str (int64_t e) {
 }
 
 /**
- * Method: ()
+ * Utility: Wait_For_Exp_State ()
  * 
- * .
+ * Loop, looking for a specific execution state of an experiment
+ * while periodically suspending execution and allowing other
+ * processes to use the cpu resources so that the desired state
+ * can be reached.
  *     
- * @param   .
+ * @param   cmd - the CommandObject that is being processed.
+ * @param   to_state - the state that is being lloked for.
+ * @param   exp - the experiment that is being checked.
  *
- * @return  void
+ * @return  int - the last value of the state when no longer waiting.
  *
- * @todo    Error handling.
+ * @error   "NonExistent", "Terminated" and "error" states also stop
+ *          the wait loop and are considered normal exit situations.
  *
  */
 static int Wait_For_Exp_State (CommandObject *cmd, int to_state, ExperimentObject *exp) {
@@ -120,15 +127,19 @@ static int Wait_For_Exp_State (CommandObject *cmd, int to_state, ExperimentObjec
 }
 
 /**
- * Method: ()
+ * Utility: Wait_For_Thread_Connected ()
  * 
- * .
+ * Loop, looking for other processes to complete the task of
+ * connecting an experiment to a thread.
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
+ * @param   t - the Thread we are waiting for.
  *
  * @return  void
  *
- * @todo    Error handling.
+ * @error   send periodic messages to users to let them
+ *          know that Openss is still alive, but waiting
+ *          for an event to occure.
  *
  */
 static void Wait_For_Thread_Connected (CommandObject *cmd, Thread t) {
@@ -442,7 +453,7 @@ static bool within_range (std::string S, parse_range_t R) {
 }
 
 /**
- * Method: Filter_Uses_F()
+ * Utility: Filter_Uses_F()
  * 
  * Determine if any of the <target_list> specifiers
  * make use of the optional -f' field.
@@ -468,7 +479,7 @@ bool Filter_Uses_F (CommandObject *cmd) {
 }
 
 /**
- * Method: Filter_ThreadGroup()
+ * Utility: Filter_ThreadGroup()
  * 
  * Scan ths <target_list> specifier for a command and
  * determine which of the original set of threads are
@@ -1992,7 +2003,7 @@ bool SS_expSave (CommandObject *cmd) {
 }
 
 /**
- * Method: setparam()
+ * Utility: setparam()
  * 
  * .
  *     
@@ -2120,15 +2131,19 @@ static bool setparam (Collector C, std::string pname, vector<ParamVal> *value_li
 }
 
 /**
- * Method: SS_expSetParam()
+ * SemanticRoutine: SS_expSetParam()
  * 
- * .
+ * Implement the 'expSetParam' command by reading values form the
+ * parse object and sending them to the collectors attached to an
+ * experiment.
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
  *
- * @return  void
+ * @return  "true" on successful completion of the command.
  *
- * @todo    Error handling.
+ * @error   "false is returned if no experiment can be determined or
+ *          if a thrown exception is caught while accessing the
+ *          experiment's database.
  *
  */
 bool SS_expSetParam (CommandObject *cmd) {
@@ -2202,15 +2217,18 @@ bool SS_expSetParam (CommandObject *cmd) {
 // Information Commands
 
 /**
- * Method: ()
+ * Utility: Get_Collector_Metadata ()
  * 
- * .
+ * Helper routine for ReportStatus() to get the value of parameter
+ * and return a typeless CommandResult object.
  *     
- * @param   .
+ * @param   c - the Framework::Collector that contains the parameter.
+ * @param   m - the Metadata describing the desired parameter.ameter.
  *
- * @return  void
+ * @return  CommandResult * for the created object.
  *
- * @todo    Error handling.
+ * @error   the returned CommandResult is the string "Unknown type."
+ *          if the data type of the parameter is not a known, simple type.
  *
  */
 static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
@@ -2268,15 +2286,19 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
 }
 
 /**
- * Method: ()
+ * Utility: ReportStatus ()
  * 
- * .
+ * Helper routine for the 'expStatus' command.  Extract
+ * information form a database and format a report about
+ * what it contains..
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
+ * @param   exp - the Experiment being interrogated.
  *
- * @return  void
+ * @return  "true" on successful generation of information.
  *
- * @todo    Error handling.
+ * @error   "false" is returned if a thrown exception is caught
+ *          while looking at the database.
  *
  */
 static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
@@ -2446,23 +2468,21 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine SS_expStatus ()
  * 
- * .
+ * Print information about an experiment.
  *     
- * @param   .
+ * @param   cmd- the CommandObject being processed.
  *
- * @return  void
+ * @return  "true" if the command was successful.
  *
- * @todo    Error handling.
+ * @error   "false" returned if no experiment is specified
+ *          or if an error was detected while looking at
+ *          the associated database.
  *
  */
 bool SS_expStatus(CommandObject *cmd) {
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
-  if (exp == NULL) {
-    return false;
-  }
 
   if (All_KeyWord) {
     std::list<ExperimentObject *>::reverse_iterator expi;
@@ -2487,15 +2507,17 @@ bool SS_expStatus(CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_expView()
  * 
- * .
+ * Generate a report for an experiment.
  *     
- * @param   .
+ * @param   cmd - the CommandObject baing processed.
  *
- * @return  void
+ * @return  "true" if no errors were encountered.
  *
- * @todo    Error handling.
+ * @error   return "false" if no valid experiment or
+ *          view is specified or if the view plugin
+ *          can not be located.
  *
  */
 bool SS_expView (CommandObject *cmd) {
@@ -2600,18 +2622,54 @@ bool SS_expView (CommandObject *cmd) {
   return view_result;
 }
 
+/**
+ * SemanticRoutine: SS_View()
+ *
+ * Decide if this is a simple expView or more complicated cView.
+ *
+ * @param   cmd - the CommandObject being processed.
+ *
+ * @return  "true" if successfully completed.
+ *
+ */
+bool SS_View (CommandObject *cmd) {
+  OpenSpeedShop::cli::ParseResult *primary_result = cmd->P_Result();
+  vector<ParseRange> *cv_list = primary_result->getViewSet ();
+  if ((cv_list == NULL) || (cv_list->empty())) {
+    return SS_expView (cmd);
+  } else {
+    return SS_cView (cmd);
+  }
+}
+
+/**
+ * SemanticRoutine: SS_Info ()
+ *
+ * Not Yet Implemented.
+ *
+ * @param   cmd - the CommandObject being processed.
+ *
+ * @return  "true"
+ *
+ * @todo    Error handling.
+ *
+ */
+bool SS_Info (CommandObject *cmd) {
+  return true;
+}
+
 // Primitive Information Commands
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_ListBreaks ()
  * 
- * .
+ * Not yet implemented.
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed..
  *
- * @return  void
+ * @return  "true"
  *
- * @todo    Error handling.
+ * @error   Always issue a "Not Yet Implemented" message.
  *
  */
 static bool SS_ListBreaks (CommandObject *cmd) {
@@ -2623,15 +2681,169 @@ static bool SS_ListBreaks (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_ListDatabase()
+ *
+ * Process 'list -v database' commands and return the
+ * name of the database that is part of an experiment.
+ *
+ * @param   cmd - the CommandObject being processed.
+ *
+ * @return  bool - "true" if processing was successful.
+ *
+ * @error   failure to find any experiment returns "false".
+ *
+ */
+static bool SS_ListDatabase (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+   // Get the database names for all defined experiments.
+    std::list<ExperimentObject *>::reverse_iterator expi;
+    for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
+    {
+      cmd->Result_String ((*expi)->Data_Base_Name ());
+    }
+  } else {
+   // Get the database name for a specified Experiment or the focused Experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+    cmd->Result_String (exp->Data_Base_Name ());
+  }
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+/**
+ * Utility:  Most_Common_Executable()
+ *
+ * Determine the most frequently named executable associated with
+ * and experiment.  If OPENSS_VIEW_FULLPATH is set, return the
+ * full path to this executable.
+ *
+ * @param   cmd - the current command beind processed.
+ * @param   exp - the experiment to look at.
+ *
+ * @return  std::string - the name or path of the executable
+ *
+ * @error   failure to find any name returns "(unknown)".
+ * @error   any error caught in a "catch" claues returns "(error)".
+ *
+ */
+static std::string Most_Common_Executable (CommandObject *cmd,
+                                           ExperimentObject * exp) {
+ // Scan the experiment for the most common executable name.
+  int64_t maxCount = 0;
+  std::string maxName;
+
+  try {
+   // Get the list of threads used in the specified experiment.
+    ThreadGroup tgrp = exp->FW()->getThreads();
+
+   // Get the executable name for each thread and count hopw many times it is used.
+    std::map<std::string,int64_t> NameMap;
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+      Thread t = *ti;
+      std::pair<bool, LinkedObject> X = t.getExecutable(); // .getPath().getBaseName();
+      if (X.first == false) {
+        continue;
+      }
+      std::string ExName = (OPENSS_VIEW_FULLPATH) ? X.second.getPath() : X.second.getPath().getBaseName();
+      if (NameMap.find(ExName) != NameMap.end()) {
+       // Increment counts of the times the name has been seen.
+        NameMap[ExName]++;
+      } else {
+       // Add the name to the map.
+        NameMap[ExName] = 1;
+      }
+    }
+
+   // Find the most frequently used name.
+    for (std::map<std::string, int64_t>::iterator nmapi = NameMap.begin(); nmapi != NameMap.end(); nmapi ++) {
+      if ((*nmapi).second > maxCount) {
+        maxCount = (*nmapi).second;
+        maxName = (*nmapi).first;
+      }
+    }
+  }
+  catch (...) {
+    maxName = "(error)";
+  }
+
+  if (maxName.empty()) {
+    maxName = "(unknown)";
+  }
+  return maxName;
+}
+
+/**
+ * SemanticRoutine: SS_ListExecutable()
+ *
+ * Process 'list -v executable' commands and return the
+ * name of the executable that is part of an experiment.
+ *
+ * @param   cmd - the CommandObject being processed.
+ *
+ * @return  bool - "true" if processing was successful.
+ *
+ * @error   failure to find any experiment returns "false".
+ *
+ */
+static bool SS_ListExecutable (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+   // Get the Executable names for all defined experiments.
+    std::list<ExperimentObject *>::reverse_iterator expi;
+    for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
+    {
+      std::string maxName = Most_Common_Executable (cmd, *expi);
+      cmd->Result_String (maxName);
+    }
+  } else {
+   // Get the Executable name for a specified Experiment or the focused Experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+   // Scan the experiment for the most common executable name.
+    std::string maxName = Most_Common_Executable (cmd, exp);
+    cmd->Result_String (maxName);
+  }
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+/**
+ * SemanticRoutine: SS_ListExp ()
  * 
- * .
+ * List the experiment ID's for all the defined experiments.
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
  *
- * @return  void
+ * @return  "true" to always indicate successful completion.
  *
- * @todo    Error handling.
+ * @error   none.
+ *
+ * Go through the definition list in reverse order becasue
+ * new experiments (higher nubmers) are added to the top
+ * of the list.  Doing this provides output that is in
+ * ascending order.
  *
  */
 static bool SS_ListExp (CommandObject *cmd) {
@@ -2649,15 +2861,16 @@ static bool SS_ListExp (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_ListHosts ()
  * 
- * .
+ * List all the hosts that are used in an experiment.
  *     
- * @param   .
+ * @param   cmd - the CommandObject begin processed.
  *
- * @return  void
+ * @return  "true" on successful completion.
  *
- * @todo    Error handling.
+ * @error   "false" returned if no experiment is specified
+ *          or if "-v all" is attached tot he command.
  *
  */
 static bool SS_ListHosts (CommandObject *cmd) {
@@ -2702,15 +2915,17 @@ static bool SS_ListHosts (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_ListMetrics ()
  * 
- * .
+ * List all the metrics for the collectors that are used
+ * in an experiment..
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
  *
- * @return  void
+ * @return  "true" on successful completion.
  *
- * @todo    Error handling.
+ * @error   "false" returned if not experiment can be determined or
+ *          if an exception, thrown from the Framework, is caught.
  *
  */
 static bool SS_ListMetrics (CommandObject *cmd) {
@@ -2819,15 +3034,15 @@ static bool SS_ListMetrics (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_ListObj ()
  * 
- * .
+ * List the names of all LindekObjects that are aprt of an experiment..
  *     
- * @param   .
+ * @param   cmd - the CommandObject baing processed.
  *
- * @return  void
+ * @return  "true" on successful complation of the command.
  *
- * @todo    Error handling.
+ * @error   "false" returned if no experiment can be determined.
  *
  */
 static bool SS_ListObj (CommandObject *cmd) {
@@ -2865,15 +3080,21 @@ static bool SS_ListObj (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_ListParams ()
  * 
- * .
+ * List the parameters that can be set for collectors that are
+ * used in experiments.
  *     
- * @param   .
+ * @param   cmd - the CommandObject baing processed.
  *
- * @return  void
+ * @return  "true" on successful completion of the command.
  *
- * @todo    Error handling.
+ * @error   "false" returned if no experiment can be determined
+ *          or if an exception, thrown by the Framework, is caught.
+ *
+ * The algorithm first gets a list of all the collectors of interest
+ * and then scans the list to find all the parameters. Note that the
+ * current values of the parameters is not determined.
  *
  */
 static bool SS_ListParams (CommandObject *cmd) {
@@ -2980,15 +3201,15 @@ static bool SS_ListParams (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_ListPids ()
  * 
- * .
+ * List all the Process ID's associated with an experiment..
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
  *
- * @return  void
+ * @return  "true" on successful complation of the command.
  *
- * @todo    Error handling.
+ * @error   "false" returned if no experiment cna be determined.
  *
  */
 static bool SS_ListPids (CommandObject *cmd) {
@@ -3039,15 +3260,16 @@ static bool SS_ListPids (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_ListRanks ()
  * 
- * .
+ * List all the MPI ranks associated with an experiment.
  *     
- * @param   .
+ * @param   cmd - the CommandObject baing processed.
  *
- * @return  void
+ * @return  "true" on successful complation.
  *
- * @todo    Error handling.
+ * @error   "false" returned if no experiment can be determined
+ *          or if an "-f" filter is attached to the command.
  *
  */
 static bool SS_ListRanks (CommandObject *cmd) {
@@ -3081,6 +3303,8 @@ static bool SS_ListRanks (CommandObject *cmd) {
    // Get the list of threads used in the specified experiment.
     ThreadGroup tgrp = exp->FW()->getThreads();
     Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+   // Place every rank into a set so that it will only be listed once.
     std::set<int64_t> rset;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
@@ -3101,15 +3325,16 @@ static bool SS_ListRanks (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_ListSrc ()
  * 
- * .
+ * List the basename or full path (based on the value of OPENSS_VIEW_FULLPATH)
+ * for every function that is part of a specified experiment.
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
  *
- * @return  void
+ * @return  "true" on successful complation of the command.
  *
- * @todo    Error handling.
+ * @error   " false" returned if no experiment can be determined.
  *
  */
 static bool SS_ListSrc (CommandObject *cmd) {
@@ -3157,15 +3382,15 @@ static bool SS_ListSrc (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_ListStatus ()
  * 
- * .
+ * List the current status of the experiment.
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
  *
- * @return  void
+ * @return  "true" on successful complationof the command.
  *
- * @todo    Error handling.
+ * @error   "false" return if no experiment can be determined.
  *
  */
 static bool SS_ListStatus (CommandObject *cmd) {
@@ -3205,15 +3430,18 @@ static bool SS_ListStatus (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_ListThreads ()
  * 
- * .
+ * List the OpenMP or Posix thread Id's for the application
+ * attached to an experiment.  If both thread types are present,
+ * return the OpenMP thread Id..
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
  *
- * @return  void
+ * @return  "true" on successful complation of the command.
  *
- * @todo    Error handling.
+ * @error   "false" is returned if no experiment can be determined
+ *          or the "-f" filter option is specified.
  *
  */
 static bool SS_ListThreads (CommandObject *cmd) {
@@ -3247,6 +3475,8 @@ static bool SS_ListThreads (CommandObject *cmd) {
    // Get the list of threads used in the specified experiment.
     ThreadGroup tgrp = exp->FW()->getThreads();
     Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+   // Place all the thread ID's into a set so each will be listed only once.
     std::set<int64_t> tset;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
@@ -3276,15 +3506,16 @@ static bool SS_ListThreads (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_ListTypes ()
  * 
- * .
+ * List the names of all available collectors or the collectors
+ * used in specifed experiments.
  *     
- * @param   .
+ * @param   cmd - the CommadnObject being processed.
  *
- * @return  void
+ * @return  "true" on successful completion of the command.
  *
- * @todo    Error handling.
+ * @error   " false" is returned if no experiment can be determined.
  *
  */
 static bool SS_ListTypes (CommandObject *cmd) {
@@ -3328,7 +3559,7 @@ static bool SS_ListTypes (CommandObject *cmd) {
 }
 
 /**
- * Method: SS_ViewTypeHint()
+ * Utility: SS_ViewTypeHint()
  * 
  * Dumps a hint on how to find out more info on
  * a specific viewtype.
@@ -3336,8 +3567,6 @@ static bool SS_ListTypes (CommandObject *cmd) {
  * @param   CommandObject *cmd.
  *
  * @return  void
- *
- * @todo    Error handling.
  *
  */
 static void
@@ -3352,15 +3581,16 @@ SS_ViewTypeHint(CommandObject *cmd)
 }
 
 /**
- * Method: SS_ListViews()
+ * SemanticRoutine: SS_ListViews()
  * 
- * .
+ * List all the available views or just the views that can be
+ * used with the data collected for an experiment..
  *     
  * @param   CommandObject *cmd.
  *
- * @return  bool
+ * @return  "true" on sucessful completion of the command.
  *
- * @todo    Error handling.
+ * @error   "false" is returned if no experiment can be determined.
  *
  */
 static bool SS_ListViews (CommandObject *cmd) {
@@ -3421,7 +3651,7 @@ static bool SS_ListViews (CommandObject *cmd) {
 }
 
 /**
- * Method: SS_ListGeneric()
+ * SemanticRoutine: SS_ListGeneric()
  * 
  * Look at general modifier types for list 
  * type modifiers and then call respective
@@ -3431,47 +3661,10 @@ static bool SS_ListViews (CommandObject *cmd) {
  *
  * @return  bool
  *
- * @todo    Error handling for multiple type modifiers.
- * @todo    Error handling for no type modifiers.
+ * @error   Multiple type modifiers.
+ * @error   No type modifiers.
  *
  */
-static enum {
-    ENUM_BREAK,
-    ENUM_EXP,
-    ENUM_EXPID,
-    ENUM_TYPES_NEW,
-    ENUM_HOSTS,
-    ENUM_METRICS,
-    ENUM_OBJ,
-    ENUM_PARAMS,
-    ENUM_PIDS,
-    ENUM_RANKS,
-    ENUM_SRC,
-    ENUM_STATUS,
-    ENUM_THREADS,
-    ENUM_TYPES_OLD,
-    ENUM_VIEWS,
-    ENUM_CVIEWS,
-} list_enums;
-static char *list_types[] = {
-    "breaks",
-    "exp",
-    "expid",
-    "exptypes",
-    "hosts",
-    "metrics",
-    "obj",
-    "params",
-    "pids",
-    "ranks",
-    "src",
-    "status",
-    "threads",
-    "types",
-    "views",
-    "cviews",
-    NULL
-};
 bool SS_ListGeneric (CommandObject *cmd) {
   Assert(cmd->P_Result() != NULL);
 
@@ -3482,84 +3675,61 @@ bool SS_ListGeneric (CommandObject *cmd) {
   vector<string>::iterator j;
 
   for (j=p_slist->begin();j != p_slist->end(); j++) {
-    bool valid_list_type_found = false;
+    bool valid_list_type_found = true;
     std::string S = *j;
 
     if (!strcasecmp(S.c_str(),"all")) {
       continue;
     }
 
-   // Keep looking until NULL
-    int i = 0;
-    while(list_types[i]) {
-      if (!strcasecmp(S.c_str(),list_types[i])) {
-        valid_list_type_found = true;
+    if (first_listtype_found) {
+      std::string s1("More than one valid 'list -v' command argument is not supported.\n");
+      s1 = s1 + "The '" + S + "' argument was not processed.\n";
+      std::string s2("Try: help list");
+      Mark_Cmd_With_Soft_Error(cmd,s1+s2);
+      cmd->set_Status(CMD_ERROR);
+      break;
+    }
 
-        if (first_listtype_found) {
-          std::string s1("More than one valid 'list -v' command argument is not supported.\n");
-          s1 = s1 + "The '" + S + "' argument was not processed.\n";
-          std::string s2("Try: help list");
-          Mark_Cmd_With_Soft_Error(cmd,s1+s2);
-          cmd->set_Status(CMD_ERROR);
-          break;
-        }
-
-       // If I were clever I would have incorporated
-       // the function name into the list_types array
-       // and have made this a single call.
-    	switch(i) {
-	    case ENUM_BREAK:
-	    	result_of_first_list = SS_ListBreaks(cmd);
-                break;
-	    case ENUM_EXP:
-	    case ENUM_EXPID:
-	    	result_of_first_list = SS_ListExp(cmd);
-                break;
-	    case ENUM_HOSTS:
-	    	result_of_first_list = SS_ListHosts(cmd);
-                break;
-	    case ENUM_METRICS:
-	    	result_of_first_list = SS_ListMetrics(cmd);
-                break;
-	    case ENUM_OBJ:
-	    	result_of_first_list = SS_ListObj(cmd);
-                break;
-	    case ENUM_PARAMS:
-	    	result_of_first_list = SS_ListParams(cmd);
-                break;
-	    case ENUM_PIDS:
-	    	result_of_first_list = SS_ListPids(cmd);
-                break;
-	    case ENUM_RANKS:
-	    	result_of_first_list = SS_ListRanks(cmd);
-                break;
-	    case ENUM_SRC:
-	    	result_of_first_list = SS_ListSrc(cmd);
-                break;
-	    case ENUM_STATUS:
-	    	result_of_first_list = SS_ListStatus(cmd);
-                break;
-	    case ENUM_THREADS:
-	    	result_of_first_list = SS_ListThreads(cmd);
-                break;
-	    case ENUM_TYPES_OLD:
-	    case ENUM_TYPES_NEW:
-	    	result_of_first_list = SS_ListTypes(cmd);
-                break;
-	    case ENUM_VIEWS:
-	    	result_of_first_list = SS_ListViews(cmd);
-                break;
-	    case ENUM_CVIEWS:
-	    	result_of_first_list = SS_ListCviews(cmd);
-                break;
-	    default :
-               // This sould be an Assert!
-	    	break;
-	}
-        first_listtype_found = true;
-        break;
-      }
-      ++i;
+    first_listtype_found = true;
+    if (!strcasecmp(S.c_str(),"breaks")) {
+      result_of_first_list = SS_ListBreaks(cmd);
+    } else if (!strcasecmp(S.c_str(),"database") ||
+               !strcasecmp(S.c_str(),"restoredfile")) {
+      result_of_first_list = SS_ListDatabase(cmd);
+    } else if (!strcasecmp(S.c_str(),"executable")) {
+      result_of_first_list = SS_ListExecutable(cmd);
+    } else if (!strcasecmp(S.c_str(),"exp") ||
+               !strcasecmp(S.c_str(),"expid")) {
+      result_of_first_list = SS_ListExp(cmd);
+    } else if (!strcasecmp(S.c_str(),"exptypes") ||
+               !strcasecmp(S.c_str(),"types")) {
+      result_of_first_list = SS_ListTypes(cmd);
+    } else if (!strcasecmp(S.c_str(),"hosts")) {
+      result_of_first_list = SS_ListHosts(cmd);
+    } else if (!strcasecmp(S.c_str(),"metrics")) {
+      result_of_first_list = SS_ListMetrics(cmd);
+    } else if (!strcasecmp(S.c_str(),"obj")) {
+      result_of_first_list = SS_ListObj(cmd);
+    } else if (!strcasecmp(S.c_str(),"params")) {
+      result_of_first_list = SS_ListParams(cmd);
+    } else if (!strcasecmp(S.c_str(),"pids")) {
+      result_of_first_list = SS_ListPids(cmd);
+    } else if (!strcasecmp(S.c_str(),"ranks")) {
+      result_of_first_list = SS_ListRanks(cmd);
+    } else if (!strcasecmp(S.c_str(),"src")) {
+      result_of_first_list = SS_ListSrc(cmd);
+    } else if (!strcasecmp(S.c_str(),"status")) {
+      result_of_first_list = SS_ListStatus(cmd);
+    } else if (!strcasecmp(S.c_str(),"threads")) {
+      result_of_first_list = SS_ListThreads(cmd);
+    } else if (!strcasecmp(S.c_str(),"views")) {
+      result_of_first_list = SS_ListViews(cmd);
+    } else if (!strcasecmp(S.c_str(),"cviews")) {
+      result_of_first_list = SS_ListCviews(cmd);
+    } else {
+      valid_list_type_found = false;
+      first_listtype_found = false;
     }
 
     if (!valid_list_type_found) {
@@ -3585,15 +3755,13 @@ bool SS_ListGeneric (CommandObject *cmd) {
 // Session Commands
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_ClearBreaks ()
  * 
- * .
+ * Not yet implemented.
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
  *
- * @return  void
- *
- * @todo    Error handling.
+ * @return  "true"
  *
  */
 bool SS_ClearBreaks (CommandObject *cmd) {
@@ -3606,15 +3774,35 @@ bool SS_ClearBreaks (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_Echo()
+ *
+ * Take the input string and send it back as a result..
+ *
+ * @param   cmd - the commadn being processed.
+ *
+ * @return  true to indicate successful completionof the command.
+ *
+ */
+bool SS_Echo (CommandObject *cmd) {
+  vector<string> *S = cmd->P_Result()->getStringList();
+  vector<string>::iterator si;
+  for (si = S->begin(); si != S->end(); si++) {
+    cmd->Result_String(*si);
+  }
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+/**
+ * SemanticRoutine: SS_Exit ()
  * 
- * .
+ * Implement the 'exit' command by starting the shut down process.
+ * All preceeding commands must be allowed to complete and all
+ * following commands must not be allowed to start execution.
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
  *
- * @return  void
- *
- * @todo    Error handling.
+ * @return  "true" to indicate successful completion of the command.
  *
  */
 bool SS_Exit (CommandObject *cmd) {
@@ -3645,15 +3833,13 @@ bool SS_Exit (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_Help ()
  * 
- * .
+ * Implement the 'help' command by calling 'dumpHelp'..
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
  *
- * @return  void
- *
- * @todo    Error handling.
+ * @return  "true" to indicate successful completion of the command.
  *
  */
 bool SS_Help (CommandObject *cmd) {
@@ -3663,15 +3849,20 @@ bool SS_Help (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_History ()
  * 
- * .
+ * Implement the 'history' command by printing the list of
+ * commands that was sent to Python..
  *     
- * @param   .
+ * @param   cmd - the CommandObbject being processed.
  *
- * @return  void
+ * @return  "true" to indicate successful completion of the command.
  *
- * @todo    Error handling.
+ * @error   if the number of records requested is negative, ignore it
+ *          and list all remembered commands.
+ * @error   if the number of records requested is larger than the current
+ *          limit on the number of remembered records, list all the remembered
+ *          ones and increase the limit.
  *
  */
 bool SS_History (CommandObject *cmd) {
@@ -3720,15 +3911,22 @@ bool SS_History (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_Log ()
  * 
- * .
+ * Implement the 'log' command by setting the mechanisms that
+ * will cause Openss to echo state changes for each command
+ * that originated from the same input source that this command
+ * was from.
+ *
+ * The command can "turn on" logging if a file is specifed and
+ * will "turn off" logging if no file is specified with the command.
  *     
- * @param   .
+ * @param   cmd - the CommandObject for this command.
  *
- * @return  void
+ * @return  "true" to indicate successful completion of the command.
  *
- * @todo    Error handling.
+ * @error   "false" is returned if the input source could not be determined
+ *          or is no longer active.
  *
  */
 bool SS_Log (CommandObject *cmd) {
@@ -3757,15 +3955,19 @@ bool SS_Log (CommandObject *cmd) {
 
 extern "C" void loadTheGUI(ArgStruct *);
 /**
- * Method: ()
+ * SemanticRoutine: SS_OpenGui ()
  * 
- * .
+ * Implement the 'opengui' command.  Be sure an source input window
+ * has been defined for the gui to use and then call the same routine
+ * to load and initiate the GUI that would have been called if it had
+ * been opened on start up.
  *     
- * @param   .
+ * @param   cmd - the CommandObject beng processed.
  *
- * @return  void
+ * @return  "true" to indicate (apparently) successful completion.
  *
- * @todo    Error handling.
+ * @error   "false" is returned if too many source input windows
+ *          have already been defined and the GUI can not be loaded.
  *
  */
 bool SS_OpenGui (CommandObject *cmd) {
@@ -3774,42 +3976,46 @@ bool SS_OpenGui (CommandObject *cmd) {
 
  // Load the GUI
  // How do we check to see if is already loaded?
-    int argc = 0;
-    char **argv = NULL;
-    ArgStruct *argStruct = new ArgStruct(argc, argv);
-    if (gui_window == 0) {
-     // The GUI was not opened before so we need to define an input control window for it.
-      char HostName[MAXHOSTNAMELEN+1];
-      if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
-    	Mark_Cmd_With_Soft_Error(cmd, "Can not retreive host name.");
-        return false;
-      }
-      pid_t my_pid = getpid();
-      gui_window = GUI_Window ("GUI",&HostName[0],my_pid,0,true);
+  int argc = 0;
+  char **argv = NULL;
+  ArgStruct *argStruct = new ArgStruct(argc, argv);
+  if (gui_window == 0) {
+   // The GUI was not opened before so we need to define an input control window for it.
+    char HostName[MAXHOSTNAMELEN+1];
+    if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
+  	Mark_Cmd_With_Soft_Error(cmd, "Can not retreive host name.");
+      return false;
     }
-   // Add the input window to the argument list
-    argStruct->addArg("-wid");
-    char buffer[10];
-    sprintf(buffer, "%d", gui_window);
-    argStruct->addArg(buffer);
-    loadTheGUI((ArgStruct *)argStruct);
+    pid_t my_pid = getpid();
+    gui_window = GUI_Window ("GUI",&HostName[0],my_pid,0,true);
+  }
+ // Add the input window to the argument list
+  argStruct->addArg("-wid");
+  char buffer[10];
+  sprintf(buffer, "%d", gui_window);
+  argStruct->addArg(buffer);
+
+ // Call the startup routine for the GUI.
+  loadTheGUI((ArgStruct *)argStruct);
 
  // The GUi will be spun off into it's own process.
- // There is no result returned from this command.
+ // As far as we can tell, this command is always successful.
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_Playback ()
  * 
- * .
+ * Implement the 'playback' command by redirecting the input
+ * windows to read from a new file.
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
  *
- * @return  void
+ * @return  "true" if input has been successfully redirected.
  *
- * @todo    Error handling.
+ * @error   "false" is returned if the user failured to provide
+ *           a single, valid filename.
  *
  */
 bool SS_Playback (CommandObject *cmd) {
@@ -3834,15 +4040,20 @@ bool SS_Playback (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_Record ()
  * 
- * .
+ * Implement the 'record' command by setting flags so that each
+ * executed command is echoed to a file at the same point it is
+ * passed into Python.  Recording is turned off when a 'playback'
+ * command that has no "-f" specification is executed, but only
+ * after waiting for all previously issued commands to complete.
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
  *
- * @return  void
+ * @return  "true" to indicate successful completion.
  *
- * @todo    Error handling.
+ * @error   "false" is returned if specified file could not be opened
+ *          for writing.
  *
  */
 bool SS_Record (CommandObject *cmd) {
@@ -3867,24 +4078,18 @@ bool SS_Record (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_SetBreak ()
  * 
- * .
+ * Not yet implemented.
  *     
- * @param   .
+ * @param   cmd - the CommandObject being processed.
  *
- * @return  void
- *
- * @todo    Error handling.
+ * @return  "true"
  *
  */
 bool SS_SetBreak (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
-  if (exp == NULL) {
-    return false;
-  }
 
   cmd->Result_String ("'setBreak' is not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
@@ -3892,15 +4097,19 @@ bool SS_SetBreak (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * SemanticRoutine: SS_Wait ()
  * 
- * .
+ * Implement the 'wait' command by waiting for preceeding commands to
+ * complete and for the execution of specified experiments to stop.
+ * No other commands may be executed until the above conditions are satisfied.
  *     
  * @param   .
  *
- * @return  void
+ * @return  "true" on successful completion or if a thrown exception
+ *          was caught when we attempt to flush performance data to
+ *          the datbase.
  *
- * @todo    Error handling.
+ * @error   "false" is returned if a needed experiment can not be determined.
  *
  */
 bool SS_Wait (CommandObject *cmd) {

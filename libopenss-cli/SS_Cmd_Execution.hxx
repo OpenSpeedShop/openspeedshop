@@ -43,6 +43,8 @@ bool SS_expSetParam (CommandObject *cmd);
 bool SS_expCompare(CommandObject *cmd);
 bool SS_expStatus(CommandObject *cmd);
 bool SS_expView (CommandObject *cmd);
+bool SS_View (CommandObject *cmd);
+bool SS_Info (CommandObject *cmd);
 
 //Custom View Commands
 bool SS_cvSet (CommandObject *cmd);
@@ -58,6 +60,7 @@ bool SS_ListCviews (CommandObject *cmd);
 
 // Session level commands
 bool SS_ClearBreaks (CommandObject *cmd);
+bool SS_Echo (CommandObject *cmd);
 bool SS_Exit (CommandObject *cmd);
 bool SS_Help (CommandObject *cmd);
 bool SS_History (CommandObject *cmd);
