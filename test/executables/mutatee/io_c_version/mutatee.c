@@ -81,8 +81,8 @@ int main(int argc, char* argv[])
 
     printf("\nTESTING dup2.\n");
     errno = 0;
-    int fd2;
-    retval = dup2(fd1,fd2);
+    int fd2 = fd1;
+    retval = dup2(openFD,fd2);
     if (retval < 0 ) {
         perror("dup2");
     } else {
