@@ -23,7 +23,7 @@
 
 class SPCheckBox;
 typedef QValueList <SPCheckBox *> SPCheckBoxList;
-enum STATSPANEL_TEXT_ENUM { TEXT_NONE,  TEXT_BYVALUE, TEXT_BYPERCENT };
+enum STATSPANEL_TEXT_ENUM { TEXT_NONE,  TEXT_BYVALUE, TEXT_BYPERCENT, TEXT_BYLOCATION };
 
 class SPCheckBox : public QCheckBox
 {

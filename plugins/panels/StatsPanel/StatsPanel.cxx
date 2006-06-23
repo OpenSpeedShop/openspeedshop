@@ -4058,7 +4058,18 @@ for( ChartPercentValueList::Iterator it = cpvl.begin();
         ColumnList::Iterator hit = columnHeaderList.at(percentIndex);
         cf->setHeader( (QString)*hit );
       }
+    } else if( textENUM == TEXT_BYLOCATION )
+    {
+// printf("A: TEXT_BYLOCATION: textENUM=%d\n", textENUM );
+      ctvl.push_back( strings[columnHeaderList.count()-1].stripWhiteSpace() );
+
+      if( columnHeaderList.count() > 0 )
+      {
+        ColumnList::Iterator hit = columnHeaderList.at(columnHeaderList.count()-1);
+        cf->setHeader( (QString)*hit );
+      }
     }
+    // We always push back the percent for the value list.
     cpvl.push_back( percent );
   }
 

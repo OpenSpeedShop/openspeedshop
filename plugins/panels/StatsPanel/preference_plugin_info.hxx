@@ -70,6 +70,7 @@ extern "C"
   SPCheckBox* showTextInChartCheckBox;
   SPCheckBox* showTextByValueCheckBox;
   SPCheckBox* showTextByPercentCheckBox;
+  SPCheckBox* showTextByLocationCheckBox;
   QComboBox *chartTypeComboBox;
 
   QHBoxLayout* layoutSkyline;
@@ -118,9 +119,16 @@ extern "C"
       if( showTextByValueCheckBox->isChecked() )
       {
         return( TEXT_BYVALUE );
-      } else
+      }
+
+      if( showTextByPercentCheckBox->isChecked() )
       {
         return( TEXT_BYPERCENT );
+      }
+
+      if( showTextByLocationCheckBox->isChecked() )
+      {
+        return( TEXT_BYLOCATION );
       }
     }
     return( TEXT_NONE );
@@ -162,6 +170,7 @@ extern "C"
     showTextInChartCheckBox->setChecked(TRUE);
     showTextByValueCheckBox->setChecked(FALSE);
     showTextByPercentCheckBox->setChecked(TRUE);
+    showTextByLocationCheckBox->setChecked(FALSE);
     chartTypeComboBox->setCurrentItem(0);
     showToolbarCheckBox->setChecked(FALSE);
     showSkylineCheckBox->setChecked(FALSE);
@@ -251,6 +260,12 @@ extern "C"
     textLabelLayout->addWidget( showTextByPercentCheckBox );
     checkBoxList.push_back( showTextByPercentCheckBox );
 
+    showTextByLocationCheckBox =
+      new SPCheckBox( textLabelGroupBox, "showTextByLocationCheckBox", &checkBoxList );
+    showTextByLocationCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showTextByLocationCheckBox->sizePolicy().hasHeightForWidth() ) );
+    textLabelLayout->addWidget( showTextByLocationCheckBox );
+    checkBoxList.push_back( showTextByLocationCheckBox );
+
 
 chartTypeComboBox = new QComboBox( FALSE, textLabelGroupBox, "chartTypeComboBox" );
 chartTypeComboBox->insertItem( QPixmap( options_piechart ), "Pie Chart" );
@@ -317,6 +332,7 @@ textLabelLayout->addWidget( chartTypeComboBox );
     showTextByValueCheckBox->setText( "  Show text by value:" );
     showSkylineLabel->setText("Percentage breakdown for skyline view:");
     showTextByPercentCheckBox->setText( "  Show text by percent:" );
+    showTextByLocationCheckBox->setText( "  Show text by location:" );
     showToolbarCheckBox->setText( "  Show toolbar:" );
     showSkylineCheckBox->setText( "  Show skyline view in time dialog:" );
 
@@ -363,6 +379,11 @@ textLabelLayout->addWidget( chartTypeComboBox );
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showTextByPercentCheckBox->name() );
       showTextByPercentCheckBox->setChecked(
+        settings->readBoolEntry(settings_buffer, TRUE) );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, showTextByLocationCheckBox->name() );
+      showTextByLocationCheckBox->setChecked(
         settings->readBoolEntry(settings_buffer, TRUE) );
 
       sprintf(settings_buffer, "/%s/%s/%s",
@@ -426,6 +447,10 @@ textLabelLayout->addWidget( chartTypeComboBox );
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showTextByPercentCheckBox->name() );
     settings->writeEntry(settings_buffer, showTextByPercentCheckBox->isChecked() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, showTextByLocationCheckBox->name() );
+    settings->writeEntry(settings_buffer, showTextByLocationCheckBox->isChecked() );
 
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, chartTypeComboBox->name() );
