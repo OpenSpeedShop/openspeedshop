@@ -137,6 +137,7 @@ if( attachFLAG )
   ExperimentObject *eo = NULL;
   experiment = NULL;
   executableNameStr = QString::null;
+  databaseNameStr = QString::null;
   argsStr = QString::null;
   pidStr = QString::null;
   exitingFLAG = FALSE;
@@ -308,7 +309,7 @@ if( attachFLAG )
     }
       if( eo->Determine_Status() == ExpStatus_NonExistent || eo->Determine_Status() == ExpStatus_InError || eo->Determine_Status() == ExpStatus_Terminated )
       {
-        statusLabelText->setText( tr(QString("Loaded saved data from file.") ) );
+        statusLabelText->setText( tr(QString("Loaded saved data from file %1.").arg(getDatabaseName()) ) );
         loadStatsPanel();
 
         runnableFLAG = FALSE;
@@ -1311,7 +1312,7 @@ staticDataFLAG = TRUE;
 // printf(" : eo->Determine_Status()=%d\n", eo->Determine_Status() );
     if( eo->Determine_Status() == ExpStatus_NonExistent || eo->Determine_Status() == ExpStatus_InError || eo->Determine_Status() == ExpStatus_Terminated )
     {
-      statusLabelText->setText( tr(QString("Loaded saved data from file.") ) );
+      statusLabelText->setText( tr(QString("Loaded saved data from file %1.").arg(getDatabaseName()) ) );
       runnableFLAG = FALSE;
       pco->runButton->setEnabled(FALSE);
       pco->runButton->enabledFLAG = FALSE;
@@ -1348,18 +1349,18 @@ staticDataFLAG = TRUE;
         if( (last_status == ExpStatus_NonExistent || 
             readyToRunFLAG == TRUE ) && aboutToRunFLAG == FALSE )
         {
-          statusLabelText->setText( tr("Experiment is ready to run:  Hit the \"Run\" button to start execution.") );
+          statusLabelText->setText( tr("Experiment (%1) is ready to run:  Hit the \"Run\" button to start execution.").arg(executableNameStr) );
         } else
         {
           if( aboutToRunFLAG == TRUE )
           {
-            statusLabelText->setText( tr("Experiment is being initialized to run.") );
+            statusLabelText->setText( tr("Experiment (%1) is being initialized to run.").arg(executableNameStr) );
                 
             statusTimer->start(2000);
             break;
           } else
           {
-            statusLabelText->setText( tr("Experiment is Paused:  Hit the \"Run\" button to continue execution.") );
+            statusLabelText->setText( tr("Experiment (%1) is Paused:  Hit the \"Run\" button to continue execution.").arg(executableNameStr) );
           }
         }
         pco->runButton->setEnabled(TRUE);
@@ -1385,8 +1386,7 @@ staticDataFLAG = TRUE;
         readyToRunFLAG = FALSE;
         if( status == ExpStatus_Running )
         {
-//          statusLabelText->setText( "3: ExpStatus_Running" );
-          statusLabelText->setText( tr("Experiment is Running.") );
+          statusLabelText->setText( tr("Experiment (%1) is Running.").arg(executableNameStr) );
         }
         pco->runButton->setEnabled(FALSE);
         pco->runButton->enabledFLAG = FALSE;
@@ -1410,12 +1410,10 @@ staticDataFLAG = TRUE;
         if( status == ExpStatus_Terminated )
         {
 // printf("ExpStatus_Terminated:\n");
-//          statusLabelText->setText( "ExpStatus_Terminated" );
-          statusLabelText->setText( tr("Experiment has Terminated") );
+          statusLabelText->setText( tr("Experiment (%1) has Terminated").arg(executableNameStr) );
         } else if( status == ExpStatus_InError )
         {
 // printf("ExpStatus_InError:\n");
-//          statusLabelText->setText( "ExpStatus_InError" );
           statusLabelText->setText( tr("Experiment has encountered an Error.") );
         }
         statusTimer->stop();
@@ -1878,4 +1876,25 @@ CustomExperimentPanel::getMostImportantMetric(QString collector_name)
   }
   
   return(metric);
+}
+
+QString
+CustomExperimentPanel::getDatabaseName()
+{
+  if( databaseNameStr.isEmpty() )
+  {
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    InputLineObject *clip = NULL;
+
+    std::string cstring;
+    QString command = QString("list -x %1 -v database").arg(expID);
+    if( !cli->getStringValueFromCLI( (char *)command.ascii(),
+           &cstring, clip, TRUE ) )
+    {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+    QString str = QString( cstring.c_str() );
+    databaseNameStr = str;
+  }
+  return( databaseNameStr );
 }

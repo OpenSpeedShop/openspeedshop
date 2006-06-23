@@ -126,6 +126,7 @@ public:
   bool staticDataFLAG;
 
   QString executableNameStr;
+  QString databaseNameStr;
   QString argsStr;
   QString pidStr;
   QTimer *timer;
@@ -151,6 +152,7 @@ public slots:
   virtual Panel *loadStatsPanel();
   virtual void loadManageProcessesPanel();
   virtual void progressUpdate();
+
 
 private slots:
   virtual void statusUpdateTimerSlot();
@@ -185,5 +187,6 @@ private:
   QString expStatsInfoStr;
 
   virtual void resetRedirect();
+  virtual QString getDatabaseName();
 };
 #endif // CUSTOMEXPERIMENTPANEL_H
