@@ -100,7 +100,7 @@ def CompareResults(testName, fileptr):
 	test_status = 0
 	previous_expected = 0
 	previous_actual = 0
-	passing_ratio = 1
+	passing_ratio = 1 
 	while 1:
 		if (nooutput == 1):
 			failure_reason = 3
@@ -108,6 +108,8 @@ def CompareResults(testName, fileptr):
 			break
 		outputfileline = outputfileptr.readline()
 		if not outputfileline:
+			passing_ratio = 0
+			failure_reason = 3
 			break
 		expectedfileline = expectedfileptr.readline()
 		if not expectedfileline:
