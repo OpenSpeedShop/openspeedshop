@@ -143,7 +143,7 @@ void PreferencesDialog::resetPreferenceDefaults()
    saveExperimentDatabase = FALSE;
    saveExperimentDatabaseCheckBox->setChecked(saveExperimentDatabase);
    viewMangledNameCheckBox->setChecked(viewMangledName);
-   allowPythonCommands = TRUE;
+   allowPythonCommands = FALSE;
    allowPythonCommandsCheckBox->setChecked(allowPythonCommands);
 
 
