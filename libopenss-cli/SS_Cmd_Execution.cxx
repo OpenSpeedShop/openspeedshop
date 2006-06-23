@@ -2725,30 +2725,27 @@ static bool SS_ListDatabase (CommandObject *cmd) {
 /**
  * Utility:  Most_Common_Executable()
  *
- * Determine the most frequently named executable associated with
- * and experiment.  If OPENSS_VIEW_FULLPATH is set, return the
- * full path to this executable.
+ * Determine the executables associated with an experiment
+ * Link the list (most frequently used, first) to the
+ * command.  If OPENSS_VIEW_FULLPATH is set, return the full
+ * path to this executable.
  *
  * @param   cmd - the current command beind processed.
  * @param   exp - the experiment to look at.
  *
- * @return  std::string - the name or path of the executable
+ * @return  void.
  *
- * @error   failure to find any name returns "(unknown)".
+ * @error   failure to find any name returns "(none)".
  * @error   any error caught in a "catch" claues returns "(error)".
  *
  */
-static std::string Most_Common_Executable (CommandObject *cmd,
-                                           ExperimentObject * exp) {
- // Scan the experiment for the most common executable name.
-  int64_t maxCount = 0;
-  std::string maxName;
-
+static void Most_Common_Executable (CommandObject *cmd,
+                                    ExperimentObject * exp) {
   try {
    // Get the list of threads used in the specified experiment.
     ThreadGroup tgrp = exp->FW()->getThreads();
 
-   // Get the executable name for each thread and count hopw many times it is used.
+   // Get the executable name for each thread and count how many times it is used.
     std::map<std::string,int64_t> NameMap;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
@@ -2766,22 +2763,27 @@ static std::string Most_Common_Executable (CommandObject *cmd,
       }
     }
 
-   // Find the most frequently used name.
+   // Build a new map that is sorted by frequency.
+    std::map<int64_t,std::string> CountMap;
     for (std::map<std::string, int64_t>::iterator nmapi = NameMap.begin(); nmapi != NameMap.end(); nmapi ++) {
-      if ((*nmapi).second > maxCount) {
-        maxCount = (*nmapi).second;
-        maxName = (*nmapi).first;
+      CountMap[(*nmapi).second] = (*nmapi).first;
+    }
+
+    if (CountMap.empty()) {
+      cmd->Result_String ("(none)");
+    } else {
+     // List the most frequenly used names first.
+      for (std::map<int64_t,std::string>::reverse_iterator cmapi = CountMap.rbegin();
+           cmapi != CountMap.rend(); cmapi++) {
+        cmd->Result_String ((*cmapi).second);
       }
     }
+
   }
   catch (...) {
-    maxName = "(error)";
+    cmd->Result_String ("(error)");
   }
 
-  if (maxName.empty()) {
-    maxName = "(unknown)";
-  }
-  return maxName;
 }
 
 /**
@@ -2810,8 +2812,7 @@ static bool SS_ListExecutable (CommandObject *cmd) {
     std::list<ExperimentObject *>::reverse_iterator expi;
     for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
     {
-      std::string maxName = Most_Common_Executable (cmd, *expi);
-      cmd->Result_String (maxName);
+      Most_Common_Executable (cmd, *expi);
     }
   } else {
    // Get the Executable name for a specified Experiment or the focused Experiment.
@@ -2820,9 +2821,8 @@ static bool SS_ListExecutable (CommandObject *cmd) {
       return false;
     }
 
-   // Scan the experiment for the most common executable name.
-    std::string maxName = Most_Common_Executable (cmd, exp);
-    cmd->Result_String (maxName);
+   // Scan the experiment for the executable name.
+    Most_Common_Executable (cmd, exp);
   }
 
   cmd->set_Status(CMD_COMPLETE);

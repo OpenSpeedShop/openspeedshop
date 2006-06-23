@@ -177,7 +177,7 @@ void SS_Configure () {
 
   Add_Help (czar, "allowPythonCommands", "a boolean, preference",
             "Declare that Python commands may be intermixed with OpenSS "
-            "commands.  The default is true.");
+            "commands.  The default is false.");
   Bvalue = settings->readBoolEntry(std::string("allowPythonCommands"), OPENSS_ALLOW_PYTHON_COMMANDS, &ok);
   if (ok) OPENSS_ALLOW_PYTHON_COMMANDS = Bvalue;
 
