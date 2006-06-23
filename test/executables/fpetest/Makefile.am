@@ -19,10 +19,7 @@
 noinst_PROGRAMS = fpetest 
 
 CFLAGS = \
-	-g -gdwarf-2 -O1
-
-fpetest_LDADD = \
-	-ldl
+	-g -gdwarf-2 -O0
 
 fpetest_SOURCES = \
 	fpetest.c
