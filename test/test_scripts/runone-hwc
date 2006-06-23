@@ -104,11 +104,13 @@ def CompareResults(testName, fileptr):
 			failure_reason = 3
 			passing_ratio = 0
 			break
-		outputfileline = outputfileptr.readline()
-		if not outputfileline:
-			break
 		expectedfileline = expectedfileptr.readline()
 		if not expectedfileline:
+			break
+		outputfileline = outputfileptr.readline()
+		if not outputfileline:
+			failure_reason = 3
+			passing_ratio = 0
 			break
 		i = 0
 		while outputfileline[i] == ' ':

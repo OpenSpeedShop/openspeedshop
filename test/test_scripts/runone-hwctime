@@ -90,7 +90,7 @@ def CompareResults(testName, fileptr):
 		tempfileline = outputfileptr.readline()
 		if not tempfileline:
 			break
-		if tempfileline[0:10] == ' Inclusive':
+		if tempfileline[0:10] == ' Exclusive':
 			nooutput = 0
 			break
 	expectedfileptr.readline()
@@ -103,11 +103,13 @@ def CompareResults(testName, fileptr):
 			failure_reason = 3
 			passing_ratio = 0
 			break
-		outputfileline = outputfileptr.readline()
-		if not outputfileline:
-			break
 		expectedfileline = expectedfileptr.readline()
 		if not expectedfileline:
+			break
+		outputfileline = outputfileptr.readline()
+		if not outputfileline:
+			failure_reason = 3
+			passing_ratio = 0
 			break
 		i = 0
 		while outputfileline[i] == ' ':
@@ -137,6 +139,8 @@ def CompareResults(testName, fileptr):
                 while (expectedfileline[j] != '\n') and (expectedfileline[j] != ' ') and (expectedfileline[j] != '('):
                         j +=1
                 expected_function = expectedfileline[i:j]
+		print expected_function
+		print actual_function
 		if (expected_function == actual_function):
 			if ( previous_cycles_expected != 0 and previous_cycles_actual != 0 ):
                                 actual_cycles_ratio = previous_cycles_actual / actual_cycles_time
