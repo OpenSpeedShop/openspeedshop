@@ -67,6 +67,6 @@ CustomizeStatsPanel_la_SOURCES = \
 	CompareProcessesDialog.hxx CompareProcessesDialog.cxx moc_CompareProcessesDialog.cxx \
 	$(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListViewItem.hxx $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListViewItem.cxx \
 	$(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.cxx moc_MPListView.cxx \
-	local_plugin_info.hxx preference_plugin_info.hxx
+	local_plugin_info.hxx
 
 CLEANFILES=moc_CustomizeStatsPanel.cxx moc_CustomizeClass.cxx moc_CompareSet.cxx moc_ColumnSet.cxx moc_MPListView.cxx  moc_CompareProcessesDialog.cxx

@@ -75,6 +75,5 @@ class CustomizeStatsPanel  : public Panel
     virtual void languageChange();
 
   private:
-    void raisePreferencePanel();
 };
 #endif // CUSTOMIZESTATSPANEL_H

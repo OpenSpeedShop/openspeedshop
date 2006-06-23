@@ -26,8 +26,6 @@
 #include "plugin_entry_point.hxx"   // Do not remove
 #include "ArgumentObject.hxx"
 
-#include "preference_plugin_info.hxx"
-
 #include <qtextedit.h>  // For QTextEdit in example below...
 CustomizeStatsPanel::CustomizeStatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
@@ -195,13 +193,6 @@ CustomizeStatsPanel::broadcast(char *msg)
 {
   dprintf("CustomizeStatsPanel::broadcast() requested.\n");
   return 0;
-}
-
-void
-CustomizeStatsPanel::raisePreferencePanel()
-{
-// printf("CustomizeStatsPanel::raisePreferencePanel() \n");
-  getPanelContainer()->getMainWindow()->filePreferences( manageProcessesPanelStackPage, QString(pluginInfo->panel_type) );
 }
 
 void

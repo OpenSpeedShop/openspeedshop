@@ -111,8 +111,8 @@ void PreferencesDialog::readPreferencesOnEntry()
 void PreferencesDialog::resetPreferenceDefaults()
 {
 //    qWarning( "PreferencesDialog::resetPreferenceDefaults(): Not implemented yet" );
-   globalFontFamily = "Helvetica";
-   globalFontPointSize = 12;
+   globalFontFamily = "Sans Serif";
+   globalFontPointSize = 10;
    globalFontWeight = QFont::Normal;
    globalFontItalic = FALSE;
 
