@@ -32,6 +32,12 @@
 
 #include <SPCheckBox.hxx>
 
+#include <qcombobox.h>
+#include "chartform.hxx"
+#include "images/options_horizontalbarchart.xpm"
+#include "images/options_piechart.xpm"
+#include "images/options_verticalbarchart.xpm"
+
 extern "C"
 {
   SPCheckBoxList checkBoxList;
@@ -64,6 +70,7 @@ extern "C"
   SPCheckBox* showTextInChartCheckBox;
   SPCheckBox* showTextByValueCheckBox;
   SPCheckBox* showTextByPercentCheckBox;
+  QComboBox *chartTypeComboBox;
 
   QHBoxLayout* layoutSkyline;
   QCheckBox* showToolbarCheckBox;
@@ -119,6 +126,12 @@ extern "C"
     return( TEXT_NONE );
   }
 
+  int getChartTypeComboBox()
+  {
+// printf("getChartTypeComboBox(%s)\n", pname);
+    return( chartTypeComboBox->currentItem() );
+  }
+
   bool getPreferenceShowToolbarCheckBox()
   {
 // printf("getPreferenceShowToolbarCheckBox(%s)\n", pname);
@@ -147,8 +160,9 @@ extern "C"
     showTopNChartLineEdit->setText( "5" );
     showColumnToSortLineEdit->setText( "0" );
     showTextInChartCheckBox->setChecked(TRUE);
-    showTextByValueCheckBox->setChecked(TRUE);
-    showTextByPercentCheckBox->setChecked(FALSE);
+    showTextByValueCheckBox->setChecked(FALSE);
+    showTextByPercentCheckBox->setChecked(TRUE);
+    chartTypeComboBox->setCurrentItem(0);
     showToolbarCheckBox->setChecked(FALSE);
     showSkylineCheckBox->setChecked(FALSE);
     showSkylineLabel->setText("Percentage breakdown for skyline view:");
@@ -215,7 +229,7 @@ extern "C"
     textLabelGroupBox->setColumnLayout(0, Qt::Vertical );
     textLabelGroupBox->layout()->setSpacing( 6 );
     textLabelGroupBox->layout()->setMargin( 11 );
-    textLabelGroupBox->setTitle( "Data Labels" );
+    textLabelGroupBox->setTitle( "Chart Preferences:" );
 
     QVBoxLayout *textLabelLayout = new QVBoxLayout( textLabelGroupBox->layout(), 11, "layout8");
 
@@ -236,6 +250,15 @@ extern "C"
     showTextByPercentCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showTextByPercentCheckBox->sizePolicy().hasHeightForWidth() ) );
     textLabelLayout->addWidget( showTextByPercentCheckBox );
     checkBoxList.push_back( showTextByPercentCheckBox );
+
+
+chartTypeComboBox = new QComboBox( FALSE, textLabelGroupBox, "chartTypeComboBox" );
+chartTypeComboBox->insertItem( QPixmap( options_piechart ), "Pie Chart" );
+chartTypeComboBox->insertItem( QPixmap( options_verticalbarchart ),
+                   "Vertical Bar Chart" );
+chartTypeComboBox->insertItem( QPixmap( options_horizontalbarchart ),
+                   "Horizontal Bar Chart" );
+textLabelLayout->addWidget( chartTypeComboBox );
 
     layout8->addWidget( textLabelGroupBox );
 
@@ -343,6 +366,11 @@ extern "C"
         settings->readBoolEntry(settings_buffer, TRUE) );
 
       sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, chartTypeComboBox->name() );
+      chartTypeComboBox->setCurrentItem(
+        settings->readNumEntry(settings_buffer, 0) );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showToolbarCheckBox->name() );
       showToolbarCheckBox->setChecked(
         settings->readBoolEntry(settings_buffer, FALSE) );
@@ -398,6 +426,10 @@ extern "C"
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showTextByPercentCheckBox->name() );
     settings->writeEntry(settings_buffer, showTextByPercentCheckBox->isChecked() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, chartTypeComboBox->name() );
+    settings->writeEntry(settings_buffer, chartTypeComboBox->currentItem() );
 
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showToolbarCheckBox->name() );

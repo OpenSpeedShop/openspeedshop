@@ -161,7 +161,7 @@ class StatsPanel  : public Panel
     bool staticDataFLAG;
 
     QVBoxLayout *frameLayout;
-QToolBar * fileTools;
+    QToolBar * fileTools;
     QSplitter *splitterA;
     SPChartForm *cf;
     ColumnList columnHeaderList;

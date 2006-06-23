@@ -259,6 +259,7 @@ current_list_of_fpe_modifiers.clear();  // This is this list of user selected mo
   splv = new SPListView(this, splitterA, getName(), 0);
   splv->setSorting ( 0, FALSE );
 
+
 #ifdef OLDWAY
 QHeader *header = splv->header();
 header->setMovingEnabled(FALSE);
@@ -321,6 +322,14 @@ connect( header, SIGNAL(clicked(int)), this, SLOT( headerSelected( int )) );
     chartFLAG = FALSE;
     cf->hide();
   }
+
+if( !getChartTypeComboBox() )
+{
+  cf->setChartType((ChartType)0);
+} else
+{
+  cf->setChartType((ChartType)getChartTypeComboBox());
+}
   statsFLAG = TRUE;
   splv->show();
 
@@ -632,6 +641,13 @@ updateCollectorList();
     } else
     {
       fileTools->hide();
+    }
+    if( !getChartTypeComboBox() )
+    {
+      cf->setChartType((ChartType)0);
+    } else
+    {
+      cf->setChartType((ChartType)getChartTypeComboBox());
     }
     updateStatsPanelData();
   } else if( msgObject->msgType == "SaveAsObject" )
@@ -2076,7 +2092,6 @@ StatsPanel::updateStatsPanelData(QString command)
 // printf("cpvl.count()=%d ctvl.count()=%d\n", cpvl.count(), ctvl.count() );
 
   cf->setValues(cpvl, ctvl, color_names, MAX_COLOR_CNT);
-  cf->setHeader( (QString)*columnHeaderList.begin() );
 
 // printf("now clean up the timer...\n");
   progressTimer->stop();
@@ -4031,11 +4046,18 @@ for( ChartPercentValueList::Iterator it = cpvl.begin();
     if( textENUM == TEXT_BYVALUE )
     { 
 // printf("TEXT_BYVALUE: textENUM=%d (%s)\n", textENUM, strings[0].stripWhiteSpace().ascii()  );
+      cf->setHeader( (QString)*columnHeaderList.begin() );
       ctvl.push_back( strings[0].stripWhiteSpace() );
     } else if( textENUM == TEXT_BYPERCENT )
     {
 // printf("A: TEXT_BYPERCENT: textENUM=%d\n", textENUM );
       ctvl.push_back( strings[percentIndex].stripWhiteSpace() );
+
+      if( percentIndex > 0 )
+      {
+        ColumnList::Iterator hit = columnHeaderList.at(percentIndex);
+        cf->setHeader( (QString)*hit );
+      }
     }
     cpvl.push_back( percent );
   }
