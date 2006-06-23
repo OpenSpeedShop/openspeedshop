@@ -1,0 +1,65 @@
+#!/bin/sh
+###############################################################################
+# Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+# if want to save previous to compare with do the mv instead of rm
+#mv -f regression_results-simple regression_results-simple.prev
+rm -f regression_results-simple
+rm -f regression_results-simple-details
+HOMEDIR=$(pwd)
+touch regression_results-simple
+touch regression_results-simple-details
+echo " " > regression_results-simple-details
+echo "Running regression-simple on this platform" > regression_results-simple
+echo " " >> regression_results-simple
+uname -a >> regression_results-simple
+echo " " >> regression_results-simple
+echo "configured with dpcl, dyninst, papi, dwarf, elf, sqlite versions:" >> regression_results-simple
+echo " " >> regression_results-simple
+rpm --query --all | grep dpcl >> regression_results-simple
+rpm --query --all | grep dyninst >> regression_results-simple
+rpm --query --all | grep papi >> regression_results-simple
+rpm --query --all | grep libdwarf >> regression_results-simple
+rpm --query --all | grep libelf >> regression_results-simple
+rpm --query --all | grep sqlite >> regression_results-simple
+echo " " >> regression_results-simple
+cd $HOMEDIR/src/regression/pcsamp/pcsamp1
+rm -f testresults*
+./runall
+grep FAIL testresults_* >> $HOMEDIR/regression_results-simple
+grep PASS testresults_* >> $HOMEDIR/regression_results-simple
+cat testresults_* >> $HOMEDIR/regression_results-simple-details
+cd $HOMEDIR/src/regression/usertime/usertime1
+rm -f testresults*
+./runall
+grep FAIL testresults_* >> $HOMEDIR/regression_results-simple
+grep PASS testresults_* >> $HOMEDIR/regression_results-simple
+cat testresults_* >> $HOMEDIR/regression_results-simple-details
+cd $HOMEDIR/src/regression/hwc/hwc1
+rm -f testresults*
+./runall
+grep FAIL testresults_* >> $HOMEDIR/regression_results-simple
+grep PASS testresults_* >> $HOMEDIR/regression_results-simple
+cat testresults_* >> $HOMEDIR/regression_results-simple-details
+cd $HOMEDIR/src/regression/io/io1
+rm -f testresults*
+./runall
+grep FAIL testresults_* >> $HOMEDIR/regression_results-simple
+grep PASS testresults_* >> $HOMEDIR/regression_results-simple
+cat testresults_* >> $HOMEDIR/regression_results-simple-details
+cat  $HOMEDIR/regression_results-simple-details >> $HOMEDIR/regression_results-simple
+
