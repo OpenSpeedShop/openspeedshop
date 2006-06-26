@@ -120,6 +120,11 @@ static bool Async_Inputs = false;
 static bool Looking_for_Async_Inputs = false;
 static CMDWID More_Input_Needed_From_Window = 0;
 
+// How may "!" commands are being executed?
+static pthread_mutex_t Escape_Command_Lock = PTHREAD_MUTEX_INITIALIZER;
+static int64_t Number_of_Escape_Commands = 0;
+static std::list<pid_t> escape_processes;
+
 // Input_Source
 #define DEFAULT_INPUT_BUFFER_SIZE 4096
 
@@ -1737,6 +1742,16 @@ void User_Info_Dump (CMDWID issuedbywindow) {
     }
   }
 
+ // How many escape comands are in-process?
+  Assert(pthread_mutex_lock(&Escape_Command_Lock) == 0);
+  if (Number_of_Escape_Commands > 0) {
+    mystream << std::endl << "There " << ((Number_of_Escape_Commands == 1) ? " is " : " are ")
+             << Number_of_Escape_Commands << " escape('!') command"
+             << ((Number_of_Escape_Commands == 1) ? " " : "s ") << "being executed independently"
+             << std::endl;
+  }
+  Assert(pthread_mutex_unlock(&Escape_Command_Lock) == 0);
+
  // Check available input
   bool input_available = false;
 
@@ -1895,6 +1910,8 @@ do_cmd (const char *cmd_string, pid_t &child_pid) {
 
   if (pid == 0)     // child
   {
+    SET_SIGNAL (SIGCHLD, SIG_IGN);  // Ignore child process interrupt
+    SET_SIGNAL (SIGINT, SIG_IGN);   // Ingore CNTRL-C interrupt
     (void) close(1);
     (void) dup2(input[1], 1);  // redirect stdout
     (void) dup2(input[1], 2);  // redirect stderr
@@ -1916,20 +1933,10 @@ catch_escape_sigchld (int sig, int error_num) {
 }
 
 static void
-do_escape_cmd (CMDWID issuedbywindow, const char *command) {
-  pid_t new_pid = -1;
-  pid_t child_pid;
-
- // setup_signal_handler (SIGCHLD); // notification that child is terminating.
-  SET_SIGNAL (SIGCHLD, catch_escape_sigchld);
-
- // fork a process to execute the command
- // and get the handle to the output back.
-  int in_fd = do_cmd ( command, child_pid );
-
-  if (in_fd < 0) {
-    return;
-  }
+do_escape_cmd (void *arg) {
+  std::pair<CMDWID,const char *> *args = (std::pair<CMDWID,const char *> *)arg;
+  CMDWID issuedbywindow = args->first;
+  const char *command = args->second;
 
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   if ((cw == NULL) || (cw->ID() == 0)) {
@@ -1940,8 +1947,27 @@ do_escape_cmd (CMDWID issuedbywindow, const char *command) {
     cerr << "    ERROR: window(" << issuedbywindow << ") thas no defined output stream" << std::endl;
     return;
   }
+
+  pid_t new_pid = -1;
+  pid_t child_pid;
+
+ // fork a process to execute the command
+ // and get the handle to the output back.
+  int in_fd = do_cmd ( command, child_pid );
+
+  if (in_fd < 0) {
+    return;
+  }
+
+ // Request notification that child is terminating.
+  SET_SIGNAL (SIGCHLD, catch_escape_sigchld);
+  escape_processes.push_back(child_pid);
+
+  Assert(pthread_mutex_lock(&Escape_Command_Lock) == 0);
+  Number_of_Escape_Commands++;
+  Assert(pthread_mutex_unlock(&Escape_Command_Lock) == 0);
+
   ss_ostream *this_ss_stream = Window_outstream (issuedbywindow);
-  this_ss_stream->acquireLock();
   ostream &mystream = this_ss_stream->mystream();
 
   FILE *input = fdopen(in_fd, "r");
@@ -1949,20 +1975,25 @@ do_escape_cmd (CMDWID issuedbywindow, const char *command) {
   if ( fgets (line, DEFAULT_INPUT_BUFFER_SIZE-1, input) ) {
 
     do {
+     // Output each line as it is received.
+     // But prevent intermixing of lines coming from other sources.
+      this_ss_stream->acquireLock();
       mystream << line;
+      this_ss_stream->releaseLock();
     } while ( fgets (line, DEFAULT_INPUT_BUFFER_SIZE-1, input) );
 
     mystream << std::endl;
   }
-
-  this_ss_stream->releaseLock();
 
   fclose (input);
   close (in_fd);
   int statptr = 0;
   (void)waitpid (child_pid, &statptr, 0);  // call wait to clear <defunc> process
 
-  return;
+  Assert(pthread_mutex_lock(&Escape_Command_Lock) == 0);
+  Number_of_Escape_Commands--;
+  Assert(pthread_mutex_unlock(&Escape_Command_Lock) == 0);
+  pthread_exit(0);
 }
 
 static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
@@ -1981,7 +2012,28 @@ static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
     }
     itis = false;
   } else if (b_ptr[fc] == *("!")) {
-    do_escape_cmd (issuedbywindow, &b_ptr[fc+1]);
+   // Create a monitor process which will fork the actual command.
+   // This is done so that Openss can accept new commands if
+   // this one never completes.
+    pthread_t phandle;
+    std::pair<CMDWID,const char *> args(issuedbywindow, &b_ptr[fc+1]);
+    int stat = pthread_create(&phandle,
+                              0,
+                              (void   *(*)(void *))do_escape_cmd,
+                              (void   *)&args);
+    if (stat != 0) {
+      perror("Can't fork command");
+      return false;
+    }
+
+   // Save the Process ID for later reference.
+    // escape_processes.push_back(phandle);
+
+   // Wait a little while so the command can start executing
+   // and, perhaps, even complete execution.
+    usleep (100000);
+
+   // return and look for new input.
     itis = false;
   }
 
@@ -2225,6 +2277,15 @@ catch_TLI_signal (int sig, int error_num)
     ss_ttyout->Issue_Prompt();
     ss_ttyout->releaseLock();
     return;
+  }
+
+ // Now, kill all remaining escape commands.
+  for (std::list<pid_t>::iterator pi = escape_processes.begin(); pi != escape_processes.end(); pi++) {
+    kill (*pi, SIGTERM);
+
+   // call wait to clear <defunc> process
+    int statptr = 0;
+    (void)waitpid (*pi      , &statptr, 0);
   }
 
  // This isn't graceful, but it gets the job done.
