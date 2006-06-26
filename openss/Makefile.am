@@ -22,6 +22,7 @@ openss_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
 	-DLIBRARY_DIR=\"$(libdir)\" \
 	-DPLUGIN_DIR=\"$(pkglibdir)\" \
+	-DLIB_DIR_NAME=\"$(abi_libdir_name)\" \
 	$(LTDLINCL)
 
 openss_LDFLAGS =

@@ -30,7 +30,11 @@
 #define RELATIVE_OPENSS_PLUGIN_PATH "/openspeedshop"
 
 #ifndef LIBRARY_DIR
-#define LIBRARY_DIR "/usr/lib:/usr/local/lib"
+#   ifndef LIB_DIR_NAME
+#   	define LIBRARY_DIR "/usr/lib:/usr/local/lib"
+#   else
+#   	define LIBRARY_DIR "/usr/" LIB_DIR_NAME ":/usr/local/" LIB_DIR_NAME
+#   endif
 #endif
 
 #ifndef PLUGIN_DIR
@@ -239,7 +243,8 @@ SetOpenssLibPath(string& exe_path)
     static char* ld_library_path_cstr = NULL;
     string ld_library_path("LD_LIBRARY_PATH=");
     
-    //std::cout << "in SetOpenssLibPath() before check" << std::endl;
+    std::cout << "in SetOpenssLibPath() before check" << std::endl;
+    std::cout << "Libpath = " << LIBRARY_DIR << std::endl;
 
     if (lt_dlgetsearchpath() == NULL) {
     

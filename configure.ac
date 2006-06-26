@@ -87,13 +87,15 @@ case "$host" in
     *)
         abi_libdir="lib"
         alt_abi_libdir="lib64"
+        LDFLAGS="-L/usr/lib -DLIB_DIR=lib $LDFLAGS"
         ;;
 esac
 topdir_execprefix=${exec_prefix}
 AC_SUBST(topdir_execprefix)
 
-topdir_execprefix=${exec_prefix}
-AC_SUBST(topdir_execprefix)
+abi_libdir_name=${abi_libdir}
+AC_SUBST(abi_libdir_name)
+
 
 ################################################################################
 # Check for POSIX Threads (ISO/IEC 9945-1:1996)
