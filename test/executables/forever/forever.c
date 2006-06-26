@@ -76,7 +76,7 @@ main(int argc, char **argv)
       foo();
       frank();
       bill();
-//      sleep(1);
+/*      sleep(1); */
       printf(".");
       fflush(stdout);
     }
