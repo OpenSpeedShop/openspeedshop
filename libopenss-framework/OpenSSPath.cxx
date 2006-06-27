@@ -29,12 +29,14 @@
 #define PATH_DELIMITER ':'
 #define RELATIVE_OPENSS_PLUGIN_PATH "/openspeedshop"
 
+#ifndef LIB_DIR_NAME
+#   define LIB_DIR_NAME "lib"
+#endif
+
+// This code is, I believe, useless because LIBRARY_DIR
+// should always be defined.
 #ifndef LIBRARY_DIR
-#   ifndef LIB_DIR_NAME
-#   	define LIBRARY_DIR "/usr/lib:/usr/local/lib"
-#   else
-#   	define LIBRARY_DIR "/usr/" LIB_DIR_NAME ":/usr/local/" LIB_DIR_NAME
-#   endif
+#   define LIBRARY_DIR "/usr/" LIB_DIR_NAME ":/usr/local/" LIB_DIR_NAME
 #endif
 
 #ifndef PLUGIN_DIR
@@ -97,7 +99,7 @@ s_make_path_from_pid(string& exe_path,string& lib_path)
 	{
     	end_ndx -=  4;
     	if (!path.compare(end_ndx, 4, "/bin")) {
-    	    lib_path.replace(end_ndx, 4, "/lib");
+    	    lib_path.replace(end_ndx, 4, "/" LIB_DIR_NAME);
     	    lib_path.erase(end_ndx + 4);
 	    
 	    //cout << "X-exe_path:" << exe_path << endl;
