@@ -29,11 +29,7 @@
 #include <ltdl.h>
 #include <stdlib.h>
 
-#define BOSCO 1
-
 using namespace OpenSpeedShop::Framework;
-
-
 
 /** Singleton collector plugin table. */
 CollectorPluginTable CollectorPluginTable::TheTable;

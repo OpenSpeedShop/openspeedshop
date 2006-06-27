@@ -27,8 +27,6 @@
 extern char **environ;
 
 #define USE_DL_LOCK
-#define BOSCO 0
-#define BOZO 0
 
 /**
  * Check a runtime assertion.
