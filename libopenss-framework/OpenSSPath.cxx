@@ -243,8 +243,8 @@ SetOpenssLibPath(string& exe_path)
     static char* ld_library_path_cstr = NULL;
     string ld_library_path("LD_LIBRARY_PATH=");
     
-    std::cout << "in SetOpenssLibPath() before check" << std::endl;
-    std::cout << "Libpath = " << LIBRARY_DIR << std::endl;
+    // std::cout << "in SetOpenssLibPath() before check" << std::endl;
+    // std::cout << "Libpath = " << LIBRARY_DIR << std::endl;
 
     if (lt_dlgetsearchpath() == NULL) {
     
