@@ -1225,7 +1225,7 @@ std::vector<CommandResult *> *
         NewCR = (*ki).second;
       }
      // Always duplicate the saved entry.
-      call_stack->push_back(Dup_CommandResult (NewCR));
+      call_stack->push_back(NewCR->Copy());
     }
   } else {
    // Framework::StackTrace entries are in the reverse order, so go through the array
@@ -1243,7 +1243,7 @@ std::vector<CommandResult *> *
         NewCR = (*ki).second;
       }
      // Always duplicate the saved entry.
-      call_stack->push_back(Dup_CommandResult (NewCR));
+      call_stack->push_back(NewCR->Copy());
     }
   }
   return call_stack;

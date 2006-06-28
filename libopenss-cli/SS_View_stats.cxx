@@ -28,13 +28,13 @@ enum View_Granularity {
 template <class T>
 struct sort_ascending_CommandResult : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
-        return CommandResult_lt (x.second, y.second);
+        return x.second > y.second;
     }
 };
 template <class T>
 struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
-        return CommandResult_gt (x.second, y.second);
+        return x.second > y.second;
     }
 };
 
@@ -195,7 +195,7 @@ void Construct_View (CommandObject *cmd,
             SmartPtr<std::map<TE, CommandResult *> > column_values = Values[i];
             typename std::map<TE, CommandResult *>::iterator sm = column_values->find(it->first);
             if (sm != column_values->end()) {
-              Next_Metric_Value = Dup_CommandResult (sm->second);
+              Next_Metric_Value = sm->second->Copy();
             }
           }
           if (Next_Metric_Value == NULL) {
@@ -229,9 +229,9 @@ void Construct_View (CommandObject *cmd,
             (vinst->OpCode() != VIEWINST_Display_ByThread_Metric)) {
          // Copy the first row to initialize the summary values.
           if (foundn == 0) {
-            Column_Sum[i] = Dup_CommandResult (Next_Metric_Value);
+            Column_Sum[i] = Next_Metric_Value->Copy();
           } else {
-            Accumulate_CommandResult (Column_Sum[i], Next_Metric_Value);
+            Column_Sum[i]->Accumulate_Value (Next_Metric_Value);
           }
         }
         if (Gen_Total_Percent &&

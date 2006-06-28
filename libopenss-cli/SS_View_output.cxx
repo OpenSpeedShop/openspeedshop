@@ -29,12 +29,12 @@ static void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& IV,
     if (vp != NULL) {
       ViewOpCode Vop = vp->OpCode();
       if (Vop == VIEWINST_Add) {
-        Accumulate_CommandResult (A[i], B[i]);
+        A[i]->Accumulate_Value (B[i]);
       } else if (Vop == VIEWINST_Min) {
-        Accumulate_Min_CommandResult (A[i], B[i]);
+        A[i]->Accumulate_Min (B[i]);
       } else if ((Vop == VIEWINST_Max) ||
                  (Vop == VIEWINST_Summary_Max)) {
-        Accumulate_Max_CommandResult (A[i], B[i]);
+        A[i]->Accumulate_Max (B[i]);
       }
     }
   }
@@ -127,14 +127,14 @@ void Construct_View_Output (CommandObject *cmd,
 
         CommandResult *Next_Metric_Value = NULL;
         if (vinst->OpCode() == VIEWINST_Display_Metric) {
-          Next_Metric_Value = input_temp_used[i] ? Dup_CommandResult( (*it->second)[i] )
+          Next_Metric_Value = input_temp_used[i] ? (*it->second)[i]->Copy()
                                                  : (*it->second)[i];
           input_temp_used[i] = true;
         } else if (vinst->OpCode() == VIEWINST_Display_Tmp) {
           CommandResult *V = (*it->second)[CM_Index];
           if ((V != NULL) &&
               !V->isNullValue ()) {
-            Next_Metric_Value = input_temp_used[CM_Index] ? Dup_CommandResult( V ) : V;
+            Next_Metric_Value = input_temp_used[CM_Index] ? V->Copy() : V;
             input_temp_used[CM_Index] = true;
           }
         } else if (vinst->OpCode() == VIEWINST_Display_Percent_Column) {
@@ -173,7 +173,7 @@ void Construct_View_Output (CommandObject *cmd,
       }
      // Add ID for row
       // C->CommandResult_Columns::Add_Column (it->first);
-      C->CommandResult_Columns::Add_Column (Dup_CommandResult(it->first));
+      C->CommandResult_Columns::Add_Column (it->first->Copy());
       // it->first = NULL;  // allow only 1 pointer to a CommandResult object
       view_output.push_back (C);  // attach column list to output
 
@@ -183,8 +183,8 @@ void Construct_View_Output (CommandObject *cmd,
          // Copy the first row to initialize the summary values.
           std::vector<CommandResult *> first_row = *(items.begin()->second);
           for ( i=0; i < num_input_temps; i++) {
-            // summary_temp[i] = Dup_CommandResult (first_row[i]);
-            summary_temp[i] = Dup_CommandResult ((*it->second)[i]);
+            // summary_temp[i] = first_row[i]->Copy();
+            summary_temp[i] = (*it->second)[i]->Copy();
           }
         } else {
           Accumulate_PreDefined_Temps (AccumulateInst, summary_temp, (*it->second));
@@ -213,7 +213,7 @@ void Construct_View_Output (CommandObject *cmd,
             (sinst->TMP1() < AccumulateInst.size()) &&
             (AccumulateInst[sinst->TMP1()] != NULL)) {
          // Only display the temp if we accumulation is defined.
-          summary = Dup_CommandResult (summary_temp[sinst->TMP1()]);
+          summary = summary_temp[sinst->TMP1()]->Copy();
         } else if (sinst->OpCode() == VIEWINST_Display_Average_Tmp) {
           CommandResult *V = summary_temp[sinst->TMP1()];
           if (!V->isNullValue ()) {

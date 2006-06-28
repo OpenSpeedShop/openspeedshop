@@ -32,7 +32,7 @@ static int64_t Get_Trailing_Int (std::string viewname, int64_t start) {
 
 struct ltCR {
   bool operator() (CommandResult *CR1, CommandResult *CR2) {
-    return CommandResult_lt (CR1, CR2);
+    return CR1 < CR2;
   }
 };
 
@@ -403,7 +403,7 @@ static bool Generate_CustomView (CommandObject *cmd,
   }
 */
  // Add the header for the last column and attach all of them to the output report.
-  C->CommandResult_Headers::Add_Header ( Dup_CommandResult (last_header) );
+  C->CommandResult_Headers::Add_Header ( last_header->Copy() );
   cmd->Result_Predefined (C); // attach column headers to output
 
  // Build the master maps.
@@ -510,7 +510,7 @@ static bool Generate_CustomView (CommandObject *cmd,
       Assert (Set0_Columns == (DL.size() - 1));
       std::list<CommandResult *>::iterator Di = DL.begin();
       for (int64_t j = 0; j < Set0_Columns; j ++, Di++) {
-        NC->CommandResult_Columns::Add_Column ( Dup_CommandResult (*Di) );
+        NC->CommandResult_Columns::Add_Column ( (*Di)->Copy() );
       }
       Set0i++;
     } else {
@@ -531,7 +531,7 @@ static bool Generate_CustomView (CommandObject *cmd,
         ((CommandResult_Columns *)C)->Value(DL);
         std::list<CommandResult *>::iterator Di = DL.begin();
         for (int64_t j = 0; j < numColumns; j ++, Di++) {
-          NC->CommandResult_Columns::Add_Column ( Dup_CommandResult (*Di) );
+          NC->CommandResult_Columns::Add_Column ( (*Di)->Copy() );
         }
       } else {
        // Fill the columns with place holders.
@@ -541,7 +541,7 @@ static bool Generate_CustomView (CommandObject *cmd,
       }
     }
 
-    NC->CommandResult_Columns::Add_Column ( Dup_CommandResult (master_vector[rc]) );
+    NC->CommandResult_Columns::Add_Column ( master_vector[rc]->Copy() );
     cmd->Result_Predefined (NC);
   }
 
@@ -564,7 +564,7 @@ static bool Generate_CustomView (CommandObject *cmd,
 
         Di = DL.begin();
         for (int64_t j = 0; j < numColumns; j ++, Di++) {
-          NC->CommandResult_Enders::Add_Ender ( Dup_CommandResult (*Di) );
+          NC->CommandResult_Enders::Add_Ender ( (*Di)->Copy() );
         }
       } else {
        // Fill the columns with place holders.
@@ -575,7 +575,7 @@ static bool Generate_CustomView (CommandObject *cmd,
     }
 
     Assert (last_column != NULL);
-    NC->CommandResult_Enders::Add_Ender ( Dup_CommandResult (last_column) );
+    NC->CommandResult_Enders::Add_Ender ( last_column->Copy() );
     cmd->Result_Predefined (NC);
   }
 

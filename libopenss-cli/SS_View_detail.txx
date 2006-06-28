@@ -1,4 +1,4 @@
-/*******************************************************************************
+/********************************************************************************
 ** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
@@ -211,7 +211,7 @@ bool Detail_Trace_Report(
             base_CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
             CSE = base_CSE;
           } else {
-            CSE = Dup_CommandResult (base_CSE);
+            CSE = base_CSE->Copy();
           }
           c_items.push_back(std::make_pair(CSE, vcs));
         }

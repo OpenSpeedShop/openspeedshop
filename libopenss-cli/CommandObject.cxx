@@ -251,7 +251,7 @@ static void Print_Header (ostream &to, std::string list_seperator, CommandResult
 
    // Attach right most header to end of first re-write
    // and put dummy strings at the end of all the other re-writes.
-    HL[0].Add_Header (Dup_CommandResult(Headers.back()));
+    HL[0].Add_Header (Headers.back()->Copy());
     for (int64_t BreakNum = 1; BreakNum < max_Breaks; BreakNum++) {
       HL[BreakNum].Add_Header(new CommandResult_String (""));
     }

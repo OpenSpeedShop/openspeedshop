@@ -22,13 +22,13 @@
 template <class T>
 struct sort_ascending_CommandResult : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
-        return CommandResult_lt ((*x.second)[0], (*y.second)[0]);
+        return (*x.second)[0] < (*y.second)[0];
     }
 };
 template <class T>
 struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
-        return CommandResult_gt ((*x.second)[0], (*y.second)[0]);
+        return (*x.second)[0] > (*y.second)[0];
     }
 };
 
@@ -92,16 +92,16 @@ static void Calculate_Totals (
       } else {
         if (ci != c_items.end()) {
           Gen_Total_Percent = true;
-          TotalValue = Dup_CommandResult( (*(*ci).second)[tmpIndex] );
+          TotalValue = (*(*ci).second)[tmpIndex]->Copy();
         }
         ci++;
         if (Look_For_KeyWord(cmd, "ButterFly")) {
           for ( ; ci != c_items.end(); ci++) {
-            Accumulate_Max_CommandResult (TotalValue, (*(*ci).second)[tmpIndex]);
+            TotalValue->Accumulate_Max ((*(*ci).second)[tmpIndex]);
           }
         } else {
           for ( ; ci != c_items.end(); ci++) {
-            Accumulate_CommandResult (TotalValue, (*(*ci).second)[tmpIndex]);
+            TotalValue->Accumulate_Value ((*(*ci).second)[tmpIndex]);
           }
         }
       }
@@ -128,7 +128,7 @@ static void Setup_Sort(
     CommandResult *Old = (*cp.second)[VMulti_sort_temp];
     if (Old != NULL) delete Old;
     CommandResult *V1 = (*cp.second)[temp_index];
-    CommandResult *New = Dup_CommandResult (V1);
+    CommandResult *New = V1->Copy();
     Assert (New != NULL);
     (*cp.second)[VMulti_sort_temp] = New;
   }
@@ -153,10 +153,10 @@ static void Setup_Sort(
     CommandResult *New = NULL;
     CommandResult *V1 = (*cp.second)[vinst->TMP1()];
     if (vinst->OpCode() == VIEWINST_Display_Tmp) {
-      New = Dup_CommandResult (V1);
+      New = V1->Copy();
     } else if (vinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
      // Use value without calculating percent - order will be the same.
-      New = Dup_CommandResult (V1);
+      New = V1->Copy();
     } else if (vinst->OpCode() == VIEWINST_Display_Average_Tmp) {
 /*
       if (!V1->isNullValue ()) {
@@ -201,7 +201,7 @@ static std::vector<CommandResult *> *
   for (int64_t i = 0; i < len; i++) {
     CommandResult *CE = (*cs)[i];
     CommandResult *NCE;
-    NCE = Dup_CommandResult (CE);
+    NCE = CE->Copy();
     call_stack->push_back(NCE);
   }
   return call_stack;
@@ -215,14 +215,14 @@ static std::vector<CommandResult *> *
   call_stack = new std::vector<CommandResult *>();
   if (bias < 0) {
     call_stack->push_back (CRPTR(""));
-    call_stack->push_back (Dup_CommandResult ((*cs)[idx-1]) );
+    call_stack->push_back ((*cs)[idx-1]->Copy() );
   }
   if (bias == 0) {
-    call_stack->push_back (Dup_CommandResult ((*cs)[idx]) );
+    call_stack->push_back ((*cs)[idx]->Copy() );
   }
   if (bias > 0) {
     call_stack->push_back (CRPTR(""));
-    call_stack->push_back (Dup_CommandResult ((*cs)[idx+1]) );
+    call_stack->push_back ((*cs)[idx+1]->Copy() );
   }
 
   return call_stack;
@@ -333,8 +333,8 @@ static bool Match_Field_Requirements (std::vector<ViewInstruction *>& IV,
       CommandResult *Y = B[field];
       if ((X == NULL) ||
           (Y == NULL)) continue;
-      if (CommandResult_lt(X, Y) ||
-          CommandResult_lt(Y, X)) return false;
+      if ((X < Y) ||
+          (Y < X)) return false;
     }
   }
   return true;
@@ -351,11 +351,11 @@ static inline void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& 
     if (vp != NULL) {
       ViewOpCode Vop = vp->OpCode();
       if (Vop == VIEWINST_Add) {
-        Accumulate_CommandResult (A[i], B[i]);
+        A[i]->Accumulate_Value (B[i]);
       } else if (Vop == VIEWINST_Min) {
-        Accumulate_Min_CommandResult (A[i], B[i]);
+        A[i]->Accumulate_Min (B[i]);
       } else if (Vop == VIEWINST_Max) {
-        Accumulate_Max_CommandResult (A[i], B[i]);
+        A[i]->Accumulate_Max (B[i]);
       }
     }
   }
@@ -485,7 +485,7 @@ static SmartPtr<std::vector<CommandResult *> >
        // Set flag in CommandResult to indicate null value.
        // The display logic may decide to replace the value with
        // blanks, if it is easier to read.
-        CommandResult *next = New_CommandResult ((*crv)[j]);
+        CommandResult *next = (*crv)[j]->Init();
         next->setNullValue();
         vcs->push_back ( next );
       }
@@ -502,7 +502,7 @@ static SmartPtr<std::vector<CommandResult *> >
                            );
      // Generate initial value for each column.
       for (int64_t j = 0; j < crv->size(); j++) {
-        vcs->push_back ( Dup_CommandResult ((*crv)[j]) );
+        vcs->push_back ( (*crv)[j]->Copy() );
       }
   return vcs;
 }
