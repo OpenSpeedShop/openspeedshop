@@ -73,6 +73,9 @@ extern int ip_number(char *,int);
 "expFocus"  	{ return FOCUS_HEAD; }
 "expgo"    	{ return GO_HEAD; }
 "expGo"    	{ return GO_HEAD; }
+
+"run"	    	{ return GO_HEAD; }
+
 "exppause"  	{ return PAUSE_HEAD; }
 "expPause"  	{ return PAUSE_HEAD; }
 "exprestore"	{ return RESTORE_HEAD; }

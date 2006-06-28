@@ -673,6 +673,7 @@ class CLI(code.InteractiveConsole):
         "expenable"     : "return_none",
         "expfocus"      : "return_int",
         "expgo"         : "return_none",
+        "run"	    	: "return_none",
         "exppause"      : "return_none",
         "exprestore"    : "return_int",
         "expsave"       : "return_none",
