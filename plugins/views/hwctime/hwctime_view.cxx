@@ -65,7 +65,7 @@
                 if (ExtraValues[ViewReduction_mean]->find(index)                                     \
                                                       != ExtraValues[ViewReduction_mean]->end()) {   \
                   value_array[texeventmean_temp]                                                     \
-                       = Dup_CommandResult(ExtraValues[ViewReduction_mean]->find(index)->second);    \
+                       = ExtraValues[ViewReduction_mean]->find(index)->second->Copy();               \
                 } else {                                                                             \
                   value_array[texeventmean_temp] = CRPTR ((uint64_t)0);                              \
                 }                                                                                    \
@@ -74,7 +74,7 @@
                 if (ExtraValues[ViewReduction_min]->find(index)                                      \
                                                       != ExtraValues[ViewReduction_min]->end()) {    \
                   value_array[texeventmin_temp]                                                      \
-                       = Dup_CommandResult(ExtraValues[ViewReduction_min]->find(index)->second);     \
+                       = ExtraValues[ViewReduction_min]->find(index)->second->Copy();                \
                 } else {                                                                             \
                   value_array[texeventmin_temp] = CRPTR ((uint64_t)0);                               \
                 }                                                                                    \
@@ -83,7 +83,7 @@
                 if (ExtraValues[ViewReduction_max]->find(index)                                      \
                                                       != ExtraValues[ViewReduction_max]->end()) {    \
                   value_array[texeventmax_temp]                                                      \
-                       = Dup_CommandResult(ExtraValues[ViewReduction_max]->find(index)->second);     \
+                       = ExtraValues[ViewReduction_max]->find(index)->second->Copy();                \
                 } else {                                                                             \
                   value_array[texeventmax_temp] = CRPTR ((uint64_t)0);                               \
                 }                                                                                    \

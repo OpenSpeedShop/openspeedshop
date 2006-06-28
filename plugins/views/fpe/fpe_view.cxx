@@ -22,6 +22,88 @@
 #include "FPECollector.hxx"
 #include "FPEDetail.hxx"
 
+// Define a new data type to handle the FPEType.
+class CommandResult_Fpetype :
+     public CommandResult {
+  FPEType  fpetype_value;
+
+ public:
+  CommandResult_Fpetype () : CommandResult(CMD_RESULT_EXTENSION) {
+    fpetype_value = Unknown;
+  }
+  CommandResult_Fpetype (FPEType Fp) : CommandResult(CMD_RESULT_EXTENSION) {
+    fpetype_value = Fp;
+  }
+  CommandResult_Fpetype (CommandResult_Fpetype *C) :
+       CommandResult(CMD_RESULT_UINT) {
+    fpetype_value = C->fpetype_value;
+  }
+  virtual ~CommandResult_Fpetype () { }
+
+  virtual CommandResult *Init () { return new CommandResult_Fpetype (); }
+  virtual CommandResult *Copy () { return new CommandResult_Fpetype ((CommandResult_Fpetype *)this); }
+  virtual bool operator<(CommandResult *A) {
+    Assert (typeid(*this) == typeid(CommandResult_Fpetype));
+    return fpetype_value < ((CommandResult_Fpetype *)A)->fpetype_value; }
+  virtual bool operator>(CommandResult *A) {
+    Assert (typeid(*this) == typeid(CommandResult_Fpetype));
+    return fpetype_value > ((CommandResult_Fpetype *)A)->fpetype_value; }
+  virtual bool operator==(CommandResult *A) {
+    Assert (typeid(*this) == typeid(CommandResult_Fpetype));
+    return fpetype_value == ((CommandResult_Fpetype *)A)->fpetype_value; }
+  virtual void Accumulate_Value (CommandResult *A) { }
+  virtual void Accumulate_Min (CommandResult *A) { }
+  virtual void Accumulate_Max (CommandResult *A) { }
+
+  void Min_Fpetype (CommandResult_Fpetype *B) {
+    fpetype_value = min (fpetype_value, B->fpetype_value);
+  }
+  void Max_Fpetype (CommandResult_Fpetype *B) {
+    fpetype_value = max (fpetype_value, B->fpetype_value);
+  }
+  void Accumulate_Fpetype (CommandResult_Fpetype *B) {
+  }
+  void Value (FPEType& Fp) {
+    Fp = fpetype_value;
+  }
+
+  virtual std::string Form () {
+    std::string S;
+    switch (fpetype_value) {
+     case InexactResult:
+          S = "InexactResult";
+          break;
+     case Underflow:
+          S = "Underflow";
+          break;
+     case Overflow:
+          S = "Overflow";
+          break;
+     case DivisionByZero:
+          S = "DivisionByZero";
+          break;
+     case Unnormal:
+          S = "Unnormal";
+          break;
+     case Invalid:
+          S = "Invalid";
+          break;
+     case Unknown:
+     default:
+          S = "Unknown";
+          break;
+    }
+    return std::string (S);
+  }
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("s",Form().c_str());
+  }
+  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+    to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
+       << std::setw(fieldsize) << Form();
+  }
+};
+
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
 
@@ -55,7 +137,7 @@
             Time start = Time::TheEnd();               \
             int64_t incnt = 0;                         \
             int64_t excnt = 0;                         \
-            int64_t fpeType = 0;
+            FPEType fpeType = Unknown;
 
 #define get_FPE_invalues(primary, num_calls)           \
               start = min(start,primary.dm_time);      \
@@ -93,14 +175,14 @@
               }                                                                              \
               if (num_temps > incnt_temp) value_array[incnt_temp] = CRPTR (incnt);           \
               if (num_temps > excnt_temp) value_array[excnt_temp] = CRPTR (excnt);           \
-              if (num_temps > fpeType_temp) value_array[fpeType_temp] = CRPTR (fpeType);
+              if (num_temps > fpeType_temp) value_array[fpeType_temp] = new CommandResult_Fpetype (fpeType);
 
 #define set_ExtraMetric_values(value_array, ExtraValues, index)                                      \
               if (num_temps > tmean_temp) {                                                          \
                 if (ExtraValues[ViewReduction_mean]->find(index)                                     \
                                                       != ExtraValues[ViewReduction_mean]->end()) {   \
                   value_array[tmean_temp]                                                            \
-                       = Dup_CommandResult(ExtraValues[ViewReduction_mean]->find(index)->second);    \
+                       = ExtraValues[ViewReduction_mean]->find(index)->second->Copy();               \
                 } else {                                                                             \
                   value_array[tmean_temp] = CRPTR ((int64_t)0);                                      \
                 }                                                                                    \
@@ -109,7 +191,7 @@
                 if (ExtraValues[ViewReduction_min]->find(index)                                      \
                                                       != ExtraValues[ViewReduction_min]->end()) {    \
                   value_array[tmin_temp]                                                             \
-                       = Dup_CommandResult(ExtraValues[ViewReduction_min]->find(index)->second);     \
+                       = ExtraValues[ViewReduction_min]->find(index)->second->Copy();                \
                 } else {                                                                             \
                   value_array[tmin_temp] = CRPTR ((int64_t)0);                                       \
                 }                                                                                    \
@@ -118,7 +200,7 @@
                 if (ExtraValues[ViewReduction_max]->find(index)                                      \
                                                       != ExtraValues[ViewReduction_max]->end()) {    \
                   value_array[tmax_temp]                                                             \
-                       = Dup_CommandResult(ExtraValues[ViewReduction_max]->find(index)->second);     \
+                       = ExtraValues[ViewReduction_max]->find(index)->second->Copy();                \
                 } else {                                                                             \
                   value_array[tmax_temp] = CRPTR ((int64_t)0);                                       \
                 }                                                                                    \
@@ -126,8 +208,8 @@
               if (num_temps > extra_division_by_zero_temp) {                                         \
                 if (ExtraValues[division_by_zero_index]->find(index)                                 \
                                                       != ExtraValues[division_by_zero_index]->end()) { \
-                  value_array[extra_division_by_zero_temp]                                             \
-                       = Dup_CommandResult(ExtraValues[division_by_zero_index]->find(index)->second);  \
+                  value_array[extra_division_by_zero_temp]                                           \
+                       = ExtraValues[division_by_zero_index]->find(index)->second->Copy();           \
                 } else {                                                                             \
                   value_array[extra_division_by_zero_temp] = CRPTR ((uint64_t)0);                    \
                 }                                                                                    \
@@ -136,7 +218,7 @@
                 if (ExtraValues[inexact_index]->find(index)                                          \
                                                       != ExtraValues[inexact_index]->end()) {        \
                   value_array[extra_inexact_result_temp]                                             \
-                       = Dup_CommandResult(ExtraValues[inexact_index]->find(index)->second);         \
+                       = ExtraValues[inexact_index]->find(index)->second->Copy();                    \
                 } else {                                                                             \
                   value_array[extra_inexact_result_temp] = CRPTR ((uint64_t)0);                      \
                 }                                                                                    \
@@ -145,7 +227,7 @@
                 if (ExtraValues[invalid_index]->find(index)                                          \
                                                       != ExtraValues[invalid_index]->end()) {        \
                   value_array[extra_invalid_temp]                                                    \
-                       = Dup_CommandResult(ExtraValues[invalid_index]->find(index)->second);         \
+                       = ExtraValues[invalid_index]->find(index)->second->Copy();                    \
                 } else {                                                                             \
                   value_array[extra_invalid_temp] = CRPTR ((uint64_t)0);                             \
                 }                                                                                    \
@@ -154,7 +236,7 @@
                 if (ExtraValues[overflow_index]->find(index)                                         \
                                                       != ExtraValues[overflow_index]->end()) {       \
                   value_array[extra_overflow_temp]                                                   \
-                       = Dup_CommandResult(ExtraValues[overflow_index]->find(index)->second);        \
+                       = ExtraValues[overflow_index]->find(index)->second->Copy();                   \
                 } else {                                                                             \
                   value_array[extra_overflow_temp] = CRPTR ((uint64_t)0);                            \
                 }                                                                                    \
@@ -163,7 +245,7 @@
                 if (ExtraValues[underflow_index]->find(index)                                        \
                                                       != ExtraValues[underflow_index]->end()) {      \
                   value_array[extra_underflow_temp]                                                  \
-                       = Dup_CommandResult(ExtraValues[underflow_index]->find(index)->second);       \
+                       = ExtraValues[underflow_index]->find(index)->second->Copy();                  \
                 } else {                                                                             \
                   value_array[extra_underflow_temp] = CRPTR ((uint64_t)0);                           \
                 }                                                                                    \
@@ -172,7 +254,7 @@
                 if (ExtraValues[unknown_index]->find(index)                                          \
                                                       != ExtraValues[unknown_index]->end()) {        \
                   value_array[extra_unknown_temp]                                                    \
-                       = Dup_CommandResult(ExtraValues[unknown_index]->find(index)->second);         \
+                       = ExtraValues[unknown_index]->find(index)->second->Copy();                    \
                 } else {                                                                             \
                   value_array[extra_unknown_temp] = CRPTR ((uint64_t)0);                             \
                 }                                                                                    \
@@ -181,7 +263,7 @@
                 if (ExtraValues[unnormal_index]->find(index)                                         \
                                                       != ExtraValues[unnormal_index]->end()) {       \
                   value_array[extra_unnormal_temp]                                                   \
-                       = Dup_CommandResult(ExtraValues[unnormal_index]->find(index)->second);        \
+                       = ExtraValues[unnormal_index]->find(index)->second->Copy();                   \
                 } else {                                                                             \
                   value_array[extra_unnormal_temp] = CRPTR ((uint64_t)0);                            \
                 }                                                                                    \
