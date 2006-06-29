@@ -40,6 +40,16 @@ enum cmd_result_type_enum {
   CMD_RESULT_EXTENSION,
 };
 
+// forward definitions
+class CommandResult;
+CommandResult *New_CommandResult (CommandResult *C);
+CommandResult *Dup_CommandResult (CommandResult *C);
+bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs);
+bool CommandResult_gt (CommandResult *lhs, CommandResult *rhs);
+void Accumulate_CommandResult (CommandResult *A, CommandResult *B);
+void Accumulate_Min_CommandResult (CommandResult *A, CommandResult *B);
+void Accumulate_Max_CommandResult (CommandResult *A, CommandResult *B);
+
 class CommandResult {
   bool NullValue;
   cmd_result_type_enum Result_Type;
@@ -173,20 +183,44 @@ class CommandResult_Uint :
 
   virtual CommandResult *Init () { return new CommandResult_Uint (); }
   virtual CommandResult *Copy () { return new CommandResult_Uint (this); }
-  virtual bool operator<(CommandResult *A); //  defined after CommandResult_CallStackEntry 
-  virtual bool operator>(CommandResult *A); //  defined after CommandResult_CallStackEntry
+  virtual bool operator<(CommandResult *A) {
+/* TEST
+    if (typeid(*A) == typeid(CommandResult_CallStackEntry)) {
+      std::vector<CommandResult *> *rs;
+      rs = ((CommandResult_CallStackEntry *)rhs)->Value ();
+      if(rs->size() == 1) {
+        return this < (*rs)[0];
+      }
+    }
+*/
+    Assert (typeid(*this) == typeid(CommandResult_Uint));
+    return ((CommandResult_Uint *)this)->uint_value < ((CommandResult_Uint *)A)->uint_value; }
+  virtual bool operator>(CommandResult *A) {
+/* TEST
+    if (typeid(*A) == typeid(CommandResult_CallStackEntry)) {
+      std::vector<CommandResult *> *rs;
+      rs = ((CommandResult_CallStackEntry *)rhs)->Value ();
+      if(rs->size() == 1) {
+        return this > (*rs)[0];
+      }
+    }
+*/
+    Assert (typeid(*this) == typeid(CommandResult_Uint));
+    return ((CommandResult_Uint *)this)->uint_value > ((CommandResult_Uint *)A)->uint_value; }
   virtual bool operator==(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
-    return uint_value == ((CommandResult_Uint *)A)->uint_value; }
+    return ((CommandResult_Uint *)this)->uint_value == ((CommandResult_Uint *)A)->uint_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
-    uint_value += ((CommandResult_Uint *)A)->uint_value; }
+    ((CommandResult_Uint *)this)->uint_value += ((CommandResult_Uint *)A)->uint_value; }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
-    uint_value = min (uint_value, ((CommandResult_Uint *)A)->uint_value); }
+    ((CommandResult_Uint *)this)->uint_value = min (((CommandResult_Uint *)this)->uint_value,
+                                                    ((CommandResult_Uint *)A)->uint_value); }
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
-    uint_value = max (uint_value, ((CommandResult_Uint *)A)->uint_value); }
+    ((CommandResult_Uint *)this)->uint_value = max (((CommandResult_Uint *)this)->uint_value,
+                                                    ((CommandResult_Uint *)A)->uint_value); }
 
   void Min_Uint (CommandResult_Uint *B) {
     uint_value = min (uint_value, B->uint_value);
@@ -241,22 +275,24 @@ class CommandResult_Int :
   virtual CommandResult *Copy () { return new CommandResult_Int (this); }
   virtual bool operator<(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
-    return int_value < ((CommandResult_Int *)A)->int_value; }
+    return ((CommandResult_Int *)this)->int_value < ((CommandResult_Int *)A)->int_value; }
   virtual bool operator>(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
-    return int_value > ((CommandResult_Int *)A)->int_value; }
+    return ((CommandResult_Int *)this)->int_value > ((CommandResult_Int *)A)->int_value; }
   virtual bool operator==(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
-    return int_value == ((CommandResult_Int *)A)->int_value; }
+    return ((CommandResult_Int *)this)->int_value == ((CommandResult_Int *)A)->int_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
-    int_value += ((CommandResult_Int *)A)->int_value; }
+    ((CommandResult_Int *)this)->int_value += ((CommandResult_Int *)A)->int_value; }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
-    int_value = min (int_value, ((CommandResult_Int *)A)->int_value); }
+    ((CommandResult_Int *)this)->int_value = min (((CommandResult_Int *)this)->int_value,
+                                                  ((CommandResult_Int *)A)->int_value); }
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
-    int_value = max (int_value, ((CommandResult_Int *)A)->int_value); }
+    ((CommandResult_Int *)this)->int_value = max (((CommandResult_Int *)this)->int_value,
+                                                  ((CommandResult_Int *)A)->int_value); }
 
   void Min_Int (CommandResult_Int *B) {
     int_value = min (int_value, B->int_value);
@@ -316,22 +352,24 @@ class CommandResult_Float :
   virtual CommandResult *Copy () { return new CommandResult_Float (this); }
   virtual bool operator<(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
-    return float_value < ((CommandResult_Float *)A)->float_value; }
+    return ((CommandResult_Float *)this)->float_value < ((CommandResult_Float *)A)->float_value; }
   virtual bool operator>(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
-    return float_value > ((CommandResult_Float *)A)->float_value; }
+    return ((CommandResult_Float *)this)->float_value > ((CommandResult_Float *)A)->float_value; }
   virtual bool operator==(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
-    return float_value == ((CommandResult_Float *)A)->float_value; }
+    return ((CommandResult_Float *)this)->float_value == ((CommandResult_Float *)A)->float_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
-    float_value += ((CommandResult_Float *)A)->float_value; }
+    ((CommandResult_Float *)this)->float_value += ((CommandResult_Float *)A)->float_value; }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
-    float_value = min (float_value, ((CommandResult_Float *)A)->float_value); }
+    ((CommandResult_Float *)this)->float_value = min (((CommandResult_Float *)this)->float_value,
+                                                      ((CommandResult_Float *)A)->float_value); }
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
-    float_value = max (float_value, ((CommandResult_Float *)A)->float_value); }
+    ((CommandResult_Float *)this)->float_value = max (((CommandResult_Float *)this)->float_value,
+                                                      ((CommandResult_Float *)A)->float_value); }
 
   void Min_Float (CommandResult_Float *B) {
     float_value = min (float_value, B->float_value);
@@ -385,16 +423,16 @@ class CommandResult_String :
   virtual CommandResult *Copy () { return new CommandResult_String (this); }
   virtual bool operator<(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_String));
-    return string_value < ((CommandResult_String *)A)->string_value; }
+    return ((CommandResult_String *)this)->string_value < ((CommandResult_String *)A)->string_value; }
   virtual bool operator>(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_String));
-    return string_value > ((CommandResult_String *)A)->string_value; }
+    return ((CommandResult_String *)this)->string_value > ((CommandResult_String *)A)->string_value; }
   virtual bool operator==(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_String));
-    return string_value == ((CommandResult_String *)A)->string_value; }
+    return ((CommandResult_String *)this)->string_value == ((CommandResult_String *)A)->string_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_String));
-    string_value += ((CommandResult_String *)A)->string_value; }
+    ((CommandResult_String *)this)->string_value += ((CommandResult_String *)A)->string_value; }
 
   void Accumulate_String (CommandResult_String *B) {
     string_value += B->string_value;
@@ -454,16 +492,16 @@ class CommandResult_RawString :
   virtual CommandResult *Copy () { return new CommandResult_RawString (this); }
   virtual bool operator<(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_RawString));
-    return string_value < ((CommandResult_RawString *)A)->string_value; }
+    return ((CommandResult_RawString *)this)->string_value < ((CommandResult_RawString *)A)->string_value; }
   virtual bool operator>(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_RawString));
-    return string_value > ((CommandResult_RawString *)A)->string_value; }
+    return ((CommandResult_RawString *)this)->string_value > ((CommandResult_RawString *)A)->string_value; }
   virtual bool operator==(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_RawString));
-    return string_value == ((CommandResult_RawString *)A)->string_value; }
+    return ((CommandResult_RawString *)this)->string_value == ((CommandResult_RawString *)A)->string_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_RawString));
-    string_value += ((CommandResult_RawString *)A)->string_value; }
+    ((CommandResult_RawString *)this)->string_value += ((CommandResult_RawString *)A)->string_value; }
 
 
   void Accumulate_RawString (CommandResult_RawString *B) {
@@ -512,19 +550,19 @@ class CommandResult_Function :
   virtual CommandResult *Copy () { return new CommandResult_Function (this); }
   virtual bool operator<(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Function));
-    return OpenSpeedShop::Queries::CompareFunctions()(*this,
+    return OpenSpeedShop::Queries::CompareFunctions()(*((CommandResult_Function *)this),
                                                       *((CommandResult_Function *)A)); }
   virtual bool operator>(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Function));
     if (OpenSpeedShop::Queries::CompareFunctions()(*((CommandResult_Function *)A),
-                                                   *this)) {
+                                                   *((CommandResult_Function *)this))) {
       return true;
     }
-    if (OpenSpeedShop::Queries::CompareFunctions()(*this,
+    if (OpenSpeedShop::Queries::CompareFunctions()(*((CommandResult_Function *)this),
                                                    *((CommandResult_Function *)A))) {
       return false;
     }
-    std::set<Statement> L = ST;;
+    std::set<Statement> L = ((CommandResult_Function *)this)->ST;;
     std::set<Statement> R = ((CommandResult_Function *)A)->ST;
     int64_t Ls = 0;
     int64_t Rs = 0;
@@ -627,12 +665,12 @@ class CommandResult_Statement :
   virtual CommandResult *Copy () { return new CommandResult_Statement (this); }
   virtual bool operator<(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Statement));
-    return OpenSpeedShop::Queries::CompareStatements()(*this,
+    return OpenSpeedShop::Queries::CompareStatements()(*((CommandResult_Statement *)this),
                                                        *((CommandResult_Statement *)A)); }
   virtual bool operator>(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Statement));
     return OpenSpeedShop::Queries::CompareStatements()(*((CommandResult_Statement *)A),
-                                                       *this); }
+                                                       *((CommandResult_Statement *)this)); }
   virtual bool operator==(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Statement));
     return !(this < A) && !(this > A); }
@@ -705,12 +743,12 @@ class CommandResult_LinkedObject :
   virtual CommandResult *Copy () { return new CommandResult_LinkedObject (this); }
   virtual bool operator<(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_LinkedObject));
-    return OpenSpeedShop::Queries::CompareLinkedObjects()(*this,
+    return OpenSpeedShop::Queries::CompareLinkedObjects()(*((CommandResult_LinkedObject *)this),
                                                           *((CommandResult_LinkedObject *)A)); }
   virtual bool operator>(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_LinkedObject));
     return OpenSpeedShop::Queries::CompareLinkedObjects()(*((CommandResult_LinkedObject *)A),
-                                                          *this); }
+                                                          *((CommandResult_LinkedObject *)this)); }
   virtual bool operator==(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_LinkedObject));
     return !(this < A) && !(this > A); }
@@ -813,7 +851,7 @@ class CommandResult_CallStackEntry : public CommandResult {
       }
     }
     Assert (typeid(*A) == typeid(CommandResult_CallStackEntry));
-    std::vector<CommandResult *> *ls = CallStack->CSV;
+    std::vector<CommandResult *> *ls = ((CommandResult_CallStackEntry *)this)->CallStack->CSV;
     std::vector<CommandResult *> *rs = ((CommandResult_CallStackEntry *)A)->CallStack->CSV;
     int64_t ll = ls->size();
     int64_t rl = rs->size();
@@ -833,7 +871,7 @@ class CommandResult_CallStackEntry : public CommandResult {
       }
     }
     Assert (typeid(*A) == typeid(CommandResult_CallStackEntry));
-    std::vector<CommandResult *> *ls = CallStack->CSV;
+    std::vector<CommandResult *> *ls = ((CommandResult_CallStackEntry *)this)->CallStack->CSV;
     std::vector<CommandResult *> *rs = ((CommandResult_CallStackEntry *)A)->CallStack->CSV;
     int64_t ll = ls->size();
     int64_t rl = rs->size();
@@ -918,27 +956,6 @@ class CommandResult_CallStackEntry : public CommandResult {
   }
 };
 
-// Defined here so they can reference CommandResult_CallStackEntry.
-  bool CommandResult_Uint::operator<(CommandResult *A) {
-    if (typeid(*A) == typeid(CommandResult_CallStackEntry)) {
-      std::vector<CommandResult *> *rs = ((CommandResult_CallStackEntry *)A)->Value ();
-      if(rs->size() == 1) {
-        return this < (*rs)[0];
-      }
-    }
-    Assert (typeid(*this) == typeid(CommandResult_Uint));
-    return uint_value < ((CommandResult_Uint *)A)->uint_value; }
-  bool CommandResult_Uint::operator>(CommandResult *A) {
-    if (typeid(*A) == typeid(CommandResult_CallStackEntry)) {
-      std::vector<CommandResult *> *rs = ((CommandResult_CallStackEntry *)A)->Value ();
-      if(rs->size() == 1) {
-        return this > (*rs)[0];
-      }
-    }
-    Assert (typeid(*this) == typeid(CommandResult_Uint));
-    return uint_value > ((CommandResult_Uint *)A)->uint_value; }
-
-
 // A Time is nano-second time that is displayed in date-time format.
 class CommandResult_Time : public CommandResult {
  private:
@@ -962,19 +979,21 @@ class CommandResult_Time : public CommandResult {
   virtual CommandResult *Copy () { return new CommandResult_Time (this); }
   virtual bool operator<(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Time));
-    return time_value < ((CommandResult_Time *)A)->time_value; }
+    return ((CommandResult_Time *)this)->time_value < ((CommandResult_Time *)A)->time_value; }
   virtual bool operator>(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Time));
-    return time_value > ((CommandResult_Time *)A)->time_value; }
+    return ((CommandResult_Time *)this)->time_value > ((CommandResult_Time *)A)->time_value; }
   virtual bool operator==(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Time));
-    return time_value == ((CommandResult_Time *)A)->time_value; }
+    return ((CommandResult_Time *)this)->time_value == ((CommandResult_Time *)A)->time_value; }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Time));
-    time_value = min (time_value, ((CommandResult_Time *)A)->time_value); }
+    ((CommandResult_Time *)this)->time_value = min (((CommandResult_Time *)this)->time_value,
+                                                    ((CommandResult_Time *)A)->time_value); }
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Time));
-    time_value = max (time_value, ((CommandResult_Time *)A)->time_value); }
+    ((CommandResult_Time *)this)->time_value = max (((CommandResult_Time *)this)->time_value,
+                                                    ((CommandResult_Time *)A)->time_value); }
 
   void Min_Time (CommandResult_Time *B) {
     time_value = min (time_value, B->time_value);
@@ -1045,22 +1064,24 @@ class CommandResult_Duration : public CommandResult {
   virtual CommandResult *Copy () { return new CommandResult_Duration (this); }
   virtual bool operator<(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
-    return duration_value < ((CommandResult_Duration *)A)->duration_value; }
+    return ((CommandResult_Duration *)this)->duration_value < ((CommandResult_Duration *)A)->duration_value; }
   virtual bool operator>(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
-    return duration_value > ((CommandResult_Duration *)A)->duration_value; }
+    return ((CommandResult_Duration *)this)->duration_value > ((CommandResult_Duration *)A)->duration_value; }
   virtual bool operator==(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
-    return duration_value == ((CommandResult_Duration *)A)->duration_value; }
+    return ((CommandResult_Duration *)this)->duration_value == ((CommandResult_Duration *)A)->duration_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
-    duration_value += ((CommandResult_Duration *)A)->duration_value; }
+    ((CommandResult_Duration *)this)->duration_value += ((CommandResult_Duration *)A)->duration_value; }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
-    duration_value = min (duration_value, ((CommandResult_Duration *)A)->duration_value); }
+    ((CommandResult_Duration *)this)->duration_value = min (((CommandResult_Duration *)this)->duration_value,
+                                                            ((CommandResult_Duration *)A)->duration_value); }
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
-    duration_value = max (duration_value, ((CommandResult_Duration *)A)->duration_value); }
+    ((CommandResult_Duration *)this)->duration_value = max (((CommandResult_Duration *)this)->duration_value,
+                                                            ((CommandResult_Duration *)A)->duration_value); }
 
   void Min_Duration (CommandResult_Duration *B) {
     duration_value = min (duration_value, B->duration_value);
@@ -1185,22 +1206,24 @@ class CommandResult_Interval : public CommandResult {
   virtual CommandResult *Copy () { return new CommandResult_Interval (this); }
   virtual bool operator<(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    return interval_value < ((CommandResult_Interval *)A)->interval_value; }
+    return ((CommandResult_Interval *)this)->interval_value < ((CommandResult_Interval *)A)->interval_value; }
   virtual bool operator>(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    return interval_value > ((CommandResult_Interval *)A)->interval_value; }
+    return ((CommandResult_Interval *)this)->interval_value > ((CommandResult_Interval *)A)->interval_value; }
   virtual bool operator==(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    return interval_value == ((CommandResult_Interval *)A)->interval_value; }
+    return ((CommandResult_Interval *)this)->interval_value == ((CommandResult_Interval *)A)->interval_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    interval_value += ((CommandResult_Interval *)A)->interval_value; }
+    ((CommandResult_Interval *)this)->interval_value += ((CommandResult_Interval *)A)->interval_value; }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    interval_value = min (interval_value, ((CommandResult_Interval *)A)->interval_value); }
+    ((CommandResult_Interval *)this)->interval_value = min (((CommandResult_Interval *)this)->interval_value,
+                                                            ((CommandResult_Interval *)A)->interval_value); }
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    interval_value = max (interval_value, ((CommandResult_Interval *)A)->interval_value); }
+    ((CommandResult_Interval *)this)->interval_value = max (((CommandResult_Interval *)this)->interval_value,
+                                                            ((CommandResult_Interval *)A)->interval_value); }
 
   void Min_Interval (CommandResult_Interval *B) {
     interval_value = min (interval_value, B->interval_value);
@@ -1486,6 +1509,390 @@ class CommandResult_Columns :
 
   }
 };
+
+inline CommandResult *Dup_CommandResult (CommandResult *C) {
+  if (C == NULL) return NULL;
+  switch (C->Type()) {
+   case CMD_RESULT_UINT:
+     return new CommandResult_Uint((CommandResult_Uint *)C);
+   case CMD_RESULT_INT:
+     return new CommandResult_Int((CommandResult_Int *)C);
+   case CMD_RESULT_FLOAT:
+     return new CommandResult_Float((CommandResult_Float *)C);
+   case CMD_RESULT_STRING:
+     return new CommandResult_String((CommandResult_String *)C);
+   case CMD_RESULT_RAWSTRING:
+     return new CommandResult_RawString((CommandResult_RawString *)C);
+   case CMD_RESULT_FUNCTION:
+     return new CommandResult_Function((CommandResult_Function *)C);
+   case CMD_RESULT_STATEMENT:
+     return new CommandResult_Statement((CommandResult_Statement *)C);
+   case CMD_RESULT_LINKEDOBJECT:
+     return new CommandResult_LinkedObject((CommandResult_LinkedObject *)C);
+   case CMD_RESULT_CALLTRACE:
+     return new CommandResult_CallStackEntry((CommandResult_CallStackEntry *)C);
+   case CMD_RESULT_TIME:
+     return new CommandResult_Time((CommandResult_Time *)C);
+   case CMD_RESULT_DURATION:
+     return new CommandResult_Duration((CommandResult_Duration *)C);
+   case CMD_RESULT_INTERVAL:
+     return new CommandResult_Interval((CommandResult_Interval *)C);
+   case CMD_RESULT_EXTENSION:
+     return C->Copy();
+   default:
+    Assert (C->Type() == CMD_RESULT_NULL);
+  }
+  return NULL;
+}
+
+// Create a new CommandResult object, with an initial default value,
+// that has the same type as another CommandResult object.
+inline CommandResult *New_CommandResult (CommandResult *C) {
+  CommandResult *v = NULL;
+  switch (C->Type()) {
+   case CMD_RESULT_UINT:
+    v = new CommandResult_Uint ();
+    break;
+   case CMD_RESULT_INT:
+    v = new CommandResult_Int ();
+    break;
+   case CMD_RESULT_FLOAT:
+    v = new CommandResult_Float ();
+    break;
+   case CMD_RESULT_STRING:
+     v = new CommandResult_String ("");
+     break;
+   case CMD_RESULT_RAWSTRING:
+     v = new CommandResult_RawString ("");
+     break;
+   case CMD_RESULT_TIME:
+     v = new CommandResult_Time ();
+     break;
+   case CMD_RESULT_DURATION:
+     v = new CommandResult_Duration ();
+     break;
+   case CMD_RESULT_INTERVAL:
+     v = new CommandResult_Interval ();
+     break;
+   case CMD_RESULT_EXTENSION:
+     return C->Init();
+   default:
+    Assert (C->Type() == CMD_RESULT_NULL);
+  }
+  return v;
+}
+
+inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
+  if ((lhs->Type() == CMD_RESULT_CALLTRACE) &&
+      (rhs->Type() != CMD_RESULT_CALLTRACE)) {
+    std::vector<CommandResult *> *ls;
+    ls = ((CommandResult_CallStackEntry *)lhs)->Value ();
+    if(ls->size() == 1)
+      return CommandResult_lt((*ls)[0], rhs);
+  }
+  if ((lhs->Type() != CMD_RESULT_CALLTRACE) &&
+      (rhs->Type() == CMD_RESULT_CALLTRACE)) {
+    std::vector<CommandResult *> *rs;
+    rs = ((CommandResult_CallStackEntry *)rhs)->Value ();
+    if(rs->size() == 1)
+      return CommandResult_lt(lhs, (*rs)[0]);
+  }
+  if (lhs->Type() != rhs->Type()) {
+    return (lhs->Type() < rhs->Type());
+  }
+  switch (lhs->Type()) {
+   case CMD_RESULT_UINT:
+    uint64_t Uvalue1, Uvalue2;
+    ((CommandResult_Uint *)lhs)->Value(Uvalue1);
+    ((CommandResult_Uint *)rhs)->Value(Uvalue2);
+    return Uvalue1 < Uvalue2;
+   case CMD_RESULT_INT:
+    int64_t Ivalue1, Ivalue2;
+    ((CommandResult_Int *)lhs)->Value(Ivalue1);
+    ((CommandResult_Int *)rhs)->Value(Ivalue2);
+    return Ivalue1 < Ivalue2;
+   case CMD_RESULT_FLOAT:
+    double Fvalue1, Fvalue2;
+    ((CommandResult_Float *)lhs)->Value(Fvalue1);
+    ((CommandResult_Float *)rhs)->Value(Fvalue2);
+    return Fvalue1 < Fvalue2;
+   case CMD_RESULT_LINKEDOBJECT:
+    return OpenSpeedShop::Queries::CompareLinkedObjects()(
+	*((CommandResult_LinkedObject *)lhs),
+	*((CommandResult_LinkedObject *)rhs)
+	);
+   case CMD_RESULT_FUNCTION:
+    return OpenSpeedShop::Queries::CompareFunctions()(
+	*((CommandResult_Function *)lhs),
+	*((CommandResult_Function *)rhs)
+	);
+   case CMD_RESULT_STATEMENT:
+    return OpenSpeedShop::Queries::CompareStatements()(
+	*((CommandResult_Statement *)lhs),
+	*((CommandResult_Statement *)rhs)
+	);
+   case CMD_RESULT_CALLTRACE:
+   {
+    std::vector<CommandResult *> *ls;
+    std::vector<CommandResult *> *rs;
+    ls = ((CommandResult_CallStackEntry *)lhs)->Value ();
+    rs = ((CommandResult_CallStackEntry *)rhs)->Value ();
+    int64_t ll = ls->size();
+    int64_t rl = rs->size();
+    int64_t lm = min(ll,rl);
+    for (int64_t i = 0; i < lm; i++) {
+      if (CommandResult_lt ((*ls)[i], (*rs)[i])) {
+        return true;
+      }
+    }
+    return (ll < rl);
+   }
+   case CMD_RESULT_STRING:
+   {
+     std::string s1, s2;
+     ((CommandResult_String *)lhs)->Value(s1);
+     ((CommandResult_String *)rhs)->Value(s2);
+     return (s1 < s2);
+   }
+   case CMD_RESULT_RAWSTRING:
+   {
+     std::string r1, r2;
+     ((CommandResult_RawString *)lhs)->Value(r1);
+     ((CommandResult_RawString *)rhs)->Value(r2);
+     return (r1 < r2);
+   }
+   case CMD_RESULT_TIME:
+   {
+    Time Tvalue1, Tvalue2;
+    ((CommandResult_Time *)lhs)->Value(Tvalue1);
+    ((CommandResult_Time *)rhs)->Value(Tvalue2);
+    return Tvalue1 < Tvalue2;
+   }
+   case CMD_RESULT_DURATION:
+   {
+    int64_t Dvalue1, Dvalue2;
+    ((CommandResult_Duration *)lhs)->Value(Dvalue1);
+    ((CommandResult_Duration *)rhs)->Value(Dvalue2);
+    return Dvalue1 < Dvalue2;
+   }
+   case CMD_RESULT_INTERVAL:
+   {
+    double Dvalue1, Dvalue2;
+    ((CommandResult_Interval *)lhs)->Value(Dvalue1);
+    ((CommandResult_Interval *)rhs)->Value(Dvalue2);
+    return Dvalue1 < Dvalue2;
+   }
+   case CMD_RESULT_EXTENSION:
+     return (lhs < rhs);
+   default:
+    Assert (lhs->Type() == CMD_RESULT_NULL);
+  }
+  return false;
+}
+
+inline bool CommandResult_gt (CommandResult *lhs, CommandResult *rhs) {
+Assert (lhs != NULL);
+Assert (rhs != NULL);
+  if ((lhs->Type() == CMD_RESULT_CALLTRACE) &&
+      (rhs->Type() != CMD_RESULT_CALLTRACE)) {
+    std::vector<CommandResult *> *ls;
+    ls = ((CommandResult_CallStackEntry *)lhs)->Value ();
+    if (ls->size() == 1)
+      return CommandResult_gt((*ls)[0], rhs);
+  }
+  if ((lhs->Type() != CMD_RESULT_CALLTRACE) &&
+      (rhs->Type() == CMD_RESULT_CALLTRACE)) {
+    std::vector<CommandResult *> *rs;
+    rs = ((CommandResult_CallStackEntry *)rhs)->Value ();
+    if (rs->size() == 1)
+      return CommandResult_gt(lhs, (*rs)[0]);
+  }
+  if (lhs->Type() != rhs->Type()) {
+    return (lhs->Type() > rhs->Type());
+  }
+  switch (lhs->Type()) {
+   case CMD_RESULT_UINT:
+    uint64_t Uvalue1, Uvalue2;
+    ((CommandResult_Uint *)lhs)->Value(Uvalue1);
+    ((CommandResult_Uint *)rhs)->Value(Uvalue2);
+    return Uvalue1 > Uvalue2;
+   case CMD_RESULT_INT:
+    int64_t Ivalue1, Ivalue2;
+    ((CommandResult_Int *)lhs)->Value(Ivalue1);
+    ((CommandResult_Int *)rhs)->Value(Ivalue2);
+    return Ivalue1 > Ivalue2;
+   case CMD_RESULT_FLOAT:
+    double Fvalue1, Fvalue2;
+    ((CommandResult_Float *)lhs)->Value(Fvalue1);
+    ((CommandResult_Float *)rhs)->Value(Fvalue2);
+    return Fvalue1 > Fvalue2;
+   case CMD_RESULT_LINKEDOBJECT:
+    return OpenSpeedShop::Queries::CompareLinkedObjects()(*((CommandResult_LinkedObject *)rhs),
+                                                          *((CommandResult_LinkedObject *)lhs));
+   case CMD_RESULT_FUNCTION:
+    if (OpenSpeedShop::Queries::CompareFunctions()(*((CommandResult_Function *)rhs),
+                                                   *((CommandResult_Function *)lhs))) {
+      return true;
+    }
+    if (OpenSpeedShop::Queries::CompareFunctions()(*((CommandResult_Function *)lhs),
+                                                   *((CommandResult_Function *)rhs))) {
+      return false;
+    } else {
+      std::set<Statement> L;
+      std::set<Statement> R;
+      ((CommandResult_Function *)lhs)->Value(L);
+      ((CommandResult_Function *)rhs)->Value(R);
+      int64_t Ls = 0;
+      int64_t Rs = 0;
+      if (L.begin() != L.end()) {
+        Ls = (*L.begin()).getLine();
+      }
+      if (R.begin() != R.end()) {
+        Rs = (*R.begin()).getLine();
+      }
+      return (Ls > Rs);
+    }
+   case CMD_RESULT_STATEMENT:
+    return OpenSpeedShop::Queries::CompareStatements()(*((CommandResult_Statement *)rhs),
+                                                       *((CommandResult_Statement *)lhs));
+   case CMD_RESULT_CALLTRACE:
+   {
+    std::vector<CommandResult *> *ls;
+    std::vector<CommandResult *> *rs;
+    ls = ((CommandResult_CallStackEntry *)lhs)->Value ();
+    rs = ((CommandResult_CallStackEntry *)rhs)->Value ();
+    int64_t ll = ls->size();
+    int64_t rl = rs->size();
+    int64_t lm = min(ll,rl);
+    for (int64_t i = 0; i < lm; i++) {
+      if (CommandResult_gt ((*ls)[i], (*rs)[i])) {
+        return true;
+      }
+    }
+    return (ll < rl);
+   }
+   case CMD_RESULT_STRING:
+   {
+     std::string s1, s2;
+     ((CommandResult_String *)lhs)->Value(s1);
+     ((CommandResult_String *)rhs)->Value(s2);
+     return (s1 > s2);
+   }
+   case CMD_RESULT_RAWSTRING:
+   {
+     std::string r1, r2;
+     ((CommandResult_RawString *)lhs)->Value(r1);
+     ((CommandResult_RawString *)rhs)->Value(r2);
+     return (r1 > r2);
+   }
+   case CMD_RESULT_TIME:
+   {
+    Time Tvalue1, Tvalue2;
+    ((CommandResult_Time *)lhs)->Value(Tvalue1);
+    ((CommandResult_Time *)rhs)->Value(Tvalue2);
+    return Tvalue1 > Tvalue2;
+   }
+   case CMD_RESULT_DURATION:
+   {
+    int64_t Dvalue1, Dvalue2;
+    ((CommandResult_Duration *)lhs)->Value(Dvalue1);
+    ((CommandResult_Duration *)rhs)->Value(Dvalue2);
+    return Dvalue1 > Dvalue2;
+   }
+   case CMD_RESULT_INTERVAL:
+   {
+    double Dvalue1, Dvalue2;
+    ((CommandResult_Interval *)lhs)->Value(Dvalue1);
+    ((CommandResult_Interval *)rhs)->Value(Dvalue2);
+    return Dvalue1 > Dvalue2;
+   }
+   case CMD_RESULT_EXTENSION:
+     return (lhs > rhs);
+   default:
+    Assert (lhs->Type() == CMD_RESULT_NULL);
+  }
+  return false;
+}
+
+inline void Accumulate_CommandResult (CommandResult *A, CommandResult *B) {
+  if (!A || !B) return;
+  Assert (A->Type() == B->Type());
+  switch (A->Type()) {
+  case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Accumulate_Uint ((CommandResult_Uint *)B);
+    break;
+  case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Accumulate_Int ((CommandResult_Int *)B);
+    break;
+  case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Accumulate_Float ((CommandResult_Float *)B);
+    break;
+  case CMD_RESULT_STRING:
+    ((CommandResult_String *)A)->Accumulate_String ((CommandResult_String *)B);
+    break;
+  case CMD_RESULT_RAWSTRING:
+    ((CommandResult_RawString *)A)->Accumulate_RawString ((CommandResult_RawString *)B);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Accumulate_Duration ((CommandResult_Duration *)B);
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Accumulate_Interval ((CommandResult_Interval *)B);
+    break;
+  default:
+    Assert (A->Type() == CMD_RESULT_NULL);
+  }
+}
+
+inline void Accumulate_Min_CommandResult (CommandResult *A, CommandResult *B) {
+  if (!A || !B) return;
+  Assert (A->Type() == B->Type());
+  switch (A->Type()) {
+  case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Min_Uint ((CommandResult_Uint *)B);
+    break;
+  case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Min_Int ((CommandResult_Int *)B);
+    break;
+  case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Min_Float ((CommandResult_Float *)B);
+    break;
+  case CMD_RESULT_TIME:
+    ((CommandResult_Time *)A)->Min_Time ((CommandResult_Time *)B);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Min_Duration ((CommandResult_Duration *)B);
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Min_Interval ((CommandResult_Interval *)B);
+    break;
+  }
+}
+
+inline void Accumulate_Max_CommandResult (CommandResult *A, CommandResult *B) {
+  if (!A || !B) return;
+  Assert (A->Type() == B->Type());
+  switch (A->Type()) {
+  case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Max_Uint ((CommandResult_Uint *)B);
+    break;
+  case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Max_Int ((CommandResult_Int *)B);
+    break;
+  case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Max_Float ((CommandResult_Float *)B);
+    break;
+  case CMD_RESULT_TIME:
+    ((CommandResult_Time *)A)->Max_Time ((CommandResult_Time *)B);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Max_Duration ((CommandResult_Duration *)B);
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Max_Interval ((CommandResult_Interval *)B);
+    break;
+  }
+}
 
 
 inline CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
