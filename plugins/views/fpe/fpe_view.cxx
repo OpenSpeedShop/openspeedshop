@@ -42,15 +42,12 @@ class CommandResult_Fpetype :
 
   virtual CommandResult *Init () { return new CommandResult_Fpetype (); }
   virtual CommandResult *Copy () { return new CommandResult_Fpetype ((CommandResult_Fpetype *)this); }
-  virtual bool operator<(CommandResult *A) {
+  virtual bool LT(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Fpetype));
     return fpetype_value < ((CommandResult_Fpetype *)A)->fpetype_value; }
-  virtual bool operator>(CommandResult *A) {
+  virtual bool GT(CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Fpetype));
     return fpetype_value > ((CommandResult_Fpetype *)A)->fpetype_value; }
-  virtual bool operator==(CommandResult *A) {
-    Assert (typeid(*this) == typeid(CommandResult_Fpetype));
-    return fpetype_value == ((CommandResult_Fpetype *)A)->fpetype_value; }
   virtual void Accumulate_Value (CommandResult *A) { }
   virtual void Accumulate_Min (CommandResult *A) { }
   virtual void Accumulate_Max (CommandResult *A) { }
