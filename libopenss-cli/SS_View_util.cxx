@@ -23,32 +23,6 @@
 
 // Global View management utilities
 
-template <class T>
-struct sort_ascending : public std::binary_function<T,T,bool> {
-    bool operator()(const T& x, const T& y) const {
-        return x.second < y.second;
-    }
-};
-template <class T>
-struct sort_descending : public std::binary_function<T,T,bool> {
-    bool operator()(const T& x, const T& y) const {
-        return x.second > y.second;
-    }
-};
-
-template <class T>
-struct sort_ascending_CommandResult : public std::binary_function<T,T,bool> {
-    bool operator()(const T& x, const T& y) const {
-        return CommandResult_lt (x.second, y.second);
-    }
-};
-template <class T>
-struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
-    bool operator()(const T& x, const T& y) const {
-        return CommandResult_gt (x.second, y.second);
-    }
-};
-
 template <typename TE>
 void GetMetricBySet (CommandObject *cmd,
                      ExperimentObject *exp,
