@@ -28,13 +28,13 @@ enum View_Granularity {
 template <class T>
 struct sort_ascending_CommandResult : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
-        return x.second > y.second;
+        return x.second->LT(y.second);
     }
 };
 template <class T>
 struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
-        return x.second > y.second;
+        return x.second->GT(y.second);
     }
 };
 

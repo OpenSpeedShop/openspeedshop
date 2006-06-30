@@ -22,13 +22,13 @@
 template <class T>
 struct sort_ascending_CommandResult : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
-        return (*x.second)[0] < (*y.second)[0];
+        return (*x.second)[0]->LT((*y.second)[0]);
     }
 };
 template <class T>
 struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
-        return (*x.second)[0] > (*y.second)[0];
+        return (*x.second)[0]->GT((*y.second)[0]);
     }
 };
 

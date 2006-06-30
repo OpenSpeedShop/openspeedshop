@@ -32,7 +32,7 @@ static int64_t Get_Trailing_Int (std::string viewname, int64_t start) {
 
 struct ltCR {
   bool operator() (CommandResult *CR1, CommandResult *CR2) {
-    return CR1 < CR2;
+    return CR1->LT( CR2);
   }
 };
 
