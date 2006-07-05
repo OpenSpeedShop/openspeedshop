@@ -2285,6 +2285,9 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
   return Param_Value;
 }
 
+// Forward reference.
+static void Most_Common_Executable (CommandObject *cmd, ExperimentObject *exp, std::list<std::string>& ExList);
+
 /**
  * Utility: ReportStatus ()
  * 
@@ -2335,6 +2338,17 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
                               + st.ostringstream::str()
                               + " to "
                               + et.ostringstream::str());
+        }
+
+        std::list<std::string> ExList;
+        Most_Common_Executable (cmd, exp, ExList);
+        cmd->Result_String ("  Executables Involved:");
+        if (ExList.empty()) {
+          cmd->Result_String ("    (none)");
+        } else {
+          for (std::list<std::string>::iterator xi = ExList.begin(); xi != ExList.end(); xi++) {
+            cmd->Result_String ("    " + *xi);
+          }
         }
 
         ThreadGroup tgrp = exp->FW()->getThreads();
@@ -2726,21 +2740,23 @@ static bool SS_ListDatabase (CommandObject *cmd) {
  * Utility:  Most_Common_Executable()
  *
  * Determine the executables associated with an experiment
- * Link the list (most frequently used, first) to the
- * command.  If OPENSS_VIEW_FULLPATH is set, return the full
+ * Link the list (most frequently used, first) to the return
+ * argument.  If OPENSS_VIEW_FULLPATH is set, return the full
  * path to this executable.
  *
  * @param   cmd - the current command beind processed.
  * @param   exp - the experiment to look at.
+ * @param   ExList - the return list of names.
  *
- * @return  void.
+ * @return  void - results are through the third argument.
  *
  * @error   failure to find any name returns "(none)".
  * @error   any error caught in a "catch" claues returns "(error)".
  *
  */
 static void Most_Common_Executable (CommandObject *cmd,
-                                    ExperimentObject * exp) {
+                                    ExperimentObject *exp,
+                                    std::list<std::string>& ExList) {
   try {
    // Get the list of threads used in the specified experiment.
     ThreadGroup tgrp = exp->FW()->getThreads();
@@ -2775,7 +2791,7 @@ static void Most_Common_Executable (CommandObject *cmd,
      // List the most frequenly used names first.
       for (std::map<int64_t,std::string>::reverse_iterator cmapi = CountMap.rbegin();
            cmapi != CountMap.rend(); cmapi++) {
-        cmd->Result_String ((*cmapi).second);
+        ExList.push_back((*cmapi).second);
       }
     }
 
@@ -2802,6 +2818,7 @@ static void Most_Common_Executable (CommandObject *cmd,
 static bool SS_ListExecutable (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  std::list<std::string> ExList;
 
  // Look at general modifier types for "all" option.
   Assert(cmd->P_Result() != NULL);
@@ -2812,7 +2829,7 @@ static bool SS_ListExecutable (CommandObject *cmd) {
     std::list<ExperimentObject *>::reverse_iterator expi;
     for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
     {
-      Most_Common_Executable (cmd, *expi);
+      Most_Common_Executable (cmd, *expi, ExList);
     }
   } else {
    // Get the Executable name for a specified Experiment or the focused Experiment.
@@ -2822,7 +2839,12 @@ static bool SS_ListExecutable (CommandObject *cmd) {
     }
 
    // Scan the experiment for the executable name.
-    Most_Common_Executable (cmd, exp);
+    Most_Common_Executable (cmd, exp, ExList);
+  }
+
+ // Put the names onto the command.
+  for (std::list<std::string>::iterator xi = ExList.begin(); xi != ExList.end(); xi++) {
+    cmd->Result_String (*xi);
   }
 
   cmd->set_Status(CMD_COMPLETE);
