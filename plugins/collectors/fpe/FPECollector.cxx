@@ -273,9 +273,9 @@ void FPECollector::startCollecting(const Collector& collector,
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_fpe_start_tracing_args),
                    &args);
     
-    // Execute fpe_stop_tracing() when we enter exit() for the thread
-    executeAtEntry(collector, thread,
-                   "exit", "fpe-rt: fpe_stop_tracing", Blob());
+    // Execute fpe_stop_tracing() before we exit the thread
+    executeBeforeExit(collector, thread,
+		      "fpe-rt: fpe_stop_tracing", Blob());
 
     // Execute fpe_enable_fpes() when we enter main() for the thread
     // FIXME: This is a workaround since the call to feenableexcept

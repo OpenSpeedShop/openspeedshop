@@ -31,28 +31,17 @@
 
 
 
-#ifdef WDH_PER_THREAD_TIMERS
+/** Mutual exclusion lock for accessing shared timer state. */
+static pthread_mutex_t mutex_lock = PTHREAD_MUTEX_INITIALIZER;
 
-/** Access-controlled timer signal number. */
-static struct {
-    int num;               /**< Actual signal number value. */
-    pthread_mutex_t lock;  /**< Mutual exclusion lock for this number. */
-} timer_signal = {
-    -1, PTHREAD_MUTEX_INITIALIZER
-};
+/** Number of threads currently using timers (shared state). */
+static unsigned num_threads = 0;
 
-/** Thread's timer event handling function. */
+/** Old SIGPROF signal handler action (shared state). */
+struct sigaction original_sigprof_action;
+
+/** Timer event handling function (per-thread). */
 static __thread OpenSS_TimerEventHandler timer_handler = NULL;
-
-/** Thread's timer id. */
-static __thread timer_t timer_id;
-
-#else
-
-/** Thread's timer event handling function. */
-static OpenSS_TimerEventHandler timer_handler = NULL;
-
-#endif
 
 
 
@@ -95,97 +84,79 @@ static void signalHandler(int signal, siginfo_t* info, void* ptr)
  */
 void OpenSS_Timer(uint64_t interval, const OpenSS_TimerEventHandler handler)
 {
-#ifdef WDH_PER_THREAD_TIMERS
-
-    int i;
-    struct sigaction action;
-    sigevent_t delivery;
-    struct itimerspec spec;
-    
-    /* Obtain exclusive access to the timer signal number */
-    Assert(pthread_mutex_lock(&(timer_signal.lock)) == 0);
-
-    /* Has a timer signal number been selected? */
-    if(timer_signal.num == -1) {
-	
-	/* Iterate over each of the POSIX real-time signals */
-	for(i = SIGRTMIN; i <= SIGRTMAX; ++i) {
-	    
-	    /* Get this signal's current action */
-	    Assert(sigaction(i, NULL, &action) == 0);
-	    
-	    /* Is this signal's action the default? */
-	    if(action.sa_handler == SIG_DFL) {
-		
-		/* Set this signal's action to our signal handler */
-		action.sa_sigaction = signalHandler;
-		sigfillset(&(action.sa_mask));
-		action.sa_flags = SA_SIGINFO;		
-		Assert(sigaction(i, &action, NULL) == 0);
-		
-		/* Indicate the timer signal number has now been selected */
-		timer_signal.num = i;
-		break;
-		
-	    }
-	    
-	}
-
-	/* Timer signal number must now be selected */
-	Assert(timer_signal.num != -1);
-	
-    }
-
-    /** Release exclusive access to the timer signal number */
-    Assert(pthread_mutex_unlock(&(timer_signal.lock)) == 0);
-    
-    /* Delete any existing timer for this thread */
-    if(timer_handler != NULL)	
-	Assert(timer_delete(timer_id) == 0);
-
-    /* Configure the new timer event handler for this thread */
-    timer_handler = handler;
-    
-    /*
-     * Note: Ideally "sigev_notify" below should have the value SIGEV_THREAD_ID
-     *       and the clock used would be CLOCK_THREAD_CPUTIME_ID. Using either
-     *       of these with timer_create() on Linux/IA32 results in an "Invalid
-     *       argument" error.
-     */
-
-    /* Create a new timer for this thread */
-    delivery.sigev_signo = timer_signal.num;
-    delivery.sigev_notify = SIGEV_SIGNAL;
-    Assert(timer_create(CLOCK_MONOTONIC, &delivery, &timer_id) == 0);
-    
-    /* Configure specified interval period */
-    spec.it_interval.tv_sec = interval / (uint64_t)(1000000000);
-    spec.it_interval.tv_nsec = interval % (uint64_t)(1000000000);
-    spec.it_value.tv_sec = spec.it_interval.tv_sec;
-    spec.it_value.tv_nsec = spec.it_interval.tv_nsec;
-    Assert(timer_settime(timer_id, 0, &spec, NULL) == 0);
-
-#else
-
     struct sigaction action;
     struct itimerval spec;
 
-    /* Set this signal's action to our signal handler */
-    action.sa_sigaction = signalHandler;
-    sigfillset(&(action.sa_mask));
-    action.sa_flags = SA_SIGINFO;		
-    Assert(sigaction(SIGPROF, &action, NULL) == 0);
-    
-    /* Configure the new timer event handler for this thread */
-    timer_handler = handler;
-    
-    /* Create an interval timer for this thread */
-    spec.it_interval.tv_sec = interval / (uint64_t)(1000000000);
-    spec.it_interval.tv_usec = 
-	(interval % (uint64_t)(1000000000)) / (uint64_t)(1000);
-    spec.it_value.tv_sec = spec.it_interval.tv_sec;
-    spec.it_value.tv_usec = spec.it_interval.tv_usec;
-    Assert(setitimer(ITIMER_PROF, &spec, NULL) == 0); 
+    /* Disable the timer for this thread */
+    memset(&spec, 0, sizeof(spec));
+    Assert(setitimer(ITIMER_PROF, &spec, NULL) == 0);
 
-#endif
+    /* Obtain exclusive access to shared timer state */
+    Assert(pthread_mutex_lock(&mutex_lock) == 0);
+
+    /* Is this thread enabling its timer? */
+    if((interval > 0) && (handler != NULL)) {
+
+	/* Is this the first thread using a timer? */
+	if(num_threads == 0) {
+
+	    /* Set the SIGPROF signal action to our signal handler */
+	    memset(&action, 0, sizeof(action));
+	    action.sa_sigaction = signalHandler;
+	    sigfillset(&(action.sa_mask));
+	    action.sa_flags = SA_SIGINFO;
+	    Assert(sigaction(SIGPROF, &action, &original_sigprof_action) == 0);
+
+	}
+	
+	/* Is this thread using a timer now were it wasn't previously? */
+	if(timer_handler == NULL) {
+	    
+	    /* Increment the timer usage thread count */
+	    ++num_threads;
+	    
+	}
+
+    }
+    
+    /* Is this thread disabling its timer? */
+    if((interval == 0) || (handler == NULL)) {
+	
+	/* Decrement the timer usage thread count */
+	--num_threads;
+
+	/* Was this the last thread using the timer? */
+	if(num_threads == 0) {
+	    
+	    /* Return the SIGPROF signal action to its original value */
+	    Assert(sigaction(SIGPROF, &original_sigprof_action, NULL) == 0);
+	    
+	}	
+	
+    }
+    
+    /** Release exclusive access to shared timer state */
+    Assert(pthread_mutex_unlock(&mutex_lock) == 0);
+    
+    /* Is this thread enabling a new timer? */
+    if((interval > 0) && (handler != NULL)) {
+
+	/* Configure the new timer event handler for this thread */
+	timer_handler = handler;
+	
+	/* Enable a timer for this thread */
+	spec.it_interval.tv_sec = interval / (uint64_t)(1000000000);
+	spec.it_interval.tv_usec =
+	    (interval % (uint64_t)(1000000000)) / (uint64_t)(1000);
+	spec.it_value.tv_sec = spec.it_interval.tv_sec;
+	spec.it_value.tv_usec = spec.it_interval.tv_usec;
+	Assert(setitimer(ITIMER_PROF, &spec, NULL) == 0);
+	
+    }    
+    else {
+
+	/* Remove the timer event handler for this thread */
+	timer_handler = NULL;
+	
+    }
 }

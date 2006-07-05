@@ -251,9 +251,9 @@ void IOCollector::startCollecting(const Collector& collector,
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_io_start_tracing_args),
                    &args);
     
-    // Execute io_stop_tracing() when we enter exit() for the thread
-    executeAtEntry(collector, thread,
-                   "exit", "io-rt: io_stop_tracing", Blob());
+    // Execute io_stop_tracing() before we exit the thread
+    executeBeforeExit(collector, thread,
+		      "io-rt: io_stop_tracing", Blob());
     
     // Execute io_start_tracing() in the thread
     executeNow(collector, thread,

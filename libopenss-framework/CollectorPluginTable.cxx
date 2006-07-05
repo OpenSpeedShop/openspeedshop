@@ -319,7 +319,7 @@ void CollectorPluginTable::foreachCallback(const std::string& filename)
 	);
 }
 
-// Static sources for SetOpenssLibPath()
+// Include definition of SetOpenssLibPath()
 #include "OpenSSPath.cxx"
 
 /**
@@ -335,10 +335,9 @@ void CollectorPluginTable::build()
     // Check preconditions
     Assert(!dm_is_built);
     
-    // Set up LD_LIBRARY_PATH and plugin dl_open paths
-    // if not done already.
-    string new_cmdline;
-    SetOpenssLibPath(new_cmdline);
+    // Set LD_LIBRARY_PATH and plugin path
+    std::string dummy;
+    SetOpenssLibPath(dummy);
 
     // Search for collector plugins in the libltdl user-defined search path
     if(lt_dlgetsearchpath() != NULL)

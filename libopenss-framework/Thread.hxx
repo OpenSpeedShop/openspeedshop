@@ -51,6 +51,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Function;
     class LinkedObject;
     class Path;
+    class Process;
     template <typename> class SmartPtr;
     class Statement;
     class ThreadGroup;
@@ -82,6 +83,7 @@ namespace OpenSpeedShop { namespace Framework {
 	friend class Experiment;
 	friend class Function;
 	friend class LinkedObject;
+	friend class Process;
 	friend class Statement;
 	friend class ThreadGroup;
 	
@@ -137,6 +139,10 @@ namespace OpenSpeedShop { namespace Framework {
 
 	Thread();
 	Thread(const SmartPtr<Database>&, const int&);
+
+	bool doesSiblingExist(const pthread_t&) const;
+	void setPosixThreadId(const pthread_t&) const;	
+	Thread createCopy() const;
 	
     };
     

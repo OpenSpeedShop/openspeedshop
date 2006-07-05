@@ -95,6 +95,10 @@ namespace {
 	{ Exception::ParameterValueInvalid,
 	  "Specified parameter value is invalid. %1" },
 
+	{ Exception::ProcessUnavailable,
+	  "Process %2 on host \"%1\" is unavailable because it either doesn't "
+	  "exist or could not be attached." },
+
 	{ Exception::StateAlreadyChanging,
 	  "State change for this process already in-progress but incomplete." },
 
@@ -102,8 +106,8 @@ namespace {
 	  "State change from %1 to %2 for this process is not allowed." },
 
 	{ Exception::ThreadUnavailable,
-	  "Thread inside process %2 on host \"%1\" is unavailable because it "
-	  "either doesn't exist or could not be attached." },
+	  "Thread %3 inside process %2 on host \"%1\" is unavailable because "
+	  "it either doesn't exist or could not be attached." },
 	
 	{ Exception::Unknown,
 	  "A generic, unknown, exception has occured. " },
@@ -172,6 +176,32 @@ Exception::Exception(const Code& code,
 {
     dm_arguments.push_back(argument1);
     dm_arguments.push_back(argument2);
+}
+
+
+
+/**
+ * Constructor from code and three arguments.
+ *
+ * Constructs an Exception from the specified code. Three arguments are
+ * specified for the exception's text description, and additional arguments
+ * can be specified after object construction using appendArgument().
+ *
+ * @param code         Code describing the exception.
+ * @param argument1    First argument to the exception's text description.
+ * @param argument2    Second argument to the exception's text description.
+ * @param argument3    Third argument to the exception's text description.
+ */
+Exception::Exception(const Code& code,
+		     const std::string& argument1,
+		     const std::string& argument2,
+		     const std::string& argument3) :
+    dm_code(code),
+    dm_arguments()
+{
+    dm_arguments.push_back(argument1);
+    dm_arguments.push_back(argument2);
+    dm_arguments.push_back(argument3);
 }
 
 

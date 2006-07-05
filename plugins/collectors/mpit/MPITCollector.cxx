@@ -278,11 +278,10 @@ void MPITCollector::startCollecting(const Collector& collector,
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_mpit_start_tracing_args),
                    &args);
     
-    // Execute mpit_stop_tracing() when we enter exit() for the thread
-    executeAtEntry(collector, thread,
-                   "exit",
-		   getRuntimeLibraryName(thread) + ": mpit_stop_tracing",
-		   Blob());
+    // Execute mpit_stop_tracing() before we exit the thread
+    executeBeforeExit(collector, thread,
+		      getRuntimeLibraryName(thread) + ": mpit_stop_tracing",
+		      Blob());
     
     // Execute mpit_start_tracing() in the thread
     executeNow(collector, thread,

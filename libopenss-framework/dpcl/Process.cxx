@@ -30,8 +30,8 @@
 #include "Exception.hxx"
 #include "Function.hxx"
 #include "Guard.hxx"
+#include "GuardWithDPCL.hxx"
 #include "LinkedObject.hxx"
-#include "MainLoop.hxx"
 #include "Process.hxx"
 #include "ProcessTable.hxx"
 #include "SymbolTable.hxx"
@@ -118,28 +118,6 @@ struct SymbolTableState :
 
 
 /**
- * Form a process' unique name.
- *
- * Returns the unique name for a process. The name is defined as being the
- * string "[host]:[pid]", where [host] is the name of the host on which the
- * process resides, and [pid] is the identifier of the process on that host.
- * This unique name is used for identifying processes within messages sent
- * between hosts.
- *
- * @param host    Name of the host on which the process resides.
- * @param pid     Process identifier for the process.
- * @return        Unique name of this process.
- */
-std::string Process::formUniqueName(const std::string& host, const pid_t& pid)
-{
-    std::stringstream name;
-    name << host << ":" << pid;
-    return name.str();
-}
-
-
-
-/**
  * Constructor from process creation.
  *
  * Creates a new process to execute the specified command. The command is
@@ -160,18 +138,20 @@ Process::Process(const std::string& host, const std::string& command,
 		 const OutputCallback stderr_callback) :
     Lockable(),
 #ifndef NDEBUG
-    dm_previous_getstate(std::make_pair(false, Thread::Disconnected)),
+    dm_previous_getstate(),
 #endif
     dm_process(NULL),
     dm_host(host),
     dm_pid(0),
     dm_stdout_callback(stdout_callback),
     dm_stderr_callback(stderr_callback),
-    dm_current_state(Thread::Disconnected),
-    dm_is_state_changing(false),
-    dm_future_state(Thread::Disconnected),
+    dm_current_state(),
+    dm_is_state_changing(),
+    dm_future_state(),
     dm_libraries()
 {
+    GuardWithDPCL guard_myself(this);
+
 #ifndef NDEBUG
     if(is_debug_enabled) {
 	std::stringstream output;
@@ -219,7 +199,6 @@ Process::Process(const std::string& host, const std::string& command,
     Assert(name != NULL);
     
     // Ask DPCL to create a process for executing the command
-    MainLoop::suspend();    
     AisStatus retval = dm_process->bcreate(dm_host.c_str(),
 					   argv[0], argv, ::environ,
 					   stdoutCallback, name, 
@@ -228,7 +207,6 @@ Process::Process(const std::string& host, const std::string& command,
     if(is_debug_enabled) 
 	debugDPCL("bcreate", retval);
 #endif    
-    MainLoop::resume();
 
     // Destroy argv-style argument list
     delete [] argv;
@@ -246,11 +224,14 @@ Process::Process(const std::string& host, const std::string& command,
 
     // Replace the copy of our unique name with the REAL unique name
     *name = formUniqueName(dm_host, dm_pid);
+
+    // Initialize the state of the process
+    dm_current_state[*name] = Thread::Disconnected;
+    dm_is_state_changing[*name] = false;
+    dm_future_state[*name] = Thread::Disconnected;
     
     // Request an attachment to this process
-    MainLoop::suspend();
     requestAttach();
-    MainLoop::resume();
 }
 
 
@@ -268,18 +249,20 @@ Process::Process(const std::string& host, const std::string& command,
 Process::Process(const std::string& host, const pid_t& pid) :  
     Lockable(),
 #ifndef NDEBUG
-    dm_previous_getstate(std::make_pair(false, Thread::Disconnected)),
+    dm_previous_getstate(),
 #endif
     dm_process(NULL),
     dm_host(host),
     dm_pid(pid),
     dm_stdout_callback(OutputCallback(NULL, NULL)),
     dm_stderr_callback(OutputCallback(NULL, NULL)),
-    dm_current_state(Thread::Disconnected),
-    dm_is_state_changing(false),
-    dm_future_state(Thread::Disconnected),
+    dm_current_state(),
+    dm_is_state_changing(),
+    dm_future_state(),
     dm_libraries()
 {
+    GuardWithDPCL guard_myself(this);
+
 #ifndef NDEBUG
     if(is_debug_enabled) {
 	std::stringstream output;
@@ -293,6 +276,12 @@ Process::Process(const std::string& host, const pid_t& pid) :
     // Allocate a new DPCL process handle
     dm_process = new ::Process(dm_host.c_str(), dm_pid);
     Assert(dm_process != NULL);
+
+    // Initialize the state of the process
+    std::string name = formUniqueName(dm_host, dm_pid);
+    dm_current_state[name] = Thread::Disconnected;
+    dm_is_state_changing[name] = false;
+    dm_future_state[name] = Thread::Disconnected;    
 }
 
 
@@ -300,12 +289,12 @@ Process::Process(const std::string& host, const pid_t& pid) :
 /**
  * Destructor.
  *
- * Start the process running if it is currently suspended, disconnect from the
- * process, and destroy our DPCL process handle.
+ * Resumes this process, disconnects from it, and destroys our DPCL process
+ * handle.
  */
 Process::~Process()
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled) {
@@ -317,12 +306,9 @@ Process::~Process()
     }
 #endif
 
-    // Force the disconnection from this process
-    MainLoop::suspend();
-    if(dm_current_state == Thread::Suspended)
-	dm_process->resume(NULL, NULL);
+    // Resume this process and then disconnect from it
+    dm_process->resume(NULL, NULL);
     dm_process->disconnect(NULL, NULL);   
-    MainLoop::resume();
     
     // Destroy the actual DPCL process handle
     delete dm_process;
@@ -339,6 +325,8 @@ Process::~Process()
  */
 std::string Process::getHost() const
 {
+    Guard guard_myself(this);
+
     // Return the host name to the caller
     return dm_host;
 }
@@ -354,6 +342,8 @@ std::string Process::getHost() const
  */
 pid_t Process::getProcessId() const
 {
+    Guard guard_myself(this);
+
     // Return the process identifier to the caller
     return dm_pid;
 }
@@ -361,177 +351,204 @@ pid_t Process::getProcessId() const
 
 
 /**
- * Get our state.
+ * Test if connected.
  *
- * Returns the caller the current state of this process. Since this state
- * changes asynchronously and must be updated across a network, there is a lag
- * between when the actual process' state changes and when that is reflected
- * here.
+ * Returns a boolean value indicating if this process is connected or not.
  *
- * @return    Current state of this process.
+ * @return    Boolean "true" if this process is connected, "false" otherwise.
  */
-Thread::State Process::getState() const
+bool Process::isConnected()
 {
     Guard guard_myself(this);
 
-#ifndef NDEBUG
-    if(is_debug_enabled &&
-       (!dm_previous_getstate.first || 
-	(dm_previous_getstate.second != dm_current_state))) {
-	dm_previous_getstate = std::make_pair(true, dm_current_state);
-	std::stringstream output;
-	output << "[TID " << pthread_self() << "] "
-	       << "Process::getState() for " << formUniqueName(dm_host, dm_pid)
-	       << " = " << toString(dm_current_state) 
-	       << std::endl;
-	std::cerr << output.str();
-    }
-#endif
-
-    // Return our current state to the caller
-    return dm_current_state;
+    // Find the current state of the process
+    Thread::State current = dm_current_state[formUniqueName(dm_host, dm_pid)];
+    
+    // Return flag indicating if this process is connected to the caller
+    return ((current != Thread::Disconnected) &&
+	    (current != Thread::Connecting) &&
+	    (current != Thread::Nonexistent));
 }
 
 
 
 /**
- * Change our state.
+ * Get a thread's state.
  *
- * Changes the current state of this process to the passed value. Used to, for
- * example, suspend a process that was previously running. This function does
- * not wait until the process has actually completed the state change, and
- * calling getState() immediately following changeState() will not reflect the
- * new state until the change has actually completed.
+ * Returns the caller the current state of a thread in this process. Since this
+ * state changes asynchronously and must be updated across a network, there is a
+ * lag between when the actual thread's state changes and when that is reflected
+ * here.
  *
- * @note    Only one in-progress state change is allowed per process at any
- *          given time. For example, if you request that a process be suspended,
+ * @param thread    Thread whose state should be obtained.
+ * @return          Current state of this thread.
+ */
+Thread::State Process::getState(const Thread& thread)
+{
+    Guard guard_myself(this);
+
+    // Get the thread identifier of the specified thread
+    std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+
+    // Form the unique name of the thread/process
+    std::string name = !tid.first ? 
+	formUniqueName(dm_host, dm_pid) :
+	formUniqueName(dm_host, dm_pid, tid.second);
+    
+    // Find the current state of the thread/process
+    Thread::State current_state = findCurrentState(name);
+    
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::map<std::string, Thread::State>::const_iterator i =
+	    dm_previous_getstate.find(name);
+	if((i == dm_previous_getstate.end()) || (i->second != current_state)) {
+	    dm_previous_getstate[name] = current_state;
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] "
+		   << "Process::getState(T" 
+		   << EntrySpy(thread).getEntry() << ") for " 
+		   << name << " = "
+		   << toString(current_state) 
+		   << std::endl;
+	    std::cerr << output.str();
+	}
+    }
+#endif
+    
+    // Return our current state to the caller
+    return current_state;
+}
+
+
+
+/**
+ * Change a thread's state.
+ *
+ * Changes the current state of a thread in this process to the passed value.
+ * Used to, for example, suspend a thread that was previously running. This
+ * function does not wait until the thread has actually completed the state
+ * change, and calling getState() immediately following changeState() will not
+ * reflect the new state until the change has actually completed.
+ *
+ * @note    Only one in-progress state change is allowed per thread at any
+ *          given time. For example, if you request that a thread be suspended,
  *          you cannot request that it be terminated before the suspension is
  *          completed. A StateAlreadyChanging exception is thrown when multiple
  *          in-progress changes are requested.
  *
  * @note    Some transitions are disallowed because they do not make sense or
- *          cannot be implemented. For example, a terminated process cannot be
- *          set to a running process. A StateChangeInvalid exception is thrown
+ *          cannot be implemented. For example, a terminated thread cannot be
+ *          set to a running thread. A StateChangeInvalid exception is thrown
  *          when such an invalid transition is requested.
  *
- * @param state    Change to this state.
+ * @param thread    Thread whose state should be changed.
+ * @param state     Change to this state.
  */
-void Process::changeState(const Thread::State& state)
+void Process::changeState(const Thread& thread, const Thread::State& state)
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
+    // Get the thread identifier of the specified thread
+    std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+
+    // Form the unique name of the thread/process
+    std::string name = !tid.first ? 
+	formUniqueName(dm_host, dm_pid) :
+	formUniqueName(dm_host, dm_pid, tid.second);
+    
+    // Find the state information of the thread/process
+    Thread::State current_state = findCurrentState(name);
+    bool is_changing_state = findIsChangingState(name);
+    Thread::State future_state = findFutureState(name);
+    
 #ifndef NDEBUG
     if(is_debug_enabled) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] "
-	       << "Process::changeState(" << toString(state) << ") for "
-	       << formUniqueName(dm_host, dm_pid) 
+	       << "Process::changeState(T"
+	       << EntrySpy(thread).getEntry() << ", " 
+	       << toString(state) << ") for " << name
 	       << std::endl;
 	std::cerr << output.str();
-	debugState();
+	debugState(name);
     }
 #endif
 
     // Finished if already in the requested state
-    if(dm_current_state == state)
+    if(current_state == state)
 	return;
     
     // Finished if already changing to the requested state
-    if(dm_is_state_changing && (dm_future_state == state))
+    if(is_changing_state && (future_state == state))
 	return;
     
     // Disallow multiple, different, in-progress state changes
-    if(dm_is_state_changing)
+    if(is_changing_state)
 	throw Exception(Exception::StateAlreadyChanging);
 
-    // Allocate a copy of our unique name
-    std::string* name = new std::string(formUniqueName(dm_host, dm_pid));
-    Assert(name != NULL);
-    
     // Handle [ Running | Suspended | Terminated ] --> Disconnected
-    if(((dm_current_state == Thread::Running) ||
-	(dm_current_state == Thread::Suspended) ||
-	(dm_current_state == Thread::Terminated)) &&
+    if(((current_state == Thread::Running) ||
+	(current_state == Thread::Suspended) ||
+	(current_state == Thread::Terminated)) &&
        (state == Thread::Disconnected)) {
 	
 	// Request disconnection from this process
-	MainLoop::suspend();
 	requestDisconnect();
-	MainLoop::resume();
 	
     }
     
     // Handle [ Disconnected | Nonexistent ] --> Connecting
-    else if(((dm_current_state == Thread::Disconnected) ||
-	(dm_current_state == Thread::Nonexistent)) &&
-       (state == Thread::Connecting)) {
-
+    else if(((current_state == Thread::Disconnected) ||
+	     (current_state == Thread::Nonexistent)) &&
+	    (state == Thread::Connecting)) {
+	
 	// Request connection to this process
-	MainLoop::suspend();
 	requestConnect();
-	MainLoop::resume();
 	
     }
 
     // Handle Suspended --> Running
-    else if((dm_current_state == Thread::Suspended) &&
+    else if((current_state == Thread::Suspended) && 
 	    (state == Thread::Running)) {
 
-	// Request resumption of this process
-	MainLoop::suspend();
-	requestResume();
-	MainLoop::resume();
+	// Request resumption of this process or thread
+	if(!tid.first)
+	    requestResume();
+	else
+	    requestResume(tid.second);
 	
     }
     
     // Handle Running --> Suspended
-    else if((dm_current_state == Thread::Running) &&
+    else if((current_state == Thread::Running) && 
 	    (state == Thread::Suspended)) {
 
-	// Request suspension of this process
-	MainLoop::suspend();
-	requestSuspend();
-	MainLoop::resume();
+	// Request suspension of this process or thread
+	if(!tid.first)
+	    requestSuspend();
+	else
+	    requestSuspend(tid.second);
 
     }
 
     // Handle [ Running | Suspended ] --> Terminated
-    else if(((dm_current_state == Thread::Running) ||
-	     (dm_current_state == Thread::Suspended)) &&
+    else if(((current_state == Thread::Running) ||
+	     (current_state == Thread::Suspended)) &&
 	    (state == Thread::Terminated)) {
 
-	// Request destruction of this process
-	MainLoop::suspend();
-	requestDestroy();
-	MainLoop::resume();
+	// Request destruction of this process or thread
+	if(!tid.first)
+	    requestDestroy();
+	else
+	    requestDestroy(tid.second);
 	
     }
     
     // Otherwise throw an exception because the state change is invalid
     else
 	throw Exception(Exception::StateChangeInvalid,
-			toString(dm_current_state), toString(state));
-}
-
-
-
-/**
- * Test if connected.
- *
- * Returns a boolean value indicating if the process is connected or not. Really
- * just a convenience function, which could be built on top of getState(), for
- * when simpler conditional statements are desired.
- *
- * @return    Boolean "true" if this process is connected, "false" otherwise.
- */
-bool Process::isConnected() const
-{
-    Guard guard_myself(this);
-
-    // Return flag indicating if this process is connected to the caller
-    return ((dm_current_state != Thread::Disconnected) &&
-	    (dm_current_state != Thread::Connecting) &&
-	    (dm_current_state != Thread::Nonexistent));
+			toString(current_state), toString(state));
 }
 
 
@@ -539,8 +556,8 @@ bool Process::isConnected() const
 /**
  * Execute a library function now.
  *
- * Immediately executes the specified library function in this process. The
- * library is loaded into the process first if necessary.
+ * Immediately executes the specified library function in a thread of this
+ * process. The library is loaded into the process first if necessary.
  *
  * @param collector    Collector requesting the execution.
  * @param thread       Thread in which the function should be executed.
@@ -552,7 +569,15 @@ void Process::executeNow(const Collector& collector,
 			 const std::string& callee, 
 			 const Blob& argument)
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
+
+    // Get the thread identifier of the specified thread
+    std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+
+    // Get the unique name of this thread (or the process containing it)
+    std::string name = !tid.first ? 
+	formUniqueName(dm_host, dm_pid) :
+	formUniqueName(dm_host, dm_pid, tid.second);
     
 #ifndef NDEBUG
     if(is_debug_enabled) {
@@ -561,8 +586,7 @@ void Process::executeNow(const Collector& collector,
 	       << "Process::executeNow(C"
 	       << EntrySpy(collector).getEntry()  << ", T"
 	       << EntrySpy(thread).getEntry() << ", \"" 
-	       << callee << "\", ...) for "
-	       << formUniqueName(dm_host, dm_pid) 
+	       << callee << "\", ...) for " << name
 	       << std::endl;
 	std::cerr << output.str();
     }
@@ -582,11 +606,12 @@ void Process::executeNow(const Collector& collector,
     
     ProbeExp expression = callee_entry.second.call(1, args_exp);
     
-    // Request the instrumentation be executed in this process
-    MainLoop::suspend();
+    // Request the instrumentation be executed
     ProbeHandle handle;
-    requestExecute(expression, NULL, NULL);
-    MainLoop::resume();
+    if(!tid.first)
+	requestExecute(expression, NULL, NULL);
+    else
+	requestExecute(expression, NULL, NULL, tid.second);
     
     // Add the empty probe handle to the probes for this thread
     callee_entry.first->dm_probes.insert(std::make_pair(thread, handle));
@@ -598,8 +623,8 @@ void Process::executeNow(const Collector& collector,
  * Execute a library function at another function's entry/exit.
  *
  * Executes the specified library function every time another function's entry
- * or exit is executed in this process. The library is loaded into the process
- * first if necessary.
+ * or exit is executed in a thread of this process. The library is loaded into
+ * the process first if necessary.
  *
  * @param collector    Collector requesting the execution.
  * @param thread       Thread in which the function should be executed.
@@ -617,7 +642,15 @@ void Process::executeAtEntryOrExit(const Collector& collector,
 				   const std::string& callee,
 				   const Blob& argument)
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
+
+    // Get the thread identifier of the specified thread
+    std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+
+    // Get the unique name of this thread (or the process containing it)
+    std::string name = !tid.first ? 
+	formUniqueName(dm_host, dm_pid) :
+	formUniqueName(dm_host, dm_pid, tid.second);
     
 #ifndef NDEBUG
     if(is_debug_enabled) {
@@ -626,10 +659,9 @@ void Process::executeAtEntryOrExit(const Collector& collector,
 	       << "Process::executeAtEntryOrExit(C"
 	       << EntrySpy(collector).getEntry()  << ", T"
 	       << EntrySpy(thread).getEntry() << ", \"" 
-	       << where << "\", "
+	       << where << "\", " 
 	       << (at_entry ? "Entry" : "Exit") << ", \""
-	       << callee << "\", ...) for "
-	       << formUniqueName(dm_host, dm_pid) 
+	       << callee << "\", ...) for " << name
 	       << std::endl;
 	std::cerr << output.str();
     }
@@ -660,11 +692,11 @@ void Process::executeAtEntryOrExit(const Collector& collector,
 	   (at_entry ? IPT_function_entry : IPT_function_exit)) {
 	    InstPoint point = where_srcobj.exclusive_point(p);
 	    
-	    // Request the instrumentation be inserted into this process
-	    MainLoop::suspend();
-	    ProbeHandle handle = 
-		requestInstallAndActivate(expression, point, NULL, NULL);
-	    MainLoop::resume();    
+	    // Request the instrumentation be installed and activated
+	    ProbeHandle handle = !tid.first ?
+		requestInstallAndActivate(expression, point, NULL, NULL) :
+		requestInstallAndActivate(expression, point, NULL, NULL, 
+					  tid.second);
 	    
 	    // Add this probe handle to the probes for this thread
 	    callee_entry.first->dm_probes.insert(
@@ -680,8 +712,8 @@ void Process::executeAtEntryOrExit(const Collector& collector,
  * Execute a library function in place of another function.
  *
  * Executes the specified library function in place of another function every
- * other time that other function is called. The library is loaded into the
- * process first if necessary.
+ * other time that other function is called in a thread of this process. The
+ * library is loaded into the process first if necessary.
  *
  * @note    The library function <em>must</em> take exactly the same parameters
  *          as the function it replaces and return the same type of value. It
@@ -698,8 +730,16 @@ void Process::executeInPlaceOf(const Collector& collector,
 			       const std::string& where,
 			       const std::string& callee)
 {
-    Guard guard_myself(this);
-    
+    GuardWithDPCL guard_myself(this);
+
+    // Get the thread identifier of the specified thread
+    std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+
+    // Get the unique name of this thread (or the process containing it)
+    std::string name = !tid.first ? 
+	formUniqueName(dm_host, dm_pid) :
+	formUniqueName(dm_host, dm_pid, tid.second);
+        
 #ifndef NDEBUG
     if(is_debug_enabled) {
 	std::stringstream output;
@@ -707,9 +747,8 @@ void Process::executeInPlaceOf(const Collector& collector,
 	       << "Process::executeInPlaceOf(C"
 	       << EntrySpy(collector).getEntry()  << ", T"
 	       << EntrySpy(thread).getEntry() << ", \"" 
-	       << where << "\", \""
-	       << callee << "\") for "
-	       << formUniqueName(dm_host, dm_pid) 
+	       << where << "\", \"" 
+	       << callee << "\") for " << name
 	       << std::endl;
 	std::cerr << output.str();
     }
@@ -727,10 +766,8 @@ void Process::executeInPlaceOf(const Collector& collector,
     // Ask DPCL to allocate a variable in this process for storing a flag
     int32_t initial_value = 0;
     AisStatus retval;
-    MainLoop::suspend();
     ProbeExp flag_exp = 
 	dm_process->balloc_mem(int32_type(), (void*)(&initial_value), retval);
-    MainLoop::resume();
 #ifndef NDEBUG
     if(is_debug_enabled)
     	debugDPCL("response from balloc_mem", retval);
@@ -768,11 +805,11 @@ void Process::executeInPlaceOf(const Collector& collector,
 
 	    InstPoint point = where_srcobj.exclusive_point(p);
 	    
-	    // Request the instrumentation be inserted into this process
-	    MainLoop::suspend();
-	    ProbeHandle handle = 
-		requestInstallAndActivate(expression, point, NULL, NULL);
-	    MainLoop::resume();    
+	    // Request the instrumentation be installed and activated
+	    ProbeHandle handle = !tid.first ?
+		requestInstallAndActivate(expression, point, NULL, NULL) :
+		requestInstallAndActivate(expression, point, NULL, NULL,
+					  tid.second);
 	    
 	    // Add this probe handle to the probes for this thread
 	    callee_entry.first->dm_probes.insert(
@@ -795,16 +832,23 @@ void Process::executeInPlaceOf(const Collector& collector,
  */
 void Process::uninstrument(const Collector& collector, const Thread& thread)
 {
-    Guard guard_myself(this);
-    
+    GuardWithDPCL guard_myself(this);
+
+    // Get the thread identifier of the specified thread
+    std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+
+    // Get the unique name of this thread (or the process containing it)
+    std::string name = !tid.first ? 
+	formUniqueName(dm_host, dm_pid) :
+	formUniqueName(dm_host, dm_pid, tid.second);
+            
 #ifndef NDEBUG
     if(is_debug_enabled) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] "
 	       << "Process::uninstrument(C"
 	       << EntrySpy(collector).getEntry()  << ", T"
-	       << EntrySpy(thread).getEntry() << ") for "
-	       << formUniqueName(dm_host, dm_pid) 
+	       << EntrySpy(thread).getEntry() << ") for " << name
 	       << std::endl;
 	std::cerr << output.str();
     }
@@ -832,9 +876,7 @@ void Process::uninstrument(const Collector& collector, const Thread& thread)
 	    if(j->second.get_point().get_type() != IPT_invalid) {
 
 		// Request the probe be deactivated and removed
-		MainLoop::suspend();
 		requestDeactivateAndRemove(j->second);
-		MainLoop::resume();		
 		
 	    }
 
@@ -848,9 +890,7 @@ void Process::uninstrument(const Collector& collector, const Thread& thread)
 	    ++j) {
 	    
 	    // Request the memory for this variable be freed
-	    MainLoop::suspend();
 	    requestFree(j->second);
-	    MainLoop::resume();	
 	    
 	}
 	
@@ -861,9 +901,7 @@ void Process::uninstrument(const Collector& collector, const Thread& thread)
 	if(i->second.dm_probes.empty() && i->second.dm_variables.empty()) {
 	    
 	    // Request the library (module) be unloaded from this process
-	    MainLoop::suspend();
 	    requestUnloadModule(i->second);
-	    MainLoop::resume();
 	    
 	    // Remove the library from this process's library list
 	    std::map<std::pair<Collector, std::string>, LibraryEntry>::iterator
@@ -895,7 +933,7 @@ void Process::uninstrument(const Collector& collector, const Thread& thread)
  */
 bool Process::getGlobal(const std::string& global, int64_t& value)
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
     
 #ifndef NDEBUG
     if(is_debug_enabled) {
@@ -946,12 +984,10 @@ bool Process::getGlobal(const std::string& global, int64_t& value)
 
     // Define a data bucket to hold the retrieved integer
     DataBucket<int64_t> bucket;
-    
+
     // Ask DPCL to execute the probe expression in this process
-    MainLoop::suspend();
     AisStatus retval =
 	dm_process->bexecute(expression, getIntegerCallback, &bucket);
-    MainLoop::resume();
 #ifndef NDEBUG
     if(is_debug_enabled)
     	debugDPCL("response from bexecute", retval);
@@ -984,7 +1020,7 @@ bool Process::getGlobal(const std::string& global, int64_t& value)
  */
 bool Process::getGlobal(const std::string& global, std::string& value)
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
     
 #ifndef NDEBUG
     if(is_debug_enabled) {
@@ -1027,7 +1063,7 @@ bool Process::getGlobal(const std::string& global, std::string& value)
  */
 bool Process::getMPICHProcTable(Job& value)
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
     
 #ifndef NDEBUG
     if(is_debug_enabled) {
@@ -1092,10 +1128,8 @@ bool Process::getMPICHProcTable(Job& value)
     DataBucket<char*> bucket;
 
     // Ask DPCL to execute the probe expression in this process
-    MainLoop::suspend();
     AisStatus retval = 
 	dm_process->bexecute(expression, getBlobCallback, &bucket);
-    MainLoop::resume();
 #ifndef NDEBUG
     if(is_debug_enabled)
     	debugDPCL("response from bexecute", retval);
@@ -1159,15 +1193,16 @@ bool Process::is_debug_enabled = (getenv("OPENSS_DEBUG_PROCESS") != NULL);
 
 
 /**
- * Display callback debugging information.
+ * Display DPCL callback debugging information.
  *
- * Displays debugging information for the passed callback, and process unique
- * name, to the standard error stream. Reported information includes the active
- * thread, the name of the callback function being called, and the unique name
- * of the process for which the callback was called.
+ * Displays debugging information for the passed DPCL callback to the standard
+ * error stream. Reported information includes the active thread, the name of
+ * the callback function being called, and the unique name of the process or
+ * thread for which the callback was called.
  *
  * @param callback    String name of the callback (e.g. "attach").
- * @param name        Unique name of the process for which callback is called.
+ * @param name        Unique name of the process or thread for which callback
+ *                    is called.
  */
 void Process::debugCallback(const std::string& callback,
 			    const std::string& name)
@@ -1211,22 +1246,22 @@ void Process::debugDPCL(const std::string& function, const AisStatus& retval)
 /**
  * Display state debugging information.
  *
- * Displays debugging information for the state of this process to the standard
- * error stream. Reported information includes the active thread, the unique
- * name of the process, its current state, a boolean indicating whether it has
- * a pending state change, and its future state.
+ * Displays debugging information for the state of a process or thread to the
+ * standard error stream. Reported information includes the active thread, the
+ * unique name of the process or thread, its current state, a boolean indicating
+ * whether it has a pending state change, and its future state.
+ *
+ * @param name    Unique name of the process or thread.
  */
-void Process::debugState() const
+void Process::debugState(const std::string& name) const
 {
-    Guard guard_myself(this);
-
     // Build the string to be displayed
     std::stringstream output;
     output << "[TID " << pthread_self() << "] "
-	   << "State of " << formUniqueName(dm_host, dm_pid) << " is "
-	   << toString(dm_current_state);
-    if(dm_is_state_changing)
-	output << " --> " << toString(dm_future_state);
+	   << "State of " << name << " is "
+	   << toString(findCurrentState(name));
+    if(findIsChangingState(name))
+	output << " --> " << toString(findFutureState(name));
     output << std::endl;
     
     // Display the string to the standard error stream
@@ -1240,19 +1275,19 @@ void Process::debugState() const
  *
  * Displays debugging information for the passed request, on this process, to
  * the standard error stream. Reported information includes the active thread,
- * the name of the request function being called, and the unique name of the
- * process on which the request was made.
+ * the name of the request function being called, its arguments, and the unique
+ * name of the process on which the request was made.
  *
- * @param request    String name of the request (e.g. "Attach").
+ * @param request      String name of the request (e.g. "Attach").
+ * @param arguments    String arguments of the request (e.g. "10, 30").
  */
-void Process::debugRequest(const std::string& request) const
+void Process::debugRequest(const std::string& request, 
+			   const std::string& arguments) const
 {
-    Guard guard_myself(this);
-
     // Build the string to be displayed
     std::stringstream output;
     output << "[TID " << pthread_self() << "] "
-	   << "Process::request" << request << "() on "
+	   << "Process::request" << request << "(" << arguments << ") on "
 	   << formUniqueName(dm_host, dm_pid)
 	   << std::endl;
     
@@ -1260,6 +1295,111 @@ void Process::debugRequest(const std::string& request) const
     std::cerr << output.str();
 }
 #endif  // NDEBUG 
+
+
+
+/**
+ * Form a process' unique name.
+ *
+ * Returns the unique name for a process. The name is defined as being the
+ * string "[host]:[pid]", where [host] is the name of the host on which the
+ * process resides, and [pid] is the identifier of the process on that host.
+ * This unique name is used for identifying processes within messages sent
+ * between hosts.
+ *
+ * @param host    Name of the host on which the process resides.
+ * @param pid     Process identifier for the process.
+ * @return        Unique name of this process.
+ */
+std::string Process::formUniqueName(const std::string& host, const pid_t& pid)
+{
+    std::stringstream name;
+    name << host << ":" << pid;
+    return name.str();
+}
+
+
+
+/**
+ * Form a thread's unique name.
+ *
+ * Returns the unique name for a thread. The name is defined as being the
+ * string "[host]:[pid]:[tid]", where [host] is the name of the host on which
+ * the process resides, [pid] is the identifier of the process on that host,
+ * and [tid] is the identifier of the thread within that process. This unique
+ * name is used for identifying threads within messages sent between hosts.
+ *
+ * @param host    Name of the host on which the thread resides.
+ * @param pid     Identifier of the process containing the thread.
+ * @param tid     Thread identifier for the thread.
+ * @return        Unique name of this thread.
+ */
+std::string Process::formUniqueName(const std::string& host, 
+				    const pid_t& pid,
+				    const pthread_t& tid)
+{
+    std::stringstream name;
+    name << host << ":" << pid << ":" << tid;
+    return name.str();
+}
+
+
+
+/**
+ * Get unique process name from unique name.
+ *
+ * Returns the unique process name from the specified unique process or thread
+ * name. I.e. if the specified unique name is for a process, the name itself is
+ * simply returned. But if the specfied unique name is for a thread, the unique
+ * name of the process containing that thread is returned.
+ *
+ * @param name    Unique name of a process or thread.
+ * @return        Unique name of the process.
+ */
+std::string Process::getProcessFromUniqueName(const std::string& name)
+{
+    // Find the ":" separator between the host name and process identifier
+    std::string::size_type separator = name.find_first_of(':');    
+    if(separator == std::string::npos)
+	return std::string();
+
+    // Find the ":" separator between the process and thread identifiers
+    separator = name.find_first_of(':', separator + 1);
+    if(separator == std::string::npos)
+	return name;
+    
+    // Unique process name is everything up to the second separator
+    return name.substr(0, separator);
+}
+
+
+
+/**
+ * Get thread identifier from unique name.
+ *
+ * Returns the thread identifier from the specified unique process or thread
+ * name. I.e. if the specified name is for a process, an empty name is returned.
+ * But if the specified unique name is for a thread, the thread identifier (as
+ * a string) for that thread is returned.
+ *
+ * @param name    Unique name of process or thread.
+ * @return        Thread identifier of the thread.
+ */
+std::string Process::getThreadFromUniqueName(const std::string& name)
+{
+    // Find the ":" separator between the host name and process identifier
+    std::string::size_type separator = name.find_first_of(':');    
+    if(separator == std::string::npos)
+	return std::string();
+
+    // Find the ":" separator between the process and thread identifiers
+    separator = name.find_first_of(':', separator + 1);
+    if(separator == std::string::npos)
+	return std::string();
+
+    // Unique process name is everything after the second separator
+    return name.substr(separator + 1, name.size() - separator - 1);
+}
 
 
 
@@ -1410,30 +1550,25 @@ void Process::finishSymbolTableProcessing(SymbolTableState* state)
 	process = ProcessTable::TheTable.getProcessByName(state->dm_name);
     }
 
-    // Only proceed if the process is in the process table
+    // Critical section touching the process
     if(!process.isNull()) {
+        Guard guard_process(*process);
 
-	// Critical section touching the process
-	{
-	    Guard guard_process(*process);
+	// Only proceed if process state is changing from "connecting"
+	if(process->findIsChangingState(state->dm_name) && 
+	   (process->findCurrentState(state->dm_name) == Thread::Connecting)) {
+
+	    // Process has completed the state change
+	    process->setCurrentState(state->dm_name,
+				     process->findFutureState(state->dm_name));
 	    
-	    // Only proceed if process state is changing from "connecting"
-	    if(process->dm_is_state_changing &&
-	       (process->dm_current_state == Thread::Connecting)) {
-		
-		// Indicate process' future state is its current state
-		process->dm_current_state = process->dm_future_state;
-		process->dm_is_state_changing = false;
-		
 #ifndef NDEBUG
-		if(is_debug_enabled)
-		    process->debugState();
+	    if(is_debug_enabled)
+		process->debugState(state->dm_name);
 #endif
-	
-	    }
+	    
 	}
-	
-    }	
+    }    	
     
     // Destroy the heap-allocated state structure
     delete state;    
@@ -1445,7 +1580,7 @@ void Process::finishSymbolTableProcessing(SymbolTableState* state)
  * Instrumentation activation callback.
  *
  * Callback function called by the DPCL main loop when instrumentation has been
- * activated in a process. Contains only debugging code for now.
+ * activated in a process or thread. Contains only debugging code for now.
  */
 void Process::activateProbeCallback(GCBSysType, GCBTagType tag,
 				    GCBObjType, GCBMsgType msg)
@@ -1471,10 +1606,52 @@ void Process::activateProbeCallback(GCBSysType, GCBTagType tag,
 
 
 /**
+ * Address space change callback.
+ *
+ * Callback function called by the DPCL main loop when the address space of a
+ * process has been changed. Issues an asynchronous request for the process'
+ * new address space.
+ */
+void Process::addressSpaceChangeCallback(GCBSysType, GCBTagType,
+					 GCBObjType, GCBMsgType msg)
+{
+    std::string name = std::string(reinterpret_cast<char*>(msg));
+    SmartPtr<Process> process;
+    ThreadGroup threads;
+
+#ifndef NDEBUG
+    if(is_debug_enabled)
+	debugCallback("addressSpaceChange", name);
+#endif
+
+    // Critical section touching the process table
+    {
+	Guard guard_process_table(ProcessTable::TheTable);
+
+	// Attempt to locate the process by its unique name
+	process = ProcessTable::TheTable.getProcessByName(name);
+
+	// Attempt to locate the threads in this process
+	threads = ProcessTable::TheTable.getThreadsByName(name);
+    }
+
+    // Go no further if the process is no longer in the process table
+    if(process.isNull())
+	return;
+
+    // Request the current in-memory address space of this process
+    process->requestAddressSpace(threads, Time::Now());
+}
+
+
+
+/**
  * Process attachment callback.
  *
  * Callback function called by the DPCL main loop when a process has been
- * attached. Locates the appropriate process and updates it state.
+ * attached. Updates databases as necessary with any additional threads found
+ * in this process and then issues an asynchronous request for the process'
+ * address space.
  */
 void Process::attachCallback(GCBSysType, GCBTagType tag, 
 			     GCBObjType, GCBMsgType msg)
@@ -1482,7 +1659,6 @@ void Process::attachCallback(GCBSysType, GCBTagType tag,
     std::string* name = reinterpret_cast<std::string*>(tag);
     AisStatus* status = reinterpret_cast<AisStatus*>(msg);
     SmartPtr<Process> process;
-    ThreadGroup threads;
 
     // Check assertions
     Assert(name != NULL);
@@ -1501,45 +1677,120 @@ void Process::attachCallback(GCBSysType, GCBTagType tag,
 	
 	// Attempt to locate the process by its unique name
 	process = ProcessTable::TheTable.getProcessByName(*name);
-
-	// Attempt to locate the threads in this process by their unique name
-	threads = ProcessTable::TheTable.getThreadsByName(*name);
-	
-	// Destroy the heap-allocated name string
-	delete name;	
     }
 
     // Go no further if the process is no longer in the process table
-    if(process.isNull())
+    if(process.isNull()) {
+
+	// Destroy the heap-allocated name string
+	delete name;
+	    
 	return;
-
-    // Critical section touching the process
-    {
-	Guard guard_process(*process);
-
-	// Did the attach fail?
-	if(status->status() != ASC_success) {
-	    
-	    // Request disconnection from this process
-	    process->requestDisconnect();
-	    
-	}
-	else {
-
-	    // Note: In theory it would be possible to complete the process'
-	    //       state change at this point. Doing so, however, could allow
-	    //       certain other actions (such as starting data collection)
-	    //       to proceed before symbol table information was acquired.
-	    //       And starting data collection, for example, requires that
-	    //       the symbol table information be available. So for now we
-	    //       hold off completing the state change until after all the
-	    //       symbol table information has been acquired.
-	    
-	    // Request the current in-memory address space of this process
-	    process->requestAddressSpace(threads, Time::Now());
-	    
-	}
     }
+
+    // Did the attach fail?
+    if(status->status() != ASC_success) {
+	    
+	// Request disconnection from this process
+	process->requestDisconnect();
+	
+    }
+    else {
+	
+	// Original and added sets of threads for this process
+	ThreadGroup original, added;
+	
+	// Critical section touching the process table
+	{
+	    Guard guard_process_table(ProcessTable::TheTable);
+	    
+	    // Get the original set of threads in this process
+	    original = ProcessTable::TheTable.getThreadsByProcess(process);
+	}
+	
+	// Get the identifiers of the threads in this process
+	std::set<pthread_t> tids;
+	process->getPosixThreadIds(tids);
+	tids.erase(static_cast<pthread_t>(0));
+
+#ifndef DEBUG
+	if(is_debug_enabled) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] "
+		   << "tids = { ";
+	    for(std::set<pthread_t>::const_iterator
+		    i = tids.begin(); i != tids.end(); ++i) {
+		if(i != tids.begin())
+		    output << ", ";
+		output << *i;
+	    }
+	    output << " }" << std::endl;
+	    std::cerr << output.str();
+	}
+#endif
+	
+	// Iterate over the original threads associated with this process
+	for(ThreadGroup::const_iterator
+		i = original.begin(); i != original.end(); ++i) {
+	    
+	    // Get this thread's thread identifier
+	    std::pair<bool, pthread_t> tid = i->getPosixThreadId();
+	    
+	    // Is this thread a placeholder for the entire process?
+	    if(!tid.first) {
+		
+		// Iterate over each thread identifier in this process
+		for(std::set<pthread_t>::const_iterator
+			j = tids.begin(); j != tids.end(); ++j) {
+		    
+		    // Replace the placeholder with the first real thread
+		    if(j == tids.begin())
+			i->setPosixThreadId(*j);
+		    
+		    // Copy the placeholder to represent subsequent threads
+		    else {
+			Thread t = i->createCopy();
+			t.setPosixThreadId(*j);
+			added.insert(t);
+		    }
+		    
+		}
+		
+	    }
+	    
+	}
+	
+	// Critical section touching the process table
+	{
+	    Guard guard_process_table(ProcessTable::TheTable);
+	    
+	    // Add all the new threads to the process table
+	    for(ThreadGroup::const_iterator
+		    i = added.begin(); i != added.end(); ++i)
+		ProcessTable::TheTable.addThread(*i);
+	}
+	
+	// Combine the original and added threads into a single group
+	ThreadGroup threads;
+	threads.insert(original.begin(), original.end());
+	threads.insert(added.begin(), added.end());
+	
+	// Note: In theory it would be possible to complete the process'
+	//       state change at this point. Doing so, however, could allow
+	//       certain other actions (such as starting data collection)
+	//       to proceed before symbol table information was acquired.
+	//       And starting data collection, for example, requires that
+	//       the symbol table information be available. So for now we
+	//       hold off completing the state change until after all the
+	//       symbol table information has been acquired.
+	
+	// Request the current in-memory address space of this process
+	process->requestAddressSpace(threads, Time::Now());
+	
+    }
+
+    // Destroy the heap-allocated name string
+    delete name;
 }
 
 
@@ -1548,8 +1799,7 @@ void Process::attachCallback(GCBSysType, GCBTagType tag,
  * Process connection callback.
  *
  * Callback function called by the DPCL main loop when a process has been
- * connected. Locates the appropriate process and issues an asynchronous attach
- * to that process.
+ * connected. Issues an asynchronous attach to the process.
  */
 void Process::connectCallback(GCBSysType, GCBTagType tag, 
 			      GCBObjType, GCBMsgType msg)
@@ -1575,29 +1825,21 @@ void Process::connectCallback(GCBSysType, GCBTagType tag,
 
 	// Attempt to locate the process by its unique name
 	process = ProcessTable::TheTable.getProcessByName(*name);
-
-	// Destroy the heap-allocated name string
-	delete name;
     }
 
-    // Go no further if the process is no longer in the process table
-    if(process.isNull())
-	return;	
-
     // Critical section touching the process
-    {
+    if(!process.isNull()) {
 	Guard guard_process(*process);
 
 	// Does the specified process not exist?
 	if(status->status() == ASC_invalid_pid) {
 
-	    // Indicate process' current state is "nonexistent"
-	    process->dm_current_state = Thread::Nonexistent;
-	    process->dm_is_state_changing = false;
+	    // Process is in the "nonexistent" state
+	    process->setCurrentState(*name, Thread::Nonexistent);
 
 #ifndef NDEBUG
 	    if(is_debug_enabled)
-		process->debugState();
+		process->debugState(*name);
 #endif
 
 	}
@@ -1605,13 +1847,12 @@ void Process::connectCallback(GCBSysType, GCBTagType tag,
 	// Did the connect otherwise fail?
 	else if(status->status() != ASC_success) {
 
-	    // Indicate process' current state is "disconnected"
-	    process->dm_current_state = Thread::Disconnected;
-	    process->dm_is_state_changing = false;
+	    // Process is in the "disconnected" state
+	    process->setCurrentState(*name, Thread::Disconnected);
 
 #ifndef NDEBUG
 	    if(is_debug_enabled)
-		process->debugState();
+		process->debugState(*name);
 #endif
 	    
 	}
@@ -1621,7 +1862,11 @@ void Process::connectCallback(GCBSysType, GCBTagType tag,
 	    process->requestAttach();
 
 	}
+	
     }
+
+    // Destroy the heap-allocated name string
+    delete name;
 }
 
 
@@ -1630,7 +1875,7 @@ void Process::connectCallback(GCBSysType, GCBTagType tag,
  * Instrumentation deactivation callback.
  *
  * Callback function called by the DPCL main loop when instrumentation has been
- * deactivated in a process. Contains only debugging code for now.
+ * deactivated in a process or thread. Contains only debugging code for now.
  */
 void Process::deactivateProbeCallback(GCBSysType, GCBTagType tag,
 				      GCBObjType, GCBMsgType msg)
@@ -1656,10 +1901,10 @@ void Process::deactivateProbeCallback(GCBSysType, GCBTagType tag,
 
 
 /**
- * Process destruction callback.
+ * Process or thread destruction callback.
  *
- * Callback function called by the DPCL main loop when a process has been
- * destroyed. Locates the appropriate process and updates its state.
+ * Callback function called by the DPCL main loop when a process or thread has
+ * been destroyed. Updates the appropriate state entry.
  */
 void Process::destroyCallback(GCBSysType, GCBTagType tag, 
 			      GCBObjType, GCBMsgType msg)
@@ -1678,47 +1923,39 @@ void Process::destroyCallback(GCBSysType, GCBTagType tag,
     	debugDPCL("response from destroy", *status);
     }
 #endif
-    
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
 
-	// Attempt to locate the process by its unique name
-	process = ProcessTable::TheTable.getProcessByName(*name);
-
-	// Destroy the heap-allocated name string
-	delete name;
-    }
-
-    // Go no further if the process is no longer in the process table
-    if(process.isNull())
-	return;	
-
-    // Critical section touching the process
-    {
-	Guard guard_process(*process);
-
-	// Is the process destroyed?
-	if((status->status() == ASC_success) ||
-	   (status->status() == ASC_already_destroyed)) {
-
-	    // Indicate process' current state is "terminated"
-	    process->dm_current_state = Thread::Terminated;
-	    process->dm_is_state_changing = false;
-	 
+    // Is the process or thread destroyed?
+    if((status->status() == ASC_success) ||
+       (status->status() == ASC_already_destroyed)) {
+	    
+	// Critical section touching the process table
+	{
+	    Guard guard_process_table(ProcessTable::TheTable);
+	    
+	    // Attempt to locate the process by its unique name
+	    process = ProcessTable::TheTable.getProcessByName(
+		getProcessFromUniqueName(*name)
+		);
+	}
+	
+	// Critical section touching the process
+	if(!process.isNull()) {
+	    Guard guard_process(*process);
+	    
+	    // Process or thread is in the "terminated" state
+	    process->setCurrentState(*name, Thread::Terminated);
+	    
 #ifndef NDEBUG
-	    if(is_debug_enabled)
-		process->debugState();
+            if(is_debug_enabled)
+                process->debugState(*name);
 #endif
 	    
-	}
-	else {
-	    
-	    // Request disconnection from this process
-	    process->requestDisconnect();
-	    
-	}
+        }
+	
     }
+    
+    // Destroy the heap-allocated name string
+    delete name;
 }
 
 
@@ -1727,7 +1964,7 @@ void Process::destroyCallback(GCBSysType, GCBTagType tag,
  * Process disconnection callback.
  *
  * Callback function called by the DPCL main loop when a process has been
- * disconnected. Locates the appropriate process and updates its state.
+ * disconnected. Updates the appropriate state entry.
  */
 void Process::disconnectCallback(GCBSysType, GCBTagType tag, 
 				 GCBObjType, GCBMsgType msg)
@@ -1753,33 +1990,24 @@ void Process::disconnectCallback(GCBSysType, GCBTagType tag,
 
 	// Attempt to locate the process by its unique name
 	process = ProcessTable::TheTable.getProcessByName(*name);
-
-	// Destroy the heap-allocated name string
-	delete name;
     }
 
-    // Go no further if the process is no longer in the process table
-    if(process.isNull())
-	return;	
-    
     // Critical section touching the process
-    {
+    if(!process.isNull()) {
 	Guard guard_process(*process);
 
-	// Check assertions
-	Assert(process->dm_is_state_changing && 
-	       (process->dm_future_state == Thread::Disconnected));
-
-	// Indicate process' current state is "disconnected"
-	process->dm_current_state = Thread::Disconnected;
-	process->dm_is_state_changing = false;
+	// Process is in the "disconnected" state
+	process->setCurrentState(*name, Thread::Disconnected);
 
 #ifndef NDEBUG
 	if(is_debug_enabled)
-	    process->debugState();
+	    process->debugState(*name);
 #endif
-
+	
     }
+
+    // Destroy the heap-allocated name string
+    delete name;
 }
 
 
@@ -1788,7 +2016,7 @@ void Process::disconnectCallback(GCBSysType, GCBTagType tag,
  * Instrumentation execution callback.
  *
  * Callback function called by the DPCL main loop when instrumentation has been
- * executed in a process. Contains only debugging code for now.
+ * executed in a process or thread. Contains only debugging code for now.
  */
 void Process::executeCallback(GCBSysType, GCBTagType tag,
 			      GCBObjType, GCBMsgType msg)
@@ -1846,59 +2074,64 @@ void Process::expandCallback(GCBSysType, GCBTagType tag,
     {
 	Guard guard_state(state);
 
-	// Address offset for this module in this process (zero by default)
-	int64_t offset = 0;
-	
-	// Critical section touching the process table
-	{
-	    Guard guard_process_table(ProcessTable::TheTable);
+	// Did the expand succeed?
+	if(status->status() == ASC_success) {
+
+	    // Address offset for this module in this process (zero by default)
+	    int64_t offset = 0;
 	    
-	    // Attempt to locate the process by its unique name
-	    SmartPtr<Process> process = 
-		ProcessTable::TheTable.getProcessByName(state->dm_name);
-	    
-	    // Critical section touching the process
-	    if(!process.isNull()) {
-		Guard guard_process(*process);
+	    // Critical section touching the process table
+	    {
+		Guard guard_process_table(ProcessTable::TheTable);
 		
-		// Obtain address offset for this module in this process
-		offset = module->get_offset_in_process(process->dm_pid);
+		// Attempt to locate the process by its unique name
+		SmartPtr<Process> process = 
+		    ProcessTable::TheTable.getProcessByName(state->dm_name);
+		
+		// Critical section touching the process
+		if(!process.isNull()) {
+		    Guard guard_process(*process);
+		    
+		    // Obtain address offset for this module in this process
+		    offset = module->get_offset_in_process(process->dm_pid);
+		    
+		}
+	    }
+	    
+	    // Obtain the address range occupied by the module
+	    AddressRange range(
+		static_cast<Address>(module->address_start() + offset),
+		static_cast<Address>(module->address_end() + offset)
+		);
+
+	    // Should this module's functions be stored in a symbol table?
+	    if(state->dm_symbol_tables.find(range) !=
+	       state->dm_symbol_tables.end()) {
+		
+		// Locate the appropriate symbol table for this module
+		SymbolTable& symbol_table = 
+		    state->dm_symbol_tables.find(range)->second.first;
+		
+		// Iterate over each function in this module
+		for(int f = 0; f < module->child_count(); ++f)
+		    if(module->child(f).src_type() == SOT_function) {
+			SourceObj function = module->child(f);
+			
+			// Get the start/end address of the function
+			Address start = function.address_start() + offset;
+			Address end = function.address_end() + offset;
+			
+			// Get the mangled name of the function
+			char name[function.get_mangled_name_length() + 1];
+			function.get_mangled_name(name, sizeof(name));
+			
+			// Add this function to the symbol table
+			symbol_table.addFunction(start, end, name);
+			
+		    }
 		
 	    }
-	}
-
-	// Obtain the address range occupied by the module
-	AddressRange range(
-	    static_cast<Address>(module->address_start() + offset),
-	    static_cast<Address>(module->address_end() + offset)
-	    );
-
-	// Should this module's functions be stored in a symbol table?
-	if(state->dm_symbol_tables.find(range) !=
-	   state->dm_symbol_tables.end()) {
-
-            // Locate the appropriate symbol table for this module's statements
-	    SymbolTable& symbol_table = 
-		state->dm_symbol_tables.find(range)->second.first;
-
-	    // Iterate over each function in this module
-	    for(int f = 0; f < module->child_count(); ++f)
-		if(module->child(f).src_type() == SOT_function) {
-		    SourceObj function = module->child(f);
-		    
-		    // Get the start/end address of the function
-		    Address start = function.address_start() + offset;
-		    Address end = function.address_end() + offset;
-		    
-		    // Get the mangled name of the function
-		    char name[function.get_mangled_name_length() + 1];
-		    function.get_mangled_name(name, sizeof(name));
-		    
-		    // Add this function to the symbol table
-		    symbol_table.addFunction(start, end, name);
-
-		}
-
+	    
 	}
 
 	// Decrement the pending request count
@@ -2036,7 +2269,7 @@ void Process::getIntegerCallback(GCBSysType sys, GCBTagType tag,
  * Instrumentation installation callback.
  *
  * Callback function called by the DPCL main loop when instrumentation has been
- * installed in a process. Contains only debugging code for now.
+ * installed in a process or thread. Contains only debugging code for now.
  */
 void Process::installProbeCallback(GCBSysType, GCBTagType tag,
 				   GCBObjType, GCBMsgType msg)
@@ -2100,6 +2333,24 @@ void Process::loadModuleCallback(GCBSysType, GCBTagType tag,
 void Process::outOfBandDataCallback(GCBSysType sys, GCBTagType,
 				    GCBObjType, GCBMsgType msg)
 {
+#ifdef WDH_SHOW_RECEIVED_DATA
+    {
+	unsigned i;
+	const unsigned char* ptr = (const unsigned char*)msg;
+
+	printf("outOfBandDataCallback(sys.msg_size = %d, msg = %p)\n",
+	       sys.msg_size, msg);
+	printf("    ");
+	for(i = 0; i < sys.msg_size; ++i) {
+	    printf("%02X ", ptr[i]);
+	    if(!((i + 1) % 16))
+		printf("\n    ");
+	}
+	printf("\n");
+	fflush(stdout);
+    }
+#endif
+
     // Enqueue this performance data
     DataQueues::enqueuePerformanceData(Blob(sys.msg_size, msg));
 }
@@ -2110,7 +2361,7 @@ void Process::outOfBandDataCallback(GCBSysType sys, GCBTagType,
  * Instrumentation removal callback.
  *
  * Callback function called by the DPCL main loop when instrumentation has been
- * removed from a process. Contains only debugging code for now.
+ * removed from a process or thread. Contains only debugging code for now.
  */
 void Process::removeProbeCallback(GCBSysType, GCBTagType tag,
 				  GCBObjType, GCBMsgType msg)
@@ -2136,10 +2387,10 @@ void Process::removeProbeCallback(GCBSysType, GCBTagType tag,
 
 
 /**
- * Process resumption callback.
+ * Process or thread resumption callback.
  *
- * Callback function called by the DPCL main loop when a process has been
- * resumed. Locates the appropriate process and updates its state.
+ * Callback function called by the DPCL main loop when a process or thread has
+ * been resumed. Updates the appropriate state entry.
  */
 void Process::resumeCallback(GCBSysType, GCBTagType tag, 
 			     GCBObjType, GCBMsgType msg)
@@ -2159,49 +2410,37 @@ void Process::resumeCallback(GCBSysType, GCBTagType tag,
     }
 #endif
 
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
-
-	// Attempt to locate the process by its unique name
-	process = ProcessTable::TheTable.getProcessByName(*name);
-
-	// Destroy the heap-allocated name string
-	delete name;
-    }
+    // Did the resume succeed?
+    if(status->status() == ASC_success) {
 	
-    // Go no further if the process is no longer in the process table
-    if(process.isNull())
-	return;	
-    
-    // Critical section touching the process
-    {
-	Guard guard_process(*process);
-
-	// Check assertions
-	Assert(process->dm_is_state_changing && 
-	       (process->dm_future_state == Thread::Running));
-	
-	// Did the resume fail?
-	if(status->status() != ASC_success) {
+	// Critical section touching the process table
+	{
+	    Guard guard_process_table(ProcessTable::TheTable);
 	    
-	    // Request disconnection from this process
-	    process->requestDisconnect();
-	    
+	    // Attempt to locate the process by its unique name
+	    process = ProcessTable::TheTable.getProcessByName(
+		getProcessFromUniqueName(*name)
+		);
 	}
-	else {
+	
+	// Critical section touching the process
+	if(!process.isNull()) {
+	    Guard guard_process(*process);
 	    
-	    // Indicate process' current state is "running"
-	    process->dm_current_state = Thread::Running;
-	    process->dm_is_state_changing = false;
+	    // Process or thread is in the "running" state
+	    process->setCurrentState(*name, Thread::Running);
 	    
 #ifndef NDEBUG
 	    if(is_debug_enabled)
-		process->debugState();
+		process->debugState(*name);
 #endif
 	    
 	}
+	
     }
+    
+    // Destroy the heap-allocated name string
+    delete name;
 }
 
 
@@ -2240,71 +2479,78 @@ void Process::statementsCallback(GCBSysType, GCBTagType tag,
     {
 	Guard guard_state(state);
 
-	// Address offset for this module in this process (zero by default)
-	int64_t offset = 0;
+	// Did the statement request succeed?
+	if(retval->status.status() == ASC_success) {
+
+	    // Address offset for this module in this process (zero by default)
+	    int64_t offset = 0;
 	
-	// Critical section touching the process table
-	{
-	    Guard guard_process_table(ProcessTable::TheTable);
-	    
-	    // Attempt to locate the process by its unique name
-	    SmartPtr<Process> process = 
-		ProcessTable::TheTable.getProcessByName(state->dm_name);
-	    
-	    // Critical section touching the process
-	    if(!process.isNull()) {
-		Guard guard_process(*process);
+	    // Critical section touching the process table
+	    {
+		Guard guard_process_table(ProcessTable::TheTable);
 		
-		// Obtain address offset for this module in this process
-		offset = module->get_offset_in_process(process->dm_pid);
+		// Attempt to locate the process by its unique name
+		SmartPtr<Process> process = 
+		    ProcessTable::TheTable.getProcessByName(state->dm_name);
 		
-	    }
-	}
-
-	// Obtain the address range occupied by the module
-	AddressRange range(
-	    static_cast<Address>(module->address_start() + offset),
-	    static_cast<Address>(module->address_end() + offset)
-	    );
-
-	// Should this module's statements be stored in a symbol table?	
-	if(state->dm_symbol_tables.find(range) !=
-	   state->dm_symbol_tables.end()) {
-
-            // Locate the appropriate symbol table for this module's statements
-	    SymbolTable& symbol_table = 
-		state->dm_symbol_tables.find(range)->second.first;
-	    
-	    // Access the statement information from the return value
-	    StatementInfoList* statements = retval->stmt_info_list_p;
-	    Assert(statements != NULL);
-	    
-	    // Iterate over each source file in this module
-	    for(int f = 0; f < statements->get_count(); ++f) {
-		StatementInfo info = statements->get_entry(f);
-		
-		// Iterate over each statement in this source file
-		for(int s = 0; s < info.get_line_count(); ++s) {
-		    StatementInfoLine line = info.get_line_entry(s);
+		// Critical section touching the process
+		if(!process.isNull()) {
+		    Guard guard_process(*process);
 		    
-		    // Iterate over each address range in this statement
-		    for(int r = 0; (r + 1) < line.get_address_count(); r += 2) {
+		    // Obtain address offset for this module in this process
+		    offset = module->get_offset_in_process(process->dm_pid);
+		    
+		}
+	    }
+	    
+	    // Obtain the address range occupied by the module
+	    AddressRange range(
+		static_cast<Address>(module->address_start() + offset),
+		static_cast<Address>(module->address_end() + offset)
+		);
+	    
+	    // Should this module's statements be stored in a symbol table?	
+	    if(state->dm_symbol_tables.find(range) !=
+	       state->dm_symbol_tables.end()) {
+		
+		// Locate the appropriate symbol table for this module
+		SymbolTable& symbol_table = 
+		    state->dm_symbol_tables.find(range)->second.first;
+	    
+		// Access the statement information from the return value
+		StatementInfoList* statements = retval->stmt_info_list_p;
+		Assert(statements != NULL);
+		
+		// Iterate over each source file in this module
+		for(int f = 0; f < statements->get_count(); ++f) {
+		    StatementInfo info = statements->get_entry(f);
+		    
+		    // Iterate over each statement in this source file
+		    for(int s = 0; s < info.get_line_count(); ++s) {
+			StatementInfoLine line = info.get_line_entry(s);
+		    
+			// Iterate over each address range in this statement
+			for(int r = 0; 
+			    (r + 1) < line.get_address_count(); 
+			    r += 2) {
 
-			// Add this statement to the symbol table
-			symbol_table.addStatement(
-			    Address(line.get_address_entry(r) + offset),
-			    Address(line.get_address_entry(r + 1) + offset),
-			    info.get_filename(), 
-			    line.get_line(), 
-			    line.get_column()
-			    );
+			    // Add this statement to the symbol table
+			    symbol_table.addStatement(
+				Address(line.get_address_entry(r) + offset),
+				Address(line.get_address_entry(r + 1) + offset),
+				info.get_filename(), 
+				line.get_line(), 
+				line.get_column()
+				);
+			    
+			}
 			
 		    }
 		    
 		}
 		
 	    }
-	
+
 	}
 
 	// Decrement the pending request count
@@ -2326,8 +2572,9 @@ void Process::statementsCallback(GCBSysType, GCBTagType tag,
  * Standard error callback.
  *
  * Callback function called by the DPCL main loop when a created process sends
- * data to its standard error stream. Simply redirect the output to the tool's
- * standard error stream.
+ * data to its standard error stream. Passes the output to the standard error
+ * stream callback for the process, or redirects it to the tool's standard
+ * error stream if no callback was specified.
  */
 void Process::stderrCallback(GCBSysType sys, GCBTagType tag, 
 			     GCBObjType, GCBMsgType msg)
@@ -2353,29 +2600,28 @@ void Process::stderrCallback(GCBSysType sys, GCBTagType tag,
     
     // Go no further if the process is no longer in the process table
     if(process.isNull())
-	return;	
-    
-    // Critical section touching the process
-    {
-	Guard guard_process(*process);
+	return;
 
-	// Is there a standard error stream callback set for this process?
-	if(process->dm_stderr_callback.first != NULL) {
+    // Note: A critical section touching the process is not required here
+    //       because the standard error stream callback is set once upon object
+    //       creation and then never changed again.
 
-	    // Call the standard error stream callback
-	    (*(process->dm_stderr_callback.first))
-		((char*)msg, sys.msg_size, process->dm_stderr_callback.second);
-	    
-	}
-	else {
-
-	    // Redirect output to tool's standard error stream
-	    char* ptr = (char*)msg;
-	    for(int i = 0; i < sys.msg_size; ++i, ++ptr)
-		fputc(*ptr, stderr);
-	    fflush(stderr);
-	}	
+    // Is there a standard error stream callback set for this process?
+    if(process->dm_stderr_callback.first != NULL) {
+	
+	// Call the standard error stream callback
+	(*(process->dm_stderr_callback.first))
+	    ((char*)msg, sys.msg_size, process->dm_stderr_callback.second);
+	
     }
+    else {
+	
+	// Redirect output to tool's standard error stream
+	char* ptr = (char*)msg;
+	for(int i = 0; i < sys.msg_size; ++i, ++ptr)
+	    fputc(*ptr, stderr);
+	fflush(stderr);
+    }	
 }
 
 
@@ -2384,8 +2630,9 @@ void Process::stderrCallback(GCBSysType sys, GCBTagType tag,
  * Standard out callback.
  *
  * Callback function called by the DPCL main loop when a created process sends
- * data to its standard out stream. Simply redirect the output to the tool's 
- * standard out stream.
+ * data to its standard out stream. Passes the output to the standard out stream
+ * callback for the process, or redirects it to the tool's standard out stream
+ * if no callback was specified.
  */
 void Process::stdoutCallback(GCBSysType sys, GCBTagType tag, 
 			     GCBObjType, GCBMsgType msg)
@@ -2408,41 +2655,40 @@ void Process::stdoutCallback(GCBSysType sys, GCBTagType tag,
 	// Attempt to locate the process by its unique name
 	process = ProcessTable::TheTable.getProcessByName(*name);
     }
-    
+
     // Go no further if the process is no longer in the process table
     if(process.isNull())
-	return;	
+	return;
+
+    // Note: A critical section touching the process is not required here
+    //       because the standard out stream callback is set once upon object
+    //       creation and then never changed again.
     
-    // Critical section touching the process
-    {
-	Guard guard_process(*process);
-
-	// Is there a standard output stream callback set for this process?
-	if(process->dm_stdout_callback.first != NULL) {
-
-	    // Call the standard output stream callback
-	    (*(process->dm_stdout_callback.first))
-		((char*)msg, sys.msg_size, process->dm_stdout_callback.second);
-	    
-	}
-	else {
-
-	    // Redirect output to tool's standard output stream
-	    char* ptr = (char*)msg;
-	    for(int i = 0; i < sys.msg_size; ++i, ++ptr)
-		fputc(*ptr, stdout);
-	    fflush(stdout);
-	}	
+    // Is there a standard output stream callback set for this process?
+    if(process->dm_stdout_callback.first != NULL) {
+	
+	// Call the standard output stream callback
+	(*(process->dm_stdout_callback.first))
+	    ((char*)msg, sys.msg_size, process->dm_stdout_callback.second);
+	
     }
+    else {
+	
+	// Redirect output to tool's standard output stream
+	char* ptr = (char*)msg;
+	for(int i = 0; i < sys.msg_size; ++i, ++ptr)
+	    fputc(*ptr, stdout);
+	fflush(stdout);
+    }	
 }
 
 
 
 /**
- * Process suspension callback.
+ * Process or thread suspension callback.
  *
- * Callback function called by the DPCL main loop when a process has been
- * suspended Locates the appropriate process and updates its state.
+ * Callback function called by the DPCL main loop when a process or thread has
+ * been suspended. Updates the appropriate state entry.
  */
 void Process::suspendCallback(GCBSysType, GCBTagType tag, 
 			      GCBObjType, GCBMsgType msg)
@@ -2462,49 +2708,37 @@ void Process::suspendCallback(GCBSysType, GCBTagType tag,
     }
 #endif
 
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
-	
-	// Attempt to locate the process by its unique name
-	process = ProcessTable::TheTable.getProcessByName(*name);
-	
-	// Destroy the heap-allocated name string
-	delete name;
-    }
-	
-    // Go no further if the process is no longer in the process table
-    if(process.isNull())
-	return;	
-    
-    // Critical section touching the process
-    {
-	Guard guard_process(*process);
+    // Did the suspend succeed?
+    if(status->status() == ASC_success) {
 
-	// Check assertions
-	Assert(process->dm_is_state_changing && 
-	       (process->dm_future_state == Thread::Suspended));
-	
-	// Did the suspend fail?
-	if(status->status() != ASC_success) {
+	// Critical section touching the process table
+	{
+	    Guard guard_process_table(ProcessTable::TheTable);
 	    
-	    // Request disconnection from this process
-	    process->requestDisconnect();
-	    
+	    // Attempt to locate the process by its unique name
+	    process = ProcessTable::TheTable.getProcessByName(
+		getProcessFromUniqueName(*name)
+		);
 	}
-	else {
-
-	    // Indicate process' current state is "suspended"
-	    process->dm_current_state = Thread::Suspended;
-	    process->dm_is_state_changing = false;
-	 
+	
+	// Critical section touching the process
+	if(!process.isNull()) {
+	    Guard guard_process(*process);
+	    
+	    // Process or thread is in the "suspended" state
+	    process->setCurrentState(*name, Thread::Suspended);
+	    
 #ifndef NDEBUG
 	    if(is_debug_enabled)
-		process->debugState();
+		process->debugState(*name);
 #endif
 	    
-	}
+        }
+	
     }
+
+    // Destroy the heap-allocated name string
+    delete name;
 }
 
 
@@ -2513,7 +2747,7 @@ void Process::suspendCallback(GCBSysType, GCBTagType tag,
  * Process termination callback.
  *
  * Callback function called by the DPCL main loop when a process has terminated.
- * Locates the appropriate process and updates its state.
+ * Updates the appropriate state entry.
  */
 void Process::terminationCallback(GCBSysType, GCBTagType,
 				  GCBObjType, GCBMsgType msg)
@@ -2534,23 +2768,132 @@ void Process::terminationCallback(GCBSysType, GCBTagType,
 	process = ProcessTable::TheTable.getProcessByName(name);
     }
 
+    // Critical section touching the process
+    if(!process.isNull()) {
+        Guard guard_process(*process);
+
+	// Process is in the "suspended" state
+	process->setCurrentState(name, Thread::Terminated);
+
+#ifndef NDEBUG
+	if(is_debug_enabled)
+	    process->debugState(name);
+#endif
+
+    }
+}
+
+
+
+/**
+ * Thread list change callback.
+ *
+ * Callback function called by the DPCL main loop when the thread list of a
+ * process has been changed. Updates databases as necessary with the new thread
+ * if one is being created and then issues an asynchronous request for the
+ * process' address space. Updates the appropriate state entry.
+ */
+void Process::threadListChangeCallback(GCBSysType, GCBTagType,
+				       GCBObjType, GCBMsgType msg)
+{
+    std::string name = std::string(reinterpret_cast<char*>(msg));
+    SmartPtr<Process> process;
+
+#ifndef NDEBUG
+    if(is_debug_enabled)
+	debugCallback("threadListChange", name);
+#endif
+    
+    // Critical section touching the process table
+    {
+	Guard guard_process_table(ProcessTable::TheTable);
+
+	// Attempt to locate the process by its unique name
+	process = ProcessTable::TheTable.getProcessByName(
+	    getProcessFromUniqueName(name)
+	    );
+    }
+
     // Go no further if the process is no longer in the process table
     if(process.isNull())
-	return;	
+	return;
+
+    // Get the thread identifier of the thread being created or destroyed
+    std::string tid_string = getThreadFromUniqueName(name);
+    if(tid_string.empty())
+	return;
+    pthread_t tid = 
+	static_cast<pthread_t>(strtoul(tid_string.c_str(), NULL, 10));
+    if(tid == 0)
+	return;
     
+    // Get the identifiers of the threads in this process
+    std::set<pthread_t> tids;
+    if(!process->getPosixThreadIds(tids))
+	return;
+    tids.erase(static_cast<pthread_t>(0));
+
+    // Is the thread being created?
+    bool is_created = (tids.find(tid) != tids.end());
+
+    // Update databases as necessary if a new thread is being created
+    if(is_created) {
+	
+	// Original and added sets of threads for this process
+	ThreadGroup original, added;
+	
+	// Critical section touching the process table
+	{
+	    Guard guard_process_table(ProcessTable::TheTable);
+	    
+	    // Get the original set of threads in this process
+	    original = ProcessTable::TheTable.getThreadsByProcess(process);
+	}
+
+	// Iterate over the original threads associated with this process
+	for(ThreadGroup::const_iterator
+		i = original.begin(); i != original.end(); ++i) {
+
+	    // Does created thread not exist in original thread's database?
+	    if(!i->doesSiblingExist(tid)) {
+
+		// Copy the original thread for representing the created thread
+		Thread t = i->createCopy();
+		t.setPosixThreadId(tid);
+		added.insert(t);			    
+		
+	    }
+
+	}
+
+	// Critical section touching the process table
+	{
+	    Guard guard_process_table(ProcessTable::TheTable);
+	    
+	    // Add all the new threads to the process table
+	    for(ThreadGroup::const_iterator
+		    i = added.begin(); i != added.end(); ++i)
+		ProcessTable::TheTable.addThread(*i);
+	}
+
+	// Request the current in-memory address space of this process
+	if(!added.empty())
+	    process->requestAddressSpace(added, Time::Now());
+
+    }
+
     // Critical section touching the process
     {
 	Guard guard_process(*process);
 
-	// Indicate process' state is "terminated"
-	process->dm_current_state = Thread::Terminated;
-	process->dm_is_state_changing = false;
-
+	// Thread is in either the "running" or "terminated" state
+	process->setCurrentState(name, is_created ? Thread::Running : 
+				 Thread::Terminated);
+	
 #ifndef NDEBUG
 	if(is_debug_enabled)
-	    process->debugState();
-#endif	
-
+	    process->debugState(name);
+#endif
     }
 }
 
@@ -2603,11 +2946,11 @@ void Process::unloadModuleCallback(GCBSysType, GCBTagType tag,
  */
 void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
 {    
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled)	
-	debugRequest("AddressSpace");
+	debugRequest("AddressSpace", "");
 #endif
     
     // Address space for this process
@@ -2785,17 +3128,17 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
  */
 void Process::requestAttach()
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled)	
-	debugRequest("Attach");
+	debugRequest("Attach", "");
 #endif
     
     // Allocate a copy of our unique name
     std::string* name = new std::string(formUniqueName(dm_host, dm_pid));
     Assert(name != NULL);
-    
+
     // Ask DPCL to asynchronously attach to this process
     AisStatus retval = dm_process->attach(attachCallback, name);
 #ifndef NDEBUG
@@ -2813,14 +3156,15 @@ void Process::requestAttach()
     }
     else {
 
-	// Indicate we are "connecting", changing to "suspended"
-	dm_current_state = Thread::Connecting;
-	dm_is_state_changing = true;
-	dm_future_state = Thread::Suspended;
-
+	// Process is in the "connecting" state
+	setCurrentState(*name, Thread::Connecting);
+	
+	// Process is changing to the "suspended" state
+	setFutureState(*name, Thread::Suspended);
+	
 #ifndef NDEBUG
-	if(is_debug_enabled)
-	    debugState();
+        if(is_debug_enabled)
+            debugState(*name);
 #endif
 
     }
@@ -2837,11 +3181,11 @@ void Process::requestAttach()
  */
 void Process::requestConnect()
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled)
-	debugRequest("Connect");
+	debugRequest("Connect", "");
 #endif
     
     // Allocate a copy of our unique name
@@ -2855,28 +3199,33 @@ void Process::requestConnect()
 	debugDPCL("request to connect", retval);
 #endif
     if(retval.status() != ASC_success) {
+
+	// Process is in the "disconnected" state
+	setCurrentState(*name, Thread::Disconnected);
+
+#ifndef NDEBUG
+	if(is_debug_enabled)
+	    debugState(*name);
+#endif
 	
 	// Destroy the heap-allocated unique name string
 	delete name;
 
-	// Indicate our current state is "disconnected"
-	dm_current_state = Thread::Disconnected;
-	dm_is_state_changing = false;
-	
     }
     else {
 
-	// Indicate we are "connecting", changing to "suspended"
-	dm_current_state = Thread::Connecting;
-	dm_is_state_changing = true;
-	dm_future_state = Thread::Suspended;
+	// Process is in the "connecting" state
+	setCurrentState(*name, Thread::Connecting);
 	
-    }    
-
+	// Process is changing to the "suspended" state
+	setFutureState(*name, Thread::Suspended);
+	
 #ifndef NDEBUG
-    if(is_debug_enabled)
-	debugState();
+        if(is_debug_enabled)
+            debugState(*name);
 #endif
+
+    }
 }
 
 
@@ -2893,11 +3242,11 @@ void Process::requestConnect()
  */
 void Process::requestDeactivateAndRemove(ProbeHandle handle)
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled)
-	debugRequest("DeactivateAndRemove");
+	debugRequest("DeactivateAndRemove", "");
 #endif
 
     // Allocate a copy of our unique name
@@ -2948,11 +3297,11 @@ void Process::requestDeactivateAndRemove(ProbeHandle handle)
  */
 void Process::requestDestroy()
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled)
-	debugRequest("Destroy");
+        debugRequest("Destroy", "");
 #endif
 
     // Allocate a copy of our unique name
@@ -2962,29 +3311,77 @@ void Process::requestDestroy()
     // Ask DPCL to asynchronously destroy to this process
     AisStatus retval = dm_process->destroy(destroyCallback, name);
 #ifndef NDEBUG
-    if(is_debug_enabled) 
-	debugDPCL("request to destroy", retval);
+    if(is_debug_enabled)
+        debugDPCL("request to destroy", retval);
 #endif
     if(retval.status() != ASC_success) {
-	
-	// Destroy the heap-allocated unique name string
-	delete name;
-	
-	// Request disconnection from this process
-	requestDisconnect();
-	
+
+        // Destroy the heap-allocated unique name string
+        delete name;
+
     }
     else {
 
-	// Indicate we are changing state to "terminated"
-	dm_is_state_changing = true;
-	dm_future_state = Thread::Terminated;
+	// Process is changing to the "terminated" state
+	setFutureState(*name, Thread::Terminated);
 
 #ifndef NDEBUG
-	if(is_debug_enabled)
-	    debugState();
+        if(is_debug_enabled)
+            debugState(*name);
 #endif
+
+    }
+}
+
+
+
+/**
+ * Request thread destruction.
+ *
+ * Asynchronously requests that DPCL destroy a thread in this process.
+ * Attempts to issue the request and then immediately returns. After
+ * completing the request, DPCL will call destroyCallback().
+ *
+ * @param tid    Thread identifier of the thread to be destroyed.
+ */
+void Process::requestDestroy(pthread_t tid)
+{
+    GuardWithDPCL guard_myself(this);
+
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream arguments;
+	arguments << tid;
+	debugRequest("Destroy", arguments.str());
+    }
+#endif
+
+    // Allocate a copy of our unique name
+    std::string* name = new std::string(formUniqueName(dm_host, dm_pid, tid));
+    Assert(name != NULL);
+
+    // Ask DPCL to asynchronously destroy to this process
+    AisStatus retval = dm_process->destroy(destroyCallback, name, tid);
+#ifndef NDEBUG
+    if(is_debug_enabled)
+        debugDPCL("request to destroy", retval);
+#endif
+    if(retval.status() != ASC_success) {
+
+        // Destroy the heap-allocated unique name string
+        delete name;
+
+    }
+    else {
+
+	// Thread is changing to the "terminated" state
+	setFutureState(*name, Thread::Terminated);
 	
+#ifndef NDEBUG
+        if(is_debug_enabled)
+            debugState(*name);
+#endif
+
     }
 }
 
@@ -2999,11 +3396,11 @@ void Process::requestDestroy()
  */
 void Process::requestDisconnect()
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled)
-	debugRequest("Disconnect");
+	debugRequest("Disconnect", "");
 #endif
 
     // Allocate a copy of our unique name
@@ -3020,25 +3417,19 @@ void Process::requestDisconnect()
 	
 	// Destroy the heap-allocated unique name string
 	delete name;
-
-	// Indicate our current state is "disconnected"
-	dm_current_state = Thread::Disconnected;
-	dm_is_state_changing = false;
-	dm_future_state = Thread::Disconnected;	
 	
     }
     else {
 
-	// Indicate we are changing state to "disconnected"
-	dm_is_state_changing = true;
-	dm_future_state = Thread::Disconnected;
-	
-    }
+	// Process is changing to the "disconnected" state
+	setFutureState(*name, Thread::Disconnected);
 
 #ifndef NDEBUG
-    if(is_debug_enabled)
-	debugState();
+	if(is_debug_enabled)
+	    debugState(*name);
 #endif
+	
+    }
 }
 
 
@@ -3055,13 +3446,14 @@ void Process::requestDisconnect()
  * @param tag           Tag to be sent to the above callback.
  */
 void Process::requestExecute(ProbeExp expression, 
-			     GCBFuncType callback, GCBTagType tag)
+			     GCBFuncType callback, 
+			     GCBTagType tag)
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled)
-	debugRequest("Execute");
+	debugRequest("Execute", "");
 #endif
 
     // Allocate a copy of our unique name
@@ -3071,6 +3463,55 @@ void Process::requestExecute(ProbeExp expression,
     // Ask DPCL to asynchronously execute the probe expression in this process
     AisStatus retval = 
 	dm_process->execute(expression, callback, tag, executeCallback, name);
+#ifndef NDEBUG
+    if(is_debug_enabled) 
+	debugDPCL("request to execute", retval);
+#endif
+    if(retval.status() != ASC_success) {
+	
+	// Destroy the heap-allocated unique name string
+	delete name;
+	
+    }
+}
+
+
+
+/**
+ * Request instrumentation execution.
+ *
+ * Asynchronously requests that DPCL execute instrumentation in a thread in
+ * this process. Attempts to issue the request and then immediately returns.
+ * After completing the request, DPCL will call executeCallback().
+ *
+ * @param expression    Probe expression to be executed.
+ * @param callback      Callback to receive data from this instrumentation.
+ * @param tag           Tag to be sent to the above callback.
+ * @param tid           Thread identifier of the thread in which to execute
+ *                      the instrumentation.
+ */
+void Process::requestExecute(ProbeExp expression, 
+			     GCBFuncType callback, 
+			     GCBTagType tag,
+			     pthread_t tid)
+{
+    GuardWithDPCL guard_myself(this);
+
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream arguments;
+	arguments << "..., " << tid;
+	debugRequest("Execute", arguments.str());
+    }
+#endif
+
+    // Allocate a copy of our unique name
+    std::string* name = new std::string(formUniqueName(dm_host, dm_pid, tid));
+    Assert(name != NULL);
+
+    // Ask DPCL to asynchronously execute the probe expression in this process
+    AisStatus retval = dm_process->execute(expression, callback, 
+					   tag, executeCallback, name, tid);
 #ifndef NDEBUG
     if(is_debug_enabled) 
 	debugDPCL("request to execute", retval);
@@ -3096,11 +3537,11 @@ void Process::requestExecute(ProbeExp expression,
  */
 void Process::requestFree(ProbeExp expression)
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled)
-	debugRequest("Free");
+	debugRequest("Free", "");
 #endif
 
     // Allocate a copy of our unique name
@@ -3143,11 +3584,11 @@ ProbeHandle Process::requestInstallAndActivate(ProbeExp expression,
 					       GCBFuncType callback,
 					       GCBTagType tag)
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
     
 #ifndef NDEBUG
     if(is_debug_enabled)
-	debugRequest("InstallAndActivate");
+	debugRequest("InstallAndActivate", "");
 #endif
 
     // Allocate a copy of our unique name
@@ -3160,6 +3601,84 @@ ProbeHandle Process::requestInstallAndActivate(ProbeExp expression,
 						 &callback, &tag,
 						 installProbeCallback, name,
 						 &handle);
+#ifndef NDEBUG
+    if(is_debug_enabled) 
+	debugDPCL("request to install_probe", retval);
+#endif
+    if(retval.status() != ASC_success) {
+	
+	// Destroy the heap-allocated unique name string
+	delete name;
+
+    }
+
+    // Allocate another copy of our unique name
+    name = new std::string(formUniqueName(dm_host, dm_pid));
+    Assert(name != NULL);
+    
+    // Ask DPCL to asynchronously activate the probe in this process
+    retval = 
+	dm_process->activate_probe(1, &handle, activateProbeCallback, name);
+#ifndef NDEBUG
+    if(is_debug_enabled) 
+	debugDPCL("request to activate_probe", retval);
+#endif
+    if(retval.status() != ASC_success) {
+	
+	// Destroy the heap-allocated unique name string
+	delete name;
+	
+    }
+
+    // Return the probe handle to the caller
+    return handle;
+}
+
+
+
+/**
+ * Request instrumentation installation and activation.
+ *
+ * Asynchronously requests that DPCL install and activate instrumentation in a
+ * thread in this process. Attempts to issue the requests and then immediately
+ * returns. After completing the requests, DPCL will call installCallback() and
+ * activateCallback().
+ *
+ * @param expression    Probe expression to be installed and activated.
+ * @param point         Point at which instrumentation should be installed
+ *                      and activated.
+ * @param callback      Callback to receive data from this instrumentation.
+ * @param tag           Tag to be sent to the above callback.
+ * @param tid           Thread identifier of the thread in which to install
+ *                      and activate the instrumentation.
+ * @return              Handle to the resulting instrumentation.
+ */
+ProbeHandle Process::requestInstallAndActivate(ProbeExp expression, 
+					       InstPoint point,
+					       GCBFuncType callback,
+					       GCBTagType tag,
+					       pthread_t tid)
+{
+    GuardWithDPCL guard_myself(this);
+    
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream arguments;
+	arguments << "..., " << tid;
+	debugRequest("InstallAndActivate", arguments.str());
+    }
+#endif
+
+    // Allocate a copy of our unique name
+    std::string* name = new std::string(formUniqueName(dm_host, dm_pid, tid));
+    Assert(name != NULL);
+
+    // Ask DPCL to asynchronously install the probe in this process
+    ProbeHandle handle;
+    AisStatus retval = dm_process->install_probe(1, &expression, &point,
+						 &callback, &tag,
+						 installProbeCallback, name,
+						 &handle, tid);
 #ifndef NDEBUG
     if(is_debug_enabled) 
 	debugDPCL("request to install_probe", retval);
@@ -3211,18 +3730,14 @@ ProbeHandle Process::requestInstallAndActivate(ProbeExp expression,
  */
 void Process::requestLoadModule(LibraryEntry& library)
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled) {
-	std::stringstream output;
-	output << "[TID " << pthread_self() << "] "
-	       << "Process::requestLoadModule(C"
-	       << EntrySpy(library.dm_collector).getEntry() << ", \"" 
-	       << library.dm_name << "\") on " 
-	       << formUniqueName(dm_host, dm_pid)
-	       << std::endl;
-	std::cerr << output.str();
+	std::stringstream arguments;
+	arguments << "C" << EntrySpy(library.dm_collector).getEntry() 
+		  << ", \"" << library.dm_name << "\"";
+	debugRequest("LoadModule", arguments.str());
     }
 #endif
 
@@ -3285,11 +3800,11 @@ void Process::requestLoadModule(LibraryEntry& library)
  */
 void Process::requestResume()
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled)
-	debugRequest("Resume");
+        debugRequest("Resume", "");
 #endif
 
     // Allocate a copy of our unique name
@@ -3299,29 +3814,77 @@ void Process::requestResume()
     // Ask DPCL to asynchronously resume this process
     AisStatus retval = dm_process->resume(resumeCallback, name);
 #ifndef NDEBUG
-    if(is_debug_enabled) 
-	debugDPCL("request to resume", retval);
+    if(is_debug_enabled)
+        debugDPCL("request to resume", retval);
 #endif
     if(retval.status() != ASC_success) {
-	
-	// Destroy the heap-allocated unique name string
-	delete name;
-	
-	// Request disconnection from this process
-	requestDisconnect();
-	
+
+        // Destroy the heap-allocated unique name string
+        delete name;
+
     }
     else {
 
-	// Indicate we are changing state to "running"
-	dm_is_state_changing = true;
-	dm_future_state = Thread::Running;
+	// Process is changing to the "running" state
+	setFutureState(*name, Thread::Running);
 
 #ifndef NDEBUG
-	if(is_debug_enabled)
-	    debugState();
+        if(is_debug_enabled)
+            debugState(*name);
 #endif
-	
+
+    }
+}
+
+
+
+/**
+ * Request thread resumption.
+ *
+ * Asynchronously requests that DPCL resume a thread in this process.
+ * Attempts to issue the request and then immediately returns. After
+ * completing the request, DPCL will call resumeCallback().
+ *
+ * @param tid    Thread identifier of the thread to be resumed.
+ */
+void Process::requestResume(pthread_t tid)
+{
+    GuardWithDPCL guard_myself(this);
+
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream arguments;
+	arguments << tid;
+	debugRequest("Resume", arguments.str());
+    }
+#endif
+
+    // Allocate a copy of our unique name
+    std::string* name = new std::string(formUniqueName(dm_host, dm_pid, tid));
+    Assert(name != NULL);
+
+    // Ask DPCL to asynchronously resume this thread
+    AisStatus retval = dm_process->resume(resumeCallback, name, tid);
+#ifndef NDEBUG
+    if(is_debug_enabled)
+        debugDPCL("request to resume", retval);
+#endif
+    if(retval.status() != ASC_success) {
+
+        // Destroy the heap-allocated unique name string
+        delete name;
+
+    }
+    else {
+
+	// Thread is changing to the "running" state
+	setFutureState(*name, Thread::Running);
+
+#ifndef NDEBUG
+        if(is_debug_enabled)
+            debugState(*name);
+#endif
+
     }
 }
 
@@ -3336,11 +3899,11 @@ void Process::requestResume()
  */
 void Process::requestSuspend()
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled)
-	debugRequest("Suspend");
+        debugRequest("Suspend", "");
 #endif
 
     // Allocate a copy of our unique name
@@ -3350,29 +3913,77 @@ void Process::requestSuspend()
     // Ask DPCL to asynchronously suspend this process
     AisStatus retval = dm_process->suspend(suspendCallback, name);
 #ifndef NDEBUG
-    if(is_debug_enabled) 
-	debugDPCL("request to suspend", retval);
+    if(is_debug_enabled)
+        debugDPCL("request to suspend", retval);
 #endif
     if(retval.status() != ASC_success) {
-	
-	// Destroy the heap-allocated unique name string
-	delete name;
-	
-	// Request disconnection from this process
-	requestDisconnect();
-	
+
+        // Destroy the heap-allocated unique name string
+        delete name;
+
     }
     else {
+
+	// Process is changing to the "suspended" state
+	setFutureState(*name, Thread::Suspended);
 	
-	// Indicate we are changing state to "suspended"
-	dm_is_state_changing = true;
-	dm_future_state = Thread::Suspended;
+#ifndef NDEBUG
+        if(is_debug_enabled)
+            debugState(*name);
+#endif
+
+    }
+}
+
+
+
+/**
+ * Request thread suspension.
+ *
+ * Asynchronously requests that DPCL suspend a thread in this process.
+ * Attempts to issue the request and then immediately returns. After
+ * completing the request, DPCL will call suspendCallback().
+ *
+ * @param tid    Thread identifier of the thread to be suspended.
+ */
+void Process::requestSuspend(pthread_t tid)
+{
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
-	if(is_debug_enabled)
-	    debugState();
+    if(is_debug_enabled) {
+	std::stringstream arguments;
+	arguments << tid;
+	debugRequest("Suspend", arguments.str());
+    }
 #endif
+
+    // Allocate a copy of our unique name
+    std::string* name = new std::string(formUniqueName(dm_host, dm_pid, tid));
+    Assert(name != NULL);
+
+    // Ask DPCL to asynchronously suspend this process
+    AisStatus retval = dm_process->suspend(suspendCallback, name, tid);
+#ifndef NDEBUG
+    if(is_debug_enabled)
+        debugDPCL("request to suspend", retval);
+#endif
+    if(retval.status() != ASC_success) {
+
+        // Destroy the heap-allocated unique name string
+        delete name;
+
+    }
+    else {
+
+	// Thread is changing to the "suspended" state
+	setFutureState(*name, Thread::Suspended);
 	
+#ifndef NDEBUG
+        if(is_debug_enabled)
+            debugState(*name);
+#endif
+
     }
 }
 
@@ -3389,18 +4000,14 @@ void Process::requestSuspend()
  */
 void Process::requestUnloadModule(LibraryEntry& library)
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled) {
-	std::stringstream output;
-	output << "[TID " << pthread_self() << "] "
-	       << "Process::requestUnloadModule(C"
-	       << EntrySpy(library.dm_collector).getEntry() << ", \""
-	       << library.dm_name << "\") on " 
-	       << formUniqueName(dm_host, dm_pid)
-	       << std::endl;
-	std::cerr << output.str();
+	std::stringstream arguments;
+	arguments << "C" << EntrySpy(library.dm_collector).getEntry() 
+		  << ", \"" << library.dm_name << "\")";
+	debugRequest("UnloadModule", arguments.str());
     }
 #endif
     
@@ -3426,6 +4033,188 @@ void Process::requestUnloadModule(LibraryEntry& library)
 
 
 /**
+ * Find the current state.
+ *
+ * Returns the current state of the specified process or thread. Assumes that
+ * the process' current state should be used if the current state for a thread
+ * cannot be found.
+ *
+ * @param name    Unique name of the process or thread to be found.
+ * @return        Process or thread's current state.
+ */
+Thread::State Process::findCurrentState(const std::string& name) const
+{
+    Guard guard_myself(this);
+
+    // Look for the specified name in the map of current states
+    std::map<std::string, Thread::State>::const_iterator i =
+	dm_current_state.find(name);
+    
+    // Look for the process' name if the specified name wasn't found
+    if(i == dm_current_state.end())
+	i = dm_current_state.find(getProcessFromUniqueName(name));
+    
+    // Check assertions
+    Assert(i != dm_current_state.end());
+    
+    // Return the current state to the caller
+    return i->second;
+}
+
+
+
+/**
+ * Find if state is changing.
+ *
+ * Returns a flag indicating if the specified process or thread is undergoing
+ * a state change. Assumes that the process' flag should be used if the flag
+ * for a thread cannot be found.
+ *
+ * @param name    Unique name of the process or thread to be found.
+ * @return        Boolean "true" if the process or thread is changing state,
+ *                "false" otherwise.
+ */
+bool Process::findIsChangingState(const std::string& name) const
+{
+    Guard guard_myself(this);
+
+    // Look for the specified name in the map of state change flags
+    std::map<std::string, bool>::const_iterator i =
+	dm_is_state_changing.find(name);
+    
+    // Look for the process' name if the specified name wasn't found
+    if(i == dm_is_state_changing.end())
+	i = dm_is_state_changing.find(getProcessFromUniqueName(name));
+    
+    // Check assertions
+    Assert(i != dm_is_state_changing.end());
+    
+    // Return the state change flag to the caller
+    return i->second;
+}
+
+
+
+/**
+ * Find the future state.
+ *
+ * Returns the future state of the specified process or thread. Assumes that
+ * the process' future state should be used if the future state for a thread
+ * cannot be found.
+ *
+ * @param name    Unique name of the process or thread to be found.
+ * @return        Process or thread's future state.
+ */
+Thread::State Process::findFutureState(const std::string& name) const
+{
+    Guard guard_myself(this);
+
+    // Look for the specified name in the map of future states
+    std::map<std::string, Thread::State>::const_iterator i =
+	dm_future_state.find(name);
+    
+    // Look for the process' name if the specified name wasn't found
+    if(i == dm_future_state.end())
+	i = dm_future_state.find(getProcessFromUniqueName(name));
+    
+    // Check assertions
+    Assert(i != dm_future_state.end());
+    
+    // Return the future state to the caller
+    return i->second;
+}
+
+
+
+/**
+ * Set the current state.
+ *
+ * Sets the current state of the specified process or thread to the given value
+ * and indicates that the process or thread is not changing state.
+ *
+ * @note    Insures that any state change in the process applies to all threads
+ *          in the process as well.
+ *
+ * @param name     Unique name of the process or thread to be set.
+ * @param state    New current state of that process or thread.
+ */
+void Process::setCurrentState(const std::string& name, 
+			      const Thread::State& state)
+{
+    Guard guard_myself(this);
+
+    // Is the specified name a process name?
+    if(name == getProcessFromUniqueName(name)) {
+
+	// All threads must have the same current state as the process
+	dm_current_state.clear();
+	dm_is_state_changing.clear();
+	dm_future_state.clear();
+	
+	// Set the current state of the process
+	dm_current_state[name] = state;
+	dm_is_state_changing[name] = false;
+	dm_future_state[name] = state;
+	
+    }
+
+    // Is the process' current state the same as the thread's new state?
+    else if(findCurrentState(getProcessFromUniqueName(name)) == state) {
+	
+	// Simply erase the thread-specific state information
+	dm_current_state.erase(name);
+	dm_is_state_changing.erase(name);
+	dm_future_state.erase(name);
+	
+    }
+
+    // Thread is in a different state than the process
+    else {
+	
+	// Set the current state of the thread
+	dm_current_state[name] = state;
+	dm_is_state_changing[name] = false;
+	dm_future_state[name] = state;
+	
+    }
+}
+
+
+
+/**
+* Set the future state.
+*
+* Sets the future state of the specified process or thread to the given value
+* and indicates that the process or thread is changing state.
+*
+* @note    Insures that any state change in the process applies to all threads
+*          in the process as well.
+*
+* @param name     Unique name of the process or thread to be set.
+* @param state    New future state of that process or thread.
+*/
+void Process::setFutureState(const std::string& name, 
+			     const Thread::State& state)
+{
+    Guard guard_myself(this);
+
+    // Is the specified name a process name?
+    if(name == getProcessFromUniqueName(name)) {
+
+	// All threads must have the same future state as the process
+	dm_is_state_changing.clear();
+	dm_future_state.clear();
+
+    }
+    
+    // Set the future state of the process or thread
+    dm_is_state_changing[name] = true;
+    dm_future_state[name] = state;
+}
+
+
+
+/**
  * Find a function.
  *
  * Finds the named function in this process and returns a source object for that
@@ -3438,6 +4227,8 @@ void Process::requestUnloadModule(LibraryEntry& library)
  */
 SourceObj Process::findFunction(const std::string& name) const
 {
+    Guard guard_myself(this);
+
     // Iterate over each module associated with this process
     SourceObj program = dm_process->get_program_object();
     for(int m = 0; m < program.child_count(); ++m) {
@@ -3485,6 +4276,8 @@ SourceObj Process::findFunction(const std::string& name) const
  */
 SourceObj Process::findVariable(const std::string& name) const
 {
+    Guard guard_myself(this);
+
     // Iterate over each module associated with this process
     SourceObj program = dm_process->get_program_object();
     for(int m = 0; m < program.child_count(); ++m) {
@@ -3537,7 +4330,7 @@ std::pair<Process::LibraryEntry*, ProbeExp>
 Process::findLibraryFunction(const Collector& collector,
 			     const std::string& name)
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
     
     // Parse the library function name into separate library and function names
     std::pair<std::string, std::string> parsed = parseLibraryFunctionName(name);
@@ -3558,9 +4351,7 @@ Process::findLibraryFunction(const Collector& collector,
 	LibraryEntry entry(collector, parsed.first);
 	
 	// Request the library (module) be loaded into this process
-	MainLoop::suspend();
 	requestLoadModule(entry);
-	MainLoop::resume();
 	
 	// Add this entry to the list of libraries if the library was found
 	if(!entry.dm_path.empty())
@@ -3611,7 +4402,7 @@ Process::findLibraryFunction(const Collector& collector,
  */
 bool Process::getString(const ProbeExp& where, std::string& value) const
 {
-    Guard guard_myself(this);
+    GuardWithDPCL guard_myself(this);
     
     // Find the strlen() function
     SourceObj strlen_func = findFunction("strlen");    
@@ -3654,10 +4445,8 @@ bool Process::getString(const ProbeExp& where, std::string& value) const
     DataBucket<char*> bucket;
 
     // Ask DPCL to execute the probe expression in this process
-    MainLoop::suspend();
     AisStatus retval = 
 	dm_process->bexecute(expression, getBlobCallback, &bucket);
-    MainLoop::resume();
 #ifndef NDEBUG
     if(is_debug_enabled)
     	debugDPCL("response from bexecute", retval);
@@ -3673,6 +4462,42 @@ bool Process::getString(const ProbeExp& where, std::string& value) const
 	value = std::string(buffer);
 	delete [] buffer;
     }
+
+    // Indicate to the caller that the value was retrieved
+    return true;
+}
+
+
+
+/**
+ * Get thread identifiers.
+ *
+ * Gets the POSIX thread identifier of all the threads within this process. The
+ * value is returned as a STL set of thread identifiers. Returns a boolean value
+ * indiciating if the thread identifiers were successfully retrieved.
+ *
+ * @retval value   Current identifiers of all threads within this process.
+ * @return         Boolean "true" if the thread identifiers were successfully
+ *                 retrieved, "false" otherwise.
+ */
+bool Process::getPosixThreadIds(std::set<pthread_t>& value) const
+{
+    GuardWithDPCL guard_myself(this);
+
+    // Ask DPCL for the current list of threads in this process
+    AisStatus retval;
+    ThreadInfoList* list = dm_process->bget_threads(&retval);
+#ifndef NDEBUG
+    if(is_debug_enabled)
+    	debugDPCL("response from bget_threads", retval);
+#endif
+    if((retval.status() != ASC_success) || (list == NULL))
+	return false;
+
+    // Extract and return the thread identifiers if they were retrived
+    value.clear();
+    for(int i = 0; i < list->get_count(); ++i)
+	value.insert(list->get_entry(i).getTID());
 
     // Indicate to the caller that the value was retrieved
     return true;

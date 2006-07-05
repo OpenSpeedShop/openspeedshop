@@ -16,6 +16,10 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+# Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
+
+CFLAGS = -g -O0
+
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
@@ -48,7 +52,6 @@ mpi_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	MPICollector.hxx MPICollector.cxx \
 	MPIDetail.hxx
-
 
 # Common definitions for all MPI implementations
 #
@@ -151,65 +154,52 @@ wrapper_sources = \
 	$(NULL)
 
 
-# LAMPI
 
 if HAVE_LAMPI
-
 mpi_rt_lampi_la_CFLAGS = $(call rt_CFLAGS_generate,@LAMPI_CPPFLAGS@)
 mpi_rt_lampi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@LAMPI_LDFLAGS@)
 mpi_rt_lampi_la_LIBADD = $(call rt_LIBADD_generate,@LAMPI_LIBS@)
 mpi_rt_lampi_la_DEPENDENCIES =
 mpi_rt_lampi_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_lampi_la_SOURCES = $(wrapper_sources)
-
 endif
 
 
-# MPICH
 
 if HAVE_MPICH
-
 mpi_rt_mpich_la_CFLAGS = $(call rt_CFLAGS_generate,@MPICH_CPPFLAGS@)
 mpi_rt_mpich_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPICH_LDFLAGS@)
 mpi_rt_mpich_la_LIBADD = $(call rt_LIBADD_generate,@MPICH_LIBS@)
 mpi_rt_mpich_la_DEPENDENCIES =
 mpi_rt_mpich_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_mpich_la_SOURCES = $(wrapper_sources)
-
 endif
 
 
-# MPT
 
 if HAVE_MPT
-
 mpi_rt_mpt_la_CFLAGS = $(call rt_CFLAGS_generate,@MPT_CPPFLAGS@)
 mpi_rt_mpt_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPT_LDFLAGS@)
 mpi_rt_mpt_la_LIBADD = $(call rt_LIBADD_generate,@MPT_LIBS@)
 mpi_rt_mpt_la_DEPENDENCIES =
 mpi_rt_mpt_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_mpt_la_SOURCES = $(wrapper_sources)
-
 endif
 
 
-# OpenMPI
 
 if HAVE_OPENMPI
-
 mpi_rt_openmpi_la_CFLAGS = $(call rt_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
 mpi_rt_openmpi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
 mpi_rt_openmpi_la_LIBADD = $(call rt_LIBADD_generate,@OPENMPI_LIBS@)
 mpi_rt_openmpi_la_DEPENDENCIES =
 mpi_rt_openmpi_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_openmpi_la_SOURCES = $(wrapper_sources)
-
 endif
 
 
 
 EXTRA_DIST = mkwrapper.template
-
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES) $(wrapper_sources)
 
@@ -227,4 +217,3 @@ $(wrapper_sources) : mkwrapper mkwrapper.template
 		$(ANY_MPI_HEADER) \
 		mkwrapper.template \
 		> $@
-

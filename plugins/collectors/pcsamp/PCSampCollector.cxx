@@ -169,9 +169,9 @@ void PCSampCollector::startCollecting(const Collector& collector,
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_pcsamp_start_sampling_args),
                    &args);
 
-    // Execute pcsamp_stop_sampling() when we enter exit() for the thread
-    executeAtEntry(collector, thread, 
-		   "exit", "pcsamp-rt: pcsamp_stop_sampling", Blob());
+    // Execute pcsamp_stop_sampling() before we exit the thread
+    executeBeforeExit(collector, thread,
+		      "pcsamp-rt: pcsamp_stop_sampling", Blob());
     
     // Execute pcsamp_start_sampling() in the thread
     executeNow(collector, thread, 

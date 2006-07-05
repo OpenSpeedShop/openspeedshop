@@ -273,11 +273,10 @@ void MPICollector::startCollecting(const Collector& collector,
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_mpi_start_tracing_args),
                    &args);
     
-    // Execute mpi_stop_tracing() when we enter exit() for the thread
-    executeAtEntry(collector, thread,
-                   "exit",
-		   getRuntimeLibraryName(thread) + ": mpi_stop_tracing",
-		   Blob());
+    // Execute mpi_stop_tracing() before we exit the thread
+    executeBeforeExit(collector, thread,
+		      getRuntimeLibraryName(thread) + ": mpi_stop_tracing",
+		      Blob());
     
     // Execute mpi_start_tracing() in the thread
     executeNow(collector, thread,

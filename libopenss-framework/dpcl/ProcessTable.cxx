@@ -74,6 +74,20 @@ ProcessTable::ProcessTable() :
 				      Process::terminationCallback, NULL,
 				      &old_callback, &old_tag);
     Assert(retval.status() == ASC_success);	
+
+    // Setup the thread creation/termination handler
+    retval =
+	Ais_override_default_callback(AIS_NEW_THREAD_LIST_AVAIL,
+				      Process::threadListChangeCallback, NULL,
+				      &old_callback, &old_tag);
+    Assert(retval.status() == ASC_success);
+
+    // Setup the dlopen/dlclose handler
+    retval =
+	Ais_override_default_callback(AIS_NEW_PROGRAM_OBJ_AVAIL,
+				      Process::addressSpaceChangeCallback, NULL,
+				      &old_callback, &old_tag);
+    Assert(retval.status() == ASC_success);
     
     // Setup the out-of-band data handler
     retval = 

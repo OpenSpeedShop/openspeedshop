@@ -260,11 +260,37 @@ void CollectorImpl::executeInPlaceOf(const Collector& collector,
 
 
 /**
+ * Execute a library function before the thread exits.
+ *
+ * Executes the specified library function before the instrumented thread exits.
+ * Called by derived classes to execute functions in their runtime library.
+ *
+ * @param collector    Collector requesting the execution.
+ * @param thread       Thread in which the function should be executed.
+ * @param callee       Name of the library function to be executed.
+ * @param argument     Blob argument to the function.
+ */
+void CollectorImpl::executeBeforeExit(const Collector& collector,
+				      const Thread& thread,
+				      const std::string& callee, 
+				      const Blob& argument) const
+{
+    Instrumentor::executeAtEntryOrExit(thread, collector, 
+				       "exit", 
+				       true, callee, argument);
+    Instrumentor::executeAtEntryOrExit(thread, collector, 
+				       "__nptl_deallocate_tsd", 
+				       true, callee, argument);
+}
+
+
+
+/**
  * Remove instrumentation from a thread.
  *
- * Removes all instrumentation associated with the specified collector from the
- * specified thread. Called by derived classes when they are done using any
- * instrumentation they placed in the thread.
+ * Removes all instrumentation associated with the specified collector from
+ * the specified thread. Called by derived classes when they are done using
+ * any instrumentation they placed in the thread.
  *
  * @param collector    Collector which is removing instrumentation.
  * @param thread       Thread from which instrumentation should be removed.

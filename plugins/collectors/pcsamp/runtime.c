@@ -31,19 +31,8 @@
 
 
 
-/*
- * NOTE: For some reason GCC doesn't like it when the following two macros are
- *       replaced with constant unsigned integers. It complains about the arrays
- *       in the tls structure being "variable-size type declared outside of any
- *       function" even though the size IS constant... Maybe this can be fixed?
- */
-
 /** Thread-local storage. */
-#ifdef WDH_PER_THREAD_DATA_COLLECTION
 static __thread struct {
-#else
-static struct {
-#endif
 
     OpenSS_DataHeader header;  /**< Header for following data blob. */
     pcsamp_data data;          /**< Actual data blob. */

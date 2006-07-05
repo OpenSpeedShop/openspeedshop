@@ -53,11 +53,7 @@ const unsigned OverheadFrameCount = 2;
 #define EventBufferSize 415  /* io_event is 32 bytes */
 
 /** Thread-local storage. */
-#ifdef WDH_PER_THREAD_DATA_COLLECTION
 static __thread struct {
-#else
-static struct {
-#endif
     
     /** Nesting depth within the IO function wrappers. */
     unsigned nesting_depth;

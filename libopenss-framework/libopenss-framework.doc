@@ -276,7 +276,7 @@ Upon tool startup the framework library is loaded and it searches for collector
 plugins in several predefined locations. Tools access the list of available
 collectors at run-time by calling
 @link OpenSpeedShop::Framework::Collector::getAvailable getAvailable() @endlink
-which returns an STL set of
+which returns a STL set of
 @link OpenSpeedShop::Framework::Metadata Metadata @endlink
 objects, one per collector plugin found by the framework. Each
 @link OpenSpeedShop::Framework::Metadata Metadata @endlink
@@ -309,7 +309,7 @@ determine the parameters for a collector via
 @link
 OpenSpeedShop::Framework::Collector::getParameters getParameters()
 @endlink
-which returns an STL set of
+which returns a STL set of
 @link OpenSpeedShop::Framework::Metadata Metadata @endlink
 objects. Each 
 @link OpenSpeedShop::Framework::Metadata Metadata @endlink
@@ -426,7 +426,7 @@ interpretation is encapsulated within the collector plugin as it should be.
 
 Tools determine the metrics for a collector via
 @link OpenSpeedShop::Framework::Collector::getMetrics getMetrics() @endlink
-which returns an STL set of
+which returns a STL set of
 @link OpenSpeedShop::Framework::Metadata Metadata @endlink
 objects. Each 
 @link OpenSpeedShop::Framework::Metadata Metadata @endlink

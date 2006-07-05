@@ -38,6 +38,7 @@
 
 #include <dpcl.h>
 #include <map>
+#include <pthread.h>
 #include <set>
 #include <string>
 #ifdef HAVE_SYS_TYPES_H
@@ -72,20 +73,19 @@ namespace OpenSpeedShop { namespace Framework {
 
     public:
 
-	static std::string formUniqueName(const std::string&, const pid_t&);
-	
 	Process(const std::string&, const std::string&,
 		const OutputCallback, const OutputCallback);
 	Process(const std::string&, const pid_t&);
 	
 	~Process();
-	
+
 	std::string getHost() const;
         pid_t getProcessId() const;
+
+	bool isConnected();
 	
-	Thread::State getState() const;
-	void changeState(const Thread::State&);
-	bool isConnected() const;
+	Thread::State getState(const Thread&);
+	void changeState(const Thread&, const Thread::State&);
 
 	void executeNow(const Collector&, const Thread&,
 			const std::string&, const Blob&);
@@ -103,18 +103,26 @@ namespace OpenSpeedShop { namespace Framework {
 	
     private:
 
-#ifndef NDEBUG
+#ifndef NDEBUG	
+	struct StateEntry;
+
 	static bool is_debug_enabled;
-	
-	/** Previous value returned by getState(). */
-	mutable std::pair<bool, Thread::State> dm_previous_getstate;
+
+	/** Previous values returned by getState(). */
+	mutable std::map<std::string, Thread::State> dm_previous_getstate;
 	
 	static void debugCallback(const std::string&, const std::string&);
 	static void debugDPCL(const std::string&, const AisStatus&);
-	void debugState() const;
-	void debugRequest(const std::string&) const;
+	void debugState(const std::string&) const;
+	void debugRequest(const std::string&, const std::string&) const;
 #endif
-		
+
+	static std::string formUniqueName(const std::string&, const pid_t&);
+	static std::string formUniqueName(const std::string&,
+					  const pid_t&, const pthread_t&);
+	static std::string getProcessFromUniqueName(const std::string&);
+	static std::string getThreadFromUniqueName(const std::string&);
+
 	static Path searchForExecutable(const Path&);
 
 	static std::pair<std::string, std::string> 
@@ -123,7 +131,9 @@ namespace OpenSpeedShop { namespace Framework {
 	static void finishSymbolTableProcessing(SymbolTableState*);
 
 	static void activateProbeCallback(GCBSysType, GCBTagType, 
-					  GCBObjType, GCBMsgType);	
+					  GCBObjType, GCBMsgType);
+	static void addressSpaceChangeCallback(GCBSysType, GCBTagType, 
+					       GCBObjType, GCBMsgType);
 	static void attachCallback(GCBSysType, GCBTagType, 
 				   GCBObjType, GCBMsgType);
 	static void connectCallback(GCBSysType, GCBTagType,
@@ -164,6 +174,8 @@ namespace OpenSpeedShop { namespace Framework {
 				    GCBObjType, GCBMsgType);
 	static void terminationCallback(GCBSysType, GCBTagType,
 					GCBObjType, GCBMsgType);
+	static void threadListChangeCallback(GCBSysType, GCBTagType,
+					     GCBObjType, GCBMsgType);
 	static void unloadModuleCallback(GCBSysType, GCBTagType,
 					 GCBObjType, GCBMsgType);
 	
@@ -182,15 +194,15 @@ namespace OpenSpeedShop { namespace Framework {
 	/** Standard error stream callback. */
 	OutputCallback dm_stderr_callback;
 
-	/** Current state of this process. */
-	Thread::State dm_current_state;
-	
-	/** Flag indicating if process is changing state. */
-	bool dm_is_state_changing;
-	
-	/** Future state of this process. */
-	Thread::State dm_future_state;
-	
+	/** Current state of process/thread. */
+	std::map<std::string, Thread::State> dm_current_state;
+
+	/** Flags indicating if process/thread is changing state. */
+	std::map<std::string, bool> dm_is_state_changing;
+
+	/** Future state of process/thread. */
+	std::map<std::string, Thread::State> dm_future_state;
+
 	/**
 	 * Library entry.
 	 *
@@ -241,15 +253,28 @@ namespace OpenSpeedShop { namespace Framework {
 	void requestConnect();
 	void requestDeactivateAndRemove(ProbeHandle);
 	void requestDestroy();
+	void requestDestroy(pthread_t);
 	void requestDisconnect();
 	void requestExecute(ProbeExp, GCBFuncType, GCBTagType);
+	void requestExecute(ProbeExp, GCBFuncType, GCBTagType, pthread_t);
 	void requestFree(ProbeExp);
 	ProbeHandle requestInstallAndActivate(ProbeExp, InstPoint,
 					      GCBFuncType, GCBTagType);
+	ProbeHandle requestInstallAndActivate(ProbeExp, InstPoint,
+					      GCBFuncType, GCBTagType, 
+					      pthread_t);
 	void requestLoadModule(LibraryEntry&);
 	void requestResume();
+	void requestResume(pthread_t);
 	void requestSuspend();
+	void requestSuspend(pthread_t);
 	void requestUnloadModule(LibraryEntry&);
+
+	Thread::State findCurrentState(const std::string&) const;
+	bool findIsChangingState(const std::string&) const;
+	Thread::State findFutureState(const std::string&) const;
+	void setCurrentState(const std::string&, const Thread::State&);
+	void setFutureState(const std::string&, const Thread::State&);
 
 	SourceObj findFunction(const std::string&) const;
 	SourceObj findVariable(const std::string&) const;
@@ -258,6 +283,7 @@ namespace OpenSpeedShop { namespace Framework {
 	findLibraryFunction(const Collector&, const std::string&);	
 	
 	bool getString(const ProbeExp&, std::string&) const;
+	bool getPosixThreadIds(std::set<pthread_t>&) const;
 
     };
     

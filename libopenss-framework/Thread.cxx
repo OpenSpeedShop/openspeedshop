@@ -161,8 +161,8 @@ std::pair<bool, pthread_t> Thread::getPosixThreadId() const
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
 	if(!dm_database->getResultIsNull(1))
-	    tid = std::make_pair(true, static_cast<pthread_t>
-				 (dm_database->getResultAsInteger(1)));
+	    tid = std::make_pair(true, 
+				 dm_database->getResultAsPosixThreadId(1));
     END_TRANSACTION(dm_database);
     
     // Return the POSIX thread identifier to the caller
@@ -807,6 +807,170 @@ Thread::Thread() :
 Thread::Thread(const SmartPtr<Database>& database, const int& entry) :
     Entry(database, Entry::Threads, entry)
 {
+}
+
+
+
+/**
+ * Does a sibling exist?
+ *
+ * Searches the database containing this thread for a sibling of this thread.
+ * Returns a boolean flag indiciating if the sibling exists or not.
+ *
+ * @note    The term "sibling" here means another thread that is contained
+ *          within the same process as this thread.
+ *
+ * @param tid    Identifier of the sibling to find.
+ * @return       Boolean "true" if the sibling exists, "false" otherwise.
+ */
+bool Thread::doesSiblingExist(const pthread_t& tid) const
+{
+    bool exists = false;
+
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+
+    // Find our host and process identifier
+    std::string host;
+    pid_t pid;
+    dm_database->prepareStatement(
+	"SELECT host, pid FROM Threads WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement()) {
+	host = dm_database->getResultAsString(1);
+	pid = static_cast<pid_t>(dm_database->getResultAsInteger(2));
+    }	
+
+    // Find the sibiling
+    dm_database->prepareStatement(
+	"SELECT id FROM Threads WHERE host = ? AND pid = ? AND posix_tid = ?;"
+	);
+    dm_database->bindArgument(1, host);
+    dm_database->bindArgument(2, pid);
+    dm_database->bindArgument(3, tid);
+    while(dm_database->executeStatement())
+	exists = true;
+
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);
+    
+    // Return the existence flag to the caller
+    return exists;
+}
+
+
+
+/**
+ * Set our POSIX thread identifier.
+ *
+ * Sets the POSIX identifier of this thread.
+ *
+ * @param tid    Identifier of this thread.
+ */
+void Thread::setPosixThreadId(const pthread_t& tid) const
+{
+    // Set our POSIX thread identifier
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+	"UPDATE Threads SET posix_tid = ? WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, tid);
+    dm_database->bindArgument(2, dm_entry);
+    while(dm_database->executeStatement());
+    END_TRANSACTION(dm_database);
+}
+
+
+
+/**
+ * Copy ourselves.
+ * 
+ * Constructs a copy of this thread within the database and returns a Thread
+ * object for that copy.
+ *
+ * @return    Copy of this thread.
+ */
+Thread Thread::createCopy() const
+{
+    Thread copy;
+
+    // Begin a multi-statement transaction
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    validate();
+
+    // Find our host, process identifier, etc.
+    std::string host("");
+    pid_t pid = 0;
+    std::pair<bool, pthread_t> posix_tid(false, 0);
+    std::pair<bool, int> openmp_tid(false, 0);
+    std::pair<bool, int> mpi_rank(false, 0);
+    dm_database->prepareStatement(
+	"SELECT host, "
+	"       pid, "
+	"       posix_tid, "
+	"       openmp_tid, "
+	"       mpi_rank "
+	"FROM Threads "
+	"WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement()) {
+	host = dm_database->getResultAsString(1);
+	pid = static_cast<pid_t>(dm_database->getResultAsInteger(2));
+	if(!dm_database->getResultIsNull(3))
+            posix_tid = 
+		std::make_pair(true, dm_database->getResultAsPosixThreadId(3));
+	if(!dm_database->getResultIsNull(4))
+            openmp_tid = 
+		std::make_pair(true, dm_database->getResultAsInteger(4));
+	if(!dm_database->getResultIsNull(5))
+            mpi_rank = std::make_pair(true, dm_database->getResultAsInteger(5));
+    }
+
+    // Create a copy of this thread
+    dm_database->prepareStatement(
+	"INSERT INTO Threads (host, pid) VALUES (?, ?);"
+	);
+    dm_database->bindArgument(1, host);
+    dm_database->bindArgument(2, pid);
+    while(dm_database->executeStatement());	
+    copy = Thread(dm_database, dm_database->getLastInsertedUID());
+    
+    if(posix_tid.first) {
+	dm_database->prepareStatement(
+	    "UPDATE Threads SET posix_tid = ? WHERE id = ?;"
+	    );
+	dm_database->bindArgument(1, posix_tid.second);
+	dm_database->bindArgument(2, copy.dm_entry);
+	while(dm_database->executeStatement());	
+    }
+    
+    if(openmp_tid.first) {
+	dm_database->prepareStatement(
+	    "UPDATE Threads SET openmp_tid = ? WHERE id = ?;"
+	    );
+	dm_database->bindArgument(1, openmp_tid.second);
+	dm_database->bindArgument(2, copy.dm_entry);
+	while(dm_database->executeStatement());	
+    }
+
+    if(mpi_rank.first) {
+	dm_database->prepareStatement(
+	    "UPDATE Threads SET mpi_rank = ? WHERE id = ?;"
+	    );
+	dm_database->bindArgument(1, mpi_rank.second);
+	dm_database->bindArgument(2, copy.dm_entry);
+	while(dm_database->executeStatement());	
+    }
+
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);
+        
+    // Return the copy to the caller
+    return copy;
 }
 
 

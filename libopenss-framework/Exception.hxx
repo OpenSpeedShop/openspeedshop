@@ -83,6 +83,7 @@ namespace OpenSpeedShop { namespace Framework {
 	    LibraryNotFound,        /**< Library could not be found. */
 	    MPIImplChoiceInvalid,   /**< User-specified MPI Implementation is not one of the available choices. */
 	    ParameterValueInvalid,  /**< Passed parameter value isn't valid. */
+	    ProcessUnavailable,     /**< Process not available. */
 	    StateAlreadyChanging,   /**< Thread state change in progress. */
 	    StateChangeInvalid,     /**< Thread state change is invalid. */
 	    ThreadUnavailable,      /**< Thread not available. */
@@ -92,6 +93,8 @@ namespace OpenSpeedShop { namespace Framework {
 	Exception(const Code&);
 	Exception(const Code&, const std::string&);
 	Exception(const Code&, const std::string&, const std::string&);
+	Exception(const Code&, const std::string&, 
+		  const std::string&, const std::string&);
 	
 	void appendArgument(const std::string&);
 

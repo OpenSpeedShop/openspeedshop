@@ -16,10 +16,14 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = usertime.la usertime-rt.la
+# Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
+
+CFLAGS = -g -O0
 
 BUILT_SOURCES = \
 	blobs.h blobs.c
+
+pkglib_LTLIBRARIES = usertime.la usertime-rt.la
 
 usertime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework

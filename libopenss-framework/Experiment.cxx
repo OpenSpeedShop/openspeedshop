@@ -594,12 +594,6 @@ Thread Experiment::createProcess(const std::string& command,
  * threads within that job to this experiment. The thread(s) are suspended as a
  * result of attaching.
  *
- * @todo    Obtaining MPT rank numbers from MPI_debug_rank inside each process
- *          needs to be added here. Originally this was implemented down in
- *          Process::finishSymbolTableProcessing(). Unfortunately that won't
- *          work because the thread that is accessing the global is the same
- *          thread that needs to receive the data and a deadlock occurs.
- *
  * @param pid     Process identifier for the process.
  * @param host    Name of the host on which the process resides.
  * @return        Attached threads.
@@ -618,70 +612,128 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 	std::cerr << output.str();
     }
 #endif
-    
-    // Attach to the initial, specified, process
+
+    // Attach to the specified process
     threads = attachProcess(pid, host);
+
+    // Is there at least one connected (suspended) thread in this process?
+    ThreadGroup connected_in_specified = 
+	threads.getSubsetWithState(Thread::Suspended);
+    if(connected_in_specified.empty())
+	return threads;
+
+    // Look for any available MPI job information in this process
+    Job job;
+    bool is_mpt_job = 
+	getMPIJobFromMPT(*(connected_in_specified.begin()), job);
+    bool is_mpich_job = is_mpt_job ? false : 
+	getMPIJobFromMPICH(*(connected_in_specified.begin()), job);
     
-    // Wait until no thread in that process is still connecting
-    while(threads.isAnyState(Thread::Connecting))
-	sleep(1);
+    // Canonicalize the host names in the MPI job information
+    for(Job::iterator i = job.begin(); i != job.end(); ++i)
+	*i = std::make_pair(getCanonicalName(i->first), i->second);
     
-    // Is there at least one connected (suspended) thread?
-    ThreadGroup connected = threads.getSubsetWithState(Thread::Suspended);
-    if(!connected.empty()) {
+    // Iterate over all processes found to be in our MPI job
+    ThreadGroup connecting;
+    for(Job::const_iterator i = job.begin(); i != job.end(); ++i) {
 	
-	// Grab an arbitrary (the first) connected thread
-	Thread thread = *(connected.begin());
+	// Do the low-level attach to this process
+	std::pair<Thread, bool> state = attachProcessLL(i->second, i->first);
 	
-	// Look for any available MPI job information for this thread
-	Job job;
-	bool is_mpich_job = false;
-	if(!getMPIJobFromMPT(thread, job))
-	    is_mpich_job = getMPIJobFromMPICH(thread, job);
-	
-	// Iterate over any processes found to be in our MPI job
-	int rank = 0;
-	for(Job::const_iterator i = job.begin(); i != job.end(); ++i) {
+	// Is there an attach in progress for this process?
+	if(state.second) {
+
+	    // Indicate this process is connecting
+	    connecting.insert(state.first);
+
+	}
+	else {
+
+	    // Get the list of threads in this process
+	    ThreadGroup in_process = getThreadsInProcess(i->second, i->first);
 	    
-	    // Attach to this process
-	    ThreadGroup additional_threads = attachProcess(i->second, i->first);
-	    
-	    if(is_mpich_job) {
-
-		// Note: A process' position in the MPICH process table also
-		//       indicates its MPI rank, starting with zero. That same
-		//       ordering is preserved in the Job object constructed
-		//       by getMPIJobFromMPICH(). So the local variable "rank"
-		//       here is the correct rank to be put into the mpi_rank
-		//       database field for all Thread objects associated with
-		//       this process.
-
-		// Iterate over each thread in this process
-		for(ThreadGroup::const_iterator 
-			t = additional_threads.begin();
-		    t != additional_threads.end(); 
-		     ++t) {
-
-		    // Update this thread's MPI rank in the database
-		    BEGIN_WRITE_TRANSACTION(dm_database);
-		    dm_database->prepareStatement(
-			"UPDATE Threads SET mpi_rank = ? WHERE id = ?;"
-			);
-		    dm_database->bindArgument(1, rank);
-		    dm_database->bindArgument(2, EntrySpy(*t).getEntry());
-		    while(dm_database->executeStatement());
-		    END_TRANSACTION(dm_database);
-
-		}
-
-		++rank;
-	    }
-
 	    // Merge these additional threads into the overall thread group
-	    threads.insert(additional_threads.begin(), 
-			   additional_threads.end());
+	    threads.insert(in_process.begin(), in_process.end());
 	    
 	}
+	
+    }
+    
+    // Iterate until we are done connecting to processes
+    while(!connecting.empty()) {
+	
+	// Wait until at least one process is no longer connecting (completed)
+	while(connecting.areAllState(Thread::Connecting))
+	    sleep(1);
+
+	// Construct the group of completed processes
+	ThreadGroup completed;
+	for(ThreadGroup::const_iterator 
+		i = connecting.begin(); i != connecting.end(); ++i)
+	    if(!i->isState(Thread::Connecting))
+		completed.insert(*i);
+
+	// Iterate over each of the completed processes
+	for(ThreadGroup::const_iterator 
+		i = completed.begin(); i != completed.end(); ++i) {
+	    
+	    // Get the list of threads in this process
+	    ThreadGroup in_process = 
+		getThreadsInProcess(i->getProcessId(), i->getHost());
+	    
+	    // Merge these additional threads into the overall thread group
+	    threads.insert(in_process.begin(), in_process.end());
+	    
+	}
+	
+	// Indicate the completed processes are no longer connecting
+        connecting.erase(completed.begin(), completed.end());
+	
+    }
+
+    // Note: A process' position in the MPICH process table also indicates its
+    //       MPI rank, starting with zero. That ordering is preserved in the Job
+    //       object constructed by getMPIJobFromMPICH(). So the rank number to
+    //       be put into the mpi_rank database field can be found simply by
+    //       incrementing the rank as we iterate through the job table. Things
+    //       aren't so easy for MPT. There we have to go to the process and
+    //       find the value of the global symbol "MPI_debug_rank" instead.
+
+    // Iterate over all processes found to be in our MPI job
+    int rank = 0;
+    for(Job::const_iterator i = job.begin(); i != job.end(); ++i) {
+	
+	// Is this an MPT job?
+	if(is_mpt_job) {
+	    
+	    // Get the list of threads in this process
+	    ThreadGroup in_process = getThreadsInProcess(i->second, i->first);
+	    
+	    // Skip setting the rank number if it cannot be accessed
+	    int64_t mpt_rank;
+	    if(in_process.empty() ||
+	       Instrumentor::getGlobal(*(in_process.begin()), 
+				       "MPI_debug_rank",
+				       mpt_rank))
+		continue;
+	    rank = static_cast<int>(mpt_rank);
+	    
+	}
+	
+	// Update this process' MPI rank in the database
+	BEGIN_WRITE_TRANSACTION(dm_database);
+	dm_database->prepareStatement(
+	    "UPDATE Threads SET mpi_rank = ? WHERE host = ? AND pid = ?;"
+	    );
+	dm_database->bindArgument(1, rank);
+	dm_database->bindArgument(2, i->first);
+	dm_database->bindArgument(3, i->second);	
+	while(dm_database->executeStatement());
+	END_TRANSACTION(dm_database);
+
+	// Is this an "MPICH" job?
+	if(is_mpich_job)
+	    ++rank;
 	
     }
 
@@ -700,11 +752,6 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
  * @note    If the process already exists within this experiment, its existing
  *          threads are returned without attaching again.
  *
- * @todo    Currently this routine assumes each process has a single thread and
- *          thus creates only one Thread object. Once a mechanism is found to
- *          "discover" the list of threads in a process this can be changed to
- *          support the desired semantics.
- *
  * @param pid     Process identifier for the process.
  * @param host    Name of the host on which the process resides.
  * @return        Attached threads.
@@ -712,61 +759,19 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 ThreadGroup Experiment::attachProcess(const pid_t& pid,
 				      const std::string& host) const
 {
-    ThreadGroup threads;
-
     // Get the canonical name of this host
     std::string canonical = getCanonicalName(host);
     
-    // Allocate this flag outside the transaction's try/catch block
-    bool is_attached = false;
+    // Do the low-level attach to this process
+    std::pair<Thread, bool> state = attachProcessLL(pid, canonical);
 
-    // Begin a multi-statement transaction
-    BEGIN_WRITE_TRANSACTION(dm_database);
+    // Wait (if necessary) until the process is done connecting
+    if(state.second)
+	while(state.first.isState(Thread::Connecting))
+	    sleep(1);
 
-    // Are there any existing thread(s) for this process?
-    dm_database->prepareStatement(	
-	"SELECT id FROM Threads WHERE host = ? AND pid = ?;"
-	);
-    dm_database->bindArgument(1, canonical);
-    dm_database->bindArgument(2, pid);
-    while(dm_database->executeStatement())
-	threads.insert(Thread(dm_database, dm_database->getResultAsInteger(1)));
-    is_attached = !threads.empty();
-
-    // Create the thread(s) entries if they weren't present in the database
-    if(!is_attached) {
-	dm_database->prepareStatement(
-	    "INSERT INTO Threads (host, pid) VALUES (?, ?);"
-	    );
-	dm_database->bindArgument(1, canonical);
-	dm_database->bindArgument(2, pid);
-	while(dm_database->executeStatement());
-	Thread thread(dm_database, dm_database->getLastInsertedUID());
-	threads.insert(thread);	
-    }
-    
-    // End this multi-statement transaction
-    END_TRANSACTION(dm_database);
-
-    // Actually attach if we weren't already
-    if(!is_attached) {
-
-	// Iterate over each of the thread(s)
-	for(ThreadGroup::const_iterator 
-		i = threads.begin(); i != threads.end(); ++i) {
-	    
-	    // Retain this thread in the instrumentor
-	    Instrumentor::retain(*i);
-	    
-	    // Connect to this thread in the instrumentor
-	    Instrumentor::changeState(*i, Thread::Connecting);
-	    
-	}
-
-    }
-    
-    // Return the threads to the caller
-    return threads;  
+    // Return all threads in this process to the caller
+    return getThreadsInProcess(pid, canonical);
 }
 
 
@@ -1180,6 +1185,110 @@ Extent Experiment::getPerformanceDataExtent() const
 
     // Return the extent to the caller
     return extent;
+}
+
+
+
+/**
+ * Low-level attach to a process.
+ *
+ * Initiates an attach to the specified process <em>if</em> that process is not
+ * already found within the experiment database. Returns a pair containing one
+ * of the threads within the process and a flag indicating if the attach is in
+ * progress or not.
+ *
+ * @param pid     Process identifier for the process.
+ * @param host    Name of the host on which the process resides.
+ * @return        Pair containing the attach state. The first entry in the pair
+ *                is a thread within the process. The second entry is a boolean
+ *                "true" if the attach is in progress or "false" if it isn't.
+ */
+std::pair<Thread, bool>
+Experiment::attachProcessLL(const pid_t& pid, const std::string& host) const
+{
+    std::pair<Thread, bool> state = std::make_pair(Thread(), true);
+    
+    // Begin a multi-statement transaction
+    BEGIN_WRITE_TRANSACTION(dm_database);
+
+    // Get any existing threads in this process from the database
+    ThreadGroup threads = getThreadsInProcess(pid, host);
+    
+    // Was there an existing thread in this process?
+    if(!threads.empty()) {
+
+	// No attach is in progress
+	state.second = false;
+	
+	// Give the caller one of the existing threads
+	state.first = *(threads.begin());
+	
+    }
+    else {
+	
+	// Attach is in progress
+	state.second = true;
+	
+	// Create a thread entry in the database
+	dm_database->prepareStatement(
+	    "INSERT INTO Threads (host, pid) VALUES (?, ?);"
+	    );
+	dm_database->bindArgument(1, host);
+	dm_database->bindArgument(2, pid);
+	while(dm_database->executeStatement());
+	state.first = Thread(dm_database, dm_database->getLastInsertedUID());
+	
+    }
+
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database); 
+
+    // Initiate the attach if necessary
+    if(state.second) {
+
+	// Retain the thread in the instrumentor
+	Instrumentor::retain(state.first);
+	
+	// Connect to the thread in the instrumentor
+	Instrumentor::changeState(state.first, Thread::Connecting);
+	
+    }
+    
+    // Return the attach state to the caller
+    return state;
+}
+
+
+
+/**
+ * Get the threads in a process.
+ *
+ * Returns (from the experiment database) all the threads within the specified
+ * process. An empty thread gruop is returned if no threads are contained within
+ * the process.
+ *
+ * @param pid     Process identifier for the process.
+ * @param host    Name of the host on which the process resides.
+ * @return        Threads within that process.
+ */
+ThreadGroup Experiment::getThreadsInProcess(const pid_t& pid, 
+					    const std::string& host) const
+{
+    ThreadGroup threads;
+    
+    // Find the threads in the specified process
+    BEGIN_TRANSACTION(dm_database);
+    dm_database->prepareStatement(	
+	"SELECT id FROM Threads WHERE host = ? AND pid = ?;"
+	);
+    dm_database->bindArgument(1, host);
+    dm_database->bindArgument(2, pid);
+    while(dm_database->executeStatement())
+	threads.insert(Thread(dm_database, dm_database->getResultAsInteger(1)));
+    END_TRANSACTION(dm_database);
+
+    // Return the threads to the caller
+    return threads;
 }
 
 

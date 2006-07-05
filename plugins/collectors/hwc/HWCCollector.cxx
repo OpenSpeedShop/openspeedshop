@@ -240,12 +240,9 @@ void HWCCollector::startCollecting(const Collector& collector,
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_hwc_start_sampling_args),
                    &args);
 
-    // Find exit() in this thread
-    std::pair<bool, Function> exit = thread.getFunctionByName("exit");
-    
-    // Execute hwc_stop_sampling() when we enter exit() for the thread
-    executeAtEntry(collector, thread, 
-		   "exit", "hwc-rt: hwc_stop_sampling", Blob());
+    // Execute hwc_stop_sampling() before we exit the thread
+    executeBeforeExit(collector, thread,
+		      "hwc-rt: hwc_stop_sampling", Blob());
     
     // Execute hwc_start_sampling() in the thread
     executeNow(collector, thread, 

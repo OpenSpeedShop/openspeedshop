@@ -16,6 +16,10 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+# Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
+
+CFLAGS = -g -O0
+
 BUILT_SOURCES = \
 	blobs.h blobs.c	
 
@@ -43,7 +47,6 @@ mpit_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	MPITCollector.hxx MPITCollector.cxx \
 	MPITDetail.hxx
-
 
 # Common definitions for all MPI implementations
 #
@@ -74,55 +77,43 @@ rt_sources = \
 	wrappers.c
 
 
-# LAMPI
 
 if HAVE_LAMPI
-
 mpit_rt_lampi_la_CFLAGS = $(call rt_CFLAGS_generate,@LAMPI_CPPFLAGS@)
 mpit_rt_lampi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@LAMPI_LDFLAGS@)
 mpit_rt_lampi_la_LIBADD = $(call rt_LIBADD_generate,@LAMPI_LIBS@)
 mpit_rt_lampi_la_DEPENDENCIES =
 mpit_rt_lampi_la_SOURCES = $(rt_sources)
-
 endif
 
 
-# MPICH
 
 if HAVE_MPICH
-
 mpit_rt_mpich_la_CFLAGS = $(call rt_CFLAGS_generate,@MPICH_CPPFLAGS@)
 mpit_rt_mpich_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPICH_LDFLAGS@)
 mpit_rt_mpich_la_LIBADD = $(call rt_LIBADD_generate,@MPICH_LIBS@)
 mpit_rt_mpich_la_DEPENDENCIES =
 mpit_rt_mpich_la_SOURCES = $(rt_sources)
-
 endif
 
 
-# MPT
 
 if HAVE_MPT
-
 mpit_rt_mpt_la_CFLAGS = $(call rt_CFLAGS_generate,@MPT_CPPFLAGS@)
 mpit_rt_mpt_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPT_LDFLAGS@)
 mpit_rt_mpt_la_LIBADD = $(call rt_LIBADD_generate,@MPT_LIBS@)
 mpit_rt_mpt_la_DEPENDENCIES =
 mpit_rt_mpt_la_SOURCES = $(rt_sources)
-
 endif
 
 
-# OpenMPI
 
 if HAVE_OPENMPI
-
 mpit_rt_openmpi_la_CFLAGS = $(call rt_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
 mpit_rt_openmpi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
 mpit_rt_openmpi_la_LIBADD = $(call rt_LIBADD_generate,@OPENMPI_LIBS@)
 mpit_rt_openmpi_la_DEPENDENCIES =
 mpit_rt_openmpi_la_SOURCES = $(rt_sources)
-
 endif
 
 

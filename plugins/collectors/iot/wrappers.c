@@ -29,8 +29,6 @@
 
 /*
  * IOT Wrapper Functions
- * These wrappers are identical to the IO wrappers except we
- * define EXTENDEDIOTRACE to record the extended trace data.
  *
  */
 

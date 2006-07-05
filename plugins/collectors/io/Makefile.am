@@ -16,14 +16,14 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-IO_BUILT_SOURCES = \
+# Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
+
+CFLAGS = -g -O0
+
+BUILT_SOURCES = \
 	blobs.h blobs.c
 
-BUILT_SOURCES = $(IO_BUILT_SOURCES)
-
 pkglib_LTLIBRARIES = io.la io-rt.la
-
-### IO
 
 io_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -32,7 +32,7 @@ io_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 io_la_SOURCES = \
-	blobs.x $(IO_BUILT_SOURCES) \
+	blobs.x $(BUILT_SOURCES) \
 	IOCollector.hxx IODetail.hxx IOCollector.cxx
 
 io_rt_la_CFLAGS = \
@@ -50,13 +50,12 @@ io_rt_la_LIBADD = \
 	-lpthread -lrt
 
 io_rt_la_SOURCES = \
-	blobs.x $(IO_BUILT_SOURCES) \
+	blobs.x $(BUILT_SOURCES) \
 	wrappers.c \
 	runtime.h runtime.c
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
-EXTRA_DIST = blobs.x
 
 blobs.h blobs.c : blobs.x
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)

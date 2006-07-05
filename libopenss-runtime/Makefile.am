@@ -19,6 +19,15 @@
 SUBDIRS = @INSTRUMENTOR@
 DIST_SUBDIRS = dpcl dyninst
 
+# Note: Some versions of GCC (e.g. 3.3.3) appear to contain an optimization bug
+#       that causes accesses of thread-local storage (TLS) to fail with SIGSEGV.
+#       The exact nature of the bug has yet to be identified, but it results in
+#       incorrect addresses being calculated for TLS data structures, and occurs
+#       under both "-O1" and "-O2" on affected systems. For now it is safest to
+#       turn off ALL optimizations for code that uses TLS.
+
+CFLAGS = -g -O0
+
 BUILT_SOURCES = \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c
 

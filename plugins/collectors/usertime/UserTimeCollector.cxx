@@ -190,10 +190,10 @@ void UserTimeCollector::startCollecting(const Collector& collector,
 	&args
 	);
     
-    // Execute usertime_stop_sampling() when we enter exit() for the thread
-    executeAtEntry(collector, thread, 
-		   "exit", "usertime-rt: usertime_stop_sampling", Blob());
-    
+    // Execute usertime_stop_sampling() before we exit the thread
+    executeBeforeExit(collector, thread,
+                     "usertime-rt: usertime_stop_sampling", Blob());
+
     // Execute usertime_start_sampling() in the thread
     executeNow(collector, thread, 
 	       "usertime-rt: usertime_start_sampling", arguments);

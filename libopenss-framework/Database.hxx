@@ -66,10 +66,10 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * @note    SQLite doesn't support unsigned 64-bit values directly. In order
      *          to take full advantage of SQL queries against the data, unsigned
-     *          64-bit quantities (such as addresses and times) are "shifted" in
-     *          order to convert them into signed 64-bit quantities instead. The
-     *          mapping [ UINT64_MIN, UINT64_MAX ] <--> [ INT64_MIN, INT64_MAX ]
-     *          is applied in order to do this.
+     *          64-bit quantities (such as addresses) are "shifted" in order to
+     *          convert them into signed 64-bit quantities instead. The mapping
+     *          [ UINT64_MIN, UINT64_MAX ] <--> [ INT64_MIN, INT64_MAX ] is 
+     *          applied in order to do this.
      *
      * @sa    http://www.sql-tutorial.net/
      * @sa    http://www.sqlite.org/
@@ -103,6 +103,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void bindArgument(const unsigned&, const Blob&);
 	void bindArgument(const unsigned&, const Address&);
 	void bindArgument(const unsigned&, const Time&);
+	void bindArgument(const unsigned&, const pthread_t&);
 	
 	bool executeStatement();
 
@@ -113,6 +114,7 @@ namespace OpenSpeedShop { namespace Framework {
 	Blob getResultAsBlob(const unsigned&);
 	Address getResultAsAddress(const unsigned&);
 	Time getResultAsTime(const unsigned&);
+	pthread_t getResultAsPosixThreadId(const unsigned&);
 
 	int getLastInsertedUID();
 	

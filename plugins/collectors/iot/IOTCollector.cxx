@@ -251,9 +251,9 @@ void IOTCollector::startCollecting(const Collector& collector,
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_iot_start_tracing_args),
                    &args);
     
-    // Execute iot_stop_tracing() when we enter exit() for the thread
-    executeAtEntry(collector, thread,
-                   "exit", "iot-rt: iot_stop_tracing", Blob());
+    // Execute iot_stop_tracing() before we exit the thread
+    executeBeforeExit(collector, thread,
+		      "iot-rt: iot_stop_tracing", Blob());
     
     // Execute iot_start_tracing() in the thread
     executeNow(collector, thread,

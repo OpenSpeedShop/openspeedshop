@@ -771,6 +771,45 @@ void Database::bindArgument(const unsigned& index, const Time& value)
 
 
 /**
+ * Bind a POSIX thread identifier to an argument.
+ *
+ * Binds the passed POSIX thread identifier value to the specified numbered
+ * argument of the currently prepared statement. Arguments in a SQL statement
+ * are indicated by wildcard ('?') characters. For example, "INSERT INTO tbl
+ * VALUES (?,?);" has two arguments numbered "1" and "2".
+ *
+ * @note    Arguments may only be bound after a statement has previously been
+ *          prepared via a call to prepareStatement(). Any attempt to bind an
+ *          argument before preparing a statement will result in an assertion
+ *          failure.
+ *
+ * @note    Attempting to bind an argument index less than one or greater than
+ *          the number of bindable arguments in the currently prepared statement
+ *          will result in an assertion failure.
+ *
+ * @param index    Index (number) of argument to be bound.
+ * @param value    Value to be bound to this argument.
+ */
+void Database::bindArgument(const unsigned& index, const pthread_t& value)
+{
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
+    // Check assertions
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_bind_parameter_count(handle.dm_transaction.back()));
+    
+    // Bind the argument
+    Assert(sqlite3_bind_int64(handle.dm_transaction.back(), index, 
+			      static_cast<int64_t>(value) -
+			      signedOffset) == SQLITE_OK);
+}
+
+
+
+/**
  * Execute a SQL statement.
  *
  * Called one or more times to execute the previously prepared SQL statement.
@@ -1078,6 +1117,43 @@ Time Database::getResultAsTime(const unsigned& index)
     return Time(sqlite3_column_int64(handle.dm_transaction.back(),
 				     index - 1) +
 		signedOffset);
+}
+
+
+
+/**
+ * Get a POSIX thread identifier result.
+ *
+ * Obtains a POSIX thread identifier from the specified numbered column in the
+ * active row of the currently executing statement.
+ *
+ * @note    Results may be obtained only after a statement has previously been
+ *          executed via a call to executeStatement(). Any attempt to obtain a
+ *          result from a column before executing a statement will result in an
+ *          assertion failure.
+ *
+ * @note    Attempting to obtain a result for a column index less than one
+ *          or greater than the number of columns in the currently prepared
+ *          statement will result in an assertion failure.
+ *
+ * @param index    Index (number) of column to obtain.
+ * @return         POSIX thread identifier result from this column.
+ */
+pthread_t Database::getResultAsPosixThreadId(const unsigned& index)
+{
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
+    // Check assertions
+    Assert(!handle.dm_transaction.empty());
+    Assert(handle.dm_transaction.back() != NULL);
+    Assert(index > 0);
+    Assert(index <= sqlite3_column_count(handle.dm_transaction.back()));
+    
+    // Return the result to the caller
+    return static_cast<pthread_t>
+	(sqlite3_column_int64(handle.dm_transaction.back(), index - 1) +
+	 signedOffset);
 }
 
 

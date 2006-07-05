@@ -48,11 +48,7 @@ void usertime_stop_sampling(const char*);
 #define MAXFRAMES 100
 
 /** Thread-local storage. */
-#ifdef WDH_PER_THREAD_DATA_COLLECTION
 static __thread struct {
-#else
-static struct {
-#endif
 
     OpenSS_DataHeader header;       /**< Header for following data blob. */
     usertime_data data;             /**< Actual data blob. */

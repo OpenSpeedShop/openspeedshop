@@ -138,6 +138,11 @@ namespace OpenSpeedShop { namespace Framework {
 	
     private:
 
+	std::pair<Thread, bool>
+	attachProcessLL(const pid_t&, const std::string&) const;
+
+	ThreadGroup getThreadsInProcess(const pid_t&, const std::string&) const;
+
 #ifndef NDEBUG
 	static bool is_debug_mpijob_enabled;
 #endif

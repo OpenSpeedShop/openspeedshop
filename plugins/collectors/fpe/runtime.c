@@ -44,11 +44,7 @@
 #define EventBufferSize 554
 
 /** Thread-local storage. */
-#ifdef WDH_PER_THREAD_DATA_COLLECTION
 static __thread struct {
-#else
-static struct {
-#endif
     
     OpenSS_DataHeader header;  /**< Header for following data blob. */
     fpe_data data;            /**< Actual data blob. */

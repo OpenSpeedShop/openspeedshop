@@ -52,7 +52,7 @@ typedef struct {
     uint64_t addr_begin;  /**< Beginning of gathered data's address range. */
     uint64_t addr_end;    /**< End of gathered data's address range. */
     
-    uint16_t length;  /** Actual used length of the PC and count arrays. */
+    uint16_t length;  /**< Actual used length of the PC and count arrays. */
     
     uint64_t pc[OpenSS_PCBufferSize];    /**< Program counter (PC) addresses. */
     uint8_t count[OpenSS_PCBufferSize];  /**< Sample count at each address. */
@@ -62,10 +62,15 @@ typedef struct {
     
 } OpenSS_PCData;
 
-/** Type representing different floating-point exception (FPE) types. */
-/* Some systems fail to properly fill in the si_code. So we have an
-   Unknown fpe that we must handle.
-*/
+
+
+/**
+ * Type representing different floating-point exception (FPE) types.
+ *
+ * @note    Some systems fail to properly fill in the "si_code" when calling
+ *          the FPE handler. Thus we must have an Unknown FPE to handle these
+ *          cases.
+ */
 typedef enum {
     DivideByZero,        /**< Divide by zero. */
     Overflow,            /**< Overflow. */
@@ -73,27 +78,28 @@ typedef enum {
     InexactResult,       /**< Inexact result. */
     InvalidOperation,    /**< Invalid operation. */
     SubscriptOutOfRange, /**< Subscript out of range. */
-    Unknown,             /**< got an unknown si_code. */
+    Unknown,             /**< Unknown FPE (no "si_code" provided). */
     AllFPE               /**< Toggle on all FPE's. */
 } OpenSS_FPEType; 
-
-/** Type representing a function pointer to a timer event handler. */
-typedef void (*OpenSS_TimerEventHandler)(const ucontext_t*);
 
 /** Type representing a function pointer to a fpe event handler. */
 typedef void (*OpenSS_FPEEventHandler)(const OpenSS_FPEType, const ucontext_t*);
 
-void OpenSS_FPEHandler(const OpenSS_FPEType, const OpenSS_FPEEventHandler);
+/** Type representing a function pointer to a timer event handler. */
+typedef void (*OpenSS_TimerEventHandler)(const ucontext_t*);
+
+
 
 void OpenSS_DecodeParameters(const char*, const xdrproc_t, void*);
+void OpenSS_FPEHandler(const OpenSS_FPEType, const OpenSS_FPEEventHandler);
 uint64_t OpenSS_GetAddressOfFunction(const void*);
 uint64_t OpenSS_GetPCFromContext(const ucontext_t*);
-void     OpenSS_SetPCInContext(const uint64_t, ucontext_t*);
-int      OpenSS_GetInstrLength(const uint64_t);
+void OpenSS_SetPCInContext(const uint64_t, ucontext_t*);
+int OpenSS_GetInstrLength(const uint64_t);
 uint64_t OpenSS_GetTime();
 void OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
 void OpenSS_Timer(uint64_t, const OpenSS_TimerEventHandler);
-bool_t   OpenSS_UpdatePCData(uint64_t, OpenSS_PCData*);
+bool_t OpenSS_UpdatePCData(uint64_t, OpenSS_PCData*);
 
 #ifdef HAVE_LIBUNWIND
 void OpenSS_GetStackTraceFromContext(const ucontext_t*,

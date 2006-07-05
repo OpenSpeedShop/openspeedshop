@@ -55,11 +55,7 @@ int EventSet = PAPI_NULL;
 #define BufferSize 1024
 
 /** Thread-local storage. */
-#ifdef WDH_PER_THREAD_DATA_COLLECTION
 static __thread struct {
-#else
-static struct {
-#endif
 
     OpenSS_DataHeader header;       /**< Header for following data blob. */
     hwctime_data data;             /**< Actual data blob. */

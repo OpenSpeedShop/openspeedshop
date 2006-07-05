@@ -136,10 +136,6 @@ void Instrumentor::create(const Thread& thread,
  * asynchronously, and may be updated across a network, there is a lag between
  * when the actual thread's state changes and when it is reflected here.
  *
- * @todo    Currently DPCL provides the ability to get the state of an entire
- *          process only - not that of a single thread. For now, <em>all</em>
- *          threads in a given process will have the same state.
- *
  * @param thread    Thread whose state should be obtained.
  * @return          Current state of the thread.
  */
@@ -156,7 +152,7 @@ Thread::State Instrumentor::getState(const Thread& thread)
     }
     
     // Return the thread's current state to the caller
-    return (process.isNull()) ? Thread::Disconnected : process->getState();
+    return process.isNull() ? Thread::Disconnected : process->getState(thread);
 }
 
 
@@ -170,15 +166,10 @@ Thread::State Instrumentor::getState(const Thread& thread)
  * calling getThreadState() immediately following changeThreadState() will not
  * reflect the new state until the change has actually completed.
  *
- * @pre    Only applies to a thread which is connected. A ThreadUnavailable
- *         exception is thrown if called for a thread that is not connected.
- *         There is one exception - a disconnected thread may be changed to
- *         the "connecting" state.
- *
- * @todo    Currently DPCL provides the ability to change the state of an entire
- *          process only - not that of a single thread. For now, if a thread's
- *          state if changed, <em>all</em> threads in the process containing
- *          that thread will have their state changed.
+ * @pre    Only applies to a thread which is connected. A ProcessUnavailable or
+ *         ThreadUnavailable exception is thrown if called for a thread that is
+ *         not connected. There is one exception - a disconnected thread may be
+ *         changed to the "connecting" state.
  *
  * @param thread    Thread whose state should be changed.
  * @param state     Change the theread to this state.
@@ -209,12 +200,19 @@ void Instrumentor::changeState(const Thread& thread, const Thread::State& state)
     }
     
     // Check preconditions
-    if(process.isNull())
-	throw Exception(Exception::ThreadUnavailable, thread.getHost(),
-			Exception::toString(thread.getProcessId()));
-    
+    if(process.isNull()) {
+	std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+	if(tid.first)
+	    throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+			    Exception::toString(thread.getProcessId()),
+			    Exception::toString(tid.second));
+	else
+	    throw Exception(Exception::ProcessUnavailable, thread.getHost(),
+			    Exception::toString(thread.getProcessId()));	
+    }
+
     // Request a state change from the process
-    process->changeState(state);    
+    process->changeState(thread, state);    
 }
 
 
@@ -225,13 +223,9 @@ void Instrumentor::changeState(const Thread& thread, const Thread::State& state)
  * Immediately execute the specified library function in the specified thread.
  * Used by collectors to execute functions in their runtime library.
  *
- * @pre    Only applies to a thread which is connected. A ThreadUnavailable
- *         exception is thrown if called for a thread that is not connected.
- *
- * @todo    Currently DPCL does not provide the ability to specify the thread
- *          within a process that will execute a probe expression. For now, the
- *          only guarantee that can be made is that <em>some</em> thread in the
- *          process containing the specified thread will execute the expression.
+ * @pre    Only applies to a thread which is connected. A ProcessUnavailable or
+ *         ThreadUnavailable exception is thrown if called for a thread that is
+ *         not connected.
  *
  * @param thread       Thread in which the function should be executed.
  * @param collector    Collector requesting the execution.
@@ -254,9 +248,16 @@ void Instrumentor::executeNow(const Thread& thread,
     }
 
     // Check preconditions
-    if(process.isNull() || !process->isConnected())
-        throw Exception(Exception::ThreadUnavailable, thread.getHost(),
-                        Exception::toString(thread.getProcessId()));
+    if(process.isNull() || !process->isConnected()) {
+	std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+	if(tid.first)
+	    throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+			    Exception::toString(thread.getProcessId()),
+			    Exception::toString(tid.second));
+	else
+	    throw Exception(Exception::ProcessUnavailable, thread.getHost(),
+			    Exception::toString(thread.getProcessId()));	
+    }
     
     // Request the library function be executed by the process
     process->executeNow(collector, thread, callee, argument);
@@ -271,13 +272,9 @@ void Instrumentor::executeNow(const Thread& thread,
  * or exit is executed in the specified thread. Used by collectors to execute
  * functions in their runtime library.
  *
- * @pre    Only applies to a thread which is connected. A ThreadUnavailable
- *         exception is thrown if called for a thread that is not connected.
- *
- * @todo    Currently DPCL does not provide the ability to specify the thread
- *          within a process that will execute a probe expression. For now, the
- *          only guarantee that can be made is that <em>all</em> threads in the
- *          process containing the specified thread will execute the expression.
+ * @pre    Only applies to a thread which is connected. A ProcessUnavailable or
+ *         ThreadUnavailable exception is thrown if called for a thread that is
+ *         not connected.
  *
  * @param thread       Thread in which the function should be executed.
  * @param collector    Collector requesting the execution.
@@ -306,9 +303,16 @@ void Instrumentor::executeAtEntryOrExit(const Thread& thread,
     }
 
     // Check preconditions
-    if(process.isNull() || !process->isConnected())
-        throw Exception(Exception::ThreadUnavailable, thread.getHost(),
-                        Exception::toString(thread.getProcessId()));
+    if(process.isNull() || !process->isConnected()) {
+	std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+	if(tid.first)
+	    throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+			    Exception::toString(thread.getProcessId()),
+			    Exception::toString(tid.second));
+	else
+	    throw Exception(Exception::ProcessUnavailable, thread.getHost(),
+			    Exception::toString(thread.getProcessId()));	
+    }
     
     // Request the library function be executed in the process
     process->executeAtEntryOrExit(collector, thread, where, at_entry, 
@@ -325,13 +329,9 @@ void Instrumentor::executeAtEntryOrExit(const Thread& thread,
  * wrappers around functions for the purposes of gathering performance data on
  * their execution.
  *
- * @pre    Only applies to a thread which is connected. A ThreadUnavailable
- *         exception is thrown if called for a thread that is not connected.
- *
- * @todo    Currently DPCL does not provide the ability to specify the thread
- *          within a process that will execute a probe expression. For now, the
- *          only guarantee that can be made is that <em>all</em> threads in the
- *          process containing the specified thread will execute the expression.
+ * @pre    Only applies to a thread which is connected. A ProcessUnavailable or
+ *         ThreadUnavailable exception is thrown if called for a thread that is
+ *         not connected.
  *
  * @param thread       Thread in which the function should be executed.
  * @param collector    Collector requesting the execution.
@@ -355,9 +355,16 @@ void Instrumentor::executeInPlaceOf(const Thread& thread,
     }
 
     // Check preconditions
-    if(process.isNull() || !process->isConnected())
-        throw Exception(Exception::ThreadUnavailable, thread.getHost(),
-                        Exception::toString(thread.getProcessId()));
+    if(process.isNull() || !process->isConnected()) {
+	std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+	if(tid.first)
+	    throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+			    Exception::toString(thread.getProcessId()),
+			    Exception::toString(tid.second));
+	else
+	    throw Exception(Exception::ProcessUnavailable, thread.getHost(),
+			    Exception::toString(thread.getProcessId()));	
+    }
     
     // Request the library function be executed in the process
     process->executeInPlaceOf(collector, thread, where, callee);
@@ -372,8 +379,9 @@ void Instrumentor::executeInPlaceOf(const Thread& thread,
  * specified thread. Used by collectors to indicate when they are done using any
  * instrumentation they placed in the thread.
  *
- * @pre    Only applies to a thread which is connected. A ThreadUnavailable
- *         exception is thrown if called for a thread that is not connected.
+ * @pre    Only applies to a thread which is connected. A ProcessUnavailable or
+ *         ThreadUnavailable exception is thrown if called for a thread that is
+ *         not connected.
  *
  * @param thread       Thread from which instrumentation should be removed.
  * @param collector    Collector which is removing instrumentation.
@@ -392,9 +400,16 @@ void Instrumentor::uninstrument(const Thread& thread,
     }
 
     // Check preconditions
-    if(process.isNull() || !process->isConnected())
-        throw Exception(Exception::ThreadUnavailable, thread.getHost(),
-                        Exception::toString(thread.getProcessId()));
+    if(process.isNull() || !process->isConnected()) {
+	std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+	if(tid.first)
+	    throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+			    Exception::toString(thread.getProcessId()),
+			    Exception::toString(tid.second));
+	else
+	    throw Exception(Exception::ProcessUnavailable, thread.getHost(),
+			    Exception::toString(thread.getProcessId()));	
+    }
     
     // Request the collector's instrumentation be removed from the process
     process->uninstrument(collector, thread);
@@ -409,7 +424,7 @@ void Instrumentor::uninstrument(const Thread& thread,
  * thread. Used to extract certain types of data, such as MPI job identifiers,
  * from the process.
  *
- * @pre    Only applies to a thread which is connected. A ThreadUnavailable
+ * @pre    Only applies to a process which is connected. A ProcessUnavailable
  *         exception is thrown if called for a thread that is not connected.
  *
  * @param thread    Thread from which the global variable value should be
@@ -435,7 +450,7 @@ bool Instrumentor::getGlobal(const Thread& thread,
 
     // Check preconditions
     if(process.isNull() || !process->isConnected())
-        throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+        throw Exception(Exception::ProcessUnavailable, thread.getHost(),
                         Exception::toString(thread.getProcessId()));
     
     // Request the global variable be retrieved from the process
@@ -477,7 +492,7 @@ bool Instrumentor::getGlobal(const Thread& thread,
 
     // Check preconditions
     if(process.isNull() || !process->isConnected())
-        throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+        throw Exception(Exception::ProcessUnavailable, thread.getHost(),
                         Exception::toString(thread.getProcessId()));
     
     // Request the global variable be retrieved from the process
@@ -516,7 +531,7 @@ bool Instrumentor::getMPICHProcTable(const Thread& thread, Job& value)
 
     // Check preconditions
     if(process.isNull() || !process->isConnected())
-        throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+        throw Exception(Exception::ProcessUnavailable, thread.getHost(),
                         Exception::toString(thread.getProcessId()));
     
     // Request the MPICH process table be retrieved from the process

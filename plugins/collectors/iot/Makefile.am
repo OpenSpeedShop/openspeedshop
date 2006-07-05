@@ -16,27 +16,27 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-IOT_BUILT_SOURCES = \
-	blobs.h blobs.c
+# Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
 
-BUILT_SOURCES = $(IOT_BUILT_SOURCES)
+CFLAGS = -g -O0
+
+BUILT_SOURCES = \
+	blobs.h blobs.c
 
 pkglib_LTLIBRARIES = iot.la iot-rt.la
 
-### IOT
-
 iot_la_CXXFLAGS = \
-	-DEXTENDEDIOTRACE -I$(top_srcdir)/libopenss-framework
+	-I$(top_srcdir)/libopenss-framework
 
 iot_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 iot_la_SOURCES = \
-	blobs.x $(IOT_BUILT_SOURCES) \
+	blobs.x $(BUILT_SOURCES) \
 	IOTCollector.hxx IOTDetail.hxx IOTCollector.cxx
 
 iot_rt_la_CFLAGS = \
-	-DEXTENDEDIOTRACE -I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@
 
 iot_rt_la_LDFLAGS = \
@@ -50,13 +50,12 @@ iot_rt_la_LIBADD = \
 	-lpthread -lrt
 
 iot_rt_la_SOURCES = \
-	blobs.x $(IOT_BUILT_SOURCES) \
+	blobs.x $(BUILT_SOURCES) \
 	wrappers.c \
 	runtime.h runtime.c
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
-EXTRA_DIST = blobs.x
 
 blobs.h blobs.c : blobs.x
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)

@@ -52,11 +52,7 @@ const unsigned OverheadFrameCount = 2;
 #define EventBufferSize 192
 
 /** Thread-local storage. */
-#ifdef WDH_PER_THREAD_DATA_COLLECTION
 static __thread struct {
-#else
-static struct {
-#endif
     
     /** Nesting depth within the MPI function wrappers. */
     unsigned nesting_depth;
