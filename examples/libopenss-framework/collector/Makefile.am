@@ -16,10 +16,14 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-noinst_LTLIBRARIES = example.la example-rt.la
+# Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
+
+CFLAGS = -g -O0
 
 BUILT_SOURCES = \
 	blobs.h blobs.c
+
+noinst_LTLIBRARIES = example.la example-rt.la
 
 example_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
