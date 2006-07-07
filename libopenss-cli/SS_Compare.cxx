@@ -958,7 +958,6 @@ bool SS_expCompare (CommandObject *cmd) {
           Quick_Compare_Set.push_back (S);
         }
       } else if (Quick_Compare_Set.size() > 1) {
-cerr << "  error 2\n";
           Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
           return false;
       } else {
@@ -1011,7 +1010,6 @@ cerr << "  error 2\n";
         Quick_Compare_Set.push_back (S);
       }
     } else if (Quick_Compare_Set.size() > 1) {
-cerr << "  error 3\n";
       Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
       return false;
     } else {
