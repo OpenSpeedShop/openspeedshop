@@ -877,8 +877,8 @@ ip_number(char *input_str,int count)
 {
     int i;
     char *ptr1 = input_str;
-    unsigned long num = 0;
-    unsigned long t_num = 0;
+    uint64_t num = 0;
+    uint64_t t_num = 0;
     
     for (i=0;i<count;++i) {
     	num = num << 8;
@@ -891,7 +891,7 @@ ip_number(char *input_str,int count)
 	ptr1++;
    }
    
-    return num;
+    return (int64_t)num;
 }
 
 /***************************************************/
