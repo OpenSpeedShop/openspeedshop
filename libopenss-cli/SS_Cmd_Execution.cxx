@@ -1200,6 +1200,17 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
    // Use the threads that are already part of the experiment.
     try {
       tgrp = exp->FW()->getThreads();
+
+      if (Look_For_KeyWord (cmd, "mpi")) {
+       // Do an 'attachMPIJob' for all known threads.
+        ThreadGroup Expanded_tgrp;
+        ThreadGroup::iterator ti;
+        for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+          ThreadGroup ngrp = exp->FW()->attachMPIJob ((*ti).getProcessId(), (*ti).getHost());
+          Expanded_tgrp.insert(ngrp.begin(),ngrp.end());
+        }
+        tgrp = Expanded_tgrp;
+      }
     }
     catch(const Exception& error) {
       Mark_Cmd_With_Std_Error (cmd, error);
