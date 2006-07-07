@@ -29,7 +29,7 @@
 #include <string.h>
 #include "SS_Parse_Yacc.hxx"
 extern int yylex();
-extern int ip_number(char *,int);
+extern int64_t ip_number(char *,int);
 #define ECHO
 %}
 
@@ -135,10 +135,10 @@ extern int ip_number(char *,int);
 "-v"	{ return MODIFIER_ID;}
 "-I"	{ return INTERVAL_ID;}
 
-[0-9]+[.][0-9]+[.][0-9]+[.][0-9]+ {yylval.ival = ip_number(yytext,4); return(IPNUMBER_32);}
-0x[0-9a-f]+	{yylval.ival = atoi(yytext); return(HEXNUMBER);}
-[0-9]+   { yylval.ival = atoi(yytext); return NUMBER; }
--[0-9]+   { yylval.ival = atoi(yytext); return NUMBER; }
+[0-9]+[.][0-9]+[.][0-9]+[.][0-9]+ {yylval.ival = ip_number(yytext,8); return(IPNUMBER_64);}
+0x[0-9a-f]+	{yylval.ival = atoll(yytext); return(HEXNUMBER);}
+[0-9]+   { yylval.ival = atoll(yytext); return NUMBER; }
+-[0-9]+   { yylval.ival = atoll(yytext); return NUMBER; }
 [0-9]+[.][0-9]+   { yylval.dval = atof(yytext); return DOUBLE; }
 -[0-9]+[.][0-9]+   { yylval.dval = atof(yytext); return DOUBLE; }
 [a-zA-Z./_\*\%][a-zA-Z0-9_./\-\+\*\%]*  { yylval.string = strdup(yytext); return NAME; }

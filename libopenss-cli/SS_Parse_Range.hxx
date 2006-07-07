@@ -35,7 +35,7 @@ typedef enum {
 typedef struct {
     // union is not possible with type string
     string name;
-    int num;
+    int64_t num;
     val_enum_t tag; /** Determines with field to be used */
 } parse_val_t;
 
@@ -58,12 +58,12 @@ class ParseRange {
     public:
 
 //	/** Constructor. */
-	ParseRange(int num);
+	ParseRange(int64_t num);
 	ParseRange(char *);
-	ParseRange(char * name, int num);
+	ParseRange(char * name, int64_t num);
 	ParseRange(char * name1, char * name2);
-	ParseRange(int num, char * name);
-	ParseRange(int num1, int num2);
+	ParseRange(int64_t num, char * name);
+	ParseRange(int64_t num1, int64_t num2);
 
 //	/** Destructor. */
 //	~ParseRange();

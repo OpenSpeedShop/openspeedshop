@@ -42,7 +42,7 @@ using namespace OpenSpeedShop::cli;
  *
  */
 ParseInterval::
-ParseInterval(int begin, int end) :
+ParseInterval(int64_t begin, int64_t end) :
     dm_start_is_int(true),
     dm_start_int(begin),
     dm_start_double(0.0),
@@ -66,7 +66,7 @@ ParseInterval(int begin, int end) :
  *
  */
 ParseInterval::
-ParseInterval(int begin, double end) :
+ParseInterval(int64_t begin, double end) :
     dm_start_is_int(true),
     dm_start_int(begin),
     dm_start_double(0.0),
@@ -90,7 +90,7 @@ ParseInterval(int begin, double end) :
  *
  */
 ParseInterval::
-ParseInterval(double begin, int end) :
+ParseInterval(double begin, int64_t end) :
     dm_start_is_int(false),
     dm_start_int(0),
     dm_start_double(begin),

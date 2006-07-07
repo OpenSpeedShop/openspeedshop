@@ -48,7 +48,7 @@ class ParamVal {
 
 //	/** Constructor. */
 	ParamVal(char * name);
-	ParamVal(int    ival);
+	ParamVal(int64_t ival);
 	ParamVal(double dval);
 
 //	/** Destructor. */
@@ -107,7 +107,7 @@ class ParseParam {
 	    ParamVal value(sval);
     	    dm_param_val_list.push_back(value);
 	}
-    	void pushVal(int ival) {
+    	void pushVal(int64_t ival) {
 	    ParamVal value(ival);
     	    dm_param_val_list.push_back(value);
 	}

@@ -735,7 +735,7 @@ dumpInfo()
     vector<ParseTarget>::iterator t_iter;
     vector<ParseTarget> *p_tlist = this->getTargetList();
 
-    int count = 1;
+    int64_t count = 1;
     for (t_iter=p_tlist->begin() ;t_iter != p_tlist->end(); t_iter++) {
     	cout << "\tTarget #" << count++ << " : " << endl;
 	
@@ -869,7 +869,7 @@ pushParamVal(char * sval)
 }
 
 /**
- * Method: ParseResult::pushParmVal(int ival)
+ * Method: ParseResult::pushParmVal(int64_t ival)
  * 
  *     
  * @return  void.
@@ -879,7 +879,7 @@ pushParamVal(char * sval)
  */
 void
 ParseResult::
-pushParamVal(int ival)
+pushParamVal(int64_t ival)
 {
     dm_param.pushVal(ival);
     return ;
@@ -1116,7 +1116,7 @@ setError(char * name)
 }
  
 /**
- * Method: ParseResult::pushInterval(int begin, int end, char *attribute)
+ * Method: ParseResult::pushInterval(int64_t begin, int64_t end, char *attribute)
  * 
  * @param   begin    	integer begin point.
  * @param   end 	integer end point.
@@ -1129,7 +1129,7 @@ setError(char * name)
  */
 void
 ParseResult::
-pushInterval(int begin, int end)
+pushInterval(int64_t begin, int64_t end)
 {
     ParseInterval interval(begin,end);
 
@@ -1139,7 +1139,7 @@ pushInterval(int begin, int end)
 }
  
 /**
- * Method: ParseResult::pushInterval(int begin, int end, char *attribute)
+ * Method: ParseResult::pushInterval(int64_t begin, int64_t end, char *attribute)
  * 
  * @param   begin    	integer begin point.
  * @param   end 	double end point.
@@ -1152,7 +1152,7 @@ pushInterval(int begin, int end)
  */
 void
 ParseResult::
-pushInterval(int begin, double end)
+pushInterval(int64_t begin, double end)
 {
     ParseInterval interval(begin,end);
 
@@ -1162,7 +1162,7 @@ pushInterval(int begin, double end)
 }
  
 /**
- * Method: ParseResult::pushInterval(int begin, int end, char *attribute)
+ * Method: ParseResult::pushInterval(int64_t begin, int64_t end, char *attribute)
  * 
  * @param   begin    	double begin point.
  * @param   end 	integer end point.
@@ -1175,7 +1175,7 @@ pushInterval(int begin, double end)
  */
 void
 ParseResult::
-pushInterval(double begin, int end)
+pushInterval(double begin, int64_t end)
 {
     ParseInterval interval(begin,end);
 
@@ -1185,7 +1185,7 @@ pushInterval(double begin, int end)
 }
  
 /**
- * Method: ParseResult::pushInterval(int begin, int end, char *attribute)
+ * Method: ParseResult::pushInterval(int64_t begin, int64_t end, char *attribute)
  * 
  * @param   begin    	double begin point.
  * @param   end 	double end point.
@@ -1208,7 +1208,7 @@ pushInterval(double begin, double end)
 }
  
 /**
- * Method: ParseResult::pushInterval(int begin, int end, char *attribute)
+ * Method: ParseResult::pushInterval(int64_t begin, int64_t end, char *attribute)
  * 
  * @param   begin    	double begin point.
  * @param   end 	double end point.
@@ -1230,7 +1230,7 @@ setIntervalAttribute(char *attribute)
 }
  
 /**
- * Method: ParseResult::pushInterval(int begin, int end, char *attribute)
+ * Method: ParseResult::pushInterval(int64_t begin, int64_t end, char *attribute)
  * 
  * @param   begin    	double begin point.
  * @param   end 	double end point.

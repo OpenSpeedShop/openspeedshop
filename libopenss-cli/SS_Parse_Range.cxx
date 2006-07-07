@@ -45,7 +45,7 @@ using namespace OpenSpeedShop::cli;
  *
  */
 ParseRange::
-ParseRange(int num)
+ParseRange(int64_t num)
 {
     dm_range.start_range.tag = VAL_NUMBER;
     dm_range.start_range.num = num;
@@ -82,7 +82,7 @@ ParseRange(char * name)
  *
  */
 ParseRange::
-ParseRange(char * name, int num)
+ParseRange(char * name, int64_t num)
 {
     dm_range.start_range.tag = VAL_STRING;
     dm_range.start_range.name = name;
@@ -124,7 +124,7 @@ ParseRange(char * name1, char * name2)
  *
  */
 ParseRange::
-ParseRange(int num, char * name)
+ParseRange(int64_t num, char * name)
 {
     dm_range.start_range.tag = VAL_NUMBER;
     dm_range.start_range.num = num;
@@ -145,7 +145,7 @@ ParseRange(int num, char * name)
  *
  */
 ParseRange::
-ParseRange(int num1, int num2)
+ParseRange(int64_t num1, int64_t num2)
 {
     dm_range.start_range.tag = VAL_NUMBER;
     dm_range.start_range.num = num1;

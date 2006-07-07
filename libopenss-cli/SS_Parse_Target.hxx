@@ -204,7 +204,7 @@ class ParseTarget {
 	    ParseRange range(num);
     	    dm_thread_list.push_back(range);
 	}
-    	void pushThreadRange(char * name, int num) {
+    	void pushThreadRange(char * name, int64_t num) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(name,num);
     	    dm_thread_list.push_back(range);
@@ -213,12 +213,12 @@ class ParseTarget {
 	    ParseRange range(name1,name2);
     	    dm_thread_list.push_back(range);
 	}
-    	void pushThreadRange(int num, char * name) {
+    	void pushThreadRange(int64_t num, char * name) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(num,name);
     	    dm_thread_list.push_back(range);
 	}
-    	void pushThreadRange(int num1, int num2) {
+    	void pushThreadRange(int64_t num1, int64_t num2) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(num1,num2);
     	    dm_thread_list.push_back(range);

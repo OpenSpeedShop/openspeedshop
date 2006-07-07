@@ -105,7 +105,7 @@ ParamVal(char * sval) :
  *
  */
 ParamVal::
-ParamVal(int ival) :
+ParamVal(int64_t ival) :
     dm_ival(ival),
     dm_val_type(PARAM_VAL_INT)
 {

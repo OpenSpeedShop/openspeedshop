@@ -41,30 +41,30 @@ class ParseInterval {
     public:
 
 //	/** Constructor. */
-	ParseInterval(int begin, int end);
-	ParseInterval(int begin, double end);
-	ParseInterval(double begin, int end);
+	ParseInterval(int64_t begin, int64_t end);
+	ParseInterval(int64_t begin, double end);
+	ParseInterval(double begin, int64_t end);
 	ParseInterval(double begin, double end);
 
 //	/** Destructor. */
 //	~TimeInterval();
 
 	bool   isStartInt()  	    {return dm_start_is_int;}
-	int    getStartInt() 	    {return dm_start_int;}
+	int64_t getStartInt() 	    {return dm_start_int;}
 	double getStartdouble()     {return dm_start_double;}
 
 	bool   isEndInt()  	    {return dm_end_is_int;}
-	int    getEndInt() 	    {return dm_end_int;}
+	int64_t getEndInt() 	    {return dm_end_int;}
 	double getEndDouble() 	    {return dm_end_double;}
 
     private:
     	/** range struct to fill */
     	bool	dm_start_is_int;
-    	int 	dm_start_int;
+    	int64_t dm_start_int;
     	double  dm_start_double;
 
     	bool	dm_end_is_int;
-    	int 	dm_end_int;
+    	int64_t dm_end_int;
     	double  dm_end_double;
 };
 

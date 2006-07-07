@@ -282,9 +282,9 @@ class ParseResult {
 	void setIntervalAttribute(char *attribute);
 	bool isIntervalAttribute(){return dm_interval_attribute_set;}
 	const string * getIntervalAttribute();
-    	void pushInterval(int begin, int end);
-    	void pushInterval(int begin, double end);
-    	void pushInterval(double begin, int end);
+    	void pushInterval(int64_t begin, int64_t end);
+    	void pushInterval(int64_t begin, double end);
+    	void pushInterval(double begin, int64_t end);
     	void pushInterval(double begin, double end);
     	vector<ParseInterval> * getParseIntervalList() {return &dm_interval_list;}
 
@@ -380,7 +380,7 @@ class ParseResult {
     	ParseParam *getParam();
     	void setParam(char *etype, char *ptype);
    	void pushParamVal(char   *sval);
-    	void pushParamVal(int     ival);
+    	void pushParamVal(int64_t ival);
     	void pushParamVal(double  dval);
 
     	/** Handle list of help modifiers. */

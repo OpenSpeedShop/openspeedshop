@@ -37,7 +37,7 @@ using namespace OpenSpeedShop::cli;
 
 void yyerror(const char *);
 extern char *yytext;
-extern int yylex();
+extern int64_t yylex();
 extern int yywrap();
 extern ParseResult *p_parse_result;
 
@@ -45,7 +45,7 @@ extern ParseResult *p_parse_result;
 
 
 %union {
-int ival;
+int64_t ival;
 double dval;
 char *string;
 }
@@ -71,7 +71,7 @@ char *string;
 
 %token COMMA SEMICOLON COLON END_LINE EQUAL DOUBLE_COLON REDIRECT APPEND
 
-%token <ival> IPNUMBER_32
+%token <ival> IPNUMBER_64
 %token <ival> HEXNUMBER
 %token <ival> NUMBER
 %token <dval> DOUBLE
@@ -737,7 +737,7 @@ view_id_range:	    NUMBER {p_parse_result->pushViewSet($1,$1);}
 		;
 
 ip_address: 	    NUMBER
-    	    	|   IPNUMBER_32
+    	    	|   IPNUMBER_64
     	    	;
 
 /*
@@ -872,7 +872,7 @@ yyerror(const char *s)
     soon.
     
  */
-int
+int64_t
 ip_number(char *input_str,int count)
 {
     int i;
@@ -891,7 +891,7 @@ ip_number(char *input_str,int count)
 	ptr1++;
    }
    
-    return (int)num;
+    return num;
 }
 
 /***************************************************/
