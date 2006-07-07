@@ -84,7 +84,7 @@ SS_Settings::initialize(char *filename)
 // cout << line << endl;
       getline (*settings_file,line);
 
-      int index = line.find("[general]", 0);
+      int64_t index = line.find("[general]", 0);
       if( index == 0 )
       {
         startOfSection = settings_file->tellg();
@@ -120,7 +120,7 @@ SS_Settings::readEntry(std::string key, const std::string &def=0, bool *ok=0)
     str = def;
   } else
   {
-    int value_index = str.find("=",0);
+    int64_t value_index = str.find("=",0);
     if( value_index != -1 )
     {
        str = std::string(str, value_index+1);
@@ -136,20 +136,20 @@ SS_Settings::readEntry(std::string key, const std::string &def=0, bool *ok=0)
 // Read an integer entry.  If found, return the integer value.
 // If unable to find the entry, set to any defaults (def) passed in.
 // Upon successful look up, assigns 'ok' == 1.
-int 
-SS_Settings::readNumEntry(std::string key, int def=0, bool *ok = 0)
+int64_t
+SS_Settings::readNumEntry(std::string key, int64_t def=0, bool *ok = 0)
 {
   std::string str = find(key,ok);
 
-  int ret_int = def;
+  int64_t ret_int = def;
 
   if( *ok == 1 )
   {
-    int value_index = str.find("=",0);
+    int64_t value_index = str.find("=",0);
     if( value_index != -1 )
     {
       std::string value_str = std::string(str, value_index+1);
-      ret_int = atoi(value_str.c_str());
+      ret_int = atoll(value_str.c_str());
     }
   }
 
@@ -168,7 +168,7 @@ SS_Settings::readDoubleEntry(std::string key, double def, bool *ok=0)
 
   if( *ok == 1 )
   {
-    int value_index = str.find("=",0);
+    int64_t value_index = str.find("=",0);
     if( value_index != -1 )
     {
        std::string value_str = std::string(str, value_index+1);
@@ -184,15 +184,15 @@ SS_Settings::readDoubleEntry(std::string key, double def, bool *ok=0)
 // If unable to find the entry, set to any defaults (def) passed in.
 // Upon successful look up, assigns 'ok' == 1.
 bool 
-SS_Settings::readBoolEntry(std::string key, bool def = 0, bool *ok=0)
+SS_Settings::readBoolEntry(std::string key, bool def = false, bool *ok=0)
 {
   std::string str = find(key,ok);
 
-  int ret_bool = def;
+  bool ret_bool = def;
 
   if( *ok == 1 )
   {
-    int value_index = str.find("=",0);
+    int64_t value_index = str.find("=",0);
     if( value_index != -1 )
     {
        std::string value_str = std::string(str, value_index+1);
@@ -206,7 +206,7 @@ SS_Settings::readBoolEntry(std::string key, bool def = 0, bool *ok=0)
          ret_bool = false;
        } else
        {
-         ret_bool = atoi(value_str.c_str());
+         ret_bool = (atoll(value_str.c_str()) != 0);
        }
     }
   }

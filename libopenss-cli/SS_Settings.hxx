@@ -45,7 +45,7 @@ class SS_Settings
     std::string readEntry(std::string key, const std::string &def, bool *ok);
 
     // read an integer entry from the preference file and return it's value
-    int readNumEntry(std::string key, int def, bool *ok);
+    int64_t readNumEntry(std::string key, int64_t def, bool *ok);
 
     // read a double entry from the preference file and return it's value
     double readDoubleEntry(std::string key, double def, bool *ok);
@@ -62,7 +62,7 @@ class SS_Settings
 
     // stores the start of the [general] section to start all preference
     // lookups.
-    int startOfSection;
+    int64_t startOfSection;
 };
 
 
