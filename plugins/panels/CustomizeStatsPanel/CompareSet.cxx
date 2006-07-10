@@ -177,7 +177,7 @@ dynamic_items->setOpen(TRUE);
 
   QString pset_name = QString::null;
 
-// printf("for each host,c reate a dynamic collector\n");
+// printf("for each host, create a dynamic collector\n");
   try
   {
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
@@ -268,26 +268,26 @@ dynamic_items->setOpen(TRUE);
             if( !ridstr.isEmpty() )
             {
               MPListViewItem *item2 =
-                new MPListViewItem(item, pidstr, ridstr, collectorliststring );
+                new MPListViewItem(item, "", pidstr, ridstr, "", collectorliststring );
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
               item2->descriptionClassObject = dco;
 // printf("A: Put ridstr out: \n");
 // dco->Print();
-            } else if( !pidstr.isEmpty() )
-            {
-              MPListViewItem *item2 = 
-                new MPListViewItem( item, pidstr, collectorliststring, ridstr  );
-              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
-              item2->descriptionClassObject = dco;
-// printf("A: Put pidstr out: \n");
-// dco->Print();
             } else if( !tidstr.isEmpty() )
             {
               MPListViewItem *item2 =
-                new MPListViewItem(item, pidstr, tidstr, collectorliststring );
+                new MPListViewItem(item, "", pidstr, tidstr, "", collectorliststring );
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, ridstr, tidstr, collectorliststring);
               item2->descriptionClassObject = dco;
 // printf("A: Put tidstr out: \n");
+// dco->Print();
+            } else if( !pidstr.isEmpty() )
+            {
+              MPListViewItem *item2 = 
+                new MPListViewItem( item, "", pidstr, ridstr, "", collectorliststring );
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
+              item2->descriptionClassObject = dco;
+// printf("A: Put pidstr out: \n");
 // dco->Print();
             } else
             {
@@ -460,9 +460,10 @@ dynamic_items->setOpen(TRUE);
 // printf("ss.host=(%s)\n", ss.host.ascii() );
 // printf("ss.pid=(%s)\n", ss.pid.ascii() );
 // printf("ss.rid=(%s)\n", ss.rid.ascii() );
+// printf("ss.tid=(%s)\n", ss.tid.ascii() );
 
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.rid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
+      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
       item->descriptionClassObject = dco;
 // printf("B: Put \"disconnected\" out: \n");
 // dco->Print();
@@ -481,9 +482,8 @@ dynamic_items->setOpen(TRUE);
     for( ;vi != statusConnectingList.end(); vi++)
     {
       StatusStruct ss = *vi;
-//      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.rid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
+      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
       item->descriptionClassObject = dco;
 // printf("B: Put \"connecting\" out: \n");
 // dco->Print();
@@ -501,9 +501,8 @@ dynamic_items->setOpen(TRUE);
     for( ;vi != statusNonexistentList.end(); vi++)
     {
       StatusStruct ss = *vi;
-//      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.rid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
+      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
       item->descriptionClassObject = dco;
 // printf("B: Put \"nonexistent\" out: \n");
 // dco->Print();
@@ -521,9 +520,8 @@ dynamic_items->setOpen(TRUE);
     for( ;vi != statusRunningList.end(); vi++)
     {
       StatusStruct ss = *vi;
-//      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.rid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
+      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
       item->descriptionClassObject = dco;
 // printf("B: Put \"running\" out: \n");
 // dco->Print();
@@ -541,9 +539,8 @@ dynamic_items->setOpen(TRUE);
     for( ;vi != statusSuspendedList.end(); vi++)
     {
       StatusStruct ss = *vi;
-//      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.rid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
+      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
       item->descriptionClassObject = dco;
 // printf("B: Put \"suspended\" out: \n");
 // dco->Print();
@@ -561,9 +558,8 @@ dynamic_items->setOpen(TRUE);
     for( ;vi != statusTerminatedList.end(); vi++)
     {
       StatusStruct ss = *vi;
-//      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.rid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
+      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
       item->descriptionClassObject = dco;
 // printf("B: Put \"terminated\" out: \n");
 // dco->Print();
@@ -581,9 +577,8 @@ dynamic_items->setOpen(TRUE);
     for( ;vi != statusUnknownList.end(); vi++)
     {
       StatusStruct ss = *vi;
-//      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
-      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.rid, ss.host);
-      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid );
+      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
       item->descriptionClassObject = dco;
 // printf("B: Put \"unknown\" out: \n");
 // dco->Print();

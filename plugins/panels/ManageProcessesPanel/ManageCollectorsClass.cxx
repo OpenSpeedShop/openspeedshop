@@ -103,8 +103,9 @@ QToolTip::add(attachCollectorsListView->viewport(), tr("Drag and drop onto a use
 
   psetListView = new MPListView( (QWidget *)splitter, (const char *)"psetlist", 0 );
   psetListView->addColumn(tr("Process Sets"));
-  psetListView->addColumn("          ");
-  psetListView->addColumn("          ");
+  psetListView->addColumn("PID       ");
+  psetListView->addColumn("Rank      ");
+  psetListView->addColumn("Thread    ");
   psetListView->setColumnWidthMode(0, QListView::Manual);
   psetListView->setColumnWidth(0, 100);
   psetListView->setColumnWidthMode(1, QListView::Manual);
@@ -301,7 +302,6 @@ ManageCollectorsClass::updateAttachedList()
                     if( !pidstr.isEmpty() )
                     {
                       MPListViewItem *item2 =
-//                        new MPListViewItem( item, host, pidstr );
                         new MPListViewItem( item, host, pidstr, ridstr, tidstr );
                       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr, tidstr  );
                       item2->descriptionClassObject = dco;
@@ -802,6 +802,7 @@ dynamic_items->setOpen(TRUE);
       if( eo->FW() != NULL )
       {
 // The following bit of code was snag and modified from SS_View_exp.cxx
+// printf("For each host, create a dynamic collector.\n");
         ThreadGroup tgrp = eo->FW()->getThreads();
         ThreadGroup::iterator ti;
         std::vector<std::string> v;
@@ -885,25 +886,25 @@ dynamic_items->setOpen(TRUE);
               if( !tidstr.isEmpty() )
               {
                 MPListViewItem *item2 =
-                  new MPListViewItem(item, pidstr, tidstr, collectorliststring );
+                  new MPListViewItem(item, "", pidstr, ridstr, tidstr, collectorliststring );
                 DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               } else if( !ridstr.isEmpty() )
               {
                 MPListViewItem *item2 =
-                  new MPListViewItem(item, pidstr, ridstr, collectorliststring );
+                  new MPListViewItem(item, "", pidstr, ridstr, tidstr, collectorliststring );
                 DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               } else if( !pidstr.isEmpty() )
               {
                 MPListViewItem *item2 = 
-                  new MPListViewItem( item, pidstr, collectorliststring  );
+                  new MPListViewItem( item, "", pidstr, ridstr, tidstr, collectorliststring  );
                 DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               } else
               {
                 MPListViewItem *item2 = 
-                  new MPListViewItem( item, pidstr, collectorliststring  );
+                  new MPListViewItem( item, "", pidstr, ridstr, tidstr, collectorliststring  );
                 DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
                 item2->descriptionClassObject = dco;
               }
@@ -986,8 +987,8 @@ dynamic_items->setOpen(TRUE);
                 threadStatusStr = "Disconnected";
                 statusStruct->status = threadStatusStr;
                 statusDisconnectedList.push_back(*statusStruct);
-// printf("DISCONNECTED\n");
 #if 0
+printf("DISCONNECTED\n");
 {
 QValueList<StatusStruct>::iterator vi = statusDisconnectedList.begin();
 for( ;vi != statusDisconnectedList.end(); vi++)
@@ -1089,7 +1090,7 @@ printf("    ss.rid=(%s)\n", ss.rid.ascii() );
   // Put out the Disconnected Dynamic pset (if there is one.)
   if( statusDisconnectedList.size() > 0 )
   {
-// printf("statusDisconnectedList.size() = (%d)\n", statusDisconnectedList.size() );
+// printf("\n\tstatusDisconnectedList.size() = (%d)\n", statusDisconnectedList.size() );
     QValueList<StatusStruct>::iterator vi = statusDisconnectedList.begin();
     pset_name = QString("Disconnected");
     if( psl ) psl->append(pset_name);

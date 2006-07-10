@@ -110,10 +110,9 @@ headerLabel->hide();
 
   availableProcessesListView = new MPListView( this, "availableProcessesListView", 0 );
   availableProcessesListView->addColumn( tr( "Available Processes:" ) );
-// availableProcessesListView->addColumn( tr( "Rank:" ) );
-// availableProcessesListView->addColumn( tr( "Host:" ) );
-availableProcessesListView->addColumn( tr( "         " ) );
-availableProcessesListView->addColumn( tr( "         " ) );
+availableProcessesListView->addColumn( tr( "PID:" ) );
+availableProcessesListView->addColumn( tr( "Rank:" ) );
+availableProcessesListView->addColumn( tr( "Thread:" ) );
   availableProcessesListView->setSelectionMode( QListView::Single );
   availableProcessesListView->setShowSortIndicator( TRUE );
   availableProcessesListView->setSorting( 0, FALSE );
@@ -274,8 +273,8 @@ CompareProcessesDialog::addProcesses()
       for ( DescriptionClassObjectList::Iterator it = validatedHostPidList->begin(); it != validatedHostPidList->end(); ++it )
       {
         DescriptionClassObject *dco = (DescriptionClassObject *)*it;
-        MPListViewItem *item = new MPListViewItem( selectedItem, dco->pid_name, dco->host_name, dco->rid_name );
-// printf("addProcesses() ADD! (%s)\n", item->text(0).ascii() );
+        MPListViewItem *item = new MPListViewItem( selectedItem, dco->pid_name, dco->host_name, dco->rid_name, dco->tid_name );
+// printf("A: host_name=(%s) pid_name=(%s) rid_name=(%s) tid_name=(%s)\n", dco->host_name.ascii(), dco->pid_name.ascii(), dco->rid_name.ascii(), dco->tid_name.ascii() );
         item->descriptionClassObject = dco;
       }
   
@@ -805,22 +804,24 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
             if( !pidstr.isEmpty() )
             {
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr, ridstr  );
+// printf("A: host_name=(%s) pidstr=(%s) ridstr=(%s) tidstr=(%s)\n", host_name.ascii(), pidstr.ascii(), ridstr.ascii(), tidstr.ascii() );
+
               dcolist->append(dco);
             } else if( !tidstr.isEmpty() )
             {
-// printf("A: host_name=(%s) tidstr=(%s)\n", host_name.ascii(), tidstr.ascii() );
+// printf("B: host_name=(%s) pidstr=(%s) ridstr=(%s) tidstr=(%s)\n", host_name.ascii(), pidstr.ascii(), ridstr.ascii(), tidstr.ascii() );
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, tidstr, ridstr  );
               dcolist->append(dco);
             } else if( !ridstr.isEmpty() )
             {
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr, ridstr  );
               dcolist->append(dco);
-// printf("B; host_name=(%s) ridstr=(%s)\n", host_name.ascii(), ridstr.ascii() );
+// printf("C: host_name=(%s) pidstr=(%s) ridstr=(%s) tidstr=(%s)\n", host_name.ascii(), pidstr.ascii(), ridstr.ascii(), tidstr.ascii() );
             } else
             {
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr, ridstr  );
               dcolist->append(dco);
-// printf("C: host_name=(%s) pidstr=(%s)\n", host_name.ascii(), pidstr.ascii() );
+// printf("D: host_name=(%s) pidstr=(%s) ridstr=(%s) tidstr=(%s)\n", host_name.ascii(), pidstr.ascii(), ridstr.ascii(), tidstr.ascii() );
             }
           }
         }

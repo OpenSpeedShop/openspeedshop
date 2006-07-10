@@ -124,6 +124,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
   {
     return;
   }
+
   if( !acceptDrops() || !viewport()->acceptDrops() )
   {
     mousePressed = FALSE;
@@ -145,19 +146,24 @@ void MPListView::contentsDropEvent( QDropEvent *e )
   }
 
 
+// printf("           MPListView::contentsDropEvent()  accepted!\n");
+// printf("item->text(0)=(%s) MPListView::oldCurrent->text(0)=(%s)\n", item->text(0).ascii(),  MPListView::oldCurrent->text(0).ascii() );
+
   if( item->parent() )
   {
+// printf("Item has parent\n");
     MPListViewItem *pi = (MPListViewItem *)item->parent();
-//    if( pi->text(0).find("pset") == 0 || pi->text(0).find("udpset") == 0 )
     if( pi->parent() && pi->descriptionClassObject->root != TRUE )
     { // Nope, this is the leaf.  Drop it on the parent or ignore the drop..
       // For drop it on the parent.
       item = (MPListViewItem *)pi->parent();
+// printf("Reset item to parent!!!\n");
     }
   }
 //  if( item->text(0).find("pset") == 0 || item->text(0).find("udpset") == 0 )
   if( item->parent() && item->descriptionClassObject->root == TRUE )
   { // Nope, this is the leaf.  Drop it on the parent or ignore the drop..
+// printf("Item has parent and it's a root.\n");
     // For drop it on the parent.
     QListViewItem *top = item;
     QListViewItem *last = top;
@@ -169,6 +175,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
     if( last->text(0) == CPS )
     {
       item = (MPListViewItem *)item->parent();
+// printf("(CPS) Reset item to parent!!!\n");
     }
   }
 
@@ -178,6 +185,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
   QListViewItem *last = top;
   if( top->parent() == NULL && item->text(0) != CPS )
   {
+// printf("Item has no parent and it's != CPS\n");
     e->ignore();
     return;
   }
@@ -188,6 +196,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
   }
   if( last->text(0) == DPS )
   {
+// printf("it thinks it's a DPS\n");
     e->ignore();
     return;
   }
@@ -196,18 +205,24 @@ void MPListView::contentsDropEvent( QDropEvent *e )
   // intended target.  Modify the target to enable the drop.
   if( item->parent() )
   {
+// printf("Item has parent ... lets continue.\n");
     MPListViewItem *pitem = (MPListViewItem *)item->parent();
     if( pitem->parent() && pitem->descriptionClassObject->root == TRUE )
     {
+// printf("pitem has a parent! or it's a root.\n");
       item = (MPListViewItem *)pitem;
     } else if( pitem )
     {
+#if 0
       item = (MPListViewItem *)pitem;
+// printf("item is now pitem\n");
+#endif // 0
     }
     
   }
 
 
+// printf("We're here.  item(0)=(%s) last->text(0)=(%s)\n", item->text(0).ascii(), last->text(0).ascii() );
   if ( (item && item->parent()) || (item && last->text(0) == CPS) )
   {
     QStrList lst;
@@ -290,7 +305,6 @@ void MPListView::contentsDropEvent( QDropEvent *e )
         }
 
         MPListViewItem *item2 =
-//          new MPListViewItem( item, pid_name, host_name );
           new MPListViewItem( item, pid_name, host_name, mpChild->descriptionClassObject->rid_name );
         item2->descriptionClassObject = mpChild->descriptionClassObject;
 
@@ -329,6 +343,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
     }
   } else
   {
+// printf("Awww shucks.   We have to ignore this one.\n");
     e->ignore();
   }
 }
@@ -441,8 +456,6 @@ MPListView::isThisADuplicate(MPListViewItem *item)
 
   // If this is a named pset, look for another named pset that's already there.
   QString namedSet = QString::null;
-//  if( MPListView::oldCurrent->text(0).find("pset") == 0 ||
-//      MPListView::oldCurrent->text(0).find("udpset") == 0 )
   if( MPListView::oldCurrent->descriptionClassObject->root == TRUE )
   {
     namedSet = MPListView::oldCurrent->text(0)+"*";
@@ -462,18 +475,29 @@ MPListView::isThisADuplicate(MPListViewItem *item)
   }
 
 
-  QListViewItem *nitem = item->firstChild();
+  MPListViewItem *nitem = (MPListViewItem *)item->firstChild();
   while( nitem )
   {
     if( MPListView::oldCurrent &&
         MPListView::oldCurrent->descriptionClassObject &&
-        nitem->text(0) == MPListView::oldCurrent->descriptionClassObject->pid_name &&
-        nitem->text(1) == MPListView::oldCurrent->descriptionClassObject->host_name )
-    {  
+        nitem &&
+        nitem->descriptionClassObject )
+    {
+      DescriptionClassObject *n = nitem->descriptionClassObject;
+      DescriptionClassObject *o = MPListView::oldCurrent->descriptionClassObject;
+      if( o->host_name == n->host_name &&
+        o->pid_name == n->pid_name &&
+        o->rid_name == n->rid_name &&
+        o->tid_name == n->tid_name &&
+        o->collector_name == n->collector_name &&
+        o->all == n->all &&
+        o->root == n->root )
+      {  
 // printf("Don't add duplicates... just ignore.\n");
-      return( TRUE );
+        return( TRUE );
+      }
     }
-    nitem = nitem->nextSibling();
+    nitem = (MPListViewItem *)nitem->nextSibling();
   }
 
 
