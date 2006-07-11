@@ -268,7 +268,7 @@ dynamic_items->setOpen(TRUE);
             if( !ridstr.isEmpty() )
             {
               MPListViewItem *item2 =
-                new MPListViewItem(item, "", pidstr, ridstr, "", collectorliststring );
+                new MPListViewItem(item, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring );
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
               item2->descriptionClassObject = dco;
 // printf("A: Put ridstr out: \n");
@@ -276,15 +276,15 @@ dynamic_items->setOpen(TRUE);
             } else if( !tidstr.isEmpty() )
             {
               MPListViewItem *item2 =
-                new MPListViewItem(item, "", pidstr, tidstr, "", collectorliststring );
-              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, ridstr, tidstr, collectorliststring);
+                new MPListViewItem(item, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring );
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
               item2->descriptionClassObject = dco;
 // printf("A: Put tidstr out: \n");
 // dco->Print();
             } else if( !pidstr.isEmpty() )
             {
               MPListViewItem *item2 = 
-                new MPListViewItem( item, "", pidstr, ridstr, "", collectorliststring );
+                new MPListViewItem( item, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring );
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
               item2->descriptionClassObject = dco;
 // printf("A: Put pidstr out: \n");
@@ -292,7 +292,7 @@ dynamic_items->setOpen(TRUE);
             } else
             {
               MPListViewItem *item2 = 
-                new MPListViewItem( item, pidstr, collectorliststring  );
+                new MPListViewItem( item, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring  );
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
               item2->descriptionClassObject = dco;
 // printf("A: Put \"other\" out: \n");
@@ -376,6 +376,9 @@ dynamic_items->setOpen(TRUE);
             threadStatusStr = "Disconnected";
             statusStruct.status = threadStatusStr;
             statusDisconnectedList.push_back(statusStruct);
+// printf("push_back: pid=(%s)\n", statusStruct.pid.ascii() );
+// printf("push_back: tid=(%s)\n", statusStruct.tid.ascii() );
+// printf("push_back: rid=(%s)\n", statusStruct.rid.ascii() );
             break;
           case Thread::Connecting:
             threadStatusStr = "Connecting";
@@ -452,10 +455,12 @@ dynamic_items->setOpen(TRUE);
 
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+// printf("statusDisconnectedList: \n");
     items->descriptionClassObject = dco;
     for( ;vi != statusDisconnectedList.end(); vi++)
     {
       StatusStruct ss = *vi;
+// printf("pset_name=(%s)\n", pset_name.ascii() );
 // printf("ss.status=(%s)\n", ss.status.ascii() );
 // printf("ss.host=(%s)\n", ss.host.ascii() );
 // printf("ss.pid=(%s)\n", ss.pid.ascii() );
@@ -465,8 +470,13 @@ dynamic_items->setOpen(TRUE);
       MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
       item->descriptionClassObject = dco;
-// printf("B: Put \"disconnected\" out: \n");
-// dco->Print();
+#if 0
+printf("B: Put \"disconnected\" out: \n");
+item->descriptionClassObject->Print();
+printf("...");
+printf("dco->pid_name=(%s)\n", dco->pid_name.ascii() );
+printf("...");
+#endif // 0
     }
   }
   // Put out the Connecting Dynamic pset (if there is one.)

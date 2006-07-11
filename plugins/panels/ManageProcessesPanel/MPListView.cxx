@@ -213,7 +213,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
       item = (MPListViewItem *)pitem;
     } else if( pitem )
     {
-#if 0
+#if 1 // Prevents double drop on leaf... but wasn't quite right.
       item = (MPListViewItem *)pitem;
 // printf("item is now pitem\n");
 #endif // 0
@@ -304,6 +304,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
           continue;
         }
 
+// printf("DROP A:\n");
         MPListViewItem *item2 =
           new MPListViewItem( item, pid_name, host_name, mpChild->descriptionClassObject->rid_name );
         item2->descriptionClassObject = mpChild->descriptionClassObject;
@@ -325,19 +326,28 @@ void MPListView::contentsDropEvent( QDropEvent *e )
             namedSetItem->descriptionClassObject = dco;
             item = namedSetItem;
           }
+// printf("DROP B:\n");
           MPListViewItem *item2 =
             new MPListViewItem( item, MPListView::oldCurrent->firstChild()->text(0).ascii() );
           item2->descriptionClassObject = MPListView::oldCurrent->descriptionClassObject;
         } else
         {
+// printf("DROP C:\n");
           MPListViewItem *item2 =
             new MPListViewItem( item, MPListView::oldCurrent->text(0).ascii() );
           item2->descriptionClassObject = MPListView::oldCurrent->descriptionClassObject;
         }
       } else
       {
+// printf("DROP D:\n");
+DescriptionClassObject *dco = MPListView::oldCurrent->descriptionClassObject;
+#if 0
+printf("Drop item:\n");
+dco->Print();
+#endif // 0
         MPListViewItem *item2 =
-          new MPListViewItem( item, MPListView::oldCurrent->descriptionClassObject->pid_name, MPListView::oldCurrent->descriptionClassObject->host_name, MPListView::oldCurrent->descriptionClassObject->rid_name, MPListView::oldCurrent->descriptionClassObject->tid_name );
+//          new MPListViewItem( item, MPListView::oldCurrent->descriptionClassObject->pid_name, MPListView::oldCurrent->descriptionClassObject->host_name, MPListView::oldCurrent->descriptionClassObject->rid_name, MPListView::oldCurrent->descriptionClassObject->tid_name );
+          new MPListViewItem( item, dco->host_name, dco->pid_name, dco->rid_name, dco->tid_name);
         item2->descriptionClassObject = MPListView::oldCurrent->descriptionClassObject;
       }
     }
@@ -406,6 +416,10 @@ void MPListView::contentsMouseMoveEvent( QMouseEvent* e )
         MPListView::draggingFLAG = FALSE;
         return;
       }
+#if 0
+printf("Drag item:\n");
+MPListView::oldCurrent->descriptionClassObject->Print();
+#endif // 0
       if( QString(name()) == "attachCollectorsListView" )
       {
         setSelectionMode(QListView::NoSelection);

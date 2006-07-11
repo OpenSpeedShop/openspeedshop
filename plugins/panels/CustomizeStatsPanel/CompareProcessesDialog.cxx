@@ -273,7 +273,7 @@ CompareProcessesDialog::addProcesses()
       for ( DescriptionClassObjectList::Iterator it = validatedHostPidList->begin(); it != validatedHostPidList->end(); ++it )
       {
         DescriptionClassObject *dco = (DescriptionClassObject *)*it;
-        MPListViewItem *item = new MPListViewItem( selectedItem, dco->pid_name, dco->host_name, dco->rid_name, dco->tid_name );
+        MPListViewItem *item = new MPListViewItem( selectedItem, dco->host_name, dco->pid_name, dco->rid_name, dco->tid_name );
 // printf("A: host_name=(%s) pid_name=(%s) rid_name=(%s) tid_name=(%s)\n", dco->host_name.ascii(), dco->pid_name.ascii(), dco->rid_name.ascii(), dco->tid_name.ascii() );
         item->descriptionClassObject = dco;
       }
@@ -693,6 +693,7 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
             MPListViewItem *item2 =
                   new MPListViewItem( pitem, child->text(0), child->text(1)  );
           }
+// printf("This could be in error!\n");
           DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, child->text(1), child->text(0) );
           child = child->nextSibling();
         }

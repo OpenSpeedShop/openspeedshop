@@ -42,30 +42,32 @@ DescriptionClassObject::~DescriptionClassObject()
 void 
 DescriptionClassObject::Print()
 {
-  cout << "all=" << all << endl;
-  cout << "root=" << root << endl;
+  printf("all=(%d)\n", all);
+  printf("root=(%d)\n", root);
   if( !pset_name.isEmpty() )
   {
-    cout << "pset_name=" << pset_name << endl;
+    printf("pset_name=(%s)\n", pset_name.ascii() );
   }
   if( !host_name.isEmpty() )
   {
-    cout << "host_name=" << host_name << endl;
+    printf("host_name=(%s)\n", host_name.ascii() );
   }
   if( !pid_name.isEmpty() )
   {
-    cout << "pid_name=" << pid_name << endl;
+    printf("pid_name=(%s)\n", pid_name.ascii() );
   }
   if( !rid_name.isEmpty() )
   {
-    cout << "rid_name=" << rid_name << endl;
+    printf("rid_name=(%s)\n", rid_name.ascii() );
   }
   if( !tid_name.isEmpty() )
   {
-    cout << "tid_name=" << rid_name << endl;
+    printf("tid_name=(%s)\n", tid_name.ascii() );
   }
   if( !collector_name.isEmpty() )
   {
-    cout << "collector_name=" << collector_name << endl;
+    printf("collector_name=(%s)\n", collector_name.ascii() );
   }
+
+  printf("End of dco\n");
 }
