@@ -30,16 +30,16 @@
 /**
  * Set program counter (PC) in a thread context.
  *
- * Set the program counter value in the specified thread context as a
- * single 64-bit unsigned integer. Thread contexts are typically obtained from
- * a signal handler or from calling OpenSS_GetContext().
+ * Set the program counter value in the specified thread context as a single
+ * 64-bit unsigned integer. Thread contexts are typically obtained from a
+ * signal handler or from calling OpenSS_GetContext().
  *
  * @param value    the PC value.
  * @param context    Thread context in which to set the PC value.
  *
  * @ingroup RuntimeAPI
  */
-void OpenSS_SetPCInContext(const uint64_t value, ucontext_t* context)
+void OpenSS_SetPCInContext(uint64_t value, ucontext_t* context)
 {
     /* Check preconditions */
     Assert(context != NULL);

@@ -87,7 +87,7 @@ static void initdisassembler() {
  *
  * @ingroup RuntimeAPI
  */
-int OpenSS_GetInstrLength(const uint64_t pcvalue)
+int OpenSS_GetInstrLength(uint64_t pcvalue)
 {
 #if defined(__linux) && (defined(__i386) || defined(__x86_64))
     

@@ -62,7 +62,6 @@ libopenss_runtime_la_SOURCES = \
 	OpenSS_Timer.c \
 	OpenSS_FPEHandler.c \
 	OpenSS_SetPCInContext.c \
-	OpenSS_GetInstrLength.c \
 	RuntimeAPI.h
 
 if HAVE_LIBUNWIND
@@ -75,6 +74,11 @@ if HAVE_PAPI
 libopenss_runtime_la_SOURCES += \
 	OpenSS_Overflow.c \
 	PapiAPI.h PapiAPI.c
+endif
+
+if HAVE_BINUTILS
+libopenss_runtime_la_SOURCES += \
+	OpenSS_GetInstrLength.c
 endif
 
 SUFFIXES = .x

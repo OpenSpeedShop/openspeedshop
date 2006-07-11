@@ -295,7 +295,7 @@ AC_DEFUN([AC_PKG_PAPI], [
 ])
 
 ################################################################################
-# Check for binutils
+# Check for Binutils (http://www.gnu.org/software/binutils)
 ################################################################################
 
 AC_DEFUN([AC_PKG_BINUTILS], [
@@ -307,16 +307,19 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 
     case "$host" in
 	ia64-*-linux*)
+	    binutils_required="false"
 	    BINUTILS_CPPFLAGS=""
 	    BINUTILS_LDFLAGS=""
 	    BINUTILS_LIBS=""
             ;;
 	x86_64-*-linux*)
+	    binutils_required="true"
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
 	    BINUTILS_LIBS="-lbfd -liberty -lopcodes"
             ;;
 	*)
+	    binutils_required="true"
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
 	    BINUTILS_LIBS="-lbfd -liberty -lopcodes"
@@ -343,7 +346,11 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 
         ], [ AC_MSG_RESULT(no)
 
-            AM_CONDITIONAL(HAVE_BINUTILS, false)
+	    if test x"$binutils_required" == x"true"; then
+		AM_CONDITIONAL(HAVE_BINUTILS, false)
+	    else
+		AM_CONDITIONAL(HAVE_BINUTILS, true)
+	    fi
             BINUTILS_CPPFLAGS=""
             BINUTILS_LDFLAGS=""
             BINUTILS_LIBS=""

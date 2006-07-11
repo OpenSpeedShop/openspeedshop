@@ -94,8 +94,7 @@ void OpenSS_DecodeParameters(const char*, const xdrproc_t, void*);
 void OpenSS_FPEHandler(const OpenSS_FPEType, const OpenSS_FPEEventHandler);
 uint64_t OpenSS_GetAddressOfFunction(const void*);
 uint64_t OpenSS_GetPCFromContext(const ucontext_t*);
-void OpenSS_SetPCInContext(const uint64_t, ucontext_t*);
-int OpenSS_GetInstrLength(const uint64_t);
+void OpenSS_SetPCInContext(uint64_t, ucontext_t*);
 uint64_t OpenSS_GetTime();
 void OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
 void OpenSS_Timer(uint64_t, const OpenSS_TimerEventHandler);
@@ -113,6 +112,10 @@ void OpenSS_AddEvent(int, int);
 void OpenSS_Overflow(int, int, int, void*);
 void OpenSS_Start(int);
 void OpenSS_Stop(int);
+#endif
+
+#ifdef HAVE_BINUTILS
+int OpenSS_GetInstrLength(uint64_t);
 #endif
 
 
