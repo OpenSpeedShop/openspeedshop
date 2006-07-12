@@ -278,7 +278,7 @@ textLabelLayout->addWidget( chartTypeComboBox );
     layout8->addWidget( textLabelGroupBox );
 
     showToolbarCheckBox =
-      new QCheckBox( statsPanelGroupBox, "showSkylineCheckBox" );
+      new QCheckBox( statsPanelGroupBox, "showToolbarCheckBox" );
     showToolbarCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showToolbarCheckBox->sizePolicy().hasHeightForWidth() ) );
     layout8->addWidget( showToolbarCheckBox );
 
