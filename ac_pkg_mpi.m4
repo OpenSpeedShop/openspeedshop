@@ -102,6 +102,14 @@ AC_DEFUN([AC_PKG_MPICH], [
     MPICH_HEADER="$mpich_dir/include/mpi.h"
     MPICH_DIR="$mpich_dir"
 
+    # On the systems "mcr" and "thunder" at LLNL they have an MPICH variant
+    # that has things moved around a bit. Handle this by allowing a "llnl"
+    # pseudo-driver that makes the necessary configuration changes.
+    if test x"$mpich_driver" == x"llnl"; then
+	MPICH_CC="$mpich_dir/bin/mpicc -shlib"
+        MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+    fi
+
     mpich_saved_CC=$CC
     mpich_saved_CPPFLAGS=$CPPFLAGS
     mpich_saved_LDFLAGS=$LDFLAGS
