@@ -334,13 +334,8 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 
     AC_MSG_CHECKING([for binutils librarys and headers])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
-        #include <bfd.h>
-        #include <dis-asm.h>
-        ]], [[
-	bfd_init();
-        ]]), [ AC_MSG_RESULT(yes)
-
+    AC_SEARCH_LIBS(bfd_init,[bfd], 
+        [   AC_MSG_RESULT(yes)
             AM_CONDITIONAL(HAVE_BINUTILS, true)
             AC_DEFINE(HAVE_BINUTILS, 1, [Define to 1 if you have BINUTILS.])
 
