@@ -334,6 +334,8 @@ class StatsPanel  : public Panel
     void timeSliceSelected();
 
   private:
+    QString getMostImportantClusterMetric(QString collector_name);
+
     bool matchSelectedItem( QListViewItem *item, std::string function_name );
 
     void updateStatsPanelData(QString command = QString::null);

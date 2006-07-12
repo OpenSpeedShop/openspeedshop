@@ -987,16 +987,53 @@ if( focusedExpID == -1 )
   return( TRUE );
 }
 
+QString
+StatsPanel::getMostImportantClusterMetric(QString collector_name)
+{
+  QString metric = QString::null;
+
+
+  if( collector_name == "pcsamp" )
+  {
+    metric = "-m pcsamp::time";
+  } else if( collector_name == "usertime" )
+  {
+    metric = "-m usertime::inclusive_time";
+  } else if( collector_name == "hwc" )
+  {
+    metric = "-m hwc::overflows";
+  } else if( collector_name == "hwctime" )
+  {
+    metric = "-m hwc::inclusive_overflows";
+  } else if( collector_name == "mpi" )
+  {
+    metric = "-m mpi::inclusive_times";
+  } else if( collector_name == "mpit" )
+  {
+    metric = "-m mpit::start_time, mpit::end_time, mpit::exclusive";
+  } else if( collector_name == "io" )
+  {
+    metric = "-m io::inclusive_times";
+  } else if( collector_name == "iot" )
+  {
+    metric = "-m io::inclusive_times";
+  }
+
+  return(metric);
+
+}
+
 void
 StatsPanel::clusterAnalysisSelected()
 {
   QString command = QString::null;
+  QString mim = getMostImportantClusterMetric(currentCollectorStr);
   if( focusedExpID == -1 )
   {
-    command = QString("cviewCluster -x %1 %2").arg(expID).arg(timeIntervalString);
+    command = QString("cviewCluster -x %1 %2 %3").arg(expID).arg(timeIntervalString).arg(mim);
   } else
   {
-    command = QString("cviewCluster -x %1 %2").arg(focusedExpID).arg(timeIntervalString);
+    command = QString("cviewCluster -x %1 %2 %3").arg(focusedExpID).arg(timeIntervalString).arg(mim);
   }
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   std::list<int64_t> list_of_cids;
