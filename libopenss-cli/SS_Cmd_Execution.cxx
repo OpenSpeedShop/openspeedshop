@@ -2775,6 +2775,13 @@ static void Most_Common_Executable (CommandObject *cmd,
    // Get the executable name for each thread and count how many times it is used.
     std::map<std::string,int64_t> NameMap;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+     // Check for asynchronous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        NameMap.clear();
+        break;
+      }
+
       Thread t = *ti;
       std::pair<bool, LinkedObject> X = t.getExecutable(); // .getPath().getBaseName();
       if (X.first == false) {
@@ -2933,6 +2940,13 @@ static bool SS_ListHosts (CommandObject *cmd) {
     ThreadGroup tgrp = exp->FW()->getThreads();
     std::set<std::string> hset;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+     // Check for asynchronous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        hset.clear();
+        break;
+      }
+
       Thread t = *ti;
       hset.insert (t.getHost());
     }
@@ -3101,6 +3115,12 @@ static bool SS_ListObj (CommandObject *cmd) {
 
  // Now go through the list of unique LinkedObjects and list their names.
   for (std::set<LinkedObject>::iterator lseti = ulset.begin(); lseti != ulset.end(); lseti++) {
+
+   // Check for asynchronous abort command
+    if (cmd->Status() == CMD_ABORTED) {
+      break;
+    }
+
     LinkedObject lobj = *lseti;
     std::string L = lobj.getPath();
     cmd->Result_String ( L );
@@ -3278,6 +3298,13 @@ static bool SS_ListPids (CommandObject *cmd) {
     Filter_ThreadGroup (cmd->P_Result(), tgrp);
     std::set<pid_t> pset;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+     // Check for asynchronous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        pset.clear();
+        break;
+      }
+
       Thread t = *ti;
       pset.insert (t.getProcessId());
     }
@@ -3340,6 +3367,13 @@ static bool SS_ListRanks (CommandObject *cmd) {
    // Place every rank into a set so that it will only be listed once.
     std::set<int64_t> rset;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+     // Check for asynchronous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        rset.clear();
+        break;
+      }
+
       Thread t = *ti;
       std::pair<bool, int> prank = t.getMPIRank();
       if (prank.first) {
@@ -3394,6 +3428,13 @@ static bool SS_ListSrc (CommandObject *cmd) {
  // Put the names of all the functions in a set to eliminate duplicates.
   std::set<std::string> mset;
   for (std::set<Function>:: iterator fi = flset.begin(); fi != flset.end(); fi++) {
+
+   // Check for asynchronous abort command
+    if (cmd->Status() == CMD_ABORTED) {
+      mset.clear();
+      break;
+    }
+
     Function fobj = *fi;
     std::set<Statement> sobj = fobj.getDefinitions();
     if( sobj.size() > 0 ) {
@@ -3512,6 +3553,13 @@ static bool SS_ListThreads (CommandObject *cmd) {
    // Place all the thread ID's into a set so each will be listed only once.
     std::set<int64_t> tset;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+     // Check for asynchronous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        tset.clear();
+        break;
+      }
+
       Thread t = *ti;
 
       std::pair<bool, int> pthread = t.getOpenMPThreadId();

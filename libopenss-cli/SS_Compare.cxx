@@ -246,6 +246,12 @@ static bool Generate_CustomView (CommandObject *cmd,
 
  // Generate all the views in the list.
   for (i = 0; i < numQuickSets; i++) {
+
+   // Check for asynchronous abort command
+    if (cmd->Status() == CMD_ABORTED) {
+      break;
+    }
+
    // Try to Generate the Requested View for each comparison set!
     ExperimentObject *exp = Quick_Compare_Set[i].Exp;
     if ((exp == NULL) ||
