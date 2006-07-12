@@ -279,7 +279,7 @@ void CollectorImpl::executeBeforeExit(const Collector& collector,
 				       "exit", 
 				       true, callee, argument);
     Instrumentor::executeAtEntryOrExit(thread, collector, 
-				       "__nptl_deallocate_tsd", 
+				       "__libc_thread_freeres", 
 				       true, callee, argument);
 }
 
