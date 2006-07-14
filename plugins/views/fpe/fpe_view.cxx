@@ -389,10 +389,15 @@ static bool define_fpe_columns (
         } else if ( !strcasecmp(M_Name.c_str(), "Type") ||
                     !strcasecmp(M_Name.c_str(), "Types")) {
          // display the event type
-          IV.push_back(new ViewInstruction (VIEWINST_Require_Field_Equal, -1, fpeType_temp));
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, fpeType_temp));
-          HV.push_back("Fpe Event Type");
-          user_defined = true;
+          if ((vfc == VFC_Trace) ||
+              (vfc == VFC_CallStack)) {
+            IV.push_back(new ViewInstruction (VIEWINST_Require_Field_Equal, -1, fpeType_temp));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, fpeType_temp));
+            HV.push_back("Fpe Event Type");
+            user_defined = true;
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m types' is only supported with callstack information.");
+          }
         } else if (!strcasecmp(M_Name.c_str(), "percent") ||
                    !strcmp(M_Name.c_str(), "%")           ||
                    !strcasecmp(M_Name.c_str(), "%event") ||
@@ -442,36 +447,64 @@ static bool define_fpe_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m start_time' only supported for '-v Trace' option.");
           }
-        } else if ( !strcasecmp(M_Name.c_str(), "division_by_zero_count") ||
+        } else if ( !strcasecmp(M_Name.c_str(), "DivideByZero") ||
+                    !strcasecmp(M_Name.c_str(), "Divide_By_Zero") ||
+                    !strcasecmp(M_Name.c_str(), "DivisionByZero") ||
+                    !strcasecmp(M_Name.c_str(), "division_by_zero") ||
+                    !strcasecmp(M_Name.c_str(), "division_by_zero_count") ||
+                    !strcasecmp(M_Name.c_str(), "InexactResult") ||
+                    !strcasecmp(M_Name.c_str(), "inexact_result") ||
                     !strcasecmp(M_Name.c_str(), "inexact_result_count") ||
+                    !strcasecmp(M_Name.c_str(), "invalid_operation") ||
                     !strcasecmp(M_Name.c_str(), "invalid_count") ||
+                    !strcasecmp(M_Name.c_str(), "overflow") ||
                     !strcasecmp(M_Name.c_str(), "overflow_count") ||
+                    !strcasecmp(M_Name.c_str(), "underflow") ||
                     !strcasecmp(M_Name.c_str(), "underflow_count") ||
+                    !strcasecmp(M_Name.c_str(), "unknown") ||
                     !strcasecmp(M_Name.c_str(), "unknown_count") ||
+                    !strcasecmp(M_Name.c_str(), "unnormal") ||
                     !strcasecmp(M_Name.c_str(), "unnormal_count")) {
          // display specific exception counts
          // Accomplish this by changing the requested metric.
           int64_t extra_index = 0;
           int64_t extra_temp = 0;
-          if (!strcasecmp(M_Name.c_str(), "division_by_zero_count")) {
+          if (!strcasecmp(M_Name.c_str(), "DivisionByZero") ||
+              !strcasecmp(M_Name.c_str(), "division_by_zero") ||
+              !strcasecmp(M_Name.c_str(), "division_by_zero_count")) {
+            M_Name = "division_by_zero_count";
             extra_index = division_by_zero_index;
             extra_temp = extra_division_by_zero_temp;
-          } else if (!strcasecmp(M_Name.c_str(), "inexact_result_count")) {
+          } else if (!strcasecmp(M_Name.c_str(), "InexactResult") ||
+                     !strcasecmp(M_Name.c_str(), "inexact_result") ||
+                     !strcasecmp(M_Name.c_str(), "inexact_result_count")) {
+            M_Name = "inexact_result_count";
             extra_index = inexact_index;
             extra_temp = extra_inexact_result_temp;
-          } else if (!strcasecmp(M_Name.c_str(), "invalid_count")) {
+          } else if (!strcasecmp(M_Name.c_str(), "invalid") ||
+                     !strcasecmp(M_Name.c_str(), "invalid_operation") ||
+                     !strcasecmp(M_Name.c_str(), "invalid_count")) {
+            M_Name = "invalid_count";
             extra_index = invalid_index;
             extra_temp = extra_invalid_temp;
-          } else if (!strcasecmp(M_Name.c_str(), "overflow_count")) {
+          } else if (!strcasecmp(M_Name.c_str(), "overflow") ||
+                     !strcasecmp(M_Name.c_str(), "overflow_count")) {
+            M_Name = "overflow_count";
             extra_index = overflow_index;
             extra_temp = extra_overflow_temp;
-          } else if (!strcasecmp(M_Name.c_str(), "underflow_count")) {
+          } else if (!strcasecmp(M_Name.c_str(), "underflow") ||
+                     !strcasecmp(M_Name.c_str(), "underflow_count")) {
+            M_Name = "underflow_count";
             extra_index = underflow_index;
             extra_temp = extra_underflow_temp;
-          } else if (!strcasecmp(M_Name.c_str(), "unknown_count")) {
+          } else if (!strcasecmp(M_Name.c_str(), "unknown") ||
+                     !strcasecmp(M_Name.c_str(), "unknown_count")) {
+            M_Name = "unknown_count";
             extra_index = unknown_index;
             extra_temp = extra_unknown_temp;
-          } else if (!strcasecmp(M_Name.c_str(), "unnormal_count")) {
+          } else if (!strcasecmp(M_Name.c_str(), "unnormal") ||
+                     !strcasecmp(M_Name.c_str(), "unnormal_count")) {
+            M_Name = "unnormal_count";
             extra_index = unnormal_index;
             extra_temp = extra_unnormal_temp;
           }
