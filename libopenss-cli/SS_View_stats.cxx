@@ -106,8 +106,9 @@ bool First_Column (CommandObject *cmd,
     if (vp->OpCode() == VIEWINST_Display_Percent_Column) {
       vp = Find_Column_Def (IV, vp->TMP1());
       Assert (vp != NULL);
-    }
-    if (vp->OpCode() == VIEWINST_Display_Metric) {
+    }    
+    if ((vp->OpCode() == VIEWINST_Display_Metric) ||
+        (vp->OpCode() == VIEWINST_Display_ByThread_Metric)) {
       Column0metric = vp->TMP1();
     } else {
      // This is more than we can handle!
@@ -124,7 +125,16 @@ bool First_Column (CommandObject *cmd,
     if (objects.empty()) {
       return false;
     }
-    GetMetricByObjectSet (cmd, exp, tgrp, CV[Column0metric], MV[Column0metric], objects, initial_items);
+    if (vp->OpCode() == VIEWINST_Display_ByThread_Metric) {
+      int64_t reductionIndex = vp->TMP2();
+      Assert((reductionIndex == ViewReduction_mean) ||
+             (reductionIndex == ViewReduction_min) ||
+             (reductionIndex == ViewReduction_max));
+      GetReducedType (cmd, exp, tgrp, CV[Column0metric], MV[Column0metric], objects, reductionIndex, initial_items);
+    } else {
+      GetMetricByObjectSet (cmd, exp, tgrp, CV[Column0metric], MV[Column0metric], objects, initial_items);
+    }
+
     typename std::map <TE, CommandResult *>::const_iterator ii;
     for(ii = initial_items->begin(); ii != initial_items->end(); ii++ ) {
       items.push_back (std::make_pair(ii->first, ii->second));
