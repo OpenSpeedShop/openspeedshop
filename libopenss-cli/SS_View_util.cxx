@@ -1112,7 +1112,7 @@ CommandResult *Build_CallBack_Entry (Framework::StackTrace& st, int64_t i, bool 
       }
     } else {
      // There is no Function entry available - use the absolute address.
-      SE = new CommandResult_Uint (st[i].getValue());
+      SE = new CommandResult_Address (st[i].getValue());
     }
     return SE;
 }

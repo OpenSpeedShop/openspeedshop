@@ -21,6 +21,7 @@
 // types of results that can be returned in a CommandObject
 enum cmd_result_type_enum {
   CMD_RESULT_NULL,
+  CMD_RESULT_ADDRESS,
   CMD_RESULT_UINT,
   CMD_RESULT_INT,
   CMD_RESULT_FLOAT,
@@ -153,6 +154,59 @@ void Reclaim_CR_Space (
   }
 }
 
+class CommandResult_Address :
+     public CommandResult {
+  uint64_t uint_value;
+
+ public:
+  CommandResult_Address () : CommandResult(CMD_RESULT_ADDRESS) {
+    uint_value = 0;
+  }
+  CommandResult_Address (uint64_t U) : CommandResult(CMD_RESULT_ADDRESS) {
+    uint_value = U;
+  }
+  CommandResult_Address (CommandResult_Address *C) :
+       CommandResult(CMD_RESULT_ADDRESS) {
+    uint_value = C->uint_value;
+  }
+  virtual ~CommandResult_Address () { }
+
+  virtual CommandResult *Init () { return new CommandResult_Address (); }
+  virtual CommandResult *Copy () { return new CommandResult_Address (this); }
+  virtual bool LT (CommandResult *A) {
+    Assert (typeid(*this) == typeid(CommandResult_Address));
+    return uint_value < ((CommandResult_Address *)A)->uint_value; }
+  virtual bool GT (CommandResult *A) {
+    Assert (typeid(*this) == typeid(CommandResult_Address));
+    return uint_value > ((CommandResult_Address *)A)->uint_value; }
+  virtual void Accumulate_Value (CommandResult *A) {
+    Assert (typeid(*this) == typeid(CommandResult_Address));
+    uint_value += ((CommandResult_Address *)A)->uint_value; }
+  virtual void Accumulate_Min (CommandResult *A) {
+    Assert (typeid(*this) == typeid(CommandResult_Address));
+    uint_value = min (uint_value, ((CommandResult_Address *)A)->uint_value); }
+  virtual void Accumulate_Max (CommandResult *A) {
+    Assert (typeid(*this) == typeid(CommandResult_Address));
+    uint_value = max (uint_value, ((CommandResult_Address *)A)->uint_value); }
+
+  void Value (uint64_t& U) {
+    U = uint_value;
+  }
+
+  virtual std::string Form () {
+    char s[OPENSS_VIEW_FIELD_SIZE];
+    sprintf ( s, "0x%llx", uint_value);
+    return std::string (s);
+  }
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("l", uint_value);
+  }
+  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+    to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
+       << std::setw(fieldsize) << Form();
+  }
+};
+
 class CommandResult_Uint :
      public CommandResult {
   uint64_t uint_value;
@@ -184,15 +238,6 @@ class CommandResult_Uint :
     Assert (typeid(*this) == typeid(CommandResult_Uint));
     uint_value = max (uint_value, ((CommandResult_Uint *)A)->uint_value); }
 
-  void Min_Uint (CommandResult_Uint *B) {
-    uint_value = min (uint_value, B->uint_value);
-  }
-  void Max_Uint (CommandResult_Uint *B) {
-    uint_value = max (uint_value, B->uint_value);
-  }
-  void Accumulate_Uint (CommandResult_Uint *B) {
-    uint_value += B->uint_value;
-  }
   void Value (uint64_t& U) {
     U = uint_value;
   }
@@ -251,15 +296,6 @@ class CommandResult_Int :
     Assert (typeid(*this) == typeid(CommandResult_Int));
     int_value = max (int_value, ((CommandResult_Int *)A)->int_value); }
 
-  void Min_Int (CommandResult_Int *B) {
-    int_value = min (int_value, B->int_value);
-  }
-  void Max_Int (CommandResult_Int *B) {
-    int_value = max (int_value, B->int_value);
-  }
-  void Accumulate_Int (CommandResult_Int *B) {
-    int_value += B->int_value;
-  }
   void Value (int64_t& I) {
     I = int_value;
   }
@@ -323,15 +359,6 @@ class CommandResult_Float :
     Assert (typeid(*this) == typeid(CommandResult_Float));
     float_value = max (float_value, ((CommandResult_Float *)A)->float_value); }
 
-  void Min_Float (CommandResult_Float *B) {
-    float_value = min (float_value, B->float_value);
-  }
-  void Max_Float (CommandResult_Float *B) {
-    float_value = max (float_value, B->float_value);
-  }
-  void Accumulate_Float (CommandResult_Float *B) {
-    float_value += B->float_value;
-  }
   void Value (double& F) {
     F = float_value;
   }
@@ -924,12 +951,6 @@ class CommandResult_Time : public CommandResult {
     Assert (typeid(*this) == typeid(CommandResult_Time));
     time_value = max (time_value, ((CommandResult_Time *)A)->time_value); }
 
-  void Min_Time (CommandResult_Time *B) {
-    time_value = min (time_value, B->time_value);
-  }
-  void Max_Time (CommandResult_Time *B) {
-    time_value = max (time_value, B->time_value);
-  }
   Time& Value () {
     return time_value;
   };
@@ -1007,15 +1028,6 @@ class CommandResult_Duration : public CommandResult {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
     duration_value = max (duration_value, ((CommandResult_Duration *)A)->duration_value); }
 
-  void Min_Duration (CommandResult_Duration *B) {
-    duration_value = min (duration_value, B->duration_value);
-  }
-  void Max_Duration (CommandResult_Duration *B) {
-    duration_value = max (duration_value, B->duration_value);
-  }
-  void Accumulate_Duration (CommandResult_Duration *B) {
-    duration_value += B->duration_value;
-  }
   int64_t& Value () {
     return duration_value;
   };
@@ -1144,15 +1156,6 @@ class CommandResult_Interval : public CommandResult {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
     interval_value = max (interval_value, ((CommandResult_Interval *)A)->interval_value); }
 
-  void Min_Interval (CommandResult_Interval *B) {
-    interval_value = min (interval_value, B->interval_value);
-  }
-  void Max_Interval (CommandResult_Interval *B) {
-    interval_value = max (interval_value, B->interval_value);
-  }
-  void Accumulate_Interval (CommandResult_Interval *B) {
-    interval_value += B->interval_value;
-  }
   double& Value () {
     return interval_value;
   };
