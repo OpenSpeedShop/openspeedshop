@@ -2956,6 +2956,9 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
     // Address space for this process
     AddressSpace address_space;
 
+    // Flag indicating if the executable has been found yet
+    bool found_executable = false;
+
     // Iterate over each module associated with this process
     SourceObj program = dm_process->get_program_object();
     for(int m = 0; m < program.child_count(); ++m) {
@@ -2978,9 +2981,6 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
 	    name = buffer;
 	}
 	
-	// Indicate this address range does not contain the executable
-	bool is_executable = false;
-	
 #ifndef NDEBUG
 	if(is_debug_enabled) {
 	    std::stringstream output;
@@ -2999,21 +2999,31 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
 	
 	// Is this address range already in the address space?
 	if(address_space.hasValue(range)) {
-	    
-	    // Obtain the name of the program
-	    if(program.program_name_length() > 0) {
-		char buffer[program.program_name_length() + 1];
-		program.program_name(buffer, program.program_name_length() + 1);
-		name = buffer;
-	    }
 
-	    // Indicate this address range does contain the executable
-	    is_executable = true;
+	    // Is the executable still unidentified?
+	    if(!found_executable) {
+
+		// Indicate we have now found the executable
+		found_executable = true;
+		
+		// Obtain the name of the program
+		if(program.program_name_length() > 0) {
+		    char buffer[program.program_name_length() + 1];
+		    program.program_name(buffer, 
+					 program.program_name_length() + 1);
+		    name = buffer;
+		}
+		
+		// Update the address range's entry in the address space
+		address_space.setValue(range, name, true);
+		
+	    }
 	    
 	}
 
-	// Create/update the entry for this address range in the address space
-	address_space.setValue(range, name, is_executable);
+	// Otherwise create the address range's entry in the address space
+	else if(name != std::string("DEFAULT_MODULE"))
+	    address_space.setValue(range, name, false);
 	
     }
     
