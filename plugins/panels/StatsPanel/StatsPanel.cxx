@@ -992,32 +992,33 @@ StatsPanel::getMostImportantClusterMetric(QString collector_name)
 {
   QString metric = QString::null;
 
-
+/*
   if( collector_name == "pcsamp" )
   {
-    metric = "-m pcsamp::time";
+    metric = "-m pcsamp::exclusive_time";
   } else if( collector_name == "usertime" )
   {
-    metric = "-m usertime::inclusive_time";
+    metric = "-m usertime::exclusive_time";
   } else if( collector_name == "hwc" )
   {
-    metric = "-m hwc::overflows";
+    metric = "-m hwc::ThreadAverage";
   } else if( collector_name == "hwctime" )
   {
-    metric = "-m hwc::inclusive_overflows";
+    metric = "-m hwc::ThreadAverage";
   } else if( collector_name == "mpi" )
   {
-    metric = "-m mpi::inclusive_times";
+    metric = "-m mpi::ThreadAverage";
   } else if( collector_name == "mpit" )
   {
-    metric = "-m mpit::start_time, mpit::end_time, mpit::exclusive";
+    metric = "-m mpit::ThreadAverage";
   } else if( collector_name == "io" )
   {
-    metric = "-m io::inclusive_times";
+    metric = "-m io::ThreadAverage";
   } else if( collector_name == "iot" )
   {
-    metric = "-m io::inclusive_times";
+    metric = "-m io::ThreadAverage";
   }
+*/
 
   return(metric);
 
@@ -1073,7 +1074,8 @@ StatsPanel::clusterAnalysisSelected()
   }
 
 //  command = QString("cview -c %1 -m usertime::exclusive_time %2").arg(pidlist).arg(timeIntervalString);
-  command = QString("cview -c %1 %2").arg(pidlist).arg(timeIntervalString);
+//  command = QString("cview -c %1 %2").arg(pidlist).arg(timeIntervalString);
+  command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg(timeIntervalString);
 // printf("run %s\n", command.ascii() );
 
   updateStatsPanelData(command);
@@ -3844,7 +3846,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
 // printf("Found the percentIndex at %d\n", percentIndex);
         }
       }
-      splv->addColumn( s );
+      splv->addColumn( s, 200 );
       i++;
     }
   
@@ -6241,7 +6243,7 @@ StatsPanel::insertDiffColumn(int insertAtIndex)
 // the "Difference" column.
   QPtrList<QListViewItem> lst;
   QListViewItemIterator it( splv );
-  int index = splv->addColumn("|Difference|");
+  int index = splv->addColumn("|Difference|", 200);
   int columnCount = splv->columns();
 
   int i=index;
@@ -6510,6 +6512,11 @@ if(commaIndex != -1 )
 bool
 StatsPanel::canWeDiff()
 {
+// This broke with the changes to the headers for the report.
+// A new approach needs to be done.
+
+return (FALSE);
+#if 0
 // printf("canWeDiff() entered\n");
   int diffIndex = -1;
   if( splv->columns() < 2 )
@@ -6547,9 +6554,9 @@ if( lastCommand.startsWith("cview -c") && lastCommand.contains("-m ") )
   }
 
   diffIndex = c1header.find(":");
-// printf("A: diffInde=%d\n", diffIndex);
+printf("A: diffInde=%d\n", diffIndex);
 int commaIndex = c1header.find(",");
-// printf("B: commaIndex=%d\n", commaIndex);
+printf("B: commaIndex=%d\n", commaIndex);
 if(commaIndex != -1 )
 {
   diffIndex = commaIndex;
@@ -6559,9 +6566,9 @@ if(commaIndex != -1 )
     c1header = c1header.mid(diffIndex+1);
   }
   diffIndex = c2header.find(":");
-// printf("B: diffInde=%d\n", diffIndex);
+printf("B: diffInde=%d\n", diffIndex);
 commaIndex = c2header.find(",");
-// printf("B: commaIndex=%d\n", commaIndex);
+printf("B: commaIndex=%d\n", commaIndex);
 if(commaIndex != -1 )
 {
   diffIndex = commaIndex;
@@ -6571,17 +6578,18 @@ if(commaIndex != -1 )
     c2header = c2header.mid(diffIndex+1);
   }
     
-// printf("B: c1header=(%s) c2header=(%s)\n", c1header.ascii(), c2header.ascii() );
+printf("B: c1header=(%s) c2header=(%s)\n", c1header.ascii(), c2header.ascii() );
   if( c1header == c2header )
   {
-// printf("new c1header==c2header\n");
-// printf("C: return TRUE\n");
+printf("new c1header==c2header\n");
+printf("C: return TRUE\n");
     return(TRUE);
   }
 
 
 // printf("canWeDiff() return FALSE(C)\n");
   return(FALSE);
+#endif // 0
 }
 
 void
