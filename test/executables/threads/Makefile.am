@@ -19,7 +19,7 @@
 noinst_PROGRAMS = threads 
 
 CXXFLAGS = \
-	-g -gdwarf-2 -O0
+	-g -gdwarf-2 -O0 -lpthread
 
 threads_SOURCES = \
 	threads.cxx
