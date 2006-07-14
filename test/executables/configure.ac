@@ -78,6 +78,8 @@ AC_CONFIG_FILES([
         mutatee/f77_version/Makefile
 	mutatee/io_c_version/Makefile
         Eon/Makefile
+        dlopen/Makefile
+        threads/Makefile
 ])
 
 AC_OUTPUT

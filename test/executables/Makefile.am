@@ -25,6 +25,8 @@ SUBDIRS = \
 	fpe_print \
 	fpetest \
 	fredO2 \
+	dlopen \ 
+	threads \ 
 	fred 
 
 #
