@@ -1,4 +1,4 @@
-noinst_PROGRAMS = mutatee
+noinst_PROGRAMS = mutatee libwork
 
 mutatee_CFLAGS = \
 	-g -gdwarf-2 -O0
@@ -7,13 +7,14 @@ mutatee_LDADD = \
 	-ldl
 
 mutatee_SOURCES = \
-	main.c 
+	mutatee.c 
 
-work_CFLAGS = \
+
+libwork_CFLAGS = \
 	-g -gdwarf-2 -shared -O0
 
-work_LDADD = \
-	-ldl
+libwork_LDFLAGS = \
+        -shared -o libwork.so
 
-work_SOURCES = \
-	work.c 
+libwork_SOURCES = \
+	libwork.c 
