@@ -25,9 +25,9 @@ SUBDIRS = \
 	fpe_print \
 	fpetest \
 	fredO2 \
-	dlopen \ 
-	threads \ 
-	fred 
+	dlopen \
+	threads \
+	fred
 
 #
 # directories that will be packaged into tar.gz.
