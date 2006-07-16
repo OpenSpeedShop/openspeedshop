@@ -17,49 +17,131 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 # if want to save previous to compare with do the mv instead of rm
-#mv -f regression_results-simple regression_results-simple.prev
-rm -f regression_results-simple
-rm -f regression_results-simple-details
+#mv -f $HOMEDIR/regression_results-simple $HOMEDIR/regression_results-simple.prev
 HOMEDIR=$(pwd)
-touch regression_results-simple
-touch regression_results-simple-details
-echo " " > regression_results-simple-details
-echo "Running regression-simple on this platform" > regression_results-simple
-echo " " >> regression_results-simple
-uname -a >> regression_results-simple
-echo " " >> regression_results-simple
-echo "configured with dpcl, dyninst, papi, dwarf, elf, sqlite versions:" >> regression_results-simple
-echo " " >> regression_results-simple
-rpm --query --all | grep dpcl >> regression_results-simple
-rpm --query --all | grep dyninst >> regression_results-simple
-rpm --query --all | grep papi >> regression_results-simple
-rpm --query --all | grep libdwarf >> regression_results-simple
-rpm --query --all | grep libelf >> regression_results-simple
-rpm --query --all | grep sqlite >> regression_results-simple
-echo " " >> regression_results-simple
+rm -f $HOMEDIR/regression_results-simple
+rm -f $HOMEDIR/regression_results-simple-details
+#
+# Create the output files
+#
+touch $HOMEDIR/regression_results-simple
+touch $HOMEDIR/regression_results-simple-details
+#
+echo "Running regression-simple on this platform" > $HOMEDIR/regression_results-simple
+echo " " >> $HOMEDIR/regression_results-simple
+uname -a >> $HOMEDIR/regression_results-simple
+echo " " >> $HOMEDIR/regression_results-simple
+echo "configured with dpcl, dyninst, papi, dwarf, elf, sqlite versions:" >> $HOMEDIR/regression_results-simple
+echo " " >> $HOMEDIR/regression_results-simple
+rpm --query --all | grep dpcl >> $HOMEDIR/regression_results-simple
+rpm --query --all | grep dyninst >> $HOMEDIR/regression_results-simple
+rpm --query --all | grep papi >> $HOMEDIR/regression_results-simple
+rpm --query --all | grep libdwarf >> $HOMEDIR/regression_results-simple
+rpm --query --all | grep libelf >> $HOMEDIR/regression_results-simple
+rpm --query --all | grep sqlite >> $HOMEDIR/regression_results-simple
+echo " " >> $HOMEDIR/regression_results-simple
+#
+# RUN PCSAMP TEST
+#
 cd $HOMEDIR/src/regression/pcsamp/pcsamp1
 rm -f testresults*
 ./runall
 grep FAIL testresults_* >> $HOMEDIR/regression_results-simple
 grep PASS testresults_* >> $HOMEDIR/regression_results-simple
+echo " " >> $HOMEDIR/regression_results-simple
+#
+# Start saving results to the details file
+#
+echo " " > $HOMEDIR/regression_results-simple-details
+echo "PCSAMP1 TEST RESULTS: " >> $HOMEDIR/regression_results-simple-details
 cat testresults_* >> $HOMEDIR/regression_results-simple-details
+echo " " >> $HOMEDIR/regression_results-simple-details
+#
+echo "PCSAMP1 TEST OUTPUT: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/pcsamp/pcsamp1/pcsamp1.tst.output  >> $HOMEDIR/regression_results-simple-details
+#
+echo "PCSAMP1 TEST EXPECTED RESULTS: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/pcsamp/pcsamp1/pcsamp1.tst.expected  >> $HOMEDIR/regression_results-simple-details
+#
+echo "PCSAMP1 Test Script: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/pcsamp/pcsamp1/input.script >> $HOMEDIR/regression_results-simple-details
+#
+# Space separate output
+#
+echo " " >> $HOMEDIR/regression_results-simple-details
+echo " " >> $HOMEDIR/regression_results-simple-details
+echo " " >> $HOMEDIR/regression_results-simple-details
+#
+# RUN USERTIME TEST
+#
 cd $HOMEDIR/src/regression/usertime/usertime1
 rm -f testresults*
 ./runall
 grep FAIL testresults_* >> $HOMEDIR/regression_results-simple
 grep PASS testresults_* >> $HOMEDIR/regression_results-simple
 cat testresults_* >> $HOMEDIR/regression_results-simple-details
+#
+echo "USERTIME1 TEST OUTPUT: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/usertime/usertime1/usertime1.tst.output  >> $HOMEDIR/regression_results-simple-details
+#
+echo "USERTIME1 TEST EXPECTED RESULTS: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/usertime/usertime1/usertime1.tst.expected  >> $HOMEDIR/regression_results-simple-details
+#
+echo "USERTIME1 Test Script: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/usertime/usertime1/input.script >> $HOMEDIR/regression_results-simple-details
+#
+# Space separate output
+#
+echo " " >> $HOMEDIR/regression_results-simple-details
+echo " " >> $HOMEDIR/regression_results-simple-details
+echo " " >> $HOMEDIR/regression_results-simple-details
+#
+# RUN HWC TEST
+#
 cd $HOMEDIR/src/regression/hwc/hwc1
 rm -f testresults*
 ./runall
 grep FAIL testresults_* >> $HOMEDIR/regression_results-simple
 grep PASS testresults_* >> $HOMEDIR/regression_results-simple
+#
+# Create a detailed section of results output for failed tests
+#
 cat testresults_* >> $HOMEDIR/regression_results-simple-details
+echo " " >> $HOMEDIR/regression_results-simple-details
+echo "HWC1 TEST OUTPUT: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/hwc/hwc1/hwc1.tst.output  >> $HOMEDIR/regression_results-simple-details
+#
+echo "HWC1 TEST EXPECTED RESULTS: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/hwc/hwc1/hwc1.tst.expected  >> $HOMEDIR/regression_results-simple-details
+#
+echo "HWC1 Test Script: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/hwc/hwc1/input.script >> $HOMEDIR/regression_results-simple-details
+#
+# Space separate output
+#
+echo " " >> $HOMEDIR/regression_results-simple-details
+echo " " >> $HOMEDIR/regression_results-simple-details
+echo " " >> $HOMEDIR/regression_results-simple-details
+#
+# RUN I/O TEST
+#
 cd $HOMEDIR/src/regression/io/io1
 rm -f testresults*
 ./runall
 grep FAIL testresults_* >> $HOMEDIR/regression_results-simple
 grep PASS testresults_* >> $HOMEDIR/regression_results-simple
 cat testresults_* >> $HOMEDIR/regression_results-simple-details
+#
+echo " " >> $HOMEDIR/regression_results-simple-details
+echo "IO1 TEST OUTPUT: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/io/io1/io1.tst.output  >> $HOMEDIR/regression_results-simple-details
+#
+echo "IO1 TEST EXPECTED RESULTS: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/io/io1/io1.tst.expected  >> $HOMEDIR/regression_results-simple-details
+# 
+echo "IO1 Test Script: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/io/io1/input.script >> $HOMEDIR/regression_results-simple-details
+# 
 cat  $HOMEDIR/regression_results-simple-details >> $HOMEDIR/regression_results-simple
+echo " " >> $HOMEDIR/regression_results-simple-details
 
