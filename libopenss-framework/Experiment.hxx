@@ -106,12 +106,12 @@ namespace OpenSpeedShop { namespace Framework {
 
 	ThreadGroup getThreads() const;
 	
-	Thread createProcess(const std::string&,
-			     const std::string& = getLocalHost(),
-			     const OutputCallback = 
-			         OutputCallback(NULL, NULL),
-			     const OutputCallback = 
-			         OutputCallback(NULL, NULL)) const;
+	ThreadGroup createProcess(const std::string&,
+				  const std::string& = getLocalHost(),
+				  const OutputCallback = 
+				      OutputCallback(NULL, NULL),
+				  const OutputCallback = 
+				      OutputCallback(NULL, NULL)) const;
 	
 	ThreadGroup attachMPIJob(const pid_t&,
 				 const std::string& = getLocalHost()) const;

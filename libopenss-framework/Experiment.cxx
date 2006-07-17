@@ -174,6 +174,27 @@ namespace {
 	NULL
     };
 
+
+
+    /**
+     * Suspend the calling thread.
+     *
+     * Suspends the calling thread for approximately 250 mS. Used to implement
+     * busy loops that are waiting for state changes in threads.
+     */
+    void suspend()
+    {
+	// Setup to wait for 250 mS
+        struct timespec wait;
+        wait.tv_sec = 0;
+        wait.tv_nsec = 250 * 1000 * 1000;
+	
+	// Suspend ourselves temporarily
+        nanosleep(&wait, NULL);
+    }
+     
+
+
 }
 
 
@@ -543,24 +564,29 @@ ThreadGroup Experiment::getThreads() const
  * @param host               Name of host on which to execute the command.
  * @param stdout_callback    Standard output stream callback for the process.
  * @param stderr_callback    Standard error stream callback for the process.
- * @return                   Newly created thread.
+ * @return                   Newly created threads.
  */
-Thread Experiment::createProcess(const std::string& command,
-				 const std::string& host,
-				 const OutputCallback stdout_callback,
-				 const OutputCallback stderr_callback) const
+ThreadGroup Experiment::createProcess(
+    const std::string& command,
+    const std::string& host,
+    const OutputCallback stdout_callback,
+    const OutputCallback stderr_callback) const
 {   
-    Thread thread;
+    ThreadGroup threads;
 
     // Get the canonical name of this host
     std::string canonical = getCanonicalName(host);
+
+    // Allocate the thread outside the transaction's try/catch block
+    Thread thread;
 
     // Create the thread entry in the database
     BEGIN_WRITE_TRANSACTION(dm_database);
     dm_database->prepareStatement("INSERT INTO Threads (host) VALUES (?);");
     dm_database->bindArgument(1, canonical);
     while(dm_database->executeStatement());
-    thread = Thread(dm_database, dm_database->getLastInsertedUID()); 
+    thread = Thread(dm_database, dm_database->getLastInsertedUID());
+    threads.insert(thread);
     END_TRANSACTION(dm_database);
 
     // Create the underlying thread for executing the command
@@ -574,15 +600,53 @@ Thread Experiment::createProcess(const std::string& command,
 	BEGIN_WRITE_TRANSACTION(dm_database);
 	dm_database->prepareStatement("DELETE FROM Threads WHERE id = ?;");
 	dm_database->bindArgument(1, EntrySpy(thread).getEntry());
-	while(dm_database->executeStatement());    
+	while(dm_database->executeStatement());
 	END_TRANSACTION(dm_database);
 
 	// Re-throw exception upwards
 	throw;
     }
+
+    // Wait until the thread finishes connecting
+    while(thread.isState(Thread::Connecting))
+	suspend();
     
-    // Return the thread to the caller
-    return thread;
+    // Did we sucessfully create and connect to the thread?
+    if(thread.isState(Thread::Suspended)) {
+
+	// Initially assume thread isn't an "mpirun" process
+	std::pair<bool, std::string> is_mpirun(false, "");
+
+	// Is thread a "mpirun" process for an MPICH-style MPI implementation?
+	if(thread.getFunctionByName("MPIR_Breakpoint").first)
+	    is_mpirun = std::make_pair(true, "MPIR_Breakpoint");
+
+	// Is thread a "mpirun" process for the SGI MPT MPI implementation?
+	if(thread.getFunctionByName("MPI_debug_breakpoint").first)
+	    is_mpirun = std::make_pair(true, "MPI_debug_breakpoint");
+
+	// Is this thread a "mpirun" process for a supported MPI implementation?
+	if(is_mpirun.first) {
+	    
+	    // Insert a stop at the entry of the stop function
+	    Instrumentor::stopAtEntryOrExit(thread, is_mpirun.second, true);
+	    
+	    // Resume the thread
+	    thread.changeState(Thread::Running);
+	    
+	    // Wait until the thread reaches the stop point
+	    while(!thread.isState(Thread::Suspended))
+		suspend();
+	    
+	    // Attach to the entire MPI job
+	    threads = attachMPIJob(thread.getProcessId(), thread.getHost());
+
+	}
+
+    }
+
+    // Return the threads to the caller
+    return threads;
 }
 
 
@@ -664,7 +728,7 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 	
 	// Wait until at least one process is no longer connecting (completed)
 	while(connecting.areAllState(Thread::Connecting))
-	    sleep(1);
+	    suspend();
 
 	// Construct the group of completed processes
 	ThreadGroup completed;
@@ -768,7 +832,7 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
     // Wait (if necessary) until the process is done connecting
     if(state.second)
 	while(state.first.isState(Thread::Connecting))
-	    sleep(1);
+	    suspend();
 
     // Return all threads in this process to the caller
     return getThreadsInProcess(pid, canonical);

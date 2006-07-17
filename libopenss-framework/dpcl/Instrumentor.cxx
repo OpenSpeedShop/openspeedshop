@@ -418,6 +418,54 @@ void Instrumentor::uninstrument(const Thread& thread,
 
 
 /**
+ * Stop at a function's entry or exit.
+ *
+ * Stops every time the specified function's entry or exit is executed in a
+ * thread of this process. Used by the framework to implement MPI job creation.
+ *
+ * @pre    Only applies to a thread which is connected. A ProcessUnavailable or
+ *         ThreadUnavailable exception is thrown if called for a thread that is
+ *         not connected.
+ *
+ * @param thread       Thread which should be stopped.
+ * @param where        Name of the function at whose entry/exit the stop should
+ *                     occur.
+ * @param at_entry     Boolean "true" if instrumenting function's entry point,
+ *                     or "false" if function's exit point.
+ */
+void Instrumentor::stopAtEntryOrExit(const Thread& thread,
+				     const std::string& where, 
+				     const bool& at_entry)
+{
+    SmartPtr<Process> process;
+
+    // Critical section touching the process table
+    {
+        Guard guard_process_table(ProcessTable::TheTable);
+
+        // Get the process for this thread (if any)
+        process = ProcessTable::TheTable.getProcessByThread(thread);
+    }
+
+    // Check preconditions
+    if(process.isNull() || !process->isConnected()) {
+	std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+	if(tid.first)
+	    throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+			    Exception::toString(thread.getProcessId()),
+			    Exception::toString(tid.second));
+	else
+	    throw Exception(Exception::ProcessUnavailable, thread.getHost(),
+			    Exception::toString(thread.getProcessId()));	
+    }
+    
+    // Request the stop be added to the process
+    process->stopAtEntryOrExit(thread, where, at_entry);
+}
+
+
+
+/**
  * Get value of an integer global variable from a thread.
  *
  * Gets the current value of a signed integer global variable within this

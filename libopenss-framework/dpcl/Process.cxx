@@ -919,6 +919,72 @@ void Process::uninstrument(const Collector& collector, const Thread& thread)
 
 
 /**
+ * Stop at a function's entry/exit.
+ *
+ * Stops every time the specified function's entry or exit is executed in a
+ * thread of this process.
+ *
+ * @todo    Currently the (breakpoint) instrumentation used to implement the
+ *          stop isn't tracked. Thus the instrumentation is not removed when
+ *          disconnecting from the process. That should change in the future.
+ *
+ * @param thread       Thread which should be stopped.
+ * @param where        Name of the function at whose entry/exit the stop should
+ *                     occur.
+ * @param at_entry     Boolean "true" if instrumenting function's entry point,
+ *                     or "false" if function's exit point.
+ */
+void Process::stopAtEntryOrExit(const Thread& thread,
+				const std::string& where,
+				const bool& at_entry)
+{
+    GuardWithDPCL guard_myself(this);
+
+    // Get the thread identifier of the specified thread
+    std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+
+    // Get the unique name of this thread (or the process containing it)
+    std::string name = !tid.first ? 
+	formUniqueName(dm_host, dm_pid) :
+	formUniqueName(dm_host, dm_pid, tid.second);
+    
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Process::stopAtEntryOrExit(T"
+	       << EntrySpy(thread).getEntry() << ", \"" 
+	       << where << "\", " 
+	       << (at_entry ? "Entry" : "Exit") << ") for " << name
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
+    // Find the requested "where" function and return if it couldn't be found
+    SourceObj where_srcobj = findFunction(where);
+    if(where_srcobj.src_type() != SOT_function)
+	return;
+
+    // Iterate over the entry/exit points to the "where" function
+    for(int p = 0; p < where_srcobj.exclusive_point_count(); ++p)
+	if(where_srcobj.exclusive_point(p).get_type() ==
+	   (at_entry ? IPT_function_entry : IPT_function_exit)) {
+	    InstPoint point = where_srcobj.exclusive_point(p);
+	    
+	    // Request a breakpoint be installed and activated
+	    ProbeHandle handle = !tid.first ?
+		requestInstallAndActivate(ProbeExp::breakpoint(), 
+					  point, NULL, NULL) :
+		requestInstallAndActivate(ProbeExp::breakpoint(), 
+					  point, NULL, NULL, tid.second);
+	    
+	}
+}
+
+
+
+/**
  * Get an integer global variable's value.
  *
  * Gets the current value of a signed integer global variable within this

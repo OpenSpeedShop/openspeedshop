@@ -1030,10 +1030,12 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 // TODO:
     } else {
       try {
-        Thread t = exp->FW()->createProcess(f_val1->name, host_name,
-                                            OutputCallback(&ReDirect_User_Stdout,(void *)w),
-                                            OutputCallback(&ReDirect_User_Stderr,(void *)w));
-        tgrp->insert(t);
+        ThreadGroup tg = exp->FW()->createProcess(
+	    f_val1->name, host_name,
+	    OutputCallback(&ReDirect_User_Stdout,(void *)w),
+	    OutputCallback(&ReDirect_User_Stderr,(void *)w)
+	    );
+        tgrp->insert(tg.begin(), tg.end());
       }
       catch(const Exception& error) {
          Mark_Cmd_With_Std_Error (cmd, error);

@@ -97,6 +97,8 @@ namespace OpenSpeedShop { namespace Framework {
 
 	void uninstrument(const Collector&, const Thread&);
 
+	void stopAtEntryOrExit(const Thread&, const std::string&, const bool&);
+
 	bool getGlobal(const std::string&, int64_t&);
 	bool getGlobal(const std::string&, std::string&);
 	bool getMPICHProcTable(Job&);
