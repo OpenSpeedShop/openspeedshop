@@ -72,7 +72,7 @@ def CompareResults(testName, fileptr):
 	expectedfileptr = open(expectedfilename, 'r')
 	nooutput = 0
 	failure_reason = 3
-        print "expectedfilename:=%s\n" % expectedfilename
+#        print "expectedfilename:=%s\n" % expectedfilename
         if testName[0:7] == 'restore':
                 while 1:
                         tempfileline = outputfileptr.readline()
@@ -85,48 +85,48 @@ def CompareResults(testName, fileptr):
                                 break
 	while 1:
 		expectedfileline = expectedfileptr.readline()
-                print "expectedfileline:=%s\n" % expectedfileline
+#                print "expectedfileline:=%s\n" % expectedfileline
 		if not expectedfileline:
 			break
 		k = 0
 		while expectedfileline[k] != '(' and expectedfileline[k] !=' ':
 			k +=1
 		expected_functions.append(expectedfileline[0:k])
-                print "expectedfileline[0:k]:=%s\n" % expectedfileline[0:k]
+#                print "expectedfileline[0:k]:=%s\n" % expectedfileline[0:k]
 		expected_functions_counter += 1
 		
       	while 1:
 		tempfileline = outputfileptr.readline()
-                print "tempfileline:=%s\n" % tempfileline
-                print "tempfileline[0:5]:=%s\n" % tempfileline[0:5]
-                print "tempfileline[3:5]:=%s\n" % tempfileline[3:5]
+#                print "tempfileline:=%s\n" % tempfileline
+#                print "tempfileline[0:5]:=%s\n" % tempfileline[0:5]
+#                print "tempfileline[3:5]:=%s\n" % tempfileline[3:5]
 
 		if not tempfileline:
 			nooutput = 1
 			break
 		if tempfileline[2:5] == 'Exc':
-                        print "found Exc: tempfileline[2:5]:=%s\n" % tempfileline[2:5]
+#                        print "found Exc: tempfileline[2:5]:=%s\n" % tempfileline[2:5]
                         # skip Time phrase line
 		        outputfileline = outputfileptr.readline()
-                        print "outputfileline:=%s\n" % outputfileline
+#                        print "outputfileline:=%s\n" % outputfileline
  			break
 		if tempfileline[2:4] == 'Exc':
-                        print "found Exc: tempfileline[2:4]:=%s\n" % tempfileline[2:4]
+#                        print "found Exc: tempfileline[2:4]:=%s\n" % tempfileline[2:4]
  			break
 		if tempfileline[0:9] == '      Exc':
-                        print "found Exc: tempfileline[0:9]:=%s\n" % tempfileline[0:9]
+#                        print "found Exc: tempfileline[0:9]:=%s\n" % tempfileline[0:9]
  			break
 
 	failure_reason = 0
 	output_function_counter = 0
 	while 1:
-                print "nooutput:=%d\n" % nooutput
+#                print "nooutput:=%d\n" % nooutput
 		if (nooutput == 1):
 			failure_reason = 3
 			passing_ratio = 0
 			break
 		outputfileline = outputfileptr.readline()
-                print "outputfileline:=%s\n" % outputfileline
+#                print "outputfileline:=%s\n" % outputfileline
 		if not outputfileline:
 			break
 		i = 0
@@ -136,7 +136,7 @@ def CompareResults(testName, fileptr):
 		while (outputfileline[j] != ' '):
 			j +=1
 		actual_inclusive_time = atof(outputfileline[i:j])
-                print "actual_inclusive_time=%f\n" % actual_inclusive_time
+#                print "actual_inclusive_time=%f\n" % actual_inclusive_time
 		i = j+1	
 		while outputfileline[i]==' ':
 			i +=1
@@ -152,10 +152,10 @@ def CompareResults(testName, fileptr):
 			j +=1
 
 		actual_function = outputfileline[i:j]
-                print "actual_function=%s\n" % actual_function
+#                print "actual_function=%s\n" % actual_function
 		output_function_counter += expected_functions.count(actual_function)
-                print "output_function_counter=%d\n" % output_function_counter
-                print "expected_functions_counter:=%d\n" % expected_functions_counter
+#                print "output_function_counter=%d\n" % output_function_counter
+#                print "expected_functions_counter:=%d\n" % expected_functions_counter
 	if output_function_counter != expected_functions_counter:
 		failure_reason = 2
         fileptr.write('The test run from: ')
@@ -163,7 +163,7 @@ def CompareResults(testName, fileptr):
         fileptr.write('\n')
         fileptr.write('has the following result: ')
 		
-        print "failure_reason:=%d\n" % failure_reason
+#        print "failure_reason:=%d\n" % failure_reason
 	if (failure_reason == 0 ):
 		fileptr.write(testName + ' has PASSED.\n ')
 	else:
