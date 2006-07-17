@@ -1,7 +1,7 @@
 
+#include <inttypes.h>
 #include <pthread.h>
 #include <stdio.h>
-#include <unistd.h>
 
 int f1(int x, int y)
 {
@@ -30,7 +30,7 @@ int f3(int x, int y)
     return t;
 }
 
-void* work1(void* arg)
+void* work0(void* arg)
 {
     int i, j, t = 0, size = (int)arg;
 
@@ -40,7 +40,7 @@ void* work1(void* arg)
     return (void*)t;    
 }
 
-void* work2(void* arg)
+void* work1(void* arg)
 {
     int i, j, t = 0, size = (int)arg;
 
@@ -50,7 +50,7 @@ void* work2(void* arg)
     return (void*)t;    
 }
 
-void* work3(void* arg)
+void* work2(void* arg)
 {
     int i, j, t = 0, size = (int)arg;
 
@@ -60,7 +60,7 @@ void* work3(void* arg)
     return (void*)t;    
 }
 
-void* work4(void* arg)
+void* work3(void* arg)
 {
     int i, j, t = 0, size = (int)arg;
 
@@ -72,24 +72,24 @@ void* work4(void* arg)
 
 int main(int argc, char* argv[])
 {
-    int SIZE = 500;
+    const int SIZE = 500;
+    void* (*funcs[4])(void*) = { work0, work1, work2, work3 };
     pthread_t tids[4];
-    void* retval;
+    
+    for(int n = 0; n < 4; ++n)
+	if(pthread_create(&(tids[n]), NULL, funcs[n], (void*)SIZE) != 0) {
+	    perror("pthread_create(): ");
+	    fflush(stderr);
+	}
+	else {
+	    printf("tids[%d] = %llu\n", n, (uint64_t)tids[n]);
+	    fflush(stdout);
+	}
 
-    pthread_create(&(tids[0]), NULL, work1, (void*)SIZE);
-    pthread_create(&(tids[1]), NULL, work2, (void*)SIZE);
-    pthread_create(&(tids[2]), NULL, work3, (void*)SIZE);
-    pthread_create(&(tids[3]), NULL, work4, (void*)SIZE);
-
-    pthread_join(tids[0], &retval);
-    printf("work1(...) = %d\n", (int)retval);
-
-    pthread_join(tids[1], &retval);
-    printf("work2(...) = %d\n", (int)retval);
-
-    pthread_join(tids[2], &retval);
-    printf("work3(...) = %d\n", (int)retval);
-
-    pthread_join(tids[3], &retval);
-    printf("work4(...) = %d\n", (int)retval);
+    for(int n = 0; n < 4; ++n) {
+	void* retval = NULL;
+	pthread_join(tids[n], &retval);
+	printf("work%d(%d) = %d\n", n, SIZE, (int)retval);
+	fflush(stdout);
+    }
 }
