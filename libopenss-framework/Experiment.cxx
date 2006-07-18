@@ -605,6 +605,7 @@ ThreadGroup Experiment::createProcess(
 
 	// Re-throw exception upwards
 	throw;
+
     }
 
     // Wait until the thread finishes connecting
@@ -730,11 +731,13 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 	while(connecting.areAllState(Thread::Connecting))
 	    suspend();
 
-	// Construct the group of completed processes
-	ThreadGroup completed;
+	// Separate into groups of incomplete and completed processes
+	ThreadGroup incomplete, completed;
 	for(ThreadGroup::const_iterator 
 		i = connecting.begin(); i != connecting.end(); ++i)
-	    if(!i->isState(Thread::Connecting))
+	    if(i->isState(Thread::Connecting))
+		incomplete.insert(*i);
+	    else
 		completed.insert(*i);
 
 	// Iterate over each of the completed processes
@@ -749,9 +752,9 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 	    threads.insert(in_process.begin(), in_process.end());
 	    
 	}
-	
-	// Indicate the completed processes are no longer connecting
-        connecting.erase(completed.begin(), completed.end());
+
+	// Indicate the incomplete processes are the ones still connecting
+	connecting = incomplete;
 	
     }
 

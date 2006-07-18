@@ -1061,8 +1061,17 @@ bool Process::getGlobal(const std::string& global, int64_t& value)
     if(retval.status() != ASC_success)
 	return false;
 
+    // Note: Data arriving from the Ais_send() cannot be accepted and placed
+    //       into the data bucket unless the DPCL main loop is running. Since
+    //       the GuardWithDPCL object above disables the main loop, it must
+    //       be temporarily resumed here or a deadlock will occur.
+    
     // Wait until the incoming integer arrives in the data bucket
+    releaseLock();
+    MainLoop::resume();
     value = bucket.getValue();
+    MainLoop::suspend();
+    acquireLock();
 
     // Indicate to the caller that the value was retrieved
     return true;
@@ -1129,8 +1138,15 @@ bool Process::getGlobal(const std::string& global, std::string& value)
  */
 bool Process::getMPICHProcTable(Job& value)
 {
-    GuardWithDPCL guard_myself(this);
-    
+    // Note: Normal practice would be to place a GuardWithDPCL object at the
+    //       top of this function. However this results in a nested guard when
+    //       getGlobal() is called below. That, in turn, causes the temporary
+    //       resumption of the DPCL main loop attempted within getGlobal() to
+    //       fail and the deadlock described there still occurs. So delay the
+    //       guard until after getGlobal() is called.
+    //
+    // GuardWithDPCL guard_myself(this);
+
 #ifndef NDEBUG
     if(is_debug_enabled) {
 	std::stringstream output;
@@ -1146,6 +1162,9 @@ bool Process::getMPICHProcTable(Job& value)
     int64_t size = 0;
     if(!getGlobal("MPIR_proctable_size", size))
 	return false;
+
+    // Note: Guard is placed here after we call getGlobal() instead.
+    GuardWithDPCL guard_myself(this);
 
     // Find the "MPIR_proctable" variable
     SourceObj variable = findVariable("MPIR_proctable");
@@ -1204,8 +1223,17 @@ bool Process::getMPICHProcTable(Job& value)
     if(!succeeded)
 	return false;
 
+    // Note: Data arriving from the Ais_send() cannot be accepted and placed
+    //       into the data bucket unless the DPCL main loop is running. Since
+    //       the GuardWithDPCL object above disables the main loop, it must
+    //       be temporarily resumed here or a deadlock will occur.
+    
     // Wait until the incoming process table arrives in the data bucket    
+    releaseLock();
+    MainLoop::resume();
     char* buffer = bucket.getValue();
+    MainLoop::suspend();
+    acquireLock();
     
     // Extract the table data if it was retrieved
     if(buffer != NULL) {
@@ -4478,7 +4506,15 @@ Process::findLibraryFunction(const Collector& collector,
  */
 bool Process::getString(const ProbeExp& where, std::string& value) const
 {
-    GuardWithDPCL guard_myself(this);
+    // Note: This is a private member function only called by getGlobal() and
+    //       getMPICHProcTable(). These functions are already suspending the
+    //       DPCL main loop and locking this process object. If a nested guard
+    //       is used here as would be normal practice, the temporary resumption
+    //       of the DPCL main loop that is attempted below will not occur and
+    //       the deadlock described below still occurs. So don't nest the guard
+    //       here.
+    //
+    // GuardWithDPCL guard_myself(this);
     
     // Find the strlen() function
     SourceObj strlen_func = findFunction("strlen");    
@@ -4530,8 +4566,17 @@ bool Process::getString(const ProbeExp& where, std::string& value) const
     if(retval.status() != ASC_success)
 	return false;
 
+    // Note: Data arriving from the Ais_send() cannot be accepted and placed
+    //       into the data bucket unless the DPCL main loop is running. Since
+    //       the GuardWithDPCL object above disables the main loop, it must
+    //       be temporarily resumed here or a deadlock will occur.
+    
     // Wait until the incoming character array arrives in the data bucket
+    releaseLock();
+    MainLoop::resume();
     char* buffer = bucket.getValue();
+    MainLoop::suspend();
+    acquireLock();
 	
     // Extract and return the string's value if it was retrieved
     if(buffer != NULL) {
