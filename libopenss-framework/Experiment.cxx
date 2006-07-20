@@ -636,6 +636,7 @@ ThreadGroup Experiment::createProcess(
 	    thread.changeState(Thread::Running);
 	    
 	    // Wait until the thread reaches the stop point
+	    suspend();
 	    while(!thread.isState(Thread::Suspended))
 		suspend();
 	    

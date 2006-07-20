@@ -172,6 +172,8 @@ namespace OpenSpeedShop { namespace Framework {
 				   GCBObjType, GCBMsgType);
 	static void stdoutCallback(GCBSysType, GCBTagType,
 				   GCBObjType, GCBMsgType);
+	static void stoppedCallback(GCBSysType, GCBTagType,
+				    GCBObjType, GCBMsgType);
 	static void suspendCallback(GCBSysType, GCBTagType,
 				    GCBObjType, GCBMsgType);
 	static void terminationCallback(GCBSysType, GCBTagType,

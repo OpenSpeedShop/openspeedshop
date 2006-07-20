@@ -966,18 +966,39 @@ void Process::stopAtEntryOrExit(const Thread& thread,
     if(where_srcobj.src_type() != SOT_function)
 	return;
 
+    //
+    // Create a probe expression for the code sequence:
+    //
+    //     Ais_send(Ais_msg_handle, "", 1)
+    //     BREAKPOINT;
+    //
+
+    ProbeExp args_exp[3] = {
+	Ais_msg_handle,
+	ProbeExp(""),
+	ProbeExp(1)
+    };
+    
+    ProbeExp expression = 
+	Ais_send.call(3, args_exp).sequence(ProbeExp::breakpoint());
+
+    // Allocate a copy of our unique name
+    std::string* name_copy = new std::string(name);
+    Assert(name_copy != NULL);    
+    
     // Iterate over the entry/exit points to the "where" function
     for(int p = 0; p < where_srcobj.exclusive_point_count(); ++p)
 	if(where_srcobj.exclusive_point(p).get_type() ==
 	   (at_entry ? IPT_function_entry : IPT_function_exit)) {
 	    InstPoint point = where_srcobj.exclusive_point(p);
-	    
+
 	    // Request a breakpoint be installed and activated
 	    ProbeHandle handle = !tid.first ?
-		requestInstallAndActivate(ProbeExp::breakpoint(), 
-					  point, NULL, NULL) :
-		requestInstallAndActivate(ProbeExp::breakpoint(), 
-					  point, NULL, NULL, tid.second);
+		requestInstallAndActivate(expression, point, 
+					  stoppedCallback, name_copy) :
+		requestInstallAndActivate(expression, point,
+					  stoppedCallback, name_copy,
+					  tid.second);
 	    
 	}
 }
@@ -2774,6 +2795,59 @@ void Process::stdoutCallback(GCBSysType sys, GCBTagType tag,
 	    fputc(*ptr, stdout);
 	fflush(stdout);
     }	
+}
+
+
+
+/**
+ * Process or thread stopped callback.
+ *
+ * Callback function called by the DPCL main loop when a process or thread has
+ * been stopped at a breakpoint. Updates the appropriate state entry.
+ */
+void Process::stoppedCallback(GCBSysType, GCBTagType tag, 
+			      GCBObjType, GCBMsgType msg)
+{
+    std::string* name = reinterpret_cast<std::string*>(tag);
+    SmartPtr<Process> process;
+    
+    // Check assertions
+    Assert(name != NULL);
+    
+#ifndef NDEBUG
+    if(is_debug_enabled)
+	debugCallback("stopped", *name);
+#endif
+
+    // Critical section touching the process table
+    {
+	Guard guard_process_table(ProcessTable::TheTable);
+	
+	// Attempt to locate the process by its unique name
+	process = ProcessTable::TheTable.getProcessByName(
+	    getProcessFromUniqueName(*name)
+	    );
+    }
+    
+    // Critical section touching the process
+    if(!process.isNull()) {
+	Guard guard_process(*process);
+	
+	// Process or thread is in the "suspended" state
+	process->setCurrentState(*name, Thread::Suspended);
+	
+#ifndef NDEBUG
+	if(is_debug_enabled)
+	    process->debugState(*name);
+#endif
+	
+    }
+
+    // Note: It is impossible to tell how many times the stop will be executed
+    //       so don't destroy the heap-allocated name string here or subsequent
+    //       stops will find an invalid pointer.
+    //
+    // delete name;
 }
 
 
