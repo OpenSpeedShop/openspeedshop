@@ -328,14 +328,16 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 
     binutils_saved_CPPFLAGS=$CPPFLAGS
     binutils_saved_LDFLAGS=$LDFLAGS
+    binutils_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $BINUTILS_CPPFLAGS"
     LDFLAGS="$LDFLAGS $BINUTILS_LDFLAGS $BINUTILS_LIBS"
 
     AC_MSG_CHECKING([for binutils librarys and headers])
 
-    AC_SEARCH_LIBS(bfd_init,[bfd], 
-        [   AC_MSG_RESULT(yes)
+    AC_SEARCH_LIBS(bfd_init, [bfd], 
+        [ AC_MSG_RESULT(yes)
+
             AM_CONDITIONAL(HAVE_BINUTILS, true)
             AC_DEFINE(HAVE_BINUTILS, 1, [Define to 1 if you have BINUTILS.])
 
@@ -355,6 +357,7 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 
     CPPFLAGS=$binutils_saved_CPPFLAGS
     LDFLAGS=$binutils_saved_LDFLAGS
+    LIBS=$binutils_saved_LIBS
 
     AC_SUBST(BINUTILS_CPPFLAGS)
     AC_SUBST(BINUTILS_LDFLAGS)
