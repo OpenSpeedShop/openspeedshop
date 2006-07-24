@@ -11,7 +11,7 @@ mutatee_SOURCES = \
 
 
 libwork_CFLAGS = \
-	-g -gdwarf-2 -shared -O0
+	-g -gdwarf-2 -shared -O0 -fPIC
 
 libwork_LDFLAGS = \
         -shared -o libwork.so
