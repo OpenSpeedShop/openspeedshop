@@ -21,6 +21,12 @@ AC_DEFUN([AC_PKG_LAMPI], [
     LAMPI_LIBS="-lmpi"
     LAMPI_HEADER="$lampi_dir/include/mpi.h"
     LAMPI_DIR="$lampi_dir"
+         
+# LAMPI has a level of indirection.  The mpi collector
+# searches the header file for MPI functions
+    if test -f $lampi_dir/include/mpi/mpi.h; then
+      LAMPI_HEADER="$lampi_dir/include/mpi/mpi.h"
+    fi 
 
     lampi_saved_CC=$CC
     lampi_saved_CPPFLAGS=$CPPFLAGS
@@ -52,14 +58,62 @@ AC_DEFUN([AC_PKG_LAMPI], [
 	AM_CONDITIONAL(HAVE_LAMPI, true)
 	AC_DEFINE(HAVE_LAMPI, 1, [Define to 1 if you have LAMPI.])	
     else
-	AC_MSG_RESULT(no)
-	AM_CONDITIONAL(HAVE_LAMPI, false)
-	LAMPI_CC=""
-	LAMPI_CPPFLAGS=""
-	LAMPI_LDFLAGS=""
-	LAMPI_LIBS=""
-	LAMPI_HEADER=""
-	LAMPI_DIR=""
+# Try again with $alt_abi_libdir instead
+         found_lampi=0
+
+         LAMPI_CC="$lampi_dir/bin/mpicc"
+         LAMPI_CPPFLAGS="-I$lampi_dir/include"
+         LAMPI_LDFLAGS="-L$lampi_dir/$alt_abi_libdir"
+         LAMPI_LIBS="-lmpi"
+         LAMPI_HEADER="$lampi_dir/include/mpi.h"
+         LAMPI_DIR="$lampi_dir"
+         
+# LAMPI has a level of indirection.  The mpi collector
+# searches the header file for MPI functions
+         if test -f $lampi_dir/include/mpi/mpi.h; then
+             LAMPI_HEADER="$lampi_dir/include/mpi/mpi.h"
+         fi 
+
+         lampi_saved_CC=$CC
+         lampi_saved_CPPFLAGS=$CPPFLAGS
+         lampi_saved_LDFLAGS=$LDFLAGS
+
+         CC="$LAMPI_CC"
+         CPPFLAGS="$CPPFLAGS $LAMPI_CPPFLAGS"
+         LDFLAGS="$LDFLAGS $LAMPI_LDFLAGS $LAMPI_LIBS"
+
+         AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+             #include <mpi.h>
+             ]], [[
+             MPI_Initialized((int*)0);
+             ]]),
+
+             if nm $lampi_dir/$alt_abi_libdir/libmpi.so \
+                | cut -d' ' -f3 | grep "^lampi_init" >/dev/null; then
+                 found_lampi=1
+             fi
+
+
+             , )
+
+         CC=$lampi_saved_CC
+         CPPFLAGS=$lampi_saved_CPPFLAGS
+         LDFLAGS=$lampi_saved_LDFLAGS
+
+         if test $found_lampi -eq 1; then
+             AC_MSG_RESULT(yes)
+             AM_CONDITIONAL(HAVE_LAMPI, true)
+             AC_DEFINE(HAVE_LAMPI, 1, [Define to 1 if you have LAMPI.])
+         else
+          AC_MSG_RESULT(no)
+          AM_CONDITIONAL(HAVE_LAMPI, false)
+          LAMPI_CC=""
+          LAMPI_CPPFLAGS=""
+          LAMPI_LDFLAGS=""
+          LAMPI_LIBS=""
+          LAMPI_HEADER=""
+          LAMPI_DIR=""
+        fi
     fi
 
     AC_SUBST(LAMPI_CC)
