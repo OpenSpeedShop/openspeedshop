@@ -24,13 +24,6 @@
 
 
 
-/*
- * Note: This dummy comment is used to eliminate a false-positive found by
- * the SGI source scanner when comparing against AT&T Unix SVR4.1ES source.
- */
-
-
-
 /**
  * Performance data header.
  *
