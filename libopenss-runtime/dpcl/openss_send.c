@@ -34,7 +34,7 @@
  * Sends performance data to the framework instance which loaded this runtime
  * library into the target process. Any header generation and data encoding is
  * performed by OpenSS_Send(). Here the data is treated purely as a buffer of
- * bytest to be sent.
+ * bytes to be sent.
  *
  * @param size    Size of the data to be sent (in bytes).
  * @param data    Pointer to the data to be sent.
