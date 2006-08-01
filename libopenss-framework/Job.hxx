@@ -43,9 +43,9 @@ namespace OpenSpeedShop { namespace Framework {
     /**
      * Job description.
      *
-     * Set of host/pid pairs describing the processes in a job. No specific
+     * List of host/pid pairs describing the processes in a job. No specific
      * relationship is implied by the term "job". This type exists merely as
-     * a convenience when passing around a set of host/pid pairs. E.g. when
+     * a convenience when passing around a list of host/pid pairs. E.g. when
      * describing the processes in an MPI application.
      *
      * @ingroup Implementation
