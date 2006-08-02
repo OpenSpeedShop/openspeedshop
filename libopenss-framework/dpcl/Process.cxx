@@ -32,6 +32,7 @@
 #include "Guard.hxx"
 #include "GuardWithDPCL.hxx"
 #include "LinkedObject.hxx"
+#include "OpenSS_Job.h"
 #include "Process.hxx"
 #include "ProcessTable.hxx"
 #include "SymbolTable.hxx"
@@ -1136,8 +1137,76 @@ bool Process::getGlobal(const std::string& global, std::string& value)
     if(variable.src_type() != SOT_data)
 	return false;
 
-    // Get the string from the process
-    return getString(variable.reference(), value);
+    // Find the strlen() function
+    SourceObj strlen_func = findFunction("strlen");    
+
+    // Go no further if strlen() could not be found
+    if(strlen_func.src_type() != SOT_function)
+	return false;
+
+    //
+    // Create a probe expression for the code sequence:
+    //
+    //     if(&global)
+    //         Ais_send(Ais_msg_handle, &global, strlen(&global) + 1)
+    //     else
+    //         Ais_send(Ais_msg_handle, "", 1)
+    //
+
+    ProbeExp send_empty_args_exp[3] = {
+	Ais_msg_handle,
+	ProbeExp(""),
+	ProbeExp(1)
+    };
+
+    ProbeExp strlen_args_exp[1] = { 
+	variable.reference()
+    };
+
+    ProbeExp send_args_exp[3] = {
+	Ais_msg_handle, 
+	variable.reference(),
+	strlen_func.reference().call(1, strlen_args_exp) + ProbeExp(1)
+    };
+
+    ProbeExp expression = variable.reference().ifelse(
+	Ais_send.call(3, send_args_exp),
+	Ais_send.call(3, send_empty_args_exp)
+	);
+    
+    // Define a data bucket to hold the retrieved character array
+    DataBucket<char*> bucket;
+
+    // Ask DPCL to execute the probe expression in this process
+    AisStatus retval = 
+	dm_process->bexecute(expression, getBlobCallback, &bucket);
+#ifndef NDEBUG
+    if(is_debug_enabled)
+    	debugDPCL("response from bexecute", retval);
+#endif
+    if(retval.status() != ASC_success)
+	return false;
+
+    // Note: Data arriving from the Ais_send() cannot be accepted and placed
+    //       into the data bucket unless the DPCL main loop is running. Since
+    //       the GuardWithDPCL object above disables the main loop, it must
+    //       be temporarily resumed here or a deadlock will occur.
+    
+    // Wait until the incoming character array arrives in the data bucket
+    releaseLock();
+    MainLoop::resume();
+    char* buffer = bucket.getValue();
+    MainLoop::suspend();
+    acquireLock();
+	
+    // Extract and return the string's value if it was retrieved
+    if(buffer != NULL) {
+	value = std::string(buffer);
+	delete [] buffer;
+    }
+
+    // Indicate to the caller that the value was retrieved
+    return true;
 }
 
 
@@ -1151,6 +1220,12 @@ bool Process::getGlobal(const std::string& global, std::string& value)
  * obvious. Returns a boolean value indicating if the table's value was
  * successfully retrieved.
  *
+ * @todo    A better method for locating the "libopenss-framework-mpich.so"
+ *          library needs to be added in the future. For now we simply look for
+ *          it in the compile-time library directory. The best time to do this
+ *          would be as part of the "remove libtool" project when the plugin
+ *          loader is redone.
+ * 
  * @sa    http://www-unix.mcs.anl.gov/mpi/mpi-debug/
  *
  * @retval value    Current value of the table.
@@ -1159,14 +1234,7 @@ bool Process::getGlobal(const std::string& global, std::string& value)
  */
 bool Process::getMPICHProcTable(Job& value)
 {
-    // Note: Normal practice would be to place a GuardWithDPCL object at the
-    //       top of this function. However this results in a nested guard when
-    //       getGlobal() is called below. That, in turn, causes the temporary
-    //       resumption of the DPCL main loop attempted within getGlobal() to
-    //       fail and the deadlock described there still occurs. So delay the
-    //       guard until after getGlobal() is called.
-    //
-    // GuardWithDPCL guard_myself(this);
+    GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled) {
@@ -1179,122 +1247,90 @@ bool Process::getMPICHProcTable(Job& value)
     }
 #endif
 
-    // Get the value of the "MPIR_proctable_size" variable
-    int64_t size = 0;
-    if(!getGlobal("MPIR_proctable_size", size))
+    // Find the "MPIR_proctable" and "MPIR_proctable_size" variables
+    SourceObj table_variable = findVariable("MPIR_proctable");
+    SourceObj size_variable = findVariable("MPIR_proctable_size");
+
+    // Go no further if either variable could not be found
+    if((table_variable.src_type() != SOT_data) || 
+       (size_variable.src_type() != SOT_data))
 	return false;
 
-    // Note: Guard is placed here after we call getGlobal() instead.
-    GuardWithDPCL guard_myself(this);
-
-    // Find the "MPIR_proctable" variable
-    SourceObj variable = findVariable("MPIR_proctable");
-    
-    // Go no further if the "MPIR_proctable" global could not be found
-    if(variable.src_type() != SOT_data)
-	return false;
-
-    // Define types for 32-bit and 64-bit versions of the table
-
-    typedef struct {
-	uint32_t host_name;        /* Something we can pass to inet_addr */
-	uint32_t executable_name;  /* The name of the image */
-	int    pid;                /* The pid of the process */
-    } MPIR_PROCDESC_32;
-    
-    typedef struct {
-	uint64_t host_name;        /* Something we can pass to inet_addr */
-	uint64_t executable_name;  /* The name of the image */
-	int    pid;                /* The pid of the process */
-    } MPIR_PROCDESC_64;
-
-    // Determine if this is a 32-bit or 64-bit process    
-    SourceObj program = dm_process->get_program_object();
-    bool is_64bit = (program.get_program_type() == SOL_lp64);
-
-    // Calculate the number of bytes in the process table
-    size_t num_bytes = size * 
-	(is_64bit ? sizeof(MPIR_PROCDESC_64) : sizeof(MPIR_PROCDESC_32));
-
-    //
-    // Create a probe expression for the code sequence:
-    //
-    //     Ais_send(Ais_msg_handle, &table, num_bytes)
-    //
-    
-    ProbeExp args_exp[3] = { 
-	Ais_msg_handle,
-	variable.reference(),
-	ProbeExp(static_cast<int32_t>(num_bytes))
-    };
-
-    ProbeExp expression = Ais_send.call(3, args_exp);
-    
-    // Define a data bucket to hold the retrieved process table
-    DataBucket<char*> bucket;
-
-    // Ask DPCL to execute the probe expression in this process
-    AisStatus retval = 
-	dm_process->bexecute(expression, getBlobCallback, &bucket);
+    // Ask DPCL to load the "libopenss-framework-mpich.so" library
+    ProbeModule module = ProbeModule(
+	(std::string(LIBRARY_DIR) + 
+	 std::string("/libopenss-framework-mpich.so")).c_str()
+	);
+    AisStatus retval = dm_process->bload_module(&module);
 #ifndef NDEBUG
-    if(is_debug_enabled)
-    	debugDPCL("response from bexecute", retval);
+    if(is_debug_enabled) 
+	debugDPCL("request to bload_module", retval);
 #endif
-    bool succeeded = (retval.status() == ASC_success);
-    if(!succeeded)
+    if(retval.status() != ASC_success)
 	return false;
 
-    // Note: Data arriving from the Ais_send() cannot be accepted and placed
-    //       into the data bucket unless the DPCL main loop is running. Since
-    //       the GuardWithDPCL object above disables the main loop, it must
-    //       be temporarily resumed here or a deadlock will occur.
+    // Flag indicating if value was successfully retrieved
+    bool succeeded = false;
     
-    // Wait until the incoming process table arrives in the data bucket    
-    releaseLock();
-    MainLoop::resume();
-    char* buffer = bucket.getValue();
-    MainLoop::suspend();
-    acquireLock();
-    
-    // Extract the table data if it was retrieved
-    if(buffer != NULL) {
-    
-	// Iterate over each entry in the table    
-	for(int i = 0; i < size; ++i)
+    // Iterate over each function in this library
+    for(int f = 0; f < module.get_count(); ++f) {
+	
+	// Obtain the function's name
+	char buffer[module.get_name_length(f) + 1];
+	module.get_name(f, buffer, sizeof(buffer));
+
+	// Is this the "OpenSS_GetMPICHProcTable" function?
+	if(std::string(buffer) == std::string("OpenSS_GetMPICHProcTable")) {
+
+	    //
+	    // Create a probe expression for the code sequence:
+	    //
+	    //     OpenSS_GetMPICHProcTable(Ais_msg_handle)
+	    //
 	    
-	    if(is_64bit) {
-		
-		// Cast the table to the appropriate type
-		MPIR_PROCDESC_64* table = 
-		    reinterpret_cast<MPIR_PROCDESC_64*>(buffer);
-		
-		// Get the host name string from the process
-		std::string host_name;
-		succeeded &= getString(ProbeExp(table[i].host_name), host_name);
-		
-		// Insert this host/pid pair into the result
-		value.push_back(std::make_pair(host_name, table[i].pid));
-		
-	    }
-	    else {
+	    ProbeExp args_exp[1] = { Ais_msg_handle };
+	    
+	    ProbeExp expression = module.get_reference(f).call(1, args_exp);
+	    
+	    // Define a data bucket to hold the retrieved process table
+	    DataBucket<Job> bucket;
+	    
+	    // Ask DPCL to execute the probe expression in this process
+	    retval = dm_process->bexecute(expression, getJobCallback, &bucket);
+#ifndef NDEBUG
+	    if(is_debug_enabled)
+		debugDPCL("response from bexecute", retval);
+#endif
+	    if(retval.status() != ASC_success)
+		break;
+	    
+	    // Note: Data arriving from the Ais_send() cannot be accepted and
+	    //       placed into the data bucket unless the DPCL main loop is
+	    //       running. Since the GuardWithDPCL object above disables
+	    //       the main loop, it must be temporarily resumed here or a
+	    //       deadlock will occur.
+    
+	    // Wait until the incoming process table arrives in the data bucket
+	    releaseLock();
+	    MainLoop::resume();
+	    value = bucket.getValue();
+	    MainLoop::suspend();
+	    acquireLock();
+	    succeeded = true;
+	    
+	    // No need to look at any more functions in this library
+	    break;
+	}
 
-		// Cast the table to the appropriate type
-		MPIR_PROCDESC_32* table = 
-		    reinterpret_cast<MPIR_PROCDESC_32*>(buffer);
-		
-		// Get the host name string from the process
-		std::string host_name;
-		succeeded &= getString(ProbeExp(table[i].host_name), host_name);
-		
-		// Insert this host/pid pair into the result
-		value.push_back(std::make_pair(host_name, table[i].pid));
-
-	    }
-
-	// Free the process table
-	delete [] buffer;
     }
 
+    // Ask DPCL to unload the module
+    retval = dm_process->bunload_module(&module);
+#ifndef NDEBUG
+    if(is_debug_enabled) 
+	debugDPCL("request to bunload_module", retval);
+#endif
+    
     // Indicate to the caller if the value was retrieved
     return succeeded;
 }
@@ -2376,6 +2412,59 @@ void Process::getIntegerCallback(GCBSysType sys, GCBTagType tag,
 	bucket->setValue(
 	    static_cast<int64_t>(*reinterpret_cast<int64_t*>(msg))
 	    );
+}
+
+
+
+/**
+ * Get job callback.
+ *
+ * Callback function called by the DPCL main loop when a blob of data
+ * containing a job description is being returned. Store the job in the
+ * specified data bucket.
+ */
+void Process::getJobCallback(GCBSysType sys, GCBTagType tag,
+			     GCBObjType, GCBMsgType msg)
+{
+    DataBucket<Job>* bucket = reinterpret_cast<DataBucket<Job>*>(tag);
+
+    // Check assertions
+    Assert(bucket != NULL);
+
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Process::getJobCallback()"
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
+    // Decode this data blob
+    Blob blob(sys.msg_size, msg);
+    OpenSS_Job job;
+    memset(&job, 0, sizeof(job));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_OpenSS_Job), &job);
+    
+    // Translate the OpenSS_Job structure into a Job object
+    Job value;
+    for(unsigned i = 0; i < job.processes.processes_len; ++i) {
+
+	// Insert this host/pid pair into the result
+	value.push_back(std::make_pair(
+			    std::string(job.processes.processes_val[i].host),
+			    job.processes.processes_val[i].pid
+			    ));
+    
+    }
+
+    // Store the job in the specified data bucket
+    bucket->setValue(value);
+
+    // Free the decoded data blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_OpenSS_Job),
+	     reinterpret_cast<char*>(&job));
 }
 
 
@@ -4560,106 +4649,6 @@ Process::findLibraryFunction(const Collector& collector,
 
     // Return results to the caller
     return std::make_pair(&(i->second), function_exp);
-}
-
-
-
-/**
- * Get a string.
- *
- * Gets the current value of a character string within this process. The value
- * is returned as a C++ standard string rather than a C character array. This
- * makes managing the memory associated with the string more obvious. Returns
- * a boolean value indicating if the string's value was successfully retrieved.
- *
- * @param where     Probe expression for the address of the string whose value
- *                  is being requested.
- * @retval value    Current value of that string.
- * @return          Boolean "true" if the string's value was successfully
- *                  retrieved, "false" otherwise.
- */
-bool Process::getString(const ProbeExp& where, std::string& value) const
-{
-    // Note: This is a private member function only called by getGlobal() and
-    //       getMPICHProcTable(). These functions are already suspending the
-    //       DPCL main loop and locking this process object. If a nested guard
-    //       is used here as would be normal practice, the temporary resumption
-    //       of the DPCL main loop that is attempted below will not occur and
-    //       the deadlock described below still occurs. So don't nest the guard
-    //       here.
-    //
-    // GuardWithDPCL guard_myself(this);
-    
-    // Find the strlen() function
-    SourceObj strlen_func = findFunction("strlen");    
-
-    // Go no further if strlen() could not be found
-    if(strlen_func.src_type() != SOT_function)
-	return false;
-
-    //
-    // Create a probe expression for the code sequence:
-    //
-    //     if(where)
-    //         Ais_send(Ais_msg_handle, where, strlen(where) + 1)
-    //     else
-    //         Ais_send(Ais_msg_handle, "", 1)
-    //
-
-    ProbeExp send_empty_args_exp[3] = {
-	Ais_msg_handle,
-	ProbeExp(""),
-	ProbeExp(1)
-    };
-
-    ProbeExp strlen_args_exp[1] = { 
-	where
-    };
-
-    ProbeExp send_args_exp[3] = {
-	Ais_msg_handle, 
-	where,
-	strlen_func.reference().call(1, strlen_args_exp) + ProbeExp(1)
-    };
-
-    ProbeExp expression = where.ifelse(
-	Ais_send.call(3, send_args_exp),
-	Ais_send.call(3, send_empty_args_exp)
-	);
-    
-    // Define a data bucket to hold the retrieved character array
-    DataBucket<char*> bucket;
-
-    // Ask DPCL to execute the probe expression in this process
-    AisStatus retval = 
-	dm_process->bexecute(expression, getBlobCallback, &bucket);
-#ifndef NDEBUG
-    if(is_debug_enabled)
-    	debugDPCL("response from bexecute", retval);
-#endif
-    if(retval.status() != ASC_success)
-	return false;
-
-    // Note: Data arriving from the Ais_send() cannot be accepted and placed
-    //       into the data bucket unless the DPCL main loop is running. Since
-    //       the GuardWithDPCL object above disables the main loop, it must
-    //       be temporarily resumed here or a deadlock will occur.
-    
-    // Wait until the incoming character array arrives in the data bucket
-    releaseLock();
-    MainLoop::resume();
-    char* buffer = bucket.getValue();
-    MainLoop::suspend();
-    acquireLock();
-	
-    // Extract and return the string's value if it was retrieved
-    if(buffer != NULL) {
-	value = std::string(buffer);
-	delete [] buffer;
-    }
-
-    // Indicate to the caller that the value was retrieved
-    return true;
 }
 
 

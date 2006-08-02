@@ -16,10 +16,16 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+BUILT_SOURCES = \
+	OpenSS_Job.h OpenSS_Job.c
+
 noinst_LTLIBRARIES = libopenss-framework-dpcl.la
+
+lib_LTLIBRARIES = libopenss-framework-mpich.la
 
 libopenss_framework_dpcl_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
+	-DLIBRARY_DIR=\"$(libdir)\" \
 	@DPCL_CPPFLAGS@
 
 libopenss_framework_dpcl_la_LDFLAGS = \
@@ -34,5 +40,25 @@ libopenss_framework_dpcl_la_SOURCES = \
 	GuardWithDPCL.hxx \
 	Instrumentor.cxx \
 	MainLoop.hxx MainLoop.cxx \
+	$(BUILT_SOURCES) \
 	Process.hxx Process.cxx \
 	ProcessTable.hxx ProcessTable.cxx
+
+libopenss_framework_mpich_la_CFLAGS = \
+	-I$(top_srcdir)/libopenss-runtime \
+	@DPCL_CPPFLAGS@
+
+libopenss_framework_mpich_la_LDFLAGS = \
+	-export-dynamic -version-info 1:0:0
+
+libopenss_framework_mpich_la_SOURCES = \
+	OpenSS_GetMPICHProcTable.c \
+	OpenSS_Job.x $(BUILT_SOURCES)
+
+SUFFIXES = .x
+CLEANFILES = $(BUILT_SOURCES)
+
+OpenSS_Job.h OpenSS_Job.c : OpenSS_Job.x
+	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
+	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
+	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<

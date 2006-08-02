@@ -156,6 +156,8 @@ namespace OpenSpeedShop { namespace Framework {
 				    GCBObjType, GCBMsgType);
 	static void getIntegerCallback(GCBSysType, GCBTagType,
 				       GCBObjType, GCBMsgType);
+	static void getJobCallback(GCBSysType, GCBTagType,
+				   GCBObjType, GCBMsgType);
 	static void installProbeCallback(GCBSysType, GCBTagType,
 					 GCBObjType, GCBMsgType);
 	static void loadModuleCallback(GCBSysType, GCBTagType,
@@ -286,7 +288,6 @@ namespace OpenSpeedShop { namespace Framework {
 	std::pair<LibraryEntry*, ProbeExp>
 	findLibraryFunction(const Collector&, const std::string&);	
 	
-	bool getString(const ProbeExp&, std::string&) const;
 	bool getPosixThreadIds(std::set<pthread_t>&) const;
 
     };
