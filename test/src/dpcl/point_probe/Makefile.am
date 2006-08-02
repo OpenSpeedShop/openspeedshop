@@ -18,6 +18,8 @@
 
 noinst_PROGRAMS = mutator mutatee
 
+CFLAGS = -O0 -g
+
 mutator_CXXFLAGS = \
 	 $(DPCL_CPPFLAGS) \
 	-DTEST_CREATE_PROCESS
