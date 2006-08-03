@@ -24,6 +24,7 @@
 #include <ltdl.h>
 #include <pthread.h>
 #include <Python.h>
+#include <sstream>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -175,9 +176,29 @@ Initial_Python ()
 	    Assert(fclose(fp) == 0);
 
             // Initialize the port used by the DPCL daemons
-            std::string dpcl_port = "DpcldListenerPort = '" + Experiment::getDpcldListenerPort() + "'";
+            std::string dpcl_port = "DpcldListenerPort = '" + 
+		Experiment::getDpcldListenerPort() + "'";
             PyRun_SimpleString(dpcl_port.c_str());
-	    
+
+	    // Initialize the installation directory
+	    char buffer[PATH_MAX];
+	    memset(buffer, 0, sizeof(buffer));
+	    std::ostringstream proc_entry;
+	    proc_entry << "/proc/" << getpid() << "/exe";
+	    readlink(proc_entry.str().c_str(), buffer, sizeof(buffer) - 1);
+	    Path install_dir = Path(buffer).removeLast().removeLast();
+	    PyRun_SimpleString((std::string("OpenssInstallDir = '") +
+				install_dir + std::string("'")).c_str());
+
+	    // Load the site-specific Python startup file (if it exists)
+	    Path site_specific = directory + Path("site.py");
+	    if(site_specific.isFile()) {
+		FILE* fp = fopen(site_specific.c_str(), "r");
+		Assert(fp != NULL);
+		PyRun_SimpleFile(fp, "site.py");
+		Assert(fclose(fp) == 0);
+	    }
+
 	    // Return successfully to the caller
 	    return;
 	    

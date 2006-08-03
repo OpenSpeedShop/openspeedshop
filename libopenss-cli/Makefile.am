@@ -26,7 +26,9 @@ BUILT_SOURCES = \
 AM_YFLAGS = -d
 YFLAGS = -d
 
-dist_pkglib_SCRIPTS = SS_Preparse.py
+dist_pkglib_SCRIPTS = \
+	SS_Preparse.py \
+	site.py
 
 lib_LTLIBRARIES = libopenss-cli.la
 
