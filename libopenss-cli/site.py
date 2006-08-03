@@ -38,8 +38,8 @@ def StartDPCL(template="*", installed="/usr"):
     string should contain a single '*' symbol that is replaced with the actual
     command for starting the daemon. For example, if MPI is to be used to invoke
     the daemon on 128 nodes, the template might be 'mpirun -np 128 *' which
-    would then be replaced, for example, with 'mpirun -np 128 env ... dpcld -p
-    ...' before actual execution.
+    would then be replaced with 'mpirun -np 128 env ... dpcld -p ...' before
+    actual execution.
     """
 
     # Locate the DPCL dameon
