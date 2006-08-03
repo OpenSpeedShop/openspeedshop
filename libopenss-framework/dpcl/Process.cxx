@@ -1247,15 +1247,15 @@ bool Process::getMPICHProcTable(Job& value)
     }
 #endif
 
-    // Find the "MPIR_proctable" and "MPIR_proctable_size" variables
-    SourceObj table_variable = findVariable("MPIR_proctable");
-    SourceObj size_variable = findVariable("MPIR_proctable_size");
+    // Find the "MPIR_proctable_size" and "MPIR_proctable" variables
+    SourceObj proctable_size_variable = findVariable("MPIR_proctable_size");
+    SourceObj proctable_variable = findVariable("MPIR_proctable");
 
     // Go no further if either variable could not be found
-    if((table_variable.src_type() != SOT_data) || 
-       (size_variable.src_type() != SOT_data))
+    if((proctable_size_variable.src_type() != SOT_data) || 
+       (proctable_variable.src_type() != SOT_data))
 	return false;
-
+    
     // Ask DPCL to load the "libopenss-framework-mpich.so" library
     ProbeModule module = ProbeModule(
 	(std::string(LIBRARY_DIR) + 
@@ -1285,12 +1285,18 @@ bool Process::getMPICHProcTable(Job& value)
 	    //
 	    // Create a probe expression for the code sequence:
 	    //
-	    //     OpenSS_GetMPICHProcTable(Ais_msg_handle)
+	    //     OpenSS_GetMPICHProcTable(Ais_msg_handle,
+	    //                              &MPIR_proctable_size,
+	    //                              &MPIR_proctable)
 	    //
 	    
-	    ProbeExp args_exp[1] = { Ais_msg_handle };
+	    ProbeExp args_exp[3] = { 
+		Ais_msg_handle,
+		proctable_size_variable.reference().address(),
+		proctable_variable.reference().address()
+	    };
 	    
-	    ProbeExp expression = module.get_reference(f).call(1, args_exp);
+	    ProbeExp expression = module.get_reference(f).call(3, args_exp);
 	    
 	    // Define a data bucket to hold the retrieved process table
 	    DataBucket<Job> bucket;

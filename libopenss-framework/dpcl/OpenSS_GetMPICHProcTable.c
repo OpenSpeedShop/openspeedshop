@@ -29,9 +29,6 @@
 
 
 
-/** Number of entries in MPIR_proctable. */
-extern int MPIR_proctable_size;
-
 /** Structure holding host name, executable name, and pid for a process. */
 typedef struct {
     char* host_name;        /**< Something we can pass to inet_addr. */
@@ -39,21 +36,25 @@ typedef struct {
     int pid;                /**< The pid of the process. */    
 } MPIR_PROCDESC;
 
-/** Array of MPIR_PROCDESC structures. */
-extern MPIR_PROCDESC* MPIR_proctable;
-
 
 
 /**
  * Get the MPICH process table.
  * 
- * Gets the current value of the MPICH process table within this process. ...
+ * Gets the current value of the MPICH process table within this process. The
+ * contents of that table are placed into an OpenSS_Job structure, XDR encoded,
+ * and then sent to the caller via the specified DPCL message handle.
  *
  * @sa    http://www-unix.mcs.anl.gov/mpi/mpi-debug/
  *
- * @param msg_handle    ...
+ * @param msg_handle        DPCL message handle for returning the table.
+ * @param proctable_size    Address of MPIR_proctable_size (the number 
+ *                          of entries in MPIR_proctable).
+ * @param proctable         Address of MPIR_proctable (an array of 
+ *                          MPIR_PROCDESC structures.
  */
-void OpenSS_GetMPICHProcTable(AisPointer msg_handle)
+void OpenSS_GetMPICHProcTable(AisPointer msg_handle, 
+			      int* proctable_size, MPIR_PROCDESC** proctable)
 {
     unsigned i, buffer_size, encoded_size;
     OpenSS_Job job;
@@ -61,14 +62,14 @@ void OpenSS_GetMPICHProcTable(AisPointer msg_handle)
     XDR xdrs;
     
     /* Allocate the array of host/pid pairs in the job description */
-    job.processes.processes_len = MPIR_proctable_size;
+    job.processes.processes_len = *proctable_size;
     job.processes.processes_val = 
 	alloca(job.processes.processes_len * sizeof(OpenSS_JobEntry));
 
     /* Fill the host/pid pairs into the job description */
     for(i = 0; i < job.processes.processes_len; ++i) {
-	job.processes.processes_val[i].host = MPIR_proctable[i].host_name;
-	job.processes.processes_val[i].pid = MPIR_proctable[i].pid;
+	job.processes.processes_val[i].host = (*proctable)[i].host_name;
+	job.processes.processes_val[i].pid = (*proctable)[i].pid;
     }
     
     /* Estimate the required encoding buffer size */
