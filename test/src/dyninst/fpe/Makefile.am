@@ -18,14 +18,11 @@
 
 noinst_PROGRAMS = mutator mutatee
 
-AM_CFLAGS	= \
-	-g -gdwarf-2
-
 AM_CXXFLAGS	= \
-	-g -gdwarf-2
+	-g -gdwarf-2 -O0
 
 AM_CPPFLAGS	= \
-	-g -gdwarf-2
+	-g -gdwarf-2 -O0
 
 mutator_CXXFLAGS = \
 	-DUSE_STL_VECTOR -DTEST_CREATE_PROCESS \

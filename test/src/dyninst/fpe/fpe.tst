@@ -34,5 +34,3 @@ fi
 set pid=$!
 ./mutator $pid
 
-./mutator ./mutatee
-killall mutator mutatee
