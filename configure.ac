@@ -271,6 +271,8 @@ AC_CONFIG_FILES(
 	test/src/regression/bb/restore/restore3/Makefile
 	test/src/regression/bb/restore/restore4/Makefile
 	test/src/regression/bb/restore/restore5/Makefile
+	test/src/regression/fpe/Makefile
+	test/src/regression/fpe/fpe1/Makefile
 	test/src/regression/inf/Makefile
 	test/src/regression/inf/hosts/Makefile
 	test/src/regression/inf/hosts/hosts1/Makefile
