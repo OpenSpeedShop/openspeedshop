@@ -26,6 +26,7 @@ SUBDIRS = \
 	hwctime \
 	mpi \
 	io \
+	fpe \
 	views
 
 DIST_SUBDIRS = $(SUBDIRS)
