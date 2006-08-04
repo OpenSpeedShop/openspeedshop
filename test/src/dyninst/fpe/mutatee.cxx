@@ -48,7 +48,7 @@ int main(void)
     }
 
 // to test whether we can get into the fpe handler uncomment the next line
-    fpe_enable();
+//    fpe_enable();
 
     sleep(60);
 
