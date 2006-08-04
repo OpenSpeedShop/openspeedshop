@@ -70,6 +70,7 @@ AC_CONFIG_FILES([
 	create/Makefile
 	findPoint/Makefile
 	createf77/Makefile
+	fpe/Makefile
 ])
 
 AC_OUTPUT

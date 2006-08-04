@@ -17,7 +17,7 @@
 ################################################################################
 #
 # directories that will be built
-SUBDIRS = create findPoint
+SUBDIRS = create findPoint fpe
 
 if HAVE_F77
 SUBDIRS += createf77
