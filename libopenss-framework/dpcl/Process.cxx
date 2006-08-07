@@ -262,7 +262,14 @@ Process::Process(const std::string& host, const pid_t& pid) :
     dm_future_state(),
     dm_libraries()
 {
-    GuardWithDPCL guard_myself(this);
+    // Note: Since no other thread can possibly access this object until AFTER
+    //       it is created, and since the only DPCL function called here is the
+    //       DPCL process handle constructor which only initializes the object's
+    //       data members, it is safe to not do any locking here. In fact it
+    //       is required. Using the usual guard introduces a deadlock between
+    //       Instrumentor::changeState() and Process::attachCallback().
+    //
+    // GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
     if(is_debug_enabled) {
