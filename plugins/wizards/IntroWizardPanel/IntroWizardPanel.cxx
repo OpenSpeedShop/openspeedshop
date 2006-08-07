@@ -420,7 +420,6 @@ IntroWizardPanel::languageChange()
   wizardMode->setText( tr( "Verbose Wizard Mode" ) );
   vpage1NextButton->setText( tr( "> Next" ) );
 
-  broughtToYouByLabel->setText( tr( "Brought to you by SGI (SiliconGraphics)" ) );
 
 }
 
