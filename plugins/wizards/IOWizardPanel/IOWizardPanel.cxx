@@ -1265,7 +1265,7 @@ IOWizardPanel::languageChange()
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
-  vParameterPageDescriptionText->setText( tr( QString("The following options (paramaters) are available to adjust.   These are the list of functions that the IO collector is able to monitor.<br><br>\n") ) );
+  vParameterPageDescriptionText->setText( tr( QString("The following options (parameters) are available to adjust.   These are the list of functions that the IO collector is able to monitor.<br><br>\n") ) );
 
   vParameterPageFunctionListHeaderLabel->setText( tr( "You can monitor the following io functions(s):" ) );
   vParameterPageBackButton->setText( tr( "< Back" ) );
@@ -1304,7 +1304,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
   QToolTip::add( eDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   eDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( eDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
-  eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
+  eParameterPageDescriptionLabel->setText( tr( "The following options (parameters) are available to adjust.     <br>These are the options the collector has exported." ) );
   eParameterPageFunctionListHeaderLabel->setText( tr( "You can monitor the following io function(s):" ) );
   eParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eParameterPageBackButton, tr( "Takes you back one page." ) );
