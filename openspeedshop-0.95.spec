@@ -1,6 +1,6 @@
 Summary: A cross platform open source performance tool.
 Name: openspeedshop
-Version: 0.875
+Version: 0.9575
 Release: 2
 License: GPL
 # %{name}-%{version}.tar.gz is found in RPM/SOURCES.
@@ -105,6 +105,8 @@ rm -rf /usr/share/doc/packages/OpenSpeedShop
 %{LIBDIR}/*
 
 %changelog
+* Mon Aug 7 2006  Jim Galarowicz
+- Change version to 0.95 to match the milestone 8 release not quite completed
 * Thu May 11 2006  Jim Galarowicz
 - Install in /usr instead of /usr/local and add documentation installation
 * Sat Mar 25 2006  Jim Galarowicz
