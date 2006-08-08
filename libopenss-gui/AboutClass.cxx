@@ -60,7 +60,7 @@ AboutClass::AboutClass(QWidget *w) : QDialog(w, "", 0, 0)
   QWidget *tab2Widget = new QWidget( this, "tab2Widget" );
   QVBoxLayout *tab2Layout = new QVBoxLayout( tab2Widget, 1, 2, "tab2Layout" );
   QLabel *label2 = new QLabel(tab2Widget, "label2");
-  label2->setText("Author information.");
+  label2->setText("Jack Carter\nSteve Collins\nJim Galarowicz\nWilliam Hachfeld\nDonald Maghrak\nTodd Smith\nHelen Stepanov\nAllen Stipek\nDavid Whitney\n");
   tabWidget->addTab(tab2Widget, "Authors");
   tab2Layout->addWidget(label2);
 
@@ -69,7 +69,7 @@ AboutClass::AboutClass(QWidget *w) : QDialog(w, "", 0, 0)
   QWidget *tab3Widget = new QWidget( this, "tab3Widget" );
   QVBoxLayout *tab3Layout = new QVBoxLayout( tab3Widget, 1, 2, "tab3Layout" );
   QLabel *label3 = new QLabel(tab3Widget, "label3");
-  label3->setText("Thanks to information.");
+  label3->setText("Thanks to the Universities of Wisconsin and Maryland, in particular:\nBarton Miller\nJeff Hollingsworth\nDrew Bernat\nMatt Legendre\nTodd L Miller\nJames Waskiewicz\nGregory Quinn\n\nThanks to the Department of Energy and the Tri-laboratories of LLNL, LANL, and Sandia.\nSpecial Thanks to the Tri-laboratory Technical Leadership Team:\nMartin Schulz, LLNL\nChip Kent, formerly of LANL\nScott Cranford, Sandia\nNathan DeBardeleben, LANL\nDavid Montoya, LANL\nMary Zosel, LLNL\n\nThanks to SGI and these current and former SGI employees, in particular:\nGeorge Pirocanac\nSteve Reinhardt\nKent Randolph\nSteve Siegfried\nDave Alexander\nRick Chapek\nand Amaury Le Leyzour, Doug Crisman, Kevin G. Snow, Scott Soloway, Leslie Tung\nBeverly Bernard, John Janicek, Leland Bigger, Kate Cassell, Glen Aalund and Carol Gibson\n");
   tabWidget->addTab(tab3Widget, "Thanks To");
   tab3Layout->addWidget(label3);
 
@@ -80,7 +80,7 @@ AboutClass::AboutClass(QWidget *w) : QDialog(w, "", 0, 0)
   QWidget *tab4Widget = new QWidget( this, "tab4Widget" );
   QVBoxLayout *tab4Layout = new QVBoxLayout( tab4Widget, 1, 2, "tab4Layout" );
   QLabel *label4 = new QLabel(tab4Widget, "label4");
-  label4->setText("License agreement information.");
+  label4->setText("                                   Open|SpeedShop License\n\n\nOpen|SpeedShop code will be released under the GPL and the LGPL licenses.\nOpen|SpeedShop code is copyright SGI, All Rights Reserved.\n");
   tabWidget->addTab(tab4Widget, "License Agreement");
   tab4Layout->addWidget(label4);
 
