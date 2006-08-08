@@ -70,11 +70,12 @@ namespace OpenSpeedShop { namespace Framework {
 	void setValue(const T& value)
 	{
 	    Assert(pthread_mutex_lock(&dm_mutex_lock) == 0);
-	    Assert(!dm_has_value);
+	    while(dm_has_value == true)
+		Assert(pthread_cond_wait(&dm_cv, &dm_mutex_lock) == 0);
 	    dm_value = value;
 	    dm_has_value = true;
-	    Assert(pthread_mutex_unlock(&dm_mutex_lock) == 0);
 	    Assert(pthread_cond_signal(&dm_cv) == 0);
+	    Assert(pthread_mutex_unlock(&dm_mutex_lock) == 0);
 	}
 	
 	/** Get the value from this bucket. */
@@ -85,6 +86,7 @@ namespace OpenSpeedShop { namespace Framework {
 		Assert(pthread_cond_wait(&dm_cv, &dm_mutex_lock) == 0);
 	    T value = dm_value;
 	    dm_has_value = false;
+	    Assert(pthread_cond_signal(&dm_cv) == 0);
 	    Assert(pthread_mutex_unlock(&dm_mutex_lock) == 0);
 	    return value;
 	}

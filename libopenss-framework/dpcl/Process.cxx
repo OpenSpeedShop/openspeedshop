@@ -1326,7 +1326,8 @@ bool Process::getMPICHProcTable(Job& value)
 	    // Wait until the incoming process table arrives in the data bucket
 	    releaseLock();
 	    MainLoop::resume();
-	    value = bucket.getValue();
+	    for(Job j = bucket.getValue(); !j.empty(); j = bucket.getValue())
+		value.insert(value.end(), j.begin(), j.end());
 	    MainLoop::suspend();
 	    acquireLock();
 	    succeeded = true;
@@ -2475,6 +2476,11 @@ void Process::getJobCallback(GCBSysType sys, GCBTagType tag,
     // Store the job in the specified data bucket
     bucket->setValue(value);
 
+    // Store an empty job in the specified data bucket to indicate the end of
+    // a complete job description (if the end has actually been reached)
+    if(job.is_last)
+	bucket->setValue(Job());
+    
     // Free the decoded data blob
     xdr_free(reinterpret_cast<xdrproc_t>(xdr_OpenSS_Job),
 	     reinterpret_cast<char*>(&job));

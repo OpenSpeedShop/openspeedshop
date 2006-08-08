@@ -39,9 +39,16 @@ struct OpenSS_JobEntry {
 /**
  * Job description.
  *
- * Description of all the processes in a job. Consists of a variable-length
- * array of host/pid pairs, one for each process in the job.
+ * Description of the processes in a job. Contains a variable-length array of
+ * host/pid pairs, one for each process in the job. Also contains a flag that
+ * indicates if this array of host/pid pairs completes the job description.
  */
 struct OpenSS_Job {
-    OpenSS_JobEntry processes<>;  /**< List of processes in this job. */
+
+    /** List of processes in this job. */
+    OpenSS_JobEntry processes<>;
+
+    /** Flag indicating if this list completes the job description. */
+    uint8_t is_last;
+    
 };

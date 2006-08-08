@@ -158,8 +158,8 @@ namespace {
 	    // Indicate that we've suspended
 	    Assert(pthread_mutex_lock(&is_suspended.lock) == 0);
 	    is_suspended.flag = true;
-	    Assert(pthread_mutex_unlock(&is_suspended.lock) == 0);
 	    Assert(pthread_cond_signal(&is_suspended.cv) == 0);
+	    Assert(pthread_mutex_unlock(&is_suspended.lock) == 0);
 	    
 	    // Wait for go-ahead to resume the DPCL main loop
 	    Assert(pthread_mutex_lock(&is_suspended.lock) == 0);
@@ -307,8 +307,8 @@ void MainLoop::resume()
 	// Tell the monitor thread to resume the DPCL main loop
 	Assert(pthread_mutex_lock(&is_suspended.lock) == 0);
 	is_suspended.flag = false;
-	Assert(pthread_mutex_unlock(&is_suspended.lock) == 0);
 	Assert(pthread_cond_signal(&is_suspended.cv) == 0);
+	Assert(pthread_mutex_unlock(&is_suspended.lock) == 0);
 	
     }
 
