@@ -135,7 +135,7 @@ MPITCollector::MPITCollector() :
                   "MPI Extended Event Tracing",
 		  "Intercepts all calls to MPI functions that perform any "
 		  "significant amount of work (primarily those that send "
-		  "messages) and records, for each call, the current stack "
+		  "messages) and for each call records the current stack "
 		  "trace and start/end time. Detailed ancillary data is also "
 		  "stored such as the source and destination rank, number of "
 		  "bytes sent, message tag, communicator used, and message "

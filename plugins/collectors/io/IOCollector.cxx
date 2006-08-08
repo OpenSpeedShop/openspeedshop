@@ -114,7 +114,7 @@ IOCollector::IOCollector() :
                   "I/O Event Tracing",
 		  "Intercepts all calls to I/O functions that perform any "
 		  "significant amount of work (primarily those that read/write "
-		  "data) and records, for each call, the current stack trace "
+		  "data) and records for each call, the current stack trace "
 		  "and start/end time.")
 {
     // Declare our parameters

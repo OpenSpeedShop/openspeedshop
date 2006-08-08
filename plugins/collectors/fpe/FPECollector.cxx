@@ -86,7 +86,7 @@ FPECollector::FPECollector() :
     CollectorImpl("fpe",
                   "FPE Extended Event Tracing",
 		  "Intercepts Floating Point Exceptions."
-		  "and records, for each exception, the current stack "
+		  "and records for each exception, the current stack "
 		  "trace, the exception type, and start time."
 		  )
 {

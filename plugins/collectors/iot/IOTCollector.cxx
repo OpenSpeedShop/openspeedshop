@@ -113,7 +113,7 @@ IOTCollector::IOTCollector() :
                   "I/O Extended Event Tracing",
 		  "Intercepts all calls to I/O functions that perform any "
 		  "significant amount of work (primarily those that read/write "
-		  "data) and records, for each call, the current stack trace "
+		  "data) and for each call records the current stack trace "
 		  "and start/end time. Detailed ancillary data is also stored "
 		  "stored such as the function's parameters and return value.")
 {
