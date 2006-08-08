@@ -68,8 +68,8 @@ if test "$1" == ""  ; then
   # create the tarball. rpmbuild performs a complete configure,
   # build, install from the tarball sources. If everything goes fine,
   # then source and binary rpm packages are created.
-  echo "$0: Removing previous openspeedshop-0.875.tar.gz"
-  rm -f openspeedshop-0.875.tar.gz
+  echo "$0: Removing previous openspeedshop-0.95.tar.gz"
+  rm -f openspeedshop-0.95.tar.gz
   echo "$0: Running make dist"
   make dist
 fi
@@ -77,23 +77,23 @@ fi
 # ensure we have a valid tarball before proceeding. 
 #
 cd $MYCURRENT
-if [ -f openspeedshop-0.875.tar.gz ] ; then
-  echo $0: tarball openspeedshop-0.875.tar.gz created successfully.
+if [ -f openspeedshop-0.95.tar.gz ] ; then
+  echo $0: tarball openspeedshop-0.95.tar.gz created successfully.
 else
-  echo $0 ERROR: no openspeedshop-0.875.tar.gz exists. Build of tarball failed
+  echo $0 ERROR: no openspeedshop-0.95.tar.gz exists. Build of tarball failed
   echo $0 ERROR: can not perform rpmbuild. exiting...
   exit 1
 fi
 
 #############################################################################
 # At this point, the tarball has been generated in OpenSpeedShop (%{_topdir}).
-# If there were no errors, OpenSpeedShop/openspeedshop-0.875.tar.gz
+# If there were no errors, OpenSpeedShop/openspeedshop-0.95.tar.gz
 # should exist. The next step configures, builds and installs your tarball as
 # a user would and then creates rpm packages. The rpmbuild command
-# reads OpenSpeedShop/openspeedshop-0.875.spec which controls the
-# configure/build/install. The openspeedshop-0.875.spec file is aware
+# reads OpenSpeedShop/openspeedshop-0.95.spec which controls the
+# configure/build/install. The openspeedshop-0.95.spec file is aware
 # of the $QTDIR environment variable.
-# Please review openspeedshop-0.875.spec
+# Please review openspeedshop-0.95.spec
 # for the details. The key configuration directories are:
 # 
 # %{_topdir}/../RPM
@@ -106,7 +106,7 @@ fi
 # %{_topdir}/../rpminstall
 # The above expands to %{_topdir}/../rpminstall and the spec file
 # uses %{_topdir}/../rpminstall for $RPM_BUILD_ROOT.
-# The openspeedshop-0.875.spec configures the build to use:
+# The openspeedshop-0.95.spec configures the build to use:
 # configure --prefix=$RPM_BUILD_ROOT/usr
 # Setting your environment (i.e. PATH, LD_LIBRARY_PATH,OPENSS_PLUGIN_PATH)
 # to this installation allows you to test the software that
@@ -203,8 +203,8 @@ fi
 
 # copy the tarball to the direcotry rpmbuild expects.
 #
-rm -f $RPMBUILDDIR/SOURCES/openspeedshop-0.875.tar.gz
-cp openspeedshop-0.875.tar.gz $RPMBUILDDIR/SOURCES
+rm -f $RPMBUILDDIR/SOURCES/openspeedshop-0.95.tar.gz
+cp openspeedshop-0.95.tar.gz $RPMBUILDDIR/SOURCES
 
 # Fire off the build and install of the tarball source using
 # the current spec file. This will build the source an binary
@@ -216,5 +216,5 @@ cp openspeedshop-0.875.tar.gz $RPMBUILDDIR/SOURCES
 # This step allows developers to verify that any changes
 # they make to the product will build for a user of the tarball.
 #
-echo "$0: Invoking rpmbuild --rcfile=$RPMRCFILE -ba -v openspeedshop-0.875.spec"
-rpmbuild --rcfile=$RPMRCFILE -ba -v openspeedshop-0.875.spec
+echo "$0: Invoking rpmbuild --rcfile=$RPMRCFILE -ba -v openspeedshop-0.95.spec"
+rpmbuild --rcfile=$RPMRCFILE -ba -v openspeedshop-0.95.spec
