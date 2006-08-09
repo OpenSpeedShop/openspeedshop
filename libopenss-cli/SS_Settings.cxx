@@ -67,11 +67,11 @@ SS_Settings::initialize(char *filename)
     std::string udstr = pw_buf->pw_dir;
     udstr += "/.qt/openspeedshoprc";
 
-//    filename = "/home/stipek/.qt/openspeedshoprc";
-    filename = (char *)udstr.c_str();
+    settings_file = new ifstream(udstr.c_str());
   }
+  else
+    settings_file = new ifstream(filename);
 
-  settings_file = new ifstream(filename);
   if( settings_file == NULL ||
       (settings_file->rdstate() & ifstream::failbit ) != 0 )
   {
