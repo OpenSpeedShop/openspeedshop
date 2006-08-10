@@ -155,7 +155,7 @@ def CompareResults(testName, fileptr):
 		exclusive_fpe_count = atoi(outputfileline[i:j])
 		if (exclusive_fpe_count > 0):
 			have_non_zero_counts += exclusive_fpe_count 
-		print "exclusive_fpe_count=%d\n" % exclusive_fpe_count
+#		print "exclusive_fpe_count=%d\n" % exclusive_fpe_count
 		i = j+1	
 		while outputfileline[i]==' ':
 			i +=1
@@ -163,7 +163,7 @@ def CompareResults(testName, fileptr):
 		while (outputfileline[j] != ' '):
 			j +=1
 		actual_inclusive_fpe_count = atoi(outputfileline[i:j])
-		print "actual_inclusive_fpe_count=%d\n" % actual_inclusive_fpe_count
+#		print "actual_inclusive_fpe_count=%d\n" % actual_inclusive_fpe_count
 		if (actual_inclusive_fpe_count > 0):
 			have_non_zero_counts += actual_inclusive_fpe_count 
 		i = j+1	
@@ -173,7 +173,7 @@ def CompareResults(testName, fileptr):
 		while (outputfileline[j] != ' '):
 			j +=1
 		actual_inclusive_time = atof(outputfileline[i:j])
-		print "actual_inclusive_time=%f\n" % actual_inclusive_time
+#		print "actual_inclusive_time=%f\n" % actual_inclusive_time
 		i = j+1	
 		while outputfileline[i]==' ':
 			i +=1
@@ -182,10 +182,10 @@ def CompareResults(testName, fileptr):
 			j +=1
 		actual_function = outputfileline[i:j]
 		actual_functions.append(outputfileline[i:j])
-		print "actual_function[i:j]=%s\n" % outputfileline[i:j]
+#		print "actual_function[i:j]=%s\n" % outputfileline[i:j]
 		output_function_counter += 1
-		print "output_function_counter=%d\n" % output_function_counter
-		print "expected_functions_counter=%d\n" % expected_functions_counter
+#		print "output_function_counter=%d\n" % output_function_counter
+#		print "expected_functions_counter=%d\n" % expected_functions_counter
 #	if output_function_counter != expected_functions_counter:
 #		failure_reason = 2
 	if output_function_counter == 0:
@@ -198,19 +198,19 @@ def CompareResults(testName, fileptr):
 	while expected_functions_processed < expected_functions_counter:
 		output_functions_processed = 0
 		while output_functions_processed < output_function_counter:
-			print "actual_functions[output_functions_processed]=%s\n" % actual_functions[output_functions_processed]
-			print "expected_functions[expected_functions_processed]=%s\n" % expected_functions[expected_functions_processed]
+#			print "actual_functions[output_functions_processed]=%s\n" % actual_functions[output_functions_processed]
+#			print "expected_functions[expected_functions_processed]=%s\n" % expected_functions[expected_functions_processed]
 			if actual_functions[output_functions_processed].count(expected_functions[expected_functions_processed]) > 0:
-				print "output_function_counter=%d\n" % output_function_counter
-				print "expected_functions_counter=%d\n" % expected_functions_counter
+#				print "output_function_counter=%d\n" % output_function_counter
+#				print "expected_functions_counter=%d\n" % expected_functions_counter
 				matched_functions_count += 1
-				print "matched_functions_count=%d\n" % matched_functions_count
+#				print "matched_functions_count=%d\n" % matched_functions_count
 			output_functions_processed += 1
-			print "output_functions_processed=%d\n" % output_functions_processed
+#			print "output_functions_processed=%d\n" % output_functions_processed
 		expected_functions_processed += 1
-		print "expected_functions_processed=%d\n" % expected_functions_processed
+#		print "expected_functions_processed=%d\n" % expected_functions_processed
 	
-	print "have_non_zero_counts=%d\n" % have_non_zero_counts
+#	print "have_non_zero_counts=%d\n" % have_non_zero_counts
         if (matched_functions_count >= expected_functions_counter) and (have_non_zero_counts > 0):
 		failure_reason = 0
 	else:
