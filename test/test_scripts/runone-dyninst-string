@@ -64,13 +64,16 @@ def CompareResults(testName, fileptr):
 	expected_functions = []
 	expected_functions_counter = 0
 	outputfilename = testName + '.output'
+#	print " outputfilename:=%s\n" % outputfilename
 	expectedfilename = testName + '.expected'
+#	print " expectedfilename:=%s\n" % expectedfilename
 	outputfileptr = open(outputfilename, 'r')
 	expectedfileptr = open(expectedfilename, 'r')
 	expectedLineCount = 1
 	failure_reason = 0
 	matchedLines = 0	
 	expectedfileline = expectedfileptr.readline()
+#	print "1st - expectedfileline:=%s\n" % expectedfileline
 	if not expectedfileline:
 		failure_reason = 3
 		passing_ratio = 0
@@ -79,6 +82,7 @@ def CompareResults(testName, fileptr):
 		outputLineCount = 1
 		outputfileptr = open(outputfilename, 'r')
 		outputfileline = outputfileptr.readline()
+#		print "1st - outputfileline:=%s\n" % outputfileline
 		if not outputfileline:
 			break
 		while outputfileline:
@@ -89,22 +93,29 @@ def CompareResults(testName, fileptr):
 # For this loop - assume passing until proven unequal
 			passing_ratio = 1
 			while (expectedfileline[j] != '\n') and (outputfileline[j] != '\n'):
+#				print "outputfileline[j]=%s\n" % outputfileline[j]
+#				print "expectedfileline[j]=%s\n" % expectedfileline[j]
 				if expectedfileline[j] == outputfileline[j]:
 					j = j + 1
 				else:
 					passing_ratio = 0
 					failure_reason = 1
 					break
+#			print "passing_ratio=%d\n" % passing_ratio
 			if (passing_ratio == 1): 
 				matchedLines = matchedLines + 1	
 				break 
 
-	
 			outputfileline = outputfileptr.readline()
 			outputLineCount = outputLineCount + 1
+#			print "outputfileline:=%s\n" % outputfileline
+#			print "outputLineCount:=%d\n" % outputLineCount
+
 # Read next expected file line, if any
 		expectedfileline = expectedfileptr.readline()
 		if expectedfileline: expectedLineCount = expectedLineCount + 1
+#		print "expectedfileline=%s\n" % expectedfileline
+#		print "expectedLineCount=%d\n" % expectedLineCount
 	
 	if (matchedLines == expectedLineCount):
 		fileptr.write(testName + ' has PASSED \n')
