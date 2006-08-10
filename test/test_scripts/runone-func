@@ -1,0 +1,223 @@
+#!/usr/bin/env python
+#
+#Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+#
+
+from sys import *
+import sys
+import os
+from time import *
+from string import *
+from array import *
+from threading import *
+#from datetime import *
+
+def too_long():
+	os.system('killall -s 9 openss mutatee nbody')
+
+def createTestList():	
+	checktemptestlist = os.system('test -e temptestlist')
+	if checktemptestlist == 0:
+        	os.system('rm -f temptestlist')
+	os.system('ls -1 *.tst >> temptestlist')
+def runTest(testName):
+	checkinput = os.system('test -e input.script')
+	if checkinput == 0:
+		os.system('rm -f input.script')
+	#test_input = open(testName, 'r')
+	#testCommand = test_input.readline(
+	#linesToCompare = test_input.readline()
+	#test_input.close()
+	t = Timer(1000, too_long)
+	t.start()
+	os.system('./'+testName+ '>> '+ testName+'.output')
+	t.cancel()
+def iterateThroughTestList(fileptr):
+	con_input = open('temptestlist', 'r')
+        while 1:
+                config_line = con_input.readline()
+                if not config_line:
+                        break
+                test_name = config_line
+		i = 0
+	        while 1:
+                	if test_name[i] == '.':
+                        	break
+                	else:
+                        	i += 1
+        	testName = test_name[0:i+4]
+		runTest(testName)
+		CompareResults(testName, fileptr)
+	con_input.close()
+def CompareResults(testName, fileptr):
+	expected_functions = [] 
+	actual_functions = [] 
+	expected_functions_processed = 0
+	output_functions_processed = 0
+	expected_functions_counter = 0
+	outputfilename = testName + '.output'
+	expectedfilename = testName + '.expected'
+	outputfileptr = open(outputfilename, 'r')
+	expectedfileptr = open(expectedfilename, 'r')
+	nooutput = 0
+	failure_reason = 3
+        if testName[0:7] == 'restore':
+                while 1:
+                        tempfileline = outputfileptr.readline()
+                        if not tempfileline:
+                                failure_reason = 3
+                                break
+                        if tempfileline[0:12] == 'The restored':
+                                nooutput = 0
+                                outputfileptr.readline()
+                                break
+	while 1:
+		expectedfileline = expectedfileptr.readline()
+		if not expectedfileline:
+			break
+		k = 0
+		while expectedfileline[k] != '(' and expectedfileline[k] !=' ':
+			k +=1
+		expected_functions.append(expectedfileline[0:k])
+#                print "expectedfileline[0:k]=%s\n" % expectedfileline[0:k]
+		expected_functions_counter += 1
+		
+      	while 1:
+		tempfileline = outputfileptr.readline()
+
+		if not tempfileline:
+			nooutput = 1
+			break
+#                print "tempfileline:=%s\n" % tempfileline
+#                print "tempfileline[0:5]:=%s\n" % tempfileline[0:5]
+#                print "tempfileline[3:5]:=%s\n" % tempfileline[3:5]
+
+                if not tempfileline:
+                        nooutput = 1
+                        break
+                if tempfileline[2:5] == 'Exc':
+#                        print "found Exc: tempfileline[2:5]:=%s\n" % tempfileline[2:5]
+                        # skip Time phrase line
+                        outputfileline = outputfileptr.readline()
+#                        print "outputfileline:=%s\n" % outputfileline
+                        break
+                if tempfileline[2:4] == 'Exc':
+#                        print "found Exc: tempfileline[2:4]:=%s\n" % tempfileline[2:4]
+                        break
+                if tempfileline[0:9] == '      Exc':
+#                        print "found Exc: tempfileline[0:9]:=%s\n" % tempfileline[0:9]
+                        break
+
+	failure_reason = 0
+	output_function_counter = 0
+	while 1:
+		if (nooutput == 1):
+			failure_reason = 3
+			passing_ratio = 0
+			break
+		outputfileline = outputfileptr.readline()
+		if not outputfileline:
+			break
+		i = 0
+		while outputfileline[i] == ' ':
+			i +=1
+		j = i
+		while (outputfileline[j] != ' '):
+			j +=1
+		actual_inclusive_time = atof(outputfileline[i:j])
+#		print "actual_inclusive_time=%f\n" % actual_inclusive_time
+		i = j+1	
+		while outputfileline[i]==' ':
+			i +=1
+		j = i
+		while (outputfileline[j] != ' '):
+			j +=1
+		actual_inclusive_time = atof(outputfileline[i:j])
+#		print "actual_inclusive_time=%f\n" % actual_inclusive_time
+		i = j+1	
+		while outputfileline[i]==' ':
+			i +=1
+		j = i
+		while (outputfileline[j]!='') and (outputfileline[j]!=' ') and (outputfileline[j]!= '(' ):
+			j +=1
+#		actual_function = outputfileline[i:j]
+		actual_functions.append(outputfileline[i:j])
+#		print "actual_function[i:j]=%s\n" % outputfileline[i:j]
+#		expected_functions.count(actual_function) += 1
+		output_function_counter += 1
+#		print "output_function_counter=%d\n" % output_function_counter
+#		print "expected_functions_counter=%d\n" % expected_functions_counter
+#	if output_function_counter != expected_functions_counter:
+#		failure_reason = 2
+	if output_function_counter == 0:
+		failure_reason = 2
+	if expected_functions_counter == 0:
+		failure_reason = 2
+#       Now loop through the functions looking for matches in expected and output functions
+	expected_functions_processed = 0
+	matched_functions_count = 0
+	while expected_functions_processed < expected_functions_counter:
+		output_functions_processed = 0
+		while output_functions_processed < output_function_counter:
+#			print "actual_functions[output_functions_processed]=%s\n" % actual_functions[output_functions_processed]
+#			print "expected_functions[expected_functions_processed]=%s\n" % expected_functions[expected_functions_processed]
+			if actual_functions[output_functions_processed].count(expected_functions[expected_functions_processed]) > 0:
+#				print "output_function_counter=%d\n" % output_function_counter
+#				print "expected_functions_counter=%d\n" % expected_functions_counter
+				matched_functions_count += 1
+#				print "matched_functions_count=%d\n" % matched_functions_count
+			output_functions_processed += 1
+#			print "output_functions_processed=%d\n" % output_functions_processed
+		expected_functions_processed += 1
+#		print "expected_functions_processed=%d\n" % expected_functions_processed
+	
+        if matched_functions_count >= expected_functions_counter:
+		failure_reason = 0
+	else:
+		failure_reason = 2
+#
+        fileptr.write('The test run from: ')
+        fileptr.write(os.getcwd())
+        fileptr.write('\n')
+        fileptr.write('has the following result: ')
+
+	if (failure_reason == 0 ):
+                print testName + ' has PASSED. \n'
+		fileptr.write(testName + ' has PASSED.\n ')
+	else:
+                print testName + ' has FAILED. \n'
+		fileptr.write(testName + ' has FAILED. ')
+
+		if (failure_reason == 3):
+			fileptr.write('Looks like openss crashed. \n')
+		if (failure_reason == 2):
+			fileptr.write('Some of the expected functions are missing. \n')
+        fileptr.write('*******************************************************')
+        fileptr.write('\n')
+
+if __name__ == '__main__':
+	checkoutput = os.system('test -e *.output')
+        if checkoutput == 0:
+                os.system('rm -f *.output')
+	currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
+        resultsFile =  'testresults_' + currTime
+        resultfileptr = open(resultsFile, 'w')
+	tempfileptr = open('testresultsfilename', 'w')
+	tempfileptr.write(resultsFile)
+	createTestList()
+	iterateThroughTestList(resultfileptr)
+
