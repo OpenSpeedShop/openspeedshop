@@ -1,0 +1,5 @@
+The expected output file contains
+substrings that are supposed to appear in
+the output file.   The () ending the substring
+is used to terminate the expected function name.
+
