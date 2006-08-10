@@ -1,14 +1,3 @@
-The new focused experiment identifier is:  -x 1
-DOUBLE DIVIDE BY ZERO, 1.0/0.0
-INTEGER DIVIDE BY ZERO, ULONG_MAX/0.0
-OVERFLOW on DBL_MAX+DBL_MAX
-UNDERFLOW on DBL_MIN/2
-UNDERFLOW on DBL_MIN/DBL_MAX
-Start asynchronous execution of experiment:  -x 1
-Experiment 1 has terminated.
-
- Exclusive Fpe Event   Inclusive Fpe Event     % of Total Counts  Function (defining location)
-              Counts                Counts
-                  18                    18              100.0000  main (fpetest: fpetest.c,5)
-                   0                    18                0.0000  __libc_start_main (libc.so.6)
-                   0                    18                0.0000  _start (fpetest)
+main(fpetest: fpetest.c,5)
+_libc_start_main(libc.so.6)
+_start(fpetest)
