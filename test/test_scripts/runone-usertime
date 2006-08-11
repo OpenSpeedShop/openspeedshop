@@ -69,6 +69,14 @@ def iterateThroughTestList(fileptr):
         con_input.close()
 
 def CompareResults(testName, fileptr):
+        expected_functions = []
+        actual_functions = []
+        expected_include_time = []
+        actual_include_time = []
+        expected_functions_processed = 0
+        actual_functions_processed = 0
+        expected_functions_counter = 0
+        actual_functions_counter = 0
 	outputfilename = testName + '.output'
 	expectedfilename = testName + '.expected'
 	outputfileptr = open(outputfilename, 'r')
@@ -90,7 +98,17 @@ def CompareResults(testName, fileptr):
 		if not tempfileline:
 			nooutput = 1	
 			break
+#		print "tempfileline[0:9]=%s\n" % tempfileline[0:9]
+#		print "tempfileline[3:6]=%s\n" % tempfileline[3:6]
+#		print "tempfileline[6:9]=%s\n" % tempfileline[6:9]
 		if tempfileline[0:9] == '      Exc' or tempfileline[0:9] == '      Inc':
+#			print "match - tempfileline[0:9]=%s\n" % tempfileline[0:9]
+			break
+		if tempfileline[3:6] == 'Exc' or tempfileline[3:6] == 'Inc':
+#			print "match - tempfileline[3:6]=%s\n" % tempfileline[3:6]
+			break
+		if tempfileline[6:9] == 'Exc' or tempfileline[6:9] == 'Inc':
+#			print "match - tempfileline[6:9]=%s\n" % tempfileline[6:9]
 			break
 	expectedfileptr.readline()
 	test_status = 0
@@ -117,28 +135,41 @@ def CompareResults(testName, fileptr):
 		j = i
 		while (outputfileline[j] != ' '):
 			j +=1
+#		print "at actual_inclusive_time, outputfileline[i:j]=%s\n" % outputfileline[i:j]
 		actual_inclusive_time = atof(outputfileline[i:j])
+        	actual_include_time.append(atof(outputfileline[i:j]))
 		i = j+1
 		while outputfileline[i]==' ':
 			i +=1
 		j = i
 		while (outputfileline[j] != '\n') and (outputfileline[j] != ' ') and (outputfileline[j] != '(' ):
 			j +=1
+#		print "at actual_function, outputfileline[i:j]=%s\n" % outputfileline[i:j]
 		actual_function = outputfileline[i:j]
+		actual_functions.append(outputfileline[i:j])
+                actual_functions_counter += 1
 		i = 0
                 while expectedfileline[i] == ' ':
                         i +=1
                 j = i
-		while (outputfileline[j] != ' '):
+# was		while (outputfileline[j] != ' '):
+		while (expectedfileline[j] != ' '):
                         j +=1
+#		print "at expected_inclusive_time, expectedfileline[i:j]=%s\n" % expectedfileline[i:j]
                 expected_inclusive_time = atof(expectedfileline[i:j])
+        	expected_include_time.append(atof(expectedfileline[i:j]))
                 i = j+1
                 while expectedfileline[i]==' ':
                         i +=1
                 j = i
                 while (expectedfileline[j] != '\n') and (expectedfileline[j] != ' ') and (expectedfileline[j] != '('):
                         j +=1
+#		print "at expected_function, expectedfileline[i:j]=%s\n" % expectedfileline[i:j]
+#		print "at expected_function, actual_function=%s\n" % actual_function
                 expected_function = expectedfileline[i:j]
+		expected_functions.append(expectedfileline[i:j])
+                expected_functions_counter += 1
+#		print "at expected_function, expected_function=%s\n" % expected_function
 		if (expected_function == actual_function):
 			if ( previous_inclusive_expected != 0 and previous_inclusive_actual != 0 ):
                                 actual_inclusive_ratio = previous_inclusive_actual / actual_inclusive_time
@@ -153,6 +184,64 @@ def CompareResults(testName, fileptr):
 				failure_reason = 2
 		previous_inclusive_actual = actual_inclusive_time
 		previous_inclusive_expected = expected_inclusive_time
+#       Now loop through the functions looking for matches in expected and actual functions
+	while expected_functions_processed < expected_functions_counter:
+#		print "base_find,expected_functions[expected_functions_processed]=%s\n" % expected_functions[expected_functions_processed]
+#		print "base_find,expected_include_time[expected_functions_processed]=%f\n" % expected_include_time[expected_functions_processed]
+		if expected_include_time[expected_functions_processed] == 1.0:
+			base_index = expected_functions_processed
+#	                print "base_find,base_index=%d\n" % base_index
+			base_actual_inclusive_time = actual_include_time[base_index] 
+#	                print "base_find,base_actual_inclusive_time=%f\n" % base_actual_inclusive_time
+			break
+		expected_functions_processed += 1
+
+#       Now loop through the functions looking for matches in expected and actual functions
+        expected_functions_processed = 0
+        matched_functions_count = 0
+#	print "after base_find,failure_reason=%d\n" % failure_reason
+	failure_reason = 0
+        while (expected_functions_processed < expected_functions_counter) and (failure_reason == 0):
+                actual_functions_processed = 0
+		while actual_functions_processed < actual_functions_counter:
+#			print "actual_functions[actual_functions_processed]=%s\n" % actual_functions[actual_functions_processed]
+#			print "actual_include_time[actual_functions_processed]=%f\n" % actual_include_time[actual_functions_processed]
+#			print "expected_functions[expected_functions_processed]=%s\n" % expected_functions[expected_functions_processed]
+#			print "expected_include_time[actual_functions_processed]=%f\n" % expected_include_time[actual_functions_processed]
+			if actual_functions[actual_functions_processed].count(expected_functions[expected_functions_processed]) > 0:
+#				print "actual_functions_counter=%d\n" % actual_functions_counter
+#				print "expected_functions_counter=%d\n" % expected_functions_counter
+				matched_functions_count += 1
+#				print "matched_functions_count=%d\n" % matched_functions_count
+#                               This is the actual value of the 1.0 "base" function, for example f1 in most test cases
+#                               has a expected ratio value of 1.0.  So, the actual value corresponding to 1.0 is known
+#                               as the base_actual_inclusive_time.  It is used to multiply against the other functions
+#				expected ratio values to come up with the expected value ratio.   This can be compared
+#				against the actuals to see if openss is working correctly.  They should be within 25%
+#				of the expected ratios.
+				expected_adjusted_value = base_actual_inclusive_time * expected_include_time[expected_functions_processed]
+				actual_adjusted_value = actual_include_time[actual_functions_processed] 
+                                upper_limit = expected_adjusted_value + (expected_adjusted_value * .25)
+                                lower_limit = expected_adjusted_value - (expected_adjusted_value * .25)
+#				print "upper_limit=%f\n" % upper_limit
+#				print "lower_limit=%f\n" % lower_limit
+#				print "actual_adjusted_value=%f\n" % actual_adjusted_value
+                                if not (lower_limit <= actual_adjusted_value <= upper_limit):
+                                        inclusive_passing_ratio = 0
+                                        failure_reason = 4
+#					print "failure_reason=%d\n" % failure_reason
+			                print "RATIO FAILURE function name=%s\n" % actual_functions[actual_functions_processed]
+					print "RATIO FAILURE ratio adjusted upper limit=%f\n" % upper_limit
+					print "RATIO FAILURE actual sampling time=%f\n" % actual_adjusted_value
+					print "RATIO FAILURE ratio adjusted lower limit=%f\n" % lower_limit
+					break
+			actual_functions_processed += 1
+#			print "actual_functions_processed=%d\n" % actual_functions_processed
+		expected_functions_processed += 1
+#		print "expected_functions_processed=%d\n" % expected_functions_processed
+
+#	print "matched_functions_count=%d\n" % matched_functions_count
+
         fileptr.write('The test run from: ')
         fileptr.write(os.getcwd())
         fileptr.write('\n')
