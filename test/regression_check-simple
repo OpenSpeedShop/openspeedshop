@@ -142,6 +142,38 @@ cat $HOMEDIR/src/regression/io/io1/io1.tst.expected  >> $HOMEDIR/regression_resu
 echo "IO1 Test Script: " >> $HOMEDIR/regression_results-simple-details
 cat $HOMEDIR/src/regression/io/io1/input.script >> $HOMEDIR/regression_results-simple-details
 # 
+#
+# Space separate output
+#
+echo " " >> $HOMEDIR/regression_results-simple-details
+echo " " >> $HOMEDIR/regression_results-simple-details
+echo " " >> $HOMEDIR/regression_results-simple-details
+#
+# RUN FPE TEST
+#
+cd $HOMEDIR/src/regression/fpe/fpe1
+rm -f testresults*
+./runall
+grep FAIL testresults_* >> $HOMEDIR/regression_results-simple
+grep PASS testresults_* >> $HOMEDIR/regression_results-simple
+cat testresults_* >> $HOMEDIR/regression_results-simple-details
+#
+echo " " >> $HOMEDIR/regression_results-simple-details
+echo "FPE1 TEST OUTPUT: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/fpe/fpe1/fpe1.tst.output  >> $HOMEDIR/regression_results-simple-details
+#
+echo "FPE1 TEST EXPECTED RESULTS: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/fpe/fpe1/fpe1.tst.expected  >> $HOMEDIR/regression_results-simple-details
+# 
+echo "FPE1 Test Script: " >> $HOMEDIR/regression_results-simple-details
+cat $HOMEDIR/src/regression/fpe/fpe1/input.script >> $HOMEDIR/regression_results-simple-details
+# 
+# 
+# 
+# 
+# 
+# FINISH TEST OUTPUT
+#
 cat  $HOMEDIR/regression_results-simple-details >> $HOMEDIR/regression_results-simple
 echo " " >> $HOMEDIR/regression_results-simple-details
 
