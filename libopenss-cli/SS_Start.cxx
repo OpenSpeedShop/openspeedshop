@@ -143,7 +143,7 @@ extern "C" void initPY_Input ();
 static void
 Initial_Python ()
 {
-    const char* preparser_filename = "SS_Preparse.py";
+    const char* initialization_filename = "init.py";
 
     // Insure the libltdl user-defined library search path has been set
     Assert(lt_dlgetsearchpath() != NULL);
@@ -160,7 +160,7 @@ Initial_Python ()
 	    path.substr(i, (next == std::string::npos) ? next : next - i);
 	
 	// Assemble the candidate and check if it is a file
-	Path candidate = directory + Path(preparser_filename);
+	Path candidate = directory + Path(initialization_filename);
 	if(candidate.isFile()) {
 	    
 	    // Initialize Python
@@ -168,12 +168,6 @@ Initial_Python ()
 	    
 	    // Load the Py_Input module into Python
 	    initPY_Input();
-
-	    // Load the preparser into Python
-	    FILE* fp = fopen(candidate.c_str(), "r");
-	    Assert(fp != NULL);
-	    PyRun_SimpleFile(fp, preparser_filename);
-	    Assert(fclose(fp) == 0);
 
             // Initialize the port used by the DPCL daemons
             std::string dpcl_port = "DpcldListenerPort = '" + 
@@ -190,14 +184,11 @@ Initial_Python ()
 	    PyRun_SimpleString((std::string("OpenssInstallDir = '") +
 				install_dir + std::string("'")).c_str());
 
-	    // Load the site-specific Python startup file (if it exists)
-	    Path site_specific = directory + Path("site.py");
-	    if(site_specific.isFile()) {
-		FILE* fp = fopen(site_specific.c_str(), "r");
-		Assert(fp != NULL);
-		PyRun_SimpleFile(fp, "site.py");
-		Assert(fclose(fp) == 0);
-	    }
+	    // Load the initialization file into Python
+	    FILE* fp = fopen(candidate.c_str(), "r");
+	    Assert(fp != NULL);
+	    PyRun_SimpleFile(fp, candidate.getBaseName().c_str());
+	    Assert(fclose(fp) == 0);
 
 	    // Return successfully to the caller
 	    return;
@@ -205,8 +196,8 @@ Initial_Python ()
 	}	
     }
 
-    // Failed to find the preparser if we get this far
-    std::cerr << "Unable to locate \"" << preparser_filename
+    // Failed to find the initialization file if we get this far
+    std::cerr << "Unable to locate \"" << initialization_filename
 	      << "\" necessary to initialize python." << std::endl;
     exit(EXIT_FAILURE);
 }

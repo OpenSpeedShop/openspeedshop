@@ -16,7 +16,6 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-#BUILT_SOURCES = SS_Preparse.py
 BUILT_SOURCES = \
 	SS_Parse_Lex.cxx \
 	SS_Parse_Yacc.cxx \
@@ -27,8 +26,7 @@ AM_YFLAGS = -d
 YFLAGS = -d
 
 dist_pkglib_SCRIPTS = \
-	SS_Preparse.py \
-	site.py
+	init.py
 
 lib_LTLIBRARIES = libopenss-cli.la
 
