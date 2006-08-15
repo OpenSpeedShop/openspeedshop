@@ -1,8 +1,0 @@
- Inclusive Overflows  Function Name
-         60000000000  __libc_start_main(libc.so.6.1)
-         60000000000  _start(mutatee)
-         60000000000  work(mutatee: mutatee.c,33)
-         60000000000  main(mutatee: mutatee.c,43)
-         30000000000  f3(mutatee: mutatee.c,25)
-         20000000000  f2(mutatee: mutatee.c,16)
-         10000000000  f1(mutatee: mutatee.c,7)
