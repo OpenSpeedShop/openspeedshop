@@ -1,3 +1,0 @@
-PMPI_Waitall(libmpi.so)
-PMPI_Isend(libmpi.so)
-PMPI_Irecv(libmpi.so)
