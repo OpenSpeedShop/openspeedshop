@@ -108,6 +108,15 @@ def CompareResults(testName, fileptr):
 		if not expectedfileline:
 			break
 		outputfileline = outputfileptr.readline()
+#		print "outputfileline[13:27]=%s\n" % outputfileline[13:27]
+                if outputfileline[13:27] == 'has terminated':
+			failure_reason = 3
+                        passing_ratio = 0
+                        break
+                if outputfileline[14:28] == 'has terminated':
+			failure_reason = 3
+                        passing_ratio = 0
+                        break
 		if not outputfileline:
 			failure_reason = 3
 			passing_ratio = 0
