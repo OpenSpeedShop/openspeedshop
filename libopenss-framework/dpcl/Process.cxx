@@ -951,6 +951,15 @@ void Process::stopAtEntryOrExit(const Thread& thread,
     // Get the thread identifier of the specified thread
     std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
 
+    // Note: The following code to insure MPI breakpoints are always process-
+    //       wide and the getpid() conditional around the instrumentation are
+    //       both hacks. They insure that stops for MPIR_Breakpoint are hit
+    //       correctly on LLNL's SLURM based MPICH implementation.
+
+    // Insure stops for MPIR_Breakpoint are always process-wide
+    if(where == "MPIR_Breakpoint")
+        tid.first = false;
+
     // Get the unique name of this thread (or the process containing it)
     std::string name = !tid.first ? 
 	formUniqueName(dm_host, dm_pid) :
@@ -974,11 +983,20 @@ void Process::stopAtEntryOrExit(const Thread& thread,
     if(where_srcobj.src_type() != SOT_function)
 	return;
 
+    // Find the getpid() function
+    SourceObj getpid_func = findFunction("getpid");
+
+    // Go no further if getpid() could not be found
+    if(getpid_func.src_type() != SOT_function)
+        return;
+
     //
     // Create a probe expression for the code sequence:
     //
-    //     Ais_send(Ais_msg_handle, "", 1)
-    //     BREAKPOINT;
+    //     if(getpid() == pid) {
+    //         Ais_send(Ais_msg_handle, "", 1)
+    //         BREAKPOINT;
+    //     }
     //
 
     ProbeExp args_exp[3] = {
@@ -986,9 +1004,11 @@ void Process::stopAtEntryOrExit(const Thread& thread,
 	ProbeExp(""),
 	ProbeExp(1)
     };
-    
-    ProbeExp expression = 
-	Ais_send.call(3, args_exp).sequence(ProbeExp::breakpoint());
+
+    ProbeExp expression =
+        (getpid_func.reference().call(0, NULL) == ProbeExp(dm_pid)).ifelse(
+            Ais_send.call(3, args_exp).sequence(ProbeExp::breakpoint())
+            );
 
     // Allocate a copy of our unique name
     std::string* name_copy = new std::string(name);
