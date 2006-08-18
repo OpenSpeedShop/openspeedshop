@@ -212,6 +212,91 @@ AC_DEFUN([AC_PKG_MPICH], [
 
 
 ################################################################################
+# Check for MPICH2 (http://www-unix.mcs.anl.gov/mpi/mpich2)
+################################################################################
+
+AC_DEFUN([AC_PKG_MPICH2], [
+
+    AC_ARG_WITH(mpich2,
+		AC_HELP_STRING([--with-mpich2=DIR],
+			       [MPICH2 installation @<:@/usr/local@:>@]),
+		mpich2_dir=$withval, mpich2_dir="/usr/local")
+
+#    AC_ARG_WITH(mpich2-driver,
+#		AC_HELP_STRING([--with-mpich2-driver=NAME],
+#			       [MPICH2 driver name @<:@ch-p4@:>@]),
+#		mpich2_driver=$withval, mpich2_driver="")
+
+    AC_MSG_CHECKING([for MPICH2 library and headers])
+
+    found_mpich2=0
+
+    # Put -shlib into MPICH2_CC, since it is needed when building the
+    # tests, where $MPICH2_CC is used, and is not needed when building
+    # the MPI-related plugins, where $MPICH2_CC is not used.
+    MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
+    MPICH2_CPPFLAGS="-I$mpich2_dir/include"
+    MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+    MPICH2_LIBS="-lmpich"
+    MPICH2_HEADER="$mpich2_dir/include/mpi.h"
+    MPICH2_DIR="$mpich2_dir"
+
+    # On the systems "mcr" and "thunder" at LLNL they have an MPICH variant
+    # that has things moved around a bit. Handle this by allowing a "llnl"
+    # pseudo-driver that makes the necessary configuration changes.
+    if test x"$mpich2_driver" == x"llnl"; then
+	MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
+        MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+    fi
+
+    mpich2_saved_CC=$CC
+    mpich2_saved_CPPFLAGS=$CPPFLAGS
+    mpich2_saved_LDFLAGS=$LDFLAGS
+
+    CC="$MPICH2_CC"
+    CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+	#include <mpi.h>
+	]], [[
+	MPI_Initialized((int*)0);
+	]]),
+
+	found_mpich2=1
+
+	, )
+
+    CC=$mpich2_saved_CC
+    CPPFLAGS=$mpich2_saved_CPPFLAGS
+    LDFLAGS=$mpich2_saved_LDFLAGS
+
+    if test $found_mpich2 -eq 1; then
+	AC_MSG_RESULT(yes)
+	AM_CONDITIONAL(HAVE_MPICH2, true)
+	AC_DEFINE(HAVE_MPICH2, 1, [Define to 1 if you have MPICH.])	
+    else
+	AC_MSG_RESULT(no)
+	AM_CONDITIONAL(HAVE_MPICH2, false)
+	MPICH2_CC=""
+	MPICH2_CPPFLAGS=""
+	MPICH2_LDFLAGS=""
+	MPICH2_LIBS=""
+	MPICH2_HEADER=""
+	MPICH2_DIR=""
+    fi
+
+    AC_SUBST(MPICH2_CC)
+    AC_SUBST(MPICH2_CPPFLAGS)
+    AC_SUBST(MPICH2_LDFLAGS)
+    AC_SUBST(MPICH2_LIBS)
+    AC_SUBST(MPICH2_HEADER)
+    AC_SUBST(MPICH2_DIR)
+
+])
+
+
+################################################################################
 # Check for MPT (http://www.sgi.com/products/software/mpt)
 ################################################################################
 
@@ -363,6 +448,7 @@ AC_DEFUN([AC_PKG_MPI], [
 
     AC_PKG_LAMPI()
     AC_PKG_MPICH()
+    AC_PKG_MPICH2()
     AC_PKG_MPT()
     AC_PKG_OPENMPI()
 
@@ -381,6 +467,10 @@ AC_DEFUN([AC_PKG_MPI], [
     if test x"$LAMPI_LIBS" != x""; then
 	default_mpi=LAMPI;    default_mpi_name=lampi
 	all_mpi_names=" lampi $all_mpi_names"
+    fi
+    if test x"$MPICH2_LIBS" != x""; then
+	default_mpi=MPICH2;    default_mpi_name=mpich2
+	all_mpi_names=" mpich2 $all_mpi_names"
     fi
     if test x"$MPICH_LIBS" != x""; then
 	default_mpi=MPICH;    default_mpi_name=mpich

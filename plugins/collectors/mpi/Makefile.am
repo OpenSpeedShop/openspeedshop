@@ -35,6 +35,9 @@ endif
 if HAVE_MPICH
 pkglib_LTLIBRARIES += mpi-rt-mpich.la
 endif
+if HAVE_MPICH2
+pkglib_LTLIBRARIES += mpi-rt-mpich2.la
+endif
 if HAVE_MPT
 pkglib_LTLIBRARIES += mpi-rt-mpt.la
 endif
@@ -175,6 +178,14 @@ mpi_rt_mpich_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_mpich_la_SOURCES = $(wrapper_sources)
 endif
 
+if HAVE_MPICH2
+mpi_rt_mpich2_la_CFLAGS = $(call rt_CFLAGS_generate,@MPICH2_CPPFLAGS@)
+mpi_rt_mpich2_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPICH2_LDFLAGS@)
+mpi_rt_mpich2_la_LIBADD = $(call rt_LIBADD_generate,@MPICH2_LIBS@)
+mpi_rt_mpich2_la_DEPENDENCIES =
+mpi_rt_mpich2_la_SOURCES = $(rt_sources)
+nodist_mpi_rt_mpich2_la_SOURCES = $(wrapper_sources)
+endif
 
 
 if HAVE_MPT
@@ -186,8 +197,6 @@ mpi_rt_mpt_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_mpt_la_SOURCES = $(wrapper_sources)
 endif
 
-
-
 if HAVE_OPENMPI
 mpi_rt_openmpi_la_CFLAGS = $(call rt_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
 mpi_rt_openmpi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
@@ -196,7 +205,6 @@ mpi_rt_openmpi_la_DEPENDENCIES =
 mpi_rt_openmpi_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_openmpi_la_SOURCES = $(wrapper_sources)
 endif
-
 
 
 EXTRA_DIST = mkwrapper.template
