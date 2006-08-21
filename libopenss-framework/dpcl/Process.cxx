@@ -575,7 +575,8 @@ void Process::changeState(const Thread& thread, const Thread::State& state)
 void Process::executeNow(const Collector& collector, 
 			 const Thread& thread,
 			 const std::string& callee, 
-			 const Blob& argument)
+			 const Blob& argument,
+			 const bool& disableSaveFPR)
 {
     GuardWithDPCL guard_myself(this);
 
@@ -612,7 +613,11 @@ void Process::executeNow(const Collector& collector,
 
     ProbeExp args_exp[1] = { ProbeExp(argument.getStringEncoding().c_str()) };
     
-    ProbeExp expression = callee_entry.second.call(1, args_exp);
+    ProbeExp expression;
+    if (disableSaveFPR)
+        expression = callee_entry.second.call(1, args_exp).disableSaveFPR();
+    else
+        expression = callee_entry.second.call(1, args_exp);
     
     // Request the instrumentation be executed
     ProbeHandle handle;

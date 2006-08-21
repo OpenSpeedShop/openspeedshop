@@ -176,9 +176,10 @@ void CollectorImpl::getECT(const Collector& collector,
 void CollectorImpl::executeNow(const Collector& collector,
 			       const Thread& thread,
 			       const std::string& callee,
-			       const Blob& argument) const
+			       const Blob& argument,
+			       const bool& disabelSaveFPR) const
 {
-    Instrumentor::executeNow(thread, collector, callee, argument);
+    Instrumentor::executeNow(thread, collector, callee, argument, disabelSaveFPR);
 }
 
 

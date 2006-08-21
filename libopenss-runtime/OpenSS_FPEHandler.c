@@ -127,7 +127,10 @@ static void fpeSignalHandler(int signal, siginfo_t* info, void* ptr)
    Or we can "or" them before calling this */
 void OpenSS_FPEHandler(const OpenSS_FPEType fpe_type,
 		       const OpenSS_FPEEventHandler handler)
-{
+{ 
+//  fprintf(stderr, "ENTERED OpenSS_FPEHandler\n");
+//  fflush(stderr);
+
 #ifdef WDH_PER_THREAD_TIMERS
 
     /* FIXME: How to handle fpe's for threads. */
@@ -173,4 +176,6 @@ void OpenSS_FPEHandler(const OpenSS_FPEType fpe_type,
     fpe_handler = handler;
 
 #endif
+//  fprintf(stderr, "EXIT OpenSS_FPEHandler\n");
+//  fflush(stderr);
 }

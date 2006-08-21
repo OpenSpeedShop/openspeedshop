@@ -88,7 +88,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void changeState(const Thread&, const Thread::State&);
 
 	void executeNow(const Collector&, const Thread&,
-			const std::string&, const Blob&);
+			const std::string&, const Blob&, const bool&);
 	void executeAtEntryOrExit(const Collector&, const Thread&,
 				  const std::string&, const bool&,
 				  const std::string&, const Blob&);

@@ -198,7 +198,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void getECT(const Collector&, const Thread&, int&, int&, int&) const;
 
 	void executeNow(const Collector&, const Thread&,
-			const std::string&, const Blob&) const;
+			const std::string&, const Blob&, const bool& disableSaveFPR = false) const;
 	void executeAtEntry(const Collector&, const Thread&, const std::string&,
 			    const std::string&, const Blob&) const;
 	void executeAtExit(const Collector&, const Thread&, const std::string&,

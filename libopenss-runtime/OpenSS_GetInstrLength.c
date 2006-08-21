@@ -42,6 +42,7 @@ static int init_done = 0;
    We do not need to print a disassembly.
 */
 static int dummyprint () {
+//    fprintf(stderr,"ENTERED libopenss-runtime:dummyprint\n");
     return 0;
 }
 
@@ -49,6 +50,7 @@ static int dummyprint () {
    FIXME: Invetigate removing this dependency.
 */
 static void initdisassembler() {
+//fprintf(stderr, "ENTERED initdisassembler\n");
   char myexepath[PATH_MAX];
   char *target = NULL;
 
@@ -89,6 +91,7 @@ static void initdisassembler() {
  */
 int OpenSS_GetInstrLength(uint64_t pcvalue)
 {
+//fprintf(stderr, "ENTERED OpenSS_GetInstrLength\n");
 #if defined(__linux) && (defined(__i386) || defined(__x86_64))
     
     disassemble_info   disinfo;
@@ -96,11 +99,13 @@ int OpenSS_GetInstrLength(uint64_t pcvalue)
 
     initdisassembler();
 
+//fprintf(stderr, "OpenSS_GetInstrLength CALLS INIT_DISASSEMBLE_INFO\n");
     INIT_DISASSEMBLE_INFO(disinfo, stdout, fprintf);
 
     disinfo.flavour = bfd_get_flavour (abfd);
     disinfo.arch = bfd_get_arch (abfd);
-    disinfo.mach = bfd_get_mach (abfd);
+    //disinfo.mach = bfd_get_mach (abfd);
+    disinfo.mach = bfd_mach_i386_i386;
     disinfo.octets_per_byte = bfd_octets_per_byte (abfd);
     if (bfd_big_endian (abfd))
       disinfo.display_endian = disinfo.endian = BFD_ENDIAN_BIG;
@@ -116,8 +121,11 @@ int OpenSS_GetInstrLength(uint64_t pcvalue)
     disinfo.buffer = ptr;
     disinfo.fprintf_func=(fprintf_ftype) dummyprint;
 
+//fprintf(stderr, "OpenSS_GetInstrLength CALLS print_insn_i386 with addr %#lx\n",pcvalue);
     int insbytes = print_insn_i386(pcvalue, &disinfo);
 
+//fprintf(stderr,"libopenss-runtime:OpenSS_GetInstrLength returns length %d\n",
+//	insbytes);
     return insbytes;
 
 #elif defined(__linux) && defined(__ia64)

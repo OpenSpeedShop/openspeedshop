@@ -235,7 +235,8 @@ void Instrumentor::changeState(const Thread& thread, const Thread::State& state)
 void Instrumentor::executeNow(const Thread& thread, 
 			      const Collector& collector,
 			      const std::string callee, 
-			      const Blob& argument)
+			      const Blob& argument,
+			      const bool& disableSaveFPR)
 {
     SmartPtr<Process> process;
 
@@ -260,7 +261,7 @@ void Instrumentor::executeNow(const Thread& thread,
     }
     
     // Request the library function be executed by the process
-    process->executeNow(collector, thread, callee, argument);
+    process->executeNow(collector, thread, callee, argument, disableSaveFPR);
 }
 
 

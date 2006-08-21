@@ -316,13 +316,13 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 	    binutils_required="true"
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
-	    BINUTILS_LIBS="-lbfd -liberty -lopcodes"
+	    BINUTILS_LIBS="-lopcodes -lbfd -liberty"
             ;;
 	*)
 	    binutils_required="true"
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
-	    BINUTILS_LIBS="-lbfd -liberty -lopcodes"
+	    BINUTILS_LIBS="-lopcodes -lbfd -liberty"
             ;;
     esac
 

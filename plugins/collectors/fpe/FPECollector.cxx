@@ -281,18 +281,18 @@ void FPECollector::startCollecting(const Collector& collector,
     // FIXME: This is a workaround since the call to feenableexcept
     // in fpe_enable_fpes does not seem to keep fpe trapping enabled.
     // So we can not attach this collector to a process at this time.
+#if 0
     executeAtEntry(collector, thread,
                    "main", "fpe-rt: fpe_enable_fpes", Blob());
+#endif
     
     // Execute fpe_start_tracing() in the thread
     executeNow(collector, thread,
-               "fpe-rt: fpe_start_tracing", arguments);
+               "fpe-rt: fpe_start_tracing", arguments, true);
 
-    // FIXME: this one shot call does not work. FPE trapping is not enabled.
-#if 0
+    // FPE trapping is enabled.
     executeNow(collector, thread,
-               "fpe-rt: fpe_enable_fpes", Blob());
-#endif
+               "fpe-rt: fpe_enable_fpes", Blob(), true);
 
 }
 
