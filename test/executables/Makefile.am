@@ -24,6 +24,7 @@ SUBDIRS = \
 	forever_cxx  \
 	fpe_print \
 	fpetest \
+	fpetest_attach \
 	fredO2 \
 	dlopen \
 	threads \
