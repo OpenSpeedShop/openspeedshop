@@ -34,6 +34,10 @@
  *       function" even though the size IS constant... Maybe this can be fixed?
  */
 
+/*  Produce debug output about the reason for the exception
+#define DEBUG 
+*/
+
 /** Maximum number of frames to allow in each stack trace. */
 #define MaxFramesPerStackTrace 64 /*64*/
 
@@ -57,7 +61,6 @@ static __thread struct {
     
 } tls;
 
-/* #define DEBUG */
 #ifdef DEBUG
 void fpe_print_cause(const OpenSS_FPEType fpetype)
 {
@@ -109,7 +112,7 @@ static void fpe_send_events()
  */
 void fpe_enable_fpes()
 {
-//fprintf(stderr,"ENTER fpe_enable_fpes\n");
+/* fprintf(stderr,"ENTER fpe_enable_fpes\n"); */
     feenableexcept(FE_ALL_EXCEPT);
 }
 
@@ -220,9 +223,12 @@ void fpe_record_event(const fpe_event* event, const ucontext_t* context)
  */
 static void fpeHandler(const OpenSS_FPEType fpetype, const ucontext_t* context)
 {
-//    fprintf(stderr,"ENTER fpeHandler\n");
+/*    fprintf(stderr,"ENTER fpeHandler\n"); */
 
-    fpe_print_cause(fpetype);
+#ifdef DEBUG
+     fpe_print_cause(fpetype); 
+#endif
+
     /* Initialize the event record. */
     fpe_event event;
     memset(&event, 0, sizeof(fpe_event));
@@ -264,8 +270,8 @@ static void fpeHandler(const OpenSS_FPEType fpetype, const ucontext_t* context)
     
     int instr_length = OpenSS_GetInstrLength(where);
 
-//    fprintf(stderr,"OpenSS_GetInstrLength(%#lx) returns %d\n",
-//	    where, instr_length);
+/*    fprintf(stderr,"OpenSS_GetInstrLength(%#lx) returns %d\n",
+	    where, instr_length); */
 #if defined(__linux) && defined(__ia64)
     /* for IA64 OpenSS_GetInstrLength returns the length of
        an instruction bundle. We need to determine the
@@ -294,7 +300,7 @@ static void fpeHandler(const OpenSS_FPEType fpetype, const ucontext_t* context)
  */
 void fpe_start_tracing(const char* arguments)
 {
-//fprintf(stderr,"ENTER fpe_start_tracing\n");
+/* fprintf(stderr,"ENTER fpe_start_tracing\n"); */
     fpe_start_tracing_args args;
 
     /* Decode the passed function arguments. */
@@ -327,7 +333,9 @@ void fpe_start_tracing(const char* arguments)
        to accept an OpenSS_FPEtype argument to allow user to select
        which FPE's to trap. For now we trap all FPE's.
     */
-//    fprintf(stderr,"fpe_start_tracing: calling OpenSS_FPEHandler\n");
+
+/*    fprintf(stderr,"fpe_start_tracing: calling OpenSS_FPEHandler\n"); */
+
     OpenSS_FPEHandler(AllFPE,fpeHandler);
 }
 
@@ -342,7 +350,7 @@ void fpe_start_tracing(const char* arguments)
  */
 void fpe_stop_tracing(const char* arguments)
 {
-//fprintf(stderr,"ENTER fpe_stop_tracing\n");
+/* fprintf(stderr,"ENTER fpe_stop_tracing\n"); */
     /* Send events if there are any remaining in the tracing buffer */
     if(tls.data.events.events_len > 0)
 	fpe_send_events();
