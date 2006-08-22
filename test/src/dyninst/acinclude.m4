@@ -35,7 +35,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
     DYNINST_DIR="$dyninst_dir"
     echo "host is $host"
 	case "$host" in
-        x86_64-*-linux* | ia64-*-linux* | x86_64-redhat-linux-gnu)
+        x86_64-*-linux* | x86_64-redhat-linux-gnu)
 		DYNINST_LDFLAGS="-L$dyninst_dir/lib64"
 		;;
 	*)
