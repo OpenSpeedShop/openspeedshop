@@ -219,8 +219,8 @@ AC_DEFUN([AC_PKG_MPICH2], [
 
     AC_ARG_WITH(mpich2,
 		AC_HELP_STRING([--with-mpich2=DIR],
-			       [MPICH2 installation @<:@/usr/local@:>@]),
-		mpich2_dir=$withval, mpich2_dir="/usr/local")
+			       [MPICH2 installation @<:@/opt/mpich2@:>@]),
+		mpich2_dir=$withval, mpich2_dir="/opt/mpich2")
 
 #    AC_ARG_WITH(mpich2-driver,
 #		AC_HELP_STRING([--with-mpich2-driver=NAME],
