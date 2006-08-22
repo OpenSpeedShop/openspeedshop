@@ -57,7 +57,7 @@ static __thread struct {
     
 } tls;
 
-#define DEBUG
+/* #define DEBUG */
 #ifdef DEBUG
 void fpe_print_cause(const OpenSS_FPEType fpetype)
 {
