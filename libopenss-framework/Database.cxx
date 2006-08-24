@@ -1590,9 +1590,9 @@ void Database::debugPerformanceStatistics()
 			   std::make_pair(i->second.first, i->first))
 	    );
 	    
-    // Display the statement performance data
+    // Display the statement performance statistics
 
-    std::cout << std::endl << std::endl << std::endl
+    std::cerr << std::endl << std::endl << std::endl
 	      << std::setw(InitialIndent) << " "
 	      << "SUMMARY OF SQL STATEMENT EXECUTION FOR \""
 	      << dm_name << "\"" << std::endl << std::endl
@@ -1607,7 +1607,7 @@ void Database::debugPerformanceStatistics()
 	    i = sorted.rbegin(); i != sorted.rend(); ++i) {
 	total += i->first;
 	
-	std::cout << std::setw(InitialIndent) << " "
+	std::cerr << std::setw(InitialIndent) << " "
 		  << std::setw(TimeWidth) << (i->first / 1000000) << " "
 		  << std::setw(CountWidth) << i->second.first << " ";
 	
@@ -1633,7 +1633,7 @@ void Database::debugPerformanceStatistics()
 		
 		// Insert a new line first
 		length = 0;
-		std::cout << std::endl << std::setw(StatementIndent) << " ";
+		std::cerr << std::endl << std::setw(StatementIndent) << " ";
 		
 		// Adjust the line size for this word (again)
 		length += word.size() + 1;
@@ -1641,15 +1641,15 @@ void Database::debugPerformanceStatistics()
 	    }
 	    
 	    // Output the word
-	    std::cout << " " << word;
+	    std::cerr << " " << word;
 	    
 	}
 	
-	std::cout << std::endl << std::endl;
+	std::cerr << std::endl << std::endl;
 	
     }
     
-    std::cout << std::setw(InitialIndent) << " "
+    std::cerr << std::setw(InitialIndent) << " "
 	      << std::setw(TimeWidth) << (total / 1000000) << " "
 	      << std::setw(CountWidth) << " " << "  "
 	      << "All Statements"
