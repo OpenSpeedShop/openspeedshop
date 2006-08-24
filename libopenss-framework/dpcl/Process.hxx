@@ -106,8 +106,6 @@ namespace OpenSpeedShop { namespace Framework {
     private:
 
 #ifndef NDEBUG	
-	struct StateEntry;
-
 	static bool is_debug_enabled;
 
 	/** Previous values returned by getState(). */
