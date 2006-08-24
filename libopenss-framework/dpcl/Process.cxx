@@ -3671,6 +3671,17 @@ void Process::requestDestroy(pthread_t tid)
     std::string* name = new std::string(formUniqueName(dm_host, dm_pid, tid));
     Assert(name != NULL);
 
+    // Note: When we request that Dyninst terminate a single thread it
+    //       currently terminates the entire process containing that thread.
+    //       All indications from the Dyninst folks are that per-thread
+    //       termination will be available in the future. For now simply
+    //       indicate the reality that the entire process is being destroyed.
+    {
+	delete name;
+	name = new std::string(formUniqueName(dm_host, dm_pid));
+	Assert(name != NULL);
+    }
+
     // Ask DPCL to asynchronously destroy to this process
     AisStatus retval = dm_process->destroy(destroyCallback, name, tid);
 #ifndef NDEBUG
@@ -4174,6 +4185,17 @@ void Process::requestResume(pthread_t tid)
     std::string* name = new std::string(formUniqueName(dm_host, dm_pid, tid));
     Assert(name != NULL);
 
+    // Note: When we request that Dyninst continue a single thread it
+    //       currently continues the entire process containing that thread.
+    //       All indications from the Dyninst folks are that per-thread
+    //       continuation will be available in the future. For now simply
+    //       indicate the reality that the entire process is resuming.
+    {
+	delete name;
+	name = new std::string(formUniqueName(dm_host, dm_pid));
+	Assert(name != NULL);
+    }
+
     // Ask DPCL to asynchronously resume this thread
     AisStatus retval = dm_process->resume(resumeCallback, name, tid);
 #ifndef NDEBUG
@@ -4273,7 +4295,18 @@ void Process::requestSuspend(pthread_t tid)
     std::string* name = new std::string(formUniqueName(dm_host, dm_pid, tid));
     Assert(name != NULL);
 
-    // Ask DPCL to asynchronously suspend this process
+    // Note: When we request that Dyninst stop a single thread it currently
+    //       stops the entire process containing that thread. All indications
+    //       from the Dyninst folks are that per-thread stops will be available
+    //       in the future. For now simply indicate the reality that the entire
+    //       process is suspending.
+    {
+	delete name;
+	name = new std::string(formUniqueName(dm_host, dm_pid));
+	Assert(name != NULL);
+    }
+
+    // Ask DPCL to asynchronously suspend this thread
     AisStatus retval = dm_process->suspend(suspendCallback, name, tid);
 #ifndef NDEBUG
     if(is_debug_enabled)
