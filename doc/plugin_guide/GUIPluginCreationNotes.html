@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>GUI-Plugin-Creation</title>
+</head>
+<body>
+<h4>Building and Installing an Open|SpeedShop GUI Panel</h4>
+<pre><br></pre>
+<h5>Prerequisites</h5>
+<pre><br>Files needed:<br>	TemplatePanel.cxx<br>	TemplatePanel.hxx<br>	local_plugin_info.hxx<br>	preference_plugin_info.hxx<br>	Makefile.am<br>Note: The required files are located in the &lt;oss_src_dir&gt;/plugins/panels/TemplatePanel.<br><br>Additional files needed:<br>	acinclude.m4<br>	configure.ac<br>Note: The required files are located in the &lt;oss_src_dir&gt;<br><br><br></pre>
+<h5>Source Modifications</h5>
+<pre><br>Rename TemplatePanel.cxx and TemplatePanel.hxx to reflect the name of your panel plugin.  For example, <br>we renamed ours ExamplePanel.cxx and ExamplePanel.hxx, respectively.<br><br>Now we need to modify our source to reflect the name changes:<br>Inside ExamplePanel.cxx and ExamplePanel.hxx, change all references to the class TemplatePanel to ExamplePanel.  <br>Inside ExamplePanel.cxx, change the name of the include file from TemplatePanel.hxx to ExamplePanel.hxx.  <br><br>Inside the local_plugin_info header file, define SHOW_IMMEDIATE to 1 for Open|SpeedShop to open <br>the plugin panel on startup.  Define SHOW_IMMEDIATE to 0 to keep the panel from loading on startup.  <br>Change TemplatePanel.so to ExamplePanel.so.<br><br><br></pre>
+<h5>Makefile.am Modifications </h5>
+<pre><br>As in the source files, replace all occurrences of TemplatePanel with ExamplePanel.  <br><br>Create and define two macros:<br>top_srcdir = &lt;oss_src_dir&gt;<br>top_libdir = &lt;oss_install_dir&gt;/lib<br><br>Add &acirc;&#8364;&#339;&acirc;&#8364;&#8220;L$(top_libdir)&acirc;&#8364;&#157; to the end of the ExamplePanel_la_LIBADD macro.<br><br>Add &acirc;&#8364;&#339;-lopenss-guichart&acirc;&#8364;&#157; to the end of the ExamplePanel_la_LDFLAGS macro.  <br><br>Note:  The libopenss-guichart linker option is required to build this particular example.  <br>Modifications to the source may require other libopenss linker options to be appended to <br>the ExamplePanel_la_LDFLAGS macro.  Linker errors will guide in this process.<br><br><br></pre>
+<h5>Configure.ac Modifications</h5>
+<pre><br>Inside configure.ac, locate macro AC_INIT and change the first parameter to ExamplePanel.  <br><br>Locate the AC_PROG_LEX macro and change it to AM_PROG_LEX.  <br><br>Remove all AC_CONFIG_FILES parameters except Makefile.<br><br><br></pre>
+<h5>Build Process</h5>
+<pre> <br>aclocal &acirc;&#8364;&#8220;I .<br>autoconf<br>autoheader<br>touch NEWS README AUTHORS ChangeLog<br>libtoolize --force<br>automake &acirc;&#8364;&#8220;a<br>./configure --prefix=/path/to/your/oss/plugin/directory<br>make<br>make install<br><br><br></pre>
+<h5>GUI Plugin Recognition</h5>
+<pre><br>Add &lt;/path/to/your/oss/plugin/directory&gt;/lib/examplepanel to your OPENSS_PLUGIN_PATH environment variable.<br>   <br> <br><br></pre>
+</body>
+</html>
