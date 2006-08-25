@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Plugin Creatin QuickStart Notes</title>
+</head>
+<body>
+<ul id="mozToc">
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId218870">Building
+and Installing an Open|SpeedShop Collector Plugin</a>
+    <ul>
+      <li>
+        <ul>
+          <li>
+            <ul>
+              <li><a href="#mozTocId602492">Source files needed:</a></li>
+              <li><a href="#mozTocId580710">GNU Autotools files needed:</a>
+                <ul>
+                  <li><a href="#mozTocId815167">Makefile.am</a></li>
+                  <li><a href="#mozTocId833056">configure.ac</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId538625">Naming issues to resolve in
+the source:</a></li>
+              <li><a href="#mozTocId801243">Creating the ./configure
+script.</a></li>
+              <li><a href="#mozTocId741469">Running the plugin from
+O|SS.</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<h3><a class="mozTocH3" name="mozTocId218870"></a>Building and
+Installing an Open|SpeedShop Collector Plugin<br>
+</h3>
+<pre>&lt;plugin name&gt; Refers to the name of the plugin in all lowercase<br>&lt;Plugin Name&gt; Refers to the name of the plugin in Pascal case <br>(ForExample: ThisIsHowYouPascalCase)<br><br></pre>
+<h4><a class="mozTocH4" name="mozTocId602492"></a>Source files needed:</h4>
+<pre><br>(from examples/libopenss-framework/collector in the O|SS source directory):<br>blobs.x<br>runtime.c<br>ExampleCollector.cxx<br>ExampleCollector.hxx<br><br></pre>
+<h4><a class="mozTocH4" name="mozTocId580710"></a>GNU Autotools files
+needed:</h4>
+<pre><br>(from examples/libopenss-framework/collector in the O|SS source directory):<br>Makefile.am<br><br>(from the O|SS root source directory):<br>configure.ac<br>acinclude.m4<br><br><br>Put all of these source and Autotools files into a single directory.  You may <br>also want to rename ExampleCollector.cxx and ExampleCollector.hxx to <br>&lt;Plugin Name&gt;Collector.cxx and &lt;Plugin Name&gt;Collector.hxx, respectively.  <br>If you do, be sure to modify the #include statement in <br>&lt;Plugin Name&gt;Collector.cxx to point to &lt;Plugin Name&gt;Collector.hxx <br>instead of ExampleCollector.hxx.  Also remember to modify the names <br>in the Makefile.am file as described below.<br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId815167"></a>Makefile.am<br>
+</h5>
+<pre>top_src_dir = &lt;O|SS Source Directory&gt;<br><br>pkglib_LTLIBRARIES = &lt;plugin name&gt;.la &lt;plugin name&gt;-rt.la<br><br>&lt;plugin name&gt;_la_CXXFLAGS = \<br>        -I$(top_src_dir)/libopenss-framework<br><br>&lt;plugin name&gt;_la_LDFLAGS = \<br>	-no-undefined -module -avoid-version<br><br>&lt;plugin name&gt;_la_SOURCES = \<br>	blobs.x $(BUILT_SOURCES) \<br>&lt;Plugin Name&gt;Collector.cxx blobs.c &lt;Plugin Name&gt;Collector.hxx<br><br>&lt;plugin name&gt;_rt_la_CFLAGS = \<br>        -I$(top_src_dir)/libopenss-runtime<br><br>&lt;plugin name&gt;_rt_la_LDFLAGS = \<br>        -L$(OPENSSDIR)/libopenss-runtime \<br>        -no-undefined -module -avoid-version<br><br>&lt;plugin name&gt;_rt_la_LIBADD = \<br>        -lopenss-runtime -lpthread -lrt<br><br>&lt;plugin name&gt;_rt_la_SOURCES = \<br>        blobs.x $( BUILT_SOURCES) \<br>        runtime.c<br><br>SUFFIXES = .x<br>CLEANFILES = $(BUILT_SOURCES)<br><br>blobs.h blobs.c : blobs.x<br>        rm -f  $(patsubst %.x, %.h, $&lt;) $(patsubst %.x, %.c, $&lt;)<br>        $(RPCGEN) -h -o $(patsubst %.x, %.h, $&lt;) $&lt;<br>        $(RPCGEN) -c -o $(patsubst %.x, %.c, $&lt;) $&lt;<br><br><br>If you want to be able to use the make install command to install <br>the libraries, you must change noinst_LTLIBRARIES to pkglib_LTLIBRARIES.<br><br></pre>
+<h5><a class="mozTocH5" name="mozTocId833056"></a>configure.ac<span
+ style="font-family: monospace;"></span></h5>
+<pre><br>The following macros need to be modified as shown below:<br><br>AC_INIT(&lt;Plugin Name&gt;Collector.cxx)<br>AM_PROG_LEX<br>AC_CONFIG_FILES( Makefile )<br><br><br><br><br>-----------------------------------------------<br></pre>
+<h4><a class="mozTocH4" name="mozTocId538625"></a>Naming issues to
+resolve in the source:</h4>
+<pre>-----------------------------------------------<br><br>In the source files, there are several functions and data structures with the format of:<br>&lt;plugin name&gt;_&lt;function name&gt;(&acirc;&#8364;&brvbar;)<br>xdr_&lt;plugin name&gt;_&lt;function name&gt;(&acirc;&#8364;&brvbar;)<br>&lt;plugin name&gt;_&lt;data structure name&gt;<br>&lt;Plugin Name&gt;&lt;class name, e.g. Collector&gt;<br><br>These functions and data structures must have the correct plugin name specified in the <br>name of the function or data structure.  What will otherwise happen is that O|SS will <br>look into the library file containing the runtime functions (&lt;plugin name&gt;-rt.la), look <br>at the &lt;plugin name&gt;, and attempt to open the file &lt;plugin name&gt;-rt.la.  If the &lt;plugin name&gt; <br>in all of the functions does not match the &lt;plugin name&gt; of the library file containing the <br>runtime functions, then O|SS will return an error stating that the library file could not be opened.<br><br>Check the data structures in blobs.x and any files where the data structures are referenced.  <br>Check the functions in blobs.h, blobs.c, and runtime.c, and anywhere the functions are referenced.  <br>Check &lt;Plugin Name&gt;Collector.cxx and &lt;Plugin Name&gt;Collector.hxx to make sure the class <br>names also correspond to the name of the plugin.<br><br><br>In the source file &lt;Plugin Name&gt;Collector.cxx, there is a factory method for the Collector.  <br>Make sure the method is described in the format below:<br><br> /**<br> * Collector's factory method.<br> *<br> * Factory method for instantiating a collector implementation. This is the<br> * only function that is externally visible from outside the collector plugin.<br> *<br> * @return    New instance of this collector's implementation.<br> */<br>extern "C" CollectorImpl* &lt;plugin name&gt;_LTX_CollectorFactory()<br>{<br>    return new &lt;Plugin Name&gt;Collector();<br>}<br><br></pre>
+<h4><a class="mozTocH4" name="mozTocId801243"></a>Creating the
+./configure script.<br>
+</h4>
+<pre>Run the following commands from the shell when the Makefile.am and configure.in<br>script have been created.<br><br>aclocal &acirc;&#8364;&#8220;I .<br>autoconf<br>autoheader<br>touch NEWS README AUTHORS ChangeLog<br>libtoolize --force<br>automake -a<br><br><br>Now, run configure, make, and make install.<br><br>./configure --prefix=&lt;plugin install directory&gt;<br>make<br>make install<br><br><br></pre>
+<h4><a class="mozTocH4" name="mozTocId741469"></a>Running the plugin
+from O|SS.<br>
+</h4>
+<pre>Now, the path to the plugin is: &lt;plugin install directory&gt;/lib/&lt;plugin name&gt;.  <br>In order for Open|SpeedShop to recognize the plugin, the environment variable, <br>OPENSS_PLUGIN_PATH, must contain the exact path to each of the plugin directories.<br><br>Run O|SS in command line mode:<br><br>openss -cli<br>Welcome to OpenSpeedShop 0.875<br>openss&gt;&gt;<br><br><br>Then, from O|SS command line, type the command.<br><br>list -v types,all<br><br><br>Now you should see the plugin you just created in addition to any other plugins in O|SS.  <br>Try creating an experiment with the collector plugin you just created.<br><br>expcreate -f &lt;path to some excutable&gt; &lt;plugin name&gt;<br>expgo<br><br><br>If all is well, you should see the results from the experiment.  There are a <br>few more things to resolve below regarding the content of the code.<br><br><br><br></pre>
+</body>
+</html>

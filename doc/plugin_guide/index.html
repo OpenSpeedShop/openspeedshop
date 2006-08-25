@@ -22,8 +22,8 @@
  style="width: 303px; height: 38px;"><br>
 <big><big style="font-weight: bold;"><big>Plugin Creation Guide</big></big></big></p>
 <div style="text-align: center;"><big><span style="font-weight: bold;">Milestone
-7 Release</span><br style="font-weight: bold;">
-<span style="font-weight: bold;">March 20, 2006</span></big><br>
+8 Release</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">August 25, 2006</span></big><br>
 </div>
 <br>
 <h1><a class="mozTocH1" name="mozTocId977725"></a><span class="mozTocH2"></span><small><a
@@ -41,7 +41,8 @@ Overview and Information Resources</a>
 Component Diagram</a>
             <ul>
               <li><a href="#mozTocId74182">Host/Client Component
-Diagram </a></li>
+Diagram
+                </a></li>
               <li><a href="#mozTocId377936">Runtime/Server
 Component Diagram</a></li>
             </ul>
@@ -49,10 +50,13 @@ Component Diagram</a></li>
           <li><a href="#mozTocId251693">Information Resources:</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId351566">General Plugin Definition</a></li>
+      <li><a href="#mozTocId351566">General Plugin
+Definition</a></li>
       <li><a href="#mozTocId11413">Open|SpeedShop Plugin
-Overview </a>
+Overview
+        </a>
         <ul>
+          <li><a href="#mozTocId1962">Plugin Creation Creation Notes</a></li>
           <li><a href="#mozTocId405706">Plugin Creation
 Outline</a>
             <ul>
@@ -62,7 +66,8 @@ Plugin Outline</a></li>
                 <ul>
                   <li><a href="#mozTocId64311">Performance Data
 Collector Plugin Structure</a></li>
-                  <li><a href="#mozTocId300839">GUI Plugin Structure </a></li>
+                  <li><a href="#mozTocId300839">GUI Plugin Structure
+                    </a></li>
                   <li><a href="#mozTocId337518">Interactive CLI
 Plugin Structure</a></li>
                 </ul>
@@ -79,7 +84,8 @@ located?</a></li>
 Collector Plugin Information</a>
         <ul>
           <li><a href="#mozTocId892980">Performance Data
-Collector Quick Overview </a>
+Collector Quick Overview
+            </a>
             <ul>
               <li><a href="#mozTocId952547">Performance Data
 Collector Plugin Outline</a></li>
@@ -104,7 +110,8 @@ blobs</a>
                 </ul>
               </li>
               <li><a href="#mozTocId667687">Collector
-Runtime - Server/Victim portion of Experiment Collector </a>
+Runtime - Server/Victim portion of Experiment Collector
+                </a>
                 <ul>
                   <li><a href="#mozTocId612900">Thread Specific Data</a></li>
                   <li><a href="#mozTocId973451">Timer event handler</a></li>
@@ -114,13 +121,16 @@ Runtime - Server/Victim portion of Experiment Collector </a>
                 </ul>
               </li>
               <li><a href="#mozTocId637965">Collector
-Plugin - Client/Tool portion of Experiment Collector </a></li>
+Plugin - Client/Tool portion of Experiment Collector
+                </a></li>
               <li><a href="#mozTocId775061">Collector Plugin API-
-Public Member Functions </a>
+Public Member Functions
+                </a>
                 <ul>
                   <li><a href="#mozTocId388988">The
 Start
-Collecting function </a>
+Collecting function
+                    </a>
                     <ul>
                       <li><a href="#mozTocId199690">What
 it does:</a></li>
@@ -131,12 +141,14 @@ in the
 function body:</a></li>
                       <li><a href="#mozTocId628096">Example Collector
 Code
-Example: </a></li>
+Example:
+                        </a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId992246">The
 Stop
-Collecting function </a>
+Collecting function
+                    </a>
                     <ul>
                       <li><a href="#mozTocId150755">What it does:</a></li>
                       <li><a href="#mozTocId352197">Definition:</a></li>
@@ -151,7 +163,8 @@ example:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId278716">The Get
-Metric Values function </a>
+Metric Values function
+                    </a>
                     <ul>
                       <li><a href="#mozTocId110227">What it does:</a></li>
                       <li><a href="#mozTocId171646">Definition:</a></li>
@@ -167,10 +180,12 @@ example:</a></li>
                   </li>
                   <li><a href="#mozTocId271962">The
 Set
-Parameter function </a>
+Parameter function
+                    </a>
                     <ul>
                       <li><a href="#mozTocId753822">What it does:</a></li>
-                      <li><a href="#mozTocId163320">Definition: </a></li>
+                      <li><a href="#mozTocId163320">Definition:
+                        </a></li>
                       <li><a href="#mozTocId699056"> Parameters:</a></li>
                       <li><a href="#mozTocId97265"> Return
 values:</a></li>
@@ -186,7 +201,8 @@ example:</a></li>
                   <li><a href="#mozTocId518369">The
 Get
 Default
-Parameters function </a>
+Parameters function
+                    </a>
                     <ul>
                       <li><a href="#mozTocId709984">What it does:</a></li>
                       <li><a href="#mozTocId832976">Definition:</a></li>
@@ -201,7 +217,8 @@ example:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId769605">The Get
-Parameters function </a>
+Parameters function
+                    </a>
                     <ul>
                       <li><a href="#mozTocId340210">What it does:</a></li>
                       <li><a href="#mozTocId552888">Definition:</a></li>
@@ -225,7 +242,8 @@ Implementation Constructor</a>
                     <ul>
                       <li><a href="#mozTocId876077">Definition</a></li>
                       <li><a href="#mozTocId610118">What it does, when
-it can be used, and example usage code</a></li>
+it
+can be used, and example usage code</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId778216">Declare a Parameter</a>
@@ -235,7 +253,8 @@ it can be used, and example usage code</a></li>
 it
 can be used, and example usage code</a></li>
                       <li><a href="#mozTocId373057">Parameters</a></li>
-                      <li><a href="#mozTocId722064">Return Values</a></li>
+                      <li><a href="#mozTocId722064">Return
+Values</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId957175">Declare a Metric</a>
@@ -243,7 +262,8 @@ can be used, and example usage code</a></li>
                       <li><a href="#mozTocId684094">Definition</a></li>
                       <li><a href="#mozTocId626761">What it does, when
 it
-can be used, and example usage code </a></li>
+can be used, and example usage code
+                        </a></li>
                       <li><a href="#mozTocId741847">Parameters</a></li>
                       <li><a href="#mozTocId804375">Return Values</a></li>
                     </ul>
@@ -266,11 +286,13 @@ instrumentation from a thread</a></li>
           </li>
           <li><a href="#mozTocId846999">Example Collector Plugin</a></li>
           <li><a href="#mozTocId377373">Collector
-Plugin FAQ: </a>
+Plugin FAQ:
+            </a>
             <ul>
               <li><a href="#mozTocId198444">What is
 blob.x for? What is
-the significance of the .x suffix? </a></li>
+the significance of the .x suffix?
+                </a></li>
               <li><a href="#mozTocId189119">What is
 specifically needed to be known by the framework? Do these class
 structures need to follow a
@@ -280,10 +302,12 @@ particular convention?</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId212847">Graphical User
-Interface Plugin Information </a>
+Interface Plugin Information
+        </a>
         <ul>
           <li><a href="#mozTocId347900">Graphical User
-Interface (GUI) Plugin Overview </a>
+Interface (GUI) Plugin Overview
+            </a>
             <ul>
               <li><a href="#mozTocId962438">GUI Plugin Outline</a></li>
               <li><a href="#mozTocId117100">GUI Plugin Recognition</a></li>
@@ -411,8 +435,22 @@ Experiment Database file. <br>
 <img alt="Open|SpeedShop Client Overview"
  title="Open|SpeedShop Client Overview" src="ToolClientOverView.png"
  style="width: 741px; height: 450px;"><br>
+<br>
 <h4><a class="mozTocH4" name="mozTocId377936"></a>Runtime/Server
 Component Diagram</h4>
+This diagram illustrates the interactions of the Open|SpeedShop server
+components.&nbsp;&nbsp; <br>
+<br>
+The Dyninst component is at the heart of the server portion
+Open|SpeedShop tool.&nbsp;&nbsp;
+It interacts with the DPCL component to control the victim application
+being analyzed for performance.&nbsp; Dyninst inserts into the victim
+application performance gathering
+instrumentation, obtains performance data back from the victim
+application, and sends the performance data back to the client side of
+the Open|SpeedShop tool.<br>
+<br>
+<br>
 <img alt="Open|SpeedShop Server/Runtime Diagram"
  src="ToolServerOverView6.png" style="width: 900px; height: 524px;"><br>
 <br>
@@ -509,7 +547,12 @@ Open|SpeedShop client tool<br>
 This document will outline each of the plugin types and give
 instruction and examples of how to create and integrate plugins into
 the Open|SpeedShop tools.<br>
-<br>
+<h3><a class="mozTocH3" name="mozTocId1962"></a><a
+ name="Plugin_Creation_QuickStart"></a>Plugin Creation Creation Notes<br>
+</h3>
+These <a href="PluginCreationNotes.html">notes</a> are from actual
+developers that have used this guide to build new Open|SpeedShop
+plugins.&nbsp; They are included here as additional information.<br>
 <h3><a class="mozTocH3" name="mozTocId405706"></a>Plugin Creation
 Outline</h3>
 Before getting into all the details, it may be helpful to outline the
