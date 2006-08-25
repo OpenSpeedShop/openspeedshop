@@ -386,20 +386,20 @@ void ProcessTable::debugPerformanceStatistics()
 
     } Table[] = {
 
-	{ Process::Created, "Object Created" },
-	{ Process::ConnectIssued, "Connect Issued" },
-	{ Process::ConnectAcknowledged, "Connect Acknowledged" },
-	{ Process::ConnectCompleted, "Connect Completed" },
-	{ Process::AttachIssued, "Attach Issued" },
-	{ Process::AttachAcknowledged, "Attach Acknowledged" },
-	{ Process::AttachCompleted, "Attach Completed" },
-	{ Process::GetThreadsIssued, "Get Threads Issued" },
-	{ Process::GetThreadsCompleted, "Get Threads Completed" },
-	{ Process::RqstAddrSpcEntered, "requestAddressSpace() Entered" },
+	{ Process::Created, "Started (Process Object Created)" },
+	{ Process::ConnectIssued, "DPCL connect() Issued" },
+	{ Process::ConnectAcknowledged, "DPCL connect() Acknowledged" },
+	{ Process::ConnectCompleted, "DPCL connect() Completed" },
+	{ Process::AttachIssued, "DPCL attach() Issued" },
+	{ Process::AttachAcknowledged, "DPCL attach() Acknowledged" },
+	{ Process::AttachCompleted, "DPCL attach() Completed" },
+	{ Process::GetThreadsIssued, "DPCL bget_threads() Issued" },
+	{ Process::GetThreadsCompleted, "DPCL bget_threads() Completed" },
+	{ Process::RqstAddrSpcEntered, "Enter requestAddressSpace()" },
 	{ Process::RqstAddrSpcIssue, "Begin Issuing Symbol Table Requests" },
-	{ Process::RqstAddrSpcExited, "requestAddressSpace() Exited" },
-	{ Process::FSTPEntered, "finishSymbolTableProcessing() Entered" },
-	{ Process::Ready, "Object Ready" },
+	{ Process::RqstAddrSpcExited, "Exit requestAddressSpace()" },
+	{ Process::FSTPEntered, "Enter finishSymbolTableProcessing()" },
+	{ Process::Ready, "Finished (Process Object Ready)" },
 
 	{ Process::Ready, "" }  // End Of Table Entry
 
