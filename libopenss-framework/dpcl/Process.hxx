@@ -107,6 +107,33 @@ namespace OpenSpeedShop { namespace Framework {
 
 #ifndef NDEBUG	
 	static bool is_debug_enabled;
+	static bool is_debug_perf_enabled;
+
+	/**
+	 * Performance data events enumeration.
+	 *
+	 * Enumeration defining all the different event times that are recorded
+	 * as part of the per-process performance data.
+	 */
+	enum PerformanceDataEvents {
+	    Created,              /**< Process object created. */
+	    ConnectIssued,        /**< DPCL connect was issued. */
+	    ConnectAcknowledged,  /**< DPCL connect was acknowledged. */
+	    ConnectCompleted,     /**< DPCL connect was completed. */
+	    AttachIssued,         /**< DPCL attach was issued. */
+	    AttachAcknowledged,   /**< DPCL attach was acknowledged. */
+	    AttachCompleted,      /**< DPCL attach was completed. */
+	    GetThreadsIssued,     /**< DPCL bget_threads was issued. */
+	    GetThreadsCompleted,  /**< DPCL bget_threads was completed. */
+	    RqstAddrSpcEntered,   /**< Entered requestAddressSpace(). */
+	    RqstAddrSpcIssue,     /**< Issue DPCL symbol table requests. */
+	    RqstAddrSpcExited,    /**< Exited requestAddressSpace(). */
+	    FSTPEntered,          /**< Entered finishSymbolTableProcess(). */
+	    Ready                 /**< Process object ready for use. */
+	};
+
+	/** Performance data for this process. */
+	mutable std::map<PerformanceDataEvents, Time> dm_perf_data;
 
 	/** Previous values returned by getState(). */
 	mutable std::map<std::string, Thread::State> dm_previous_getstate;

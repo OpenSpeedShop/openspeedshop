@@ -108,6 +108,11 @@ ProcessTable::ProcessTable() :
  */
 ProcessTable::~ProcessTable()
 {
+#ifndef NDEBUG
+    if(Process::is_debug_perf_enabled)
+	debugPerformanceStatistics();
+#endif
+
     // Insure all processes are destroyed before stopping the DPCL main loop
     clear();
     
@@ -354,3 +359,109 @@ ProcessTable::getThreadsByProcess(const SmartPtr<Process>& process) const
     ProcessTable::const_iterator entry = find(name);
     return (entry != end()) ? entry->second.second : ThreadGroup();
 }
+
+
+
+#ifndef NDEBUG
+/**
+ * Display performance statistics.
+ *
+ * Displays performance statistics for the processes in this process table
+ * to the standard error stream. Reported information includes the minimum,
+ * average, and maximum time spent during various phases of attaching to a
+ * process.
+ */
+void ProcessTable::debugPerformanceStatistics()
+{
+    static const unsigned InitialIndent = 2;
+    static const unsigned TimeWidth = 8;
+
+    static const struct {
+
+	/** Performance data event code. */
+	Process::PerformanceDataEvents dm_event;
+	
+	/** Description of that event code. */
+	std::string dm_description;
+
+    } Table[] = {
+
+	{ Process::Created, "Object Created" },
+	{ Process::ConnectIssued, "Connect Issued" },
+	{ Process::ConnectAcknowledged, "Connect Acknowledged" },
+	{ Process::ConnectCompleted, "Connect Completed" },
+	{ Process::AttachIssued, "Attach Issued" },
+	{ Process::AttachAcknowledged, "Attach Acknowledged" },
+	{ Process::AttachCompleted, "Attach Completed" },
+	{ Process::GetThreadsIssued, "Get Threads Issued" },
+	{ Process::GetThreadsCompleted, "Get Threads Completed" },
+	{ Process::RqstAddrSpcEntered, "requestAddressSpace() Entered" },
+	{ Process::RqstAddrSpcIssue, "Begin Issuing Symbol Table Requests" },
+	{ Process::RqstAddrSpcExited, "requestAddressSpace() Exited" },
+	{ Process::FSTPEntered, "finishSymbolTableProcessing() Entered" },
+	{ Process::Ready, "Object Ready" },
+
+	{ Process::Ready, "" }  // End Of Table Entry
+
+    };
+
+    // Display the header
+    std::cerr << std::endl << std::endl << std::endl
+	      << std::setw(InitialIndent) << " "
+	      << "SUMMARY OF ATTACH PERFORMANCE FOR " << size() << " PROCESS" 
+	      << ((size() == 1) ? "" : "ES") << std::endl << std::endl
+	      << std::setw(InitialIndent) << " "
+	      << std::setw(TimeWidth) << "Minimum " << " "
+	      << std::setw(TimeWidth) << "Average " << " "
+	      << std::setw(TimeWidth) << "Maximum " << std::endl	
+	      << std::setw(InitialIndent) << " "
+	      << std::setw(TimeWidth) << "Time(mS)" << " "
+	      << std::setw(TimeWidth) << "Time(mS)" << " "
+	      << std::setw(TimeWidth) << "Time(mS)" << "  "
+	      << "Operation" << std::endl << std::endl;
+
+    // Iterate over each performance data event to be shown
+    for(unsigned i = 0; !Table[i].dm_description.empty(); ++i) {
+
+	// Initialize statistics for this event
+	uint64_t minimum = 0, average = 0, maximum = 0, num = 0;
+	
+	// Iterate over each process in this process table
+	for(ProcessTable::const_iterator j = begin(); j != end(); ++j) {
+
+	    // Skip this process if it didn't record this event
+	    if(j->second.first->dm_perf_data.find(Table[i].dm_event) ==
+	       j->second.first->dm_perf_data.end())
+		continue;
+
+	    // Calculate the "created-relative" event time for this process
+	    Time::difference_type t = 
+		j->second.first->dm_perf_data[Table[i].dm_event] -
+		j->second.first->dm_perf_data[Process::Created];
+	    
+	    // Update the minimum, average, and maximum as appropriate
+	    if((j == begin()) || (t < minimum))
+		minimum = t;
+	    average += t;
+	    if((j == begin()) || (t > maximum))
+		maximum = t;
+	    ++num;	
+   
+	}
+
+	// Complete the average calculation
+	average = (num > 0) ? (average / num) : average;
+		
+	// Display this line of statistics
+	std::cerr << std::setw(InitialIndent) << " "
+		  << std::setw(TimeWidth) << (minimum / 1000000) << " "
+		  << std::setw(TimeWidth) << (average / 1000000) << " "
+		  << std::setw(TimeWidth) << (maximum / 1000000) << "  "
+		  << Table[i].dm_description << std::endl;
+	
+    }
+
+    // Display the tailer    
+    std::cerr << std::endl << std::endl << std::endl;
+}
+#endif

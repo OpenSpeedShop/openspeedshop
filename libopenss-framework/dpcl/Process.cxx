@@ -154,6 +154,8 @@ Process::Process(const std::string& host, const std::string& command,
     GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
+    if(is_debug_perf_enabled)
+	dm_perf_data[Created] = Time::Now();
     if(is_debug_enabled) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] "
@@ -272,6 +274,8 @@ Process::Process(const std::string& host, const pid_t& pid) :
     // GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
+    if(is_debug_perf_enabled)
+	dm_perf_data[Created] = Time::Now();
     if(is_debug_enabled) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] "
@@ -1382,6 +1386,12 @@ bool Process::is_debug_enabled = (getenv("OPENSS_DEBUG_PROCESS") != NULL);
 
 
 
+/** Flag indicating if performance debugging for this class is enabled. */
+bool Process::is_debug_perf_enabled = 
+		  (getenv("OPENSS_DEBUG_PERF_PROCESS") != NULL);
+
+
+
 /**
  * Display DPCL callback debugging information.
  *
@@ -1700,11 +1710,18 @@ void Process::finishSymbolTableProcessing(SymbolTableState* state)
 {
     SmartPtr<Process> process;
 
-    // Note: Since this function is called only once, after everyone has
-    //       finished with the symbol table(s), the locking that would usually
-    //       be necessary here isn't needed.
+    // Critical section touching the process table
+    {
+	Guard guard_process_table(ProcessTable::TheTable);
+	
+	// Attempt to locate the process by its unique name
+	process = ProcessTable::TheTable.getProcessByName(state->dm_name);
+    }
     
 #ifndef NDEBUG
+    if(is_debug_perf_enabled && 
+       (process->dm_perf_data.find(FSTPEntered) == process->dm_perf_data.end()))
+	process->dm_perf_data[FSTPEntered] = Time::Now();    
     if(is_debug_enabled) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] "
@@ -1714,6 +1731,10 @@ void Process::finishSymbolTableProcessing(SymbolTableState* state)
 	std::cerr << output.str();
     }
 #endif
+
+    // Note: Since this function is called only once, after everyone has
+    //       finished with the symbol table(s), the locking on "state" that 
+    //       would usually be necessary here isn't needed.
     
     // Iterate over each symbol table in this state structure
     for(SymbolTableMap::iterator i = state->dm_symbol_tables.begin();
@@ -1732,14 +1753,6 @@ void Process::finishSymbolTableProcessing(SymbolTableState* state)
 	
     }
     
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
-	
-	// Attempt to locate the process by its unique name
-	process = ProcessTable::TheTable.getProcessByName(state->dm_name);
-    }
-
     // Critical section touching the process
     if(!process.isNull()) {
         Guard guard_process(*process);
@@ -1753,6 +1766,8 @@ void Process::finishSymbolTableProcessing(SymbolTableState* state)
 				     process->findFutureState(state->dm_name));
 	    
 #ifndef NDEBUG
+	    if(is_debug_perf_enabled)
+		process->dm_perf_data[Ready] = Time::Now();
 	    if(is_debug_enabled)
 		process->debugState(state->dm_name);
 #endif
@@ -1869,6 +1884,11 @@ void Process::attachCallback(GCBSysType, GCBTagType tag,
 	process = ProcessTable::TheTable.getProcessByName(*name);
     }
 
+#ifndef NDEBUG
+    if(is_debug_perf_enabled && !process.isNull())
+	process->dm_perf_data[AttachCompleted] = Time::Now();
+#endif
+
     // Go no further if the process is no longer in the process table
     if(process.isNull()) {
 
@@ -1886,7 +1906,7 @@ void Process::attachCallback(GCBSysType, GCBTagType tag,
 	
     }
     else {
-	
+
 	// Original and added sets of threads for this process
 	ThreadGroup original, added;
 	
@@ -2017,6 +2037,11 @@ void Process::connectCallback(GCBSysType, GCBTagType tag,
 	process = ProcessTable::TheTable.getProcessByName(*name);
     }
 
+#ifndef NDEBUG
+    if(is_debug_perf_enabled && !process.isNull())
+	process->dm_perf_data[ConnectCompleted] = Time::Now();
+#endif
+	
     // Critical section touching the process
     if(!process.isNull()) {
 	Guard guard_process(*process);
@@ -3250,6 +3275,9 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
     GuardWithDPCL guard_myself(this);
 
 #ifndef NDEBUG
+    if(is_debug_perf_enabled && 
+       (dm_perf_data.find(RqstAddrSpcEntered) == dm_perf_data.end()))
+	dm_perf_data[RqstAddrSpcEntered] = Time::Now();
     if(is_debug_enabled)	
 	debugRequest("AddressSpace", "");
 #endif
@@ -3337,6 +3365,12 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
 	new SymbolTableState(formUniqueName(dm_host, dm_pid));
     Assert(state != NULL);
 
+#ifndef NDEBUG
+    if(is_debug_perf_enabled && 
+       (dm_perf_data.find(RqstAddrSpcIssue) == dm_perf_data.end()))
+	dm_perf_data[RqstAddrSpcIssue] = Time::Now();
+#endif
+
     // Critical section touching the symbol table state
     bool requests_completed = false;
     {
@@ -3422,6 +3456,12 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
 	    (state->dm_pending_requests == 0) && state->dm_constructed;
 	
     }
+
+#ifndef NDEBUG
+    if(is_debug_perf_enabled && 
+       (dm_perf_data.find(RqstAddrSpcExited) == dm_perf_data.end()))
+	dm_perf_data[RqstAddrSpcExited] = Time::Now();
+#endif
     
     // Finish symbol table processing if all requests have been completed
     if(requests_completed)
@@ -3450,9 +3490,16 @@ void Process::requestAttach()
     std::string* name = new std::string(formUniqueName(dm_host, dm_pid));
     Assert(name != NULL);
 
+#ifndef NDEBUG
+    if(is_debug_perf_enabled)
+	dm_perf_data[AttachIssued] = Time::Now();
+#endif
+
     // Ask DPCL to asynchronously attach to this process
     AisStatus retval = dm_process->attach(attachCallback, name);
 #ifndef NDEBUG
+    if(is_debug_perf_enabled)
+	dm_perf_data[AttachAcknowledged] = Time::Now();
     if(is_debug_enabled) 
 	debugDPCL("request to attach", retval);
 #endif
@@ -3503,9 +3550,16 @@ void Process::requestConnect()
     std::string* name = new std::string(formUniqueName(dm_host, dm_pid));
     Assert(name != NULL);
 
+#ifndef NDEBUG
+    if(is_debug_perf_enabled)
+	dm_perf_data[ConnectIssued] = Time::Now();
+#endif
+
     // Ask DPCL to asynchronously connect to this process
     AisStatus retval = dm_process->connect(connectCallback, name);
 #ifndef NDEBUG
+    if(is_debug_perf_enabled)
+	dm_perf_data[ConnectAcknowledged] = Time::Now();
     if(is_debug_enabled) 
 	debugDPCL("request to connect", retval);
 #endif
@@ -4747,8 +4801,16 @@ bool Process::getPosixThreadIds(std::set<pthread_t>& value) const
 
     // Ask DPCL for the current list of threads in this process
     AisStatus retval;
+#ifndef NDEBUG
+    if(is_debug_perf_enabled && 
+       (dm_perf_data.find(GetThreadsIssued) == dm_perf_data.end()))
+	dm_perf_data[GetThreadsIssued] = Time::Now();
+#endif	
     ThreadInfoList* list = dm_process->bget_threads(&retval);
 #ifndef NDEBUG
+    if(is_debug_perf_enabled && 
+       (dm_perf_data.find(GetThreadsCompleted) == dm_perf_data.end()))
+	dm_perf_data[GetThreadsCompleted] = Time::Now();
     if(is_debug_enabled)
     	debugDPCL("response from bget_threads", retval);
 #endif

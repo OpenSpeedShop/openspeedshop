@@ -101,6 +101,10 @@ namespace OpenSpeedShop { namespace Framework {
 
 	/** Name of the dpcld listener port in the form "[host]:[port]". */
 	std::string dm_dpcld_listener_port;
+
+#ifndef NDEBUG
+	void debugPerformanceStatistics();
+#endif
 	
     };
     
