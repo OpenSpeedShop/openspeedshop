@@ -418,7 +418,7 @@ void ProcessTable::debugPerformanceStatistics()
 	      << std::setw(TimeWidth) << "Time(mS)" << " "
 	      << std::setw(TimeWidth) << "Time(mS)" << " "
 	      << std::setw(TimeWidth) << "Time(mS)" << "  "
-	      << "Operation" << std::endl << std::endl;
+	      << "Event" << std::endl << std::endl;
 
     // Iterate over each performance data event to be shown
     for(unsigned i = 0; !Table[i].dm_description.empty(); ++i) {
