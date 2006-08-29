@@ -1,0 +1,3 @@
+
+g++ -o mutator -I/usr/include/dyninst -L/usr/lib -ldyninstAPI -liberty mutator.cxx
+
