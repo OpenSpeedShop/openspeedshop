@@ -1,3 +1,13 @@
 
+# default install - x86/ia64
 g++ -o mutator -I/usr/include/dyninst -L/usr/lib -ldyninstAPI -liberty mutator.cxx
+
+# default install - x86_64 bit
+g++ -o mutator -I/usr/include/dyninst -L/usr/lib64 -ldyninstAPI -liberty mutator.cxx
+
+# x86_64 non-root
+g++ -o mutator -I$PREFIX/include/dyninst -L$PREFIX/lib64 -ldyninstAPI -liberty mutator.cxx
+
+# x86/ia64 non-root
+g++ -o mutator -I$PREFIX/include/dyninst -L$PREFIX/lib -ldyninstAPI -liberty mutator.cxx
 
