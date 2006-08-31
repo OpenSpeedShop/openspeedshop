@@ -2669,9 +2669,6 @@ void Process::loadModuleCallback(GCBSysType, GCBTagType tag,
 void Process::outOfBandDataCallback(GCBSysType sys, GCBTagType,
 				    GCBObjType, GCBMsgType msg)
 {
-
-#define WDH_SHOW_RECEIVED_DATA
-
 #if !defined(NDEBUG) && defined(WDH_SHOW_RECEIVED_DATA)
     printf("outOfBandDataCallback(sys.msg_size = %d, msg = %p)\n",
 	   sys.msg_size, msg);
