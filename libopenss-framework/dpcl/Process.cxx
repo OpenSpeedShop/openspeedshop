@@ -1444,6 +1444,69 @@ void Process::debugDPCL(const std::string& function, const AisStatus& retval)
 
 
 /**
+ * Display a data buffer.
+ *
+ * Displays the passed data buffer to the specified stream. Reports each data
+ * byte, sixteen per line, in both hexadecimal and character representations.
+ *
+ * @param stream    Stream to which the buffer should be displayed.
+ * @param ptr       Pointer to the data buffer.
+ * @param size      Length of the data buffer (in bytes).
+ */
+void Process::debugBuffer(std::ostream& stream, 
+			  const char* ptr, const unsigned& size)
+{
+    static const unsigned BytesPerLine = 16;
+
+    // Save the current formatting options of the stream for later restoration
+    std::ios_base::fmtflags saved_flags = stream.flags();
+    std::streamsize saved_width = stream.width();
+
+    // Iterate over each byte in the data buffer
+    for(unsigned i = 0; i < size; i += BytesPerLine) {
+
+	// Indent each line by four spaces
+	stream << "    ";
+
+	// Display the hexadecimal representation
+	for(unsigned j = 0; j < BytesPerLine; j++) {
+	    if((i + j) < size)
+		stream << std::hex << std::setfill('0') << std::setw(2)
+		       << static_cast<unsigned>(
+			   static_cast<uint8_t>(ptr[i + j]
+			       )) << " ";
+	    else
+		stream << "   ";
+	}
+
+	// Indent another two spaces before the character representation
+	stream << "  ";
+
+	// Display the character representation
+	for(unsigned j = 0; j < BytesPerLine; j++) {
+	    if((i + j) < size) {
+		if(isprint(ptr[i + j]))
+		    stream << ptr[i + j];
+		else
+		    stream << ".";
+	    }
+	    else
+		stream << " ";
+	}
+
+	// Complete this line
+	stream << std::endl;
+	
+    }
+
+    // Restore the original formatting options of the stream
+    stream.flags(saved_flags);
+    stream.width(saved_width);
+}
+
+
+
+/**
  * Display state debugging information.
  *
  * Displays debugging information for the state of a process or thread to the
@@ -2606,22 +2669,14 @@ void Process::loadModuleCallback(GCBSysType, GCBTagType tag,
 void Process::outOfBandDataCallback(GCBSysType sys, GCBTagType,
 				    GCBObjType, GCBMsgType msg)
 {
-#ifdef WDH_SHOW_RECEIVED_DATA
-    {
-	unsigned i;
-	const unsigned char* ptr = (const unsigned char*)msg;
 
-	printf("outOfBandDataCallback(sys.msg_size = %d, msg = %p)\n",
-	       sys.msg_size, msg);
-	printf("    ");
-	for(i = 0; i < sys.msg_size; ++i) {
-	    printf("%02X ", ptr[i]);
-	    if(!((i + 1) % 16))
-		printf("\n    ");
-	}
-	printf("\n");
-	fflush(stdout);
-    }
+#define WDH_SHOW_RECEIVED_DATA
+
+#if !defined(NDEBUG) && defined(WDH_SHOW_RECEIVED_DATA)
+    printf("outOfBandDataCallback(sys.msg_size = %d, msg = %p)\n",
+	   sys.msg_size, msg);
+    debugBuffer(std::cout, (const char*)msg, sys.msg_size);
+    fflush(stdout);
 #endif
 
     // Enqueue this performance data
@@ -2990,6 +3045,18 @@ void Process::stoppedCallback(GCBSysType, GCBTagType tag,
     // Critical section touching the process
     if(!process.isNull()) {
 	Guard guard_process(*process);
+
+	// Note: The process is already suspended at this point, but DPCL
+	//       doesn't know that. Asking it to suspend the process does
+	//       no harm and insures that DPCL's internal view of the
+	//       process state matches our own.
+
+	// Ask DPCL to asynchronously suspend this process
+	AisStatus retval = process->dm_process->suspend(NULL, NULL);
+#ifndef NDEBUG
+	if(is_debug_enabled)
+	    debugDPCL("request to suspend", retval);
+#endif
 	
 	// Process or thread is in the "suspended" state
 	process->setCurrentState(*name, Thread::Suspended);
@@ -3736,8 +3803,8 @@ void Process::requestDestroy(pthread_t tid)
 	Assert(name != NULL);
     }
 
-    // Ask DPCL to asynchronously destroy to this process
-    AisStatus retval = dm_process->destroy(destroyCallback, name, tid);
+    // Ask DPCL to asynchronously destroy to this thread
+    AisStatus retval = dm_process->destroy(destroyCallback, name/*, tid*/);
 #ifndef NDEBUG
     if(is_debug_enabled)
         debugDPCL("request to destroy", retval);
@@ -4251,7 +4318,7 @@ void Process::requestResume(pthread_t tid)
     }
 
     // Ask DPCL to asynchronously resume this thread
-    AisStatus retval = dm_process->resume(resumeCallback, name, tid);
+    AisStatus retval = dm_process->resume(resumeCallback, name/*, tid*/);
 #ifndef NDEBUG
     if(is_debug_enabled)
         debugDPCL("request to resume", retval);
@@ -4361,7 +4428,7 @@ void Process::requestSuspend(pthread_t tid)
     }
 
     // Ask DPCL to asynchronously suspend this thread
-    AisStatus retval = dm_process->suspend(suspendCallback, name, tid);
+    AisStatus retval = dm_process->suspend(suspendCallback, name/*, tid*/);
 #ifndef NDEBUG
     if(is_debug_enabled)
         debugDPCL("request to suspend", retval);

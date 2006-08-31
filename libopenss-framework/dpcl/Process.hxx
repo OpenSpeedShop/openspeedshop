@@ -140,6 +140,7 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	static void debugCallback(const std::string&, const std::string&);
 	static void debugDPCL(const std::string&, const AisStatus&);
+	static void debugBuffer(std::ostream&, const char*, const unsigned&);
 	void debugState(const std::string&) const;
 	void debugRequest(const std::string&, const std::string&) const;
 #endif
