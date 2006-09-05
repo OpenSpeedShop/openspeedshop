@@ -1,5 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!
+<html>
+<head>
+<!--
       Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
       Permission is granted to copy, distribute and/or modify this document
       under the terms of the GNU Free Documentation License, Version 1.2
@@ -7,9 +9,7 @@
       with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
          Texts.  A copy of the license is included in the section entitled "GNU
       Free Documentation License".
->
-<html>
-<head>
+-->
   <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
   <title>Open Speed Shop: GUI Interface Overview</title>
   <link href="doxygen.css" rel="stylesheet" type="text/css">
@@ -21,31 +21,34 @@ Overview </h1>
 <p>
 </p>
 <h2><a name="mozTocId172027" class="mozTocH2"></a><span
- style="font-weight: bold;">Version Milestone 6 - December 14, 2005</span></h2>
+ style="font-weight: bold;">Version Milestone 8 - September 5, 2006</span></h2>
 <br>
 <br>
 <h2><a name="mozTocId353558" class="mozTocH2"></a><a class="anchor"
  name="TableofContents">Table of Contents<br>
 </a></h2>
 <br>
-<ol id="mozToc">
+<ul id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId949225">GUI
 Interface
 Overview </a>
-    <ol>
-      <li><a href="#mozTocId172027">Version Milestone 6 - December 14, 2005</a></li>
-      <li><a href="#mozTocId353558">Table of Contents </a></li>
+    <ul>
+      <li><a href="#mozTocId172027">Version Milestone 8 - September 5,
+2006</a></li>
+      <li><a href="#mozTocId353558">Table of Contents
+        </a></li>
       <li><a href="#mozTocId646582">The Goal</a></li>
       <li><a href="#mozTocId59017">The GUI Infrastructure</a>
-        <ol>
+        <ul>
           <li><a href="#mozTocId381424">The Main Window</a></li>
           <li><a href="#mozTocId462713">PanelContainers</a></li>
           <li><a href="#mozTocId275134">Panels</a></li>
           <li><a href="#mozTocId749963">Wizard
 Panel:</a></li>
           <li><a href="#mozTocId229650">Top Panel:</a></li>
-          <li><a href="#mozTocId401527">Source Panel </a></li>
-        </ol>
+          <li><a href="#mozTocId401527">Source Panel
+            </a></li>
+        </ul>
       </li>
       <li><a href="#mozTocId641342">Why Panel Plugins?</a></li>
       <li><a href="#mozTocId448594">All The To-Do About
@@ -55,7 +58,7 @@ Dynamic GUI Plugins.</a></li>
 the initial panel structure?</a></li>
       <li><a href="#mozTocId626863">What Panels To
 Provide by Default?</a>
-        <ol>
+        <ul>
           <li><a href="#mozTocId315559">User
 time experiment </a></li>
           <li><a href="#mozTocId983135">Input/output
@@ -65,12 +68,13 @@ counter experiment </a></li>
           <li><a href="#mozTocId445326">PC
 sampling experiment </a></li>
           <li><a href="#mozTocId482963">MPI
-tracing experiment </a></li>
-        </ol>
+tracing experiment
+            </a></li>
+        </ul>
       </li>
-    </ol>
+    </ul>
   </li>
-</ol>
+</ul>
 <h2><a name="mozTocId646582" class="mozTocH2"></a><a class="anchor"
  name="intro_the_goal">The Goal</a></h2>
 The goal of the GUI is to provide an intuitive, easy to use, portal to
