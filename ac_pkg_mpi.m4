@@ -164,6 +164,16 @@ AC_DEFUN([AC_PKG_MPICH], [
         MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
     fi
 
+    # On the systems at LANL they have an MPICH variant
+    # that has things moved around a bit. Handle this by allowing a "lanl"
+    # pseudo-driver that makes the necessary configuration changes.
+    if test x"$mpich_driver" == x"lanl"; then
+	MPICH_CC="$mpich_dir/bin/mpicc"
+        MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir/shared"
+        MPICH_LIBS="-lfmpich"
+    fi
+
+
     mpich_saved_CC=$CC
     mpich_saved_CPPFLAGS=$CPPFLAGS
     mpich_saved_LDFLAGS=$LDFLAGS
@@ -404,8 +414,8 @@ AC_DEFUN([AC_PKG_OPENMPI], [
 	MPI_Initialized((int*)0);
 	]]),
 
-	if nm $openmpi_dir/$abi_libdir/libmpi.so \
-		| cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null; then
+	if (nm $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (nm $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
 	    found_openmpi=1
 	fi
 
