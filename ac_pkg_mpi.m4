@@ -173,6 +173,16 @@ AC_DEFUN([AC_PKG_MPICH], [
         MPICH_LIBS="-lfmpich"
     fi
 
+    # On the systems at Sandia they have an MPICH variant
+    # that has things moved around a bit. Handle this by allowing a "lanl"
+    # pseudo-driver that makes the necessary configuration changes.
+    if test x"$mpich_driver" == x"sandia"; then
+	MPICH_CC="$mpich_dir/bin/mpicc"
+        MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
+        MPICH_LIBS="-lmpich"
+    fi
+
+
 
     mpich_saved_CC=$CC
     mpich_saved_CPPFLAGS=$CPPFLAGS
@@ -244,10 +254,12 @@ AC_DEFUN([AC_PKG_MPICH2], [
     # Put -shlib into MPICH2_CC, since it is needed when building the
     # tests, where $MPICH2_CC is used, and is not needed when building
     # the MPI-related plugins, where $MPICH2_CC is not used.
-    MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
+    MPICH2_CC="$mpich2_dir/bin/mpicc"
+#    MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
     MPICH2_CPPFLAGS="-I$mpich2_dir/include"
-    MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
-    MPICH2_LIBS="-lmpich"
+    MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir -L$mpich2_dir/$alt_abi_libdir/libmpich.a"
+#    MPICH2_LIBS="-lmpich"
+    MPICH2_LIBS=""
     MPICH2_HEADER="$mpich2_dir/include/mpi.h"
     MPICH2_DIR="$mpich2_dir"
 
