@@ -305,6 +305,11 @@ AC_DEFUN([AC_PKG_BINUTILS], [
                                [binutils installation @<:@/usr@:>@]),
                 binutils_dir=$withval, binutils_dir="/usr")
 
+    AC_ARG_WITH(binutils-version,
+                AC_HELP_STRING([--with-binutils-version=VERS],
+                               [binutils-version installation @<:@@:>@]),
+                binutils_vers=-$withval, binutils_vers="")
+
     case "$host" in
 	ia64-*-linux*)
 	    binutils_required="false"
@@ -316,13 +321,13 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 	    binutils_required="true"
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
-	    BINUTILS_LIBS="-lopcodes -lbfd -liberty"
+	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
             ;;
 	*)
 	    binutils_required="true"
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
-	    BINUTILS_LIBS="-lopcodes -lbfd -liberty"
+	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
             ;;
     esac
 
@@ -335,7 +340,7 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 
     AC_MSG_CHECKING([for binutils librarys and headers])
 
-    AC_SEARCH_LIBS(bfd_init, [bfd], 
+    AC_SEARCH_LIBS(bfd_init, [bfd$binutils_vers], 
         [ AC_MSG_RESULT(yes)
 
             AM_CONDITIONAL(HAVE_BINUTILS, true)
