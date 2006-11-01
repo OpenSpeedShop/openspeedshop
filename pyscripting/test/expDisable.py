@@ -4,7 +4,7 @@ import openss
 
 try :
     # Create an experiment with pcsamp being the experiment type
-    my_file = openss.FileList("../../usability/phaseIII/fred 700")
+    my_file = openss.FileList("../../usability/phaseII/fred 700")
     my_exptype = openss.ExpTypeList("pcsamp")
     exp_id = openss.expCreate(my_file,my_exptype)
 

@@ -2,7 +2,7 @@
 
 import openss
 
-my_file = openss.FileList("../../usability/phaseIII/fred")
+my_file = openss.FileList("../../usability/phaseII/fred")
 my_exptype = openss.ExpTypeList("pcsamp")
 my_expid = openss.expCreate(my_file,my_exptype)
 

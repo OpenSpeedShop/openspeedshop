@@ -5,7 +5,7 @@ import openss
 list_type = openss.ModifierList("src")
 
 my_viewtype = openss.ViewTypeList("pcsamp")
-my_file = openss.FileList("../../usability/phaseIII/fred")
+my_file = openss.FileList("../../usability/phaseII/fred")
 
 my_id	= openss.expCreate(my_file,my_viewtype)
 my_host = openss.HostList(["localhost"])

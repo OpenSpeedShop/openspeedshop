@@ -11,7 +11,7 @@ list_type = openss.ModifierList("exptypes")
 #except openss.error,message:
 #    print message
 
-my_file = openss.FileList("../../usability/phaseIII/fred")
+my_file = openss.FileList("../../usability/phaseII/fred")
 
 # Define pcsamp experiment
 pcsamp_viewtype = openss.ViewTypeList()

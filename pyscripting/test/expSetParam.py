@@ -9,7 +9,7 @@
 import openss
 import os
 
-my_file = openss.FileList("../../usability/phaseIII/fred 90")
+my_file = openss.FileList("../../usability/phaseII/fred 90")
 my_viewtype = openss.ViewTypeList("pcsamp")
 my_expid = openss.expCreate(my_file,my_viewtype)
 

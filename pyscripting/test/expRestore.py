@@ -6,7 +6,7 @@ data_file = "file_1.dat"
 my_data_file = openss.FileList(data_file)
 
 # Run and save and experiment to read in.
-my_file = openss.FileList("../../usability/phaseIII/fred 900")
+my_file = openss.FileList("../../usability/phaseII/fred 900")
 my_viewtype = openss.ViewTypeList("pcsamp")
 my_expid = openss.expCreate(my_file,my_viewtype)
 openss.expGo()

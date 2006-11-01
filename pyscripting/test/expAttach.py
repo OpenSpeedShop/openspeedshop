@@ -3,7 +3,7 @@ import openss
 try :
 
     openss.expCreate()
-    my_file = openss.FileList("../../usability/phaseIII/fred")
+    my_file = openss.FileList("../../usability/phaseII/fred")
     my_viewtype = openss.ViewTypeList("pcsamp")
     openss.expAttach(my_file,my_viewtype)
     openss.expGo()

@@ -5,7 +5,7 @@ import openss
 # First time disable the data collection.
 try :
     # Create an experiment with pcsamp being the experiment type
-    my_file = openss.FileList("../../usability/phaseIII/fred 900")
+    my_file = openss.FileList("../../usability/phaseII/fred 900")
     my_exptype = openss.ExpTypeList("pcsamp")
     exp_id = openss.expCreate(my_file,my_exptype)
 

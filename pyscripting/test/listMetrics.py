@@ -4,7 +4,7 @@ import openss
 
 list_type = openss.ModifierList("metrics")
 
-my_file = openss.FileList("../../usability/phaseIII/fred")
+my_file = openss.FileList("../../usability/phaseII/fred")
 my_exptype = openss.ViewTypeList("pcsamp")
 my_id = openss.expCreate(my_file,my_exptype)
 

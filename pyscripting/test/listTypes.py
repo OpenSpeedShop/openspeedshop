@@ -2,7 +2,7 @@
 
 import openss
 
-my_file = openss.FileList("../../usability/phaseIII/fred")
+my_file = openss.FileList("../../usability/phaseII/fred")
 
 # Define and run pcsamp experiment
 pcsamp_viewtype = openss.ViewTypeList()

@@ -4,7 +4,7 @@ import openss
 
 list_type = openss.ModifierList("status")
 
-my_file = openss.FileList("../../usability/phaseIII/fred")
+my_file = openss.FileList("../../usability/phaseII/fred")
 
 my_host = openss.HostList("localhost")
 my_id = openss.expCreate(my_file,my_host)

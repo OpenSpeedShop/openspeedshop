@@ -4,7 +4,7 @@ import openss
 
 list_type = openss.ModifierList("pids")
 
-my_file = openss.FileList("../../usability/phaseIII/fred 800 ")
+my_file = openss.FileList("../../usability/phaseII/fred 800 ")
 my_type = "pcsamp"
 my_host = openss.HostList("localhost")
 my_id = openss.expCreate(my_file,my_type,my_host)

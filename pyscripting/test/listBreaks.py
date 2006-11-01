@@ -4,7 +4,7 @@ import openss
 
 list_type = openss.ModifierList("breaks")
 
-my_file = openss.FileList("../../usability/phaseIII/fred 90")
+my_file = openss.FileList("../../usability/phaseII/fred 90")
 my_viewtype = openss.ViewTypeList("pcsamp")
 exp1 = openss.expCreate(my_file,my_viewtype)
 

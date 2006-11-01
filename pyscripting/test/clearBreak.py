@@ -2,7 +2,7 @@
 
 import openss
 
-my_file = openss.FileList("../../usability/phaseIII/fred")
+my_file = openss.FileList("../../usability/phaseII/fred")
 pcsamp_viewtype = openss.ViewTypeList()
 pcsamp_viewtype += "pcsamp"
 exp1 = openss.expCreate(my_file,pcsamp_viewtype)
