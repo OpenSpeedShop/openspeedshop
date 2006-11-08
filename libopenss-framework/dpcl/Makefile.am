@@ -15,7 +15,6 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-INCLUDES	= $(LTDLINCL)
 
 BUILT_SOURCES = \
 	OpenSS_Job.h OpenSS_Job.c
@@ -26,6 +25,7 @@ lib_LTLIBRARIES = libopenss-framework-mpich.la
 
 libopenss_framework_dpcl_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
+	$(LTDLINCL) \
 	-DLIBRARY_DIR=\"$(libdir)\" \
 	@DPCL_CPPFLAGS@
 
