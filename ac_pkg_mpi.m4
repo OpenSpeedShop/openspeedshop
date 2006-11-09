@@ -407,7 +407,7 @@ AC_DEFUN([AC_PKG_OPENMPI], [
 
     OPENMPI_CC="$openmpi_dir/bin/mpicc"
     OPENMPI_CPPFLAGS="-I$openmpi_dir/include"
-    OPENMPI_LDFLAGS="-L$openmpi_dir/$abi_libdir"
+    OPENMPI_LDFLAGS="-L/usr/$abi_libdir/openmpi"
     OPENMPI_LIBS="-lmpi"
     OPENMPI_HEADER="$openmpi_dir/include/mpi.h"
     OPENMPI_DIR="$openmpi_dir"
@@ -417,8 +417,8 @@ AC_DEFUN([AC_PKG_OPENMPI], [
     openmpi_saved_LDFLAGS=$LDFLAGS
 
     CC="$OPENMPI_CC"
-    CPPFLAGS="$CPPFLAGS $OPENMPI_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS $OPENMPI_LIBS"
+    CPPFLAGS="-O0 -g $CPPFLAGS $OPENMPI_CPPFLAGS"
+    LDFLAGS="$OPENMPI_LDFLAGS $OPENMPI_LIBS"
 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
 	#include <mpi.h>
@@ -427,11 +427,35 @@ AC_DEFUN([AC_PKG_OPENMPI], [
 	]]),
 
 	if (nm $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (nm /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (nm /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
            (nm $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
 	    found_openmpi=1
 	fi
 
 	, )
+#
+# Try again with different libraries
+#
+   if test $found_openmpi -eq 0; then
+     OPENMPI_LDFLAGS="-L$openmpi_dir/$abi_libdir"
+     LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS $OPENMPI_LIBS"
+
+     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+   	#include <mpi.h>
+   	]], [[
+   	MPI_Initialized((int*)0);
+   	]]),
+   
+   	if (nm $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (nm /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (nm /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (nm $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+	   found_openmpi=1
+   	fi
+   
+   	, )
+    fi
 
     CC=$openmpi_saved_CC
     CPPFLAGS=$openmpi_saved_CPPFLAGS
