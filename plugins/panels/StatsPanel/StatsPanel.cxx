@@ -4090,10 +4090,10 @@ for( ChartPercentValueList::Iterator it = cpvl.begin();
     } else if( textENUM == TEXT_BYPERCENT )
     {
 // printf("A: TEXT_BYPERCENT: textENUM=%d\n", textENUM );
-      ctvl.push_back( strings[percentIndex].stripWhiteSpace() );
 
       if( percentIndex > 0 )
       {
+        ctvl.push_back( strings[percentIndex].stripWhiteSpace() );
         ColumnList::Iterator hit = columnHeaderList.at(percentIndex);
         cf->setHeader( (QString)*hit );
       }
