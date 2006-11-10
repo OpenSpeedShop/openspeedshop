@@ -1,0 +1,2 @@
+echo "running python scripting test=$1"
+python $1
