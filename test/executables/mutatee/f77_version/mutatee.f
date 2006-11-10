@@ -4,7 +4,7 @@
       integer work 
       integer size 
 
-      size = 80
+      size = 400
       n=work(size)
 100   continue
       end
