@@ -60,7 +60,7 @@ DIST_SUBDIRS = \
 	test
 
 # Need the images files and the tests files in tarball.
-EXTRA_DIST = libopenss-guiimages/* mc mc-debug bootstrap do_build-mymc do_build
+EXTRA_DIST = libopenss-guiimages/* mc mc-debug bootstrap do_build
 
 # The following "framework" target is simply a short-hand for the framework
 # developers (i.e. WDH) to build just those components necessary for working
