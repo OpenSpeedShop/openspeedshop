@@ -1,0 +1,49 @@
+- I/O collector doesn't support "-v" statements
+  (error while double click on source during stacktrace)
+Don looking at this one ^
+
+- Bad times in stack trace data (usertime, I/O, ...)
+Jim looking at this one ^
+
+- Disable full path view didn't work during tutorial
+
+- MPI startup broken
+        - Jim's system: can't execute
+        - LLNL: - can't resume MPI job after attach
+                  (test debug-0078)
+                - stop process during right after attach
+                  doesn't work right away (only with delay)
+
+- Record command broken
+Jim looking at this one ^
+
+- IA-64 memory corruption bug (also on other systems?)
+  -> contact Dong Ahn for help with TV on thunder
+
+- File not found box shows not the filename it tries to open
+  (shown filename exists, but still can't open file)
+
+- When selecting system source files, we open any file, but
+  give no error
+
+- After focus stats panel we should open stats panel, not
+  as currently the source panel
+Jim looking at this one ^
+
+- Can't have multiple equal MPIs
+  (at least need documentation about what changes)
+
+- FPE: x86-64 get only one SI code
+  (fix display to clean it up at least)
+  Nathan and Don are looking into how to report this to kernel
+  developers
+
+- GUI problem with PAPI selection?
+
+- Can't attach a second collector to an experiment created
+  by a wizard
+
+- Need error message/warning when experiment doesn't create
+  data (right now it's just a blank screen)
+
+
