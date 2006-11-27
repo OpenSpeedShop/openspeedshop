@@ -52,6 +52,30 @@
 <br />
 <b>!! NOT SUPPORTED YET !!</b></td></tr>
 <tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#cView" class="summary-sig-name"><code>cView</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#cViewCreate" class="summary-sig-name"><code>cViewCreate</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#cViewDelete" class="summary-sig-name"><code>cViewDelete</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#cViewInfo" class="summary-sig-name"><code>cViewInfo</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#dumpData" class="summary-sig-name"><code>dumpData</code></a>()</span></code>
+<br />
+Helper routine used to dump 2 dimensional views.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#dumpInfo" class="summary-sig-name"><code>dumpInfo</code></a>(<span class=summary-sig-arg>data</span>)</span></code>
+<br />
+Helper routine used to dump 2 dimensional views.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
   <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#dumpView" class="summary-sig-name"><code>dumpView</code></a>()</span></code>
 <br />
 Helper routine used to dump 2 dimensional views.</td></tr>
@@ -68,9 +92,17 @@ Attach applications or collectors to an experiment.</td></tr>
 <br />
 Close/Terminate the experiment specified by <i>ExpId</i>.</td></tr>
 <tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expCompare" class="summary-sig-name"><code>expCompare</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Simple compare view.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
   <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expCreate" class="summary-sig-name"><code>expCreate</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
 <br />
 Start the process of defining an experiment:</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expData" class="summary-sig-name"><code>expData</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Collect data generated from an experiment.</td></tr>
 <tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
   <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expDetach" class="summary-sig-name"><code>expDetach</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
 <br />
@@ -160,9 +192,149 @@ Helper routine to wait until expGo really has finished.</td></tr>
   </dd></dl>
 </td></tr></table>
 
-<a name="dumpView"></a>
+<a name="cView"></a>
 <table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
-  <h3><span class="sig"><span class="sig-name">dumpView</span>()</span>
+  <h3><span class="sig"><span class="sig-name">cView</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      <p>.</p>
+      cView [ <i>ExpId</i> ] [ &lt;viewType&gt; ] [ -m 
+      &lt;expMetric_list&gt; ] [ <i>Target</i> ]
+    </li>
+  </ul>
+  Example:
+<pre class="literalblock">
+   my_file = openss.FileList(&quot;bosco&quot;)
+   my_viewtype = openss.ViewTypeList(&quot;pcsamp&quot;)
+   my_metric_list = openss.MetricList()
+   my_metric_list += (&quot;pcsamp&quot;,&quot;inclusive&quot;)
+
+   ret = openss.cView(my_expid,my_viewtype,my_metric_list)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         xxx:
+        <ul>
+          <li>
+          </li>
+          <li>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="cViewCreate"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">cViewCreate</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      <p>.</p>
+      cViewCreate [ <i>ExpId</i> ] [ &lt;viewType&gt; ] [ -m 
+      &lt;expMetric_list&gt; ] [ <i>Target</i> ]
+    </li>
+  </ul>
+  Example:
+<pre class="literalblock">
+   my_file = openss.FileList(&quot;bosco&quot;)
+   my_viewtype = openss.ViewTypeList(&quot;pcsamp&quot;)
+   my_metric_list = openss.MetricList()
+   my_metric_list += (&quot;pcsamp&quot;,&quot;inclusive&quot;)
+
+   ret = openss.cViewCreate(my_expid,my_viewtype,my_metric_list)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         xxx:
+        <ul>
+          <li>
+          </li>
+          <li>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="cViewDelete"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">cViewDelete</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      <p>.</p>
+      cViewDelete [ <i>ExpId</i> ] [ &lt;viewType&gt; ] [ -m 
+      &lt;expMetric_list&gt; ] [ <i>Target</i> ]
+    </li>
+  </ul>
+  Example:
+<pre class="literalblock">
+   my_file = openss.FileList(&quot;bosco&quot;)
+   my_viewtype = openss.ViewTypeList(&quot;pcsamp&quot;)
+   my_metric_list = openss.MetricList()
+   my_metric_list += (&quot;pcsamp&quot;,&quot;inclusive&quot;)
+
+   ret = openss.cViewDelete(my_expid,my_viewtype,my_metric_list)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         :
+        <ul>
+          <li>
+          </li>
+          <li>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="cViewInfo"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">cViewInfo</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      <p>.</p>
+      cViewInfo [ <i>ExpId</i> ] [ &lt;viewType&gt; ] [ -m 
+      &lt;expMetric_list&gt; ] [ <i>Target</i> ]
+    </li>
+  </ul>
+  Example:
+<pre class="literalblock">
+   my_file = openss.FileList(&quot;bosco&quot;)
+   my_viewtype = openss.ViewTypeList(&quot;pcsamp&quot;)
+   my_metric_list = openss.MetricList()
+   my_metric_list += (&quot;pcsamp&quot;,&quot;inclusive&quot;)
+
+   ret = openss.cViewInfo(my_expid,my_viewtype,my_metric_list)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         xxx:
+        <ul>
+          <li>
+          </li>
+          <li>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="dumpData"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">dumpData</span>()</span>
   </h3>
   <p>Helper routine used to dump 2 dimensional views. This will go away 
   once we pump up our usage documentation. Until then this will remain as 
@@ -171,7 +343,7 @@ Helper routine to wait until expGo really has finished.</td></tr>
 <pre class="literalblock">
    try :
        print &quot;In try part&quot;
-       ret = openss.expView()
+       ret = openss.expData()
 
    except openss.error:
        print &quot;In except part&quot;
@@ -179,7 +351,7 @@ Helper routine to wait until expGo really has finished.</td></tr>
 
    if ret is None:
        my_listtype = openss.ModifierList(&quot;status&quot;)
-       print &quot;expView returned None&quot;
+       print &quot;expData returned None&quot;
        try:
            print &quot;status = &quot;, openss.list(my_listtype)
        except openss.error:
@@ -194,6 +366,27 @@ Helper routine to wait until expGo really has finished.</td></tr>
            for rel_ndx in range(c_count):
                print row[rel_ndx]
 </pre>
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="dumpInfo"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">dumpInfo</span>(<span class=sig-arg>data</span>)</span>
+  </h3>
+  Helper routine used to dump 2 dimensional views. Same as dumpData 
+  and dumpView except we instead pass the data object in.
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="dumpView"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">dumpView</span>()</span>
+  </h3>
+  Helper routine used to dump 2 dimensional views. Same as dumpData 
+  except we call expView() instead and get back lists of strings 
+  representing the data.
   <dl><dt></dt><dd>
   </dd></dl>
 </td></tr></table>
@@ -316,9 +509,6 @@ Helper routine to wait until expGo really has finished.</td></tr>
             <i>Target</i> object lists
             <ul>
               <li>
-                <i>ClusterList</i>
-              </li>
-              <li>
                 <i>FileList</i>
               </li>
               <li>
@@ -417,6 +607,124 @@ Helper routine to wait until expGo really has finished.</td></tr>
   </dd></dl>
 </td></tr></table>
 
+<a name="expCompare"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expCompare</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <p>Simple compare view.</p>
+  This looks a lot like the <b>expView</b> command, but the semantics 
+  are slightly different. The purpose of the <b>expView</b> command is to 
+  display a summary that includes the specified items from the specified 
+  (or implied) <i>target_list</i>. The whole point of the 
+  <b>expCompare</b> command is to find multiple things to display in 
+  side-by-side columns, rather than summarized in a single column.
+  <ul>
+    <li>
+      <p>The semantic routine for the command looks through the 
+      components of the <i>target_list</i> for non-singular components. 
+      That is what defines the separate components to display. Look at 
+      example_1 below.</p>
+      <p>This will produce a report that contains a column for the time 
+      spend in function 'foo' on 'host1', along side the time spent in 
+      function 'foo' on 'host2'. Similarly, example_2 (see below)</p>
+      This will produce a report that contains a column for the time 
+      spend in function 'foo' on 'host1' pid 1153, along side the time 
+      spent in function 'foo' on 'host1' pid 1154.
+    </li>
+    <li>
+      It is an error to specify more than one sub-list of items within 
+      the <i>target_list</i>.
+    </li>
+    <li>
+      The use of the <i>Target</i> option acts like a filter on the 
+      output.
+    </li>
+    <li>
+      The absence of any <i>HostList</i> specification will cause all 
+      the information available for all hosts in the specifed experiment 
+      to be included.
+    </li>
+    <li>
+      The default cluster contains only localhost and can be specified 
+      by using -h localhost.
+    </li>
+    <li>
+      Use of <i>FileList</i> is not supported.
+    </li>
+    <li>
+      Use of <i>PidList</i> will result in only the Threads associated 
+      with that Pid being included for the selected hosts.
+    </li>
+    <li>
+      <p>Use of <i>ThreadList</i> will result in only that specific 
+      Thread being included, if it exists on the selected hosts.</p>
+      expcompare [ <i>ExpId</i> ] [ &lt;viewType&gt; ] [ -m 
+      &lt;expMetric_list&gt; ] [ <i>Target</i> ]
+    </li>
+  </ul>
+  Example_1:
+<pre class="literalblock">
+   # Experiment 1 has already been defined and run.
+   #
+   my_viewtype = openss.ViewTypeList(&quot;usertime&quot;)
+   my_metric_list = openss.MetricList(&quot;time&quot;)
+   my_host_list = openss.HostList(&quot;host1&quot;,&quot;host2&quot;)
+   my_modifier = openss.ModifierList(&quot;function&quot;)
+
+   ret = openss.expCompare(my_modifier,my_viewtype,my_metric_list,my_host_list)
+</pre>
+  Example_2:
+<pre class="literalblock">
+   # Experiment 1 has already been defined and run.
+   #
+   my_viewtype = openss.ViewTypeList(&quot;usertime&quot;)
+   my_metric = openss.MetricList(&quot;time&quot;)
+   my_hosts = openss.HostList(&quot;host1&quot;,&quot;host2&quot;)
+   my_mod = openss.ModifierList(&quot;function&quot;)
+   my_func = openss.FileList(&quot;foo&quot;)
+
+   ret = openss.expCompare(my_mod,my_viewtype,my_metric,my_hosts,my_func)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         up to 4 optional class objects:
+        <ul>
+          <li>
+            <i>ExpId</i> (optional)
+          </li>
+          <li>
+            <i>ViewType</i> (optional)
+          </li>
+          <li>
+            <i>MetricList</i> (optional)
+          </li>
+          <li>
+            <i>Target</i> object lists (optional)
+            <ul>
+              <li>
+                <i>FileList</i>
+              </li>
+              <li>
+                <i>HostList</i>
+              </li>
+              <li>
+                <i>PidList</i>
+              </li>
+              <li>
+                <i>ThreadList</i>
+              </li>
+              <li>
+                <i>RankList</i>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
 <a name="expCreate"></a>
 <table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
   <h3><span class="sig"><span class="sig-name">expCreate</span>(<span class="sig-vararg">*arglist</span>)</span>
@@ -491,9 +799,6 @@ Helper routine to wait until expGo really has finished.</td></tr>
             <i>Target</i> object lists
             <ul>
               <li>
-                <i>ClusterList</i>
-              </li>
-              <li>
                 <i>FileList</i>
               </li>
               <li>
@@ -512,6 +817,79 @@ Helper routine to wait until expGo really has finished.</td></tr>
           </li>
           <li>
             <i>ExpTypeList</i>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="expData"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expData</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      Collect data generated from an experiment. This is basically the 
+      same as <b>expView</b> except:
+      <ul>
+        <li>
+          that <b>expView</b> returns formatted strings representing 
+          the data whereas <b>expData</b> returns the data values.
+        </li>
+        <li>
+          <b>expData</b> does not return column headers.
+        </li>
+      </ul>
+    </li>
+    <li>
+      <p>See <b>expView</b> for more <b>expData</b> options.</p>
+      expData [ <i>ExpId</i> ] [ &lt;viewType&gt; ] [ -m 
+      &lt;expMetric_list&gt; ] [ <i>Target</i> ]
+    </li>
+  </ul>
+  Example:
+<pre class="literalblock">
+   my_file = openss.FileList(&quot;bosco&quot;)
+   my_viewtype = openss.ViewTypeList(&quot;pcsamp&quot;)
+   my_metric_list = openss.MetricList()
+   my_metric_list += (&quot;pcsamp&quot;,&quot;inclusive&quot;)
+
+   ret = openss.expData(my_expid,my_viewtype,my_metric_list)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         up to 4 optional class objects:
+        <ul>
+          <li>
+            <i>ExpId</i> (optional)
+          </li>
+          <li>
+            <i>ViewType</i> (optional)
+          </li>
+          <li>
+            <i>MetricList</i> (optional)
+          </li>
+          <li>
+            <i>Target</i> object lists (optional)
+            <ul>
+              <li>
+                <i>FileList</i>
+              </li>
+              <li>
+                <i>HostList</i>
+              </li>
+              <li>
+                <i>PidList</i>
+              </li>
+              <li>
+                <i>ThreadList</i>
+              </li>
+              <li>
+                <i>RankList</i>
+              </li>
+            </ul>
           </li>
         </ul>
       </dd>
@@ -614,9 +992,6 @@ Helper routine to wait until expGo really has finished.</td></tr>
           <li>
             <i>Target</i> object lists
             <ul>
-              <li>
-                <i>ClusterList</i>
-              </li>
               <li>
                 <i>HostList</i>
               </li>
@@ -1394,9 +1769,6 @@ Helper routine to wait until expGo really has finished.</td></tr>
             <i>Target</i> object lists (optional)
             <ul>
               <li>
-                <i>ClusterList</i>
-              </li>
-              <li>
                 <i>FileList</i>
               </li>
               <li>
@@ -1745,9 +2117,6 @@ Helper routine to wait until expGo really has finished.</td></tr>
                   <i>Target</i> object lists (optional)
                   <ul>
                     <li>
-                      <i>ClusterList</i>
-                    </li>
-                    <li>
                       <i>HostList</i>
                     </li>
                     <li>
@@ -1998,9 +2367,6 @@ Helper routine to wait until expGo really has finished.</td></tr>
                   <i>Target</i> object lists (optional)
                   <ul>
                     <li>
-                      <i>ClusterList</i>
-                    </li>
-                    <li>
                       <i>HostList</i>
                     </li>
                     <li>
@@ -2081,9 +2447,6 @@ Helper routine to wait until expGo really has finished.</td></tr>
                 <li>
                   <i>Target</i> object lists (optional)
                   <ul>
-                    <li>
-                      <i>ClusterList</i>
-                    </li>
                     <li>
                       <i>HostList</i>
                     </li>
@@ -2277,9 +2640,6 @@ Helper routine to wait until expGo really has finished.</td></tr>
                 <li>
                   <i>Target</i> object lists (optional)
                   <ul>
-                    <li>
-                      <i>ClusterList</i>
-                    </li>
                     <li>
                       <i>HostList</i>
                     </li>
@@ -2558,7 +2918,7 @@ Helper routine to wait until expGo really has finished.</td></tr>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>
-    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Sat Dec 10 16:20:24 2005</font></td>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Mon Nov 27 15:29:29 2006</font></td>
     <td align="right"><a href="http://epydoc.sourceforge.net"
                       ><font size="-2">http://epydoc.sf.net</font></a></td>
   </tr>
