@@ -953,7 +953,7 @@ def Stand_Alone():
 # DPCL Daemon Startup Function
 ################################################################################
 
-def StartDPCL(template="*", installed="/usr"):
+def StartDPCLwithLibs(template="*", installed="/usr", libs="" ):
     """Start DPCL daemon(s) for Open|SpeedShop.
 
     Start the DPCL daemon(s) and attach it/them to this Open|SpeedShop session.
@@ -975,6 +975,16 @@ def StartDPCL(template="*", installed="/usr"):
     if not os.path.isfile(daemon):
         raise RuntimeError("Failed to locate the DPCL Daemon.")
 
+    if libs!="":
+        basedir=libs + "/lib64"
+        if not os.path.isdir(basedir):
+            basedir = libs + "/lib"
+        if not os.path.isdir(basedir):
+            raise RuntimeError("Failed to locate the base library directory.")
+        basedir2=":"+basedir
+    else:
+        basedir2=""
+
     # Locate the DPCL library directory
     libdir = installed + "/lib64"
     if not os.path.isdir(libdir):
@@ -986,7 +996,7 @@ def StartDPCL(template="*", installed="/usr"):
     if template.count("*") is not 1:
         raise RuntimeError("Template string must contain exactly one * symbol.")
     command = "env" + \
-              " LD_LIBRARY_PATH=" + libdir + \
+              " LD_LIBRARY_PATH=" + libdir + basedir2 +\
               " DYNINSTAPI_RT_LIB=" + libdir + "/libdyninstAPI_RT.so.1" \
               " DPCL_RT_LIB=" + libdir + "/libdpclRT.so.1" + \
               " " + daemon + " -p " + DpcldListenerPort
@@ -997,6 +1007,8 @@ def StartDPCL(template="*", installed="/usr"):
     print "\nStarting DPCL daemon(s) using the command \"%s\"...\n" % command
     os.system(command)
 
+def StartDPCL(template="*", installed="/usr" ):
+    StartDPCLwithLibs(template,installed,"")
 
 
 ################################################################################
