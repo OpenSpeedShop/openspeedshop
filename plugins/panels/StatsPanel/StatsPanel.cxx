@@ -1584,10 +1584,11 @@ StatsPanel::gotoSource(bool use_current_item)
 
   if( use_current_item )
   {
-// printf("gotoSource() menu selected.\n");
+    nprintf(DEBUG_PANELS) ("gotoSource() menu selected, USE_CURRENT_ITEM.\n");
     lvi = currentItem;
   } else 
   {
+    nprintf(DEBUG_PANELS) ("gotoSource() calls splv->selectedItem.\n");
     lvi =  splv->selectedItem();
   }
 
@@ -1752,7 +1753,7 @@ StatsPanel::returnPressed(QListViewItem *item)
 void
 StatsPanel::itemSelected(QListViewItem *item)
 {
-// printf("StatsPanel::itemSelected(QListViewItem *) item=%s\n", item->text(0).ascii() );
+  nprintf(DEBUG_PANELS) ("StatsPanel::itemSelected(QListViewItem *) item=%s\n", item->text(0).ascii() );
 
   if( item )
   {
@@ -1780,7 +1781,7 @@ StatsPanel::doOption(int id)
 bool
 StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 {
-// printf("matchSelectedItem() entered. sf=%s\n", sf.c_str() );
+  nprintf( DEBUG_PANELS) ("matchSelectedItem() entered. sf=%s\n", sf.c_str() );
 
   SPListViewItem *spitem = (SPListViewItem *)item;
 
@@ -1795,6 +1796,9 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // printf("spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
 // printf("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
 // printf("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
+   nprintf( DEBUG_PANELS) ("spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
+   nprintf( DEBUG_PANELS) ("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
+   nprintf( DEBUG_PANELS) ("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
 
   filename = spitem->fileName.ascii();
   lineNumberStr = QString("%1").arg(spitem->lineNumber);
@@ -5724,7 +5728,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
   SourceObject *spo = NULL;
   HighlightObject *hlo = NULL;
 
-// printf("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n", filename.ascii(), lineNumberStr.ascii() );
+nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n", filename.ascii(), lineNumberStr.ascii() );
 // printf("lfhA: expID=%d focusedExpID=%d\n", expID, focusedExpID );
 
 // printf("currentMetricStr=%s\n", currentMetricStr.ascii() );
@@ -5754,19 +5758,36 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 // printf("lfhB: expID=%d focusedExpID=%d\n", expID, focusedExpID );
     if( expID > 0 )
     {
-      command = QString("expView -x %1 -v Statements -f %2 %3").arg(expID).arg(fn).arg(timeIntervalString);
+// Trace experiments do not have Statements metrics! why?
+      if (currentCollectorStr == "io" || currentCollectorStr == "iot" ||
+	  currentCollectorStr == "mpi" || currentCollectorStr == "mpit" )
+          command = QString("expView -x %1 -f %2 %3").arg(expID).arg(fn).arg(timeIntervalString);
+      else
+          command = QString("expView -x %1 -v Statements -f %2 %3").arg(expID).arg(fn).arg(timeIntervalString);
     } else
     {
-      command = QString("expView -x %1 -v Statements -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
+      if (currentCollectorStr == "io" || currentCollectorStr == "iot" ||
+	  currentCollectorStr == "mpi" || currentCollectorStr == "mpit" )
+          command = QString("expView -x %1 -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
+      else
+          command = QString("expView -x %1 -v Statements -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
     }
   } else
   {
     if( expID > 0 )
     {
-      command = QString("expView -x %1 -v Statements -f %2 -m %3 %4").arg(expID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+      if (currentCollectorStr == "io" || currentCollectorStr == "iot" ||
+	  currentCollectorStr == "mpi" || currentCollectorStr == "mpit" )
+          command = QString("expView -x %1 -f %2 -m %3 %4").arg(expID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+      else
+          command = QString("expView -x %1 -v Statements -f %2 -m %3 %4").arg(expID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
     } else
     {
-      command = QString("expView -x %1 -v Statements -f %2 -m %3 %4").arg(focusedExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+      if (currentCollectorStr == "io" || currentCollectorStr == "iot" ||
+	  currentCollectorStr == "mpi" || currentCollectorStr == "mpit" )
+          command = QString("expView -x %1 -f %2 -m %3 %4").arg(focusedExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+      else
+          command = QString("expView -x %1 -v Statements -f %2 -m %3 %4").arg(focusedExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
     }
   }
   if( !currentThreadStr.isEmpty() )
@@ -5876,10 +5897,10 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 //  focusedHLO->print();
     if( focusedHLO->fileName != filename )
     {
-// printf("THE FILE NAMES %s != %s\n", focusedHLO->fileName.ascii(), filename.ascii() );
+      nprintf(DEBUG_PANELS) ("THE FILE NAMES %s != %s\n", focusedHLO->fileName.ascii(), filename.ascii() );
       if( !focusedHLO->fileName.isEmpty() )
       {
-// printf("CHANGE THE FILENAME!!!\n");
+	nprintf(DEBUG_PANELS) ("lhfa: focusedHLO->fileName.isEmpty, CHANGE THE FILENAME!!!\n");
         filename = focusedHLO->fileName;
       }
     }
@@ -5887,7 +5908,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 
 
   spo = new SourceObject("functionName", filename.ascii(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
-// printf("spo->fileName=(%s)\n", spo->fileName.ascii() );
+  nprintf(DEBUG_PANELS) ("spo->fileName=(%s)\n", spo->fileName.ascii() );
 
 #if 0
 // Begin debug
@@ -6071,13 +6092,20 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
             if( dumpClipFLAG) cerr << "Got CMD_RESULT_CALLTRACE\n";
             CommandResult_CallStackEntry *CSE = (CommandResult_CallStackEntry *)cr;
 
+
             std::vector<CommandResult *> *CSV = CSE->Value();
             int64_t sz = CSV->size();
             std::vector<CommandResult *> *C1 = CSV;
+	    if( dumpClipFLAG) cerr << "  CMD_RESULT_CALLTRACE: Form ="
+				   << CSE->Form().c_str() << "sz= " <<
+				   sz << "\n";
+
             CommandResult *CE = (*C1)[sz - 1];
             if( CE->Type() == CMD_RESULT_FUNCTION )
             {
-              if( dumpClipFLAG) cerr << "  CMD_RESULT_FUNCTION: sz=" << sz << " and function =" << CE->Form().c_str() << "\n";
+              if( dumpClipFLAG) cerr << "  CMD_RESULT_CALLTRACE: sz=" << sz
+				     << " and function ="
+				     << CE->Form().c_str() << "\n";
 
               std::string S = ((CommandResult_Function *)CE)->getName();
               xxxfuncName = S.c_str();
@@ -6086,6 +6114,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
 //            if( dumpClipFLAG) cerr << "    L.getPath()=" << L.getPath() << "\n";
 
               std::set<Statement> T = ((CommandResult_Function *)CE)->getDefinitions();
+#if 0
               if( T.size() > 0 )
               {
                 std::set<Statement>::const_iterator ti = T.begin();
@@ -6096,32 +6125,49 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
                 xxxfileName = QString( s.getPath().c_str() );
 //                xxxfileName = QString( s.getPath().getBaseName().c_str() );
                 xxxlineNumber = s.getLine();
+	        if( dumpClipFLAG) cerr <<
+			"  CMD_RESULT_CALLTRACE lineNumber via getDefinitions "
+			<< xxxlineNumber << "\n";
               }
-              if( dumpClipFLAG )
-              {
-                cerr << "xxxfuncName=" << xxxfuncName << "\n";
-                cerr << "xxxfileName=" << xxxfileName << "\n";
-                cerr << "xxxlineNumber=" << xxxlineNumber << "\n";
-              }
+#endif
+
+	      // IMPORTANT: This will focus on the actual linenumber that
+	      // corresponds to the address within the function!
+	      // Overrides xxxlineNumber computed above.
+              std::set<Statement> TT;
+	      ((CommandResult_Function *)CE)->Value(TT);
+	      if (TT.begin() != TT.end() || TT.size() > 0) {
+          	std::set<Statement>::const_iterator sti = TT.begin();;
+          	Statement S = *sti;
+          	char l[50];
+          	sprintf( &l[0], "%lld", (int64_t)(S.getLine()));
+                xxxfileName = QString( S.getPath().c_str() );
+                xxxlineNumber = S.getLine();
+		nprintf(DEBUG_CLIPS) ("FUNCTION: lineNumber via getValue is %d, fileName is %s\n",xxxlineNumber, xxxfileName.ascii());
+              } else {
+		nprintf(DEBUG_CLIPS) ("FUNCTION: TT.begin == TT.end!, no statement info. reset xxxfileName and xxxlineNumber\n");
+		xxxfileName = QString::null;
+		xxxlineNumber = -1;
+	      }
+
+	      nprintf(DEBUG_CLIPS) ("FUNCTION: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
+
             } else if( CE->Type() == CMD_RESULT_STATEMENT )
             {
-              if( dumpClipFLAG) cerr << "  CMD_RESULT_STATEMENT: sz=" << sz << " and function =" << CE->Form().c_str() << "\n";
+	      nprintf(DEBUG_CLIPS) ("  CMD_RESULT_STATEMENT: sz=%d, function=%s\n",sz,CE->Form().c_str());
 
               CommandResult_Statement *T = (CommandResult_Statement *)CE;
               Statement s = (Statement)*T;
-              if( dumpClipFLAG) cerr << "    s.getPath()=" << s.getPath() << "\n";
-              if( dumpClipFLAG) cerr << "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
+
+	      nprintf(DEBUG_CLIPS) ("STATEMENT: s.getPath()=%s, s.getLine()=%d\n",s.getPath().c_str(),(int64_t)s.getLine());
 
               xxxfuncName = CE->Form().c_str();
               xxxfileName = QString( s.getPath().c_str() );
 //              xxxfileName = QString( s.getPath().getBaseName().c_str() );
               xxxlineNumber = s.getLine();
-              if( dumpClipFLAG )
-              {
-                cerr << "xxxfuncName=" << xxxfuncName << "\n";
-                cerr << "xxxfileName=" << xxxfileName << "\n";
-                cerr << "xxxlineNumber=" << xxxlineNumber << "\n";
-              }
+
+	      nprintf(DEBUG_CLIPS) ("STATEMENT: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
+
               if( highlightList )
               {
                 QString colheader = (QString)*columnHeaderList.begin();
@@ -6135,6 +6181,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
             } else
             {
               if( dumpClipFLAG ) cerr << "How do I handle this type? CE->Type() " << CE->Type() << "\n";
+	       nprintf(DEBUG_CLIPS) ("CALLTRACE: How do I handle this type? %d\n", CE->Type());
             }
           }
           break;

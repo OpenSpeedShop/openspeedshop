@@ -782,10 +782,7 @@ SourcePanel::zoomOut()
 bool
 SourcePanel::loadFile(const QString &_fileName)
 {
-  nprintf(DEBUG_PANELS) ("SourcePanel::loadFile() entered\n");
-
-// printf("attempt to remap the path to _fileName=(%s)\n", _fileName.ascii() );
-
+  nprintf(DEBUG_PANELS) ("SourcePanel::loadFile() entered with _filename=%s\n",_fileName.ascii() );
 
   QString remapped_fileName = QString::null;
 
@@ -794,7 +791,7 @@ SourcePanel::loadFile(const QString &_fileName)
     remapped_fileName = remapPath(_fileName);
   }
 
-// printf("attempt to remap the path to remapped_fileName=(%s)\n", remapped_fileName.ascii() );
+  nprintf(DEBUG_PANELS) ("SourcePanel::loadFile: attempt to remap the path to remapped_fileName=(%s)\n", remapped_fileName.ascii() );
 
   canvasForm->hide();
   canvasForm->clearAllItems();
@@ -819,23 +816,28 @@ SourcePanel::loadFile(const QString &_fileName)
   }
   if( remapped_fileName.isEmpty() )
   { // Just clear the Source Panel and return.
+    nprintf(DEBUG_PANELS) ("loadFile:: remappedFilename isEmpty!, fileName currently is %s, passed _fileName=%s, remapped_fileName is %s\n",fileName.ascii(), _fileName.ascii(), remapped_fileName.ascii());
     textEdit->clear();
     textEdit->clearScrollBar();
     label->setText(tr("No file found."));
     if( !fileName.isEmpty() )
     {
       QString msg;
-      msg = QString("Unable to open file: %1").arg(fileName);
+      msg = QString("Unable to open file: %1").arg(_fileName);
       QMessageBox::information( (QWidget *)this, tr("Details..."),
                                msg, QMessageBox::Ok );
     }
+    nprintf(DEBUG_PANELS) ("loadFile:: remapped isEmpty,  Unable to open file, set fileName NULL!\n");
+    fileName = QString::null;
     return FALSE;
   }
+  nprintf(DEBUG_PANELS) ("loadFile:: fileName currently is %s, passed _fileName=%s, remapped_fileName is %s\n",fileName.ascii(), _fileName.ascii(), remapped_fileName.ascii());
   fileName = remapped_fileName;
 
   QFile f( fileName );
   if( !f.open( IO_ReadOnly ) )
   {
+    nprintf(DEBUG_PANELS) ("loadFile:: COULD NOT OPEN FILE,  fileName currently is %s, passed _fileName=%s, remapped_fileName is %s\n",fileName.ascii(), _fileName.ascii(), remapped_fileName.ascii());
     QString msg;
     msg = QString("Unable to open file: %1").arg(fileName);
     QMessageBox::information( (QWidget *)this, tr("Details..."),
@@ -845,6 +847,9 @@ SourcePanel::loadFile(const QString &_fileName)
     label->setText(tr("No file found. (Including remapped names.)"));
     textEdit->clear();
     textEdit->append(msg);
+
+    nprintf(DEBUG_PANELS) ("loadFile:: f.open; Unable to open file, set fileName NULL!\n");
+    fileName = QString::null;
     return FALSE;
   }
 
