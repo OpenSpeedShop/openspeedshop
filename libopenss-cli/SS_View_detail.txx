@@ -19,6 +19,9 @@
 
 #include "SS_View_detail.hxx"
 
+/* Uncomment define immediately below for debug tracing */
+/* #define DEBUG_CLI 1  */
+
 /**
  * Four templates are provided to generate the four differently formatted reports
  * that are required to support the 'expView' command from collectors that provide
@@ -34,7 +37,7 @@
  *     individual sequences of calls.
  *
  * Each template will read the database, merge the information into the
- * appropriate intermediate form, and then call the ouput formatter to complete
+ * appropriate intermediate form, and then call the output formatter to complete
  * the construction of the report.  The completed report is returned through the
  * final passed-in argument to the template.
  *
@@ -103,6 +106,12 @@ bool Detail_Trace_Report(
   bool add_stmts = (!Look_For_KeyWord(cmd, "ButterFly") ||
                     Look_For_KeyWord(cmd, "FullStack") ||
                     Look_For_KeyWord(cmd, "FullStacks"));
+
+#if DEBUG_CLI
+  printf("Enter Detail_Trace_Report, SS_View_detail.txx, num_temps=%d, TraceBack_Order=%d, add_stmts=%d\n",
+         num_temps, TraceBack_Order, add_stmts);
+#endif
+
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > > c_items;
 
@@ -118,9 +127,17 @@ bool Detail_Trace_Report(
     collector.lockDatabase();
     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
     Time base_time = databaseExtent.getTimeInterval().getBegin();
+#if DEBUG_CLI
+    printf("In Detail_Trace_Report, SS_View_detail.txx, base_time.getValue()=%u\n", base_time.getValue());
+#endif
 
    // Acquire the specified set of time intervals.
     std::vector<std::pair<Time,Time> > intervals;
+
+#if DEBUG_CLI
+    printf("In Detail_Trace_Report, SS_View_detail.txx, calling Parse_Interval_Specification\n");
+#endif
+
     Parse_Interval_Specification (cmd, exp, intervals);
 
    // Acquire base set of metric values.
@@ -128,6 +145,9 @@ bool Detail_Trace_Report(
                       std::map<Framework::StackTrace,
                                std::vector<TDETAIL> > > > raw_items;
     GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, raw_items);
+#if DEBUG_CLI
+    printf("In Detail_Trace_Report, SS_View_detail.txx, after GetMetricInThreadGroup\n");
+#endif
 
 /* Don't issue this message - just go ahead an print the headers and an empty report.
    Consider turning this message into a Annotation.
@@ -140,6 +160,10 @@ bool Detail_Trace_Report(
    // Get any required intermediate reduction temps.
     std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(Find_Max_ExtraMetrics(IV)+1);
     bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
+#if DEBUG_CLI
+    printf("In Detail_Trace_Report, SS_View_detail.txx, after GetReducedMetrics, ExtraTemps=%d\n",
+           ExtraTemps);
+#endif
 
    // Combine all the items for each function.
     std::map<Address, CommandResult *> knownTraces;
@@ -208,6 +232,9 @@ bool Detail_Trace_Report(
           if (base_CSE == NULL) {
             std::vector<CommandResult *> *call_stack =
                                   Construct_CallBack (TraceBack_Order, add_stmts, st, knownTraces);
+#if DEBUG_CLI
+            printf("In Detail_Trace_Report, SS_View_detail.txx, after new CommandResult_CallStackEntry\n");
+#endif
             base_CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
             CSE = base_CSE;
           } else {
@@ -239,7 +266,13 @@ bool Detail_Trace_Report(
   collector.unlockDatabase();
 
  // Generate the report.
+#if DEBUG_CLI
+  printf("In Detail_Trace_Report, SS_View_detail.txx, before calling Generic_Multi_View\n");
+#endif
   bool view_built = Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_Trace, c_items, view_output);
+#if DEBUG_CLI
+  printf("In Detail_Trace_Report, SS_View_detail.txx, after calling Generic_Multi_View\n");
+#endif
 
  // Release instructions
   for (int64_t i = 0; i < IV.size(); i++) {
@@ -247,6 +280,10 @@ bool Detail_Trace_Report(
     delete vp;
     IV[i] = NULL;
   }
+#if DEBUG_CLI
+  printf("Exit Detail_Trace_Report, SS_View_detail.txx, view_built=%d, topn=%d, c_items.size()=%d\n",
+         view_built, topn, c_items.size());
+#endif
   return view_built;
 }
 
@@ -260,6 +297,12 @@ bool Detail_Base_Report(
               std::list<CommandResult *>& view_output) {
 
   int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
+
+#if DEBUG_CLI
+  printf("Enter Detail_Base_Report, SS_View_detail.txx, num_temps=%d, primary_is_inclusive=%d\n",
+          num_temps, primary_is_inclusive);
+#endif
+
   Collector collector = CV[0];
   std::string metric = MV[0];
   std::vector<std::pair<CommandResult *,
@@ -277,10 +320,18 @@ bool Detail_Base_Report(
     collector.lockDatabase();
     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
     Time base_time = databaseExtent .getTimeInterval().getBegin();
+#if DEBUG_CLI
+    printf("In Detail_Base_Report, SS_View_detail.txx, base_time.getValue()=%u\n", base_time.getValue());
+#endif
 
 
    // Acquire the specified set of time intervals.
     std::vector<std::pair<Time,Time> > intervals;
+
+#if DEBUG_CLI
+    printf("In Detail_Base_Report, SS_View_detail.txx, calling Parse_Interval_Specification\n");
+#endif
+
     Parse_Interval_Specification (cmd, exp, intervals);
 
    // Acquire base set of metric values.
@@ -317,7 +368,13 @@ bool Detail_Base_Report(
         Framework::StackTrace st = (*si).first;
         TDETAIL details = (*si).second;
 
-        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map);
+      bool DEBUG_FLAG = false;
+
+#if DEBUG_CLI
+      DEBUG_FLAG = true;
+#endif
+
+        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG);
       }
 
      // Use macro to construct result array
@@ -353,7 +410,13 @@ bool Detail_Base_Report(
   collector.unlockDatabase();
 
  // Generate the report.
+#if DEBUG_CLI
+  printf("In Detail_Base_Report, SS_View_detail.txx, before Generic_Multi_View\n");
+#endif
   bool view_built = Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc, c_items, view_output);
+#if DEBUG_CLI
+  printf("In Detail_Base_Report, SS_View_detail.txx, after Generic_Multi_View\n");
+#endif
 
  // Release instructions
   for (int64_t i = 0; i < IV.size(); i++) {
@@ -361,6 +424,10 @@ bool Detail_Base_Report(
     delete vp;
     IV[i] = NULL;
   }
+#if DEBUG_CLI
+  printf("Exit Detail_Base_Report, SS_View_detail.txx, view_built=%d, topn=%d\n",
+          view_built, topn);
+#endif
   return view_built;
 }
 
@@ -374,6 +441,12 @@ bool Detail_CallStack_Report (
               std::list<CommandResult *>& view_output) {
 
   int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
+
+#if DEBUG_CLI
+  printf("Enter Detail_CallStack_Report, SS_View_detail.txx, num_temps=%d, primary_is_inclusive=%d\n",
+          num_temps, primary_is_inclusive);
+#endif
+
   Collector collector = CV[0];
   std::string metric = MV[0];
   bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
@@ -394,10 +467,18 @@ bool Detail_CallStack_Report (
   try {
     collector.lockDatabase();
     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
-    Time base_time = databaseExtent .getTimeInterval().getBegin();
+    Time base_time = databaseExtent.getTimeInterval().getBegin();
+#if DEBUG_CLI
+    printf("In Detail_CallStack_Report, SS_View_detail.txx, base_time.getValue()=%u\n", base_time.getValue());
+#endif
 
    // Acquire the specified set of time intervals.
     std::vector<std::pair<Time,Time> > intervals;
+
+#if DEBUG_CLI
+    printf("In Detail_CallStack_Report, SS_View_detail.txx, calling Parse_Interval_Specification\n");
+#endif
+
     Parse_Interval_Specification (cmd, exp, intervals);
 
    // Acquire base set of metric values.
@@ -405,6 +486,10 @@ bool Detail_CallStack_Report (
                       std::map<Framework::StackTrace,
                                TDETAIL > > > raw_items;
     GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, raw_items);
+
+#if DEBUG_CLI
+    printf("In Detail_CallStack_Report, SS_View_detail.txx, after GetMetricInThreadGroup\n");
+#endif
 
 /* Don't issue this message - just go ahead an print the headers and an empty report.
    Consider turning this message into a Annotation.
@@ -418,6 +503,11 @@ bool Detail_CallStack_Report (
     std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(Find_Max_ExtraMetrics(IV)+1);
     bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
 
+#if DEBUG_CLI
+    printf("In Detail_CallStack_Report, SS_View_detail.txx, after GetReducedMetrics, ExtraTemps=%d\n",
+           ExtraTemps);
+#endif
+
    // Combine all the items for each function.
     std::map<Address, CommandResult *> knownTraces;
     std::set<Framework::StackTrace, ltST> StackTraces_Processed;
@@ -428,6 +518,12 @@ bool Detail_CallStack_Report (
      // Foreach Detail function ...
 
       Function F = (*fi).first;
+
+#if DEBUG_CLI
+      cerr << "In Detail_CallStack_Report, SS_View_detail.txx, calling Get_Subextents_To_Object_Map for Function " 
+           <<   F.getName() << "\n" ;
+#endif
+
       std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
       Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
 
@@ -440,7 +536,16 @@ bool Detail_CallStack_Report (
        // Use macro to allocate temporary array
         def_Detail_values
 
-        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map);
+#if DEBUG_CLI
+        printf("In Detail_CallStack_Report, SS_View_detail.txx, calling Accumulate_Stack\n");
+#endif
+      bool DEBUG_FLAG = false;
+
+#if DEBUG_CLI
+      DEBUG_FLAG = true;
+#endif
+
+	Accumulate_CallStack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG);
 
        // Use macro to set values into return structure.
         SmartPtr<std::vector<CommandResult *> > vcs
@@ -450,10 +555,16 @@ bool Detail_CallStack_Report (
         set_Detail_values((*vcs), primary_is_inclusive)
         set_ExtraMetric_values((*vcs), Extra_Values, F)
 
+#if DEBUG_CLI
+        printf("In Detail_CallStack_Report, SS_View_detail.txx, about to construct result entry\n");
+#endif
        // Construct result entry
         std::vector<CommandResult *> *call_stack
                  = Construct_CallBack (TraceBack_Order, add_stmts, st, knownTraces);
         CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
+#if DEBUG_CLI
+        printf("In Detail_CallStack_Report, SS_View_detail.txx, after new CommandResult_CallStackEntry\n");
+#endif
         c_items.push_back(std::make_pair(CSE, vcs));
       }
     }
@@ -476,7 +587,13 @@ bool Detail_CallStack_Report (
   collector.unlockDatabase();
 
  // Generate the report.
+#if DEBUG_CLI
+  printf("In Detail_CallStack_Report, SS_View_detail.txx, before calling Generic_Multi_View\n");
+#endif
   bool view_built = Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack,c_items, view_output);
+#if DEBUG_CLI
+  printf("In Detail_CallStack_Report, SS_View_detail.txx, after calling Generic_Multi_View\n");
+#endif
 
  // Release instructions
   for (int64_t i = 0; i < IV.size(); i++) {
@@ -484,6 +601,10 @@ bool Detail_CallStack_Report (
     delete vp;
     IV[i] = NULL;
   }
+#if DEBUG_CLI
+  printf("Exit Detail_CallStack_Report, SS_View_detail.txx, view_built=%d, topn=%d\n",
+          view_built, topn);
+#endif
   return view_built;
 }
 
@@ -501,6 +622,10 @@ bool Detail_ButterFly_Report (
   Collector collector = CV[0];
   std::string metric = MV[0];
   bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
+#if DEBUG_CLI
+  printf("Enter Detail_ButterFly_Report, SS_View_detail.txx, num_temps=%d, primary_is_inclusive=%d\n",
+          num_temps, primary_is_inclusive);
+#endif
 
  // Get the list of desired functions.
   std::set<Function> objects;
@@ -515,6 +640,9 @@ bool Detail_ButterFly_Report (
     collector.lockDatabase();
     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
     Time base_time = databaseExtent.getTimeInterval().getBegin();
+#if DEBUG_CLI
+    printf("In Detail_ButterFly_Report, SS_View_detail.txx, base_time.getValue()=%u\n", base_time.getValue());
+#endif
 
    // Acquire the specified set of time intervals.
     std::vector<std::pair<Time,Time> > intervals;
@@ -560,7 +688,15 @@ bool Detail_ButterFly_Report (
        // Use macro to allocate imtermediate temporaries
         def_Detail_values
 
-        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map);
+       // Pass a debug flag so that a runtime check can be used because #if's can't
+       // be used inside a #define which is what Accumulate_Stack is
+        bool DEBUG_FLAG = false;
+
+#if DEBUG_CLI
+      DEBUG_FLAG = true;
+#endif
+     // Go off and get the values 
+        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG);
 
        // Use macro to construct result array
         SmartPtr<std::vector<CommandResult *> > vcs
@@ -612,5 +748,8 @@ bool Detail_ButterFly_Report (
     delete vp;
     IV[i] = NULL;
   }
+#if DEBUG_CLI
+  printf("Exit Detail_ButterFly_Report, SS_View_detail.txx,  topn=%d\n", topn);
+#endif
   return true;
 }

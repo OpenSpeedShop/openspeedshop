@@ -168,6 +168,10 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   Assert(p_result != NULL);
 
+#if DEBUG_CLI
+  printf("Enter SS_Generate_View in SS_View.cxx, viewname.c_str()=%s\n", viewname.c_str());
+#endif
+
  // Determine the availability of the view.
   ViewType *vt = Find_View (viewname);
   if (vt == NULL) {
@@ -244,6 +248,10 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
  // Try to Generate the Requested View!
   bool success = vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),
                                    tgrp, cmd->Result_List());
+
+#if DEBUG_CLI
+  printf("Exit SS_Generate_View in SS_View.cxx\n");
+#endif
   return success;
 }
 

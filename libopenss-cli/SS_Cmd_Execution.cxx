@@ -464,6 +464,9 @@ static bool within_range (std::string S, parse_range_t R) {
  *
  */
 bool Filter_Uses_F (CommandObject *cmd) {
+#if DEBUG_CLI
+  printf("Enter Filter_Uses_F\n");
+#endif
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseTarget> *p_tlist = p_result->getTargetList();
 
@@ -472,9 +475,17 @@ bool Filter_Uses_F (CommandObject *cmd) {
   for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
     ParseTarget pt = *pi;
     vector<ParseRange> *f_list = pt.getFileList();
-    if ((f_list != NULL) && !f_list->empty()) return true;
+    if ((f_list != NULL) && !f_list->empty()) {
+#if DEBUG_CLI
+      printf("Exit Filter_Uses_F return true\n");
+#endif
+      return true;
+    }
   }
 
+#if DEBUG_CLI
+  printf("Exit Filter_Uses_F return false\n");
+#endif
   return false;
 }
 
@@ -503,6 +514,9 @@ void Filter_ThreadGroup (OpenSpeedShop::cli::ParseResult *p_result, ThreadGroup&
   vector<ParseTarget> *p_tlist = p_result->getTargetList();
   if (p_tlist->begin() == p_tlist->end()) {
    // There are no filters.
+#if DEBUG_CLI
+    printf("Exit Filter_ThreadGroup return false\n");
+#endif
     return;
   }
 
@@ -770,6 +784,11 @@ bool Parse_Interval_Specification (
       intervals.push_back(make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
       return true;
     }
+
+#if DEBUG_CLI
+    cerr << "In	Parse_Interval_Specification, Istart= " << Istart << "\n";
+    cerr << "In	Parse_Interval_Specification, Iend= " << Iend << "last_time=" << last_time << "\n";
+#endif
 
     intervals.push_back(std::make_pair<Time,Time>(Istart,
                                                   ((Iend == last_time) ? Iend + 1 :  Iend)));
@@ -3113,6 +3132,11 @@ static bool SS_ListObj (CommandObject *cmd) {
 
  // Filter that thread list with any "-f" specification and get a LinkedObject list.
   std::set<LinkedObject> ulset;
+
+#if DEBUG_CLI
+  printf("In SS_ListObj, processing -f option by calling Get_Filtered_Objects\n");
+#endif
+
   Get_Filtered_Objects (cmd, exp, tgrp, ulset);
 
  // Now go through the list of unique LinkedObjects and list their names.
@@ -3125,12 +3149,20 @@ static bool SS_ListObj (CommandObject *cmd) {
 
     LinkedObject lobj = *lseti;
     std::string L = lobj.getPath();
+#if DEBUG_CLI
+    printf("In SS_ListObj, LinkedObject lobj path name=%s\n", L.c_str());
+#endif
     cmd->Result_String ( L );
   }
 
   exp->Q_UnLock ();
 
   cmd->set_Status(CMD_COMPLETE);
+
+#if DEBUG_CLI
+    printf("Exit SS_ListObj\n");
+#endif
+
   return true;
 }
 

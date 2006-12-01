@@ -16,6 +16,12 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+/* Take the define below out of comments for debug
+   output in several CLI routines that
+   include this include file.........
+*/
+/* #define DEBUG_CLI 1 */
+
 /* TEST */
 template <typename TO, typename TS>
 void GetMetricInThreadGroupByThread (
@@ -31,6 +37,10 @@ void GetMetricInThreadGroupByThread (
                  iv = intervals.begin(); iv != intervals.end(); iv++) {
       Time Start_Time = iv->first;
       Time End_Time = iv->second;
+#if DEBUG_CLI
+      printf("In GetMetricInThreadGroupByThread, Start_Time.getValue()=%u\n", Start_Time.getValue());
+      printf("In GetMetricInThreadGroupByThread, End_Time.getValue()=%u\n", End_Time.getValue());
+#endif
       Queries::GetMetricValues(collector, metric,
                                TimeInterval(Start_Time, End_Time),
                                tgrp, objects, individual);
@@ -75,6 +85,11 @@ void GetMetricInThreadGroup(
     SmartPtr<std::map<TO, TS > >& result)
 {
    // Allocate (if necessary) a new map of source objects to values
+
+#if DEBUG_CLI
+    printf("GetMetricInThreadGroup, metric.c_str()=%s\n", metric.c_str());
+#endif
+
     if(result.isNull()) {
       result = SmartPtr<std::map<TO, TS > >(new std::map<TO, TS >());
       Assert(!result.isNull());
@@ -82,9 +97,15 @@ void GetMetricInThreadGroup(
 
    // Get the metric values for all the threads over all specified time intervals.
     SmartPtr<std::map<TO, std::map<Thread, TS > > > individual;
+#if DEBUG_CLI
+    printf("GetMetricInThreadGroup, calling GetMetricInThreadGroupByThread, metric.c_str()=%s\n", metric.c_str());
+#endif
     GetMetricInThreadGroupByThread (collector, metric, intervals, tgrp, objects, individual);
 
    // Reduce the per-thread values.
+#if DEBUG_CLI
+    printf("GetMetricInThreadGroup, calling ReduceMetricByThread, metric.c_str()=%s\n", metric.c_str());
+#endif
     ReduceMetricByThread (individual, Queries::Reduction::Summation, result);
 
    // Reclaim space.
@@ -141,6 +162,9 @@ bool GetReducedType (
           SmartPtr<std::map<TOBJECT, CommandResult *> >& items) {
 
   Framework::Experiment *experiment = exp->FW();
+#if DEBUG_CLI
+  printf("Enter GetReducedType, in SS_View_getmetics.txx\n"); 
+#endif
 
  // Get the list of desired objects.
   if (objects.empty()) {
@@ -176,12 +200,21 @@ bool GetReducedType (
     std::string S("(Cluster Analysis can not be performed on metric '");
     S = S +  metric + "' of type '" + m.getType() + "'.)";
     Mark_Cmd_With_Soft_Error(cmd, S);
+#if DEBUG_CLI
+    printf("Exit false1 GetReducedType, in SS_View_getmetics.txx\n"); 
+#endif
     return false;
   }
   if (items->size() == 0) {
     Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for metric reduction.)");
+#if DEBUG_CLI
+    printf("Exit false2 GetReducedType, in SS_View_getmetics.txx\n"); 
+#endif
     return false;
   }
 
+#if DEBUG_CLI
+  printf("Exit true GetReducedType, in SS_View_getmetics.txx\n"); 
+#endif
   return true;
 }

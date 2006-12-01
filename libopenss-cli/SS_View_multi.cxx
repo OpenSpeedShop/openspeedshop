@@ -67,6 +67,10 @@ static void Calculate_Totals (
                             SmartPtr<std::vector<CommandResult *> > > >& c_items,
       std::vector<CommandResult *>& Total_Values) {
 
+#if DEBUG_CLI
+  printf("in Calculate_Totals, c_items.size()=%d\n", c_items.size());
+#endif
+
   for (int64_t i = 0; i < IV.size(); i++) {
     ViewInstruction *vp = IV[i];
     CommandResult *TotalValue = NULL;
@@ -93,6 +97,11 @@ static void Calculate_Totals (
         if (ci != c_items.end()) {
           Gen_Total_Percent = true;
           TotalValue = (*(*ci).second)[tmpIndex]->Copy();
+#if DEBUG_CLI
+          printf("START printing TotalValue in Copy section using  (*ci).second[tmpIndex=%d]->Print()\n", tmpIndex);
+          (*(*ci).second)[tmpIndex]->Print(cerr);
+          printf("\nEND printing TotalValue in Copy section using  (*ci).second[tmpIndex=%d]->Print()\n", tmpIndex);
+#endif
         }
         ci++;
         if (Look_For_KeyWord(cmd, "ButterFly")) {
@@ -102,6 +111,11 @@ static void Calculate_Totals (
         } else {
           for ( ; ci != c_items.end(); ci++) {
             TotalValue->Accumulate_Value ((*(*ci).second)[tmpIndex]);
+#if DEBUG_CLI
+            printf("START printing TotalValue in Accumulate_Value section using  (*ci).second[tmpIndex=%d]->Print()\n", tmpIndex);
+            (*(*ci).second)[tmpIndex]->Print(cerr);
+            printf("\nEND printing TotalValue in Accumulate_Value section using  (*ci).second[tmpIndex=%d]->Print()\n", tmpIndex);
+#endif
           }
         }
       }
@@ -118,6 +132,9 @@ static void Setup_Sort(
        int64_t temp_index,
        std::vector<std::pair<CommandResult *,
                              SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+#if DEBUG_CLI
+  printf("in Setup_Sort, temp_index=%d\n", temp_index);
+#endif
   if (temp_index == VMulti_sort_temp) return;
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
@@ -138,6 +155,9 @@ static void Setup_Sort(
        ViewInstruction *vinst,
        std::vector<std::pair<CommandResult *,
                              SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+#if DEBUG_CLI
+  printf("in Setup_Sort\n");
+#endif
   if ((vinst->OpCode() == VIEWINST_Display_Metric) ||
       (vinst->OpCode() == VIEWINST_Display_Percent_Column)) {
     return;
@@ -179,6 +199,9 @@ static void Dump_Intermediate_CallStack (ostream &tostream,
                              SmartPtr<std::vector<CommandResult *> > > >& c_items) {
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+#if DEBUG_CLI
+  printf("in Dump_Intermediate_CallStack\n");
+#endif
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, dump the corresponding value and the last call stack function name.
     std::pair<CommandResult *,
@@ -194,6 +217,9 @@ static void Dump_Intermediate_CallStack (ostream &tostream,
 static std::vector<CommandResult *> *
        Dup_Call_Stack (int64_t len,
                        std::vector<CommandResult *> *cs) {
+#if DEBUG_CLI
+  printf("in Dup_Call_Stack, len=%d\n", len);
+#endif
   std::vector<CommandResult *> *call_stack;
   if (len == 0) return call_stack;
   Assert (len <= cs->size());
@@ -211,6 +237,9 @@ static std::vector<CommandResult *> *
        Copy_Call_Stack_Entry (int64_t idx,
                               int64_t bias,
                               std::vector<CommandResult *> *cs) {
+#if DEBUG_CLI
+  printf("in Copy_Call_Stack_Entry, idx=%d, bias=%d\n", idx, bias);
+#endif
   std::vector<CommandResult *> *call_stack;
   call_stack = new std::vector<CommandResult *>();
   if (bias < 0) {
@@ -232,6 +261,9 @@ static int64_t Match_Call_Stack (std::vector<CommandResult *> *cs,
                                  std::vector<CommandResult *> *ncs) {
   int64_t csz = cs->size();
   int64_t ncsz = ncs->size();
+#if DEBUG_CLI
+  printf("in Match_Call_Stack, csz=%d, ncsz=%d\n", csz, ncsz);
+#endif
   int64_t minsz = min(csz, ncsz);
   for (int64_t i = 0; i < minsz; i++) {
     CommandResult *cse = (*cs)[i];
@@ -283,6 +315,9 @@ static int64_t Match_Short_Stack (SmartPtr<std::vector<CommandResult *> >& cs,
                                   SmartPtr<std::vector<CommandResult *> >& ncs) {
   int64_t csz = cs->size();
   int64_t ncsz = ncs->size();
+#if DEBUG_CLI
+  printf("in Match_Short_Stack, csz=%d, ncsz=%d\n", csz, ncsz);
+#endif
   if ((csz <= 0) || (ncsz <= 0)) return -1;
   int64_t minsz = min(csz, ncsz);
   int64_t i = 0;
@@ -322,6 +357,9 @@ static bool Match_Field_Requirements (std::vector<ViewInstruction *>& IV,
                                       std::vector<CommandResult *>& A,
                                       std::vector<CommandResult *>& B) {
   int64_t len =IV.size();
+#if DEBUG_CLI
+  printf("in Match_Field_Requirements, len=%d\n", len);
+#endif
   for (int64_t i = 0; i < len; i++) {
     ViewInstruction *vp = IV[i];
     if (vp->OpCode() == VIEWINST_Require_Field_Equal) {
@@ -344,6 +382,9 @@ static inline void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& 
                                                 std::vector<CommandResult *>& A,
                                                 std::vector<CommandResult *>& B) {
   int64_t len = min(IV.size(),A.size());
+#if DEBUG_CLI
+  printf("in Accumulate_PreDefined_Temps, len=%d\n", len);
+#endif
   for (int64_t i = 0; i < len; i++) {
     if ((A[i] == NULL) &&
         (B[i] == NULL)) continue;
@@ -366,6 +407,9 @@ static void Combine_Duplicate_CallStacks (
               std::vector<ViewInstruction *>& FieldRequirements,
               std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+#if DEBUG_CLI
+  printf("in Combine_Duplicate_CallStacks\n");
+#endif
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
 
@@ -423,6 +467,9 @@ static void Combine_Short_Stacks (
               std::vector<ViewInstruction *>& FieldRequirements,
               std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+#if DEBUG_CLI
+  printf("in Combine_Short_Stacks\n");
+#endif
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
 
@@ -519,6 +566,9 @@ static void Extract_Pivot_Items (
               std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& result) {
   bool pivot_added = false;
+#if DEBUG_CLI
+  printf("in Extract_Pivot_Items\n");
+#endif
   std::pair<CommandResult *,
             SmartPtr<std::vector<CommandResult *> > > pivot;
   std::vector<std::pair<CommandResult *,
@@ -581,18 +631,44 @@ static void Expand_CallStack (
               bool TraceBack_Order,
               std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+#if DEBUG_CLI
+     printf("in EXPAND_CALLSTACK TraceBack_Order=%d\n",TraceBack_Order);
  // Rewrite base report by expanding the call stack.
+//  cerr << "\nEXPAND_CALLSTACK Dump items.  Number of items is " << c_items.size() << "\n";
+     printf("in EXPAND_CALLSTACK c_items.size()=%d\n",c_items.size());
+//  Dump_items(std::vector<std::pair<CommandResult *, SmartPtr<std::vector<CommandResult *> > > >);
+#endif
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > > result;
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+
    // Foreach CallStack entry, look for duplicates and missing intermediates.
     std::vector<std::pair<CommandResult *,
                           SmartPtr<std::vector<CommandResult *> > > >::iterator nvpi = vpi+1;
     std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
     std::vector<CommandResult *> *cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
+
+#if DEBUG_CLI
+    printf("in EXPAND_CALLSTACK  ((CommandResult_CallStackEntry *)cp.first)->Value()=%f\n", 
+            ((CommandResult_CallStackEntry *)cp.first)->Value());
+
+    std::pair<CommandResult *,
+              SmartPtr<std::vector<CommandResult *> > > xcp = *vpi;
+    int64_t i;
+   for (i = 0; i < (*xcp.second).size(); i++ ) {
+      CommandResult *xp = (*xcp.second)[i];
+      cerr << " EXPAND_CALLSTACK, CommandResult, second ";
+      if (xp != NULL) {
+        xp->Print(cerr); cerr << "\n";
+      } else {
+        cerr << "NULL\n";
+      }
+    }
+#endif
 
     // for (int64_t i = cs->size()-1; i > 0; i--) 
     for (int64_t i = 1; i < cs->size(); i++) {
@@ -621,7 +697,33 @@ bool Generic_Multi_View (
                                  SmartPtr<std::vector<CommandResult *> > > >& c_items,
            std::list<CommandResult *>& view_output) {
   bool success = false;
-// Print_View_Params (cerr, CV,MV,IV);
+#if DEBUG_CLI
+  Print_View_Params (cerr, CV,MV,IV);
+  cerr << "\nEnter Generic_Multi_View, in SS_View_multi.cxx, c_items.size()= " << c_items.size() << "\n";
+  cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
+  std::vector<std::pair<CommandResult *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator jegvpi;
+  for (jegvpi = c_items.begin(); jegvpi != c_items.end(); jegvpi++) {
+   // Foreach CallStack entry, copy the desired sort value into the VMulti_sort_temp field.
+    std::pair<CommandResult *,
+              SmartPtr<std::vector<CommandResult *> > > jegcp = *jegvpi;
+    int64_t jegi;
+    for (jegi = 0; jegi < (*jegcp.second).size(); jegi++ ) {
+      CommandResult *jegp = (*jegcp.second)[jegi];
+      printf("Generic_Multi_View, START printing jegi=%d, jegp=%x\n", jegi, jegp);
+      cerr << "  ";
+      if (jegp != NULL) {
+        jegp->Print(cerr); cerr << "\n";
+      } else {
+        cerr << "NULL\n";
+      }
+      printf("Generic_Multi_View, END printing jegp\n");
+    }
+
+  }
+  fflush(stderr);
+#endif
+
   Assert (vfc != VFC_Unknown);
 
   if (Look_For_KeyWord(cmd, "ButterFly") &&
@@ -706,10 +808,38 @@ bool Generic_Multi_View (
     if (vfc == VFC_Trace) {
       EO_Title = "Call Stack Function (defining location)";
 
+#if DEBUG_CLI
+      printf("CallTree - processin, topn=%d, (int64_t)c_items.size()=%d\n", topn, (int64_t)c_items.size());
+#endif
       if ((topn < (int64_t)c_items.size()) &&
           !Look_For_KeyWord(cmd, "ButterFly")) {
        // Determine the topn items based on the time spent in each call.
         Setup_Sort (VMulti_time_temp, c_items);
+
+
+#if DEBUG_CLI
+  cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
+  std::vector<std::pair<CommandResult *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+   // Foreach CallStack entry, copy the desired sort value into the VMulti_sort_temp field.
+    std::pair<CommandResult *,
+              SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
+    int64_t i;
+    for (i = 0; i < (*cp.second).size(); i++ ) {
+      CommandResult *p = (*cp.second)[i];
+      cerr << "  ";
+      if (p != NULL) {
+        p->Print(cerr); cerr << "\n";
+      } else {
+        cerr << "NULL\n";
+      }
+    }
+
+  }
+  fflush(stderr);
+#endif
+
         std::sort(c_items.begin(), c_items.end(),
                   sort_descending_CommandResult<std::pair<CommandResult *,
                                                           SmartPtr<std::vector<CommandResult *> > > >());
@@ -718,6 +848,7 @@ bool Generic_Multi_View (
       }
      // Sort by the value displayed in the left most column.
       Setup_Sort (ViewInst[0], c_items);
+
       if ((sortInst == NULL) ||
           (sortInst->TMP1() == 0)) {
         std::sort(c_items.begin(), c_items.end(),
@@ -933,6 +1064,10 @@ bool Generic_Multi_View (
       delete Total_Value[i];
     }
   }
+
+#if DEBUG_CLI
+  cerr << "\nExit Generic_Multi_View, success= " << success << "\n";
+#endif
 
   return success;
 }

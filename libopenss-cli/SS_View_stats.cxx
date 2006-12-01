@@ -52,6 +52,10 @@ bool GetExtraMetrics(CommandObject *cmd,
     int64_t i;
     bool thereAreExtraMetrics = false;
 
+#if DEBUG_CLI
+    printf("Enter GetExtraMetrics \n");
+#endif
+
    // Define all the SmartPtrs
     for ( i=0; i < Values.size(); i++) {
       Values[i] = Framework::SmartPtr<std::map<TE, CommandResult *> >(
@@ -87,6 +91,10 @@ bool GetExtraMetrics(CommandObject *cmd,
       }
     }
 
+#if DEBUG_CLI
+    printf("Exit GetExtraMetrics \n");
+#endif
+
 }
 
 template <typename TE>
@@ -100,6 +108,9 @@ bool First_Column (CommandObject *cmd,
                    std::vector<std::pair<TE, CommandResult *> >& items) {
     int64_t i;
 
+#if DEBUG_CLI
+    printf("Enter First_Column \n");
+#endif
    // Determine the metric value we need to fetch.
     ViewInstruction *vp = Find_Column_Def (IV, 0);
     int64_t Column0metric = 0;
@@ -143,6 +154,9 @@ bool First_Column (CommandObject *cmd,
    // Now we can sort the data.
     std::sort(items.begin(), items.end(), sort_descending_CommandResult<std::pair<TE, CommandResult *> >());
 
+#if DEBUG_CLI
+    printf("Exit FirstColumn \n");
+#endif
     return !items.empty();
 }
 
@@ -163,6 +177,9 @@ void Construct_View (CommandObject *cmd,
                      std::list<CommandResult *>& view_output) {
     int64_t i;
 
+#if DEBUG_CLI
+    printf("Enter ConstructView, SS_View_stats.cxx \n");
+#endif
    // Get all the metric values.
     std::vector<SmartPtr<std::map<TE, CommandResult *> > > Values(num_columns);
     bool ExtraMetrics = GetExtraMetrics (cmd, exp, tgrp, CV, MV, IV, num_columns, ViewInst, items, Values);
@@ -186,8 +203,14 @@ void Construct_View (CommandObject *cmd,
 
      // Add Metrics
       for ( i=0; i < num_columns; i++) {
+#if DEBUG_CLI
+        printf("In ConstructView, looping over columns, total columns=%d, working on i=%d\n", num_columns, i );
+#endif
         ViewInstruction *vinst = ViewInst[i];
         int64_t CM_Index = vinst->TMP1();
+#if DEBUG_CLI
+        printf("In ConstructView, CM_Index=%d, vinst->OpCode()=%d\n", CM_Index, vinst->OpCode() );
+#endif
 
         CommandResult *Next_Metric_Value = NULL;
         if ((vinst->OpCode() == VIEWINST_Display_Metric) ||
@@ -197,6 +220,9 @@ void Construct_View (CommandObject *cmd,
             column_one_used = true;
           } else if (Values[i].isNull()) {
            // There is no map - look up the individual function.
+#if DEBUG_CLI
+            printf("In ConstructView, no map, CM_Index=%d\n", CM_Index );
+#endif
             Next_Metric_Value = Get_Object_Metric( cmd, exp, it->first, tgrp,
                                                      CV[CM_Index], MV[CM_Index] );
           } else {
@@ -218,12 +244,18 @@ void Construct_View (CommandObject *cmd,
            // The measured time interval is too small.
             continue;
           }
+#if DEBUG_CLI
+          printf("In ConstructView, i=%d, percentofcolumn=%d\n", i, percentofcolumn );
+#endif
           if ((i > percentofcolumn) &&
               (percent_of != NULL)) {
             Next_Metric_Value = Calculate_Percent (percent_of, TotalValue);
           } else {
             ViewInstruction *percentInst = Find_Column_Def (IV, vinst->TMP1());
             int64_t percentIndex = percentInst->TMP1();
+#if DEBUG_CLI
+            printf("In ConstructView, i=%d, percentIndex=%d\n", i, percentIndex );
+#endif
             CommandResult *Metric_Result = Get_Object_Metric( cmd, exp, it->first, tgrp,
                                                                CV[percentIndex], MV[percentIndex] );
             Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
@@ -239,8 +271,14 @@ void Construct_View (CommandObject *cmd,
             (vinst->OpCode() != VIEWINST_Display_ByThread_Metric)) {
          // Copy the first row to initialize the summary values.
           if (foundn == 0) {
+#if DEBUG_CLI
+            printf("In ConstructView, Column_Sum[i] = Next_Metric_Value->Copy(),i=%d\n", i);
+#endif
             Column_Sum[i] = Next_Metric_Value->Copy();
           } else {
+#if DEBUG_CLI
+            printf("In ConstructView, Column_Sum[i]->Accumulate_Value (Next_Metric_Value),i=%d\n", i);
+#endif
             Column_Sum[i]->Accumulate_Value (Next_Metric_Value);
           }
         }
@@ -265,6 +303,9 @@ void Construct_View (CommandObject *cmd,
      // Add Metrics Summary
       for ( i=0; i < num_columns; i++) {
         CommandResult *sum = Column_Sum[i];
+#if DEBUG_CLI
+        printf("In ConstructView, Add Metrics Summary, i=%d, num_columns=%d\n", i, num_columns );
+#endif
         if (sum == NULL) {
           sum = CRPTR ("");
         }
@@ -275,6 +316,10 @@ void Construct_View (CommandObject *cmd,
       view_output.push_back (E);
     }
 
+#if DEBUG_CLI
+    printf("In ConstructView, ExtraMetrics=%d, Values.size()=%d\n", ExtraMetrics, Values.size() );
+#endif
+
     if (ExtraMetrics) {
       for (int64_t i = 0; i < Values.size(); i++) {
         if (!Values[i].isNull() &&
@@ -283,6 +328,9 @@ void Construct_View (CommandObject *cmd,
         }
       }
     }
+#if DEBUG_CLI
+    printf("Exit ConstructView \n");
+#endif
 }
 
 // Generic routine to generate a simple view
@@ -327,8 +375,11 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                    std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
                    std::list<CommandResult *>& view_output) {
   bool success = false;
-  // Print_View_Params (cerr, CV,MV,IV);
+  Print_View_Params (cerr, CV,MV,IV);
 
+#if DEBUG_CLI
+  printf("Enter Generic_View, topn=%d \n",topn);
+#endif
  // Warn about misspelled of meaningless options.
   Validate_V_Options (cmd, allowed_stats_V_options);
 
@@ -499,18 +550,27 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
    // Now format the view.
     switch (vg) {
      case VIEW_STATEMENTS:
+#if DEBUG_CLI
+      printf("IN Generic_View, case VIEW_STATEMENTS calling Construct_View, num_columns=%d \n",num_columns);
+#endif
       Construct_View (cmd, exp, tgrp, CV, MV, IV,
                       num_columns,
                       ViewInst, Gen_Total_Percent, percentofcolumn, TotalValue, report_Column_summary,
                       s_items, view_output);
       break;
      case VIEW_LINKEDOBJECTS:
+#if DEBUG_CLI
+      printf("IN Generic_View, case VIEW_LINKEDOBJECTS calling Construct_View, num_columns=%d \n",num_columns);
+#endif
       Construct_View (cmd, exp, tgrp, CV, MV, IV,
                       num_columns,
                       ViewInst, Gen_Total_Percent, percentofcolumn, TotalValue, report_Column_summary,
                       l_items, view_output);
       break;
      default:
+#if DEBUG_CLI
+      printf("IN Generic_View, case default calling Construct_View, num_columns=%d \n",num_columns);
+#endif
       Construct_View (cmd, exp, tgrp, CV, MV, IV,
                       num_columns,
                       ViewInst, Gen_Total_Percent, percentofcolumn, TotalValue, report_Column_summary,
@@ -540,6 +600,9 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     IV[i] = NULL;
   }
 
+#if DEBUG_CLI
+  printf("Exit Generic_View, success=%d \n",success);
+#endif
   return success;
 }
 
@@ -550,6 +613,9 @@ bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   int64_t i = 0;
+#if DEBUG_CLI
+  printf("Enter Select_User_Metrics \n");
+#endif
   vector<ParseRange>::iterator mi;
   for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
     parse_range_t *m_range = (*mi).getRange();
@@ -605,6 +671,9 @@ bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
     i++;
   }
 
+#if DEBUG_CLI
+  printf("Exit Select_User_Metrics \n");
+#endif
   return true;
 }
 
@@ -612,6 +681,9 @@ bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
 static bool Select_All_Metrics (CommandObject *cmd, ExperimentObject *exp,
                                 std::vector<Collector>& CV, std::vector<std::string>& MV,
                                 std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV) {
+#if DEBUG_CLI
+  printf("Enter Select_All_Metrics \n");
+#endif
  // Use the metrics specified in the experiment definition.
   if ((exp == NULL) ||
       (exp->FW() == NULL)) {
@@ -650,6 +722,9 @@ static bool Select_All_Metrics (CommandObject *cmd, ExperimentObject *exp,
     }
   }
 
+#if DEBUG_CLI
+  printf("Exit Select_All_Metrics, collector_found \n", collector_found);
+#endif
   return collector_found;
 }
 
@@ -699,6 +774,9 @@ class stats_view : public ViewType {
     std::vector<std::string> MV;
     std::vector<ViewInstruction *>IV;
     std::vector<std::string> HV;
+#if DEBUG_CLI
+    printf("Enter GenerateView \n");
+#endif
 
     OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
     vector<ParseRange> *p_slist = p_result->getexpMetricList();

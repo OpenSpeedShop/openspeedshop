@@ -43,6 +43,12 @@
 #define PTHREAD_MUTEX_RECURSIVE_NP 0
 #endif
 
+/* Take the define below out of comments for debug 
+   output in several CLI routines that
+   include this include file.........
+*/
+/* #define DEBUG_CLI 1 */
+
 // for host name description
      #include <sys/socket.h>
      #include <netinet/in.h>

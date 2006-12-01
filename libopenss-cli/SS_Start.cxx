@@ -456,6 +456,9 @@ extern "C"
         gui_window = GUI_Window ("GUI",&HostName[0],my_pid,0,true);
       }
 
+#if DEBUG_CLI
+      cerr << "Calling Start_Command_Line " <<  std::endl;
+#endif
      // Complete set up for each input window.
       if (command_line_window != 0) {
        // Move the command line options to an input control window.
@@ -479,6 +482,9 @@ extern "C"
 				(void   *)tli_window);
       }
 
+#if DEBUG_CLI
+      cerr << "Calling Start_Command_Line, need_gui? " << need_gui <<  std::endl;
+#endif
       if (need_gui)
       {
 

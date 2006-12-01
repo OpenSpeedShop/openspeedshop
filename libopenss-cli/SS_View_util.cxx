@@ -38,6 +38,10 @@ void GetMetricBySet (CommandObject *cmd,
   Metadata m = Find_Metadata ( collector, metric );
   std::string id = m.getUniqueId();
 
+#if DEBUG_CLI
+  printf("GetMetricBySet  - SS_View_util.cxx, metric=%s\n", metric.c_str());
+#endif
+
   if( m.isType(typeid(unsigned int)) ) {
     SmartPtr<std::map<TE, uint> > data;
     GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, data);
@@ -96,6 +100,9 @@ void GetMetricBySet (CommandObject *cmd,
     }
   }
 
+#if DEBUG_CLI
+  printf("Exit GetMetricBySet  - SS_View_util.cxx, metric=%s\n", metric.c_str());
+#endif
   return;
 }
 
@@ -106,6 +113,9 @@ void GetMetricByObjectSet (CommandObject *cmd,
                            std::string& metric,
                            std::set<Function>& objects,
                            SmartPtr<std::map<Function, CommandResult *> >& items) {
+#if DEBUG_CLI
+  printf("Enter GetMetricByObjectSet1 - SS_View_util.cxx, metric=%s\n", metric.c_str());
+#endif
   GetMetricBySet (cmd, exp, tgrp, collector, metric, objects, items);
 }
 
@@ -116,6 +126,9 @@ void GetMetricByObjectSet (CommandObject *cmd,
                            std::string& metric,
                            std::set<Statement>& objects,
                            SmartPtr<std::map<Statement, CommandResult *> >& items) {
+#if DEBUG_CLI
+  printf("Enter GetMetricByObjectSet2 - SS_View_util.cxx, metric=%s\n", metric.c_str());
+#endif
   GetMetricBySet (cmd, exp, tgrp, collector, metric, objects, items);
 }
 
@@ -126,6 +139,9 @@ void GetMetricByObjectSet (CommandObject *cmd,
                            std::string& metric,
                            std::set<LinkedObject>& objects,
                            SmartPtr<std::map<LinkedObject, CommandResult *> >& items) {
+#if DEBUG_CLI
+  printf("Enter GetMetricByObjectSet3 - SS_View_util.cxx, metric=%s\n", metric.c_str());
+#endif
   GetMetricBySet (cmd, exp, tgrp, collector, metric, objects, items);
 }
 
@@ -144,6 +160,10 @@ bool GetAllReducedMetrics(
     int64_t i;
     int64_t num_vinst = IV.size();
 
+#if DEBUG_CLI
+    printf("Enter GetAllReducedMetrics  - SS_View_util.cxx, num_vinst=%d\n", num_vinst);
+    printf("Enter GetAllReducedMetrics  - SS_View_util.cxx, Values.size()=%d\n", Values.size());
+#endif
    // Get all the metric values.
     for ( i=0; i < Values.size(); i++) {
       Values[i] = Framework::SmartPtr<std::map<TE, CommandResult *> >(
@@ -158,15 +178,24 @@ bool GetAllReducedMetrics(
         int64_t reductionIndex = vinst->TR();
         int64_t CM_Index = vinst->TMP1();
         int64_t reductionType  = vinst->TMP2();
+#if DEBUG_CLI
+        printf("In GetAllReducedMetrics  - SS_View_util.cxx, reductionIndex=%d, ViewReduction_Count=%d\n", reductionIndex, ViewReduction_Count);
+#endif
         if (reductionIndex < ViewReduction_Count) {
           Assert ((reductionType == ViewReduction_sum) ||
                   (reductionType == ViewReduction_mean) ||
                   (reductionType == ViewReduction_min) ||
                   (reductionType == ViewReduction_max));
          // Get a by-thread reduced metric.
+#if DEBUG_CLI
+          printf("In GetAllReducedMetrics  - SS_View_util.cxx, Get a by-thread reduced metric\n");
+#endif
           GetReducedType (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, reductionType, Values[reductionType]);
         } else {
          // Get a simple metric for the entire tgrp.
+#if DEBUG_CLI
+          printf("In GetAllReducedMetrics  - SS_View_util.cxx, Get a simple metric for entire thread group\n");
+#endif
           GetMetricByObjectSet (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, Values[reductionIndex]);
         }
         thereAreExtraMetrics = true;
@@ -174,6 +203,9 @@ bool GetAllReducedMetrics(
 
     }
 
+#if DEBUG_CLI
+    printf("Exit GetAllReducedMetrics  - SS_View_util.cxx, thereAreExtraMetrics=%d\n", thereAreExtraMetrics);
+#endif
     return thereAreExtraMetrics;
 }
 
@@ -184,7 +216,10 @@ bool GetReducedMetrics(CommandObject *cmd,
                        std::vector<std::string>& MV,
                        std::vector<ViewInstruction *>& IV,
                        std::set<Function>& objects,
-                       std::vector<SmartPtr<std::map<Function, CommandResult *> > >& Values) {
+                        std::vector<SmartPtr<std::map<Function, CommandResult *> > >& Values) {
+#if DEBUG_CLI
+  printf("Enter GetReducedMetrics1  - SS_View_util.cxx\n");
+#endif
   return GetAllReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Values);
 }
 
@@ -196,6 +231,9 @@ bool GetReducedMetrics(CommandObject *cmd,
                        std::vector<ViewInstruction *>& IV,
                        std::set<Statement>& objects,
                        std::vector<SmartPtr<std::map<Statement, CommandResult *> > >& Values) {
+#if DEBUG_CLI
+  printf("Enter GetReducedMetrics2  - SS_View_util.cxx\n");
+#endif
   return GetAllReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Values);
 }
 
@@ -207,6 +245,9 @@ bool GetReducedMetrics(CommandObject *cmd,
                        std::vector<ViewInstruction *>& IV,
                        std::set<LinkedObject>& objects,
                        std::vector<SmartPtr<std::map<LinkedObject, CommandResult *> > >& Values) {
+#if DEBUG_CLI
+  printf("Enter GetReducedMetrics3  - SS_View_util.cxx\n");
+#endif
   return GetAllReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Values);
 }
 
@@ -216,21 +257,48 @@ CommandResult *Init_Collector_Metric (CommandObject *cmd,
   CommandResult *Param_Value = NULL;
   Metadata m = Find_Metadata ( collector, metric );
   std::string id = m.getUniqueId();
+#if DEBUG_CLI
+  printf("Enter Init_Collector_Metric  - SS_View_util.cxx, id.c_str()=%s\n", id.c_str());
+#endif
   if( m.isType(typeid(unsigned int)) ) {
     Param_Value = new CommandResult_Uint ();
+#if DEBUG_CLI
+    printf("In Init_Collector_Metric  - SS_View_util.cxx, UNSIGNED INT\n");
+#endif
   } else if( m.isType(typeid(uint64_t)) ) {
     Param_Value = new CommandResult_Uint ();
+#if DEBUG_CLI
+    printf("In Init_Collector_Metric  - SS_View_util.cxx, UNSIGNED 64 INT\n");
+#endif
   } else if( m.isType(typeid(int)) ) {
     Param_Value = new CommandResult_Int ();
+#if DEBUG_CLI
+    printf("In Init_Collector_Metric  - SS_View_util.cxx, INT\n");
+#endif
   } else if( m.isType(typeid(int64_t)) ) {
     Param_Value = new CommandResult_Int ();
+#if DEBUG_CLI
+    printf("In Init_Collector_Metric  - SS_View_util.cxx, INT 64\n");
+#endif
   } else if( m.isType(typeid(float)) ) {
     Param_Value = new CommandResult_Float ();
+#if DEBUG_CLI
+    printf("In Init_Collector_Metric  - SS_View_util.cxx, FLOAT\n");
+#endif
   } else if( m.isType(typeid(double)) ) {
     Param_Value = new CommandResult_Float ();
+#if DEBUG_CLI
+    printf("In Init_Collector_Metric  - SS_View_util.cxx, FLOAT64\n");
+#endif
   } else if( m.isType(typeid(string)) ) {
     Param_Value = new CommandResult_String ("");
+#if DEBUG_CLI
+    printf("In Init_Collector_Metric  - SS_View_util.cxx, STRING\n");
+#endif
   }
+#if DEBUG_CLI
+  printf("Exit Init_Collector_Metric  - SS_View_util.cxx\n");
+#endif
   return Param_Value;
 }
 
@@ -275,6 +343,9 @@ CommandResult *Get_Total_Metric (CommandObject *cmd,
   CommandResult *Param_Value = NULL;
   Metadata m = Find_Metadata ( collector, metric );
   std::string id = m.getUniqueId();
+#if DEBUG_CLI
+  printf("Enter Get_Total_Metric  - SS_View_util.cxx, id.c_str()=%s\n",id.c_str());
+#endif
   if( m.isType(typeid(unsigned int)) ) {
     uint Value = 0;
     GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
@@ -300,6 +371,9 @@ CommandResult *Get_Total_Metric (CommandObject *cmd,
     GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
     if (Value > 0.0000000001) Param_Value = CRPTR (Value);
   }
+#if DEBUG_CLI
+  printf("Exit Get_Total_Metric  - SS_View_util.cxx\n");
+#endif
   return Param_Value;
 }
 
@@ -383,6 +457,9 @@ bool Collector_Generates_Metric (Collector C, std::string Metric_Name) {
 
 std::string Find_Collector_With_Metric (CollectorGroup cgrp,
                                         std::string Metric_Name) {
+#if DEBUG_CLI
+  printf("Find_Collector_With_Metric  - SS_View_util.cxx, Metric_Name=%s\n", Metric_Name.c_str());
+#endif
  // Look for all elements of the list of metrics in one of the collectors in the group.
   CollectorGroup::iterator ci;
   for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
@@ -666,6 +743,9 @@ void Filtered_Objects (CommandObject *cmd,
                        ThreadGroup& tgrp,
                        std::set<TE >& objects ) {
 
+#if DEBUG_CLI
+  printf("Filtered_Objects  - SS_View_util.cxx\n");
+#endif
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
   OpenSpeedShop::cli::ParseTarget pt;
@@ -827,6 +907,11 @@ void Filtered_Objects (CommandObject *cmd,
 
       std::set<Function> new_f;
       std::string F_Name = pval1.name;
+
+#if DEBUG_CLI
+      printf("In Filtered_Objects, found -f argument, named=%s\n", F_Name.c_str());
+#endif
+
       std::string Wild_Name = Is_Full_Path_Name(F_Name) ? F_Name : "*" + F_Name;
       bool found_something = false;
 
@@ -835,6 +920,9 @@ void Filtered_Objects (CommandObject *cmd,
       if (!new_lo.empty()) {
         found_something = true;
         new_objects.insert(new_lo.begin(), new_lo.end());
+#if DEBUG_CLI
+        printf("In Filtered_Objects, found and saved to new_objects a LinkedObject that matched name=%s\n", F_Name.c_str());
+#endif
       }
 
      // Second, find any files that match and add their LinkedObject to the set.
@@ -856,6 +944,9 @@ void Filtered_Objects (CommandObject *cmd,
             Function F = *fi;
             LinkedObject L = F.getLinkedObject();
             new_objects.insert(L);
+#if DEBUG_CLI
+            printf("In Filtered_Objects, found function name and saved to new_objects a LinkedObject that matched name=%s\n", F_Name.c_str());
+#endif
           }
         }
       }
@@ -872,6 +963,9 @@ void Filtered_Objects (CommandObject *cmd,
         if (!new_lo.empty()) {
           found_something = true;
           new_objects.insert(new_lo.begin(), new_lo.end());
+#if DEBUG_CLI
+          printf("In Filtered_Objects, found wild card searched function name and saved to new_objects a LinkedObject that matched name=%s\n", F_Name.c_str());
+#endif
         }
 
        // Look for file names.
@@ -881,6 +975,9 @@ void Filtered_Objects (CommandObject *cmd,
             Function F = *fi;
             LinkedObject L = F.getLinkedObject();
             new_objects.insert(L);
+#if DEBUG_CLI
+          printf("In Filtered_Objects, found wild card searched filename and saved to new_objects a LinkedObject that matched name=%s\n", F_Name.c_str());
+#endif
           }
         }
 
@@ -892,6 +989,9 @@ void Filtered_Objects (CommandObject *cmd,
               Function F = *fi;
               LinkedObject L = F.getLinkedObject();
               new_objects.insert(L);
+#if DEBUG_CLI
+              printf("In Filtered_Objects, found wild card searched function names and saved to new_objects a LinkedObject that matched name=%s\n", F_Name.c_str());
+#endif
             }
           }
         }
@@ -922,7 +1022,13 @@ void Filtered_Objects (CommandObject *cmd,
 
      // The resulting set is the result!
       Merge_LinkedObject_Into_Objects (new_objects, objects);
+#if DEBUG_CLI
+      printf("In Filtered_Objects, merged the new_objects with the objects as the result\n");
+#endif
     }
+#if DEBUG_CLI
+    printf("Exit Filtered_Objects\n");
+#endif
     return;
 }
 
@@ -1072,6 +1178,9 @@ View_Form_Category Determine_Form_Category (CommandObject *cmd) {
  */
 bool Determine_TraceBack_Ordering (CommandObject *cmd) {
  // Determine call stack ordering
+#if DEBUG_CLI
+  printf("Determine_TraceBack_Ordering  - SS_View_util.cxx\n");
+#endif
   if (Look_For_KeyWord(cmd, "CallTree") ||
       Look_For_KeyWord(cmd, "CallTrees")) {
       return false;
@@ -1101,10 +1210,25 @@ static inline
 CommandResult *Build_CallBack_Entry (Framework::StackTrace& st, int64_t i, bool add_stmts) {
     CommandResult *SE = NULL;
     std::pair<bool, Function> fp = st.getFunctionAt(i);
+#if DEBUG_CLI
+    printf("Build_CallBack_Entry  - SS_View_util.cxx, i=%d, add_stmts=%d\n", i, add_stmts);
+    printf("Build_CallBack_Entry  - SS_View_util.cxx, i=%d, address=%x\n", i, st[i].getValue());
+#endif
     if (fp.first) {
+
+#if DEBUG_CLI
+       cerr << "Build_CallBack_Entry  - SS_View_util.cxx, fp.first "
+            << fp.first <<  std::endl ;
+       cerr << "Build_CallBack_Entry  - SS_View_util.cxx, fp.second.getName() "
+            <<  fp.second.getName() << std::endl ;
+#endif
+
      // Use Function.
       if (add_stmts) {
-       // Inlcude associated statements.
+       // Include associated statements.
+#if DEBUG_CLI
+        printf("Build_CallBack_Entry  - SS_View_util.cxx, calling getStatementsAt, i=%d\n", i);
+#endif
         std::set<Statement> ss = st.getStatementsAt(i);
         SE = new CommandResult_Function (fp.second, ss);
       } else {
@@ -1116,6 +1240,7 @@ CommandResult *Build_CallBack_Entry (Framework::StackTrace& st, int64_t i, bool 
     }
     return SE;
 }
+
 
 /**
  * Utility: Construct_CallBack [with 3 arguments]
@@ -1137,8 +1262,17 @@ std::vector<CommandResult *> *
        Construct_CallBack (bool TraceBack_Order, bool add_stmts, Framework::StackTrace& st) {
   std::vector<CommandResult *> *call_stack
              = new std::vector<CommandResult *>();
+#if DEBUG_CLI
+  printf("Enter Construct_CallBack 3 args - SS_View_util.cxx, TraceBack_Order=%d, add_stmts=%d\n", 
+         TraceBack_Order, add_stmts);
+#endif
   int64_t len = st.size();
   int64_t i;
+
+#if DEBUG_CLI
+  printf("Enter Construct_CallBack 3 args - SS_View_util.cxx, len=%d\n", len);
+#endif
+
   if (len == 0) return call_stack;
   if (TraceBack_Order)
     for ( i = 0;  i < len; i++) {
@@ -1148,6 +1282,12 @@ std::vector<CommandResult *> *
     for ( i = len-1; i >= 0; i--) {
       call_stack->push_back(Build_CallBack_Entry(st, i, add_stmts));
     }
+
+#if DEBUG_CLI
+  printf("Exit Construct_CallBack 3 args - SS_View_util.cxx, TraceBack_Order=%d, add_stmts=%d\n", 
+         TraceBack_Order, add_stmts);
+#endif
+
   return call_stack;
 }
 
@@ -1180,6 +1320,10 @@ std::vector<CommandResult *> *
   std::vector<CommandResult *> *call_stack
              = new std::vector<CommandResult *>();
   int64_t len = st.size();
+#if DEBUG_CLI
+  printf("Enter Construct_CallBack 4 args-SS_View_util.cxx, add_stmts=%d, TraceBack_Order=%d, len=%d\n",
+           add_stmts, TraceBack_Order, len);
+#endif
   int64_t i;
   if (len == 0) return call_stack;
   if (TraceBack_Order) {
@@ -1188,6 +1332,9 @@ std::vector<CommandResult *> *
     for ( i = 0;  i < len; i++) {
      // Check to see if we have already converted this entry.
       Address nextAddr = st[i];
+#if DEBUG_CLI
+      printf("In Construct_CallBack 4 args-SS_View_util.cxx, Traceback_Order, nextAddr.getValue()=%x\n", nextAddr.getValue());
+#endif
       std::map<Address, CommandResult *>::iterator ki = knownTraces.find(nextAddr);
       CommandResult *NewCR;
       if (ki == knownTraces.end()) {
@@ -1206,6 +1353,9 @@ std::vector<CommandResult *> *
    // in a backward direction.
     for ( i = len-1; i >= 0; i--) {
       Address nextAddr = st[i];
+#if DEBUG_CLI
+      printf("In Construct_CallBack 4 args-SS_View_util.cxx,non-Traceback_Order nextAddr.getValue()=%x\n", nextAddr.getValue());
+#endif
       std::map<Address, CommandResult *>::iterator ki = knownTraces.find(nextAddr);
       CommandResult *NewCR;
       if (ki == knownTraces.end()) {
@@ -1220,6 +1370,9 @@ std::vector<CommandResult *> *
       call_stack->push_back(NewCR->Copy());
     }
   }
+#if DEBUG_CLI
+  printf("Exit Construct_CallBack 4 args - SS_View_util.cxx\n");
+#endif
   return call_stack;
 }
 
@@ -1227,6 +1380,9 @@ std::vector<CommandResult *> *
 // Utilities for working with class ViewInstruction
 
 ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>& IV, int64_t Column) {
+#if DEBUG_CLI
+  printf("Enter Find_Column_Def - SS_View_util.cxx, Column=%d\n", Column);
+#endif
   for (int64_t i = 0; i < IV.size(); i++) {
     ViewInstruction *vp = IV[i];
     if (vp->TR() == Column) {
@@ -1237,10 +1393,16 @@ ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>& IV, int64_t Co
           (vp->OpCode() == VIEWINST_Display_Percent_Tmp) ||
           (vp->OpCode() == VIEWINST_Display_Average_Tmp) ||
           (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
+#if DEBUG_CLI
+        printf("Exit Find_Column_Def - SS_View_util.cxx, return vp where i=%d\n", i);
+#endif
         return vp;
       }
     }
   }
+#if DEBUG_CLI
+  printf("Exit Find_Column_Def - SS_View_util.cxx, return NULL\n");
+#endif
   return NULL;
 }
 

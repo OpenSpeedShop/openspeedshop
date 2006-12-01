@@ -43,6 +43,11 @@
 
 CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
 
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_Average, A=%x, B=%x\n", A, B);
+#endif
+
   if (B == NULL) {
     return NULL;
   }
@@ -53,6 +58,12 @@ CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
   double Avalue;
   double Bvalue;
   int64_t Ivalue;
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Average, A->Type()=%d, B->Type()=%d\n", 
+         A->Type(), B->Type());
+#endif
+
 
   switch (A->Type()) {
    case CMD_RESULT_UINT:
@@ -109,10 +120,20 @@ CommandResult *Calculate_StdDev  (CommandResult *A, CommandResult *B, CommandRes
     return NULL;
   }
 
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_StdDev, A=%x, B=%x, C=%x\n", A, B, C);
+#endif
+
   double Avalue;
   double Bvalue;
   double Cvalue;
   int64_t Ivalue;
+
+  
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_StdDev, A->Type()=%d, B->Type()=%d, C->Type()=%d\n", 
+         A->Type(), B->Type(), C->Type());
+#endif
 
   switch (A->Type()) {
    case CMD_RESULT_UINT:
@@ -187,6 +208,10 @@ CommandResult *Calculate_StdDev  (CommandResult *A, CommandResult *B, CommandRes
 
 CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
 
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_Percent, A=%x, B=%x\n", A, B);
+#endif
+
   if (B == NULL) {
     return NULL;
   }
@@ -197,6 +222,11 @@ CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
   double Avalue;
   double Bvalue;
   int64_t Ivalue;
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Percent, A->Type()=%d, B->Type()=%d\n", 
+         A->Type(), B->Type());
+#endif
 
   switch (A->Type()) {
    case CMD_RESULT_UINT:
