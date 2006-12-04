@@ -375,10 +375,10 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                    std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
                    std::list<CommandResult *>& view_output) {
   bool success = false;
-  Print_View_Params (cerr, CV,MV,IV);
 
 #if DEBUG_CLI
-  printf("Enter Generic_View, topn=%d \n",topn);
+  printf("Enter Generic_View, print view params with topn=%d \n",topn);
+  Print_View_Params (cerr, CV,MV,IV);
 #endif
  // Warn about misspelled of meaningless options.
   Validate_V_Options (cmd, allowed_stats_V_options);
