@@ -457,6 +457,31 @@ AC_DEFUN([AC_PKG_OPENMPI], [
    	, )
     fi
 
+#
+# Try again with different mpicc - for older versions of openmpi try om-mpicxx
+#
+   if test $found_openmpi -eq 0; then
+     OPENMPI_LDFLAGS="-L$openmpi_dir/$abi_libdir/openmpi"
+     LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS $OPENMPI_LIBS"
+     OPENMPI_CC="$openmpi_dir/bin/om-mpicxx"
+     CC="$OPENMPI_CC"
+
+     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+   	#include <mpi.h>
+   	]], [[
+   	MPI_Initialized((int*)0);
+   	]]),
+   
+   	if (nm $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (nm /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (nm /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (nm $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+	   found_openmpi=1
+   	fi
+   
+   	, )
+    fi
+
     CC=$openmpi_saved_CC
     CPPFLAGS=$openmpi_saved_CPPFLAGS
     LDFLAGS=$openmpi_saved_LDFLAGS
