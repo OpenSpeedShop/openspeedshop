@@ -1,5 +1,5 @@
  Exclusive Overflows  Function (defining location)
-          4000000000  f3(mutatee: mutatee.c,24)
+          3000000000  f3(mutatee: mutatee.c,24)
           2000000000  f2(mutatee: mutatee.c,15)
           1000000000  f1(mutatee: mutatee.c,6)
             25000000  _start(mutatee: start.S,47)
