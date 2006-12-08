@@ -21,6 +21,8 @@
 #include "ToolAPI.hxx"
 #include "SS_Input_Manager.hxx"
 
+#include "SS_Timings.hxx"
+
 #include <ltdl.h>
 #include <pthread.h>
 #include <Python.h>
@@ -47,6 +49,10 @@ static bool need_command_line;
 static bool executable_encountered;
 static bool collector_encountered;
 static bool read_stdin_file;
+
+ /** Performance data Timings class instantiation handle  */
+SS_Timings *cli_timing_handle ;
+
 
 extern void pcli_load_messages(void);
 extern void Internal_Info_Dump (CMDWID issuedbywindow);
@@ -328,6 +334,18 @@ extern "C"
       CMDWID w = command_line_window;
       command_line_window = 0;
       Window_Termination(w);
+    } 
+
+    // If the timing of CLI events is enabled then gather performance data
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+
+      cli_timing_handle->cli_perf_data[SS_Timings::CLIEnd] = Time::Now();
+      cli_timing_handle->cli_perf_count[SS_Timings::CLICount] += 1;
+      cli_timing_handle->cli_perf_count[SS_Timings::CLITotal] +=
+               cli_timing_handle->cli_perf_data[SS_Timings::CLIEnd]
+             - cli_timing_handle->cli_perf_data[SS_Timings::CLIStart] ;
+      // Call performance data output routine to print report
+      cli_timing_handle->CLIPerformanceStatistics();
     }
   }
 
@@ -392,6 +410,8 @@ extern "C"
   cli_init(int argc, char **argv)
   {
     try {
+
+      cli_timing_handle = new SS_Timings::SS_Timings();
 
      // Basic Initialization
       Openss_Basic_Initialization();

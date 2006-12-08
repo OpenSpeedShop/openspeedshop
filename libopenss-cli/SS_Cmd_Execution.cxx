@@ -18,6 +18,7 @@
 
 
 #include "SS_Input_Manager.hxx"
+#include "SS_Timings.hxx"
 
 #include "Python.h"
 
@@ -2625,7 +2626,22 @@ bool SS_expView (CommandObject *cmd) {
           if (vt != NULL) {
            // Generate the selected view
             view_found = true;
+
+            // Gather performance information on the generic generation of views
+            if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+               cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationStart] = Time::Now();
+            }
+
             view_result = SS_Generate_View (cmd, exp, collector_name);
+
+            if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+               cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationEnd] = Time::Now();
+               cli_timing_handle->cli_perf_count[SS_Timings::ViewGenerationCount] += 1;
+               cli_timing_handle->cli_perf_count[SS_Timings::ViewGenerationTotal] +=
+                  cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationEnd]
+                - cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationStart] ;
+
+            }
           }
         }
 
@@ -2651,7 +2667,20 @@ bool SS_expView (CommandObject *cmd) {
     for (si = p_slist->begin(); si != p_slist->end(); si++) {
       std::string view = *si;
 
+       // Gather performance information on the generic generation of views
+      if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationStart] = Time::Now();
+      }
+
       view_result = SS_Generate_View (cmd, exp, view);
+
+      if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationEnd] = Time::Now();
+         cli_timing_handle->cli_perf_count[SS_Timings::ViewGenerationCount] += 1;
+         cli_timing_handle->cli_perf_count[SS_Timings::ViewGenerationTotal] +=
+               cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationEnd]
+             - cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationStart] ;
+      }
 
       if (!view_result) {
         break;

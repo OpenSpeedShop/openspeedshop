@@ -19,6 +19,7 @@
 
 #include "SS_Input_Manager.hxx"
 #include <fstream.h>
+#include "SS_Timings.hxx"
 
 static void Cmd_Execute (CommandObject *cmd) {
 
@@ -77,10 +78,40 @@ try {
     cmd_successful = SS_expClose(cmd);
     break;
   case CMD_EXP_ATTACH:
+
+    // Gather performance information on the expAttach command
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::expAttachStart] = Time::Now();
+    }
+
     cmd_successful = SS_expAttach (cmd);
+
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::expAttachEnd] = Time::Now();
+         cli_timing_handle->cli_perf_count[SS_Timings::expAttachCount] += 1;
+         cli_timing_handle->cli_perf_count[SS_Timings::expAttachTotal] += 
+                  cli_timing_handle->cli_perf_data[SS_Timings::expAttachEnd] 
+                - cli_timing_handle->cli_perf_data[SS_Timings::expAttachStart] ;
+    }
+
     break;
   case CMD_EXP_CREATE:
+
+    // Gather performance information on the expCreate command
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::expCreateStart] = Time::Now();
+    }
+
     cmd_successful = SS_expCreate (cmd);
+
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::expCreateEnd] = Time::Now();
+         cli_timing_handle->cli_perf_count[SS_Timings::expCreateCount] += 1;
+         cli_timing_handle->cli_perf_count[SS_Timings::expCreateTotal] += 
+                  cli_timing_handle->cli_perf_data[SS_Timings::expCreateEnd]
+                - cli_timing_handle->cli_perf_data[SS_Timings::expCreateStart] ;
+    }
+
     break;
   case CMD_EXP_DETACH:
     cmd_successful = SS_expDetach(cmd);
@@ -112,7 +143,22 @@ try {
 
 // Information Commands
   case CMD_EXP_COMPARE:
+
+    // Gather performance information on the expCompare command
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::expCompareStart] = Time::Now();
+    }
+
     cmd_successful = SS_expCompare (cmd);
+
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::expCompareEnd] = Time::Now();
+         cli_timing_handle->cli_perf_count[SS_Timings::expCompareCount] += 1;
+         cli_timing_handle->cli_perf_count[SS_Timings::expCompareTotal] += 
+                  cli_timing_handle->cli_perf_data[SS_Timings::expCompareEnd] 
+                - cli_timing_handle->cli_perf_data[SS_Timings::expCompareStart] ;
+    }
+
     break;
   case CMD_EXP_STATUS:
     cmd_successful = SS_expStatus (cmd);
@@ -135,10 +181,40 @@ try {
     cmd_successful = SS_cvClear (cmd);
     break;
   case  CMD_C_VIEW_CLUSTERS:
+
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::cvClustersStart] = Time::Now();
+    }
+
+    // Time the cluster view generation subroutine
     cmd_successful = SS_cvClusters (cmd);
+
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::cvClustersEnd] = Time::Now();
+         cli_timing_handle->cli_perf_count[SS_Timings::cvClustersCount] += 1;
+         cli_timing_handle->cli_perf_count[SS_Timings::cvClustersTotal] += 
+                  cli_timing_handle->cli_perf_data[SS_Timings::cvClustersEnd]
+                - cli_timing_handle->cli_perf_data[SS_Timings::cvClustersStart] ;
+    }
+
     break;
   case  CMD_C_VIEW_INFO:
+
+    // Time the cluster view info subroutine
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::cvInfoStart] = Time::Now();
+    }
+
     cmd_successful = SS_cvInfo (cmd);
+
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::cvInfoEnd] = Time::Now();
+         cli_timing_handle->cli_perf_count[SS_Timings::cvInfoCount] += 1;
+         cli_timing_handle->cli_perf_count[SS_Timings::cvInfoTotal] += 
+                  cli_timing_handle->cli_perf_data[SS_Timings::cvInfoEnd]
+                - cli_timing_handle->cli_perf_data[SS_Timings::cvInfoStart] ;
+    }
+
     break;
 
 
