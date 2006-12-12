@@ -336,14 +336,16 @@ extern "C"
       Window_Termination(w);
     } 
 
-    // If the timing of CLI events is enabled then gather performance data
+    // If the timing of CLI events is enabled then process the gathered performance data
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
 
-      cli_timing_handle->cli_perf_data[SS_Timings::CLIEnd] = Time::Now();
-      cli_timing_handle->cli_perf_count[SS_Timings::CLICount] += 1;
-      cli_timing_handle->cli_perf_count[SS_Timings::CLITotal] +=
-               cli_timing_handle->cli_perf_data[SS_Timings::CLIEnd]
-             - cli_timing_handle->cli_perf_data[SS_Timings::CLIStart] ;
+      cli_timing_handle->processTimingEventEnd( SS_Timings::cliAllStart, 
+                                                SS_Timings::cliAllCount, 
+                                                SS_Timings::cliAllMax, 
+                                                SS_Timings::cliAllMin, 
+                                                SS_Timings::cliAllTotal, 
+                                                SS_Timings::cliAllEnd);
+
       // Call performance data output routine to print report
       cli_timing_handle->CLIPerformanceStatistics();
     }
@@ -412,6 +414,13 @@ extern "C"
     try {
 
       cli_timing_handle = new SS_Timings::SS_Timings();
+      cli_timing_handle->in_expCreate(false);
+      cli_timing_handle->in_expAttach(false);
+
+    // Gather performance information on the cli's basic initialization
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::cliBasicInitStart] = Time::Now();
+    }
 
      // Basic Initialization
       Openss_Basic_Initialization();
@@ -453,6 +462,22 @@ extern "C"
       read_stdin_file = (stdin && !isatty(fileno(stdin)));
       executable_encountered = false;
       collector_encountered = false;
+
+    // Process the performance information on the cli's basic initialization
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->processTimingEventEnd( SS_Timings::cliBasicInitStart,
+                                                   SS_Timings::cliBasicInitCount,
+                                                   SS_Timings::cliBasicInitMax,
+                                                   SS_Timings::cliBasicInitMin,
+                                                   SS_Timings::cliBasicInitTotal,
+                                                   SS_Timings::cliBasicInitEnd);
+    }
+
+    // Gather performance information on the cli's command line and python initialization
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::cliCmdLinePythonStart] = Time::Now();
+    }
+
       Process_Command_Line (argc, argv);
 
      // Load in pcli messages into message czar
@@ -461,6 +486,21 @@ extern "C"
      // Open the Python interpreter.
       Initial_Python ();
 
+    // Process the performance information on the cli's command line and python initialization
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->processTimingEventEnd( SS_Timings::cliCmdLinePythonStart,
+                                                   SS_Timings::cliCmdLinePythonCount,
+                                                   SS_Timings::cliCmdLinePythonMax,
+                                                   SS_Timings::cliCmdLinePythonMin,
+                                                   SS_Timings::cliCmdLinePythonTotal,
+                                                   SS_Timings::cliCmdLinePythonEnd);
+    }
+
+
+    // Gather performance information on the cli's window initialization
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::cliWindowInitStart] = Time::Now();
+    }
      // Create the input windows that we will need.
       if (need_command_line || read_stdin_file) {
         command_line_window = Default_Window ("COMMAND_LINE",
@@ -502,9 +542,24 @@ extern "C"
 				(void   *)tli_window);
       }
 
+    // Process the performance information on the cli's command line and python initialization
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->processTimingEventEnd( SS_Timings::cliWindowInitStart,
+                                                   SS_Timings::cliWindowInitCount,
+                                                   SS_Timings::cliWindowInitMax,
+                                                   SS_Timings::cliWindowInitMin,
+                                                   SS_Timings::cliWindowInitTotal,
+                                                   SS_Timings::cliWindowInitEnd);
+    }
 #if DEBUG_CLI
       cerr << "Calling Start_Command_Line, need_gui? " << need_gui <<  std::endl;
 #endif
+
+      // Gather performance information on the cli's gui loading
+      if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+           cli_timing_handle->cli_perf_data[SS_Timings::cliGuiLoadStart] = Time::Now();
+      }
+
       if (need_gui)
       {
 
@@ -527,6 +582,16 @@ extern "C"
         extern void loadTheGUI(ArgStruct *);
 //        loadTheGUI((ArgStruct *)NULL); // argStruct);
         loadTheGUI((ArgStruct *)argStruct); // NULL);
+      }
+
+      // Process the performance information on the cli's command line and python initialization
+      if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+           cli_timing_handle->processTimingEventEnd( SS_Timings::cliGuiLoadStart,
+                                                     SS_Timings::cliGuiLoadCount,
+                                                     SS_Timings::cliGuiLoadMax,
+                                                     SS_Timings::cliGuiLoadMin,
+                                                     SS_Timings::cliGuiLoadTotal,
+                                                     SS_Timings::cliGuiLoadEnd);
       }
 
      // Fire off Python.

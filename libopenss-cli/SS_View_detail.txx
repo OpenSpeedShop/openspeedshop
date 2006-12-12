@@ -108,7 +108,7 @@ bool Detail_Trace_Report(
                     Look_For_KeyWord(cmd, "FullStack") ||
                     Look_For_KeyWord(cmd, "FullStacks"));
    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-         cli_timing_handle->cli_perf_data[SS_Timings::DetailTraceReportStart] = Time::Now();
+         cli_timing_handle->cli_perf_data[SS_Timings::detailTraceReportStart] = Time::Now();
     }
 
 
@@ -290,10 +290,12 @@ bool Detail_Trace_Report(
          view_built, topn, c_items.size());
 #endif
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-      cli_timing_handle->cli_perf_data[SS_Timings::DetailTraceReportEnd] = Time::Now();
-      cli_timing_handle->cli_perf_count[SS_Timings::DetailTraceReportCount] += 1;
-      cli_timing_handle->cli_perf_count[SS_Timings::DetailTraceReportTotal] +=
-         cli_timing_handle->cli_perf_data[SS_Timings::DetailTraceReportEnd] - cli_timing_handle->cli_perf_data[SS_Timings::DetailTraceReportStart] ;
+      cli_timing_handle->processTimingEventEnd( SS_Timings::detailTraceReportStart,
+                                                SS_Timings::detailTraceReportCount,
+                                                SS_Timings::detailTraceReportMax,
+                                                SS_Timings::detailTraceReportMin,
+                                                SS_Timings::detailTraceReportTotal,
+                                                SS_Timings::detailTraceReportEnd);
   }
 
   return view_built;
@@ -309,7 +311,7 @@ bool Detail_Base_Report(
               std::list<CommandResult *>& view_output) {
 
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-      cli_timing_handle->cli_perf_data[SS_Timings::DetailBaseReportStart] = Time::Now();
+      cli_timing_handle->cli_perf_data[SS_Timings::detailBaseReportStart] = Time::Now();
   }
 
   int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
@@ -445,10 +447,12 @@ bool Detail_Base_Report(
           view_built, topn);
 #endif
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-      cli_timing_handle->cli_perf_data[SS_Timings::DetailBaseReportEnd] = Time::Now();
-      cli_timing_handle->cli_perf_count[SS_Timings::DetailBaseReportCount] += 1;
-      cli_timing_handle->cli_perf_count[SS_Timings::DetailBaseReportTotal] +=
-         cli_timing_handle->cli_perf_data[SS_Timings::DetailBaseReportEnd] - cli_timing_handle->cli_perf_data[SS_Timings::DetailBaseReportStart] ;
+      cli_timing_handle->processTimingEventEnd( SS_Timings::detailBaseReportStart,
+                                                SS_Timings::detailBaseReportCount,
+                                                SS_Timings::detailBaseReportMax,
+                                                SS_Timings::detailBaseReportMin,
+                                                SS_Timings::detailBaseReportTotal,
+                                                SS_Timings::detailBaseReportEnd);
   }
 
   return view_built;
@@ -464,7 +468,7 @@ bool Detail_CallStack_Report (
               std::list<CommandResult *>& view_output) {
 
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-      cli_timing_handle->cli_perf_data[SS_Timings::DetailCallStackReportStart] = Time::Now();
+      cli_timing_handle->cli_perf_data[SS_Timings::detailCallStackReportStart] = Time::Now();
   }
 
   int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
@@ -633,10 +637,12 @@ bool Detail_CallStack_Report (
           view_built, topn);
 #endif
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-      cli_timing_handle->cli_perf_data[SS_Timings::DetailCallStackReportEnd] = Time::Now();
-      cli_timing_handle->cli_perf_count[SS_Timings::DetailCallStackReportCount] += 1;
-      cli_timing_handle->cli_perf_count[SS_Timings::DetailCallStackReportTotal] +=
-         cli_timing_handle->cli_perf_data[SS_Timings::DetailCallStackReportEnd] - cli_timing_handle->cli_perf_data[SS_Timings::DetailCallStackReportStart] ;
+      cli_timing_handle->processTimingEventEnd( SS_Timings::detailCallStackReportStart,
+                                                SS_Timings::detailCallStackReportCount,
+                                                SS_Timings::detailCallStackReportMax,
+                                                SS_Timings::detailCallStackReportMin,
+                                                SS_Timings::detailCallStackReportTotal,
+                                                SS_Timings::detailCallStackReportEnd);
   }
 
   return view_built;
@@ -653,7 +659,7 @@ bool Detail_ButterFly_Report (
               std::list<CommandResult *>& view_output) {
 
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-      cli_timing_handle->cli_perf_data[SS_Timings::DetailButterFlyReportStart] = Time::Now();
+      cli_timing_handle->cli_perf_data[SS_Timings::detailButterFlyReportStart] = Time::Now();
   }
 
   int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
@@ -661,7 +667,7 @@ bool Detail_ButterFly_Report (
   std::string metric = MV[0];
   bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
 #if DEBUG_CLI
-  printf("Enter Detail_ButterFly_Report, SS_View_detail.txx, num_temps=%d, primary_is_inclusive=%d\n",
+  printf("Enter detail_ButterFly_Report, SS_View_detail.txx, num_temps=%d, primary_is_inclusive=%d\n",
           num_temps, primary_is_inclusive);
 #endif
 
@@ -679,7 +685,7 @@ bool Detail_ButterFly_Report (
     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
     Time base_time = databaseExtent.getTimeInterval().getBegin();
 #if DEBUG_CLI
-    printf("In Detail_ButterFly_Report, SS_View_detail.txx, base_time.getValue()=%u\n", base_time.getValue());
+    printf("In detail_ButterFly_Report, SS_View_detail.txx, base_time.getValue()=%u\n", base_time.getValue());
 #endif
 
    // Acquire the specified set of time intervals.
@@ -787,13 +793,15 @@ bool Detail_ButterFly_Report (
     IV[i] = NULL;
   }
 #if DEBUG_CLI
-  printf("Exit Detail_ButterFly_Report, SS_View_detail.txx,  topn=%d\n", topn);
+  printf("Exit detail_ButterFly_Report, SS_View_detail.txx,  topn=%d\n", topn);
 #endif
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-      cli_timing_handle->cli_perf_data[SS_Timings::DetailButterFlyReportEnd] = Time::Now();
-      cli_timing_handle->cli_perf_count[SS_Timings::DetailButterFlyReportCount] += 1;
-      cli_timing_handle->cli_perf_count[SS_Timings::DetailButterFlyReportTotal] +=
-         cli_timing_handle->cli_perf_data[SS_Timings::DetailButterFlyReportEnd] - cli_timing_handle->cli_perf_data[SS_Timings::DetailButterFlyReportStart] ;
+      cli_timing_handle->processTimingEventEnd( SS_Timings::detailButterFlyReportStart,
+                                                SS_Timings::detailButterFlyReportCount,
+                                                SS_Timings::detailButterFlyReportMax,
+                                                SS_Timings::detailButterFlyReportMin,
+                                                SS_Timings::detailButterFlyReportTotal,
+                                                SS_Timings::detailButterFlyReportEnd);
   }
 
   return true;

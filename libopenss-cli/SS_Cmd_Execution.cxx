@@ -1050,18 +1050,52 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 // TODO:
     } else {
       try {
+
+        // Start to gather performance information on the sub-task portions of expCreate
+        // Here the processing of creating the process in the Framework
+        if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate()) {
+          cli_timing_handle->cli_perf_data[SS_Timings::expCreate_FW_createProcess_Start] = Time::Now();
+        }
+
+        // Start to gather performance information on the sub-task portions of expAttach
+        // Here the processing of creating the process in the Framework
+        if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled()  && cli_timing_handle->in_expAttach()) {
+          cli_timing_handle->cli_perf_data[SS_Timings::expAttach_FW_createProcess_Start] = Time::Now();
+        }
+
         ThreadGroup tg = exp->FW()->createProcess(
 	    f_val1->name, host_name,
 	    OutputCallback(&ReDirect_User_Stdout,(void *)w),
 	    OutputCallback(&ReDirect_User_Stderr,(void *)w)
 	    );
         tgrp->insert(tg.begin(), tg.end());
+
+        if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate()) {
+          cli_timing_handle->processTimingEventEnd( SS_Timings::expCreate_FW_createProcess_Start,
+                                                    SS_Timings::expCreate_FW_createProcess_Count,
+                                                    SS_Timings::expCreate_FW_createProcess_Max,
+                                                    SS_Timings::expCreate_FW_createProcess_Min,
+                                                    SS_Timings::expCreate_FW_createProcess_Total,
+                                                    SS_Timings::expCreate_FW_createProcess_End);
+         }
+
+        if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled()  && cli_timing_handle->in_expAttach()) {
+          cli_timing_handle->processTimingEventEnd( SS_Timings::expAttach_FW_createProcess_Start,
+                                                    SS_Timings::expAttach_FW_createProcess_Count,
+                                                    SS_Timings::expAttach_FW_createProcess_Max,
+                                                    SS_Timings::expAttach_FW_createProcess_Min,
+                                                    SS_Timings::expAttach_FW_createProcess_Total,
+                                                    SS_Timings::expAttach_FW_createProcess_End);
+         }
+
+
       }
       catch(const Exception& error) {
          Mark_Cmd_With_Std_Error (cmd, error);
          return;
       }
     }
+
   }
 }
 
@@ -1188,6 +1222,17 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
  // Determine the specified (or implied) set of Collectors.
   CollectorGroup cgrp;
 
+  // Start to gather performance information on the sub-task portions of expCreate
+  // Here the processing of getting the collector info
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate() ) {
+    cli_timing_handle->cli_perf_data[SS_Timings::expCreate_getCollector_Start] = Time::Now();
+  }
+  // Start to gather performance information on the sub-task portions of expCreate
+  // Here the processing of getting the collector info
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expAttach() ) {
+    cli_timing_handle->cli_perf_data[SS_Timings::expAttach_getCollector_Start] = Time::Now();
+  }
+
   if (p_slist->begin() != p_slist->end()) {
    // The command contains a list of collectors to use.
    // Be sure they are all linked to the experiment.
@@ -1213,6 +1258,37 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
     }
   }
 
+  // End the gathering of performance information on the sub-task portions of expCreate
+  // Here the processing of getting the collector info
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate() ) {
+    cli_timing_handle->processTimingEventEnd( SS_Timings::expCreate_getCollector_Start,
+                                              SS_Timings::expCreate_getCollector_Count,
+                                              SS_Timings::expCreate_getCollector_Max,
+                                              SS_Timings::expCreate_getCollector_Min,
+                                              SS_Timings::expCreate_getCollector_Total,
+                                              SS_Timings::expCreate_getCollector_End);
+  }
+  // End the gathering of performance information on the sub-task portions of expAttach
+  // Here the processing of getting the collector info
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled()  && cli_timing_handle->in_expAttach()) {
+    cli_timing_handle->processTimingEventEnd( SS_Timings::expAttach_getCollector_Start,
+                                              SS_Timings::expAttach_getCollector_Count,
+                                              SS_Timings::expAttach_getCollector_Max,
+                                              SS_Timings::expAttach_getCollector_Min,
+                                              SS_Timings::expAttach_getCollector_Total,
+                                              SS_Timings::expAttach_getCollector_End);
+  }
+
+  // Start to gather performance information on the sub-task portions of expCreate
+  // Here the processing of resolving target list and attaching if mpi
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate() ) {
+    cli_timing_handle->cli_perf_data[SS_Timings::expCreate_resolveTargetList_Start] = Time::Now();
+  }
+  // Start to gather performance information on the sub-task portions of expAttach
+  // Here the processing of resolving target list and attaching if mpi
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled()  && cli_timing_handle->in_expAttach()) {
+    cli_timing_handle->cli_perf_data[SS_Timings::expAttach_resolveTargetList_Start] = Time::Now();
+  }
 
  // Determine the specified (or implied) set of Threads.
   ThreadGroup tgrp;
@@ -1240,6 +1316,39 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
     }
   }
 
+  // End the gathering of performance information on the sub-task portions of expCreate
+  // Here the processing of resolving target list and attaching if mpi
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate() ) {
+    cli_timing_handle->processTimingEventEnd( SS_Timings::expCreate_resolveTargetList_Start,
+                                              SS_Timings::expCreate_resolveTargetList_Count,
+                                              SS_Timings::expCreate_resolveTargetList_Max,
+                                              SS_Timings::expCreate_resolveTargetList_Min,
+                                              SS_Timings::expCreate_resolveTargetList_Total,
+                                              SS_Timings::expCreate_resolveTargetList_End);
+  }
+
+  // End the gathering of performance information on the sub-task portions of expAttach
+  // Here the processing of resolving target list and attaching if mpi
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expAttach() ) {
+    cli_timing_handle->processTimingEventEnd( SS_Timings::expAttach_resolveTargetList_Start,
+                                              SS_Timings::expAttach_resolveTargetList_Count,
+                                              SS_Timings::expAttach_resolveTargetList_Max,
+                                              SS_Timings::expAttach_resolveTargetList_Min,
+                                              SS_Timings::expAttach_resolveTargetList_Total,
+                                              SS_Timings::expAttach_resolveTargetList_End);
+  }
+
+  // Start to gather performance information on the sub-task portions of expCreate
+  // Here the processing of linking threads to the collectors
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate() ) {
+    cli_timing_handle->cli_perf_data[SS_Timings::expCreate_linkThreads_Start] = Time::Now();
+  }
+  // Start to gather performance information on the sub-task portions of expAttach
+  // Here the processing of linking threads to the collectors
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expAttach() ) {
+    cli_timing_handle->cli_perf_data[SS_Timings::expAttach_linkThreads_Start] = Time::Now();
+  }
+
  // Don't do anything if errors have been detected.
   if ((cmd->Status() == CMD_ERROR) ||
       (cmd->Status() == CMD_ABORTED)) {
@@ -1258,6 +1367,28 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
         (*cmdfunc) (cmd, exp, *ti, c);
       }
     }
+  }
+
+  // End the gathering of performance information on the sub-task portions of expCreate
+  // Here the processing of linking threads to the collectors
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate() ) {
+    cli_timing_handle->processTimingEventEnd( SS_Timings::expCreate_linkThreads_Start,
+                                              SS_Timings::expCreate_linkThreads_Count,
+                                              SS_Timings::expCreate_linkThreads_Max,
+                                              SS_Timings::expCreate_linkThreads_Min,
+                                              SS_Timings::expCreate_linkThreads_Total,
+                                              SS_Timings::expCreate_linkThreads_End);
+  }
+
+  // End the gathering of performance information on the sub-task portions of expAttach
+  // Here the processing of linking threads to the collectors
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expAttach()) {
+    cli_timing_handle->processTimingEventEnd( SS_Timings::expAttach_linkThreads_Start,
+                                              SS_Timings::expAttach_linkThreads_Count,
+                                              SS_Timings::expAttach_linkThreads_Max,
+                                              SS_Timings::expAttach_linkThreads_Min,
+                                              SS_Timings::expAttach_linkThreads_Total,
+                                              SS_Timings::expAttach_linkThreads_End);
   }
 
   return true;
@@ -1419,11 +1550,30 @@ bool SS_expCreate (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
+  // Gather performance information on the sub-task portions of expCreate
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate()) {
+    cli_timing_handle->cli_perf_data[SS_Timings::expCreate_wait_Start] = Time::Now();
+            }
  // Wait for all executing commands to terminate.
  // We do this so that another command thread won't get burned
  // looking through the ExperimentObject_list when a new entry
  // is added to it.
   Wait_For_Previous_Cmds ();
+
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate()) {
+    cli_timing_handle->processTimingEventEnd( SS_Timings::expCreate_wait_Start,
+                                              SS_Timings::expCreate_wait_Count,
+                                              SS_Timings::expCreate_wait_Max,
+                                              SS_Timings::expCreate_wait_Min,
+                                              SS_Timings::expCreate_wait_Total,
+                                              SS_Timings::expCreate_wait_End);
+  }
+
+  // Start to gather performance information on the sub-task portions of expCreate
+  // Here the allocation of the Experiment experiment
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate()) {
+    cli_timing_handle->cli_perf_data[SS_Timings::expCreate_allocExp_Start] = Time::Now();
+  }
 
  // There is no specified experiment.  Allocate a new Experiment.
   ExperimentObject *exp = new ExperimentObject ();
@@ -1433,6 +1583,19 @@ bool SS_expCreate (CommandObject *cmd) {
   }
   EXPID exp_id = exp->ExperimentObject_ID();
 
+  // End the gathering of performance information on the sub-task portions of expCreate
+  // Here the allocation of the Experiment experiment
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate() ) {
+    cli_timing_handle->processTimingEventEnd( SS_Timings::expCreate_allocExp_Start,
+                                              SS_Timings::expCreate_allocExp_Count,
+                                              SS_Timings::expCreate_allocExp_Max,
+                                              SS_Timings::expCreate_allocExp_Min,
+                                              SS_Timings::expCreate_allocExp_Total,
+                                              SS_Timings::expCreate_allocExp_End);
+  }
+
+ // See Process_expTypes for the code to gather performance information on the sub-task portions of expCreate
+
  // Determine target and collectors and link them together.
   if (!Process_expTypes (cmd, exp, &Attach_Command )) {
    // Something went wrong - delete the experiment.
@@ -1440,6 +1603,11 @@ bool SS_expCreate (CommandObject *cmd) {
     return false;
   }
 
+  // Start to gather performance information on the sub-task portions of expCreate
+  // Here the processing of focusing and bookkeeping work
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate()) {
+    cli_timing_handle->cli_perf_data[SS_Timings::expCreate_focusExp_Start] = Time::Now();
+  }
  // When we allocate a new experiment, set the focus to point to it.
   (void)Experiment_Focus (WindowID, exp_id);
 
@@ -1452,6 +1620,18 @@ bool SS_expCreate (CommandObject *cmd) {
  // Return the EXPID for this command.
   cmd->Result_Int (exp_id);
   cmd->set_Status(CMD_COMPLETE);
+
+  // End the gathering of performance information on the sub-task portions of expCreate
+  // Here the processing of focusing and bookkeeping work
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate()) {
+    cli_timing_handle->processTimingEventEnd( SS_Timings::expCreate_focusExp_Start,
+                                              SS_Timings::expCreate_focusExp_Count,
+                                              SS_Timings::expCreate_focusExp_Max,
+                                              SS_Timings::expCreate_focusExp_Min,
+                                              SS_Timings::expCreate_focusExp_Total,
+                                              SS_Timings::expCreate_focusExp_End);
+  }
+
   return true;
 }
 
@@ -2629,18 +2809,18 @@ bool SS_expView (CommandObject *cmd) {
 
             // Gather performance information on the generic generation of views
             if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-               cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationStart] = Time::Now();
+               cli_timing_handle->cli_perf_data[SS_Timings::viewGenerationStart] = Time::Now();
             }
 
             view_result = SS_Generate_View (cmd, exp, collector_name);
 
             if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-               cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationEnd] = Time::Now();
-               cli_timing_handle->cli_perf_count[SS_Timings::ViewGenerationCount] += 1;
-               cli_timing_handle->cli_perf_count[SS_Timings::ViewGenerationTotal] +=
-                  cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationEnd]
-                - cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationStart] ;
-
+               cli_timing_handle->processTimingEventEnd( SS_Timings::viewGenerationStart,
+                                                         SS_Timings::viewGenerationCount,
+                                                         SS_Timings::viewGenerationMax,
+                                                         SS_Timings::viewGenerationMin,
+                                                         SS_Timings::viewGenerationTotal,
+                                                         SS_Timings::viewGenerationEnd);
             }
           }
         }
@@ -2669,17 +2849,18 @@ bool SS_expView (CommandObject *cmd) {
 
        // Gather performance information on the generic generation of views
       if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-         cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationStart] = Time::Now();
+         cli_timing_handle->cli_perf_data[SS_Timings::viewGenerationStart] = Time::Now();
       }
 
       view_result = SS_Generate_View (cmd, exp, view);
 
       if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-         cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationEnd] = Time::Now();
-         cli_timing_handle->cli_perf_count[SS_Timings::ViewGenerationCount] += 1;
-         cli_timing_handle->cli_perf_count[SS_Timings::ViewGenerationTotal] +=
-               cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationEnd]
-             - cli_timing_handle->cli_perf_data[SS_Timings::ViewGenerationStart] ;
+         cli_timing_handle->processTimingEventEnd( SS_Timings::viewGenerationStart,
+                                                   SS_Timings::viewGenerationCount,
+                                                   SS_Timings::viewGenerationMax,
+                                                   SS_Timings::viewGenerationMin,
+                                                   SS_Timings::viewGenerationTotal,
+                                                   SS_Timings::viewGenerationEnd);
       }
 
       if (!view_result) {
