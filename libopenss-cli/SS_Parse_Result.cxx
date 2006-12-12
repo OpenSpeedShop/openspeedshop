@@ -531,7 +531,7 @@ dumpHelp(CommandObject *cmd)
     
     	// Beginning blurb
 	cmd->Result_String("Open|SpeedShop is a performance tool brought");
-	cmd->Result_String("to you by SGI.");
+	cmd->Result_String("to you by The Krell Institute and sponsors.");
 	cmd->Result_String(" ");
 	cmd->Result_String("Here are the available help topics:");
 	cmd->Result_String(" ");
