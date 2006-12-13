@@ -17,6 +17,7 @@
 *******************************************************************************/
 
 #include "SS_Input_Manager.hxx"
+#include "SS_Timings.hxx"
 
 inline std::string int2str (int64_t e) {
   char s[40];
@@ -212,6 +213,15 @@ catch_TLI_signal (int sig, int error_num)
 // This routine continuously checks the status of experiments
 // and will notify the user if an application terminates.
 void SS_Watcher () {
+
+    // Gather performance information on the cli's watcher thread 
+    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+         cli_timing_handle->cli_perf_data[SS_Timings::cliWatcherStart] = Time::Now();
+    }
+
+
+
+
   Watcher_Active = true;
 
  // Set up to catch keyboard control signals
@@ -284,6 +294,15 @@ void SS_Watcher () {
       Assert(pthread_mutex_unlock(&Watch_Item_Lock) == 0);
       usleep (500000); // wait a while and see if conditions change.
     }
+  }
+  // Process the performance information on the cli's watcher thread 
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+      cli_timing_handle->processTimingEventEnd( SS_Timings::cliWatcherStart,
+                                                SS_Timings::cliWatcherCount,
+                                                SS_Timings::cliWatcherMax,
+                                                SS_Timings::cliWatcherMin,
+                                                SS_Timings::cliWatcherTotal,
+                                                SS_Timings::cliWatcherEnd);
   }
 
 }

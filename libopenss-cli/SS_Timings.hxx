@@ -184,19 +184,91 @@ class SS_Timings
       expCompareMax, /** <Maximum time spent in expCompare command for one call */
       expCompareMin, /** <Minimum time spent in expCompare command for one call */
       expCompareTotal, /** < Total expCompare command time possibly over multiple calls */ 
-      expCompareEnd, /** < Time the last expCompare Comman Ended */ 
+      expCompareEnd, /** < Time the last expCompare command Ended */ 
+      expDetachStart, /** < Time the last expDetach command Started */ 
+      expDetachCount, /** < Number of expDetach commands being timed */ 
+      expDetachMax, /** <Maximum time spent in expDetach command for one call */
+      expDetachMin, /** <Minimum time spent in expDetach command for one call */
+      expDetachTotal, /** < Total expDetach command time possibly over multiple calls */ 
+      expDetachEnd, /** < Time the last expDetach command Ended */ 
+      expDisableStart, /** < Time the last expDisable command Started */ 
+      expDisableCount, /** < Number of expDisable commands being timed */ 
+      expDisableMax, /** <Maximum time spent in expDisable command for one call */
+      expDisableMin, /** <Minimum time spent in expDisable command for one call */
+      expDisableTotal, /** < Total expDisable command time possibly over multiple calls */ 
+      expDisableEnd, /** < Time the last expDisable command Ended */ 
+      expEnableStart, /** < Time the last expEnable command Started */ 
+      expEnableCount, /** < Number of expEnable commands being timed */ 
+      expEnableMax, /** <Maximum time spent in expEnable command for one call */
+      expEnableMin, /** <Minimum time spent in expEnable command for one call */
+      expEnableTotal, /** < Total expEnable command time possibly over multiple calls */ 
+      expEnableEnd, /** < Time the last expEnable command Ended */ 
+      expFocusStart, /** < Time the last expFocus command Started */ 
+      expFocusCount, /** < Number of expFocus commands being timed */ 
+      expFocusMax, /** <Maximum time spent in expFocus command for one call */
+      expFocusMin, /** <Minimum time spent in expFocus command for one call */
+      expFocusTotal, /** < Total expFocus command time possibly over multiple calls */ 
+      expFocusEnd, /** < Time the last expFocus command Ended */ 
       expGoStart, /** < Time the last expGo Command Started */ 
       expGoCount, /** < Number of expGo commands being timed */ 
       expGoMax, /** <Maximum time spent in expGo command for one call */
       expGoMin, /** <Minimum time spent in expGo command for one call */
       expGoTotal, /** < Total expGo command time possibly over multiple calls */ 
       expGoEnd, /** < Time the last expGo Comman Ended */ 
+      expPauseStart, /** < Time the last expPause Command Started */ 
+      expPauseCount, /** < Number of expPause commands being timed */ 
+      expPauseMax, /** <Maximum time spent in expPause command for one call */
+      expPauseMin, /** <Minimum time spent in expPause command for one call */
+      expPauseTotal, /** < Total expPause command time possibly over multiple calls */ 
+      expPauseEnd, /** < Time the last expPause Comman Ended */ 
+      expRestoreStart, /** < Time the last expRestore Command Started */ 
+      expRestoreCount, /** < Number of expRestore commands being timed */ 
+      expRestoreMax, /** <Maximum time spent in expRestore command for one call */
+      expRestoreMin, /** <Minimum time spent in expRestore command for one call */
+      expRestoreTotal, /** < Total expRestore command time possibly over multiple calls */ 
+      expRestoreEnd, /** < Time the last expRestore Comman Ended */ 
+      expSaveStart, /** < Time the last expSave Command Started */ 
+      expSaveCount, /** < Number of expSave commands being timed */ 
+      expSaveMax, /** <Maximum time spent in expSave command for one call */
+      expSaveMin, /** <Minimum time spent in expSave command for one call */
+      expSaveTotal, /** < Total expSave command time possibly over multiple calls */ 
+      expSaveEnd, /** < Time the last expSave Comman Ended */ 
+      expSetParamStart, /** < Time the last expSetParam Command Started */ 
+      expSetParamCount, /** < Number of expSetParam commands being timed */ 
+      expSetParamMax, /** <Maximum time spent in expSetParam command for one call */
+      expSetParamMin, /** <Minimum time spent in expSetParam command for one call */
+      expSetParamTotal, /** < Total expSetParam command time possibly over multiple calls */ 
+      expSetParamEnd, /** < Time the last expSetParam Comman Ended */ 
+      expCmd_InfoStart, /** < Time the last custom view Command Started */ 
+      expCmd_InfoCount, /** < Number of custom view commands being timed */ 
+      expCmd_InfoMax, /** <Maximum time spent in the custom view command for one call */
+      expCmd_InfoMin, /** <Minimum time spent in the custom view command for one call */
+      expCmd_InfoTotal, /** < Total custom view command time possibly over multiple calls */ 
+      expCmd_InfoEnd, /** < Time the last custom view Command Ended */ 
+      expCmd_C_ViewStart, /** < Time the last custom view Command Started */ 
+      expCmd_C_ViewCount, /** < Number of custom view commands being timed */ 
+      expCmd_C_ViewMax, /** <Maximum time spent in the custom view command for one call */
+      expCmd_C_ViewMin, /** <Minimum time spent in the custom view command for one call */
+      expCmd_C_ViewTotal, /** < Total custom view command time possibly over multiple calls */ 
+      expCmd_C_ViewEnd, /** < Time the last custom view Command Ended */ 
+      expCmd_ViewStart, /** < Time the last custom view Command Started */ 
+      expCmd_ViewCount, /** < Number of custom view commands being timed */ 
+      expCmd_ViewMax, /** <Maximum time spent in the custom view command for one call */
+      expCmd_ViewMin, /** <Minimum time spent in the custom view command for one call */
+      expCmd_ViewTotal, /** < Total custom view command time possibly over multiple calls */ 
+      expCmd_ViewEnd, /** < Time the last custom view Command Ended */ 
       cvClustersStart, /** < Time the last cvClusters Command Started */ 
       cvClustersCount, /** < Number of cvClusters commands being timed */ 
       cvClustersMax, /** <Maximum time spent in the cvClusters command for one call */
       cvClustersMin, /** <Minimum time spent in the cvClusters command for one call */
       cvClustersTotal, /** < Total cvClusters command time possibly over multiple calls */ 
       cvClustersEnd, /** < Time the last cvClusters Command Ended */ 
+      cvCreateStart, /** < Time the last cvCreate Command Started */ 
+      cvCreateCount, /** < Number of cvCreate commands being timed */ 
+      cvCreateMax, /** <Maximum time spent in the cvCreate command for one call */
+      cvCreateMin, /** <Minimum time spent in the cvCreate command for one call */
+      cvCreateTotal, /** < Total cvCreate command time possibly over multiple calls */ 
+      cvCreateEnd, /** < Time the last cvCreate Command Ended */ 
       cvInfoStart, /** < Time the last cvInfo Command Started */ 
       cvInfoCount, /** < Number of cvInfo commands being timed */ 
       cvInfoMax, /** <Maximum time spent in the cvInfo command for one call */
@@ -245,12 +317,30 @@ class SS_Timings
       cliBasicInitMin, /** Minimum time spent in CLI basic init for one call */
       cliBasicInitTotal, /** < Total Time in cli basic init. */ 
       cliBasicInitEnd,  /**< End Time for cli basic init. */
+      cliCmd_EXT_CreateStart, /**< Start Time for CLI routine that creates a command. */
+      cliCmd_EXT_CreateCount, /** < Number of times the CLI routine that creates a command  was/is being timed  */
+      cliCmd_EXT_CreateMax, /** Maximum time spent in CLI routine that creates a command for one call */
+      cliCmd_EXT_CreateMin, /** Minimum time spent in CLI routine that creates a command for one call */
+      cliCmd_EXT_CreateTotal, /** < Total Time in cli routine that creates a command . */ 
+      cliCmd_EXT_CreateEnd, /**< End Time for cli routine that creates a command. */
       cliCmdLinePythonStart, /**< Start Time for CLI command line and python init. */
       cliCmdLinePythonCount, /** < Number of times the CLI command line and python init was/is being timed  */
       cliCmdLinePythonMax, /** Maximum time spent in CLI command line and python init for one call */
       cliCmdLinePythonMin, /** Minimum time spent in CLI command line and python init for one call */
       cliCmdLinePythonTotal, /** < Total Time in cli command line and python init. */ 
       cliCmdLinePythonEnd, /**< End Time for cli command line and python init. */
+      cliExecuteCmdStart, /**< Start Time for CLI looping through commands. */
+      cliExecuteCmdCount, /** < Number of times the CLI looping through commands was/is being timed  */
+      cliExecuteCmdMax, /** Maximum time spent in CLI looping through commands for one call */
+      cliExecuteCmdMin, /** Minimum time spent in CLI looping through commands for one call */
+      cliExecuteCmdTotal, /** < Total Time in cli looping through commands. */ 
+      cliExecuteCmdEnd, /**< End Time for cli looping through commands. */
+      cliWatcherStart, /**< Start Time for CLI watcher looping. */
+      cliWatcherCount, /** < Number of times the CLI watcher looping was/is being timed  */
+      cliWatcherMax, /** Maximum time spent in CLI watcher looping for one call */
+      cliWatcherMin, /** Minimum time spent in CLI watcher looping for one call */
+      cliWatcherTotal, /** < Total Time in cli watcher thread looping. */ 
+      cliWatcherEnd, /**< End Time for cli watcher thread looping. */
       cliWindowInitStart, /**< Start Time for CLI window init. */
       cliWindowInitCount, /** < Number of times the CLI window init was/is being timed  */
       cliWindowInitMax, /** Maximum time spent in CLI window init for one call */
@@ -263,6 +353,18 @@ class SS_Timings
       cliGuiLoadMin, /** Minimum time spent in CLI gui window load for one call */
       cliGuiLoadTotal, /** < Total Time in cli gui window load  */ 
       cliGuiLoadEnd, /**< End Time for cli gui window load  */
+      cliWaitStart, /**< Start Time for CLI Wait command. */
+      cliWaitCount, /** < Number of times the CLI Wait command was/is being timed  */
+      cliWaitMax, /** Maximum time spent in CLI Wait command for one call */
+      cliWaitMin, /** Minimum time spent in CLI Wait command for one call */
+      cliWaitTotal, /** < Total Time in cli Wait command  */ 
+      cliWaitEnd, /**< End Time for cli Wait command  */
+      listGenericStart, /**< Start Time for processing the last list generic command execution. */
+      listGenericCount, /** < Number of times the list generic command was/is being timed  */
+      listGenericMax, /** Maximum time spent in processing list generic commands for one call */
+      listGenericMin, /** Minimum time spent in processing list generic commands for one call */
+      listGenericTotal, /** < Total Time in processing list generic commands  */ 
+      listGenericEnd, /**< End Time for last list generic command execution */
       perfTableNullStart, /** < dummy entry */
       perfTableNullCount, /** < dummy entry */
       perfTableNullMax, /** < dummy entry */
