@@ -37,9 +37,9 @@ w\:* {behavior:url(#default#VML);}
  alt="Open|SpeedShop logo" src="OpenSpeedShop_Logo.jpg"
  style="width: 303px; height: 38px;"><br>
 Build and Installation Guide<br>
-</span></b><big><span style="font-weight: bold;">Preliminary to
-Version 1.00 Release</span><br style="font-weight: bold;">
-<span style="font-weight: bold;">November 5, 2006</span></big><br>
+</span></b><big><span style="font-weight: bold;">Version 1.00 Release</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">December 13, 2006</span></big><br>
 </p>
 <div class="Section2"><b style=""><br style="" clear="all">
 </b>
@@ -50,18 +50,23 @@ Contents<br>
 </span></span></b></b></p>
 <ul style="text-align: left;" id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId71414">Introduction
-to Open|SpeedShop </a>
+to Open|SpeedShop
+    </a>
     <ul>
       <li><a href="#mozTocId406387">Brief
-Open|SpeedShop Overview </a></li>
-      <li><a href="#mozTocId958848">Common Terminology </a></li>
+Open|SpeedShop Overview
+        </a></li>
+      <li><a href="#mozTocId958848">Common Terminology
+        </a></li>
       <li><a href="#mozTocId200693">Downloading the Open|SpeedShop
 Component
-Source Using CVS trees </a></li>
+Source Using CVS trees
+        </a></li>
     </ul>
   </li>
   <li><a href="#mozTocId334016">Open|SpeedShop
-Build and Installation </a>
+Build and Installation
+    </a>
     <ul>
       <li><a href="#mozTocId733358">Building
 Open|SpeedShop
@@ -77,7 +82,8 @@ Developer/Build
 Related Environment Variables</a>
                 <ul>
                   <li><a href="#mozTocId227574">Generally used
-environment variables </a></li>
+environment variables
+                    </a></li>
                   <li><a href="#mozTocId365139">Special purpose
 environment variables</a></li>
                 </ul>
@@ -90,10 +96,12 @@ Related Environment Variables</a></li>
 Platforms:</a></li>
           <li><a href="#mozTocId293268">Open|SpeedShop
 Build
-component RPM versions: </a></li>
+component RPM versions:
+            </a></li>
           <li><a href="#mozTocId883409">Overview
 - Setting up
-new "root access permitted" machine for development on Open|SpeedShop </a>
+new "root access permitted" machine for development on Open|SpeedShop
+            </a>
             <ul>
               <li><a href="#mozTocId985149">Step
 1 - Check for
@@ -106,7 +114,8 @@ OpenSpeedShop_ROOT</a></li>
 missing RPMS</a></li>
               <li><a href="#mozTocId664892">Step
 4 - Build
-Open|SpeedShop </a></li>
+Open|SpeedShop
+                </a></li>
             </ul>
           </li>
           <li><a href="#mozTocId141294">Setting up
@@ -122,14 +131,16 @@ OpenSpeedShop_ROOT</a></li>
               <li><a href="#mozTocId379133">Step
 3 - Build the OpenSpeedShop_ROOT components from source</a>
                 <ul>
-                  <li><a href="#mozTocId706051">Step 3A - Set up
-environment variables to point to new "root" directory</a></li>
-                  <li><a href="#mozTocId976492">Step 3B - Build the
-needed components</a>
+                  <li><a href="#mozTocId706051">Step
+3A - Set up environment variables to point to new "root" directory</a></li>
+                  <li><a href="#mozTocId976492">Step
+3B - Build the needed components
+                    </a>
                     <ul>
                       <li><a href="#mozTocId236343">Build libelf</a></li>
                       <li><a href="#mozTocId692104">Build libdwarf
-&amp; dwarfdump</a></li>
+&amp;
+dwarfdump</a></li>
                       <li><a href="#mozTocId510223">Build libunwind</a></li>
                       <li><a href="#mozTocId367848">Build papi</a></li>
                       <li><a href="#mozTocId502662">Build sqlite</a></li>
@@ -137,8 +148,8 @@ needed components</a>
                       <li><a href="#mozTocId399746">Build DPCL</a></li>
                     </ul>
                   </li>
-                  <li><a href="#mozTocId821234">Step 3C - Set up local
-copy of xinetd and associated configuration files</a>
+                  <li><a href="#mozTocId821234">Step 3C - Set up
+local copy of xinetd and associated configuration files</a>
                     <ul>
                       <li><a href="#mozTocId406675">Build xinetd</a></li>
                       <li><a href="#mozTocId330198">Set up xinetd and
@@ -151,8 +162,10 @@ process</a></li>
                   </li>
                 </ul>
               </li>
-              <li><a href="#mozTocId739948">Step 4 - Build
-Open|SpeedShop using the "root" component's alternative location </a>
+              <li><a href="#mozTocId739948">Step
+4 - Build
+Open|SpeedShop using the "root" component's alternative location
+                </a>
                 <ul>
                   <li><a href="#mozTocId815364">Set up Open|SpeedShop
 install directory environment variable</a></li>
@@ -365,7 +378,8 @@ Open|SpeedShop in order for Open|SpeedShop to function
 correctly.&nbsp;&nbsp;&nbsp; <br>
 </p>
 <p>If not familar with cvs, see <a
- href="http://www.cvshome.org/new_users.html">CVS for new users</a>.&nbsp;&nbsp;&nbsp;
+ href="http://sourceforge.net/cvs/?group_id=176777">CVS information on
+sourceforge</a>.&nbsp;&nbsp;&nbsp;
 It contains links to general CVS documentation.
 </p>
 <p>
@@ -375,10 +389,11 @@ Set the CVSROOT environment variable.
     <tr>
       <td bgcolor="#dfdfdf"><span style="font-family: monospace;"><br>
       </span><tt>$ export
-CVSROOT=':pserver:cvs@oss.sgi.com:/oss/CVS_OpenSpeedShop'</tt> <br>
+CVSROOT=':pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss'</tt>
+      <br>
       <tt><i>(for sh, bash, ksh, or similar shells)</i></tt> <br>
       <tt>$ setenv CVSROOT&nbsp;
-:pserver:cvs@oss.sgi.com:/oss/CVS_OpenSpeedShop</tt> <br>
+:pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss</tt> <br>
       <tt><i>(for csh or tcsh shells)</i></tt> <br>
 &nbsp;</td>
     </tr>
@@ -393,7 +408,7 @@ time you access CVS).
     <tr>
       <td bgcolor="#dfdfdf"><br>
       <tt>$ cvs login</tt> <br>
-      <i>(the password is "</i>cvs<i>")</i> <br>
+      <i>(there is no password:"</i>just hit enter<i>")</i> <br>
 &nbsp;</td>
     </tr>
   </tbody>
@@ -540,13 +555,17 @@ combinations have been tried and/or successfully tested:<br>
 <ul>
   <li>SuSE Professional 9.1 on IA32</li>
   <li>SLES 9 SP2 and SP3 on IA32, X86_64, and IA64</li>
-  <li>Fedora Core 3 on IA32, problems on X86_64 using dyninst-20050812
-version<br>
+  <li>Fedora Core 3 on x86</li>
+  <li>Fedora Core 5 on x86_64<br>
   </li>
-  <li>RedHat 9.0 on IA32</li>
-  <li>SuSE Professional 9.3, problems on IA32</li>
+  <li>RedHat 9.0 on x86</li>
+  <li>SuSE Professional 9.3 on x86</li>
   <li>SuSE 10.0 on IA32</li>
-  <li>SLES 10.0 on IA64<br>
+  <li>SuSE 10.1 on x86_64<br>
+  </li>
+  <li>SLES 10.0 on IA64</li>
+  <li>RHEL3 on x86_64, x86</li>
+  <li>RHEL4 on x86_64, x86<br>
   </li>
 </ul>
 </div>
@@ -569,7 +588,7 @@ You may find newer (or older) versions of these packages work just
 fine.&nbsp;&nbsp; Let us know if they do and we can update this
 document when you do!&nbsp;&nbsp;
 Packages <span style="font-weight: bold;">not </span>commonly found
-in recent (e.g. SuSE Professional 9.1, SLES 9, Fedora Core 3) Linux
+in some (e.g. SuSE Professional 9.1, SLES 9, Fedora Core 3) Linux
 distributions are provided here in this (OpenSpeedShop_ROOT)
 directory as
 source tarballs and binary RPMs
@@ -579,12 +598,12 @@ available
 in RPM form are:<br>
 </div>
 <ul style="margin-left: 40px;">
-  <li>dpcl-20060421-8<br>
+  <li>dpcl-20060421-11<br>
   </li>
   <li>libunwind-0.98.5-2</li>
-  <li>libdwarf-20051201-1</li>
+  <li>libdwarf-20060616-1</li>
   <li>sqlite-3.2.7-3</li>
-  <li>dyninst-5.0-1</li>
+  <li>dyninst-5.0.1-1</li>
 </ul>
 <div style="margin-left: 40px;"><br>
 In addition, the components listed below are also needed for building
@@ -604,7 +623,7 @@ In addition, the components listed below are also needed for building
     <tr>
       <td>autoconf </td>
       <td>2.59 </td>
-      <td>2.59 </td>
+      <td>2.59-7 </td>
       <td>none</td>
     </tr>
     <tr>
@@ -616,13 +635,13 @@ In addition, the components listed below are also needed for building
     <tr>
       <td>binutils </td>
       <td>2.15 </td>
-      <td>2.15 </td>
+      <td>2.16.91 </td>
       <td>none</td>
     </tr>
     <tr>
       <td>doxygen </td>
       <td>1.3.6 </td>
-      <td>1.4.2 </td>
+      <td>1.4.6-3 </td>
       <td>(2)</td>
     </tr>
     <tr>
@@ -640,19 +659,22 @@ In addition, the components listed below are also needed for building
     <tr>
       <td>gcc/g++ </td>
       <td>3.3.3 </td>
-      <td>3.4.4 </td>
+      <td>4.1.1-1 </td>
       <td>none</td>
     </tr>
     <tr>
       <td>libdwarf </td>
       <td>2004/02/03 </td>
-      <td>2005/12/15 </td>
+      <td>2006/06/14 </td>
       <td>none</td>
     </tr>
     <tr>
       <td>libelf </td>
       <td>0.8.5 </td>
-      <td>0.8.5 </td>
+      <td>0.8.5<br>
+or <br>
+elfutils-libelf-0.119.1.2.1<br>
+      </td>
       <td>none</td>
     </tr>
     <tr>
@@ -672,7 +694,7 @@ In addition, the components listed below are also needed for building
       </td>
       <td style="vertical-align: top;">3.0.8.1<br>
       </td>
-      <td style="vertical-align: top;">3.0.8.1<br>
+      <td style="vertical-align: top;">3.5.0-1<br>
       </td>
       <td style="vertical-align: top;">none<br>
       </td>
@@ -680,7 +702,7 @@ In addition, the components listed below are also needed for building
     <tr>
       <td>python </td>
       <td>2.3.3 </td>
-      <td>2.3.4 </td>
+      <td>2.4.3 </td>
       <td>none</td>
     </tr>
     <tr>
@@ -688,7 +710,7 @@ In addition, the components listed below are also needed for building
       </td>
       <td style="vertical-align: top;">2.3.3<br>
       </td>
-      <td style="vertical-align: top;">2.3.4<br>
+      <td style="vertical-align: top;">2.4.3<br>
       </td>
       <td style="vertical-align: top;">none<br>
       </td>
@@ -696,13 +718,13 @@ In addition, the components listed below are also needed for building
     <tr>
       <td>sqlite </td>
       <td>3.0.8 </td>
-      <td>3.2.7 </td>
+      <td>3.3.3-1 </td>
       <td>none</td>
     </tr>
     <tr>
       <td>qt </td>
       <td>3.3.1 </td>
-      <td>3.3.4 </td>
+      <td>3.3.6 </td>
       <td>none</td>
     </tr>
     <tr>
@@ -710,7 +732,7 @@ In addition, the components listed below are also needed for building
       </td>
       <td style="vertical-align: top;">3.3.1<br>
       </td>
-      <td style="vertical-align: top;">3.3.4<br>
+      <td style="vertical-align: top;">3.3.6<br>
       </td>
       <td style="vertical-align: top;">(3)<br>
       </td>
@@ -980,9 +1002,9 @@ make install
 dwarfdump</h6>
 ...<br>
 cd OpenSpeedShop_ROOT/SOURCES<br>
-gunzip libdwarf-20060327.tar.gz<br>
-tar -xvf libdwarf-20060327.tar<br>
-cd libdwarf-20060327/libdwarf<br>
+gunzip libdwarf-20060614.tar.gz<br>
+tar -xvf libdwarf-20060614.tar<br>
+cd libdwarf-20060614/libdwarf<br>
 ./configure
 --prefix=/ptmp/fred/root/usr<br>
 make
@@ -993,7 +1015,7 @@ cp dwarf.h -&gt; /usr/include
 <br>
 cp libdwarf.a -&gt; /usr/lib64<br>
 <br>
-cd libdwarf-20060327/dwarfdump directory
+cd libdwarf-20060614/dwarfdump directory
 <br>
 ./configure --prefix=/ptmp/fred/root/usr
 <br>
@@ -1012,9 +1034,9 @@ make install
 <br>
 <h6><a class="mozTocH6" name="mozTocId367848"></a>Build papi</h6>
 cd OpenSpeedShop_ROOT/SOURCES<br>
-gunzip papi-3.0.8.1.tar.gz<br>
-tar -xvf papi-3.0.8.1.tar<br>
-cd papi-3.0.8.1<br>
+gunzip papi-3.5.0.tar.gz<br>
+tar -xvf papi-3.5.0.tar<br>
+cd papi-3.5.0<br>
 ./configure --prefix=/ptmp/fred/root/usr<br>
 make install
 <br>
@@ -1036,7 +1058,7 @@ make install
 <h6><a class="mozTocH6" name="mozTocId911142"></a>Build Dyninst</h6>
 % setenv PREFIX /ptmp/fred/root/usr<br>
 <span class="moz-txt-citetags"> </span>% cd
-&lt;top&gt;/OpenSpeedShop_ROOT/SOURCES/dyninst-5.0<br>
+&lt;top&gt;/OpenSpeedShop_ROOT/SOURCES/dyninst-5.0.1<br>
 <span class="moz-txt-citetags"> </span>% ./Build<br>
 ...<br>
 <br>
@@ -1234,7 +1256,7 @@ and Installation<br>
 <blockquote>The rpm command:<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <span style="font-weight: bold;">rpm
 --install --nodeps
-openspeedshop-0.875-1.ia64.rpm </span><br>
+openspeedshop-1.00-1.ia64.rpm </span><br>
 will install <b>Open|SpeedShop</b> executables into /usr/bin and
 the <b>Open|SpeedShop</b> plugins into /usr/lib/openspeedshop.<br>
   <b style=""><br>
@@ -1269,13 +1291,16 @@ that need to be installed on your system to run <b>Open|SpeedShop</b>.<br>
       <tr>
         <td>libdwarf </td>
         <td>2004/02/03 </td>
-        <td>2005/12/15 </td>
+        <td>2006/06/14 </td>
         <td>none</td>
       </tr>
       <tr>
         <td>libelf </td>
         <td>0.8.5 </td>
-        <td>0.8.5 </td>
+        <td>0.8.5<br>
+or<br>
+elfutils-libelf-0.119.1.2.1<br>
+        </td>
         <td>(2)<br>
         </td>
       </tr>
@@ -1290,7 +1315,7 @@ that need to be installed on your system to run <b>Open|SpeedShop</b>.<br>
         </td>
         <td style="vertical-align: top;">3.0.8.1<br>
         </td>
-        <td style="vertical-align: top;">3.0.8.1<br>
+        <td style="vertical-align: top;">3.5.0-1<br>
         </td>
         <td style="vertical-align: top; text-align: left;">(3)<br>
         </td>
@@ -1298,19 +1323,19 @@ that need to be installed on your system to run <b>Open|SpeedShop</b>.<br>
       <tr>
         <td>python </td>
         <td>2.3.3 </td>
-        <td>2.3.4 </td>
+        <td>2.4.3-9 </td>
         <td>none</td>
       </tr>
       <tr>
         <td>sqlite </td>
         <td>3.0.8 </td>
-        <td>3.2.7 </td>
+        <td>3.3.3-1 </td>
         <td>none</td>
       </tr>
       <tr>
         <td>qt </td>
         <td>3.3.1 </td>
-        <td>3.3.4 </td>
+        <td>3.3.6-0 </td>
         <td>none</td>
       </tr>
     </tbody>
@@ -1325,9 +1350,10 @@ Others will almost certainly not work with <b>Open|SpeedShop</b>.&nbsp;
 For
 advanced users click <a href="BuildingInstallingDPCL.html">here </a>for
 instructions on building and installing DPCL.</li>
-  <li>There can be issues with using a version of libelf other than
-0.8.5.&nbsp;&nbsp; This version of libelf comes as the default on SUSE
-and SLES distributions.&nbsp;&nbsp; RedHat uses their own version of
+  <li>There can be issues with mixing versions of libelf when building
+the component. &nbsp; Use one version throughout the build.&nbsp; There
+are versions of libelf that come as the default on SUSE
+and SLES distributions, however, RedHat uses their own version of
 libelf.<br>
   </li>
   <li>See this PAPI URL for platforms and patches needed for PAPI to
