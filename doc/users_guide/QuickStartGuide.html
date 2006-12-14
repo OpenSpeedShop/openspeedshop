@@ -37,9 +37,9 @@ w\:* {behavior:url(#default#VML);}
  alt="Open|SpeedShop logo" src="OpenSpeedShop_Logo.jpg"
  style="width: 303px; height: 38px;"><br>
 Quick Start Guide<br>
-</span></b><big><span style="font-weight: bold;">Preliminary to
-Version 1.00 Release</span><br style="font-weight: bold;">
-<span style="font-weight: bold;">November 5, 2006</span></big><br>
+</span></b><big><span style="font-weight: bold;">Version 1.00 Release</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">December 13, 2006</span></big><br>
 </p>
 <div class="Section2"><b style=""><br style="" clear="all">
 </b>
@@ -50,7 +50,8 @@ Contents<br>
 </span></span></b></b></p>
 <ul style="text-align: left;" id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId84094">Open|SpeedShop
-Quick Start Information </a>
+Quick Start Information
+    </a>
     <ul>
       <li><a href="#mozTocId800987">Open|SpeedShop
 Invocation Command&nbsp; "openss"</a>
@@ -195,11 +196,12 @@ Using Interactive CLI<br>
 The user
 wants use the command line interface, knows their executable,&nbsp;
 knows the experiment they want to run (User Time), and knows the host
-(bigiron.sgi.com) on which the performance experiment will be run.<br>
+(bigiron.domain.com) on which the performance experiment will be run.<br>
   <br>
 prompt:&gt;
 openss -cli<br>
-expcreate -hbigiron.sgi.com -f &lt;pathTOexecutable&gt;/executable_name
+expcreate -hbigiron.domain.com -f
+&lt;pathTOexecutable&gt;/executable_name
 usertime<br>
 expgo<br>
 expview stats<br>
@@ -224,11 +226,12 @@ Using Batch<br>
 The user
 wants use the batch interface, knows their executable,&nbsp; knows the
 experiment
-they want to run (PC Sampling), and knows the host (bigiron.sgi.com) on
+they want to run (PC Sampling), and knows the host (bigiron.domain.com)
+on
 which the performance experiment will be run.<br>
   <br>
 Create a file (batch.input) containing the command line commands:<br>
-expcreate -h bigiron.sgi.com
+expcreate -h bigiron.domain.com
 -f &lt;pathTOexecutable&gt;/executable_name pcsamp<br>
 expgo<br>
 expview<br>
