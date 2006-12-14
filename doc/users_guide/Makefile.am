@@ -30,7 +30,6 @@ EXTRA_DIST = BuildingInstallingDPCL.html \
 	IntroWizardRightMouseDown.png \
 	Makefile.am \
 	OpenSpeedShop_Logo.jpg \
-	OpenSpeedShopPackageNotes.html \
 	PC_SampleExperiment-2.png \
 	PC_SampleExperiment-4-Split.png \
 	PC_SampleExperiment-5-f3click.png \
