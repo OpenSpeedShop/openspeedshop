@@ -19,7 +19,10 @@
  name="mozTocId556715" class="mozTocH2"></a>Building and Installing
 DPCL - for advanced users<br>
 </b></h3>
-<blockquote><b style="">DPCL is the component responsible for
+<blockquote><b style="">NOTE: All these steps are done for you, if you
+install using the dyninst and dpcl RPMS.<br>
+  <br>
+DPCL is the component responsible for
 supporting
 performance
 measurement gathering on clusters.&nbsp; In a clustering configuration
@@ -39,47 +42,69 @@ DPCL.&nbsp;&nbsp; A quick and dirty list of items to check off if DPCL
 is not working is as follows:<br>
   <br>
   </b>
-  <div style="margin-left: 40px;"><b style=""><b>Step 1:&nbsp; </b><span
- style="font-weight: bold;">Build Dyninst and DPCL - Here is the script
-to build the DPCL and Dyninst</span><br>
-##!/bin/tcsh<br>
-################################################################################<br>
-# DPCL/Dyninst (in directory $HYBRID)<br>
-################################################################################<br>
+  <div style="margin-left: 40px;"><b style=""><span
+ style="font-weight: bold;">Build Dyninst and DPCL - Here are the steps
+to build the DPCL and Dyninst<br>
   <br>
-setenv DYNINST_ROOT "$HYBRID/dyninst"<br>
+1) Install Dyninst from the dyninst-5.0 directory<br>
   <br>
-if ((`uname` == "Linux") &amp;&amp; (`uname -m` == "ia64")) then<br>
-&nbsp;&nbsp;&nbsp; setenv PLATFORM "ia64-unknown-linux2.4"<br>
-else if (`uname` == "Linux") then<br>
-&nbsp;&nbsp;&nbsp; setenv PLATFORM "i386-unknown-linux2.4"<br>
-endif<br>
+&nbsp;&nbsp; Run ./Build<br>
+&nbsp;&nbsp; If this breaks fix the paths in
+dyninst/core/make.config.local<br>
+&gt;&gt; setenv DYNINST_INSTALL_DIR<br>
   <br>
-cd $DYNINST_ROOT<br>
-mkdir -p ${PLATFORM}/bin<br>
-mkdir -p ${PLATFORM}/lib<br>
-cd $DYNINST_ROOT/core<br>
-make DyninstAPI<br>
-cd $DYNINST_ROOT<br>
-install -d $ROOT/include/dyninst<br>
-install -D -m u=rw,g=r,o=r core/dyninstAPI/h/BPatch*.h
-$ROOT/include/dyninst<br>
-install -D ${PLATFORM}/lib/libdyninstAPI_RT.so.1
-$ROOT/lib/libdyninstAPI_RT.so.1<br>
-install -D ${PLATFORM}/lib/libdyninstAPI.so $ROOT/lib/libdyninstAPI.so<br>
   <br>
-cd $DYNINST_ROOT/../dpcl/src<br>
-./configure --prefix=$ROOT --includedir=$ROOT/include/dpcl
---enable-md-dyninst<br>
-make<br>
-make install<br>
+2) Install DPCL from the dpcl-20060421 directory<br>
   <br>
-unsetenv DYNINST_ROOT<br>
-unsetenv PLATFORM<br>
+&nbsp;&nbsp; Run ./Build<br>
   <br>
-cd ../../..<br>
+&nbsp;&nbsp; If xinetd is used (WARNING: Security hole)<br>
   <br>
-  <b>Step 2: Check .rhosts file<br>
+&nbsp;&nbsp; Create dpclSD in $PREFIX/etx/xinetd.d directory created
+above with:<br>
+  <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; service dpclSD<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+= UNLISTED<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+socket_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+= stream<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+protocol&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+= tcp<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+port&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+= 7895<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+wait&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+= no<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+user&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+= &lt;your user ID&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+server&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+= $PREFIX/bin/dpclSD<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+server_args&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+= $PREFIX/bin/dpcld /tmp/dpclSD01 /tmp/dpclsd<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+disable&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+= no<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+env += LD_LIBRARY_PATH=$PREFIX/lib<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+env += DPCL_RT_LIB=$PREFIX/lib/libdpclRT.so.1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+env += DYNINSTAPI_RT_LIB=$PREFIX/lib/libdyninstAPI_RT.so.1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  <br>
+&nbsp;&nbsp;&nbsp; and expand paths<br>
+  <br>
+  <br>
+  </span><br>
+  <b>3) Check .rhosts file<br>
   <br>
   </b>Make sure that your login specific .rhosts file has entries for
 all the hosts you will be accessing via DPCL.&nbsp; Entries will look
@@ -89,7 +114,7 @@ hubble userid<br>
 hubble.americas.sgi.com userid<br>
 ----------------------------------------<br>
   <b><br>
-Step 3: dpcl.config file must be present</b><br>
+4) dpcl.config file must be present</b><br>
 Create a file named dpcl.config in /opt/dpcl/etc that contains the
 following two lines: (not the dashed lines)<br>
 ------------------------------<br>
@@ -98,7 +123,7 @@ method = dpcl<br>
 ------------------------------<br>
   <br>
   <br>
-  <b>Step 4: Super Daemon entry in /etc/services<br>
+  <b>5) Super Daemon entry in /etc/services<br>
   <br>
   </b>The build mentioned above should install the Super Daemon entry
 in /etc/services.&nbsp; If it doesn't proceed with the following.<br>
@@ -112,7 +137,7 @@ dpclSD 7895/tcp # DPCL Super Daemon<br>
 -------------------------------------------<br>
   <br>
   <br>
-  <b>Step 5:</b>&nbsp; <span style="font-weight: bold;">/etc/xinetd.d/dpclSD
+  <b>6)</b>&nbsp; <span style="font-weight: bold;">/etc/xinetd.d/dpclSD
 file</span><br>
   <br>
 Add the DPCL Super Daemon xinetd.d "dpclSD" file into the /etc/xinetd.d
@@ -139,7 +164,7 @@ of the actual DPCL build you want to run.&nbsp; In this example the
 DPCL components are in /perftools/ROOT.<br>
   <br>
   <br>
-  <b>Step 6:</b> <span style="font-weight: bold;">Activate the Super
+  <b>7)</b> <span style="font-weight: bold;">Activate the Super
 Daemon</span><br>
   <br>
 Do a: "ps -ef | grep dpcl" to see if any existing super daemons are
