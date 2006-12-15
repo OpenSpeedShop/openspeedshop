@@ -248,10 +248,25 @@ static const struct {
           SS_Timings::cliGuiLoadMin,
           SS_Timings::cliGuiLoadTotal},
         { 
+          SS_Timings::cliPurgeDispatchQueueCount, 
+          SS_Timings::cliPurgeDispatchQueueMax, 
+          SS_Timings::cliPurgeDispatchQueueMin, 
+          SS_Timings::cliPurgeDispatchQueueTotal}, 
+        { 
           SS_Timings::cliWaitCount, 
           SS_Timings::cliWaitMax, 
           SS_Timings::cliWaitMin,
           SS_Timings::cliWaitTotal},
+        { 
+          SS_Timings::cliWaitForOthersTermCount,
+          SS_Timings::cliWaitForOthersTermMax,
+          SS_Timings::cliWaitForOthersTermMin,
+          SS_Timings::cliWaitForOthersTermTotal},
+        { 
+          SS_Timings::cliWaitForPrevCmdsCount,
+          SS_Timings::cliWaitForPrevCmdsMax,
+          SS_Timings::cliWaitForPrevCmdsMin,
+          SS_Timings::cliWaitForPrevCmdsTotal},
         { 
           SS_Timings::listGenericCount, 
           SS_Timings::listGenericMax, 
@@ -317,6 +332,9 @@ SS_Timings::SS_Timings()
     cli_perf_count[ detailButterFlyReportCount ] = 0;
     cli_perf_count[ expSetParamCount ] = 0;
     cli_perf_count[ cliWaitCount ] = 0;
+    cli_perf_count[ cliPurgeDispatchQueueCount ] = 0;
+    cli_perf_count[ cliWaitForPrevCmdsCount ] = 0;
+    cli_perf_count[ cliWaitForOthersTermCount ] = 0;
     cli_perf_count[ perfTableNullCount ] = 0;
 
 // Initialize time totals to zero at start of gathering
@@ -364,6 +382,9 @@ SS_Timings::SS_Timings()
     cli_perf_count[ cvCreateTotal ] = 0;
     cli_perf_count[ expSetParamTotal ] = 0;
     cli_perf_count[ cliWaitTotal ] = 0;
+    cli_perf_count[ cliPurgeDispatchQueueTotal ] = 0;
+    cli_perf_count[ cliWaitForPrevCmdsTotal ] = 0;
+    cli_perf_count[ cliWaitForOthersTermTotal ] = 0;
     cli_perf_count[ perfTableNullTotal ] = 0;
 }
 
@@ -504,6 +525,9 @@ bool SS_Timings::isStartEvent(CLIPerformanceDataEvents eventType)
       eventType == cvCreateStart ||
       eventType == expSetParamStart ||
       eventType == cliWaitStart ||
+      eventType == cliPurgeDispatchQueueStart ||
+      eventType == cliWaitForPrevCmdsStart ||
+      eventType == cliWaitForOthersTermStart ||
       eventType == cliAllStart ) {
     return true;
   }
@@ -562,6 +586,9 @@ bool SS_Timings::isEndEvent(CLIPerformanceDataEvents eventType)
       eventType == cvCreateEnd ||
       eventType == expSetParamEnd ||
       eventType == cliWaitEnd ||
+      eventType == cliPurgeDispatchQueueEnd ||
+      eventType == cliWaitForPrevCmdsEnd ||
+      eventType == cliWaitForOthersTermEnd ||
       eventType == cliAllEnd ) {
     return true;
   }
@@ -619,6 +646,9 @@ bool SS_Timings::isCountEvent(CLIPerformanceDataEvents eventType)
       eventType == cvCreateCount ||
       eventType == expSetParamCount ||
       eventType == cliWaitCount ||
+      eventType == cliPurgeDispatchQueueCount ||
+      eventType == cliWaitForPrevCmdsCount ||
+      eventType == cliWaitForOthersTermCount ||
       eventType == cliAllCount ) {
     return true;
   }
@@ -676,6 +706,9 @@ bool SS_Timings::isTotalEvent(CLIPerformanceDataEvents eventType)
       eventType == cvCreateTotal ||
       eventType == expSetParamTotal ||
       eventType == cliWaitTotal ||
+      eventType == cliPurgeDispatchQueueTotal ||
+      eventType == cliWaitForPrevCmdsTotal ||
+      eventType == cliWaitForOthersTermTotal ||
       eventType == cliAllTotal ) {
     return true;
   }
@@ -733,6 +766,9 @@ bool SS_Timings::isMaxEvent(CLIPerformanceDataEvents eventType)
       eventType == cvCreateMax ||
       eventType == expSetParamMax ||
       eventType == cliWaitMax ||
+      eventType == cliPurgeDispatchQueueMax ||
+      eventType == cliWaitForPrevCmdsMax ||
+      eventType == cliWaitForOthersTermMax ||
       eventType == cliAllMax ) {
     return true;
   }
@@ -790,6 +826,9 @@ bool SS_Timings::isMinEvent(CLIPerformanceDataEvents eventType)
       eventType == cvCreateMin ||
       eventType == expSetParamMin ||
       eventType == cliWaitMin ||
+      eventType == cliPurgeDispatchQueueMin ||
+      eventType == cliWaitForPrevCmdsMin ||
+      eventType == cliWaitForOthersTermMin ||
       eventType == cliAllMin ) {
     return true;
   }
@@ -887,7 +926,7 @@ void SS_Timings::CLIPerformanceStatistics()
         { SS_Timings::expAttach_linkThreads_Total,"Total Time expAttach sub-task measurement for linking threads to the collectors", true},
         { SS_Timings::expAttach_linkThreads_End,"End Time for expAttach sub-task measurement for linking threads to the collectors", true},
         { SS_Timings::expAttach_FW_createProcess_Start,"Start Time expAttach sub-task measurement for calls to the FW for creating a process", true},
-        { SS_Timings::expAttach_FW_createProcess_Count,"Number of expAttach sub-task measurement for calls to the FW for creating a process", true},
+        { SS_Timings::expAttach_FW_createProcess_Count,"Number of expAttach sub-task measurement for calls to the FW for creating a process (included in resolve the target list)", true},
         { SS_Timings::expAttach_FW_createProcess_Max,"Maximum Time expAttach sub-task measurement for calls to the FW for creating a process", true},
         { SS_Timings::expAttach_FW_createProcess_Min,"Minimum Time expAttach sub-task measurement for calls to the FW for creating a process", true},
         { SS_Timings::expAttach_FW_createProcess_Total,"Total Time expAttach sub-task measurement for calls to the FW for creating a process (included in resolve the target list)", true},
@@ -929,7 +968,7 @@ void SS_Timings::CLIPerformanceStatistics()
         { SS_Timings::expCreate_linkThreads_Total,"Total Time expCreate sub-task measurement for linking threads to the collectors", true},
         { SS_Timings::expCreate_linkThreads_End,"End Time for expCreate sub-task measurement for linking threads to the collectors", true},
         { SS_Timings::expCreate_FW_createProcess_Start,"Start Time expCreate sub-task measurement for calls to the FW for creating a process", true},
-        { SS_Timings::expCreate_FW_createProcess_Count,"Number of expCreate sub-task measurement for calls to the FW for creating a process", true},
+        { SS_Timings::expCreate_FW_createProcess_Count,"Number of expCreate sub-task measurement for calls to the FW for creating a process (included in resolve the target list)", true},
         { SS_Timings::expCreate_FW_createProcess_Max,"Maximum Time expCreate sub-task measurement for calls to the FW for creating a process", true},
         { SS_Timings::expCreate_FW_createProcess_Min,"Minimum Time expCreate sub-task measurement for calls to the FW for creating a process", true},
         { SS_Timings::expCreate_FW_createProcess_Total,"Total Time expCreate sub-task measurement for calls to the FW for creating a process (included in resolve the target list)", true},
@@ -1096,6 +1135,25 @@ void SS_Timings::CLIPerformanceStatistics()
         { SS_Timings::cliExecuteCmdMin, "Minimum time spent in CLI loops through executing commands for one call" , true},
         { SS_Timings::cliExecuteCmdTotal, "Total time spent in CLI loops through executing commands possibly over multiple calls" , true},
         { SS_Timings::cliExecuteCmdEnd, "End Time when CLI loops through executing commands ended" , true},
+        { SS_Timings::cliPurgeDispatchQueueStart, "Start Time for routine that purges the cli command queue", true},
+        { SS_Timings::cliPurgeDispatchQueueCount, "Number of times the CLI routine that waits for other cli commands to terminate and exit was/is being timed" , true},
+        { SS_Timings::cliPurgeDispatchQueueMax, "Maximum time spent in the CLI routine that waits for other cli commands to terminate and exit for one call" , true},
+        { SS_Timings::cliPurgeDispatchQueueMin, "Minimum time spent in the CLI routine that waits for other cli commands to terminate and exit for one call" , true},
+        { SS_Timings::cliPurgeDispatchQueueTotal, "Total time spent in CLI routine that waits for other cli commands to terminate and exit, possibly over multiple calls" , true},
+        { SS_Timings::cliPurgeDispatchQueueEnd, "End Time for routine that waits for other cli commands to terminate", true},
+        { SS_Timings::cliWaitForOthersTermStart, "Start Time for routine that waits for other cli commands to terminate", true},
+        { SS_Timings::cliWaitForOthersTermCount, "Number of times the CLI routine that waits for other cli commands to terminate and exit was/is being timed" , true},
+        { SS_Timings::cliWaitForOthersTermMax, "Maximum time spent in the CLI routine that waits for other cli commands to terminate and exit for one call" , true},
+        { SS_Timings::cliWaitForOthersTermMin, "Minimum time spent in the CLI routine that waits for other cli commands to terminate and exit for one call" , true},
+        { SS_Timings::cliWaitForOthersTermTotal, "Total time spent in CLI routine that waits for other cli commands to terminate and exit, possibly over multiple calls" , true},
+        { SS_Timings::cliWaitForOthersTermEnd, "End Time when CLI routine that waits for other cli commands to terminate and exit ended" , true},
+        { SS_Timings::cliWatcherStart, "Start Time for when the CLI watcher loop execution started" , true},
+        { SS_Timings::cliWaitForPrevCmdsStart, "Start Time for routine that waits for previous cli pthreads to finish", true},
+        { SS_Timings::cliWaitForPrevCmdsCount, "Number of times the CLI routine that waits for previous cli pthreads to finis was/is being timed" , true},
+        { SS_Timings::cliWaitForPrevCmdsMax, "Maximum time spent in the CLI routine that waits for previous cli pthreads to finish for one call" , true},
+        { SS_Timings::cliWaitForPrevCmdsMin, "Minimum time spent in the CLI routine that waits for previous cli pthreads to finish for one call" , true},
+        { SS_Timings::cliWaitForPrevCmdsTotal, "Total time spent in CLI routine that waits for previous cli pthreads to finish, possibly over multiple calls" , true},
+        { SS_Timings::cliWaitForPrevCmdsEnd, "End Time when CLI routine that waits for previous cli pthreads to finish ended" , true},
         { SS_Timings::cliWatcherStart, "Start Time for when the CLI watcher loop execution started" , true},
         { SS_Timings::cliWatcherCount, "Number of times the CLI watcher loop was/is being timed" , true},
         { SS_Timings::cliWatcherMax, "Maximum time spent in the CLI watcher loop for one call" , true},

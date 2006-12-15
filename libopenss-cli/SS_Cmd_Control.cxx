@@ -578,33 +578,81 @@ static pthread_cond_t  Waiting_For_Main = PTHREAD_COND_INITIALIZER;
 
 static void Wait_For_Others_To_Terminate () {
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
+
+  // Start timing the processing time spent in the  Wait_For_Others_To_Terminate routine
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+      cli_timing_handle->cli_perf_data[SS_Timings::cliWaitForOthersTermStart] = Time::Now();
+  }
+
   while (EXT_Allocated > 2) {   // There must be 2 processes: me and one to wake me up!
    // Wait for other pthreads to finish executing and exit.
     Cmd_Waiting = true;
     Assert(pthread_cond_wait(&Waiting_For_Cmds,&Cmd_EXT_Lock) == 0);
     Cmd_Waiting = false;
   }
+
+  // Process the time spent in the Wait_For_Others_To_Terminate  routine
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+      cli_timing_handle->processTimingEventEnd( SS_Timings::cliWaitForOthersTermStart,
+                                                SS_Timings::cliWaitForOthersTermCount,
+                                                SS_Timings::cliWaitForOthersTermMax,
+                                                SS_Timings::cliWaitForOthersTermMin,
+                                                SS_Timings::cliWaitForOthersTermTotal,
+                                                SS_Timings::cliWaitForOthersTermEnd);
+  }
   Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
 }
 
 void Wait_For_Previous_Cmds () {
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
+
+  // Start timing the processing time spent in the  Wait_For_Previous_Cmds routine
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+      cli_timing_handle->cli_perf_data[SS_Timings::cliWaitForPrevCmdsStart] = Time::Now();
+  }
+
   while (EXT_Allocated > (EXT_Free + 1)) {
    // Wait for other pthreads to finish executing.
     Cmd_Waiting = true;
     Assert(pthread_cond_wait(&Waiting_For_Cmds,&Cmd_EXT_Lock) == 0);
     Cmd_Waiting = false;
   }
+
+  // Process the time spent in the Wait_For_Previous_Cmds routine
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+      cli_timing_handle->processTimingEventEnd( SS_Timings::cliWaitForPrevCmdsStart,
+                                                SS_Timings::cliWaitForPrevCmdsCount,
+                                                SS_Timings::cliWaitForPrevCmdsMax,
+                                                SS_Timings::cliWaitForPrevCmdsMin,
+                                                SS_Timings::cliWaitForPrevCmdsTotal,
+                                                SS_Timings::cliWaitForPrevCmdsEnd);
+  }
   Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
 }
 
 void Purge_Dispatch_Queue () {
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
+
+  // Start timing the processing time spent in the  Purge_Dispatch_Queue routine
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+      cli_timing_handle->cli_perf_data[SS_Timings::cliPurgeDispatchQueueStart] = Time::Now();
+  }
+
   while (EXT_Dispatch.begin() != EXT_Dispatch.end()) {
     CommandObject *cmd = *EXT_Dispatch.begin();
     EXT_Dispatch.pop_front();
     cmd->set_Status (CMD_ABORTED);
     Cmd_Obj_Complete (cmd);
+  }
+
+  // Process the time spent in the Purge_Dispatch_Queue routine
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+      cli_timing_handle->processTimingEventEnd( SS_Timings::cliPurgeDispatchQueueStart,
+                                                SS_Timings::cliPurgeDispatchQueueCount,
+                                                SS_Timings::cliPurgeDispatchQueueMax,
+                                                SS_Timings::cliPurgeDispatchQueueMin,
+                                                SS_Timings::cliPurgeDispatchQueueTotal,
+                                                SS_Timings::cliPurgeDispatchQueueEnd);
   }
   Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
 }
@@ -623,11 +671,6 @@ void SafeToDoNextCmd () {
 }
 
 static void Cmd_EXT_Create () {
-
-    // Start timing the processing time spent in the Cmd_EXT_Create routine
-    if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-         cli_timing_handle->cli_perf_data[SS_Timings::cliCmd_EXT_CreateStart] = Time::Now();
-    }
 
  // When we get here Cmd_EXT_Lock is not set.
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
@@ -728,16 +771,6 @@ static void Cmd_EXT_Create () {
      // Be sure that the next command can proceed.
       Ready_for_Next_Cmd = true;
     }
-  }
-
-  // Process the time spent in the Cmd_EXT_Create routine
-  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-      cli_timing_handle->processTimingEventEnd( SS_Timings::cliCmd_EXT_CreateStart,
-                                                SS_Timings::cliCmd_EXT_CreateCount,
-                                                SS_Timings::cliCmd_EXT_CreateMax,
-                                                SS_Timings::cliCmd_EXT_CreateMin,
-                                                SS_Timings::cliCmd_EXT_CreateTotal,
-                                                SS_Timings::cliCmd_EXT_CreateEnd);
   }
 }
 

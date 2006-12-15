@@ -353,12 +353,31 @@ class SS_Timings
       cliGuiLoadMin, /** Minimum time spent in CLI gui window load for one call */
       cliGuiLoadTotal, /** < Total Time in cli gui window load  */ 
       cliGuiLoadEnd, /**< End Time for cli gui window load  */
+      cliPurgeDispatchQueueStart, /** < Start Time for routine that purges the cli command queue */
+      cliPurgeDispatchQueueCount, /** < Number of times the CLI routine that waits for other cli commands to terminate and exit was/is being timed */
+      cliPurgeDispatchQueueMax, /** < Maximum time spent in the CLI routine that waits for other cli commands to terminate and exit for one call */
+      cliPurgeDispatchQueueMin, /** < Minimum time spent in the CLI routine that waits for other cli commands to terminate and exit for one call */
+      cliPurgeDispatchQueueTotal, /** < Total time spent in CLI routine that waits for other cli commands to terminate and exit, possibly over multiple calls */
+      cliPurgeDispatchQueueEnd, /** < End Time for routine that waits for other cli commands to terminate */
       cliWaitStart, /**< Start Time for CLI Wait command. */
       cliWaitCount, /** < Number of times the CLI Wait command was/is being timed  */
       cliWaitMax, /** Maximum time spent in CLI Wait command for one call */
       cliWaitMin, /** Minimum time spent in CLI Wait command for one call */
       cliWaitTotal, /** < Total Time in cli Wait command  */ 
       cliWaitEnd, /**< End Time for cli Wait command  */
+      cliWaitForOthersTermStart, /** < Start Time for routine that waits for other cli commands to terminate */
+      cliWaitForOthersTermCount, /** < Number of times the CLI routine that waits for other cli commands to terminate and exit was/is being timed */
+      cliWaitForOthersTermMax, /** < Maximum time spent in the CLI routine that waits for other cli commands to terminate and exit for one call */
+      cliWaitForOthersTermMin, /** < Minimum time spent in the CLI routine that waits for other cli commands to terminate and exit for one call */
+      cliWaitForOthersTermTotal, /** < Total time spent in CLI routine that waits for other cli commands to terminate and exit, possibly over multiple calls */
+      cliWaitForOthersTermEnd, /** < End Time when CLI routine that waits for other cli commands to terminate and exit ended */
+      cliWaitForPrevCmdsStart, /** < Start Time for routine that waits for previous cli pthreads to finish */
+      cliWaitForPrevCmdsCount, /** < Number of times the CLI routine that waits for previous cli pthreads to finis was/is being timed */
+      cliWaitForPrevCmdsMax, /** < Maximum time spent in the CLI routine that waits for previous cli pthreads to finish for one call */
+      cliWaitForPrevCmdsMin, /** < Minimum time spent in the CLI routine that waits for previous cli pthreads to finish for one call */
+      cliWaitForPrevCmdsTotal, /** < Total time spent in CLI routine that waits for previous cli pthreads to finish, possibly over multiple calls */
+      cliWaitForPrevCmdsEnd, /** < End Time when CLI routine that waits for previous cli pthreads to finish ended */
+
       listGenericStart, /**< Start Time for processing the last list generic command execution. */
       listGenericCount, /** < Number of times the list generic command was/is being timed  */
       listGenericMax, /** Maximum time spent in processing list generic commands for one call */
