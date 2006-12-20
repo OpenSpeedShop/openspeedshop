@@ -30,6 +30,9 @@ endif
 if HAVE_MPICH
 pkglib_LTLIBRARIES += mpit-rt-mpich.la
 endif
+if HAVE_MPICH2
+pkglib_LTLIBRARIES += mpit-rt-mpich2.la
+endif
 if HAVE_MPT
 pkglib_LTLIBRARIES += mpit-rt-mpt.la
 endif
@@ -96,6 +99,14 @@ mpit_rt_mpich_la_DEPENDENCIES =
 mpit_rt_mpich_la_SOURCES = $(rt_sources)
 endif
 
+
+if HAVE_MPICH2
+mpit_rt_mpich2_la_CFLAGS = $(call rt_CFLAGS_generate,@MPICH2_CPPFLAGS@)
+mpit_rt_mpich2_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPICH2_LDFLAGS@)
+mpit_rt_mpich2_la_LIBADD = $(call rt_LIBADD_generate,@MPICH2_LIBS@)
+mpit_rt_mpich2_la_DEPENDENCIES =
+mpit_rt_mpich2_la_SOURCES = $(rt_sources)
+endif
 
 
 if HAVE_MPT
