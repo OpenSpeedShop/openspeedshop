@@ -109,11 +109,12 @@ the correct version of the development components</a></li>
               <li><a href="#mozTocId722671">Step
 2 - Checkout
 OpenSpeedShop_ROOT</a></li>
-              <li><a href="#mozTocId104541">Step
-3 - Install
+              <li><a href="#mozTocId746604">Step 3 - Build RPMS, if
+necessary</a></li>
+              <li><a href="#mozTocId104541">Step 4 - (If skipping Step
+3)&nbsp; Install
 missing RPMS</a></li>
-              <li><a href="#mozTocId664892">Step
-4 - Build
+              <li><a href="#mozTocId664892">Step 5 - Build
 Open|SpeedShop
                 </a></li>
             </ul>
@@ -148,9 +149,12 @@ dwarfdump</a></li>
                       <li><a href="#mozTocId399746">Build DPCL</a></li>
                     </ul>
                   </li>
-                  <li><a href="#mozTocId821234">Step 3C - Set up
-local copy of xinetd and associated configuration files</a>
+                  <li><a href="#mozTocId821234">Step 3C - Two ways to
+invoke non-root Open|SpeedShop.</a>
                     <ul>
+                      <li><a href="#mozTocId90988">Step 3C-Xinetd method</a></li>
+                      <li><a href="#mozTocId960345">Set up
+local copy of xinetd and associated configuration files</a></li>
                       <li><a href="#mozTocId406675">Build xinetd</a></li>
                       <li><a href="#mozTocId330198">Set up xinetd and
 dpclSD configuration files</a></li>
@@ -158,6 +162,10 @@ dpclSD configuration files</a></li>
 variable DPCLSD for the machine where you will be running Open|SpeedShop</a></li>
                       <li><a href="#mozTocId98270">Start the xinetd
 process</a></li>
+                      <li><a href="#mozTocId496825">Step 3C-Direct
+connect via listener port</a></li>
+                      <li><a href="#mozTocId911676">Skip the build of
+the xinetd process and setup of the dpcl super daemon files</a></li>
                     </ul>
                   </li>
                 </ul>
@@ -223,9 +231,11 @@ capabilities for a wide
 range of platforms.&nbsp;&nbsp; </span>Open|SpeedShop
 is based
 on the concepts of SGI's IRIX SpeedShop performance analysis
-tool.&nbsp; Open|SpeedShop is being co-funded by the Department of
+tool.&nbsp; Open|SpeedShop's original development was co-funded by the
+Department of
 Energy (DOE) and
-will have the infrastructure and base components released as open
+SGI.&nbsp;&nbsp; Open|SpeedShop's infrastructure and base components
+have been released as open
 source under the GPL and LGPL licenses. <br>
 </div>
 <div style="text-align: left;">
@@ -247,18 +257,19 @@ the tool usable for a greater range of users, the performance tool will
 provide novice user Wizards, easily understood language in the user
 interface components, and interactive help. <br>
   <br>
-SGI will release, primarily under the GPL and LGPL Open Source
-licenses, the Open|SpeedShop baseline functionality.&nbsp;
-Support for single system image (SSI) machines, support for clusters
+Open|SpeedShop's baseline functionality was released under the GPL and
+LGPL Open Source
+licenses.&nbsp; Support for single system image (SSI) machines, support
+for clusters
 (i.e., multiple OS kernels), exclusive and inclusive user time, program
 counter (PC) sampling, MPI call tracing, Input/Output tracing, Floating
 point exception tracing and CPU hardware performance counter
 experiments are the key components of the baseline functionality.&nbsp;
 The
-performance tool will be designed in such a manner that will allow
+performance tool is designed in such a manner that will allow
 users to easily extend the tool by adding their own experiments. <br>
   <br>
-The performance tool will use dynamic probe class library (DPCL) as a
+The performance tool uses dynamic probe class library (DPCL) as a
 building block component for cluster system support.&nbsp;&nbsp; The
 use of
 DPCL
@@ -267,11 +278,6 @@ cluster support for platforms supported by the Dyninst dynamic
 instruction package.&nbsp; DPCL uses the Dyninst
 application programming interface (API) to provide its instrumentation
 capability. <br>
-  <br>
-Availability of the new performance tool based on SpeedShop technology
-on Linux platforms will enable Fortran (77, 90, and 95), C, and C++
-programmers to use an advanced performance analysis tool within the
-Open Source environment.<br>
   <br>
 Open|SpeedShop is oriented towards gathering and displaying performance
 data gathered from an application and relating that performance data
@@ -365,7 +371,9 @@ and process identifiers.</li>
 </ul>
 <br>
 <h2><a class="mozTocH3" name="mozTocId200693"></a><font
- face="ARIAL NARROW,HELVETICA">Downloading the Open|SpeedShop Component
+ face="ARIAL NARROW,HELVETICA"><a
+ name="Downloading_the_OpenSpeedShop_Component"></a>Downloading the
+Open|SpeedShop Component
 Source Using CVS trees
 </font></h2>
 <p> This section provides information about how to download the
@@ -790,13 +798,125 @@ OpenSpeedShop_ROOT</h4>
 and checkout the current sources.&nbsp;&nbsp; The RPMs not readily
 available on all systems
 can be found in the OpenSpeedShop_ROOT/RPMS directory and it's
-sub-directories.&nbsp;&nbsp; Sometimes because of library
+sub-directories.&nbsp;&nbsp;&nbsp; See the <small><font><font
+ face="ARIAL NARROW,HELVETICA"><span style="font-weight: bold;"></span><a
+ href="#Downloading_the_OpenSpeedShop_Component">Downloading the
+Open|SpeedShop Component
+Source Using CVS </a></font></font></small><a
+ href="#Downloading_the_OpenSpeedShop_Component">trees</a> section for
+information on how to obtain the OpenSpeedShop_ROOT source tree.<br>
+</div>
+<h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId746604"></a>Step
+3 - Build RPMS, if necessary<br>
+</h4>
+<div style="margin-left: 40px;">Sometimes because of library
 incompatibilites RPMs may have to be built on the machine being
-used.&nbsp; If that is the case, <br>
+used.&nbsp; If that is the case, follow the directions that follow.<br>
+<br>
+The script, Build-RPM, will create the component RPM in the RPMS
+directory.&nbsp;&nbsp; Build-RPM takes the spec file name of the
+component as input.&nbsp; The spec files are in the SPECS
+directory.&nbsp; Here are the key component spec files that will be
+found in the SPECS directory for the current version of OpenSpeedShop:<br>
+<br>
+libelf-0.8.5.spec<br>
+libdwarf-20060614.spec<br>
+libunwind-0.98.5.spec<br>
+sqlite-3.2.7.spec<br>
+papi-3.5.0.spec<br>
+dyninst-5.0.1.spec<br>
+dpcl-20060421.spec<br>
+<br>
+There is an order that is required in building the components because
+some of the components depend on each other.<br>
+<br>
+<span style="font-weight: bold;">****</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">****</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">**** NOTE:</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">**** If the component is already on
+your system, you should</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">**** not have to rebuild or install
+that component.</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">****</span><br>
+<span style="font-weight: bold;">****</span><br>
+<br>
+Here is the order in which the component should be built and installed
+and commands to build and install the components.<br>
+<br>
+<span style="font-weight: bold;">1) If needed, build libelf and install
+it</span><br>
+<br>
+&nbsp;&nbsp; From the OpenSpeedShop_ROOT directory do:<br>
+&nbsp;&nbsp; ./Build-RPM libelf-0.8.5<br>
+&nbsp;&nbsp; cd RPMS/&lt;platform&gt;<br>
+&nbsp;&nbsp; su<br>
+&nbsp;&nbsp; rpm --install libelf-0.8.5-1.&lt;platform&gt;.rpm<br>
+<br>
+<span style="font-weight: bold;">2) If needed, build libdwarf and
+install it</span><br>
+<br>
+&nbsp;&nbsp; From the OpenSpeedShop_ROOT directory do:<br>
+&nbsp;&nbsp; ./Build-RPM libdwarf-20060614<br>
+&nbsp;&nbsp; cd RPMS/&lt;platform&gt;<br>
+&nbsp;&nbsp; su<br>
+&nbsp;&nbsp; rpm --install libdwarf-20060614-1.&lt;platform&gt;.rpm<br>
+<br>
+<span style="font-weight: bold;">3) If needed, build libunwind and
+install it</span><br>
+<br>
+&nbsp;&nbsp; From the OpenSpeedShop_ROOT directory do:<br>
+&nbsp;&nbsp; ./Build-RPM libunwind-0.98.5<br>
+&nbsp;&nbsp; cd RPMS/&lt;platform&gt;<br>
+&nbsp;&nbsp; su<br>
+&nbsp;&nbsp; rpm --install libunwind-0.98.5-1.&lt;platform&gt;.rpm<br>
+<br>
+<span style="font-weight: bold;">4) If needed, build sqlite and install
+it</span><br style="font-weight: bold;">
+<br>
+&nbsp;&nbsp; From the OpenSpeedShop_ROOT directory do:<br>
+&nbsp;&nbsp; ./Build-RPM sqlite-3.2.7<br>
+&nbsp;&nbsp; cd RPMS/&lt;platform&gt;<br>
+&nbsp;&nbsp; su<br>
+&nbsp;&nbsp; rpm --install sqlite-3.2.7-1.&lt;platform&gt;.rpm<br>
+<br>
+<span style="font-weight: bold;">5) If needed, build papi and install it</span><br
+ style="font-weight: bold;">
+<br>
+&nbsp;&nbsp; From the OpenSpeedShop_ROOT directory do:<br>
+&nbsp;&nbsp; ./Build-RPM papi-3.5.0<br>
+&nbsp;&nbsp; cd RPMS/&lt;platform&gt;<br>
+&nbsp;&nbsp; su<br>
+&nbsp;&nbsp; rpm --install papi-3.5.0-1.&lt;platform&gt;.rpm<br>
+<br>
+<br>
+<span style="font-weight: bold;">6) Build dyninst and install it (THIS
+IS NEEDED)</span><br>
+<br>
+&nbsp;&nbsp; From the OpenSpeedShop_ROOT directory do:<br>
+&nbsp;&nbsp; ./Build-RPM dyninst-5.0.1<br>
+&nbsp;&nbsp; cd RPMS/&lt;platform&gt;<br>
+&nbsp;&nbsp; su<br>
+&nbsp;&nbsp; rpm --install dyninst-5.0.1-1.&lt;platform&gt;.rpm<br>
+<br>
+<span style="font-weight: bold;">7) Build dpcl and install it (THIS IS
+NEEDED)</span><br>
+<br>
+&nbsp;&nbsp; From the OpenSpeedShop_ROOT directory do:<br>
+&nbsp;&nbsp; ./Build-RPM dpcl-20060421<br>
+&nbsp;&nbsp; cd RPMS/&lt;platform&gt;<br>
+&nbsp;&nbsp; su<br>
+&nbsp;&nbsp; rpm --install dpcl-20060421-1.&lt;platform&gt;.rpm<br>
+<br>
+<br>
+Now you are ready to build and execute Open|SpeedShop<br>
+<br>
 </div>
 <br>
 <h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId104541"></a>Step
-3 - Install
+4 - (If skipping Step 3)&nbsp; Install
 missing RPMS</h4>
 <div style="margin-left: 40px;">For IA32, go into
 OpenSpeedShop_ROOT/RPMS/i586 and install all
@@ -842,7 +962,7 @@ root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 21 Jun 29 15:10
 <br>
 </div>
 <h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId664892"></a>Step
-4 - Build
+5 - Build
 Open|SpeedShop<br>
 </h4>
 <div style="margin-left: 40px;">
@@ -865,31 +985,44 @@ source directory</li>
 directory&gt;</span></li>
   <li># Create initial build files</li>
   <li><span style="font-weight: bold;">bootstrap</span></li>
-  <li># Configure <b>Open|SpeedShop</b> with or without optional
+  <li># Configure <b>Open|SpeedShop</b> with optional
 installation
-directory designation</li>
-  <li><span style="font-weight: bold;">configure
-[--prefix=&lt;Open|SpeedShop Install Directory Path&gt;]</span></li>
+directory designators.&nbsp; The --with-component allows the components
+installed in alternative locations on the system, like /opt, to be used
+in the Open|SpeedShop
+build.&nbsp; These are the component built from the instructions above
+or components that are installed via modules on the
+system.&nbsp;&nbsp;&nbsp; The&nbsp; default location&nbsp; is
+/usr.&nbsp;&nbsp; The&nbsp; with statements are not needed when they
+specify the default location but are shown here to illustrate the
+options available.<span style="font-weight: bold;"></span></li>
+  <li><span style="font-weight: bold;"></span>configure&nbsp;<span
+ style="font-weight: bold;">
+[--prefix=&lt;Open|SpeedShop Install Directory Path&gt;</span>
+--with-libunwind=/usr
+--with-papi=/opt/papi-3.5.0 --with-dpcl=/usr
+--with-dyninst=/usr --with-sqlite=/opt/sqlite-3.2.7
+--with-lampi=/apps/x86_64/mpi/lampi/gcc-3.4.3-9/lampi-1.5.13-rc1<br>
+  </li>
+</ul>
+</div>
+<div style="margin-left: 40px;">
+<ul>
   <li># Make and install <b>Open|SpeedShop</b></li>
   <li><span style="font-weight: bold;">make install</span></li>
 </ul>
 </div>
 <br>
-<div style="margin-left: 40px;">The Open|SpeedShop build should find
-all of the necessary libraries and
-headers in /usr now.<br>
-<br>
-If this doesn't work, read OpenSpeedShop_ROOT/README (that file
+<div style="margin-left: 40px;">If the build has problems please refer
+to the OpenSpeedShop_ROOT/README (that file
 should have the most accurate list of RPM versions) and see if
 your Linux distribution is lacking one of the packages (or versions)
-mentioned.&nbsp; With SuSE 9.1 or SLES 9 you should be able to install
-the RPMS and go.&nbsp;
-Nothing else should be required. <br>
+mentioned.&nbsp; The INSTALL-notes file in the OpenSpeedShop_ROOT
+directory also contains installation information worth looking
+at.&nbsp;&nbsp;&nbsp; configure --help shows the available configure
+options for Open|SpeedShop.<br>
 <br>
-Red Hat distributions e.g. Fedora Core 3 require libelf-0.8.5 be
-installed. &nbsp; This RPM can
-be found in
-OpenSpeedShop_ROOT/RPMS/i586/FedoraCore3/.&nbsp; You can use
+You can use
 "rpm
 --query --all" to find out what packages are on your system.&nbsp;
 Grepping
@@ -937,9 +1070,24 @@ modify the component for debugging or other purposes.<br>
 2 - Checkout
 OpenSpeedShop_ROOT</h4>
 <div style="margin-left: 40px;">Use the OpenSpeedShop_ROOT repository
-and checkout the current sources.&nbsp;&nbsp; The RPMs not readily
+and checkout the current sources.&nbsp;&nbsp; See the <small><font><font
+ face="ARIAL NARROW,HELVETICA"><span style="font-weight: bold;"></span><a
+ href="BuildAndInstallGuide.html#Downloading_the_OpenSpeedShop_Component">Downloading
+the Open|SpeedShop Component
+Source Using CVS </a></font></font></small><a
+ href="BuildAndInstallGuide.html#Downloading_the_OpenSpeedShop_Component">trees</a>
+section for information on how to obtain the OpenSpeedShop_ROOT source
+tree.<br>
+<br>
+The RPMs not readily
 available on all systems
-can be found in that directory and it's sub-directories.&nbsp;&nbsp; If
+and correspond to a specific Open|SpeedShop release can be found on
+sourceforge at this URL: <a
+ href="http://sourceforge.net/projects/openss/">http://sourceforge.net/projects/openss/</a>.&nbsp;&nbsp;&nbsp;
+Follow the web page to the Download area for a list of the files
+available.<br>
+<br>
+If
 you can use the rpm alternative location install option "--prefix" then
 the RPMs that are&nbsp; found in the RPMS directory can be installed
 into the alternative install directory.&nbsp;&nbsp; See the section for
@@ -1088,24 +1236,43 @@ described in the next section.&nbsp;&nbsp;&nbsp; <br>
 <br>
 </div>
 <div style="margin-left: 40px;">
-<h5><a class="mozTocH5" name="mozTocId821234"></a>Step 3C - Set up
-local copy of xinetd and associated configuration files</h5>
-To run as a non-root installed tool and to use the normal tool
+<h5><a class="mozTocH5" name="mozTocId821234"></a>Step 3C - Two ways to
+invoke non-root Open|SpeedShop.<br>
+</h5>
+<h6><a class="mozTocH5" name="mozTocId90988"></a>Step 3C-Xinetd method</h6>
+<ul>
+  <li>
+    <h6>Set up
+local copy of xinetd and associated configuration files</h6>
+  </li>
+</ul>
+<div style="margin-left: 40px;">To run as a non-root installed tool and
+to use the normal tool
 execution method a local copy of xinetd and the associated
 configuration files must be created.&nbsp; To build the local copy of
 xinetd follow these steps:<br>
+</div>
 <br>
-<h6><a class="mozTocH6" name="mozTocId406675"></a>Build xinetd</h6>
-cd OpenSpeedShop_ROOT/jeg/SOURCES<br>
+<ul>
+  <li>
+    <h6>Build xinetd</h6>
+  </li>
+</ul>
+<div style="margin-left: 40px;">cd OpenSpeedShop_ROOT/jeg/SOURCES<br>
 gunzip xinetd-2.3.13.tar.gz<br>
 tar -xvf xinetd-2.3.13.tar<br>
 cd xinetd-2.3.13<br>
 ./configure --prefix=/ptmp/fred/root/usr<br>
 make install<br>
+</div>
 <br>
-<h6><a class="mozTocH6" name="mozTocId330198"></a>Set up xinetd and
+<ul>
+  <li>
+    <h6>Set up xinetd and
 dpclSD configuration files</h6>
-cd /ptmp/fred/root<br>
+  </li>
+</ul>
+<div style="margin-left: 40px;">cd /ptmp/fred/root<br>
 mkdir /ptmp/fred/root/etc<br>
 cd /ptmp/fred/root/etc<br>
 --- create a file named xinetd.conf containing the following lines ***
@@ -1177,21 +1344,62 @@ disable&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 not included<br>
 mkdir /ptmp/fred/root/var<br>
 mkdir /ptmp/fred/root/var/log<br>
+</div>
 <br>
-<h6><a class="mozTocH6" name="mozTocId357784"></a>Set up environment
+<ul>
+  <li>
+    <h6>Set up environment
 variable DPCLSD for the machine where you will be running Open|SpeedShop</h6>
-setenv DPCLSD machine.domain:7895&nbsp;&nbsp; <br>
+  </li>
+</ul>
+<div style="margin-left: 40px;">setenv DPCLSD
+machine.domain:7895&nbsp;&nbsp; <br>
+</div>
 <br>
-<h6><a class="mozTocH6" name="mozTocId98270"></a>Start the xinetd
-process</h6>
-/ptmp/fred/root/usr/sbin/xinetd -d -f /ptmp/fred/root/etc/xinetd.conf
+<ul>
+  <li>
+    <h6>Start the xinetd
+process when ready to run Open|SpeedShop<br>
+    </h6>
+  </li>
+</ul>
+<div style="margin-left: 40px;">/ptmp/fred/root/usr/sbin/xinetd -d -f
+/ptmp/fred/root/etc/xinetd.conf
 &amp;<br>
+</div>
 <br>
 </div>
 <div style="margin-left: 40px;">We are now ready to build and run the
-Open|SpeedShop component.&nbsp;&nbsp; See the next section for details.<br>
+Open|SpeedShop component.&nbsp;&nbsp; See the <a
+ href="#Step_4_-_Build_OpenSpeedShop_using_the">Step 4</a> for details.<br>
+<br>
+<h6><a class="mozTocH5" name="mozTocId496825"></a>Step 3C-Direct
+connect via listener port</h6>
+<ul>
+  <li>
+    <h6>Skip the build of the xinetd process and setup of the dpcl
+super daemon files</h6>
+  </li>
+</ul>
+<div style="margin-left: 40px;">Instead of using the Dpcl super daemon
+to start the Dpcl communication daemon that is required for
+Open|SpeedShop, directly connect to the Dpcl communication daemon from
+Open|SpeedShop.&nbsp;&nbsp;&nbsp; Once Open|SpeedShop is built, start
+openss up either by GUI or by interactive command line (CLI) mode and
+type:&nbsp; DpcldListenerPort <br>
+into the command window.&nbsp;&nbsp; This will output a port
+number.&nbsp;&nbsp; Enter this port number as part of an argument to
+the Dpcl communication daemon like this:&nbsp; dpcld -p &lt;port info
+from DpcldListenerPort&gt; <br>
+The output and its use in the dpcld command typically looks like
+this:&nbsp;&nbsp; dpcld -p machinename.domainname:15001<br>
+<br>
+Once you start up the communication daemon you may operate
+Open|SpeedShop as one would with the xinetd method.<br>
 </div>
-<h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId739948"></a>Step
+</div>
+<h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId739948"></a><a
+ name="Step_4_-_Build_OpenSpeedShop_using_the"></a>Step
 4 - Build
 Open|SpeedShop using the "root" component's alternative location<br>
 </h4>
@@ -1348,8 +1556,8 @@ elfutils-libelf-0.119.1.2.1<br>
   <li>Always use the Dyninst and DPCL versions supplied with <b>Open|SpeedShop</b>.&nbsp;
 Others will almost certainly not work with <b>Open|SpeedShop</b>.&nbsp;
 For
-advanced users click <a href="BuildingInstallingDPCL.html">here </a>for
-instructions on building and installing DPCL.</li>
+advanced users click on this URL for instructions on <a
+ href="BuildingInstallingDPCL.html">Building and Installing DPCL </a>.</li>
   <li>There can be issues with mixing versions of libelf when building
 the component. &nbsp; Use one version throughout the build.&nbsp; There
 are versions of libelf that come as the default on SUSE
