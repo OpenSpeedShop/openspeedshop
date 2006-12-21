@@ -790,9 +790,16 @@ the regression and DPCL tests.</li>
 <h2><a class="mozTocH2" name="mozTocId768338"></a><a
  name="How_to_Run_the_OpenSpeedShop_Tests"></a>How to Run the
 Open|SpeedShop Tests</h2>
-To execute the <b>Open|SpeedShop</b> set of regression tests.&nbsp;
-Change you
-directory path to "&lt;top_srcdir&gt;/test/src/regression" and
+To execute the <b>Open|SpeedShop</b> set of regression
+tests.&nbsp;&nbsp;
+You must first build the tests by changing directories from
+OpenSpeedShop/<br>
+to OpenSpeedShop/test.&nbsp;&nbsp; Do a "make" in that
+directory.&nbsp;&nbsp; That will compile all the test executables and
+make them available for regression testing.<br>
+<br>
+Now change you
+directory path to "OpenSpeedShop/test/src/regression" and
 invoke the runall script.&nbsp;&nbsp; The runall script will execute
 all the tests in the subdirectories below the "regression" directory
 and create a test report.&nbsp;&nbsp; Currently the <b>Open|SpeedShop</b>
@@ -2922,10 +2929,20 @@ Function<br>
 API</span><br>
 </b></h1>
 <blockquote>The scripting API in Open|SpeedShop is implemented using
-Python.&nbsp;&nbsp; This API gives users the opportunity to import
-Open|SpeedShop as a Python module and execute Open|SpeedShop commands
-as function calls.&nbsp; A simple test case illustrating the
-functionality is shown here:<b style=""><br>
+Python.&nbsp;&nbsp; The scripting API gives users the opportunity to
+import Open|SpeedShop as a Python module and execute Open|SpeedShop
+commands as function calls.&nbsp;&nbsp; Some highlights of the
+scripting API functionality are:<br>
+  <ul>
+    <li>Open|SpeedShop Python API executes &#8220;same&#8221; Interactive/Batch
+Open|SpeedShop commands</li>
+    <li>Users can intersperse &#8220;normal&#8221; Python code with Open|SpeedShop
+Python API</li>
+    <li>Users can run Open|SpeedShop experiments via the Open|SpeedShop
+Python API</li>
+  </ul>
+A simple test case illustrating the functionality is shown here:<b
+ style=""><br>
   <br>
   </b>import oss
   <br>
@@ -2942,8 +2959,21 @@ oss.wait()<br>
 except openss.error:<br>
 &nbsp;&nbsp; print "expGo(exp1,my_modifer) failed"<br>
   <br>
-oss.dumpView()<b style=""><br>
+oss.dumpView()<br>
   <br>
+Excl. CPU time&nbsp;&nbsp; % of CPU Time&nbsp; Function (def.
+location)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+\<br>
+&nbsp;&nbsp;&nbsp;&nbsp;
+4.6700&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+47.7994&nbsp;&nbsp;&nbsp; f3 (fred: f3.c,23)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;
+3.5100&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+35.9263&nbsp;&nbsp;&nbsp; f2 (fred: f2.c,2)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;
+1.5900&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+16.2743&nbsp;&nbsp;&nbsp; f1 (fred: f1.c,2)<br>
+  <b style=""><br>
   </b>The example creates a program counter sampling experiment
 (pcsamp) for the executable that is located in the relative directory
 path "../../usability/phaseII/".&nbsp;&nbsp; The oss.expGo python
@@ -2974,7 +3004,8 @@ views.&nbsp;&nbsp; These are multiple plugin types used in
   </li>
 </ol>
 Please refer to the <a href="../plugin_guide/index.html">Open|SpeedShop
-Plugin Guide</a> for more information on Open|SpeedShop plugin creation.<b
+Plugin Guide</a> for more information on <span
+ style="font-weight: bold;">Open|SpeedShop</span> plugin creation.<b
  style=""><br>
 </b></div>
 <div class="Section13">
@@ -2992,6 +3023,8 @@ Description</a></b></h1>
  style=""><span style="color: rgb(0, 0, 128);">Credits and Trademark
 References<br>
 </span></b></b></h1>
-TotalView is a registered trademark of Etnus, Inc.
+TotalView is a registered trademark of Etnus, Inc.<font size="-4"><br>
+<big>Silicon Graphics, SGI, IRIX, and the SGI logo are registered
+trademarks of Silicon Graphics, Inc.</big></font><br>
 </body>
 </html>
