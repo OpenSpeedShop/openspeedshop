@@ -37,9 +37,9 @@ w\:* {behavior:url(#default#VML);}
  alt="Open|SpeedShop logo" src="OpenSpeedShop_Logo.jpg"
  style="width: 303px; height: 38px;"><br>
 Users Guide<br>
-</span></b><big><span style="font-weight: bold;">Preliminary to
-Version 1.00 Release</span><br style="font-weight: bold;">
-<span style="font-weight: bold;">November 5, 2006</span></big><br>
+</span></b><big><span style="font-weight: bold;">Version 1.00 Release</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">December 20, 2006</span></big><br>
 </p>
 <div class="Section2"><b style=""><br style="" clear="all">
 </b>
@@ -245,6 +245,7 @@ the Open|SpeedShop GUI</a></li>
 MPI Applications</a>
             <ul>
               <li><a href="#mozTocId441124">General Concepts</a></li>
+              <li><a href="#mozTocId89318">Notes/Caveats</a></li>
               <li><a href="#mozTocId963085">Multiple MPI version
 Implementation Implications
                 </a></li>
@@ -258,7 +259,14 @@ Information&nbsp;
                 </ul>
               </li>
               <li><a href="#mozTocId271423">Loading and Starting
-MPI Applications</a></li>
+MPI Applications</a>
+                <ul>
+                  <li><a href="#mozTocId359073">Gui Wizard Information</a></li>
+                  <li><a href="#mozTocId579582">Gui Non-Wizard
+Information&nbsp;
+                    </a></li>
+                </ul>
+              </li>
             </ul>
           </li>
         </ul>
@@ -275,6 +283,7 @@ Usage </a></li>
 MPI applications</a>
             <ul>
               <li><a href="#mozTocId737510">General Concepts</a></li>
+              <li><a href="#mozTocId729681">Notes/Caveats</a></li>
               <li><a href="#mozTocId405869">Multiple MPI
 version Implementation Implications with the CLI </a></li>
               <li><a href="#mozTocId94012">Attaching
@@ -287,6 +296,9 @@ mpirun</a></li>
 2: Attach to MPI rank 0 process </a></li>
                 </ul>
               </li>
+              <li><a href="#mozTocId790164">Loading and
+Starting
+MPI Applications with the CLI </a></li>
             </ul>
           </li>
         </ul>
@@ -304,6 +316,7 @@ API (Extensibility)&nbsp; Description</a></li>
   <li><a href="#mozTocId145888">Appendix
 A: Command Syntax
 Description</a></li>
+  <li><a href="#mozTocId598438">Credits and Trademark References</a></li>
 </ul>
 <p style="text-align: left;" class="MsoNormal"><br>
 <b style=""><b style=""><span
@@ -337,9 +350,11 @@ capabilities for a wide
 range of platforms.&nbsp;&nbsp; </span>Open|SpeedShop
 is based
 on the concepts of SGI's IRIX SpeedShop performance analysis
-tool.&nbsp; Open|SpeedShop is being co-funded by the Department of
+tool.&nbsp; The initial development of Open|SpeedShop was co-funded by
+the Department of
 Energy (DOE) and
-will have the infrastructure and base components released as open
+SGI.&nbsp; Open|SpeedShop has had it's infrastructure and base
+components released as open
 source under the GPL and LGPL licenses. <br>
 </div>
 <div style="text-align: left;">
@@ -361,15 +376,16 @@ the tool usable for a greater range of users, the performance tool will
 provide novice user Wizards, easily understood language in the user
 interface components, and interactive help. <br>
   <br>
-SGI will release, primarily under the GPL and LGPL Open Source
-licenses, the Open|SpeedShop baseline functionality.&nbsp;
+Open|SpeedShop's baseline functionality was released, under the GPL and
+LGPL Open Source
+licenses.&nbsp;
 Support for single system image (SSI) machines, support for clusters
 (i.e., multiple OS kernels), exclusive and inclusive user time, program
 counter (PC) sampling, MPI call tracing, Input/Output tracing, Floating
 point exception tracing and CPU hardware performance counter
 experiments are the key components of the baseline functionality.&nbsp;
 The
-performance tool will be designed in such a manner that will allow
+performance tool was designed in such a manner that will allow
 users to easily extend the tool by adding their own experiments. <br>
   <br>
 The performance tool will use dynamic probe class library (DPCL) as a
@@ -630,7 +646,7 @@ time reported is wall clock time.<br>
       <p><tt>mpi</tt></p>
       </td>
       <td char="c" align="left" valign="top">
-      <p><tt>mpi</tt> performance is poor.</p>
+      <p><tt>MPI</tt> performance is poor.</p>
       </td>
       <td char="c" align="left" valign="top">
       <p>Times calls to various MPI routines.&nbsp;&nbsp;
@@ -643,7 +659,7 @@ Experiment (mpi)&#8221;</a><br>
     </tr>
     <tr>
       <td style="vertical-align: top;"><tt>mpit</tt></td>
-      <td style="vertical-align: top;"><tt>mpi performance is poor <br>
+      <td style="vertical-align: top;"><tt>MPI performance is poor <br>
       </tt></td>
       <td style="vertical-align: top;">Traces and times calls to
 various MPI routines.&nbsp;&nbsp;
@@ -715,7 +731,6 @@ menu item under the "File" menu.<br>
 performance tool is designed to
 be extensible for both users and developers of <b>Open|SpeedShop</b>
 itself.
-  <p></p>
   <p>The principle concept is the plugin.&nbsp; Plugins are in
 the form of shared libraries and data files.&nbsp; <span
  style="font-weight: bold;">Open|SpeedShop</span> plugins control
@@ -738,7 +753,6 @@ for a detailed description.</span><b style=""><br>
  style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;">
 </span></div>
 <div style="text-align: left;" class="Section4">
-<div style="text-align: left;"></div>
 <h1 style="margin-left: 40px; text-align: left;"><a class="mozTocH1"
  name="mozTocId334016"></a><b style=""><a
  name="OpenSpeedShop_Installation_Information"></a><!--[if !supportLists]--><span
@@ -786,7 +800,6 @@ tests are only available in the source distribution.<br>
 <br>
 </div>
 <div style="text-align: left;" class="Section6">
-<div style="text-align: left;"></div>
 <h1 style="margin-left: 40px; text-align: left;"><a class="mozTocH1"
  name="mozTocId84094"></a><b><b style=""><span
  style="color: rgb(0, 0, 128);"><a name="OpenSpeedShop_Tools"></a>Open|SpeedShop
@@ -891,7 +904,7 @@ partitions.<br>
 MPI implementations that support the MPIR<span id="mail-highlight-id"
  style="background-color: yellow;"></span>_proctable interface allow
 Open|SpeedShop to automatically attach to all of the users MPI ranked
-processes. &nbsp; Currently, OpenSpeedShop automatically attaches to
+processes. &nbsp; Currently, Open|SpeedShop automatically attaches to
 all ranked processes for MPI applications using MPT, MPICH, MPICH via
 SLURM, OpenMPI, or
 LAMPI MPI implementations.&nbsp; <br>
@@ -970,7 +983,7 @@ window below.<br>
  style="height: 655px; width: 851px;"><br>
     </b></blockquote>
   <br>
-  <blockquote><b style=""></b>
+  <blockquote>
     <h4><a class="mozTocH4" name="mozTocId909976"></a><b style=""><a
  name="File_Menu_"></a>File
 Menu </b></h4>
@@ -1077,7 +1090,6 @@ The custom experiment allows users to define their own
 experiment.&nbsp;&nbsp;&nbsp; Details are TBD at this point.<br>
     <h5><a class="mozTocH5" name="mozTocId653796"></a><b style=""><a
  name="FPE_Tracing_Experiment"></a>FPE Tracing Experiment</b></h5>
-    <b style=""></b>
     <p>A floating-point exception trace collects each floating-point
 exception with the exception type and the call stack at the time of the
 exception. Floating-point exception tracing experiments should incur a
@@ -1531,7 +1543,7 @@ viewed by holding right mouse button:<br>
  title="Open|SpeedShop Source Panel" src="SourcePanel.png"
  style="width: 851px; height: 655px;"><br>
     <b style=""> </b></blockquote>
-  <blockquote><b style=""></b> <b style=""> </b>
+  <blockquote> <b style=""> </b>
     <h5><a class="mozTocH5" name="mozTocId757134"></a><b style="">Stats
 Panel</b></h5>
 Although the Stats Panel isn't
@@ -1577,8 +1589,7 @@ or -gui options), the initial window will look like this:<b style=""><br>
  alt="Wizard Startup Panel - Initial Open|SpeedShop Panel"
  src="InitialPanel.png" style="width: 860px; height: 644px;"><br>
 </b></p>
-<blockquote></blockquote>
-<b style=""></b><b style=""> </b> <br>
+<b style=""> </b> <br>
 <blockquote>
   <blockquote>Given this window the user can answer the wizard
 questions and
@@ -1745,7 +1756,6 @@ Experiment Display</h4>
  src="PC_SamplingWizard-6_OR_PC_SampleExperiment-1.png"
  style="width: 860px; height: 644px;"><br>
 </b></div>
-<blockquote></blockquote>
 <blockquote> <b style=""> </b>
   <div style="margin-left: 40px;"><b style=""> </b>
   <h4><a class="mozTocH4" name="mozTocId522543"></a><b style=""><a
@@ -1998,7 +2008,7 @@ comparison display.&nbsp;&nbsp; <br>
  name="Finding_Out_of_Range_Processes_Threads"></a>Finding Processes,
 Threads, or Ranks that have out of range values <b><b><b><b style="">using
 the Open|SpeedShop GUI</b></b></b></b></h3>
-As of May 22, 2006 there is an experimental version of a feature which
+With the Open|SpeedShop 1.00 verssion there is a feature which
 automatically groups processes, threads, or ranks into sets which have
 similar values.&nbsp; This techinique which is called, cluster
 analysis, is used to find processes, threads, or ranks which are
@@ -2056,7 +2066,6 @@ this feature).<br>
  title="Source of sweep_ performance problem" src="ClusterAnalysis4.png"
  style="width: 860px; height: 644px;"><br>
 <br>
-<b style=""></b>
 <h3><a class="mozTocH3" name="mozTocId956211"></a><b><b style=""><a
  name="OpenSpeedShop_GUI_Usage_on_MPI_"></a>Open|SpeedShop GUI Usage on
 MPI Applications</b></b></h3>
@@ -2073,7 +2082,64 @@ use the rank number of the ranked processes as input to <span
 filtering just as a process or thread number would be used.&nbsp; <span
  style="font-weight: bold;">Open|SpeedShop</span> also displays the
 rank number for each ranked process in the GUI panel output and in the
-GUI command window text output views.<br>
+GUI command window text output views.&nbsp;&nbsp; Open|SpeedShop
+version 1.00 now provides for creating a MPI job from start up, meaning
+it can create the MPI job from within Open|SpeedShop.&nbsp; There are
+details in the paragraphs below explaining how to create the MPI job
+from within Open|SpeedShop.<br>
+<h4><a class="mozTocH4" name="mozTocId89318"></a>Notes/Caveats</h4>
+<ul>
+  <li>Open|SpeedShop can attach to individual MPI processes/ranks
+automatically, but in order to do that the MPI implementation installed
+must have the MPIR interface symbols exposed.&nbsp;&nbsp; This usually
+entails using the --enable-debugging configure option when
+building.&nbsp;&nbsp; The MPIR interface is the same interface that the
+TotalView&reg; debugger uses.</li>
+  <li>Check to see if Security-enhanced Linux (SELinux) is enabled on
+your system.&nbsp; This has caused the Open|SpeedShop Dyninst component
+to fail when inserting code into the application being
+profiled.&nbsp;&nbsp; An example of the message that may appear
+is:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font
+ face="Courier New" size="2"><span style="font-size: 10pt;"></span></font></li>
+  <ul>
+    <li><font face="Courier New" size="2"><span style="font-size: 10pt;">The
+error message &#8220;<font color="red"><span style="color: red;">cannot
+restore segment prot after reloc: Permission denied</span></font>&#8221;
+means
+Security Enhance Linux feature to prevent to write on the segment of
+text
+relocation (its default read only).&nbsp; The command &#8220;chcon &#8211;t
+texrel_shlib_t <font color="red"><span style="color: red;">/usr/local/lib/libdpcl.so*</span></font>&#8221;
+may be used to change it to have write permission too.</span></font>&nbsp;<font
+ face="Courier New" size="2"><span style="font-size: 10pt;"></span></font></li>
+  </ul>
+  <li>The OPENSS_MPI_IMPLEMENTATION environment variable is used when
+you configured openss to support more than one<br>
+MPI implementation.&nbsp; This means if you have multiple MPI
+collectors created (when you built Open|SpeedShop you configured for
+multiple MPI implementations).&nbsp; Say, for example, you have&nbsp;
+mpich2, lampi, and openmpi collectors and the application you are
+running under openss is a mpich2 MPI application.&nbsp;&nbsp; You would
+set <font face="Courier New" size="2"><span style="font-size: 10pt;"><big>OPENSS_MPI_IMPLEMENTATION
+to mpich2,&nbsp; like this: </big><br>
+    </span></font>
+    <ul>
+      <li><font face="Courier New" size="2"><span
+ style="font-size: 10pt;"><big>setenv OPENSS_MPI_IMPLEMENTATION mpich2</big></span></font></li>
+    </ul>
+    <font face="Courier New" size="2"><span style="font-size: 10pt;"><br>
+    <big>That tells openss which MPI implementation to process.&nbsp;
+This will be automated in the future.<br>
+    <br>
+If you run openss again on a lampi application, then change the
+environment<br>
+variable setting to this:</big></span></font><br>
+    <ul>
+      <li><font face="Courier New" size="2"><span
+ style="font-size: 10pt;"><big>setenv OPENSS_MPI_IMPLEMENTATION lampi</big></span></font></li>
+    </ul>
+    <font face="Courier New" size="2"><span style="font-size: 10pt;"> </span></font></li>
+</ul>
 <br>
 <h4><a class="mozTocH4" name="mozTocId963085"></a><a
  name="Multiple_MPI_version_Implications"></a>Multiple MPI version
@@ -2113,6 +2179,13 @@ implementations where mpirun is a script, not an executable.<br>
       </td>
       <td style="vertical-align: top;">rank 0 process<br>
       </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">MPICH2 - support for this is in
+progress (as of December 20, 2006)<br>
+      </td>
+      <td style="vertical-align: top;"><span
+ style="font-weight: bold; font-style: italic;">mpirun</span> process</td>
     </tr>
   </tbody>
 </table>
@@ -2205,9 +2278,41 @@ query of the new host for the user's running processes.<br>
 <h4><a class="mozTocH4" name="mozTocId271423"></a><a
  name="Loading_and_Starting_MPI_Applications"></a>Loading and Starting
 MPI Applications</h4>
-<span style="font-weight: bold;">TBD - Not currently implemented (as of
-06/22/2006).</span><br>
+As of release version 1.00 of Open|SpeedShop starting MPI jobs from
+within Open|SpeedShop is supported.&nbsp;&nbsp; Previously one could
+only start the MPI job up and attach to the MPI processes/ranks as they
+were already running.&nbsp;&nbsp;&nbsp; If running with the interactive
+command line interface (CLI) see the section on <a
+ href="#OpenSpeedShop_CLI_Usage_on_MPI_">Open|SpeedShop CLI Usage on
+MPI applications</a><br>
 <br>
+<h5><a class="mozTocH5" name="mozTocId359073"></a>Gui Wizard Information</h5>
+Currently support consists of starting the MPI application via the
+openss command.&nbsp;&nbsp; An example of this command form is as
+follows:<br>
+<div style="margin-left: 40px;">openss -f "mpirun -np 256 sweep3d.mpi"<br>
+<br>
+</div>
+</div>
+<div style="margin-left: 80px;">The quotes around the MPI job creation
+command are required.&nbsp; They wrap the MPI command so that
+Open|SpeedShop does not have to parse each individual MPI
+implementations command syntax.<br>
+</div>
+<div style="margin-left: 80px;">
+<h5><a class="mozTocH5" name="mozTocId579582"></a>Gui Non-Wizard
+Information&nbsp;
+</h5>
+Currently support consists of starting the MPI application via the
+openss command.&nbsp;&nbsp; An example of this command form is as
+follows:<br>
+<div style="margin-left: 40px;">openss -f "mpirun -np 256 sweep3d.mpi"<br>
+<br>
+</div>
+The quotes around the MPI job creation command are required.&nbsp; They
+wrap
+the MPI command so that Open|SpeedShop does not have to parse each
+individual MPI implementations command syntax.<br>
 <span style="font-family: arial;"><span style="font-style: italic;"><span
  style="font-weight: bold;"></span></span></span></div>
 <blockquote>
@@ -2339,8 +2444,7 @@ the experiment<br>
 view the top 5 functions.<br>
 # If you had specified 33, as in stats33, you would see the top 33
 functions in the performance report.<br>
-openss&gt;&gt;<b style=""><span style="font-weight: bold;">expView
-stats5<br>
+openss&gt;&gt;<b style=""><span style="font-weight: bold;">expView<br>
     <br>
     </span></b># The next four lines are the output of the experiment
 due
@@ -2375,6 +2479,66 @@ filtering just as a process or thread number would be used.&nbsp; <span
  style="font-weight: bold;">Open|SpeedShop</span> also displays the
 rank number for each ranked process in the interactive command line
 window text output views.<br>
+    <h4><a class="mozTocH4" name="mozTocId729681"></a>Notes/Caveats</h4>
+    <ul>
+      <li>Open|SpeedShop can attach to individual MPI processes/ranks
+automatically, but in order to do that the MPI implementation installed
+must have the MPIR interface symbols exposed.&nbsp;&nbsp; This usually
+entails
+using the --enable-debugging configure option when
+building.&nbsp;&nbsp; The MPIR
+interface is the same interface that the TotalView&reg; debugger uses.</li>
+      <li>Check to see if Security-enhanced Linux (SELinux) is enabled
+on
+your system.&nbsp; This has caused the Open|SpeedShop Dyninst component
+to
+fail when inserting code into the application being
+profiled.&nbsp;&nbsp; An
+example of the message that may appear
+is:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font
+ face="Courier New" size="2"><span style="font-size: 10pt;"></span></font></li>
+      <ul>
+        <li><font face="Courier New" size="2"><span
+ style="font-size: 10pt;">The error message &#8220;<font color="red"><span
+ style="color: red;">cannot
+restore segment prot after reloc: Permission denied</span></font>&#8221;
+means
+Security Enhance Linux feature to prevent to write on the segment of
+text
+relocation (its default read only).&nbsp; The command &#8220;chcon &#8211;t
+texrel_shlib_t <font color="red"><span style="color: red;">/usr/local/lib/libdpcl.so*</span></font>&#8221;
+may be used to change it to have write permission too.</span></font>&nbsp;<font
+ face="Courier New" size="2"><span style="font-size: 10pt;"></span></font></li>
+      </ul>
+      <li>The OPENSS_MPI_IMPLEMENTATION environment variable is used
+when you configured openss to support more than one<br>
+MPI implementation.&nbsp; This means if you have multiple MPI
+collectors
+created (when you built Open|SpeedShop you configured for multiple MPI
+implementations).&nbsp; Say, for example, you have&nbsp; mpich2, lampi,
+and
+openmpi collectors and the application you are running under openss is
+a mpich2 MPI application.&nbsp;&nbsp; You would set <font
+ face="Courier New" size="2"><span style="font-size: 10pt;"><big>OPENSS_MPI_IMPLEMENTATION
+to mpich2,&nbsp; like this: </big><br>
+        </span></font>
+        <ul>
+          <li><font face="Courier New" size="2"><span
+ style="font-size: 10pt;"><big>setenv OPENSS_MPI_IMPLEMENTATION mpich2</big></span></font></li>
+        </ul>
+        <font face="Courier New" size="2"><span style="font-size: 10pt;"><br>
+        <big>That tells openss which MPI implementation to
+process.&nbsp; This will be automated in the future.<br>
+        <br>
+If you run openss again on a lampi application, then change the
+environment<br>
+variable setting to this:</big></span></font><br>
+        <ul>
+          <li><font face="Courier New" size="2"><span
+ style="font-size: 10pt;"><big>setenv OPENSS_MPI_IMPLEMENTATION lampi</big></span></font></li>
+        </ul>
+        <font face="Courier New" size="2"><span style="font-size: 10pt;"></span></font></li>
+    </ul>
     <br>
     <h4><a class="mozTocH4" name="mozTocId405869"></a><a
  name="Multiple_MPI_version_Implementation_cli"></a>Multiple MPI
@@ -2416,6 +2580,13 @@ MPI implementations where mpirun is a script, not an executable.<br>
           </td>
           <td style="vertical-align: top;">rank 0 process<br>
           </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;">MPICH2 support is in
+progress (as of December 20, 2006)<br>
+          </td>
+          <td style="vertical-align: top;"><span
+ style="font-weight: bold; font-style: italic;">mpirun</span> process</td>
         </tr>
       </tbody>
     </table>
@@ -2483,7 +2654,7 @@ the entire list of ranks in the MPI application.<br>
 Here is a possible set of instructions on how to attach to the MPI rank
 0 process to attach to the entire MPI job (all ranked processes).<br>
     <br>
-In window 1:&nbsp; Start OpenSpeedShop via the&nbsp; "openss -cli"
+In window 1:&nbsp; Start Open|SpeedShop via the&nbsp; "openss -cli"
 command<br>
 In window 2:&nbsp; cd to the application directory, smg2000/test in
 this example<br>
@@ -2648,6 +2819,31 @@ PAPI_TOT_CYC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 ...<br>
 ...<br>
 openss&gt;&gt;<br>
+    <br>
+    <h4><a class="mozTocH4" name="mozTocId790164"></a>Loading and
+Starting
+MPI Applications with the CLI<br>
+    </h4>
+[machine
+prompt]:openss -cli<br>
+openss&gt;&gt;<span style="font-weight: bold;">expcreate pcsamp -f
+"mpirun -np 256 sweep3d.mpi"<br>
+    <br>
+    </span>The expcreate command above will automatically attach to all
+256 processes/ranks of the MPI job and return the prompt when the
+experiment is ready to run.&nbsp;&nbsp; The quotes around the mpirun
+command allow Open|SpeedShop to process many variations of MPI without
+having to parse the commands of the various MPI
+implementations.&nbsp;&nbsp; The quotes are required.<span
+ style="font-weight: bold;"><br>
+    </span><span style="font-weight: bold; font-style: italic;"> <br>
+    </span><span style="font-weight: bold;">NOTE</span>: The "-v mpi"
+option that was needed in attaching to running to the already running
+MPI processes or ranks to tell the expcreate to attach to the entire
+MPI job, not just the single MPI process that is specified by the -p
+option IS NOT required.&nbsp;&nbsp; <span
+ style="font-weight: bold; font-style: italic;"><br>
+    </span><br>
 &nbsp;<br>
     <span style="font-weight: bold;"></span><br>
   </blockquote>
@@ -2691,7 +2887,7 @@ cat batch.input<b style=""><br>
  style="font-weight: bold;">
 <span style="font-weight: bold;">expGo</span><br
  style="font-weight: bold;">
-<span style="font-weight: bold;">expView stats5</span><br
+<span style="font-weight: bold;">expView </span><br
  style="font-weight: bold;">
 <span style="font-weight: bold;">exit</span><br>
 </b>[machine prompt]:<b style=""> <span style="font-weight: bold;">openss
@@ -2704,7 +2900,7 @@ batch.input</span><br>
 </b>Usage: /home/openss/demo/Simple/mutatee &lt;size&gt;<br>
 No size argument given.&nbsp;&nbsp; Defaulting to 250.<br>
 /home/openss/demo/Simple/mutatee: successfully competed.<b style=""><br>
-#</b> The next four lines are output due to the expView stats5 command<br>
+#</b> The next four lines are output due to the expView command<br>
 &nbsp; CPU Time (Seconds)&nbsp;
 Function<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -2732,7 +2928,6 @@ the documentations associated with the Python scripting API definition.<br>
 <p class="MsoBodyText"><b style="">&nbsp;</b></p>
 </div>
 <div style="text-align: left;" class="Section12">
-<div style="text-align: left;"></div>
 <h1 style="text-align: left;"><a class="mozTocH1" name="mozTocId525838"></a><b
  style=""><a name="Plugin_API_Extensibility_Description_"></a><!--[if !supportLists]--><span
  style="color: rgb(0, 0, 128);">Plugin
@@ -2750,19 +2945,24 @@ views.&nbsp;&nbsp; These are multiple plugin types used in
   </li>
 </ol>
 Please refer to the <a href="../plugin_guide/index.html">Open|SpeedShop
-Plugin Guide</a> for more information on Open|SpeedShop plugin creation.<br>
-<b style=""><br>
+Plugin Guide</a> for more information on Open|SpeedShop plugin creation.<b
+ style=""><br>
 </b></div>
 <div class="Section13">
 <h1 style="text-align: left;"><a class="mozTocH1" name="mozTocId145888"></a><b
- style=""><span style="color: rgb(0, 0, 128);"><a
- href="../cli_doc/definition.html">Appendix
+ style="color: rgb(0, 0, 128);"><a href="../cli_doc/definition.html">Appendix
 A: Command Syntax
-Description</a></span></b></h1>
+Description</a></b></h1>
 <p class="MsoBodyText"><!--[endif]--></p>
 </div>
 </div>
 </div>
 </div>
+<br>
+<h1 style="text-align: left;"><a class="mozTocH1" name="mozTocId598438"></a><b><b
+ style=""><span style="color: rgb(0, 0, 128);">Credits and Trademark
+References<br>
+</span></b></b></h1>
+TotalView is a registered trademark of Etnus, Inc.
 </body>
 </html>
