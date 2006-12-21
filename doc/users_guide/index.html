@@ -2921,9 +2921,38 @@ Function<br>
  style="color: rgb(0, 0, 128);">Scripting
 API</span><br>
 </b></h1>
-<blockquote><b style="">Follow this<a
+<blockquote>The scripting API in Open|SpeedShop is implemented using
+Python.&nbsp;&nbsp; This API gives users the opportunity to import
+Open|SpeedShop as a Python module and execute Open|SpeedShop commands
+as function calls.&nbsp; A simple test case illustrating the
+functionality is shown here:<b style=""><br>
+  <br>
+  </b>import oss
+  <br>
+my_filename=oss.FileList(("../../usability/phaseII/fred")
+  <br>
+my_viewtype = openss.ViewTypeList()
+  <br>
+my_viewtype += "pcsamp"
+  <br>
+exp1=oss.expCreate(my_filename,viewtype)<br>
+oss.expGo()<br>
+oss.wait()<br>
+  <br>
+except openss.error:<br>
+&nbsp;&nbsp; print "expGo(exp1,my_modifer) failed"<br>
+  <br>
+oss.dumpView()<b style=""><br>
+  <br>
+  </b>The example creates a program counter sampling experiment
+(pcsamp) for the executable that is located in the relative directory
+path "../../usability/phaseII/".&nbsp;&nbsp; The oss.expGo python
+statement runs the experiment and the oss.dumpView prints the results.<br>
+  <br>
+If this functionality is of interest to you, please follow this<a
  href="../../../../OpenSpeedShop/doc/pyscripting_doc/index.html"> link </a>to
-the documentations associated with the Python scripting API definition.<br>
+the detailed documentation associated with the Python scripting API
+definition.<b style=""><br>
   </b></blockquote>
 <p class="MsoBodyText"><b style="">&nbsp;</b></p>
 </div>
