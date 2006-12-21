@@ -910,7 +910,7 @@ partitions.<br>
   <br>
 MPI implementations that support the MPIR<span id="mail-highlight-id"
  style="background-color: yellow;"></span>_proctable interface allow
-Open|SpeedShop to automatically attach to all of the users MPI ranked
+Open|SpeedShop to automatically attach to all of the user's MPI ranked
 processes. &nbsp; Currently, Open|SpeedShop automatically attaches to
 all ranked processes for MPI applications using MPT, MPICH, MPICH via
 SLURM, OpenMPI, or
@@ -2147,7 +2147,6 @@ variable setting to this:</big></span></font><br>
     </ul>
     <font face="Courier New" size="2"><span style="font-size: 10pt;"> </span></font></li>
 </ul>
-<br>
 <h4><a class="mozTocH4" name="mozTocId963085"></a><a
  name="Multiple_MPI_version_Implications"></a>Multiple MPI version
 Implementation Implications<br>
@@ -2297,14 +2296,16 @@ MPI applications</a><br>
 Currently support consists of starting the MPI application via the
 openss command.&nbsp;&nbsp; An example of this command form is as
 follows:<br>
-<div style="margin-left: 40px;">openss -f "mpirun -np 256 sweep3d.mpi"<br>
+<div style="margin-left: 40px;">openss -f "mpirun -np 256 sweep3d.mpi"
+[pcsamp, usertime, hwc, hwctime, io, iot, fpe, mpi, mpit]<br>
 <br>
 </div>
 </div>
 <div style="margin-left: 80px;">The quotes around the MPI job creation
 command are required.&nbsp; They wrap the MPI command so that
 Open|SpeedShop does not have to parse each individual MPI
-implementations command syntax.<br>
+implementations command syntax.&nbsp;&nbsp; The experiment type
+designator is not wrapped in quotes.<br>
 </div>
 <div style="margin-left: 80px;">
 <h5><a class="mozTocH5" name="mozTocId579582"></a>Gui Non-Wizard
@@ -2313,13 +2314,15 @@ Information&nbsp;
 Currently support consists of starting the MPI application via the
 openss command.&nbsp;&nbsp; An example of this command form is as
 follows:<br>
-<div style="margin-left: 40px;">openss -f "mpirun -np 256 sweep3d.mpi"<br>
+<div style="margin-left: 40px;">openss -f "mpirun -np 256 sweep3d.mpi"
+[pcsamp, usertime, hwc, hwctime, io, iot, fpe, mpi, mpit]<br>
 <br>
 </div>
 The quotes around the MPI job creation command are required.&nbsp; They
 wrap
 the MPI command so that Open|SpeedShop does not have to parse each
-individual MPI implementations command syntax.<br>
+individual MPI implementations command syntax.&nbsp; The experiment
+type designator is not wrapped in quotes.<br>
 <span style="font-family: arial;"><span style="font-style: italic;"><span
  style="font-weight: bold;"></span></span></span></div>
 <blockquote>
@@ -2546,7 +2549,6 @@ variable setting to this:</big></span></font><br>
         </ul>
         <font face="Courier New" size="2"><span style="font-size: 10pt;"></span></font></li>
     </ul>
-    <br>
     <h4><a class="mozTocH4" name="mozTocId405869"></a><a
  name="Multiple_MPI_version_Implementation_cli"></a>Multiple MPI
 version Implementation Implications with the CLI<br>
