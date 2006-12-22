@@ -39,7 +39,7 @@ w\:* {behavior:url(#default#VML);}
 Build and Installation Guide<br>
 </span></b><big><span style="font-weight: bold;">Version 1.00 Release</span><br
  style="font-weight: bold;">
-<span style="font-weight: bold;">December 13, 2006</span></big><br>
+<span style="font-weight: bold;">December 22, 2006</span></big><br>
 </p>
 <div class="Section2"><b style=""><br style="" clear="all">
 </b>
@@ -932,11 +932,13 @@ NEEDED)</span><br>
 &nbsp;&nbsp; rpm --install dpcl-20060421-1.&lt;platform&gt;.rpm<br>
 <br>
 <br>
-Now you are ready to build and execute Open|SpeedShop<br>
+Now you are ready to build and execute Open|SpeedShop and can skip <a
+ href="#Step_4_-_If_skipping_Step_3_Install">Step 4</a> if all
+components were installed during this step.<br>
 <br>
 </div>
-<br>
-<h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId104541"></a>Step
+<h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId104541"></a><a
+ name="Step_4_-_If_skipping_Step_3_Install"></a>Step
 4 - (If skipping Step 3)&nbsp; Install
 missing RPMS</h4>
 <div style="margin-left: 40px;">For IA32, go into
@@ -988,7 +990,8 @@ Open|SpeedShop<br>
 </h4>
 <div style="margin-left: 40px;">
 Rebuild your source tree from scratch. i.e. get rid of ALL generated
-files,&nbsp; then do the following commands in the
+files (<span style="font-style: italic;">rm -r -f `cvs log | grep ^\? |
+cut -c 3-`</span>),&nbsp; then do the following commands in the
 OpenSpeedShop/current directory:<br>
 <br>
 <b>Open|SpeedShop</b> uses
@@ -1155,7 +1158,9 @@ need to update the environment variables as follows:<br>
 3B - Build the needed components<br>
 </h5>
 <div style="margin-left: 40px;">
-<h6><a class="mozTocH6" name="mozTocId236343"></a>Build libelf</h6>
+<h6><a class="mozTocH6" name="mozTocId236343"></a>Build libelf, if
+necessary<br>
+</h6>
 ...<br>
 cd OpenSpeedShop_ROOT/SOURCES<br>
 gunzip libelf-0.8.5.tar.gz<br>
@@ -1168,7 +1173,8 @@ make install
 <br>
 ...<br>
 <h6><a class="mozTocH6" name="mozTocId692104"></a>Build libdwarf &amp;
-dwarfdump</h6>
+dwarfdump, if necessary<br>
+</h6>
 ...<br>
 cd OpenSpeedShop_ROOT/SOURCES<br>
 gunzip libdwarf-20060614.tar.gz<br>
@@ -1192,7 +1198,9 @@ make install
 <br>
 ...<br>
 <br>
-<h6><a class="mozTocH6" name="mozTocId510223"></a>Build libunwind</h6>
+<h6><a class="mozTocH6" name="mozTocId510223"></a>Build libunwind, if
+necessary<br>
+</h6>
 cd OpenSpeedShop_ROOT/SOURCES<br>
 gunzip libunwind-0.98.5.tar.gz<br>
 tar -xvf libunwind-0.98.5.tar<br>
@@ -1201,7 +1209,9 @@ cd libunwind-0.98.5<br>
 make install
 <br>
 <br>
-<h6><a class="mozTocH6" name="mozTocId367848"></a>Build papi</h6>
+<h6><a class="mozTocH6" name="mozTocId367848"></a>Build papi, if
+necessary<br>
+</h6>
 cd OpenSpeedShop_ROOT/SOURCES<br>
 gunzip papi-3.5.0.tar.gz<br>
 tar -xvf papi-3.5.0.tar<br>
@@ -1212,7 +1222,9 @@ make install
 ...<br>
 </div>
 <div style="margin-left: 40px;">
-<h6><a class="mozTocH6" name="mozTocId502662"></a>Build sqlite</h6>
+<h6><a class="mozTocH6" name="mozTocId502662"></a>Build sqlite, if
+necessary<br>
+</h6>
 cd OpenSpeedShop_ROOT/SOURCES<br>
 gunzip sqlite-3.2.7.tar.gz<br>
 tar -xvf sqlite-3.2.7.tar<br>
@@ -1224,7 +1236,9 @@ make install
 <div style="margin-left: 40px;">...<br>
 </div>
 <div style="margin-left: 40px;">
-<h6><a class="mozTocH6" name="mozTocId911142"></a>Build Dyninst</h6>
+<h6><a class="mozTocH6" name="mozTocId911142"></a>Build Dyninst -
+Required<br>
+</h6>
 % setenv PREFIX /ptmp/fred/root/usr<br>
 <span class="moz-txt-citetags"> </span>% cd
 &lt;top&gt;/OpenSpeedShop_ROOT/SOURCES/dyninst-5.0.1<br>
@@ -1235,7 +1249,7 @@ make install
 <span class="moz-txt-citetags"> </span>
 <div style="margin-left: 40px;">...</div>
 <div style="margin-left: 40px;">
-<h6><a class="mozTocH6" name="mozTocId399746"></a>Build DPCL<span
+<h6><a class="mozTocH6" name="mozTocId399746"></a>Build DPCL - Required<span
  class="moz-txt-citetags"></span></h6>
 <span class="moz-txt-citetags"> </span>...<br>
 <span class="moz-txt-citetags"> </span>% setenv PREFIX
