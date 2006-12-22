@@ -67,6 +67,32 @@ of an Experiment</a></li>
 Experiment</a></li>
           <li><a href="#mozTocId965967">Gathering, Saving, and
 Re-examining Performance Data With Open|SpeedShop</a></li>
+          <li><a href="#mozTocId893909">Open|SpeedShop Specific
+Environment Variables </a>
+            <ul>
+              <li><a href="#mozTocId502665">Environment variables that
+relate to Open|SpeedShop functionality or access.</a>
+                <ul>
+                  <li><a href="#mozTocId349306">OPENSS_ALLOW_PYTHON_COMMANDS</a></li>
+                  <li><a href="#mozTocId415148">OPENSS_MPI_IMPLEMENTATION</a></li>
+                  <li><a href="#mozTocId240649">OPENSS_PLUGIN_PATH</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId617106">Environment variables
+controlling the generation debugging information (DEVELOPER CENTRIC)</a>
+                <ul>
+                  <li><a href="#mozTocId698248">OPENSS_DEBUG_DATABASE</a></li>
+                  <li><a href="#mozTocId509038">OPENSS_DEBUG_DATAQUEUES</a></li>
+                  <li><a href="#mozTocId774936">OPENSS_DEBUG_DPCLD</a></li>
+                  <li><a href="#mozTocId201139">OPENSS_DEBUG_MPIJOB</a></li>
+                  <li><a href="#mozTocId130140">OPENSS_DEBUG_OPENSS</a></li>
+                  <li><a href="#mozTocId251166">OPENSS_DEBUG_PERF_PROCESS</a></li>
+                  <li><a href="#mozTocId600598">OPENSS_DEBUG_PROCESS</a></li>
+                  <li><a href="#mozTocId631397">OPENSS_LIMIT_SIGNAL_CATCHING</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
         </ul>
       </li>
       <li><a href="#mozTocId683004">Extensibility</a></li>
@@ -316,7 +342,9 @@ API (Extensibility)&nbsp; Description</a></li>
   <li><a href="#mozTocId145888">Appendix
 A: Command Syntax
 Description</a></li>
-  <li><a href="#mozTocId598438">Credits and Trademark References</a></li>
+  <li><a href="#mozTocId598438">Credits and Trademark
+References
+    </a></li>
 </ul>
 <p style="text-align: left;" class="MsoNormal"><br>
 <b style=""><b style=""><span
@@ -718,6 +746,130 @@ invoked at a
 later time or date to analyze or print the saved experiment performance
 data.&nbsp; To do this the user would use the open saved experiment
 menu item under the "File" menu.<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId893909"></a>Open|SpeedShop
+Specific Environment Variables <br>
+</h3>
+<b>Open|SpeedShop </b>takes advantage of a number of environment
+variables to control or change functionality or for debugging
+purposes.&nbsp; The following sections describe the specific variables
+and their uses.<br>
+<h4><a class="mozTocH4" name="mozTocId502665"></a>Environment variables
+that relate to Open|SpeedShop functionality or access.<br>
+</h4>
+<h5><a class="mozTocH5" name="mozTocId349306"></a><small>OPENSS_ALLOW_PYTHON_COMMANDS</small></h5>
+By default Open|SpeedShop does not allow Python code to be intermixed
+with the Open|SpeedShop commands (despite the fact that the Python
+interpreter is always used). Setting this to "true" allows Python code
+and Open|SpeedShop commands to be freely intermixed. This has the side
+affect that things like spacing before commands will have meaning
+(because Python assigns meaning to indentation).<br>
+<h5><a class="mozTocH5" name="mozTocId415148"></a><small>OPENSS_MPI_IMPLEMENTATION</small><br>
+</h5>
+Specifies the MPI implementation being used by the MPI application
+whose performance is being analyzed. Should be set to one of the
+currently supported MPI implementations:<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; openmpi, lampi, mpich2, mpich, mpt<br>
+<br>
+Eventually Open|SpeedShop will be able to auto-detect the MPI
+implemetnation of the application and this variable will only be used
+to override the auto-detection code.<br>
+<br>
+<h5><a class="mozTocH5" name="mozTocId240649"></a><small>OPENSS_PLUGIN_PATH</small></h5>
+Specifies additional colon-delimited paths that should be searched for
+Open|SpeedShop plugins. Use primarily for specifying the location of
+any site-specific, or user-developed, plugins. Open|SpeedShop should be
+able to locate its default plugin set without having to set this
+variable.<br>
+<h4><a class="mozTocH4" name="mozTocId617106"></a>Environment variables
+controlling the generation debugging information (DEVELOPER CENTRIC)<br>
+<span style="font-family: monospace;"></span></h4>
+<h5><a class="mozTocH5" name="mozTocId698248"></a><small>OPENSS_DEBUG_DATABASE</small></h5>
+Enable gathering of performance statistics for all executed SQL
+statements. When enabled, Open|SpeedShop will generate a report to the
+standard error stream that lists every executed SQL statement, the
+number of times it executed, and the amount of time spent executing it.<br>
+<br>
+This variable must be set before Open|SpeedShop is started. The exact
+value of this variable is irrelevant. Open|SpeedShop only looks to see
+if it was set or not.<br>
+<h5><a class="mozTocH5" name="mozTocId509038"></a><small>OPENSS_DEBUG_DATAQUEUES</small></h5>
+Enable gathering of performance statistics for the performance data
+queues. When enabled, Open|SpeedShop generates a single line to the
+standard error stream every time it writes performance data to an
+experiment database. This line contains the running total number of
+enqueued data blobs and the number of bytes in those blobs, the running
+total number of written data blobs and the number of bytes in those
+blobs, and the instantaneous data write rate (expressed as
+bytes/second).<br>
+<br>
+This variable must be set before Open|SpeedShop is started. The exact
+value of this variable is irrelevant. Open|SpeedShop only looks to see
+if it was set or not.<br>
+<h5><a class="mozTocH5" name="mozTocId774936"></a><small>OPENSS_DEBUG_DPCLD</small></h5>
+Enable DPCL daemon debugging output. Currently this does NOT work with
+the manually started DPCL daemons. Only with the daemons started via
+xinetd. The exact output produce is up to the DPCL implementation.<br>
+<br>
+This variable must be set before Open|SpeedShop is started. The exact
+value of this variable is irrelevant. Open|SpeedShop only looks to see
+if it was set or not.<br>
+<h5><a class="mozTocH5" name="mozTocId201139"></a><small>OPENSS_DEBUG_MPIJOB</small></h5>
+Enable debugging of MPI job create/attach. When enabled, Open|SpeedShop
+generates debugging statements to the standard error stream during the
+various phases of picking up the host/PID list for an MPI job. Useful
+for determining if Open|SpeedShop thinks a given process is part of an
+MPI job and what processes it believes are part of that job.<br>
+<br>
+This variable must be set before Open|SpeedShop is started. The exact
+value of this variable is irrelevant. Open|SpeedShop only looks to see
+if it was set or not.<br>
+<h5><a class="mozTocH5" name="mozTocId130140"></a><small>OPENSS_DEBUG_OPENSS</small></h5>
+By default Open|SpeedShop uses a trick where-by it does an exec() of
+itself in order to modify its LD_LIBRARY_PATH such that libraries,
+plugins, etc. are automagically found based on the executable's
+location. This exec() tends to cause problems with debugging tools such
+as gdb and valgrind. Enabling<br>
+this causes Open|SpeedShop to skip the exec() and thus allow it to be
+debugged by the mentioned tools. Doing so, however, may require an
+explict setting of LD_LIBRARY_PATH.<br>
+<br>
+This variable must be set before Open|SpeedShop is started. The exact
+value of this variable is irrelevant. Open|SpeedShop only looks to see
+if it was set or not.<br>
+<h5><a class="mozTocH5" name="mozTocId251166"></a><small>OPENSS_DEBUG_PERF_PROCESS</small></h5>
+Enable gathering of performance statistics for process create/attach.
+When enabled, Open|SpeedShop will generate a report to the standard
+error stream that lists the various phases of process
+creation/attachment and the minimum, average, and maximum times taken
+to reach that particular phase. Useful for finding performance
+bottlenecks.<br>
+<br>
+This variable must be set before Open|SpeedShop is started. The exact
+value of this variable is irrelevant. Open|SpeedShop only looks to see
+if it was set or not.<br>
+<h5><a class="mozTocH5" name="mozTocId600598"></a><small>OPENSS_DEBUG_PROCESS</small></h5>
+Enable debugging of the Process class within Open|SpeedShop. When
+enabled, Open|SpeedShop generates detailed debugging statments to the
+standard error stream for all process operations (e.g. attachment,
+suspend, resume, symbol table access, instrumentation,e tc.) being
+performed. The status of EVERY DPCL operation that is performed is also
+reported. Since the Open|SpeedShop implementation is multithreaded and
+asynchronous, this information is critical when debugging race
+conditions, deadlocks, etc. As well as when diagnosing DPCL failures.<br>
+<br>
+This variable must be set before Open|SpeedShop is started. The exact
+value of this<br>
+variable is irrelevant. Open|SpeedShop only looks to see if it was set
+or not.<br>
+<br>
+<h5><a class="mozTocH5" name="mozTocId631397"></a><small>OPENSS_LIMIT_SIGNAL_CATCHING</small></h5>
+By default Open|SpeedShop catches fatal signals such as SIGSEGV and
+attempts to gracefully cleanup any open databases. This cleanup can
+interfere with debugging efforts. Setting this to "true" disables
+Open|SpeedShop' fatal signal handlers and simply terminates the
+application with a core file as would normally happen.<br>
 <br>
 </div>
 <p style="text-align: left;" class="MsoBodyText"><span
@@ -2945,14 +3097,10 @@ Python API</li>
 A simple test case illustrating the functionality is shown here:<b
  style=""><br>
   <br>
-  </b>import oss
-  <br>
-my_filename=oss.FileList(("../../usability/phaseII/fred")
-  <br>
-my_viewtype = openss.ViewTypeList()
-  <br>
-my_viewtype += "pcsamp"
-  <br>
+  </b>import oss <br>
+my_filename=oss.FileList(("../../usability/phaseII/fred") <br>
+my_viewtype = openss.ViewTypeList() <br>
+my_viewtype += "pcsamp" <br>
 exp1=oss.expCreate(my_filename,viewtype)<br>
 oss.expGo()<br>
 oss.wait()<br>
