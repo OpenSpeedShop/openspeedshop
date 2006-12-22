@@ -19,7 +19,8 @@
  name="mozTocId556715" class="mozTocH2"></a>Building and Installing
 DPCL - for advanced users<br>
 </b></h3>
-<blockquote><b style="">NOTE: All these steps are done for you, if you
+<blockquote><span style="font-weight: bold;">NOTE:</span> All these
+steps are done for you, if you
 install using the dyninst and dpcl RPMS.<br>
   <br>
 DPCL is the component responsible for
@@ -29,7 +30,7 @@ measurement gathering on clusters.&nbsp; In a clustering configuration
 DPCL uses a client/server architecture.&nbsp; A DPCL "super daemon" is
 created each time the user starts a performance tool. This super daemon
 is responsible for insuring that a "communication daemon" is running on
-each of the machines in the cluster. The super daemon distributes
+each of the nodes in the cluster. The super daemon distributes
 commands from the performance tool to the various communication daemons
 and gathers data from them. TCP/IP is the transport mechanism for this
 data in DPCL.<br>
@@ -41,17 +42,17 @@ tips for the installation of the cluster support component,
 DPCL.&nbsp;&nbsp; A quick and dirty list of items to check off if DPCL
 is not working is as follows:<br>
   <br>
-  </b>
-  <div style="margin-left: 40px;"><b style=""><span
- style="font-weight: bold;">Build Dyninst and DPCL - Here are the steps
+  <div style="margin-left: 40px;">Build Dyninst and DPCL - Here are the
+steps
 to build the DPCL and Dyninst<br>
   <br>
-1) Install Dyninst from the dyninst-5.0 directory<br>
+1) Install Dyninst from the dyninst-5.0.1 directory<br>
   <br>
 &nbsp;&nbsp; Run ./Build<br>
 &nbsp;&nbsp; If this breaks fix the paths in
 dyninst/core/make.config.local<br>
-&gt;&gt; setenv DYNINST_INSTALL_DIR<br>
+&gt;&gt; setenv DYNINST_INSTALL_DIR
+&lt;directory_path_to_dyininst_install_dir&gt;&nbsp; (/usr by default)<br>
   <br>
   <br>
 2) Install DPCL from the dpcl-20060421 directory<br>
@@ -102,19 +103,19 @@ env += DYNINSTAPI_RT_LIB=$PREFIX/lib/libdyninstAPI_RT.so.1<br>
   <br>
 &nbsp;&nbsp;&nbsp; and expand paths<br>
   <br>
+3) Check .rhosts file<br>
   <br>
-  </span><br>
-  <b>3) Check .rhosts file<br>
-  <br>
-  </b>Make sure that your login specific .rhosts file has entries for
+Make sure that your login specific .rhosts file has entries for
 all the hosts you will be accessing via DPCL.&nbsp; Entries will look
 like this: (not the dashed lines)<br>
 ----------------------------------------<br>
 hubble userid<br>
 hubble.americas.sgi.com userid<br>
 ----------------------------------------<br>
-  <b><br>
-4) dpcl.config file must be present</b><br>
+  <span style="font-weight: bold;">NOTE:</span> .rhosts file
+permissions must be 600 for security reasons<br>
+  <br>
+4) dpcl.config file must be present<br>
 Create a file named dpcl.config in /opt/dpcl/etc that contains the
 following two lines: (not the dashed lines)<br>
 ------------------------------<br>
@@ -123,9 +124,9 @@ method = dpcl<br>
 ------------------------------<br>
   <br>
   <br>
-  <b>5) Super Daemon entry in /etc/services<br>
+5) Super Daemon entry in /etc/services<br>
   <br>
-  </b>The build mentioned above should install the Super Daemon entry
+The build mentioned above should install the Super Daemon entry
 in /etc/services.&nbsp; If it doesn't proceed with the following.<br>
   <br>
 Add the DPCL Super Daemon to the /etc/services file.&nbsp; The line(s)
@@ -137,8 +138,8 @@ dpclSD 7895/tcp # DPCL Super Daemon<br>
 -------------------------------------------<br>
   <br>
   <br>
-  <b>6)</b>&nbsp; <span style="font-weight: bold;">/etc/xinetd.d/dpclSD
-file</span><br>
+6)&nbsp; /etc/xinetd.d/dpclSD
+file<br>
   <br>
 Add the DPCL Super Daemon xinetd.d "dpclSD" file into the /etc/xinetd.d
 directory. Here is an example of the file contents needed: (not the
@@ -164,8 +165,8 @@ of the actual DPCL build you want to run.&nbsp; In this example the
 DPCL components are in /perftools/ROOT.<br>
   <br>
   <br>
-  <b>7)</b> <span style="font-weight: bold;">Activate the Super
-Daemon</span><br>
+7) Activate the Super
+Daemon<br>
   <br>
 Do a: "ps -ef | grep dpcl" to see if any existing super daemons are
 running or if there are any hanging daemons.<br>
@@ -180,11 +181,11 @@ For Altix: 'kill -SIGHUP `cat /var/run/xinetd.pid`'.&nbsp; When
 'xinetd' is restarted, lines similar to the following should appear in
 the system file '/var/log/messages':<br>
   <br>
-  </b>
-  <pre wrap=""><b style="">  .... xinetd[617]: Starting reconfiguration<br>  <br>  .... xinetd[617]: readjusting service dpclSD<br><br><br></b></pre>
-  <b style="">Do the following command once the xinetd daemon has been
+  <pre wrap="">  .... xinetd[617]: Starting reconfiguration<br>  <br>  .... xinetd[617]: readjusting service dpclSD<br><br><br></pre>
+Do the following command once the xinetd daemon has been
 restarted, per
-the TroubleShooting Guide.&nbsp; This will tell you if the Super Daemon
+the <a href="TroubleShootingGuide/index.html">TroubleShooting Guide</a>.&nbsp;
+This will tell you if the Super Daemon
 is running.<br>
   <br>
 "netstat -a -inet | grep dpclSD" <br>
@@ -216,16 +217,17 @@ tcp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 *:telnet&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 *:*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 LISTEN<br>
-  <b>tcp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tcp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0
 *:dpclSD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-*:*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-LISTEN</b><br>
+*:*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp; &nbsp;&nbsp;
+LISTEN<br>
 tcp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0
 *:smtp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 *:*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-LISTEN</b></div>
+LISTEN</div>
 </blockquote>
 <b style=""><br>
 </b>
