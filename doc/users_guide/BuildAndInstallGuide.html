@@ -50,23 +50,18 @@ Contents<br>
 </span></span></b></b></p>
 <ul style="text-align: left;" id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId71414">Introduction
-to Open|SpeedShop
-    </a>
+to Open|SpeedShop </a>
     <ul>
       <li><a href="#mozTocId406387">Brief
-Open|SpeedShop Overview
-        </a></li>
-      <li><a href="#mozTocId958848">Common Terminology
-        </a></li>
+Open|SpeedShop Overview </a></li>
+      <li><a href="#mozTocId958848">Common Terminology </a></li>
       <li><a href="#mozTocId200693">Downloading the Open|SpeedShop
 Component
-Source Using CVS trees
-        </a></li>
+Source Using CVS trees </a></li>
     </ul>
   </li>
   <li><a href="#mozTocId334016">Open|SpeedShop
-Build and Installation
-    </a>
+Build and Installation </a>
     <ul>
       <li><a href="#mozTocId733358">Building
 Open|SpeedShop
@@ -82,8 +77,7 @@ Developer/Build
 Related Environment Variables</a>
                 <ul>
                   <li><a href="#mozTocId227574">Generally used
-environment variables
-                    </a></li>
+environment variables </a></li>
                   <li><a href="#mozTocId365139">Special purpose
 environment variables</a></li>
                 </ul>
@@ -96,12 +90,10 @@ Related Environment Variables</a></li>
 Platforms:</a></li>
           <li><a href="#mozTocId293268">Open|SpeedShop
 Build
-component RPM versions:
-            </a></li>
+component RPM versions: </a></li>
           <li><a href="#mozTocId883409">Overview
 - Setting up
-new "root access permitted" machine for development on Open|SpeedShop
-            </a>
+new "root access permitted" machine for development on Open|SpeedShop </a>
             <ul>
               <li><a href="#mozTocId985149">Step
 1 - Check for
@@ -115,8 +107,7 @@ necessary</a></li>
 3)&nbsp; Install
 missing RPMS</a></li>
               <li><a href="#mozTocId664892">Step 5 - Build
-Open|SpeedShop
-                </a></li>
+Open|SpeedShop </a></li>
             </ul>
           </li>
           <li><a href="#mozTocId141294">Setting up
@@ -135,8 +126,7 @@ OpenSpeedShop_ROOT</a></li>
                   <li><a href="#mozTocId706051">Step
 3A - Set up environment variables to point to new "root" directory</a></li>
                   <li><a href="#mozTocId976492">Step
-3B - Build the needed components
-                    </a>
+3B - Build the needed components </a>
                     <ul>
                       <li><a href="#mozTocId236343">Build libelf</a></li>
                       <li><a href="#mozTocId692104">Build libdwarf
@@ -172,8 +162,7 @@ the xinetd process and setup of the dpcl super daemon files</a></li>
               </li>
               <li><a href="#mozTocId739948">Step
 4 - Build
-Open|SpeedShop using the "root" component's alternative location
-                </a>
+Open|SpeedShop using the "root" component's alternative location </a>
                 <ul>
                   <li><a href="#mozTocId815364">Set up Open|SpeedShop
 install directory environment variable</a></li>
@@ -536,12 +525,44 @@ scenarios found in the "tests" directory.&nbsp;&nbsp; This
 environment variable points to the
 plugin directory.&nbsp;&nbsp; This is needed for running the testing
 scenarios found in the "tests" directory.&nbsp; The plugins can be
-found in &lt;install directory&gt;/lib/openspeedshop. </li>
+found in &lt;install directory&gt;/lib/openspeedshop</li>
+  <li>OPENSS_MPI_IMPLEMENTATION<big><small> - </small></big> The <big><small>Specifies
+the MPI implementation being used by the MPI application whose</small></big>
+performance is being analyzed. Should be set to one of the currently
+supported MPI implementations:<br>
+  </li>
 </ul>
 </div>
-<h4 style="margin-left: 120px;"><a class="mozTocH4"
+<div style="margin-left: 240px;">openmpi, lampi, mpich2, mpich, mpt<small><br>
+<br>
+</small> Eventually Open|SS will be able to auto-detect the MPI
+implemetnation of the application and this variable will only be used
+to override the auto-detection code.<span
+ style="font-family: monospace;"><br>
+</span></div>
+<div style="margin-left: 200px;">
+<ul>
+  <li>OPENSS_ALLOW_PYTHON_COMMANDS - By default Open|SS does not allow
+Python code to be intermixed with the<span
+ style="font-family: monospace;"> </span>Open|SS commands (despite the
+fact that the Python interpreter is always<span
+ style="font-family: monospace;"> </span>used). Setting this to "true"
+allows Python code and Open|SS commands to<span
+ style="font-family: monospace;"> </span>be freely intermixed. This
+has the side affect that things like spacing<span
+ style="font-family: monospace;"> </span>before commands will have
+meaning (because Python assigns meaning to<span
+ style="font-family: monospace;"> </span>indentation).</li>
+</ul>
+</div>
+<div style="margin-left: 200px;">
+<ul>
+</ul>
+</div>
+<h4 style="margin-left: 120px;"><big><a class="mozTocH4"
  name="mozTocId347664"></a><a
- name="OpenSpeedShop_User_Related_Environment"></a>Open|SpeedShop User
+ name="OpenSpeedShop_User_Related_Environment"></a></big>Open|SpeedShop
+User
 Related Environment Variables</h4>
 <div style="margin-left: 160px;">
 <ul>
