@@ -60,6 +60,11 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 
 #include "GenericProgressDialog.hxx"
 
+//
+// To enable debuging uncomment define DEBUG_StatsPanel statement
+//
+//#define DEBUG_StatsPanel 1
+//
 
 // These are the pie chart colors..
 static char *hotToCold_color_names[] = { 
@@ -306,9 +311,6 @@ connect( header, SIGNAL(clicked(int)), this, SLOT( headerSelected( int )) );
     fileTools->hide();
   }
 
-
-  
-
   frameLayout->addWidget(fileTools);
 
   frameLayout->addWidget( splitterA );
@@ -395,16 +397,23 @@ StatsPanel::listener(void *msg)
     getPanelContainer()->raisePanel(this);
     return 1;
   }
-
-// printf("StatsPanel::listener(%s)\n", msgObject->msgType.ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("StatsPanel::listener(%s)\n", msgObject->msgType.ascii() );
+#endif
 
   if(  msgObject->msgType  == "FocusObject" && recycleFLAG == TRUE )
   {
-// printf("StatsPanel got a new FocusObject\n");
+#ifdef DEBUG_StatsPanel
+ printf("StatsPanel got a new FocusObject\n");
+#endif // DEBUG_StatsPanel
     FocusObject *msg = (FocusObject *)msgObject;
+#ifdef DEBUG_StatsPanel
 // msg->print();
+#endif // DEBUG_StatsPanel
     expID = msg->expID;
-// printf("B: expID = %d\n", expID);
+#ifdef DEBUG_StatsPanel
+ printf("B: expID = %d\n", expID);
+#endif // DEBUG_StatsPanel
     if( msg->host_pid_vector.size() == 0 && !msg->pidString.isEmpty() )
     { // Soon to be obsoleted
       currentThreadsStr = msg->pidString;
@@ -430,7 +439,9 @@ StatsPanel::listener(void *msg)
       currentThreadsStr = QString::null;
 if( msg->descriptionClassList.count() > 0 )
 {
-// printf("Focusing with the new (more robust) syntax.\n");
+#ifdef DEBUG_StatsPanel
+ printf("Focusing with the new (more robust) syntax.\n");
+#endif // DEBUG_StatsPanel
   for( QValueList<DescriptionClassObject>::iterator it = msg->descriptionClassList.begin(); it != msg->descriptionClassList.end(); it++)
     {
       DescriptionClassObject dco = (DescriptionClassObject)*it;
@@ -447,8 +458,10 @@ if( msg->descriptionClassList.count() > 0 )
     }
 } else
 {
-//printf("Here in StatsPanel::listener()\n");
-//msg->print();
+#ifdef DEBUG_StatsPanel
+  printf("Here in StatsPanel::listener()\n");
+  msg->print();
+#endif // DEBUG_StatsPanel
       currentThreadGroupStrList.clear();
       currentThreadsStr = QString::null;
       std::vector<HostPidPair>::const_iterator sit = msg->host_pid_vector.begin();
@@ -467,7 +480,9 @@ if( msg->descriptionClassList.count() > 0 )
       }
 }
     }
-//printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+#endif // DEBUG_StatsPanel
 // Begin determine if there's mpi stats
     try
     {
@@ -476,7 +491,9 @@ if( msg->descriptionClassList.count() > 0 )
       {
         Experiment *fw_experiment = eo->FW();
         CollectorGroup cgrp = fw_experiment->getCollectors();
-// printf("Is says you have %d collectors.\n", cgrp.size() );
+#ifdef DEBUG_StatsPanel
+   printf("Is says you have %d collectors.\n", cgrp.size() );
+#endif // DEBUG_StatsPanel
         if( cgrp.size() == 0 )
         {
           fprintf(stderr, "There are no known collectors for this experiment.\n");
@@ -487,7 +504,9 @@ if( msg->descriptionClassList.count() > 0 )
           Metadata cm = collector.getMetadata();
           QString name = QString(cm.getUniqueId().c_str());
 
-// printf("B: Try to match: name.ascii()=%s currentCollectorStr.ascii()=%s\n", name.ascii(), currentCollectorStr.ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("B: Try to match: name.ascii()=%s currentCollectorStr.ascii()=%s\n", name.ascii(), currentCollectorStr.ascii() );
+#endif // DEBUG_StatsPanel
         }
       }
     }
@@ -502,72 +521,106 @@ if( msg->descriptionClassList.count() > 0 )
     }
 // End determine if there's mpi stats
 
-// printf("StatsPanel::listener call updateStatsPanelData  Do we need to update?\n");
+#ifdef DEBUG_StatsPanel
+   printf("StatsPanel::listener call updateStatsPanelData  Do we need to update?\n");
+#endif // DEBUG_StatsPanel
     updateStatsPanelData();
     if( msg->raiseFLAG == TRUE )
     {
       getPanelContainer()->raisePanel(this);
     }
 // now focus a source file that's listening....
-// printf("Now focus the source panel, if it's up..\n");
+#ifdef DEBUG_StatsPanel
+   printf("Now focus the source panel, if it's up..\n");
+#endif // DEBUG_StatsPanel
     //First get the first item...
     QListViewItemIterator it( splv );
     QListViewItem *item = *it;
 
-    // Now call the match routine, this should focus any source panels.
-    if( item && matchSelectedItem( item, std::string(item->text(fieldCount-1).ascii()) ) )
+  // Now call the match routine, this should focus any source panels, if the 
+  // focus source panel preference is set
+
+  if( getPreferencesFocusSourcePanel() &&  
+      item && matchSelectedItem( item, std::string(item->text(fieldCount-1).ascii()) )) 
     {
-    //printf("match\n");
+#ifdef DEBUG_StatsPanel
+         printf("match\n");
+#endif // DEBUG_StatsPanel
         return 1;
     } else
     {
-    //printf("no match\n");
+#ifdef DEBUG_StatsPanel
+        printf("no match\n");
+#endif // DEBUG_StatsPanel
         return 0;
     }
   } else if(  msgObject->msgType  == "FocusCompareObject" && recycleFLAG == TRUE )
   {
-// printf("StatsPanel got a new FocusCompareObject expID was %d\n", expID);
+#ifdef DEBUG_StatsPanel
+   printf("StatsPanel got a new FocusCompareObject expID was %d\n", expID);
+#endif // DEBUG_StatsPanel
     FocusCompareObject *msg = (FocusCompareObject *)msgObject;
-// msg->print();
+#ifdef DEBUG_StatsPanel
+   msg->print();
+#endif // DEBUG_StatsPanel
     if( !msg->compare_command.startsWith("cview -c") )
     {
       expID = msg->expID;
-// printf("C: expID = %d\n", expID);
+#ifdef DEBUG_StatsPanel
+   printf("C: expID = %d\n", expID);
+#endif // DEBUG_StatsPanel
     }
 
     if( !msg->compare_command.isEmpty()  )
     {
-// printf("StatsPanel::listener() call updatestastPanelData(%s)\n", msg->compare_command.ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("StatsPanel::listener() call updatestastPanelData(%s)\n", msg->compare_command.ascii() );
+#endif // DEBUG_StatsPanel
       updateStatsPanelData(msg->compare_command);
-// printf("StatsPanel::listener() called \n");
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::listener() called \n");
+#endif // DEBUG_StatsPanel
     }
 
+#ifdef DEBUG_StatsPanel
+   printf("StatsPanel::listener() raise this panel? msg->raiseFLAG=%d\n",msg->raiseFLAG);
+#endif // DEBUG_StatsPanel
     if( msg->raiseFLAG == TRUE )
     {
-// printf("StatsPanel::listener() raise this panel.. \n");
+#ifdef DEBUG_StatsPanel
+   printf("StatsPanel::listener() raise this panel.. \n");
+#endif // DEBUG_StatsPanel
       getPanelContainer()->raisePanel(this);
     }
   } else if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {
-// printf("UpdateExperimentDataObject\n");
+#ifdef DEBUG_StatsPanel
+   printf("UpdateExperimentDataObject\n");
+#endif // DEBUG_StatsPanel
 
     UpdateObject *msg = (UpdateObject *)msgObject;
     if( msg->expID == -1 )
     {
-// printf("We got the command=(%s)\n", msg->experiment_name.ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("We got the command=(%s)\n", msg->experiment_name.ascii() );
+#endif // DEBUG_StatsPanel
       QString command = msg->experiment_name;
       updateStatsPanelData(command);
 //Hack - NOTE: You may have to snag the expID out of the command.
 #ifdef OLDWAY
 expID = groupID;
-// printf("D: expID = %d\n", expID);
+#ifdef DEBUG_StatsPanel
+    printf("D: expID = %d\n", expID);
+#endif // DEBUG_StatsPanel
 updateCollectorList();
 #else // OLDWAY
 int start_index = command.find("-x");
 if( start_index != -1 )
 {
   QString s = command.mid(start_index+3);
-// printf("Got a -x in the command s=(%s)\n", s.ascii() );
+#ifdef DEBUG_StatsPanel
+    printf("Got a -x in the command s=(%s)\n", s.ascii() );
+#endif // DEBUG_StatsPanel
   int end_index = s.find(" ");
   if( end_index == -1 )
   {
@@ -575,22 +628,30 @@ if( start_index != -1 )
   }
 
   QString exp_x = s.mid(0, end_index);
-// printf("exp_x=%s\n", exp_x.ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("exp_x=%s\n", exp_x.ascii() );
+#endif // DEBUG_StatsPanel
   expID = exp_x.toInt();
-// printf("E: expID = %d\n", expID);
+#ifdef DEBUG_StatsPanel
+   printf("E: expID = %d\n", expID);
+#endif // DEBUG_StatsPanel
 updateCollectorList();
 } else
 {
-// printf("no -x in the command\n");
-// expID = groupID;
-// printf("G: expID = %d\n", expID);
+#ifdef DEBUG_StatsPanel
+    printf("no -x in the command\n");
+    expID = groupID;
+    printf("G: expID = %d\n", expID);
+#endif // DEBUG_StatsPanel
 }
 #endif // OLDWAY
       return(1);
     }
     
     expID = msg->expID;
-// printf("H: expID = %d\n", expID);
+#ifdef DEBUG_StatsPanel
+    printf("H: expID = %d\n", expID);
+#endif // DEBUG_StatsPanel
 
 
     // Begin determine if there's mpi stats
@@ -601,7 +662,9 @@ updateCollectorList();
       {
         Experiment *fw_experiment = eo->FW();
         CollectorGroup cgrp = fw_experiment->getCollectors();
-// printf("Is says you have %d collectors.\n", cgrp.size() );
+#ifdef DEBUG_StatsPanel
+    printf("Is says you have %d collectors.\n", cgrp.size() );
+#endif // DEBUG_StatsPanel
         if( cgrp.size() == 0 )
         {
           fprintf(stderr, "There are no known collectors for this experiment.\n");
@@ -625,8 +688,13 @@ updateCollectorList();
     }
 // End determine if there's mpi stats
 
-// printf("Call updateStatsPanelData() \n");
+#ifdef DEBUG_StatsPanel
+    printf("Call updateStatsPanelData() \n");
+#endif // DEBUG_StatsPanel
     updateStatsPanelData();
+#ifdef DEBUG_StatsPanel
+    printf("msg->raiseFLAG =%d \n", msg->raiseFLAG );
+#endif // DEBUG_StatsPanel
     if( msg->raiseFLAG )
     {
     if( msg->raiseFLAG )
@@ -634,7 +702,9 @@ updateCollectorList();
     }
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
-// printf("Call (make this one smarter) updateStatsPanelData() \n");
+#ifdef DEBUG_StatsPanel
+    printf("Call (make this one smarter) updateStatsPanelData() \n");
+#endif // DEBUG_StatsPanel
     if( getPreferenceShowToolbarCheckBox() == TRUE )
     {
       fileTools->show();
@@ -653,7 +723,9 @@ updateCollectorList();
   } else if( msgObject->msgType == "SaveAsObject" )
   {
     SaveAsObject *sao = (SaveAsObject *)msg;
-// printf("StatsPanel!!!!! Save as!\n");
+#ifdef DEBUG_StatsPanel
+   printf("StatsPanel!!!!! Save as!\n");
+#endif // DEBUG_StatsPanel
     if( !sao )
     {
       return 0;  // 0 means, did not act on message.

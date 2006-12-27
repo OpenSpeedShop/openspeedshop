@@ -48,6 +48,8 @@ extern "C"
 
   QCheckBox* sortDecendingCheckBox;
 
+  QCheckBox* focusSourcePanelCheckBox;
+
   QHBoxLayout* layoutTopN;
   QHBoxLayout* layoutTopNChart;
 
@@ -85,6 +87,12 @@ extern "C"
   {
 // printf("getPreferenceSortDecending(%s)\n", pname);
     return( sortDecendingCheckBox->isChecked() );
+  }
+
+  bool getPreferencesFocusSourcePanel()
+  {
+// printf("getPreferenceFocusSourcePanel(%s)\n", pname);
+    return( focusSourcePanelCheckBox->isChecked() );
   }
 
   QString getPreferenceLevelsToOpen()
@@ -163,6 +171,7 @@ extern "C"
     checkBoxList.clear();
 // printf("StatsPanel: initPreferenceSettings(%s)\n", pname);
     sortDecendingCheckBox->setChecked(TRUE);
+    focusSourcePanelCheckBox->setChecked(FALSE);
     levelsToOpenLineEdit->setText( "-1" );
     showTopNLineEdit->setText( "20" );
     showTopNChartLineEdit->setText( "5" );
@@ -304,6 +313,11 @@ textLabelLayout->addWidget( chartTypeComboBox );
     layout8->addWidget( sortDecendingCheckBox );
 
 
+    focusSourcePanelCheckBox =
+      new QCheckBox( statsPanelGroupBox, "focusSourcePanelCheckBox" );
+    focusSourcePanelCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0,  focusSourcePanelCheckBox->sizePolicy().hasHeightForWidth() ) );
+    layout8->addWidget( focusSourcePanelCheckBox );
+
 
     layoutColumnToSort = new QHBoxLayout( 0, 0, 6, "layoutTopN");
 
@@ -324,6 +338,7 @@ textLabelLayout->addWidget( chartTypeComboBox );
 
     statsPanelGroupBox->setTitle( "Stats Panel" );
     sortDecendingCheckBox->setText( "Sort Descending" );
+    focusSourcePanelCheckBox->setText( "Focus Source Panel" );
     levelsToOpenTextLabel->setText( "Open this many levels in display:" );
     showTopNTextLabel->setText( "Show top N items in list:" );
     showTopNChartTextLabel->setText( "Show top N items in chart:" );
@@ -344,6 +359,11 @@ textLabelLayout->addWidget( chartTypeComboBox );
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, sortDecendingCheckBox->name() );
       sortDecendingCheckBox->setChecked(
+        settings->readBoolEntry(settings_buffer, TRUE) );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, focusSourcePanelCheckBox->name() );
+      focusSourcePanelCheckBox->setChecked(
         settings->readBoolEntry(settings_buffer, TRUE) );
 
       sprintf(settings_buffer, "/%s/%s/%s",
@@ -427,6 +447,11 @@ textLabelLayout->addWidget( chartTypeComboBox );
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, sortDecendingCheckBox->name() );
     settings->writeEntry(settings_buffer, sortDecendingCheckBox->isChecked() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, focusSourcePanelCheckBox->name() );
+    settings->writeEntry(settings_buffer, focusSourcePanelCheckBox->isChecked() );
+
 
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showTopNLineEdit->name() );
