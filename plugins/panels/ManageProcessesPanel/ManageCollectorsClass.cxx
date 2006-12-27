@@ -16,6 +16,13 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
   
+// begin Enable debugging of the Manage Process Panel
+// by uncommenting the define DEBUG_MPPanel line
+//
+//#define DEBUG_MPPanel 1
+//
+// end Enable debugging of the Manage Process Panel
+//
 
 #include "ManageCollectorsClass.hxx"
 
@@ -727,7 +734,9 @@ ManageCollectorsClass::updatePSetList(MPListView *lv)
     lv = psetListView;
   }
   int pset_count = 0;
+
 // printf("updatePSetList(%d) \n", expID );
+
 
   if( MPListView::draggingFLAG == TRUE )
   {
@@ -1321,7 +1330,9 @@ ManageCollectorsClass::disableSelected()
 void
 ManageCollectorsClass::enableSelected()
 {
-// printf("enableSelected\n");
+#if DEBUG_MPPanel
+ printf("enableSelected\n");
+#endif // 0 
   QString command = QString("expEnable -x %1").arg(expID);
   if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
   {
@@ -1333,7 +1344,9 @@ ManageCollectorsClass::enableSelected()
 void
 ManageCollectorsClass::attachProcessSelected()
 {
-// printf("addProcessSelected\n");
+#if DEBUG_MPPanel
+ printf("addProcessSelected\n");
+#endif // 0 
   mw->executableName = QString::null;
   mw->pidStr = QString::null;
   mw->attachNewProcess();
@@ -1350,7 +1363,9 @@ ManageCollectorsClass::attachProcessSelected()
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
     command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(mw->pidStr).arg(mw->hostStr); 
-// printf("A: command=(%s)\n", command.ascii() );
+#if DEBUG_MPPanel
+ printf("A: command=(%s)\n", command.ascii() );
+#endif // 0 
 
     steps = 0;
     pd = new GenericProgressDialog(this, "Loading process...", TRUE);
@@ -1389,11 +1404,15 @@ void
 ManageCollectorsClass::createUserPSet()
 {
     bool ok;
-// printf("createUserPSet() entered\n");
+#if DEBUG_MPPanel
+ printf("createUserPSet() entered\n");
+#endif // 0 
   QString res = QInputDialog::getText("Create Named PSet %1 : %2", QString("PSet Name:"), QLineEdit::Normal, QString("udpset%1").arg(userPsetCount), &ok, this);
   if( ok )
   {
-// printf("The user named his set %s\n", res.ascii() );
+#if DEBUG_MPPanel
+ printf("The user named his set %s\n", res.ascii() );
+#endif // 0 
     MPListViewItem *item = new MPListViewItem( user_defined_psets, res );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, res);
     item->descriptionClassObject = dco;
@@ -1405,7 +1424,9 @@ ManageCollectorsClass::createUserPSet()
 void
 ManageCollectorsClass::removeUserPSet()
 {
-// printf("removeUserPSet() entered\n");
+#if DEBUG_MPPanel
+ printf("removeUserPSet() entered\n");
+#endif // 0 
 
   QListViewItem *top = psetListView->currentItem();
   QListViewItem *last = top;
@@ -1434,7 +1455,9 @@ ManageCollectorsClass::removeUserPSet()
 void
 ManageCollectorsClass::focusOnProcessSelected(QListViewItem *item)
 {
-// printf("focusOnProcessSelected(QListView *) listView=0x%x attachCollectorsListView=0x%x psetListView=0x%x\n", item->listView(), attachCollectorsListView, psetListView );
+#if DEBUG_MPPanel
+ printf("focusOnProcessSelected(QListView *) listView=0x%x attachCollectorsListView=0x%x psetListView=0x%x\n", item->listView(), attachCollectorsListView, psetListView );
+#endif // 0 
  
   if( item->listView() == attachCollectorsListView )
   {
@@ -1452,14 +1475,18 @@ ManageCollectorsClass::focusOnProcessSelected(QListViewItem *item)
 void
 ManageCollectorsClass::focusOnProcessSelected()
 {
-// printf("ManageCollectorsClass::focusOnProcessSelected() entered.\n");
+#if DEBUG_MPPanel
+ printf("ManageCollectorsClass::focusOnProcessSelected() entered.\n");
+#endif // 0 
   focusOnPSetList(attachCollectorsListView);
 }
 
 void
 ManageCollectorsClass::selectProcessesSelected()
 {
-// printf("Bring up the dialog!\n");
+#if DEBUG_MPPanel
+ printf("Bring up the dialog!\n");
+#endif // 0 
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
   if( dialog == NULL )
@@ -1479,59 +1506,74 @@ ManageCollectorsClass::selectProcessesSelected()
 void
 ManageCollectorsClass::focusOnPSetSelected()
 {
-// printf("ManageCollectorsClass::focusOnPSetSelected() entered\n");
+#if DEBUG_MPPanel
+ printf("ManageCollectorsClass::focusOnPSetSelected() entered\n");
+#endif // 0 
   focusOnPSetList(psetListView);
 }
 
 void
 ManageCollectorsClass::focusOnPSetList(QListView *lv)
 {
-// printf("ManageCollectorsClass::focusOnPSetList(QListView *) entered.\n");
+#if DEBUG_MPPanel
+ printf("ManageCollectorsClass::focusOnPSetList(QListView *) entered.\n");
+#endif // 0 
 
   FocusObject *msg = NULL;
   QString pid_name = QString::null;
   QString pidString = QString::null;
-
-
  
   QListViewItemIterator it(lv, QListViewItemIterator::Selected);
   while( it.current() )
   {
     MPListViewItem *lvi = (MPListViewItem *)it.current();
-#if 0
-printf("PSetSelection: lvi->text(0)=(%s) (%s)\n", lvi->text(0).ascii(), lvi->text(1).ascii() );
-if( lvi->descriptionClassObject )
-{
-  lvi->descriptionClassObject->Print();
-}
-#endif // 0
-    if( msg == NULL )
+#if DEBUG_MPPanel
+    printf("PSetSelection: lvi->text(0)=(%s) (%s)\n", lvi->text(0).ascii(), lvi->text(1).ascii() );
+    if( lvi->descriptionClassObject )
     {
-// printf("About to create the FocusObject()\n");
+      lvi->descriptionClassObject->Print();
+    }
+#endif // 0
+    if( msg == NULL ) {
+#if DEBUG_MPPanel
+      printf("About to create the FocusObject()\n");
+#endif // 0 
       msg = new FocusObject(expID,  NULL, NULL, TRUE);
     }
 msg->descriptionClassList.clear();
-// printf("Created the FocusObject()\n");
+#if DEBUG_MPPanel
+ printf("Created the FocusObject()\n");
+#endif // 0 
     if( !lvi || !lvi->descriptionClassObject )
     {
       QMessageBox::information( this, tr("Focus Error:"), tr("Unable to focus on selection: No description for process(es)."), QMessageBox::Ok );
       return;
     }
 
+#if DEBUG_MPPanel
+   printf("lvi->descriptionClassObject->all=%d\n", lvi->descriptionClassObject->all);
+#endif // 0 
     if( lvi->descriptionClassObject->all )
     {
-// printf("Do ALL threads, everywhere.\n");
+#if DEBUG_MPPanel
+ printf("Do ALL threads, everywhere.\n");
+#endif // 0 
         msg->host_pid_vector.clear();
-    } else if( lvi->descriptionClassObject->root )
-    {
+    } else if( lvi->descriptionClassObject->root ) {
       // Loop through all the children...
-// printf("Loop through all the children of (%s).\n", lvi->text(0).ascii() );
+#if DEBUG_MPPanel
+ printf("Loop through all the children of (%s).\n", lvi->text(0).ascii() );
+#endif // 0 
       MPListViewItem *mpChild = (MPListViewItem *)lvi->firstChild();
-// printf("mpChild= (%s).\n", mpChild->text(0).ascii() );
+#if DEBUG_MPPanel
+ printf("mpChild= (%s).\n", mpChild->text(0).ascii() );
+#endif // 0 
       MPListViewItem *child = (MPListViewItem *)mpChild->firstChild();
       if( !child )
       {
-// printf("no nested levels.  Just do the immediate children.\n");
+#if DEBUG_MPPanel
+ printf("no nested levels.  Just do the immediate children.\n");
+#endif // 0 
         while( mpChild )
         {
           QString host_name = mpChild->descriptionClassObject->host_name;
@@ -1551,7 +1593,7 @@ msg->descriptionClassList.clear();
 #endif // OLDWAY
 
           msg->descriptionClassList.push_back(*mpChild->descriptionClassObject);
-#if 0
+#if DEBUG_MPPanel
 printf("A: push_back a new vector list.\n");
 mpChild->descriptionClassObject->Print();
 #endif // 0 
@@ -1564,7 +1606,9 @@ mpChild->descriptionClassObject->Print();
           MPListViewItem *nested_child = (MPListViewItem *)mpChild->firstChild();
           while( nested_child )
           {
-// printf("A: nested_child...(%s)\n", nested_child->text(0).ascii() );
+#if DEBUG_MPPanel
+ printf("A: nested_child...(%s)\n", nested_child->text(0).ascii() );
+#endif // 0 
             QString host_name = nested_child->descriptionClassObject->host_name;
             if( host_name.isEmpty() )
             {
@@ -1590,7 +1634,9 @@ msg->descriptionClassList.push_back(*nested_child->descriptionClassObject);
     } else
     {
       QString host_name = lvi->descriptionClassObject->host_name;
-// printf("host_name = (%s)\n", host_name.ascii() );
+#if DEBUG_MPPanel
+      printf("host_name = (%s)\n", host_name.ascii() );
+#endif // 0
       if( host_name.isEmpty() )
       {
         host_name = "localhost";
@@ -1605,7 +1651,9 @@ msg->descriptionClassList.push_back(*nested_child->descriptionClassObject);
       msg->host_pid_vector.push_back( p );
 #endif // OLDWAY
 msg->descriptionClassList.push_back(*lvi->descriptionClassObject);
-// printf("B: push_back a new vector list.. (%s-%s)\n", host_name.ascii(), pid_name.ascii() );
+#if DEBUG_MPPanel
+printf("B: push_back a new vector list.. (%s-%s)\n", host_name.ascii(), pid_name.ascii() );
+#endif // 0
     } 
     
     ++it;
@@ -1626,11 +1674,12 @@ msg->descriptionClassList.push_back(*lvi->descriptionClassObject);
   }
 
 
-// printf("A: focus the StatsPanel...\n");
+#if DEBUG_MPPanel
+  printf("A: focus the StatsPanel...\n");
+#endif // 0
   QString name = QString("Stats Panel [%1]").arg(expID);
   Panel *sp = p->getPanelContainer()->findNamedPanel(p->getPanelContainer()->getMasterPC(), (char *)name.ascii() );
-  if( !sp )
-  {
+  if( !sp ) {
     char *panel_type = "Stats Panel";
     PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
@@ -1638,16 +1687,18 @@ msg->descriptionClassList.push_back(*lvi->descriptionClassObject);
     delete ao;
     if( sp != NULL )
     {
-// printf("Created a stats panel... First update it's data...\n");
-      UpdateObject *msg =
-        new UpdateObject((void *)Find_Experiment_Object((EXPID)expID), expID, "none", 1);
+#if DEBUG_MPPanel
+    printf("Created a stats panel... First update it's data...\n");
+#endif // 0
+      UpdateObject *msg = new UpdateObject((void *)Find_Experiment_Object((EXPID)expID), expID, "none", 1);
       sp->listener( (void *)msg );
     }
-  } else
-  {
-#if 0
-printf("There was a statspanel... send the update message.\n");
-msg->print();
+  } else {
+    // don't raise the associated panels
+    msg->raiseFLAG = false;
+#if DEBUG_MPPanel
+    printf("There was a statspanel... send the update message.\n");
+    msg->print();
 #endif // 0
     sp->listener( (void *)msg );
   }
@@ -1656,7 +1707,9 @@ msg->print();
 void
 ManageCollectorsClass::updatePanel()
 {
-// printf("ManageCollectorsClass::updatePanel()\n");
+#if DEBUG_MPPanel
+ printf("ManageCollectorsClass::updatePanel()\n");
+#endif // 0
 
   updateAttachedList();
 
@@ -1675,19 +1728,25 @@ ManageCollectorsClass::updatePanel()
 void
 ManageCollectorsClass::loadProgramSelected()
 {
-// printf("ManageCollectorsClass::loadProgramSelected()\n");
+#if DEBUG_MPPanel
+ printf("ManageCollectorsClass::loadProgramSelected()\n");
+#endif
   mw->executableName = QString::null;
   mw->argsStr = QString::null;
   mw->loadNewProgram();
   QString executableNameStr = mw->executableName;
   if( !mw->executableName.isEmpty() )
   {
-// printf("ManageCollectorsClass::loadProgramSelected() executableName=%s\n", mw->executableName.ascii() );
+#if DEBUG_MPPanel
+ printf("ManageCollectorsClass::loadProgramSelected() executableName=%s\n", mw->executableName.ascii() );
+#endif
     executableNameStr = mw->executableName;
     QString command =
       QString("expAttach -x %1 -f \"%2 %3\"").arg(expID).arg(executableNameStr).arg(mw->argsStr);
 
-// printf("command=(%s)\n", command.ascii() );
+#if DEBUG_MPPanel
+ printf("command=(%s)\n", command.ascii() );
+#endif
     steps = 0;
     pd = new GenericProgressDialog(this, "Loading process...", TRUE);
     loadTimer = new QTimer( this, "progressTimer" );
@@ -1709,10 +1768,14 @@ ManageCollectorsClass::loadProgramSelected()
     // Send out a message to all those that might care about this change request
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
     
-// printf("Send out update?\n");
+#if DEBUG_MPPanel
+ printf("Send out update?\n");
+#endif
     if( eo->FW() != NULL )
     {
-// printf("Yes!  Send out update?\n");
+#if DEBUG_MPPanel
+ printf("Yes!  Send out update?\n");
+#endif
       UpdateObject *msg = new UpdateObject(eo->FW(), expID,  NULL, 0);
       p->broadcast((char *)msg, GROUP_T);
     }
@@ -1725,8 +1788,10 @@ ManageCollectorsClass::loadProgramSelected()
 void
 ManageCollectorsClass::paramSelected(int val)
 {
-//  printf("paramSelected val=%d\n", val);
-//  printf("paramSelected val=%s\n", QString("%1").arg(val).ascii() );
+#if DEBUG_MPPanel
+  printf("paramSelected val=%d\n", val);
+  printf("paramSelected val=%s\n", QString("%1").arg(val).ascii() );
+#endif
 //  MPListViewItem *selectedItem = attachCollectorsListView->selectedItem();
 MPListViewItem *selectedItem = NULL;
 QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
@@ -1738,7 +1803,9 @@ while( it.current() )
   QString param_text = QString::null;
   if( selectedItem )
   {
-//printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
+#if DEBUG_MPPanel
+ printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
+#endif
     QString collector_name = QString::null;
     if( dialogSortType == PID_T )
     {
@@ -1784,10 +1851,12 @@ while( it.current() )
       pt = param_text.right(param_text.length()-loc);
       param_value = pt.left(pt.find(")") );
     }
-// printf("paramSelected collector_name=(%s)\n", collector_name.ascii());
-// printf("paramSelected param_name=(%s)\n", param_name.ascii());
-// printf("paramSelected param_value=(%s)\n", param_value.ascii());
-// printf("paramSelected param_value=(%u)\n", param_value.toUInt() );
+#if DEBUG_MPPanel
+ printf("paramSelected collector_name=(%s)\n", collector_name.ascii());
+ printf("paramSelected param_name=(%s)\n", param_name.ascii());
+ printf("paramSelected param_value=(%s)\n", param_value.ascii());
+ printf("paramSelected param_value=(%u)\n", param_value.toUInt() );
+#endif
 // Modify the parameter....
     bool ok;
 //    int res = QInputDialog::getInteger(QString("Set %1 : %2").arg(collector_name).arg(param_name), QString("New Value:"), param_value.toUInt(), 0, 9999999, 10, &ok, this);
@@ -1795,16 +1864,22 @@ while( it.current() )
     if( ok )
     {
       QString command;
-// printf("colletor_name=(%s)\n", collector_name.ascii() );
+#if DEBUG_MPPanel
+ printf("colletor_name=(%s)\n", collector_name.ascii() );
+#endif
       command = QString("expSetParam -x %1 %2::%3=%4").arg(expID).arg(collector_name).arg(param_name).arg(res);
-// printf("command=(%s)\n", command.ascii() );
+#if DEBUG_MPPanel
+ printf("command=(%s)\n", command.ascii() );
+#endif
       if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
       {
         QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
       }
     } else
     {
-//  printf("user pressed cancel.\n");
+#if DEBUG_MPPanel
+  printf("user pressed cancel.\n");
+#endif
     }
     
   }
@@ -1815,7 +1890,9 @@ while( it.current() )
 void
 ManageCollectorsClass::RS_attachCollectorSelected(int val)
 {
-// printf("RS_attachCollectorSelected(val=%d)\n", val);
+#if DEBUG_MPPanel
+ printf("RS_attachCollectorSelected(val=%d)\n", val);
+#endif
   QString attachStr = QString::null;
   QString collector_name = QString::null;
 
@@ -1824,13 +1901,14 @@ ManageCollectorsClass::RS_attachCollectorSelected(int val)
   {
     MPListViewItem *lvi = (MPListViewItem *)it.current();
 // Begin debug
-// printf("RS_attachCollectorSelected: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
-//printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
-//printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
-//if( lvi->descriptionClassObject )
-//{
-  //lvi->descriptionClassObject->Print();
-//}
+#if DEBUG_MPPanel
+ printf("RS_attachCollectorSelected: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
+ printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
+ printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+ if( lvi->descriptionClassObject ) {
+  lvi->descriptionClassObject->Print();
+ }
+#endif
 // End debug
 
 
@@ -1838,22 +1916,32 @@ ManageCollectorsClass::RS_attachCollectorSelected(int val)
   if( collectorPopupMenu != NULL )
   {
     collector_name = collectorPopupMenu->text(val);
-// printf("Get the collector name (%s) from the popup menu.\n", collector_name.ascii() );
+#if DEBUG_MPPanel
+ printf("Get the collector name (%s) from the popup menu.\n", collector_name.ascii() );
+#endif
   } else
   {
     collector_name = collectorMenu->text(val);
-// printf("Get the collector name (%s) from the file menu.\n", collector_name.ascii() );
+#if DEBUG_MPPanel
+ printf("Get the collector name (%s) from the file menu.\n", collector_name.ascii() );
+#endif
   }
-// printf("collector_name =(%s)\n", collector_name.isEmpty() ? "" : collector_name.ascii() );
+#if DEBUG_MPPanel
+ printf("collector_name =(%s)\n", collector_name.isEmpty() ? "" : collector_name.ascii() );
+#endif
 
     if( lvi->descriptionClassObject->all )
     {
-// printf("Do ALL threads, everywhere.\n");
+#if DEBUG_MPPanel
+ printf("Do ALL threads, everywhere.\n");
+#endif
 //        msg->host_pid_vector.clear();
     } else if( lvi->descriptionClassObject->root )
     {
       // Loop through all the children...
-// printf("Loop through all the children.\n");
+#if DEBUG_MPPanel
+ printf("Loop through all the children.\n");
+#endif
       MPListViewItem *mpChild = (MPListViewItem *)lvi->firstChild();
       while( mpChild )
       {
@@ -1871,12 +1959,16 @@ ManageCollectorsClass::RS_attachCollectorSelected(int val)
         std::pair<std::string, std::string> p(host_name,pid_name);
 //        msg->host_pid_vector.push_back( p );
         attachStr += QString(" -h %1 -p %2 ").arg(host_name).arg(pid_name);
-// printf("A: push_back a new vector list..\n");
+#if DEBUG_MPPanel
+ printf("A: push_back a new vector list..\n");
+#endif
         mpChild = (MPListViewItem *)mpChild->nextSibling();
       }
     } else
     {
-// printf("else host/pid\n");
+#if DEBUG_MPPanel
+ printf("else host/pid\n");
+#endif
       QString host_name = lvi->descriptionClassObject->host_name;
       if( host_name.isEmpty() )
       {
@@ -1899,7 +1991,9 @@ ManageCollectorsClass::RS_attachCollectorSelected(int val)
   QString command;
   command = QString("expAttach -x %1 %2 %3").arg(expID).arg(collector_name).arg(attachStr);
 
-// printf("command=%s\n", command.ascii() );
+#if DEBUG_MPPanel
+ printf("command=%s\n", command.ascii() );
+#endif
   if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
   {
     QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
@@ -1912,15 +2006,19 @@ ManageCollectorsClass::RS_attachCollectorSelected(int val)
 void
 ManageCollectorsClass::LS_attachCollectorSelected(int val)
 {
-// printf("LS_attachCollectorSelected(val=%d)\n", val);
+#if DEBUG_MPPanel
+ printf("LS_attachCollectorSelected(val=%d)\n", val);
+#endif
   MPListViewItem *lvi = NULL;
   QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
   QString pidStr = QString::null;
   while( it.current() )
   {
     lvi = (MPListViewItem *)it.current();
-// printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
-// printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+#if DEBUG_MPPanel
+ printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
+ printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+#endif
     if( pidStr.isEmpty()  )
     {
       pidStr = " -p"+lvi->text(0);
@@ -1936,7 +2034,9 @@ ManageCollectorsClass::LS_attachCollectorSelected(int val)
   QString target_name = QString::null;
   if( selectedItem )
   {
-// printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
+#if DEBUG_MPPanel
+ printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
+#endif
     if( dialogSortType == COLLECTOR_T )
     {
       if( selectedItem->parent() )
@@ -1944,23 +2044,33 @@ ManageCollectorsClass::LS_attachCollectorSelected(int val)
         target_name = selectedItem->text(1);
       } else
       {
-// printf("Can't add a collector from a selected collector.\n");
+#if DEBUG_MPPanel
+ printf("Can't add a collector from a selected collector.\n");
+#endif
         QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to add a collector from a selected collector.\nUnselect the highlighted selector first."), QMessageBox::Ok );
         return; }
     }
   }
-// printf("target_name =(%s)\n", target_name.isEmpty() ? "" : target_name.ascii() );
+#if DEBUG_MPPanel
+ printf("target_name =(%s)\n", target_name.isEmpty() ? "" : target_name.ascii() );
+#endif
 
   if( collectorPopupMenu != NULL )
   {
     collector_name = collectorPopupMenu->text(val);
-// printf("Get the collector name (%s) from the popup menu.\n", collector_name.ascii() );
+#if DEBUG_MPPanel
+ printf("Get the collector name (%s) from the popup menu.\n", collector_name.ascii() );
+#endif
   } else
   {
     collector_name = collectorMenu->text(val);
-// printf("Get the collector name (%s) from the file menu.\n", collector_name.ascii() );
+#if DEBUG_MPPanel
+ printf("Get the collector name (%s) from the file menu.\n", collector_name.ascii() );
+#endif
   }
-// printf("collector_name =(%s)\n", collector_name.isEmpty() ? "" : collector_name.ascii() );
+#if DEBUG_MPPanel
+ printf("collector_name =(%s)\n", collector_name.isEmpty() ? "" : collector_name.ascii() );
+#endif
 
   QString command;
   command = QString("expAttach -x %1 %2 %3").arg(expID).arg(target_name).arg(collector_name);
@@ -1970,7 +2080,9 @@ ManageCollectorsClass::LS_attachCollectorSelected(int val)
     command += pidStr;
   }
 
-// printf("command=(%s)\n", command.ascii() );
+#if DEBUG_MPPanel
+ printf("command=(%s)\n", command.ascii() );
+#endif
 
   if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
   {
@@ -1984,7 +2096,9 @@ ManageCollectorsClass::LS_attachCollectorSelected(int val)
 void
 ManageCollectorsClass::fileCollectorAboutToShowSelected()
 {
-// printf("fileCollectorAboutToShowSelected()\n");
+#if DEBUG_MPPanel
+ printf("fileCollectorAboutToShowSelected()\n");
+#endif
   if( collectorPopupMenu != NULL )
   {
     delete collectorPopupMenu;
@@ -1995,18 +2109,24 @@ ManageCollectorsClass::fileCollectorAboutToShowSelected()
 void
 ManageCollectorsClass::sortByProcess()
 {
-// printf("sortByProcess\n");
+#if DEBUG_MPPanel
+ printf("sortByProcess\n");
+#endif
   dialogSortType = PID_T;
 
 
-// printf("attachCollectorsListView->columnText(0) = (%s)\n", attachCollectorsListView->columnText(1).ascii() );
+#if DEBUG_MPPanel
+ printf("attachCollectorsListView->columnText(0) = (%s)\n", attachCollectorsListView->columnText(1).ascii() );
+#endif
   updateAttachedList();
 }
 
 void
 ManageCollectorsClass::sortByCollector()
 {
-// printf("sortByCollector\n");
+#if DEBUG_MPPanel
+ printf("sortByCollector\n");
+#endif
   dialogSortType = COLLECTOR_T;
 
   updateAttachedList();
@@ -2015,7 +2135,9 @@ ManageCollectorsClass::sortByCollector()
 void
 ManageCollectorsClass::sortByHost()
 {
-// printf("sortByHost\n");
+#if DEBUG_MPPanel
+ printf("sortByHost\n");
+#endif
   dialogSortType = HOST_T;
 
   updateAttachedList();
@@ -2024,7 +2146,9 @@ ManageCollectorsClass::sortByHost()
 void
 ManageCollectorsClass::sortByMPIRank()
 {
-// printf("sortByMPIRank\n");
+#if DEBUG_MPPanel
+ printf("sortByMPIRank\n");
+#endif
   dialogSortType = MPIRANK_T;
 
   updateAttachedList();
@@ -2054,7 +2178,9 @@ ManageCollectorsClass::progressUpdate()
 void
 ManageCollectorsClass::updateTimerCallback()
 {
-// printf("updateTimerCallback() entered\n");
+#if DEBUG_MPPanel
+ printf("updateTimerCallback() entered\n");
+#endif
 
   updateTimer->stop();
 
@@ -2065,7 +2191,9 @@ ManageCollectorsClass::updateTimerCallback()
 void
 ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &pos, int col)
 {
-// printf("ManageCollectorsClass::contextMenuRequested() entered.\n");
+#if DEBUG_MPPanel
+ printf("ManageCollectorsClass::contextMenuRequested() entered, attachCollectorsListView=%x\n", attachCollectorsListView);
+#endif
 
 
   if( item == 0 )
@@ -2078,15 +2206,30 @@ ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &
   QString field_name = QString::null;
   if( item )
   {
-// printf("%s %s\n", attachCollectorsListView->selectedItem()->text(0).ascii(), attachCollectorsListView->selectedItem()->text(1).ascii()  );
+#if 0
+  if (attachCollectorsListView && attachCollectorsListView->selectedItem()->text(0) && attachCollectorsListView->selectedItem()->text(1)) {
+  printf("%s %s\n", attachCollectorsListView->selectedItem()->text(0).ascii(), attachCollectorsListView->selectedItem()->text(1).ascii()  );
+  }
+#endif
     if( dialogSortType == COLLECTOR_T )
     {
       field_name = item->text(0);
-// printf("A: %s %s\n", item->text(0).ascii(), item->text(1).ascii()  );
+#if 0
+     if (item->text(0) && item->text(1)) {
+      printf("A: %s \n", item->text(0).ascii(), item->text(1).ascii()  );
+      printf("A: %s %s\n", item->text(0).ascii(), item->text(1).ascii()  );
+     }
+#endif
     } else
     {
-// printf("B: %s %s\n", item->text(0).ascii(), item->text(1).ascii() );
-// printf("%s %s\n", attachCollectorsListView->selectedItem()->text(0).ascii(), attachCollectorsListView->selectedItem()->text(1).ascii()  );
+#if 0
+     if (item->text(0) && item->text(1)) {
+        printf("B: %s %s\n", item->text(0).ascii(), item->text(1).ascii() );
+       if (attachCollectorsListView && attachCollectorsListView->selectedItem()->text(0) && attachCollectorsListView->selectedItem()->text(1)) {
+        printf("%s %s\n", attachCollectorsListView->selectedItem()->text(0).ascii(), attachCollectorsListView->selectedItem()->text(1).ascii()  );
+       }
+     }
+#endif
       field_name = item->text(1);
     }
   } else
@@ -2124,7 +2267,9 @@ ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &
        ( dialogSortType == PID_T && selected_item->parent() != NULL ) || 
        ( dialogSortType == MPIRANK_T && selected_item->parent() != NULL ) )
     {
-// printf("Here field_name=(%s)\n", !field_name.isEmpty() ? field_name.ascii() : NULL );
+#if DEBUG_MPPanel
+ printf("Here field_name=(%s)\n", !field_name.isEmpty() ? field_name.ascii() : NULL );
+#endif
       CollectorEntry *ce = NULL;
       CollectorEntryList::Iterator it;
       clo = new CollectorListObject(expID);
@@ -2137,17 +2282,25 @@ ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &
           ce = (CollectorEntry *)*it;
           if( field_name == ce->name )
           {
-// printf("(%s): parameters are\n", ce->name.ascii() );
+#if DEBUG_MPPanel
+ printf("(%s): parameters are\n", ce->name.ascii() );
+#endif
             CollectorParameterEntryList::Iterator pit = ce->paramList.begin();
             if( ce->paramList.size() == 1 )
             {
-// printf("size == 1\n");
+#if DEBUG_MPPanel
+ printf("size == 1\n");
+#endif
               CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
               popupMenu->insertItem( QString("Modify Parameter ... (%1::%2)").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()), this, SLOT(paramSelected(int)) );
-// printf("done size == 1\n");
+#if DEBUG_MPPanel
+ printf("done size == 1\n");
+#endif
             } else
             {
-// printf("size != 1\n");
+#if DEBUG_MPPanel
+ printf("size != 1\n");
+#endif
               if( paramMenu == NULL )
               {
                 paramMenu = new QPopupMenu(this);
@@ -2155,13 +2308,19 @@ ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &
               connect( paramMenu, SIGNAL( activated( int ) ),
                          this, SLOT( paramSelected( int ) ) );
               popupMenu->insertItem("Modify Parameter", paramMenu);
-// printf("done size != 1\n");
+#if DEBUG_MPPanel
+ printf("done size != 1\n");
+#endif
               for( ;pit != ce->paramList.end();  pit++)
               {
                 CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
-// printf("\t%s   %s\n", cpe->name.ascii(), cpe->param_value.ascii() );
+#if DEBUG_MPPanel
+ printf("\t%s   %s\n", cpe->name.ascii(), cpe->param_value.ascii() );
+#endif
                 paramMenu->insertItem(QString("%1::%2").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()) );
-// printf("\tdone: %s   %s\n", cpe->name.ascii(), cpe->param_value.ascii() );
+#if DEBUG_MPPanel
+ printf("\tdone: %s   %s\n", cpe->name.ascii(), cpe->param_value.ascii() );
+#endif
               }
             }
             break;
@@ -2169,18 +2328,25 @@ ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &
         }
       }
     }
-// printf("here... popupMenu=0x%x\n", popupMenu );
+#if DEBUG_MPPanel
+ printf("here...calling menu() with popupMenu=0x%x\n", popupMenu );
+#endif
   menu(popupMenu);
   }
 
 
+#if DEBUG_MPPanel
+ printf("here...calling popup() with &pos=0x%x\n", &pos );
+#endif
   popupMenu->popup( pos );
 }
 
 bool
 ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 {
-// printf("ManageCollectorsClass::menu() entered\n");
+#if DEBUG_MPPanel
+ printf("ManageCollectorsClass::menu() entered\n");
+#endif
 
   bool runnableFLAG = TRUE;
 
@@ -2196,7 +2362,9 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
             (eo->Determine_Status() == ExpStatus_Terminated ) ||
             (eo->Determine_Status() == ExpStatus_InError ) ) )
       {
-// printf("We're NOT runnable or attachable!\n");
+#if DEBUG_MPPanel
+ printf("We're NOT runnable or attachable!\n");
+#endif
         runnableFLAG = FALSE;
       }
     }
@@ -2216,7 +2384,9 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 // Any further selection or update of the view will reactivate the timer.
   if( updateTimer )
   {
-// printf("Stop the timer \n");
+#if DEBUG_MPPanel
+ printf("Stop the timer \n");
+#endif
     updateTimer->stop();
 //    updateTimer->start( timerValue, TRUE );
   }
@@ -2259,13 +2429,17 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
       selectable = FALSE;
     } else if( selectedItem && selectedItem->parent() && selectedItem->parent()->text(0) == UDPS )
     {
-// printf("Got a user defined processes set!\n");
+#if DEBUG_MPPanel
+ printf("Got a user defined processes set!\n");
+#endif
       udpsetSelected = TRUE;
     }
   }
 
 
-// printf("Now add the rest of the menu entries\n");
+#if DEBUG_MPPanel
+ printf("Now add the rest of the menu entries\n");
+#endif
   contextMenu->insertSeparator();
 
   QAction *qaction = new QAction( this,  "_updatePanel");
@@ -2275,6 +2449,9 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   qaction->setStatusTip( tr("Attempt to update this panel's display with fresh data.") );
 
 
+#if DEBUG_MPPanel
+ printf("runnableFLAG=(%d)\n", runnableFLAG );
+#endif
   if( runnableFLAG == TRUE )
   {
     qaction = new QAction( this,  "loadProgram");
@@ -2295,12 +2472,17 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   qaction->setText( tr("Focus on Process(es)...") );
   if( leftSide == TRUE ) 
   {
-  // printf("LEFT SIDE MENU\n");
+#if DEBUG_MPPanel
+   printf("LEFT SIDE MENU\n");
+   printf(" Focus on selected process(es)\n");
+#endif
     connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnProcessSelected() ) );
     qaction->setStatusTip( tr("Focus on selected process(es).") );
   } else
   {
-  // printf("RIGHT SIDE MENU\n");
+#if DEBUG_MPPanel
+   printf("RIGHT SIDE MENU\n");
+#endif
     connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnPSetSelected() ) );
     qaction->setStatusTip( tr("Focus on selected process(es).") );
   }
@@ -2346,13 +2528,19 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
         qaction->addTo( collectorMenu );
         qaction->setText( QString(collector_name.c_str()) );
         qaction->setStatusTip( tr(QString("Add the collector %1 to the experiment.").arg(collector_name.c_str()) ) );
-// printf("Add item (%s)\n", collector_name.c_str() );
+#if DEBUG_MPPanel
+ printf("Add item (%s)\n", collector_name.c_str() );
+#endif
       }
     }
-// printf("A: size =(%d) \n", list_of_collectors.size() );
+#if DEBUG_MPPanel
+ printf("A: size =(%d) \n", list_of_collectors.size() );
+#endif
   }
   
-// printf("leftSide=(%d)\n", leftSide );
+#if DEBUG_MPPanel
+ printf("leftSide=(%d)\n", leftSide );
+#endif
   if( leftSide == TRUE )
   {
     QPopupMenu *sortByMenu = new QPopupMenu( contextMenu );

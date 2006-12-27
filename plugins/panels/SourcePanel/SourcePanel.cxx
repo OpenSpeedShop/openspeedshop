@@ -49,6 +49,14 @@
 
 #include "debug.hxx"
 
+// 
+// begin definition: Debug this Source Panel when DEBUG_SourcePanel is defined
+// 
+//#define DEBUG_SourcePanel
+// 
+// end definition:  Debug this Source Panel when DEBUG_SourcePanel is defined
+// 
+
 /*! Unused constructor. */
 SourcePanel::SourcePanel()
 { // Unused... Here for completeness...
@@ -60,7 +68,9 @@ SourcePanel::SourcePanel()
 SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "SourcePanel::SourcePanel() constructor called\n");
-//printf ( "SourcePanel::SourcePanel() constructor called\n");
+#ifdef DEBUG_SourcePanel
+  printf ( "SourcePanel::SourcePanel() constructor called\n");
+#endif
 
   last_spo = NULL;
 
@@ -191,16 +201,24 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) 
   label->show();
 
   textEdit->setFocus();
-// printf("Now, getShowStatistics()= %d\n", getShowStatistics() );
+#ifdef DEBUG_SourcePanel
+   printf("Now, getShowStatistics()= %d\n", getShowStatistics() );
+#endif
   if( getShowStatistics() == TRUE )
   {
-// printf("show canvas form!\n");
+#ifdef DEBUG_SourcePanel
+   printf("show canvas form!\n");
+#endif
     showCanvasForm();
   }
-// printf("Now, getShowLineNumbers()= %d\n", getShowLineNumbers() );
+#ifdef DEBUG_SourcePanel
+   printf("Now, getShowLineNumbers()= %d\n", getShowLineNumbers() );
+#endif
   if( getShowLineNumbers() == TRUE )
   {
-// printf("show line numbers!\n");
+#ifdef DEBUG_SourcePanel
+   printf("show line numbers!\n");
+#endif
     showLineNumbers();
   }
 
@@ -323,6 +341,9 @@ void
 SourcePanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
   nprintf(DEBUG_PANELS) ("Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
+#ifdef DEBUG_SourcePanel
+  printf("Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
+#endif
 
   textEdit->setCursorPosition(textEdit->paragraphAt(pos), 0);
   if( whatIsAtPos(pos) )
@@ -391,16 +412,22 @@ SourcePanel::saveAs()
 void
 SourcePanel::preferencesChanged()
 {
-// printf("SourcePanel::preferencesChanged()\n");
+#ifdef DEBUG_SourcePanel
+   printf("SourcePanel::preferencesChanged()\n");
+#endif
 
   bool new_show_stats_val = getShowStatistics();
-// printf("  show_stats_val=%d\n", show_stats_val );
+#ifdef DEBUG_SourcePanel
+   printf("  show_stats_val=%d\n", new_show_stats_val );
+#endif
   if( statsFLAG != new_show_stats_val )
   {
     showCanvasForm();
   }
   bool show_line_numbers_val = getShowLineNumbers();
-// printf("  show_line_numbers_val=%d\n", show_line_numbers_val );
+#ifdef DEBUG_SourcePanel
+   printf("  show_line_numbers_val=%d\n", show_line_numbers_val );
+#endif
   if( line_numbersFLAG != show_line_numbers_val )
   {
     showLineNumbers();
@@ -421,11 +448,15 @@ SourcePanel::listener(void *msg)
   SaveAsObject *sao = NULL;
   PreferencesChangedObject *pco = NULL;
   nprintf(DEBUG_PANELS) ("SourcePanel::listener() requested.\n");
-//printf("SourcePanel::listener() requested.\n");
+#ifdef DEBUG_SourcePanel
+  printf("SourcePanel::listener() requested.\n");
+#endif
 
   MessageObject *msgObject = (MessageObject *)msg;
 
-//printf("msgObject->msgType-%s getName()=%s\n", msgObject->msgType.ascii(), getName() );
+#ifdef DEBUG_SourcePanel
+  printf("msgObject->msgType-%s getName()=%s\n", msgObject->msgType.ascii(), getName() );
+#endif
 
   // Check the message type to make sure it's our type...
   if( msgObject->msgType == getName() && recycleFLAG == TRUE )
@@ -436,7 +467,9 @@ SourcePanel::listener(void *msg)
   if( msgObject->msgType == "SourceObject" && recycleFLAG == TRUE )
   {
     nprintf(DEBUG_PANELS)  ("Its a SourceObject\n");
-// printf("Its a SourceObject\n");
+#ifdef DEBUG_SourcePanel
+   printf("Its a SourceObject\n");
+#endif
     spo = (SourceObject *)msg;
     if( !spo )
     {
@@ -458,7 +491,9 @@ SourcePanel::listener(void *msg)
 
 #if OLDWAY
     lineCount = 0;
-//printf ("load the file spo->fileName=%s\n", spo->fileName.ascii() );
+#ifdef DEBUG_SourcePanel
+  printf ("load the file spo->fileName=%s\n", spo->fileName.ascii() );
+#endif
     if( loadFile(spo->fileName) == FALSE )
     {
       // We didn't find or load the file, but we did attempt
@@ -473,6 +508,9 @@ SourcePanel::listener(void *msg)
     // Try to highlight the line...
     hscrollbar->setValue(0);
 
+#ifdef DEBUG_SourcePanel
+  printf ("spo->raiseFLAG=%d\n", spo->raiseFLAG );
+#endif
     if( spo->raiseFLAG == TRUE )
     {
       this->getPanelContainer()->raisePanel(this);
@@ -501,7 +539,9 @@ SourcePanel::listener(void *msg)
     }
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
-//    printf("SourcePanel:  The preferences changed.\n");
+#ifdef DEBUG_SourcePanel
+      printf("SourcePanel:  The preferences changed.\n");
+#endif
     pco = (PreferencesChangedObject *)msg;
     preferencesChanged();
   } else
@@ -537,7 +577,9 @@ SourcePanel::info(QPoint p, QObject *target)
   // in the scrollbar area.
   if( textEdit->vbar )
   {
-//    printf("we have a vbar\n");
+#ifdef DEBUG_SourcePanel
+      printf("we have a vbar\n");
+#endif
     tew = textEdit->width();
     vbw = textEdit->vbar->width();
   }
@@ -549,7 +591,9 @@ SourcePanel::info(QPoint p, QObject *target)
     int vbh = textEdit->vbar->height() - (textEdit->vbar->width()*2);
     int y = pos.y()-textEdit->vbar->width();
 
-// printf("first: The nominalized y=%d\n", y);
+#ifdef DEBUG_SourcePanel
+   printf("first: The nominalized y=%d\n", y);
+#endif
     if( y < 0 )
     {
 //      y = 0;
@@ -562,10 +606,14 @@ SourcePanel::info(QPoint p, QObject *target)
     }
 
     float ratio = (float)y/(float)vbh;
-//    printf("second: The ratio=%f\n", ratio);
+#ifdef DEBUG_SourcePanel
+      printf("second: The ratio=%f\n", ratio);
+#endif
 
     int new_y = int (ratio * (float)textEdit->vbar->maxValue());
-//    printf("finally: The new_y=%d (maxValue=%d)\n", new_y, textEdit->vbar->maxValue() );
+#ifdef DEBUG_SourcePanel
+      printf("finally: The new_y=%d (maxValue=%d)\n", new_y, textEdit->vbar->maxValue() );
+#endif
   
     // set this to a textEdit.document() value...
     pos.setY( new_y );
@@ -573,7 +621,9 @@ SourcePanel::info(QPoint p, QObject *target)
   {
     pos.setY( pos.y() + vscrollbar->value() );
   }
-//  printf("tew=%d vbw=%d pos.x()=%d pos.y()=%d\n", tew, vbw, pos.x(), pos.y() );
+#ifdef DEBUG_SourcePanel
+    printf("tew=%d vbw=%d pos.x()=%d pos.y()=%d\n", tew, vbw, pos.x(), pos.y() );
+#endif
 
   // Now, based on the pos (location) see if there's anything interesting 
   // we can detail.
@@ -581,7 +631,9 @@ SourcePanel::info(QPoint p, QObject *target)
   nprintf(DEBUG_PANELS) ("SourcePanel::info() line=%d\n", line);
   if( line <= 0 )
   {
-//    printf("NOTHING TO DISPLAY\n");
+#ifdef DEBUG_SourcePanel
+      printf("NOTHING TO DISPLAY\n");
+#endif
     return;
   }
 
@@ -874,19 +926,25 @@ SourcePanel::loadFile(const QString &_fileName)
       textEdit->append(line_number+line);
       lineCount++;
     }
-//printf("line_numbersFLAG lineCount=%d\n", lineCount);
+#ifdef DEBUG_SourcePanel
+  printf("line_numbersFLAG lineCount=%d\n", lineCount);
+#endif
   } else
   {
 // As Qt documentation suggests, but it always adds an extra line...
     textEdit->setText( ts.read() );
     lineCount = textEdit->paragraphs();
     lineCount--;
-//printf("no line_numbersFLAG lineCount=%d\n", lineCount);
+#ifdef DEBUG_SourcePanel
+  printf("no line_numbersFLAG lineCount=%d\n", lineCount);
+#endif
   }
   textEdit->setCursorPosition(0, 0);
   nprintf(DEBUG_PANELS) ("lineCount=%d paragraphs()=%d\n", lineCount, textEdit->paragraphs() );
 
-//  printf("The last line was: %s\n", line_number_buffer );
+#ifdef DEBUG_SourcePanel
+    printf("The last line was: %s\n", line_number_buffer );
+#endif
 
 
   nprintf(DEBUG_PANELS) ("lineCount=%d\n", lineCount);
@@ -918,7 +976,9 @@ SourcePanel::loadFile(const QString &_fileName)
   } else
   {
     // Redisplay the high lights.
-// printf("loadFile() now call doFileHighlights()\n");
+#ifdef DEBUG_SourcePanel
+   printf("loadFile() now call doFileHighlights()\n");
+#endif
     doFileHighlights();
 
     positionLineAtTop(lastTop);
@@ -1149,7 +1209,9 @@ SourcePanel::clicked(int para, int offset)
 void
 SourcePanel::valueChanged(int passed_in_value)
 {
-// printf("SourcePanel::valueChanged(%d)\n", passed_in_value );
+#ifdef DEBUG_SourcePanel
+   printf("SourcePanel::valueChanged(%d)\n", passed_in_value );
+#endif
   if( textEdit->isUpdatesEnabled() == FALSE )
   {
     return;
@@ -1188,11 +1250,15 @@ SourcePanel::valueChanged(int passed_in_value)
 void
 SourcePanel::doFileHighlights()
 {
-// printf("doFileHighlights() entered\n");
+#ifdef DEBUG_SourcePanel
+   printf("doFileHighlights() entered\n");
+#endif
 
   if( !highlightList || highlightList->empty() )
   {
-// printf("no highlights, return.\n");
+#ifdef DEBUG_SourcePanel
+   printf("no highlights, return.\n");
+#endif
     return;
   }
 
@@ -1202,12 +1268,18 @@ SourcePanel::doFileHighlights()
        it != highlightList->end();
        ++it)
   {
-// printf("A:\n");
+#ifdef DEBUG_SourcePanel
+   printf("A:\n");
+#endif
     hlo = (HighlightObject *)*it;
-// printf("SP: hlo->fileName=(%s) fileName=(%s)\n", hlo->fileName.ascii(), fileName.ascii() );
+#ifdef DEBUG_SourcePanel
+   printf("SP: hlo->fileName=(%s) fileName=(%s)\n", hlo->fileName.ascii(), fileName.ascii() );
+#endif
 //    if( hlo->fileName == fileName )
     {
-//printf("highlight = (%d)\n", hlo->line );
+#ifdef DEBUG_SourcePanel
+  printf("highlight = (%d)\n", hlo->line );
+#endif
       highlightLine(hlo->line, hlo->color, TRUE);
     }
   }
@@ -1259,11 +1331,15 @@ void SourcePanel::handleSizeEvent(QResizeEvent *e)
 void
 SourcePanel::calculateLastParameters()
 {
-//printf("calculateLastParameters()\n");
+#ifdef DEBUG_SourcePanel
+  printf("calculateLastParameters()\n");
+#endif
   int lineHeight = 1;
   int height = textEdit->height();
   int heightForWidth = textEdit->heightForWidth(80);
-//printf("lineHeight=%d height=%d heightForWidth=%d lineCount=%d\n", lineHeight, height, heightForWidth );
+#ifdef DEBUG_SourcePanel
+  printf("lineHeight=%d height=%d heightForWidth=%d lineCount=%d\n", lineHeight, height, heightForWidth );
+#endif
   if( lineCount == 0 )
   {
     lastLineHeight = 1;
@@ -1276,7 +1352,9 @@ SourcePanel::calculateLastParameters()
   lastLineHeight = lineHeight;
   nprintf(DEBUG_PANELS) ("height=%d lineHeight=%d\n", height, lineHeight );
 
-//printf("height=%d lineHeight=%d\n", height, lineHeight );
+#ifdef DEBUG_SourcePanel
+  printf("height=%d lineHeight=%d\n", height, lineHeight );
+#endif
 
   lastVisibleLines = (int)(height/lineHeight);
 
@@ -1294,7 +1372,9 @@ SourcePanel::calculateLastParameters()
 void
 SourcePanel::doSaveAs(QTextStream *ts)
 {
-// printf("doSaveAs() entered\n");
+#ifdef DEBUG_SourcePanel
+   printf("doSaveAs() entered\n");
+#endif
   *ts << fileName;
   *ts << textEdit->text();
 }
@@ -1302,14 +1382,18 @@ SourcePanel::doSaveAs(QTextStream *ts)
 void
 SourcePanel::raisePreferencePanel()
 {
-// printf("StatsPanel::raisePreferencePanel() \n");
+#ifdef DEBUG_SourcePanel
+   printf("StatsPanel::raisePreferencePanel() \n");
+#endif
   getPanelContainer()->getMainWindow()->filePreferences( sourcePanelStackPage, QString(pluginInfo->panel_type) );
 }
 
 QString
 SourcePanel::remapPath(QString _fileName)
 {
-// printf("SourcePanel::remapPath(%s\n", _fileName.ascii() );
+#ifdef DEBUG_SourcePanel
+   printf("SourcePanel::remapPath(%s\n", _fileName.ascii() );
+#endif
   QString fromStr = QString::null;
   QString toStr = QString::null;
 
@@ -1350,7 +1434,9 @@ SourcePanel::remapPath(QString _fileName)
     } 
   }
 
-// printf("    Return newStr=(%s)\n", newStr.ascii() );
+#ifdef DEBUG_SourcePanel
+   printf("    Return newStr=(%s)\n", newStr.ascii() );
+#endif
   return( newStr );
 }
 
@@ -1358,7 +1444,9 @@ void
 SourcePanel::refresh()
 {
   lineCount = 0;
-//printf ("load the file last_spo->fileName=%s\n", last_spo->fileName.ascii() );
+#ifdef DEBUG_SourcePanel
+  printf ("load the file last_spo->fileName=%s\n", last_spo->fileName.ascii() );
+#endif
   if( loadFile(last_spo->fileName) == FALSE )
   {
     // We didn't find or load the file, but we did attempt
