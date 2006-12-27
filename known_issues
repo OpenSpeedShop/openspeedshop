@@ -69,6 +69,7 @@ Legend * means fixed,
 
 - Can't have multiple equal MPIs
   (at least need documentation about what changes)
+   Jim looking at this one ^
 
 - FPE: x86-64 get only one SI code
   (fix display to clean it up at least)
