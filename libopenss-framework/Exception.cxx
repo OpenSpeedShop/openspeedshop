@@ -45,7 +45,7 @@ namespace {
     } DescriptionTable[] = {
 	
 	{ Exception::CommandNotFound,
-	  "Command \"%2\" could not be executed on host \"%1\"." },
+	  "Command \"%2\" could not be executed under control of Open|SpeedShop on host \"%1\"." },
 	
 	{ Exception::CollectorUnavailable,
 	  "Collector \"%1\" is unavailable because its corresponding collector "
