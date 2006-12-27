@@ -1,0 +1,82 @@
+################################################################################
+# Copyright (c) 2006 Krell Institute. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+This README-mpi was created to help users decide what they have to do to
+support multiple versions of MPI.  It attempts to answer the question about
+how to configure for the various MPI implementations and/or different versions
+of the same MPI implementation.
+
+The --with-* configure options control the build process: the MPI-related
+plugins' runtime libraries are built using -I and -L options pointing to the
+paths that are given for the various implementations.
+ 
+Run time is then a separate issue.  If an MPI job is created outside of
+openss, then openss has nothing to do with what implementation it uses; if it
+is created from openss, then it will use whatever is specified by the given
+mpirun command and openss's environment.  If I am not mistaken, the openss
+environment also determines the LD_LIBRARY_PATH used when loading MPI
+collector runtime libraries into the target process because the
+entire environment from the shell where Open|SpeedShop was run is passed
+through to created processes.
+
+
+So then the question of multiple versions of mpich, openmpi, etc., becomes a
+question of the backward/forward compatibility of those versions.  If you can
+-I and -L against one version and then run with another, then things will be
+fine.  If people want to use different versions of the same implementation
+that are not compatible, then Open|SpeedShop will have a problem, unless 
+they can use multiple openss builds.
+
+There are three key reasons why we can't just use a single MPI
+collector runtime for all MPI implementations:
+
+1) Different MPI implementations use different of certain key data types. E.g.
+   MPI_Comm is an integer in MPT but, I believe, a pointer in OpenMPI.
+
+2) Even if the data types are the same between two versions, they may have
+   different values for some constants. E.g. MPI_Comm is an integer in both
+   MPT and MPICH, but the value of MPI_COMM_WORLD is different.
+
+3) Not all the libraries are named "libmpi.so". E.g. MPICH uses "libmpich.so".
+
+If, say, MyVersMPI 1.0 uses the same data types, constants, and library name
+as MyVersMPI 1.1, then they should be able to use the same collector runtime
+module ("mpi-myversmpi-rt.so").
+
+For now we are assuming that each individual implementation has different data
+types, constants, etc. But we are also assuming that these are consistent for
+multiple different versions of the same implementation.
+
+But if, say, MyVersMPI 2.0 causes MPI_Comm to change from an integer to a
+pointer, then we'd have to update our build structure to build two different
+collector runtime modules ("mpi-myversmpi1-rt.so" & "mpi-myversmpi2-rt.so")
+
+To configure for individual versions of mpi for use with corresponding applications
+built using said mpi version, use these configure options (taken from the output of 
+"configure --help":
+
+
+  "configure option"      "MPI type"       "default directory for search" 
+  --with-lampi=DIR        LAMPI installation [/usr/local]
+  --with-mpich=DIR        MPICH installation [/opt/mpich]
+  --with-mpich-driver=NAME
+                          MPICH driver name [ch-p4]
+  --with-mpich2=DIR       MPICH2 installation [/opt/mpich2]
+  --with-mpt=DIR          MPT installation [/usr]
+  --with-openmpi=DIR      OpenMPI installation [/usr/local]
+
