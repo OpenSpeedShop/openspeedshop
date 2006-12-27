@@ -65,11 +65,10 @@ Legend * means fixed,
 
 * (jeg) fixed 12/27/06 After focus stats panel we should open stats panel, not
   as currently the source panel
-   Jim looking at this one ^
 
-- Can't have multiple equal MPIs
+* (jeg) added 12/27/06 Can't have multiple equal MPIs
   (at least need documentation about what changes)
-   Jim looking at this one ^
+  jeg - added README-mpi to top level source directory to explain mpi configurations
 
 - FPE: x86-64 get only one SI code
   (fix display to clean it up at least)
