@@ -63,7 +63,7 @@ Legend * means fixed,
    In this case we just display "file does not exist" in the
    label field of the source panel in question.
 
-- After focus stats panel we should open stats panel, not
+* (jeg) fixed 12/27/06 After focus stats panel we should open stats panel, not
   as currently the source panel
    Jim looking at this one ^
 
