@@ -80,3 +80,29 @@ built using said mpi version, use these configure options (taken from the output
   --with-mpt=DIR          MPT installation [/usr]
   --with-openmpi=DIR      OpenMPI installation [/usr/local]
 
+
+Also, when running a MPI or MPIT experiment on an application 
+built with a particular version of MPI.  Open|SpeedShop currently
+needs to know which implementation the application is built with.
+The environment variable: 
+
+OPENSS_MPI_IMPLEMENTATION
+
+Specifies the MPI implementation being used by the MPI application whose
+performance is being analyzed. Should be set to one of the currently
+supported MPI implementations:
+
+  openmpi, lampi, mpich2, mpich, mpt
+
+Eventually Open|SpeedShop will be able to auto-detect the MPI implemetnation of
+the application and this variable will only be used to override the auto-
+detection code.
+
+A typical setting of this environment variable would look like this:
+
+setenv OPENSS_MPI_IMPLEMENTATION openmpi
+
+This variable does not need to be set if you configured Open|SpeedShop for
+only one MPI implementation or the implementation your application is built
+with is the default MPI implementation in Open|SpeedShop (see config.log for
+DEFAULT_MPI_IMPL_NAME).
