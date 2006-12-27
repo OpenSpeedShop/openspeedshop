@@ -1,13 +1,13 @@
-                Installing O|SS from Source
+                Installing Open|SpeedShop from Source
 
 This document describes the Installation process of Open|SpeedShop
 from source. We recommend this kind of installation if the
 RPMs provided on www.openspeedshop.org don't work for your
 platforms, if you don't have the required permissions to install
 RPMs into /usr, or if you would like to make changes to
-the O|SS toolset itself.
+the Open|SpeedShop toolset itself.
 
-The instructions below refer to a non-root O|SS installation
+The instructions below refer to a non-root Open|SpeedShop installation
 on a RHEL 4 system. Installations on other distributions should
 be similar.
 
@@ -38,7 +38,7 @@ A) Install or locate base libraries
             CPUs, you need to use perfctr 2.6.65 and the head of
             the version 3.2.0 PAPI CVS repository
 
-      Note: It is possible to install O|SS without PAPI, but then
+      Note: It is possible to install Open|SpeedShop without PAPI, but then
             the ability to use hardware performance counters
             will be missing
 
@@ -230,4 +230,4 @@ N) Adjust configuration file mc in OpenSpeedShop
 configure --prefix=$OPENSS_INSTALL_DIR --with-python=/usr --with-mpich=$MPIDIR --with-mpich-driver=mpich --with-dpcl=$PREFIX --with-dyninst=$PREFIX --with-papi=$PAPIDIR --with-sqlite=$PREFIX --with-qtlib=$QTDIR --with-libunwind=$PREFIX
 
 
-O) Compiler O|SS by running the modified mc script
+O) Compiler Open|SpeedShop by running the modified mc script
