@@ -19,7 +19,7 @@
 
 /** @file
  *
- * Definition (combination) of the CLI Input Management definitions/includes/externs etc..
+ * Definition (combination) of the CLI Input Management definitions/includes/externs etc.
  *
  */
 

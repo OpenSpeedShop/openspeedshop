@@ -1,0 +1,62 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2006 Krell Institute. All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+////////////////////////////////////////////////////////////////////////////////
+
+/** @namespace OpenSpeedShop
+
+Enclosing namespace for all <b>Open</b>|SpeedShop<small><sup>TM</sup></small>
+libraries.
+
+*/
+
+
+/** @mainpage
+
+
+
+
+
+The Open|SpeedShop Interactive Command Line Interface Library, known elsewhere
+simply as the CLI, provides support for interactive, batch, and python 
+command interface required for the <b>Open</b>|SpeedShop<small><sup>TM</sup></small>
+performance tool to interface with the user.  
+
+The Open|SpeedShop Interactive Command Line Interface Library, known elsewhere
+simply as the CLI, provides support for interactive, batch, and python
+command interface required for the <b>Open</b>|SpeedShop<small><sup>TM</sup></small>
+performance tool to interface with the user.  The Graphical User Interface (GUI) 
+also depends on this CLI library for it's command processing.  Most of the GUI 
+gestures result in the passing of a CLI command through the CLI interface 
+and subsequently to the Framework library interface.  The Framework library API 
+has helped facilitate the creation of 
+<b>Open</b>|<b>SpeedShop</b><small><sup>TM</sup></small>'s user interfaces. 
+
+@section MainPage_S1 How to Use This Documentation
+
+These pages have been generated directly from the CLI's source code. As
+such they are <em>the</em> definitive guide to the CLI. However since the
+size of the CLI is large, and thus its documentation is also, simply
+jumping to the individual class descriptions may be overwhelming.  To simplify
+things, the various entity's have been categorized into "modules" - each
+of which has its own overview page that describes that aspect of the CLI.
+
+If you are interested in information about a particular class, file, etc., it is
+best to use the links at the top of this page to quickly jump to that entity's
+documentation.
+
+*/
+
