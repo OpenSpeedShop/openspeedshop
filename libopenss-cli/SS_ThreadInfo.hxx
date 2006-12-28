@@ -16,6 +16,14 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+/** @file
+ *
+ * Definition of the ThreadInfo class.
+ * Definition of the ThreadRangeInfo class.
+ *
+ */
+
+
 /**
  * class ThreadInfo and class ThreadRangeInfo.
  *

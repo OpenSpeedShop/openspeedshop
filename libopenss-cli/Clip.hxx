@@ -16,6 +16,15 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+/** @file
+ *
+ * Definition of the InputLineObject class.
+ * Definition of the TLI_InputLineObject class.
+ * Definition of the GUI_InputLineObject class.
+ * Definition of the RLI_InputLineObject class.
+ *
+ */
+
 
 // Define the basic input line structure
 //

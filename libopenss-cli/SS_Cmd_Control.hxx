@@ -16,6 +16,13 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+/** @file
+ *
+ * Definition of the Command control switch SS_Execute_Cmd and externs.
+ *
+ */
+
+
 // The main switch that implements the commands,
 // once we've figured out which one we were given.
 void SS_Execute_Cmd (CommandObject *cmd);

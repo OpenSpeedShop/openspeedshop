@@ -18,7 +18,7 @@
 
 /** @file
  *
- * Parser interval description.
+ * Parser interval description and ParseInterval class.
  *
  */
 

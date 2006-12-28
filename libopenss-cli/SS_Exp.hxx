@@ -16,6 +16,14 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+/** @file
+ *
+ * Definition of the ExperimentObject class.
+ *
+ */
+
+
+
 // ExperimentObject
 // Note: ALL the instrumentation in the experiment's list is applied
 //       to ALL of the executables in the experiment's list.

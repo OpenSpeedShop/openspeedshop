@@ -16,6 +16,13 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+/** @file
+ *
+ * Definition of the SS_Timings class which is used for internal performance timing.
+ *
+ */
+
+
 
 #ifndef SS_TIMINGS_H
 #define SS_TIMINGS_H

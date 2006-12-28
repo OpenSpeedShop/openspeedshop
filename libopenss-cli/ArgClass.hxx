@@ -16,6 +16,12 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+/** @file
+ *
+ * Definition of the ArgStruct class.
+ *
+ */
+
 
 #ifndef ARGCLASS_H
 #define ARGCLASS_H

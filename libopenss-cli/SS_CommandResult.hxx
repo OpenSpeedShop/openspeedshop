@@ -16,6 +16,12 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+/** @file
+ *
+ * Definition of the CommandResult_(objects) class.
+ *
+ */
+
 // The CommandResult_(objects)
 
 // types of results that can be returned in a CommandObject

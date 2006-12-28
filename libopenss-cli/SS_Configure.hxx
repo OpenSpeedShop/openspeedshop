@@ -16,6 +16,13 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+/** @file
+ *
+ * Definition of the information that the user has control over w.r.t. OpenSpeedShop's behavior.
+ *
+ */
+
+
 // User control over some of OpenSpeedShop's behavior.
 extern int64_t OPENSS_VIEW_FIELD_SIZE;
 extern int64_t OPENSS_VIEW_PRECISION;

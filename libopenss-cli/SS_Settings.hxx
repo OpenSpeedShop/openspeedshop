@@ -16,6 +16,13 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+/** @file
+ *
+ * Definition of the SS_Settings class which interfaces with the Open|SpeedShop preferences processing.
+ *
+ */
+
+
 
 #ifndef SS_SETTINGS_H
 #define SS_SETTINGS_H

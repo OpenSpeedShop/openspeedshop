@@ -16,6 +16,14 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+/** @file
+ *
+ * Definition of the ss_ostream_buf class.
+ * Definition of the ss_ostream class.
+ *
+ */
+
+
 #ifndef CMD_OUTPUT_H
 #define CMD_OUTPUT_H
 

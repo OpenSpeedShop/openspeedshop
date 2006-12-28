@@ -16,6 +16,13 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+/** @file
+ *
+ * Definition of the Command processing related information.
+ *
+ */
+
+
 #ifndef COMMANDER_H
 #define COMMANDER_H
 typedef int64_t EXPID;

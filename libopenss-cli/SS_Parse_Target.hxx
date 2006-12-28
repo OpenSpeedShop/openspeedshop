@@ -1,6 +1,6 @@
 /** @file
  *
- * Parser CLI target description.
+ * Parser CLI target description and definition of the ParseTarget class.
  *
  */
 

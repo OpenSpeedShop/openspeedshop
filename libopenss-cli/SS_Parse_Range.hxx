@@ -18,7 +18,7 @@
 
 /** @file
  *
- * Parser range description.
+ * Parser range description and definition of the ParseRange class.
  *
  */
 

@@ -16,6 +16,12 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+/** @file
+ *
+ * Definition of the CLI command processing routines.
+ *
+ */
+
 // A utility used to look at command options
 bool Look_For_KeyWord (CommandObject *cmd, std::string Key);
 

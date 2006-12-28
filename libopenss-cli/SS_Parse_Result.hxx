@@ -18,7 +18,7 @@
 
 /** @file
  *
- * Parser result description.
+ * Parser result description and definition of the ParseResult class.
  *
  */
 

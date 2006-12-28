@@ -18,7 +18,7 @@
 
 /** @file
  *
- * Parser param description.
+ * Parser param description and definition of the ParseParam and ParseVal classes.
  *
  */
 

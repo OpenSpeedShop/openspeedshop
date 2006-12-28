@@ -16,6 +16,14 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+
+/** @file
+ *
+ * Definition (combination) of the CLI Input Management definitions/includes/externs etc..
+ *
+ */
+
+
 #ifndef SS_INPUT_MANAGER_H
 #define SS_INPUT_MANAGER_H
 

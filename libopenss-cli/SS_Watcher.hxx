@@ -16,6 +16,13 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+/** @file
+ *
+ * Definition of the Watcher related events/externs.
+ *
+ */
+
+
 // Panic call to get rid of waits.  Useful for CNTRL-C processing where the
 // goal is to get things out of the way so that the user can get control back.
 // Call this AFTER setting Input_Line_Status for all commands to ILO_ERROR
