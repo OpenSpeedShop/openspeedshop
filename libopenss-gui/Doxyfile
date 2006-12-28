@@ -22,5 +22,15 @@
 
 PROJECT_NAME     = "Open|SpeedShop Graphical User Interface"
 OUTPUT_DIRECTORY = ../doc/design_doc/GUI
-INPUT            = ../libopenss-guibase ../libopenss-guichart ../libopenss-guidialogs ../libopenss-guiexprinfo ../libopenss-gui \
-		   ../libopenss-guiobjects ../libopenss-guiplugin
+INPUT            = ../libopenss-guibase ../libopenss-guichart \
+                   ../libopenss-guidialogs ../libopenss-guiexprinfo \
+                   ../libopenss-gui ../libopenss-guiobjects ../libopenss-guiplugin \
+                   ../plugins/panels/CmdPanel ../plugins/panels/CompareExperimentsPanel \
+                   ../plugins/panels/CustomizeStatsPanel ../plugins/panels/DebugPanel \
+                   ../plugins/panels/FPE_TracingPanel ../plugins/panels/HW_CounterPanel \
+                   ../plugins/panels/HWCTimePanel ../plugins/panels/IOPanel \
+                   ../plugins/panels/IOTPanel ../plugins/panels/ManageProcessesPanel \
+                   ../plugins/panels/MPIPanel ../plugins/panels/MPITPanel \
+                   ../plugins/panels/pcSamplePanel ../plugins/panels/SourcePanel \
+                   ../plugins/panels/StatsPanel ../plugins/panels/TemplatePanel \
+                   ../plugins/panels/UserTimePanel 
