@@ -21,3 +21,8 @@
 
 PROJECT_NAME     = "Open|SpeedShop Command Line Interface"
 OUTPUT_DIRECTORY = ../doc/design_doc/CLI
+INPUT            = . ../plugins/views/basic ../plugins/views/hwctime \
+	 	   ../plugins/views/usertime ../plugins/views/mpi \
+	 	   ../plugins/views/mpit ../plugins/views/io \
+	 	   ../plugins/views/iot ../plugins/views/fpe 
+

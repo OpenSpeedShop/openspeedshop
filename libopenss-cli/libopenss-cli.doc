@@ -35,15 +35,15 @@ simply as the CLI, provides support for interactive, batch, and python
 command interface required for the <b>Open</b>|SpeedShop<small><sup>TM</sup></small>
 performance tool to interface with the user.  
 
-The Open|SpeedShop Interactive Command Line Interface Library, known elsewhere
+The <b>Open|SpeedShop</b><small><sup>TM</sup></small> Interactive Command Line Interface Library, known elsewhere
 simply as the CLI, provides support for interactive, batch, and python
-command interface required for the <b>Open</b>|SpeedShop<small><sup>TM</sup></small>
+command interface required for the <b>Open|SpeedShop</b><small><sup>TM</sup></small>
 performance tool to interface with the user.  The Graphical User Interface (GUI) 
 also depends on this CLI library for it's command processing.  Most of the GUI 
 gestures result in the passing of a CLI command through the CLI interface 
 and subsequently to the Framework library interface.  The Framework library API 
 has helped facilitate the creation of 
-<b>Open</b>|<b>SpeedShop</b><small><sup>TM</sup></small>'s user interfaces. 
+<b>Open|SpeedShop</b><small><sup>TM</sup></small>'s user interfaces. 
 
 @section MainPage_S1 How to Use This Documentation
 
