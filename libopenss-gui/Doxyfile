@@ -33,4 +33,13 @@ INPUT            = ../libopenss-guibase ../libopenss-guichart \
                    ../plugins/panels/MPIPanel ../plugins/panels/MPITPanel \
                    ../plugins/panels/pcSamplePanel ../plugins/panels/SourcePanel \
                    ../plugins/panels/StatsPanel ../plugins/panels/TemplatePanel \
-                   ../plugins/panels/UserTimePanel 
+                   ../plugins/panels/UserTimePanel \
+                   ../plugins/wizards/IntroWizardPanel \
+                   ../plugins/wizards/pcSampleWizardPanel \
+                   ../plugins/wizards/UserTimeWizardPanel \
+                   ../plugins/wizards/FPE_TracingWizardPanel \
+                   ../plugins/wizards/IOWizardPanel \
+                   ../plugins/wizards/MPIWizardPanel \
+                   ../plugins/wizards/CompareWizardPanel \
+                   ../plugins/wizards/HW_CounterWizardPanel 
+
