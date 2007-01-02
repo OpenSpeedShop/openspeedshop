@@ -3,6 +3,7 @@ Legend * means fixed,
 
 - I/O collector doesn't support "-v" statements
   (error while double click on source during stacktrace)
+
 * (dpm) Currently the tool does not support -v Statements for
   any of the tracing experiments (io,iot,mpi,mpit).
   Tracing experiments do not typically contain a sample address
@@ -49,6 +50,7 @@ Legend * means fixed,
 
 - File not found box shows not the filename it tries to open
   (shown filename exists, but still can't open file)
+
 * (dpm) The shown filename is not the file that was actually requested
    but rather the last known opened file. The error was for the
    current file being opened (which did not exist) and therefore
@@ -58,6 +60,7 @@ Legend * means fixed,
 
 - When selecting system source files, we open any file, but
   give no error
+
 * (dpm) This appears related to the other SourcePanel focus
    issues where a source file does not exist (e.g. libc source files).
    In this case we just display "file does not exist" in the
@@ -79,8 +82,16 @@ Legend * means fixed,
 
 - Can't attach a second collector to an experiment created
   by a wizard
+  (jeg) additional info.  It can be done but one must be over a process
+        in the manage process panel.  The GUI is picking up text and trying
+        to match that text with processes and hosts.  When you hover and right
+        mouse button down over a blank area the GUI doesn't know what the processes
+        and hosts you want to associate with the new collector and doesn't add it.
 
-- Need error message/warning when experiment doesn't create
+* (jeg) added 12/27/08 Want the manageprocess panel brought up with the
+  custom experiment
+
+* (jeg) added 01/02/07 Need error message/warning when experiment doesn't create
   data (right now it's just a blank screen)
 
 
