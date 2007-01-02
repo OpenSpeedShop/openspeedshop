@@ -21,7 +21,7 @@
 #include "SS_Timings.hxx"
 
 /* Uncomment define immediately below for debug tracing */
-/* #define DEBUG_CLI 1  */
+/* #define DEBUG_CLI 1 */
 
 /**
  * Four templates are provided to generate the four differently formatted reports
@@ -158,6 +158,9 @@ bool Detail_Trace_Report(
    Consider turning this message into a Annotation.
     if (raw_items->begin() == raw_items->end()) {
       Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested Detail functions.)");
+#if DEBUG_CLI
+    printf("In Detail_Trace_Report, SS_View_detail.txx, There are no data samples available for the requested Detail functions\n");
+#endif
       return false;
     }
 */
@@ -362,6 +365,9 @@ bool Detail_Base_Report(
    Consider turning this message into a Annotation.
     if (raw_items->begin() == raw_items->end()) {
       Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested Detail functions.)");
+#if DEBUG_CLI
+    printf("In Detail_Base_Report, SS_View_detail.txx, There are no data samples available for the requested Detail functions\n");
+#endif
       return false;
     }
 */
@@ -526,6 +532,9 @@ bool Detail_CallStack_Report (
    Consider turning this message into a Annotation.
     if (raw_items->begin() == raw_items->end()) {
       Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested Detail functions.)");
+#if DEBUG_CLI
+    printf("In Detail_CallStack_Report, SS_View_detail.txx, There are no data samples available for the requested Detail functions\n");
+#endif
       return false;
     }
 */
@@ -702,6 +711,9 @@ bool Detail_ButterFly_Report (
    Consider turning this message into a Annotation.
     if (raw_items->begin() == raw_items->end()) {
       Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested functions.)");
+#if DEBUG_CLI
+    printf("In detail_Butterfly_Report, SS_View_detail.txx, There are no data samples available for the requested Detail functions\n");
+#endif
       return false;
     }
 */
@@ -761,6 +773,9 @@ bool Detail_ButterFly_Report (
 /* Don't issue this message - just go ahead an print the headers and an empty report.
    Consider turning this message into a Annotation.
       if (c_items.empty()) {
+#if DEBUG_CLI
+        printf("In detail_Butterfly_Report, SS_View_detail.txx, There are no data samples available for the requested function=%s\n", F.getName());
+#endif
         std::string S = "(There are no data samples available for function '";
         S = S + F.getName() + "'.)";
         Mark_Cmd_With_Soft_Error(cmd, S);

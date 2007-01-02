@@ -16,6 +16,12 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+//
+// To enable debuging uncomment define DEBUG_StatsPanel statement
+//
+// #define DEBUG_StatsPanel 1
+//
+
 
 #include "StatsPanel.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
@@ -59,12 +65,6 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 #define CLUSTERANALYSIS 1
 
 #include "GenericProgressDialog.hxx"
-
-//
-// To enable debuging uncomment define DEBUG_StatsPanel statement
-//
-//#define DEBUG_StatsPanel 1
-//
 
 // These are the pie chart colors..
 static char *hotToCold_color_names[] = { 
@@ -151,7 +151,9 @@ class AboutOutputClass : public ss_ostream
 */
 StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
-// printf("StatsPanel() entered\n");
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::StatsPanel() constructor entered\n");
+#endif
   setCaption("StatsPanel");
   timeSegmentDialog = NULL;;
 
@@ -187,7 +189,10 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   originalCommand = QString::null;
   lastCommand = QString::null;
   staticDataFLAG = false;
-// printf("currentItemIndex initialized to 0\n");
+
+#ifdef DEBUG_StatsPanel
+  printf("currentItemIndex initialized to 0\n");
+#endif
 
   f = NULL;
   modifierMenu = NULL;
@@ -201,7 +206,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   hwctimeModifierMenu = NULL;
   pcsampModifierMenu = NULL;
   usertimeModifierMenu = NULL;
-fpeModifierMenu = NULL;
+  fpeModifierMenu = NULL;
 
   mpi_menu = NULL;
   io_menu = NULL;
@@ -209,7 +214,7 @@ fpeModifierMenu = NULL;
   hwctime_menu = NULL;
   pcsamp_menu = NULL;
   usertime_menu = NULL;
-fpe_menu = NULL;
+  fpe_menu = NULL;
 
   list_of_modifiers.clear(); // This is the global known list of modifiers.
 
@@ -228,8 +233,9 @@ fpe_menu = NULL;
   current_list_of_pcsamp_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_usertime_modifiers.clear();
   current_list_of_usertime_modifiers.clear();  // This is this list of user selected modifiers.
-list_of_fpe_modifiers.clear();
-current_list_of_fpe_modifiers.clear();  // This is this list of user selected modifiers.
+
+  list_of_fpe_modifiers.clear();
+  current_list_of_fpe_modifiers.clear();  // This is this list of user selected modifiers.
 
   current_list_of_modifiers.clear();  // This is this list of user selected modifiers.
   selectedFunctionStr = QString::null;
@@ -245,9 +251,12 @@ current_list_of_fpe_modifiers.clear();  // This is this list of user selected mo
   descending_sort = true;
   TotalTime = 0;
 
-  if( ao->loadedFromSavedFile == TRUE )
-  {
-//printf("StatsPanel:: static data!!!\n");
+  if( ao->loadedFromSavedFile == TRUE ) {
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::StatsPanel static data!!!\n");
+#endif
+
     staticDataFLAG = TRUE;
   }
 
@@ -255,8 +264,11 @@ current_list_of_fpe_modifiers.clear();  // This is this list of user selected mo
 
   splitterA = new QSplitter( getBaseWidgetFrame(), "splitterA");
   splitterA->setCaption("StatsPanelSplitterA");
-
   splitterA->setOrientation( QSplitter::Horizontal );
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel:: splitterA created as Horizontal\n");
+#endif
 
   cf = new SPChartForm(this, splitterA, getName(), 0);
   cf->setCaption("SPChartFormIntoSplitterA");
@@ -264,12 +276,22 @@ current_list_of_fpe_modifiers.clear();  // This is this list of user selected mo
   splv = new SPListView(this, splitterA, getName(), 0);
   splv->setSorting ( 0, FALSE );
 
+  sml =new QLabel(splitterA,"stats_message_label");
+  sml->setText("There were no data samples for this experiment execution.\nPossible reasons for this could be:\n   The executable being run didn't run long enough to record performance data.\n   The type of performance data being gathered may not be present in the executable being executed.\n");
+  // Hide this and only show it when we don't see any performance data samples
+  sml->hide();
+
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel:: splitterA being use as chart form holder\n");
+#endif
+
 
 #ifdef OLDWAY
-QHeader *header = splv->header();
-header->setMovingEnabled(FALSE);
-header->setClickEnabled(TRUE);
-connect( header, SIGNAL(clicked(int)), this, SLOT( headerSelected( int )) );
+  QHeader *header = splv->header();
+  header->setMovingEnabled(FALSE);
+  header->setClickEnabled(TRUE);
+  connect( header, SIGNAL(clicked(int)), this, SLOT( headerSelected( int )) );
 #endif // OLDWAY
 
   connect( splv, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
@@ -278,19 +300,37 @@ connect( header, SIGNAL(clicked(int)), this, SLOT( headerSelected( int )) );
 
   int width = pc->width();
   int height = pc->height();
+
+#ifdef DEBUG_StatsPanel
+  printf("in Splitter section of code, width=%d, height=%d\n", width, height);
+#endif
+
   QValueList<int> sizeList;
   sizeList.clear();
-  if( splitterA->orientation() == QSplitter::Vertical )
-  {
+
+  if( splitterA->orientation() == QSplitter::Vertical ) {
+
+#ifdef DEBUG_StatsPanel
+    printf("in Splitter section of code, splitter is vertical, width=%d, height=%d\n", width, height);
+#endif
     sizeList.push_back((int)(height/4));
     sizeList.push_back(height-(int)(height/4));
-  } else
-  {
+  } else {
+
+#ifdef DEBUG_StatsPanel
+    printf("in Splitter section of code, splitter is horizontal, width=%d, height=%d\n", width, height);
+#endif
+
     sizeList.push_back((int)(width/4));
     sizeList.push_back(width-(int)(width/4));
+
   }
+
   splitterA->setSizes(sizeList);
 
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel:: splitterA is set to setSizes(sizeList)\n");
+#endif
 
   bool toolbarFLAG = getPreferenceShowToolbarCheckBox();
 
@@ -303,11 +343,14 @@ connect( header, SIGNAL(clicked(int)), this, SLOT( headerSelected( int )) );
 // End - Move to Panel.cxx
 
   generateToolBar();
-  if( getPreferenceShowToolbarCheckBox() == TRUE )
-  {
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::StatsPanel getPreferenceShowToolbarCheckBox() == TRUE=%d\n",( getPreferenceShowToolbarCheckBox() == TRUE ));
+#endif
+
+  if( getPreferenceShowToolbarCheckBox() == TRUE ) {
     fileTools->show();
-  } else
-  {
+  } else {
     fileTools->hide();
   }
 
@@ -315,21 +358,17 @@ connect( header, SIGNAL(clicked(int)), this, SLOT( headerSelected( int )) );
 
   frameLayout->addWidget( splitterA );
 
-  if( pc->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
-  {
+  if( pc->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() ) {
     chartFLAG = TRUE;
     cf->show();
-  } else
-  {
+  } else {
     chartFLAG = FALSE;
     cf->hide();
   }
 
-if( !getChartTypeComboBox() )
-{
+if( !getChartTypeComboBox() ) {
   cf->setChartType((ChartType)0);
-} else
-{
+} else {
   cf->setChartType((ChartType)getChartTypeComboBox());
 }
   statsFLAG = TRUE;
@@ -340,6 +379,7 @@ if( !getChartTypeComboBox() )
   char name_buffer[100];
   sprintf(name_buffer, "%s [%d]", getName(), groupID);
   setName(name_buffer);
+
 }
 
 
@@ -350,7 +390,9 @@ StatsPanel::~StatsPanel()
 {
   // Delete anything you new'd from the constructor.
   nprintf( DEBUG_CONST_DESTRUCT ) ("  StatsPanel::~StatsPanel() destructor called\n");
-// printf("  StatsPanel::~StatsPanel() destructor called\n");
+#ifdef DEBUG_StatsPanel
+  printf("  StatsPanel::~StatsPanel() destructor called\n");
+#endif
 
 
   // We must reset the directing of output, otherwise the cli goes nuts
@@ -360,12 +402,19 @@ StatsPanel::~StatsPanel()
 
   // We allocated a Collect, we must delete it.   Otherwise the framework
   // issues a warning on exit.
-  if( currentCollector )
-  {
-// printf("Destructor delete the currentCollector\n");
+  if( currentCollector ) {
+
+#ifdef DEBUG_StatsPanel
+   printf("Destructor delete the currentCollector\n");
+#endif
+
     delete currentCollector;
   }
-// printf("  StatsPanel::~StatsPanel() destructor finished\n");
+
+#ifdef DEBUG_StatsPanel
+  printf("  StatsPanel::~StatsPanel() destructor finished\n");
+#endif
+
 }
 
 void
@@ -404,16 +453,18 @@ StatsPanel::listener(void *msg)
   if(  msgObject->msgType  == "FocusObject" && recycleFLAG == TRUE )
   {
 #ifdef DEBUG_StatsPanel
- printf("StatsPanel got a new FocusObject\n");
+    printf("StatsPanel got a new FocusObject\n");
 #endif // DEBUG_StatsPanel
     FocusObject *msg = (FocusObject *)msgObject;
 #ifdef DEBUG_StatsPanel
 // msg->print();
 #endif // DEBUG_StatsPanel
     expID = msg->expID;
+
 #ifdef DEBUG_StatsPanel
- printf("B: expID = %d\n", expID);
+    printf("B: expID = %d\n", expID);
 #endif // DEBUG_StatsPanel
+
     if( msg->host_pid_vector.size() == 0 && !msg->pidString.isEmpty() )
     { // Soon to be obsoleted
       currentThreadsStr = msg->pidString;
@@ -437,11 +488,12 @@ StatsPanel::listener(void *msg)
     {
       currentThreadGroupStrList.clear();
       currentThreadsStr = QString::null;
-if( msg->descriptionClassList.count() > 0 )
-{
+if( msg->descriptionClassList.count() > 0 ) {
+
 #ifdef DEBUG_StatsPanel
  printf("Focusing with the new (more robust) syntax.\n");
 #endif // DEBUG_StatsPanel
+
   for( QValueList<DescriptionClassObject>::iterator it = msg->descriptionClassList.begin(); it != msg->descriptionClassList.end(); it++)
     {
       DescriptionClassObject dco = (DescriptionClassObject)*it;
@@ -458,10 +510,12 @@ if( msg->descriptionClassList.count() > 0 )
     }
 } else
 {
+
 #ifdef DEBUG_StatsPanel
   printf("Here in StatsPanel::listener()\n");
   msg->print();
 #endif // DEBUG_StatsPanel
+
       currentThreadGroupStrList.clear();
       currentThreadsStr = QString::null;
       std::vector<HostPidPair>::const_iterator sit = msg->host_pid_vector.begin();
@@ -469,20 +523,20 @@ if( msg->descriptionClassList.count() > 0 )
                       sit = msg->host_pid_vector.begin();
                       sit != msg->host_pid_vector.end(); ++sit)
       {
-        if( sit->first.size() )
-        {
+        if( sit->first.size() ) {
           currentThreadsStr += QString(" -h %1 -p %2").arg(sit->first.c_str()).arg(sit->second.c_str() );
-        } else 
-        {
+        } else {
           currentThreadsStr += QString(" -p %1").arg(sit->second.c_str() );
         }
         currentThreadGroupStrList.push_back( sit->second.c_str() );
       }
 }
     }
+
 #ifdef DEBUG_StatsPanel
   printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
 #endif // DEBUG_StatsPanel
+
 // Begin determine if there's mpi stats
     try
     {
@@ -491,9 +545,11 @@ if( msg->descriptionClassList.count() > 0 )
       {
         Experiment *fw_experiment = eo->FW();
         CollectorGroup cgrp = fw_experiment->getCollectors();
+
 #ifdef DEBUG_StatsPanel
    printf("Is says you have %d collectors.\n", cgrp.size() );
 #endif // DEBUG_StatsPanel
+
         if( cgrp.size() == 0 )
         {
           fprintf(stderr, "There are no known collectors for this experiment.\n");
@@ -507,6 +563,7 @@ if( msg->descriptionClassList.count() > 0 )
 #ifdef DEBUG_StatsPanel
    printf("B: Try to match: name.ascii()=%s currentCollectorStr.ascii()=%s\n", name.ascii(), currentCollectorStr.ascii() );
 #endif // DEBUG_StatsPanel
+
         }
       }
     }
@@ -522,17 +579,19 @@ if( msg->descriptionClassList.count() > 0 )
 // End determine if there's mpi stats
 
 #ifdef DEBUG_StatsPanel
-   printf("StatsPanel::listener call updateStatsPanelData  Do we need to update?\n");
+    printf("StatsPanel::listener call updateStatsPanelData  Do we need to update?\n");
 #endif // DEBUG_StatsPanel
+
     updateStatsPanelData();
-    if( msg->raiseFLAG == TRUE )
-    {
+    if( msg->raiseFLAG == TRUE ) {
       getPanelContainer()->raisePanel(this);
     }
 // now focus a source file that's listening....
+
 #ifdef DEBUG_StatsPanel
    printf("Now focus the source panel, if it's up..\n");
 #endif // DEBUG_StatsPanel
+
     //First get the first item...
     QListViewItemIterator it( splv );
     QListViewItem *item = *it;
@@ -541,74 +600,88 @@ if( msg->descriptionClassList.count() > 0 )
   // focus source panel preference is set
 
   if( getPreferencesFocusSourcePanel() &&  
-      item && matchSelectedItem( item, std::string(item->text(fieldCount-1).ascii()) )) 
-    {
+      item && matchSelectedItem( item, std::string(item->text(fieldCount-1).ascii()) )) {
+
 #ifdef DEBUG_StatsPanel
          printf("match\n");
 #endif // DEBUG_StatsPanel
+
         return 1;
-    } else
-    {
+    } else {
 #ifdef DEBUG_StatsPanel
         printf("no match\n");
 #endif // DEBUG_StatsPanel
         return 0;
     }
-  } else if(  msgObject->msgType  == "FocusCompareObject" && recycleFLAG == TRUE )
-  {
+  } else if(  msgObject->msgType  == "FocusCompareObject" && recycleFLAG == TRUE ) {
+
 #ifdef DEBUG_StatsPanel
    printf("StatsPanel got a new FocusCompareObject expID was %d\n", expID);
 #endif // DEBUG_StatsPanel
+
     FocusCompareObject *msg = (FocusCompareObject *)msgObject;
+
 #ifdef DEBUG_StatsPanel
    msg->print();
 #endif // DEBUG_StatsPanel
-    if( !msg->compare_command.startsWith("cview -c") )
-    {
+
+    if( !msg->compare_command.startsWith("cview -c") ) {
       expID = msg->expID;
+
 #ifdef DEBUG_StatsPanel
    printf("C: expID = %d\n", expID);
 #endif // DEBUG_StatsPanel
+
     }
 
-    if( !msg->compare_command.isEmpty()  )
-    {
+    if( !msg->compare_command.isEmpty()  ) {
+
 #ifdef DEBUG_StatsPanel
    printf("StatsPanel::listener() call updatestastPanelData(%s)\n", msg->compare_command.ascii() );
 #endif // DEBUG_StatsPanel
+
       updateStatsPanelData(msg->compare_command);
+
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::listener() called \n");
 #endif // DEBUG_StatsPanel
+
     }
 
 #ifdef DEBUG_StatsPanel
-   printf("StatsPanel::listener() raise this panel? msg->raiseFLAG=%d\n",msg->raiseFLAG);
+    printf("StatsPanel::listener() raise this panel? msg->raiseFLAG=%d\n",msg->raiseFLAG);
 #endif // DEBUG_StatsPanel
-    if( msg->raiseFLAG == TRUE )
-    {
+
+    if( msg->raiseFLAG == TRUE ) {
+
 #ifdef DEBUG_StatsPanel
    printf("StatsPanel::listener() raise this panel.. \n");
 #endif // DEBUG_StatsPanel
+
       getPanelContainer()->raisePanel(this);
+
     }
-  } else if(  msgObject->msgType  == "UpdateExperimentDataObject" )
-  {
+  } else if(  msgObject->msgType  == "UpdateExperimentDataObject" ) {
+
 #ifdef DEBUG_StatsPanel
    printf("UpdateExperimentDataObject\n");
 #endif // DEBUG_StatsPanel
 
+
     UpdateObject *msg = (UpdateObject *)msgObject;
-    if( msg->expID == -1 )
-    {
+    if( msg->expID == -1 ) {
+
 #ifdef DEBUG_StatsPanel
-   printf("We got the command=(%s)\n", msg->experiment_name.ascii() );
+      printf("We got the command=(%s)\n", msg->experiment_name.ascii() );
 #endif // DEBUG_StatsPanel
+
       QString command = msg->experiment_name;
       updateStatsPanelData(command);
+
 //Hack - NOTE: You may have to snag the expID out of the command.
 #ifdef OLDWAY
 expID = groupID;
+
 #ifdef DEBUG_StatsPanel
     printf("D: expID = %d\n", expID);
 #endif // DEBUG_StatsPanel
@@ -619,7 +692,7 @@ if( start_index != -1 )
 {
   QString s = command.mid(start_index+3);
 #ifdef DEBUG_StatsPanel
-    printf("Got a -x in the command s=(%s)\n", s.ascii() );
+  printf("Got a -x in the command s=(%s)\n", s.ascii() );
 #endif // DEBUG_StatsPanel
   int end_index = s.find(" ");
   if( end_index == -1 )
@@ -628,21 +701,26 @@ if( start_index != -1 )
   }
 
   QString exp_x = s.mid(0, end_index);
+
 #ifdef DEBUG_StatsPanel
    printf("exp_x=%s\n", exp_x.ascii() );
 #endif // DEBUG_StatsPanel
+
   expID = exp_x.toInt();
+
 #ifdef DEBUG_StatsPanel
    printf("E: expID = %d\n", expID);
 #endif // DEBUG_StatsPanel
-updateCollectorList();
-} else
-{
+
+   updateCollectorList();
+} else {
+
 #ifdef DEBUG_StatsPanel
     printf("no -x in the command\n");
     expID = groupID;
     printf("G: expID = %d\n", expID);
 #endif // DEBUG_StatsPanel
+
 }
 #endif // OLDWAY
       return(1);
@@ -663,7 +741,7 @@ updateCollectorList();
         Experiment *fw_experiment = eo->FW();
         CollectorGroup cgrp = fw_experiment->getCollectors();
 #ifdef DEBUG_StatsPanel
-    printf("Is says you have %d collectors.\n", cgrp.size() );
+        printf("Is says you have %d collectors.\n", cgrp.size() );
 #endif // DEBUG_StatsPanel
         if( cgrp.size() == 0 )
         {
@@ -691,32 +769,33 @@ updateCollectorList();
 #ifdef DEBUG_StatsPanel
     printf("Call updateStatsPanelData() \n");
 #endif // DEBUG_StatsPanel
+
     updateStatsPanelData();
+
 #ifdef DEBUG_StatsPanel
     printf("msg->raiseFLAG =%d \n", msg->raiseFLAG );
 #endif // DEBUG_StatsPanel
+
     if( msg->raiseFLAG )
     {
     if( msg->raiseFLAG )
       getPanelContainer()->raisePanel((Panel *)this);
     }
-  } else if( msgObject->msgType == "PreferencesChangedObject" )
-  {
+  } else if( msgObject->msgType == "PreferencesChangedObject" ) {
+
 #ifdef DEBUG_StatsPanel
     printf("Call (make this one smarter) updateStatsPanelData() \n");
 #endif // DEBUG_StatsPanel
-    if( getPreferenceShowToolbarCheckBox() == TRUE )
-    {
+
+    if( getPreferenceShowToolbarCheckBox() == TRUE ) {
       fileTools->show();
-    } else
-    {
+    } else {
       fileTools->hide();
     }
-    if( !getChartTypeComboBox() )
-    {
+
+    if( !getChartTypeComboBox() ) {
       cf->setChartType((ChartType)0);
-    } else
-    {
+    } else {
       cf->setChartType((ChartType)getChartTypeComboBox());
     }
     updateStatsPanelData();
@@ -724,14 +803,15 @@ updateCollectorList();
   {
     SaveAsObject *sao = (SaveAsObject *)msg;
 #ifdef DEBUG_StatsPanel
-   printf("StatsPanel!!!!! Save as!\n");
+    printf("StatsPanel!!!!! Save as!\n");
 #endif // DEBUG_StatsPanel
-    if( !sao )
-    {
+    if( !sao ) {
       return 0;  // 0 means, did not act on message.
     }
+
 //    exportData(sao->f, sao->ts);
 // Currently you're not passing the file descriptor down... you need to.sao->f, sao->ts);
+
     f = sao->f;
     exportData();
   }
@@ -1461,7 +1541,9 @@ StatsPanel::originalQuery()
 void
 StatsPanel::cviewQueryStatements()
 {
-// printf("updatePanel() about to call cviewQueryStatements(%s)\n", QString(originalCommand + " -v Statements").ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("updatePanel() about to call cviewQueryStatements(%s)\n", QString(originalCommand + " -v Statements").ascii() );
+#endif
 
   updateStatsPanelData(originalCommand + " -v Statements");
 }
@@ -1481,8 +1563,10 @@ StatsPanel::timeSliceSelected()
   int skylineFLAG = getPreferenceShowSkyline();
   if( skylineFLAG )
   {
-// printf("look up the skyline....\n");
-// printf("currentCollectorStr=%s\n", currentCollectorStr.ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("look up the skyline....\n");
+   printf("currentCollectorStr=%s\n", currentCollectorStr.ascii() );
+#endif
 
     InputLineObject *clip = NULL;
     QString mim = CustomExperimentPanel::getMostImportantMetric(currentCollectorStr);
@@ -1513,7 +1597,9 @@ while( startSegment < 100 )
 
 QString command = QString("expCompare -x %1 %2 %3 -v Summary %4").arg(expID).arg(mim).arg(currentCollectorStr).arg(segmentString);
 command += QString(" %1").arg(currentThreadsStr);
-// printf("do command=(%s)\n", command.ascii() );
+#ifdef DEBUG_StatsPanel
+    printf("do command=(%s)\n", command.ascii() );
+#endif
     skylineValues.clear();
     skylineText.clear();
 
@@ -1548,7 +1634,9 @@ command += QString(" %1").arg(currentThreadsStr);
 //      if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES)
       if ((*cri)->Type() == CMD_RESULT_COLUMN_ENDER)
       {
-// printf("Here CMD_RESULT_COLUMN_ENDER:\n");
+#ifdef DEBUG_StatsPanel
+        printf("Here CMD_RESULT_COLUMN_ENDER:\n");
+#endif
         std::list<CommandResult *> columns;
         CommandResult_Columns *ccp = (CommandResult_Columns *)*cri;
         ccp->Value(columns);
@@ -1557,7 +1645,9 @@ command += QString(" %1").arg(currentThreadsStr);
         {
           CommandResult *cr = (CommandResult *)(*column_it);
           QString vs = (*column_it)->Form().c_str();
-// printf("  vs=(%s)\n", vs.ascii() );
+#ifdef DEBUG_StatsPanel
+          printf("  vs=(%s)\n", vs.ascii() );
+#endif
           unsigned int value = 0;
           switch( cr->Type() )
           {
@@ -1596,7 +1686,9 @@ command += QString(" %1").arg(currentThreadsStr);
               continue;
               break;
           }
-// printf("int value = (%d)\n", value );
+#ifdef DEBUG_StatsPanel
+   printf("int value = (%d)\n", value );
+#endif
         }
       }
     }
@@ -1838,15 +1930,23 @@ static int cwidth = 0;  // This isn't what I want to do long term..
 void
 StatsPanel::doOption(int id)
 {
-// printf("doOption() id=%d\n", id);
+#ifdef DEBUG_StatsPanel
+ printf("doOption() id=%d\n", id);
+#endif
 
   if( splv->columnWidth(id) )
   {
     cwidth = splv->columnWidth(id);
     splv->hideColumn(id);
+#ifdef DEBUG_StatsPanel
+ printf("doOption() if cwidth=%d\n", cwidth);
+#endif
   } else
   {
     splv->setColumnWidth(id, cwidth);
+#ifdef DEBUG_StatsPanel
+ printf("doOption() else cwidth=%d\n", cwidth);
+#endif
   } 
 }
 
@@ -3894,7 +3994,9 @@ StatsPanel::setCurrentMetricStr()
 void
 StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineNumber)
 {
-// printf("StatsPanel::outputCLIData\n");
+#ifdef DEBUG_StatsPanel
+   printf("StatsPanel::outputCLIData\n");
+#endif
   int i = 0;
 
   SPListViewItem *highlight_item = NULL;
@@ -3904,22 +4006,50 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
   QString strippedString1 = QString::null; // MPI only.
 
   QString *strings = NULL;
-  if( gotHeader == FALSE )
-  {
-// printf("fieldCount... hot off the wire = (%d) start_index=(%d)\n", fieldCount, start_index );
+  if( gotHeader == FALSE ) {
+
+#ifdef DEBUG_StatsPanel
+ printf("outputCLIData, fieldCount... hot off the wire = (%d)\n", fieldCount );
+ printf("outputCLIData, staticDataFLAG... = (%d)\n", staticDataFLAG );
+ printf("outputCLIData, (sml != NULL)... = (%d)\n", (sml != NULL) );
+#endif
+
     for( FieldList::Iterator it = columnFieldList.begin();
        it != columnFieldList.end();
        ++it)
     {
       QString s = ((QString)*it).stripWhiteSpace();
       columnHeaderList.push_back(s);
-// printf("    s=(%s)\n", s.ascii() );
-      if( s.find("%") != -1 )
+
+#ifdef DEBUG_StatsPanel
+ printf("push_back(s), outputCLIData, s=(%s)\n", s.ascii() );
+#endif
+
+      // IF the string contains the no data samples message then
+      // check to see if there is a StatsPanel Message Label available for use
+      //      IF so, hide the stats panel list widget and chart form
+      //             and view the message label 
+      //      
+      if( s.find("There were no data") >= 0 ) {
+       if (sml != NULL) {
+           splv->hide();
+           cf->hide();
+           sml->show();
+           break;
+#ifdef DEBUG_StatsPanel
+           printf("outputCLIData, show sml hide splv (sml != NULL)... = (%d)\n", (sml != NULL) );
+#endif
+       }
+         
+      }
+      else if( s.find("%") != -1 )
       {
         if( percentIndex == -1 )
         {
           percentIndex = i;
-// printf("Found the percentIndex at %d\n", percentIndex);
+#ifdef DEBUG_StatsPanel
+   printf("outputCLIData, Found the percentIndex at %d\n", percentIndex);
+#endif
         }
       }
       splv->addColumn( s, 200 );
@@ -3927,9 +4057,12 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
     }
   
     gotHeader = TRUE;
+#ifdef DEBUG_StatsPanel
+   printf("outputCLIData, return early from outputCLIData gotHeader=(%d)\n", gotHeader);
+#endif
     return;
-  } else
-  {
+  } else {
+
     strings = new QString[columnFieldList.count()];
     int i = 0;
     for( FieldList::Iterator it = columnFieldList.begin();
@@ -3943,19 +4076,29 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
     fieldCount = i;
   }
 
- 
+#ifdef DEBUG_StatsPanel
+   printf("outputCLIData, fieldCount=%d\n", fieldCount);
+#endif
 
-
-  if( fieldCount == 0 )
+  if ( fieldCount == 0 )
   {
-    QMessageBox::information( (QWidget *)this, tr("Info:"), tr("There are no data samples yet available.   This could be a timing issue.\nTry an update of the StatsPanel."), QMessageBox::Ok );
+    QMessageBox::information( (QWidget *)this, tr("Info:"), tr("There were no data samples for this experiment execution.\nPossible reasons for this could be:\n   The executable being run didn't run long enough to record performance data.\n   The type of performance data being gathered may not be present in the executable being executed.\n"), QMessageBox::Ok );
   
+#ifdef DEBUG_StatsPanel
+   printf("outputCLIData, return early from outputCLIData fieldCount=(%d)\n", fieldCount);
+#endif
     return;
   }
 
   SPListViewItem *splvi;
-// printf("More Function MPItraceFLAG=(%d)\n", MPItraceFLAG);
-  if( (( currentCollectorStr == "mpi" || currentCollectorStr == "mpit" || currentCollectorStr == "io" || currentCollectorStr == "iot" ) && (MPItraceFLAG == FALSE && !currentUserSelectedReportStr.startsWith("Functions")) &&  ( currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") || currentUserSelectedReportStr.startsWith("Functions") || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("Butterfly") ) ) ||
+#ifdef DEBUG_StatsPanel
+  printf("More Function MPItraceFLAG=(%d)\n", MPItraceFLAG);
+#endif
+
+  if( (( currentCollectorStr == "mpi" || 
+         currentCollectorStr == "mpit" || 
+         currentCollectorStr == "io" || 
+         currentCollectorStr == "iot" ) && (MPItraceFLAG == FALSE && !currentUserSelectedReportStr.startsWith("Functions")) &&  ( currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") || currentUserSelectedReportStr.startsWith("Functions") || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("Butterfly") ) ) ||
       (currentCollectorStr == "usertime" && (currentUserSelectedReportStr == "Butterfly" || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) )  ||
       (currentCollectorStr == "fpe" && (currentUserSelectedReportStr == "Butterfly" || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) )  ||
       (currentCollectorStr.startsWith("hwc") && (currentUserSelectedReportStr == "Butterfly" || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) ) )
@@ -4198,6 +4341,10 @@ for( ChartPercentValueList::Iterator it = cpvl.begin();
   }
 
   delete []strings;
+
+#ifdef DEBUG_StatsPanel
+   printf("Exit StatsPanel::outputCLIData\n");
+#endif
 }
 
 void
@@ -4308,7 +4455,9 @@ StatsPanel::MYListViewItem( StatsPanel *arg1, QString xxxfuncName, QString xxxfi
 QString
 StatsPanel::findSelectedFunction()
 {
-// printf("findSelectedFunction() entered\n");
+#ifdef DEBUG_StatsPanel
+  printf("findSelectedFunction() entered\n");
+#endif
   QString functionStr = QString::null;
   QListViewItem *selected_function_item = NULL;
   QListViewItemIterator it( splv, QListViewItemIterator::Selected );
@@ -4323,9 +4472,11 @@ StatsPanel::findSelectedFunction()
   if( selected_function_item )
   {
     SPListViewItem *spitem = (SPListViewItem *)selected_function_item;
-// printf("spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
-// printf("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
-// printf("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
+#ifdef DEBUG_StatsPanel
+   printf("spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
+   printf("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
+   printf("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
+#endif
 
     // Clean up the function name if it needs to be...
     int index = spitem->funcName.find("(");
@@ -4367,7 +4518,9 @@ QString
 StatsPanel::getFilenameFromString( QString selected_qstring )
 {
 
-// printf("Get filename from (%s)\n", selected_qstring.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("Get filename from (%s)\n", selected_qstring.ascii() );
+#endif
   QString filename = QString::null;
 
   int sfi = 0;
@@ -4399,7 +4552,9 @@ StatsPanel::getFilenameFromString( QString selected_qstring )
 QString
 StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNumberStr )
 {
-// printf("Get funcString from %s\n", selected_qstring.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("Get funcString from %s\n", selected_qstring.ascii() );
+#endif
   QString funcString = QString::null;
   QString workString = selected_qstring;
 
@@ -4465,7 +4620,9 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
 // printf("mpi: function_name=(%s)\n", function_name.ascii() );
   }
 
-// printf("returning function_name=(%s) lineNumberStr=(%s)\n", function_name.ascii(), lineNumberStr.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("returning function_name=(%s) lineNumberStr=(%s)\n", function_name.ascii(), lineNumberStr.ascii() );
+#endif
 
   return(function_name);
 }
@@ -4474,7 +4631,9 @@ QString
 StatsPanel::generateCommand()
 {
   QString traceAddition = QString::null;
-// printf("GenerateCommand(%s) MPItraceFLAG = (%d) currentUserSelectedReportStr=(%s) IOtraceFLAG == %d\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), MPItraceFLAG, IOtraceFLAG );
+#ifdef DEBUG_StatsPanel
+  printf("GenerateCommand(%s) MPItraceFLAG = (%d) currentUserSelectedReportStr=(%s) IOtraceFLAG == %d\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), MPItraceFLAG, IOtraceFLAG );
+#endif
 
   int exp_id = -1;
   if( focusedExpID == -1 )
@@ -4498,7 +4657,9 @@ StatsPanel::generateCommand()
       traceAddition = " -v trace";
     }
   }
-// printf("traceAddition=(%s)\n", traceAddition.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("traceAddition=(%s)\n", traceAddition.ascii() );
+#endif
 
   QString modifierStr = QString::null;
 
@@ -4550,7 +4711,9 @@ StatsPanel::generateCommand()
   }
 
 
-// printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedReportStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), currentMetricStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedReportStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), currentMetricStr.ascii() );
+#endif
 
 
   if( currentCollectorStr == "pcsamp" && (currentUserSelectedReportStr
@@ -4567,10 +4730,14 @@ StatsPanel::generateCommand()
     {
       command = QString("expView -x %1 %2 -v %4").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
     }
-// printf("start of pcsamp generated command (%s)\n", command.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("start of pcsamp generated command (%s)\n", command.ascii() );
+#endif
   } else if( currentCollectorStr == "usertime" || currentCollectorStr == "fpe" || currentCollectorStr == "io" || currentCollectorStr == "iot" || currentCollectorStr == "hwctime" || currentCollectorStr == "mpi" || currentCollectorStr == "mpit" )
   {
-// printf("currentCollectorStr =(%s) currentUserSelectedReportStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("currentCollectorStr =(%s) currentUserSelectedReportStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
     selectedFunctionStr = findSelectedFunction();
     if( currentUserSelectedReportStr.isEmpty() )
     { 
@@ -4581,22 +4748,30 @@ StatsPanel::generateCommand()
       if( selectedFunctionStr.isEmpty() )
       {
         bool ok = FALSE;
-// printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+#ifdef DEBUG_StatsPanel
+  printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+#endif
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
       }
       if( selectedFunctionStr.isEmpty() )
       {
         return( QString::null );
       }
-// printf("selectedFunctionStr=(%s)\n", selectedFunctionStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("selectedFunctionStr=(%s)\n", selectedFunctionStr.ascii() );
+#endif
       command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else if( currentUserSelectedReportStr == "Statements by Function" )
     {
-// printf("Statements by Function\n");
+#ifdef DEBUG_StatsPanel
+ printf("Statements by Function\n");
+#endif
       if( selectedFunctionStr.isEmpty() )
       {
         bool ok = FALSE;
-// printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+#ifdef DEBUG_StatsPanel
+ printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+#endif
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
       }
       if( selectedFunctionStr.isEmpty() )
@@ -4606,61 +4781,87 @@ StatsPanel::generateCommand()
       command = QString("expView -x %1 %4%2 -v Statements -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else if( currentUserSelectedReportStr == "CallTrees by Function" )
     {
-// printf("CallTrees by Function\n");
+#ifdef DEBUG_StatsPanel
+ printf("CallTrees by Function\n");
+#endif
       if( selectedFunctionStr.isEmpty() )
       {
         bool ok = FALSE;
-// printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+#ifdef DEBUG_StatsPanel
+ printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+#endif
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
       }
       command = QString("expView -x %1 %4%2 -v CallTrees -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else if( currentUserSelectedReportStr == "CallTrees,FullStack by Function" )
     {
-// printf("CallTrees,FullStack by Function\n");
+#ifdef DEBUG_StatsPanel
+ printf("CallTrees,FullStack by Function\n");
+#endif
       if( selectedFunctionStr.isEmpty() )
       {
         bool ok = FALSE;
-// printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+#ifdef DEBUG_StatsPanel
+   printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+#endif
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
       }
       command = QString("expView -x %1 %4%2 -v CallTrees,FullStack -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else if( currentUserSelectedReportStr == "TraceBacks by Function" )
     {
-// printf("TraceBacks by Function\n");
+#ifdef DEBUG_StatsPanel
+   printf("TraceBacks by Function\n");
+#endif
       if( selectedFunctionStr.isEmpty() )
       {
         bool ok = FALSE;
-// printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+#ifdef DEBUG_StatsPanel
+   printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+#endif
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
       }
       command = QString("expView -x %1 %4%2 -v Tracebacks -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else if( currentUserSelectedReportStr == "TraceBacks,FullStack by Function" )
     {
-// printf("TraceBacks,FullStack by Function\n");
+#ifdef DEBUG_StatsPanel
+   printf("TraceBacks,FullStack by Function\n");
+#endif
       if( selectedFunctionStr.isEmpty() )
       {
         bool ok = FALSE;
-// printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+#ifdef DEBUG_StatsPanel
+   printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+#endif
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
       }
       command = QString("expView -x %1 %4%2 -v Tracebacks,FullStack -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
     } else
     {
-// printf("Here's the usertime menu work stuff.\n");
+#ifdef DEBUG_StatsPanel
+   printf("Here's the usertime menu work stuff.\n");
+#endif
       if( numberItemsToDisplayInStats > 0 )
       {
         command = QString("expView -x %1 %2%3 -v %4").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
-// printf("A: USERTIME! command=(%s)\n", command.ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("A: USERTIME! command=(%s)\n", command.ascii() );
+#endif
       } else
       {
         command = QString("expView -x %1 %2 -v %4").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
-// printf("B: USERTIME! command=(%s)\n", command.ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("B: USERTIME! command=(%s)\n", command.ascii() );
+#endif
       }
     }
-// printf("USERTIME! command=(%s)\n", command.ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("USERTIME! command=(%s)\n", command.ascii() );
+#endif
   } else if( ( ( currentCollectorStr == "hwc" || currentCollectorStr == "hwctime" || currentCollectorStr == "mpi" || currentCollectorStr == "mpit" ) && ( currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") || currentUserSelectedReportStr.startsWith("Functions") || currentUserSelectedReportStr.startsWith("mpi") || currentUserSelectedReportStr.startsWith("io") || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("Butterfly") ) ))
   { 
-// printf("It thinks we're mpi | io!\n");
+#ifdef DEBUG_StatsPanel
+   printf("It thinks we're mpi | io!\n");
+#endif
     if( currentUserSelectedReportStr.isEmpty() || currentUserSelectedReportStr == "CallTrees" )
     {
       if( numberItemsToDisplayInStats > 0 )
@@ -4713,7 +4914,9 @@ StatsPanel::generateCommand()
       if( selectedFunctionStr.isEmpty() )
       {
         bool ok = FALSE;
-// printf("B: NO FUNCTION SELECTED Prompt for one!\n");
+#ifdef DEBUG_StatsPanel
+   printf("B: NO FUNCTION SELECTED Prompt for one!\n");
+#endif
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
       }
       if( selectedFunctionStr.isEmpty() )
@@ -4770,21 +4973,29 @@ StatsPanel::generateCommand()
       command = QString("expView -x %1 %2 -v %4").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
     }
   }
-// printf("hwc command=(%s)\n", command.ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("hwc command=(%s)\n", command.ascii() );
+#endif
   about = command + "\n";
   } 
 
   // Add any focus.
   if( !currentThreadsStr.isEmpty() )
   {
-// printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+#endif
     command += QString(" %1").arg(currentThreadsStr);
     about += QString("for threads %1\n").arg(currentThreadsStr);
   }
-// printf("command sofar... =(%s)\n", command.ascii() );
-// printf("add any modifiers...\n");
+#ifdef DEBUG_StatsPanel
+   printf("command sofar... =(%s)\n", command.ascii() );
+   printf("add any modifiers...\n");
+#endif
     std::list<std::string> *modifier_list = NULL;;
-// printf("generateCommand: currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("generateCommand: currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+#endif
     if( currentCollectorStr == "hwc" )
     {
       modifier_list = &current_list_of_hwc_modifiers;
@@ -4819,16 +5030,22 @@ StatsPanel::generateCommand()
        it != modifier_list->end(); it++ )
     {
       std::string modifier = (std::string)*it;
-// printf("modifer = (%s)\n", modifier.c_str() );
+#ifdef DEBUG_StatsPanel
+   printf("modifer = (%s)\n", modifier.c_str() );
+#endif
       if( modifierStr.isEmpty() )
       {
-// printf("A: modifer = (%s)\n", modifier.c_str() );
+#ifdef DEBUG_StatsPanel
+   printf("A: modifer = (%s)\n", modifier.c_str() );
+#endif
 
         modifierStr = QString(" -m %1").arg(modifier.c_str());
         currentMetricStr = modifier.c_str();
       } else
       {
-// printf("B: modifer = (%s)\n", modifier.c_str() );
+#ifdef DEBUG_StatsPanel
+   printf("B: modifer = (%s)\n", modifier.c_str() );
+#endif
         modifierStr += QString(",%1").arg(modifier.c_str());
       }
     }
@@ -4842,14 +5059,19 @@ StatsPanel::generateCommand()
       command += traceAddition;
     }
 
-// printf("generateCommand() returning (%s) currentCollectorStr=(%s)\n", command.ascii(), currentCollectorStr.ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("generateCommand() returning (%s) currentCollectorStr=(%s)\n", command.ascii(), currentCollectorStr.ascii() );
+#endif
+
   return( command );
 } // End generateCommand
 
 void
 StatsPanel::generateMPIMenu(QString collectorName)
 {
-// printf("generateMPIMenu(%s)\n", collectorName.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("generateMPIMenu(%s)\n", collectorName.ascii() );
+#endif
   mpi_menu = new QPopupMenu(this);
 
   QString s = QString::null;
@@ -5997,6 +6219,12 @@ nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n
 void
 StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highlightList=NULL, bool dumpClipFLAG=FALSE)
 {
+
+#ifdef DEBUG_StatsPanel
+    dumpClipFLAG = TRUE;
+    printf("StatsPanel::process_clip entered\n");
+#endif
+
   if( __internal_debug_setting & DEBUG_CLIPS )
   {
     dumpClipFLAG = TRUE;
@@ -6024,7 +6252,9 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
     if( dumpClipFLAG) cerr<< "TYPE: " << (*cri)->Type() << "\n";
     if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES)
     {
-// printf("Here CMD_RESULT_COLUMN_VALUES:\n");
+#ifdef DEBUG_StatsPanel
+ printf("Here CMD_RESULT_COLUMN_VALUES:\n");
+#endif
       std::list<CommandResult *> columns;
       CommandResult_Columns *ccp = (CommandResult_Columns *)*cri;
       ccp->Value(columns);
@@ -6036,7 +6266,9 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
       {
       
         if( dumpClipFLAG) cerr << (*column_it)->Form().c_str() << "\n";
-// cerr << "  " << (*column_it)->Form().c_str() << "\n";
+#ifdef DEBUG_StatsPanel
+  cerr << "  " << (*column_it)->Form().c_str() << "\n";
+#endif
         QString vs = (*column_it)->Form().c_str();
         columnFieldList.push_back(vs);
 
@@ -6215,22 +6447,37 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
           	sprintf( &l[0], "%lld", (int64_t)(S.getLine()));
                 xxxfileName = QString( S.getPath().c_str() );
                 xxxlineNumber = S.getLine();
+#ifdef DEBUG_StatsPanel
+		printf("FUNCTION: lineNumber via getValue is %d, fileName is %s\n",xxxlineNumber, xxxfileName.ascii());
+#endif
 		nprintf(DEBUG_CLIPS) ("FUNCTION: lineNumber via getValue is %d, fileName is %s\n",xxxlineNumber, xxxfileName.ascii());
               } else {
+#ifdef DEBUG_StatsPanel
+		printf("FUNCTION: TT.begin == TT.end!, no statement info. reset xxxfileName and xxxlineNumber\n");
+#endif
 		nprintf(DEBUG_CLIPS) ("FUNCTION: TT.begin == TT.end!, no statement info. reset xxxfileName and xxxlineNumber\n");
 		xxxfileName = QString::null;
 		xxxlineNumber = -1;
 	      }
 
+#ifdef DEBUG_StatsPanel
+	      printf("FUNCTION: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
+#endif
 	      nprintf(DEBUG_CLIPS) ("FUNCTION: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
 
             } else if( CE->Type() == CMD_RESULT_STATEMENT )
             {
+#ifdef DEBUG_StatsPanel
+	      printf("  CMD_RESULT_STATEMENT: sz=%d, function=%s\n",sz,CE->Form().c_str());
+#endif
 	      nprintf(DEBUG_CLIPS) ("  CMD_RESULT_STATEMENT: sz=%d, function=%s\n",sz,CE->Form().c_str());
 
               CommandResult_Statement *T = (CommandResult_Statement *)CE;
               Statement s = (Statement)*T;
 
+#ifdef DEBUG_StatsPanel
+	      printf("STATEMENT: s.getPath()=%s, s.getLine()=%d\n",s.getPath().c_str(),(int64_t)s.getLine());
+#endif
 	      nprintf(DEBUG_CLIPS) ("STATEMENT: s.getPath()=%s, s.getLine()=%d\n",s.getPath().c_str(),(int64_t)s.getLine());
 
               xxxfuncName = CE->Form().c_str();
@@ -6238,6 +6485,9 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
 //              xxxfileName = QString( s.getPath().getBaseName().c_str() );
               xxxlineNumber = s.getLine();
 
+#ifdef DEBUG_StatsPanel
+	      printf("STATEMENT: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
+#endif
 	      nprintf(DEBUG_CLIPS) ("STATEMENT: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
 
               if( highlightList )
@@ -6253,6 +6503,9 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
             } else
             {
               if( dumpClipFLAG ) cerr << "How do I handle this type? CE->Type() " << CE->Type() << "\n";
+#ifdef DEBUG_StatsPanel
+	       printf("CALLTRACE: How do I handle this type? %d\n", CE->Type());
+#endif
 	       nprintf(DEBUG_CLIPS) ("CALLTRACE: How do I handle this type? %d\n", CE->Type());
             }
           }
@@ -6289,7 +6542,9 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
 
     } else if ((*cri)->Type() == CMD_RESULT_STRING)
     {  // This looks to be a message we should display
-// printf("Here CMD_RESULT_STRING:\n");
+#ifdef DEBUG_StatsPanel
+  printf("Here CMD_RESULT_STRING:\n");
+#endif
       QString s = QString((*cri)->Form().c_str());
         
       QMessageBox::information( (QWidget *)this, tr("Info:"), s, QMessageBox::Ok );
@@ -6297,7 +6552,9 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
 //      break;
     } else if( (*cri)->Type() == CMD_RESULT_COLUMN_HEADER )
     {
-// printf("Here CMD_RESULT_COLUMN_HEADER:\n");
+#ifdef DEBUG_StatsPanel
+ printf("Here CMD_RESULT_COLUMN_HEADER:\n");
+#endif
       std::list<CommandResult *> columns;
       CommandResult_Columns *ccp = (CommandResult_Columns *)*cri;
       ccp->Value(columns);
@@ -6307,16 +6564,23 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
       columnFieldList.clear();
       for (column_it = columns.begin(); column_it != columns.end(); column_it++)
       {
-//cerr << "  " << (*column_it)->Form().c_str() << "\n";
+#ifdef DEBUG_StatsPanel
+        cerr << "CMD_RESULT_COLUMN_HEADER:  " << (*column_it)->Form().c_str() << "\n";
+#endif
         QString vs = (*column_it)->Form().c_str();
         columnFieldList.push_back(vs);
       }
     } else
     {
-// printf("Here OTHER:\n");
+#ifdef DEBUG_StatsPanel
+      printf("Here OTHER:\n");
+#endif
     }
     /* You have found the next row!! */
     // Here's a formatted row
+#ifdef DEBUG_StatsPanel
+      printf("Here you have found the next row - here is the formatted row:\n");
+#endif
     if( dumpClipFLAG) cerr << (*cri)->Form().c_str() << "\n";
 
     // DUMP THIS TO OUR "OLD" FORMAT ROUTINE.
@@ -6325,7 +6589,9 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
     if( highlightList == NULL && skipFLAG == FALSE )
     {
       QString s = QString((*cri)->Form().c_str());
-// printf("output %s\n", s.ascii() );
+#ifdef DEBUG_StatsPanel
+      printf("printing the QString s as output %s\n", s.ascii() );
+#endif
       outputCLIData( xxxfuncName, xxxfileName, xxxlineNumber );
     }
 
@@ -6337,7 +6603,9 @@ static bool step_forward = TRUE;
 void
 StatsPanel::progressUpdate()
 {
-// printf("progressUpdate() entered\n");
+#ifdef DEBUG_StatsPanel
+//  printf("progressUpdate() entered\n");
+#endif
   pd->qs->setValue( steps );
   if( step_forward )
   {
@@ -6377,7 +6645,9 @@ StatsPanel::insertDiffColumn(int insertAtIndex)
   while ( it.current() )
   {
     QListViewItem *item = it.current();
-// printf("ls=%s rs=%s\n", item->text(0).ascii(), item->text(1).ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("StatsPanel::insertDiffColumn,ls=%s rs=%s\n", item->text(0).ascii(), item->text(1).ascii() );
+#endif
     QString ls = item->text(0);
     QString rs = item->text(1);
     double lsd = ls.toDouble();
@@ -6405,9 +6675,11 @@ StatsPanel::removeDiffColumn(int removeIndex)
 void
 StatsPanel::analyzeTheCView()
 {
-// printf("analyzeTheCView(%s) entered: focusedExpID was=%d\n", lastCommand.ascii(), focusedExpID );
+#ifdef DEBUG_StatsPanel
+   printf("analyzeTheCView(%s) entered: focusedExpID was=%d\n", lastCommand.ascii(), focusedExpID );
 
-// printf("RESETTING focusedExpID to -1\n");
+   printf("RESETTING focusedExpID to -1\n");
+#endif
 //  focusedExpID = -1;
 
   if( !lastCommand.startsWith("cview -c") )
@@ -6418,11 +6690,17 @@ StatsPanel::analyzeTheCView()
 
   QValueList<QString> cidList;
 
-// printf("lastCommand =(%s)\n", lastCommand.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("lastCommand =(%s)\n", lastCommand.ascii() );
+#endif
   int vindex = lastCommand.find("-v");
-// printf("vindex = %d\n", vindex);
+#ifdef DEBUG_StatsPanel
+   printf("vindex = %d\n", vindex);
+#endif
   int mindex = lastCommand.find("-m");
-// printf("mindex = %d\n", mindex);
+#ifdef DEBUG_StatsPanel
+   printf("mindex = %d\n", mindex);
+#endif
   int end_index = vindex;
   if( vindex == -1 )
   {
@@ -6432,7 +6710,9 @@ StatsPanel::analyzeTheCView()
   {
     end_index = mindex;
   }
-// printf("end_index= %d\n", end_index);
+#ifdef DEBUG_StatsPanel
+  printf("end_index= %d\n", end_index);
+#endif
   QString ws = QString::null;
   if( end_index == -1 )
   {
@@ -6441,20 +6721,26 @@ StatsPanel::analyzeTheCView()
   {
     ws = lastCommand.mid(9,end_index-10);
   }
-// printf("ws=(%s)\n", ws.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("ws=(%s)\n", ws.ascii() );
+#endif
   int cnt = ws.contains(",");
   if( cnt > 0 )
   {
     for(int i=0;i<=cnt;i++)
     {
       cidList.push_back( ws.section(",", i, i).stripWhiteSpace() );
-// printf("cidList push back (%s)\n", ws.section(",", i, i).stripWhiteSpace().ascii() );
+#ifdef DEBUG_StatsPanel
+      printf("cidList push back (%s)\n", ws.section(",", i, i).stripWhiteSpace().ascii() );
+#endif
     }
   }
 
   if( cnt == 0 )
   {
-// printf("We only have one cview... option (%s).\n", ws.ascii() );
+#ifdef DEBUG_StatsPanel
+    printf("We only have one cview... option (%s).\n", ws.ascii() );
+#endif
     cidList.push_back( ws );
   }
 
@@ -6469,7 +6755,9 @@ StatsPanel::analyzeTheCView()
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
-// printf("coming: currentMetricStr was %s\n", currentMetricStr.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("coming: currentMetricStr was %s\n", currentMetricStr.ascii() );
+#endif
   currentMetricStr = QString::null;
   InputLineObject *clip = NULL;
   std::string cstring;

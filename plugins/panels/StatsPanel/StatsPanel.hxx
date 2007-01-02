@@ -264,6 +264,9 @@ class StatsPanel  : public Panel
     void generateToolBar();
     QLabel *toolbar_status_label;
 
+    // Status Panel Message Label - put out messages when data is not available
+    QLabel *sml;
+
 #ifdef OLDWAY // move back to public slots:
     void headerSelected( int );
 #endif // OLDWAY

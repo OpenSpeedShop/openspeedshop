@@ -296,7 +296,7 @@ static int64_t Match_Call_Stack (std::vector<CommandResult *> *cs,
       ((CommandResult_Uint *)ncse)->Value(NV);
       if (V != NV) return (i - 1);
     } else if (ty == CMD_RESULT_STRING) {
-     // Compare caracters.
+     // Compare characters.
       std::string V;
       std::string NV;
       ((CommandResult_String *)cse)->Value(V);
@@ -953,24 +953,32 @@ bool Generic_Multi_View (
       return false;   // There is no data, return.
     }
 */
-
-
-   // Add Header for each column in the table.
-    CommandResult_Headers *H = new CommandResult_Headers ();
-    for ( i=0; i < num_columns; i++) {
-      ViewInstruction *vinst = ViewInst[i];
-      std::string column_header;
-      if ((HV.size() > i) &&
-          (HV[i].length() > 0)) {
-        column_header = HV[i];
-      } else {
-        column_header = "?";
-      }
-      H->CommandResult_Headers::Add_Header ( CRPTR ( column_header ) );
+#if DEBUG_CLI
+    if (c_items.empty()) {
+      printf("in Generic_Multi_View, there are no data samples available.)\n");
     }
-   // Add Entry Object name
-    H->CommandResult_Headers::Add_Header ( CRPTR ( EO_Title ) );
-    view_output.push_back(H);
+#endif
+
+   // jeg 12-28-06 added this to prevent the headers from being put out
+   // when there is no data.  A "no data samples message goes out instead
+   if (!c_items.empty()) {
+     // Add Header for each column in the table.
+      CommandResult_Headers *H = new CommandResult_Headers ();
+      for ( i=0; i < num_columns; i++) {
+        ViewInstruction *vinst = ViewInst[i];
+        std::string column_header;
+        if ((HV.size() > i) &&
+            (HV[i].length() > 0)) {
+          column_header = HV[i];
+        } else {
+          column_header = "?";
+        }
+        H->CommandResult_Headers::Add_Header ( CRPTR ( column_header ) );
+      }
+     // Add Entry Object name
+      H->CommandResult_Headers::Add_Header ( CRPTR ( EO_Title ) );
+      view_output.push_back(H);
+   } // if there are items to output
 
    // Convert "0" values to blanks.
 /* TEST

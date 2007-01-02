@@ -482,6 +482,11 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       return false;   // There is no data, return.
     }
 */
+#if DEBUG_CLI
+    if (!first_column_found) {
+       printf("In Generic_View, There are no data samples for available.\n)");
+    }
+#endif
 
    // Calculate %?
     bool Gen_Total_Percent = false;
@@ -688,6 +693,9 @@ static bool Select_All_Metrics (CommandObject *cmd, ExperimentObject *exp,
   if ((exp == NULL) ||
       (exp->FW() == NULL)) {
     std::string s("There was no data collected for the experiment.");
+#if DEBUG_CLI
+    printf("In Select_All_Metrics, There was no data collected for the experiment\n");
+#endif
     Mark_Cmd_With_Soft_Error(cmd,s);
     return false;
   }

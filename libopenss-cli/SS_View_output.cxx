@@ -50,7 +50,13 @@ void Construct_View_Output (CommandObject *cmd,
                             std::vector<std::pair<CommandResult *,
                                                   SmartPtr<std::vector<CommandResult *> > > >& items,
                             std::list<CommandResult *>& view_output ) {
-// Print_View_Params (cerr, CV,MV,IV);
+#ifdef DEBUG_CLI
+//  Print_View_Params (cerr, CV,MV,IV);
+#endif
+
+ // If there is data then go through and create headers, etc.
+
+ if (items.begin() != items.end()) {
   int64_t num_columns = Find_Max_Column_Def (IV) + 1;
   int64_t i;
   bool report_Column_summary = false;
@@ -63,6 +69,16 @@ void Construct_View_Output (CommandObject *cmd,
   std::vector<CommandResult *> summary_temp(num_input_temps);
   for ( i=0; i < num_input_temps; i++) summary_temp[i] = NULL;
 
+#ifdef DEBUG_CLI
+  printf("Construct_View_Output, num_columns=%d\n", num_columns);
+  printf("Construct_View_Output, num_input_temps=%d\n", num_input_temps);
+  printf("Construct_View_Output, IV.size()=%d\n", IV.size());
+  printf("Construct_View_Output, Total_Value.size()=%d\n", Total_Value.size());
+  printf("Construct_View_Output, MV.size()=%d\n", MV.size());
+  printf("Construct_View_Output, CV.size()=%d\n", CV.size());
+#endif 
+
+ // if there is data....
  // Reformat the instructions for easier access.
   for (i = 0; i < IV.size(); i++) {
     ViewInstruction *vp = IV[i];
@@ -105,6 +121,14 @@ void Construct_View_Output (CommandObject *cmd,
    // Format the report with the items that are in the vector.
     std::vector<std::pair<CommandResult *,
                           SmartPtr<std::vector<CommandResult *> > > >::iterator it;
+#ifdef DEBUG_CLI
+    printf("Construct_View_Output, items.begin() is equal to items.end()=%d \n", 
+            items.begin() == items.end());
+#endif
+   //
+   // If there is data, go through the for loop to put the data out, else put out 
+   // a "no data" type message in place of the data that would have appeared in this view
+   //
     for(it = items.begin(); it != items.end(); it++ ) {
 
      // Check for asnychonous abort command
@@ -198,7 +222,7 @@ void Construct_View_Output (CommandObject *cmd,
           (*it->second)[i] = NULL;
         }
       }
-    }
+    } // end for
 
     if (report_Column_summary) {
      // Build an Ender summary for the table.
@@ -265,5 +289,17 @@ void Construct_View_Output (CommandObject *cmd,
       delete Total_Value[i];
     }
   }
+ } else {
+    // This is the no data samples else clause, put out a msg indicating no data was present
+    // NOTE/WARNING - The first part of this string is searched for in plugins/panels/StatsPanel/StatsPanel.cxx
+    // in order to activate a GUI message with the same text.
 
-}
+      CommandResult *no_results = NULL;
+      no_results = new CommandResult_String ("There were no data samples for this experiment execution.\nPossible reasons for this could be:\n    The executable being run didn't run long enough to record performance data.\n    The type of performance data being gathered may not be present in the executable being executed.\n");
+
+      CommandResult_Columns *N = new CommandResult_Columns ();
+      N->CommandResult_Columns::Add_Column (no_results);
+      view_output.push_back (N);  // attach no data samples to output
+ } // end else no data samples
+
+} // end routine
