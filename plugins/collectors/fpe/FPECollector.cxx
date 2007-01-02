@@ -84,9 +84,13 @@ extern "C" CollectorImpl* fpe_LTX_CollectorFactory()
  */
 FPECollector::FPECollector() :
     CollectorImpl("fpe",
-                  "FPE Extended Event Tracing",
-		  "Intercepts Floating Point Exceptions."
-		  "and records for each exception, the current stack "
+		"FPE Extended Event Tracing",
+		  "Use this experiment when you experience high system time when executing the "
+		  "relevant executable and/or the relevant executable contains a high"
+                  " number of floating point operations."
+                  "  The Floating Point Exception experiment, also known as, FPE Extended Event Tracing, "
+		  "intercepts floating point exceptions "
+		  "and records for each exception: the current stack "
 		  "trace, the exception type, and start time."
 		  )
 {
