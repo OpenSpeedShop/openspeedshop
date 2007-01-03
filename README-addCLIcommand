@@ -1,0 +1,25 @@
+These are the files that were changed to add
+a expXXXX command.  The list of files may
+change slightly depending on where the actual
+command is implemented (most are implemented in
+SS_Cmd_Execution.cxx).
+
+Files for Parsing the command:
+libopenss-cli/SS_Parse_Result.hxx
+libopenss-cli/SS_Parse_Result.cxx
+libopenss-cli/SS_Parse_Yacc.yxx
+
+Files for the help facility
+libopenss-cli/help_cmd_msg.dxx
+libopenss-cli/help_scripting_msg.dxx
+
+Files for processing the command
+libopenss-cli/SS_Cmd_Execution.hxx
+libopenss-cli/SS_Cmd_Execution.cxx
+libopenss-cli/SS_Cmd_Control.cxx
+libopenss-cli/Start_Modes.cxx
+
+File for Python recognition
+libopenss-cli/init.py
+
+
