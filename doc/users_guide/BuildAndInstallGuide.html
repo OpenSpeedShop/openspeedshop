@@ -1138,10 +1138,17 @@ libraries, and executables.&nbsp; The enviroment variables are:<br>
   </li>
   <li>CPPFLAGS - compile flags include path</li>
   <li>PREFIX - used in some of the components as their install location</li>
-  <li>DPCLSD - specifies the machine domain and port number for the
-DPCL super daemon<br>
+  <li>DPCLSD - specifies the machine domain and <a href="#port__7895">port
+number</a> for the
+DPCL super daemon&nbsp;&nbsp; Note the port number comes from the
+dpclSD file that is found in the /etc/xinetd.d in a root access
+install.&nbsp;&nbsp; See the <a
+ href="#Set_up_xinetd_and_dpclSD_configuration">setup xinetd and
+configuration file</a> section for the non root access install
+locations.<br>
   </li>
 </ul>
+<br>
 If your new "root" directory path was /ptmp/fred/root then you would
 need to update the environment variables as follows:<br>
 <ul>
@@ -1150,7 +1157,7 @@ need to update the environment variables as follows:<br>
   <li>setenv PATH "/ptmp/fred/root/usr/bin:$PATH"</li>
   <li>setenv CPPFLAGS "-I/ptmp/fred/root/usr/include $CPPFLAGS"</li>
   <li>setenv PREFIX "/ptmp/fred/root/usr"</li>
-  <li>setenv DPCLSD machine.domain:&lt;port number&gt;<br>
+  <li>setenv DPCLSD machine.domain:&lt;<a href="#port__7895">port number</a>&gt;<br>
   </li>
 </ul>
 </div>
@@ -1303,7 +1310,8 @@ make install<br>
 <br>
 <ul>
   <li>
-    <h6>Set up xinetd and
+    <h6><a name="Set_up_xinetd_and_dpclSD_configuration"></a>Set up
+xinetd and
 dpclSD configuration files</h6>
   </li>
 </ul>
@@ -1352,7 +1360,7 @@ stream<br>
 protocol&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 = tcp<br>
 &nbsp;&nbsp;
-port&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a name="port__7895"></a>port&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp; = 7895<br>
 &nbsp;&nbsp;
 wait&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -1389,6 +1397,10 @@ variable DPCLSD for the machine where you will be running Open|SpeedShop</h6>
 </ul>
 <div style="margin-left: 40px;">setenv DPCLSD
 machine.domain:7895&nbsp;&nbsp; <br>
+<br>
+Remember the port number above, 7895, came from the dpclSD
+file.&nbsp;&nbsp; See <a href="#Set_up_xinetd_and_dpclSD_configuration">the
+section above this one</a> for more details.<br>
 </div>
 <br>
 <ul>
