@@ -94,4 +94,7 @@ Legend * means fixed,
 * (jeg) added 01/02/07 Need error message/warning when experiment doesn't create
   data (right now it's just a blank screen)
 
+- Looks like the path remapping only applies to the first experiment.  I had multiple
+  experiments up and did the path remapping from the 2nd experiments menu but only the
+  first experiments path was changed.   jeg  1/5/2007
 
