@@ -427,7 +427,7 @@ class SS_Timings
    bool isMinEvent(CLIPerformanceDataEvents eventType);
 
    /** Routine to process the performance event occurance */
-   void SS_Timings::processTimingEventEnd(
+   void processTimingEventEnd(
                  CLIPerformanceDataEvents eventTypeStart,
                  CLIPerformanceDataEvents eventTypeCount,
                  CLIPerformanceDataEvents eventTypeMax,
@@ -436,13 +436,13 @@ class SS_Timings
                  CLIPerformanceDataEvents eventTypeEnd);
 
    /** Routine to find the corresponding Total event for the input Count event */
-   CLIPerformanceDataEvents SS_Timings::findTotalEvent( CLIPerformanceDataEvents inputCountEvent);
+   CLIPerformanceDataEvents findTotalEvent( CLIPerformanceDataEvents inputCountEvent);
 
    /** Routine to find the corresponding Max event for the input Count event */
-   CLIPerformanceDataEvents SS_Timings::findMaxEvent( CLIPerformanceDataEvents inputCountEvent);
+   CLIPerformanceDataEvents findMaxEvent( CLIPerformanceDataEvents inputCountEvent);
 
    /** Routine to find the corresponding Min event for the input Count event */
-   CLIPerformanceDataEvents SS_Timings::findMinEvent( CLIPerformanceDataEvents inputCountEvent);
+   CLIPerformanceDataEvents findMinEvent( CLIPerformanceDataEvents inputCountEvent);
 
 
   private:
