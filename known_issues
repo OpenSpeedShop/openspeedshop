@@ -98,3 +98,7 @@ Legend * means fixed,
   experiments up and did the path remapping from the 2nd experiments menu but only the
   first experiments path was changed.   jeg  1/5/2007
 
+* (jeg) fixed 1/8/2007 The "no data samples" message was not being hidden, so if
+        there was data to be displayed for the current instantiation of the experiment
+        view, it would not be viewable.  Added re-initialization when the data was updated.
+
