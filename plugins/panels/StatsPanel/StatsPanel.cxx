@@ -19,7 +19,7 @@
 //
 // To enable debuging uncomment define DEBUG_StatsPanel statement
 //
-// #define DEBUG_StatsPanel 1
+//#define DEBUG_StatsPanel 1
 //
 
 
@@ -158,6 +158,9 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   timeSegmentDialog = NULL;;
 
   statspanel_clip = NULL;
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::StatsPanel() constructor statspanel_clip=0x%x,statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
+#endif
   progressTimer = NULL;
   pd = NULL;
 
@@ -1957,20 +1960,24 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 
   SPListViewItem *spitem = (SPListViewItem *)item;
 
-// printf("A: currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
-// printf("A: currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("A: currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
+  printf("A: currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
+#endif
 
   QString lineNumberStr = "-1";
   QString filename = QString::null;
   SourceObject *spo = NULL;
   QString ssf = QString(sf).stripWhiteSpace();
 
-// printf("spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
-// printf("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
-// printf("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
-   nprintf( DEBUG_PANELS) ("spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
-   nprintf( DEBUG_PANELS) ("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
-   nprintf( DEBUG_PANELS) ("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
+#ifdef DEBUG_StatsPanel
+  printf("spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
+  printf("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
+  printf("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
+#endif
+  nprintf( DEBUG_PANELS) ("spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
+  nprintf( DEBUG_PANELS) ("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
+  nprintf( DEBUG_PANELS) ("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
 
   filename = spitem->fileName.ascii();
   lineNumberStr = QString("%1").arg(spitem->lineNumber);
@@ -1982,15 +1989,18 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
 
-// printf("LOOK UP FILE HIGHLIGHTS THE NEW WAY!\n");
-    spo = lookUpFileHighlights(filename, lineNumberStr, highlightList);
+#ifdef DEBUG_StatsPanel
+  printf("LOOK UP FILE HIGHLIGHTS THE NEW WAY!\n");
+#endif
 
-    if( !spo )
-    {
+  spo = lookUpFileHighlights(filename, lineNumberStr, highlightList);
+
+  if( !spo )
+  {
       spo = new SourceObject(NULL, NULL, -1, expID, TRUE, NULL);
-    }
-    if( spo )
-    {
+  }
+  if( spo )
+  {
       QString name = QString::null;
       if( expID == -1  )
       {
@@ -2018,10 +2028,12 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
       if( sourcePanel )
       {
        sourcePanel->listener((void *)spo);
-// printf("Returned from sending of spo!\n");
+#ifdef DEBUG_StatsPanel
+       printf("Returned from sending of spo!\n");
+#endif
       }
-    }
-    QApplication::restoreOverrideCursor( );
+  }
+  QApplication::restoreOverrideCursor( );
 
 }
 
@@ -2029,12 +2041,22 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 void
 StatsPanel::updateStatsPanelData(QString command)
 {
-// printf("StatsPanel::updateStatsPanelData() entered.\n");
+#ifdef DEBUG_StatsPanel
+ printf("StatsPanel::updateStatsPanelData() entered.\n");
+#endif
 
   levelsToOpen = getPreferenceLevelsToOpen().toInt();
 
   SPListViewItem *splvi;
   columnHeaderList.clear();
+
+  // Reinitialize these flags because of the "hiding of the no data message"
+  // The no data message caused the splv (stats panel data) and cf (chart form) to be hidden
+  splv->show();
+  if (chartFLAG) {
+    cf->show();
+  }
+  sml->hide();
 
 
   // Percent value list (for the chart)
@@ -2056,10 +2078,12 @@ StatsPanel::updateStatsPanelData(QString command)
     bool ok;
     numberItemsToDisplayInChart = getPreferenceTopNChartLineEdit().toInt(&ok);
   }
-// printf("numberItemsToDisplayInChart = %d\n", numberItemsToDisplayInChart );
+#ifdef DEBUG_StatsPanel
+  printf("updateStatsPanelData,numberItemsToDisplayInChart = %d\n", numberItemsToDisplayInChart );
+#endif
 
   textENUM = getPreferenceShowTextInChart();
-// printf("textENUM=%d\n", textENUM );
+// printf("updateStatsPanelData,textENUM=%d\n", textENUM );
 
   lastlvi = NULL;
   gotHeader = FALSE;
@@ -2081,14 +2105,18 @@ StatsPanel::updateStatsPanelData(QString command)
     return;
   }
 
-// printf("  lastCommand = %s  command = %s\n", lastCommand.ascii(), command.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("  updateStatsPanelData,lastCommand = %s  command = %s\n", lastCommand.ascii(), command.ascii() );
+#endif
 
   command += timeIntervalString;
 
   if( recycleFLAG == FALSE )
   {
     // fire up a new stats panel and send "command" to it.
-// printf("fire up a new stats panel and send (%s) to it.\n", command.ascii() );
+#ifdef DEBUG_StatsPanel
+    printf("updateStatsPanelData,fire up a new stats panel and send (%s) to it.\n", command.ascii() );
+#endif
     int exp_id = expID;
     if( expID == -1  )
     {
@@ -2119,7 +2147,9 @@ StatsPanel::updateStatsPanelData(QString command)
 
   if( staticDataFLAG == TRUE && command == lastCommand )
   {  // Then we really don't need to update.
-// printf("We really have static data and its the same command... Don't update.\n");
+#ifdef DEBUG_StatsPanel
+    printf("updateStatsPanelData,We really have static data and its the same command... Don't update.\n");
+#endif
     return;
   }
 
@@ -2132,7 +2162,9 @@ StatsPanel::updateStatsPanelData(QString command)
     delete progressTimer;
   }
 
-// printf("create the progressTimer\n");
+#ifdef DEBUG_StatsPanel
+  printf("updateStatsPanelData,create the progressTimer\n");
+#endif
   steps = 0;
   pd = new GenericProgressDialog(this, "Executing Command:", TRUE );
   pd->infoLabel->setText( QString("Running command") );
@@ -2145,22 +2177,30 @@ StatsPanel::updateStatsPanelData(QString command)
   qApp->flushX();
   qApp->processEvents(1000);
 
-// printf("sort command?\n");
+#ifdef DEBUG_StatsPanel
+  printf("updateStatsPanelData,sort command?\n");
+#endif
 
   if( command.contains("-v Butterfly") || command.contains("-v CallTrees") || command.contains("-v TraceBacks") )
   {
     // Don't sort these report types..  If you get a request to sort then only
     // sort on the last column.
-// printf("Don't sort this display.\n");
+#ifdef DEBUG_StatsPanel
+    printf("updateStatsPanelData,butterfly, calltree, or tracebacks, Don't sort this display.\n");
+#endif
     splv->setSorting ( -1 );
   } else if( command.startsWith("cview -c") && command.contains("-m ") )
   { // CLUSTER.. Don't sort this one...
-// printf("Don't sort this display.\n");
+#ifdef DEBUG_StatsPanel
+    printf("updateStatsPanelData,cview type - Don't sort this display.\n");
+#endif
     splv->setSorting ( -1 );
   } else
   {
     // Set the resort to be the first column when a new report is requested.
-// printf("Sort this display on column 0.\n");
+#ifdef DEBUG_StatsPanel
+    printf("updateStatsPanelData,Sort this display on column 0.\n");
+#endif
     splv->setSorting ( 0, FALSE );
   }
 
@@ -2179,26 +2219,44 @@ StatsPanel::updateStatsPanelData(QString command)
   about += "Command issued: " + command + "\n";
   if( lastCommand.isEmpty() )
   {
-// printf("The original command = (%s)\n", command.ascii() );
+#ifdef DEBUG_StatsPanel
+    printf("updateStatsPanelData,The original command = (%s)\n", command.ascii() );
+#endif
     originalCommand = command;
   }
   lastCommand = command;
 
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::updateStatsPanelData before if,&statspanel_clip=0x%x,statspanel_clip=0x%x\n", &statspanel_clip,statspanel_clip);
+#endif
+
   if( statspanel_clip )
   {
-// printf("C: statspanel_clip->Set_Results_Used()\n");
+
+#ifdef DEBUG_StatsPanel
+    printf("updateStatsPanelData,C: statspanel_clip->Set_Results_Used(), clearing statspanel_clip\n");
+#endif
+
     statspanel_clip->Set_Results_Used();
     statspanel_clip = NULL;
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::updateStatsPanelData after set NULL,&statspanel_clip=0x%x,statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
+#endif
   }
 
-// printf("StatsPanel: about to issue: command: (%s)\n", command.ascii() );
-
-
-
-
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel:updateStatsPanelData, about to issue: command: (%s)\n", command.ascii() );
+#endif
 
   statspanel_clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::updateStatsPanelData after set with cli->run_App..,&statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
+#endif
 
+#ifdef DEBUG_StatsPanel
+  if( statspanel_clip == NULL )
+     printf("StatsPanel:updateStatsPanelData, (statspanel_clip == NULL)=%d\n", (statspanel_clip == NULL) );
+#endif
 
 #if 0
   if( statspanel_clip == NULL )
@@ -2215,28 +2273,43 @@ StatsPanel::updateStatsPanelData(QString command)
 //    return;
   }
 #endif // 0
+
   Input_Line_Status status = ILO_UNKNOWN;
 
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::updateStatsPanelData before ref with cli->Seman..,&statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
+#endif
   while( !statspanel_clip->Semantics_Complete() )
   {
-// printf("pinging...\n");
+#ifdef DEBUG_StatsPanel
+    printf("pinging... while( !statspanel_clip->Semantics_Complete() )\n");
+#endif
     qApp->flushX();
     qApp->processEvents(1000);
     sleep(1);
   }
-// printf("done pinging...\n");
 
-
+#ifdef DEBUG_StatsPanel
+    printf("done pinging... while( !statspanel_clip->Semantics_Complete() )\n");
+#endif
 
   pd->infoLabel->setText( tr("Processing information for display") );
   pd->show();
 
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::updateStatsPanelData before call to process_clip..,&statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
+#endif
   process_clip(statspanel_clip, NULL, FALSE);
 //  process_clip(statspanel_clip, NULL, TRUE);
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::updateStatsPanelData after call to process_clip..,&statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
+#endif
   statspanel_clip->Set_Results_Used();
   statspanel_clip = NULL;
 
-// printf("Done processing the clip\n");
+#ifdef DEBUG_StatsPanel
+  printf("Done processing the clip\n");
+#endif
 
   pd->infoLabel->setText( tr("Analyze and sort the view.") );
   pd->show();
@@ -2263,12 +2336,18 @@ StatsPanel::updateStatsPanelData(QString command)
    }
    if( textENUM == TEXT_NONE )
    {
-// printf("textENUM=%d (TEXT_NONE)\n", textENUM );
+
+#ifdef DEBUG_StatsPanel
+     printf("textENUM=%d (TEXT_NONE)\n", textENUM );
+#endif
+
      ctvl.clear();
    }
 
-// printf("Put out the chart!!!!\n");
-// printf("numberItemsToDisplayInStats=(%d) cpvl.count()=(%d)\n", numberItemsToDisplayInStats, cpvl.count() );
+#ifdef DEBUG_StatsPanel
+   printf("Put out the chart!!!!\n");
+   printf("numberItemsToDisplayInStats=(%d) cpvl.count()=(%d)\n", numberItemsToDisplayInStats, cpvl.count() );
+#endif
 
   // Do we need an other?
 // printf("total_percent=%f splv->childCount()=%d cpvl.count()=%d numberItemsToDisplayInStats=%d\n", total_percent, splv->childCount(), cpvl.count(), numberItemsToDisplayInStats );
@@ -2285,9 +2364,13 @@ StatsPanel::updateStatsPanelData(QString command)
   {
     if( total_percent < 100.00 )
     {
-// printf("add other of %f\n", 100.00-total_percent );
+#ifdef DEBUG_StatsPanel
+      printf("add other of %f\n", 100.00-total_percent );
+#endif
       cpvl.push_back( (int)(100.00-total_percent) );
-// printf("total_percent: textENUM=%d\n", textENUM );
+#ifdef DEBUG_StatsPanel
+      printf("total_percent: textENUM=%d\n", textENUM );
+#endif
       if( textENUM != TEXT_NONE )
       {
         ctvl.push_back( "other" );
@@ -2296,7 +2379,9 @@ StatsPanel::updateStatsPanelData(QString command)
   }
 
   // Or were there no percents in the initial query.
-// printf("total_percent = %f\n", total_percent );
+#ifdef DEBUG_StatsPanel
+  printf("total_percent = %f\n", total_percent );
+#endif
   if( total_percent == 0.0 )
   {
     cpvl.clear();
@@ -2304,11 +2389,16 @@ StatsPanel::updateStatsPanelData(QString command)
     cpvl.push_back(100);
     ctvl.push_back("N/A");
   }
-// printf("cpvl.count()=%d ctvl.count()=%d\n", cpvl.count(), ctvl.count() );
+#ifdef DEBUG_StatsPanel
+  printf("cpvl.count()=%d ctvl.count()=%d\n", cpvl.count(), ctvl.count() );
+#endif
 
   cf->setValues(cpvl, ctvl, color_names, MAX_COLOR_CNT);
 
-// printf("now clean up the timer...\n");
+#ifdef DEBUG_StatsPanel
+  printf("now clean up the timer...\n");
+#endif
+
   progressTimer->stop();
   delete progressTimer;
   progressTimer = NULL;
@@ -2323,14 +2413,18 @@ StatsPanel::updateStatsPanelData(QString command)
 void
 StatsPanel::threadSelected(int val)
 { 
-// printf("threadSelected(%d)\n", val);
+#ifdef DEBUG_StatsPanel
+  printf("threadSelected(%d)\n", val);
+#endif
 
 
   currentThreadStr = threadMenu->text(val).ascii();
 
   currentThreadsStr = QString::null;
 
-// printf("threadMenu: selected text=(%s)\n", threadMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("threadMenu: selected text=(%s)\n", threadMenu->text(val).ascii() );
+#endif
 
 
   bool FOUND_FLAG = FALSE;
@@ -2340,7 +2434,9 @@ StatsPanel::threadSelected(int val)
 
     if( ts == currentThreadStr )
     {   // Then it's already in the list... now remove it.
-// printf("add the selected thread (%s).\n", ts.ascii() );
+#ifdef DEBUG_StatsPanel
+      printf("add the selected thread (%s).\n", ts.ascii() );
+#endif
       currentThreadGroupStrList.remove(ts);
       FOUND_FLAG = TRUE;
       break;
@@ -2350,15 +2446,21 @@ StatsPanel::threadSelected(int val)
   // We didn't find it to remove it, so this is a different thread... add it.
   if( FOUND_FLAG == FALSE )
   {
-// printf("We must need to add it (%s) then!\n", currentThreadStr.ascii() );
+#ifdef DEBUG_StatsPanel
+    printf("We must need to add it (%s) then!\n", currentThreadStr.ascii() );
+#endif
     currentThreadGroupStrList.push_back(currentThreadStr);
   }
 
-// printf("Here's the string list...\n");
+#ifdef DEBUG_StatsPanel
+  printf("Here's the string list...\n");
+#endif
   for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); it != currentThreadGroupStrList.end(); ++it)
   {
     QString ts = (QString)*it;
-// printf("A: ts=(%s)\n", ts.ascii() );
+#ifdef DEBUG_StatsPanel
+    printf("A: ts=(%s)\n", ts.ascii() );
+#endif
   
     if( ts.isEmpty() )
     {
@@ -2396,7 +2498,9 @@ if( currentThreadStrENUM == RANK )
 }
   }
 
-// printf("currentThreadsStr = %s call update.\n", currentThreadsStr.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("currentThreadsStr = %s call update.\n", currentThreadsStr.ascii() );
+#endif
 
 
   updateStatsPanelData();
@@ -2415,7 +2519,9 @@ if( currentThreadStrENUM == RANK )
 void
 StatsPanel::collectorMetricSelected(int val)
 { 
+#ifdef DEBUG_StatsPanel
  printf("collectorMetricSelected val=%d\n", val);
+#endif
 // printf("collectorMetricSelected: currentCollectorStr=(%s)\n", popupMenu->text(val).ascii() );
 
   currentUserSelectedReportStr = QString::null;
@@ -2432,7 +2538,9 @@ StatsPanel::collectorMetricSelected(int val)
 //      collectorStrFromMenu = s.mid(13, index-13 );
       currentCollectorStr = s.mid(13, index-13 );
       currentUserSelectedReportStr = s.mid(index+2);
-// printf("BB1: s=(%s) currentCollectorStr=(%s) currentMetricStr=(%s)\n", s.ascii(), currentCollectorStr.ascii(), currentMetricStr.ascii() );
+#ifdef DEBUG_StatsPanel
+       printf("BB1: s=(%s) currentCollectorStr=(%s) currentMetricStr=(%s)\n", s.ascii(), currentCollectorStr.ascii(), currentMetricStr.ascii() );
+#endif
       // This one resets to all...
     } else 
     { // The user wants to do all the metrics on the selected threads...
@@ -2445,7 +2553,9 @@ StatsPanel::collectorMetricSelected(int val)
       }
     }
 
-// printf("Collector changed call updateStatsPanelData() \n");
+#ifdef DEBUG_StatsPanel
+    printf("Collector changed call updateStatsPanelData() \n");
+#endif
     updateStatsPanelData();
   }
 }
@@ -2467,9 +2577,11 @@ StatsPanel::collectorMPITReportSelected(int val)
 void
 StatsPanel::MPIReportSelected(int val)
 { 
-// printf("MPIReportSelected val=%d\n", val);
-// printf("MPIReportSelected: mpi_menu=(%s)\n", mpi_menu->text(val).ascii() );
-//  printf("MPIReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("MPIReportSelected val=%d\n", val);
+  printf("MPIReportSelected: mpi_menu=(%s)\n", mpi_menu->text(val).ascii() );
+  printf("MPIReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#endif
 
   currentUserSelectedReportStr = QString::null;
   collectorStrFromMenu = QString::null;
@@ -2482,17 +2594,24 @@ StatsPanel::MPIReportSelected(int val)
     s = contextMenu->text(val).ascii();
   }
 
-// printf("B: s=%s\n", s.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("MPIReportSelected:B: s=%s\n", s.ascii() );
+#endif
+
   int index = s.find(":");
   if( index != -1 )
   {
-// printf("D: NOW FIND ::\n");
+#ifdef DEBUG_StatsPanel
+    printf("MPIReportSelected:D: NOW FIND ::\n");
+#endif
     index = s.find(":");
     if( index > 0 )
     { // The user selected one of the metrics
       collectorStrFromMenu = s.mid(13, index-13 );
       currentUserSelectedReportStr = s.mid(index+2);
-// printf("MPI1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+#ifdef DEBUG_StatsPanel
+       printf("MPI1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+#endif
       // This one resets to all...
     } else 
     { // The user wants to do all the metrics on the selected threads...
@@ -2505,9 +2624,10 @@ StatsPanel::MPIReportSelected(int val)
       }
     }
 
-// printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
-
-// printf("Collector changed call updateStatsPanelData() \n");
+#ifdef DEBUG_StatsPanel
+ printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+ printf("Collector changed call updateStatsPanelData() \n");
+#endif
   }
   updateStatsPanelData();
 }
@@ -2530,9 +2650,11 @@ StatsPanel::collectorIOTReportSelected(int val)
 void
 StatsPanel::IOReportSelected(int val)
 { 
-// printf("IOReportSelected val=%d\n", val);
-// printf("IOReportSelected: io_menu=(%s)\n", io_menu->text(val).ascii() );
-// printf("IOReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("IOReportSelected val=%d\n", val);
+  printf("IOReportSelected: io_menu=(%s)\n", io_menu->text(val).ascii() );
+  printf("IOReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#endif
 
   currentUserSelectedReportStr = QString::null;
   collectorStrFromMenu = QString::null;
@@ -2569,9 +2691,10 @@ StatsPanel::IOReportSelected(int val)
       }
     }
 
-// printf("currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
-
-// printf("Collector changed call updateStatsPanelData() \n");
+#ifdef DEBUG_StatsPanel
+    printf("currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
+    printf("Collector changed call updateStatsPanelData() \n");
+#endif
     updateStatsPanelData();
   }
 }
@@ -2594,9 +2717,11 @@ StatsPanel::collectorHWCTimeReportSelected(int val)
 void
 StatsPanel::HWCReportSelected(int val)
 { 
-// printf("HWCReportSelected: collectorMetricSelected val=%d\n", val);
-// printf("HWCReportSelected: hwc_menu=(%s)\n", hwc_menu->text(val).ascii() );
-// printf("HWCReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("HWCReportSelected: collectorMetricSelected val=%d\n", val);
+  printf("HWCReportSelected: hwc_menu=(%s)\n", hwc_menu->text(val).ascii() );
+  printf("HWCReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#endif
 
   currentUserSelectedReportStr = QString::null;
   collectorStrFromMenu = QString::null;
@@ -2635,9 +2760,10 @@ StatsPanel::HWCReportSelected(int val)
     }
 
 
-// printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
-
-// printf("Collector changed call updateStatsPanelData() \n");
+#ifdef DEBUG_StatsPanel
+    printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+    printf("Collector changed call updateStatsPanelData() \n");
+#endif
     updateStatsPanelData();
   }
 }
@@ -2646,9 +2772,11 @@ StatsPanel::HWCReportSelected(int val)
 void
 StatsPanel::HWCTimeReportSelected(int val)
 { 
-// printf("HWCTimeReportSelected: collectorMetricSelected val=%d\n", val);
-// printf("HWCTimeReportSelected: hwctime_menu=(%s)\n", hwctime_menu->text(val).ascii() );
-// printf("HWCTimeReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("HWCTimeReportSelected: collectorMetricSelected val=%d\n", val);
+  printf("HWCTimeReportSelected: hwctime_menu=(%s)\n", hwctime_menu->text(val).ascii() );
+  printf("HWCTimeReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#endif
 
   currentUserSelectedReportStr = QString::null;
   collectorStrFromMenu = QString::null;
@@ -2687,9 +2815,10 @@ StatsPanel::HWCTimeReportSelected(int val)
     }
 
 
-// printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
-
-// printf("Collector changed call updateStatsPanelData() \n");
+#ifdef DEBUG_StatsPanel
+    printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+    printf("Collector changed call updateStatsPanelData() \n");
+#endif
     updateStatsPanelData();
   }
 }
@@ -2698,9 +2827,11 @@ StatsPanel::HWCTimeReportSelected(int val)
 void
 StatsPanel::collectorUserTimeReportSelected(int val)
 { 
-// printf("collectorUserTimeReportSelected: val=%d\n", val);
-// printf("collectorUserTimeReportSelected: usertime_menu=(%s)\n", usertime_menu->text(val).ascii() );
-// printf("collectorUserTimeReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("collectorUserTimeReportSelected: val=%d\n", val);
+   printf("collectorUserTimeReportSelected: usertime_menu=(%s)\n", usertime_menu->text(val).ascii() );
+   printf("collectorUserTimeReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#endif
 
   currentUserSelectedReportStr = QString::null;
   currentCollectorStr = "usertime";
@@ -2741,12 +2872,12 @@ StatsPanel::collectorUserTimeReportSelected(int val)
 // printf("UT2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
     }
 
-// printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
-
-// printf("Collector changed call updateStatsPanelData() \n");
+#ifdef DEBUG_StatsPanel
+  printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+  printf("Collector changed call updateStatsPanelData() \n");
+#endif
   }
   updateStatsPanelData();
-
 
 }
 
@@ -2754,9 +2885,11 @@ StatsPanel::collectorUserTimeReportSelected(int val)
 void
 StatsPanel::collectorPCSampReportSelected(int val)
 { 
-// printf("collectorPCSampReportSelected: val=%d\n", val);
-// printf("collectorPCSampReportSelected: pcsamp_menu=(%s)\n", pcsamp_menu->text(val).ascii() );
-// printf("collectorPCSampReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("collectorPCSampReportSelected: val=%d\n", val);
+  printf("collectorPCSampReportSelected: pcsamp_menu=(%s)\n", pcsamp_menu->text(val).ascii() );
+  printf("collectorPCSampReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#endif
 
   currentUserSelectedReportStr = QString::null;
   currentCollectorStr = "pcsamp";
@@ -2796,9 +2929,10 @@ StatsPanel::collectorPCSampReportSelected(int val)
       }
     }
 
-// printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
-
-// printf("Collector changed call updateStatsPanelData() \n");
+#ifdef DEBUG_StatsPanel
+  printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+  printf("Collector changed call updateStatsPanelData() \n");
+#endif
   }
   updateStatsPanelData();
 
@@ -2808,9 +2942,11 @@ StatsPanel::collectorPCSampReportSelected(int val)
 void
 StatsPanel::collectorFPEReportSelected(int val)
 { 
-// printf("collectorFPEReportSelected: val=%d\n", val);
-// printf("collectorFPEReportSelected: fpe_menu=(%s)\n", fpe_menu->text(val).ascii() );
-// printf("collectorFPEReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("collectorFPEReportSelected: val=%d\n", val);
+  printf("collectorFPEReportSelected: fpe_menu=(%s)\n", fpe_menu->text(val).ascii() );
+  printf("collectorFPEReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#endif
 
   currentUserSelectedReportStr = QString::null;
   currentCollectorStr = "fpe";
@@ -2851,9 +2987,10 @@ StatsPanel::collectorFPEReportSelected(int val)
 // printf("UT2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
     }
 
-// printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
-
-// printf("Collector changed call updateStatsPanelData() \n");
+#ifdef DEBUG_StatsPanel
+  printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+  printf("Collector changed call updateStatsPanelData() \n");
+#endif
   }
   updateStatsPanelData();
 
@@ -2864,27 +3001,32 @@ StatsPanel::collectorFPEReportSelected(int val)
 void
 StatsPanel::collectorGenericReportSelected(int val)
 { 
-// printf("collectorGenericReportSelected: val=%d\n", val);
-// printf("collectorGenericReportSelected: generic_menu=(%s)\n", generic_menu->text(val).ascii() );
-// printf("collectorGenericReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("collectorGenericReportSelected: val=%d\n", val);
+  printf("collectorGenericReportSelected: generic_menu=(%s)\n", generic_menu->text(val).ascii() );
+  printf("collectorGenericReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#endif
 
   currentUserSelectedReportStr = QString::null;
 
   currentMetricStr = QString::null;
   currentCollectorStr = QString::null;
   selectedFunctionStr = QString::null;
-// printf("C: NULLING OUT selectedFunctionStr\n");
-
-// printf("Collector changed call updateStatsPanelData() \n");
-    updateStatsPanelData();
+#ifdef DEBUG_StatsPanel
+  printf("C: NULLING OUT selectedFunctionStr\n");
+  printf("Collector changed call updateStatsPanelData() \n");
+#endif
+  updateStatsPanelData();
 }
 
 
 void
 StatsPanel::modifierSelected(int val)
 { 
-// printf("modifierSelected val=%d\n", val);
-// printf("modifierSelected: (%s)\n", modifierMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("modifierSelected val=%d\n", val);
+  printf("modifierSelected: (%s)\n", modifierMenu->text(val).ascii() );
+#endif
 
   if( modifierMenu->text(val).isEmpty() )
   {
@@ -2932,15 +3074,21 @@ StatsPanel::modifierSelected(int val)
 // selected each modifier.   Now, they select the modifier, then go out and
 // reselect the Query...
 //  updateStatsPanelData();
+#ifdef DEBUG_StatsPanel
+  printf("exit modifierSelected \n");
+#endif
+
 }
 
 
 void
 StatsPanel::mpiModifierSelected(int val)
 { 
-// printf("mpiModifierSelected val=%d\n", val);
-// printf("modifierSelected: (%s)\n", mpiModifierMenu->text(val).ascii() );
-// printf("modifierSelected: (%d)\n", mpiModifierMenu->text(val).toInt() );
+#ifdef DEBUG_StatsPanel
+ printf("mpiModifierSelected val=%d\n", val);
+ printf("modifierSelected: (%s)\n", mpiModifierMenu->text(val).ascii() );
+ printf("modifierSelected: (%d)\n", mpiModifierMenu->text(val).toInt() );
+#endif
 
 
   if( mpiModifierMenu->text(val).isEmpty() )
@@ -2995,14 +3143,19 @@ StatsPanel::mpiModifierSelected(int val)
     }
     mpiModifierMenu->setItemChecked(val, TRUE);
   }
+#ifdef DEBUG_StatsPanel
+  printf("exit mpiModifierSelected \n");
+#endif
 }
 
 
 void
 StatsPanel::mpitModifierSelected(int val)
 { 
-// printf("mpitModifierSelected val=%d\n", val);
-// printf("modifierSelected: (%s)\n", mpitModifierMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("mpitModifierSelected val=%d\n", val);
+   printf("modifierSelected: (%s)\n", mpitModifierMenu->text(val).ascii() );
+#endif
 
 
   if( mpitModifierMenu->text(val).isEmpty() )
@@ -3061,8 +3214,10 @@ StatsPanel::mpitModifierSelected(int val)
 void
 StatsPanel::ioModifierSelected(int val)
 { 
-// printf("ioModifierSelected val=%d\n", val);
-// printf("modifierSelected: (%s)\n", ioModifierMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("ioModifierSelected val=%d\n", val);
+  printf("modifierSelected: (%s)\n", ioModifierMenu->text(val).ascii() );
+#endif
 
   if( ioModifierMenu->text(val).isEmpty() )
   {
@@ -3120,8 +3275,10 @@ StatsPanel::ioModifierSelected(int val)
 void
 StatsPanel::iotModifierSelected(int val)
 { 
-// printf("iotModifierSelected val=%d\n", val);
-// printf("modifierSelected: (%s)\n", iotModifierMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("iotModifierSelected val=%d\n", val);
+  printf("modifierSelected: (%s)\n", iotModifierMenu->text(val).ascii() );
+#endif
 
 
   if( iotModifierMenu->text(val).isEmpty() )
@@ -3179,8 +3336,10 @@ StatsPanel::iotModifierSelected(int val)
 void
 StatsPanel::hwcModifierSelected(int val)
 { 
-// printf("hwcModifierSelected val=%d\n", val);
-// printf("modifierSelected: (%s)\n", hwcModifierMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("hwcModifierSelected val=%d\n", val);
+  printf("modifierSelected: (%s)\n", hwcModifierMenu->text(val).ascii() );
+#endif
 
   if( hwcModifierMenu->text(val).isEmpty() )
   {
@@ -3238,8 +3397,10 @@ StatsPanel::hwcModifierSelected(int val)
 void
 StatsPanel::hwctimeModifierSelected(int val)
 { 
-// printf("hwctimeModifierSelected val=%d\n", val);
-// printf("modifierSelected: (%s)\n", hwctimeModifierMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("hwctimeModifierSelected val=%d\n", val);
+  printf("modifierSelected: (%s)\n", hwctimeModifierMenu->text(val).ascii() );
+#endif
 
   if( hwctimeModifierMenu->text(val).isEmpty() )
   {
@@ -3297,8 +3458,10 @@ StatsPanel::hwctimeModifierSelected(int val)
 void
 StatsPanel::usertimeModifierSelected(int val)
 { 
-// printf("usertimeModifierSelected val=%d\n", val);
-// printf("modifierSelected: (%s)\n", usertimeModifierMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("usertimeModifierSelected val=%d\n", val);
+  printf("modifierSelected: (%s)\n", usertimeModifierMenu->text(val).ascii() );
+#endif
 
   if( usertimeModifierMenu->text(val).isEmpty() )
   {
@@ -3355,8 +3518,10 @@ StatsPanel::usertimeModifierSelected(int val)
 void
 StatsPanel::pcsampModifierSelected(int val)
 { 
-// printf("pcsampModifierSelected val=%d\n", val);
-// printf("modifierSelected: (%s)\n", pcsampModifierMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("StatsP-pcsampModifierSelected val=%d\n", val);
+  printf("StatsP-modifierSelected: (%s)\n", pcsampModifierMenu->text(val).ascii() );
+#endif
 
   if( pcsampModifierMenu->text(val).isEmpty() )
   {
@@ -3380,7 +3545,9 @@ StatsPanel::pcsampModifierSelected(int val)
 
 
   std::string s = pcsampModifierMenu->text(val).ascii();
-// printf("B1: modifierStr=(%s)\n", s.c_str() );
+#ifdef DEBUG_StatsPanel
+  printf("StatsP-B1: modifierStr=(%s)\n", s.c_str() );
+#endif
 
   bool FOUND = FALSE;
   for( std::list<std::string>::const_iterator it = current_list_of_pcsamp_modifiers.begin();
@@ -3390,7 +3557,9 @@ StatsPanel::pcsampModifierSelected(int val)
 
     if( modifier ==  s )
     {   // It's in the list, so take it out...
-// printf("The modifier was in the list ... take it out!\n");
+#ifdef DEBUG_StatsPanel
+      printf("StatsP-The modifier was in the list ... take it out!\n");
+#endif
       FOUND = TRUE;
     }
 
@@ -3406,7 +3575,9 @@ StatsPanel::pcsampModifierSelected(int val)
 
   if( FOUND == FALSE )
   {
-// printf("The modifier was not in the list ... add it!\n");
+#ifdef DEBUG_StatsPanel
+    printf("StatsP-The modifier was not in the list ... add it!\n");
+#endif
     if( s != PTI )
     {
       current_list_of_pcsamp_modifiers.push_back(s);
@@ -3419,8 +3590,10 @@ StatsPanel::pcsampModifierSelected(int val)
 void
 StatsPanel::fpeModifierSelected(int val)
 { 
-// printf("fpeModifierSelected val=%d\n", val);
-// printf("modifierSelected: (%s)\n", fpeModifierMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("StatsP-fpeModifierSelected val=%d\n", val);
+  printf("StatsP-modifierSelected: (%s)\n", fpeModifierMenu->text(val).ascii() );
+#endif
 
   if( fpeModifierMenu->text(val).isEmpty() )
   {
@@ -3477,8 +3650,10 @@ StatsPanel::fpeModifierSelected(int val)
 void
 StatsPanel::genericModifierSelected(int val)
 { 
-// printf("genericModifierSelected val=%d\n", val);
-// printf("modifierSelected: (%s)\n", genericModifierMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("StatsP-genericModifierSelected val=%d\n", val);
+  printf("StatsP-modifierSelected: (%s)\n", genericModifierMenu->text(val).ascii() );
+#endif
 
   if( genericModifierMenu->text(val).isEmpty() )
   {
@@ -3526,14 +3701,18 @@ StatsPanel::genericModifierSelected(int val)
 void
 StatsPanel::raisePreferencePanel()
 {
-// printf("StatsPanel::raisePreferencePanel() \n");
+#ifdef DEBUG_StatsPanel
+  printf("StatsP-raisePreferencePanel() \n");
+#endif
   getPanelContainer()->getMainWindow()->filePreferences( statsPanelStackPage, QString(pluginInfo->panel_type) );
 }
 
 int
 StatsPanel::getLineColor(double value)
 {
-// printf("getLineColor(%f) descending_sort= %d TotalTime=%f\n", value, descending_sort, TotalTime);
+#ifdef DEBUG_StatsPanel
+  printf("StatsP-getLineColor(%f) descending_sort= %d TotalTime=%f\n", value, descending_sort, TotalTime);
+#endif
   if( (int) value >  0.0 )
   {
     if( TotalTime*.90 >= value )
@@ -3577,7 +3756,9 @@ StatsPanel::getLineColor(double value)
 int
 StatsPanel::getLineColor(unsigned int value)
 {
-// printf("getLineColor(%u)\n", value);
+#ifdef DEBUG_StatsPanel
+  printf("StatsP-getLineColor(%u)\n", value);
+#endif
 
 
   if( (int) value >  0.0 )
@@ -3625,7 +3806,9 @@ StatsPanel::getLineColor(unsigned int value)
 int
 StatsPanel::getLineColor(uint64_t value)
 {
-// printf("getLineColor(%lld)\n", value);
+#ifdef DEBUG_StatsPanel
+  printf("StatsP-getLineColor(%lld)\n", value);
+#endif
 
   if( (uint64_t) value >  0.0 )
   {
@@ -3672,12 +3855,17 @@ StatsPanel::getLineColor(uint64_t value)
 void
 StatsPanel::updateCollectorList()
 {
-// printf("updateCollectorList() entered\n");
+#ifdef DEBUG_StatsPanel
+  printf("StatsP-updateCollectorList() entered\n");
+#endif
+
   if( experimentGroupList.count() > 0 )
   {
     list_of_collectors.clear();
     QString command = QString("list -v expTypes -x %1").arg(focusedExpID);
-// printf("A: attempt to run (%s)\n", command.ascii() );
+#ifdef DEBUG_StatsPanel
+    printf("StatsP-updateCollectorList-A: attempt to run (%s)\n", command.ascii() );
+#endif
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     InputLineObject *clip = NULL;
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
@@ -3696,7 +3884,9 @@ StatsPanel::updateCollectorList()
     {
       command = QString("list -v expTypes -x %1").arg(focusedExpID);
     }
-// printf("B: attempt to run (%s)\n", command.ascii() );
+#ifdef DEBUG_StatsPanel
+    printf("StatsP-updateCollectorList-B: attempt to run (%s)\n", command.ascii() );
+#endif
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     list_of_collectors.clear();
     InputLineObject *clip = NULL;
@@ -3705,15 +3895,19 @@ StatsPanel::updateCollectorList()
     {
       printf("Unable to run %s command.\n", command.ascii() );
     }
-#if 0
-  printf("ran %s\n", command.ascii() );
-for( std::list<std::string>::const_iterator it = list_of_collectors.begin();
+//#if 0
+
+#ifdef DEBUG_StatsPanel
+    printf("StatsP-updateCollectorList-ran %s\n", command.ascii() );
+    for( std::list<std::string>::const_iterator it = list_of_collectors.begin();
       it != list_of_collectors.end(); it++ )
-{
-  std::string collector_name = (std::string)*it;
-  printf("DEBUG:A: collector_name = (%s)\n", collector_name.c_str() );
-}
-#endif // 0
+    {
+    std::string collector_name = (std::string)*it;
+    printf("StatsP-updateCollectorList-DEBUG:A: collector_name = (%s)\n", collector_name.c_str() );
+    }
+#endif // DEBUG_StatsPanel
+
+//#endif // 0
   }
 }
 
@@ -3731,17 +3925,21 @@ StatsPanel::updateCollectorMetricList()
   {
     command = QString("list -v metrics -x %1").arg(focusedExpID);
   }
-// printf("attempt to run (%s)\n", command.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("StatsP-updateCollectorMetricList-attempt to run (%s)\n", command.ascii() );
+#endif
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   list_of_collectors_metrics.clear();
-list_of_generic_modifiers.clear();
+  list_of_generic_modifiers.clear();
   InputLineObject *clip = NULL;
   if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
          &list_of_collectors_metrics, clip, TRUE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }
-// printf("ran %s\n", command.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("StatsP-updateCollectorMetricList-ran %s\n", command.ascii() );
+#endif
 
   if( list_of_collectors_metrics.size() > 0 )
   {
@@ -3749,13 +3947,17 @@ list_of_generic_modifiers.clear();
          it != list_of_collectors_metrics.end(); it++ )
     {
       std::string collector_name = (std::string)*it;
-// printf("collector_name/metric name=(%s)\n", collector_name.c_str() );
+#ifdef DEBUG_StatsPanel
+      printf("StatsP-updateCollectorMetricList-collector_name/metric name=(%s)\n", collector_name.c_str() );
+#endif
       if( currentCollectorStr.isEmpty() )
       {
         QString s = QString(collector_name.c_str());
         int index = s.find("::");
         currentCollectorStr = s.mid(0, index );
-// printf("Default the current collector to (%s)\n", collector_name.c_str());
+#ifdef DEBUG_StatsPanel
+        printf("StatsP-updateCollectorMetricList-Default the current collector to (%s)\n", collector_name.c_str());
+#endif
       }
 list_of_generic_modifiers.push_back(collector_name);
     }
@@ -3778,7 +3980,9 @@ StatsPanel::updateThreadsList()
     command = QString("list -v ranks -x %1").arg(focusedExpID);
   }
   currentThreadStrENUM = RANK;
-// printf("attempt to run (%s)\n", command.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("StatsP-updateThreadsList-attempt to run (%s)\n", command.ascii() );
+#endif
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   list_of_pids.clear();
   InputLineObject *clip = NULL;
@@ -6223,12 +6427,16 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
 #ifdef DEBUG_StatsPanel
     dumpClipFLAG = TRUE;
     printf("StatsPanel::process_clip entered\n");
+    printf("StatsPanel::process_clip entered &statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
 #endif
 
   if( __internal_debug_setting & DEBUG_CLIPS )
   {
     dumpClipFLAG = TRUE;
   }
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::process_clip before NULL check &statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
+#endif
   if( statspanel_clip == NULL )
   {
     cerr << "No clip to process.\n";
@@ -6241,6 +6449,10 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
 
   std::list<CommandObject *>::iterator coi;
 
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::process_clip before NULL check statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip,statspanel_clip);
+  printf("StatsPanel::process_clip statspanel_clip->CmdObj_List().begin() == NULL=%d\n", (statspanel_clip->CmdObj_List().begin() == NULL));
+#endif
   coi = statspanel_clip->CmdObj_List().begin();
   CommandObject *co = (CommandObject *)(*coi);
 
@@ -6771,7 +6983,9 @@ StatsPanel::analyzeTheCView()
       printf("Unable to run %s command.\n", command.ascii() );
     }
     QString str = QString( cstring.c_str() );
-// printf("str=(%s)\n", str.ascii() );
+#ifdef DEBUG_StatsPanel
+    printf("str=(%s)\n", str.ascii() );
+#endif
     int cid = -1;
     int expID = -1;
     QString collectorStr = QString::null;
@@ -7059,12 +7273,18 @@ if(  currentCollectorStr != "pcsamp" && currentCollectorStr != "hwc" )
 void
 StatsPanel::functionsSelected()
 {
-// printf("functionsSelected()\n");
-// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("functionsSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
 
   currentUserSelectedReportStr = "Functions";
 
   toolbar_status_label->setText("Generating Functions Report...");
+
+#ifdef DEBUG_StatsPanel
+ printf("StatsP-functionsSelected(), calling updateStatsPanelData\n" );
+#endif
 
   updateStatsPanelData();
 
@@ -7074,13 +7294,18 @@ StatsPanel::functionsSelected()
 void
 StatsPanel::linkedObjectsSelected()
 {
-// printf("linkedObjectsSelected()\n");
-// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("linkedObjectsSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
 
   currentUserSelectedReportStr = "LinkedObjects";
 
   toolbar_status_label->setText("Generating Linked Objects Report...");
 
+#ifdef DEBUG_StatsPanel
+ printf("StatsP-linkedObjectsSelected(), calling updateStatsPanelData\n" );
+#endif
   updateStatsPanelData();
 
   toolbar_status_label->setText("Showing Linked Objects Report:");
@@ -7090,12 +7315,18 @@ StatsPanel::linkedObjectsSelected()
 void
 StatsPanel::statementsSelected()
 {
-// printf("statementsSelected()\n");
-// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("StatsP-statementsSelected()\n");
+ printf("StatsP-currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
 
   currentUserSelectedReportStr = "Statements";
 
   toolbar_status_label->setText("Generating Statements Report...");
+
+#ifdef DEBUG_StatsPanel
+ printf("StatsP-statementsSelected(), calling updateStatsPanelData\n" );
+#endif
 
   updateStatsPanelData();
 
@@ -7105,8 +7336,10 @@ StatsPanel::statementsSelected()
 void
 StatsPanel::statementsByFunctionSelected()
 {
-// printf("statementsByFunctionSelected()\n");
-// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("statementsByFunctionSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
 
   currentUserSelectedReportStr = "Statements by Function";
 
@@ -7120,8 +7353,10 @@ StatsPanel::statementsByFunctionSelected()
 void
 StatsPanel::calltreesSelected()
 {
-// printf("calltreesSelected()\n");
-// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("calltreesSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
 
   currentUserSelectedReportStr = "CallTrees";
 
@@ -7135,8 +7370,10 @@ StatsPanel::calltreesSelected()
 void
 StatsPanel::calltreesByFunctionSelected()
 {
-// printf("calltreesByFunctionSelected()\n");
-// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("calltreesByFunctionSelected()\n");
+  printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
 
   currentUserSelectedReportStr = "CallTrees by Function";
 
@@ -7150,8 +7387,10 @@ StatsPanel::calltreesByFunctionSelected()
 void
 StatsPanel::calltreesFullStackSelected()
 {
-// printf("calltreesFullStackSelected()\n");
-// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("calltreesFullStackSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
 
   currentUserSelectedReportStr = "CallTrees,FullStack";
 
@@ -7165,8 +7404,10 @@ StatsPanel::calltreesFullStackSelected()
 void
 StatsPanel::calltreesFullStackByFunctionSelected()
 {
-// printf("calltreesFullStackByFunctionSelected()\n");
-// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("calltreesFullStackByFunctionSelected()\n");
+  printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
 
   currentUserSelectedReportStr = "CallTrees,FullStack by Function";
 
@@ -7180,8 +7421,10 @@ StatsPanel::calltreesFullStackByFunctionSelected()
 void
 StatsPanel::tracebacksSelected()
 {
-// printf("tracebacksSelected()\n");
-// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("tracebacksSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
 
   currentUserSelectedReportStr = "TraceBacks";
 
@@ -7195,8 +7438,10 @@ StatsPanel::tracebacksSelected()
 void
 StatsPanel::tracebacksByFunctionSelected()
 {
-// printf("tracebacksByFunctionSelected()\n");
-// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("tracebacksByFunctionSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
 
   currentUserSelectedReportStr = "TraceBacks by Function";
 
@@ -7210,8 +7455,10 @@ StatsPanel::tracebacksByFunctionSelected()
 void
 StatsPanel::tracebacksFullStackSelected()
 {
-// printf("tracebacksFullStackSelected()\n");
-// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("tracebacksFullStackSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
   currentUserSelectedReportStr = "TraceBacks,FullStack";
 
   toolbar_status_label->setText("Generating TraceBacks,FullStack Report...");
@@ -7224,8 +7471,10 @@ StatsPanel::tracebacksFullStackSelected()
 void
 StatsPanel::tracebacksFullStackByFunctionSelected()
 {
-// printf("tracebacksFullStackByFunctionSelected()\n");
-// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("tracebacksFullStackByFunctionSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
   currentUserSelectedReportStr = "TraceBacks,FullStack by Function";
 
   toolbar_status_label->setText("Generating TraceBacks,FullStack by Function Report...");
@@ -7238,8 +7487,10 @@ StatsPanel::tracebacksFullStackByFunctionSelected()
 void
 StatsPanel::butterflySelected()
 {
-// printf("butterflySelected()\n");
-// printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("butterflySelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
   currentUserSelectedReportStr = "Butterfly";
 
   toolbar_status_label->setText("Generating Butterfly Report:");
