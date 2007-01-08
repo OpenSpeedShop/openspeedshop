@@ -295,7 +295,7 @@ void Construct_View_Output (CommandObject *cmd,
     // in order to activate a GUI message with the same text.
 
       CommandResult *no_results = NULL;
-      no_results = new CommandResult_String ("There were no data samples for this experiment execution.\nPossible reasons for this could be:\n    The executable being run didn't run long enough to record performance data.\n    The type of performance data being gathered may not be present in the executable being executed.\n");
+      no_results = new CommandResult_String ("There were no data samples for this experiment execution.\nPossible reasons for this could be:\n   The executable being run didn't run long enough to record performance data.\n   The type of performance data being gathered may not be present in the executable being executed.\n   The executable was not compiled with debug symbols enabled (-g option or variant).\n");
 
       CommandResult_Columns *N = new CommandResult_Columns ();
       N->CommandResult_Columns::Add_Column (no_results);

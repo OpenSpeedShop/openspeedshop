@@ -280,7 +280,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   splv->setSorting ( 0, FALSE );
 
   sml =new QLabel(splitterA,"stats_message_label");
-  sml->setText("There were no data samples for this experiment execution.\nPossible reasons for this could be:\n   The executable being run didn't run long enough to record performance data.\n   The type of performance data being gathered may not be present in the executable being executed.\n");
+  sml->setText("There were no data samples for this experiment execution.\nPossible reasons for this could be:\n   The executable being run didn't run long enough to record performance data.\n   The type of performance data being gathered may not be present in the executable being executed.\n   The executable was not compiled with debug symbols enabled (-g option or variant).\n");
   // Hide this and only show it when we don't see any performance data samples
   sml->hide();
 
