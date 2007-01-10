@@ -39,7 +39,7 @@ w\:* {behavior:url(#default#VML);}
 Quick Start Guide<br>
 </span></b><big><span style="font-weight: bold;">Version 1.00 Release</span><br
  style="font-weight: bold;">
-<span style="font-weight: bold;">December 13, 2006</span></big><br>
+<span style="font-weight: bold;">January 10, 2007</span></big><br>
 </p>
 <div class="Section2"><b style=""><br style="" clear="all">
 </b>
@@ -50,8 +50,7 @@ Contents<br>
 </span></span></b></b></p>
 <ul style="text-align: left;" id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId84094">Open|SpeedShop
-Quick Start Information
-    </a>
+Quick Start Information </a>
     <ul>
       <li><a href="#mozTocId800987">Open|SpeedShop
 Invocation Command&nbsp; "openss"</a>
@@ -176,7 +175,8 @@ Using GUI<br>
 Using the <b>Open|SpeedShop</b> GUI,&nbsp; you know your
 executable and the experiment you want to run (PC Sampling)<br>
   <br>
-prompt:&gt; openss -f &lt;pathTOexecutable&gt;/executable_name pcsamp<br>
+prompt:&gt; <span style="font-weight: bold;">openss -f
+&lt;pathTOexecutable&gt;/executable_name pcsamp</span><br>
   <br>
 The above command will bring up the GUI window with the executable
 loaded to run the PC Sampling experiment on localhost.&nbsp; All the
@@ -188,7 +188,7 @@ If using the Open|SpeedShop wizard capability to guide you through the
 process of creating and starting a performance experiment, just call
 out the openss command with no arguments.<br>
   <br>
-prompt:&gt; openss<br>
+prompt:&gt; <span style="font-weight: bold;">openss</span><br>
   <br>
   <h3><a class="mozTocH3" name="mozTocId717950"></a>Example 2:&nbsp;
 Using Interactive CLI<br>
@@ -199,7 +199,7 @@ knows the experiment they want to run (User Time), and knows the host
 (bigiron.domain.com) on which the performance experiment will be run.<br>
   <br>
 prompt:&gt;
-openss -cli<br>
+  <span style="font-weight: bold;">openss -cli</span><br>
 expcreate -hbigiron.domain.com -f
 &lt;pathTOexecutable&gt;/executable_name
 usertime<br>
@@ -228,20 +228,39 @@ wants use the batch interface, knows their executable,&nbsp; knows the
 experiment
 they want to run (PC Sampling), and knows the host (bigiron.domain.com)
 on
-which the performance experiment will be run.<br>
+which the performance experiment will be run.&nbsp;&nbsp; There are two
+methods for accomplishing this.&nbsp;&nbsp; The default method would be
+to use the "openss -batch" command line to specify all the arguments
+and let Open|SpeedShop run the experiment and display the performance
+data using the default view.&nbsp;&nbsp; The command for the example
+defined above would be:<br>
   <br>
-Create a file (batch.input) containing the command line commands:<br>
+prompt:&gt; <span style="font-weight: bold;">openss -batch -h
+bigiron.domain.com -f &lt;pathTOexecutable&gt;/executable_name pcsamp</span><br>
+  <br>
+In the above example, Open|SpeedShop uses the default view to display
+the performance data.<br>
+  <br>
+If the user wants to deaviate from the default view or wants to run
+other Open|SpeedShop CLI commands there is a way to do
+this.&nbsp;&nbsp; The user creates a file of Open|SpeedShop CLI
+commands and pipes them into Open|SpeedShop in this form: "openss
+-batch &lt; batch.commands".<br>
+  <br>
+For example: Create a file (batch.input) containing the command line
+commands:<br>
 expcreate -h bigiron.domain.com
 -f &lt;pathTOexecutable&gt;/executable_name pcsamp<br>
 expgo<br>
-expview<br>
+expview -v statements<br>
 exit<br>
   <br>
 Then execute the <b>Open|SpeedShop</b> batch tool by using the
 "-batch"
 argument on the "openss" command:<br>
   <br>
-openss -batch &lt; batch.input<br>
+prompt:&gt;<span style="font-weight: bold;">
+openss -batch &lt; batch.input</span><br>
   <br>
 The <b>Open|SpeedShop</b> PC Sampling experiment will be run and the
 output
