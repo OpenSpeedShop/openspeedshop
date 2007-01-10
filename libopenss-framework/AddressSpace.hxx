@@ -61,7 +61,7 @@ namespace OpenSpeedShop { namespace Framework {
      *          address this shortcoming, a checksum (or similar) should also
      *          be checked in the future.
      *
-     * @ingroup implementation
+     * @ingroup Implementation
      */
     class AddressSpace
     {

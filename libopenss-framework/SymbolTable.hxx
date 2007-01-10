@@ -56,7 +56,7 @@ namespace OpenSpeedShop { namespace Framework {
      * in which it is typically found. This class encapsulates these various
      * processing steps.
      *
-     * @ingroup implementation
+     * @ingroup Implementation
      */
     class SymbolTable
     {
