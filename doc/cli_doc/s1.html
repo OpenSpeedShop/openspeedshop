@@ -1,5 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!
+<html>
+<head>
+<!--
       Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
       Permission is granted to copy, distribute and/or modify this document
       under the terms of the GNU Free Documentation License, Version 1.2
@@ -7,9 +9,7 @@
       with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
          Texts.  A copy of the license is included in the section entitled "GNU
       Free Documentation License".
->
-<html>
-<head>
+-->
   <title>OpenSpeedShop Example 1</title>
 </head>
 <body bgcolor="#ffffff">
@@ -59,10 +59,10 @@ ranks 2 and 5 and start the experiment running:</li>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b>listPids -h</b> host1</font></p>
+<p><font size="2"><b>list -v pids -h</b> host1</font></p>
 <p><font size="2"><b>expDetach -h</b> host1 <b>-r</b> *</font></p>
 <p><font size="2"><b>expAttach -h</b> host1 <b>-r</b> 2, 5</font></p>
-<p><font size="2"><b>listParams</b></font></p>
+<p><font size="2"><b>list -v params</b></font></p>
 </dir>
 </dir>
 </dir>
@@ -86,7 +86,7 @@ displayRefreshRate=0
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b>listExp</b></font></p>
+<p><font size="2"><b>list -v exp</b></font></p>
 </dir>
 </dir>
 </dir>
@@ -224,7 +224,8 @@ are currently known to the FrameWork. <b>expCreate </b>will create a
 thread group including all the ranks, processes, and/or threads from
 the Application Object and associate the new thread group with the
 experiment that has just been created.</font></p>
-<p><font size="2"># <b>listPids</b> will list the ranks, processes,
+<p><font size="2"># <b>list -v pids</b> will list the ranks,
+processes,
 and threads
 on the specified list of hosts.</font></p>
 <dir>
@@ -232,7 +233,7 @@ on the specified list of hosts.</font></p>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b>listPids -h</b> host1</font></p>
+<p><font size="2"><b>list -v pids -h</b> host1</font></p>
 </dir>
 </dir>
 </dir>
@@ -294,7 +295,8 @@ ranks on the original <b>expCreate</b> command:</font></p>
 </dir>
 </dir>
 </dir>
-<p><font size="2"># <b>listParams</b> retrieves the list of parameters
+<p><font size="2"># <b>list -v params</b> retrieves the list of
+parameters
 that
 may be changed by the user. The GUI and CLI tools need to display this
 to the user in order for the user to have the option of tuning the
@@ -304,7 +306,7 @@ experiment to their specific needs.</font></p>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b>listParams</b></font></p>
+<p><font size="2"><b>list -v params</b></font></p>
 </dir>
 </dir>
 </dir>
@@ -325,14 +327,15 @@ displayRefreshRate=0
 </dir>
 <p><font size="2"># We assume the user did not change the parameters in
 this part of the scenario because no expSetParam command is created.</font></p>
-<p><font size="2"><b># listExp </b>lists the active experiments to the
+<p><font size="2"><b># list -v exp </b>lists the active experiments to
+the
 screen</font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b>listExp</b></font></p>
+<p><font size="2"><b>list -v exp</b></font></p>
 </dir>
 </dir>
 </dir>
@@ -439,7 +442,8 @@ performance data.
 </dir>
 </dir>
 </dir>
-<p><font size="2"># The <b>listExp</b> command is presented here, only
+<p><font size="2"># The <b>list -v exp</b> command is presented here,
+only
 to show the it can be used at any point in a sequence to give
 experiment data back to the GUI or the CLI tools.</font></p>
 <dir>
@@ -447,7 +451,7 @@ experiment data back to the GUI or the CLI tools.</font></p>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b>listExp -x</b> 1</font></p>
+<p><font size="2"><b>list -v exp -x</b> 1</font></p>
 </dir>
 </dir>
 </dir>

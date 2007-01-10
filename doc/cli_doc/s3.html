@@ -1,5 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!
+<html>
+<head>
+<!--
       Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
       Permission is granted to copy, distribute and/or modify this document
       under the terms of the GNU Free Documentation License, Version 1.2
@@ -7,9 +9,7 @@
       with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
          Texts.  A copy of the license is included in the section entitled "GNU
       Free Documentation License".
->
-<html>
-<head>
+-->
   <title>OpenSpeedShop Example 3</title>
 </head>
 <body bgcolor="#ffffff">
@@ -41,8 +41,7 @@ that consists of 2 pids running on 2 separate host machines.
 on <i>host2</i> has 400.
 The builtin <i>pcsampling</i> and <i>io</i> collectors are used in
 concert with 2 user-defined
-ones: <i>user1</i> and <i>user2</i>.
-    </p>
+ones: <i>user1</i> and <i>user2</i>. </p>
     <p>The original application consisted of 2 identical copies of <i>a.out</i>
 runing on
 2 host machines. The application is being modified to use a new
@@ -54,13 +53,11 @@ be created
 on that host. The changes that are important are connected to threads
 12 to 96.
 This experiment is to identify certain performance characteristics of
-the modified section of code.
-    </p>
+the modified section of code. </p>
     <p>The new section of code is entered when the entry point <i>startxyz</i>
 on <i>host2</i>
 is called in thread number 1. We will bypass data collection until that
-point.
-    </p>
+point. </p>
     <p>The startup code sequence that begins with entry point <i>startxyz</i>
 initiates set of
 Input and Output operations. The initial set of IO operations is
@@ -75,8 +72,7 @@ entry point <i>flyingST</i>.
 We know that thread #299 on <i>host1</i> and thread #399 on <i>host2</i>
 are the only ones that
 perform IO operations. We will use the <i>io</i> collector on just
-those threads.
-    </p>
+those threads. </p>
     <p>Once we have completed using the <i>io</i> collector and the
 program has completed
 it's initial set up operations, the new algorithm will be executed. We
@@ -84,27 +80,23 @@ will use the user
 defined data collector, <i>user2</i> to gather the information we are
 seeking and will
 apply it to only the threads on <i>host2</i> where it has been
-implemented.
-    </p>
+implemented. </p>
     <p>Once the entry point <i>flyingST</i> is reached a second time,
 we know that the new algorithm
 has been completed. We do not need to collect anymore performance data
 and can let the program
-run to completion.
-    </p>
+run to completion. </p>
     <p> We want to collect <i>user1</i> measurements and <i>pcsamp</i>
 information for as much of the program as we can, without interfering
 with the performance
 collection related to analyzing the changed code. At various points in
 execution, we will
-need to disable these collectors.
-    </p>
+need to disable these collectors. </p>
     <p>Before running the <i>io</i>
 collector, a user supplied script will be run that will generate a
 special report that
 will be used later on, for a purpose that we do not need to be
-concerned about.
-    </p>
+concerned about. </p>
     <p>For simplicity, the <i>focused</i> experiment is the only one
 of concern snd does not
 need to be made explicit on the various commands. </p>
@@ -116,7 +108,7 @@ need to be made explicit on the various commands. </p>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><font size="2"><b>listPids -h</b> host1, host2 <b>-f</b>
+<p><font size="2"><font size="2"><b>list -v pids -h</b> host1, host2 <b>-f</b>
 a.out</font>
 </font></p>
 </dir>
@@ -151,7 +143,7 @@ a.out</font>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><font size="2"><b>SetBreak -h</b> host2 <b>-p</b>
+<p><font size="2"><font size="2"><b>setBreak -h</b> host2 <b>-p</b>
 6718917 <b>-t</b> 1 startxyz</font>
 </font></p>
 </dir>
@@ -182,7 +174,7 @@ a.out</font>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><font size="2"><b>listTypes</b></font>
+<p><font size="2"><font size="2"><b>list -v exptypes</b></font>
 </font></p>
 </dir>
 </dir>
@@ -201,8 +193,9 @@ a.out</font>
 <p><font size="2"><b>expAttach</b> pcsamp</font></p>
 <p><font size="2"><b>expAttach -t</b> 0:298, 300:398 user1</font></p>
 <p><font size="2"><b>expAttach -h</b> host2 <b>-t</b> 299 pcsamp</font></p>
-<p><font size="2"><b>expDetach -h</b> host2 <b>-p</b> 6718917 <b>-t</b> 12:96 pcsamp</font></p>
-<p><font size="2"><b>SetBreak -h</b> host1 <b>-t</b> 128 flyingRT</font></p>
+<p><font size="2"><b>expDetach -h</b> host2 <b>-p</b> 6718917 <b>-t</b>
+12:96 pcsamp</font></p>
+<p><font size="2"><b>setBreak -h</b> host1 <b>-t</b> 128 flyingRT</font></p>
 </dir>
 </dir>
 </dir>
@@ -284,7 +277,7 @@ a.out</font>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><font size="2"><b>listMetrics</b></font></b></font></p>
+<p><font size="2"><b><font size="2"><b>list -v metrics</b></font></b></font></p>
 </dir>
 </dir>
 </dir>
@@ -334,14 +327,17 @@ my.data</font></font></p>
 </dir>
 <br>
 <br>
-<h2><a name="mozTocId878377" class="mozTocH2"></a><font face="Arial" size="3">
-<a name="More_detailed_example_scenario_3_to_show"></a><big>More detailed
+<h2><a name="mozTocId878377" class="mozTocH2"></a><font face="Arial"
+ size="3">
+<a name="More_detailed_example_scenario_3_to_show"></a><big>More
+detailed
 example scenario 3 to show command usage</big></font></h2>
 <ul>
   <font size="2"><b><li>An annotated list of the commands for the
 scenario that will create an experiment that inserts instrumentation
 into a running application that consists of 2 pids running on 2
-separate host machines.</li></b></font>
+separate host machines.</li>
+  </b></font>
 </ul>
 <p><font size="2"><b><font size="2"># Find the <i>pids</i> associated
 with the running execution of
@@ -352,7 +348,7 @@ with the running execution of
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b>listPids -h</b> host1, host2 <b>-f</b> a.out</font></p>
+<p><font size="2"><b>list -v pids -h</b> host1, host2 <b>-f</b> a.out</font></p>
 </dir>
 </dir>
 </dir>
@@ -366,7 +362,8 @@ with the running execution of
 </dir>
 <p><font size="2"><b><font size="2"># Define an experiment with these
 pids.
-This application is known to have 300 threads on <i>host1</i> and 400 on
+This application is known to have 300 threads on <i>host1</i> and 400
+on
 <i>host2</i>.
 </font></b></font></p>
 <dir>
@@ -397,7 +394,7 @@ command will restart the application.
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b>SetBreak -h</b> host2 <b>-p</b>
+<p><font size="2"><b>setBreak -h</b> host2 <b>-p</b>
 6718917 <b>-t</b> 1 startxyz</font></p>
 </dir>
 </dir>
@@ -436,7 +433,7 @@ commands have not yet been determined.
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><font size="2"><b>listTypes</b></font>
+<p><font size="2"><b><font size="2"><b>list -v exptypes</b></font>
 </b></font></p>
 </dir>
 </dir>
@@ -461,8 +458,10 @@ to all the threads on both hosts.
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b># Add the <i>user1</i> collector to all the threads except
-#299 and #399. Note that threads 300:399 don't exist on <i>host1</i>, but do on
+<p><font size="2"><b># Add the <i>user1</i> collector to all the
+threads except
+#299 and #399. Note that threads 300:399 don't exist on <i>host1</i>,
+but do on
 <i>host2</i>.
 </b></font></p>
 <dir>
@@ -485,7 +484,7 @@ to include.</b></font></p>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><<b>expAttach -h</b> host2 <b>-t</b> 299 pcsamp</font></p>
+<p><font size="2">&lt;<b>expAttach -h</b> host2 <b>-t</b> 299 pcsamp</font></p>
 </dir>
 </dir>
 </dir>
@@ -501,7 +500,7 @@ want to collect <i>pcasmp</i> data for. Exclude them.
 <dir>
 <dir>
 <p><font size="2"><b>expDetach -h</b> host2 <b>-p</b>
-6718917 <b>-t</b> 12:96 pcsamp</font></font></p>
+6718917 <b>-t</b> 12:96 pcsamp</font></p>
 </dir>
 </dir>
 </dir>
@@ -517,7 +516,7 @@ instrumentation.
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b>SetBreak -h</b> host1 <b>-t</b>
+<p><font size="2"><b>setBreak -h</b> host1 <b>-t</b>
 128 flyingRT</font></p>
 </dir>
 </dir>
@@ -544,7 +543,7 @@ instrumentation.
 <div><font size="2"><b>Breakpoint #1 encountered</b></font></div>
 </dir>
 <p><font size="2"><b># Dang! We don't care about
-breakpoint #1 anymore.  Get rid of it and get going!
+breakpoint #1 anymore. Get rid of it and get going!
 </b></font></p>
 <dir>
 <dir>
@@ -559,12 +558,12 @@ breakpoint #1 anymore.  Get rid of it and get going!
 </dir>
 </dir>
 <p><font size="2"><b># After a while, we (finally)
-get to breakpoint #2.  </b></font></p>
+get to breakpoint #2. </b></font></p>
 <dir>
 <div><font size="2"><b>Breakpoint #2 encountered</b></font></div>
 </dir>
 <p><font size="2"><b># Get rid of breakpoint #2 and
-set another one of interest.  </b></font></p>
+set another one of interest. </b></font></p>
 <dir>
 <dir>
 <dir>
@@ -580,38 +579,42 @@ set another one of interest.  </b></font></p>
 <dir>
 <div><font size="2"><b>Breakpoint #3 defined</b></font></div>
 </dir>
-<p><font size="2"><b># Stop collection of <i>pcsamp</i> data for all threads
-on both hosts. Note that previously collected data samples will be preserved
-and that the <i>user1</i> collector remains active.  </b></font></p>
+<p><font size="2"><b># Stop collection of <i>pcsamp</i> data for all
+threads
+on both hosts. Note that previously collected data samples will be
+preserved
+and that the <i>user1</i> collector remains active. </b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b>expDetach</b> pcsamp</b></font></p>
+<p><font size="2"><b>expDetach</b> pcsamp</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b># Collect <i>io</i> data about the only 2 threads that
+<p><font size="2"><b># Collect <i>io</i> data about the only 2 threads
+that
 are known to handle intermediate files for the application. </b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b>expAttach -h</b> host1 <b>-t</b> 299 io</b></font></p>
-<p><font size="2"><b>expAttach -h</b> host2 <b>-t</b> 399 io</b></font></p>
+<p><font size="2"><b>expAttach -h</b> host1 <b>-t</b> 299 io</font></p>
+<p><font size="2"><b>expAttach -h</b> host2 <b>-t</b> 399 io</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b># Now run a script that does some special anaylsis and
+<p><font size="2"><b># Now run a script that does some special anaylsis
+and
 generates a repoort that is of interest. Access to this script may be
 implementation dependant, since it is on another host. We may only be
-able to read cross-mounted files systems.  </b></font></p>
+able to read cross-mounted files systems. </b></font></p>
 <dir>
 <dir>
 <dir>
@@ -640,14 +643,15 @@ running the application. </b></font></p>
 <dir>
 <div><font size="2"><b>Breakpoint #3 encountered</b></font></div>
 </dir>
-<p><font size="2"><b># At this point we need to examine what is going on.
+<p><font size="2"><b># At this point we need to examine what is going
+on.
 </b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b>listMetrics</b></font></p>
+<p><font size="2"><b>list -v metrics</b></font></p>
 </dir>
 </dir>
 </dir>
@@ -656,9 +660,10 @@ running the application. </b></font></p>
 <dir>
 <div><font size="2"><b>vTopN, vIO, vFpe, user1View</b></font></div>
 </dir>
-<p><font size="2"><b># At this point we need to examine the collected data
+<p><font size="2"><b># At this point we need to examine the collected
+data
 and decide what to do. Open a <b>GUI</b> window to examine the data
-collected by <i>user1</i>.  </b></font></p>
+collected by <i>user1</i>. </b></font></p>
 <dir>
 <dir>
 <dir>
@@ -670,8 +675,10 @@ collected by <i>user1</i>.  </b></font></p>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b># It is clear from the data that all the intermediate
-IO is complete. Remove the <i>io</i> collector from all threads, since it
+<p><font size="2"><b># It is clear from the data that all the
+intermediate
+IO is complete. Remove the <i>io</i> collector from all threads, since
+it
 is no longer of interest. Note that the data accumulated by the <i>io</i>
 collector is not discarded and can be examined later.
 </b></font></p>
@@ -686,7 +693,8 @@ collector is not discarded and can be examined later.
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b># We will restart the <i>pcsamp</i> collector on all
+<p><font size="2"><b># We will restart the <i>pcsamp</i> collector on
+all
 threads. New data will be added to the previosuly collected samples
 although there will be a gap in time where there are no samples
 about the program.
@@ -703,7 +711,8 @@ about the program.
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b># Let the program run for an hour or two and then stop
+<p><font size="2"><b># Let the program run for an hour or two and then
+stop
 it to examine it's behavior.
 </b></font></p>
 <dir>
@@ -717,7 +726,8 @@ it to examine it's behavior.
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b># First, we take a look at the old <i>io</i> samples
+<p><font size="2"><b># First, we take a look at the old <i>io</i>
+samples
 that were generated. This is not current information, but the realtime
 display for <i>user1View</i> suggests that there may be an anomoly
 that should be checked out.
@@ -743,14 +753,16 @@ it later. We will save it in a file on <i>host1</i>.
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b>expSave copy -h</b> host1 <b>-f</b> my.data</b></font></p>
+<p><font size="2"><b>expSave copy -h</b> host1 <b>-f</b> my.data</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b># What is happening on <i>host1</i> is no longer of
-interest.  Get rid of the <i>pcsamp</i> and <i>user1</i> collectors that
+<p><font size="2"><b># What is happening on <i>host1</i> is no longer
+of
+interest. Get rid of the <i>pcsamp</i> and <i>user1</i> collectors
+that
 are still active on the host.
 </b></font></p>
 <dir>
@@ -765,7 +777,8 @@ are still active on the host.
 </dir>
 </dir>
 <p><font size="2"><b># Further more, we don't want to collect any more
-<i>pcsamp</i> data for <i>host2</i>, but keep the <i>user1</i> collector.
+<i>pcsamp</i> data for <i>host2</i>, but keep the <i>user1</i>
+collector.
 </b></font></p>
 <dir>
 <dir>
@@ -778,7 +791,8 @@ are still active on the host.
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b># Information on the <i>user1View</i> display, indicate
+<p><font size="2"><b># Information on the <i>user1View</i> display,
+indicate
 that this is the time to turn on our special <i>user2</i>
 collector. It will be restricted to a subset of threads on <i>host2</i>.
 </b></font></p>
@@ -794,8 +808,10 @@ collector. It will be restricted to a subset of threads on <i>host2</i>.
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b># The <i>user2</i> collector can generate a realtime
-display, so let's open it up and watch how the application is performing
+<p><font size="2"><b># The <i>user2</i> collector can generate a
+realtime
+display, so let's open it up and watch how the application is
+performing
 while it is executing.
 </b></font></p>
 <dir>
@@ -817,14 +833,19 @@ the application is performing while it is executing.
 <dir>
 <div><font size="2"><b>Breakpoint #3 encountered</b></font></div>
 </dir>
-<p><font size="2"><b># At some point, we reach the breakpoint that marks the
+<p><font size="2"><b># At some point, we reach the breakpoint that
+marks the
 end of an iteration in the application. We have collected data for a
-complete cycle and no longer need to instrument the program. The following
+complete cycle and no longer need to instrument the program. The
+following
 <b>expDetach</b> command stops all data collection and disconnects the
-application from the performance analysis tool. It does <i>not</i> throw
+application from the performance analysis tool. It does <i>not</i>
+throw
 away the data that has been collected, although there is no way to <i>View</i>
-it unless a collector is re-attached to the experiment. Since the application
-is no longer controlled by the performance tool, it can continue to run.
+it unless a collector is re-attached to the experiment. Since the
+application
+is no longer controlled by the performance tool, it can continue to
+run.
 </b></font></p>
 <dir>
 <dir>
@@ -837,8 +858,10 @@ is no longer controlled by the performance tool, it can continue to run.
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b># The <b>exit</b> command closes the performance analysis
-tool. All performance data is discarded and all related displays are closed.
+<p><font size="2"><b># The <b>exit</b> command closes the performance
+analysis
+tool. All performance data is discarded and all related displays are
+closed.
 Since the application has already been disconnected, it continues to
 run to completion.
 </b></font></p>

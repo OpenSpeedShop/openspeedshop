@@ -1,5 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!
+<html>
+<head>
+<!--
       Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
       Permission is granted to copy, distribute and/or modify this document
       under the terms of the GNU Free Documentation License, Version 1.2
@@ -7,9 +9,7 @@
       with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
          Texts.  A copy of the license is included in the section entitled "GNU
       Free Documentation License".
->
-<html>
-<head>
+-->
   <title>OpenSpeedShop Example 2</title>
 </head>
 <body bgcolor="#ffffff">
@@ -93,7 +93,7 @@ a.out, b.out, c.out</font></p>
 a.out, c.out</font></p>
 <p><font size="2"><b>expAttach -h</b> host1 <b>-f</b> b.out, c.out</font></p>
 <p><font size="2"><b>expAttach -x</b> 3 malloc</font></p>
-<p><font size="2"><b>listParams</b></font></p>
+<p><font size="2"><b>list -v params</b></font></p>
 </dir>
 </dir>
 </dir>
@@ -326,7 +326,8 @@ the fpe collector. The default experiment is still "3".</font></p>
 </dir>
 </dir>
 </dir>
-<p><font size="2"># <b>listParams</b> retrieves the list of parameters
+<p><font size="2"># <b>list -v params</b> retrieves the list of
+parameters
 that
 may be changed by the user. The GUI and CLI tools need to display this
 to the user in order for the user to have the option of tuning the
@@ -337,7 +338,7 @@ for experiment "1" which is the pc sampling experiment.</font></p>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b>listParams -x</b> 1</font></p>
+<p><font size="2"><b>list -v params -x</b> 1</font></p>
 </dir>
 </dir>
 </dir>
