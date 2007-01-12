@@ -50,6 +50,16 @@ char *script_expClose_args[] = {
     "        * ExpId object or ModifierList object with \"all\""
 };
 
+char *script_expCont_args[] = {
+    "expCont(*arglist)",
+    " ",
+    "    Parameters:",
+    "        arglist - 1 of 2 optional class objects:",
+    " ",
+    "            * ModifierList(\"all\")",
+    "            * ExpId"
+};
+
 char *script_expCreate_args[] = {
     "ExpId = expCreate(arglist)",
     "    arglist - up to 3 optional class objects:",
@@ -243,6 +253,16 @@ OpenSpeedShop::message_element_t script_msg[] = {
     NULL,0,
     script_expClose_args,sizeof(script_expClose_args)/sizeof(char **),
 
+//    CMD_EXP_CONT,
+    -1,cmd_desc[CMD_EXP_CONT].name,
+    NULL,0,
+    "scripting",
+    NULL,
+    NULL,0,
+    NULL,0,
+    NULL,0,
+    script_expCont_args,sizeof(script_expCont_args)/sizeof(char **),
+
 //    CMD_EXP_CREATE,
     -1,cmd_desc[CMD_EXP_CREATE].name,
     NULL,0,
@@ -312,6 +332,7 @@ OpenSpeedShop::message_element_t script_msg[] = {
     NULL,0,
     NULL,0,
     script_expPause_args,sizeof(script_expPause_args)/sizeof(char **),
+
 
 //    CMD_EXP_RESTORE,
     -1,cmd_desc[CMD_EXP_RESTORE].name,

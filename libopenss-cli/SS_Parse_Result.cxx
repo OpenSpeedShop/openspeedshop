@@ -73,8 +73,9 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "Syntax_Error", false,  CMD_HEAD_ERROR, /* used in error reporting */
     "expAttach",    false,  CMD_EXP_ATTACH,
     "expClose",     false,  CMD_EXP_CLOSE,
-    "expCreate",    false,  CMD_EXP_CREATE,
     "expCompare",   true,   CMD_EXP_COMPARE,
+    "expCont",	    false,  CMD_EXP_CONT,
+    "expCreate",    false,  CMD_EXP_CREATE,
     "expData",	    true,   CMD_EXP_DATA,
     "expDetach",    false,  CMD_EXP_DETACH,
     "expDisable",   false,  CMD_EXP_DISABLE,
@@ -90,9 +91,9 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
 
     "View",	    true,   CMD_VIEW,
 
+    "cViewCluster", true,   CMD_C_VIEW_CLUSTERS,
     "cViewCreate",  false,  CMD_C_VIEW_CREATE,
     "cViewDelete",  false,  CMD_C_VIEW_DELETE,
-    "cViewCluster", true,   CMD_C_VIEW_CLUSTERS,
     "cViewInfo",    true,   CMD_C_VIEW_INFO,
     "cView",	    true,   CMD_C_VIEW,
 

@@ -74,9 +74,7 @@ try {
   switch (cmd->Type()) {
 
 // Experiment Building BLock Commands
-  case CMD_EXP_CLOSE:
-    cmd_successful = SS_expClose(cmd);
-    break;
+
   case CMD_EXP_ATTACH:
 
     // Gather performance information on the expAttach command
@@ -100,6 +98,17 @@ try {
     }
 
     break;
+
+  case CMD_EXP_CLOSE:
+
+    cmd_successful = SS_expClose(cmd);
+    break;
+
+  case CMD_EXP_CONT:
+
+    cmd_successful = SS_expCont (cmd);
+    break;
+
   case CMD_EXP_CREATE:
 
     // Gather performance information on the expCreate command
@@ -243,6 +252,7 @@ try {
                                                    SS_Timings::expGoEnd);
     }
     break;
+
   case CMD_EXP_RESTORE:
 
     // Gather performance information on the expRestore command

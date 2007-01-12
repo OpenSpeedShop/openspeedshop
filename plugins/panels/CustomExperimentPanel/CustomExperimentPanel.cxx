@@ -65,7 +65,8 @@ class EPOutputClass : public ss_ostream
        {
          QString *data = new QString(line_buffer);
          ep->outputCLIData(data);
-         line_buffer = QString::null;
+//         line_buffer = QString::null;
+         line_buffer = QString((const char *)0);
        }
     }
     virtual void flush_ostream ()
@@ -102,7 +103,8 @@ CustomExperimentPanel::init( PanelContainer *pc, const char *n, ArgumentObject *
     collector_names = QString(cn);
   }
 
-  original_cview_command = QString::null;
+//  original_cview_command = QString::null;
+  original_cview_command = QString((const char *)0);
 
 // This flag only gets set to true when the data is read from a file
 // or when the program is terminated.
@@ -145,10 +147,14 @@ if( attachFLAG )
 
   ExperimentObject *eo = NULL;
   experiment = NULL;
-  executableNameStr = QString::null;
-  databaseNameStr = QString::null;
-  argsStr = QString::null;
-  pidStr = QString::null;
+//  executableNameStr = QString::null;
+  executableNameStr = QString((const char *)0);
+//  databaseNameStr = QString::null;
+  databaseNameStr = QString((const char *)0);
+//  argsStr = QString::null;
+  argsStr = QString((const char *)0);
+//  pidStr = QString::null;
+  pidStr = QString((const char *)0);
   exitingFLAG = FALSE;
   last_status = ExpStatus_NonExistent;
   aboutToRunFLAG = FALSE;
@@ -161,7 +167,8 @@ if( attachFLAG )
   argsStr = mw->argsStr;
   pidStr = mw->pidStr;
 
-  expStatsInfoStr = QString::null;
+//  expStatsInfoStr = QString::null;
+  expStatsInfoStr = QString((const char *)0);
 
   expID = -1;
   leftSideExpID = -1;
@@ -244,6 +251,8 @@ if( attachFLAG )
   runnableFLAG = FALSE;
   pco->runButton->setEnabled(FALSE);
   pco->runButton->enabledFLAG = FALSE;
+  pco->continueButton->setEnabled(FALSE);
+  pco->continueButton->enabledFLAG = FALSE;
 
   statusLayout = new QHBoxLayout( 0, 10, 0, "statusLayout" );
   
@@ -280,13 +289,23 @@ if( attachFLAG )
   if( expID == -1 )
   {
     // We're coming in cold, or we're coming in from the wizard panel.
-    QString command = QString::null;
+//    QString command = QString::null;
+    QString command = QString((const char *)0);
     command = QString("expCreate %1\n").arg(collector_names);
     bool mark_value_for_delete = true;
     int64_t val = 0;
 
     steps = 0;
-	pd = new GenericProgressDialog(this, "Loading experiment...", TRUE);
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::init, this=0x%x\n", this );
+#endif
+
+    pd = new GenericProgressDialog(this, "Loading experiment...", TRUE);
+
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::init, pd=0x%x\n", pd );
+#endif
+
     loadTimer = new QTimer( this, "progressTimer" );
     connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
     loadTimer->start( 0 );
@@ -296,11 +315,15 @@ if( attachFLAG )
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
+    pco->continueButton->setEnabled(FALSE);
+    pco->continueButton->setEnabled(FALSE);
+    pco->continueButton->enabledFLAG = FALSE;
 
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 #ifdef DEBUG_CustomPanel
- printf("command=(%s)\n", command.ascii() );
- printf("B: command=(%s)\n", command.ascii() );
+ printf("CustomExperimentPanel::init, command=(%s)\n", command.ascii() );
+ printf("CustomExperimentPanel::init, B: command=(%s)\n", command.ascii() );
+ printf("CustomExperimentPanel::init, B: calling cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ), cli=0x%x\n", cli );
 #endif
     if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ) )
     {
@@ -308,7 +331,7 @@ if( attachFLAG )
       QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
       command = QString("expCreate"); 
 #ifdef DEBUG_CustomPanel
- printf("C: command=(%s)\n", command.ascii() );
+ printf("CustomExperimentPanel::init, C: command=(%s)\n", command.ascii() );
 #endif
       if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ) )
       { // fatal errror.
@@ -331,6 +354,8 @@ if( attachFLAG )
       runnableFLAG = TRUE;
       pco->runButton->setEnabled(TRUE);
       pco->runButton->enabledFLAG = TRUE;
+      pco->continueButton->setEnabled(FALSE);
+      pco->continueButton->enabledFLAG = FALSE;
     }
     // Bring up the Manage Process panel when coming in cold
     // The user will have this to use to add processes and collectors
@@ -351,13 +376,17 @@ if( attachFLAG )
         runnableFLAG = FALSE;
         pco->runButton->setEnabled(FALSE);
         pco->runButton->enabledFLAG = FALSE;
-staticDataFLAG == TRUE;
+        pco->continueButton->setEnabled(FALSE);
+        pco->continueButton->enabledFLAG = FALSE;
+        staticDataFLAG == TRUE;
       } else
       {
         statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
         runnableFLAG = TRUE;
         pco->runButton->setEnabled(TRUE);
         pco->runButton->enabledFLAG = TRUE;
+        pco->continueButton->setEnabled(FALSE);
+        pco->continueButton->enabledFLAG = FALSE;
       }
   }
 
@@ -382,8 +411,10 @@ staticDataFLAG == TRUE;
     runnableFLAG = TRUE;
     pco->runButton->setEnabled(TRUE);
     pco->runButton->enabledFLAG = TRUE;
+    pco->continueButton->setEnabled(FALSE);
+    pco->continueButton->enabledFLAG = FALSE;
 #ifdef DEBUG_CustomPanel
- printf("C: call updateInitialStatus() \n");
+ printf("CustomExperimentPanel::init, C: call updateInitialStatus() \n");
 #endif
     updateInitialStatus();
   } else if( expID > 0 )
@@ -398,19 +429,19 @@ staticDataFLAG = TRUE;
         postProcessFLAG = TRUE;
 staticDataFLAG = TRUE;
 #ifdef DEBUG_CustomPanel
- printf("postProcessFLAG == TRUE!\n");
+ printf("CustomExperimentPanel::init, postProcessFLAG == TRUE!\n");
 #endif
 
         // If we default a report panel bring it up here...
 #ifdef DEBUG_CustomPanel
-        printf("Split:  Now loadStatsPanel()\n");
+        printf("CustomExperimentPanel::init, Split:  Now loadStatsPanel()\n");
 #endif
         Panel *p = loadStatsPanel();
             
 #ifdef DOUBLEREFRESH
         // Now focus on the first entry...
 #ifdef DEBUG_CustomPanel
-        printf("Now focus the statsPanel\n");
+        printf("CustomExperimentPanel::init, Now focus the statsPanel\n");
 #endif
         FocusObject *msg = new FocusObject(expID, NULL, NULL, TRUE);
         p->listener(msg);
@@ -419,19 +450,21 @@ staticDataFLAG = TRUE;
       {
         statusLabelText->setText( tr(QString("Process Loaded: Click on the \"Run\" button to begin the experiment.")) );
 #ifdef DEBUG_CustomPanel
- printf("D: call updateInitialStatus() \n");
+ printf("CustomExperimentPanel::init, D: call updateInitialStatus() \n");
 #endif
         updateInitialStatus();
       }
   } else if( executableNameStr.isEmpty() )
   {
 #ifdef DEBUG_CustomPanel
- printf("Here C: \n");
+ printf("CustomExperimentPanel::init, Here C: \n");
 #endif
     statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" or \"Use the Wizard to begin your experiment...\"") );
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
+    pco->continueButton->setEnabled(FALSE);
+    pco->continueButton->enabledFLAG = FALSE;
 //    updateInitialStatus();
   }
 
@@ -439,7 +472,7 @@ staticDataFLAG = TRUE;
   {
     processLAO(ao->lao);
 #ifdef DEBUG_CustomPanel
- printf("A: Attempt to remove the wizard panel from the  le panel.\n");
+ printf("CustomExperimentPanel::init, A: Attempt to remove the wizard panel from the  le panel.\n");
 #endif
     hideWizard();
   }
@@ -448,13 +481,13 @@ staticDataFLAG = TRUE;
   if( expID > 0 )
   {
 #ifdef DEBUG_CustomPanel
- printf("Put out local wizard?\n");
+ printf("CustomExperimentPanel::init, Put out local wizard?\n");
 #endif
 // Now get the threads.
 //    QString command = QString("listPids -x %1").arg(expID);
     QString command = QString("list -v pids -x %1").arg(expID);
 #ifdef DEBUG_CustomPanel
- printf("attempt to run (%s)\n", command.ascii() );
+ printf("CustomExperimentPanel::init, attempt to run (%s)\n", command.ascii() );
 #endif
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     std::list<int64_t> list_of_pids;
@@ -464,11 +497,11 @@ staticDataFLAG = TRUE;
            &list_of_pids, clip, TRUE ) )
     {
 #ifdef DEBUG_CustomPanel
-      printf("Unable to run %s command.\n", command.ascii() );
+      printf("CustomExperimentPanel::init, Unable to run %s command.\n", command.ascii() );
 #endif
     }
 #ifdef DEBUG_CustomPanel
- printf("ran %s\n", command.ascii() );
+ printf("CustomExperimentPanel::init, ran %s\n", command.ascii() );
 #endif
 
     if( clip )
@@ -481,7 +514,7 @@ staticDataFLAG = TRUE;
   if( abortPanelFLAG == FALSE )
   {
 #ifdef DEBUG_CustomPanel
- printf("size=(%d)\n",  list_of_pids.size()  );
+ printf("CustomExperimentPanel::init, size=(%d)\n",  list_of_pids.size()  );
 #endif
       if( list_of_pids.size() == 0 )
       {
@@ -808,7 +841,8 @@ CustomExperimentPanel::listener(void *msg)
 #endif
     if( exitingFLAG == FALSE && mw->shuttingDown == FALSE )
     {
-      QString command = QString::null;
+//      QString command = QString::null;
+      QString command = QString((const char *)0);
       command = QString("expClose -x %1").arg(expID);
 
       // First check to see if anyone (compare experiment namely) still
@@ -855,7 +889,8 @@ CustomExperimentPanel::listener(void *msg)
 //      co->print();
 //    }
 
-    QString command = QString::null;
+//    QString command = QString::null;
+    QString command = QString((const char *)0);
     bool mark_value_for_delete = true;
     int64_t val = 0;
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -929,6 +964,8 @@ CustomExperimentPanel::listener(void *msg)
         aboutToRunFLAG = TRUE;
         pco->runButton->setEnabled(FALSE);
         pco->runButton->enabledFLAG = FALSE;
+        pco->continueButton->setEnabled(FALSE);
+        pco->continueButton->enabledFLAG = FALSE;
         pco->pauseButton->setEnabled(FALSE);
         pco->pauseButton->enabledFLAG = FALSE;
         pco->updateButton->setEnabled(FALSE);
@@ -954,10 +991,11 @@ CustomExperimentPanel::listener(void *msg)
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
         cli->runSynchronousCLI(command.ascii());
         statusLabelText->setText( tr("Process Paused...") );
+        pco->continueButton->setEnabled(TRUE);
+        pco->continueButton->enabledFLAG = TRUE;
         }
         ret_val = 1;
         break;
-#ifdef CONTINUE_BUTTON
       case  CONT_T:
         {
         nprintf( DEBUG_MESSAGES ) ("Continue\n");
@@ -965,10 +1003,11 @@ CustomExperimentPanel::listener(void *msg)
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
         cli->runSynchronousCLI(command.ascii());
         statusLabelText->setText( tr("Process continued...") );
+        pco->continueButton->setEnabled(FALSE);
+        pco->continueButton->enabledFLAG = FALSE;
         }
         ret_val = 1;
         break;
-#endif // CONTINUE_BUTTON
       case  UPDATE_T:
         nprintf( DEBUG_MESSAGES ) ("Update\n");
         {
@@ -996,6 +1035,12 @@ CLIInterface::interrupt = true;
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
         cli->runSynchronousCLI(command.ascii());
         ret_val = 1;
+        pco->runButton->setEnabled(TRUE);
+        pco->runButton->enabledFLAG = TRUE;
+        pco->continueButton->setEnabled(FALSE);
+        pco->continueButton->enabledFLAG = FALSE;
+        pco->pauseButton->setEnabled(FALSE);
+        pco->pauseButton->enabledFLAG = FALSE;
         nprintf( DEBUG_MESSAGES ) ("Terminate\n");
         }
         break;
@@ -1062,7 +1107,8 @@ CustomExperimentPanel::saveAsSelected()
   nprintf( DEBUG_CONST_DESTRUCT ) ("From this pc on down, send out a saveAs message and put it to a file.\n");
 
   QFileDialog *sfd = NULL;
-  QString dirName = QString::null;
+//  QString dirName = QString::null;
+  QString dirName = QString((const char *)0);
   if( sfd == NULL )
   {
     sfd = new QFileDialog(this, "file dialog", TRUE );
@@ -1154,10 +1200,12 @@ CustomExperimentPanel::experimentStatus()
   nprintf( DEBUG_PANELS ) ("experimentStatus.\n");
 
 
-  expStatsInfoStr = QString::null;
+//  expStatsInfoStr = QString::null;
+  expStatsInfoStr = QString((const char *)0);
 
   QString command = QString("expStatus -x %1").arg(expID);
-  QString info_str = QString::null;
+//  QString info_str = QString::null;
+  QString info_str = QString((const char *)0);
   int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
 
 
@@ -1407,6 +1455,8 @@ CustomExperimentPanel::loadMain()
   {
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
+    pco->continueButton->setEnabled(FALSE);
+    pco->continueButton->enabledFLAG = FALSE;
     runnableFLAG = FALSE;
   }
 }
@@ -1438,11 +1488,9 @@ CustomExperimentPanel::updateStatus()
     runnableFLAG = FALSE;
     pco->pauseButton->setEnabled(FALSE);
     pco->pauseButton->enabledFLAG = FALSE;
-#ifdef CONTINUE_BUTTON
     pco->continueButton->setEnabled(FALSE);
     pco->continueButton->setEnabled(FALSE);
     pco->continueButton->enabledFLAG = FALSE;
-#endif // CONTINUE_BUTTON
     pco->updateButton->setEnabled(TRUE);
     pco->updateButton->enabledFLAG = TRUE;
     pco->terminateButton->setEnabled(TRUE);
@@ -1457,22 +1505,29 @@ staticDataFLAG = TRUE;
   if( eo && eo->FW() )
   {
     int status = eo->Determine_Status();
+
 #ifdef DEBUG_CustomPanel
-    printf(" : eo->Determine_Status()=%d\n", eo->Determine_Status() );
+// prints out quite often.....
+//    printf(" : eo->Determine_Status()=%d\n", eo->Determine_Status() );
 #endif
+
     if( eo->Determine_Status() == ExpStatus_NonExistent || eo->Determine_Status() == ExpStatus_InError || eo->Determine_Status() == ExpStatus_Terminated )
     {
       statusLabelText->setText( tr(QString("Loaded saved data from file %1.").arg(getDatabaseName()) ) );
       runnableFLAG = FALSE;
       pco->runButton->setEnabled(FALSE);
       pco->runButton->enabledFLAG = FALSE;
-staticDataFLAG = TRUE;
+      pco->continueButton->setEnabled(FALSE);
+      pco->continueButton->enabledFLAG = FALSE;
+      staticDataFLAG = TRUE;
     }
     nprintf( DEBUG_PANELS ) ("status=%d\n", status);
     switch( status )
     {
       case ExpStatus_NonExistent:
-// printf("ExpStatus_NonExistent:\n");
+#ifdef DEBUG_CustomPanel
+         printf("ExpStatus_NonExistent:\n");
+#endif
 //        statusLabelText->setText( "0: ExpStatus_NonExistent" );
 //        statusLabelText->setText( tr("No available experiment status available") );
         statusTimer->stop();
@@ -1481,11 +1536,9 @@ staticDataFLAG = TRUE;
         runnableFLAG = FALSE;
         pco->pauseButton->setEnabled(FALSE);
         pco->pauseButton->enabledFLAG = FALSE;
-#ifdef CONTINUE_BUTTON
         pco->continueButton->setEnabled(FALSE);
         pco->continueButton->setEnabled(FALSE);
         pco->continueButton->enabledFLAG = FALSE;
-#endif // CONTINUE_BUTTON
         pco->updateButton->setEnabled(FALSE);
         pco->updateButton->setEnabled(FALSE);
         pco->updateButton->enabledFLAG = FALSE;
@@ -1495,7 +1548,9 @@ staticDataFLAG = TRUE;
         statusTimer->stop();
         break;
       case ExpStatus_Paused:
-// printf("ExpStatus_Paused:\n");
+#ifdef DEBUG_CustomPanel
+        printf("ExpStatus_Paused:\n");
+#endif
         if( (last_status == ExpStatus_NonExistent || 
             readyToRunFLAG == TRUE ) && aboutToRunFLAG == FALSE )
         {
@@ -1518,11 +1573,17 @@ staticDataFLAG = TRUE;
         runnableFLAG = TRUE;
         pco->pauseButton->setEnabled(FALSE);
         pco->pauseButton->enabledFLAG = FALSE;
-#ifdef CONTINUE_BUTTON
-        pco->continueButton->setEnabled(TRUE);
-        pco->continueButton->setEnabled(TRUE);
-        pco->continueButton->enabledFLAG = TRUE;
-#endif // CONTINUE_BUTTON
+        if( (last_status == ExpStatus_NonExistent || 
+            readyToRunFLAG == TRUE ) && aboutToRunFLAG == FALSE )
+        {
+           pco->continueButton->setEnabled(FALSE);
+           pco->continueButton->setEnabled(FALSE);
+           pco->continueButton->enabledFLAG = FALSE;
+        } else {
+           pco->continueButton->setEnabled(TRUE);
+           pco->continueButton->setEnabled(TRUE);
+           pco->continueButton->enabledFLAG = TRUE;
+        }
         pco->updateButton->setEnabled(TRUE);
         pco->updateButton->enabledFLAG = TRUE;
         pco->terminateButton->setEnabled(TRUE);
@@ -1531,7 +1592,9 @@ staticDataFLAG = TRUE;
         statusTimer->start(2000);
         break;
       case ExpStatus_Running:
-// printf("ExpStatus_Running:\n");
+#ifdef DEBUG_CustomPanel
+        printf("ExpStatus_Running:\n");
+#endif
         aboutToRunFLAG = FALSE;
         readyToRunFLAG = FALSE;
         if( status == ExpStatus_Running )
@@ -1543,11 +1606,9 @@ staticDataFLAG = TRUE;
         runnableFLAG = FALSE;
         pco->pauseButton->setEnabled(TRUE);
         pco->pauseButton->enabledFLAG = TRUE;
-#ifdef CONTINUE_BUTTON
         pco->continueButton->setEnabled(FALSE);
         pco->continueButton->setEnabled(FALSE);
         pco->continueButton->enabledFLAG = FALSE;
-#endif // CONTINUE_BUTTON
         pco->updateButton->setEnabled(TRUE);
         pco->updateButton->enabledFLAG = TRUE;
         pco->terminateButton->setEnabled(TRUE);
@@ -1559,24 +1620,26 @@ staticDataFLAG = TRUE;
       case ExpStatus_InError:
         if( status == ExpStatus_Terminated )
         {
-// printf("ExpStatus_Terminated:\n");
+#ifdef DEBUG_CustomPanel
+          printf("Experiment has ExpStatus_Terminated status:\n");
+#endif
           statusLabelText->setText( tr("Experiment (%1) has Terminated").arg(executableNameStr) );
         } else if( status == ExpStatus_InError )
         {
-// printf("ExpStatus_InError:\n");
+#ifdef DEBUG_CustomPanel
+          printf("Experiment has ExpStatus_InError status:\n");
+#endif
           statusLabelText->setText( tr("Experiment has encountered an Error.") );
         }
         statusTimer->stop();
-        pco->runButton->setEnabled(FALSE);
-        pco->runButton->enabledFLAG = FALSE;
-        runnableFLAG = FALSE;
+        pco->runButton->setEnabled(TRUE);
+        pco->runButton->enabledFLAG = TRUE;
+        runnableFLAG = TRUE;
         pco->pauseButton->setEnabled(FALSE);
         pco->pauseButton->enabledFLAG = FALSE;
-#ifdef CONTINUE_BUTTON
         pco->continueButton->setEnabled(FALSE);
         pco->continueButton->setEnabled(FALSE);
         pco->continueButton->enabledFLAG = FALSE;
-#endif // CONTINUE_BUTTON
         pco->updateButton->setEnabled(TRUE);
         pco->updateButton->enabledFLAG = TRUE;
         pco->terminateButton->setEnabled(FALSE);
@@ -1588,7 +1651,9 @@ staticDataFLAG = TRUE;
        loadStatsPanel();
         break;
       default:
-// printf("unknown:\n");
+#ifdef DEBUG_CustomPanel
+        printf("Experiment has Unknown status:\n");
+#endif
         statusLabelText->setText( QString("%1: Unknown status").arg(status) );
           statusTimer->stop();
         break;
@@ -1647,7 +1712,8 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
   if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT") || QString(getName()).startsWith("FPE") || QString(getName()).startsWith("IO") )
   {
 // printf("WHY AREN'T YOU HERE!\n");
-    QString paramStr = QString::null;
+//    QString paramStr = QString::null;
+    QString paramStr = QString((const char *)0);
     bool checkAll = FALSE;
     for( ParamList::Iterator it = lao->paramList->begin(); it != lao->paramList->end(); ++it)
     {
@@ -1662,7 +1728,8 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
     }
 // printf("paramStr: (%s)\n", paramStr.ascii() );
 
-    QString command = QString::null;
+//    QString command = QString::null;
+    QString command = QString((const char *)0);
     if( !paramStr.isEmpty() )
     {
       if( QString(getName()).startsWith("FPE") )
@@ -1762,7 +1829,8 @@ printf("paramStr: MPI =(%s)\n", paramStr.ascii() );
     executableNameStr = lao->executableName;
     pidStr = lao->pidStr;
  
-    QString command = QString::null;
+//    QString command = QString::null;
+    QString command = QString((const char *)0);
     if( !executableNameStr.isEmpty() )
     {
       command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
@@ -1783,7 +1851,8 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 // printf("pidStr =%s\n", pidStr.ascii() );
 // printf("mw->hostStr =%s\n", mw->hostStr.ascii() );
 
-QString optionsStr = QString::null;
+//QString optionsStr = QString::null;
+QString optionsStr = QString((const char *)0);
 if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 {
   optionsStr += QString(" -v mpi");
@@ -1811,6 +1880,8 @@ optionsStr += QString(" -h %1").arg(mw->hostStr);
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
+    pco->continueButton->setEnabled(FALSE);
+    pco->continueButton->enabledFLAG = FALSE;
   
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 // printf("D: command=(%s)\n", command.ascii() );
@@ -1835,6 +1906,8 @@ optionsStr += QString(" -h %1").arg(mw->hostStr);
       runnableFLAG = TRUE;
       pco->runButton->setEnabled(TRUE);
       pco->runButton->enabledFLAG = TRUE;
+      pco->continueButton->setEnabled(FALSE);
+      pco->continueButton->enabledFLAG = FALSE;
     }
   
 // printf("B: call updateInitialStatus() \n");
@@ -1858,8 +1931,10 @@ CustomExperimentPanel::outputCLIData(QString *data)
 void
 CustomExperimentPanel::attachProcessSelected()
 {
-  mw->executableName = QString::null;
-  mw->pidStr = QString::null;
+//  mw->executableName = QString::null;
+  mw->executableName = QString((const char *)0);
+//  mw->pidStr = QString::null;
+  mw->pidStr = QString((const char *)0);
   mw->attachNewProcess();
 
 
@@ -1914,8 +1989,10 @@ void
 CustomExperimentPanel::loadProgramSelected()
 {
 // printf("CustomExperimentPanel::loadProgramSelected()\n");
-  mw->executableName = QString::null;
-  mw->argsStr = QString::null;
+//  mw->executableName = QString::null;
+  mw->executableName = QString((const char *)0);
+//  mw->argsStr = QString::null;
+  mw->argsStr = QString((const char *)0);
   mw->loadNewProgram();
   QString executableNameStr = mw->executableName;
   if( !mw->executableName.isEmpty() )
@@ -1996,7 +2073,8 @@ CustomExperimentPanel::resetRedirect()
 QString
 CustomExperimentPanel::getMostImportantMetric(QString collector_name)
 {
-  QString metric = QString::null;
+//  QString metric = QString::null;
+  QString metric = QString((const char *)0);
 
 
   if( collector_name == "pcsamp" )

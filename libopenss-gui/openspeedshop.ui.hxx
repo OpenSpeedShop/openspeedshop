@@ -17,6 +17,10 @@
 ////////////////////////////////////////////////////////////////////////////////
   
 
+/* Take the define below out of comments for debug
+   output for the GUI routines that are present this file.
+#define DEBUG_GUI 1
+*/
 
 #include <stdlib.h>
 #include <libgen.h> // basename()
@@ -60,7 +64,9 @@ static bool loadedFromSavedFile = FALSE;
 
 void OpenSpeedshop::fileLoadNewProgram()
 {
-//printf("OpenSpeedshop::fileLoadNewProgram() entered\n");
+#ifdef DEBUG_GUI
+  printf("OpenSpeedshop::fileLoadNewProgram() entered\n");
+#endif
 
   pidStr = QString::null;
 
@@ -73,7 +79,10 @@ void OpenSpeedshop::fileLoadNewProgram()
 
 void OpenSpeedshop::fileAttachNewProcess()
 {
-//printf("OpenSpeedshop::fileAttachNewProcess() entered\n");
+#ifdef DEBUG_GUI
+  printf("OpenSpeedshop::fileAttachNewProcess() entered\n");
+#endif
+
   executableName = QString::null;
 
   attachNewProcess();
@@ -86,7 +95,9 @@ void OpenSpeedshop::fileAttachNewProcess()
 #ifdef SAVESESSION
 void OpenSpeedshop::fileSaveSession()
 {
-//printf("OpenSpeedshop::fileSaveSession() entered\n");
+#ifdef DEBUG_GUI
+  printf("OpenSpeedshop::fileSaveSession() entered\n");
+#endif
 
   QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction."), QMessageBox::Ok );
 
@@ -117,7 +128,9 @@ void OpenSpeedshop::fileSaveSession()
     fileName = sfd->selectedFile();
     if( !fileName.isEmpty() )
     {
-//printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+#ifdef DEBUG_GUI
+      printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+#endif
       fn = strdup(fileName.ascii());
     } else
     {
@@ -125,7 +138,9 @@ void OpenSpeedshop::fileSaveSession()
     }
   }
 
-//printf("go and save the setup...\n");
+#ifdef DEBUG_GUI
+  printf("go and save the setup...\n");
+#endif
   if( !fileName.isEmpty() )
   {
     ((PanelContainer *)topPC)->savePanelContainerTree(fn);
@@ -137,7 +152,10 @@ void OpenSpeedshop::fileSaveSession()
 
 void OpenSpeedshop::fileOpenExperiment(int selectedID)
 {
-// printf("OpenSpeedshop::fileOpenExperiment(%d) entered\n", selectedID );
+#ifdef DEBUG_GUI
+  printf("OpenSpeedshop::fileOpenExperiment(%d) entered\n", selectedID );
+#endif
+
   QApplication::setOverrideCursor(QCursor::WaitCursor);
   SelectExperimentDialog *dialog = new SelectExperimentDialog(this, "Select Experiment To Open Dialog", TRUE);
 
@@ -151,7 +169,9 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
 
   QApplication::restoreOverrideCursor();
 
-// printf("id=%d\n", id);
+#ifdef DEBUG_GUI
+  printf("id=%d\n", id);
+#endif
 
   if( selectedID > 0 )
   {
@@ -167,14 +187,25 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
 
   expID = id;
 
-// printf("count=%d selectedID=%d\n", count, selectedID );
+#ifdef DEBUG_GUI
+  printf("count=%d selectedID=%d\n", count, selectedID );
+#endif
+
   if( selectedID == 0 )
   {
     if( dialog->exec() == QDialog::Accepted )
     {
-// printf("QDialog::Accepted\n");
+
+#ifdef DEBUG_GUI
+       printf("QDialog::Accepted\n");
+#endif
+
       item = dialog->selectedExperiment(&expID);
-// printf("item=0x%x\n", item);
+
+#ifdef DEBUG_GUI
+      printf("item=0x%x\n", item);
+#endif
+
       if( item == NULL || expID == 0 )
       {
         return;
@@ -1197,7 +1228,9 @@ OpenSpeedshop::progressUpdate()
 int
 OpenSpeedshop::lookForExperiment()
 {
-// printf("The user may have loaded an experiment... as there was something on the command line.\n");
+#ifdef DEBUG_GUI
+  printf("OpenSpeedshop::lookForExperiment(),The user may have loaded an experiment... as there was something on the command line.\n");
+#endif
 
   QString command;
   std::list<int64_t> int_list;
@@ -1212,16 +1245,29 @@ OpenSpeedshop::lookForExperiment()
   pd->show();
 
   command = QString("list -v exp");
+#ifdef DEBUG_GUI
+  printf("command.ascii()=%s\n", command.ascii() );
+#endif
+
   int_list.clear();
+
   InputLineObject *clip = NULL;
+
   if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &int_list, clip, TRUE ) )
   {
-//    printf("Unable to run %s command.\n", command.ascii() );
+
+#ifdef DEBUG_GUI
+    printf("Unable to run %s command.\n", command.ascii() );
+#endif
+
     QMessageBox::information(this, QString(tr("Initialization warning:")), QString("Unable to run \"%1\" command.").arg(command.ascii()), QMessageBox::Ok );
   }
 
   std::list<int64_t>::iterator it;
-// printf("int_list.size() =%d\n", int_list.size() );
+#ifdef DEBUG_GUI
+  printf("OpenSpeedshop::lookForExperiment(), int_list.size() =%d\n", int_list.size() );
+#endif
+  if (int_list.size() > 0) {
   for(it = int_list.begin(); it != int_list.end(); it++ )
   {
     int64_t expID = (int64_t)(*it);
@@ -1235,7 +1281,9 @@ OpenSpeedshop::lookForExperiment()
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
            &list_of_collectors, clip, TRUE ) )
     {
-//      printf("Unable to run %s command.\n", command.ascii() );
+#ifdef DEBUG_GUI
+      printf("Unable to run %s command.\n", command.ascii() );
+#endif
       
       loadTimer->stop();
       delete loadTimer;
@@ -1254,7 +1302,9 @@ OpenSpeedshop::lookForExperiment()
       {
 //      std::string collector_name = *it;
         QString collector_name = (QString)*it;
-// printf("B: collector_name=(%s)\n", collector_name.ascii() );
+#ifdef DEBUG_GUI
+        printf("B: collector_name=(%s)\n", collector_name.ascii() );
+#endif
         if( collector_name == "pcsamp" )
         {
           knownCollectorType = TRUE;
@@ -1305,18 +1355,23 @@ OpenSpeedshop::lookForExperiment()
       panel_type = "Custom Experiment";
     }
 
-// printf("pane_type.ascii() = %s\n", panel_type.ascii() );
+#ifdef DEBUG_GUI
+   printf("pane_type.ascii() = %s\n", panel_type.ascii() );
+#endif
     PanelContainer *bestFitPC = ((PanelContainer *)topPC)->findBestFitPanelContainer((PanelContainer *)topPC);
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expStr);
     topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, ao);
     delete ao;
   }
+ }
 
   loadTimer->stop();
   delete loadTimer;
   pd->hide();
 
-// printf("return %d\n", int_list.size() );
+#ifdef DEBUG_GUI
+  printf("return %d\n", int_list.size() );
+#endif
 
   return( int_list.size() );
 }

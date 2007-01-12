@@ -35,6 +35,7 @@ bool Parse_Interval_Specification (
 bool SS_expAttach (CommandObject *cmd);
 bool SS_expClose (CommandObject *cmd);
 bool SS_expCreate (CommandObject *cmd);
+bool SS_expCont (CommandObject *cmd);
 bool SS_expDetach (CommandObject *cmd);
 bool SS_expDisable (CommandObject *cmd);
 bool SS_expEnable (CommandObject *cmd);

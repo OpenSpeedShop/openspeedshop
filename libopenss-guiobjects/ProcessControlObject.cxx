@@ -74,11 +74,28 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   runButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   buttonGroupLayout->addWidget( runButton );
   runButton->setText( tr("Run") );
+
   {
   QSpacerItem *spacer = new QSpacerItem( 20, 20, QSizePolicy::Maximum, QSizePolicy::Minimum );
   buttonGroupLayout->addItem(spacer);
   }
 
+
+  {
+  QPixmap *pm = new QPixmap( cont_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  continueButton = new AnimatedQPushButton( QIconSet( *pm), QString("continueButton"), buttonGroup );
+  continueButton->setAutoRepeat(FALSE);
+  continueButton->setMinimumSize( QSize(20,20) );
+  continueButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+  buttonGroupLayout->addWidget( continueButton );
+  continueButton->setText( tr("Cont") );
+  }
+
+  {
+  QSpacerItem *spacer = new QSpacerItem( 20, 20, QSizePolicy::Maximum, QSizePolicy::Minimum );
+  buttonGroupLayout->addItem(spacer);
+  }
 
   {
   QPixmap *pm = new QPixmap( pause_xpm );
@@ -114,7 +131,7 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   buttonGroupLayout->addWidget( interruptButton );
   interruptButton->setText( tr("Interrupt") );
 // Hide this until you finally know what to do with it...
-interruptButton->hide();
+  interruptButton->hide();
   }
 
   {
@@ -134,6 +151,7 @@ interruptButton->hide();
 
   // set button look.
   runButton->setFlat(TRUE);
+  continueButton->setFlat(TRUE);
   pauseButton->setFlat(TRUE);
   updateButton->setFlat(TRUE);
   interruptButton->setFlat(TRUE);
@@ -141,6 +159,7 @@ interruptButton->hide();
 
   // set button sensitivities.
   runButton->setEnabled(TRUE);
+  continueButton->setEnabled(FALSE);
   pauseButton->setEnabled(FALSE);
   updateButton->setEnabled(FALSE);
   terminateButton->setEnabled(FALSE);
@@ -148,7 +167,9 @@ interruptButton->hide();
 
 // signals and slots connections
   connect( runButton, SIGNAL( clicked() ), this, SLOT( runButtonSlot() ) );
-connect( runButton, SIGNAL( pressed() ), this, SLOT( runButtonPressedSlot() ) );
+  connect( runButton, SIGNAL( pressed() ), this, SLOT( runButtonPressedSlot() ) );
+  connect( continueButton, SIGNAL( clicked() ), this, SLOT( continueButtonSlot() ) );
+  connect( continueButton, SIGNAL( pressed() ), this, SLOT( continueButtonPressedSlot() ) );
   connect( interruptButton, SIGNAL( clicked() ), this, SLOT( interruptButtonSlot() ) );
   connect( pauseButton, SIGNAL( clicked() ), this, SLOT( pauseButtonSlot() ) );   
   connect( terminateButton, SIGNAL( clicked() ), this, SLOT( terminateButtonSlot() ) );
@@ -168,6 +189,7 @@ ProcessControlObject::~ProcessControlObject()
 //  delete baseWidgetFrame;
 }
 
+
 void 
 ProcessControlObject::runButtonSlot()
 {
@@ -183,6 +205,9 @@ ProcessControlObject::runButtonSlot()
   runButton->setEnabled(FALSE);
   runButton->enabledFLAG = FALSE;
   runButton->setFlat(TRUE);
+  continueButton->setEnabled(FALSE);
+  continueButton->enabledFLAG = FALSE;
+  continueButton->setFlat(TRUE);
   pauseButton->setEnabled(TRUE);
   pauseButton->enabledFLAG = TRUE;
   updateButton->setEnabled(TRUE);
@@ -191,6 +216,36 @@ ProcessControlObject::runButtonSlot()
   terminateButton->enabledFLAG = TRUE;
 
   ControlObject *co = new ControlObject(RUN_T);
+  panel->listener((void *)co);
+  delete co;
+}
+
+void 
+ProcessControlObject::continueButtonSlot()
+{
+  nprintf( DEBUG_PANELS ) ("PCO: Cont button clicked\n");
+
+  buttonTimer->stop();
+
+  if( menuFieldedFLAG == TRUE )
+  {
+    return;
+  }
+
+  runButton->setEnabled(TRUE);
+  runButton->enabledFLAG = TRUE;
+  runButton->setFlat(TRUE);
+  continueButton->setEnabled(FALSE);
+  continueButton->enabledFLAG = FALSE;
+  continueButton->setFlat(TRUE);
+  pauseButton->setEnabled(TRUE);
+  pauseButton->enabledFLAG = TRUE;
+  updateButton->setEnabled(TRUE);
+  updateButton->enabledFLAG = TRUE;
+  terminateButton->setEnabled(TRUE);
+  terminateButton->enabledFLAG = TRUE;
+
+  ControlObject *co = new ControlObject(CONT_T);
   panel->listener((void *)co);
   delete co;
 }
@@ -207,6 +262,16 @@ ProcessControlObject::runButtonPressedSlot()
 
 
 void 
+ProcessControlObject::continueButtonPressedSlot()
+{
+
+  menuFieldedFLAG = FALSE;
+ 
+  buttonTimer->start(500);
+  
+}
+
+void 
 ProcessControlObject::pauseButtonSlot()
 {
   nprintf( DEBUG_PANELS ) ("PCO: Pause button clicked\n");
@@ -216,6 +281,12 @@ ProcessControlObject::pauseButtonSlot()
   pauseButton->setEnabled(FALSE);
   pauseButton->enabledFLAG = FALSE;
   pauseButton->setFlat(TRUE);
+  continueButton->setEnabled(TRUE);
+  continueButton->enabledFLAG = TRUE;
+  continueButton->setFlat(TRUE);
+  runButton->setEnabled(TRUE);
+  runButton->enabledFLAG = TRUE;
+  runButton->setFlat(TRUE);
 
   ControlObject *co = new ControlObject(PAUSE_T);
   panel->listener((void *)co);
@@ -257,6 +328,8 @@ ProcessControlObject::terminateButtonSlot()
   // set button sensitivities.
   runButton->setEnabled(TRUE);
   runButton->enabledFLAG = TRUE;
+  continueButton->setEnabled(FALSE);
+  continueButton->enabledFLAG = FALSE;
   pauseButton->setEnabled(FALSE);
   pauseButton->enabledFLAG = FALSE;
   updateButton->setEnabled(FALSE);
@@ -280,7 +353,8 @@ void
 ProcessControlObject::languageChange()
 {
   buttonGroup->setTitle( tr( "Process Control" ) );
-  QToolTip::add( runButton, tr( "Run or Continue the experiment." ) );
+  QToolTip::add( runButton, tr( "Run or Rerun the experiment." ) );
+  QToolTip::add( continueButton, tr( "Continue the experiment." ) );
   QToolTip::add( pauseButton, tr( "Temporarily pause the experiment." ) );
   QToolTip::add( updateButton, tr( "Update the display with the current information." ) );
   QToolTip::add( interruptButton, tr( "Interrupt the current action." ) );
@@ -309,7 +383,7 @@ ProcessControlObject::buttonTimerSlot()
   {
     // user entered something and pressed OK
     argtext = text;
-printf("argtext=(%s)\n", argtext.ascii() );
+    printf("argtext=(%s)\n", argtext.ascii() );
   }
 
   menuFieldedFLAG = TRUE;

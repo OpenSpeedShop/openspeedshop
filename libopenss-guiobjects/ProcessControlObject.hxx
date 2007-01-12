@@ -46,6 +46,7 @@ public:
 
   QButtonGroup *buttonGroup;
   AnimatedQPushButton *runButton;
+  AnimatedQPushButton *continueButton;
   AnimatedQPushButton *pauseButton;
   AnimatedQPushButton *updateButton;
   AnimatedQPushButton *interruptButton;
@@ -57,6 +58,8 @@ public:
 public slots:
   virtual void runButtonSlot();
   virtual void runButtonPressedSlot();
+  virtual void continueButtonSlot();
+  virtual void continueButtonPressedSlot();
   virtual void pauseButtonSlot();
   virtual void updateButtonSlot();
   virtual void interruptButtonSlot();

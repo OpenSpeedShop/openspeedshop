@@ -667,6 +667,7 @@ class CLI(code.InteractiveConsole):
     commands = { \
         "expattach"     : "return_none",
         "expclose"      : "return_none",
+        "expcont"       : "return_none",
         "expcreate"     : "return_int",
         "expcompare"	: "return_list",
         "expdata"   	: "return_list",

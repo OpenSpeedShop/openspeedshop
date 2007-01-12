@@ -16,6 +16,11 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+/* Take the define below out of comments for debug
+   output for the GUI routines that are present this file.
+#define DEBUG_GUI 1
+*/
+
 
 /*! \class CLIInterface
 
@@ -144,13 +149,18 @@ nprintf(DEBUG_COMMANDS) ("runSynchronousCLI() command = (%s)\n", command );
 bool
 CLIInterface::getIntValueFromCLI(const char *command, int64_t *val, bool mark_value_for_delete, int mt, bool wot )
 {
-//  printf("getIntValueFromCLI(%s)\n", command);
+#ifdef DEBUG_GUI
+  printf("CLIInterface::getIntValueFromCLI, command=%s\n", command);
+#endif
   maxTime = mt;
   warn_of_time = wot;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
-nprintf(DEBUG_COMMANDS) ("getIntValueFromCLI() command = (%s)\n", command );
+//nprintf(DEBUG_COMMANDS) ("getIntValueFromCLI() command = (%s)\n", command );
   InputLineObject *clip = Append_Input_String( wid, (char *)command);
+#ifdef DEBUG_GUI
+  printf("CLIInterface::getIntValueFromCLI, after Append_Input_String, clip=0x%x\n", clip);
+#endif
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
@@ -163,7 +173,9 @@ nprintf(DEBUG_COMMANDS) ("getIntValueFromCLI() command = (%s)\n", command );
   while( status != ILO_COMPLETE )
   {
     status = checkStatus(clip, command);
-//printf("status = %d\n", status);
+#ifdef DEBUG_GUI
+  printf("CLIInterface::getIntValueFromCLI, status=%d\n", status);
+#endif
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
@@ -176,24 +188,41 @@ nprintf(DEBUG_COMMANDS) ("getIntValueFromCLI() command = (%s)\n", command );
 
     if( status == ILO_COMPLETE )
     {
-//printf("status = ILO_COMPLETE!\n");
+#ifdef DEBUG_GUI
+      printf("CLIInterface::getIntValueFromCLI, status = ILO_COMPLETE!, clip=0x%x\n", clip);
+#endif
       std::list<CommandObject *>::iterator coi;
       if( clip->CmdObj_List().size() == 1 ) // We should only have one in this case.\n");
       {
-//printf("We have 1 command object.   Get the data.\n");
+#ifdef DEBUG_GUI
+        printf("CLIInterface::getIntValueFromCLI, We have 1 command object, Get the data, clip=0x%x\n", clip);
+#endif
+#ifdef DEBUG_GUI
+        printf("CLIInterface::getIntValueFromCLI,(clip->CmdObj_List().begin()==NULL)=%d\n", (clip->CmdObj_List().begin()==NULL));
+#endif
         coi = clip->CmdObj_List().begin();
         CommandObject *co = (CommandObject *)(*coi);
 
       
         std::list<CommandResult *>::iterator crl;
+#ifdef DEBUG_GUI
+        printf("CLIInterface::getIntValueFromCLI,co=0x%x,(co->Result_List().begin()==NULL)=%d\n", co,(co->Result_List().begin()==NULL));
+#endif
         crl = co->Result_List().begin();    
         CommandResult_Int *cr_int = (CommandResult_Int *)(*crl);
+
+#ifdef DEBUG_GUI
+        printf("CLIInterface::getIntValueFromCLI,cr_int=0x%x\n", cr_int);
+#endif
 
         cr_int->Value(*val);
 
         if( mark_value_for_delete )
         {
           //Allow the garbage collector to clean up the value...
+#ifdef DEBUG_GUI
+          printf("CLIInterface::getIntValueFromCLI, marking clip->Set_Results_Used, clip=0x%x, clip=0x%x\n", &clip, clip);
+#endif
           clip->Set_Results_Used();
         }
       }
@@ -204,7 +233,9 @@ nprintf(DEBUG_COMMANDS) ("getIntValueFromCLI() command = (%s)\n", command );
 
     if( !shouldWeContinue() )
     {
-      //printf("RETURN FALSE!   COMMAND FAILED!\n");
+#ifdef DEBUG_GUI
+      printf("EXIT CLIInterface::getIntValueFromCLI, RETURN FALSE!   COMMAND FAILED!,clip=0x%x, clip=0x%x\n", &clip, clip);
+#endif
       RETURN_FALSE;
     }
 
@@ -218,6 +249,9 @@ nprintf(DEBUG_COMMANDS) ("getIntValueFromCLI() command = (%s)\n", command );
     timer = NULL;
   }
 
+#ifdef DEBUG_GUI
+    printf("EXIT CLIInterface::getIntValueFromCLI, clip=0x%x, clip=0x%x\n", &clip, clip);
+#endif
   RETURN_TRUE;
 }
 
@@ -243,9 +277,18 @@ CLIInterface::getIntListValueFromCLI(const char *command, std::list<int64_t> *in
   warn_of_time = wot;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
-nprintf(DEBUG_COMMANDS) ("getIntListValueFromCLI() command = (%s)\n", command );
+  nprintf(DEBUG_COMMANDS) ("getIntListValueFromCLI() command = (%s)\n", command );
+
+#ifdef DEBUG_GUI
+  printf("getIntListValueFromCLI() command = (%s)\n", command );
+#endif
+
   clip = Append_Input_String( wid, (char *)command);
-//printf("clip = 0x%x\n", clip);
+
+#ifdef DEBUG_GUI
+  printf("clip = 0x%x\n", clip);
+#endif
+
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
@@ -258,7 +301,11 @@ nprintf(DEBUG_COMMANDS) ("getIntListValueFromCLI() command = (%s)\n", command );
   while( status != ILO_COMPLETE )
   {
     status = checkStatus(clip, command);
-//printf("status = %d\n", status);
+
+#ifdef DEBUG_GUI
+    printf("status = %d\n", status);
+#endif
+
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
@@ -271,23 +318,42 @@ nprintf(DEBUG_COMMANDS) ("getIntListValueFromCLI() command = (%s)\n", command );
 
     if( status == ILO_COMPLETE )
     {
-//printf("status = ILO_COMPLETE!\n");
+#ifdef DEBUG_GUI
+      printf("status = ILO_COMPLETE!\n");
+#endif
       std::list<CommandObject *>::iterator coi;
-//printf("clip->CmdObj_List().size()=%d\n", clip->CmdObj_List().size() );
+#ifdef DEBUG_GUI
+      printf("clip->CmdObj_List().size()=%d\n", clip->CmdObj_List().size() );
+#endif
+
       if( clip->CmdObj_List().size() == 1 ) // We should only have one in this case.\n");
       {
-//printf("We have 1 command object.   Get the data.\n");
+
+#ifdef DEBUG_GUI
+        printf("We have 1 command object.   Get the data.\n");
+#endif
+
         coi = clip->CmdObj_List().begin();
         CommandObject *co = (CommandObject *)(*coi);
-//printf("co=0x%x\n", co);
+
+#ifdef DEBUG_GUI
+        printf("co=0x%x\n", co);
+#endif
 
         std::list<CommandResult *>::iterator cri;
-//printf("co->Result_List().size()=%d\n", co->Result_List().size() );
-std::list<CommandResult *> cmd_result = co->Result_List();
+#ifdef DEBUG_GUI
+        printf("co->Result_List().size()=%d\n", co->Result_List().size() );
+#endif
+
+        std::list<CommandResult *> cmd_result = co->Result_List();
+
         for(cri = cmd_result.begin(); cri != cmd_result.end(); cri++ )
         {
           CommandResult_Int *cr_int = (CommandResult_Int *)(*cri);
-//printf("cr_int=0x%x\n", cr_int);   // This is null?
+
+#ifdef DEBUG_GUI
+          printf("cr_int=0x%x\n", cr_int);   // This is null?
+#endif
 
           int64_t val = 0;
           cr_int->Value(val);
@@ -307,7 +373,11 @@ std::list<CommandResult *> cmd_result = co->Result_List();
 
     if( !shouldWeContinue() )
     {
-//printf("RETURN FALSE!   COMMAND FAILED!\n");
+
+#ifdef DEBUG_GUI
+      printf("RETURN FALSE!   COMMAND FAILED!\n");
+#endif
+
       if( mark_value_for_delete && clip ) 
       {
         clip->Set_Results_Used();
@@ -349,12 +419,21 @@ std::list<CommandResult *> cmd_result = co->Result_List();
 bool
 CLIInterface::getStringValueFromCLI(const char *command, std::string *str_val, bool mark_value_for_delete, int mt, bool wot )
 {
-//  printf("getStringValueFromCLI(%s)\n", command);
+
+#ifdef DEBUG_GUI
+  printf("getStringValueFromCLI(%s)\n", command);
+#endif
+
   maxTime = mt;
   warn_of_time = wot;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
-nprintf(DEBUG_COMMANDS) ("getStringValueFromCLI() command = (%s)\n", command );
+  nprintf(DEBUG_COMMANDS) ("getStringValueFromCLI() command = (%s)\n", command );
+
+#ifdef DEBUG_GUI
+  printf("getStringValueFromCLI() command = (%s)\n", command );
+#endif
+
   InputLineObject *clip = Append_Input_String( wid, (char *)command);
   if( clip == NULL )
   {
@@ -368,7 +447,11 @@ nprintf(DEBUG_COMMANDS) ("getStringValueFromCLI() command = (%s)\n", command );
   while( status != ILO_COMPLETE )
   {
     status = checkStatus(clip, command);
-//printf("status = %d\n", status);
+
+#ifdef DEBUG_GUI
+    printf("getStringValueFromCLI() status = %d\n", status);
+#endif
+
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);

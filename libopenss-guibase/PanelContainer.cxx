@@ -218,7 +218,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   // Now create the splitter so we can put a container (frame) on the left
   // and right or top and bottom.
   splitter = new QSplitter(parent, "splitter");
-splitter->setMinimumSize( QSize(10,10) );
+  splitter->setMinimumSize( QSize(10,10) );
   strcpy(cn,"splitter:");strcat(cn, internal_name.ascii());strcat(cn,"-");strcat(cn,external_name.ascii()); splitter->setCaption(cn);
   if( debug(DEBUG_FRAMES) ) splitter->setBackgroundColor("red");
 
@@ -228,7 +228,7 @@ splitter->setMinimumSize( QSize(10,10) );
   // Create a frame for the left side and show it.
   sprintf(tmp_str, "originalLeftFrame for %s", getInternalName().ascii() );
   leftFrame = new Frame(this, splitter, "left_frame");
-leftFrame->setMinimumSize( QSize(10,10) );
+  leftFrame->setMinimumSize( QSize(10,10) );
   if( debug(DEBUG_FRAMES) ) leftFrame->setBackgroundColor("white");
   leftFrame->setDragEnabled(TRUE);
   leftFrame->setDropEnabled(TRUE);

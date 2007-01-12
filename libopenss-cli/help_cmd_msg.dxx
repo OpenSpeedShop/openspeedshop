@@ -36,6 +36,10 @@ char *cmd_expClose_related[] = {
     "<expId>"
 };
 
+char *cmd_expCont_related[] = {
+    "<expId>"
+};
+
 char *cmd_expCreate_related[] = {
     "<expId>",
     "<expType>",
@@ -274,6 +278,7 @@ char *cmd_setBreak_related[] = {
 
 char *cmd_Wait_related[] = {
     "expGo",
+    "expCont",
     "<expId>"
 };
 
@@ -288,6 +293,10 @@ char *cmd_expAttach_args[] = {
 char *cmd_expClose_args[] = {
     "expClose [ -v kill,all ]",
     "expClose [ -v kill ] [ -x <expId> ]"
+};
+
+char *cmd_expCont_args[] = {
+    "expCont [ -v all || -x <expId> ]"
 };
 
 char *cmd_expCreate_args[] = {
@@ -495,11 +504,13 @@ char *cmd_expClose_brief = {
     "Close/Terminate the experiment."
 };
 
+char *cmd_expCont_brief = {
+    "Continue the execution of an experiment."
+};
 
 char *cmd_expCreate_brief = {
     "Start the process of defining an experiment."
 };
-
 
 char *cmd_expData_brief = {
     "Return data from experiment."
@@ -509,47 +520,38 @@ char *cmd_expDetach_brief = {
     "Detach applications from collectors."
 };
 
-
 char *cmd_expDisable_brief = {
     "Turn off data collection."
 };
-
 
 char *cmd_expEnable_brief = {
     "Restart data collection."
 };
 
-
 char *cmd_expFocus_brief = {
     "Focus the current input window on a specified experiment."
 };
 
-
 char *cmd_expGo_brief = {
-    "Start execution or continue running the experiment."
+    "Start the execution of the experiment or restart the execution of the experiment."
 };
-
 
 char *cmd_expPause_brief = {
     "Temporarily interrupt the specified experiment."
 };
-
 
 char *cmd_expRestore_brief = {
     "Restore experiment's definition and previously saved\n"
     "data from a data base that was saved with an expSave command."
 };
 
-
 char *cmd_expSave_brief = {
     "Save the experiment data for further analysis."
 };
 
-
 char *cmd_expSetParam_brief = {
     "Change the value an experiment's argument."
 };
-
 
 char *cmd_expStatus_brief = {
     "Report the current state of user define experiments."
@@ -1028,6 +1030,56 @@ char *cmd_expPause_detailed[] = {
     " "
 };
 
+
+char *cmd_expCont_detailed[] = {
+    cmd_expCont_args[0],
+    " ",
+    cmd_expCont_brief,
+    " ",
+    "- If the experiment has already begun execution,",
+    "  this command causes execution to continue from ",
+    "  where it was interrupted.",
+    " ",
+    "- The experiment will continue to run until either:",
+    " ",
+    "\t * the application terminates, or",
+    " ",
+    "\t * the application executes a programmed halt, or",
+    " ",
+    "\t * the user issues another exp... command that refers ",
+    "\t   to this experiment Id. or",
+    " ",
+    "\t * the OpenSS tool terminates due to an exit command, ",
+    "\t   an external interrupt, or abnormal, internal event.",
+    " ",
+    "- Except when executed in batch mode, the execution of the ",
+    "  application and the collection of performance data does not, ",
+    "  automatically, prevent other commands from being issued:",
+    " ",
+    "\t A following command that depends on the result of this ",
+    "\t experiment may not be able to execute and may block ",
+    "\t further commands from being issued.",
+    " ",
+    "\t Independent commands may be issued and completed before ",
+    "\t this experiment completes.",
+
+    "\t The status of any experiment can be determined through the ",
+    "\t listStatus command.",
+    " ",
+    "\t Depending on the type of data collection that is taking ",
+    "\t place, it may be possible to view the results before the ",
+    "\t application completes.",
+    " ",
+    "- The absence of the -x <expId> and all keyword will result ",
+    "  in only the focused experiment being run.",
+    " ",
+    "- The use of -x <expId> will result in only that experiment ",
+    "  being run.",
+    " ",
+    "- The use of the all option will result in every defined experiment ",
+    "  being run."
+    " "
+};
 
 char *cmd_expRestore_detailed[] = {
     cmd_expRestore_args[0],
@@ -1974,6 +2026,23 @@ char *cmd_expPause_example[] = {
     " "
 };
 
+char *cmd_expCont_example[] = {
+    "expCont",
+    " ",
+    "    Continue the execution of the currently focused experiment.",
+    " ",
+    "expCont -x 5",
+    " ",
+    "    Continue execution of experiment #5.  If #5 was not the currently focused",
+    "    experiment this will NOT bring it into focus. Use",
+    "    \'expFocus\' to do that.",
+    " ",
+    "The next logical action would be to display the",
+    "experiment results using expView.",
+    " "
+};
+
+
 char *cmd_expRestore_example[] = {
     "expRestore -f my_experiment.data",
     " ",
@@ -2092,6 +2161,14 @@ OpenSpeedShop::message_element_t cmd_msg[] = {
     NULL,0,
     NULL,0,
     cmd_expCompare_args,sizeof(cmd_expCompare_args)/sizeof(char **),
+//    CMD_EXP_CONT,
+    -1,cmd_desc[CMD_EXP_CONT].name,
+    cmd_expCont_related,sizeof(cmd_expCont_related)/sizeof(char **),
+    "commands",cmd_expCont_brief,
+    cmd_expCont_detailed,sizeof(cmd_expCont_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expCont_example,sizeof(cmd_expCont_example)/sizeof(char **),
+    cmd_expCont_args,sizeof(cmd_expCont_args)/sizeof(char **),
 //    CMD_EXP_CREATE,
     -1,cmd_desc[CMD_EXP_CREATE].name,
     cmd_expCreate_related,sizeof(cmd_expCreate_related)/sizeof(char **),

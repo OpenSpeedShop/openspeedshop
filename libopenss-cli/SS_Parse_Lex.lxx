@@ -57,10 +57,12 @@ extern int64_t ip_number(char *,int);
 "expAttach" 	{ return ATTACH_HEAD; }
 "expclose"  	{ return CLOSE_HEAD; }
 "expClose"  	{ return CLOSE_HEAD; }
-"expcreate" 	{ return CREATE_HEAD; }
-"expCreate" 	{ return CREATE_HEAD; }
 "expcompare" 	{ return COMPARE_HEAD; }
 "expCompare" 	{ return COMPARE_HEAD; }
+"expcont"	{ return CONT_HEAD; }
+"expCont"	{ return CONT_HEAD; }
+"expcreate" 	{ return CREATE_HEAD; }
+"expCreate" 	{ return CREATE_HEAD; }
 "expdata" 	{ return DATA_HEAD; }
 "expData" 	{ return DATA_HEAD; }
 "expdetach" 	{ return DETACH_HEAD; }

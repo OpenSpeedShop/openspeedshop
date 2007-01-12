@@ -99,9 +99,7 @@ public:
   AnimatedQPushButton *detachProcessButton;
   AnimatedQPushButton *runButton;
   AnimatedQPushButton *pauseButton;
-#ifdef CONTINUE_BUTTON
   AnimatedQPushButton *continueButton;
-#endif // CONTINUE_BUTTON
   AnimatedQPushButton *updateButton;
   AnimatedQPushButton *interruptButton;
   AnimatedQPushButton *terminateButton;

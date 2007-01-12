@@ -40,8 +40,9 @@ typedef enum {
     CMD_HEAD_ERROR,	    /* used for error processing */
     CMD_EXP_ATTACH,
     CMD_EXP_CLOSE,
-    CMD_EXP_CREATE,
     CMD_EXP_COMPARE,
+    CMD_EXP_CONT,
+    CMD_EXP_CREATE,
     CMD_EXP_DATA,
     CMD_EXP_DETACH,
     CMD_EXP_DISABLE,
@@ -57,9 +58,9 @@ typedef enum {
 
     CMD_VIEW,
 
+    CMD_C_VIEW_CLUSTERS,
     CMD_C_VIEW_CREATE,
     CMD_C_VIEW_DELETE,
-    CMD_C_VIEW_CLUSTERS,
     CMD_C_VIEW_INFO,
     CMD_C_VIEW,
 

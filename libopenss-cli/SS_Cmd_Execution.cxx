@@ -16,6 +16,11 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+/* Take the define below out of comments for debug
+   output in the CLI routines that
+   are present in this file.
+#define DEBUG_CLI 1
+*/
 
 #include "SS_Input_Manager.hxx"
 #include "SS_Timings.hxx"
@@ -1962,6 +1967,45 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   }
   return true;
 }
+
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
+bool SS_expCont (CommandObject *cmd) {
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+    std::list<ExperimentObject *>::iterator expi;
+    for (expi = ExperimentObject_list.begin(); expi != ExperimentObject_list.end(); expi++) {
+      ExperimentObject *exp = *expi;
+      if (!Execute_Experiment (cmd, exp)) {
+        return false;
+      }
+    }
+  } else {
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+    if (!Execute_Experiment (cmd, exp)) {
+      return false;
+    }
+  }
+
+ // No result returned from this command.
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
 
 /**
  * Method: ()
