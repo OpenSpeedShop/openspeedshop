@@ -82,6 +82,7 @@ libopenss_framework_la_SOURCES = \
 	SymbolTable.hxx SymbolTable.cxx \
 	Thread.hxx Thread.cxx \
 	ThreadGroup.hxx ThreadGroup.cxx \
+	ThreadName.hxx ThreadName.cxx \
 	Time.hxx \
 	TimeInterval.hxx \
 	ToolAPI.hxx \

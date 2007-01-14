@@ -89,6 +89,38 @@ void Thread::changeState(const State& state) const
 
 
 /**
+ * Get our commmand.
+ *
+ * Returns the command used to create this thread. If this thread wasn't
+ * created directly by the framework, the first value in the pair returned 
+ * will be "false".
+ *
+ * @return    Pair containing command used to create this thread.
+ */
+std::pair<bool, std::string> Thread::getCommand() const
+{
+    std::pair<bool, std::string> command(false, "");
+
+    // Find our command
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+	"SELECT command FROM Threads WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	if(!dm_database->getResultIsNull(1))
+	    command = std::make_pair(true,
+				     dm_database->getResultAsString(1));
+    END_TRANSACTION(dm_database);
+
+    // Return the command to the caller
+    return command;
+}
+
+
+
+/**
  * Get our host name.
  *
  * Returns the name of the host on which this thread is located.

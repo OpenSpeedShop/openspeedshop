@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -29,8 +30,11 @@
 #include "Function.hxx"
 #include "Instrumentor.hxx"
 #include "LinkedObject.hxx"
+#include "Path.hxx"
 #include "Statement.hxx"
+#include "Thread.hxx"
 #include "ThreadGroup.hxx"
+#include "ThreadName.hxx"
 
 #ifdef HAVE_ARRAYSVCS
 #include <arraysvcs.h>
@@ -62,11 +66,12 @@ namespace {
 	"CREATE TABLE \"Open|SpeedShop\" ("
 	"    version INTEGER"
 	");",
-	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (1);",
+	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (2);",
 	
 	// Thread Table
 	"CREATE TABLE Threads ("
 	"    id INTEGER PRIMARY KEY,"
+	"    command TEXT DEFAULT NULL,"
 	"    host TEXT,"
 	"    pid INTEGER DEFAULT NULL,"
 	"    posix_tid INTEGER DEFAULT NULL,"
@@ -192,7 +197,7 @@ namespace {
 	// Suspend ourselves temporarily
         nanosleep(&wait, NULL);
     }
-     
+
 
 
 }
@@ -325,7 +330,7 @@ std::string Experiment::getCanonicalName(const std::string& host)
  * accessible. Simply confirms that the database exists, is accessible by the
  * database engine, and contains a "Open|SpeedShop" table with a single row.
  * It does not check that any of the other tables match the experiment database
- * schema or that the tablesare internally consistent.
+ * schema or that the tables are internally consistent.
  *
  * @param name    Name of the experiment database to be tested.
  * @return        Boolean "true" if the experiment database is accessible,
@@ -582,8 +587,11 @@ ThreadGroup Experiment::createProcess(
 
     // Create the thread entry in the database
     BEGIN_WRITE_TRANSACTION(dm_database);
-    dm_database->prepareStatement("INSERT INTO Threads (host) VALUES (?);");
-    dm_database->bindArgument(1, canonical);
+    dm_database->prepareStatement(
+	"INSERT INTO Threads (command, host) VALUES (?, ?);"
+	);
+    dm_database->bindArgument(1, command);
+    dm_database->bindArgument(2, canonical);
     while(dm_database->executeStatement());
     thread = Thread(dm_database, dm_database->getLastInsertedUID());
     threads.insert(thread);
@@ -894,11 +902,11 @@ void Experiment::removeThread(const Thread& thread) const
     // Remove unused linked objects
     dm_database->prepareStatement(
 	"DELETE FROM LinkedObjects "
-	"WHERE linked_object "
+	"WHERE id "
 	"  NOT IN (SELECT DISTINCT linked_object FROM AddressSpaces);"
 	);
     while(dm_database->executeStatement());
-    
+
     // Remove unused functions
     dm_database->prepareStatement(
 	"DELETE FROM Functions "
@@ -922,7 +930,7 @@ void Experiment::removeThread(const Thread& thread) const
 	"  NOT IN (SELECT DISTINCT id FROM Statements)"
 	);
     while(dm_database->executeStatement());
-    
+
     // Remove unused files
     dm_database->prepareStatement(
 	"DELETE FROM Files "
@@ -1253,6 +1261,82 @@ Extent Experiment::getPerformanceDataExtent() const
 
     // Return the extent to the caller
     return extent;
+}
+
+
+
+/**
+ * Prepare to rerun the experiment.
+ *
+ * Prepares this experiment to be rerun. Each call to createProcess() made for
+ * this experiment is reissued. The resulting new threads are matched against
+ * the original threads when possible. This allows the data collectors applied
+ * to the new threads to mimic those applied to the original threads. Original
+ * threads are then removed, leaving the new threads ready to be run.
+ *
+ * @todo    Using a vector to hold the table mapping original thread names
+ *          to their corresponding collectors is less than optimal since it
+ *          requires a linear-time search. A map would be a better choice
+ *          but a resonable definition of less-than for ThreadName objects
+ *          will be required first.
+ *
+ * @param stdout_callback    Standard output stream callback for the processes.
+ * @param stderr_callback    Standard error stream callback for the processes.
+ */
+void Experiment::prepareToRerun(const OutputCallback stdout_callback,
+				const OutputCallback stderr_callback) const
+{
+    // Table mapping original thread names to their corresponding collectors
+    std::vector<std::pair<ThreadName, CollectorGroup> > names_to_collectors;
+
+    // Iterate over each original thread in this experiment
+    ThreadGroup new_threads, original_threads = getThreads();
+    for(ThreadGroup::const_iterator
+	    i = original_threads.begin(); i != original_threads.end(); ++i) {
+
+	// Construct the name of this thread and add it to the table
+	ThreadName name(*i);
+	names_to_collectors.push_back(std::make_pair(name, i->getCollectors()));
+
+	// Ignore this thread if it wasn't created directly by the framework
+	if(!name.getCommand().first)
+	    continue;
+
+	// Recreate the process on the same host
+        ThreadGroup threads = createProcess(name.getCommand().second, 
+					    name.getHost(),
+					    stdout_callback, stderr_callback);
+	new_threads.insert(threads.begin(), threads.end());
+
+    }
+
+    // Iterate over each new thread added to this experiment
+    for(ThreadGroup::const_iterator
+	    i = new_threads.begin(); i != new_threads.end(); ++i) {
+	ThreadName name(*i);
+
+	// Look for an original thread matching this one
+	for(std::vector<std::pair<ThreadName, CollectorGroup> >::iterator
+		j = names_to_collectors.begin();
+	    j != names_to_collectors.end();
+	    ++j)
+	    if(j->first == name) {
+
+		// Apply collectors from the original thread to the new thread
+		j->second.startCollecting(*i);
+
+		// Allow each original thread to be used only once
+		names_to_collectors.erase(j);
+
+		break;
+	    }
+
+    }
+
+    // Remove all the original threads from the experiment
+    for(ThreadGroup::const_iterator
+	    i = original_threads.begin(); i != original_threads.end(); ++i)
+	removeThread(*i);
 }
 
 

@@ -110,6 +110,7 @@ namespace OpenSpeedShop { namespace Framework {
 	bool isState(const State&) const;
 	void changeState(const State&) const;
 	
+	std::pair<bool, std::string> getCommand() const;
 	std::string getHost() const;
 	pid_t getProcessId() const;
 	std::pair<bool, pthread_t> getPosixThreadId() const;
