@@ -1890,10 +1890,19 @@ bool SS_expFocus  (CommandObject *cmd) {
  *
  */
 static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+
+  Framework::Experiment *experiment = NULL;
+
  // Get the current status of this experiment.
   exp->Q_Lock (cmd, false);
   exp->Determine_Status();
+  // Get the experiment class object
+  experiment = exp->FW();
   exp->Q_UnLock ();
+
+#ifdef DEBUG_CLI
+  cerr << "Enter expGo, exp->ExpStatus_Name() " << exp->ExpStatus_Name() << "\n";
+#endif
 
   if (exp->FW() == NULL) {
     Mark_Cmd_With_Soft_Error(cmd,
@@ -1902,14 +1911,30 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     return false;
   }
 
-  if ((exp->Status() == ExpStatus_Terminated) ||
-      (exp->Status() == ExpStatus_InError)) {
-   // Can not run if ExpStatus_Terminated or ExpStatus_InError
+  if (exp->Status() == ExpStatus_InError) {
+   // Can not run if ExpStatus_InError
     std::string s("The experiment can not be run because it is in the "
     	    	    + exp->ExpStatus_Name() + " state.");
     Mark_Cmd_With_Soft_Error(cmd,s);
     return false;
-  }
+  } else if (exp->Status() != ExpStatus_Paused) {
+   // Received a run request of a non-paused process, try to rerun
+   // Do preparation to rerun before falling into the code below which
+   // sets up the thread state and issues the run/rerun.
+   // FIXME - how to determine whether the paused state is from 1st time
+   // run (then don't do the prepareToRerun) or an actual pause via the user.
+   // If we are starting from a user pause, then we want to restart so call prepareToRerun.
+
+      experiment->prepareToRerun();
+      exp->Q_Lock (cmd, false);
+      exp->setStatus(ExpStatus_Paused);
+      exp->Q_UnLock ();
+
+#ifdef DEBUG_CLI
+      cerr << "after prepareToRerun, exp->ExpStatus_Name() " << exp->ExpStatus_Name() << "\n";
+#endif
+
+  } 
 
   if ((exp->Status() == ExpStatus_NonExistent) ||
       (exp->Status() == ExpStatus_Paused) ||
