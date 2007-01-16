@@ -24,6 +24,9 @@ BUILT_SOURCES = \
 	blobs.h blobs.c	
 
 pkglib_LTLIBRARIES = mpit.la
+if HAVE_LAM
+pkglib_LTLIBRARIES += mpit-rt-lam.la
+endif
 if HAVE_LAMPI
 pkglib_LTLIBRARIES += mpit-rt-lampi.la
 endif
@@ -78,6 +81,16 @@ rt_sources = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.h runtime.c \
 	wrappers.c
+
+
+
+if HAVE_LAM
+mpit_rt_lam_la_CFLAGS = $(call rt_CFLAGS_generate,@LAM_CPPFLAGS@)
+mpit_rt_lam_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@LAM_LDFLAGS@)
+mpit_rt_lam_la_LIBADD = $(call rt_LIBADD_generate,@LAM_LIBS@)
+mpit_rt_lam_la_DEPENDENCIES =
+mpit_rt_lam_la_SOURCES = $(rt_sources)
+endif
 
 
 

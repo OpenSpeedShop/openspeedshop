@@ -1,6 +1,134 @@
 
 
 ################################################################################
+# Check for LAM/MPI (http://www.lam-mpi.org)
+################################################################################
+
+AC_DEFUN([AC_PKG_LAM], [
+
+    AC_ARG_WITH(lam,
+		AC_HELP_STRING([--with-lam=DIR],
+			       [LAM installation @<:@/usr/local@:>@]),
+		lam_dir=$withval, lam_dir="/usr/local")
+
+    AC_MSG_CHECKING([for LAM/MPI library and headers])
+
+    found_lam=0
+
+    LAM_CC="$lam_dir/bin/mpicc"
+    LAM_CPPFLAGS="-I$lam_dir/include"
+    LAM_LDFLAGS="-L$lam_dir/$abi_libdir"
+    LAM_LIBS="-lmpi"
+    LAM_HEADER="$lam_dir/include/mpi.h"
+    LAM_DIR="$lam_dir"
+         
+# LAM has a level of indirection.  The mpi collector
+# searches the header file for MPI functions
+    if test -f $lam_dir/include/mpi/mpi.h; then
+      LAM_HEADER="$lam_dir/include/mpi/mpi.h"
+    fi 
+
+    lam_saved_CC=$CC
+    lam_saved_CPPFLAGS=$CPPFLAGS
+    lam_saved_LDFLAGS=$LDFLAGS
+
+    CC="$LAM_CC"
+    CPPFLAGS="$CPPFLAGS $LAM_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $LAM_LDFLAGS $LAM_LIBS"
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+	#include <mpi.h>
+	]], [[
+	MPI_Initialized((int*)0);
+	]]),
+
+	if nm $lam_dir/$abi_libdir/libmpi.so \
+		| cut -d' ' -f3 | grep "^lam_init" >/dev/null; then
+	    found_lam=1
+	fi
+ 
+	, )
+
+    CC=$lam_saved_CC
+    CPPFLAGS=$lam_saved_CPPFLAGS
+    LDFLAGS=$lam_saved_LDFLAGS
+
+    if test $found_lam -eq 1; then
+	AC_MSG_RESULT(yes)
+	AM_CONDITIONAL(HAVE_LAM, true)
+	AC_DEFINE(HAVE_LAM, 1, [Define to 1 if you have LAM.])	
+    else
+# Try again with $alt_abi_libdir instead
+         found_lam=0
+
+         LAM_CC="$lam_dir/bin/mpicc"
+         LAM_CPPFLAGS="-I$lam_dir/include"
+         LAM_LDFLAGS="-L$lam_dir/$alt_abi_libdir"
+         LAM_LIBS="-lmpi"
+         LAM_HEADER="$lam_dir/include/mpi.h"
+         LAM_DIR="$lam_dir"
+         
+# If LAM has a level of indirection find the mpi.h file.  
+# The mpi collector searches the header file for MPI functions
+# when building the mpi collector.
+         if test -f $lam_dir/include/mpi/mpi.h; then
+             LAM_HEADER="$lam_dir/include/mpi/mpi.h"
+         fi 
+
+         lam_saved_CC=$CC
+         lam_saved_CPPFLAGS=$CPPFLAGS
+         lam_saved_LDFLAGS=$LDFLAGS
+
+         CC="$LAM_CC"
+         CPPFLAGS="$CPPFLAGS $LAM_CPPFLAGS"
+         LDFLAGS="$LDFLAGS $LAM_LDFLAGS $LAM_LIBS"
+
+         AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+             #include <mpi.h>
+             ]], [[
+             MPI_Initialized((int*)0);
+             ]]),
+
+             if nm $lam_dir/$alt_abi_libdir/libmpi.so \
+                | cut -d' ' -f3 | grep "^lam_init" >/dev/null; then
+                 found_lam=1
+             fi
+
+
+             , )
+
+         CC=$lam_saved_CC
+         CPPFLAGS=$lam_saved_CPPFLAGS
+         LDFLAGS=$lam_saved_LDFLAGS
+
+         if test $found_lam -eq 1; then
+             AC_MSG_RESULT(yes)
+             AM_CONDITIONAL(HAVE_LAM, true)
+             AC_DEFINE(HAVE_LAM, 1, [Define to 1 if you have LAM.])
+         else
+          AC_MSG_RESULT(no)
+          AM_CONDITIONAL(HAVE_LAM, false)
+          LAM_CC=""
+          LAM_CPPFLAGS=""
+          LAM_LDFLAGS=""
+          LAM_LIBS=""
+          LAM_HEADER=""
+          LAM_DIR=""
+        fi
+    fi
+
+    AC_SUBST(LAM_CC)
+    AC_SUBST(LAM_CPPFLAGS)
+    AC_SUBST(LAM_LDFLAGS)
+    AC_SUBST(LAM_LIBS)
+    AC_SUBST(LAM_HEADER)
+    AC_SUBST(LAM_DIR)
+
+])
+
+
+
+################################################################################
 # Check for LAMPI (http://public.lanl.gov/lampi)
 ################################################################################
 
@@ -22,8 +150,8 @@ AC_DEFUN([AC_PKG_LAMPI], [
     LAMPI_HEADER="$lampi_dir/include/mpi.h"
     LAMPI_DIR="$lampi_dir"
          
-# LAMPI has a level of indirection.  The mpi collector
-# searches the header file for MPI functions
+# If LAMPI has a level of indirection find the mpi.h file.  
+# The mpi collector searches the header file for MPI functions
     if test -f $lampi_dir/include/mpi/mpi.h; then
       LAMPI_HEADER="$lampi_dir/include/mpi/mpi.h"
     fi 
@@ -517,6 +645,7 @@ AC_DEFUN([AC_PKG_OPENMPI], [
 
 AC_DEFUN([AC_PKG_MPI], [
 
+    AC_PKG_LAM()
     AC_PKG_LAMPI()
     AC_PKG_MPICH()
     AC_PKG_MPICH2()
@@ -534,6 +663,10 @@ AC_DEFUN([AC_PKG_MPI], [
     if test x"$OPENMPI_LIBS" != x""; then
 	default_mpi=OPENMPI;  default_mpi_name=openmpi
 	all_mpi_names=" openmpi $all_mpi_names"
+    fi
+    if test x"$LAM_LIBS" != x""; then
+	default_mpi=LAM;    default_mpi_name=lam
+	all_mpi_names=" lam $all_mpi_names"
     fi
     if test x"$LAMPI_LIBS" != x""; then
 	default_mpi=LAMPI;    default_mpi_name=lampi

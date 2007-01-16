@@ -29,6 +29,9 @@ mkwrapper_SOURCES = \
 	mkwrapper.cxx
 
 pkglib_LTLIBRARIES = mpi.la
+if HAVE_LAM
+pkglib_LTLIBRARIES += mpi-rt-lam.la
+endif
 if HAVE_LAMPI
 pkglib_LTLIBRARIES += mpi-rt-lampi.la
 endif
@@ -155,6 +158,16 @@ wrapper_sources = \
 	MPI_Waitany.c \
 	MPI_Waitsome.c \
 	$(NULL)
+
+
+if HAVE_LAM
+mpi_rt_lam_la_CFLAGS = $(call rt_CFLAGS_generate,@LAM_CPPFLAGS@)
+mpi_rt_lam_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@LAM_LDFLAGS@)
+mpi_rt_lam_la_LIBADD = $(call rt_LIBADD_generate,@LAM_LIBS@)
+mpi_rt_lam_la_DEPENDENCIES =
+mpi_rt_lam_la_SOURCES = $(rt_sources)
+nodist_mpi_rt_lam_la_SOURCES = $(wrapper_sources)
+endif
 
 
 
