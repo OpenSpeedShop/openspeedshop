@@ -463,9 +463,11 @@ SourcePanel::listener(void *msg)
   {
     // Someone's looking for us... \n");
     return 1;
-  } else 
-  if( msgObject->msgType == "SourceObject" && recycleFLAG == TRUE )
+  } else if( msgObject->msgType == "SourceObject" && recycleFLAG == TRUE )
   {
+    // ---------------------------------------- 
+    // ---------------------------------------- SOURCE-OBJECT
+    // ---------------------------------------- 
     nprintf(DEBUG_PANELS)  ("Its a SourceObject\n");
 #ifdef DEBUG_SourcePanel
    printf("Its a SourceObject\n");
@@ -527,6 +529,9 @@ SourcePanel::listener(void *msg)
 #endif // OLDWAY
   } else if( msgObject->msgType == "SaveAsObject" )
   {
+    // ---------------------------------------- 
+    // ---------------------------------------- SAVED-AS-OBJECT
+    // ---------------------------------------- 
     sao = (SaveAsObject *)msg;
     if( !sao )
     {
@@ -539,6 +544,9 @@ SourcePanel::listener(void *msg)
     }
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
+    // ---------------------------------------- 
+    // ---------------------------------------- PREFERENCES-CHANGED-OBJECT
+    // ---------------------------------------- 
 #ifdef DEBUG_SourcePanel
       printf("SourcePanel:  The preferences changed.\n");
 #endif

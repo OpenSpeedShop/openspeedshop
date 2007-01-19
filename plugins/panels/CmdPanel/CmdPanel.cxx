@@ -420,6 +420,9 @@ CmdPanel::listener(void *msg)
   // too.
   if( messageObject->msgType == "Redirect_Window_Output()" )
   {
+    // ----------------------------- 
+    // ----------------------------- REDIRECT-WINDOW-OUTPUT
+    // ----------------------------- 
     int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
     Redirect_Window_Output( wid, oclass, oclass );
   }

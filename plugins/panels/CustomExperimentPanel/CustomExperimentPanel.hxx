@@ -133,6 +133,11 @@ public:
   OpenSpeedShop::Framework::Experiment *fw_experiment() { return experiment; }
   
   void outputCLIData(QString *data);
+  void updatePanelStatusOnRerun(EXPID expID);
+  void updatePanelStatusOnTermination(EXPID expID);
+  void setAlreadyRun(bool alreadyRunFlag);
+  bool wasAlreadyRun();
+
 
   virtual void hideWizard();
 
@@ -181,6 +186,7 @@ private:
   int steps;
 
   bool exitingFLAG;
+  bool experimentRunAlreadyFLAG;
 
   QString expStatsInfoStr;
 

@@ -48,6 +48,7 @@ class ExperimentObject
   OpenSpeedShop::Framework::Experiment *FW_Experiment;
   pthread_mutex_t Experiment_Lock;
   bool exp_reserved;
+  bool expRunAtLeastOnceAlreadyFlag;
   std::list<CommandObject *> waiting_cmds;
 
  public:
@@ -56,6 +57,7 @@ class ExperimentObject
     Exp_ID = ++Experiment_Sequence_Number;
     ExpStatus = ExpStatus_Paused;
     exp_reserved = false;
+    expRunAtLeastOnceAlreadyFlag = false;
 
     Assert(pthread_mutex_init(&Experiment_Lock, NULL) == 0); // dynamic initialization
     Assert(pthread_mutex_lock(&Experiment_Lock) == 0);       // Lock it!
@@ -158,6 +160,9 @@ class ExperimentObject
 
   EXPID ExperimentObject_ID() {return Exp_ID;}
   Experiment *FW() {return FW_Experiment;}
+  bool expRunAtLeastOnceAlready () {return expRunAtLeastOnceAlreadyFlag;}
+  void setExpRunAtLeastOnceAlready (bool flag) {expRunAtLeastOnceAlreadyFlag = flag;}
+
 
   bool Data_Base_Is_Tmp () {return Data_File_Has_A_Generated_Name;}
   std::string Data_Base_Name () {

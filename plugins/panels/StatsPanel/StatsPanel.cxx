@@ -112,6 +112,7 @@ static char *blue_color_names[] = {
 #include "SPListView.hxx"   // Change this to your new class header file name
 #include "SPListViewItem.hxx"   // Change this to your new class header file name
 #include "UpdateObject.hxx"
+#include "PrepareToRerunObject.hxx"
 #include "FocusObject.hxx"
 #include "FocusCompareObject.hxx"
 #include "SourceObject.hxx"
@@ -441,20 +442,49 @@ StatsPanel::listener(void *msg)
 {
   PreferencesChangedObject *pco = NULL;
 
+#ifdef DEBUG_StatsPanel
+   printf("Enter StatsPanel::listener(&msg = 0x%x)\n", &msg );
+#endif
+
   MessageObject *msgObject = (MessageObject *)msg;
   nprintf(DEBUG_MESSAGES) ("StatsPanel::listener() msg->msgType = (%s)\n", msgObject->msgType.ascii() );
+
   if( msgObject->msgType == getName() && recycleFLAG == TRUE )
   {
     nprintf(DEBUG_MESSAGES) ("StatsPanel::listener() interested!\n");
+#ifdef DEBUG_StatsPanel
+   printf("StatsPanel::listener-1-(%s)\n", msgObject->msgType.ascii() );
+   printf("StatsPanel::listener-1-(getName()=%s)\n", getName() );
+#endif
+
     getPanelContainer()->raisePanel(this);
     return 1;
   }
 #ifdef DEBUG_StatsPanel
-   printf("StatsPanel::listener(%s)\n", msgObject->msgType.ascii() );
+   printf("StatsPanel::listener-2-(%s)\n", msgObject->msgType.ascii() );
 #endif
 
-  if(  msgObject->msgType  == "FocusObject" && recycleFLAG == TRUE )
+ if(  msgObject->msgType  == "PrepareToRerun" )
   {
+   // ----------------------------
+   // ---------------------------- PREPARE-TO-RERUN
+   // ----------------------------
+   // In an attempt to optimize the update of this panel;
+   // If the data file is static (i.e. read from a file or
+   // the processes status is terminated) and the command is
+   // the same, don't update this panel.
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel in PrepareToRerun\n");
+#endif // DEBUG_StatsPanel
+   originalCommand = QString::null;
+   lastCommand = QString::null;
+   staticDataFLAG = false;
+
+
+  } else if(  msgObject->msgType  == "FocusObject" && recycleFLAG == TRUE ) {
+   // ---------------------------- 
+   // ---------------------------- FOCUS-OBJECT
+   // ----------------------------
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel got a new FocusObject\n");
 #endif // DEBUG_StatsPanel
@@ -616,6 +646,10 @@ if( msg->descriptionClassList.count() > 0 ) {
 #endif // DEBUG_StatsPanel
         return 0;
     }
+
+   // ---------------------------- 
+   // ---------------------------- FOCUS-COMPARE-OBJECT
+   // ----------------------------
   } else if(  msgObject->msgType  == "FocusCompareObject" && recycleFLAG == TRUE ) {
 
 #ifdef DEBUG_StatsPanel
@@ -664,18 +698,22 @@ if( msg->descriptionClassList.count() > 0 ) {
       getPanelContainer()->raisePanel(this);
 
     }
+   // ---------------------------- 
+   // ---------------------------- UPDATE-EXPERIMENT-DATA-OBJECT
+   // ----------------------------
   } else if(  msgObject->msgType  == "UpdateExperimentDataObject" ) {
 
+    UpdateObject *msg = (UpdateObject *)msgObject;
+
 #ifdef DEBUG_StatsPanel
-   printf("UpdateExperimentDataObject\n");
+   printf("StatsPanel::listener, msgType == UpdateExperimentDataObject\n");
+   printf("StatsPanel::listener, msg->expID=%d\n, msg->expID");
 #endif // DEBUG_StatsPanel
 
-
-    UpdateObject *msg = (UpdateObject *)msgObject;
     if( msg->expID == -1 ) {
 
 #ifdef DEBUG_StatsPanel
-      printf("We got the command=(%s)\n", msg->experiment_name.ascii() );
+      printf("StatsPanel::listener, We got the command=(%s)\n", msg->experiment_name.ascii() );
 #endif // DEBUG_StatsPanel
 
       QString command = msg->experiment_name;
@@ -695,7 +733,7 @@ if( start_index != -1 )
 {
   QString s = command.mid(start_index+3);
 #ifdef DEBUG_StatsPanel
-  printf("Got a -x in the command s=(%s)\n", s.ascii() );
+  printf("StatsPanel::listener, Got a -x in the command s=(%s)\n", s.ascii() );
 #endif // DEBUG_StatsPanel
   int end_index = s.find(" ");
   if( end_index == -1 )
@@ -706,22 +744,22 @@ if( start_index != -1 )
   QString exp_x = s.mid(0, end_index);
 
 #ifdef DEBUG_StatsPanel
-   printf("exp_x=%s\n", exp_x.ascii() );
+   printf("StatsPanel::listener, exp_x=%s\n", exp_x.ascii() );
 #endif // DEBUG_StatsPanel
 
   expID = exp_x.toInt();
 
 #ifdef DEBUG_StatsPanel
-   printf("E: expID = %d\n", expID);
+   printf("StatsPanel::listener, E: expID = %d\n", expID);
 #endif // DEBUG_StatsPanel
 
    updateCollectorList();
 } else {
 
 #ifdef DEBUG_StatsPanel
-    printf("no -x in the command\n");
+    printf("StatsPanel::listener, no -x in the command\n");
     expID = groupID;
-    printf("G: expID = %d\n", expID);
+    printf("StatsPanel::listener, G: expID = %d\n", expID);
 #endif // DEBUG_StatsPanel
 
 }
@@ -729,11 +767,12 @@ if( start_index != -1 )
       return(1);
     }
     
-    expID = msg->expID;
-#ifdef DEBUG_StatsPanel
-    printf("H: expID = %d\n", expID);
-#endif // DEBUG_StatsPanel
 
+    expID = msg->expID;
+
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::listener, H: expID = %d\n", expID);
+#endif // DEBUG_StatsPanel
 
     // Begin determine if there's mpi stats
     try
@@ -744,7 +783,7 @@ if( start_index != -1 )
         Experiment *fw_experiment = eo->FW();
         CollectorGroup cgrp = fw_experiment->getCollectors();
 #ifdef DEBUG_StatsPanel
-        printf("Is says you have %d collectors.\n", cgrp.size() );
+        printf("StatsPanel::listener, Is says you have %d collectors.\n", cgrp.size() );
 #endif // DEBUG_StatsPanel
         if( cgrp.size() == 0 )
         {
@@ -770,20 +809,22 @@ if( start_index != -1 )
 // End determine if there's mpi stats
 
 #ifdef DEBUG_StatsPanel
-    printf("Call updateStatsPanelData() \n");
+    printf("StatsPanel::listener, Call updateStatsPanelData() \n");
 #endif // DEBUG_StatsPanel
 
     updateStatsPanelData();
 
 #ifdef DEBUG_StatsPanel
-    printf("msg->raiseFLAG =%d \n", msg->raiseFLAG );
+    printf("StatsPanel::listener, msg->raiseFLAG =%d \n", msg->raiseFLAG );
 #endif // DEBUG_StatsPanel
 
     if( msg->raiseFLAG )
     {
-    if( msg->raiseFLAG )
       getPanelContainer()->raisePanel((Panel *)this);
     }
+   // ---------------------------- 
+   // ---------------------------- PREFERENCE-CHANGED-OBJECT
+   // ----------------------------
   } else if( msgObject->msgType == "PreferencesChangedObject" ) {
 
 #ifdef DEBUG_StatsPanel
@@ -802,6 +843,9 @@ if( start_index != -1 )
       cf->setChartType((ChartType)getChartTypeComboBox());
     }
     updateStatsPanelData();
+   // ---------------------------- 
+   // ---------------------------- SAVE-AS-OBJECT
+   // ----------------------------
   } else if( msgObject->msgType == "SaveAsObject" )
   {
     SaveAsObject *sao = (SaveAsObject *)msg;
@@ -4213,8 +4257,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
   if( gotHeader == FALSE ) {
 
 #ifdef DEBUG_StatsPanel
- printf("outputCLIData, fieldCount... hot off the wire = (%d)\n", fieldCount );
- printf("outputCLIData, staticDataFLAG... = (%d)\n", staticDataFLAG );
+ printf("outputCLIData, ATTEMPT TO PUT OUT HEADER staticDataFLAG... = (%d)\n", staticDataFLAG );
  printf("outputCLIData, (sml != NULL)... = (%d)\n", (sml != NULL) );
 #endif
 
@@ -4265,6 +4308,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
    printf("outputCLIData, return early from outputCLIData gotHeader=(%d)\n", gotHeader);
 #endif
     return;
+
   } else {
 
     strings = new QString[columnFieldList.count()];
@@ -4281,7 +4325,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
   }
 
 #ifdef DEBUG_StatsPanel
-   printf("outputCLIData, fieldCount=%d\n", fieldCount);
+   printf("outputCLIData, PUT OUT DATA, fieldCount=%d\n", fieldCount);
 #endif
 
   if ( fieldCount == 0 )
@@ -4296,7 +4340,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
 
   SPListViewItem *splvi;
 #ifdef DEBUG_StatsPanel
-  printf("More Function MPItraceFLAG=(%d)\n", MPItraceFLAG);
+  printf("ATTEMPT TO PUT OUT DATA, More Function currentCollectorStr=%s, MPItraceFLAG=(%d)\n", currentCollectorStr.ascii(), MPItraceFLAG);
 #endif
 
   if( (( currentCollectorStr == "mpi" || 
@@ -6453,8 +6497,18 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
   printf("StatsPanel::process_clip before NULL check statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip,statspanel_clip);
   printf("StatsPanel::process_clip statspanel_clip->CmdObj_List().begin() == NULL=%d\n", (statspanel_clip->CmdObj_List().begin() == NULL));
 #endif
+
   coi = statspanel_clip->CmdObj_List().begin();
+  if( coi == NULL )
+  {
+    cerr << "No command object list in clip to process.\n";
+  }
+
   CommandObject *co = (CommandObject *)(*coi);
+  if( co == NULL )
+  {
+    cerr << "No command object in clip to process.\n";
+  }
 
   std::list<CommandResult *>::iterator cri;
   std::list<CommandResult *> cmd_result = co->Result_List();

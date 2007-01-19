@@ -17,6 +17,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+// begin Enable debugging of the Manage Process Panel
+// by uncommenting the define DEBUG_MPPanel line
+//
+//#define DEBUG_MPPanel 1
+//
+// end Enable debugging of the Manage Process Panel
+//
+
+
 #include "ManageProcessesPanel.hxx"
 #include "ManageCollectorsClass.hxx"
 #include "PreferencesChangedObject.hxx"
@@ -133,11 +142,39 @@ ManageProcessesPanel::listener(void *msg)
     getPanelContainer()->raisePanel(this);
     return 1;
   }
+#ifdef DEBUG_MPPanel
+   printf("ManageProcessesPanel::listener() msgObject->msgType.ascii()=%s\n", msgObject->msgType.ascii());
+#endif
 
-  if(  msgObject->msgType  == "UpdateExperimentDataObject" )
+  if(  msgObject->msgType  == "PrepareToRerun" )
   {
+// -------------------------------------------- 
+// -------------------------------------------- PREPARE-TO-RERUN
+// -------------------------------------------- 
+
     UpdateObject *msg = (UpdateObject *)msgObject;
+
+    mcc->expID = msg->expID;
+    groupID = mcc->expID;
+
+#ifdef DEBUG_MPPanel
+    printf("ManageProcessesPanel::listener() PrepareToRerun, calling preferencesChanged() msg->expID=%d\n", msg->expID );
+#endif
+
+    preferencesChanged();
+    getPanelContainer()->raisePanel(this);
+
+  } else if(  msgObject->msgType  == "UpdateExperimentDataObject" )
+  {
+// -------------------------------------------- 
+// -------------------------------------------- UPDATE-EXPERIMENT-DATA-OBJECT
+// -------------------------------------------- 
+    UpdateObject *msg = (UpdateObject *)msgObject;
+
     nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() UpdateExperimentDataObject!\n");
+#ifdef DEBUG_MPPanel
+    printf("ManageProcessesPanel::listener() UpdateExperimentDataObject, msg->expID=%d\n", msg->expID );
+#endif
 
     mcc->expID = msg->expID;
     mcc->updatePanel();
@@ -149,12 +186,18 @@ ManageProcessesPanel::listener(void *msg)
     }
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
+// -------------------------------------------- 
+// -------------------------------------------- PREFERENCE-CHANGED-OBJECT
+// -------------------------------------------- 
     nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() PreferencesChangedObject!\n");
     pco = (PreferencesChangedObject *)msgObject;
 // Currently ignored.
     preferencesChanged();
   } else if( msgObject->msgType == "SaveAsObject" )
   {
+// -------------------------------------------- 
+// -------------------------------------------- SAVE-AS-OBJECT
+// -------------------------------------------- 
 //    SaveAsObject *sao = (SaveAsObject *)msg;
   dprintf("ManageProcessesPanel!!!!! Save as!\n");
 //    if( !sao )

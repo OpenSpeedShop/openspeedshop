@@ -221,8 +221,10 @@ while( it.current() )
 void
 ManageCollectorsClass::updateAttachedList()
 {
-// printf("updateAttachedList() dialogSortType=%d\n", dialogSortType);
-// printf("updateAttachedList(%d) \n", expID );
+#if DEBUG_MPPanel
+  printf("ManageCollectorsClass::updateAttachedList() dialogSortType=%d\n", dialogSortType);
+  printf("ManageCollectorsClass::updateAttachedList(%d) \n", expID );
+#endif
 
   if( MPListView::draggingFLAG == TRUE )
   {
@@ -263,6 +265,10 @@ ManageCollectorsClass::updateAttachedList()
           try
           {
             ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+#if DEBUG_MPPanel
+            printf("ManageCollectorsClass::updateAttachedList() dialogSortType=%d\n", dialogSortType);
+            printf("ManageCollectorsClass::updateAttachedList eo=(0x%x)\n", eo );
+#endif
       
             if( eo->FW() != NULL )
             {
@@ -352,7 +358,9 @@ ManageCollectorsClass::updateAttachedList()
       break;
     case PID_T:
     {
-// printf("PID_T: expID=%d\n", expID );
+#ifdef DEBUG_MPPanel
+      printf("ManageCollectorsClass::updateAttachedList(), PID_T: expID=%d\n", expID );
+#endif
       QString ridstr = QString::null;
       try
       {
@@ -360,10 +368,14 @@ ManageCollectorsClass::updateAttachedList()
   
         if( eo->FW() != NULL )
         {
-// printf("got an experiment.\n");
+#ifdef DEBUG_MPPanel
+          printf("ManageCollectorsClass::updateAttachedList(), got an experiment.\n");
+#endif
   // The following bit of code was snag and modified from SS_View_exp.cxx
           ThreadGroup tgrp = eo->FW()->getThreads();
-// printf("eo->Determine_Status() = (%d)\n", eo->Determine_Status() );
+#ifdef DEBUG_MPPanel
+          printf("ManageCollectorsClass::updateAttachedList(), eo->Determine_Status() = (%d)\n", eo->Determine_Status() );
+#endif
           if( ( (eo->Determine_Status() == ExpStatus_NonExistent) ||
             (eo->Determine_Status() == ExpStatus_Terminated ) ||
             (eo->Determine_Status() == ExpStatus_InError ) ) && updateTimer )
@@ -405,7 +417,9 @@ ManageCollectorsClass::updateAttachedList()
                 threadStatusStr = "Unknown";
                 break;
             }
-// printf("threadStatusStr=(%s)\n", threadStatusStr.ascii() );
+#ifdef DEBUG_MPPanel
+            printf("ManageCollectorsClass::updateAttachedList(), threadStatusStr=(%s)\n", threadStatusStr.ascii() );
+#endif
   
             if (!atleastone)
             {
@@ -422,7 +436,9 @@ ManageCollectorsClass::updateAttachedList()
             if (rank.first)
             {
               ridstr = QString("%1").arg(rank.second);
-// printf("GOT A RIDSTR=(%s)\n", ridstr.ascii() );
+#ifdef DEBUG_MPPanel
+              printf("ManageCollectorsClass::updateAttachedList(), GOT A RIDSTR=(%s)\n", ridstr.ascii() );
+#endif
             }
             CollectorGroup cgrp = t.getCollectors();
             CollectorGroup::iterator ci;
@@ -489,17 +505,23 @@ ManageCollectorsClass::updateAttachedList()
     attachCollectorsListView->setColumnText( 1, tr( QString("Process ID") ) );
     attachCollectorsListView->setColumnText( 2, "            " );
     {
-// printf("expID=%d\n", expID );
+#ifdef DEBUG_MPPanel
+       printf("ManageCollectorsClass::updateAttachedList(), MPIRANK_T expID=%d\n", expID );
+#endif
       try
       {
         ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
   
         if( eo->FW() != NULL )
         {
-// printf("got an experiment.\n");
+#ifdef DEBUG_MPPanel
+          printf("ManageCollectorsClass::updateAttachedList(), MPIRANK_T got an experiment.\n");
+#endif
   // The following bit of code was snag and modified from SS_View_exp.cxx
           ThreadGroup tgrp = eo->FW()->getThreads();
-// printf("eo->Determine_Status() = (%d)\n", eo->Determine_Status() );
+#ifdef DEBUG_MPPanel
+          printf("ManageCollectorsClass::updateAttachedList(), MPIRANK_T eo->Determine_Status() = (%d)\n", eo->Determine_Status() );
+#endif
           if( ( (eo->Determine_Status() == ExpStatus_NonExistent) ||
             (eo->Determine_Status() == ExpStatus_Terminated ) ||
             (eo->Determine_Status() == ExpStatus_InError ) ) && updateTimer )
@@ -541,7 +563,9 @@ ManageCollectorsClass::updateAttachedList()
                 threadStatusStr = "Unknown";
                 break;
             }
-// printf("threadStatusStr=(%s)\n", threadStatusStr.ascii() );
+#ifdef DEBUG_MPPanel
+             printf("threadStatusStr=(%s)\n", threadStatusStr.ascii() );
+#endif
   
             if (!atleastone)
             {

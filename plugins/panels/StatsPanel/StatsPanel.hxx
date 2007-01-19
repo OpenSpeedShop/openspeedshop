@@ -198,6 +198,7 @@ class StatsPanel  : public Panel
     std::list<std::string> list_of_generic_modifiers;
     std::list<std::string> current_list_of_generic_modifiers;
 
+    void setLastCommand(QString value) { lastCommand = value; } ;
     void updateThreadsList();
     void updateCollectorList();
     void updateCollectorMetricList();

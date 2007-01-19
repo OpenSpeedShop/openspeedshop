@@ -1492,6 +1492,71 @@ static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool 
   return true;
 }
 
+#ifdef CLONE_COMMAND
+
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
+bool SS_expClone (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  bool cmd_executed = false;
+
+ // Wait for all executing commands to terminante.
+ // We do this so that another command thread won't get burned
+ // looking through the ExperimentObject_list when an entry is
+ // deleted from it.
+  Wait_For_Previous_Cmds ();
+
+  // Find the experiment associated with the input expId using the cmd
+  ExperimentObject *input_exp = Find_Specified_Experiment (cmd);
+  if (input_exp == NULL) {
+    return false;
+  }
+
+  // Find the experiment id of the experiment to be cloned
+  EXPID input_exp_id = input_exp->ExperimentObject_ID();
+
+#ifdef DEBUG_CLI
+  printf("SS_expClone, exp_id of input experiment is %d\n", input_exp_id);
+#endif
+
+ // There is no specified experiment.  Allocate a new Experiment.
+  ExperimentObject *output_exp = new ExperimentObject ();
+  if (output_exp->FW() == NULL) {
+    Mark_Cmd_With_Soft_Error(cmd, "Unable to create a new experiment in the FrameWork.");
+    return false;
+  }
+  EXPID output_exp_id = output_exp->ExperimentObject_ID();
+
+#ifdef DEBUG_CLI
+  printf("SS_expClone, exp_id of new/output experiment is %d\n", output_exp_id);
+#endif
+
+ // When we allocate a new experiment, set the focus to point to it.
+  (void)Experiment_Focus (WindowID, output_exp_id);
+
+ // Annotate the command
+  cmd->Result_Annotation ("The newly cloned experiment identifier is:  -x ");
+
+ // Return the EXPID for this command.
+  cmd->Result_Int (output_exp_id);
+
+  cmd->set_Status(CMD_COMPLETE);
+  return cmd_executed;
+}
+
+#endif
+
 /**
  * Method: ()
  * 
@@ -1995,6 +2060,99 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 
 /**
  * Method: ()
+ *
+ * .
+ *
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
+static bool Continue_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+ // Get the current status of this experiment.
+  exp->Q_Lock (cmd, false);
+  exp->Determine_Status();
+  exp->Q_UnLock ();
+
+  if (exp->FW() == NULL) {
+    Mark_Cmd_With_Soft_Error(cmd,
+                             "The experiment can not be run because "
+                             "it is not atached to an application.");
+    return false;
+  }
+
+  if ((exp->Status() == ExpStatus_Terminated) ||
+      (exp->Status() == ExpStatus_InError)) {
+   // Can not run if ExpStatus_Terminated or ExpStatus_InError
+    std::string s("The experiment can not be continued because it is in the "
+                    + exp->ExpStatus_Name() + " state.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+    return false;
+  }
+
+  if ((exp->Status() == ExpStatus_NonExistent) ||
+      (exp->Status() == ExpStatus_Paused) ||
+      (exp->Status() == ExpStatus_Running)) {
+
+   // Verify that there are threads.
+    ThreadGroup tgrp;
+    try {
+      tgrp = exp->FW()->getThreads();
+      if (tgrp.empty()) {
+        Mark_Cmd_With_Soft_Error(cmd, "There are no applications specified for the experiment.");
+        return false;
+      }
+    }
+    catch(const Exception& error) {
+      Mark_Cmd_With_Std_Error (cmd, error);
+      return false;
+    }
+
+   // Go through the ThreadGroup to handle "don't care" errors.
+    for(ThreadGroup::const_iterator tgi = tgrp.begin(); tgi != tgrp.end(); ++tgi) {
+      Thread t = *tgi;
+      try {
+       // Be sure transitional states are complete before running.
+        if (t.getState() == Thread::Disconnected) {
+          t.changeState (Thread::Connecting);
+        }
+        Wait_For_Thread_Connected (cmd, t);
+
+
+        t.changeState (Thread::Running);
+      }
+      catch(const Exception& error) {
+        if ((t.getState() == Thread::Terminated) ||
+            (t.getState() == Thread::Nonexistent)) {
+         // These states cause errors, but we can ignore them.
+          continue;
+        }
+        Mark_Cmd_With_Std_Error (cmd, error);
+        return false;
+      }
+    }
+
+   // After changing the state of each thread, wait for the
+   // something to actually start executing.
+    (void) Wait_For_Exp_State (cmd, ExpStatus_Running, exp);
+
+   // Notify the user when the experiment has terminated.
+    if (Embedded_WindowID == 0) {
+      Request_Async_Notice_Of_Termination (cmd, exp);
+    }
+
+   // Annotate the command
+    cmd->Result_Annotation ("Continue asynchronous execution of experiment:  -x "
+                             + int2str(exp->ExperimentObject_ID()) + "\n");
+  }
+  return true;
+}
+
+
+/**
+ * Method: ()
  * 
  * .
  *     
@@ -2012,7 +2170,7 @@ bool SS_expCont (CommandObject *cmd) {
     std::list<ExperimentObject *>::iterator expi;
     for (expi = ExperimentObject_list.begin(); expi != ExperimentObject_list.end(); expi++) {
       ExperimentObject *exp = *expi;
-      if (!Execute_Experiment (cmd, exp)) {
+      if (!Continue_Experiment (cmd, exp)) {
         return false;
       }
     }
@@ -2021,7 +2179,7 @@ bool SS_expCont (CommandObject *cmd) {
     if (exp == NULL) {
       return false;
     }
-    if (!Execute_Experiment (cmd, exp)) {
+    if (!Continue_Experiment (cmd, exp)) {
       return false;
     }
   }
@@ -2053,6 +2211,8 @@ bool SS_expGo (CommandObject *cmd) {
       ExperimentObject *exp = *expi;
       if (!Execute_Experiment (cmd, exp)) {
         return false;
+      } else {
+//        exp->setExpRunAtLeastOnceAlready(true);
       }
     }
   } else {
@@ -2062,6 +2222,8 @@ bool SS_expGo (CommandObject *cmd) {
     }
     if (!Execute_Experiment (cmd, exp)) {
       return false;
+    } else {
+//      exp->setExpRunAtLeastOnceAlready(true);
     }
   }
 
