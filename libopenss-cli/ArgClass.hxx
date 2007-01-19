@@ -31,18 +31,27 @@ class ArgStruct
     ArgStruct(int ac, char **av)
     {
       argc = ac;
-      argv = (char **)calloc( argc, sizeof(char *) * argc );
-      for(int i=0;i<argc;i++)
-      {
-        argv[i] = strdup(av[i]);
-      }
+      if (argc==0)
+	argv=NULL;
+      else
+	{
+	  // Martin: fixed use of calloc
+	  //argv = (char **)calloc( argc, sizeof(char *) * argc );
+	  argv = (char **)calloc( argc, sizeof(char *) );
+	  for(int i=0;i<argc;i++)
+	    {
+	      argv[i] = strdup(av[i]);
+	    }
+	}
     }
 
     void addArg(char *a)
     {
       char **old_argv = argv;
 
-      argv = (char **)calloc( argc, sizeof(char *) * (argc+1) );
+      // Martin: fixed use of calloc
+      //argv = (char **)calloc( argc, sizeof(char *) * (argc+1) );
+      argv = (char **)calloc( argc+1, sizeof(char *) );
       int i = 0;
       for(i=0;i<argc;i++)
       {
@@ -50,6 +59,8 @@ class ArgStruct
       }
       argv[i] = strdup(a);
       argc++;
+      // Martin: fix: freeing old memory
+      if (old_argv!=NULL) free(old_argv);
     }
 
     int argc;
