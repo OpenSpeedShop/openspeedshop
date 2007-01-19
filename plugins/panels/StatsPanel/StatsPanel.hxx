@@ -289,6 +289,7 @@ class StatsPanel  : public Panel
     void customizeExperimentsSelected();
     void clusterAnalysisSelected();
     void manageProcessesSelected();
+    void raiseManageProcessesPanel();
     void progressUpdate();
 
 // TOOLBAR SLOTS

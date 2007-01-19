@@ -422,6 +422,25 @@ StatsPanel::~StatsPanel()
 }
 
 void
+StatsPanel::raiseManageProcessesPanel()
+{
+#ifdef DEBUG_MPPanel
+  printf("StatsPanel::raiseManageProcessesPanel()\n");
+#endif
+
+  QString name = QString("ManageProcessesPanel [%1]").arg(expID);
+
+  Panel *manageProcessesPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+
+  if( manageProcessesPanel ) {
+    getPanelContainer()->raisePanel(manageProcessesPanel);
+  }
+
+}
+
+
+
+void
 StatsPanel::languageChange()
 {
   // Set language specific information here.
@@ -473,13 +492,14 @@ StatsPanel::listener(void *msg)
    // If the data file is static (i.e. read from a file or
    // the processes status is terminated) and the command is
    // the same, don't update this panel.
+   // FOR RERUN - need to clear lastCommand so it does update
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel in PrepareToRerun\n");
 #endif // DEBUG_StatsPanel
    originalCommand = QString::null;
    lastCommand = QString::null;
    staticDataFLAG = false;
-
+   raiseManageProcessesPanel();
 
   } else if(  msgObject->msgType  == "FocusObject" && recycleFLAG == TRUE ) {
    // ---------------------------- 
