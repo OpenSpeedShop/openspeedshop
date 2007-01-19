@@ -59,6 +59,7 @@ libopenss_guiobjects_la_SOURCES = \
 	FocusCompareObject.hxx FocusCompareObject.cxx \
 	ArgumentObject.hxx ArgumentObject.cxx \
 	ClosingDownObject.hxx ClosingDownObject.cxx \
+	PrepareToRerunObject.hxx PrepareToRerunObject.cxx \
 	PreferencesChangedObject.hxx PreferencesChangedObject.cxx \
 	LoadAttachObject.hxx LoadAttachObject.cxx \
 	SaveAsObject.hxx SaveAsObject.cxx \
