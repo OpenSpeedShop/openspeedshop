@@ -61,7 +61,8 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * @ingroup Implementation
      */
-    namespace DataQueues {
+    namespace DataQueues
+    {
 
 	void addDatabase(const SmartPtr<Database>&);
 	void removeDatabase(const SmartPtr<Database>&);

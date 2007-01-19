@@ -71,7 +71,7 @@ namespace OpenSpeedShop { namespace Framework {
 	static CollectorPluginTable TheTable;
 	
 	CollectorPluginTable();
-	~CollectorPluginTable();
+	virtual ~CollectorPluginTable();
 	
 	std::set<Metadata> getAvailable();
 	CollectorImpl* instantiate(const std::string&);

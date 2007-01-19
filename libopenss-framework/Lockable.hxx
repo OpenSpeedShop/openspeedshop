@@ -83,7 +83,7 @@ namespace OpenSpeedShop { namespace Framework {
 	}
 	
 	/** Destructor. */
-	~Lockable()
+	virtual ~Lockable()
 	{	    
 	}
 

@@ -87,7 +87,7 @@ namespace OpenSpeedShop { namespace Framework {
 	static void remove(const std::string&);
 	
 	explicit Database(const std::string&);
-	~Database();
+	virtual ~Database();
 
 	void renameTo(const std::string&);
 	void copyTo(const std::string&);
