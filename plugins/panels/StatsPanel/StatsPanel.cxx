@@ -6519,10 +6519,6 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
 #endif
 
   coi = statspanel_clip->CmdObj_List().begin();
-  if( coi == NULL )
-  {
-    cerr << "No command object list in clip to process.\n";
-  }
 
   CommandObject *co = (CommandObject *)(*coi);
   if( co == NULL )
