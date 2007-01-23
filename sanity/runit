@@ -1,0 +1,69 @@
+echo "Begin running simple dyninst test"
+cd check_dyninst/create
+./runit
+echo ""
+
+if grep PASSED testresults_* > /dev/null
+then
+    echo "simple dyninst test PASSED, dyninst is probably not the first place to look for issues"
+fi
+
+if grep FAILED testresults_* > /dev/null
+then
+    echo "simple dyninst test FAILED, examine the dyninst installation for problems"
+fi
+
+echo ""
+echo "Finished running simple dyninst test"
+cd ../../
+
+
+echo "Begin running simple dpcl test"
+cd check_dpcl/one_shot
+./runit
+echo ""
+
+if grep PASSED testresults_* > /dev/null
+then
+    echo "simple dpcl test PASSED, dpcl is probably not the first place to look for issues"
+fi
+
+if grep FAILED testresults_* > /dev/null
+then
+    echo "simple dpcl test FAILED, examine the dpcl installation for problems"
+fi
+echo ""
+echo "Finished running simple dpcl test"
+cd ../..
+
+
+echo "Begin running simple OpenSpeedShop pcsampling test"
+cd check_openss/simple
+./runit
+
+if grep PASSED pcsamp1.tst.output > /dev/null
+then
+    echo "simple OpenSpeedShop pcsampling test PASSED, the minimal OpenSpeedShop environment appears to be setup correctly"
+    echo "SKIP SETUP SCRIPT" > runsetupchecker
+fi
+
+if grep FAILED pcsamp1.tst.output > /dev/null
+then
+    echo "simple OpenSpeedShop pcsampling test FAILED, examine the OpenSpeedShop installation for problems.  The configuration setup checking script will automatically run now"
+    echo "RUN SETUP SCRIPT" > runsetupchecker
+fi
+
+echo "Finished running simple OpenSpeedShop pcsampling test"
+cd ../..
+
+if grep RUN runsetupchecker > /dev/null
+then
+    echo "Begin running dyninst/dpcl/OpenSpeedShop environment checking script"
+    cd check_setup
+    ./runit
+else
+    echo "Finished running OpenSpeedShop sanity checking tests.  The environment appears valid."
+fi
+
+
+

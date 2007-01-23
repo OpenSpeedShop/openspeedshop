@@ -1,0 +1,11 @@
+
+This directory contains a script or scripts to verify
+that the dyninst, dpcl, and openspeedshop setup is correct.
+Items that will be checked are:
+
+1) for dpcl: that a .rhosts file exists
+2) for dpcl: that the .rhosts file has 600 permissions
+3) for dpcl: that there is an dpclSD entry in /etc/services
+4) for dpcl: that there is an dpclSD file in /etc/xinetd.d
+
+

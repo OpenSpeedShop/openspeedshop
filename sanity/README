@@ -1,0 +1,9 @@
+This directory contains files and scripts that are
+responsible for doing an initial sanity check on the
+setup of the openspeedshop execution environment.  This
+execution environment primarily includes dyninst, 
+dpcl, and openspeedshop.   There are subdirectories where
+specific component related tests and scripts are located.
+This high level directory contains the driver script that
+invokes the component sanity checking tests.
+
