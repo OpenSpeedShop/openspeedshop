@@ -34,6 +34,7 @@ SUBDIRS = \
 	plugins \
 	examples \
 	doc \
+	sanity \
 	usability
 
 CHECK_SUBDIRS = \

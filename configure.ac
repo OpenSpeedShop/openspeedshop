@@ -120,6 +120,14 @@ AC_PYTHON_DEVEL([>= '2.3'])
 AC_PKG_SQLITE()
 AC_PKG_QTLIB()
 
+
+################################################################################
+# Check for Dynamic Instrumentation Package
+################################################################################
+
+AC_PKG_DYNINST()
+
+
 ################################################################################
 # Check for Instrumentor
 ################################################################################
@@ -224,6 +232,14 @@ AC_CONFIG_FILES(
 	libopenss-guichart/Makefile
 	libopenss-cli/Makefile
 	libopenss-gui/Makefile
+	sanity/Makefile
+	sanity/check_dpcl/Makefile
+	sanity/check_dpcl/one_shot/Makefile
+	sanity/check_dyninst/Makefile
+	sanity/check_dyninst/create/Makefile
+	sanity/check_openss/Makefile
+	sanity/check_openss/simple/Makefile
+	sanity/check_setup/Makefile
 	test/Makefile
 	test/test_scripts/Makefile
 	test/src/Makefile
