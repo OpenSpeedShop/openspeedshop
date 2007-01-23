@@ -92,7 +92,7 @@ namespace OpenSpeedShop { namespace Framework {
 	static std::set<Metadata> getAvailable();
 	
 	Collector(const Collector&);
-	~Collector();
+	virtual ~Collector();
 
 	Collector& operator=(const Collector&);
 

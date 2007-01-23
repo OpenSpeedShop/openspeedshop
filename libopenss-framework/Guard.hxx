@@ -75,7 +75,7 @@ namespace OpenSpeedShop { namespace Framework {
 	}
 
 	/** Destructor. */
-	~Guard()
+	virtual ~Guard()
 	{	    
 	    Assert(dm_object != NULL);
 	    dm_object->releaseLock();

@@ -98,7 +98,7 @@ namespace OpenSpeedShop { namespace Framework {
 	static void remove(const std::string&);
 
 	explicit Experiment(const std::string&);
-	~Experiment();
+	virtual ~Experiment();
 
 	void renameTo(const std::string&) const;
 	void copyTo(const std::string&) const;
