@@ -1,1 +1,13 @@
-echo "The environment checking script is not implemented at this time"
+if test -f $HOME/.rhosts
+then
+   echo "$HOME/.rhosts exists, good"
+   ls -l $HOME/.rhosts | cut -c4-10 > tmp_rhosts_permissions
+   if grep "\-\-\-\-\-\-" tmp_rhosts_permissions > 0
+then
+   echo "$HOME/.rhosts has correct permissions, NO group or other"
+fi
+else
+   echo "Need to create a $HOME/.rhosts file with permissions 600"
+fi
+
+echo "The environment checking script is not completly implemented at this time"
