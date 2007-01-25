@@ -256,13 +256,24 @@ AC_DEFUN([AC_PKG_PAPI], [
 
     PAPI_CPPFLAGS="-I$papi_dir/include"
     PAPI_LDFLAGS="-L$papi_dir/$abi_libdir"
-    PAPI_LIBS="-lpapi"
+
+    case "$host" in
+	ia64-*-linux*)
+	    PAPI_LIBS="-lpapi -lpfm"
+            ;;
+	*)
+	    PAPI_LIBS="-lpapi"
+            ;;
+    esac
 
     papi_saved_CPPFLAGS=$CPPFLAGS
     papi_saved_LDFLAGS=$LDFLAGS
+    papi_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $PAPI_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $PAPI_LDFLAGS $PAPI_LIBS"
+#    LDFLAGS="$LDFLAGS $PAPI_LDFLAGS $PAPI_LIBS"
+    LDFLAGS="$PAPI_LDFLAGS $PAPI_LIBS"
+    LIBS=""
 
     AC_MSG_CHECKING([for PAPI library and headers])
 
@@ -287,6 +298,7 @@ AC_DEFUN([AC_PKG_PAPI], [
 
     CPPFLAGS=$papi_saved_CPPFLAGS
     LDFLAGS=$papi_saved_LDFLAGS
+    LIBS=$papi_saved_LIBS
 
     AC_SUBST(PAPI_CPPFLAGS)
     AC_SUBST(PAPI_LDFLAGS)
