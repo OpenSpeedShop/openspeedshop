@@ -50,6 +50,7 @@ class ExperimentObject
   bool exp_reserved;
   bool expRunAtLeastOnceAlreadyFlag;
   std::list<CommandObject *> waiting_cmds;
+  bool isBatch;
 
  public:
   ExperimentObject (std::string data_base_name = std::string("")) {
@@ -92,12 +93,13 @@ class ExperimentObject
       if (database_not_allocated) {   
        // Create a file in /tmp, for fastest access,
        // of the form "X<exp_id>.XXXXXX.openss".
-        char base[L_tmpnam];
-        snprintf(base, L_tmpnam, "X%lld.",Exp_ID);
-        char *tName = tempnam ( (Data_File_Has_A_Generated_Name ? NULL : "./"), base );
-        Assert(tName != NULL);
-        Data_File_Name = std::string(tName) + ".openss";
-        free (tName);
+//        char base[L_tmpnam];
+//        snprintf(base, L_tmpnam, "X%lld.",Exp_ID);
+//        char *tName = tempnam ( (Data_File_Has_A_Generated_Name ? NULL : "./"), base );
+//        Assert(tName != NULL);
+//        Data_File_Name = std::string(tName) + ".openss";
+//        free (tName);
+        Data_File_Name = createName(Exp_ID, Data_File_Has_A_Generated_Name);
       }
       try {
         OpenSpeedShop::Framework::Experiment::create (Data_File_Name);
@@ -162,6 +164,21 @@ class ExperimentObject
   Experiment *FW() {return FW_Experiment;}
   bool expRunAtLeastOnceAlready () {return expRunAtLeastOnceAlreadyFlag;}
   void setExpRunAtLeastOnceAlready (bool flag) {expRunAtLeastOnceAlreadyFlag = flag;}
+  bool expIsBatch () {return isBatch;}
+  void setExpIsBatch (bool flag) {isBatch = flag;}
+
+  std::string createName (EXPID LocalExpId, bool LocalDataFileHasAGeneratedName) {
+     std::string LocalDataFileName;
+     // Create a file in /tmp, for fastest access,
+     // of the form "X<exp_id>.XXXXXX.openss".
+     char base[L_tmpnam];
+     snprintf(base, L_tmpnam, "X%lld.",LocalExpId);
+     char *tName = tempnam ( (LocalDataFileHasAGeneratedName ? NULL : "./"), base );
+     Assert(tName != NULL);
+     LocalDataFileName = std::string(tName) + ".openss";
+     free (tName);
+     return LocalDataFileName;
+  }
 
 
   bool Data_Base_Is_Tmp () {return Data_File_Has_A_Generated_Name;}

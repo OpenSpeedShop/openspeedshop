@@ -55,6 +55,8 @@ extern int64_t ip_number(char *,int);
 
 "expattach" 	{ return ATTACH_HEAD; }
 "expAttach" 	{ return ATTACH_HEAD; }
+"expclone"  	{ return CLONE_HEAD; }
+"expClone"  	{ return CLONE_HEAD; }
 "expclose"  	{ return CLOSE_HEAD; }
 "expClose"  	{ return CLOSE_HEAD; }
 "expcompare" 	{ return COMPARE_HEAD; }

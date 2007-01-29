@@ -39,6 +39,7 @@
 typedef enum {
     CMD_HEAD_ERROR,	    /* used for error processing */
     CMD_EXP_ATTACH,
+    CMD_EXP_CLONE,
     CMD_EXP_CLOSE,
     CMD_EXP_COMPARE,
     CMD_EXP_CONT,
@@ -252,8 +253,7 @@ class ParseResult {
 	}
     	void pushViewSet(int num1, int num2) {
 	    ParseRange view_set(num1,num2);
-    	    dm_view_set_list.push_back(view_set);
-	}
+    	    dm_view_set_list.push_back(view_set); }
     	/** Handle list of general modifiers. */
     	vector<string> * getModifierList()
 	{

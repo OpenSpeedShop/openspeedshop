@@ -72,6 +72,7 @@ extern SS_Message_Czar& theMessageCzar();
 command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "Syntax_Error", false,  CMD_HEAD_ERROR, /* used in error reporting */
     "expAttach",    false,  CMD_EXP_ATTACH,
+    "expClone",     false,  CMD_EXP_CLONE,
     "expClose",     false,  CMD_EXP_CLOSE,
     "expCompare",   true,   CMD_EXP_COMPARE,
     "expCont",	    false,  CMD_EXP_CONT,
@@ -297,8 +298,7 @@ s_dumpParam(ParseParam *p_parm, char *label)
 	    	break;
 	    default :
 	    	cout << "UNKNOWN VALUE TYPE: " << iter->getValType() << endl;
-	    	break;
-	}
+	    	break; }
     }
 
 }

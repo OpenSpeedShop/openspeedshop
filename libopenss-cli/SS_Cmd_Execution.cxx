@@ -1492,7 +1492,7 @@ static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool 
   return true;
 }
 
-#ifdef CLONE_COMMAND
+//#ifdef CLONE_COMMAND
 
 /**
  * Method: ()
@@ -1510,6 +1510,8 @@ bool SS_expClone (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   bool cmd_executed = false;
+  Framework::Experiment *output_experiment = NULL;
+  Framework::Experiment *input_experiment = NULL;
 
  // Wait for all executing commands to terminante.
  // We do this so that another command thread won't get burned
@@ -1526,21 +1528,74 @@ bool SS_expClone (CommandObject *cmd) {
   // Find the experiment id of the experiment to be cloned
   EXPID input_exp_id = input_exp->ExperimentObject_ID();
 
+  input_experiment = input_exp->FW();
+
 #ifdef DEBUG_CLI
   printf("SS_expClone, exp_id of input experiment is %d\n", input_exp_id);
 #endif
 
- // There is no specified experiment.  Allocate a new Experiment.
-  ExperimentObject *output_exp = new ExperimentObject ();
+  std::string Data_File_Name = input_experiment->getName();
+
+#ifdef DEBUG_CLI
+  printf("SS_expClone, Data_File_Name of input experiment is %s\n", Data_File_Name.c_str());
+#endif
+
+  std::string new_data_base_name = input_exp->createName(input_exp_id, false);
+
+#ifdef DEBUG_CLI
+  printf("SS_expClone, new_data_base_name for copyTo is %s\n", new_data_base_name.c_str());
+#endif
+
+  try {
+     // Wait for previous comands to complete so that
+     // the copy has all the requested information.
+      Wait_For_Previous_Cmds ();
+
+      input_exp->CopyDB (new_data_base_name);
+    }
+  catch(const Exception& error) {
+      Mark_Cmd_With_Std_Error (cmd, error);
+      return false;
+  }
+
+
+ // There is no specified experiment.  Allocate a new Experiment with the copied DB.
+  ExperimentObject *output_exp = new ExperimentObject ( new_data_base_name);
   if (output_exp->FW() == NULL) {
     Mark_Cmd_With_Soft_Error(cmd, "Unable to create a new experiment in the FrameWork.");
     return false;
   }
+
+  output_experiment = output_exp->FW();
   EXPID output_exp_id = output_exp->ExperimentObject_ID();
+
+  std::string renamed_new_data_base_name = input_exp->createName(output_exp_id, false);
+
+#ifdef DEBUG_CLI
+  printf("SS_expClone, renamed_new_data_base_name for copyTo is %s\n", renamed_new_data_base_name.c_str());
+#endif
+
+  try {
+     // Wait for previous comands to complete so that
+     // the copy has all the requested information.
+      Wait_For_Previous_Cmds ();
+
+      output_exp->RenameDB (renamed_new_data_base_name);
+    }
+  catch(const Exception& error) {
+      Mark_Cmd_With_Std_Error (cmd, error);
+      return false;
+  }
+
 
 #ifdef DEBUG_CLI
   printf("SS_expClone, exp_id of new/output experiment is %d\n", output_exp_id);
 #endif
+  // Received a clone request for an already created experiment, 
+  // Do preparation to clone the existing experiment and prepare
+  // the new experiments thread state etc for running.
+
+  output_experiment->prepareToRerun();
 
  // When we allocate a new experiment, set the focus to point to it.
   (void)Experiment_Focus (WindowID, output_exp_id);
@@ -1555,7 +1610,7 @@ bool SS_expClone (CommandObject *cmd) {
   return cmd_executed;
 }
 
-#endif
+//#endif
 
 /**
  * Method: ()

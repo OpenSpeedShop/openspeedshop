@@ -50,7 +50,7 @@ double dval;
 char *string;
 }
 
-%token ATTACH_HEAD CLOSE_HEAD CREATE_HEAD COMPARE_HEAD DETACH_HEAD 
+%token ATTACH_HEAD CLONE_HEAD CLOSE_HEAD CREATE_HEAD COMPARE_HEAD DETACH_HEAD 
 %token DISABLE_HEAD ENABLE_HEAD 
 %token FOCUS_HEAD GO_HEAD PAUSE_HEAD CONT_HEAD RESTORE_HEAD SAVE_HEAD
 %token SETPARAM_HEAD STATUS_HEAD VIEW_HEAD VIEW_HEAD_OLD DATA_HEAD
@@ -101,6 +101,7 @@ command_line:  END_LINE
     	;
 
 command_desc: exp_attach_com 	{p_parse_result->setCommandType(CMD_EXP_ATTACH);}
+    	    | exp_clone_com 	{p_parse_result->setCommandType(CMD_EXP_CLONE);}
     	    | exp_close_com 	{p_parse_result->setCommandType(CMD_EXP_CLOSE);}
 	    | exp_create_com 	{p_parse_result->setCommandType(CMD_EXP_CREATE);}
 	    | exp_compare_com 	{p_parse_result->setCommandType(CMD_EXP_COMPARE);}
@@ -159,6 +160,21 @@ exp_attach_element: expId_list_spec
     	    	|   modifier_list_spec
 		|   target_list
 		|   expType_list
+    	    	;
+
+    	    /** EXP_CLONE **/
+    	    /** <expId> = expClone [ <expId_spec> ] **/
+exp_clone_com:      CLONE_HEAD 
+  	    	|   CLONE_HEAD exp_clone_args 
+  	    	|   CLONE_HEAD exp_clone_args error END_LINE 
+  	    	|   CLONE_HEAD error END_LINE 
+    	    	;
+
+exp_clone_args:    exp_clone_element
+    	    	|  exp_clone_args exp_clone_element
+    	    	;
+
+exp_clone_element: expId_list_spec
     	    	;
 
     	    /** EXP_CLOSE **/
@@ -481,6 +497,7 @@ gen_help_args:	    gen_help_arg
 gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
 
     	    	|   ATTACH_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_ATTACH].name);}
+    	    	|   CLONE_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_CLONE].name);}
     	    	|   CLOSE_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_CLOSE].name);}
     	    	|   CREATE_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_CREATE].name);}
     	    	|   COMPARE_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_COMPARE].name);}

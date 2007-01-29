@@ -99,6 +99,11 @@ try {
 
     break;
 
+  case CMD_EXP_CLONE:
+
+    cmd_successful = SS_expClone(cmd);
+    break;
+
   case CMD_EXP_CLOSE:
 
     cmd_successful = SS_expClose(cmd);
