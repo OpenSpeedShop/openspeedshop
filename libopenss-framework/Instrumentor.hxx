@@ -82,6 +82,9 @@ namespace OpenSpeedShop { namespace Framework {
 	bool getGlobal(const Thread&, const std::string&, int64_t&);
 	bool getGlobal(const Thread&, const std::string&, std::string&);
 	bool getMPICHProcTable(const Thread&, Job&);
+
+      // Martin: added routine to set variable
+	void setGlobal(const Thread&, const std::string&, int64_t);
     }
     
 } }

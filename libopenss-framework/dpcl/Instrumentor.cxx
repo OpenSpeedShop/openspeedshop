@@ -508,6 +508,49 @@ bool Instrumentor::getGlobal(const Thread& thread,
 
 
 
+// Martin: added routine to set global value
+/**
+ * Set value of an integer global variable in a thread.
+ *
+ * Sets the value of a signed integer global variable within this
+ * thread. Used to extract certain types of data, such as MPI job identifiers,
+ * from the process.
+ *
+ * @pre    Only applies to a process which is connected. A ProcessUnavailable
+ *         exception is thrown if called for a thread that is not connected.
+ *
+ * @param thread    Thread from which the global variable value should be
+ *                  retrieved.
+ * @param global    Name of global variable whose value is being requested.
+ * @value           New value of that variable.
+ * @return          Boolean "true" if the variable's value was successfully
+ *                  retrieved, "false" otherwise.
+ */
+void Instrumentor::setGlobal(const Thread& thread,
+			     const std::string& global,
+			     int64_t value)
+{
+    SmartPtr<Process> process;
+
+    // Critical section touching the process table
+    {
+        Guard guard_process_table(ProcessTable::TheTable);
+
+        // Get the process for this thread (if any)
+        process = ProcessTable::TheTable.getProcessByThread(thread);
+    }
+
+    // Check preconditions
+    if(process.isNull() || !process->isConnected())
+        throw Exception(Exception::ProcessUnavailable, thread.getHost(),
+                        Exception::toString(thread.getProcessId()));
+    
+    // Request the global variable be retrieved from the process
+    process->setGlobal(global, value);
+}
+
+
+
 /**
  * Get value of a string global variable from a thread.
  *

@@ -1137,6 +1137,112 @@ bool Process::getGlobal(const std::string& global, int64_t& value)
 
 
 
+//Martin: added routine to set variable in mutatee
+/**
+ * Set an integer global variable's value.
+ *
+ * Sets the value of a signed integer global variable within this
+ * process. Returns a boolean value indicating
+ * if the variable's value was succesfully set.
+ *
+ * @param global    Name of global variable whose value is being requested.
+ * @retval value    new value of that variable.
+ * @return          Boolean "true" if the variable's value was successfully
+ *                  retrieved, "false" otherwise.
+ */
+void Process::setGlobal(const std::string& global, int64_t value)
+{
+    GuardWithDPCL guard_myself(this);
+    int64_t retvalue;
+    
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Process::setGlobal(\"" << global << "\", <integer>) for "
+	       << formUniqueName(dm_host, dm_pid) 
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+    
+    // Find the requested global variable
+    SourceObj variable = findVariable(global);
+
+    // Go no further if the requested global could not be found
+    if(variable.src_type() != SOT_data)
+	return false;
+    
+    // Determine whether this variable is a signed integer and its size
+    unsigned size = 0;
+    ProbeExp inval;
+    switch(variable.get_data_type().get_node_type()) {
+	
+    case DEN_int32_type: 
+      size = sizeof(int32_t); 
+      inval = ProbeExp((int32_t) value);
+      break;
+
+    case DEN_int64_type: 
+      size = sizeof(int64_t); 
+      inval = ProbeExp((uint64_t) value);
+      break;
+	
+    // Go no further if the variable isn't a known integer type
+    default: 
+	return false;
+
+    }
+
+    //
+    // Create a probe expression for the code sequence:
+    //
+    //     Ais_send(Ais_msg_handle, &global, size)
+    //
+
+    ProbeExp args_exp[3] = { 
+	Ais_msg_handle,
+	variable.reference().address(),
+	size
+    };
+    ProbeExp in_expression = variable.reference().assign(inval);
+
+    ProbeExp out_expression = Ais_send.call(3, args_exp);
+
+    ProbeExp expression = in_expression.sequence(out_expression);
+
+    // Define a data bucket to hold the retrieved integer
+    DataBucket<int64_t> bucket;
+
+    // Ask DPCL to execute the probe expression in this process
+    AisStatus retval =
+	dm_process->bexecute(expression, getIntegerCallback, &bucket);
+#ifndef NDEBUG
+    if(is_debug_enabled)
+    	debugDPCL("response from bexecute", retval);
+#endif
+    if(retval.status() != ASC_success)
+	return false;
+
+    // Note: Data arriving from the Ais_send() cannot be accepted and placed
+    //       into the data bucket unless the DPCL main loop is running. Since
+    //       the GuardWithDPCL object above disables the main loop, it must
+    //       be temporarily resumed here or a deadlock will occur.
+    
+    // Wait until the incoming integer arrives in the data bucket
+    releaseLock();
+    MainLoop::resume();
+    retvalue = bucket.getValue();
+    MainLoop::suspend();
+    acquireLock();
+
+    // Indicate to the caller that the value was retrieved
+
+    // printf("setGlobal: %i / returned %i\n",value,retvalue);
+}
+
+
+
 /**
  * Get a string global variable's value.
  *

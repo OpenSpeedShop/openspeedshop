@@ -103,6 +103,9 @@ namespace OpenSpeedShop { namespace Framework {
 	bool getGlobal(const std::string&, std::string&);
 	bool getMPICHProcTable(Job&);
 	
+        //Martin: added routine to set value
+        void setGlobal(const std::string& global, int64_t value);
+
     private:
 
 #ifndef NDEBUG	

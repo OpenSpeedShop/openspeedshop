@@ -634,11 +634,24 @@ ThreadGroup Experiment::createProcess(
 	if(thread.getFunctionByName("MPI_debug_breakpoint").first)
 	    is_mpirun = std::make_pair(true, "MPI_debug_breakpoint");
 
+	// Martin: add environment variable to ignore MPI attach
+	if (is_mpirun.first)
+	  {
+	    if (getenv("OPENSS_DISABLE_MPISTARTUP")!=NULL)
+	      {
+		is_mpirun.first=false;
+	      }
+	  }
+	
+
 	// Is this thread a "mpirun" process for a supported MPI implementation?
 	if(is_mpirun.first) {
 	    
 	    // Insert a stop at the entry of the stop function
 	    Instrumentor::stopAtEntryOrExit(thread, is_mpirun.second, true);
+	    
+	    // Martin: mark the process as being debugged
+	    Instrumentor::setGlobal(thread,"MPIR_being_debugged",1);
 	    
 	    // Resume the thread
 	    thread.changeState(Thread::Running);
