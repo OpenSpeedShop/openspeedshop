@@ -104,7 +104,7 @@ namespace OpenSpeedShop { namespace Framework {
 	bool getMPICHProcTable(Job&);
 	
         //Martin: added routine to set value
-        void setGlobal(const std::string& global, int64_t value);
+        bool setGlobal(const std::string& global, int64_t value);
 
     private:
 

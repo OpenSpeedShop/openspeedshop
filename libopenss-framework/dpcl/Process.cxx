@@ -1150,7 +1150,7 @@ bool Process::getGlobal(const std::string& global, int64_t& value)
  * @return          Boolean "true" if the variable's value was successfully
  *                  retrieved, "false" otherwise.
  */
-void Process::setGlobal(const std::string& global, int64_t value)
+bool Process::setGlobal(const std::string& global, int64_t value)
 {
     GuardWithDPCL guard_myself(this);
     int64_t retvalue;
