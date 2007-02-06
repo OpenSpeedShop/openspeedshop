@@ -46,11 +46,11 @@ if test "$1" == ""  ; then
   echo "$0: Running build in $MYCURRENT"
   # prepare workarea to be configured
   echo "$0: Running bootstrap"
-  bootstrap;
+  ./bootstrap;
 
   # configure the workarea build
   echo "$0: Running configure --prefix=$OPENSS_INSTALL_DIR"
-  configure --prefix=$OPENSS_INSTALL_DIR
+  ./configure --prefix=$OPENSS_INSTALL_DIR
 
   # clean up any previous build
   echo "$0: Running make clean"
