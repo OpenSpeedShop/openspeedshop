@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -28,12 +29,19 @@
 #include "Exception.hxx"
 #include "ExtentGroup.hxx"
 #include "Function.hxx"
+#include "FunctionCache.hxx"
 #include "LinkedObject.hxx"
 #include "Path.hxx"
 #include "Statement.hxx"
+#include "StatementCache.hxx"
 #include "Thread.hxx"
 
 using namespace OpenSpeedShop::Framework;
+
+
+
+/** Statement cache. */
+StatementCache Statement::TheCache;
 
 
 
@@ -233,47 +241,73 @@ LinkedObject Statement::getLinkedObject() const
  */
 std::set<Function> Statement::getFunctions() const
 {
-    std::set<Function> functions;
-    
-    // Find the functions intersecting our address ranges
+    LinkedObject linked_object;
+    ExtentGroup extent;
+
+    // Note: This query could be, and in fact used to be, implemented in a
+    //       straightforward manner as:
+    //
+    //	     SELECT Functions.id,
+    //	            Functions.addr_begin,
+    //	            Functions.addr_end,
+    //	            StatementRanges.addr_begin,
+    //	            StatementRanges.addr_end,
+    //	            StatementRanges.valid_bitmap
+    //	     FROM Functions
+    //	       JOIN Statements
+    //	       JOIN StatementRanges
+    //	     ON Functions.linked_object = Statements.linked_object
+    //	       AND Statements.id = StatementRanges.statement
+    //	     WHERE Statements.id = ?
+    //	       AND StatementRanges.addr_end >= Functions.addr_begin
+    //	       AND StatementRanges.addr_begin < Functions.addr_end;
+    //
+    //       with a subsequent check if the function contains an address in
+    //       the statement's bitmap. However the performance of this direct
+    //       query was found to be lacking. A function cache was introduced
+    //       to accelerate such queries and is now used below.
+
+    // Find our linked object and address range
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT Functions.id, "
-	"       Functions.addr_begin, "
-	"       Functions.addr_end, "
+	"SELECT Statement.linked_object, "
 	"       StatementRanges.addr_begin, "
 	"       StatementRanges.addr_end, "
-	"       StatementRanges.valid_bitmap "
-	"FROM Functions "
-	"  JOIN Statements "
+	"       StatementRanges.valid_bitmap, "
+	"FROM Statements "
 	"  JOIN StatementRanges "
-	"ON Functions.linked_object = Statements.linked_object "
-	"  AND Statements.id = StatementRanges.statement "
-	"WHERE Statements.id = ? "
-	"  AND StatementRanges.addr_end >= Functions.addr_begin "
-	"  AND StatementRanges.addr_begin < Functions.addr_end;"
+	"ON Statements.id = StatementRanges.statement "
+	"WHERE id = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement()) {
-	
-	AddressBitmap bitmap(AddressRange(dm_database->getResultAsAddress(4),
-	 				  dm_database->getResultAsAddress(5)),
-			     dm_database->getResultAsBlob(6));
-	
-	AddressRange range =
-	    AddressRange(dm_database->getResultAsAddress(2),
-			 dm_database->getResultAsAddress(3)) &
-	    AddressRange(dm_database->getResultAsAddress(4),
-			 dm_database->getResultAsAddress(5));
-	
-	for(Address i = range.getBegin(); i != range.getEnd(); ++i)
-	    if(bitmap.getValue(i))
-		functions.insert(Function(dm_database,
-					  dm_database->getResultAsInteger(1)));
-	
+
+	linked_object = LinkedObject(dm_database,
+				     dm_database->getResultAsInteger(1));
+
+	std::set<AddressRange> ranges =
+	    AddressBitmap(AddressRange(dm_database->getResultAsAddress(2),
+				       dm_database->getResultAsAddress(3)),
+			  dm_database->getResultAsBlob(4)).
+	    getContiguousRanges(true);
+
+	for(std::set<AddressRange>::const_iterator
+		i = ranges.begin(); i != ranges.end(); ++i)
+	    extent.push_back(
+		Extent(
+		    TimeInterval(Time::TheBeginning(),
+				 Time::TheEnd()),
+		    *i
+		    )
+		);
+
     }
     END_TRANSACTION(dm_database);
+
+    // Use the function cache to find our functions
+    std::set<Function> functions =
+        Function::TheCache.getFunctions(linked_object, extent);
     
     // Return the functions to the caller
     return functions;

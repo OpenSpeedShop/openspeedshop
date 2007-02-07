@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -18,7 +19,7 @@
 
 /** @file
  *
- * Declaration of the ExtentTable template.
+ * Declaration and definition of the ExtentTable template.
  *
  */
 
@@ -38,22 +39,21 @@
 namespace OpenSpeedShop { namespace Framework {
 
     /**
-     * Table of per-thread extents.
+     * Table of extents.
      *
-     * Template for a container holding the extents of a given set of source
-     * objects (linked objects, functions, or statements) within a group of
-     * threads. Each source object can have extents within each thread that
-     * vary both in number and location. An extent group is used to hold all
-     * the extents for all the source objects within a given thread. A map
-     * of extents to source objects is also maintained on a per-thread basis.
+     * Template for a container holding the extents of a given set of objects
+     * (e.g. functions) within a group (e.g. a thread). Each object can have
+     * extents within each group that vary both in number and location. An
+     * ExtentGroup is used to hold all the extents for all objects within a
+     * given group. A map of extents to objects is also maintained on a per-
+     * group basis.
      *
-     * Used to speed metric evaluation for large numbers of threads by allowing
-     * symbol information in the database to be processed from disk into memory
-     * only once.
+     * Used to accelerate view processing by allowing large numbers of extents
+     * to be processed from disk into memory once.
      *
      * @ingroup ToolAPI
      */
-    template <typename T>
+    template <typename TG, typename TO>
     class ExtentTable
     {
 
@@ -66,46 +66,54 @@ namespace OpenSpeedShop { namespace Framework {
 	{
 	}
 
-	/** Add an extent for a given thread and source object. */
-	void addExtent(const Thread& thread,
-		       const T& object,
+	/** Add an extent for a given group and object. */
+	void addExtent(const TG& group, const TO& object,
 		       const Extent& extent)
 	{
-	    std::map<Thread, ExtentGroup>::iterator i = dm_extents.find(thread);
+	    typename std::map<TG, ExtentGroup>::iterator i = 
+		dm_extents.find(group);
 	    if(i == dm_extents.end())
 		i = dm_extents.insert(
-		    std::make_pair(thread, ExtentGroup())
+		    std::make_pair(group, ExtentGroup())
 		    ).first;
 	    Assert(i != dm_extents.end());
 	    i->second.push_back(extent);
-	    typename std::map<Thread, std::vector<T > >::iterator
-		j = dm_extent_to_object.find(thread);
+	    typename std::map<TG, std::vector<TO > >::iterator j = 
+		dm_extent_to_object.find(group);
 	    if(j == dm_extent_to_object.end())
 		j = dm_extent_to_object.insert(
-		    std::make_pair(thread, std::vector<T >())
+		    std::make_pair(group, std::vector<TO >())
 		    ).first;
 	    Assert(j != dm_extent_to_object.end());
 	    j->second.push_back(object);
 	}
 
-	/** Get the extents within a thread. */
-	ExtentGroup& getExtents(const Thread& thread)
+	/** Remove the extents for the given group. */
+	void removeExtents(const TG& group)
 	{
-	    std::map<Thread, ExtentGroup>::iterator i = dm_extents.find(thread);
+	    dm_extents.erase(group);
+	    dm_extent_to_object.erase(group);	    
+	}
+
+	/** Get the extents for the given group. */
+	ExtentGroup& getExtents(const TG& group)
+	{
+	    typename std::map<TG, ExtentGroup>::iterator i = 
+		dm_extents.find(group);
 	    if(i == dm_extents.end())
 		i = dm_extents.insert(
-		    std::make_pair(thread, ExtentGroup())
+		    std::make_pair(group, ExtentGroup())
 		    ).first;
 	    Assert(i != dm_extents.end());
 	    return i->second;
 	}
 
-	/** Get the source object for the given extent index within a thread. */
-	const T& getObject(const Thread& thread, 
-			   const ExtentGroup::size_type& index) const
+	/** Get the object for the given group and extent index. */
+	const TO& getObject(const TG& group, 
+			    const ExtentGroup::size_type& index) const
 	{
-	    typename std::map<Thread, std::vector<T > >::const_iterator
-		i = dm_extent_to_object.find(thread);	    
+	    typename std::map<TG, std::vector<TO > >::const_iterator i =
+		dm_extent_to_object.find(group);	    
 	    Assert(i != dm_extent_to_object.end());
 	    Assert(index < i->second.size());
 	    return i->second[index];
@@ -114,10 +122,10 @@ namespace OpenSpeedShop { namespace Framework {
     private:
 
 	/** Extent groups containing the extents. */
-	std::map<Thread, ExtentGroup> dm_extents;
+	std::map<TG, ExtentGroup> dm_extents;
 
 	/** Direct-indexed maps of extents to source objects. */
-	std::map<Thread, std::vector<T> > dm_extent_to_object;
+	std::map<TG, std::vector<TO > > dm_extent_to_object;
 
     };
 	

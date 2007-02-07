@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -41,7 +42,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Collector;
     class CollectorGroup;
     class Extent;
-    template <typename> class ExtentTable;
+    template <typename, typename> class ExtentTable;
     class Function;
     class LinkedObject;
     class Statement;
@@ -78,11 +79,11 @@ namespace OpenSpeedShop { namespace Framework {
 	std::set<Function> getFunctions() const;
 	std::set<Statement> getStatements() const;
 
-	ExtentTable<LinkedObject> getExtentsOf(
+	ExtentTable<Thread, LinkedObject> getExtentsOf(
 	    const std::set<LinkedObject>&, const Extent&) const;
-	ExtentTable<Function> getExtentsOf(
+	ExtentTable<Thread, Function> getExtentsOf(
 	    const std::set<Function>&, const Extent&) const;
-	ExtentTable<Statement> getExtentsOf(
+	ExtentTable<Thread, Statement> getExtentsOf(
 	    const std::set<Statement>&, const Extent&) const;
 	
     };

@@ -42,9 +42,11 @@ namespace OpenSpeedShop { namespace Framework {
     class Experiment;
     class ExtentGroup;
     class Function;
+    class FunctionCache;
     class Path;
     template <typename> class SmartPtr;
     class Statement;
+    class StatementCache;
     class Thread;
     class ThreadGroup;
     
@@ -63,7 +65,9 @@ namespace OpenSpeedShop { namespace Framework {
 	friend class AddressSpace;
 	friend class Experiment;
 	friend class Function;
+	friend class FunctionCache;
 	friend class Statement;
+	friend class StatementCache;
 	friend class Thread;
 	friend class ThreadGroup;
 	

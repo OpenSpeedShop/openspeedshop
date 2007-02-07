@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -44,6 +45,7 @@ namespace OpenSpeedShop { namespace Framework {
     class LinkedObject;
     class Path;
     template <typename> class SmartPtr;
+    class StatementCache;
     class Thread;
     class ThreadGroup;
     
@@ -62,6 +64,7 @@ namespace OpenSpeedShop { namespace Framework {
 	friend class Experiment;
 	friend class Function;
 	friend class LinkedObject;
+	friend class StatementCache;
 	friend class Thread;
 	friend class ThreadGroup;
 	
@@ -77,6 +80,8 @@ namespace OpenSpeedShop { namespace Framework {
 	int getColumn() const;
 
     private:
+
+	static StatementCache TheCache;
 
 	Statement();
 	Statement(const SmartPtr<Database>&, const int&);

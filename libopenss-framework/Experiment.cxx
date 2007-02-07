@@ -28,10 +28,12 @@
 #include "EntrySpy.hxx"
 #include "Experiment.hxx"
 #include "Function.hxx"
+#include "FunctionCache.hxx"
 #include "Instrumentor.hxx"
 #include "LinkedObject.hxx"
 #include "Path.hxx"
 #include "Statement.hxx"
+#include "StatementCache.hxx"
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
 #include "ThreadName.hxx"
@@ -480,6 +482,10 @@ Experiment::~Experiment()
 	Instrumentor::release(*i);
 	
     }
+
+    // Remove this experiment's database from the function and statement caches
+    Function::TheCache.removeDatabase(dm_database);
+    Statement::TheCache.removeDatabase(dm_database);
 }
 
 

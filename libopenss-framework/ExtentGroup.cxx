@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -171,6 +172,38 @@ ExtentGroup::getIntersectionWith(const Extent& extent) const
 	
     }
     
+    // Return the intersection to the caller
+    return intersection;
+}
+
+
+
+/**
+ * Get our intersection with an extent group.
+ *
+ * Returns those extents in this group that intersect the specified extent
+ * group. The results are returned as a set of indicies into this group. An
+ * empty set is returned if the specified extent group does not intersect
+ * with any of the extents in this group.
+ *
+ * @param extents    Extent group with which to intersect.
+ * @return           Extents that intersect with this extent group.
+ */
+std::set<ExtentGroup::size_type> 
+ExtentGroup::getIntersectionWith(const ExtentGroup& extents) const
+{
+    std::set<size_type> intersection;
+
+    // Iterate over each extent in the group with which to intersect
+    for(ExtentGroup::const_iterator 
+	    i = extents.begin(); i != extents.end(); ++i) {
+
+	// Get our intersection with this extent and accumulate the results
+	std::set<size_type> subset = getIntersectionWith(*i);
+	intersection.insert(subset.begin(), subset.end());
+
+    }
+
     // Return the intersection to the caller
     return intersection;
 }

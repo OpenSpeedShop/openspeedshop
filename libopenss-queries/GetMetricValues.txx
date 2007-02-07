@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -112,7 +113,7 @@ void Queries::GetMetricValues(
     collector.lockDatabase();
 
     // Get the extent table for the source objects in the thread group
-    Framework::ExtentTable<TS > extent_table = 
+    Framework::ExtentTable<Framework::Thread, TS > extent_table = 
 	threads.getExtentsOf(objects, restriction);
     
     // Iterate over each thread in the thread group

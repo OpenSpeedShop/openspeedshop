@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -29,8 +30,10 @@
 #include "Exception.hxx"
 #include "ExtentGroup.hxx"
 #include "Function.hxx"
+#include "FunctionCache.hxx"
 #include "LinkedObject.hxx"
 #include "Statement.hxx"
+#include "StatementCache.hxx"
 #include "Thread.hxx"
 
 // #include <demangle.h>
@@ -56,6 +59,11 @@ using namespace OpenSpeedShop::Framework;
 extern "C" char* cplus_demangle(const char*, int);
 
 #endif
+
+
+
+/** Function cache. */
+FunctionCache Function::TheCache;
 
 
 
@@ -307,40 +315,58 @@ std::string Function::getDemangledName(const bool& all) const
  */
 std::set<Statement> Function::getDefinitions() const
 {
-    std::set<Statement> definitions;
+    LinkedObject linked_object;
+    ExtentGroup extent;
 
-    // Find the statements containing our beginning address
+    // Note: This query could be, and in fact used to be, implemented in a
+    //       straightforward manner as:
+    //
+    //       SELECT Functions.addr_begin,
+    //              Statements.id,
+    //              StatementRanges.addr_begin,
+    //              StatementRanges.addr_end,
+    //              StatementRanges.valid_bitmap
+    //       FROM StatementRanges
+    //         JOIN Statements
+    //         JOIN Functions
+    //       ON StatementRanges.statement = Statements.id
+    //         AND Statements.linked_object = Functions.linked_object
+    //       WHERE Functions.id = ?
+    //         AND Functions.addr_begin >= StatementRanges.addr_begin
+    //         AND Functions.addr_begin < StatementRanges.addr_end;
+    //
+    //       with a subsequent check if the statement bitmap contains the
+    //       function's beginning address. However the performance of this
+    //       direct query was found to be lacking. A statement cache was
+    //       introduced to accelerate such queries and is now used below.
+
+    // Find our linked object and beginning address
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT Functions.addr_begin, "
-	"       Statements.id, "
-	"       StatementRanges.addr_begin, "
-	"       StatementRanges.addr_end, "
-	"       StatementRanges.valid_bitmap "
-	"FROM StatementRanges "
-	"  JOIN Statements "
-	"  JOIN Functions "
-	"ON StatementRanges.statement = Statements.id "
-	"  AND Statements.linked_object = Functions.linked_object "
-	"WHERE Functions.id = ? "
-	"  AND Functions.addr_begin >= StatementRanges.addr_begin "
-	"  AND Functions.addr_begin < StatementRanges.addr_end;"
+	"SELECT linked_object, addr_begin FROM Functions WHERE id = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement()) {
-	
-	AddressBitmap bitmap(AddressRange(dm_database->getResultAsAddress(3),
-	 				  dm_database->getResultAsAddress(4)),
-			     dm_database->getResultAsBlob(5));
 
-	if(bitmap.getValue(dm_database->getResultAsAddress(1)))
-	    definitions.insert(Statement(dm_database,
-					 dm_database->getResultAsInteger(2)));
-	
+	linked_object = LinkedObject(dm_database,
+				     dm_database->getResultAsInteger(1));
+
+	extent.push_back(
+	    Extent(
+		TimeInterval(Time::TheBeginning(),
+			     Time::TheEnd()),
+		AddressRange(dm_database->getResultAsAddress(2))
+		)
+	    );
+
     }
     END_TRANSACTION(dm_database);
-    
+
+    // Use the statement cache to find our definitions
+    std::set<Statement> definitions =
+	Statement::TheCache.getStatements(linked_object, extent);
+
     // Return the definitions to the caller
     return definitions;
 }
@@ -357,48 +383,64 @@ std::set<Statement> Function::getDefinitions() const
  */
 std::set<Statement> Function::getStatements() const
 {
-    std::set<Statement> statements;
+    LinkedObject linked_object;
+    ExtentGroup extent;
 
-    // Find the statements intersecting our address range
+    // Note: This query could be, and in fact used to be, implemented in a
+    //       straightforward manner as:
+    //
+    //       SELECT Functions.addr_begin,
+    //              Functions.addr_end,
+    //              Statements.id,
+    //              StatementRanges.addr_begin,
+    //              StatementRanges.addr_end,
+    //              StatementRanges.valid_bitmap
+    //       FROM StatementRanges
+    //         JOIN Statements
+    //         JOIN Functions
+    //       ON StatementRanges.statement = Statements.id
+    //         AND Statements.linked_object = Functions.linked_object
+    //       WHERE Functions.id = ?
+    //         AND Functions.addr_end >= StatementRanges.addr_begin
+    //         AND Functions.addr_begin < StatementRanges.addr_end;
+    //
+    //       with a subsequent check if the statement bitmap contains an
+    //       address in the function. However the performance of this direct
+    //       query was found to be lacking. A statement cache was introduced
+    //       to accelerate such queries and is now used below.
+
+    // Find our linked object and address range
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT Functions.addr_begin, "
-	"       Functions.addr_end, "
-	"       Statements.id, "
-	"       StatementRanges.addr_begin, "
-	"       StatementRanges.addr_end, "
-	"       StatementRanges.valid_bitmap "
-	"FROM StatementRanges "
-	"  JOIN Statements "
-	"  JOIN Functions "
-	"ON StatementRanges.statement = Statements.id "
-	"  AND Statements.linked_object = Functions.linked_object "
-	"WHERE Functions.id = ? "
-	"  AND Functions.addr_end >= StatementRanges.addr_begin"
-	"  AND Functions.addr_begin < StatementRanges.addr_end;"
+	"SELECT linked_object, "
+	"       addr_begin, "
+	"       addr_end "
+	"FROM Functions "
+	"WHERE id = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement()) {
 
-	AddressBitmap bitmap(AddressRange(dm_database->getResultAsAddress(4),
-	 				  dm_database->getResultAsAddress(5)),
-			     dm_database->getResultAsBlob(6));
-	
-	AddressRange range =
-	    AddressRange(dm_database->getResultAsAddress(1),
-			 dm_database->getResultAsAddress(2)) &
-	    AddressRange(dm_database->getResultAsAddress(4),
-			 dm_database->getResultAsAddress(5));
+	linked_object = LinkedObject(dm_database,
+				     dm_database->getResultAsInteger(1));
 
-	for(Address i = range.getBegin(); i != range.getEnd(); ++i)
-	    if(bitmap.getValue(i))
-		statements.insert(Statement(dm_database, dm_database->
-					    getResultAsInteger(3)));
-	
+	extent.push_back(
+	    Extent(
+		TimeInterval(Time::TheBeginning(),
+			     Time::TheEnd()),
+		AddressRange(dm_database->getResultAsAddress(2),
+			     dm_database->getResultAsAddress(3))
+		)
+	    );
+
     }
     END_TRANSACTION(dm_database);
-    
+
+    // Use the statement cache to find our statements
+    std::set<Statement> statements =
+	Statement::TheCache.getStatements(linked_object, extent);
+
     // Return the statements to the caller
     return statements;
 }

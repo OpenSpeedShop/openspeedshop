@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -387,7 +388,7 @@ std::set<Statement> ThreadGroup::getStatements() const
  * Get extents of linked objects for all threads.
  *
  * Returns the extents of all the specified linked objects within the threads
- * in the group. Each extent is interesected with the specified domain extent
+ * in the group. Each extent is intersected with the specified domain extent
  * before being added to the table.
  *
  * @pre    All threads in the thread group must be from the same experiment. An
@@ -401,11 +402,11 @@ std::set<Statement> ThreadGroup::getStatements() const
  * @param domain     Extent defining the domain of interest.
  * @return           Table of per-thread extents for the linked objects.
  */
-ExtentTable<LinkedObject>
+ExtentTable<Thread, LinkedObject>
 ThreadGroup::getExtentsOf(const std::set<LinkedObject>& objects, 
 			  const Extent& domain) const
 {
-    ExtentTable<LinkedObject> table;
+    ExtentTable<Thread, LinkedObject> table;
 
     // Handle special case of an empty thread group
     if(empty())
@@ -465,8 +466,8 @@ ThreadGroup::getExtentsOf(const std::set<LinkedObject>& objects,
  * Get extents of functions for all threads.
  *
  * Returns the extents of all the specified functions within the threads in
- * the group. Each extent is interesected with the specified domain extent
- * before being added to the table.
+ * the group. Each extent is intersected with the specified domain extent before
+ * being added to the table.
  *
  * @pre    All threads in the thread group must be from the same experiment. An
  *         assertion failure occurs if more than one experiment is implied.
@@ -479,11 +480,11 @@ ThreadGroup::getExtentsOf(const std::set<LinkedObject>& objects,
  * @param domain     Extent defining the domain of interest.
  * @return           Table of per-thread extents for the functions.
  */
-ExtentTable<Function>
+ExtentTable<Thread, Function>
 ThreadGroup::getExtentsOf(const std::set<Function>& objects, 
 			  const Extent& domain) const
 {
-    ExtentTable<Function> table;
+    ExtentTable<Thread, Function> table;
 
     // Handle special case of an empty thread group
     if(empty())
@@ -593,8 +594,8 @@ ThreadGroup::getExtentsOf(const std::set<Function>& objects,
  * Get extents of statements for all threads.
  *
  * Returns the extents of all the specified statements within the threads in
- * the group. Each extent is interesected with the specified domain extent
- * before being added to the table.
+ * the group. Each extent is intersected with the specified domain extent before
+ * being added to the table.
  *
  * @pre    All threads in the thread group must be from the same experiment. An
  *         assertion failure occurs if more than one experiment is implied.
@@ -607,11 +608,11 @@ ThreadGroup::getExtentsOf(const std::set<Function>& objects,
  * @param domain     Extent defining the domain of interest.
  * @return           Table of per-thread extents for the statements.
  */
-ExtentTable<Statement>
+ExtentTable<Thread, Statement>
 ThreadGroup::getExtentsOf(const std::set<Statement>& objects, 
 			  const Extent& domain) const
 {
-    ExtentTable<Statement> table;
+    ExtentTable<Thread, Statement> table;
 
     // Handle special case of an empty thread group
     if(empty())

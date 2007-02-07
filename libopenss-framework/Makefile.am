@@ -66,6 +66,7 @@ libopenss_framework_la_SOURCES = \
 	ExtentGroup.hxx ExtentGroup.cxx \
 	ExtentTable.hxx \
 	Function.hxx Function.cxx \
+	FunctionCache.hxx FunctionCache.cxx \
 	Guard.hxx \
 	Instrumentor.hxx \
 	Interval.hxx \
@@ -79,6 +80,7 @@ libopenss_framework_la_SOURCES = \
 	SmartPtr.hxx \
 	StackTrace.hxx \
 	Statement.hxx Statement.cxx \
+	StatementCache.hxx StatementCache.cxx \
 	SymbolTable.hxx SymbolTable.cxx \
 	Thread.hxx Thread.cxx \
 	ThreadGroup.hxx ThreadGroup.cxx \
