@@ -39,7 +39,7 @@ w\:* {behavior:url(#default#VML);}
 Users Guide<br>
 </span></b><big><span style="font-weight: bold;">Version 1.00 Release</span><br
  style="font-weight: bold;">
-<span style="font-weight: bold;">January 10, 2007</span></big><br>
+<span style="font-weight: bold;">February 7, 2007</span></big><br>
 </p>
 <div class="Section2"><b style=""><br style="" clear="all">
 </b>
@@ -49,12 +49,16 @@ Users Guide<br>
 Contents<br>
 </span></span></b></b></p>
 <ul style="text-align: left;" id="mozToc">
-<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId71414">Introduction
-to Open|SpeedShop </a>
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
+  <li><a href="#mozTocId71414">Introduction
+to Open|SpeedShop
+    </a>
     <ul>
       <li><a href="#mozTocId406387">Brief
-Open|SpeedShop Overview </a></li>
-      <li><a href="#mozTocId958848">Common Terminology </a></li>
+Open|SpeedShop Overview
+        </a></li>
+      <li><a href="#mozTocId958848">Common Terminology
+        </a></li>
       <li><a href="#mozTocId760931">Open|SpeedShop
 General Usage</a>
         <ul>
@@ -68,16 +72,19 @@ Re-examining Performance Data With Open|SpeedShop</a></li>
 Specific Environment Variables </a>
             <ul>
               <li><a href="#mozTocId502665">Environment variables
-that relate to Open|SpeedShop functionality or access. </a>
+that relate to Open|SpeedShop functionality or access.
+                </a>
                 <ul>
                   <li><a href="#mozTocId349306">OPENSS_ALLOW_PYTHON_COMMANDS</a></li>
+                  <li><a href="#mozTocId379491">OPENSS_DISABLE_MPISTARTUP</a></li>
                   <li><a href="#mozTocId415148">OPENSS_MPI_IMPLEMENTATION
                     </a></li>
                   <li><a href="#mozTocId240649">OPENSS_PLUGIN_PATH</a></li>
                 </ul>
               </li>
               <li><a href="#mozTocId617106">Environment variables
-controlling the generation debugging information (DEVELOPER CENTRIC) </a>
+controlling the generation debugging information (DEVELOPER CENTRIC)
+                </a>
                 <ul>
                   <li><a href="#mozTocId698248">OPENSS_DEBUG_DATABASE</a></li>
                   <li><a href="#mozTocId509038">OPENSS_DEBUG_DATAQUEUES</a></li>
@@ -249,6 +256,8 @@ Experiment Display</a></li>
                 </a></li>
               <li><a href="#mozTocId691783">PC Sampling
 Experiment - Running Experiment Display</a></li>
+              <li><a href="#mozTocId439325">PC Sampling
+Experiment - Paused experiment use Continue button to continue</a></li>
               <li><a href="#mozTocId441285">PC Sampling
 Experiment - Statistics Display</a></li>
               <li><a href="#mozTocId206900">PC Sampling
@@ -260,7 +269,8 @@ Experiment - Source and Statistics Relationship Display</a></li>
           <li><a href="#mozTocId439377">Typical
 Open|SpeedShop GUI non-Wizard Usage</a></li>
           <li><a href="#mozTocId439657">Comparing Performance
-Data using the Open|SpeedShop GUI </a></li>
+Data using the Open|SpeedShop GUI
+            </a></li>
           <li><a href="#mozTocId444537">Finding Processes,
 Threads, or Ranks that have out of range values using
 the Open|SpeedShop GUI</a></li>
@@ -270,13 +280,15 @@ MPI Applications</a>
               <li><a href="#mozTocId441124">General Concepts</a></li>
               <li><a href="#mozTocId89318">Notes/Caveats</a></li>
               <li><a href="#mozTocId963085">Multiple MPI version
-Implementation Implications </a></li>
+Implementation Implications
+                </a></li>
               <li><a href="#mozTocId956978">Attaching to Already
 Running MPI Applications</a>
                 <ul>
                   <li><a href="#mozTocId291888">Gui Wizard Information</a></li>
                   <li><a href="#mozTocId112115">Gui Non-Wizard
-Information&nbsp; </a></li>
+Information&nbsp;
+                    </a></li>
                 </ul>
               </li>
               <li><a href="#mozTocId271423">Loading and Starting
@@ -284,7 +296,8 @@ MPI Applications</a>
                 <ul>
                   <li><a href="#mozTocId359073">Gui Wizard Information</a></li>
                   <li><a href="#mozTocId579582">Gui Non-Wizard
-Information&nbsp; </a></li>
+Information&nbsp;
+                    </a></li>
                 </ul>
               </li>
             </ul>
@@ -323,25 +336,26 @@ MPI Applications with the CLI </a></li>
           </li>
         </ul>
       </li>
-      <li><a href="#mozTocId749689"> </a><br>
-      </li>
+      <li><a href="#mozTocId749689"> </a></li>
       <li><a href="#mozTocId59849">Using
 the Batch
 Command Tool </a>
         <ul>
-          <li><a href="#mozTocId878676">One step batch example</a>
+          <li><a href="#mozTocId878676">One step batch example
+            </a>
             <ul>
               <li><a href="#mozTocId990413">Command example:</a></li>
               <li><a href="#mozTocId800328">Command output:</a></li>
             </ul>
           </li>
-          <li><a href="#mozTocId774375">Flexible Pipe commands batch
-example</a>
+          <li><a href="#mozTocId774375">Flexible Pipe commands
+batch example</a>
             <ul>
-              <li><a href="#mozTocId634032">Open|SpeedShop CLI command
-file contents (batch.input file)</a></li>
+              <li><a href="#mozTocId634032">Open|SpeedShop CLI
+command file contents (batch.input file)</a></li>
               <li><a href="#mozTocId580568">Command example:</a></li>
-              <li><a href="#mozTocId1596">Command output:</a></li>
+              <li><a href="#mozTocId1596">Command
+output:</a></li>
             </ul>
           </li>
         </ul>
@@ -349,14 +363,16 @@ file contents (batch.input file)</a></li>
     </ul>
   </li>
   <li><a href="#mozTocId54031">Scripting
-API </a></li>
+API
+    </a></li>
   <li><a href="#mozTocId525838">Plugin
 API (Extensibility)&nbsp; Description</a></li>
   <li><a href="#mozTocId145888">Appendix
 A: Command Syntax
 Description</a></li>
   <li><a href="#mozTocId598438">Credits and Trademark
-References </a></li>
+References
+    </a></li>
 </ul>
 <p style="text-align: left;" class="MsoNormal"><br>
 <b style=""><b style=""><span
@@ -462,7 +478,8 @@ the terms used in this document.&nbsp; <br>
 <div style="text-align: left; margin-left: 40px;"><big>
 </big>
 <ul>
-  <big> </big> <li><i style="font-weight: bold;">Experiment</i><span
+  <big> </big>
+  <li><i style="font-weight: bold;">Experiment</i><span
  style="font-weight: bold;">:</span>&nbsp;
 A set of collectors and executables
 bound together to generate performance metrics. </li>
@@ -776,6 +793,25 @@ interpreter is always used). Setting this to "true" allows Python code
 and Open|SpeedShop commands to be freely intermixed. This has the side
 affect that things like spacing before commands will have meaning
 (because Python assigns meaning to indentation).<br>
+<br>
+<h5><a class="mozTocH5" name="mozTocId379491"></a><small><a
+ name="OPENSS_DISABLE_MPISTARTUP"></a>OPENSS_DISABLE_MPISTARTUP</small></h5>
+The current startup mechanism in O|SS searches the executable and
+checks whether it is an MPI application or not.&nbsp;&nbsp; If it is an
+MPI application, it looks for the proctable and then tries to attach to
+all of them.&nbsp;
+This mechanism, however, prevents the user from simply looking at
+a single rank of an MPI job or by just running a sequential
+<br>
+application linked with MPI. In these cases the complete
+startup mechanism is invoked.
+<br>
+<br>
+This environment variable, if set, prevents O|SS to
+look after the proctable and treats any job like a sequential
+one.&nbsp; Until there is an alternative mechanism for selecting
+individual ranks, this environment variable is a means to gather
+performance data for individual ranks.<br>
 <h5><a class="mozTocH5" name="mozTocId415148"></a><small>OPENSS_MPI_IMPLEMENTATION</small><br>
 </h5>
 Specifies the MPI implementation being used by the MPI application
@@ -1977,7 +2013,7 @@ Experiment - Running Experiment Display</h4>
 </blockquote>
 <div style="margin-left: 80px;"><b style=""><br>
 </b>
-<h4>PC Sampling
+<h4><a class="mozTocH4" name="mozTocId439325"></a>PC Sampling
 Experiment - Paused experiment use Continue button to continue</h4>
 The window below is here to illustrate that once the experiment has
 been paused (by clicking the Pause button), use the Cont (continue)
