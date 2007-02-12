@@ -271,10 +271,10 @@ std::set<Function> Statement::getFunctions() const
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT Statement.linked_object, "
+	"SELECT Statements.linked_object, "
 	"       StatementRanges.addr_begin, "
 	"       StatementRanges.addr_end, "
-	"       StatementRanges.valid_bitmap, "
+	"       StatementRanges.valid_bitmap "
 	"FROM Statements "
 	"  JOIN StatementRanges "
 	"ON Statements.id = StatementRanges.statement "
