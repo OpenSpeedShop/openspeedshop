@@ -82,7 +82,7 @@ void FunctionCache::removeDatabase(const SmartPtr<Database>& database)
 
     // Find the linked objects in this database
     BEGIN_TRANSACTION(database);
-    database->prepareStatement("SELECT linked_object FROM LinkedObjects;");
+    database->prepareStatement("SELECT id FROM LinkedObjects;");
     while(database->executeStatement())
 	linked_objects.insert(LinkedObject(database,
 					   database->getResultAsInteger(1)));
