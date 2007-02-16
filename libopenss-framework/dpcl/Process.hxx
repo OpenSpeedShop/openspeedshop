@@ -185,6 +185,8 @@ namespace OpenSpeedShop { namespace Framework {
 				    GCBObjType, GCBMsgType);
 	static void getIntegerCallback(GCBSysType, GCBTagType,
 				       GCBObjType, GCBMsgType);
+	static void setIntegerCallback(GCBSysType, GCBTagType,
+				       GCBObjType, GCBMsgType);
 	static void getJobCallback(GCBSysType, GCBTagType,
 				   GCBObjType, GCBMsgType);
 	static void installProbeCallback(GCBSysType, GCBTagType,

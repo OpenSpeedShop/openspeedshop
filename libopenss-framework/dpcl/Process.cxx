@@ -1146,14 +1146,12 @@ bool Process::getGlobal(const std::string& global, int64_t& value)
  * if the variable's value was succesfully set.
  *
  * @param global    Name of global variable whose value is being requested.
- * @retval value    new value of that variable.
  * @return          Boolean "true" if the variable's value was successfully
  *                  retrieved, "false" otherwise.
  */
 bool Process::setGlobal(const std::string& global, int64_t value)
 {
     GuardWithDPCL guard_myself(this);
-    int64_t retvalue;
     
 #ifndef NDEBUG
     if(is_debug_enabled) {
@@ -1216,7 +1214,7 @@ bool Process::setGlobal(const std::string& global, int64_t value)
 
     // Ask DPCL to execute the probe expression in this process
     AisStatus retval =
-	dm_process->bexecute(expression, getIntegerCallback, &bucket);
+	dm_process->bexecute(expression, setIntegerCallback, &bucket);
 #ifndef NDEBUG
     if(is_debug_enabled)
     	debugDPCL("response from bexecute", retval);
@@ -1224,23 +1222,9 @@ bool Process::setGlobal(const std::string& global, int64_t value)
     if(retval.status() != ASC_success)
 	return false;
 
-    // Note: Data arriving from the Ais_send() cannot be accepted and placed
-    //       into the data bucket unless the DPCL main loop is running. Since
-    //       the GuardWithDPCL object above disables the main loop, it must
-    //       be temporarily resumed here or a deadlock will occur.
-    
-    // Wait until the incoming integer arrives in the data bucket
-    releaseLock();
-    MainLoop::resume();
-    retvalue = bucket.getValue();
-    MainLoop::suspend();
-    acquireLock();
-
     // Indicate to the caller that the value was retrieved
-
-    // printf("setGlobal: %i / returned %i\n",value,retvalue);
+    return true;
 }
-
 
 
 /**
@@ -2647,6 +2631,41 @@ void Process::getIntegerCallback(GCBSysType sys, GCBTagType tag,
 	    );
 }
 
+
+/**
+ * set integer callback.
+ *
+ * Callback function called by the DPCL main loop when interger has been set
+ * in a process or thread. Contains only debugging code for now.
+ *
+ * @todo    Problems will occur here if the endianness of the processor running
+ *          the instrumented process and the processor running the tool differ.
+ *          This is one of only a few places were we aren't dealing with the
+ *          endianness issue, so this should eventually be fixed.
+ */
+void Process::setIntegerCallback(GCBSysType, GCBTagType tag,
+				   GCBObjType, GCBMsgType msg)
+{
+    std::string* name = reinterpret_cast<std::string*>(tag);
+    AisStatus* status = reinterpret_cast<AisStatus*>(msg);    
+    
+    // Check assertions
+    Assert(name != NULL);
+    Assert(status != NULL);
+    
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Process::setIntegerCallback()"
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
+    // Destroy the heap-allocated name string
+    delete name;
+}
 
 
 /**
