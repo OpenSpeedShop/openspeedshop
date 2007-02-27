@@ -132,7 +132,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vRBLayout->addLayout( vpcSampleRBLayout );
 
   vUserTimeRBLayout = new QHBoxLayout( 0, 0, 6, "vUserTimeRBLayout"); 
-  spacer6 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
+  spacer6 = new QSpacerItem( 10, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   vUserTimeRBLayout->addItem( spacer6 );
 
   vpage1UserTimeRB = new QRadioButton( vWStackPage, "vpage1UserTimeRB" );
@@ -140,7 +140,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vRBLayout->addLayout( vUserTimeRBLayout );
 
   vHWCounterRBLayout = new QHBoxLayout( 0, 0, 6, "vHWCounterRBLayout"); 
-  spacer7 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
+  spacer7 = new QSpacerItem( 2, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   vHWCounterRBLayout->addItem( spacer7 );
 
   vpage1HardwareCounterRB = new QRadioButton( vWStackPage, "vpage1HardwareCounterRB" );
@@ -148,7 +148,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vRBLayout->addLayout( vHWCounterRBLayout );
 
   vFloatingPointRBLayout = new QHBoxLayout( 0, 0, 6, "vFloatingPointRBLayout"); 
-  spacer7_3 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
+  spacer7_3 = new QSpacerItem( 10, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   vFloatingPointRBLayout->addItem( spacer7_3 );
 
   vpage1FloatingPointRB = new QRadioButton( vWStackPage, "vpage1FloatingPointRB" );
@@ -156,7 +156,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vRBLayout->addLayout( vFloatingPointRBLayout );
 
   vInputOutputRBLayout = new QHBoxLayout( 0, 0, 6, "vInputOutputRBLayout"); 
-  spacer7_4 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
+  spacer7_4 = new QSpacerItem( 10, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   vInputOutputRBLayout->addItem( spacer7_4 );
 
   vpage1InputOutputRB = new QRadioButton( vWStackPage, "vpage1InputOutputRB" );
@@ -164,7 +164,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vRBLayout->addLayout( vInputOutputRBLayout );
 
   vMPIRBLayout = new QHBoxLayout( 0, 0, 6, "vMPIRBLayout"); 
-  spacer7_4 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
+  spacer7_4 = new QSpacerItem( 10, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   vMPIRBLayout->addItem( spacer7_4 );
 
   vpage1MPIRB = new QRadioButton( vWStackPage, "vpage1MPIRB" );
@@ -261,7 +261,7 @@ eHelpfulLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixe
   vNextButtonLayout = new QHBoxLayout( 0, 0, 6, "vNextButtonLayout"); 
   IntroWizardFormLayout->addLayout( vNextButtonLayout );
 
-  QSpacerItem *spacer2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
+  QSpacerItem *spacer2 = new QSpacerItem( 20, 10, QSizePolicy::Fixed, QSizePolicy::Fixed );
   vNextButtonLayout->addItem( spacer2 );
 
 
@@ -272,10 +272,10 @@ eHelpfulLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixe
  
   spacer44 = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   vNextButtonLayout->addItem( spacer44 );
-  broughtToYouByLabel = new QLabel( getBaseWidgetFrame(), "broughtToYouByLabel" );
-  broughtToYouByLabel->setMinimumSize( QSize(1,1) );
-  broughtToYouByLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  vNextButtonLayout->addWidget( broughtToYouByLabel );
+//  broughtToYouByLabel = new QLabel( getBaseWidgetFrame(), "broughtToYouByLabel" );
+//  broughtToYouByLabel->setMinimumSize( QSize(1,1) );
+//  broughtToYouByLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
+//  vNextButtonLayout->addWidget( broughtToYouByLabel );
 
   spacer44 = new QSpacerItem( 1, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   vNextButtonLayout->addItem( spacer44 );
@@ -287,10 +287,8 @@ eHelpfulLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixe
   QSpacerItem *spacer3 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   vNextButtonLayout->addItem( spacer3 );
 
-
   mainWidgetStack->addWidget( vWStackPage, 0 );
   mainWidgetStack->addWidget( eWStackPage, 1 );
-
 
   QSpacerItem *fill_spacer = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
   IntroWizardFormLayout->addItem( fill_spacer );
@@ -395,17 +393,17 @@ IntroWizardPanel::languageChange()
   setCaption( tr( "IntroWizardForm" ) );
   vWelcomeHeader->setText( tr( "<h2>Welcome to Open|SpeedShop(tm)</h2>" ) );
 
-  vHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
+  vHelpfulLabel->setText( tr( "Please select one of the following to begin analyzing your application for performance issues:" ) );
   vpage1LoadExperimentCheckBox->setText( tr( "I already have experiment data and would like to analyze it." ) );
   vpage1CompareExperimentsCheckBox->setText( tr( "I have two saved experiment data files that I'd like to compare to each other." ) );
   vpage1pcSampleRB->setText( tr( "I'm trying to find where my program is spending most of its time. (pcsamp)" ) );
-  vpage1UserTimeRB->setText( tr( "I'd like to find out how much time is system time vs. my program's time. (usertime)" ) );
-  vpage1HardwareCounterRB->setText( tr( "I'd like to see what the internal Hardware Counters can show me.\n"
+  vpage1UserTimeRB->setText( tr( "I'd like to find out how much time is system time vs. my program's time.\nI also want to see which functions are calling other functions. (usertime)" ) );
+  vpage1HardwareCounterRB->setText( tr( "I'd like to see what kind of performance information the internal Hardware Counters can show me.\n"
 "(Hardware Counters are an advanced feature that utilizes machine \n"
 "hardware to measure certain attributes of program execution.) (hwc/hwctime)" ) );
-  vpage1FloatingPointRB->setText( tr( "I need to measure how many times I am causing Floating Point Exceptions. (fpe)" ) );
-  vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work. (io/iot)" ) );
-  vpage1MPIRB->setText( tr( "I have an MPI program and I'd like measure the mpi calls. (mpi/mpit)" ) );
+  vpage1FloatingPointRB->setText( tr( "I would like to know how many times my program is causing Floating Point Exceptions to occur.\nI also would like to know where in my program they are occurring. (fpe)" ) );
+  vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output.  I'd like to see which calls are being made\nand where most of that time is being spent. (io/iot)" ) );
+  vpage1MPIRB->setText( tr( "I have a MPI program and I'd like to see what mpi calls are being made.\nI'd also like to see where the calls are being made in my program. (mpi/mpit)" ) );
 
   eHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
   epage1LoadExperimentCheckBox->setText( tr( "Load experiment data." ) );
