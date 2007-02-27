@@ -33,6 +33,7 @@
 #include <qdir.h>
 #include <qlistview.h>
 #include <qinputdialog.h>
+#include <qsettings.h>
 #include "PluginInfo.hxx"
 
 
@@ -524,6 +525,13 @@ void OpenSpeedshop::fileExit()
   int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
   InputLineObject *clip = cli->run_Append_Input_String( wid, "exit\n");
 
+  // REMOVE SESSION ONLY PREFERENCES
+  QSettings *guiSettings = new QSettings(); 
+  guiSettings->removeEntry((QString("/openspeedshop/ManageProcessesPanel/updateDisplayMultiProcessCommandLineEdit")));
+  guiSettings->removeEntry((QString("/openspeedshop/ManageProcessesPanel/saveMPCommandCheckBox")));
+  delete guiSettings;
+  // END OF REMOVE SESSION ONLY PREFERENCES
+
   qapplication->exit(0);
 }
 
@@ -854,6 +862,9 @@ void OpenSpeedshop::init()
          it++ )
     {
       pi = (PluginInfo *)*it;
+#ifdef DEBUG_GUI
+      printf("const char *)pi->plugin_name.ascii() = (%s)\n", (const char *)pi->plugin_name );
+#endif
 //      lt_dlhandle dl_object = lt_dlopenext((const char *)pi->plugin_name);
       lt_dlhandle dl_object = lt_dlopen((const char *)pi->plugin_name);
 
@@ -1073,6 +1084,17 @@ height+=50;   // FIX
 
   qapplication->connect( qApp, SIGNAL( lastWindowClosed() ), this, SLOT( myQuit() ) );
 
+
+  // REMOVE SESSION ONLY PREFERENCES
+  // In case these were not removed when exiting because of a crash.  Make sure
+  // they are not present when starting up the GUI because they are session only
+  // preferences.
+  QSettings *guiSettings = new QSettings(); 
+  guiSettings->removeEntry((QString("/openspeedshop/ManageProcessesPanel/updateDisplayMultiProcessCommandLineEdit")));
+  guiSettings->removeEntry((QString("/openspeedshop/ManageProcessesPanel/saveMPCommandCheckBox")));
+  delete guiSettings;
+  // END OF REMOVE SESSION ONLY PREFERENCES
+
 }
 
 void OpenSpeedshop::destroy()
@@ -1109,7 +1131,7 @@ void OpenSpeedshop::loadNewProgram()
     fileName = lfd->selectedFile();
     if( !fileName.isEmpty() )
     {
-//printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+//    printf("fileName.ascii() = (%s)\n", fileName.ascii() );
       QFileInfo fi(fileName);
       if( !fi.isExecutable() )
       {
@@ -1119,13 +1141,31 @@ void OpenSpeedshop::loadNewProgram()
       executableName = fileName;
       if( lfd->lineedit->text().isEmpty() )
       {
+        // If you want a small dialog box to popup after hitting ok in the main dialog box then
+        //   enable this Enter Arguments Dialog section of code directly following this comment line...
+#if 0
         argsStr = QString::null;
         bool ok;
         argsStr = QInputDialog::getText("Enter Arguments Dialog:", QString("Enter command line arguments:"), QLineEdit::Normal, QString::null, &ok, this);
+#endif
       } else
       {
         argsStr = lfd->lineedit->text();
-// printf("argsStr=(%s)\n", argsStr.ascii() );
+//      printf("line argsStr=(%s)\n", argsStr.ascii() );
+      }
+      if( lfd->parallelPrefixLineedit->text().isEmpty() )
+      {
+        // If you want a small dialog box to popup after hitting ok in the main dialog box then
+        //   enable this Enter Arguments Dialog section of code directly following this comment line...
+#if 0
+        parallelPrefixCommandStr = QString::null;
+        bool ok;
+        parallelPrefixCommandStr = QInputDialog::getText("Enter Arguments Dialog:", QString("Enter parallel command prefix:"), QLineEdit::Normal, QString::null, &ok, this);
+#endif
+      } else
+      {
+        parallelPrefixCommandStr = lfd->parallelPrefixLineedit->text();
+//      printf("parallelPrefixLinedit--> parallelPrefixCommandStr=(%s)\n", parallelPrefixCommandStr.ascii() );
       }
     }
   }

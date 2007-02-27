@@ -54,6 +54,7 @@ OpenSpeedshop::OpenSpeedshop( int _wid, int _climode, QWidget* parent, const cha
   executableName = QString::null;
   experimentName = QString::null;
   argsStr = QString::null;
+  parallelPrefixCommandStr = QString::null;
   rankStr = QString::null;
   hostStr = QString::null;
   expStr = QString::null;
@@ -272,6 +273,7 @@ OpenSpeedshop::print()
   printf("widStr = %s\n",  widStr.ascii() );
   printf("pidStr = %s\n",  pidStr.ascii() );
   printf("executableName = %s\n",  executableName.ascii() );
+  printf("parallelPrefixCommandStr = %s\n",  parallelPrefixCommandStr.ascii() );
   printf("argsStr = %s\n",  argsStr.ascii() );
   printf("rankStr = %s\n",  rankStr.ascii() );
   printf("hostStr = %s\n",  hostStr.ascii() );
@@ -285,26 +287,22 @@ OpenSpeedshop::closeEvent(QCloseEvent *e)
 
   int ret_val =  QMessageBox::Cancel;
 
-  if( climode )
-  {
+  if( climode ) {
     ret_val =  QMessageBox::question(
             this,
             tr("Finished?"),
             tr("Do you really want to exit Open|SpeedShop?\n  - Yes will exit.\n  - No will close the gui windows.\n  - Cancel will do nothing."),
             QMessageBox::Yes,  QMessageBox::No,  QMessageBox::Cancel );
-  } else
-  {
+  } else {
     ret_val =  QMessageBox::question(
             this,
             tr("Finished?"),
             tr("Do you really want to exit Open|SpeedShop?\n  - Yes will exit.\n  - Cancel will do nothing."),
             QMessageBox::Yes,  QMessageBox::Cancel );
   }
-  if( ret_val ==  QMessageBox::Yes )
-  {
+  if( ret_val ==  QMessageBox::Yes ) {
     fileExit();
-  } else if( ret_val ==  QMessageBox::No )
-  {
+  } else if( ret_val ==  QMessageBox::No ) {
     fileClose();
   } else  //  QMessageBox::Cancel
   {

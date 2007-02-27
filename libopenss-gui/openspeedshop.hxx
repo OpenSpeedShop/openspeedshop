@@ -118,6 +118,9 @@ class OpenSpeedshop : public QMainWindow
     QString executableName;
 
     //! The args to the executable that is to be loaded (eventually).
+    QString parallelPrefixCommandStr;
+
+    //! The args to the executable that is to be loaded (eventually).
     QString argsStr;
 
     //! The experiment to attach to

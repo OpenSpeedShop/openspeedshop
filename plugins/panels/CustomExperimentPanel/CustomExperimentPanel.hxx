@@ -126,6 +126,7 @@ public:
   QString executableNameStr;
   QString databaseNameStr;
   QString argsStr;
+  QString parallelPrefixCommandStr;
   QString pidStr;
   QTimer *timer;
   QTimer *loadTimer;

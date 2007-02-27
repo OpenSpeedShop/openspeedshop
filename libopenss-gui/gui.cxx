@@ -91,7 +91,7 @@ extern "C"
 
 
 
-// printf("climode=(%d)\n", climode );
+//  printf("climode=(%d)\n", climode );
     if( climode == TRUE )
     {  // Before you intialize the gui, make sure you won't abort just trying
        // to get started.   Do the obvious here... Check to see if we have a
@@ -116,20 +116,28 @@ extern "C"
     QString executableStr = QString::null;
     QString widStr = QString::null;
     QString argsStr = QString::null;
+    QString parallelPrefixCommandStr = QString::null;
     QString pidStr = QString::null;
-QStringList pidStrList = NULL;
+    QStringList pidStrList = NULL;
     QString rankStr = QString::null;
     QString expStr = QString::null;
+//  printf("argc=%d\n", argc);
     for(int i=0;i<argc;i++)
     {
       QString arg = argv[i];
-// printf("argv[%d]=(%s)\n", i, argv[i]);
+//    printf("argv[%d]=(%s)\n", i, argv[i]);
+//    printf("argv[%d]=(%s)\n", i+1, argv[i+1]);
+
       if( arg == "-wid" )
       { // You have a window id from the cli
-        for( ;i<argc;)
+        for( ;i<argc-1;)
         {
-          widStr += QString(argv[++i]);
+//        printf("inside for i< argc, argv[%d]=(%s)\n", i, argv[i]);
+          widStr += QString(argv[i+1]);
           widStr += QString(" ");
+//        printf("inside for i< argc, widStr.ascii()=(%s)\n", widStr.ascii());
+//        printf("inside for i< argc, widStr.toInt()=(%d)\n", widStr.toInt());
+          i = i + 1;
         }
       }
 
@@ -183,6 +191,10 @@ QStringList pidStrList = NULL;
       w->hostStr = hostStr;
     }
     w->argsStr = argsStr;
+    w->parallelPrefixCommandStr = parallelPrefixCommandStr;
+
+//  printf("w->argsStr.ascii()=%s\n", w->argsStr.ascii());
+//  printf("w->parallelPrefixCommandStr.ascii()=%s\n", w->parallelPrefixCommandStr.ascii());
 
     w->show();
 
@@ -210,7 +222,7 @@ QStringList pidStrList = NULL;
     }
     // If the use has not defined any experiments, then 
     // load the wizard to help them...
-// printf("number_of_found_experiments=%d\n", number_of_found_experiments );
+//  printf("number_of_found_experiments=%d\n", number_of_found_experiments );
     if( number_of_found_experiments == 0 )
     {
       w->loadTheWizard();
@@ -230,7 +242,7 @@ QStringList pidStrList = NULL;
   int
   gui_init( void *arg_struct, pthread_t *phandle )
   {
-// printf("gui_init entered\n");
+//  printf("gui_init entered\n");
     if( isGUIBeenCreate == TRUE )
     {
       if( !qapplication )
@@ -242,7 +254,7 @@ QStringList pidStrList = NULL;
       }
     } else
     {
-//      gui_thread_id = pthread_create(&phandle[0], 0, (void *(*)(void *))guithreadinit,arg_struct);
+//    gui_thread_id = pthread_create(&phandle[0], 0, (void *(*)(void *))guithreadinit,arg_struct);
       pthread_create(phandle, 0, (void *(*)(void *))guithreadinit,arg_struct);
     }
 

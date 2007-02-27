@@ -121,7 +121,7 @@ CustomExperimentPanel::init( PanelContainer *pc, const char *n, ArgumentObject *
 
 // This flag only gets set to true when the data is read from a file
 // or when the program is terminated.
-staticDataFLAG = FALSE;
+  staticDataFLAG = FALSE;
   if( collector_names.stripWhiteSpace().startsWith("pcsamp") )
   {
     wizardName = "pc Sample Wizard";
@@ -166,6 +166,7 @@ if( attachFLAG )
   databaseNameStr = QString((const char *)0);
 //  argsStr = QString::null;
   argsStr = QString((const char *)0);
+  parallelPrefixCommandStr = QString::null;
 //  pidStr = QString::null;
   pidStr = QString((const char *)0);
   exitingFLAG = FALSE;
@@ -179,6 +180,7 @@ if( attachFLAG )
   mw = getPanelContainer()->getMainWindow();
   executableNameStr = mw->executableName;
   argsStr = mw->argsStr;
+  parallelPrefixCommandStr = mw->parallelPrefixCommandStr;
   pidStr = mw->pidStr;
 
 //  expStatsInfoStr = QString::null;
@@ -695,6 +697,7 @@ CustomExperimentPanel::updatePanelStatusOnRerun(EXPID expID)
   mw = getPanelContainer()->getMainWindow();
   executableNameStr = mw->executableName;
   argsStr = mw->argsStr;
+  parallelPrefixCommandStr = mw->parallelPrefixCommandStr;
   pidStr = mw->pidStr;
 
 
@@ -784,6 +787,7 @@ CustomExperimentPanel::listener(void *msg)
     mw = getPanelContainer()->getMainWindow();
     executableNameStr = mw->executableName;
     argsStr = mw->argsStr;
+    parallelPrefixCommandStr = mw->parallelPrefixCommandStr;
     pidStr = mw->pidStr;
 
 #ifdef DEBUG_CustomPanel
@@ -1725,7 +1729,9 @@ CustomExperimentPanel::updateStatus()
 //    printf("CustomExperimentPanel::updateStatus(), : eo->Determine_Status()=%d\n", eo->Determine_Status() );
 #endif
 
-    if( eo->Determine_Status() == ExpStatus_NonExistent || eo->Determine_Status() == ExpStatus_InError || eo->Determine_Status() == ExpStatus_Terminated )
+    if( eo->Determine_Status() == ExpStatus_NonExistent || 
+        eo->Determine_Status() == ExpStatus_InError || 
+        eo->Determine_Status() == ExpStatus_Terminated )
     {
       statusLabelText->setText( tr(QString("Loaded saved data from file %1.").arg(getDatabaseName()) ) );
       runnableFLAG = FALSE;
@@ -1770,18 +1776,38 @@ CustomExperimentPanel::updateStatus()
         if( (last_status == ExpStatus_NonExistent || 
             readyToRunFLAG == TRUE ) && aboutToRunFLAG == FALSE )
         {
-          statusLabelText->setText( tr("Experiment (%1) is ready to run:  Hit the \"Run\" button to start execution.").arg(executableNameStr) );
+          // Include the parallel prefix command text prior to the executable name if it is present.
+          if (parallelPrefixCommandStr.isEmpty() || parallelPrefixCommandStr.isNull()) {
+            statusLabelText->setText( tr("Experiment (%1) is ready to run:  Hit the \"Run\" button to start execution.").arg(executableNameStr) );
+          } else {
+            statusLabelText->setText( tr("Experiment (%1 %2) is ready to run:  Hit the \"Run\" button to start execution.").arg(parallelPrefixCommandStr).arg(executableNameStr) );
+          }
+
+
         } else
         {
           if( aboutToRunFLAG == TRUE )
           {
-            statusLabelText->setText( tr("Experiment (%1) is being initialized to run.").arg(executableNameStr) );
+
+            // Include the parallel prefix command text prior to the executable name if it is present.
+            if (parallelPrefixCommandStr.isEmpty() || parallelPrefixCommandStr.isNull()) {
+              statusLabelText->setText( tr("Experiment (%1) is being initialized to run.").arg(executableNameStr) );
+            } else {
+              statusLabelText->setText( tr("Experiment (%1 %2) is being initialized to run.").arg(parallelPrefixCommandStr).arg(executableNameStr) );
+            }
                 
             statusTimer->start(2000);
             break;
           } else
           {
-            statusLabelText->setText( tr("Experiment (%1) is Paused:  Hit the \"Cont\" button to continue execution.").arg(executableNameStr) );
+
+            // Include the parallel prefix command text prior to the executable name if it is present.
+            if (parallelPrefixCommandStr.isEmpty() || parallelPrefixCommandStr.isNull()) {
+              statusLabelText->setText( tr("Experiment (%1) is Paused:  Hit the \"Cont\" button to continue execution.").arg(executableNameStr) );
+            } else {
+              statusLabelText->setText( tr("Experiment (%1 %2) is Paused:  Hit the \"Cont\" button to continue execution.").arg(parallelPrefixCommandStr).arg(executableNameStr) );
+            }
+
           }
         }
         pco->runButton->setEnabled(TRUE);
@@ -1817,7 +1843,14 @@ CustomExperimentPanel::updateStatus()
         readyToRunFLAG = FALSE;
         if( status == ExpStatus_Running )
         {
-          statusLabelText->setText( tr("Experiment (%1) is Running.").arg(executableNameStr) );
+
+          // Include the parallel prefix command text prior to the executable name if it is present.
+          if (parallelPrefixCommandStr.isEmpty() || parallelPrefixCommandStr.isNull()) {
+            statusLabelText->setText( tr("Experiment (%1) is Running.").arg(executableNameStr) );
+          } else {
+            statusLabelText->setText( tr("Experiment (%1 %2) is Running.").arg(parallelPrefixCommandStr).arg(executableNameStr) );
+          }
+
         }
         pco->runButton->setEnabled(FALSE);
         pco->runButton->enabledFLAG = FALSE;
@@ -1841,7 +1874,13 @@ CustomExperimentPanel::updateStatus()
 #ifdef DEBUG_CustomPanel
           printf("CustomExperimentPanel::updateStatus(),Experiment has ExpStatus_Terminated status:\n");
 #endif
-          statusLabelText->setText( tr("Experiment (%1) has Terminated").arg(executableNameStr) );
+
+          // Include the parallel prefix command text prior to the executable name if it is present.
+          if (parallelPrefixCommandStr.isEmpty() || parallelPrefixCommandStr.isNull()) {
+            statusLabelText->setText( tr("Experiment (%1) has Terminated").arg(executableNameStr) );
+          } else {
+            statusLabelText->setText( tr("Experiment (%1 %2) has Terminated").arg(parallelPrefixCommandStr).arg(executableNameStr) );
+          }
 
 //        We have terminated - mark that we have executed this experiment at least once
 //        This sets up the rerun to be recognized
@@ -2069,36 +2108,46 @@ printf("paramStr: MPI =(%s)\n", paramStr.ascii() );
     QString command = QString((const char *)0);
     if( !executableNameStr.isEmpty() )
     {
-      command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
-if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
-{
-  command += " -v mpi";
-}
-// printf("executableNameStr is not empty.\n");
-    } else if( !pidStr.isEmpty() )
-    { 
+//      printf("CREATING EXPATTACH, parallelPrefixCommandStr.ascii() =%s\n", parallelPrefixCommandStr.ascii() );
+//      printf("CREATING EXPATTACH, parallelPrefixCommandStr.isEmpty() =%d\n", parallelPrefixCommandStr.isEmpty() );
+//      printf("CREATING EXPATTACH, parallelPrefixCommandStr.isNull() =%d\n", parallelPrefixCommandStr.isNull() );
+
+      // Include the parallel prefix command text prior to the executable name if it is present.
+      if (parallelPrefixCommandStr.isEmpty() || parallelPrefixCommandStr.isNull()) {
+         command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
+      } else {
+         command = QString("expAttach -x %1 -f \"%2 %3 %4\"\n").arg(expID).arg(parallelPrefixCommandStr).arg(executableNameStr).arg(argsStr);
+      }
+
+      if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
+      {
+        command += " -v mpi";
+      }
+//    printf("executableNameStr is not empty.\n");
+    } else if( !pidStr.isEmpty() ) { 
       QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
       QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
       QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-// printf("host_name=(%s)\n", host_name.ascii() );
-// printf("pid_name=(%s)\n", pid_name.ascii() );
-// printf("prog_name=(%s)\n", prog_name.ascii() );
 
-// printf("pidStr =%s\n", pidStr.ascii() );
-// printf("mw->hostStr =%s\n", mw->hostStr.ascii() );
+//    printf("host_name=(%s)\n", host_name.ascii() );
+//    printf("pid_name=(%s)\n", pid_name.ascii() );
+//    printf("prog_name=(%s)\n", prog_name.ascii() );
 
-//QString optionsStr = QString::null;
-QString optionsStr = QString((const char *)0);
-if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
-{
-  optionsStr += QString(" -v mpi");
-}
-optionsStr += QString(" -h %1").arg(mw->hostStr);
+//    printf("pidStr =%s\n", pidStr.ascii() );
+//    printf("mw->hostStr =%s\n", mw->hostStr.ascii() );
+
+//   QString optionsStr = QString::null;
+   QString optionsStr = QString((const char *)0);
+   if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
+   {
+     optionsStr += QString(" -v mpi");
+   }
+   optionsStr += QString(" -h %1").arg(mw->hostStr);
 //      command = QString("expAttach -x %1 %2 -p  %3 -h %4 ").arg(expID).arg(mpiStr).arg(pidStr).arg(mw->hostStr);
-      command = QString("expAttach -x %1 %2 -p  %3 ").arg(expID).arg(optionsStr).arg(pidStr);
+   command = QString("expAttach -x %1 %2 -p  %3 ").arg(expID).arg(optionsStr).arg(pidStr);
 // printf("command=(%s)\n", command.ascii() );
-    } else
-    {
+  } else {
+      // Executable sting is empty and the pid string is empty??
       return 0;
 //    command = QString("expCreate  %1\n").arg(collector_names);
     }
@@ -2106,12 +2155,18 @@ optionsStr += QString(" -h %1").arg(mw->hostStr);
     int64_t val = 0;
  
     steps = 0;
- 	pd = new GenericProgressDialog(this, "Loading process...", TRUE);
+    pd = new GenericProgressDialog(this, "Loading process...", TRUE);
     loadTimer = new QTimer( this, "progressTimer" );
     connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
     loadTimer->start( 0 );
     pd->show();
-    statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
+    
+    // Include the parallel prefix command text prior to the executable name if it is present.
+    if (mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
+      statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
+    } else {
+      statusLabelText->setText( tr(QString("Loading ...  "))+ mw->parallelPrefixCommandStr + mw->executableName);
+    }
  
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
@@ -2124,7 +2179,14 @@ optionsStr += QString(" -h %1").arg(mw->hostStr);
     if( !cli->runSynchronousCLI((char *)command.ascii() ) )
     {
       QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
-      statusLabelText->setText( tr(QString("Unable to load executable name:  "))+mw->executableName);
+
+      // Include the parallel prefix command text prior to the executable name if it is present.
+      if (mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
+        statusLabelText->setText( tr(QString("Unable to load executable name:  "))+mw->executableName);
+      } else {
+        statusLabelText->setText( tr(QString("Unable to load parallel application:  "))+ mw->parallelPrefixCommandStr + mw->executableName);
+      }
+
       loadTimer->stop();
       pd->hide();
       // We're needing to abort this panel.  Since I can't delete myself
@@ -2133,12 +2195,17 @@ optionsStr += QString(" -h %1").arg(mw->hostStr);
       return 1;
     }
  
-    statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
+    // Include the parallel prefix command text prior to the executable name if it is present.
+    if (mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
+       statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
+    } else {
+       statusLabelText->setText( tr(QString("Loaded:  "))+ mw->parallelPrefixCommandStr +mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
+    }
+
     loadTimer->stop();
     pd->hide();
  
-    if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
-    {
+    if( !executableNameStr.isEmpty() || !pidStr.isEmpty() ) {
       runnableFLAG = TRUE;
       pco->runButton->setEnabled(TRUE);
       pco->runButton->enabledFLAG = TRUE;
@@ -2229,6 +2296,7 @@ CustomExperimentPanel::loadProgramSelected()
   mw->executableName = QString((const char *)0);
 //  mw->argsStr = QString::null;
   mw->argsStr = QString((const char *)0);
+  mw->parallelPrefixCommandStr = QString((const char *)0);
   mw->loadNewProgram();
   QString executableNameStr = mw->executableName;
   if( !mw->executableName.isEmpty() )

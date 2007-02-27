@@ -869,6 +869,7 @@ void MPIWizardPanel::eAttachOrLoadPageClearButtonSelected()
     {
       mw->executableName = QString::null;
       mw->pidStr = QString::null;
+      mw->parallelPrefixCommandStr = QString::null;
     }
   }
 //  eUpdateAttachOrLoadPageWidget();
@@ -935,7 +936,11 @@ void MPIWizardPanel::eAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" mpi functions.<br><br></p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+    if( mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
+      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" mpi functions.<br><br></p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+    } else {
+      sprintf(buffer, "<p align=\"left\">Requesting to load command/executable <br>\"%s %s\" on host \"%s\", with monitoring \"%s\" mpi functions.<br><br></p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+    } 
   }
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1144,7 +1149,11 @@ void MPIWizardPanel::vAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" mpi functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+    if( mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
+      sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" mpi functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+    } else {
+      sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for command/executable<br>\"%s %s\" to be run on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" mpi functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+    }
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );

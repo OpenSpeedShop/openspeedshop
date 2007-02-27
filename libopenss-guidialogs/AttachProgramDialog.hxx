@@ -20,6 +20,7 @@
 #ifndef ATTACHPROGRAMDIALOG_H
 #define ATTACHPROGRAMDIALOG_H
 
+#include <qcheckbox.h>
 #include <qvariant.h>
 #include <qfiledialog.h>
 #include <qlabel.h>
@@ -27,6 +28,8 @@
 
 #include "ProcessListObject.hxx"  // For getting pid list off a host...
 #include "ProcessEntryClass.hxx"
+
+class QSettings;
 
 class AttachProgramDialog : public QFileDialog
 {
@@ -39,12 +42,30 @@ public:
 
   QLabel *label;
   QLineEdit *lineedit;
+  QLabel *parallelPrefixLabel;
+  QLineEdit *parallelPrefixLineedit;
+  QLabel *pCBlabel;
+  QLabel *psaveCBlabel;
+
+  bool reuseParallelCommand() { return useParallelCommand;};
+  void shouldWeReuseParallelCommand(bool flag) { useParallelCommand = flag;};
+
+  QCheckBox *parallelCB;
+  QCheckBox *parallelSaveCB;
+
+  QSettings *guiSettings;
+  QString usersParallelPrefixCommand;
+
 protected:
+  bool useParallelCommand;
 
 protected slots:
     virtual void languageChange();
+    virtual void accept();
 
 public slots:
+  void parallelCBSelected();
+  void parallelSaveCBSelected();
 
 };
 
