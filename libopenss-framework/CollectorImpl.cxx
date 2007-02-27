@@ -27,6 +27,8 @@
 #include "DataQueues.hxx"
 #include "EntrySpy.hxx"
 #include "Instrumentor.hxx"
+#include "Thread.hxx"
+#include "Function.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
@@ -285,6 +287,12 @@ void CollectorImpl::executeBeforeExit(const Collector& collector,
 }
 
 
+#ifndef NDEBUG
+/** Flag indicating if debuging for MPI jobs is enabled. */
+bool CollectorImpl::is_debug_mpijob_enabled =
+    (getenv("OPENSS_DEBUG_MPIJOB") != NULL);
+#endif
+
 
 /**
  * Remove instrumentation from a thread.
@@ -312,9 +320,104 @@ void CollectorImpl::uninstrument(const Collector& collector,
  *
  * @return    string containing the name of the MPI implementation
  */
-std::string CollectorImpl::getMPIImplementationName(const Thread& /*thread*/) const
+std::string CollectorImpl::getMPIImplementationName(const Thread& thread) const
 {
+
+#ifndef NDEBUG
+            if(is_debug_mpijob_enabled) {
+                std::stringstream output;
+                output << "Enter CollectorImpl::getMPIImplementationName" << " "
+                       << std::endl;
+                std::cerr << output.str();
+            }
+#endif
 #ifdef HAVE_MPI
+
+    /* Automatic MPI Implementation Detection of the MPI application being analyzed */
+
+    bool is_lam = false;
+    bool is_lampi = false;
+    bool is_openmpi = false;
+    bool is_mpt = false;
+    bool is_mpich2 = false;
+    bool is_mpich1 = false;
+
+    // Did we sucessfully create and connect to the thread?
+    if(thread.isState(Thread::Suspended)) {
+
+        // Is thread a "lampi" MPI implementation?
+        if(thread.getFunctionByName("lampi_init").first) {
+            is_lampi = true;
+        }
+#ifndef NDEBUG
+            if(is_debug_mpijob_enabled) {
+                std::stringstream output;
+                output << "In CollectorImpl::getMPIImplementationName" << " "
+                << ", is_lampi=" << is_lampi << " "
+                       << std::endl;
+                std::cerr << output.str();
+            }
+#endif
+
+        // Is thread a "mpt" SGI MPT MPI implementation?
+        if(thread.getFunctionByName("MPI_debug_breakpoint").first) {
+            is_mpt = true;
+        }
+#ifndef NDEBUG
+            if(is_debug_mpijob_enabled) {
+                std::stringstream output;
+                output << "In CollectorImpl::getMPIImplementationName" << " "
+                << ", is_mpt=" << is_mpt << " "
+                       << std::endl;
+                std::cerr << output.str();
+            }
+#endif
+
+        // Is thread a "lam/mpi" MPI implementation?
+        if(thread.getFunctionByName("lam_mpi_comm_world").first) {
+            is_lam = true;
+        }
+#ifndef NDEBUG
+            if(is_debug_mpijob_enabled) {
+                std::stringstream output;
+                output << "In CollectorImpl::getMPIImplementationName" << " "
+                << ", is_lam=" << is_lam << " "
+                       << std::endl;
+                std::cerr << output.str();
+            }
+#endif
+
+        // Is thread a "openmpi" MPI implementation?
+        if(thread.getFunctionByName("ompi_mpi").first) {
+            is_openmpi = true;
+        }
+#ifndef NDEBUG
+            if(is_debug_mpijob_enabled) {
+                std::stringstream output;
+                output << "In CollectorImpl::getMPIImplementationName is_openmpi=" << is_openmpi << " "
+                       << std::endl;
+                std::cerr << output.str();
+            }
+#endif
+
+    } else {
+          fprintf(stderr, "TEMPORARY DEBUGGING MESSAGE: (does not affect correctness) ---- Error condition: In an attempt to automatically determine the MPI implementation of the application being loaded, OpenSpeedShop accessed a thread that was not suspended\n");
+
+#ifndef NDEBUG
+          if(is_debug_mpijob_enabled) {
+             std::stringstream output;
+             output << "In getMPIImplementationName THREAD IS NOT SUSPENDED, is it suspended" << thread.isState(Thread::Suspended) << " "
+             << "In getMPIImplementationName is it running?" << thread.isState(Thread::Running) << " "
+             << "In getMPIImplementationName is it connecting?" << thread.isState(Thread::Connecting) << " "
+             << "In getMPIImplementationName is it nonexistent?" << thread.isState(Thread::Nonexistent) << " "
+             << "In getMPIImplementationName is it disconnected?" << thread.isState(Thread::Disconnected) << " "
+             << "In getMPIImplementationName is it terminated?" << thread.isState(Thread::Terminated) << " "
+             << std::endl;
+             std::cerr << output.str();
+         }
+    }
+#endif
+
     /*
      * The environment variable OPENSS_MPI_IMPLEMENTATION can be set
      * to override the automatic MPI implementation detection process.
@@ -322,6 +425,45 @@ std::string CollectorImpl::getMPIImplementationName(const Thread& /*thread*/) co
 
     char* env_variable_name = "OPENSS_MPI_IMPLEMENTATION";
     char* value = getenv(env_variable_name);
+
+#ifndef NDEBUG
+    if(is_debug_mpijob_enabled) {
+       std::stringstream output;
+       output << "In CollectorImpl::getMPIImplementationName getenv(OPENSS_MPI_IMPLEMENTATION), value= " << value << " "
+              << std::endl;
+              std::cerr << output.str();
+    }
+#endif
+
+    // If no environment variable setting for the mpi implementation type
+    // then use the automatically determined version.
+    if (!value) {
+       if (is_openmpi) {
+         value = "openmpi";
+       } else if (is_lampi) {
+         value = "lampi";
+       } else if (is_mpt) {
+         value = "mpt";
+       } else if (is_lam) {
+         value = "lam";
+       } else if (is_mpich2) {
+         value = "mpich2";
+       } else if (is_mpich1) {
+         value = "mpich";
+       } else {
+         value = "";
+       }
+       
+#ifndef NDEBUG
+            if(is_debug_mpijob_enabled) {
+                std::stringstream output;
+                output << "In CollectorImpl::getMPIImplementationName after boolean is_xxx checks, value= " << value << " "
+                       << std::endl;
+                std::cerr << output.str();
+            }
+#endif
+    } 
+
     if (value) {
 	std::string impl_names = ALL_MPI_IMPL_NAMES;
 	std::string search_target = std::string(" ") + value + " ";
@@ -329,11 +471,18 @@ std::string CollectorImpl::getMPIImplementationName(const Thread& /*thread*/) co
 	    throw Exception(Exception::MPIImplChoiceInvalid,
 			    value, impl_names);
 	}
+#ifndef NDEBUG
+            if(is_debug_mpijob_enabled) {
+                std::stringstream output;
+                output << "RETURN from CollectorImpl::getMPIImplementationName, value= " << value << " "
+                       << std::endl;
+                std::cerr << output.str();
+            }
+#endif
+
 	return value;
     }
 
-
-    /* Automatic MPI Implementation Detection (coming soon) */
 
 
     /*

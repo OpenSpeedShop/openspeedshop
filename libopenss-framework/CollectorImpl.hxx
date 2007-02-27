@@ -220,6 +220,12 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	/** Set of metrics. */
 	std::set<Metadata> dm_metrics;
+       
+        /** Debug flag for tracing mpi job creation and attach */
+#ifndef NDEBUG
+        static bool is_debug_mpijob_enabled;
+#endif
+
 	
     };
     
