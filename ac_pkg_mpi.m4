@@ -18,7 +18,7 @@ AC_DEFUN([AC_PKG_LAM], [
     LAM_CC="$lam_dir/bin/mpicc"
     LAM_CPPFLAGS="-I$lam_dir/include"
     LAM_LDFLAGS="-L$lam_dir/$abi_libdir"
-    LAM_LIBS="-lmpi"
+    LAM_LIBS="-lmpi -llam -llamf77mpi -lutil"
     LAM_HEADER="$lam_dir/include/mpi.h"
     LAM_DIR="$lam_dir"
          
