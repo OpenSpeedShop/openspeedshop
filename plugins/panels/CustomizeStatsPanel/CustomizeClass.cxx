@@ -170,7 +170,7 @@ CustomizeClass::menu(QPopupMenu* contextMenu)
 //  qaction->setText( tr(QString("Focus Stats Panel with defined info...")+currentCompareSetString) );
   qaction->setText( tr(QString("Focus StatsPanel")) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnCSetSelected() ) );
-  qaction->setStatusTip( tr("Focus the StastPanel on defined set of information.") );
+  qaction->setStatusTip( tr("Focus the StatsPanel on defined set of information.") );
 
 
   contextMenu->insertSeparator();
