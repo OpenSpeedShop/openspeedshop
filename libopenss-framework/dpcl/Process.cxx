@@ -1195,26 +1195,14 @@ bool Process::setGlobal(const std::string& global, int64_t value)
     //
     // Create a probe expression for the code sequence:
     //
-    //     Ais_send(Ais_msg_handle, &global, size)
+    //     variable.reference().assign(inval)
     //
 
-    ProbeExp args_exp[3] = { 
-	Ais_msg_handle,
-	variable.reference().address(),
-	size
-    };
-    ProbeExp in_expression = variable.reference().assign(inval);
-
-    ProbeExp out_expression = Ais_send.call(3, args_exp);
-
-    ProbeExp expression = in_expression.sequence(out_expression);
-
-    // Define a data bucket to hold the retrieved integer
-    DataBucket<int64_t> bucket;
+    ProbeExp expression = variable.reference().assign(inval);
 
     // Ask DPCL to execute the probe expression in this process
     AisStatus retval =
-	dm_process->bexecute(expression, setIntegerCallback, &bucket);
+	dm_process->bexecute(expression, setIntegerCallback, (void*) NULL);
 #ifndef NDEBUG
     if(is_debug_enabled)
     	debugDPCL("response from bexecute", retval);
@@ -1222,7 +1210,7 @@ bool Process::setGlobal(const std::string& global, int64_t value)
     if(retval.status() != ASC_success)
 	return false;
 
-    // Indicate to the caller that the value was retrieved
+    // Indicate to the caller that the value was set
     return true;
 }
 
@@ -2646,11 +2634,9 @@ void Process::getIntegerCallback(GCBSysType sys, GCBTagType tag,
 void Process::setIntegerCallback(GCBSysType, GCBTagType tag,
 				   GCBObjType, GCBMsgType msg)
 {
-    std::string* name = reinterpret_cast<std::string*>(tag);
     AisStatus* status = reinterpret_cast<AisStatus*>(msg);    
     
     // Check assertions
-    Assert(name != NULL);
     Assert(status != NULL);
     
 #ifndef NDEBUG
@@ -2663,8 +2649,6 @@ void Process::setIntegerCallback(GCBSysType, GCBTagType tag,
     }
 #endif
 
-    // Destroy the heap-allocated name string
-    delete name;
 }
 
 
