@@ -54,7 +54,7 @@ while 1:
 #
 #	Tweak this line with the string you are looking for 
 #
-	if config_line[0:2] == 'lo':
+	if config_line[0:5] == 'myri0':
 #
 #		Now we have the line we are interested in, read the line with the IP address
 #
