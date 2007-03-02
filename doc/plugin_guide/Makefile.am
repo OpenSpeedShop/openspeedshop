@@ -29,7 +29,6 @@ EXTRA_DIST	=  \
 	ToolServerOverView6.png \
 	ToolServerOverView.png \
 	ToolStartCollectingView.dia \
-	ToolStartCollectingView.dia~ \
 	ToolStartCollectingView.png
 
 package = @PACKAGE@
