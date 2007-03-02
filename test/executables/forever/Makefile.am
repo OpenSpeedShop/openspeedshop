@@ -1,7 +1,7 @@
 noinst_PROGRAMS = forever
 
 CFLAGS = \
-	-g -gdwarf-2
+	-O0 -g -gdwarf-2
 
 forever_LDADD = \
 	-ldl
