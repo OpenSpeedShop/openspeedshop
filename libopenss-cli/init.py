@@ -1021,6 +1021,10 @@ site_specific_startup_file = OpenssInstallDir + "/lib/openspeedshop/site.py"
 if os.path.isfile(site_specific_startup_file):
     execfile(site_specific_startup_file)
 
+site_specific_startup_file = OpenssInstallDir + "/lib64/openspeedshop/site.py"
+if os.path.isfile(site_specific_startup_file):
+    execfile(site_specific_startup_file)
+
 ################################################################################
 # Load the user-specific Python startup file (if it exists)
 ################################################################################
