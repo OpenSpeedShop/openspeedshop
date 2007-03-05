@@ -510,6 +510,13 @@ void OpenSpeedshop::fileExit()
 {
 // printf("fileExit() entered.\n");
 
+  // REMOVE SESSION ONLY PREFERENCES
+  QSettings *guiSettings = new QSettings(); 
+  guiSettings->removeEntry((QString("/openspeedshop/ManageProcessesPanel/updateDisplayMultiProcessCommandLineEdit")));
+  guiSettings->removeEntry((QString("/openspeedshop/ManageProcessesPanel/saveMPCommandCheckBox")));
+  delete guiSettings;
+  // END OF REMOVE SESSION ONLY PREFERENCES
+
   shuttingDown = TRUE;
 
 //  QMessageBox::information( (QWidget *)this, tr("Info:"), tr("Closing down Open|SpeedShop... This may take a few seconds cleaning up...."),  QMessageBox::NoButton );
@@ -524,13 +531,6 @@ void OpenSpeedshop::fileExit()
   CLIInterface *cli = topPC->getMainWindow()->cli;
   int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
   InputLineObject *clip = cli->run_Append_Input_String( wid, "exit\n");
-
-  // REMOVE SESSION ONLY PREFERENCES
-  QSettings *guiSettings = new QSettings(); 
-  guiSettings->removeEntry((QString("/openspeedshop/ManageProcessesPanel/updateDisplayMultiProcessCommandLineEdit")));
-  guiSettings->removeEntry((QString("/openspeedshop/ManageProcessesPanel/saveMPCommandCheckBox")));
-  delete guiSettings;
-  // END OF REMOVE SESSION ONLY PREFERENCES
 
   qapplication->exit(0);
 }
