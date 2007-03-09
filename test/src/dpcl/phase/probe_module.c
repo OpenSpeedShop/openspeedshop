@@ -56,7 +56,7 @@ init_func(void *handle)
    sprintf(msg, "init_func() started\n");
    msg_size = strlen(msg) + 1;
    if ((rc = Ais_send((const char *)handle, msg, msg_size)) != 0) {
-         printf("end_func(): ERROR, Ais_send()=%d\n", rc);
+         printf("init_func(): ERROR, Ais_send()=%d\n", rc);
    }
    printf("init_func() called\n");
 }
