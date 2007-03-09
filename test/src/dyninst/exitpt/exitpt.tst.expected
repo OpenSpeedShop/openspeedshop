@@ -1,0 +1,4 @@
+i = 0
+Found 1 occurences of exit().
+Found 1 occurences of freeres().
+SUCCESS mutatee terminated!
