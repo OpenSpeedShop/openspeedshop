@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 The Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -32,9 +32,10 @@ import PY_Input
 # Load the user-specific Python startup file (if it exists)
 ################################################################################
 
-print "Enter site specific processing (site.py)\n\n" 
+#print "Enter site specific processing (site.py)\n\n" 
 
 # Initialization
+print_caution = 0
 dpcld_command = []
 inet_addr_line = []
 config_line = []
@@ -42,8 +43,8 @@ inet_addr = '\0'
 
 # We need to find the myrnet IP address to use for starting the 
 # dpcl daemons on the flash64 BProc system
-os.system('ifconfig >> tempifconfig')
-config_input = open('tempifconfig', 'r')
+os.system('ifconfig >> /tmp/tempifconfig')
+config_input = open('/tmp/tempifconfig', 'r')
 
 while 1:
 	# Read in a line of the ifconfig output saved to the tempifconfig file
@@ -85,10 +86,11 @@ while 1:
 				inet_addr_k = k
 			if success:
 				inet_addr = inet_addr_line[20:i]
-				print "inet_addr=%s\n" % inet_addr
+				#print "inet_addr=%s\n" % inet_addr
 				break
+os.system('rm -rf /tmp/tempifconfig')
 #
-print "DpcldListenerPort=%s\n" % DpcldListenerPort
+#print "DpcldListenerPort=%s\n" % DpcldListenerPort
 #
 # Extract the hostname from the listener port variable
 #
@@ -103,12 +105,12 @@ print "DpcldListenerPort=%s\n" % DpcldListenerPort
 # We know the port number is the last five characters, so extract them
 #
 listener_port = DpcldListenerPort[-5:]
-print "portnumber from DpcldListenerPort=%s\n" % listener_port
+#print "portnumber from DpcldListenerPort=%s\n" % listener_port
 #
 # The dpcld command for the llogin (frontend) node is: dpcld -p host:port
 #
 dpcld_command = 'dpcld -p ' + DpcldListenerPort
-print "dpcld_command=%s\n" % dpcld_command
+#print "dpcld_command=%s\n" % dpcld_command
 os.system(dpcld_command + '&')
 
 # Trying to form a statement of this type/form
@@ -120,8 +122,8 @@ os.system(dpcld_command + '&')
 #
 skip_backend = 0
 backend_nodes_present = 1
-os.system('echo $NODES > nodelist')
-nodelist_input_file = open('nodelist', 'r')
+os.system('echo $NODES > /tmp/nodelist')
+nodelist_input_file = open('/tmp/nodelist', 'r')
 nodelist_line = nodelist_input_file.readline()
 if not nodelist_line:
 	backend_nodes_present = 0
@@ -139,7 +141,7 @@ if backend_nodes_present:
 #	Ok, we should have the node list in nodelist[0,j] now
 #
 	if (skip_backend == 0):
-		print "nodelist_line=%s\n" % nodelist_line[0:j]
+		#print "nodelist_line=%s\n" % nodelist_line[0:j]
 #
 #		Trying to form a statement of this type/form
 #		bpsh 62-63 dpcld -p 141.111.5.182:15002
@@ -151,17 +153,18 @@ if backend_nodes_present:
 #
 		bpsh_command = 'bpsh ' + nodelist_line[0:j] + ' dpcld -p ' + inet_addr[0:inet_addr_k] + ':' + listener_port
 #
-		print "bpsh_command=%s\n" % bpsh_command
+		#print "bpsh_command=%s\n" % bpsh_command
 #
 #		Execute the bpsh command to start the daemons on the backend nodex
 #
 		os.system(bpsh_command + '&')
 	else:
-		print "Cautionary message: No backend nodes were found. So, no dpcl daemons for backend nodes were started.\n" 
+		if (print_caution == 1):
+			print "Cautionary message: No backend nodes were found. So, no dpcl daemons for backend nodes were started.\n" 
 else:
-	print "Cautionary message: No backend nodes were found. So, no dpcl daemons for backend nodes were started.\n" 
+	if (print_caution == 1):
+		print "Cautionary message: No backend nodes were found. So, no dpcl daemons for backend nodes were started.\n" 
+os.system('rm -rf /tmp/nodelist')
 #
-print "Exit site specific processing\n" 
+#print "Exit site specific processing\n" 
 
-if os.environ.has_key("HOME"):
-	print "In os.environ.has_key (HOME) is true: "
