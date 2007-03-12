@@ -931,7 +931,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     qaction->addTo( contextMenu );
     qaction->setText( QString("Query Statements (%1) ...").arg(originalCommand) );
     connect( qaction, SIGNAL( activated() ), this, SLOT( cviewQueryStatements() ) );
-    qaction->setStatusTip( tr("Update this panel with the statemets related to the initial query.") );
+    qaction->setStatusTip( tr("Update this panel with the statements related to the initial query.") );
   }
 
   // Over all the collectors....
@@ -1187,9 +1187,9 @@ if( focusedExpID == -1 )
   contextMenu->insertSeparator();
   qaction = new QAction( this,  "clusterAnalysisSelected");
   qaction->addTo( contextMenu );
-  qaction->setText( "Cluster Analysis..." );
+  qaction->setText( "Group Similar Processes" );
   connect( qaction, SIGNAL( activated() ), this, SLOT( clusterAnalysisSelected() ) );
-  qaction->setStatusTip( tr("Perform cluser analysis on this experiment to show outliers.") );
+  qaction->setStatusTip( tr("Perform analysis on the processes, threads, or ranks of this experiment to group similar processes, threads, or ranks.") );
 }
 
 #endif// CLUSTERANALYSIS
@@ -6291,11 +6291,12 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
   HighlightObject *hlo = NULL;
 
 nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n", filename.ascii(), lineNumberStr.ascii() );
-// printf("lfhA: expID=%d focusedExpID=%d\n", expID, focusedExpID );
-
-// printf("currentMetricStr=%s\n", currentMetricStr.ascii() );
-// printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
-// printf("currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("lfhA: expID=%d focusedExpID=%d\n", expID, focusedExpID );
+ printf("currentMetricStr=%s\n", currentMetricStr.ascii() );
+ printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+ printf("currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
+#endif
 
   QString command = QString::null;
 
@@ -6309,7 +6310,9 @@ nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n
   {
     fn =  filename.right((filename.length()-basename_index)-1);
   }
-// printf("file BaseName=(%s)\n", fn.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("file BaseName=(%s)\n", fn.ascii() );
+#endif
 
   if( currentMetricStr.isEmpty() )
   {
@@ -6317,7 +6320,9 @@ nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n
     {
       return(spo);
     }
-// printf("lfhB: expID=%d focusedExpID=%d\n", expID, focusedExpID );
+#ifdef DEBUG_StatsPanel
+ printf("lfhB: expID=%d focusedExpID=%d\n", expID, focusedExpID );
+#endif
     if( expID > 0 )
     {
 // Trace experiments do not have Statements metrics! why?
@@ -6356,7 +6361,9 @@ nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n
   {
     command += QString(" %1").arg(currentThreadsStr);
   }
-// printf("command=(%s)\n", command.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("command=(%s)\n", command.ascii() );
+#endif
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   InputLineObject *clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
