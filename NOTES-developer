@@ -1,0 +1,20 @@
+
+Here are commands to help in examining the 
+openspeedshop database file with sqlite:
+
+sqlite3  name of openss data file
+sqlite3 prompt:  .schema   (shows layout of database)
+
+select name from functions;   (shows all function symbols)
+select count(*) from data;    (should be > 0 for valid data)
+select path from files;       (shows all files in database)
+select pid from threads;
+select mpi_rank from threads;
+select posix_tid from threads;
+select host from threads;
+select command from threads;
+
+an so on an so forth...
+
+
+
