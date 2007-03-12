@@ -1615,7 +1615,7 @@ CustomExperimentPanel::loadMain()
 {
   nprintf( DEBUG_PANELS ) ("loadMain() entered\n");
 #ifdef DEBUG_CustomPanel
-  printf("loadMain() entered\n");
+  printf("CustomExperimentPanel::loadMain() entered\n");
 #endif
 
   if( experiment != NULL )
@@ -1632,9 +1632,17 @@ CustomExperimentPanel::loadMain()
     Thread thread = *ti;
     const std::string main_string = std::string("main");
     std::pair<bool, Function> function = thread.getFunctionByName(main_string);
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::loadMain, looking for main function in thread, function.first=%d \n", function.first );
+#endif
     if( function.first )
     {
       std::set<Statement> statement_definition = function.second.getDefinitions();
+
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::loadMain, looking for main function in thread, function.second.getName().c_str()=%s \n", function.second.getName().c_str());
+    printf("CustomExperimentPanel::loadMain, statement_definition.size()=%d, main_string.c_str()=%s\n", statement_definition.size(), main_string.c_str()  );
+#endif
 
       if(statement_definition.size() > 0 )
       {
@@ -1643,14 +1651,14 @@ CustomExperimentPanel::loadMain()
   
         QString name = QString("Source Panel [%1]").arg(expID);
 #ifdef DEBUG_CustomPanel
-        printf("TRY TO FIND A SOURCE PANEL!!!  (loadMain() \n");
+        printf("CustomExperimentPanel::loadMain, TRY TO FIND A SOURCE PANEL!!!  (loadMain(),  (char *)name.ascii() =%s \n",  (char *)name.ascii() );
 #endif
         Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
         if( !sourcePanel )
         {
           char *panel_type = "Source Panel";
 #ifdef DEBUG_CustomPanel
-          printf("CustomExperimentPanel:A: create a source panel.\n");
+          printf("CustomExperimentPanel:loadMain, A: create a source panel.\n");
 #endif
           //Find the nearest toplevel and start placement from there...
           PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
