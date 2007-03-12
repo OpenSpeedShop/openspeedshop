@@ -635,14 +635,14 @@ if( msg->descriptionClassList.count() > 0 ) {
     printf("StatsPanel::listener call updateStatsPanelData  Do we need to update?\n");
 #endif // DEBUG_StatsPanel
 
-    updateStatsPanelData();
+    updateStatsPanelData(false);
     if( msg->raiseFLAG == TRUE ) {
       getPanelContainer()->raisePanel(this);
     }
 // now focus a source file that's listening....
 
 #ifdef DEBUG_StatsPanel
-   printf("Now focus the source panel, if it's up..\n");
+   printf("StatsPanel::listener, Now focus the source panel, if it's up..\n");
 #endif // DEBUG_StatsPanel
 
     //First get the first item...
@@ -656,13 +656,13 @@ if( msg->descriptionClassList.count() > 0 ) {
       item && matchSelectedItem( item, std::string(item->text(fieldCount-1).ascii()) )) {
 
 #ifdef DEBUG_StatsPanel
-         printf("match\n");
+         printf("StatsPanel::listener, match\n");
 #endif // DEBUG_StatsPanel
 
         return 1;
     } else {
 #ifdef DEBUG_StatsPanel
-        printf("no match\n");
+        printf("StatsPanel::listener, no match\n");
 #endif // DEBUG_StatsPanel
         return 0;
     }
@@ -686,7 +686,7 @@ if( msg->descriptionClassList.count() > 0 ) {
       expID = msg->expID;
 
 #ifdef DEBUG_StatsPanel
-   printf("C: expID = %d\n", expID);
+   printf("StatsPanel::listener, C: expID = %d\n", expID);
 #endif // DEBUG_StatsPanel
 
     }
@@ -697,7 +697,7 @@ if( msg->descriptionClassList.count() > 0 ) {
    printf("StatsPanel::listener() call updatestastPanelData(%s)\n", msg->compare_command.ascii() );
 #endif // DEBUG_StatsPanel
 
-      updateStatsPanelData(msg->compare_command);
+      updateStatsPanelData(false, msg->compare_command);
 
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::listener() called \n");
@@ -737,14 +737,14 @@ if( msg->descriptionClassList.count() > 0 ) {
 #endif // DEBUG_StatsPanel
 
       QString command = msg->experiment_name;
-      updateStatsPanelData(command);
+      updateStatsPanelData(false, command);
 
 //Hack - NOTE: You may have to snag the expID out of the command.
 #ifdef OLDWAY
 expID = groupID;
 
 #ifdef DEBUG_StatsPanel
-    printf("D: expID = %d\n", expID);
+    printf("StatsPanel::listener, D: expID = %d\n", expID);
 #endif // DEBUG_StatsPanel
 updateCollectorList();
 #else // OLDWAY
@@ -832,7 +832,7 @@ if( start_index != -1 )
     printf("StatsPanel::listener, Call updateStatsPanelData() \n");
 #endif // DEBUG_StatsPanel
 
-    updateStatsPanelData();
+    updateStatsPanelData(false);
 
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::listener, msg->raiseFLAG =%d \n", msg->raiseFLAG );
@@ -848,7 +848,7 @@ if( start_index != -1 )
   } else if( msgObject->msgType == "PreferencesChangedObject" ) {
 
 #ifdef DEBUG_StatsPanel
-    printf("Call (make this one smarter) updateStatsPanelData() \n");
+    printf("StatsPanel::listener, Call (make this one smarter) updateStatsPanelData() \n");
 #endif // DEBUG_StatsPanel
 
     if( getPreferenceShowToolbarCheckBox() == TRUE ) {
@@ -862,7 +862,7 @@ if( start_index != -1 )
     } else {
       cf->setChartType((ChartType)getChartTypeComboBox());
     }
-    updateStatsPanelData();
+    updateStatsPanelData(true);
    // ---------------------------- 
    // ---------------------------- SAVE-AS-OBJECT
    // ----------------------------
@@ -891,13 +891,18 @@ bool
 StatsPanel::menu( QPopupMenu* contextMenu)
 {
 
-// printf("StatsPanel::menu() entered.\n");
-// printf("  focusedExpID=%d\n", focusedExpID );
+
+#ifdef DEBUG_StatsPanel
+ printf("StatsPanel::menu() entered.\n");
+ printf("StatsPanel::menu(),  focusedExpID=%d\n", focusedExpID );
+#endif
 
   Panel::menu(contextMenu);
 
-// printf("B: currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
-// printf("B: currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
+#ifdef DEBUG_StatsPanel
+ printf("StatsPanel::menu, B: currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
+ printf("StatsPanel::menu, B: currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
+#endif
 
 
   popupMenu = contextMenu; // So we can look up the text easily later.
@@ -918,7 +923,9 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-// printf("expID=(%d) focusedExpID=(%d)\n", expID, focusedExpID );
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::menu, expID=(%d) focusedExpID=(%d)\n", expID, focusedExpID );
+#endif
   if( focusedExpID > 0 )
   {
     qaction = new QAction( this,  "_originalQuery");
@@ -953,10 +960,14 @@ connect( qaction, SIGNAL( activated() ), this, SLOT(timeSliceSelected()) );
       it != list_of_collectors.end(); it++ )
   {
      std::string collector_name = (std::string)*it;
-// printf("collector_name = (%s)\n", collector_name.c_str() );
+#ifdef DEBUG_StatsPanel
+    printf("collector_name = (%s)\n", collector_name.c_str() );
+#endif
     if( QString(collector_name).startsWith("mpi") )
     {
-// printf("Generate an mpi* menu\n");
+#ifdef DEBUG_StatsPanel
+    printf("Generate an mpi* menu\n");
+#endif
       generateMPIMenu(QString(collector_name));
     } else if( QString(collector_name).startsWith("io") )
     {
@@ -1297,7 +1308,7 @@ StatsPanel::clusterAnalysisSelected()
   command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg(timeIntervalString);
 // printf("run %s\n", command.ascii() );
 
-  updateStatsPanelData(command);
+  updateStatsPanelData(false, command);
 }
 
 void
@@ -1594,7 +1605,7 @@ StatsPanel::updatePanel()
 {
 // printf("updatePanel() about to call updateStatsPanelData()\n");
 
-  updateStatsPanelData(lastCommand);
+  updateStatsPanelData(false, lastCommand);
 }
 
 void
@@ -1602,7 +1613,7 @@ StatsPanel::originalQuery()
 {
 // printf("updatePanel() about to call originalQuery()\n");
 
-  updateStatsPanelData(originalCommand);
+  updateStatsPanelData(false, originalCommand);
 }
 
 void
@@ -1612,7 +1623,7 @@ StatsPanel::cviewQueryStatements()
   printf("updatePanel() about to call cviewQueryStatements(%s)\n", QString(originalCommand + " -v Statements").ascii() );
 #endif
 
-  updateStatsPanelData(originalCommand + " -v Statements");
+  updateStatsPanelData(false, originalCommand + " -v Statements");
 }
 
 #include "CustomExperimentPanel.hxx"
@@ -1974,7 +1985,7 @@ StatsPanel::returnPressed(QListViewItem *item)
 {
   if( lastCommand.contains("Butterfly") )
   {
-    updateStatsPanelData();
+    updateStatsPanelData(false );
   } else
   {
     itemSelected( item );
@@ -1988,6 +1999,9 @@ StatsPanel::itemSelected(QListViewItem *item)
 
   if( item )
   {
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::itemSelected(QListViewItem *) item=%s\n", item->text(fieldCount-1).ascii() );
+#endif
     matchSelectedItem( item, std::string(item->text(fieldCount-1).ascii()) );
   }
 }
@@ -1998,7 +2012,7 @@ void
 StatsPanel::doOption(int id)
 {
 #ifdef DEBUG_StatsPanel
- printf("doOption() id=%d\n", id);
+ printf("StatsPanel::doOption() id=%d\n", id);
 #endif
 
   if( splv->columnWidth(id) )
@@ -2025,8 +2039,9 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   SPListViewItem *spitem = (SPListViewItem *)item;
 
 #ifdef DEBUG_StatsPanel
-  printf("A: currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
-  printf("A: currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
+  printf("StatsPanel::matchSelectedItem, matchSelectedItem() entered. sf=%s\n", sf.c_str() );
+  printf("StatsPanel::matchSelectedItem, A: currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
+  printf("StatsPanel::matchSelectedItem, A: currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
 #endif
 
   QString lineNumberStr = "-1";
@@ -2035,9 +2050,9 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   QString ssf = QString(sf).stripWhiteSpace();
 
 #ifdef DEBUG_StatsPanel
-  printf("spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
-  printf("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
-  printf("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
+  printf("StatsPanel::matchSelectedItem, spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
+  printf("StatsPanel::matchSelectedItem, spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
+  printf("StatsPanel::matchSelectedItem, spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
 #endif
   nprintf( DEBUG_PANELS) ("spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
   nprintf( DEBUG_PANELS) ("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
@@ -2054,7 +2069,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   QApplication::setOverrideCursor(QCursor::WaitCursor);
 
 #ifdef DEBUG_StatsPanel
-  printf("LOOK UP FILE HIGHLIGHTS THE NEW WAY!\n");
+  printf("StatsPanel::matchSelectedItem, LOOK UP FILE HIGHLIGHTS THE NEW WAY!\n");
 #endif
 
   spo = lookUpFileHighlights(filename, lineNumberStr, highlightList);
@@ -2093,7 +2108,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
       {
        sourcePanel->listener((void *)spo);
 #ifdef DEBUG_StatsPanel
-       printf("Returned from sending of spo!\n");
+       printf("StatsPanel::matchSelectedItem, Returned from sending of spo, via sourcePanel->listener!\n");
 #endif
       }
   }
@@ -2103,7 +2118,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 
 
 void
-StatsPanel::updateStatsPanelData(QString command)
+StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 {
 #ifdef DEBUG_StatsPanel
  printf("StatsPanel::updateStatsPanelData() entered.\n");
@@ -2209,7 +2224,7 @@ StatsPanel::updateStatsPanelData(QString command)
   }
 
 
-  if( staticDataFLAG == TRUE && command == lastCommand )
+  if( staticDataFLAG == TRUE && command == lastCommand && !processing_preference )
   {  // Then we really don't need to update.
 #ifdef DEBUG_StatsPanel
     printf("updateStatsPanelData,We really have static data and its the same command... Don't update.\n");
@@ -2567,7 +2582,7 @@ if( currentThreadStrENUM == RANK )
 #endif
 
 
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
 
   // Now, try to focus the source panel on the first entry...
@@ -2620,7 +2635,7 @@ StatsPanel::collectorMetricSelected(int val)
 #ifdef DEBUG_StatsPanel
     printf("Collector changed call updateStatsPanelData() \n");
 #endif
-    updateStatsPanelData();
+    updateStatsPanelData(false);
   }
 }
 
@@ -2693,7 +2708,7 @@ StatsPanel::MPIReportSelected(int val)
  printf("Collector changed call updateStatsPanelData() \n");
 #endif
   }
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 }
 
 void
@@ -2759,7 +2774,7 @@ StatsPanel::IOReportSelected(int val)
     printf("currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
     printf("Collector changed call updateStatsPanelData() \n");
 #endif
-    updateStatsPanelData();
+    updateStatsPanelData(false);
   }
 }
 
@@ -2828,7 +2843,7 @@ StatsPanel::HWCReportSelected(int val)
     printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
     printf("Collector changed call updateStatsPanelData() \n");
 #endif
-    updateStatsPanelData();
+    updateStatsPanelData(false);
   }
 }
 
@@ -2883,7 +2898,7 @@ StatsPanel::HWCTimeReportSelected(int val)
     printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
     printf("Collector changed call updateStatsPanelData() \n");
 #endif
-    updateStatsPanelData();
+    updateStatsPanelData(false);
   }
 }
 
@@ -2941,7 +2956,7 @@ StatsPanel::collectorUserTimeReportSelected(int val)
   printf("Collector changed call updateStatsPanelData() \n");
 #endif
   }
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
 }
 
@@ -2998,7 +3013,7 @@ StatsPanel::collectorPCSampReportSelected(int val)
   printf("Collector changed call updateStatsPanelData() \n");
 #endif
   }
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
 }
 
@@ -3056,7 +3071,7 @@ StatsPanel::collectorFPEReportSelected(int val)
   printf("Collector changed call updateStatsPanelData() \n");
 #endif
   }
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
 
 }
@@ -3080,7 +3095,7 @@ StatsPanel::collectorGenericReportSelected(int val)
   printf("C: NULLING OUT selectedFunctionStr\n");
   printf("Collector changed call updateStatsPanelData() \n");
 #endif
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 }
 
 
@@ -4263,7 +4278,7 @@ void
 StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineNumber)
 {
 #ifdef DEBUG_StatsPanel
-   printf("StatsPanel::outputCLIData\n");
+   printf("StatsPanel::outputCLIData, xxxfuncName.ascii()=%s, xxxfileName.ascii()=%s\n", xxxfuncName.ascii(), xxxfileName.ascii());
 #endif
   int i = 0;
 
@@ -4360,7 +4375,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
 
   SPListViewItem *splvi;
 #ifdef DEBUG_StatsPanel
-  printf("ATTEMPT TO PUT OUT DATA, More Function currentCollectorStr=%s, MPItraceFLAG=(%d)\n", currentCollectorStr.ascii(), MPItraceFLAG);
+  printf("StatsPanel::outputCLIData, ATTEMPT TO PUT OUT DATA, More Function currentCollectorStr=%s, MPItraceFLAG=(%d)\n", currentCollectorStr.ascii(), MPItraceFLAG);
 #endif
 
   if( (( currentCollectorStr == "mpi" || 
@@ -4420,7 +4435,10 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
           lastlvi = topParent;
           topParent = (SPListViewItem *)topParent->parent();
         }
-// printf("Put after (%s) \n", lastlvi->text(fieldCount-1).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::outputCLIData, Put after (%s) \n", lastlvi->text(fieldCount-1).ascii() );
+  printf("StatsPanel::outputCLIData, xxxfileName.ascii()=%s, xxxfuncName.ascii()=%s\n", xxxfileName.ascii(), xxxfuncName.ascii());
+#endif
       }
       lastlvi = splvi =  MYListViewItem( this, xxxfuncName, xxxfileName, xxxlineNumber, splv, lastlvi, strings);
       if( highlight_line )
@@ -6542,7 +6560,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
     if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES)
     {
 #ifdef DEBUG_StatsPanel
- printf("Here CMD_RESULT_COLUMN_VALUES:\n");
+ printf("StatsPanel::process_clip, Here CMD_RESULT_COLUMN_VALUES:\n");
 #endif
       std::list<CommandResult *> columns;
       CommandResult_Columns *ccp = (CommandResult_Columns *)*cri;
@@ -6640,6 +6658,11 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
                   cerr << "xxxfileName=" << xxxfileName << "\n";
                   cerr << "xxxlineNumber=" << xxxlineNumber << "\n";
                 }
+#ifdef DEBUG_StatsPanel
+                cerr << "xxxfuncName=" << xxxfuncName << "\n";
+                cerr << "xxxfileName=" << xxxfileName << "\n";
+                cerr << "xxxlineNumber=" << xxxlineNumber << "\n";
+#endif
               }
 
               
@@ -6702,12 +6725,18 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
 
               std::string S = ((CommandResult_Function *)CE)->getName();
               xxxfuncName = S.c_str();
-              if( dumpClipFLAG) cerr << "    S=" << S << "\n";
+              if( dumpClipFLAG) cerr << "((CommandResult_Function *)CE)->getName() == S=" << S << "\n";
+
 //            LinkedObject L = ((CommandResult_Function *)CE)->getLinkedObject(); 
 //            if( dumpClipFLAG) cerr << "    L.getPath()=" << L.getPath() << "\n";
 
-              std::set<Statement> T = ((CommandResult_Function *)CE)->getDefinitions();
+#ifdef DEBUG_StatsPanel
+              LinkedObject L = ((CommandResult_Function *)CE)->getLinkedObject(); 
+              if( dumpClipFLAG) cerr << "    L.getPath()=" << L.getPath() << "\n";
+#endif
+
 #if 0
+              std::set<Statement> T = ((CommandResult_Function *)CE)->getDefinitions();
               if( T.size() > 0 )
               {
                 std::set<Statement>::const_iterator ti = T.begin();
@@ -6727,8 +6756,15 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
 	      // IMPORTANT: This will focus on the actual linenumber that
 	      // corresponds to the address within the function!
 	      // Overrides xxxlineNumber computed above.
-              std::set<Statement> TT;
-	      ((CommandResult_Function *)CE)->Value(TT);
+              std::set<Statement> TT; 
+              ((CommandResult_Function *)CE)->Value(TT);
+
+#ifdef DEBUG_StatsPanel
+              printf("StatsPanel::process_clip, FUNCTION: TT.begin() != TT.end()=%d, (TT.size() > 0)=%d\n",
+                     (TT.begin() != TT.end()), (TT.size() > 0));
+#endif
+
+
 	      if (TT.begin() != TT.end() || TT.size() > 0) {
           	std::set<Statement>::const_iterator sti = TT.begin();;
           	Statement S = *sti;
@@ -6737,37 +6773,37 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
                 xxxfileName = QString( S.getPath().c_str() );
                 xxxlineNumber = S.getLine();
 #ifdef DEBUG_StatsPanel
-		printf("FUNCTION: lineNumber via getValue is %d, fileName is %s\n",xxxlineNumber, xxxfileName.ascii());
+		printf("StatsPanel::process_clip, FUNCTION: lineNumber via getValue is %d, fileName is %s\n",xxxlineNumber, xxxfileName.ascii());
 #endif
-		nprintf(DEBUG_CLIPS) ("FUNCTION: lineNumber via getValue is %d, fileName is %s\n",xxxlineNumber, xxxfileName.ascii());
+		nprintf(DEBUG_CLIPS) ("StatsPanel::process_clip, FUNCTION: lineNumber via getValue is %d, fileName is %s\n",xxxlineNumber, xxxfileName.ascii());
               } else {
 #ifdef DEBUG_StatsPanel
-		printf("FUNCTION: TT.begin == TT.end!, no statement info. reset xxxfileName and xxxlineNumber\n");
+		printf("StatsPanel::process_clip, FUNCTION: TT.begin == TT.end!, no statement info. reset xxxfileName and xxxlineNumber\n");
 #endif
-		nprintf(DEBUG_CLIPS) ("FUNCTION: TT.begin == TT.end!, no statement info. reset xxxfileName and xxxlineNumber\n");
+		nprintf(DEBUG_CLIPS) ("StatsPanel::process_clip, FUNCTION: TT.begin == TT.end!, no statement info. reset xxxfileName and xxxlineNumber\n");
 		xxxfileName = QString::null;
 		xxxlineNumber = -1;
 	      }
 
 #ifdef DEBUG_StatsPanel
-	      printf("FUNCTION: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
+	      printf("StatsPanel::process_clip, FUNCTION: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
 #endif
-	      nprintf(DEBUG_CLIPS) ("FUNCTION: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
+	      nprintf(DEBUG_CLIPS) ("StatsPanel::process_clip, FUNCTION: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
 
             } else if( CE->Type() == CMD_RESULT_STATEMENT )
             {
 #ifdef DEBUG_StatsPanel
-	      printf("  CMD_RESULT_STATEMENT: sz=%d, function=%s\n",sz,CE->Form().c_str());
+	      printf("StatsPanel::process_clip,   CMD_RESULT_STATEMENT: sz=%d, function=%s\n",sz,CE->Form().c_str());
 #endif
-	      nprintf(DEBUG_CLIPS) ("  CMD_RESULT_STATEMENT: sz=%d, function=%s\n",sz,CE->Form().c_str());
+	      nprintf(DEBUG_CLIPS) ("StatsPanel::process_clip,   CMD_RESULT_STATEMENT: sz=%d, function=%s\n",sz,CE->Form().c_str());
 
               CommandResult_Statement *T = (CommandResult_Statement *)CE;
               Statement s = (Statement)*T;
 
 #ifdef DEBUG_StatsPanel
-	      printf("STATEMENT: s.getPath()=%s, s.getLine()=%d\n",s.getPath().c_str(),(int64_t)s.getLine());
+	      printf("StatsPanel::process_clip, STATEMENT: s.getPath()=%s, s.getLine()=%d\n",s.getPath().c_str(),(int64_t)s.getLine());
 #endif
-	      nprintf(DEBUG_CLIPS) ("STATEMENT: s.getPath()=%s, s.getLine()=%d\n",s.getPath().c_str(),(int64_t)s.getLine());
+	      nprintf(DEBUG_CLIPS) ("StatsPanel::process_clip, STATEMENT: s.getPath()=%s, s.getLine()=%d\n",s.getPath().c_str(),(int64_t)s.getLine());
 
               xxxfuncName = CE->Form().c_str();
               xxxfileName = QString( s.getPath().c_str() );
@@ -6775,9 +6811,9 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
               xxxlineNumber = s.getLine();
 
 #ifdef DEBUG_StatsPanel
-	      printf("STATEMENT: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
+	      printf("StatsPanel::process_clip, STATEMENT: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
 #endif
-	      nprintf(DEBUG_CLIPS) ("STATEMENT: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
+	      nprintf(DEBUG_CLIPS) ("StatsPanel::process_clip, STATEMENT: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
 
               if( highlightList )
               {
@@ -6793,9 +6829,9 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
             {
               if( dumpClipFLAG ) cerr << "How do I handle this type? CE->Type() " << CE->Type() << "\n";
 #ifdef DEBUG_StatsPanel
-	       printf("CALLTRACE: How do I handle this type? %d\n", CE->Type());
+	       printf("StatsPanel::process_clip, CALLTRACE: How do I handle this type? %d\n", CE->Type());
 #endif
-	       nprintf(DEBUG_CLIPS) ("CALLTRACE: How do I handle this type? %d\n", CE->Type());
+	       nprintf(DEBUG_CLIPS) ("StatsPanel::process_clip, CALLTRACE: How do I handle this type? %d\n", CE->Type());
             }
           }
           break;
@@ -6832,7 +6868,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
     } else if ((*cri)->Type() == CMD_RESULT_STRING)
     {  // This looks to be a message we should display
 #ifdef DEBUG_StatsPanel
-  printf("Here CMD_RESULT_STRING:\n");
+  printf("StatsPanel::process_clip, Here CMD_RESULT_STRING:\n");
 #endif
       QString s = QString((*cri)->Form().c_str());
         
@@ -6842,7 +6878,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
     } else if( (*cri)->Type() == CMD_RESULT_COLUMN_HEADER )
     {
 #ifdef DEBUG_StatsPanel
- printf("Here CMD_RESULT_COLUMN_HEADER:\n");
+ printf("StatsPanel::process_clip, Here CMD_RESULT_COLUMN_HEADER:\n");
 #endif
       std::list<CommandResult *> columns;
       CommandResult_Columns *ccp = (CommandResult_Columns *)*cri;
@@ -6862,13 +6898,13 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
     } else
     {
 #ifdef DEBUG_StatsPanel
-      printf("Here OTHER:\n");
+      printf("StatsPanel::process_clip, Here OTHER:\n");
 #endif
     }
     /* You have found the next row!! */
     // Here's a formatted row
 #ifdef DEBUG_StatsPanel
-      printf("Here you have found the next row - here is the formatted row:\n");
+      printf("StatsPanel::process_clip, Here you have found the next row - here is the formatted row:\n");
 #endif
     if( dumpClipFLAG) cerr << (*cri)->Form().c_str() << "\n";
 
@@ -6879,7 +6915,8 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
     {
       QString s = QString((*cri)->Form().c_str());
 #ifdef DEBUG_StatsPanel
-      printf("printing the QString s as output %s\n", s.ascii() );
+      printf("StatsPanel::process_clip, printing the QString s as output %s\n", s.ascii() );
+      printf("StatsPanel::process_clip, calling outputCLIData, xxxfileName.ascii()=%s,printing the QString s as output %s\n", xxxfileName.ascii(), s.ascii() );
 #endif
       outputCLIData( xxxfuncName, xxxfileName, xxxlineNumber );
     }
@@ -6893,7 +6930,7 @@ void
 StatsPanel::progressUpdate()
 {
 #ifdef DEBUG_StatsPanel
-//  printf("progressUpdate() entered\n");
+  printf("StatsPanel::progressUpdate, progressUpdate() entered\n");
 #endif
   pd->qs->setValue( steps );
   if( step_forward )
@@ -7143,10 +7180,13 @@ if( start_index == -1 )
     if( currentMetricStr.isEmpty() )
     {
       currentMetricStr = metricStr;
-// printf("currentMetricStr set to %s\n", currentMetricStr.ascii() );
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::analyzeTheCView, currentMetricStr set to %s\n", currentMetricStr.ascii() );
+      printf("StatsPanel::analyzeTheCView, new CInfoClass:cid=%d collectorStr=(%s) expID=(%d) host_pid_names=(%s) metricStr=(%s)\n",
+             cid, collectorStr.ascii(), expID, host_pid_names.ascii(), metricStr.ascii() );
+#endif
     }
 
-// printf("new CInfoClass: cid=%d collectorStr=(%s) expID=(%d) host_pid_names=(%s) metricStr=(%s)\n", cid, collectorStr.ascii(), expID, host_pid_names.ascii(), metricStr.ascii() );
 
     CInfoClass *cic = new CInfoClass( cid, collectorStr, expID, host_pid_names, metricStr );
     cInfoClassList.push_back( cic );
@@ -7178,6 +7218,9 @@ if(commaIndex != -1 )
         if( cic->cid == cid )
         {
           experimentGroupList.push_back( QString("Experiment: %1").arg(cic->expID) );
+#ifdef DEBUG_StatsPanel
+          printf("StatsPanel::analyzeTheCView, cic->expId=%d, focusedExpID=%d\n", cic->expID, focusedExpID );
+#endif
           if( focusedExpID == -1 )
           {
             focusedExpID = cic->expID;
@@ -7204,7 +7247,9 @@ if(commaIndex != -1 )
     updateCollectorList();
   }
 
-// printf(" focusedExpID=%d\n", focusedExpID );
+#ifdef DEBUG_StatsPanel
+ printf("Exit StatsPanel::analyzeTheCView, focusedExpID=%d\n", focusedExpID );
+#endif
 }
 
 bool
@@ -7363,7 +7408,7 @@ StatsPanel::functionsSelected()
  printf("StatsP-functionsSelected(), calling updateStatsPanelData\n" );
 #endif
 
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
   toolbar_status_label->setText("Showing Functions Report:");
 }
@@ -7383,7 +7428,7 @@ StatsPanel::linkedObjectsSelected()
 #ifdef DEBUG_StatsPanel
  printf("StatsP-linkedObjectsSelected(), calling updateStatsPanelData\n" );
 #endif
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
   toolbar_status_label->setText("Showing Linked Objects Report:");
 }
@@ -7405,7 +7450,7 @@ StatsPanel::statementsSelected()
  printf("StatsP-statementsSelected(), calling updateStatsPanelData\n" );
 #endif
 
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
   toolbar_status_label->setText("Showing Statements Report:");
 }
@@ -7422,7 +7467,7 @@ StatsPanel::statementsByFunctionSelected()
 
   toolbar_status_label->setText("Generating Statements by Function Report...");
 
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
   toolbar_status_label->setText("Showing Statements by Function Report:");
 }
@@ -7439,7 +7484,7 @@ StatsPanel::calltreesSelected()
 
   toolbar_status_label->setText("Generating CallTrees Report...");
 
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
   toolbar_status_label->setText("Showing CallTrees Report:");
 }
@@ -7456,7 +7501,7 @@ StatsPanel::calltreesByFunctionSelected()
 
   toolbar_status_label->setText("Generating CallTrees by Function Report...");
 
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
   toolbar_status_label->setText("Showing CallTrees by Function Report:");
 }
@@ -7473,7 +7518,7 @@ StatsPanel::calltreesFullStackSelected()
 
   toolbar_status_label->setText("Generating CallTrees,FullStack Report...");
 
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
   toolbar_status_label->setText("Showing CallTrees,FullStack Report:");
 }
@@ -7490,7 +7535,7 @@ StatsPanel::calltreesFullStackByFunctionSelected()
 
   toolbar_status_label->setText("Generating CallTrees,FullStack by Function Report...");
 
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
   toolbar_status_label->setText("Showing CallTrees,FullStack by Function Report:");
 }
@@ -7507,7 +7552,7 @@ StatsPanel::tracebacksSelected()
 
   toolbar_status_label->setText("Generating TraceBacks Report...");
 
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
   toolbar_status_label->setText("Showing TraceBacks Report:");
 }
@@ -7524,7 +7569,7 @@ StatsPanel::tracebacksByFunctionSelected()
 
   toolbar_status_label->setText("Generating TraceBacks by Function Report...");
 
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
   toolbar_status_label->setText("Showing TraceBacks by Function Report:");
 }
@@ -7540,7 +7585,7 @@ StatsPanel::tracebacksFullStackSelected()
 
   toolbar_status_label->setText("Generating TraceBacks,FullStack Report...");
 
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
   toolbar_status_label->setText("Showing TraceBacks,FullStack Report:");
 }
@@ -7556,7 +7601,7 @@ StatsPanel::tracebacksFullStackByFunctionSelected()
 
   toolbar_status_label->setText("Generating TraceBacks,FullStack by Function Report...");
 
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
   toolbar_status_label->setText("Showing TraceBacks,FullStack by Function Report:");
 }
@@ -7572,7 +7617,7 @@ StatsPanel::butterflySelected()
 
   toolbar_status_label->setText("Generating Butterfly Report:");
 
-  updateStatsPanelData();
+  updateStatsPanelData(false);
 
   toolbar_status_label->setText("Showing Butterfly Report:");
 }
