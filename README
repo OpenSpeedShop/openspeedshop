@@ -30,10 +30,10 @@ point.  They are provided in RPM and SRPM form.
 
 There are two ways to access the OpenSpeedShop  and OpenSpeedShop_ROOT code.
 
-    * SGI Releases
-      SGI provides a more stable release than the nightly cvs source 
+    * sourceforge releases
+      sourceforge provides a more stable release than the nightly cvs source 
       tree.  These release(s) can be found in the download area
-      on oss.sgi.com/openspeedshop
+      on http://www.openspeedshop.org/.
 
     * CVS trees
       Direct CVS access to the most recent OpenSpeedShop changes. See below.
@@ -44,16 +44,16 @@ CVS for new users contains links to general CVS documentation.
 
 Set the CVSROOT environment variable.
 
-$ export CVSROOT=':pserver:cvs@oss.sgi.com:/oss/CVS_OpenSpeedShop'
+$ export CVSROOT=':pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss'
 (for sh, bash, ksh, or similar shells)
-$ setenv CVSROOT  :pserver:cvs@oss.sgi.com:/oss/CVS_OpenSpeedShop
+$ setenv CVSROOT  :pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss
 (for csh or tcsh shells)
  
 
 Login to the CVS server (this only needs to be done ONCE, not every time you access CVS).
 
 $ cvs login
-(the password is "cvs")
+(there is no password, just hit enter)
  
 
 Now grab the OpenSpeedShop and OpenSpeedShop_ROOT source trees: 
