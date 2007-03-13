@@ -670,6 +670,12 @@ ThreadGroup Experiment::createProcess(
 	    // Attach to the entire MPI job
 	    threads = attachMPIJob(thread.getProcessId(), thread.getHost());
 
+            for(ThreadGroup::const_iterator
+		    i = threads.begin(); i != threads.end(); ++i) {
+                Instrumentor::setGlobal(*i,"MPIR_debug_gate",1);
+            }
+
+
 	}
 
     }
