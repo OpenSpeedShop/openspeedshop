@@ -1,0 +1,63 @@
+#
+# To build or rebuild sweep3d
+#
+#
+#     Need to have modules for lampi/1.5.16 and pgi/6.1-3 loaded
+#
+      module avail
+      module load pgi/6.1-3
+      module load lampi/1.5.16
+#
+#     Use the makefile to recompile and link
+#
+      make clean
+      make mpi
+#
+
+# Need to be on backend nodes
+#
+llogin -n 16 -q flash64q
+#
+
+
+
+# How are we running openss
+
+# If non-xinetd, mak sure DPCLSD is not set
+unsetenv DPCLSD
+
+# and that you manually launch the dpcld daemons based on what
+# openss gives as output when you type "DpcldListenerPort"
+# For example if the output is flashd.lanl.gov:15002
+# This is what the commands to launch the daemons would look like
+#
+dpcld -p flashd.lanl.gov:15002 &
+bpsh 2-4,6 dpcld -p 141.111.7.246:15002 &
+
+# The 141.111.7.246 is the myrinet IP address for flashd.  On BProc systems this is the
+# address to use for launching the dpcld daemons on the backend nodes.
+# flashb and flashc have a different myrinet IP address to use.  See the examples below
+# and use the appropriate myrinet IP address.
+
+
+# Helpful aliases for reference.   
+
+alias startdaemons15001b  "bpsh 0-7 dpcld -p 141.111.4.246:15001 &;dpcld -p flashb.lanl.gov:15001"
+alias startdaemons15002b  "bpsh 0-7 dpcld -p 141.111.4.246:15002 &;dpcld -p flashb.lanl.gov:15002"
+alias startdaemons15005b  "bpsh 0-7 dpcld -p 141.111.4.246:15005 &;dpcld -p flashb.lanl.gov:15005"
+
+
+alias startdaemons15001c  "bpsh 1,34-39,41 dpcld -p 141.111.6.246:15001 &;dpcld -p flashc.lanl.gov:15001"
+alias startdaemons15002c  "bpsh 1,34-39,41 dpcld -p 141.111.6.246:15002 &;dpcld -p flashc.lanl.gov:15002"
+
+
+alias startdaemons15001d  "bpsh 0-7 dpcld -p 141.111.7.246:15001 &;dpcld -p flashd.lanl.gov:15001"
+alias startdaemons15002d  "bpsh 0-7 dpcld -p 141.111.7.246:15002 &;dpcld -p flashd.lanl.gov:15002"
+
+
+alias loadmod           "module load pgi/6.1-3 lampi/1.5.16"
+alias loadmodold        "module load pgi/6.0-4 lampi/1.5.13"
+alias unloadmod         "module unload pgi/6.1-3 lampi/1.5.16"
+alias unloadmodold      "module unload pgi/6.0-4 lampi/1.5.13"
+
+
