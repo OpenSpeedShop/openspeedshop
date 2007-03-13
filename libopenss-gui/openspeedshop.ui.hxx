@@ -1139,15 +1139,15 @@ void OpenSpeedshop::loadNewProgram()
         return;
       }
       executableName = fileName;
-      if( lfd->lineedit->text().isEmpty() )
-      {
+      if( lfd->lineedit->text().isEmpty() ) {
+
         // If you want a small dialog box to popup after hitting ok in the main dialog box then
-        //   enable this Enter Arguments Dialog section of code directly following this comment line...
-#if 0
+        // enable this Enter Arguments Dialog section of code directly following this comment line...
+        // BEGIN add Enter Arguments Dialog back in jeg 03/12/2007 #if 0
         argsStr = QString::null;
         bool ok;
         argsStr = QInputDialog::getText("Enter Arguments Dialog:", QString("Enter command line arguments:"), QLineEdit::Normal, QString::null, &ok, this);
-#endif
+        // END add Enter Arguments Dialog back in jeg 03/12/2007 #endif
       } else
       {
         argsStr = lfd->lineedit->text();
