@@ -343,7 +343,7 @@ class StatsPanel  : public Panel
 
     bool matchSelectedItem( QListViewItem *item, std::string function_name );
 
-    void updateStatsPanelData(QString command = QString::null);
+    void updateStatsPanelData(bool processing_preference, QString command = QString::null);
     void generateMPIMenu(QString collectorName);
     void addMPIReports(QPopupMenu *menu);
     void generateIOMenu(QString collectorName);
