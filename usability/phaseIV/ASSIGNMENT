@@ -50,8 +50,17 @@ Thanks!
 The Scenario:
 -------------
 
+In this directory there is a subdirectory named lampi where a LA-MPI version
+of sweep3d compiled with the PGI 6.1-3 compiler is located.  The sweep3d source
+was modified to contain an algorithm change that degrades performance for one
+of the ranked processes.
 
+In general we're asking you to run OpenSpeedShop on this version of sweep3d using
+the OpenSpeedShop graphical user interface (GUI) and to try to determine where
+the performance problem is occurring.  
 
+Typically, and in this case sweep3d.mpi is launching using the mpirun command
+in a form such as this: mpirun -np 8 sweep3d.mpi.
 
 
 The Assignment:
@@ -59,13 +68,41 @@ The Assignment:
 
 Step 1:
 
+From the lampi subdirectory, launch the OpenSpeedShop GUI.
+
 Step 2:
+
+Using the OpenSpeedShop wizard launch the sweep3d.mpi
+executable using the lampi mpirun (present in the current working
+directory)
+
+We want to determine what part of the sweep3d program is 
+taking the most time and which routines call the routines that are
+degrading performance.
+
 
 Step 3:
 
+Once the sweep3d.mpi application completes use the 
+StatsPanel available options to determine if any of the
+ranked processes are taking more time than the others.
+
 Step 4:
 
+Determine which routine is the most likely to have caused 
+the performance degradation.
+
+
 Step 5:
+
+Determine which routine called the routine which caused the
+degradation.
+
+
+Step 6:
+
+Save the results file, for future analysis.
+
 
 Step n:
   Exit the Open|Speedshop tool.
