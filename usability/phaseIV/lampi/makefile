@@ -8,7 +8,7 @@ MPI_MODULE=lampi/1.5.16
 
 FC = pgf90
 CPP=cpp
-OPTIMIZE = -O1 -g
+OPTIMIZE = -O0 -g
 FFLAGS = $(OPTIMIZE)
 CC=gcc
 CFLAGS = $(OPTIMIZE)
