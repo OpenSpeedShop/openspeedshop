@@ -27,7 +27,7 @@ For this assignment you'll be asked to
 
 There is no time constraint to "correctly" complete this task.
 
-Please try to "think aloud" as you work through the scenario.   
+Please try to "think out loud" as you work through the scenario.   
 It will help us understand where our problems are.
 
 Remember:  You are not being tested.    The user interface and it's
@@ -70,33 +70,50 @@ Step 1:
 
 From the lampi subdirectory, launch the OpenSpeedShop GUI.
 
+Note: We will have to intervene once you have launched OpenSpeedShop
+      because OpenSpeedShop isn't fully automated for starting multiprocess
+      jobs.  This happens before step 2.
+
+
 Step 2:
 
 Using the OpenSpeedShop wizard launch the sweep3d.mpi
 executable using the lampi mpirun (present in the current working
-directory)
+directory)  If you are not familar with lampi mpi.  The typical command
+to launch mpi jobs is "mpirun -np <process number> executable"
 
 We want to determine what part of the sweep3d program is 
-taking the most time and which routines call the routines that are
-degrading performance.
+taking the most time.
 
 
 Step 3:
 
-Once the sweep3d.mpi application completes use the 
-StatsPanel available options to determine if any of the
-ranked processes are taking more time than the others.
+When the experiment completes the Stats Panel will pop up.
+
+After that happens can you determine which routine is the 
+taking the most time.  Is it in the sweep3d application?  
+Where is it's source file located?
+
 
 Step 4:
 
-Determine which routine is the most likely to have caused 
-the performance degradation.
+The default way of the displaying the performance data in the
+StatsPanel is "by function".  Can you display the performance 
+data "by statements"?
 
 
 Step 5:
 
-Determine which routine called the routine which caused the
-degradation.
+Use one of the StatsPanel available options to determine if any of the
+ranked processes are taking more time than the others.
+
+Hint: It's a one step process.
+
+
+Step 6:
+
+Are there any conclusions that can be made from the comparision
+view you are at as a result of Step 5?
 
 
 Step 6:
