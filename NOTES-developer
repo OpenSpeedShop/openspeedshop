@@ -18,3 +18,15 @@ an so on an so forth...
 
 
 
+# The order here corresponds to the thread list (example -np4 mpi job)
+sqlite> select pid from threads;
+2159  (thread 1)  mpirun 
+2188  (thread 2)
+2186  (thread 3)
+2185  (thread 4)
+2187  (thread 5)
+
+# Five blobs were sent
+select count(8) from data;
+5
+
