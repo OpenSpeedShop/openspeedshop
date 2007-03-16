@@ -55,10 +55,10 @@
       double precision ql,dl,ti,tj,tk
       integer ifixed,jfixed
 
-      integer ii, ij, ij_val
+      integer ii, ij, ij_val(100000)
 
       integer nmess,mess
-      common /h/ nmess,mess
+      common /h/ nmess,mess,ij_val
 
 
 C SWEEP FLOW
@@ -176,11 +176,10 @@ c Begin: My little attempted performance slow down.
             if( myid .eq. 1 ) then
               DO ii = 1, 10000
                  DO ij = 1, 10000
-                   ij_val = ii+mo;
+                   ij_val(ij) = ii+mo;
                 END DO ! ij 
               END DO ! ii
             endif
-c            print *, 'ij_val=', ij_val
 c End: My little attempted performance slow down.  
             if (k2.lt.0 .or. kbc.eq.0) then
                do mi = 1, mmi
@@ -635,5 +634,6 @@ c octant loop
 c
          END DO ! iq
 
+c      print *, 'ij_val=', ij_val
       return
       end
