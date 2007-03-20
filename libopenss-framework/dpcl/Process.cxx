@@ -46,6 +46,12 @@
 
 
 
+#ifdef DPCL_SUPPORTS_STATEMENT_LIST
+#undef DPCL_SUPPORTS_STATEMENT_LIST
+#endif
+
+
+
 //
 // To avoid requiring fully qualified names to be used everywhere, something
 // like "using namespace OpenSpeedShop::Framework;" is usually placed near the
@@ -391,7 +397,7 @@ bool Process::isConnected()
  * state changes asynchronously and must be updated across a network, there is a
  * lag between when the actual thread's state changes and when that is reflected
  * here.
- *
+2 *
  * @param thread    Thread whose state should be obtained.
  * @return          Current state of this thread.
  */
@@ -2893,8 +2899,13 @@ void Process::statementsCallback(GCBSysType, GCBTagType tag,
 {
     SymbolTableState* state = reinterpret_cast<SymbolTableState*>(tag);
     SourceObj* module = reinterpret_cast<SourceObj*>(obj);
+#ifdef DPCL_SUPPORTS_STATEMENT_LIST
+    struct get_statement_list_msg_t* retval =
+	reinterpret_cast<struct get_statement_list_msg_t*>(msg);
+#else
     struct get_stmt_info_list_msg_t* retval =
 	reinterpret_cast<struct get_stmt_info_list_msg_t*>(msg);
+#endif
     
     // Check assertions
     Assert(state != NULL);
@@ -2904,7 +2915,11 @@ void Process::statementsCallback(GCBSysType, GCBTagType tag,
 #ifndef NDEBUG
     if(is_debug_enabled) {
 	debugCallback("statements", state->dm_name);
+#ifdef DPCL_SUPPORTS_STATEMENT_LIST
+	debugDPCL("response from get_statement_list", retval->status);
+#else
     	debugDPCL("response from get_all_statements", retval->status);
+#endif
     }
 #endif
 
@@ -2951,6 +2966,31 @@ void Process::statementsCallback(GCBSysType, GCBTagType tag,
 		SymbolTable& symbol_table = 
 		    state->dm_symbol_tables.find(range)->second.first;
 	    
+#ifdef DPCL_SUPPORTS_STATEMENT_LIST
+		// Access the statement list from the return value
+		StatementList* statements = retval->statement_list_p;
+		Assert(statements != NULL);
+
+		// Iterate over each statement in this module
+		statements->resetToFirstStatement();
+		while(true) {
+
+		    // Get the next statement
+		    AisAddress begin, end;
+		    std::string path;
+		    int line, column;
+		    if(!statements->getStatement(begin, end,
+						 path, line, column))
+			break;
+
+		    // Add this statement to the symbol table
+		    symbol_table.addStatement(
+			Address(begin + offset), Address(end + offset),
+			path, line, column
+			);
+		    
+		}
+#else
 		// Access the statement information from the return value
 		StatementInfoList* statements = retval->stmt_info_list_p;
 		Assert(statements != NULL);
@@ -2982,6 +3022,7 @@ void Process::statementsCallback(GCBSysType, GCBTagType tag,
 		    }
 		    
 		}
+#endif
 		
 	    }
 
@@ -2993,7 +3034,11 @@ void Process::statementsCallback(GCBSysType, GCBTagType tag,
     }
 
     // Destroy the statement information returned by DPCL
+#ifdef DPCL_SUPPORTS_STATEMENT_LIST
+    delete reinterpret_cast<StatementList*>(retval->statement_list_p);
+#else
     delete reinterpret_cast<StatementInfoList*>(retval->stmt_info_list_p);
+#endif
     
     // Finish symbol table processing if all requests have been completed
     if(requests_completed)
@@ -3605,6 +3650,15 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
 	       state->dm_symbol_tables.end()) {
 		
 		// Ask DPCL to asynchronously get this module's statements
+#ifdef DPCL_SUPPORTS_STATEMENT_LIST
+		AisStatus retval = module.get_statement_list(
+		    *dm_process, statementsCallback, state
+		    );
+#ifndef NDEBUG
+		if(is_debug_enabled) 
+		    debugDPCL("request to get_statement_list", retval);
+#endif	
+#else
 		AisStatus retval = module.get_all_statements(
 		    *dm_process, statementsCallback, state, module
 		    );
@@ -3612,6 +3666,7 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
 		if(is_debug_enabled) 
 		    debugDPCL("request to get_all_statements", retval);
 #endif	
+#endif
 		
 		// Increment the pending request count if the request succeeded
 		if(retval.status() == ASC_success)
