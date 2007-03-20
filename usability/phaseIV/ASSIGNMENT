@@ -64,11 +64,20 @@ in a form such as this: mpirun -np 8 sweep3d.mpi.
 
 
 The Assignment:
----------------
+-----------------------------------------------
+PHASE 1: Run and Analyze Live Data
+-----------------------------------------------
+Step 0:
+
+>From the lampi subdirectory, run the sweep3d.mpi application
+outside of OpenSpeedShop using this command: ./mpirun -np 8 sweep3d.mpi.
+
 
 Step 1:
 
-From the lampi subdirectory, launch the OpenSpeedShop GUI.
+Launch one xterm window.
+
+>From the lampi subdirectory, launch the OpenSpeedShop GUI.
 
 Note: We will have to intervene once you have launched OpenSpeedShop
       because OpenSpeedShop isn't fully automated for starting multiprocess
@@ -77,13 +86,13 @@ Note: We will have to intervene once you have launched OpenSpeedShop
 
 Step 2:
 
-Using the OpenSpeedShop wizard launch the sweep3d.mpi
-executable using the lampi mpirun (present in the current working
-directory)  If you are not familar with lampi mpi.  The typical command
-to launch mpi jobs is "mpirun -np <process number> executable"
+Use the OpenSpeedShop wizard to launch the sweep3d.mpi executable 
+using the lampi mpirun present in the current working directory.
+We want to determine what part of the sweep3d program is taking 
+the most time.
 
-We want to determine what part of the sweep3d program is 
-taking the most time.
+NOTE: Use the same basic mpi command syntax you used above to launch 
+      sweep3d.mpi outside of OpenSpeedShop.
 
 
 Step 3:
@@ -94,32 +103,63 @@ After that happens can you determine which routine is the
 taking the most time.  Is it in the sweep3d application?  
 Where is it's source file located?
 
-
 Step 4:
 
-The default way of the displaying the performance data in the
-StatsPanel is "by function".  Can you display the performance 
-data "by statements"?
-
+Save the performance data results from this experiment to a
+file for analysis for another time in the future.
 
 Step 5:
 
-Use one of the StatsPanel available options to determine if any of the
-ranked processes are taking more time than the others.
+Exit the OpenSpeedShop tool.
 
-Hint: It's a one step process.
+---------------------------------------------------------
+PHASE 2: Load and Analyze Previously Generated/Saved Data
+---------------------------------------------------------
+
+Step 1:
+
+Launch the OpenSpeedShop GUI and open the previously 
+saved experiment file named, sweep3d-256p.openss.
+
+
+Step 2: 
+
+Find out on which host this experiment was run and also how many
+processes were used.
+
+
+Step 3:
+
+Show the results "by function" for the routine that is taking 
+the most time.  
+
+Step 4:
+
+Go to statement that is taking the most time in the source file 
+of the routine taking the most amount of time.  
+
+Step 5:
+
+Regenerate the results for the whole application displaying the
+results "by function".
 
 
 Step 6:
 
-Are there any conclusions that can be made from the comparision
-view you are at as a result of Step 5?
+Find out if any of the ranked processes are taking more time 
+than the others.
 
 
-Step 6:
+Step 7:
 
-Save the results file, for future analysis.
+Show the performance results for the rank 0 process only saving
+the original StatsPanel results.
 
+Step 8:
 
-Step n:
-  Exit the Open|Speedshop tool.
+Compare the performance data from rank 0 to the performance data 
+from rank 1.
+
+Step 9:
+
+Exit the OpenSpeedShop tool.
