@@ -40,11 +40,6 @@ using namespace OpenSpeedShop::Framework;
 
 
 
-/** Statement cache. */
-StatementCache Statement::TheCache;
-
-
-
 /**
  * Get our threads.
  *
@@ -407,6 +402,11 @@ int Statement::getColumn() const
     // Return the column number to the caller
     return column;
 }
+
+
+
+/** Statement cache. */
+StatementCache Statement::TheCache;
 
 
 

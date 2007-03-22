@@ -62,11 +62,6 @@ extern "C" char* cplus_demangle(const char*, int);
 
 
 
-/** Function cache. */
-FunctionCache Function::TheCache;
-
-
-
 /**
  * Get our threads.
  *
@@ -478,6 +473,11 @@ std::set<CallSite> Function::getCallers() const
 {
     return std::set<CallSite>();
 }
+
+
+
+/** Function cache. */
+FunctionCache Function::TheCache;
 
 
 

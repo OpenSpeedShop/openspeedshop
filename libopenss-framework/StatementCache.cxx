@@ -25,6 +25,7 @@
 #include "AddressBitmap.hxx"
 #include "Blob.hxx"
 #include "EntrySpy.hxx"
+#include "Guard.hxx"
 #include "StatementCache.hxx"
 
 using namespace OpenSpeedShop::Framework;
@@ -45,7 +46,7 @@ std::set<Statement>
 StatementCache::getStatements(const LinkedObject& linked_object,
 			      const ExtentGroup& extent)
 {
-    std::set<Statement> statements;
+    Guard guard_myself(this);
 
     // Find this linked object in the cache (adding it if necessary)
     ExtentGroup& cached = dm_cache.getExtents(linked_object);
@@ -59,6 +60,7 @@ StatementCache::getStatements(const LinkedObject& linked_object,
 	cached.getIntersectionWith(extent);
     
     // Assemble the intersection results into a statement set
+    std::set<Statement> statements;
     for(std::set<ExtentGroup::size_type>::const_iterator
 	    i = intersection.begin(); i != intersection.end(); ++i)
 	statements.insert(dm_cache.getObject(linked_object, *i));
@@ -78,9 +80,10 @@ StatementCache::getStatements(const LinkedObject& linked_object,
  */
 void StatementCache::removeDatabase(const SmartPtr<Database>& database)
 {
-    std::set<LinkedObject> linked_objects;
+    Guard guard_myself(this);
 
     // Find the linked objects in this database
+    std::set<LinkedObject> linked_objects;
     BEGIN_TRANSACTION(database);
     database->prepareStatement("SELECT id FROM LinkedObjects;");
     while(database->executeStatement())

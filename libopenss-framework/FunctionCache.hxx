@@ -46,7 +46,7 @@ namespace OpenSpeedShop { namespace Framework {
      * the specified extents.
      *
      * @note    Database queries that performed extent/extent intersections,
-     *          e.g. Function::getDefinitions(), were found to be performing
+     *          e.g. Statement::getFunctions(), were found to be performing
      *          poorly. This was due to SQLite being unable to utilize more
      *          than a single index during a given query. This class helps
      *          alleviate this performance bottleneck by caching the extent

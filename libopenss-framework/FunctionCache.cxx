@@ -26,6 +26,7 @@
 #include "Blob.hxx"
 #include "EntrySpy.hxx"
 #include "FunctionCache.hxx"
+#include "Guard.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
@@ -45,7 +46,7 @@ std::set<Function>
 FunctionCache::getFunctions(const LinkedObject& linked_object,
 			    const ExtentGroup& extent)
 {
-    std::set<Function> functions;
+    Guard guard_myself(this);
 
     // Find this linked object in the cache (adding it if necessary)
     ExtentGroup& cached = dm_cache.getExtents(linked_object);
@@ -59,6 +60,7 @@ FunctionCache::getFunctions(const LinkedObject& linked_object,
 	cached.getIntersectionWith(extent);
     
     // Assemble the intersection results into a function set
+    std::set<Function> functions;
     for(std::set<ExtentGroup::size_type>::const_iterator
 	    i = intersection.begin(); i != intersection.end(); ++i)
 	functions.insert(dm_cache.getObject(linked_object, *i));
@@ -78,9 +80,10 @@ FunctionCache::getFunctions(const LinkedObject& linked_object,
  */
 void FunctionCache::removeDatabase(const SmartPtr<Database>& database)
 {
-    std::set<LinkedObject> linked_objects;
+    Guard guard_myself(this);
 
     // Find the linked objects in this database
+    std::set<LinkedObject> linked_objects;
     BEGIN_TRANSACTION(database);
     database->prepareStatement("SELECT id FROM LinkedObjects;");
     while(database->executeStatement())
