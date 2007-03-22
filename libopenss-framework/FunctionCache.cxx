@@ -116,11 +116,10 @@ void FunctionCache::addLinkedObject(const LinkedObject& linked_object)
     BEGIN_TRANSACTION(database);
     EntrySpy(linked_object).validate();
     database->prepareStatement(
-	"SELECT Functions.id, "
-	"       Functions.addr_begin, "
-	"       Functions.addr_end "
+	"SELECT id, "
+	"       addr_begin, addr_end "
 	"FROM Functions "
-	"WHERE Functions.linked_object = ?;"
+	"WHERE linked_object = ?;"
 	);
     database->bindArgument(1, EntrySpy(linked_object).getEntry());
     while(database->executeStatement()) {
