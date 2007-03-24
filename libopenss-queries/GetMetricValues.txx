@@ -29,6 +29,10 @@
 #include "Queries.hxx"
 #include "ToolAPI.hxx"
 
+#ifdef HAVE_OPENMP
+#include <omp.h>
+#endif
+
 
 
 //
@@ -127,9 +131,84 @@ void Queries::GetMetricValues(
 	if(extents.empty())
 	    continue;
 	
+	// Allocate a vector to hold the evaluated metric values
+	std::vector<TM > values(extents.size(), TM());
+
+#ifndef HAVE_OPENMP
+
 	// Evaluate the metric values for the necessary extents
-	std::vector<TM > values;
 	collector.getMetricValues(metric, *i, extents, values);
+
+#else
+
+	// Get the performance data blob identifiers to be evaluated
+        std::set<int> temp = collector.getIdentifiers(*i, extents);
+	std::vector<int> identifiers(temp.begin(), temp.end());
+
+	// Parallel region to evaluate the metric values
+	#pragma omp parallel
+	{
+	    // Vector holding the evaluated metric values for this thread
+	    std::vector<TM > local(extents.size(), TM());
+	    
+	    // Iterate in parallel over each performance data blob
+            #pragma omp for nowait
+	    for(int j = 0; j < identifiers.size(); ++j) {
+		
+		// Evalute the metric values for the necessary extents
+		collector.getMetricValues(metric, *i, extents,
+					  identifiers[j], local);
+
+	    }
+	    
+	    //
+	    // Partially computed metric values are now distributed between 
+	    // the per-thread result vectors ("local"). A reduction of these
+	    // per-thread values into the final results vector ("values") is
+	    // required. Explaining how this is accomplished is best left to
+	    // an example.
+	    //
+	    // Consider 4 threads processing a 22 element result vector. Four
+	    // iterations are performed. Each thread adds a 6 element piece
+	    // of its results into the final results during each iteration:
+	    // 
+	    //     0000000000111111111122
+	    //     0123456789012345678901    Element Number
+	    //     ----------------------
+	    //     0000001111112222223333    Iteration #1  (j=0)
+	    //     3333330000001111112222    Iteration #2  (j=1)
+	    //     2222223333330000001111    Iteration #3  (j=2)   
+	    //     1111112222223333330000    Iteration #4  (j=3)
+	    //        ^ 
+	    //        +---- Thread number writing this element
+	    //              during a given iteration.
+	    //
+
+	    // Get the total number of threads and our thread number
+	    int num_threads = omp_get_num_threads();
+	    int thread_num = omp_get_thread_num();
+
+	    // Compute number of elements to write during each iteration
+	    int n = (values.size() + num_threads - 1) / num_threads;
+
+	    // Perform each iteration
+	    for(int j = 0; j < num_threads; ++j) {
+
+		// First element reduced by this thread during this iteration
+		int first = (n * (j + thread_num)) % (n * num_threads);
+
+		// Perform reduction
+		for(int k = 0; (k < n) && ((first + k) < values.size()); ++k)
+		    values[first + k] += local[first + k];
+
+		// Wait for all threads to finish their reduction
+                #pragma omp barrier
+
+	    }
+		
+	}
+		
+#endif
 	
 	// Iterate over each evaluated extent
 	for(Framework::ExtentGroup::size_type j = 0; j < extents.size(); ++j) {

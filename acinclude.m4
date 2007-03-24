@@ -326,7 +326,7 @@ AC_DEFUN([AC_PKG_OPENMP], [
 
     OPENMP_CPPFLAGS="-fopenmp"
     OPENMP_LDFLAGS=""
-    OPENMP_LIBS=""
+    OPENMP_LIBS="-lgomp"
 
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP

@@ -16,6 +16,16 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+#
+# NOTE: Ideally those libraries (e.g. libopenss-queries) that use OpenMP would
+#       be linked (via @OPENMP_LDFLAGS@ and @OPENMP_LIBS@) to its runtime. For
+#       some unknown reason, however, that runtime cannot be dlopen()ed into a
+#       process. The error "libgomp.so.1: shared object cannot be dlopen()ed"
+#       is produced and the process immediately aborts. The fix is to have the
+#       main "openss" executable link to the runtime, thus indirectly providing
+#       the runtime for the other libraries that actually use it.
+#
+
 bin_PROGRAMS = openss
 
 openss_CXXFLAGS = \
@@ -25,10 +35,11 @@ openss_CXXFLAGS = \
 	-DLIB_DIR_NAME=\"$(abi_libdir_name)\" \
 	$(LTDLINCL)
 
-openss_LDFLAGS =
+openss_LDFLAGS = @OPENMP_LDFLAGS@
 
 openss_LDADD = \
 	$(LIBLTDL) \
+	@OPENMP_LIBS@ \
 	-lpthread
 
 openss_SOURCES = \
