@@ -49,6 +49,7 @@
 namespace OpenSpeedShop { namespace Framework {
 
     class Database;
+    class DataCache;
     class Experiment;
     class Extent;
     template <typename> class SmartPtr;
@@ -84,6 +85,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Collector :
 	public Entry
     {
+	friend class DataCache;
 	friend class Experiment;
 	friend class Thread;
 	
@@ -115,6 +117,13 @@ namespace OpenSpeedShop { namespace Framework {
 	template <typename T>
 	void getMetricValues(const std::string&, const Thread&,
 			     const ExtentGroup&, std::vector<T >&) const;
+
+	std::set<int> getIdentifiers(const Thread&, const ExtentGroup&) const;
+	
+	template <typename T>
+	void getMetricValues(const std::string&, const Thread&,
+			     const ExtentGroup&, const int&,
+			     std::vector<T >&) const;
 	
 	Extent getExtentIn(const Thread&) const;
 	
@@ -134,6 +143,8 @@ namespace OpenSpeedShop { namespace Framework {
 	void setParameterData(const Blob&) const;
 	void getMetricValues(const std::string&, const Thread&,
 			     const ExtentGroup&, void*) const;
+	void getMetricValues(const std::string&, const Thread&,
+			     const ExtentGroup&, const int&, void*) const;
 	
 	/** Collector's implementation. */
 	mutable CollectorImpl* dm_impl;
@@ -356,6 +367,79 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	// Get our metric values
 	getMetricValues(unique_id, thread, subextents, &values);
+    }
+
+
+
+    /**
+     * Get metric values.
+     *
+     * Returns one of this collector's metric values over all subextents of the
+     * specified extent for a particular thread. The computation is restricted
+     * to the specified performance data blob identifier.
+     * 
+     * @pre    Can only be performed on collectors for which an implementation
+     *         can be instantiated. A CollectorUnavailable exception is thrown
+     *         if the collector's implementation cannot be instantiated.
+     *
+     * @pre    Metrics must be declared for the collector before they can
+     *         be accessed. An assertion failure occurs if the metric wasn't
+     *         previously declared.
+     *
+     * @pre    Metric values can only be returned in a value of the same type
+     *         as themselves. No implicit type conversion is allowed. An
+     *         assertion failure occurs if the metric is accessed as a type
+     *         other than its own.
+     *
+     * @param unique_id     Unique identifier of the metric to get.
+     * @param thread        Thread for which to get values.
+     * @param subextents    Subextents for which to get values.
+     * @param identifier    Performance data blob identifier for which to
+     *                      get values.
+     * @retval values       Values of the metric.
+     */
+    template <typename T>
+    void Collector::getMetricValues(const std::string& unique_id,
+				    const Thread& thread,
+				    const ExtentGroup& subextents,
+				    const int& identifier,
+				    std::vector<T >&values) const
+    {
+	// Check preconditions
+	if(dm_impl == NULL) {
+	    instantiateImpl();
+	    if(dm_impl == NULL)
+		throw Exception(Exception::CollectorUnavailable,
+				getMetadata().getUniqueId());
+	}
+	
+	// Find this metric
+	std::set<Metadata>::const_iterator i = dm_impl->getMetrics().
+	    find(Metadata(unique_id, "", "", typeid(T)));
+	
+        // Check preconditions
+	Assert(i != dm_impl->getMetrics().end());
+	if(!i->isType(typeid(T))) {
+	    int status;
+	    fprintf(stderr, "Assertion \"%s\" failed in file %s at line %d. ",
+		    "!i->isType(typeid(T))", __FILE__, __LINE__);
+	    fprintf(stderr,
+		    "Metric \"%s::%s\" is of type \"%s\" rather than \"%s\".\n",
+		    getMetadata().getUniqueId().c_str(), unique_id.c_str(),
+		    abi::__cxa_demangle(i->getType().c_str(), NULL, NULL,
+					&status),
+		    abi::__cxa_demangle(typeid(T).name(), NULL, NULL,
+					&status));
+	    fflush(stderr);
+	    abort();
+	}
+	
+	// Insure vector of values is large enough to contain the results
+	if(values.size() < subextents.size())
+	    values.resize(subextents.size(), T());
+	
+	// Get our metric values
+	getMetricValues(unique_id, thread, subextents, identifier, &values);
     }
     
     

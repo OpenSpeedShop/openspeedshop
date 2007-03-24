@@ -25,9 +25,12 @@
 #include "Address.hxx"
 #include "Assert.hxx"
 #include "Blob.hxx"
+#include "Collector.hxx"
 #include "Database.hxx"
+#include "DataCache.hxx"
 #include "DataQueues.hxx"
 #include "SmartPtr.hxx"
+#include "Thread.hxx"
 #include "Time.hxx"
 #include "TimeInterval.hxx"
 
@@ -213,6 +216,16 @@ namespace {
 	    while(database->executeStatement());  
 	}
 	
+	// Add this data to the performance data cache
+	DataQueues::TheCache.addIdentifier(
+	    database, header.collector, header.thread,
+	    Extent(TimeInterval(Time(header.time_begin),
+				Time(header.time_end)),
+		   AddressRange(Address(header.addr_begin),
+				Address(header.addr_end))),
+	    database->getLastInsertedUID()
+	    );
+	
 	// End this multi-statement transaction
 	END_TRANSACTION(database);
     }
@@ -220,6 +233,11 @@ namespace {
 
 
 }
+
+
+
+/** Performance data cache. */
+DataCache DataQueues::TheCache;
 
 
 

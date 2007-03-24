@@ -24,6 +24,7 @@
  */
 
 #include "CollectorGroup.hxx"
+#include "DataCache.hxx"
 #include "DataQueues.hxx"
 #include "EntrySpy.hxx"
 #include "Experiment.hxx"
@@ -168,6 +169,7 @@ namespace {
 	
 	// Data Table
 	"CREATE TABLE Data ("
+	"    id INTEGER PRIMARY KEY,"
 	"    collector INTEGER," // From Collectors.id
 	"    thread INTEGER," // From Thread.id
 	"    time_begin INTEGER,"
@@ -483,7 +485,8 @@ Experiment::~Experiment()
 	
     }
 
-    // Remove this experiment's database from the function and statement caches
+    // Remove experiment's database from data, function, and statement caches
+    DataQueues::TheCache.removeDatabase(dm_database);
     Function::TheCache.removeDatabase(dm_database);
     Statement::TheCache.removeDatabase(dm_database);
 }
@@ -896,6 +899,10 @@ void Experiment::removeThread(const Thread& thread) const
     // Check preconditions
     Assert(dm_database == EntrySpy(thread).getDatabase());
 
+    // Begin a multi-statement transaction
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    EntrySpy(thread).validate();
+
     // Stop all performance data collection for this thread
     thread.getCollectors().stopCollecting(thread);
     thread.getPostponedCollectors().stopCollecting(thread);
@@ -903,9 +910,8 @@ void Experiment::removeThread(const Thread& thread) const
     // Release this thread in the instrumentor
     Instrumentor::release(thread);
     
-    // Begin a multi-statement transaction
-    BEGIN_WRITE_TRANSACTION(dm_database);
-    EntrySpy(thread).validate();
+    // Remove this thread from the performance data cache
+    DataQueues::TheCache.removeThread(thread);
 
     // Remove this thread
     dm_database->prepareStatement("DELETE FROM Threads WHERE id = ?;");
@@ -1068,6 +1074,9 @@ void Experiment::removeCollector(const Collector& collector) const
     // Stop all performance data collection for this collector
     collector.getThreads().stopCollecting(collector);
     collector.getPostponedThreads().stopCollecting(collector);
+
+    // Remove this collector from the performance data cache
+    DataQueues::TheCache.removeCollector(collector);
     
     // Remove this collector
     dm_database->prepareStatement("DELETE FROM Collectors WHERE id = ?;");

@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -96,7 +97,6 @@ AC_SUBST(topdir_execprefix)
 abi_libdir_name=${abi_libdir}
 AC_SUBST(abi_libdir_name)
 
-
 ################################################################################
 # Check for POSIX Threads (ISO/IEC 9945-1:1996)
 ################################################################################
@@ -112,21 +112,21 @@ AC_CHECK_HEADER(pthread.h, [ AC_CHECK_LIB(pthread, pthread_create, [
 ################################################################################
 
 AC_PKG_ARRAYSVCS()
-AC_PKG_LIBUNWIND()
-AC_PKG_MPI()
-AC_PKG_PAPI()
 AC_PKG_BINUTILS()
-AC_PYTHON_DEVEL([>= '2.3'])
+AC_PKG_MPI()
+AC_PKG_LIBUNWIND()
+AC_PKG_OPENMP()
+AC_PKG_PAPI()
 AC_PKG_SQLITE()
-AC_PKG_QTLIB()
 
+AC_PYTHON_DEVEL([>= '2.3'])
+AC_PKG_QTLIB()
 
 ################################################################################
 # Check for Dynamic Instrumentation Package
 ################################################################################
 
 AC_PKG_DYNINST()
-
 
 ################################################################################
 # Check for Instrumentor

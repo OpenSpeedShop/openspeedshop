@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -75,6 +76,82 @@ AC_DEFUN([AC_PKG_ARRAYSVCS], [
     AC_SUBST(ARRAYSVCS_CPPFLAGS)
     AC_SUBST(ARRAYSVCS_LDFLAGS)
     AC_SUBST(ARRAYSVCS_LIBS)
+
+])
+
+################################################################################
+# Check for Binutils (http://www.gnu.org/software/binutils)
+################################################################################
+
+AC_DEFUN([AC_PKG_BINUTILS], [
+
+    AC_ARG_WITH(binutils,
+                AC_HELP_STRING([--with-binutils=DIR],
+                               [binutils installation @<:@/usr@:>@]),
+                binutils_dir=$withval, binutils_dir="/usr")
+
+    AC_ARG_WITH(binutils-version,
+                AC_HELP_STRING([--with-binutils-version=VERS],
+                               [binutils-version installation @<:@@:>@]),
+                binutils_vers=-$withval, binutils_vers="")
+
+    case "$host" in
+	ia64-*-linux*)
+	    binutils_required="false"
+	    BINUTILS_CPPFLAGS=""
+	    BINUTILS_LDFLAGS=""
+	    BINUTILS_LIBS=""
+            ;;
+	x86_64-*-linux*)
+	    binutils_required="true"
+	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
+	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
+	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
+            ;;
+	*)
+	    binutils_required="true"
+	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
+	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
+	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
+            ;;
+    esac
+
+    binutils_saved_CPPFLAGS=$CPPFLAGS
+    binutils_saved_LDFLAGS=$LDFLAGS
+    binutils_saved_LIBS=$LIBS
+
+    CPPFLAGS="$CPPFLAGS $BINUTILS_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $BINUTILS_LDFLAGS $BINUTILS_LIBS"
+
+    AC_MSG_CHECKING([for binutils librarys and headers])
+
+    AC_SEARCH_LIBS(bfd_init, [bfd$binutils_vers], 
+        [ AC_MSG_RESULT(yes)
+
+            AM_CONDITIONAL(HAVE_BINUTILS, true)
+            AC_DEFINE(HAVE_BINUTILS, 1, [Define to 1 if you have BINUTILS.])
+
+        ], [ AC_MSG_RESULT(no)
+
+	    if test x"$binutils_required" == x"true"; then
+		AM_CONDITIONAL(HAVE_BINUTILS, false)
+	    else
+		AM_CONDITIONAL(HAVE_BINUTILS, true)
+	    fi
+            BINUTILS_CPPFLAGS=""
+            BINUTILS_LDFLAGS=""
+            BINUTILS_LIBS=""
+
+        ]
+    )
+
+    CPPFLAGS=$binutils_saved_CPPFLAGS
+    LDFLAGS=$binutils_saved_LDFLAGS
+    LIBS=$binutils_saved_LIBS
+
+    AC_SUBST(BINUTILS_CPPFLAGS)
+    AC_SUBST(BINUTILS_LDFLAGS)
+    AC_SUBST(BINUTILS_LIBS)
 
 ])
 
@@ -190,8 +267,6 @@ AC_DEFUN([AC_PKG_DYNINST], [
 
 m4_include(ac_pkg_mpi.m4)
 
-
-
 ################################################################################
 # Check for Libunwind (http://www.hpl.hp.com/research/linux/libunwind/)
 ################################################################################
@@ -240,6 +315,60 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
     AC_SUBST(LIBUNWIND_CPPFLAGS)
     AC_SUBST(LIBUNWIND_LDFLAGS)
     AC_SUBST(LIBUNWIND_LIBS)
+
+])
+
+################################################################################
+# Check for OpenMP (http://www.openmp.org)
+################################################################################
+
+AC_DEFUN([AC_PKG_OPENMP], [
+
+    OPENMP_CPPFLAGS="-fopenmp"
+    OPENMP_LDFLAGS=""
+    OPENMP_LIBS=""
+
+    AC_LANG_PUSH(C++)
+    AC_REQUIRE_CPP
+
+    openmp_saved_CPPFLAGS=$CPPFLAGS
+    openmp_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $OPENMP_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $OPENMP_LDFLAGS $OPENMP_LIBS"
+
+    AC_MSG_CHECKING([for OpenMP support])
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+	#include <omp.h>
+	#include <stdio.h>
+        ]], [[
+	#pragma omp parallel for
+	for(int i = 0; i < 100; ++i)
+	    printf("[%d] i = %d\n", omp_get_thread_num(), i);
+        ]]), [ AC_MSG_RESULT(yes)
+
+            AM_CONDITIONAL(HAVE_OPENMP, true)
+	    AC_DEFINE(HAVE_OPENMP, 1, [Define to 1 if you have OpenMP.])
+
+        ], [ AC_MSG_RESULT(no)
+
+            AM_CONDITIONAL(HAVE_OPENMP, false)
+	    OPENMP_CPPFLAGS=""
+            OPENMP_LDFLAGS=""
+            OPENMP_LIBS=""
+
+        ]
+    )
+
+    CPPFLAGS=$openmp_saved_CPPFLAGS
+    LDFLAGS=$openmp_saved_LDFLAGS
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(OPENMP_CPPFLAGS)
+    AC_SUBST(OPENMP_LDFLAGS)
+    AC_SUBST(OPENMP_LIBS)
 
 ])
 
@@ -307,82 +436,6 @@ AC_DEFUN([AC_PKG_PAPI], [
 ])
 
 ################################################################################
-# Check for Binutils (http://www.gnu.org/software/binutils)
-################################################################################
-
-AC_DEFUN([AC_PKG_BINUTILS], [
-
-    AC_ARG_WITH(binutils,
-                AC_HELP_STRING([--with-binutils=DIR],
-                               [binutils installation @<:@/usr@:>@]),
-                binutils_dir=$withval, binutils_dir="/usr")
-
-    AC_ARG_WITH(binutils-version,
-                AC_HELP_STRING([--with-binutils-version=VERS],
-                               [binutils-version installation @<:@@:>@]),
-                binutils_vers=-$withval, binutils_vers="")
-
-    case "$host" in
-	ia64-*-linux*)
-	    binutils_required="false"
-	    BINUTILS_CPPFLAGS=""
-	    BINUTILS_LDFLAGS=""
-	    BINUTILS_LIBS=""
-            ;;
-	x86_64-*-linux*)
-	    binutils_required="true"
-	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
-	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
-	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
-            ;;
-	*)
-	    binutils_required="true"
-	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
-	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
-	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
-            ;;
-    esac
-
-    binutils_saved_CPPFLAGS=$CPPFLAGS
-    binutils_saved_LDFLAGS=$LDFLAGS
-    binutils_saved_LIBS=$LIBS
-
-    CPPFLAGS="$CPPFLAGS $BINUTILS_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $BINUTILS_LDFLAGS $BINUTILS_LIBS"
-
-    AC_MSG_CHECKING([for binutils librarys and headers])
-
-    AC_SEARCH_LIBS(bfd_init, [bfd$binutils_vers], 
-        [ AC_MSG_RESULT(yes)
-
-            AM_CONDITIONAL(HAVE_BINUTILS, true)
-            AC_DEFINE(HAVE_BINUTILS, 1, [Define to 1 if you have BINUTILS.])
-
-        ], [ AC_MSG_RESULT(no)
-
-	    if test x"$binutils_required" == x"true"; then
-		AM_CONDITIONAL(HAVE_BINUTILS, false)
-	    else
-		AM_CONDITIONAL(HAVE_BINUTILS, true)
-	    fi
-            BINUTILS_CPPFLAGS=""
-            BINUTILS_LDFLAGS=""
-            BINUTILS_LIBS=""
-
-        ]
-    )
-
-    CPPFLAGS=$binutils_saved_CPPFLAGS
-    LDFLAGS=$binutils_saved_LDFLAGS
-    LIBS=$binutils_saved_LIBS
-
-    AC_SUBST(BINUTILS_CPPFLAGS)
-    AC_SUBST(BINUTILS_LDFLAGS)
-    AC_SUBST(BINUTILS_LIBS)
-
-])
-
-################################################################################
 # Check for SQLite (http://www.sqlite.org)
 ################################################################################
 
@@ -423,6 +476,8 @@ AC_DEFUN([AC_PKG_SQLITE], [
     AC_DEFINE(HAVE_SQLITE, 1, [Define to 1 if you have SQLite.])
 
 ])
+
+
 
 ################################################################################
 # Check for PYTHON libraries

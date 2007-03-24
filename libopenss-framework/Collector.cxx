@@ -24,6 +24,8 @@
 
 #include "Collector.hxx"
 #include "CollectorPluginTable.hxx"
+#include "DataCache.hxx"
+#include "DataQueues.hxx"
 #include "EntrySpy.hxx"
 #include "ThreadGroup.hxx"
 
@@ -198,6 +200,28 @@ std::set<Metadata> Collector::getMetrics() const
 
     // Defer to our implementation
     return dm_impl->getMetrics();
+}
+
+
+
+/**
+ * Get performance data blob identifiers.
+ *
+ * Returns the performance data blob identifiers over all subextents of the
+ * specified extent for a particular thread.
+ *
+ * @param thread        Thread for which to get identifiers.
+ * @param subextents    Subextents for which to get identifiers.
+ * @return              Identifiers intersecting this extent.
+ */
+std::set<int> Collector::getIdentifiers(const Thread& thread,
+					const ExtentGroup& subextents) const
+{
+    // Get the bounds of the subextents
+    Extent bounds = subextents.getBounds();
+
+    // Return the performance data blob identifiers to the caller
+    return DataQueues::TheCache.getIdentifiers(*this, thread, bounds);
 }
 
 
@@ -693,34 +717,58 @@ void Collector::getMetricValues(const std::string& unique_id,
 				const ExtentGroup& subextents,
 				void* ptr) const
 {
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+
+    // Iterate over each performance data blob to be processed
+    std::set<int> identifiers = getIdentifiers(thread, subextents);
+    for(std::set<int>::const_iterator
+	    i = identifiers.begin(); i != identifiers.end(); ++i)
+
+	// Get the metric values for this performance data blob
+	getMetricValues(unique_id, thread, subextents, *i, ptr);
+
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);
+}
+
+
+
+/**
+ * Get our metric values.
+ *
+ * Returns metric values for this collector. The computation is restricted
+ * to the specified performance data blob identifier.
+ *
+ * @param unique_id     Unique identifier of the metric to get.
+ * @param thread        Thread for which to get values.
+ * @param subextents    Subextents for which to get values.
+ * @param identifier    Performance data blob identifier for which to
+ *                      get values.
+ * @retval ptr          Untyped pointer to the values of the metric.
+ */
+void Collector::getMetricValues(const std::string& unique_id,
+				const Thread& thread,
+				const ExtentGroup& subextents,
+				const int& identifier,
+				void* ptr) const
+{
     // Check assertions
     Assert(inSameDatabase(thread));
     Assert(dm_impl != NULL);
 
-    // Get the bounds of the subextents
-    Extent bounds = subextents.getBounds();
-    
-    // Find the performance data matching the specified criteria
+    // Find the specified performance data blob
     BEGIN_TRANSACTION(dm_database);
-    validate();
-    thread.validate();
     dm_database->prepareStatement(
 	"SELECT time_begin, time_end, "
 	"       addr_begin, addr_end, "
 	"       data "
 	"FROM Data "
-        "WHERE collector = ? AND thread = ? "
-        "  AND ? >= time_begin AND ? < time_end "
-        "  AND ? >= addr_begin AND ? < addr_end;"
+	"WHERE ROWID = ?;"
         );
-    dm_database->bindArgument(1, dm_entry);
-    dm_database->bindArgument(2, EntrySpy(thread).getEntry());    
-    dm_database->bindArgument(3, bounds.getTimeInterval().getEnd());
-    dm_database->bindArgument(4, bounds.getTimeInterval().getBegin());
-    dm_database->bindArgument(5, bounds.getAddressRange().getEnd());
-    dm_database->bindArgument(6, bounds.getAddressRange().getBegin());    
+    dm_database->bindArgument(1, identifier);
     while(dm_database->executeStatement())
-	
+
 	// Defer to our implementation
 	dm_impl->getMetricValues(
 	    unique_id, *this, thread,

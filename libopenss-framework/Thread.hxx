@@ -47,6 +47,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Collector;
     class CollectorGroup;
     class Database;
+    class DataCache;
     class Experiment;
     class Function;
     class LinkedObject;
@@ -80,6 +81,7 @@ namespace OpenSpeedShop { namespace Framework {
 	public Entry
     {
 	friend class Collector;
+	friend class DataCache;
 	friend class Experiment;
 	friend class Function;
 	friend class LinkedObject;

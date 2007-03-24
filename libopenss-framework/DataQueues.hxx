@@ -35,6 +35,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Blob;
     class Database;
+    class DataCache;
     template <typename> class SmartPtr;
 
     /**
@@ -63,6 +64,8 @@ namespace OpenSpeedShop { namespace Framework {
      */
     namespace DataQueues
     {
+
+	extern DataCache TheCache;
 
 	void addDatabase(const SmartPtr<Database>&);
 	void removeDatabase(const SmartPtr<Database>&);
