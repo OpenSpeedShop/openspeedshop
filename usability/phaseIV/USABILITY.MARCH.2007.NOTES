@@ -1,6 +1,81 @@
-Candidate #1   (NAME)
+Candidate #1   (Dave D)
 
-  - 
+PHASE I.
+  - No problem running sweep3d.mpi outside the tool
+  - Launched openss
+  - Trying to find out how to run sweep3d inside openss
+  - Typing in command window
+  - Looking for/at help menus
+  - Looked at wizard choices
+  - Only one had the work MPI in it so he chose that option
+  - Looking at the MPI_xxxx checkbox choices in the wizard
+  - Said would have thought openss would ask about the application
+    before asking what experiment to run on it.
+  - Got to the load application dialog window
+    - Selected mpirun as the executable, then saw parallel prefix info
+    - Changed the executable to sweep3d.mpi
+    - Read notes in wizard and then clicked ok
+  - Thought the load application parallel prefix dialog was ok, understandable to him
+  - For him, asking him first about the info he knew about (executable) would make
+    more sense.
+  - Comments about the wizard
+    - First screen should have a greyed out Finish button.  The candidate doesn't
+      like it when the buttons move around.  They should be consistent 
+      across the whole of the wizard.
+    - Loading the executable takes a long time.  The candidate would like to know
+      how long or what is going on while waiting.
+
+  - Main Experiment window comes up.  The candidate was able to see that hitting run
+    was the next step.
+  - The candidate was interested in the Manage Process panel and watching the status.
+  - The tooltip in the Manage Process panel says something about focusing on
+    the process using the "Focus on Process" menu item.  The candidate can't find the
+    menu item.
+
+  - Experiment ends and stats panel comes up.   What does the data represent?
+  - The candidate can't figure out what the data represents.  Is it the aggregate?  Which
+    ranks/processes?   No easy way to tell.
+  - The candidate suggests some top level item showing what threads are represented in the
+    stats panel performance information (scope).
+  - The candidate suggests right clicking on item shoudl give local info.
+  - In source not found message, he suggests telling the user about source remapping.
+  - The candidate likes the source remapping feature, says it is less complicated than totalviews.
+
+PHASE II.
+
+  - The candidate sees he needs to open up a saved file.
+  - The candidate goes to the file menu.
+  - After a while he sees the first checkbox in the wizard menu, chooses that.
+  - Martin asks him to find the host and number of processors that were used in creating
+    the file.
+  - The candidate tries to find host, looking in source panel, reads assignment again, right mouse down
+    in Stats Panel, can't find anything that he cano be.
+  - The candidate states that the info should be another line or menu next to the stats panel.
+  - The candidate looks again at the File menu, then the Tools menu.  The candidates looking for the ManageProcesses panel.
+  - We finally show him that it's under the Usertime Tab.  The candidate doesn't think this
+    info should be under a tab.
+  - On Step 3) - show results by statements.
+  - The candidate states that we could have path remapping in the file menu as a convenience.
+  - Step 6: Find out if any of the ranked processes are taking more time than the others.
+  - The candidate goes to the stats panel menu, looking at metrics menu item (not intuiative).
+  - Looks for a long time, does get to "Group Similar Processes".  That wasn't what he was
+    expecting for a name.
+  - Step 7: Show the performance results for the rank 0 process only saving the original StatsPanel results.
+  - The candidate says this function should be in the stats panel menum items or near the stats panel.
+  - Martin comment: Put menu help in yellow color so all help is same color.
+  - The candidate says that the "Hide Chart" could have a X box on the tab line not under tab.
+  - The candidate says the menu item "Group Similar Processes" could be "Group Processes with Similar Performance".
+  - The candidate says results headers for the "Group Similar Processes" are not very useful.
+    "usertime -x 2 -r:0-9"   |  "usertime -x 2 -r:10-255"
+    could be:
+    " Group 1  ( ranks 0-9 )" | " Group 1  ( ranks 10-255 )"
+
+  - The candidate says could have a message somewhere that says: "Found two similar performing groups of processes"
+  - Step 7: Show the performance results for the rank 0 process only saving the original StatsPanel results.
+  - Custom Stats Panel - not what he expected from name 
+  - ran out of time.
+
+
 
 Candidate #2  (NAME)
 
