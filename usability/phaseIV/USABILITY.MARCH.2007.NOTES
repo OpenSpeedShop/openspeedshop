@@ -123,7 +123,30 @@ PHASE II.
   - The candidate states that hiding major functionality under a tab is not
     intuiative.   You might expect to find tab related functions such as, close tab
     there.
-  - 
+  - The candidate notices that there is no cancel when deleting the usertime experiment.  
+    Both choices delete to different degrees but you can' opt out.
+  - The candidate suggests reorganizing how to get at saved, existing, etc experiments by
+    having a VIEWS menu next to the FILE menu.
+    FILE       VIEW
+                - Loaded experiments
+                  - 1 Usertime xxx
+                  - 2 pcSamp yyy
+
+  - A description of what is being shown needs to be able to be found in/on/near the StatsPanel.
+  - The candidate didn't know that if he highlighted a function he could see function scope info
+    about that function.   He suggested a menu item that said "Show statements by highlighted function".
+  - The word "Metric" is not user intutiative.
+  - When going to the source by double clicking there should be a better way of denoting what line
+    you focused on in the source panel.  The ">>>" isn't obvious.
+  - Step 6: Find out if any of the ranked processes are taking more time than the others.
+  - The candidate looked for this quite a while.  Nothing around the stats panel seems to look like
+    what he needs.
+  - The candidate finally chose "Group Similar Processes".  Not intuiative.
+  - Didn't understand how to save the existing stats panel via recycle.  Recycle not a good word.
+  - The candidate says openss needs a scope widget on the stats panel
+    - Use this to put show ranks associated with the stats information in the stats panel.
+  - The add/delete/describe dialog box has a cancel button which should be relabled close.
+   
 
 Candidate #3  (NAME)
 
