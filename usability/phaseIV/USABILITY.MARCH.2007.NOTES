@@ -77,8 +77,52 @@ PHASE II.
 
 
 
-Candidate #2  (NAME)
+Candidate #2  (Nathan D)
 
+PHASE I.
+
+  - The candidate is immediately confused by the two checkbox and line between them and
+    the radio buttons below.   Looks like you need to check one from each category.
+  - The candidate says on the second wizard page the "<<Intro" should just be "Back" to
+    be consistent.
+  - The candidate puts garbage characters into the sampling rate input box.  No checking is
+    done by openss (BUG).
+  - The candidate says the CLEAR button should be changed to RESET, because that is really
+    what it is doing.
+  - Gets to the load executable dialog box, just selected sweep3d.mpi and didn't see anything
+    about the parallel prefix (mpirun) entry.
+  - Gets "Can't execute sweep3d.mpi under control of OpenSpeedShop" message.  The candidate
+    says this message box needs a scroll bar.
+  - The candidate didn't see parallel prefix box.  Says should be reworded.
+  - Discussion about how this should be done:
+    - Have separate load parallel radio button and separate load scalar radio button.
+    - Prefix terminology not so good.  
+    - Have wizard for launching mpi job.
+      - Ask how many processes
+      - What partition
+      - How many nodes, processors per node
+      - Then build command for user
+  - The candidate notices that canceling in the load executable dialog goes to the next page
+    thus doesn't really cancel.
+  - The candidate noteices that BACK button doesn't clear the load versus attach checkboxes.
+  - The candidate would like to see feedback from openss when openss is loading/attaching to the
+    process.   Maybe telling the user what is being done:  loading executable, processing symbols,
+    fetching mpi job info, attaching to mpi ranked processes, etc...
+  - The candidate hits RUN.
+  - The tooltip in manage process panel keeps popping up.
+  - The word Container in the tooltip is too technical - use panel.
+  - Status dialog is too technical.  "Running expview -x 1 -m usertime::exclusive_time" isn't
+    meaningful to the general user.
+
+PHASE II.
+
+  - Loads the saved file with no problem.
+  - Step 2 - looking for hosts and processes
+  - Looks in stats panel for info, remembers the manage process panel from phase I.
+  - Can't find manage process panel.   Looks everywhere but the usertime tab.
+  - The candidate states that hiding major functionality under a tab is not
+    intuiative.   You might expect to find tab related functions such as, close tab
+    there.
   - 
 
 Candidate #3  (NAME)
