@@ -1,3 +1,5 @@
+#!/bin/sh
+
 if test -f $HOME/.rhosts
 then
    echo "$HOME/.rhosts exists, good"
@@ -9,5 +11,20 @@ fi
 else
    echo "Need to create a $HOME/.rhosts file with permissions 600"
 fi
+
+if (! $DYNINSTAPI_RT_LIB)
+then
+   echo "Environment variable DYNINSTAPI_RT_LIB is set."
+else
+   echo "Environment variable DYNINSTAPI_RT_LIB is not set.  If non-default install, set to point to location of libdyninstAPI_RT.so.1"
+fi
+
+if (! $DPCL_RT_LIB)
+then
+   echo "Environment variable DPCL_RT_LIB is set."
+else
+   echo "Environment variable DPCL_RT_LIB is not set.  If non-default install, set to point to location of libdpclRT.so.1"
+fi
+
 
 echo "The environment checking script is not completly implemented at this time"
