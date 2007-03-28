@@ -18,7 +18,7 @@
 
 
                  Phase III Usability Study   5/24/06
-         Conducted by Scott Cranford, Martin Shulz, and Al Stipek
+         Conducted by Scott Cranford, Martin Schulz, and Al Stipek
 
 
 It's amazing!  There's still room for improvement...  ;-)
@@ -135,7 +135,7 @@ first section is, in my opinion, the big ticket items.
 
     Something like:
     [ ] Load 1 saved experiment   (Selection followed by simple wizard.)
-    [ ] Compare 2 saved experments   (Selection followed by compare wizard.)
+    [ ] Compare 2 saved experiments   (Selection followed by compare wizard.)
     [x] Attach or Run executable  (Additional selection indented required.)
         o pcsamp
         o usertime
@@ -144,7 +144,7 @@ first section is, in my opinion, the big ticket items.
 
 
 7 - Diff, diff, diff.  Every (EVERY) user wanted a source diff for
-    the exeriment data, with performance annotations.
+    the experiment data, with performance annotations.
 
 
 8 - The headings, in general, need more information "connecting"

@@ -29,7 +29,7 @@ General Summary:
      - Able to see which ranks,processes, or threads the stats panel statistics represent
      - Do some of custom panel functionality automatically
      - Save stats panel view while bringing up another (called recycle)
-     - Have a hiearchy, function, statements and make the scoping clear
+     - Have a hierarchy, function, statements and make the scoping clear
        - If by function - list all functions
    - Parallel job load dialog was not clear enough
      - Suggested have separate multiprocess load and scalar load dialogs
@@ -75,21 +75,17 @@ Bugs/Issues Found
 13) Maybe load the executable/application prior to giving the user experiment type
     questions.
 
-14) Have more consistent buttons across the wizards.   
-    a) First screen should have greyed out "Finish" button
+14) Have more consistent buttons across the wizards.
+    a) First screen should have grayed out "Finish" button
     b) Use "Back" name instead of "<<Intro" on the second pages of the wizards
     c) "Clear" should be "Reset" to be consistent with what it is really doing.
 
-15) Reorganize the menus and panels to have a better hiearchy of tasks.  Users
+15) Reorganize the menus and panels to have a better hierarchy of tasks.  Users
     are currently unaware of what the data scoping is.
 
-16) Add a scoping widget to the stats panel and maybe to all the panels to 
+16) Add a scoping widget to the stats panel and maybe to all the panels to
     hold the critical information.  In the stats panel this would be:
       a) Execution Environment: What hosts, processes, ranks, or threads involved
       b) What processes/ranks/threads does the current view of the performance data represent
       c) Tools to compare ranks, show individual ranks etc should be available here.
-
-
-
-
 
