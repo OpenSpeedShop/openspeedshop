@@ -148,13 +148,84 @@ PHASE II.
   - The add/delete/describe dialog box has a cancel button which should be relabled close.
    
 
-Candidate #3  (NAME)
+Candidate #3  (Jeff B)
 
+PHASE I.
+
+  - Ran sweep3d.mpi outside of OpenSpeedShop with no problems
+  - Step 2 - Loading executable
+  - Looked at File menu, looking at all the options.  Couldn't find anything relevant
+    Didn't know what existing experiment meant versus saved.  What is existing?
+  - Now confused by the check boxes versus radio buttons.   Do I need to select one check box and
+    then a radio button?
+  - Reading all the wizard options
+  - Picks pcsamp wizard options and gets to the parallel prefix info.  Confused by the parallel prefix wording.
+  - The candidate was asked to find the host name and process info.  He thinks that is done well.
+  - Did the RUN ok.
+  - Would like a filter so he could see only his program/application performance information.
+  - Having trouble with the phrase "existing experiment" in the file menu.  What does existing mean?
+  - Would like feedback on progress when loading/attaching to the executable.  
+
+PHASEII.
+
+  - He is asked to find info about the host and number of processors used.
+    - Looks in the File, the Tools menus.
+    - Says openss needs a scope panel for the stats panel, where this type of info would be available.
+    - Could have an execution environment section to the scope panel.
+    - Dive from functions to statements, follow a hiearchy.
+    - Would like to see a % of the overall in with the exclusive time.
+  - Step 6: Find out if any of the ranked processes are taking more time than the others.
+  - The candidate looked for this quite a while.  Nothing around the stats panel seems to look like
+    what he needs.  Looked at "Show Metrics"  Finally gets to "Group Similar Processes"
+  - The candidate discusses the Hiearchy idea again:
+          Process/Rank
+              |
+             / \
+        Function
+            |
+           / \ 
+        Statement
+
+   - Maybe show a histogram where you click on the histogram to go to the function, then click
+     on the function to go to the statement.
+
+   - The candidate is trying to find the total time taken in the program in the function list view
+     There is no total put out.
+   - Need to be more rank centric.
+   - Calltree comments:
+     - Calltree root should have main at 100% inclusive time.
+     - Have functions indented and be able to close and open the tree
+     - The candidates says that calltrees are inherently inclusive.  Root of tree is main, should be 100% inclusive.
+     - Need to have the calltrees based on inclusive time not exclusive (as is the case now).  
+     - Don't restrict to the top n functions for these views.
+     - Example:
+              The Tree
+
+                 Main
+                 |  \
+                / \  \
+               A   B  C
+              /\ \
+             /  \ \
+            C    D E
+
+           The CallTree View
+
+           Main      1000.0    100 %
+             A        500.0     50 %
+               C      200.0    
+               D      200.0   
+               E      100.0
+                MPI1
+                MPI2
+             B        300.0     30 %
+             C        200.0     20 %
+
+Candidate #4 (Matt)
+
+PHASE I.
   - 
-
-Candidate #4 (NAME)
-
-  - 
+PHASE II.
 
 Global comments:
 
