@@ -224,10 +224,56 @@ PHASEII.
 Candidate #4 (Matt)
 
 PHASE I.
-  - 
+  - Ran step 0 easily.
+  - Started up the openss wizard easily.
+  - Reading wizard info, picked pc sampling.  Wasn't sure what pc stood for.
+  - Trying to load executable and launch mpi job.  Didn't see the parallel prefix
+    info in the load executable dialog box.
+  - Taking a long time to load the executable.  Confused that the application might
+    already be running or have run.
+  - When experiment was run (he had no problem running it after it loaded) the stats panel
+    popped up.
+  - He'd like to see a running total of the total percentage of the routines above the one
+    he is looking at.  That would give him an idea of how important that routine is.
+  - Got a core dump at SS_Cmd_Execution.cxx at 445 when double clicking on rank 0 in the
+    Manage process panel.  There was a delay due to going through the mac laptop and it 
+    might have caught the tool in the middle of some code that wasn't ready for another click.
+    Need to investigate this.
+ 
 PHASE II.
 
-Global comments:
+  - Ran step 1 easily.
+  - Step 2 - looking for hosts and processes
+    - Looking at Tools and File menus
+    - Knows there should be another panel that deals with processes, ranks but can't find it
+    - Manage processes panel should be more explicit - easier to find
+  - Step 3 - displaying "by statement"
+    - The candidate thinks we mean go to the source line not to display the results by statement
+    - The candidate looks for how to get to the source.  Gets into "goto function" uses
+      sweep3d_ and openss aborts.
+  - Upon trying to bring the tool up, we run into a consistent abort.  Try several times
+    but can't get around it.   Later we were able to get around the problem by loading the papi
+    module and then unloading it.  Apparently, the LD_LIBRARY_PATH was corrupted.
+  - We had to let the candidate go with time still left because of the above mentioned problem.
+  - The candidate talked about some things that are important to him and his analysis:
+    - Plotting metrics against other metrics, this can show patterns
+    - More HWC metrics measured per execution of the executable
+    - Does a lot of work with physics code which are integer intensive.
 
-   - 
+Global comments/summary:
+
+   - Make these easy:
+     - Change focus to a rank or set of ranks
+     - Able to see which ranks,processes, or threads the stats panel statistics represent
+     - Do some of custom panel functionality automatically
+     - Save stats panel view while bringing up another (called recycle)
+     - Have a hiearchy, function, statements and make the scoping clear
+       - If by function - list all functions
+   - Parallel job load dialog was not clear enough 
+     - Suggested have separate multiprocess load and scalar load dialogs
+   - Tooltips context boxes are sometimes too big and block the items that are trying to be viewed
+   - Right click on Tab is not recognized.
+     - Critical functionality shouldn't be hidden in the Tab, maybe a drop down menu is alternative
+   - Bring up the process management panel when loading an experiment.
+   - Don't mix checkbox and radio buttons in the IntroWizard
 

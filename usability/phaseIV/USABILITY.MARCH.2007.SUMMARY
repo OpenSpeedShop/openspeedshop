@@ -18,6 +18,78 @@
 
 
                  Phase IV Usability Study   3/20/07
-         Conducted by 
+         Conducted by Jim Galarowicz, Martin Schulz, and Dave Montoya
+         At: LANL
+
+
+General Summary:
+
+   - Make these easy:
+     - Change focus to a rank or set of ranks
+     - Able to see which ranks,processes, or threads the stats panel statistics represent
+     - Do some of custom panel functionality automatically
+     - Save stats panel view while bringing up another (called recycle)
+     - Have a hiearchy, function, statements and make the scoping clear
+       - If by function - list all functions
+   - Parallel job load dialog was not clear enough
+     - Suggested have separate multiprocess load and scalar load dialogs
+   - Tooltips context boxes are sometimes too big and block the items that are trying to be viewed
+   - Right click on Tab is not recognized.
+     - Critical functionality shouldn't be hidden in the Tab, maybe a drop down menu is alternative
+   - Bring up the process management panel when loading an experiment.
+   - Don't mix checkbox and radio buttons in the IntroWizard
+
+
+Bugs/Issues Found
+
+1) Manage Process Panel (both sides) didn't appear to be updating
+   after RUN was pushed.  Could be a preference setting.  There
+   is a preference for how often to update the panel.
+
+2) No error checking in the pc sample rate entry box.
+
+3) Can't execute this executable message needs a scroll bar.
+
+4) Load parallel dialog box incorrectly goes to the next wizard page on a cancel.
+
+5) Tooltip delay time didn't seem long enough.  The tooltips kept popping up annoyingly.
+
+6) Container word is too technical for the users.  Maybe use panel?
+
+7) Messages about executing "expview -x 2 -v xxxxx" coming out in popups
+   are too technical.   Make a preference for these.  Use non-technical English
+   to explain what is going on if the preference is not set.
+
+8) No cancel on usertime delete experiment message.  No way to back out of it.
+
+9) Add/delete/describe message dialog cancel should be close.
+
+10) Core dump at SS_Cmd_Execution.cxx at line 445.
+
+11) Tooltip in ManageProcessesPanel is too big and comes up to fast.
+
+12) Two check boxes and six radio buttons on the IntroWizard panel is confusing.
+    Make all radio buttons.   Currently looks like you have to choose one check
+    box and then one of the radio buttons.
+
+13) Maybe load the executable/application prior to giving the user experiment type
+    questions.
+
+14) Have more consistent buttons across the wizards.   
+    a) First screen should have greyed out "Finish" button
+    b) Use "Back" name instead of "<<Intro" on the second pages of the wizards
+    c) "Clear" should be "Reset" to be consistent with what it is really doing.
+
+15) Reorganize the menus and panels to have a better hiearchy of tasks.  Users
+    are currently unaware of what the data scoping is.
+
+16) Add a scoping widget to the stats panel and maybe to all the panels to 
+    hold the critical information.  In the stats panel this would be:
+      a) Execution Environment: What hosts, processes, ranks, or threads involved
+      b) What processes/ranks/threads does the current view of the performance data represent
+      c) Tools to compare ranks, show individual ranks etc should be available here.
+
+
+
 
 
