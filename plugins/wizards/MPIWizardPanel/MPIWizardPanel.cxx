@@ -192,13 +192,14 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
 
   vParameterPageButtonSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   vParameterPageButtonLayout->addItem( vParameterPageButtonSpacer );
-  vParameterPageBackButton = new QPushButton( vParameterPageWidget, "vParameterPageBackButton" );
-  vParameterPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageBackButton->sizePolicy().hasHeightForWidth() ) );
-  vParameterPageButtonLayout->addWidget( vParameterPageBackButton );
 
   vParameterPageResetButton = new QPushButton( vParameterPageWidget, "vParameterPageResetButton" );
   vParameterPageResetButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageResetButton->sizePolicy().hasHeightForWidth() ) );
   vParameterPageButtonLayout->addWidget( vParameterPageResetButton );
+
+  vParameterPageBackButton = new QPushButton( vParameterPageWidget, "vParameterPageBackButton" );
+  vParameterPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageBackButton->sizePolicy().hasHeightForWidth() ) );
+  vParameterPageButtonLayout->addWidget( vParameterPageBackButton );
 
   vParameterPageNextButton = new QPushButton( vParameterPageWidget, "vParameterPageNextButton" );
   vParameterPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageNextButton->sizePolicy().hasHeightForWidth() ) );
@@ -266,13 +267,14 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
 
   vAttachOrLoadPageButtonSpacer = new QSpacerItem( 251, 1, QSizePolicy::Expanding, QSizePolicy::Minimum );
   vAttachOrLoadPageButtonLayout->addItem( vAttachOrLoadPageButtonSpacer );
-  vAttachOrLoadPageBackButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageBackButton" );
-  vAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
-  vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageBackButton );
 
   vAttachOrLoadPageClearButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageClearButton" );
   vAttachOrLoadPageClearButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageClearButton->sizePolicy().hasHeightForWidth() ) );
   vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageClearButton );
+
+  vAttachOrLoadPageBackButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageBackButton" );
+  vAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
+  vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageBackButton );
 
   vAttachOrLoadPageNextButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageNextButton" );
   vAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
@@ -397,13 +399,14 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
 
   eParameterPageButtonSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   eParameterPageButtonLayout->addItem( eParameterPageButtonSpacer );
-  eParameterPageBackButton = new QPushButton( eParameterPageWidget, "eParameterPageBackButton" );
-  eParameterPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eParameterPageBackButton->sizePolicy().hasHeightForWidth() ) );
-  eParameterPageButtonLayout->addWidget( eParameterPageBackButton );
 
   eParameterPageResetButton = new QPushButton( eParameterPageWidget, "eParameterPageResetButton" );
   eParameterPageResetButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eParameterPageResetButton->sizePolicy().hasHeightForWidth() ) );
   eParameterPageButtonLayout->addWidget( eParameterPageResetButton );
+
+  eParameterPageBackButton = new QPushButton( eParameterPageWidget, "eParameterPageBackButton" );
+  eParameterPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eParameterPageBackButton->sizePolicy().hasHeightForWidth() ) );
+  eParameterPageButtonLayout->addWidget( eParameterPageBackButton );
 
   eParameterPageNextButton = new QPushButton( eParameterPageWidget, "eParameterPageNextButton" );
   eParameterPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eParameterPageNextButton->sizePolicy().hasHeightForWidth() ) );
@@ -437,6 +440,7 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
   eAttachOrLoadPageAttachOrLoadLayout = new QVBoxLayout( 0, 0, 6, "eAttachOrLoadPageAttachOrLoadLayout"); 
 
   eAttachOrLoadPageAttachToProcessCheckBox = new QCheckBox( eAttachOrLoadPageWidget, "eAttachOrLoadPageAttachToProcessCheckBox" );
+  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
   eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageAttachToProcessCheckBox );
 
   eAttachOrLoadPageProcessListLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageProcessListLabel" );
@@ -446,6 +450,7 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
   eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageProcessListLabel );
 
   eAttachOrLoadPageLoadExecutableCheckBox = new QCheckBox( eAttachOrLoadPageWidget, "eAttachOrLoadPageLoadExecutableCheckBox" );
+  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
   eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageLoadExecutableCheckBox );
 
   eAttachOrLoadPageExecutableLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageExecutableLabel" );
@@ -466,13 +471,14 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
 
   eAttachOrLoadPageButtonSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   eAttachOrLoadPageButtonLayout->addItem( eAttachOrLoadPageButtonSpacer );
-  eAttachOrLoadPageBackButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageBackButton" );
-  eAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
-  eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageBackButton );
 
   eAttachOrLoadPageClearButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageClearButton" );
   eAttachOrLoadPageClearButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageClearButton->sizePolicy().hasHeightForWidth() ) );
   eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageClearButton );
+
+  eAttachOrLoadPageBackButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageBackButton" );
+  eAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
+  eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageBackButton );
 
   eAttachOrLoadPageNextButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageNextButton" );
   eAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
@@ -791,6 +797,7 @@ void MPIWizardPanel::wizardModeSelected()
   }
 
   ewizardMode->setChecked( FALSE );
+  vwizardMode->setChecked( TRUE );
 }
 
 
@@ -873,6 +880,9 @@ void MPIWizardPanel::eAttachOrLoadPageClearButtonSelected()
     }
   }
 //  eUpdateAttachOrLoadPageWidget();
+  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
+  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
   vUpdateAttachOrLoadPageWidget();
 }
 
@@ -1014,12 +1024,12 @@ void MPIWizardPanel::vAttachOrLoadPageClearButtonSelected()
   nprintf(DEBUG_PANELS) ("vAttachOrLoadPageClearButtonSelected() \n");
 
   vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
   vAttachOrLoadPageLoadExecutableCheckBox->setEnabled(TRUE);
   eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
   eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
   eAttachOrLoadPageLoadExecutableCheckBox->setEnabled(TRUE);
 
   if( getPanelContainer()->getMainWindow() )
@@ -1275,8 +1285,8 @@ MPIWizardPanel::languageChange()
   setCaption( tr( "MPI/MPIT - Wizard Panel" ) );
   vDescriptionPageTitleLabel->setText( tr( "<h1>MPI/MPIT - Wizard</h1>" ) );
 //  vDescriptionPageText->setText( tr( vMPIDescription ) );
-  vDescriptionPageIntroButton->setText( tr( "<< Intro" ) );
-  QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
+  vDescriptionPageIntroButton->setText( tr( "< Back" ) );
+  QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the second page of the Intro Wizard so you can make a different selection." ) );
   vDescriptionPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
@@ -1301,8 +1311,8 @@ MPIWizardPanel::languageChange()
 vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different executable from disk." ) );
   vAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
-  vAttachOrLoadPageClearButton->setText( tr( "Clear" ) );
-  QToolTip::add( vAttachOrLoadPageClearButton, tr( "This clears all settings restoring them to system defaults." ) );
+  vAttachOrLoadPageClearButton->setText( tr( "Reset" ) );
+  QToolTip::add( vAttachOrLoadPageClearButton, tr( "This resets all settings restoring them to system defaults." ) );
   vAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
   vAttachOrLoadPageFinishButton->setText( tr( ">> Finish" ) );
@@ -1315,7 +1325,8 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
   QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"mpi\" panel" ) );
   eDescriptionPageTitleLabel->setText( tr( "<h1>MPI Wizard</h1>" ) );
   eDescriptionPageText->setText( tr( eMPIDescription ) );
-  eDescriptionPageIntroButton->setText( tr( "<< Intro" ) );
+  eDescriptionPageIntroButton->setText( tr( "< Back" ) );
+  QToolTip::add( eDescriptionPageIntroButton, tr( "Takes you back to the second page of the Intro Wizard so you can make a different selection." ) );
   eDescriptionPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( eDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   eDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
@@ -1336,8 +1347,8 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
   eAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different executable from disk." ) );
   eAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
-  eAttachOrLoadPageClearButton->setText( tr( "Clear" ) );
-  QToolTip::add( eAttachOrLoadPageClearButton, tr( "This clears all settings restoring them to system defaults." ) );
+  eAttachOrLoadPageClearButton->setText( tr( "Reset" ) );
+  QToolTip::add( eAttachOrLoadPageClearButton, tr( "This resets all settings restoring them to system defaults." ) );
   eAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( eAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
   eAttachOrLoadPageFinishButton->setText( tr( ">> Finish" ) );
@@ -1409,13 +1420,13 @@ std::map<std::string,bool> tracedFunctions;
   }
 
   vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
 //  Enable (don't disable) this now that OpenSpeedShop supports creating an MPI job
 //  vAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
-  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
   eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
 //  Enable (don't disable) this now that OpenSpeedShop supports creating an MPI job
 //  eAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
 
@@ -1450,10 +1461,10 @@ MPIWizardPanel::vUpdateAttachOrLoadPageWidget()
         eAttachOrLoadPageLoadDifferentExecutableCheckBox->show();
       } else if( !mw->pidStr.isEmpty() )
       {
-        vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
-        eAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
-        vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
-        eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+        vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+        eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+        vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+        eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
         vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
         eAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
         vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
@@ -1537,9 +1548,9 @@ MPIWizardPanel::appendFunctionsToMonitor()
   int i = 0;
   int r = 0;
   int c = 0;
-CheckBoxInfoClass *cbic = NULL;
-vCheckBoxInfoClassList.clear();
-eCheckBoxInfoClassList.clear();
+  CheckBoxInfoClass *cbic = NULL;
+  vCheckBoxInfoClassList.clear();
+  eCheckBoxInfoClassList.clear();
 
   for( std::map<std::string, bool>::const_iterator it = function_map.begin();
        it != function_map.end(); it++)
@@ -1552,10 +1563,10 @@ eCheckBoxInfoClassList.clear();
     vParameterPageFunctionListGridLayout->addWidget( vParameterPageCheckBox, r, c );
     vParameterPageCheckBox->setChecked(it->second);
     vParameterPageCheckBox->setEnabled(TRUE);
-cbic = new CheckBoxInfoClass();
-cbic->checkbox = vParameterPageCheckBox;
-vCheckBoxInfoClassList.push_back(cbic);
-connect( cbic->checkbox, SIGNAL( clicked() ), this,
+    cbic = new CheckBoxInfoClass();
+    cbic->checkbox = vParameterPageCheckBox;
+    vCheckBoxInfoClassList.push_back(cbic);
+    connect( cbic->checkbox, SIGNAL( clicked() ), this,
            SLOT( vParameterPageCheckBoxSelected() ) );
 
     
@@ -1565,10 +1576,10 @@ connect( cbic->checkbox, SIGNAL( clicked() ), this,
     eParameterPageFunctionListGridLayout->addWidget( eParameterPageCheckBox, r, c );
     eParameterPageCheckBox->setChecked(it->second);
     eParameterPageCheckBox->setEnabled(TRUE);
-cbic = new CheckBoxInfoClass();
-cbic->checkbox = eParameterPageCheckBox;
-eCheckBoxInfoClassList.push_back(cbic);
-connect( cbic->checkbox, SIGNAL( clicked() ), this,
+    cbic = new CheckBoxInfoClass();
+    cbic->checkbox = eParameterPageCheckBox;
+    eCheckBoxInfoClassList.push_back(cbic);
+    connect( cbic->checkbox, SIGNAL( clicked() ), this,
            SLOT( eParameterPageCheckBoxSelected() ) );
 
     i++;
