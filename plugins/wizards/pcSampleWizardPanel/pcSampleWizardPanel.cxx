@@ -1254,8 +1254,8 @@ pcSampleWizardPanel::languageChange()
   setCaption( tr( "pc Sample Wizard Panel" ) );
   vDescriptionPageTitleLabel->setText( tr( "<h1>pc Sample Wizard</h1>" ) );
   vDescriptionPageText->setText( tr( vpcSampleDescription ) );
-  vDescriptionPageIntroButton->setText( tr( "<< Intro" ) );
-  QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
+  vDescriptionPageIntroButton->setText( tr( "< Back" ) );
+  QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the second page of the Intro Wizard so you can make a different selection." ) );
   vDescriptionPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
@@ -1300,7 +1300,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
   QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"pcSample\" panel" ) );
   eDescriptionPageTitleLabel->setText( tr( "<h1>pc Sample Wizard</h1>" ) );
   eDescriptionPageText->setText( tr( epcSampleDescription ) );
-  eDescriptionPageIntroButton->setText( tr( "<< Intro" ) );
+  eDescriptionPageIntroButton->setText( tr( "< Back" ) );
   eDescriptionPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( eDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   eDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
