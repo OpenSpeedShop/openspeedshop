@@ -1016,11 +1016,11 @@ void MPIWizardPanel::vAttachOrLoadPageClearButtonSelected()
   vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
   vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
-vAttachOrLoadPageLoadExecutableCheckBox->setEnabled(TRUE);
+  vAttachOrLoadPageLoadExecutableCheckBox->setEnabled(TRUE);
   eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
   eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   eAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
-eAttachOrLoadPageLoadExecutableCheckBox->setEnabled(TRUE);
+  eAttachOrLoadPageLoadExecutableCheckBox->setEnabled(TRUE);
 
   if( getPanelContainer()->getMainWindow() )
   { 
@@ -1411,11 +1411,13 @@ std::map<std::string,bool> tracedFunctions;
   vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
   vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
-  vAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
+//  Enable (don't disable) this now that OpenSpeedShop supports creating an MPI job
+//  vAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
   eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
   eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   eAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
-  eAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
+//  Enable (don't disable) this now that OpenSpeedShop supports creating an MPI job
+//  eAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
 
   vParameterPageCheckBoxSelected();
 }
