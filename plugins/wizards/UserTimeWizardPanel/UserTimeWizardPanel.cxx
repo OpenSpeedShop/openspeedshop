@@ -171,13 +171,14 @@ UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, Argu
 
   vParameterPageButtonSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   vParameterPageButtonLayout->addItem( vParameterPageButtonSpacer );
-  vParameterPageBackButton = new QPushButton( vParameterPageWidget, "vParameterPageBackButton" );
-  vParameterPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageBackButton->sizePolicy().hasHeightForWidth() ) );
-  vParameterPageButtonLayout->addWidget( vParameterPageBackButton );
 
   vParameterPageResetButton = new QPushButton( vParameterPageWidget, "vParameterPageResetButton" );
   vParameterPageResetButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageResetButton->sizePolicy().hasHeightForWidth() ) );
   vParameterPageButtonLayout->addWidget( vParameterPageResetButton );
+
+  vParameterPageBackButton = new QPushButton( vParameterPageWidget, "vParameterPageBackButton" );
+  vParameterPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageBackButton->sizePolicy().hasHeightForWidth() ) );
+  vParameterPageButtonLayout->addWidget( vParameterPageBackButton );
 
   vParameterPageNextButton = new QPushButton( vParameterPageWidget, "vParameterPageNextButton" );
   vParameterPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageNextButton->sizePolicy().hasHeightForWidth() ) );
