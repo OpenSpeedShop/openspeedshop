@@ -170,14 +170,14 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, Argu
 
   vParameterPageButtonSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   vParameterPageButtonLayout->addItem( vParameterPageButtonSpacer );
-  vParameterPageBackButton = new QPushButton( vParameterPageWidget, "vParameterPageBackButton" );
-  vParameterPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageBackButton->sizePolicy().hasHeightForWidth() ) );
-  vParameterPageButtonLayout->addWidget( vParameterPageBackButton );
 
   vParameterPageResetButton = new QPushButton( vParameterPageWidget, "vParameterPageResetButton" );
   vParameterPageResetButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageResetButton->sizePolicy().hasHeightForWidth() ) );
   vParameterPageButtonLayout->addWidget( vParameterPageResetButton );
 
+  vParameterPageBackButton = new QPushButton( vParameterPageWidget, "vParameterPageBackButton" );
+  vParameterPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageBackButton->sizePolicy().hasHeightForWidth() ) );
+  vParameterPageButtonLayout->addWidget( vParameterPageBackButton );
   vParameterPageNextButton = new QPushButton( vParameterPageWidget, "vParameterPageNextButton" );
   vParameterPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageNextButton->sizePolicy().hasHeightForWidth() ) );
   vParameterPageButtonLayout->addWidget( vParameterPageNextButton );
@@ -244,13 +244,14 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, Argu
 
   vAttachOrLoadPageButtonSpacer = new QSpacerItem( 251, 1, QSizePolicy::Expanding, QSizePolicy::Minimum );
   vAttachOrLoadPageButtonLayout->addItem( vAttachOrLoadPageButtonSpacer );
-  vAttachOrLoadPageBackButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageBackButton" );
-  vAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
-  vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageBackButton );
 
   vAttachOrLoadPageClearButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageClearButton" );
   vAttachOrLoadPageClearButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageClearButton->sizePolicy().hasHeightForWidth() ) );
   vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageClearButton );
+
+  vAttachOrLoadPageBackButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageBackButton" );
+  vAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
+  vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageBackButton );
 
   vAttachOrLoadPageNextButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageNextButton" );
   vAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
@@ -1286,8 +1287,8 @@ pcSampleWizardPanel::languageChange()
 vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different executable from disk." ) );
   vAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
-  vAttachOrLoadPageClearButton->setText( tr( "Clear" ) );
-  QToolTip::add( vAttachOrLoadPageClearButton, tr( "This clears all settings restoring them to system defaults." ) );
+  vAttachOrLoadPageClearButton->setText( tr( "Reset" ) );
+  QToolTip::add( vAttachOrLoadPageClearButton, tr( "This resets all settings restoring them to system defaults." ) );
   vAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
   vAttachOrLoadPageFinishButton->setText( tr( ">> Finish" ) );
