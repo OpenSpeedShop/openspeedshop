@@ -119,6 +119,7 @@ public:
     QTextEdit* vDescriptionPageText;
     QPushButton* vDescriptionPageIntroButton;
     QPushButton* vDescriptionPageNextButton;
+    QPushButton* vDescriptionPageFinishButton;
 
     QPushButton* vModePageBackButton;
     QWidget* vAttachOrLoadPageWidget;
@@ -131,6 +132,7 @@ public:
     QWidget* vSummaryPageWidget;
     QTextEdit* vSummaryPageFinishLabel;
     QPushButton* vSummaryPageBackButton;
+    QPushButton* vSummaryPageNextButton;
     QPushButton* vSummaryPageFinishButton;
     QCheckBox* vwizardMode;
     QCheckBox* ewizardMode;

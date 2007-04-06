@@ -127,6 +127,11 @@ CompareWizardPanel::CompareWizardPanel(PanelContainer *pc, const char *n, Argume
   vDescriptionPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vDescriptionPageNextButton->sizePolicy().hasHeightForWidth() ) );
   vDescriptionPageButtonLayout->addWidget( vDescriptionPageNextButton );
 
+  vDescriptionPageFinishButton = new QPushButton( vDescriptionPageWidget, "vDescriptionPageFinishButton" );
+  vDescriptionPageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vDescriptionPageFinishButton->sizePolicy().hasHeightForWidth() ) );
+  vDescriptionPageButtonLayout->addWidget( vDescriptionPageFinishButton );
+  vDescriptionPageFinishButton->setEnabled(FALSE);
+
   vDescriptionPageLayout->addLayout( vDescriptionPageButtonLayout );
   mainWidgetStack->addWidget( vDescriptionPageWidget, 0 );
 // End: verbose description page
@@ -334,9 +339,15 @@ vAttachOrLoadPageClearButton->hide();
 
   vSummaryPageButtonSpacer = new QSpacerItem( 200, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   vSummaryPageButtonLayout->addItem( vSummaryPageButtonSpacer );
+
   vSummaryPageBackButton = new QPushButton( vSummaryPageWidget, "vSummaryPageBackButton" );
   vSummaryPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vSummaryPageBackButton->sizePolicy().hasHeightForWidth() ) );
   vSummaryPageButtonLayout->addWidget( vSummaryPageBackButton );
+
+  vSummaryPageNextButton = new QPushButton( vSummaryPageWidget, "vSummaryPageNextButton" );
+  vSummaryPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vSummaryPageNextButton->sizePolicy().hasHeightForWidth() ) );
+  vSummaryPageButtonLayout->addWidget( vSummaryPageNextButton );
+  vSummaryPageNextButton->setEnabled(FALSE);
 
   vSummaryPageFinishButton = new QPushButton( vSummaryPageWidget, "vSummaryPageFinishButton" );
   vSummaryPageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vSummaryPageFinishButton->sizePolicy().hasHeightForWidth() ) );
@@ -434,6 +445,7 @@ CompareWizardPanel::listener(void *msg)
   if( messageObject->msgType == getName() )
   {
     vSummaryPageFinishButton->setEnabled(TRUE);
+    vSummaryPageNextButton->setEnabled(FALSE);
     vSummaryPageBackButton->setEnabled(TRUE);
     qApp->flushX();
     return 1;
@@ -441,6 +453,7 @@ CompareWizardPanel::listener(void *msg)
   if( messageObject->msgType == "Wizard_Raise_First_Page" )
   {
     vSummaryPageFinishButton->setEnabled(TRUE);
+    vSummaryPageNextButton->setEnabled(FALSE);
     vSummaryPageBackButton->setEnabled(TRUE);
 //    qApp->flushX();
     nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
@@ -606,10 +619,11 @@ CompareWizardPanel::languageChange()
   setCaption( tr( "Compare Wizard Panel" ) );
   vDescriptionPageTitleLabel->setText( tr( "<h1>Compare Wizard</h1>" ) );
   vDescriptionPageText->setText( tr( vCompareDescription ) );
-  vDescriptionPageIntroButton->setText( tr( "<< Intro" ) );
-  QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
+  vDescriptionPageIntroButton->setText( tr( "< Back" ) );
+  QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the second page of the Intro Wizard so you can make a different selection." ) );
   vDescriptionPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
+  vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
 
   vLoad2ExecutablesPageDescriptionLabel->setText( tr( "This wizard helps load 2 experiments to so the results can be compared.\n\nBelow are 2 columns.   The left side experiment will be compared with the experiment from the right side.\n\nBy default, files ending with a \".openss\" suffix are shown in the pulldown menu.  If the experiment files you wish to load don't end in \".openss\" or they are in a different directory, use the dialog box (Click on the folder icon.) to change the directory/and or suffix.\n\nAfter selecting the 2 experiment files, click on the \"Next\" button to continue.") );
 
@@ -625,6 +639,8 @@ CompareWizardPanel::languageChange()
 
   vSummaryPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vSummaryPageBackButton, tr( "Takes you back one page." ) );
+  vSummaryPageNextButton->setText( tr( "> Next" ) );
+  QToolTip::add( vSummaryPageNextButton, tr( "Takes you forward one page." ) );
   vSummaryPageFinishButton->setText( tr( "Finish..." ) );
   QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"mpi\" panel" ) );
 }
