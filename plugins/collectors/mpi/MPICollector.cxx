@@ -131,13 +131,15 @@ extern "C" CollectorImpl* mpi_LTX_CollectorFactory()
 MPICollector::MPICollector() :
     CollectorImpl("mpi",
                   "MPI Extended Event Tracing",
-		  "Intercepts all calls to MPI functions that perform any "
-		  "significant amount of work (primarily those that send "
-		  "messages) and records for each call, the current stack "
-		  "trace and start/end time. Detailed ancillary data is also "
-		  "stored such as the source and destination rank, number of "
-		  "bytes sent, message tag, communicator used, and message "
-		  "data type.")
+		  "The MPI experiment intercepts all calls to MPI functions that are specified "
+		  "by the user.  The functions monitored are usually those that are doing a "
+                  "significant amount of work, primarily those that send "
+		  "messages. The MPI experiment records the following for each call: "
+		  " the current stack trace, the start time and the end time. "
+                  "The following detailed ancillary data is also stored: "
+		  " the source and destination rank, the number of bytes sent," 
+                  " the message tag, the communicator used, the message data type,"
+                  " and other ancillary items not specified here.")
 {
     // Declare our parameters
     declareParameter(Metadata("traced_functions", "Traced Functions",
