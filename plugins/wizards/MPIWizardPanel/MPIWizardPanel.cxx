@@ -153,9 +153,19 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
   vParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageParameterLayout"); 
 
   vParameterTraceCheckBox = new QCheckBox( vParameterPageWidget, "vParameterTraceComboBox" );
-  vParameterTraceCheckBox->setText(tr("Gather additional information for each MPI function call. (mpit)") );
+  vParameterTraceCheckBox->setText(tr("TRACING: Gather additional information for each MPI function call. (mpit)\n") );
   vParameterPageParameterLayout->addWidget( vParameterTraceCheckBox );
   QToolTip::add( vParameterTraceCheckBox, tr( "Records extra information, with more overhead, including\nsource rank, destination rank, size of message, tag of event,\ncomminicator used, data type of event, and the return value\nof the event.") );
+
+
+
+  vParameterPageLine2 = new QFrame( vParameterPageWidget, "vParameterPageLine2" );
+  vParameterPageLine2->setMinimumSize( QSize(10,10) );
+  vParameterPageLine2->setFrameShape( QFrame::HLine );
+  vParameterPageLine2->setFrameShadow( QFrame::Sunken );
+  vParameterPageLine2->setFrameShape( QFrame::HLine );
+  vParameterPageParameterLayout->addWidget( vParameterPageLine2 );
+
 
   vParameterPageFunctionListHeaderLabel = new QLabel( vParameterPageWidget, "vParameterPageFunctionListHeaderLabel" );
   vParameterPageFunctionListHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
@@ -1291,7 +1301,7 @@ MPIWizardPanel::languageChange()
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
-  vParameterPageDescriptionText->setText( tr( QString("The following options (paramaters) are available to adjust.   These are the list of functions that the MPI collector is able to monitor.<br><br>\n") ) );
+  vParameterPageDescriptionText->setText( tr( QString("The check boxes below represent the list of functions that the MPI experiment is able to trace/monitor.  By selecting or deselecting the check boxes, you can chose which MPI functions to monitor/analyze.<br>NOTE: The TRACING option (below) when selected, records each MPI call chronologically to form a trace of the MPI calls made in your MPI application.  The option also causes more MPI related information to be recorded.<br>\n") ) );
 
   vParameterPageFunctionListHeaderLabel->setText( tr( "You can monitor the following mpi functions(s):" ) );
   vParameterPageBackButton->setText( tr( "< Back" ) );

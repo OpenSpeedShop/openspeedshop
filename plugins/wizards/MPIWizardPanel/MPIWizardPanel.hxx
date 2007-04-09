@@ -133,6 +133,7 @@ public:
     QWidget* vParameterPageWidget;
     QTextEdit* vParameterPageDescriptionText;
     QFrame* vParameterPageLine;
+    QFrame* vParameterPageLine2;
     QLabel* vParameterPageFunctionListHeaderLabel;
     QPushButton* vParameterPageBackButton;
     QPushButton* vParameterPageResetButton;
