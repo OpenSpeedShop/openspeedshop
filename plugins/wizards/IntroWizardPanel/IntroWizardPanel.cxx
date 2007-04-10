@@ -144,85 +144,9 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
 
   vWStackPage0Layout->addWidget( vpage0sv);
 
-#if 0
-
-//uu  vWStackPage0Layout->addWidget( vpage0WelcomeHeader);
-
-//  vWStackPage0Layout->addWidget( big_box );
-
-//  vScrollViewLayout0 = new QVBoxLayout( 0, 0, 6, "vScrollViewLayout0");
-//  vScrollViewLayout0->addWidget( big_box );
-
-// NEW
-//  vWStackPage0->addWidget( sv );
-
-//NEW  vRBLayout0 = new QVBoxLayout( big_box, 0, 6, "vRBLayout0");
-//NEW  vRBLayout0->addWidget( sv );
-
-  spacer3a = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
-//NEW  vRBLayout0->addItem( spacer3a );
-
-  // Add the "Please select .... message
-//uu  vpage0InitialChoiceLayout = new QVBoxLayout( 0, 0, 6, "vpage0InitialChoiceLayout"); 
-
-//  vpage0HelpfulLabel = new QLabel( vWStackPage0, "vpage0HelpfulLabel" );
-  vpage0HelpfulLabel = new QLabel( big_box, "vpage0HelpfulLabel" );
-//NEW  vRBLayout0->addWidget( vpage0HelpfulLabel );
-
-  // Load Experiment Radio Button add
-//  vLoadExpRBLayout = new QHBoxLayout( 0, 0, 6, "vLoadExpRBLayout"); 
-  spacer5c = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
-//NEW vRBLayout0->addItem( spacer5c );
-//uu  vpage0InitialChoiceLayout->addItem( spacer5c );
-
-  vpage0CreateLoadExpDataRB = new QRadioButton( big_box, "vpage0CreateLoadExpDataRB" );
-//  vpage0CreateLoadExpDataRB = new QRadioButton( vWStackPage0, "vpage0CreateLoadExpDataRB" );
-  vpage0CreateLoadExpDataRB->setChecked( TRUE );
-//NEW vRBLayout0->addWidget( vpage0CreateLoadExpDataRB );
-//uu  vpage0InitialChoiceLayout->addWidget( vpage0CreateLoadExpDataRB );
-  // Add the Load Single Saved Experiment Data Radio Button 
-//9  vSavedExpRBLayout = new QHBoxLayout( 0, 0, 6, "vSavedExpRBLayout"); 
-
-  spacer5a = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
-//NEW  vRBLayout0->addItem( spacer5a );
-//  vpage0InitialChoiceLayout->addItem( spacer5a );
-
-  vpage0SavedExpDataRB = new QRadioButton( big_box, "vpage0SavedExpDataRB" );
-//  vpage0SavedExpDataRB = new QRadioButton( vWStackPage0, "vpage0SavedExpDataRB" );
-  vpage0SavedExpDataRB->setChecked( FALSE );
-//NEW  vRBLayout0->addWidget( vpage0SavedExpDataRB );
-//uu  vpage0InitialChoiceLayout->addWidget( vpage0SavedExpDataRB );
-//0  vSavedExpRBLayout->addWidget( vpage0SavedExpDataRB );
-
-
-  // Compare Two Saved Experiment Data Files Radio Button add
-//9  vSavedExpCompareRBLayout = new QHBoxLayout( 0, 0, 6, "vSavedExpCompareRBLayout"); 
-  spacer5b = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
-//9 vSavedExpCompareRBLayout->addItem( spacer5b );
-//NEW  vRBLayout0->addItem( spacer5b );
-//uu  vpage0InitialChoiceLayout->addItem( spacer5b );
-
-//  vpage0SavedExpCompareDataRB = new QRadioButton( vWStackPage0, "vpage0SavedExpCompareDataRB" );
-  vpage0SavedExpCompareDataRB = new QRadioButton( big_box, "vpage0SavedExpCompareDataRB" );
-  vpage0SavedExpCompareDataRB->setChecked( FALSE );
-//9  vSavedExpCompareRBLayout->addWidget( vpage0SavedExpCompareDataRB );
-//NEW  vRBLayout0->addWidget( vpage0SavedExpCompareDataRB );
-//uu  vpage0InitialChoiceLayout->addWidget( vpage0SavedExpCompareDataRB );
-//9  vpage0InitialChoiceLayout->addLayout( vSavedExpCompareRBLayout );
-
-
-  QSpacerItem *bfs = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
-//NEW  vRBLayout0->addItem( bfs );
-//uu  vpage0InitialChoiceLayout->addItem( bfs );
-
-//  vRBLayout0->addWidget( sv );
-//uu  vRBLayout0->addLayout( vpage0InitialChoiceLayout );
-
-//  vScrollViewLayout0->addLayout( vRBLayout0 );
-//uu  vWStackPage0Layout->addLayout( vRBLayout0 );
-
-
-#endif
+  // -----------------------------
+  // Page 0 Verbose Button Layout
+  // -----------------------------
 
   vNextButtonPage0Layout = new QHBoxLayout( 0, 0, 6, "vNextButtonPage0Layout");
 
@@ -258,38 +182,9 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   mainWidgetStack->addWidget( vWStackPage0, 0 );
 
 
-#if 0
-  vpage0wizardMode = new QCheckBox( getBaseWidgetFrame(),  "vpage0wizardMode" );
-  vpage0wizardMode->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vpage0wizardMode->sizePolicy().hasHeightForWidth() ) );
-  vpage0wizardMode->setChecked( TRUE );
-
-  vNextButtonPage0Layout = new QHBoxLayout( 0, 0, 6, "vNextButtonPage0Layout"); 
-  vNextButtonPage0Layout->addWidget( vpage0wizardMode );
-
-  IntroWizardFormLayout->addLayout( vNextButtonPage0Layout );
-
-  QSpacerItem *spacer2a = new QSpacerItem( 20, 10, QSizePolicy::Fixed, QSizePolicy::Fixed );
-  vNextButtonPage0Layout->addItem( spacer2a );
-
-  spacer44a = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-  vNextButtonPage0Layout->addItem( spacer44a );
-
-  spacer44a = new QSpacerItem( 1, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-  vNextButtonPage0Layout->addItem( spacer44a );
-
-  vpage0NextButton = new QPushButton( getBaseWidgetFrame(), "vpage0NextButton" );
-  vpage0NextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vpage0NextButton->sizePolicy().hasHeightForWidth() ) );
-  vNextButtonPage0Layout->addWidget( vpage0NextButton );
-
-  QSpacerItem *spacer0_3 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
-  vNextButtonPage0Layout->addItem( spacer0_3 );
-
-  QSpacerItem *bfs = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
-  vpage0InitialChoiceLayout->addItem( bfs );
-  vWStackPage0Layout->addLayout( vpage0InitialChoiceLayout );
-#endif
-
+  // -----------------------------
   // Page 0 Expert ScrollView setup 
+  // -----------------------------
 
   eWStackPage0 = new QWidget( mainWidgetStack, "eWStackPage0" );
   eWStackPage0->setMinimumSize( QSize(10,10) );
