@@ -99,22 +99,74 @@ public:
     QFrame* mainFrame;
     QWidgetStack* mainWidgetStack;
 
-    QWidget* vWStackPage;
-    QLabel* vWelcomeHeader;
-    QLabel* vHelpfulLabel;
-    QCheckBox* vpage1LoadExperimentCheckBox;
-    QCheckBox* vpage1CompareExperimentsCheckBox;
+    QLabel* vpage0WelcomeHeader;
+    QLabel* epage0WelcomeHeader;
+    QLabel* vpage1WelcomeHeader;
+    QLabel* epage1WelcomeHeader;
+//    QCheckBox* vpage1LoadExperimentCheckBox;
+//    QCheckBox* vpage1CompareExperimentsCheckBox;
     QFrame* line3;
+//  Page 0
+    QLabel* vpage0HelpfulLabel;
+    QLabel* vpage0SpacerItem1;
+    QLabel* vpage0SpacerItem2;
+    QLabel* vpage0SpacerItem3;
+    QLabel* vpage0SpacerItem4;
+    QLabel* vpage0SpacerItem5;
+    QLabel* vHelpfulLabel;
+    QLabel* epage0SpacerItem1;
+    QLabel* epage0SpacerItem2;
+    QLabel* epage0SpacerItem3;
+    QLabel* epage0SpacerItem4;
+    QLabel* epage0SpacerItem5;
+    QLabel* eHelpfulLabel;
+    QWidget* vWStackPage0;
+    QWidget* eWStackPage0;
+    QRadioButton* vpage0SavedExpDataRB;
+    QRadioButton* vpage0SavedExpCompareDataRB;
+    QRadioButton* vpage0CreateLoadExpDataRB;
+    QRadioButton* vpage0CreateAttachExpDataRB;
+    QRadioButton* epage0SavedExpDataRB;
+    QRadioButton* epage0SavedExpCompareDataRB;
+    QRadioButton* epage0CreateLoadExpDataRB;
+    QRadioButton* epage0CreateAttachExpDataRB;
+//  Page 1
+    QLabel* vpage1SpacerItem1;
+    QLabel* vpage1SpacerItem2;
+    QLabel* vpage1SpacerItem3;
+    QLabel* vpage1SpacerItem4;
+    QLabel* vpage1SpacerItem5;
+    QLabel* vpage1SpacerItem6;
+    QLabel* vpage1SpacerItem7;
+    QLabel* vpage1SpacerItem8;
+    QLabel* vpage1HelpfulLabel;
+    QWidget* vWStackPage1;
+    QWidget* eWStackPage1;
     QRadioButton* vpage1pcSampleRB;
     QRadioButton* vpage1UserTimeRB;
     QRadioButton* vpage1HardwareCounterRB;
     QRadioButton* vpage1FloatingPointRB;
     QRadioButton* vpage1InputOutputRB;
     QRadioButton* vpage1MPIRB;
-    QPushButton* vpage1NextButton;
 
-    QWidget* eWStackPage;
-    QLabel* eHelpfulLabel;
+    QPushButton* vpage1BackButton;
+    QPushButton* vpage1NextButton;
+    QPushButton* vpage1FinishButton;
+
+    QPushButton* epage1BackButton;
+    QPushButton* epage1NextButton;
+    QPushButton* epage1FinishButton;
+
+    QLabel* epage1SpacerItem1;
+    QLabel* epage1SpacerItem2;
+    QLabel* epage1SpacerItem3;
+    QLabel* epage1SpacerItem4;
+    QLabel* epage1SpacerItem5;
+    QLabel* epage1SpacerItem6;
+    QLabel* epage1SpacerItem7;
+    QLabel* epage1SpacerItem8;
+    QLabel* epage0HelpfulLabel;
+    QLabel* epage1HelpfulLabel;
     QCheckBox* epage1LoadExperimentCheckBox;
     QCheckBox* epage1CompareExperimentsCheckBox;
     QFrame* line2;
@@ -124,23 +176,49 @@ public:
     QRadioButton* epage1FloatingPointRB;
     QRadioButton* epage1InputOutputRB;
     QRadioButton* epage1MPIRB;
-    QPushButton* epage1NextButton;
+
+    QPushButton* vpage0IntroButton;
+    QPushButton* vpage0FinishButton;
+    QPushButton* vpage0NextButton;
+    QPushButton* epage0IntroButton;
+    QPushButton* epage0FinishButton;
+    QPushButton* epage0NextButton;
+
 
     QCheckBox* wizardMode;
+    QCheckBox* vpage0wizardMode;
+    QCheckBox* vpage1wizardMode;
+    QCheckBox* epage0wizardMode;
+    QCheckBox* epage1wizardMode;
     QLabel* broughtToYouByLabel;
 
     void vSetStateChanged(QRadioButton *rb);
     void eSetStateChanged(QRadioButton *rb);
+    void vpage1SetStateChanged(QRadioButton *rb);
+    void epage1SetStateChanged(QRadioButton *rb);
 
 protected:
     QVBoxLayout* IntroWizardFormLayout;
     QVBoxLayout* mainFrameLayout;
-    QVBoxLayout* vWStackPageLayout;
-    QVBoxLayout* vRBLayout;
+    QVBoxLayout* vWStackPage0Layout;
+    QVBoxLayout* vScrollViewLayout0;
+    QVBoxLayout* vWStackPage1Layout;
+    QVBoxLayout* vpage0InitialChoiceLayout;
+    QVBoxLayout* vRBLayout1;
     QVBoxLayout* vLoadExperimentLayout;
-    QSpacerItem* spacer5_3;
-    QHBoxLayout* vpcSampleRBLayout;
+    QHBoxLayout* vSavedExpRBLayout;
+    QSpacerItem* spacer3a;
+    QSpacerItem* spacer3b;
+    QSpacerItem* spacer5a;
+    QHBoxLayout* vSavedExpCompareRBLayout;
+    QSpacerItem* spacer5b;
+    QHBoxLayout* vLoadExpRBLayout;
+    QSpacerItem* spacer5c;
+    QHBoxLayout* vAttachExpRBLayout;
+    QSpacerItem* spacer5d;
     QSpacerItem* spacer5;
+    QHBoxLayout* vpcSampleRBLayout;
+    QSpacerItem* spacer5_3;
     QHBoxLayout* vUserTimeRBLayout;
     QSpacerItem* spacer6;
     QHBoxLayout* vHWCounterRBLayout;
@@ -152,12 +230,31 @@ protected:
     QSpacerItem* spacer7_4;
     QHBoxLayout* layout18;
     QSpacerItem* spacer7_5;
-    QHBoxLayout* vNextButtonLayout;
+    QHBoxLayout* vNextButtonPage0Layout;
+    QHBoxLayout* eNextButtonPage0Layout;
+    QHBoxLayout* vNextButtonPage1Layout;
+    QHBoxLayout* eNextButtonPage1Layout;
+    QSpacerItem* spacer44a;
+    QSpacerItem* spacer44b;
     QSpacerItem* spacer44;
-    QVBoxLayout* WStackPageLayout_2;
-    QVBoxLayout* eRBLayout;
-    QVBoxLayout* eLoadExperimentRBLayout;
+    QSpacerItem* spacer49a;
+    QSpacerItem* spacer49b;
+    QSpacerItem* spacer49c;
+    QSpacerItem* spacer49d;
+    QSpacerItem* spacer49e;
+    QSpacerItem* spacer49f;
+    QVBoxLayout* eWStackPage0Layout;
+    QVBoxLayout* eWStackPage1Layout;
+    QVBoxLayout* WStackPage1Layout_2;
+    QVBoxLayout* eRBLayout0;
+    QVBoxLayout* vRBLayout0;
+    QVBoxLayout* eRBLayout1;
+    QVBoxLayout* epage0InitialChoiceLayout;
     QSpacerItem* spacer5_2_2;
+    QSpacerItem* spacer5_a;
+    QSpacerItem* spacer5_b;
+    QSpacerItem* spacer5_c;
+    QSpacerItem* spacer5_d;
     QHBoxLayout* epcSampleRBLayout;
     QSpacerItem* spacer5_2;
     QHBoxLayout* eUserTimeRBLayout;
@@ -172,20 +269,50 @@ protected:
     QHBoxLayout* layout18_2;
     QSpacerItem* spacer7_5_2;
     QHBoxLayout* eNextButtonLayout;
+    QHBoxLayout* vNextButtonLayout;
     QSpacerItem* spacer37;
     QHBoxLayout* wizardModeLayout;
     QSpacerItem* spacer1;
 
-    void languageChange();
+    QSpacerItem* vNextButtonPage0ButtonSpacer;
+    QSpacerItem* eNextButtonPage0ButtonSpacer;
+    QSpacerItem* vNextButtonPage1ButtonSpacer;
+    QSpacerItem* eNextButtonPage1ButtonSpacer;
 
-    QScrollView *sv;
-    QVBox *big_box;
+    void languageChange();
+    void languageChange2();
+
+    QScrollView *vpage0sv;
+    QVBox *vpage0big_box;
+    QScrollView *epage0sv;
+    QVBox *epage0big_box;
+    QScrollView *vpage1sv;
+    QVBox *vpage1big_box;
+    QScrollView *epage1sv;
+    QVBox *epage1big_box;
     void handleSizeEvent(QResizeEvent *e);
 
 
 public slots:
     virtual void wizardModeSelected();
+    virtual void vpage0wizardModeSelected();
+    virtual void vpage1wizardModeSelected();
+    virtual void epage0wizardModeSelected();
+    virtual void epage1wizardModeSelected();
+    virtual void vpage0NextButtonSelected();
     virtual void vpage1NextButtonSelected();
+    virtual void vpage1BackButtonSelected();
+    virtual void epage1BackButtonSelected();
+
+    void printRaisedPanel();
+    void vpage0SavedExpDataRBChanged();
+    void vpage0SavedExpCompareDataRBChanged();
+    void vpage0CreateLoadExpDataRBChanged();
+    void vpage0CreateAttachExpDataRBChanged();
+    void epage0SavedExpDataRBChanged();
+    void epage0SavedExpCompareDataRBChanged();
+    void epage0CreateLoadExpDataRBChanged();
+
     void vpage1pcSampleRBChanged();
     void vpage1UserTimeRBChanged();
     void vpage1HardwareCounterRBChanged();
