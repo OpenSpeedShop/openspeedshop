@@ -26,9 +26,17 @@ tool_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-queries
 
+if HAVE_OPENMP
+tool_LDADD = \
+	-lopenss-framework \
+	-lopenss-queries \
+	-lgomp
+else
 tool_LDADD = \
 	-lopenss-framework \
 	-lopenss-queries
+endif
+
 
 tool_SOURCES = \
 	tool.cxx
