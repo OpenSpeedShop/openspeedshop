@@ -425,7 +425,7 @@ void
 StatsPanel::raiseManageProcessesPanel()
 {
 #ifdef DEBUG_MPPanel
-  printf("StatsPanel::raiseManageProcessesPanel()\n");
+  printf("StatsPanel::raiseManageProcessesPanel(), expID=%d\n", expID);
 #endif
 
   QString name = QString("ManageProcessesPanel [%1]").arg(expID);
@@ -798,17 +798,19 @@ if( start_index != -1 )
     try
     {
       ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-      if( eo && eo->FW() )
-      {
+      if( eo && eo->FW() ) {
+
         Experiment *fw_experiment = eo->FW();
         CollectorGroup cgrp = fw_experiment->getCollectors();
+
 #ifdef DEBUG_StatsPanel
         printf("StatsPanel::listener, Is says you have %d collectors.\n", cgrp.size() );
 #endif // DEBUG_StatsPanel
-        if( cgrp.size() == 0 )
-        {
+
+        if( cgrp.size() == 0 ) {
           fprintf(stderr, "There are no known collectors for this experiment.\n");
         }
+
         for(CollectorGroup::iterator ci = cgrp.begin();ci != cgrp.end();ci++)
         {
           Collector collector = *ci;
@@ -831,6 +833,9 @@ if( start_index != -1 )
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::listener, Call updateStatsPanelData() \n");
 #endif // DEBUG_StatsPanel
+
+    // Raise or Create a new manage processes panel for loading saved data files
+    manageProcessesSelected();
 
     updateStatsPanelData(false);
 
@@ -4305,6 +4310,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
 
 #ifdef DEBUG_StatsPanel
  printf("push_back(s), outputCLIData, s=(%s)\n", s.ascii() );
+// printf("push_back(s), columnHeaderList.size()=%d\n", columnHeaderList.size() );
 #endif
 
       // IF the string contains the no data samples message then
