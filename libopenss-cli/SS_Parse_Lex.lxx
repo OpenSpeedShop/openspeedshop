@@ -29,7 +29,7 @@
 #include <string.h>
 #include "SS_Parse_Yacc.hxx"
 extern int yylex();
-extern int64_t ip_number(char *,int);
+extern char * ip_number(char *,int);
 #define ECHO
 %}
 
@@ -139,7 +139,7 @@ extern int64_t ip_number(char *,int);
 "-v"	{ return MODIFIER_ID;}
 "-I"	{ return INTERVAL_ID;}
 
-[0-9]+[.][0-9]+[.][0-9]+[.][0-9]+ {yylval.ival = ip_number(yytext,8); return(IPNUMBER_64);}
+[0-9]+[.][0-9]+[.][0-9]+[.][0-9]+ {yylval.string = ip_number(yytext,8); return(NAME);}
 0x[0-9a-f]+	{yylval.ival = atoll(yytext); return(HEXNUMBER);}
 [0-9]+   { yylval.ival = atoll(yytext); return NUMBER; }
 -[0-9]+   { yylval.ival = atoll(yytext); return NUMBER; }

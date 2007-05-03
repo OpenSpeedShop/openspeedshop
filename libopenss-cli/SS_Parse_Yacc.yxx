@@ -902,7 +902,7 @@ yyerror(const char *s)
     soon.
     
  */
-int64_t
+char *
 ip_number(char *input_str,int count)
 {
     int i;
@@ -921,7 +921,8 @@ ip_number(char *input_str,int count)
 	ptr1++;
    }
    
-    return (int64_t)num;
+    /*return (int64_t)num;*/
+   return strdup(input_str);
 }
 
 /***************************************************/
