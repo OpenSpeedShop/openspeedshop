@@ -61,7 +61,14 @@ public:
     ~ManageCollectorsClass();
 
     MPListView* attachCollectorsListView;
+    MPListView* getAttachCollectorsListView() {
+       return (attachCollectorsListView);
+    };
+
     MPListView *psetListView;
+    MPListView* getPsetListView() {
+       return (psetListView);
+    };
 
     QString selectedCollectors();
     QTimer *updateTimer;

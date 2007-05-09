@@ -46,7 +46,13 @@ public:
 
   ~MPListViewItem( );
 
+  virtual QString key(int col, bool ascending_order) const;
+  virtual int compare(QListViewItem *i, int col, bool ascending_order) const;
+
   DescriptionClassObject *descriptionClassObject;
+  QListViewItem * QLVI_parent;
+  MPListViewItem * MPLVI_parent;
+  QListView * QLV_parent;
 
 public slots:
 

@@ -65,9 +65,11 @@ public:
   QListView::SelectionMode savedSelectionMode;
 
   static MPListViewItem *oldCurrent;
-static bool draggingFLAG;
+  static bool draggingFLAG;
   QListViewItem *dropItem;
   bool isThisADuplicate(MPListViewItem *item);
+  virtual void sort();
+
 
 public slots:
 

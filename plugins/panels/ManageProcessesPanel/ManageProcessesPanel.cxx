@@ -39,12 +39,18 @@
 #include <qtextedit.h>  // For QTextEdit in example below...
 ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
+#ifdef DEBUG_MPPanel
+   printf("ManageProcessesPanel::ManageProcessesPanel() ENTRY\n");
+#endif
   expID = ao->int_data;
 
   setCaption("ManageProcessesPanel");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
   mcc = new ManageCollectorsClass( this, getBaseWidgetFrame() );
+#ifdef DEBUG_MPPanel
+   printf("ManageProcessesPanel::ManageProcessesPanel() mcc=%d\n", mcc);
+#endif
 
   frameLayout->addWidget(mcc);
 
@@ -58,6 +64,9 @@ ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, Ar
   setName(name_buffer);
 
   preferencesChanged();
+#ifdef DEBUG_MPPanel
+   printf("ManageProcessesPanel::ManageProcessesPanel() EXIT\n");
+#endif
 }
 
 
