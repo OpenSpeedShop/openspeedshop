@@ -102,7 +102,7 @@ namespace {
 	NULL
     };
 
-
+    std::string MPI_IMPL_NAME;
     
 }    
 
@@ -274,15 +274,16 @@ void MPICollector::startCollecting(const Collector& collector,
     getECT(collector, thread, args.experiment, args.collector, args.thread);
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_mpi_start_tracing_args),
                    &args);
-    
+
+    MPI_IMPL_NAME = getRuntimeLibraryName(thread);
     // Execute mpi_stop_tracing() before we exit the thread
     executeBeforeExit(collector, thread,
-		      getRuntimeLibraryName(thread) + ": mpi_stop_tracing",
+		      MPI_IMPL_NAME + ": mpi_stop_tracing",
 		      Blob());
     
     // Execute mpi_start_tracing() in the thread
     executeNow(collector, thread,
-               getRuntimeLibraryName(thread) + ": mpi_start_tracing",
+               MPI_IMPL_NAME + ": mpi_start_tracing",
 	       arguments);
 
     // Execute our wrappers in place of the real MPI functions
@@ -295,7 +296,7 @@ void MPICollector::startCollecting(const Collector& collector,
 	    // Wrap the MPI function
 	    executeInPlaceOf(
 		collector, thread,
-		P_name, getRuntimeLibraryName(thread) + ": mpi_" + P_name
+		P_name, MPI_IMPL_NAME + ": mpi_" + P_name
 		);
 	    
 	}
@@ -316,7 +317,7 @@ void MPICollector::stopCollecting(const Collector& collector,
 {
     // Execute mpi_stop_tracing() in the thread
     executeNow(collector, thread,
-               getRuntimeLibraryName(thread) + ": mpi_stop_tracing", Blob());
+               MPI_IMPL_NAME + ": mpi_stop_tracing", Blob());
     
     // Remove all instrumentation associated with this collector/thread pairing
     uninstrument(collector, thread);
