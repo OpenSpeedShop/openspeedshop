@@ -380,7 +380,7 @@ AC_DEFUN([AC_PKG_OTF], [
 
     AC_ARG_WITH(otf,
                 AC_HELP_STRING([--with-otf=DIR],
-                               [libunwind installation @<:@/usr@:>@]),
+                               [otf installation @<:@/usr@:>@]),
                 otf_dir=$withval, otf_dir="/usr")
 
     OTF_CPPFLAGS="-I$otf_dir/include"
