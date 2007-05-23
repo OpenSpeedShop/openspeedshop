@@ -383,9 +383,17 @@ AC_DEFUN([AC_PKG_OTF], [
                                [otf installation @<:@/usr@:>@]),
                 otf_dir=$withval, otf_dir="/usr")
 
+    AC_ARG_WITH(libz,
+                AC_HELP_STRING([--with-libz=DIR],
+                               [libz installation @<:@/usr@:>@]),
+                libz_dir=$withval, libz_dir="/usr")
+
     OTF_CPPFLAGS="-I$otf_dir/include"
     OTF_LDFLAGS="-L$otf_dir/$abi_libdir"
     OTF_LIBS="-lotf"
+
+    OTF_LIBZ_LDFLAGS="-L/usr/$abi_libdir"
+    OTF_LIBZ_LIBS="-lz"
 
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP
@@ -398,21 +406,42 @@ AC_DEFUN([AC_PKG_OTF], [
 
     AC_MSG_CHECKING([for OTF support])
 
+    foundOTF=0
     if test -f  $otf_dir/$abi_libdir/libotf.a; then
        AC_MSG_CHECKING([found otf library])
+       foundOTF=1
+    else
+       foundOTF=0
     fi
 
-    if test -f  $otf_dir/include/otf.h; then
+    if foundOTF==1 && test -f  $otf_dir/include/otf.h; then
        AC_MSG_CHECKING([found otf headers])
-       AM_CONDITIONAL(HAVE_OTF, true)
-       AC_DEFINE(HAVE_OTF, 1, [Define to 1 if you have OTF.])
+       foundOTF=1
+    else
+       foundOTF=0
+    fi
+
+    if foundOTF==1 && test -f  $libz_dir/$abi_libdir/libz.so; then
+       AC_MSG_CHECKING([found libz library used by otf])
+       foundOTF=1
+    else
+       foundOTF=0
+    fi
+
+    if foundOTF==1; then
+      AC_MSG_CHECKING([found all otf headers, libraries and supporting libz library])
+      AM_CONDITIONAL(HAVE_OTF, true)
+      AC_DEFINE(HAVE_OTF, 1, [Define to 1 if you have OTF.])
     else
       AC_MSG_RESULT(no)
       AM_CONDITIONAL(HAVE_OTF, false)
       OTF_CPPFLAGS=""
       OTF_LDFLAGS=""
       OTF_LIBS=""
+      OTF_LIBZ_LDFLAGS=""
+      OTF_LIBZ_LIBS=""
     fi
+
 
     CPPFLAGS=$otf_saved_CPPFLAGS
     LDFLAGS=$otf_saved_LDFLAGS
@@ -422,6 +451,8 @@ AC_DEFUN([AC_PKG_OTF], [
     AC_SUBST(OTF_CPPFLAGS)
     AC_SUBST(OTF_LDFLAGS)
     AC_SUBST(OTF_LIBS)
+    AC_SUBST(OTF_LIBZ_LDFLAGS)
+    AC_SUBST(OTF_LIBZ_LIBS)
 
 ])
 
