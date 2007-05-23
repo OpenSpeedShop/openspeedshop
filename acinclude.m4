@@ -373,6 +373,59 @@ AC_DEFUN([AC_PKG_OPENMP], [
 ])
 
 ################################################################################
+# Check for OTF (http://www.paratools.com/otf.php)
+################################################################################
+
+AC_DEFUN([AC_PKG_OTF], [
+
+    AC_ARG_WITH(otf,
+                AC_HELP_STRING([--with-otf=DIR],
+                               [libunwind installation @<:@/usr@:>@]),
+                otf_dir=$withval, otf_dir="/usr")
+
+    OTF_CPPFLAGS="-I$otf_dir/include"
+    OTF_LDFLAGS="-L$otf_dir/$abi_libdir"
+    OTF_LIBS="-lotf"
+
+    AC_LANG_PUSH(C++)
+    AC_REQUIRE_CPP
+
+    otf_saved_CPPFLAGS=$CPPFLAGS
+    otf_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $OTF_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $OTF_LDFLAGS $OTF_LIBS"
+
+    AC_MSG_CHECKING([for OTF support])
+
+    if test -f  $otf_dir/$abi_libdir/libotf.a; then
+       AC_MSG_CHECKING([found otf library])
+    fi
+
+    if test -f  $otf_dir/include/otf.h; then
+       AC_MSG_CHECKING([found otf headers])
+       AM_CONDITIONAL(HAVE_OTF, true)
+       AC_DEFINE(HAVE_OTF, 1, [Define to 1 if you have OTF.])
+    else
+      AC_MSG_RESULT(no)
+      AM_CONDITIONAL(HAVE_OTF, false)
+      OTF_CPPFLAGS=""
+      OTF_LDFLAGS=""
+      OTF_LIBS=""
+    fi
+
+    CPPFLAGS=$otf_saved_CPPFLAGS
+    LDFLAGS=$otf_saved_LDFLAGS
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(OTF_CPPFLAGS)
+    AC_SUBST(OTF_LDFLAGS)
+    AC_SUBST(OTF_LIBS)
+
+])
+
+################################################################################
 # Check for PAPI (http://icl.cs.utk.edu/papi)
 ################################################################################
 
