@@ -931,3 +931,54 @@ dnl Make the QTLIB flags/libs available
     AC_DEFINE(HAVE_QTLIB, 1, [Define to 1 if you have Qt library 3.3 >])
 
 ])
+
+################################################################################
+# Check for Monitor (http://www.cs.utk.edu/~mucci)
+################################################################################
+
+AC_DEFUN([AC_PKG_LIBMONITOR], [
+
+    AC_ARG_WITH(libmonitor,
+                AC_HELP_STRING([--with-libmonitor=DIR],
+                               [libmonitor installation @<:@/usr@:>@]),
+                libmonitor_dir=$withval, libmonitor_dir="/usr")
+
+    LIBMONITOR_CPPFLAGS="-I$libmonitor_dir/include"
+    LIBMONITOR_LDFLAGS="-L$libmonitor_dir/$abi_libdir"
+    LIBMONITOR_LIBS="-lmonitor"
+
+    libmonitor_saved_CPPFLAGS=$CPPFLAGS
+    libmonitor_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $LIBMONITOR_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $LIBMONITOR_LDFLAGS $LIBMONITOR_LIBS -lpthread"
+
+    AC_MSG_CHECKING([for libmonitor library and headers])
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+        #include <monitor.h>
+        ]], [[
+        monitor_fini_process();
+        ]]), [ AC_MSG_RESULT(yes)
+
+            AM_CONDITIONAL(HAVE_LIBMONITOR, true)
+            AC_DEFINE(HAVE_LIBMONITOR, 1, [Define to 1 if you have libmonitor.])
+
+        ], [ AC_MSG_RESULT(no)
+
+            AM_CONDITIONAL(HAVE_LIBMONITOR, false)
+            LIBMONITOR_CPPFLAGS=""
+            LIBMONITOR_LDFLAGS=""
+            LIBMONITOR_LIBS=""
+
+        ]
+    )
+
+    CPPFLAGS=$libmonitor_saved_CPPFLAGS
+    LDFLAGS=$libmonitor_saved_LDFLAGS
+
+    AC_SUBST(LIBMONITOR_CPPFLAGS)
+    AC_SUBST(LIBMONITOR_LDFLAGS)
+    AC_SUBST(LIBMONITOR_LIBS)
+
+])
