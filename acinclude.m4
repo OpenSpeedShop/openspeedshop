@@ -380,7 +380,7 @@ AC_DEFUN([AC_PKG_OTF], [
 
     AC_ARG_WITH(otf,
                 AC_HELP_STRING([--with-otf=DIR],
-                               [otf installation @<:@/usr@:>@]),
+                               [OTF Open Trace Format library installation @<:@/usr@:>@]),
                 otf_dir=$withval, otf_dir="/usr")
 
     AC_ARG_WITH(libz,
@@ -430,6 +430,7 @@ AC_DEFUN([AC_PKG_OTF], [
 
     if foundOTF==1; then
       AC_MSG_CHECKING([found all otf headers, libraries and supporting libz library])
+      AC_MSG_RESULT(yes)
       AM_CONDITIONAL(HAVE_OTF, true)
       AC_DEFINE(HAVE_OTF, 1, [Define to 1 if you have OTF.])
     else
@@ -453,6 +454,75 @@ AC_DEFUN([AC_PKG_OTF], [
     AC_SUBST(OTF_LIBS)
     AC_SUBST(OTF_LIBZ_LDFLAGS)
     AC_SUBST(OTF_LIBZ_LIBS)
+
+])
+
+
+################################################################################
+# Check for VampirTrace  (http://tu-dresden.de/die_tu_dresden/zentrale_einrichtungen
+#/zih/forschung/software_werkzeuge_zur_unterstuetzung_von_programmierung_und_optimierung
+#/vampirtrace?set_language=en&cl=en)
+################################################################################
+
+AC_DEFUN([AC_PKG_VT], [
+
+    AC_ARG_WITH(vt,
+                AC_HELP_STRING([--with-vt=DIR],
+                               [VampirTrace (vt) library installation @<:@/usr@:>@]),
+                vt_dir=$withval, vt_dir="/usr")
+
+    VT_CPPFLAGS="-I$vt_dir/include"
+    VT_LDFLAGS="-L$vt_dir/$abi_libdir"
+    VT_LIBS="-lvt.mpi"
+
+    AC_LANG_PUSH(C++)
+    AC_REQUIRE_CPP
+
+    vt_saved_CPPFLAGS=$CPPFLAGS
+    vt_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $VT_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $VT_LDFLAGS $VT_LIBS"
+
+    AC_MSG_CHECKING([for VampirTrace support])
+
+    foundVT=0
+    if test -f  $vt_dir/$abi_libdir/libvt.mpi.a; then
+       AC_MSG_CHECKING([found VampirTrace library])
+       foundVT=1
+    else
+       foundVT=0
+    fi
+
+    if foundVT==1 && test -f  $vt_dir/include/otf.h; then
+       AC_MSG_CHECKING([found VampirTrace headers])
+       foundVT=1
+    else
+       foundVT=0
+    fi
+
+    if foundVT==1; then
+      AC_MSG_CHECKING([found all VampirTrace headers, libraries.])
+      AC_MSG_RESULT(yes)
+      AM_CONDITIONAL(HAVE_VT, true)
+      AC_DEFINE(HAVE_VT, 1, [Define to 1 if you have VT.])
+    else
+      AC_MSG_RESULT(no)
+      AM_CONDITIONAL(HAVE_VT, false)
+      VT_CPPFLAGS=""
+      VT_LDFLAGS=""
+      VT_LIBS=""
+    fi
+
+
+    CPPFLAGS=$vt_saved_CPPFLAGS
+    LDFLAGS=$vt_saved_LDFLAGS
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(VT_CPPFLAGS)
+    AC_SUBST(VT_LDFLAGS)
+    AC_SUBST(VT_LIBS)
 
 ])
 
