@@ -23,6 +23,17 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c	
 
+@VT_LIBSLOC@/libvt.mpi.a :
+	cp @VT_LIBSLOC@/libvt.mpi.a libvt.mpi.a
+
+#libvt.mpi.a : /opt/vampirtrace-5.3.0b4/lib/libvt.mpi.a
+#        cp /opt/vampirtrace-5.3.0b4/lib/libvt.mpi.a libvt.mpi.a
+#        ar d libvt.mpi.a libvt_mpi_a-vt_mpiwrap.o
+
+libvt.mpi.a : @VT_LIBSLOC@/libvt.mpi.a 
+	cp @VT_LIBSLOC@/libvt.mpi.a libvt.mpi.a 
+	ar d libvt.mpi.a libvt_mpi_a-vt_mpiwrap.o
+
 pkglib_LTLIBRARIES = mpiotf.la
 if HAVE_LAM
 pkglib_LTLIBRARIES += mpiotf-rt-lam.la
@@ -62,7 +73,7 @@ mpiotf_la_SOURCES = \
 
 rt_CFLAGS_generate = \
 	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/plugins/collectors/mpiotf/vampirtrace/vtlib \
+	@VT_CPPFLAGS@ \
 	$(1) \
         @OTF_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
@@ -78,7 +89,8 @@ rt_LIBADD_generate = \
 	$(1) \
 	@LIBUNWIND_LIBS@ \
 	-lpthread \
-	-L/home/jeg/OpenSpeedShop/plugins/collectors/mpiotf/vampirtrace/vtlib -lvt.mpi \
+	-L$(top_srcdir)/plugins/collectors/mpiotf \
+	@VT_LIBS@ \
         @OTF_LDFLAGS@ \
         @OTF_LIBS@ \
         @OTF_LIBZ_LDFLAGS@ \
@@ -154,7 +166,7 @@ endif
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
 
-blobs.h blobs.c : blobs.x
+blobs.h blobs.c : blobs.x libvt.mpi.a
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
