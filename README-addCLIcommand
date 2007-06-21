@@ -8,6 +8,7 @@ Files for Parsing the command:
 libopenss-cli/SS_Parse_Result.hxx
 libopenss-cli/SS_Parse_Result.cxx
 libopenss-cli/SS_Parse_Yacc.yxx
+libopenss-cli/SS_Parse_Lex.lxx
 
 Files for the help facility
 libopenss-cli/help_cmd_msg.dxx
