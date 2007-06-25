@@ -96,6 +96,12 @@ void PreferencesDialog::readPreferencesOnEntry()
   saveExperimentDatabaseCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/saveExperimentDatabase") );
 
+  askAboutChangingArgsCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/askAboutChangingArgs") );
+
+  onRerunSaveCopyOfExperimentDatabaseCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/onRerunSaveCopyOfExperimentDatabase") );
+
   viewMangledNameCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/viewMangledName") );
 
@@ -104,6 +110,7 @@ void PreferencesDialog::readPreferencesOnEntry()
 
   setShowSplashScreenCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/showSplashScreen") );
+
   showGraphicsCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/showGraphics") );
 }
@@ -142,6 +149,11 @@ void PreferencesDialog::resetPreferenceDefaults()
    viewFullPathCheckBox->setChecked(viewFullPath);
    saveExperimentDatabase = FALSE;
    saveExperimentDatabaseCheckBox->setChecked(saveExperimentDatabase);
+   askAboutChangingArgs = TRUE;
+   askAboutChangingArgsCheckBox->setChecked(askAboutChangingArgs);
+   onRerunSaveCopyOfExperimentDatabase = TRUE;
+   onRerunSaveCopyOfExperimentDatabaseCheckBox->setChecked(onRerunSaveCopyOfExperimentDatabase);
+   viewMangledName = FALSE;
    viewMangledNameCheckBox->setChecked(viewMangledName);
    allowPythonCommands = FALSE;
    allowPythonCommandsCheckBox->setChecked(allowPythonCommands);
@@ -260,12 +272,18 @@ void PreferencesDialog::applyPreferences()
   extern int64_t OPENSS_HELP_LEVEL_DEFAULT;
   extern bool    OPENSS_VIEW_FULLPATH;
   extern bool    OPENSS_SAVE_EXPERIMENT_DATABASE;
+  extern bool    OPENSS_ASK_ABOUT_CHANGING_ARGS;
+  extern bool    OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE;
   extern bool    OPENSS_ALLOW_PYTHON_COMMANDS;
   extern bool    OPENSS_LOG_BY_DEFAULT;
   extern bool    OPENSS_LIMIT_SIGNAL_CATCHING;
-  extern bool OPENSS_VIEW_MANGLED_NAME;
+  extern bool    OPENSS_VIEW_MANGLED_NAME;
 
 
+  OPENSS_ASK_ABOUT_CHANGING_ARGS =
+    askAboutChangingArgsCheckBox->isChecked();
+  OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE =
+    onRerunSaveCopyOfExperimentDatabaseCheckBox->isChecked();
   OPENSS_SAVE_EXPERIMENT_DATABASE =
     saveExperimentDatabaseCheckBox->isChecked();
   OPENSS_VIEW_MANGLED_NAME =
@@ -391,6 +409,16 @@ void PreferencesDialog::savePreferences()
   if( !settings->writeEntry( "/openspeedshop/general/saveExperimentDatabase", saveExperimentDatabaseCheckBox->isChecked() ) )
   {
     printf("Unable to write saveExperimentDatabase.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/askAboutChangingArgs", askAboutChangingArgsCheckBox->isChecked() ) )
+  {
+    printf("Unable to write askAboutChangingArg.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/onRerunSaveCopyOfExperimentDatabase", onRerunSaveCopyOfExperimentDatabaseCheckBox->isChecked() ) )
+  {
+    printf("Unable to write onRerunSaveCopyOfExperimentDatabase.\n");
   }
 
   if( !settings->writeEntry( "/openspeedshop/general/viewMangledName", viewMangledNameCheckBox->isChecked() ) )

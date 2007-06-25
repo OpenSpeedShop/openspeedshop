@@ -86,6 +86,7 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "expPause",     false,  CMD_EXP_PAUSE,
     "expRestore",   false,  CMD_EXP_RESTORE,
     "expSave",	    false,  CMD_EXP_SAVE,
+    "expSetargs",   false,  CMD_EXP_SETARGS,
     "expSetparam",  false,  CMD_EXP_SETPARAM,
     "expStatus",    true,   CMD_EXP_STATUS,
     "expView",	    true,   CMD_EXP_VIEW,
@@ -167,6 +168,10 @@ ParseResult(const ParseResult& other) :
 {
     *this = other;
     this->dm_p_cur_target = new ParseTarget();
+
+#if DEBUG_CLI
+    printf("ParseResult::ParseResult, this=%d\n", this);
+#endif
 }
 
 /**
@@ -207,6 +212,9 @@ pushParseTarget()
 
     // Most commands only allow a single expId.
     // Check here.
+#if DEBUG_CLI
+    printf("ParseResult::pushParseTarget, this->dm_command_type=%d\n", this->dm_command_type);
+#endif
     switch(this->dm_command_type) {
     	case CMD_EXP_COMPARE:
 	    break;
@@ -235,6 +243,9 @@ s_dumpInterval(ParseResult* p_result, vector<ParseInterval> *p_list, char *label
 {
     vector<ParseInterval>::iterator iter;
 
+#if DEBUG_CLI
+    printf("ParseResult::s_dumpInterval, label=%s\n", label);
+#endif
     if (p_list->begin() != p_list->end())
     	cout << "\t" << label << ": " << endl;
 
@@ -273,6 +284,9 @@ s_dumpParam(ParseParam *p_parm, char *label)
 {
     cout << "\t\t" << label << ": " << endl;
 
+#if DEBUG_CLI
+    printf("ParseResult::s_dumpParam, label=%s\n", label);
+#endif
     cout << "\t\t";
     if (p_parm->getExpType()) {
     	cout << p_parm->getExpType() << "::";
@@ -322,6 +336,10 @@ void
 ParseResult::
 dumpError(CommandObject *cmd)
 {
+#if DEBUG_CLI
+    printf("ParseResult::dumpError, cmd=%s\n", cmd);
+#endif
+
     // Get reference of the message czar.
     SS_Message_Czar& czar = theMessageCzar();
     
@@ -389,6 +407,9 @@ static void
 s_dumpRange(vector<ParseRange> *p_list, char *label, bool is_hex)
 {
     vector<ParseRange>::iterator iter;
+#if DEBUG_CLI
+    printf("ParseResult::s_dumpRange, label=%s\n", label);
+#endif
     
     if (is_hex){
     	cout.setf(ios_base::hex,ios_base::basefield);
@@ -777,6 +798,9 @@ char *
 ParseResult::
 getCommandname()
 {
+#if DEBUG_CLI
+    printf("ParseResult::getCommandname, cmd_desc[dm_command_type].name=%s\n", cmd_desc[dm_command_type].name);
+#endif
     return cmd_desc[dm_command_type].name;
 }
  
@@ -797,6 +821,9 @@ bool
 ParseResult::
 isRetList()
 {
+#if DEBUG_CLI
+    printf("ParseResult::isRetList, cmd_desc[dm_command_type].ret_list=%d\n", cmd_desc[dm_command_type].ret_list);
+#endif
     return cmd_desc[dm_command_type].ret_list;
 }
  
@@ -813,6 +840,9 @@ bool
 ParseResult::
 isParam()
 {
+#if DEBUG_CLI
+    printf("ParseResult::isParam, this->dm_param_set=%d\n", this->dm_param_set);
+#endif
     return this->dm_param_set;
 }
  
@@ -929,6 +959,9 @@ getExpId()
     	the_id = p_range->start_range.num;
     }
 
+#if DEBUG_CLI
+    printf("ParseResult::getExpId, the_id=%d\n", the_id);
+#endif
     return the_id;
 }
 
@@ -987,6 +1020,9 @@ expIdCount()
 	}
     }
 
+#if DEBUG_CLI
+    printf("ParseResult::expIdCount, count=%d\n", count);
+#endif
     return count;
 }
 

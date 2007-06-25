@@ -137,6 +137,9 @@ namespace OpenSpeedShop { namespace Framework {
 	void flushPerformanceData() const;
 	Extent getPerformanceDataExtent() const;
 	
+	std::string getApplicationCommand();
+	void setApplicationCommand(const char *);
+
 	void prepareToRerun(const OutputCallback =
 			        OutputCallback(NULL, NULL),
 			    const OutputCallback =

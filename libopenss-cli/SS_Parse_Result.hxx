@@ -53,6 +53,7 @@ typedef enum {
     CMD_EXP_PAUSE,
     CMD_EXP_RESTORE,
     CMD_EXP_SAVE,
+    CMD_EXP_SETARGS,
     CMD_EXP_SETPARAM,
     CMD_EXP_STATUS,
     CMD_EXP_VIEW,

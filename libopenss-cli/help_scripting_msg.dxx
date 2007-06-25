@@ -162,6 +162,16 @@ char *script_expSave_args[] = {
     "            * FileList (required)"
 };
 
+char *script_expSetArgs_args[] = {
+    "expSetArgs(*arglist)",
+    " ",
+    "    Parameters:",
+    "        arglist - From 1 to 2 class objects:",
+    " ",
+    "            * ExpId (optional)",
+    "            * Arguments (required)",
+};
+
 char *script_expSetParam_args[] = {
     "expSetParam(*arglist)",
     " ",
@@ -353,6 +363,16 @@ OpenSpeedShop::message_element_t script_msg[] = {
     NULL,0,
     NULL,0,
     script_expSave_args,sizeof(script_expSave_args)/sizeof(char **),
+
+//    CMD_EXP_SETARGS,
+    -1,cmd_desc[CMD_EXP_SETARGS].name,
+    NULL,0,
+    "scripting",
+    NULL,
+    NULL,0,
+    NULL,0,
+    NULL,0,
+    script_expSetArgs_args,sizeof(script_expSetArgs_args)/sizeof(char **),
 
 //    CMD_EXP_SETPARAM,
     -1,cmd_desc[CMD_EXP_SETPARAM].name,

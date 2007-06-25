@@ -86,6 +86,8 @@ extern char * ip_number(char *,int);
 "expRestore"	{ return RESTORE_HEAD; }
 "expsave"	{ return SAVE_HEAD; }
 "expSave"	{ return SAVE_HEAD; }
+"expsetargs"	{ return SETARGS_HEAD; }
+"expSetArgs"	{ return SETARGS_HEAD; }
 "expsetparam"	{ return SETPARAM_HEAD; }
 "expSetParam"	{ return SETPARAM_HEAD; }
 "expstatus"   	{ return STATUS_HEAD; }
@@ -132,6 +134,7 @@ extern char * ip_number(char *,int);
 "-p"	{ return PROCESS_ID; }
 "-t"	{ return THREAD_ID; }
 "-f"	{ return FILE_ID; }
+"-a"	{ return ARGS_ID; }
 "-x"	{ return EXP_ID; }
 "-l"	{ return LINE_ID;}
 "-c"	{ return VIEW_ID;}

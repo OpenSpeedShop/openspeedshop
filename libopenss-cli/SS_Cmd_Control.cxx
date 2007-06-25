@@ -23,6 +23,10 @@
 
 static void Cmd_Execute (CommandObject *cmd) {
 
+#if DEBUG_CLI
+  printf("Cmd_Execute, entered\n");
+#endif
+
   string *redirect_name = cmd->P_Result()->getRedirectTarget();
   ofstream *redirect_streamP = NULL;
   ios_base::openmode open_mode = ios::out;
@@ -49,6 +53,10 @@ try {
 
   InputLineObject *clip = cmd->Clip();
 
+#if DEBUG_CLI
+  printf("Cmd_Execute, clip->Command().c_str()=%s\n", clip->Command().c_str());
+#endif
+
  // Move this command to the EXECUTING state.
   cmd->set_Status (CMD_EXECUTING);
 
@@ -69,6 +77,11 @@ try {
     Cmd_Obj_Complete (cmd);
     return;
   }
+
+#if DEBUG_CLI
+  printf("Cmd_Execute, cmd->Type()=%d\n", cmd->Type() );
+  printf("Cmd_Execute, clip->Command().c_str()=%s\n", clip->Command().c_str());
+#endif
 
  // And now go and execute it!
   switch (cmd->Type()) {
@@ -297,6 +310,12 @@ try {
     }
 
     break;
+  case CMD_EXP_SETARGS:
+
+    cmd_successful = SS_expSetArgs (cmd);
+
+    break;
+
   case CMD_EXP_SETPARAM:
 
     // Gather performance information on the expSetParam command

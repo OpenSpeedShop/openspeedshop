@@ -30,8 +30,10 @@
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qiconset.h>
+#include <qinputdialog.h>
 #include <qfileinfo.h>
 #include <qbitmap.h>
+#include <qsettings.h>
 
 #include <qmessagebox.h>
 
@@ -1025,6 +1027,10 @@ CustomExperimentPanel::listener(void *msg)
 
 //    QString command = QString::null;
     QString command = QString((const char *)0);
+    QString newArgsStr = QString::null;
+    ExperimentObject *eo;
+    QSettings *settings;
+    bool askAboutChangingArgsPref = false;
     bool mark_value_for_delete = true;
     int64_t val = 0;
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -1112,6 +1118,45 @@ CustomExperimentPanel::listener(void *msg)
         pco->updateButton->enabledFLAG = FALSE;
         runnableFLAG = FALSE;
 
+#ifdef DEBUG_CustomPanel
+        printf("in CustomExperimentPanel::listener(), RUN_T, mw->argsStr=%s\n", mw->argsStr.ascii());
+        printf("in CustomExperimentPanel::listener(), RUN_T, mw->executableName=%s\n", mw->executableName.ascii());
+#endif
+
+//      Check to see if we are rerunning the experiment
+
+        settings = new QSettings();
+        askAboutChangingArgsPref = settings->readBoolEntry( "/openspeedshop/general/askAboutChangingArgs");
+#ifdef DEBUG_CustomPanel
+        printf("/openspeedshop/general/askAboutChangingArgs == askAboutChangingArgsPref=(%d)\n", askAboutChangingArgsPref );
+#endif
+
+        eo = Find_Experiment_Object((EXPID)expID);
+        if (eo && eo->expRunAtLeastOnceAlready() && askAboutChangingArgsPref) {
+
+#ifdef DEBUG_CustomPanel
+           printf("in CustomExperimentPanel::listener(), RUN_T, calling QInputDialog::getText\n");
+#endif
+           // If you want a small dialog box to popup after hitting ok in the main dialog box then
+           // enable this Enter Arguments Dialog section of code directly following this comment line...
+           // BEGIN add Enter Arguments Dialog back in jeg 03/12/2007 #if 0
+           bool ok;
+           newArgsStr = QInputDialog::getText("Enter Arguments Dialog:", QString("Enter command line arguments:"), QLineEdit::Normal, QString::null, &ok, this);
+           // END add Enter Arguments Dialog back in jeg 03/12/2007 #endif
+#ifdef DEBUG_CustomPanel
+           printf("in CustomExperimentPanel::listener(), RUN_T, newArgsStr=%s\n", newArgsStr.ascii());
+#endif
+           if (!(newArgsStr == NULL || newArgsStr == "")) {
+             command = QString("expSetArgs -x %1 -a \"%2\"\n").arg(expID).arg(newArgsStr);
+             int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+#ifdef DEBUG_CustomPanel
+             printf("in CustomExperimentPanel::listener(), RUN_T, command=%s\n", command.ascii());
+#endif
+             cli->runSynchronousCLI(command.ascii());
+           }
+        }
+
+
         command = QString("expGo -x %1\n").arg(expID);
         {
         int status = -1;
@@ -1123,7 +1168,7 @@ CustomExperimentPanel::listener(void *msg)
         cli->runSynchronousCLI(command.ascii());
 
 //      Check to see if we are rerunning the experiment
-        ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+        eo = Find_Experiment_Object((EXPID)expID);
         if (eo && eo->expRunAtLeastOnceAlready()) {
 
 #ifdef DEBUG_CustomPanel
@@ -1224,6 +1269,8 @@ CLIInterface::interrupt = true;
 #endif
         break;
     }
+    // Delete the QSettings data structure
+    delete settings;
 
 #ifdef DEBUG_CustomPanel
  printf("CustomExperimentPanel::listener, calling updateStatus(), expID=%d\n", expID );

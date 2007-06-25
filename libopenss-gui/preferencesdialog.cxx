@@ -68,6 +68,8 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    saveExperimentDatabase = FALSE; 
    viewMangledName = FALSE; 
    allowPythonCommands = TRUE; 
+   askAboutChangingArgs = FALSE; 
+   onRerunSaveCopyOfExperimentDatabase = TRUE; 
 
 
    globalRemoteShell = "/usr/bin/rsh";
@@ -284,6 +286,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     helpLevelDefaultLayout->addWidget( helpLevelDefaultLineEdit );
     rightSideLayout->addLayout( helpLevelDefaultLayout );
     }
+
     { // VIEW_FULLPATH
     viewFullPathCheckBox = new QCheckBox( GeneralGroupBox, "viewFullPathCheckBox" );
     viewFullPathCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, viewFullPathCheckBox->sizePolicy().hasHeightForWidth() ) );
@@ -291,18 +294,39 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     viewFullPathCheckBox->setText( tr( "View Full Path" ) );
     rightSideLayout->addWidget( viewFullPathCheckBox );
     }
+
     { // SAVE_EXPERIMENT_DATABASE
     saveExperimentDatabaseCheckBox = new QCheckBox( GeneralGroupBox, "saveExperimentDatabaseCheckBox" );
     saveExperimentDatabaseCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, saveExperimentDatabaseCheckBox->sizePolicy().hasHeightForWidth() ) );
     saveExperimentDatabaseCheckBox->setChecked( TRUE );
     saveExperimentDatabaseCheckBox->setText( tr( "Save Experiment Database" ) );
     rightSideLayout->addWidget( saveExperimentDatabaseCheckBox );
+    }
+
+    { // ASK_ABOUT_CHANGING_ARGS
+    askAboutChangingArgsCheckBox = new QCheckBox( GeneralGroupBox, "askAboutChangingArgsCheckBox" );
+    askAboutChangingArgsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, askAboutChangingArgsCheckBox->sizePolicy().hasHeightForWidth() ) );
+    askAboutChangingArgsCheckBox->setChecked( askAboutChangingArgs );
+    askAboutChangingArgsCheckBox->setText( tr( "On Rerun Allow Changing Application Arguments" ) );
+    rightSideLayout->addWidget( askAboutChangingArgsCheckBox );
+    }
+
+    { // ON_RERUN_SAVE_EXPERIMENT_DATABASE
+    onRerunSaveCopyOfExperimentDatabaseCheckBox = new QCheckBox( GeneralGroupBox, "onRerunSaveCopyOfExperimentDatabaseCheckBox" );
+    onRerunSaveCopyOfExperimentDatabaseCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, onRerunSaveCopyOfExperimentDatabaseCheckBox->sizePolicy().hasHeightForWidth() ) );
+    onRerunSaveCopyOfExperimentDatabaseCheckBox->setChecked( onRerunSaveCopyOfExperimentDatabase);
+    onRerunSaveCopyOfExperimentDatabaseCheckBox->setText( tr( "On Rerun Save Copy of Experiment Database from previous run" ) );
+    rightSideLayout->addWidget( onRerunSaveCopyOfExperimentDatabaseCheckBox );
+    }
+
+    { // VIEW MANGLED NAMES
     viewMangledNameCheckBox = new QCheckBox( GeneralGroupBox, "viewMangledNameCheckBox" );
     viewMangledNameCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, viewMangledNameCheckBox->sizePolicy().hasHeightForWidth() ) );
     viewMangledNameCheckBox->setChecked( TRUE );
-    viewMangledNameCheckBox->setText( tr( "View Mangle Names" ) );
+    viewMangledNameCheckBox->setText( tr( "View Mangled Names" ) );
     rightSideLayout->addWidget( viewMangledNameCheckBox );
     }
+
     { // ALLOW_PYTHON_COMMANDS
     allowPythonCommandsCheckBox = new QCheckBox( GeneralGroupBox, "allowPythonCommandsCheckBox" );
     allowPythonCommandsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, allowPythonCommandsCheckBox->sizePolicy().hasHeightForWidth() ) );
@@ -371,6 +395,15 @@ QToolTip::add(viewFullPathCheckBox,
   saveExperimentDatabaseCheckBox->setChecked(saveExperimentDatabase);
 QToolTip::add(saveExperimentDatabaseCheckBox,
   tr("Declare that the database created when an 'expCreate'\ncommand is issued will be saved when the Open|SpeedShop session is\nterminated.  The saved database will be in the user's\ncurrent directory and will be of the form:\n \"X<exp_id>_iiiiii.openss\"\nwhere the 'iiiiii' field is an integer, starting with 0,\nthat generates a unique file name.  The default is 'false'\nand experiment databases will be deleted when the Open|SpeedShop\nsession terminates unless the user has issued an 'expSave'\ncommand.") );
+
+  askAboutChangingArgsCheckBox->setChecked(askAboutChangingArgs);
+QToolTip::add(askAboutChangingArgsCheckBox,
+  tr("When rerunning an experiment, pop up a dialog box that allows the application arguments to be changed") );
+
+  onRerunSaveCopyOfExperimentDatabaseCheckBox->setChecked(onRerunSaveCopyOfExperimentDatabase);
+QToolTip::add(onRerunSaveCopyOfExperimentDatabaseCheckBox,
+  tr("When rerunning an experiment, save a copy of the database that was created when the 'expCreate'\ncommand was issued or from the previous rerun.  To make sure these copies will be saved when the Open|SpeedShop session is\nterminated choose the 'save Experiment Database' checkbox.  The copies of the saved database will be in the user's\ncurrent directory and will be of the form:\n \"X<exp_id>_iiiiii-nn.openss\"\"\nwhere the 'iiiiii' field is an integer, starting with 0,\nwhich generates a unique file name.\nand where the 'nn' field is an integer, starting with 1,\nwhich represents the rerun count.") );
+
 
   viewMangledNameCheckBox->setChecked(viewMangledName);
 QToolTip::add(viewMangledNameCheckBox,

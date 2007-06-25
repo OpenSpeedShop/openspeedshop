@@ -53,7 +53,7 @@ char *string;
 %token ATTACH_HEAD CLONE_HEAD CLOSE_HEAD CREATE_HEAD COMPARE_HEAD DETACH_HEAD 
 %token DISABLE_HEAD ENABLE_HEAD 
 %token FOCUS_HEAD GO_HEAD PAUSE_HEAD CONT_HEAD RESTORE_HEAD SAVE_HEAD
-%token SETPARAM_HEAD STATUS_HEAD VIEW_HEAD VIEW_HEAD_OLD DATA_HEAD
+%token SETARGS_HEAD SETPARAM_HEAD STATUS_HEAD VIEW_HEAD VIEW_HEAD_OLD DATA_HEAD
 
 %token CVIEWCREATE_HEAD CVIEWDELETE_HEAD CVIEW_HEAD CVIEWINFO_HEAD
 %token CVIEWCLUSTER_HEAD
@@ -66,7 +66,7 @@ char *string;
 
 %token JUST_QUIT_HEAD
 
-%token RANK_ID HOST_ID THREAD_ID FILE_ID EXP_ID PROCESS_ID
+%token RANK_ID HOST_ID THREAD_ID ARGS_ID FILE_ID EXP_ID PROCESS_ID
 %token LINE_ID VIEW_ID METRIC_ID MODIFIER_ID INTERVAL_ID
 
 %token COMMA SEMICOLON COLON END_LINE EQUAL DOUBLE_COLON REDIRECT APPEND
@@ -115,6 +115,7 @@ command_desc: exp_attach_com 	{p_parse_result->setCommandType(CMD_EXP_ATTACH);}
 	    | exp_pause_com 	{p_parse_result->setCommandType(CMD_EXP_PAUSE);}
 	    | exp_restore_com 	{p_parse_result->setCommandType(CMD_EXP_RESTORE);}
 	    | exp_save_com  	{p_parse_result->setCommandType(CMD_EXP_SAVE);}
+	    | exp_setargs_com   {p_parse_result->setCommandType(CMD_EXP_SETARGS);}
 	    | exp_setparam_com  {p_parse_result->setCommandType(CMD_EXP_SETPARAM);}
 	    | exp_status_com  	{p_parse_result->setCommandType(CMD_EXP_STATUS);}
 	    | exp_view_com  	{p_parse_result->setCommandType(CMD_EXP_VIEW);}
@@ -336,6 +337,16 @@ exp_save_arg:
 
     	    	;
 
+    	    /** EXP_SETARGS **/
+    	    /** expSetArgs  [ <expId_spec> ] exp_setargs_arg **/
+exp_setargs_com:   SETARGS_HEAD exp_setargs_arg
+  	    	|  SETARGS_HEAD error END_LINE 
+  	    	|  SETARGS_HEAD exp_setargs_arg error END_LINE 
+      	    	;
+exp_setargs_arg:   args_spec
+    	    	|  expId_list_spec args_spec
+    	    	;
+
     	    /** EXP_SETPARAM **/
     	    /** expSetParam  [ <expId_spec> ] <expParam> = <expParamValue> [ , <expParam> = <expParamValue> ]+ **/
 exp_setparam_com:   SETPARAM_HEAD exp_setparam_arg
@@ -511,6 +522,7 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	|   PAUSE_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_PAUSE].name);}
     	    	|   RESTORE_HEAD    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_RESTORE].name);}
     	    	|   SAVE_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_SAVE].name);}
+   	    	|   SETARGS_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_SETARGS].name);}
    	    	|   SETPARAM_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_SETPARAM].name);}
     	    	|   STATUS_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_STATUS].name);}
     	    	|   VIEW_HEAD_OLD   	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_VIEW].name);}
@@ -542,6 +554,7 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	|   HOST_ID	    {p_parse_result->pushHelp("-h");}
     	    	|   PROCESS_ID	    {p_parse_result->pushHelp("-p");}
     	    	|   THREAD_ID	    {p_parse_result->pushHelp("-t");}
+    	    	|   ARGS_ID	    {p_parse_result->pushHelp("-a");}
     	    	|   FILE_ID	    {p_parse_result->pushHelp("-f");}
     	    	|   EXP_ID	    {p_parse_result->pushHelp("-x");}
     	    	|   LINE_ID	    {p_parse_result->pushHelp("-l");}
@@ -655,6 +668,7 @@ address_description: NUMBER {p_parse_result->pushAddressPoint($1);}
 		|   NAME {p_parse_result->pushAddressPoint($1);}
     	    	;
 
+
 expId_list_spec:    EXP_ID expId_list
 		|   EXP_ID {p_parse_result->setError("Bad pid list entry.");} error  
 		;
@@ -703,6 +717,22 @@ host_file:  	    host_spec file_spec
 host_spec:  	    HOST_ID host_list
     	    	;
 */
+
+args_spec:  	    ARGS_ID args_name
+    	    	;
+
+/*
+args_list_spec:     ARGS_ID args_list
+		|   ARGS_ID {p_parse_result->setError("Bad args list entry.");} error
+		;
+
+args_list:  	    args_name 
+    	    	|   args_list args_name 
+		;
+
+*/
+args_name:  	    NAME {p_parse_result->pushString($1);}
+    	    	;
 
 file_spec:  	    FILE_ID file_name
     	    	;

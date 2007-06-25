@@ -21,7 +21,7 @@
 // where is this include????    #include <libxml/xmlreader.h>
 
 int64_t OPENSS_VIEW_FIELD_SIZE = 20;
-int64_t OPENSS_VIEW_PRECISION = 4;
+int64_t OPENSS_VIEW_PRECISION = 7;
 int64_t OPENSS_HISTORY_LIMIT = 100;
 int64_t OPENSS_HISTORY_DEFAULT = 24;
 int64_t OPENSS_MAX_ASYNC_COMMANDS = 20;
@@ -30,6 +30,8 @@ bool    OPENSS_VIEW_FULLPATH = false;
 bool    OPENSS_VIEW_DEFINING_LOCATION = true;
 bool    OPENSS_VIEW_MANGLED_NAME = false;
 bool    OPENSS_SAVE_EXPERIMENT_DATABASE = false;
+bool    OPENSS_ASK_ABOUT_CHANGING_ARGS = false;
+bool    OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE = true;
 bool    OPENSS_ALLOW_PYTHON_COMMANDS = true;
 bool    OPENSS_LOG_BY_DEFAULT = false;
 bool    OPENSS_LIMIT_SIGNAL_CATCHING = false;
@@ -174,6 +176,27 @@ void SS_Configure () {
             "command.");
   Bvalue = settings->readBoolEntry(std::string("saveExperimentDatabase"), OPENSS_SAVE_EXPERIMENT_DATABASE, &ok);
   if (ok) OPENSS_SAVE_EXPERIMENT_DATABASE = Bvalue;
+
+  Add_Help (czar, "askAboutChangingArgs", "a boolean, preference",
+            "Declare that when rerunning an experiment create a dialog"
+            " message that allows the application's arguments to be changed prior "
+            "to reexecuting the experiment.");
+  Bvalue = settings->readBoolEntry(std::string("askAboutChangingArgs"), OPENSS_ASK_ABOUT_CHANGING_ARGS, &ok);
+  if (ok) OPENSS_ASK_ABOUT_CHANGING_ARGS = Bvalue;
+
+  Add_Help (czar, "onRerunSaveCopyOfExperimentDatabase", "a boolean, preference",
+            "Declare that the database created when an 'expCreate' "
+            "command is issued will be saved when the OpenSS session is "
+            "terminated.  The saved database will be in the user's "
+            "current directory and will be of the form: "
+            " 'X<exp_id>_iiiiii.openss'  "
+            "where the 'iiiiii' field is the first integer, starting with 0, "
+            "that generates a unique file name.  The default is 'false' "
+            "and experiment databases will be deleted when the OpenSS "
+            "session terminates unless the user has issued an 'expSave' "
+            "command.");
+  Bvalue = settings->readBoolEntry(std::string("onRerunSaveCopyOfExperimentDatabase"), OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE, &ok);
+  if (ok) OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE = Bvalue;
 
   Add_Help (czar, "allowPythonCommands", "a boolean, preference",
             "Declare that Python commands may be intermixed with OpenSS "

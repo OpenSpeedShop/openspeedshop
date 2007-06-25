@@ -1297,12 +1297,90 @@ Extent Experiment::getPerformanceDataExtent() const
     return extent;
 }
 
+/**
+ *
+ *  This routine extracts the command that was or will be 
+ *  used to run the application that is the subject of this
+ *  experiment. 
+ *
+ */
+std::string Experiment::getApplicationCommand() 
+{
+    // Table mapping original thread names to their corresponding collectors
+    std::vector<std::pair<ThreadName, CollectorGroup> > names_to_collectors;
 
+    // Iterate over each original thread in this experiment
+    ThreadGroup new_threads, original_threads = getThreads();
+    for(ThreadGroup::const_iterator
+	    i = original_threads.begin(); i != original_threads.end(); ++i) {
+
+	// Construct the name of this thread and add it to the table
+	ThreadName name(*i);
+	names_to_collectors.push_back(std::make_pair(name, i->getCollectors()));
+
+	// Ignore this thread if it wasn't created directly by the framework
+	if(name.getCommand().first) {
+          return name.getCommand().second;
+
+#ifndef NDEBUG
+          if(is_debug_mpijob_enabled) {
+	      std::stringstream output;
+      	      output << "[TID " << pthread_self() << "] "
+	             << "Experiment::getApplicationCommand: name.getCommand().first=" 
+	             << name.getCommand().first  << " name.getCommand().second= " << name.getCommand().second << ""
+	             << " name.getHost()= "  <<  name.getHost() << ""
+	             << std::endl;
+      	      std::cerr << output.str();
+          }
+        }
+#endif
+
+   } // end for
+   return NULL;
+}
+
+/**
+ *
+ *  This routine stores/saves the command that will be 
+ *  used to run the application that is the subject of this
+ *  experiment. 
+ *
+ */
+void Experiment::setApplicationCommand(const char *newCommand) 
+{
+    // Table mapping original thread names to their corresponding collectors
+    std::vector<std::pair<ThreadName, CollectorGroup> > names_to_collectors;
+
+    // Iterate over each original thread in this experiment
+    ThreadGroup new_threads, original_threads = getThreads();
+    for(ThreadGroup::const_iterator
+	    i = original_threads.begin(); i != original_threads.end(); ++i) {
+
+	// Construct the name of this thread and add it to the table
+	ThreadName name(*i);
+	names_to_collectors.push_back(std::make_pair(name, i->getCollectors()));
+
+	// Ignore this thread if it wasn't created directly by the framework
+	if(name.getCommand().first) {
+          (*i).setCommand(newCommand);
+#ifndef NDEBUG
+          if(is_debug_mpijob_enabled) {
+	      std::stringstream output;
+      	      output << "[TID " << pthread_self() << "] "
+	             << "Experiment::setApplicationCommand: name.getCommand().first=" 
+	             << name.getCommand().first  << " name.getCommand().second= " << name.getCommand().second << ""
+	             << " name.getHost()= "  <<  name.getHost() << ""
+	             << std::endl;
+      	      std::cerr << output.str();
+          }
+        }
+#endif
+   } // end for
+}
 
 /**
  * Prepare to rerun the experiment.
  *
- * Prepares this experiment to be rerun. Each call to createProcess() made for
  * this experiment is reissued. The resulting new threads are matched against
  * the original threads when possible. This allows the data collectors applied
  * to the new threads to mimic those applied to the original threads. Original
@@ -1335,6 +1413,18 @@ void Experiment::prepareToRerun(const OutputCallback stdout_callback,
 	// Ignore this thread if it wasn't created directly by the framework
 	if(!name.getCommand().first)
 	    continue;
+
+#ifndef NDEBUG
+    if(is_debug_mpijob_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Experiment::prepareToRerun: name.getCommand().first=" 
+	       << name.getCommand().first  << " name.getCommand().second= " << name.getCommand().second << ""
+	       << " name.getHost()= "  <<  name.getHost() << ""
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
 
 	// Recreate the process on the same host
         ThreadGroup threads = createProcess(name.getCommand().second, 

@@ -59,6 +59,7 @@ class ExperimentObject
     ExpStatus = ExpStatus_Paused;
     exp_reserved = false;
     expRunAtLeastOnceAlreadyFlag = false;
+    exp_rerun_count = 0;
 
     Assert(pthread_mutex_init(&Experiment_Lock, NULL) == 0); // dynamic initialization
     Assert(pthread_mutex_lock(&Experiment_Lock) == 0);       // Lock it!
@@ -166,6 +167,7 @@ class ExperimentObject
   void setExpRunAtLeastOnceAlready (bool flag) {expRunAtLeastOnceAlreadyFlag = flag;}
   bool expIsBatch () {return isBatch;}
   void setExpIsBatch (bool flag) {isBatch = flag;}
+  uint32_t exp_rerun_count;
 
   std::string createName (EXPID LocalExpId, bool LocalDataFileHasAGeneratedName) {
      std::string LocalDataFileName;
@@ -180,6 +182,35 @@ class ExperimentObject
      return LocalDataFileName;
   }
 
+  std::string createRerunNameFromCurrentName (EXPID LocalExpId, uint32_t rerun_count, const char* current_exp_name) {
+     std::string LocalDataFileName;
+     // Create a file in /tmp, for fastest access,
+     // of the form "X<exp_id>.XXXXXX.openss".
+     char base[256];
+     char newName[256];
+#if DEBUG_CLI
+     printf("createRerunNameFromCurrentName, newname=%s-%d.\n", current_exp_name, rerun_count);
+#endif
+
+     int nameLen = strlen(current_exp_name);
+     nameLen = nameLen - 7; // .openss has seven characters and we want to eliminate them
+     strncpy (newName, current_exp_name, nameLen);
+     newName[nameLen] = '\0';
+     snprintf(base, 256, "%s-%d", newName, rerun_count);
+
+#if DEBUG_CLI
+     printf("createRerunNameFromCurrentName, base=%s, rerun_count=%d\n", base, rerun_count);
+#endif
+
+     Assert(base != NULL);
+     LocalDataFileName = std::string(base) + ".openss";
+
+#if DEBUG_CLI
+     printf("createRerunNameFromCurrentName, LocalDataFileName.c_str()=%s\n", LocalDataFileName.c_str());
+#endif
+
+     return LocalDataFileName;
+  }
 
   bool Data_Base_Is_Tmp () {return Data_File_Has_A_Generated_Name;}
   std::string Data_Base_Name () {

@@ -84,6 +84,11 @@ char *cmd_expSave_related[] = {
     "<file_name>"
 };
 
+char *cmd_expSetArgs_related[] = {
+    "<expId>",
+    "<Args>"
+};
+
 char *cmd_expSetParam_related[] = {
     "<expId>",
     "<file_name>",
@@ -339,6 +344,10 @@ char *cmd_expSave_args[] = {
     "expSave [-v copy] [-x <expId>] -f <file_name>"
 };
 
+char *cmd_expSetArgs_args[] = {
+    "expSetArgs [-x <expId>] arguments "
+};
+
 char *cmd_expSetParam_args[] = {
     "expSetParam [-x <expId>] <expParam>=<expParamValue> [,<expParamValue>] ... "
 };
@@ -547,6 +556,10 @@ char *cmd_expRestore_brief = {
 
 char *cmd_expSave_brief = {
     "Save the experiment data for further analysis."
+};
+
+char *cmd_expSetArgs_brief = {
+    "Change the value an experiment's executable argument(s)."
 };
 
 char *cmd_expSetParam_brief = {
@@ -1173,6 +1186,21 @@ char *cmd_expSave_detailed[] = {
     " "
 };
 
+
+char *cmd_expSetArgs_detailed[] = {
+    cmd_expSetArgs_args[0],
+    " ",
+    cmd_expSetArgs_brief,
+    " ",
+    "- arguments are the user application arguments.",
+    " ",
+    "- ",
+    " ",
+    "- This command does not change the execution state of ",
+    "  the experiment, although it may temporarily suspend ",
+    "  execution while the command is being executed.",
+    " "
+};
 
 char *cmd_expSetParam_detailed[] = {
     cmd_expSetParam_args[0],
@@ -2070,6 +2098,19 @@ char *cmd_expSave_example[] = {
     " "
 };
 
+char *cmd_expSetArgs_example[] = {
+    "expSetArgs n 50 50 50",
+    " ",
+    "    Will set the arguments for the application being run as part of ",
+    "    the focused experiment.",
+    " ",
+    "expSetArgs -x 3 n 50 50 500",
+    " ",
+    "    Will set the  arguments for the application being run as part of",
+    "    experiment #3.",
+    " "
+};
+
 char *cmd_expSetParam_example[] = {
     "expSetParam pcsamp::sampling_rate=10",
     " ",
@@ -2249,6 +2290,14 @@ OpenSpeedShop::message_element_t cmd_msg[] = {
     NULL,0,
     cmd_expSave_example,sizeof(cmd_expSave_example)/sizeof(char **),
     cmd_expSave_args,sizeof(cmd_expSave_args)/sizeof(char **),
+//    CMD_EXP_SETARGS,
+    -1,cmd_desc[CMD_EXP_SETARGS].name,
+    cmd_expSetArgs_related,sizeof(cmd_expSetArgs_related)/sizeof(char **),
+    "commands",cmd_expSetArgs_brief,
+    cmd_expSetArgs_detailed,sizeof(cmd_expSetArgs_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expSetArgs_example,sizeof(cmd_expSetArgs_example)/sizeof(char **),
+    cmd_expSetArgs_args,sizeof(cmd_expSetArgs_args)/sizeof(char **),
 //    CMD_EXP_SETPARAM,
     -1,cmd_desc[CMD_EXP_SETPARAM].name,
     cmd_expSetParam_related,sizeof(cmd_expSetParam_related)/sizeof(char **),

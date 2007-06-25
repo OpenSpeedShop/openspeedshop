@@ -90,6 +90,8 @@ QString globalRemoteShell;
     int helpLevelDefault; 
     bool viewFullPath; 
     bool saveExperimentDatabase; 
+    bool onRerunSaveCopyOfExperimentDatabase; 
+    bool askAboutChangingArgs; 
     bool viewMangledName; 
     bool allowPythonCommands; 
 
@@ -137,6 +139,8 @@ protected:
       QLineEdit *helpLevelDefaultLineEdit;
     QCheckBox *viewFullPathCheckBox;
     QCheckBox *saveExperimentDatabaseCheckBox;
+    QCheckBox *onRerunSaveCopyOfExperimentDatabaseCheckBox;
+    QCheckBox *askAboutChangingArgsCheckBox;
     QCheckBox *viewMangledNameCheckBox;
     QCheckBox *allowPythonCommandsCheckBox;
     QCheckBox *logByDefaultCheckBox;

@@ -2045,6 +2045,36 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
    // run (then don't do the prepareToRerun) or an actual pause via the user.
    // If we are starting from a user pause, then we want to restart so call prepareToRerun.
 
+  std::string Data_File_Name = experiment->getName();
+
+#ifdef DEBUG_CLI
+  printf("Execute_Experiment, Data_File_Name of input experiment is %s\n", Data_File_Name.c_str());
+#endif
+
+      //
+      // If the preference is set to save the data from the previous run
+      // when doing a rerun on the same experiment, then copy the database file
+      // to a new named file before rerunning the experiment.
+      //
+      if (OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE) {
+
+        EXPID active_exp_id = exp->ExperimentObject_ID();
+        exp->exp_rerun_count++;
+        std::string new_data_base_name = exp->createRerunNameFromCurrentName(active_exp_id, exp->exp_rerun_count, Data_File_Name.c_str());
+#ifdef DEBUG_CLI
+        printf("Execute_Experiment, new_data_base_name of input experiment is %s\n", 
+               new_data_base_name.c_str());
+#endif
+        exp->CopyDB (new_data_base_name);
+      }
+       
+      std::string appCommand = experiment->getApplicationCommand();
+
+#ifdef DEBUG_CLI
+      printf("Execute_Experiment, appCommand for the experiment is %s\n", 
+               appCommand.c_str());
+#endif
+
       experiment->prepareToRerun();
       exp->Q_Lock (cmd, false);
       exp->setStatus(ExpStatus_Paused);
@@ -2629,6 +2659,118 @@ static bool setparam (Collector C, std::string pname, vector<ParamVal> *value_li
   return false;
 }
 
+// Forward reference.
+static void Most_Common_Executable (CommandObject *cmd, ExperimentObject *exp, std::list<std::string>& ExList);
+
+/**
+ * SemanticRoutine: SS_expSetArgs()
+ * 
+ * Implement the 'expSetArgs' command by reading values form the
+ * parse object and sending them to the collectors attached to an
+ * experiment.
+ *     
+ * @param   cmd - the CommandObject being processed.
+ *
+ * @return  "true" on successful completion of the command.
+ *
+ * @error   "false is returned if no experiment can be determined or
+ *          if a thrown exception is caught while accessing the
+ *          experiment's database.
+ *
+ */
+bool SS_expSetArgs (CommandObject *cmd) {
+
+  std::string S;
+  std::string newAppCommand;
+  ExperimentObject *exp = Find_Specified_Experiment (cmd);
+  if (exp == NULL) {
+    return false;
+  }
+
+#if DEBUG_CLI
+  printf("In SS_expSetArgs(), exp=%d\n", exp);
+#endif
+
+  Assert(cmd->P_Result() != NULL);
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+
+#if DEBUG_CLI
+  if (p_result != NULL) {
+      p_result->ParseResult::dumpInfo();
+  }
+#endif
+
+    vector<string> *p_slist = p_result->getStringList();
+    vector<string>::iterator j;
+
+#if DEBUG_CLI
+    if (p_slist->begin() != p_slist->end())
+        cout << "\tGeneric strings: " ;
+#endif
+
+    for (j=p_slist->begin();j != p_slist->end(); j++) {
+
+       S = *j;
+
+#ifdef DEBUG_CLI
+       printf("In SS_expSetArgs(), S.c_str()=%s\n", S.c_str());
+       cout << *j << " " ;
+#endif
+    }
+#ifdef DEBUG_CLI
+    if (p_slist->begin() != p_slist->end())
+        cout << endl ;
+#endif
+
+  exp->Q_Lock (cmd, true);
+
+  std::string appCommand = exp->FW()->getApplicationCommand();
+
+#ifdef DEBUG_CLI
+  printf("In SS_expSetArgs(), appCommand.c_str()=%s\n", appCommand.c_str());
+#endif
+
+  // Form new executable and arguments command to set into database via the 
+  // framework routing setApplicationCommand.
+
+  std::list<std::string> ExList;
+  Most_Common_Executable (cmd, exp, ExList);
+  if (ExList.empty()) {
+//    cmd->Result_String ("    (none)");
+//    this is an error condition
+  } else {
+    for (std::list<std::string>::iterator xi = ExList.begin(); xi != ExList.end(); xi++) {
+      newAppCommand = *xi;
+
+#ifdef DEBUG_CLI
+      printf("In SS_expSetArgs(), newAppCommand.c_str()=%s\n", newAppCommand.c_str());
+#endif
+
+      newAppCommand = newAppCommand + " " + S;
+
+#ifdef DEBUG_CLI
+      printf("In SS_expSetArgs(), newAppCommand.c_str()=%s\n", newAppCommand.c_str());
+#endif
+    }
+  }
+
+
+  exp->FW()->setApplicationCommand(newAppCommand.c_str());
+  exp->Q_UnLock ();
+
+  if ((cmd->Status() == CMD_ERROR) ||
+      (cmd->Status() == CMD_ABORTED)) {
+    return false;
+  }
+
+#ifdef DEBUG_CLI
+  printf("Exit SS_expSetArgs()\n");
+#endif
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
 /**
  * SemanticRoutine: SS_expSetParam()
  * 
@@ -2654,6 +2796,7 @@ bool SS_expSetParam (CommandObject *cmd) {
 
   Assert(cmd->P_Result() != NULL);
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+
   if (p_result->isParam()) {
     ParseParam *p_param = p_result->getParam();
     char *type_name = p_param->getExpType();
@@ -2784,8 +2927,6 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
   return Param_Value;
 }
 
-// Forward reference.
-static void Most_Common_Executable (CommandObject *cmd, ExperimentObject *exp, std::list<std::string>& ExList);
 
 /**
  * Utility: ReportStatus ()

@@ -45,6 +45,7 @@ bool SS_expGo (CommandObject *cmd);
 bool SS_expPause (CommandObject *cmd);
 bool SS_expRestore (CommandObject *cmd);
 bool SS_expSave (CommandObject *cmd);
+bool SS_expSetArgs (CommandObject *cmd);
 bool SS_expSetParam (CommandObject *cmd);
 
 // Information level commands

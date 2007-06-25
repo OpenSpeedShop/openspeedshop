@@ -894,6 +894,7 @@ bool Thread::doesSiblingExist(const pthread_t& tid) const
 
 
 
+
 /**
  * Set our POSIX thread identifier.
  *
@@ -910,6 +911,28 @@ void Thread::setPosixThreadId(const pthread_t& tid) const
 	"UPDATE Threads SET posix_tid = ? WHERE id = ?;"
 	);
     dm_database->bindArgument(1, tid);
+    dm_database->bindArgument(2, dm_entry);
+    while(dm_database->executeStatement());
+    END_TRANSACTION(dm_database);
+}
+
+
+/**
+ * Set our new command for the thread.
+ *
+ * Sets the command of this thread.
+ *
+ * @param tid    Command to be executed by this thread.
+ */
+void Thread::setCommand(const char *command) const
+{
+    // Set our application execute command 
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+	"UPDATE Threads SET command = ? WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, command);
     dm_database->bindArgument(2, dm_entry);
     while(dm_database->executeStatement());
     END_TRANSACTION(dm_database);

@@ -145,6 +145,7 @@ namespace OpenSpeedShop { namespace Framework {
 
 	bool doesSiblingExist(const pthread_t&) const;
 	void setPosixThreadId(const pthread_t&) const;	
+	void setCommand(const char *) const;	
 	Thread createCopy() const;
 	
     };
