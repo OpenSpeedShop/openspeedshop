@@ -2660,7 +2660,7 @@ static bool setparam (Collector C, std::string pname, vector<ParamVal> *value_li
 }
 
 // Forward reference.
-static void Most_Common_Executable (CommandObject *cmd, ExperimentObject *exp, std::list<std::string>& ExList);
+static void Most_Common_Executable (CommandObject *cmd, ExperimentObject *exp, bool returnFullPath, std::list<std::string>& ExList);
 
 /**
  * SemanticRoutine: SS_expSetArgs()
@@ -2734,7 +2734,9 @@ bool SS_expSetArgs (CommandObject *cmd) {
   // framework routing setApplicationCommand.
 
   std::list<std::string> ExList;
-  Most_Common_Executable (cmd, exp, ExList);
+  // Need to return the full path for this feature to work
+  // The third argument specifies this
+  Most_Common_Executable (cmd, exp, true, ExList);
   if (ExList.empty()) {
 //    cmd->Result_String ("    (none)");
 //    this is an error condition
@@ -2981,7 +2983,7 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
         }
 
         std::list<std::string> ExList;
-        Most_Common_Executable (cmd, exp, ExList);
+        Most_Common_Executable (cmd, exp, false, ExList);
         cmd->Result_String ("  Executables Involved:");
         if (ExList.empty()) {
           cmd->Result_String ("    (none)");
@@ -3415,6 +3417,7 @@ static bool SS_ListDatabase (CommandObject *cmd) {
  *
  * @param   cmd - the current command beind processed.
  * @param   exp - the experiment to look at.
+ * @param   returnFullPath - return the fullpath, if set
  * @param   ExList - the return list of names.
  *
  * @return  void - results are through the third argument.
@@ -3425,6 +3428,7 @@ static bool SS_ListDatabase (CommandObject *cmd) {
  */
 static void Most_Common_Executable (CommandObject *cmd,
                                     ExperimentObject *exp,
+                                    bool returnFullPath,
                                     std::list<std::string>& ExList) {
   try {
    // Get the list of threads used in the specified experiment.
@@ -3445,7 +3449,7 @@ static void Most_Common_Executable (CommandObject *cmd,
       if (X.first == false) {
         continue;
       }
-      std::string ExName = (OPENSS_VIEW_FULLPATH) ? X.second.getPath() : X.second.getPath().getBaseName();
+      std::string ExName = (OPENSS_VIEW_FULLPATH || returnFullPath) ? X.second.getPath() : X.second.getPath().getBaseName();
       if (NameMap.find(ExName) != NameMap.end()) {
        // Increment counts of the times the name has been seen.
         NameMap[ExName]++;
@@ -3505,7 +3509,7 @@ static bool SS_ListExecutable (CommandObject *cmd) {
     std::list<ExperimentObject *>::reverse_iterator expi;
     for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
     {
-      Most_Common_Executable (cmd, *expi, ExList);
+      Most_Common_Executable (cmd, *expi, false, ExList);
     }
   } else {
    // Get the Executable name for a specified Experiment or the focused Experiment.
@@ -3515,7 +3519,7 @@ static bool SS_ListExecutable (CommandObject *cmd) {
     }
 
    // Scan the experiment for the executable name.
-    Most_Common_Executable (cmd, exp, ExList);
+    Most_Common_Executable (cmd, exp, false, ExList);
   }
 
  // Put the names onto the command.

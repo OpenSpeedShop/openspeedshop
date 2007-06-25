@@ -68,7 +68,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    saveExperimentDatabase = FALSE; 
    viewMangledName = FALSE; 
    allowPythonCommands = TRUE; 
-   askAboutChangingArgs = FALSE; 
+   askAboutChangingArgs = TRUE; 
    onRerunSaveCopyOfExperimentDatabase = TRUE; 
 
 
