@@ -177,6 +177,37 @@ static void Wait_For_Thread_Connected (CommandObject *cmd, Thread t) {
   }
 }
 
+// This routine is strongly based (copy of) 
+// on the Tokenizer routine found at this URL:
+// http://www.oopweb.com/CPP/Documents/CPPHOWTO/Volume/C++Programming-HOWTO-7.html
+
+void createTokens(const string& str,
+                  vector<string>& tokens,
+                  const string& delimiters = " ")
+{
+    // Skip delimiters at beginning.
+    string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    // Find first "non-delimiter".
+    string::size_type pos     = str.find_first_of(delimiters, lastPos);
+
+    while (string::npos != pos || string::npos != lastPos)
+    {
+        // Found a token, add it to the vector.
+        tokens.push_back(str.substr(lastPos, pos - lastPos));
+
+        // Skip delimiters.  Note the "not_of"
+        lastPos = str.find_first_not_of(delimiters, pos);
+
+        // Find next "non-delimiter"
+        pos = str.find_first_of(delimiters, lastPos);
+
+#ifdef DEBUG_CLI
+        printf("createTokens, in while, str.c_str()=%s, lastPos = %d, pos = %d\n", str.c_str(), lastPos, pos);
+#endif
+
+    }
+}
+
 /**
  * Method: ()
  * 
@@ -2681,14 +2712,24 @@ static void Most_Common_Executable (CommandObject *cmd, ExperimentObject *exp, b
 bool SS_expSetArgs (CommandObject *cmd) {
 
   std::string S;
-  std::string newAppCommand;
+  std::string newAppExecutableCommand;
+  std::string maxSizeCommand;
+  string::size_type matchPos = string::npos;
+  string::size_type maxPos = string::npos;
+  int maxExeSize;
+  int newExecutablePathSize;
+  int lastTokenStrSize;
+  std::string lastToken;
+
+
+
   ExperimentObject *exp = Find_Specified_Experiment (cmd);
   if (exp == NULL) {
     return false;
   }
 
 #if DEBUG_CLI
-  printf("In SS_expSetArgs(), exp=%d\n", exp);
+  printf("Enter SS_expSetArgs(), exp=%d\n", exp);
 #endif
 
   Assert(cmd->P_Result() != NULL);
@@ -2703,11 +2744,6 @@ bool SS_expSetArgs (CommandObject *cmd) {
     vector<string> *p_slist = p_result->getStringList();
     vector<string>::iterator j;
 
-#if DEBUG_CLI
-    if (p_slist->begin() != p_slist->end())
-        cout << "\tGeneric strings: " ;
-#endif
-
     for (j=p_slist->begin();j != p_slist->end(); j++) {
 
        S = *j;
@@ -2716,7 +2752,9 @@ bool SS_expSetArgs (CommandObject *cmd) {
        printf("In SS_expSetArgs(), S.c_str()=%s\n", S.c_str());
        cout << *j << " " ;
 #endif
-    }
+
+    } // end for j
+
 #ifdef DEBUG_CLI
     if (p_slist->begin() != p_slist->end())
         cout << endl ;
@@ -2730,34 +2768,182 @@ bool SS_expSetArgs (CommandObject *cmd) {
   printf("In SS_expSetArgs(), appCommand.c_str()=%s\n", appCommand.c_str());
 #endif
 
+
   // Form new executable and arguments command to set into database via the 
   // framework routing setApplicationCommand.
 
   std::list<std::string> ExList;
+
   // Need to return the full path for this feature to work
   // The third argument specifies this
+
   Most_Common_Executable (cmd, exp, true, ExList);
+
   if (ExList.empty()) {
-//    cmd->Result_String ("    (none)");
+//    FIXME
 //    this is an error condition
   } else {
     for (std::list<std::string>::iterator xi = ExList.begin(); xi != ExList.end(); xi++) {
-      newAppCommand = *xi;
+      newAppExecutableCommand = *xi;
 
 #ifdef DEBUG_CLI
-      printf("In SS_expSetArgs(), newAppCommand.c_str()=%s\n", newAppCommand.c_str());
+      printf("In SS_expSetArgs(), newAppExecutableCommand.c_str()=%s\n", newAppExecutableCommand.c_str());
+      printf("In SS_expSetArgs(), appCommand.c_str()=%s\n", appCommand.c_str());
 #endif
 
-      newAppCommand = newAppCommand + " " + S;
+      // Find the executable in the orginal command that this executable represents
+      // and replace the reference in the original command with this full path reference
+      // remember the position in the original command
+
+      matchPos = appCommand.find(newAppExecutableCommand);
 
 #ifdef DEBUG_CLI
-      printf("In SS_expSetArgs(), newAppCommand.c_str()=%s\n", newAppCommand.c_str());
+      printf("In SS_expSetArgs(), INITIAL MATCHPOS CHECK, matchPos=%d\n", matchPos);
 #endif
-    }
+
+      if (matchPos == string::npos) {
+        // no match for full path, look at finding non-path executable
+
+        newExecutablePathSize = newAppExecutableCommand.length();
+
+#ifdef DEBUG_CLI
+        printf("In SS_expSetArgs(), INSIDE TOKENIZE NEEDED, newExecutablePathSize=%d\n", newExecutablePathSize);
+#endif
+
+        vector<string> tokens;
+        createTokens(newAppExecutableCommand, tokens, "/");
+        vector<string>::iterator k;
+
+        for (k=tokens.begin();k != tokens.end(); k++) {
+          lastToken = *k;
+        }
+
+        // after for loop lastToken should be the filename for this executable
+
+#ifdef DEBUG_CLI
+        printf("after the while loop, lastToken.c_str()=%s\n", lastToken.c_str());
+        printf("after the while loop, lastToken.length()=%d\n", lastToken.length());
+#endif
+       
+        // Let's locate that in the rebuilt string and replace it with
+        // the full path version, if needed.  Otherwise, record it's position
+        // and string for the final argument replacement.  We are looking for the
+        // new executable command string that is closest to the argument's position
+        // in the appCommand string.
+
+        matchPos = appCommand.find(lastToken);
+
+#ifdef DEBUG_CLI
+        printf("after the while loop, lastToken.c_str()=%s, newAppExecutableCommand.c_str()=%s, matchPos=%d\n", lastToken.c_str(), appCommand.c_str(), matchPos);
+#endif
+
+        if (matchPos != string::npos) {
+
+          lastTokenStrSize = lastToken.length();
+          newExecutablePathSize = newAppExecutableCommand.length();
+
+#ifdef DEBUG_CLI
+          printf("In SS_expSetArgs(), found the new executable filename in the original command, lastToken.c_str()=%s newExecutablePathSize=%d\n",
+                   lastToken.c_str(), newExecutablePathSize);
+          printf("In SS_expSetArgs(), found the new executable filename in the original command, lastTokenStrSize=%d\n", lastTokenStrSize);
+          printf("In SS_expSetArgs(), BEFORE REPLACEMENT, newAppExecutableCommand.c_str()=%s\n", newAppExecutableCommand.c_str());
+
+          printf("In SS_expSetArgs(), BEFORE REPLACEMENT, appCommand.c_str()=%s\n", appCommand.c_str());
+#endif
+
+          appCommand.replace(matchPos, lastTokenStrSize, newAppExecutableCommand);
+
+
+#ifdef DEBUG_CLI
+          printf("In SS_expSetArgs(), AFTER REPLACEMENT, newAppExecutableCommand.c_str()=%s\n", newAppExecutableCommand.c_str());
+          printf("In SS_expSetArgs(), AFTER REPLACEMENT, appCommand.c_str()=%s\n", appCommand.c_str());
+          printf("In SS_expSetArgs(), BEFORE CASE CHECKS matchPos, maxPos=%d, matchPos=%d\n", maxPos, matchPos);
+#endif
+
+          // save the position farthest toward the arguments so we can clip off the 
+          // old arguments and replace with the new
+          if (maxPos == string::npos) {
+            maxPos = matchPos;
+            maxExeSize = newAppExecutableCommand.length();
+            maxSizeCommand = newAppExecutableCommand;
+
+#ifdef DEBUG_CLI
+            printf("In SS_expSetArgs(), INITIAL SET CASE from matchPos, maxPos=%d, maxExeSize=%d\n", maxPos, maxExeSize);
+#endif
+          } else if (matchPos > maxPos) {
+            maxPos = matchPos;
+            maxExeSize = newAppExecutableCommand.length();
+            maxSizeCommand = newAppExecutableCommand;
+#ifdef DEBUG_CLI
+            printf("In SS_expSetArgs(), REPLACEMENT CASE RESET from matchPos, maxPos=%d, maxExeSize=%d\n", maxPos, maxExeSize);
+#endif
+          }
+        } 
+        
+      } else {
+
+#ifdef DEBUG_CLI
+          printf("In SS_expSetArgs(), INSIDE FULLPATH MATCHED, maxPos=%d, matchPos=%d, maxExeSize=%d\n", maxPos, matchPos, maxExeSize);
+#endif
+
+        // full path version found
+        if (maxPos == string::npos) {
+          maxPos = matchPos;
+          maxExeSize = newAppExecutableCommand.length();
+          maxSizeCommand = newAppExecutableCommand;
+
+#ifdef DEBUG_CLI
+          printf("In SS_expSetArgs(), NULL first setting of maxPos=%d, maxExeSize=%d\n", maxPos, maxExeSize);
+          printf("In SS_expSetArgs(), NULL first setting of maxPos=%d, maxExeSize=%d, maxSizeCommand.c_str()=%s\n", maxPos, maxExeSize, maxSizeCommand.c_str());
+#endif
+
+        } else {
+
+          // if this executable string is further right, record the position, length, and save it.
+          if (matchPos > maxPos) {
+             maxPos = matchPos;
+             maxExeSize = newAppExecutableCommand.length();
+             maxSizeCommand = newAppExecutableCommand;
+#ifdef DEBUG_CLI
+             printf("In SS_expSetArgs(), RESET from matchPos, maxPos=%d, maxExeSize=%d, maxSizeCommand.c_str()=%s\n", maxPos, maxExeSize, maxSizeCommand.c_str());
+#endif
+          }
+        }
+      }
+
+#ifdef DEBUG_CLI
+      printf("In SS_expSetArgs(), at bottom of for appCommand.c_str()=%s\n", appCommand.c_str());
+#endif
+    } // end for
   }
 
+#ifdef DEBUG_CLI
+  printf("In SS_expSetArgs(), after the for loop  appCommand.c_str()=%s\n", appCommand.c_str());
+  printf("In SS_expSetArgs(), after the for loop  appCommand.length()=%d\n", appCommand.length());
+  printf("**** In SS_expSetArgs(), after the for loop  maxPos=%d, maxExeSize=%d\n", maxPos, maxExeSize);
+#endif
 
-  exp->FW()->setApplicationCommand(newAppCommand.c_str());
+  // Because of inserting the fullpath string for the non-fullpath version positioning
+  // can be a problem to compute and keep correct.   Just find the position again after
+  // all the insertion is completed.
+
+  matchPos = appCommand.find(maxSizeCommand);
+
+#ifdef DEBUG_CLI
+  printf("**** In SS_expSetArgs(), after the for loop  matchPos=%d, maxSizeCommand.length()=%d\n", matchPos, maxSizeCommand.length());
+  printf("**** In SS_expSetArgs(), after the for loop  (matchPos+maxExeSize+1)=%d, (appCommand.length()-(matchPos+maxExeSize))=%d\n", (matchPos+maxExeSize+1), (appCommand.length()-(matchPos+maxExeSize)));
+#endif
+  
+//  basically the replace does this first:   appCommand = appCommand + " " - existing args;
+//  basically the replace does this second:  appCommand = appCommand + " " + S;
+  appCommand.replace( (matchPos+maxExeSize+1), (appCommand.length()-(matchPos+maxExeSize)), S);
+  
+
+#ifdef DEBUG_CLI
+  printf("In SS_expSetArgs(), after the new args added  appCommand.c_str()=%s\n", appCommand.c_str());
+#endif
+
+  exp->FW()->setApplicationCommand(appCommand.c_str());
   exp->Q_UnLock ();
 
   if ((cmd->Status() == CMD_ERROR) ||
