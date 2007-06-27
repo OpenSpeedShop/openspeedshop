@@ -47,5 +47,37 @@ SUBDIRS += fpe
 endif
 endif
 
+DIST_SUBDIRS = \
+	pcsamp
+
+if HAVE_LIBUNWIND
+SUBDIRS += usertime io iot
+endif
+
+if HAVE_PAPI
+SUBDIRS += hwc
+if HAVE_LIBUNWIND
+SUBDIRS += hwctime
+endif
+endif
+
+if HAVE_MPI
+if HAVE_LIBUNWIND
+SUBDIRS += mpi mpit
+if HAVE_OTF
+if HAVE_VT
+SUBDIRS += mpiotf
+endif
+endif
+endif
+endif
+
+if HAVE_BINUTILS
+if HAVE_LIBUNWIND
+SUBDIRS += fpe
+endif
+endif
+
+
 doc:
 	$(DOXYGEN)
