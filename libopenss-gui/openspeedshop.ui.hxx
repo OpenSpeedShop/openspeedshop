@@ -1391,6 +1391,11 @@ OpenSpeedshop::lookForExperiment()
           panel_type = "MPIT";
           knownCollectorType = TRUE;
           break;
+        } else if( collector_name == "mpiotf" )
+        {
+           panel_type = "MPIOTF";
+           knownCollectorType = TRUE;
+           break;
         }
       }
     }
