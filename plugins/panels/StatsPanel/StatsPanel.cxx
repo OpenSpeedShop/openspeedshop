@@ -504,7 +504,9 @@ StatsPanel::listener(void *msg)
    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
    if( eo && eo->FW() ) {
      Experiment *fw_experiment = eo->FW();
+#ifdef DEBUG_StatsPanel
      printf("StatsPanel in PrepareToRerun, fw-experiment->rerun_count=%d\n", fw_experiment->getRerunCount());
+#endif // DEBUG_StatsPanel
    }
 
   } else if(  msgObject->msgType  == "FocusObject" && recycleFLAG == TRUE ) {
