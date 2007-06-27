@@ -184,6 +184,7 @@ AC_CONFIG_FILES(
 	plugins/collectors/iot/Makefile
 	plugins/collectors/mpi/Makefile
 	plugins/collectors/mpit/Makefile
+	plugins/collectors/mpiotf/Makefile
 	plugins/collectors/fpe/Makefile
 	plugins/panels/Makefile
 	plugins/panels/CustomExperimentPanel/Makefile
@@ -200,6 +201,7 @@ AC_CONFIG_FILES(
 	plugins/panels/IOTPanel/Makefile
 	plugins/panels/MPIPanel/Makefile
 	plugins/panels/MPITPanel/Makefile
+	plugins/panels/MPIOTFPanel/Makefile
 	plugins/panels/DebugPanel/Makefile
 	plugins/panels/FPE_TracingPanel/Makefile
 	plugins/panels/CompareExperimentsPanel/Makefile

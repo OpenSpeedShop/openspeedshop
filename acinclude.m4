@@ -414,21 +414,21 @@ AC_DEFUN([AC_PKG_OTF], [
        foundOTF=0
     fi
 
-    if foundOTF==1 && test -f  $otf_dir/include/otf.h; then
+    if test $foundOTF == 1 && test -f  $otf_dir/include/otf.h; then
        AC_MSG_CHECKING([found otf headers])
        foundOTF=1
     else
        foundOTF=0
     fi
 
-    if foundOTF==1 && test -f  $libz_dir/$abi_libdir/libz.so; then
+    if test $foundOTF == 1 && test -f  $libz_dir/$abi_libdir/libz.so; then
        AC_MSG_CHECKING([found libz library used by otf])
        foundOTF=1
     else
        foundOTF=0
     fi
 
-    if foundOTF==1; then
+    if test $foundOTF == 1; then
       AC_MSG_CHECKING([found all otf headers, libraries and supporting libz library])
       AC_MSG_RESULT(yes)
       AM_CONDITIONAL(HAVE_OTF, true)
@@ -495,14 +495,14 @@ AC_DEFUN([AC_PKG_VT], [
        foundVT=0
     fi
 
-    if foundVT==1 && test -f  $vt_dir/include/otf.h; then
+    if test $foundVT == 1 && test -f  $vt_dir/include/otf.h; then
        AC_MSG_CHECKING([found VampirTrace headers])
        foundVT=1
     else
        foundVT=0
     fi
 
-    if foundVT==1; then
+    if test $foundVT == 1; then
       AC_MSG_CHECKING([found all VampirTrace headers, libraries.])
       AC_MSG_RESULT(yes)
       AM_CONDITIONAL(HAVE_VT, true)
