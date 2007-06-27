@@ -212,6 +212,7 @@ AC_CONFIG_FILES(
 	plugins/views/iot/Makefile
 	plugins/views/mpi/Makefile
 	plugins/views/mpit/Makefile
+	plugins/views/mpiotf/Makefile
 	plugins/views/usertime/Makefile
 	plugins/views/fpe/Makefile
 	plugins/wizards/Makefile

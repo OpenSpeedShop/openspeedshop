@@ -22,6 +22,7 @@ SUBDIRS = basic \
           mpi \
           mpi \
           mpit \
+          mpiotf \
           io \
           iot \
           fpe
