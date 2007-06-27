@@ -165,6 +165,8 @@ public:
     CheckBoxInfoClassList eCheckBoxInfoClassList;
     QFrame* eParameterPageLine;
     QCheckBox *vParameterTraceCheckBox;
+    QCheckBox *vParameterOTFTraceCheckBox;
+    QCheckBox *eParameterOTFTraceCheckBox;
     QCheckBox *eParameterTraceCheckBox;
     QLabel* eParameterPageFunctionListHeaderLabel;
     QPushButton* eParameterPageBackButton;

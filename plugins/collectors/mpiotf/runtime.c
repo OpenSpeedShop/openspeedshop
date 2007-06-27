@@ -169,7 +169,7 @@ void mpit_record_event(const mpit_event* event, uint64_t function, char * name_s
     /* Obtain the stack trace from the current thread context */
     OpenSS_GetStackTraceFromContext(NULL, FALSE, OverheadFrameCount,
 				    MaxFramesPerStackTrace,
-				    &stacktrace_size, stacktrace, NULL);
+				    &stacktrace_size, stacktrace);
 
     /*
      * Replace the first entry in the call stack with the address of the MPI

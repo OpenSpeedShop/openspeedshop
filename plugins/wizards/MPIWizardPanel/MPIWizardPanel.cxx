@@ -158,6 +158,12 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
   QToolTip::add( vParameterTraceCheckBox, tr( "Records extra information, with more overhead, including\nsource rank, destination rank, size of message, tag of event,\ncomminicator used, data type of event, and the return value\nof the event.") );
 
 
+  vParameterOTFTraceCheckBox = new QCheckBox( vParameterPageWidget, "vParameterOTFTraceComboBox" );
+  vParameterOTFTraceCheckBox->setText(tr("TRACING: Write OTF files and gather additional information for each MPI function call. (mpiotf)\n") );
+  vParameterPageParameterLayout->addWidget( vParameterOTFTraceCheckBox );
+  QToolTip::add( vParameterOTFTraceCheckBox, tr( "Writes MPI Trace Data to OTF files and records extra information, with more overhead, including\nsource rank, destination rank, size of message, tag of event,\ncomminicator used, data type of event, and the return value\nof the event.") );
+
+
 
   vParameterPageLine2 = new QFrame( vParameterPageWidget, "vParameterPageLine2" );
   vParameterPageLine2->setMinimumSize( QSize(10,10) );
@@ -389,6 +395,12 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
   eParameterTraceCheckBox->setText(tr("Gather additional information for each MPI function call. (mpit)") );
   eParameterPageParameterLayout->addWidget( eParameterTraceCheckBox );
   QToolTip::add( eParameterTraceCheckBox, tr( "Records extra information, with more overhead, including\nsource rank, destination rank, size of message, tag of event,\ncomminicator used, data type of event, and the return value\nof the event.") );
+
+
+  eParameterOTFTraceCheckBox = new QCheckBox( eParameterPageWidget, "eParameterOTFTraceComboBox" );
+  eParameterOTFTraceCheckBox->setText(tr("Gather additional information for each MPI function call. (mpiotf)") );
+  eParameterPageParameterLayout->addWidget( eParameterOTFTraceCheckBox );
+  QToolTip::add( eParameterOTFTraceCheckBox, tr( "Writes MPI Trace Data to OTF files and records extra information, with more overhead, including\nsource rank, destination rank, size of message, tag of event,\ncomminicator used, data type of event, and the return value\nof the event.") );
 
 
   eParameterPageFunctionListHeaderLabel = new QLabel( eParameterPageWidget, "eParameterPageFunctionListHeaderLabel" );
@@ -1263,6 +1275,10 @@ void MPIWizardPanel::vSummaryPageFinishButtonSelected()
               (ewizardMode->isChecked() && eParameterTraceCheckBox->isChecked()) )
           {
               p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPIT", getPanelContainer(), ao);
+          } else if( (vwizardMode->isChecked() && vParameterOTFTraceCheckBox->isChecked()) ||
+              (ewizardMode->isChecked() && eParameterOTFTraceCheckBox->isChecked()) )
+          {
+              p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPIOTF", getPanelContainer(), ao);
           } else 
           {
             p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI", getPanelContainer(), ao);

@@ -287,6 +287,38 @@ void CollectorImpl::executeBeforeExit(const Collector& collector,
 }
 
 
+
+/**
+ * Execute a library function before MPI_Init exits.
+ *
+ * Executes the specified library function before MPI_Init exits.
+ * Called by derived classes to execute functions in their runtime library.
+ *
+ * @param collector    Collector requesting the execution.
+ * @param thread       Thread in which the function should be executed.
+ * @param callee       Name of the library function to be executed.
+ * @param argument     Blob argument to the function.
+ */
+void CollectorImpl::executeBeforeExitMPI(const Collector& collector,
+                                      const Thread& thread,
+                                      const std::string& callee,
+                                      const Blob& argument) const
+{
+#ifndef NDEBUG
+            if(is_debug_mpijob_enabled) {
+                std::stringstream output;
+                output << "In CollectorImpl::executeBeforeExitMPI" << " "
+                << ", calling executeAtEntryOrExit for MPI_Init for callee" <<  callee
+		<< std::endl;
+                std::cerr << output.str();
+            }
+#endif
+    Instrumentor::executeAtEntryOrExit(thread, collector,
+                                       "PMPI_Init",
+                                       false, callee, argument);
+}
+
+
 #ifndef NDEBUG
 /** Flag indicating if debuging for MPI jobs is enabled. */
 bool CollectorImpl::is_debug_mpijob_enabled =
@@ -349,69 +381,33 @@ std::string CollectorImpl::getMPIImplementationName(const Thread& thread) const
         if(thread.getFunctionByName("lampi_init").first) {
             is_lampi = true;
         }
-#ifndef NDEBUG
-            if(is_debug_mpijob_enabled) {
-                std::stringstream output;
-                output << "In CollectorImpl::getMPIImplementationName" << " "
-                << ", is_lampi=" << is_lampi << " "
-                       << std::endl;
-                std::cerr << output.str();
-            }
-#endif
 
         // Is thread a "mpt" SGI MPT MPI implementation?
         if(thread.getFunctionByName("MPI_debug_breakpoint").first) {
             is_mpt = true;
         }
-#ifndef NDEBUG
-            if(is_debug_mpijob_enabled) {
-                std::stringstream output;
-                output << "In CollectorImpl::getMPIImplementationName" << " "
-                << ", is_mpt=" << is_mpt << " "
-                       << std::endl;
-                std::cerr << output.str();
-            }
-#endif
 
         // Is thread a "lam/mpi" MPI implementation?
         if(thread.getFunctionByName("lam_mpi_comm_world").first) {
             is_lam = true;
         }
-#ifndef NDEBUG
-            if(is_debug_mpijob_enabled) {
-                std::stringstream output;
-                output << "In CollectorImpl::getMPIImplementationName" << " "
-                << ", is_lam=" << is_lam << " "
-                       << std::endl;
-                std::cerr << output.str();
-            }
-#endif
 
         // Is thread a "openmpi" MPI implementation?
         if(thread.getFunctionByName("ompi_mpi").first) {
             is_openmpi = true;
         }
-#ifndef NDEBUG
-            if(is_debug_mpijob_enabled) {
-                std::stringstream output;
-                output << "In CollectorImpl::getMPIImplementationName is_openmpi=" << is_openmpi << " "
-                       << std::endl;
-                std::cerr << output.str();
-            }
-#endif
 
     } else {
-          fprintf(stderr, "TEMPORARY DEBUGGING MESSAGE: (does not affect correctness) ---- Error condition: In an attempt to automatically determine the MPI implementation of the application being loaded, OpenSpeedShop accessed a thread that was not suspended\n");
 
 #ifndef NDEBUG
           if(is_debug_mpijob_enabled) {
              std::stringstream output;
              output << "In getMPIImplementationName THREAD IS NOT SUSPENDED, is it suspended" << thread.isState(Thread::Suspended) << " "
-             << "In getMPIImplementationName is it running?" << thread.isState(Thread::Running) << " "
-             << "In getMPIImplementationName is it connecting?" << thread.isState(Thread::Connecting) << " "
-             << "In getMPIImplementationName is it nonexistent?" << thread.isState(Thread::Nonexistent) << " "
-             << "In getMPIImplementationName is it disconnected?" << thread.isState(Thread::Disconnected) << " "
-             << "In getMPIImplementationName is it terminated?" << thread.isState(Thread::Terminated) << " "
+             << "In getMPIImplementationName is it running? = " << thread.isState(Thread::Running) << " "
+             << "In getMPIImplementationName is it connecting? = " << thread.isState(Thread::Connecting) << " "
+             << "In getMPIImplementationName is it nonexistent? = " << thread.isState(Thread::Nonexistent) << " "
+             << "In getMPIImplementationName is it disconnected? = " << thread.isState(Thread::Disconnected) << " "
+             << "In getMPIImplementationName is it terminated? = " << thread.isState(Thread::Terminated) << " "
              << std::endl;
              std::cerr << output.str();
          }

@@ -34,6 +34,13 @@ SUBDIRS = \
 	CompareExperimentsPanel \
 	DebugPanel
 
+if HAVE_OTF
+if HAVE_VT
+SUBDIRS += MPIOTFPanel
+endif
+endif
+
+
 if HAVE_PAPI
 SUBDIRS += HW_CounterPanel
 SUBDIRS += HWCTimePanel

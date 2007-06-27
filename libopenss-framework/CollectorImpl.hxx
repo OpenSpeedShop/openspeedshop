@@ -209,6 +209,9 @@ namespace OpenSpeedShop { namespace Framework {
 	void executeBeforeExit(const Collector&, const Thread&,
 			       const std::string&, const Blob&) const;
 
+	void executeBeforeExitMPI(const Collector&, const Thread&,
+			       const std::string&, const Blob&) const;
+
 	void uninstrument(const Collector&, const Thread&) const;
 	
 	std::string getMPIImplementationName(const Thread&) const;
