@@ -53,6 +53,7 @@
 
 using namespace OpenSpeedShop::Framework;
 
+static int askAboutSavingTheDatabaseCount = 0;
 
 class EPOutputClass : public ss_ostream
 {
@@ -1031,6 +1032,7 @@ CustomExperimentPanel::listener(void *msg)
     ExperimentObject *eo;
     QSettings *settings;
     bool askAboutChangingArgsPref = false;
+    bool askAboutSavingTheDatabasePref = false;
     bool mark_value_for_delete = true;
     int64_t val = 0;
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -1127,13 +1129,21 @@ CustomExperimentPanel::listener(void *msg)
 
         settings = new QSettings();
         askAboutChangingArgsPref = settings->readBoolEntry( "/openspeedshop/general/askAboutChangingArgs");
+        askAboutSavingTheDatabasePref = settings->readBoolEntry( "/openspeedshop/general/askAboutSavingTheDatabase");
 #ifdef DEBUG_CustomPanel
         printf("/openspeedshop/general/askAboutChangingArgs == askAboutChangingArgsPref=(%d)\n", askAboutChangingArgsPref );
 #endif
 
         eo = Find_Experiment_Object((EXPID)expID);
-        if (eo && eo->expRunAtLeastOnceAlready() && askAboutChangingArgsPref) {
+        if (eo && eo->expRunAtLeastOnceAlready() ) {
+          // Popup User Interface Dialog for user to save the database file
+          // on Rerun
+          if (askAboutSavingTheDatabasePref && askAboutSavingTheDatabaseCount == 0) {
+              askAboutSavingTheDatabaseCount = 1;
+              saveExperiment();
+          }
 
+          if (askAboutChangingArgsPref) {
 #ifdef DEBUG_CustomPanel
            printf("in CustomExperimentPanel::listener(), RUN_T, calling QInputDialog::getText\n");
 #endif
@@ -1154,6 +1164,7 @@ CustomExperimentPanel::listener(void *msg)
 #endif
              cli->runSynchronousCLI(command.ascii());
            }
+          }
         }
 
 

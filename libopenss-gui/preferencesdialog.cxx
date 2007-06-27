@@ -69,6 +69,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    viewMangledName = FALSE; 
    allowPythonCommands = TRUE; 
    askAboutChangingArgs = TRUE; 
+   askAboutSavingTheDatabase = TRUE; 
    onRerunSaveCopyOfExperimentDatabase = TRUE; 
 
 
@@ -311,6 +312,15 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     rightSideLayout->addWidget( askAboutChangingArgsCheckBox );
     }
 
+    { // ASK_ABOUT_SAVING_THE_DATABASE
+    askAboutSavingTheDatabaseCheckBox = new QCheckBox( GeneralGroupBox, "askAboutSavingTheDatabaseCheckBox" );
+    askAboutSavingTheDatabaseCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, askAboutSavingTheDatabaseCheckBox->sizePolicy().hasHeightForWidth() ) );
+    askAboutSavingTheDatabaseCheckBox->setChecked( askAboutSavingTheDatabase);
+    askAboutSavingTheDatabaseCheckBox->setText( tr( "On Rerun Ask About Saving The Experiment Database" ) );
+    rightSideLayout->addWidget( askAboutSavingTheDatabaseCheckBox );
+    }
+
+
     { // ON_RERUN_SAVE_EXPERIMENT_DATABASE
     onRerunSaveCopyOfExperimentDatabaseCheckBox = new QCheckBox( GeneralGroupBox, "onRerunSaveCopyOfExperimentDatabaseCheckBox" );
     onRerunSaveCopyOfExperimentDatabaseCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, onRerunSaveCopyOfExperimentDatabaseCheckBox->sizePolicy().hasHeightForWidth() ) );
@@ -400,6 +410,12 @@ QToolTip::add(saveExperimentDatabaseCheckBox,
 QToolTip::add(askAboutChangingArgsCheckBox,
   tr("When rerunning an experiment, pop up a dialog box that allows the application arguments to be changed") );
 
+
+  askAboutSavingTheDatabaseCheckBox->setChecked(askAboutSavingTheDatabase);
+QToolTip::add(askAboutChangingArgsCheckBox,
+  tr("When rerunning an experiment, pop up a dialog box that allows the existing database file to be named by the user and saved") );
+
+  onRerunSaveCopyOfExperimentDatabaseCheckBox->setChecked(onRerunSaveCopyOfExperimentDatabase);
   onRerunSaveCopyOfExperimentDatabaseCheckBox->setChecked(onRerunSaveCopyOfExperimentDatabase);
 QToolTip::add(onRerunSaveCopyOfExperimentDatabaseCheckBox,
   tr("When rerunning an experiment, save a copy of the database that was created when the 'expCreate'\ncommand was issued or from the previous rerun.  To make sure these copies will be saved when the Open|SpeedShop session is\nterminated choose the 'save Experiment Database' checkbox.  The copies of the saved database will be in the user's\ncurrent directory and will be of the form:\n \"X<exp_id>_iiiiii-nn.openss\"\"\nwhere the 'iiiiii' field is an integer, starting with 0,\nwhich generates a unique file name.\nand where the 'nn' field is an integer, starting with 1,\nwhich represents the rerun count.") );

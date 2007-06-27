@@ -96,6 +96,9 @@ void PreferencesDialog::readPreferencesOnEntry()
   saveExperimentDatabaseCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/saveExperimentDatabase") );
 
+  askAboutSavingTheDatabaseCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/askAboutSavingTheDatabase") );
+
   askAboutChangingArgsCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/askAboutChangingArgs") );
 
@@ -151,6 +154,8 @@ void PreferencesDialog::resetPreferenceDefaults()
    saveExperimentDatabaseCheckBox->setChecked(saveExperimentDatabase);
    askAboutChangingArgs = TRUE;
    askAboutChangingArgsCheckBox->setChecked(askAboutChangingArgs);
+   askAboutSavingTheDatabase = TRUE;
+   askAboutSavingTheDatabaseCheckBox->setChecked(askAboutSavingTheDatabase);
    onRerunSaveCopyOfExperimentDatabase = TRUE;
    onRerunSaveCopyOfExperimentDatabaseCheckBox->setChecked(onRerunSaveCopyOfExperimentDatabase);
    viewMangledName = FALSE;
@@ -273,6 +278,7 @@ void PreferencesDialog::applyPreferences()
   extern bool    OPENSS_VIEW_FULLPATH;
   extern bool    OPENSS_SAVE_EXPERIMENT_DATABASE;
   extern bool    OPENSS_ASK_ABOUT_CHANGING_ARGS;
+  extern bool    OPENSS_ASK_ABOUT_SAVING_THE_DATABASE;
   extern bool    OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE;
   extern bool    OPENSS_ALLOW_PYTHON_COMMANDS;
   extern bool    OPENSS_LOG_BY_DEFAULT;
@@ -280,6 +286,8 @@ void PreferencesDialog::applyPreferences()
   extern bool    OPENSS_VIEW_MANGLED_NAME;
 
 
+  OPENSS_ASK_ABOUT_SAVING_THE_DATABASE =
+    askAboutSavingTheDatabaseCheckBox->isChecked();
   OPENSS_ASK_ABOUT_CHANGING_ARGS =
     askAboutChangingArgsCheckBox->isChecked();
   OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE =
@@ -409,6 +417,11 @@ void PreferencesDialog::savePreferences()
   if( !settings->writeEntry( "/openspeedshop/general/saveExperimentDatabase", saveExperimentDatabaseCheckBox->isChecked() ) )
   {
     printf("Unable to write saveExperimentDatabase.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/askAboutSavingTheDatabase", askAboutSavingTheDatabaseCheckBox->isChecked() ) )
+  {
+    printf("Unable to write askAboutSavingTheDatabase\n");
   }
 
   if( !settings->writeEntry( "/openspeedshop/general/askAboutChangingArgs", askAboutChangingArgsCheckBox->isChecked() ) )

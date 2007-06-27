@@ -437,6 +437,9 @@ Experiment::Experiment(const std::string& name) :
 
     // Add this experiment's database to the data queues
     DataQueues::addDatabase(dm_database);
+
+    // Set the experiment's rerun count to 0
+    setRerunCount(0);
 }
 
 

@@ -496,10 +496,16 @@ StatsPanel::listener(void *msg)
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel in PrepareToRerun\n");
 #endif // DEBUG_StatsPanel
+   recycleFLAG = FALSE;
    originalCommand = QString::null;
    lastCommand = QString::null;
    staticDataFLAG = false;
    raiseManageProcessesPanel();
+   ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+   if( eo && eo->FW() ) {
+     Experiment *fw_experiment = eo->FW();
+     printf("StatsPanel in PrepareToRerun, fw-experiment->rerun_count=%d\n", fw_experiment->getRerunCount());
+   }
 
   } else if(  msgObject->msgType  == "FocusObject" && recycleFLAG == TRUE ) {
    // ---------------------------- 

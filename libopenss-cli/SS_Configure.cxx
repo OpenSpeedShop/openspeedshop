@@ -31,6 +31,7 @@ bool    OPENSS_VIEW_DEFINING_LOCATION = true;
 bool    OPENSS_VIEW_MANGLED_NAME = false;
 bool    OPENSS_SAVE_EXPERIMENT_DATABASE = false;
 bool    OPENSS_ASK_ABOUT_CHANGING_ARGS = true;
+bool    OPENSS_ASK_ABOUT_SAVING_THE_DATABASE = true;
 bool    OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE = true;
 bool    OPENSS_ALLOW_PYTHON_COMMANDS = true;
 bool    OPENSS_LOG_BY_DEFAULT = false;
@@ -176,6 +177,13 @@ void SS_Configure () {
             "command.");
   Bvalue = settings->readBoolEntry(std::string("saveExperimentDatabase"), OPENSS_SAVE_EXPERIMENT_DATABASE, &ok);
   if (ok) OPENSS_SAVE_EXPERIMENT_DATABASE = Bvalue;
+
+  Add_Help (czar, "askAboutSavingTheDatabase", "a boolean, preference",
+            "Declare that when rerunning an experiment create a dialog"
+            " message that allows the experiment database file to be saved "
+            "prior to reexecuting the experiment.");
+  Bvalue = settings->readBoolEntry(std::string("askAboutSavingTheDatabase"), OPENSS_ASK_ABOUT_SAVING_THE_DATABASE, &ok);
+  if (ok) OPENSS_ASK_ABOUT_SAVING_THE_DATABASE = Bvalue;
 
   Add_Help (czar, "askAboutChangingArgs", "a boolean, preference",
             "Declare that when rerunning an experiment create a dialog"

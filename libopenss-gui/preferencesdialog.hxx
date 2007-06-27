@@ -92,6 +92,7 @@ QString globalRemoteShell;
     bool saveExperimentDatabase; 
     bool onRerunSaveCopyOfExperimentDatabase; 
     bool askAboutChangingArgs; 
+    bool askAboutSavingTheDatabase; 
     bool viewMangledName; 
     bool allowPythonCommands; 
 
@@ -141,6 +142,7 @@ protected:
     QCheckBox *saveExperimentDatabaseCheckBox;
     QCheckBox *onRerunSaveCopyOfExperimentDatabaseCheckBox;
     QCheckBox *askAboutChangingArgsCheckBox;
+    QCheckBox *askAboutSavingTheDatabaseCheckBox;
     QCheckBox *viewMangledNameCheckBox;
     QCheckBox *allowPythonCommandsCheckBox;
     QCheckBox *logByDefaultCheckBox;

@@ -144,9 +144,22 @@ namespace OpenSpeedShop { namespace Framework {
 			        OutputCallback(NULL, NULL),
 			    const OutputCallback =
 			        OutputCallback(NULL, NULL)) const;
+
+        int setRerunCount(int count) {
+           rerunCount = count;
+        }
+
+        int incrementRerunCount() {
+           rerunCount = rerunCount + 1;
+        }
+
+        int getRerunCount() {
+           return rerunCount;
+        }
 		
     private:
 
+        int rerunCount;
 	std::pair<Thread, bool>
 	attachProcessLL(const pid_t&, const std::string&) const;
 

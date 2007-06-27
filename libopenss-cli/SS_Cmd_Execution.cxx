@@ -2090,8 +2090,10 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       if (OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE) {
 
         EXPID active_exp_id = exp->ExperimentObject_ID();
-        exp->exp_rerun_count++;
-        std::string new_data_base_name = exp->createRerunNameFromCurrentName(active_exp_id, exp->exp_rerun_count, Data_File_Name.c_str());
+        
+        exp->FW()->incrementRerunCount();
+//        exp->exp_rerun_count++;
+        std::string new_data_base_name = exp->createRerunNameFromCurrentName(active_exp_id, exp->FW()->getRerunCount(), Data_File_Name.c_str());
 #ifdef DEBUG_CLI
         printf("Execute_Experiment, new_data_base_name of input experiment is %s\n", 
                new_data_base_name.c_str());
