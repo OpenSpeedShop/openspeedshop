@@ -33,11 +33,11 @@ endif
 if HAVE_MPI
 if HAVE_LIBUNWIND
 SUBDIRS += mpi mpit
-if HAVE_OTF
-if HAVE_VT
-SUBDIRS += mpiotf
-endif
-endif
+#if HAVE_OTF
+#if HAVE_VT
+#SUBDIRS += mpiotf
+#endif
+#endif
 endif
 endif
 
