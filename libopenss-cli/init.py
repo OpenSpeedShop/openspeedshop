@@ -681,6 +681,7 @@ class CLI(code.InteractiveConsole):
         "exppause"      : "return_none",
         "exprestore"    : "return_int",
         "expsave"       : "return_none",
+        "expsetargs"    : "return_none",
         "expsetparam"   : "return_none",
         "expstatus" 	: "return_list",
         "expview"       : "return_list",
