@@ -17,8 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef PCSAMPLEWIZARDPANEL_H
-#define PCSAMPLEWIZARDPANEL_H
+#ifndef IOWIZARDPANEL_H
+#define IOWIZARDPANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;   // Do not remove
@@ -293,4 +293,4 @@ private:
 
     void appendFunctionsToMonitor();
 };
-#endif // PCSAMPLEWIZARDPANEL_H
+#endif // IOWIZARDPANEL_H
