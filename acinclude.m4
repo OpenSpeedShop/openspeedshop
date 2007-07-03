@@ -491,27 +491,28 @@ AC_DEFUN([AC_PKG_VT], [
 
     VT_DIR="$vt_dir"
     VT_CPPFLAGS="-I$vt_dir/include"
-    VT_LDFLAGS="-L$vt_dir/$alt_abi_libdir"
     VT_LIBS="-lvt.mpi"
-    VT_LIBSDIR="$vt_dir/$alt_abi_libdir"
 
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP
 
-    vt_saved_CPPFLAGS=$CPPFLAGS
-    vt_saved_LDFLAGS=$LDFLAGS
-
-    CPPFLAGS="$CPPFLAGS $VT_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $VT_LDFLAGS $VT_LIBS"
-
     AC_MSG_CHECKING([for VampirTrace support])
 
     foundVT=0
-    if test -f  $vt_dir/$alt_abi_libdir/libvt.mpi.a; then
+    if test -f  $vt_dir/$abi_libdir/libvt.mpi.a; then
        AC_MSG_CHECKING([found VampirTrace library])
+       VT_LDFLAGS="-L$vt_dir/$abi_libdir"
+       VT_LIBSDIR="$vt_dir/$abi_libdir"
        foundVT=1
     else
-       foundVT=0
+      if test -f  $vt_dir/$alt_abi_libdir/libvt.mpi.a; then
+         AC_MSG_CHECKING([found VampirTrace library])
+         VT_LDFLAGS="-L$vt_dir/$alt_abi_libdir"
+         VT_LIBSDIR="$vt_dir/$alt_abi_libdir"
+         foundVT=1
+      else
+         foundVT=0
+      fi
     fi
 
     if test $foundVT == 1 && test -f  $vt_dir/include/vt_user.h; then
@@ -536,9 +537,6 @@ AC_DEFUN([AC_PKG_VT], [
       VT_LIBSDIR=""
     fi
 
-
-    CPPFLAGS=$vt_saved_CPPFLAGS
-    LDFLAGS=$vt_saved_LDFLAGS
 
     AC_LANG_POP(C++)
 
