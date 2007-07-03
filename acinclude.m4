@@ -98,18 +98,21 @@ AC_DEFUN([AC_PKG_BINUTILS], [
     case "$host" in
 	ia64-*-linux*)
 	    binutils_required="false"
+            BINUTILS_DIR=""
 	    BINUTILS_CPPFLAGS=""
 	    BINUTILS_LDFLAGS=""
 	    BINUTILS_LIBS=""
             ;;
 	x86_64-*-linux*)
 	    binutils_required="true"
+            BINUTILS_DIR="$binutils_dir"
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
 	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
             ;;
 	*)
 	    binutils_required="true"
+            BINUTILS_DIR="$binutils_dir"
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
 	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
@@ -141,6 +144,7 @@ AC_DEFUN([AC_PKG_BINUTILS], [
             BINUTILS_CPPFLAGS=""
             BINUTILS_LDFLAGS=""
             BINUTILS_LIBS=""
+            BINUTILS_DIR=""
 
         ]
     )
@@ -152,6 +156,7 @@ AC_DEFUN([AC_PKG_BINUTILS], [
     AC_SUBST(BINUTILS_CPPFLAGS)
     AC_SUBST(BINUTILS_LDFLAGS)
     AC_SUBST(BINUTILS_LIBS)
+    AC_SUBST(BINUTILS_DIR)
 
 ])
 
@@ -388,6 +393,8 @@ AC_DEFUN([AC_PKG_OTF], [
                                [libz installation @<:@/usr@:>@]),
                 libz_dir=$withval, libz_dir="/usr")
 
+    OTF_DIR="$otf_dir"
+    OTF_LIBSDIR="$otf_dir/$abi_libdir"
     OTF_CPPFLAGS="-I$otf_dir/include"
     OTF_LDFLAGS="-L$otf_dir/$abi_libdir"
     OTF_LIBS="-lotf"
@@ -410,8 +417,15 @@ AC_DEFUN([AC_PKG_OTF], [
     if test -f  $otf_dir/$abi_libdir/libotf.a; then
        AC_MSG_CHECKING([found otf library])
        foundOTF=1
-    else
-       foundOTF=0
+    else 
+	if test -f $otf_dir/$alt_abi_libdir/libotf.a; then
+          AC_MSG_CHECKING([found otf library])
+          OTF_LIBSDIR="$otf_dir/$alt_abi_libdir"
+          OTF_LDFLAGS="-L$otf_dir/$alt_abi_libdir"
+          foundOTF=1
+       else
+          foundOTF=0
+       fi
     fi
 
     if test $foundOTF == 1 && test -f  $otf_dir/include/otf.h; then
@@ -436,6 +450,8 @@ AC_DEFUN([AC_PKG_OTF], [
     else
       AC_MSG_RESULT(no)
       AM_CONDITIONAL(HAVE_OTF, false)
+      OTF_DIR=""
+      OTF_LIBSDIR=""
       OTF_CPPFLAGS=""
       OTF_LDFLAGS=""
       OTF_LIBS=""
@@ -449,6 +465,8 @@ AC_DEFUN([AC_PKG_OTF], [
 
     AC_LANG_POP(C++)
 
+    AC_SUBST(OTF_DIR)
+    AC_SUBST(OTF_LIBSDIR)
     AC_SUBST(OTF_CPPFLAGS)
     AC_SUBST(OTF_LDFLAGS)
     AC_SUBST(OTF_LIBS)
@@ -471,10 +489,11 @@ AC_DEFUN([AC_PKG_VT], [
                                [VampirTrace (vt) library installation @<:@/usr@:>@]),
                 vt_dir=$withval, vt_dir="/usr")
 
+    VT_DIR="$vt_dir"
     VT_CPPFLAGS="-I$vt_dir/include"
     VT_LDFLAGS="-L$vt_dir/$alt_abi_libdir"
     VT_LIBS="-lvt.mpi"
-    VT_LIBSLOC="$vt_dir/$alt_abi_libdir"
+    VT_LIBSDIR="$vt_dir/$alt_abi_libdir"
 
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP
@@ -495,7 +514,7 @@ AC_DEFUN([AC_PKG_VT], [
        foundVT=0
     fi
 
-    if test $foundVT == 1 && test -f  $vt_dir/include/otf.h; then
+    if test $foundVT == 1 && test -f  $vt_dir/include/vt_user.h; then
        AC_MSG_CHECKING([found VampirTrace headers])
        foundVT=1
     else
@@ -511,9 +530,10 @@ AC_DEFUN([AC_PKG_VT], [
       AC_MSG_RESULT(no)
       AM_CONDITIONAL(HAVE_VT, false)
       VT_CPPFLAGS=""
+      VT_DIR=""
       VT_LDFLAGS=""
       VT_LIBS=""
-      VT_LIBSLOC=""
+      VT_LIBSDIR=""
     fi
 
 
@@ -522,10 +542,11 @@ AC_DEFUN([AC_PKG_VT], [
 
     AC_LANG_POP(C++)
 
+    AC_SUBST(VT_DIR)
     AC_SUBST(VT_CPPFLAGS)
     AC_SUBST(VT_LDFLAGS)
     AC_SUBST(VT_LIBS)
-    AC_SUBST(VT_LIBSLOC)
+    AC_SUBST(VT_LIBSDIR)
 
 ])
 

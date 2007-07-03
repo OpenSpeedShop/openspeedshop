@@ -31,6 +31,11 @@
 
  */
 
+//
+// UNCOMMENT THE define LINE TO DEBUG PLUGIN RECOGNITION
+//#define DEBUG_OUTPUT_REQUESTED 1
+//
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -49,7 +54,6 @@
 
 #include <string.h>
 
-// #define DEBUG_OUTPUT_REQUESTED 1
 #include "debug.hxx"  // This includes the definition of dprintf
 
 #include "plugin_handler.hxx"
@@ -79,7 +83,10 @@ static QWidget *pl;
 int
 register_plugin(const char *plugin_file)
 {
-// printf("Attempting to open %s\n", plugin_file );
+#if DEBUG_OUTPUT_REQUESTED
+   printf("Attempting to open %s\n", plugin_file );
+#endif
+
 
   // We got a plugin location directory and an absoluted path to a plugin.
   // Let's try to load the PluginInfo information.
@@ -88,13 +95,16 @@ register_plugin(const char *plugin_file)
   if( dl_object == NULL )
   {
 //NOTE: THIS IS THE IMPORTANT DEBUG PRINT
-// printf("(%s): lt_dlerror()=%s\n", plugin_file, lt_dlerror() );
+#if DEBUG_OUTPUT_REQUESTED
+   printf("(%s): lt_dlerror()=%s\n", plugin_file, lt_dlerror() );
+#endif
     return(0);
   }
 
-// printf("We seemed to open the dynamic library (%s) just fine...\n", plugin_file);
-
-// printf("Try to lookup the entry_point (%s)\n", plugin_file);
+#if DEBUG_OUTPUT_REQUESTED
+  printf("We seemed to open the dynamic library (%s) just fine...\n", plugin_file);
+  printf("Try to lookup the entry_point (%s)\n", plugin_file);
+#endif
 
   // We've managed to open the dso.  Can we the PluginInfo entry point?
   lt_ptr (*dl_plugin_info_init_routine)(void *, void *);
@@ -102,8 +112,10 @@ register_plugin(const char *plugin_file)
   dl_plugin_info_init_routine = (lt_ptr (*)(void *, void *))lt_dlsym(dl_object, PLUGIN_INFO_ENTRY_POINT);
   if( dl_plugin_info_init_routine == NULL )
   {
-// printf("libdso: dlsym %s not found in %s dlerror()=%s\n", PLUGIN_INFO_ENTRY_POINT, plugin_file, lt_dlerror() );
-// printf("This is not a gui panel plugin... ignore it.\n");
+#if DEBUG_OUTPUT_REQUESTED
+   printf("libdso: dlsym %s not found in %s dlerror()=%s\n", PLUGIN_INFO_ENTRY_POINT, plugin_file, lt_dlerror() );
+   printf("This is not a gui panel plugin... ignore it.\n");
+#endif
     lt_dlclose(dl_object);
     return(0);
   }
@@ -113,7 +125,9 @@ register_plugin(const char *plugin_file)
   // information about this plugin.   Let's call it and fill up our 
   // PluginInfo structure with the pertinent information.
   lt_ptr i = (*dl_plugin_info_init_routine)((void *)pluginInfo, (void *)masterPC);
-// printf("%s returned %d\n", PLUGIN_INFO_ENTRY_POINT, i);
+#if DEBUG_OUTPUT_REQUESTED
+  printf("%s returned %d\n", PLUGIN_INFO_ENTRY_POINT, i);
+#endif
 
 
 //  pluginInfo->Print();
@@ -121,7 +135,9 @@ register_plugin(const char *plugin_file)
   // We've managed to open the dso and initialize the plugin description 
   // information, from the dso.  Now from the plugin description, can we
   // find the defined entry point?
-// printf("Try to lookup the entry_point (%s)\n", pluginInfo->plugin_entry_point);
+#if DEBUG_OUTPUT_REQUESTED
+  printf("Try to lookup the entry_point (%s)\n", pluginInfo->plugin_entry_point);
+#endif
 
   lt_ptr (*dl_routine)(void *, void *);
 
@@ -129,7 +145,9 @@ register_plugin(const char *plugin_file)
 
   if( dl_routine == NULL )
   {
-// printf("libdso: dlsym %s not found dlerror()=%s\n", pluginInfo->plugin_entry_point, lt_dlerror() );
+#if DEBUG_OUTPUT_REQUESTED
+    printf("libdso: dlsym %s not found dlerror()=%s\n", pluginInfo->plugin_entry_point, lt_dlerror() );
+#endif
     delete pluginInfo;   // Don't forget to delete this on an early return.
     return 0;
   }
@@ -140,14 +158,20 @@ register_plugin(const char *plugin_file)
   // The first parameter is to the parent tools, parent class.   The second
   // parameter is a PluginInfo object, which contains all the known
   // information about the plugin that is being loaded.
-// printf("\tlibdso: dynamic routine returned %d\n", i);
+#if DEBUG_OUTPUT_REQUESTED
+ printf("\tlibdso: dynamic routine returned %d\n", i);
+#endif
 
   i = (*dl_routine)((void *)pl, (void *)pluginInfo);
   pluginInfo->dl_create_and_add_panel = (Panel * (*)(void *, void *, ArgumentObject *, const char *))lt_dlsym(dl_object, "create_and_add_panel" );
   if( pluginInfo->dl_create_and_add_panel == NULL )
   {
-// printf("libdso: dlsym %s not found dlerror()=%s\n", pluginInfo->plugin_entry_point, lt_dlerror() );
-// printf("Will not be able to create_and_add_panel() for:\n");
+
+#if DEBUG_OUTPUT_REQUESTED
+    printf("libdso: dlsym %s not found dlerror()=%s\n", pluginInfo->plugin_entry_point, lt_dlerror() );
+    printf("Will not be able to create_and_add_panel() for:\n");
+#endif
+
     pluginInfo->Print();
     return(-1);
   }
@@ -164,7 +188,9 @@ register_plugin(const char *plugin_file)
 int
 foreachCallback(const char *filename, lt_ptr data)
 {
-// printf("foreachCallback() called for (%s)\n", filename );
+#if DEBUG_OUTPUT_REQUESTED
+  printf("foreachCallback() called for (%s)\n", filename );
+#endif
 
   register_plugin(filename);
 
@@ -188,7 +214,9 @@ void initialize_plugins()
 int
 _init()
 {
-// printf("Hello from _init() pc_plugin.cpp\n");
+#if DEBUG_OUTPUT_REQUESTED
+  printf("Hello from _init() pc_plugin.cpp\n");
+#endif
 
   return(1);
 }
@@ -199,7 +227,9 @@ extern "C"
   {
     pl = w;
     masterPC = mPC;
-// printf("hello from ph_init(QWidget *w, PanelContainer *masterPC) oooboy\n");
+#if DEBUG_OUTPUT_REQUESTED
+    printf("hello from ph_init(QWidget *w, PanelContainer *masterPC) oooboy\n");
+#endif
 
     initialize_plugins();
 

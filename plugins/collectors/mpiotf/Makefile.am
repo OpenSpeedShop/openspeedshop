@@ -23,15 +23,10 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c	
 
-@VT_LIBSLOC@/libvt.mpi.a :
-	cp @VT_LIBSLOC@/libvt.mpi.a libvt.mpi.a
+noinst_LIBRARIES = libvt.mpi.a
 
-#libvt.mpi.a : /opt/vampirtrace-5.3.0b4/lib/libvt.mpi.a
-#        cp /opt/vampirtrace-5.3.0b4/lib/libvt.mpi.a libvt.mpi.a
-#        ar d libvt.mpi.a libvt_mpi_a-vt_mpiwrap.o
-
-libvt.mpi.a : @VT_LIBSLOC@/libvt.mpi.a 
-	cp @VT_LIBSLOC@/libvt.mpi.a libvt.mpi.a 
+libvt.mpi.a :
+	cp -r @VT_LIBSDIR@/libvt.mpi.a libvt.mpi.a
 	ar d libvt.mpi.a libvt_mpi_a-vt_mpiwrap.o
 
 pkglib_LTLIBRARIES = mpiotf.la
@@ -94,14 +89,13 @@ rt_LIBADD_generate = \
         @OTF_LDFLAGS@ \
         @OTF_LIBS@ \
         @OTF_LIBZ_LDFLAGS@ \
-        @OTF_LIBZ_LIBS@ \
+	@OTF_LIBZ_LIBS@ \
 	-lrt 
 
 rt_sources = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.h runtime.c  \
 	vt_mpiwrap.c 
-#	wrappers.c
 
 
 
@@ -117,8 +111,8 @@ endif
 
 if HAVE_LAMPI
 mpiotf_rt_lampi_la_CFLAGS = $(call rt_CFLAGS_generate,@LAMPI_CPPFLAGS@)
-mpiotf_rt_lampi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@LAMPI_LDFLAGS@ @LAMPI_LIBS@)
-mpiotf_rt_lampi_la_LIBADD = $(call rt_LIBADD_generate,@LAMPI_LDFLAGS@ @LAMPI_LIBS@)
+mpiotf_rt_lampi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@LAMPI_LDFLAGS@)
+mpiotf_rt_lampi_la_LIBADD = $(call rt_LIBADD_generate,@LAMPI_LIBS@)
 mpiotf_rt_lampi_la_DEPENDENCIES =
 mpiotf_rt_lampi_la_SOURCES = $(rt_sources)
 endif
@@ -166,7 +160,10 @@ endif
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
 
-blobs.h blobs.c : blobs.x libvt.mpi.a
+
+blobs.x: libvt.mpi.a
+
+blobs.h blobs.c : blobs.x 
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
