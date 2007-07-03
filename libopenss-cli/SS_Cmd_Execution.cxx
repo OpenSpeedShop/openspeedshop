@@ -2938,7 +2938,12 @@ bool SS_expSetArgs (CommandObject *cmd) {
   
 //  basically the replace does this first:   appCommand = appCommand + " " - existing args;
 //  basically the replace does this second:  appCommand = appCommand + " " + S;
-  appCommand.replace( (matchPos+maxExeSize+1), (appCommand.length()-(matchPos+maxExeSize)), S);
+  int replace_length = (appCommand.length()-(matchPos+maxExeSize));
+  if ( replace_length  > 0) {
+    appCommand.replace( (matchPos+maxExeSize+1), replace_length, S);
+  } else if ( replace_length ==  0) {
+    appCommand = appCommand + " " + S;
+  } 
   
 
 #ifdef DEBUG_CLI
