@@ -224,7 +224,9 @@ SS_CallParser (PyObject *self, PyObject *args) {
     PyObject *py_list = NULL;
  
 #if DEBUG_CLI
-    printf("SS_CallParser, entered\n");
+    printf("SS_CallParser, entered, dumping PyObject args\n");
+    PyObject_Print(args, stdout, NULL);
+    printf("\n");
 #endif
 
     // Copy the desired action and reset the default action
