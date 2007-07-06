@@ -15,7 +15,8 @@
 ** along with this library; if not, write to the Free Software Foundation, Inc.,
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
-
+// Enable this define for limited debugging
+//#define DEBUG_CLI 1
 
 #include "Python.h"
 #include "SS_Input_Manager.hxx"
@@ -221,6 +222,10 @@ SS_CallParser (PyObject *self, PyObject *args) {
     int i;
     bool list_returned = false;
     PyObject *py_list = NULL;
+ 
+#if DEBUG_CLI
+    printf("SS_CallParser, entered\n");
+#endif
 
     // Copy the desired action and reset the default action
     bool python_needs_result = cmd_output_to_python;
@@ -238,12 +243,22 @@ SS_CallParser (PyObject *self, PyObject *args) {
     fprintf(yyin,"%s\n", input_line);
     rewind(yyin);
 
+#if DEBUG_CLI
+    printf("SS_CallParser, input_line=%s\n", input_line);
+#endif
+
     ret = yyparse();
  
+#if DEBUG_CLI
+    printf("SS_CallParser, ret from yyparse()=%d\n", ret);
+#endif
+
     fclose(yyin); 
     
     // testing code
-    // parse_result->dumpInfo();
+#if DEBUG_CLI
+     parse_result->dumpInfo();
+#endif
 
     // Build a CommandObject so that the semantic routines 
     // can be called.
@@ -252,6 +267,11 @@ SS_CallParser (PyObject *self, PyObject *args) {
     // See if the parse went alright.
     if ((p_parse_result->syntaxError()) ||
         (p_parse_result->getCommandType() == CMD_HEAD_ERROR)) {
+
+#if DEBUG_CLI
+    printf("SS_CallParser, Parsing failed, p_parse_result->syntaxError()=%d\n", p_parse_result->syntaxError());
+    printf("SS_CallParser, Parsing failed, p_parse_result->getCommandType()=%d\n", p_parse_result->getCommandType());
+#endif
 
       	std::string s("Parsing failed.");
       	Mark_Cmd_With_Soft_Error(cmd,s);
