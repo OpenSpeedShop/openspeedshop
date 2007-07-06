@@ -8,18 +8,23 @@ int main(int argc, char* argv[])
    int i = 0;
    int segment_count  = 1;
 
-    if( argc == 3 )
-    {
+    if( argc == 2 ) {
+
       size = atoi(argv[1]);
+      printf("Size argument given using %d.\n", size);
+
+    } else if( argc == 3 ) {
+
+      size = atoi(argv[1]);
+      printf("Size argument given using %d.\n", size);
       segment_count = atoi(argv[2]);
-    } else if(argc != 2 || argc != 3 )
+      printf("Segment count argument given using %d.\n", segment_count);
+
+    } else if(argc != 2 && argc != 3 )
     {
       printf("Usage: %s <size> <segment_count>\n", argv[0]);
       printf("No size argument given.   Defaulting to %d.\n", size);
-    } else
-    {
-      size = atoi(argv[1]);
-    }
+    } 
     
 
 if( segment_count == 1 )
