@@ -699,7 +699,7 @@ CustomExperimentPanel::updatePanelStatusOnRerun(EXPID expID)
   // Update custom panel variables for rerun
   mw = getPanelContainer()->getMainWindow();
   executableNameStr = mw->executableName;
-  argsStr = mw->argsStr;
+  // The rerun code in the RUN_T listener will set argsStr
   parallelPrefixCommandStr = mw->parallelPrefixCommandStr;
   pidStr = mw->pidStr;
 
@@ -789,7 +789,7 @@ CustomExperimentPanel::listener(void *msg)
     // Update custom panel variables for rerun
     mw = getPanelContainer()->getMainWindow();
     executableNameStr = mw->executableName;
-    argsStr = mw->argsStr;
+    // The rerun code in the RUN_T listener will set argsStr
     parallelPrefixCommandStr = mw->parallelPrefixCommandStr;
     pidStr = mw->pidStr;
 
@@ -1138,6 +1138,12 @@ CustomExperimentPanel::listener(void *msg)
         if (eo && eo->expRunAtLeastOnceAlready() ) {
           // Popup User Interface Dialog for user to save the database file
           // on Rerun
+          Experiment *fw_experiment = eo->FW();
+
+          if (fw_experiment->getRerunCount() == 0) {
+            // use initial argument values if first rerun
+            argsStr = mw->argsStr;
+          }
           if (askAboutSavingTheDatabasePref && askAboutSavingTheDatabaseCount == 0) {
               askAboutSavingTheDatabaseCount = 1;
               saveExperiment();
@@ -1145,13 +1151,12 @@ CustomExperimentPanel::listener(void *msg)
 
           if (askAboutChangingArgsPref) {
 #ifdef DEBUG_CustomPanel
-           printf("in CustomExperimentPanel::listener(), RUN_T, calling QInputDialog::getText\n");
+           printf("in CustomExperimentPanel::listener(), RUN_T, calling QInputDialog::getText, argsStr=%s\n", argsStr.ascii());
 #endif
-           // If you want a small dialog box to popup after hitting ok in the main dialog box then
-           // enable this Enter Arguments Dialog section of code directly following this comment line...
-           // BEGIN add Enter Arguments Dialog back in jeg 03/12/2007 #if 0
+           // A small dialog box will popup to enable the user to change/enter application arguments.
+           // The existing arguments are displayed.  argsStr is a QString representing the existing arguments
            bool ok;
-           newArgsStr = QInputDialog::getText("Enter Arguments Dialog:", QString("Enter command line arguments:"), QLineEdit::Normal, QString::null, &ok, this);
+           newArgsStr = QInputDialog::getText("Enter Arguments Dialog:", QString("Enter command line arguments:"), QLineEdit::Normal, argsStr.ascii(), &ok, this);
            // END add Enter Arguments Dialog back in jeg 03/12/2007 #endif
 #ifdef DEBUG_CustomPanel
            printf("in CustomExperimentPanel::listener(), RUN_T, newArgsStr=%s\n", newArgsStr.ascii());
@@ -1167,6 +1172,8 @@ CustomExperimentPanel::listener(void *msg)
           }
         }
 
+        // Set the new argument value into the QString representing the current argument values
+        argsStr = QString(newArgsStr.ascii());
 
         command = QString("expGo -x %1\n").arg(expID);
         {
@@ -1902,8 +1909,7 @@ CustomExperimentPanel::updateStatus()
       case ExpStatus_Running:
 #ifdef DEBUG_CustomPanel
 // get a lot of these.....
-       // printf("CustomExperimentPanel::updateStatus(),ExpStatus_Running:\n");
-           printf(" ::listener(), ExpStatus_Running: executableNameStr.ascii()=%s\n", executableNameStr.ascii());
+       // printf(" ::listener(), ExpStatus_Running: executableNameStr.ascii()=%s %s\n", executableNameStr.ascii(), argsStr.ascii() );
 #endif
         aboutToRunFLAG = FALSE;
         readyToRunFLAG = FALSE;
