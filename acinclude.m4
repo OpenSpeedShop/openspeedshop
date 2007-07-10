@@ -230,7 +230,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
     DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
     DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -DIBM_BPATCH_COMPAT"
     DYNINST_LDFLAGS="-L$dyninst_dir/$abi_libdir"
-    DYNINST_LIBS="-ldyninstAPI"
+    DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI"
     DYNINST_DIR="$dyninst_dir"
 
     AC_LANG_PUSH(C++)
