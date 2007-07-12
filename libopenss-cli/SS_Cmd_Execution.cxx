@@ -2169,10 +2169,16 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       Request_Async_Notice_Of_Termination (cmd, exp);
     }
 
-   // Annotate the command
+   std::string appCommand = exp->FW()->getApplicationCommand();
+   // Protect against null application command and let user know
+   if (appCommand.empty() ) appCommand = "Executable name not available";
+
+    // Annotate the command
     cmd->Result_Annotation ("Start asynchronous execution of experiment:  -x "
-                             + int2str(exp->ExperimentObject_ID()) + "\n");
+                            + int2str(exp->ExperimentObject_ID()) + "\n" + "Running executable: " + appCommand
+                            + " for experiment -x " + int2str(exp->ExperimentObject_ID()) +  "\n");
   }
+
   return true;
 }
 
