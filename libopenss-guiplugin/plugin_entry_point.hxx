@@ -24,7 +24,7 @@
 
 class ArgumentObject;
 
-// // #define DEBUG_OUTPUT_REQUESTED 1
+//#define DEBUG_OUTPUT_REQUESTED 1
 #include "debug.hxx"
 
 //! The default entry point for the dynamic library.
