@@ -1198,6 +1198,8 @@ CustomExperimentPanel::listener(void *msg)
 
         ret_val = 1;
         }
+        // Delete the QSettings data structure that is used in the RUN_T case block
+        delete settings;
         break;
       case  PAUSE_T:
         {
@@ -1287,8 +1289,6 @@ CLIInterface::interrupt = true;
 #endif
         break;
     }
-    // Delete the QSettings data structure
-    delete settings;
 
 #ifdef DEBUG_CustomPanel
  printf("CustomExperimentPanel::listener, calling updateStatus(), expID=%d\n", expID );
