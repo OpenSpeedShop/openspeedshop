@@ -2068,7 +2068,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     	    	    + exp->ExpStatus_Name() + " state.");
     Mark_Cmd_With_Soft_Error(cmd,s);
     return false;
-  } else if (exp->Status() != ExpStatus_Paused) {
+  } else if (exp->Status() != ExpStatus_Paused && exp->FW()->getRerunCount() != -1) {
    // Received a run request of a non-paused process, try to rerun
    // Do preparation to rerun before falling into the code below which
    // sets up the thread state and issues the run/rerun.
@@ -2118,6 +2118,14 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 #endif
 
   } 
+
+  // After the first run of the application/executable we are in rerun mode
+  // when an expgo is issued.  Check if this is the first time if it is 
+  // put us into rerun mode by clearing the -1 initial setting to zero.
+  // The -1 is set in the framework Experiment.cxx Experiment constructor.
+  if (exp->FW()->getRerunCount() == -1) {
+     exp->FW()->setRerunCount(0);
+  }
 
   if ((exp->Status() == ExpStatus_NonExistent) ||
       (exp->Status() == ExpStatus_Paused) ||
