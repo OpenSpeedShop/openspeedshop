@@ -79,7 +79,8 @@ namespace {
 	"    pid INTEGER DEFAULT NULL,"
 	"    posix_tid INTEGER DEFAULT NULL,"
 	"    openmp_tid INTEGER DEFAULT NULL,"
-	"    mpi_rank INTEGER DEFAULT NULL"
+	"    mpi_rank INTEGER DEFAULT NULL,"
+	"    mpi_impl TEXT DEFAULT NULL"
 	");",
 	
 	// Address Space Table
@@ -496,6 +497,163 @@ Experiment::~Experiment()
 
 
 
+
+/**
+ * Determine the name of the MPI implementation being used by the
+ * given thread.  Possibilities are "mpich", "mpt", "openmpi".
+ *
+ * @param thread            The thread
+ *
+ * @return    string containing the name of the MPI implementation
+ */
+static std::string getMPIImplementationName(const Thread& thread)
+{
+
+#ifndef NDEBUG
+/** Flag indicating if debuging for MPI jobs is enabled. */
+bool is_debug_mpijob_enabled = (getenv("OPENSS_DEBUG_MPIJOB") != NULL);
+#endif
+
+#ifndef NDEBUG
+   if(is_debug_mpijob_enabled) {
+      std::stringstream output;
+      output << "Enter Experiment::getMPIImplementationName" << " "
+             << std::endl;
+      std::cerr << output.str();
+   }
+#endif
+
+#ifdef HAVE_MPI
+    /* Automatic MPI Implementation Detection of the MPI application being analyzed */
+    bool is_lam = false;
+    bool is_lampi = false;
+    bool is_openmpi = false;
+    bool is_mpt = false;
+    bool is_mpich2 = false;
+    bool is_mpich1 = false;
+
+    // Did we sucessfully create and connect to the thread?
+    if(thread.isState(Thread::Suspended)) {
+
+        // Is thread a "lampi" MPI implementation?
+        if(thread.getFunctionByName("lampi_environ_init").first) {
+            is_lampi = true;
+        }
+
+        // Is thread a "mpt" SGI MPT MPI implementation?
+        if(thread.getFunctionByName("MPI_debug_breakpoint").first) {
+            is_mpt = true;
+        }
+
+        // Is thread a "lam/mpi" MPI implementation?
+        if(thread.getFunctionByName("lam_tv_init").first) {
+            is_lam = true;
+        }
+
+        // Is thread a "openmpi" MPI implementation?
+        if(thread.getFunctionByName("ompi_mpi").first ||
+           thread.getFunctionByName("orterun").first) {
+            is_openmpi = true;
+        }
+
+    } else {
+
+#ifndef NDEBUG
+        if(is_debug_mpijob_enabled) {
+           std::stringstream output;
+           output << "In getMPIImplementationName THREAD IS NOT SUSPENDED, is it suspended" << thread.isState(Thread::Suspended) << " "
+                  << "In getMPIImplementationName is it running? = " << thread.isState(Thread::Running) << " "
+                  << "In getMPIImplementationName is it connecting? = " << thread.isState(Thread::Connecting) << " "
+                  << "In getMPIImplementationName is it nonexistent? = " << thread.isState(Thread::Nonexistent) << " "
+                  << "In getMPIImplementationName is it disconnected? = " << thread.isState(Thread::Disconnected) << " "
+                  << "In getMPIImplementationName is it terminated? = " << thread.isState(Thread::Terminated) << " "
+                  << std::endl;
+           std::cerr << output.str();
+         }
+    }
+#endif
+
+    /*
+     * The environment variable OPENSS_MPI_IMPLEMENTATION can be set
+     * to override the automatic MPI implementation detection process.
+     */
+
+    char* env_variable_name = "OPENSS_MPI_IMPLEMENTATION";
+    char* value = getenv(env_variable_name);
+
+#ifndef NDEBUG
+    if(is_debug_mpijob_enabled) {
+       std::stringstream output;
+       output << "In Experiment::getMPIImplementationName getenv(OPENSS_MPI_IMPLEMENTATION), value= " << value << " "
+              << std::endl;
+       std::cerr << output.str();
+    }
+#endif
+
+    // If no environment variable setting for the mpi implementation type
+    // then use the automatically determined version.
+    if (!value) {
+       if (is_openmpi) {
+         value = "openmpi";
+       } else if (is_lampi) {
+         value = "lampi";
+       } else if (is_mpt) {
+         value = "mpt";
+       } else if (is_lam) {
+         value = "lam";
+       } else if (is_mpich2) {
+         value = "mpich2";
+       } else if (is_mpich1) {
+         value = "mpich";
+       } else {
+         value = "";
+       }
+       
+#ifndef NDEBUG
+       if(is_debug_mpijob_enabled) {
+           std::stringstream output;
+           output << "In Experiment::getMPIImplementationName after boolean is_xxx checks, value= " << value << " "
+                  << std::endl;
+          std::cerr << output.str();
+       }
+#endif
+    } 
+
+    if (value) {
+	std::string impl_names = ALL_MPI_IMPL_NAMES;
+	std::string search_target = std::string(" ") + value + " ";
+	if (impl_names.find(search_target) == std::string::npos) {
+	    throw Exception(Exception::MPIImplChoiceInvalid,
+			    value, impl_names);
+	}
+#ifndef NDEBUG
+        if(is_debug_mpijob_enabled) {
+            std::stringstream output;
+            output << "RETURN from Experiment::getMPIImplementationName, value= " << value << " "
+                   << std::endl;
+            std::cerr << output.str();
+        }
+#endif
+
+	return value;
+    }
+
+    /*
+     * The old AC_PKG_MPI code in acinclude.m4 caused the entire
+     * OpenSpeedShop build to use the first MPI implementation it
+     * found.  This temporary code reproduces that behavior, with the
+     * help of the new AC_PKG_MPI code.
+     */
+    return DEFAULT_MPI_IMPL_NAME;
+
+#else /* ifndef HAVE_MPI */
+    Assert(false);
+    return "";
+#endif /* ifndef HAVE_MPI */
+
+}
+
+
 /**
  * Rename this experiment database.
  *
@@ -707,6 +865,7 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 				     const std::string& host) const
 {
     ThreadGroup threads;
+    std::string mpi_implementation_name = "";
 
 #ifndef NDEBUG
     if(is_debug_mpijob_enabled) {
@@ -729,9 +888,20 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
     // Look for any available MPI job information in this process
     Job job;
     bool is_mpt_job = getMPIJobFromMPT(*(connected.begin()), job);
-    bool is_mpich_job = 
-	is_mpt_job ? false : getMPIJobFromMPICH(*(connected.begin()), job);
+    bool is_mpich_job = is_mpt_job ? false : getMPIJobFromMPICH(*(connected.begin()), job);
+
+    // If it is an mpi job go examine the mpirun/srun mpi driver to see what
+    // mpi implementation is being activated inside openss.
+    if (is_mpt_job || is_mpich_job) {
+      mpi_implementation_name = getMPIImplementationName(*(connected.begin()));
+      if(is_debug_mpijob_enabled) {
+        fprintf(stderr, "mpi_implementation_name = %s \n", mpi_implementation_name.c_str());
+      }
+      // Update this process' MPI implementation in the database
+      connected.begin()->setMPIImplementation(mpi_implementation_name);
+    }
     
+   
     // Canonicalize the host names in the MPI job information
     for(Job::iterator i = job.begin(); i != job.end(); ++i)
 	*i = std::make_pair(getCanonicalName(i->first), i->second);
@@ -777,6 +947,22 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 	    "UPDATE Threads SET mpi_rank = ? WHERE host = ? AND pid = ?;"
 	    );
 	dm_database->bindArgument(1, rank);
+	dm_database->bindArgument(2, i->first);
+	dm_database->bindArgument(3, i->second);	
+	while(dm_database->executeStatement());
+	END_TRANSACTION(dm_database);
+
+	// Update this process' MPI implementation in the database
+//        *i->setMPI_Impl(mpi_implementation_name);
+        if(is_debug_mpijob_enabled) {
+          fprintf(stderr, "UPDATE Threads SET mpi_impl, mpi_implementation_name = %s \n", mpi_implementation_name.c_str());
+        }
+
+	// Update this process' MPI implementation in the database
+	BEGIN_WRITE_TRANSACTION(dm_database);
+	dm_database->prepareStatement(
+	    "UPDATE Threads SET mpi_impl = ? WHERE host = ? AND pid = ?;");
+	dm_database->bindArgument(1, mpi_implementation_name);
 	dm_database->bindArgument(2, i->first);
 	dm_database->bindArgument(3, i->second);	
 	while(dm_database->executeStatement());

@@ -331,168 +331,11 @@ void CollectorImpl::uninstrument(const Collector& collector,
     Instrumentor::uninstrument(threads, collector);
 }
 
-
-
 #ifndef NDEBUG
 /** Flag indicating if debuging for MPI jobs is enabled. */
 bool CollectorImpl::is_debug_mpijob_enabled =
     (getenv("OPENSS_DEBUG_MPIJOB") != NULL);
 #endif
-
-
-
-/**
- * Determine the name of the MPI implementation being used by the
- * given thread.  Possibilities are "mpich", "mpt", "openmpi".
- *
- * @param thread            The thread
- *
- * @return    string containing the name of the MPI implementation
- */
-std::string CollectorImpl::getMPIImplementationName(const Thread& thread) const
-{
-
-#ifndef NDEBUG
-            if(is_debug_mpijob_enabled) {
-                std::stringstream output;
-                output << "Enter CollectorImpl::getMPIImplementationName" << " "
-                       << std::endl;
-                std::cerr << output.str();
-            }
-#endif
-#ifdef HAVE_MPI
-
-    /* Automatic MPI Implementation Detection of the MPI application being analyzed */
-
-    bool is_lam = false;
-    bool is_lampi = false;
-    bool is_openmpi = false;
-    bool is_mpt = false;
-    bool is_mpich2 = false;
-    bool is_mpich1 = false;
-
-    // Did we sucessfully create and connect to the thread?
-    if(thread.isState(Thread::Suspended)) {
-
-        // Is thread a "lampi" MPI implementation?
-        if(thread.getFunctionByName("lampi_init").first) {
-            is_lampi = true;
-        }
-
-        // Is thread a "mpt" SGI MPT MPI implementation?
-        if(thread.getFunctionByName("MPI_debug_breakpoint").first) {
-            is_mpt = true;
-        }
-
-        // Is thread a "lam/mpi" MPI implementation?
-        if(thread.getFunctionByName("lam_mpi_comm_world").first) {
-            is_lam = true;
-        }
-
-        // Is thread a "openmpi" MPI implementation?
-        if(thread.getFunctionByName("ompi_mpi").first) {
-            is_openmpi = true;
-        }
-
-    } else {
-
-#ifndef NDEBUG
-          if(is_debug_mpijob_enabled) {
-             std::stringstream output;
-             output << "In getMPIImplementationName THREAD IS NOT SUSPENDED, is it suspended" << thread.isState(Thread::Suspended) << " "
-             << "In getMPIImplementationName is it running? = " << thread.isState(Thread::Running) << " "
-             << "In getMPIImplementationName is it connecting? = " << thread.isState(Thread::Connecting) << " "
-             << "In getMPIImplementationName is it nonexistent? = " << thread.isState(Thread::Nonexistent) << " "
-             << "In getMPIImplementationName is it disconnected? = " << thread.isState(Thread::Disconnected) << " "
-             << "In getMPIImplementationName is it terminated? = " << thread.isState(Thread::Terminated) << " "
-             << std::endl;
-             std::cerr << output.str();
-         }
-    }
-#endif
-
-    /*
-     * The environment variable OPENSS_MPI_IMPLEMENTATION can be set
-     * to override the automatic MPI implementation detection process.
-     */
-
-    char* env_variable_name = "OPENSS_MPI_IMPLEMENTATION";
-    char* value = getenv(env_variable_name);
-
-#ifndef NDEBUG
-    if(is_debug_mpijob_enabled) {
-       std::stringstream output;
-       output << "In CollectorImpl::getMPIImplementationName getenv(OPENSS_MPI_IMPLEMENTATION), value= " << value << " "
-              << std::endl;
-              std::cerr << output.str();
-    }
-#endif
-
-    // If no environment variable setting for the mpi implementation type
-    // then use the automatically determined version.
-    if (!value) {
-       if (is_openmpi) {
-         value = "openmpi";
-       } else if (is_lampi) {
-         value = "lampi";
-       } else if (is_mpt) {
-         value = "mpt";
-       } else if (is_lam) {
-         value = "lam";
-       } else if (is_mpich2) {
-         value = "mpich2";
-       } else if (is_mpich1) {
-         value = "mpich";
-       } else {
-         value = "";
-       }
-       
-#ifndef NDEBUG
-            if(is_debug_mpijob_enabled) {
-                std::stringstream output;
-                output << "In CollectorImpl::getMPIImplementationName after boolean is_xxx checks, value= " << value << " "
-                       << std::endl;
-                std::cerr << output.str();
-            }
-#endif
-    } 
-
-    if (value) {
-	std::string impl_names = ALL_MPI_IMPL_NAMES;
-	std::string search_target = std::string(" ") + value + " ";
-	if (impl_names.find(search_target) == std::string::npos) {
-	    throw Exception(Exception::MPIImplChoiceInvalid,
-			    value, impl_names);
-	}
-#ifndef NDEBUG
-            if(is_debug_mpijob_enabled) {
-                std::stringstream output;
-                output << "RETURN from CollectorImpl::getMPIImplementationName, value= " << value << " "
-                       << std::endl;
-                std::cerr << output.str();
-            }
-#endif
-
-	return value;
-    }
-
-
-
-    /*
-     * The old AC_PKG_MPI code in acinclude.m4 caused the entire
-     * OpenSpeedShop build to use the first MPI implementation it
-     * found.  This temporary code reproduces that behavior, with the
-     * help of the new AC_PKG_MPI code.
-     */
-    return DEFAULT_MPI_IMPL_NAME;
-
-#else /* ifndef HAVE_MPI */
-    Assert(false);
-    return "";
-#endif /* ifndef HAVE_MPI */
-}
-
-
 
 /**
  * Get MPI runtime usage map.
@@ -512,13 +355,27 @@ CollectorImpl::getMPIRuntimeUsageMap(const ThreadGroup& threads) const
 {
     RuntimeUsageMap runtime_usage_map;
 
+    std::string MPI_IMPL_NAME;
+    std::pair<bool, std::string> mpiImplPair;
+  
+    fprintf(stderr,"CollectorImpl::getMPIRuntimeUsageMap, MPI_IMPL_NAME=%s\n", MPI_IMPL_NAME.c_str());
+
+
     // Iterate over each thread of this group
     for(ThreadGroup::const_iterator
 	    i = threads.begin(); i != threads.end(); ++i) {
 
+        // Get the mpi implementation name out of the database
+        mpiImplPair = (*i).getMPIImplementation();
+        if(mpiImplPair.first) {
+          MPI_IMPL_NAME = mpiImplPair.second;
+        } else {
+          MPI_IMPL_NAME = "unknown-mpi-implementation";
+        } 
+
 	// Get the MPI runtime library name for this thread
 	std::string runtime_library_name = 
-	    getUniqueId() + "-rt-" + getMPIImplementationName(*i);
+	    getUniqueId() + "-rt-" + MPI_IMPL_NAME;
 
 	// Find or create the group for this MPI runtime library name
 	RuntimeUsageMap::iterator j =

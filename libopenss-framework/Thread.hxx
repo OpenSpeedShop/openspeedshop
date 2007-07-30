@@ -113,6 +113,9 @@ namespace OpenSpeedShop { namespace Framework {
 	void changeState(const State&) const;
 	
 	std::pair<bool, std::string> getCommand() const;
+	void setCommand(const char *) const;	
+	std::pair<bool, std::string> getMPIImplementation() const;
+	void setMPIImplementation(const std::string) const;	
 	std::string getHost() const;
 	pid_t getProcessId() const;
 	std::pair<bool, pthread_t> getPosixThreadId() const;
@@ -145,7 +148,6 @@ namespace OpenSpeedShop { namespace Framework {
 
 	bool doesSiblingExist(const pthread_t&) const;
 	void setPosixThreadId(const pthread_t&) const;	
-	void setCommand(const char *) const;	
 	Thread createCopy() const;
 	
     };

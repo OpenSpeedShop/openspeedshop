@@ -92,7 +92,36 @@ void Thread::changeState(const State& state) const
 
 
 /**
- * Get our commmand.
+ * Get our MPI Implementation.
+ *
+ * Returns the MPI Implementation for this thread. If this thread wasn't
+ * created directly by the framework, the first value in the pair returned 
+ * will be "false".
+ *
+ * @return    Pair containing MPI Implementation used to create this thread.
+ */
+std::pair<bool, std::string> Thread::getMPIImplementation() const
+{
+    std::pair<bool, std::string> mpi_impl(false, "");
+
+    // Find our MPI Implementation
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+	"SELECT mpi_impl FROM Threads WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	if(!dm_database->getResultIsNull(1))
+	    mpi_impl = std::make_pair(true,
+				     dm_database->getResultAsString(1));
+    END_TRANSACTION(dm_database);
+
+    // Return the MPI Implementation to the caller
+    return mpi_impl;
+}
+
+/**
  *
  * Returns the command used to create this thread. If this thread wasn't
  * created directly by the framework, the first value in the pair returned 
@@ -929,13 +958,35 @@ void Thread::setPosixThreadId(const pthread_t& tid) const
  */
 void Thread::setCommand(const char *command) const
 {
-    // Set our application execute command 
+    // Set our application execute command
     BEGIN_WRITE_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"UPDATE Threads SET command = ? WHERE id = ?;"
-	);
+        "UPDATE Threads SET command = ? WHERE id = ?;"
+        );
     dm_database->bindArgument(1, command);
+    dm_database->bindArgument(2, dm_entry);
+    while(dm_database->executeStatement());
+    END_TRANSACTION(dm_database);
+}
+
+
+/**
+ * Set our new MPI Implementation for the thread.
+ *
+ * Sets the MPI Implementation of this thread.
+ *
+ * @param tid    Command to be executed by this thread.
+ */
+void Thread::setMPIImplementation(std::string mpi_impl) const
+{
+    // Set our application execute MPI Implementation 
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+	"UPDATE Threads SET mpi_impl = ? WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, mpi_impl);
     dm_database->bindArgument(2, dm_entry);
     while(dm_database->executeStatement());
     END_TRANSACTION(dm_database);
