@@ -203,6 +203,7 @@ namespace {
 	// Note: See the "todo" item in this function's description.
 
 	// Find the identifier of the specified thread
+	std::string host = Experiment::getCanonicalName(header.host);
 	int thread = 0;
 	database->prepareStatement(
 	    "SELECT id "
@@ -211,7 +212,7 @@ namespace {
 	    "  AND pid = ? "
 	    "  AND posix_tid = ?;"
 	    );
-	database->bindArgument(1, header.host);
+	database->bindArgument(1, host);
 	database->bindArgument(2, static_cast<int>(header.pid));
 	database->bindArgument(3, static_cast<pthread_t>(header.posix_tid));
 	while(database->executeStatement())
@@ -224,7 +225,7 @@ namespace {
 		"  AND pid = ? "
 		"  AND posix_tid IS NULL;"
 		);
-	    database->bindArgument(1, header.host);
+	    database->bindArgument(1, host);
 	    database->bindArgument(2, static_cast<int>(header.pid));
 	    while(database->executeStatement())
 		thread = database->getResultAsInteger(1); 
