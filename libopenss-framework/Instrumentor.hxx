@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -45,6 +46,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Blob;
     class Collector;
     class Function;
+    class ThreadGroup;
 
     /**
      * Instrumentor.
@@ -65,25 +67,24 @@ namespace OpenSpeedShop { namespace Framework {
 		    const OutputCallback, const OutputCallback);
 
 	Thread::State getState(const Thread&);
-	void changeState(const Thread&, const Thread::State&);
+	void changeState(const ThreadGroup&, const Thread::State&);
 
-	void executeNow(const Thread&, const Collector&,
+	void executeNow(const ThreadGroup&, const Collector&,
 			const std::string, const Blob&, const bool&);
-	void executeAtEntryOrExit(const Thread&, const Collector&,
+	void executeAtEntryOrExit(const ThreadGroup&, const Collector&,
 				  const std::string&, const bool&,
 				  const std::string&, const Blob&);
-	void executeInPlaceOf(const Thread&, const Collector&,
+	void executeInPlaceOf(const ThreadGroup&, const Collector&,
 			      const std::string&, const std::string&);
+
+	void uninstrument(const ThreadGroup&, const Collector&);
 
 	void stopAtEntryOrExit(const Thread&, const std::string&, const bool&);
 	
-	void uninstrument(const Thread&, const Collector&);
-
 	bool getGlobal(const Thread&, const std::string&, int64_t&);
 	bool getGlobal(const Thread&, const std::string&, std::string&);
 	bool getMPICHProcTable(const Thread&, Job&);
 
-      // Martin: added routine to set variable
 	void setGlobal(const Thread&, const std::string&, int64_t);
     }
     

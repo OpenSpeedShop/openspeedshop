@@ -17,7 +17,7 @@
 ################################################################################
 
 SUBDIRS = @INSTRUMENTOR@
-DIST_SUBDIRS = dpcl dyninst
+DIST_SUBDIRS = dpcl dyninst mrnet
 
 # Note: Some versions of GCC (e.g. 3.3.3) appear to contain an optimization bug
 #       that causes accesses of thread-local storage (TLS) to fail with SIGSEGV.
@@ -56,6 +56,7 @@ libopenss_runtime_la_SOURCES = \
 	OpenSS_DecodeParameters.c \
 	OpenSS_GetAddressOfFunction.c \
 	OpenSS_GetPCFromContext.c \
+	OpenSS_InitializeDataHeader.c \
 	OpenSS_UpdatePCData.c \
 	OpenSS_GetTime.c \
 	OpenSS_Send.c \

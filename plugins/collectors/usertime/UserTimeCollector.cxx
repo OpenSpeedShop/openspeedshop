@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -172,30 +173,31 @@ void UserTimeCollector::setParameterValue(const std::string& parameter,
 /**
  * Start data collection.
  *
- * Implement starting data collection for a particular thread.
+ * Implement starting data collection for the specified threads.
  *
  * @param collector    Collector starting data collection.
- * @param thread       Thread for which to start collecting data.
+ * @param threads      Threads for which to start collecting data.
  */
 void UserTimeCollector::startCollecting(const Collector& collector,
-				      const Thread& thread) const
+					const ThreadGroup& threads) const
 {
     // Assemble and encode arguments to usertime_start_sampling()
     usertime_start_sampling_args args;
     memset(&args, 0, sizeof(args));
     collector.getParameterValue("sampling_rate", args.sampling_rate);
-    getECT(collector, thread, args.experiment, args.collector, args.thread);
+    args.experiment = getExperimentId(collector);
+    args.collector = getCollectorId(collector);
     Blob arguments(
 	reinterpret_cast<xdrproc_t>(xdr_usertime_start_sampling_args),
 	&args
 	);
     
-    // Execute usertime_stop_sampling() before we exit the thread
-    executeBeforeExit(collector, thread,
+    // Execute usertime_stop_sampling() before we exit the threads
+    executeBeforeExit(collector, threads,
                      "usertime-rt: usertime_stop_sampling", Blob());
 
-    // Execute usertime_start_sampling() in the thread
-    executeNow(collector, thread, 
+    // Execute usertime_start_sampling() in the threads
+    executeNow(collector, threads, 
 	       "usertime-rt: usertime_start_sampling", arguments);
 }
 
@@ -204,20 +206,20 @@ void UserTimeCollector::startCollecting(const Collector& collector,
 /**
  * Stops data collection.
  *
- * Implement stopping data collection for a particular thread.
+ * Implement stopping data collection for the specified threads.
  *
  * @param collector    Collector stopping data collection.
- * @param thread       Thread for which to stop collecting data.
+ * @param threads      Threads for which to stop collecting data.
  */
 void UserTimeCollector::stopCollecting(const Collector& collector,
-				     const Thread& thread) const
+				       const ThreadGroup& threads) const
 {
-    // Execute usertime_stop_sampling() in the thread
-    executeNow(collector, thread,
+    // Execute usertime_stop_sampling() in the threads
+    executeNow(collector, threads,
                "usertime-rt: usertime_stop_sampling", Blob());
 
-    // Remove all instrumentation associated with this collector/thread pairing
-    uninstrument(collector, thread);
+    // Remove instrumentation associated with this collector/threads pairing
+    uninstrument(collector, threads);
 }
 
 

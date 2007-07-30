@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -232,13 +233,13 @@ void IOCollector::setParameterValue(const std::string& parameter,
 /**
  * Start data collection.
  *
- * Implement starting data collection for a particular thread.
+ * Implement starting data collection for the specified threads.
  *
  * @param collector    Collector starting data collection.
- * @param thread       Thread for which to start collecting data.
+ * @param threads      Threads for which to start collecting data.
  */
 void IOCollector::startCollecting(const Collector& collector,
-				  const Thread& thread) const
+				  const ThreadGroup& threads) const
 {
     // Get the set of traced functions for this collector
     std::map<std::string, bool> traced;
@@ -247,16 +248,17 @@ void IOCollector::startCollecting(const Collector& collector,
     // Assemble and encode arguments to io_start_tracing()
     io_start_tracing_args args;
     memset(&args, 0, sizeof(args));
-    getECT(collector, thread, args.experiment, args.collector, args.thread);
+    args.experiment = getExperimentId(collector);
+    args.collector = getCollectorId(collector);
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_io_start_tracing_args),
                    &args);
     
-    // Execute io_stop_tracing() before we exit the thread
-    executeBeforeExit(collector, thread,
+    // Execute io_stop_tracing() before we exit the threads
+    executeBeforeExit(collector, threads,
 		      "io-rt: io_stop_tracing", Blob());
     
-    // Execute io_start_tracing() in the thread
-    executeNow(collector, thread,
+    // Execute io_start_tracing() in the threads
+    executeNow(collector, threads,
                "io-rt: io_start_tracing", arguments);
 
     // Execute our wrappers in place of the real I/O functions
@@ -266,7 +268,7 @@ void IOCollector::startCollecting(const Collector& collector,
 	    // Wrap the I/O function
 	    // What if the traceable function is not found???
 	    executeInPlaceOf(
-		collector, thread, 
+		collector, threads, 
 		TraceableFunctions[i],
 		std::string("io-rt: io") + TraceableFunctions[i]
 		);
@@ -278,20 +280,20 @@ void IOCollector::startCollecting(const Collector& collector,
 /**
  * Stops data collection.
  *
- * Implement stopping data collection for a particular thread.
+ * Implement stopping data collection for the specified threads.
  *
  * @param collector    Collector stopping data collection.
- * @param thread       Thread for which to stop collecting data.
+ * @param threads      Threads for which to stop collecting data.
  */
 void IOCollector::stopCollecting(const Collector& collector,
-				 const Thread& thread) const
+				 const ThreadGroup& threads) const
 {
-    // Execute io_stop_tracing() in the thread
-    executeNow(collector, thread,
+    // Execute io_stop_tracing() in the threads
+    executeNow(collector, threads,
                "io-rt: io_stop_tracing", Blob());
     
-    // Remove all instrumentation associated with this collector/thread pairing
-    uninstrument(collector, thread);
+    // Remove instrumentation associated with this collector/threads pairing
+    uninstrument(collector, threads);
 }
 
 

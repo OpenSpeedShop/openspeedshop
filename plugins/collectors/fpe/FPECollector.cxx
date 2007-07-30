@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -258,13 +259,13 @@ void FPECollector::setParameterValue(const std::string& parameter,
 /**
  * Start data collection.
  *
- * Implement starting data collection for a particular thread.
+ * Implement starting data collection for the specified threads.
  *
  * @param collector    Collector starting data collection.
- * @param thread       Thread for which to start collecting data.
+ * @param threads      Threads for which to start collecting data.
  */
 void FPECollector::startCollecting(const Collector& collector,
-				    const Thread& thread) const
+				   const ThreadGroup& threads) const
 {
     // Get the set of traced fpes for this collector
     std::map<std::string, bool> traced;
@@ -273,29 +274,30 @@ void FPECollector::startCollecting(const Collector& collector,
     fpe_start_tracing_args args;
     memset(&args, 0, sizeof(args));
     collector.getParameterValue("traced_fpes", traced);
-    getECT(collector, thread, args.experiment, args.collector, args.thread);
+    args.experiment = getExperimentId(collector);
+    args.collector = getCollectorId(collector);
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_fpe_start_tracing_args),
                    &args);
     
-    // Execute fpe_stop_tracing() before we exit the thread
-    executeBeforeExit(collector, thread,
+    // Execute fpe_stop_tracing() before we exit the threads
+    executeBeforeExit(collector, threads,
 		      "fpe-rt: fpe_stop_tracing", Blob());
 
-    // Execute fpe_enable_fpes() when we enter main() for the thread
+    // Execute fpe_enable_fpes() when we enter main() for the threads
     // FIXME: This is a workaround since the call to feenableexcept
     // in fpe_enable_fpes does not seem to keep fpe trapping enabled.
     // So we can not attach this collector to a process at this time.
 #if 0
-    executeAtEntry(collector, thread,
+    executeAtEntry(collector, threads,
                    "main", "fpe-rt: fpe_enable_fpes", Blob());
 #endif
     
-    // Execute fpe_start_tracing() in the thread
-    executeNow(collector, thread,
+    // Execute fpe_start_tracing() in the threads
+    executeNow(collector, threads,
                "fpe-rt: fpe_start_tracing", arguments, true);
 
     // FPE trapping is enabled.
-    executeNow(collector, thread,
+    executeNow(collector, threads,
                "fpe-rt: fpe_enable_fpes", Blob(), true);
 
 }
@@ -305,20 +307,20 @@ void FPECollector::startCollecting(const Collector& collector,
 /**
  * Stops data collection.
  *
- * Implement stopping data collection for a particular thread.
+ * Implement stopping data collection for the specified threads.
  *
  * @param collector    Collector stopping data collection.
- * @param thread       Thread for which to stop collecting data.
+ * @param threads      Threads for which to stop collecting data.
  */
 void FPECollector::stopCollecting(const Collector& collector,
-				   const Thread& thread) const
+				  const ThreadGroup& threads) const
 {
-    // Execute fpe_stop_tracing() in the thread
-    executeNow(collector, thread,
+    // Execute fpe_stop_tracing() in the threads
+    executeNow(collector, threads,
                "fpe-rt: fpe_stop_tracing", Blob());
     
-    // Remove all instrumentation associated with this collector/thread pairing
-    uninstrument(collector, thread);
+    // Remove instrumentation associated with this collector/threads pairing
+    uninstrument(collector, threads);
 }
 
 

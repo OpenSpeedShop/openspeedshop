@@ -27,6 +27,7 @@
 #include "CollectorGroup.hxx"
 #include "EntrySpy.hxx"
 #include "ExtentTable.hxx"
+#include "Instrumentor.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
 #include "Statement.hxx"
@@ -112,8 +113,7 @@ bool ThreadGroup::areAllState(const Thread::State& state) const
  */
 void ThreadGroup::changeState(const Thread::State& state)
 {
-    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
-	i->changeState(state);
+    Instrumentor::changeState(*this, state);
 }
 
 

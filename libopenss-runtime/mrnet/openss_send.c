@@ -1,5 +1,4 @@
 /*******************************************************************************
-** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 ** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
@@ -19,37 +18,24 @@
 
 /** @file
  *
- * Specification of the I/O collector's blobs.
+ * Definition of the openss_send() function.
  *
  */
 
-/** Structure of the blob containing our parameters. */
-struct io_parameters {
-
-    /** Flags indicating if each I/O function is to be traced. */
-    uint8_t traced[1024];
-
-};
 
 
-
-/** Event structure describing a single I/O call. */
-struct io_event {
-    uint64_t start_time;  /**< Start time of the call. */
-    uint64_t stop_time;   /**< End time of the call. */
-    uint16_t stacktrace;  /**< Index of the stack trace. */
-};
-
-/** Structure of the blob containing our performance data. */
-struct io_data {
-    uint64_t stacktraces<>;  /**< Stack traces. */
-    io_event events<>;       /**< IO call events. */
-};
-
-
-
-/** Structure of the blob containing io_start_tracing()'s arguments. */
-struct io_start_tracing_args {
-    int experiment;  /**< Identifier of experiment to contain the data. */
-    int collector;   /**< Identifier of collector gathering data. */
-};
+/**
+ * Send performance data.
+ *
+ * Sends performance data to the framework instance which loaded this runtime
+ * library into the target process. Any header generation and data encoding is
+ * performed by OpenSS_Send(). Here the data is treated purely as a buffer of
+ * bytes to be sent.
+ *
+ * @param size    Size of the data to be sent (in bytes).
+ * @param data    Pointer to the data to be sent.
+ * @return        Integer "1" if succeeded or "0" if failed.
+ */
+int openss_send(const unsigned size, const void* data)
+{
+}

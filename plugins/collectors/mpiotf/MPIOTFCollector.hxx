@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 Krell Institute        All Rights Reserved.
+// Copyright (c) 2007 Krell Institute. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -58,17 +59,15 @@ namespace OpenSpeedShop { namespace Framework {
         virtual void setParameterValue(const std::string&,
                                        const void*, Blob&) const;
 
-        virtual void startCollecting(const Collector&, const Thread&) const;
-        virtual void stopCollecting(const Collector&, const Thread&) const;
+        virtual void startCollecting(const Collector&,
+				     const ThreadGroup&) const;
+        virtual void stopCollecting(const Collector&,
+				    const ThreadGroup&) const;
 	
 	virtual void getMetricValues(const std::string&,
 				     const Collector&, const Thread&,
 				     const Extent&, const Blob&, 
 				     const ExtentGroup&, void*) const;
-	
-    private:
-
-	std::string getRuntimeLibraryName(const Thread&) const;
 	
     };
     

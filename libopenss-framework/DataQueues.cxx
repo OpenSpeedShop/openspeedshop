@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -29,6 +30,7 @@
 #include "Database.hxx"
 #include "DataCache.hxx"
 #include "DataQueues.hxx"
+#include "Experiment.hxx"
 #include "SmartPtr.hxx"
 #include "Thread.hxx"
 #include "Time.hxx"
@@ -136,6 +138,22 @@ namespace {
      * thus prepended with a performance data header. That header is decoded in
      * order to create a properly indexed entry for the actual data.
      *
+     * @todo    Collector runtimes used to pass a thread identifier directly
+     *          within the performance data header. When the instrumentor API
+     *          was changed to support direct instrumentation of thread groups,
+     *          rather than individual threads, this changed. Since collectors
+     *          could no longer directly give their runtimes a single thread
+     *          identifier specifying the thread for which data was gathered,
+     *          the runtimes now have to obtain the thread identification data
+     *          themselves. The only such information they have available is
+     *          the host name, process identifier, and POSIX thread identifier
+     *          and that is what is now passed in the performance data header.
+     *          Thus this routine must now do a search for every blob to find
+     *          the correct thread identifier from this information. Currently
+     *          the search is done directly on the database every time. This
+     *          may prove too slow and an in-memory cache in the same spirit
+     *          as the DataCache class may be required.
+     *
      * @note    Various timing issues can result in cases where, for example,
      *          data arrives after a particular collector, or thread has been
      *          destroyed/removed. It was deemed best to silently ignore the
@@ -168,7 +186,7 @@ namespace {
 	    ignore_data = true;
 	
 	// Note: It is assumed here that the experiment identifier for this
-	//       blob corresponds to the database into which we are writting
+	//       blob corresponds to the database into which we are writing
 	//       this data.
 	
 	// Validate that the specified collector exists
@@ -181,18 +199,39 @@ namespace {
 	    collector_rows = database->getResultAsInteger(1);
 	if(collector_rows != 1)
 	    ignore_data = true;
-	
-	// Validate that the specified thread exists
-	int thread_rows = 0;
+
+	// Note: See the "todo" item in this function's description.
+
+	// Find the identifier of the specified thread
+	int thread = 0;
 	database->prepareStatement(
-	    "SELECT COUNT(*) FROM Threads WHERE id = ?;"
+	    "SELECT id "
+	    "FROM Threads "
+	    "WHERE host = ? "
+	    "  AND pid = ? "
+	    "  AND posix_tid = ?;"
 	    );
-	database->bindArgument(1, header.thread);
+	database->bindArgument(1, header.host);
+	database->bindArgument(2, static_cast<int>(header.pid));
+	database->bindArgument(3, static_cast<pthread_t>(header.posix_tid));
 	while(database->executeStatement())
-	    thread_rows = database->getResultAsInteger(1);
-	if(thread_rows != 1)
+	    thread = database->getResultAsInteger(1);
+	if (thread == 0) {
+	    database->prepareStatement(
+	        "SELECT id "
+		"FROM Threads "
+		"WHERE host = ? "
+		"  AND pid = ? "
+		"  AND posix_tid IS NULL;"
+		);
+	    database->bindArgument(1, header.host);
+	    database->bindArgument(2, static_cast<int>(header.pid));
+	    while(database->executeStatement())
+		thread = database->getResultAsInteger(1); 
+	}
+	if(thread == 0)
 	    ignore_data = true;
-	
+
 	// Calculate the size and location of the actual data
 	unsigned data_size = blob.getSize() - header_size;
 	const void* data_ptr =
@@ -207,7 +246,7 @@ namespace {
 		"VALUES (?, ?, ?, ?, ?, ?, ?);"
 		);
 	    database->bindArgument(1, header.collector);
-	    database->bindArgument(2, header.thread);
+	    database->bindArgument(2, thread);
 	    database->bindArgument(3, Time(header.time_begin));
 	    database->bindArgument(4, Time(header.time_end));
 	    database->bindArgument(5, Address(header.addr_begin));
@@ -218,7 +257,7 @@ namespace {
 	
 	// Add this data to the performance data cache
 	DataQueues::TheCache.addIdentifier(
-	    database, header.collector, header.thread,
+	    database, header.collector, thread,
 	    Extent(TimeInterval(Time(header.time_begin),
 				Time(header.time_end)),
 		   AddressRange(Address(header.addr_begin),

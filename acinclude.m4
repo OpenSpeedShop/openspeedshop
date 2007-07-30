@@ -267,13 +267,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
 ])
 
 ################################################################################
-# Check for MPI (http://www.mpi-forum.org/)
-################################################################################
-
-m4_include(ac_pkg_mpi.m4)
-
-################################################################################
-# Check for Libunwind (http://www.hpl.hp.com/research/linux/libunwind/)
+# Check for Libunwind (http://www.hpl.hp.com/research/linux/libunwind)
 ################################################################################
 
 AC_DEFUN([AC_PKG_LIBUNWIND], [
@@ -320,6 +314,68 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
     AC_SUBST(LIBUNWIND_CPPFLAGS)
     AC_SUBST(LIBUNWIND_LDFLAGS)
     AC_SUBST(LIBUNWIND_LIBS)
+
+])
+
+################################################################################
+# Check for MPI (http://www.mpi-forum.org)
+################################################################################
+
+m4_include(ac_pkg_mpi.m4)
+
+################################################################################
+# Check for MRNet (http://www.paradyn.org/mrnet)
+################################################################################
+
+AC_DEFUN([AC_PKG_MRNET], [
+
+    AC_ARG_WITH(mrnet,
+                AC_HELP_STRING([--with-mrnet=DIR],
+                               [MRNet installation @<:@/usr@:>@]),
+                mrnet_dir=$withval, mrnet_dir="/usr")
+
+    MRNET_CPPFLAGS="-I$mrnet_dir/include"
+    MRNET_LDFLAGS="-L$mrnet_dir/$abi_libdir"
+    MRNET_LIBS="-Wl,--whole-archive -lmrnet -lxplat -Wl,--no-whole-archive"
+    MRNET_LIBS="$MRNET_LIBS -lpthread -ldl"
+
+    AC_LANG_PUSH(C++)
+    AC_REQUIRE_CPP
+
+    mrnet_saved_CPPFLAGS=$CPPFLAGS
+    mrnet_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $MRNET_CPPFLAGS"
+    LDFLAGS="$CXXFLAGS $MRNET_LDFLAGS $MRNET_LIBS"
+
+    AC_MSG_CHECKING([for MRNet library and headers])
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+	#include <mrnet/MRNet.h>
+        ]], [[
+	MRN::set_OutputLevel(0);
+        ]]), [ AC_MSG_RESULT(yes)
+
+            AC_DEFINE(HAVE_MRNET, 1, 
+                      [Define to 1 if you have MRNet.])
+
+        ], [ AC_MSG_RESULT(no) 
+
+            MRNET_CPPFLAGS=""
+            MRNET_LDFLAGS=""
+            MRNET_LIBS=""
+
+        ]
+    )
+
+    CPPFLAGS=$mrnet_saved_CPPFLAGS
+    LDFLAGS=$mrnet_saved_LDFLAGS
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(MRNET_CPPFLAGS)
+    AC_SUBST(MRNET_LDFLAGS)
+    AC_SUBST(MRNET_LIBS)
 
 ])
 
@@ -378,7 +434,7 @@ AC_DEFUN([AC_PKG_OPENMP], [
 ])
 
 ################################################################################
-# Check for OTF (http://www.paratools.com/otf.php)
+# Check for OTF (http://www.paratools.com/otf)
 ################################################################################
 
 AC_DEFUN([AC_PKG_OTF], [

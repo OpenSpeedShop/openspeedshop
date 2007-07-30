@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 Krell Institute  All Rights Reserved.
+// Copyright (c) 2007 Krell Institute. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -334,13 +335,13 @@ void MPIOTFCollector::setParameterValue(const std::string& parameter,
 /**
  * Start data collection.
  *
- * Implement starting data collection for a particular thread.
+ * Implement starting data collection for the specified threads.
  *
  * @param collector    Collector starting data collection.
- * @param thread       Thread for which to start collecting data.
+ * @param threads      Threads for which to start collecting data.
  */
 void MPIOTFCollector::startCollecting(const Collector& collector,
-				    const Thread& thread) const
+				      const ThreadGroup& threads) const
 {
     // Get the set of traced functions for this collector
 
@@ -350,7 +351,8 @@ void MPIOTFCollector::startCollecting(const Collector& collector,
     // Assemble and encode arguments to mpiotf_start_tracing()
     mpit_start_tracing_args args;
     memset(&args, 0, sizeof(args));
-    getECT(collector, thread, args.experiment, args.collector, args.thread);
+    args.experiment = getExperimentId(collector);
+    args.collector = getCollectorId(collector);
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_mpit_start_tracing_args),
                    &args);
     
@@ -359,21 +361,27 @@ void MPIOTFCollector::startCollecting(const Collector& collector,
   fflush(stderr);
 #endif
 
-    // Execute mpiotf_stop_tracing() before we exit the thread
-    executeBeforeExit(collector, thread,
-		      getRuntimeLibraryName(thread) + ": mpiotf_stop_tracing",
-		      Blob());
+    // Get the runtime usage map for the specified threads
+    RuntimeUsageMap runtime_usage_map = getMPIRuntimeUsageMap(threads);
+
+    // Execute mpiotf_stop_tracing() before we exit the threads
+    for(RuntimeUsageMap::const_iterator
+	    i = runtime_usage_map.begin(); i != runtime_usage_map.end(); ++i)
+	executeBeforeExit(collector, i->second,
+			  i->first + ": mpiotf_stop_tracing", Blob());
 
     // Execute mpiotf_openss_vt_init() before we exit MPI_Init
     // mpiotf_openss_vt_init() is the VampirTrace initialization routine.
-    executeBeforeExitMPI(collector, thread,
-		      getRuntimeLibraryName(thread) + ": mpiotf_openss_vt_init",
-		      Blob());
+    for(RuntimeUsageMap::const_iterator
+	    i = runtime_usage_map.begin(); i != runtime_usage_map.end(); ++i)
+	executeBeforeExitMPI(collector, i->second,
+			     i->first + ": mpiotf_openss_vt_init", Blob());
     
-    // Execute mpiotf_start_tracing() in the thread
-    executeNow(collector, thread,
-               getRuntimeLibraryName(thread) + ": mpiotf_start_tracing",
-	       arguments);
+    // Execute mpiotf_start_tracing() in the threads
+    for(RuntimeUsageMap::const_iterator
+	    i = runtime_usage_map.begin(); i != runtime_usage_map.end(); ++i)
+	executeNow(collector, i->second,
+		   i->first + ": mpiotf_start_tracing", arguments);
 
     // Execute our wrappers in place of the real MPI functions
     for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)	
@@ -391,10 +399,11 @@ void MPIOTFCollector::startCollecting(const Collector& collector,
 #endif
 
 	    // Wrap the MPI function
-	    executeInPlaceOf(
-		collector, thread, 
-		P_name, getRuntimeLibraryName(thread) + ": mpiotf_" + P_name
-		);
+	    for(RuntimeUsageMap::const_iterator i = runtime_usage_map.begin();
+		i != runtime_usage_map.end();
+		++i)
+		executeInPlaceOf(collector, i->second, 
+				 P_name, i->first + ": mpiotf_" + P_name);
 	    
 	}
 #if 0
@@ -408,25 +417,30 @@ void MPIOTFCollector::startCollecting(const Collector& collector,
 /**
  * Stops data collection.
  *
- * Implement stopping data collection for a particular thread.
+ * Implement stopping data collection for the specified threads.
  *
  * @param collector    Collector stopping data collection.
- * @param thread       Thread for which to stop collecting data.
+ * @param threads      Threads for which to stop collecting data.
  */
 void MPIOTFCollector::stopCollecting(const Collector& collector,
-				   const Thread& thread) const
+				     const ThreadGroup& threads) const
 {
 #if 0
   fprintf(stderr, "ENTER-FINISHUP------MPIOTFCollector::stopCollecting, entered\n");
   fflush(stderr);
 #endif
 
-    // Execute mpiotf_stop_tracing() in the thread
-    executeNow(collector, thread,
-               getRuntimeLibraryName(thread) + ": mpiotf_stop_tracing", Blob());
+    // Get the runtime usage map for the specified threads
+    RuntimeUsageMap runtime_usage_map = getMPIRuntimeUsageMap(threads);
+
+    // Execute mpiotf_stop_tracing() in the threads
+    for(RuntimeUsageMap::const_iterator
+	    i = runtime_usage_map.begin(); i != runtime_usage_map.end(); ++i)
+	executeNow(collector, i->second,
+		   i->first + ": mpiotf_stop_tracing", Blob());
     
-    // Remove all instrumentation associated with this collector/thread pairing
-    uninstrument(collector, thread);
+    // Remove instrumentation associated with this collector/threads pairing
+    uninstrument(collector, threads);
 #if 0
   fprintf(stderr, "EXIT-FINISHUP------MPIOTFCollector::stopCollecting, exiting\n");
   fflush(stderr);
@@ -597,17 +611,3 @@ void MPIOTFCollector::getMetricValues(const std::string& metric,
     xdr_free(reinterpret_cast<xdrproc_t>(xdr_mpit_data),
 	     reinterpret_cast<char*>(&data));
 }
-
-
-
-std::string MPIOTFCollector::getRuntimeLibraryName(const Thread& thread) const
-{
-    /*
-     * A cache could be maintained here to avoid repeated calls to
-     * CollectorImpl::MPIImplementationName() for the same threads.
-     */
-    std::string mpi_implementation_name = getMPIImplementationName(thread);
-
-    return (std::string("mpiotf-rt-") + mpi_implementation_name);
-}
-

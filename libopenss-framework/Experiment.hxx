@@ -159,10 +159,7 @@ namespace OpenSpeedShop { namespace Framework {
 		
     private:
 
-        int rerunCount;
-	std::pair<Thread, bool>
-	attachProcessLL(const pid_t&, const std::string&) const;
-
+	ThreadGroup attachJob(const Job&) const;
 	ThreadGroup getThreadsInProcess(const pid_t&, const std::string&) const;
 
 #ifndef NDEBUG
@@ -171,7 +168,10 @@ namespace OpenSpeedShop { namespace Framework {
 
 	static bool getMPIJobFromMPT(const Thread&, Job&);
 	static bool getMPIJobFromMPICH(const Thread&, Job&);
-	
+
+	/** ??? */
+        int rerunCount;
+
 	/** Experiment database. */
 	SmartPtr<Database> dm_database;
 

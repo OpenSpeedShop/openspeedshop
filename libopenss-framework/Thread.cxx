@@ -30,6 +30,7 @@
 #include "Path.hxx"
 #include "Statement.hxx"
 #include "Thread.hxx"
+#include "ThreadGroup.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
@@ -83,7 +84,9 @@ bool Thread::isState(const State& state) const
  */
 void Thread::changeState(const State& state) const
 {
-    Instrumentor::changeState(*this, state);
+    ThreadGroup threads;
+    threads.insert(*this);
+    Instrumentor::changeState(threads, state);
 }
 
 

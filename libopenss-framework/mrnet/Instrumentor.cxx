@@ -1,5 +1,4 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
@@ -23,17 +22,7 @@
  *
  */
 
-#include "Assert.hxx"
-#include "Blob.hxx"
-#include "Database.hxx"
-#include "EntrySpy.hxx"
-#include "Exception.hxx"
-#include "Guard.hxx"
 #include "Instrumentor.hxx"
-#include "Process.hxx"
-#include "ProcessTable.hxx"
-#include "ThreadGroup.hxx"
-#include "Time.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
@@ -51,13 +40,6 @@ using namespace OpenSpeedShop::Framework;
  */
 void Instrumentor::retain(const Thread& thread)
 {
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
-
-	// Add this thread to the process table
-	ProcessTable::TheTable.addThread(thread);	
-    }
 }
 
 
@@ -74,13 +56,6 @@ void Instrumentor::retain(const Thread& thread)
  */
 void Instrumentor::release(const Thread& thread)
 {
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
-	
-	// Remove this thread from the process table
-	ProcessTable::TheTable.removeThread(thread);
-    }
 }
 
 
@@ -102,31 +77,6 @@ void Instrumentor::create(const Thread& thread,
 			  const OutputCallback stdout_cb,
 			  const OutputCallback stderr_cb)
 {
-    // Allocate a new Process object for executing this command
-    SmartPtr<Process> process =
-        SmartPtr<Process>(new Process(thread.getHost(), command,
-                                      stdout_cb, stderr_cb));
-    Assert(!process.isNull());
-
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
-	
-	// Add this process to the process table
-	ProcessTable::TheTable.addProcess(process);
-
-	// Update the thread's process identifier
-	SmartPtr<Database> database = EntrySpy(thread).getDatabase();
-	BEGIN_TRANSACTION(database);
-	database->prepareStatement("UPDATE Threads SET pid = ? WHERE id = ?;");
-	database->bindArgument(1, static_cast<int>(process->getProcessId()));
-	database->bindArgument(2, EntrySpy(thread).getEntry());
-	while(database->executeStatement());    
-	END_TRANSACTION(database);
-
-	// Add this thread to the process table
-	ProcessTable::TheTable.addThread(thread);
-    }
 }
 
 
@@ -143,18 +93,6 @@ void Instrumentor::create(const Thread& thread,
  */
 Thread::State Instrumentor::getState(const Thread& thread)
 {
-    SmartPtr<Process> process;
-
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
-	
-	// Get the process for this thread (if any)
-	process = ProcessTable::TheTable.getProcessByThread(thread);
-    }
-    
-    // Return the thread's current state to the caller
-    return process.isNull() ? Thread::Disconnected : process->getState(thread);
 }
 
 
@@ -179,49 +117,6 @@ Thread::State Instrumentor::getState(const Thread& thread)
 void Instrumentor::changeState(const ThreadGroup& threads,
 			       const Thread::State& state)
 {
-    // Iterate over each thread of this group
-    for(ThreadGroup::const_iterator
-	    i = threads.begin(); i != threads.end(); ++i) {
-
-	SmartPtr<Process> process;
-	
-	// Critical section touching the process table
-	{
-	    Guard guard_process_table(ProcessTable::TheTable);
-	    
-	    // Get the process for this thread (if any)
-	    process = ProcessTable::TheTable.getProcessByThread(*i);
-	    
-	    // Are we attempting to connect to this process for the first time?
-	    if(process.isNull() && (state == Thread::Connecting)) {
-		
-		// Allocate a new Process object for connecting to this process
-		process = SmartPtr<Process>(new Process(i->getHost(),
-							i->getProcessId()));
-		Assert(!process.isNull());
-		
-		// Add this process to the process table
-		ProcessTable::TheTable.addProcess(process);
-		
-	    }
-	}
-	
-	// Check preconditions
-	if(process.isNull()) {
-	    std::pair<bool, pthread_t> tid = i->getPosixThreadId();
-	    if(tid.first)
-		throw Exception(Exception::ThreadUnavailable, i->getHost(),
-				Exception::toString(i->getProcessId()),
-				Exception::toString(tid.second));
-	    else
-		throw Exception(Exception::ProcessUnavailable, i->getHost(),
-				Exception::toString(i->getProcessId()));	
-	}
-	
-	// Request a state change from the process
-	process->changeState(*i, state);    
-
-    }
 }
 
 
@@ -247,36 +142,6 @@ void Instrumentor::executeNow(const ThreadGroup& threads,
 			      const Blob& argument,
 			      const bool& disableSaveFPR)
 {
-    // Iterate over each thread of this group
-    for(ThreadGroup::const_iterator
-	    i = threads.begin(); i != threads.end(); ++i) {
-
-	SmartPtr<Process> process;
-	
-	// Critical section touching the process table
-	{
-	    Guard guard_process_table(ProcessTable::TheTable);
-	    
-	    // Get the process for this thread (if any)
-	    process = ProcessTable::TheTable.getProcessByThread(*i);
-	}
-	
-	// Check preconditions
-	if(process.isNull() || !process->isConnected()) {
-	    std::pair<bool, pthread_t> tid = i->getPosixThreadId();
-	    if(tid.first)
-		throw Exception(Exception::ThreadUnavailable, i->getHost(),
-				Exception::toString(i->getProcessId()),
-				Exception::toString(tid.second));
-	    else
-		throw Exception(Exception::ProcessUnavailable, i->getHost(),
-				Exception::toString(i->getProcessId()));	
-	}
-	
-	// Request the library function be executed by the process
-	process->executeNow(collector, *i, callee, argument, disableSaveFPR);
-
-    }
 }
 
 
@@ -308,37 +173,6 @@ void Instrumentor::executeAtEntryOrExit(const ThreadGroup& threads,
 					const std::string& callee, 
 					const Blob& argument)
 {
-    // Iterate over each thread of this group
-    for(ThreadGroup::const_iterator
-	    i = threads.begin(); i != threads.end(); ++i) {
-
-	SmartPtr<Process> process;
-
-	// Critical section touching the process table
-	{
-	    Guard guard_process_table(ProcessTable::TheTable);
-	    
-	    // Get the process for this thread (if any)
-	    process = ProcessTable::TheTable.getProcessByThread(*i);
-	}
-	
-	// Check preconditions
-	if(process.isNull() || !process->isConnected()) {
-	    std::pair<bool, pthread_t> tid = i->getPosixThreadId();
-	    if(tid.first)
-		throw Exception(Exception::ThreadUnavailable, i->getHost(),
-				Exception::toString(i->getProcessId()),
-				Exception::toString(tid.second));
-	    else
-		throw Exception(Exception::ProcessUnavailable, i->getHost(),
-				Exception::toString(i->getProcessId()));	
-	}
-	
-	// Request the library function be executed in the process
-	process->executeAtEntryOrExit(collector, *i, where, at_entry, 
-				      callee, argument);
-
-    }
 }
 
 
@@ -366,36 +200,6 @@ void Instrumentor::executeInPlaceOf(const ThreadGroup& threads,
 				    const std::string& where, 
 				    const std::string& callee)
 {
-    // Iterate over each thread of this group
-    for(ThreadGroup::const_iterator
-	    i = threads.begin(); i != threads.end(); ++i) {
-
-	SmartPtr<Process> process;
-	
-	// Critical section touching the process table
-	{
-	    Guard guard_process_table(ProcessTable::TheTable);
-	    
-	    // Get the process for this thread (if any)
-	    process = ProcessTable::TheTable.getProcessByThread(*i);
-	}
-	
-	// Check preconditions
-	if(process.isNull() || !process->isConnected()) {
-	    std::pair<bool, pthread_t> tid = i->getPosixThreadId();
-	    if(tid.first)
-		throw Exception(Exception::ThreadUnavailable, i->getHost(),
-				Exception::toString(i->getProcessId()),
-				Exception::toString(tid.second));
-	    else
-		throw Exception(Exception::ProcessUnavailable, i->getHost(),
-				Exception::toString(i->getProcessId()));	
-	}
-	
-	// Request the library function be executed in the process
-	process->executeInPlaceOf(collector, *i, where, callee);
-
-    }
 }
 
 
@@ -417,36 +221,6 @@ void Instrumentor::executeInPlaceOf(const ThreadGroup& threads,
 void Instrumentor::uninstrument(const ThreadGroup& threads, 
 				const Collector& collector)
 {
-    // Iterate over each thread of this group
-    for(ThreadGroup::const_iterator
-	    i = threads.begin(); i != threads.end(); ++i) {
-
-	SmartPtr<Process> process;
-	
-	// Critical section touching the process table
-	{
-	    Guard guard_process_table(ProcessTable::TheTable);
-	    
-	    // Get the process for this thread (if any)
-	    process = ProcessTable::TheTable.getProcessByThread(*i);
-	}
-	
-	// Check preconditions
-	if(process.isNull() || !process->isConnected()) {
-	    std::pair<bool, pthread_t> tid = i->getPosixThreadId();
-	    if(tid.first)
-		throw Exception(Exception::ThreadUnavailable, i->getHost(),
-				Exception::toString(i->getProcessId()),
-				Exception::toString(tid.second));
-	    else
-		throw Exception(Exception::ProcessUnavailable, i->getHost(),
-				Exception::toString(i->getProcessId()));	
-	}
-	
-	// Request the collector's instrumentation be removed from the process
-	process->uninstrument(collector, *i);
-	
-    }
 }
 
 
@@ -471,30 +245,6 @@ void Instrumentor::stopAtEntryOrExit(const Thread& thread,
 				     const std::string& where, 
 				     const bool& at_entry)
 {
-    SmartPtr<Process> process;
-    
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
-	
-	// Get the process for this thread (if any)
-	process = ProcessTable::TheTable.getProcessByThread(thread);
-    }
-    
-    // Check preconditions
-    if(process.isNull() || !process->isConnected()) {
-	std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
-	if(tid.first)
-	    throw Exception(Exception::ThreadUnavailable, thread.getHost(),
-			    Exception::toString(thread.getProcessId()),
-			    Exception::toString(tid.second));
-	else
-	    throw Exception(Exception::ProcessUnavailable, thread.getHost(),
-			    Exception::toString(thread.getProcessId()));	
-    }
-    
-    // Request the stop be added to the process
-    process->stopAtEntryOrExit(thread, where, at_entry);
 }
 
 
@@ -520,23 +270,6 @@ bool Instrumentor::getGlobal(const Thread& thread,
 			     const std::string& global,
 			     int64_t& value)
 {
-    SmartPtr<Process> process;
-
-    // Critical section touching the process table
-    {
-        Guard guard_process_table(ProcessTable::TheTable);
-
-        // Get the process for this thread (if any)
-        process = ProcessTable::TheTable.getProcessByThread(thread);
-    }
-
-    // Check preconditions
-    if(process.isNull() || !process->isConnected())
-        throw Exception(Exception::ProcessUnavailable, thread.getHost(),
-                        Exception::toString(thread.getProcessId()));
-    
-    // Request the global variable be retrieved from the process
-    return process->getGlobal(global, value);
 }
 
 
@@ -562,23 +295,6 @@ bool Instrumentor::getGlobal(const Thread& thread,
 			     const std::string& global,
 			     std::string& value)
 {
-    SmartPtr<Process> process;
-
-    // Critical section touching the process table
-    {
-        Guard guard_process_table(ProcessTable::TheTable);
-
-        // Get the process for this thread (if any)
-        process = ProcessTable::TheTable.getProcessByThread(thread);
-    }
-
-    // Check preconditions
-    if(process.isNull() || !process->isConnected())
-        throw Exception(Exception::ProcessUnavailable, thread.getHost(),
-                        Exception::toString(thread.getProcessId()));
-    
-    // Request the global variable be retrieved from the process
-    return process->getGlobal(global, value);
 }
 
 
@@ -601,23 +317,6 @@ bool Instrumentor::getGlobal(const Thread& thread,
  */
 bool Instrumentor::getMPICHProcTable(const Thread& thread, Job& value)
 {
-    SmartPtr<Process> process;
-     
-    // Critical section touching the process table
-    {
-        Guard guard_process_table(ProcessTable::TheTable);
-
-        // Get the process for this thread (if any)
-        process = ProcessTable::TheTable.getProcessByThread(thread);
-    }
-
-    // Check preconditions
-    if(process.isNull() || !process->isConnected())
-        throw Exception(Exception::ProcessUnavailable, thread.getHost(),
-                        Exception::toString(thread.getProcessId()));
-    
-    // Request the MPICH process table be retrieved from the process
-    return process->getMPICHProcTable(value);
 }
 
 
@@ -640,21 +339,4 @@ void Instrumentor::setGlobal(const Thread& thread,
 			     const std::string& global,
 			     int64_t value)
 {
-    SmartPtr<Process> process;
-
-    // Critical section touching the process table
-    {
-        Guard guard_process_table(ProcessTable::TheTable);
-
-        // Get the process for this thread (if any)
-        process = ProcessTable::TheTable.getProcessByThread(thread);
-    }
-
-    // Check preconditions
-    if(process.isNull() || !process->isConnected())
-        throw Exception(Exception::ProcessUnavailable, thread.getHost(),
-                        Exception::toString(thread.getProcessId()));
-    
-    // Request the global variable be retrieved from the process
-    process->setGlobal(global, value);
 }

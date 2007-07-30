@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -260,9 +261,7 @@ void mpit_start_tracing(const char* arguments)
     tls.nesting_depth = 0;
 
     /* Initialize the data blob's header */
-    tls.header.experiment = args.experiment;
-    tls.header.collector = args.collector;
-    tls.header.thread = args.thread;
+    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(tls.header));
     tls.header.time_begin = 0;
     tls.header.time_end = 0;
     tls.header.addr_begin = ~0;

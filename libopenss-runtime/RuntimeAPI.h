@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -85,6 +86,8 @@ typedef enum {
 /** Type representing a function pointer to a fpe event handler. */
 typedef void (*OpenSS_FPEEventHandler)(const OpenSS_FPEType, const ucontext_t*);
 
+
+
 /** Type representing a function pointer to a timer event handler. */
 typedef void (*OpenSS_TimerEventHandler)(const ucontext_t*);
 
@@ -94,6 +97,7 @@ void OpenSS_DecodeParameters(const char*, const xdrproc_t, void*);
 void OpenSS_FPEHandler(const OpenSS_FPEType, const OpenSS_FPEEventHandler);
 uint64_t OpenSS_GetAddressOfFunction(const void*);
 uint64_t OpenSS_GetPCFromContext(const ucontext_t*);
+void OpenSS_InitializeDataHeader(int, int, OpenSS_DataHeader*);
 void OpenSS_SetPCInContext(uint64_t, ucontext_t*);
 uint64_t OpenSS_GetTime();
 void OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);

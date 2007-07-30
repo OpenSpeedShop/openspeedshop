@@ -113,8 +113,8 @@ AC_CHECK_HEADER(pthread.h, [ AC_CHECK_LIB(pthread, pthread_create, [
 
 AC_PKG_ARRAYSVCS()
 AC_PKG_BINUTILS()
-AC_PKG_MPI()
 AC_PKG_LIBUNWIND()
+AC_PKG_MPI()
 AC_PKG_OPENMP()
 AC_PKG_OTF()
 AC_PKG_VT()
@@ -136,7 +136,7 @@ AC_PKG_DYNINST()
 
 AC_ARG_WITH(instrumentor,
 	    AC_HELP_STRING([--with-instrumentor=TYPE],
-			   [instrumentor (dpcl, dyninst) @<:@dpcl@:>@]),
+			   [instrumentor (dpcl, dyninst, mrnet) @<:@dpcl@:>@]),
 	    INSTRUMENTOR=$withval, INSTRUMENTOR="dpcl")
 
 case "$INSTRUMENTOR" in
@@ -146,6 +146,10 @@ case "$INSTRUMENTOR" in
 
     dyninst)
 	AC_PKG_DYNINST()
+	;;
+
+    mrnet)
+	AC_PKG_MRNET()
 	;;
 
     *)
@@ -170,9 +174,11 @@ AC_CONFIG_FILES(
 	libopenss-runtime/Makefile
 	libopenss-runtime/dpcl/Makefile
 	libopenss-runtime/dyninst/Makefile
+	libopenss-runtime/mrnet/Makefile
 	libopenss-framework/Makefile
 	libopenss-framework/dpcl/Makefile
 	libopenss-framework/dyninst/Makefile
+	libopenss-framework/mrnet/Makefile
 	libopenss-queries/Makefile
 	plugins/Makefile
 	plugins/collectors/Makefile

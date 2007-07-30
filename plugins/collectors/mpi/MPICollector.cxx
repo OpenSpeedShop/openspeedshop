@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -102,8 +103,6 @@ namespace {
 	NULL
     };
 
-    std::string MPI_IMPL_NAME;
-    
 }    
 
 
@@ -256,13 +255,13 @@ void MPICollector::setParameterValue(const std::string& parameter,
 /**
  * Start data collection.
  *
- * Implement starting data collection for a particular thread.
+ * Implement starting data collection for the specified threads.
  *
  * @param collector    Collector starting data collection.
- * @param thread       Thread for which to start collecting data.
+ * @param threads      Threads for which to start collecting data.
  */
 void MPICollector::startCollecting(const Collector& collector,
-				    const Thread& thread) const
+				   const ThreadGroup& threads) const
 {
     // Get the set of traced functions for this collector
     std::map<std::string, bool> traced;
@@ -271,20 +270,25 @@ void MPICollector::startCollecting(const Collector& collector,
     // Assemble and encode arguments to mpi_start_tracing()
     mpi_start_tracing_args args;
     memset(&args, 0, sizeof(args));
-    getECT(collector, thread, args.experiment, args.collector, args.thread);
+    args.experiment = getExperimentId(collector);
+    args.collector = getCollectorId(collector);
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_mpi_start_tracing_args),
                    &args);
 
-    MPI_IMPL_NAME = getRuntimeLibraryName(thread);
-    // Execute mpi_stop_tracing() before we exit the thread
-    executeBeforeExit(collector, thread,
-		      MPI_IMPL_NAME + ": mpi_stop_tracing",
-		      Blob());
+    // Get the runtime usage map for the specified threads
+    RuntimeUsageMap runtime_usage_map = getMPIRuntimeUsageMap(threads);
+
+    // Execute mpi_stop_tracing() before we exit the threads
+    for(RuntimeUsageMap::const_iterator
+	    i = runtime_usage_map.begin(); i != runtime_usage_map.end(); ++i)
+	executeBeforeExit(collector, i->second,
+			  i->first + ": mpi_stop_tracing", Blob());
     
-    // Execute mpi_start_tracing() in the thread
-    executeNow(collector, thread,
-               MPI_IMPL_NAME + ": mpi_start_tracing",
-	       arguments);
+    // Execute mpi_start_tracing() in the threads
+    for(RuntimeUsageMap::const_iterator
+	    i = runtime_usage_map.begin(); i != runtime_usage_map.end(); ++i)
+	executeNow(collector, i->second,
+		   i->first + ": mpi_start_tracing", arguments);
 
     // Execute our wrappers in place of the real MPI functions
     for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)	
@@ -294,10 +298,11 @@ void MPICollector::startCollecting(const Collector& collector,
 	    std::string P_name = std::string("P") + TraceableFunctions[i];
 
 	    // Wrap the MPI function
-	    executeInPlaceOf(
-		collector, thread,
-		P_name, MPI_IMPL_NAME + ": mpi_" + P_name
-		);
+	    for(RuntimeUsageMap::const_iterator i = runtime_usage_map.begin();
+		i != runtime_usage_map.end();
+		++i)
+		executeInPlaceOf(collector, i->second,
+				 P_name, i->first + ": mpi_" + P_name);
 	    
 	}
 }
@@ -307,20 +312,25 @@ void MPICollector::startCollecting(const Collector& collector,
 /**
  * Stops data collection.
  *
- * Implement stopping data collection for a particular thread.
+ * Implement stopping data collection for the specified threads.
  *
  * @param collector    Collector stopping data collection.
- * @param thread       Thread for which to stop collecting data.
+ * @param threads      Threads for which to stop collecting data.
  */
 void MPICollector::stopCollecting(const Collector& collector,
-				   const Thread& thread) const
+				  const ThreadGroup& threads) const
 {
-    // Execute mpi_stop_tracing() in the thread
-    executeNow(collector, thread,
-               MPI_IMPL_NAME + ": mpi_stop_tracing", Blob());
+    // Get the runtime usage map for the specified threads
+    RuntimeUsageMap runtime_usage_map = getMPIRuntimeUsageMap(threads);
+
+    // Execute mpi_stop_tracing() in the threads
+    for(RuntimeUsageMap::const_iterator
+	    i = runtime_usage_map.begin(); i != runtime_usage_map.end(); ++i)
+	executeNow(collector, i->second,
+		   i->first + ": mpi_stop_tracing", Blob());
     
-    // Remove all instrumentation associated with this collector/thread pairing
-    uninstrument(collector, thread);
+    // Remove instrumentation associated with this collector/threads pairing
+    uninstrument(collector, threads);
 }
 
 
@@ -465,17 +475,3 @@ void MPICollector::getMetricValues(const std::string& metric,
     xdr_free(reinterpret_cast<xdrproc_t>(xdr_mpi_data),
 	     reinterpret_cast<char*>(&data));
 }
-
-
-
-std::string MPICollector::getRuntimeLibraryName(const Thread& thread) const
-{
-    /*
-     * A cache could be maintained here to avoid repeated calls to
-     * CollectorImpl::getMPIImplementationName() for the same threads.
-     */
-    std::string mpi_implementation_name = getMPIImplementationName(thread);
-
-    return (std::string("mpi-rt-") + mpi_implementation_name);
-}
-

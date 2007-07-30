@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -33,6 +34,7 @@
 #include "Metadata.hxx"
 #include "TimeInterval.hxx"
 
+#include <map>
 #include <set>
 #include <string>
 
@@ -46,6 +48,7 @@ namespace OpenSpeedShop { namespace Framework {
     class ExtentGroup;
     class Function;
     class Thread;
+    class ThreadGroup;
     
     /**
      * Performance data collector implementation.
@@ -131,26 +134,26 @@ namespace OpenSpeedShop { namespace Framework {
 	 *
 	 * Pure virtual member function that defines the interface by which a
 	 * collector plugin starts data collection. Instruments the specified
-	 * thread as necessary.
+	 * threads as necessary.
 	 *
 	 * @param collector    Collector starting data collection.
-	 * @param thread       Thread for which to start collecting data.
+	 * @param threads      Threads for which to start collecting data.
 	 */
 	virtual void startCollecting(const Collector& collector,
-				     const Thread& thread) const = 0;	
+				     const ThreadGroup& threads) const = 0;	
 
 	/**
 	 * Stops data collection.
 	 *
 	 * Pure virtual member function that defines the interface by which a
 	 * collector plugin stops data collection. Removes any instrumentation
-	 * from the specified thread.
+	 * from the specified threads.
 	 *
 	 * @param collector    Collector stopping data collection.
-	 * @param thread       Thread for which to stop collecting data.
+	 * @param threads      Threads for which to stop collecting data.
 	 */
 	virtual void stopCollecting(const Collector& collector,
-				    const Thread& thread) const = 0;
+				    const ThreadGroup& threads) const = 0;
 
 	/**
 	 * Get metric values.
@@ -195,26 +198,41 @@ namespace OpenSpeedShop { namespace Framework {
 	void declareParameter(const Metadata&);
 	void declareMetric(const Metadata&);
 
-	void getECT(const Collector&, const Thread&, int&, int&, int&) const;
+	int getExperimentId(const Collector&) const;
+	int getCollectorId(const Collector&) const;
 
-	void executeNow(const Collector&, const Thread&,
-			const std::string&, const Blob&, const bool& disableSaveFPR = false) const;
-	void executeAtEntry(const Collector&, const Thread&, const std::string&,
-			    const std::string&, const Blob&) const;
-	void executeAtExit(const Collector&, const Thread&, const std::string&,
-			   const std::string&, const Blob&) const;
-	void executeInPlaceOf(const Collector&, const Thread&,
+	void executeNow(const Collector&, const ThreadGroup&,
+			const std::string&, const Blob&,
+			const bool& disableSaveFPR = false) const;
+	void executeAtEntry(const Collector&, const ThreadGroup&,
+			    const std::string&, const std::string&,
+			    const Blob&) const;
+	void executeAtExit(const Collector&, const ThreadGroup&,
+			   const std::string&, const std::string&,
+			   const Blob&) const;
+	void executeInPlaceOf(const Collector&, const ThreadGroup&,
 			      const std::string&, const std::string&) const;
 
-	void executeBeforeExit(const Collector&, const Thread&,
+	void executeBeforeExit(const Collector&, const ThreadGroup&,
+			       const std::string&, const Blob&) const;
+	void executeBeforeExitMPI(const Collector&, const ThreadGroup&,
 			       const std::string&, const Blob&) const;
 
-	void executeBeforeExitMPI(const Collector&, const Thread&,
-			       const std::string&, const Blob&) const;
+	void uninstrument(const Collector&, const ThreadGroup&) const;
 
-	void uninstrument(const Collector&, const Thread&) const;
-	
 	std::string getMPIImplementationName(const Thread&) const;
+
+	/**
+	 * Runtime usage map.
+	 *
+	 * Type defining a mapping from a runtime library name to the group
+	 * of threads that use that runtime library.
+	 *
+	 * @ingroup Implementation
+	 */
+	typedef std::map<std::string, ThreadGroup> RuntimeUsageMap;
+
+	RuntimeUsageMap getMPIRuntimeUsageMap(const ThreadGroup&) const;
 
     private:
 
@@ -228,7 +246,6 @@ namespace OpenSpeedShop { namespace Framework {
 #ifndef NDEBUG
         static bool is_debug_mpijob_enabled;
 #endif
-
 	
     };
     
