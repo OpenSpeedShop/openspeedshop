@@ -32,7 +32,6 @@ SUBDIRS = \
 	libopenss-gui \
 	openss \
 	plugins \
-	examples \
 	doc \
 	sanity \
 	usability
@@ -71,8 +70,7 @@ FRAMEWORK_SUBDIRS = \
 	libltdl \
 	libopenss-runtime \
 	libopenss-framework \
-	libopenss-queries \
-	examples/libopenss-framework
+	libopenss-queries 
 
 framework:
 	for i in $(FRAMEWORK_SUBDIRS); do (cd $$i; $(MAKE)); done

@@ -230,10 +230,6 @@ AC_CONFIG_FILES(
 	plugins/wizards/IOWizardPanel/Makefile
 	plugins/wizards/MPIWizardPanel/Makefile
 	plugins/wizards/CompareWizardPanel/Makefile
-	examples/Makefile
-	examples/libopenss-framework/Makefile
-	examples/libopenss-framework/collector/Makefile
-	examples/libopenss-framework/tool/Makefile
 	openss/Makefile
 	libopenss-guibase/Makefile
 	libopenss-guiplugin/Makefile
