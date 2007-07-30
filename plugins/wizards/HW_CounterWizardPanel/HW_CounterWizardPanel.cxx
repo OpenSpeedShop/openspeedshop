@@ -72,6 +72,18 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
 	setName( "HW Counter" );
   }
 
+  // Clear out the containers for executables and pids
+  if( getPanelContainer()->getMainWindow() )
+  {
+    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+    if( mw )
+    {
+      mw->executableName = QString::null;
+      mw->pidStr = QString::null;
+      mw->parallelPrefixCommandStr = QString::null;
+    }
+  }
+
   hwCounterFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
   initPapiTypes();

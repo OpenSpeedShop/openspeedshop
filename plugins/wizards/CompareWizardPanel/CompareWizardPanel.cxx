@@ -74,6 +74,19 @@ CompareWizardPanel::CompareWizardPanel(PanelContainer *pc, const char *n, Argume
 	setName( "Compare" );
   }
 
+  // Clear out the containers for executables and pids
+  if( getPanelContainer()->getMainWindow() )
+  {
+    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+    if( mw )
+    {
+      mw->executableName = QString::null;
+      mw->pidStr = QString::null;
+      mw->parallelPrefixCommandStr = QString::null;
+    }
+  }
+
+
   QPixmap *folder_pm = new QPixmap( folder_xpm );
   folder_pm->setMask(folder_pm->createHeuristicMask());
 
