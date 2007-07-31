@@ -42,15 +42,6 @@ automake --foreign --add-missing --copy
 autoconf
 cd ../../..
 #
-# configure the phaseIII directory smg2000 builds.
-#
-echo "running bootstrap on usability/phaseIII"
-cd usability/phaseIII
-aclocal
-automake --foreign --add-missing --copy
-autoconf
-cd ../..
-#
 # configure dyninst tests for alternative installs of dyninst
 #
 echo "running bootstrap on test/src/dyninst"
