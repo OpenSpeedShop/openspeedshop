@@ -85,8 +85,8 @@ static __thread struct {
  */
 static void mpit_send_events()
 {
-    fprintf(stderr, "mpit_send_events, entered for tls.header.thread=%d\n", tls.header.thread);
-    fflush(stderr);
+//    fprintf(stderr, "mpit_send_events, entered for tls.header.thread=%d\n", tls.header.thread);
+//    fflush(stderr);
 
     /* Set the end time of this data blob */
     tls.header.time_end = OpenSS_GetTime();
@@ -116,8 +116,8 @@ static void mpit_send_events()
  */
 void mpit_start_event(mpit_event* event)
 {
-    fprintf(stderr, "mpit_start_event, entered for tls.header.thread=%d\n", tls.header.thread);
-    fflush(stderr);
+//    fprintf(stderr, "mpit_start_event, entered for tls.header.thread=%d\n", tls.header.thread);
+//    fflush(stderr);
 
     /* Increment the MPI function wrapper nesting depth */
     ++tls.nesting_depth;
