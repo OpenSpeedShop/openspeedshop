@@ -23,9 +23,9 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c	
 
-noinst_LIBRARIES = libvt.mpi.a
+#noinst_LIBRARIES = libvt.mpi.a
 
-libvt.mpi.a :
+libvt-mpi-a :
 	cp -r @VT_LIBSDIR@/libvt.mpi.a libvt.mpi.a
 	ar d libvt.mpi.a libvt_mpi_a-vt_mpiwrap.o
 
@@ -161,9 +161,10 @@ SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
 
 
-blobs.x: libvt.mpi.a
+blobs.x: libvt-mpi-a
 
 blobs.h blobs.c : blobs.x 
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
+

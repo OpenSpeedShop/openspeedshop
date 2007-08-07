@@ -51,22 +51,22 @@ DIST_SUBDIRS = \
 	pcsamp
 
 if HAVE_LIBUNWIND
-SUBDIRS += usertime io iot
+DIST_SUBDIRS += usertime io iot
 endif
 
 if HAVE_PAPI
-SUBDIRS += hwc
+DIST_SUBDIRS += hwc
 if HAVE_LIBUNWIND
-SUBDIRS += hwctime
+DIST_SUBDIRS += hwctime
 endif
 endif
 
 if HAVE_MPI
 if HAVE_LIBUNWIND
-SUBDIRS += mpi mpit
+DIST_SUBDIRS += mpi mpit
 if HAVE_OTF
 if HAVE_VT
-SUBDIRS += mpiotf
+DIST_SUBDIRS += mpiotf
 endif
 endif
 endif
@@ -74,7 +74,7 @@ endif
 
 if HAVE_BINUTILS
 if HAVE_LIBUNWIND
-SUBDIRS += fpe
+DIST_SUBDIRS += fpe
 endif
 endif
 
