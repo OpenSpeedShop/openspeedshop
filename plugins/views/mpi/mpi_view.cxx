@@ -470,6 +470,7 @@ static bool define_mpi_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back("% of Total");
   }
+  return (HV.size() > 0);
 }
 
 static bool mpi_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t topn,
