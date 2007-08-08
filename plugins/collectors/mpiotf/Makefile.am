@@ -168,3 +168,5 @@ blobs.h blobs.c : blobs.x
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
 
+EXTRA_DIST = vt_openss.h
+
