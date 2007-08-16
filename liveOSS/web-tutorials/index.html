@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Getting Started With Open|SpeedShop&#8482;</title><style type="text/css">
+table.exp {
+	border-width: 0px 0px 0px 0px;
+	border-spacing: 0px;
+	border-style: outset outset outset outset;
+	border-color: gray gray gray gray;
+	border-collapse: collapse;
+	background-color: white;
+	width:80%;
+	height:80%;
+}
+table.exp th {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+table.exp td {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+</style>
+</head>
+
+<body>
+	<center>
+		<img src="img/OpenSpeedShop_Logo.jpg"> <br>
+		Getting Started With Open|SpeedShop&#8482; <br>
+	</center>
+     
+	<h2>
+		Brief Open|SpeedShop Overview    
+	</h2>
+	Open|SpeedShop provides open source performance measurement and performance analysis capabilities for a wide range of platforms. Open|SpeedShop is based on the concepts of SGI&reg;&#039;s IRIX SpeedShop performance analysis tool. The initial development of Open|SpeedShop was co-funded by the Department of Energy (DOE) and SGI&reg;. Open|SpeedShop has had it&#039;s infrastructure and base components released as open source under the GPL and LGPL licenses. 
+	<br>
+	<a href="details/oss-details.html">Open|SpeedShop Overview Details</a>.	
+	<br>
+	<br>
+	<h2>      
+		About Getting Started
+	</h2>
+	The primary focus of this document will be on introducing many of Open|SpeedShop's key features.  In particular 
+	we will be covering:
+	<br>
+	<ul>
+		<LI>Common Terminology</LI>
+		<LI>Available Experiments</LI>
+		<LI>Open|SpeedShop Invocation</LI>
+		<LI>Using Open|SpeedShop's Interactive Command Line Interface (CLI)</LI>
+		<LI>Using Open|SpeedShop's Graphical User Interface (GUI)</LI>
+		<LI>Getting More Information</LI>	
+	</ul>	
+	<br>
+	<h2>Common Terminology</h2>
+	Technical terms can have multiple and/or context sensitive meanings, therefore this section attempts to explain and clarify the meanings of the terms used in this document. 
+	<ul>
+		<LI><b>Experiment:</b>  A set of collectors and executables bound together to generate performance metrics.</LI>
+	
+	
+		<LI><b>Focused Experiment:</b>  The current experiment commands operate on. The user may run or view multiple experiments simultaneously and unless a particular experiment is specified directly, the focused experiment will used. Experiments are given an enumeration (expId) for identification.</LI>
+	
+		<LI><b>Component(s):</b>  A somewhat self-contained section of the Open|SpeedShop performance tool.   This section of code does a set of specific related tasks for the tool.   For example, the GUI component does all the tasks related to displaying Open|SpeedShop wizards, experiment creation, and results using a graphical user interface.   The CLI component does similar functions but uses the interactive command line delivery method.</LI>
+	
+		<LI><b>Collector:</b>  The portion of the tool containing logic that is responsible for the gathering of the performance metric.    A collector is a portion of the code that is included in the experiment plugin.</LI>
+	
+		<LI><b>Metric:</b>  The entity, which the collector/experiment is gathering.  A time, occurrence counter, or other entity, which reflects in some way on the applications performance and is gathered by a performance experiment (by the collector).</LI>
+	
+		<LI><b>Param:</b>  Each collector allows the user to set certain values that control the way a collector behaves. The parameter or param may cause the collector to perform various operations at certain time intervals or it may cause a collector to measure certain types of data. Although Open|SpeedShop provides a standard way to set a parameter, it is up to the individual collector to decide what to do with that information. Detailed documentation about the available parameters is part of the collector's documentation.</LI>
+	
+		<LI><b>Framework:</b>  The set of API functions that allows the user interface to manage the creation and viewing of performance experiments.  It is the interface between the  user interface and the cluster support and dynamic instrumentation components.</LI>
+	
+		<LI><b>Plugin:</b>  A portion of the performance tool that can be loaded and included in the tool at tool start-up time.  Development of the plugin uses a tool specific interface (API) so that the plugin, and the tool it is to be included in, know how to interact with each other.   Plugins are normally placed in a specific directory so that the tool knows where to find the plugins.</LI>
+	
+		<LI><b>Target:</b>  This is the application or part of the application one is running the experiment on. In order to fine tune what is being targeted, Open|SpeedShop gives target options that describes file names, host names, thread identifiers, rank identifiers and process identifiers.</LI>
+	</ul>
+	<br>
+	<h2>Available Experiments</h2>
+	
+	<p><a href="details/experiment-details.html">Table: Summary of Experiments</a></p>
+	<ul>
+		<LI><b>fpe:</b> Collects all floating-point exceptions with the call stack and the time of exception.
+		<LI><b>hwc:</b> Counts at the source line, machine instruction, and function levels of various hardware events.
+		<LI><b>hwctime:</b> Similar to <b>hwc</b>, except that callstack sampling is used.
+		<LI><b>io:</b> Times I/O system calls.  The time reported is wall clock time.
+		<LI><b>iot:</b> Traces and times I/O system calls.  The time reported is wall clock time.
+		<LI><b>mpi:</b> Times calls to various MPI routines.  Time time reported is wall clock time.
+		<LI><b>mpit:</b> Traces and times calls to various MPI routines.  Time time reported is wall clock time.
+		<LI><b>pcsamp:</b> Actual CPU time at the source line, machine instruction, and function level.
+		<LI><b>usertime:</b> Inclusive and exclusive CPU time for each function.
+	</ul>
+	<br>
+	
+	
+	<h2>Open|SpeedShop Invocation</h2>
+	<a href="details/invocation-details.html">Open|SpeedShop Invocation Details</a>
+	<br>
+	<ul>
+		<LI><b>openss [-gui]:</b> Start Open|SpeedShop's graphical interface.
+		<LI><b>openss -cli:</b> Start Open|SpeedShop's interactive command line interface.
+		<LI><b>openss -batch:</b> Start a performance experiment. specified by additional arguments, directly without user interaction
+	</ul>
+	<br>
+
+	<h2>Open|SpeedShop Tutorials</h2>
+	<ul>
+		<LI><a href="tutorials/ossgui-attach-pcsamp.html">Using Open|SpeedShop's GUI: Attaching to a running process - pcsamp.</a>
+		<LI><a href="tutorials/osscli-mpi-usertime.html">Using Open|SpeedShop's CLI: Gathering information from an MPI job - usertime.</a>
+	<ul>
+  </body>
+</html>

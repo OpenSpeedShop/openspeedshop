@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Using Open|SpeedShop&#8482;</title><style type="text/css">
+table.exp {
+	border-width: 0px 0px 0px 0px;
+	border-spacing: 0px;
+	border-style: outset outset outset outset;
+	border-color: gray gray gray gray;
+	border-collapse: collapse;
+	background-color: white;
+	width:80%;
+	height:80%;
+}
+table.exp th {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+table.exp td {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+</style>
+</head>
+
+<body>
+	<center>
+		<img src="../img/OpenSpeedShop_Logo.jpg"> <br>
+		Using Open|SpeedShop&#8482;<br>
+	</center>
+	<h2 id="climpi">Using Open|SpeedShop's CLI</h2>
+	
+	<p>Within a terminal window, enter <b><font face="courier">openss -cli</font></b> and hit &#060;Enter&#062;. This will start Open|SpeedShop's interactive command line interface.  In this particular example, we are going to gather user time information from an MPI job (<b>Note:</b> We are going to simulate an MPI run by oversubscribing our processor).  For demonstration purposes, we are going to gather information from one of Open|SpeedShop's supported implementations of the message passing interface - the Los Alamos Message Passing Interface (LA-MPI) (<b>Note: </b>The supplied version of LA-MPI was configured with the -enable-debug option). We have provided test binaries that can be utilized for our purposes.
+    <b>Note:</b>
+    If you experience difficulties, please try running the provided reset-live.sh script (~/reset-live.sh).</p>
+	
+	
+	<p>Within the interactive CLI, enter <b><font face="courier">expcreate -f "mpirun -local -np 3 /usr/bin/nbody-mpi" usertime</font></b>. (<b>Note: </b> In this particular case, the double quotes are required).  We should then be greeted with a new focused experiment identifier.  Enter <b><font face="courier">expgo</font></b> to start the focused experiment.</p>
+	
+	<img src="../img/sh08.png"> 
+	<br>
+	<img src="../img/sh09.png"> 
+	
+	<p>Once the experiment has terminated, we can view the collected data through the CLI by entering <b><font face="courier">expdata</font></b>, or we can open the GUI by entering <b><font face="courier">openGui</font></b>.  Other test binaries are located in /usr/bin and are supplied for further exploration.  They are: <i>pi</i> and <i>helloworld-mpi</i>.</p>
+	
+	<img src="../img/sh010.png">
+    <br>
+    <a href="../index.html">Back To Getting Started With Open|SpeedShop</a>

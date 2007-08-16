@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Using Open|SpeedShop&#8482;</title><style type="text/css">
+table.exp {
+	border-width: 0px 0px 0px 0px;
+	border-spacing: 0px;
+	border-style: outset outset outset outset;
+	border-color: gray gray gray gray;
+	border-collapse: collapse;
+	background-color: white;
+	width:80%;
+	height:80%;
+}
+table.exp th {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+table.exp td {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+</style>
+</head>
+
+<body>
+	<center>
+		<img src="../img/OpenSpeedShop_Logo.jpg"> <br>
+		Using Open|SpeedShop&#8482;<br>
+	</center>
+
+<h2>Attaching To a Running Process - pcsamp</h2>
+	
+	<p>Within a terminal, enter <b><font face="courier">openss&#038;</font></b> and hit &#060;Enter&#062;. This will start Open|SpeedShop's graphical interface. We have provided a simple worker program which allows us to eaily demonstrate attaching to a running process (<b>Note:</b>  The "forever" program was compiled with the option to produce debugging information). Now within the terminal window enter <b><font face="courier">forever</font></b> and hit &#060;Enter&#062;. This will start the worker program &quot;forever.&quot; <b>Note:</b>
+    If you experience difficulties, please try running the provided reset-live.sh script (~/reset-live.sh).</p>  
+	
+	<p>Within Open|SpeedShop's GUI, navigate to: File->Wizards->pcSample Wizard.</p>  
+	
+	<img src="../img/sh01.png">
+	
+	<p>Click on the "Next" button.  For this example, let's leave the default sampling rate value at <i>100</i> and click on the "Next" button. Now we want to click on "Attach to one or more processes."  </p>
+	
+	<img src="../img/sh02.png">
+	
+	<p>Find "forever" within the list and select it. </p> 
+	
+	<img src="../img/sh03.png">
+	
+	<p>Now that it is selected, click on "Attach."  Click on the "Finish" button to complete the PC sampling experiment creation process.  The PC sampling window should now appear.</p>
+	
+	
+	<p>Now that the experiment is ready to run, let&#039;s click on the &quot;Run&quot; button to start the experiment. </p>
+      
+	<img src="../img/sh04.png">
+      
+	<p>Let&#039;s go back to the terminal window where we started the &quot;forever&quot; program. At this point, the program may be prompting for a number. Let&#039;s enter <i>2000</i>, for example.</p>
+	 
+	<img src="../img/sh05.png">
+	<p>After the PC sampling experiment has had time to collect some data, we can view the collected data by expanding the process tree within the "ManageProcessPanel" and by double clicking on "localhost pcsamp."  This will then take us to the stats panel, where we can view the collected data. (<b>Note: </b> If no collected data is visible, click on the "Update" button to refresh the stats panel.</p>
+	
+		 
+	<img src="../img/sh06.png">
+	 
+	 <p>Clicking the &quot;Update&quot; button will refresh the stats panel with an updated view of the collected data. As you can see, we are able to extract PC sampling data from the running process.</p>
+	 
+	 <p>If we were curious about source/function call mapping, a simple double click on a given function will take us to the associated lines of code.</p>
+	 
+	<img src="../img/sh07.png">	 
+	 
+	 
+	 <p>Once the &quot;forever&quot; program prompts for another value we can either terminate the running program by entering <b><font face="courier">0</font></b>, or we can continue to collect more PC sampling data by entering a number greater than zero. For our purposes, let&#039;s terminate the running program. If we navigate back to the PC sampling window, we should now see an updated panel with all the PC sampling data collected during the data collection period.
+	</p>
+    <br>
+    <table width="100%">
+        <tr>
+            <td><a href="../index.html">Back To Getting Started With Open|SpeedShop</a></td>
+            <td align="right"><a href="osscli-mpi-usertime.html">Next Tutorial</a></td>
+        </tr>
+        
+    </table>
+    </body>
+    </html>
+    
