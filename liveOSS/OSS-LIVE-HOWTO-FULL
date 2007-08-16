@@ -1,0 +1,535 @@
+//***************************************************************************//
+//                              How To Build An                              //
+//                      Open|SpeedShop Live Distribution                     //
+//                               Creation Notes                              //
+//                                May 21, 2007                               //
+//                                                                           //
+//***************************************************************************//
+
+
+//***************************************************************************//
+//                                Introduction                               //
+//***************************************************************************//
+The following text outlines steps taken in the creation of a specialized live
+Linux distribution.  In particular, the steps taken in creating a live
+distribution which contains pre-configured versions of Open|SpeedShop 
+and LA-MPI.
+
+A Special Thanks To: 
+Scientific Linux Live CD and DVD - http://linux.web.psi.ch/livecd/build.html
+Their build script/setup process was modified in order to incorporate 
+pre-configured versions of Open|SpeedShop and Open MPI into a live linux 
+distribution.
+
+
+//***************************************************************************//
+//                                Base System                                //
+//***************************************************************************//
+-CentOS 4.4 i386
+-Firewall Enabled
+-SELinux Enabled
+-All Optional Packages Installed
+-Fully Upgraded Installation
+
+//***************************************************************************//
+//                              Getting Started                              //
+//                  Preparing The Skeleton Root File System                  //
+//***************************************************************************//
+1. Login as root.
+su
+
+2. Create some directories where we will be building the live distribution.
+   This is assuming that you are using bash.
+LIVE=/scratch/livecd
+mkdir -p $LIVE
+cd $LIVE
+mkdir dev proc sys etc tmp
+
+3. Create some empty files to avoid errors during the installation process.
+touch etc/fstab etc/mtab
+
+4. Mount some virtual file systems.
+mount --bind /dev dev
+mount null -t proc proc
+mount null -t sysfs sys
+
+5. Copy yum configuration files to $LIVE/etc.
+cp -a /etc/yum.conf $LIVE/etc
+cp -a /etc/yum.repos.d $LIVE/etc
+
+   Note: For this particular installation, a modification to the 
+   $LIVE/etc/yum.repos.d/CentOS-Base.repo file is needed.  Replace
+   all instances of $releasever to 4.
+   For Example:
+      name=CentOS-$releasever - Contrib
+      Will be changed to 
+      name=CentOS-4 - Contrib
+
+6. Create directory for rpm transaction lock.
+mkdir -p $LIVE/var/lock/rpm
+
+//***************************************************************************//
+//                   Download And Install Needed Packages                    //
+//***************************************************************************//            
+1.  Use yum to download and install needed packages.
+yum -y -c $LIVE/etc/yum.conf --installroot=$LIVE install yum rootfiles \
+shadow-utils bind-utils gnupg vim-enhanced vixie-cron crontabs passwd which \
+kudzu dhclient pciutils eject alsa-utils mkisofs wget kernel grub kbd \
+system-config-keyboard system-config-display gdm xterm kdeartwork kdebase \
+kdegraphics kdelibs kdemultimedia kdenetwork kdepim kdesdk kdeutils \
+kernel-devel autoconf automake binutils gcc python-devel qt qt-devel make \
+rpm-build e2fsprogs-devel tcsh gcc-g77 libtool tk openssh gcc-c++ rsh \
+openssh-clients firefox evolution emacs sudo sqlite-devel flex flex-devel \
+bison bison-devel byacc cvs elfutils-libelf-devel telnet strace
+
+It's going to be a 400+ Megabyte download.
+
+//***************************************************************************//
+//               GNOME Install (Do not install!) Needs Testing!              //
+//***************************************************************************//
+yum -y -c $LIVE/etc/yum.conf --installroot=$LIVE groupinstall gnome 
+Note: Seems to break the livecd...
+yum -y -c $LIVE/etc/yum.conf --installroot=$LIVE groupinstall gnome-desktop 
+Note: About 145 Megs. Also breaks the install.
+
+//***************************************************************************//
+//                          Enable Shadow Passwords                          //
+//***************************************************************************//
+cd $LIVE
+
+sed -i "s|\*|x|" etc/passwd
+
+sed -i "s|^root::|root:x:|" etc/passwd
+
+cat etc/passwd | cut -d":" -f 1 | while read u; \
+do echo "$u:*:12345:0:99999:1:::"; done >> etc/shadow
+
+chmod 600 etc/shadow
+
+//***************************************************************************//
+//                          More System Configuration                        //
+//                    Preparing For The Chroot Environment                   //
+//***************************************************************************//
+1.  Copy resolv.conf so yum will work in the chroot.
+cp /etc/resolv.conf $LIVE/etc
+
+2.  Copy network configuration file into $LIVE/etc.
+cp /etc/sysconfig/network $LIVE/etc/sysconfig/
+
+3.  Copy some more system configuration files into $LIVE/etc.
+cp /etc/sysconfig/i18n $LIVE/etc/sysconfig
+cp /etc/sysconfig/authconfig $LIVE/etc/sysconfig/
+
+4.  Change the terminal display when you are in the chroot environment.
+echo 'if [ ! -d /proc/1/root ] ; then PS1="[\u@LIVE \W]\\$ " ; fi' \
+>> $LIVE/root/.bashrc
+
+5.  Change into chroot environment.
+/usr/sbin/chroot $LIVE
+
+
+//***************************************************************************//
+//                      Installing squashfs And unionfs                      //
+//***************************************************************************//
+1. Change into chroot's /tmp directory.
+cd /tmp
+
+2.  Get squashfs and unionfs.
+    Note: You may want to find the latest versions of the
+          respective source rpms.  
+          For this particular build, the following were utilized.
+wget ftp://ftp.psi.ch/psi/livecd/SRPMS/squashfs-3.1.2-1.sl4.psi.src.rpm
+wget ftp://ftp.psi.ch/psi/livecd/SRPMS/unionfs-1.1.5-2.sl4.psi.src.rpm
+
+3.  Place the needed spec/source files in the system's respective 
+    default directories.
+rpm -Uvh squashfs-3.1.2-1.sl4.psi.src.rpm
+rpm -Uvh unionfs-1.1.5-2.sl4.psi.src.rpm
+
+4.  Navigate into the system's default spec directory. 
+cd `rpm --eval '%{_specdir}'`
+
+5.  Build the source rpms.
+    Note: You may encounter some dependency errors.  
+          Resolve those dependencies with yum.
+rpmbuild -ba --target <machine hardware name> squashfs.spec
+rpmbuild -ba --target <machine hardware name> unionfs.spec
+    For example:
+    rpmbuild -ba --target i686 squashfs.spec
+    rpmbuild -ba --target i686 unionfs.spec
+
+6.  Navigate into the system's default RPM directory.
+cd `rpm --eval '%{_rpmdir}'`
+cd <machine hardware name>
+    For example: cd i686
+
+7.  Install squashfs/unionfs rpms.
+    Note:  The version strings may differ.
+rpm --install squashfs-3.1.2-1.sl4.psi.i686.rpm \
+kernel-module-squashfs-2.6.9-55.EL-3.1.2-1.sl4.psi.i686.rpm \
+unionfs-1.1.5-2.sl4.psi.i686.rpm \
+kernel-module-unionfs-2.6.9-55.EL-1.1.5-2.sl4.psi.i686.rpm
+
+//***************************************************************************//
+//                           Create /etc/hosts File                          //
+//***************************************************************************//
+1.  Create /etc/hosts file for Open|SpeedShop.
+echo '127.0.0.1 localhost.localdomain localhost' >> /etc/hosts
+
+
+//***************************************************************************//
+//              Installing Open|SpeedShop In Chroot Environment              //
+//***************************************************************************//
+1.  Checkout the latest OpenSpeedShop CVS snapshot in /usr/src/openss.
+    Note: When prompted for a password, hit <Enter>.
+cvs -d:pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss login
+
+cvs -z3 -d:pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss \
+co -P OpenSpeedShop
+
+cvs -z3 -d:pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss \
+co -P OpenSpeedShop_ROOT
+
+2.  Navigate into OpenSpeedShop_ROOT and install the needed Open|SpeedShop 
+    prerequisites.
+    Note: The following outlines a source install of all the prerequisites
+    required to successfully build and install OpenSpeedShop.  If you wish, 
+    you could also use the supplied build script found within
+    OpenSpeedShop_ROOT and build the required RPMs.
+cd OpenSpeedShop_ROOT/SOURCES
+   Note: Each installation step assumes that you are in 
+         OpenSpeedShop_ROOT/SOURCES.
+
+3. Build/Install libdwarf/libunwind.
+tar xzvf libdwarf-x.tar.gz , where x is the provided version.
+cd libdwarf-x
+cd libdwarf
+./configure --prefix=/usr
+make
+make install
+cp dwarf.h /usr/include
+cp libdwarf.h /usr/include
+cp libdwarf.a /usr/lib
+cd ../dwarfdump
+./configure --prefix=/usr
+make
+make install
+
+4. Build/Install libunwind.
+tar xzvf libunwind-x.tar.gz , where x is the provided version.
+cd libunwind-x
+./configure --prefix=/usr
+make
+make install
+
+5. Build/Install papi.
+tar xzvf papi-x.tar.gz , where x is the provided version.
+cd papi-x/src
+./configure --prefix=/usr
+make
+make install
+
+6. Build/Install dyninst.
+   Note: dyninst may be provided as a tarball, in this particular
+   case it was not.
+cd dyninst-x
+PREFIX=/usr Note: Again, assuming that you are using bash. 
+./Build
+
+7. Build/Install dpcl.
+cd dpcl-x , where x is the provided version.
+   Note: An assumption is being made that PREFIX is currently defined to be 
+   /usr
+./Build
+
+//***************************************************************************//
+//                             Installing LA-MPI                             //
+//***************************************************************************//
+1. To allow for source code mapping within OpenSpeedShop, place LA-MPI source 
+   code within /usr/src.
+cd /usr/src
+
+2. Get LA-MPI source.
+wget http://public.lanl.gov/lampi/lampi-1.5.16.tar.gz
+tar xzvf lampi-1.5.16.tar.gz
+cd lampi-1.5.16
+./configure --enable-debug --prefix=/opt/lampi
+make
+make install
+
+//***************************************************************************//
+//                     Building/Installing OpenSpeedShop                     //
+//***************************************************************************//
+   *Note: If an alternate prefix is desired, modification to the 
+          runlast script is required.  
+          Script Location: livecd-2.5.4-OSS/customize
+1. Navigate to the OpenSpeedShop directory.
+cd OpenSpeedShop
+./bootstrap
+./configure --with-lampi=/opt/lampi
+make 
+make install
+
+
+//***************************************************************************//
+//                           Building The Live CD                            //
+//***************************************************************************//
+Warning: Remember that the following must be performed in the chroot 
+         environment. Running the following scripts outside of chroot 
+         will render system unusable.
+
+1. Make a live CD build directory.
+mkdir /build
+cd /build
+
+
+2. Download build scripts from ftp://ftp.psi.ch/psi/livecd/build
+wget ftp://ftp.psi.ch/psi/livecd/build/livecd-2.5.4.tar.gz
+tar xzvf livecd-2.5.4.tar.gz
+cd livecd-2.5.4
+
+//***************************************************************************//
+//                           Script Modifications                            //
+//***************************************************************************//
+1. Modify livecd.conf.
+   Locate KERNEL=2.6.9-55.EL and modify it to reflect your system's active 
+   kernel version. 
+KERNEL=2.6.9-76.EL for example
+   Note: If your system is utilizing an SMP kernel version, omit
+         the appended smp.
+   For Example:
+         $ uname -r
+         2.6.9-55.ELsmp
+   KERNEL=2.6.9-55.EL
+LOCALUSER=sluser -> LOCALUSER=ossuser
+DEFAULT_HOSTNAME=slinux -> DEFAULT_HOSTNAME=localhost
+
+Under '# Define extra boot parameters' add:
+EXTRA_BOOT_OPTIONS="kb=us nopasswd"
+
+
+//***************************************************************************//
+//                         Changing Default User Name                        //
+//***************************************************************************//
+1. Modify customize-livecd.sh
+userdel -r sluser 2>/dev/null -> userdel -r ossuser 2>/dev/null
+
+2. Modify login Within /build/livecd-2.5.4/customize
+LOCALUSER=sluser to LOCALUSER=ossuser
+
+3. Modify runlast Within /build/livecd-2.5.4/customize
+LOCALUSER=sluser to LOCALUSER=ossuser
+DEFAULT_HOSTNAME=slinux to DEFAULT_HOSTNAME=localhost
+
+//***************************************************************************//
+//                  Add Files To LOCALUSER's Home Directory                  //
+//***************************************************************************//
+1. Modify runlast Within /build/livecd-2.5.4/customize
+   Note: I placed all code after:
+### unmute all mixers and set volumes
+if [ -x /usr/bin/set-volume ]; then
+    if [ $NOSOUND ]; then
+        /usr/bin/set-volume 0 > /var/log/set-volume.log 2>&1 &
+    else
+        /usr/bin/set-volume 60 > /var/log/set-volume.log 2>&1 &
+    fi
+fi
+
+### add OSS .rhosts file
+RHOSTS=/root/.rhosts
+echo $DEFAULT_HOSTNAME.localdomain $LOCALUSER  > $RHOSTS
+chmod 644 $RHOSTS
+chown $LOCALUSER $RHOSTS
+chgrp $LOCALUSER $RHOSTS
+[ ! $NOLOCAL ] && cp -a $RHOSTS /home/$LOCALUSER/
+
+### add custom .bashrc file
+BASHRC=/root/.bashrc
+echo "if \[ -f /etc/bashrc \]; then" > $BASHRC
+echo "        . /etc/bashrc" >> $BASHRC
+echo "fi" >> $BASHRC
+echo "OPENSS_MPI_IMPLEMENTATION=lampi" >> $BASHRC
+echo "LD_LIBRARY_PATH=/opt/lampi/lib:/usr/local/lib" >> $BASHRC
+echo "PATH=\$PATH:/opt/lampi/bin" >> $BASHRC
+echo "export PATH LD_LIBRARY_PATH OPENSS_MPI_IMPLEMENTATION" >> $BASHRC
+chmod 644 $RHOSTS
+chown $LOCALUSER $BASHRC
+chgrp $LOCALUSER $BASHRC
+[ ! $NOLOCAL ] && cp -a $BASHRC /home/$LOCALUSER/
+
+### add simple reset script to LOCALUSER's home directory
+RESETLIVE=/root/reset-live.sh
+echo "#!/bin/bash" > $RESETLIVE
+echo "echo Restarting Live CD Resources..." >> $RESETLIVE
+echo "echo All Files In /tmp Will Be Deleted..." >> $RESETLIVE
+echo "sudo /etc/init.d/xinetd stop" >> $RESETLIVE
+echo "sudo rm -rf /tmp/*" >> $RESETLIVE
+echo "sudo /etc/init.d/xinetd start" >> $RESETLIVE
+echo "reset" >> $RESETLIVE
+echo "echo Done..." >> $RESETLIVE
+chmod +x $RESETLIVE
+chown $LOCALUSER $RESETLIVE
+chgrp $LOCALUSER $RESETLIVE
+[ ! $NOLOCAL ] && cp -a $RESETLIVE /home/$LOCALUSER/
+
+//***************************************************************************//
+//                            Modify /etc/sudoers                            //
+//***************************************************************************//
+#ossuser ALL = NOPASSWD: /usr/bin/save-localdata
+ossuser ALL=(ALL) ALL
+
+//***************************************************************************//
+//                      Changing The Script Version Echo                     //
+//***************************************************************************//
+1. In livecd root modify version text file.
+
+//***************************************************************************//
+//                    Changing Default Desktop Background                    //
+//***************************************************************************//
+Change default.png and background.png (1600x1280) in 
+/build/livecd-2.5.4/customize/sl4/
+
+//***************************************************************************//
+//                              Automatic Login                              //
+//***************************************************************************//
+Modify /etc/X11/gdm/gdm.conf to allow for automatic login of ossuser.
+Take a look at gdmsetup and the modfied file it provides within the 
+host machine.
+
+//***************************************************************************//
+//                           Custom Splash Screen                            //
+//***************************************************************************//
+Note: Original Image Size -> 640x160
+
+1. In /build/livecd-2.5.4/linux-live.sl/cd-root/boot locate splash.lss
+2. Convert splash.lss to splashh.ppm
+lss16toppm < splash.lss > splash.ppm
+
+3. Edit splash.ppm with Gimp.
+Note: Make sure to change image mode to indexed (16 colors)
+      image->mode->indexed (16 colors)
+Flatten image
+Note: Open|SpeedShop Logo -> 40px font Nimbus Sans L
+Open -> Light Blue (56a5ea)
+| -> Pure White/Black
+SpeedShop -> Dark Blue (0e35a3)
+Save as gif
+
+4. Convert splash.gif to splash.ppm
+giftopnm < splash.gif > splash.ppm
+
+5. Convert splash.ppm to splash.lss
+   Note: If warnings are present, take a look at:
+         1. Image color depth
+         2. Check if image was flattened
+ppmtolss16 < splash.ppm > splash.lss
+
+
+//***************************************************************************//
+//                          Edit Starting Programs                           //
+//***************************************************************************//
+1. Edit customize/sl/ksmserverrc
+
+[Session: saved at previous logout]
+count=7
+program1=pam-panel-icon
+program2=rhn-applet-gui
+program3=eggcups
+program4=konsole
+program5=krandrtray
+program6=firefox
+program7=kwikdisk
+restartCommand1=pam-panel-icon
+restartCommand2=rhn-applet-gui
+restartCommand3=eggcups
+restartCommand4=konsole
+restartCommand5=krandrtray
+restartCommand6=firefox
+restartCommand7=kwikdisk
+restartStyleHint1=0
+restartStyleHint2=0
+restartStyleHint3=0
+restartStyleHint4=0
+restartStyleHint5=0
+restartStyleHint6=0
+restartStyleHing7=0
+
+//***************************************************************************//
+//                              Building Live CD                             //
+//***************************************************************************//
+./build-livecd.sh -sl4
+
+
+//***************************************************************************//
+//                             Default HTML Page                             //
+//***************************************************************************//
+Take a look at /usr/share/doc/livecd/index.html and livecd-2.5.4/customize/HTML
+Note: Index file within livecd-2.5.4/customize/HTML has redirect in <head>
+
+//***************************************************************************//
+//                                Using Qemu                                 //
+//***************************************************************************//
+Note: If building from source, don't forget the accel modules also.
+      Qemu also has an i386 bin download -> untar in /
+1. Login as root.
+su
+2. Enable kqemu module.
+modprobe kqemu
+
+
+//***************************************************************************//
+//                                Misc. Notes                                //
+//***************************************************************************//
+
+//*********************************************//
+  Showing Default User Name (XDM) Configuration
+//*********************************************//
+Edit usr/share/gdm/themes/Bluecurve/Bluecurve.xml <-Not working for KDE
+Try: /etc/kde/kdm/kdmrc
+
+//***************//
+  OpenMPI Install
+//***************//
+wget http://www.open-mpi.org/software/ompi/v1.2/downloads/openmpi-1.2.2.tar.gz
+
+Building openmpi From Source:
+./configure --prefix=/opt/openmpi
+make all install
+
+Getting Started With OpenMPI:
+In .bashrc
+PATH=$PATH:/opt/openmpi/bin
+LD_LIBRARY_PATH=/opt/openmpi/lib
+
+Default Host File:
+/opt/openmpi/etc/openmpi-default-hostfile
+
+To Compile Parallel Code:
+mpicc first.c -o first
+
+To Run: 
+mpirun -np 2 --hostfile hostfile mpitest
+Note: Where hostfile will look like:
+      pn1140552.lanl.gov slots=2
+      slots=2 (dual-core)
+
+OpenMPI Live:
+error while running job:
+orte_init failed
+orte_pls_base_select
+No rsh was the issue.  Installed rsh.
+
+
+//*********//
+  Test Exes
+//*********//
+Be careful about placement of test executables/source.
+Using Test Code From OpenSpeedShop/tests
+forever.c
+fpetest.c
+
+//******//
+  depmod
+//******//
+Take a look at setting chroot root's path to find depmod.
+It's seems to be failing within build script.
