@@ -29,7 +29,18 @@ mpiotf_view_la_CXXFLAGS =  \
 	-I$(top_srcdir)/libopenss-message 
 
 mpiotf_view_la_LDFLAGS = \
-	-no-undefined -module -avoid-version
+	-no-undefined -module -avoid-version \
+	-L$(top_srcdir)/libopenss-queries \
+	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-cli \
+	-L$(top_srcdir)/libopenss-message 
+	
+mpiotf_view_la_LIBADD = \
+	-lopenss-queries \
+	-lopenss-framework \
+	-lopenss-cli \
+	-lopenss-message 
+	
 
 mpiotf_view_la_SOURCES = \
 	mpiotf_view.cxx
