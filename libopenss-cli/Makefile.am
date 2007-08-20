@@ -49,9 +49,9 @@ libopenss_cli_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
 
 libopenss_cli_la_LIBADD = \
+	-lopenss-message \
 	-lopenss-framework \
 	-lopenss-queries \
-	-lopenss-message \
 	$(LIBLTDL) \
 	@PYTHON_EXTRA_LIBS@ \
 	-lpthread -lutil
