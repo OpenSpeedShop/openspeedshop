@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -29,7 +30,11 @@ io_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
 io_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-framework \
 	-no-undefined -module -avoid-version
+
+io_la_LIBADD = \
+	-lopenss-framework
 
 io_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \

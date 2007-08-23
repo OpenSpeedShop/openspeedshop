@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,31 +20,44 @@
 pkglib_LTLIBRARIES = StatsPanel.la
 
 StatsPanel_la_CXXFLAGS = \
-    -I/usr/include \
-	$(QTLIB_CPPFLAGS) \
-	@PYTHON_CPPFLAGS@ \
-    -I. \
-    -I$(top_srcdir)/libopenss-guiobjects \
-    -I$(top_srcdir)/libopenss-framework \
-    -I$(top_srcdir)/libopenss-queries \
-    -I$(top_srcdir)/libopenss-cli \
-    -I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-cli \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-gui \
+	-I$(top_srcdir)/libopenss-guibase \
+	-I$(top_srcdir)/libopenss-guichart \
+	-I$(top_srcdir)/libopenss-guidialogs \
+	-I$(top_srcdir)/libopenss-guiexprinfo \
 	-I$(top_srcdir)/libopenss-guiimages \
-    -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
-    -I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
-    -I$(top_srcdir)/libopenss-guichart \
-    -I$(top_srcdir)/libopenss-gui \
-    -I$(top_srcdir)/libopenss-guiexprinfo \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guidialogs \
-    -I$(top_srcdir)/libopenss-guibase
+	-I$(top_srcdir)/libopenss-guiobjects \
+	-I$(top_srcdir)/libopenss-guiplugin \
+	-I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-queries \
+	-I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
+	-I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
+	@PYTHON_CPPFLAGS@ \
+	@QTLIB_CPPFLAGS@
 
-StatsPanel_la_LDFLAGS = -fpic --export-dynamic --export-all-symbols -module -avoid-version -ldl
+StatsPanel_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-gui \
+	-L$(top_srcdir)/libopenss-guibase \
+	-L$(top_srcdir)/libopenss-guichart \
+	@QTLIB_LDFLAGS@ \
+	-export-dynamic -export-all-symbols -module -avoid-version
 
-StatsPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -L$(top_srcdir)/libopenss-framework -L$(top_srcdir)/libopenss-queries -lopenss-framework -lopenss-queries -L$(top_srcdir)/plugins/panels/StatsPanel -L$(top_srcdir)/libopenss-guichart -lopenss-guichart -L$(top_srcdir)/libopenss-guidialogs -lopenss-guidialogs
+StatsPanel_la_LIBADD = \
+	-lopenss-gui \
+	-lopenss-guibase \
+	-lopenss-guichart \
+	@QTLIB_LIBS@
 
-moc_StatsPanel.cxx: StatsPanel.hxx
-	-moc -o moc_StatsPanel.cxx StatsPanel.hxx
+StatsPanel_la_SOURCES = \
+	SPChartForm.hxx SPChartForm.cxx moc_SPChartForm.cxx \
+	SPCheckBox.hxx SPCheckBox.cxx moc_SPCheckBox.cxx \
+	SPListViewItem.hxx SPListViewItem.cxx \
+	SPListView.hxx SPListView.cxx \
+	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
+	local_plugin_info.hxx \
+	preference_plugin_info.hxx
 
 moc_SPChartForm.cxx: SPChartForm.hxx
 	-moc -o moc_SPChartForm.cxx SPChartForm.hxx
@@ -51,13 +65,10 @@ moc_SPChartForm.cxx: SPChartForm.hxx
 moc_SPCheckBox.cxx: SPCheckBox.hxx
 	-moc -o moc_SPCheckBox.cxx SPCheckBox.hxx
 
+moc_StatsPanel.cxx: StatsPanel.hxx
+	-moc -o moc_StatsPanel.cxx StatsPanel.hxx
 
-StatsPanel_la_SOURCES = \
-	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
-	SPListViewItem.hxx SPListViewItem.cxx \
-	SPListView.hxx SPListView.cxx \
-	SPChartForm.hxx SPChartForm.cxx moc_SPChartForm.cxx \
-	local_plugin_info.hxx preference_plugin_info.hxx \
-	SPCheckBox.hxx SPCheckBox.cxx moc_SPCheckBox.cxx 
-
-CLEANFILES=moc_StatsPanel.cxx moc_SPChartForm.cxx
+CLEANFILES = \
+	moc_SPChartForm.cxx \
+	moc_SPCheckBox.cxx \
+	moc_StatsPanel.cxx

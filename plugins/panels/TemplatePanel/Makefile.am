@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,24 +20,28 @@
 pkglib_LTLIBRARIES = TemplatePanel.la
 
 TemplatePanel_la_CXXFLAGS = \
-    -I/usr/include \
-	$(QTLIB_CPPFLAGS) \
-    -I. \
-    -I$(top_srcdir)/libopenss-gui \
+	-I$(top_srcdir)/libopenss-gui \
+	-I$(top_srcdir)/libopenss-guibase
 	-I$(top_srcdir)/libopenss-guichart \
 	-I$(top_srcdir)/libopenss-guiobjects \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guibase
+	-I$(top_srcdir)/libopenss-guiplugin \
+	@QTLIB_CPPFLAGS@
 
-TemplatePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+TemplatePanel_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-guibase \
+	@QTLIB_LDFLAGS@ \
+	-export-dynamic -export-all-symbols -module -avoid-version
 
-TemplatePanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
-
-moc_TemplatePanel.cxx: TemplatePanel.hxx
-	-moc -o moc_TemplatePanel.cxx TemplatePanel.hxx
+TemplatePanel_la_LIBADD = \
+	-lopenss-guibase \
+	@QTLIB_LIBS@
 
 TemplatePanel_la_SOURCES = \
 	TemplatePanel.hxx TemplatePanel.cxx moc_TemplatePanel.cxx \
 	local_plugin_info.hxx
 
-CLEANFILES=moc_TemplatePanel.cxx
+moc_TemplatePanel.cxx: TemplatePanel.hxx
+	-moc -o moc_TemplatePanel.cxx TemplatePanel.hxx
+
+CLEANFILES = \
+	moc_TemplatePanel.cxx

@@ -1,5 +1,6 @@
 ################################################################################
-# Copyright (c) 2007 Krell Institute All Rights Reserved.
+# Copyright (c) 2007 Krell Institute. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -18,32 +19,20 @@
 
 pkglib_LTLIBRARIES = mpiotf_view.la
 
-BUILT_SOURCES =
-
-mpiotf_view_la_CXXFLAGS =  \
-	@PYTHON_CPPFLAGS@ \
-	-I$(top_srcdir)/libopenss-queries \
-	-I$(top_srcdir)/libopenss-framework \
+mpiotf_view_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-cli \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-queries \
 	-I$(top_srcdir)/plugins/collectors/mpiotf \
-	-I$(top_srcdir)/libopenss-message 
+	@PYTHON_CPPFLAGS@
 
 mpiotf_view_la_LDFLAGS = \
-	-no-undefined -module -avoid-version \
-	-L$(top_srcdir)/libopenss-queries \
-	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-cli \
-	-L$(top_srcdir)/libopenss-message 
-	
+	-no-undefined -module -avoid-version
+
 mpiotf_view_la_LIBADD = \
-	-lopenss-queries \
-	-lopenss-framework \
-	-lopenss-cli \
-	-lopenss-message 
-	
+	-lopenss-cli
 
 mpiotf_view_la_SOURCES = \
 	mpiotf_view.cxx
-
-SUFFIXES = .x .cxx
-CLEANFILES = $(BUILT_SOURCES)

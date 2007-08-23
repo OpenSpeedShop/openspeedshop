@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -18,32 +19,19 @@
 
 pkglib_LTLIBRARIES = basic_view.la
 
-BUILT_SOURCES =
-
 basic_view_la_CXXFLAGS = \
-	@PYTHON_CPPFLAGS@ \
-	-I$(top_srcdir)/libopenss-queries \
-	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-cli \
-	-I$(top_srcdir)/libopenss-message 
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-queries \
+	@PYTHON_CPPFLAGS@
 
 basic_view_la_LDFLAGS = \
-	-no-undefined \
-	-module \
-	-avoid-version \
-	-L$(top_srcdir)/libopenss-message \
-	-L$(top_srcdir)/libopenss-framework \
-	-L$(top_srcdir)/libopenss-queries \
-	-L$(top_srcdir)/libopenss-cli 
+	-L$(top_srcdir)/libopenss-cli \
+	-no-undefined -module -avoid-version
 
 basic_view_la_LIBADD = \
-	-lopenss-framework \
-	-lopenss-queries \
-	-lopenss-message \
-	-lopenss-cli 
+	-lopenss-cli
 
 basic_view_la_SOURCES = \
 	basic_view.cxx
-
-SUFFIXES = .x .cxx
-CLEANFILES = $(BUILT_SOURCES)

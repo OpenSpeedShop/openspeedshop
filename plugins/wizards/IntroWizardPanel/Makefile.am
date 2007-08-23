@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -16,27 +17,30 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-
 pkglib_LTLIBRARIES = IntroWizardPanel.la
 
 IntroWizardPanel_la_CXXFLAGS = \
-    -I/usr/include \
-    $(QTLIB_CPPFLAGS) \
-    -I. \
-    -I$(top_srcdir)/libopenss-gui \
-    -I$(top_srcdir)/libopenss-guiobjects \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guibase
+	-I$(top_srcdir)/libopenss-gui \
+	-I$(top_srcdir)/libopenss-guibase \
+	-I$(top_srcdir)/libopenss-guiobjects \
+	-I$(top_srcdir)/libopenss-guiplugin \
+	@QTLIB_CPPFLAGS@
 
-IntroWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+IntroWizardPanel_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-guibase \
+	@QTLIB_LDFLAGS@ \
+	-export-dynamic -export-all-symbols -module -avoid-version
 
-IntroWizardPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
-
-moc_IntroWizardPanel.cxx: IntroWizardPanel.hxx
-	-moc -o moc_IntroWizardPanel.cxx IntroWizardPanel.hxx
+IntroWizardPanel_la_LIBADD = \
+	-lopenss-guibase \
+	@QTLIB_LIBS@
 
 IntroWizardPanel_la_SOURCES = \
 	IntroWizardPanel.hxx IntroWizardPanel.cxx moc_IntroWizardPanel.cxx \
 	local_plugin_info.hxx
 
-CLEANFILES=moc_IntroWizardPanel.cxx
+moc_IntroWizardPanel.cxx: IntroWizardPanel.hxx
+	-moc -o moc_IntroWizardPanel.cxx IntroWizardPanel.hxx
+
+CLEANFILES = \
+	moc_IntroWizardPanel.cxx

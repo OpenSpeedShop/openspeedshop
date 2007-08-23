@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,35 +20,46 @@
 pkglib_LTLIBRARIES = CustomizeStatsPanel.la
 
 CustomizeStatsPanel_la_CXXFLAGS = \
-    -I/usr/include \
-     $(QTLIB_CPPFLAGS) \
-	@PYTHON_CPPFLAGS@ \
-    -I. \
-    -I$(top_srcdir) \
-    -I$(top_srcdir)/libopenss-framework \
-    -I$(top_srcdir)/libopenss-gui \
-	-I$(top_srcdir)/libopenss-queries \
+	-I$(top_srcdir) \
 	-I$(top_srcdir)/libopenss-cli \
-	-I$(top_srcdir)/libopenss-message \
-	-I$(top_srcdir)/libopenss-guiobjects \
-	-I$(top_srcdir)/libopenss-guiimages \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-gui \
+	-I$(top_srcdir)/libopenss-guibase \
 	-I$(top_srcdir)/libopenss-guidialogs \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guibase \
-    -I$(top_srcdir)/plugins/panels/ManageProcessesPanel
+	-I$(top_srcdir)/libopenss-guiimages \
+	-I$(top_srcdir)/libopenss-guiobjects \
+	-I$(top_srcdir)/libopenss-guiplugin \
+	-I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-queries \
+	-I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
+	@PYTHON_CPPFLAGS@ \
+	@QTLIB_CPPFLAGS@
 
-CustomizeStatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+CustomizeStatsPanel_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-guibase \
+	@QTLIB_LDFLAGS@ \
+	-export-dynamic -export-all-symbols -module -avoid-version
 
-CustomizeStatsPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
+CustomizeStatsPanel_la_LIBADD = \
+	-lopenss-framework \
+	-lopenss-guibase \
+	@QTLIB_LIBS@
 
-moc_CustomizeStatsPanel.cxx: CustomizeStatsPanel.hxx
-	-moc -o moc_CustomizeStatsPanel.cxx CustomizeStatsPanel.hxx
-
-moc_CustomizeClass.cxx: CustomizeClass.hxx
-	-moc -o moc_CustomizeClass.cxx CustomizeClass.hxx
-
-moc_CompareSet.cxx: CompareSet.hxx
-	-moc -o moc_CompareSet.cxx CompareSet.hxx
+CustomizeStatsPanel_la_SOURCES = \
+	ColumnSet.hxx ColumnSet.cxx moc_ColumnSet.cxx \
+	CompareProcessesDialog.hxx CompareProcessesDialog.cxx \
+		moc_CompareProcessesDialog.cxx \
+	CompareSet.hxx CompareSet.cxx moc_CompareSet.cxx \
+	CustomizeClass.hxx CustomizeClass.cxx moc_CustomizeClass.cxx \
+	CustomizeStatsPanel.hxx CustomizeStatsPanel.cxx \
+		moc_CustomizeStatsPanel.cxx \
+	$(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListViewItem.hxx \
+	$(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListViewItem.cxx \
+	$(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx \
+	$(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.cxx \
+		moc_MPListView.cxx \
+	local_plugin_info.hxx
 
 moc_ColumnSet.cxx: ColumnSet.hxx
 	-moc -o moc_ColumnSet.cxx ColumnSet.hxx
@@ -55,18 +67,22 @@ moc_ColumnSet.cxx: ColumnSet.hxx
 moc_CompareProcessesDialog.cxx: CompareProcessesDialog.hxx
 	-moc -o moc_CompareProcessesDialog.cxx CompareProcessesDialog.hxx
 
+moc_CompareSet.cxx: CompareSet.hxx
+	-moc -o moc_CompareSet.cxx CompareSet.hxx
+
+moc_CustomizeClass.cxx: CustomizeClass.hxx
+	-moc -o moc_CustomizeClass.cxx CustomizeClass.hxx
+
+moc_CustomizeStatsPanel.cxx: CustomizeStatsPanel.hxx
+	-moc -o moc_CustomizeStatsPanel.cxx CustomizeStatsPanel.hxx
+
 moc_MPListView.cxx: $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx
 	-moc -o moc_MPListView.cxx $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx
 
-
-CustomizeStatsPanel_la_SOURCES = \
-	CustomizeStatsPanel.hxx CustomizeStatsPanel.cxx moc_CustomizeStatsPanel.cxx \
-	CustomizeClass.hxx CustomizeClass.cxx moc_CustomizeClass.cxx \
-	CompareSet.hxx CompareSet.cxx moc_CompareSet.cxx \
-	ColumnSet.hxx ColumnSet.cxx moc_ColumnSet.cxx \
-	CompareProcessesDialog.hxx CompareProcessesDialog.cxx moc_CompareProcessesDialog.cxx \
-	$(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListViewItem.hxx $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListViewItem.cxx \
-	$(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.cxx moc_MPListView.cxx \
-	local_plugin_info.hxx
-
-CLEANFILES=moc_CustomizeStatsPanel.cxx moc_CustomizeClass.cxx moc_CompareSet.cxx moc_ColumnSet.cxx moc_MPListView.cxx  moc_CompareProcessesDialog.cxx
+CLEANFILES = \
+	moc_ColumnSet.cxx \
+	moc_CompareProcessesDialog.cxx \
+	moc_CompareSet.cxx \
+	moc_CustomizeClass.cxx \
+	moc_CustomizeStatsPanel.cxx \
+	moc_MPListView.cxx

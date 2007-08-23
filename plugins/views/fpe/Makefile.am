@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -18,21 +19,20 @@
 
 pkglib_LTLIBRARIES = fpe_view.la
 
-BUILT_SOURCES =
-
 fpe_view_la_CXXFLAGS = \
-	@PYTHON_CPPFLAGS@ \
-	-I$(top_srcdir)/libopenss-queries \
-	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-cli \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-queries \
 	-I$(top_srcdir)/plugins/collectors/fpe \
-	-I$(top_srcdir)/libopenss-message 
+	@PYTHON_CPPFLAGS@
 
 fpe_view_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-cli \
 	-no-undefined -module -avoid-version
+
+fpe_view_la_LIBADD = \
+	-lopenss-cli
 
 fpe_view_la_SOURCES = \
 	fpe_view.cxx
-
-SUFFIXES = .x .cxx
-CLEANFILES = $(BUILT_SOURCES)

@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -29,7 +30,11 @@ fpe_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
 fpe_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-framework \
 	-no-undefined -module -avoid-version
+
+fpe_la_LIBADD = \
+	-lopenss-framework
 
 fpe_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
@@ -43,14 +48,14 @@ fpe_rt_la_CFLAGS = \
 
 fpe_rt_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
-	@LIBUNWIND_LDFLAGS@ \
 	@BINUTILS_LDFLAGS@ \
+	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 fpe_rt_la_LIBADD = \
 	-lopenss-runtime \
-	@LIBUNWIND_LIBS@ \
 	@BINUTILS_LIBS@ \
+	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt -lm
 
 fpe_rt_la_SOURCES = \

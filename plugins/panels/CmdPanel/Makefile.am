@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,28 +20,27 @@
 pkglib_LTLIBRARIES = CmdPanel.la
 
 CmdPanel_la_CXXFLAGS = \
-    -I/usr/include \
-    $(QTLIB_CPPFLAGS) \
-	@PYTHON_CPPFLAGS@ \
-    -I. \
-	-I$(top_srcdir)/libopenss-guiobjects \
-	-I$(top_srcdir)/libopenss-framework \
-	-I$(top_srcdir)/libopenss-queries \
 	-I$(top_srcdir)/libopenss-cli \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-gui \
+	-I$(top_srcdir)/libopenss-guibase \
+	-I$(top_srcdir)/libopenss-guiobjects \
+	-I$(top_srcdir)/libopenss-guiplugin \
 	-I$(top_srcdir)/libopenss-message \
-    -I$(top_srcdir)/libopenss-gui \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guibase
+	-I$(top_srcdir)/libopenss-queries \
+	@PYTHON_CPPFLAGS@ \
+	@QTLIB_CPPFLAGS@
 
-CmdPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version 
+CmdPanel_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-cli \
+	-L$(top_srcdir)/libopenss-guibase \
+	@QTLIB_LDFLAGS@ \
+	-export-dynamic -export-all-symbols -module -avoid-version 
 
-CmdPanel_la_LIBADD =  $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
-
-moc_CmdPanel.cxx: CmdPanel.hxx
-	-moc -o moc_CmdPanel.cxx CmdPanel.hxx
-
-moc_CPTextEdit.cxx: CPTextEdit.hxx
-	-moc -o moc_CPTextEdit.cxx CPTextEdit.hxx
+CmdPanel_la_LIBADD = \
+	-lopenss-cli \
+	-lopenss-guibase \
+	@QTLIB_LIBS@
 
 CmdPanel_la_SOURCES = \
 	CmdPanel.hxx CmdPanel.cxx moc_CmdPanel.cxx \
@@ -48,4 +48,12 @@ CmdPanel_la_SOURCES = \
 	KeyEventFilter.hxx KeyEventFilter.cxx \
 	local_plugin_info.hxx
 
-CLEANFILES=moc_CmdPanel.cxx moc_SPTextEdit.cxx
+moc_CmdPanel.cxx: CmdPanel.hxx
+	-moc -o moc_CmdPanel.cxx CmdPanel.hxx
+
+moc_CPTextEdit.cxx: CPTextEdit.hxx
+	-moc -o moc_CPTextEdit.cxx CPTextEdit.hxx
+
+CLEANFILES = \
+	moc_CmdPanel.cxx \
+	moc_SPTextEdit.cxx

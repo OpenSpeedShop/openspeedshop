@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,34 +20,36 @@
 pkglib_LTLIBRARIES = pcSampleWizardPanel.la
 
 pcSampleWizardPanel_la_CXXFLAGS = \
-    -I/usr/include \
-	$(QTLIB_CPPFLAGS) \
+	-I$(top_srcdir)/libopenss-cli \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-gui \
+	-I$(top_srcdir)/libopenss-guibase \
+	-I$(top_srcdir)/libopenss-guidialogs \
+	-I$(top_srcdir)/libopenss-guiimages \
+	-I$(top_srcdir)/libopenss-guiobjects \
+	-I$(top_srcdir)/libopenss-guiplugin \
+	-I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-queries \
 	@PYTHON_CPPFLAGS@ \
-    -I. \
-    -I$(top_srcdir)/libopenss-gui \
-    -I$(top_srcdir)/libopenss-guiimages \
-    -I$(top_srcdir)/libopenss-guiobjects \
-    -I$(top_srcdir)/libopenss-framework \
-    -I$(top_srcdir)/libopenss-queries \
-    -I$(top_srcdir)/libopenss-cli \
-    -I$(top_srcdir)/libopenss-message \
-    -I$(top_srcdir)/libopenss-guidialogs \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guibase
+	@QTLIB_CPPFLAGS@
 
-pcSampleWizardPanel_la_LDFLAGS = --export-dynamic \
-	--export-all-symbols \
-	-module -avoid-version \
-	-L$(top_srcdir)/libopenss-framework
+pcSampleWizardPanel_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-guibase \
+	@QTLIB_LDFLAGS@ \
+	-export-dynamic -export-all-symbols -module -avoid-version
 
-pcSampleWizardPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -lopenss-framework
+pcSampleWizardPanel_la_LIBADD = \
+	-lopenss-guibase \
+	@QTLIB_LIBS@
+
+pcSampleWizardPanel_la_SOURCES = \
+	pcSampleWizardPanel.hxx pcSampleWizardPanel.cxx \
+		moc_pcSampleWizardPanel.cxx \
+	pcSampleDescription.hxx \
+	local_plugin_info.hxx
 
 moc_pcSampleWizardPanel.cxx: pcSampleWizardPanel.hxx
 	-moc -o moc_pcSampleWizardPanel.cxx pcSampleWizardPanel.hxx
 
-pcSampleWizardPanel_la_SOURCES = \
-	pcSampleWizardPanel.hxx pcSampleWizardPanel.cxx \
-    moc_pcSampleWizardPanel.cxx pcSampleDescription.hxx \
-	local_plugin_info.hxx
-
-CLEANFILES=moc_pcSampleWizardPanel.cxx
+CLEANFILES = \
+	moc_pcSampleWizardPanel.cxx

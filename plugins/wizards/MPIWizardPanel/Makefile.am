@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,34 +20,35 @@
 pkglib_LTLIBRARIES = MPIWizardPanel.la
 
 MPIWizardPanel_la_CXXFLAGS = \
-    -I/usr/include \
-	$(QTLIB_CPPFLAGS) \
+	-I$(top_srcdir)/libopenss-cli \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-gui \
+	-I$(top_srcdir)/libopenss-guibase \
+	-I$(top_srcdir)/libopenss-guidialogs \
+	-I$(top_srcdir)/libopenss-guiimages \
+	-I$(top_srcdir)/libopenss-guiobjects \
+	-I$(top_srcdir)/libopenss-guiplugin \
+	-I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-queries \
 	@PYTHON_CPPFLAGS@ \
-    -I. \
-    -I$(top_srcdir)/libopenss-gui \
-    -I$(top_srcdir)/libopenss-guiimages \
-    -I$(top_srcdir)/libopenss-guiobjects \
-    -I$(top_srcdir)/libopenss-framework \
-    -I$(top_srcdir)/libopenss-queries \
-    -I$(top_srcdir)/libopenss-cli \
-    -I$(top_srcdir)/libopenss-message \
-    -I$(top_srcdir)/libopenss-guidialogs \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guibase
+	@QTLIB_CPPFLAGS@
 
-MPIWizardPanel_la_LDFLAGS = --export-dynamic \
-	--export-all-symbols \
-	-module -avoid-version \
-	-L$(top_srcdir)/libopenss-framework
+MPIWizardPanel_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-guibase \
+	@QTLIB_LDFLAGS@ \
+	-export-dynamic -export-all-symbols -module -avoid-version
 
-MPIWizardPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -lopenss-framework
+MPIWizardPanel_la_LIBADD = \
+	-lopenss-guibase \
+	@QTLIB_LIBS@
+
+MPIWizardPanel_la_SOURCES = \
+	MPIWizardPanel.hxx MPIWizardPanel.cxx moc_MPIWizardPanel.cxx \
+	MPIDescription.hxx \
+	local_plugin_info.hxx
 
 moc_MPIWizardPanel.cxx: MPIWizardPanel.hxx
 	-moc -o moc_MPIWizardPanel.cxx MPIWizardPanel.hxx
 
-MPIWizardPanel_la_SOURCES = \
-	MPIWizardPanel.hxx MPIWizardPanel.cxx \
-    moc_MPIWizardPanel.cxx MPIDescription.hxx \
-	local_plugin_info.hxx
-
-CLEANFILES=moc_MPIWizardPanel.cxx
+CLEANFILES = \
+	moc_MPIWizardPanel.cxx

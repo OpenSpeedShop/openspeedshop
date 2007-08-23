@@ -2963,7 +2963,6 @@ PanelContainer::printPanels(char *buffer)
   }
 }
 
-#include <qobjcoll.h>
 #include <qobject.h>
 /*! Traverse the PanelContainer tree dumping out the information about 
     all known PanelContainers and Panels. */

@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,35 +20,37 @@
 pkglib_LTLIBRARIES = HW_CounterWizardPanel.la
 
 HW_CounterWizardPanel_la_CXXFLAGS = \
-	$(PAPI_CPPFLAGS) \
-	$(QTLIB_CPPFLAGS) \
-    -I/usr/include \
+	-I$(top_srcdir)/libopenss-cli \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-gui \
+	-I$(top_srcdir)/libopenss-guibase \
+	-I$(top_srcdir)/libopenss-guidialogs \
+	-I$(top_srcdir)/libopenss-guiimages \
+	-I$(top_srcdir)/libopenss-guiobjects \
+	-I$(top_srcdir)/libopenss-guiplugin \
+	-I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-queries \
+	@PAPI_CPPFLAGS@ \
 	@PYTHON_CPPFLAGS@ \
-    -I. \
-    -I$(top_srcdir)/libopenss-gui \
-    -I$(top_srcdir)/libopenss-guiimages \
-    -I$(top_srcdir)/libopenss-guiobjects \
-    -I$(top_srcdir)/libopenss-framework \
-    -I$(top_srcdir)/libopenss-queries \
-    -I$(top_srcdir)/libopenss-cli \
-    -I$(top_srcdir)/libopenss-message \
-    -I$(top_srcdir)/libopenss-guidialogs \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guibase
+	@QTLIB_CPPFLAGS@
 
-HW_CounterWizardPanel_la_LDFLAGS = --export-dynamic \
-	--export-all-symbols \
-	-module -avoid-version \
-	-L$(top_srcdir)/libopenss-framework
+HW_CounterWizardPanel_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-guibase \
+	@QTLIB_LDFLAGS@ \
+	-export-dynamic -export-all-symbols -module -avoid-version
 
-HW_CounterWizardPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -lopenss-framework
+HW_CounterWizardPanel_la_LIBADD = \
+	-lopenss-guibase \
+	@QTLIB_LIBS@
+
+HW_CounterWizardPanel_la_SOURCES = \
+	HW_CounterWizardPanel.hxx HW_CounterWizardPanel.cxx \
+		moc_HW_CounterWizardPanel.cxx \
+	HW_CounterDescription.hxx \
+	local_plugin_info.hxx
 
 moc_HW_CounterWizardPanel.cxx: HW_CounterWizardPanel.hxx
 	-moc -o moc_HW_CounterWizardPanel.cxx HW_CounterWizardPanel.hxx
 
-HW_CounterWizardPanel_la_SOURCES = \
-	HW_CounterWizardPanel.hxx HW_CounterWizardPanel.cxx \
-    moc_HW_CounterWizardPanel.cxx HW_CounterDescription.hxx \
-	local_plugin_info.hxx
-
-CLEANFILES=moc_HW_CounterWizardPanel.cxx
+CLEANFILES = \
+	moc_HW_CounterWizardPanel.cxx

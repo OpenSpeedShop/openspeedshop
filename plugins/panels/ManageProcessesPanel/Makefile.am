@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,41 +20,51 @@
 pkglib_LTLIBRARIES = ManageProcessesPanel.la
 
 ManageProcessesPanel_la_CXXFLAGS = \
-    -I/usr/include \
-     $(QTLIB_CPPFLAGS) \
-	@PYTHON_CPPFLAGS@ \
-    -I. \
-    -I$(top_srcdir) \
-    -I$(top_srcdir)/libopenss-framework \
-    -I$(top_srcdir)/libopenss-gui \
-	-I$(top_srcdir)/libopenss-queries \
+	-I$(top_srcdir) \
 	-I$(top_srcdir)/libopenss-cli \
-	-I$(top_srcdir)/libopenss-message \
-	-I$(top_srcdir)/libopenss-guiobjects \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-gui \
+	-I$(top_srcdir)/libopenss-guibase \
 	-I$(top_srcdir)/libopenss-guidialogs \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/plugins/panels/CustomizeStatsPanel \
-    -I$(top_srcdir)/libopenss-guibase
+	-I$(top_srcdir)/libopenss-guiobjects \
+	-I$(top_srcdir)/libopenss-guiplugin \
+	-I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-queries \
+	-I$(top_srcdir)/plugins/panels/CustomizeStatsPanel \
+	@PYTHON_CPPFLAGS@ \
+	@QTLIB_CPPFLAGS@
 
-ManageProcessesPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+ManageProcessesPanel_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-guibase \
+	@QTLIB_LDFLAGS@ \
+	-export-dynamic -export-all-symbols -module -avoid-version
 
-ManageProcessesPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
+ManageProcessesPanel_la_LIBADD = \
+	-lopenss-framework \
+	-lopenss-guibase \
+	@QTLIB_LIBS@
 
-moc_ManageProcessesPanel.cxx: ManageProcessesPanel.hxx
-	-moc -o moc_ManageProcessesPanel.cxx ManageProcessesPanel.hxx
+ManageProcessesPanel_la_SOURCES = \
+	ManageCollectorsClass.hxx ManageCollectorsClass.cxx \
+		moc_ManageCollectorsClass.cxx \
+	ManageProcessesPanel.hxx ManageProcessesPanel.cxx \
+		moc_ManageProcessesPanel.cxx \
+	MPListViewItem.hxx MPListViewItem.cxx \
+	MPListView.hxx MPListView.cxx moc_MPListView.cxx \
+	local_plugin_info.hxx \
+	preference_plugin_info.hxx
 
 moc_ManageCollectorsClass.cxx: ManageCollectorsClass.hxx
 	-moc -o moc_ManageCollectorsClass.cxx ManageCollectorsClass.hxx
 
+moc_ManageProcessesPanel.cxx: ManageProcessesPanel.hxx
+	-moc -o moc_ManageProcessesPanel.cxx ManageProcessesPanel.hxx
+
 moc_MPListView.cxx: MPListView.hxx
 	-moc -o moc_MPListView.cxx MPListView.hxx
 
-
-ManageProcessesPanel_la_SOURCES = \
-	ManageProcessesPanel.hxx ManageProcessesPanel.cxx moc_ManageProcessesPanel.cxx \
-	ManageCollectorsClass.hxx ManageCollectorsClass.cxx moc_ManageCollectorsClass.cxx \
-	MPListViewItem.hxx MPListViewItem.cxx \
-	MPListView.hxx MPListView.cxx moc_MPListView.cxx \
-	local_plugin_info.hxx preference_plugin_info.hxx
-
-CLEANFILES=moc_ManageProcessesPanel.cxx
+CLEANFILES = \
+	moc_ManageCollectorsPanel.cxx \
+	moc_ManageProcessesPanel.cxx \
+	moc_MPListView.cxx

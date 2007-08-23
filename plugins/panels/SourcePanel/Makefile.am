@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,40 +20,50 @@
 pkglib_LTLIBRARIES = SourcePanel.la
 
 SourcePanel_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-cli \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-gui \
+	-I$(top_srcdir)/libopenss-guibase \
 	-I$(top_srcdir)/libopenss-guiobjects \
-    -I/usr/include \
-    $(QTLIB_CPPFLAGS) \
+	-I$(top_srcdir)/libopenss-guiplugin \
+	-I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-queries \
 	@PYTHON_CPPFLAGS@ \
-    -I. \
-    -I$(top_srcdir)/libopenss-queries \
-    -I$(top_srcdir)/libopenss-cli \
-    -I$(top_srcdir)/libopenss-message \
-    -I$(top_srcdir)/libopenss-gui \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-framework \
-    -I$(top_srcdir)/libopenss-guibase
+	@QTLIB_CPPFLAGS@
 
-SourcePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+SourcePanel_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-guibase \
+	@QTLIB_LDFLAGS@ \
+	-export-dynamic -export-all-symbols -module -avoid-version
 
-SourcePanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
+SourcePanel_la_LIBADD = \
+	-lopenss-framework \
+	-lopenss-guibase \
+	@QTLIB_LIBS@
 
-moc_SPTextEdit.cxx: SPTextEdit.hxx
-	-moc -o moc_SPTextEdit.cxx SPTextEdit.hxx
+SourcePanel_la_SOURCES = \
+	SourcePanel.hxx SourcePanel.cxx moc_SourcePanel.cxx \
+	SPCanvasForm.hxx SPCanvasForm.cxx moc_SPCanvasForm.cxx \
+	SPCanvasView.hxx SPCanvasView.cxx moc_SPCanvasView.cxx \
+	SPTextEdit.hxx SPTextEdit.cxx moc_SPTextEdit.cxx \
+	local_plugin_info.hxx \
+	preference_plugin_info.hxx
 
 moc_SourcePanel.cxx: SourcePanel.hxx
 	-moc -o moc_SourcePanel.cxx SourcePanel.hxx
 
-moc_SPCanvasView.cxx: SPCanvasView.hxx
-	-moc -o moc_SPCanvasView.cxx SPCanvasView.hxx
-
 moc_SPCanvasForm.cxx: SPCanvasForm.hxx
 	-moc -o moc_SPCanvasForm.cxx SPCanvasForm.hxx
 
-SourcePanel_la_SOURCES = \
-    SPCanvasForm.hxx SPCanvasForm.cxx moc_SPCanvasForm.cxx \
-    SPCanvasView.hxx SPCanvasView.cxx moc_SPCanvasView.cxx \
-    SPTextEdit.hxx SPTextEdit.cxx moc_SPTextEdit.cxx \
-	SourcePanel.hxx SourcePanel.cxx moc_SourcePanel.cxx \
-	local_plugin_info.hxx preference_plugin_info.hxx
+moc_SPCanvasView.cxx: SPCanvasView.hxx
+	-moc -o moc_SPCanvasView.cxx SPCanvasView.hxx
 
-CLEANFILES=moc_SPTextEdit.cxx moc_SourcePanel.cxx moc_SPCanvasView.cxx moc_SPCanvasForm.cxx
+moc_SPTextEdit.cxx: SPTextEdit.hxx
+	-moc -o moc_SPTextEdit.cxx SPTextEdit.hxx
+
+CLEANFILES = \
+	moc_SourcePanel.cxx \
+	moc_SPCanvasForm.cxx \
+	moc_SPCanvasView.cxx \
+	moc_SPTextEdit.cxx

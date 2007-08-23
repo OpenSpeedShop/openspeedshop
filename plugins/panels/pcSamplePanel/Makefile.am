@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,38 +20,32 @@
 pkglib_LTLIBRARIES = pcSamplePanel.la
 
 pcSamplePanel_la_CXXFLAGS = \
-	-c -LANG:std -fpic \
-    -I/usr/include \
-	$(QTLIB_CPPFLAGS) \
-	@PYTHON_CPPFLAGS@ \
-	-I. \
+	-I$(top_srcdir)/libopenss-cli \
 	-I$(top_srcdir)/libopenss-framework \
-    -I$(top_srcdir)/libopenss-queries \
-    -I$(top_srcdir)/libopenss-cli \
-    -I$(top_srcdir)/libopenss-message \
-    -I$(top_srcdir)/libopenss-gui \
-    -I$(top_srcdir)/libopenss-guiimages \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guiobjects \
-    -I$(top_srcdir)/libopenss-guidialogs \
-    -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
-    -I$(top_srcdir)/plugins/panels/SourcePanel \
-    -I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
-    -I$(top_srcdir)/libopenss-guibase
+	-I$(top_srcdir)/libopenss-gui \
+	-I$(top_srcdir)/libopenss-guibase \
+	-I$(top_srcdir)/libopenss-guidialogs \
+	-I$(top_srcdir)/libopenss-guiimages \
+	-I$(top_srcdir)/libopenss-guiobjects \
+	-I$(top_srcdir)/libopenss-guiplugin \
+	-I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-queries \
+	-I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
+	-I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
+	-I$(top_srcdir)/plugins/panels/SourcePanel \
+	@PYTHON_CPPFLAGS@ \
+	@QTLIB_CPPFLAGS@
 
 pcSamplePanel_la_LDFLAGS = \
-	-fpic \
-	--export-dynamic \
-	--export-all-symbols \
-	-module \
-	-avoid-version \
-	-L$(top_srcdir)/libopenss-framework \
-	-L$(top_srcdir)/libopenss-guidialogs \
+	-L$(top_srcdir)/libopenss-guibase \
 	-L$(top_srcdir)/plugins/panels/CustomExperimentPanel \
-	$(QTLIB_LIBS) $(QTLIB_LDFLAGS) \
-	-ldl
+	@QTLIB_LDFLAGS@ \
+	-export-dynamic -export-all-symbols -module -avoid-version
 
-pcSamplePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs  -lopenss-CustomExperimentPanel
+pcSamplePanel_la_LIBADD = \
+	-lopenss-guibase \
+	-lopenss-CustomExperimentPanel \
+	@QTLIB_LIBS@
 
 pcSamplePanel_la_SOURCES = \
 	pcSamplePanel.hxx pcSamplePanel.cxx \
