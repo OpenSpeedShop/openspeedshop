@@ -31,8 +31,16 @@ int outputOTF = 0;
 int onlyOutputOTF = 0;
 
 int vt_enter_user_called = 0;
-int vt_mpi_notrace = 0;
+
+/* initialized once from environment variable */
+int vt_mpitrace = 1;
+
+/* changed with every TRACE_ON/TRACE_OFF */
+int vt_mpi_trace_is_on = 1;
+
 #include "vt_openss.h"
+
+int debug_trace = 0;
 
 /** Number of overhead frames in each stack frame to be skipped. */
 #if defined(__linux) && defined(__ia64)
@@ -116,8 +124,10 @@ static void mpit_send_events()
  */
 void mpit_start_event(mpit_event* event)
 {
-//    fprintf(stderr, "mpit_start_event, entered for tls.header.thread=%d\n", tls.header.thread);
-//    fflush(stderr);
+if (debug_trace) {
+    fprintf(stderr, "mpit_start_event, entered\n");
+    fflush(stderr);
+}
 
     /* Increment the MPI function wrapper nesting depth */
     ++tls.nesting_depth;
@@ -148,11 +158,11 @@ void mpit_record_event(const mpit_event* event, uint64_t function, char * name_s
     unsigned stacktrace_size = 0;
     unsigned entry, start, i;
 
-#if 0
-    fprintf(stderr, "mpit_record_event, entered for tls.header.thread=%d\n", tls.header.thread);
+if (debug_trace) {
+    fprintf(stderr, "mpit_record_event, entered\n");
     fprintf(stderr, "mpit_record_event, function=0x%x, name_string=%s\n", function, name_string);
     fflush(stderr);
-#endif
+}
 
     /* Decrement the MPI function wrapper nesting depth */
     --tls.nesting_depth;
@@ -292,10 +302,10 @@ int mpiotf_openss_vt_init()
   uint64_t time;
 
   /* vampirtrace code start */
-#if 0
-  fprintf(stderr, "mpiotf_openss_vt_init called, tls.header.thread=%d, IS_TRACE_ON = %d \n", tls.header.thread, IS_TRACE_ON);
+if (debug_trace) {
+  fprintf(stderr, "mpiotf_openss_vt_init called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
   fflush(stderr);
-#endif
+}
 
   if (IS_TRACE_ON) {
 
@@ -304,7 +314,15 @@ int mpiotf_openss_vt_init()
       /* first event?
          -> initialize VT and enter dummy function 'user' */
       if (!vt_open_called) {
+        if (debug_trace) {
+          fprintf(stderr, "mpiotf_openss_vt_init called, calling vt_open() \n");
+          fflush(stderr);
+        }
         vt_open();
+        if (debug_trace) {
+          fprintf(stderr, "mpiotf_openss_vt_init called, returned from vt_open() \n");
+          fflush(stderr);
+        }
         time = vt_pform_wtime();
         vt_enter_user(&time);
         vt_enter_user_called = 1;
@@ -316,25 +334,25 @@ int mpiotf_openss_vt_init()
       retval = PMPI_Init(NULL, NULL);
 */
 
-#if 0
+if (debug_trace) {
       fprintf(stderr, "mpiotf_openss_vt_init calling vt_mpi_init\n");
       fflush(stderr);
-#endif
+}
 
       /* initialize mpi event handling */
       vt_mpi_init();
 
-#if 0
+if (debug_trace) {
       fprintf(stderr, "mpiotf_openss_vt_init returned from calling vt_mpi_init\n");
       fflush(stderr);
-#endif
+}
 
       PMPI_Comm_size(MPI_COMM_WORLD, &numprocs);
 
-#if 0
+if (debug_trace) {
       fprintf(stderr, "mpiotf_openss_vt_init returned from calling PMPI_Comm_size, numprocs=%d\n", numprocs);
       fflush(stderr);
-#endif
+}
 
       /* define communicator for MPI_COMM_WORLD */
       grpv = (unsigned char*)calloc(numprocs / 8 + (numprocs % 8 ? 1 : 0), sizeof(unsigned char));
@@ -344,10 +362,10 @@ int mpiotf_openss_vt_init()
 
       vt_def_mpi_comm(0, numprocs / 8 + (numprocs % 8 ? 1 : 0), grpv);
 
-#if 0
+if (debug_trace) {
       fprintf(stderr, "mpiotf_openss_vt_init returned from calling vt_def_mpi_comm\n");
       fflush(stderr);
-#endif
+}
 
 
       free(grpv);
@@ -355,10 +373,10 @@ int mpiotf_openss_vt_init()
       /* initialize communicator management */
       vt_comm_init();
 
-#if 0
+if (debug_trace) {
       fprintf(stderr, "mpiotf_openss_vt_init returned from calling vt_comm_init\n");
       fflush(stderr);
-#endif
+}
 
 
       time = vt_pform_wtime();
@@ -375,10 +393,10 @@ int mpiotf_openss_vt_init()
       /* initialize mpi event handling */
       vt_mpi_init();
 
-#if 0
+if (debug_trace) {
       fprintf(stderr, "mpiotf_openss_vt_init ELSE returned from calling vt_mpi_init\n");
       fflush(stderr);
-#endif
+}
 
       PMPI_Comm_size(MPI_COMM_WORLD, &numprocs);
 
@@ -398,10 +416,10 @@ int mpiotf_openss_vt_init()
 
     /* vampirtrace code end */
 
-#if 0
-      fprintf(stderr, "mpiotf_openss_vt_init exit for tls.header.thread=%d, IS_TRACE_ON = %d \n", tls.header.thread, IS_TRACE_ON);
+if (debug_trace) {
+      fprintf(stderr, "mpiotf_openss_vt_init exit IS_TRACE_ON = %d \n", IS_TRACE_ON);
       fflush(stderr);
-#endif
+}
 
       return retval;
 }
@@ -428,10 +446,10 @@ void mpiotf_start_tracing(const char* arguments)
     /* Initialize the MPI function wrapper nesting depth */
     tls.nesting_depth = 0;
 
-#if 0
-    fprintf(stderr, "mpiotf_start_tracing, entered for args.thread=%d\n", args.thread);
+if (debug_trace) {
+    fprintf(stderr, "mpiotf_start_tracing, entered\n");
     fflush(stderr);
-#endif
+}
 
     /* Initialize the data blob's header */
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(tls.header));
@@ -459,10 +477,10 @@ void mpiotf_start_tracing(const char* arguments)
     }
 #endif
 
-#if 0
-    fprintf(stderr, "mpiotf_start_tracing, exiting for args.thread=%d, status=%d\n", args.thread, status);
+if (debug_trace) {
+    fprintf(stderr, "mpiotf_start_tracing, exiting status=%d\n", status);
     fflush(stderr);
-#endif
+}
 
 }
 
@@ -478,17 +496,18 @@ void mpiotf_start_tracing(const char* arguments)
  */
 void mpiotf_stop_tracing(const char* arguments)
 {
-#if 0
-    fprintf(stderr, "mpiotf_stop_tracing, entered for tls.header.thread=%d\n", tls.header.thread);
+if (debug_trace) {
+    fprintf(stderr, "mpiotf_stop_tracing, entered\n");
     fflush(stderr);
-#endif
+}
 
     /* Send events if there are any remaining in the tracing buffer */
     if(tls.data.events.events_len > 0)
 	mpit_send_events();
 
-#if 0
-    fprintf(stderr, "mpiotf_stop_tracing, exiting for tls.header.thread=%d\n", tls.header.thread);
+if (debug_trace) {
+    fprintf(stderr, "mpiotf_stop_tracing, exiting\n");
     fflush(stderr);
-#endif
+}
+
 }

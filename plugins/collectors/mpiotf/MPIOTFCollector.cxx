@@ -357,7 +357,7 @@ void MPIOTFCollector::startCollecting(const Collector& collector,
                    &args);
     
 #if 0
-  fprintf(stderr, "ENTER-STARTUP---MPIOTFCollector::startCollecting, entered for thread=%d\n", args.thread);
+  fprintf(stderr, "ENTER-STARTUP---MPIOTFCollector::startCollecting, entered for thread\n");
   fflush(stderr);
 #endif
 
@@ -373,9 +373,14 @@ void MPIOTFCollector::startCollecting(const Collector& collector,
     // Execute mpiotf_openss_vt_init() before we exit MPI_Init
     // mpiotf_openss_vt_init() is the VampirTrace initialization routine.
     for(RuntimeUsageMap::const_iterator
-	    i = runtime_usage_map.begin(); i != runtime_usage_map.end(); ++i)
+	    i = runtime_usage_map.begin(); i != runtime_usage_map.end(); ++i) {
+#if 0
+  fprintf(stderr, "ENTER-STARTUP---MPIOTFCollector::startCollecting, executeBeforeExitMPI for mpiotf_openss_vt_init\n");
+  fflush(stderr);
+#endif
 	executeBeforeExitMPI(collector, i->second,
 			     i->first + ": mpiotf_openss_vt_init", Blob());
+    }
     
     // Execute mpiotf_start_tracing() in the threads
     for(RuntimeUsageMap::const_iterator
@@ -392,8 +397,8 @@ void MPIOTFCollector::startCollecting(const Collector& collector,
             
 #if 0
             if (i == 0 || i == 50) {
-              fprintf(stderr, "partial list only: MPIOTFCollector::startCollecting, do executeInPlaceOf for: %s: %s%s\n", 
-                    getRuntimeLibraryName(thread).c_str(),"mpiotf_", P_name.c_str());
+              fprintf(stderr, "partial list only: MPIOTFCollector::startCollecting, do executeInPlaceOf for: %s%s\n", 
+                    "mpiotf_", P_name.c_str());
               fflush(stderr);
             }
 #endif
@@ -407,7 +412,7 @@ void MPIOTFCollector::startCollecting(const Collector& collector,
 	    
 	}
 #if 0
-  fprintf(stderr, "EXIT-STARTUP------MPIOTFCollector::startCollecting, exiting thread=%d\n", args.thread);
+  fprintf(stderr, "EXIT-STARTUP------MPIOTFCollector::startCollecting, exiting thread\n");
   fflush(stderr);
 #endif
 }

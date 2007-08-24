@@ -11,11 +11,13 @@
  **/
 
 #include "vt_trc.h"
+#include "vt_memhook.h"
 #include "vt_mpicom.h"
 #include "vt_mpireg.h"
 #include "vt_mpireq.h"
 #include "vt_pform.h"
 #include "vt_error.h"
+#include "vt_env.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,11 +48,89 @@ static MPI_Status* vt_get_status_array(int size) {
 /*
  *-----------------------------------------------------------------------------
  *
- * Finalize
+ * Init and finalize
  *
  *-----------------------------------------------------------------------------
  */
 
+
+/* -- MPI_Init -- */
+
+int MPI_Init( int *argc, char ***argv )
+{
+  int returnVal, numprocs, i;
+  unsigned char* grpv;
+  uint64_t time;
+  
+  /* shall I trace MPI events? */
+  vt_mpi_trace_is_on = vt_mpitrace = vt_env_mpitrace();
+
+  if (IS_TRACE_ON)
+    {
+      TRACE_OFF();
+
+      /* first event?
+	 -> initialize VT and enter dummy function 'user' */
+      if (!vt_open_called)
+      {
+	vt_open();
+	time = vt_pform_wtime();
+	vt_enter_user(&time);
+	vt_enter_user_called = 1;
+      }
+      else
+      {
+	time = vt_pform_wtime();
+      }
+
+      vt_enter(&time, vt_mpi_regid[VT__MPI_INIT]);
+
+      returnVal = PMPI_Init(argc, argv);
+
+      /* initialize mpi event handling */
+      vt_mpi_init();
+
+      PMPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+
+      /* define communicator for MPI_COMM_WORLD */
+      grpv = (unsigned char*)calloc(numprocs / 8 + (numprocs % 8 ? 1 : 0), sizeof(unsigned char));
+      for (i = 0; i < numprocs; i++)
+	grpv[i / 8] |= (1 << (i % 8));
+      vt_def_mpi_comm(0, numprocs / 8 + (numprocs % 8 ? 1 : 0), grpv);
+
+      free(grpv);
+
+      /* initialize communicator management */
+      vt_comm_init();
+
+      time = vt_pform_wtime();
+      vt_exit(&time);
+
+      TRACE_ON();
+    }
+  else
+    {
+      returnVal = PMPI_Init(argc, argv);
+
+      /* initialize mpi event handling */
+      vt_mpi_init();
+
+      PMPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+
+      /* define communicator for MPI_COMM_WORLD */
+      grpv = (unsigned char*)calloc(numprocs / 8 + (numprocs % 8 ? 1 : 0), sizeof(unsigned char));
+      for (i = 0; i < numprocs; i++)
+	grpv[i / 8] |= (1 << (i % 8));
+      vt_def_mpi_comm(0, numprocs / 8 + (numprocs % 8 ? 1 : 0), grpv);
+
+      free(grpv);
+
+      /* initialize communicator management */
+      vt_comm_init();
+    }
+
+  return returnVal;
+}
 
 /* -- MPI_Finalize -- */
 
