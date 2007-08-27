@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2007 Krell Institute  All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -85,7 +86,11 @@ mpiotf_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
 mpiotf_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-framework \
 	-no-undefined -module -avoid-version
+
+mpiotf_la_LIBADD = \
+	-lopenss-framework
 
 mpiotf_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
@@ -261,29 +266,26 @@ mpiotf_rt_openmpi_la_SOURCES = $(rt_sources)
 endif
 
 
-SUFFIXES = .x
-CLEANFILES = $(BUILT_SOURCES)
-
-
-#blobs.x: libvt-openmpi-mpi-a  \
-#if HAVE_OPENMPI
-#	libvt-openmpi-mpi-a  \
-#endif
-#if HAVE_LAMPI
-#	libvt-lampi-mpi-a  \
-#endif
-#if HAVE_MPICH
-#	libvt-mpich-mpi-a  \
-#endif
-#if HAVE_MPICH2
-#	libvt-mpich2-mpi-a   \
-#endif
-#if HAVE_LAMPI
-#	libvt-lam-mpi-a \
-#endif
-#if HAVE_MPT
-#	libvt-mpt-mpi-a 
-#endif
+SUFFIXES = .x 
+CLEANFILES = $(BUILT_SOURCES) 
+if HAVE_LAM
+CLEANFILES += libvt.mpi.lam.a
+endif
+if HAVE_LAMPI
+CLEANFILES += libvt.mpi.lampi.a
+endif
+if HAVE_MPICH
+CLEANFILES += libvt.mpi.mpich.a
+endif
+if HAVE_MPICH2
+CLEANFILES += libvt.mpi.mpich2.a
+endif
+if HAVE_MPT
+CLEANFILES += libvt.mpi.mpt.a
+endif
+if HAVE_OPENMPI
+CLEANFILES += libvt.mpi.openmpi.a
+endif
 
 blobs.h blobs.c: blobs.x 
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
