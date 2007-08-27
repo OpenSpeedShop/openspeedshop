@@ -2723,3 +2723,194 @@ int mpiotf_PMPI_Reduce_scatter( void* sendbuf,
 
   return result;
 }
+
+
+/*
+ * MPI_Get_count
+ */
+
+int mpiotf_PMPI_Get_count( MPI_Status *status, 
+                           MPI_Datatype datatype, 
+                           int *count )
+{
+  int result, i, size, N;
+  uint64_t time, etime;
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpiotf_PMPI_Get_count called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fflush(stderr);
+  }
+
+#if 0
+    int retval;
+    int datatype_size;
+    mpit_event event;
+
+    mpit_start_event(&event);
+    event.start_time = OpenSS_GetTime();
+
+    retval = PMPI_Get_count(status, datatype, count);
+
+    event.stop_time = OpenSS_GetTime();
+
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    PMPI_Type_size(datatype, &datatype_size);
+    event.size = *count * datatype_size;
+    event.datatype = datatype;
+    event.retval = retval;
+
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Get_count));
+#endif
+
+    return result;
+}
+
+/*
+ * MPI_Iprobe
+ */
+int mpiotf_PMPI_Iprobe( int source,
+                        int tag,
+                        MPI_Comm comm,
+                        int *flag,
+                        MPI_Status *status)
+{
+  int result, i, size, N, count = 0;
+  uint64_t time, etime;
+  MPI_Status mystatus;
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpiotf_PMPI_Iprobe called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fflush(stderr);
+  }
+
+  if (IS_TRACE_ON)
+    {
+      TRACE_OFF();
+
+      time = vt_pform_wtime();
+      vt_enter(&time, vt_mpi_regid[VT__MPI_IPROBE]);
+
+      if (status == MPI_STATUS_IGNORE) status = &mystatus;
+      result = PMPI_Iprobe(source, tag, comm, flag, status);
+
+      time = vt_pform_wtime();
+      vt_exit(&time);
+
+      TRACE_ON();
+    }
+  else
+    {
+      result = PMPI_Iprobe(source, tag, comm, flag, status);
+    }
+
+  return result;
+
+}
+
+/*
+ * MPI_Pack
+ */
+
+int mpiotf_PMPI_Pack( void* inbuf,
+                      int incount,
+                      MPI_Datatype datatype,
+                      void *outbuf,
+                      int outsize,
+                      int *position,
+                      MPI_Comm comm )
+{
+  int result, i, size, N, count = 0, me;
+  uint64_t time, etime;
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpiotf_PMPI_Pack called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fflush(stderr);
+  }
+  if (IS_TRACE_ON)
+    {
+      TRACE_OFF();
+
+      time = vt_pform_wtime();
+      vt_enter(&time, vt_mpi_regid[VT__MPI_PACK]);
+
+
+      result = PMPI_Pack( inbuf, incount, datatype, outbuf,
+                          outsize, position, comm);
+
+      PMPI_Type_size(datatype, &size);
+      PMPI_Comm_rank(comm, &me);
+      PMPI_Comm_size(comm, &N);
+
+      etime = vt_pform_wtime();
+      vt_mpi_collexit(&time, &etime,
+		      vt_mpi_regid[VT__MPI_PACK],
+		      VT_NO_ID, VT_COMM_ID(comm),
+		      (N-me) * size * count, size * count);
+
+      TRACE_ON();
+    }
+  else
+    {
+      result = PMPI_Pack( inbuf, incount, datatype, outbuf,
+                          outsize, position, comm);
+    }
+
+  return result;
+
+}
+
+/*
+ * MPI_Unpack
+
+    Which size do I use, insize or outsize?
+    I'm going to use outsize.
+ */
+
+int mpiotf_PMPI_Unpack( void* inbuf,
+                        int insize,
+                        int *position,
+                        void *outbuf,
+                        int outcount,
+                        MPI_Datatype datatype,
+                        MPI_Comm comm )
+{
+  int result, i, size, N, count = 0, me;
+  uint64_t time, etime;
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpiotf_PMPI_Unpack called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fflush(stderr);
+  }
+
+  if (IS_TRACE_ON)
+    {
+      TRACE_OFF();
+
+      time = vt_pform_wtime();
+      vt_enter(&time, vt_mpi_regid[VT__MPI_UNPACK]);
+
+
+      result = PMPI_Unpack(inbuf, insize, position, outbuf,
+                           outcount, datatype, comm);
+
+      PMPI_Type_size(datatype, &size);
+      PMPI_Comm_rank(comm, &me);
+      PMPI_Comm_size(comm, &N);
+
+      etime = vt_pform_wtime();
+      vt_mpi_collexit(&time, &etime,
+		      vt_mpi_regid[VT__MPI_UNPACK],
+		      VT_NO_ID, VT_COMM_ID(comm),
+		      (N-me) * size * count, size * count);
+
+      TRACE_ON();
+    }
+  else
+    {
+      result = PMPI_Unpack(inbuf, insize, position, outbuf,
+                           outcount, datatype, comm);
+    }
+
+  return result;
+
+}
