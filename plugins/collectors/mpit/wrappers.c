@@ -27,7 +27,7 @@
 
 #include <mpi.h>
 
-
+static int debug_trace = 0;
 
 /*
  * MPI_Irecv
@@ -85,6 +85,42 @@ int mpit_PMPI_Recv(
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Recv));
+
+    return retval;
+}
+  
+
+/*
+ * MPI_Recv_init
+ */
+int mpit_PMPI_Recv_init(
+    void* buf, 
+    int count, 
+    MPI_Datatype datatype, 
+    int source, 
+    int tag, 
+    MPI_Comm comm, 
+    MPI_Status *status)
+{
+    int retval, datatype_size;
+    mpit_event event;
+    
+    mpit_start_event(&event);
+    event.start_time = OpenSS_GetTime();
+
+    retval = PMPI_Recv_init(buf, count, datatype, source,  tag, comm, status);
+
+    event.stop_time = OpenSS_GetTime();
+    event.source = source;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    PMPI_Type_size(datatype, &datatype_size);
+    event.size = count * datatype_size;
+    event.tag = tag;
+    event.communicator = comm;
+    event.datatype = datatype;
+    event.retval = retval;
+
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Recv_init));
 
     return retval;
 }
@@ -217,6 +253,42 @@ int mpit_PMPI_Bsend(
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Bsend));
+
+    return retval;
+}
+  
+
+/*
+ * MPI_Bsend_init
+ */
+int mpit_PMPI_Bsend_init(
+    void* buf, 
+    int count, 
+    MPI_Datatype datatype, 
+    int dest, 
+    int tag, 
+    MPI_Comm comm,
+    MPI_Request* request)
+{
+    int retval, datatype_size;
+    mpit_event event;
+    
+    mpit_start_event(&event);
+    event.start_time = OpenSS_GetTime();
+
+    retval = PMPI_Bsend_init(buf, count, datatype, dest, tag, comm, request);
+
+    event.stop_time = OpenSS_GetTime();
+    event.destination = dest;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(event.source));
+    PMPI_Type_size(datatype, &datatype_size);
+    event.size = count * datatype_size;
+    event.tag = tag;
+    event.communicator = comm;
+    event.datatype = datatype;
+    event.retval = retval;
+
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Bsend_init));
 
     return retval;
 }
@@ -360,6 +432,43 @@ int mpit_PMPI_Rsend(
     return retval;
 }
   
+  
+/*
+ * MPI_Rsend_init
+ */
+int mpit_PMPI_Rsend_init(
+    void* buf, 
+    int count, 
+    MPI_Datatype datatype, 
+    int dest, 
+    int tag, 
+    MPI_Comm comm,
+    MPI_Request* request 
+)
+{
+    int retval, datatype_size;
+    mpit_event event;
+    
+    mpit_start_event(&event);
+    event.start_time = OpenSS_GetTime();
+
+    retval = PMPI_Rsend_init(buf, count, datatype, dest, tag, comm, request);
+
+    event.stop_time = OpenSS_GetTime();
+    event.destination = dest;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(event.source));
+    PMPI_Type_size(datatype, &datatype_size);
+    event.size = count * datatype_size;
+    event.tag = tag;
+    event.communicator = comm;
+    event.datatype = datatype;
+    event.retval = retval;
+
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Rsend_init));
+
+    return retval;
+}
+  
 /*
  * MPI_Send
  */
@@ -394,6 +503,43 @@ int mpit_PMPI_Send(
     return retval;
 }
   
+  
+/*
+ * MPI_Send_init
+ */
+int mpit_PMPI_Send_init(
+    void* buf, 
+    int count, 
+    MPI_Datatype datatype, 
+    int dest, 
+    int tag, 
+    MPI_Comm comm,
+    MPI_Request* request
+)
+{
+    int retval, datatype_size;
+    mpit_event event;
+    
+    mpit_start_event(&event);
+    event.start_time = OpenSS_GetTime();
+
+    retval = PMPI_Send_init(buf, count, datatype, dest, tag, comm, request);
+
+    event.stop_time = OpenSS_GetTime();
+    event.destination = dest;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(event.source));
+    PMPI_Type_size(datatype, &datatype_size);
+    event.size = count * datatype_size;
+    event.tag = tag;
+    event.communicator = comm;
+    event.datatype = datatype;
+    event.retval = retval;
+
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Send_init));
+
+    return retval;
+}
+  
 /*
  * MPI_Ssend
  */
@@ -424,6 +570,43 @@ int mpit_PMPI_Ssend(
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Ssend));
+
+    return retval;
+}
+  
+  
+/*
+ * MPI_Ssend_init
+ */
+int mpit_PMPI_Ssend_init(
+    void* buf,
+    int count, 
+    MPI_Datatype datatype, 
+    int dest, 
+    int tag, 
+    MPI_Comm comm,
+    MPI_Request* request
+)
+{
+    int retval, datatype_size;
+    mpit_event event;
+    
+    mpit_start_event(&event);
+    event.start_time = OpenSS_GetTime();
+
+    retval = PMPI_Ssend_init(buf, count, datatype, dest, tag, comm, request);
+
+    event.stop_time = OpenSS_GetTime();
+    event.destination = dest;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(event.source));
+    PMPI_Type_size(datatype, &datatype_size);
+    event.size = count * datatype_size;
+    event.tag = tag;
+    event.communicator = comm;
+    event.datatype = datatype;
+    event.retval = retval;
+
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Ssend_init));
 
     return retval;
 }
@@ -1560,4 +1743,309 @@ mpit_PMPI_Sendrecv_replace(
 
 
 
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * Cartesian Toplogy functions
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+int mpit_PMPI_Cart_create( MPI_Comm comm_old,
+                     int ndims,
+                     int* dims,
+                     int* periodv,
+                     int reorder,
+                     MPI_Comm* comm_cart)
+{
+
+  int retval, datatype_size;
+  mpit_event event;
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpit_PMPI_Cart_create called, comm_old = %d \n", comm_old);
+    fflush(stderr);
+  }
+
+  mpit_start_event(&event);
+  event.start_time = OpenSS_GetTime();
+
+  retval = PMPI_Cart_create(comm_old, ndims, dims, periodv, reorder, comm_cart);
+
+  event.stop_time = OpenSS_GetTime();
+  event.retval = retval;
+
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Cart_create));
+
+  return retval;
+}
+
+int mpit_PMPI_Cart_sub ( MPI_Comm comm,
+                   int *rem_dims,
+                   MPI_Comm *newcomm)
+{
+
+  int retval, datatype_size;
+  mpit_event event;
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpit_PMPI_Cart_sub called, comm = %d \n", comm);
+    fflush(stderr);
+  }
+
+  mpit_start_event(&event);
+  event.start_time = OpenSS_GetTime();
+
+  retval = PMPI_Cart_sub(comm, rem_dims, newcomm);
+
+  event.stop_time = OpenSS_GetTime();
+  event.retval = retval;
+
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Cart_sub));
+
+  return retval;
+}
+
+
+
+int mpit_PMPI_Graph_create( MPI_Comm comm_old,
+                      int nnodes,
+                      int* index,
+                      int* edges,
+                      int reorder,
+                      MPI_Comm* comm_graph)
+{
+  int retval, datatype_size;
+  mpit_event event;
+
+  mpit_start_event(&event);
+  event.start_time = OpenSS_GetTime();
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpit_PMPI_Graph_create called, comm_old= %d \n", comm_old);
+    fflush(stderr);
+  }
+
+  retval = PMPI_Graph_create(comm_old, nnodes, index, edges, reorder, comm_graph);
+
+  event.stop_time = OpenSS_GetTime();
+  event.retval = retval;
+
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Graph_create));
+
+  return retval;
+}
+
+int mpit_PMPI_Intercomm_create (MPI_Comm local_comm,
+                          int local_leader,
+                          MPI_Comm peer_comm,
+                          int remote_leader,
+                          int tag,
+                          MPI_Comm *newintercomm)
+
+{
+  int retval, datatype_size;
+  mpit_event event;
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpit_PMPI_Intercomm_create called, local_comm = %d \n", local_comm);
+    fflush(stderr);
+  }
+
+  mpit_start_event(&event);
+  event.start_time = OpenSS_GetTime();
+
+
+  retval = PMPI_Intercomm_create(local_comm, local_leader, peer_comm,
+                                 remote_leader, tag, newintercomm);
+
+  event.stop_time = OpenSS_GetTime();
+  event.retval = retval;
+
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Intercomm_create));
+
+  return retval;
+}
+
+int mpit_PMPI_Intercomm_merge (MPI_Comm intercomm,
+                         int high,
+                         MPI_Comm *newcomm)
+{
+  int retval, datatype_size;
+  mpit_event event;
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpit_PMPI_Intercomm_merge called, intercomm = %d \n", intercomm);
+    fflush(stderr);
+  }
+
+  mpit_start_event(&event);
+  event.start_time = OpenSS_GetTime();
+
+  retval = PMPI_Intercomm_merge(intercomm, high, newcomm);
+
+  event.stop_time = OpenSS_GetTime();
+  event.retval = retval;
+
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Intercomm_merge));
+
+  return retval;
+}
+
+
+/* ------- Destructors ------- */
+
+int mpit_PMPI_Comm_free( MPI_Comm* comm )
+{
+  int retval, datatype_size;
+  mpit_event event;
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpit_PMPI_Comm_free called, comm = %d \n", comm);
+    fflush(stderr);
+  }
+
+  mpit_start_event(&event);
+  event.start_time = OpenSS_GetTime();
+
+  retval = PMPI_Comm_free(comm);
+  event.stop_time = OpenSS_GetTime();
+  event.retval = retval;
+
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Comm_free));
+
+  return retval;
+}
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * Communicator management
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+/* ------- Constructors ------- */
+
+int mpit_PMPI_Comm_dup( MPI_Comm comm,
+                        MPI_Comm* newcomm )
+{
+  int retval;
+  mpit_event event;
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpit_PMPI_Comm_dup called, comm = %d \n", comm);
+    fflush(stderr);
+  }
+
+  mpit_start_event(&event);
+  event.start_time = OpenSS_GetTime();
+
+  retval = PMPI_Comm_dup(comm, newcomm);
+  event.stop_time = OpenSS_GetTime();
+  event.retval = retval;
+
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Comm_dup));
+
+  return retval;
+}
+
+int mpit_PMPI_Comm_create( MPI_Comm comm,
+                     MPI_Group group,
+                     MPI_Comm* newcomm )
+{
+  int retval;
+  mpit_event event;
+
+  mpit_start_event(&event);
+  event.start_time = OpenSS_GetTime();
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpit_PMPI_Comm_create called, comm = %d \n", comm);
+    fflush(stderr);
+  }
+
+  retval = PMPI_Comm_create(comm, group, newcomm);
+  event.stop_time = OpenSS_GetTime();
+  event.retval = retval;
+
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Comm_create));
+
+  return retval;
+}
+
+int mpit_PMPI_Comm_split( MPI_Comm comm,
+                          int color,
+                          int key,
+                          MPI_Comm* newcomm )
+{
+  int retval;
+  mpit_event event;
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpit_PMPI_Comm_split called, comm = %d \n", comm);
+    fflush(stderr);
+  }
+
+  mpit_start_event(&event);
+  event.start_time = OpenSS_GetTime();
+
+  retval = PMPI_Comm_split(comm, color, key, newcomm);
+  event.stop_time = OpenSS_GetTime();
+  event.retval = retval;
+
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Comm_split));
+
+  return retval;
+}
+
+
+/* -- MPI_Start -- */
+
+int mpit_PMPI_Start( MPI_Request* request )
+{
+  int retval;
+  mpit_event event;
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpit_PMPI_Start called\n");
+    fflush(stderr);
+  }
+
+  mpit_start_event(&event);
+  event.start_time = OpenSS_GetTime();
+
+  retval = PMPI_Start(request);
+  event.stop_time = OpenSS_GetTime();
+  event.retval = retval;
+
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Start));
+
+  return retval;
+}
+
+/* -- MPI_Startall -- */
+
+int mpit_PMPI_Startall( int count,
+                        MPI_Request *array_of_requests )
+{
+  int retval;
+  mpit_event event;
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpit_PMPI_Startall called, count = %d \n", count);
+    fflush(stderr);
+  }
+
+  mpit_start_event(&event);
+  event.start_time = OpenSS_GetTime();
+
+  retval = PMPI_Startall( count, array_of_requests );
+  event.stop_time = OpenSS_GetTime();
+  event.retval = retval;
+
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Startall));
+
+  return retval;
+}
 
