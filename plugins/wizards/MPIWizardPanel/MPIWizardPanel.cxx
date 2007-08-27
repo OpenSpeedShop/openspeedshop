@@ -1535,8 +1535,8 @@ MPIWizardPanel::appendFunctionsToMonitor()
   std::map<std::string, bool> function_map;
 
   std::string str = "MPI_Allgather";
-
   // function_map.insert(std::make_pair(str, true));
+
   function_map.insert(std::make_pair("MPI_Allgather", true));
   function_map.insert(std::make_pair("MPI_Allgatherv", true));
   function_map.insert(std::make_pair("MPI_Allreduce", true));
@@ -1545,13 +1545,24 @@ MPIWizardPanel::appendFunctionsToMonitor()
   function_map.insert(std::make_pair("MPI_Barrier", true));
   function_map.insert(std::make_pair("MPI_Bcast", true));
   function_map.insert(std::make_pair("MPI_Bsend", true));
+  function_map.insert(std::make_pair("MPI_Bsend_init", true));
   function_map.insert(std::make_pair("MPI_Cancel", true));
+  function_map.insert(std::make_pair("MPI_Cart_create", true));
+  function_map.insert(std::make_pair("MPI_Cart_sub ", true));
+  function_map.insert(std::make_pair("MPI_Comm_create", true));
+  function_map.insert(std::make_pair("MPI_Comm_dup", true));
+  function_map.insert(std::make_pair("MPI_Comm_free", true));
+  function_map.insert(std::make_pair("MPI_Comm_split", true));
   function_map.insert(std::make_pair("MPI_Finalize", true));
   function_map.insert(std::make_pair("MPI_Gather", true));
   function_map.insert(std::make_pair("MPI_Gatherv", true));
   function_map.insert(std::make_pair("MPI_Get_count", true));
+  function_map.insert(std::make_pair("MPI_Graph_create", true));
   function_map.insert(std::make_pair("MPI_Ibsend", true));
   function_map.insert(std::make_pair("MPI_Init", true));
+  function_map.insert(std::make_pair("MPI_Intercomm_create ", true));
+  function_map.insert(std::make_pair("MPI_Intercomm_merge ", true));
+  function_map.insert(std::make_pair("MPI_Iprobe", true));
   function_map.insert(std::make_pair("MPI_Irecv", true));
   function_map.insert(std::make_pair("MPI_Irsend", true));
   function_map.insert(std::make_pair("MPI_Isend", true));
@@ -1559,17 +1570,23 @@ MPIWizardPanel::appendFunctionsToMonitor()
   function_map.insert(std::make_pair("MPI_Pack", true));
   function_map.insert(std::make_pair("MPI_Probe", true));
   function_map.insert(std::make_pair("MPI_Recv", true));
+  function_map.insert(std::make_pair("MPI_Recv_init", true));
   function_map.insert(std::make_pair("MPI_Reduce", true));
   function_map.insert(std::make_pair("MPI_Reduce_scatter", true));
   function_map.insert(std::make_pair("MPI_Request_free", true));
   function_map.insert(std::make_pair("MPI_Rsend", true));
+  function_map.insert(std::make_pair("MPI_Rsend_init", true));
   function_map.insert(std::make_pair("MPI_Scan", true));
   function_map.insert(std::make_pair("MPI_Scatter", true));
   function_map.insert(std::make_pair("MPI_Scatterv", true));
   function_map.insert(std::make_pair("MPI_Send", true));
+  function_map.insert(std::make_pair("MPI_Send_init", true));
   function_map.insert(std::make_pair("MPI_Sendrecv", true));
   function_map.insert(std::make_pair("MPI_Sendrecv_replace", true));
   function_map.insert(std::make_pair("MPI_Ssend", true));
+  function_map.insert(std::make_pair("MPI_Ssend_init", true));
+  function_map.insert(std::make_pair("MPI_Start", true));
+  function_map.insert(std::make_pair("MPI_Startall", true));
   function_map.insert(std::make_pair("MPI_Test", true));
   function_map.insert(std::make_pair("MPI_Testall", true));
   function_map.insert(std::make_pair("MPI_Testany", true));
@@ -1579,7 +1596,6 @@ MPIWizardPanel::appendFunctionsToMonitor()
   function_map.insert(std::make_pair("MPI_Waitall", true));
   function_map.insert(std::make_pair("MPI_Waitany", true));
   function_map.insert(std::make_pair("MPI_Waitsome", true));
-
 
   QCheckBox *vParameterPageCheckBox;
   QCheckBox *eParameterPageCheckBox;
