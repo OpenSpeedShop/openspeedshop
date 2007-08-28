@@ -42,7 +42,7 @@ HWCTimePanel_la_LDFLAGS = \
 	@QTLIB_LDFLAGS@ \
 	-export-dynamic -export-all-symbols -module -avoid-version
 
-HWCTimePanel_la_LIBADD = 
+HWCTimePanel_la_LIBADD =  \
 	-lopenss-guibase \
 	-lopenss-CustomExperimentPanel \
 	@QTLIB_LIBS@
