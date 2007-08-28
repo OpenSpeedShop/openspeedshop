@@ -331,12 +331,6 @@ void CollectorImpl::uninstrument(const Collector& collector,
     Instrumentor::uninstrument(threads, collector);
 }
 
-#ifndef NDEBUG
-/** Flag indicating if debuging for MPI jobs is enabled. */
-bool CollectorImpl::is_debug_mpijob_enabled =
-    (getenv("OPENSS_DEBUG_MPIJOB") != NULL);
-#endif
-
 /**
  * Get MPI runtime usage map.
  *
@@ -358,7 +352,6 @@ CollectorImpl::getMPIRuntimeUsageMap(const ThreadGroup& threads) const
     std::string MPI_IMPL_NAME;
     std::pair<bool, std::string> mpiImplPair;
   
-    fprintf(stderr,"CollectorImpl::getMPIRuntimeUsageMap, MPI_IMPL_NAME=%s\n", MPI_IMPL_NAME.c_str());
 
 
     // Iterate over each thread of this group
