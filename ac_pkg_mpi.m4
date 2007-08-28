@@ -535,7 +535,7 @@ AC_DEFUN([AC_PKG_OPENMPI], [
 
     OPENMPI_CC="$openmpi_dir/bin/mpicc"
     OPENMPI_CPPFLAGS="-I$openmpi_dir/include"
-    OPENMPI_LDFLAGS="-L/$openmpi_dir/$abi_libdir"
+    OPENMPI_LDFLAGS="-L$openmpi_dir/$abi_libdir"
     OPENMPI_LIBS="-lmpi"
     OPENMPI_HEADER="$openmpi_dir/include/mpi.h"
     OPENMPI_DIR="$openmpi_dir"
