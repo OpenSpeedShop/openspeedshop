@@ -695,7 +695,7 @@ AC_DEFUN([AC_PKG_MPI], [
 	default_mpi=LAMPI;    default_mpi_name=lampi
 	all_mpi_names=" lampi $all_mpi_names"
     fi
-    if test x"$MPICH2_LIBS" != x""; then
+    if test x"$MPICH2_LDFLAGS" != x""; then
 	default_mpi=MPICH2;    default_mpi_name=mpich2
 	all_mpi_names=" mpich2 $all_mpi_names"
     fi
