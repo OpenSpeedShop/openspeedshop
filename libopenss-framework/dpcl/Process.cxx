@@ -22,6 +22,9 @@
  *
  */
 
+/* Need the DYNINST_5_1 define. */
+#include "dyninst/BPatch.h"
+
 #include "AddressSpace.hxx"
 #include "Blob.hxx"
 #include "DataBucket.hxx"
@@ -2480,8 +2483,18 @@ void Process::expandCallback(GCBSysType, GCBTagType tag,
 			SourceObj function = module->child(f);
 			
 			// Get the start/end address of the function
+			// Note: As of dyninst 5.1, the addresses returned by dyninst
+			// to dpcl already contain the module offset. Adding the offset
+			// was preventing functions from libraries like libmpi.so from
+			// being added to the database since they could not find an
+			// address range to map to.
+#if defined(DYNINST_5_1)
+			Address start = function.address_start();
+			Address end = function.address_end();
+#else
 			Address start = function.address_start() + offset;
 			Address end = function.address_end() + offset;
+#endif
 			
 			// Get the mangled name of the function
 			char name[function.get_mangled_name_length() + 1];
