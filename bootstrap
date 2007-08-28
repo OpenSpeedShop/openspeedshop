@@ -50,6 +50,7 @@ aclocal
 libtoolize --force --ltdl --copy
 automake --foreign --add-missing --copy
 autoconf
+cd ../../..
 
 echo "finished - running bootstrap on all directories"
 
