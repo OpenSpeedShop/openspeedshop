@@ -302,7 +302,7 @@ AC_DEFUN([AC_PKG_MPICH], [
     fi
 
     # On the systems at Sandia they have an MPICH variant
-    # that has things moved around a bit. Handle this by allowing a "lanl"
+    # that has things moved around a bit. Handle this by allowing a "sandia"
     # pseudo-driver that makes the necessary configuration changes.
     if test x"$mpich_driver" == x"sandia"; then
 	MPICH_CC="$mpich_dir/bin/mpicc"
@@ -310,6 +310,15 @@ AC_DEFUN([AC_PKG_MPICH], [
         MPICH_LIBS="-lmpich"
     fi
 
+
+    # On the systems at Sandia they have an MPICH variant
+    # that has things moved around a bit. Handle this by allowing a "shared"
+    # pseudo-driver that makes the necessary configuration changes.
+    if test x"$mpich_driver" == x"shared"; then
+	MPICH_CC="$mpich_dir/bin/mpicc"
+        MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir/shared"
+        MPICH_LIBS="-lmpich"
+    fi
 
 
     mpich_saved_CC=$CC
