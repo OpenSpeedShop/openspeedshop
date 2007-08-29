@@ -43,7 +43,8 @@
  * runtime and the framework. Contains enough information to allow the framework
  * to store and index the data within the proper experiment database.
  */
-struct OpenSS_DataHeader {
+struct OpenSS_DataHeader
+{
 
     int experiment;  /**< Identifier of experiment to contain the data. */
     int collector;   /**< Identifier of collector gathering data. */
