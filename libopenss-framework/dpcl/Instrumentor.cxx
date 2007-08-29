@@ -405,7 +405,7 @@ void Instrumentor::executeInPlaceOf(const ThreadGroup& threads,
  *
  * Removes all instrumentation associated with the specified collector from the
  * specified threads. Used by collectors to indicate when they are done using
- * any instrumentation they have placed in those threads.
+ * any instrumentation they have placed in threads.
  *
  * @pre    Only applies to threads which are connected. A ProcessUnavailable or
  *         ThreadUnavailable exception is thrown if called for a thread that is
@@ -504,7 +504,7 @@ void Instrumentor::stopAtEntryOrExit(const Thread& thread,
  *
  * Gets the current value of a signed integer global variable within this
  * thread. Used to extract certain types of data, such as MPI job identifiers,
- * from the process.
+ * from a process.
  *
  * @pre    Only applies to a process which is connected. A ProcessUnavailable
  *         exception is thrown if called for a thread that is not connected.
@@ -546,7 +546,7 @@ bool Instrumentor::getGlobal(const Thread& thread,
  *
  * Gets the current value of a character string global variable within this
  * thread. Used to extract certain types of data, such as MPI job identifiers,
- * from the process.
+ * from a process.
  *
  * @pre    Only applies to a thread which is connected. A ThreadUnavailable
  *         exception is thrown if called for a thread that is not connected.
@@ -626,8 +626,7 @@ bool Instrumentor::getMPICHProcTable(const Thread& thread, Job& value)
  * Set value of an integer global variable in a thread.
  *
  * Sets the value of a signed integer global variable within this thread.
- * Used to extract certain types of data, such as MPI job identifiers, from
- * the process.
+ * Used to modify certain values, such as MPI debug gates, in a process.
  *
  * @pre    Only applies to a process which is connected. A ProcessUnavailable
  *         exception is thrown if called for a thread that is not connected.
