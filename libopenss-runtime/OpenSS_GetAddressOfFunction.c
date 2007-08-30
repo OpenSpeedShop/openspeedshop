@@ -56,7 +56,7 @@ uint64_t OpenSS_GetAddressOfFunction(const void* pointer)
 #elif defined(__linux) && defined(__ia64)
     
     /* Return the function pointer from the descriptor on Linux/IA64 */
-    return *((uint64_t)((uintptr_t*)pointer));
+    return *((uint64_t*)((uintptr_t)pointer));
     
 #else
 #error "Platform/OS Combination Unsupported!"
