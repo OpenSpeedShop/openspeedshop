@@ -82,6 +82,7 @@ typedef std::map<AddressRange, std::pair<SymbolTable, std::set<LinkedObject> > >
     SymbolTableMap;
 
 
+
 /**
  * Symbol table state.
  *
@@ -1994,7 +1995,7 @@ void Process::addressSpaceChangeCallback(GCBSysType, GCBTagType,
 	return;
 
     // Request the current in-memory address space of this process
-    process->requestAddressSpace(threads, Time::Now(), false);
+    process->requestAddressSpace(threads, Time::Now());
 }
 
 
@@ -2144,7 +2145,7 @@ void Process::attachCallback(GCBSysType, GCBTagType tag,
 	//       symbol table information has been acquired.
 	
 	// Request the current in-memory address space of this process
-	process->requestAddressSpace(threads, Time::Now(), true);
+	process->requestAddressSpace(threads, Time::Now());
 	
     }
 
@@ -3433,9 +3434,8 @@ void Process::threadListChangeCallback(GCBSysType, GCBTagType,
 	}
 
 	// Request the current in-memory address space of this process
-	if(!added.empty()) {
-	    process->requestAddressSpace(added, Time::Now(), true);
-	}
+	if(!added.empty())
+	    process->requestAddressSpace(added, Time::Now());
 
     }
 
@@ -3495,19 +3495,13 @@ void Process::unloadModuleCallback(GCBSysType, GCBTagType tag,
  * only when actually necessary. After completing such requests, DPCL will call
  * expandCallback() and statementsCallback().
  *
- * NOTE: See the comments in AddressSpace.cxx for updateThreads regarding
- * the update_time_interval parameter.
- *
  * @todo    DPCL provides some amount of call site information. Processing this
  *          needs to be added once the CallSite object is properly defined.
  *
  * @param threads    Thread(s) within this process to be updated.
  * @param when       Time at which update occured.
- * @param update_time_interval   Flag to indicate whether to update time_end to when value.       
  */
-void Process::requestAddressSpace(const ThreadGroup& threads,
-				  const Time& when,
-				  const bool update_time_interval)
+void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
 {    
     GuardWithDPCL guard_myself(this);
 
@@ -3594,9 +3588,8 @@ void Process::requestAddressSpace(const ThreadGroup& threads,
     }
     
     // Update the specified threads with this address space
-
     std::map<AddressRange, std::set<LinkedObject> > needed =
-	address_space.updateThreads(threads, when, update_time_interval);
+	address_space.updateThreads(threads, when);
 
     // Allocate and initialize state structure for tracking the requests
     SymbolTableState* state = 
