@@ -114,7 +114,11 @@ void hwc_start_sampling(const char* arguments)
     
 
     /* Initialize the data blob's header */
-    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(tls.header));
+    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
+     */
+    OpenSS_DataHeader local_header;
+    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
+    memcpy(&tls.header, &local_header, sizeof(OpenSS_DataHeader));
     
     /* Initialize the actual data blob */
     tls.data.interval = (uint64_t)(args.sampling_rate);

@@ -36,8 +36,8 @@
  */
 
 /*  Produce debug output about the reason for the exception
-#define DEBUG 
 */
+#define DEBUG 
 
 /** Maximum number of frames to allow in each stack trace. */
 #define MaxFramesPerStackTrace 64 /*64*/
@@ -114,7 +114,11 @@ static void fpe_send_events()
 void fpe_enable_fpes()
 {
 /* fprintf(stderr,"ENTER fpe_enable_fpes\n"); */
+#if 0
     feenableexcept(FE_ALL_EXCEPT);
+#else
+    feenableexcept(FE_DIVBYZERO|FE_INVALID|FE_OVERFLOW|FE_UNDERFLOW);
+#endif
 }
 
     
@@ -311,7 +315,12 @@ void fpe_start_tracing(const char* arguments)
                             &args);
     
     /* Initialize the data blob's header */
-    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(tls.header));
+    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
+     */
+    OpenSS_DataHeader local_header;
+    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
+    memcpy(&tls.header, &local_header, sizeof(OpenSS_DataHeader));
+
     tls.header.time_begin = 0;
     tls.header.time_end = 0;
     tls.header.addr_begin = ~0;

@@ -243,7 +243,12 @@ void usertime_start_sampling(const char* arguments)
 			    &args);
     
     /* Initialize the data blob's header */
-    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(tls.header));
+    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
+     */
+    OpenSS_DataHeader local_header;
+    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
+    memcpy(&tls.header, &local_header, sizeof(OpenSS_DataHeader));
+
     tls.header.time_begin = 0;
     tls.header.time_end = 0;
     tls.header.addr_begin = ~0;
@@ -287,7 +292,7 @@ void usertime_stop_sampling(const char* arguments)
 	int i;
 	for (i=0; i < tls.data.bt.bt_len; i++ )
 	{
-fprintf(stderr,"usertime_stop_sampling: tls.buffer.bt.[%d]=%#lx, count=%d\n",i,tls.buffer.bt[i], tls.buffer.count[i]);
+fprintf(stderr,"usertime_stop_sampling: tls.buffer.bt.[%d]=%016llX, count=%d\n",i,tls.buffer.bt[i], tls.buffer.count[i]);
 	}
 	for (i=0; i < tls.data.count.count_len; i++ )
 	{

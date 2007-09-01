@@ -233,7 +233,12 @@ void hwctime_start_sampling(const char* arguments)
 			    &args);
     
     /* Initialize the data blob's header */
-    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(tls.header));
+    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
+     */
+    OpenSS_DataHeader local_header;
+    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
+    memcpy(&tls.header, &local_header, sizeof(OpenSS_DataHeader));
+
     tls.header.time_begin = 0;
     tls.header.time_end = 0;
     tls.header.addr_begin = ~0;
