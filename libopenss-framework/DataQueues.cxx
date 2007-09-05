@@ -257,14 +257,15 @@ namespace {
 	}
 	
 	// Add this data to the performance data cache
-	DataQueues::TheCache.addIdentifier(
-	    database, header.collector, thread,
-	    Extent(TimeInterval(Time(header.time_begin),
-				Time(header.time_end)),
-		   AddressRange(Address(header.addr_begin),
-				Address(header.addr_end))),
-	    database->getLastInsertedUID()
-	    );
+	if(!ignore_data)
+	    DataQueues::TheCache.addIdentifier(
+		database, header.collector, thread,
+		Extent(TimeInterval(Time(header.time_begin),
+				    Time(header.time_end)),
+		       AddressRange(Address(header.addr_begin),
+				    Address(header.addr_end))),
+		database->getLastInsertedUID()
+		);
 	
 	// End this multi-statement transaction
 	END_TRANSACTION(database);
