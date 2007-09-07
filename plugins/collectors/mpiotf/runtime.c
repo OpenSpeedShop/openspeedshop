@@ -329,10 +329,8 @@ if (debug_trace) {
       } else {
         time = vt_pform_wtime();
       }
-/*
+
       vt_enter(&time, vt_mpi_regid[VT__MPI_INIT]);
-      retval = PMPI_Init(NULL, NULL);
-*/
 
 if (debug_trace) {
       fprintf(stderr, "mpiotf_openss_vt_init calling vt_mpi_init\n");

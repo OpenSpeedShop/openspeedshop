@@ -19,7 +19,7 @@
 
 # Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
 
-CFLAGS = -g -O0
+CFLAGS =    -DBINDIR=\"@VT_DIR@/bin\" -DDATADIR=\"@VT_DIR@/share/vampirtrace\" -DVT_MPI -O0 -g -fPIC -shared -DRFG -DVT_BFDSYMCOLLECT -DVT_MEMHOOK -DVT_METR 
 
 BUILT_SOURCES = \
 	blobs.h blobs.c	
@@ -28,38 +28,74 @@ BUILT_SOURCES = \
 
 if HAVE_LAMPI
 libvt-lampi-mpi-a :
-	cp -r @VT_LIBSDIR@/libvt.mpi.lampi.a libvt.mpi.lampi.a
-	ar d libvt.mpi.lampi.a libvt_mpi_lampi_a-vt_mpiwrap.o
+	cp -r @VT_LIBSDIR@/libvt.mpi.a libvt.mpi.lampi.a
+	ar d libvt.mpi.lampi.a libvt_mpi_a-vt_mpiwrap.o
+	ar d libvt.mpi.lampi.a libvt_mpi_a-vt_sync.o
+	ar d libvt.mpi.lampi.a libvt_mpi_a-vt_otf_trc.o
+	ar d libvt.mpi.lampi.a libvt_mpi_a-vt_mpireq.o
+	ar d libvt.mpi.lampi.a libvt_mpi_a-vt_mpireg.o
+	ar d libvt.mpi.lampi.a libvt_mpi_a-vt_mpicom.o
+	ar d libvt.mpi.lampi.a libvt_mpi_a-vt_fmpiwrap.o
 endif
 
 if HAVE_OPENMPI
 libvt-openmpi-mpi-a:
-	cp -r @VT_LIBSDIR@/libvt.mpi.openmpi.a libvt.mpi.openmpi.a
-	ar d libvt.mpi.openmpi.a libvt_mpi_openmpi_a-vt_mpiwrap.o
+	cp -r @VT_LIBSDIR@/libvt.mpi.a libvt.mpi.openmpi.a
+	ar d libvt.mpi.openmpi.a libvt_mpi_a-vt_mpiwrap.o
+	ar d libvt.mpi.openmpi.a libvt_mpi_a-vt_sync.o
+	ar d libvt.mpi.openmpi.a libvt_mpi_a-vt_otf_trc.o
+	ar d libvt.mpi.openmpi.a libvt_mpi_a-vt_mpireq.o
+	ar d libvt.mpi.openmpi.a libvt_mpi_a-vt_mpireg.o
+	ar d libvt.mpi.openmpi.a libvt_mpi_a-vt_mpicom.o
+	ar d libvt.mpi.openmpi.a libvt_mpi_a-vt_fmpiwrap.o
 endif
 
 if HAVE_MPICH2
 libvt-mpich2-mpi-a:
-	cp -r @VT_LIBSDIR@/libvt.mpi.mpich2.a libvt.mpi.mpich2.a
-	ar d libvt.mpi.mpich2.a libvt_mpi_mpich2_a-vt_mpiwrap.o
+	cp -r @VT_LIBSDIR@/libvt.mpi.a libvt.mpi.mpich2.a
+	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_mpiwrap.o
+	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_sync.o
+	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_otf_trc.o
+	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_mpireq.o
+	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_mpireg.o
+	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_mpicom.o
+	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_fmpiwrap.o
 endif
 
 if HAVE_MPICH
 libvt-mpich-mpi-a:
-	cp -r @VT_LIBSDIR@/libvt.mpi.mpich.a libvt.mpi.mpich.a
-	ar d libvt.mpi.mpich.a libvt_mpi_mpich_a-vt_mpiwrap.o
+	cp -r @VT_LIBSDIR@/libvt.mpi.a libvt.mpi.mpich.a
+	ar d libvt.mpi.mpich.a libvt_mpi_a-vt_mpiwrap.o
+	ar d libvt.mpi.mpich.a libvt_mpi_a-vt_sync.o
+	ar d libvt.mpi.mpich.a libvt_mpi_a-vt_otf_trc.o
+	ar d libvt.mpi.mpich.a libvt_mpi_a-vt_mpireq.o
+	ar d libvt.mpi.mpich.a libvt_mpi_a-vt_mpireg.o
+	ar d libvt.mpi.mpich.a libvt_mpi_a-vt_mpicom.o
+	ar d libvt.mpi.mpich.a libvt_mpi_a-vt_fmpiwrap.o
 endif
 
 if HAVE_LAM
 libvt-lam-mpi-a:
-	cp -r @VT_LIBSDIR@/libvt.mpi.lam.a libvt.mpi.lam.a
-	ar d libvt.mpi.lam.a libvt_mpi_lam_a-vt_mpiwrap.o
+	cp -r @VT_LIBSDIR@/libvt.mpi.a libvt.mpi.lam.a
+	ar d libvt.mpi.lam.a libvt_mpi_a-vt_mpiwrap.o
+	ar d libvt.mpi.lam.a libvt_mpi_a-vt_sync.o
+	ar d libvt.mpi.lam.a libvt_mpi_a-vt_otf_trc.o
+	ar d libvt.mpi.lam.a libvt_mpi_a-vt_mpireq.o
+	ar d libvt.mpi.lam.a libvt_mpi_a-vt_mpireg.o
+	ar d libvt.mpi.lam.a libvt_mpi_a-vt_mpicom.o
+	ar d libvt.mpi.lam.a libvt_mpi_a-vt_fmpiwrap.o
 endif
 
 if HAVE_MPT
 libvt-mpt-mpi-a:
-	cp -r @VT_LIBSDIR@/libvt.mpi.mpt.a libvt.mpi.mpt.a
-	ar d libvt.mpi.mpt.a libvt_mpi_mpt_a-vt_mpiwrap.o
+	cp -r @VT_LIBSDIR@/libvt.mpi.a libvt.mpi.mpt.a
+	ar d libvt.mpi.mpt.a libvt_mpi_a-vt_mpiwrap.o
+	ar d libvt.mpi.mpt.a libvt_mpi_a-vt_sync.o
+	ar d libvt.mpi.mpt.a libvt_mpi_a-vt_otf_trc.o
+	ar d libvt.mpi.mpt.a libvt_mpi_a-vt_mpireq.o
+	ar d libvt.mpi.mpt.a libvt_mpi_a-vt_mpireg.o
+	ar d libvt.mpi.mpt.a libvt_mpi_a-vt_mpicom.o
+	ar d libvt.mpi.mpt.a libvt_mpi_a-vt_fmpiwrap.o
 endif
 
 pkglib_LTLIBRARIES = mpiotf.la
@@ -131,7 +167,8 @@ rt_LIBADD_generate = \
 rt_sources = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.h runtime.c  \
-	vt_mpiwrap.c 
+	vt_mpiwrap.c vt_sync.c vt_otf_trc.c \
+	vt_mpireq.c vt_mpireg.c vt_mpicom.c 
 
 
 rt_openmpi_LIBADD_generate = \
