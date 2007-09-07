@@ -35,7 +35,7 @@ if HAVE_LIBUNWIND
 SUBDIRS += mpi mpit
 if HAVE_OTF
 if HAVE_VT
-SUBDIRS += mpiotf
+#SUBDIRS += mpiotf
 endif
 endif
 endif
