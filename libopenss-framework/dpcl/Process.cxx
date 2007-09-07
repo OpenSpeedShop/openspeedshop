@@ -4290,12 +4290,35 @@ ProbeHandle Process::requestInstallAndActivate(ProbeExp expression,
     std::string* name = new std::string(formUniqueName(dm_host, dm_pid, tid));
     Assert(name != NULL);
 
+    // FIXME:
+    // Get the threads in this process. If there is only one thread we will
+    // assume this thread represents the main process and not pass the tid
+    // argument to install_probe.  This works around an issue with processes that have
+    // linked in libpthreads.so but have not actually call pthread_create to
+    // create any threads.  Such threads have a 64bit value for the thread id
+    // of the main process and the dpcl thread wrapper in dpcl/src/lib/src/Process.C
+    // fails when it compares "tid" to the value from dyninst's pthread_self().
+    // If dyninst eventually supports per thread point instrumentation,
+    // this can be revisited.
+
+    std::set<pthread_t> tids;
+    getPosixThreadIds(tids);
+
     // Ask DPCL to asynchronously install the probe in this process
     ProbeHandle handle;
-    AisStatus retval = dm_process->install_probe(1, &expression, &point,
+    AisStatus retval;
+    if (tids.size() == 1 ) {
+	retval = dm_process->install_probe(1, &expression, &point,
+						 &callback, &tag,
+						 installProbeCallback, name,
+						 &handle);
+    } else {
+	retval = dm_process->install_probe(1, &expression, &point,
 						 &callback, &tag,
 						 installProbeCallback, name,
 						 &handle, tid);
+    }
+
 #ifndef NDEBUG
     if(is_debug_enabled) 
 	debugDPCL("request to install_probe", retval);
