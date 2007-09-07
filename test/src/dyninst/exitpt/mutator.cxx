@@ -36,10 +36,10 @@ int main(int argc, char* argv[])
     BPatch_Vector<BPatch_function*> freeresFuncs;
     appImage->findFunction("__libc_thread_freeres", freeresFuncs);
     if(freeresFuncs.size() != 1) {
-        printf("Found %d occurences of freeres().\n", freeresFuncs.size());
+        printf("Found %d occurences of __libc_thread_freeres().\n", freeresFuncs.size());
         exit(1);
     } else {
-        printf("Found %d occurences of freeres().\n", freeresFuncs.size());
+        printf("Found %d occurences of __libc_thread_freeres().\n", freeresFuncs.size());
     }
     
     
