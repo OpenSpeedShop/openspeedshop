@@ -42,6 +42,9 @@
 #ifdef HAVE_ARRAYSVCS
 #include <arraysvcs.h>
 #endif
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
@@ -326,6 +329,26 @@ std::string Experiment::getCanonicalName(const std::string& host)
     return canonical;
 }
 
+std::string Experiment::getHostnameFromIP(const std::string& ip)
+{
+    std::string  hostName;
+    struct hostent *ht;
+    struct in_addr s_addr;
+
+    // Return ip if it is not a valid IP address.
+    if ((inet_aton(ip.c_str(), &s_addr)) == 0) {
+	return ip;
+    }
+
+    // Return ip if no host name can be resolved from the ip address.
+    if ((ht = gethostbyaddr((char *)&s_addr, sizeof(s_addr), AF_INET)) == NULL) {
+	return ip;
+    }
+
+    // Return the host name resolved from the ip address.
+    hostName = ht->h_name;
+    return hostName;
+}
 
 
 /**
@@ -1931,6 +1954,15 @@ bool Experiment::getMPIJobFromMPICH(const Thread& thread, Job& job)
 	for(Job::iterator i = table.begin(); i != table.end(); ++i)
 	    if(i->first.find_first_not_of("0123456789") == std::string::npos)
 		i->first.insert(0, "n");
+    }
+
+    // Lampi may send a raw IP address rather than the real host name.
+    {
+	for(Job::iterator i = table.begin(); i != table.end(); ++i)
+	    if(i->first.find_first_not_of(".0123456789") == std::string::npos) {
+		std::string hostName = getHostnameFromIP(i->first);
+		i->first.swap(hostName);
+	    }
     }
 
 #ifndef NDEBUG

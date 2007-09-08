@@ -92,6 +92,7 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	static std::string getLocalHost();
 	static std::string getCanonicalName(const std::string&);
+	static std::string getHostnameFromIP(const std::string& ip);
 	
 	static bool isAccessible(const std::string&);
 	static void create(const std::string&);
