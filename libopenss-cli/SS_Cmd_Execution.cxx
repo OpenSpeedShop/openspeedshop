@@ -2092,8 +2092,9 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
         EXPID active_exp_id = exp->ExperimentObject_ID();
         
         exp->FW()->incrementRerunCount();
-//        exp->exp_rerun_count++;
-        std::string new_data_base_name = exp->createRerunNameFromCurrentName(active_exp_id, exp->FW()->getRerunCount(), Data_File_Name.c_str());
+        std::string new_data_base_name = exp->createRerunNameFromCurrentName(active_exp_id, 
+                                                                             exp->FW()->getRerunCount(), 
+                                                                             Data_File_Name.c_str());
 #ifdef DEBUG_CLI
         printf("Execute_Experiment, new_data_base_name of input experiment is %s\n", 
                new_data_base_name.c_str());
@@ -2101,11 +2102,14 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
         exp->CopyDB (new_data_base_name);
       }
        
-      std::string appCommand = experiment->getApplicationCommand();
 
 #ifdef DEBUG_CLI
-      printf("Execute_Experiment, appCommand for the experiment is %s\n", 
-               appCommand.c_str());
+      std::string appCommand = experiment->getApplicationCommand();
+      if (appCommand.empty()) {
+        printf("Execute_Experiment, appCommand for the experiment is EMPTY\n");
+      } else {
+        printf("Execute_Experiment, appCommand for the experiment is %s\n", appCommand.c_str());
+      } 
 #endif
 
       experiment->prepareToRerun();
@@ -2177,20 +2181,22 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       Request_Async_Notice_Of_Termination (cmd, exp);
     }
 
-#if 0
-   std::string appCommand = exp->FW()->getApplicationCommand();
-   // Protect against null application command and let user know
-   if (appCommand.empty() ) appCommand = "Executable name not available";
+    std::string appCommand = exp->FW()->getApplicationCommand();
 
-    // Annotate the command
-    cmd->Result_Annotation ("Start asynchronous execution of experiment:  -x "
+    // Protect against empty application command and then use default execution message
+    // which does not contain the executable name
+    if (appCommand.empty() ) {
+
+      // Annotate the command
+      cmd->Result_Annotation ("Start asynchronous execution of experiment:  -x "
+                            + int2str(exp->ExperimentObject_ID()) + "\n" );
+    } else {
+
+      // Annotate the command
+      cmd->Result_Annotation ("Start asynchronous execution of experiment:  -x "
                             + int2str(exp->ExperimentObject_ID()) + "\n" + "Running executable: " + appCommand
                             + " for experiment -x " + int2str(exp->ExperimentObject_ID()) +  "\n");
-#else
-    // Annotate the command
-    cmd->Result_Annotation ("Start asynchronous execution of experiment:  -x "
-                            + int2str(exp->ExperimentObject_ID()) + "\n" );
-#endif
+    }
 
   }
 
@@ -2787,6 +2793,11 @@ bool SS_expSetArgs (CommandObject *cmd) {
 
   std::string appCommand = exp->FW()->getApplicationCommand();
 
+  // only do the code if there is an application command (-f executable case).
+  // -p < process > or -r < rank > will not have an applicaiton command
+
+  if (!appCommand.empty()) {
+
 #ifdef DEBUG_CLI
   printf("In SS_expSetArgs(), appCommand.c_str()=%s\n", appCommand.c_str());
 #endif
@@ -2937,7 +2948,7 @@ bool SS_expSetArgs (CommandObject *cmd) {
 #ifdef DEBUG_CLI
       printf("In SS_expSetArgs(), at bottom of for appCommand.c_str()=%s\n", appCommand.c_str());
 #endif
-    } // end for
+    } // end for xi
   }
 
 #ifdef DEBUG_CLI
@@ -2965,11 +2976,12 @@ bool SS_expSetArgs (CommandObject *cmd) {
   } else if ( replace_length ==  0) {
     appCommand = appCommand + " " + S;
   } 
-  
 
 #ifdef DEBUG_CLI
   printf("In SS_expSetArgs(), after the new args added  appCommand.c_str()=%s\n", appCommand.c_str());
 #endif
+
+  } // end appCommand not empty
 
   exp->FW()->setApplicationCommand(appCommand.c_str());
   exp->Q_UnLock ();

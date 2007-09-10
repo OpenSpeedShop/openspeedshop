@@ -1461,6 +1461,9 @@ Extent Experiment::getPerformanceDataExtent() const
  */
 std::string Experiment::getApplicationCommand() 
 {
+
+    std::string EmptyString = "";
+
     // Table mapping original thread names to their corresponding collectors
     std::vector<std::pair<ThreadName, CollectorGroup> > names_to_collectors;
 
@@ -1491,7 +1494,7 @@ std::string Experiment::getApplicationCommand()
 #endif
 
    } // end for
-   return NULL;
+   return EmptyString;
 }
 
 /**
