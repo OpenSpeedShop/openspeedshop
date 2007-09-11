@@ -2118,7 +2118,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       exp->Q_UnLock ();
 
 #ifdef DEBUG_CLI
-      cerr << "after prepareToRerun, exp->ExpStatus_Name() " << exp->ExpStatus_Name() << "\n";
+      cerr << "Execute_Experiment, after prepareToRerun, exp->ExpStatus_Name() " << exp->ExpStatus_Name() << "\n";
 #endif
 
   } 
@@ -2165,6 +2165,9 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
         if ((t.getState() == Thread::Terminated) ||
             (t.getState() == Thread::Nonexistent)) {
          // These states cause errors, but we can ignore them.
+#ifdef DEBUG_CLI
+          cerr << "In Execute_Experiment, after prepareToRerun, terminated or nonexistent clause, t.getState()= " << t.getState() << "\n";
+#endif
           continue;
         }
         Mark_Cmd_With_Std_Error (cmd, error);
