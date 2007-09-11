@@ -333,3 +333,10 @@ Mark_Cmd_With_Soft_Error (CommandObject *cmd, const std::string S) {
    openss_error((char *)S.c_str());
    return;
 }
+
+//  Just put out the message with out error reporting
+inline void 
+Mark_Cmd_With_Message (CommandObject *cmd, const std::string S) {
+   cmd->Result_String ( S );
+   return;
+}

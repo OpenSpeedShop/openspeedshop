@@ -285,8 +285,9 @@ class mpiotf_view : public ViewType {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                              ThreadGroup& tgrp, std::list<CommandResult *>& view_output) {
-    Mark_Cmd_With_Soft_Error(cmd, "(There is no view in Open|SpeedShop for this experiment, please us Vampir-NG)");
-    return false;
+    
+    Mark_Cmd_With_Message(cmd, "There is no view in Open|SpeedShop for this experiment, please use Vampir-NG");
+    return true;
   }
 };
 
