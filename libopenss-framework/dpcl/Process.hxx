@@ -285,7 +285,7 @@ namespace OpenSpeedShop { namespace Framework {
 	/** Map loaded libraries to their entries. */
 	std::map<std::pair<Collector, std::string>, LibraryEntry> dm_libraries;
 	
-	void requestAddressSpace(const ThreadGroup&, const Time&);	
+	void requestAddressSpace(const ThreadGroup&, const Time&, const bool);	
 	void requestAttach();
 	void requestConnect();
 	void requestDeactivateAndRemove(ProbeHandle);

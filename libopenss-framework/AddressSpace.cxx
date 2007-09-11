@@ -118,7 +118,9 @@ void AddressSpace::setValue(const AddressRange& range,
  *                   objects that need their symbol table constructed.
  */
 std::map<AddressRange, std::set<LinkedObject> >
-AddressSpace::updateThreads(const ThreadGroup& threads, const Time& when) const
+AddressSpace::updateThreads(const ThreadGroup& threads,
+			    const Time& when,
+			    const bool update_interval) const
 {
     std::map<AddressRange, std::set<LinkedObject> > needed_symbol_tables;
     
@@ -146,16 +148,47 @@ AddressSpace::updateThreads(const ThreadGroup& threads, const Time& when) const
 		time_begin = when;
 	
 	// Update time interval of active address space entries for this thread
-	database->prepareStatement(
-	    "UPDATE AddressSpaces "
-	    "SET time_end = ? "
-	    "WHERE thread = ? "
-	    "  AND time_end = ?;"
-	    );
-	database->bindArgument(1, when);
-	database->bindArgument(2, EntrySpy(*t).getEntry());
-	database->bindArgument(3, Time::TheEnd());
-	while(database->executeStatement());
+	//
+	// FIXME:
+	// The openmpi mpirun command (when configured --enable-dlopen) uses dlopen
+	// to load in the openmpi mca plugins that handle starting up the mpi rank
+	// processes. This causes some 20 plugins to be loaded which in turn initiates
+	// addressSpaceChangeCallbacks for each plugin.  As each callback is made,
+	// updateThreads is called and an entry in the AddressSpaces table is created
+	// with Time::TheEnd.  Subsequent addressSpaceChangeCallbacks made while the
+	// framework is still processing previous addressSpaceChangeCallbacks can cause
+	// the update of the time_end from Time::TheEnd to the current "when" time to be wrong
+	// for previous addressSpaceChangeCallbacks that have not yet completed their
+	// requestAddressSpace calls (and therefore have not finished expanding the
+	// module that initiated the addressSpaceChangeCallback). This causes entries in
+	// the AddressSpace table of the database to have invalid time intervals.
+	//
+	// It should also be noted that an addressSpaceChangeCallback only informs the
+	// framework that a dlopen has occured. Since we handle these requests asynchronously,
+	// the application may unload the module before our actual requestAddressSpace is made
+	// (or while we are asking dpcl/dyninst to expand the module). In this case, we will
+	// have entries in the AddressSpace table of the database for which no module was
+	// actually expanded and such entries will have no symbol information.
+	//
+	// The update_interval flag is set "false" only by addressSpaceChangeCallback to
+	// prevent the updating of the time_end for any requestAddressSpace initiated by
+	// an addressSpaceChangeCallback.  This means that any AddressSpace in the
+	// database caused by a dlopen during a mutatee's execution will have
+	// Time::TheEnd as it's time_end. All other requestAddressSpace calls will
+	// allow the updating of the time_end to when in the code below.
+	//
+	if (update_interval) {
+	    database->prepareStatement(
+	        "UPDATE AddressSpaces "
+	        "SET time_end = ? "
+	        "WHERE thread = ? "
+	        "  AND time_end = ?;"
+	        );
+	    database->bindArgument(1, when);
+	    database->bindArgument(2, EntrySpy(*t).getEntry());
+	    database->bindArgument(3, Time::TheEnd());
+	    while(database->executeStatement());
+	}
 
 	// Iterate over each linked object entry in this address space
 	for(std::map<AddressRange, Entry>::const_iterator

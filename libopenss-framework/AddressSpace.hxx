@@ -72,7 +72,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void setValue(const AddressRange&, const Path&, const bool&);
 
 	std::map<AddressRange, std::set<LinkedObject> >
-	updateThreads(const ThreadGroup&, const Time&) const;
+	updateThreads(const ThreadGroup&, const Time&, const bool) const;
 	
     private:
 
