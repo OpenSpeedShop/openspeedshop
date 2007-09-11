@@ -904,7 +904,6 @@ bool
 StatsPanel::menu( QPopupMenu* contextMenu)
 {
 
-
 #ifdef DEBUG_StatsPanel
  printf("StatsPanel::menu() entered.\n");
  printf("StatsPanel::menu(),  focusedExpID=%d\n", focusedExpID );
@@ -962,12 +961,11 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   QString defaultStatsReportStr = QString::null;
 
 // printf("Do you have a list of collectors?\n");
-qaction = new QAction(this, "selectTimeSlice");
-qaction->addTo( contextMenu );
-qaction->setText( tr("Select: Time Segment") );
-qaction->setToolTip(tr("Select a time segment to limiting future reports.") );
-connect( qaction, SIGNAL( activated() ), this, SLOT(timeSliceSelected()) );
-
+  qaction = new QAction(this, "selectTimeSlice");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Select: Time Segment") );
+  qaction->setToolTip(tr("Select a time segment to limiting future reports.") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT(timeSliceSelected()) );
 
   for( std::list<std::string>::const_iterator it = list_of_collectors.begin();
       it != list_of_collectors.end(); it++ )
@@ -2509,7 +2507,6 @@ StatsPanel::threadSelected(int val)
   printf("threadSelected(%d)\n", val);
 #endif
 
-
   currentThreadStr = threadMenu->text(val).ascii();
 
   currentThreadsStr = QString::null;
@@ -2517,7 +2514,6 @@ StatsPanel::threadSelected(int val)
 #ifdef DEBUG_StatsPanel
   printf("threadMenu: selected text=(%s)\n", threadMenu->text(val).ascii() );
 #endif
-
 
   bool FOUND_FLAG = FALSE;
   for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); it != currentThreadGroupStrList.end(); ++it)
@@ -2594,9 +2590,7 @@ if( currentThreadStrENUM == RANK )
   printf("currentThreadsStr = %s call update.\n", currentThreadsStr.ascii() );
 #endif
 
-
   updateStatsPanelData(false);
-
 
   // Now, try to focus the source panel on the first entry...
   QListViewItemIterator it( splv );
@@ -4932,7 +4926,7 @@ StatsPanel::generateCommand()
 {
   QString traceAddition = QString::null;
 #ifdef DEBUG_StatsPanel
-  printf("GenerateCommand(%s) MPItraceFLAG = (%d) currentUserSelectedReportStr=(%s) IOtraceFLAG == %d\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), MPItraceFLAG, IOtraceFLAG );
+  printf("StatsPanel::generateCommand(%s) MPItraceFLAG = (%d) currentUserSelectedReportStr=(%s) IOtraceFLAG == %d\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), MPItraceFLAG, IOtraceFLAG );
 #endif
 
   int exp_id = -1;
@@ -5382,8 +5376,6 @@ StatsPanel::generateMPIMenu(QString collectorName)
 
   mpi_menu->insertSeparator();
 
-
-
   list_of_mpi_modifiers.clear();
   list_of_mpit_modifiers.clear();
   if( collectorName == "mpi" )
@@ -5438,8 +5430,7 @@ StatsPanel::generateMPIMenu(QString collectorName)
     qaction->setOn(MPItraceFLAG);
     qaction->setToolTip(tr("When available, show traced timings."));
     connect( qaction, SIGNAL( activated() ), this, SLOT(MPItraceSelected()) );
-  } else
-  {
+  } else if( collectorName == "mpit" ) {
     addMPIReports(mpi_menu);
     connect(mpi_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorMPITReportSelected(int)) );
@@ -5490,6 +5481,11 @@ StatsPanel::generateMPIMenu(QString collectorName)
     qaction->setOn(MPItraceFLAG);
     qaction->setToolTip(tr("When available, show traced timings."));
     connect( qaction, SIGNAL( activated() ), this, SLOT(MPItraceSelected()) );
+  } else {
+#ifdef DEBUG_StatsPanel
+       printf("generateMPIMenu(%s) for mpiotf\n", collectorName.ascii() );
+#endif
+    // generate mpiotf menu
   }
 
 }
@@ -6554,7 +6550,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip, HighlightList *highli
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::process_clip before NULL check statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip,statspanel_clip);
-  printf("StatsPanel::process_clip statspanel_clip->CmdObj_List().begin() == NULL=%d\n", (statspanel_clip->CmdObj_List().begin() == NULL));
+//  printf("StatsPanel::process_clip statspanel_clip->CmdObj_List().begin() == NULL=%d\n", (statspanel_clip->CmdObj_List().begin() == NULL));
 #endif
 
   coi = statspanel_clip->CmdObj_List().begin();
@@ -6944,7 +6940,7 @@ void
 StatsPanel::progressUpdate()
 {
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::progressUpdate, progressUpdate() entered\n");
+//too many calls ---  printf("StatsPanel::progressUpdate, progressUpdate() entered\n");
 #endif
   pd->qs->setValue( steps );
   if( step_forward )
