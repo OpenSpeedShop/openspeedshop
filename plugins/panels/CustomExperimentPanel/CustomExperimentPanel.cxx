@@ -396,9 +396,14 @@ if( attachFLAG )
     {
       experiment = eo->FW();
     }
-      if( eo->Determine_Status() == ExpStatus_NonExistent || eo->Determine_Status() == ExpStatus_InError || eo->Determine_Status() == ExpStatus_Terminated )
+      if( eo->Determine_Status() == ExpStatus_NonExistent || 
+          eo->Determine_Status() == ExpStatus_InError || 
+          eo->Determine_Status() == ExpStatus_Terminated )
       {
         statusLabelText->setText( tr(QString("Loaded saved data from file %1.").arg(getDatabaseName()) ) );
+#ifdef DEBUG_CustomPanel
+        printf("CustomExperimentPanel::init, calling loadStatsPanel\n");
+#endif
         loadStatsPanel();
 
         runnableFLAG = FALSE;
@@ -407,8 +412,7 @@ if( attachFLAG )
         pco->continueButton->setEnabled(FALSE);
         pco->continueButton->enabledFLAG = FALSE;
         staticDataFLAG == TRUE;
-      } else
-      {
+      } else {
         statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
         runnableFLAG = TRUE;
         pco->runButton->setEnabled(TRUE);
@@ -462,7 +466,7 @@ if( attachFLAG )
 
         // If we default a report panel bring it up here...
 #ifdef DEBUG_CustomPanel
-        printf("CustomExperimentPanel::init, Split:  Now loadStatsPanel()\n");
+        printf("CustomExperimentPanel::init, Split:  Now call loadStatsPanel()\n");
 #endif
         Panel *p = loadStatsPanel();
             
@@ -1760,6 +1764,9 @@ CustomExperimentPanel::loadMain()
 void
 CustomExperimentPanel::updateStatus()
 {
+  // Is a MPIOTF Panel being created?
+  bool MPIOTF_experiment_being_run = false;
+
   if( expID <= 0 )
   {
     statusLabelText->setText( "No expid" );
@@ -1796,6 +1803,12 @@ CustomExperimentPanel::updateStatus()
   if( eo && eo->FW() )
   {
     int status = eo->Determine_Status();
+    if( QString(getName()).startsWith("MPIOTF") )  // MPIOTF is not handled by OpenSpeedShop Stats Panel
+    { 
+       MPIOTF_experiment_being_run = true;
+    } else {
+       MPIOTF_experiment_being_run = false;
+    }
 
 #ifdef DEBUG_CustomPanel
 // prints out quite often.....
@@ -1815,6 +1828,9 @@ CustomExperimentPanel::updateStatus()
       staticDataFLAG = TRUE;
     }
     nprintf( DEBUG_PANELS ) ("status=%d\n", status);
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::updateStatus(),status=%d\n", status);
+#endif
     switch( status )
     {
       case ExpStatus_NonExistent:
@@ -1941,8 +1957,8 @@ CustomExperimentPanel::updateStatus()
         break;
       case ExpStatus_Terminated:
       case ExpStatus_InError:
-        if( status == ExpStatus_Terminated )
-        {
+        if( status == ExpStatus_Terminated ) {
+
 #ifdef DEBUG_CustomPanel
           printf("CustomExperimentPanel::updateStatus(),Experiment has ExpStatus_Terminated status:\n");
 #endif
@@ -1971,13 +1987,13 @@ CustomExperimentPanel::updateStatus()
 #endif
           }
 // jeg experimental
-        } else if( status == ExpStatus_InError )
-        {
+        } else if( status == ExpStatus_InError ) {
 #ifdef DEBUG_CustomPanel
-          printf("CustomExperimentPanel::updateStatus(),Experiment has ExpStatus_InError status:\n");
+          printf("CustomExperimentPanel::updateStatus(), Experiment has ExpStatus_InError status:\n");
 #endif
           statusLabelText->setText( tr("Experiment has encountered an Error.") );
         }
+
         statusTimer->stop();
         pco->runButton->setEnabled(TRUE);
         pco->runButton->enabledFLAG = TRUE;
@@ -1995,7 +2011,16 @@ CustomExperimentPanel::updateStatus()
         statusTimer->stop();
        // If we default a report panel bring it up here...
         staticDataFLAG = TRUE;
-        loadStatsPanel();
+#ifdef DEBUG_CustomPanel
+        printf("CustomExperimentPanel::updateStatus(), calling loadStatsPanel, staticDataFLAG=%d\n", staticDataFLAG);
+#endif
+        if ( !MPIOTF_experiment_being_run ) {
+          loadStatsPanel();
+        } else {
+          // Add code here to check for VNG if it is not found then go ahead with the
+          // loadStatsPanel which will issue the info message about no support for mpiotf in OpenSpeedShop
+          printf("CustomExperimentPanel::updateStatus(), MPIOTF VIEW NEEDED --------- USE VNG \n");
+        }
         break;
       default:
 #ifdef DEBUG_CustomPanel
@@ -2056,8 +2081,10 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
 //      experiments inherit from that...   Not hard, just timeconsuming.
 // printf("ProcessLOA entered (%s) mpiFLAG=%d\n", getName(), getPanelContainer()->getMainWindow()->mpiFLAG );
 
-  if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT") || QString(getName()).startsWith("FPE") || QString(getName()).startsWith("IO") )
-  {
+  if( QString(getName()).startsWith("MPI") ||  
+      QString(getName()).startsWith("FPE") || 
+      QString(getName()).startsWith("IO") ) {
+
 // printf("WHY AREN'T YOU HERE!\n");
 //    QString paramStr = QString::null;
     QString paramStr = QString((const char *)0);
@@ -2079,37 +2106,51 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
     QString command = QString((const char *)0);
     if( !paramStr.isEmpty() )
     {
-      if( QString(getName()).startsWith("FPE") )
-      {
+      if( QString(getName()).startsWith("FPE") ) {
         command = QString("expSetParam -x %1 fpe::traced_fpes=%2").arg(expID).arg(paramStr);
-// printf("paramStr: fpe =(%s)\n", paramStr.ascii() );
-      } else if( QString(getName()).startsWith("IO") )
-      {
+#ifdef DEBUG_CustomPanel
+        printf("paramStr: fpe =(%s)\n", paramStr.ascii() );
+#endif
+      } else if( QString(getName()).startsWith("IO") ) {
         command = QString("expSetParam -x %1 io::traced_functions=%2").arg(expID).arg(paramStr);
-// printf("paramStr: IO =(%s)\n", paramStr.ascii() );
-      } else if( QString(getName()).startsWith("MPIT") )
-      {
+#ifdef DEBUG_CustomPanel
+        printf("CustomExperimentPanel::processLAO, paramStr: IO =(%s)\n", paramStr.ascii() );
+#endif
+      } else if( QString(getName()).startsWith("MPIOTF") ) {
+        command = QString("expSetParam -x %1 mpiotf::traced_functions=%2").arg(expID).arg(paramStr);
+#ifdef DEBUG_CustomPanel
+        printf("CustomExperimentPanel::processLAO, paramStr: MPIOTF =(%s)\n", paramStr.ascii() );
+#endif
+      } else if( QString(getName()).startsWith("MPIT") ) {
         command = QString("expSetParam -x %1 mpit::traced_functions=%2").arg(expID).arg(paramStr);
-printf("paramStr: MPIT =(%s)\n", paramStr.ascii() );
-      } else if( QString(getName()).startsWith("MPI") )
-      {
+#ifdef DEBUG_CustomPanel
+        printf("CustomExperimentPanel::processLAO, paramStr: MPIT =(%s)\n", paramStr.ascii() );
+#endif
+      } else if( QString(getName()).startsWith("MPI") ) {
         command = QString("expSetParam -x %1 mpi::traced_functions=%2").arg(expID).arg(paramStr);
-printf("paramStr: MPI =(%s)\n", paramStr.ascii() );
-      } else
-      {
+#ifdef DEBUG_CustomPanel
+        printf("CustomExperimentPanel::processLAO, paramStr: MPI =(%s)\n", paramStr.ascii() );
+#endif
+      } else {
         return 0;
       }
       CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-// printf("%s command=(%s)\n", getName(), command.ascii() );
+#ifdef DEBUG_CustomPanel
+      printf("CustomExperimentPanel::processLAO, %s command=(%s)\n", getName(), command.ascii() );
+#endif
       if( !cli->runSynchronousCLI((char *)command.ascii() ) )
       {
         return 0;
       }
     }
-  } else if( lao->paramList )
-  {
+  } else if( lao->paramList ) {
+
     QString sample_rate_str = (QString)*lao->paramList->begin();
-// printf("sample_rate_str=(%s)\n", sample_rate_str.ascii() );
+
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::processLAO, sample_rate_str=(%s)\n", sample_rate_str.ascii() );
+#endif
+
     unsigned int sampling_rate = sample_rate_str.toUInt();
     // Set the sample_rate of the collector.
     try
