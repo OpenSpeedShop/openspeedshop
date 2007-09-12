@@ -130,7 +130,6 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) 
 
 #endif // CANVAS_FORM_2
 
-  delete label;
 
   textEditLayoutFrame = new QFrame( splitter, "New QFrame" );
   textEditLayout = new QVBoxLayout( textEditLayoutFrame );
@@ -138,8 +137,14 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) 
   textEditHeaderLayout = new QHBoxLayout( textEditLayout, 2, "textEditHeaderLayout" );
   textEditHeaderLayout->setMargin(1);
 
+#ifdef DEBUG_SourcePanel
+  printf("source panel textEditLayoutFrame->height()=%d\n", textEditLayoutFrame->height());
+  printf("source panel label->height()=%d\n", label->height());
+#endif
+
   QSpacerItem *spacerItem = new QSpacerItem(1,label->height(), QSizePolicy::Fixed, QSizePolicy::Minimum );
   textEditHeaderLayout->addItem( spacerItem );
+  delete label;
 
   label = new QLabel( textEditLayoutFrame, "text label", 0 );
   label->setCaption("SourcePanel: text label");
@@ -152,6 +157,9 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) 
 
 
   textEditHeaderLayout->addWidget( label );
+#ifdef DEBUG_SourcePanel
+  printf("source panel 2nd label->height()=%d\n", label->height());
+#endif
 
 
   textEdit = new SPTextEdit( this, textEditLayoutFrame );
