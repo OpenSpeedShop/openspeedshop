@@ -1149,14 +1149,36 @@ CustomExperimentPanel::listener(void *msg)
             argsStr = mw->argsStr;
           }
           if (askAboutSavingTheDatabasePref && askAboutSavingTheDatabaseCount == 0) {
+
+            int answer_val =  QMessageBox::Cancel;
+
+            answer_val =  QMessageBox::question( this, tr("Save Database?"), tr("You are about to rerun your experiment. The results \nfrom the previous run will be removed if no action is taken.\nDo you want to save this performance statistics\ndatabase before the rerun of your experiment? \nThis is the only time this question will be asked.\nThe answer will apply to all subsequent reruns\n  - Yes will bring up a save database dialog box.\n  - No will continue without saving the database.\n  - Cancel will do nothing."),
+            QMessageBox::Yes,  QMessageBox::No,  QMessageBox::Cancel );
+
+            if( answer_val ==  QMessageBox::Yes ) {
+              // save database
               askAboutSavingTheDatabaseCount = 1;
               saveExperiment();
-          }
+//              printf("in CustomExperimentPanel::listener(), RUN_T, SAVE, answer_val=%d\n", answer_val);
+            } else if( answer_val ==  QMessageBox::No ) {
+              // skip saving the database
+              askAboutSavingTheDatabaseCount = 1;
+              saveExperiment();
+//              printf("in CustomExperimentPanel::listener(), RUN_T, SKIP, answer_val=%d\n", answer_val);
+            } else  //  QMessageBox::Cancel
+            {
+//               printf("in CustomExperimentPanel::listener(), RUN_T, DO NOTHING, answer_val=%d\n", answer_val);
+              // do nothing
+            } 
+
+          } // askAboutSavingTheDatabasePref
+
 
           if (askAboutChangingArgsPref) {
 #ifdef DEBUG_CustomPanel
            printf("in CustomExperimentPanel::listener(), RUN_T, calling QInputDialog::getText, argsStr=%s\n", argsStr.ascii());
 #endif
+
            // A small dialog box will popup to enable the user to change/enter application arguments.
            // The existing arguments are displayed.  argsStr is a QString representing the existing arguments
            bool ok;
