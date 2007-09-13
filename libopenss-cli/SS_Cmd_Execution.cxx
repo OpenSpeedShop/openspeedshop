@@ -3575,6 +3575,40 @@ bool SS_Info (CommandObject *cmd) {
 // Primitive Information Commands
 
 /**
+ * SemanticRoutine: SS_ListAppCommand ()
+ * 
+ * List the application command that was run to create the
+ * performance data.
+ *     
+ * @param   cmd - the CommandObject being processed..
+ *
+ * @return  "true"
+ *
+ * @error   If experiment not found put out message to
+ *          user to load or activate an experiment..
+ *
+ */
+static bool SS_ListAppCommand (CommandObject *cmd) {
+  Framework::Experiment *experiment = NULL;
+  ExperimentObject *exp = Find_Specified_Experiment (cmd);
+  if (exp == NULL) {
+      cmd->Result_String ("'list -v appcommand' must have an experiment active.");
+      return false;
+  }
+
+  experiment = exp->FW();
+  if (experiment == NULL) {
+      cmd->Result_String ("'list -v appcommand' must have an experiment active.");
+      return false;
+  }
+  std::string appCommand = experiment->getApplicationCommand();
+
+  cmd->Result_String ( appCommand );
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+/**
  * SemanticRoutine: SS_ListBreaks ()
  * 
  * Not yet implemented.
@@ -4677,7 +4711,9 @@ bool SS_ListGeneric (CommandObject *cmd) {
     }
 
     first_listtype_found = true;
-    if (!strcasecmp(S.c_str(),"breaks")) {
+    if (!strcasecmp(S.c_str(),"appcommand")) {
+      result_of_first_list = SS_ListAppCommand(cmd);
+    } else if (!strcasecmp(S.c_str(),"breaks")) {
       result_of_first_list = SS_ListBreaks(cmd);
     } else if (!strcasecmp(S.c_str(),"database") ||
                !strcasecmp(S.c_str(),"restoredfile")) {
