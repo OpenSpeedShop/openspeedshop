@@ -32,7 +32,7 @@ then
 fi
 if test -d plugins/panels
 then
-bootstrap;configure --prefix=$OPENSS_INSTALL_DIR --with-libunwind=/home/jeg/x86_64/root/usr --with-papi=/home/jeg/x86_64/papi_root --with-dpcl=/home/jeg/x86_64/root/usr --with-dyninst=/home/jeg/x86_64/root/usr --with-sqlite=/home/jeg/x86_64/root/usr --with-mpich2=/apps/x86_64/mpich2-1.0.2p1-gcc-3.4.3-tcpip --with-mpich=/home/jeg/x86_64/mvapich_root --with-mpich-driver=sandia ; make uninstall;make install;make dist; 
+bootstrap;configure --prefix=$OPENSS_INSTALL_DIR --with-libunwind=$PREFIX --with-papi=$PREFIX --with-dpcl=$PREFIX --with-dyninst=$PREFIX --with-sqlite=$PREFIX --with-mpich2=/apps/mpi/mpich2-1.0.5_p4_intel-9.1 --with-mpich=/apps/mpi/mpich-1.2.6.13b_p4_gcc-3.4.6 --with-mpich-driver=shared --with-openmpi=/apps/mpi/ompi-1.1.2_ofed-1.1_gcc-4.1.1_debug --with-otf=$PREFIX/vt-5.3.2 --with-vt=$PREFIX/vt-5.3.2 ; make uninstall;make install;make dist; 
 else
   echo NOTE: This must be run from the 'current' directory...
 fi
