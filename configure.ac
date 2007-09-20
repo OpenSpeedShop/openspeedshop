@@ -149,6 +149,7 @@ case "$INSTRUMENTOR" in
 	;;
 
     mrnet)
+	AC_PKG_DYNINST()
 	AC_PKG_MRNET()
 	;;
 
@@ -179,6 +180,7 @@ AC_CONFIG_FILES(
 	libopenss-framework/dpcl/Makefile
 	libopenss-framework/dyninst/Makefile
 	libopenss-framework/mrnet/Makefile
+	libopenss-framework/mrnet/openssd/Makefile
 	libopenss-queries/Makefile
 	plugins/Makefile
 	plugins/collectors/Makefile

@@ -16,6 +16,8 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+SUBDIRS = openssd
+
 noinst_LTLIBRARIES = libopenss-framework-mrnet.la
 
 libopenss_framework_mrnet_la_CXXFLAGS = \
@@ -30,4 +32,5 @@ libopenss_framework_mrnet_la_LIBADD = \
 	-lpthread
 
 libopenss_framework_mrnet_la_SOURCES = \
+	$(top_srcdir)/libopenss-framework/mrnet/openssd/Protocol.c \
 	Instrumentor.cxx
