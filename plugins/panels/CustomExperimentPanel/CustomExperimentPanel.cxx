@@ -1788,6 +1788,7 @@ CustomExperimentPanel::updateStatus()
 {
   // Is a MPIOTF Panel being created?
   bool MPIOTF_experiment_being_run = false;
+  std::string vampir_ng_path("");
 
   if( expID <= 0 )
   {
@@ -2039,10 +2040,35 @@ CustomExperimentPanel::updateStatus()
         if ( !MPIOTF_experiment_being_run ) {
           loadStatsPanel();
         } else {
+#if 0
           // Add code here to check for VNG if it is not found then go ahead with the
           // loadStatsPanel which will issue the info message about no support for mpiotf in OpenSpeedShop
+#ifdef DEBUG_CustomPanel
           printf("CustomExperimentPanel::updateStatus(), MPIOTF VIEW NEEDED --------- USE VNG \n");
-        }
+          printf("CustomExperimentPanel::updateStatus(), check to see if OPENSS_VAMPIR_NG or OPENSS_VNG_PATH is set\n");
+#endif
+
+          if(getenv("OPENSS_VAMPIR_NG") != NULL) {
+              vampir_ng_path = getenv("OPENSS_VAMPIR_NG_PATH") ;
+#ifdef DEBUG_CustomPanel
+              fprintf(stderr," from OPENSS_VAMPIR_NG, vampir_ng_path =\n", vampir_ng_path.c_str());
+#endif
+          } else if(getenv("OPENSS_VNG") != NULL) {
+              vampir_ng_path = getenv("OPENSS_VNG_PATH") ;
+#ifdef DEBUG_CustomPanel
+              fprintf(stderr," from OPENSS_VNG, vampir_ng_path =\n", vampir_ng_path.c_str());
+#endif
+          } else {
+#ifdef DEBUG_CustomPanel
+              fprintf(stderr," No VNG found load stats panel as a default view to get some information about the experiment\n");
+#endif
+              loadStatsPanel();
+          }
+#else
+          loadStatsPanel();
+#endif
+
+        } // end else MPIOTF
         break;
       default:
 #ifdef DEBUG_CustomPanel
