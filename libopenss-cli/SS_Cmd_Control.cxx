@@ -559,7 +559,7 @@ try {
 
     break;
   default:
-    std::string s("This command has not been implimented yet.");
+    std::string s("This command has not been implemented yet.");
     Mark_Cmd_With_Soft_Error(cmd,s);
     cmd_successful = false;
   }
