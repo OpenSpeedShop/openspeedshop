@@ -22,7 +22,7 @@ A) Install or locate base libraries
 
 >> setenv MPILIB <appropriate path>
 
-   b) QT (recommended version 3.3.1)
+   b) QT (versions 3.3.1 to 3.3.8 work, newer versions recommended)
 
 >> setenv QTDIR <appropriate path>
 
