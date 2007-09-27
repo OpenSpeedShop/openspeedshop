@@ -299,8 +299,8 @@ public slots:
     virtual void vpage1wizardModeSelected();
     virtual void epage0wizardModeSelected();
     virtual void epage1wizardModeSelected();
-    virtual void vpage0NextButtonSelected();
-    virtual void vpage1NextButtonSelected();
+    virtual void vORepage0NextButtonSelected();
+    virtual void vORepage1NextButtonSelected();
     virtual void vpage1BackButtonSelected();
     virtual void epage1BackButtonSelected();
 

@@ -119,6 +119,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
 
   vpage0sv->viewport()->setBackgroundColor(vpage0color);
   vpage0sv->viewport()->setPaletteBackgroundColor(vpage0color);
+  vpage0sv->viewport()->setBackgroundColor("Yellow");
 
 
 //jeg  vpage0SpacerItem1 = new QLabel( vpage0big_box, "vpage0SpacerItem1" );
@@ -470,12 +471,12 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   connect( epage1wizardMode, SIGNAL( clicked() ), this, SLOT( epage1wizardModeSelected() ) );
   connect( vpage1wizardMode, SIGNAL( clicked() ), this, SLOT( vpage1wizardModeSelected() ) );
 
-  connect( vpage0NextButton, SIGNAL( clicked() ), this, SLOT( vpage0NextButtonSelected() ) );
-  connect( epage0NextButton, SIGNAL( clicked() ), this, SLOT( vpage0NextButtonSelected() ) );
-  connect( vpage1NextButton, SIGNAL( clicked() ), this, SLOT( vpage1NextButtonSelected() ) );
-  connect( epage1NextButton, SIGNAL( clicked() ), this, SLOT( vpage1NextButtonSelected() ) );
+  connect( vpage0NextButton, SIGNAL( clicked() ), this, SLOT( vORepage0NextButtonSelected() ) );
+  connect( epage0NextButton, SIGNAL( clicked() ), this, SLOT( vORepage0NextButtonSelected() ) );
+  connect( vpage1NextButton, SIGNAL( clicked() ), this, SLOT( vORepage1NextButtonSelected() ) );
+  connect( epage1NextButton, SIGNAL( clicked() ), this, SLOT( vORepage1NextButtonSelected() ) );
   connect( vpage1BackButton, SIGNAL( clicked() ), this, SLOT( vpage1BackButtonSelected() ) );
-  connect( epage1BackButton, SIGNAL( clicked() ), this, SLOT( vpage1BackButtonSelected() ) );
+  connect( epage1BackButton, SIGNAL( clicked() ), this, SLOT( epage1BackButtonSelected() ) );
   connect( vpage0SavedExpDataRB, SIGNAL( clicked() ), this, SLOT( vpage0SavedExpDataRBChanged() ) );
   connect( vpage0SavedExpCompareDataRB, SIGNAL( clicked() ), this, SLOT( vpage0SavedExpCompareDataRBChanged() ) );
   connect( vpage0CreateLoadExpDataRB, SIGNAL( clicked() ), this, SLOT( vpage0CreateLoadExpDataRBChanged() ) );
@@ -632,7 +633,7 @@ void IntroWizardPanel::languageChange()
   epage0CreateLoadExpDataRB->setText( tr( "GENERATE NEW PERFORMANCE DATA: Load or attach to an executable and gather new performance data." ) );
   vpage0wizardMode->setText( tr( "Verbose Wizard Mode" ) );
   QToolTip::add( vpage0wizardMode, tr( "Clicking on this will alter the mode between Verbose and Expert. Expert mode has less text." ) );
-  epage0wizardMode->setText( tr( "Verbose Wizard Mode" ) );
+  epage0wizardMode->setText( tr( "Expert Wizard Mode" ) );
   QToolTip::add( epage0wizardMode, tr( "Clicking on this will change the mode between Verbose and Expert. Verbose mode has more text." ) );
   vpage0NextButton->setText( tr( "> Next" ) );
   QToolTip::add( vpage0NextButton, tr( "Advance to page two (2) of the Introduction wizard." ) );
@@ -692,7 +693,7 @@ void IntroWizardPanel::languageChange()
 
   vpage1wizardMode->setText( tr( "Verbose Wizard Mode" ) );
   QToolTip::add( vpage1wizardMode, tr( "Clicking on this will alter the mode between Verbose and Expert. Expert mode has less text." ) );
-  epage1wizardMode->setText( tr( "Verbose Wizard Mode" ) );
+  epage1wizardMode->setText( tr( "Expert Wizard Mode" ) );
   QToolTip::add( epage1wizardMode, tr( "Clicking on this will change the mode between Verbose and Expert. Verbose mode has more text." ) );
   vpage1NextButton->setText( tr( "> Next" ) );
   QToolTip::add( vpage1NextButton, tr( "Takes you to wizard corresponding to your selection of the type of data you wish to gather." ) );
@@ -734,6 +735,7 @@ void IntroWizardPanel::epage0wizardModeSelected()
 #endif
       mainWidgetStack->raiseWidget(vWStackPage0);
       vpage0wizardMode->setChecked( TRUE );
+      vpage1wizardMode->setChecked( TRUE );
 
   } else if( raisedWidget ==  eWStackPage1 ) {
 
@@ -742,6 +744,7 @@ void IntroWizardPanel::epage0wizardModeSelected()
 #endif
       mainWidgetStack->raiseWidget(vWStackPage1);
       vpage1wizardMode->setChecked( TRUE );
+      vpage0wizardMode->setChecked( TRUE );
 
   } else {
 #if DEBUG_INTRO
@@ -763,6 +766,7 @@ void IntroWizardPanel::epage1wizardModeSelected()
       printf("IntroWizardPanel::epage1wizardModeSelected(), raised widget is eWStackPage1, raising vWStackPage1\n");
 #endif
       mainWidgetStack->raiseWidget(vWStackPage1);
+      vpage0wizardMode->setChecked( TRUE );
       vpage1wizardMode->setChecked( TRUE );
 
   } else if( raisedWidget ==  eWStackPage0 ) {
@@ -771,6 +775,7 @@ void IntroWizardPanel::epage1wizardModeSelected()
 #endif
       mainWidgetStack->raiseWidget(vWStackPage0);
       vpage0wizardMode->setChecked( TRUE );
+      vpage1wizardMode->setChecked( TRUE );
   } else {
 #if DEBUG_INTRO
       printf("IntroWizardPanel::epage1wizardModeSelected(), Verbose to Expert: unknown WStackPage\n");
@@ -792,7 +797,10 @@ void IntroWizardPanel::vpage1wizardModeSelected()
       printf("IntroWizardPanel::vpage1wizardModeSelected(), raised widget is vWStackPage0, raising eWStackPage0\n");
 #endif
       mainWidgetStack->raiseWidget(eWStackPage0);
-      epage1wizardMode->setChecked( FALSE );
+      epage1wizardMode->setChecked( TRUE );
+      epage0wizardMode->setChecked( TRUE );
+      vpage0wizardMode->setChecked( FALSE );
+      vpage1wizardMode->setChecked( FALSE );
 
   } else if( raisedWidget ==  eWStackPage0 ) {
 #if DEBUG_INTRO
@@ -800,18 +808,27 @@ void IntroWizardPanel::vpage1wizardModeSelected()
 #endif
       mainWidgetStack->raiseWidget(vWStackPage0);
       vpage0wizardMode->setChecked( TRUE );
+      vpage1wizardMode->setChecked( TRUE );
+      epage1wizardMode->setChecked( FALSE );
+      epage0wizardMode->setChecked( FALSE );
   } else if( raisedWidget ==  eWStackPage1 ) {
 #if DEBUG_INTRO
       printf("IntroWizardPanel::vpage1wizardModeSelected(), raised widget is eWStackPage1, raising vWStackPage1\n");
 #endif
       mainWidgetStack->raiseWidget(vWStackPage1);
       vpage1wizardMode->setChecked( TRUE );
+      vpage0wizardMode->setChecked( TRUE );
+      epage1wizardMode->setChecked( FALSE );
+      epage0wizardMode->setChecked( FALSE );
   } else if( raisedWidget == vWStackPage1 ) {
 #if DEBUG_INTRO
       printf("IntroWizardPanel::vpage1wizardModeSelected(), raised widget is vWStackPage1, raising eWStackPage1\n");
 #endif
       mainWidgetStack->raiseWidget(eWStackPage1);
-      epage1wizardMode->setChecked( FALSE );
+      vpage1wizardMode->setChecked( FALSE );
+      vpage0wizardMode->setChecked( FALSE );
+      epage1wizardMode->setChecked( TRUE );
+      epage0wizardMode->setChecked( TRUE );
 
   } else {
 #if DEBUG_INTRO
@@ -834,7 +851,10 @@ void IntroWizardPanel::vpage0wizardModeSelected()
       printf("IntroWizardPanel::vpage0wizardModeSelected(), raised widget is vWStackPage0, raising eWStackPage0\n");
 #endif
       mainWidgetStack->raiseWidget(eWStackPage0);
-      epage0wizardMode->setChecked( FALSE );
+      epage0wizardMode->setChecked( TRUE );
+      epage1wizardMode->setChecked( TRUE );
+      vpage0wizardMode->setChecked( FALSE );
+      vpage1wizardMode->setChecked( FALSE );
 
   } else if( raisedWidget ==  eWStackPage0 ) {
 #if DEBUG_INTRO
@@ -842,18 +862,27 @@ void IntroWizardPanel::vpage0wizardModeSelected()
 #endif
       mainWidgetStack->raiseWidget(vWStackPage0);
       vpage0wizardMode->setChecked( TRUE );
+      vpage1wizardMode->setChecked( TRUE );
+      epage0wizardMode->setChecked( FALSE );
+      epage1wizardMode->setChecked( FALSE );
   } else if( raisedWidget ==  eWStackPage1 ) {
 #if DEBUG_INTRO
       printf("IntroWizardPanel::vpage0wizardModeSelected(), raised widget is eWStackPage1, raising vWStackPage1\n");
 #endif
       mainWidgetStack->raiseWidget(vWStackPage1);
       vpage1wizardMode->setChecked( TRUE );
+      vpage0wizardMode->setChecked( TRUE );
+      epage0wizardMode->setChecked( FALSE );
+      epage1wizardMode->setChecked( FALSE );
   } else if( raisedWidget == vWStackPage1 ) {
 #if DEBUG_INTRO
       printf("IntroWizardPanel::vpage0wizardModeSelected(), raised widget is vWStackPage1, raising eWStackPage1\n");
 #endif
       mainWidgetStack->raiseWidget(eWStackPage1);
-      epage1wizardMode->setChecked( FALSE );
+      epage0wizardMode->setChecked( TRUE );
+      epage1wizardMode->setChecked( TRUE );
+      vpage0wizardMode->setChecked( FALSE );
+      vpage1wizardMode->setChecked( FALSE );
 
   } else {
 #if DEBUG_INTRO
@@ -971,13 +1000,15 @@ void IntroWizardPanel::vpage1BackButtonSelected()
 #if DEBUG_INTRO
       printf("IntroWizardPanel::vpage0BackButtonSelected(), raised widget is eWStackPage1, raising eWStackPage0\n");
 #endif
-      epage0wizardMode->setChecked( FALSE );
+      epage0wizardMode->setChecked( TRUE );
+      epage1wizardMode->setChecked( TRUE );
       mainWidgetStack->raiseWidget(eWStackPage0);
   } else if( raisedWidget == vWStackPage1 ) {
 #if DEBUG_INTRO
       printf("IntroWizardPanel::vpage0BackButtonSelected(), raised widget is vWStackPage1, raising vWStackPage0\n");
 #endif
       vpage0wizardMode->setChecked( TRUE );
+      vpage1wizardMode->setChecked( TRUE );
       mainWidgetStack->raiseWidget(vWStackPage0);
 
   } else {
@@ -988,10 +1019,10 @@ void IntroWizardPanel::vpage1BackButtonSelected()
 }
 
 
-void IntroWizardPanel::vpage0NextButtonSelected()
+void IntroWizardPanel::vORepage0NextButtonSelected()
 {
 #if DEBUG_INTRO
-  printf("Enter IntroWizardPanel::vpage0NextButtonSelected(), vpage0wizardMode->isOn()=%d\n", vpage0wizardMode->isOn());
+  printf("Enter IntroWizardPanel::vORepage0NextButtonSelected(), vpage0wizardMode->isOn()=%d\n", vpage0wizardMode->isOn());
 #endif
   printRaisedPanel();
 
@@ -1000,8 +1031,8 @@ void IntroWizardPanel::vpage0NextButtonSelected()
   if( vpage0wizardMode->isOn() ) {
 
 #if DEBUG_INTRO
-    printf(" IntroWizardPanel::vpage0NextButtonSelected(), vpage0SavedExpDataRB->isOn()=%d\n", vpage0SavedExpDataRB->isOn());
-    printf(" IntroWizardPanel::vpage0NextButtonSelected(), epage0SavedExpDataRB->isOn()=%d\n", epage0SavedExpDataRB->isOn());
+    printf(" IntroWizardPanel::vORepage0NextButtonSelected(), vpage0SavedExpDataRB->isOn()=%d\n", vpage0SavedExpDataRB->isOn());
+    printf(" IntroWizardPanel::vORepage0NextButtonSelected(), epage0SavedExpDataRB->isOn()=%d\n", epage0SavedExpDataRB->isOn());
 #endif
 
     if( vpage0SavedExpDataRB->isOn() ) {
@@ -1011,7 +1042,7 @@ void IntroWizardPanel::vpage0NextButtonSelected()
     // ---------------------------------------------------------------------------
 
 #if DEBUG_INTRO
-      printf(" IntroWizardPanel::vpage0NextButtonSelected(), IN vpage0SavedExpDataRB code\n");
+      printf(" IntroWizardPanel::vORepage0NextButtonSelected(), IN vpage0SavedExpDataRB code\n");
 #endif
 
       QString fn = QString::null;
@@ -1031,9 +1062,9 @@ void IntroWizardPanel::vpage0NextButtonSelected()
     }
 
 #if DEBUG_INTRO
-    printf(" IntroWizardPanel::vpage0NextButtonSelected(), vpage0SavedExpCompareDataRB->isOn()=%d\n", 
+    printf(" IntroWizardPanel::vORepage0NextButtonSelected(), vpage0SavedExpCompareDataRB->isOn()=%d\n", 
             vpage0SavedExpCompareDataRB->isOn());
-    printf(" IntroWizardPanel::vpage0NextButtonSelected(), epage0SavedExpCompareDataRB->isOn()=%d\n", 
+    printf(" IntroWizardPanel::vORepage0NextButtonSelected(), epage0SavedExpCompareDataRB->isOn()=%d\n", 
             epage0SavedExpCompareDataRB->isOn());
 #endif
 
@@ -1044,7 +1075,7 @@ void IntroWizardPanel::vpage0NextButtonSelected()
     // ---------------------------------------------------------------------------
 
 #if DEBUG_INTRO
-      printf(" IntroWizardPanel::vpage0NextButtonSelected(), IN vpage0SavedExpCompareDataRB code\n");
+      printf(" IntroWizardPanel::vORepage0NextButtonSelected(), IN vpage0SavedExpCompareDataRB code\n");
 #endif
       p = getPanelContainer()->raiseNamedPanel("Compare Wizard");
       if( !p ) {
@@ -1059,9 +1090,9 @@ void IntroWizardPanel::vpage0NextButtonSelected()
     }
 
 #if DEBUG_INTRO
-    printf(" IntroWizardPanel::vpage0NextButtonSelected(), vpage0CreateLoadExpDataRB->isOn()=%d\n", 
+    printf(" IntroWizardPanel::vORepage0NextButtonSelected(), vpage0CreateLoadExpDataRB->isOn()=%d\n", 
            vpage0CreateLoadExpDataRB->isOn());
-    printf(" IntroWizardPanel::vpage0NextButtonSelected(), epage0CreateLoadExpDataRB->isOn()=%d\n", 
+    printf(" IntroWizardPanel::vORepage0NextButtonSelected(), epage0CreateLoadExpDataRB->isOn()=%d\n", 
            epage0CreateLoadExpDataRB->isOn());
 #endif
 
@@ -1072,11 +1103,11 @@ void IntroWizardPanel::vpage0NextButtonSelected()
     // ---------------------------------------------------------------------------
 
 #if DEBUG_INTRO
-       printf("IntroWizardPanel::vpage0NextButtonSelected(), IN vpage0CreateLoadExpDataRB code, before raiseWidget(2)\n");
+       printf("IntroWizardPanel::vORepage0NextButtonSelected(), IN vpage0CreateLoadExpDataRB code, before raiseWidget(2)\n");
 #endif
        mainWidgetStack->raiseWidget(2);
 #if DEBUG_INTRO
-       printf("IntroWizardPanel::vpage0NextButtonSelected(), IN vpage0CreateLoadExpDataRB code, after raiseWidget(2)\n");
+       printf("IntroWizardPanel::vORepage0NextButtonSelected(), IN vpage0CreateLoadExpDataRB code, after raiseWidget(2)\n");
 #endif
     }
 
@@ -1087,7 +1118,7 @@ void IntroWizardPanel::vpage0NextButtonSelected()
     // Load one saved file
 
 #if DEBUG_INTRO
-    printf(" IntroWizardPanel::vpage0NextButtonSelected(), epage0SavedExpDataRB->isOn()=%d\n", epage0SavedExpDataRB->isOn());
+    printf(" IntroWizardPanel::vORepage0NextButtonSelected(), epage0SavedExpDataRB->isOn()=%d\n", epage0SavedExpDataRB->isOn());
 #endif
     if( epage0SavedExpDataRB->isOn() ) {
 
@@ -1109,7 +1140,7 @@ void IntroWizardPanel::vpage0NextButtonSelected()
     // Compare two saved files
 
 #if DEBUG_INTRO
-    printf(" IntroWizardPanel::vpage0NextButtonSelected(), epage0SavedExpCompareDataRB->isOn()=%d\n", epage0SavedExpCompareDataRB->isOn());
+    printf(" IntroWizardPanel::vORepage0NextButtonSelected(), epage0SavedExpCompareDataRB->isOn()=%d\n", epage0SavedExpCompareDataRB->isOn());
 #endif
 
     if( epage0SavedExpCompareDataRB->isOn() ) {
@@ -1126,18 +1157,19 @@ void IntroWizardPanel::vpage0NextButtonSelected()
     }
 
 #if DEBUG_INTRO
-    printf(" IntroWizardPanel::vpage0NextButtonSelected(), epage0CreateLoadExpDataRB->isOn()=%d\n", epage0CreateLoadExpDataRB->isOn());
+    printf(" IntroWizardPanel::vORepage0NextButtonSelected(), epage0CreateLoadExpDataRB->isOn()=%d\n", epage0CreateLoadExpDataRB->isOn());
 #endif
 
     if( epage0CreateLoadExpDataRB->isOn() ) {
 #if DEBUG_INTRO
-       printf("IntroWizardPanel::vpage0NextButtonSelected(), IN epage0CreateLoadExpDataRB code, before raiseWidget(3)\n");
+       printf("IntroWizardPanel::vORepage0NextButtonSelected(), IN epage0CreateLoadExpDataRB code, before raiseWidget(3)\n");
 #endif
       
-       epage1wizardMode->setChecked( FALSE );
+       epage1wizardMode->setChecked( TRUE );
+       epage0wizardMode->setChecked( TRUE );
        mainWidgetStack->raiseWidget(3);
 #if DEBUG_INTRO
-       printf("IntroWizardPanel::vpage0NextButtonSelected(), IN epage0CreateLoadExpDataRB code, after raiseWidget(3)\n");
+       printf("IntroWizardPanel::vORepage0NextButtonSelected(), IN epage0CreateLoadExpDataRB code, after raiseWidget(3)\n");
 #endif
     }
 
@@ -1145,17 +1177,18 @@ void IntroWizardPanel::vpage0NextButtonSelected()
   }
 }
 
-void IntroWizardPanel::vpage1NextButtonSelected()
+void IntroWizardPanel::vORepage1NextButtonSelected()
 {
   Panel *p = NULL;
 #if DEBUG_INTRO
-  printf("Enter IntroWizardPanel::vpage1NextButtonSelected(), vpage1wizardMode->isOn()=%d\n", vpage1wizardMode->isOn() );
+  printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), vpage1wizardMode->isOn()=%d\n", vpage1wizardMode->isOn() );
+  printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), epage1wizardMode->isOn()=%d\n", epage1wizardMode->isOn() );
 #endif
 
   if( vpage1wizardMode->isOn() ) {
 
 #if DEBUG_INTRO
-    printf("Enter IntroWizardPanel::vpage1NextButtonSelected(), vpage1pcSampleRB->isOn()=%d\n", vpage1pcSampleRB->isOn() );
+    printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), vpage1pcSampleRB->isOn()=%d\n", vpage1pcSampleRB->isOn() );
 #endif
 
     if( vpage1pcSampleRB->isOn() ) {
@@ -1163,7 +1196,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
 
 #if DEBUG_INTRO
-      printf("In IntroWizardPanel::vpage1NextButtonSelected(), pcsamp, after getPanelContainer()->raiseNamedPanel, p=%d\n", p );
+      printf("In IntroWizardPanel::vORepage1NextButtonSelected(), pcsamp, after getPanelContainer()->raiseNamedPanel, p=%d\n", p );
 #endif
 
       if( !p ) {
@@ -1178,13 +1211,13 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     }
 
 #if DEBUG_INTRO
-    printf("Enter IntroWizardPanel::vpage1NextButtonSelected(), vpage1UserTimeRB->isOn()=%d\n", vpage1UserTimeRB->isOn() );
+    printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), vpage1UserTimeRB->isOn()=%d\n", vpage1UserTimeRB->isOn() );
 #endif
 
     if( vpage1UserTimeRB->isOn() ) {
       p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
 #if DEBUG_INTRO
-      printf("In IntroWizardPanel::vpage1NextButtonSelected(), usertime, after getPanelContainer()->raiseNamedPanel, p=%d\n", p );
+      printf("In IntroWizardPanel::vORepage1NextButtonSelected(), usertime, after getPanelContainer()->raiseNamedPanel, p=%d\n", p );
 #endif
       if( !p ) {
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
@@ -1198,7 +1231,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     }
 
 #if DEBUG_INTRO
-    printf("Enter IntroWizardPanel::vpage1NextButtonSelected(), vpage1HardwareCounterRB->isOn()=%d\n", vpage1HardwareCounterRB->isOn() );
+    printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), vpage1HardwareCounterRB->isOn()=%d\n", vpage1HardwareCounterRB->isOn() );
 #endif
 
     if( vpage1HardwareCounterRB->isOn() ) {
@@ -1215,7 +1248,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     }
 
 #if DEBUG_INTRO
-    printf("Enter IntroWizardPanel::vpage1NextButtonSelected(), vpage1FloatingPointRB->isOn()=%d\n", vpage1FloatingPointRB->isOn() );
+    printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), vpage1FloatingPointRB->isOn()=%d\n", vpage1FloatingPointRB->isOn() );
 #endif
 
     if( vpage1FloatingPointRB->isOn() ) {
@@ -1232,7 +1265,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     }
 
 #if DEBUG_INTRO
-    printf("Enter IntroWizardPanel::vpage1NextButtonSelected(), vpage1InputOutputRB->isOn()=%d\n", vpage1InputOutputRB->isOn() );
+    printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), vpage1InputOutputRB->isOn()=%d\n", vpage1InputOutputRB->isOn() );
 #endif
 
     if( vpage1InputOutputRB->isOn() ) {
@@ -1249,7 +1282,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     }
 
 #if DEBUG_INTRO
-    printf("Enter IntroWizardPanel::vpage1NextButtonSelected(), vpage1MPIRB->isOn()=%d\n", vpage1MPIRB->isOn() );
+    printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), vpage1MPIRB->isOn()=%d\n", vpage1MPIRB->isOn() );
 #endif
 
     if( vpage1MPIRB->isOn() ) {
@@ -1271,13 +1304,13 @@ void IntroWizardPanel::vpage1NextButtonSelected()
 
 
 #if DEBUG_INTRO
-    printf("Enter IntroWizardPanel::vpage1NextButtonSelected(), epage1pcSampleRB->isOn()=%d\n", epage1pcSampleRB->isOn() );
+    printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), epage1pcSampleRB->isOn()=%d\n", epage1pcSampleRB->isOn() );
 #endif
 
     if( epage1pcSampleRB->isOn() ) {
       p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
 #if DEBUG_INTRO
-      printf("In IntroWizardPanel::vpage1NextButtonSelected(), e-pcsamp, after getPanelContainer()->raiseNamedPanel, p=%d\n", p );
+      printf("In IntroWizardPanel::vORepage1NextButtonSelected(), e-pcsamp, after getPanelContainer()->raiseNamedPanel, p=%d\n", p );
 #endif
 
       if( !p ) {
@@ -1292,13 +1325,13 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     }
 
 #if DEBUG_INTRO
-    printf("Enter IntroWizardPanel::vpage1NextButtonSelected(), epage1UserTimeRB->isOn()=%d\n", epage1UserTimeRB->isOn() );
+    printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), epage1UserTimeRB->isOn()=%d\n", epage1UserTimeRB->isOn() );
 #endif
 
     if( epage1UserTimeRB->isOn() ) {
       p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
 #if DEBUG_INTRO
-      printf("In IntroWizardPanel::vpage1NextButtonSelected(), e-usertime, after getPanelContainer()->raiseNamedPanel, p=%d\n", p );
+      printf("In IntroWizardPanel::vORepage1NextButtonSelected(), e-usertime, after getPanelContainer()->raiseNamedPanel, p=%d\n", p );
 #endif
 
       if( !p ) {
@@ -1313,7 +1346,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     }
 
 #if DEBUG_INTRO
-    printf("Enter IntroWizardPanel::vpage1NextButtonSelected(), epage1HardwareCounterRB->isOn()=%d\n", epage1HardwareCounterRB->isOn() );
+    printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), epage1HardwareCounterRB->isOn()=%d\n", epage1HardwareCounterRB->isOn() );
 #endif
 
     if( epage1HardwareCounterRB->isOn() ) {
@@ -1330,7 +1363,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     }
 
 #if DEBUG_INTRO
-    printf("Enter IntroWizardPanel::vpage1NextButtonSelected(), epage1FloatingPointRB->isOn()=%d\n", epage1FloatingPointRB->isOn() );
+    printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), epage1FloatingPointRB->isOn()=%d\n", epage1FloatingPointRB->isOn() );
 #endif
 
     if( epage1FloatingPointRB->isOn() ) {
@@ -1347,7 +1380,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     }
 
 #if DEBUG_INTRO
-    printf("Enter IntroWizardPanel::vpage1NextButtonSelected(), epage1InputOutputRB->isOn()=%d\n", epage1InputOutputRB->isOn() );
+    printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), epage1InputOutputRB->isOn()=%d\n", epage1InputOutputRB->isOn() );
 #endif
 
     if( epage1InputOutputRB->isOn() ) {
@@ -1364,7 +1397,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     }
 
 #if DEBUG_INTRO
-    printf("Enter IntroWizardPanel::vpage1NextButtonSelected(), epage1MPIRB->isOn()=%d\n", epage1MPIRB->isOn() );
+    printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), epage1MPIRB->isOn()=%d\n", epage1MPIRB->isOn() );
 #endif
 
     if( epage1MPIRB->isOn() ) {
