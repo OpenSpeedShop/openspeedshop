@@ -119,7 +119,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
 
   vpage0sv->viewport()->setBackgroundColor(vpage0color);
   vpage0sv->viewport()->setPaletteBackgroundColor(vpage0color);
-  vpage0sv->viewport()->setBackgroundColor("Yellow");
+//  vpage0sv->viewport()->setBackgroundColor("Yellow");
 
 
 //jeg  vpage0SpacerItem1 = new QLabel( vpage0big_box, "vpage0SpacerItem1" );
