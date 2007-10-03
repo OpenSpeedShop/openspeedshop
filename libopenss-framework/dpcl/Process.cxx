@@ -259,6 +259,7 @@ Process::Process(const std::string& host, const std::string& command,
  */
 Process::Process(const std::string& host, const pid_t& pid) :  
     Lockable(),
+    in_mpi_startup(false),
 #ifndef NDEBUG
     dm_previous_getstate(),
 #endif
@@ -1993,6 +1994,10 @@ void Process::addressSpaceChangeCallback(GCBSysType, GCBTagType,
     if(process.isNull())
 	return;
 
+    // Ignore addressSpace changes while in mpi startup.
+    if(process->inMPIStartup())
+	return;
+
     // Request the current in-memory address space of this process
     process->requestAddressSpace(threads, Time::Now(), false);
 }
@@ -3372,6 +3377,10 @@ void Process::threadListChangeCallback(GCBSysType, GCBTagType,
 
     // Go no further if the process is no longer in the process table
     if(process.isNull())
+	return;
+
+    // Ignore thread list changes while in mpi startup.
+    if(process->inMPIStartup())
 	return;
 
     // Get the thread identifier of the thread being created or destroyed
@@ -5097,6 +5106,17 @@ bool Process::getPosixThreadIds(std::set<pthread_t>& value) const
     return true;
 }
 
+bool Process::inMPIStartup()
+{
+    Guard guard_myself(this);
+    return in_mpi_startup;
+}
+
+void Process::setMPIStartup (bool newstate)
+{
+    Guard guard_myself(this);
+    in_mpi_startup = newstate;
+}
 
 
 } }  // namespace OpenSpeedShop::Framework

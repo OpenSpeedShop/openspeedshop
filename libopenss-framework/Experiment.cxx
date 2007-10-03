@@ -203,7 +203,9 @@ namespace {
         wait.tv_nsec = 250 * 1000 * 1000;
 	
 	// Suspend ourselves temporarily
-        nanosleep(&wait, NULL);
+	// This while loop ensures that nanosleep will sleep at
+	// least the amount of time even if a signal interupts nanosleep.
+	while(nanosleep(&wait, &wait));
     }
 
 
@@ -839,13 +841,18 @@ ThreadGroup Experiment::createProcess(
 
 	// Is this thread a "mpirun" process for a supported MPI implementation?
 	if(is_mpirun.first) {
-	    
+
+	    // Notify the Instrumentor that this thread is the mpi starter thread.
+	    // The instrumentor will disable addressSpaceChangeCallback and
+	    // threadListChangeCallback while running up to the MPIR_Breakpoint.
+	    Instrumentor::setMPIStartup(thread,true);
+
 	    // Insert a stop at the entry of the stop function
 	    Instrumentor::stopAtEntryOrExit(thread, is_mpirun.second, true);
-	    
+
 	    // Martin: mark the process as being debugged
 	    Instrumentor::setGlobal(thread,"MPIR_being_debugged",1);
-	    
+
 	    // Resume the thread
 	    thread.changeState(Thread::Running);
 	    
@@ -854,6 +861,10 @@ ThreadGroup Experiment::createProcess(
 	    while(!thread.isState(Thread::Suspended))
 		suspend();
 	    
+	    // Notify Instrumentor that it is safe to restore the addressSpaceChangeCallback
+	    // and threadListChangeCallback.
+	    Instrumentor::setMPIStartup(thread,false);
+
 	    // Attach to the entire MPI job
 	    threads = attachMPIJob(thread.getProcessId(), thread.getHost());
 

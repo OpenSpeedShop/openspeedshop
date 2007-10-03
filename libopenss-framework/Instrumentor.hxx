@@ -86,6 +86,9 @@ namespace OpenSpeedShop { namespace Framework {
 	bool getMPICHProcTable(const Thread&, Job&);
 
 	void setGlobal(const Thread&, const std::string&, int64_t);
+	
+	void setMPIStartup(const Thread&, const bool);
+	bool inMPIStartup(const Thread&);
     }
     
 } }

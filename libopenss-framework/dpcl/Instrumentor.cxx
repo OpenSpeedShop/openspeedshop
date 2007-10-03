@@ -657,3 +657,59 @@ void Instrumentor::setGlobal(const Thread& thread,
     // Request the global variable be retrieved from the process
     process->setGlobal(global, value);
 }
+
+/**
+ * Sets the flag to indicate this thread is in mpi startup
+ * Used to disable addressSpaceChange and threadListChange callbacks during mpi startup.
+ *
+ * @pre    Only applies to a process which is connected. A ProcessUnavailable
+ *         exception is thrown if called for a thread that is not connected.
+ *
+ * @param thread    Thread in which the mpi startup flag is set.
+ * @param flag      New value of the mpi startup flag.
+ */
+void Instrumentor::setMPIStartup(const Thread& thread, const bool flag)
+{
+    SmartPtr<Process> process;
+    // Critical section touching the process table
+    {
+        Guard guard_process_table(ProcessTable::TheTable);
+
+        // Get the process for this thread (if any)
+        process = ProcessTable::TheTable.getProcessByThread(thread);
+    }
+
+    // Check preconditions
+    if(process.isNull() || !process->isConnected())
+        throw Exception(Exception::ProcessUnavailable, thread.getHost(),
+                        Exception::toString(thread.getProcessId()));
+    process->setMPIStartup(flag);
+}
+
+/**
+ * Tests the flag that indicates this thread is in mpi startup
+ * Used to disable addressSpaceChange and threadListChange callbacks during mpi startup.
+ *
+ * @pre    Only applies to a process which is connected. A ProcessUnavailable
+ *         exception is thrown if called for a thread that is not connected.
+ *
+ * @param thread    Thread in which the mpi startup flag is to be tested.
+ * @return          Boolean "true" if the flag is set, "false" otherwise.
+ */
+bool Instrumentor::inMPIStartup(const Thread& thread)
+{
+    SmartPtr<Process> process;
+    // Critical section touching the process table
+    {
+        Guard guard_process_table(ProcessTable::TheTable);
+
+        // Get the process for this thread (if any)
+        process = ProcessTable::TheTable.getProcessByThread(thread);
+    }
+
+    // Check preconditions
+    if(process.isNull() || !process->isConnected())
+        throw Exception(Exception::ProcessUnavailable, thread.getHost(),
+                        Exception::toString(thread.getProcessId()));
+    return process->inMPIStartup();
+}
