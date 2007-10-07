@@ -80,7 +80,8 @@ kdegraphics kdelibs kdemultimedia kdenetwork kdepim kdesdk kdeutils \
 kernel-devel autoconf automake binutils gcc python-devel qt qt-devel make \
 rpm-build e2fsprogs-devel tcsh gcc-g77 libtool tk openssh gcc-c++ rsh \
 openssh-clients firefox evolution emacs sudo sqlite-devel flex flex-devel \
-bison bison-devel byacc cvs elfutils-libelf-devel telnet strace
+bison bison-devel byacc cvs elfutils-libelf-devel telnet strace \
+libxml2-devel man
 
 It's going to be a 400+ Megabyte download.
 
