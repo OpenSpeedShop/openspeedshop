@@ -72,7 +72,7 @@ namespace {
 	"CREATE TABLE \"Open|SpeedShop\" ("
 	"    version INTEGER"
 	");",
-	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (2);",
+	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (3);",
 	
 	// Thread Table
 	"CREATE TABLE Threads ("
@@ -351,6 +351,38 @@ std::string Experiment::getHostnameFromIP(const std::string& ip)
     hostName = ht->h_name;
     return hostName;
 }
+
+
+/**
+ *
+ * Returns the integer value indicating if the version of the experiment database
+ *
+ * @param name    Name of the experiment database to be tested.
+ * @return        Integer version number of the experiment database,
+ */
+int Experiment::getDBVersion(const std::string& name)
+{
+    int version = -1;
+    try {
+
+	// Open the experiment database
+	SmartPtr<Database> database = SmartPtr<Database>(new Database(name));
+
+	// Verify there is a "Open|SpeedShop" table containing a single row
+	BEGIN_TRANSACTION(database);
+	database->prepareStatement("SELECT VALUE(*) FROM \"Open|SpeedShop\";");
+	while(database->executeStatement())
+	    version = (database->getResultAsInteger(1) );
+	END_TRANSACTION(database);
+	
+    }
+    catch(...) {
+    }
+    
+    // Return the experiment database's accessibility to the caller
+    return version;
+}
+
 
 
 /**

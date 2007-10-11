@@ -139,12 +139,15 @@ namespace OpenSpeedShop { namespace Framework {
 	Extent getPerformanceDataExtent() const;
 	
 	std::string getApplicationCommand();
+	int getDBVersion(const std::string&);
 	void setApplicationCommand(const char *);
 
 	void prepareToRerun(const OutputCallback =
 			        OutputCallback(NULL, NULL),
 			    const OutputCallback =
 			        OutputCallback(NULL, NULL)) const;
+
+        int rerunCount;
 
         int setRerunCount(int count) {
            rerunCount = count;
@@ -170,8 +173,6 @@ namespace OpenSpeedShop { namespace Framework {
 	static bool getMPIJobFromMPT(const Thread&, Job&);
 	static bool getMPIJobFromMPICH(const Thread&, Job&);
 
-	/** ??? */
-        int rerunCount;
 
 	/** Experiment database. */
 	SmartPtr<Database> dm_database;
