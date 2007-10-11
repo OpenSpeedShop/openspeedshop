@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -58,6 +59,11 @@
 
  */
 
+//
+// Debug Flag
+//#define DEBUG_PContainer 1
+//
+
 #include "debug.hxx"  // This includes the definition of nprintf(DEBUG_PANELCONTAINERS) 
 
 #include "Panel.hxx"
@@ -108,8 +114,7 @@ extern QEventLoop *qeventloop;
 
 #include "PluginInfo.hxx"
 
-#include "dot.xpm"
-#include "dot_mask.bmp"
+#include "down_triangle_boxed.xpm"
 #include "menu.xpm"
 #include "hsplit.xpm"
 #include "vsplit.xpm"
@@ -741,6 +746,9 @@ PanelContainer::findNamedPanel(PanelContainer *start_pc, char *panel_name)
   Panel *foundPanel = NULL;
   int return_value = 0; // unused
 
+#ifdef DEBUG_PContainer
+  printf("PanelContainer::findNamedPanel, start_pc=%d, panel_name=%s\n", start_pc, panel_name );
+#endif
   MessageObject *msg = new MessageObject(panel_name);
   foundPanel = findNearestInterestedPanel(start_pc, (char *)msg, &return_value);
 
@@ -1355,6 +1363,7 @@ PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_na
 
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel() add the tab\n");
 //  start_pc->tabWidget->addTab( p->getBaseWidgetFrame(), tab_name );
+  
   start_pc->tabWidget->addTab( p->getBaseWidgetFrame(), p->getName() );
 
 //  start_pc->augmentTab( p->getBaseWidgetFrame() );
@@ -1394,7 +1403,9 @@ PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_na
 Panel *
 PanelContainer::raiseNamedPanel(char *panel_name)
 {
-// printf("raiseNamedPanel (%s)\n", panel_name );
+#ifdef DEBUG_PContainer
+   printf("raiseNamedPanel (%s)\n", panel_name );
+#endif
   // In this panel container... raise the panel with the matching name
   
   int count=0;
@@ -1445,7 +1456,9 @@ Panel *
 PanelContainer::raisePanel(Panel *panel)
 {
   // In this panel container... raise the panel with the matching name
-// printf("raisePanel (%s)\n", panel->getName() );
+#ifdef DEBUG_PContainer
+  printf("raisePanel (%s)\n", panel->getName() );
+#endif
   
   int count=0;
   Panel *p = NULL;
@@ -1498,7 +1511,9 @@ Panel * PanelContainer::raiseToTop(Panel *p)
   Panel *pmatch = NULL;
   while( pc )
   {
-//printf("hmm: (%s:%s)\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
+#ifdef DEBUG_PContainer
+    printf("hmm: (%s:%s)\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
+#endif
     if( pc->topLevel == TRUE )
     {
       //    printf("pc is toplevel.\n");
@@ -1548,7 +1563,9 @@ Panel * PanelContainer::raiseToTop(Panel *p)
 void
 PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursive)
 {
-// printf("removeTopLevelPanelContainer(%s-%s)\n", toppc->getInternalName().ascii(), toppc->getExternalName().ascii() );
+#ifdef DEBUG_PContainer
+  printf("removeTopLevelPanelContainer(%s-%s)\n", toppc->getInternalName().ascii(), toppc->getExternalName().ascii() );
+#endif
 
   nprintf(DEBUG_PANELCONTAINERS) ("Here is the panel container to delete (%s-%s):\n", toppc->getInternalName().ascii(), toppc->getExternalName().ascii() );
 
@@ -2479,6 +2496,11 @@ PanelContainer::setExternalName( const char *n )
 Panel *
 PanelContainer::dl_create_and_add_panel(const char *panel_type, PanelContainer *targetPC, ArgumentObject *ao, const char *collector_names)
 {
+#ifdef DEBUG_PContainer
+  printf("PanelContainer::dl_create_and_add_panel,entry\n");
+  printf("PanelContainer::dl_create_and_add_panel,targetPC=%d\n", targetPC);
+#endif
+
   // if targetPC is null, try starting from the nearest top level...
   if( !targetPC )
   {
@@ -2487,9 +2509,15 @@ PanelContainer::dl_create_and_add_panel(const char *panel_type, PanelContainer *
     {
       pc->parentPanelContainer;
     }
+#ifdef DEBUG_PContainer
+    printf("PanelContainer::dl_create_and_add_panel, pc=%d\n", pc);
+#endif
     if( pc )
     {
       nprintf(DEBUG_PANELCONTAINERS) ("Nearest toplevel=(%s:%s)\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
+#ifdef DEBUG_PContainer
+      printf("PanelContainer::dl_create_and_add_panel(), Nearest toplevel=(%s:%s)\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
+#endif
       targetPC = pc;
     }
   }
@@ -2502,13 +2530,28 @@ PanelContainer::dl_create_and_add_panel(const char *panel_type, PanelContainer *
          it++ )
     {
       pi = (PluginInfo *)*it;
+#ifdef DEBUG_PContainer
+      printf("PanelContainer::dl_create_and_add_panel(), pi=%d, pi->panel_type=%s, panel_type=%s\n", pi, pi->panel_type, panel_type);
+#endif
       if( strcmp(pi->panel_type, panel_type) == 0 )
       {
         nprintf(DEBUG_PANELCONTAINERS) ("HE SHOOTS!   HE SCORES!\n");
-// printf ("HE SHOOTS!   HE SCORES!\n");
+#ifdef DEBUG_PContainer
+        printf ("PanelContainer::dl_create_and_add_panel(), FOUND MATCHING PANEL, HE SHOOTS!   HE SCORES!\n");
+#endif
         Panel *p = (*(pi->dl_create_and_add_panel))((void *)pi, targetPC, ao, collector_names);
         p->show();
+#ifdef DEBUG_PContainer
+        printf ("PanelContainer::dl_create_and_add_panel(), HE SHOOTS!   HE SCORES!, RETURN p=%d\n", p);
+#endif
         return p;
+
+      } else {
+
+#ifdef DEBUG_PContainer
+        printf ("PanelContainer::dl_create_and_add_panel(), CAN NOT FIND MATCHING PANEL, HE DOESNT SHOOT OR SCORE THIS TIME\n");
+#endif
+
       }
     }
   }
@@ -2523,11 +2566,17 @@ PanelContainer *
 createPanelContainer( QWidget* parent, const char* name, PanelContainer *parentPanelContainer, PanelContainerList *panelContainerList )
 {
   nprintf(DEBUG_PANELCONTAINERS) ("createPanelContainer(%s) entered.\n", name);
+#ifdef DEBUG_PContainer
+  printf("(PanelContainer) createPanelContainer(%s) entered.\n", name);
+#endif
 
   TopWidget *topWidget = NULL;
   if( parent == NULL )
   {
     nprintf(DEBUG_PANELCONTAINERS) ("no parent create a toplevel\n");
+#ifdef DEBUG_PContainer
+    printf("(PanelContainer) no parent create a toplevel\n");
+#endif
     topWidget = new TopWidget( 0, "toplevel" );
     topWidget->setCaption("topwidget");
     parent = (QWidget *)topWidget;
@@ -3273,15 +3322,24 @@ PanelContainer::findNearestInterestedPanel(PanelContainer *pc, char *msg, int *r
   Panel *foundPanel = NULL;
 
   nprintf(DEBUG_PANELCONTAINERS) ("findNearestInterestedPanel: (%s,%s) entered\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
+#ifdef DEBUG_PContainer
+  printf("findNearestInterestedPanel: (%s,%s) entered\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
+#endif
 
   if( pc->markedForDelete == FALSE &&
       !pc->leftPanelContainer && !pc->rightPanelContainer )
   {
     nprintf(DEBUG_PANELCONTAINERS) ("Call wasThereAnInsteredPanel()\n");
+#ifdef DEBUG_PContainer
+    printf("Call wasThereAnInsteredPanel()\n");
+#endif
     foundPanel = wasThereAnInterestedPanel(pc, msg, ret_val );
     if( foundPanel )
     {
       nprintf(DEBUG_PANELCONTAINERS) ("There was!   There was a nearest intresting panel!\n");
+#ifdef DEBUG_PContainer
+      printf("There was!   There was a nearest intresting panel!\n");
+#endif
       return foundPanel;
     }
   }
@@ -3289,10 +3347,16 @@ PanelContainer::findNearestInterestedPanel(PanelContainer *pc, char *msg, int *r
       pc->leftPanelContainer->markedForDelete == FALSE )
   {
     nprintf(DEBUG_PANELCONTAINERS) ("call left side\n");
+#ifdef DEBUG_PContainer
+    printf("call left side\n");
+#endif
     foundPanel = findNearestInterestedPanel(pc->leftPanelContainer, msg, ret_val);
     if( foundPanel )
     {
       nprintf(DEBUG_PANELCONTAINERS) ("L: found an interested Panel!\n");
+#ifdef DEBUG_PContainer
+      printf("L: found an interested Panel!\n");
+#endif
       return( foundPanel );
     }
   } 
@@ -3300,10 +3364,16 @@ PanelContainer::findNearestInterestedPanel(PanelContainer *pc, char *msg, int *r
       pc->rightPanelContainer->markedForDelete == FALSE )
   {
     nprintf(DEBUG_PANELCONTAINERS) ("call right side\n");
+#ifdef DEBUG_PContainer
+    printf("call right side\n");
+#endif
     foundPanel = findNearestInterestedPanel(pc->rightPanelContainer, msg, ret_val);
     if( foundPanel )
     {
       nprintf(DEBUG_PANELCONTAINERS) ("R: found an interested Panel!\n");
+#ifdef DEBUG_PContainer
+      printf("R: found an interested Panel!\n");
+#endif
       return( foundPanel );
     }
   }
@@ -3446,30 +3516,42 @@ PanelContainer::notifyAll(char *msg)
 void
 PanelContainer::augmentTab( QWidget *targetWidget, Panel *p, QIconSet *iconset )
 {
-// printf("PanelContainer::augmentTab()\n");
+#ifdef DEBUG_PContainer
+  printf("PanelContainer::augmentTab(), p=0x%x, iconset=0x%x\n", p, iconset);
+#endif
   int index_of = tabWidget->indexOf( targetWidget );
   tabWidget->setCurrentPage(index_of);
   QWidget *cp = tabWidget->currentPage();
-  if( p && p->pluginInfo && p->pluginInfo->plugin_short_description )
-  {
+  if( p && p->pluginInfo && p->pluginInfo->plugin_short_description ) {
     tabWidget->setTabToolTip( cp, tr(p->pluginInfo->plugin_short_description));
-  } else
-  {
+  } else {
     tabWidget->setTabToolTip( cp, tr("Use right mouse to get a  menu,\nleft mouse to drag."));
   }
 
-  if( iconset != NULL )
-  {
+  if( iconset != NULL ) {
     tabWidget->setTabIconSet( cp, *iconset );
-  } else
-  {
-    QPixmap *apm = new QPixmap( dot_xpm );
-// apm->fill(QColor("yellow"));
-// printf("PanelContainer::augmentTab(%d)\n", p->groupID );
-apm->fill( getTabColor(p->groupID) );
-//    apm->setMask( apm->createHeuristicMask());
-    apm->setMask( QBitmap( dot_mask_width, dot_mask_height, dot_mask_bits ) );
+  } else {
+
+    QPixmap *apm = new QPixmap( down_triangle_boxed );
+
+#ifdef DEBUG_PContainer
+    printf("PanelContainer::augmentTab, p->groupID=(%d)\n", p->groupID );
+#endif
+
+    apm->fill( getTabColor(p->groupID) );
+//    apm->fill( "Black" );
+//    tabWidget->setPaletteBackgroundColor("yellow");
+
+//    QPalette palette = tabWidget->palette();
+//    palette.setColor(QColorGroup::Background, getTabColor(p->groupID) );
+//    tabWidget->setPalette(palette);
+
+//    apm->setMask( QBitmap( down_triangle_boxed_width, 
+//                           down_triangle_boxed_height, 
+//                           down_triangle_boxed_bits ) );
+
     nprintf(DEBUG_PANELCONTAINERS) ("D: create the pulldown widget.\n");
+
     tabWidget->setTabIconSet( cp, QIconSet( *apm ));
   }
 }
@@ -3480,7 +3562,9 @@ PanelContainer::getTabColor(int id)
  // Temporary hack to return cooperative colors...
  if( id > 16 )
  {
-printf("We're over the limit of colors.. start over... FIX\n");
+#ifdef DEBUG_PContainer
+   printf("PanelContainer::getTabColor, reached the limit of colors (16).... FIX\n");
+#endif
    while(id -= 16 )
    {
      if( id < 16 )
@@ -3490,6 +3574,9 @@ printf("We're over the limit of colors.. start over... FIX\n");
    }
  }
 
+#ifdef DEBUG_PContainer
+ printf("PanelContainer::getTabColor, this=0x%x, color id=%d\n", this, id);
+#endif
 
  switch( id )
  {
@@ -3500,13 +3587,13 @@ printf("We're over the limit of colors.. start over... FIX\n");
     return( QColor(red) );
     break;
    case 2:
-    return( QColor(green) );
-    break;
-   case 3:
     return( QColor(blue) );
     break;
+   case 3:
+    return( QColor(green) );
+    break;
    case 4:
-    return( QColor(cyan) );
+    return( QColor(black) );
     break;
    case 5:
     return( QColor(magenta) );
@@ -3518,7 +3605,7 @@ printf("We're over the limit of colors.. start over... FIX\n");
     return( QColor(gray) );
     break;
    case 8:
-    return( QColor(black) );
+    return( QColor(cyan) );
     break;
    case 9:
     return( QColor(darkRed) );
