@@ -18,7 +18,7 @@
 
 
 //
-#define DEBUG_loadPanel 1
+//#define DEBUG_loadPanel 1
 //
 
 #include "loadPanel.hxx"   // Change this to your new class header file name
@@ -61,8 +61,16 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   printf("loadPanel::loadPanel(), entered\n");
 #endif
 
+  // Initialize the panel handle of the panel calling the loadPanel
+  targetPanel = NULL;
+
+  // Initialize experiment id 
   int expID = -1;
 
+  // Initialize that we are not under control of a MPIWizard
+  setMPIWizardCalledMe(FALSE);
+
+  // Is an argument object present?
   if( ao ) {
 
 #ifdef DEBUG_loadPanel
@@ -72,11 +80,21 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
     targetPanel = ao->panel_data;
 
 #ifdef DEBUG_loadPanel
-    printf("loadPanel::loadPanel(), panel name is=%s\n", targetPanel->getName());
+    printf("loadPanel::loadPanel(), (targetPanel is initially set non-null) panel name is=%s\n", targetPanel->getName());
 #endif
 
     if (targetPanel->getName()) {
+
       QString panelName = targetPanel->getName();
+
+      // Use whether we are under control of a MPI wizard
+      // to set the initial checkboxes for the user
+      int mpi_index = panelName.find("MPI");
+      if (mpi_index > -1) {
+        setMPIWizardCalledMe(TRUE);
+      }
+
+      // Try to glean the experiment Id off of the panel name
       int start_index = panelName.find("[");
       int end_index;
       if (start_index > -1) {
@@ -100,16 +118,17 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   char name_buffer[100];
   if ( !getName() ) {
 
+    // If the panel doesn't have a name, set it
     if (expID == -1) {
       setName("loadPanel");
     } else {
-//      setName("loadPanel [%1]").arg(expID);
       sprintf(name_buffer, "loadPanel [%d]", expID);
       setName(name_buffer);
     }
 
   } else {
-
+    
+    // If the panel does have a name, set it with the experiment id
     if (expID == -1) {
       sprintf(name_buffer, "%s", getName());
     } else {
@@ -126,43 +145,45 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   loadPanelFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 0, 0, "Load Panel" );
 
   mainFrame = new QFrame( getBaseWidgetFrame(), "mainFrame" );
-  mainFrame->setMinimumSize( QSize(30,20) );
+  mainFrame->setMinimumSize( QSize(30,10) );
   mainFrame->setFrameShape( QFrame::StyledPanel );
   mainFrame->setFrameShadow( QFrame::Raised );
   mainFrame->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Maximum, 0, 0, FALSE ) );
   mainFrameLayout = new QVBoxLayout( mainFrame, 11, 6, "mainFrameLayout");
 
   mainWidgetStack = new QWidgetStack( mainFrame, "mainWidgetStack" );
-  mainWidgetStack->setMinimumSize( QSize(30,20) );
+  mainWidgetStack->setMinimumSize( QSize(30,10) );
   mainWidgetStack->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Maximum, 0, 0, FALSE ) );
 
 
 // Begin: AttachOrLoad page
   vALStackPage0 = new QWidget( mainWidgetStack, "vALStackPage0" );
-  vALStackPage0->setMinimumSize( QSize(30,20) );
+  vALStackPage0->setMinimumSize( QSize(30,10) );
   vALStackPage0->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred, 0, 0, FALSE ) );
-  vALStackPage0Layout = new QVBoxLayout( vALStackPage0, 11, 6, "vALStackPage0Layout"); 
+//  vALStackPage0Layout = new QVBoxLayout( vALStackPage0, 11, 6, "vALStackPage0Layout"); 
+  vALStackPage0Layout = new QVBoxLayout( vALStackPage0, 0, 0, "vALStackPage0Layout"); 
 
   vpage0sv = new QScrollView( vALStackPage0, "vpage0sv" );
   vpage0sv->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Maximum, 0, 0, FALSE ) );
 
   vpage0big_box = new QVBox(vpage0sv->viewport(), "vpage0big_box" );
   vpage0big_box->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Maximum, 0, 0, FALSE ) );
-  vpage0big_box->setPaletteBackgroundColor("Tan");
+//  vpage0big_box->setPaletteBackgroundColor("Tan");
 
   vpage0sv->addChild(vpage0big_box);
 
   vAttachOrLoadPageDescriptionLabel = new QTextEdit( vALStackPage0, "vAttachOrLoadPageDescriptionLabel" );
   vAttachOrLoadPageDescriptionLabel->setReadOnly(TRUE);
-  vAttachOrLoadPageDescriptionLabel->setMinimumSize( QSize(30,20) );
-  vAttachOrLoadPageDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
+  vAttachOrLoadPageDescriptionLabel->setMinimumSize( QSize(300,20) );
+  vAttachOrLoadPageDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, vAttachOrLoadPageDescriptionLabel->sizePolicy().hasHeightForWidth()  ) );
   vAttachOrLoadPageDescriptionLabel->setWordWrap( QTextEdit::WidgetWidth );
 
   vALStackPage0Layout->addWidget( vAttachOrLoadPageDescriptionLabel);
 
   const QColor vpage0acolor = vAttachOrLoadPageDescriptionLabel->paletteBackgroundColor();
-  vpage0sv->viewport()->setBackgroundColor(vpage0acolor);
-  vpage0sv->viewport()->setPaletteBackgroundColor(vpage0acolor);
+
+//  vpage0sv->viewport()->setBackgroundColor(vpage0acolor);
+//  vpage0sv->viewport()->setPaletteBackgroundColor(vpage0acolor);
 //  vpage0sv->viewport()->setBackgroundColor("Yellow");
 
   //
@@ -177,14 +198,11 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
 
   // Add single process label here
   vLAPageTitleLabel1 = new QLabel( vpage0big_box, "vLAPageTitleLabel1" );
-//jeg  vLAPageTitleLabel1->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, 0, 0, FALSE ) );
 
   vAttachOrLoadPageLoadExecutableCheckBox = new QCheckBox( vpage0big_box, "vAttachOrLoadPageLoadExecutableCheckBox" );
   vAttachOrLoadPageLoadExecutableCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
 
   vAttachOrLoadPageExecutableLabel = new QLabel( vpage0big_box, "vAttachOrLoadPageExecutableLabel" );
-//jeg  vAttachOrLoadPageExecutableLabel->setMinimumSize( QSize(10,10) );
-//jeg  vAttachOrLoadPageExecutableLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
 
   // Add single process load different label here
   vAttachOrLoadPageLoadDifferentExecutableCheckBox = new QCheckBox( vpage0big_box, "vAttachOrLoadPageLoadDifferentExecutableCheckBox" );
@@ -196,28 +214,26 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   vAttachOrLoadPageAttachToProcessCheckBox = new QCheckBox( vpage0big_box, "vAttachOrLoadPageAttachToProcessCheckBox" );
   vAttachOrLoadPageAttachToProcessCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
 
+
+//  QVBoxLayout  *_vALStackPage0Layout = new QVBoxLayout( vpage0big_box, 11, 6, "_vALStackPage0Layout"); 
+//  QSpacerItem *AlSpacerItem = new QSpacerItem( 1800, 30, QSizePolicy::Maximum, QSizePolicy::Maximum );
+//  _vALStackPage0Layout->addItem(AlSpacerItem);
+
   vAttachOrLoadPageProcessListLabel = new QLabel( vpage0big_box, "vAttachOrLoadPageProcessListLabel" );
-//jeg  vAttachOrLoadPageProcessListLabel->setMinimumSize( QSize(10,10) );
-//jeg  vAttachOrLoadPageProcessListLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
 
   // Add multi-process label here
 
   vLAPage0SeqMPSeparatorLine = new QFrame( vpage0big_box, "vLAPage0SeqMPSeparatorLine" );
-//jeg  vLAPage0SeqMPSeparatorLine->setMinimumSize( QSize(10,10) );
   vLAPage0SeqMPSeparatorLine->setFrameShape( QFrame::HLine );
   vLAPage0SeqMPSeparatorLine->setFrameShadow( QFrame::Sunken );
-//jeg  vLAPage0SeqMPSeparatorLine->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
 
   vLAPageTitleLabel2 = new QLabel( vpage0big_box, "vLAPageTitleLabel2" );
-//jeg  vLAPageTitleLabel2->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, 0, 0, FALSE ) );
 
   // MultiProcess Load Executable Code
   vAttachOrLoadPageLoadMultiProcessExecutableCheckBox = new QCheckBox( vpage0big_box, "vAttachOrLoadPageLoadMultiProcessExecutableCheckBox" );
   vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
 
   vAttachOrLoadPageMultiProcessExecutableLabel = new QLabel( vpage0big_box, "vAttachOrLoadPageMultiProcessExecutableLabel" );
-//jeg  vAttachOrLoadPageMultiProcessExecutableLabel->setMinimumSize( QSize(10,10) );
-//jeg  vAttachOrLoadPageMultiProcessExecutableLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
 
   // MultiProcess Load Different
   vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox = new QCheckBox( vpage0big_box, "vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox" );
@@ -230,8 +246,9 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   vAttachOrLoadPageAttachToMultiProcessCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
 
   vAttachOrLoadPageMultiProcessListLabel = new QLabel( vpage0big_box, "vAttachOrLoadPageMultiProcessListLabel" );
-//jeg  vAttachOrLoadPageMultiProcessListLabel->setMinimumSize( QSize(10,10) );
-//jeg  vAttachOrLoadPageMultiProcessListLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
+  vAttachOrLoadPageMultiProcessListLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
+
+  QLabel *dummySpacer = new QLabel( vpage0big_box, "dummySpacer" );
 
   vALStackPage0Layout->addWidget( vpage0sv);
 
@@ -242,7 +259,7 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   vLAPage0Line2->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
   vALStackPage0Layout->addWidget( vLAPage0Line2 );
 
-  vAttachOrLoadPageSpacer = new QSpacerItem( 20, 30, QSizePolicy::Expanding, QSizePolicy::Expanding );
+  vAttachOrLoadPageSpacer = new QSpacerItem( 20, 10, QSizePolicy::Expanding, QSizePolicy::Expanding );
   vALStackPage0Layout->addItem( vAttachOrLoadPageSpacer );
 
 
@@ -302,22 +319,23 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   vMPStackPage1 = new QWidget( mainWidgetStack, "vMPStackPage1" );
   vMPStackPage1->setMinimumSize( QSize(100,100) );
 
-  vMPStackPage1Layout = new QVBoxLayout( vMPStackPage1, 11, 6, "vMPStackPage1Layout"); 
+  vMPStackPage1Layout = new QVBoxLayout( vMPStackPage1, 0, 0, "vMPStackPage1Layout"); 
+//  vMPStackPage1Layout = new QVBoxLayout( vMPStackPage1, 11, 6, "vMPStackPage1Layout"); 
 
   vpage1sv = new QScrollView( vMPStackPage1, "vpage1sv" );
 
   vpage1big_box = new QVBox( vpage1sv->viewport(), "vpage1big_box" );
   vpage1big_box->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Maximum, 0, 0, FALSE ) );
-  vpage1big_box->setPaletteForegroundColor("Dark Green");
+//  vpage1big_box->setPaletteForegroundColor("Dark Green");
   vpage1sv->addChild(vpage1big_box);
 
-  vpage1big_box->setPaletteBackgroundColor("Tan");
-  vpage1sv->viewport()->setBackgroundColor("Yellow");
+//  vpage1big_box->setPaletteBackgroundColor("Tan");
+//  vpage1sv->viewport()->setBackgroundColor("Yellow");
 
   const QColor vpageColor = vLAPageTitleLabel2->paletteBackgroundColor();
   vpage1sv->viewport()->setBackgroundColor(vpageColor);
   vpage1sv->viewport()->setPaletteBackgroundColor(vpageColor);
-  vpage1sv->viewport()->setPaletteBackgroundColor("Light Blue");
+//  vpage1sv->viewport()->setPaletteBackgroundColor("Light Blue");
 
   // Line above big_box
   vMPLoadLine = new QFrame( vMPStackPage1, "vMPLoadLine" );
@@ -328,7 +346,6 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   vMPStackPage1Layout->addWidget( vMPLoadLine );
 
   // Create a MPI job command ... header label
-//jeg  vMPLoadTitleLabel1 = new QLabel( vpage1big_box, "vMPLoadTitleLabel1" );
   vMPLoadTitleLabel1 = new QLabel( vMPStackPage1, "vMPLoadTitleLabel1" );
   vMPLoadTitleLabel1->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
   vMPStackPage1Layout->addWidget( vMPLoadTitleLabel1 );
@@ -336,7 +353,6 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
 
   // Create the parallel execution extra widget entities - parallel execution prefix label and text entry form  
   // Step 1: Enter MPI .... text for this label
-//#if jegtry1
 #if 1
   vMPLoadParallelPrefixLabel = new QLabel( vpage1big_box, "vMPLoadParallelPrefixLabel" );
   vMPLoadParallelPrefixLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
@@ -347,18 +363,19 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   vMPLoadParallelPrefixLineedit = new QLineEdit( vMPStackPage1 );
   vMPStackPage1Layout->addWidget( vMPLoadParallelPrefixLabel );
   vMPStackPage1Layout->addWidget( vMPLoadParallelPrefixLineedit );
+
 #endif
 
   // Add the parallel execution text entry and label to the dialog form.
-//#if jegtry1
 #if 1
   vMPLoadPageLoadLabel = new QLabel( vpage1big_box, "vMPLoadPageLoadLabel");
 
   vMPLoadPageLoadButton = new QPushButton( vpage1big_box, "vMPLoadPageLoadButton");
-  vMPLoadPageLoadButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vMPLoadPageLoadButton->sizePolicy().hasHeightForWidth() ) );
+  vMPLoadPageLoadButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, FALSE ) );
+//  vMPLoadPageLoadButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vMPLoadPageLoadButton->sizePolicy().hasHeightForWidth() ) );
 
   vMPLoadMPILoadLineedit = new QLineEdit( vpage1big_box );
-//  vMPLoadMPILoadLineedit->setMinimumSize( QSize(10,10) );
+  vMPLoadMPILoadLineedit->setMinimumSize( QSize(631,10) );
 //  vMPLoadMPILoadLineedit->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
   vMPLoadMPILoadLineedit->setReadOnly(TRUE);
 #else
@@ -379,13 +396,13 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   // Add the parallel execution text entry and label to the dialog form.
 
   // Create the first extra widget entity - command line agrument label and text entry form
-//#if jegtry1
 #if 1
   vMPLoadCommandArgumentsLabel = new QLabel(vpage1big_box, "vMPLoadCommandArgumentsLabel" );
   vMPLoadCommandArgumentsLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
 
   vMPLoadPageArgBrowseButton = new QPushButton( vpage1big_box, "vMPLoadPageArgBrowseButton");
-  vMPLoadPageArgBrowseButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vMPLoadPageArgBrowseButton->sizePolicy().hasHeightForWidth() ) );
+//  vMPLoadPageArgBrowseButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vMPLoadPageArgBrowseButton->sizePolicy().hasHeightForWidth() ) );
+  vMPLoadPageArgBrowseButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, FALSE ) );
 
   vMPLoadCommandArgumentsLineedit = new QLineEdit( vpage1big_box );
 #else
@@ -404,7 +421,6 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
 
   // Add the entities to the dialog form
 
-//#if jegtry1
 #if 1
 //  vMPLoadPageShowLayout = new QHBoxLayout( 0, 0, 6, "vMPLoadPageShowLayout"); 
 
@@ -413,14 +429,15 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   vMPLoadMPIShowCommandLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
 
   vMPLoadPageShowButton = new QPushButton( vpage1big_box, "vMPLoadPageShowButton");
-  vMPLoadPageShowButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vMPLoadPageShowButton->sizePolicy().hasHeightForWidth() ) );
+  vMPLoadPageShowButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, FALSE ) );
+//  vMPLoadPageShowButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vMPLoadPageShowButton->sizePolicy().hasHeightForWidth() ) );
 
   const QColor vpage0color = vMPStackPage1->paletteBackgroundColor();
 
   vMPLoadMPICommandLineedit = new QLineEdit( vpage1big_box );
   vMPLoadMPICommandLineedit->setReadOnly(TRUE);
-  vMPLoadMPICommandLineedit->setBackgroundColor(vpage0color);
-  vMPLoadMPICommandLineedit->setPaletteBackgroundColor(vpage0color);
+//  vMPLoadMPICommandLineedit->setBackgroundColor(vpage0color);
+//  vMPLoadMPICommandLineedit->setPaletteBackgroundColor(vpage0color);
 //  vMPLoadMPICommandLineedit->setMinimumSize( QSize(10,10) );
 //  vMPLoadMPICommandLineedit->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
 #else
@@ -435,8 +452,8 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
 
   vMPLoadMPICommandLineedit = new QLineEdit( vMPStackPage1 );
   vMPLoadMPICommandLineedit->setReadOnly(TRUE);
-  vMPLoadMPICommandLineedit->setBackgroundColor(vpage0color);
-  vMPLoadMPICommandLineedit->setPaletteBackgroundColor(vpage0color);
+//  vMPLoadMPICommandLineedit->setBackgroundColor(vpage0color);
+//  vMPLoadMPICommandLineedit->setPaletteBackgroundColor(vpage0color);
 //  vMPLoadMPICommandLineedit->setMinimumSize( QSize(10,10) );
 //  vMPLoadMPICommandLineedit->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
 
@@ -446,7 +463,6 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
 
 #endif
 
-//#if jegtry1
 #if 1
   vMPLoadMPIAcceptCommandLabel = new QLabel( vpage1big_box, "vMPLoadMPIAcceptCommandLabel" );
   vMPLoadMPIAcceptCommandLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
@@ -504,7 +520,6 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   printf("vpage1sv->viewport()->width()=%d\n", vpage1sv->viewport()->width());
 #endif
 
-//#if jegtry1
 #if 1
   vpage1big_box->layout()->setResizeMode(QLayout::Minimum);
   vpage1big_box->resize(vpage1sv->width(), vpage1sv->height());
@@ -590,6 +605,8 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   // Initializes everything
   vUpdateAttachOrLoadPageWidget();
 
+  vLAPage0SeqMPSeparatorLine->setMinimumSize( QSize(1000,10) );
+//  vLAPage0SeqMPSeparatorLine->setMinimumSize( QSize(1500,10) );
   mainWidgetStack->raiseWidget(vALStackPage0);
   getBaseWidgetFrame()->setCaption("loadPanelBaseWidget");
 
@@ -619,10 +636,11 @@ loadPanel::languageChange()
 
   setCaption( tr( "Load Program Panel" ) );
 
-  vAttachOrLoadPageDescriptionLabel->setText( tr( "Open|SpeedShop can attach to an existing running process (or running processes) or load an executable from disk.<br>It can also start a multiprocess job from disk or automatically attach to all the running processes/ranks of a MPI job.<br>Please select the desired action.  Note: A dialog will be raised, prompting for the information needed to load an executable or attach to a process.</p>") );
+//  vAttachOrLoadPageDescriptionLabel->setText( tr( "Open|SpeedShop can attach to an existing running process (or running processes) or load an executable from disk.<br>It can also start a multiprocess job from disk or automatically attach to all the running processes/ranks of a MPI job.<br>Please select the desired action.  Note: A dialog will be raised, prompting for the information needed to load an executable or attach to a process.</p>") );
+  vAttachOrLoadPageDescriptionLabel->setText( tr( "Open|SpeedShop can attach to an existing running process (or running processes) or load an executable from disk.  It can also start a multiprocess job from disk or automatically attach to all the running processes/ranks of a MPI job.  Please select the desired action.  Note: A dialog will be raised, prompting for the information needed to load an executable or attach to a process.") );
 
   vAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more already running processes/ranks/threads." ) );
-  vAttachOrLoadPageAttachToMultiProcessCheckBox->setText( tr( "Attach to all processes/ranks/threads in an already running multiprocess job (MPI). 12345678901234567890abcdefghij" ) );
+  vAttachOrLoadPageAttachToMultiProcessCheckBox->setText( tr( "Attach to all processes/ranks/threads in an already running multiprocess job (MPI)." ) );
   vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
   vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->setText( tr( "Start/Run a multi-process executable from disk (MPI)." ) );
   vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different executable from disk." ) );
@@ -647,7 +665,7 @@ loadPanel::languageChange()
   QToolTip::add( vMPLoadPageNextButton, tr( "Advance to the next wizard page." ) );
   vMPLoadPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vMPLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
-  vMPLoadParallelPrefixLabel->setText( tr("<b>Step 1:</b> Enter MPI Execution Prefix: (For Example: mpirun -np 64 or srun -N 128 -n 128)") );
+  vMPLoadParallelPrefixLabel->setText( tr("<b>Step 1:</b> Enter MPI Execution Prefix: (For example: mpirun -np 64 or srun -N 128 -n 128)") );
   vMPLoadCommandArgumentsLabel->setText( tr("<b>Step 3:</b> Enter MPI program command line arguments: (if not entered in load program dialog) ") );
 
   vMPLoadMPIShowCommandLabel->setText(tr("<b>Optional Step 4:</b> Review/Show the MPI Command Open|SpeedShop is building:") );
@@ -678,9 +696,12 @@ void loadPanel::vAttachOrLoadPageBackButtonSelected()
 #endif
 
   Panel *p = targetPanel;
+#ifdef DEBUG_loadPanel
+  printf("loadPanel::loadPanel(), this=0x%x, (targetPanel is read for Wizard_Raise_LoadPanel_Back_Page) panel name is=%s\n", this, targetPanel->getName());
+#endif
   MessageObject *msg = new MessageObject("Wizard_Raise_LoadPanel_Back_Page");
 #ifdef DEBUG_loadPanel
-  printf("loadPanel::vAttachOrLoadPageBackButtonSelected() processing Wizard_Raise_LoadPanel_Back_Page msg, p=0x%x\n", p);
+  printf("loadPanel::vAttachOrLoadPageBackButtonSelected() processing Wizard_Raise_LoadPanel_Back_Page msg, this=0x%x, p=0x%x\n", this, p);
 #endif
   if (p) {
     p->getPanelContainer()->raisePanel(p);
@@ -710,8 +731,13 @@ void loadPanel::vAttachOrLoadPageClearButtonSelected()
 
   vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-  vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->setChecked(FALSE);
+  if (getMPIWizardCalledMe()) {
+    vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->setChecked(TRUE);
+    vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+  } else {
+    vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+    vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->setChecked(FALSE);
+  }
   vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
   vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(FALSE);
 
@@ -1127,7 +1153,13 @@ loadPanel::vUpdateAttachOrLoadPageWidget()
       if( !mw->executableName.isEmpty() )
       {
         vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-        vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+        if (getMPIWizardCalledMe()) {
+          vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->setChecked(TRUE);
+          vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+        } else {
+          vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+          vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->setChecked(FALSE);
+        }
         vAttachOrLoadPageExecutableLabel->setText( mw->executableName );
         vAttachOrLoadPageMultiProcessExecutableLabel->setText( mw->executableName );
         vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load the following executable from disk." ) );
@@ -1137,7 +1169,14 @@ loadPanel::vUpdateAttachOrLoadPageWidget()
         vAttachOrLoadPageLoadDifferentExecutableCheckBox->show();
         vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->show();
       } else if( !mw->pidStr.isEmpty() ) {
-        vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+        if (getMPIWizardCalledMe()) {
+          vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(TRUE);
+          vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+        } else {
+          vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(FALSE);
+          vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+        } 
+        
         vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
         vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
         vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
@@ -1160,11 +1199,14 @@ loadPanel::vUpdateAttachOrLoadPageWidget()
     // If both possible choices are empty then we should select the
     // load executable check box setting as the default.
     if (mw->executableName.isEmpty() && mw->pidStr.isEmpty() ) {
-      vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+      if (getMPIWizardCalledMe()) {
+          vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+          vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->setChecked(TRUE);
+      } else {
+          vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+          vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->setChecked(FALSE);
+      }
     }
-
-    
-
   }
 }
 
@@ -1309,24 +1351,8 @@ void loadPanel::vMPLoadPageProcessAccept()
     } else {
       vSummaryPageFinishButtonSelected();
     }
-
-    // RAISE THE WIZARD SUMMARY PAGE INSTEAD
-#if 0
-    QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
-    QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
-    QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    if( mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
-        sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for command/executable \"%s\" to be run on host<br>\"%s\".  Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"loadPanel\" panel will be raised to allow you to futher control the experiment, or click the \"RUN\" button to run the experiment as created by the wizard process.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), /* vParameterPageSampleRateText->text().ascii() */ "dummyRate" );
-    } else {
-        sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for command/executable <br>\"%s %s\" to be run on host<br>\"%s\".  Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"loadPanel\" panel will be raised to allow you to futher control the experiment, or click the \"RUN\" button to run the experiment as created by the wizard process.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), /*  vParameterPageSampleRateText->text().ascii()*/ "dummyRate"  );
-    }
-#endif
   }
 
-//  vSummaryPageFinishLabel->setText( tr( buffer ) );
-//  mainWidgetStack->raiseWidget(2);
-
-//  mainWidgetStack->raiseWidget(vSummaryPageWidget);
 #ifdef DEBUG_loadPanel
   printf("loadPanel::vMPLoadPageProcessAccept() EXITED \n");
 #endif
@@ -1385,7 +1411,7 @@ void loadPanel::vSummaryPageFinishButtonSelected()
   Panel *p = targetPanel;
 
 #ifdef DEBUG_loadPanel
-  printf("loadPanel::vSummaryPageFinishButtonSelected(), targetPanels name is: p->getName()=%s\n", p->getName() );
+  printf("loadPanel::vSummaryPageFinishButtonSelected(), targetPanel is read for sending summary page raise msg: p->getName()=%s\n", p->getName() );
 #endif
 
   if( getPanelContainer()->getMainWindow() ) {
@@ -1396,8 +1422,6 @@ void loadPanel::vSummaryPageFinishButtonSelected()
 
       LoadAttachObject *lao = NULL;
       ParamList *paramList = new ParamList();
-//      paramList->push_back(vParameterPageSampleRateText->text() );
-// printf("loadPanel::vSummaryPageFinishButtonSelected(), A: push_back (%s)\n", vParameterPageSampleRateText->text().ascii() );
 
       if( !mw->executableName.isEmpty() ) {
 
@@ -1431,7 +1455,7 @@ void loadPanel::vSummaryPageFinishButtonSelected()
         if( !p ) {
 
 #ifdef DEBUG_loadPanel
-          printf("loadPanel::vSummaryPageFinishButtonSelected p is empty need to create\n");
+          printf("loadPanel::vSummaryPageFinishButtonSelected p is empty need to create, targetPanel->getName()=%s\n", targetPanel->getName() );
 #endif
           ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
           ao->lao = lao;
@@ -1441,16 +1465,18 @@ void loadPanel::vSummaryPageFinishButtonSelected()
         } else {
 #ifdef DEBUG_loadPanel
           printf("loadPanel::vSummaryPageFinishButtonSelected calling p->listener with lao\n");
-          printf("loadPanel::vSummaryPageFinishButtonSelected calling p->listener with Wizard_Raise_Summary_Page msg\n");
+          printf("loadPanel::vSummaryPageFinishButtonSelected calling this=0x%x,  p->listener with Wizard_Raise_Summary_Page msg\n", this);
 #endif
           p->getPanelContainer()->raisePanel(p);
           p->listener((void *)lao);
           MessageObject *msg = new MessageObject("Wizard_Raise_Summary_Page");
+#ifdef DEBUG_loadPanel
+          printf("loadPanel::vSummaryPageFinishButtonSelected(), sending Wizard_Raise_Summary_Page, targetPanels name is: p->getName()=%s\n", p->getName() );
+#endif
           p->listener((void *)msg);
           delete msg;
        }
 
-//        getPanelContainer()->hidePanel((Panel *)this);
 // The receiving routine should delete this...
 // delete paramList;
       } // (lao != NULL)

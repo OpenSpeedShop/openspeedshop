@@ -175,8 +175,14 @@ class loadPanel  : public Panel
 
     QScrollView *vpage0sv;
     QVBox *vpage0big_box;
+  
+    void setMPIWizardCalledMe(bool indicator) {
+        areWeControlledByMPIWizard = indicator;
+    }
 
-
+    bool getMPIWizardCalledMe() {
+        return areWeControlledByMPIWizard;
+    }
 
   public slots:
     virtual void vAttachOrLoadPageBackButtonSelected();
@@ -200,6 +206,7 @@ class loadPanel  : public Panel
   protected:
     //! Sets the language specific strings.
     virtual void languageChange();
+    bool areWeControlledByMPIWizard;
 
   private:
 };
