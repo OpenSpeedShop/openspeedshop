@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -56,6 +57,7 @@ StatsPanel_la_SOURCES = \
 	SPListViewItem.hxx SPListViewItem.cxx \
 	SPListView.hxx SPListView.cxx \
 	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
+	SPTextEdit.hxx SPTextEdit.cxx \
 	local_plugin_info.hxx \
 	preference_plugin_info.hxx
 

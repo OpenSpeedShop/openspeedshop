@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +17,9 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+// Debug Flag
+//#define DEBUG_chart 1
+// Debug Flag
 
 /*! \class SPChartForm
     This class overloads the chart widget to allow the contents menu event
@@ -41,6 +45,9 @@ SPChartForm::SPChartForm( StatsPanel *sp, QSplitter *splitter, const char *n, in
   popupMenu = NULL;
   panelMenu = NULL;
   nprintf(DEBUG_CONST_DESTRUCT) ( "SPChartForm::SPChartForm( ) constructor called\n");
+#ifdef DEBUG_chart
+  printf("SPChartForm::SPChartForm( ) constructor called\n");
+#endif
 }
 
 /*! The default destructor. */
@@ -48,13 +55,18 @@ SPChartForm::~SPChartForm( )
 {
   // default destructor.
   nprintf(DEBUG_CONST_DESTRUCT) ("  SPChartForm::~SPChartForm( ) destructor called\n");
+#ifdef DEBUG_chart
+  printf("  SPChartForm::~SPChartForm( ) destructor called\n");
+#endif
 }
 
 int
 SPChartForm::mouseClicked( int item )
 {
   nprintf(DEBUG_PANELS) ("SPChartForm::mouseClicked(item=%d) called.\n", item);
-// printf("SPChartForm::mouseClicked() entered\n");
+#ifdef DEBUG_chart
+  printf("SPChartForm::mouseClicked() entered\n");
+#endif
   statsPanel->itemSelected(item);
 }
 
@@ -62,6 +74,9 @@ void
 SPChartForm::contentsContextMenuEvent( QContextMenuEvent *e)
 {
   nprintf(DEBUG_PANELS) ("SPChartForm::contentsContextMenuEvent() entered\n");
+#ifdef DEBUG_chart
+  printf("SPChartForm::contentsContextMenuEvent() entered\n");
+#endif
 
   createPopupMenu( QCursor::pos() );
 }
@@ -70,6 +85,9 @@ QPopupMenu*
 SPChartForm::createPopupMenu( const QPoint & pos )
 {
   nprintf(DEBUG_PANELS) ("SPChartForm: Hello from down under the hood.\n");
+#ifdef DEBUG_chart
+  printf("SPChartForm::createPopupMenu, Hello from down under the hood.\n");
+#endif
 
   // First create the default Qt widget menu...
   if( panelMenu )

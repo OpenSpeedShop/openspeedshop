@@ -18,17 +18,44 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  plugin_entry->grouping = "";
-  plugin_entry->show_immediate = 0;
-  plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Displays experiment statistics. Use right mouse button down on tab for options.";
-  plugin_entry->plugin_name =  "StatsPanel.so";
-  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
-  plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  ""; // Leaving this blank hides the menu entry.
-  plugin_entry->menu_label =  "Stats Panel";
-  plugin_entry->menu_accel =  "Alt+R";
-  plugin_entry->panel_type =  "Stats Panel";
-  plugin_entry->preference_category =  "Stats Panel";
-  plugin_entry->initialize_preferences_entry_point =  "initialize_preferences_entry_point";
-  plugin_entry->save_preferences_entry_point =  "save_preferences_entry_point";
+#ifndef SPTEXTEDIT_H
+#define SPTEXTEDIT_H
+
+class StatsPanel;
+
+#include <qwidget.h>
+#include <qtextedit.h>
+#include <qscrollbar.h>
+#include <qpixmap.h>
+
+//! Simply overloads the QTextEdit so we can detect the context menu event.
+class SPTextEdit : public QTextEdit
+{
+  //! Q_OBJECT is needed as there are slots defined for the class
+  Q_OBJECT
+public:
+    SPTextEdit( );
+
+    //! SPTextEdit(StatsPanel *sp, QWidget *parent, const char *name)
+    SPTextEdit( StatsPanel *sp, QWidget *parent=0, const char *name=0 );
+
+    ~SPTextEdit( );
+
+    QPopupMenu* createPopupMenu( const QPoint & pos );
+    QPopupMenu* createPopupMenu( ) { /* obsoleted function. */ return NULL; };
+
+    void annotateScrollBarLine( int line, QColor);
+    void clearScrollBarLine(int line);
+    void clearScrollBar();
+
+    QScrollBar *vbar;
+    QScrollBar *hbar;
+protected: 
+public slots:
+
+private:
+    StatsPanel *statsPanel;
+
+    QPixmap *vannotatePixmap;
+};
+#endif // SPTEXTEDIT_H

@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -16,11 +17,15 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+//
+//#define DEBUG_StatsPanel 1
+//
 
 /*! \class SPListViewItem
     This class overloads the chart widget to allow the contents menu event
     to be recognized.
  */
+
 #include "SPListViewItem.hxx"
 
 #include <qpopupmenu.h>
@@ -113,12 +118,20 @@ int
 SPListViewItem::width(const QFontMetrics &fm, const QListView *lv, int column) const
 {
         int width;
+#if DEBUG_StatsPanel 
+        printf("SPListViewItem::width, column=(%d), (int)fonts.size()=%d\n", column, (int)fonts.size() );
+#endif
         if (column >= 0 && column < (int)fonts.size()) {
             QFontMetrics fm2(fonts[column]);
             width = QListViewItem::width(fm2, lv, column);
         }
-        else
+        else {
             width = QListViewItem::width(fm, lv, column);
+        }
+
+#if DEBUG_StatsPanel 
+  printf("SPListViewItem::width, return width=(%d)\n", width );
+#endif
         return width;
 }
 
@@ -129,16 +142,18 @@ SPListViewItem::compare(QListViewItem *other, int c, bool b) const
   bool ok1 = 0;
   bool ok2 = 0;
 
-// printf("statsPanel->splv->sortColumn=(%d)\n", statsPanel->splv->sortColumn() );
+#if DEBUG_StatsPanel 
+  printf("statsPanel->splv->sortColumn=(%d)\n", statsPanel->splv->sortColumn() );
+#endif
 
   if( c != statsPanel->splv->sortColumn() )
   {
     return 0;
   }
 
-
-
-// printf("other->text(%d)=%s text(%d)=%s\n", c, other->text(c).ascii(), c, text(c).ascii() );
+#if DEBUG_StatsPanel 
+  printf("other->text(%d)=%s text(%d)=%s\n", c, other->text(c).ascii(), c, text(c).ascii() );
+#endif
   
   QString s = text(c);
   QString other_s = other->text(c);

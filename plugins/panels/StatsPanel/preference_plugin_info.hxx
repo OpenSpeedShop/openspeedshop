@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -77,6 +78,7 @@ extern "C"
 
   QHBoxLayout* layoutSkyline;
   QCheckBox* showToolbarCheckBox;
+  QCheckBox* showMetadataCheckBox;
   QCheckBox* showSkylineCheckBox;
   QLabel* showSkylineLabel;
   QLineEdit* showSkylineLineEdit;
@@ -154,6 +156,12 @@ extern "C"
     return( showToolbarCheckBox->isChecked() );
   }
 
+  bool getPreferenceShowMetadataCheckBox()
+  {
+// printf("getPreferenceShowMetadataCheckBox(%s)\n", pname);
+    return( showMetadataCheckBox->isChecked() );
+  }
+
   bool getPreferenceShowSkyline()
   {
 // printf("getPreferenceShowSkyline(%s)\n", pname);
@@ -182,6 +190,7 @@ extern "C"
     showTextByLocationCheckBox->setChecked(FALSE);
     chartTypeComboBox->setCurrentItem(0);
     showToolbarCheckBox->setChecked(FALSE);
+    showMetadataCheckBox->setChecked(FALSE);
     showSkylineCheckBox->setChecked(FALSE);
     showSkylineLabel->setText("Percentage breakdown for skyline view:");
     showSkylineLineEdit->setText("25");
@@ -291,6 +300,12 @@ textLabelLayout->addWidget( chartTypeComboBox );
     showToolbarCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showToolbarCheckBox->sizePolicy().hasHeightForWidth() ) );
     layout8->addWidget( showToolbarCheckBox );
 
+    showMetadataCheckBox =
+      new QCheckBox( statsPanelGroupBox, "showMetadataCheckBox" );
+    showMetadataCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showMetadataCheckBox->sizePolicy().hasHeightForWidth() ) );
+    layout8->addWidget( showMetadataCheckBox );
+
+
     showSkylineCheckBox =
       new QCheckBox( statsPanelGroupBox, "showSkylineCheckBox" );
     showSkylineCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showSkylineCheckBox->sizePolicy().hasHeightForWidth() ) );
@@ -348,7 +363,8 @@ textLabelLayout->addWidget( chartTypeComboBox );
     showSkylineLabel->setText("Percentage breakdown for skyline view:");
     showTextByPercentCheckBox->setText( "  Show text by percent:" );
     showTextByLocationCheckBox->setText( "  Show text by location:" );
-    showToolbarCheckBox->setText( "  Show toolbar:" );
+    showToolbarCheckBox->setText( "  Show display option toolbar:" );
+    showMetadataCheckBox->setText( "  Show expanded experiment metadata information::" );
     showSkylineCheckBox->setText( "  Show skyline view in time dialog:" );
 
     initPreferenceSettings();
@@ -415,6 +431,14 @@ textLabelLayout->addWidget( chartTypeComboBox );
         "openspeedshop", name, showToolbarCheckBox->name() );
       showToolbarCheckBox->setChecked(
         settings->readBoolEntry(settings_buffer, FALSE) );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, showMetadataCheckBox->name() );
+      showMetadataCheckBox->setChecked(
+        settings->readBoolEntry(settings_buffer, FALSE) );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, showSkylineCheckBox->name() );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showSkylineCheckBox->name() );
@@ -484,6 +508,10 @@ textLabelLayout->addWidget( chartTypeComboBox );
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showToolbarCheckBox->name() );
     settings->writeEntry(settings_buffer, showToolbarCheckBox->isChecked() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, showMetadataCheckBox->name() );
+    settings->writeEntry(settings_buffer, showMetadataCheckBox->isChecked() );
 
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showSkylineCheckBox->name() );

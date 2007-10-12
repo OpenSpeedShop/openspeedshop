@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -28,6 +29,11 @@
 #include "ToolAPI.hxx"
 #include "Queries.hxx"
 
+
+#define DEFAULT_CANVAS_WIDTH 100
+#define DEFAULT_CANVAS_MIN 20
+
+
 using namespace OpenSpeedShop;
 using namespace OpenSpeedShop::Framework;
 
@@ -38,8 +44,12 @@ class QFile;
 class GenericProgressDialog;
 class SourceObject;
 class QToolBar;
+class QPushButton;
+
 #include "SPChartForm.hxx"
 #include "HighlightObject.hxx"
+
+#include "SPTextEdit.hxx"
 
 
 #include <qlistview.h>
@@ -112,6 +122,9 @@ typedef QValueList<ColumnValueClass *> ColumnValueClassList;
 
 
 #define PANEL_CLASS_NAME StatsPanel   // Change the value of the define
+#define DONT_FORCE_UPDATE false
+#define DO_FORCE_UPDATE true
+
 //! StatsPanel Class
 class StatsPanel  : public Panel
 {
@@ -138,6 +151,7 @@ class StatsPanel  : public Panel
     GenericProgressDialog *pd;
     SelectTimeSegmentDialog *timeSegmentDialog;
     QString timeIntervalString;
+    QString prevTimeIntervalString;
     QTimer *progressTimer;
     bool insertDiffColumnFLAG;
     bool absDiffFLAG;
@@ -155,14 +169,55 @@ class StatsPanel  : public Panel
 
     QString lastAbout;
     QString aboutOutputString;
-    QString about;
+    QString aboutString;
+    QString infoString;
+    QString infoAboutString;
+    QString infoAboutComparingString;
+    QString infoAboutStringCompareExpIDs;
     QString originalCommand;
     QString lastCommand;
     bool staticDataFLAG;
 
     QVBoxLayout *frameLayout;
+
+    //! Layout for managing child widgets.
+    QFrame *metadataAllSpaceFrame;
+
+    //! Labels for managing information about the displayed stats
+    QLabel* infoLabel;
+    QLabel* infoEditHeaderLabel;
+    QPushButton* infoEditHeaderMoreButton;
+
+    //! Layout for managing information about the displayed stats
+    QHBoxLayout * metadataOneLineInfoLayout;
+
+    //! Layout for managing button and summary label information about the displayed stats
+    QHBoxLayout * infoButtonAndLabelLayout;
+
+    //! Layout for managing child widgets.
+    QVBoxLayout * metadataAllSpaceLayout;
+
+    //! The QTextEdit for managing the actual text.
+    SPTextEdit *metaDataTextEdit;
+
+    //! A pointer to the metaDataTextEdit vertical scrollbar.
+    QScrollBar *vscrollbar;
+
+    //! A pointer to the metaDataTextEdit horizontal scrollbar.
+    QScrollBar *hscrollbar;
+
+    //! A pointer to the statArea (QListView) vertical scrollbar.
+    QScrollBar *vbar;
+
+    //! A pointer to the statArea (QListView) horizontal scrollbar.
+    QScrollBar *hbar;
+
+    //! Used to clear the text and set everything back to normal
+    QColor defaultColor;
+
     QToolBar * fileTools;
     QSplitter *splitterA;
+    QSplitter *splitterB;
     SPChartForm *cf;
     ColumnList columnHeaderList;
     ChartPercentValueList skylineValues;
@@ -171,6 +226,10 @@ class StatsPanel  : public Panel
     ColumnValueClass columnValueClass[80];
     int *metricHeaderTypeArray;  // matches the QListView # of column entries.
 
+    std::list<std::string> list_of_hosts;
+    std::list<std::string> list_of_executables;
+    std::list<std::string> list_of_appcommands;
+    std::list<std::string> list_of_dbnames;
     std::list<std::string> list_of_collectors_metrics;
     std::list<std::string> list_of_collectors;
     std::list<int64_t> list_of_pids;
@@ -200,12 +259,33 @@ class StatsPanel  : public Panel
 
     void setLastCommand(QString value) { lastCommand = value; } ;
     void updateThreadsList();
+    void getApplicationCommand(int expID);
+    void getDatabaseName(int expID);
+    void getPidList(int expID);
+    void getHostList(int expID);
+    void getExecutableList(int expID);
+    void updateStatsPanelInfoHeader(int expID);
+    void updateToolBarStatus(QString optionChosen);
     void updateCollectorList();
     void updateCollectorMetricList();
     void outputAboutData(QString *data);
     void outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineNumber);
+    QString getPartialExperimentInfo();
     bool MPItraceFLAG;
     bool IOtraceFLAG;
+    PanelContainer* thisPC;
+
+    bool isHeaderInfoAlreadyProcessed(int exp_id)
+    {
+      if (exp_id == headerInfoProcessedExpID) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    void setHeaderInfoAlreadyProcessed(int exp_id) {
+       headerInfoProcessedExpID = exp_id;
+    }
 
   protected:
     //! Sets the language specific strings.
@@ -259,6 +339,8 @@ class StatsPanel  : public Panel
     CURRENTTHREADSTR_ENUM currentThreadStrENUM;
     QString currentThreadsStr;
     QString currentCollectorStr;
+    QString lastCollectorStr;
+    QString infoSummaryStr;
     QString collectorStrFromMenu;
 
     QFile *f;
@@ -267,6 +349,8 @@ class StatsPanel  : public Panel
 
     // Status Panel Message Label - put out messages when data is not available
     QLabel *sml;
+
+    int headerInfoProcessedExpID;
 
 #ifdef OLDWAY // move back to public slots:
     void headerSelected( int );
@@ -291,6 +375,8 @@ class StatsPanel  : public Panel
     void manageProcessesSelected();
     void raiseManageProcessesPanel();
     void progressUpdate();
+    void valueChanged(int);
+    void clicked(int, int);
 
 // TOOLBAR SLOTS
     void functionsSelected();
@@ -306,6 +392,7 @@ class StatsPanel  : public Panel
     void tracebacksFullStackSelected();
     void tracebacksFullStackByFunctionSelected();
     void butterflySelected();
+    void infoEditHeaderMoreButtonSelected();
 
   private slots:
     void threadSelected(int);
@@ -332,6 +419,8 @@ class StatsPanel  : public Panel
     void collectorFPEReportSelected(int);
     void collectorGenericReportSelected(int);
     void showStats();
+    void showToolBar();
+    void showInfoHeader();
     void showDiff();
     void showChart();
     void setOrientation();
@@ -344,6 +433,9 @@ class StatsPanel  : public Panel
     bool matchSelectedItem( QListViewItem *item, std::string function_name );
 
     void updateStatsPanelData(bool processing_preference, QString command = QString::null);
+    void checkForDashI();
+    void updateMetadataForTimeLineView(QString intervalStr);
+    void updateMetadataForCompareIndication( QString compareStr );
     void generateMPIMenu(QString collectorName);
     void addMPIReports(QPopupMenu *menu);
     void generateIOMenu(QString collectorName);
@@ -407,6 +499,15 @@ class StatsPanel  : public Panel
     bool descending_sort;
 
     int expID;
+
+    //! Flag setting, indicating if we should be displaying the toolbar for display viewing options.
+    bool toolBarFLAG;
+
+    //! Flag setting, indicating if we should be displaying the information header about the statistics.
+    bool infoHeaderFLAG;
+
+    //! Flag setting, indicating if we should be displaying the information header about the statistics.
+    bool metaDataTextEditFLAG;
 
     //! Flag setting, indicating if we should be displaying the statistics.
     bool statsFLAG;
