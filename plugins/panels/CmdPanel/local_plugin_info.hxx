@@ -20,7 +20,7 @@
   plugin_entry->grouping = "Performance";
   plugin_entry->show_immediate = 0;
   plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Enter commands -\nType help for available commands.\n\nThis panel cannot be deleted.   Attempting to delete this panel\nwill result in it being placed in the mainwindow's panel container.";
+  plugin_entry->plugin_short_description = "Enter interactive commands in this window.\nType \"help\" for general help and \n\"help commands\"for available commands.\n\nThis panel cannot be deleted.\nAttempting to delete this panel\nwill result in it being placed in\nthe main window's panel.";
   plugin_entry->plugin_name =  "CmdPanel.so";
   plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
