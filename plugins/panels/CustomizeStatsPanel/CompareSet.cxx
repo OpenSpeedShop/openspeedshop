@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -15,6 +16,10 @@
 // along with this library; if not, write to the Free Software Foundation, Inc.,
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
+
+// Debug Flag
+//#define DEBUG_COMPARE 1
+//
 
 #include "debug.hxx"
 
@@ -38,7 +43,9 @@
 
 CompareSet::CompareSet(QToolBox *csetTB, CustomizeClass *cc ) : QObject()
 {
-// printf("CompareSet::CompareSet() constructor called.\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::CompareSet() constructor called.\n");
+#endif
 //  tcnt = 0;
   tcnt = 1;
   compareClass = cc;
@@ -60,12 +67,16 @@ CompareSet::CompareSet(QToolBox *csetTB, CustomizeClass *cc ) : QObject()
 void
 CompareSet::updateInfo()
 {
-// printf("CompareSet::updateInfo() entered\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updateInfo() entered\n");
+#endif
   ColumnSetList::Iterator it;
   for( it = columnSetList.begin(); it != columnSetList.end(); )
   {
     ColumnSet *cs = (ColumnSet *)*it;
-// printf("attempt to delete (%s)'s info\n", cs->name.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updateInfo(), attempt to delete (%s)'s info\n", cs->name.ascii() );
+#endif
 
     cs->updateInfo();
     ++it;
@@ -78,18 +89,24 @@ CompareSet::updateInfo()
 CompareSet::~CompareSet()
 {
    // Destroy the list of column information.
-// printf("Destroy the list of column information.\n");
+#ifdef DEBUG_COMPARE
+ printf("Destroy the list of column information.\n");
+#endif
   ColumnSetList::Iterator it;
   for( it = columnSetList.begin(); it != columnSetList.end(); )
   {
     ColumnSet *cs = (ColumnSet *)*it;
-// printf("attempt to delete (%s)'s info\n", cs->name.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("attempt to delete (%s)'s info\n", cs->name.ascii() );
+#endif
 
     delete(cs);
     ++it;
   }
 
-// printf("Finished cleaning up the CompareSet\n");
+#ifdef DEBUG_COMPARE
+ printf("Finished cleaning up the CompareSet\n");
+#endif
   columnSetList.clear();
 }
 
@@ -112,25 +129,33 @@ CompareSet::setNewFocus(QWidget *tab)
   ColumnSetList::Iterator it;
   if( compareSet )
   {
-// printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::setNewFocus(), (%s)'s info\n", compareSet->name.ascii() );
+#endif
     for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
     {
       ColumnSet *columnSet = (ColumnSet *)*it;
-// printf("Is it? columnSet->name=(%s) tabWidget->tabLabel()=(%s)\n", columnSet->name.ascii(), tabWidget->tabLabel(tab).ascii()  );
+#ifdef DEBUG_COMPARE
+ printf("Is it? columnSet->name=(%s) tabWidget->tabLabel()=(%s)\n", columnSet->name.ascii(), tabWidget->tabLabel(tab).ascii()  );
+#endif
       if( columnSet->name == tabWidget->tabLabel(tab) )
       {
         int expID = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
-// printf("\t: CompareSet (%s)'s info\n", compareSet->name.ascii() );
-// printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
-// printf("\t\t: expID=(%d)\n", expID );
-// printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
-// printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
-// printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
+#ifdef DEBUG_COMPARE
+ printf("\t: CompareSet (%s)'s info\n", compareSet->name.ascii() );
+ printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
+ printf("\t\t: expID=(%d)\n", expID );
+ printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
+ printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
+ printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
+#endif
 
 
          if( compareSet->compareClass->dialog )
          {
-// printf("call dialogs updateFocus\n");
+#ifdef DEBUG_COMPARE
+ printf("call dialogs updateFocus\n");
+#endif
            if( compareSet->compareClass->dialog->updateFocus(expID, columnSet->lv) == TRUE )
            {
              compareSet->updatePSetList();
@@ -165,7 +190,9 @@ CompareSet::updatePSetList()
   QStringList *psl = &compareClass->dialog->psetNameList;
   int pset_count = 0;
 
-// printf("CompareSet::updatePSetList(%d) \n", expID );
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList(%d) \n", expID );
+#endif
 
   psetListView->clearSelection();
 
@@ -177,7 +204,9 @@ dynamic_items->setOpen(TRUE);
 
   QString pset_name = QString::null;
 
-// printf("for each host, create a dynamic collector\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, for each host, create a dynamic collector\n");
+#endif
   try
   {
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
@@ -205,6 +234,9 @@ dynamic_items->setOpen(TRUE);
       
         v.push_back(s);
       }
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, calling std::sort\n");
+#endif
       std::sort(v.begin(), v.end());
 
       pset_name = QString("Hosts");
@@ -220,7 +252,9 @@ dynamic_items->setOpen(TRUE);
         MPListViewItem *item = new MPListViewItem( host_items, pset_name );
         DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
         item->descriptionClassObject = dco;
-// printf("hi=(%s)\n", hi->c_str() );
+#ifdef DEBUG_COMPARE
+// printf("CompareSet::updatePSetList, hi=(%s)\n", hi->c_str() );
+#endif
         bool atleastone = false;
         for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
         {
@@ -245,9 +279,11 @@ dynamic_items->setOpen(TRUE);
             {
               ridstr = QString("%1").arg(rank.second);
             }
-// printf("A: pidstr=(%s)\n", pidstr.ascii() );
-// printf("A: tidstr=(%s)\n", tidstr.ascii() );
-// printf("A: ridstr=(%s)\n", ridstr.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, A: pidstr=(%s)\n", pidstr.ascii() );
+ printf("CompareSet::updatePSetList, A: tidstr=(%s)\n", tidstr.ascii() );
+ printf("CompareSet::updatePSetList, A: ridstr=(%s)\n", ridstr.ascii() );
+#endif
             CollectorGroup cgrp = t.getCollectors();
             CollectorGroup::iterator ci;
             std::string collectorliststring;
@@ -271,32 +307,40 @@ dynamic_items->setOpen(TRUE);
                 new MPListViewItem(item, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring );
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
               item2->descriptionClassObject = dco;
-// printf("A: Put ridstr out: \n");
-// dco->Print();
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, A: Put ridstr out: \n");
+ dco->Print();
+#endif
             } else if( !tidstr.isEmpty() )
             {
               MPListViewItem *item2 =
                 new MPListViewItem(item, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring );
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
               item2->descriptionClassObject = dco;
-// printf("A: Put tidstr out: \n");
-// dco->Print();
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, A: Put tidstr out: \n");
+ dco->Print();
+#endif
             } else if( !pidstr.isEmpty() )
             {
               MPListViewItem *item2 = 
                 new MPListViewItem( item, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring );
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
               item2->descriptionClassObject = dco;
-// printf("A: Put pidstr out: \n");
-// dco->Print();
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, A: Put pidstr out: \n");
+ dco->Print();
+#endif
             } else
             {
               MPListViewItem *item2 = 
                 new MPListViewItem( item, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring  );
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, ridstr, tidstr, collectorliststring);
               item2->descriptionClassObject = dco;
-// printf("A: Put \"other\" out: \n");
-// dco->Print();
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, A: Put \"other\" out: \n");
+ dco->Print();
+#endif
             }
           }
         }
@@ -338,7 +382,9 @@ dynamic_items->setOpen(TRUE);
   
     if( eo->FW() != NULL )
     {
-// printf("got an experiment.\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, got an experiment.\n");
+#endif
   // The following bit of code was snag and modified from SS_View_exp.cxx
       ThreadGroup tgrp = eo->FW()->getThreads();
       ThreadGroup::iterator ti;
@@ -364,9 +410,11 @@ dynamic_items->setOpen(TRUE);
           ridstr = QString("%1").arg(rank.second);
           statusStruct.rid = ridstr;
         }
-// printf("B: pid=(%s)\n", statusStruct.pid.ascii() );
-// printf("B: tid=(%s)\n", statusStruct.tid.ascii() );
-// printf("B: rid=(%s)\n", statusStruct.rid.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, B: pid=(%s)\n", statusStruct.pid.ascii() );
+ printf("CompareSet::updatePSetList, B: tid=(%s)\n", statusStruct.tid.ascii() );
+ printf("CompareSet::updatePSetList, B: rid=(%s)\n", statusStruct.rid.ascii() );
+#endif
 
         // Add some status to each thread.
         QString threadStatusStr;
@@ -376,9 +424,11 @@ dynamic_items->setOpen(TRUE);
             threadStatusStr = "Disconnected";
             statusStruct.status = threadStatusStr;
             statusDisconnectedList.push_back(statusStruct);
-// printf("push_back: pid=(%s)\n", statusStruct.pid.ascii() );
-// printf("push_back: tid=(%s)\n", statusStruct.tid.ascii() );
-// printf("push_back: rid=(%s)\n", statusStruct.rid.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, push_back: pid=(%s)\n", statusStruct.pid.ascii() );
+ printf("CompareSet::updatePSetList, push_back: tid=(%s)\n", statusStruct.tid.ascii() );
+ printf("CompareSet::updatePSetList, push_back: rid=(%s)\n", statusStruct.rid.ascii() );
+#endif
             break;
           case Thread::Connecting:
             threadStatusStr = "Connecting";
@@ -455,17 +505,21 @@ dynamic_items->setOpen(TRUE);
 
     MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
-// printf("statusDisconnectedList: \n");
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, statusDisconnectedList: \n");
+#endif
     items->descriptionClassObject = dco;
     for( ;vi != statusDisconnectedList.end(); vi++)
     {
       StatusStruct ss = *vi;
-// printf("pset_name=(%s)\n", pset_name.ascii() );
-// printf("ss.status=(%s)\n", ss.status.ascii() );
-// printf("ss.host=(%s)\n", ss.host.ascii() );
-// printf("ss.pid=(%s)\n", ss.pid.ascii() );
-// printf("ss.rid=(%s)\n", ss.rid.ascii() );
-// printf("ss.tid=(%s)\n", ss.tid.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, pset_name=(%s)\n", pset_name.ascii() );
+ printf("CompareSet::updatePSetList, ss.status=(%s)\n", ss.status.ascii() );
+ printf("CompareSet::updatePSetList, ss.host=(%s)\n", ss.host.ascii() );
+ printf("CompareSet::updatePSetList, ss.pid=(%s)\n", ss.pid.ascii() );
+ printf("CompareSet::updatePSetList, ss.rid=(%s)\n", ss.rid.ascii() );
+ printf("CompareSet::updatePSetList, ss.tid=(%s)\n", ss.tid.ascii() );
+#endif
 
       MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
@@ -495,8 +549,10 @@ printf("...");
       MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
       item->descriptionClassObject = dco;
-// printf("B: Put \"connecting\" out: \n");
-// dco->Print();
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, B: Put \"connecting\" out: \n");
+ dco->Print();
+#endif
     }
   }
   // Put out the Nonexistent Dynamic pset (if there is one.)
@@ -514,8 +570,10 @@ printf("...");
       MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
       item->descriptionClassObject = dco;
-// printf("B: Put \"nonexistent\" out: \n");
-// dco->Print();
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, B: Put \"nonexistent\" out: \n");
+ dco->Print();
+#endif
     }
   }
   // Put out the Running Dynamic pset (if there is one.)
@@ -533,8 +591,10 @@ printf("...");
       MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
       item->descriptionClassObject = dco;
-// printf("B: Put \"running\" out: \n");
-// dco->Print();
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, B: Put \"running\" out: \n");
+ dco->Print();
+#endif
     }
   }
   // Put out the Suspended Dynamic pset (if there is one.)
@@ -552,8 +612,10 @@ printf("...");
       MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
       item->descriptionClassObject = dco;
-// printf("B: Put \"suspended\" out: \n");
-// dco->Print();
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, B: Put \"suspended\" out: \n");
+ dco->Print();
+#endif
     }
   }
   // Put out the status Terminated Dynamic pset (if there is one.)
@@ -571,8 +633,10 @@ printf("...");
       MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
       item->descriptionClassObject = dco;
-// printf("B: Put \"terminated\" out: \n");
-// dco->Print();
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, B: Put \"terminated\" out: \n");
+ dco->Print();
+#endif
     }
   }
   // Put out the Unknown Dynamic pset (if there is one.)
@@ -590,8 +654,10 @@ printf("...");
       MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid, ss.rid, ss.tid);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid, ss.rid, ss.tid );
       item->descriptionClassObject = dco;
-// printf("B: Put \"unknown\" out: \n");
-// dco->Print();
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, B: Put \"unknown\" out: \n");
+ dco->Print();
+#endif
     }
   }
 }
@@ -606,12 +672,16 @@ CompareSet::relabel()
   {
     ColumnSet *columnSet = (ColumnSet *)*it;
     QWidget *thisTab = tabWidget->page(i);
+#ifdef DEBUG_COMPARE
 // printf("OLD: columnSet->name=(%s) tabWidget->tabLabel()=(%s)\n", columnSet->name.ascii(), tabWidget->tabLabel(thisTab).ascii()  );
+#endif
 
     QString header = QString("Column #%1").arg(i+1);
     columnSet->name = header;
     tabWidget->setTabLabel(thisTab, header);
-// printf("NEW: columnSet->name=(%s) tabWidget->tabLabel()=(%s)\n", columnSet->name.ascii(), tabWidget->tabLabel(thisTab).ascii()  );
+#ifdef DEBUG_COMPARE
+ printf("CompareSet::updatePSetList, NEW: columnSet->name=(%s) tabWidget->tabLabel()=(%s)\n", columnSet->name.ascii(), tabWidget->tabLabel(thisTab).ascii()  );
+#endif
     i++;
   }
 

@@ -16,6 +16,10 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
   
+//
+// Debug Flag
+//#define DEBUG_CC 1
+//
 
 #include "CustomizeClass.hxx"
 
@@ -61,7 +65,10 @@ using namespace OpenSpeedShop::Framework;
 CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id, QString focusedExpIDStr )
     : QWidget( parent, name )
 {
+#ifdef DEBUG_CC 
 //  nprintf(DEBUG_CONST_DESTRUCT) ("CustomizeClass::CustomizeClass() constructor called.\n");
+  printf("CustomizeClass::CustomizeClass() constructor called., exp_id=%d, focusedExpIDStr.ascii()=%s\n", exp_id, focusedExpIDStr.ascii());
+#endif
   dprintf("CustomizeClass::CustomizeClass() constructor called.\n");
 //  ccnt = 0;
   ccnt = 1;
@@ -89,7 +96,7 @@ CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bo
   mainCompareLayout->addWidget(header);
 
 // I'm not sure this header makes much sense here.   Hide for now.
-header->hide();
+  header->hide();
 
   compareClassLayout = new QVBoxLayout( mainCompareLayout, 1, "compareClassLayout"); 
 
@@ -115,13 +122,17 @@ header->hide();
  */
 CustomizeClass::~CustomizeClass()
 {
-// printf("CustomizeClass() destructor called\n");
+#ifdef DEBUG_CC 
+  printf("CustomizeClass() destructor called\n");
+#endif
 
   CompareSetList::Iterator it;
   for( it = csl->begin(); it != csl->end(); )
   {
     CompareSet *cs = (CompareSet *)*it;
-// printf("delete cs\n");
+#ifdef DEBUG_CC 
+    printf("delete cs\n");
+#endif
     delete cs;
     ++it;
   }
@@ -299,7 +310,9 @@ CustomizeClass::updatePanel()
 void
 CustomizeClass::focusOnCSetSelected()
 {
-// printf("CustomizeClass::focusOnCSetSelected() entered\n");
+#ifdef DEBUG_CC 
+  printf("CustomizeClass::focusOnCSetSelected() entered\n");
+#endif
 
   QValueList<int64_t> cIntList;
 
@@ -311,16 +324,18 @@ CustomizeClass::focusOnCSetSelected()
   if( compareSet )
   {
     cIntList.clear();
-// printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
+#ifdef DEBUG_CC 
+    printf("CompareSet: (%s)'s info\n", compareSet->name.ascii() );
+#endif
     ColumnSetList::Iterator it;
     for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
     {
       ColumnSet *columnSet = (ColumnSet *)*it;
-#if 0
-printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
-printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
-printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
-printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
+#ifdef DEBUG_CC 
+      printf("\t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
+      printf("\t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
+      printf("\t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
+      printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
 #endif // 0
       {
       int id = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
@@ -335,11 +350,15 @@ printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().a
       }
 
 
-// printf("\t\t: processes:\n");
+#ifdef DEBUG_CC 
+      printf("\t\t: processes:\n");
+#endif
       QString expCompareProcessList = QString::null;
 
 // Begin real focus logic
-// printf("CustomizeClass::focusOnCSetSelected() entered.\n");
+#ifdef DEBUG_CC 
+      printf("CustomizeClass::focusOnCSetSelected() entered.\n");
+#endif
 
       QString pid_name = QString::null;
       QString pidString = QString::null;
@@ -349,14 +368,14 @@ printf("\t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().a
       while( it.current() )
       {
         MPListViewItem *lvi = (MPListViewItem *)it.current();
-#if 0
-printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
-printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
-printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
-if( lvi->descriptionClassObject )
-{
-  lvi->descriptionClassObject->Print();
-}
+#ifdef DEBUG_CC 
+       printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
+       printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
+       printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+       if( lvi->descriptionClassObject )
+       {
+         lvi->descriptionClassObject->Print();
+       }
 #endif // 1
         if( focus_msg == NULL )
         {
@@ -372,11 +391,15 @@ if( lvi->descriptionClassObject )
 
         if( lvi->descriptionClassObject->all )
         {
-// printf("Do ALL threads, everywhere.\n");
+#ifdef DEBUG_CC 
+           printf("Do ALL threads, everywhere.\n");
+#endif
         } else if( lvi->descriptionClassObject->root )
         {
           // Loop through all the children...
-// printf("Loop through all the children.\n");
+#ifdef DEBUG_CC 
+          printf("Loop through all the children.\n");
+#endif
           MPListViewItem *mpChild = (MPListViewItem *)lvi->firstChild();
           while( mpChild )
           {
@@ -391,7 +414,9 @@ if( lvi->descriptionClassObject )
               mpChild = (MPListViewItem *)mpChild->nextSibling();
               continue;
             }
-// printf("A: push_back a new host:pid entry (%s:%s)\n", host_name.ascii(), pid_name.ascii());
+#ifdef DEBUG_CC 
+            printf("A: push_back a new host:pid entry (%s:%s)\n", host_name.ascii(), pid_name.ascii());
+#endif
             QString rid_name = mpChild->descriptionClassObject->rid_name;
             QString tid_name = mpChild->descriptionClassObject->tid_name;
             if( !expCompareProcessList.isEmpty() )
@@ -423,7 +448,9 @@ if( lvi->descriptionClassObject )
           {
             continue;
           }
-// printf("B: push_back a new host::pid entry... (%s:%s)\n", host_name.ascii(), pid_name.ascii() );
+#ifdef DEBUG_CC 
+          printf("B: push_back a new host::pid entry... (%s:%s)\n", host_name.ascii(), pid_name.ascii() );
+#endif
           QString rid_name = lvi->descriptionClassObject->rid_name;
           QString tid_name = lvi->descriptionClassObject->tid_name;
           if( !expCompareProcessList.isEmpty() )
@@ -461,7 +488,9 @@ if( lvi->descriptionClassObject )
       focus_msg->compare_command = cViewCreateCommand;
 
 
-// printf("I think you really want this compare command:\n(%s)\n", cViewCreateCommand.ascii() );
+#ifdef DEBUG_CC 
+       printf("I think you really want this compare command:\n(%s)\n", cViewCreateCommand.ascii() );
+#endif
 
       {  //Begin build the actual compare commands and store the id's from them
          // to send to the StatsPanel
@@ -469,13 +498,17 @@ if( lvi->descriptionClassObject )
       int64_t val = 0;
       bool mark_value_for_delete = true;
       QString command = QString(cViewCreateCommand);
-// printf("command=(%s)\n", command.ascii() );
+#ifdef DEBUG_CC 
+       printf("command=(%s)\n", command.ascii() );
+#endif
       if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete   ) )
       {
         printf("Unable to creat cview for %s\n", command.ascii() );
         return;
       }
-// printf("pushback %d\n", val);
+#ifdef DEBUG_CC 
+      printf("pushback %d\n", val);
+#endif
       cIntList.push_back(val);
       // Now start over...
       cViewCreateCommand = "cViewCreate ";
@@ -497,15 +530,20 @@ if( lvi->descriptionClassObject )
       count++;
     }
 
-// printf("Really send this : command: (%s)\n", focus_msg->compare_command.ascii() );
-
-// printf("A: focus the StatsPanel...\n");
+#ifdef DEBUG_CC 
+    printf("Really send this : command: (%s)\n", focus_msg->compare_command.ascii() );
+    printf("A: focus the StatsPanel...\n");
+#endif
     QString name = QString("Stats Panel [%1]").arg(expID);
-// printf("find a stats panel named (%s)\n", name.ascii() );
+#ifdef DEBUG_CC 
+    printf("find a stats panel named (%s)\n", name.ascii() );
+#endif
     Panel *sp = p->getPanelContainer()->findNamedPanel(p->getPanelContainer()->getMasterPC(), (char *)name.ascii() );
     if( !sp )
     {
-// printf("Didn't find a stats panel.... Create one.\n");
+#ifdef DEBUG_CC 
+       printf("Didn't find a stats panel.... Create one.\n");
+#endif
       char *panel_type = "Stats Panel";
       PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
       ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
@@ -513,12 +551,16 @@ if( lvi->descriptionClassObject )
       delete ao;
       if( sp != NULL )
       {
-// printf("Created a stats panel... First update it's data... expID=%d\n", expID);
+#ifdef DEBUG_CC 
+      printf("Created a stats panel... First update it's data... expID=%d\n", expID);
+#endif
       sp->listener( (void *)focus_msg );
       }
     } else
     {
-// printf("There was a statspanel... send the update message.\n");
+#ifdef DEBUG_CC 
+      printf("There was a statspanel... send the update message.\n");
+#endif
       sp->listener( (void *)focus_msg );
     }
 // End real focus logic
@@ -529,7 +571,9 @@ if( lvi->descriptionClassObject )
 void
 CustomizeClass::addProcessesSelected()
 {
-// printf("CustomizeClass::addProcessesSelected() entered\n");
+#ifdef DEBUG_CC 
+  printf("CustomizeClass::addProcessesSelected() entered\n");
+#endif
 
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
@@ -537,6 +581,9 @@ CustomizeClass::addProcessesSelected()
   {
     dialog = new CompareProcessesDialog(this, "Add/Delete/Describe Compare Processes Dialog");
   }
+#ifdef DEBUG_CC 
+  printf("CustomizeClass::addProcessesSelected() dialog=%x\n", dialog);
+#endif
   QApplication::restoreOverrideCursor();
 
   CompareSet *compareSet = findCurrentCompareSet();
@@ -571,10 +618,12 @@ CustomizeClass::addProcessesSelected()
   dialog->updateInfo();
   int expid = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
 
-// printf("Focus on expID=%d\n",  expid );
-// printf("CustomizeClass=%s\n",  name() );
-// printf("compareSet=%s\n",  compareSet->name.ascii() );
-// printf("columnSet=(%s)\n", columnSet->name.ascii() );
+#ifdef DEBUG_CC 
+  printf("Focus on expID=%d\n",  expid );
+  printf("CustomizeClass=%s\n",  name() );
+  printf("compareSet=%s\n",  compareSet->name.ascii() );
+  printf("columnSet=(%s)\n", columnSet->name.ascii() );
+#endif
 
   dialog->updateFocus(expid, columnSet->lv);
   compareSet->updatePSetList();
@@ -587,14 +636,18 @@ CustomizeClass::addProcessesSelected()
 void
 CustomizeClass::loadAdditionalExperimentSelected()
 {
-// printf("CustomizeClass::loadAdditionalExperimentSelected() entered\n");
+#ifdef DEBUG_CC 
+  printf("CustomizeClass::loadAdditionalExperimentSelected() entered\n");
+#endif
   QString fn = QString::null;
   char *cwd = get_current_dir_name();
   fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss);;Any Files(*.*)", this, "open experiment dialog", "Choose an experiment file to open for comparison");
   free(cwd);
   if( !fn.isEmpty() )
   {
-//      printf("fn = %s\n", fn.ascii() );
+#ifdef DEBUG_CC 
+    printf("fn = %s\n", fn.ascii() );
+#endif
 //      fprintf(stderr, "Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
     p->getPanelContainer()->getMainWindow()->executableName = QString::null;
     p->getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn, FALSE);
@@ -616,7 +669,9 @@ CustomizeClass::removeCSet()
   // to delete.  Delete it.
   if( cs_to_delete )
   {
-// printf("Don't forget to remove all the tabs!\n");
+#ifdef DEBUG_CC 
+    printf("Don't forget to remove all the tabs!\n");
+#endif
     csl->remove( cs_to_delete );
     csetTB->removeItem( currentItem );
     delete cs_to_delete;
@@ -626,7 +681,9 @@ CustomizeClass::removeCSet()
 void
 CustomizeClass::removeRaisedTab()
 {
-// printf("CustomizeClass::removeRaisedTab() entered\n");
+#ifdef DEBUG_CC 
+  printf("CustomizeClass::removeRaisedTab() entered\n");
+#endif
   // First find the current (raised) cset.\n");
   QTabWidget *currentTabWidget = (QTabWidget* )csetTB->currentItem();
 
@@ -638,27 +695,33 @@ CustomizeClass::removeRaisedTab()
   // Always keep one column...
   if( currentTabWidget->count() == 1 )
   {
-// printf("DUDE YOU CAN'T REMOVE ANY.  YOU ONLY HAVE ONE LEFT!\n");
+#ifdef DEBUG_CC 
+    printf("DUDE YOU CAN'T REMOVE ANY.  YOU ONLY HAVE ONE LEFT!\n");
+#endif
     return;
   }
 
-// printf("remove Tab labeled (%s)\n", currentTabWidget->tabLabel( currentTab ).ascii() );
-
-  
-// printf("NOW FIND AND REMOVE THIS TAB FROM THE columnList!\n");
+#ifdef DEBUG_CC 
+  printf("remove Tab labeled (%s)\n", currentTabWidget->tabLabel( currentTab ).ascii() );
+  printf("NOW FIND AND REMOVE THIS TAB FROM THE columnList!\n");
+#endif
 
   // Look for the tab in the CompareSet.   The delete it from the compareSet's
   // list.
   if( cs_to_search )
   {
-// printf("Don't forget to remove all the tabs!\n");
+#ifdef DEBUG_CC 
+    printf("Don't forget to remove all the tabs!\n");
+#endif
     ColumnSetList::Iterator it;
     for( it = cs_to_search->columnSetList.begin(); it != cs_to_search->columnSetList.end(); ++it )
     {
       ColumnSet *cs = (ColumnSet *)*it;
       if( cs->name == currentTabWidget->tabLabel( currentTab ) )
       {
-// printf("Okay I'm sure you need to delete this (%s) tab\n", cs->name.ascii() );
+#ifdef DEBUG_CC 
+        printf("Okay I'm sure you need to delete this (%s) tab\n", cs->name.ascii() );
+#endif
         cs_to_search->columnSetList.remove( cs );
         currentTabWidget->removePage(currentTab);
         delete cs;
@@ -678,7 +741,9 @@ CustomizeClass::removeUserPSet()
 {
   // First find the current (raised) cset.\n");
   QTabWidget *currentTabWidget = (QTabWidget* )csetTB->currentItem();
-// printf("removeUserPSet()\n");
+#ifdef DEBUG_CC 
+  printf("removeUserPSet()\n");
+#endif
 
   QWidget *currentTab = currentTabWidget->currentPage();
 
@@ -686,7 +751,9 @@ CustomizeClass::removeUserPSet()
 
   if( compareSet )
   {
-// printf("compareSet (%s)\n", compareSet->name.ascii() );
+#ifdef DEBUG_CC 
+   printf("compareSet (%s)\n", compareSet->name.ascii() );
+#endif
     ColumnSetList::Iterator it;
     for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
     {
@@ -697,14 +764,20 @@ CustomizeClass::removeUserPSet()
         QListViewItem *item = columnSet->lv->currentItem();
         if( item )
         {
-// printf("\t: Delete: ColumnSet (%s)'s info item=(%s)\n", columnSet->name.ascii(), item->text(0).ascii() );
+#ifdef DEBUG_CC 
+          printf("\t: Delete: ColumnSet (%s)'s info item=(%s)\n", columnSet->name.ascii(), item->text(0).ascii() );
+#endif
           delete item;
         }
-// printf("Now check for first child\n");
+#ifdef DEBUG_CC 
+        printf("Now check for first child\n");
+#endif
         // If we've deleted everything, simply add back the default entry.
         if( !columnSet->lv->firstChild() )
         {
-// printf("No firstChild...add the default back in.\n");
+#ifdef DEBUG_CC 
+          printf("No firstChild...add the default back in.\n");
+#endif
           MPListViewItem *cps_item = new MPListViewItem( columnSet->lv, CPS);
           cps_item->setOpen(TRUE);
         }
@@ -720,14 +793,18 @@ CustomizeClass::removeUserPSet()
 void
 CustomizeClass::updateInfo()
 {
-// printf("CustomizeClass::updateInfo() entered\n");
+#ifdef DEBUG_CC 
+  printf("CustomizeClass::updateInfo() entered\n");
+#endif
   if( csl )
   {
     CompareSetList::Iterator it;
     for( it = csl->begin(); it != csl->end(); ++it )
     {
       CompareSet *cs = (CompareSet *)*it;
-// printf("attempt to update (%s)'s info\n", cs->name.ascii() );
+#ifdef DEBUG_CC 
+      printf("attempt to update (%s)'s info\n", cs->name.ascii() );
+#endif
       cs->updateInfo();
     }
   }

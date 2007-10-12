@@ -16,6 +16,9 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+// Debug Flag
+//#define DEBUG_CSP 1
+// 
 
 #include "CustomizeStatsPanel.hxx"
 #include "CustomizeClass.hxx"
@@ -31,11 +34,19 @@ CustomizeStatsPanel::CustomizeStatsPanel(PanelContainer *pc, const char *n, Argu
 {
   expID = ao->int_data;
 
+#ifdef DEBUG_CSP
+  printf("CustomizeStatsPanel::constructor called, expID=%d\n", expID);
+#endif
+
   setCaption("CustomizeStatsPanel");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
 
   mcc1 = new CustomizeClass( this, getBaseWidgetFrame(), "CustomizeClass", FALSE, 0, ao->int_data, ao->qstring_data );
+
+#ifdef DEBUG_CSP
+  printf("CustomizeStatsPanel::constructor called, mcc1=%x\n", mcc1);
+#endif
 
   frameLayout->addWidget(mcc1);
   mcc1->expID = ao->int_data;
@@ -56,8 +67,15 @@ CustomizeStatsPanel::CustomizeStatsPanel(PanelContainer *pc, const char *n, Argu
 CustomizeStatsPanel::~CustomizeStatsPanel()
 {
   // Delete anything you new'd from the constructor.
-// printf("CustomizeStatsPanel::destructor called.\n");
-  delete mcc1;
+#ifdef DEBUG_CSP
+  printf("CustomizeStatsPanel::destructor called.\n");
+#endif
+    // jeg 10-12-07 had to comment this out as it causes
+    // an abort on exit that I'm not able to figure out
+    // Al had some comments about deleting mcc1->dialog
+    // that suggest this has been a problem in the past.
+    // Look for TERMINATE in the source to find these comments
+//  delete mcc1;
 }
 
 void
@@ -116,7 +134,9 @@ CustomizeStatsPanel::listener(void *msg)
 
   MessageObject *msgObject = (MessageObject *)msg;
 //  if( msgObject->msgType == getName() )
-// printf("CustomizeStatsPanel::listener() getName=%s\n", getName());
+#ifdef DEBUG_CSP
+   printf("CustomizeStatsPanel::listener() getName=%s\n", getName());
+#endif
 // msgObject->print();
 
   if( msgObject->msgType == "ClosingDownObject" )
@@ -131,10 +151,19 @@ CustomizeStatsPanel::listener(void *msg)
     // place:  openss pcsamp -f executable; GUI:RUN, GUI:CustomizeStatsPanel,
     // GUI:CustomizeStatsPanel->Dialog, GUI:CustomizeStatsPanel->Dialog->close,
     // GUI:TERMINATE (experiment's execution), GUI:Close Experiment.
-    if( mcc1->dialog )
+#ifdef DEBUG_CSP
+   printf("CustomizeStatsPanel::listener(), ClosingDownObject, mcc1=%x\n", mcc1 );
+   if (mcc1) {
+     printf("CustomizeStatsPanel::listener(), ClosingDownObject, mcc1->dialog=%x\n", mcc1->dialog );
+   }
+#endif
+    if( mcc1 && mcc1->dialog )
     {
       mcc1->dialog->hide();
-      delete mcc1->dialog;
+// jeg 10-12-07 Comment this out as it causes an abort I haven't figured
+//              out how to fix.  Look for TERMINATE for a corresponding
+//              related issue.
+//      delete mcc1->dialog;
       mcc1->dialog = NULL;
     }
     return 1;
@@ -143,6 +172,9 @@ CustomizeStatsPanel::listener(void *msg)
   if( msgObject->msgType == getName() && recycleFLAG == TRUE )
   {
     nprintf(DEBUG_MESSAGES) ("CustomizeStatsPanel::listener() interested!\n");
+#ifdef DEBUG_CSP
+    printf("CustomizeStatsPanel::listener() interested!\n");
+#endif
     getPanelContainer()->raisePanel(this);
     return 1;
   }
@@ -151,6 +183,9 @@ CustomizeStatsPanel::listener(void *msg)
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
     nprintf(DEBUG_MESSAGES) ("CustomizeStatsPanel::listener() UpdateExperimentDataObject!\n");
+#ifdef DEBUG_CSP
+    printf("CustomizeStatsPanel::listener() UpdateExperimentDataObject!\n");
+#endif
 
     if( msg->raiseFLAG )
     {
@@ -161,6 +196,9 @@ CustomizeStatsPanel::listener(void *msg)
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
     nprintf(DEBUG_MESSAGES) ("CustomizeStatsPanel::listener() PreferencesChangedObject!\n");
+#ifdef DEBUG_CSP
+    printf("CustomizeStatsPanel::listener() PreferencesChangedObject!\n");
+#endif
     pco = (PreferencesChangedObject *)msgObject;
 // Currently ignored.
     preferencesChanged();
@@ -168,6 +206,9 @@ CustomizeStatsPanel::listener(void *msg)
   {
 //    SaveAsObject *sao = (SaveAsObject *)msg;
   dprintf("CustomizeStatsPanel!!!!! Save as!\n");
+#ifdef DEBUG_CSP
+  printf("CustomizeStatsPanel!!!!! Save as!\n");
+#endif
 //    if( !sao )
 //    {
 //      return 0;  // 0 means, did not act on message.
@@ -176,6 +217,9 @@ CustomizeStatsPanel::listener(void *msg)
 // Currently you're not passing the file descriptor down... you need to.sao->f, sao->ts);
 //    f = sao->f;
   dprintf("Attempt to call (unexistent) exportData() routine\n");
+#ifdef DEBUG_CSP
+  printf("Attempt to call (unexistent) exportData() routine\n");
+#endif
 //    exportData();
   }
 
@@ -192,6 +236,9 @@ int
 CustomizeStatsPanel::broadcast(char *msg)
 {
   dprintf("CustomizeStatsPanel::broadcast() requested.\n");
+#ifdef DEBUG_CSP
+  printf("CustomizeStatsPanel::broadcast() requested.\n");
+#endif
   return 0;
 }
 

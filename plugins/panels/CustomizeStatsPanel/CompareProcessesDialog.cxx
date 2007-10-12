@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -43,10 +44,20 @@
 #include <qregexp.h>
 
 #include "SS_Input_Manager.hxx"
+
+
+// debug flag
+//#define DEBUG_COMPARE 1
+// end debug flag
+
+
 CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("CompareProcessesDialog::CompareProcessesDialog() constructor called.\n");
+#ifdef DEBUG_COMPARE
+  printf("CompareProcessesDialog::CompareProcessesDialog() constructor called.\n");
+#endif
 
   expID = -1;
 
@@ -57,7 +68,6 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
   QPixmap *minus_pm = new QPixmap( minus_xpm );
   minus_pm->setMask(plus_pm->createHeuristicMask());
 
-  
   updateFocus(-1, NULL);
 
   mw = (OpenSpeedshop *)parent;
@@ -110,9 +120,9 @@ headerLabel->hide();
 
   availableProcessesListView = new MPListView( this, "availableProcessesListView", 0 );
   availableProcessesListView->addColumn( tr( "Available Processes:" ) );
-availableProcessesListView->addColumn( tr( "PID:" ) );
-availableProcessesListView->addColumn( tr( "Rank:" ) );
-availableProcessesListView->addColumn( tr( "Thread:" ) );
+  availableProcessesListView->addColumn( tr( "PID:" ) );
+  availableProcessesListView->addColumn( tr( "Rank:" ) );
+  availableProcessesListView->addColumn( tr( "Thread:" ) );
   availableProcessesListView->setSelectionMode( QListView::Single );
   availableProcessesListView->setShowSortIndicator( TRUE );
   availableProcessesListView->setSorting( 0, FALSE );
@@ -138,6 +148,13 @@ availableProcessesListView->addColumn( tr( "Thread:" ) );
   Layout1->addItem( Horizontal_Spacing2 );
 
 
+  buttonFinished = new QPushButton( this, "buttonFinished" );
+  buttonFinished->setAutoDefault( TRUE );
+  Layout1->addWidget( buttonFinished );
+  CompareProcessesDialogLayout->addLayout( Layout1 );
+  resize( QSize(511, 282).expandedTo(minimumSizeHint()) );
+  clearWState( WState_Polished );
+
   buttonCancel = new QPushButton( this, "buttonCancel" );
   buttonCancel->setAutoDefault( TRUE );
   Layout1->addWidget( buttonCancel );
@@ -152,6 +169,7 @@ availableProcessesListView->addColumn( tr( "Thread:" ) );
 #endif // LATER
 
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+  connect( buttonFinished, SIGNAL( clicked() ), this, SLOT( acceptProcesses() ) );
 
   connect( addButton, SIGNAL( clicked() ), this, SLOT( addProcesses() ) );
   connect( removeButton, SIGNAL( clicked() ), this, SLOT( removeProcesses() ) );
@@ -165,6 +183,9 @@ CompareProcessesDialog::~CompareProcessesDialog()
 {
   // no need to delete child widgets, Qt does it all for us
   nprintf(DEBUG_CONST_DESTRUCT) ("CompareProcessesDialog::CompareProcessesDialog() destructor called.\n");
+#ifdef DEBUG_COMPARE
+  printf("CompareProcessesDialog::CompareProcessesDialog() destructor called.\n");
+#endif
 }
 
 /*
@@ -181,6 +202,9 @@ void CompareProcessesDialog::languageChange()
 #endif // LATER
   buttonCancel->setText( tr( "&Cancel" ) );
   buttonCancel->setAccel( QKeySequence( QString::null ) );
+
+  buttonFinished->setText( tr( "&Finished" ) );
+  buttonFinished->setAccel( QKeySequence( QString::null ) );
 }
 
 PanelListViewItem *
@@ -188,12 +212,14 @@ CompareProcessesDialog::selectedExperiment(int *expID)
 {
   PanelListViewItem *selectedItem = (PanelListViewItem *)availableProcessesListView->selectedItem();
 
-
-  if( selectedItem )
-  {
-
-  } else
-  {
+#ifdef DEBUG_COMPARE
+  printf("CompareProcessesDialog:::selectedExperiment() expID=%d, selectedItem=%d\n", expID, selectedItem);
+#endif
+  if( selectedItem ) {
+#ifdef DEBUG_COMPARE
+    printf("CompareProcessesDialog:::selectedExperiment() HAVE selectedItem=%d\n", selectedItem);
+#endif
+  } else {
     nprintf( DEBUG_PANELS ) ("NO ITEMS SELECTED\n");
     return( NULL );
   }
@@ -220,9 +246,20 @@ CompareProcessesDialog::help()
 
 #include "MPListViewItem.hxx"
 void
+CompareProcessesDialog::acceptProcesses()
+{
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::acceptProcesses()\n");
+#endif
+ accept();
+}
+
+void
 CompareProcessesDialog::addProcesses()
 {
-// printf("addProcesses(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::addProcesses(), addProcessesRegExpLineEdit->text().ascii()=%s\n", addProcessesRegExpLineEdit->text().ascii() );
+#endif
 
   QString inputText = addProcessesRegExpLineEdit->text();
 
@@ -236,17 +273,24 @@ CompareProcessesDialog::addProcesses()
   host = "Unknown";
 
   QStringList fields = QStringList::split( ",", inputText );
+#ifdef DEBUG_COMPARE
+  printf("CompareProcessesDialog::addProcesses(), inputText.ascii()=%s\n", inputText.ascii() );
+#endif
   for ( QStringList::Iterator it = fields.begin(); it != fields.end(); ++it )
   {
     host_pidstr = ((QString)*it).stripWhiteSpace();
 
-// printf("host_pidstr = (%s)\n", host_pidstr.ascii() );
+#ifdef DEBUG_COMPARE
+    printf("CompareProcessesDialog::addProcesses(), host_pidstr = (%s)\n", host_pidstr.ascii() );
+#endif
 
     DescriptionClassObjectList *validatedHostPidList = validateHostPid(host_pidstr);
 
     if( validatedHostPidList )
     {
-// printf("There seems to be a list... is there really something to add?\n");
+#ifdef DEBUG_COMPARE
+    printf("CompareProcessesDialog::addProcesses(), There seems to be a list... is there really something to add?\n");
+#endif
       // First look for a selected item in the drop zone.
       MPListViewItem *selectedItem = NULL;
       QListViewItemIterator it(lv, QListViewItemIterator::Selected);
@@ -258,12 +302,20 @@ CompareProcessesDialog::addProcesses()
       // Make sure it the right target
       if( selectedItem && selectedItem->parent() && selectedItem->parent()->text(0) == UDPS )
       {
-// printf("Well I think we have a real selected item to add to ..\n");
+#ifdef DEBUG_COMPARE
+        printf("CompareProcessesDialog::addProcesses(), Well I think we have a real selected item to add to ..\n");
+#endif
       } else
       {
+#ifdef DEBUG_COMPARE
+        printf("CompareProcessesDialog::addProcesses(), Well I thought we had a real selected item to add to ..BUT NO\n");
+#endif
         selectedItem = NULL;
       }
       
+#ifdef DEBUG_COMPARE
+      printf("CompareProcessesDialog::addProcesses(), selectedItem=%d\n", selectedItem);
+#endif
       if( !selectedItem )
       {
         selectedItem = (MPListViewItem *)lv->firstChild();
@@ -274,7 +326,9 @@ CompareProcessesDialog::addProcesses()
       {
         DescriptionClassObject *dco = (DescriptionClassObject *)*it;
         MPListViewItem *item = new MPListViewItem( selectedItem, dco->host_name, dco->pid_name, dco->rid_name, dco->tid_name );
-// printf("A: host_name=(%s) pid_name=(%s) rid_name=(%s) tid_name=(%s)\n", dco->host_name.ascii(), dco->pid_name.ascii(), dco->rid_name.ascii(), dco->tid_name.ascii() );
+#ifdef DEBUG_COMPARE
+    printf("CompareProcessesDialog::addProcesses(), A: host_name=(%s) pid_name=(%s) rid_name=(%s) tid_name=(%s)\n", dco->host_name.ascii(), dco->pid_name.ascii(), dco->rid_name.ascii(), dco->tid_name.ascii() );
+#endif
         item->descriptionClassObject = dco;
       }
   
@@ -286,7 +340,9 @@ CompareProcessesDialog::addProcesses()
 void
 CompareProcessesDialog::removeProcesses()
 {
-// printf("removeProcesses(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(), removeProcesses(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
+#endif
 
   QString lower_rangestr = QString::null;
   QString upper_rangestr = QString::null;
@@ -346,7 +402,9 @@ CompareProcessesDialog::removeProcesses()
     QRegExp hostRegExp = QRegExp(target_hoststr, TRUE, TRUE);
     QRegExp pidRegExp = QRegExp(target_pidstr, TRUE, TRUE);
   
-// printf("target_pidstr = (%s)\n", target_pidstr.ascii() );
+#ifdef DEBUG_COMPARE
+    printf("CompareProcessesDialog::removeProcesses(), target_pidstr = (%s)\n", target_pidstr.ascii() );
+#endif
 
     // Do we have a range of pids?
     lower_range = -1;
@@ -354,12 +412,16 @@ CompareProcessesDialog::removeProcesses()
     int dash_index = target_pidstr.find("-");
     if( dash_index > -1 )
     {
-// printf("Found a range!\n");
+#ifdef DEBUG_COMPARE
+    printf("CompareProcessesDialog::removeProcesses(), Found a range!\n");
+#endif
       int lb_index = target_pidstr.findRev("[", dash_index);
       int rb_index = target_pidstr.findRev("]", dash_index);
       if( rb_index > lb_index || lb_index == -1 )
       {
-// printf("There's a RANGE of processes to remove!\n");
+#ifdef DEBUG_COMPARE
+    printf("CompareProcessesDialog::removeProcesses(), There's a RANGE of processes to remove!\n");
+#endif
         int length = target_pidstr.length();
         lower_rangestr = target_pidstr.left(dash_index);
         if( !lower_rangestr.isEmpty() )
@@ -375,14 +437,18 @@ CompareProcessesDialog::removeProcesses()
       }
     }
 
-// printf("target_hoststr = (%s)\n", target_hoststr.ascii() );
-// printf("target_pidstr = (%s)\n", target_pidstr.ascii() );
-// printf("lower_rangestr=(%s)\n", lower_rangestr.ascii() );
-// printf("upper_rangestr=(%s)\n", upper_rangestr.ascii() );
+#ifdef DEBUG_COMPARE
+    printf("CompareProcessesDialog::removeProcesses(), target_hoststr = (%s)\n", target_hoststr.ascii() );
+    printf("CompareProcessesDialog::removeProcesses(), target_pidstr = (%s)\n", target_pidstr.ascii() );
+    printf("CompareProcessesDialog::removeProcesses(), lower_rangestr=(%s)\n", lower_rangestr.ascii() );
+    printf("CompareProcessesDialog::removeProcesses(), upper_rangestr=(%s)\n", upper_rangestr.ascii() );
+#endif
    
     if( target_pidstr.find("*") > -1 )
     {
-// printf("Found a wildcard!\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(), Found a wildcard!\n");
+#endif
     }
     // Loop through and attempt to find and delete this item.
 // First look for a selected item in the drop zone.
@@ -396,7 +462,9 @@ while( it.current() )
 // Make sure it the right target
 if( selectedItem && selectedItem->parent() && selectedItem->parent()->text(0) == UDPS )
 {
-// printf("Well I think we have a real seletected item to remove to ..\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(), Well I think we have a real seletected item to remove to ..\n");
+#endif
 } else
 {
   selectedItem = NULL;
@@ -407,10 +475,14 @@ if( !selectedItem )
   selectedItem = (MPListViewItem *)lv->firstChild();
 }
 
-// printf("lv->firstChild()->text(0)=(%s)\n", lv->firstChild()->text(0).ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(), lv->firstChild()->text(0)=(%s)\n", lv->firstChild()->text(0).ascii() );
+#endif
 if( !selectedItem || lv->firstChild()->text(0) == CPS )
 {
-// printf("Do it the old way and loop through everyone..\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(), Do it the old way and loop through everyone..\n");
+#endif
     QListViewItemIterator it( lv );
     it++;
     while ( it.current() )
@@ -429,17 +501,23 @@ if( !selectedItem || lv->firstChild()->text(0) == CPS )
       }
   
       QString pidstr = item->text(0).stripWhiteSpace();
-// printf("pidstr=(%s)\n", pidstr.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(), pidstr=(%s)\n", pidstr.ascii() );
+#endif
       // Skip any pset names...\n");
       if( isPSetName(QString(pidstr)) == TRUE )
       { // skip pset names...
         continue;
       }
       QString host_name = item->text(1).stripWhiteSpace();
-// printf("host_name=(%s)\n", host_name.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(), host_name=(%s)\n", host_name.ascii() );
+#endif
       if( !host_name.isEmpty() && host_name.find(hostRegExp) == -1 )
       {
-// printf("NO MATCH FOR HOSTNAME!\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(), NO MATCH FOR HOSTNAME!\n");
+#endif
         continue;
       }
       if( lower_range >= 0 && upper_range >= 0 )
@@ -453,16 +531,22 @@ if( !selectedItem || lv->firstChild()->text(0) == CPS )
       {
         if( pidstr.find(pidRegExp) == -1 )
         {
-// printf("NO MATCH FOR PID!\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(), NO MATCH FOR PID!\n");
+#endif
           continue;
         }
       }
-// printf("HERE: delete item=(%s)\n", item->text(0).ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(), HERE: delete item=(%s)\n", item->text(0).ascii() );
+#endif
       delete item;
     }
 } else
 {
-// printf("Loop through just the children of (%s)\n", selectedItem->text(0).ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(), Loop through just the children of (%s)\n", selectedItem->text(0).ascii() );
+#endif
     QListViewItemIterator it( lv );
     it++;
 
@@ -498,7 +582,9 @@ if( !selectedItem || lv->firstChild()->text(0) == CPS )
       }
   
       QString pidstr = item->text(0).stripWhiteSpace();
-// printf("pidstr=(%s)\n", pidstr.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(), pidstr=(%s)\n", pidstr.ascii() );
+#endif
       // Skip any pset names...\n");
       if( isPSetName(QString(pidstr)) == TRUE )
       { // skip pset names...
@@ -509,7 +595,9 @@ if( !selectedItem || lv->firstChild()->text(0) == CPS )
       {
         continue;
       }
-// printf("host_name=(%s)\n", host_name.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(), host_name=(%s)\n", host_name.ascii() );
+#endif
       if( lower_range >= 0 && upper_range >= 0 )
       {
         int pid = pidstr.toInt();
@@ -524,10 +612,14 @@ if( !selectedItem || lv->firstChild()->text(0) == CPS )
           continue;
         }
       }
-// printf(" Can you delete?\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(),  Can you delete?\n");
+#endif
       if( !item->firstChild() )
       {
-// printf("here: delete item=(%s)\n", item->text(0).ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::removeProcesses(), here: delete item=(%s)\n", item->text(0).ascii() );
+#endif
         delete item;
       }
     }
@@ -539,15 +631,21 @@ if( !selectedItem || lv->firstChild()->text(0) == CPS )
 bool
 CompareProcessesDialog::isPSetName(QString name)
 {
-// printf("CompareProcessesDialog::isPSetName(%s) entered\n", name.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::isPSetName(%s) entered\n", name.ascii() );
+#endif
 
   for ( QStringList::Iterator it = psetNameList.begin(); it != psetNameList.end(); ++it )
   {
     QString pset_namestr = (QString)*it;
+#ifdef DEBUG_COMPARE
 // printf("Is it pset named %s\n", pset_namestr.ascii() );
+#endif
     if( pset_namestr == name || pset_namestr+"*" == name )
     {
+#ifdef DEBUG_COMPARE
 // printf("Found pset named %s\n", pset_namestr.ascii() );
+#endif
       return TRUE;
     }
   }
@@ -557,7 +655,9 @@ CompareProcessesDialog::isPSetName(QString name)
 bool
 CompareProcessesDialog::updateFocus(int _expID, MPListView *_lv )
 {
-// printf("updateFocus _expID = (%d) (%d)\n", expID, _expID );
+#ifdef DEBUG_COMPARE
+ printf("updateFocus _expID = (%d) (%d)\n", expID, _expID );
+#endif
   lv = _lv;
   if( _expID != -1 && _expID == expID )
   {
@@ -581,23 +681,31 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
 {
   DescriptionClassObjectList *dcolist = new DescriptionClassObjectList();
 
-// printf("validateHostPid (%s) \n", target_host_pidstr.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), validateHostPid (%s) \n", target_host_pidstr.ascii() );
+#endif
   bool rangeFLAG = FALSE;
   if( target_host_pidstr.find("-") > -1 )
   {
-// printf("Found a range!\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), Found a range!\n");
+#endif
     rangeFLAG = TRUE;
   }
   bool colonFLAG = FALSE;
   if( target_host_pidstr.find(":") > -1 )
   {
-// printf("Found a host!\n");
+#ifdef DEBUG_COMPARE
+    printf("CompareProcessesDialog::validateHostPid(), Found a host!\n");
+#endif
     colonFLAG = TRUE;
   }
   bool wildcardFLAG = FALSE;
   if( target_host_pidstr.find("*") > -1 )
   {
-// printf("Found a wildcard!\n");
+#ifdef DEBUG_COMPARE
+// printf("CompareProcessesDialog::validateHostPid(), Found a wildcard!\n");
+#endif
     wildcardFLAG = TRUE;
   }
 
@@ -634,7 +742,9 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
     int rb_index = target_pidstr.findRev("]", dash_index);
     if( rb_index > lb_index || lb_index == -1 )
     {
-// printf("There's a RANGE!\n");
+#ifdef DEBUG_COMPARE
+// printf("CompareProcessesDialog::validateHostPid(), There's a RANGE!\n");
+#endif
       int length = target_pidstr.length();
       lower_rangestr = target_pidstr.left(dash_index);
       if( !lower_rangestr.isEmpty() )
@@ -651,15 +761,19 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
     }
   }
 
-// printf("target_hoststr = (%s)\n", target_hoststr.ascii() );
-// printf("target_pidstr = (%s)\n", target_pidstr.ascii() );
-// printf("lower_rangestr=(%s)\n", lower_rangestr.ascii() );
-// printf("upper_rangestr=(%s)\n", upper_rangestr.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), target_hoststr = (%s)\n", target_hoststr.ascii() );
+ printf("CompareProcessesDialog::validateHostPid(), target_pidstr = (%s)\n", target_pidstr.ascii() );
+ printf("CompareProcessesDialog::validateHostPid(), lower_rangestr=(%s)\n", lower_rangestr.ascii() );
+ printf("CompareProcessesDialog::validateHostPid(), upper_rangestr=(%s)\n", upper_rangestr.ascii() );
+#endif
 
   QRegExp hostRegExp = QRegExp(target_hoststr, TRUE, TRUE);
   QRegExp pidRegExp = QRegExp(target_pidstr+" ", TRUE, TRUE);
-// printf("pidRegExpr was based on target_pidstr (%s)\n", target_pidstr.ascii() );
-// printf("pidRegExp was (%s)\n", pidRegExp.pattern().ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), pidRegExpr was based on target_pidstr (%s)\n", target_pidstr.ascii() );
+ printf("CompareProcessesDialog::validateHostPid(), pidRegExp was (%s)\n", pidRegExp.pattern().ascii() );
+#endif
 
   // First check to see if we have an exact match on the dynamic pset names.
   if( isPSetName(target_pidstr) == TRUE )
@@ -686,14 +800,14 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
           // child->text(1) is the hoststr;
           if( target_pidstr == "All" )
           {
-            MPListViewItem *item2 =
-                  new MPListViewItem( pitem, "All pids" );
+            MPListViewItem *item2 = new MPListViewItem( pitem, "All pids" );
           } else
           {
-            MPListViewItem *item2 =
-                  new MPListViewItem( pitem, child->text(0), child->text(1)  );
+            MPListViewItem *item2 = new MPListViewItem( pitem, child->text(0), child->text(1)  );
           }
-// printf("This could be in error!\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), This could be in error!\n");
+#endif
           DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, child->text(1), child->text(0) );
           child = child->nextSibling();
         }
@@ -721,6 +835,11 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
         
         v.push_back(s);
       }
+
+#ifdef DEBUG_COMPARE
+      printf("CompareProcessesDialog::validateHostPid(), calling sort()\n");
+#endif
+
       std::sort(v.begin(), v.end());
 
       std::vector<std::string>::iterator e 
@@ -730,7 +849,9 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
       {
         QString pset_name = QString(*hi);
         QString host_name = QString(*hi);
-// printf("hi=(%s)\n", hi->c_str() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), hi=(%s)\n", hi->c_str() );
+#endif
         if( !host_name.isEmpty()  && host_name.find(hostRegExp) == -1 ) 
         {
           continue;
@@ -748,7 +869,9 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
             }
             QString pidstr = QString("%1").arg(pid);
             std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-// printf("pidstr=(%s)\n", pidstr.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), pidstr=(%s)\n", pidstr.ascii() );
+#endif
             if( lower_range > 0 && upper_range > 0 )
             {
               int pid = pidstr.toInt();
@@ -758,22 +881,32 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
               }
             } else
             {
-// printf("pidstr=(%s) target_pidstr=(%s)\n", pidstr.ascii(), target_pidstr.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), pidstr=(%s) target_pidstr=(%s)\n", pidstr.ascii(), target_pidstr.ascii() );
+#endif
               // Add blanks before and after to help qt delineate the items.
               QString tpidstr = " "+pidstr+" ";
               if( pidstr == target_pidstr )
               { 
-// printf("pidstr == target_pidstr: Found!\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), pidstr == target_pidstr: Found!\n");
+#endif
               } else if( wildcardFLAG == TRUE && tpidstr.find(pidRegExp) != -1 )
               {
-// printf("regexp: Found! (%s)\n", pidRegExp.pattern().ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), regexp: Found! (%s)\n", pidRegExp.pattern().ascii() );
+#endif
               } else
               {
-// printf("NOPE: NOT ONE OF THESE!\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), NOPE: NOT ONE OF THESE!\n");
+#endif
                 continue;
               }
             }
-// printf("Found!\n");
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), Found!\n");
+#endif
             QString tidstr = QString::null;
             if (pthread.first)
             {
@@ -805,24 +938,32 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
             if( !pidstr.isEmpty() )
             {
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr, ridstr  );
-// printf("A: host_name=(%s) pidstr=(%s) ridstr=(%s) tidstr=(%s)\n", host_name.ascii(), pidstr.ascii(), ridstr.ascii(), tidstr.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), A: host_name=(%s) pidstr=(%s) ridstr=(%s) tidstr=(%s)\n", host_name.ascii(), pidstr.ascii(), ridstr.ascii(), tidstr.ascii() );
+#endif
 
               dcolist->append(dco);
             } else if( !tidstr.isEmpty() )
             {
-// printf("B: host_name=(%s) pidstr=(%s) ridstr=(%s) tidstr=(%s)\n", host_name.ascii(), pidstr.ascii(), ridstr.ascii(), tidstr.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), B: host_name=(%s) pidstr=(%s) ridstr=(%s) tidstr=(%s)\n", host_name.ascii(), pidstr.ascii(), ridstr.ascii(), tidstr.ascii() );
+#endif
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, tidstr, ridstr  );
               dcolist->append(dco);
             } else if( !ridstr.isEmpty() )
             {
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr, ridstr  );
               dcolist->append(dco);
-// printf("C: host_name=(%s) pidstr=(%s) ridstr=(%s) tidstr=(%s)\n", host_name.ascii(), pidstr.ascii(), ridstr.ascii(), tidstr.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), C: host_name=(%s) pidstr=(%s) ridstr=(%s) tidstr=(%s)\n", host_name.ascii(), pidstr.ascii(), ridstr.ascii(), tidstr.ascii() );
+#endif
             } else
             {
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host_name, pidstr, ridstr  );
               dcolist->append(dco);
-// printf("D: host_name=(%s) pidstr=(%s) ridstr=(%s) tidstr=(%s)\n", host_name.ascii(), pidstr.ascii(), ridstr.ascii(), tidstr.ascii() );
+#ifdef DEBUG_COMPARE
+ printf("CompareProcessesDialog::validateHostPid(), D: host_name=(%s) pidstr=(%s) ridstr=(%s) tidstr=(%s)\n", host_name.ascii(), pidstr.ascii(), ridstr.ascii(), tidstr.ascii() );
+#endif
             }
           }
         }
