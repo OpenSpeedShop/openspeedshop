@@ -16,6 +16,9 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+// Debug Flag
+//#define DEBUG_CEP 1
+//
 
 #include "CompareExperimentsPanel.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
@@ -29,13 +32,16 @@
 CompareExperimentsPanel::CompareExperimentsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : CustomExperimentPanel(pc, n, ao, (const char *)"")
 {
 
+#ifdef DEBUG_CEP
+ printf("CompareExperimentsPanel::CompareExperimentsPanel() entered\n");
+#endif
+
   hideWizard();
-
-
 
   // Hide the proceses control as we can't do anything anyway.
   frameLayout->remove(pco->buttonGroup);
   pco->buttonGroup->hide();
+
 }
 
 
@@ -49,7 +55,9 @@ CompareExperimentsPanel::~CompareExperimentsPanel()
 bool
 CompareExperimentsPanel::menu(QPopupMenu* contextMenu)
 {
-// printf("CompareExperimentsPanel::menu() entered\n");
+#ifdef DEBUG_CEP
+ printf("CompareExperimentsPanel::menu() entered\n");
+#endif
 
 
   // If we've disabled this panel, don't allow any menus to be called.
@@ -126,11 +134,15 @@ void
 CompareExperimentsPanel::hideWizard()
 {
   QString name = "Compare Wizard";
-// printf("try to find (%s)\n", name.ascii() );
+#ifdef DEBUG_CEP
+printf("CompareExperimentsPanel::hideWizard(), try to find (%s)\n", name.ascii() );
+#endif
   Panel *wizardPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
   if( wizardPanel )
   {
-//printf("Found the wizard... Try to hide it.\n");
+#ifdef DEBUG_CEP
+printf("CompareExperimentsPanel::hideWizard(), Found the wizard... Try to hide it.\n");
+#endif
     wizardPanel->getPanelContainer()->hidePanel(wizardPanel);
   }
 }
@@ -139,16 +151,20 @@ CompareExperimentsPanel::hideWizard()
 void
 CompareExperimentsPanel::loadLSExperimentPanel()
 {
-// printf("loadLSExperimentPanel() entered\n");
-// printf("leftSideExpID=%d\n", leftSideExpID );
+#ifdef DEBUG_CEP
+ printf("CompareExperimentsPanel::loadLSExperimentPanel() entered\n");
+ printf("CompareExperimentsPanel::loadLSExperimentPanel(), leftSideExpID=%d\n", leftSideExpID );
+#endif
   getPanelContainer()->getMainWindow()->fileOpenExperiment(leftSideExpID);
 }
 
 void
 CompareExperimentsPanel::loadRSExperimentPanel()
 {
-// printf("loadRSExperimentPanel() entered\n");
-// printf("rightSideExpID=%d\n", rightSideExpID );
+#ifdef DEBUG_CEP
+ printf("CompareExperimentsPanel::loadRSExperimentPanel(), entered\n");
+ printf("CompareExperimentsPanel::loadRSExperimentPanel(), rightSideExpID=%d\n", rightSideExpID );
+#endif
 
   getPanelContainer()->getMainWindow()->fileOpenExperiment(rightSideExpID);
 }
@@ -159,30 +175,42 @@ CompareExperimentsPanel::listener(void *msg)
 {
   int ret_val = CustomExperimentPanel::listener(msg);
   MessageObject *mo = (MessageObject *)msg;
-// printf("mo->msgType=(%s)\n", mo->msgType.ascii() );
-  if( mo->msgType  == "LoadAttachObject" )
-  {
+
+#ifdef DEBUG_CEP
+  printf("CompareExperimentsPanel::listener(), mo->msgType=(%s)\n", mo->msgType.ascii() );
+#endif
+
+  if( mo->msgType  == "LoadAttachObject" ) {
     QString name = QString("Stats Panel [%1]").arg(getExpID());
     LoadAttachObject *lao = (LoadAttachObject *)mo;
-// printf("listener:: Try to find the stats panel =(%s)\n", name.ascii() );
-// printf("lse=%s rse=%s\n", lao->leftSideExperiment.ascii(),  lao->leftSideExperiment.ascii() );
+#ifdef DEBUG_CEP
+    printf("CompareExperimentsPanel::listener(), listener:: Try to find the stats panel =(%s)\n", name.ascii() );
+    printf("CompareExperimentsPanel::listener(), lse=%s rse=%s\n", lao->leftSideExperiment.ascii(),  lao->leftSideExperiment.ascii() );
+#endif
     Panel *p = getPanelContainer()->findNamedPanel(getPanelContainer(), (char *)name.ascii() );
-    if( p )
-    {
+    if( p ) {
       p->getPanelContainer()->raisePanel(p);
     }
     name = QString("ManageProcessesPanel [%1]").arg(getExpID());
     p = getPanelContainer()->findNamedPanel(getPanelContainer(), (char *)name.ascii() );
-    if( p )
-    {
-// printf("Try to delete the ManageProcessses panel.\n");
+    if( p ) {
+#ifdef DEBUG_CEP
+      printf("CompareExperimentsPanel::listener(), Try to hide the ManageProcessses panel.\n");
+#endif
       p->getPanelContainer()->hidePanel( p );
     }
 
-  } else if ( mo->msgType == "ExpIDInUseObject" )
-  {
-// printf("CompareExperimentsPanel::listener() ExpIDInUseObject\n");
+  } else if ( mo->msgType == "ExpIDInUseObject" ) {
+#ifdef DEBUG_CEP
+     printf("CompareExperimentsPanel::listener() ExpIDInUseObject, leftSideExpID=%d, rightSideExpID=%d\n", 
+            leftSideExpID, rightSideExpID);
+#endif
      ExpIDInUseObject *expIDInUseObject = (ExpIDInUseObject *)mo;
+#ifdef DEBUG_CEP
+     if( expIDInUseObject ) {
+       printf("CompareExperimentsPanel::listener() ExpIDInUseObject, expIDInUseObject->expID=%d\n", expIDInUseObject->expID );
+     }
+#endif
      if( expIDInUseObject->expID == leftSideExpID || 
          expIDInUseObject->expID == rightSideExpID )
      {
@@ -192,6 +220,9 @@ CompareExperimentsPanel::listener(void *msg)
        ret_val = FALSE;
      }
   }
+#ifdef DEBUG_CEP
+  printf("CompareExperimentsPanel::listener() exit return ret_val=%d\n", ret_val);
+#endif
 
   return( ret_val );
 }
