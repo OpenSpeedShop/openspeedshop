@@ -3415,6 +3415,7 @@ void Process::threadListChangeCallback(GCBSysType, GCBTagType,
 	    original = ProcessTable::TheTable.getThreadsByProcess(process);
 	}
 
+	CollectorGroup collectors;
 	// Iterate over the original threads associated with this process
 	for(ThreadGroup::const_iterator
 		i = original.begin(); i != original.end(); ++i) {
@@ -3428,6 +3429,8 @@ void Process::threadListChangeCallback(GCBSysType, GCBTagType,
 		added.insert(t);			    
 		
 	    }
+
+	    collectors = i->getCollectors();
 
 	}
 
@@ -3444,6 +3447,7 @@ void Process::threadListChangeCallback(GCBSysType, GCBTagType,
 	// Request the current in-memory address space of this process
 	if(!added.empty()) {
 	    process->requestAddressSpace(added, Time::Now(), true);
+	    added.startCollecting(collectors);
 	}
 
     }

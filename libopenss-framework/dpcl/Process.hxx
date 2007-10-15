@@ -31,6 +31,7 @@
 
 #include "AddressRange.hxx"
 #include "Collector.hxx"
+#include "CollectorGroup.hxx"
 #include "Job.hxx"
 #include "OutputCallback.hxx"
 #include "Path.hxx"
