@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +17,9 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
  
+// Debug Flag
+//#define DEBUG_PI 1
+//
 
 #include "openspeedshop.hxx"
 #include "PluginInfo.hxx"
@@ -51,18 +55,28 @@ extern "C"
   int plugin_info_init(void *pluginInfoArg, void *topPCArg)
   {
     dprintf("plugin_info_init() entered just fine.\n");
+#ifdef DEBUG_PI
+    printf("plugin_info_init() entered just fine.\n");
+#endif
     PluginInfo *plugin_entry = (PluginInfo *)pluginInfoArg;
 
     if( !plugin_entry )
     {
       fprintf(stderr, "Unable to load plugin header information.\n");
+#ifdef DEBUG_PI
+      printf("plugin_info_init() return 0 - first Unable to load plugin header information.\n");
+#endif
       return 0;
     }
 
     #include "local_plugin_info.hxx"
     plugin_entry->masterPC = topPCArg;
-// plugin_entry->Print();
 
+#ifdef DEBUG_PI
+    // printf type output
+    plugin_entry->Print();
+    printf("plugin_info_init() return 1 - first\n");
+#endif
     return 1;
   }
 
@@ -87,6 +101,9 @@ dprintf("  panel_init() entered\n");
     QMenuBar *menubar = pl->menubar;
 
     dprintf("Hello from panel_init()\n");
+#ifdef DEBUG_PI
+    printf("Hello from panel_init()\n");
+#endif
 
     PluginInfo *pluginInfo = (PluginInfo *)pluginInfoArg;
 
@@ -95,6 +112,9 @@ dprintf("  panel_init() entered\n");
         strcmp(pluginInfo->menu_heading, "")  == 0 )
     {
       dprintf("this is a hidden entry.   Load it, but there's no menu.  It will be called directly.\n");
+#ifdef DEBUG_PI
+      printf("panel_init, this is a hidden entry.   Load it, but there's no menu.  It will be called directly.\n");
+#endif
       return 1;
     }
 
@@ -107,7 +127,10 @@ dprintf("  panel_init() entered\n");
     int i = 0;
     bool found=FALSE;
 
-dprintf("pluginInfo->panel_type=(%s) menubar->count()=%d\n", pluginInfo->panel_type, menubar->count() );
+    dprintf("pluginInfo->panel_type=(%s) menubar->count()=%d\n", pluginInfo->panel_type, menubar->count() );
+#ifdef DEBUG_PI
+    printf("panel_init, pluginInfo->panel_type=(%s) menubar->count()=%d\n", pluginInfo->panel_type, menubar->count() );
+#endif
 
     // Menu's off the menubar are 1 based
     for( i=1;i<=count;i++ )
@@ -120,17 +143,30 @@ dprintf("pluginInfo->panel_type=(%s) menubar->count()=%d\n", pluginInfo->panel_t
 
       if( menu_text.isEmpty() )
       {
-dprintf("no menu_text at position %d\n", i );
+        dprintf("no menu_text at position %d\n", i );
+#ifdef DEBUG_PI
+        printf("no menu_text at position %d\n", i );
+#endif
       } else
       {
-dprintf("menu_text(%d)=%s\n", i, menu_text.ascii() );
+        dprintf("menu_text(%d)=%s\n", i, menu_text.ascii() );
+#ifdef DEBUG_PI
+        printf("panel_init, menu_text(%d)=%s\n", i, menu_text.ascii() );
+#endif
       }
 
-dprintf("menu_text(%d)=(%s) menu_heading=(%s)\n", i, menu_text.ascii(), pluginInfo->menu_heading );
+        dprintf("menu_text(%d)=(%s) menu_heading=(%s)\n", i, menu_text.ascii(), pluginInfo->menu_heading );
+#ifdef DEBUG_PI
+        printf("panel_init, menu_text(%d)=(%s) menu_heading=(%s)\n", i, menu_text.ascii(), pluginInfo->menu_heading );
+#endif
       if( menu_text == pluginInfo->menu_heading )
       {
-dprintf("Found %s at %d for %s\n", pluginInfo->menu_heading, i, pluginInfo->panel_type );
-// pluginInfo->Print();
+        dprintf("Found %s at %d for %s\n", pluginInfo->menu_heading, i, pluginInfo->panel_type );
+#ifdef DEBUG_PI
+        printf("panel_init, Found %s at %d for %s\n", pluginInfo->menu_heading, i, pluginInfo->panel_type );
+        // printf type output
+        pluginInfo->Print();
+#endif
 
         found = TRUE;
         if(  pluginInfo->sub_menu_heading == NULL )
@@ -144,39 +180,72 @@ dprintf("Found %s at %d for %s\n", pluginInfo->menu_heading, i, pluginInfo->pane
         {
           int si = 1;
 dprintf("Found %s now look for sub_menu_heading %s\n", pluginInfo->menu_heading, pluginInfo->sub_menu_heading );
+#ifdef DEBUG_PI
+printf("panel_init, Found %s now look for sub_menu_heading %s\n", pluginInfo->menu_heading, pluginInfo->sub_menu_heading );
+#endif
           QPopupMenu *sub_menu = NULL;
 dprintf("item =0x%x\n", item );
+#ifdef DEBUG_PI
+printf("panel_init, item =0x%x\n", item );
+#endif
           if( item )
           {
             sub_menu = item->popup();
             int sub_count = sub_menu->count();
 dprintf("sub_menu->count()=%d\n", sub_menu->count() );
+#ifdef DEBUG_PI
+printf("panel_init, sub_menu->count()=%d\n", sub_menu->count() );
+#endif
 dprintf("item->text()=%s\n", item->text().ascii() );
+#ifdef DEBUG_PI
+printf("panel_init, item->text()=%s\n", item->text().ascii() );
+#endif
             found = FALSE;
             for(;si<=sub_count;si++ )
             {
               QMenuItem *sub_menu_item = sub_menu->findItem(si);
               menu = sub_menu;
 dprintf("sub_menu_item[%d]=0x%x\n", si, sub_menu_item );
+#ifdef DEBUG_PI
+printf("panel_init, sub_menu_item[%d]=0x%x\n", si, sub_menu_item );
+#endif
               QString sub_menu_text = sub_menu->text(si);
               if( sub_menu_text.isEmpty() )
               {
 dprintf("sub_menu_text is empty.  ;-( \n");
+#ifdef DEBUG_PI
+printf("panel_init, sub_menu_text is empty.  ;-( \n");
+#endif
               } else if( sub_menu_text == pluginInfo->sub_menu_heading )
               {
 dprintf("FOUND: sub_menu_text=%s\n", sub_menu_text.ascii() );
+#ifdef DEBUG_PI
+printf("panel_init, FOUND: sub_menu_text=%s\n", sub_menu_text.ascii() );
+#endif
                 found = TRUE;
                 menu = sub_menu_item->popup();
 dprintf("menu (sub menu really) =0x%x\n", menu);
+#ifdef DEBUG_PI
+printf("panel_init, menu (sub menu really) =0x%x\n", menu);
+#endif
                 break;
               }
             }
 dprintf("A: Create a new submenu???? found=%d menu=0x%x\n", found, menu);
+#ifdef DEBUG_PI
+printf("panel_init, A: Create a new submenu???? found=%d menu=0x%x\n", found, menu);
+#endif
             if( !found && menu)
             {
 dprintf("A: Create a new submenu!!!! si=%d pl=0x%x\n", si, pl);
+#ifdef DEBUG_PI
+printf("panel_init, A: Create a new submenu!!!! si=%d pl=0x%x\n", si, pl);
+#endif
               new_menu = new QPopupMenu(pl);
 dprintf("sub_menu=0x%x item->popup()=0x%x\n", sub_menu, item->popup() );
+#ifdef DEBUG_PI
+printf("panel_init, sub_menu=0x%x item->popup()=0x%x\n", sub_menu, item->popup() );
+#endif
               sub_menu->insertItem(pluginInfo->sub_menu_heading, new_menu, si, si-7);
               menu = new_menu;
               found = TRUE;

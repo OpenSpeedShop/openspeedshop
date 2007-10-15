@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -27,8 +28,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
 #include "debug.hxx"
+
+//#define DEBUG_LAO 1
 
 /*! Unused constructor. */
 LoadAttachObject::LoadAttachObject() : MessageObject("LoadAttachObject")
@@ -38,13 +40,36 @@ LoadAttachObject::LoadAttachObject() : MessageObject("LoadAttachObject")
 
 /*! Constructor for the LoadAttachObject.   Initializes the filename to load.
     or the pid to attach to. */
-LoadAttachObject::LoadAttachObject(QString executable_name, QString pid_string, ParamList *param_list, bool lnh) : MessageObject("LoadAttachObject")
+LoadAttachObject::LoadAttachObject(QString executable_name, QString pid_string, QString parallelPrefix, ParamList *param_list, bool lnh) : MessageObject("LoadAttachObject")
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("LoadAttachObject::LoadAttachObject(entered.\n");
+#ifdef DEBUG_LAO
+  if (parallelPrefix) {
+    printf( "LoadAttachObject::LoadAttachObject(entered). parallelPrefix.ascii()=%s\n", parallelPrefix.ascii());
+  } else {
+    printf( "LoadAttachObject::LoadAttachObject(entered). parallelPrefix is NULL\n");
+  }
+  if (executable_name) {
+    printf( "LoadAttachObject::LoadAttachObject(entered). executable_name.ascii()=%s\n", executable_name.ascii());
+  } else {
+    printf( "LoadAttachObject::LoadAttachObject(entered). executable_name is NULL\n");
+  }
+  if (pid_string) {
+    printf( "LoadAttachObject::LoadAttachObject(entered). pid_string.ascii()=%s\n", pid_string.ascii());
+  } else {
+    printf( "LoadAttachObject::LoadAttachObject(entered). pid_string is NULL\n");
+  }
+#endif
+
   executableName = executable_name;
   pidStr = pid_string;
+  parallelprefixstring = parallelPrefix;
   paramList = param_list;
   loadNowHint = lnh;
+#ifdef DEBUG_LAO
+  // debug for now
+  print();
+#endif
 }
 
 /*! Destructor.   Releases the functionName and fileName. */
@@ -56,13 +81,23 @@ LoadAttachObject::~LoadAttachObject()
 void
 LoadAttachObject::print()
 {
-  printf("LoadAttachObject:\n");
-  printf("	executableName=(%s)\n", executableName.ascii());
-  printf("	pidStr=(%s)\n", pidStr.ascii());
-  for( ParamList::Iterator pit = paramList->begin();
-            pit != paramList->end(); ++pit )
-  {
-    QString paramStr = (QString)*pit;
-    printf("  paramStr=(%s)\n", paramStr.ascii() );
-  }
+#ifdef DEBUG_LAO
+  printf("LoadAttachObject::print() entered\n");
+  if (executableName)
+    printf("	executableName=(%s)\n", executableName.ascii());
+  if (parallelprefixstring)
+    printf("	parallelprefixstring=(%s)\n", parallelprefixstring.ascii());
+  if (pidStr)
+    printf("	pidStr=(%s)\n", pidStr.ascii());
+  if (paramList) {
+    for( ParamList::Iterator pit = paramList->begin();
+              pit != paramList->end(); ++pit )
+    {
+      QString paramStr = (QString)*pit;
+      if (paramStr)
+        printf("  paramStr=(%s)\n", paramStr.ascii() );
+    }
+  } // end paramList if
+  printf("LoadAttachObject::print() exitted\n");
+#endif
 }

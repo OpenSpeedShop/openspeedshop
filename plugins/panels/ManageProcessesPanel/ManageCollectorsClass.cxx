@@ -1843,13 +1843,23 @@ ManageCollectorsClass::loadProgramSelected()
 #endif
   mw->executableName = QString::null;
   mw->argsStr = QString::null;
-  mw->loadNewProgram();
+//  mw->loadNewProgram();
+  PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
+  mw->loadNewProgramPanel(p->getPanelContainer(), bestFitPC, expID, (Panel *) p);
+//  mw->loadNewProgramPanel(p->getPanelContainer(), this->topPC, expID, (Panel *) this);
+
+#ifdef DEBUG_CustomPanel
+  printf("ManageCollectorsClass::loadProgramSelected(), calling mw->loadNewProgramPanel, p=%d\n", p );
+#endif
+
   QString executableNameStr = mw->executableName;
-  if( !mw->executableName.isEmpty() )
-  {
+
+  if( !mw->executableName.isEmpty() ) {
+
 #if DEBUG_MPPanel
  printf("ManageCollectorsClass::loadProgramSelected() executableName=%s\n", mw->executableName.ascii() );
 #endif
+
     executableNameStr = mw->executableName;
     QString command =
       QString("expAttach -x %1 -f \"%2 %3\"").arg(expID).arg(executableNameStr).arg(mw->argsStr);

@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +17,9 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+// Debug Flag
+//#define DEBUG_CWP 1
+// Debug Flag
 
 #include <stdio.h>
 #include "CompareWizardPanel.hxx"
@@ -517,11 +521,11 @@ void CompareWizardPanel::loadPageBackButtonSelected()
 
 void CompareWizardPanel::loadPageNextButtonSelected()
 {
-// printf("loadPageNextButtonSelected() \n");
-
-
-// printf("leftSideExperimentComboBox->text()=(%s)\n", leftSideExperimentComboBox->currentText().ascii() );
-// printf("rightSideExperimentComboBox->text()=(%s)\n", rightSideExperimentComboBox->currentText().ascii() );
+#ifdef DEBUG_CWP
+ printf("CompareWizardPanel::loadPageNextButtonSelected, loadPageNextButtonSelected() \n");
+ printf("CompareWizardPanel::loadPageNextButtonSelected, leftSideExperimentComboBox->text()=(%s)\n", leftSideExperimentComboBox->currentText().ascii() );
+ printf("CompareWizardPanel::loadPageNextButtonSelected, rightSideExperimentComboBox->text()=(%s)\n", rightSideExperimentComboBox->currentText().ascii() );
+#endif
 
   if( leftSideExperimentComboBox->currentText().isEmpty() )
   {
@@ -543,14 +547,14 @@ void CompareWizardPanel::loadPageNextButtonSelected()
 
 void CompareWizardPanel::vSummaryPageBackButtonSelected()
 {
-  nprintf(DEBUG_PANELS) ("vSummaryPageBackButtonSelected() \n");
+  nprintf(DEBUG_PANELS) ("CompareWizardPanel::vSummaryPageBackButtonSelected() \n");
 
   mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
 }
 
 void CompareWizardPanel::finishButtonSelected()
 {
-  nprintf(DEBUG_PANELS) ("finishButtonSelected() \n");
+  nprintf(DEBUG_PANELS) ("CompareWizardPanel::finishButtonSelected() \n");
 
   vSummaryPageFinishButtonSelected();
 }
@@ -558,14 +562,18 @@ void CompareWizardPanel::finishButtonSelected()
 
 void CompareWizardPanel::vSummaryPageFinishButtonSelected()
 {
-  nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
-// printf("vSummaryPageFinishButtonSelected() \n");
+  nprintf(DEBUG_PANELS) ("CompareWizardPanel::vSummaryPageFinishButtonSelected() \n");
+#ifdef DEBUG_CWP
+ printf("CompareWizardPanel::vSummaryPageFinishButtonSelected() \n");
+#endif
 
   {
     if( fn.isEmpty() )
     {
-// printf("leftSideExperimentComboBox->text()=(%s/%s)\n", leftSideDirName.ascii(), leftSideExperimentComboBox->currentText().ascii() );
-// printf("rightSideExperimentComboBox->text()=(%s/%s)\n", rightSideDirName.ascii(), rightSideExperimentComboBox->currentText().ascii() );
+#ifdef DEBUG_CWP
+ printf("CompareWizardPanel::leftSideExperimentComboBox->text()=(%s/%s)\n", leftSideDirName.ascii(), leftSideExperimentComboBox->currentText().ascii() );
+ printf("CompareWizardPanel::rightSideExperimentComboBox->text()=(%s/%s)\n", rightSideDirName.ascii(), rightSideExperimentComboBox->currentText().ascii() );
+#endif
 
 //      leftSideDirName = leftSideExperimentComboBox->currentText();
 //      rightSideDirName = rightSideExperimentComboBox->currentText();
@@ -593,16 +601,24 @@ void CompareWizardPanel::vSummaryPageFinishButtonSelected()
           vSummaryPageBackButton->setEnabled(FALSE);
           qApp->flushX();
 
-// printf("Create the CompareExperimentsPanel...\n");
+#ifdef DEBUG_CWP
+ printf("CompareWizardPanel::Create the CompareExperimentsPanel...\n");
+#endif
 
           Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Compare Experiments", getPanelContainer());
 
           if( p )
           {
-// printf("First expRestore -f exp1; expRestore -f exp2;\n");
+#ifdef DEBUG_CWP
+ printf("CompareWizardPanel::First expRestore -f exp1; expRestore -f exp2;\n");
 
-// printf("The call the CompareExperimentsPanel's listener to load the stats panel with the arguments expCompare -x 1 -x 2 sort of syntax....\n");
-           lao = new LoadAttachObject(QString::null, QString::null, NULL, TRUE);
+ printf("CompareWizardPanel::The call the CompareExperimentsPanel's listener to load the stats panel with the arguments expCompare -x 1 -x 2 sort of syntax....\n");
+ printf("CompareWizardPanel::leftSideDirName=%s\n",leftSideDirName.ascii());
+ printf("CompareWizardPanel::leftSideExperimentComboBox->currentText()=%s\n",leftSideExperimentComboBox->currentText().ascii());
+ printf("CompareWizardPanel::rightSideDirName=%s\n",rightSideDirName.ascii());
+ printf("CompareWizardPanel::rightleftSideExperimentComboBox->currentText()=%s\n",rightSideExperimentComboBox->currentText().ascii());
+#endif
+           lao = new LoadAttachObject(QString::null, QString::null, QString::null, NULL, TRUE);
            lao->leftSideExperiment = leftSideDirName+"/"+leftSideExperimentComboBox->currentText();
            lao->rightSideExperiment = rightSideDirName+"/"+rightSideExperimentComboBox->currentText();
            p->listener((void *)lao);
@@ -614,7 +630,9 @@ void CompareWizardPanel::vSummaryPageFinishButtonSelected()
       }
     } else
     {
-// printf("fn was not empty\n");
+#ifdef DEBUG_CWP
+ printf("CompareWizardPanel::fn was not empty\n");
+#endif
       getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
     }
   }
@@ -661,7 +679,9 @@ CompareWizardPanel::languageChange()
 void
 CompareWizardPanel::vUpdateAttachOrLoadPageWidget()
 {
-// printf("Pop up the dialog box to load an saved file.\n");
+#ifdef DEBUG_CWP
+ printf("CompareWizardPanel::vUpdateAttachOrLoadPageWidget(), Pop up the dialog box to load an saved file.\n");
+#endif
   requestExperimentFileName();
   if( !fn.isEmpty() )
   {
@@ -685,8 +705,10 @@ CompareWizardPanel::requestExperimentFileName()
     if( !fn.isEmpty() )
     {
       getPanelContainer()->getMainWindow()->executableName = QString::null;
-// printf("fn = %s\n", fn.ascii() );
-// printf("A: Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
+#ifdef DEBUG_CWP
+ printf("CompareWizardPanel::requestExperimentFileName, fn = %s\n", fn.ascii() );
+ printf("CompareWizardPanel::requestExperimentFileName, A: Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
+#endif
       vSummaryPageFinishLabel->setText( tr( QString("You are requesting to load saved experiment <b>\"%1\"</b>.  Pressing finish will bring up your requested information.\n").arg(fn) ) );
     }
   }
@@ -701,14 +723,18 @@ CompareWizardPanel::warnOfnoSavedData()
 void
 CompareWizardPanel::leftSideExperimentDirButtonSelected()
 {
-// printf("leftSideExperimentDirButtonSelected() entered\n");
+#ifdef DEBUG_CWP
+ printf("CompareWizardPanel::leftSideExperimentDirButtonSelected, leftSideExperimentDirButtonSelected() entered\n");
+#endif
   QString fn = QString::null;
 
   fn = QString::null;
   char *cwd = get_current_dir_name();
   fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss);;Any Files (*.*)", this, "Choose experiment location:", "Choose a directory where experiment files are locate:");
 
-// printf("A: fn=(%s)\n", fn.ascii() );
+#ifdef DEBUG_CWP
+ printf("CompareWizardPanel::leftSideExperimentDirButtonSelected, A: fn=(%s)\n", fn.ascii() );
+#endif
   QFileInfo fi(fn);
 
   int basename_index = fn.findRev("/");
@@ -718,7 +744,9 @@ CompareWizardPanel::leftSideExperimentDirButtonSelected()
     leftSideDirName = fn.left(basename_index);
     leftSideBaseName = fn.right((fn.length()-basename_index)-1);
   }
-// printf("leftSideDirName=(%s) leftSideBaseName=(%s)\n", leftSideDirName.ascii(), leftSideBaseName.ascii() );
+#ifdef DEBUG_CWP
+ printf("CompareWizardPanel::leftSideExperimentDirButtonSelected, leftSideDirName=(%s) leftSideBaseName=(%s)\n", leftSideDirName.ascii(), leftSideBaseName.ascii() );
+#endif
 
 
   free(cwd);
@@ -758,7 +786,9 @@ CompareWizardPanel::leftSideExperimentDirButtonSelected()
 void
 CompareWizardPanel::rightSideExperimentDirButtonSelected()
 {
-// printf("rightSideExperimentDirButtonSelected() entered\n");
+#ifdef DEBUG_CWP
+ printf("CompareWizardPanel::rightSideExperimentDirButtonSelected, rightSideExperimentDirButtonSelected() entered\n");
+#endif
 
   QString fn = QString::null;
 
@@ -766,7 +796,9 @@ CompareWizardPanel::rightSideExperimentDirButtonSelected()
   char *cwd = get_current_dir_name();
   fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss);;Any Files (*.*)", this, "Choose experiment location:", "Choose a directory where experiment files are locate:");
 
-// printf("fn=(%s)\n", fn.ascii() );
+#ifdef DEBUG_CWP
+printf("CompareWizardPanel::rightSideExperimentDirButtonSelected, fn=(%s)\n", fn.ascii() );
+#endif
   QFileInfo fi(fn);
 
   int basename_index = fn.findRev("/");
@@ -776,7 +808,9 @@ CompareWizardPanel::rightSideExperimentDirButtonSelected()
     rightSideDirName = fn.left(basename_index);
     rightSideBaseName = fn.right((fn.length()-basename_index)-1);
   }
-// printf("rightSideDirName=(%s) rightSideBaseName=(%s)\n", rightSideDirName.ascii(), rightSideBaseName.ascii() );
+#ifdef DEBUG_CWP
+ printf("CompareWizardPanel::rightSideExperimentDirButtonSelected, rightSideDirName=(%s) rightSideBaseName=(%s)\n", rightSideDirName.ascii(), rightSideBaseName.ascii() );
+#endif
 
 
   free(cwd);

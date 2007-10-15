@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -213,6 +214,7 @@ AC_CONFIG_FILES(
 	plugins/panels/DebugPanel/Makefile
 	plugins/panels/FPE_TracingPanel/Makefile
 	plugins/panels/CompareExperimentsPanel/Makefile
+	plugins/panels/loadPanel/Makefile
 	plugins/views/Makefile
 	plugins/views/basic/Makefile
 	plugins/views/hwctime/Makefile

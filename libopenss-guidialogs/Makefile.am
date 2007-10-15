@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -41,11 +42,20 @@ libopenss_guidialogs_la_LDFLAGS = \
 
 libopenss_guidialogs_la_LIBADD = $(LIBLTDL)  -L../libopenss-guiobjects -lopenss-guiobjects
 
+moc_AttachArgDialog.cxx: AttachArgDialog.hxx
+	-moc -o moc_AttachArgDialog.cxx AttachArgDialog.hxx
+
 moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
 	-moc -o moc_AttachProcessDialog.cxx AttachProcessDialog.hxx
 
+moc_AttachMPProcessDialog.cxx: AttachMPProcessDialog.hxx
+	-moc -o moc_AttachMPProcessDialog.cxx AttachMPProcessDialog.hxx
+
 moc_AttachProgramDialog.cxx: AttachProgramDialog.hxx
 	-moc -o moc_AttachProgramDialog.cxx AttachProgramDialog.hxx
+
+moc_AttachMPProgramDialog.cxx: AttachMPProgramDialog.hxx
+	-moc -o moc_AttachMPProgramDialog.cxx AttachMPProgramDialog.hxx
 
 moc_ManageProcessesDialog.cxx: ManageProcessesDialog.hxx
 	-moc -o moc_ManageProcessesDialog.cxx ManageProcessesDialog.hxx
@@ -63,8 +73,11 @@ moc_SelectTimeSegmentDialog.cxx: SelectTimeSegmentDialog.hxx
 	-moc -o moc_SelectTimeSegmentDialog.cxx SelectTimeSegmentDialog.hxx
 
 libopenss_guidialogs_la_SOURCES = \
+	AttachArgDialog.hxx AttachArgDialog.cxx moc_AttachArgDialog.cxx \
 	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx \
+	AttachMPProcessDialog.hxx AttachMPProcessDialog.cxx moc_AttachMPProcessDialog.cxx \
 	AttachProgramDialog.hxx AttachProgramDialog.cxx moc_AttachProgramDialog.cxx \
+	AttachMPProgramDialog.hxx AttachMPProgramDialog.cxx moc_AttachMPProgramDialog.cxx \
 	ManageProcessesDialog.hxx ManageProcessesDialog.cxx moc_ManageProcessesDialog.cxx \
 	PanelListViewItem.hxx PanelListViewItem.cxx \
 	GenericProgressDialog.hxx GenericProgressDialog.cxx moc_GenericProgressDialog.cxx \
@@ -73,4 +86,4 @@ libopenss_guidialogs_la_SOURCES = \
 	SaveAsExperimentDialog.hxx SaveAsExperimentDialog.cxx moc_SaveAsExperimentDialog.cxx \
 	AboutDialog.hxx AboutDialog.cxx
 
-CLEANFILES=moc_AttachProcessDialog.cxx moc_AttachProgramDialog.cxx moc_SelectExperimentDialog.cxx moc_GenericProgressDialog.cxx moc_ManageCollectorsDialog.cxx 
+CLEANFILES=moc_AttachArgDialog.cxx moc_AttachProcessDialog.cxx moc_AttachMPProcessDialog.cxx moc_AttachProgramDialog.cxx moc_AttachMPProgramDialog.cxx moc_SelectExperimentDialog.cxx moc_GenericProgressDialog.cxx moc_ManageCollectorsDialog.cxx 

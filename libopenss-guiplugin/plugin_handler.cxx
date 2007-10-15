@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -170,9 +171,9 @@ register_plugin(const char *plugin_file)
 #if DEBUG_GUIPLUGIN
     printf("libdso: dlsym %s not found dlerror()=%s\n", pluginInfo->plugin_entry_point, lt_dlerror() );
     printf("Will not be able to create_and_add_panel() for:\n");
+    pluginInfo->Print();
 #endif
 
-    pluginInfo->Print();
     return(-1);
   }
 

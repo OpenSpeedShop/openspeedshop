@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -185,6 +186,9 @@ if( attachFLAG )
   argsStr = mw->argsStr;
   parallelPrefixCommandStr = mw->parallelPrefixCommandStr;
   pidStr = mw->pidStr;
+#ifdef DEBUG_CustomPanel
+  printf("CustomExperimentPanel::init(), parallelPrefixCommandStr.ascii()=%s\n", parallelPrefixCommandStr.ascii() );
+#endif
 
 //  expStatsInfoStr = QString::null;
   expStatsInfoStr = QString((const char *)0);
@@ -209,7 +213,7 @@ if( attachFLAG )
     {
       nprintf( DEBUG_PANELS ) ("we're coming in from the constructNewExperimentWizardPanel.\n");
 #ifdef DEBUG_CustomPanel
-      printf("we're coming in from the constructNewExperimentWizardPanel. calling loadManageProcessPanel()\n");
+      printf("CustomExperimentPanel::init, we're coming in from the constructNewExperimentWizardPanel. calling loadManageProcessPanel()\n");
 #endif
       loadManageProcessesPanel();
     } else if( expIDString.toInt() > 0 )
@@ -217,7 +221,7 @@ if( attachFLAG )
       expID = expIDString.toInt();
       nprintf( DEBUG_PANELS ) ("we're coming in with an expID=%d\n", expID);
 #ifdef DEBUG_CustomPanel
-      printf("we're coming in with an expID=%d\n", expID);
+      printf("CustomExperimentPanel::init, we're coming in with an expID=%d\n", expID);
 #endif
       // Look to see if any collectors have already been assigned.   If not, we
       // need to attach the  le collector.
@@ -239,7 +243,7 @@ if( attachFLAG )
       {
         nprintf( DEBUG_PANELS ) ("There are no known collectors for this experiment so add one.\n");
 #ifdef DEBUG_CustomPanel
-        printf( "There are no known collectors for this experiment so add one.\n");
+        printf( "CustomExperimentPanel::init, There are no known collectors for this experiment so add one.\n");
 #endif
         QString command = QString("expAttach -x %1 %2").arg(expID).arg(collector_names);
         if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
@@ -248,7 +252,7 @@ if( attachFLAG )
         }
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 #ifdef DEBUG_CustomPanel
- printf("A: command=(%s)\n", command.ascii() );
+        printf("CustomExperimentPanel::init, A: command=(%s)\n", command.ascii() );
 #endif
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
@@ -260,7 +264,7 @@ if( attachFLAG )
   } else {
     nprintf( DEBUG_PANELS ) ("We're coming in cold (i.e. from main menu)\n");
 #ifdef DEBUG_CustomPanel
-    printf("We're coming in cold (i.e. from main menu)\n");
+    printf("CustomExperimentPanel::init, We're coming in cold (i.e. from main menu)\n");
 #endif
   }
 
@@ -301,7 +305,7 @@ if( attachFLAG )
 
   nprintf( DEBUG_PANELS ) ("Create a new constructNewExperiment experiment.\n");
 #ifdef DEBUG_CustomPanel
-  printf( "Create a new constructNewExperiment experiment.\n");
+  printf( "CustomExperimentPanel::init, Create a new constructNewExperiment experiment.\n");
 #endif
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -446,7 +450,7 @@ if( attachFLAG )
     pco->continueButton->setEnabled(FALSE);
     pco->continueButton->enabledFLAG = FALSE;
 #ifdef DEBUG_CustomPanel
- printf("CustomExperimentPanel::init, C: call updateInitialStatus() \n");
+    printf("CustomExperimentPanel::init, C: call updateInitialStatus() \n");
 #endif
     updateInitialStatus();
   } else if( expID > 0 )
@@ -557,10 +561,12 @@ if( attachFLAG )
       if( list_of_pids.size() == 0 )
       {
         statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" or \"Use the Wizard to begin your experiment...\".") );
-          PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
+#ifdef WANT_WIZARD_WITH_EXPERIMENT_CREATION
+        PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
         topPC->dl_create_and_add_panel(wizardName.ascii(), bestFitPC, ao, (const char *)NULL);
         delete ao;
+#endif
       } 
       else 
       {
@@ -706,6 +712,9 @@ CustomExperimentPanel::updatePanelStatusOnRerun(EXPID expID)
   // The rerun code in the RUN_T listener will set argsStr
   parallelPrefixCommandStr = mw->parallelPrefixCommandStr;
   pidStr = mw->pidStr;
+#ifdef DEBUG_CustomPanel
+  printf("CustomExperimentPanel::updatePanelStatusOnRerun(), parallelPrefixCommandStr.ascii()=%s\n", parallelPrefixCommandStr.ascii() );
+#endif
 
 
   QString name = QString::null;
@@ -799,7 +808,8 @@ CustomExperimentPanel::listener(void *msg)
 
 #ifdef DEBUG_CustomPanel
     printf("CustomExperimentPanel::listener() PrepareToRerun\n");
-    printf(" ::listener(), executableNameStr.ascii()=%s\n", executableNameStr.ascii());
+    printf("CustomExperimentPanel::listener(), executableNameStr.ascii()=%s\n", executableNameStr.ascii());
+    printf("CustomExperimentPanel::listener(), parallelPrefixCommandStr.ascii()=%s\n", parallelPrefixCommandStr.ascii());
 #endif
   }
   else if( mo->msgType  == "ControlObject" ) {
@@ -828,7 +838,7 @@ CustomExperimentPanel::listener(void *msg)
     if( lao && !lao->leftSideExperiment.isEmpty() ) {
 
 #ifdef DEBUG_CustomPanel
- printf("CustomExperimentPanel::listener, %s: %s\n", lao->leftSideExperiment.ascii(), lao->rightSideExperiment.ascii() );
+      printf("CustomExperimentPanel::listener, %s: %s\n", lao->leftSideExperiment.ascii(), lao->rightSideExperiment.ascii() );
 #endif
 
       CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -870,7 +880,7 @@ CustomExperimentPanel::listener(void *msg)
       leftSideExpID = val;
 
 #ifdef DEBUG_CustomPanel
- printf("            CustomExperimentPanel.cxx command=(%s)\n", command.ascii() );
+      printf("            CustomExperimentPanel.cxx command=(%s)\n", command.ascii() );
 #endif
 
       if( !cli->getIntValueFromCLI(command.ascii(), &leftSideCval, mark_value_for_delete ) ) {
@@ -917,7 +927,7 @@ CustomExperimentPanel::listener(void *msg)
       command = QString("cViewCreate -x %1 %2 %3").arg(val).arg(collector_name).arg(metric); 
       rightSideExpID = val;
 #ifdef DEBUG_CustomPanel
- printf("            CustomExperimentPanel.cxx: command=(%s)\n", command.ascii() );
+      printf("            CustomExperimentPanel.cxx: command=(%s)\n", command.ascii() );
 #endif
       if( !cli->getIntValueFromCLI(command.ascii(), &rightSideCval, mark_value_for_delete ) )
       {
@@ -930,25 +940,30 @@ CustomExperimentPanel::listener(void *msg)
       QString name = QString("Stats Panel [%1]").arg(expID);
       Panel *statsPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
     
-      if( statsPanel )
-      { 
+      if( statsPanel ) { 
+
         nprintf( DEBUG_PANELS ) ("loadStatsPanel() found Stats Panel found.. raise it.\n");
+
 #ifdef DEBUG_CustomPanel
         printf("CustomExperimentPanel::listener, loadStatsPanel() found Stats Panel found.. raise it.\n");
 #endif
         getPanelContainer()->raisePanel(statsPanel);
-      } else
-      {
+
+      } else {
+
         nprintf( DEBUG_PANELS ) ("loadStatsPanel() no Stats Panel found.. create one.\n");
+
 #ifdef DEBUG_CustomPanel
         printf("CustomExperimentPanel::listener, loadStatsPanel() no Stats Panel found.. create one.\n");
 #endif
+
         PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
         statsPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel((const char *)"Stats Panel", pc, ao);
         delete ao;
     
         nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", statsPanel->getName());
+
 #ifdef DEBUG_CustomPanel
         printf("CustomExperimentPanel::listener, call (%s)'s listener routine.\n", statsPanel->getName());
         printf("CustomExperimentPanel::listener, CustomExperimentPanel:: call (%s)'s listener routine.\n", statsPanel->getName());
@@ -957,8 +972,7 @@ CustomExperimentPanel::listener(void *msg)
 
       command = QString("cview -c %1, %2").arg(leftSideCval).arg(rightSideCval);
       original_cview_command = command;
-      UpdateObject *msg =
-         new UpdateObject((void *)NULL, -1, command.ascii(), 1);
+      UpdateObject *msg = new UpdateObject((void *)NULL, -1, command.ascii(), 1);
       statsPanel->listener( (void *)msg );
 
       statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Experiment %1 is being compared with experiment %2").arg(leftSideExpID).arg(rightSideExpID) );
@@ -973,8 +987,8 @@ CustomExperimentPanel::listener(void *msg)
 #ifdef DEBUG_CustomPanel
     printf("CustomExperimentPanel::listener() ClosingDownObject!\n");
 #endif
-    if( exitingFLAG == FALSE && mw->shuttingDown == FALSE )
-    {
+    if( exitingFLAG == FALSE && mw->shuttingDown == FALSE ) {
+
 //      QString command = QString::null;
       QString command = QString((const char *)0);
       command = QString("expClose -x %1").arg(expID);
@@ -1012,12 +1026,14 @@ CustomExperimentPanel::listener(void *msg)
     printf("CustomExperimentPanel::listener, we've got an UpdateObject\n");
 #endif
     updateStatus();
-  } else
-  {
+  } else {
     // --------------------------------- 
     // --------------------------------- UNKNOWN-OBJECT-RECEIVED
     // --------------------------------- 
    
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::listener, Unknown object type recieved.msgType = %s\n", mo->msgType.ascii());
+#endif
 //    fprintf(stderr, "Unknown object type recieved.\n");
 //    fprintf(stderr, "msgType = %s\n", mo->msgType.ascii() );
     return 0;  // 0 means, did not act on message
@@ -1057,7 +1073,7 @@ CustomExperimentPanel::listener(void *msg)
         }
 */
 #ifdef DEBUG_CustomPanel
- printf("CustomExperimentPanel::listener, NOOP: Attach to a process (%s)\n", command.ascii());
+        printf("CustomExperimentPanel::listener, NOOP: Attach to a process (%s)\n", command.ascii());
 #endif
         ret_val = 1;
         break;
@@ -1232,7 +1248,7 @@ CustomExperimentPanel::listener(void *msg)
         nprintf( DEBUG_MESSAGES ) ("Pause\n");
 
 #ifdef DEBUG_CustomPanel
- printf("CustomExperimentPanel::listener, PAUSE_T case block, expID=%d\n", expID );
+        printf("CustomExperimentPanel::listener, PAUSE_T case block, expID=%d\n", expID );
 #endif
         command = QString("expPause -x %1\n").arg(expID);
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
@@ -1247,7 +1263,7 @@ CustomExperimentPanel::listener(void *msg)
         {
         nprintf( DEBUG_MESSAGES ) ("Continue\n");
 #ifdef DEBUG_CustomPanel
- printf("CustomExperimentPanel::listener, CONT_T case block, expID=%d\n", expID );
+        printf("CustomExperimentPanel::listener, CONT_T case block, expID=%d\n", expID );
 #endif
         command = QString("expCont -x %1\n").arg(expID);
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
@@ -1261,7 +1277,7 @@ CustomExperimentPanel::listener(void *msg)
       case  UPDATE_T:
         nprintf( DEBUG_MESSAGES ) ("Update\n");
 #ifdef DEBUG_CustomPanel
- printf("CustomExperimentPanel::listener, UPDATE_T case block, expID=%d\n", expID );
+        printf("CustomExperimentPanel::listener, UPDATE_T case block, expID=%d\n", expID );
 #endif
         {
 
@@ -1290,7 +1306,7 @@ CLIInterface::interrupt = true;
       case  TERMINATE_T:
         {
 #ifdef DEBUG_CustomPanel
- printf("CustomExperimentPanel::listener, TERMINATE_T case block, expID=%d\n", expID );
+        printf("CustomExperimentPanel::listener, TERMINATE_T case block, expID=%d\n", expID );
 #endif
         statusLabelText->setText( tr("Process terminated...") );
 // NOTE expClose is too drastic.   I don't want to remove the experiment. 
@@ -1311,13 +1327,13 @@ CLIInterface::interrupt = true;
         break;
       default:
 #ifdef DEBUG_CustomPanel
- printf("CustomExperimentPanel::listener, default case block, expID=%d\n", expID );
+        printf("CustomExperimentPanel::listener, default case block, expID=%d\n", expID );
 #endif
         break;
     }
 
 #ifdef DEBUG_CustomPanel
- printf("CustomExperimentPanel::listener, calling updateStatus(), expID=%d\n", expID );
+    printf("CustomExperimentPanel::listener, calling updateStatus(), expID=%d\n", expID );
 #endif
 
     // We just sent an asynchronous command down to the cli.  
@@ -1332,20 +1348,20 @@ CLIInterface::interrupt = true;
     nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
     ret_val = processLAO(lao);
 #ifdef DEBUG_CustomPanel
- printf("ret_val from processLAO()=%d\n", ret_val );
- printf("B: Attempt to remove the wizard panel from the  le panel.\n");
- printf("B: Calling loadManageProcessPanel.\n");
+    printf("CustomExperimentPanel::listener, ret_val from processLAO()=%d\n", ret_val );
+    printf("CustomExperimentPanel::listener, B: Attempt to remove the wizard panel from the  le panel.\n");
+    printf("CustomExperimentPanel::listener, B: Calling loadManageProcessPanel.\n");
 #endif
     loadManageProcessesPanel();
     QString name = wizardName;
 #ifdef DEBUG_CustomPanel
- printf("try to find wizardName (%s)\n", name.ascii() );
+    printf("CustomExperimentPanel::listener, try to find wizardName (%s)\n", name.ascii() );
 #endif
     Panel *wizardPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
     if( wizardPanel )
     {
 #ifdef DEBUG_CustomPanel
- printf("Found the wizard... Try to hide it.\n");
+      printf("CustomExperimentPanel::listener, Found the wizard... Try to hide it.\n");
 #endif
       wizardPanel->getPanelContainer()->hidePanel(wizardPanel);
     }
@@ -1359,7 +1375,7 @@ void
 CustomExperimentPanel::updateInitialStatus()
 {
 #ifdef DEBUG_CustomPanel
- printf("A: CustomExperimentPanel::updateInitialStatus, calling loadMain()\n");
+  printf("A: CustomExperimentPanel::updateInitialStatus, calling loadMain()\n");
 #endif
   loadMain();
 }
@@ -1698,7 +1714,9 @@ CustomExperimentPanel::loadManageProcessesPanel()
 void
 CustomExperimentPanel::wakeUpAndCheckExperimentStatus()
 {
+#ifdef DEBUG_CustomPanel
   printf("CustomExperimentPanel::wakeUpAndCheckExperimentStatus() entered\n");
+#endif
 }
 
 void
@@ -1882,7 +1900,8 @@ CustomExperimentPanel::updateStatus()
       case ExpStatus_Paused:
 #ifdef DEBUG_CustomPanel
         printf("CustomExperimentPanel::updateStatus(),ExpStatus_Paused:\n");
-        printf(" ::listener(), ExpStatus_Paused: executableNameStr.ascii()=%s\n", executableNameStr.ascii());
+        printf(" ::updateStatus(), ExpStatus_Paused: executableNameStr.ascii()=%s\n", executableNameStr.ascii());
+        printf(" ::updateStatus(), ExpStatus_Paused: parallelPrefixCommandStr.ascii()=%s\n", parallelPrefixCommandStr.ascii());
 #endif
 
         if( (last_status == ExpStatus_NonExistent || 
@@ -1948,7 +1967,9 @@ CustomExperimentPanel::updateStatus()
       case ExpStatus_Running:
 #ifdef DEBUG_CustomPanel
 // get a lot of these.....
-       // printf(" ::listener(), ExpStatus_Running: executableNameStr.ascii()=%s %s\n", executableNameStr.ascii(), argsStr.ascii() );
+       // printf("CustomExperimentPanel::updateStatus(),ExpStatus_Running:\n");
+        printf(" ::updateStatus(), ExpStatus_Running: executableNameStr.ascii()=%s\n", executableNameStr.ascii());
+        printf(" ::updateStatus(), ExpStatus_Running: parallelPrefixCommandStr.ascii()=%s\n", parallelPrefixCommandStr.ascii());
 #endif
         aboutToRunFLAG = FALSE;
         readyToRunFLAG = FALSE;
@@ -1984,6 +2005,7 @@ CustomExperimentPanel::updateStatus()
 
 #ifdef DEBUG_CustomPanel
           printf("CustomExperimentPanel::updateStatus(),Experiment has ExpStatus_Terminated status:\n");
+          printf(" ::updateStatus(), ExpStatus_Terminated: parallelPrefixCommandStr.ascii()=%s\n", parallelPrefixCommandStr.ascii());
 #endif
 
           // Include the parallel prefix command text prior to the executable name if it is present.
@@ -1999,20 +2021,20 @@ CustomExperimentPanel::updateStatus()
           if (eo->expRunAtLeastOnceAlready()) {
 //          Already run once flag set already - this a second or greater run - do nothing
 #ifdef DEBUG_CustomPanel
-           printf("in CustomExperimentPanel::listener(), ExpStatus_Terminated, was already executed==True\n");
+           printf("in CustomExperimentPanel::updateStatus(), ExpStatus_Terminated, was already executed==True\n");
 #endif
           } else {
               eo->setExpRunAtLeastOnceAlready(true);
               // Set the class experiment was already run flag
               setAlreadyRun(true);
 #ifdef DEBUG_CustomPanel
-              printf("in CustomExperimentPanel::listener(), ExpStatus_Terminated, was already executed==False, set NOW\n");
+              printf("in CustomExperimentPanel::updateStatus(), ExpStatus_Terminated, was already executed==False, set NOW\n");
 #endif
           }
 // jeg experimental
         } else if( status == ExpStatus_InError ) {
 #ifdef DEBUG_CustomPanel
-          printf("CustomExperimentPanel::updateStatus(), Experiment has ExpStatus_InError status:\n");
+          printf("CustomExperimentPanel::updateStatus(),Experiment has ExpStatus_InError status:\n");
 #endif
           statusLabelText->setText( tr("Experiment has encountered an Error.") );
         }
@@ -2127,13 +2149,15 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
 //      At least until I get time to rearchitect this to 
 //      have a base class of experiment and have all the 
 //      experiments inherit from that...   Not hard, just timeconsuming.
-// printf("ProcessLOA entered (%s) mpiFLAG=%d\n", getName(), getPanelContainer()->getMainWindow()->mpiFLAG );
+#ifdef DEBUG_CustomPanel
+  printf("CustomExperimentPanel::processLAO(), ProcessLOA entered (%s) mpiFLAG=%d\n", getName(), getPanelContainer()->getMainWindow()->mpiFLAG );
+#endif
 
-  if( QString(getName()).startsWith("MPI") ||  
-      QString(getName()).startsWith("FPE") || 
-      QString(getName()).startsWith("IO") ) {
-
-// printf("WHY AREN'T YOU HERE!\n");
+  if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT") || QString(getName()).startsWith("FPE") || QString(getName()).startsWith("IO") )
+  {
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::processLAO(), WHY AREN'T YOU HERE!\n");
+#endif
 //    QString paramStr = QString::null;
     QString paramStr = QString((const char *)0);
     bool checkAll = FALSE;
@@ -2148,7 +2172,9 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
         paramStr += QString(",%1").arg(val);
       }                   
     }
-// printf("paramStr: (%s)\n", paramStr.ascii() );
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::processLAO(), paramStr: (%s)\n", paramStr.ascii() );
+#endif
 
 //    QString command = QString::null;
     QString command = QString((const char *)0);
@@ -2157,7 +2183,7 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
       if( QString(getName()).startsWith("FPE") ) {
         command = QString("expSetParam -x %1 fpe::traced_fpes=%2").arg(expID).arg(paramStr);
 #ifdef DEBUG_CustomPanel
-        printf("paramStr: fpe =(%s)\n", paramStr.ascii() );
+        printf("CustomExperimentPanel::processLAO(), paramStr: fpe =(%s)\n", paramStr.ascii() );
 #endif
       } else if( QString(getName()).startsWith("IO") ) {
         command = QString("expSetParam -x %1 io::traced_functions=%2").arg(expID).arg(paramStr);
@@ -2184,7 +2210,7 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
       }
       CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 #ifdef DEBUG_CustomPanel
-      printf("CustomExperimentPanel::processLAO, %s command=(%s)\n", getName(), command.ascii() );
+      printf("CustomExperimentPanel::processLAO(), %s command=(%s)\n", getName(), command.ascii() );
 #endif
       if( !cli->runSynchronousCLI((char *)command.ascii() ) )
       {
@@ -2196,7 +2222,7 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
     QString sample_rate_str = (QString)*lao->paramList->begin();
 
 #ifdef DEBUG_CustomPanel
-    printf("CustomExperimentPanel::processLAO, sample_rate_str=(%s)\n", sample_rate_str.ascii() );
+    printf("CustomExperimentPanel::processLAO(), sample_rate_str=(%s)\n", sample_rate_str.ascii() );
 #endif
 
     unsigned int sampling_rate = sample_rate_str.toUInt();
@@ -2218,7 +2244,9 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
         nprintf( DEBUG_MESSAGES ) ("sampling_rate=%u\n", sampling_rate);
         QString command = QString("expSetParam -x %1 sampling_rate = %2").arg(expID).arg(sampling_rate);
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-// printf("E: %s command=(%s)\n", getName(), command.ascii() );
+#ifdef DEBUG_CustomPanel
+        printf("CustomExperimentPanel::processLAO(), E: %s command=(%s)\n", getName(), command.ascii() );
+#endif
         if( !QString(getName()).startsWith("IO") )  // IO* doesn't have a sampling_rate
         {
           if( !cli->runSynchronousCLI((char *)command.ascii() ) )
@@ -2228,7 +2256,9 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
         }
         if( QString(getName()).contains("HW Counter") )
         {
-//        printf("We're the HW Counter Panel!!!\n");
+#ifdef DEBUG_CustomPanel
+          printf("CustomExperimentPanel::processLAO(), We're the HW Counter Panel!!!\n");
+#endif
               
           ParamList::Iterator it = lao->paramList->begin();
           it++;
@@ -2238,7 +2268,9 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
             
             QString command = QString("expSetParam -x %1 event = %2").arg(expID).arg(event_value);
             CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-// printf("F: command=(%s)\n", command.ascii() );
+#ifdef DEBUG_CustomPanel
+            printf("CustomExperimentPanel::processLAO(), F: command=(%s)\n", command.ascii() );
+#endif
             if( !cli->runSynchronousCLI((char *)command.ascii() ) )
             {
               return 0;
@@ -2258,9 +2290,11 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
   if( lao->loadNowHint == TRUE || runnableFLAG == FALSE )
   {
     mw->executableName = lao->executableName;
+    mw->parallelPrefixCommandStr = lao->parallelprefixstring;
     executableNameStr = lao->executableName;
     mw->pidStr = lao->pidStr;
     pidStr = lao->pidStr;
+    parallelPrefixCommandStr = lao->parallelprefixstring;
  
     executableNameStr = lao->executableName;
     pidStr = lao->pidStr;
@@ -2269,9 +2303,13 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
     QString command = QString((const char *)0);
     if( !executableNameStr.isEmpty() )
     {
-//      printf("CREATING EXPATTACH, parallelPrefixCommandStr.ascii() =%s\n", parallelPrefixCommandStr.ascii() );
-//      printf("CREATING EXPATTACH, parallelPrefixCommandStr.isEmpty() =%d\n", parallelPrefixCommandStr.isEmpty() );
-//      printf("CREATING EXPATTACH, parallelPrefixCommandStr.isNull() =%d\n", parallelPrefixCommandStr.isNull() );
+#ifdef DEBUG_CustomPanel
+         printf("CustomExperimentPanel::processLAO(), CREATING EXPATTACH, parallelPrefixCommandStr.isEmpty() =%d\n", parallelPrefixCommandStr.isEmpty() );
+         printf("CustomExperimentPanel::processLAO(), CREATING EXPATTACH, parallelPrefixCommandStr.isNull() =%d\n", parallelPrefixCommandStr.isNull() );
+         if (!parallelPrefixCommandStr.isEmpty() && !parallelPrefixCommandStr.isNull()) {
+           printf("CustomExperimentPanel::processLAO(), CREATING EXPATTACH, parallelPrefixCommandStr.ascii() =%s\n", parallelPrefixCommandStr.ascii() );
+         }
+#endif
 
       // Include the parallel prefix command text prior to the executable name if it is present.
       if (parallelPrefixCommandStr.isEmpty() || parallelPrefixCommandStr.isNull()) {
@@ -2280,106 +2318,118 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
          command = QString("expAttach -x %1 -f \"%2 %3 %4\"\n").arg(expID).arg(parallelPrefixCommandStr).arg(executableNameStr).arg(argsStr);
       }
 
-      if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
-      {
+      if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE ) {
         command += " -v mpi";
       }
-//    printf("executableNameStr is not empty.\n");
+
+#ifdef DEBUG_CustomPanel
+      printf("CustomExperimentPanel::processLAO(), executableNameStr is not empty.\n");
+      printf("CustomExperimentPanel::processLAO(), command=%s\n", command.ascii());
+#endif
     } else if( !pidStr.isEmpty() ) { 
+
       QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
       QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
       QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
 
-//    printf("host_name=(%s)\n", host_name.ascii() );
-//    printf("pid_name=(%s)\n", pid_name.ascii() );
-//    printf("prog_name=(%s)\n", prog_name.ascii() );
-
-//    printf("pidStr =%s\n", pidStr.ascii() );
-//    printf("mw->hostStr =%s\n", mw->hostStr.ascii() );
+#ifdef DEBUG_CustomPanel
+      printf("CustomExperimentPanel::processLAO(), host_name=(%s)\n", host_name.ascii() );
+      printf("CustomExperimentPanel::processLAO(), pid_name=(%s)\n", pid_name.ascii() );
+      printf("CustomExperimentPanel::processLAO(), prog_name=(%s)\n", prog_name.ascii() );
+      printf("CustomExperimentPanel::processLAO(), pidStr =%s\n", pidStr.ascii() );
+      printf("CustomExperimentPanel::processLAO(), mw->hostStr =%s\n", mw->hostStr.ascii() );
+#endif
 
 //   QString optionsStr = QString::null;
-   QString optionsStr = QString((const char *)0);
-   if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
-   {
-     optionsStr += QString(" -v mpi");
-   }
-   optionsStr += QString(" -h %1").arg(mw->hostStr);
+     QString optionsStr = QString((const char *)0);
+     if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
+     {
+       optionsStr += QString(" -v mpi");
+     }
+     optionsStr += QString(" -h %1").arg(mw->hostStr);
 //      command = QString("expAttach -x %1 %2 -p  %3 -h %4 ").arg(expID).arg(mpiStr).arg(pidStr).arg(mw->hostStr);
-   command = QString("expAttach -x %1 %2 -p  %3 ").arg(expID).arg(optionsStr).arg(pidStr);
-// printf("command=(%s)\n", command.ascii() );
-  } else {
-      // Executable sting is empty and the pid string is empty??
-      return 0;
-//    command = QString("expCreate  %1\n").arg(collector_names);
-    }
-    bool mark_value_for_delete = true;
-    int64_t val = 0;
- 
-    steps = 0;
-    pd = new GenericProgressDialog(this, "Loading process...", TRUE);
-    loadTimer = new QTimer( this, "progressTimer" );
-    connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
-    loadTimer->start( 0 );
-    pd->show();
-    
-    // Include the parallel prefix command text prior to the executable name if it is present.
-    if (mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
-      statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
+     command = QString("expAttach -x %1 %2 -p  %3 ").arg(expID).arg(optionsStr).arg(pidStr);
+#ifdef DEBUG_CustomPanel
+     printf("CustomExperimentPanel::processLAO(), command=(%s)\n", command.ascii() );
+#endif
     } else {
-      statusLabelText->setText( tr(QString("Loading ...  "))+ mw->parallelPrefixCommandStr + mw->executableName);
-    }
+        // Executable sting is empty and the pid string is empty??
+        return 0;
+//    command = QString("expCreate  %1\n").arg(collector_names);
+      }
+      bool mark_value_for_delete = true;
+      int64_t val = 0;
  
-    runnableFLAG = FALSE;
-    pco->runButton->setEnabled(FALSE);
-    pco->runButton->enabledFLAG = FALSE;
-    pco->continueButton->setEnabled(FALSE);
-    pco->continueButton->enabledFLAG = FALSE;
-  
-    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-// printf("D: command=(%s)\n", command.ascii() );
-    if( !cli->runSynchronousCLI((char *)command.ascii() ) )
-    {
-      QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
-
+      steps = 0;
+      pd = new GenericProgressDialog(this, "Loading of process starting ...", TRUE);
+      loadTimer = new QTimer( this, "progressTimer" );
+      connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+      loadTimer->start( 0 );
+      pd->show();
+    
       // Include the parallel prefix command text prior to the executable name if it is present.
       if (mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
-        statusLabelText->setText( tr(QString("Unable to load executable name:  "))+mw->executableName);
+        statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
       } else {
-        statusLabelText->setText( tr(QString("Unable to load parallel application:  "))+ mw->parallelPrefixCommandStr + mw->executableName);
+        statusLabelText->setText( tr(QString("Loading ...  "))+ mw->parallelPrefixCommandStr + " " + mw->executableName);
+      }
+ 
+      runnableFLAG = FALSE;
+      pco->runButton->setEnabled(FALSE);
+      pco->runButton->enabledFLAG = FALSE;
+      pco->continueButton->setEnabled(FALSE);
+      pco->continueButton->enabledFLAG = FALSE;
+  
+      CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+
+#ifdef DEBUG_CustomPanel
+      printf("CustomExperimentPanel::processLAO(), D: command=(%s)\n", command.ascii() );
+#endif
+
+      if( !cli->runSynchronousCLI((char *)command.ascii() ) ) {
+
+        QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
+
+        // Include the parallel prefix command text prior to the executable name if it is present.
+        if (mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
+          statusLabelText->setText( tr(QString("Unable to load executable name:  "))+mw->executableName);
+        } else {
+          statusLabelText->setText( tr(QString("Unable to load parallel application:  "))+ mw->parallelPrefixCommandStr + " " + mw->executableName);
+        }
+
+        loadTimer->stop();
+        pd->hide();
+        // We're needing to abort this panel.  Since I can't delete myself
+        // simply disable all actions.
+        abortPanelFLAG = TRUE;
+        return 1;
+
+      }
+ 
+      // Include the parallel prefix command text prior to the executable name if it is present.
+      if (mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
+         statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
+      } else {
+       statusLabelText->setText( tr(QString("Loaded:  "))+ mw->parallelPrefixCommandStr + " " + mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
       }
 
       loadTimer->stop();
       pd->hide();
-      // We're needing to abort this panel.  Since I can't delete myself
-      // simply disable all actions.
-      abortPanelFLAG = TRUE;
-      return 1;
-    }
  
-    // Include the parallel prefix command text prior to the executable name if it is present.
-    if (mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
-       statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
-    } else {
-       statusLabelText->setText( tr(QString("Loaded:  "))+ mw->parallelPrefixCommandStr +mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
-    }
-
-    loadTimer->stop();
-    pd->hide();
- 
-    if( !executableNameStr.isEmpty() || !pidStr.isEmpty() ) {
-      runnableFLAG = TRUE;
-      pco->runButton->setEnabled(TRUE);
-      pco->runButton->enabledFLAG = TRUE;
-      pco->continueButton->setEnabled(FALSE);
-      pco->continueButton->enabledFLAG = FALSE;
-    }
+      if( !executableNameStr.isEmpty() || !pidStr.isEmpty() ) {
+        runnableFLAG = TRUE;
+        pco->runButton->setEnabled(TRUE);
+        pco->runButton->enabledFLAG = TRUE;
+        pco->continueButton->setEnabled(FALSE);
+        pco->continueButton->enabledFLAG = FALSE;
+      }
   
 // printf("B: call updateInitialStatus() \n");
-    updateInitialStatus();
-  }
+      updateInitialStatus();
+    }
 
 // We handled it...
-  return 1;
+    return 1;
 }
 
 void
@@ -2458,16 +2508,25 @@ CustomExperimentPanel::loadProgramSelected()
 //  mw->argsStr = QString::null;
   mw->argsStr = QString((const char *)0);
   mw->parallelPrefixCommandStr = QString((const char *)0);
-  mw->loadNewProgram();
+
+#ifdef DEBUG_CustomPanel
+  printf("CustomExperimentPanel::loadProgramSelected() calling mw->loadNewProgramPanel, this=%d\n", this );
+#endif
+
+  mw->loadNewProgramPanel(getPanelContainer(), this->topPC, expID, (Panel *) this);
   QString executableNameStr = mw->executableName;
   if( !mw->executableName.isEmpty() )
   {
-// printf("CustomExperimentPanel::loadProgramSelected() executableName=%s\n", mw->executableName.ascii() );
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::loadProgramSelected() executableName=%s\n", mw->executableName.ascii() );
+#endif
     executableNameStr = mw->executableName;
     QString command =
       QString("expAttach -x %1 -f \"%2 %3\"").arg(expID).arg(executableNameStr).arg(mw->argsStr);
 
-// printf("command=(%s)\n", command.ascii() );
+#ifdef DEBUG_CustomPanel
+     printf("CustomExperimentPanel::loadProgramSelected(), command=(%s)\n", command.ascii() );
+#endif
     steps = 0;
     pd = new GenericProgressDialog(this, "Loading process...", TRUE);
     loadTimer = new QTimer( this, "progressTimer" );
@@ -2490,10 +2549,14 @@ CustomExperimentPanel::loadProgramSelected()
     // Send out a message to all those that might care about this change request
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
     
-// printf("Send out update?\n");
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::loadProgramSelected(), Send out update?\n");
+#endif
     if( eo->FW() != NULL )
     {
-// printf("Yes!  Send out update?\n");
+#ifdef DEBUG_CustomPanel
+      printf("CustomExperimentPanel::loadProgramSelected(), Yes!  Send out update?\n");
+#endif
       UpdateObject *msg = new UpdateObject(eo->FW(), expID,  NULL, 0);
       broadcast((char *)msg, GROUP_T);
     }
@@ -2509,7 +2572,9 @@ void
 CustomExperimentPanel::hideWizard()
 {
     QString name = wizardName;
-// printf("try to find (%s)\n", name.ascii() );
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::hideWizard, try to find (%s)\n", name.ascii() );
+#endif
     Panel *wizardPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
     if( wizardPanel )
     {

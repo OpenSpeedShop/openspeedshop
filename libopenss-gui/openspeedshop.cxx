@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -47,13 +47,17 @@ OpenSpeedshop::OpenSpeedshop( int _wid, int _climode, QWidget* parent, const cha
     : QMainWindow( parent, name, fl )
 {
   afd = NULL;
+  MPafd = NULL;
   lfd = NULL;
+  MPlfd = NULL;
+  Arglfd = NULL;
   sfd = NULL;
   widStr = QString::null;
   pidStr = QString::null;
   pidStrList = NULL;
   executableName = QString::null;
   experimentName = QString::null;
+  ArgFileName = QString::null;
   argsStr = QString::null;
   parallelPrefixCommandStr = QString::null;
   rankStr = QString::null;

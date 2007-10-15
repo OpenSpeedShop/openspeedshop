@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006,2007 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +17,10 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+//
+// For debug output comment in the following define
+//#define DEBUG_MPIWizard 1
+//
 
 #include <stdio.h>
 #include "MPIWizardPanel.hxx"
@@ -242,81 +247,6 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
   mainWidgetStack->addWidget( vParameterPageWidget, 1 );
 // End: verbose parameter page
 
-// Begin: AttachOrLoad page
-  vAttachOrLoadPageWidget = new QWidget( mainWidgetStack, "vAttachOrLoadPageWidget" );
-  vAttachOrLoadPageWidget->setMinimumSize( QSize(10,10) );
-  vAttachOrLoadPageWidget->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Preferred, 0, 0, FALSE ) );
-
-  vAttachOrLoadPageLayout = new QVBoxLayout( vAttachOrLoadPageWidget, 11, 6, "vAttachOrLoadPageLayout"); 
-
-  vAttachOrLoadPageDescriptionLabel = new QTextEdit( vAttachOrLoadPageWidget, "vAttachOrLoadPageDescriptionLabel" );
-  vAttachOrLoadPageDescriptionLabel->setReadOnly(TRUE);
-  vAttachOrLoadPageDescriptionLabel->setMinimumSize( QSize(10,10) );
-  vAttachOrLoadPageDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
-  vAttachOrLoadPageLayout->addWidget( vAttachOrLoadPageDescriptionLabel );
-
-  vAttachOrLoadPageLine = new QFrame( vAttachOrLoadPageWidget, "vAttachOrLoadPageLine" );
-  vAttachOrLoadPageLine->setMinimumSize( QSize(10,10) );
-  vAttachOrLoadPageLine->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Preferred, 0, 0, FALSE ) );
-  vAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
-  vAttachOrLoadPageLine->setFrameShadow( QFrame::Sunken );
-  vAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
-  vAttachOrLoadPageLayout->addWidget( vAttachOrLoadPageLine );
-
-  vAttachOrLoadPageAttachOrLoadLayout = new QVBoxLayout( 0, 0, 6, "vAttachOrLoadPageAttachOrLoadLayout"); 
-
-  vAttachOrLoadPageAttachToProcessCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageAttachToProcessCheckBox" );
-  vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageAttachToProcessCheckBox );
-
-  vAttachOrLoadPageProcessListLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageProcessListLabel" );
-  vAttachOrLoadPageProcessListLabel->setMinimumSize( QSize(10,10) );
-  vAttachOrLoadPageProcessListLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Expanding, 0, 0, FALSE ) );
-  vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageProcessListLabel );
-
-  vAttachOrLoadPageLoadExecutableCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageLoadExecutableCheckBox" );
-  vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageLoadExecutableCheckBox );
-
-  vAttachOrLoadPageExecutableLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageExecutableLabel" );
-    vAttachOrLoadPageExecutableLabel->setMinimumSize( QSize(10,10) );
-  vAttachOrLoadPageExecutableLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Expanding, 0, 0, FALSE ) );
-  vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageExecutableLabel );
-
-  vAttachOrLoadPageLoadDifferentExecutableCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageLoadDifferentExecutableCheckBox" );
-  vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageLoadDifferentExecutableCheckBox );
-  vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
-
-  vAttachOrLoadPageSampleRateLayout = new QHBoxLayout( 0, 0, 6, "vAttachOrLoadPageSampleRateLayout"); 
-
-  vAttachOrLoadPageLayout->addLayout( vAttachOrLoadPageAttachOrLoadLayout );
-  vAttachOrLoadPageSpacer = new QSpacerItem( 20, 30, QSizePolicy::Minimum, QSizePolicy::Expanding );
-  vAttachOrLoadPageLayout->addItem( vAttachOrLoadPageSpacer );
-
-  vAttachOrLoadPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vAttachOrLoadPageButtonLayout"); 
-
-  vAttachOrLoadPageButtonSpacer = new QSpacerItem( 251, 1, QSizePolicy::Expanding, QSizePolicy::Minimum );
-  vAttachOrLoadPageButtonLayout->addItem( vAttachOrLoadPageButtonSpacer );
-
-  vAttachOrLoadPageClearButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageClearButton" );
-  vAttachOrLoadPageClearButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageClearButton->sizePolicy().hasHeightForWidth() ) );
-  vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageClearButton );
-
-  vAttachOrLoadPageBackButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageBackButton" );
-  vAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
-  vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageBackButton );
-
-  vAttachOrLoadPageNextButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageNextButton" );
-  vAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
-  vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageNextButton );
-
-  vAttachOrLoadPageFinishButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageFinishButton" );
-  vAttachOrLoadPageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageFinishButton->sizePolicy().hasHeightForWidth() ) );
-  vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageFinishButton );
-
-  vAttachOrLoadPageLayout->addLayout( vAttachOrLoadPageButtonLayout );
-  mainWidgetStack->addWidget( vAttachOrLoadPageWidget, 1 );
-// End: AttachOrLoad page
-
 // Begin: verbose summary page
   vSummaryPageWidget = new QWidget( mainWidgetStack, "vSummaryPageWidget" );
   vSummaryPageWidget->setMinimumSize( QSize(10,10) );
@@ -455,78 +385,6 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
   mainWidgetStack->addWidget( eParameterPageWidget, 5 );
 // End: advanced (exper) parameter page
 
-
-// Begin: advance (expert) attach/load page
-  eAttachOrLoadPageWidget = new QWidget( mainWidgetStack, "eAttachOrLoadPageWidget" );
-  eAttachOrLoadPageWidget->setMinimumSize( QSize(10,10) );
-  eAttachOrLoadPageLayout = new QVBoxLayout( eAttachOrLoadPageWidget, 11, 6, "eAttachOrLoadPageLayout"); 
-
-  eAttachOrLoadPageDescriptionLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageDescriptionLabel" );
-  eAttachOrLoadPageDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  eAttachOrLoadPageLayout->addWidget( eAttachOrLoadPageDescriptionLabel );
-
-  eAttachOrLoadPageLine = new QFrame( eAttachOrLoadPageWidget, "eAttachOrLoadPageLine" );
-  eAttachOrLoadPageLine->setMinimumSize( QSize(10,10) );
-  eAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
-  eAttachOrLoadPageLine->setFrameShadow( QFrame::Sunken );
-  eAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
-  eAttachOrLoadPageLayout->addWidget( eAttachOrLoadPageLine );
-
-  eAttachOrLoadPageAttachOrLoadLayout = new QVBoxLayout( 0, 0, 6, "eAttachOrLoadPageAttachOrLoadLayout"); 
-
-  eAttachOrLoadPageAttachToProcessCheckBox = new QCheckBox( eAttachOrLoadPageWidget, "eAttachOrLoadPageAttachToProcessCheckBox" );
-  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageAttachToProcessCheckBox );
-
-  eAttachOrLoadPageProcessListLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageProcessListLabel" );
-  eAttachOrLoadPageProcessListLabel->setMinimumSize( QSize(10,10) );
-  eAttachOrLoadPageProcessListLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageProcessListLabel ) );
-
-  eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageProcessListLabel );
-
-  eAttachOrLoadPageLoadExecutableCheckBox = new QCheckBox( eAttachOrLoadPageWidget, "eAttachOrLoadPageLoadExecutableCheckBox" );
-  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-  eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageLoadExecutableCheckBox );
-
-  eAttachOrLoadPageExecutableLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageExecutableLabel" );
-  eAttachOrLoadPageExecutableLabel->setMinimumSize( QSize(10,10) );
-  eAttachOrLoadPageExecutableLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageExecutableLabel ) );
-  eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel );
-
-  eAttachOrLoadPageLoadDifferentExecutableCheckBox = new QCheckBox( eAttachOrLoadPageWidget, "eAttachOrLoadPageLoadDifferentExecutableCheckBox" );
-  eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageLoadDifferentExecutableCheckBox );
-  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
-
-  eAttachOrLoadPageLayout->addLayout( eAttachOrLoadPageAttachOrLoadLayout );
-  eAttachOrLoadPageSpacer = new QSpacerItem( 20, 70, QSizePolicy::Minimum, QSizePolicy::Expanding );
-  eAttachOrLoadPageLayout->addItem( eAttachOrLoadPageSpacer );
-
-  eAttachOrLoadPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eAttachOrLoadPageButtonLayout"); 
-
-  eAttachOrLoadPageButtonSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-  eAttachOrLoadPageButtonLayout->addItem( eAttachOrLoadPageButtonSpacer );
-
-  eAttachOrLoadPageClearButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageClearButton" );
-  eAttachOrLoadPageClearButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageClearButton->sizePolicy().hasHeightForWidth() ) );
-  eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageClearButton );
-
-  eAttachOrLoadPageBackButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageBackButton" );
-  eAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
-  eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageBackButton );
-
-  eAttachOrLoadPageNextButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageNextButton" );
-  eAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
-  eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageNextButton );
-
-  eAttachOrLoadPageFinishButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageFinishButton" );
-  eAttachOrLoadPageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageFinishButton->sizePolicy().hasHeightForWidth() ) );
-  eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageFinishButton );
-
-  eAttachOrLoadPageLayout->addLayout( eAttachOrLoadPageButtonLayout );
-  mainWidgetStack->addWidget( eAttachOrLoadPageWidget, 5 );
-// End: advanced (expert) attach/load page
-
 // Begin: advance (expert) summary page
   eSummaryPageWidget = new QWidget( mainWidgetStack, "eSummaryPageWidget" );
   eSummaryPageWidget->setMinimumSize( QSize(10,10) );
@@ -572,12 +430,6 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
            SLOT( eParameterPageNextButtonSelected() ) );
   connect( eParameterPageResetButton, SIGNAL( clicked() ), this,
            SLOT( eParameterPageResetButtonSelected() ) );
-  connect( eAttachOrLoadPageBackButton, SIGNAL( clicked() ), this,
-           SLOT( eAttachOrLoadPageBackButtonSelected() ) );
-  connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this,
-           SLOT( eAttachOrLoadPageNextButtonSelected() ) );
-  connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this,
-           SLOT( eAttachOrLoadPageNextButtonSelected() ) );
 
   connect( eSummaryPageBackButton, SIGNAL( clicked() ), this,
            SLOT( eSummaryPageBackButtonSelected() ) );
@@ -594,32 +446,6 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
   connect( vParameterPageNextButton, SIGNAL( clicked() ), this,
            SLOT( vParameterPageNextButtonSelected() ) );
 
-  connect( vAttachOrLoadPageBackButton, SIGNAL( clicked() ), this,
-           SLOT( vAttachOrLoadPageBackButtonSelected() ) );
-  connect( vAttachOrLoadPageClearButton, SIGNAL( clicked() ), this,
-           SLOT( vAttachOrLoadPageClearButtonSelected() ) );
-  connect( eAttachOrLoadPageClearButton, SIGNAL( clicked() ), this,
-           SLOT( eAttachOrLoadPageClearButtonSelected() ) );
-
-
-  connect( vAttachOrLoadPageAttachToProcessCheckBox, SIGNAL( clicked() ), this,
-           SLOT( vAttachOrLoadPageAttachToProcessCheckBoxSelected() ) );
-  connect( eAttachOrLoadPageAttachToProcessCheckBox, SIGNAL( clicked() ), this,
-           SLOT( eAttachOrLoadPageAttachToProcessCheckBoxSelected() ) );
-  connect( vAttachOrLoadPageLoadExecutableCheckBox, SIGNAL( clicked() ), this,
-           SLOT( vAttachOrLoadPageLoadExecutableCheckBoxSelected() ) );
-  connect( eAttachOrLoadPageLoadExecutableCheckBox, SIGNAL( clicked() ), this,
-           SLOT( eAttachOrLoadPageLoadExecutableCheckBoxSelected() ) );
-  connect( vAttachOrLoadPageLoadDifferentExecutableCheckBox, 
-           SIGNAL( clicked() ), this,
-           SLOT( vAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected() ) );
-  connect( eAttachOrLoadPageLoadDifferentExecutableCheckBox, 
-           SIGNAL( clicked() ), this,
-           SLOT( eAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected() ) );
-
-  connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this,
-           SLOT( vAttachOrLoadPageNextButtonSelected() ) );
-
   connect( vSummaryPageBackButton, SIGNAL( clicked() ), this,
            SLOT( vSummaryPageBackButtonSelected() ) );
   connect( vSummaryPageFinishButton, SIGNAL( clicked() ), this,
@@ -633,16 +459,14 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
            SLOT( finishButtonSelected() ) );
   connect( eParameterPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
-  connect( eAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this,
-           SLOT( finishButtonSelected() ) );
-  connect( eAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this,
-           SLOT( finishButtonSelected() ) );
   connect( vDescriptionPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
   connect( vParameterPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
-  connect( vAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this,
-           SLOT( finishButtonSelected() ) );
+
+  // Set this wizards load panel to NULL.  It will be set
+  // when created and used when needed during the wizard execution.
+  setThisWizardsLoadPanel(NULL);
 
   if( ao && ao->int_data == 0 )
   {
@@ -711,6 +535,101 @@ int
 MPIWizardPanel::listener(void *msg)
 {
   nprintf(DEBUG_PANELS) ("MPIWizardPanel::listener() requested.\n");
+#ifdef DEBUG_MPIWizard
+  printf("MPIWizardPanel::listener() requested.\n");
+#endif
+
+  MessageObject *messageObject = (MessageObject *)msg;
+  nprintf(DEBUG_PANELS) ("  MPIWizardPanel::listener, messageObject->msgType = %s\n", messageObject->msgType.ascii() );
+#ifdef DEBUG_MPIWizard
+  printf("MPIWizardPanel::listener,  messageObject->msgType = %s\n", messageObject->msgType.ascii() );
+#endif
+  if( messageObject->msgType == getName() )
+  {
+    vSummaryPageFinishButton->setEnabled(TRUE);
+    eSummaryPageFinishButton->setEnabled(TRUE);
+    vSummaryPageBackButton->setEnabled(TRUE);
+    eSummaryPageBackButton->setEnabled(TRUE);
+    qApp->flushX();
+    return 1;
+  }
+  if( messageObject->msgType == "Wizard_Raise_LoadPanel_Back_Page" )
+  {
+    vSummaryPageFinishButton->setEnabled(TRUE);
+    eSummaryPageFinishButton->setEnabled(TRUE);
+    vSummaryPageBackButton->setEnabled(TRUE);
+    eSummaryPageBackButton->setEnabled(TRUE);
+    qApp->flushX();
+    nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
+    if( vwizardMode->isOn() && !ewizardMode->isOn() )
+    {// is it verbose?
+      mainWidgetStack->raiseWidget(vParameterPageWidget);
+    } else {
+      mainWidgetStack->raiseWidget(eParameterPageWidget);
+    }
+
+    // Hide the load panel as we just came back from it.
+    // It may be less confusing to hide it than to leave it up.
+    // Another usability study may provide feedback
+
+    QString name = "loadPanel";
+#ifdef DEBUG_MPIWizard
+    printf("MPIWizardPanel::listener, Wizard_Raise_LoadPanel_Back_Page, try to find panel (%s)\n", name.ascii() );
+#endif
+//    Panel *loadPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+    Panel *loadPanel = getThisWizardsLoadPanel();
+#ifdef DEBUG_MPIWizard
+    printf("MPIWizardPanel::listener, Wizard_Raise_LoadPanel_Back_Page, loadPanel=0x%x\n", loadPanel);
+#endif
+    if( loadPanel ) {
+#ifdef DEBUG_MPIWizard
+      printf("MPIWizardPanel::listener, Wizard_Raise_LoadPanel_Back_Page, Found the loadPanel... Try to hide it.\n");
+#endif
+      loadPanel->getPanelContainer()->hidePanel(loadPanel);
+    }
+
+    return 1;
+  }
+  if( messageObject->msgType == "Wizard_Raise_First_Page" )
+  {
+    vSummaryPageFinishButton->setEnabled(TRUE);
+    eSummaryPageFinishButton->setEnabled(TRUE);
+    vSummaryPageBackButton->setEnabled(TRUE);
+    eSummaryPageBackButton->setEnabled(TRUE);
+    qApp->flushX();
+    nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
+    if( vwizardMode->isOn() && !ewizardMode->isOn() )
+    {// is it verbose?
+      mainWidgetStack->raiseWidget(vDescriptionPageWidget);
+    } else
+    {
+      mainWidgetStack->raiseWidget(eDescriptionPageWidget);
+    }
+    return 1;
+  }
+  if( messageObject->msgType == "Wizard_Raise_Summary_Page" )
+  {
+    vSummaryPageFinishButton->setEnabled(TRUE);
+    eSummaryPageFinishButton->setEnabled(TRUE);
+    vSummaryPageBackButton->setEnabled(TRUE);
+    eSummaryPageBackButton->setEnabled(TRUE);
+    qApp->flushX();
+    
+#ifdef DEBUG_MPIWizard
+    printf("MPIWizardPanel::listener, Wizard_Raise_Summary_Page if block \n");
+#endif
+    vPrepareForSummaryPage();
+    return 1;
+  }
+  return 0;  // 0 means, did not want this message and did not act on anything.
+}
+
+#if OLD
+//! This function listens for messages.
+int 
+MPIWizardPanel::listener(void *msg)
+{
+  nprintf(DEBUG_PANELS) ("MPIWizardPanel::listener() requested.\n");
 
   MessageObject *messageObject = (MessageObject *)msg;
   nprintf(DEBUG_PANELS) ("  messageObject->msgType = %s\n", messageObject->msgType.ascii() );
@@ -742,6 +661,7 @@ MPIWizardPanel::listener(void *msg)
   }
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
+#endif
 
 
 //! This function broadcasts messages.
@@ -756,7 +676,6 @@ void MPIWizardPanel::vwizardModeSelected()
 {
   QWidget *raisedWidget = mainWidgetStack->visibleWidget();
   wizardModeSelected();
-  vUpdateAttachOrLoadPageWidget();
   if( raisedWidget == vDescriptionPageWidget )
   {
       nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
@@ -765,10 +684,6 @@ void MPIWizardPanel::vwizardModeSelected()
   {
       nprintf(DEBUG_PANELS) ("vParameterPageWidget\n");
       mainWidgetStack->raiseWidget(eParameterPageWidget);
-  } else if( raisedWidget ==  vAttachOrLoadPageWidget )
-  {
-      nprintf(DEBUG_PANELS) ("vAttachOrLoadPageWidget\n");
-      mainWidgetStack->raiseWidget(eAttachOrLoadPageWidget);
   } else if( raisedWidget == vSummaryPageWidget )
   {
       nprintf(DEBUG_PANELS) ("vSummaryPageWidget\n");
@@ -784,7 +699,6 @@ void MPIWizardPanel::ewizardModeSelected()
 {
   QWidget *raisedWidget = mainWidgetStack->visibleWidget();
   wizardModeSelected();
-  vUpdateAttachOrLoadPageWidget();
   if( raisedWidget  == eDescriptionPageWidget )
   {
       nprintf(DEBUG_PANELS) ("eDescriptionPageWidget\n");
@@ -793,10 +707,6 @@ void MPIWizardPanel::ewizardModeSelected()
   {
       nprintf(DEBUG_PANELS) ("eParameterPageWidget\n");
       mainWidgetStack->raiseWidget(vParameterPageWidget);
-  } else if( raisedWidget == eAttachOrLoadPageWidget )
-  {
-      nprintf(DEBUG_PANELS) ("eAttachOrLoadPageWidget\n");
-      mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
   } else if( raisedWidget == eSummaryPageWidget )
   {
       nprintf(DEBUG_PANELS) ("eSummaryPageWidget\n");
@@ -835,6 +745,41 @@ void MPIWizardPanel::wizardModeSelected()
   vwizardMode->setChecked( TRUE );
 }
 
+Panel* MPIWizardPanel::findAndRaiseLoadPanel()
+{
+  // Try to raise the load panel if there is one hidden
+
+#if 1
+  Panel *p = getThisWizardsLoadPanel();
+#ifdef DEBUG_MPIWizard
+  printf("MPIWizardPanel::findAndRaiseLoadPanel, found thisWizardsLoadPanel - now raising, p=0x%x\n", p);
+#endif
+  if (p) {
+     p->getPanelContainer()->raisePanel(p);
+  } else {
+#ifdef DEBUG_MPIWizard
+    printf("MPIWizardPanel::findAndRaiseLoadPanel, did not find loadPanel\n");
+#endif
+  }
+
+#else
+
+  QString name = QString("loadPanel");
+  Panel *p = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+  if (p) {
+#ifdef DEBUG_MPIWizard
+     printf("MPIWizardPanel::findAndRaiseLoadPanel, found loadPanel - now raising, p=%x\n", p);
+#endif
+     p->getPanelContainer()->raisePanel(p);
+  } else {
+#ifdef DEBUG_MPIWizard
+    printf("MPIWizardPanel::findAndRaiseLoadPanel, did not find loadPanel\n");
+#endif
+  }
+#endif
+
+  return p;
+}
 
 void MPIWizardPanel::eDescriptionPageNextButtonSelected()
 {
@@ -865,10 +810,54 @@ void MPIWizardPanel::eParameterPageNextButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("eParameterPageNextButtonSelected() \n");
 
-//  eUpdateAttachOrLoadPageWidget();
-  vUpdateAttachOrLoadPageWidget();
+ // See if loadPanel already exists - if user used the back button
+ // we may have hidden the panel and now just need to raise it instead
+ // of creating a new one.
 
-  mainWidgetStack->raiseWidget(eAttachOrLoadPageWidget);
+#ifdef DEBUG_MPIWizard
+  printf("MPIWizardPanel::eParameterPageNextButtonSelected, calling findAndRaiseLoadPanel()\n");
+#endif
+  Panel *p = findAndRaiseLoadPanel();
+
+  if (p) {
+    // raise the first page of the load panel
+    MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+    p->listener((void *)msg);
+    delete msg;
+
+  } else {
+
+#ifdef DEBUG_MPIWizard
+    printf("MPIWizardPanel, calling loadNewProgramPanel()\n");
+#endif
+    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+    if( mw ) {
+     mw->executableName = QString((const char *)0);
+     mw->argsStr = QString((const char *)0);
+     mw->parallelPrefixCommandStr = QString((const char *)0);
+
+#ifdef DEBUG_MPIWizard
+     printf("MPIWizardPanel calling mw->loadNewProgramPanel, this=0x%x\n", this );
+#endif
+
+     Panel* p = mw->loadNewProgramPanel(getPanelContainer(), getPanelContainer()->getMasterPC(), /* expID */-1, (Panel *) this);
+     setThisWizardsLoadPanel(p);
+
+     QString executableNameStr = mw->executableName;
+     if( !mw->executableName.isEmpty() ) {
+#ifdef DEBUG_MPIWizard
+      printf("MPIWizardPanel, executableName=%s\n", mw->executableName.ascii() );
+#endif
+     } else {
+#ifdef DEBUG_MPIWizard
+      printf("MPIWizardPanel, executableName is empty\n" );
+#endif
+     } // end if clause for empty executable name
+    } // end if clause for mw
+  } // end else clause for create new load panel
+//jeg  mainWidgetStack->raiseWidget(vSummaryPageWidget);
+
+
 }
 
 void MPIWizardPanel::eParameterPageResetButtonSelected()
@@ -880,9 +869,37 @@ void MPIWizardPanel::eSummaryPageBackButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("eSummaryPageBackButtonSelected() \n");
 
-  vUpdateAttachOrLoadPageWidget();
+// JUST RAISE EXISTING PANEL if one is there.
 
-  mainWidgetStack->raiseWidget(eAttachOrLoadPageWidget);
+ // See if loadPanel already exists - if user used the back button
+ // we may have hidden the panel and now just need to raise it instead
+ // of creating a new one.
+
+#ifdef DEBUG_MPIWizard
+  printf("MPIWizardPanel::eSummaryPageBackButtonSelected, calling findAndRaiseLoadPanel()\n");
+#endif
+  Panel *p = findAndRaiseLoadPanel();
+
+  if (p) {
+    // raise the second page of the load panel
+    MessageObject *msg = new MessageObject("Wizard_Raise_Second_Page");
+    p->listener((void *)msg);
+    delete msg;
+  } else {
+#ifdef DEBUG_MPIWizard
+    printf("MPIWizardPanel::eSummaryPageBackButtonSelected, did not find loadPanel\n");
+#endif
+    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), NULL);
+    if (p) {
+#ifdef DEBUG_MPIWizard
+     printf("MPIWizardPanel::eSummaryPageBackButtonSelected, found loadPanel, p=%x\n", p);
+#endif
+     MessageObject *msg = new MessageObject("Wizard_Raise_Second_Page");
+     p->listener((void *)msg);
+     delete msg;
+    }
+  }
+
 }
 
 void MPIWizardPanel::eSummaryPageFinishButtonSelected()
@@ -892,107 +909,6 @@ void MPIWizardPanel::eSummaryPageFinishButtonSelected()
   vSummaryPageFinishButtonSelected();
 
 }
-
-// Begin advanced (expert) AttachOrLoad callbacks
-void MPIWizardPanel::eAttachOrLoadPageBackButtonSelected()
-{
-  nprintf(DEBUG_PANELS) ("eAttachOrLoadPageBackButtonSelected() \n");
-
-  mainWidgetStack->raiseWidget(eParameterPageWidget);
-}
-
-void MPIWizardPanel::eAttachOrLoadPageClearButtonSelected()
-{
-  nprintf(DEBUG_PANELS) ("eAttachOrLoadPageClearButtonSelected() \n");
-  if( getPanelContainer()->getMainWindow() )
-  { 
-    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-    if( mw )
-    {
-      mw->executableName = QString::null;
-      mw->pidStr = QString::null;
-      mw->parallelPrefixCommandStr = QString::null;
-    }
-  }
-//  eUpdateAttachOrLoadPageWidget();
-  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  vUpdateAttachOrLoadPageWidget();
-}
-
-
-void MPIWizardPanel::eAttachOrLoadPageNextButtonSelected()
-{
-  nprintf(DEBUG_PANELS) ("eAttachOrLoadPageNextButtonSelected() \n");
-
-  char buffer[2048];
-  if( !eAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
-      !eAttachOrLoadPageLoadExecutableCheckBox->isChecked() &&
-      !eAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() ) 
-  {
-    QString msg = QString("You must either select the option to attach to an \nexisting process or load an executable.  Please select one.\n");
-    QMessageBox::information( (QWidget *)this, "Process or executable needed...",
-                               msg, QMessageBox::Ok );
-    
-    return;
-  }
-  if( eAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
-      eAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
-  {
-    QString msg = QString("From this wizard you can only select to either attach or load.  Please select only one.\n");
-    QMessageBox::information( (QWidget *)this, "Process or executable needed...",
-                               msg, QMessageBox::Ok );
-    
-    return;
-  }
-
-  OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-  if( !mw )
-  {
-    return;
-  } 
-  
-  if( eAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
-  {
-    if( mw->pidStr.isEmpty() )
-    {
-      mw->attachNewProcess();
-      if( mw->pidStr.isEmpty() )
-      {
-        return;
-      }
-      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" mpi functions.<br><br></p>", mw->pidStr.ascii(), mw->hostStr.ascii(), paramString.ascii() );
-    }
-  }
-  if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
-      eAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
-  {
-    if( mw->executableName.isEmpty() ||
-        eAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
-    {
-      nprintf(DEBUG_PANELS) ("Load the QFile \n");
-      mw->fileLoadNewProgram();
-    }
-    if( mw->executableName.isEmpty() )
-    {
-      return;
-    }
-    QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
-    QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
-    QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    if( mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
-      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" mpi functions.<br><br></p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
-    } else {
-      sprintf(buffer, "<p align=\"left\">Requesting to load command/executable <br>\"%s %s\" on host \"%s\", with monitoring \"%s\" mpi functions.<br><br></p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
-    } 
-  }
-
-  eSummaryPageFinishLabel->setText( tr( buffer ) );
-
-  mainWidgetStack->raiseWidget(eSummaryPageWidget);
-}
-// End  advanced (expert) AttachOrLoad callbacks
 
 void MPIWizardPanel::vDescriptionPageNextButtonSelected()
 {
@@ -1037,9 +953,51 @@ void MPIWizardPanel::vParameterPageNextButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vParameterPageNextButtonSelected() \n");
 
-  vUpdateAttachOrLoadPageWidget();
+ // See if loadPanel already exists - if user used the back button
+ // we may have hidden the panel and now just need to raise it instead
+ // of creating a new one.
 
-  mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
+#ifdef DEBUG_MPIWizard
+  printf("MPIWizardPanel::vParameterPageNextButtonSelected, calling findAndRaiseLoadPanel()\n");
+#endif
+  Panel *p = findAndRaiseLoadPanel();
+
+  if (p) {
+    // raise the first page of the load panel
+    MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+    p->listener((void *)msg);
+    delete msg;
+  } else {
+
+#ifdef DEBUG_MPIWizard
+   printf("MPIWizardPanel, calling loadNewProgramPanel()\n");
+#endif
+   OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+   if( mw ) {
+    mw->executableName = QString((const char *)0);
+    mw->argsStr = QString((const char *)0);
+    mw->parallelPrefixCommandStr = QString((const char *)0);
+
+#ifdef DEBUG_MPIWizard
+    printf("MPIWizardPanel calling mw->loadNewProgramPanel, this=0x%x\n", this );
+#endif
+
+    Panel* p = mw->loadNewProgramPanel(getPanelContainer(), getPanelContainer()->getMasterPC(), /* expID */-1, (Panel *) this);
+    setThisWizardsLoadPanel(p);
+    QString executableNameStr = mw->executableName;
+    if( !mw->executableName.isEmpty() ) {
+#ifdef DEBUG_MPIWizard
+      printf("MPIWizardPanel, executableName=%s\n", mw->executableName.ascii() );
+#endif
+    } else {
+#ifdef DEBUG_MPIWizard
+      printf("MPIWizardPanel, executableName is empty\n" );
+#endif
+    }
+   }
+  }
+//jeg  mainWidgetStack->raiseWidget(vSummaryPageWidget);
+
 }
 
 void MPIWizardPanel::vParameterPageResetButtonSelected()
@@ -1047,155 +1005,33 @@ void MPIWizardPanel::vParameterPageResetButtonSelected()
   nprintf(DEBUG_PANELS) ("vParameterPageResetButtonSelected() \n");
 }
 
-void MPIWizardPanel::vAttachOrLoadPageBackButtonSelected()
+void MPIWizardPanel::vPrepareForSummaryPage()
 {
-  nprintf(DEBUG_PANELS) ("vAttachOrLoadPageBackButtonSelected() \n");
-
-  mainWidgetStack->raiseWidget(vParameterPageWidget);
-}
-
-void MPIWizardPanel::vAttachOrLoadPageClearButtonSelected()
-{
-  nprintf(DEBUG_PANELS) ("vAttachOrLoadPageClearButtonSelected() \n");
-
-  vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageLoadExecutableCheckBox->setEnabled(TRUE);
-  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageLoadExecutableCheckBox->setEnabled(TRUE);
-
-  if( getPanelContainer()->getMainWindow() )
-  { 
-    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-    if( mw )
-    {
-      mw->executableName = QString::null;
-      mw->pidStr = QString::null;
-    }
-  }
-  vUpdateAttachOrLoadPageWidget();
-}
-
-void MPIWizardPanel::vAttachOrLoadPageAttachToProcessCheckBoxSelected()
-{
-  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
-  {
-    vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
-    vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  }
-}
-
-void MPIWizardPanel::eAttachOrLoadPageAttachToProcessCheckBoxSelected()
-{
-  if( eAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
-  {
-    eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
-    eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  }
-}
-
-void MPIWizardPanel::vAttachOrLoadPageLoadExecutableCheckBoxSelected()
-{
-  if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
-  {
-    vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-    vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  }
-}
-
-void MPIWizardPanel::vAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected()
-{
-  if( vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
-  {
-    vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
-    vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  }
-}
-
-void MPIWizardPanel::eAttachOrLoadPageLoadExecutableCheckBoxSelected()
-{
-  if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
-  {
-    eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-    eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  }
-}
-
-void MPIWizardPanel::eAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected()
-{
-  if( eAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
-  {
-    eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
-    eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  }
-}
-void MPIWizardPanel::vAttachOrLoadPageNextButtonSelected()
-{
-  nprintf(DEBUG_PANELS) ("vAttachOrLoadPageNextButtonSelected() \n");
+  nprintf(DEBUG_PANELS) ("MPIWizardPanel::vPrepareForSummaryPage() \n");
+#ifdef DEBUG_MPIWizard
+  printf("MPIWizardPanel::vPrepareForSummaryPage() \n");
+#endif
 
   char buffer[2048];
 
-  if( !vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
-      !vAttachOrLoadPageLoadExecutableCheckBox->isChecked() &&
-      !vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
-  {
-    QString msg = QString("You must either select the option to attach to an \nexisting process or load an executable.  Please select one.\n");
-    QMessageBox::information( (QWidget *)this, "Process or executable needed...",
-                               msg, QMessageBox::Ok );
-    
-    return;
-  }
-  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
-      vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
-  {
-    QString msg = QString("From this wizard you can only select to either attach or load.  Please select only one.\n");
-    QMessageBox::information( (QWidget *)this, "Process or executable needed...",
-                               msg, QMessageBox::Ok );
-    
-    return;
-  }
   OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
   if( !mw )
   {
     return;
   } 
 
-  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
-  { 
-    if( mw->pidStr.isEmpty() )
-    {
-      mw->attachNewProcess();
-    }
-    if( mw->pidStr.isEmpty() )
-    {
-      return;
-    }
+  if( !mw->pidStr.isEmpty() )
+  {
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for process \"%s\" running on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" mpi functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), paramString.ascii() );
-  }
-  if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
-      vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
-  {
-    if( mw->executableName.isEmpty() ||
-        vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
-    {
-      nprintf(DEBUG_PANELS) ("Load the QFile \n");
-      mw->loadNewProgram();
-    }
-    if( mw->executableName.isEmpty() )
-    {
-      return;
-    }
+    sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for process \"%s\" running on host \"%s\".<br>Furthermore, you've chosen to monitor \"%s\" mpi functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+  } else if( !mw->executableName.isEmpty() ) {
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
     if( mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
-      sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" mpi functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+      sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for executable \"%s\" to be run on host \"%s\".<br>Furthermore, you've chosen to monitor \"%s\" mpi functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
     } else {
       sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for command/executable<br>\"%s %s\" to be run on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" mpi functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
     }
@@ -1203,19 +1039,63 @@ void MPIWizardPanel::vAttachOrLoadPageNextButtonSelected()
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
   mainWidgetStack->raiseWidget(2);
+  mainWidgetStack->raiseWidget(vSummaryPageWidget);
 
-    mainWidgetStack->raiseWidget(vSummaryPageWidget);
+  QString name = "loadPanel";
+#ifdef DEBUG_MPIWizard
+  printf("try to find panel (%s)\n", name.ascii() );
+#endif
+//  Panel *loadPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+  // Find our specific load panel not any other wizards/experiments 
+  // that might be hidden or raised for that matter
+  Panel *loadPanel = getThisWizardsLoadPanel();
+
+#ifdef DEBUG_MPIWizard
+  printf("MPIWizardPanel::vPrepareForSummaryPage(), loadPanel=0x%x\n", loadPanel);
+#endif
+  if( loadPanel ) {
+#ifdef DEBUG_MPIWizard
+     printf("Found the loadPanel... Try to hide it.\n");
+#endif
+     loadPanel->getPanelContainer()->hidePanel(loadPanel);
+  }
+
 }
-// End verbose AttachOrLoad callbacks
-
 
 void MPIWizardPanel::vSummaryPageBackButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vSummaryPageBackButtonSelected() \n");
 
-  vUpdateAttachOrLoadPageWidget();
+// RAISE EXISTING PANEL if one is there and request the second page of the wizard
+// be focused/raised.
 
-  mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
+  Panel *p = findAndRaiseLoadPanel();
+
+  if (p) {
+
+#ifdef DEBUG_MPIWizard
+     printf("MPIWizardPanel::vSummaryPageBackButtonSelected, found loadPanel, p=%x\n", p);
+#endif
+
+    // raise the second page of the load panel
+    MessageObject *msg = new MessageObject("Wizard_Raise_Second_Page");
+    p->listener((void *)msg);
+    delete msg;
+  } else {
+#ifdef DEBUG_MPIWizard
+    printf("MPIWizardPanel::vSummaryPageBackButtonSelected, did not find loadPanel\n");
+#endif
+    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), NULL);
+    if (p) {
+#ifdef DEBUG_MPIWizard
+     printf("MPIWizardPanel::vSummaryPageBackButtonSelected, found loadPanel, p=%x\n", p);
+#endif
+     MessageObject *msg = new MessageObject("Wizard_Raise_Second_Page");
+     p->listener((void *)msg);
+     delete msg;
+    }
+  }
+
 }
 
 void MPIWizardPanel::finishButtonSelected()
@@ -1227,15 +1107,9 @@ void MPIWizardPanel::finishButtonSelected()
   {
     if( vwizardMode->isOn() )
     {
-      mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
-      vUpdateAttachOrLoadPageWidget();
-      vAttachOrLoadPageNextButtonSelected();
       vSummaryPageFinishButtonSelected();
     } else
     {
-      mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
-      vUpdateAttachOrLoadPageWidget();
-      eAttachOrLoadPageNextButtonSelected();
       vSummaryPageFinishButtonSelected();
     }
   } else
@@ -1262,11 +1136,11 @@ void MPIWizardPanel::vSummaryPageFinishButtonSelected()
       if( !mw->executableName.isEmpty() )
       {
 //printf("executable name was specified.\n");
-        lao = new LoadAttachObject(mw->executableName, (char *)NULL, &paramList, TRUE);
+        lao = new LoadAttachObject(mw->executableName, (char *)NULL, mw->parallelPrefixCommandStr, &paramList, TRUE);
       } else if( !mw->pidStr.isEmpty() )
       {
 // printf("pid was specified.\n");
-        lao = new LoadAttachObject((char *)NULL, mw->pidStr, &paramList, TRUE);
+        lao = new LoadAttachObject((char *)NULL, mw->pidStr, (char *)NULL, &paramList, TRUE);
       } else
       {
 // printf("Warning: No attach or load paramaters available.\n");
@@ -1329,7 +1203,9 @@ MPIWizardPanel::languageChange()
   vDescriptionPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
-  QToolTip::add( vDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
+  QToolTip::add( vDescriptionPageFinishButton, tr( "Not active, present in this page for consistent use of buttons." ) );
+  vDescriptionPageFinishButton->setEnabled(FALSE);
+
   vParameterPageDescriptionText->setText( tr( QString("The check boxes below represent the list of functions that the MPI experiment is able to trace/monitor.  By selecting or deselecting the check boxes, you can chose which MPI functions to monitor/analyze.<br>NOTE: The TRACING option (below) when selected, records each MPI call chronologically to form a trace of the MPI calls made in your MPI application.  The option also causes more MPI related information to be recorded.<br>\n") ) );
 
   vParameterPageFunctionListHeaderLabel->setText( tr( "You can monitor the following mpi functions(s):" ) );
@@ -1340,22 +1216,12 @@ MPIWizardPanel::languageChange()
   vParameterPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vParameterPageNextButton, tr( "Advance to the next wizard page." ) );
   vParameterPageFinishButton->setText( tr( ">> Finish" ) );
-  QToolTip::add( vParameterPageFinishButton, tr( "Advance to the wizard finish page." ) );
+  QToolTip::add( vParameterPageFinishButton, tr( "Not active, present in this page for consistent use of buttons." ) );
+  vParameterPageFinishButton->setEnabled(FALSE);
+
 
   appendFunctionsToMonitor();
 
-  vAttachOrLoadPageDescriptionLabel->setText( tr( "We can attach to an existing process (or processes) or load an executable from disk .  Please select the desired action.<br><br>Note: A dialog will be posted prompting for the information.</p>") );
-  vAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more processes." ) );
-  vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
-vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different executable from disk." ) );
-  vAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
-  QToolTip::add( vAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
-  vAttachOrLoadPageClearButton->setText( tr( "Reset" ) );
-  QToolTip::add( vAttachOrLoadPageClearButton, tr( "This resets all settings restoring them to system defaults." ) );
-  vAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
-  QToolTip::add( vAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
-  vAttachOrLoadPageFinishButton->setText( tr( ">> Finish" ) );
-  QToolTip::add( vAttachOrLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
   vSummaryPageFinishLabel->setText( tr( "No summary available.\n" ) );
 
   vSummaryPageBackButton->setText( tr( "< Back" ) );
@@ -1369,7 +1235,9 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
   eDescriptionPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( eDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   eDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
-  QToolTip::add( eDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
+  QToolTip::add( eDescriptionPageFinishButton, tr( "Not active, present in this page for consistent use of buttons." ) );
+  eDescriptionPageFinishButton->setEnabled(FALSE);
+
   eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
   eParameterPageFunctionListHeaderLabel->setText( tr( "You can monitor the following mpi function(s):" ) );
   eParameterPageBackButton->setText( tr( "< Back" ) );
@@ -1379,19 +1247,8 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
   eParameterPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( eParameterPageNextButton, tr( "Advance to the next wizard page." ) );
   eParameterPageFinishButton->setText( tr( ">> Finish" ) );
-  QToolTip::add( eParameterPageFinishButton, tr( "Advance to the wizard finish page." ) );
-  eAttachOrLoadPageDescriptionLabel->setText( tr( "Select one of the following:" ) );
-  eAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more processes." ) );
-  eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
-  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different executable from disk." ) );
-  eAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
-  QToolTip::add( eAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
-  eAttachOrLoadPageClearButton->setText( tr( "Reset" ) );
-  QToolTip::add( eAttachOrLoadPageClearButton, tr( "This resets all settings restoring them to system defaults." ) );
-  eAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
-  QToolTip::add( eAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
-  eAttachOrLoadPageFinishButton->setText( tr( ">> Finish" ) );
-  QToolTip::add( eAttachOrLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
+  QToolTip::add( eParameterPageFinishButton, tr( "Not active, present in this page for consistent use of buttons." ) );
+  eParameterPageFinishButton->setEnabled(FALSE);
 
   eSummaryPageFinishLabel->setText( tr( "No summary yet available.") );
   eSummaryPageBackButton->setText( tr( "< Back" ) );
@@ -1458,75 +1315,7 @@ std::map<std::string,bool> tracedFunctions;
     return;
   }
 
-  vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-//  Enable (don't disable) this now that OpenSpeedShop supports creating an MPI job
-//  vAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
-  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-//  Enable (don't disable) this now that OpenSpeedShop supports creating an MPI job
-//  eAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
-
   vParameterPageCheckBoxSelected();
-}
-
-void
-MPIWizardPanel::vUpdateAttachOrLoadPageWidget()
-{
-  vAttachOrLoadPageProcessListLabel->hide();
-  eAttachOrLoadPageProcessListLabel->hide();
-  vAttachOrLoadPageExecutableLabel->hide();
-  eAttachOrLoadPageExecutableLabel->hide();
-  if( getPanelContainer()->getMainWindow() )
-  {
-    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-    if( mw )
-    {
-      if( !mw->executableName.isEmpty() )
-      {
-        vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-        eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-        vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-        eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-        vAttachOrLoadPageExecutableLabel->setText( mw->executableName );
-        eAttachOrLoadPageExecutableLabel->setText( mw->executableName );
-        vAttachOrLoadPageExecutableLabel->show();
-        eAttachOrLoadPageExecutableLabel->show();
-        vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load the following executable from disk." ) );
-        eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load the following executable from disk." ) );
-        vAttachOrLoadPageLoadDifferentExecutableCheckBox->show();
-        eAttachOrLoadPageLoadDifferentExecutableCheckBox->show();
-      } else if( !mw->pidStr.isEmpty() )
-      {
-        vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-        eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-        vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-        eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-        vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
-        eAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
-        vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
-        eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
-        vAttachOrLoadPageProcessListLabel->show();
-        eAttachOrLoadPageProcessListLabel->show();
-        vAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
-        eAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
-      }
-    }
-    if( mw->executableName.isEmpty() )
-    {
-      vAttachOrLoadPageExecutableLabel->setText( "" );
-      eAttachOrLoadPageExecutableLabel->setText( "" );
-      vAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
-      eAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
-    }
-    if( mw->pidStr.isEmpty() )
-    {
-      vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
-      eAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
-    }
-  }
 }
 
 void

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -27,9 +27,7 @@
 #include <qtimer.h>
 #include "PanelContainer.hxx"
 #include <qassistantclient.h>
-
 #include "preferencesdialog.hxx"
-
 
 #include <qfile.h>   // For the file dialog box.
 #include <qfiledialog.h>  // For the file dialog box.
@@ -43,7 +41,10 @@ class QActionGroup;
 class QToolBar;
 class QPopupMenu;
 class AttachProgramDialog;
+class AttachMPProgramDialog;
 class AttachProcessDialog;
+class AttachMPProcessDialog;
+class AttachArgDialog;
 class GenericProgressDialog;
 
 class CLIInterface;
@@ -139,8 +140,20 @@ class OpenSpeedshop : public QMainWindow
     //! The attach process dialog.
     AttachProcessDialog *afd;
 
+    //! The attach multi-process dialog.
+    AttachMPProcessDialog *MPafd;
+
     //! The load file dialog.
     AttachProgramDialog *lfd;
+
+    //! The load file dialog.
+    AttachMPProgramDialog *MPlfd;
+
+    //! The load file dialog.
+    AttachArgDialog *Arglfd;
+
+    //! The hinted executable argument filename to be input to executableName program.
+    QString ArgFileName;
 
     void closeEvent(QCloseEvent *e);
 
@@ -163,6 +176,7 @@ class OpenSpeedshop : public QMainWindow
 
     void fileLoadNewProgram();
     void fileAttachNewProcess();
+    
 #ifdef EXPORT // move back to 'public slots:' when needed.
     virtual void fileExportExperimentData();
 #endif // EXPORT
@@ -184,7 +198,11 @@ class OpenSpeedshop : public QMainWindow
     virtual void helpAbout();
 
     virtual void loadNewProgram();
+    virtual Panel* loadNewProgramPanel( PanelContainer *pc, PanelContainer *topPC, int64_t expID, Panel *targetPanel);
+    virtual void loadNewMultiProcessProgram();
+    virtual void loadArgumentFile();
     virtual void attachNewProcess();
+    virtual void attachNewMultiProcess();
 
     virtual void myQuit();
     void progressUpdate();

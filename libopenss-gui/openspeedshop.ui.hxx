@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -18,10 +18,10 @@
 ////////////////////////////////////////////////////////////////////////////////
   
 
-/* Take the define below out of comments for debug
-   output for the GUI routines that are present this file.
-#define DEBUG_GUI 1
-*/
+// Take the comment slashes off of define below for debug
+// output for the GUI routines that are present this file.
+//#define DEBUG_GUI 1
+//
 
 #include <stdlib.h>
 #include <libgen.h> // basename()
@@ -36,13 +36,10 @@
 #include <qinputdialog.h>
 #include <qsettings.h>
 #include "PluginInfo.hxx"
-
-
 #include "ArgumentObject.hxx"
-
 #include "preferencesdialog.hxx"
-
 #include <qapplication.h>
+
 extern QApplication *qapplication;
 
 #include "plugin_handler.hxx"
@@ -51,13 +48,17 @@ extern QApplication *qapplication;
 
 // #include "debug.hxx"  // This includes the definition of dprintf
 #include "AttachProcessDialog.hxx"
+#include "AttachMPProcessDialog.hxx"
 #include "AttachProgramDialog.hxx"
+#include "AttachMPProgramDialog.hxx"
 #include "SelectExperimentDialog.hxx"
 #include "SaveAsExperimentDialog.hxx"
+#include "AttachArgDialog.hxx"
 
 /*! Here are the needed globals for this application... */
 #include "openspeedshop.hxx"
 #include "DebugPanel.hxx"
+
 
 #include "LoadAttachObject.hxx"
 
@@ -1110,11 +1111,114 @@ fprintf(stderr, "OpenSpeedshop::destroy() entered.\n");
   qApp->restoreOverrideCursor();
 }
 
+#if 0
+void OpenSpeedshop::loadArgumentFile()
+{
+  if( Arglfd == NULL ) {
+    Arglfd = new AttachArgDialog(this, "file dialog", TRUE );
+  }
+}
+#endif
+ 
+
+void OpenSpeedshop::loadArgumentFile()
+{
+  QString dirName = QString::null;
+#ifdef DEBUG_GUI
+  printf("OpenSpeedshop::loadArgumentFile() entered \n");
+#endif
+
+  if( Arglfd == NULL ) {
+    Arglfd = new AttachArgDialog(this, "file dialog", TRUE );
+#ifdef DEBUG_GUI
+    printf("OpenSpeedshop::loadArgumentFile() Arglfd=%0x\n", Arglfd);
+#endif
+
+    Arglfd->setCaption( QFileDialog::tr("Enter application argument file:") );
+    Arglfd->setMode( QFileDialog::AnyFile );
+    QString types(
+                  "Any Files (*);;"
+                  "Image files (*.png *.xpm *.jpg);;"
+                  "Text files (*.txt);;"
+                  "(*.c *.cpp *.cxx *.C *.c++ *.f* *.F*);;"
+                  );
+    Arglfd->setFilters( types );
+    Arglfd->setDir(dirName);
+  }
+  Arglfd->setSelection(QString::null);
+
+  QString fileName = QString::null;
+  if( Arglfd->exec() == QDialog::Accepted )
+  {
+    fileName = Arglfd->selectedFile();
+    if( !fileName.isEmpty() )
+    {
+#ifdef DEBUG_GUI
+      printf("OpenSpeedshop::loadArgumentFile(), fileName.ascii() = (%s)\n", fileName.ascii() );
+#endif
+      QFileInfo fi(fileName);
+      ArgFileName = fileName;
+    }
+  }
+#ifdef DEBUG_GUI
+  printf("OpenSpeedshop::loadArgumentFile() exited\n");
+#endif
+}
+
+
+Panel* OpenSpeedshop::loadNewProgramPanel( PanelContainer *pc, PanelContainer *topPC, int64_t expID, Panel *targetPanel)
+{
+    QString name = "loadPanel";
+#ifdef DEBUG_GUI
+    printf("OpenSpeedshop::loadNewProgramPanel() trying to raise name.ascii()=%s\n", (char *)name.ascii() );
+    printf("OpenSpeedshop::loadNewProgramPanel() targetPanel=%d\n", targetPanel);
+    if (targetPanel) {
+      printf("OpenSpeedshop::loadNewProgramPanel() targetPanel->getName()=%s\n",  (char *)targetPanel->getName() );
+    }
+#endif
+
+//    Panel *myLoadPanel = pc->findNamedPanel(pc->getMasterPC(), (char *)name.ascii() );
+
+//    QString name = QString("Load Panel [%1]").arg(expID);
+//    Panel *myLoadPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+
+
+    PanelContainer *bestFitPC = pc->getMasterPC()->findBestFitPanelContainer(topPC);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", targetPanel);
+//printf("CustomExperimentPanel::loadSourcePanel() create a new Source Panel!!\n");
+    Panel *myLoadPanel = topPC->dl_create_and_add_panel("loadPanel", bestFitPC, ao, (const char *)NULL);
+    delete ao;
+
+
+
+#ifdef DEBUG_GUI
+    printf("OpenSpeedshop::loadNewProgramPanel() trying to raise name.ascii()=%s, myLoadPanel=%d\n", (char *)name.ascii(), myLoadPanel);
+#endif
+
+    if( myLoadPanel ) {
+      // raise the panel using the passed in panel container
+#ifdef DEBUG_GUI
+      printf("OpenSpeedshop::loadNewProgramPanel() raising name.ascii()=%s\n", (char *)name.ascii() );
+#endif
+      pc->raisePanel(myLoadPanel);
+    } else {
+#ifdef DEBUG_GUI
+      printf("OpenSpeedshop::loadNewProgramPanel() unable to find Load Panel\n");
+#endif
+    }
+
+  return myLoadPanel;
+}
+
 void OpenSpeedshop::loadNewProgram()
 {
+
 // all load programs requests come through here!
   QString dirName = QString::null;
-// printf("OpenSpeedshop::loadNewProgram()\n");
+
+#ifdef DEBUG_GUI
+  printf("OpenSpeedshop::loadNewProgram()\n");
+#endif
   if( lfd == NULL )
   {
     lfd = new AttachProgramDialog(this, "file dialog", TRUE );
@@ -1127,7 +1231,7 @@ void OpenSpeedshop::loadNewProgram()
                   "(*.c *.cpp *.cxx *.C *.c++ *.f* *.F*);;"
                   );
     lfd->setFilters( types );
-//    lfd->setViewMode( QFileDialog::Detail );
+    lfd->setViewMode( QFileDialog::Detail );
     lfd->setDir(dirName);
   }
   lfd->setSelection(QString::null);
@@ -1151,15 +1255,19 @@ void OpenSpeedshop::loadNewProgram()
         // If you want a small dialog box to popup after hitting ok in the main dialog box then
         // enable this Enter Arguments Dialog section of code directly following this comment line...
         // BEGIN add Enter Arguments Dialog back in jeg 03/12/2007 #if 0
+#if 0
         argsStr = QString::null;
         bool ok;
         argsStr = QInputDialog::getText("Enter Arguments Dialog:", QString("Enter command line arguments:"), QLineEdit::Normal, QString::null, &ok, this);
+#endif
         // END add Enter Arguments Dialog back in jeg 03/12/2007 #endif
-      } else
-      {
+      } else {
         argsStr = lfd->lineedit->text();
-//      printf("line argsStr=(%s)\n", argsStr.ascii() );
+#ifdef DEBUG_GUI
+        printf("line argsStr=(%s)\n", argsStr.ascii() );
+#endif
       }
+#if MPP
       if( lfd->parallelPrefixLineedit->text().isEmpty() )
       {
         // If you want a small dialog box to popup after hitting ok in the main dialog box then
@@ -1173,6 +1281,94 @@ void OpenSpeedshop::loadNewProgram()
       {
         parallelPrefixCommandStr = lfd->parallelPrefixLineedit->text();
 //      printf("parallelPrefixLinedit--> parallelPrefixCommandStr=(%s)\n", parallelPrefixCommandStr.ascii() );
+      }
+#endif
+    }
+  }
+
+}
+
+void OpenSpeedshop::loadNewMultiProcessProgram()
+{
+
+  // all multi-process load programs requests come through here!
+
+  QString dirName = QString::null;
+
+#ifdef DEBUG_GUI
+  printf("OpenSpeedshop::loadNewMultiProcessProgram(), MPlfd=%0llx\n", MPlfd);
+#endif
+
+  if( MPlfd == NULL ) {
+
+    MPlfd = new AttachMPProgramDialog(this, "file dialog", TRUE );
+
+#ifdef DEBUG_GUI
+    printf("OpenSpeedshop::loadNewMultiProcessProgram(), after new Att, MPlfd=%0llx\n", MPlfd);
+#endif
+
+    MPlfd->setCaption( QFileDialog::tr("Enter multiprocess executable or saved experiment:") );
+//    MPlfd->setMode( QFileDialog::AnyFile );
+    QString types(
+                  "Any Files (*);;"
+                  "Image files (*.png *.xpm *.jpg);;"
+                  "Text files (*.txt);;"
+                  "(*.c *.cpp *.cxx *.C *.c++ *.f* *.F*);;"
+                  );
+    MPlfd->setFilters( types );
+//    MPlfd->setViewMode( QFileDialog::Detail );
+    MPlfd->setDir(dirName);
+
+  }
+
+  MPlfd->setSelection(QString::null);
+
+  QString fileName = QString::null;
+  if( MPlfd->exec() == QDialog::Accepted )
+  {
+    fileName = MPlfd->selectedFile();
+    if( !fileName.isEmpty() )
+    {
+#ifdef DEBUG_GUI
+      printf("loadNewMultiProcessProgram(), fileName.ascii() = (%s)\n", fileName.ascii() );
+#endif
+      QFileInfo fi(fileName);
+      if( !fi.isExecutable() )
+      {
+        QMessageBox::information( (QWidget *)this, tr("Info:"), tr("The selected file is not executable."), QMessageBox::Ok );
+        return;
+      }
+      executableName = fileName;
+      if( MPlfd->lineedit->text().isEmpty() ) {
+
+        // If you want a small dialog box to popup after hitting ok in the main dialog box then
+        // enable this Enter Arguments Dialog section of code directly following this comment line...
+        // BEGIN add Enter Arguments Dialog back in jeg 03/12/2007 #if 0
+        argsStr = QString::null;
+        bool ok;
+        argsStr = QInputDialog::getText("Enter Arguments Dialog:", QString("Enter command line arguments:"), QLineEdit::Normal, QString::null, &ok, this);
+        // END add Enter Arguments Dialog back in jeg 03/12/2007 #endif
+      } else
+      {
+        argsStr = MPlfd->lineedit->text();
+#ifdef DEBUG_GUI
+        printf("loadNewMultiProcessProgram(), line argsStr=(%s)\n", argsStr.ascii() );
+#endif
+      }
+      if( MPlfd->parallelPrefixLineedit->text().isEmpty() )
+      {
+        // If you want a small dialog box to popup after hitting ok in the main dialog box then
+        //   enable this Enter Arguments Dialog section of code directly following this comment line...
+#if 0
+        parallelPrefixCommandStr = QString::null;
+        bool ok;
+        parallelPrefixCommandStr = QInputDialog::getText("Enter Arguments Dialog:", QString("Enter parallel command prefix:"), QLineEdit::Normal, QString::null, &ok, this);
+#endif
+      } else {
+        parallelPrefixCommandStr = MPlfd->parallelPrefixLineedit->text();
+#ifdef DEBUG_GUI
+        printf("loadNewMultiProcessProgram(), parallelPrefixLinedit--> parallelPrefixCommandStr=(%s)\n", parallelPrefixCommandStr.ascii() );
+#endif
       }
     }
   }
@@ -1207,6 +1403,42 @@ void OpenSpeedshop::attachNewProcess()
         pidStr += pid_name;
       } else
       {
+        pidStr += ",";
+        pidStr += pid_name;
+      }
+      
+    }
+
+  }
+}
+
+void OpenSpeedshop::attachNewMultiProcess()
+{
+  mpiFLAG = FALSE;
+
+  if( MPafd == NULL ) {
+    MPafd = new AttachMPProcessDialog(this, "AttachMPProcessDialog", TRUE);
+  }
+
+  if( MPafd->exec() == QDialog::Accepted ) {
+    pidStrList = MPafd->selectedProcesses(&mpiFLAG);
+
+    pidStr = QString::null;
+    for( QStringList::Iterator it = pidStrList->begin();
+               it != pidStrList->end();
+               it++ )
+    {
+      QString qs = (QString)*it;
+
+      QString host_name = qs.section(' ', 0, 0, QString::SectionSkipEmpty);
+      QString pid_name = qs.section(' ', 1, 1, QString::SectionSkipEmpty);
+      QString prog_name = qs.section(' ', 2, 2, QString::SectionSkipEmpty);
+
+      hostStr = host_name;
+
+      if( pidStr == QString::null ) {
+        pidStr += pid_name;
+      } else {
         pidStr += ",";
         pidStr += pid_name;
       }
