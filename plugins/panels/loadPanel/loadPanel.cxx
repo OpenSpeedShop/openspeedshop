@@ -145,20 +145,20 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   loadPanelFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 0, 0, "Load Panel" );
 
   mainFrame = new QFrame( getBaseWidgetFrame(), "mainFrame" );
-  mainFrame->setMinimumSize( QSize(30,10) );
+  mainFrame->setMinimumSize( QSize(10,10) );
   mainFrame->setFrameShape( QFrame::StyledPanel );
   mainFrame->setFrameShadow( QFrame::Raised );
   mainFrame->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Maximum, 0, 0, FALSE ) );
   mainFrameLayout = new QVBoxLayout( mainFrame, 11, 6, "mainFrameLayout");
 
   mainWidgetStack = new QWidgetStack( mainFrame, "mainWidgetStack" );
-  mainWidgetStack->setMinimumSize( QSize(30,10) );
+  mainWidgetStack->setMinimumSize( QSize(10,10) );
   mainWidgetStack->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Maximum, 0, 0, FALSE ) );
 
 
 // Begin: AttachOrLoad page
   vALStackPage0 = new QWidget( mainWidgetStack, "vALStackPage0" );
-  vALStackPage0->setMinimumSize( QSize(30,10) );
+  vALStackPage0->setMinimumSize( QSize(10,10) );
   vALStackPage0->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred, 0, 0, FALSE ) );
 //  vALStackPage0Layout = new QVBoxLayout( vALStackPage0, 11, 6, "vALStackPage0Layout"); 
   vALStackPage0Layout = new QVBoxLayout( vALStackPage0, 0, 0, "vALStackPage0Layout"); 
@@ -174,8 +174,8 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
 
   vAttachOrLoadPageDescriptionLabel = new QTextEdit( vALStackPage0, "vAttachOrLoadPageDescriptionLabel" );
   vAttachOrLoadPageDescriptionLabel->setReadOnly(TRUE);
-  vAttachOrLoadPageDescriptionLabel->setMinimumSize( QSize(300,20) );
-  vAttachOrLoadPageDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, vAttachOrLoadPageDescriptionLabel->sizePolicy().hasHeightForWidth()  ) );
+  vAttachOrLoadPageDescriptionLabel->setMinimumSize( QSize(10,10) );
+  vAttachOrLoadPageDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, vAttachOrLoadPageDescriptionLabel->sizePolicy().hasHeightForWidth()  ) );
   vAttachOrLoadPageDescriptionLabel->setWordWrap( QTextEdit::WidgetWidth );
 
   vALStackPage0Layout->addWidget( vAttachOrLoadPageDescriptionLabel);
@@ -317,15 +317,15 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
 
 
   vMPStackPage1 = new QWidget( mainWidgetStack, "vMPStackPage1" );
-  vMPStackPage1->setMinimumSize( QSize(100,100) );
+//  vMPStackPage1->setMinimumSize( QSize(100,100) );
 
-  vMPStackPage1Layout = new QVBoxLayout( vMPStackPage1, 0, 0, "vMPStackPage1Layout"); 
+  vMPStackPage1Layout = new QVBoxLayout( vMPStackPage1, 7, 4, "vMPStackPage1Layout"); 
 //  vMPStackPage1Layout = new QVBoxLayout( vMPStackPage1, 11, 6, "vMPStackPage1Layout"); 
 
   vpage1sv = new QScrollView( vMPStackPage1, "vpage1sv" );
 
   vpage1big_box = new QVBox( vpage1sv->viewport(), "vpage1big_box" );
-  vpage1big_box->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Maximum, 0, 0, FALSE ) );
+  vpage1big_box->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
 //  vpage1big_box->setPaletteForegroundColor("Dark Green");
   vpage1sv->addChild(vpage1big_box);
 
@@ -350,128 +350,61 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   vMPLoadTitleLabel1->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
   vMPStackPage1Layout->addWidget( vMPLoadTitleLabel1 );
 
+  vMPLoadTitleLabel2 = new QLabel( vMPStackPage1, "vMPLoadTitleLabel2" );
+  vMPLoadTitleLabel2->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
+  vMPStackPage1Layout->addWidget( vMPLoadTitleLabel2 );
+
 
   // Create the parallel execution extra widget entities - parallel execution prefix label and text entry form  
   // Step 1: Enter MPI .... text for this label
-#if 1
+
   vMPLoadParallelPrefixLabel = new QLabel( vpage1big_box, "vMPLoadParallelPrefixLabel" );
   vMPLoadParallelPrefixLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
   vMPLoadParallelPrefixLineedit = new QLineEdit( vpage1big_box );
-#else
-  vMPLoadParallelPrefixLabel = new QLabel( vMPStackPage1, "vMPLoadParallelPrefixLabel" );
-  vMPLoadParallelPrefixLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
-  vMPLoadParallelPrefixLineedit = new QLineEdit( vMPStackPage1 );
-  vMPStackPage1Layout->addWidget( vMPLoadParallelPrefixLabel );
-  vMPStackPage1Layout->addWidget( vMPLoadParallelPrefixLineedit );
-
-#endif
 
   // Add the parallel execution text entry and label to the dialog form.
-#if 1
+
   vMPLoadPageLoadLabel = new QLabel( vpage1big_box, "vMPLoadPageLoadLabel");
 
   vMPLoadPageLoadButton = new QPushButton( vpage1big_box, "vMPLoadPageLoadButton");
   vMPLoadPageLoadButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, FALSE ) );
-//  vMPLoadPageLoadButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vMPLoadPageLoadButton->sizePolicy().hasHeightForWidth() ) );
 
   vMPLoadMPILoadLineedit = new QLineEdit( vpage1big_box );
   vMPLoadMPILoadLineedit->setMinimumSize( QSize(631,10) );
-//  vMPLoadMPILoadLineedit->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
   vMPLoadMPILoadLineedit->setReadOnly(TRUE);
-#else
-  vMPLoadPageLoadLabel = new QLabel( vMPStackPage1, "vMPLoadPageLoadLabel");
-
-  vMPLoadPageLoadButton = new QPushButton( vMPStackPage1, "vMPLoadPageLoadButton");
-  vMPLoadPageLoadButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vMPLoadPageLoadButton->sizePolicy().hasHeightForWidth() ) );
-
-  vMPLoadMPILoadLineedit = new QLineEdit( vMPStackPage1 );
-//  vMPLoadMPILoadLineedit->setMinimumSize( QSize(10,10) );
-//  vMPLoadMPILoadLineedit->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
-  vMPLoadMPILoadLineedit->setReadOnly(TRUE);
-  vMPStackPage1Layout->addWidget( vMPLoadPageLoadLabel );
-  vMPStackPage1Layout->addWidget( vMPLoadPageLoadButton );
-  vMPStackPage1Layout->addWidget( vMPLoadMPILoadLineedit );
-#endif
 
   // Add the parallel execution text entry and label to the dialog form.
 
   // Create the first extra widget entity - command line agrument label and text entry form
-#if 1
   vMPLoadCommandArgumentsLabel = new QLabel(vpage1big_box, "vMPLoadCommandArgumentsLabel" );
   vMPLoadCommandArgumentsLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
 
   vMPLoadPageArgBrowseButton = new QPushButton( vpage1big_box, "vMPLoadPageArgBrowseButton");
-//  vMPLoadPageArgBrowseButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vMPLoadPageArgBrowseButton->sizePolicy().hasHeightForWidth() ) );
   vMPLoadPageArgBrowseButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, FALSE ) );
 
   vMPLoadCommandArgumentsLineedit = new QLineEdit( vpage1big_box );
-#else
-  vMPLoadCommandArgumentsLabel = new QLabel(vMPStackPage1, "vMPLoadCommandArgumentsLabel" );
-  vMPLoadCommandArgumentsLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
-
-  vMPLoadPageArgBrowseButton = new QPushButton( vMPStackPage1, "vMPLoadPageArgBrowseButton");
-  vMPLoadPageArgBrowseButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vMPLoadPageArgBrowseButton->sizePolicy().hasHeightForWidth() ) );
-
-  vMPLoadCommandArgumentsLineedit = new QLineEdit( vMPStackPage1 );
-
-  vMPStackPage1Layout->addWidget( vMPLoadCommandArgumentsLabel );
-  vMPStackPage1Layout->addWidget( vMPLoadPageArgBrowseButton );
-  vMPStackPage1Layout->addWidget( vMPLoadCommandArgumentsLineedit );
-#endif
 
   // Add the entities to the dialog form
 
-#if 1
-//  vMPLoadPageShowLayout = new QHBoxLayout( 0, 0, 6, "vMPLoadPageShowLayout"); 
 
+#ifdef SHOWCOMMAND_ENABLED
   //  Show the command 
   vMPLoadMPIShowCommandLabel = new QLabel( vpage1big_box, "vMPLoadMPIShowCommandLabel" );
   vMPLoadMPIShowCommandLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
 
   vMPLoadPageShowButton = new QPushButton( vpage1big_box, "vMPLoadPageShowButton");
   vMPLoadPageShowButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, FALSE ) );
-//  vMPLoadPageShowButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vMPLoadPageShowButton->sizePolicy().hasHeightForWidth() ) );
 
   const QColor vpage0color = vMPStackPage1->paletteBackgroundColor();
 
   vMPLoadMPICommandLineedit = new QLineEdit( vpage1big_box );
   vMPLoadMPICommandLineedit->setReadOnly(TRUE);
-//  vMPLoadMPICommandLineedit->setBackgroundColor(vpage0color);
-//  vMPLoadMPICommandLineedit->setPaletteBackgroundColor(vpage0color);
-//  vMPLoadMPICommandLineedit->setMinimumSize( QSize(10,10) );
-//  vMPLoadMPICommandLineedit->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
-#else
-  //  Show the command 
-  vMPLoadMPIShowCommandLabel = new QLabel( vMPStackPage1, "vMPLoadMPIShowCommandLabel" );
-  vMPLoadMPIShowCommandLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
-
-  vMPLoadPageShowButton = new QPushButton( vMPStackPage1, "vMPLoadPageShowButton");
-  vMPLoadPageShowButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vMPLoadPageShowButton->sizePolicy().hasHeightForWidth() ) );
-
-  const QColor vpage0color = vMPStackPage1->paletteBackgroundColor();
-
-  vMPLoadMPICommandLineedit = new QLineEdit( vMPStackPage1 );
-  vMPLoadMPICommandLineedit->setReadOnly(TRUE);
-//  vMPLoadMPICommandLineedit->setBackgroundColor(vpage0color);
-//  vMPLoadMPICommandLineedit->setPaletteBackgroundColor(vpage0color);
-//  vMPLoadMPICommandLineedit->setMinimumSize( QSize(10,10) );
-//  vMPLoadMPICommandLineedit->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
-
-  vMPStackPage1Layout->addWidget( vMPLoadMPIShowCommandLabel );
-  vMPStackPage1Layout->addWidget( vMPLoadPageShowButton );
-  vMPStackPage1Layout->addWidget( vMPLoadMPICommandLineedit );
 
 #endif
 
-#if 1
   vMPLoadMPIAcceptCommandLabel = new QLabel( vpage1big_box, "vMPLoadMPIAcceptCommandLabel" );
   vMPLoadMPIAcceptCommandLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
-#else
-  vMPLoadMPIAcceptCommandLabel = new QLabel( vMPStackPage1, "vMPLoadMPIAcceptCommandLabel" );
-  vMPLoadMPIAcceptCommandLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
-  vMPStackPage1Layout->addWidget( vMPLoadMPIAcceptCommandLabel );
 
-#endif
   vMPStackPage1Layout->addWidget( vpage1sv);
 
   vMPLoadLine1 = new QFrame( vMPStackPage1, "vMPLoadLine1" );
@@ -480,7 +413,7 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   vMPLoadLine1->setFrameShadow( QFrame::Sunken );
   vMPStackPage1Layout->addWidget( vMPLoadLine1 );
 
-  vMPLoadSpacer = new QSpacerItem( 20, 30, QSizePolicy::Expanding, QSizePolicy::Expanding );
+  vMPLoadSpacer = new QSpacerItem( 10, 10, QSizePolicy::Expanding, QSizePolicy::Expanding );
   vMPStackPage1Layout->addItem( vMPLoadSpacer );
 
   vMPLoadButtonLayout = new QHBoxLayout( 0, 0, 6, "vMPLoadButtonLayout"); 
@@ -520,10 +453,8 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   printf("vpage1sv->viewport()->width()=%d\n", vpage1sv->viewport()->width());
 #endif
 
-#if 1
-  vpage1big_box->layout()->setResizeMode(QLayout::Minimum);
-  vpage1big_box->resize(vpage1sv->width(), vpage1sv->height());
-#endif
+//  vpage1big_box->layout()->setResizeMode(QLayout::Minimum);
+//  vpage1big_box->resize(vpage1sv->width(), vpage1sv->height());
 
 
 #ifdef DEBUG_loadPanel
@@ -576,13 +507,15 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
            SLOT( vMPLoadPageClearButtonSelected() ) );
 
   connect( vMPLoadPageFinishButton, SIGNAL( clicked() ), this,
-           SLOT( finishButtonSelected() ) );
+           SLOT( vMPLoadPageFinishButtonSelected() ) );
 
   connect( vMPLoadPageLoadButton, SIGNAL( clicked() ), this,
            SLOT( vMPLoadPageLoadButtonSelected() ) );
 
+#ifdef SHOWCOMMAND_ENABLED
   connect( vMPLoadPageShowButton, SIGNAL( clicked() ), this,
            SLOT( vMPLoadPageShowButtonSelected() ) );
+#endif
 
   connect( vMPLoadPageArgBrowseButton, SIGNAL( clicked() ), this,
            SLOT( vMPLoadPageArgBrowseSelected() ) );
@@ -636,7 +569,6 @@ loadPanel::languageChange()
 
   setCaption( tr( "Load Program Panel" ) );
 
-//  vAttachOrLoadPageDescriptionLabel->setText( tr( "Open|SpeedShop can attach to an existing running process (or running processes) or load an executable from disk.<br>It can also start a multiprocess job from disk or automatically attach to all the running processes/ranks of a MPI job.<br>Please select the desired action.  Note: A dialog will be raised, prompting for the information needed to load an executable or attach to a process.</p>") );
   vAttachOrLoadPageDescriptionLabel->setText( tr( "Open|SpeedShop can attach to an existing running process (or running processes) or load an executable from disk.  It can also start a multiprocess job from disk or automatically attach to all the running processes/ranks of a MPI job.  Please select the desired action.  Note: A dialog will be raised, prompting for the information needed to load an executable or attach to a process.") );
 
   vAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more already running processes/ranks/threads." ) );
@@ -666,22 +598,28 @@ loadPanel::languageChange()
   vMPLoadPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vMPLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
   vMPLoadParallelPrefixLabel->setText( tr("<b>Step 1:</b> Enter MPI Execution Prefix: (For example: mpirun -np 64 or srun -N 128 -n 128)") );
-  vMPLoadCommandArgumentsLabel->setText( tr("<b>Step 3:</b> Enter MPI program command line arguments: (if not entered in load program dialog) ") );
+  vMPLoadCommandArgumentsLabel->setText( tr("<b>Step 3:</b> Enter MPI program command line arguments: ") );
 
+#ifdef SHOWCOMMAND_ENABLED
   vMPLoadMPIShowCommandLabel->setText(tr("<b>Optional Step 4:</b> Review/Show the MPI Command Open|SpeedShop is building:") );
-  vMPLoadMPIAcceptCommandLabel->setText(tr("<b>Step 5:</b> When you are ready to accept the MPI Command Open|SpeedShop has built, click on the Next button to go to the Finish page.") );
+  vMPLoadMPIAcceptCommandLabel->setText(tr("<b>Step 5:</b> When you are ready to accept the MPI Command Open|SpeedShop has built, click on the Finish button to load the multiprocess program.") );
+  vMPLoadPageShowButton->setText( tr("Review") );
+  QToolTip::add( vMPLoadPageShowButton, tr( "Review the current MPI command that Open|SpeedShop is building." ) );
+#else
+  vMPLoadMPIAcceptCommandLabel->setText(tr("<b>Step 4:</b> When you are ready to accept the MPI Command Open|SpeedShop has built, click on the Finish button to load the multiprocess program.") );
+#endif
   vMPLoadPageLoadLabel->setText( tr("<b>Step 2:</b> Select the MPI executable you want to analyze:") );
   vMPLoadPageLoadButton->setText( tr("Browse") );
   vMPLoadPageArgBrowseButton->setText( tr("Browse") );
   QToolTip::add( vMPLoadPageArgBrowseButton, tr( "Raise a dialog box to choose an argument file." ) );
   QToolTip::add( vMPLoadPageLoadButton, tr( "Raise a dialog box to choose the MPI executable to run and analyze." ) );
-  vMPLoadPageShowButton->setText( tr("Review") );
-  QToolTip::add( vMPLoadPageShowButton, tr( "Review the current MPI command that Open|SpeedShop is building." ) );
 
-  vLAPageTitleLabel1->setText( tr( "<h3>Use O|SS on Sequential/Single Process Code</h3>" ) );
-  vLAPageTitleLabel2->setText( tr( "<h3>Use O|SS on MPI Code</h3>" ) );
+  vLAPageTitleLabel1->setText( tr( "<h4>Use O|SS on Sequential/Single Process Code</h4>" ) );
+  vLAPageTitleLabel2->setText( tr( "<h4>Use O|SS on MPI Code</h4>" ) );
 
   vMPLoadTitleLabel1->setText( tr( "<h4>Create a MPI job command including your application selection, by following these steps:</h4>" ) );
+  vMPLoadTitleLabel2->setText( tr( "\n" ) );
+
 
 #ifdef DEBUG_loadPanel
   printf("loadPanel::languageChanged() , exit\n");
@@ -996,6 +934,7 @@ void loadPanel::vMPLoadPageAcceptButtonSelected()
 
 }
 
+#ifdef SHOWCOMMAND_ENABLED
 void loadPanel::vMPLoadPageShowButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vMPLoadPageShowButtonSelected() \n");
@@ -1054,6 +993,7 @@ void loadPanel::vMPLoadPageShowButtonSelected()
 
 
 }
+#endif
 
 void loadPanel::vMPLoadPageLoadButtonSelected()
 {
@@ -1356,6 +1296,52 @@ void loadPanel::vMPLoadPageProcessAccept()
 #ifdef DEBUG_loadPanel
   printf("loadPanel::vMPLoadPageProcessAccept() EXITED \n");
 #endif
+
+}
+
+void loadPanel::vMPLoadPageFinishButtonSelected()
+{
+#ifdef DEBUG_loadPanel
+  printf("loadPanel::vMPLoadPageFinishButtonSelected() \n");
+#endif
+  // Check to see if any data was entered by the user.  If not or if
+  // incorrect go back to the vMPLoadPage and ask for the input
+  OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+  if(mw && 
+     vMPLoadParallelPrefixLineedit->text().isEmpty() ) {
+
+#ifdef DEBUG_loadPanel
+     printf("loadPanel::vMPLoadPageFinishButtonSelected(), need input for the parallel prefix and program to be loaded\n");
+     printf("loadPanel::vMPLoadPageFinishButtonSelected(), reraise the load parallel program page\n");
+#endif 
+
+    QString msg = QString("You must enter a parallel prefix that Open|SpeedShop will use to launch your MPI job.\nExamples are: \"orterun -np 2\" or \"srun -N 4 -n 8\".\n");
+    QMessageBox::information( (QWidget *)this, "Parallel command prefix needed...",
+                               msg, QMessageBox::Ok );
+    mainWidgetStack->raiseWidget(vMPStackPage1);
+    
+  }  
+  if(mw && 
+     vMPLoadMPILoadLineedit->text().isEmpty() ) {
+
+    QString msg = QString("You must select a parallel executable that Open|SpeedShop will launch as part of your MPI job.\nUse the \"Browse\" button found in \"Step 2\" to select your MPI executable.\n");
+    QMessageBox::information( (QWidget *)this, "Parallel executable needed...",
+                               msg, QMessageBox::Ok );
+  }  
+
+  if(mw && !vMPLoadParallelPrefixLineedit->text().isEmpty() ) {
+     mw->parallelPrefixCommandStr = vMPLoadParallelPrefixLineedit->text().ascii();
+  }
+
+  if(mw && !vMPLoadMPILoadLineedit->text().isEmpty() ) {
+     mw->executableName = vMPLoadMPILoadLineedit->text().ascii();
+  }
+
+#ifdef DEBUG_loadPanel
+    printf("loadPanel::finishButtonSelected(),else clause call vSummaryPageFinishButtonSelected()\n" );
+#endif
+    vSummaryPageFinishButtonSelected();
+
 
 }
 

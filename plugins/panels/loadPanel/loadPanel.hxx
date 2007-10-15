@@ -133,17 +133,23 @@ class loadPanel  : public Panel
     QPushButton *vMPLoadPageClearButton;
     QPushButton* vMPLoadPageLoadButton;
     QPushButton* vMPLoadPageArgBrowseButton;
-    QPushButton *vMPLoadPageShowButton;
     QPushButton *vMPLoadPageAcceptButton;
     QLineEdit* vMPLoadMPILoadLineedit;
+    QLabel* vMPLoadTitleLabel0;
     QLabel* vMPLoadTitleLabel1;
+    QLabel* vMPLoadTitleLabel2;
     QFrame* vMPLoadLine1;
     QLabel* vMPLoadParallelPrefixLabel;
     QLineEdit* vMPLoadParallelPrefixLineedit;
     QLabel* vMPLoadCommandArgumentsLabel;
     QLineEdit* vMPLoadCommandArgumentsLineedit;
     QLabel* vMPLoadPageLoadLabel;
+#ifdef SHOWCOMMAND_ENABLED
     QLabel* vMPLoadMPIShowCommandLabel;
+    QPushButton *vMPLoadPageShowButton;
+    // put into public slots if enabled at some point
+    virtual void vMPLoadPageShowButtonSelected();
+#endif
     QLabel* vMPLoadMPIAcceptCommandLabel;
     QLineEdit* vMPLoadMPICommandLineedit;
     QString vMPLoadPageLoadMPHostName;
@@ -156,7 +162,6 @@ class loadPanel  : public Panel
     QCheckBox* vMPLoadLoadDifferentExecutableCheckBox;
     QCheckBox* vMPLoadLoadDifferentMultiProcessExecutableCheckBox;
     QFrame* vMPLoadLine2;
-    QLabel* vMPLoadTitleLabel2;
     QScrollView *vpage1sv;
     QVBox *vpage1big_box;
     QSpacerItem* vMPLoadButtonSpacer;
@@ -165,7 +170,11 @@ class loadPanel  : public Panel
     QVBoxLayout* vMPLoadPageLayout;
     QHBoxLayout* vMPLoadPageSelectLayout;
     QHBoxLayout* vMPLoadPageArgSelectLayout;
+#ifdef SHOWCOMMAND_ENABLED
     QHBoxLayout* vMPLoadPageShowLayout;
+#endif
+
+
     QLabel *vMPLoadProcessListLabel;
     QLabel *vMPLoadMultiProcessListLabel;
     QLabel *vMPLoadMultiProcessExecutableLabel;
@@ -197,11 +206,11 @@ class loadPanel  : public Panel
     virtual void vMPLoadPageBackButtonSelected();
     virtual void vMPLoadPageClearButtonSelected();
     virtual void vMPLoadPageLoadButtonSelected();
-    virtual void vMPLoadPageShowButtonSelected();
     virtual void vMPLoadPageAcceptButtonSelected();
     virtual void vMPLoadPageArgBrowseSelected();
     virtual void vSummaryPageFinishButtonSelected();
     virtual void finishButtonSelected();
+    virtual void vMPLoadPageFinishButtonSelected();
 
   protected:
     //! Sets the language specific strings.
