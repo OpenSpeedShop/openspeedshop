@@ -3672,6 +3672,7 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
   infoString = QString("");
   metaDataTextEdit->setCursorPosition(0, 0);
   metaDataTextEdit->hide();
+  infoEditHeaderMoreButton->setText( tr( "More Metadata" ) );
   metaDataTextEdit->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, metaDataTextEdit->sizePolicy().hasHeightForWidth() ) );
   metaDataTextEditFLAG = FALSE;
 //#endif
