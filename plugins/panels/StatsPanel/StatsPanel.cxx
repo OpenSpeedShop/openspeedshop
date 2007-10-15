@@ -1354,8 +1354,8 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 #ifndef COLUMNS_MENU
   int id = 0;
   QPopupMenu *columnsMenu = new QPopupMenu(this);
-  columnsMenu->setCaption("Columns Menu");
-  contextMenu->insertItem("&Columns Menu", columnsMenu, CTRL+Key_C);
+  columnsMenu->setCaption("Manage Columns Menu Options");
+  contextMenu->insertItem("&Manage Columns Menu Options", columnsMenu, CTRL+Key_C);
 
   for( ColumnList::Iterator pit = columnHeaderList.begin();
            pit != columnHeaderList.end();
