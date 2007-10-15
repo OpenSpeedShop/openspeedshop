@@ -288,6 +288,7 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   vAttachOrLoadPageFinishButton = new QPushButton( vALStackPage0, "vAttachOrLoadPageFinishButton" );
   vAttachOrLoadPageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageFinishButton->sizePolicy().hasHeightForWidth() ) );
   vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageFinishButton );
+  vAttachOrLoadPageFinishButton->setEnabled(FALSE);
 
   vALStackPage0Layout->addLayout( vAttachOrLoadPageButtonLayout );
   mainWidgetStack->addWidget( vALStackPage0, 1 );
@@ -585,7 +586,7 @@ loadPanel::languageChange()
   vAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
   vAttachOrLoadPageFinishButton->setText( tr( ">> Finish" ) );
-  QToolTip::add( vAttachOrLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
+  QToolTip::add( vAttachOrLoadPageFinishButton, tr( "Not active, present in this page for consistent use of buttons." ) );
 
 
   // Set language specific information here.
@@ -594,7 +595,7 @@ loadPanel::languageChange()
   vMPLoadPageClearButton->setText( tr( "Reset" ) );
   QToolTip::add( vMPLoadPageClearButton, tr( "This resets all settings restoring them to system defaults." ) );
   vMPLoadPageNextButton->setText( tr( "> Next" ) );
-  QToolTip::add( vMPLoadPageNextButton, tr( "Advance to the next wizard page." ) );
+  QToolTip::add( vMPLoadPageNextButton, tr( "Not active, present in this page for consistent use of buttons." ) );
   vMPLoadPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vMPLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
   vMPLoadParallelPrefixLabel->setText( tr("<b>Step 1:</b> Enter MPI Execution Prefix: (For example: mpirun -np 64 or srun -N 128 -n 128)") );
