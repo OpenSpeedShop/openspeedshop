@@ -41,6 +41,7 @@
 #include <qdialog.h>
 
 
+#ifdef MPP
 void
 AttachProgramDialog::parallelCBSelected()
 {
@@ -150,6 +151,7 @@ AttachProgramDialog::parallelSaveCBSelected()
 
 }
 
+#endif
 
 
 
@@ -188,6 +190,7 @@ AttachProgramDialog::AttachProgramDialog( QWidget* parent, const char* name, boo
   // Add the entities to the dialog form
   addWidgets( label, lineedit, (QPushButton *)NULL );
 
+#ifdef MPP
   // Create the parallel execution extra widget entities - parallel job execution prefix checkbox and label
   // This indicates whether we should use the parallel prefix text or ignore it when forming the command.
   pCBlabel = new QLabel( tr("Parallel job launch?  Show parallel execution prefix (mpirun, srun, etc.) entry fields:"), this );
@@ -217,6 +220,7 @@ AttachProgramDialog::AttachProgramDialog( QWidget* parent, const char* name, boo
   parallelPrefixLineedit->hide();
   parallelSaveCB->hide();
   psaveCBlabel->hide();
+#endif
 
 //  printf("AttachProgramDialog::AttachProgramDialog() constructor exits.\n");
 }
@@ -251,10 +255,12 @@ void AttachProgramDialog::accept()
 //  printf("AttachProgramDialog::accept(), parallelPrefixLineedit->text().ascii()=%s\n", 
 //         parallelPrefixLineedit->text().ascii() );
 
+#ifdef MPP
   usersParallelPrefixCommand = QString(parallelPrefixLineedit->text().ascii());
   usersParallelPrefixCommand.append(" "); // add spacing to the input prefix, need to separate it from command
   // Make sure the parallel prefix command is saved if it is needed to be saved.
   parallelSaveCBSelected();
+#endif
   // We need to call the main dialog accept or else we hang....
   QDialog::accept();
 
