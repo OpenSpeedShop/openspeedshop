@@ -3390,7 +3390,7 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 #endif
   if( list_of_pids.size() > 0 )
   {
-    infoString += QString("\n  Pids, Ranks or Processes: ");
+    infoString += QString("\n  Processes, Ranks or Threads: ");
     bool first_time = true;
     int pid_count = 0;
     for( std::list<int64_t>::const_iterator it = list_of_pids.begin();
@@ -3466,7 +3466,9 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 
 
       } else {
+#ifdef DEBUG_StatsPanel
        printf("ERROR - pids not ascending\n");
+#endif
       } 
 #ifdef DEBUG_StatsPanel
      printf("StatsPanel::updateStatsPanelInfoHeader, SET prev at end of for, previous_pid=%d, pid=%d\n", previous_pid, pid );
@@ -3628,11 +3630,11 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 #endif
 
       if (pid_count == 1) {
-        infoSummaryStr += QString("Pid/Rank/Thread: ");
+        infoSummaryStr += QString("Process/Rank/Thread: ");
 //        infoSummaryStr += QString("<b>Pid/Rank/Thread:</b> ");
       } else {
-        infoSummaryStr += QString("Pids/Ranks/Threads:(%1) ").arg(pid_count);
-//        infoSummaryStr += QString("<b>Pids/Ranks/Threads:</b>(%1) ").arg(pid_count);
+        infoSummaryStr += QString("Processes/Ranks/Threads:(%1) ").arg(pid_count);
+//        infoSummaryStr += QString("<b>Processes/Ranks/Threads:</b>(%1) ").arg(pid_count);
       }
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::updateStatsPanelInfoHeader, BFOR adding pidStr=(%s) to infoSummaryStr=(%s)\n", 
@@ -3683,8 +3685,8 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
      infoSummaryStr += QString("Pid/Rank/Thread: ");
 //    infoSummaryStr += QString("\n<b>Pid/Rank/Thread:</b> ");
    } else {
-     infoSummaryStr += QString("Pids/Ranks/Threads:(%1) ").arg(list_of_hosts.size());
-//    infoSummaryStr += QString("\n<b>Pids/Ranks/Threads:</b>(%1) ").arg(list_of_hosts.size());
+     infoSummaryStr += QString("Processes/Ranks/Threads:(%1) ").arg(list_of_hosts.size());
+//    infoSummaryStr += QString("\n<b>Processes/Ranks/Threads:</b>(%1) ").arg(list_of_hosts.size());
    }
 
    std::list<int64_t>::const_iterator pid_it = list_of_pids.begin();
