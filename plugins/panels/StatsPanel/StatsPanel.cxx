@@ -20,7 +20,7 @@
 //
 // To enable debuging uncomment define DEBUG_StatsPanel statement
 //
-#define DEBUG_StatsPanel 1
+//#define DEBUG_StatsPanel 1
 //
 
 
