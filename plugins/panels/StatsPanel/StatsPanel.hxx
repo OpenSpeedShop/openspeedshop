@@ -229,6 +229,7 @@ class StatsPanel  : public Panel
     std::list<std::string> list_of_hosts;
     std::list<std::string> list_of_executables;
     std::list<std::string> list_of_appcommands;
+    std::list<std::string> list_of_types;
     std::list<std::string> list_of_dbnames;
     std::list<std::string> list_of_collectors_metrics;
     std::list<std::string> list_of_collectors;
@@ -260,6 +261,7 @@ class StatsPanel  : public Panel
     void setLastCommand(QString value) { lastCommand = value; } ;
     void updateThreadsList();
     void getApplicationCommand(int expID);
+    void getExperimentType(int expID);
     void getDatabaseName(int expID);
     void getPidList(int expID);
     void getHostList(int expID);

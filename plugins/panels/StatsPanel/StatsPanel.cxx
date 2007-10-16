@@ -20,7 +20,7 @@
 //
 // To enable debuging uncomment define DEBUG_StatsPanel statement
 //
-//#define DEBUG_StatsPanel 1
+#define DEBUG_StatsPanel 1
 //
 
 
@@ -2897,6 +2897,58 @@ void StatsPanel::getApplicationCommand(int exp_id)
  }
 }
 
+
+void StatsPanel::getExperimentType(int exp_id)
+{
+// Now get the executables
+  QString command = QString::null;
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getExperimentType exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
+#endif
+
+ if( exp_id > 0 || focusedExpID > 0 ) {
+//  currentThreadStrENUM = UNKNOWN;
+  if( focusedExpID == -1 ) {
+    command = QString("list -v types -x %1").arg(exp_id);
+  } else {
+    command = QString("list -v types -x %1").arg(focusedExpID);
+  }
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getExperimentType-attempt to run (%s)\n", command.ascii() );
+#endif
+
+  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  list_of_types.clear();
+  InputLineObject *clip = NULL;
+  if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
+         &list_of_types, clip, TRUE ) )
+  {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getExperimentType, ran %s, list_of_types.size()=%d\n", command.ascii(), list_of_types.size() );
+#endif
+
+  if( list_of_types.size() > 1 )
+  {
+    for( std::list<std::string>::const_iterator it = list_of_types.begin();
+         it != list_of_types.end(); it++ )
+    {
+      std::string types = *it;
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::getExperimentType, types=(%s)\n", types.c_str() );
+#endif
+    }
+  }
+ } else {
+  list_of_types.clear();
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getExperimentType, not valid exp_id=%d, no types\n", exp_id);
+#endif
+ }
+}
+
 #ifdef DBNAMES
 void StatsPanel::getDatabaseName(int exp_id)
 {
@@ -3147,7 +3199,9 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
   list_of_pids.clear();
   list_of_executables.clear();
   list_of_appcommands.clear();
+  list_of_types.clear();
 
+  getExperimentType(exp_id);
   getApplicationCommand(exp_id);
   getExecutableList(exp_id);
 #ifdef DBNAMES
@@ -3285,6 +3339,25 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 #endif
       infoString += QString(" %1 ").arg(executableStr);
 //      if (executable_count > 6) break;
+    }
+
+  }
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::updateStatsPanelInfoHeader() , list_of_types.size()=%d\n", list_of_types.size());
+#endif
+  if( list_of_types.size() > 0 )
+  {
+    infoString += QString("\n  Experiment type: ");
+    for( std::list<std::string>::const_iterator it = list_of_types.begin();
+         it != list_of_types.end(); it++ )
+    {
+      std::string types = *it;
+      QString typesStr = QString("%1").arg(types.c_str());
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::updateStatsPanelInfoHeader, types=(%s)\n", types.c_str() );
+#endif
+      infoString += QString(" %1 ").arg(typesStr);
     }
 
   }
@@ -3897,6 +3970,11 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   connect( progressTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
   pd->show();
 //progressUpdate();
+#ifdef DEBUG_StatsPanel
+  printf("updateStatsPanelData,sort command?, command.ascii()=%s\n", command.ascii());
+  fflush(stdout);
+  fflush(stderr);
+#endif
   progressTimer->start(0);
   pd->infoLabel->setText( QString("Running command - %1").arg(command) );
   qApp->flushX();
