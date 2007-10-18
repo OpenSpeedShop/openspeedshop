@@ -19,7 +19,7 @@
 
 # Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
 
-CFLAGS =    -DBINDIR=\"@VT_DIR@/bin\" -DDATADIR=\"@VT_DIR@/share/vampirtrace\" -DVT_MPI -O0 -g -fPIC -shared -DRFG -DVT_BFDSYMCOLLECT -DVT_MEMHOOK -DVT_METR 
+CFLAGS =    -DBINDIR=\"@VT_DIR@/bin\" -DDATADIR=\"@VT_DIR@/share/vampirtrace\" -DVT_MPI -O0 -g -fPIC -shared -DRFG -DVT_BFDSYMCOLLECT -DVT_MEMHOOK 
 
 BUILT_SOURCES = \
 	blobs.h blobs.c	
