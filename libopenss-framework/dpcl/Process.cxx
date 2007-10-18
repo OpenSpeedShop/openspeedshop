@@ -3416,9 +3416,28 @@ void Process::threadListChangeCallback(GCBSysType, GCBTagType,
 	}
 
 	CollectorGroup collectors;
+        // We need to update the newly created threads corresponding to ranks
+        // on thread based mpi implementations.  So, at this point we will
+        // get the mpi implementation set into existing/original threads/ranks
+        // and place the implementation name into the newly created thread/rank.
+        // Look for references to the next data items for the code to do this.
+        bool has_mpiimpl = false;
+        std::pair<bool, std::string> mpiImpl; 
+        std::string mpiImplname = "";
 	// Iterate over the original threads associated with this process
 	for(ThreadGroup::const_iterator
 		i = original.begin(); i != original.end(); ++i) {
+
+              // Don't test if we already have it.
+            if (!has_mpiimpl) {
+                 mpiImpl = (*i).getMPIImplementation();
+            }
+
+            // only find it once.
+            if(mpiImpl.first && !has_mpiimpl) {
+               has_mpiimpl= true;
+               mpiImplname = mpiImpl.second;
+            } 
 
 	    // Does created thread not exist in original thread's database?
 	    if(!i->doesSiblingExist(tid)) {
@@ -3426,9 +3445,12 @@ void Process::threadListChangeCallback(GCBSysType, GCBTagType,
 		// Copy the original thread for representing the created thread
 		Thread t = i->createCopy();
 		t.setPosixThreadId(tid);
+                if (has_mpiimpl) {
+                    t.setMPIImplementation(mpiImplname);
+                } 
 		added.insert(t);			    
 		
-	    }
+	    } 
 
 	    collectors = i->getCollectors();
 
@@ -3440,8 +3462,10 @@ void Process::threadListChangeCallback(GCBSysType, GCBTagType,
 	    
 	    // Add all the new threads to the process table
 	    for(ThreadGroup::const_iterator
-		    i = added.begin(); i != added.end(); ++i)
+		    i = added.begin(); i != added.end(); ++i) {
 		ProcessTable::TheTable.addThread(*i);
+
+            }
 	}
 
 	// Request the current in-memory address space of this process
