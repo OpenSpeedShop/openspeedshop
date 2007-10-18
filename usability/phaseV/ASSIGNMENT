@@ -1,0 +1,167 @@
+################################################################################
+# Copyright (c) 2007 The Krell Institue. All Rights Reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+
+                         Usability Study
+
+
+Introduction:
+-------------
+
+For this assignment you'll be asked to create performance
+analysis output by creating and running an Open|SpeedShop 
+performance experiment on an mpi application.
+
+There is no time constraint to "correctly" complete this task.
+
+Please try to "think out loud" as you work through the scenario.   
+It will help us understand where our problems are.
+
+Remember:  You are not being tested.    The user interface and it's
+ease of use, is really what is being analyzed.   Your initial feedback 
+and thoughts as you navigate through this set of tasks will enable 
+us to see our ease of use problem areas.
+
+
+Open|SpeedShop was designed by SGI in cooperation with several national
+labs and is now being supported by the Krell Institute.   
+
+The executable is, "openss".   
+There is a man page, "man openss".
+
+Thanks!
+
+
+
+
+The Scenario:
+-------------
+
+In this directory there is a subdirectory named lampi where a LA-MPI version
+of sweep3d compiled with the PGI 6.1-3 compiler is located.  The sweep3d source
+was modified to contain an algorithm change that degrades performance for one
+of the ranked processes.
+
+In general we're asking you to run OpenSpeedShop on this version of sweep3d using
+the OpenSpeedShop graphical user interface (GUI) and to try to determine where
+the performance problem is occurring.  
+
+Typically, and in this case sweep3d.mpi is launching using the mpirun command
+in a form such as this: mpirun -np 8 sweep3d.mpi.
+
+
+The Assignment:
+-----------------------------------------------
+PHASE 1: Run and Analyze Live Data
+-----------------------------------------------
+Step 0:
+
+>From the lampi subdirectory, run the sweep3d.mpi application
+outside of OpenSpeedShop using this command: ./mpirun -np 8 sweep3d.mpi.
+
+
+Step 1:
+
+Launch one xterm window.
+
+>From the lampi subdirectory, launch the OpenSpeedShop GUI.
+
+Note: We will have to intervene once you have launched OpenSpeedShop
+      because OpenSpeedShop isn't fully automated for starting multiprocess
+      jobs.  This happens before step 2.
+
+
+Step 2:
+
+Use the OpenSpeedShop wizard to launch the sweep3d.mpi executable 
+using the lampi mpirun present in the current working directory.
+We want to determine what part of the sweep3d program is taking 
+the most time.
+
+NOTE: Use the same basic mpi command syntax you used above to launch 
+      sweep3d.mpi outside of OpenSpeedShop.
+
+
+Step 3:
+
+When the experiment completes the Stats Panel will pop up.
+
+After that happens can you determine which routine is the 
+taking the most time.  Is it in the sweep3d application?  
+Where is it's source file located?
+
+Step 4:
+
+Save the performance data results from this experiment to a
+file for analysis for another time in the future.
+
+Step 5:
+
+Exit the OpenSpeedShop tool.
+
+---------------------------------------------------------
+PHASE 2: Load and Analyze Previously Generated/Saved Data
+---------------------------------------------------------
+
+Step 1:
+
+Launch the OpenSpeedShop GUI and open the previously 
+saved experiment file named, sweep3d-256p.openss.
+
+
+Step 2: 
+
+Find out on which host this experiment was run and also how many
+processes were used.
+
+
+Step 3:
+
+Show the results "by function" for the routine that is taking 
+the most time.  
+
+Step 4:
+
+Go to statement that is taking the most time in the source file 
+of the routine taking the most amount of time.  
+
+Step 5:
+
+Regenerate the results for the whole application displaying the
+results "by function".
+
+
+Step 6:
+
+Find out if any of the ranked processes are taking more time 
+than the others.
+
+
+Step 7:
+
+Show the performance results for the rank 0 process only saving
+the original StatsPanel results.
+
+Step 8:
+
+Compare the performance data from rank 0 to the performance data 
+from rank 1.
+
+Step 9:
+
+Exit the OpenSpeedShop tool.
