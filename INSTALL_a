@@ -1,0 +1,64 @@
+****
+****
+USE THIS WHEN YOU HAVE ROOT ACCESS AND CAN INSTALL RPMS.  
+or would like to install as none root using cpio
+****
+****
+
+This directory setup will hopefully make it
+easier to build and install OpenSpeedShop once support tools
+have been built.
+
+The script, Build-RPM, will create the component RPM
+in the RPMS directory.   Build-RPM takes the spec
+file name of the component as input.  The spec
+files are in the SPECS directory.  Here is the
+key OpenSpeedShop spec file that will be found in the
+SPECS directory for the current version of OpenSpeedShop:
+
+openspeedshop-1.00.spec
+
+First setup the loaction where you want you default install to be
+
+   Set envronment variables
+   setenv OPENSSROOT_PREFIX /<path for install>
+   setenv OPENSSROOT_DEPEND /<path for initial support product install>
+   setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH:/<path for initial support product install>/<lib>
+    or
+   export OPENSSROOT_PREFIX=/<path for install>
+   export OPENSSROOT_DEPEND=/<path for initial support product install>
+   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/<path for initial support product install>/<lib>
+
+
+
+Build OpenSpeedShop and install it 
+
+   From the OpenSpeedShop_ROOT directory do:
+   ./Build-RPM openspeedshop-1.00
+
+   If you have root:
+   cd RPMS/<platform>
+   su
+   rpm --install openspeedshop.<platform>.rpm
+
+   If you don't have root and want to install via cpio
+   for each rpm
+     rpm2cpio <product>.rpm > <product>.cpio
+     move <product>.cpio to a location from where it will
+       install it's OPENSSROOT_PREFIX path
+     cpio -i --make-directories < <product>.cpio
+
+
+
+set additional envronment variables
+   setenv PATH $PATH:/<path for initial support product install>/<bin>
+    or
+   export PATH=$PATH:/<path for initial support product install>/<bin>
+
+
+You are now ready to execute OpenSpeedShop
+
+openss &
+
+
+
