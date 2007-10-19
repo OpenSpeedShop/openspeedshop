@@ -52,17 +52,16 @@ Thanks!
 The Scenario:
 -------------
 
-In this directory there is a subdirectory named lampi where a LA-MPI version
-of sweep3d compiled with the PGI 6.1-3 compiler is located.  The sweep3d source
-was modified to contain an algorithm change that degrades performance for one
-of the ranked processes.
+There is a directory /g/g24/jeg/demo/sweep3d where a where a LA-MPI version
+of sweep3d is located.  The sweep3d source was modified to contain an algorithm 
+change that degrades performance for one of the ranked processes.
 
 In general we're asking you to run OpenSpeedShop on this version of sweep3d using
 the OpenSpeedShop graphical user interface (GUI) and to try to determine where
 the performance problem is occurring.  
 
-Typically, and in this case sweep3d.mpi is launching using the mpirun command
-in a form such as this: mpirun -np 8 sweep3d.mpi.
+Typically, and in this case sweep3d.mpi is launched using the srun command
+in a form such as this: srun -N 4 -n 8 sweep3d.mpi.
 
 
 The Assignment:
@@ -71,27 +70,21 @@ PHASE 1: Run and Analyze Live Data
 -----------------------------------------------
 Step 0:
 
->From the lampi subdirectory, run the sweep3d.mpi application
-outside of OpenSpeedShop using this command: ./mpirun -np 8 sweep3d.mpi.
+From the /g/g24/jeg/demo/sweep3d subdirectory, run the sweep3d.mpi application
+outside of OpenSpeedShop using this command: srun -N 4 -n 8 sweep3d.mpi.  This 
+verifies that sweep3d.mpi runs outside of OpenSpeedShop.
 
 
 Step 1:
 
-Launch one xterm window.
 
->From the lampi subdirectory, launch the OpenSpeedShop GUI.
-
-Note: We will have to intervene once you have launched OpenSpeedShop
-      because OpenSpeedShop isn't fully automated for starting multiprocess
-      jobs.  This happens before step 2.
+From the same subdirectory, launch the OpenSpeedShop GUI.
 
 
 Step 2:
 
 Use the OpenSpeedShop wizard to launch the sweep3d.mpi executable 
-using the lampi mpirun present in the current working directory.
-We want to determine what part of the sweep3d program is taking 
-the most time.
+to determine what part of the sweep3d program is taking the most time.
 
 NOTE: Use the same basic mpi command syntax you used above to launch 
       sweep3d.mpi outside of OpenSpeedShop.
