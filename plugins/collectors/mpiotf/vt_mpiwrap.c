@@ -65,6 +65,12 @@ int MPI_Init( int *argc, char ***argv )
   /* shall I trace MPI events? */
   vt_mpi_trace_is_on = vt_mpitrace = vt_env_mpitrace();
 
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, MPI_Init called, IS_TRACE_ON = %d, vt_enter_user_called=%d \n", 
+            IS_TRACE_ON, vt_enter_user_called);
+    fflush(stderr);
+  }
+
   if (IS_TRACE_ON)
     {
       TRACE_OFF();
@@ -2925,6 +2931,12 @@ int mpiotf_PMPI_Init( int *argc, char ***argv )
   
   /* shall I trace MPI events? */
   vt_mpi_trace_is_on = vt_mpitrace = vt_env_mpitrace();
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, mpiotf_PMPI_Init called, IS_TRACE_ON = %d, vt_enter_user_called=%d \n", 
+            IS_TRACE_ON, vt_enter_user_called);
+    fflush(stderr);
+  }
 
   if (IS_TRACE_ON)
     {

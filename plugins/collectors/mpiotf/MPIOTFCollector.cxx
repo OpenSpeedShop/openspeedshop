@@ -22,6 +22,10 @@
  * Definition of the MPIOTFCollector class.
  *
  */
+
+// DEBUG FLAG - comment out next line to turn off debugging
+//#define DEBUG_MPIOTF 1
+// 
  
 #include "MPIOTFCollector.hxx"
 #include "MPIOTFDetail.hxx"
@@ -180,8 +184,6 @@ MPIOTFCollector::MPIOTFCollector() :
                            typeid(CallDetails)));
 }
 
-
-
 /**
  * Get the default parameter values.
  *
@@ -293,7 +295,7 @@ void MPIOTFCollector::startCollecting(const Collector& collector,
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_mpit_start_tracing_args),
                    &args);
     
-#if 0
+#if DEBUG_MPIOTF
   fprintf(stderr, "ENTER-STARTUP---MPIOTFCollector::startCollecting, entered for thread\n");
   fflush(stderr);
 #endif
@@ -311,19 +313,24 @@ void MPIOTFCollector::startCollecting(const Collector& collector,
     // mpiotf_openss_vt_init() is the VampirTrace initialization routine.
     for(RuntimeUsageMap::const_iterator
 	    i = runtime_usage_map.begin(); i != runtime_usage_map.end(); ++i) {
-#if 0
-  fprintf(stderr, "ENTER-STARTUP---MPIOTFCollector::startCollecting, executeBeforeExitMPI for mpiotf_openss_vt_init\n");
-  fflush(stderr);
+
+        if (threads.areAllState(Thread::Suspended) ) {
+
+#if DEBUG_MPIOTF
+           fprintf(stderr, "MPIOTFCollector::startCollecting, state==Thread::Suspended,calling executeBeforeExitMPI for mpiotf_openss_vt_init\n");
+           fflush(stderr);
 #endif
-	executeBeforeExitMPI(collector, i->second,
-			     i->first + ": mpiotf_openss_vt_init", Blob());
+       	   executeBeforeExitMPI(collector, i->second,
+	               	     i->first + ": mpiotf_openss_vt_init", Blob());
+        } else {
+#if DEBUG_MPIOTF
+           fprintf(stderr, "MPIOTFCollector::startCollecting, state==NOT ALL Thread::Suspended,calling executeBeforeExitMPI for mpiotf_openss_vt_init\n");
+           fflush(stderr);
+#endif
+
+        }
     }
     
-    // Execute mpiotf_start_tracing() in the threads
-    for(RuntimeUsageMap::const_iterator
-	    i = runtime_usage_map.begin(); i != runtime_usage_map.end(); ++i)
-	executeNow(collector, i->second,
-		   i->first + ": mpiotf_start_tracing", arguments);
 
     // Execute our wrappers in place of the real MPI functions
     for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)	
@@ -332,7 +339,7 @@ void MPIOTFCollector::startCollecting(const Collector& collector,
 	    
 	    std::string P_name = std::string("P") + TraceableFunctions[i];
             
-#if 0
+#if DEBUG_MPIOTF
             if (i == 0 || i == 50) {
               fprintf(stderr, "partial list only: MPIOTFCollector::startCollecting, do executeInPlaceOf for: %s%s\n", 
                     "mpiotf_", P_name.c_str());
@@ -348,7 +355,31 @@ void MPIOTFCollector::startCollecting(const Collector& collector,
 				 P_name, i->first + ": mpiotf_" + P_name);
 	    
 	}
-#if 0
+
+    // Execute mpiotf_start_tracing() in the threads
+    for(RuntimeUsageMap::const_iterator
+	    i = runtime_usage_map.begin(); i != runtime_usage_map.end(); ++i) {
+
+        if (threads.areAllState(Thread::Running)) {
+#if DEBUG_MPIOTF
+           fprintf(stderr, "MPIOTFCollector::startCollecting, state==Thread::Running,calling executeNow for mpiotf_openss_vt_init\n");
+           fflush(stderr);
+#endif
+	  executeNow(collector, i->second,
+	  	   i->first + ": mpiotf_openss_vt_init", Blob());
+        } else {
+#if DEBUG_MPIOTF
+           fprintf(stderr, "MPIOTFCollector::startCollecting, state==NOT ALL Thread::Running,calling executeNow for mpiotf_openss_vt_init\n");
+           fflush(stderr);
+#endif
+
+        }
+
+	executeNow(collector, i->second,
+		   i->first + ": mpiotf_start_tracing", arguments);
+    }
+
+#if DEBUG_MPIOTF
   fprintf(stderr, "EXIT-STARTUP------MPIOTFCollector::startCollecting, exiting thread\n");
   fflush(stderr);
 #endif
@@ -367,7 +398,7 @@ void MPIOTFCollector::startCollecting(const Collector& collector,
 void MPIOTFCollector::stopCollecting(const Collector& collector,
 				     const ThreadGroup& threads) const
 {
-#if 0
+#if DEBUG_MPIOTF
   fprintf(stderr, "ENTER-FINISHUP------MPIOTFCollector::stopCollecting, entered\n");
   fflush(stderr);
 #endif
@@ -383,7 +414,8 @@ void MPIOTFCollector::stopCollecting(const Collector& collector,
     
     // Remove instrumentation associated with this collector/threads pairing
     uninstrument(collector, threads);
-#if 0
+
+#if DEBUG_MPIOTF
   fprintf(stderr, "EXIT-FINISHUP------MPIOTFCollector::stopCollecting, exiting\n");
   fflush(stderr);
 #endif

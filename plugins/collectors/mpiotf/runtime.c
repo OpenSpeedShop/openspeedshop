@@ -27,6 +27,8 @@
 #include "blobs.h"
 #include "runtime.h"
 
+int debug_trace = 0;
+
 int outputOTF = 0;
 int onlyOutputOTF = 0;
 
@@ -40,7 +42,6 @@ int vt_mpi_trace_is_on = 1;
 
 #include "vt_openss.h"
 
-int debug_trace = 0;
 
 /** Number of overhead frames in each stack frame to be skipped. */
 #if defined(__linux) && defined(__ia64)
@@ -326,6 +327,10 @@ if (debug_trace) {
         time = vt_pform_wtime();
         vt_enter_user(&time);
         vt_enter_user_called = 1;
+        if (debug_trace) {
+          fprintf(stderr, "mpiotf_openss_vt_init called, returned from vt_enter_user, SET vt_enter_user_called=1() \n");
+          fflush(stderr);
+        }
       } else {
         time = vt_pform_wtime();
       }
