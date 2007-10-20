@@ -103,6 +103,7 @@ uint64_t OpenSS_GetTime();
 void OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
 void OpenSS_Timer(uint64_t, const OpenSS_TimerEventHandler);
 bool_t OpenSS_UpdatePCData(uint64_t, OpenSS_PCData*);
+bool_t OpenSS_Path_From_Pid(char *);
 
 #ifdef HAVE_LIBUNWIND
 void OpenSS_GetStackTraceFromContext(const ucontext_t*,

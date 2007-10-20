@@ -16,8 +16,8 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = @INSTRUMENTOR@
-DIST_SUBDIRS = dpcl dyninst mrnet
+SUBDIRS = @INSTRUMENTOR@ offline
+DIST_SUBDIRS = dpcl dyninst offline
 
 # Note: Some versions of GCC (e.g. 3.3.3) appear to contain an optimization bug
 #       that causes accesses of thread-local storage (TLS) to fail with SIGSEGV.
@@ -31,14 +31,25 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c
 
-noinst_LTLIBRARIES = libopenss-runtime.la
+noinst_LTLIBRARIES = libopenss-runtime.la libopenss-runtime-offline.la
 
 libopenss_runtime_la_CFLAGS = \
 	@LIBUNWIND_CPPFLAGS@ \
 	@BINUTILS_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
 
+libopenss_runtime_offline_la_CFLAGS = \
+	-DOPENSS_OFFLINE \
+	@LIBUNWIND_CPPFLAGS@ \
+	@BINUTILS_CPPFLAGS@ \
+	@PAPI_CPPFLAGS@
+
 libopenss_runtime_la_LDFLAGS = \
+	@LIBUNWIND_LDFLAGS@ \
+	@BINUTILS_LDFLAGS@ \
+	@PAPI_LDFLAGS@
+
+libopenss_runtime_offline_la_LDFLAGS = \
 	@LIBUNWIND_LDFLAGS@ \
 	@BINUTILS_LDFLAGS@ \
 	@PAPI_LDFLAGS@
@@ -50,7 +61,14 @@ libopenss_runtime_la_LIBADD = \
 	@PAPI_LIBS@ \
 	-lpthread -lrt
 
-libopenss_runtime_la_SOURCES = \
+libopenss_runtime_offline_la_LIBADD = \
+	offline/libopenss-runtime-offline.la \
+	@LIBUNWIND_LIBS@ \
+	@BINUTILS_LIBS@ \
+	@PAPI_LIBS@ \
+	-lpthread -lrt
+
+COMMON_SOURCES = \
 	Assert.h \
 	OpenSS_DataHeader.x $(BUILT_SOURCES) \
 	OpenSS_DecodeParameters.c \
@@ -63,10 +81,17 @@ libopenss_runtime_la_SOURCES = \
 	OpenSS_Timer.c \
 	OpenSS_FPEHandler.c \
 	OpenSS_SetPCInContext.c \
+	OpenSS_Path_From_Pid.c \
 	RuntimeAPI.h
+
+libopenss_runtime_la_SOURCES = $(COMMON_SOURCES)
+
+libopenss_runtime_offline_la_SOURCES = $(COMMON_SOURCES)
 
 if HAVE_LIBUNWIND
 libopenss_runtime_la_SOURCES += \
+	OpenSS_GetStackTraceFromContext.c
+libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_GetStackTraceFromContext.c
 
 endif	
@@ -75,10 +100,15 @@ if HAVE_PAPI
 libopenss_runtime_la_SOURCES += \
 	OpenSS_Overflow.c \
 	PapiAPI.h PapiAPI.c
+libopenss_runtime_offline_la_SOURCES += \
+	OpenSS_Overflow.c \
+	PapiAPI.h PapiAPI.c
 endif
 
 if HAVE_BINUTILS
 libopenss_runtime_la_SOURCES += \
+	OpenSS_GetInstrLength.c
+libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_GetInstrLength.c
 endif
 
