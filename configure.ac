@@ -124,6 +124,7 @@ AC_PKG_SQLITE()
 
 AC_PYTHON_DEVEL([>= '2.3'])
 AC_PKG_QTLIB()
+AC_PKG_LIBMONITOR()
 
 ################################################################################
 # Check for Dynamic Instrumentation Package
@@ -177,6 +178,7 @@ AC_CONFIG_FILES(
 	libopenss-runtime/dpcl/Makefile
 	libopenss-runtime/dyninst/Makefile
 	libopenss-runtime/mrnet/Makefile
+	libopenss-runtime/offline/Makefile
 	libopenss-framework/Makefile
 	libopenss-framework/dpcl/Makefile
 	libopenss-framework/dyninst/Makefile

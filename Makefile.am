@@ -30,8 +30,8 @@ SUBDIRS = \
 	libopenss-guiplugin \
 	libopenss-guichart \
 	libopenss-gui \
-	openss \
 	plugins \
+	openss \
 	doc \
 	sanity \
 	usability
