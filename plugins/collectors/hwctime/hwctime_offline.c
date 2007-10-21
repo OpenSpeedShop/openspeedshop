@@ -45,7 +45,7 @@ void create_rawfile_prefix () {
     char tmpname[PATH_MAX], *bname;
 
     bname = basename(OpenSS_exepath);
-    sprintf(tmpname,"/tmp/hwc-%s-%d",bname,pid);
+    sprintf(tmpname,"/tmp/hwctime-%s-%d",bname,pid);
     rawprefix = strdup(tmpname);
 }
 

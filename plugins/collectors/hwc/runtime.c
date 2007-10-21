@@ -128,7 +128,22 @@ void hwc_start_sampling(const char* arguments)
     /* TODO: need to handle arguments for offline collectors */
     args.collector=1;
     args.experiment=0; /* DataQueues index start at 0.*/
-    args.sampling_rate=100000;
+
+    if(event_set == PAPI_NULL)
+	hwc_init_papi();
+
+    args.hwc_event=get_papi_eventcode("PAPI_TOT_CYC");
+
+#if defined(linux)
+    if (hw_info) {
+        args.sampling_rate = (unsigned) hw_info->mhz*10000*2;
+    } else {
+        args.sampling_rate = THRESHOLD*2;
+    }
+#else
+    args.sampling_rate = THRESHOLD*2;
+#endif
+
 
     /* Create the rawdata output file prefix.  hwc_stop_sampling will append */
     /* a tid as needed for the actuall .openss-raw filename */

@@ -79,7 +79,7 @@ hwctime_rt_offline_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 hwctime_rt_offline_la_LIBADD = \
-	-lopenss-runtime \
+	-lopenss-runtime-offline \
 	@LIBUNWIND_LIBS@ \
 	@PAPI_LIBS@ \
 	-lpthread -lrt
@@ -101,7 +101,7 @@ libhwctime_offline_la_LDFLAGS = \
 	-static -no-undefined -module -avoid-version
 
 libhwctime_offline_la_LIBADD = \
-	-lopenss-runtime \
+	-lopenss-runtime-offline \
 	@LIBUNWIND_LIBS@ \
 	@PAPI_LIBS@ \
 	-lpthread -lrt

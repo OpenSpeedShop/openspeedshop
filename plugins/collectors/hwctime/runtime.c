@@ -250,7 +250,22 @@ void hwctime_start_sampling(const char* arguments)
     /* TODO: need to handle arguments for offline collectors */
     args.collector=1;
     args.experiment=0; /* DataQueues index start at 0.*/
-    args.sampling_rate=100000;
+
+    if(EventSet == PAPI_NULL)
+        hwc_init_papi();
+
+    args.hwctime_event=get_papi_eventcode("PAPI_TOT_CYC");
+
+#if defined(linux)
+    if (hw_info) {
+        args.sampling_rate = (unsigned) hw_info->mhz*10000*2;
+    } else {
+        args.sampling_rate = THRESHOLD*2;
+    }
+#else
+    args.sampling_rate = THRESHOLD*2;
+#endif
+
 
     /* Create the rawdata output file prefix.  hwctime_stop_sampling will append */
     /* a tid as needed for the actuall .openss-raw filename */
@@ -316,6 +331,9 @@ void hwctime_start_sampling(const char* arguments)
     tls.header.time_begin = OpenSS_GetTime();
 
     papithreshold = (uint64_t)(args.sampling_rate);
+
+    if(EventSet == PAPI_NULL)
+        hwc_init_papi();
 
     OpenSS_Create_Eventset(&EventSet);
     OpenSS_AddEvent(EventSet,args.hwctime_event);

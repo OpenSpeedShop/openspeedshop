@@ -73,7 +73,7 @@ usertime_rt_offline_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 usertime_rt_offline_la_LIBADD = \
-	-lopenss-runtime \
+	-lopenss-runtime-offline \
 	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt
 
@@ -92,7 +92,7 @@ libusertime_offline_la_LDFLAGS = \
 	-static -no-undefined -module -avoid-version
 
 libusertime_offline_la_LIBADD = \
-	-lopenss-runtime \
+	-lopenss-runtime-offline \
 	@LIBUNWIND_LIBS@
 
 libusertime_offline_la_SOURCES = \

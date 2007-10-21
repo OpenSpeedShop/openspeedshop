@@ -29,7 +29,6 @@
 #include "RuntimeAPI.h"
 #include "blobs.h"
 #include "usertime_offline.h"
-#define COLLECTOR_NAME usertime
 
 pid_t create_OpenSS_exepath () {
     pid_t pid = getpid();
@@ -46,7 +45,7 @@ void create_rawfile_prefix () {
     char tmpname[PATH_MAX], *bname;
 
     bname = basename(OpenSS_exepath);
-    sprintf(tmpname,"/tmp/COLLECTOR_NAME-%s-%d",bname,pid);
+    sprintf(tmpname,"/tmp/usertime-%s-%d",bname,pid);
     rawprefix = strdup(tmpname);
 }
 
@@ -80,16 +79,16 @@ void offline_start_sampling(const char* arguments)
 {
     /* TODO: handle experiment parameters */
 #if 0
-    COLLECTOR_NAME_start_sampling_args args;
+    usertime_start_sampling_args args;
     memset(&args, 0, sizeof(args));
     args.collector=1;
     args.sampling_rate=100000;
     args.thread=getpid();
     /* how to handle
-       Blob arguments(reinterpret_cast<xdrproc_t>(xdr_COLLECTOR_NAME_start_sampling_args), &args);
+       Blob arguments(reinterpret_cast<xdrproc_t>(xdr_usertime_start_sampling_args), &args);
     */
 #endif
-    COLLECTOR_NAME_start_sampling(arguments);
+    usertime_start_sampling(arguments);
 }
 
 void offline_stop_sampling(const char* arguments)
@@ -97,7 +96,7 @@ void offline_stop_sampling(const char* arguments)
 
     /* call the collector specific stop sampling funcion. This writes any data */
     /* blobs to the specific openss-raw file (exp-collector-pid-tid.openss-raw). */
-    COLLECTOR_NAME_stop_sampling(arguments);
+    usertime_stop_sampling(arguments);
 
     /* Call OpenSS_GetDLInfo with a NULL dso pathname argument to get the list of */
     /* dso's opened for this process.  These will be recorded as */
