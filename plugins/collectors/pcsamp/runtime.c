@@ -30,7 +30,9 @@
 #include "RuntimeAPI.h"
 #include "blobs.h"
 
-
+#if defined (OFFLINE)
+#include "pcsamp_offline.h"
+#endif
 
 /** Thread-local storage. */
 static __thread struct {
@@ -68,6 +70,19 @@ static void pcsampTimerHandler(const ucontext_t* context)
 	tls.header.addr_end = tls.buffer.addr_end;
 	tls.data.pc.pc_len = tls.buffer.length;
 	tls.data.count.count_len = tls.buffer.length;
+#if defined (OFFLINE)
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
+	    fprintf(stderr,"pcsampTimerHandler sends data:\n");
+	    fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] pc_len(%d) count_len(%d)\n",
+		tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,tls.data.pc.pc_len,
+		tls.data.count.count_len);
+	}
+#endif
+	/* Create the openss-raw file name for this exe-collector-pid-tid */
+	/* Default is to create openss-raw files in /tmp */
+	create_rawfile_name();
+#endif
 	OpenSS_Send(&(tls.header), (xdrproc_t)xdr_pcsamp_data, &(tls.data));
 
 	/* Re-initialize the data blob's header */
@@ -97,18 +112,57 @@ void pcsamp_start_sampling(const char* arguments)
 {
     pcsamp_start_sampling_args args;
 
+#if defined (OFFLINE)
+
+    /* TODO: need to handle arguments for offline collectors */
+    args.collector=1;
+    args.experiment=0; /* DataQueues index start at 0.*/
+    args.sampling_rate=100000;
+
+    /* Create the rawdata output file prefix.  pcsamp_stop_sampling will append */
+    /* a tid as needed for the actuall .openss-raw filename */
+    create_rawfile_prefix();
+
+    /* Initialize the info blob's header */
+    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
+     */
+    OpenSS_DataHeader local_info_header;
+    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_info_header));
+    memcpy(&tlsinfo.header, &local_info_header, sizeof(OpenSS_DataHeader));
+
+    char hostname[HOST_NAME_MAX];
+    gethostname(hostname, HOST_NAME_MAX);
+    tlsinfo.info.collector = "pcsamp";
+    tlsinfo.info.hostname = strdup(hostname);
+    tlsinfo.info.pid = getpid();
+    tlsinfo.info.tid = tid;
+
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
+	fprintf(stderr,"pcsamp_start_sampling sends tlsinfo:\n");
+	fprintf(stderr,"collector=%s, hostname=%s, pid =%d, tid=%lx\n",
+	    tlsinfo.info.collector,tlsinfo.info.hostname,tlsinfo.info.pid,tlsinfo.info.tid);
+    }
+#endif
+
+    create_rawfile_name();
+    OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
+
+#else
+
     /* Decode the passed function arguments. */
     memset(&args, 0, sizeof(args));
     OpenSS_DecodeParameters(arguments,
 			    (xdrproc_t)xdr_pcsamp_start_sampling_args,
 			    &args);
+#endif
     
     /* Initialize the data blob's header */
     /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
      */
-    OpenSS_DataHeader local_header;
-    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
-    memcpy(&tls.header, &local_header, sizeof(OpenSS_DataHeader));
+    OpenSS_DataHeader local_data_header;
+    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_data_header));
+    memcpy(&tls.header, &local_data_header, sizeof(OpenSS_DataHeader));
     
     /* Initialize the actual data blob */
     tls.data.interval = (uint64_t)(1000000000) / (uint64_t)(args.sampling_rate);
@@ -120,6 +174,12 @@ void pcsamp_start_sampling(const char* arguments)
     tls.buffer.addr_end = 0;
     tls.buffer.length = 0;
     memset(tls.buffer.hash_table, 0, sizeof(tls.buffer.hash_table));
+
+#if defined (OFFLINE)
+    tlsobj.objs.objname = NULL;
+    tlsobj.objs.addr_begin = ~0;
+    tlsobj.objs.addr_end = 0;
+#endif
 
     /* Begin sampling */
     tls.header.time_begin = OpenSS_GetTime();
@@ -150,6 +210,23 @@ void pcsamp_stop_sampling(const char* arguments)
 	tls.header.addr_end = tls.buffer.addr_end;
 	tls.data.pc.pc_len = tls.buffer.length;
 	tls.data.count.count_len = tls.buffer.length;
+
+#if defined (OFFLINE)
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
+	    fprintf(stderr, "pcsamp_stop_sampling:\n");
+	    fprintf(stderr, "time_end(%#lu) addr range[%#lx, %#lx] pc_len(%d) count_len(%d)\n",
+		tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,tls.data.pc.pc_len,
+		tls.data.count.count_len);
+	}
+#endif
+
+	/* Create the openss-raw file name for this exe-collector-pid-tid */
+	/* Default is to create openss-raw files in /tmp */
+	create_rawfile_name();
+
+#endif /* defined OFFLINE */
+
 	OpenSS_Send(&(tls.header), (xdrproc_t)xdr_pcsamp_data, &(tls.data));
 	
     }

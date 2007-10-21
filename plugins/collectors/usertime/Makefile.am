@@ -24,7 +24,11 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
+OFFLINE_SOURCES = \
+	usertime_offline.c usertime_offline.h
+
 pkglib_LTLIBRARIES = usertime.la usertime-rt.la
+pkglib_LTLIBRARIES += usertime-rt-offline.la libusertime-offline.la
 
 usertime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -57,6 +61,43 @@ usertime_rt_la_LIBADD = \
 
 usertime_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
+	runtime.c
+
+usertime_rt_offline_la_CFLAGS = \
+	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
+	@LIBUNWIND_CPPFLAGS@
+
+usertime_rt_offline_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-runtime \
+	@LIBUNWIND_LDFLAGS@ \
+	-no-undefined -module -avoid-version
+
+usertime_rt_offline_la_LIBADD = \
+	-lopenss-runtime \
+	@LIBUNWIND_LIBS@ \
+	-lpthread -lrt
+
+usertime_rt_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	runtime.c
+
+libusertime_offline_la_CFLAGS = \
+	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
+	@LIBUNWIND_CPPFLAGS@
+
+libusertime_offline_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-runtime \
+	@LIBUNWIND_LDFLAGS@ \
+	-static -no-undefined -module -avoid-version
+
+libusertime_offline_la_LIBADD = \
+	-lopenss-runtime \
+	@LIBUNWIND_LIBS@
+
+libusertime_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
 	runtime.c
 
 SUFFIXES = .x

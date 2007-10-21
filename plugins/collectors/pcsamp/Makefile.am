@@ -1,6 +1,5 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -22,9 +21,13 @@
 CFLAGS = -g -O0
 
 BUILT_SOURCES = \
-	blobs.h blobs.c	
+	blobs.h blobs.c
+
+OFFLINE_SOURCES = \
+	pcsamp_offline.c pcsamp_offline.h
 
 pkglib_LTLIBRARIES = pcsamp.la pcsamp-rt.la
+pkglib_LTLIBRARIES += pcsamp-rt-offline.la libpcsamp-offline.la
 
 pcsamp_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -53,6 +56,36 @@ pcsamp_rt_la_LIBADD = \
 
 pcsamp_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
+	runtime.c
+
+pcsamp_rt_offline_la_CFLAGS = \
+	-DOFFLINE -I$(top_srcdir)/libopenss-runtime -I$(top_srcdir)/libopenss-runtime/offline
+
+pcsamp_rt_offline_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-runtime \
+	-no-undefined -module -avoid-version
+
+pcsamp_rt_offline_la_LIBADD = \
+	-lopenss-runtime-offline
+
+pcsamp_rt_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	runtime.c
+
+libpcsamp_offline_la_CFLAGS = \
+	-DOFFLINE -I$(top_srcdir)/libopenss-runtime -I/$(top_srcdir)/libopenss-runtime/offline
+
+libpcsamp_offline_la_LDFLAGS = \
+	-static -L$(top_srcdir)/libopenss-runtime \
+	-no-undefined
+
+libpcsamp_offline_la_LIBADD = \
+	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
+
+libpcsamp_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
 	runtime.c
 
 SUFFIXES = .x

@@ -24,7 +24,11 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c	
 
+OFFLINE_SOURCES = \
+	hwc_offline.c hwc_offline.h
+
 pkglib_LTLIBRARIES = hwc.la hwc-rt.la
+pkglib_LTLIBRARIES += hwc-rt-offline.la libhwc-offline.la
 
 hwc_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
@@ -57,6 +61,44 @@ hwc_rt_la_LIBADD = \
 	-lpthread -lrt
 
 hwc_rt_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	runtime.c
+
+hwc_rt_offline_la_CFLAGS = \
+	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
+	@PAPI_CPPFLAGS@
+
+hwc_rt_offline_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-runtime \
+	@PAPI_LDFLAGS@ \
+	-no-undefined -module -avoid-version
+
+hwc_rt_offline_la_LIBADD = \
+	-lopenss-runtime \
+	@PAPI_LIBS@ \
+	-lpthread -lrt
+
+hwc_rt_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	runtime.c
+
+libhwc_offline_la_CFLAGS = \
+	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
+	@PAPI_CPPFLAGS@
+
+libhwc_offline_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-runtime \
+	@PAPI_LDFLAGS@ \
+	-static -no-undefined -module -avoid-version
+
+libhwc_offline_la_LIBADD = \
+	-lopenss-runtime \
+	@PAPI_LIBS@ \
+	-lpthread -lrt
+
+libhwc_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.c
 

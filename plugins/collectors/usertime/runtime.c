@@ -30,6 +30,10 @@
 #include "RuntimeAPI.h"
 #include "blobs.h"
 
+#if defined (OFFLINE)
+#include "usertime_offline.h"
+#endif
+
 /* Forward Declarations */
 void usertime_start_sampling(const char*);
 void usertime_stop_sampling(const char*);
@@ -70,6 +74,21 @@ static void send_samples()
 {
     /* Send these samples */
     tls.header.time_end = OpenSS_GetTime();
+
+#if defined (OFFLINE)
+#ifndef NDEBUG
+        if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
+            fprintf(stderr,"usertimeTimerHandler sends data:\n");
+            fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] bt_len(%d) count_len(%d)\n",
+                tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,tls.data.bt.bt_len,
+                tls.data.count.count_len);
+        }
+#endif
+        /* Create the openss-raw file name for this exe-collector-pid-tid */
+        /* Default is to create openss-raw files in /tmp */
+        create_rawfile_name();
+#endif
+
     OpenSS_Send(&(tls.header),(xdrproc_t)xdr_usertime_data,&(tls.data));
 
     /* Re-initialize the data blob's header */
@@ -235,12 +254,50 @@ static void usertimeTimerHandler(const ucontext_t* context)
 void usertime_start_sampling(const char* arguments)
 {
     usertime_start_sampling_args args;
+#if defined (OFFLINE)
+
+    /* TODO: need to handle arguments for offline collectors */
+    args.collector=1;
+    args.experiment=0; /* DataQueues index start at 0.*/
+    args.sampling_rate=100000;
+
+    /* Create the rawdata output file prefix.  usertime_stop_sampling will append */
+    /* a tid as needed for the actuall .openss-raw filename */
+    create_rawfile_prefix();
+
+    /* Initialize the info blob's header */
+    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
+     */
+    OpenSS_DataHeader local_info_header;
+    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_info_header));
+    memcpy(&tlsinfo.header, &local_info_header, sizeof(OpenSS_DataHeader));
+
+    char hostname[HOST_NAME_MAX];
+    gethostname(hostname, HOST_NAME_MAX);
+    tlsinfo.info.collector = "usertime";
+    tlsinfo.info.hostname = strdup(hostname);
+    tlsinfo.info.pid = getpid();
+    tlsinfo.info.tid = tid;
+
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
+        fprintf(stderr,"usertime_start_sampling sends tlsinfo:\n");
+        fprintf(stderr,"collector=%s, hostname=%s, pid =%d, tid=%lx\n",
+            tlsinfo.info.collector,tlsinfo.info.hostname,tlsinfo.info.pid,tlsinfo.info.tid);
+    }
+#endif
+
+    create_rawfile_name();
+    OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
+
+#else
 
     /* Decode the passed function arguments. */
     memset(&args, 0, sizeof(args));
     OpenSS_DecodeParameters(arguments,
 			    (xdrproc_t)xdr_usertime_start_sampling_args,
 			    &args);
+#endif
     
     /* Initialize the data blob's header */
     /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
@@ -263,6 +320,12 @@ void usertime_start_sampling(const char* arguments)
     tls.data.bt.bt_val = tls.buffer.bt;
     tls.data.count.count_len = 0;
     tls.data.count.count_val = tls.buffer.count;
+
+#if defined (OFFLINE)
+    tlsobj.objs.objname = NULL;
+    tlsobj.objs.addr_begin = ~0;
+    tlsobj.objs.addr_end = 0;
+#endif
     
     /* Begin sampling */
     tls.header.time_begin = OpenSS_GetTime();
