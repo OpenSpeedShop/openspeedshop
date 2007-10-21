@@ -64,6 +64,7 @@ usertime_rt_la_SOURCES = \
 	runtime.c
 
 usertime_rt_offline_la_CFLAGS = \
+        $(LIBMONITOR_CPPFLAGS) \
 	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@
 
@@ -83,6 +84,7 @@ usertime_rt_offline_la_SOURCES = \
 	runtime.c
 
 libusertime_offline_la_CFLAGS = \
+        $(LIBMONITOR_CPPFLAGS) \
 	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@
 

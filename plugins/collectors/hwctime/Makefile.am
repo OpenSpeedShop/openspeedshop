@@ -68,6 +68,7 @@ hwctime_rt_la_SOURCES = \
 	runtime.c
 
 hwctime_rt_offline_la_CFLAGS = \
+        $(LIBMONITOR_CPPFLAGS) \
 	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
@@ -90,6 +91,7 @@ hwctime_rt_offline_la_SOURCES = \
 	runtime.c
 
 libhwctime_offline_la_CFLAGS = \
+        $(LIBMONITOR_CPPFLAGS) \
 	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@

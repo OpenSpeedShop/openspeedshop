@@ -67,6 +67,7 @@ hwc_rt_la_SOURCES = \
 
 hwc_rt_offline_la_CFLAGS = \
 	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
+        $(LIBMONITOR_CPPFLAGS) \
 	@PAPI_CPPFLAGS@
 
 hwc_rt_offline_la_LDFLAGS = \
@@ -85,6 +86,7 @@ hwc_rt_offline_la_SOURCES = \
 	runtime.c
 
 libhwc_offline_la_CFLAGS = \
+        $(LIBMONITOR_CPPFLAGS) \
 	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
 	@PAPI_CPPFLAGS@
 
