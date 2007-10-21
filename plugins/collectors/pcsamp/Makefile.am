@@ -30,6 +30,7 @@ pkglib_LTLIBRARIES = pcsamp.la pcsamp-rt.la
 pkglib_LTLIBRARIES += pcsamp-rt-offline.la libpcsamp-offline.la
 
 pcsamp_la_CXXFLAGS = \
+        $(LIBMONITOR_CPPFLAGS) \
 	-I$(top_srcdir)/libopenss-framework
 
 pcsamp_la_LDFLAGS = \
@@ -44,6 +45,7 @@ pcsamp_la_SOURCES = \
 	PCSampCollector.hxx PCSampCollector.cxx
 
 pcsamp_rt_la_CFLAGS = \
+        $(LIBMONITOR_CPPFLAGS) \
 	-I$(top_srcdir)/libopenss-runtime
 
 pcsamp_rt_la_LDFLAGS = \
@@ -59,6 +61,7 @@ pcsamp_rt_la_SOURCES = \
 	runtime.c
 
 pcsamp_rt_offline_la_CFLAGS = \
+        $(LIBMONITOR_CPPFLAGS) \
 	-DOFFLINE -I$(top_srcdir)/libopenss-runtime -I$(top_srcdir)/libopenss-runtime/offline
 
 pcsamp_rt_offline_la_LDFLAGS = \
@@ -74,6 +77,7 @@ pcsamp_rt_offline_la_SOURCES = \
 	runtime.c
 
 libpcsamp_offline_la_CFLAGS = \
+        $(LIBMONITOR_CPPFLAGS) \
 	-DOFFLINE -I$(top_srcdir)/libopenss-runtime -I/$(top_srcdir)/libopenss-runtime/offline
 
 libpcsamp_offline_la_LDFLAGS = \
