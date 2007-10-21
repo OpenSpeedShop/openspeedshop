@@ -23,6 +23,7 @@ BUILT_SOURCES = \
 	offline.h offline.c
 
 libopenss_runtime_offline_la_CFLAGS = \
+	$(LIBMONITOR_CPPFLAGS) \
 	-I$(top_srcdir)/libopenss-runtime
 
 libopenss_runtime_offline_la_SOURCES = \
