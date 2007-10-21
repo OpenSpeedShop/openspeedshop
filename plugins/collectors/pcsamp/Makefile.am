@@ -59,14 +59,16 @@ pcsamp_rt_la_SOURCES = \
 	runtime.c
 
 pcsamp_rt_offline_la_CFLAGS = \
-        $(LIBMONITOR_CPPFLAGS) \
+        @LIBMONITOR_CPPFLAGS@ \
 	-DOFFLINE -I$(top_srcdir)/libopenss-runtime -I$(top_srcdir)/libopenss-runtime/offline
 
 pcsamp_rt_offline_la_LDFLAGS = \
+        @LIBMONITOR_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-runtime \
 	-no-undefined -module -avoid-version
 
 pcsamp_rt_offline_la_LIBADD = \
+        @LIBMONITOR_LIBS@ \
 	-lopenss-runtime-offline
 
 pcsamp_rt_offline_la_SOURCES = \
@@ -75,14 +77,16 @@ pcsamp_rt_offline_la_SOURCES = \
 	runtime.c
 
 libpcsamp_offline_la_CFLAGS = \
-        $(LIBMONITOR_CPPFLAGS) \
+        @LIBMONITOR_CPPFLAGS@ \
 	-DOFFLINE -I$(top_srcdir)/libopenss-runtime -I/$(top_srcdir)/libopenss-runtime/offline
 
 libpcsamp_offline_la_LDFLAGS = \
+        @LIBMONITOR_LDFLAGS@ \
 	-static -L$(top_srcdir)/libopenss-runtime \
 	-no-undefined
 
 libpcsamp_offline_la_LIBADD = \
+        @LIBMONITOR_LIBS@ \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
 
 libpcsamp_offline_la_SOURCES = \
