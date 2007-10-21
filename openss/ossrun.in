@@ -1,0 +1,6 @@
+#! /bin/sh
+# TODO: allow configuration of libmonitor used at config/build/install time.
+set -x
+collector=$2
+export LD_PRELOAD=@@osslibdir@@/$collector-rt-offline.so:/usr/lib64/libmonitor.so
+$1

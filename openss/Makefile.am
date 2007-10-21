@@ -27,6 +27,8 @@
 #
 
 bin_PROGRAMS = openss
+dist_bin_SCRIPTS = ossrun
+BUILT_FILES = ossrun
 
 openss_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
@@ -44,3 +46,18 @@ openss_LDADD = \
 
 openss_SOURCES = \
 	openss.cxx
+
+CLEANFILES = $(BUILT_FILES)
+
+# OFFLINE and libmonitor support.
+# This is done here to stay in the GNU coding standards
+# pkglibdir can be modified at make time, so can't use
+# variable substitution at configure time
+# TODO: need to configure location of libmonitor.so
+# via "-e 's,@@libmonitordir@@,$(monitorlibdir),' \"
+
+ossrun: ossrun.in
+	@rm -f ossrun
+	@sed \
+		-e 's,@@osslibdir@@,$(pkglibdir),' \
+			$(srcdir)/ossrun.in > ossrun
