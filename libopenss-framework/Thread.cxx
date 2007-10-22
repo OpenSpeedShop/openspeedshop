@@ -679,9 +679,16 @@ std::pair<bool, LinkedObject> Thread::getExecutable(const Time& time) const
     dm_database->bindArgument(2, time);
     dm_database->bindArgument(3, time);
     while(dm_database->executeStatement()) {
+//        std::cerr << "getExecutable(), top of while " 
+//                  << getPosixThreadId().second
+//                  << std::endl;
 	if(executable.first)
+#if 0
 	    throw Exception(Exception::EntryNotUnique, "LinkedObjects",
                             "<Threads-Referenced-Executable>");
+#else
+		break;
+#endif
 	executable = std::make_pair(
 	    true, 
 	    LinkedObject(dm_database, dm_database->getResultAsInteger(1))
