@@ -41,7 +41,7 @@ openssd_SOURCES = \
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
 
-nodist_openssd_la_SOURCES = $(BUILT_SOURCES)
+nodist_openssd_SOURCES = $(BUILT_SOURCES)
 
 Protocol.h Protocol.c : Protocol.x
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
