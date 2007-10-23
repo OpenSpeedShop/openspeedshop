@@ -190,7 +190,7 @@ extern "C"
     showTextByLocationCheckBox->setChecked(FALSE);
     chartTypeComboBox->setCurrentItem(0);
     showToolbarCheckBox->setChecked(FALSE);
-    showMetadataCheckBox->setChecked(FALSE);
+    showMetadataCheckBox->setChecked(TRUE);
     showSkylineCheckBox->setChecked(FALSE);
     showSkylineLabel->setText("Percentage breakdown for skyline view:");
     showSkylineLineEdit->setText("25");

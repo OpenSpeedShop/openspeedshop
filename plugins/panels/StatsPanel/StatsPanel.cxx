@@ -20,7 +20,7 @@
 //
 // To enable debuging uncomment define DEBUG_StatsPanel statement
 //
-#define DEBUG_StatsPanel 1
+//#define DEBUG_StatsPanel 1
 //
 
 
@@ -1529,7 +1529,7 @@ if( focusedExpID == -1 )
   contextMenu->insertSeparator();
   qaction = new QAction( this,  "clusterAnalysisSelected");
   qaction->addTo( contextMenu );
-  qaction->setText( "Group Similar Processes" );
+  qaction->setText( "Compare and Group Similar Processes" );
   connect( qaction, SIGNAL( activated() ), this, SLOT( clusterAnalysisSelected() ) );
   qaction->setStatusTip( tr("Perform analysis on the processes, threads, or ranks of this experiment to group similar processes, threads, or ranks.") );
 }
