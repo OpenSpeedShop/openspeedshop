@@ -1,0 +1,134 @@
+################################################################################
+# Copyright (c) 2007 The Krell Institue. All Rights Reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+openss(1)                                                openss(1)
+
+
+NAME
+  openss - Collects Open|SpeedShop performance data
+
+SYNOPSIS
+  openss [-cli] [-gui] [-batch]  [-h host] [-f "executable arg1 arg2 arg3 ..."]
+         [-p process_ID [-t thread_ID] ] [experiment_name]
+
+
+DESCRIPTION
+  Open|SpeedShop(tm) is a performance tool designed to capture various types of 
+  performance data for an executable or set of executables.
+
+  When collecting the performance data, openss writes the gathered performance data to 
+  a file and makes it available to be displayed by the command line interface
+  or the graphical user interface.  The performance data can be displayed at the end
+  of the application execution or the intermediate results can be displayed during the
+  application's execution.
+ 
+  You can specify the following options on the command line:
+
+    -h host
+      Specifies the host on which an executable should be run, 
+      or where a process to be attached is located.
+
+    -f executable or "executable args"
+      Specifies the executable to run the performance experiment on.
+      Specifies that openss is going to create a new process
+
+    -p process_ID
+      Specifies the running process to attach to for performance gathering.
+      Specifies that openss is going to attach to the identified process.
+
+    -t thread_ID
+      Specifies specifying a single thread to be attached within the given
+      PID (rather than ALL threads by default)..
+
+    -cli    
+      Run only the command line interface part of openss.
+      (Note: The Graphical User Interface (GUI) can be
+      brought up later with the opengui command.
+
+    -gui   
+      (default)  Run only the the graphical user interface (GUI).
+
+    -batch  
+      Run a set of OpenSpeedShop commands from a file or file directed into 
+      the openss command.
+
+    experiment_name
+
+      Specifies the experiment to be run on the executable or process.
+
+      o pcsamp   - CPU time at the source line, machine instruction,
+		   and function levels by sampling the program counter at
+		   intervals. PC sampling samples at 10mS (down to 1mS)
+		   intervals. 
+  
+      o usertime - Inclusive and exclusive CPU time for each function by
+		   sampling the callstack at intervals.  Usertime samples at
+		   30mS intervals by default. But could sample at 10mS
+		   intervals.
+
+      o fpe      - All floating-point exceptions, with the exception type
+                   and the call stack at the time of the exception. See 
+                   FPE Tracing Wizard. 
+
+      o hwc      - Counts at the source line, machine instruction, and
+                   function levels of various hardware events, including:
+                   clock cycles, graduated instructions, primary
+                   instruction cache misses, secondary instruction cache
+                   misses, primary data cache misses, secondary data
+                   cache misses, translation lookaside buffer (TLB)
+                   misses, and graduated floating-point instructions.
+                   See HW Counter Wizard. 
+
+      o io       - Traces the following I/O system calls: read, readv,
+                   write, writev, open, close, dup, pipe, creat. 
+                   See IO Wizard. 
+
+      o mpi      - Traces calls to selected MPI routines.
+                   See MPI Wizard. 
+
+      o mpit     - Traces calls to selected MPI routines with additional
+                   information, such as, source and destination ranks, bytes
+                   of data transferred, etc..
+                   See MPI Wizard. 
+
+
+EXAMPLES:
+  To start Open|SpeedShop and use the wizard capability to guide the creation of
+  an Open|SpeedShop experiment simply type:
+  $ openss
+
+
+  To load an executable into the GUI and set up to run a program counter sampling (pcsamp) 
+  experiment:
+  $ openss -f a.out pcsamp
+
+
+  To attach to a running executable:
+  $ openss -p 123456
+
+
+  To load an executable that takes a command line argument:
+  $ openss -f "a.out abc"  pcsamp
+
+ 
+  To run Open|SpeedShop in interactive command line mode use the -cli option:
+  $ openss -cli
+  openss>>
+ 
+  To run Open|SpeedShop in batch mode mode use the -batch option:
+  $ openss -batch < file_of_commands
