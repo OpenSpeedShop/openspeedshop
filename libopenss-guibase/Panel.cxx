@@ -189,7 +189,7 @@ bool Panel::menu(QPopupMenu* _contextMenu)
   contextMenu->setCheckable(TRUE);
   QAction *qaction = new QAction(this, "toggleRecycleMenuItem");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Recycle") );
+  qaction->setText( tr("Recycle/Reuse This Panel") );
   qaction->setToggleAction(TRUE);
   qaction->setOn(recycleFLAG);
   connect( qaction, SIGNAL( activated() ), this, SLOT(toggleRecycle()) );
