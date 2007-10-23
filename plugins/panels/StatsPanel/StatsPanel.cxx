@@ -20,7 +20,7 @@
 //
 // To enable debuging uncomment define DEBUG_StatsPanel statement
 //
-//#define DEBUG_StatsPanel 1
+#define DEBUG_StatsPanel 1
 //
 
 
@@ -2466,6 +2466,9 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   SourceObject *spo = NULL;
   QString ssf = QString(sf).stripWhiteSpace();
 
+  filename = spitem->fileName.ascii();
+  lineNumberStr = QString("%1").arg(spitem->lineNumber);
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::matchSelectedItem, spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
   printf("StatsPanel::matchSelectedItem, spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
@@ -2475,8 +2478,6 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   nprintf( DEBUG_PANELS) ("spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
   nprintf( DEBUG_PANELS) ("spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
 
-  filename = spitem->fileName.ascii();
-  lineNumberStr = QString("%1").arg(spitem->lineNumber);
 
   // Explicitly make sure the highlightList is clear.
   HighlightList *highlightList = new HighlightList();
@@ -2494,6 +2495,9 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   if( !spo )
   {
       spo = new SourceObject(NULL, NULL, -1, expID, TRUE, NULL);
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::matchSelectedItem, created spo new SourceObject, expID=%d\n", expID);
+#endif
   }
   if( spo )
   {
