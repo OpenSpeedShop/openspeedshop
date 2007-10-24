@@ -1161,7 +1161,7 @@ void HW_CounterWizardPanel::vSummaryPageFinishButtonSelected()
         lao = new LoadAttachObject((char *)NULL, mw->pidStr, (char *)NULL, paramList, TRUE);
       } else
       {
-// printf("Warning: No attach or load paramaters available.\n");
+// printf("Warning: No attach or load parameters available.\n");
       }
       if( lao != NULL )
       {
@@ -1231,7 +1231,7 @@ HW_CounterWizardPanel::languageChange()
   }
   papi_preset_event_strings += "</pre>";
 
-  vParameterPageDescriptionText->setText( tr( QString("The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
+  vParameterPageDescriptionText->setText( tr( QString("The following options (parameters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
 "The smaller the number used for the overflow rate, the more\n"
 "HW Counter detail will be shown.   However, the trade off will be slower\n"
 "performance and a larger data file.<br><br>\n"
@@ -1276,7 +1276,7 @@ HW_CounterWizardPanel::languageChange()
   QToolTip::add( eDescriptionPageFinishButton, tr( "Not active, present in this page for consistent use of buttons." ) );
   eDescriptionPageFinishButton->setEnabled(FALSE);
 
-  eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br><br>These are the options the collector has exported.<br>%1" ).arg(papi_preset_event_strings) );
+  eParameterPageDescriptionLabel->setText( tr( "The following options (parameters) are available to adjust.     <br><br>These are the options the collector has exported.<br>%1" ).arg(papi_preset_event_strings) );
   eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   eParameterPageSampleRateLabel->setText( tr( "Overflow rate:" ) );
   eParameterPageSampleRateText->setText( tr( QString("%1").arg(overflow_rate) ) );

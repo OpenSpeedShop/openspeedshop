@@ -1143,7 +1143,7 @@ void MPIWizardPanel::vSummaryPageFinishButtonSelected()
         lao = new LoadAttachObject((char *)NULL, mw->pidStr, (char *)NULL, &paramList, TRUE);
       } else
       {
-// printf("Warning: No attach or load paramaters available.\n");
+// printf("Warning: No attach or load parameters available.\n");
       }
       if( lao != NULL )
       {
@@ -1238,7 +1238,7 @@ MPIWizardPanel::languageChange()
   QToolTip::add( eDescriptionPageFinishButton, tr( "Not active, present in this page for consistent use of buttons." ) );
   eDescriptionPageFinishButton->setEnabled(FALSE);
 
-  eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
+  eParameterPageDescriptionLabel->setText( tr( "The following options (parameters) are available to adjust.     <br>These are the options the collector has exported." ) );
   eParameterPageFunctionListHeaderLabel->setText( tr( "You can monitor the following mpi function(s):" ) );
   eParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eParameterPageBackButton, tr( "Takes you back one page." ) );

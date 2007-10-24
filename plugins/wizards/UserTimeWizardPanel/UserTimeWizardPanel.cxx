@@ -1092,7 +1092,7 @@ void UserTimeWizardPanel::vSummaryPageFinishButtonSelected()
       } else
       {
 #ifdef DEBUG_UTWizard
-         printf("UserTimeWizardPanel::vSummaryPageFinishButtonSelected, Warning: No attach or load paramaters available.\n");
+         printf("UserTimeWizardPanel::vSummaryPageFinishButtonSelected, Warning: No attach or load parameters available.\n");
 #endif
       }
       if( lao != NULL )
@@ -1143,7 +1143,7 @@ UserTimeWizardPanel::languageChange()
   QToolTip::add( vDescriptionPageFinishButton, tr( "Not active, present in this page for consistent use of buttons." ) );
   vDescriptionPageFinishButton->setEnabled(FALSE);
 
-  vParameterPageDescriptionText->setText( tr( QString("The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
+  vParameterPageDescriptionText->setText( tr( QString("The following options (parameters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
 "The larger the number used for the sample rate, the more\n"
 "User Time detail will be shown.   However, the trade off will be slower\n"
 "performance and a larger data file.<br><br>\n"
@@ -1179,7 +1179,7 @@ UserTimeWizardPanel::languageChange()
   QToolTip::add( eDescriptionPageFinishButton, tr( "Not active, present in this page for consistent use of buttons." ) );
   eDescriptionPageFinishButton->setEnabled(FALSE);
 
-  eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
+  eParameterPageDescriptionLabel->setText( tr( "The following options (parameters) are available to adjust.     <br>These are the options the collector has exported." ) );
   eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   eParameterPageSampleRateLabel->setText( tr( "sample rate (in samples/second):" ) );
   eParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );

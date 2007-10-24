@@ -1119,7 +1119,7 @@ void IOWizardPanel::vSummaryPageFinishButtonSelected()
       } else
       {
 #ifdef DEBUG_IOWizard
-        printf("IOWizardPanel::vSummaryPageFinishButtonSelected(), Warning: No attach or load paramaters available.\n");
+        printf("IOWizardPanel::vSummaryPageFinishButtonSelected(), Warning: No attach or load parameters available.\n");
 #endif
       }
       if( lao != NULL )
