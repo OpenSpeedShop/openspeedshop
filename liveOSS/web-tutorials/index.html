@@ -35,13 +35,26 @@ table.exp td {
 	<center>
 		<img src="img/OpenSpeedShop_Logo.jpg"> <br>
 		Getting Started With Open|SpeedShop&#8482; <br>
+                          LA-UR-07-7012 <br>
 	</center>
      
 	<h2>
 		Brief Open|SpeedShop Overview    
 	</h2>
-	Open|SpeedShop provides open source performance measurement and performance analysis capabilities for a wide range of platforms. Open|SpeedShop is based on the concepts of SGI&reg;&#039;s IRIX SpeedShop performance analysis tool. The initial development of Open|SpeedShop was co-funded by the Department of Energy (DOE) and SGI&reg;. Open|SpeedShop has had it&#039;s infrastructure and base components released as open source under the GPL and LGPL licenses. 
+	Open|SpeedShop is an open source, multi-platform Linux performance tool which is targeted to support performance analysis of applications running on both single node and large scale systems with Intel&reg;&#039;s Itanium2&reg;&#039;s, Intel Pentium&reg;&#039;s, Pentium&reg;&#039;s II Xeon<SMALL><SUP>TM</SUP></SMALL> and AMD Opteron<SMALL><SUP>TM</SUP></SMALL> processors.
 	<br>
+        <br>
+	Open|SpeedShop is co-funded by the U.S. Department of Energy's (DOE) National Nuclear Security Administration (NNSA).  It was originally developed by Silicon Graphics in collaboration with Lawrence Livermore National Laboratory, Los Alamos National Laboratory and Sandia National Laboratory.
+	Open|SpeedShop utilizes dynamic instrumentation technology developed at the University of Wisconson and University of Maryland.
+	<br>
+        <br>
+	Open|SpeedShop development is now done by the Krell Institute and DOE's tri-labs. The infrastructure and base components of Open|SpeedShop are released as open source code under GPL and LGPL.
+	<br>
+        <br>
+	Downloads available from the Open|SpeedShop sourceforge web site:
+	www.sourceforge.net/projects/openss
+        <br>
+        <br>
 	<a href="details/oss-details.html">Open|SpeedShop Overview Details</a>.	
 	<br>
 	<br>
@@ -92,8 +105,9 @@ table.exp td {
 		<LI><b>hwctime:</b> Similar to <b>hwc</b>, except that callstack sampling is used.
 		<LI><b>io:</b> Times I/O system calls.  The time reported is wall clock time.
 		<LI><b>iot:</b> Traces and times I/O system calls.  The time reported is wall clock time.
-		<LI><b>mpi:</b> Times calls to various MPI routines.  Time time reported is wall clock time.
-		<LI><b>mpit:</b> Traces and times calls to various MPI routines.  Time time reported is wall clock time.
+		<LI><b>mpi:</b> Times calls to various MPI routines.  The time reported is wall clock time.
+                <LI><b>mpiotf:</b> Traces ant time to various MPI routines - OTF format.  The time reported is wall clock time.
+		<LI><b>mpit:</b> Traces and times calls to various MPI routines.  The time reported is wall clock time.
 		<LI><b>pcsamp:</b> Actual CPU time at the source line, machine instruction, and function level.
 		<LI><b>usertime:</b> Inclusive and exclusive CPU time for each function.
 	</ul>
@@ -115,5 +129,6 @@ table.exp td {
 		<LI><a href="tutorials/ossgui-attach-pcsamp.html">Using Open|SpeedShop's GUI: Attaching to a running process - pcsamp.</a>
 		<LI><a href="tutorials/osscli-mpi-usertime.html">Using Open|SpeedShop's CLI: Gathering information from an MPI job - usertime.</a>
 	<ul>
+	<br>
   </body>
 </html>

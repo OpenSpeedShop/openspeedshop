@@ -41,7 +41,7 @@ table.exp td {
         Open|SpeedShop Overview
     </h2>
 
- Open|SpeedShop provides open source performance measurement and performance analysis capabilities for a wide range of platforms. Open|SpeedShop is based on the concepts of SGI&reg;&#039;s IRIX SpeedShop performance analysis tool. The initial development of Open|SpeedShop was co-funded by the Department of Energy (DOE) and SGI&reg;. Open|SpeedShop has had it&#039;s infrastructure and base components released as open source under the GPL and LGPL licenses.     
+ Open|SpeedShop provides open source performance measurement and performance analysis capabilities for a wide range of platforms. Open|SpeedShop is based on the concepts of SGI&reg;&#039;s IRIX SpeedShop performance analysis tool. The initial development of Open|SpeedShop was co-funded by the Department of Energy (DOE) and SGI&reg;. The Krell Institute is now supporting and enhancing Open|SpeedShop. Open|SpeedShop has had its infrastructure and base components released as open source primarily under the LGPL with a small portion of the code under the GPL license.     
     <br>
     <br>
     Open|SpeedShop was designed to be modular and extensible. It supports the concept of plugins which allow users, if they so desire, to create their own performance experiments. The project is designed in such a way as to enable value-added plugins to be added to the open source version.
@@ -50,6 +50,15 @@ table.exp td {
     <br>
     Another key feature of the performance tool is its usability. The user interface is designed so that a degree in computer science is not required to use it. To make the tool usable for a greater range of users, the performance tool will provide novice user Wizards, easily understood language in the user interface components, and interactive help.
 
+    <br>
+    <br>
+    Support for single system image (SSI) machines, support for clusters (i.e., multiple OS kernels), exclusive and inclusive user time, program counter (PC) sampling, MPI call tracing, Input/Output tracing, Floating point exception tracing and CPU hardware performance counter experiments are the key components of the baseline functionality. The performance tool was designed in such a manner that will allow users to easily extend the tool by adding their own experiments. Recently, an experiment that generates Open Trace Format (OTF) output files was added to Open|SpeedShop. This experiment is named the MPI OTF experiment and uses the VampirTrace library to generate the OTF files.
+    <br>
+    <br>
+    The performance tool will use dynamic probe class library (DPCL) as a building block component for cluster system support. The use of DPCL will provide a portable means for the performance tool to supply cluster support for platforms supported by the Dyninst dynamic instruction package. DPCL uses the Dyninst application programming interface (API) to provide its instrumentation capability.
+    <br>
+    <br>
+    Availability of the new performance tool based on SpeedShop technology on Linux platforms will enable Fortran (77, 90, and 95), C, and C++ programmers to use an advanced performance analysis tool within the Open Source environment. 
     <br>
     <br>
     Open|SpeedShop&#039;s baseline functionality was released, under the GPL and LGPL Open Source licenses. Support for single system image (SSI) machines, support for clusters (i.e., multiple OS kernels), exclusive and inclusive user time, program counter (PC) sampling, MPI call tracing, Input/Output tracing, Floating point exception tracing and CPU hardware performance counter experiments are the key components of the baseline functionality. The performance tool was designed in such a manner that will allow users to easily extend the tool by adding their own experiments.
@@ -61,10 +70,10 @@ table.exp td {
     <br>
     <br>
     Availability of the new performance tool based on SpeedShop technology on Linux platforms will enable Fortran (77, 90, and 95), C, and C++ programmers to use an advanced performance analysis tool within the Open Source environment.
-
     <br>
     <br>
     Open|SpeedShop is oriented towards gathering and displaying performance data gathered from an application and relating that performance data back to the application&#039;s source file, function, and/or line number(s).
+    <br>
     <br>
     <a href="../index.html">Back To Getting Started With Open|SpeedShop</a>
     </body>
