@@ -2016,7 +2016,8 @@ void
 StatsPanel::cviewQueryStatements()
 {
 #ifdef DEBUG_StatsPanel
-  printf("updatePanel() about to call cviewQueryStatements(%s)\n", QString(originalCommand + " -v Statements").ascii() );
+  printf("StatsPanel::cviewQueryStatements about to call updateStatsPanelData, originalCommand,with vstatements=(%s)\n", 
+          QString(originalCommand + " -v Statements").ascii() );
 #endif
 
   updateStatsPanelData(DONT_FORCE_UPDATE, originalCommand + " -v Statements");
@@ -6917,33 +6918,34 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
 QString
 StatsPanel::generateCommand()
 {
+
   QString traceAddition = QString::null;
+
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::generateCommand(%s) MPItraceFLAG = (%d) currentUserSelectedReportStr=(%s) IOtraceFLAG == %d\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), MPItraceFLAG, IOtraceFLAG );
+  printf("StatsPanel::generateCommand, currentCollectorStr=(%s),MPItraceFLAG=(%d),currentUserSelectedReportStr=(%s),IOtraceFLAG=%d\n", 
+         currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), MPItraceFLAG, IOtraceFLAG );
+  printf("StatsPanel::generateCommand, expID=(%d), focusedExpID=%d\n",  expID, focusedExpID);
 #endif
 
   int exp_id = -1;
-  if( focusedExpID == -1 )
-  {
+  if( focusedExpID == -1 ) {
     exp_id = expID;
-  } else
-  {
+  } else {
     exp_id = focusedExpID;
   }
 
-  if( currentCollectorStr == "io" || currentCollectorStr == "iot" )
-  {
-    if( IOtraceFLAG == TRUE )
-    {
+  if( currentCollectorStr == "io" || 
+      currentCollectorStr == "iot" ) {
+    if( IOtraceFLAG == TRUE ) {
       traceAddition = " -v trace";
     }
-  } else if( currentCollectorStr == "mpi" || currentCollectorStr == "mpit" )
-  {
-    if( MPItraceFLAG == TRUE )
-    {
+  } else if( currentCollectorStr == "mpi" || 
+             currentCollectorStr == "mpit" ) {
+    if( MPItraceFLAG == TRUE ) {
       traceAddition = " -v trace";
     }
   }
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::generateCommand, traceAddition=(%s)\n", traceAddition.ascii() );
 #endif
@@ -6963,44 +6965,51 @@ StatsPanel::generateCommand()
   QString command = QString("expView -x %1").arg(exp_id);
   aboutString = QString("Experiment: %1\n").arg(exp_id);
 
-  if( currentCollectorStr.isEmpty() )
-  {
-    if( numberItemsToDisplayInStats > 0 )
-    {
+  if( currentCollectorStr.isEmpty() ) {
+    if( numberItemsToDisplayInStats > 0 ) {
+
       command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
       aboutString += QString("Requested data for all collectors for top %1 items\n").arg(numberItemsToDisplayInStats);
       infoAboutString += QString("Experiment type: 'all' for top %1 items\n").arg(numberItemsToDisplayInStats);
-    } else
-    {
+
+    } else {
+
       command += QString(" %1").arg("stats");
       aboutString += QString("Requested data for all collectors\n");
       infoAboutString += QString("Data displayed is from all collectors\n");
+
     }
-  } else
-  {
-    if( numberItemsToDisplayInStats > 0 )
-    {
+  } else {
+
+   // Current collector string is not empty
+
+    if( numberItemsToDisplayInStats > 0 ) {
+
       command += QString(" %1%2").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
       aboutString += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::generateCommand() before setting, infoAboutString.ascii()=%s\n", infoAboutString.ascii());
 #endif
+
       infoAboutString += QString("Experiment type: %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::generateCommand() after setting, infoAboutString.ascii()=%s\n", infoAboutString.ascii());
 #endif
-    } else
-    {
+    } else {
+
       command += QString(" %1").arg(currentCollectorStr);
       aboutString += QString("Requested data for collector %1\n");
       infoAboutString += QString("Data displayed is from collector %1\n");
+
     }
 
   }
-  if( !currentUserSelectedReportStr.isEmpty() && !currentCollectorStr.isEmpty() )
-  {
-    if( currentCollectorStr != currentUserSelectedReportStr )
-    {  // If these 2 are equal, we want the default display... not a 
+
+  if( !currentUserSelectedReportStr.isEmpty() && !currentCollectorStr.isEmpty() ) {
+    if( currentCollectorStr != currentUserSelectedReportStr ) {  
+       // If these 2 are equal, we want the default display... not a 
        // specific metric.
        command += QString(" -m %1").arg(currentUserSelectedReportStr);
        aboutString += QString("for metrics %1\n").arg(currentUserSelectedReportStr);
@@ -7010,235 +7019,302 @@ StatsPanel::generateCommand()
 
 
 #ifdef DEBUG_StatsPanel
- printf("so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedReportStr(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), currentMetricStr.ascii() );
+ printf("generateCommand, so far: command=(%s) currentCollectorStr=(%s) currentUserSelectedReportStr(%s) currentMetricStr=(%s)\n", 
+        command.ascii(), currentCollectorStr.ascii(), 
+        currentUserSelectedReportStr.ascii(), currentMetricStr.ascii() );
 #endif
 
 
-  if( currentCollectorStr == "pcsamp" && (currentUserSelectedReportStr
-== "Functions") || (currentUserSelectedReportStr == "LinkedObjects") || (currentUserSelectedReportStr == "Statements") )
-  {
-    if( currentUserSelectedReportStr.isEmpty() )
-    { 
+  if( currentCollectorStr == "pcsamp" && 
+      (currentUserSelectedReportStr == "Functions") || 
+      (currentUserSelectedReportStr == "LinkedObjects") || 
+      (currentUserSelectedReportStr == "Statements") ) {
+
+
+    if( currentUserSelectedReportStr.isEmpty() ) { 
       currentUserSelectedReportStr = "Functions";
     }
-    if( numberItemsToDisplayInStats > 0 )
-    {
+    if( numberItemsToDisplayInStats > 0 ) {
       command = QString("expView -x %1 %2%3 -v %4").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
-    } else
-    {
+    } else {
       command = QString("expView -x %1 %2 -v %4").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
     }
+
 #ifdef DEBUG_StatsPanel
- printf("start of pcsamp generated command (%s)\n", command.ascii() );
+    printf("start of pcsamp generated command (%s)\n", command.ascii() );
 #endif
-  } else if( currentCollectorStr == "usertime" || currentCollectorStr == "fpe" || currentCollectorStr == "io" || currentCollectorStr == "iot" || currentCollectorStr == "hwctime" || currentCollectorStr == "mpi" || currentCollectorStr == "mpit" )
-  {
+
+  } else if( currentCollectorStr == "usertime" || 
+             currentCollectorStr == "fpe" || 
+             currentCollectorStr == "io" || 
+             currentCollectorStr == "iot" || 
+             currentCollectorStr == "hwctime" || 
+             currentCollectorStr == "mpi" || 
+             currentCollectorStr == "mpit" ) {
+
 #ifdef DEBUG_StatsPanel
- printf("currentCollectorStr =(%s) currentUserSelectedReportStr=(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+    printf("generateCommand, usertime to mpit, currentCollectorStr=(%s) currentUserSelectedReportStr=(%s)\n", 
+           currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
+
     selectedFunctionStr = findSelectedFunction();
-    if( currentUserSelectedReportStr.isEmpty() )
-    { 
+
+    if( currentUserSelectedReportStr.isEmpty() ) { 
       currentUserSelectedReportStr = "Functions";
     }
-    if( currentUserSelectedReportStr == "Butterfly" )
-    {
-      if( selectedFunctionStr.isEmpty() )
-      {
+
+    if( currentUserSelectedReportStr == "Butterfly" ) {
+      if( selectedFunctionStr.isEmpty() ) {
         bool ok = FALSE;
+
 #ifdef DEBUG_StatsPanel
-  printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+  printf("generateCommand, Butterfly, A: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
+                                    QString("Which function?:"), 
+                                    QLineEdit::Normal, QString::null, &ok, this);
       }
-      if( selectedFunctionStr.isEmpty() )
-      {
+
+      if( selectedFunctionStr.isEmpty() ) {
         return( QString::null );
       }
+
 #ifdef DEBUG_StatsPanel
- printf("selectedFunctionStr=(%s)\n", selectedFunctionStr.ascii() );
+      printf("generateCommand, selectedFunctionStr=(%s)\n", selectedFunctionStr.ascii() );
 #endif
+
       command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
-    } else if( currentUserSelectedReportStr == "Statements by Function" )
-    {
+
+    } else if( currentUserSelectedReportStr == "Statements by Function" ) {
+
 #ifdef DEBUG_StatsPanel
- printf("Statements by Function\n");
+       printf("generateCommand, Statements by Function\n");
 #endif
-      if( selectedFunctionStr.isEmpty() )
-      {
+
+      if( selectedFunctionStr.isEmpty() ) {
         bool ok = FALSE;
+
 #ifdef DEBUG_StatsPanel
- printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+        printf("generateCommand, StatementsByFunction, A: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
+                                 QString("Which function?:"), 
+                                 QLineEdit::Normal, QString::null, &ok, this);
+
       }
-      if( selectedFunctionStr.isEmpty() )
-      {
+
+      if( selectedFunctionStr.isEmpty() ) {
         return( QString::null );
       }
+
       command = QString("expView -x %1 %4%2 -v Statements -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
-    } else if( currentUserSelectedReportStr == "CallTrees by Function" )
-    {
 #ifdef DEBUG_StatsPanel
- printf("CallTrees by Function\n");
+     printf("generateCommand, StatementsByFunction, command=(%s)\n", command.ascii() );
 #endif
-      if( selectedFunctionStr.isEmpty() )
-      {
+
+
+    } else if( currentUserSelectedReportStr == "CallTrees by Function" ) {
+
+#ifdef DEBUG_StatsPanel
+       printf("generateCommand, CallTrees by Function\n");
+#endif
+
+      if( selectedFunctionStr.isEmpty() ) {
         bool ok = FALSE;
+
 #ifdef DEBUG_StatsPanel
- printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+        printf("generateCommand, CallTreesByFunction, A: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
+                                  QString("Which function?:"), 
+                                  QLineEdit::Normal, QString::null, &ok, this);
       }
+
       command = QString("expView -x %1 %4%2 -v CallTrees -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
-    } else if( currentUserSelectedReportStr == "CallTrees,FullStack by Function" )
-    {
+
+    } else if( currentUserSelectedReportStr == "CallTrees,FullStack by Function" ) {
+
 #ifdef DEBUG_StatsPanel
- printf("CallTrees,FullStack by Function\n");
+      printf("CallTrees,FullStack by Function\n");
 #endif
-      if( selectedFunctionStr.isEmpty() )
-      {
+
+      if( selectedFunctionStr.isEmpty() ) {
         bool ok = FALSE;
+
 #ifdef DEBUG_StatsPanel
-   printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+        printf("generateCommand, CallTreesFSByFunction,A: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
+                                  QString("Which function?:"), 
+                                  QLineEdit::Normal, QString::null, &ok, this);
       }
+
       command = QString("expView -x %1 %4%2 -v CallTrees,FullStack -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
-    } else if( currentUserSelectedReportStr == "TraceBacks by Function" )
-    {
+
+    } else if( currentUserSelectedReportStr == "TraceBacks by Function" ) {
+
 #ifdef DEBUG_StatsPanel
-   printf("TraceBacks by Function\n");
+      printf("generateCommand, TraceBacks by Function\n");
 #endif
-      if( selectedFunctionStr.isEmpty() )
-      {
+      if( selectedFunctionStr.isEmpty() ) {
         bool ok = FALSE;
+
 #ifdef DEBUG_StatsPanel
-   printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+        printf("A: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
+                                  QString("Which function?:"), 
+                                  QLineEdit::Normal, QString::null, &ok, this);
       }
+
       command = QString("expView -x %1 %4%2 -v Tracebacks -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
-    } else if( currentUserSelectedReportStr == "TraceBacks,FullStack by Function" )
-    {
+
+    } else if( currentUserSelectedReportStr == "TraceBacks,FullStack by Function" ) {
+
 #ifdef DEBUG_StatsPanel
-   printf("TraceBacks,FullStack by Function\n");
+      printf("TraceBacks,FullStack by Function\n");
 #endif
-      if( selectedFunctionStr.isEmpty() )
-      {
+
+      if( selectedFunctionStr.isEmpty() ) {
         bool ok = FALSE;
+
 #ifdef DEBUG_StatsPanel
-   printf("A: NO FUNCTION SELECTED Prompt for one!\n");
+        printf("generateCommand, TracebacksFSByFunction, A: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
+                                  QString("Which function?:"), 
+                                  QLineEdit::Normal, QString::null, &ok, this);
       }
+
       command = QString("expView -x %1 %4%2 -v Tracebacks,FullStack -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
-    } else
-    {
+
+    } else {
+
 #ifdef DEBUG_StatsPanel
-   printf("Here's the usertime menu work stuff.\n");
+      printf("generateCommand, Here's the usertime menu work stuff.\n");
 #endif
-      if( numberItemsToDisplayInStats > 0 )
-      {
+
+      if( numberItemsToDisplayInStats > 0 ) {
         command = QString("expView -x %1 %2%3 -v %4").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
+
 #ifdef DEBUG_StatsPanel
-   printf("A: USERTIME! command=(%s)\n", command.ascii() );
+        printf("generateCommand, A: USERTIME! command=(%s)\n", command.ascii() );
 #endif
-      } else
-      {
+      } else {
         command = QString("expView -x %1 %2 -v %4").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
+
 #ifdef DEBUG_StatsPanel
-   printf("B: USERTIME! command=(%s)\n", command.ascii() );
+        printf("generateCommand, B: USERTIME! command=(%s)\n", command.ascii() );
 #endif
       }
     }
+
 #ifdef DEBUG_StatsPanel
    printf("USERTIME! command=(%s)\n", command.ascii() );
 #endif
-  } else if( ( ( currentCollectorStr == "hwc" || currentCollectorStr == "hwctime" || currentCollectorStr == "mpi" || currentCollectorStr == "mpit" ) && ( currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") || currentUserSelectedReportStr.startsWith("Functions") || currentUserSelectedReportStr.startsWith("mpi") || currentUserSelectedReportStr.startsWith("io") || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("Butterfly") ) ))
-  { 
+
+  } else if( ( ( currentCollectorStr == "hwc" || 
+                 currentCollectorStr == "hwctime" || 
+                 currentCollectorStr == "mpi" || 
+                 currentCollectorStr == "mpit" ) && 
+               ( currentUserSelectedReportStr.startsWith("CallTrees") || 
+                 currentUserSelectedReportStr.startsWith("CallTrees,FullStack") || 
+                 currentUserSelectedReportStr.startsWith("Functions") || 
+                 currentUserSelectedReportStr.startsWith("mpi") || 
+                 currentUserSelectedReportStr.startsWith("io") || 
+                 currentUserSelectedReportStr.startsWith("TraceBacks") || 
+                 currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || 
+                 currentUserSelectedReportStr.startsWith("Butterfly") ) )) { 
+
 #ifdef DEBUG_StatsPanel
-   printf("It thinks we're mpi | io!\n");
+    printf("generateCommand, It thinks we're mpi | io!\n");
 #endif
-    if( currentUserSelectedReportStr.isEmpty() || currentUserSelectedReportStr == "CallTrees" )
-    {
-      if( numberItemsToDisplayInStats > 0 )
-      {
+    if( currentUserSelectedReportStr.isEmpty() || currentUserSelectedReportStr == "CallTrees" ) {
+      if( numberItemsToDisplayInStats > 0 ) {
+
         command = QString("expView -x %1 %2%3 -v CallTrees").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-      } else
-      {
+
+      } else {
+
         command = QString("expView -x %1 %2 -v CallTrees").arg(exp_id).arg(currentCollectorStr);
+
       }
-    } else if ( currentUserSelectedReportStr == "CallTrees by Selected Function" )
-    {
+    } else if ( currentUserSelectedReportStr == "CallTrees by Selected Function" ) {
+
       selectedFunctionStr = findSelectedFunction();
-      if( selectedFunctionStr.isEmpty() )
-      {
+      if( selectedFunctionStr.isEmpty() ) {
         bool ok = FALSE;
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
+                                  QString("Which function?:"), 
+                                  QLineEdit::Normal, QString::null, &ok, this);
       }
-      if( selectedFunctionStr.isEmpty() )
-      {
+
+      if( selectedFunctionStr.isEmpty() ) {
         return( QString::null );
       }
-      if( numberItemsToDisplayInStats > 0 )
-      {
+
+      if( numberItemsToDisplayInStats > 0 ) {
         command = QString("expView -x %1 %2%3 -v CallTrees -f %4").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
-      } else
-      {
+      } else {
         command = QString("expView -x %1 %2 -v CallTrees -f %4").arg(exp_id).arg(currentCollectorStr).arg(selectedFunctionStr);
       }
-    } else if ( currentUserSelectedReportStr == "TraceBacks" )
-    {
-      if( numberItemsToDisplayInStats > 0 )
-      {
+    } else if ( currentUserSelectedReportStr == "TraceBacks" ) {
+
+      if( numberItemsToDisplayInStats > 0 ) {
         command = QString("expView -x %1 %2%3 -v TraceBacks").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-      } else
-      {
+      } else {
         command = QString("expView -x %1 %2%3 -v TraceBacks").arg(exp_id).arg(currentCollectorStr);
       }
-    } else if ( currentUserSelectedReportStr == "TraceBacks,FullStack" )
-    {
-      if( numberItemsToDisplayInStats > 0 )
-      {
+
+    } else if ( currentUserSelectedReportStr == "TraceBacks,FullStack" ) {
+
+      if( numberItemsToDisplayInStats > 0 ) {
         command = QString("expView -x %1 %2%3 -v TraceBacks,FullStack").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-      } else
-      {
+      } else {
         command = QString("expView -x %1 %2 -v TraceBacks,FullStack").arg(exp_id).arg(currentCollectorStr);
       }
-    } else if( currentUserSelectedReportStr == "Butterfly" )
-    {
+
+    } else if( currentUserSelectedReportStr == "Butterfly" ) {
+
       selectedFunctionStr = findSelectedFunction();
-      if( selectedFunctionStr.isEmpty() )
-      {
+      if( selectedFunctionStr.isEmpty() ) {
         bool ok = FALSE;
 #ifdef DEBUG_StatsPanel
-   printf("B: NO FUNCTION SELECTED Prompt for one!\n");
+        printf("generateCommand, Butterfly B: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", QString("Which function?:"), QLineEdit::Normal, QString::null, &ok, this);
+        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
+                                  QString("Which function?:"), 
+                                  QLineEdit::Normal, QString::null, &ok, this);
       }
-      if( selectedFunctionStr.isEmpty() )
-      {
+
+      if( selectedFunctionStr.isEmpty() ) {
         return( QString::null );
       }
-      if( numberItemsToDisplayInStats > 0 )
-      {
+
+      if( numberItemsToDisplayInStats > 0 ) {
+
         command = QString("expView -x %1 %2%3 -v Butterfly -f \"%4\"").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
-      } else
-      {
+
+      } else {
+
         command = QString("expView -x %1 %2 -v Butterfly -f \"%4\"").arg(exp_id).arg(currentCollectorStr).arg(selectedFunctionStr);
+
       }
-    } else
-    {
-      if( numberItemsToDisplayInStats > 0 )
-      {
+
+    } else {
+
+      if( numberItemsToDisplayInStats > 0 ) {
         command = QString("expView -x %1 %2%3 -v Functions").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-      } else
-      {
+      } else {
         command = QString("expView -x %1 %2 -v Functions").arg(exp_id).arg(currentCollectorStr);
       }
     }
-  } else if( (currentCollectorStr == "hwc" || currentCollectorStr == "hwctime") &&
+
+  } else if( (currentCollectorStr == "hwc" || 
+              currentCollectorStr == "hwctime") &&
             (currentUserSelectedReportStr == "Butterfly") ||
             (currentUserSelectedReportStr == "Functions") ||
             (currentUserSelectedReportStr == "LinkedObjects") ||
@@ -7246,52 +7322,57 @@ StatsPanel::generateCommand()
             (currentUserSelectedReportStr == "CallTrees") ||
             (currentUserSelectedReportStr == "CallTrees,FullStack") ||
             (currentUserSelectedReportStr == "TraceBacks") ||
-            (currentUserSelectedReportStr == "TraceBacks,FullStack") )
-  {
-    if( currentUserSelectedReportStr.isEmpty() )
-    { 
+            (currentUserSelectedReportStr == "TraceBacks,FullStack") ) {
+
+    if( currentUserSelectedReportStr.isEmpty() ) { 
       currentUserSelectedReportStr = "Functions";
     }
-  if( currentUserSelectedReportStr.startsWith("Statements") )
-  { 
-    if( numberItemsToDisplayInStats > 0 )
-    {
+
+   if( currentUserSelectedReportStr.startsWith("Statements") ) { 
+
+    if( numberItemsToDisplayInStats > 0 ) {
       command = QString("expView -x %1 %2%3 -v Statements").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-    } else
-    {
+    } else {
       command = QString("expView -x %1 %2 -v Statements").arg(exp_id).arg(currentCollectorStr);
     }
-  } else
-  {
-    if( numberItemsToDisplayInStats > 0 )
-    {
+
+   } else {
+
+    // report string does not start with Statements
+    if( numberItemsToDisplayInStats > 0 ) {
       command = QString("expView -x %1 %2%3 -v %4").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
-    } else 
-    {
+    } else {
       command = QString("expView -x %1 %2 -v %4").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
     }
+
   }
+
 #ifdef DEBUG_StatsPanel
-   printf("hwc command=(%s)\n", command.ascii() );
+  printf("generateCommand, hwc command=(%s)\n", command.ascii() );
 #endif
   aboutString = command + "\n";
-  } 
+ } 
 
   // Add any focus.
-  if( !currentThreadsStr.isEmpty() )
-  {
+ if( !currentThreadsStr.isEmpty() ) {
+
 #ifdef DEBUG_StatsPanel
-   printf("currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+    printf("generateCommand, add any focus, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
 #endif
+
     command += QString(" %1").arg(currentThreadsStr);
     aboutString += QString("for threads %1\n").arg(currentThreadsStr);
     infoAboutString += QString("Hosts/Threads %1\n").arg(currentThreadsStr);
+
   }
+
 #ifdef DEBUG_StatsPanel
-   printf("command sofar... =(%s)\n", command.ascii() );
-   printf("add any modifiers...\n");
+   printf("generateCommand, command sofar... =(%s)\n", command.ascii() );
+   printf("generateCommand, add any modifiers...\n");
 #endif
+
     std::list<std::string> *modifier_list = NULL;;
+
 #ifdef DEBUG_StatsPanel
    printf("generateCommand: currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
 #endif
@@ -7328,38 +7409,61 @@ StatsPanel::generateCommand()
     for( std::list<std::string>::const_iterator it = modifier_list->begin();
        it != modifier_list->end(); it++ )
     {
+
       std::string modifier = (std::string)*it;
 #ifdef DEBUG_StatsPanel
-   printf("modifer = (%s)\n", modifier.c_str() );
+      printf("generateCommand, modifer = (%s)\n", modifier.c_str() );
 #endif
-      if( modifierStr.isEmpty() )
-      {
+      if( modifierStr.isEmpty() ) {
+
 #ifdef DEBUG_StatsPanel
-   printf("A: modifer = (%s)\n", modifier.c_str() );
+        printf("generateCommand, modifierStr is empty, A: modifer = (%s)\n", modifier.c_str() );
 #endif
 
         modifierStr = QString(" -m %1").arg(modifier.c_str());
         currentMetricStr = modifier.c_str();
-      } else
-      {
+      } else {
+
 #ifdef DEBUG_StatsPanel
-   printf("B: modifer = (%s)\n", modifier.c_str() );
+        printf("generateCommand, before update modifierStr.ascii()=(%s) B: modifer = (%s)\n", 
+               modifierStr.ascii(), modifier.c_str() );
 #endif
         modifierStr += QString(",%1").arg(modifier.c_str());
-      }
-    }
-    if( !modifierStr.isEmpty() )
-    {
-      command += QString(" %1").arg(modifierStr);
-    }
-
-    if( !traceAddition.isEmpty() )
-    {
-      command += traceAddition;
-    }
 
 #ifdef DEBUG_StatsPanel
-   printf("generateCommand() returning (%s) currentCollectorStr=(%s)\n", command.ascii(), currentCollectorStr.ascii() );
+        printf("generateCommand, after update modifierStr.ascii()=(%s) B: modifer = (%s)\n", 
+               modifierStr.ascii(), modifier.c_str() );
+#endif
+
+      }
+    }
+
+
+#ifdef DEBUG_StatsPanel
+     printf("generateCommand, before updating command=(%s) with modifierStr.ascii()=(%s)\n", 
+             command.ascii(), modifierStr.ascii() );
+#endif
+
+   if( !modifierStr.isEmpty() ) {
+     command += QString(" %1").arg(modifierStr);
+   }
+
+#ifdef DEBUG_StatsPanel
+   printf("generateCommand, after updating command=(%s) with modifierStr.ascii()=(%s)\n", 
+           command.ascii(), modifierStr.ascii() );
+   printf("generateCommand, before updating command=(%s) with traceAddition.ascii()=(%s)\n", 
+           command.ascii(), traceAddition.ascii() );
+#endif
+
+   if( !traceAddition.isEmpty() ) {
+      command += traceAddition;
+   }
+
+#ifdef DEBUG_StatsPanel
+   printf("generateCommand, before updating command=(%s) with traceAddition.ascii()=(%s)\n", 
+          command.ascii(), traceAddition.ascii() );
+   printf("generateCommand() EXIT returning command=(%s), currentCollectorStr=(%s)\n", 
+          command.ascii(), currentCollectorStr.ascii() );
 #endif
 
   return( command );
@@ -8345,69 +8449,81 @@ nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n
     fn =  filename.right((filename.length()-basename_index)-1);
   }
 #ifdef DEBUG_StatsPanel
- printf("StatsPanel::lookUpFileHighlights, file BaseName=(%s)\n", fn.ascii() );
+  printf("StatsPanel::lookUpFileHighlights, file BaseName=(%s)\n", fn.ascii() );
 #endif
 
-  if( currentMetricStr.isEmpty() )
-  {
-    if( _fileName.isEmpty() )
-    {
+  if( currentMetricStr.isEmpty() ) {
+    if( _fileName.isEmpty() ) {
       return(spo);
     }
+
 #ifdef DEBUG_StatsPanel
- printf("StatsPanel::lookUpFileHighlights, lfhB: expID=%d focusedExpID=%d\n", expID, focusedExpID );
+     printf("StatsPanel::lookUpFileHighlights, lfhB: expID=%d focusedExpID=%d\n", expID, focusedExpID );
 #endif
-    if( expID > 0 )
-    {
-// Trace experiments do not have Statements metrics! why?
-      if (currentCollectorStr == "io" || currentCollectorStr == "iot" ||
-	  currentCollectorStr == "mpi" || currentCollectorStr == "mpit" )
-          command = QString("expView -x %1 -f %2 %3").arg(expID).arg(fn).arg(timeIntervalString);
-      else
-          command = QString("expView -x %1 -v Statements -f %2 %3").arg(expID).arg(fn).arg(timeIntervalString);
-    } else
-    {
-      if (currentCollectorStr == "io" || currentCollectorStr == "iot" ||
-	  currentCollectorStr == "mpi" || currentCollectorStr == "mpit" )
+
+    if( expID > 0 ) {
+
+      // Trace experiments do not have Statements metrics! why?
+      if (currentCollectorStr == "io" || 
+          currentCollectorStr == "iot" ||
+	  currentCollectorStr == "mpi" || 
+          currentCollectorStr == "mpit" ) {
+        command = QString("expView -x %1 -f %2 %3").arg(expID).arg(fn).arg(timeIntervalString);
+      } else {
+        command = QString("expView -x %1 -v Statements -f %2 %3").arg(expID).arg(fn).arg(timeIntervalString);
+      }
+    } else {
+
+      if (currentCollectorStr == "io" || 
+          currentCollectorStr == "iot" ||
+	  currentCollectorStr == "mpi" || 
+          currentCollectorStr == "mpit" ) {
           command = QString("expView -x %1 -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
-      else
+      } else {
           command = QString("expView -x %1 -v Statements -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
+      }
     }
-  } else
-  {
-    if( expID > 0 )
-    {
-      if (currentCollectorStr == "io" || currentCollectorStr == "iot" ||
-	  currentCollectorStr == "mpi" || currentCollectorStr == "mpit" )
+  } else {
+
+    if( expID > 0 ) {
+      if (currentCollectorStr == "io" || 
+          currentCollectorStr == "iot" ||
+	  currentCollectorStr == "mpi" || 
+          currentCollectorStr == "mpit" ) {
           command = QString("expView -x %1 -f %2 -m %3 %4").arg(expID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
-      else
+      } else {
           command = QString("expView -x %1 -v Statements -f %2 -m %3 %4").arg(expID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
-    } else
-    {
-      if (currentCollectorStr == "io" || currentCollectorStr == "iot" ||
-	  currentCollectorStr == "mpi" || currentCollectorStr == "mpit" )
+      }
+    } else {
+
+      if (currentCollectorStr == "io" || 
+          currentCollectorStr == "iot" ||
+	  currentCollectorStr == "mpi" || 
+          currentCollectorStr == "mpit" ) {
           command = QString("expView -x %1 -f %2 -m %3 %4").arg(focusedExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
-      else
+      } else {
           command = QString("expView -x %1 -v Statements -f %2 -m %3 %4").arg(focusedExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+      }
     }
   }
-  if( !currentThreadStr.isEmpty() )
-  {
+
+  if( !currentThreadStr.isEmpty() ) {
     command += QString(" %1").arg(currentThreadsStr);
   }
+
 #ifdef DEBUG_StatsPanel
- printf("StatsPanel::lookUpFileHighlights, command=(%s)\n", command.ascii() );
+  printf("StatsPanel::lookUpFileHighlights, command=(%s)\n", command.ascii() );
 #endif
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   InputLineObject *clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
 
 
-  if( clip == NULL )
-  {
+  if( clip == NULL ) {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
     QApplication::restoreOverrideCursor();
   }
+
   Input_Line_Status status = ILO_UNKNOWN;
 
   while( !clip->Semantics_Complete() )
