@@ -7102,6 +7102,7 @@ StatsPanel::generateCommand()
        printf("generateCommand, pcsamp, Statements by Function\n");
 #endif
 
+      selectedFunctionStr = findSelectedFunction();
       if( selectedFunctionStr.isEmpty() ) {
         bool ok = FALSE;
 
