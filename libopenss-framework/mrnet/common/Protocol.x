@@ -269,40 +269,40 @@ typedef uint64_t OpenSS_Protocol_Time;
  *
  * ...
  */
-
-#define OPENSS_PROTOCOL_TAG_DATA                               ((int)0)
-
-#define OEPNSS_PROTOCOL_TAG_ATTACHED_TO_THREAD                 ((int)1)
-#define OPENSS_PROTOCOL_TAG_ATTACH_TO_THREAD                   ((int)2)
-#define OPENSS_PROTOCOL_TAG_CHANGE_THREAD_STATE                ((int)3)
-#define OPENSS_PROTOCOL_TAG_CREATE_PROCESS                     ((int)4)
-#define OPENSS_PROTOCOL_TAG_DETACH_FROM_THREAD                 ((int)5)
-
-#define OPENSS_PROTOCOL_TAG_EXECUTE_NOW                        ((int)6)
-#define OPENSS_PROTOCOL_TAG_EXECUTE_AT_ENTRY_OR_EXIT           ((int)7)
-#define OPENSS_PROTOCOL_TAG_EXECUTE_IN_PLACE_OF                ((int)8)
-#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_INTEGER                 ((int)9)
-#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_STRING                  ((int)10)
-
-#define OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE               ((int)11)
-#define OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE               ((int)12)
-#define OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE                   ((int)13)
-#define OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE                ((int)14)
-#define OPENSS_PRTOOCOL_TAG_LOADED_LINKED_OBJECT               ((int)15)
-
-#define OPENSS_PROTOCOL_TAG_REPORT_ERROR                       ((int)16)
-#define OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER                 ((int)17)
-#define OPENSS_PROTOCOL_TAG_STOP_AT_ENTRY_OR_EXIT              ((int)18)
-#define OPENSS_PROTOCOL_TAG_SYMBOL_TABLE                       ((int)19)
-#define OPENSS_PROTOCOL_TAG_THREAD_STATE_CHANGED               ((int)20)
-
-#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)21)
-#define OPENSS_PRTOOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)22)
+%
+%#define OPENSS_PROTOCOL_TAG_DATA                               ((int)0)
+%
+%#define OEPNSS_PROTOCOL_TAG_ATTACHED_TO_THREAD                 ((int)1)
+%#define OPENSS_PROTOCOL_TAG_ATTACH_TO_THREAD                   ((int)2)
+%#define OPENSS_PROTOCOL_TAG_CHANGE_THREAD_STATE                ((int)3)
+%#define OPENSS_PROTOCOL_TAG_CREATE_PROCESS                     ((int)4)
+%#define OPENSS_PROTOCOL_TAG_DETACH_FROM_THREAD                 ((int)5)
+%
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_NOW                        ((int)6)
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_AT_ENTRY_OR_EXIT           ((int)7)
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_IN_PLACE_OF                ((int)8)
+%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_INTEGER                 ((int)9)
+%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_STRING                  ((int)10)
+%
+%#define OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE               ((int)11)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE               ((int)12)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE                   ((int)13)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE                ((int)14)
+%#define OPENSS_PRTOOCOL_TAG_LOADED_LINKED_OBJECT               ((int)15)
+%
+%#define OPENSS_PROTOCOL_TAG_REPORT_ERROR                       ((int)16)
+%#define OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER                 ((int)17)
+%#define OPENSS_PROTOCOL_TAG_STOP_AT_ENTRY_OR_EXIT              ((int)18)
+%#define OPENSS_PROTOCOL_TAG_SYMBOL_TABLE                       ((int)19)
+%#define OPENSS_PROTOCOL_TAG_THREAD_STATE_CHANGED               ((int)20)
+%
+%#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)21)
+%#define OPENSS_PRTOOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)22)
 
 
 
 /**
- * ...
+ * Attached to a thread.
  *
  * ...
  */
@@ -700,7 +700,7 @@ struct OpenSS_Protocol_SymbolTable
 
 
 /**
- * Thread states have changed.
+ * Thread's state has changed.
  *
  * Issued by the server to indicate that the current state of every thread
  * in the specified group has changed to the specified value.
@@ -709,7 +709,7 @@ struct OpenSS_Protocol_SymbolTable
  *          request, it is also sent by the server when thread states change
  *          asynchronously due to thread termination, etc.
  */
-struct OpenSS_Protocol_ThreadStateChanged
+struct OpenSS_Protocol_ThreadsStateChanged
 {
     /** Threads whose state has changed. */
     OpenSS_Protocol_ThreadNameGroup threads;

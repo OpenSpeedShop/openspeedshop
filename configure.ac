@@ -183,6 +183,7 @@ AC_CONFIG_FILES(
 	libopenss-framework/dpcl/Makefile
 	libopenss-framework/dyninst/Makefile
 	libopenss-framework/mrnet/Makefile
+	libopenss-framework/mrnet/common/Makefile
 	libopenss-framework/mrnet/openssd/Makefile
 	libopenss-queries/Makefile
 	plugins/Makefile

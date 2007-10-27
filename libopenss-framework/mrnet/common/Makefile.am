@@ -16,20 +16,33 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = common openssd
+BUILT_SOURCES = \
+	Protocol.h Protocol.c
 
-noinst_LTLIBRARIES = libopenss-framework-mrnet.la
+noinst_LTLIBRARIES = libopenss-framework-mrnet-common.la
 
-libopenss_framework_mrnet_la_CXXFLAGS = \
+libopenss_framework_mrnet_common_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
-	-I$(top_srcdir)/libopenss-framework/mrnet/common
+	@MRNET_CPPFLAGS@
 
-libopenss_framework_mrnet_la_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-framework/mrnet/common
+libopenss_framework_mrnet_common_la_LDFLAGS = \
+	@MRNET_LDFLAGS@
 
-libopenss_framework_mrnet_la_LIBADD = \
-	-lopenss-framework-mrnet-common
+libopenss_framework_mrnet_common_la_LIBADD = \
+	@MRNET_LIBS@ \
+	-lpthread
 
-libopenss_framework_mrnet_la_SOURCES = \
-	Callbacks.hxx Callbacks.cxx \
-	Instrumentor.cxx
+libopenss_framework_mrnet_common_la_SOURCES = \
+	MessageCallback.hxx \
+	MessagePump.hxx MessagePump.cxx \
+	Protocol.x $(BUILT_SOURCES)
+
+SUFFIXES = .x
+CLEANFILES = $(BUILT_SOURCES)
+
+nodist_libopenss_framework_mrnet_common_la_SOURCES = $(BUILT_SOURCES)
+
+Protocol.h Protocol.c : Protocol.x
+	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
+	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
+	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<

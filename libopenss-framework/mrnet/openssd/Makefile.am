@@ -16,34 +16,22 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-BUILT_SOURCES = \
-	Protocol.h Protocol.c
-
 bin_PROGRAMS = openssd
 
 openssd_CXXFLAGS = \
-	@DYNINST_CPPFLAGS@ \
-	@MRNET_CPPFLAGS@
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-framework/mrnet/common \
+	@DYNINST_CPPFLAGS@
 
 openssd_LDFLAGS = \
-	@DYNINST_LDFLAGS@ \
-	@MRNET_LDFLAGS@
+	-L$(top_srcdir)/libopenss-framework/mrnet/common \
+	@DYNINST_LDFLAGS@
 
 openssd_LDADD = \
-	@DYNINST_LIBS@ \
-	@MRNET_LIBS@ \
-	-lpthread
+	-lopenss-framework-mrnet-common \
+	@DYNINST_LIBS@
 
 openssd_SOURCES = \
-	openssd.cxx \
-	Protocol.x $(BUILT_SOURCES)
-
-SUFFIXES = .x
-CLEANFILES = $(BUILT_SOURCES)
-
-#nodist_openssd_SOURCES = $(BUILT_SOURCES)
-
-Protocol.h Protocol.c : Protocol.x
-	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
-	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
-	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
+	$(top_srcdir)/libopenss-framework/Blob.cxx \
+	Callbacks.hxx Callbacks.cxx \
+	openssd.cxx
