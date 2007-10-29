@@ -46,15 +46,18 @@ usertime_la_SOURCES = \
 	UserTimeDetail.hxx
 
 usertime_rt_la_CFLAGS = \
+        @BINUTILS_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@
 
 usertime_rt_la_LDFLAGS = \
+        @BINUTILS_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 usertime_rt_la_LIBADD = \
+        @BINUTILS_LIBS@ \
 	-lopenss-runtime \
 	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt
@@ -64,17 +67,20 @@ usertime_rt_la_SOURCES = \
 	runtime.c
 
 usertime_rt_offline_la_CFLAGS = \
+        @BINUTILS_CPPFLAGS@ \
         @LIBMONITOR_CPPFLAGS@ \
 	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@
 
 usertime_rt_offline_la_LDFLAGS = \
+        @BINUTILS_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-runtime \
         @LIBMONITOR_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 usertime_rt_offline_la_LIBADD = \
+        @BINUTILS_LIBS@ \
 	-lopenss-runtime-offline \
         @LIBMONITOR_LIBS@ \
 	@LIBUNWIND_LIBS@ \
