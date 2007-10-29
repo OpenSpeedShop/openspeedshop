@@ -127,9 +127,49 @@ Have metadata for the source panel, such as source directory.
 The "Group Similar Processes" terminology should be changed.  Similar not
 a good word in this context.
 
-Candidate #3   (_name_)
+Candidate #3   (Matt)
 
 PHASE I.
+
+We had some initial problems under Matt's account, so ended up
+running under Martin's account.
+
+The candidate went shooting through the wizard panels very quickly.
+Noted that the buttons weren't lined up so one could keep the cursor
+at the same location and click through to the end.
+
+The candidate didn't want to have to go through all the wizard panels
+to do the task.
+
+Comment: let the user know, in a more explicit manner, that the data is aggregated.
+
+Comment: More quick links for "by statement", "statements by function" etc.
+We showed him the tool bar: which was exactly what he was thinking about.
+
+Comment: Use the tool bar for more items that are hidden in the menu.
+Suggests that "More metadata" should be on the same line with the other icons.
+Use icon for "group similar processes".   
+
+This (group similar processes) is useful but would also like a way to get at 
+each individual ranks compared per column.
+
+Also, have an easier way to switch state (?).
+
+Candidate had trouble with the path remapping.  Very surprized that the
+old path wasn't remembered and that it was even necessary.  
+
+Group suggestion: this should be automated as much as possible to make this
+easier on the user.  Maybe totally do it and just ask the user to confirm
+if what the tool has done is correct.
+
+Candidate found a lot of the tool was very useful.  
+
+Candidate liked the per statement views and source annotation by statistics.
+
+Candidate said the wizard steps seemed reasonable to him.
+
+The custom stats panel task was just about to begin when we ran out of time.
+
 
 
 Candidate #4   (_name_)
