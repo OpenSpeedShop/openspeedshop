@@ -18,12 +18,12 @@
 
 /** @file
  *
- * Declaration of the MessagePump namespace.
+ * Declaration of the Frontend namespace.
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_MessagePump_
-#define _OpenSpeedShop_Framework_MessagePump_
+#ifndef _OpenSpeedShop_Framework_Frontend_
+#define _OpenSpeedShop_Framework_Frontend_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -35,21 +35,30 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class Path;
+
     /**
-     * Message pump.
+     * MRNet frontend.
      *
      * Namespace containing procedural functions for registering/unregistering
-     * callbacks with, and starting, the message pump. The pump is responsible
-     * for processing incoming messages coming from the frontend or backend.
+     * callbacks with, starting, and stopping the MRNet frontend message pump.
+     * This pump is responsible for receiving and procdessing incoming messages
+     * from the backends. A function is also provided for sending messages to
+     * the backends.
      *
      * @ingroup Implementation
      */
-    namespace MessagePump
+    namespace Frontend
     {
 	void registerCallback(const int&, const MessageCallback);
 	void unregisterCallback(const int&, const MessageCallback);
 
-	void startBackend(int, char*[]);
+	void startMessagePump(const Path&);
+	void stopMessagePump();
+
+	void sendToAllBackends(const int&, const Blob&);
+
+	// TODO: function to send to a subset of the backends
     }
     
 } }

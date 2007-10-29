@@ -18,64 +18,47 @@
 
 /** @file
  *
- * Definition of the MessagePump namespace.
+ * Declaration of the Backend namespace.
  *
  */
 
-#include "MessagePump.hxx"
+#ifndef _OpenSpeedShop_Framework_Backend_
+#define _OpenSpeedShop_Framework_Backend_
 
-#include <mrnet/MRNet.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
-using namespace OpenSpeedShop::Framework;
-
-
-
-/**
- * Register a callback with the message pump.
- *
- * ...
- *
- * @param tag         ...
- * @param callback    ...
- */
-void MessagePump::registerCallback(const int& tag,
-				   const MessageCallback callback)
-{
-}
+#include "MessageCallback.hxx"
 
 
 
-/**
- * Unregister a callback with the message pump.
- *
- * ...
- *
- * @param tag         ...
- * @param callback    ...
- */
-void MessagePump::unregisterCallback(const int& tag,
-				     const MessageCallback callback)
-{
-}
+namespace OpenSpeedShop { namespace Framework {
 
+    /**
+     * MRNet backend.
+     *
+     * Namespace containing procedural functions for registering/unregistering
+     * callbacks with, starting, and stopping the MRNet backend message pump.
+     * This pump is responsible for receiving and processing incoming messages
+     * from the frontend. A function is also provided for sending messages to
+     * the frontend.
+     *
+     * @ingroup Implementation
+     */
+    namespace Backend
+    {
+	void registerCallback(const int&, const MessageCallback);
+	void unregisterCallback(const int&, const MessageCallback);
 
+	void startMessagePump(int, char*[]);
+	void stopMessagePump();
 
-/**
- * Start the backend message pump.
- *
- * ...
- *
- * @param argc    Number of command-line arguments.
- * @param argv    Array of command-line arguments.
- */
-void MessagePump::startBackend(int argc, char* argv[])
-{
-    // Initialize the MRNet library (as a backend)
-    MRN::Network network(argc, argv);
-
-    // ...
-    while(true) {
-	//if(network.recv(&tag, &packet, &stream) != 1) {
-	//}	
+	void sendToFrontend(const int&, const Blob&);
     }
-}
+    
+} }
+
+
+
+#endif

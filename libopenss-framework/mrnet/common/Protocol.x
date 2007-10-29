@@ -270,34 +270,35 @@ typedef uint64_t OpenSS_Protocol_Time;
  * ...
  */
 %
-%#define OPENSS_PROTOCOL_TAG_DATA                               ((int)0)
+%#define OPENSS_PROTOCOL_TAG_ESTABLISH_UPSTREAM                 ((int)0)
+%#define OPENSS_PROTOCOL_TAG_DATA                               ((int)1)
 %
-%#define OEPNSS_PROTOCOL_TAG_ATTACHED_TO_THREAD                 ((int)1)
-%#define OPENSS_PROTOCOL_TAG_ATTACH_TO_THREAD                   ((int)2)
-%#define OPENSS_PROTOCOL_TAG_CHANGE_THREAD_STATE                ((int)3)
-%#define OPENSS_PROTOCOL_TAG_CREATE_PROCESS                     ((int)4)
-%#define OPENSS_PROTOCOL_TAG_DETACH_FROM_THREAD                 ((int)5)
+%#define OEPNSS_PROTOCOL_TAG_ATTACHED_TO_THREAD                 ((int)10)
+%#define OPENSS_PROTOCOL_TAG_ATTACH_TO_THREAD                   ((int)11)
+%#define OPENSS_PROTOCOL_TAG_CHANGE_THREAD_STATE                ((int)12)
+%#define OPENSS_PROTOCOL_TAG_CREATE_PROCESS                     ((int)13)
+%#define OPENSS_PROTOCOL_TAG_DETACH_FROM_THREAD                 ((int)14)
 %
-%#define OPENSS_PROTOCOL_TAG_EXECUTE_NOW                        ((int)6)
-%#define OPENSS_PROTOCOL_TAG_EXECUTE_AT_ENTRY_OR_EXIT           ((int)7)
-%#define OPENSS_PROTOCOL_TAG_EXECUTE_IN_PLACE_OF                ((int)8)
-%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_INTEGER                 ((int)9)
-%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_STRING                  ((int)10)
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_NOW                        ((int)15)
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_AT_ENTRY_OR_EXIT           ((int)16)
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_IN_PLACE_OF                ((int)17)
+%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_INTEGER                 ((int)18)
+%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_STRING                  ((int)19)
 %
-%#define OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE               ((int)11)
-%#define OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE               ((int)12)
-%#define OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE                   ((int)13)
-%#define OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE                ((int)14)
-%#define OPENSS_PRTOOCOL_TAG_LOADED_LINKED_OBJECT               ((int)15)
+%#define OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE               ((int)20)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE               ((int)21)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE                   ((int)22)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE                ((int)23)
+%#define OPENSS_PRTOOCOL_TAG_LOADED_LINKED_OBJECT               ((int)24)
 %
-%#define OPENSS_PROTOCOL_TAG_REPORT_ERROR                       ((int)16)
-%#define OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER                 ((int)17)
-%#define OPENSS_PROTOCOL_TAG_STOP_AT_ENTRY_OR_EXIT              ((int)18)
-%#define OPENSS_PROTOCOL_TAG_SYMBOL_TABLE                       ((int)19)
-%#define OPENSS_PROTOCOL_TAG_THREAD_STATE_CHANGED               ((int)20)
+%#define OPENSS_PROTOCOL_TAG_REPORT_ERROR                       ((int)25)
+%#define OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER                 ((int)26)
+%#define OPENSS_PROTOCOL_TAG_STOP_AT_ENTRY_OR_EXIT              ((int)27)
+%#define OPENSS_PROTOCOL_TAG_SYMBOL_TABLE                       ((int)28)
+%#define OPENSS_PROTOCOL_TAG_THREAD_STATE_CHANGED               ((int)29)
 %
-%#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)21)
-%#define OPENSS_PRTOOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)22)
+%#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)30)
+%#define OPENSS_PRTOOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)31)
 
 
 

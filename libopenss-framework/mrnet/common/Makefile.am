@@ -22,19 +22,15 @@ BUILT_SOURCES = \
 noinst_LTLIBRARIES = libopenss-framework-mrnet-common.la
 
 libopenss_framework_mrnet_common_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework \
-	@MRNET_CPPFLAGS@
+	-I$(top_srcdir)/libopenss-framework
 
-libopenss_framework_mrnet_common_la_LDFLAGS = \
-	@MRNET_LDFLAGS@
+libopenss_framework_mrnet_common_la_LDFLAGS =
 
-libopenss_framework_mrnet_common_la_LIBADD = \
-	@MRNET_LIBS@ \
-	-lpthread
+libopenss_framework_mrnet_common_la_LIBADD =
 
 libopenss_framework_mrnet_common_la_SOURCES = \
 	MessageCallback.hxx \
-	MessagePump.hxx MessagePump.cxx \
+	MessageCallbackTable.hxx MessageCallbackTable.cxx \
 	Protocol.x $(BUILT_SOURCES)
 
 SUFFIXES = .x

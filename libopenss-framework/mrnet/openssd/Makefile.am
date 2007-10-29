@@ -21,17 +21,22 @@ bin_PROGRAMS = openssd
 openssd_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-framework/mrnet/common \
-	@DYNINST_CPPFLAGS@
+	@DYNINST_CPPFLAGS@ \
+	@MRNET_CPPFLAGS@
 
 openssd_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework/mrnet/common \
-	@DYNINST_LDFLAGS@
+	@DYNINST_LDFLAGS@ \
+	@MRNET_LDFLAGS@
 
 openssd_LDADD = \
 	-lopenss-framework-mrnet-common \
-	@DYNINST_LIBS@
+	@DYNINST_LIBS@ \
+	@MRNET_LIBS@ \
+	-lpthread
 
 openssd_SOURCES = \
 	$(top_srcdir)/libopenss-framework/Blob.cxx \
+	Backend.hxx Backend.cxx \
 	Callbacks.hxx Callbacks.cxx \
 	openssd.cxx
