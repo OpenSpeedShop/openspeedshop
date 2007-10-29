@@ -2,7 +2,80 @@ Candidate #1   (_name_)
 
 PHASE I.
 
-PHASE II.
+User launches openss
+
+User starts typing in the command panel
+(my tip about using the same command in openss as
+ used to run sweep3d outside of openss was confusing)
+
+We ask user to start over and follow scenario/assignment 
+sheet.
+
+User looking at Wizard panel, picks generate new performance data
+
+loadPanel dragged off the openss window (no buttons go with it)
+
+user makes comment - let me type command into the mpi executable 
+browse entry line.
+
+after setting up the experiment through the generic wizard
+user looks around experiment window.   Thought it was already
+run but experiment was only created.
+
+User says it would be better to run the experiment upon the
+user hitting the final wizard "Finish" button
+
+working his way through the scenario use hits the source path
+remapping issue we had in the scenario.  The application was created
+in another directory so the source isn't found.  The task was to use
+the preference panel to remap the old path to the new path.
+
+User looked in the source panel to do the remapping but nothing there
+after several searches for this functionality we helped the user.  It
+is not obvious how to do this the way it is currently set up.
+
+Discussion occurred about this and some suggestions were tossed out:
+  1) Message about the problem:  Have this be a dialog box with the old path already
+                                 filled in or even the new source filled in if found
+                                 in the current directory *(with a question asking if
+                                 this is the correct file or directory).
+
+For the task about finding if any of the ranks took more time than any other rank,
+the user chose the "Group Similar Processes" menu item.   It was not the functionality
+he would have expected.  He suggested something along the lines of having an view that
+shows the min, max, median, mapped against the rank we are comparing against.  Maybe
+having a bar graph that you could click on to get further breakdown.
+User stated this would be useful on Blue Gene.
+
+User tried to focus on some of the ranks and chose the master thread rank instead of
+the real ranked process and didn't get data.   User suggested we not show the master
+thread rank process.  IBM tools don't show them.
+
+In the Custom Stats Panel, user chose Update menu item instead of Focus Stats Panel.
+
+It was not easy for the user to find out how to display 1 rank.  The
+option in the Stats Panel for showing ranks (when 8 or less ranks are in the experiment)
+is not usable.  You deselect ranks with clicks not select them and you have to do this
+7 times to get to see only one rank.   Then two more clicks and displays to switch
+to another individual rank.
+
+Suggestion to bring up two columns always in the custom comparison panel.
+
+Users thoughts at end:
+
+Seem a bit slow.
+
+TV - simple to get started
+
+Come up and do more for user, instead of having to set up everything.
+
+  Our comments were that we can: openss -f "executable" experiment_type
+  will bring up the experiment ready to run.
+  
+  We were testing the MPI wizard capabilities, so we wanted to run through
+  the wizard process.
+ 
+
 
 Candidate #2   (_name_)
 
