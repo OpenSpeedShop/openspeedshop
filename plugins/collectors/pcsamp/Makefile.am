@@ -16,6 +16,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+
 # Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
 
 CFLAGS = -g -O0
@@ -44,13 +45,16 @@ pcsamp_la_SOURCES = \
 	PCSampCollector.hxx PCSampCollector.cxx
 
 pcsamp_rt_la_CFLAGS = \
+	@BINUTILS_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-runtime
 
 pcsamp_rt_la_LDFLAGS = \
+	@BINUTILS_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-runtime \
 	-no-undefined -module -avoid-version
 
 pcsamp_rt_la_LIBADD = \
+	@BINUTILS_LIBS@ \
 	-lopenss-runtime \
 	-lpthread -lrt
 
@@ -59,16 +63,19 @@ pcsamp_rt_la_SOURCES = \
 	runtime.c
 
 pcsamp_rt_offline_la_CFLAGS = \
-        @LIBMONITOR_CPPFLAGS@ \
+	@BINUTILS_CPPFLAGS@ \
+	@LIBMONITOR_CPPFLAGS@ \
 	-DOFFLINE -I$(top_srcdir)/libopenss-runtime -I$(top_srcdir)/libopenss-runtime/offline
 
 pcsamp_rt_offline_la_LDFLAGS = \
-        @LIBMONITOR_LDFLAGS@ \
+	@BINUTILS_LDFLAGS@ \
+	@LIBMONITOR_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-runtime \
 	-no-undefined -module -avoid-version
 
 pcsamp_rt_offline_la_LIBADD = \
-        @LIBMONITOR_LIBS@ \
+	@BINUTILS_LIBS@ \
+	@LIBMONITOR_LIBS@ \
 	-lopenss-runtime-offline
 
 pcsamp_rt_offline_la_SOURCES = \
@@ -81,12 +88,12 @@ libpcsamp_offline_la_CFLAGS = \
 	-DOFFLINE -I$(top_srcdir)/libopenss-runtime -I/$(top_srcdir)/libopenss-runtime/offline
 
 libpcsamp_offline_la_LDFLAGS = \
-        @LIBMONITOR_LDFLAGS@ \
+	@LIBMONITOR_LDFLAGS@ \
 	-static -L$(top_srcdir)/libopenss-runtime \
 	-no-undefined
 
 libpcsamp_offline_la_LIBADD = \
-        @LIBMONITOR_LIBS@ \
+	@LIBMONITOR_LIBS@ \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
 
 libpcsamp_offline_la_SOURCES = \
