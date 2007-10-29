@@ -77,23 +77,65 @@ Come up and do more for user, instead of having to set up everything.
  
 
 
-Candidate #2   (_name_)
+Candidate #2   (Mike)
 
 PHASE I.
 
-PHASE II.
+Mike also started by typing into the command line.  Then after
+being told not too he managed to almost create the expected experiment
+through using the Custom Experiment menu item.  This was intended for
+advanced users.   He did not follow the scenario instructions initially.
+
+After restarting and following the scenario instructions he did follow through
+the wizard steps and create the pcsamp experiment for sweep3d.
+
+Mike thought we should really ask to load the application first.
+
+The pcsamp finish page has some confusing text.  Mike did not elaborate but
+the pcsamp finish page text needs to be reviewed and made to be more clear.
+
+Mike also was distracted by the progress bar going back and forth while the
+program was being loaded.
+
+Another comment was that we have "Stats" in the source panel column for the
+statistics that are annotating the source lines.  Then the Stats Panel is also
+around as a tab.  This is potentially  confusing.  (jeg-note: the shading on
+the system we were on was very bad and this caused a lot of the issues with
+users not knowing what panels were active and what icons belonged to each panel).
+The shading issue needs to be fixed asap.
+
+It was noted by jeg that we need to change the default naming of experiment results
+and use the executable name and experiment type in the name, instead of the experiment
+number.  For example, X1.1.openss would become sweep3d.pcsamp.openss.
+
+Bronis suggested using more colors, patterns, "light up" the buttons when passing over the
+active buttons.
+
+Mike said capitols should be last not first, in our sort.
+
+Mike said the entire text for the headers of our columns for the stats panel 
+should be able to be found out somehow without moving the column manually over 
+to the right.  He suggested that hovering over them could show the entire text there.
+
+Mike also would like path remapping more obvious in the source panel area.
+Handle the tilde (~) in the path remapping code.
+
+There is bug with "Show statistics" was up when it was already showing.
+
+Have metadata for the source panel, such as source directory.
+
+The "Group Similar Processes" terminology should be changed.  Similar not
+a good word in this context.
 
 Candidate #3   (_name_)
 
 PHASE I.
 
-PHASE II.
 
 Candidate #4   (_name_)
 
 PHASE I.
 
-PHASE II.
 
 
 
