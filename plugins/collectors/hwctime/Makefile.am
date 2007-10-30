@@ -1,6 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2006, 2007 Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -24,11 +25,14 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
+pkglib_LTLIBRARIES = hwctime.la hwctime-rt.la
+
+if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
 	hwctime_offline.c hwctime_offline.h
 
-pkglib_LTLIBRARIES = hwctime.la hwctime-rt.la
 pkglib_LTLIBRARIES += hwctime-rt-offline.la libhwctime-offline.la
+endif
 
 hwctime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
@@ -67,6 +71,7 @@ hwctime_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.c
 
+if HAVE_LIBMONITOR
 hwctime_rt_offline_la_CFLAGS = \
         @LIBMONITOR_CPPFLAGS@ \
 	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
@@ -116,6 +121,7 @@ libhwctime_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	$(OFFLINE_SOURCES) \
 	runtime.c
+endif
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)

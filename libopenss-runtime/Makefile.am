@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -16,8 +17,13 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = @INSTRUMENTOR@ offline
-DIST_SUBDIRS = dpcl dyninst offline
+SUBDIRS = @INSTRUMENTOR@
+DIST_SUBDIRS = dpcl dyninst
+
+if HAVE_LIBMONITOR
+SUBDIRS += offline
+DIST_SUBDIRS += offline
+endif
 
 # Note: Some versions of GCC (e.g. 3.3.3) appear to contain an optimization bug
 #       that causes accesses of thread-local storage (TLS) to fail with SIGSEGV.
@@ -31,25 +37,17 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c
 
-noinst_LTLIBRARIES = libopenss-runtime.la libopenss-runtime-offline.la
+noinst_LTLIBRARIES = libopenss-runtime.la 
+if HAVE_LIBMONITOR
+noinst_LTLIBRARIES += libopenss-runtime-offline.la
+endif
 
 libopenss_runtime_la_CFLAGS = \
 	@LIBUNWIND_CPPFLAGS@ \
 	@BINUTILS_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
 
-libopenss_runtime_offline_la_CFLAGS = \
-	-DOPENSS_OFFLINE \
-	@LIBUNWIND_CPPFLAGS@ \
-	@BINUTILS_CPPFLAGS@ \
-	@PAPI_CPPFLAGS@
-
 libopenss_runtime_la_LDFLAGS = \
-	@LIBUNWIND_LDFLAGS@ \
-	@BINUTILS_LDFLAGS@ \
-	@PAPI_LDFLAGS@
-
-libopenss_runtime_offline_la_LDFLAGS = \
 	@LIBUNWIND_LDFLAGS@ \
 	@BINUTILS_LDFLAGS@ \
 	@PAPI_LDFLAGS@
@@ -61,12 +59,25 @@ libopenss_runtime_la_LIBADD = \
 	@PAPI_LIBS@ \
 	-lpthread -lrt
 
+if HAVE_LIBMONITOR
+libopenss_runtime_offline_la_CFLAGS = \
+	-DOPENSS_OFFLINE \
+	@LIBUNWIND_CPPFLAGS@ \
+	@BINUTILS_CPPFLAGS@ \
+	@PAPI_CPPFLAGS@
+
+libopenss_runtime_offline_la_LDFLAGS = \
+	@LIBUNWIND_LDFLAGS@ \
+	@BINUTILS_LDFLAGS@ \
+	@PAPI_LDFLAGS@
+
 libopenss_runtime_offline_la_LIBADD = \
 	offline/libopenss-runtime-offline.la \
 	@LIBUNWIND_LIBS@ \
 	@BINUTILS_LIBS@ \
 	@PAPI_LIBS@ \
 	-lpthread -lrt
+endif
 
 COMMON_SOURCES = \
 	Assert.h \
@@ -86,30 +97,37 @@ COMMON_SOURCES = \
 
 libopenss_runtime_la_SOURCES = $(COMMON_SOURCES)
 
+if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES = $(COMMON_SOURCES)
+endif
 
 if HAVE_LIBUNWIND
 libopenss_runtime_la_SOURCES += \
 	OpenSS_GetStackTraceFromContext.c
+if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_GetStackTraceFromContext.c
-
+endif	
 endif	
 
 if HAVE_PAPI
 libopenss_runtime_la_SOURCES += \
 	OpenSS_Overflow.c \
 	PapiAPI.h PapiAPI.c
+if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_Overflow.c \
 	PapiAPI.h PapiAPI.c
+endif
 endif
 
 if HAVE_BINUTILS
 libopenss_runtime_la_SOURCES += \
 	OpenSS_GetInstrLength.c
+if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_GetInstrLength.c
+endif
 endif
 
 SUFFIXES = .x

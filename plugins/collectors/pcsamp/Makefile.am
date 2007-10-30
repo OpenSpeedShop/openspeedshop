@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2006,2007 Krell Institute All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -24,11 +25,14 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
+pkglib_LTLIBRARIES = pcsamp.la pcsamp-rt.la
+
+if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
 	pcsamp_offline.c pcsamp_offline.h
 
-pkglib_LTLIBRARIES = pcsamp.la pcsamp-rt.la
 pkglib_LTLIBRARIES += pcsamp-rt-offline.la libpcsamp-offline.la
+endif
 
 pcsamp_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -62,6 +66,7 @@ pcsamp_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.c
 
+if HAVE_LIBMONITOR
 pcsamp_rt_offline_la_CFLAGS = \
 	@BINUTILS_CPPFLAGS@ \
 	@LIBMONITOR_CPPFLAGS@ \
@@ -100,6 +105,7 @@ libpcsamp_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	$(OFFLINE_SOURCES) \
 	runtime.c
+endif
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)

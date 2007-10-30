@@ -1,6 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2006, 2007 Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -24,11 +25,14 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
+pkglib_LTLIBRARIES = usertime.la usertime-rt.la
+
+if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
 	usertime_offline.c usertime_offline.h
 
-pkglib_LTLIBRARIES = usertime.la usertime-rt.la
 pkglib_LTLIBRARIES += usertime-rt-offline.la libusertime-offline.la
+endif
 
 usertime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -66,6 +70,7 @@ usertime_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.c
 
+if HAVE_LIBMONITOR
 usertime_rt_offline_la_CFLAGS = \
         @BINUTILS_CPPFLAGS@ \
         @LIBMONITOR_CPPFLAGS@ \
@@ -111,6 +116,7 @@ libusertime_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	$(OFFLINE_SOURCES) \
 	runtime.c
+endif
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
