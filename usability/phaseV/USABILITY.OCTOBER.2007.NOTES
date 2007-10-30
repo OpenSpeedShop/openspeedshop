@@ -176,6 +176,42 @@ Candidate #4   (_name_)
 
 PHASE I.
 
+Candidate used the wizards well and chose to do hardware counters
+instead of pcsamp.
+
+Candidate noted that should be able to enter executable in the loadPanel
+browse executable text edit line.
+
+Candidate started clicking in the Manage process panel before experiment
+was run.  This focused on one of the ranked processes.  (Probably should
+disable the focus until after the run?)
+
+Candidate was expecting to see top level menu items for the currently active
+experiment in what are now experiment independent menus and menu items.
+(We need to think about this in detail before acting).
+
+Candidate suggested having a sort by time option in the manage process panel.
+
+Candidate suggested:
+In the group similar processes output window, have the functions on the left 
+side of the display, not the right.  Currently, if lots of columns, one would 
+have to move the slider way over to the right to see the function names.
+
+Candidate suggested using a "pin" icon to indicate this is a saved panel (don't
+reuse).  The terminology we are using scared him away from this (reuse/recycle
+implies other things to him).
+
+Candidate feels the Wizard Finish button should also run the experiment.
+
+Candidate then ran some of his own codes and we talked with him about the
+functionality he sees as being very useful:
+  1) showing the performance data for all lines that access a specified
+     data structure.  Sometimes many accesses that don't seem to take a lot
+     of time add up to a huge amount over the life of the program execution
+     because they are referenced so often.  Improving the access of this
+     data structure would be a key item for the developer of the software.
+     So, finding it is important.
+
 
 
 
