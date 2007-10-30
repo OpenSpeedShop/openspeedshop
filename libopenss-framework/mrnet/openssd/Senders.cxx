@@ -18,47 +18,14 @@
 
 /** @file
  *
- * Declaration of the Callbacks namespace.
+ * Definition of the Callbacks namespace.
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_Callbacks_
-#define _OpenSpeedShop_Framework_Callbacks_
+#include "Protocol.h"
+#include "Senders.hxx"
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+using namespace OpenSpeedShop::Framework;
 
 
 
-namespace OpenSpeedShop { namespace Framework {
-
-    class Blob;
-
-    /**
-     * Message callbacks.
-     *
-     * Namespace containing the message callback functions. These callbacks
-     * are registered with the frontend message pump by the instrumentor and
-     * will handle all incoming requests from the backends.
-     *
-     * @ingroup Implementation
-     */
-    namespace Callbacks
-    {
-	void attachedToThread(const Blob&);
-	void globalIntegerValue(const Blob&);
-	void globalJobValue(const Blob&);
-	void globalStringValue(const Blob&);
-	void loadedLinkedObject(const Blob&);
-	void reportError(const Blob&);
-	void symbolTable(const Blob&);
-	void threadsStateChanged(const Blob&);
-	void unloadedLinkedObject(const Blob&);
-    }
-    
-} }
-
-
-
-#endif

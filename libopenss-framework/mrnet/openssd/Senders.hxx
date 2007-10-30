@@ -18,12 +18,12 @@
 
 /** @file
  *
- * Declaration of the Callbacks namespace.
+ * Declaration of the Senders namespace.
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_Callbacks_
-#define _OpenSpeedShop_Framework_Callbacks_
+#ifndef _OpenSpeedShop_Framework_Senders_
+#define _OpenSpeedShop_Framework_Senders_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -33,32 +33,25 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
-    class Blob;
-
     /**
-     * Message callbacks.
+     * Message senders.
      *
-     * Namespace containing the message callback functions. These callbacks
-     * are registered with the backend message pump by the daemon's main()
-     * and will handle all incoming requests from the frontend.
+     * Namespace containing the message sender functions. These functions
+     * package and send outgoing requests to the frontend.
      *
      * @ingroup Implementation
      */
-    namespace Callbacks
+    namespace Senders
     {
-	void attachToThread(const Blob&);
-	void changeThreadState(const Blob&);
-	void createProcess(const Blob&);
-	void detachFromThread(const Blob&);
-	void executeNow(const Blob&);
-	void executeAtEntryOrExit(const Blob&);
-	void executeInPlaceOf(const Blob&);
-	void getGlobalInteger(const Blob&);
-	void getGlobalString(const Blob&);
-	void getMPICHProcTable(const Blob&);
-	void setGlobalInteger(const Blob&);
-	void stopAtEntryOrExit(const Blob&);
-	void uninstrument(const Blob&);
+	void attachedToThread();
+	void globalIntegerValue();
+	void globalJobValue();
+	void globalStringValue();
+	void loadedLinkedObject();
+	void reportError();
+	void symbolTable();
+	void threadsStateChanged();
+	void unloadedLinkedObject();
     }
     
 } }

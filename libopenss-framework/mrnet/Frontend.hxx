@@ -30,6 +30,7 @@
 #endif
 
 #include "MessageCallback.hxx"
+#include "Protocol.h"
 
 
 
@@ -57,8 +58,8 @@ namespace OpenSpeedShop { namespace Framework {
 	void stopMessagePump();
 
 	void sendToAllBackends(const int&, const Blob&);
-
-	// TODO: function to send to a subset of the backends
+	void sendToBackends(const int&, const Blob&,
+			    const OpenSS_Protocol_ThreadNameGroup&);
     }
     
 } }

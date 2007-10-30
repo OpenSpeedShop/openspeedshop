@@ -246,3 +246,19 @@ void Frontend::sendToAllBackends(const int& tag, const Blob& blob)
     // Send the message
     Assert(upstream->send(tag, "auc", blob.getContents(), blob.getSize()) == 0);
 }
+
+
+
+/**
+ * Send a message to a subset of backends.
+ *
+ * ...
+ *
+ * @param tag        Tag for the message to be sent.
+ * @param blob       Blob containing the message.
+ * @param threads    ...
+ */
+void Frontend::sendToBackends(const int& tag, const Blob& blob,
+			      const OpenSS_Protocol_ThreadNameGroup& threads)
+{
+}

@@ -37,4 +37,5 @@ libopenss_framework_mrnet_la_LIBADD = \
 libopenss_framework_mrnet_la_SOURCES = \
 	Callbacks.hxx Callbacks.cxx \
 	Frontend.hxx Frontend.cxx \
-	Instrumentor.cxx
+	Instrumentor.cxx \
+	Senders.hxx Senders.cxx

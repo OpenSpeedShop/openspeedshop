@@ -39,4 +39,5 @@ openssd_SOURCES = \
 	$(top_srcdir)/libopenss-framework/Blob.cxx \
 	Backend.hxx Backend.cxx \
 	Callbacks.hxx Callbacks.cxx \
-	openssd.cxx
+	openssd.cxx \
+	Senders.hxx Senders.cxx
