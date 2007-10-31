@@ -20,7 +20,7 @@
   plugin_entry->grouping = "";
   plugin_entry->show_immediate = 0;
   plugin_entry->plugin_description = "Load or Start executables or applications including starting MPI applications";
-  plugin_entry->plugin_short_description = "Load or Start executables or applications.";
+  plugin_entry->plugin_short_description = "Load or Start executables or applications including starting\nMPI applications. This is a generic panel and is not\nlinked to a specific experiment in and of itself.";
   plugin_entry->plugin_name =  "loadPanel.so";
   plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
