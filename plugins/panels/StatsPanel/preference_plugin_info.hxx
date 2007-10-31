@@ -174,6 +174,9 @@ extern "C"
     return( showSkylineLineEdit->text() );
   }
 
+// Note the preferences are set here but be sure to check the
+// settings as they are being assigned in the code after the
+// initPreferenceSettings call in initialize_preferences_entry_point.
   void initPreferenceSettings()
   {
     checkBoxList.clear();
@@ -189,7 +192,7 @@ extern "C"
     showTextByPercentCheckBox->setChecked(TRUE);
     showTextByLocationCheckBox->setChecked(FALSE);
     chartTypeComboBox->setCurrentItem(0);
-    showToolbarCheckBox->setChecked(FALSE);
+    showToolbarCheckBox->setChecked(TRUE);
     showMetadataCheckBox->setChecked(TRUE);
     showSkylineCheckBox->setChecked(FALSE);
     showSkylineLabel->setText("Percentage breakdown for skyline view:");
@@ -380,7 +383,7 @@ textLabelLayout->addWidget( chartTypeComboBox );
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, focusSourcePanelCheckBox->name() );
       focusSourcePanelCheckBox->setChecked(
-        settings->readBoolEntry(settings_buffer, TRUE) );
+        settings->readBoolEntry(settings_buffer, FALSE) );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, levelsToOpenLineEdit->name() );
@@ -430,12 +433,12 @@ textLabelLayout->addWidget( chartTypeComboBox );
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showToolbarCheckBox->name() );
       showToolbarCheckBox->setChecked(
-        settings->readBoolEntry(settings_buffer, FALSE) );
+        settings->readBoolEntry(settings_buffer, TRUE) );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showMetadataCheckBox->name() );
       showMetadataCheckBox->setChecked(
-        settings->readBoolEntry(settings_buffer, FALSE) );
+        settings->readBoolEntry(settings_buffer, TRUE) );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showSkylineCheckBox->name() );
@@ -458,6 +461,8 @@ textLabelLayout->addWidget( chartTypeComboBox );
 
     return statsPanelStackPage;
   }
+
+
   int save_preferences_entry_point(QSettings *settings, char *name)
   {
 // printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
@@ -521,6 +526,7 @@ textLabelLayout->addWidget( chartTypeComboBox );
       "openspeedshop", name, showSkylineLineEdit->name() );
     settings->writeEntry(settings_buffer, showSkylineLineEdit->text() );
   }
+
 }
 
 #endif // PREFERENCE_PLUGIN_INFO_H
