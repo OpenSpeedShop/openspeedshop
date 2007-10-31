@@ -21,7 +21,7 @@
   plugin_entry->grouping = "";
   plugin_entry->show_immediate = 0;
   plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Displays experiment statistics. Use right mouse button down on tab for options.";
+  plugin_entry->plugin_short_description = "Displays experiment statistics: Use the left mouse click on\nthe menu icon or use right mouse button down on tab for\nmenu options.";
   plugin_entry->plugin_name =  "StatsPanel.so";
   plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
