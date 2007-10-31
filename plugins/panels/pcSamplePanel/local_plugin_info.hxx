@@ -21,7 +21,7 @@
   plugin_entry->grouping = "TOPLEVEL";
   plugin_entry->show_immediate = 0;
   plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Manages the pc Sampling experiment. Use right mouse button down on tab for options.";
+  plugin_entry->plugin_short_description = "Manages the pc Sampling experiment. Use the\nleft mouse click on the menu icon or use right\nmouse button down on tab for menu options.";
   plugin_entry->plugin_name =  "pcSamplePanel.so";
   plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
