@@ -21,7 +21,7 @@ echo "running bootstrap on top level source directory"
 aclocal
 libtoolize --force --ltdl --copy
 autoheader
-automake --foreign --add-missing --copy
+automake --foreign --add-missing --copy 
 autoconf
 #
 # configure test executables to allow for alternative compilers
