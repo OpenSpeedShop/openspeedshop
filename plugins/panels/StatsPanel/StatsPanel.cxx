@@ -58,6 +58,8 @@
 #include "tracebacksfull.xpm"
 #include "tracebacksfullByFunction.xpm"
 #include "butterfly.xpm"
+#include "more_plus_metadata.xpm"
+#include "less_minus_metadata.xpm"
 
 class MetricHeaderInfo;
 class QPushButton;
@@ -327,16 +329,27 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 #endif
   metadataAllSpaceFrame->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
 
-//  infoEditHeaderMoreButton = new QPushButton( 0, "infoEditHeaderMoreButton" );
+#if MORE_BUTTON
   infoEditHeaderMoreButton = new QPushButton( metadataAllSpaceFrame, "infoEditHeaderMoreButton" );
   infoEditHeaderMoreButton->setText( tr( "More Metadata" ) );
   infoEditHeaderMoreButton->setEnabled(TRUE);
   infoEditHeaderMoreButton->setMinimumSize( QSize(0,0) );
   infoEditHeaderMoreButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, infoEditHeaderMoreButton->sizePolicy().hasHeightForWidth() ) );
+#else
+  metaToolBar = new QToolBar( QString("label"), getPanelContainer()->getMainWindow(), metadataAllSpaceFrame, "file operations" );
+  metaToolBar->setOrientation( Qt::Horizontal );
+  metaToolBar->setLabel( "Metadata Operations" );
 
-//  infoEditHeaderLabel = new QLabel( 0, "info label", 0 );
+//  QPixmap *MoreMetadata_icon = new QPixmap(more_plus_metadata_xpm);
+//  new QToolButton(*MoreMetadata_icon, "Show More Experiment Metadata", 
+//                  QString::null, this, SLOT( infoEditHeaderMoreButtonSelected()), 
+//                  metaToolBar, "show more experiment metadata");
+#endif
+
   infoEditHeaderLabel = new QLabel( metadataAllSpaceFrame, "info label", 0 );
   infoEditHeaderLabel->setCaption("StatsPanel: info label");
+  infoEditHeaderLabel->setPaletteBackgroundColor( QColor("skyblue").light(145) );
+//  infoEditHeaderLabel->setPaletteBackgroundColor( QColor("blue").light(185));
 #ifdef DEBUG_StatsPanel
   printf("stats panel 2nd infoEditHeaderLabel->height()=%d\n", infoEditHeaderLabel->height());
 #endif
@@ -346,28 +359,19 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   infoEditHeaderLabel->setText(label_text);
   infoEditHeaderLabel->setMinimumSize( QSize(0,0) );
   infoEditHeaderLabel->resize( infoEditHeaderLabel->sizeHint() );
-//kas  infoEditHeaderLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, infoEditHeaderLabel->sizePolicy().hasHeightForWidth() ) );
   infoEditHeaderLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, FALSE ) );
-
-//kas  QSpacerItem *spacerItem = new QSpacerItem(1, infoEditHeaderLabel->height(), QSizePolicy::Fixed, QSizePolicy::Minimum );
-//kas  metadataOneLineInfoLayout->addItem( spacerItem );
-//jeg  metadataOneLineInfoLayout->addWidget( infoEditHeaderLabel );
+  QToolTip::add( infoEditHeaderLabel, tr( "This quick summary line shows partial information about the executable(s),\nhost(s), and process(es) used in creating the experiment performance\ndata displayed below.  To see more complete information use the\nexperiment metadata icon above to toggle between the\nsummary and expanded information." ) );
 
 #ifdef DEBUG_StatsPanel
   printf("stats panel 3rd infoEditHeaderLabel->height()=%d\n", infoEditHeaderLabel->height());
 #endif
 
-//  infoButtonAndLabelLayout = new QHBoxLayout( 0, 0, 6, "infoButtonAndLabelLayout");
   infoButtonAndLabelLayout = new QHBoxLayout( 0, 0, 0, "infoButtonAndLabelLayout");
+#if MORE_BUTTON
   infoButtonAndLabelLayout->addWidget(infoEditHeaderMoreButton);
+#endif
   infoButtonAndLabelLayout->addWidget(infoEditHeaderLabel);
   metadataOneLineInfoLayout->addLayout( infoButtonAndLabelLayout );
-//kas begin
-//  metadataOneLineInfoLayout->addWidget(infoEditHeaderMoreButton);
-//  metadataOneLineInfoLayout->addWidget(infoEditHeaderLabel);
-//  metadataAllSpaceLayout->addLayout( metadataOneLineInfoLayout );
-//kas end
-
 
 //#ifdef TEXT
   metaDataTextEdit = new SPTextEdit( this, metadataAllSpaceFrame );
@@ -552,7 +556,9 @@ if( !getChartTypeComboBox() ) {
 #if DEBUG_INTRO
   printf("StatsPanel::StatsPanel() constructor, start connect section of code\n");
 #endif
+#if MORE_BUTTON
   connect( infoEditHeaderMoreButton, SIGNAL( clicked() ), this, SLOT( infoEditHeaderMoreButtonSelected() ) );
+#endif
 
 }
 
@@ -623,19 +629,37 @@ void StatsPanel::infoEditHeaderMoreButtonSelected()
   if (metaDataTextEditFLAG) {
     metaDataTextEdit->hide();
     metaDataTextEditFLAG = FALSE;
+#if MORE_BUTTON
     infoEditHeaderMoreButton->setText( tr( "More Metadata" ) );
     infoEditHeaderMoreButton->setEnabled(TRUE);
+#else
+    metadataToolButton->setIconSet( QIconSet(*MoreMetadata_icon));
+    metadataToolButton->setIconText(QString("Show More Experiment Metadata"));
+    QToolTip::add( metadataToolButton, tr( "Push for additional experiment metadata.  This is information relating to\nthe generation of the experiment performance data being shown in the display below." ) );
+#endif
   } else {
     metaDataTextEdit->setCursorPosition(0, 0);
     metaDataTextEdit->show();
     metaDataTextEditFLAG = TRUE;
+#if MORE_BUTTON
     infoEditHeaderMoreButton->setText( tr( "Less Metadata" ) );
     infoEditHeaderMoreButton->setEnabled(TRUE);
+#else
+    metadataToolButton->setIconSet( QIconSet(*LessMetadata_icon));
+    metadataToolButton->setIconText(QString("Show Less Experiment Metadata"));
+    QToolTip::add( metadataToolButton, tr( "Push to hide the expanded experiment metadata information." ) );
+#endif
   } 
 //#endif
   metadataAllSpaceFrame->resize( metadataAllSpaceFrame->sizeHint() );
   infoEditHeaderLabel->resize( infoEditHeaderLabel->sizeHint() );
-
+#if MORE_BUTTON
+// maybe move the above into here - I did but commented out for now
+//  metadataAllSpaceFrame->resize( metadataAllSpaceFrame->sizeHint() );
+//  infoEditHeaderLabel->resize( infoEditHeaderLabel->sizeHint() );
+#else
+  metaToolBar->update();
+#endif
 
 }
 
@@ -665,10 +689,16 @@ StatsPanel::languageChange()
 {
   // Set language specific information here.
 
+#if MORE_BUTTON
   infoEditHeaderMoreButton->setText( tr( "More Metadata" ) );
   infoEditHeaderMoreButton->setEnabled(TRUE);
-
-  QToolTip::add( infoEditHeaderMoreButton, tr( "Push for more or less complete experiment metadata (information about the experiiment performance data)." ) );
+  QToolTip::add( infoEditHeaderMoreButton, tr( "Push for more or less complete experiment metadata (information about the experiment performance data)." ) );
+#else
+  metadataToolButton->setIconSet( QIconSet(*MoreMetadata_icon));
+  metadataToolButton->setIconText(QString("Show More Experiment Metadata"));
+  QToolTip::add( metadataToolButton, tr( "Push for additional experiment metadata.  This is information relating to\nthe generation of the experiment performance data being shown in the display below." ) );
+  metaToolBar->update();
+#endif
 }
 
 
@@ -2017,10 +2047,10 @@ StatsPanel::cviewQueryStatements()
 {
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::cviewQueryStatements about to call updateStatsPanelData, originalCommand,with vstatements=(%s)\n", 
-          QString(originalCommand + " -v Statements").ascii() );
+          QString(originalCommand + " -v statements").ascii() );
 #endif
 
-  updateStatsPanelData(DONT_FORCE_UPDATE, originalCommand + " -v Statements");
+  updateStatsPanelData(DONT_FORCE_UPDATE, originalCommand + " -v statements");
 }
 
 #include "CustomExperimentPanel.hxx"
@@ -3768,7 +3798,12 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
   infoString = QString("");
   metaDataTextEdit->setCursorPosition(0, 0);
   metaDataTextEdit->hide();
+#if MORE_BUTTON
   infoEditHeaderMoreButton->setText( tr( "More Metadata" ) );
+#else
+  metadataToolButton->setIconSet( QIconSet(*MoreMetadata_icon));
+  metadataToolButton->setIconText(QString("Show More Experiment Metadata"));
+#endif
   metaDataTextEdit->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, metaDataTextEdit->sizePolicy().hasHeightForWidth() ) );
   metaDataTextEditFLAG = FALSE;
 //#endif
@@ -7119,7 +7154,7 @@ StatsPanel::generateCommand()
         return( QString::null );
       }
 
-      command = QString("expView -x %1 %4%2 -v Statements -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+      command = QString("expView -x %1 %4%2 -v statements -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
 #ifdef DEBUG_StatsPanel
      printf("generateCommand, StatementsByFunction, command=(%s)\n", command.ascii() );
 #endif
@@ -7201,7 +7236,7 @@ StatsPanel::generateCommand()
         return( QString::null );
       }
 
-      command = QString("expView -x %1 %4%2 -v Statements -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+      command = QString("expView -x %1 %4%2 -v statements -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
 #ifdef DEBUG_StatsPanel
      printf("generateCommand, StatementsByFunction, command=(%s)\n", command.ascii() );
 #endif
@@ -7424,9 +7459,9 @@ StatsPanel::generateCommand()
    if( currentUserSelectedReportStr.startsWith("Statements") ) { 
 
     if( numberItemsToDisplayInStats > 0 ) {
-      command = QString("expView -x %1 %2%3 -v Statements").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+      command = QString("expView -x %1 %2%3 -v statements").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
     } else {
-      command = QString("expView -x %1 %2 -v Statements").arg(exp_id).arg(currentCollectorStr);
+      command = QString("expView -x %1 %2 -v statements").arg(exp_id).arg(currentCollectorStr);
     }
 
    } else {
@@ -8568,7 +8603,7 @@ nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n
           currentCollectorStr == "mpit" ) {
         command = QString("expView -x %1 -f %2 %3").arg(expID).arg(fn).arg(timeIntervalString);
       } else {
-        command = QString("expView -x %1 -v Statements -f %2 %3").arg(expID).arg(fn).arg(timeIntervalString);
+        command = QString("expView -x %1 -v statements -f %2 %3").arg(expID).arg(fn).arg(timeIntervalString);
       }
     } else {
 
@@ -8578,7 +8613,7 @@ nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n
           currentCollectorStr == "mpit" ) {
           command = QString("expView -x %1 -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
       } else {
-          command = QString("expView -x %1 -v Statements -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
+          command = QString("expView -x %1 -v statements -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
       }
     }
   } else {
@@ -8590,7 +8625,7 @@ nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n
           currentCollectorStr == "mpit" ) {
           command = QString("expView -x %1 -f %2 -m %3 %4").arg(expID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
       } else {
-          command = QString("expView -x %1 -v Statements -f %2 -m %3 %4").arg(expID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+          command = QString("expView -x %1 -v statements -f %2 -m %3 %4").arg(expID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
       }
     } else {
 
@@ -8600,7 +8635,7 @@ nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n
           currentCollectorStr == "mpit" ) {
           command = QString("expView -x %1 -f %2 -m %3 %4").arg(focusedExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
       } else {
-          command = QString("expView -x %1 -v Statements -f %2 -m %3 %4").arg(focusedExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+          command = QString("expView -x %1 -v statements -f %2 -m %3 %4").arg(focusedExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
       }
     }
   }
@@ -8688,14 +8723,29 @@ nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n
     }
   }
 
-  if( value.isEmpty() )
-  {
-    hlo = new HighlightObject(QString::null, filename, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite for this function", value_description);
-  } else
-  {
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::lookUpFileHighlights, if true use hotToCold_color_names[2], value.isEmpty()=(%d)\n", value.isEmpty() );
+#endif
+
+  if( value.isEmpty() ) {
+
+    hlo = new HighlightObject(QString::null, filename, 
+                              lineNumberStr.toInt(), 
+                              hotToCold_color_names[2], 
+                              ">>", 
+                              "Callsite for this function", 
+                              value_description);
+
+  } else {
+
     highlightList->remove(hlo);
-    hlo = new HighlightObject(QString::null, focusedHLO->fileName, lineNumberStr.toInt(), color, QString(">> %1").arg(value), QString("Callsite for this function.\n%1").arg(description), value_description);
+    hlo = new HighlightObject(QString::null, focusedHLO->fileName, 
+                              lineNumberStr.toInt(), 
+                              color, 
+                              QString(">> %1").arg(value), 
+                              QString("Callsite for this function.\n%1").arg(description), value_description);
   }
+
   highlightList->push_back(hlo);
 
 
@@ -8921,14 +8971,18 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
                 cerr << "DCLIP: CMD_RESULT_STATEMENT:" <<  "xxxfileName=" << xxxfileName << "\n";
                 cerr << "DCLIP: CMD_RESULT_STATEMENT:" <<  "xxxlineNumber=" << xxxlineNumber << "\n";
               }
-              if( highlightList )
-              {
+              if( highlightList ) {
+
                 QString colheader = (QString)*columnHeaderList.begin();
                 int color_index = getLineColor((unsigned int)valueStr.toUInt());
-                hlo = new HighlightObject(xxxfuncName, xxxfileName, xxxlineNumber, hotToCold_color_names[currentItemIndex], valueStr.stripWhiteSpace(), QString("%1 = %2").arg(colheader).arg(valueStr.ascii()), colheader);
+                hlo = new HighlightObject(xxxfuncName, xxxfileName, xxxlineNumber, 
+                                          hotToCold_color_names[currentItemIndex], 
+                                          valueStr.stripWhiteSpace(), 
+                                          QString("%1 = %2").arg(colheader).arg(valueStr.ascii()), colheader);
 
                 if( dumpClipFLAG ) hlo->print();
                 highlightList->push_back(hlo);
+
               }
 
             }
@@ -9857,27 +9911,41 @@ StatsPanel::generateToolBar()
 {
 
 if (currentCollectorStr != lastCollectorStr) {
+  MoreMetadata_icon = new QPixmap(more_plus_metadata_xpm);
+  metadataToolButton = new QToolButton(*MoreMetadata_icon, "Show More Experiment Metadata", 
+                                        QString::null, this, SLOT( infoEditHeaderMoreButtonSelected()), 
+                                        fileTools, "show more experiment metadata");
+  QToolTip::add( metadataToolButton, tr( "Push for additional experiment metadata.  This is information relating to\nthe generation of the experiment performance data being shown in the display below." ) );
+// should not need this--  metadataToolButton->setIconText(QString("Show More Experiment Metadata"));
+
+  LessMetadata_icon = new QPixmap(less_minus_metadata_xpm);
+
   QPixmap *functions_icon = new QPixmap( functions_xpm );
-  new QToolButton(*functions_icon, "Show Functions", QString::null, this, SLOT( functionsSelected()), fileTools, "show functions");
+  new QToolButton(*functions_icon, "Show Functions: generate a performance statistics report\nshowing the performance data delineated by functions.", QString::null, this, SLOT( functionsSelected()), fileTools, "show functions");
 
 #ifdef DEBUG_StatsPanel
  printf("StatsPanel::generateToolBar, currentCollectorStr.ascii()=%s\n", currentCollectorStr.ascii() );
 #endif
-  if(  currentCollectorStr != "mpi" && currentCollectorStr != "mpit" )
-  {
-    QPixmap *linkedObjects_icon = new QPixmap( linkedObjects_xpm );
-    new QToolButton(*linkedObjects_icon, "Show LinkedObjects", QString::null, this, SLOT( linkedObjectsSelected()), fileTools, "show linked objects");
-  }
 
-  QPixmap *statements_icon = new QPixmap( statements_xpm );
-  new QToolButton(*statements_icon, "Show Statements", QString::null, this, SLOT( statementsSelected()), fileTools, "show statements");
+  if(  currentCollectorStr != "mpi" && currentCollectorStr != "mpit" ) {
+
+    QPixmap *linkedObjects_icon = new QPixmap( linkedObjects_xpm );
+    new QToolButton(*linkedObjects_icon, "Show LinkedObjects: generate a performance statistics report\nshowing the performance data delineated by the linked objects\nthat are involved in the execution of the executable(s).", QString::null, this, SLOT( linkedObjectsSelected()), fileTools, "show linked objects");
+
+    QPixmap *statements_icon = new QPixmap( statements_xpm );
+    new QToolButton(*statements_icon, "Show Statements: generate a performance statistics report\nshowing the performance data delineated by the source line\nstatements in your program.", QString::null, this, SLOT( statementsSelected()), fileTools, "show statements");
 
 #ifdef DEBUG_StatsPanel
- printf("StatsPanel::generateToolBar, statements_icon=%d\n", statements_icon );
+    printf("StatsPanel::generateToolBar, statements_icon=%d\n", statements_icon );
 #endif
 
-  QPixmap *statementsByFunction_icon = new QPixmap( statementsByFunction_xpm );
-  new QToolButton(*statementsByFunction_icon, "Show Statements by Function: Select function by selecting output line and then click this icon.", QString::null, this, SLOT( statementsByFunctionSelected()), fileTools, "show statements by function");
+    QPixmap *statementsByFunction_icon = new QPixmap( statementsByFunction_xpm );
+    new QToolButton(*statementsByFunction_icon, "Show Statements by Function: generate a performance statistics\nreport showing the performance data delineated by the\nsource line statements from a selected function in your program.\nSelect a function by selecting output line in the display below and\nthen clicking this icon.  This report will only show the\nperformance information for the statements in the selected function.", QString::null, this, SLOT( statementsByFunctionSelected()), fileTools, "show statements by function");
+
+  }
+
+
+
 
   if(  currentCollectorStr != "pcsamp" && currentCollectorStr != "hwc" )
   {
@@ -9922,6 +9990,7 @@ if (currentCollectorStr != lastCollectorStr) {
 
     fileTools->hide();
 } 
+
 lastCollectorStr = currentCollectorStr;
 
 #ifdef DEBUG_StatsPanel
