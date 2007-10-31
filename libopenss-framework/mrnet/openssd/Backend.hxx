@@ -35,6 +35,8 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class Blob;
+
     /**
      * MRNet backend.
      *

@@ -214,7 +214,6 @@ void Backend::stopMessagePump()
     Assert(pthread_mutex_unlock(&monitor_request_exit.lock) == 0);
 
     // TODO: destroy upstream and network???
-
 }
 
 

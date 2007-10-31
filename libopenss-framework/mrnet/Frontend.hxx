@@ -36,6 +36,7 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class Blob;
     class Path;
 
     /**
@@ -57,9 +58,9 @@ namespace OpenSpeedShop { namespace Framework {
 	void startMessagePump(const Path&);
 	void stopMessagePump();
 
-	void sendToAllBackends(const int&, const Blob&);
 	void sendToBackends(const int&, const Blob&,
 			    const OpenSS_Protocol_ThreadNameGroup&);
+	void sendToAllBackends(const int&, const Blob&);
     }
     
 } }

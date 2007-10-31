@@ -18,7 +18,7 @@
 
 /** @file
  *
- * Specification of the client/server communication protocol.
+ * Specification of the frontend/backend communication protocol.
  *
  */
 
@@ -106,7 +106,7 @@ struct OpenSS_Protocol_Collector
  * File name.
  *
  * Names a single file by providing the full path name of that file. A checksum
- * is also provided, which allows the client to verify the availability of the
+ * is also provided, which allows the frontend to verify the availability of the
  * correct file.
  *
  * @note    Currently the exact type of checksum to be used here is left
@@ -267,38 +267,40 @@ typedef uint64_t OpenSS_Protocol_Time;
 /**
  * Message tags.
  *
- * ...
+ * Integer tag values, associated with each message, that are used to determine
+ * that message's type (and associated data structure).
  */
 %
 %#define OPENSS_PROTOCOL_TAG_ESTABLISH_UPSTREAM                 ((int)0)
-%#define OPENSS_PROTOCOL_TAG_DATA                               ((int)1)
 %
-%#define OEPNSS_PROTOCOL_TAG_ATTACHED_TO_THREAD                 ((int)10)
-%#define OPENSS_PROTOCOL_TAG_ATTACH_TO_THREAD                   ((int)11)
-%#define OPENSS_PROTOCOL_TAG_CHANGE_THREAD_STATE                ((int)12)
-%#define OPENSS_PROTOCOL_TAG_CREATE_PROCESS                     ((int)13)
-%#define OPENSS_PROTOCOL_TAG_DETACH_FROM_THREAD                 ((int)14)
+%#define OEPNSS_PROTOCOL_TAG_ATTACHED_TO_THREAD                 ((int)100)
+%#define OPENSS_PROTOCOL_TAG_ATTACH_TO_THREADS                  ((int)101)
+%#define OPENSS_PROTOCOL_TAG_CHANGE_THREADS_STATE               ((int)102)
+%#define OPENSS_PROTOCOL_TAG_CREATE_PROCESS                     ((int)103)
+%#define OPENSS_PROTOCOL_TAG_DETACH_FROM_THREADS                ((int)104)
 %
-%#define OPENSS_PROTOCOL_TAG_EXECUTE_NOW                        ((int)15)
-%#define OPENSS_PROTOCOL_TAG_EXECUTE_AT_ENTRY_OR_EXIT           ((int)16)
-%#define OPENSS_PROTOCOL_TAG_EXECUTE_IN_PLACE_OF                ((int)17)
-%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_INTEGER                 ((int)18)
-%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_STRING                  ((int)19)
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_NOW                        ((int)105)
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_AT_ENTRY_OR_EXIT           ((int)106)
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_IN_PLACE_OF                ((int)107)
+%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_INTEGER                 ((int)108)
+%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_STRING                  ((int)109)
 %
-%#define OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE               ((int)20)
-%#define OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE               ((int)21)
-%#define OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE                   ((int)22)
-%#define OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE                ((int)23)
-%#define OPENSS_PRTOOCOL_TAG_LOADED_LINKED_OBJECT               ((int)24)
+%#define OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE               ((int)110)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE               ((int)111)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE                   ((int)112)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE                ((int)113)
+%#define OPENSS_PRTOOCOL_TAG_LOADED_LINKED_OBJECT               ((int)114)
 %
-%#define OPENSS_PROTOCOL_TAG_REPORT_ERROR                       ((int)25)
-%#define OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER                 ((int)26)
-%#define OPENSS_PROTOCOL_TAG_STOP_AT_ENTRY_OR_EXIT              ((int)27)
-%#define OPENSS_PROTOCOL_TAG_SYMBOL_TABLE                       ((int)28)
-%#define OPENSS_PROTOCOL_TAG_THREAD_STATE_CHANGED               ((int)29)
+%#define OPENSS_PROTOCOL_TAG_REPORT_ERROR                       ((int)115)
+%#define OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER                 ((int)116)
+%#define OPENSS_PROTOCOL_TAG_STOP_AT_ENTRY_OR_EXIT              ((int)117)
+%#define OPENSS_PROTOCOL_TAG_SYMBOL_TABLE                       ((int)118)
+%#define OPENSS_PROTOCOL_TAG_THREAD_STATE_CHANGED               ((int)119)
 %
-%#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)30)
-%#define OPENSS_PRTOOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)31)
+%#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)120)
+%#define OPENSS_PRTOOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)121)
+%
+%#define OPENSS_PROTOCOL_TAG_DATA                               ((int)1000)
 
 
 
@@ -317,9 +319,9 @@ struct OpenSS_Protocol_AttachedToThread
 /**
  * Attach to threads.
  *
- * Issued by the client to request the specified threads be attached.
+ * Issued by the frontend to request the specified threads be attached.
  */
-struct OpenSS_Protocol_AttachToThread
+struct OpenSS_Protocol_AttachToThreads
 {
     /** Threads to be attached. */
     OpenSS_Protocol_ThreadNameGroup threads;
@@ -330,11 +332,11 @@ struct OpenSS_Protocol_AttachToThread
 /**
  * Change state of threads.
  *
- * Issued by the client to request that the current state of every thread
+ * Issued by the frontend to request that the current state of every thread
  * in the specified group be changed to the specified value. Used to, for
  * example, suspend threads that were previously running.
  */
-struct OpenSS_Protocol_ChangeThreadState
+struct OpenSS_Protocol_ChangeThreadsState
 {
     /** Threads whose state should be changed. */
     OpenSS_Protocol_ThreadNameGroup threads;
@@ -348,7 +350,7 @@ struct OpenSS_Protocol_ChangeThreadState
 /**
  * Create a thread.
  *
- * Issued by the client to request the specified thread be created as a new
+ * Issued by the frontend to request the specified thread be created as a new
  * process to execute the specified command. The command is created with the
  * specified initial environment and the process is created in a suspended
  * state.
@@ -362,7 +364,7 @@ struct OpenSS_Protocol_CreateProcess
     string command<>;
 
     /** Environment in which to execute the command. */
-    opaque environment<>;
+    OpenSS_Protocol_Blob environment;
 };
 
 
@@ -370,9 +372,9 @@ struct OpenSS_Protocol_CreateProcess
 /**
  * Detach from threads.
  *
- * Issued by the client to request the specified threads be detached.
+ * Issued by the frontend to request the specified threads be detached.
  */
-struct OpenSS_Protocol_DetachFromThread
+struct OpenSS_Protocol_DetachFromThreads
 {
     /** Threads to be detached. */
     OpenSS_Protocol_ThreadNameGroup threads;
@@ -383,7 +385,7 @@ struct OpenSS_Protocol_DetachFromThread
 /**
  * Execute a library function now.
  *
- * Issued by the client to request the immediate execution of the specified
+ * Issued by the frontend to request the immediate execution of the specified
  * library function in the specified threads. Used by collectors to execute
  * functions in their runtime library.
  */
@@ -407,7 +409,7 @@ struct OpenSS_Protocol_ExecuteNow
 /**
  * Execute a library function at another function's entry or exit.
  *
- * Issued by the client to request the execution of the specified library
+ * Issued by the frontend to request the execution of the specified library
  * function every time another function's entry or exit is executed in the
  * specified threads. Used by collectors to execute functions in their
  * runtime library.
@@ -444,7 +446,7 @@ struct OpenSS_Protocol_ExecuteAtEntryOrExit
 /**
  * Execute a library function in place of another function.
  *
- * Issued by the client to request the execution of the specified library
+ * Issued by the frontend to request the execution of the specified library
  * function in place of another function every other time that other function
  * is called. Used by collectors to create wrappers around functions for the
  * purposes of gathering performance data on their execution.
@@ -469,7 +471,7 @@ struct OpenSS_Protocol_ExecuteInPlaceOf
 /**
  * Get value of an integer global variable from a thread.
  *
- * Issued by the client to request the current value of a signed integer
+ * Issued by the frontend to request the current value of a signed integer
  * global variable within the specified thread. Used to extract certain
  * types of data, such as MPI job identifiers, from a process.
  */
@@ -487,7 +489,7 @@ struct OpenSS_Protocol_GetGlobalInteger
 /**
  * Get value of a string global variable from a thread.
  *
- * Issued by the client to request the current value of a character string
+ * Issued by the frontend to request the current value of a character string
  * global variable within the specified thread. Used to extract certain types
  * of data, such as MPI job identifiers, from a process.
  */
@@ -505,7 +507,7 @@ struct OpenSS_Protocol_GetGlobalString
 /**
  * Get value of the MPICH process table from a thread.
  *
- * Issued by the client to request the current value of the MPICH process
+ * Issued by the frontend to request the current value of the MPICH process
  * table within the specified thread. Used to obtain this information for
  * the purposes of attaching to an entire MPI job.
  */
@@ -520,7 +522,7 @@ struct OpenSS_Protocol_GetMPICHProcTable
 /**
  * Value of an integer global variable.
  *
- * Issued by the server to return the current value of a signed integer
+ * Issued by a backend to return the current value of a signed integer
  * global variable within a thread.
  *
  * @note    Sent only in response to a GetGlobalInteger request.
@@ -542,7 +544,7 @@ struct OpenSS_Protocol_GlobalIntegerValue
 /**
  * Value of a job description variable.
  *
- * Issued by the server to return the current value of a job description
+ * Issued by a backend to return the current value of a job description
  * global variable within a thread.
  *
  * @note    Sent only in response to a GetMPICHProcTable request.
@@ -564,7 +566,7 @@ struct OpenSS_Protocol_GlobalJobValue
 /**
  * Value of a string global variable.
  *
- * Issued by the server to return the current value of a character string
+ * Issued by a backend to return the current value of a character string
  * global variable within a thread.
  *
  * @note    Sent only in response to a GetGlobalString request.
@@ -586,14 +588,14 @@ struct OpenSS_Protocol_GlobalStringValue
 /**
  * Linked object has been loaded.
  *
- * Issued by the server to indicate that the specified linked object has
+ * Issued by a backend to indicate that the specified linked object has
  * been loaded into the address space of the specified threads. Includes
  * the time at which the load occurred as well as a description of what
  * was loaded.
  *
- * @note    This call is always made multiple times in conjunction with an
- *          attachedToThread call. But it is also called by the server when
- *          a linked object is loaded due to a dlopen().
+ * @note    This message is always sent multiple times in conjunction
+ *          with an attachedToThread call. But it is also sent by a
+ *          backend when a linked object is loaded due to a dlopen().
  */
 struct OpenSS_Protocol_LoadedLinkedObject
 {
@@ -619,9 +621,9 @@ struct OpenSS_Protocol_LoadedLinkedObject
 
 
 /**
- * ...
+ * Report an error.
  *
- * ...
+ * Issued by a backend to indicate that an error has occured. ...
  */
 struct OpenSS_Protocol_ReportError
 {
@@ -633,7 +635,7 @@ struct OpenSS_Protocol_ReportError
 /**
  * Set value of an integer global variable in a thread.
  *
- * Issued by the client to request a change to the current value of a signed
+ * Issued by the frontend to request a change to the current value of a signed
  * integer global variable within the specified thread. Used to modify certain
  * values, such as MPI debug gates, in a process.
  */
@@ -654,7 +656,7 @@ struct OpenSS_Protocol_SetGlobalInteger
 /**
  * Stop at a function's entry or exit.
  *
- * Issued by the client to request a stop every time the specified function's
+ * Issued by the frontend to request a stop every time the specified function's
  * entry or exit is executed in the specified threads. Used by the framework
  * to implement MPI job creation.
  */
@@ -678,7 +680,7 @@ struct OpenSS_Protocol_StopAtEntryOrExit
 /**
  * Symbol table.
  *
- * Issued by the server to provide the client with the symbol table for a
+ * Issued by a backend to provide the frontend with the symbol table for a
  * single linked object.
  *
  * @note    All addresses in the symbol table are relative to the base load
@@ -703,11 +705,11 @@ struct OpenSS_Protocol_SymbolTable
 /**
  * Thread's state has changed.
  *
- * Issued by the server to indicate that the current state of every thread
+ * Issued by a backend to indicate that the current state of every thread
  * in the specified group has changed to the specified value.
  *
  * @note    While this message is sent in response to a ChangeThreadState
- *          request, it is also sent by the server when thread states change
+ *          request, it is also sent by a backend when thread states change
  *          asynchronously due to thread termination, etc.
  */
 struct OpenSS_Protocol_ThreadsStateChanged
@@ -724,10 +726,10 @@ struct OpenSS_Protocol_ThreadsStateChanged
 /**
  * Remove instrumentation from threads.
  *
- * Issued by the client to request the removal of all instrumentation associated
- * with the specified collector from the specified threads. Used by collectors
- * to indicate when they are done using any instrumentation they have placed in
- * threads.
+ * Issued by the frontend to request the removal of all instrumentation
+ * associated with the specified collector from the specified threads. Used
+ * by collectors to indicate when they are done using any instrumentation
+ * they have placed in threads.
  */
 struct OpenSS_Protocol_Uninstrument
 {
@@ -743,13 +745,13 @@ struct OpenSS_Protocol_Uninstrument
 /**
  * Linked object has been unloaded.
  *
- * Issued by the server to indicate that the specified linked object has
- * been unloaded into the address space of the specified threads. Includes
+ * Issued by a backend to indicate that the specified linked object has
+ * been unloaded from the address space of the specified threads. Includes
  * the time at which the unload occurred as well as a description of what
  * was unloaded.
  *
- * @note    This call is only made when a linked object is unloaded due
- *          to a dlclose() in the threads.
+ * @note    This message is sent only when a linked object is unloaded
+ *          due to a dlclose() in the threads.
  */
 struct OpenSS_Protocol_UnloadedLinkedObject
 {

@@ -46,10 +46,10 @@ namespace OpenSpeedShop { namespace Framework {
      */
     namespace Callbacks
     {
-	void attachToThread(const Blob&);
-	void changeThreadState(const Blob&);
+	void attachToThreads(const Blob&);
+	void changeThreadsState(const Blob&);
 	void createProcess(const Blob&);
-	void detachFromThread(const Blob&);
+	void detachFromThreads(const Blob&);
 	void executeNow(const Blob&);
 	void executeAtEntryOrExit(const Blob&);
 	void executeInPlaceOf(const Blob&);

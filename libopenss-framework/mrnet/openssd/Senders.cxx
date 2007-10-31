@@ -18,7 +18,7 @@
 
 /** @file
  *
- * Definition of the Callbacks namespace.
+ * Definition of the Senders namespace.
  *
  */
 
@@ -29,3 +29,118 @@ using namespace OpenSpeedShop::Framework;
 
 
 
+/**
+ * Attached to a thread.
+ *
+ * ...
+ */
+void Senders::attachedToThread()
+{
+    // TODO: implement!
+}
+
+
+
+/**
+ * Value of an integer global variable.
+ *
+ * Issue a message to the frontend to return the current value of a signed
+ * integer global variable within a thread.
+ */
+void Senders::globalIntegerValue()
+{
+    // TODO: implement!
+}
+
+
+
+/**
+ * Value of a job description variable.
+ *
+ * Issue a message to the frontend to return the current value of a job
+ * description global variable within a thread.
+ */
+void Senders::globalJobValue()
+{
+    // TODO: implement!
+}
+
+
+
+/**
+ * Value of a string global variable.
+ *
+ * Issue a message to the frontend to return the current value of a character
+ * string global variable within a thread.
+ */
+void Senders::globalStringValue()
+{
+    // TODO: implement!
+}
+
+
+
+/**
+ * Linked object has been loaded.
+ *
+ * Issue a message to the frontend to indicate that the specified linked object
+ * has been loaded into the address space of the specified threads. Includes the
+ * time at which the load occured as well as a description of what was loaded.
+ */
+void Senders::loadedLinkedObject()
+{
+    // TODO: implement!
+}
+
+
+
+/**
+ * Report an error.
+ *
+ * ...
+ */
+void Senders::reportError()
+{
+    // TODO: implement!
+}
+
+
+
+/**
+ * Symbol table.
+ *
+ * Issue a message to the frontend to provide the symbol table for a single
+ * linked object.
+ */
+void Senders::symbolTable()
+{
+    // TODO: implement!
+}
+
+
+
+/**
+ * Thread's state has changed.
+ *
+ * Issue a message to the frontend to indicate that the current state of
+ * every thread in the specified group has changed to the specified value.
+ */
+void Senders::threadsStateChanged()
+{
+    // TODO: implement!
+}
+
+
+
+/**
+ * Linked object has been unloaded.
+ *
+ * Issue a message to the frontend to indicate that the specified linked object
+ * has been unloaded from the address space of the specified threads. Includes
+ * the time at which the unload occured as well as a description of what was
+ * unloaded.
+ */
+void Senders::unloadedLinkedObject()
+{
+    // TODO: implement!
+}

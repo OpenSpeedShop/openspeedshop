@@ -35,14 +35,14 @@ using namespace OpenSpeedShop::Framework;
 int main(int argc, char* argv[])
 {
     // Register callbacks with the backend
-    Backend::registerCallback(OPENSS_PROTOCOL_TAG_ATTACH_TO_THREAD,
-			      Callbacks::attachToThread);
-    Backend::registerCallback(OPENSS_PROTOCOL_TAG_CHANGE_THREAD_STATE,
-			      Callbacks::changeThreadState);
+    Backend::registerCallback(OPENSS_PROTOCOL_TAG_ATTACH_TO_THREADS,
+			      Callbacks::attachToThreads);
+    Backend::registerCallback(OPENSS_PROTOCOL_TAG_CHANGE_THREADS_STATE,
+			      Callbacks::changeThreadsState);
     Backend::registerCallback(OPENSS_PROTOCOL_TAG_CREATE_PROCESS,
 			      Callbacks::createProcess);
-    Backend::registerCallback(OPENSS_PROTOCOL_TAG_DETACH_FROM_THREAD,
-			      Callbacks::detachFromThread);
+    Backend::registerCallback(OPENSS_PROTOCOL_TAG_DETACH_FROM_THREADS,
+			      Callbacks::detachFromThreads);
     Backend::registerCallback(OPENSS_PROTOCOL_TAG_EXECUTE_NOW,
 			      Callbacks::executeNow);
     Backend::registerCallback(OPENSS_PROTOCOL_TAG_EXECUTE_AT_ENTRY_OR_EXIT,

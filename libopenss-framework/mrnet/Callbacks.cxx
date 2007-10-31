@@ -40,15 +40,14 @@ using namespace OpenSpeedShop::Framework;
 void Callbacks::attachedToThread(const Blob& blob)
 {
     // Decode the message
-    OpenSS_Protocol_AttachToThread data;
+    OpenSS_Protocol_AttachedToThread data;
     memset(&data, 0, sizeof(data));
     blob.getXDRDecoding(
-	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_AttachToThread),
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_AttachedToThread),
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -70,8 +69,7 @@ void Callbacks::globalIntegerValue(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -93,8 +91,7 @@ void Callbacks::globalJobValue(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -116,8 +113,7 @@ void Callbacks::globalStringValue(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -139,8 +135,7 @@ void Callbacks::loadedLinkedObject(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -162,8 +157,7 @@ void Callbacks::reportError(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -185,8 +179,7 @@ void Callbacks::symbolTable(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -208,8 +201,7 @@ void Callbacks::threadsStateChanged(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -231,6 +223,5 @@ void Callbacks::unloadedLinkedObject(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }

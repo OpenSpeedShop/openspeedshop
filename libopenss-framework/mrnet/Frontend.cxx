@@ -24,6 +24,7 @@
 
 #include "Blob.hxx"
 #include "DataQueues.hxx"
+#include "Experiment.hxx"
 #include "Frontend.hxx"
 #include "MessageCallbackTable.hxx"
 #include "Path.hxx"
@@ -31,7 +32,10 @@
 
 #include <mrnet/MRNet.h>
 #include <pthread.h>
+#include <set>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -225,7 +229,60 @@ void Frontend::stopMessagePump()
     Assert(pthread_mutex_unlock(&monitor_request_exit.lock) == 0);
 
     // TODO: destroy upstream and network???
+}
 
+
+
+/**
+ * Send a message to the backends.
+ *
+ * Sends a message to the MRNet backends. The passed thread group specifies
+ * the subset of backends that must receive the message and the distribution
+ * of the message is restricted to that subset of backends.
+ *
+ * @param tag        Tag for the message to be sent.
+ * @param blob       Blob containing the message.
+ * @param threads    Threads referenced by this message. Used to determine
+ *                   the subset of backends that must receive the message.
+ */
+void Frontend::sendToBackends(const int& tag, const Blob& blob,
+			      const OpenSS_Protocol_ThreadNameGroup& threads)
+{
+    // Check assertions
+    Assert(network != NULL);
+
+    // Find all the unique host names in the specified thread group
+    std::set<std::string> hosts;
+    for(int i = 0; i < threads.names.names_len; ++i)
+	if(threads.names.names_val[i].host != NULL)
+	    hosts.insert(threads.names.names_val[i].host);
+
+    // Find all the endpoints corresponding to those hosts
+    std::vector<MRN::EndPoint*> endpoints;
+    const std::vector<MRN::EndPoint*>& all_endpoints = 
+	network->get_BroadcastCommunicator()->get_EndPoints();
+    for(std::vector<MRN::EndPoint*>::const_iterator
+	    i = all_endpoints.begin(); i != all_endpoints.end(); ++i)
+	if(hosts.find(Experiment::getCanonicalName((*i)->get_HostName())) != 
+	   hosts.end())
+	    endpoints.push_back(*i);
+    
+    // Create a communicator and stream for communicating with those endpoints
+    MRN::Communicator* communicator = network->new_Communicator(endpoints);
+    Assert(communicator != NULL);
+    MRN::Stream* stream = network->new_Stream(communicator,
+					      MRN::TFILTER_NULL,
+					      MRN::SFILTER_DONTWAIT,
+					      MRN::TFILTER_NULL);
+    Assert(stream != NULL);
+
+    // Send the message
+    Assert(stream->send(tag, "auc", blob.getContents(), blob.getSize()) == 0);
+    Assert(stream->flush() == 0);
+
+    // Destroy the stream and communicator
+    delete stream;
+    delete communicator;
 }
 
 
@@ -245,20 +302,4 @@ void Frontend::sendToAllBackends(const int& tag, const Blob& blob)
 
     // Send the message
     Assert(upstream->send(tag, "auc", blob.getContents(), blob.getSize()) == 0);
-}
-
-
-
-/**
- * Send a message to a subset of backends.
- *
- * ...
- *
- * @param tag        Tag for the message to be sent.
- * @param blob       Blob containing the message.
- * @param threads    ...
- */
-void Frontend::sendToBackends(const int& tag, const Blob& blob,
-			      const OpenSS_Protocol_ThreadNameGroup& threads)
-{
 }

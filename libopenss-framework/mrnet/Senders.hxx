@@ -51,10 +51,10 @@ namespace OpenSpeedShop { namespace Framework {
      */
     namespace Senders
     {
-	void attachToThread(const ThreadGroup&);
-	void changeThreadState(const ThreadGroup&, const Thread::State&);
-	void createProcess();
-	void detachFromThread(const ThreadGroup&);
+	void attachToThreads(const ThreadGroup&);
+	void changeThreadsState(const ThreadGroup&, const Thread::State&);
+	void createProcess(const Thread&, const std::string&, const Blob&);
+	void detachFromThreads(const ThreadGroup&);
 	void executeNow(const ThreadGroup&, const Collector&,
 			const std::string&, const Blob&);
 	void executeAtEntryOrExit(const ThreadGroup&, const Collector&,

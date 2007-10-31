@@ -37,18 +37,17 @@ using namespace OpenSpeedShop::Framework;
  *
  * @param blob    Blob containing the message.
  */
-void Callbacks::attachToThread(const Blob& blob)
+void Callbacks::attachToThreads(const Blob& blob)
 {
     // Decode the message
-    OpenSS_Protocol_AttachToThread data;
+    OpenSS_Protocol_AttachToThreads data;
     memset(&data, 0, sizeof(data));
     blob.getXDRDecoding(
-	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_AttachToThread),
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_AttachToThreads),
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -60,18 +59,17 @@ void Callbacks::attachToThread(const Blob& blob)
  *
  * @param blob    Blob containing the message.
  */
-void Callbacks::changeThreadState(const Blob& blob)
+void Callbacks::changeThreadsState(const Blob& blob)
 {
     // Decode the message
-    OpenSS_Protocol_ChangeThreadState data;
+    OpenSS_Protocol_ChangeThreadsState data;
     memset(&data, 0, sizeof(data));
     blob.getXDRDecoding(
-	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_ChangeThreadState),
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_ChangeThreadsState),
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -93,8 +91,7 @@ void Callbacks::createProcess(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -106,18 +103,17 @@ void Callbacks::createProcess(const Blob& blob)
  *
  * @param blob    Blob containing the message.
  */
-void Callbacks::detachFromThread(const Blob& blob)
+void Callbacks::detachFromThreads(const Blob& blob)
 {
     // Decode the message
-    OpenSS_Protocol_DetachFromThread data;
+    OpenSS_Protocol_DetachFromThreads data;
     memset(&data, 0, sizeof(data));
     blob.getXDRDecoding(
-	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_DetachFromThread),
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_DetachFromThreads),
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -139,8 +135,7 @@ void Callbacks::executeNow(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -162,8 +157,7 @@ void Callbacks::executeAtEntryOrExit(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -185,8 +179,7 @@ void Callbacks::executeInPlaceOf(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -208,8 +201,7 @@ void Callbacks::getGlobalInteger(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -231,8 +223,7 @@ void Callbacks::getGlobalString(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -254,8 +245,7 @@ void Callbacks::getMPICHProcTable(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -277,8 +267,7 @@ void Callbacks::setGlobalInteger(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -300,8 +289,7 @@ void Callbacks::stopAtEntryOrExit(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
 
 
@@ -323,6 +311,5 @@ void Callbacks::uninstrument(const Blob& blob)
 	&data
 	);
 
-    // ...
-
+    // TODO: implement!
 }
