@@ -372,7 +372,7 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
 
   vMPLoadMPILoadLineedit = new QLineEdit( vpage1big_box );
   vMPLoadMPILoadLineedit->setMinimumSize( QSize(631,10) );
-  vMPLoadMPILoadLineedit->setReadOnly(TRUE);
+//  vMPLoadMPILoadLineedit->setReadOnly(TRUE);
 
   // Add the parallel execution text entry and label to the dialog form.
 
