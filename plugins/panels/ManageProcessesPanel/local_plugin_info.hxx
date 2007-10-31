@@ -20,7 +20,7 @@
   plugin_entry->grouping = "";
   plugin_entry->show_immediate = 0;
   plugin_entry->plugin_description = "Shows processes/threads/collectors known to experiment.";
-  plugin_entry->plugin_short_description = "Shows processes/threads/collectors known to experiment.";
+  plugin_entry->plugin_short_description = "Shows processes/threads/collectors known to experiment.  Use\nthe left mouse click on the menu icon or use right mouse button\ndown on tab for menu options.";
   plugin_entry->plugin_name =  "ManageProcessesPanel.so";
   plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
