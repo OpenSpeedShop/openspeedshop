@@ -20,7 +20,7 @@
   plugin_entry->grouping = "TOPLEVEL";
   plugin_entry->show_immediate = 0;
   plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Manages the MPIOTF experiment.";
+  plugin_entry->plugin_short_description = "Manages the MPIOTF experiment.  Use a left mouse\nclick on the menu icon or use right mouse button\ndown on tab for menu options.";
   plugin_entry->plugin_name =  "MPIOTFPanel.so";
   plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";

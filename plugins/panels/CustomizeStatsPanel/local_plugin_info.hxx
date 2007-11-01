@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -20,7 +21,7 @@
   plugin_entry->grouping = "";
   plugin_entry->show_immediate = 0;
   plugin_entry->plugin_description = "This panel allows the user to interface to the \"Customize\" feature of Open|SpeedShop.\nThis panel allows the user to select 2 experiments to compare results (from one run to another).  It also allows the user to compare groups of process/threads from within one executable.";
-  plugin_entry->plugin_short_description = "Allows the user to fully customize what's displayed in the StatsPanel.";
+  plugin_entry->plugin_short_description = "Allows the user to fully customize what's displayed in the StatsPanel.  Use\na left mouse click on the menu icon or use right mouse button\ndown on tab for menu options.";
   plugin_entry->plugin_name =  "CustomizeStatsPanel.so";
   plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
