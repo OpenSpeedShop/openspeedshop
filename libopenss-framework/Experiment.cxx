@@ -370,7 +370,7 @@ int Experiment::getDBVersion(const std::string& name)
 
 	// Verify there is a "Open|SpeedShop" table containing a single row
 	BEGIN_TRANSACTION(database);
-	database->prepareStatement("SELECT VALUE(*) FROM \"Open|SpeedShop\";");
+	database->prepareStatement("SELECT version FROM \"Open|SpeedShop\";");
 	while(database->executeStatement())
 	    version = (database->getResultAsInteger(1) );
 	END_TRANSACTION(database);
