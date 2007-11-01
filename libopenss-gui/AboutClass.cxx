@@ -81,7 +81,7 @@ AboutClass::AboutClass(QWidget *w) : QDialog(w, "", 0, 0)
   QWidget *tab4Widget = new QWidget( this, "tab4Widget" );
   QVBoxLayout *tab4Layout = new QVBoxLayout( tab4Widget, 1, 2, "tab4Layout" );
   QLabel *label4 = new QLabel(tab4Widget, "label4");
-  label4->setText("                                   Open|SpeedShop License\n\n\nOpen|SpeedShop code will be released under the GPL and the LGPL licenses.\n\n");
+  label4->setText("                                   Open|SpeedShop License\n\n\nOpen|SpeedShop code has been released.  The source code has been released almost entirely\nunder the LGPL license.\n\n");
   tabWidget->addTab(tab4Widget, "License Agreement");
   tab4Layout->addWidget(label4);
 
