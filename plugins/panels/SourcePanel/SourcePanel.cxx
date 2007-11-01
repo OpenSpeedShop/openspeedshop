@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -119,7 +120,7 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) 
 // Create a label so I can get's it's height...
   label = new QLabel( getBaseWidgetFrame(), "text label", 0 );
 
-  canvasForm = new SPCanvasForm( label->height(), splitter, "Stats" );
+  canvasForm = new SPCanvasForm( label->height(), splitter, "Statistical\nAnnotations" );
   canvasForm->hide();
   canvasForm->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, canvasForm->sizePolicy().hasHeightForWidth() ) );
 
@@ -1041,10 +1042,9 @@ SourcePanel::loadFile(const QString &_fileName)
     canvasForm->clearAllItems();
     canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lineCount, lastVisibleLines, -2, highlightList);
 
-    QString header_label = "Stats";
+    QString header_label = "Statistical\nAnnotations";
     canvasForm->header->setLabel(0, header_label);
-  } else
-  {
+  } else {
     // Redisplay the high lights.
 #ifdef DEBUG_SourcePanel
    printf("loadFile() now call doFileHighlights()\n");
