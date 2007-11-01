@@ -21,7 +21,7 @@
   plugin_entry->grouping = "";
   plugin_entry->show_immediate = 0;
   plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Displays source files. Use\na left mouse click on the menu icon or use right mouse button\ndown on tab for menu options.";
+  plugin_entry->plugin_short_description = "Displays source files. Use a left mouse click\non the menu icon or use right mouse button\ndown on tab for menu options.";
   plugin_entry->plugin_name =  "SourcePanel.so";
 //unused  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
