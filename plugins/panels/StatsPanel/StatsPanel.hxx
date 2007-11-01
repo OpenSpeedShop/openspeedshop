@@ -216,6 +216,10 @@ class StatsPanel  : public Panel
     QColor defaultColor;
 
     QToolBar * fileTools;
+    QToolBar * metaToolBar;
+    QToolButton *metadataToolButton;
+    QPixmap *MoreMetadata_icon;
+    QPixmap *LessMetadata_icon;
     QSplitter *splitterA;
     QSplitter *splitterB;
     SPChartForm *cf;
