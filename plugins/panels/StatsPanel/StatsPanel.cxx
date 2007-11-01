@@ -60,6 +60,8 @@
 #include "butterfly.xpm"
 #include "more_plus_metadata.xpm"
 #include "less_minus_metadata.xpm"
+#include "compare_and_analyze.xpm"
+#include "custom_comparison.xpm"
 
 class MetricHeaderInfo;
 class QPushButton;
@@ -6337,6 +6339,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
 #endif
         }
       } else if( (s.find("Function (defining location)") != -1) ||
+                 (s.find("LinkedObject") != -1) ||
                  (s.find("Statement Location (Line Number)") != -1)  ) {
 #ifdef DEBUG_StatsPanel
          printf("outputCLIData, Found a column with Function (defining..) in the header, percentIndex at %d\n", percentIndex);
@@ -9911,6 +9914,7 @@ StatsPanel::generateToolBar()
 {
 
 if (currentCollectorStr != lastCollectorStr) {
+
   MoreMetadata_icon = new QPixmap(more_plus_metadata_xpm);
   metadataToolButton = new QToolButton(*MoreMetadata_icon, "Show More Experiment Metadata", 
                                         QString::null, this, SLOT( infoEditHeaderMoreButtonSelected()), 
@@ -9919,6 +9923,12 @@ if (currentCollectorStr != lastCollectorStr) {
 // should not need this--  metadataToolButton->setIconText(QString("Show More Experiment Metadata"));
 
   LessMetadata_icon = new QPixmap(less_minus_metadata_xpm);
+
+  QPixmap *compare_and_analyze_icon = new QPixmap( compare_and_analyze_xpm );
+  new QToolButton(*compare_and_analyze_icon, "Show Comparison and Analysis across ranks, threads,\nprocesses: generate a performance statistics report as the result\nof a cluster analysis algorithm to group ranks, threads or processes\nthat have similar performance statistics.", QString::null, this, SLOT( clusterAnalysisSelected()), fileTools, "show comparison analysis");
+
+  QPixmap *custom_comparison_icon = new QPixmap( custom_comparison_xpm );
+  new QToolButton(*custom_comparison_icon, "Show Custom Comparison report as built by user input: generate\na performance statistics report as the result of the user\ncreating comparison columns and then selecting which\nexperiments, ranks, threads, or processes\nwill comprise each column.", QString::null, this, SLOT( customizeExperimentsSelected()), fileTools, "show comparison analysis");
 
   QPixmap *functions_icon = new QPixmap( functions_xpm );
   new QToolButton(*functions_icon, "Show Functions: generate a performance statistics report\nshowing the performance data delineated by functions.", QString::null, this, SLOT( functionsSelected()), fileTools, "show functions");
