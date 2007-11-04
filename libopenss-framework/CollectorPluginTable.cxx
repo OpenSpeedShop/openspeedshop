@@ -29,6 +29,7 @@
 #include <ltdl.h>
 #include <stdlib.h>
 
+using namespace std;
 using namespace OpenSpeedShop::Framework;
 
 /** Singleton collector plugin table. */
@@ -283,6 +284,13 @@ void CollectorPluginTable::destroy(CollectorImpl* impl)
  */
 void CollectorPluginTable::foreachCallback(const std::string& filename)
 {
+    // Only examine the framework related plugins.
+    if (filename.find("_view") != string::npos ||
+	filename.find("Panel") != string::npos ||
+	filename.find("-rt") != string::npos) {
+        return;
+    }
+
     // Create an entry for this possible collector plugin
     Entry entry;
     entry.dm_path = filename;

@@ -178,10 +178,15 @@ namespace {
  */
 void ViewPluginTable::foreachCallback(const std::string& filename)
 {   
+    // Only examine the view plugins.
+    if (filename.find("_view") == string::npos) {
+	return;
+    }
+
     // Create an entry for this possible view plugin
     Entry entry;
     entry.path = filename;
-            
+
     // Can we open this file as a libltdl module?
     lt_dlhandle handle = lt_dlopenext(entry.path.c_str());
     handle = lt_dlopenext(entry.path.c_str());

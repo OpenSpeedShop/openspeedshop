@@ -57,6 +57,9 @@
 
 #include "debug.hxx"  // This includes the definition of dprintf
 
+#include <string>
+using namespace std;
+
 #include "plugin_handler.hxx"
 #include "PluginInfo.hxx"
 
@@ -88,6 +91,11 @@ register_plugin(const char *plugin_file)
    printf("Attempting to open %s\n", plugin_file );
 #endif
 
+  std::string panelfile = plugin_file;
+  // Only examine the PANEL plugins.
+  if (panelfile.find("Panel") == string::npos) {
+     return 0;
+  }
 
   // We got a plugin location directory and an absoluted path to a plugin.
   // Let's try to load the PluginInfo information.
