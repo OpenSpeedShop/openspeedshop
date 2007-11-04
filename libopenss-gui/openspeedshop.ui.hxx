@@ -611,7 +611,8 @@ void OpenSpeedshop::helpContents()
       for ( QStringList::Iterator it = fields.begin(); it != fields.end(); ++it )
       {
         sub_path = ((QString)*it).stripWhiteSpace();
-        sub_path += "/../../share/doc/openspeedshop";
+        //sub_path += "/../../share/doc/openspeedshop";
+	sub_path += "/../../share/doc/packages/OpenSpeedShop";
 // printf("sub_path=(%s)\n", sub_path.ascii() );
         QFileInfo *fileInfo = new QFileInfo(QDir(sub_path), "help.adp");
         if( fileInfo->exists() )
