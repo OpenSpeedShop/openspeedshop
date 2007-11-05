@@ -58,8 +58,8 @@
 #include "tracebacksfull.xpm"
 #include "tracebacksfullByFunction.xpm"
 #include "butterfly.xpm"
-#include "more_plus_metadata.xpm"
-#include "less_minus_metadata.xpm"
+#include "meta_information_plus.xpm"
+#include "meta_information_minus.xpm"
 #include "compare_and_analyze.xpm"
 #include "custom_comparison.xpm"
 
@@ -342,7 +342,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   metaToolBar->setOrientation( Qt::Horizontal );
   metaToolBar->setLabel( "Metadata Operations" );
 
-//  QPixmap *MoreMetadata_icon = new QPixmap(more_plus_metadata_xpm);
+//  QPixmap *MoreMetadata_icon = new QPixmap(meta_information_plus_xpm);
 //  new QToolButton(*MoreMetadata_icon, "Show More Experiment Metadata", 
 //                  QString::null, this, SLOT( infoEditHeaderMoreButtonSelected()), 
 //                  metaToolBar, "show more experiment metadata");
@@ -1561,7 +1561,7 @@ if( focusedExpID == -1 )
   contextMenu->insertSeparator();
   qaction = new QAction( this,  "clusterAnalysisSelected");
   qaction->addTo( contextMenu );
-  qaction->setText( "Compare and Group Similar Processes" );
+  qaction->setText( "Compare and Analyze using cluster analysis" );
   connect( qaction, SIGNAL( activated() ), this, SLOT( clusterAnalysisSelected() ) );
   qaction->setStatusTip( tr("Perform analysis on the processes, threads, or ranks of this experiment to group similar processes, threads, or ranks.") );
 }
@@ -1573,9 +1573,19 @@ if( focusedExpID == -1 )
 
   qaction = new QAction( this,  "customizeExperimentsSelected");
   qaction->addTo( contextMenu );
-  qaction->setText( "Customize StatsPanel..." );
+  qaction->setText( "Custom Comparison ..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( customizeExperimentsSelected() ) );
   qaction->setStatusTip( tr("Customize column data in the StatsPanel.") );
+
+#ifdef MIN_MAX_ENABLED
+  contextMenu->insertSeparator();
+
+  qaction = new QAction( this,  "minMaxAverageSelected");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Show Min, Max, Average..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( minMaxAverageSelected() ) );
+  qaction->setStatusTip( tr("Generate a min, max, average report in the StatsPanel.") );
+#endif
 
   return( TRUE );
 }
@@ -1677,6 +1687,28 @@ StatsPanel::clusterAnalysisSelected()
 #endif
   updateStatsPanelData(DONT_FORCE_UPDATE, command);
 }
+
+
+#ifdef MIN_MAX_ENABLED
+void
+StatsPanel::minMaxAverageSelected()
+{
+  QString command = QString::null;
+  if( focusedExpID == -1 ) {
+    command = QString("expview -x %1 %2 -m %3::ThreadMin, %4::ThreadMax, %5::ThreadAverage").arg(expID).arg(timeIntervalString).arg(currentCollectorStr).arg(currentCollectorStr).arg(currentCollectorStr);
+  } else {
+    command = QString("expview -x %1 %2 -m %3::ThreadMin, %4::ThreadMax, %5::ThreadAverage").arg(focusedExpID).arg(timeIntervalString).arg(currentCollectorStr).arg(currentCollectorStr).arg(currentCollectorStr);
+  }
+
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::minMaxAverageSelected() about to call updateStatsPanelData, command=%s\n", 
+         command.ascii() );
+#endif
+
+  updateStatsPanelData(DONT_FORCE_UPDATE, command);
+}
+#endif
 
 void
 StatsPanel::customizeExperimentsSelected()
@@ -3766,7 +3798,7 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 
   if (!infoAboutComparingString.isEmpty() || cviewinfo_index != -1) {
     // put out compare indication in the summary statement
-    QString cStr = QString("click on \"More Metadata\" for details.");
+    QString cStr = QString("click on the metadata icon for details.");
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::updateStatsPanelInfoHeader() , calling updateMetadataForCompareIndication\n");
 #endif
@@ -9915,14 +9947,14 @@ StatsPanel::generateToolBar()
 
 if (currentCollectorStr != lastCollectorStr) {
 
-  MoreMetadata_icon = new QPixmap(more_plus_metadata_xpm);
+  MoreMetadata_icon = new QPixmap(meta_information_plus_xpm);
   metadataToolButton = new QToolButton(*MoreMetadata_icon, "Show More Experiment Metadata", 
                                         QString::null, this, SLOT( infoEditHeaderMoreButtonSelected()), 
                                         fileTools, "show more experiment metadata");
   QToolTip::add( metadataToolButton, tr( "Push for additional experiment metadata.  This is information relating to\nthe generation of the experiment performance data being shown in the display below." ) );
 // should not need this--  metadataToolButton->setIconText(QString("Show More Experiment Metadata"));
 
-  LessMetadata_icon = new QPixmap(less_minus_metadata_xpm);
+  LessMetadata_icon = new QPixmap(meta_information_minus_xpm);
 
   QPixmap *compare_and_analyze_icon = new QPixmap( compare_and_analyze_xpm );
   new QToolButton(*compare_and_analyze_icon, "Show Comparison and Analysis across ranks, threads,\nprocesses: generate a performance statistics report as the result\nof a cluster analysis algorithm to group ranks, threads or processes\nthat have similar performance statistics.", QString::null, this, SLOT( clusterAnalysisSelected()), fileTools, "show comparison analysis");
