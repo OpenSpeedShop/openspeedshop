@@ -20,8 +20,11 @@
 SUBDIRS = \
 	cplus_version\
 	c_version \
-	f77_version \
 	io_c_version
+
+if HAVE_F77
+SUBDIRS += f77_version
+endif
 #
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
