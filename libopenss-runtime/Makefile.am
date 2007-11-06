@@ -18,11 +18,10 @@
 ################################################################################
 
 SUBDIRS = @INSTRUMENTOR@
-DIST_SUBDIRS = dpcl dyninst
+DIST_SUBDIRS = dpcl dyninst offline mrnet
 
 if HAVE_LIBMONITOR
 SUBDIRS += offline
-DIST_SUBDIRS += offline
 endif
 
 # Note: Some versions of GCC (e.g. 3.3.3) appear to contain an optimization bug

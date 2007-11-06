@@ -48,36 +48,7 @@ endif
 endif
 
 DIST_SUBDIRS = \
-	pcsamp
-
-if HAVE_LIBUNWIND
-DIST_SUBDIRS += usertime io iot
-endif
-
-if HAVE_PAPI
-DIST_SUBDIRS += hwc
-if HAVE_LIBUNWIND
-DIST_SUBDIRS += hwctime
-endif
-endif
-
-if HAVE_MPI
-if HAVE_LIBUNWIND
-DIST_SUBDIRS += mpi mpit
-if HAVE_OTF
-if HAVE_VT
-DIST_SUBDIRS += mpiotf
-endif
-endif
-endif
-endif
-
-if HAVE_BINUTILS
-if HAVE_LIBUNWIND
-DIST_SUBDIRS += fpe
-endif
-endif
-
+	pcsamp usertime io iot hwc hwctime mpi mpit mpiotf fpe
 
 doc:
 	$(DOXYGEN)
