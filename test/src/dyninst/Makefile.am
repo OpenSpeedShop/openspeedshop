@@ -19,9 +19,9 @@
 # directories that will be built
 SUBDIRS = create findPoint fpe exitpt
 
-if HAVE_F77
-SUBDIRS += createf77
-endif
+#if HAVE_F77
+#SUBDIRS += createf77
+#endif
 
 #
 # directories that will be packaged into tar.gz.
