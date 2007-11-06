@@ -61,3 +61,5 @@ ossrun: ossrun.in
 	@sed \
 		-e 's,@@osslibdir@@,$(pkglibdir),' \
 			$(srcdir)/ossrun.in > ossrun
+
+EXTRA_DIST = ossrun.in
