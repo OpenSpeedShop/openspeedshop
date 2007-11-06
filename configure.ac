@@ -404,6 +404,12 @@ AC_CONFIG_FILES(
 	test/src/dpcl/daemonRT_locking/Makefile
 	test/src/dpcl/phase/Makefile
 	test/src/dpcl/data_type/Makefile
+	test/src/dyninst/Makefile
+	test/src/dyninst/create/Makefile
+	test/src/dyninst/createf77/Makefile
+	test/src/dyninst/findPoint/Makefile
+	test/src/dyninst/fpe/Makefile
+	test/src/dyninst/exitpt/Makefile
 	usability/Makefile
 	usability/phaseII/Makefile
 	usability/phaseIII_scripting/Makefile
