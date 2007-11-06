@@ -31,7 +31,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
 
     DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
     DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -DIBM_BPATCH_COMPAT"
-    DYNINST_LIBS="-ldyninstAPI"
+    DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -ldwarf"
     DYNINST_DIR="$dyninst_dir"
     echo "host is $host"
 	case "$host" in
@@ -50,7 +50,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
     dyninst_saved_LDFLAGS=$LDFLAGS
 
     CPPFLAGS="$CPPFLAGS $DYNINST_CPPFLAGS"
-    LDFLAGS="$CXXFLAGS $DYNINST_LDFLAGS $DYNINST_LIBS -liberty -ldl"
+    LDFLAGS="$CXXFLAGS $DYNINST_LDFLAGS $DYNINST_LIBS -liberty -ldl -ldwarf"
 
     AC_MSG_CHECKING([for Dyninst API library and headers])
 
