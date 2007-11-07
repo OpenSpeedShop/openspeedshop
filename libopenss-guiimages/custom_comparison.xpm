@@ -1,5 +1,5 @@
 /* XPM */
-static char *custom_comparison[]={
+static const char *custom_comparison_xpm[]={
 "28 28 11 1",
 "# c None",
 "h c #000000",

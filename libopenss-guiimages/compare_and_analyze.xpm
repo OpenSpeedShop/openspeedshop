@@ -1,5 +1,5 @@
 /* XPM */
-static char *compare_and_analyze[]={
+static char const *compare_and_analyze_xpm[]={
 "28 28 11 1",
 "# c None",
 "h c #000000",
