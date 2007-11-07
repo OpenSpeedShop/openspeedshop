@@ -1,10 +1,10 @@
 /* XPM */
-static const char *custom_comparison_xpm[]={
+static char *custom_comparison[]={
 "28 28 11 1",
 "# c None",
 "h c #000000",
+"i c #00c0c0",
 ". c #7c7c7c",
-"i c #c000c0",
 "c c #c1c1c1",
 "b c #d9dada",
 "d c #e2e3e2",
@@ -26,7 +26,7 @@ static const char *custom_comparison_xpm[]={
 "..aacchiiiiiiiihccchiiiiiiih",
 "..aachiiiiiiiiiihchiiiiiiiii",
 "..aachiiiiiiiiiihchiiiiiiiii",
-"..aachiiiihhhiiihchiiihhiiii",
+"..aachiiiiihhiiihchiiihhiiii",
 "..aachiiiihchiiihchiiihchiii",
 "..aachiiiihchhhhcchiiihchhhh",
 "..aachiiiihccccccchiiihccccc",
@@ -35,8 +35,8 @@ static const char *custom_comparison_xpm[]={
 "..aachiiiihchiiihchiiihchiii",
 "..aachiiiihchiiihchiiihchiii",
 "..aachiiiihchiiihchiiihchiii",
-"..aachiiiihhhiiihchiiihhhiii",
+"..aachiiiiihhiiihchiiihhhiii",
 ".....hiiiiiiiiiihchiiiiiiiii",
 "...c.hiiiiiiiiiihchiiiiiiiii",
 "###cchhiiiiiiiihhchhiiiiiiih",
-"####cchhiiiiiihhccchhiiiiihh"};
+"####cchhiiiiiihhccchhhiiiihh"};
