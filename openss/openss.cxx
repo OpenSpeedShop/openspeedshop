@@ -94,6 +94,9 @@ namespace {
      */
     void libltdl_seterror(const char* error)
     {
+
+        if (error == NULL) return;
+
 	if(libltdl_error != NULL)
 	    free((void*)libltdl_error);
 	libltdl_error = strdup(error);
