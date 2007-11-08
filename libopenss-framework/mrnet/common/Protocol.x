@@ -273,7 +273,7 @@ typedef uint64_t OpenSS_Protocol_Time;
 %
 %#define OPENSS_PROTOCOL_TAG_ESTABLISH_UPSTREAM                 ((int)0)
 %
-%#define OEPNSS_PROTOCOL_TAG_ATTACHED_TO_THREAD                 ((int)100)
+%#define OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREAD                 ((int)100)
 %#define OPENSS_PROTOCOL_TAG_ATTACH_TO_THREADS                  ((int)101)
 %#define OPENSS_PROTOCOL_TAG_CHANGE_THREADS_STATE               ((int)102)
 %#define OPENSS_PROTOCOL_TAG_CREATE_PROCESS                     ((int)103)
@@ -289,16 +289,16 @@ typedef uint64_t OpenSS_Protocol_Time;
 %#define OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE               ((int)111)
 %#define OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE                   ((int)112)
 %#define OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE                ((int)113)
-%#define OPENSS_PRTOOCOL_TAG_LOADED_LINKED_OBJECT               ((int)114)
+%#define OPENSS_PROTOCOL_TAG_LOADED_LINKED_OBJECT               ((int)114)
 %
 %#define OPENSS_PROTOCOL_TAG_REPORT_ERROR                       ((int)115)
 %#define OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER                 ((int)116)
 %#define OPENSS_PROTOCOL_TAG_STOP_AT_ENTRY_OR_EXIT              ((int)117)
 %#define OPENSS_PROTOCOL_TAG_SYMBOL_TABLE                       ((int)118)
-%#define OPENSS_PROTOCOL_TAG_THREAD_STATE_CHANGED               ((int)119)
+%#define OPENSS_PROTOCOL_TAG_THREADS_STATE_CHANGED              ((int)119)
 %
 %#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)120)
-%#define OPENSS_PRTOOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)121)
+%#define OPENSS_PROTOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)121)
 %
 %#define OPENSS_PROTOCOL_TAG_DATA                               ((int)1000)
 
@@ -397,6 +397,12 @@ struct OpenSS_Protocol_ExecuteNow
     /** Collector requesting the execution. */
     OpenSS_Protocol_Collector collector;
     
+    /**
+     * Boolean "true" if the floating-point registers should NOT be saved before
+     * executing the library function, or "false" if they should be saved.
+     */
+    bool disable_save_fpr;
+
     /** Name of the library function to be executed. */
     string callee<>;
 

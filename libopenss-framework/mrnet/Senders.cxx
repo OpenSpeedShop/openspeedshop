@@ -348,13 +348,17 @@ void Senders::detachFromThreads(const ThreadGroup& threads)
  * specified library function in the specified threads. Used by collectors
  * to execute functions in their runtime library.
  *
- * @param threads      Threads in which the function should be executed.
- * @param collector    Collector requesting the execution.
- * @param callee       Name of the library function to be executed.
- * @param argument     Blob argument to the function.
+ * @param threads             Threads in which the function should be executed.
+ * @param collector           Collector requesting the execution.
+ * @param disable_save_fpr    Boolean "true" if the floating-point registers
+ *                            should NOT be saved before executing the library
+ *                            function, or "false" if they should be saved.
+ * @param callee              Name of the library function to be executed.
+ * @param argument            Blob argument to the function.
  */
 void Senders::executeNow(const ThreadGroup& threads,
 			 const Collector& collector,
+			 const bool& disable_save_fpr,
 			 const std::string& callee,
 			 const Blob& argument)
 {
@@ -362,6 +366,7 @@ void Senders::executeNow(const ThreadGroup& threads,
     OpenSS_Protocol_ExecuteNow message;
     convert(threads, message.threads);
     convert(collector, message.collector);
+    message.disable_save_fpr = disable_save_fpr;
     convert(callee, message.callee);
     convert(argument, message.argument);
 

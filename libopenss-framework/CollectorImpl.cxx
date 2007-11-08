@@ -37,6 +37,40 @@ using namespace OpenSpeedShop::Framework;
 
 
 /**
+ * Get experiment identifier.
+ *
+ * Get the experiment identifier for the specified collector. Called by derived
+ * classes to provide this information to their runtime library, allowing data
+ * to be placed into the correct database.
+ *
+ * @param collector    Collector to be identified.
+ * @return             Identifier of the experiment.
+ */
+int CollectorImpl::getExperimentId(const Collector& collector)
+{
+    return DataQueues::getDatabaseIdentifier(EntrySpy(collector).getDatabase());
+}
+
+
+
+/**
+ * Get collector identifier.
+ *
+ * Get the collector identifier for the specified collector. Called by derived
+ * classes to provide this information to their runtime library, allowing data
+ * to be placed into the correct database.
+ *
+ * @param collector    Collector to be identified.
+ * @return             Identifier of the collector.
+ */
+int CollectorImpl::getCollectorId(const Collector& collector)
+{
+    return EntrySpy(collector).getEntry();
+}
+
+
+
+/**
  * Get our parameters.
  *
  * Returns the metadata for all parameters of this collector implementation. An
@@ -129,40 +163,6 @@ void CollectorImpl::declareMetric(const Metadata& metric)
     
     // Add the new metric
     dm_metrics.insert(metric);
-}
-
-
-
-/**
- * Get experiment identifier.
- *
- * Get the experiment identifier for the specified collector. Called by derived
- * classes to provide this information to their runtime library, allowing data
- * to be placed into the correct database.
- *
- * @param collector    Collector to be identified.
- * @return             Identifier of the experiment.
- */
-int CollectorImpl::getExperimentId(const Collector& collector) const
-{
-    return DataQueues::getDatabaseIdentifier(EntrySpy(collector).getDatabase());
-}
-
-
-
-/**
- * Get collector identifier.
- *
- * Get the collector identifier for the specified collector. Called by derived
- * classes to provide this information to their runtime library, allowing data
- * to be placed into the correct database.
- *
- * @param collector    Collector to be identified.
- * @return             Identifier of the collector.
- */
-int CollectorImpl::getCollectorId(const Collector& collector) const
-{
-    return EntrySpy(collector).getEntry();
 }
 
 
@@ -330,6 +330,8 @@ void CollectorImpl::uninstrument(const Collector& collector,
 {
     Instrumentor::uninstrument(threads, collector);
 }
+
+
 
 /**
  * Get MPI runtime usage map.

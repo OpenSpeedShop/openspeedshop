@@ -23,6 +23,9 @@
  */
 
 #include "Instrumentor.hxx"
+#include "Senders.hxx"
+#include "ThreadGroup.hxx"
+#include "ThreadTable.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
@@ -40,6 +43,8 @@ using namespace OpenSpeedShop::Framework;
  */
 void Instrumentor::retain(const Thread& thread)
 {
+    // Add this thread to the thread table
+    ThreadTable::TheTable.addThread(thread);
 }
 
 
@@ -56,6 +61,14 @@ void Instrumentor::retain(const Thread& thread)
  */
 void Instrumentor::release(const Thread& thread)
 {
+    ThreadGroup threads;
+    threads.insert(thread);
+
+    // Request these threads be detached
+    Senders::detachFromThreads(threads);
+    
+    // Remove this thread from the thread table
+    ThreadTable::TheTable.removeThread(thread);
 }
 
 
@@ -77,6 +90,7 @@ void Instrumentor::create(const Thread& thread,
 			  const OutputCallback stdout_cb,
 			  const OutputCallback stderr_cb)
 {
+    // TODO: implement!
 }
 
 
@@ -93,6 +107,8 @@ void Instrumentor::create(const Thread& thread,
  */
 Thread::State Instrumentor::getState(const Thread& thread)
 {
+    // Return the thread's current state to the caller
+    return ThreadTable::TheTable.getThreadState(thread);
 }
 
 
@@ -117,6 +133,10 @@ Thread::State Instrumentor::getState(const Thread& thread)
 void Instrumentor::changeState(const ThreadGroup& threads,
 			       const Thread::State& state)
 {
+    // TODO:  handle connecting
+    
+    // Request a state change from the threads
+    Senders::changeThreadsState(threads, state);
 }
 
 
@@ -142,6 +162,11 @@ void Instrumentor::executeNow(const ThreadGroup& threads,
 			      const Blob& argument,
 			      const bool& disableSaveFPR)
 {
+    // Check preconditions
+    ThreadTable::TheTable.validateThreads(threads);
+
+    // Request the library function be executed by these threads
+    Senders::executeNow(threads, collector, disableSaveFPR, callee, argument);
 }
 
 
@@ -173,6 +198,12 @@ void Instrumentor::executeAtEntryOrExit(const ThreadGroup& threads,
 					const std::string& callee, 
 					const Blob& argument)
 {
+    // Check preconditions
+    ThreadTable::TheTable.validateThreads(threads);
+
+    // Request the library function be executed in these threads
+    Senders::executeAtEntryOrExit(threads, collector, where,
+				  at_entry, callee, argument);
 }
 
 
@@ -200,6 +231,11 @@ void Instrumentor::executeInPlaceOf(const ThreadGroup& threads,
 				    const std::string& where, 
 				    const std::string& callee)
 {
+    // Check preconditions
+    ThreadTable::TheTable.validateThreads(threads);
+
+    // Request the library function be executed in these threads
+    Senders::executeInPlaceOf(threads, collector, where, callee);
 }
 
 
@@ -221,6 +257,11 @@ void Instrumentor::executeInPlaceOf(const ThreadGroup& threads,
 void Instrumentor::uninstrument(const ThreadGroup& threads, 
 				const Collector& collector)
 {
+    // Check preconditions
+    ThreadTable::TheTable.validateThreads(threads);
+    
+    // Request the collector's instrumentation be removed from these threads
+    Senders::uninstrument(threads, collector);
 }
 
 
@@ -245,6 +286,14 @@ void Instrumentor::stopAtEntryOrExit(const Thread& thread,
 				     const std::string& where, 
 				     const bool& at_entry)
 {
+    ThreadGroup threads;
+    threads.insert(thread);
+
+    // Check preconditions
+    ThreadTable::TheTable.validateThreads(threads);
+
+    // Request the stop be added to these threads
+    Senders::stopAtEntryOrExit(threads, where, at_entry);
 }
 
 
@@ -270,6 +319,18 @@ bool Instrumentor::getGlobal(const Thread& thread,
 			     const std::string& global,
 			     int64_t& value)
 {
+    ThreadGroup threads;
+    threads.insert(thread);
+
+    // Check preconditions
+    ThreadTable::TheTable.validateThreads(threads);
+
+    // Request the global variable be retrieved from the thread
+    Senders::getGlobalInteger(thread, global);
+
+    // TODO: wait for response and return it
+
+    return false;  // TEMPORARY DUMMY RETURN
 }
 
 
@@ -295,6 +356,18 @@ bool Instrumentor::getGlobal(const Thread& thread,
 			     const std::string& global,
 			     std::string& value)
 {
+    ThreadGroup threads;
+    threads.insert(thread);
+
+    // Check preconditions
+    ThreadTable::TheTable.validateThreads(threads);
+
+    // Request the global variable be retrieved from the thread
+    Senders::getGlobalString(thread, global);
+
+    // TODO: wait for response and return it
+
+    return false;  // TEMPORARY DUMMY RETURN
 }
 
 
@@ -317,6 +390,18 @@ bool Instrumentor::getGlobal(const Thread& thread,
  */
 bool Instrumentor::getMPICHProcTable(const Thread& thread, Job& value)
 {
+    ThreadGroup threads;
+    threads.insert(thread);
+
+    // Check preconditions
+    ThreadTable::TheTable.validateThreads(threads);
+
+    // Request the MPICH process table be retrieved from the thread
+    Senders::getMPICHProcTable(thread);
+
+    // TODO: wait for reaponse and return it
+
+    return false;  // TEMPORARY DUMMY RETURN
 }
 
 
@@ -338,4 +423,12 @@ void Instrumentor::setGlobal(const Thread& thread,
 			     const std::string& global,
 			     int64_t value)
 {
+    ThreadGroup threads;
+    threads.insert(thread);
+
+    // Check preconditions
+    ThreadTable::TheTable.validateThreads(threads);
+
+    // Request the global variable be set in the process
+    Senders::setGlobalInteger(thread, global, value);
 }

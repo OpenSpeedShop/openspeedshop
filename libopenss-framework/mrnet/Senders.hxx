@@ -56,7 +56,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void createProcess(const Thread&, const std::string&, const Blob&);
 	void detachFromThreads(const ThreadGroup&);
 	void executeNow(const ThreadGroup&, const Collector&,
-			const std::string&, const Blob&);
+			const bool&, const std::string&, const Blob&);
 	void executeAtEntryOrExit(const ThreadGroup&, const Collector&,
 				  const std::string&, const bool&,
 				  const std::string&, const Blob&);

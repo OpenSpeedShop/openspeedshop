@@ -65,6 +65,9 @@ namespace OpenSpeedShop { namespace Framework {
     {
 	
     public:
+
+	static int getExperimentId(const Collector&);
+	static int getCollectorId(const Collector&);
 	
 	const std::set<Metadata>& getParameters() const;
 	const std::set<Metadata>& getMetrics() const;
@@ -197,9 +200,6 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	void declareParameter(const Metadata&);
 	void declareMetric(const Metadata&);
-
-	int getExperimentId(const Collector&) const;
-	int getCollectorId(const Collector&) const;
 
 	void executeNow(const Collector&, const ThreadGroup&,
 			const std::string&, const Blob&,
