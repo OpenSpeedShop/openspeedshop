@@ -399,11 +399,12 @@ AC_DEFUN([AC_PKG_MPICH], [
                fi
         fi
 
-      CC=$mpich_saved_CC
-      CPPFLAGS=$mpich_saved_CPPFLAGS
-      LDFLAGS=$mpich_saved_LDFLAGS
 
     fi
+
+    CC=$mpich_saved_CC
+    CPPFLAGS=$mpich_saved_CPPFLAGS
+    LDFLAGS=$mpich_saved_LDFLAGS
 
     AC_SUBST(MPICH_CC)
     AC_SUBST(MPICH_CPPFLAGS)
