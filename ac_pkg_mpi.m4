@@ -189,6 +189,7 @@ AC_DEFUN([AC_PKG_LAMPI], [
 # Try again with $alt_abi_libdir instead
          found_lampi=0
 
+         AC_MSG_CHECKING([for LAMPI library in alternative lib location and headers])
          LAMPI_CC="$lampi_dir/bin/mpicc"
          LAMPI_CPPFLAGS="-I$lampi_dir/include"
          LAMPI_LDFLAGS="-L$lampi_dir/$alt_abi_libdir"
@@ -339,23 +340,69 @@ AC_DEFUN([AC_PKG_MPICH], [
 
 	, )
 
-    CC=$mpich_saved_CC
-    CPPFLAGS=$mpich_saved_CPPFLAGS
-    LDFLAGS=$mpich_saved_LDFLAGS
 
     if test $found_mpich -eq 1; then
 	AC_MSG_RESULT(yes)
 	AM_CONDITIONAL(HAVE_MPICH, true)
 	AC_DEFINE(HAVE_MPICH, 1, [Define to 1 if you have MPICH.])	
     else
-	AC_MSG_RESULT(no)
-	AM_CONDITIONAL(HAVE_MPICH, false)
-	MPICH_CC=""
-	MPICH_CPPFLAGS=""
-	MPICH_LDFLAGS=""
-	MPICH_LIBS=""
-	MPICH_HEADER=""
-	MPICH_DIR=""
+        # Try again looking in the alternative lib dir with no driver
+        AC_MSG_CHECKING([for MPICH alternative library and headers with no mpich_driver specified])
+        MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
+        LDFLAGS="$LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
+
+        AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    	    #include <mpi.h>
+	    ]], [[
+	    MPI_Initialized((int*)0);
+	    ]]),
+
+	    found_mpich=1
+
+	    , )
+
+        if test $found_mpich -eq 1; then
+	  AC_MSG_RESULT(yes)
+	  AM_CONDITIONAL(HAVE_MPICH, true)
+	  AC_DEFINE(HAVE_MPICH, 1, [Define to 1 if you have MPICH.])	
+
+        else
+
+             # Try again looking in the normal lib dir with no driver
+             AC_MSG_CHECKING([for MPICH normal lib library and headers with no mpich_driver specified])
+             MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
+             LDFLAGS="$LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
+
+             AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+                 #include <mpi.h>
+                 ]], [[
+                 MPI_Initialized((int*)0);
+                 ]]),
+
+                 found_mpich=1
+
+                 , )
+
+              if test $found_mpich -eq 1; then
+                AC_MSG_RESULT(yes)
+                AM_CONDITIONAL(HAVE_MPICH, true)
+                AC_DEFINE(HAVE_MPICH, 1, [Define to 1 if you have MPICH.])
+               else
+  	         AC_MSG_RESULT(no)
+	         AM_CONDITIONAL(HAVE_MPICH, false)
+	         MPICH_CC=""
+	         MPICH_CPPFLAGS=""
+	         MPICH_LDFLAGS=""
+	         MPICH_LIBS=""
+	         MPICH_HEADER=""
+	         MPICH_DIR=""
+               fi
+        fi
+
+      CC=$mpich_saved_CC
+      CPPFLAGS=$mpich_saved_CPPFLAGS
+      LDFLAGS=$mpich_saved_LDFLAGS
+
     fi
 
     AC_SUBST(MPICH_CC)
