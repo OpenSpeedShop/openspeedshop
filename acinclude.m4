@@ -101,7 +101,7 @@ AC_DEFUN([AC_PKG_BINUTILS], [
                                [binutils-version installation @<:@@:>@]),
                 binutils_vers=-$withval, binutils_vers="")
 
-    if test x"$binutils_vers" == x"" && test vers_info_needed==1; then
+    if test x"$binutils_vers" == x"" && test $vers_info_needed == 1; then
 	binutils_vers="help"
         binutils_vers="`ls $binutils_dir/$abi_libdir/libbfd*.so | cut -d/ -f 4 | cut -c7-99 | sed 's/.so//'`"
     fi
