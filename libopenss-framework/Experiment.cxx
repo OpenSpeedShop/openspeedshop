@@ -805,6 +805,9 @@ ThreadGroup Experiment::createProcess(
     const OutputCallback stderr_callback) const
 {   
     ThreadGroup threads;
+    bool is_mpt_job = false;
+    bool is_mpich_job = false;
+
 
     // Get the canonical name of this host
     std::string canonical = getCanonicalName(host);
@@ -855,10 +858,14 @@ ThreadGroup Experiment::createProcess(
 
 	// Is thread a "mpirun" process for an MPICH-style MPI implementation?
 	if(thread.getFunctionByName("MPIR_Breakpoint").first)
+	    is_mpich_job = true;
+	    is_mpt_job = false;
 	    is_mpirun = std::make_pair(true, "MPIR_Breakpoint");
 
 	// Is thread a "mpirun" process for the SGI MPT MPI implementation?
 	if(thread.getFunctionByName("MPI_debug_breakpoint").first)
+	    is_mpich_job = false;
+	    is_mpt_job = true;
 	    is_mpirun = std::make_pair(true, "MPI_debug_breakpoint");
 
 	// Martin: add environment variable to ignore MPI attach
@@ -870,6 +877,18 @@ ThreadGroup Experiment::createProcess(
 	      }
 	  }
 	
+#ifndef NDEBUG
+        if(is_debug_mpijob_enabled) {
+            std::stringstream output;
+            output << "[TID " << pthread_self() << "] "
+                   << " Experiment::createProcess, thread.getProcessId() =" << thread.getProcessId() << " is_mpich_job=" << is_mpich_job
+                   << " is_mpt_job=" << is_mpt_job << " is_mpirun.first=" << is_mpirun.first
+                   << " is_mpirun.second=" << is_mpirun.second << "thread.getHost()=" << thread.getHost()
+                   << std::endl;
+            std::cerr << output.str();
+        }
+#endif
+
 
 	// Is this thread a "mpirun" process for a supported MPI implementation?
 	if(is_mpirun.first) {
@@ -883,7 +902,11 @@ ThreadGroup Experiment::createProcess(
 	    Instrumentor::stopAtEntryOrExit(thread, is_mpirun.second, true);
 
 	    // Martin: mark the process as being debugged
-	    Instrumentor::setGlobal(thread,"MPIR_being_debugged",1);
+            // Only do the MPIR_debug_gate code for mpich type MPI implementations
+            // Not mpt.
+            if (is_mpich_job) {
+	      Instrumentor::setGlobal(thread,"MPIR_being_debugged",1);
+            }
 
 	    // Resume the thread
 	    thread.changeState(Thread::Running);
@@ -900,9 +923,13 @@ ThreadGroup Experiment::createProcess(
 	    // Attach to the entire MPI job
 	    threads = attachMPIJob(thread.getProcessId(), thread.getHost());
 
-            for(ThreadGroup::const_iterator
-		    i = threads.begin(); i != threads.end(); ++i) {
-                Instrumentor::setGlobal(*i,"MPIR_debug_gate",1);
+            // Only do the MPIR_debug_gate code for mpich type MPI implementations
+            // Not mpt.
+            if (is_mpich_job) {
+               for(ThreadGroup::const_iterator
+	   	       i = threads.begin(); i != threads.end(); ++i) {
+                   Instrumentor::setGlobal(*i,"MPIR_debug_gate",1);
+               }
             }
 
 
