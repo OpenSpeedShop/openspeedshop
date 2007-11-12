@@ -808,7 +808,6 @@ ThreadGroup Experiment::createProcess(
     bool is_mpt_job = false;
     bool is_mpich_job = false;
 
-
     // Get the canonical name of this host
     std::string canonical = getCanonicalName(host);
 
@@ -857,15 +856,17 @@ ThreadGroup Experiment::createProcess(
 	std::pair<bool, std::string> is_mpirun(false, "");
 
 	// Is thread a "mpirun" process for an MPICH-style MPI implementation?
-	if(thread.getFunctionByName("MPIR_Breakpoint").first)
+	if(thread.getFunctionByName("MPIR_Breakpoint").first) {
 	    is_mpich_job = true;
 	    is_mpt_job = false;
+        }
 	    is_mpirun = std::make_pair(true, "MPIR_Breakpoint");
 
 	// Is thread a "mpirun" process for the SGI MPT MPI implementation?
-	if(thread.getFunctionByName("MPI_debug_breakpoint").first)
+	if(thread.getFunctionByName("MPI_debug_breakpoint").first) }
 	    is_mpich_job = false;
 	    is_mpt_job = true;
+        }
 	    is_mpirun = std::make_pair(true, "MPI_debug_breakpoint");
 
 	// Martin: add environment variable to ignore MPI attach
