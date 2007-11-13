@@ -863,7 +863,7 @@ ThreadGroup Experiment::createProcess(
 	    is_mpirun = std::make_pair(true, "MPIR_Breakpoint");
 
 	// Is thread a "mpirun" process for the SGI MPT MPI implementation?
-	if(thread.getFunctionByName("MPI_debug_breakpoint").first) }
+	if(thread.getFunctionByName("MPI_debug_breakpoint").first) {
 	    is_mpich_job = false;
 	    is_mpt_job = true;
         }
