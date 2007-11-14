@@ -22,7 +22,7 @@
 // where is this include????    #include <libxml/xmlreader.h>
 
 int64_t OPENSS_VIEW_FIELD_SIZE = 20;
-int64_t OPENSS_VIEW_PRECISION = 7;
+int64_t OPENSS_VIEW_PRECISION = 6;
 int64_t OPENSS_HISTORY_LIMIT = 100;
 int64_t OPENSS_HISTORY_DEFAULT = 24;
 int64_t OPENSS_MAX_ASYNC_COMMANDS = 20;
@@ -103,7 +103,7 @@ void SS_Configure () {
 
   Add_Help (czar, "viewPrecision", "an integer, preference",
             "Define the precision used to format a floating point number when "
-            "the result of an 'expView' command is printed.  The default is 4.");
+            "the result of an 'expView' command is printed.  The default is 6.");
   Ivalue = settings->readNumEntry(std::string("viewPrecision"), OPENSS_VIEW_PRECISION, &ok);
   if (ok && (Ivalue >= 0)) OPENSS_VIEW_PRECISION = Ivalue;
 

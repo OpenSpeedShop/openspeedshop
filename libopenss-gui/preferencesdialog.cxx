@@ -60,7 +60,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    globalFontItalic = FALSE;
 
    viewFieldSize = 20; 
-   viewPrecision = 4; 
+   viewPrecision = 6; 
    historyLimit = 100; 
    historyDefault = 24; 
    maxAsyncCommands = 20; 

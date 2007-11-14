@@ -139,7 +139,7 @@ void PreferencesDialog::resetPreferenceDefaults()
 
    viewFieldSize = 20;
    viewFieldSizeLineEdit->setText(QString("%1").arg(viewFieldSize));
-   viewPrecision = 4;
+   viewPrecision = 6;
    viewPrecisionLineEdit->setText(QString("%1").arg(viewPrecision));
    historyLimit = 100;
    historyLimitLineEdit->setText(QString("%1").arg(historyLimit));
