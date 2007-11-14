@@ -357,9 +357,23 @@ void IOTCollector::getMetricValues(const std::string& metric,
     // Iterate over each of the events
     for(unsigned i = 0; i < data.events.events_len; ++i) {
 
+#if 0
 	// Get the time interval attributable to this event
 	TimeInterval interval(Time(data.events.events_val[i].start_time),
 			      Time(data.events.events_val[i].stop_time));
+#else
+        uint64_t start_time = data.events.events_val[i].start_time;
+        uint64_t stop_time = data.events.events_val[i].stop_time;
+        if (start_time == stop_time) {
+            stop_time = start_time + 1;
+        } else if (start_time >= stop_time) {
+            stop_time = start_time + 1;
+        }
+        Time start(start_time);
+        Time stop(stop_time);
+        TimeInterval interval(start, stop);
+#endif
+
 
 	// Get the stack trace for this event
 	StackTrace trace(thread, interval.getBegin());
