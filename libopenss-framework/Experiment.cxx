@@ -857,17 +857,17 @@ ThreadGroup Experiment::createProcess(
 
 	// Is thread a "mpirun" process for an MPICH-style MPI implementation?
 	if(thread.getFunctionByName("MPIR_Breakpoint").first) {
+	    is_mpirun = std::make_pair(true, "MPIR_Breakpoint");
 	    is_mpich_job = true;
 	    is_mpt_job = false;
         }
-	    is_mpirun = std::make_pair(true, "MPIR_Breakpoint");
 
 	// Is thread a "mpirun" process for the SGI MPT MPI implementation?
 	if(thread.getFunctionByName("MPI_debug_breakpoint").first) {
+	    is_mpirun = std::make_pair(true, "MPI_debug_breakpoint");
 	    is_mpich_job = false;
 	    is_mpt_job = true;
         }
-	    is_mpirun = std::make_pair(true, "MPI_debug_breakpoint");
 
 	// Martin: add environment variable to ignore MPI attach
 	if (is_mpirun.first)
