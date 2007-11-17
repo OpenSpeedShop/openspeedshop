@@ -234,3 +234,20 @@ void Backend::sendToFrontend(const int& tag, const Blob& blob)
     // Send the message
     Assert(upstream->send(tag, "auc", blob.getContents(), blob.getSize()) == 0);
 }
+
+
+
+#ifndef NDEBUG
+/**
+ * Get backend debugging flag.
+ *
+ * Returns a flag indicating if debugging for the backend is enabled.
+ *
+ * @return    Boolean "true" if debugging for the backend is enabled,
+ *            "false" otherwise.
+ */
+bool Backend::isDebugEnabled()
+{
+    return false;  // TODO: implement!
+}
+#endif

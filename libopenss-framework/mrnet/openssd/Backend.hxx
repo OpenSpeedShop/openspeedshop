@@ -57,6 +57,10 @@ namespace OpenSpeedShop { namespace Framework {
 	void stopMessagePump();
 
 	void sendToFrontend(const int&, const Blob&);
+
+#ifndef NDEBUG
+	bool isDebugEnabled();
+#endif
     }
     
 } }

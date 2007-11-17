@@ -62,7 +62,19 @@ namespace {
     } monitor_request_exit = {
 	false, PTHREAD_MUTEX_INITIALIZER
     };
-    
+
+#ifndef NDEBUG
+    /** Flag indicating if debugging for the frontend is enabled. */
+    bool is_frontend_debug_enabled = 
+        ((getenv("OPENSS_DEBUG_MRNET") != NULL) ||
+	 (getenv("OPENSS_DEBUG_MRNET_FRONTEND") != NULL));
+
+    /** Flag indicating if debugging for the backend is enabled. */
+    bool is_backend_debug_enabled = 
+        ((getenv("OPENSS_DEBUG_MRNET") != NULL) ||
+	 (getenv("OPENSS_DEBUG_MRNET_BACKEND") != NULL));
+#endif    
+
 
 
     /**
@@ -187,8 +199,11 @@ void Frontend::unregisterCallback(const int& tag,
  */
 void Frontend::startMessagePump(const Path& topology_file)
 {
+    static const char* DebugArgs[2] = { "-debug", NULL };
+
     // Initialize MRNet (participating as the frontend)
-    network = new MRN::Network(topology_file.c_str(), "openssd", NULL);
+    network = new MRN::Network(topology_file.c_str(), "openssd",
+			       is_backend_debug_enabled ? DebugArgs : NULL);
     if(network->fail())
 	throw std::runtime_error("Unable to initialize MRNet.");
     
@@ -303,3 +318,20 @@ void Frontend::sendToAllBackends(const int& tag, const Blob& blob)
     // Send the message
     Assert(upstream->send(tag, "auc", blob.getContents(), blob.getSize()) == 0);
 }
+
+
+
+#ifndef NDEBUG
+/**
+ * Get frontend debugging flag.
+ *
+ * Returns a flag indicating if debugging for the frontend is enabled.
+ *
+ * @return    Boolean "true" if debugging for the frontend is enabled,
+ *            "false" otherwise.
+ */
+bool Frontend::isDebugEnabled()
+{
+    return is_frontend_debug_enabled;
+}
+#endif    

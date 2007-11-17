@@ -24,7 +24,12 @@
 
 #include "Blob.hxx"
 #include "Callbacks.hxx"
+#include "Frontend.hxx"
 #include "Protocol.h"
+#include "Utility.hxx"
+
+#include <iostream>
+#include <sstream>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -40,12 +45,21 @@ using namespace OpenSpeedShop::Framework;
 void Callbacks::attachedToThread(const Blob& blob)
 {
     // Decode the message
-    OpenSS_Protocol_AttachedToThread data;
-    memset(&data, 0, sizeof(data));
+    OpenSS_Protocol_AttachedToThread message;
+    memset(&message, 0, sizeof(message));
     blob.getXDRDecoding(
 	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_AttachedToThread),
-	&data
+	&message
 	);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
 
     // TODO: implement!
 }
@@ -62,12 +76,21 @@ void Callbacks::attachedToThread(const Blob& blob)
 void Callbacks::globalIntegerValue(const Blob& blob)
 {
     // Decode the message
-    OpenSS_Protocol_GlobalIntegerValue data;
-    memset(&data, 0, sizeof(data));
+    OpenSS_Protocol_GlobalIntegerValue message;
+    memset(&message, 0, sizeof(message));
     blob.getXDRDecoding(
 	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_GlobalIntegerValue),
-	&data
+	&message
 	);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
 
     // TODO: implement!
 }
@@ -84,12 +107,21 @@ void Callbacks::globalIntegerValue(const Blob& blob)
 void Callbacks::globalJobValue(const Blob& blob)
 {
     // Decode the message
-    OpenSS_Protocol_GlobalJobValue data;
-    memset(&data, 0, sizeof(data));
+    OpenSS_Protocol_GlobalJobValue message;
+    memset(&message, 0, sizeof(message));
     blob.getXDRDecoding(
 	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_GlobalJobValue),
-	&data
+	&message
 	);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
 
     // TODO: implement!
 }
@@ -106,12 +138,21 @@ void Callbacks::globalJobValue(const Blob& blob)
 void Callbacks::globalStringValue(const Blob& blob)
 {
     // Decode the message
-    OpenSS_Protocol_GlobalStringValue data;
-    memset(&data, 0, sizeof(data));
+    OpenSS_Protocol_GlobalStringValue message;
+    memset(&message, 0, sizeof(message));
     blob.getXDRDecoding(
 	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_GlobalStringValue),
-	&data
+	&message
 	);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
 
     // TODO: implement!
 }
@@ -128,12 +169,21 @@ void Callbacks::globalStringValue(const Blob& blob)
 void Callbacks::loadedLinkedObject(const Blob& blob)
 {
     // Decode the message
-    OpenSS_Protocol_LoadedLinkedObject data;
-    memset(&data, 0, sizeof(data));
+    OpenSS_Protocol_LoadedLinkedObject message;
+    memset(&message, 0, sizeof(message));
     blob.getXDRDecoding(
 	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_LoadedLinkedObject),
-	&data
+	&message
 	);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
 
     // TODO: implement!
 }
@@ -150,12 +200,21 @@ void Callbacks::loadedLinkedObject(const Blob& blob)
 void Callbacks::reportError(const Blob& blob)
 {
     // Decode the message
-    OpenSS_Protocol_ReportError data;
-    memset(&data, 0, sizeof(data));
+    OpenSS_Protocol_ReportError message;
+    memset(&message, 0, sizeof(message));
     blob.getXDRDecoding(
 	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_ReportError),
-	&data
+	&message
 	);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
 
     // TODO: implement!
 }
@@ -172,12 +231,21 @@ void Callbacks::reportError(const Blob& blob)
 void Callbacks::symbolTable(const Blob& blob)
 {
     // Decode the message
-    OpenSS_Protocol_SymbolTable data;
-    memset(&data, 0, sizeof(data));
+    OpenSS_Protocol_SymbolTable message;
+    memset(&message, 0, sizeof(message));
     blob.getXDRDecoding(
 	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_SymbolTable),
-	&data
+	&message
 	);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
 
     // TODO: implement!
 }
@@ -194,12 +262,21 @@ void Callbacks::symbolTable(const Blob& blob)
 void Callbacks::threadsStateChanged(const Blob& blob)
 {
     // Decode the message
-    OpenSS_Protocol_ThreadsStateChanged data;
-    memset(&data, 0, sizeof(data));
+    OpenSS_Protocol_ThreadsStateChanged message;
+    memset(&message, 0, sizeof(message));
     blob.getXDRDecoding(
 	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_ThreadsStateChanged),
-	&data
+	&message
 	);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
 
     // TODO: implement!
 }
@@ -216,12 +293,21 @@ void Callbacks::threadsStateChanged(const Blob& blob)
 void Callbacks::unloadedLinkedObject(const Blob& blob)
 {
     // Decode the message
-    OpenSS_Protocol_UnloadedLinkedObject data;
-    memset(&data, 0, sizeof(data));
+    OpenSS_Protocol_UnloadedLinkedObject message;
+    memset(&message, 0, sizeof(message));
     blob.getXDRDecoding(
 	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_UnloadedLinkedObject),
-	&data
+	&message
 	);
 
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+    
     // TODO: implement!
 }

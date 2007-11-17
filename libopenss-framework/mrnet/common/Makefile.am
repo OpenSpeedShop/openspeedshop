@@ -31,7 +31,8 @@ libopenss_framework_mrnet_common_la_LIBADD =
 libopenss_framework_mrnet_common_la_SOURCES = \
 	MessageCallback.hxx \
 	MessageCallbackTable.hxx MessageCallbackTable.cxx \
-	Protocol.x $(BUILT_SOURCES)
+	Protocol.x \
+	Utility.hxx Utility.cxx
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)

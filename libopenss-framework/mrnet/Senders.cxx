@@ -23,11 +23,16 @@
  */
 
 #include "Blob.hxx"
+#include "Collector.hxx"
 #include "CollectorImpl.hxx"
 #include "Frontend.hxx"
 #include "Protocol.h"
 #include "Senders.hxx"
 #include "ThreadGroup.hxx"
+#include "Utility.hxx"
+
+#include <pthread.h>
+#include <sstream>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -195,9 +200,18 @@ void Senders::attachToThreads(const ThreadGroup& threads)
     OpenSS_Protocol_AttachToThreads message;
     convert(threads, message.threads);
     
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
     // Encode the message into a blob
     Blob blob(
-        reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_AttachToThreads),
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_AttachToThreads),
 	&message
 	);
 
@@ -242,6 +256,15 @@ void Senders::changeThreadsState(const ThreadGroup& threads,
 	break;
     }
     
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
     // Encode the message into a blob
     Blob blob(
 	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_ChangeThreadsState),
@@ -284,6 +307,15 @@ void Senders::createProcess(const Thread& thread,
     convert(command, message.command);
     convert(environment, message.environment);
     
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
     // Encode the message into a blob
     Blob blob(
         reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_CreateProcess),
@@ -322,6 +354,15 @@ void Senders::detachFromThreads(const ThreadGroup& threads)
     OpenSS_Protocol_DetachFromThreads message;
     convert(threads, message.threads);
     
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
     // Encode the message into a blob
     Blob blob(
         reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_DetachFromThreads),
@@ -369,6 +410,15 @@ void Senders::executeNow(const ThreadGroup& threads,
     message.disable_save_fpr = disable_save_fpr;
     convert(callee, message.callee);
     convert(argument, message.argument);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
 
     // Encode the message into a blob
     Blob blob(
@@ -422,6 +472,15 @@ void Senders::executeAtEntryOrExit(const ThreadGroup& threads,
     convert(callee, message.callee);
     convert(argument, message.argument);
     
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
     // Encode the message into a blob
     Blob blob(
         reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_ExecuteAtEntryOrExit),
@@ -467,6 +526,15 @@ void Senders::executeInPlaceOf(const ThreadGroup& threads,
     convert(where, message.where);
     convert(callee, message.callee);
 
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
     // Encode the message into a blob
     Blob blob(
         reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_ExecuteInPlaceOf),
@@ -502,6 +570,15 @@ void Senders::getGlobalInteger(const Thread& thread, const std::string& global)
     OpenSS_Protocol_GetGlobalInteger message;
     convert(thread, message.thread);
     convert(global, message.global);    
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
 
     // Encode the message into a blob
     Blob blob(
@@ -545,6 +622,15 @@ void Senders::getGlobalString(const Thread& thread, const std::string& global)
     convert(thread, message.thread);
     convert(global, message.global);
 
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
     // Encode the message into a blob
     Blob blob(
         reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_GetGlobalString),
@@ -586,6 +672,15 @@ void Senders::getMPICHProcTable(const Thread& thread)
     OpenSS_Protocol_GetMPICHProcTable message;
     convert(thread, message.thread);
     
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
     // Encode the message into a blob
     Blob blob(
 	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_GetMPICHProcTable),
@@ -632,6 +727,15 @@ void Senders::setGlobalInteger(const Thread& thread,
     convert(global, message.global);
     message.value = value;
     
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
     // Encode the message into a blob
     Blob blob(
 	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_SetGlobalInteger),
@@ -680,6 +784,15 @@ void Senders::stopAtEntryOrExit(const ThreadGroup& threads,
     convert(where, message.where);
     message.at_entry = at_entry;
 
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
     // Encode the message into a blob
     Blob blob(
         reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_StopAtEntryOrExit),
@@ -718,6 +831,15 @@ void Senders::uninstrument(const ThreadGroup& threads,
     convert(threads, message.threads);
     convert(collector, message.collector);
     
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
     // Encode the message into a blob
     Blob blob(
         reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_Uninstrument),

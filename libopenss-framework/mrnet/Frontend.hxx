@@ -61,6 +61,10 @@ namespace OpenSpeedShop { namespace Framework {
 	void sendToBackends(const int&, const Blob&,
 			    const OpenSS_Protocol_ThreadNameGroup&);
 	void sendToAllBackends(const int&, const Blob&);
+
+#ifndef NDEBUG
+	bool isDebugEnabled();
+#endif
     }
     
 } }
