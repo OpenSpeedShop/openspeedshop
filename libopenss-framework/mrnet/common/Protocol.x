@@ -119,7 +119,7 @@ struct OpenSS_Protocol_FileName
     string path<>;
 
     /** Checksum calculated on this file. */
-    opaque checksum<>;
+    uint64_t checksum;
 };
 
 
@@ -201,8 +201,9 @@ struct OpenSS_Protocol_StatementEntry
  * Thread name.
  *
  * Names a single thread of code execution. To uniquely identify a thread,
- * the host name, process identifier, and POSIX thread identifier must all
- * be specified.
+ * the host name and process identifier must be specified. A POSIX thread
+ * identifier must also be specified if a specific thread in a process is
+ * being named.
  */
 struct OpenSS_Protocol_ThreadName
 {
@@ -211,6 +212,14 @@ struct OpenSS_Protocol_ThreadName
 
     /** Identifier of the process containing this thread. */
     int64_t pid;
+
+    /**
+     * Boolean "true" if this name refers to a specified thread in the
+     * process and thus includes a POSIX thread identifier, or "false"
+     * if the main thread of the process is being named and the POSIX
+     * thread identifier should be considered invalid.
+     */
+    bool has_posix_tid;
 
     /** POSIX identifier of this thread. */
     int64_t posix_tid;

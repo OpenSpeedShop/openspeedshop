@@ -274,7 +274,7 @@ std::string OpenSpeedShop::Framework::toString(
  *
  * Returns the conversion of an OpenSS_Protocol_ThreadName into a std::string.
  * Simply returns the string containing the textual representation of the host
- * name, process identifier, and posix thread identifier.
+ * name, the process identifier, and (if present) the posix thread identifier.
  *
  * @param thread    Thread name to be converted.
  * @return          String conversion of that thread name.
@@ -285,7 +285,8 @@ std::string OpenSpeedShop::Framework::toString(
 {
     std::stringstream output;
     output << thread.host << ":" << thread.pid;
-    output << ":" << thread.posix_tid;
+    if(thread.has_posix_tid)
+	output << ":" << thread.posix_tid;
     return output.str();
 }
 

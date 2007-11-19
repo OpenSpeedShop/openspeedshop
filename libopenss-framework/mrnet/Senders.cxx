@@ -100,7 +100,9 @@ namespace {
 	convert(in.getHost(), out.host);
 	out.pid = in.getProcessId();
 	std::pair<bool, pthread_t> posix_tid = in.getPosixThreadId();
-	out.posix_tid = posix_tid.first ? posix_tid.second : 0;
+	out.has_posix_tid = posix_tid.first;
+	if(posix_tid.first)
+	    out.posix_tid = posix_tid.second;
     }
 
 

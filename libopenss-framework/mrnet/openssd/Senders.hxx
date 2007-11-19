@@ -29,10 +29,23 @@
 #include "config.h"
 #endif
 
+#include "AddressRange.hxx"
+#include "Job.hxx"
+
+#ifdef HAVE_INTTYPES_H
+#include <inttypes.h>
+#endif
+#include <string>
+
 
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class FileName;
+    class ThreadName;
+    class ThreadNameGroup;
+    class Time;
+    
     /**
      * Message senders.
      *
@@ -44,14 +57,21 @@ namespace OpenSpeedShop { namespace Framework {
     namespace Senders
     {
 	void attachedToThread();
-	void globalIntegerValue();
-	void globalJobValue();
-	void globalStringValue();
-	void loadedLinkedObject();
+	void globalIntegerValue(const ThreadName&, const std::string&,
+				const int64_t&);
+	void globalJobValue(const ThreadName&, const std::string&,
+			    const Job&);
+	void globalStringValue(const ThreadName&, const std::string&,
+			       const std::string&);
+	void loadedLinkedObject(const ThreadNameGroup&, const Time&,
+				const AddressRange&, const FileName&,
+				const bool&);
 	void reportError();
 	void symbolTable();
-	void threadsStateChanged();
-	void unloadedLinkedObject();
+	void threadsStateChanged(const ThreadNameGroup&,
+				 const OpenSS_Protocol_ThreadState&);
+	void unloadedLinkedObject(const ThreadNameGroup&, const Time&,
+				  const FileName&);
     }
     
 } }
