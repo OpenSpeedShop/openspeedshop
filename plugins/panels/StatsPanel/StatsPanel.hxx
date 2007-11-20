@@ -378,6 +378,9 @@ class StatsPanel  : public Panel
     void IOtraceSelected();
     void customizeExperimentsSelected();
     void clusterAnalysisSelected();
+//#ifdef MIN_MAX_ENABLED
+    void minMaxAverageSelected();
+//#endif
     void manageProcessesSelected();
     void raiseManageProcessesPanel();
     void progressUpdate();

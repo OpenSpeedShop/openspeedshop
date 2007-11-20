@@ -62,6 +62,8 @@
 #include "meta_information_minus.xpm"
 #include "compare_and_analyze.xpm"
 #include "custom_comparison.xpm"
+#include "update_icon.xpm"
+#include "load_balance_icon.xpm"
 
 class MetricHeaderInfo;
 class QPushButton;
@@ -251,6 +253,9 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   current_list_of_io_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_iot_modifiers.clear();
   current_list_of_iot_modifiers.clear();  // This is this list of user selected modifiers.
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::StatsPanel() constructor CLEARING current_list_of_iot_modifiers\n");
+#endif
   list_of_hwc_modifiers.clear();
   current_list_of_hwc_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_hwctime_modifiers.clear();
@@ -1577,15 +1582,15 @@ if( focusedExpID == -1 )
   connect( qaction, SIGNAL( activated() ), this, SLOT( customizeExperimentsSelected() ) );
   qaction->setStatusTip( tr("Customize column data in the StatsPanel.") );
 
-#ifdef MIN_MAX_ENABLED
+//#ifdef MIN_MAX_ENABLED
   contextMenu->insertSeparator();
 
   qaction = new QAction( this,  "minMaxAverageSelected");
   qaction->addTo( contextMenu );
-  qaction->setText( "Show Min, Max, Average..." );
+  qaction->setText( "Show Load Balance Overview..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( minMaxAverageSelected() ) );
   qaction->setStatusTip( tr("Generate a min, max, average report in the StatsPanel.") );
-#endif
+//#endif
 
   return( TRUE );
 }
@@ -1689,7 +1694,7 @@ StatsPanel::clusterAnalysisSelected()
 }
 
 
-#ifdef MIN_MAX_ENABLED
+//#ifdef MIN_MAX_ENABLED
 void
 StatsPanel::minMaxAverageSelected()
 {
@@ -1708,7 +1713,7 @@ StatsPanel::minMaxAverageSelected()
 
   updateStatsPanelData(DONT_FORCE_UPDATE, command);
 }
-#endif
+//#endif
 
 void
 StatsPanel::customizeExperimentsSelected()
@@ -1747,16 +1752,22 @@ StatsPanel::customizeExperimentsSelected()
 }   
 
 void
-StatsPanel::generateModifierMenu(QPopupMenu *menu, std::list<std::string> modifier_list, std::list<std::string> current_list)
+StatsPanel::generateModifierMenu(QPopupMenu *menu, 
+                                 std::list<std::string> modifier_list, 
+                                 std::list<std::string> current_list)
 {
-// printf("StatsPanel::generateModifierMenu() entered\n");
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::generateModifierMenu() entered\n");
+#endif
   menu->setCheckable(TRUE);
   for( std::list<std::string>::const_iterator it = modifier_list.begin();
           it != modifier_list.end(); it++ )
   {
     std::string modifier = (std::string)*it;
 
-// printf("modifier = (%s)\n", modifier.c_str() );
+#ifdef DEBUG_StatsPanel
+    printf("modifier = (%s)\n", modifier.c_str() );
+#endif
 
     QString s = QString(modifier.c_str() );
      int mid = menu->insertItem(s);
@@ -1764,10 +1775,14 @@ StatsPanel::generateModifierMenu(QPopupMenu *menu, std::list<std::string> modifi
          it != current_list.end(); it++ )
     {
       std::string current_modifier = (std::string)*it;
-// printf("building menu : current_list here's one (%s)\n", current_modifier.c_str() );
+#ifdef DEBUG_StatsPanel
+      printf("building menu : current_list here's one (%s)\n", current_modifier.c_str() );
+#endif
       if( modifier == current_modifier )
       {
-// printf("WE have a match to check\n");
+#ifdef DEBUG_StatsPanel
+        printf("WE have a match to check\n");
+#endif
         menu->setItemChecked(mid, TRUE);
       }
     }
@@ -2063,7 +2078,8 @@ StatsPanel::updatePanel()
   printf("updatePanel() about to call updateStatsPanelData, lastCommand=%s\n", lastCommand.ascii());
 #endif
 
-  updateStatsPanelData(DONT_FORCE_UPDATE, lastCommand);
+//  updateStatsPanelData(DONT_FORCE_UPDATE, lastCommand);
+  updateStatsPanelData(DONT_FORCE_UPDATE, NULL);
 }
 
 void
@@ -5118,8 +5134,8 @@ void
 StatsPanel::modifierSelected(int val)
 { 
 #ifdef DEBUG_StatsPanel
-  printf("modifierSelected val=%d\n", val);
-  printf("modifierSelected: (%s)\n", modifierMenu->text(val).ascii() );
+  printf("StatsPanel::modifierSelected val=%d\n", val);
+  printf("StatsPanel::modifierSelected: (%s)\n", modifierMenu->text(val).ascii() );
 #endif
 
   if( modifierMenu->text(val).isEmpty() )
@@ -5129,7 +5145,9 @@ StatsPanel::modifierSelected(int val)
 
 
   std::string s = modifierMenu->text(val).ascii();
-// printf("B1: modifierStr=(%s)\n", s.c_str() );
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::modifierSelected: B1: modifierStr=(%s)\n", s.c_str() );
+#endif
 
   bool FOUND = FALSE;
   for( std::list<std::string>::const_iterator it = current_list_of_modifiers.begin();
@@ -5180,8 +5198,8 @@ StatsPanel::mpiModifierSelected(int val)
 { 
 #ifdef DEBUG_StatsPanel
  printf("mpiModifierSelected val=%d\n", val);
- printf("modifierSelected: (%s)\n", mpiModifierMenu->text(val).ascii() );
- printf("modifierSelected: (%d)\n", mpiModifierMenu->text(val).toInt() );
+ printf("mpiModifierSelected: (%s)\n", mpiModifierMenu->text(val).ascii() );
+ printf("mpiModifierSelected: (%d)\n", mpiModifierMenu->text(val).toInt() );
 #endif
 
 
@@ -5248,7 +5266,7 @@ StatsPanel::mpitModifierSelected(int val)
 { 
 #ifdef DEBUG_StatsPanel
    printf("mpitModifierSelected val=%d\n", val);
-   printf("modifierSelected: (%s)\n", mpitModifierMenu->text(val).ascii() );
+   printf("mpitModifierSelected: (%s)\n", mpitModifierMenu->text(val).ascii() );
 #endif
 
 
@@ -5310,7 +5328,7 @@ StatsPanel::ioModifierSelected(int val)
 { 
 #ifdef DEBUG_StatsPanel
   printf("ioModifierSelected val=%d\n", val);
-  printf("modifierSelected: (%s)\n", ioModifierMenu->text(val).ascii() );
+  printf("ioModifierSelected: (%s)\n", ioModifierMenu->text(val).ascii() );
 #endif
 
   if( ioModifierMenu->text(val).isEmpty() )
@@ -5371,7 +5389,7 @@ StatsPanel::iotModifierSelected(int val)
 { 
 #ifdef DEBUG_StatsPanel
   printf("iotModifierSelected val=%d\n", val);
-  printf("modifierSelected: (%s)\n", iotModifierMenu->text(val).ascii() );
+  printf("iotModifierSelected: (%s)\n", iotModifierMenu->text(val).ascii() );
 #endif
 
 
@@ -5391,7 +5409,9 @@ StatsPanel::iotModifierSelected(int val)
   }
 
   std::string s = iotModifierMenu->text(val).ascii();
-// printf("B1: modifierStr=(%s)\n", s.c_str() );
+#ifdef DEBUG_StatsPanel
+   printf("iot,B1: modifierStr=(%s)\n", s.c_str() );
+#endif
 
   bool FOUND = FALSE;
   for( std::list<std::string>::const_iterator it = current_list_of_iot_modifiers.begin();
@@ -5399,31 +5419,49 @@ StatsPanel::iotModifierSelected(int val)
   {
     std::string modifier = (std::string)*it;
 
+#ifdef DEBUG_StatsPanel
+      printf("Looping through the modifier list , modifier.c_str()=%s\n", modifier.c_str() );
+#endif
+
     if( modifier ==  s )
     {   // It's in the list, so take it out...
-// printf("The modifier was in the list ... take it out!\n");
+#ifdef DEBUG_StatsPanel
+      printf("The modifier was in the list ... take it out! (%s)\n", s.c_str());
+#endif
       FOUND = TRUE;
     }
 
     it++;
 
-    if( FOUND == TRUE )
-    {
+    if( FOUND == TRUE ) {
       current_list_of_iot_modifiers.remove(modifier);
       iotModifierMenu->setItemChecked(val, FALSE);
       break;
     }
   }
 
-  if( FOUND == FALSE )
-  {
-// printf("The modifier was not in the list ... add it!\n");
+  if( FOUND == FALSE ) {
+#ifdef DEBUG_StatsPanel
+    printf("The modifier was not in the list ... add it!, (%s)\n", s.c_str());
+    printf("iot,B1: modifierStr=(%s)\n", s.c_str() );
+#endif
     if( s != PTI )
     {
       current_list_of_iot_modifiers.push_back(s);
     }
     iotModifierMenu->setItemChecked(val, TRUE);
   }
+
+#ifdef DEBUG_StatsPanel
+  printf("EXIT iot, (%s)\n", s.c_str());
+  for( std::list<std::string>::const_iterator iit = current_list_of_iot_modifiers.begin();
+       iit != current_list_of_iot_modifiers.end();  )
+  {
+    std::string x_modifier = (std::string)*iit;
+    printf("EXITing iot, one of the modifiers that is in the list is:(%s)\n", x_modifier.c_str());
+    iit++;
+  }
+#endif
 }
 
 
@@ -5432,7 +5470,7 @@ StatsPanel::hwcModifierSelected(int val)
 { 
 #ifdef DEBUG_StatsPanel
   printf("hwcModifierSelected val=%d\n", val);
-  printf("modifierSelected: (%s)\n", hwcModifierMenu->text(val).ascii() );
+  printf("hwcModifierSelected: (%s)\n", hwcModifierMenu->text(val).ascii() );
 #endif
 
   if( hwcModifierMenu->text(val).isEmpty() )
@@ -5493,7 +5531,7 @@ StatsPanel::hwctimeModifierSelected(int val)
 { 
 #ifdef DEBUG_StatsPanel
   printf("hwctimeModifierSelected val=%d\n", val);
-  printf("modifierSelected: (%s)\n", hwctimeModifierMenu->text(val).ascii() );
+  printf("hwctimeModifierSelected: (%s)\n", hwctimeModifierMenu->text(val).ascii() );
 #endif
 
   if( hwctimeModifierMenu->text(val).isEmpty() )
@@ -5554,7 +5592,7 @@ StatsPanel::usertimeModifierSelected(int val)
 { 
 #ifdef DEBUG_StatsPanel
   printf("usertimeModifierSelected val=%d\n", val);
-  printf("modifierSelected: (%s)\n", usertimeModifierMenu->text(val).ascii() );
+  printf("usertimeModifierSelected: (%s)\n", usertimeModifierMenu->text(val).ascii() );
 #endif
 
   if( usertimeModifierMenu->text(val).isEmpty() )
@@ -5614,7 +5652,7 @@ StatsPanel::pcsampModifierSelected(int val)
 { 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::pcsampModifierSelected val=%d\n", val);
-  printf("StatsPanel::modifierSelected: (%s)\n", pcsampModifierMenu->text(val).ascii() );
+  printf("StatsPanel::pcsampModifierSelected: (%s)\n", pcsampModifierMenu->text(val).ascii() );
 #endif
 
   if( pcsampModifierMenu->text(val).isEmpty() )
@@ -5686,7 +5724,7 @@ StatsPanel::fpeModifierSelected(int val)
 { 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::fpeModifierSelected val=%d\n", val);
-  printf("StatsPanel::modifierSelected: (%s)\n", fpeModifierMenu->text(val).ascii() );
+  printf("StatsPanel::fpeModifierSelected: (%s)\n", fpeModifierMenu->text(val).ascii() );
 #endif
 
   if( fpeModifierMenu->text(val).isEmpty() )
@@ -5746,7 +5784,7 @@ StatsPanel::genericModifierSelected(int val)
 { 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::genericModifierSelected val=%d\n", val);
-  printf("StatsPanel::modifierSelected: (%s)\n", genericModifierMenu->text(val).ascii() );
+  printf("StatsPanel::genericModifierSelected: (%s)\n", genericModifierMenu->text(val).ascii() );
 #endif
 
   if( genericModifierMenu->text(val).isEmpty() )
@@ -7041,8 +7079,13 @@ StatsPanel::generateCommand()
   QString traceAddition = QString::null;
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::generateCommand, currentCollectorStr=(%s),MPItraceFLAG=(%d),currentUserSelectedReportStr=(%s),IOtraceFLAG=%d\n", 
+  if (!currentCollectorStr.isEmpty()) {
+     printf("StatsPanel::generateCommand, currentCollectorStr=(%s), MPItraceFLAG=(%d), IOtraceFLAG=%d\n", 
          currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), MPItraceFLAG, IOtraceFLAG );
+  }
+  if (!currentUserSelectedReportStr.isEmpty()) {
+     printf("StatsPanel::generateCommand, currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii());
+  }
   printf("StatsPanel::generateCommand, expID=(%d), focusedExpID=%d\n",  expID, focusedExpID);
 #endif
 
@@ -7538,33 +7581,40 @@ StatsPanel::generateCommand()
 
 #ifdef DEBUG_StatsPanel
    printf("generateCommand: currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+   printf("generateCommand: currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
 #endif
-    if( currentCollectorStr == "hwc" )
-    {
+    if( currentCollectorStr == "hwc" ) {
       modifier_list = &current_list_of_hwc_modifiers;
-    } else if( currentCollectorStr == "hwctime" )
-    {
+    } else if( currentCollectorStr == "hwctime" ) {
       modifier_list = &current_list_of_hwctime_modifiers;
-    } else if( currentCollectorStr == "io" || currentCollectorStr == "iot" )
-    {
+    } else if( currentCollectorStr == "io" ) {
       modifier_list = &current_list_of_io_modifiers;
-    } else if( currentCollectorStr == "mpi" )
-    {
+    } else if( currentCollectorStr == "iot" ) {
+
+#ifdef DEBUG_StatsPanel
+      printf("generateCommand, &current_list_of_iot_modifiers=(%x)\n", &current_list_of_iot_modifiers);
+#endif
+       for( std::list<std::string>::const_iterator iot_it = current_list_of_iot_modifiers.begin();
+          iot_it != current_list_of_iot_modifiers.end(); iot_it++ )
+       {
+
+         std::string iot_modifier = (std::string)*iot_it;
+#ifdef DEBUG_StatsPanel
+         printf("generateCommand, iot_modifier = (%s)\n", iot_modifier.c_str() );
+#endif
+       }
+      modifier_list = &current_list_of_iot_modifiers;
+    } else if( currentCollectorStr == "mpi" ) {
       modifier_list = &current_list_of_mpi_modifiers;
-    } else if( currentCollectorStr == "mpit" )
-    {
+    } else if( currentCollectorStr == "mpit" ) {
       modifier_list = &current_list_of_mpit_modifiers;
-    } else if( currentCollectorStr == "pcsamp" )
-    {
+    } else if( currentCollectorStr == "pcsamp" ) {
       modifier_list = &current_list_of_pcsamp_modifiers;
-    } else if( currentCollectorStr == "usertime" )
-    {
+    } else if( currentCollectorStr == "usertime" ) {
       modifier_list = &current_list_of_usertime_modifiers;
-    } else if( currentCollectorStr == "fpe" )
-    {
+    } else if( currentCollectorStr == "fpe" ) {
       modifier_list = &current_list_of_fpe_modifiers;
-    } else
-    {
+    } else {
 //      modifier_list = &current_list_of_modifiers;
       modifier_list = &current_list_of_generic_modifiers;
     }
@@ -7575,7 +7625,7 @@ StatsPanel::generateCommand()
 
       std::string modifier = (std::string)*it;
 #ifdef DEBUG_StatsPanel
-      printf("generateCommand, modifer = (%s)\n", modifier.c_str() );
+      printf("generateCommand, modifier = (%s)\n", modifier.c_str() );
 #endif
       if( modifierStr.isEmpty() ) {
 
@@ -7765,7 +7815,9 @@ StatsPanel::generateMPIMenu(QString collectorName)
 void
 StatsPanel::generateIOMenu(QString collectorName)
 {
-// printf("generateIOMenu(%s)\n", collectorName.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("generateIOMenu(%s)\n", collectorName.ascii() );
+#endif
   io_menu = new QPopupMenu(this);
 
   QString s = QString::null;
@@ -7833,6 +7885,9 @@ StatsPanel::generateIOMenu(QString collectorName)
     connect( qaction, SIGNAL( activated() ), this, SLOT(IOtraceSelected()) );
   } else 
   {
+#ifdef DEBUG_StatsPanel
+  printf("generateIOTMenu(%s)\n", collectorName.ascii() );
+#endif
     addIOReports(io_menu);
     connect(io_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorIOTReportSelected(int)) );
@@ -7858,6 +7913,7 @@ StatsPanel::generateIOMenu(QString collectorName)
 
     list_of_iot_modifiers.push_back("start_time");
     list_of_iot_modifiers.push_back("stop_time");
+#if 0
     list_of_iot_modifiers.push_back("source");
     list_of_iot_modifiers.push_back("dest");
     list_of_iot_modifiers.push_back("size");
@@ -7865,6 +7921,9 @@ StatsPanel::generateIOMenu(QString collectorName)
     list_of_iot_modifiers.push_back("commuinicator");
     list_of_iot_modifiers.push_back("datatype");
     list_of_iot_modifiers.push_back("retval");
+#else
+    list_of_iot_modifiers.push_back("retval");
+#endif
 
     if( iotModifierMenu )
     {
@@ -8659,8 +8718,14 @@ nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n
 	  currentCollectorStr == "mpi" || 
           currentCollectorStr == "mpit" ) {
           command = QString("expView -x %1 -f %2 -m %3 %4").arg(expID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+#ifdef DEBUG_StatsPanel
+          printf("StatsPanel::lookUpFileHighlights, 33, fn=%s, command=(%s)\n", fn.ascii(), command.ascii() );
+#endif
       } else {
           command = QString("expView -x %1 -v statements -f %2 -m %3 %4").arg(expID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+#ifdef DEBUG_StatsPanel
+          printf("StatsPanel::lookUpFileHighlights2, 33, fn=%s, command=(%s)\n", fn.ascii(), command.ascii() );
+#endif
       }
     } else {
 
@@ -8669,8 +8734,14 @@ nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n
 	  currentCollectorStr == "mpi" || 
           currentCollectorStr == "mpit" ) {
           command = QString("expView -x %1 -f %2 -m %3 %4").arg(focusedExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+#ifdef DEBUG_StatsPanel
+          printf("StatsPanel::lookUpFileHighlights, 44, fn=%s, command=(%s)\n", fn.ascii(), command.ascii() );
+#endif
       } else {
           command = QString("expView -x %1 -v statements -f %2 -m %3 %4").arg(focusedExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+#ifdef DEBUG_StatsPanel
+          printf("StatsPanel::lookUpFileHighlights2, 44, fn=%s, command=(%s)\n", fn.ascii(), command.ascii() );
+#endif
       }
     }
   }
@@ -9286,9 +9357,10 @@ StatsPanel::progressUpdate()
   {
     steps--;
   }
-  if( steps == 10 )
+  if( steps == 100 )
   {
-    step_forward = FALSE;
+//    step_forward = FALSE;
+    step_forward = TRUE;
   } else if( steps == 0 )
   {
     step_forward = TRUE;
@@ -9955,6 +10027,14 @@ if (currentCollectorStr != lastCollectorStr) {
 // should not need this--  metadataToolButton->setIconText(QString("Show More Experiment Metadata"));
 
   LessMetadata_icon = new QPixmap(meta_information_minus_xpm);
+
+  QPixmap *update_icon = new QPixmap( update_icon_xpm );
+  new QToolButton(*update_icon, "Update the statistics panel.  You may make viewing option changes and then click on this icon to display the new view.", QString::null, this, SLOT( updatePanel()), fileTools, "update the statistics panel to show updated view");
+
+//#ifdef MIN_MAX_ENABLED
+  QPixmap *load_balance_icon = new QPixmap( load_balance_icon_xpm );
+  new QToolButton(*load_balance_icon, "Show minimum, maximum, and average statistics across ranks, threads,\nprocesses: generate a performance statistics report for these metric values, \ncreating comparison columns for each value.", QString::null, this, SLOT( minMaxAverageSelected()), fileTools, "Show min, max, average statistics across ranks, threads, processes.");
+//#endif
 
   QPixmap *compare_and_analyze_icon = new QPixmap( compare_and_analyze_xpm );
   new QToolButton(*compare_and_analyze_icon, "Show Comparison and Analysis across ranks, threads,\nprocesses: generate a performance statistics report as the result\nof a cluster analysis algorithm to group ranks, threads or processes\nthat have similar performance statistics.", QString::null, this, SLOT( clusterAnalysisSelected()), fileTools, "show comparison analysis");
