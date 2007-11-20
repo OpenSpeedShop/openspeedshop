@@ -89,7 +89,8 @@ struct OpenSS_Protocol_Blob
 /**
  * Collector identifier.
  *
- * Token that uniquely identifies a specific instance of a collector.
+ * Names a specific instance of a collector. To uniquely identify a collector,
+ * the experiment and collector's unique identifiers must be specified.
  */
 struct OpenSS_Protocol_Collector
 {
@@ -207,7 +208,10 @@ struct OpenSS_Protocol_StatementEntry
  */
 struct OpenSS_Protocol_ThreadName
 {
-    /** Name of the host on which this thread is located.  */
+    /** Unique identifier for the experiment containing this thread. */
+    int experiment;
+
+    /** Name of the host on which this thread is located. */
     string host<>;
 
     /** Identifier of the process containing this thread. */
@@ -282,8 +286,8 @@ typedef uint64_t OpenSS_Protocol_Time;
 %
 %#define OPENSS_PROTOCOL_TAG_ESTABLISH_UPSTREAM                 ((int)0)
 %
-%#define OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREAD                 ((int)100)
-%#define OPENSS_PROTOCOL_TAG_ATTACH_TO_THREADS                  ((int)101)
+%#define OPENSS_PROTOCOL_TAG_ATTACH_TO_THREADS                  ((int)100)
+%#define OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREADS                ((int)101)
 %#define OPENSS_PROTOCOL_TAG_CHANGE_THREADS_STATE               ((int)102)
 %#define OPENSS_PROTOCOL_TAG_CREATE_PROCESS                     ((int)103)
 %#define OPENSS_PROTOCOL_TAG_DETACH_FROM_THREADS                ((int)104)
@@ -309,19 +313,7 @@ typedef uint64_t OpenSS_Protocol_Time;
 %#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)120)
 %#define OPENSS_PROTOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)121)
 %
-%#define OPENSS_PROTOCOL_TAG_DATA                               ((int)1000)
-
-
-
-/**
- * Attached to a thread.
- *
- * ...
- */
-struct OpenSS_Protocol_AttachedToThread
-{
-    int dummy; /**< Dummy to temporarily avoid an error in rpcgen */
-};
+%#define OPENSS_PROTOCOL_TAG_PERFORMANCE_DATA                   ((int)1000)
 
 
 
@@ -333,6 +325,24 @@ struct OpenSS_Protocol_AttachedToThread
 struct OpenSS_Protocol_AttachToThreads
 {
     /** Threads to be attached. */
+    OpenSS_Protocol_ThreadNameGroup threads;
+};
+
+
+
+/**
+ * Attached to threads.
+ *
+ * Issued by a backend to indicate the specified threads were attached.
+ *
+ * @note    This message is always sent in response to an AttachToThreads
+ *          request. But it also sent by a backend when a thread has been
+ *          automatically attached, e.g. to a fork(), pthread_create(),
+ *          etc.
+ */
+struct OpenSS_Protocol_AttachedToThreads
+{
+    /** Threads that were attached. */
     OpenSS_Protocol_ThreadNameGroup threads;
 };
 
@@ -608,9 +618,9 @@ struct OpenSS_Protocol_GlobalStringValue
  * the time at which the load occurred as well as a description of what
  * was loaded.
  *
- * @note    This message is always sent multiple times in conjunction
- *          with an attachedToThread call. But it is also sent by a
- *          backend when a linked object is loaded due to a dlopen().
+ * @note    This message is always sent multiple times in conjunction with
+ *          an AttachedToThreads message. But it is also sent by a backend
+ *          when a linked object is loaded due to a dlopen().
  */
 struct OpenSS_Protocol_LoadedLinkedObject
 {
@@ -638,11 +648,12 @@ struct OpenSS_Protocol_LoadedLinkedObject
 /**
  * Report an error.
  *
- * Issued by a backend to indicate that an error has occured. ...
+ * Issued by a backend to indicate that an error has occured.
  */
 struct OpenSS_Protocol_ReportError
 {
-    int dummy; /**< Dummy to temporarily avoid an error in rpcgen */
+    /** Text describing the error that has occured. */
+    string text<>;
 };
 
 

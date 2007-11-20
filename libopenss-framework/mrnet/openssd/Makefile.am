@@ -44,4 +44,5 @@ openssd_SOURCES = \
 	openssd.cxx \
 	Senders.hxx Senders.cxx \
 	ThreadName.hxx \
-	ThreadNameGroup.hxx
+	ThreadNameGroup.hxx \
+	ThreadTable.hxx ThreadTable.cxx

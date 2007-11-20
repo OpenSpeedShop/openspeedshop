@@ -38,7 +38,9 @@ namespace OpenSpeedShop { namespace Framework {
     /**
      * Collector name.
      *
-     * Token that uniquely identifies a specific instance of a collector.
+     * Names a specific instance of a collector. To uniquely identify a
+     * collector, the experiment and collector's unique identifiers must
+     * be specified.
      *
      * @note    This class has intentionally been given an identical name to
      *          the similar class in the framework library itself. In the near

@@ -36,19 +36,19 @@ using namespace OpenSpeedShop::Framework;
 
 
 /**
- * Attached to a thread.
+ * Attached to threads.
  *
  * ...
  *
  * @param blob    Blob containing the message.
  */
-void Callbacks::attachedToThread(const Blob& blob)
+void Callbacks::attachedToThreads(const Blob& blob)
 {
     // Decode the message
-    OpenSS_Protocol_AttachedToThread message;
+    OpenSS_Protocol_AttachedToThreads message;
     memset(&message, 0, sizeof(message));
     blob.getXDRDecoding(
-	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_AttachedToThread),
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_AttachedToThreads),
 	&message
 	);
 
@@ -309,5 +309,19 @@ void Callbacks::unloadedLinkedObject(const Blob& blob)
     }
 #endif
     
+    // TODO: implement!
+}
+
+
+
+/**
+ * Performance data.
+ *
+ * ...
+ *
+ * @param blob    Blob containing the performance data.
+ */
+void Callbacks::performanceData(const Blob& blob)
+{
     // TODO: implement!
 }

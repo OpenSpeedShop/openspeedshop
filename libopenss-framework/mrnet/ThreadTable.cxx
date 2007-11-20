@@ -53,8 +53,8 @@ ThreadTable::ThreadTable() :
     std::map<Thread, Thread::State>()
 {
     // Register callbacks with the frontend
-    Frontend::registerCallback(OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREAD,
-			       Callbacks::attachedToThread);
+    Frontend::registerCallback(OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREADS,
+			       Callbacks::attachedToThreads);
     Frontend::registerCallback(OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE,
 			       Callbacks::globalIntegerValue);
     Frontend::registerCallback(OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE,
@@ -71,6 +71,8 @@ ThreadTable::ThreadTable() :
 			       Callbacks::threadsStateChanged);
     Frontend::registerCallback(OPENSS_PROTOCOL_TAG_UNLOADED_LINKED_OBJECT,
 			       Callbacks::unloadedLinkedObject);
+    Frontend::registerCallback(OPENSS_PROTOCOL_TAG_PERFORMANCE_DATA,
+			       Callbacks::performanceData);
 
     // Start the MRNet frontend message pump
     Frontend::startMessagePump(Path("") /* ??? */);
@@ -234,7 +236,7 @@ Thread::State ThreadTable::getThreadState(const Thread& thread)
  * Sets the current state of the specified thread. Used by the instrumentor
  * to update the current state of a thread when necessary.
  *
- * @param thread    Thread whose sate should be set.
+ * @param thread    Thread whose state should be set.
  * @param state     Set this state for the thread.
  */
 void ThreadTable::setThreadState(const Thread& thread, 

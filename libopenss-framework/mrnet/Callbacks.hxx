@@ -46,7 +46,7 @@ namespace OpenSpeedShop { namespace Framework {
      */
     namespace Callbacks
     {
-	void attachedToThread(const Blob&);
+	void attachedToThreads(const Blob&);
 	void globalIntegerValue(const Blob&);
 	void globalJobValue(const Blob&);
 	void globalStringValue(const Blob&);
@@ -55,6 +55,8 @@ namespace OpenSpeedShop { namespace Framework {
 	void symbolTable(const Blob&);
 	void threadsStateChanged(const Blob&);
 	void unloadedLinkedObject(const Blob&);
+
+	void performanceData(const Blob&);
     }
     
 } }

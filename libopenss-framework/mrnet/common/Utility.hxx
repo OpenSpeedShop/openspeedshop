@@ -37,6 +37,9 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    std::string getLocalHost();
+    std::string getCanonicalName(const std::string&);
+
     std::string toString(const OpenSS_Protocol_AddressRange&);
     std::string toString(const OpenSS_Protocol_AddressBitmap&);
     std::string toString(const OpenSS_Protocol_Blob&);
@@ -50,8 +53,8 @@ namespace OpenSpeedShop { namespace Framework {
     std::string toString(const OpenSS_Protocol_ThreadNameGroup&);
     std::string toString(const OpenSS_Protocol_ThreadState&);
 
-    std::string toString(const OpenSS_Protocol_AttachedToThread&);
     std::string toString(const OpenSS_Protocol_AttachToThreads&);
+    std::string toString(const OpenSS_Protocol_AttachedToThreads&);
     std::string toString(const OpenSS_Protocol_ChangeThreadsState&);
     std::string toString(const OpenSS_Protocol_CreateProcess&);
     std::string toString(const OpenSS_Protocol_DetachFromThreads&);

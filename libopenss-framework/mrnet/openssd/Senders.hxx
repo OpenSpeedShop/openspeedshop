@@ -41,6 +41,7 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class Blob;
     class FileName;
     class ThreadName;
     class ThreadNameGroup;
@@ -56,7 +57,7 @@ namespace OpenSpeedShop { namespace Framework {
      */
     namespace Senders
     {
-	void attachedToThread();
+	void attachedToThreads(const ThreadNameGroup&);
 	void globalIntegerValue(const ThreadName&, const std::string&,
 				const int64_t&);
 	void globalJobValue(const ThreadName&, const std::string&,
@@ -66,12 +67,14 @@ namespace OpenSpeedShop { namespace Framework {
 	void loadedLinkedObject(const ThreadNameGroup&, const Time&,
 				const AddressRange&, const FileName&,
 				const bool&);
-	void reportError();
+	void reportError(const std::string&);
 	void symbolTable();
 	void threadsStateChanged(const ThreadNameGroup&,
 				 const OpenSS_Protocol_ThreadState&);
 	void unloadedLinkedObject(const ThreadNameGroup&, const Time&,
 				  const FileName&);
+
+	void performanceData(const Blob&);
     }
     
 } }

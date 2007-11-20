@@ -110,11 +110,40 @@ namespace {
 /**
  * Attached to a thread.
  *
- * ...
+ * Issue a message to the frontend to indicate the specified threads were
+ * attached.
+ *
+ * @param threads    Threads that were attached.
  */
-void Senders::attachedToThread()
+void Senders::attachedToThreads(const ThreadNameGroup& threads)
 {
-    // TODO: implement!
+    // Assemble the request into a message
+    OpenSS_Protocol_AttachedToThreads message;
+    message.threads = threads;
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
+    // Encode the message into a blob
+    Blob blob(
+        reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_AttachedToThreads),
+	&message
+	);
+
+    // Send the encoded message to the frontend
+    Backend::sendToFrontend(OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREADS, blob);
+
+    // Destroy the message
+    xdr_free(
+        reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_AttachedToThreads),
+	reinterpret_cast<char*>(&message)
+	);    
 }
 
 
@@ -319,11 +348,39 @@ void Senders::loadedLinkedObject(const ThreadNameGroup& threads,
 /**
  * Report an error.
  *
- * ...
+ * Issue a message to the frontend to indicate that an error has occured.
+ *
+ * @param text    Text describing the error that has occured.
  */
-void Senders::reportError()
+void Senders::reportError(const std::string& text)
 {
-    // TODO: implement!
+    // Assemble the request into a message
+    OpenSS_Protocol_ReportError message;
+    convert(text, message.text);
+    
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
+    // Encode the message into a blob
+    Blob blob(
+        reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_ReportError),
+	&message
+	);
+
+    // Send the encoded message to the frontend
+    Backend::sendToFrontend(OPENSS_PROTOCOL_TAG_REPORT_ERROR, blob);
+
+    // Destroy the message
+    xdr_free(
+        reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_ReportError),
+	reinterpret_cast<char*>(&message)
+	);    
 }
 
 
@@ -430,4 +487,21 @@ void Senders::unloadedLinkedObject(const ThreadNameGroup& threads,
         reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_UnloadedLinkedObject),
 	reinterpret_cast<char*>(&message)
 	);
+}
+
+
+
+/**
+ * Performance data.
+ *
+ * Issue a message to the frontend containing performance data. The actual
+ * contents of the performance data blob is entirely up to the collector that
+ * gathered the data.
+ *
+ * @param blob    Blob containing performance data.
+ */
+void Senders::performanceData(const Blob& blob)
+{
+    // Send the blob to the frontend
+    Backend::sendToFrontend(OPENSS_PROTOCOL_TAG_PERFORMANCE_DATA, blob);
 }

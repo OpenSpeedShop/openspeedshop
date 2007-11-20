@@ -26,8 +26,12 @@
 #include "Backend.hxx"
 #include "Callbacks.hxx"
 #include "Protocol.h"
+#include "Senders.hxx"
+#include "ThreadNameGroup.hxx"
+#include "ThreadTable.hxx"
 #include "Utility.hxx"
 
+#include <BPatch.h>
 #include <iostream>
 #include <sstream>
 
@@ -61,7 +65,79 @@ void Callbacks::attachToThreads(const Blob& blob)
     }
 #endif
 
-    // TODO: implement!
+    // Get the canonical name of this host
+    std::string local_host = getCanonicalName(getLocalHost());
+
+    // Iterate over each thread to be attached
+    ThreadNameGroup attach_threads = message.threads, attached_threads;
+    for(ThreadNameGroup::const_iterator
+	    i = attach_threads.begin(); i != attach_threads.end(); ++i) {
+	
+	// Skip this thread if it isn't on this host
+	if(getCanonicalName(i->getHost()) != local_host)
+	    continue;
+
+	// Has this thread already been attached?
+	if(ThreadTable::TheTable.getPtr(*i) == NULL) {
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "attachToThreads(): Thread " << toString(*i)
+		       << " is already attached." << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+	    continue;
+	}
+	
+	// Attach to the process containing the specified thread
+	BPatch* bpatch = BPatch::getBPatch();
+	Assert(bpatch != NULL);
+	BPatch_thread* thread =
+	    bpatch->attachProcess(NULL, i->getProcessId());
+	Assert(thread != NULL);
+	BPatch_process* process = thread->getProcess();
+	Assert(process != NULL);
+	
+	// Obtain the list of threads in this process
+	BPatch_Vector<BPatch_thread*> threads;
+	process->getThreads(threads);
+	Assert(!threads.empty());
+	
+	// Iterate over each thread in this process
+	for(int j = 0; j < threads.size(); ++j) {
+	    Assert(threads[j] != NULL);
+
+	    // Create the thread name for this thread
+	    ThreadName name(i->getExperiment(), 
+			    getCanonicalName(i->getHost()),
+			    i->getProcessId(),
+			    std::make_pair(
+			        process->isMultithreaded(),
+				static_cast<pthread_t>(threads[j]->getTid())
+				));
+
+	    // Does this thread need to be added to the thread table?
+	    if(ThreadTable::TheTable.getPtr(name) == NULL) {
+
+		// Add this thread to the thread table
+		ThreadTable::TheTable.addThread(name, threads[j]);
+		
+		// Add this thread to the group of attached threads
+		attached_threads.insert(name);
+		
+	    }
+	    
+	}
+
+    }
+
+    // Send the frontend the list of threads that were attached
+    Senders::attachedToThreads(attached_threads);
+
+    // TODO: continue implementing!
+
 }
 
 

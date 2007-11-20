@@ -25,6 +25,7 @@
 #include "Blob.hxx"
 #include "Collector.hxx"
 #include "CollectorImpl.hxx"
+#include "EntrySpy.hxx"
 #include "Frontend.hxx"
 #include "Protocol.h"
 #include "Senders.hxx"
@@ -97,6 +98,7 @@ namespace {
      */
     void convert(const Thread& in, OpenSS_Protocol_ThreadName& out)
     {
+	out.experiment = EntrySpy(in).getEntry();
 	convert(in.getHost(), out.host);
 	out.pid = in.getProcessId();
 	std::pair<bool, pthread_t> posix_tid = in.getPosixThreadId();

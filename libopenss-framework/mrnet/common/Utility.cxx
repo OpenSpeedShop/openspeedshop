@@ -29,11 +29,116 @@
 #include "Time.hxx"
 #include "Utility.hxx"
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+
 #include <iomanip>
 #include <limits>
 #include <sstream>
+#include <unistd.h>
+
+
 
 using namespace OpenSpeedShop::Framework;
+
+
+
+//
+// Maximum length of a host name. According to the Linux manual page for the
+// gethostname() function, this should be available in a header somewhere. But
+// it isn't found on all systems, so define it directly if necessary.
+//
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX (256)
+#endif
+
+/**
+ * Get the local host name.
+ *
+ * Returns the name of the host on which we are executing. This information is
+ * obtained directly from the operating system.
+ *
+ * @note    This function has intentionally been given an identical name to
+ *          the similar method in the framework Experiment class. In the near
+ *          future, the experiment database functionality may be split into a
+ *          separate library and utilized by the daemon. If this happens, this
+ *          function will be removed in favor of the existing framework method.
+ *
+ * @return    Name of the local host.
+ */
+std::string OpenSpeedShop::Framework::getLocalHost()
+{
+    // Obtain the local host name from the operating system
+    char buffer[HOST_NAME_MAX];
+    Assert(gethostname(buffer, sizeof(buffer)) == 0);
+    
+    // Return the local host name to the caller
+    return buffer;
+}
+
+
+
+/**
+ * Get the canonical name of a host.
+ *
+ * Returns the canonical name of the specified host. This information is
+ * obtained directly from the operating system.
+ *
+ * @note    This function has intentionally been given an identical name to
+ *          the similar method in the framework Experiment class. In the near
+ *          future, the experiment database functionality may be split into a
+ *          separate library and utilized by the daemon. If this happens, this
+ *          function will be removed in favor of the existing framework method.
+ *
+ * @param host    Name of host for which to get canonical name.
+ * @return        Canonical name of that host.
+ */
+std::string OpenSpeedShop::Framework::getCanonicalName(const std::string& host)
+{
+    std::string canonical = host;
+
+    // Interested in IPv4 protocol information only (including canonical name)
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_flags = AI_CANONNAME;
+    hints.ai_family = AF_INET;
+    hints.ai_protocol = PF_INET;
+    
+    // Request address information for this host
+    struct addrinfo* results = NULL;
+    getaddrinfo(host.c_str(), NULL, &hints, &results);
+    
+    // Was the specified name for the loopback device?
+    if((results != NULL) && 
+       (ntohl(reinterpret_cast<struct sockaddr_in*>
+              (results->ai_addr)->sin_addr.s_addr) == INADDR_LOOPBACK)) {
+
+        // Free the address information
+        freeaddrinfo(results);
+
+        // Request address information for the local host name
+        results = NULL;
+        getaddrinfo(getLocalHost().c_str(), NULL, &hints, &results);
+        
+    }
+
+    // Did we get address information?
+    if(results != NULL) {
+
+        // Use the canonical name if one was provided
+        if(results->ai_canonname != NULL)
+            canonical = results->ai_canonname;
+
+        // Free the address information
+        freeaddrinfo(results);
+
+    }
+
+    // Return the canonical name to the caller
+    return canonical;
+}
 
 
 
@@ -273,8 +378,9 @@ std::string OpenSpeedShop::Framework::toString(
  * Conversion from OpenSS_Protocol_ThreadName to std::string.
  *
  * Returns the conversion of an OpenSS_Protocol_ThreadName into a std::string.
- * Simply returns the string containing the textual representation of the host
- * name, the process identifier, and (if present) the posix thread identifier.
+ * Simply returns the string containing the textual representation of the
+ * experiment's unique identifier, host name, the process identifier, and (if
+ * present) the posix thread identifier.
  *
  * @param thread    Thread name to be converted.
  * @return          String conversion of that thread name.
@@ -284,7 +390,7 @@ std::string OpenSpeedShop::Framework::toString(
     )
 {
     std::stringstream output;
-    output << thread.host << ":" << thread.pid;
+    output << thread.experiment << ":" << thread.host << ":" << thread.pid;
     if(thread.has_posix_tid)
 	output << ":" << thread.posix_tid;
     return output.str();
@@ -350,26 +456,6 @@ std::string OpenSpeedShop::Framework::toString(
 
 
 /**
- * Conversion from OpenSS_Protocol_AttachedToThreads to std::string.
- *
- * Returns the conversion of an OpenSS_Protocol_AttachedToThreads message
- * into a std::string.
- *
- * @param message    Message to be converted.
- * @return           String conversion of that message.
- */
-std::string OpenSpeedShop::Framework::toString(
-    const OpenSS_Protocol_AttachedToThread& message
-    )
-{
-    std::stringstream output;
-    output << "attachedToThread()" << std::endl;
-    return output.str();
-}
-
-
-
-/**
  * Conversion from OpenSS_Protocol_AttachToThreads to std::string.
  *
  * Returns the conversion of an OpenSS_Protocol_AttachToThreads message
@@ -384,6 +470,28 @@ std::string OpenSpeedShop::Framework::toString(
 {
     std::stringstream output;
     output << "attachToThreads(" << std::endl 
+	   << toString(message.threads) << std::endl
+	   << ")" << std::endl;
+    return output.str();
+}
+
+
+
+/**
+ * Conversion from OpenSS_Protocol_AttachedToThreads to std::string.
+ *
+ * Returns the conversion of an OpenSS_Protocol_AttachedToThreads message
+ * into a std::string.
+ *
+ * @param message    Message to be converted.
+ * @return           String conversion of that message.
+ */
+std::string OpenSpeedShop::Framework::toString(
+    const OpenSS_Protocol_AttachedToThreads& message
+    )
+{
+    std::stringstream output;
+    output << "attachedToThreads(" << std::endl 
 	   << toString(message.threads) << std::endl
 	   << ")" << std::endl;
     return output.str();
@@ -720,7 +828,9 @@ std::string OpenSpeedShop::Framework::toString(
     )
 {
     std::stringstream output;
-    output << "reportError()" << std::endl;
+    output << "reportError(" << std::endl
+	   << "    \"" << message.text << "\"" << std::endl
+	   << ")" << std::endl;
     return output.str();
 }
 
