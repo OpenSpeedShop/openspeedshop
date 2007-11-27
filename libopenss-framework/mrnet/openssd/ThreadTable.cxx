@@ -24,6 +24,7 @@
 
 #include "Guard.hxx"
 #include "ThreadTable.hxx"
+#include "Utility.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
@@ -31,6 +32,62 @@ using namespace OpenSpeedShop::Framework;
 
 /** Singleton thread table. */
 ThreadTable ThreadTable::TheTable;
+
+
+
+/**
+ * Get Dyninst thread object pointer for a thread.
+ *
+ * Returns the Dyninst thread object pointer for the specified thread. The
+ * pointer is found by consulting Dyninst's list of active thread pointers
+ * directly. A null pointer is returned if the thread cannot be found.
+ *
+ * @param thread    Thread whose Dyninst thread object pointer is to be found.
+ * @return          Dyninst thread object pointer.
+ */
+BPatch_thread* ThreadTable::getPtrDirectly(const ThreadName& thread)
+{
+    // Return a null immediately if the specified thread isn't on this host
+    if(getCanonicalName(thread.getHost()) != getCanonicalName(getLocalHost()))
+	return NULL;
+    
+    // Get the POSIX thread identifier for this thread
+    std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+	
+    // Obtain Dyninst's list of active processes
+    BPatch* bpatch = BPatch::getBPatch();
+    Assert(bpatch != NULL);
+    BPatch_Vector<BPatch_process*>* processes = bpatch->getProcesses();
+    Assert(processes != NULL);
+    
+    // Iterate over each active process
+    for(int i = 0; i < processes->size(); ++i) {
+	Assert((*processes)[i] != NULL);
+	
+	// Skip this process if it doesn't have the correct PID
+	if(thread.getProcessId() != (*processes)[i]->getPid())
+	    continue;
+	
+	// Obtain the list of threads in this process
+	BPatch_Vector<BPatch_thread*> threads;
+	(*processes)[i]->getThreads(threads);
+	Assert(!threads.empty());
+
+	// Iterate over each thread in this process
+	for(int j = 0; j < threads.size(); ++j) {
+	    Assert(threads[j] != NULL);
+	    
+	    // Return the pointer if this is the correct thread
+	    if(!tid.first || (tid.second == threads[j]->getTid()))
+		return threads[j];
+	    
+	}
+	
+    }
+    
+    // Otherwise return a null because the specified thread wasn't found
+    return NULL;
+}
 
 
 

@@ -16,9 +16,13 @@
 // Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Assert.hxx"
 #include "Backend.hxx"
 #include "Callbacks.hxx"
+#include "DyninstCallbacks.hxx"
 #include "Protocol.h"
+
+#include <BPatch.h>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -34,6 +38,19 @@ using namespace OpenSpeedShop::Framework;
  */
 int main(int argc, char* argv[])
 {
+    // Register callbacks with Dyninst
+    BPatch* bpatch = BPatch::getBPatch();
+    Assert(bpatch != NULL);
+    bpatch->registerDynLibraryCallback(DyninstCallbacks::dynLibrary);
+    bpatch->registerErrorCallback(DyninstCallbacks::error);
+    bpatch->registerExecCallback(DyninstCallbacks::exec);
+    bpatch->registerExitCallback(DyninstCallbacks::exit);
+    bpatch->registerPostForkCallback(DyninstCallbacks::postFork);
+    bpatch->registerThreadEventCallback(BPatch_threadCreateEvent,
+					DyninstCallbacks::threadCreate);
+    bpatch->registerThreadEventCallback(BPatch_threadDestroyEvent,
+					DyninstCallbacks::threadDestroy);
+    
     // Register callbacks with the backend
     Backend::registerCallback(OPENSS_PROTOCOL_TAG_ATTACH_TO_THREADS,
 			      Callbacks::attachToThreads);

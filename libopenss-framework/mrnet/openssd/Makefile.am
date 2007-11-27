@@ -40,6 +40,7 @@ openssd_SOURCES = \
 	Backend.hxx Backend.cxx \
 	Callbacks.hxx Callbacks.cxx \
 	Collector.hxx \
+	DyninstCallbacks.hxx DyninstCallbacks.cxx \
 	FileName.hxx \
 	openssd.cxx \
 	Senders.hxx Senders.cxx \

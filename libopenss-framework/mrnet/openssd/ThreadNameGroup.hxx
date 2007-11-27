@@ -31,7 +31,9 @@
 
 #include "Protocol.h"
 #include "ThreadName.hxx"
+#include "Utility.hxx"
 
+#include <BPatch.h>
 #include <set>
 
 
@@ -65,12 +67,27 @@ namespace OpenSpeedShop { namespace Framework {
 	{
 	}
 
+	/** Constructor from an experiment and BPatch_process object. */
+	ThreadNameGroup(const int& experiment, BPatch_process& process) :
+	    std::set<ThreadName>()
+	{
+	    BPatch_Vector<BPatch_thread*> threads;
+	    process.getThreads(threads);
+	    for(int i = 0; i < threads.size(); ++i) {
+		Assert(threads[i] != NULL);
+		insert(ThreadName(experiment, *(threads[i])));
+	    }
+	}
+
 	/** Constructor from a OpenSS_Protocol_ThreadNameGroup object. */
 	ThreadNameGroup(const OpenSS_Protocol_ThreadNameGroup& object) :
 	    std::set<ThreadName>()
 	{
+	    std::string local_host = getCanonicalName(getLocalHost());
 	    for(int i = 0; i < object.names.names_len; ++i)
-		insert(ThreadName(object.names.names_val[i]));
+		if(getCanonicalName(object.names.names_val[i].host) ==
+		   local_host)
+		    insert(ThreadName(object.names.names_val[i]));
 	}
 
 	/** Type conversion to a OpenSS_Protocol_ThreadNameGroup object. */

@@ -58,6 +58,8 @@ namespace OpenSpeedShop { namespace Framework {
 
 	static ThreadTable TheTable;
 
+	static BPatch_thread* getPtrDirectly(const ThreadName&);
+	
 	ThreadTable();
 	
 	void addThread(const ThreadName&, BPatch_thread*);

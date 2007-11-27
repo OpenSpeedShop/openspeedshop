@@ -27,6 +27,7 @@
 #include "Callbacks.hxx"
 #include "Protocol.h"
 #include "Senders.hxx"
+#include "ThreadName.hxx"
 #include "ThreadNameGroup.hxx"
 #include "ThreadTable.hxx"
 #include "Utility.hxx"
@@ -65,20 +66,13 @@ void Callbacks::attachToThreads(const Blob& blob)
     }
 #endif
 
-    // Get the canonical name of this host
-    std::string local_host = getCanonicalName(getLocalHost());
-
     // Iterate over each thread to be attached
-    ThreadNameGroup attach_threads = message.threads, attached_threads;
+    ThreadNameGroup threads_to_attach = message.threads, threads_attached;
     for(ThreadNameGroup::const_iterator
-	    i = attach_threads.begin(); i != attach_threads.end(); ++i) {
+	    i = threads_to_attach.begin(); i != threads_to_attach.end(); ++i) {
 	
-	// Skip this thread if it isn't on this host
-	if(getCanonicalName(i->getHost()) != local_host)
-	    continue;
-
 	// Has this thread already been attached?
-	if(ThreadTable::TheTable.getPtr(*i) == NULL) {
+	if(ThreadTable::TheTable.getPtr(*i) != NULL) {
 #ifndef NDEBUG
 	    if(Backend::isDebugEnabled()) {
 		std::stringstream output;
@@ -90,12 +84,34 @@ void Callbacks::attachToThreads(const Blob& blob)
 #endif
 	    continue;
 	}
-	
-	// Attach to the process containing the specified thread
+
+	// Has this thread already been attached in a different experiment?
+	BPatch_thread* thread = ThreadTable::getPtrDirectly(*i);
+	if(thread != NULL) {
+	    
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "attachToThreads(): Thread " << toString(*i)
+		       << " is already attached in another experiment." 
+		       << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+	    
+	    // Add this thread to the thread table and group of attached threads
+	    ThreadName name(i->getExperiment(), *thread);
+	    ThreadTable::TheTable.addThread(name, thread);
+	    threads_attached.insert(name);
+	    
+	    continue;
+	}
+
+	// Otherwise attach to the process containing the specified thread
 	BPatch* bpatch = BPatch::getBPatch();
 	Assert(bpatch != NULL);
-	BPatch_thread* thread =
-	    bpatch->attachProcess(NULL, i->getProcessId());
+	thread = bpatch->attachProcess(NULL, i->getProcessId());
 	Assert(thread != NULL);
 	BPatch_process* process = thread->getProcess();
 	Assert(process != NULL);
@@ -109,32 +125,17 @@ void Callbacks::attachToThreads(const Blob& blob)
 	for(int j = 0; j < threads.size(); ++j) {
 	    Assert(threads[j] != NULL);
 
-	    // Create the thread name for this thread
-	    ThreadName name(i->getExperiment(), 
-			    getCanonicalName(i->getHost()),
-			    i->getProcessId(),
-			    std::make_pair(
-			        process->isMultithreaded(),
-				static_cast<pthread_t>(threads[j]->getTid())
-				));
-
-	    // Does this thread need to be added to the thread table?
-	    if(ThreadTable::TheTable.getPtr(name) == NULL) {
-
-		// Add this thread to the thread table
-		ThreadTable::TheTable.addThread(name, threads[j]);
-		
-		// Add this thread to the group of attached threads
-		attached_threads.insert(name);
-		
-	    }
+	    // Add this thread to the thread table and group of attached threads
+	    ThreadName name(i->getExperiment(), *(threads[j]));
+	    ThreadTable::TheTable.addThread(name, threads[j]);
+	    threads_attached.insert(name);
 	    
 	}
-
+	
     }
-
+    
     // Send the frontend the list of threads that were attached
-    Senders::attachedToThreads(attached_threads);
+    Senders::attachedToThreads(threads_attached);
 
     // TODO: continue implementing!
 
@@ -168,7 +169,57 @@ void Callbacks::changeThreadsState(const Blob& blob)
     }
 #endif
 
-    // TODO: implement!
+    // Iterate over each thread to be changed
+    ThreadNameGroup threads_to_change = message.threads, threads_changed;
+    for(ThreadNameGroup::const_iterator
+	    i = threads_to_change.begin(); i != threads_to_change.end(); ++i) {
+
+	// Obtain the Dyninst thread and process pointers for this thread
+	BPatch_thread* thread = ThreadTable::TheTable.getPtr(*i);
+	if(thread == NULL) {
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "changeThreadsState(): Thread " << toString(*i)
+		       << " is not attached." << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+	    continue;
+	}
+	BPatch_process* process = thread->getProcess();
+	Assert(process != NULL);
+	
+	// Change the state of the process containing this thread
+	bool did_change = false;
+	switch(message.state) {
+	case Running:
+	    did_change = process->continueExecution();
+	    break;
+	case Suspended:
+	    did_change = process->stopExecution();
+	    break;
+	case Terminated:
+	    did_change = process->terminateExecution();
+	    break;
+	default:
+	    break;
+	}
+
+	// Did the state of the process change?
+	if(did_change) {
+
+	    // Add all of these threads to the group of changed threads
+	    ThreadNameGroup threads(i->getExperiment(), *process);
+	    threads_changed.insert(threads.begin(), threads.end());
+	    
+	}
+	
+    }
+
+    // Send the frontend the list of threads that were changed
+    Senders::threadsStateChanged(threads_changed, message.state);
 }
 
 

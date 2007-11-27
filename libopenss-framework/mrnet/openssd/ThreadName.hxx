@@ -30,7 +30,9 @@
 #endif
 
 #include "Protocol.h"
+#include "Utility.hxx"
 
+#include <BPatch.h>
 #include <pthread.h>
 #include <string>
 #ifdef HAVE_SYS_TYPES_H
@@ -72,6 +74,20 @@ namespace OpenSpeedShop { namespace Framework {
 	    dm_pid(pid),
 	    dm_tid(tid)
 	{
+	}
+
+	/** Constructor from an experiment and BPatch_thread object. */
+	ThreadName(const int& experiment, BPatch_thread& thread) :
+	    dm_experiment(experiment),
+	    dm_host(getCanonicalName(getLocalHost())),
+	    dm_pid(),
+	    dm_tid()
+	{
+	    BPatch_process* process = thread.getProcess();
+	    Assert(process != NULL);
+	    dm_pid = process->getPid();
+	    dm_tid = std::make_pair(process->isMultithreaded(),
+				    static_cast<pthread_t>(thread.getTid()));
 	}
 
 	/** Constructor from a OpenSS_Protocol_ThreadName object. */
