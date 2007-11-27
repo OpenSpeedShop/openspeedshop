@@ -10051,7 +10051,10 @@ if (currentCollectorStr != lastCollectorStr) {
  printf("StatsPanel::generateToolBar, currentCollectorStr.ascii()=%s\n", currentCollectorStr.ascii() );
 #endif
 
-  if(  currentCollectorStr != "mpi" && currentCollectorStr != "mpit" ) {
+  if(  currentCollectorStr != "mpi" && 
+       currentCollectorStr != "io" && 
+       currentCollectorStr != "iot" && 
+       currentCollectorStr != "mpit" ) {
 
     QPixmap *linkedObjects_icon = new QPixmap( linkedObjects_xpm );
     new QToolButton(*linkedObjects_icon, "Show LinkedObjects: generate a performance statistics report\nshowing the performance data delineated by the linked objects\nthat are involved in the execution of the executable(s).", QString::null, this, SLOT( linkedObjectsSelected()), fileTools, "show linked objects");
