@@ -2054,6 +2054,9 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 
 #ifdef DEBUG_CLI
   cerr << "Enter expGo, exp->ExpStatus_Name() " << exp->ExpStatus_Name() << "\n";
+  if (exp->FW() != NULL) {
+    cerr << "Enter expGo,  exp->FW()->getRerunCount() " << exp->FW()->getRerunCount() << "\n";
+  }
 #endif
 
   if (exp->FW() == NULL) {

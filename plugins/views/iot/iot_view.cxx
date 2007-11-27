@@ -36,6 +36,9 @@
 #define tmean_temp  VMulti_free_temp+9
 #define tmin_temp  VMulti_free_temp+10
 #define tmax_temp  VMulti_free_temp+11
+#define syscallno_temp  VMulti_free_temp+12
+#define retval_temp  VMulti_free_temp+13
+#define nsysargs_temp  VMulti_free_temp+14
 
 // iot view
 
@@ -48,7 +51,10 @@
             int64_t excnt = 0;                   \
             double vmax = 0.0;                   \
             double vmin = LONG_MAX;              \
-            double sum_squares = 0.0;
+            double sum_squares = 0.0;            \
+            int64_t detail_syscallno = 0;        \
+            int64_t detail_nsysargs = 0;         \
+            int64_t detail_retval = 0;           
 
 #define get_IOT_invalues(primary,num_calls)                      \
               double v = primary.dm_time / num_calls;            \
@@ -58,7 +64,10 @@
               end = max(end,primary.dm_interval.getEnd());       \
               vmin = min(vmin,v);                                \
               vmax = max(vmax,v);                                \
-              sum_squares += v * v;
+              sum_squares += v * v;                              \
+              detail_syscallno = primary.dm_syscallno;           \
+              detail_retval = primary.dm_retval;                 \
+              detail_nsysargs = primary.dm_nsysargs;
 
 #define get_IOT_exvalues(secondary,num_calls)          \
               extime += secondary.dm_time / num_calls; \
@@ -127,7 +136,11 @@
                 } else {                                                                             \
                   value_array[tmax_temp] = CRPTR ((double)0.0);                                      \
                 }                                                                                    \
-              }
+              }											     \
+              if (num_temps > syscallno_temp) value_array[syscallno_temp] = CRPTR (detail_syscallno);\
+              if (num_temps > retval_temp) value_array[retval_temp] = CRPTR (detail_retval);         \
+              if (num_temps > nsysargs_temp) value_array[nsysargs_temp] = CRPTR (detail_nsysargs); 
+
 
 static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
  // Determine which metric is the primary.
@@ -395,6 +408,26 @@ static bool define_iot_columns (
             std::string H = Find_Metadata ( CV[1], MV[1] ).getDescription();
             HV.push_back(std::string("Max ") + H + " Across Threads");
           }
+        } else if (!strcasecmp(M_Name.c_str(), "syscallno")) {
+
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, syscallno_temp));
+            HV.push_back("Syscall Number");
+
+        } else if (!strcasecmp(M_Name.c_str(), "retval")) {
+
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
+            HV.push_back("Return Value");
+
+        } else if (!strcasecmp(M_Name.c_str(), "nsysargs")) {
+
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, nsysargs_temp));
+            HV.push_back("Number of System Args");
+ 
+//            if (detail_nsysargs > 0) {
+//              printf("nsysargs is greater than zero\n");
+//            }
+
+
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
         }
@@ -527,8 +560,8 @@ static std::string VIEW_iot_long  =
                   " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
                   " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
                   "\n";
-static std::string VIEW_iot_example = "\texpView io\n"
-                                      "\texpView -v CallTrees,FullStack io10 -m min,max,count\n";
+static std::string VIEW_iot_example = "\texpView iot\n"
+                                      "\texpView -v CallTrees,FullStack iot10 -m min,max,count\n";
 static std::string VIEW_iot_metrics[] =
   { "time",
     "inclusive_times",
