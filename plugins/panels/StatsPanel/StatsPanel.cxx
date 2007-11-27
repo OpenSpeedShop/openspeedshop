@@ -7922,6 +7922,8 @@ StatsPanel::generateIOMenu(QString collectorName)
     list_of_iot_modifiers.push_back("datatype");
     list_of_iot_modifiers.push_back("retval");
 #else
+    list_of_iot_modifiers.push_back("syscallno");
+    list_of_iot_modifiers.push_back("nsysargs");
     list_of_iot_modifiers.push_back("retval");
 #endif
 
