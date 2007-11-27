@@ -585,7 +585,7 @@ loadPanel::languageChange()
   QToolTip::add( vAttachOrLoadPageClearButton, tr( "This resets all settings restoring them to system defaults." ) );
   vAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
-  vAttachOrLoadPageFinishButton->setText( tr( ">> Finish" ) );
+  vAttachOrLoadPageFinishButton->setText( tr( ">> Load/Attach" ) );
   QToolTip::add( vAttachOrLoadPageFinishButton, tr( "Not active, present in this page for consistent use of buttons." ) );
 
 
@@ -596,8 +596,8 @@ loadPanel::languageChange()
   QToolTip::add( vMPLoadPageClearButton, tr( "This resets all settings restoring them to system defaults." ) );
   vMPLoadPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( vMPLoadPageNextButton, tr( "Not active, present in this page for consistent use of buttons." ) );
-  vMPLoadPageFinishButton->setText( tr( ">> Finish" ) );
-  QToolTip::add( vMPLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
+  vMPLoadPageFinishButton->setText( tr( ">> Load" ) );
+  QToolTip::add( vMPLoadPageFinishButton, tr( "Load the multiprocess executable." ) );
   vMPLoadParallelPrefixLabel->setText( tr("<b>Step 1:</b> Enter MPI Execution Prefix: (For example: mpirun -np 64 or srun -N 128 -n 128)") );
   vMPLoadCommandArgumentsLabel->setText( tr("<b>Step 3:</b> Enter MPI program command line arguments: ") );
 
