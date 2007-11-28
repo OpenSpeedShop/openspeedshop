@@ -1690,7 +1690,9 @@ StatsPanel::clusterAnalysisSelected()
   printf("StatsPanel::clusterAnalysisSelected() about to call updateStatsPanelData, command=%s\n", 
          command.ascii() );
 #endif
+  toolbar_status_label->setText("Generating Comparative Analysis Report:");
   updateStatsPanelData(DONT_FORCE_UPDATE, command);
+  toolbar_status_label->setText("Showing Comparative Analysis Report:");
 }
 
 
@@ -1711,7 +1713,10 @@ StatsPanel::minMaxAverageSelected()
          command.ascii() );
 #endif
 
+  toolbar_status_label->setText("Generating Load Balance (min,max,ave) Report:");
   updateStatsPanelData(DONT_FORCE_UPDATE, command);
+  toolbar_status_label->setText("Showing Load Balance (min,max,ave) Report:");
+
 }
 //#endif
 
@@ -4452,23 +4457,19 @@ StatsPanel::updateToolBarStatus(QString optionChosen)
  {
   toolbar_status_label->setText("Showing Linked Objects Report:");
  } 
- else if (optionChosen.contains("Statements") )
- {
-  toolbar_status_label->setText("Showing Statements Report:");
- } 
  else if (optionChosen.contains("Statements by Function") )
  {
   toolbar_status_label->setText("Showing Statements by Function Report:");
  } 
- else if (optionChosen.contains("CallTrees") )
+ else if (optionChosen.contains("Statements") )
  {
-  toolbar_status_label->setText("Showing CallTrees Report:");
+  toolbar_status_label->setText("Showing Statements Report:");
  } 
  else if (optionChosen.contains("CallTrees by Function") )
  {
   toolbar_status_label->setText("Showing CallTrees by Function Report:");
  } 
- else if (optionChosen.contains("CallTrees,FullStack Report:") )
+ else if (optionChosen.contains("CallTrees,FullStack Report") )
  {
    toolbar_status_label->setText("Showing CallTrees,FullStack Report:");
  } 
@@ -4476,25 +4477,37 @@ StatsPanel::updateToolBarStatus(QString optionChosen)
  {
    toolbar_status_label->setText("Showing CallTrees,FullStack by Function Report:");
  }
- else if (optionChosen.contains("TraceBacks:") )
+ else if (optionChosen.contains("CallTrees") )
  {
-   toolbar_status_label->setText("Showing TraceBacks Report:");
- }
- else if (optionChosen.contains("TraceBacks by Function:") )
+  toolbar_status_label->setText("Showing CallTrees Report:");
+ } 
+ else if (optionChosen.contains("TraceBacks by Function") )
  {
    toolbar_status_label->setText("Showing TraceBacks by Function Report:");
  }
- else if (optionChosen.contains("TraceBacks,FullStack:") )
+ else if (optionChosen.contains("TraceBacks,FullStack") )
  {
    toolbar_status_label->setText("Showing TraceBacks,FullStack Report:");
  }
- else if (optionChosen.contains("TraceBacks,FullStack by Function:") )
+ else if (optionChosen.contains("TraceBacks,FullStack by Function") )
  {
    toolbar_status_label->setText("Showing TraceBacks,FullStack by Function Report:");
  }
- else if (optionChosen.contains("Butterfly:") )
+ else if (optionChosen.contains("TraceBacks") )
+ {
+   toolbar_status_label->setText("Showing TraceBacks Report:");
+ }
+ else if (optionChosen.contains("Butterfly") )
  {
    toolbar_status_label->setText("Showing Butterfly Report:");
+ }
+ else if (optionChosen.contains("Load Balance") )
+ {
+   toolbar_status_label->setText("Showing Load Balance (min,max,ave) Report:");
+ }
+ else if (optionChosen.contains("Compare and Analyze") )
+ {
+   toolbar_status_label->setText("Showing Comparative Analysis Report:");
  }
 
 }
@@ -4712,6 +4725,16 @@ StatsPanel::MPIReportSelected(int val)
       }
     }
 
+  // The status for the tool bar needs to reflect what is 
+  // going on when the same features are selected via the menu
+  if( getPreferenceShowToolbarCheckBox() == TRUE ) {
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::collectorMPIReportSelected, currentUserSelectedReportStr = (%s)\n", currentUserSelectedReportStr.ascii() );
+    printf("StatsPanel::collectorMPIReportSelected, calling updateToolBarStatus() \n");
+#endif
+    updateToolBarStatus( currentUserSelectedReportStr );
+  } 
+
 #ifdef DEBUG_StatsPanel
  printf("StatsPanel::MPIReportSelected, currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
  printf("StatsPanel::MPIReportSelected, Collector changed call updateStatsPanelData() \n");
@@ -4778,6 +4801,16 @@ StatsPanel::IOReportSelected(int val)
         selectedFunctionStr = QString::null;
       }
     }
+
+  // The status for the tool bar needs to reflect what is 
+  // going on when the same features are selected via the menu
+  if( getPreferenceShowToolbarCheckBox() == TRUE ) {
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::collectorIOReportSelected, currentUserSelectedReportStr = (%s)\n", currentUserSelectedReportStr.ascii() );
+    printf("StatsPanel::collectorIOReportSelected, calling updateToolBarStatus() \n");
+#endif
+    updateToolBarStatus( currentUserSelectedReportStr );
+  } 
 
 #ifdef DEBUG_StatsPanel
     printf("currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
@@ -4847,6 +4880,15 @@ StatsPanel::HWCReportSelected(int val)
       }
     }
 
+  // The status for the tool bar needs to reflect what is 
+  // going on when the same features are selected via the menu
+  if( getPreferenceShowToolbarCheckBox() == TRUE ) {
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::collectorHWCReportSelected, currentUserSelectedReportStr = (%s)\n", currentUserSelectedReportStr.ascii() );
+    printf("StatsPanel::collectorHWCReportSelected, calling updateToolBarStatus() \n");
+#endif
+    updateToolBarStatus( currentUserSelectedReportStr );
+  } 
 
 #ifdef DEBUG_StatsPanel
     printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
@@ -4902,6 +4944,15 @@ StatsPanel::HWCTimeReportSelected(int val)
       }
     }
 
+  // The status for the tool bar needs to reflect what is 
+  // going on when the same features are selected via the menu
+  if( getPreferenceShowToolbarCheckBox() == TRUE ) {
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::collectorHWCTimeReportSelected, currentUserSelectedReportStr = (%s)\n", currentUserSelectedReportStr.ascii() );
+    printf("StatsPanel::collectorHWCTimeReportSelected, calling updateToolBarStatus() \n");
+#endif
+    updateToolBarStatus( currentUserSelectedReportStr );
+  } 
 
 #ifdef DEBUG_StatsPanel
     printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
@@ -4959,6 +5010,16 @@ StatsPanel::collectorUserTimeReportSelected(int val)
       }
 // printf("UT2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
     }
+
+  // The status for the tool bar needs to reflect what is 
+  // going on when the same features are selected via the menu
+  if( getPreferenceShowToolbarCheckBox() == TRUE ) {
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::collectorUsertimeReportSelected, currentUserSelectedReportStr = (%s)\n", currentUserSelectedReportStr.ascii() );
+    printf("StatsPanel::collectorUsertimeReportSelected, calling updateToolBarStatus() \n");
+#endif
+    updateToolBarStatus( currentUserSelectedReportStr );
+  } 
 
 #ifdef DEBUG_StatsPanel
   printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
@@ -5096,6 +5157,16 @@ StatsPanel::collectorFPEReportSelected(int val)
       }
 // printf("UT2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
     }
+
+  // The status for the tool bar needs to reflect what is 
+  // going on when the same features are selected via the menu
+  if( getPreferenceShowToolbarCheckBox() == TRUE ) {
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::collectorFPEReportSelected, currentUserSelectedReportStr = (%s)\n", currentUserSelectedReportStr.ascii() );
+    printf("StatsPanel::collectorFPEReportSelected, calling updateToolBarStatus() \n");
+#endif
+    updateToolBarStatus( currentUserSelectedReportStr );
+  } 
 
 #ifdef DEBUG_StatsPanel
   printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
@@ -10141,7 +10212,6 @@ StatsPanel::functionsSelected()
  printf("StatsPanel::functionsSelected(), calling updateStatsPanelData\n" );
 #endif
 
-  toolbar_status_label->setText("Showing Functions Report:");
   updateStatsPanelData(DONT_FORCE_UPDATE);
 
   toolbar_status_label->setText("Showing Functions Report:");
@@ -10185,7 +10255,6 @@ StatsPanel::statementsSelected()
  printf("StatsPanel::statementsSelected(), calling updateStatsPanelData\n" );
 #endif
 
-  toolbar_status_label->setText("Showing Statements Report:");
   updateStatsPanelData(DONT_FORCE_UPDATE);
 
   toolbar_status_label->setText("Showing Statements Report:");
