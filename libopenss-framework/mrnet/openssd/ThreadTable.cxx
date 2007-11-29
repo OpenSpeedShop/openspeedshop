@@ -23,6 +23,7 @@
  */
 
 #include "Guard.hxx"
+#include "ThreadNameGroup.hxx"
 #include "ThreadTable.hxx"
 #include "Utility.hxx"
 
@@ -98,7 +99,8 @@ BPatch_thread* ThreadTable::getPtrDirectly(const ThreadName& thread)
  */
 ThreadTable::ThreadTable() :
     Lockable(),
-    std::map<ThreadName, BPatch_thread*>()
+    dm_name_to_ptr(),
+    dm_ptr_to_names()
 {
 }
 
@@ -120,14 +122,22 @@ void ThreadTable::addThread(const ThreadName& thread, BPatch_thread* ptr)
 {
     Guard guard_this(this);
 
-    // Find the entry (if any) for this thread
-    ThreadTable::const_iterator i = find(thread);
+    // Find the entries (if any) for this thread
+    std::map<ThreadName, BPatch_thread*>::const_iterator i =
+	dm_name_to_ptr.find(thread);
+    std::multimap<BPatch_thread*, ThreadName>::const_iterator j =
+	dm_ptr_to_names.lower_bound(ptr);
+    for(; j != dm_ptr_to_names.upper_bound(ptr); ++j)
+	if(j->second == thread)
+	    break;
     
     // Check assertions
-    Assert(i != end());
+    Assert(i == dm_name_to_ptr.end());
+    Assert(j == dm_ptr_to_names.upper_bound(ptr));
     
     // Add this thread
-    insert(std::make_pair(thread, ptr));
+    dm_name_to_ptr.insert(std::make_pair(thread, ptr));
+    dm_ptr_to_names.insert(std::make_pair(ptr, thread));
 }
 
 
@@ -142,18 +152,26 @@ void ThreadTable::addThread(const ThreadName& thread, BPatch_thread* ptr)
  *
  * @param thread    Thread to be removed.
  */
-void ThreadTable::removeThread(const ThreadName& thread)
+void ThreadTable::removeThread(const ThreadName& thread, BPatch_thread* ptr)
 {
     Guard guard_this(this);
 
     // Find the entry (if any) for this thread
-    ThreadTable::iterator i = find(thread);
+    std::map<ThreadName, BPatch_thread*>::iterator i =
+	dm_name_to_ptr.find(thread);
+    std::multimap<BPatch_thread*, ThreadName>::iterator j =
+	dm_ptr_to_names.lower_bound(ptr);
+    for(; j != dm_ptr_to_names.upper_bound(ptr); ++j)
+	if(j->second == thread)
+	    break;
     
     // Check assertions
-    Assert(i != end());
+    Assert(i != dm_name_to_ptr.end());
+    Assert(j != dm_ptr_to_names.upper_bound(ptr));
     
     // Remove this thread
-    erase(i);
+    dm_name_to_ptr.erase(i);
+    dm_ptr_to_names.erase(j);
 }
 
 
@@ -165,15 +183,43 @@ void ThreadTable::removeThread(const ThreadName& thread)
  * pointer is returned if the thread cannot be found.
  *
  * @param thread    Thread whose Dyninst thread object pointer is to be found.
- * @return          Dyninst thread object pointer.
+ * @return          Dyninst thread object pointer for that thread.
  */
-BPatch_thread* ThreadTable::getPtr(const ThreadName& thread)
+BPatch_thread* ThreadTable::getPtr(const ThreadName& thread) const
 {
     Guard guard_this(this);
 
     // Find the entry (if any) for this thread
-    ThreadTable::const_iterator i = find(thread);
+    std::map<ThreadName, BPatch_thread*>::const_iterator i =
+	dm_name_to_ptr.find(thread);
 
     // Return the Dyninst thread object pointer to the caller
-    return (i != end()) ? i->second : NULL;
+    return (i != dm_name_to_ptr.end()) ? i->second : NULL;
+}
+
+
+
+/**
+ * Get thread names for a Dyninst thread object pointer.
+ *
+ * Returns the thread names for the specified Dyninst thread object pointer.
+ * An empty thread name group is returned if the pointer cannot be found.
+ *
+ * @param ptr    Dyninst thread object pointer whose names are to be found.
+ * @return       Thread names for that pointer.
+ */
+ThreadNameGroup ThreadTable::getNames(BPatch_thread* ptr) const
+{
+    Guard guard_this(this);
+
+    // Find the entries (if any) for this Dyninst thread object pointer
+    ThreadNameGroup names;
+    for(std::multimap<BPatch_thread*, ThreadName>::const_iterator
+	    j = dm_ptr_to_names.lower_bound(ptr);
+	j != dm_ptr_to_names.upper_bound(ptr);
+	++j)
+	names.insert(j->second);
+    
+    // Return the thread names to the caller
+    return names;
 }

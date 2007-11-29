@@ -26,6 +26,7 @@
 #include "AddressRange.hxx"
 #include "Assert.hxx"
 #include "Blob.hxx"
+#include "Path.hxx"
 #include "Time.hxx"
 #include "Utility.hxx"
 
@@ -39,9 +40,23 @@
 #include <sstream>
 #include <unistd.h>
 
-
-
 using namespace OpenSpeedShop::Framework;
+
+
+
+/**
+ * Compute the checksum of a file.
+ *
+ * ...
+ *
+ * @param path    Full path name of the file for which to calculat the checksum.
+ * @return        Checksum of that file.
+ */
+uint64_t OpenSpeedShop::Framework::computeChecksum(const Path& path)
+{
+    // TODO: implement!
+    return 0;
+}
 
 
 
@@ -265,6 +280,54 @@ std::string OpenSpeedShop::Framework::toString(
 {
     std::stringstream output;
     output << collector.experiment << ":" << collector.collector;
+    return output.str();
+}
+
+
+
+/**
+ * Conversion from OpenSS_Protocol_Experiment to std::string.
+ *
+ * Returns the conversion of an OpenSS_Protocol_Experiment into a std::string.
+ * Simply returns the string containing the textual representation of the
+ * experiment's unique identifier.
+ *
+ * @param experiment    Experiment to be converted.
+ * @return              String conversion of that experiment.
+ */
+std::string OpenSpeedShop::Framework::toString(
+    const OpenSS_Protocol_Experiment& experiment
+    )
+{
+    std::stringstream output;
+    output << experiment.experiment;
+    return output.str();
+}
+
+
+
+/**
+ * Conversion from OpenSS_Protocol_ExperimentGroup to std::string.
+ *
+ * Returns the conversion of an OpenSS_Protocol_ExperimentGroup into a std::
+ * string. Simply returns the string containing the textual representation of
+ * the individual experiments in the experiment group.
+ *
+ * @param experiments    Experiment group to be converted.
+ * @return               String conversion of that experiment group.
+ */
+std::string OpenSpeedShop::Framework::toString(
+    const OpenSS_Protocol_ExperimentGroup& experiments
+    )
+{
+    std::stringstream output;
+    output << "    { ";
+    for(int i = 0; i < experiments.experiments.experiments_len; ++i) {
+	if(i > 0)
+	    output << ", ";
+	output << toString(experiments.experiments.experiments_val[i]);
+    }
+    output << " }";
     return output.str();
 }
 
@@ -898,7 +961,9 @@ std::string OpenSpeedShop::Framework::toString(
     )
 {
     std::stringstream output;
-    output << "symbolTable(" << std::endl;
+    output << "symbolTable(" << std::endl
+	   << toString(message.experiments) << "," << std::endl
+	   << toString(message.linked_object) << "," << std::endl;
     
     for(int i = 0; i < message.functions.functions_len; ++i) {
 	// TODO: implement!

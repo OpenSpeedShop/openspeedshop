@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#include "Assert.hxx"
 #include "Protocol.h"
 #include "ThreadName.hxx"
 #include "Utility.hxx"
@@ -67,8 +68,16 @@ namespace OpenSpeedShop { namespace Framework {
 	{
 	}
 
+	/** Constructor from a single ThreadName object. */
+	ThreadNameGroup(const ThreadName& thread) :
+	    std::set<ThreadName>()
+	{
+	    insert(thread);
+	}
+
 	/** Constructor from an experiment and BPatch_process object. */
-	ThreadNameGroup(const int& experiment, BPatch_process& process) :
+	ThreadNameGroup(const int& experiment,
+			/* const */ BPatch_process& process) :
 	    std::set<ThreadName>()
 	{
 	    BPatch_Vector<BPatch_thread*> threads;

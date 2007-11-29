@@ -31,11 +31,18 @@
 
 #include "Protocol.h"
 
+#ifdef HAVE_INTTYPES_H
+#include <inttypes.h>
+#endif
 #include <string>
 
 
 
 namespace OpenSpeedShop { namespace Framework {
+
+    class Path;
+
+    uint64_t computeChecksum(const Path&);
 
     std::string getLocalHost();
     std::string getCanonicalName(const std::string&);
@@ -44,6 +51,8 @@ namespace OpenSpeedShop { namespace Framework {
     std::string toString(const OpenSS_Protocol_AddressBitmap&);
     std::string toString(const OpenSS_Protocol_Blob&);
     std::string toString(const OpenSS_Protocol_Collector&);
+    std::string toString(const OpenSS_Protocol_Experiment&);
+    std::string toString(const OpenSS_Protocol_ExperimentGroup&);
     std::string toString(const OpenSS_Protocol_FileName&);
     std::string toString(const OpenSS_Protocol_FunctionEntry&);
     std::string toString(const OpenSS_Protocol_JobEntry&);

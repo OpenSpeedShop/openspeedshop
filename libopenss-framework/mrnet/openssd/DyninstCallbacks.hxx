@@ -35,6 +35,8 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class ThreadNameGroup;
+
     /**
      * Dyninst callbacks.
      *
@@ -53,6 +55,8 @@ namespace OpenSpeedShop { namespace Framework {
 	void postFork(BPatch_thread*, BPatch_thread*);
 	void threadCreate(BPatch_process*, BPatch_thread*);
 	void threadDestroy(BPatch_process*, BPatch_thread*);
+
+	void sendSymbolsForThread(const ThreadNameGroup&);
     }
     
 } }

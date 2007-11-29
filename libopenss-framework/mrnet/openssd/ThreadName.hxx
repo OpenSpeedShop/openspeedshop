@@ -29,7 +29,9 @@
 #include "config.h"
 #endif
 
+#include "Assert.hxx"
 #include "Protocol.h"
+#include "TotallyOrdered.hxx"
 #include "Utility.hxx"
 
 #include <BPatch.h>
@@ -61,7 +63,8 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * @ingroup Implementation
      */
-    class ThreadName
+    class ThreadName :
+	public TotallyOrdered<ThreadName>
     {
 
     public:
@@ -77,7 +80,7 @@ namespace OpenSpeedShop { namespace Framework {
 	}
 
 	/** Constructor from an experiment and BPatch_thread object. */
-	ThreadName(const int& experiment, BPatch_thread& thread) :
+	ThreadName(const int& experiment, /* const */ BPatch_thread& thread) :
 	    dm_experiment(experiment),
 	    dm_host(getCanonicalName(getLocalHost())),
 	    dm_pid(),
@@ -86,7 +89,7 @@ namespace OpenSpeedShop { namespace Framework {
 	    BPatch_process* process = thread.getProcess();
 	    Assert(process != NULL);
 	    dm_pid = process->getPid();
-	    dm_tid = std::make_pair(process->isMultithreaded(),
+	    dm_tid = std::make_pair(process->isMultithreadCapable(),
 				    static_cast<pthread_t>(thread.getTid()));
 	}
 

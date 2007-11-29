@@ -18,18 +18,20 @@
 
 /** @file
  *
- * Declaration of the Collector class.
+ * Declaration of the Experiment class.
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_Collector_
-#define _OpenSpeedShop_Framework_Collector_
+#ifndef _OpenSpeedShop_Framework_Experiment_
+#define _OpenSpeedShop_Framework_Experiment_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
+#include "Collector.hxx"
 #include "Protocol.h"
+#include "ThreadName.hxx"
 #include "TotallyOrdered.hxx"
 
 
@@ -37,11 +39,10 @@
 namespace OpenSpeedShop { namespace Framework {
 
     /**
-     * Collector name.
+     * Experiment name.
      *
-     * Names a specific instance of a collector. To uniquely identify a
-     * collector, the experiment and collector's unique identifiers must
-     * be specified.
+     * Names a specific experiment. To uniquely identify an experiment, only
+     * the unique identifier of the experiment itself must be specified.
      *
      * @note    This class has intentionally been given an identical name to
      *          the similar class in the framework library itself. In the near
@@ -52,36 +53,42 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * @ingroup Implementation
      */
-    class Collector :
-	public TotallyOrdered<Collector>
+    class Experiment :
+	public TotallyOrdered<Experiment>
     {
 
     public:
 
-	/** Constructor from a OpenSS_Protocol_Collector object. */
-	Collector(const OpenSS_Protocol_Collector& object) :
-	    dm_experiment(object.experiment),
-	    dm_collector(object.collector)
+	/** Constructor from a Collector object. */
+	Experiment(const Collector& collector) :
+	    dm_experiment(collector.getExperiment())
 	{
 	}
 
-	/** Type conversion to a OpenSS_Protocol_Collector object. */
-	operator OpenSS_Protocol_Collector() const
+	/** Constructor from a ThreadName object. */
+	Experiment(const ThreadName& thread) :
+	    dm_experiment(thread.getExperiment())
 	{
-	    OpenSS_Protocol_Collector object;
+	}
+
+	/** Constructor from a OpenSS_Protocol_Experiment object. */
+	Experiment(const OpenSS_Protocol_Experiment& object) :
+	    dm_experiment(object.experiment)
+	{
+	}
+
+	/** Type conversion to a OpenSS_Protocol_Experiment object. */
+	operator OpenSS_Protocol_Experiment() const
+	{
+	    OpenSS_Protocol_Experiment object;
 	    object.experiment = dm_experiment;
-	    object.collector = dm_collector;
 	    return object;
 	}
 
-	/** Operator "<" defined for two Collector objects. */
-	bool operator<(const Collector& other) const
+	/** Operator "<" defined for two Experiment objects. */
+	bool operator<(const Experiment& other) const
 	{
-	    if(dm_experiment < other.dm_experiment)
-		return true;
-	    if(dm_experiment > other.dm_experiment)
-		return false;
-	    return dm_collector < other.dm_collector;
+	    return dm_experiment < other.dm_experiment;
 	}
 
 	/** Read-only data member accessor function. */
@@ -90,19 +97,10 @@ namespace OpenSpeedShop { namespace Framework {
 	    return dm_experiment;
 	}
 
-	/** Read-only data member accessor function. */
-	const int& getCollector() const
-	{
-	    return dm_collector;
-	}
-
     private:
 
-	/** Unique identifier for the experiment containing this collector. */
+	/** Unique identifier for this experiment. */
 	int dm_experiment;
-
-	/** Identifier for this collector within that experiment. */
-	int dm_collector;
 	
     };
     

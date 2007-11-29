@@ -25,6 +25,7 @@
 #include "Blob.hxx"
 #include "Backend.hxx"
 #include "Callbacks.hxx"
+#include "DyninstCallbacks.hxx"
 #include "Protocol.h"
 #include "Senders.hxx"
 #include "ThreadName.hxx"
@@ -43,7 +44,11 @@ using namespace OpenSpeedShop::Framework;
 /**
  * Attach to threads.
  *
- * ...
+ * Callback function called by the backend message pump when a request to
+ * attach to one or more threads is received. Instructs Dyninst to attach
+ * to any threads that weren't already attached, then sends the frontend
+ * a list of the threads that were attached and the symbol information
+ * for those threads.
  *
  * @param blob    Blob containing the message.
  */
@@ -113,6 +118,9 @@ void Callbacks::attachToThreads(const Blob& blob)
 	Assert(bpatch != NULL);
 	thread = bpatch->attachProcess(NULL, i->getProcessId());
 	Assert(thread != NULL);
+
+	// TODO: the above assert should be a reportError() in a conditional
+
 	BPatch_process* process = thread->getProcess();
 	Assert(process != NULL);
 	
@@ -137,7 +145,16 @@ void Callbacks::attachToThreads(const Blob& blob)
     // Send the frontend the list of threads that were attached
     Senders::attachedToThreads(threads_attached);
 
-    // TODO: continue implementing!
+    // Iterate over each thread that was attached
+    for(ThreadNameGroup::const_iterator
+	    i = threads_attached.begin(); i != threads_attached.end(); ++i) {
+
+	// Send the frontend all the symbol information for this thread
+	DyninstCallbacks::sendSymbolsForThread(*i);
+	
+    }
+
+    // TODO: send the state of the threads?
 
 }
 
@@ -146,7 +163,11 @@ void Callbacks::attachToThreads(const Blob& blob)
 /**
  * Change state of threads.
  *
- * ...
+ * Callback function called by the backend message pump when a request to
+ * change the state of one or more threads is received. Instructs Dyninst
+ * to make the requested state changes, waits for them to complete, then
+ * sends the frontend the list of threads that were changed (and to what
+ * state they were changed).
  *
  * @param blob    Blob containing the message.
  */

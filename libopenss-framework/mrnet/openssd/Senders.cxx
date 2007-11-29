@@ -25,9 +25,11 @@
 #include "Backend.hxx"
 #include "Blob.hxx"
 #include "Collector.hxx"
+#include "ExperimentGroup.hxx"
 #include "FileName.hxx"
 #include "Protocol.h"
 #include "Senders.hxx"
+#include "SymbolTable.hxx"
 #include "ThreadName.hxx"
 #include "ThreadNameGroup.hxx"
 #include "Time.hxx"
@@ -390,10 +392,47 @@ void Senders::reportError(const std::string& text)
  *
  * Issue a message to the frontend to provide the symbol table for a single
  * linked object.
+ *
+ * @param experiments      Experiments referencing the linked object.
+ * @param linked_object    Name of the linked object's file.
+ * @param symbol_table     Symbol table for this linked object.
  */
-void Senders::symbolTable()
+void Senders::symbolTable(const ExperimentGroup& experiments,
+			  const FileName& linked_object,
+			  const SymbolTable& symbol_table)
 {
-    // TODO: implement!
+    // Assemble the request into a message
+    OpenSS_Protocol_SymbolTable message;
+    message.experiments = experiments;
+    message.linked_object = linked_object;
+    // message.functions = symbol_table;
+    // message.statements = symbol_table;
+
+    // TODO: modify the above to extract functions/statements from SymbolTable
+    
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
+    // Encode the message into a blob
+    Blob blob(
+        reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_SymbolTable),
+	&message
+	);
+
+    // Send the encoded message to the frontend
+    Backend::sendToFrontend(OPENSS_PROTOCOL_TAG_SYMBOL_TABLE, blob);
+
+    // Destroy the message
+    xdr_free(
+        reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_SymbolTable),
+	reinterpret_cast<char*>(&message)
+	);
 }
 
 

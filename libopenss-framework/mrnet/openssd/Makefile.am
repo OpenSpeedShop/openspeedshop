@@ -33,17 +33,22 @@ openssd_LDADD = \
 	-lopenss-framework-mrnet-common \
 	@DYNINST_LIBS@ \
 	@MRNET_LIBS@ \
-	-lpthread
+	-lpthread -lrt
 
 openssd_SOURCES = \
 	$(top_srcdir)/libopenss-framework/Blob.cxx \
+	$(top_srcdir)/libopenss-framework/Path.cxx \
 	Backend.hxx Backend.cxx \
 	Callbacks.hxx Callbacks.cxx \
 	Collector.hxx \
 	DyninstCallbacks.hxx DyninstCallbacks.cxx \
+	Experiment.hxx \
+	ExperimentGroup.hxx \
 	FileName.hxx \
 	openssd.cxx \
 	Senders.hxx Senders.cxx \
+	SentFilesTable.hxx SentFilesTable.cxx \
+	SymbolTable.hxx SymbolTable.cxx \
 	ThreadName.hxx \
 	ThreadNameGroup.hxx \
 	ThreadTable.hxx ThreadTable.cxx

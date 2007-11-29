@@ -42,7 +42,9 @@
 namespace OpenSpeedShop { namespace Framework {
 
     class Blob;
+    class ExperimentGroup;
     class FileName;
+    class SymbolTable;
     class ThreadName;
     class ThreadNameGroup;
     class Time;
@@ -68,7 +70,8 @@ namespace OpenSpeedShop { namespace Framework {
 				const AddressRange&, const FileName&,
 				const bool&);
 	void reportError(const std::string&);
-	void symbolTable();
+	void symbolTable(const ExperimentGroup&, const FileName&,
+			 const SymbolTable&);
 	void threadsStateChanged(const ThreadNameGroup&,
 				 const OpenSS_Protocol_ThreadState&);
 	void unloadedLinkedObject(const ThreadNameGroup&, const Time&,

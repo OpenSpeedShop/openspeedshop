@@ -104,6 +104,35 @@ struct OpenSS_Protocol_Collector
 
 
 /**
+ * Experiment identifier.
+ *
+ * Names a specific experiment. To uniquely identify an experiment, only the
+ * unique identifier of the experiment itself must be specified.
+ */
+struct OpenSS_Protocol_Experiment
+{
+    /** Unique identifier for this experiment. */
+    int experiment;
+};
+
+
+
+/**
+ * Arbitrary group of experiment identifiers.
+ *
+ * List holding an arbitrary group of experiment identifiers. No specific
+ * relationship is implied between the experiments in a given experiment
+ * group.
+ */
+struct OpenSS_Protocol_ExperimentGroup
+{
+    /** Experiments in the group. */
+    OpenSS_Protocol_Experiment experiments<>;
+};
+
+
+
+/**
  * File name.
  *
  * Names a single file by providing the full path name of that file. A checksum
@@ -716,6 +745,9 @@ struct OpenSS_Protocol_StopAtEntryOrExit
  */
 struct OpenSS_Protocol_SymbolTable
 {
+    /** Experiments referencing the linked object. */
+    OpenSS_Protocol_ExperimentGroup experiments;
+
     /** Name of the linked object's file. */
     OpenSS_Protocol_FileName linked_object;
 

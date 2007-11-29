@@ -18,64 +18,54 @@
 
 /** @file
  *
- * Declaration of the ThreadTable class.
+ * Declaration of the SentFilesTable class.
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_ThreadTable_
-#define _OpenSpeedShop_Framework_ThreadTable_
+#ifndef _OpenSpeedShop_Framework_SentFilesTable_
+#define _OpenSpeedShop_Framework_SentFilesTable_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
+#include "FileName.hxx"
 #include "Lockable.hxx"
-#include "ThreadName.hxx"
+#include "Experiment.hxx"
 
-#include <BPatch.h>
 #include <map>
 
 
 
 namespace OpenSpeedShop { namespace Framework {
 
-    class ThreadNameGroup;
+    class ExperimentGroup;
 
     /**
-     * Thread table.
+     * Sent files table.
      *
-     * Table used to keep track of Dyninst thread object pointers. Dyninst does
-     * provide a list of active thread pointers, but using it to find a specific
-     * thread requires a linear time search. This table provides the same search
-     * in logarithmic time.
+     * Table used to keep track of which files have already been sent to the
+     * frontend for use by specific experiments. As an example, this table is
+     * used to track which linked objects have had their symbol tables sent
+     * to the frontend.
      *
      * @ingroup Implementation
      */
-    class ThreadTable :
-	private Lockable
+    class SentFilesTable :
+	private Lockable,
+	private std::multimap<FileName, Experiment>
     {
 
     public:
 
-	static ThreadTable TheTable;
+	static SentFilesTable TheTable;
 
-	static BPatch_thread* getPtrDirectly(const ThreadName&);
+	SentFilesTable();
+
+	void addSent(const ExperimentGroup&, const FileName&);
 	
-	ThreadTable();
-	
-	void addThread(const ThreadName&, BPatch_thread*);
-	void removeThread(const ThreadName&, BPatch_thread*);
-	
-	BPatch_thread* getPtr(const ThreadName&) const;
-	ThreadNameGroup getNames(BPatch_thread*) const;
-
-    private:
-
-	// Map thread names to their Dyninst thread object pointer
-	std::map<ThreadName, BPatch_thread*> dm_name_to_ptr;
-
-	// Map Dyninst thread object pointers to their names
-	std::multimap<BPatch_thread*, ThreadName> dm_ptr_to_names;
+	ExperimentGroup getUnsent(const ExperimentGroup&,
+				  const FileName&) const;
 	
     };
 

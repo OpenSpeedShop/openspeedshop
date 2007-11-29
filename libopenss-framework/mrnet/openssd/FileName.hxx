@@ -31,7 +31,9 @@
 
 #include "Path.hxx"
 #include "Protocol.h"
+#include "Utility.hxx"
 
+#include <BPatch.h>
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -61,6 +63,28 @@ namespace OpenSpeedShop { namespace Framework {
 	{
 	}
 
+	/** Constructor from a BPatch_image object. */
+	FileName(/* const */ BPatch_image& image) :
+	    dm_path(),
+	    dm_checksum(0)
+	{
+	    char buffer[PATH_MAX];
+	    image.getProgramFileName(buffer, sizeof(buffer));
+	    dm_path = buffer;
+	    dm_checksum = computeChecksum(dm_path);
+	}
+
+	/** Constructor from a BPatch_module object. */
+	FileName(/* const */ BPatch_module& module) :
+	    dm_path(),
+	    dm_checksum(0)
+	{
+	    char buffer[PATH_MAX];
+	    module.getFullName(buffer, sizeof(buffer));
+	    dm_path = buffer;
+	    dm_checksum = computeChecksum(dm_path);
+	}
+
 	/** Type conversion to a OpenSS_Protocol_FileName object. */
 	operator OpenSS_Protocol_FileName() const
 	{
@@ -74,14 +98,10 @@ namespace OpenSpeedShop { namespace Framework {
 	    object.checksum = dm_checksum;
 	    return object;
 	}
-		   
+	
 	/** Operator "<" defined for two FileName objects. */
 	bool operator<(const FileName& other) const
 	{
-	    if(dm_path < other.dm_path)
-		return true;
-	    if(dm_path > other.dm_path)
-		return false;
 	    return dm_checksum < other.dm_checksum;
 	}
 	
@@ -90,21 +110,21 @@ namespace OpenSpeedShop { namespace Framework {
 	{
 	    return dm_path;
 	}
-
+	
 	/** Read-only data member accessor function. */
 	const uint64_t& getChecksum() const
 	{
 	    return dm_checksum;
 	}
-
+	
     private:
-
+	
 	/** Full path name of the file. */
 	Path dm_path;
-
+	
 	/** Checksum calculated on this file. */
 	uint64_t dm_checksum;
-
+	
     };
     
 } }
