@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -498,8 +499,8 @@ Thread::getFunctionAt(const Address& address, const Time& time) const
     
     // Find the linked object containing the requested address/time
     bool found_linked_object = false; 
-    int linked_object;
-    Address addr_begin;    
+    int linked_object = 0;
+    Address addr_begin = 0;    
     dm_database->prepareStatement(
 	"SELECT linked_object, "
 	"       addr_begin "
@@ -516,8 +517,17 @@ Thread::getFunctionAt(const Address& address, const Time& time) const
     dm_database->bindArgument(4, address);
     dm_database->bindArgument(5, address);	
     while(dm_database->executeStatement()) {
-	if(found_linked_object)
+//
+//  Relax the overlap check in order to view traces for the iot experiment
+//  This is not a fix but is a relaxation of the testing for overlap.
+//
+	if(found_linked_object) {
+#if 0
 	    throw Exception(Exception::EntryOverlapping, "AddressSpaces");
+#else
+            break;
+#endif
+        }
 	found_linked_object = true;
 	linked_object = dm_database->getResultAsInteger(1);
 	addr_begin = dm_database->getResultAsAddress(2);
@@ -538,8 +548,17 @@ Thread::getFunctionAt(const Address& address, const Time& time) const
 	dm_database->bindArgument(2, Address(address - addr_begin));
 	dm_database->bindArgument(3, Address(address - addr_begin));
 	while(dm_database->executeStatement()) {
-	    if(function.first)
+	    if(function.first) {
+//
+//  Relax the overlap check in order to view traces for the iot experiment
+//  This is not a fix but is a relaxation of the testing for overlap.
+//
+#if 0
 		throw Exception(Exception::EntryOverlapping, "Functions");
+#else
+                break;
+#endif
+            }
 	    function.first = true;
 	    function.second = Function(dm_database,
 				       dm_database->getResultAsInteger(1));
@@ -595,8 +614,17 @@ Thread::getStatementsAt(const Address& address, const Time& time) const
     dm_database->bindArgument(4, address);
     dm_database->bindArgument(5, address);	
     while(dm_database->executeStatement()) {
-	if(found_linked_object)
+	if(found_linked_object) {
+//
+//  Relax the overlap check in order to view traces for the iot experiment
+//  This is not a fix but is a relaxation of the testing for overlap.
+//
+#if 0
 	    throw Exception(Exception::EntryOverlapping, "AddressSpaces");
+#else
+	    break;
+#endif
+        }
 	found_linked_object = true;
 	linked_object = dm_database->getResultAsInteger(1);
 	addr_begin = dm_database->getResultAsAddress(2);
@@ -682,13 +710,17 @@ std::pair<bool, LinkedObject> Thread::getExecutable(const Time& time) const
 //        std::cerr << "getExecutable(), top of while " 
 //                  << getPosixThreadId().second
 //                  << std::endl;
-	if(executable.first)
+//
+// Relax the check for duplicate linked objects.  This is not a fix.
+//
+	if(executable.first) {
 #if 0
 	    throw Exception(Exception::EntryNotUnique, "LinkedObjects",
                             "<Threads-Referenced-Executable>");
 #else
 		break;
 #endif
+        }
 	executable = std::make_pair(
 	    true, 
 	    LinkedObject(dm_database, dm_database->getResultAsInteger(1))
