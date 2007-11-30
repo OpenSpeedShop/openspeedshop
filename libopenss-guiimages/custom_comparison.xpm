@@ -1,42 +1,58 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2007 The Krell Institute. All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+////////////////////////////////////////////////////////////////////////////////
+
 /* XPM */
-static const char *custom_comparison_xpm[]={
-"28 28 11 1",
+static char *custom_comparison_xpm[]={
+"28 28 9 1",
 "# c None",
-"h c #000000",
-"i c #00c0c0",
+"e c #000000",
+"f c #0000ff",
+"g c #303030",
 ". c #7c7c7c",
-"c c #c1c1c1",
-"b c #d9dada",
+"b c #c1c1c1",
+"c c #d9dada",
 "d c #e2e3e2",
-"e c #ededed",
-"f c #f1f1f0",
-"g c #f6f6f6",
 "a c #ffffff",
-"..................##########",
-"...................#########",
-"..aaaaaaaaaaaa..#a##########",
-"..aaaaaaaaaaaa..############",
-"..aabbccddcccc..a###########",
-"..aabbccddcccc..a###########",
-"..aacccccceeff..############",
-"..aacccccceeff...######cccc#",
-"..aaggcccccccccccccccccccccc",
-"..aaggcchhhhhhhcccccchhhhhhc",
-"..aaccchiiiiiiihcccchiiiiihh",
-"..aacchiiiiiiiihccchiiiiiiih",
-"..aachiiiiiiiiiihchiiiiiiiii",
-"..aachiiiiiiiiiihchiiiiiiiii",
-"..aachiiiiihhiiihchiiihhiiii",
-"..aachiiiihchiiihchiiihchiii",
-"..aachiiiihchhhhcchiiihchhhh",
-"..aachiiiihccccccchiiihccccc",
-"..aachiiiihccccccchiiihccccc",
-"..aachiiiihchhhhhchiiihchhhh",
-"..aachiiiihchiiihchiiihchiii",
-"..aachiiiihchiiihchiiihchiii",
-"..aachiiiihchiiihchiiihchiii",
-"..aachiiiiihhiiihchiiihhhiii",
-".....hiiiiiiiiiihchiiiiiiiii",
-"...c.hiiiiiiiiiihchiiiiiiiii",
-"###cchhiiiiiiiihhchhiiiiiiih",
-"####cchhiiiiiihhccchhhiiiihh"};
+"....................########",
+".....................#######",
+"...aaaaaaaaaaa....bbbbbbbb##",
+"...aaaaaaaaaaa..bbbaaaaaab##",
+"...abcbbbbbbbb..b.aaaaaaab##",
+"...abcbbdbbbbb..bbb.aaaaab##",
+"...abbbbdbbbbbbbbbbbbb#aab##",
+"...abddddddddd.......bbbbb##",
+"...abddbbbbadbddddddd..#####",
+"...abbeeeeeeddadddddeeeeee##",
+"...abefffffeeddddddefffffge#",
+"...befffffffeeddddefffffffee",
+"...efffffffffedddefffffffffg",
+"..effffffffffeddeffffffffffe",
+"..efffeeeefffeddefffeeeefffe",
+".befffeddefffeddefffeddefffe",
+".befffeddeffeeddefffeddeffee",
+".befffeddeeeeeddefffeddeeeed",
+".befffeddddddddbefffeddddddd",
+".befffeddddddddbefffeddbbddd",
+".befffeddeeeeedbefffeddeeeee",
+"..efffeddefffeddefffeddefffe",
+"..efffeddefffeddefffeddefffe",
+"..efffeeeefffeddefffeeeefffe",
+"..effffffffffeddeffffffffffe",
+".#efffffffffeeddbeffffffffee",
+".##eeffffffeebdddeeefffffeeb",
+"####eeffffeebddbddbeffffeebb"};

@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -17,19 +18,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /* XPM */
-static const char *tracebacksfull_xpm[]={
-"28 28 12 1",
+static char *tracebacksfull_xpm[]={
+"28 28 11 1",
 "# c None",
 "a c #000000",
+"i c #00ff00",
 ". c #7c7c7c",
-"j c #c0c000",
 "e c #c1c1c1",
 "d c #d9dada",
 "f c #e2e3e2",
 "g c #ededed",
 "h c #f1f1f0",
 "b c #ff0000",
-"i c #ffff00",
 "c c #ffffff",
 "..................##aaaaa###",
 "...................#abbba###",
@@ -43,19 +43,19 @@ static const char *tracebacksfull_xpm[]={
 "..ceaaaaaaaaaaaaaaecabbba###",
 "..ceaiiiiiiiiiiiiaecaaaaa###",
 "..ceaiiiiiiiiiiiiaec..######",
-"..ceaiiiiiiijjjjjaec..######",
-"..ceaiiiiiijjjjjjaec..######",
-"..ceaaaaaiijjaaaaaec..######",
-"..ceeeeeaiijjaeeeeec..######",
-"..cchheeaiijjaehhhcc..######",
-"..ccdhheaiijjaeheecc..######",
-"..ccdheeaiijjaeheecc..######",
-"..ccdheeaiijjaedhhec..######",
-"..ccddeeaiijjaehhhcc..######",
-"..cchhheaiijjaehhhcc..######",
-"..ccdheeaiijjaedddec..######",
-"..cchhhhaiijjaeddhee..######",
-"........aiijja........######",
-"........aiijja........######",
-"########aiijja##############",
-"########aiijja##############"};
+"..ceaiiiiiiiiiiiiaec..######",
+"..ceaiiiiiiiiiiiiaec..######",
+"..ceaaaaaiiiiaaaaaec..######",
+"..ceeeeeaiiiiaeeeeec..######",
+"..cchheeaiiiiaehhhcc..######",
+"..ccdhheaiiiiaeheecc..######",
+"..ccdheeaiiiiaeheecc..######",
+"..ccdheeaiiiiaedhhec..######",
+"..ccddeeaiiiiaehhhcc..######",
+"..cchhheaiiiiaehhhcc..######",
+"..ccdheeaiiiiaedddec..######",
+"..cchhhhaiiiiaeddhee..######",
+"........aiiiia........######",
+"........aiiiia........######",
+"########aiiiia##############",
+"########aiiiia##############"};

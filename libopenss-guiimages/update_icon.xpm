@@ -1,11 +1,30 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2007 The Krell Institute. All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+////////////////////////////////////////////////////////////////////////////////
+
 /* XPM */
-static const char *update_icon_xpm[]={
-"28 28 6 1",
+static char *update_icon_xpm[]={
+"28 28 7 1",
 "# c None",
+"d c #000000",
 ". c #7c7c7c",
-"d c #c000c0",
 "c c #c1c1c1",
 "b c #e2e3e2",
+"e c #ff0000",
 "a c #ffffff",
 "..................##########",
 "...................#########",
@@ -15,23 +34,23 @@ static const char *update_icon_xpm[]={
 ".aaaaaaaaaaaaaa.aaaaa..#####",
 ".aaaaabbbbbbaaa.bacaa..c####",
 ".aaaaaabbccbaaa........#####",
-".aaaaacaaaabaaa........#####",
-"..aacccccccbaaccccccbbb#####",
-"..bcddddddccbddddddccbb#####",
-"..bcddddddccbddddddccbb#####",
-"..bcccddddcbbddddcccbbb#####",
-"..baccddddaabddddcbcbbc#####",
-"..bcaaddddabcddddcbbbbcb####",
-".cbaccddddabcddddcbbbbc#####",
-".cbcacddddabcddddcbcbbc#####",
-".cbaaaddddacbddddcbbcbc#####",
-".bbaccddddacbddddcbbbbc#####",
-".bcaacddddaabddddcbabcb#####",
-".bbcacddddaabddddcbabcb#####",
-"..baccddddaacddddcbabcb#####",
-"..bbacddddaacddddcbabcb#b###",
-"..cbccddddcacddddcbabcb#b###",
-".bbbbcdddddddddddbcabcb###b#",
-".bcbccdddddddddddbccbbbb####",
-".bbbbccdddddddddcbbbcbb#b##b",
-"..bcccccdddddddccccbbbc####b"};
+".aaaaacaaaabcaa........#####",
+"..adddddddcbcdddddddbbb#####",
+"..bdeeeeedcccdeeeeedcbb#####",
+"..bdeeeeedcccdeeeeedcbb#####",
+"..bdddeeedcccdeeedddbbb#####",
+"..bacdeeedcacdeeedbcbbc#####",
+"..bcadeeedcbcdeeedbbbbcb####",
+".cbacdeeedcbcdeeedbbbbc#####",
+".cbcadeeedcbcdeeedbcbbc#####",
+".cbaadeeedcccdeeedbbcbc#####",
+".bbbbdeeedcccdeeedbbbbc#####",
+".bcbbdeeedcacdeeedbabcb#####",
+".bbbbdeeedcacdeeedbabcb#####",
+"..babdeeedcccdeeedbabcb#####",
+"..bbbdeeedcccdeeedbabcb#b###",
+"..cbbdeeedddddeeedbbbcb#b###",
+".bbbbdeeeeeeeeeeedbbbcb###b#",
+".bcbcdeeeeeeeeeeedccbbbb####",
+".bbbbbdeeeeeeeeedbbbcbb#b##b",
+"..bcccbdeeeeeeedbccbbbc####b"};

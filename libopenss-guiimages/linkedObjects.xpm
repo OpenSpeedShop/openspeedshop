@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -17,12 +18,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /* XPM */
-static const char *linkedObjects_xpm[]={
-"28 28 23 1",
+static char *linkedObjects_xpm[]={
+"28 28 22 1",
 "# c None",
 "l c #000000",
-"o c #000080",
-"n c #0000ff",
+"n c #00ff00",
 ". c #7c7c7c",
 "c c #c1c1c1",
 "b c #d9dada",
@@ -33,14 +33,14 @@ static const char *linkedObjects_xpm[]={
 "e c #ededed",
 "i c #eeefef",
 "f c #f1f1f0",
-"p c #f2f2f1",
+"o c #f2f2f1",
 "j c #f2f3f3",
-"q c #f6f6f5",
+"p c #f6f6f5",
 "k c #f6f6f6",
-"s c #f7f7f7",
-"r c #f9f9f9",
-"t c #fcfbfb",
-"u c #fefefe",
+"r c #f7f7f7",
+"q c #f9f9f9",
+"s c #fcfbfb",
+"t c #fefefe",
 "a c #ffffff",
 "..................##########",
 "..................##########",
@@ -52,21 +52,21 @@ static const char *linkedObjects_xpm[]={
 "..aacccccceeff........######",
 "..aagghhiijjkkcccccc..######",
 "..aagghhiijjkllllllc..######",
-"..aammbbbbbbclnnnolc..######",
-"..aammbbbbbbclnnnolc..######",
-"..aappqqrrssclnnnolc..######",
-"..aappqqrrssclnnnolc..######",
-"..aabbbbbbssclnnnolc..######",
-"..aabbbbbbssclnnnolc..######",
-"..aattuussppclnnnolc..######",
-"..aattuussppclnnnolc..######",
-"..aabbaabbbbplnnnolc..######",
-"..aabbaabbbbplnnnolc..######",
-"..aaaaaaaassclnnnolc..######",
-"..aaaaaaaassclnnnolc..######",
-"..aabbbbbbssclnnnolccccccc##",
-"..aabbbbbbssclnnnnlllllllc##",
+"..aammbbbbbbclnnnnlc..######",
+"..aammbbbbbbclnnnnlc..######",
+"..aaooppqqrrclnnnnlc..######",
+"..aaooppqqrrclnnnnlc..######",
+"..aabbbbbbrrclnnnnlc..######",
+"..aabbbbbbrrclnnnnlc..######",
+"..aassttrrooclnnnnlc..######",
+"..aassttrrooclnnnnlc..######",
+"..aabbaabbbbolnnnnlc..######",
+"..aabbaabbbbolnnnnlc..######",
+"..aaaaaaaarrclnnnnlc..######",
+"..aaaaaaaarrclnnnnlc..######",
+"..aabbbbbbrrclnnnnlccccccc##",
+"..aabbbbbbrrclnnnnlllllllc##",
 ".............lnnnnnnnnnnlc##",
 ".............lnnnnnnnnnnlc##",
-"#############lnooooooooolc##",
-"#############loooooooooolc##"};
+"#############lnnnnnnnnnnlc##",
+"#############llllllllllllc##"};

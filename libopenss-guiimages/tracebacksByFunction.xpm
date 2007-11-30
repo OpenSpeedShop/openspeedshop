@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -17,18 +18,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /* XPM */
-static const char *tracebacksByFunction_xpm[]={
-"28 28 11 1",
+static char *tracebacksByFunction_xpm[]={
+"28 28 10 1",
 "# c None",
 "g c #000000",
+"h c #00ff00",
 ". c #7c7c7c",
-"i c #c0c000",
 "c c #c1c1c1",
 "b c #d9dada",
 "d c #e2e3e2",
 "e c #ededed",
 "f c #f1f1f0",
-"h c #ffff00",
 "a c #ffffff",
 "..................##########",
 "...................#########",
@@ -42,19 +42,19 @@ static const char *tracebacksByFunction_xpm[]={
 "..acggggggggggggggca..######",
 "..acghhhhhhhhhhhhgca..######",
 "..acghhhhhhhhhhhhgca..######",
-"..acghhhhhhhiiiiigcaggggg###",
-"..acghhhhhhiiiiiigcaghhig###",
-"..acggggghhiigggggcaghhig###",
-"..acccccghhiigcccccaghhig###",
-"..aaffccghhiigcfffaaghhig###",
-"..aabffcghhiigcfccaaghhig###",
-"..aabfccghhiigcfccaaghhig###",
-"..aabfccghhiigcbffcaghhig###",
-"..aabbccghhiigcfffggghhiggg#",
-"..aafffcghhiigcfffghhhhiiig#",
-"..aabfccghhiigcbbbcghhhiig##",
-"..aaffffghhiigcbbfccghhig###",
-"........ghhiig.......ghg####",
-"........ghhiig........g#####",
-"########ghhiig##############",
-"########ghhiig##############"};
+"..acghhhhhhhhhhhhgcaggggg###",
+"..acghhhhhhhhhhhhgcaghhhg###",
+"..acggggghhhhgggggcaghhhg###",
+"..acccccghhhhgcccccaghhhg###",
+"..aaffccghhhhgcfffaaghhhg###",
+"..aabffcghhhhgcfccaaghhhg###",
+"..aabfccghhhhgcfccaaghhhg###",
+"..aabfccghhhhgcbffcaghhhg###",
+"..aabbccghhhhgcfffggghhhggg#",
+"..aafffcghhhhgcfffghhhhhhhg#",
+"..aabfccghhhhgcbbbcghhhhhg##",
+"..aaffffghhhhgcbbfccghhhg###",
+"........ghhhhg.......ghg####",
+"........ghhhhg........g#####",
+"########ghhhhg##############",
+"########ghhhhg##############"};

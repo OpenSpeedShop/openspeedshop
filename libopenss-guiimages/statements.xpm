@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2007 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -17,12 +18,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /* XPM */
-static const char *statements_xpm[]={
-"28 28 23 1",
+static char *statements_xpm[]={
+"28 28 22 1",
 "# c None",
 "l c #000000",
+"n c #00ff00",
 ". c #7c7c7c",
-"s c #c00000",
 "c c #c1c1c1",
 "b c #d9dada",
 "d c #e2e3e2",
@@ -38,9 +39,8 @@ static const char *statements_xpm[]={
 "k c #f6f6f6",
 "r c #f7f7f7",
 "q c #f9f9f9",
-"t c #fcfbfb",
-"u c #fefefe",
-"n c #ff0000",
+"s c #fcfbfb",
+"t c #fefefe",
 "a c #ffffff",
 "..................##########",
 "..................##########",
@@ -54,19 +54,19 @@ static const char *statements_xpm[]={
 "..aagghhiijjkkcclllllll#####",
 "..aammbbbbbbccclnnnnnnnll###",
 "..aammbbbbbbcclnnnnnnnnnnl##",
-"..aaooppqqrrclnnnnsssssssl##",
-"..aaooppqqrrclnnnnssssnnssl#",
-"..aabbbbbbrrclnnnnssllnnssl#",
-"..aabbbbbbrrclnnnnssllnnssl#",
-"..aattuurrooccllnnsslllllll#",
-"..aattuurrooccclnnnsl.l#####",
-"..aabbaabbbboooollnnsssl####",
-"..aabbaabbbbooooclnnssssl###",
-"..aaaaaaaarrcccccclnnnsssl##",
-"..aaaaaaaarrclllllllnnssssl#",
-"..aabbbbbbrrclnnsslllnnnssl#",
-"..aabbbbbbrrclnnssllnnnnssl#",
-".............lnnnnssnnssssl#",
-".............lnnnnssnnsssl##",
-"##############llnnssssssl###",
-"###############lnnsssssl####"};
+"..aaooppqqrrclnnnnnnnnnnnl##",
+"..aaooppqqrrclnnnnnnnnnnnnl#",
+"..aabbbbbbrrclnnnnnnllnnnnl#",
+"..aabbbbbbrrclnnnnnnl#nnnnl#",
+"..aassttrrooccllnnnnl#lllll#",
+"..aassttrrooccclnnnnl#l#####",
+"..aabbaabbbboooolnnnnnnl####",
+"..aabbaabbbboooocnnnnnnnl###",
+"..aaaaaaaarrcccccclnnnnnnl##",
+"..aaaaaaaarrclllllllnnnnnnl#",
+"..aabbbbbbrrclnnnnlllnnnnnl#",
+"..aabbbbbbrrclnnnnllnnnnnnl#",
+".............lnnnnnnnnnnnnl#",
+".............lnnnnnnnnnnnl##",
+"##############llnnnnnnnnl###",
+"###############lnnnnnnnl####"};
