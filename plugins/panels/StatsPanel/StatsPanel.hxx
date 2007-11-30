@@ -310,6 +310,7 @@ class StatsPanel  : public Panel
     QString currentMetricStr;
     void setCurrentMetricStr();
     QString currentUserSelectedReportStr;
+    QString traceAddition;
 
     //! Current selected chart item.
     SPListViewItem *currentItem;
@@ -378,6 +379,8 @@ class StatsPanel  : public Panel
     void IOtraceSelected();
     void customizeExperimentsSelected();
     void clusterAnalysisSelected();
+    void clearAuxiliarySelected();
+    void showEventListSelected();
 //#ifdef MIN_MAX_ENABLED
     void minMaxAverageSelected();
 //#endif

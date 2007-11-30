@@ -64,6 +64,8 @@
 #include "custom_comparison.xpm"
 #include "update_icon.xpm"
 #include "load_balance_icon.xpm"
+#include "event_list_icon.xpm"
+#include "clear_auxiliary.xpm"
 
 class MetricHeaderInfo;
 class QPushButton;
@@ -273,6 +275,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   threadMenu = NULL;
   currentMetricStr = QString::null;
   currentUserSelectedReportStr = QString::null;
+  traceAddition = QString::null;
   metricHeaderTypeArray = NULL;
   currentThreadStr = QString::null;
   currentCollectorStr = QString::null;
@@ -1719,6 +1722,53 @@ StatsPanel::minMaxAverageSelected()
 
 }
 //#endif
+
+void
+StatsPanel::showEventListSelected()
+{
+  QString command = QString::null;
+  traceAddition = " -v trace";
+#if 0
+  if( focusedExpID == -1 ) {
+    command = QString("expview -x %1 %2 %3 %4").arg(expID).arg(currentCollectorStr).arg(timeIntervalString).arg(traceAddition);
+  } else {
+    command = QString("expview -x %1 %2 %3 %4").arg(focusedExpID).arg(currentCollectorStr).arg(timeIntervalString).arg(traceAddition);
+  }
+#endif
+
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::showEventListSelected() about to call updateStatsPanelData, command=%s\n", 
+         command.ascii() );
+#endif
+
+  toolbar_status_label->setText("Generating Per Event Report:");
+  updateStatsPanelData(DO_FORCE_UPDATE, NULL);
+  toolbar_status_label->setText("Showing Per Event Report:");
+
+}
+
+void
+StatsPanel::clearAuxiliarySelected()
+{
+
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::clearAuxiliarySelected() entered\n" );
+#endif
+
+  toolbar_status_label->setText("Clearing Auxiliary Setttings:");
+
+  selectedFunctionStr = QString::null;
+
+  timeIntervalString = QString::null;
+
+  traceAddition = QString::null;
+
+//  updateStatsPanelData(DONT_FORCE_UPDATE, command);
+  toolbar_status_label->setText("Cleared Auxiliary Setttings, future reports are aggregated over all processes,threads, or ranks:");
+
+}
 
 void
 StatsPanel::customizeExperimentsSelected()
@@ -6551,10 +6601,33 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
   if( (( currentCollectorStr == "mpi" || 
          currentCollectorStr == "mpit" || 
          currentCollectorStr == "io" || 
-         currentCollectorStr == "iot" ) && (MPItraceFLAG == FALSE && !currentUserSelectedReportStr.startsWith("Functions")) &&  ( currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") || currentUserSelectedReportStr.startsWith("Functions") || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("Butterfly") ) ) ||
-      (currentCollectorStr == "usertime" && (currentUserSelectedReportStr == "Butterfly" || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) )  ||
-      (currentCollectorStr == "fpe" && (currentUserSelectedReportStr == "Butterfly" || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) )  ||
-      (currentCollectorStr.startsWith("hwc") && (currentUserSelectedReportStr == "Butterfly" || currentUserSelectedReportStr.startsWith("TraceBacks") || currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || currentUserSelectedReportStr.startsWith("CallTrees") || currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) ) )
+         currentCollectorStr == "iot" ) && 
+        (MPItraceFLAG == FALSE &&
+         !currentUserSelectedReportStr.startsWith("Functions")) && 
+         ( currentUserSelectedReportStr.startsWith("CallTrees") ||
+           currentUserSelectedReportStr.startsWith("CallTrees,FullStack") || 
+           currentUserSelectedReportStr.startsWith("Functions") || 
+           currentUserSelectedReportStr.startsWith("TraceBacks") || 
+           currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || 
+           currentUserSelectedReportStr.startsWith("Butterfly") ) ) ||
+        (currentCollectorStr == "usertime" && 
+        ( currentUserSelectedReportStr == "Butterfly" || 
+          currentUserSelectedReportStr.startsWith("TraceBacks") || 
+          currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || 
+          currentUserSelectedReportStr.startsWith("CallTrees") || 
+          currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) )  ||
+        (currentCollectorStr == "fpe" &&
+        (currentUserSelectedReportStr == "Butterfly" || 
+         currentUserSelectedReportStr.startsWith("TraceBacks") || 
+         currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || 
+         currentUserSelectedReportStr.startsWith("CallTrees") || 
+         currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) )  ||
+        (currentCollectorStr.startsWith("hwc") && 
+        (currentUserSelectedReportStr == "Butterfly" || 
+         currentUserSelectedReportStr.startsWith("TraceBacks") || 
+         currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || 
+         currentUserSelectedReportStr.startsWith("CallTrees") || 
+         currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) ) )
   {
     QString indentChar = ">";
 
@@ -7147,7 +7220,6 @@ QString
 StatsPanel::generateCommand()
 {
 
-  QString traceAddition = QString::null;
 
 #ifdef DEBUG_StatsPanel
   if (!currentCollectorStr.isEmpty()) {
@@ -10092,6 +10164,7 @@ StatsPanel::generateToolBar()
 
 if (currentCollectorStr != lastCollectorStr) {
 
+  // Start of the Information Icons
   MoreMetadata_icon = new QPixmap(meta_information_plus_xpm);
   metadataToolButton = new QToolButton(*MoreMetadata_icon, "Show More Experiment Metadata", 
                                         QString::null, this, SLOT( infoEditHeaderMoreButtonSelected()), 
@@ -10100,21 +10173,18 @@ if (currentCollectorStr != lastCollectorStr) {
 // should not need this--  metadataToolButton->setIconText(QString("Show More Experiment Metadata"));
 
   LessMetadata_icon = new QPixmap(meta_information_minus_xpm);
+  // End of the Information Icons
 
+  // Start of the Panel Administration Icons
   QPixmap *update_icon = new QPixmap( update_icon_xpm );
-  new QToolButton(*update_icon, "Update the statistics panel.  You may make viewing option changes and then click on this icon to display the new view.", QString::null, this, SLOT( updatePanel()), fileTools, "update the statistics panel to show updated view");
+  new QToolButton(*update_icon, "Update the statistics panel.  Make viewing option changes\nand then click on this icon to display the new view.", QString::null, this, SLOT( updatePanel()), fileTools, "Update the statistics panel to show updated view");
 
-//#ifdef MIN_MAX_ENABLED
-  QPixmap *load_balance_icon = new QPixmap( load_balance_icon_xpm );
-  new QToolButton(*load_balance_icon, "Show minimum, maximum, and average statistics across ranks, threads,\nprocesses: generate a performance statistics report for these metric values, \ncreating comparison columns for each value.", QString::null, this, SLOT( minMaxAverageSelected()), fileTools, "Show min, max, average statistics across ranks, threads, processes.");
-//#endif
+  QPixmap *clear_auxiliary = new QPixmap( clear_auxiliary_xpm );
+  new QToolButton(*clear_auxiliary, "Clear all auxiliary view settings, such as, specific function setting,\ntime segment settings, per event display settings, etc..", QString::null, this, SLOT( clearAuxiliarySelected()), fileTools, "clear auxiliary settings");
+  // End of the Panel Administration Icons
 
-  QPixmap *compare_and_analyze_icon = new QPixmap( compare_and_analyze_xpm );
-  new QToolButton(*compare_and_analyze_icon, "Show Comparison and Analysis across ranks, threads,\nprocesses: generate a performance statistics report as the result\nof a cluster analysis algorithm to group ranks, threads or processes\nthat have similar performance statistics.", QString::null, this, SLOT( clusterAnalysisSelected()), fileTools, "show comparison analysis");
 
-  QPixmap *custom_comparison_icon = new QPixmap( custom_comparison_xpm );
-  new QToolButton(*custom_comparison_icon, "Show Custom Comparison report as built by user input: generate\na performance statistics report as the result of the user\ncreating comparison columns and then selecting which\nexperiments, ranks, threads, or processes\nwill comprise each column.", QString::null, this, SLOT( customizeExperimentsSelected()), fileTools, "show comparison analysis");
-
+  // Start of the View Generation Icons
   QPixmap *functions_icon = new QPixmap( functions_xpm );
   new QToolButton(*functions_icon, "Show Functions: generate a performance statistics report\nshowing the performance data delineated by functions.", QString::null, this, SLOT( functionsSelected()), fileTools, "show functions");
 
@@ -10174,6 +10244,24 @@ if (currentCollectorStr != lastCollectorStr) {
     QPixmap *butterfly_icon = new QPixmap( butterfly_xpm );
     new QToolButton(*butterfly_icon, "Show Butterfly", QString::null, this, SLOT( butterflySelected()), fileTools, "show butterfly");
   }
+  // End of the View Generatin Icons
+
+  // Start of the Analysis Icons
+  if( currentCollectorStr == "iot" || currentCollectorStr == "mpit" ) {
+    QPixmap *event_list_icon = new QPixmap( event_list_icon_xpm );
+    new QToolButton(*event_list_icon, "Show a per event list display.  There will be one event (call a function that was specified to be traced) per line.", QString::null, this, SLOT( showEventListSelected()), fileTools, "Show per event display");
+  }
+
+//#ifdef MIN_MAX_ENABLED
+  QPixmap *load_balance_icon = new QPixmap( load_balance_icon_xpm );
+  new QToolButton(*load_balance_icon, "Show minimum, maximum, and average statistics across ranks, threads,\nprocesses: generate a performance statistics report for these metric values, \ncreating comparison columns for each value.", QString::null, this, SLOT( minMaxAverageSelected()), fileTools, "Show min, max, average statistics across ranks, threads, processes.");
+//#endif
+
+  QPixmap *compare_and_analyze_icon = new QPixmap( compare_and_analyze_xpm );
+  new QToolButton(*compare_and_analyze_icon, "Show Comparison and Analysis across ranks, threads,\nprocesses: generate a performance statistics report as the result\nof a cluster analysis algorithm to group ranks, threads or processes\nthat have similar performance statistics.", QString::null, this, SLOT( clusterAnalysisSelected()), fileTools, "show comparison analysis");
+
+  QPixmap *custom_comparison_icon = new QPixmap( custom_comparison_xpm );
+  new QToolButton(*custom_comparison_icon, "Show Custom Comparison report as built by user input: generate\na performance statistics report as the result of the user\ncreating comparison columns and then selecting which\nexperiments, ranks, threads, or processes\nwill comprise each column.", QString::null, this, SLOT( customizeExperimentsSelected()), fileTools, "show comparison analysis");
 
   toolbar_status_label = new QLabel(fileTools,"toolbar_status_label");
   // default setting to match default views
