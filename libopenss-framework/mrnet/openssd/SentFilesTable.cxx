@@ -49,33 +49,55 @@ SentFilesTable::SentFilesTable() :
 
 
 /**
- * ...
+ * Add sent file.
  *
- * ...
+ * Indicate that the specified file has been sent for the specified experiments.
  *
- * @param experiments      ...
- * @param linked_object    ...
+ * @note    An assertion failure occurs if an attempt is made to add a
+ *          file/experiment pairing more than once.
+ *
+ * @param file           File that has been sent.
+ * @param experiments    Experiments for which the file has been sent.
  */
-void SentFilesTable::addSent(const ExperimentGroup& experiments,
-			     const FileName& linked_object)
+void SentFilesTable::addSent(const FileName& file,
+			     const ExperimentGroup& experiments)
 {
-    // TODO: implement!
+    Guard guard_this(this);
+
+    // Check assertions
+    for(const_iterator i = lower_bound(file); i != upper_bound(file); ++i)
+	Assert(experiments.find(i->second) == experiments.end());
+
+    // Add the specified file/experiment pairings to the table
+    for(ExperimentGroup::const_iterator 
+	    i = experiments.begin(); i != experiments.end(); ++i)
+	insert(std::make_pair(file, *i));
 }
 
 
 
 /**
- * ...
+ * Get unsent experiments for a file.
  *
- * ...
+ * Returns the subset of the specified experiments that are unsent for the
+ * specified file. An empty experiment group is returned if the file has been
+ * sent for all the specified experiments.
  *
- * @param experiments      ...
- * @param linked_object    ...
- * @return                 ...
+ * @param file           File to be sent.
+ * @param experiments    Experiments for which the file might be sent.
+ * @return               Subset of experiments for which the file is unsent.
  */
-ExperimentGroup SentFilesTable::getUnsent(const ExperimentGroup& experiments,
-					  const FileName& linked_object) const
+ExperimentGroup
+SentFilesTable::getUnsent(const FileName& file,
+			  const ExperimentGroup& experiments) const
 {
-    // TODO: implement!
-    return experiments;
+    Guard guard_this(this);
+    
+    // Find the unsent subset of experiments for the specified file
+    ExperimentGroup unsent(experiments);
+    for(const_iterator i = lower_bound(file); i != upper_bound(file); ++i)
+	unsent.erase(i->second);
+    
+    // Return the unsent experiments to the caller
+    return unsent;
 }

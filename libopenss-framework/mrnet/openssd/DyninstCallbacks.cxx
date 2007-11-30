@@ -169,7 +169,7 @@ void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
     // Get the current time
     Time now = Time::Now();
 
-    // Obtain the Dyninst thread pointer for these threads
+    // Get the Dyninst thread pointer for these threads
     BPatch_thread* thread = NULL;
     for(ThreadNameGroup::const_iterator
 	    i = threads.begin(); i != threads.end(); ++i) {
@@ -180,23 +180,23 @@ void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
     }
     Assert(thread != NULL);
     
-    // Obtain the Dyninst process and image pointer for this thread
+    // Get the Dyninst process and image pointer for this thread
     BPatch_process* process = thread->getProcess();
     Assert(process != NULL);
     BPatch_image* image = process->getImage();
     Assert(image != NULL);
 
-    // Obtain the list of modules in this thread
+    // Get the list of modules in this thread
     BPatch_Vector<BPatch_module*>* modules = image->getModules();
     Assert(modules != NULL);
 
-    // Obtain the file name of the executable
+    // Get the file name of the executable
     FileName executable_linked_object(*image);
 
     // Are there any experiments for which the executable is unsent?
     ExperimentGroup executable_unsent = 
-	SentFilesTable::TheTable.getUnsent(ExperimentGroup(threads),
-					   executable_linked_object);
+	SentFilesTable::TheTable.getUnsent(executable_linked_object,
+					   ExperimentGroup(threads));
 
     // Start with an empty address range and symbol table for the executable
     AddressRange executable_range;
@@ -206,7 +206,7 @@ void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
     for(int i = 0; i < modules->size(); ++i) {
 	Assert((*modules)[i] != NULL);
 
-	// Obtain the address range of this module
+	// Get the address range of this module
 	Address begin(reinterpret_cast<uint64_t>((*modules)[i]->getBaseAddr()));
 	Address end = begin + (*modules)[i]->getSize();
 	AddressRange range(begin, end);
@@ -230,7 +230,7 @@ void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
 	// Otherwise this module is a shared library
 	else {
 
-	    // Obtain the file name of this module
+	    // Get the file name of this module
 	    FileName linked_object(*(*modules)[i]);
 	    
 	    // Send the frontend the initial "loaded" for this linked object
@@ -239,8 +239,8 @@ void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
 
 	    // Are there any experiments for which this linked object is unsent?
 	    ExperimentGroup unsent =
-		SentFilesTable::TheTable.getUnsent(ExperimentGroup(threads),
-						   linked_object);
+		SentFilesTable::TheTable.getUnsent(linked_object,
+						   ExperimentGroup(threads));
 	    if(!unsent.empty()) {
 		
 		// Send the frontend the symbols for this linked object
@@ -248,7 +248,7 @@ void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
 				     SymbolTable(*(*modules)[i]));
 		
 		// These symbols are now sent for those experiments
-		SentFilesTable::TheTable.addSent(unsent, linked_object);
+		SentFilesTable::TheTable.addSent(linked_object, unsent);
 		
 	    }
 	    
@@ -269,8 +269,8 @@ void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
 			     executable_symbol_table);
 	
 	// The executable is now sent for those experiments
-	SentFilesTable::TheTable.addSent(executable_unsent,
-					 executable_linked_object);
+	SentFilesTable::TheTable.addSent(executable_linked_object,
+					 executable_unsent);
 	
     }
 }

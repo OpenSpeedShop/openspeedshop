@@ -89,7 +89,8 @@ namespace OpenSpeedShop { namespace Framework {
 	 * internal tables. Contains the full path name, line number, and column
 	 * number of the source statement.
 	 */
-	struct StatementEntry {
+	struct StatementEntry
+	{
 	    
 	    Path dm_path;   /**< Path name of this statement's source file. */
 	    int dm_line;    /**< Line number of this statement. */

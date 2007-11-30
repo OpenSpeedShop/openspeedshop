@@ -124,7 +124,7 @@ void Callbacks::attachToThreads(const Blob& blob)
 	BPatch_process* process = thread->getProcess();
 	Assert(process != NULL);
 	
-	// Obtain the list of threads in this process
+	// Get the list of threads in this process
 	BPatch_Vector<BPatch_thread*> threads;
 	process->getThreads(threads);
 	Assert(!threads.empty());
@@ -195,7 +195,7 @@ void Callbacks::changeThreadsState(const Blob& blob)
     for(ThreadNameGroup::const_iterator
 	    i = threads_to_change.begin(); i != threads_to_change.end(); ++i) {
 
-	// Obtain the Dyninst thread and process pointers for this thread
+	// Get the Dyninst thread and process pointers for this thread
 	BPatch_thread* thread = ThreadTable::TheTable.getPtr(*i);
 	if(thread == NULL) {
 #ifndef NDEBUG

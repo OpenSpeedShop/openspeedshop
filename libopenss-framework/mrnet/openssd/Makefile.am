@@ -36,6 +36,7 @@ openssd_LDADD = \
 	-lpthread -lrt
 
 openssd_SOURCES = \
+	$(top_srcdir)/libopenss-framework/AddressBitmap.cxx \
 	$(top_srcdir)/libopenss-framework/Blob.cxx \
 	$(top_srcdir)/libopenss-framework/Path.cxx \
 	Backend.hxx Backend.cxx \

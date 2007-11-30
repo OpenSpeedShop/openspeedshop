@@ -402,13 +402,9 @@ void Senders::symbolTable(const ExperimentGroup& experiments,
 			  const SymbolTable& symbol_table)
 {
     // Assemble the request into a message
-    OpenSS_Protocol_SymbolTable message;
+    OpenSS_Protocol_SymbolTable message = symbol_table;
     message.experiments = experiments;
     message.linked_object = linked_object;
-    // message.functions = symbol_table;
-    // message.statements = symbol_table;
-
-    // TODO: modify the above to extract functions/statements from SymbolTable
     
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {

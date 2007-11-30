@@ -55,7 +55,7 @@ BPatch_thread* ThreadTable::getPtrDirectly(const ThreadName& thread)
     // Get the POSIX thread identifier for this thread
     std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
 	
-    // Obtain Dyninst's list of active processes
+    // Get Dyninst's list of active processes
     BPatch* bpatch = BPatch::getBPatch();
     Assert(bpatch != NULL);
     BPatch_Vector<BPatch_process*>* processes = bpatch->getProcesses();
@@ -69,7 +69,7 @@ BPatch_thread* ThreadTable::getPtrDirectly(const ThreadName& thread)
 	if(thread.getProcessId() != (*processes)[i]->getPid())
 	    continue;
 	
-	// Obtain the list of threads in this process
+	// Get the list of threads in this process
 	BPatch_Vector<BPatch_thread*> threads;
 	(*processes)[i]->getThreads(threads);
 	Assert(!threads.empty());

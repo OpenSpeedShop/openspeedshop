@@ -62,10 +62,10 @@ namespace OpenSpeedShop { namespace Framework {
 
 	SentFilesTable();
 
-	void addSent(const ExperimentGroup&, const FileName&);
-	
-	ExperimentGroup getUnsent(const ExperimentGroup&,
-				  const FileName&) const;
+	void addSent(const FileName&, const ExperimentGroup&);
+
+	ExperimentGroup getUnsent(const FileName&,
+				  const ExperimentGroup&) const;
 	
     };
 

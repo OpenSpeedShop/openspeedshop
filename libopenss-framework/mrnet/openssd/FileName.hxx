@@ -31,6 +31,7 @@
 
 #include "Path.hxx"
 #include "Protocol.h"
+#include "TotallyOrdered.hxx"
 #include "Utility.hxx"
 
 #include <BPatch.h>
@@ -51,16 +52,18 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * @ingroup Implementation
      */
-    class FileName
+    class FileName :
+	public TotallyOrdered<FileName>
     {
 
     public:
 
-	/** Constructor from a OpenSS_Protocol_FileName object. */
-	FileName(const OpenSS_Protocol_FileName& object) :
-	    dm_path(object.path),
-	    dm_checksum(object.checksum)
+	/** Constructor from a path. */
+	FileName(const Path& path) :
+	    dm_path(path),
+	    dm_checksum(0)
 	{
+	    dm_checksum = computeChecksum(dm_path);
 	}
 
 	/** Constructor from a BPatch_image object. */
@@ -83,6 +86,13 @@ namespace OpenSpeedShop { namespace Framework {
 	    module.getFullName(buffer, sizeof(buffer));
 	    dm_path = buffer;
 	    dm_checksum = computeChecksum(dm_path);
+	}
+
+	/** Constructor from a OpenSS_Protocol_FileName object. */
+	FileName(const OpenSS_Protocol_FileName& object) :
+	    dm_path(object.path),
+	    dm_checksum(object.checksum)
+	{
 	}
 
 	/** Type conversion to a OpenSS_Protocol_FileName object. */
