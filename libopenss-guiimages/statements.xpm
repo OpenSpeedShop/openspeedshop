@@ -18,7 +18,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /* XPM */
-static char *statements_xpm[]={
+static const char *statements_xpm[]={
 "28 28 22 1",
 "# c None",
 "l c #000000",

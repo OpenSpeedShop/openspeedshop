@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /* XPM */
-static char *custom_comparison_xpm[]={
+static const char *custom_comparison_xpm[]={
 "28 28 9 1",
 "# c None",
 "e c #000000",

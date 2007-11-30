@@ -18,7 +18,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /* XPM */
-static char *tracebacksfullByFunction_xpm[]={
+static const char *tracebacksfullByFunction_xpm[]={
 "28 28 11 1",
 "# c None",
 "a c #000000",

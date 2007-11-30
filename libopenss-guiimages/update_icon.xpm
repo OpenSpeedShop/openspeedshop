@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /* XPM */
-static char *update_icon_xpm[]={
+static const char *update_icon_xpm[]={
 "28 28 7 1",
 "# c None",
 "d c #000000",
