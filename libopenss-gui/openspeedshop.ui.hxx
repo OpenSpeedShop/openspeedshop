@@ -874,8 +874,8 @@ void OpenSpeedshop::init()
 #ifdef DEBUG_GUI
       printf("const char *)pi->plugin_name.ascii() = (%s)\n", (const char *)pi->plugin_name );
 #endif
-//      lt_dlhandle dl_object = lt_dlopenext((const char *)pi->plugin_name);
-      lt_dlhandle dl_object = lt_dlopen((const char *)pi->plugin_name);
+      lt_dlhandle dl_object = lt_dlopenext((const char *)pi->plugin_name);
+//      lt_dlhandle dl_object = lt_dlopen((const char *)pi->plugin_name);
 
       if( dl_object != NULL )
       {

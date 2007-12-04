@@ -197,6 +197,12 @@ register_plugin(const char *plugin_file)
 int
 foreachCallback(const char *filename, lt_ptr data)
 {
+  // only open Panel plugins here.
+  std::string fname = filename;
+  if ( (fname.find("Panel") == string::npos)) {
+      return 0;
+  }
+
 #if DEBUG_GUIPLUGIN
   printf("foreachCallback() called for (%s)\n", filename );
 #endif
