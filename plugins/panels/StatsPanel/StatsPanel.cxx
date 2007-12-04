@@ -10252,13 +10252,16 @@ if (currentCollectorStr != lastCollectorStr) {
     new QToolButton(*event_list_icon, "Show a per event list display.  There will be one event (call a function that was specified to be traced) per line.", QString::null, this, SLOT( showEventListSelected()), fileTools, "Show per event display");
   }
 
-//#ifdef MIN_MAX_ENABLED
-  QPixmap *load_balance_icon = new QPixmap( load_balance_icon_xpm );
-  new QToolButton(*load_balance_icon, "Show minimum, maximum, and average statistics across ranks, threads,\nprocesses: generate a performance statistics report for these metric values, \ncreating comparison columns for each value.", QString::null, this, SLOT( minMaxAverageSelected()), fileTools, "Show min, max, average statistics across ranks, threads, processes.");
-//#endif
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::generateToolBar, list_of_pids.size()=%d\n", list_of_pids.size() );
+#endif
+  if ( list_of_pids.size() > 1 ) {
+    QPixmap *load_balance_icon = new QPixmap( load_balance_icon_xpm );
+    new QToolButton(*load_balance_icon, "Show minimum, maximum, and average statistics across ranks, threads,\nprocesses: generate a performance statistics report for these metric values, \ncreating comparison columns for each value.", QString::null, this, SLOT( minMaxAverageSelected()), fileTools, "Show min, max, average statistics across ranks, threads, processes.");
 
-  QPixmap *compare_and_analyze_icon = new QPixmap( compare_and_analyze_xpm );
-  new QToolButton(*compare_and_analyze_icon, "Show Comparison and Analysis across ranks, threads,\nprocesses: generate a performance statistics report as the result\nof a cluster analysis algorithm to group ranks, threads or processes\nthat have similar performance statistics.", QString::null, this, SLOT( clusterAnalysisSelected()), fileTools, "show comparison analysis");
+    QPixmap *compare_and_analyze_icon = new QPixmap( compare_and_analyze_xpm );
+    new QToolButton(*compare_and_analyze_icon, "Show Comparison and Analysis across ranks, threads,\nprocesses: generate a performance statistics report as the result\nof a cluster analysis algorithm to group ranks, threads or processes\nthat have similar performance statistics.", QString::null, this, SLOT( clusterAnalysisSelected()), fileTools, "show comparison analysis");
+  }
 
   QPixmap *custom_comparison_icon = new QPixmap( custom_comparison_xpm );
   new QToolButton(*custom_comparison_icon, "Show Custom Comparison report as built by user input: generate\na performance statistics report as the result of the user\ncreating comparison columns and then selecting which\nexperiments, ranks, threads, or processes\nwill comprise each column.", QString::null, this, SLOT( customizeExperimentsSelected()), fileTools, "show comparison analysis");
