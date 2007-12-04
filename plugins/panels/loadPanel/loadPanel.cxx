@@ -1338,7 +1338,13 @@ void loadPanel::vMPLoadPageFinishButtonSelected()
      mw->executableName = vMPLoadMPILoadLineedit->text().ascii();
   }
 
+  if(mw && !vMPLoadCommandArgumentsLineedit->text().isEmpty() ) {
+     mw->argsStr =  vMPLoadCommandArgumentsLineedit->text().ascii();
+  }
+
 #ifdef DEBUG_loadPanel
+    printf("loadPanel::finishButtonSelected(), vMPLoadCommandArgumentsLineedit->text()=%s\n",
+          vMPLoadCommandArgumentsLineedit->text().ascii() );
     printf("loadPanel::finishButtonSelected(),else clause call vSummaryPageFinishButtonSelected()\n" );
 #endif
     vSummaryPageFinishButtonSelected();
@@ -1381,7 +1387,12 @@ void loadPanel::finishButtonSelected()
     if(mw && !vMPLoadMPILoadLineedit->text().isEmpty() ) {
       mw->executableName = vMPLoadMPILoadLineedit->text().ascii();
     }
+    if(mw && !vMPLoadCommandArgumentsLineedit->text().isEmpty() ) {
+      mw->argsStr =  vMPLoadCommandArgumentsLineedit->text().ascii();
+    }
 #ifdef DEBUG_loadPanel
+    printf("loadPanel::finishButtonSelected(),else clause,vMPLoadCommandArgumentsLineedit->text()=%s\n",
+          vMPLoadCommandArgumentsLineedit->text().ascii() );
     printf("loadPanel::finishButtonSelected(),else clause call vSummaryPageFinishButtonSelected()\n" );
 #endif
     vSummaryPageFinishButtonSelected();
