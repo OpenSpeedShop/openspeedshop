@@ -608,6 +608,7 @@ StatsPanel::~StatsPanel()
 
 }
 
+
 /*! The user clicked.  -unused. */
 void
 StatsPanel::clicked(int para, int offset)
@@ -1343,9 +1344,9 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     for( std::list<int64_t>::const_iterator it = list_of_pids.begin();
          it != list_of_pids.end(); it++ )
     {
-      int pid = (int64_t)*it;
+      int64_t pid = (int64_t)*it;
 #ifdef DEBUG_StatsPanel
-      printf("Inside threadMenu generation, pid=(%d)\n", pid );
+      printf("Inside threadMenu generation, pid=(%ld)\n", pid );
 #endif
       QString pidStr = QString("%1").arg(pid);
       int mid = threadMenu->insertItem(pidStr);
@@ -1379,7 +1380,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
       for( std::list<int64_t>::const_iterator it = list_of_pids.begin();
            it != list_of_pids.end(); it++ )
       {
-        int pid = (int64_t)*it;
+        int64_t pid = (int64_t)*it;
         currentThreadGroupStrList.push_back(QString("%1").arg(pid));
       }
     }
@@ -1603,7 +1604,7 @@ StatsPanel::getMostImportantClusterMetric(QString collector_name)
 {
   QString metric = QString::null;
 
-/*
+#if 0
   if( collector_name == "pcsamp" )
   {
     metric = "-m pcsamp::exclusive_time";
@@ -1629,7 +1630,7 @@ StatsPanel::getMostImportantClusterMetric(QString collector_name)
   {
     metric = "-m io::ThreadAverage";
   }
-*/
+#endif
 
   return(metric);
 
@@ -1640,6 +1641,9 @@ StatsPanel::clusterAnalysisSelected()
 {
   QString command = QString::null;
   QString mim = getMostImportantClusterMetric(currentCollectorStr);
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::clusterAnalysisSelected() most important cluster metric: mim=%s\n", mim.ascii() );
+#endif
   if( focusedExpID == -1 )
   {
     command = QString("cviewCluster -x %1 %2 %3").arg(expID).arg(timeIntervalString).arg(mim);
@@ -1655,13 +1659,21 @@ StatsPanel::clusterAnalysisSelected()
          &list_of_cids, clip, TRUE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
+  } else {
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::clusterAnalysisSelected(), ran this command=%s\n", command.ascii() );
+#endif
   }
-// printf("ran %s\n", command.ascii() );
+
 
   if( clip )
   {
     clip->Set_Results_Used();
   }
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::clusterAnalysisSelected() list_of_cids.size()=%d\n", list_of_cids.size() );
+#endif
 
   QString pidlist = QString::null;
   if( list_of_cids.size() >= 1 )
@@ -1669,7 +1681,10 @@ StatsPanel::clusterAnalysisSelected()
     for( std::list<int64_t>::const_iterator it = list_of_cids.begin();
          it != list_of_cids.end(); it++ )
     {
-      int pid = (int64_t)*it;
+      int64_t pid = (int64_t)*it;
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::clusterAnalysisSelected() in loop, pid=%ld\n", pid);
+#endif
       if( pidlist.isEmpty() )
       { 
         pidlist = QString("%1").arg(pid);
@@ -1678,14 +1693,18 @@ StatsPanel::clusterAnalysisSelected()
         pidlist += QString(", %1").arg(pid);
       }
     }
-  } else
-  {
-// printf("No outliers...\n");
+  } else {
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::clusterAnalysisSelected(), No outliers...\n");
+#endif
     return;
   }
 
 //  command = QString("cview -c %1 -m usertime::exclusive_time %2").arg(pidlist).arg(timeIntervalString);
 //  command = QString("cview -c %1 %2").arg(pidlist).arg(timeIntervalString);
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::clusterAnalysisSelected() after loop, pidlist=%s\n", pidlist.ascii() );
+#endif
   command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg(timeIntervalString);
 // printf("run %s\n", command.ascii() );
 
@@ -2882,9 +2901,9 @@ void StatsPanel::getPidList(int exp_id)
     for( std::list<int64_t>::const_iterator it = list_of_pids.begin();
          it != list_of_pids.end(); it++ )
     {
-      int pid = (int64_t)*it;
+      int64_t pid = (int64_t)*it;
 #ifdef DEBUG_StatsPanel
-      printf("StatsPanel::getPidList, pid=(%d)\n", pid );
+      printf("StatsPanel::getPidList, pid=(%ld)\n", pid );
 #endif
     }
   }
@@ -3339,9 +3358,9 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 //     setHeaderInfoAlreadyProcessed(exp_id);
 //  }
 
-  int previous_pid = -1;
-  int max_range_pid = -1;
-  int min_range_pid = -1;
+  int64_t previous_pid = -1;
+  int64_t max_range_pid = -1;
+  int64_t min_range_pid = -1;
 
   // Initialize the summary string
   infoSummaryStr = QString("");
@@ -3553,10 +3572,10 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
          it != list_of_pids.end(); it++ )
     {
       pid_count = pid_count + 1;
-      int pid = (int64_t)*it;
+      int64_t pid = (int64_t)*it;
       QString pidStr = QString("%1").arg(pid);
 #ifdef DEBUG_StatsPanel
-      printf("StatsPanel::updateStatsPanelInfoHeader, pid=%d, pid_count=%d, list_of_pids.size()=%d\n", pid, pid_count, list_of_pids.size() );
+      printf("StatsPanel::updateStatsPanelInfoHeader, pid=%ld, pid_count=%d, list_of_pids.size()=%d\n", pid, pid_count, list_of_pids.size() );
 #endif
 
       // Handle first time or only one pid cases
@@ -3569,7 +3588,7 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
           previous_pid = pid;
           first_time = false;
 #ifdef DEBUG_StatsPanel
-          printf("StatsPanel::updateStatsPanelInfoHeader, FIRST TIME, min_range_pid=%d, max_range_pid=%d\n", 
+          printf("StatsPanel::updateStatsPanelInfoHeader, FIRST TIME, min_range_pid=%ld, max_range_pid=%ld\n", 
                  min_range_pid, max_range_pid );
 #endif
           continue;
@@ -3578,31 +3597,38 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
       if (pid > previous_pid ) {
 
 #ifdef DEBUG_StatsPanel
-         printf("StatsPanel::updateStatsPanelInfoHeader, pid>prev, previous_pid=%d, pid=%d\n", previous_pid, pid );
+         printf("StatsPanel::updateStatsPanelInfoHeader, pid>prev, previous_pid=%ld, pid=%ld\n", previous_pid, pid );
 #endif
 
         if (pid == previous_pid + 1  && (pid_count != list_of_pids.size()) ) {
 
 #ifdef DEBUG_StatsPanel
-          printf("StatsPanel::updateStatsPanelInfoHeader, pid==prev+1, before(max_range_pid=%d), pid=%d\n", max_range_pid, pid );
+          printf("StatsPanel::updateStatsPanelInfoHeader, pid==prev+1, before(max_range_pid=%ld), pid=%ld\n", max_range_pid, pid );
 #endif
           max_range_pid = pid;
 
         } else {
 
 #ifdef DEBUG_StatsPanel
-          printf("StatsPanel::updateStatsPanelInfoHeader, NOT pid==prev+1, max_range_pid=%d, min_range_pid=%d\n", max_range_pid, min_range_pid );
+          printf("StatsPanel::updateStatsPanelInfoHeader, NOT pid==prev+1, max_range_pid=%ld, min_range_pid=%ld\n", max_range_pid, min_range_pid );
 #endif
           if (max_range_pid != min_range_pid && (pid_count != list_of_pids.size()) ) {
 
             QString maxPidStr = QString("%1").arg(max_range_pid);
             infoString += QString(" %1 ").arg(maxPidStr);
+#ifdef DEBUG_StatsPanel
+            printf("StatsPanel::updateStatsPanelInfoHeader, NOT pid==prev+1, max_range_pid=%ld != min_range_pid=%ld\n", max_range_pid, min_range_pid );
+            printf("StatsPanel::updateStatsPanelInfoHeader, NOT pid==prev+1, pid_count=%ld != list_of_pids.size()=%ld\n", pid_count, list_of_pids.size() );
+#endif
 
           } else {
 
             // if in a range creation and you get to the end of the for
             // need to update the last item and output the range
             if  (pid_count == list_of_pids.size()) {
+#ifdef DEBUG_StatsPanel
+               printf("StatsPanel::updateStatsPanelInfoHeader, NOT pid==prev+1, pid_count=%d == list_of_pids.size(), setting max_range_pid=%ld = pid=%ld\n", pid_count, max_range_pid, pid );
+#endif
                max_range_pid = pid;
             }
 
@@ -3612,7 +3638,26 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 
             QString maxPidStr = QString("%1").arg(max_range_pid);
             QString minPidStr = QString("%1").arg(min_range_pid);
-            infoString += QString(" %1-%2 ").arg(minPidStr).arg(maxPidStr);
+            if (min_range_pid != max_range_pid) {
+              if (min_range_pid+1 == max_range_pid || previous_pid + 1 == max_range_pid) {
+                infoString += QString(" %1-%2 ").arg(minPidStr).arg(maxPidStr);
+              } else {
+                // if end of the list put out both values, if not just the min
+                if (pid_count == list_of_pids.size()) {
+                  infoString += QString(" %1 ").arg(minPidStr);
+                  infoString += QString(" %1 ").arg(maxPidStr);
+                } else {
+                  infoString += QString(" %1 ").arg(minPidStr);
+                }
+              }
+            } else {
+              infoString += QString(" %1 ").arg(minPidStr);
+            }
+#ifdef DEBUG_StatsPanel
+            printf("StatsPanel::updateStatsPanelInfoHeader, arrived here because you encountered a value that is not consequitive\n" );
+            printf("StatsPanel::updateStatsPanelInfoHeader, arrived .... infoString=%s\n", infoString.ascii() );
+            printf("StatsPanel::updateStatsPanelInfoHeader, arrived .... pid=%ld, min_range_pid=%ld, max_range_pid=%ld\n", infoString.ascii(), min_range_pid, max_range_pid );
+#endif
             min_range_pid = pid;
             max_range_pid = pid;
           } 
@@ -3624,10 +3669,13 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
       } else {
 #ifdef DEBUG_StatsPanel
        printf("ERROR - pids not ascending\n");
+       break;
 #endif
       } 
+
+
 #ifdef DEBUG_StatsPanel
-     printf("StatsPanel::updateStatsPanelInfoHeader, SET prev at end of for, previous_pid=%d, pid=%d\n", previous_pid, pid );
+     printf("StatsPanel::updateStatsPanelInfoHeader, SET prev at end of for, previous_pid=%ld, pid=%ld\n", previous_pid, pid );
 #endif
      previous_pid = pid;
     } // end for
@@ -3846,7 +3894,7 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
    }
 
    std::list<int64_t>::const_iterator pid_it = list_of_pids.begin();
-   int summary_pid = (int64_t)*pid_it;
+   int64_t summary_pid = (int64_t)*pid_it;
    QString pidStr = QString("%1").arg(summary_pid);
    infoSummaryStr += QString(" %1 ").arg(pidStr);
 
@@ -6299,9 +6347,9 @@ StatsPanel::updateThreadsList()
     for( std::list<int64_t>::const_iterator it = list_of_pids.begin();
          it != list_of_pids.end(); it++ )
     {
-      int pid = (int64_t)*it;
+      int64_t pid = (int64_t)*it;
 #ifdef DEBUG_StatsPanel
-      printf("StatsPanel::updateThreadsList, pid=(%d)\n", pid );
+      printf("StatsPanel::updateThreadsList, pid=(%ld)\n", pid );
 #endif
     }
   }
