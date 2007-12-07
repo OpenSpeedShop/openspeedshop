@@ -1,0 +1,66 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2007 The Krell Institute. All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+////////////////////////////////////////////////////////////////////////////////
+
+/* XPM */
+static const char *stats_plus_icon_xpm[]={
+"28 28 17 1",
+"# c None",
+"a c #000000",
+"n c #58a8ff",
+". c #7c7c7c",
+"e c #c1c1c1",
+"d c #d9dada",
+"f c #e2e3e2",
+"i c #e6e6e5",
+"j c #e9eaeb",
+"g c #ededed",
+"k c #eeefef",
+"h c #f1f1f0",
+"o c #f2f2f1",
+"l c #f2f3f3",
+"m c #f6f6f6",
+"b c #ff0000",
+"c c #ffffff",
+"..................#aaaaa####",
+"..................#abbba####",
+"..cccccccccccc....#abbba####",
+"..cccccccccccc.aaaaabbbaaaaa",
+"..ccddeeffeeee.abbbbbbbbbbba",
+"..ccddeeffeeee.abbbbbbbbbbba",
+"..cceeeeeegghh.abbbbbbbbbbba",
+"..cceeeeeegghh.aaaaabbbaaaaa",
+"..cciijjkkllmmeeeeeabbba####",
+"..cciijjaaaaaaaeeeaaaaaaaaaa",
+"..cceeennnnnnnnaaennnnnnnnnn",
+"..cceeannnnnnnnnnannnnnnnnnn",
+"..cceannnnnnnnnnnaeaaannnaaa",
+"..cceannnnnnnnnnnnaeeannna##",
+"..cceannnnnnaannnnaeeannna##",
+"..cceannnnnnaannnnaeeannna##",
+"..cceeaannnnaaaaaaaeeannna##",
+"..cceeeannnnneaeeeeeeannna##",
+"..ccooooaannnnnaeeeeeannna##",
+"..ccooooeannnnnnaeeeeannnaee",
+"..cceeeeeeannnnnnaaeeannnaee",
+"..cceaaaaaaannnnnnaeeannnaee",
+"..cceannnnaaannnnnaeeannna##",
+"..cceannnnaannnnnnaeeannna##",
+".....annnnnnnnnnnna.eannna##",
+".....annnnnnnnnnna..eannna##",
+"######aannnnnnnna###eannna##",
+"#######annnnnnna####eannna##"};
