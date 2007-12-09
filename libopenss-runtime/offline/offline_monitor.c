@@ -64,12 +64,9 @@ void monitor_init_process(char *process, int *argc, char **argv, unsigned pid)
 
 void monitor_init_library(void)
 {
-    monitor_opt_error = 0;
-
-#ifndef PROCESS_ONLY
-    /* Second test library doesn't monitor errors. */
-    monitor_opt_error = MONITOR_NONZERO_EXIT | MONITOR_SIGINT | MONITOR_SIGABRT;
-#endif
+/* removed previous code that was specific to UTK monitor and
+ * only used for debug error checking
+ */
 }
 
 void monitor_fini_library(void)
