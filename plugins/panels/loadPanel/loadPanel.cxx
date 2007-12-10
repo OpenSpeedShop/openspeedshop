@@ -1021,6 +1021,22 @@ void loadPanel::vMPLoadPageLoadButtonSelected()
 
    vMPLoadPageLoadMPProgName = mw->executableName.ascii();
    vMPLoadMPILoadLineedit->setText(mw->executableName.ascii());
+#ifdef DEBUG_loadPanel
+   printf("loadPanel::vMPLoadPageLoadButtonSelected(), mw->argsStr.isEmpty()=%d\n",
+          mw->argsStr.isEmpty() );
+   if (!mw->argsStr.isEmpty() ) {
+       printf("loadPanel::vMPLoadPageLoadButtonSelected(), vMPLoadCommandArgumentsLineedit->text()=%s\n",
+              vMPLoadCommandArgumentsLineedit->text().ascii() );
+   }
+#endif
+   if( !mw->argsStr.isEmpty() ) {
+      vMPLoadCommandArgumentsLineedit->setText( mw->argsStr.ascii() );;
+
+#ifdef DEBUG_loadPanel
+      printf("loadPanel::vMPLoadPageLoadButtonSelected(), vMPLoadCommandArgumentsLineedit->text()=%s\n",
+             vMPLoadCommandArgumentsLineedit->text().ascii() );
+#endif
+   }
 
   } // end else clause
 
