@@ -27,6 +27,7 @@ libopenss_framework_dpcl_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
 	$(LTDLINCL) \
 	-DLIBRARY_DIR=\"$(libdir)\" \
+	-DLIBRARY_ABINAME=\"$(abi_libdir_name)\" \
 	@DYNINST_CPPFLAGS@ \
 	@DPCL_CPPFLAGS@
 

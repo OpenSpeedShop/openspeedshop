@@ -1378,12 +1378,45 @@ bool Process::getMPICHProcTable(Job& value)
     if((proctable_size_variable.src_type() != SOT_data) || 
        (proctable_variable.src_type() != SOT_data))
 	return false;
-    
-    // Ask DPCL to load the "libopenss-framework-mpich.so" library
-    ProbeModule module = ProbeModule(
-	(std::string(LIBRARY_DIR) + 
-	 std::string("/libopenss-framework-mpich.so")).c_str()
-	);
+
+    // Get the alternative install install path to be used to find
+    // the MPIR_proctable for mpi job creation and attach.
+    std::string openss_prefix_path;
+    if(getenv("OPENSS_PREFIX") != NULL) {
+	openss_prefix_path = getenv("OPENSS_PREFIX");
+    }
+
+
+#ifndef NDEBUG
+    if(!openss_prefix_path.empty()) {
+      if(is_debug_enabled) {
+  	  std::stringstream output;
+	  output << "[TID " << pthread_self() << "] "
+	         << "Process::getMPICHProcTable openss_prefix_path()= "
+	         << openss_prefix_path + '/' + std::string(LIBRARY_ABINAME)
+	         << " Process::getMPICHProcTable std::string(LIBRARY_DIR)= "
+	         << std::string(LIBRARY_DIR)
+	         << std::endl;
+	  std::cerr << output.str();
+      }
+    } // end path != NULL
+#endif
+
+    // If the alternative install install path is set, use it to find
+    // the MPIR_proctable, otherwise use the existing LIBRARY_DIR ltdl method. 
+    ProbeModule module;
+    if (!openss_prefix_path.empty()) {
+      // Ask DPCL to load the "libopenss-framework-mpich.so" library
+      module = ProbeModule(
+  	  (openss_prefix_path + '/' + std::string(LIBRARY_ABINAME) +
+	   std::string("/libopenss-framework-mpich.so")).c_str()
+  	);
+    } else {
+      module = ProbeModule(
+  	  (std::string(LIBRARY_DIR) + 
+	   std::string("/libopenss-framework-mpich.so")).c_str()
+  	);
+    }
     AisStatus retval = dm_process->bload_module(&module);
 #ifndef NDEBUG
     if(is_debug_enabled) 
