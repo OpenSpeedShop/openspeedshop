@@ -65,6 +65,12 @@ namespace OpenSpeedShop { namespace Framework {
 	    return dm_range;
 	}
 
+	/** Read-only data member accessor function. */
+	const std::vector<bool>& getBitmap() const
+	{
+	    return dm_bitmap;
+	}
+
 	void setValue(const Address&, const bool&);
 	bool getValue(const Address&) const;
 	

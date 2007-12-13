@@ -135,6 +135,9 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
  *
  * Convert this symbol table to an OpenSS_Protocol_SymbolTable object.
  *
+ * @note    The caller assumes responsibility for releasing all allocated
+ *          memory when it is no longer needed.
+ *
  * @note    The "experiments" and "linked_object" fields of the returned object
  *          are not initialized to any value. It is the responsibility of the
  *          caller to fill in these fields.
@@ -171,7 +174,9 @@ SymbolTable::operator OpenSS_Protocol_SymbolTable() const
 	    std::vector<AddressBitmap> bitmaps =
 		partitionAddressRanges(i->second);
 
-	    // TODO: convert the function's bitmaps
+	    // Convert the function's bitmaps
+	    convert(bitmaps,
+		    entry.bitmaps.bitmaps_len, entry.bitmaps.bitmaps_val);
 	    
 	}
 
@@ -201,8 +206,10 @@ SymbolTable::operator OpenSS_Protocol_SymbolTable() const
 	    std::vector<AddressBitmap> bitmaps =
 		partitionAddressRanges(i->second);
 
-	    // TODO: convert the statement's bitmaps
-
+	    // Convert the function's bitmaps
+	    convert(bitmaps,
+		    entry.bitmaps.bitmaps_len, entry.bitmaps.bitmaps_val);
+	    
 	}
     }
 
@@ -328,4 +335,54 @@ SymbolTable::partitionAddressRanges(const std::vector<AddressRange>& ranges)
 
     // Return the bitmaps to the caller
     return bitmaps;
+}
+
+
+
+/**
+ * Convert bitmaps for protocol use.
+ *
+ * Converts the specified address bitmaps to the structure used in protocol
+ * messages.
+ *
+ * @note    The caller assumes responsibility for releasing all allocated
+ *          memory when it is no longer needed.
+ *
+ * @param bitmaps         Address bitmaps to be converted.
+ * @retval bitmaps_len    Length of array containing the results.
+ * @retval bitmaps_val    Array containing the results.
+ */
+void SymbolTable::convert(const std::vector<AddressBitmap>& bitmaps,
+			  u_int& bitmaps_len,
+			  OpenSS_Protocol_AddressBitmap*& bitmaps_val)
+{
+    // Allocate an array (if necessary) to hold the bitmaps
+    bitmaps_len = bitmaps.size();
+    if(!bitmaps.empty()) {
+	bitmaps_val = new OpenSS_Protocol_AddressBitmap[bitmaps.size()];
+
+	// Iterate over all the bitmaps
+	for(std::vector<AddressBitmap>::size_type
+		i = 0; i < bitmaps.size(); ++i) {
+	    OpenSS_Protocol_AddressBitmap& entry = bitmaps_val[i];
+
+	    // Convert the bitmap's address range
+	    entry.range.begin = bitmaps[i].getRange().getBegin().getValue();
+	    entry.range.end = bitmaps[i].getRange().getEnd().getValue();
+	    
+	    // Allocate an array (if necessary) to hold the actual bitmap
+	    entry.bitmap.bitmap_len = bitmaps[i].getBitmap().size();
+	    if(!bitmaps[i].getBitmap().empty()) {
+		entry.bitmap.bitmap_val = 
+		    new bool_t[bitmaps[i].getBitmap().size()];
+		
+		// Convert the actual bitmap
+		for(int j = 0; j < bitmaps[i].getBitmap().size(); ++j)
+		    entry.bitmap.bitmap_val[j] = bitmaps[i].getBitmap()[j];
+		
+	    }
+	    
+	}
+	
+    }
 }

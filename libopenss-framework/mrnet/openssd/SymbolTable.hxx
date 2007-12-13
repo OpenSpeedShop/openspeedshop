@@ -75,6 +75,9 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	static std::vector<AddressBitmap>
 	partitionAddressRanges(const std::vector<AddressRange>&);
+
+	static void convert(const std::vector<AddressBitmap>&,
+			    u_int&, OpenSS_Protocol_AddressBitmap*&);
 	
 	/** Functions in this symbol table. */
 	std::map<std::string, std::vector<AddressRange> > dm_functions;
