@@ -46,6 +46,7 @@ openssd_SOURCES = \
 	Experiment.hxx \
 	ExperimentGroup.hxx \
 	FileName.hxx \
+	InstrumentationTable.hxx InstrumentationTable.cxx \
 	openssd.cxx \
 	Senders.hxx Senders.cxx \
 	SentFilesTable.hxx SentFilesTable.cxx \

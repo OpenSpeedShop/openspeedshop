@@ -39,19 +39,92 @@ using namespace OpenSpeedShop::Framework;
 
 
 /**
- * ...
+ * Dynamic library callback.
  *
- * ...
+ * Callback function called by Dyninst when a dynamic library has been loaded
+ * into a process. Sends a message to the frontend describing the linked object
+ * that was loaded into, or unloaded from, the address space of the specified
+ * process. Also sends a message containing the symbol table of that linked
+ * object if it has been loaded (rather than unloded) and hasn't yet been sent
+ * to the frontend.
  *
- * @param thread     ...
- * @param module     ...
- * @param is_load    ...
+ * @param thread     Thread in the process which loaded or unloaded a
+ *                   dynamic library.
+ * @param module     Dynamic library that was loaded or unloaded.
+ * @param is_load    Boolean "true" if the dynamic library was loaded, or
+ *                   "false" if it was unloaded.
  */
 void DyninstCallbacks::dynLibrary(BPatch_thread* thread,
 				  BPatch_module* module,
 				  bool is_load)
 {
-    // TODO: implement!
+    // Check preconditions
+    Assert(thread != NULL);
+    Assert(module != NULL);
+
+    // Get the Dyninst process pointer for this thread
+    BPatch_process* process = thread->getProcess();
+    Assert(process != NULL);
+    
+    // Get the list of threads in this process
+    BPatch_Vector<BPatch_thread*> threads_in_process;
+    process->getThreads(threads_in_process);
+    Assert(!threads_in_process.empty());
+
+    // Names for these threads
+    ThreadNameGroup threads;
+
+    // Iterate over each thread in this process
+    for(int i = 0; i < threads.size(); ++i) {
+	Assert(threads_in_process[i] != NULL);
+
+	// Add all the names of this thread
+	ThreadNameGroup names = 
+	    ThreadTable::TheTable.getNames(threads_in_process[i]);
+	threads.insert(names.begin(), names.end());
+    }
+    
+    // Get the current time
+    Time now = Time::Now();
+    
+    // Get the file name of this module
+    FileName linked_object(*module);
+    
+    // Was this module loaded into the thread?
+    if(is_load) {
+	
+	// Get the address range of this module
+	Address begin(reinterpret_cast<uint64_t>(module->getBaseAddr()));
+	Address end = begin + module->getSize();
+	AddressRange range(begin, end);
+	
+	// Send the frontend the "loaded" message for this linked object
+	Senders::loadedLinkedObject(threads, now, range,
+				    linked_object, false);
+
+	// Are there any experiments for which this linked object is unsent?
+	ExperimentGroup unsent =
+	    SentFilesTable::TheTable.getUnsent(linked_object,
+					       ExperimentGroup(threads));
+	if(!unsent.empty()) {
+	    
+	    // Send the frontend the symbols for this linked object
+	    Senders::symbolTable(unsent, linked_object, SymbolTable(*module));
+	    
+	    // These symbols are now sent for those experiments
+	    SentFilesTable::TheTable.addSent(linked_object, unsent);
+	    
+	}
+	
+    }
+
+    // Otherwise this module was unloaded from the thread
+    else {
+
+	// Send the frontend the "unloaded" message for this linked object
+	Senders::unloadedLinkedObject(threads, now, linked_object);
+	
+    }
 }
 
 

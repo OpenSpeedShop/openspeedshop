@@ -25,7 +25,9 @@
 #include "Blob.hxx"
 #include "Backend.hxx"
 #include "Callbacks.hxx"
+#include "Collector.hxx"
 #include "DyninstCallbacks.hxx"
+#include "InstrumentationTable.hxx"
 #include "Protocol.h"
 #include "Senders.hxx"
 #include "ThreadName.hxx"
@@ -154,7 +156,7 @@ void Callbacks::attachToThreads(const Blob& blob)
 	
     }
 
-    // TODO: send the state of the threads?
+    // TODO: send the initial state of the threads?
 
 }
 
@@ -310,7 +312,11 @@ void Callbacks::detachFromThreads(const Blob& blob)
 /**
  * Execute a library function now.
  *
- * ...
+ * Callback function called by the backend message pump when a request to
+ * execute a library function in one or more threads is received. Passes the
+ * request (for each thread individually) on to the instrumentation table,
+ * which instructs Dyninst to perform the actual instrumentation (and keeps
+ * track of the instrumentation).
  *
  * @param blob    Blob containing the message.
  */
@@ -333,7 +339,34 @@ void Callbacks::executeNow(const Blob& blob)
     }
 #endif
 
-    // TODO: implement!
+    // Iterate over each thread to be instrumented
+    ThreadNameGroup threads = message.threads;
+    for(ThreadNameGroup::const_iterator
+	    i = threads.begin(); i != threads.end(); ++i) {
+
+	// Has this thread not been attached?
+	if(ThreadTable::TheTable.getPtr(*i) == NULL) {
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "executeNow(): Thread " << toString(*i)
+		       << " is not attached." << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+	    continue;
+	}
+
+	// Pass the request on to the instrumentation table
+	InstrumentationTable::TheTable.
+	    addExecuteNow(*i, Collector(message.collector),
+			  message.disable_save_fpr,
+			  std::string(message.callee),
+			  Blob(message.argument.data.data_len,
+			       message.argument.data.data_val));
+	
+    }
 }
 
 
@@ -341,7 +374,11 @@ void Callbacks::executeNow(const Blob& blob)
 /**
  * Execute a library function at another function's entry or exit.
  *
- * ...
+ * Callback function called by the backend message pump when a request to
+ * insert instrumentation into one or more threads is received. Passes the
+ * request (for each thread individually) on to the instrumentation table,
+ * which instructs Dyninst to perform the actual instrumentation (and keeps
+ * track of the instrumentation).
  *
  * @param blob    Blob containing the message.
  */
@@ -364,7 +401,35 @@ void Callbacks::executeAtEntryOrExit(const Blob& blob)
     }
 #endif
 
-    // TODO: implement!
+    // Iterate over each thread to be instrumented
+    ThreadNameGroup threads = message.threads;
+    for(ThreadNameGroup::const_iterator
+	    i = threads.begin(); i != threads.end(); ++i) {
+
+	// Has this thread not been attached?
+	if(ThreadTable::TheTable.getPtr(*i) == NULL) {
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "executeAtEntryOrExit(): Thread " << toString(*i)
+		       << " is not attached." << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+	    continue;
+	}
+
+	// Pass the request on to the instrumentation table
+	InstrumentationTable::TheTable.
+	    addExecuteAtEntryOrExit(*i, Collector(message.collector),
+				    std::string(message.where),
+				    message.at_entry,
+				    std::string(message.callee),
+				    Blob(message.argument.data.data_len,
+					 message.argument.data.data_val));
+	
+    }
 }
 
 
@@ -372,7 +437,11 @@ void Callbacks::executeAtEntryOrExit(const Blob& blob)
 /**
  * Execute a library function in place of another function.
  *
- * ...
+ * Callback function called by the backend message pump when a request to
+ * insert instrumentation into one or more threads is received. Passes the
+ * request (for each thread individually) on to the instrumentation table,
+ * which instructs Dyninst to perform the actual instrumentation (and keeps
+ * track of the instrumentation).
  *
  * @param blob    Blob containing the message.
  */
@@ -395,7 +464,32 @@ void Callbacks::executeInPlaceOf(const Blob& blob)
     }
 #endif
 
-    // TODO: implement!
+    // Iterate over each thread to be instrumented
+    ThreadNameGroup threads = message.threads;
+    for(ThreadNameGroup::const_iterator
+	    i = threads.begin(); i != threads.end(); ++i) {
+
+	// Has this thread not been attached?
+	if(ThreadTable::TheTable.getPtr(*i) == NULL) {
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "executeInPlaceOf(): Thread " << toString(*i)
+		       << " is not attached." << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+	    continue;
+	}
+
+	// Pass the request on to the instrumentation table
+	InstrumentationTable::TheTable.
+	    addExecuteInPlaceOf(*i, Collector(message.collector),
+				std::string(message.where),
+				std::string(message.callee));
+	
+    }
 }
 
 
@@ -527,7 +621,11 @@ void Callbacks::setGlobalInteger(const Blob& blob)
 /**
  * Stop at a function's entry or exit.
  *
- * ...
+ * Callback function called by the backend message pump when a request to
+ * insert instrumentation into one or more threads is received. Passes the
+ * request (for each thread individually) on to the instrumentation table,
+ * which instructs Dyninst to perform the actual instrumentation (and keeps
+ * track of the instrumentation).
  *
  * @param blob    Blob containing the message.
  */
@@ -550,7 +648,32 @@ void Callbacks::stopAtEntryOrExit(const Blob& blob)
     }
 #endif
 
-    // TODO: implement!
+    // Iterate over each thread to be instrumented
+    ThreadNameGroup threads = message.threads;
+    for(ThreadNameGroup::const_iterator
+	    i = threads.begin(); i != threads.end(); ++i) {
+
+	// Has this thread not been attached?
+	if(ThreadTable::TheTable.getPtr(*i) == NULL) {
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "stopAtEntryOrExit(): Thread " << toString(*i)
+		       << " is not attached." << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+	    continue;
+	}
+	
+	// Pass the request on to the instrumentation table
+	InstrumentationTable::TheTable.
+	    addStopAtEntryOrExit(*i,
+				 std::string(message.where),
+				 message.at_entry);
+	
+    }
 }
 
 
@@ -558,7 +681,10 @@ void Callbacks::stopAtEntryOrExit(const Blob& blob)
 /**
  * Remove instrumentation from threads.
  *
- * ...
+ * Callback function called by the backend message pump when a request to
+ * uninstrument one or more threads is received. Passes the request (for each
+ * thread individually) on to the instrumentation table, which instructs
+ * Dyninst to remove the instrumentation.
  *
  * @param blob    Blob containing the message.
  */
@@ -581,5 +707,28 @@ void Callbacks::uninstrument(const Blob& blob)
     }
 #endif
 
-    // TODO: implement!
+    // Iterate over each thread to be uninstrumented
+    ThreadNameGroup threads = message.threads;
+    for(ThreadNameGroup::const_iterator
+	    i = threads.begin(); i != threads.end(); ++i) {
+
+	// Has this thread not been attached?
+	if(ThreadTable::TheTable.getPtr(*i) == NULL) {
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "uninstrument(): Thread " << toString(*i)
+		       << " is not attached." << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+	    continue;
+	}
+	
+	// Pass the request on to the instrumentation table
+	InstrumentationTable::TheTable.
+	    removeInstrumentation(*i, Collector(message.collector));
+	
+    }
 }
