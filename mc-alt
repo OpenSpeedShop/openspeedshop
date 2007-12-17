@@ -32,7 +32,7 @@ then
 fi
 if test -d plugins/panels
 then
-bootstrap;configure --prefix=$OPENSS_INSTALL_DIR --with-papi=/usr --with-dpcl=/usr --with-dyninst=/usr --with-sqlite=/usr --with-python=/usr --with-qt=/usr ; make uninstall;make install;make dist; 
+bootstrap;configure --prefix=$OPENSS_INSTALL_DIR --with-libmonitor=$OPENSS_PREFIX --with-papi=$OPENSS_PREFIX --with-dpcl=$OPENSS_PREFIX --with-libdwarf=$OPENSS_PREFIX --with-vt=$OPENSS_PREFIX --with-otf=$OPENSS_PREFIX --with-dyninst=$OPENSS_PREFIX --with-sqlite=$OPENSS_PREFIX --with-python=/usr --with-qt=/usr ; make uninstall;make install;make dist; 
 else
   echo NOTE: This must be run from the 'current' directory...
 fi
