@@ -80,7 +80,7 @@ fi
 
 # use $RPM_BUILD_ROOT/usr/for rpmbuild install target.
 # This will be used to populate the binary rpm.
-./configure --prefix=$RPM_BUILD_ROOT/%{prefix} --with-binutils=%{depend_prefix} --with-binutils-version=2.17 --with-libunwind=%{depend_prefix} --with-papi=%{depend_prefix} --with-sqlite=%{depend_prefix} --with-qtlib=$QTDIR --with-dyninst=%{depend_prefix} --with-dpcl=%{depend_prefix} --with-lampi=/opt/lampi/lampi-1.5.16/gm 
+./configure --prefix=$RPM_BUILD_ROOT%{prefix} --with-binutils=%{depend_prefix} --with-binutils-version=2.17 --with-libunwind=%{depend_prefix} --with-papi=%{depend_prefix} --with-sqlite=%{depend_prefix} --with-qtlib=$QTDIR --with-dyninst=%{depend_prefix} --with-dpcl=%{depend_prefix} --with-lampi=/opt/lampi/lampi-1.5.16/gm 
 
 # Just build the software. (make all is default).
 make
