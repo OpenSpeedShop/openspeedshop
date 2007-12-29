@@ -120,7 +120,7 @@ ThreadTable::ThreadTable() :
  */
 void ThreadTable::addThread(const ThreadName& thread, BPatch_thread* ptr)
 {
-    Guard guard_this(this);
+    Guard guard_myself(this);
 
     // Find the entries (if any) for this thread
     std::map<ThreadName, BPatch_thread*>::const_iterator i =
@@ -154,7 +154,7 @@ void ThreadTable::addThread(const ThreadName& thread, BPatch_thread* ptr)
  */
 void ThreadTable::removeThread(const ThreadName& thread, BPatch_thread* ptr)
 {
-    Guard guard_this(this);
+    Guard guard_myself(this);
 
     // Find the entry (if any) for this thread
     std::map<ThreadName, BPatch_thread*>::iterator i =
@@ -187,7 +187,7 @@ void ThreadTable::removeThread(const ThreadName& thread, BPatch_thread* ptr)
  */
 BPatch_thread* ThreadTable::getPtr(const ThreadName& thread) const
 {
-    Guard guard_this(this);
+    Guard guard_myself(this);
 
     // Find the entry (if any) for this thread
     std::map<ThreadName, BPatch_thread*>::const_iterator i =
@@ -210,7 +210,7 @@ BPatch_thread* ThreadTable::getPtr(const ThreadName& thread) const
  */
 ThreadNameGroup ThreadTable::getNames(BPatch_thread* ptr) const
 {
-    Guard guard_this(this);
+    Guard guard_myself(this);
 
     // Find the entries (if any) for this Dyninst thread object pointer
     ThreadNameGroup names;

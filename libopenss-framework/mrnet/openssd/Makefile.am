@@ -43,13 +43,18 @@ openssd_SOURCES = \
 	Callbacks.hxx Callbacks.cxx \
 	Collector.hxx \
 	DyninstCallbacks.hxx DyninstCallbacks.cxx \
+	ExecuteAtEntryOrExitEntry.hxx ExecuteAtEntryOrExitEntry.cxx \
+	ExecuteInPlaceOfEntry.hxx ExecuteInPlaceOfEntry.cxx \
+	ExecuteNowEntry.hxx ExecuteNowEntry.cxx \
 	Experiment.hxx \
 	ExperimentGroup.hxx \
 	FileName.hxx \
+	InstrumentationEntry.hxx \
 	InstrumentationTable.hxx InstrumentationTable.cxx \
 	openssd.cxx \
 	Senders.hxx Senders.cxx \
 	SentFilesTable.hxx SentFilesTable.cxx \
+	StopAtEntryOrExitEntry.hxx StopAtEntryOrExitEntry.cxx \
 	SymbolTable.hxx SymbolTable.cxx \
 	ThreadName.hxx \
 	ThreadNameGroup.hxx \

@@ -22,8 +22,14 @@
  *
  */
 
+#include "Collector.hxx"
+#include "ExecuteAtEntryOrExitEntry.hxx"
+#include "ExecuteInPlaceOfEntry.hxx"
+#include "ExecuteNowEntry.hxx"
 #include "Guard.hxx"
+#include "StopAtEntryOrExitEntry.hxx"
 #include "ThreadNameGroup.hxx"
+#include "ThreadTable.hxx"
 #include "InstrumentationTable.hxx"
 #include "Utility.hxx"
 
@@ -42,9 +48,9 @@ InstrumentationTable InstrumentationTable::TheTable;
  * Constructs an empty instrumentation table.
  */
 InstrumentationTable::InstrumentationTable() :
-    Lockable()
+    Lockable(),
+    dm_threads()
 {
-    // TODO: implement!
 }
 
 
@@ -52,9 +58,10 @@ InstrumentationTable::InstrumentationTable() :
 /**
  * Execute a library function now.
  *
- * ...
+ * Add instrumentation to execute the specified library function in the passed
+ * thread. Also add a corresponding entry to this instrumentation table.
  *
- * @param thread              Thread which the function should be executed.
+ * @param thread              Thread in which the function should be executed.
  * @param collector           Collector requesting the execution.
  * @param disable_save_fpr    Boolean "true" if the floating-point registers
  *                            should NOT be saved before executing the library
@@ -68,7 +75,29 @@ void InstrumentationTable::addExecuteNow(const ThreadName& thread,
 					 const std::string& callee,
 					 const Blob& argument)
 {
-    // TODO: implement!
+    Guard guard_myself(this);
+    
+    // Get the Dyninst pointer for this thread
+    BPatch_thread* thread_ptr = ThreadTable::TheTable.getPtr(thread);
+    Assert(thread_ptr != NULL);
+
+    // Add this thread to the table (or find the existing entry)
+    std::map<ThreadName, ThreadEntry>::iterator i =
+	dm_threads.insert(std::make_pair(thread, ThreadEntry())).first;
+
+    // Add this collector for the thread (or find the existing entry)
+    std::map<Collector, InstrumentationList>::iterator j =
+	i->second.dm_collectors.insert(
+	    std::make_pair(collector, InstrumentationList())
+	    ).first;
+
+    // Create an instrumentation entry and add it to the list
+    ExecuteNowEntry* entry = 
+	new ExecuteNowEntry(*thread_ptr, disable_save_fpr, callee, argument);
+    j->second.push_back(entry);
+
+    // Install the instrumentation
+    entry->install();
 }
 
 
@@ -76,7 +105,9 @@ void InstrumentationTable::addExecuteNow(const ThreadName& thread,
 /**
  * Execute a library function at another function's entry or exit.
  *
- * ...
+ * Add instrumentation to execute the specified library function every time
+ * another function's entry or exit is executed in the passed thread. Also
+ * add a corresponding entry to this instrumentation table.
  *
  * @param thread       Thread in which the function should be executed.
  * @param collector    Collector requesting the execution.
@@ -94,7 +125,30 @@ void InstrumentationTable::addExecuteAtEntryOrExit(const ThreadName& thread,
 						   const std::string& callee,
 						   const Blob& argument)
 {
-    // TODO: implement!
+    Guard guard_myself(this);
+
+    // Get the Dyninst pointer for this thread
+    BPatch_thread* thread_ptr = ThreadTable::TheTable.getPtr(thread);
+    Assert(thread_ptr != NULL);
+
+    // Add this thread to the table (or find the existing entry)
+    std::map<ThreadName, ThreadEntry>::iterator i =
+	dm_threads.insert(std::make_pair(thread, ThreadEntry())).first;
+
+    // Add this collector for the thread (or find the existing entry)
+    std::map<Collector, InstrumentationList>::iterator j =
+	i->second.dm_collectors.insert(
+	    std::make_pair(collector, InstrumentationList())
+	    ).first;
+
+    // Create an instrumentation entry and add it to the list
+    ExecuteAtEntryOrExitEntry* entry = 
+	new ExecuteAtEntryOrExitEntry(*thread_ptr, where, at_entry,
+				      callee, argument);
+    j->second.push_back(entry);
+    
+    // Install the instrumentation
+    entry->install();
 }
 
 
@@ -102,7 +156,10 @@ void InstrumentationTable::addExecuteAtEntryOrExit(const ThreadName& thread,
 /**
  * Execute a library function in place of another function.
  *
- * ...
+ * Add instrumentation to execute the specified library function in place of
+ * another function every other time that other function is called in the
+ * passed thread. Also add a corresponding entry to this instrumentation
+ * table.
  *
  * @param thread       Thread in which the function should be executed.
  * @param collector    Collector requesting the execution.
@@ -115,7 +172,29 @@ void InstrumentationTable::addExecuteInPlaceOf(const ThreadName& thread,
 					       const std::string& where,
 					       const std::string& callee)
 {
-    // TODO: implement!
+    Guard guard_myself(this);
+
+    // Get the Dyninst pointer for this thread
+    BPatch_thread* thread_ptr = ThreadTable::TheTable.getPtr(thread);
+    Assert(thread_ptr != NULL);
+
+    // Add this thread to the table (or find the existing entry)
+    std::map<ThreadName, ThreadEntry>::iterator i =
+	dm_threads.insert(std::make_pair(thread, ThreadEntry())).first;
+
+    // Add this collector for the thread (or find the existing entry)
+    std::map<Collector, InstrumentationList>::iterator j =
+	i->second.dm_collectors.insert(
+	    std::make_pair(collector, InstrumentationList())
+	    ).first;
+
+    // Create an instrumentation entry and add it to the list
+    ExecuteInPlaceOfEntry* entry = 
+	new ExecuteInPlaceOfEntry(*thread_ptr, where, callee);
+    j->second.push_back(entry);
+    
+    // Install the instrumentation
+    entry->install();
 }
 
 
@@ -123,7 +202,9 @@ void InstrumentationTable::addExecuteInPlaceOf(const ThreadName& thread,
 /**
  * Stop at a function's entry or exit.
  *
- * ...
+ * Add instrumentation to stop every time the specified function's entry or
+ * exit is executed in the passed thread. Also add a corresponding entry to
+ * this instrumentation table.
  *
  * @param thread      Thread which should be stopped.
  * @param where       Name of the function at whose entry/exit the stop
@@ -135,7 +216,23 @@ void InstrumentationTable::addStopAtEntryOrExit(const ThreadName& thread,
 						const std::string& where,
 						const bool& at_entry)
 {
-    // TODO: implement!
+    Guard guard_myself(this);
+
+    // Get the Dyninst pointer for this thread
+    BPatch_thread* thread_ptr = ThreadTable::TheTable.getPtr(thread);
+    Assert(thread_ptr != NULL);
+
+    // Add this thread to the table (or find the existing entry)
+    std::map<ThreadName, ThreadEntry>::iterator i =
+	dm_threads.insert(std::make_pair(thread, ThreadEntry())).first;
+
+    // Create an instrumentation entry and add it to the list
+    StopAtEntryOrExitEntry* entry = 
+	new StopAtEntryOrExitEntry(*thread_ptr, where, at_entry);
+    i->second.dm_general.push_back(entry);
+    
+    // Install the instrumentation
+    entry->install();
 }
 
 
@@ -143,13 +240,59 @@ void InstrumentationTable::addStopAtEntryOrExit(const ThreadName& thread,
 /**
  * Remove instrumentation from a thread.
  *
- * ...
+ * Removes the passed thread from this instrumentation table after removing
+ * all instrumentation from that thread.
+ *
+ * @note    Any attempt to remove instrumentation for a thread that has no
+ *          instrumentation is silently ignored.
  *
  * @param thread    Thread from which instrumentation should be removed.
  */
 void InstrumentationTable::removeInstrumentation(const ThreadName& thread)
 {
-    // TODO: implement!
+    Guard guard_myself(this);
+    
+    // Find the entry (if any) for this thread
+    std::map<ThreadName, ThreadEntry>::iterator i = dm_threads.find(thread);
+    
+    // Go no further if there is no instrumentation for this thread
+    if(i == dm_threads.end())
+	return;
+    
+    // Iterate over each collector with instrumentation in this thread
+    for(std::map<Collector, InstrumentationList>::const_iterator
+	    j = i->second.dm_collectors.begin(); 
+	j != i->second.dm_collectors.end(); 
+	++j)
+	
+	// Iterate over all instrumentation associated with this collector
+	for(InstrumentationList::const_reverse_iterator
+		k = j->second.rbegin(); k != j->second.rend(); ++k) {
+
+	    // Remove this instrumentation from the thread
+	    (*k)->remove();
+
+	    // Destroy this instrumentation entry
+	    delete *k;
+
+	}
+
+    // Iterate over all instrumentation not associated with a collector
+    for(InstrumentationList::const_reverse_iterator
+	    j = i->second.dm_general.rbegin(); 
+	j != i->second.dm_general.rend(); 
+	++j) {
+
+	// Remove this instrumentation from the thread
+	(*j)->remove();
+
+	// Destroy this instrumentation entry
+	delete *j;
+
+    }
+    
+    // Remove this thread from the table
+    dm_threads.erase(i);
 }
 
 
@@ -157,7 +300,11 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread)
 /**
  * Remove instrumentation from a thread for a collector.
  *
- * ...
+ * Removes all instrumentation associated with the specified collector from
+ * the specified thread and removes it from this instrumentation table.
+ *
+ * @note    Any attempt to remove instrumentation for a thread which the
+ *          collector hasn't instrumented is silently ignored.
  *
  * @param thread       Thread from which instrumentation should be removed.
  * @param collector    Collector which is removing instrumentation.
@@ -165,7 +312,37 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread)
 void InstrumentationTable::removeInstrumentation(const ThreadName& thread,
 						 const Collector& collector)
 {
-    // TODO: implement!
+    Guard guard_myself(this);
+    
+    // Find the entry (if any) for this thread
+    std::map<ThreadName, ThreadEntry>::iterator i = dm_threads.find(thread);
+    
+    // Go no further if there is no instrumentation for this thread
+    if(i == dm_threads.end())
+	return;
+
+    // Find the entry (if any) for this collector
+    std::map<Collector, InstrumentationList>::iterator j =
+	i->second.dm_collectors.find(collector);
+
+    // Go no further if there is no instrumentation for this collector
+    if(j == i->second.dm_collectors.end())
+	return;
+
+    // Iterate over all instrumentation associated with this collector
+    for(InstrumentationList::const_reverse_iterator
+	    k = j->second.rbegin(); k != j->second.rend(); ++k) {
+	
+	// Remove this instrumentation from the thread
+	(*k)->remove();
+	
+	// Destroy this instrumentation entry
+	delete *k;
+	
+    }
+    
+    // Remove this collector's instrumentation from the table
+    i->second.dm_collectors.erase(j);
 }
 
 
@@ -173,7 +350,12 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread,
 /**
  * Copy instrumentation from one thread to another.
  *
- * ...
+ * Copies all instrumentation from the specified source thread to the specified
+ * destination thread and add the new instrumentation to this instrumentation
+ * table.
+ *
+ * @note    Any attempt to copy instrumentation from a thread that has no
+ *          instrumentation is silently ignored.
  *
  * @param source         Thread from which instrumentation should be copied.
  * @param destination    Thread to which instrumentation should be copied.
@@ -181,5 +363,62 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread,
 void InstrumentationTable::copyInstrumentation(const ThreadName& source,
 					       const ThreadName& destination)
 {
-    // TODO: implement!
+    Guard guard_myself(this);
+    
+    // Find the entry (if any) for the source thread
+    std::map<ThreadName, ThreadEntry>::iterator i = dm_threads.find(source);
+    
+    // Go no further if there is no instrumentation for this thread
+    if(i == dm_threads.end())
+	return;
+
+    // Get the Dyninst pointer for the destination thread
+    BPatch_thread* thread = ThreadTable::TheTable.getPtr(destination);
+    Assert(thread != NULL);
+
+    // Add the destination thread to the table (or find the existing entry)
+    std::map<ThreadName, ThreadEntry>::iterator j =
+	dm_threads.insert(std::make_pair(destination, ThreadEntry())).first;
+
+    // Iterate over all instrumentation not associated with a collector
+    for(InstrumentationList::const_iterator
+	    k = i->second.dm_general.begin(); 
+	k != i->second.dm_general.end(); 
+	++k) {
+
+	// Copy this instrumentation entry and add it to the list
+	InstrumentationEntry* entry = (*k)->copy(*thread);
+	j->second.dm_general.push_back(entry);
+	
+	// Install the instrumentation
+	entry->install();
+	
+    }
+
+    // Iterate over each collector with instrumentation in the source thread
+    for(std::map<Collector, InstrumentationList>::const_iterator
+	    k = i->second.dm_collectors.begin(); 
+	k != i->second.dm_collectors.end(); 
+	++k) {
+	
+	// Add this collector for the destination thread (or get existing entry)
+	std::map<Collector, InstrumentationList>::iterator l =
+	    j->second.dm_collectors.insert(
+	        std::make_pair(k->first, InstrumentationList())
+		).first;
+	
+	// Iterate over all instrumentation associated with this collector
+	for(InstrumentationList::const_iterator
+		m = k->second.begin(); m != k->second.end(); ++m) {
+
+	    // Copy this instrumentation entry and add it to the list
+	    InstrumentationEntry* entry = (*m)->copy(*thread);
+	    l->second.push_back(entry);
+	    
+	    // Install the instrumentation
+	    entry->install();
+	    
+	}
+
+    }
 }

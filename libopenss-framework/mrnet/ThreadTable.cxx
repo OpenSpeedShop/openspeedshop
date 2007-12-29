@@ -108,7 +108,7 @@ ThreadTable::~ThreadTable()
  */
 void ThreadTable::addThread(const Thread& thread)
 {    
-    Guard guard_this(this);
+    Guard guard_myself(this);
 
     // Find the entry (if any) for this thread
     ThreadTable::const_iterator i = find(thread);
@@ -135,7 +135,7 @@ void ThreadTable::addThread(const Thread& thread)
  */
 void ThreadTable::removeThread(const Thread& thread)
 {
-    Guard guard_this(this);
+    Guard guard_myself(this);
 
     // Find the entry (if any) for this thread
     ThreadTable::iterator i = find(thread);
@@ -165,7 +165,7 @@ ThreadGroup ThreadTable::getThreads(const std::string& host,
 				    const pid_t& pid,
 				    const std::pair<bool, pthread_t>& tid)
 {
-    Guard guard_this(this);
+    Guard guard_myself(this);
     ThreadGroup threads;
 
     // Iterate over each thread in this thread table
@@ -219,7 +219,7 @@ bool ThreadTable::isConnected(const Thread& thread)
  */
 Thread::State ThreadTable::getThreadState(const Thread& thread)
 {
-    Guard guard_this(this);
+    Guard guard_myself(this);
     
     // Find the entry (if any) for this thread
     ThreadTable::const_iterator i = find(thread);
@@ -242,7 +242,7 @@ Thread::State ThreadTable::getThreadState(const Thread& thread)
 void ThreadTable::setThreadState(const Thread& thread, 
 				 const Thread::State& state)
 {
-    Guard guard_this(this);
+    Guard guard_myself(this);
 
     // Find the entry (if any) for this thread
     ThreadTable::iterator i = find(thread);
@@ -267,7 +267,7 @@ void ThreadTable::setThreadState(const Thread& thread,
  */
 void ThreadTable::validateThreads(const ThreadGroup& threads)
 {
-    Guard guard_this(this);
+    Guard guard_myself(this);
 
     // Iterate over each thread of this group
     for(ThreadGroup::const_iterator 

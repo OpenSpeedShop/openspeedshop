@@ -62,7 +62,7 @@ SentFilesTable::SentFilesTable() :
 void SentFilesTable::addSent(const FileName& file,
 			     const ExperimentGroup& experiments)
 {
-    Guard guard_this(this);
+    Guard guard_myself(this);
 
     // Check assertions
     for(const_iterator i = lower_bound(file); i != upper_bound(file); ++i)
@@ -91,7 +91,7 @@ ExperimentGroup
 SentFilesTable::getUnsent(const FileName& file,
 			  const ExperimentGroup& experiments) const
 {
-    Guard guard_this(this);
+    Guard guard_myself(this);
     
     // Find the unsent subset of experiments for the specified file
     ExperimentGroup unsent(experiments);

@@ -29,9 +29,12 @@
 #include "config.h"
 #endif
 
+#include "InstrumentationEntry.hxx"
 #include "Lockable.hxx"
 
+#include <map>
 #include <string>
+#include <vector>
 
 
 
@@ -44,7 +47,9 @@ namespace OpenSpeedShop { namespace Framework {
     /**
      * Instrumentation table.
      *
-     * ...
+     * Table used to keep track of what instrumentation has been inserted into
+     * the threads. Facilitates later removal of that instrumentation and making
+     * identical copies of the instrumentation to other threads.
      *
      * @ingroup Implementation
      */
@@ -75,9 +80,30 @@ namespace OpenSpeedShop { namespace Framework {
 	
     private:
 
+	/** Type representing a list of instrumentation. */
+	typedef std::vector<InstrumentationEntry*> InstrumentationList;
+
+	/**
+	 * Thread entry.
+	 *
+	 * Structure containing lists of instrumentation associated with
+	 * a thread.
+	 */
+	struct ThreadEntry
+	{
+	    /** Instrumentation not associated with any collector. */
+	    InstrumentationList dm_general;
+	    
+	    /** Instrumentation associated with specific collectors. */
+	    std::map<Collector, InstrumentationList> dm_collectors;
+
+	};
+	
+	/** Threads in this instrumentation table. */
+	std::map<ThreadName, ThreadEntry> dm_threads;
 	
     };
-
+    
 } }
 
 
