@@ -158,6 +158,48 @@ std::string OpenSpeedShop::Framework::getCanonicalName(const std::string& host)
 
 
 /**
+ * Parse a library function name.
+ *
+ * Returns the separate library and function names parsed from the specified
+ * library function name. If the passed name cannot be parsed, the returned
+ * library and function names will be empty.
+ *
+ * @param function    Name of the library function to be parsed.
+ * @return            Pair containing the parsed library and function names.
+ */
+std::pair<std::string, std::string> 
+OpenSpeedShop::Framework::parseLibraryFunctionName(const std::string& function)
+{
+    // Find the ":" separator between the library and function names
+    std::string::size_type separator = function.find_first_of(':');    
+    if(separator == std::string::npos)
+        return std::pair<std::string, std::string>();
+    
+    // Library name is everything up to the separator (trimming spaces)
+    std::string library_name = 
+	function.substr(0, separator);
+    std::string::size_type trim_left = library_name.find_first_not_of(' ');
+    std::string::size_type trim_right = library_name.find_last_not_of(' ');    
+    if(trim_left < trim_right)
+        library_name = 
+            library_name.substr(trim_left, trim_right - trim_left + 1);
+    
+    // Function name is everything after the separator (trimming spaces)
+    std::string function_name =
+        function.substr(separator + 1, function.size() - separator - 1);
+    trim_left = function_name.find_first_not_of(' ');
+    trim_right = function_name.find_last_not_of(' ');    
+    if(trim_left < trim_right)
+        function_name = 
+            function_name.substr(trim_left, trim_right - trim_left + 1);
+    
+    // Return the parsed library and function names to the caller
+    return std::make_pair(library_name, function_name);
+}
+
+
+
+/**
  * Conversion from OpenSS_Protocol_AddressRange to std::string.
  *
  * Returns the conversion of an OpenSS_Protocol_AddressRange into a std::string.

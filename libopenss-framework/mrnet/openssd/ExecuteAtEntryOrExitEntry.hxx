@@ -72,6 +72,9 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	/** Blob argument to the function. */
 	Blob dm_argument;
+
+	/** Handle to the inserted instrumentation. */
+	BPatchSnippetHandle* dm_handle;
 	
     };
 

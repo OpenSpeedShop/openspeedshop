@@ -35,6 +35,7 @@
 #include <inttypes.h>
 #endif
 #include <string>
+#include <utility>
 
 
 
@@ -46,6 +47,9 @@ namespace OpenSpeedShop { namespace Framework {
 
     std::string getLocalHost();
     std::string getCanonicalName(const std::string&);
+
+    std::pair<std::string, std::string>
+    parseLibraryFunctionName(const std::string&);
 
     std::string toString(const OpenSS_Protocol_AddressRange&);
     std::string toString(const OpenSS_Protocol_AddressBitmap&);

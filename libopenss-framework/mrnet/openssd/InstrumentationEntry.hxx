@@ -71,6 +71,9 @@ namespace OpenSpeedShop { namespace Framework {
 	 *
 	 * Pure virtual member function that defines the interface by which the
 	 * instrumentation table requests this instrumentation be installed.
+	 *
+	 * @note    Any attempt to install instrumentation that has already
+	 *          been installed will be silently ignored.
 	 */
 	virtual void install() = 0;
 	
@@ -79,6 +82,9 @@ namespace OpenSpeedShop { namespace Framework {
 	 *
 	 * Pure virtual member function that defines the interface by which the
 	 * instrumentation table requests this instrumentation be removed.
+	 *
+	 * @note    Any attempt to remove instrumentation that has already
+	 *          been removed will be silently ignored.
 	 */
 	virtual void remove() = 0;
 	

@@ -64,6 +64,9 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	/** Flag indicating if stopping at entry or exit of the function. */
 	bool dm_at_entry;
+
+	/** Handle to the inserted instrumentation. */
+	BPatchSnippetHandle* dm_handle;
 	
     };
 

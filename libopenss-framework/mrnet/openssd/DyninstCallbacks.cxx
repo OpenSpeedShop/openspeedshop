@@ -223,6 +223,64 @@ void DyninstCallbacks::threadDestroy(BPatch_process* process,
 
 
 /**
+ * Find a function.
+ *
+ * Finds the named function in the specified process and returns the Dyninst
+ * function pointer for that function to the caller. A null pointer is returned
+ * if the function cannot be found.
+ *
+ * @note    This function isn't a real Dyninst callback function but rather a
+ *          utility function that is used in several other places. This seemed
+ *          as good a place as any to put it.
+ *
+ * @param process    Process in which to find the function.
+ * @param name       Name of the function to be found.
+ * @return           Dyninst function pointer for the named function, or
+ *                   a null pointer if the function could not be found.
+ */
+BPatch_function*
+DyninstCallbacks::findFunction(/* const */ BPatch_process& process,
+			       const std::string& name)
+{
+    // TODO: implement!
+}
+
+
+
+/**
+ * Find a library function.
+ *
+ * Finds the named library function in the specified process. The library
+ * containing this function is loaded into the process first if necessary.
+ * The Dyninst function pointer is returned to the caller. A null pointer
+ * is returned if the function cannot be found.
+ *
+ * @note    This function isn't a real Dyninst callback function but rather a
+ *          utility function that is used in several other places. This seemed
+ *          as good a place as any to put it.
+ *
+ * @param process    Process in which to find the library function.
+ * @param name       Name of the library function to be found.
+ * @return           Dyninst function pointer for the named library function, or
+ *                   a null pointer if the library function could not be found.
+ */
+BPatch_function*
+DyninstCallbacks::findLibraryFunction(/* const */ BPatch_process& process,
+				      const std::string& name)
+{
+    // Parse the library function name into separate library and function names
+    std::pair<std::string, std::string> parsed = parseLibraryFunctionName(name);
+
+    // ...
+    if(parsed.first.empty() || parsed.second.empty())
+	return NULL;
+    
+    // TODO: implement!
+}
+
+
+
+/**
  * Send symbols for a thread.
  *
  * Sends a series of messages to the frontend describing the initial set of

@@ -56,6 +56,10 @@ namespace OpenSpeedShop { namespace Framework {
 	void threadCreate(BPatch_process*, BPatch_thread*);
 	void threadDestroy(BPatch_process*, BPatch_thread*);
 
+	BPatch_function* findFunction(/* const */ BPatch_process&,
+				      const std::string&);
+	BPatch_function* findLibraryFunction(/* const */ BPatch_process&,
+					     const std::string&);
 	void sendSymbolsForThread(const ThreadNameGroup&);
     }
     

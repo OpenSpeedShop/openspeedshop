@@ -22,7 +22,11 @@
  *
  */
 
+#include "Assert.hxx"
+#include "DyninstCallbacks.hxx"
 #include "StopAtEntryOrExitEntry.hxx"
+
+#include <BPatch_function.h>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -45,7 +49,8 @@ StopAtEntryOrExitEntry::StopAtEntryOrExitEntry(BPatch_thread& thread,
 					       const bool& at_entry) :
     InstrumentationEntry(thread),
     dm_where(where),
-    dm_at_entry(at_entry)
+    dm_at_entry(at_entry),
+    dm_handle(NULL)
 {
 }
 
@@ -72,7 +77,47 @@ InstrumentationEntry* StopAtEntryOrExitEntry::copy(BPatch_thread& thread) const
  */
 void StopAtEntryOrExitEntry::install()
 {
-    // TODO: implement!
+    // Return immediately if the instrumentation is already installed
+    if(dm_is_installed)
+        return;
+
+    // Get the Dyninst process pointer for the thread to be instrumented
+    BPatch_process* process = dm_thread.getProcess();
+    Assert(process != NULL);
+
+    // Find the "where" function
+    BPatch_function* where =
+        DyninstCallbacks::findFunction(*process, dm_where);
+
+    if(where != NULL) {
+
+	//
+	// Create instrumentation snippet for the code sequence:
+	//
+	//     if(threadIndexExpr() == dm_thread.getLWP())
+	//         Breakpoint;
+	//
+
+	BPatch_ifExpr expression(
+            BPatch_boolExpr(BPatch_eq,
+                            BPatch_threadIndexExpr(),
+                            BPatch_constExpr(dm_thread.getLWP())),
+	    BPatch_breakPointExpr()
+            );
+	
+        // Find the entry/exit points of the "where" function
+        BPatch_Vector<BPatch_point*>* points =
+            where->findPoint(dm_at_entry ? BPatch_locEntry : BPatch_locExit);
+        Assert(points != NULL);
+        
+        // Request the instrumentation be inserted
+        dm_handle = process->insertSnippet(expression, *points);
+        Assert(dm_handle != NULL);
+	
+    }
+    
+    // Instrumentation is now installed
+    dm_is_installed = true;
 }
 
 
@@ -84,5 +129,22 @@ void StopAtEntryOrExitEntry::install()
  */
 void StopAtEntryOrExitEntry::remove()
 {
-    // TODO: implement!
+    // Return immediately if the instrumentation is already removed
+    if(!dm_is_installed)
+        return;
+
+    // Get the Dyninst process pointer for the thread to be instrumented
+    BPatch_process* process = dm_thread.getProcess();
+    Assert(process != NULL);
+
+    // Was the instrumentation actually inserted?
+    if(dm_handle != NULL) {
+    
+        // Request the instrumentation be removed
+        process->deleteSnippet(dm_handle);
+    
+    }
+
+    // Instrumentation is no longer installed
+    dm_is_installed = false;
 }

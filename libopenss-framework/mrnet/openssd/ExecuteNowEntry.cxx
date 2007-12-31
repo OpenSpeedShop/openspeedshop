@@ -22,6 +22,8 @@
  *
  */
 
+#include "Assert.hxx"
+#include "DyninstCallbacks.hxx"
 #include "ExecuteNowEntry.hxx"
 
 using namespace OpenSpeedShop::Framework;
@@ -76,7 +78,48 @@ InstrumentationEntry* ExecuteNowEntry::copy(BPatch_thread& thread) const
  */
 void ExecuteNowEntry::install()
 {
-    // TODO: implement!
+    // Return immediately if the instrumentation is already installed
+    if(dm_is_installed)
+	return;
+
+    // Get the Dyninst process pointer for the thread to be instrumented
+    BPatch_process* process = dm_thread.getProcess();
+    Assert(process != NULL);
+
+    // Find the "callee" function
+    BPatch_function* callee = 
+	DyninstCallbacks::findLibraryFunction(*process, dm_callee);
+    
+    if(callee != NULL) {
+
+	//
+	// Create instrumentation snippet for the code sequence:
+	//
+	//     dm_callee(StringEncode(dm_argument))
+	//
+	
+	BPatch_constExpr argument(dm_argument.getStringEncoding().c_str());
+	BPatch_Vector<BPatch_snippet*> arguments;
+	arguments.push_back(&argument);
+
+	BPatch_funcCallExpr expression(*callee, arguments);
+	
+	// Instruct Dyninst to either save or not save FPRs as appropriate
+	BPatch* bpatch = BPatch::getBPatch();
+	Assert(bpatch != NULL);
+	bool saved_fpr = bpatch->isSaveFPROn();
+	bpatch->setSaveFPR(!dm_disable_save_fpr);
+
+	// Request the instrumentation be executed
+	dm_thread.oneTimeCode(expression);
+	
+	// Restore the saving of FPRs to its previous state
+	bpatch->setSaveFPR(saved_fpr);
+	
+    }
+
+    // Instrumentation is now installed
+    dm_is_installed = true;
 }
 
 
@@ -88,5 +131,6 @@ void ExecuteNowEntry::install()
  */
 void ExecuteNowEntry::remove()
 {
-    // TODO: implement!
+    // Instrumentation is no longer installed
+    dm_is_installed = false;
 }

@@ -65,6 +65,12 @@ namespace OpenSpeedShop { namespace Framework {
 
 	/** Name of the library function to be executed. */
 	std::string dm_callee;
+
+	/** Handle to the flag used by the instrumentation. */
+	BPatch_variableExpr* dm_flag;
+	
+	/** Handle to the inserted instrumentation. */
+	BPatchSnippetHandle* dm_handle;
 	
     };
 
