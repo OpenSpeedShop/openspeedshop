@@ -1400,7 +1400,17 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
     for (ci=cgrp.begin(); ci != cgrp.end(); ci++) {
       Collector c = *ci;
       ThreadGroup::iterator ti;
+      bool skip_mpirun = false;
       for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+	std::pair<bool, std::string> mpi_impl =(*ti).getMPIImplementation();
+	if (mpi_impl.first && !skip_mpirun) {
+	    // The first thread in an mpi job started via expcreate
+	    // is the mpirun program (orterun,mpirun,ssrun,etc).
+	    // This is intended to defer adding a collector to the mpirun
+	    // program itself. Need to verify this with mpich attach.
+	    skip_mpirun = true;
+	    continue;
+	}
         (*cmdfunc) (cmd, exp, *ti, c);
       }
     }
