@@ -53,6 +53,26 @@
 #undef DPCL_SUPPORTS_STATEMENT_LIST
 #endif
 
+namespace {
+    /**
+     * Suspend the calling thread.
+     *
+     * Suspends the calling thread for approximately 250 mS. Used to implement
+     * busy loops that are waiting for state changes in threads.
+     */
+    void suspend()
+    {
+        // Setup to wait for 250 mS
+        struct timespec wait;
+        wait.tv_sec = 0;
+        wait.tv_nsec = 250 * 1000 * 1000;
+
+        // Suspend ourselves temporarily
+        // This while loop ensures that nanosleep will sleep at
+        // least the amount of time even if a signal interupts nanosleep.
+        while(nanosleep(&wait, &wait));
+    }
+}
 
 
 //
@@ -3390,6 +3410,7 @@ void Process::terminationCallback(GCBSysType, GCBTagType,
 void Process::threadListChangeCallback(GCBSysType, GCBTagType,
 				       GCBObjType, GCBMsgType msg)
 {
+    
     std::string name = std::string(reinterpret_cast<char*>(msg));
     SmartPtr<Process> process;
 
@@ -3424,7 +3445,7 @@ void Process::threadListChangeCallback(GCBSysType, GCBTagType,
 	static_cast<pthread_t>(strtoul(tid_string.c_str(), NULL, 10));
     if(tid == 0)
 	return;
-    
+
     // Get the identifiers of the threads in this process
     std::set<pthread_t> tids;
     if(!process->getPosixThreadIds(tids))
@@ -3501,10 +3522,40 @@ void Process::threadListChangeCallback(GCBSysType, GCBTagType,
             }
 	}
 
-	// Request the current in-memory address space of this process
+	// Request the current in-memory address space of this process.
+	// Since this is handling new threads (pthreads) created after the
+	// experiment was first created, we need to attach an existing collectors
+	// in the experiment to each new thread.  The process is suspended
+	// at this point so other threads do not run while we are getting
+	// the address space and attaching the collectors.
 	if(!added.empty()) {
+	    if (added.isAnyState(Thread::Running)) {
+	      {
+		Guard guard_process(*process);
+		process->setCurrentState(name, Thread::Suspended);
+		// Wait until the threads are suspended
+		suspend();
+		while(!added.areAllState(Thread::Suspended)) {
+		    suspend();
+		}
+	      }
+	    }
+
+	    // request address space and attach any existing collectors.
 	    process->requestAddressSpace(added, Time::Now(), true);
 	    added.startCollecting(collectors);
+
+	    if (added.isAnyState(Thread::Suspended)) {
+	      {
+		Guard guard_process(*process);
+		process->setCurrentState(name, Thread::Running);
+		// Wait until the threads are suspended
+		suspend();
+		while(added.isAnyState(Thread::Suspended)) {
+		    suspend();
+		}
+	      }
+	    }
 	}
 
     }

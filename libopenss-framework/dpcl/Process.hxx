@@ -107,7 +107,6 @@ namespace OpenSpeedShop { namespace Framework {
         //Martin: added routine to set value
         bool setGlobal(const std::string& global, int64_t value);
 
-	bool in_mpi_startup;
 	bool inMPIStartup();
 	void setMPIStartup (bool);
 
@@ -229,6 +228,8 @@ namespace OpenSpeedShop { namespace Framework {
 	
         /** Identifier of this process. */
         pid_t dm_pid;
+
+	bool in_mpi_startup;
 
 	/** Standard output stream callback. */
 	OutputCallback dm_stdout_callback;
