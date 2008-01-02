@@ -973,11 +973,24 @@ static void Resolve_T_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
       t_val2 = &t_range->end_range;
     }
 
-    int64_t mythread;
+    uint64_t mythread;
+    ThreadGroup original_threads = exp->FW()->getThreads();
+
     for ( mythread = t_val1->num; mythread <= t_val2->num; mythread++) {
       try {
-//        Thread t = exp->FW()->attachOpenMPThread(mypid, mythread, host_name);
-//        tgrp->insert(t);
+
+        // Loop through thread group original_threads and check if any of the
+	// threads specified in the thread list (t_val1 thru t_val2) exist.
+        // If we find a match, add the thread to the thread group tgrp.
+
+        for(ThreadGroup::const_iterator
+            i = original_threads.begin(); i != original_threads.end(); ++i) {
+	  std::pair<bool, pthread_t> posixthread = (*i).getPosixThreadId();
+	  if (posixthread.first && mythread == posixthread.second) {
+            tgrp->insert(*i);
+	  }
+        }
+
       }
       catch(const Exception& error) {
         Mark_Cmd_With_Std_Error (cmd, error);
@@ -1193,15 +1206,19 @@ static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
     parse_val_t *h_val1 = &h_range->start_range;
     if (h_range->is_range) {
       parse_val_t *h_val2 = &h_range->end_range;
-// TODO:
     } else {
-      if (has_f) {
-        Resolve_F_Target ( cmd, exp, tgrp, pt, h_val1->name);
-      } else if (has_p) {
-        Resolve_P_Target ( cmd, exp, tgrp, pt, h_val1->name);
-      } else {
-//TODO:
-      }
+      // TODO:
+    }
+    if (has_f) {
+      Resolve_F_Target ( cmd, exp, tgrp, pt, h_val1->name);
+    } else if (has_p) {
+      Resolve_P_Target ( cmd, exp, tgrp, pt, h_val1->name);
+    } else if (has_r) {
+      Resolve_R_Target ( cmd, exp, tgrp, pt, h_val1->name, -1);
+    } else if (has_t) {
+      Resolve_T_Target ( cmd, exp, tgrp, pt, h_val1->name, -1);
+    } else {
+      // TODO:
     }
   }
 }
