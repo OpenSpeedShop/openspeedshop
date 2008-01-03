@@ -166,6 +166,7 @@ Process::Process(const std::string& host, const std::string& command,
 		 const OutputCallback stdout_callback, 
 		 const OutputCallback stderr_callback) :
     Lockable(),
+    in_mpi_startup(false),
 #ifndef NDEBUG
     dm_previous_getstate(),
 #endif
