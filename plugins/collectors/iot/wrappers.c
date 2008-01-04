@@ -19,13 +19,30 @@
 #include "RuntimeAPI.h"
 
 #include "blobs.h"
+/* Start part 1 of 2 for Hack to get around inconsistent syscall definitions */
+/* #include <syscall.h> */
+/* End part 1 of 2 for Hack to get around inconsistent syscall definitions */
 
-#include <syscall.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 #include "runtime.h"
 #include <dlfcn.h>
+
+/* Start part 2 of 2 for Hack to get around inconsistent syscall definitions */
+#include <sys/syscall.h>
+#ifdef __NR_pread64  /* Newer kernels renamed but it's the same.  */
+# ifndef __NR_pread
+# define __NR_pread __NR_pread64
+# endif
+#endif
+
+#ifdef __NR_pwrite64  /* Newer kernels renamed but it's the same.  */
+# ifndef __NR_pwrite
+#  define __NR_pwrite __NR_pwrite64
+# endif
+#endif
+/* End part 2 of 2 for Hack to get around inconsistent syscall definitions */
 
 /*
  * IOT Wrapper Functions
