@@ -24,6 +24,7 @@
 
 #include "AddressRange.hxx"
 #include "Assert.hxx"
+#include "Backend.hxx"
 #include "DyninstCallbacks.hxx"
 #include "ExperimentGroup.hxx"
 #include "FileName.hxx"
@@ -75,13 +76,14 @@ void DyninstCallbacks::dynLibrary(BPatch_thread* thread,
     ThreadNameGroup threads;
 
     // Iterate over each thread in this process
-    for(int i = 0; i < threads.size(); ++i) {
+    for(int i = 0; i < threads_in_process.size(); ++i) {
 	Assert(threads_in_process[i] != NULL);
 
 	// Add all the names of this thread
 	ThreadNameGroup names = 
 	    ThreadTable::TheTable.getNames(threads_in_process[i]);
 	threads.insert(names.begin(), names.end());
+
     }
     
     // Get the current time
@@ -89,6 +91,17 @@ void DyninstCallbacks::dynLibrary(BPatch_thread* thread,
     
     // Get the file name of this module
     FileName linked_object(*module);
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+        std::stringstream output;
+	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	       << "dynLibrary(): PID " << process->getPid() << " "
+	       << (is_load ? "loaded" : "unloaded") << " \""
+	       << linked_object.getPath() << "\"." << std::endl;
+        std::cerr << output.str();
+    }
+#endif
     
     // Was this module loaded into the thread?
     if(is_load) {
@@ -161,16 +174,69 @@ void DyninstCallbacks::exec(BPatch_thread* thread)
 
 
 /**
- * ...
+ * Exit callback.
  *
- * ...
+ * Callback function called by Dyninst when a process has exited. Sends a
+ * message to the frontend indicating that all the threads in this process
+ * have terminated.
  *
- * @param thread       ...
- * @param exit_type    ...
+ * @param thread       Thread in the process that has terminated.
+ * @param exit_type    Description of how the process exited.
  */
 void DyninstCallbacks::exit(BPatch_thread* thread, BPatch_exitType exit_type)
 {
-    // TODO: implement!
+    // Check preconditions
+    Assert(thread != NULL);
+
+    // Get the Dyninst process pointer for this thread
+    BPatch_process* process = thread->getProcess();
+    Assert(process != NULL);
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+        std::stringstream output;
+	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	       << "exit(): PID " << process->getPid() << " exited with \"";
+	switch(exit_type) {
+	case NoExit:
+	    output << "NoExit";
+	    break;
+	case ExitedNormally:
+	    output << "ExitedNormally";
+	    break;
+	case ExitedViaSignal:
+	    output << "ExitedViaSignal";
+	    break;
+	default:
+	    output << "?";
+	    break;
+	}
+	output << "\"." << std::endl;
+        std::cerr << output.str();
+    }
+#endif
+    
+    // Get the list of threads in this process
+    BPatch_Vector<BPatch_thread*> threads_in_process;
+    process->getThreads(threads_in_process);
+    Assert(!threads_in_process.empty());
+
+    // Names for these threads
+    ThreadNameGroup threads;
+
+    // Iterate over each thread in this process
+    for(int i = 0; i < threads_in_process.size(); ++i) {
+	Assert(threads_in_process[i] != NULL);
+	
+	// Add all the names of this thread
+	ThreadNameGroup names = 
+	    ThreadTable::TheTable.getNames(threads_in_process[i]);
+	threads.insert(names.begin(), names.end());
+	
+    } 
+
+    // Send the frontend the list of threads that have terminated
+    Senders::threadsStateChanged(threads, Terminated);
 }
 
 
@@ -242,7 +308,28 @@ BPatch_function*
 DyninstCallbacks::findFunction(/* const */ BPatch_process& process,
 			       const std::string& name)
 {
-    // TODO: implement!
+    // Get the image pointer for this process
+    BPatch_image* image = process.getImage();
+    Assert(image != NULL);
+
+    // Attempt to find the requested function
+    BPatch_Vector<BPatch_function*> functions;
+    if(image->findFunction(name.c_str(), functions, false, true, true) == NULL)
+	functions.clear();
+    
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+        std::stringstream output;
+	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	       << "findFunction(PID " << process.getPid() << ", \"" << name 
+	       << "\") found " << functions.size() << " match"
+	       << ((functions.size() == 1) ? "" : "es") << "." << std::endl;
+        std::cerr << output.str();
+    }
+#endif
+    
+    // Return the first matching function (if any were found) to the caller
+    return functions.empty() ? NULL : functions[0];
 }
 
 
@@ -261,21 +348,97 @@ DyninstCallbacks::findFunction(/* const */ BPatch_process& process,
  *
  * @param process    Process in which to find the library function.
  * @param name       Name of the library function to be found.
- * @return           Dyninst function pointer for the named library function, or
- *                   a null pointer if the library function could not be found.
+ * @return           Dyninst function pointer for the named library function,
+ *                   or a null pointer if it could not be found.
  */
 BPatch_function*
 DyninstCallbacks::findLibraryFunction(/* const */ BPatch_process& process,
 				      const std::string& name)
 {
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+        std::stringstream output;
+	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	       << "findLibraryFunction(PID " << process.getPid() 
+	       << ", \"" << name << "\")" << std::endl;
+        std::cerr << output.str();
+    }
+#endif
+
     // Parse the library function name into separate library and function names
     std::pair<std::string, std::string> parsed = parseLibraryFunctionName(name);
 
-    // ...
+    // Go no further if parsing failed
     if(parsed.first.empty() || parsed.second.empty())
 	return NULL;
     
-    // TODO: implement!
+    // Get the image pointer for this process
+    BPatch_image* image = process.getImage();
+    Assert(image != NULL);
+
+    // Attempt to find the library containing the requested function
+    BPatch_module* module = image->findModule(parsed.first.c_str(), true);
+
+    // Does this library need to be loaded?
+    if(module == NULL) {
+
+	// Search for the library and find its full, normalized, path
+	Path library = searchForLibrary(parsed.first);
+	
+	// Request that Dyninst load this library into the process
+	if(!process.loadLibrary(library.c_str())) {
+	    
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+		       << "findLibraryFunction() failed to load \""
+		       << library << "\"." << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+	    
+	    return NULL;
+	}
+
+	// Attempt to find (again) the library containing the requested function
+	module = image->findModule(parsed.first.c_str(), true);
+	if(module == NULL) {
+
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+		       << "findLibraryFunction() failed to find \""
+		       << library << "\" after loading." << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+	    
+	    return NULL;
+	}
+	
+    }
+    
+    // Attempt to find the requested function
+    BPatch_Vector<BPatch_function*> functions;
+    if(module->findFunction(parsed.second.c_str(), functions,
+			    false, true, true, false) == NULL)
+	functions.clear();
+    
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+        std::stringstream output;
+	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	       << "findLibraryFunction() found " << functions.size() 
+	       << " match" << ((functions.size() == 1) ? "" : "es") << "." 
+	       << std::endl;
+        std::cerr << output.str();
+    }
+#endif
+    
+    // Return the first matching function (if any were found) to the caller
+    return functions.empty() ? NULL : functions[0];
 }
 
 

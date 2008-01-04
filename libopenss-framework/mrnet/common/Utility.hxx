@@ -51,6 +51,8 @@ namespace OpenSpeedShop { namespace Framework {
     std::pair<std::string, std::string>
     parseLibraryFunctionName(const std::string&);
 
+    Path searchForLibrary(const Path&);
+
     std::string toString(const OpenSS_Protocol_AddressRange&);
     std::string toString(const OpenSS_Protocol_AddressBitmap&);
     std::string toString(const OpenSS_Protocol_Blob&);

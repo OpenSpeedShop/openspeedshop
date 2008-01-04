@@ -50,6 +50,14 @@ int main(int argc, char* argv[])
 					DyninstCallbacks::threadCreate);
     bpatch->registerThreadEventCallback(BPatch_threadDestroyEvent,
 					DyninstCallbacks::threadDestroy);
+
+    // TODO: We need to register some sort of callback to pickup when a
+    //       process under our control stops at a breakpoint. Per Matt
+    //       Legendre on DEC-31-2007, Dyninst does not currently provide
+    //       any sort of callback for this. The only way to do this is
+    //       to track process state inside the daemon and have a thread
+    //       do a Dyninst waitForStatusChange() and watch for which
+    //       process has changed state, and if it has stopped.
     
     // Register callbacks with the backend
     Backend::registerCallback(OPENSS_PROTOCOL_TAG_ATTACH_TO_THREADS,

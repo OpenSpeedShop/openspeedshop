@@ -200,6 +200,53 @@ OpenSpeedShop::Framework::parseLibraryFunctionName(const std::string& function)
 
 
 /**
+ * Search for a library.
+ *
+ * Returns the full, normalized, path name of the specified library. The path
+ * in the environment variable OPENSS_PLUGIN_PATH is searched for the library.
+ * If the specified library already is an absolute path, or if the library
+ * cannot be found, the originally specified path is returned unchanged.
+ *
+ * @param library    Library to be found.
+ * @return           Full, normalized, path of the library if found, or
+ *                   the original library name if not.
+ */
+Path OpenSpeedShop::Framework::searchForLibrary(const Path& library)
+{
+    // Return path unchanged if it is an absolute path
+    if(library.isAbsolute())
+	return library;
+
+    // Get the plugin search path
+    if(getenv("OPENSS_PLUGIN_PATH") != NULL) {
+	std::string path = getenv("OPENSS_PLUGIN_PATH");
+
+	// Iterate over individual directories in the search path
+        for(std::string::size_type 
+                i = path.find_first_not_of(':', 0), next = path.find(':', i);
+            i != std::string::npos;
+            i = path.find_first_not_of(':', next), next = path.find(':', i)) {
+            
+            // Extract this directory
+            Path directory = 
+                path.substr(i, (next == std::string::npos) ? next : next - i);
+            
+            // Assmeble the candidate and check if it is an existant file
+            Path candidate = (directory + library).getNormalized();
+            if(candidate.isFile())
+                return candidate;
+            
+        }
+	
+    }
+    
+    // Otherwise return the path unchanged
+    return library;
+}
+
+
+
+/**
  * Conversion from OpenSS_Protocol_AddressRange to std::string.
  *
  * Returns the conversion of an OpenSS_Protocol_AddressRange into a std::string.
