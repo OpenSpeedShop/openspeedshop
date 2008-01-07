@@ -52,6 +52,8 @@ ThreadTable::ThreadTable() :
     Lockable(),
     std::map<Thread, Thread::State>()
 {
+    Path topology_filename = "~/.openss-mrnet-topology";
+    
     // Register callbacks with the frontend
     Frontend::registerCallback(OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREADS,
 			       Callbacks::attachedToThreads);
@@ -73,9 +75,11 @@ ThreadTable::ThreadTable() :
 			       Callbacks::unloadedLinkedObject);
     Frontend::registerCallback(OPENSS_PROTOCOL_TAG_PERFORMANCE_DATA,
 			       Callbacks::performanceData);
-
+    
     // Start the MRNet frontend message pump
-    Frontend::startMessagePump(Path("") /* ??? */);
+    if(getenv("OPENSS_MRNET_TOPOLOGY_FILE") != NULL)
+	topology_filename = getenv("OPENSS_MRNET_TOPOLOGY_FILE");
+    Frontend::startMessagePump(topology_filename);
 }
 
 

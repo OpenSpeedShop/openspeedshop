@@ -65,17 +65,10 @@ namespace {
 
 #ifndef NDEBUG
     /** Flag indicating if debugging for the frontend is enabled. */
-    bool is_frontend_debug_enabled = 
-        ((getenv("OPENSS_DEBUG_MRNET") != NULL) ||
-	 (getenv("OPENSS_DEBUG_MRNET_FRONTEND") != NULL));
-
-    /** Flag indicating if debugging for the backend is enabled. */
-    bool is_backend_debug_enabled = 
-        ((getenv("OPENSS_DEBUG_MRNET") != NULL) ||
-	 (getenv("OPENSS_DEBUG_MRNET_BACKEND") != NULL));
-#endif    
-
-
+    bool is_frontend_debug_enabled = false;
+#endif
+    
+    
 
     /**
      * Monitor thread function.
@@ -201,8 +194,16 @@ void Frontend::startMessagePump(const Path& topology_file)
 {
     static const char* DebugArgs[2] = { "-debug", NULL };
 
+    // Determine if debugging for the frontend and backend is enabled
+    is_frontend_debug_enabled = 
+	((getenv("OPENSS_DEBUG_MRNET") != NULL) ||
+	 (getenv("OPENSS_DEBUG_MRNET_FRONTEND") != NULL));
+    bool is_backend_debug_enabled = 
+        ((getenv("OPENSS_DEBUG_MRNET") != NULL) ||
+	 (getenv("OPENSS_DEBUG_MRNET_BACKEND") != NULL));
+
     // Initialize MRNet (participating as the frontend)
-    network = new MRN::Network(topology_file.c_str(), "openssd",
+    network = new MRN::Network(topology_file.getNormalized().c_str(), "openssd",
 			       is_backend_debug_enabled ? DebugArgs : NULL);
     if(network->fail())
 	throw std::runtime_error("Unable to initialize MRNet.");
@@ -243,7 +244,14 @@ void Frontend::stopMessagePump()
     monitor_request_exit.flag = false;
     Assert(pthread_mutex_unlock(&monitor_request_exit.lock) == 0);
 
-    // TODO: destroy upstream and network???
+    // Instruct the backends to shutdown
+    sendToAllBackends(OPENSS_PROTOCOL_TAG_SHUTDOWN_BACKENDS, Blob());
+    
+    // Destroy the stream used by backends to pass data to the frontend
+    delete upstream;
+    
+    // Finalize MRNet
+    delete network;
 }
 
 
@@ -317,6 +325,7 @@ void Frontend::sendToAllBackends(const int& tag, const Blob& blob)
 
     // Send the message
     Assert(upstream->send(tag, "auc", blob.getContents(), blob.getSize()) == 0);
+    Assert(upstream->flush() == 0);
 }
 
 

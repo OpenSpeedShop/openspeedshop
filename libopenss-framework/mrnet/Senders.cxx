@@ -58,7 +58,7 @@ namespace {
     void convert(const std::string& in, char*& out)
     {
 	if(!in.empty()) {
-	    out = new char[in.size()];
+	    out = new char[in.size() + 1];
 	    strcpy(out, in.c_str());
 	}
 	else

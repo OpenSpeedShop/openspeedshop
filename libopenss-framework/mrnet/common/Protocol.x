@@ -314,6 +314,7 @@ typedef uint64_t OpenSS_Protocol_Time;
  */
 %
 %#define OPENSS_PROTOCOL_TAG_ESTABLISH_UPSTREAM                 ((int)0)
+%#define OPENSS_PROTOCOL_TAG_SHUTDOWN_BACKENDS                  ((int)1)
 %
 %#define OPENSS_PROTOCOL_TAG_ATTACH_TO_THREADS                  ((int)100)
 %#define OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREADS                ((int)101)

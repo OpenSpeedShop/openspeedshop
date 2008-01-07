@@ -56,6 +56,11 @@ namespace {
 	false, PTHREAD_MUTEX_INITIALIZER
     };
 
+#ifndef NDEBUG
+    /** Flag indicating if debugging for the backend is enabled. */
+    bool is_backend_debug_enabled = false;
+#endif    
+
 
 
     /**
@@ -174,11 +179,18 @@ void Backend::unregisterCallback(const int& tag, const MessageCallback callback)
  */
 void Backend::startMessagePump(int argc, char* argv[])
 {
+#ifndef NDEBUG
+    // Determine if debugging for the backend should be enabled
+    for(int i = 0; i < argc; ++i)
+	if(std::string(argv[i]) == std::string("-debug"))
+	    is_backend_debug_enabled = true;
+#endif
+
     // Initialize MRNet (participating as a backend)
     network = new MRN::Network(argc, argv);
     if(network->fail())
 	throw std::runtime_error("Unable to initialize MRNet.");
-
+    
     // Create the stream used by backends to pass data to the frontend.
     int tag = -1;
     MRN::Packet* packet = NULL;
@@ -204,7 +216,7 @@ void Backend::stopMessagePump()
     Assert(pthread_mutex_lock(&monitor_request_exit.lock) == 0);
     monitor_request_exit.flag = true;
     Assert(pthread_mutex_unlock(&monitor_request_exit.lock) == 0);
-    
+     
     // Wait for the monitor thread to actually exit
     Assert(pthread_join(monitor_tid, NULL) == 0);
 
@@ -213,7 +225,11 @@ void Backend::stopMessagePump()
     monitor_request_exit.flag = false;
     Assert(pthread_mutex_unlock(&monitor_request_exit.lock) == 0);
 
-    // TODO: destroy upstream and network???
+    // Destroy the stream used by backends to pass data to the frontend
+    delete upstream;
+
+    // Finalize MRNet
+    delete network;
 }
 
 
@@ -248,6 +264,6 @@ void Backend::sendToFrontend(const int& tag, const Blob& blob)
  */
 bool Backend::isDebugEnabled()
 {
-    return false;  // TODO: implement!
+    return is_backend_debug_enabled;
 }
 #endif

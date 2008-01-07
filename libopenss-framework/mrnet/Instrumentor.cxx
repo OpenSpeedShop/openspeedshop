@@ -133,8 +133,12 @@ Thread::State Instrumentor::getState(const Thread& thread)
 void Instrumentor::changeState(const ThreadGroup& threads,
 			       const Thread::State& state)
 {
-    // TODO:  handle connecting
+    // WDH: Temporary debugging code
+    Senders::attachToThreads(threads);
+    return;
     
+    // TODO:  handle connecting
+
     // Request a state change from the threads
     Senders::changeThreadsState(threads, state);
 }
