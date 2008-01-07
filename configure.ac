@@ -126,6 +126,7 @@ AC_PKG_SQLITE()
 AC_PYTHON_DEVEL([>= '2.3'])
 AC_PKG_QTLIB()
 AC_PKG_LIBMONITOR()
+AC_PKG_MRNET()
 
 ################################################################################
 # Check for Dynamic Instrumentation Package
