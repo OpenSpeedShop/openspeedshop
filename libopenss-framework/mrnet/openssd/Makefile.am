@@ -27,11 +27,13 @@ openssd_CXXFLAGS = \
 openssd_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework/mrnet/common \
 	@DYNINST_LDFLAGS@ \
+	@BINUTILS_LDFLAGS@ \
 	@MRNET_LDFLAGS@
 
 openssd_LDADD = \
 	-lopenss-framework-mrnet-common \
 	@DYNINST_LIBS@ \
+	@BINUTILS_LIBS@ \
 	@MRNET_LIBS@ \
 	-lpthread -lrt
 
