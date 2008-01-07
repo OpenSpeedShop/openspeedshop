@@ -1528,9 +1528,13 @@ SourcePanel::refresh()
 {
   lineCount = 0;
 #ifdef DEBUG_SourcePanel
-  printf ("SourcePanel::refresh(), load the file last_spo->fileName=%s\n", last_spo->fileName.ascii() );
+  if (last_spo == NULL) {
+    printf ("SourcePanel::refresh(), last_spo=%d is NULL\n", last_spo );
+  } else {
+    printf ("SourcePanel::refresh(), load the file last_spo->fileName=%s\n", last_spo->fileName.ascii() );
+  }
 #endif
-  if( loadFile(last_spo->fileName) == FALSE )
+  if( last_spo == NULL || loadFile(last_spo->fileName) == FALSE )
   {
     // We didn't find or load the file, but we did attempt
     // to handle this message.   Return 1.
