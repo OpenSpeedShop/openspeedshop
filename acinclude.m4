@@ -340,6 +340,7 @@ m4_include(ac_pkg_mpi.m4)
 
 AC_DEFUN([AC_PKG_MRNET], [
 
+    foundMRNET=0
     AC_ARG_WITH(mrnet,
                 AC_HELP_STRING([--with-mrnet=DIR],
                                [MRNet installation @<:@/usr@:>@]),
@@ -367,17 +368,47 @@ AC_DEFUN([AC_PKG_MRNET], [
 	MRN::set_OutputLevel(0);
         ]]), [ AC_MSG_RESULT(yes)
 
-            AC_DEFINE(HAVE_MRNET, 1, 
-                      [Define to 1 if you have MRNet.])
+            foundMRNET=1
 
         ], [ AC_MSG_RESULT(no) 
 
-            MRNET_CPPFLAGS=""
-            MRNET_LDFLAGS=""
-            MRNET_LIBS=""
-
+            foundMRNET=0
         ]
     )
+
+    if test $foundMRNET == 0; then
+
+        MRNET_LDFLAGS="-L$mrnet_dir/$alt_abi_libdir"
+        LDFLAGS="$CXXFLAGS $MRNET_LDFLAGS $MRNET_LIBS"
+
+        AC_MSG_CHECKING([in alternative abi directory look for MRNet library and headers])
+
+        AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    	    #include <mrnet/MRNet.h>
+            ]], [[
+	    MRN::set_OutputLevel(0);
+            ]]), [ AC_MSG_RESULT(yes)
+
+                foundMRNET=1
+
+            ], [ AC_MSG_RESULT(no) 
+                foundMRNET=0
+            ]
+        )
+    fi
+
+    if test $foundMRNET == 1; then
+      AC_MSG_CHECKING([found MRNet ])
+      AC_MSG_RESULT(yes)
+      AM_CONDITIONAL(HAVE_MRNET, true)
+      AC_DEFINE(HAVE_MRNET, 1, [Define to 1 if you have MRNet.])
+    else
+      AC_MSG_RESULT(no)
+      AM_CONDITIONAL(HAVE_MRNET, false)
+      MRNET_CPPFLAGS=""
+      MRNET_LDFLAGS=""
+      MRNET_LIBS=""
+    fi
 
     CPPFLAGS=$mrnet_saved_CPPFLAGS
     LDFLAGS=$mrnet_saved_LDFLAGS
