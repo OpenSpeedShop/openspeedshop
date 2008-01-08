@@ -18,7 +18,7 @@
 
 /** @file
  *
- * Definition of the openss_send() function for offline collectors.
+ * Definition of the OpenSS_Path_From_Pid() function for offline collectors.
  *
  */
 
@@ -26,8 +26,6 @@
 #include "RuntimeAPI.h"
 
 #include <stdio.h>
-
-extern char *OpenSS_rawdata;
 
 /**
  *
