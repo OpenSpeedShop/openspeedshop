@@ -28,7 +28,6 @@ libopenss_runtime_offline_la_CFLAGS = \
 
 libopenss_runtime_offline_la_SOURCES = \
 	offline.x $(BUILT_SOURCES) \
-	openss_send.c \
 	offline_monitor.c \
 	OpenSS_GetDLInfo.c \
 	OpenSS_Offline.h

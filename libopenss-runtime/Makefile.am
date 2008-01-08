@@ -18,10 +18,10 @@
 ################################################################################
 
 SUBDIRS = @INSTRUMENTOR@
-DIST_SUBDIRS = dpcl dyninst offline mrnet
+DIST_SUBDIRS = dpcl dyninst offline mrnet fileio
 
 if HAVE_LIBMONITOR
-SUBDIRS += offline
+SUBDIRS += offline fileio
 endif
 
 # Note: Some versions of GCC (e.g. 3.3.3) appear to contain an optimization bug
@@ -36,7 +36,7 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c
 
-noinst_LTLIBRARIES = libopenss-runtime.la 
+noinst_LTLIBRARIES = libopenss-runtime.la
 if HAVE_LIBMONITOR
 noinst_LTLIBRARIES += libopenss-runtime-offline.la
 endif
@@ -72,6 +72,7 @@ libopenss_runtime_offline_la_LDFLAGS = \
 
 libopenss_runtime_offline_la_LIBADD = \
 	offline/libopenss-runtime-offline.la \
+	fileio/libopenss-runtime-fileio.la \
 	@LIBUNWIND_LIBS@ \
 	@BINUTILS_LIBS@ \
 	@PAPI_LIBS@ \

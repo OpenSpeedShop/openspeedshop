@@ -181,6 +181,7 @@ AC_CONFIG_FILES(
 	libopenss-runtime/dyninst/Makefile
 	libopenss-runtime/mrnet/Makefile
 	libopenss-runtime/offline/Makefile
+	libopenss-runtime/fileio/Makefile
 	libopenss-framework/Makefile
 	libopenss-framework/dpcl/Makefile
 	libopenss-framework/dyninst/Makefile
