@@ -33,8 +33,11 @@
 
 #include <libunwind.h>
 
-#if defined (OFFLINE)
+#if defined (OPENSS_OFFLINE)
 #include "hwctime_offline.h"
+#endif
+#if defined (OPENSS_USE_FILEIO)
+#include "OpenSS_FileIO.h"
 #endif
 
 #if UNW_TARGET_X86
@@ -80,18 +83,19 @@ static void send_samples()
     /* Send these samples */
     tls.header.time_end = OpenSS_GetTime();
 
-#if defined (OFFLINE)
 #ifndef NDEBUG
-        if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
-            fprintf(stderr,"hwctime send_samples: sends data:\n");
-            fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] bt_len(%d)\n",
-                tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,tls.data.bt.bt_len
-                );
-        }
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+        fprintf(stderr,"hwctime send_samples: sends data:\n");
+        fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] bt_len(%d)\n",
+            tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,tls.data.bt.bt_len
+            );
+    }
 #endif
-        /* Create the openss-raw file name for this exe-collector-pid-tid */
-        /* Default is to create openss-raw files in /tmp */
-        create_rawfile_name();
+
+#if defined (OPENSS_USE_FILEIO)
+    /* Create the openss-raw file name for this exe-collector-pid-tid */
+    /* Default is to create openss-raw files in /tmp */
+    OpenSS_CreateOutfile("openss-data");
 #endif
 
     OpenSS_Send(&(tls.header),(xdrproc_t)xdr_hwctime_data,&(tls.data));
@@ -245,7 +249,7 @@ void hwctime_start_sampling(const char* arguments)
 
     hwctime_start_sampling_args args;
 
-#if defined (OFFLINE)
+#if defined (OPENSS_OFFLINE)
 
     /* TODO: need to handle arguments for offline collectors */
     args.collector=1;
@@ -268,8 +272,8 @@ void hwctime_start_sampling(const char* arguments)
 
 
     /* Create the rawdata output file prefix.  hwctime_stop_sampling will append */
-    /* a tid as needed for the actuall .openss-raw filename */
-    create_rawfile_prefix();
+    /* a tid as needed for the actuall .openss-xdrtype filename */
+    OpenSS_CreateFilePrefix("hwctime");
 
     /* Initialize the info blob's header */
     /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
@@ -283,17 +287,21 @@ void hwctime_start_sampling(const char* arguments)
     tlsinfo.info.collector = "hwctime";
     tlsinfo.info.hostname = strdup(hostname);
     tlsinfo.info.pid = getpid();
-    tlsinfo.info.tid = tid;
+#if defined (OPENSS_USE_FILEIO)
+    tlsinfo.info.tid = OpenSS_rawtid;
+#endif
 
 #ifndef NDEBUG
-    if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"hwctime_start_sampling sends tlsinfo:\n");
         fprintf(stderr,"collector=%s, hostname=%s, pid =%d, tid=%lx\n",
             tlsinfo.info.collector,tlsinfo.info.hostname,tlsinfo.info.pid,tlsinfo.info.tid);
     }
 #endif
 
-    create_rawfile_name();
+#if defined (OPENSS_USE_FILEIO)
+    OpenSS_CreateOutfile("openss-info");
+#endif
     OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
 
 #else
@@ -321,7 +329,7 @@ void hwctime_start_sampling(const char* arguments)
     tls.data.bt.bt_len = 0;
     tls.data.bt.bt_val = tls.buffer.bt;
     
-#if defined (OFFLINE)
+#if defined (OPENSS_OFFLINE)
     tlsobj.objs.objname = NULL;
     tlsobj.objs.addr_begin = ~0;
     tlsobj.objs.addr_end = 0;

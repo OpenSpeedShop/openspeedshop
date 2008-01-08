@@ -70,7 +70,10 @@ hwc_rt_la_SOURCES = \
 
 if HAVE_LIBMONITOR
 hwc_rt_offline_la_CFLAGS = \
-	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
+	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/fileio \
+	-I$(top_srcdir)/libopenss-runtime/offline \
         @LIBMONITOR_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
 
@@ -93,7 +96,10 @@ hwc_rt_offline_la_SOURCES = \
 
 libhwc_offline_la_CFLAGS = \
         @LIBMONITOR_CPPFLAGS@ \
-	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
+	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/fileio \
+	-I$(top_srcdir)/libopenss-runtime/offline \
 	@PAPI_CPPFLAGS@
 
 libhwc_offline_la_LDFLAGS = \

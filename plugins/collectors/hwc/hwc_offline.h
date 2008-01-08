@@ -19,6 +19,7 @@
 /** @file
  *
  * Declaration for the offline HardWare Counter sampling collector's runtime.
+ * (offline support)
  *
  */
 
@@ -27,15 +28,6 @@
 #include "monitor.h"
 #include "OpenSS_DataHeader.h"
 #include "offline/offline.h"
-#include <dlfcn.h>
-
-char *OpenSS_rawdata;
-
-static __thread  char *rawprefix;
-static __thread  char *OpenSS_exepath;
-static __thread  pthread_t tid = 0;
-
-char *OpenSS_dsopath;
 
 /** Thread-local storage. */
 static __thread struct {

@@ -32,8 +32,11 @@
 #include "blobs.h"
 #include "PapiAPI.h"
 
-#if defined (OFFLINE)
+#if defined (OPENSS_OFFLINE)
 #include "hwc_offline.h"
+#endif
+#if defined (OPENSS_USE_FILEIO)
+#include "OpenSS_FileIO.h"
 #endif
 
 
@@ -81,9 +84,9 @@ static void hwcPAPIHandler(int event_set, void* pc,
 	tls.header.addr_end = tls.buffer.addr_end;
 	tls.data.pc.pc_len = tls.buffer.length;
 	tls.data.count.count_len = tls.buffer.length;
-#if defined (OFFLINE)
+#if defined (OPENSS_OFFLINE)
 #ifndef NDEBUG
-        if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
+        if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
             fprintf(stderr,"hwcPAPIHandler sends data:\n");
             fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] pc_len(%d) count_len(%d)\n",
                 tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,tls.data.pc.pc_len,
@@ -123,7 +126,7 @@ static void hwcPAPIHandler(int event_set, void* pc,
 void hwc_start_sampling(const char* arguments)
 {
     hwc_start_sampling_args args;
-#if defined (OFFLINE)
+#if defined (OPENSS_OFFLINE)
 
     /* TODO: need to handle arguments for offline collectors */
     args.collector=1;
@@ -146,8 +149,8 @@ void hwc_start_sampling(const char* arguments)
 
 
     /* Create the rawdata output file prefix.  hwc_stop_sampling will append */
-    /* a tid as needed for the actuall .openss-raw filename */
-    create_rawfile_prefix();
+    /* a tid as needed for the actuall .openss-xdrtype filename */
+    OpenSS_CreateFilePrefix("hwc");
 
     /* Initialize the info blob's header */
     /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
@@ -161,17 +164,21 @@ void hwc_start_sampling(const char* arguments)
     tlsinfo.info.collector = "hwc";
     tlsinfo.info.hostname = strdup(hostname);
     tlsinfo.info.pid = getpid();
-    tlsinfo.info.tid = tid;
+#if defined (OPENSS_USE_FILEIO)
+    tlsinfo.info.tid = OpenSS_rawtid;
+#endif
 
 #ifndef NDEBUG
-    if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"hwc_start_sampling sends tlsinfo:\n");
-        fprintf(stderr,"collector=%s, hostname=%s, pid =%d, tid=%lx\n",
+        fprintf(stderr,"collector=%s, hostname=%s, pid =%d, OpenSS_rawtid=%lx\n",
             tlsinfo.info.collector,tlsinfo.info.hostname,tlsinfo.info.pid,tlsinfo.info.tid);
     }
 #endif
 
-    create_rawfile_name();
+#if defined (OPENSS_USE_FILEIO)
+    OpenSS_CreateOutfile("openss-info");
+#endif
     OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
 
 #else
@@ -202,7 +209,7 @@ void hwc_start_sampling(const char* arguments)
     tls.buffer.length = 0;
     memset(tls.buffer.hash_table, 0, sizeof(tls.buffer.hash_table));
 
-#if defined (OFFLINE)
+#if defined (OPENSS_OFFLINE)
     tlsobj.objs.objname = NULL;
     tlsobj.objs.addr_begin = ~0;
     tlsobj.objs.addr_end = 0;
@@ -244,9 +251,8 @@ void hwc_stop_sampling(const char* arguments)
 	tls.data.pc.pc_len = tls.buffer.length;
 	tls.data.count.count_len = tls.buffer.length;
 
-#if defined (OFFLINE)
 #ifndef NDEBUG
-        if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
+        if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
             fprintf(stderr, "hwc_stop_sampling:\n");
             fprintf(stderr, "time_end(%#lu) addr range[%#lx, %#lx] pc_len(%d) count_len(%d)\n",
                 tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,tls.data.pc.pc_len,
@@ -254,11 +260,12 @@ void hwc_stop_sampling(const char* arguments)
         }
 #endif
 
+#if defined (OPENSS_USE_FILEIO)
         /* Create the openss-raw file name for this exe-collector-pid-tid */
-        /* Default is to create openss-raw files in /tmp */
-        create_rawfile_name();
+        /* Default is to create openss-data files in /tmp */
+        OpenSS_CreateOutfile("openss-data");
 
-#endif /* defined OFFLINE */
+#endif /* defined OPENSS_USE_FILEIO */
 
 	OpenSS_Send(&(tls.header), (xdrproc_t)xdr_hwc_data, &(tls.data));
 	

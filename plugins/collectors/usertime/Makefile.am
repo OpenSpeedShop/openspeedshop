@@ -74,7 +74,10 @@ if HAVE_LIBMONITOR
 usertime_rt_offline_la_CFLAGS = \
         @BINUTILS_CPPFLAGS@ \
         @LIBMONITOR_CPPFLAGS@ \
-	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
+	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/fileio \
+	-I$(top_srcdir)/libopenss-runtime/offline \
 	@LIBUNWIND_CPPFLAGS@
 
 usertime_rt_offline_la_LDFLAGS = \
@@ -98,7 +101,10 @@ usertime_rt_offline_la_SOURCES = \
 
 libusertime_offline_la_CFLAGS = \
         @LIBMONITOR_CPPFLAGS@ \
-	-DOFFLINE -I$(top_srcdir)/libopenss-runtime \
+	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/fileio \
+	-I$(top_srcdir)/libopenss-runtime/offline \
 	@LIBUNWIND_CPPFLAGS@
 
 libusertime_offline_la_LDFLAGS = \

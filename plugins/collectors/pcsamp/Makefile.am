@@ -70,7 +70,10 @@ if HAVE_LIBMONITOR
 pcsamp_rt_offline_la_CFLAGS = \
 	@BINUTILS_CPPFLAGS@ \
 	@LIBMONITOR_CPPFLAGS@ \
-	-DOFFLINE -I$(top_srcdir)/libopenss-runtime -I$(top_srcdir)/libopenss-runtime/offline
+	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/fileio \
+	-I$(top_srcdir)/libopenss-runtime/offline
 
 pcsamp_rt_offline_la_LDFLAGS = \
 	@BINUTILS_LDFLAGS@ \
@@ -90,7 +93,10 @@ pcsamp_rt_offline_la_SOURCES = \
 
 libpcsamp_offline_la_CFLAGS = \
         @LIBMONITOR_CPPFLAGS@ \
-	-DOFFLINE -I$(top_srcdir)/libopenss-runtime -I/$(top_srcdir)/libopenss-runtime/offline
+	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/fileio \
+	-I/$(top_srcdir)/libopenss-runtime/offline
 
 libpcsamp_offline_la_LDFLAGS = \
 	@LIBMONITOR_LDFLAGS@ \

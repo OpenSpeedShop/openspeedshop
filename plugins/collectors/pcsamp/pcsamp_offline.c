@@ -29,51 +29,7 @@
 #include "RuntimeAPI.h"
 #include "blobs.h"
 #include "pcsamp_offline.h"
-
-pid_t create_OpenSS_exepath () {
-    pid_t pid = getpid();
-    char tmpname[PATH_MAX];
-
-    /* find our exe path (read symlink for /proc/pid/exe) */
-    OpenSS_Path_From_Pid(tmpname);
-    OpenSS_exepath = strdup(tmpname);
-    return pid;
-}
-
-void create_rawfile_prefix () {
-    pid_t pid = create_OpenSS_exepath();
-    char tmpname[PATH_MAX], *bname;
-
-    bname = basename(OpenSS_exepath);
-    sprintf(tmpname,"/tmp/pcsamp-%s-%d",bname,pid);
-    rawprefix = strdup(tmpname);
-}
-
-void create_rawfile_name () {
-    uint64_t (*realfunc)() = dlsym (RTLD_NEXT, "pthread_self");
-    if ( (*realfunc) != NULL) {
-	tid = (*realfunc)();
-    }
-
-    char tmpname[PATH_MAX];
-
-    /* create pathname to write raw data for specific thread */
-    if (tid > 0) {
-        sprintf(tmpname,"%s-%lu.openss-raw",rawprefix,tid);
-    }
-    else {
-        sprintf(tmpname,"%s.openss-raw",rawprefix);
-    }
-
-    /* create our openss-raw output filename */
-    OpenSS_rawdata = strdup(tmpname);
-#ifndef NDEBUG
-    if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
-	fprintf(stderr,"create_rawfile_name: OpenSS_rawdata = %s\n",OpenSS_rawdata);
-    }
-#endif
-}
-
+#include "OpenSS_FileIO.h"
 
 void offline_start_sampling(const char* arguments)
 {
@@ -125,10 +81,11 @@ void offline_record_dso(const char* dsoname, uint64_t begin, uint64_t end)
 
 
 #ifndef NDEBUG
-    if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
-	fprintf(stderr,"offline_record_dso: record %s to %s\n",dsoname,OpenSS_rawdata);
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	fprintf(stderr,"offline_record_dso: record %s to %s\n",dsoname,OpenSS_outfile);
     }
 #endif
 
+    OpenSS_CreateOutfile("openss-dsos");
     OpenSS_Send(&(tlsobj.header), (xdrproc_t)xdr_openss_objects, &(tlsobj.objs));
 }

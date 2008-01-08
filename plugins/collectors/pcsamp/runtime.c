@@ -30,8 +30,11 @@
 #include "RuntimeAPI.h"
 #include "blobs.h"
 
-#if defined (OFFLINE)
+#if defined (OPENSS_OFFLINE)
 #include "pcsamp_offline.h"
+#endif
+#if defined (OPENSS_USE_FILEIO)
+#include "OpenSS_FileIO.h"
 #endif
 
 /** Thread-local storage. */
@@ -70,18 +73,20 @@ static void pcsampTimerHandler(const ucontext_t* context)
 	tls.header.addr_end = tls.buffer.addr_end;
 	tls.data.pc.pc_len = tls.buffer.length;
 	tls.data.count.count_len = tls.buffer.length;
-#if defined (OFFLINE)
+
 #ifndef NDEBUG
-	if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	    fprintf(stderr,"pcsampTimerHandler sends data:\n");
 	    fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] pc_len(%d) count_len(%d)\n",
 		tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,tls.data.pc.pc_len,
 		tls.data.count.count_len);
 	}
 #endif
-	/* Create the openss-raw file name for this exe-collector-pid-tid */
-	/* Default is to create openss-raw files in /tmp */
-	create_rawfile_name();
+
+#if defined (OPENSS_USE_FILEIO)
+	/* Create the openss-data file name for this exe-collector-pid-tid */
+	/* Default is to create openss-data files in /tmp */
+	OpenSS_CreateOutfile("openss-data");
 #endif
 	OpenSS_Send(&(tls.header), (xdrproc_t)xdr_pcsamp_data, &(tls.data));
 
@@ -112,7 +117,7 @@ void pcsamp_start_sampling(const char* arguments)
 {
     pcsamp_start_sampling_args args;
 
-#if defined (OFFLINE)
+#if defined (OPENSS_OFFLINE)
 
     /* TODO: need to handle arguments for offline collectors */
     args.collector=1;
@@ -120,8 +125,8 @@ void pcsamp_start_sampling(const char* arguments)
     args.sampling_rate=100000;
 
     /* Create the rawdata output file prefix.  pcsamp_stop_sampling will append */
-    /* a tid as needed for the actuall .openss-raw filename */
-    create_rawfile_prefix();
+    /* a tid as needed for the actuall .openss-xdrtype filename */
+    OpenSS_CreateFilePrefix("pcsamp");
 
     /* Initialize the info blob's header */
     /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
@@ -135,17 +140,19 @@ void pcsamp_start_sampling(const char* arguments)
     tlsinfo.info.collector = "pcsamp";
     tlsinfo.info.hostname = strdup(hostname);
     tlsinfo.info.pid = getpid();
-    tlsinfo.info.tid = tid;
+#if defined (OPENSS_USE_FILEIO)
+    tlsinfo.info.tid = OpenSS_rawtid;
+#endif
 
 #ifndef NDEBUG
-    if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	fprintf(stderr,"pcsamp_start_sampling sends tlsinfo:\n");
-	fprintf(stderr,"collector=%s, hostname=%s, pid =%d, tid=%lx\n",
+	fprintf(stderr,"collector=%s, hostname=%s, pid =%d, OpenSS_rawtid=%lx\n",
 	    tlsinfo.info.collector,tlsinfo.info.hostname,tlsinfo.info.pid,tlsinfo.info.tid);
     }
 #endif
 
-    create_rawfile_name();
+    OpenSS_CreateOutfile("openss-info");
     OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
 
 #else
@@ -175,7 +182,7 @@ void pcsamp_start_sampling(const char* arguments)
     tls.buffer.length = 0;
     memset(tls.buffer.hash_table, 0, sizeof(tls.buffer.hash_table));
 
-#if defined (OFFLINE)
+#if defined (OPENSS_OFFLINE)
     tlsobj.objs.objname = NULL;
     tlsobj.objs.addr_begin = ~0;
     tlsobj.objs.addr_end = 0;
@@ -211,9 +218,8 @@ void pcsamp_stop_sampling(const char* arguments)
 	tls.data.pc.pc_len = tls.buffer.length;
 	tls.data.count.count_len = tls.buffer.length;
 
-#if defined (OFFLINE)
 #ifndef NDEBUG
-	if (getenv("OPENSS_DEBUG_OFFLINE_COLLECTOR") != NULL) {
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	    fprintf(stderr, "pcsamp_stop_sampling:\n");
 	    fprintf(stderr, "time_end(%#lu) addr range[%#lx, %#lx] pc_len(%d) count_len(%d)\n",
 		tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,tls.data.pc.pc_len,
@@ -221,11 +227,12 @@ void pcsamp_stop_sampling(const char* arguments)
 	}
 #endif
 
-	/* Create the openss-raw file name for this exe-collector-pid-tid */
-	/* Default is to create openss-raw files in /tmp */
-	create_rawfile_name();
+#if defined (OPENSS_USE_FILEIO)
+	/* Create the openss-data file name for this exe-collector-pid-tid */
+	/* Default is to create openss-data files in /tmp */
+	OpenSS_CreateOutfile("openss-data");
 
-#endif /* defined OFFLINE */
+#endif /* defined OPENSS_USE_FILEIO */
 
 	OpenSS_Send(&(tls.header), (xdrproc_t)xdr_pcsamp_data, &(tls.data));
 	
