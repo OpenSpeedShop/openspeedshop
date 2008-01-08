@@ -358,6 +358,38 @@ void DataQueues::removeDatabase(const SmartPtr<Database>& database)
 
 
 /**
+ * Get database.
+ *
+ * Returns the database for the specified database identifier. A null pointer
+ * is returned if no such database has been added to the data queues.
+ *
+ * @param identifier    Identifier of the database to be found.
+ * @return              Database for that identifier or a null pointer
+ *                      if no such database is found.
+ */
+SmartPtr<Database> DataQueues::getDatabase(const int& identifier)
+{
+    SmartPtr<Database> database;
+
+    // Acquire exclusive access to our unnamed namespace variables
+    Assert(pthread_mutex_lock(&exclusive_access_lock) == 0);
+
+    // Find the identifier's database
+    std::map<int, SmartPtr<Database> >::const_iterator i =
+	identifier_to_database.find(identifier);
+    if(i != identifier_to_database.end())
+	database = i->second;
+    
+    // Release exclusive access to our unnamed namespace variables
+    Assert(pthread_mutex_unlock(&exclusive_access_lock) == 0); 
+    
+    // Return the database to the caller
+    return database;
+}
+
+
+
+/**
  * Get database identifier.
  *
  * Returns the database identifier for the specified database. An invalid

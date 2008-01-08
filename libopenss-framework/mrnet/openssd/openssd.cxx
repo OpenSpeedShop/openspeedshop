@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
     }
 
     // Display a startup message
-    std::cout << "Started Open|SS MRNet Daemon at " << Time::Now() << std::endl;
+    std::cout << "Started Open|SS MRNet Daemon: " << Time::Now() << std::endl;
     std::cout << std::endl;
     extern char** environ;
     for(int i = 0; environ[i] != NULL; ++i)
@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
 
     // Display a shutdown message
     std::cout << std::endl;
-    std::cout << "Stopped Open|SS MRNet Daemon at " << Time::Now() << std::endl;
+    std::cout << "Stopped Open|SS MRNet Daemon: " << Time::Now() << std::endl;
     std::cout.flush();
 
     // Close the log file containing the redirected stdout and stderr streams

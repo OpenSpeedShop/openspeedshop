@@ -22,6 +22,7 @@
  *
  */
 
+#include "Guard.hxx"
 #include "Instrumentor.hxx"
 #include "Senders.hxx"
 #include "ThreadGroup.hxx"
@@ -61,9 +62,10 @@ void Instrumentor::retain(const Thread& thread)
  */
 void Instrumentor::release(const Thread& thread)
 {
+    // Construct a thread group containing this thread
     ThreadGroup threads;
     threads.insert(thread);
-
+    
     // Request these threads be detached
     Senders::detachFromThreads(threads);
     
@@ -133,14 +135,29 @@ Thread::State Instrumentor::getState(const Thread& thread)
 void Instrumentor::changeState(const ThreadGroup& threads,
 			       const Thread::State& state)
 {
-    // WDH: Temporary debugging code
-    Senders::attachToThreads(threads);
-    return;
-    
-    // TODO:  handle connecting
+    // Are we attempting to connect to threads for the first time?
+    if(state == Thread::Connecting) {
 
-    // Request a state change from the threads
-    Senders::changeThreadsState(threads, state);
+	// Build the set of threads that need to be attached
+	ThreadGroup threads_to_attach;
+	for(ThreadGroup::const_iterator
+		i = threads.begin(); i != threads.end(); ++i)
+	    if(ThreadTable::TheTable.setConnecting(*i))
+		threads_to_attach.insert(*i);
+	
+	// Request these threads be attached
+	Senders::attachToThreads(threads_to_attach);
+	
+    }
+    else {
+	
+	// Check preconditions
+	ThreadTable::TheTable.validateThreads(threads);
+	
+	// Request a state change from the threads
+	Senders::changeThreadsState(threads, state);
+	
+    }
 }
 
 
@@ -204,7 +221,7 @@ void Instrumentor::executeAtEntryOrExit(const ThreadGroup& threads,
 {
     // Check preconditions
     ThreadTable::TheTable.validateThreads(threads);
-
+    
     // Request the library function be executed in these threads
     Senders::executeAtEntryOrExit(threads, collector, where,
 				  at_entry, callee, argument);
@@ -290,6 +307,7 @@ void Instrumentor::stopAtEntryOrExit(const Thread& thread,
 				     const std::string& where, 
 				     const bool& at_entry)
 {
+    // Construct a thread group containing this thread
     ThreadGroup threads;
     threads.insert(thread);
 
@@ -323,6 +341,7 @@ bool Instrumentor::getGlobal(const Thread& thread,
 			     const std::string& global,
 			     int64_t& value)
 {
+    // Construct a thread group containing this thread
     ThreadGroup threads;
     threads.insert(thread);
 
@@ -333,7 +352,6 @@ bool Instrumentor::getGlobal(const Thread& thread,
     Senders::getGlobalInteger(thread, global);
 
     // TODO: wait for response and return it
-
     return false;  // TEMPORARY DUMMY RETURN
 }
 
@@ -360,6 +378,7 @@ bool Instrumentor::getGlobal(const Thread& thread,
 			     const std::string& global,
 			     std::string& value)
 {
+    // Construct a thread group containing this thread
     ThreadGroup threads;
     threads.insert(thread);
 
@@ -370,7 +389,6 @@ bool Instrumentor::getGlobal(const Thread& thread,
     Senders::getGlobalString(thread, global);
 
     // TODO: wait for response and return it
-
     return false;  // TEMPORARY DUMMY RETURN
 }
 
@@ -394,6 +412,7 @@ bool Instrumentor::getGlobal(const Thread& thread,
  */
 bool Instrumentor::getMPICHProcTable(const Thread& thread, Job& value)
 {
+    // Construct a thread group containing this thread
     ThreadGroup threads;
     threads.insert(thread);
 
@@ -403,8 +422,7 @@ bool Instrumentor::getMPICHProcTable(const Thread& thread, Job& value)
     // Request the MPICH process table be retrieved from the thread
     Senders::getMPICHProcTable(thread);
 
-    // TODO: wait for reaponse and return it
-
+    // TODO: wait for response and return it
     return false;  // TEMPORARY DUMMY RETURN
 }
 
@@ -427,6 +445,7 @@ void Instrumentor::setGlobal(const Thread& thread,
 			     const std::string& global,
 			     int64_t value)
 {
+    // Construct a thread group containing this thread
     ThreadGroup threads;
     threads.insert(thread);
 

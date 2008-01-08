@@ -594,6 +594,12 @@ std::string OpenSpeedShop::Framework::toString(
     )
 {
     switch(state) {
+    case Disconnected:
+	return "Disconnected";
+    case Connecting:
+	return "Connecting";
+    case Nonexistent:
+	return "Nonexistent";
     case Running:
 	return "Running";
     case Suspended:

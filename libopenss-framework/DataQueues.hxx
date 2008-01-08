@@ -69,6 +69,7 @@ namespace OpenSpeedShop { namespace Framework {
 
 	void addDatabase(const SmartPtr<Database>&);
 	void removeDatabase(const SmartPtr<Database>&);
+	SmartPtr<Database> getDatabase(const int&);
 	int getDatabaseIdentifier(const SmartPtr<Database>&);
 	void flushDatabase(const SmartPtr<Database>&);
 	

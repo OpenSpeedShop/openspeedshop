@@ -190,28 +190,6 @@ ThreadGroup ThreadTable::getThreads(const std::string& host,
 
 
 /**
- * Test if a thread is connected.
- *
- * Returns a boolean value indicating if this thread is connected or not.
- *
- * @param thread    Thread whose state should be checked.
- * @return          Boolean "true" if this thread is connected, or "false"
- *                  otherwise.
- */
-bool ThreadTable::isConnected(const Thread& thread)
-{
-    // Find the current state of this thread
-    Thread::State current = getThreadState(thread);
-
-    // Return flag indicating if this process is connected to the caller
-    return ((current != Thread::Disconnected) &&
-            (current != Thread::Connecting) &&
-            (current != Thread::Nonexistent));
-}
-
-
-
-/**
  * Get a thread's state.
  *
  * Returns the current state of the specified thread. Since this state changes
@@ -256,6 +234,64 @@ void ThreadTable::setThreadState(const Thread& thread,
     
     // Set the thread's current state to the specified state
     i->second = state;
+}
+
+
+
+/**
+ * Test if a thread is connected.
+ *
+ * Returns a boolean value indicating if this thread is connected or not.
+ *
+ * @param thread    Thread whose state should be checked.
+ * @return          Boolean "true" if this thread is connected, or "false"
+ *                  otherwise.
+ */
+bool ThreadTable::isConnected(const Thread& thread)
+{
+    // Find the current state of this thread
+    Thread::State current = getThreadState(thread);
+
+    // Return flag indicating if this process is connected to the caller
+    return ((current != Thread::Disconnected) &&
+            (current != Thread::Connecting) &&
+            (current != Thread::Nonexistent));
+}
+
+
+
+/**
+ * Set a thread's state to connecting.
+ *
+ * Sets the current state of the specified thread to "Connecting" if the
+ * thread isn't already connected. Returns a boolean value indicating if
+ * the thread was connected.
+ *
+ * @param thread    Thread whose state should be set to "Connecting".
+ * @return          Boolean "true" if this thread was not connected and
+ *                  its state was changed, or "false" otherwise.
+ */
+bool ThreadTable::setConnecting(const Thread& thread)
+{
+    Guard guard_myself(this);
+    
+    // Find the entry (if any) for this thread
+    ThreadTable::iterator i = find(thread);
+    
+    // Check assertions
+    Assert(i != end());
+
+    // Is the thread currently connected?
+    bool is_connected = ((i->second != Thread::Disconnected) &&
+			 (i->second != Thread::Connecting) &&
+			 (i->second != Thread::Nonexistent));
+
+    // Set the thread's state to "Connecting" if it isn't connected
+    if(!is_connected)
+	i->second = Thread::Connecting;
+    
+    // Return flag indicating if this process was not connected to the caller
+    return !is_connected;
 }
 
 

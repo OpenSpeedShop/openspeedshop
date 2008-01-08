@@ -49,7 +49,9 @@ namespace OpenSpeedShop { namespace Framework {
     /**
      * Thread table.
      *
-     * ...
+     * Table used to keep track of which threads have been attached and the
+     * current state of those threads. Facilitates providing thread state to
+     * the rest of the framework.
      *
      * @ingroup Implementation
      */
@@ -71,10 +73,11 @@ namespace OpenSpeedShop { namespace Framework {
 	ThreadGroup getThreads(const std::string&, const pid_t&,
 			       const std::pair<bool, pthread_t>&);
 	
-	bool isConnected(const Thread&);
-
 	Thread::State getThreadState(const Thread&);
 	void setThreadState(const Thread&, const Thread::State&);
+
+	bool isConnected(const Thread&);
+	bool setConnecting(const Thread&);
 
 	void validateThreads(const ThreadGroup&);
 

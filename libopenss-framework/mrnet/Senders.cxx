@@ -249,6 +249,15 @@ void Senders::changeThreadsState(const ThreadGroup& threads,
     OpenSS_Protocol_ChangeThreadsState message;
     convert(threads, message.threads);
     switch(state) {
+    case Thread::Disconnected:
+	message.state = Disconnected;
+	break;
+    case Thread::Connecting:
+	message.state = Connecting;
+	break;
+    case Thread::Nonexistent:
+	message.state = Nonexistent;
+	break;
     case Thread::Running:
 	message.state = Running;
 	break;
