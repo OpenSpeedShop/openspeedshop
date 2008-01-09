@@ -72,7 +72,7 @@ namespace {
 	    "ON LinkedObjects.file = Files.id "
 	    "WHERE Files.path = ?;"
 	    );
-	database->bindArgument(1, std::string(linked_object.path));
+	database->bindArgument(1, linked_object.path);
 
 	// TODO: compare the checksum
 	
@@ -116,12 +116,9 @@ namespace {
 		);
 	else
 	    database->prepareStatement(
-	        "SELECT id "
-		"FROM Threads "
-		"WHERE host = ? "
-		"  AND pid = ? "
+	        "SELECT id FROM Threads WHERE host = ? AND pid = ?;"
 		);
-	database->bindArgument(1, std::string(thread.host));
+	database->bindArgument(1, thread.host);
 	database->bindArgument(2, static_cast<int>(thread.pid));
 	if(thread.has_posix_tid)
 	    database->bindArgument(3, static_cast<pthread_t>(thread.posix_tid));
@@ -142,7 +139,9 @@ namespace {
 /**
  * Attached to threads.
  *
- * ...
+ * Callback function called by the frontend message pump when a message that
+ * indicates threads have been attached is received. Updates the experiment
+ * databases as necessary.
  *
  * @param blob    Blob containing the message.
  */
@@ -165,11 +164,67 @@ void Callbacks::attachedToThreads(const Blob& blob)
     }
 #endif
 
-    // struct OpenSS_Protocol_AttachedToThreads {
-    //     OpenSS_Protocol_ThreadNameGroup threads;
-    // };
+    // Iterate over each thread loading this linked object
+    for(int i = 0; i < message.threads.names.names_len; ++i) {
+	const OpenSS_Protocol_ThreadName& msg_thread =
+	    message.threads.names.names_val[i];
 
-    // TODO: implement!
+	// Begin a transaction on this thread's database
+	SmartPtr<Database> database = 
+	    DataQueues::getDatabase(msg_thread.experiment);
+	BEGIN_WRITE_TRANSACTION(database);
+
+	// Is there an existing placeholder for the entire process?
+	int thread = -1;
+	database->prepareStatement(
+	    "SELECT id "
+	    "FROM Threads "
+	    "WHERE host = ? "
+	    "  AND pid = ? "
+	    "  AND posix_tid = NULL;"
+	    );
+	database->bindArgument(1, msg_thread.host);
+	database->bindArgument(2, static_cast<int>(msg_thread.pid));
+	while(database->executeStatement())
+	    thread = database->getResultAsInteger(1);
+
+	// Reuse the placeholder if appropriate
+	if(msg_thread.has_posix_tid && (thread != -1)) {
+	    database->prepareStatement(
+	        "UPDATE Threads SET posix_tid = ? WHERE thread = ?;"
+		);
+	    database->bindArgument(
+	        1, static_cast<pthread_t>(msg_thread.posix_tid)
+		);
+	    database->bindArgument(2, thread);
+	    while(database->executeStatement());
+	}
+
+	// Otherwise create the thread entry
+	else {
+	    if(msg_thread.has_posix_tid)
+		database->prepareStatement(
+		    "INSERT INTO Threads "
+		    "  (host, pid, posix_tid) "
+		    "VALUES (?, ?, ?);"
+		    );
+	    else
+		database->prepareStatement(
+		    "INSERT INTO Threads (host, pid) VALUES (?, ?);"
+		    );
+	    database->bindArgument(1, msg_thread.host);
+	    database->bindArgument(2, static_cast<int>(msg_thread.pid));
+	    if(msg_thread.has_posix_tid)
+		database->bindArgument(
+		    3, static_cast<pthread_t>(msg_thread.posix_tid)
+		    );
+	    while(database->executeStatement());
+	}
+
+	// End the transaction on this thread's database
+	END_TRANSACTION(database);
+
+    }
 }
 
 
@@ -270,9 +325,9 @@ void Callbacks::globalStringValue(const Blob& blob)
 /**
  * Linked object has been loaded.
  *
- * Callback function called by the frontend message pump when a request to load
- * a linked object into one or more threads is received. Updates the experiment
- * database(s) with file, linked object, and address space entries as necessary.
+ * Callback function called by the frontend message pump when a message that
+ * indicates a linked object was loaded into one or more threads is received.
+ * Updates the experiment databases as necessary.
  *
  * @param blob    Blob containing the message.
  */
@@ -297,22 +352,21 @@ void Callbacks::loadedLinkedObject(const Blob& blob)
 
     // Iterate over each thread loading this linked object
     for(int i = 0; i < message.threads.names.names_len; ++i) {
-	Assert(message.threads.names.names_val != NULL);
+	const OpenSS_Protocol_ThreadName& msg_thread =
+	    message.threads.names.names_val[i];
 
 	// Begin a transaction on this thread's database
-	SmartPtr<Database> database = DataQueues::getDatabase(
-	    message.threads.names.names_val[i].experiment
-	    );
+	SmartPtr<Database> database = 
+	    DataQueues::getDatabase(msg_thread.experiment);
 	BEGIN_WRITE_TRANSACTION(database);
 
 	// Find the existing thread in the database
-	int thread = getThreadIdentifier(database,
-					 message.threads.names.names_val[i]);
+	int thread = getThreadIdentifier(database, msg_thread);
 	Assert(thread != -1);
 	
 	// Is there an existing linked object in the database?
-	int linked_object = getLinkedObjectIdentifier(database,
-						      message.linked_object);
+	int linked_object = 
+	    getLinkedObjectIdentifier(database, message.linked_object);
 
 	// Create this linked object if it wasn't present in the database
 	if(linked_object == -1) {
@@ -321,7 +375,7 @@ void Callbacks::loadedLinkedObject(const Blob& blob)
 	    database->prepareStatement(
 	        "INSERT INTO Files (path) VALUES (?);"
 		);
-	    database->bindArgument(1, std::string(message.linked_object.path));
+	    database->bindArgument(1, message.linked_object.path);
 
 	    // TODO: insert the checksum
 
@@ -367,9 +421,11 @@ void Callbacks::loadedLinkedObject(const Blob& blob)
 
 
 /**
- * ...
+ * Report error.
  *
- * ...
+ * Callback function called by the frontend message pump when a message that
+ * indicates an error is received. Simply displays the message to the stderr
+ * stream.
  *
  * @param blob    Blob containing the message.
  */
@@ -392,7 +448,8 @@ void Callbacks::reportError(const Blob& blob)
     }
 #endif
 
-    // TODO: implement!
+    // Display the message to the stderr stream
+    std::cerr << "openssd: " << message.text << std::endl;
 }
 
 
@@ -400,7 +457,9 @@ void Callbacks::reportError(const Blob& blob)
 /**
  * Symbol table.
  *
- * ...
+ * Callback function called by the frontend message pump when a message that
+ * contains a symbol table is received. Updates the experiment databases as
+ * necessary.
  *
  * @param blob    Blob containing the message.
  */
@@ -423,20 +482,121 @@ void Callbacks::symbolTable(const Blob& blob)
     }
 #endif
 
-    // struct OpenSS_Protocol_SymbolTable {
-    //     OpenSS_Protocol_ExperimentGroup experiments;
-    //     OpenSS_Protocol_FileName linked_object;
-    //     struct {
-    // 	       u_int functions_len;
-    //         OpenSS_Protocol_FunctionEntry *functions_val;
-    //     } functions;
-    //     struct {
-    //         u_int statements_len;
-    //         OpenSS_Protocol_StatementEntry *statements_val;
-    //     } statements;
-    // };
+    // Iterate over each experiment adding this symbol table
+    for(int i = 0; i < message.experiments.experiments.experiments_len; ++i) {
+	const OpenSS_Protocol_Experiment& msg_experiment =
+	    message.experiments.experiments.experiments_val[i];
+	
+	// Begin a transaction on this experiment's database
+	SmartPtr<Database> database = 
+	    DataQueues::getDatabase(msg_experiment.experiment);
+	BEGIN_WRITE_TRANSACTION(database);
+	
+	// Find the existing linked object in the database
+	int linked_object = 
+	    getLinkedObjectIdentifier(database, message.linked_object);
+	Assert(linked_object != -1);
 
-    // TODO: implement!
+	// Iterate over each function entry
+	for(int j = 0; j < message.functions.functions_len; ++j) {
+	    const OpenSS_Protocol_FunctionEntry& msg_function = 
+		message.functions.functions_val[j];
+	    
+	    // Iterate over each bitmap for this function
+	    for(int k = 0; k < msg_function.bitmaps.bitmaps_len; ++k) {
+		const OpenSS_Protocol_AddressBitmap& msg_bitmap =
+		    msg_function.bitmaps.bitmaps_val[k];
+
+		// TODO: Handle discontiguous ranges of functions. Right now
+		//       the daemon doesn't produce these, but it will soon.
+		//       For now simply take the address range of the first
+		//       bitmap as the address range of the function.
+		if(k > 0)
+		    break;
+
+		// Create the function entry
+		database->prepareStatement(
+		    "INSERT INTO Functions "
+		    "  (linked_object, addr_begin, addr_end, name) "
+		    "VALUES (?, ?, ?, ?);"
+		    );
+		database->bindArgument(1, linked_object);
+		database->bindArgument(2, Address(msg_bitmap.range.begin));
+		database->bindArgument(3, Address(msg_bitmap.range.end));
+		database->bindArgument(4, msg_function.name);
+		while(database->executeStatement());
+		
+	    }
+	    
+	}
+
+	// Iterate over each statement entry
+	for(int j = 0; j < message.statements.statements_len; ++j) {
+	    const OpenSS_Protocol_StatementEntry& msg_statement =
+		message.statements.statements_val[j];
+
+	    // Is there an existing file in the database?
+	    int file = -1;
+	    database->prepareStatement("SELECT id FROM Files WHERE path = ?;");
+	    database->bindArgument(1, msg_statement.path.path);
+
+	    // TODO: compare the checksum
+
+	    while(database->executeStatement())
+		file = database->getResultAsInteger(1);
+
+	    // Create the file entry if it wasn't present in the database
+	    if(file == -1) {
+		database->prepareStatement(
+		    "INSERT INTO Files (path) VALUES (?);"
+		    );
+		database->bindArgument(1, msg_statement.path.path);
+
+		// TODO: insert the checksum
+		
+		while(database->executeStatement());
+		file = database->getLastInsertedUID();
+	    }
+
+	    // Create the statement entry
+	    database->prepareStatement(
+	        "INSERT INTO Statements "
+		"  (linked_object, file, line, \"column\") "
+		"VALUES (?, ?, ?, ?);"
+		);
+	    database->bindArgument(1, linked_object);
+	    database->bindArgument(2, file);
+	    database->bindArgument(3, msg_statement.line);
+	    database->bindArgument(4, msg_statement.column);
+	    while(database->executeStatement());
+	    int statement = database->getLastInsertedUID();
+
+	    // Iterate over each bitmap for this statement
+	    for(int k = 0; k < msg_statement.bitmaps.bitmaps_len; ++k) {
+		const OpenSS_Protocol_AddressBitmap& msg_bitmap =
+		    msg_statement.bitmaps.bitmaps_val[k];
+		
+		// Create the StatementRanges entry
+		database->prepareStatement(
+		    "INSERT INTO StatementRanges "
+		    "  (statement, addr_begin, addr_end, valid_bitmap) "
+		    "VALUES (?, ?, ?, ?);"
+		    );
+		database->bindArgument(1, statement);
+		database->bindArgument(2, Address(msg_bitmap.range.begin));
+		database->bindArgument(3, Address(msg_bitmap.range.end));
+		database->bindArgument(4, Blob(msg_bitmap.bitmap.bitmap_len,
+					       msg_bitmap.bitmap.bitmap_val));
+		while(database->executeStatement());
+		
+	    }
+	    
+	}
+	
+	// End the transaction on this thread's database
+	END_TRANSACTION(database);
+	
+    }
 }
 
 
@@ -444,9 +604,9 @@ void Callbacks::symbolTable(const Blob& blob)
 /**
  * Thread's state has changed.
  *
- * Callback function called by the frontend message pump when a request to
- * change the state of one or more threads is received. Updates the thread
- * table entries as necessary.
+ * Callback function called by the frontend message pump when a message that
+ * indicates a state change occured in one or more threads is received. Updates
+ * the thread table entries as necessary.
  *
  * @param blob    Blob containing the message.
  */
@@ -497,23 +657,21 @@ void Callbacks::threadsStateChanged(const Blob& blob)
 
     // Iterate over each thread changing state
     for(int i = 0; i < message.threads.names.names_len; ++i) {
-	Assert(message.threads.names.names_val != NULL);
+	const OpenSS_Protocol_ThreadName& msg_thread =
+	    message.threads.names.names_val[i];
 	
 	// Get the threads matching this thread name
 	ThreadGroup threads = ThreadTable::TheTable.
-	    getThreads(message.threads.names.names_val[i].host,
-		       message.threads.names.names_val[i].pid,
-		       std::make_pair(
-		           message.threads.names.names_val[i].has_posix_tid,
-			   message.threads.names.names_val[i].posix_tid
-			   )
+	    getThreads(msg_thread.host, msg_thread.pid,
+		       std::make_pair(msg_thread.has_posix_tid,
+				      msg_thread.posix_tid)
 		       );
 
 	// Update these threads with their new state
 	for(ThreadGroup::const_iterator
 		i = threads.begin(); i != threads.end(); ++i)
 	    ThreadTable::TheTable.setThreadState(*i, state);
-
+	
     }
 }
 
@@ -522,9 +680,9 @@ void Callbacks::threadsStateChanged(const Blob& blob)
 /**
  * Linked object has been unloaded.
  *
- * Callback function called by the frontend message pump when a request to
- * unload a linked object from one or more threads is received. Updates the
- * experiment database(s)' address space entries as necessary.
+ * Callback function called by the frontend message pump when a message that
+ * indicates a linked object was unloaded from one or more threads is received.
+ * Updates the experiment databases as necessary.
  *
  * @param blob    Blob containing the message.
  */
@@ -549,24 +707,23 @@ void Callbacks::unloadedLinkedObject(const Blob& blob)
 
     // Iterate over each thread unloading this linked object
     for(int i = 0; i < message.threads.names.names_len; ++i) {
-	Assert(message.threads.names.names_val != NULL);
+	const OpenSS_Protocol_ThreadName& msg_thread =
+	    message.threads.names.names_val[i];
 
 	// Begin a transaction on this thread's database
-	SmartPtr<Database> database = DataQueues::getDatabase(
-	    message.threads.names.names_val[i].experiment
-	    );
+	SmartPtr<Database> database = 
+	    DataQueues::getDatabase(msg_thread.experiment);
 	BEGIN_WRITE_TRANSACTION(database);
 
 	// Find the existing thread in the database
-	int thread = getThreadIdentifier(database,
-					 message.threads.names.names_val[i]);
+	int thread = getThreadIdentifier(database, msg_thread);
 	Assert(thread != -1);
 
 	// Find the existing linked object in the database
-	int linked_object = getLinkedObjectIdentifier(database,
-						      message.linked_object);
+	int linked_object = 
+	    getLinkedObjectIdentifier(database, message.linked_object);
 	Assert(linked_object != -1);
-
+	
 	// Update the correct address space entry for this unload
 	database->prepareStatement(
 	    "UPDATE AddressSpaces "

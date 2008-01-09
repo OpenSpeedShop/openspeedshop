@@ -143,18 +143,39 @@ void DyninstCallbacks::dynLibrary(BPatch_thread* thread,
 
 
 /**
- * ...
+ * Error callback.
  *
- * ...
+ * Callback function called by Dyninst when an error occurs. Sends a message
+ * to the frontend indicating the error that occured.
  *
- * @param severity      ...
- * @param number        ...
- * @param parameters    ...
+ * @param severity      Severity of the error.
+ * @param number        Error number that occured.
+ * @param parameters    Parameters to that error number's descriptive string.
  */
 void DyninstCallbacks::error(BPatchErrorLevel severity, int number,
 			     const char* const* parameters)
 {
-    // TODO: implement!
+    std::string text;
+
+    // Attach the error's severity to the error text
+    switch(severity) {
+    case BPatchFatal: text = "BPatchFatal"; break;
+    case BPatchSerious: text = "BPatchSerious"; break;
+    case BPatchWarning: text = "BPatchWarning"; break;
+    case BPatchInfo: text = "BPatchInfo"; break;
+    default: text = "?"; break;
+    }
+    text += ": ";
+
+    // Attach the formatted error string to the error text
+    char buffer[16384];
+    BPatch::formatErrorString(buffer, sizeof(buffer),
+			      BPatch::getEnglishErrorString(number),
+			      parameters);
+    text += buffer;
+    
+    // Send the frontend a report of the error
+    Senders::reportError(text);
 }
 
 
@@ -199,16 +220,16 @@ void DyninstCallbacks::exit(BPatch_thread* thread, BPatch_exitType exit_type)
 	       << "exit(): PID " << process->getPid() << " exited with \"";
 	switch(exit_type) {
 	case NoExit:
-	    output << "NoExit";
+	    output << "NoExit"; 
 	    break;
-	case ExitedNormally:
-	    output << "ExitedNormally";
+	case ExitedNormally: 
+	    output << "ExitedNormally"; 
 	    break;
-	case ExitedViaSignal:
-	    output << "ExitedViaSignal";
+	case ExitedViaSignal: 
+	    output << "ExitedViaSignal"; 
 	    break;
-	default:
-	    output << "?";
+	default: 
+	    output << "?"; 
 	    break;
 	}
 	output << "\"." << std::endl;

@@ -119,9 +119,16 @@ void Callbacks::attachToThreads(const Blob& blob)
 	BPatch* bpatch = BPatch::getBPatch();
 	Assert(bpatch != NULL);
 	thread = bpatch->attachProcess(NULL, i->getProcessId());
-	Assert(thread != NULL);
 
-	// TODO: the above assert should be a reportError() in a conditional
+	if(thread == NULL) {
+
+	    // Send the frontend a message indicating the thread doesn't exist
+	    ThreadNameGroup threads;
+	    threads.insert(*i);
+	    Senders::threadsStateChanged(threads, Nonexistent);
+	    
+	    continue;
+	}
 
 	BPatch_process* process = thread->getProcess();
 	Assert(process != NULL);
@@ -143,21 +150,23 @@ void Callbacks::attachToThreads(const Blob& blob)
 	}
 	
     }
+
+    // Were any threads actually attached?
+    if(!threads_attached.empty()) {
     
-    // Send the frontend the list of threads that were attached
-    Senders::attachedToThreads(threads_attached);
-
-    // Iterate over each thread that was attached
-    for(ThreadNameGroup::const_iterator
-	    i = threads_attached.begin(); i != threads_attached.end(); ++i) {
-
-	// Send the frontend all the symbol information for this thread
-	DyninstCallbacks::sendSymbolsForThread(*i);
+	// Send the frontend the list of threads that were attached
+	Senders::attachedToThreads(threads_attached);
 	
+	// Iterate over each thread that was attached
+	for(ThreadNameGroup::const_iterator 
+		i = threads_attached.begin(); i != threads_attached.end(); ++i)
+	    
+	    // Send the frontend all the symbol information for this thread
+	    DyninstCallbacks::sendSymbolsForThread(*i);
+
+	// Send the frontend a message indicating these threads are suspended
+	Senders::threadsStateChanged(threads_attached, Suspended);
     }
-
-    // TODO: send the initial state of the threads?
-
 }
 
 

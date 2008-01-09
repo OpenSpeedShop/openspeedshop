@@ -43,8 +43,18 @@ using namespace OpenSpeedShop::Framework;
 
 namespace {
 
+    // Note: It would seemingly make more sense for the following to be a
+    //       simple singleton object rather than a pointer that must then
+    //       be checked for proper initialization in various places. The
+    //       frontend initialization, however, is done inside ThreadTable's
+    //       constructor and the thread table itself is a singleton. Since
+    //       C++ doesn't guarantee initialization order, the callbacks
+    //       could actually be registered BEFORE the table was properly
+    //       initialized. This resulted in the callbacks being removed.
+    //       Using a pointer is a bit of a hack that works for now...
+
     /** Singleton message callback table. */
-    MessageCallbackTable message_callback_table;
+    MessageCallbackTable* message_callback_table = NULL;
 
     /** MRNet network containing this frontend. */
     MRN::Network* network = NULL;
@@ -110,7 +120,7 @@ namespace {
 
 		// Get the proper callbacks for this message's tag
 		std::set<MessageCallback> callbacks =
-		    message_callback_table.getCallbacksByTag(tag);
+		    message_callback_table->getCallbacksByTag(tag);
 
 		// Iterate over the callbacks
 		for(std::set<MessageCallback>::const_iterator
@@ -155,8 +165,12 @@ namespace {
  */
 void Frontend::registerCallback(const int& tag, const MessageCallback callback)
 {
+    // Allocate the message callback table when necessary
+    if(message_callback_table == NULL)
+	message_callback_table = new MessageCallbackTable();
+
     // Pass the request through to the singleton message callback table
-    message_callback_table.addCallback(tag, callback);
+    message_callback_table->addCallback(tag, callback);
 }
 
 
@@ -173,8 +187,12 @@ void Frontend::registerCallback(const int& tag, const MessageCallback callback)
 void Frontend::unregisterCallback(const int& tag,
 				  const MessageCallback callback)
 {
+    // Allocate the message callback table when necessary
+    if(message_callback_table == NULL)
+	message_callback_table = new MessageCallbackTable();
+
     // Pass the request through to the singleton message callback table
-    message_callback_table.removeCallback(tag, callback);
+    message_callback_table->removeCallback(tag, callback);
 }
 
 
@@ -193,6 +211,10 @@ void Frontend::unregisterCallback(const int& tag,
 void Frontend::startMessagePump(const Path& topology_file)
 {
     static const char* DebugArgs[2] = { "-debug", NULL };
+
+    // Allocate the message callback table when necessary
+    if(message_callback_table == NULL)
+	message_callback_table = new MessageCallbackTable();
 
     // Determine if debugging for the frontend and backend is enabled
     is_frontend_debug_enabled = 

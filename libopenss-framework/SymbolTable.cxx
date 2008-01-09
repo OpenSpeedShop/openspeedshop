@@ -243,7 +243,7 @@ void SymbolTable::processAndStore(const LinkedObject& linked_object)
 	    database->prepareStatement(
 		"INSERT INTO StatementRanges "
 		"  (statement, addr_begin, addr_end, valid_bitmap) "
-		"VALUES (?, ?, ?, ?)"
+		"VALUES (?, ?, ?, ?);"
 		);
 	    database->bindArgument(1, statement);
 	    database->bindArgument(2, valid_bitmap.getRange().getBegin());

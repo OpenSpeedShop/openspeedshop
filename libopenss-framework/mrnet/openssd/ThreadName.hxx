@@ -108,7 +108,7 @@ namespace OpenSpeedShop { namespace Framework {
 	    OpenSS_Protocol_ThreadName object;
 	    object.experiment = dm_experiment;
 	    if(!dm_host.empty()) {
-		object.host = new char[dm_host.size()];
+		object.host = new char[dm_host.size() + 1];
 		strcpy(object.host, dm_host.c_str());
 	    }
 	    else

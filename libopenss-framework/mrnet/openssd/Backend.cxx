@@ -249,6 +249,7 @@ void Backend::sendToFrontend(const int& tag, const Blob& blob)
 
     // Send the message
     Assert(upstream->send(tag, "auc", blob.getContents(), blob.getSize()) == 0);
+    Assert(upstream->flush() == 0);
 }
 
 

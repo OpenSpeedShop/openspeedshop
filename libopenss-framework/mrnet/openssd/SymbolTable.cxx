@@ -81,7 +81,8 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 	BPatch_Vector<const char*> names;
 	(*functions)[i]->getMangledNames(names);
 
-	// TODO: how do we get the possibly discontiguous range of a function?
+	// TODO: How do we get the possibly discontiguous range of a function
+	//       from Dyninst? It is supposed to support this...
 
 	// Get the address range of the function
 	Address begin(
