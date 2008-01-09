@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute. All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -885,9 +885,14 @@ SourcePanel::loadFile(const QString &_fileName)
 
   QString remapped_fileName = QString::null;
 
-  if( !_fileName.isEmpty() )
-  {
+  if( !_fileName.isEmpty() ) {
+
+#ifdef PROBLEM_WORKAROUND
+    remapped_fileName = _fileName;
+#else
     remapped_fileName = remapPath(_fileName);
+#endif
+
   }
 
   nprintf(DEBUG_PANELS) ("SourcePanel::loadFile: attempt to remap the path to remapped_fileName=(%s)\n", remapped_fileName.ascii() );
@@ -1014,7 +1019,9 @@ SourcePanel::loadFile(const QString &_fileName)
   nprintf(DEBUG_PANELS) ("lineCount=%d paragraphs()=%d\n", lineCount, textEdit->paragraphs() );
 
 #ifdef DEBUG_SourcePanel
+  if( line_numbersFLAG ) {
     printf("The last line was: %s\n", line_number_buffer );
+  }
 #endif
 
 
@@ -1470,20 +1477,44 @@ SourcePanel::remapPath(QString _fileName)
   LineEditList *lslel = getLeftSideLineEditList();
   LineEditList *rslel = getRightSideLineEditList();
 
+#ifdef DEBUG_SourcePanel
+   printf("SourcePanel::remapPath, lslel=%ld, rslel=%ld\n", lslel, rslel );
+   printf("SourcePanel::remapPath, lslel=%lx, rslel=%lx\n", lslel, rslel );
+#endif
   QString newStr = _fileName;
 
   // Look up the matching fromStr
   int lscnt = 0;
   int rscnt = 0;
   LineEditList::Iterator lsit = lslel->begin();
+
+#ifdef DEBUG_SourcePanel
+   printf("SourcePanel::remapPath, lsit has been set\n");
+#endif
+
   LineEditList::Iterator rsit = rslel->begin();
+
+#ifdef DEBUG_SourcePanel
+   printf("SourcePanel::remapPath, lsit has been set\n");
+#endif
+
   for(  ; lsit != lslel->end(); ++lsit, ++rsit )
   {
+
+#ifdef DEBUG_SourcePanel
+   printf("SourcePanel::remapPath, in for loop\n");
+#endif
+
     QLineEdit *lsle = (QLineEdit *)*lsit;
     QLineEdit *rsle = (QLineEdit *)*rsit;
 
+#ifdef DEBUG_SourcePanel
+   printf("SourcePanel::remapPath, in for loop, after lsle and rsle set\n");
+#endif
+
     QString fromStr = lsle->text();
     QString toStr = rsle->text();
+
 #ifdef DEBUG_SourcePanel
     printf("SourcePanel::remapPath(), in for loop, fromStr.ascii()=%s\n", fromStr.ascii());
     printf("SourcePanel::remapPath(), in for loop, toStr.ascii()=%s\n", toStr.ascii());
@@ -1492,20 +1523,27 @@ SourcePanel::remapPath(QString _fileName)
     if( fromStr.isEmpty() && toStr.isEmpty() ) {
       continue;
     }
+
 #ifdef DEBUG_SourcePanel
     printf("SourcePanel::remapPath(), in for loop, !fromStr.isEmpty()=%d\n", !fromStr.isEmpty());
     printf("SourcePanel::remapPath(), in for loop,  _fileName.startsWith(fromStr)=%d\n",  _fileName.startsWith(fromStr));
 #endif
+
     if( !fromStr.isEmpty() && _fileName.startsWith(fromStr) ) {
       int i = _fileName.find(fromStr);
+
 #ifdef DEBUG_SourcePanel
       printf("SourcePanel::remapPath(), i=%d\n", i);
 #endif
+
       if( i > -1 ) {
+
         newStr = toStr + _fileName.right( _fileName.length()-fromStr.length() );
+
 #ifdef DEBUG_SourcePanel
         printf("SourcePanel::remapPath(), newStr.ascii()=%s\n", newStr.ascii());
 #endif
+
       }
       break;
     } else if( fromStr.isEmpty() && !toStr.isEmpty() ) {
