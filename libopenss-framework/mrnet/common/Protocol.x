@@ -314,39 +314,44 @@ typedef uint64_t OpenSS_Protocol_Time;
  *
  * Integer tag values, associated with each message, that are used to determine
  * that message's type (and associated data structure).
+ *
+ * @note    All of the following message tags must have a value larger than
+ *          FIRST_APPL_TAG as specified in "MRNet.h" (currently "200"). Since
+ *          this file is meant to stand alone, it doesn't include "MRNet.h"
+ *          directly but implicitly enforces this criterion instead.
  */
 %
-%#define OPENSS_PROTOCOL_TAG_ESTABLISH_UPSTREAM                 ((int)0)
-%#define OPENSS_PROTOCOL_TAG_SHUTDOWN_BACKENDS                  ((int)1)
+%#define OPENSS_PROTOCOL_TAG_ESTABLISH_UPSTREAM                 ((int)1000)
+%#define OPENSS_PROTOCOL_TAG_SHUTDOWN_BACKENDS                  ((int)1001)
 %
-%#define OPENSS_PROTOCOL_TAG_ATTACH_TO_THREADS                  ((int)100)
-%#define OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREADS                ((int)101)
-%#define OPENSS_PROTOCOL_TAG_CHANGE_THREADS_STATE               ((int)102)
-%#define OPENSS_PROTOCOL_TAG_CREATE_PROCESS                     ((int)103)
-%#define OPENSS_PROTOCOL_TAG_DETACH_FROM_THREADS                ((int)104)
+%#define OPENSS_PROTOCOL_TAG_ATTACH_TO_THREADS                  ((int)1100)
+%#define OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREADS                ((int)1101)
+%#define OPENSS_PROTOCOL_TAG_CHANGE_THREADS_STATE               ((int)1102)
+%#define OPENSS_PROTOCOL_TAG_CREATE_PROCESS                     ((int)1103)
+%#define OPENSS_PROTOCOL_TAG_DETACH_FROM_THREADS                ((int)1104)
 %
-%#define OPENSS_PROTOCOL_TAG_EXECUTE_NOW                        ((int)105)
-%#define OPENSS_PROTOCOL_TAG_EXECUTE_AT_ENTRY_OR_EXIT           ((int)106)
-%#define OPENSS_PROTOCOL_TAG_EXECUTE_IN_PLACE_OF                ((int)107)
-%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_INTEGER                 ((int)108)
-%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_STRING                  ((int)109)
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_NOW                        ((int)1105)
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_AT_ENTRY_OR_EXIT           ((int)1106)
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_IN_PLACE_OF                ((int)1107)
+%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_INTEGER                 ((int)1108)
+%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_STRING                  ((int)1109)
 %
-%#define OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE               ((int)110)
-%#define OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE               ((int)111)
-%#define OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE                   ((int)112)
-%#define OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE                ((int)113)
-%#define OPENSS_PROTOCOL_TAG_LOADED_LINKED_OBJECT               ((int)114)
+%#define OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE               ((int)1110)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE               ((int)1111)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE                   ((int)1112)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE                ((int)1113)
+%#define OPENSS_PROTOCOL_TAG_LOADED_LINKED_OBJECT               ((int)1114)
 %
-%#define OPENSS_PROTOCOL_TAG_REPORT_ERROR                       ((int)115)
-%#define OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER                 ((int)116)
-%#define OPENSS_PROTOCOL_TAG_STOP_AT_ENTRY_OR_EXIT              ((int)117)
-%#define OPENSS_PROTOCOL_TAG_SYMBOL_TABLE                       ((int)118)
-%#define OPENSS_PROTOCOL_TAG_THREADS_STATE_CHANGED              ((int)119)
+%#define OPENSS_PROTOCOL_TAG_REPORT_ERROR                       ((int)1115)
+%#define OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER                 ((int)1116)
+%#define OPENSS_PROTOCOL_TAG_STOP_AT_ENTRY_OR_EXIT              ((int)1117)
+%#define OPENSS_PROTOCOL_TAG_SYMBOL_TABLE                       ((int)1118)
+%#define OPENSS_PROTOCOL_TAG_THREADS_STATE_CHANGED              ((int)1119)
 %
-%#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)120)
-%#define OPENSS_PROTOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)121)
+%#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)1120)
+%#define OPENSS_PROTOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)1121)
 %
-%#define OPENSS_PROTOCOL_TAG_PERFORMANCE_DATA                   ((int)1000)
+%#define OPENSS_PROTOCOL_TAG_PERFORMANCE_DATA                   ((int)10000)
 
 
 
