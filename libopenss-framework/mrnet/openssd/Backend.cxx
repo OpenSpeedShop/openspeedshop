@@ -24,6 +24,7 @@
 
 #include "Backend.hxx"
 #include "Blob.hxx"
+#include "DyninstCallbacks.hxx"
 #include "MessageCallbackTable.hxx"
 #include "Protocol.h"
 
@@ -74,6 +75,39 @@ namespace {
      */
     void* monitorThread(void*)
     {
+	// Note: Ideally the following Dyninst bpatch singleton object would
+	//       be declared inside the unnamed namespace of "openssd.cxx" and
+	//       the Dyninst callback registrations would take place inside
+	//       main(). Per Matt Legendre on JAN-09-2008, only one thread is
+	//       allowed to access the Dyninst API. Since the monitor thread
+	//       is the one that does all the real Dyninst work in response
+	//       to messages from the frontend, this stuff needs to be here
+	//       instead.
+
+	// Singleton Dyninst bpatch object
+	BPatch TheBPatch;
+
+	// Register callbacks with Dyninst
+	BPatch* bpatch = BPatch::getBPatch();
+	Assert(bpatch != NULL);
+	bpatch->registerDynLibraryCallback(DyninstCallbacks::dynLibrary);
+	bpatch->registerErrorCallback(DyninstCallbacks::error);
+	bpatch->registerExecCallback(DyninstCallbacks::exec);
+	bpatch->registerExitCallback(DyninstCallbacks::exit);
+	bpatch->registerPostForkCallback(DyninstCallbacks::postFork);
+	bpatch->registerThreadEventCallback(BPatch_threadCreateEvent,
+					    DyninstCallbacks::threadCreate);
+	bpatch->registerThreadEventCallback(BPatch_threadDestroyEvent,
+					    DyninstCallbacks::threadDestroy);
+	
+	// TODO: We need to register some sort of callback to pickup when a
+	//       process under our control stops at a breakpoint. Per Matt
+	//       Legendre on DEC-31-2007, Dyninst does not currently provide
+	//       any sort of callback for this. The only way to do this is
+	//       to track process state inside the daemon and have a thread
+	//       do a Dyninst waitForStatusChange() and watch for which
+	//       process has changed state, and if it has stopped.
+	
 	// Run the message pump until instructed to exit
 	for(bool do_exit = false; !do_exit;) {
 

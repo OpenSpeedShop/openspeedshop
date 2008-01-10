@@ -19,7 +19,6 @@
 #include "Assert.hxx"
 #include "Backend.hxx"
 #include "Callbacks.hxx"
-#include "DyninstCallbacks.hxx"
 #include "Path.hxx"
 #include "Protocol.h"
 #include "Time.hxx"
@@ -35,9 +34,6 @@ using namespace OpenSpeedShop::Framework;
 
 
 namespace {
-
-    /** Singleton Dyninst bpatch object. */
-    BPatch bpatch;
 
     /** Access-controlled flag indicating when the daemon should exit. */
     struct {
@@ -106,28 +102,7 @@ int main(int argc, char* argv[])
 	std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
     std::cout << std::endl;
     std::cout.flush();
-    
-    // Register callbacks with Dyninst
-    BPatch* bpatch = BPatch::getBPatch();
-    Assert(bpatch != NULL);
-    bpatch->registerDynLibraryCallback(DyninstCallbacks::dynLibrary);
-    bpatch->registerErrorCallback(DyninstCallbacks::error);
-    bpatch->registerExecCallback(DyninstCallbacks::exec);
-    bpatch->registerExitCallback(DyninstCallbacks::exit);
-    bpatch->registerPostForkCallback(DyninstCallbacks::postFork);
-    bpatch->registerThreadEventCallback(BPatch_threadCreateEvent,
-					DyninstCallbacks::threadCreate);
-    bpatch->registerThreadEventCallback(BPatch_threadDestroyEvent,
-					DyninstCallbacks::threadDestroy);
 
-    // TODO: We need to register some sort of callback to pickup when a
-    //       process under our control stops at a breakpoint. Per Matt
-    //       Legendre on DEC-31-2007, Dyninst does not currently provide
-    //       any sort of callback for this. The only way to do this is
-    //       to track process state inside the daemon and have a thread
-    //       do a Dyninst waitForStatusChange() and watch for which
-    //       process has changed state, and if it has stopped.
-    
     // Register callbacks with the backend
     Backend::registerCallback(OPENSS_PROTOCOL_TAG_SHUTDOWN_BACKENDS,
 			      shutdownBackends);
