@@ -98,8 +98,6 @@ libvt-mpt-mpi-a:
 	ar d libvt.mpi.mpt.a libvt_mpi_a-vt_fmpiwrap.o
 endif
 
-pkglib_LTLIBRARIES =
-
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES = mpiotf.la
 if HAVE_LAM
