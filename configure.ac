@@ -129,10 +129,13 @@ AC_PKG_LIBMONITOR()
 AC_PKG_MRNET()
 
 ################################################################################
-# Check for Dynamic Instrumentation Package
+# Disable this static Check for Dynamic Instrumentation Package
+# This check is moved to the instrumentors that actually use it.
+# offline does not need/use dyninst (though in the future it will nee
+# libsymtabAPI from a future dyninst release).
 ################################################################################
 
-AC_PKG_DYNINST()
+#AC_PKG_DYNINST()
 
 ################################################################################
 # Check for Instrumentor
@@ -140,21 +143,31 @@ AC_PKG_DYNINST()
 
 AC_ARG_WITH(instrumentor,
 	    AC_HELP_STRING([--with-instrumentor=TYPE],
-			   [instrumentor (dpcl, dyninst, mrnet) @<:@dpcl@:>@]),
+			   [instrumentor (dpcl, dyninst, mrnet, offline) @<:@dpcl@:>@]),
 	    INSTRUMENTOR=$withval, INSTRUMENTOR="dpcl")
 
 case "$INSTRUMENTOR" in
     dpcl)
+	AM_CONDITIONAL(BUILD_OFFLINE, false)
+	AC_PKG_DYNINST()
 	AC_PKG_DPCL()
 	;;
 
     dyninst)
+	AM_CONDITIONAL(BUILD_OFFLINE, false)
 	AC_PKG_DYNINST()
 	;;
 
     mrnet)
+	AM_CONDITIONAL(BUILD_OFFLINE, false)
 	AC_PKG_DYNINST()
 	AC_PKG_MRNET()
+	;;
+
+    offline)
+	AC_PKG_LIBMONITOR()
+	AM_CONDITIONAL(BUILD_OFFLINE, true)
+	AC_DEFINE(BUILD_OFFLINE, 1, [Define to 1 if you only want the offline instrumentor.])
 	;;
 
     *)
@@ -188,6 +201,7 @@ AC_CONFIG_FILES(
 	libopenss-framework/mrnet/Makefile
 	libopenss-framework/mrnet/common/Makefile
 	libopenss-framework/mrnet/openssd/Makefile
+	libopenss-framework/offline/Makefile
 	libopenss-queries/Makefile
 	plugins/Makefile
 	plugins/collectors/Makefile

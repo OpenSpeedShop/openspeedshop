@@ -17,7 +17,11 @@
 ################################################################################
 
 # directories that will be built
+if BUILD_OFFLINE
+SUBDIRS = check_setup
+else
 SUBDIRS = check_dpcl check_dyninst check_openss check_setup
+endif
 
 DIST_SUBDIRS = check_dpcl check_dyninst check_openss check_setup
 

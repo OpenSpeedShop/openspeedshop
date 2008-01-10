@@ -26,9 +26,11 @@
 #       the runtime for the other libraries that actually use it.
 #
 
-bin_PROGRAMS = openss
 dist_bin_SCRIPTS = ossrun
 BUILT_FILES = ossrun
+
+if !BUILD_OFFLINE
+bin_PROGRAMS = openss
 
 openss_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
@@ -46,6 +48,7 @@ openss_LDADD = \
 
 openss_SOURCES = \
 	openss.cxx
+endif
 
 CLEANFILES = $(BUILT_FILES)
 
@@ -61,5 +64,6 @@ ossrun: ossrun.in
 	@sed \
 		-e 's,@@osslibdir@@,$(pkglibdir),' \
 			$(srcdir)/ossrun.in > ossrun
+	@chmod 755 ossrun
 
 EXTRA_DIST = ossrun.in

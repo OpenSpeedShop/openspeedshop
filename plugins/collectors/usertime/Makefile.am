@@ -25,7 +25,11 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
-pkglib_LTLIBRARIES = usertime.la usertime-rt.la
+pkglib_LTLIBRARIES =
+
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += usertime.la usertime-rt.la
+endif
 
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
@@ -34,6 +38,7 @@ OFFLINE_SOURCES = \
 pkglib_LTLIBRARIES += usertime-rt-offline.la libusertime-offline.la
 endif
 
+if !BUILD_OFFLINE
 usertime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -69,6 +74,7 @@ usertime_rt_la_LIBADD = \
 usertime_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.c
+endif
 
 if HAVE_LIBMONITOR
 usertime_rt_offline_la_CFLAGS = \

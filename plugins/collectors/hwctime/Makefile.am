@@ -25,7 +25,11 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
-pkglib_LTLIBRARIES = hwctime.la hwctime-rt.la
+pkglib_LTLIBRARIES =
+
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += hwctime.la hwctime-rt.la
+endif
 
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
@@ -34,6 +38,7 @@ OFFLINE_SOURCES = \
 pkglib_LTLIBRARIES += hwctime-rt-offline.la libhwctime-offline.la
 endif
 
+if !BUILD_OFFLINE
 hwctime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
 	@PAPI_CPPFLAGS@
@@ -70,6 +75,7 @@ hwctime_rt_la_LIBADD = \
 hwctime_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.c
+endif
 
 if HAVE_LIBMONITOR
 hwctime_rt_offline_la_CFLAGS = \

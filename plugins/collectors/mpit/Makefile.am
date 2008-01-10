@@ -24,7 +24,10 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c	
 
-pkglib_LTLIBRARIES = mpit.la
+pkglib_LTLIBRARIES =
+
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += mpit.la
 if HAVE_LAM
 pkglib_LTLIBRARIES += mpit-rt-lam.la
 endif
@@ -145,7 +148,8 @@ mpit_rt_openmpi_la_DEPENDENCIES =
 mpit_rt_openmpi_la_SOURCES = $(rt_sources)
 endif
 
-
+#endif for !BUILD_OFFLINE
+endif
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)

@@ -24,8 +24,13 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
-pkglib_LTLIBRARIES = iot.la iot-rt.la
+pkglib_LTLIBRARIES =
 
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += iot.la iot-rt.la
+endif
+
+if !BUILD_OFFLINE
 iot_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -58,6 +63,7 @@ iot_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	wrappers.c \
 	runtime.h runtime.c
+endif
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)

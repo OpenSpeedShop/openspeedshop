@@ -260,7 +260,9 @@ AC_DEFUN([AC_PKG_DYNINST], [
         ]], [[
 	BPatch bpatch();
         ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
-        AC_MSG_FAILURE(cannot locate Dyninst API library and/or headers.) ]
+	# for offline only builds, dyninst is not installed.
+	# do not die.
+        #AC_MSG_FAILURE(cannot locate Dyninst API library and/or headers.) ]
     )
 
     CPPFLAGS=$dyninst_saved_CPPFLAGS

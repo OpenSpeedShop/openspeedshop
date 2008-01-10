@@ -98,6 +98,9 @@ libvt-mpt-mpi-a:
 	ar d libvt.mpi.mpt.a libvt_mpi_a-vt_fmpiwrap.o
 endif
 
+pkglib_LTLIBRARIES =
+
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES = mpiotf.la
 if HAVE_LAM
 pkglib_LTLIBRARIES += mpiotf-rt-lam.la
@@ -302,6 +305,8 @@ mpiotf_rt_openmpi_la_DEPENDENCIES = libvt-openmpi-mpi-a
 mpiotf_rt_openmpi_la_SOURCES = $(rt_sources)
 endif
 
+#endif for !BUILD_OFFLINE
+endif
 
 SUFFIXES = .x 
 CLEANFILES = $(BUILT_SOURCES) 

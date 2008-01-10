@@ -98,3 +98,19 @@ cli:
 
 cli-install:
 	for i in $(CLI_SUBDIRS); do (cd $$i; $(MAKE) install); done
+
+# The following "offline" target is simply a short-hand for the offline only users
+# and developers to build just those components necessary for working
+# with the offline collectors.
+
+OFFLINE_SUBDIRS = \
+	libopenss-runtime \
+	libopenss-framework \
+	openss \
+	plugins/collectors
+
+offline:
+	for i in $(OFFLINE_SUBDIRS); do (cd $$i; $(MAKE)); done
+
+offline-install:
+	for i in $(OFFLINE_SUBDIRS); do (cd $$i; $(MAKE) install); done

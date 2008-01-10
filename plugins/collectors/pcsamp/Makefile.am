@@ -25,7 +25,11 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
-pkglib_LTLIBRARIES = pcsamp.la pcsamp-rt.la
+pkglib_LTLIBRARIES =
+
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += pcsamp.la pcsamp-rt.la
+endif
 
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
@@ -34,6 +38,7 @@ OFFLINE_SOURCES = \
 pkglib_LTLIBRARIES += pcsamp-rt-offline.la libpcsamp-offline.la
 endif
 
+if !BUILD_OFFLINE
 pcsamp_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -65,6 +70,7 @@ pcsamp_rt_la_LIBADD = \
 pcsamp_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.c
+endif
 
 if HAVE_LIBMONITOR
 pcsamp_rt_offline_la_CFLAGS = \

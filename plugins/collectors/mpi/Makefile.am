@@ -29,7 +29,10 @@ noinst_PROGRAMS = mkwrapper
 mkwrapper_SOURCES = \
 	mkwrapper.cxx
 
-pkglib_LTLIBRARIES = mpi.la
+pkglib_LTLIBRARIES =
+
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += mpi.la
 if HAVE_LAM
 pkglib_LTLIBRARIES += mpi-rt-lam.la
 endif
@@ -241,6 +244,7 @@ mpi_rt_openmpi_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_openmpi_la_SOURCES = $(wrapper_sources)
 endif
 
+endif
 
 EXTRA_DIST = mkwrapper.template
 SUFFIXES = .x

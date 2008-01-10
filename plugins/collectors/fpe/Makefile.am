@@ -24,7 +24,10 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
-pkglib_LTLIBRARIES = fpe.la fpe-rt.la
+pkglib_LTLIBRARIES =
+
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += fpe.la fpe-rt.la
 
 fpe_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -61,6 +64,7 @@ fpe_rt_la_LIBADD = \
 fpe_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.c
+endif
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)

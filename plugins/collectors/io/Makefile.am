@@ -24,8 +24,13 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
-pkglib_LTLIBRARIES = io.la io-rt.la
+pkglib_LTLIBRARIES =
 
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += io.la io-rt.la
+endif
+
+if !BUILD_OFFLINE
 io_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -58,6 +63,7 @@ io_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	wrappers.c \
 	runtime.h runtime.c
+endif
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
