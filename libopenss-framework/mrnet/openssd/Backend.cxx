@@ -83,35 +83,42 @@ namespace {
 	    wait.tv_nsec = 0;
 	    nanosleep(&wait, NULL);
 	    
-	    // Receive the next available message from the backends
-	    int tag = -1;
-	    MRN::Stream* stream = NULL;
-	    MRN::Packet* packet = NULL;
-	    int retval = network->recv(&tag, &packet, &stream, false);
-	    Assert(retval != -1);
-	    if(retval == 1) {
-		Assert(packet != NULL);
+	    // Receive all available messages from the backends
+	    int retval = 1;
+	    while(retval == 1) {
 
-		// Decode the packet containing the message
-		void* contents = NULL;
-		unsigned size = 0;
-		Assert(MRN::Stream::unpack(packet, "%auc",
-					   &contents, &size) == 0);
-		Blob blob(size, contents);
-
-		// Get the proper callbacks for this message's tag
-		std::set<MessageCallback> callbacks =
-		    message_callback_table.getCallbacksByTag(tag);
-
-		// Iterate over the callbacks
-		for(std::set<MessageCallback>::const_iterator
-			i = callbacks.begin(); i != callbacks.end(); ++i)
+		// Receive the next available message from the backends
+		int tag = -1;
+		MRN::Stream* stream = NULL;
+		MRN::Packet* packet = NULL;
+		retval = network->recv(&tag, &packet, &stream, false);
+		Assert(retval != -1);
+		if(retval == 1) {
+		    Assert(packet != NULL);
 		    
-		    // Dispatch the message to this callback
-		    (**i)(blob);
+		    // Decode the packet containing the message
+		    void* contents = NULL;
+		    unsigned size = 0;
+		    Assert(MRN::Stream::unpack(packet, "%auc",
+					       &contents, &size) == 0);
+		    Blob blob = ((size == 0) || (contents == NULL)) ?
+			Blob() : Blob(size, contents);
+		    
+		    // Get the proper callbacks for this message's tag
+		    std::set<MessageCallback> callbacks =
+			message_callback_table.getCallbacksByTag(tag);
+		    
+		    // Iterate over the callbacks
+		    for(std::set<MessageCallback>::const_iterator
+			    i = callbacks.begin(); i != callbacks.end(); ++i)
+			
+			// Dispatch the message to this callback
+			(**i)(blob);
+		    
+		}
 
 	    }
-	    
+		
 	    // Exit monitor thread if instructed to do so
 	    Assert(pthread_mutex_lock(&monitor_request_exit.lock) == 0);
 	    do_exit = monitor_request_exit.flag;
@@ -248,7 +255,8 @@ void Backend::sendToFrontend(const int& tag, const Blob& blob)
     Assert(upstream != NULL);
 
     // Send the message
-    Assert(upstream->send(tag, "auc", blob.getContents(), blob.getSize()) == 0);
+    Assert(upstream->send(tag, "%auc",
+			  blob.getContents(), blob.getSize()) == 0);
     Assert(upstream->flush() == 0);
 }
 

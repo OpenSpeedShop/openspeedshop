@@ -84,8 +84,8 @@ void Callbacks::attachToThreads(const Blob& blob)
 	    if(Backend::isDebugEnabled()) {
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "attachToThreads(): Thread " << toString(*i)
-		       << " is already attached." << std::endl;
+		       << "attachToThreads(): Thread { " << toString(*i) 
+		       << " } is already attached." << std::endl;
 		std::cerr << output.str();
 	    }
 #endif
@@ -100,8 +100,8 @@ void Callbacks::attachToThreads(const Blob& blob)
 	    if(Backend::isDebugEnabled()) {
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "attachToThreads(): Thread " << toString(*i)
-		       << " is already attached in another experiment." 
+		       << "attachToThreads(): Thread { " << toString(*i)
+		       << " } is already attached in another experiment." 
 		       << std::endl;
 		std::cerr << output.str();
 	    }
@@ -122,6 +122,17 @@ void Callbacks::attachToThreads(const Blob& blob)
 
 	if(thread == NULL) {
 
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "attachToThreads(): Thread { " << toString(*i)
+		       << " } could not be attached. Does it exist?"
+		       << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+	    
 	    // Send the frontend a message indicating the thread doesn't exist
 	    ThreadNameGroup threads;
 	    threads.insert(*i);
@@ -146,7 +157,18 @@ void Callbacks::attachToThreads(const Blob& blob)
 	    ThreadName name(i->getExperiment(), *(threads[j]));
 	    ThreadTable::TheTable.addThread(name, threads[j]);
 	    threads_attached.insert(name);
-	    
+
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "attachToThreads(): Thread { " << toString(name)
+		       << " } is attached."
+		       << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+		    
 	}
 	
     }
