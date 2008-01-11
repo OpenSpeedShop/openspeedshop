@@ -93,7 +93,16 @@ void monitor_init_thread_support(void)
 {
 }
 
+/* The Rice version of libmonitor added the flags adn
+ * handle arguments to monitor dlopen. Use _MONITOR_H_
+ * as define by Rice to determine which libmonitor
+ * is being used. The UTK monitor package defines libmonitor_h
+ */
+#if defined(_MONITOR_H_)
+void monitor_dlopen(const char *library, int flags, void *handle)
+#else
 void monitor_dlopen(const char *library)
+#endif
 {
     offline_record_dso(library);
 }
