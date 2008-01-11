@@ -22,6 +22,7 @@
 #include "Path.hxx"
 #include "Protocol.h"
 #include "Time.hxx"
+#include "Watcher.hxx"
 
 #include <BPatch.h>
 #include <iostream>
@@ -65,8 +66,6 @@ namespace {
 
 
 }
-
-
 
 /**
  * Main entry point.
@@ -136,6 +135,10 @@ int main(int argc, char* argv[])
     // Start the backend's message pump
     Backend::startMessagePump(argc, argv);
 
+//    const OpenSpeedShop::Watcher::BlobCallback xxx = NULL;
+//needthis    OpenSpeedShop::Watcher::startWatching(xxx);
+    OpenSpeedShop::Watcher::startWatching();
+
     // Wait until the daemon is instructed to exit
     Assert(pthread_mutex_lock(&daemon_request_exit.lock) == 0);
     while(daemon_request_exit.flag == false)
@@ -143,8 +146,12 @@ int main(int argc, char* argv[])
 				 &daemon_request_exit.lock) == 0);
     Assert(pthread_mutex_unlock(&daemon_request_exit.lock) == 0);
     
+
     // Stop the backend's message pump
     Backend::stopMessagePump();
+
+    // Stop watching for fileIO files (looking for performance data in application to send to client)
+    OpenSpeedShop::Watcher::stopWatching();
 
     // Display a shutdown message
     std::cout << std::endl;

@@ -210,6 +210,7 @@ AC_CONFIG_FILES(
 	libopenss-framework/mrnet/Makefile
 	libopenss-framework/mrnet/common/Makefile
 	libopenss-framework/mrnet/openssd/Makefile
+	libopenss-framework/mrnet/openssd/watcher/Makefile
 	libopenss-framework/offline/Makefile
 	libopenss-queries/Makefile
 	plugins/Makefile

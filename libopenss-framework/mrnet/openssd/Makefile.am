@@ -16,17 +16,20 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+SUBDIRS	= watcher
 bin_PROGRAMS = openssd
 
 openssd_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-framework/mrnet/common \
+	-I$(top_srcdir)/libopenss-framework/mrnet/openssd/watcher \
 	@DYNINST_CPPFLAGS@ \
 	@LIBDWARF_CPPFLAGS@ \
 	@MRNET_CPPFLAGS@
 
 openssd_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework/mrnet/common \
+	-L$(top_srcdir)/libopenss-framework/mrnet/openssd/watcher \
 	@DYNINST_LDFLAGS@ \
 	@LIBDWARF_LDFLAGS@ \
 	@BINUTILS_LDFLAGS@ \
@@ -34,6 +37,7 @@ openssd_LDFLAGS = \
 
 openssd_LDADD = \
 	-lopenss-framework-mrnet-common \
+	-lopenss-watcher \
 	@DYNINST_LIBS@ \
 	@LIBDWARF_LIBS@ \
 	@BINUTILS_LIBS@ \
