@@ -147,26 +147,28 @@ AC_ARG_WITH(instrumentor,
 
 case "$INSTRUMENTOR" in
     dpcl)
+	AC_PKG_DYNINST()
+	AC_PKG_DPCL()
 	AM_CONDITIONAL(BUILD_DPCL, true)
 	AC_DEFINE(BUILD_DPCL, 1, [Define to 1 if you only want the dpcl instrumentor.])
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
-	AC_PKG_DYNINST()
-	AC_PKG_DPCL()
-	;;
+	AM_CONDITIONAL(HAVE_MRNET, false)
+	;; 
 
     dyninst)
+	AC_PKG_DYNINST()
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
-	AC_PKG_DYNINST()
+	AM_CONDITIONAL(HAVE_MRNET, false)
 	;;
 
     mrnet)
-	AM_CONDITIONAL(BUILD_MRNET, true)
-	AC_DEFINE(BUILD_MRNET, 1, [Define to 1 if you only want the mrnet instrumentor.])
 	AC_PKG_DYNINST()
 	AC_PKG_MRNET()
+	AM_CONDITIONAL(BUILD_MRNET, true)
+	AC_DEFINE(BUILD_MRNET, 1, [Define to 1 if you only want the mrnet instrumentor.])
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
 	;;
@@ -175,6 +177,7 @@ case "$INSTRUMENTOR" in
 	AC_PKG_LIBMONITOR()
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
+	AM_CONDITIONAL(HAVE_MRNET, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, true)
 	AC_DEFINE(BUILD_OFFLINE, 1, [Define to 1 if you only want the offline instrumentor.])
 	;;
