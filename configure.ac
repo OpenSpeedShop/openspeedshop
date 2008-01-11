@@ -126,7 +126,6 @@ AC_PKG_SQLITE()
 AC_PYTHON_DEVEL([>= '2.3'])
 AC_PKG_QTLIB()
 AC_PKG_LIBMONITOR()
-AC_PKG_MRNET()
 
 ################################################################################
 # Disable this static Check for Dynamic Instrumentation Package
@@ -148,24 +147,34 @@ AC_ARG_WITH(instrumentor,
 
 case "$INSTRUMENTOR" in
     dpcl)
+	AM_CONDITIONAL(BUILD_DPCL, true)
+	AC_DEFINE(BUILD_DPCL, 1, [Define to 1 if you only want the dpcl instrumentor.])
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
+	AM_CONDITIONAL(BUILD_MRNET, false)
 	AC_PKG_DYNINST()
 	AC_PKG_DPCL()
 	;;
 
     dyninst)
+	AM_CONDITIONAL(BUILD_DPCL, false)
+	AM_CONDITIONAL(BUILD_MRNET, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
 	AC_PKG_DYNINST()
 	;;
 
     mrnet)
-	AM_CONDITIONAL(BUILD_OFFLINE, false)
+	AM_CONDITIONAL(BUILD_MRNET, true)
+	AC_DEFINE(BUILD_MRNET, 1, [Define to 1 if you only want the mrnet instrumentor.])
 	AC_PKG_DYNINST()
 	AC_PKG_MRNET()
+	AM_CONDITIONAL(BUILD_DPCL, false)
+	AM_CONDITIONAL(BUILD_OFFLINE, false)
 	;;
 
     offline)
 	AC_PKG_LIBMONITOR()
+	AM_CONDITIONAL(BUILD_DPCL, false)
+	AM_CONDITIONAL(BUILD_MRNET, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, true)
 	AC_DEFINE(BUILD_OFFLINE, 1, [Define to 1 if you only want the offline instrumentor.])
 	;;

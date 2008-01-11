@@ -17,6 +17,10 @@
 ################################################################################
 
 # directories that will be built
-SUBDIRS = dyninst dpcl regression
+SUBDIRS = dyninst regression
+
+if BUILD_DPCL
+SUBDIRS SUBDIRS += dpcl
+endif
 
 DIST_SUBDIRS =  dyninst dpcl regression
