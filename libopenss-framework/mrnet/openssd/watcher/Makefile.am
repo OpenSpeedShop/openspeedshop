@@ -40,8 +40,18 @@
 
 lib_LTLIBRARIES = libopenss-watcher.la
 
+#libopenss_watcher_la_CFLAGS = \
+#	-I$(top_srcdir)/libopenss-runtime \
+#	-I$(top_srcdir)/libopenss-runtime/fileio \
+#        -I$(top_srcdir)/libopenss-framework \
+#        -I$(top_srcdir)/libopenss-framework/mrnet/common \
+#        -I$(top_srcdir)/libopenss-framework/mrnet/openssd \
+#        -I$(top_srcdir)/libopenss-framework/mrnet \
+#	$(LTDLINCL) 
+
 libopenss_watcher_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/fileio \
         -I$(top_srcdir)/libopenss-framework \
         -I$(top_srcdir)/libopenss-framework/mrnet/common \
         -I$(top_srcdir)/libopenss-framework/mrnet/openssd \
@@ -49,14 +59,16 @@ libopenss_watcher_la_CXXFLAGS = \
 	$(LTDLINCL) 
 
 libopenss_watcher_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-runtime \
 	-export-dynamic -version-info 1:0:0
 
 libopenss_watcher_la_LIBADD = \
 	$(LIBLTDL) \
-	-lpthread -lrt -liberty
+	-lpthread -lrt -liberty 
 
 libopenss_watcher_la_SOURCES = \
-	Watcher.cxx Watcher.hxx
+	Watcher.cxx Watcher.hxx \
+	Watcher_FileIO.cxx Watcher_Path_From_Pid.cxx Watcher_FileIO.hxx 
 
 doc:
 	$(DOXYGEN)

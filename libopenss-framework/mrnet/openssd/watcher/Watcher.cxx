@@ -27,6 +27,7 @@
 #include "Backend.hxx"
 #include "Watcher.hxx"
 //#include "../Senders.hxx"
+#include "Watcher_FileIO.hxx"
 
 #include <errno.h>
 #include <signal.h>
@@ -112,6 +113,19 @@ using namespace OpenSpeedShop;
                std::cerr << output.str();
             }
 #endif
+            std::string collectorStr = "pcsamp";
+            std::string dirPath = "";
+//            dirPath = Watcher_OpenSS_GetFilePrefix("pcsamp");
+            dirPath = Watcher_OpenSS_GetFilePrefix(collectorStr.c_str());
+#ifndef NDEBUG
+            if(Watcher::isDebugEnabled()) {
+               std::stringstream output;
+               output << "[TID " << pthread_self() << "] OpenSpeedShop::Watcher::fileIOmonitorThread()"
+                      << " collectorStr=" <<  collectorStr << " dirPath=" << dirPath << std::endl;
+               std::cerr << output.str();
+            }
+#endif
+            
 
 //            Check if this is the first time through?
 //               Are there any file lists and pointers into the files
