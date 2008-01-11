@@ -23,6 +23,7 @@
  */
 
 #include "Address.hxx"
+#include "AddressBitmap.hxx"
 #include "AddressRange.hxx"
 #include "Assert.hxx"
 #include "Blob.hxx"
@@ -35,6 +36,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
+#include <algorithm>
 #include <iomanip>
 #include <limits>
 #include <sstream>
@@ -247,6 +249,49 @@ Path OpenSpeedShop::Framework::searchForLibrary(const Path& library)
 
 
 /**
+ * Convert string for protocol use.
+ *
+ * Converts the specified C++ string to a C character array as used in
+ * protocol messages.
+ *
+ * @note    The caller assumes responsibility for releasing the C character
+ *          array when it is no longer needed.
+ *
+ * @param in      C++ string to be converted.
+ * @retval out    C character array to hold the results.
+ */
+void OpenSpeedShop::Framework::convert(const std::string& in, char*& out)
+{
+    out = new char[in.size() + 1];
+    strcpy(out, in.c_str());
+}
+
+
+
+/**
+ * Convert blob for protocol use.
+ *
+ * Converts the specified framework blob object to the structure used in
+ * protocol messages.
+ *
+ * @note    The caller assumes responsibility for releasing all allocated
+ *          memory when it is no longer needed.
+ *
+ * @param in     Blob to be converted.
+ * @param out    Structure to hold the results.
+ */
+void OpenSpeedShop::Framework::convert(const Blob& in,
+				       OpenSS_Protocol_Blob& out)
+{
+    out.data.data_len = in.getSize();
+    out.data.data_val = new uint8_t[std::max(1U, in.getSize())];
+    if(in.getSize() > 0)
+	memcpy(out.data.data_val, in.getContents(), in.getSize());
+}
+
+
+
+/**
  * Conversion from OpenSS_Protocol_AddressRange to std::string.
  *
  * Returns the conversion of an OpenSS_Protocol_AddressRange into a std::string.
@@ -281,9 +326,10 @@ std::string OpenSpeedShop::Framework::toString(
     )
 {
     std::stringstream output;
-    output << toString(bitmap.range) << " ";
-    for(int i = 0; i < bitmap.bitmap.bitmap_len; ++i)
-	output << (bitmap.bitmap.bitmap_val[i] ? "1" : "0");
+    output << AddressBitmap(AddressRange(bitmap.range.begin,
+					 bitmap.range.end),
+			    Blob(bitmap.bitmap.data.data_len,
+				 bitmap.bitmap.data.data_val));
     return output.str();
 }
 
@@ -426,7 +472,8 @@ std::string OpenSpeedShop::Framework::toString(
  * Conversion from OpenSS_Protocol_FileName to std::string.
  *
  * Returns the conversion of an OpenSS_Protocol_FileName into a std::string.
- * ...
+ * Simply returns the string containing the textual representation of the
+ * file's checksum and its name.
  *
  * @param file    File name to be converted.
  * @return        String conversion of that file name.
@@ -435,7 +482,13 @@ std::string OpenSpeedShop::Framework::toString(
     const OpenSS_Protocol_FileName& file
     )
 {
-    // TODO: implement!
+    std::stringstream output;
+    output << Address(file.checksum) << ":";
+    if(file.path != NULL)
+	output << file.path;
+    else
+	output << "<null>";
+    return output.str();
 }
 
 
@@ -453,7 +506,17 @@ std::string OpenSpeedShop::Framework::toString(
     const OpenSS_Protocol_FunctionEntry& function
     )
 {
-    // TODO: implement!
+    std::stringstream output;
+    output << "    ";
+    if(function.name != NULL)
+	output << function.name;
+    else
+	output << "<null>";
+    output << std::endl;
+    for(int i = 0; i < function.bitmaps.bitmaps_len; ++i)
+	output << "        " << toString(function.bitmaps.bitmaps_val[i])
+	       << std::endl;
+    return output.str();
 }
 
 
@@ -521,7 +584,13 @@ std::string OpenSpeedShop::Framework::toString(
     const OpenSS_Protocol_StatementEntry& statement
     )
 {
-    // TODO: implement!
+    std::stringstream output;
+    output << "    " << toString(statement.path) << ", line " 
+	   << statement.line << ", column " << statement.column << std::endl;
+    for(int i = 0; i < statement.bitmaps.bitmaps_len; ++i)
+	output << "        " << toString(statement.bitmaps.bitmaps_val[i])
+	       << std::endl;
+    return output.str();
 }
 
 
@@ -1058,17 +1127,14 @@ std::string OpenSpeedShop::Framework::toString(
     std::stringstream output;
     output << "symbolTable(" << std::endl
 	   << toString(message.experiments) << "," << std::endl
-	   << toString(message.linked_object) << "," << std::endl;
-    
-    for(int i = 0; i < message.functions.functions_len; ++i) {
-	// TODO: implement!
-    }
-    
-    for(int i = 0; i < message.statements.statements_len; ++i) {
-	// TODO: implement!
-    }
-    
-    output << ")" << std::endl;
+	   << "    " << toString(message.linked_object) << "," << std::endl    
+	   << "    {" << std::endl;
+    for(int i = 0; i < message.functions.functions_len; ++i)
+	output << toString(message.functions.functions_val[i]);
+    output << "    }," << std::endl << "    {" << std::endl;
+    for(int i = 0; i < message.statements.statements_len; ++i)
+	output << toString(message.statements.statements_val[i]);
+    output << "    }" << std::endl << ")" << std::endl;
     return output.str();
 }
 

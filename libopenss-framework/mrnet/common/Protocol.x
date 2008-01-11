@@ -53,6 +53,22 @@ struct OpenSS_Protocol_AddressRange
 
 
 /**
+ * Binary large object.
+ *
+ * Encapsulates a buffer of raw, untyped, binary data. Used to store arguments
+ * to functions called by instrumentation.
+ *
+ * @sa    http://www.hyperdictionary.com/computing/binary+large+object
+ */
+struct OpenSS_Protocol_Blob
+{
+    /** Binary data in the blob. */
+    uint8_t data<>;
+};
+
+
+
+/**
  * Address bitmap.
  *
  * A bitmap containing one bit per address within an address range. Used to
@@ -65,23 +81,7 @@ struct OpenSS_Protocol_AddressBitmap
     OpenSS_Protocol_AddressRange range;
 
     /** Actual bitmap. */
-    bool bitmap<>;
-};
-
-
-
-/**
- * Binary large object.
- *
- * Encapsulates a buffer of raw, untyped, binary data. Used to store arguments
- * to functions called by instrumentation.
- *
- * @sa    http://www.hyperdictionary.com/computing/binary+large+object
- */
-struct OpenSS_Protocol_Blob
-{
-    /** Binary data in the blob. */
-    uint8_t data<>;
+    OpenSS_Protocol_Blob bitmap;
 };
 
 

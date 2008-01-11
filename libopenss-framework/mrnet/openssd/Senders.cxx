@@ -35,35 +35,13 @@
 #include "Time.hxx"
 #include "Utility.hxx"
 
+#include <algorithm>
+
 using namespace OpenSpeedShop::Framework;
 
 
 
 namespace {
-
-
-
-    /**
-     * Convert string for protocol use.
-     *
-     * Converts the specified C++ string to a C character array as used in
-     * protocol messages.
-     *
-     * @note    The caller assumes responsibility for releasing the C character
-     *          array when it is no longer needed.
-     *
-     * @param in      C++ string to be converted.
-     * @retval out    C character array to hold the results.
-     */
-    void convert(const std::string& in, char*& out)
-    {
-        if(!in.empty()) {
-            out = new char[in.size() + 1];
-            strcpy(out, in.c_str());
-        }
-        else
-            out = NULL;
-    }
 
 
 
@@ -81,25 +59,17 @@ namespace {
      */
     void convert(const Job& in, OpenSS_Protocol_Job& out)
     {
-	// Is the job non-empty?
-	if(!in.empty()) {
+	// Allocate an appropriately sized array of job entries
+	out.entries.entries_len = in.size();
+	out.entries.entries_val = 
+	    new OpenSS_Protocol_JobEntry[std::max(1U, in.size())];
 
-	    // Allocate an appropriately sized array of entries
-	    out.entries.entries_len = in.size();
-	    out.entries.entries_val = new OpenSS_Protocol_JobEntry[in.size()];
-
-	    // Iterate over each entry of this job
-	    OpenSS_Protocol_JobEntry* ptr = out.entries.entries_val;
-	    for(Job::const_iterator
-		    i = in.begin(); i != in.end(); ++i, ++ptr) {
-		convert(i->first, ptr->host);
-		ptr->pid = i->second;
-	    }
-	    
-	}
-	else {
-	    out.entries.entries_len = 0;
-	    out.entries.entries_val = NULL;
+	// Iterate over each entry of this job
+	OpenSS_Protocol_JobEntry* ptr = out.entries.entries_val;
+	for(Job::const_iterator
+		i = in.begin(); i != in.end(); ++i, ++ptr) {
+	    OpenSpeedShop::Framework::convert(i->first, ptr->host);
+	    ptr->pid = i->second;
 	}
     }
     
@@ -215,7 +185,7 @@ void Senders::globalJobValue(const ThreadName& thread,
     OpenSS_Protocol_GlobalJobValue message;
     message.thread = thread;
     convert(global, message.global);
-    convert(job, message.value);
+    ::convert(job, message.value);
     
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {

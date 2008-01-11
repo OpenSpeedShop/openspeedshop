@@ -34,6 +34,7 @@
 #include "ThreadName.hxx"
 #include "Utility.hxx"
 
+#include <algorithm>
 #include <BPatch.h>
 #include <set>
 
@@ -104,13 +105,12 @@ namespace OpenSpeedShop { namespace Framework {
 	{
 	    OpenSS_Protocol_ThreadNameGroup object;
 	    object.names.names_len = size();
-	    if(!empty()) {
-		object.names.names_val = new OpenSS_Protocol_ThreadName[size()];
-		int idx = 0;
-		for(ThreadNameGroup::const_iterator
-			i = begin(); i != end(); ++i, ++idx)
-		    object.names.names_val[idx] = *i;
-	    }
+	    object.names.names_val = 
+		new OpenSS_Protocol_ThreadName[std::max(1U, size())];
+	    int idx = 0;
+	    for(ThreadNameGroup::const_iterator
+		    i = begin(); i != end(); ++i, ++idx)
+		object.names.names_val[idx] = *i;
 	    return object;
 	}
 	

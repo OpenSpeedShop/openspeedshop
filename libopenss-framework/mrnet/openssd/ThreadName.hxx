@@ -107,12 +107,7 @@ namespace OpenSpeedShop { namespace Framework {
 	{
 	    OpenSS_Protocol_ThreadName object;
 	    object.experiment = dm_experiment;
-	    if(!dm_host.empty()) {
-		object.host = new char[dm_host.size() + 1];
-		strcpy(object.host, dm_host.c_str());
-	    }
-	    else
-		object.host = NULL;
+	    convert(dm_host, object.host);
 	    object.pid = dm_pid;
 	    object.has_posix_tid = dm_tid.first;
 	    object.posix_tid = dm_tid.second;

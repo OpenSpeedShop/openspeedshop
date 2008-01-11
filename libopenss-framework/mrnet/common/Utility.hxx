@@ -41,6 +41,7 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class Blob;
     class Path;
 
     uint64_t computeChecksum(const Path&);
@@ -52,6 +53,9 @@ namespace OpenSpeedShop { namespace Framework {
     parseLibraryFunctionName(const std::string&);
 
     Path searchForLibrary(const Path&);
+
+    void convert(const std::string&, char*&);
+    void convert(const Blob&, OpenSS_Protocol_Blob&);
 
     std::string toString(const OpenSS_Protocol_AddressRange&);
     std::string toString(const OpenSS_Protocol_AddressBitmap&);

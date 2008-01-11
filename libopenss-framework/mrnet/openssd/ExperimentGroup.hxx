@@ -33,6 +33,7 @@
 #include "Protocol.h"
 #include "ThreadNameGroup.hxx"
 
+#include <algorithm>
 #include <set>
 
 
@@ -95,14 +96,12 @@ namespace OpenSpeedShop { namespace Framework {
 	{
 	    OpenSS_Protocol_ExperimentGroup object;
 	    object.experiments.experiments_len = size();
-	    if(!empty()) {
-		object.experiments.experiments_val = 
-		    new OpenSS_Protocol_Experiment[size()];
-		int idx = 0;
-		for(ExperimentGroup::const_iterator
-			i = begin(); i != end(); ++i, ++idx)
-		    object.experiments.experiments_val[idx] = *i;
-	    }
+	    object.experiments.experiments_val =
+		new OpenSS_Protocol_Experiment[std::max(1U, size())];
+	    int idx = 0;
+	    for(ExperimentGroup::const_iterator
+		    i = begin(); i != end(); ++i, ++idx)
+		object.experiments.experiments_val[idx] = *i;
 	    return object;
 	}
 	

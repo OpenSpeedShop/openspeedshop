@@ -78,6 +78,27 @@ namespace OpenSpeedShop { namespace Framework {
 
 	std::set<AddressRange> getContiguousRanges(const bool&) const;
 
+	/** Operator "<<" defined for std::ostream. */
+	friend std::ostream& operator<<(std::ostream& stream,
+					const AddressBitmap& object)
+	{
+	    stream << object.dm_range << " ";
+	    bool has_false = false, has_true = false;
+	    for(unsigned i = 0; i < object.dm_range.getWidth(); ++i)
+		if(object.getBitmap()[i] == true)
+		    has_true = true;
+		else
+		    has_false = true;
+	    if(has_false && !has_true)
+		stream << "0...0";
+	    else if(!has_false && has_true)
+		stream << "1...1";
+	    else
+		for(unsigned i = 0; i < object.dm_range.getWidth(); ++i)
+		    stream << (object.dm_bitmap[i] ? "1" : "0");
+	    return stream;
+	}
+
     private:
 
 	/** Address range covered by this bitmap. */

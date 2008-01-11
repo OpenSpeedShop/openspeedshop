@@ -173,9 +173,17 @@ void DyninstCallbacks::error(BPatchErrorLevel severity, int number,
 			      BPatch::getEnglishErrorString(number),
 			      parameters);
     text += buffer;
-    
-    // Send the frontend a report of the error
-    Senders::reportError(text);
+
+    // Only send serious and fatal errors to the frontend
+    if((severity == BPatchFatal) || (severity == BPatchSerious)) {
+
+	// Send the frontend a report of the error
+	Senders::reportError(text);
+
+    }
+
+    // Display the error to the stdout stream
+    std::cout << text << std::endl;
 }
 
 
@@ -494,7 +502,7 @@ void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
 	thread = this_thread;
     }
     Assert(thread != NULL);
-    
+
     // Get the Dyninst process and image pointer for this thread
     BPatch_process* process = thread->getProcess();
     Assert(process != NULL);
@@ -516,7 +524,7 @@ void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
     // Start with an empty address range and symbol table for the executable
     AddressRange executable_range;
     SymbolTable executable_symbol_table;
-    
+
     // Iterate over each module in this thread
     for(int i = 0; i < modules->size(); ++i) {
 	Assert((*modules)[i] != NULL);
@@ -547,7 +555,7 @@ void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
 
 	    // Get the file name of this module
 	    FileName linked_object(*(*modules)[i]);
-	    
+
 	    // Send the frontend the initial "loaded" for this linked object
 	    Senders::loadedLinkedObject(threads, now, range,
 					linked_object, false);
@@ -557,20 +565,20 @@ void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
 		SentFilesTable::TheTable.getUnsent(linked_object,
 						   ExperimentGroup(threads));
 	    if(!unsent.empty()) {
-		
+
 		// Send the frontend the symbols for this linked object
 		Senders::symbolTable(unsent, linked_object,
 				     SymbolTable(*(*modules)[i]));
-		
+
 		// These symbols are now sent for those experiments
 		SentFilesTable::TheTable.addSent(linked_object, unsent);
 		
 	    }
-	    
+
 	}
 	
     }
-    
+
     // Send the frontend the initial "loaded" for the executable
     Senders::loadedLinkedObject(threads, now, executable_range, 
 				executable_linked_object, true);

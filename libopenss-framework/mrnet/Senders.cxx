@@ -25,6 +25,7 @@
 #include "Blob.hxx"
 #include "Collector.hxx"
 #include "CollectorImpl.hxx"
+#include "DataQueues.hxx"
 #include "EntrySpy.hxx"
 #include "Frontend.hxx"
 #include "Protocol.h"
@@ -32,6 +33,7 @@
 #include "ThreadGroup.hxx"
 #include "Utility.hxx"
 
+#include <algorithm>
 #include <pthread.h>
 #include <sstream>
 
@@ -41,30 +43,6 @@ using namespace OpenSpeedShop::Framework;
 
 namespace {
 
-
-
-    /**
-     * Convert string for protocol use.
-     *
-     * Converts the specified C++ string to a C character array as used in
-     * protocol messages.
-     *
-     * @note    The caller assumes responsibility for releasing the C character
-     *          array when it is no longer needed.
-     *
-     * @param in      C++ string to be converted.
-     * @retval out    C character array to hold the results.
-     */
-    void convert(const std::string& in, char*& out)
-    {
-	if(!in.empty()) {
-	    out = new char[in.size() + 1];
-	    strcpy(out, in.c_str());
-	}
-	else
-	    out = NULL;
-    }
-    
 
 
     /**
@@ -98,8 +76,9 @@ namespace {
      */
     void convert(const Thread& in, OpenSS_Protocol_ThreadName& out)
     {
-	out.experiment = EntrySpy(in).getEntry();
-	convert(in.getHost(), out.host);
+	out.experiment = 
+	    DataQueues::getDatabaseIdentifier(EntrySpy(in).getDatabase());
+	OpenSpeedShop::Framework::convert(in.getHost(), out.host);
 	out.pid = in.getProcessId();
 	std::pair<bool, pthread_t> posix_tid = in.getPosixThreadId();
 	out.has_posix_tid = posix_tid.first;
@@ -123,24 +102,16 @@ namespace {
      */
     void convert(const ThreadGroup& in, OpenSS_Protocol_ThreadNameGroup& out)
     {
-	// Is the thread group non-empty?
-	if(!in.empty()) {
+	// Allocate an appropriately sized array of thread entries
+	out.names.names_len = in.size();
+	out.names.names_val = 
+	    new OpenSS_Protocol_ThreadName[std::max(1U, in.size())];
 
-	    // Allocate an appropriately sized array of entries
-	    out.names.names_len = in.size();
-	    out.names.names_val = new OpenSS_Protocol_ThreadName[in.size()];
-	    
-	    // Iterate over each thread of this group
-	    OpenSS_Protocol_ThreadName* ptr = out.names.names_val;
-	    for(ThreadGroup::const_iterator
-		    i = in.begin(); i != in.end(); ++i, ++ptr)
-		convert(*i, *ptr);
-
-	}
-	else {
-	    out.names.names_len = 0;
-	    out.names.names_val = NULL;
-	}
+	// Iterate over each thread of this group
+	OpenSS_Protocol_ThreadName* ptr = out.names.names_val;
+	for(ThreadGroup::const_iterator
+		i = in.begin(); i != in.end(); ++i, ++ptr)
+	    convert(*i, *ptr);
     }
 
 
@@ -166,27 +137,6 @@ namespace {
 
 
     
-    /**
-     * Convert blob for protocol use.
-     *
-     * Converts the specified framework blob object to the structure used in
-     * protocol messages.
-     *
-     * @note    The caller assumes responsibility for releasing all allocated
-     *          memory when it is no longer needed.
-     *
-     * @param in     Blob to be converted.
-     * @param out    Structure to hold the results.
-     */
-    void convert(const Blob& in, OpenSS_Protocol_Blob& out)
-    {
-	out.data.data_len = in.getSize();
-	out.data.data_val = new uint8_t[in.getSize()];
-	memcpy(out.data.data_val, in.getContents(), in.getSize());
-    }
-
-
-
 }
 
 
@@ -202,7 +152,7 @@ void Senders::attachToThreads(const ThreadGroup& threads)
 {
     // Assemble the request into a message
     OpenSS_Protocol_AttachToThreads message;
-    convert(threads, message.threads);
+    ::convert(threads, message.threads);
     
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
@@ -247,7 +197,7 @@ void Senders::changeThreadsState(const ThreadGroup& threads,
 {
     // Assemble the request into a message
     OpenSS_Protocol_ChangeThreadsState message;
-    convert(threads, message.threads);
+    ::convert(threads, message.threads);
     switch(state) {
     case Thread::Disconnected:
 	message.state = Disconnected;
@@ -316,9 +266,9 @@ void Senders::createProcess(const Thread& thread,
 {
     // Assemble the request into a message
     OpenSS_Protocol_CreateProcess message;
-    convert(thread, message.thread);
-    convert(command, message.command);
-    convert(environment, message.environment);
+    ::convert(thread, message.thread);
+    OpenSpeedShop::Framework::convert(command, message.command);
+    OpenSpeedShop::Framework::convert(environment, message.environment);
     
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
@@ -337,7 +287,7 @@ void Senders::createProcess(const Thread& thread,
 
     // Send the encoded message to the appropriate backends
     OpenSS_Protocol_ThreadNameGroup threads;
-    convert(thread, threads);
+    ::convert(thread, threads);
     Frontend::sendToBackends(OPENSS_PROTOCOL_TAG_CREATE_PROCESS,
 			     blob, threads);
     xdr_free(
@@ -365,7 +315,7 @@ void Senders::detachFromThreads(const ThreadGroup& threads)
 {
     // Assemble the request into a message
     OpenSS_Protocol_DetachFromThreads message;
-    convert(threads, message.threads);
+    ::convert(threads, message.threads);
     
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
@@ -418,11 +368,11 @@ void Senders::executeNow(const ThreadGroup& threads,
 {
     // Assemble the request into a message
     OpenSS_Protocol_ExecuteNow message;
-    convert(threads, message.threads);
-    convert(collector, message.collector);
+    ::convert(threads, message.threads);
+    ::convert(collector, message.collector);
     message.disable_save_fpr = disable_save_fpr;
-    convert(callee, message.callee);
-    convert(argument, message.argument);
+    OpenSpeedShop::Framework::convert(callee, message.callee);
+    OpenSpeedShop::Framework::convert(argument, message.argument);
 
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
@@ -478,12 +428,12 @@ void Senders::executeAtEntryOrExit(const ThreadGroup& threads,
 {
     // Assemble the request into a message
     OpenSS_Protocol_ExecuteAtEntryOrExit message;
-    convert(threads, message.threads);
-    convert(collector, message.collector);
-    convert(where, message.where);
+    ::convert(threads, message.threads);
+    ::convert(collector, message.collector);
+    OpenSpeedShop::Framework::convert(where, message.where);
     message.at_entry = at_entry;
-    convert(callee, message.callee);
-    convert(argument, message.argument);
+    OpenSpeedShop::Framework::convert(callee, message.callee);
+    OpenSpeedShop::Framework::convert(argument, message.argument);
     
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
@@ -534,10 +484,10 @@ void Senders::executeInPlaceOf(const ThreadGroup& threads,
 {
     // Assemble the request into a message
     OpenSS_Protocol_ExecuteInPlaceOf message;
-    convert(threads, message.threads);
-    convert(collector, message.collector);
-    convert(where, message.where);
-    convert(callee, message.callee);
+    ::convert(threads, message.threads);
+    ::convert(collector, message.collector);
+    OpenSpeedShop::Framework::convert(where, message.where);
+    OpenSpeedShop::Framework::convert(callee, message.callee);
 
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
@@ -581,8 +531,8 @@ void Senders::getGlobalInteger(const Thread& thread, const std::string& global)
 {
     // Assemble the request into a message
     OpenSS_Protocol_GetGlobalInteger message;
-    convert(thread, message.thread);
-    convert(global, message.global);    
+    ::convert(thread, message.thread);
+    OpenSpeedShop::Framework::convert(global, message.global);    
 
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
@@ -601,7 +551,7 @@ void Senders::getGlobalInteger(const Thread& thread, const std::string& global)
     
     // Send the encoded message to the appropriate backends
     OpenSS_Protocol_ThreadNameGroup threads;
-    convert(thread, threads);
+    ::convert(thread, threads);
     Frontend::sendToBackends(OPENSS_PROTOCOL_TAG_GET_GLOBAL_INTEGER,
 			     blob, threads);
     xdr_free(
@@ -632,8 +582,8 @@ void Senders::getGlobalString(const Thread& thread, const std::string& global)
 {
     // Assemble the request into a message
     OpenSS_Protocol_GetGlobalString message;
-    convert(thread, message.thread);
-    convert(global, message.global);
+    ::convert(thread, message.thread);
+    OpenSpeedShop::Framework::convert(global, message.global);
 
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
@@ -652,7 +602,7 @@ void Senders::getGlobalString(const Thread& thread, const std::string& global)
     
     // Send the encoded message to the appropriate backends
     OpenSS_Protocol_ThreadNameGroup threads;
-    convert(thread, threads);
+    ::convert(thread, threads);
     Frontend::sendToBackends(OPENSS_PROTOCOL_TAG_GET_GLOBAL_STRING,
 			     blob, threads);
     xdr_free(
@@ -683,7 +633,7 @@ void Senders::getMPICHProcTable(const Thread& thread)
 {
     // Assemble the request into a message
     OpenSS_Protocol_GetMPICHProcTable message;
-    convert(thread, message.thread);
+    ::convert(thread, message.thread);
     
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
@@ -702,7 +652,7 @@ void Senders::getMPICHProcTable(const Thread& thread)
     
     // Send the encoded message to the appropriate backends
     OpenSS_Protocol_ThreadNameGroup threads;
-    convert(thread, threads);
+    ::convert(thread, threads);
     Frontend::sendToBackends(OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE,
 			     blob, threads);
     xdr_free(
@@ -736,8 +686,8 @@ void Senders::setGlobalInteger(const Thread& thread,
 {
     // Assemble the request into a message
     OpenSS_Protocol_SetGlobalInteger message;
-    convert(thread, message.thread);
-    convert(global, message.global);
+    ::convert(thread, message.thread);
+    OpenSpeedShop::Framework::convert(global, message.global);
     message.value = value;
     
 #ifndef NDEBUG
@@ -757,7 +707,7 @@ void Senders::setGlobalInteger(const Thread& thread,
 
     // Send the encoded message to the appropriate backends
     OpenSS_Protocol_ThreadNameGroup threads;
-    convert(thread, threads);
+    ::convert(thread, threads);
     Frontend::sendToBackends(OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER,
 			     blob, threads);
     xdr_free(
@@ -793,8 +743,8 @@ void Senders::stopAtEntryOrExit(const ThreadGroup& threads,
 {
     // Assemble the request into a message
     OpenSS_Protocol_StopAtEntryOrExit message;
-    convert(threads, message.threads);
-    convert(where, message.where);
+    ::convert(threads, message.threads);
+    OpenSpeedShop::Framework::convert(where, message.where);
     message.at_entry = at_entry;
 
 #ifndef NDEBUG
@@ -841,8 +791,8 @@ void Senders::uninstrument(const ThreadGroup& threads,
 {
     // Assemble the request into a message
     OpenSS_Protocol_Uninstrument message;
-    convert(threads, message.threads);
-    convert(collector, message.collector);
+    ::convert(threads, message.threads);
+    ::convert(collector, message.collector);
     
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {

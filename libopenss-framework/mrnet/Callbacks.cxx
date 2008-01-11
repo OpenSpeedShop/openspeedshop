@@ -585,8 +585,9 @@ void Callbacks::symbolTable(const Blob& blob)
 		database->bindArgument(1, statement);
 		database->bindArgument(2, Address(msg_bitmap.range.begin));
 		database->bindArgument(3, Address(msg_bitmap.range.end));
-		database->bindArgument(4, Blob(msg_bitmap.bitmap.bitmap_len,
-					       msg_bitmap.bitmap.bitmap_val));
+		database->bindArgument(4, 
+				       Blob(msg_bitmap.bitmap.data.data_len,
+					    msg_bitmap.bitmap.data.data_val));
 		while(database->executeStatement());
 		
 	    }
@@ -631,7 +632,7 @@ void Callbacks::threadsStateChanged(const Blob& blob)
 
     // Convert from OpenSS_Protocol_ThreadState to Thread::State
     Thread::State state;
-    switch(state) {
+    switch(message.state) {
     case Disconnected:
 	state = Thread::Disconnected;
 	break;
@@ -666,7 +667,7 @@ void Callbacks::threadsStateChanged(const Blob& blob)
 		       std::make_pair(msg_thread.has_posix_tid,
 				      msg_thread.posix_tid)
 		       );
-
+	
 	// Update these threads with their new state
 	for(ThreadGroup::const_iterator
 		i = threads.begin(); i != threads.end(); ++i)

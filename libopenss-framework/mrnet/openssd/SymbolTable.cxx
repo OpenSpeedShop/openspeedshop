@@ -22,8 +22,10 @@
  *
  */
 
+#include "Blob.hxx"
 #include "SymbolTable.hxx"
 
+#include <algorithm>
 #include <BPatch_function.h>
 #include <deque>
 
@@ -69,6 +71,8 @@ SymbolTable::SymbolTable(/* const */ BPatch_module& module) :
  */
 void SymbolTable::addModule(/* const */ BPatch_module& module)
 {
+    // TODO: make address relative to the beginning of the module
+
     // Get the list of functions in this module
     BPatch_Vector<BPatch_function*>* functions = module.getProcedures(true);
     Assert(functions != NULL);
@@ -85,7 +89,7 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 	//       from Dyninst? It is supposed to support this...
 
 	// Get the address range of the function
-	Address begin(
+	Address begin = Address(
 	    reinterpret_cast<uint64_t>((*functions)[i]->getBaseAddr())
 	    );
 	Address end = begin + (*functions)[i]->getSize();
@@ -150,68 +154,54 @@ SymbolTable::operator OpenSS_Protocol_SymbolTable() const
 {
     OpenSS_Protocol_SymbolTable object;
 
-    // Allocate an array (if necessary) to hold the functions
+    // Allocate an appropriately sized array of functions
     object.functions.functions_len = dm_functions.size();
-    if(!dm_functions.empty()) {
-	object.functions.functions_val = 
-	    new OpenSS_Protocol_FunctionEntry[dm_functions.size()];
+    object.functions.functions_val = 
+	new OpenSS_Protocol_FunctionEntry[std::max(1U, dm_functions.size())];
 	
-	// Iterate over all the functions in this symbol table
-	int idx = 0;
-	for(std::map<std::string, std::vector<AddressRange> >::const_iterator
-		i = dm_functions.begin(); i != dm_functions.end(); ++i, ++idx) {
-	    OpenSS_Protocol_FunctionEntry& entry = 
-		object.functions.functions_val[idx];
-	    
-	    // Convert the function's name
-	    if(!i->first.empty()) {
-		entry.name = new char[i->first.size()];
-		strcpy(entry.name, i->first.c_str());
-	    }
-	    else
-		entry.name = NULL;
-	    
-	    // Partition this function's address ranges into bitmaps
-	    std::vector<AddressBitmap> bitmaps =
-		partitionAddressRanges(i->second);
+    // Iterate over all the functions in this symbol table
+    int idx = 0;
+    for(std::map<std::string, std::vector<AddressRange> >::const_iterator
+	    i = dm_functions.begin(); i != dm_functions.end(); ++i, ++idx) {
+	OpenSS_Protocol_FunctionEntry& entry = 
+	    object.functions.functions_val[idx];
 
-	    // Convert the function's bitmaps
-	    convert(bitmaps,
-		    entry.bitmaps.bitmaps_len, entry.bitmaps.bitmaps_val);
-	    
-	}
-
+	// Convert the function's name
+	OpenSpeedShop::Framework::convert(i->first, entry.name);
+	
+	// Partition this function's address ranges into bitmaps
+	std::vector<AddressBitmap> bitmaps = partitionAddressRanges(i->second);
+	
+	// Convert the function's bitmaps
+	convert(bitmaps, entry.bitmaps.bitmaps_len, entry.bitmaps.bitmaps_val);
+	
     }
 
-    // Allocate an array (if necessary) to hold the statements
+    // Allocate an appropriately sized array of statements
     object.statements.statements_len = dm_statements.size();
-    if(!dm_statements.empty()) {
-	object.statements.statements_val =
-	    new OpenSS_Protocol_StatementEntry[dm_statements.size()];
+    object.statements.statements_val =
+	new OpenSS_Protocol_StatementEntry[std::max(1U, dm_statements.size())];
 
-	// Iterate over all the statements in this symbol table
-	int idx = 0;
-	for(std::map<StatementEntry, std::vector<AddressRange> >::const_iterator
-		i = dm_statements.begin();
-	    i != dm_statements.end();
-	    ++i, ++idx) {
-	    OpenSS_Protocol_StatementEntry& entry =
-		object.statements.statements_val[idx];
-
-	    // Convert the statement's path, line, and column
-	    entry.path = i->first.dm_path;
-	    entry.line = i->first.dm_line;
-	    entry.column = i->first.dm_column;
-
-	    // Partition this statement's address ranges into bitmaps
-	    std::vector<AddressBitmap> bitmaps =
-		partitionAddressRanges(i->second);
-
-	    // Convert the function's bitmaps
-	    convert(bitmaps,
-		    entry.bitmaps.bitmaps_len, entry.bitmaps.bitmaps_val);
-	    
-	}
+    // Iterate over all the statements in this symbol table
+    idx = 0;
+    for(std::map<StatementEntry, std::vector<AddressRange> >::const_iterator
+	    i = dm_statements.begin();
+	i != dm_statements.end();
+	++i, ++idx) {
+	OpenSS_Protocol_StatementEntry& entry =
+	    object.statements.statements_val[idx];
+	
+	// Convert the statement's path, line, and column
+	entry.path = i->first.dm_path;
+	entry.line = i->first.dm_line;
+	entry.column = i->first.dm_column;
+	
+	// Partition this statement's address ranges into bitmaps
+	std::vector<AddressBitmap> bitmaps = partitionAddressRanges(i->second);
+	
+	// Convert the function's bitmaps
+	convert(bitmaps, entry.bitmaps.bitmaps_len, entry.bitmaps.bitmaps_val);
+	
     }
 
     // Return the conversion to the caller
@@ -357,33 +347,22 @@ void SymbolTable::convert(const std::vector<AddressBitmap>& bitmaps,
 			  u_int& bitmaps_len,
 			  OpenSS_Protocol_AddressBitmap*& bitmaps_val)
 {
-    // Allocate an array (if necessary) to hold the bitmaps
+    // Allocate an appropriately sized array of bitmaps
     bitmaps_len = bitmaps.size();
-    if(!bitmaps.empty()) {
-	bitmaps_val = new OpenSS_Protocol_AddressBitmap[bitmaps.size()];
+    bitmaps_val = 
+	new OpenSS_Protocol_AddressBitmap[std::max(1U, bitmaps.size())];
 
-	// Iterate over all the bitmaps
-	for(std::vector<AddressBitmap>::size_type
-		i = 0; i < bitmaps.size(); ++i) {
-	    OpenSS_Protocol_AddressBitmap& entry = bitmaps_val[i];
-
-	    // Convert the bitmap's address range
-	    entry.range.begin = bitmaps[i].getRange().getBegin().getValue();
-	    entry.range.end = bitmaps[i].getRange().getEnd().getValue();
-	    
-	    // Allocate an array (if necessary) to hold the actual bitmap
-	    entry.bitmap.bitmap_len = bitmaps[i].getBitmap().size();
-	    if(!bitmaps[i].getBitmap().empty()) {
-		entry.bitmap.bitmap_val = 
-		    new bool_t[bitmaps[i].getBitmap().size()];
-		
-		// Convert the actual bitmap
-		for(int j = 0; j < bitmaps[i].getBitmap().size(); ++j)
-		    entry.bitmap.bitmap_val[j] = bitmaps[i].getBitmap()[j];
-		
-	    }
-	    
-	}
+    // Iterate over all the bitmaps
+    for(std::vector<AddressBitmap>::size_type
+	    i = 0; i < bitmaps.size(); ++i) {
+	OpenSS_Protocol_AddressBitmap& entry = bitmaps_val[i];
+	
+	// Convert the bitmap's address range
+	entry.range.begin = bitmaps[i].getRange().getBegin().getValue();
+	entry.range.end = bitmaps[i].getRange().getEnd().getValue();
+	
+	// Convert the actual bitmap
+	OpenSpeedShop::Framework::convert(bitmaps[i].getBlob(), entry.bitmap);
 	
     }
 }

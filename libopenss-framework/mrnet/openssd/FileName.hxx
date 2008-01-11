@@ -99,12 +99,7 @@ namespace OpenSpeedShop { namespace Framework {
 	operator OpenSS_Protocol_FileName() const
 	{
 	    OpenSS_Protocol_FileName object;
-	    if(!dm_path.empty()) {
-		object.path = new char[dm_path.size()];
-		strcpy(object.path, dm_path.c_str());
-	    }
-	    else
-		object.path = NULL;
+	    convert(dm_path, object.path);
 	    object.checksum = dm_checksum;
 	    return object;
 	}
@@ -112,7 +107,9 @@ namespace OpenSpeedShop { namespace Framework {
 	/** Operator "<" defined for two FileName objects. */
 	bool operator<(const FileName& other) const
 	{
-	    return dm_checksum < other.dm_checksum;
+	    // TODO: use checksums only once they are actually computed
+	    // return dm_checksum < other.dm_checksum;
+	    return dm_path < other.dm_path;
 	}
 	
 	/** Read-only data member accessor function. */
