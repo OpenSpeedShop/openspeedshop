@@ -105,7 +105,7 @@ namespace {
 	// Allocate an appropriately sized array of thread entries
 	out.names.names_len = in.size();
 	out.names.names_val = 
-	    new OpenSS_Protocol_ThreadName[std::max(1U, in.size())];
+	    new OpenSS_Protocol_ThreadName[std::max(1U, (unsigned)in.size())];
 
 	// Iterate over each thread of this group
 	OpenSS_Protocol_ThreadName* ptr = out.names.names_val;

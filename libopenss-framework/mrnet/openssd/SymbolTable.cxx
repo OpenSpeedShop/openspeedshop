@@ -157,7 +157,7 @@ SymbolTable::operator OpenSS_Protocol_SymbolTable() const
     // Allocate an appropriately sized array of functions
     object.functions.functions_len = dm_functions.size();
     object.functions.functions_val = 
-	new OpenSS_Protocol_FunctionEntry[std::max(1U, dm_functions.size())];
+	new OpenSS_Protocol_FunctionEntry[std::max(1U, (unsigned)dm_functions.size())];
 	
     // Iterate over all the functions in this symbol table
     int idx = 0;
@@ -180,7 +180,7 @@ SymbolTable::operator OpenSS_Protocol_SymbolTable() const
     // Allocate an appropriately sized array of statements
     object.statements.statements_len = dm_statements.size();
     object.statements.statements_val =
-	new OpenSS_Protocol_StatementEntry[std::max(1U, dm_statements.size())];
+	new OpenSS_Protocol_StatementEntry[std::max(1U, (unsigned)dm_statements.size())];
 
     // Iterate over all the statements in this symbol table
     idx = 0;
@@ -350,7 +350,7 @@ void SymbolTable::convert(const std::vector<AddressBitmap>& bitmaps,
     // Allocate an appropriately sized array of bitmaps
     bitmaps_len = bitmaps.size();
     bitmaps_val = 
-	new OpenSS_Protocol_AddressBitmap[std::max(1U, bitmaps.size())];
+	new OpenSS_Protocol_AddressBitmap[std::max(1U, (unsigned)bitmaps.size())];
 
     // Iterate over all the bitmaps
     for(std::vector<AddressBitmap>::size_type
