@@ -83,14 +83,15 @@ Blob::Blob(const unsigned& size, const void* contents) :
     dm_size(0),
     dm_contents(NULL)
 {
-    // Check assertions
-    Assert(size > 0);
-    Assert(contents != NULL);
+    // Only do initialization if the size and pointer are valid
+    if((size > 0) && (contents != NULL)) {
     
-    // Make a copy of the blob's contents
-    dm_size = size;
-    dm_contents = new char[dm_size];
-    memcpy(dm_contents, contents, dm_size);
+	// Make a copy of the blob's contents
+	dm_size = size;
+	dm_contents = new char[dm_size];
+	memcpy(dm_contents, contents, dm_size);
+
+    }
 }
 
 
