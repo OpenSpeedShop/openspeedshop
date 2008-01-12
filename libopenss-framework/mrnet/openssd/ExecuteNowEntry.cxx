@@ -23,8 +23,14 @@
  */
 
 #include "Assert.hxx"
+#include "Backend.hxx"
 #include "DyninstCallbacks.hxx"
 #include "ExecuteNowEntry.hxx"
+#include "ThreadName.hxx"
+#include "Utility.hxx"
+
+#include <iostream>
+#include <sstream>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -115,6 +121,17 @@ void ExecuteNowEntry::install()
 	
 	// Restore the saving of FPRs to its previous state
 	bpatch->setSaveFPR(saved_fpr);
+
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] ExecuteNowEntry::"
+		   << "install(): Execute " << dm_callee << "(" 
+		   << dm_argument.getStringEncoding() << ") in thread { "
+		   << toString(ThreadName(-1, dm_thread)) << " }" << std::endl;
+	    std::cerr << output.str();
+	}
+#endif
 	
     }
 

@@ -23,10 +23,15 @@
  */
 
 #include "Assert.hxx"
+#include "Backend.hxx"
 #include "DyninstCallbacks.hxx"
 #include "StopAtEntryOrExitEntry.hxx"
+#include "ThreadName.hxx"
+#include "Utility.hxx"
 
 #include <BPatch_function.h>
+#include <iostream>
+#include <sstream>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -114,6 +119,17 @@ void StopAtEntryOrExitEntry::install()
         dm_handle = process->insertSnippet(expression, *points);
         Assert(dm_handle != NULL);
 	
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] StopAtEntryOrExitEntry::"
+		   << "install(): Stop at "<< (dm_at_entry ? "entry" : "exit") 
+		   << " of "<< dm_where << "() in thread { "
+		   << toString(ThreadName(-1, dm_thread)) << " }" << std::endl;
+	    std::cerr << output.str();
+	}
+#endif
+	
     }
     
     // Instrumentation is now installed
@@ -142,6 +158,17 @@ void StopAtEntryOrExitEntry::remove()
     
         // Request the instrumentation be removed
         process->deleteSnippet(dm_handle);
+
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] StopAtEntryOrExitEntry::"
+		   << "remove(): Stop at "<< (dm_at_entry ? "entry" : "exit") 
+		   << " of "<< dm_where << "() in thread { "
+		   << toString(ThreadName(-1, dm_thread)) << " }" << std::endl;
+	    std::cerr << output.str();
+	}
+#endif
     
     }
 

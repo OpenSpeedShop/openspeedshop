@@ -23,10 +23,15 @@
  */
 
 #include "Assert.hxx"
+#include "Backend.hxx"
 #include "DyninstCallbacks.hxx"
 #include "ExecuteAtEntryOrExitEntry.hxx"
+#include "ThreadName.hxx"
+#include "Utility.hxx"
 
 #include <BPatch_function.h>
+#include <iostream>
+#include <sstream>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -127,6 +132,19 @@ void ExecuteAtEntryOrExitEntry::install()
 	// Request the instrumentation be inserted
 	dm_handle = process->insertSnippet(expression, *points);
 	Assert(dm_handle != NULL);
+
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] ExecuteNowEntry::"
+		   << "install(): Execute " << dm_callee << "("
+		   << dm_argument.getStringEncoding() << ") at "
+		   << (dm_at_entry ? "entry" : "exit") << " of "
+		   << dm_where << "() in thread { "
+		   << toString(ThreadName(-1, dm_thread)) << " }" << std::endl;
+	    std::cerr << output.str();
+	}
+#endif
 	
     }
     
@@ -156,6 +174,19 @@ void ExecuteAtEntryOrExitEntry::remove()
     
 	// Request the instrumentation be removed
 	process->deleteSnippet(dm_handle);
+
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] ExecuteNowEntry::"
+		   << "remove(): Execute " << dm_callee << "("
+		   << dm_argument.getStringEncoding() << ") at "
+		   << (dm_at_entry ? "entry" : "exit") << " of "
+		   << dm_where << "() in thread { "
+		   << toString(ThreadName(-1, dm_thread)) << " }" << std::endl;
+	    std::cerr << output.str();
+	}
+#endif
     
     }
 

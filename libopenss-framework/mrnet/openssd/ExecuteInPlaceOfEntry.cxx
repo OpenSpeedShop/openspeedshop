@@ -23,10 +23,15 @@
  */
 
 #include "Assert.hxx"
+#include "Backend.hxx"
 #include "DyninstCallbacks.hxx"
 #include "ExecuteInPlaceOfEntry.hxx"
+#include "ThreadName.hxx"
+#include "Utility.hxx"
 
 #include <BPatch_function.h>
+#include <iostream>
+#include <sstream>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -155,6 +160,17 @@ void ExecuteInPlaceOfEntry::install()
 	
 	// Restore the allowance of recursive calls to its previous state
         bpatch->setTrampRecursive(saved_tramp_recursive);
+
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] ExecuteInPlaceOfEntry::"
+		   << "install(): Execute " << dm_callee << "() in place of "
+		   << dm_where << "() in thread { "
+		   << toString(ThreadName(-1, dm_thread)) << " }" << std::endl;
+	    std::cerr << output.str();
+	}
+#endif
 	
     }
     
@@ -187,7 +203,18 @@ void ExecuteInPlaceOfEntry::remove()
 
 	// Free the memory containing the flag
 	process->free(*dm_flag);
-	
+
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] ExecuteInPlaceOfEntry::"
+		   << "remove(): Execute " << dm_callee << "() in place of "
+		   << dm_where << "() in thread { "
+		   << toString(ThreadName(-1, dm_thread)) << " }" << std::endl;
+	    std::cerr << output.str();
+	}
+#endif
+		
     }
     
     // Instrumentation is no longer installed
