@@ -22,6 +22,7 @@
  *
  */
 
+#include "Backend.hxx"
 #include "Blob.hxx"
 #include "SymbolTable.hxx"
 
@@ -71,8 +72,22 @@ SymbolTable::SymbolTable(/* const */ BPatch_module& module) :
  */
 void SymbolTable::addModule(/* const */ BPatch_module& module)
 {
-    // TODO: make address relative to the beginning of the module
-
+    // Get the address range of this module
+    uint64_t module_begin = reinterpret_cast<uint64_t>(module.getBaseAddr());
+    uint64_t module_end = module_begin + module.getSize();
+    AddressRange module_range(module_begin, module_end);
+    
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	char buffer[PATH_MAX];
+	module.getFullName(buffer, sizeof(buffer));
+        std::stringstream output;
+        output << "[TID " << pthread_self() << "] Callbacks::"
+	       << "addModule(" << buffer << ") @ " << module_range << std::endl;
+        std::cerr << output.str();
+    }
+#endif
+    
     // Get the list of functions in this module
     BPatch_Vector<BPatch_function*>* functions = module.getProcedures(true);
     Assert(functions != NULL);
@@ -88,11 +103,48 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 	// TODO: How do we get the possibly discontiguous range of a function
 	//       from Dyninst? It is supposed to support this...
 
-	// Get the address range of the function
-	Address begin = Address(
-	    reinterpret_cast<uint64_t>((*functions)[i]->getBaseAddr())
-	    );
-	Address end = begin + (*functions)[i]->getSize();
+	// Get the begin/end addresses of the function
+	uint64_t begin = 
+	    reinterpret_cast<uint64_t>((*functions)[i]->getBaseAddr());
+	uint64_t end = begin + (*functions)[i]->getSize();
+
+	// Sanity checks
+	if(end <= begin) {
+	    
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "addModule(): Function "
+		       << (names.empty() ? "<unknown>" : names[0])
+		       << ": begin (" << Address(begin) 
+		       << ") >= end (" << Address(end) << ")."
+		       << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+    
+	    continue;
+	}
+	if((begin < module_begin) || (begin >= module_end) ||
+	   (end <= module_begin) || (end > module_end)) {
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "addModule(): Function "
+		       << (names.empty() ? "<unknown>" : names[0])
+		       << ": is outside the module." << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+    
+ 	    continue;
+ 	}
+
+	// Form address range of the function relative to module beginning
+	begin = begin - module_begin;
+	end = end - module_begin;
 	AddressRange range(begin, end);
 
 	// Iterate over each name of this function
@@ -127,11 +179,56 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 	        std::make_pair(entry, std::vector<AddressRange>())
 		).first;
 
+	// Get the begin/end addresses of the function
+	uint64_t begin = statements[i].begin;
+	uint64_t end = statements[i].end;
+
+	// Sanity checks
+	if(end <= begin) {
+
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "addModule(): Statement " << statements[i].path 
+		       << ", line " << statements[i].line
+		       << ", statement " << statements[i].column
+		       << ": begin (" << Address(begin) 
+		       << ") >= end (" << Address(end) << ")."
+		       << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+    
+ 	    continue;
+ 	}
+	if((begin < module_begin) || (begin >= module_end) ||
+	   (end <= module_begin) || (end > module_end)) {
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "addModule(): Statement " << statements[i].path 
+		       << ", line " << statements[i].line
+		       << ", statement " << statements[i].column
+		       << ": is outside the module." << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+    
+ 	    continue;
+ 	}
+
+	// Form address range of the statement relative to module beginning
+	begin = begin - module_begin;
+	end = end - module_begin;
+	AddressRange range(begin, end);
+
 	// Add this address range to the found/added statement
-	j->second.push_back(AddressRange(Address(statements[i].begin),
-					 Address(statements[i].end)));
-    }
-}
+	j->second.push_back(range);
+
+    } 
+} 
 
 
 
