@@ -181,23 +181,27 @@ void Callbacks::attachedToThreads(const Blob& blob)
 	    "FROM Threads "
 	    "WHERE host = ? "
 	    "  AND pid = ? "
-	    "  AND posix_tid = NULL;"
+	    "  AND posix_tid ISNULL;"
 	    );
 	database->bindArgument(1, msg_thread.host);
 	database->bindArgument(2, static_cast<int>(msg_thread.pid));
 	while(database->executeStatement())
 	    thread = database->getResultAsInteger(1);
 
+	std::cout << "WDH: thread=" << thread << std::endl;
+
 	// Reuse the placeholder if appropriate
-	if(msg_thread.has_posix_tid && (thread != -1)) {
-	    database->prepareStatement(
-	        "UPDATE Threads SET posix_tid = ? WHERE thread = ?;"
-		);
-	    database->bindArgument(
-	        1, static_cast<pthread_t>(msg_thread.posix_tid)
-		);
-	    database->bindArgument(2, thread);
-	    while(database->executeStatement());
+	if(thread != -1) {
+	    if(msg_thread.has_posix_tid && (thread != -1)) {
+		database->prepareStatement(
+		    "UPDATE Threads SET posix_tid = ? WHERE thread = ?;"
+		    );
+		database->bindArgument(
+		    1, static_cast<pthread_t>(msg_thread.posix_tid)
+		    );
+		database->bindArgument(2, thread);
+		while(database->executeStatement());
+	    }
 	}
 
 	// Otherwise create the thread entry
