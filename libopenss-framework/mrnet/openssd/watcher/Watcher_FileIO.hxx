@@ -35,5 +35,7 @@ static __thread  char *Watcher_OpenSS_exepath;
 static __thread  pthread_t Watcher_OpenSS_rawtid = 0;
 
 char * Watcher_OpenSS_GetFilePrefix (const char *collectorname);
+char * Watcher_OpenSS_GetFilePrefix (const char *collectorname, pid_t pidID);
 void Watcher_OpenSS_CreateFilePrefix (char *collectorname);
+void Watcher_OpenSS_CreateFilePrefix (char *collectorname, pid_t pidID);
 void Watcher_OpenSS_CreateOutfile (char *suffix);

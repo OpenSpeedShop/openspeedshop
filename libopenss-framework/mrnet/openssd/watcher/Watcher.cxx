@@ -105,6 +105,7 @@ using namespace OpenSpeedShop;
             wait.tv_sec = 1;
             wait.tv_nsec = 0;
             nanosleep(&wait, NULL);
+
 #ifndef NDEBUG
             if(Watcher::isDebugEnabled()) {
                std::stringstream output;
@@ -115,8 +116,11 @@ using namespace OpenSpeedShop;
 #endif
             std::string collectorStr = "pcsamp";
             std::string dirPath = "";
-//            dirPath = Watcher_OpenSS_GetFilePrefix("pcsamp");
-            dirPath = Watcher_OpenSS_GetFilePrefix(collectorStr.c_str());
+
+            // Pass the collector and pid to create the directory path to the location
+            // of the files to monitor.  This is a dummy pid example.
+            dirPath = Watcher_OpenSS_GetFilePrefix(collectorStr.c_str(), 5550);
+
 #ifndef NDEBUG
             if(Watcher::isDebugEnabled()) {
                std::stringstream output;
@@ -226,9 +230,7 @@ void OpenSpeedShop::Watcher::stopWatching() {
  */
 bool Watcher::isDebugEnabled()
 {
-    bool is_backend_debug_enabled =
-        ((getenv("OPENSS_DEBUG_MRNET_WATCHER") != NULL) ||
-         (getenv("OPENSS_DEBUG_MRNET_BACKEND") != NULL));
+    bool is_backend_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_WATCHER") != NULL) ;
     return is_backend_debug_enabled;
 
 }
