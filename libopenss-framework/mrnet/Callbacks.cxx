@@ -477,7 +477,7 @@ void Callbacks::symbolTable(const Blob& blob)
     if(Frontend::isDebugEnabled()) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] Callbacks::"
-	       << toString(message);
+	       << toString(message, Frontend::isSymbolsDebugEnabled());
 	std::cerr << output.str();
     }
 #endif

@@ -1117,26 +1117,37 @@ std::string OpenSpeedShop::Framework::toString(
  * Conversion from OpenSS_Protocol_SymbolTable to std::string.
  *
  * Returns the conversion of an OpenSS_Protocol_SymbolTable message into a
- * std::string.
+ * std::string. A boolean flag specifies whether a verbose conversion, which
+ * includes all function names, statements, and address ranges, should be
+ * generated or whether a brief conversion should be provided instead.
+ * 
  *
  * @param message    Message to be converted.
+ * @param verbose    Boolean "true" if a verbose conversion of the symbol table
+ *                   should be generated, or "false" if a brief conversion.
  * @return           String conversion of that message.
  */
 std::string OpenSpeedShop::Framework::toString(
-    const OpenSS_Protocol_SymbolTable& message
+    const OpenSS_Protocol_SymbolTable& message,
+    const bool& verbose
     )
 {
     std::stringstream output;
     output << "symbolTable(" << std::endl
 	   << toString(message.experiments) << "," << std::endl
-	   << "    " << toString(message.linked_object) << "," << std::endl    
-	   << "    {" << std::endl;
-    for(int i = 0; i < message.functions.functions_len; ++i)
-	output << toString(message.functions.functions_val[i]);
-    output << "    }," << std::endl << "    {" << std::endl;
-    for(int i = 0; i < message.statements.statements_len; ++i)
-	output << toString(message.statements.statements_val[i]);
-    output << "    }" << std::endl << ")" << std::endl;
+	   << "    " << toString(message.linked_object) << "," << std::endl;
+    if(!verbose)
+	output << "    { ... }," << std::endl << "    { ... }" << std::endl;
+    else {    
+	output << "    {" << std::endl;
+	for(int i = 0; i < message.functions.functions_len; ++i)
+	    output << toString(message.functions.functions_val[i]);
+	output << "    }," << std::endl << "    {" << std::endl;
+	for(int i = 0; i < message.statements.statements_len; ++i)
+	    output << toString(message.statements.statements_val[i]);
+	output << "    }" << std::endl;
+    }
+    output << ")" << std::endl;
     return output.str();
 }
 

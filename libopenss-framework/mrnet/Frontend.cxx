@@ -76,6 +76,9 @@ namespace {
 #ifndef NDEBUG
     /** Flag indicating if debugging for the frontend is enabled. */
     bool is_frontend_debug_enabled = false;
+
+    /** Flag indicating if symbols debugging is enabled. */
+    bool is_symbols_debug_enabled = false;
 #endif
     
     
@@ -217,23 +220,32 @@ void Frontend::unregisterCallback(const int& tag,
  */
 void Frontend::startMessagePump(const Path& topology_file)
 {
-    static const char* DebugArgs[2] = { "-debug", NULL };
+    static const char* DebugArgs[2] = { 
+	"--debug", NULL 
+    };
+    static const char* SymbolsDebugArgs[3] = { 
+	"--debug", "--symbols-debug", NULL 
+    };
 
     // Allocate the message callback table when necessary
     if(message_callback_table == NULL)
 	message_callback_table = new MessageCallbackTable();
-
-    // Determine if debugging for the frontend and backend is enabled
+    
+    // Determine the type of debugging that should be enabled
     is_frontend_debug_enabled = 
 	((getenv("OPENSS_DEBUG_MRNET") != NULL) ||
 	 (getenv("OPENSS_DEBUG_MRNET_FRONTEND") != NULL));
     bool is_backend_debug_enabled = 
         ((getenv("OPENSS_DEBUG_MRNET") != NULL) ||
 	 (getenv("OPENSS_DEBUG_MRNET_BACKEND") != NULL));
-
+    is_symbols_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_SYMBOLS") != NULL);
+    
     // Initialize MRNet (participating as the frontend)
     network = new MRN::Network(topology_file.getNormalized().c_str(), "openssd",
-			       is_backend_debug_enabled ? DebugArgs : NULL);
+			       is_backend_debug_enabled ? 
+			       (is_symbols_debug_enabled ? 
+				SymbolsDebugArgs : DebugArgs) :
+			       NULL);
     if(network->fail())
 	throw std::runtime_error("Unable to initialize MRNet.");
     
@@ -372,5 +384,20 @@ void Frontend::sendToAllBackends(const int& tag, const Blob& blob)
 bool Frontend::isDebugEnabled()
 {
     return is_frontend_debug_enabled;
+}
+
+
+
+/**
+ * Get symbols debugging flag.
+ *
+ * Returns a flag indicating if symbols debugging is enabled.
+ *
+ * @return    Boolean "true" if debugging for symbols is enabled,
+ *            "false" otherwise.
+ */
+bool Frontend::isSymbolsDebugEnabled()
+{
+    return is_symbols_debug_enabled;
 }
 #endif    

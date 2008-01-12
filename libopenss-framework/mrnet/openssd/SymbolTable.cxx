@@ -134,6 +134,8 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "addModule(): Function "
 		       << (names.empty() ? "<unknown>" : names[0])
+		       << ": begin=" << Address(begin) 
+		       << ", end=" << Address(end)
 		       << ": is outside the module." << std::endl;
 		std::cerr << output.str();
 	    }
@@ -192,7 +194,7 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "addModule(): Statement " << statements[i].path 
 		       << ", line " << statements[i].line
-		       << ", statement " << statements[i].column
+		       << ", column " << statements[i].column
 		       << ": begin (" << Address(begin) 
 		       << ") >= end (" << Address(end) << ")."
 		       << std::endl;
@@ -210,7 +212,9 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "addModule(): Statement " << statements[i].path 
 		       << ", line " << statements[i].line
-		       << ", statement " << statements[i].column
+		       << ", column " << statements[i].column
+		       << ": begin=" << Address(begin) 
+		       << ", end=" << Address(end)
 		       << ": is outside the module." << std::endl;
 		std::cerr << output.str();
 	    }

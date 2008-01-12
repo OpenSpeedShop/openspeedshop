@@ -90,7 +90,8 @@ namespace OpenSpeedShop { namespace Framework {
     std::string toString(const OpenSS_Protocol_ReportError&);
     std::string toString(const OpenSS_Protocol_SetGlobalInteger&);
     std::string toString(const OpenSS_Protocol_StopAtEntryOrExit&);
-    std::string toString(const OpenSS_Protocol_SymbolTable&);
+    std::string toString(const OpenSS_Protocol_SymbolTable&,
+			 const bool& = true);
     std::string toString(const OpenSS_Protocol_ThreadsStateChanged&);
     std::string toString(const OpenSS_Protocol_Uninstrument&);
     std::string toString(const OpenSS_Protocol_UnloadedLinkedObject&);

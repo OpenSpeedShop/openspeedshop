@@ -381,7 +381,7 @@ void Senders::symbolTable(const ExperimentGroup& experiments,
     if(Backend::isDebugEnabled()) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] Senders::"
-	       << toString(message);
+	       << toString(message, Backend::isSymbolsDebugEnabled());
 	std::cerr << output.str();
     }
 #endif
