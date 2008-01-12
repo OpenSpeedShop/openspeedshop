@@ -413,6 +413,8 @@ DyninstCallbacks::findLibraryFunction(/* const */ BPatch_process& process,
 
 	// Search for the library and find its full, normalized, path
 	Path library = searchForLibrary(parsed.first);
+	if(!library.isFile())
+	    library = searchForLibrary(parsed.first + ".so");
 	
 	// Request that Dyninst load this library into the process
 	if(!process.loadLibrary(library.c_str())) {
