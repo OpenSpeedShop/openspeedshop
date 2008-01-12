@@ -107,7 +107,7 @@ void DyninstCallbacks::dynLibrary(BPatch_thread* thread,
     if(is_load) {
 	
 	// Get the address range of this module
-	Address begin(reinterpret_cast<uint64_t>(module->getBaseAddr()));
+	Address begin(reinterpret_cast<uintptr_t>(module->getBaseAddr()));
 	Address end = begin + module->getSize();
 	AddressRange range(begin, end);
 	
@@ -532,7 +532,9 @@ void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
 	Assert((*modules)[i] != NULL);
 
 	// Get the address range of this module
-	Address begin(reinterpret_cast<uint64_t>((*modules)[i]->getBaseAddr()));
+	Address begin(reinterpret_cast<uintptr_t>(
+            (*modules)[i]->getBaseAddr()
+	    ));
 	Address end = begin + (*modules)[i]->getSize();
 	AddressRange range(begin, end);
 

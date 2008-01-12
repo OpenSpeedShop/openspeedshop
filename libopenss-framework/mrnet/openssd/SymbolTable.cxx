@@ -73,8 +73,8 @@ SymbolTable::SymbolTable(/* const */ BPatch_module& module) :
 void SymbolTable::addModule(/* const */ BPatch_module& module)
 {
     // Get the address range of this module
-    uint64_t module_begin = reinterpret_cast<uint64_t>(module.getBaseAddr());
-    uint64_t module_end = module_begin + module.getSize();
+    Address module_begin(reinterpret_cast<uintptr_t>(module.getBaseAddr()));
+    Address module_end = module_begin + module.getSize();
     AddressRange module_range(module_begin, module_end);
     
 #ifndef NDEBUG
@@ -104,9 +104,10 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 	//       from Dyninst? It is supposed to support this...
 
 	// Get the begin/end addresses of the function
-	uint64_t begin = 
-	    reinterpret_cast<uint64_t>((*functions)[i]->getBaseAddr());
-	uint64_t end = begin + (*functions)[i]->getSize();
+	Address begin(reinterpret_cast<uintptr_t>(
+             (*functions)[i]->getBaseAddr()
+	     ));
+	Address end = begin + (*functions)[i]->getSize();
 
 	// Sanity checks
 	if(end <= begin) {
@@ -145,9 +146,7 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
  	}
 
 	// Form address range of the function relative to module beginning
-	begin = begin - module_begin;
-	end = end - module_begin;
-	AddressRange range(begin, end);
+	AddressRange range(begin - module_begin, end - module_begin);
 
 	// Iterate over each name of this function
 	for(int j = 0; j < names.size(); ++j) {
@@ -182,8 +181,8 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 		).first;
 
 	// Get the begin/end addresses of the function
-	uint64_t begin = statements[i].begin;
-	uint64_t end = statements[i].end;
+	Address begin(statements[i].begin);
+	Address end(statements[i].end);
 
 	// Sanity checks
 	if(end <= begin) {
@@ -224,9 +223,7 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
  	}
 
 	// Form address range of the statement relative to module beginning
-	begin = begin - module_begin;
-	end = end - module_begin;
-	AddressRange range(begin, end);
+	AddressRange range(begin - module_begin, end - module_begin);
 
 	// Add this address range to the found/added statement
 	j->second.push_back(range);
