@@ -194,7 +194,7 @@ OpenSpeedShop::Framework::parseLibraryFunctionName(const std::string& function)
     if(trim_left < trim_right)
         function_name = 
             function_name.substr(trim_left, trim_right - trim_left + 1);
-    
+
     // Return the parsed library and function names to the caller
     return std::make_pair(library_name, function_name);
 }
@@ -394,6 +394,10 @@ std::string OpenSpeedShop::Framework::toString(
 	output << std::endl;
 	
     }
+
+    // Handle special case of an empty blob
+    if(size == 0)
+	output << "    <empty>" << std::endl;
 
     // Return the string to the caller
     return output.str();
@@ -817,7 +821,7 @@ std::string OpenSpeedShop::Framework::toString(
 	   << "    " << (message.disable_save_fpr ? "true" : "false") << "," 
 	   << std::endl
 	   << "    \"" << message.callee << "\"," << std::endl
-	   << toString(message.argument) << std::endl
+	   << toString(message.argument)
 	   << ")" << std::endl;
     return output.str();
 }
@@ -845,7 +849,7 @@ std::string OpenSpeedShop::Framework::toString(
 	   << "    " << (message.at_entry ? "true" : "false") << "," 
 	   << std::endl
 	   << "    \"" << message.callee << "\"," << std::endl
-	   << toString(message.argument) << std::endl
+	   << toString(message.argument)
 	   << ")" << std::endl;
     return output.str();
 }
