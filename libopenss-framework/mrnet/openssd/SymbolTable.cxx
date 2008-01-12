@@ -99,7 +99,7 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 	for(int j = 0; j < names.size(); ++j) {
 
 	    // Add this function to the table (or find the existing entry)
-	    std::map<std::string, std::vector<AddressRange> >::iterator k =
+	    FunctionTable::iterator k =
 		dm_functions.insert(
 		    std::make_pair(names[j], std::vector<AddressRange>())
 		    ).first;
@@ -122,7 +122,7 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 			     statements[i].line, statements[i].column);
 
 	// Add this statement to the table (or find the existing entry)
-	std::map<StatementEntry, std::vector<AddressRange> >::iterator j =
+	StatementTable::iterator j =
 	    dm_statements.insert(
 	        std::make_pair(entry, std::vector<AddressRange>())
 		).first;
@@ -156,12 +156,13 @@ SymbolTable::operator OpenSS_Protocol_SymbolTable() const
 
     // Allocate an appropriately sized array of functions
     object.functions.functions_len = dm_functions.size();
-    object.functions.functions_val = 
-	new OpenSS_Protocol_FunctionEntry[std::max(1U, (unsigned)dm_functions.size())];
+    object.functions.functions_val = new OpenSS_Protocol_FunctionEntry[
+	std::max(static_cast<FunctionTable::size_type>(1), dm_functions.size())
+        ];
 	
     // Iterate over all the functions in this symbol table
     int idx = 0;
-    for(std::map<std::string, std::vector<AddressRange> >::const_iterator
+    for(FunctionTable::const_iterator
 	    i = dm_functions.begin(); i != dm_functions.end(); ++i, ++idx) {
 	OpenSS_Protocol_FunctionEntry& entry = 
 	    object.functions.functions_val[idx];
@@ -179,15 +180,15 @@ SymbolTable::operator OpenSS_Protocol_SymbolTable() const
 
     // Allocate an appropriately sized array of statements
     object.statements.statements_len = dm_statements.size();
-    object.statements.statements_val =
-	new OpenSS_Protocol_StatementEntry[std::max(1U, (unsigned)dm_statements.size())];
+    object.statements.statements_val = new OpenSS_Protocol_StatementEntry[
+	std::max(static_cast<StatementTable::size_type>(1),
+		 dm_statements.size())
+        ];
 
     // Iterate over all the statements in this symbol table
     idx = 0;
-    for(std::map<StatementEntry, std::vector<AddressRange> >::const_iterator
-	    i = dm_statements.begin();
-	i != dm_statements.end();
-	++i, ++idx) {
+    for(StatementTable::const_iterator
+	    i = dm_statements.begin(); i != dm_statements.end(); ++i, ++idx) {
 	OpenSS_Protocol_StatementEntry& entry =
 	    object.statements.statements_val[idx];
 	
@@ -313,8 +314,8 @@ SymbolTable::partitionAddressRanges(const std::vector<AddressRange>& ranges)
 
 	    // Create and populate an address bitmap for this address set
 	    AddressBitmap bitmap(AddressRange(*(i.begin()), *(i.rbegin()) + 1));
-            for(std::set<Address>::const_iterator
-                    j = i.begin(); j != i.end(); ++j)
+            for(std::set<Address>::const_iterator 
+		    j = i.begin(); j != i.end(); ++j)
                 bitmap.setValue(*j, true);
 
 	    // Add this bitmap to the results
@@ -349,12 +350,13 @@ void SymbolTable::convert(const std::vector<AddressBitmap>& bitmaps,
 {
     // Allocate an appropriately sized array of bitmaps
     bitmaps_len = bitmaps.size();
-    bitmaps_val = 
-	new OpenSS_Protocol_AddressBitmap[std::max(1U, (unsigned)bitmaps.size())];
+    bitmaps_val = new OpenSS_Protocol_AddressBitmap[
+        std::max(static_cast<std::vector<AddressBitmap>::size_type>(1),
+		 bitmaps.size())
+        ];
 
     // Iterate over all the bitmaps
-    for(std::vector<AddressBitmap>::size_type
-	    i = 0; i < bitmaps.size(); ++i) {
+    for(std::vector<AddressBitmap>::size_type i = 0; i < bitmaps.size(); ++i) {
 	OpenSS_Protocol_AddressBitmap& entry = bitmaps_val[i];
 	
 	// Convert the bitmap's address range

@@ -284,7 +284,9 @@ void OpenSpeedShop::Framework::convert(const Blob& in,
 				       OpenSS_Protocol_Blob& out)
 {
     out.data.data_len = in.getSize();
-    out.data.data_val = new uint8_t[std::max(1U, in.getSize())];
+    out.data.data_val = new uint8_t[
+        std::max(static_cast<unsigned>(1), in.getSize())
+        ];
     if(in.getSize() > 0)
 	memcpy(out.data.data_val, in.getContents(), in.getSize());
 }

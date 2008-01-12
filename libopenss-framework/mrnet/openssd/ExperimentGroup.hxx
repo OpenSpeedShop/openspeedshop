@@ -96,8 +96,9 @@ namespace OpenSpeedShop { namespace Framework {
 	{
 	    OpenSS_Protocol_ExperimentGroup object;
 	    object.experiments.experiments_len = size();
-	    object.experiments.experiments_val =
-		new OpenSS_Protocol_Experiment[std::max(1U, (unsigned)size())];
+	    object.experiments.experiments_val = new OpenSS_Protocol_Experiment[
+	        std::max(static_cast<size_type>(1), size())
+	        ];
 	    int idx = 0;
 	    for(ExperimentGroup::const_iterator
 		    i = begin(); i != end(); ++i, ++idx)

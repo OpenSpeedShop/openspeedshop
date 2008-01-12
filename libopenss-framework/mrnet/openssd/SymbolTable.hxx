@@ -72,15 +72,18 @@ namespace OpenSpeedShop { namespace Framework {
 	operator OpenSS_Protocol_SymbolTable() const;
 	
     private:
-	
+
 	static std::vector<AddressBitmap>
 	partitionAddressRanges(const std::vector<AddressRange>&);
 
 	static void convert(const std::vector<AddressBitmap>&,
 			    u_int&, OpenSS_Protocol_AddressBitmap*&);
 	
+	/** Table mapping function names to their address ranges. */
+	typedef std::map<std::string, std::vector<AddressRange> > FunctionTable;
+
 	/** Functions in this symbol table. */
-	std::map<std::string, std::vector<AddressRange> > dm_functions;
+	FunctionTable dm_functions;
 	
 	/**
 	 * Statement entry.
@@ -120,9 +123,13 @@ namespace OpenSpeedShop { namespace Framework {
 	    }
 
 	};
+
+	/** Table mapping statments to their address ranges. */
+	typedef std::map<StatementEntry, 
+			 std::vector<AddressRange> > StatementTable;
 	
 	/** Statements in this symbol table. */
-	std::map<StatementEntry, std::vector<AddressRange> > dm_statements;
+	StatementTable dm_statements;
 
     };
 
