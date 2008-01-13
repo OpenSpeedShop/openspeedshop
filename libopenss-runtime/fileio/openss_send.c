@@ -58,7 +58,12 @@ openss_send(const unsigned size, const void* data)
     FILE *outfile = fopen(OpenSS_outfile, "a");
 
     /* write the size of the payload */
-    fprintf(outfile,"%d",size);
+    //fprintf(outfile,"%d",size);
+   XDR xdrs;
+   xdrstdio_create(&xdrs, outfile, XDR_ENCODE);
+   if (!xdr_u_int(&xdrs, &size)) {
+         fprintf(stderr, "failed!\n");
+   }
 
     /* write the actual payload */
     size_t res = fwrite(data, sizeof(char), size, outfile);

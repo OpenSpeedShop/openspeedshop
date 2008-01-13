@@ -22,4 +22,6 @@ libopenss_runtime_mrnet_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime
 
 libopenss_runtime_mrnet_la_SOURCES = \
-	openss_send.c
+	$(top_srcdir)/libopenss-runtime/fileio/openss_send.c \
+	$(top_srcdir)/libopenss-runtime/fileio/OpenSS_FileIO.c \
+	$(top_srcdir)/libopenss-runtime/fileio/OpenSS_FileIO.h

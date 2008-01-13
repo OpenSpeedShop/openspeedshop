@@ -53,9 +53,16 @@ pcsamp_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	PCSampCollector.hxx PCSampCollector.cxx
 
+if BUILD_MRNET
 pcsamp_rt_la_CFLAGS = \
-	@BINUTILS_CPPFLAGS@ \
+	@BINUTILS_CPPFLAGS@ \	
+	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
 	-I$(top_srcdir)/libopenss-runtime
+else
+pcsamp_rt_la_CFLAGS = \
+	@BINUTILS_CPPFLAGS@ \	
+	-I$(top_srcdir)/libopenss-runtime
+endif
 
 pcsamp_rt_la_LDFLAGS = \
 	@BINUTILS_LDFLAGS@ \
