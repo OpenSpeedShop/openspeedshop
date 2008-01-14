@@ -188,8 +188,6 @@ void Callbacks::attachedToThreads(const Blob& blob)
 	while(database->executeStatement())
 	    thread = database->getResultAsInteger(1);
 
-	std::cout << "WDH: thread=" << thread << std::endl;
-
 	// Reuse the placeholder if appropriate
 	if(thread != -1) {
 	    if(msg_thread.has_posix_tid && (thread != -1)) {

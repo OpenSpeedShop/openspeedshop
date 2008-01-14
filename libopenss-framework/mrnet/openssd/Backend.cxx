@@ -89,7 +89,7 @@ namespace {
 
 	// Singleton Dyninst bpatch object
 	BPatch TheBPatch;
-
+	
 	// Register callbacks with Dyninst
 	BPatch* bpatch = BPatch::getBPatch();
 	Assert(bpatch != NULL);
@@ -110,16 +110,16 @@ namespace {
 	//       to track process state inside the daemon and have a thread
 	//       do a Dyninst waitForStatusChange() and watch for which
 	//       process has changed state, and if it has stopped.
-	
+
+	// Instruct Dyninst to give source statement info with full path names
+	bpatch->truncateLineInfoFilenames(false);
+		
 	// Run the message pump until instructed to exit
 	for(bool do_exit = false; !do_exit;) {
 
-	    // Suspend ourselves for one second
-	    struct timespec wait;
-	    wait.tv_sec = 1;
-	    wait.tv_nsec = 0;
-	    nanosleep(&wait, NULL);
-	    
+	    // Give Dyninst the opportunity to poll for any status changes
+	    bpatch->pollForStatusChange();
+
 	    // Receive all available messages from the backends
 	    int retval = 1;
 	    while(retval == 1) {
@@ -160,7 +160,13 @@ namespace {
 	    Assert(pthread_mutex_lock(&monitor_request_exit.lock) == 0);
 	    do_exit = monitor_request_exit.flag;
 	    Assert(pthread_mutex_unlock(&monitor_request_exit.lock) == 0);
-	    
+
+	    // Suspend ourselves for one quarter of a second
+	    struct timespec wait;
+	    wait.tv_sec = 0;
+	    wait.tv_nsec = 250000000;  // 250 mS
+	    nanosleep(&wait, NULL);
+	    	    
 	}
 	
 	// Empty, unused, return value from this thread

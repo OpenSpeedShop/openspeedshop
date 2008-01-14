@@ -107,9 +107,9 @@ void ExecuteAtEntryOrExitEntry::install()
     if((where != NULL) && (callee != NULL)) {
 	
 	//
-	// Create instrumentation snippet for the code sequence:
+	// Create the instrumentation snippet for the code sequence:
 	//
-	//     if(threadIndexExpr() == dm_thread.getLWP())
+	//     if(tidExpr() == dm_thread.getTid())
 	//         dm_callee(StringEncode(dm_argument)
 	//
 	
@@ -117,11 +117,13 @@ void ExecuteAtEntryOrExitEntry::install()
 	BPatch_Vector<BPatch_snippet*> arguments;
 	arguments.push_back(&argument);
 
+	BPatch_funcCallExpr body(*callee, arguments);
+	
 	BPatch_ifExpr expression(
 	    BPatch_boolExpr(BPatch_eq,
-			    BPatch_threadIndexExpr(),
-			    BPatch_constExpr(dm_thread.getLWP())),
-	    BPatch_funcCallExpr(*callee, arguments)
+			    BPatch_tidExpr(process),
+			    BPatch_constExpr(dm_thread.getTid())),
+	    body
 	    );
 	
 	// Find the entry/exit points of the "where" function
@@ -130,9 +132,12 @@ void ExecuteAtEntryOrExitEntry::install()
 	Assert(points != NULL);
 	
 	// Request the instrumentation be inserted
-	dm_handle = process->insertSnippet(expression, *points);
+	if(dm_thread.getTid() == 0)
+	    dm_handle = process->insertSnippet(body, *points);
+	else
+	    dm_handle = process->insertSnippet(expression, *points);
 	Assert(dm_handle != NULL);
-
+	
 #ifndef NDEBUG
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;

@@ -97,14 +97,11 @@ namespace {
      */
     void* monitorThread(void*)
     {
-	// Run the message pump until instructed to exit
-	for(bool do_exit = false; !do_exit;) {
+	// Initialize the tick counter
+        unsigned tick_counter = 0;
 
-	    // Suspend ourselves for one second
-	    struct timespec wait;
-	    wait.tv_sec = 1;
-	    wait.tv_nsec = 0;
-	    nanosleep(&wait, NULL);
+	// Run the message pump until instructed to exit
+	for(bool do_exit = false; !do_exit; tick_counter++) {
 
 	    // Receive all available messages from the backends
 	    int retval = 1;
@@ -141,14 +138,26 @@ namespace {
 
 	    }
 
-	    // Request that all performance data be flushed to databases
-	    DataQueues::flushPerformanceData();
-	    
+	    // Has one second passed?
+	    if(tick_counter == 4) {
+		tick_counter = 0;
+
+		// Request that all performance data be flushed to databases
+		DataQueues::flushPerformanceData();
+
+	    }
+
 	    // Exit monitor thread if instructed to do so
 	    Assert(pthread_mutex_lock(&monitor_request_exit.lock) == 0);
 	    do_exit = monitor_request_exit.flag;
 	    Assert(pthread_mutex_unlock(&monitor_request_exit.lock) == 0);
-	    
+
+	    // Suspend ourselves for one quarter of a second
+	    struct timespec wait;
+	    wait.tv_sec = 0;
+	    wait.tv_nsec = 250000000;  // 250 mS
+	    nanosleep(&wait, NULL);
+
 	}
 
 	// Empty, unused, return value from this thread

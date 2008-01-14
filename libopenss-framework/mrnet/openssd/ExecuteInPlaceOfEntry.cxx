@@ -108,7 +108,7 @@ void ExecuteInPlaceOfEntry::install()
 	//
 	// Create instrumentation snippet for the code sequence:
 	//
-	//     if(threadIndexExpr() == dm_thread.getLWP()) {
+	//     if(tidExpr() == dm_thread.getTid()) {
 	//         if(dm_flag == 0) {
 	//             dm_flag = 1;
 	//             jump dm_wrapper();
@@ -137,9 +137,9 @@ void ExecuteInPlaceOfEntry::install()
 	    );
 
         BPatch_ifExpr expression(
-            BPatch_boolExpr(BPatch_eq,
-                            BPatch_threadIndexExpr(),
-                            BPatch_constExpr(dm_thread.getLWP())),
+	    BPatch_boolExpr(BPatch_eq,
+			    BPatch_tidExpr(process),
+			    BPatch_constExpr(dm_thread.getTid())),
 	    body
             );
 
@@ -155,12 +155,15 @@ void ExecuteInPlaceOfEntry::install()
 	bpatch->setTrampRecursive(true);
         
         // Request the instrumentation be inserted
-        dm_handle = process->insertSnippet(expression, *points);
+	if(dm_thread.getTid() == 0)
+	    dm_handle = process->insertSnippet(body, *points);
+	else
+	    dm_handle = process->insertSnippet(expression, *points);
         Assert(dm_handle != NULL);
 	
 	// Restore the allowance of recursive calls to its previous state
         bpatch->setTrampRecursive(saved_tramp_recursive);
-
+	
 #ifndef NDEBUG
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
