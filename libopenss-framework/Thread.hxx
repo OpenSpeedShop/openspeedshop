@@ -44,6 +44,7 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class Blob;
     class Collector;
     class CollectorGroup;
     class Database;
@@ -56,6 +57,10 @@ namespace OpenSpeedShop { namespace Framework {
     template <typename> class SmartPtr;
     class Statement;
     class ThreadGroup;
+
+    namespace Callbacks {
+	void attachedToThreads(const Blob&);
+    }
     
     /**
      * Single thread of code execution.
@@ -88,6 +93,8 @@ namespace OpenSpeedShop { namespace Framework {
 	friend class Process;
 	friend class Statement;
 	friend class ThreadGroup;
+
+	friend void Callbacks::attachedToThreads(const Blob&);
 	
     public:
 	

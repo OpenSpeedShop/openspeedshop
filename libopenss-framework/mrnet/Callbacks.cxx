@@ -192,7 +192,7 @@ void Callbacks::attachedToThreads(const Blob& blob)
 	if(thread != -1) {
 	    if(msg_thread.has_posix_tid && (thread != -1)) {
 		database->prepareStatement(
-		    "UPDATE Threads SET posix_tid = ? WHERE thread = ?;"
+		    "UPDATE Threads SET posix_tid = ? WHERE id = ?;"
 		    );
 		database->bindArgument(
 		    1, static_cast<pthread_t>(msg_thread.posix_tid)
@@ -221,6 +221,8 @@ void Callbacks::attachedToThreads(const Blob& blob)
 		    3, static_cast<pthread_t>(msg_thread.posix_tid)
 		    );
 	    while(database->executeStatement());
+	    int thread = database->getLastInsertedUID();
+	    ThreadTable::TheTable.addThread(Thread(database, thread));
 	}
 
 	// End the transaction on this thread's database
