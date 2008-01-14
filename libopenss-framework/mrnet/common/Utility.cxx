@@ -642,11 +642,9 @@ std::string OpenSpeedShop::Framework::toString(
     std::stringstream output;
     output << "    { ";
     for(int i = 0; i < threads.names.names_len; ++i) {
-	if(i > 0)
-	    output << ", ";
 	output << toString(threads.names.names_val[i]);
-	if(!(i % 4) && (i < (threads.names.names_len - 1)))
-	    output << std::endl << "      ";
+	if(i < (threads.names.names_len - 1))
+	    output << "," << std::endl << "      ";
     }
     output << " }";
     return output.str();
