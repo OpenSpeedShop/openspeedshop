@@ -302,17 +302,37 @@ void DyninstCallbacks::threadCreate(BPatch_process* process,
 
 
 /**
- * ...
+ * Thread destruction callback.
  *
- * ...
+ * Callback function called by Dyninst when a thread has been destroyed. Sends
+ * a message to the frontend indicating that the thread has terminated.
  *
- * @param process    ...
- * @param thread     ...
+ * @param process    Process containing the thread that has been destroyed.
+ * @param thread     Thread that has been destroyed
  */
 void DyninstCallbacks::threadDestroy(BPatch_process* process,
 				     BPatch_thread* thread)
 {
-    // TODO: implement!
+    // Check preconditions
+    Assert(process != NULL);
+    Assert(thread != NULL);
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+        std::stringstream output;
+	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	       << "threadDestroy(): TID " 
+	       << static_cast<uint64_t>(thread->getTid()) << " of PID "
+	       << process->getPid() << " was destroyed." << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
+    // Names for this thread
+    ThreadNameGroup threads = ThreadTable::TheTable.getNames(thread);
+    
+    // Send the frontend the list of threads that have terminated
+    Senders::threadsStateChanged(threads, Terminated);
 }
 
 
