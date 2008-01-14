@@ -43,6 +43,39 @@ using namespace OpenSpeedShop::Framework;
 
 
 
+namespace {
+
+    /**
+     * Filter threads by local host.
+     *
+     * Returns the subset of threads from the specified thread name group
+     * that are on this local host. An empty subset is returned if none of
+     * the threads are on this local host.
+     *
+     * @param threads    Threads to be filtered.
+     * @return           Subset of these threads on this local host.
+     */
+    ThreadNameGroup filterByLocalHost(const ThreadNameGroup& threads)
+    {
+	ThreadNameGroup filtered;
+
+	// Get the canonical local host name
+	std::string local_host = getCanonicalName(getLocalHost());
+
+	// Iterate over each thread
+	for(ThreadNameGroup::const_iterator
+		i = threads.begin(); i != threads.end(); ++i)
+	    if(getCanonicalName(i->getHost()) == local_host)
+		filtered.insert(*i);
+	
+	// Return the filtered threads to the caller
+	return filtered;
+    }
+
+}
+
+
+
 /**
  * Attach to threads.
  *
@@ -74,7 +107,8 @@ void Callbacks::attachToThreads(const Blob& blob)
 #endif
 
     // Iterate over each thread to be attached
-    ThreadNameGroup threads_to_attach = message.threads, threads_attached;
+    ThreadNameGroup threads_to_attach = filterByLocalHost(message.threads);
+    ThreadNameGroup threads_attached;
     for(ThreadNameGroup::const_iterator
 	    i = threads_to_attach.begin(); i != threads_to_attach.end(); ++i) {
 	
@@ -224,7 +258,8 @@ void Callbacks::changeThreadsState(const Blob& blob)
 #endif
 
     // Iterate over each thread to be changed
-    ThreadNameGroup threads_to_change = message.threads, threads_changed;
+    ThreadNameGroup threads_to_change = filterByLocalHost(message.threads);
+    ThreadNameGroup threads_changed;
     for(ThreadNameGroup::const_iterator
 	    i = threads_to_change.begin(); i != threads_to_change.end(); ++i) {
 
@@ -371,7 +406,7 @@ void Callbacks::executeNow(const Blob& blob)
 #endif
 
     // Iterate over each thread to be instrumented
-    ThreadNameGroup threads = message.threads;
+    ThreadNameGroup threads = filterByLocalHost(message.threads);
     for(ThreadNameGroup::const_iterator
 	    i = threads.begin(); i != threads.end(); ++i) {
 
@@ -433,7 +468,7 @@ void Callbacks::executeAtEntryOrExit(const Blob& blob)
 #endif
 
     // Iterate over each thread to be instrumented
-    ThreadNameGroup threads = message.threads;
+    ThreadNameGroup threads = filterByLocalHost(message.threads);
     for(ThreadNameGroup::const_iterator
 	    i = threads.begin(); i != threads.end(); ++i) {
 
@@ -496,7 +531,7 @@ void Callbacks::executeInPlaceOf(const Blob& blob)
 #endif
 
     // Iterate over each thread to be instrumented
-    ThreadNameGroup threads = message.threads;
+    ThreadNameGroup threads = filterByLocalHost(message.threads);
     for(ThreadNameGroup::const_iterator
 	    i = threads.begin(); i != threads.end(); ++i) {
 
@@ -680,7 +715,7 @@ void Callbacks::stopAtEntryOrExit(const Blob& blob)
 #endif
 
     // Iterate over each thread to be instrumented
-    ThreadNameGroup threads = message.threads;
+    ThreadNameGroup threads = filterByLocalHost(message.threads);
     for(ThreadNameGroup::const_iterator
 	    i = threads.begin(); i != threads.end(); ++i) {
 
@@ -739,7 +774,7 @@ void Callbacks::uninstrument(const Blob& blob)
 #endif
 
     // Iterate over each thread to be uninstrumented
-    ThreadNameGroup threads = message.threads;
+    ThreadNameGroup threads = filterByLocalHost(message.threads);
     for(ThreadNameGroup::const_iterator
 	    i = threads.begin(); i != threads.end(); ++i) {
 
