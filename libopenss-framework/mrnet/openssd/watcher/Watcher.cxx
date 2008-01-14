@@ -219,6 +219,35 @@ void OpenSpeedShop::Watcher::stopWatching() {
 
 }
 
+void OpenSpeedShop::Watcher::addThread(const pid_t& pid, const pthread_t& tid)
+{
+#ifndef NDEBUG
+    if(Watcher::isDebugEnabled()) {
+       std::stringstream output;
+       output << "[TID " << pthread_self() << "] OpenSpeedShop::Watcher::addThread()"
+              << " Entered " <<  std::endl;
+       std::cerr << output.str();
+    }
+#endif
+
+}
+
+void OpenSpeedShop::Watcher::removeThread(const pid_t& pid, const pthread_t& tid)
+{
+
+#ifndef NDEBUG
+    if(Watcher::isDebugEnabled()) {
+       std::stringstream output;
+       output << "[TID " << pthread_self() << "] OpenSpeedShop::Watcher::removeThread()"
+              << " Entered " <<  std::endl;
+       std::cerr << output.str();
+    }
+#endif
+
+}
+
+
+
 #ifndef NDEBUG
 /**
  * Get backend debugging flag.
@@ -235,4 +264,6 @@ bool Watcher::isDebugEnabled()
 
 }
 #endif
+
+
 

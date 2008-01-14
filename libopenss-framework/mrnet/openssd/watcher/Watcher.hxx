@@ -45,6 +45,8 @@ namespace OpenSpeedShop { namespace Watcher {
     void startWatching();
     void stopWatching();
     void* fileIOmonitorThread(void*);
+    void addThread(const pid_t& pid, const pthread_t& tid);
+    void removeThread(const pid_t& pid, const pthread_t& tid); 
 
     /** Identifier of the monitor thread. */
     pthread_t fileIOmonitor_tid;
