@@ -117,16 +117,18 @@ void pcsamp_start_sampling(const char* arguments)
 {
     pcsamp_start_sampling_args args;
 
+#if defined (OPENSS_USE_FILEIO)
+    /* Create the rawdata output file prefix.  pcsamp_stop_sampling will append */
+    /* a tid as needed for the actuall .openss-xdrtype filename */
+    OpenSS_CreateFilePrefix("pcsamp");
+#endif
+
 #if defined (OPENSS_OFFLINE)
 
     /* TODO: need to handle arguments for offline collectors */
     args.collector=1;
     args.experiment=0; /* DataQueues index start at 0.*/
     args.sampling_rate=100000;
-
-    /* Create the rawdata output file prefix.  pcsamp_stop_sampling will append */
-    /* a tid as needed for the actuall .openss-xdrtype filename */
-    OpenSS_CreateFilePrefix("pcsamp");
 
     /* Initialize the info blob's header */
     /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
@@ -225,6 +227,12 @@ void pcsamp_stop_sampling(const char* arguments)
 		tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,tls.data.pc.pc_len,
 		tls.data.count.count_len);
 	}
+#endif
+
+#if defined (OPENSS_USE_FILEIO)
+    /* Create the rawdata output file prefix.  pcsamp_stop_sampling will append */
+    /* a tid as needed for the actuall .openss-xdrtype filename */
+    OpenSS_CreateFilePrefix("pcsamp");
 #endif
 
 #if defined (OPENSS_USE_FILEIO)
