@@ -55,12 +55,12 @@ pcsamp_la_SOURCES = \
 
 if BUILD_MRNET
 pcsamp_rt_la_CFLAGS = \
-	@BINUTILS_CPPFLAGS@ \	
+	@BINUTILS_CPPFLAGS@ \
 	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
 	-I$(top_srcdir)/libopenss-runtime
 else
 pcsamp_rt_la_CFLAGS = \
-	@BINUTILS_CPPFLAGS@ \	
+	@BINUTILS_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-runtime
 endif
 
