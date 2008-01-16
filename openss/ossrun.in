@@ -1,5 +1,4 @@
 #! /bin/sh
-# TODO: allow configuration of libmonitor used at config/build/install time.
 mach_type=`uname -m`
 if test "$mach_type" == "x86_64" ; then
     machlibdir=lib64
@@ -8,5 +7,5 @@ else
 fi
 
 collector=$2
-export LD_PRELOAD=@@osslibdir@@/$collector-rt-offline.so:/usr/${machlibdir}/libmonitor.so
+export LD_PRELOAD=@@osslibdir@@/$collector-rt-offline.so:@@libmonitordir@@/${machlibdir}/libmonitor.so
 $1

@@ -1138,6 +1138,7 @@ AC_DEFUN([AC_PKG_LIBMONITOR], [
     LIBMONITOR_CPPFLAGS="-I$libmonitor_dir/include"
     LIBMONITOR_LDFLAGS="-L$libmonitor_dir/$abi_libdir"
     LIBMONITOR_LIBS="-lmonitor"
+    LIBMONITOR_DIR="$libmonitor_dir"
 
     libmonitor_saved_CPPFLAGS=$CPPFLAGS
     libmonitor_saved_LDFLAGS=$LDFLAGS
@@ -1172,6 +1173,7 @@ AC_DEFUN([AC_PKG_LIBMONITOR], [
     AC_SUBST(LIBMONITOR_CPPFLAGS)
     AC_SUBST(LIBMONITOR_LDFLAGS)
     AC_SUBST(LIBMONITOR_LIBS)
+    AC_SUBST(LIBMONITOR_DIR)
 
 ])
 

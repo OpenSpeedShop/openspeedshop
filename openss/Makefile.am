@@ -63,6 +63,7 @@ ossrun: ossrun.in
 	@rm -f ossrun
 	@sed \
 		-e 's,@@osslibdir@@,$(pkglibdir),' \
+		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
 			$(srcdir)/ossrun.in > ossrun
 	@chmod 755 ossrun
 
