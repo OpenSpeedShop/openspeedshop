@@ -47,10 +47,17 @@ void OpenSS_CreateFilePrefix (char *collectorname) {
     }
 
     pid_t pid = create_OpenSS_exepath();
-    char tmpname[PATH_MAX], dirname[PATH_MAX],*bname;
 
-    bname = basename(OpenSS_exepath);
-    sprintf(dirname,"/tmp/%s-%s-%d",collectorname,bname,pid);
+    char rawdirname[PATH_MAX], tmpname[PATH_MAX], dirname[PATH_MAX], bname[PATH_MAX];
+
+    if (getenv("OPENSS_RAWDATA_DIR") != NULL) {
+	sprintf(rawdirname,"%s",getenv("OPENSS_RAWDATA_DIR"));
+    } else {
+	sprintf(rawdirname,"%s","/tmp");
+    }
+
+    sprintf(bname,"%s",basename(OpenSS_exepath));
+    sprintf(dirname,"%s/openss-rawdata-%d",rawdirname,pid);
 
     /* create a subdirectory in /tmp (TODO: Allow overriding /tmp)
      * to hold resulting raw output files. */
