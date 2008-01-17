@@ -30,31 +30,24 @@
 #endif
 
 #include <pthread.h>
+//#include <vector.h>
+#include <map.h>
+#include <multimap.h>
 #include "Blob.hxx"
-
-//class Blob;
-//class Path;
 
 namespace OpenSpeedShop { namespace Watcher {
 
-//    typedef void (*BlobCallback)(const Blob& blob);
-// or
-//    typedef void (*BlobCallback)(const unsigned& size, const void* buffer);
-
-//needthis    void startWatching(const BlobCallback callback);
+    void Watcher();
     void startWatching();
     void stopWatching();
     void* fileIOmonitorThread(void*);
-    void addThread(const pid_t& pid, const pthread_t& tid);
-    void removeThread(const pid_t& pid, const pthread_t& tid); 
 
     /** Identifier of the monitor thread. */
     pthread_t fileIOmonitor_tid;
 
 #ifndef NDEBUG
-        bool isDebugEnabled();
+    bool isDebugEnabled();
 #endif
-
 
 } }
 

@@ -50,6 +50,7 @@ lib_LTLIBRARIES = libopenss-watcher.la
 #	$(LTDLINCL) 
 
 libopenss_watcher_la_CXXFLAGS = \
+        @DYNINST_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/fileio \
         -I$(top_srcdir)/libopenss-framework \
@@ -59,16 +60,18 @@ libopenss_watcher_la_CXXFLAGS = \
 	$(LTDLINCL) 
 
 libopenss_watcher_la_LDFLAGS = \
+        @DYNINST_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-runtime \
 	-export-dynamic -version-info 1:0:0
 
 libopenss_watcher_la_LIBADD = \
+        @DYNINST_LIBS@ \
 	$(LIBLTDL) \
 	-lpthread -lrt -liberty 
 
 libopenss_watcher_la_SOURCES = \
-	Watcher.cxx Watcher.hxx \
-	Watcher_FileIO.cxx Watcher_Path_From_Pid.cxx Watcher_FileIO.hxx 
+	Watcher.cxx Watcher.hxx  \
+	WatcherThreadTable.hxx WatcherThreadTable.cxx 
 
 doc:
 	$(DOXYGEN)
