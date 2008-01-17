@@ -122,7 +122,7 @@ namespace OpenSpeedShop { namespace Framework {
 	}
 
 #ifndef NDEBUG
-        bool isDebugEnabled();
+        bool isDebugEnabled() const;
 #endif
     private:
 

@@ -49,7 +49,6 @@ bool WatcherThreadTable::getThreadAlreadyPresent(const ProcessThreadId& thread) 
 	  i != dm_thread_to_entries.end();
         ++i) {
 
-#if 0
 #ifndef NDEBUG
     if(WatcherThreadTable::isDebugEnabled()) {
         std::cout << "WatcherThreadTable::getThreadAlreadyPresent("
@@ -58,28 +57,23 @@ bool WatcherThreadTable::getThreadAlreadyPresent(const ProcessThreadId& thread) 
    	          << " i->first.second (tid)= " << i->first.second  << std::endl;
     }
 #endif
-#endif
 
         if (i->first == thread) {
-#if 0
 #ifndef NDEBUG
            if(WatcherThreadTable::isDebugEnabled()) {
               std::cout << "WatcherThreadTable::getThreadAlreadyPresent( return true)"
    	                << std::endl;
            }
 #endif
-#endif
            return true;
         }
     }
 
-#if 0
 #ifndef NDEBUG
     if(WatcherThreadTable::isDebugEnabled()) {
       std::cout << "WatcherThreadTable::getThreadAlreadyPresent(return false)"
                 << std::endl;
     }
-#endif
 #endif
     return false;
 }
@@ -90,13 +84,11 @@ WatcherThreadTable::VProcessThreadId WatcherThreadTable::getAllThreads() const
     Guard guard_myself(this);
     std::vector<ProcessThreadId> threads;
     
-#if 0
 #ifndef NDEBUG
     if(WatcherThreadTable::isDebugEnabled()) {
       std::cout << "WatcherThreadTable::getAllThreads entered."
                 << std::endl;
     }
-#endif
 #endif
 
     for(std::map<ProcessThreadId, FileInfoEntry>::const_iterator
@@ -105,13 +97,11 @@ WatcherThreadTable::VProcessThreadId WatcherThreadTable::getAllThreads() const
         ++i)
         threads.push_back(i->first);
     
-#if 0
 #ifndef NDEBUG
     if(WatcherThreadTable::isDebugEnabled()) {
       std::cout << "WatcherThreadTable::getAllThreads exited."
                 << std::endl;
     }
-#endif
 #endif
 
     return threads;
@@ -167,14 +157,12 @@ WatcherThreadTable::FileInfoEntry WatcherThreadTable::getEntry(const ProcessThre
 	dm_thread_to_entries.find(thread);
     Assert(i != dm_thread_to_entries.end());
 
-#if 0
 #ifndef NDEBUG
     if(WatcherThreadTable::isDebugEnabled()) {
        std::cout << "WatcherThreadTable::getEntry(" 
  	         << "{ " << thread.first << ", " << thread.second << " }"
 	         << ") = " << entry << std::endl;
     }
-#endif
 #endif
 
     return entry;
@@ -210,7 +198,7 @@ void WatcherThreadTable::setEntry(const ProcessThreadId& thread,
  * @return    Boolean "true" if debugging for the backend is enabled,
  *            "false" otherwise.
  */
-bool WatcherThreadTable::isDebugEnabled()
+bool WatcherThreadTable::isDebugEnabled() const
 {
     bool is_backend_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_WATCHER") != NULL) ;
     return is_backend_debug_enabled;
