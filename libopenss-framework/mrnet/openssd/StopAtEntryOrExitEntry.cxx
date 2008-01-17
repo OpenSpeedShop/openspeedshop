@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -86,6 +86,22 @@ void StopAtEntryOrExitEntry::install()
     if(dm_is_installed)
         return;
 
+    // Return immediately if the thread is terminated
+    if(dm_thread.isTerminated()) {
+	
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] StopAtEntryOrExitEntry::"
+		   << "install(): Cannot instrument terminated thread {"
+		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+	    std::cerr << output.str();
+ 	}
+#endif
+
+	return;
+    }
+
     // Get the Dyninst process pointer for the thread to be instrumented
     BPatch_process* process = dm_thread.getProcess();
     Assert(process != NULL);
@@ -130,7 +146,7 @@ void StopAtEntryOrExitEntry::install()
 	    output << "[TID " << pthread_self() << "] StopAtEntryOrExitEntry::"
 		   << "install(): Stop at "<< (dm_at_entry ? "entry" : "exit") 
 		   << " of "<< dm_where << "() in thread { "
-		   << toString(ThreadName(-1, dm_thread)) << " }" << std::endl;
+		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
 	    std::cerr << output.str();
 	}
 #endif
@@ -154,6 +170,22 @@ void StopAtEntryOrExitEntry::remove()
     if(!dm_is_installed)
         return;
 
+    // Return immediately if the thread is terminated
+    if(dm_thread.isTerminated()) {
+	
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] StopAtEntryOrExitEntry::"
+		   << "remove(): Cannot uninstrument terminated thread {"
+		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+	    std::cerr << output.str();
+ 	}
+#endif
+
+	return;
+    }
+
     // Get the Dyninst process pointer for the thread to be instrumented
     BPatch_process* process = dm_thread.getProcess();
     Assert(process != NULL);
@@ -170,7 +202,7 @@ void StopAtEntryOrExitEntry::remove()
 	    output << "[TID " << pthread_self() << "] StopAtEntryOrExitEntry::"
 		   << "remove(): Stop at "<< (dm_at_entry ? "entry" : "exit") 
 		   << " of "<< dm_where << "() in thread { "
-		   << toString(ThreadName(-1, dm_thread)) << " }" << std::endl;
+		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
 	    std::cerr << output.str();
 	}
 #endif

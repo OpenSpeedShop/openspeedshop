@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -65,7 +65,8 @@ namespace OpenSpeedShop { namespace Framework {
 	static ThreadTable TheTable;
 
 	ThreadTable();
-	~ThreadTable();
+
+	bool isEmpty() const;
 
 	void addThread(const Thread&);
 	void removeThread(const Thread&);

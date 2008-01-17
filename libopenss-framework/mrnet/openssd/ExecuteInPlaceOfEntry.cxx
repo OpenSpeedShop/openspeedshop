@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -86,6 +86,22 @@ void ExecuteInPlaceOfEntry::install()
     if(dm_is_installed)
         return;
 
+    // Return immediately if the thread is terminated
+    if(dm_thread.isTerminated()) {
+	
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] ExecuteInPlaceOfEntry::"
+		   << "install(): Cannot instrument terminated thread {"
+		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+	    std::cerr << output.str();
+ 	}
+#endif
+
+	return;
+    }
+
     // Get the Dyninst process pointer for the thread to be instrumented
     BPatch_process* process = dm_thread.getProcess();
     Assert(process != NULL);
@@ -170,7 +186,7 @@ void ExecuteInPlaceOfEntry::install()
 	    output << "[TID " << pthread_self() << "] ExecuteInPlaceOfEntry::"
 		   << "install(): Execute " << dm_callee << "() in place of "
 		   << dm_where << "() in thread { "
-		   << toString(ThreadName(-1, dm_thread)) << " }" << std::endl;
+		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
 	    std::cerr << output.str();
 	}
 #endif
@@ -193,6 +209,22 @@ void ExecuteInPlaceOfEntry::remove()
     // Return immediately if the instrumentation is already removed
     if(!dm_is_installed)
         return;
+
+    // Return immediately if the thread is terminated
+    if(dm_thread.isTerminated()) {
+	
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] ExecuteInPlaceOfEntry::"
+		   << "remove(): Cannot uninstrument terminated thread {"
+		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+	    std::cerr << output.str();
+ 	}
+#endif
+
+	return;
+    }
     
     // Get the Dyninst process pointer for the thread to be instrumented
     BPatch_process* process = dm_thread.getProcess();
@@ -213,7 +245,7 @@ void ExecuteInPlaceOfEntry::remove()
 	    output << "[TID " << pthread_self() << "] ExecuteInPlaceOfEntry::"
 		   << "remove(): Execute " << dm_callee << "() in place of "
 		   << dm_where << "() in thread { "
-		   << toString(ThreadName(-1, dm_thread)) << " }" << std::endl;
+		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
 	    std::cerr << output.str();
 	}
 #endif

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -22,12 +22,9 @@
  *
  */
 
-#include "Callbacks.hxx"
 #include "Exception.hxx"
-#include "Frontend.hxx"
 #include "Guard.hxx"
 #include "Lockable.hxx"
-#include "Path.hxx"
 #include "Protocol.h"
 #include "ThreadGroup.hxx"
 #include "ThreadTable.hxx"
@@ -44,57 +41,29 @@ ThreadTable ThreadTable::TheTable;
 /**
  * Default constructor.
  *
- * Performs any MRNet initializations that are necessary before the first thread
- * is created and added to the thread table. This consists of starting the MRNet
- * frontend message pump after registering the callbacks.
+ * Constructs an empty thread table.
  */
 ThreadTable::ThreadTable() :
     Lockable(),
     std::map<Thread, Thread::State>()
 {
-    Path topology_filename = "~/.openss-mrnet-topology";
-    
-    // Register callbacks with the frontend
-    Frontend::registerCallback(OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREADS,
-			       Callbacks::attachedToThreads);
-    Frontend::registerCallback(OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE,
-			       Callbacks::globalIntegerValue);
-    Frontend::registerCallback(OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE,
-			       Callbacks::globalJobValue);
-    Frontend::registerCallback(OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE,
-			       Callbacks::globalStringValue);
-    Frontend::registerCallback(OPENSS_PROTOCOL_TAG_LOADED_LINKED_OBJECT,
-			       Callbacks::loadedLinkedObject);
-    Frontend::registerCallback(OPENSS_PROTOCOL_TAG_REPORT_ERROR,
-			       Callbacks::reportError);
-    Frontend::registerCallback(OPENSS_PROTOCOL_TAG_SYMBOL_TABLE,
-			       Callbacks::symbolTable);
-    Frontend::registerCallback(OPENSS_PROTOCOL_TAG_THREADS_STATE_CHANGED,
-			       Callbacks::threadsStateChanged);
-    Frontend::registerCallback(OPENSS_PROTOCOL_TAG_UNLOADED_LINKED_OBJECT,
-			       Callbacks::unloadedLinkedObject);
-    Frontend::registerCallback(OPENSS_PROTOCOL_TAG_PERFORMANCE_DATA,
-			       Callbacks::performanceData);
-    
-    // Start the MRNet frontend message pump
-    if(getenv("OPENSS_MRNET_TOPOLOGY_FILE") != NULL)
-	topology_filename = getenv("OPENSS_MRNET_TOPOLOGY_FILE");
-    Frontend::startMessagePump(topology_filename);
 }
 
 
 
 /**
- * Destructor.
+ * Test if empty.
  *
- * Performs any MRNet finalizations that are necessary after the last thread
- * is destroyed and removed from the thread table. This consists of stopping
- * the MRNet frontend message pump.
+ * Returns a boolean value indicating if the thread table is empty.
+ *
+ * @return    Boolean "true" if the thread table is empty, "false" otherwise.
  */
-ThreadTable::~ThreadTable()
+bool ThreadTable::isEmpty() const
 {
-    // Stop the MRNet frontend message pump
-    Frontend::stopMessagePump();
+    Guard guard_myself(this);
+ 
+    // Return the caller the empty state of this thread table
+    return empty();
 }
 
 

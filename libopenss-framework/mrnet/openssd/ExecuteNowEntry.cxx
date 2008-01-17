@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -88,6 +88,22 @@ void ExecuteNowEntry::install()
     if(dm_is_installed)
 	return;
 
+    // Return immediately if the thread is terminated
+    if(dm_thread.isTerminated()) {
+	
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] ExecuteNowEntry::"
+		   << "install(): Cannot instrument terminated thread {"
+		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+	    std::cerr << output.str();
+ 	}
+#endif
+
+	return;
+    }
+
     // Get the Dyninst process pointer for the thread to be instrumented
     BPatch_process* process = dm_thread.getProcess();
     Assert(process != NULL);
@@ -126,9 +142,9 @@ void ExecuteNowEntry::install()
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] ExecuteNowEntry::"
-		   << "install(): Execute " << dm_callee << "(" 
-		   << dm_argument.getStringEncoding() << ") in thread { "
-		   << toString(ThreadName(-1, dm_thread)) << " }" << std::endl;
+		   << "install(): Execute " << dm_callee << "(\"" 
+		   << dm_argument.getStringEncoding() << "\") in thread { "
+		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
 	    std::cerr << output.str();
 	}
 #endif

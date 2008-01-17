@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -22,13 +22,118 @@
  *
  */
 
+#include "Callbacks.hxx"
+#include "Frontend.hxx"
 #include "Guard.hxx"
 #include "Instrumentor.hxx"
+#include "Path.hxx"
 #include "Senders.hxx"
 #include "ThreadGroup.hxx"
 #include "ThreadTable.hxx"
 
 using namespace OpenSpeedShop::Framework;
+
+
+
+namespace {
+
+    /** Flag indicating if MRNet has been initialized. */
+    bool isMRNetInitialized = false;
+    
+
+
+    /**
+     * Initialize MRNet.
+     *
+     * Performs any initializations that are necessary before the first MRNet
+     * operation. This consists of starting the MRNet frontend message pump
+     * after registering the callbacks.
+     */
+    void initializeMRNet()
+    {
+	Path topology_filename = "~/.openss-mrnet-topology";
+	
+	// Go no further if MRNet is already initialized
+	if(isMRNetInitialized)
+	    return;
+
+	// Register callbacks with the frontend
+	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREADS,
+				   Callbacks::attachedToThreads);
+	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE,
+				   Callbacks::globalIntegerValue);
+	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE,
+				   Callbacks::globalJobValue);
+	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE,
+				   Callbacks::globalStringValue);
+	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_LOADED_LINKED_OBJECT,
+				   Callbacks::loadedLinkedObject);
+	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_REPORT_ERROR,
+				   Callbacks::reportError);
+	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_SYMBOL_TABLE,
+				   Callbacks::symbolTable);
+	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_THREADS_STATE_CHANGED,
+				   Callbacks::threadsStateChanged);
+	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_UNLOADED_LINKED_OBJECT,
+				   Callbacks::unloadedLinkedObject);
+	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_PERFORMANCE_DATA,
+				   Callbacks::performanceData);
+	
+	// Start the MRNet frontend message pump
+	if(getenv("OPENSS_MRNET_TOPOLOGY_FILE") != NULL)
+	    topology_filename = getenv("OPENSS_MRNET_TOPOLOGY_FILE");
+	Frontend::startMessagePump(topology_filename);
+
+	// MRNet is now initialized
+	isMRNetInitialized = true;
+    }
+    
+
+
+    /**
+     * Finalize MRNet.
+     *
+     * Performs any finalizations that are necessary after the last MRNet
+     * operation. This consists of stopping the MRNet frontend message pump.
+     */
+    void finalizeMRNet()
+    {	
+	// Go no further if MRNet isn't initialized
+	if(!isMRNetInitialized)
+	    return;
+
+	// Stop the MRNet frontend message pump
+	Frontend::stopMessagePump();
+
+	// Unregister callbacks with the frontend
+	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREADS,
+				     Callbacks::attachedToThreads);
+	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE,
+				     Callbacks::globalIntegerValue);
+	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE,
+				     Callbacks::globalJobValue);
+	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE,
+				     Callbacks::globalStringValue);
+	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_LOADED_LINKED_OBJECT,
+				     Callbacks::loadedLinkedObject);
+	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_REPORT_ERROR,
+				     Callbacks::reportError);
+	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_SYMBOL_TABLE,
+				     Callbacks::symbolTable);
+	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_THREADS_STATE_CHANGED,
+				     Callbacks::threadsStateChanged);
+	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_UNLOADED_LINKED_OBJECT,
+				     Callbacks::unloadedLinkedObject);
+	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_PERFORMANCE_DATA,
+				     Callbacks::performanceData);
+	
+	// MRNet is no longer initialized
+	isMRNetInitialized = true;
+    }
+
+
+
+}
 
 
 
@@ -62,15 +167,24 @@ void Instrumentor::retain(const Thread& thread)
  */
 void Instrumentor::release(const Thread& thread)
 {
-    // Construct a thread group containing this thread
-    ThreadGroup threads;
-    threads.insert(thread);
-    
-    // Request these threads be detached
-    Senders::detachFromThreads(threads);
-    
+    // Is this thread connected?
+    if(ThreadTable::TheTable.isConnected(thread)) {
+	
+	// Construct a thread group containing this thread
+	ThreadGroup threads;
+	threads.insert(thread);
+	
+	// Request these threads be detached
+	Senders::detachFromThreads(threads);    
+
+    }
+
     // Remove this thread from the thread table
     ThreadTable::TheTable.removeThread(thread);
+
+    // Finalize MRNet if the thread table is empty and MRNet is initialized
+    if(ThreadTable::TheTable.isEmpty() && isMRNetInitialized)
+	finalizeMRNet();
 }
 
 
@@ -144,6 +258,10 @@ void Instrumentor::changeState(const ThreadGroup& threads,
 		i = threads.begin(); i != threads.end(); ++i)
 	    if(ThreadTable::TheTable.setConnecting(*i))
 		threads_to_attach.insert(*i);
+
+	// Initialize MRNet if it hasn't been yet
+	if(!isMRNetInitialized)
+	    initializeMRNet();
 	
 	// Request these threads be attached
 	Senders::attachToThreads(threads_to_attach);
@@ -153,7 +271,8 @@ void Instrumentor::changeState(const ThreadGroup& threads,
 	
 	// Check preconditions
 	ThreadTable::TheTable.validateThreads(threads);
-	
+	Assert(isMRNetInitialized);
+
 	// Request a state change from the threads
 	Senders::changeThreadsState(threads, state);
 	
@@ -185,6 +304,7 @@ void Instrumentor::executeNow(const ThreadGroup& threads,
 {
     // Check preconditions
     ThreadTable::TheTable.validateThreads(threads);
+    Assert(isMRNetInitialized);
 
     // Request the library function be executed by these threads
     Senders::executeNow(threads, collector, disableSaveFPR, callee, argument);
@@ -221,7 +341,8 @@ void Instrumentor::executeAtEntryOrExit(const ThreadGroup& threads,
 {
     // Check preconditions
     ThreadTable::TheTable.validateThreads(threads);
-    
+    Assert(isMRNetInitialized);
+
     // Request the library function be executed in these threads
     Senders::executeAtEntryOrExit(threads, collector, where,
 				  at_entry, callee, argument);
@@ -254,6 +375,7 @@ void Instrumentor::executeInPlaceOf(const ThreadGroup& threads,
 {
     // Check preconditions
     ThreadTable::TheTable.validateThreads(threads);
+    Assert(isMRNetInitialized);
 
     // Request the library function be executed in these threads
     Senders::executeInPlaceOf(threads, collector, where, callee);
@@ -280,6 +402,7 @@ void Instrumentor::uninstrument(const ThreadGroup& threads,
 {
     // Check preconditions
     ThreadTable::TheTable.validateThreads(threads);
+    Assert(isMRNetInitialized);
     
     // Request the collector's instrumentation be removed from these threads
     Senders::uninstrument(threads, collector);
@@ -313,6 +436,7 @@ void Instrumentor::stopAtEntryOrExit(const Thread& thread,
 
     // Check preconditions
     ThreadTable::TheTable.validateThreads(threads);
+    Assert(isMRNetInitialized);
 
     // Request the stop be added to these threads
     Senders::stopAtEntryOrExit(threads, where, at_entry);
@@ -347,6 +471,7 @@ bool Instrumentor::getGlobal(const Thread& thread,
 
     // Check preconditions
     ThreadTable::TheTable.validateThreads(threads);
+    Assert(isMRNetInitialized);
 
     // Request the global variable be retrieved from the thread
     Senders::getGlobalInteger(thread, global);
@@ -384,6 +509,7 @@ bool Instrumentor::getGlobal(const Thread& thread,
 
     // Check preconditions
     ThreadTable::TheTable.validateThreads(threads);
+    Assert(isMRNetInitialized);
 
     // Request the global variable be retrieved from the thread
     Senders::getGlobalString(thread, global);
@@ -418,6 +544,7 @@ bool Instrumentor::getMPICHProcTable(const Thread& thread, Job& value)
 
     // Check preconditions
     ThreadTable::TheTable.validateThreads(threads);
+    Assert(isMRNetInitialized);
 
     // Request the MPICH process table be retrieved from the thread
     Senders::getMPICHProcTable(thread);
@@ -451,6 +578,7 @@ void Instrumentor::setGlobal(const Thread& thread,
 
     // Check preconditions
     ThreadTable::TheTable.validateThreads(threads);
+    Assert(isMRNetInitialized);
 
     // Request the global variable be set in the process
     Senders::setGlobalInteger(thread, global, value);

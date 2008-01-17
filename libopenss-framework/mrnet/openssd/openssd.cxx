@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -135,8 +135,7 @@ int main(int argc, char* argv[])
     // Start the backend's message pump
     Backend::startMessagePump(argc, argv);
 
-//    const OpenSpeedShop::Watcher::BlobCallback xxx = NULL;
-//needthis    OpenSpeedShop::Watcher::startWatching(xxx);
+    // Start watching for incoming performance data
     OpenSpeedShop::Watcher::startWatching();
 
     // Wait until the daemon is instructed to exit
@@ -145,14 +144,43 @@ int main(int argc, char* argv[])
 	Assert(pthread_cond_wait(&daemon_request_exit.cv,
 				 &daemon_request_exit.lock) == 0);
     Assert(pthread_mutex_unlock(&daemon_request_exit.lock) == 0);
-    
+
+    // Stop watching for incoming performance data
+    OpenSpeedShop::Watcher::stopWatching();
 
     // Stop the backend's message pump
     Backend::stopMessagePump();
 
-    // Stop watching for fileIO files (looking for performance data in application to send to client)
-    OpenSpeedShop::Watcher::stopWatching();
-
+    // Unregister callbacks with the backend
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_SHUTDOWN_BACKENDS,
+				shutdownBackends);
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_ATTACH_TO_THREADS,
+				Callbacks::attachToThreads);
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_CHANGE_THREADS_STATE,
+				Callbacks::changeThreadsState);
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_CREATE_PROCESS,
+				Callbacks::createProcess);
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_DETACH_FROM_THREADS,
+				Callbacks::detachFromThreads);
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_EXECUTE_NOW,
+				Callbacks::executeNow);
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_EXECUTE_AT_ENTRY_OR_EXIT,
+				Callbacks::executeAtEntryOrExit);
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_EXECUTE_IN_PLACE_OF,
+				Callbacks::executeInPlaceOf);
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_GET_GLOBAL_INTEGER,
+				Callbacks::getGlobalInteger);
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_GET_GLOBAL_STRING,
+				Callbacks::getGlobalString);
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE,
+				Callbacks::getMPICHProcTable);
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER,
+				Callbacks::setGlobalInteger);
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_STOP_AT_ENTRY_OR_EXIT,
+				Callbacks::stopAtEntryOrExit);
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_UNINSTRUMENT,
+				Callbacks::uninstrument);
+    
     // Display a shutdown message
     std::cout << std::endl;
     std::cout << "Stopped Open|SS MRNet Daemon: " << Time::Now() << std::endl;
