@@ -17,7 +17,7 @@
 ################################################################################
 
 SUBDIRS = @INSTRUMENTOR@
-DIST_SUBDIRS = dpcl dyninst mrnet
+DIST_SUBDIRS = dpcl dyninst mrnet offline
 
 lib_LTLIBRARIES = libopenss-framework.la
 
