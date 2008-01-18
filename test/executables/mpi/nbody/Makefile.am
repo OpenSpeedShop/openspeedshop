@@ -35,3 +35,5 @@ nbody_LDADD = \
 
 nbody_SOURCES = \
 	nbody-mpi.c
+
+EXTRA_DIST = nbody-mpi.c Makefile.am
