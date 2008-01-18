@@ -17,6 +17,7 @@
 ################################################################################
 
 noinst_PROGRAMS = nbody
+DIST_DIR = ./
 
 MPI_IMPL = @DEFAULT_MPI_IMPL@
 
@@ -35,3 +36,6 @@ nbody_LDADD = \
 
 nbody_SOURCES = \
 	nbody-mpi.c
+
+EXTRA_DIST = \
+	nbody-mpi.c Makefile.am

@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+# Copyright (c) 2006, 2007,2008 Krell Institute All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -18,8 +18,8 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-AC_INIT(OpenSpeedShop, 1.5.1)
-AC_COPYRIGHT([[Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.]])
+AC_INIT(OpenSpeedShop, 1.6)
+AC_COPYRIGHT([[Copyright (c) 2008 Krell Institute. All Rights Reserved.]])
 AM_INIT_AUTOMAKE
 
 ################################################################################
@@ -30,7 +30,7 @@ AM_CONFIG_HEADER([config.h])
 
 AH_TOP([
 /*******************************************************************************
-** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2008 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free

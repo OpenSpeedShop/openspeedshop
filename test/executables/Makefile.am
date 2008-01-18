@@ -34,6 +34,18 @@ SUBDIRS = \
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 #
-DIST_SUBDIRS = $(SUBDIRS) 
+DIST_SUBDIRS = \
+	mutatee\
+	Eon \
+	forever \
+	forever_cxx  \
+	fpe_print \
+	fpetest \
+	fpetest_attach \
+	fredO2 \
+	dlopen \
+	threads \
+	fred \
+	mpi
 
 

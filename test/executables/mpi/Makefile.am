@@ -27,6 +27,6 @@ endif
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 #
-DIST_SUBDIRS = $(SUBDIRS) 
+DIST_SUBDIRS = nbody smg2000
 
 
