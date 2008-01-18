@@ -103,8 +103,8 @@ make
 # install into --prefix directory set by ./configure
 make install 
 
-rm -f $RPM_BUILD_ROOT%{prefix}/lib/libltdl*
-rm -f $RPM_BUILD_ROOT%{prefix}/include/ltdl.h
+rm -f $RPM_BUILD_ROOT%{_prefix}/lib/libltdl*
+rm -f $RPM_BUILD_ROOT%{_prefix}/include/ltdl.h
 
 %clean
 # comment out for now.
@@ -113,7 +113,7 @@ rm -f $RPM_BUILD_ROOT%{prefix}/include/ltdl.h
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
-rm -rf %{prefix}/share/doc/packages/OpenSpeedShop
+rm -rf %{_prefix}/share/doc/packages/OpenSpeedShop
 
 
 # installation is in --prefix dir. ($RPM_BUILD_ROOT/usr/
@@ -123,16 +123,16 @@ rm -rf %{prefix}/share/doc/packages/OpenSpeedShop
 # to the list of directories that will contain documentation.
 #%docdir /usr/share/doc/%{name}-%{version}-%{release}
 #
-%docdir %{prefix}/share/doc/packages/OpenSpeedShop
-%{prefix}/share/doc/packages/OpenSpeedShop
+%docdir %{_prefix}/share/doc/packages/OpenSpeedShop
+%{_prefix}/share/doc/packages/OpenSpeedShop
 
 # installation attributes for files installed from the rpm packages.
 %defattr(-,root,root)
 # The following will pickup everything in --prefix/bin
-%{prefix}/bin/*
+%{_prefix}/bin/*
 # The following will pickup everything in --prefix/lib including
 # the openspeedshop plugin dir
-%{prefix}/%{_lib}/*
+%{_prefix}/%{_lib}/*
 
 %changelog
 * Fri Jan 18 2008 Jim Galarowicz <jeg@krellinst.org>
