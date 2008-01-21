@@ -278,18 +278,30 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread)
 	}
 
     // Iterate over all instrumentation not associated with a collector
-    for(InstrumentationList::const_reverse_iterator
-	    j = i->second.dm_general.rbegin(); 
-	j != i->second.dm_general.rend(); 
-	++j) {
+    // REPLACE ITERATOR LOOP WITH NON-ITERATOR LOOP
+    for(int j = i->second.dm_general.size() - 1; j > 0; --j) {
 
-	// Remove this instrumentation from the thread
-	(*j)->remove();
+        // Remove this instrumentation from the thread
+        i->second.dm_general[j]->remove();
 
-	// Destroy this instrumentation entry
-	delete *j;
+        // Destroy this instrumentation entry
+        delete i->second.dm_general[j];
 
     }
+
+    // Iterate over all instrumentation not associated with a collector
+//    for(InstrumentationList::const_reverse_iterator
+//	    j = i->second.dm_general.rbegin(); 
+//	j != i->second.dm_general.rend(); 
+//	++j) {
+//
+//	// Remove this instrumentation from the thread
+//	(*j)->remove();
+//
+//	// Destroy this instrumentation entry
+//	delete *j;
+//
+//    }
     
     // Remove this thread from the table
     dm_threads.erase(i);
@@ -329,17 +341,29 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread,
     if(j == i->second.dm_collectors.end())
 	return;
 
-    // Iterate over all instrumentation associated with this collector
-    for(InstrumentationList::const_reverse_iterator
-	    k = j->second.rbegin(); k != j->second.rend(); ++k) {
-	
-	// Remove this instrumentation from the thread
-	(*k)->remove();
-	
-	// Destroy this instrumentation entry
-	delete *k;
-	
+    // Iterate over all instrumentation not associated with a collector
+    // REPLACE ITERATOR LOOP WITH NON-ITERATOR LOOP
+    for(int j = 0; j < i->second.dm_general.size() - 1; ++j) {
+
+        // Remove this instrumentation from the thread
+        i->second.dm_general[j]->remove();
+
+        // Destroy this instrumentation entry
+        delete i->second.dm_general[j];
+
     }
+
+    // Iterate over all instrumentation associated with this collector
+//    for(InstrumentationList::const_reverse_iterator
+//	    k = j->second.rbegin(); k != j->second.rend(); ++k) {
+//	
+//	// Remove this instrumentation from the thread
+//	(*k)->remove();
+//	
+//	// Destroy this instrumentation entry
+//	delete *k;
+//	
+//   }
     
     // Remove this collector's instrumentation from the table
     i->second.dm_collectors.erase(j);
