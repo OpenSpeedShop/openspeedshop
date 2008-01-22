@@ -316,19 +316,22 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 
 			      char dataFilename[PATH_MAX];
 			      char openssDataFilename[PATH_MAX];
-			      sprintf (dataFilename, "%s/%s", directoryName,
-				       direntry->d_name);
+			      sprintf (dataFilename, "%s/%s", directoryName, direntry->d_name);
 
-			      sprintf (openssDataFilename, "%s",
-				       direntry->d_name);
+			      sprintf (openssDataFilename, "%s", direntry->d_name);
 
 			      // *********** We have found a filename that matches our criteria
 			      // Save the filename into our file information record
-			      currentFileEntryInfo.fileName =
-				openssDataFilename;
+			      currentFileEntryInfo.fileName = openssDataFilename;
 
 			      pid_t pid = getPidFromFilename (openssDataFilename);
 			      pthread_t tid = getTidFromFilename (openssDataFilename);
+#ifndef NDEBUG
+			      if (Watcher::isDebugEnabled ()) {
+				  std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() pid=" << pid << " tid=" << tid
+				             << std::endl;
+                              }
+#endif
 
 			      // ************** Make legality checks on pid and tid
 			      // More here?
@@ -340,15 +343,12 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 
 				      currentFileEntryInfo = WatcherThreadTable::TheTable.getEntry (pid, tid);
 #ifndef NDEBUG
-				      if (Watcher::isDebugEnabled ())
-					{
+				      if (Watcher::isDebugEnabled ()) {
 					  std:: cout << "Call to WatcherThreadTable::getThreadAlreadyPresent is true"
 					             << std::endl;
-					}
+                                      }
 #endif
-				    }
-				  else
-				    {
+				    } else {
 
 #ifndef NDEBUG
 				      if (Watcher::isDebugEnabled ())
@@ -397,6 +397,13 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 				  currentFileEntryInfo = WatcherThreadTable::TheTable.getEntry (pid, tid);
 				  prevSize = currentFileEntryInfo.prevSize;
 
+#ifndef NDEBUG
+			          if (Watcher::isDebugEnabled ()) {
+				    std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() prevSize=" 
+                                               << prevSize << " currentFileSize=" << currentFileSize
+				               << std::endl;
+				  }
+#endif
 				  if (prevSize == currentFileSize)
 				    {
 				      // Skip processing this file, it is the same size it was before
@@ -411,7 +418,10 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 					    " file is same size as the last time file was saved="
 					    << currentFileSize << std::endl;
 					  std::cerr << output.str ();
-					}
+				          std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() BREAK; prevSize=" 
+                                                     << prevSize << " currentFileSize=" << currentFileSize
+				                     << std::endl;
+					} // end debug
 #endif
 				      break;
 				    }
@@ -419,6 +429,12 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 				  // ********** Have we seen this file before and read from it?
 				  // Seek to the position we need to be at in order to read the next blob size and blob
 				  prevPos = currentFileEntryInfo.readPosition;
+#ifndef NDEBUG
+				  if (Watcher::isDebugEnabled ()) {
+				     std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() BREAK; prevPos=" 
+                                                << prevPos << std::endl;
+			       	  } // end debug
+#endif
 				  if (prevPos != 0)
 				    {
 				      fseek (f, prevPos, SEEK_SET);
@@ -432,7 +448,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 					<< " first position in file=" <<
 					first_pos << std::endl;
 				      std::cerr << output.str ();
-				    }
+				    } //end debug
 #endif
 
 				  xdrstdio_create (&xdrs, f, XDR_DECODE);
@@ -440,6 +456,12 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 				  if (!xdr_u_int (&xdrs, &blobsize))
 				    {
 				      continue_checking_for_data = false;
+#ifndef NDEBUG
+				      if (Watcher::isDebugEnabled ()) {
+				        std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() BREAK; !xdr_u_int (&xdrs, &blobsize)" 
+                                                   << std::endl;
+				      } //end debug
+#endif
 				      break;
 				    }
 				  else
@@ -454,7 +476,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 					    << " successfully read blobsize="
 					    << blobsize << std::endl;
 					  std::cerr << output.str ();
-					}
+					} //end debug
 #endif
 				    }
 
@@ -470,6 +492,13 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 				  if (bytesRead == 0 || bytesRead < blobsize)
 				    {
 				      continue_checking_for_data = false;
+#ifndef NDEBUG
+				      if (Watcher::isDebugEnabled ()) {
+				        std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() BREAK; bytesRead=" 
+                                                   << bytesRead << " blobsize=" << blobsize
+				                   << std::endl;
+				      } //end debug
+#endif
 				      break;
 				    }
 
@@ -503,7 +532,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 					     << " BEFORE Sending blob to performanceData, size="
 					     << blobsize << std::endl;
 				      std::cerr << output.str ();
-				    }
+				    } // end debug
 #endif
 
 				  // **************** Send the performance data blob upstream to be sent back to 
@@ -519,17 +548,27 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 					     << " AFTER Sending blob to performanceData, size="
 					     << blobsize << std::endl;
 				      std::cerr << output.str ();
-				    }
+				    } // end debug
 #endif
 
 				}	// end while data in this file
 
-//                             printf("Falling out of read blob while loop for file=%s\n", direntry->d_name);
-			    }
-			  else
-			    {
-//                             printf("did not find openss-data filename, direntry->d_name=%s\n", direntry->d_name);
-			    }
+#ifndef NDEBUG
+		             if (Watcher::isDebugEnabled ()) {
+			        std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() " 
+                                           << " Falling out,read blob loop for file, direntry->d_name=" << direntry->d_name 
+			                   << std::endl;
+			     } // end debug
+#endif
+			  } else {
+#ifndef NDEBUG
+		             if (Watcher::isDebugEnabled ()) {
+			        std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() " 
+                                           << " Did not find openss-data filename, direntry->d_name=" << direntry->d_name 
+			                   << std::endl;
+			     } // end debug
+#endif
+		          } // end else
 			}
 		      closedir (dirhandle);
 		    }		// end if dirhandle
