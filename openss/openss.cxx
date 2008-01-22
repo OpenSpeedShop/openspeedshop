@@ -26,7 +26,19 @@
 
 extern char **environ;
 
+// jeg - commmenting this out.
+// this define cause the code in OpenSSPath.cxx
+// in libopenss-framework and inlined here (below)
+// to do a hard call to ltdl_lock.  I believe this
+// was a workaround for libtool/libltdl problems 
+// in a previous version.  What is happening now
+// with libtool/libltdl 1.5.24 is that this code
+// is causing a deadlock.  So, removing as it appears
+// to work fine without this code on other versions
+// of libltdl, older than 1.5.24.
+/*
 #define USE_DL_LOCK
+*/
 
 /**
  * Check a runtime assertion.
