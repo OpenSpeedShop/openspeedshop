@@ -258,6 +258,12 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread)
     // Go no further if there is no instrumentation for this thread
     if(i == dm_threads.end())
 	return;
+
+    //
+    // Note: Ideally we'd use a reverse iterators here, but unfortunately
+    //       the GCC 3.4.x compilers don't seem to support such iterators
+    //       on STL vectors. For now we use simply index notion instead.
+    //
     
     // Iterate over each collector with instrumentation in this thread
     for(std::map<Collector, InstrumentationList>::const_iterator
@@ -266,43 +272,28 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread)
 	++j)
 	
 	// Iterate over all instrumentation associated with this collector
-	for(InstrumentationList::const_reverse_iterator
-		k = j->second.rbegin(); k != j->second.rend(); ++k) {
-
+	for(InstrumentationList::size_type k = j->second.size(); k > 0; --k) {
+	    
 	    // Remove this instrumentation from the thread
-	    (*k)->remove();
+	    j->second[k]->remove();
 
 	    // Destroy this instrumentation entry
-	    delete *k;
+	    delete j->second[k];
 
 	}
 
     // Iterate over all instrumentation not associated with a collector
-    // REPLACE ITERATOR LOOP WITH NON-ITERATOR LOOP
-    for(int j = i->second.dm_general.size() - 1; j > 0; --j) {
+    for(InstrumentationList::size_type
+	    j = i->second.dm_general.size(); j > 0; --j) {
 
         // Remove this instrumentation from the thread
-        i->second.dm_general[j]->remove();
+        i->second.dm_general[j - 1]->remove();
 
         // Destroy this instrumentation entry
-        delete i->second.dm_general[j];
-
+        delete i->second.dm_general[j - 1];
+	
     }
 
-    // Iterate over all instrumentation not associated with a collector
-//    for(InstrumentationList::const_reverse_iterator
-//	    j = i->second.dm_general.rbegin(); 
-//	j != i->second.dm_general.rend(); 
-//	++j) {
-//
-//	// Remove this instrumentation from the thread
-//	(*j)->remove();
-//
-//	// Destroy this instrumentation entry
-//	delete *j;
-//
-//    }
-    
     // Remove this thread from the table
     dm_threads.erase(i);
 }
@@ -341,29 +332,22 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread,
     if(j == i->second.dm_collectors.end())
 	return;
 
-    // Iterate over all instrumentation not associated with a collector
-    // REPLACE ITERATOR LOOP WITH NON-ITERATOR LOOP
-    for(int j = 0; j < i->second.dm_general.size() - 1; ++j) {
-
-        // Remove this instrumentation from the thread
-        i->second.dm_general[j]->remove();
-
-        // Destroy this instrumentation entry
-        delete i->second.dm_general[j];
-
-    }
+    //
+    // Note: Ideally we'd use a reverse iterator here, but unfortunately
+    //       the GCC 3.4.x compilers don't seem to support such iterators
+    //       on STL vectors. For now we use simply index notion instead.
+    //
 
     // Iterate over all instrumentation associated with this collector
-//    for(InstrumentationList::const_reverse_iterator
-//	    k = j->second.rbegin(); k != j->second.rend(); ++k) {
-//	
-//	// Remove this instrumentation from the thread
-//	(*k)->remove();
-//	
-//	// Destroy this instrumentation entry
-//	delete *k;
-//	
-//   }
+    for(InstrumentationList::size_type k = j->second.size(); k > 0; --k) {
+
+	// Remove this instrumentation from the thread
+	j->second[k]->remove();
+	
+	// Destroy this instrumentation entry
+	delete j->second[k];
+	
+    }
     
     // Remove this collector's instrumentation from the table
     i->second.dm_collectors.erase(j);
