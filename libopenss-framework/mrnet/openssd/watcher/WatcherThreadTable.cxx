@@ -156,6 +156,7 @@ WatcherThreadTable::FileInfoEntry WatcherThreadTable::getEntry(const ProcessThre
     std::map<ProcessThreadId, FileInfoEntry>::const_iterator i =
 	dm_thread_to_entries.find(thread);
     Assert(i != dm_thread_to_entries.end());
+    entry = i->second;
 
 #ifndef NDEBUG
     if(WatcherThreadTable::isDebugEnabled()) {
