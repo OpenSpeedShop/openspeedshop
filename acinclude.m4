@@ -1257,3 +1257,83 @@ AC_DEFUN([AC_PKG_LIBDWARF], [
 
 ])
 
+
+################################################################################
+# Check for XERCES (http://xerces.apache.org/xerces-c)
+################################################################################
+
+AC_DEFUN([AC_PKG_XERCES], [
+
+    AC_ARG_WITH(xerces,
+                AC_HELP_STRING([--with-xerces=DIR],
+                               [XERCES installation @<:@/usr@:>@]),
+                xerces_dir=$withval, xerces_dir="/usr")
+
+    XERCES_DIR="$xerces_dir"
+    XERCES_LIBSDIR="$xerces_dir/$abi_libdir"
+    XERCES_CPPFLAGS="-DOPENSS_ENABLE_PERIXML -I$xerces_dir/include/xercesc"
+    XERCES_LDFLAGS="-L$xerces_dir/$abi_libdir"
+    XERCES_LIBS="-lxerces-c"
+
+    AC_LANG_PUSH(C++)
+    AC_REQUIRE_CPP
+
+    xerces_saved_CPPFLAGS=$CPPFLAGS
+    xerces_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $XERCES_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $XERCES_LDFLAGS $XERCES_LIBS"
+
+    AC_MSG_CHECKING([for XERCES support])
+
+    foundXERCES=0
+    if test -f  $xerces_dir/$abi_libdir/libxerces-c.so; then
+       AC_MSG_CHECKING([found xerces library])
+       foundXERCES=1
+    else 
+	if test -f $xerces_dir/$alt_abi_libdir/libxerces-c.so; then
+          AC_MSG_CHECKING([found xerces library])
+          XERCES_LIBSDIR="$xerces_dir/$alt_abi_libdir"
+          XERCES_LDFLAGS="-L$xerces_dir/$alt_abi_libdir"
+          foundXERCES=1
+       else
+          foundXERCES=0
+       fi
+    fi
+
+    if test $foundXERCES == 1 && test -f  $xerces_dir/include/xercesc/util/XMLString.hpp; then
+       AC_MSG_CHECKING([found xerces headers])
+       foundXERCES=1
+    else
+       foundXERCES=0
+    fi
+
+    if test $foundXERCES == 1; then
+      AC_MSG_CHECKING([found all xerces headers, libraries and supporting libz library])
+      AC_MSG_RESULT(yes)
+      AM_CONDITIONAL(HAVE_XERCES, true)
+      AC_DEFINE(HAVE_XERCES, 1, [Define to 1 if you have XERCES.])
+    else
+      AC_MSG_RESULT(no)
+      AM_CONDITIONAL(HAVE_XERCES, false)
+      XERCES_DIR=""
+      XERCES_LIBSDIR=""
+      XERCES_CPPFLAGS=""
+      XERCES_LDFLAGS=""
+      XERCES_LIBS=""
+    fi
+
+
+    CPPFLAGS=$xerces_saved_CPPFLAGS
+    LDFLAGS=$xerces_saved_LDFLAGS
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(XERCES_DIR)
+    AC_SUBST(XERCES_LIBSDIR)
+    AC_SUBST(XERCES_CPPFLAGS)
+    AC_SUBST(XERCES_LDFLAGS)
+    AC_SUBST(XERCES_LIBS)
+
+])
+
