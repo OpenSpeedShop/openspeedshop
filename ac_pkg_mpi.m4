@@ -290,7 +290,9 @@ AC_DEFUN([AC_PKG_MPICH], [
     # pseudo-driver that makes the necessary configuration changes.
     if test x"$mpich_driver" == x"llnl"; then
 	MPICH_CC="$mpich_dir/bin/mpicc -shlib"
-        MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+	# even on the Opterons/Peloton systems (x86_64) all libraries are in lib
+        # MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+        MPICH_LDFLAGS="-L$mpich_dir/lib"
     fi
 
     # On the systems at LANL they have an MPICH variant
