@@ -33,7 +33,7 @@ def SDPCL():
 #
 #
 	if backend_nodes_present:
-		print "nodelist_line=%s\n" % nodelist_line
+#		print "nodelist_line=%s\n" % nodelist_line
 		j = 0
 		while (nodelist_line[j] != '\n'):
 			j+=1
@@ -41,12 +41,12 @@ def SDPCL():
 		ndirname_file = open(nodelist_line[0:j], 'r')
 		j = 0
 		ndirname_line = ndirname_file.readline()
-		print "before while, ndirname_line=%s\n" % ndirname_line
+#		print "before while, ndirname_line=%s\n" % ndirname_line
 		while (ndirname_line):
 			ndirname_line = ndirname_file.readline()
-			print "in while, ndirname_line=%s\n" % ndirname_line
+#			print "in while, ndirname_line=%s\n" % ndirname_line
 			j+=1
-		print "ndirname_line, j=%d\n" % j
+#		print "ndirname_line, j=%d\n" % j
 		if (j == 0):
 			skip_backend = 1
 			print "skip_backend=%d\n" % skip_backend
