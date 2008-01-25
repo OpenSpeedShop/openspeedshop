@@ -25,7 +25,7 @@ def DPCL():
 
 def SDPCL(templateString):
      if(debug):
-          print 'SDPCL Called...'
+          print 'SDPCL Called, templateString=',templateString
      if (os.environ.has_key('SLURM_JOBID')):
           if(debug):
                print 'CPUs Is: ',os.environ['SLURM_CPUS_ON_NODE']
@@ -67,12 +67,14 @@ def main():
           machstr = 'dpcld -p ' + mach + ':' + listener_port
           if(debug):
                print 'Machine Command: ' + machstr
-          tcshcmd = 'tcsh -c ' + '"' + bpshstr + '& ' + machstr + '&' + '"'
-          if(debug):
-              print 'About To Exec: ' + tcshcmd
+#          tcshcmd = 'tcsh -c ' + '"' + bpshstr + '& ' + machstr + '&' + '"'
+#         if(debug):
+#             print 'About To Exec: ' + tcshcmd
           #Hack...for now.
-          os.system(tcshcmd)
+          #os.system(tcshcmd)
           #SDPCL('* ' + bpshstr)
+          SDPCL(bpshstr + '& ' +'*')
+#          SDPCL(bpshstr + '& ' + machstr +'*')
      else:
           DPCL()
 
