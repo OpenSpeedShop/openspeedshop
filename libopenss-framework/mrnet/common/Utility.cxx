@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -197,6 +197,58 @@ OpenSpeedShop::Framework::parseLibraryFunctionName(const std::string& function)
 
     // Return the parsed library and function names to the caller
     return std::make_pair(library_name, function_name);
+}
+
+
+
+/**
+ * Search for an executable.
+ *
+ * Returns the full, normalized, path name of the specified executable. The
+ * is accomplished by using the passed search path to find the executable. If
+ * the specified executable already has an absolute path, or if an executable
+ * cannot be found, the originally specified path is returned unchanged.
+ *
+ * @param path          Search path with which to find the executable.
+ * @param executable    Executable to be found.
+ * @return              Full, normalized, path of the executable if found, or
+ *                      the original executable name if not.
+ */
+Path OpenSpeedShop::Framework::searchForExecutable(const std::string& path,
+						   const Path& executable)
+{
+    // Return path unchanged if it is an absolute path
+    if(executable.isAbsolute())
+        return executable;
+    
+    // Return normalized path if it is an executable
+    if(executable.getNormalized().isExecutable())
+        return executable.getNormalized();
+
+    // Is the search path non-empty?
+    if(!path.empty()) {
+        
+        // Iterate over individual directories in the search path
+        for(std::string::size_type 
+                i = path.find_first_not_of(':', 0), next = path.find(':', i);
+            i != std::string::npos;
+            i = path.find_first_not_of(':', next), next = path.find(':', i)) {
+            
+            // Extract this directory
+            Path directory = 
+                path.substr(i, (next == std::string::npos) ? next : next - i);
+            
+            // Assmeble the candidate and check if it is an executable
+            Path candidate = (directory + executable).getNormalized();
+            if(candidate.isExecutable())
+                return candidate;
+            
+        }
+        
+    }
+    
+    // Otherwise return the path unchanged
+    return executable;
 }
 
 

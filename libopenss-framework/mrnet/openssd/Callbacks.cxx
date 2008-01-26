@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -28,8 +28,10 @@
 #include "Collector.hxx"
 #include "DyninstCallbacks.hxx"
 #include "InstrumentationTable.hxx"
+#include "Path.hxx"
 #include "Protocol.h"
 #include "Senders.hxx"
+#include "StdStreamPipes.hxx"
 #include "ThreadName.hxx"
 #include "ThreadNameGroup.hxx"
 #include "ThreadTable.hxx"
@@ -38,6 +40,8 @@
 #include <BPatch.h>
 #include <iostream>
 #include <sstream>
+#include <string>
+#include <vector>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -153,7 +157,6 @@ void Callbacks::attachToThreads(const Blob& blob)
 	BPatch* bpatch = BPatch::getBPatch();
 	Assert(bpatch != NULL);
 	thread = bpatch->attachProcess(NULL, i->getProcessId());
-
 	if(thread == NULL) {
 
 #ifndef NDEBUG
@@ -314,9 +317,12 @@ void Callbacks::changeThreadsState(const Blob& blob)
 
 
 /**
- * Create a thread.
+ * Create a process.
  *
- * ...
+ * Callback function called by the backend message pump when a request to
+ * create a process is received. Instructs Dyninst to create the process,
+ * then sends the frontend a list of the threads that were created and the
+ * symbol information for those threads.
  *
  * @param blob    Blob containing the message.
  */
@@ -339,7 +345,143 @@ void Callbacks::createProcess(const Blob& blob)
     }
 #endif
 
-    // TODO: implement!
+    // Ignore the message if the process isn't being created on this local host
+    if(getCanonicalName(ThreadName(message.thread).getHost()) != 
+       getCanonicalName(getLocalHost()))
+	return;
+    
+    // Extract the individual arguments from the command
+    std::string command = message.command;
+    std::vector<std::string> args;
+    for(std::string::size_type 
+	    i = command.find_first_not_of(' ', 0), next = command.find(' ', i);
+	i != std::string::npos;
+	i = command.find_first_not_of(' ', next), next = command.find(' ', i)) {
+	
+	// Extract this argument
+	args.push_back(
+	    command.substr(i, (next == std::string::npos) ? next : next - i)
+	    );
+	
+    }
+
+    // Extract the individual environment variables from the environment
+    std::vector<std::string> env;
+    for(const char* i = 
+	    reinterpret_cast<char*>(message.environment.data.data_val);
+	i < (reinterpret_cast<char*>(message.environment.data.data_val) +
+	     message.environment.data.data_len);
+	i += strlen(i) + 1) {
+	
+	// Extract this environment variable
+	env.push_back(i);
+	
+	// Is this the binary search path?
+	if(std::string(i).find("PATH=") == 0) {
+	    
+	    // Replace the executable with its full, normalized, path
+	    args[0] = searchForExecutable(&(i[5]), Path(args[0]));
+	    
+	}
+	
+    }
+	
+    // Translate the arguments into an argv-style argument list
+    const char** argv = new const char*[args.size() + 1];
+    for(std::vector<std::string>::size_type i = 0; i < args.size(); ++i)
+	argv[i] = args[i].c_str();
+    argv[args.size()] = NULL;
+    
+    // Translate the environment into an envp-style environment
+    const char** envp = new const char*[env.size() + 1];
+    for(std::vector<std::string>::size_type i = 0; i < env.size(); ++i)
+	envp[i] = env[i].c_str();
+    envp[env.size()] = NULL;
+
+    // Setup the pipes used for accessing the process' standard streams
+    SmartPtr<StdStreamPipes> pipes(new StdStreamPipes());
+    
+    // Create the process
+    BPatch* bpatch = BPatch::getBPatch();
+    Assert(bpatch != NULL);
+    BPatch_process* process =
+	bpatch->processCreate(argv[0], argv, envp,
+			      pipes->getStdinForCreatedProcess(),
+			      pipes->getStdoutForCreatedProcess(),
+			      pipes->getStderrForCreatedProcess());
+    
+    // Destroy argv-style argument list and envp-style environment
+    delete [] argv;
+    delete [] envp;
+    
+    // Check for proper creation of the process
+    if(process == NULL) {
+	
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] Callbacks::"
+		   << "createProcess(): Process " << argv[0]
+		   << "  could not be created. Does the executable exist?"
+		   << std::endl;
+	    std::cerr << output.str();
+	}
+#endif
+	
+	// Send the frontend a message indicating the thread doesn't exist
+	ThreadNameGroup threads;
+	threads.insert(ThreadName(message.thread));
+	Senders::threadsStateChanged(threads, Nonexistent);
+	
+	return;
+    }
+    
+    // Get the list of threads in this process
+    BPatch_Vector<BPatch_thread*> threads;
+    process->getThreads(threads);
+    Assert(!threads.empty());
+    
+    // Iterate over each thread in this process
+    ThreadNameGroup threads_created;
+    for(int j = 0; j < threads.size(); ++j) {
+	Assert(threads[j] != NULL);
+	
+	// Add this thread to the thread table and group of attached threads
+	ThreadName name(ThreadName(message.thread).getExperiment(), 
+			*(threads[j]));
+	ThreadTable::TheTable.addThread(name, threads[j], pipes);
+	threads_created.insert(name);
+	
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] Callbacks::"
+		   << "createProcess(): Thread { " << toString(name)
+		   << " } was created."
+		   << std::endl;
+	    std::cerr << output.str();
+	}
+#endif
+	
+    }
+    
+    // Were any threads actually created?
+    if(!threads_created.empty()) {
+	
+	// Send the frontend the list of threads that were created
+	Senders::attachedToThreads(threads_created);
+	
+	// Iterate over each thread that was created
+	for(ThreadNameGroup::const_iterator 
+		i = threads_created.begin(); i != threads_created.end(); ++i)
+	    
+	    // Send the frontend all the symbol information for this thread
+	    DyninstCallbacks::sendSymbolsForThread(*i);
+	
+	// Send the frontend a message indicating these threads are suspended
+	Senders::threadsStateChanged(threads_created, Suspended);
+	
+    }
 }
 
 

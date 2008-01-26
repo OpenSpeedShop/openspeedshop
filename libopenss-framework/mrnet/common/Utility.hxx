@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -52,8 +52,9 @@ namespace OpenSpeedShop { namespace Framework {
     std::pair<std::string, std::string>
     parseLibraryFunctionName(const std::string&);
 
+    Path searchForExecutable(const std::string&, const Path&);
     Path searchForLibrary(const Path&);
-
+    
     void convert(const std::string&, char*&);
     void convert(const Blob&, OpenSS_Protocol_Blob&);
 

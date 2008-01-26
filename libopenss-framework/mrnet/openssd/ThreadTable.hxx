@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -30,6 +30,7 @@
 #endif
 
 #include "Lockable.hxx"
+#include "SmartPtr.hxx"
 #include "ThreadName.hxx"
 
 #include <BPatch.h>
@@ -39,6 +40,7 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class StdStreamPipes;
     class ThreadNameGroup;
 
     /**
@@ -63,19 +65,26 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	ThreadTable();
 	
-	void addThread(const ThreadName&, BPatch_thread*);
+	void addThread(const ThreadName&, BPatch_thread*,
+		       const SmartPtr<StdStreamPipes>& = 
+		           SmartPtr<StdStreamPipes>());
 	void removeThread(const ThreadName&, BPatch_thread*);
 	
 	BPatch_thread* getPtr(const ThreadName&) const;
 	ThreadNameGroup getNames(BPatch_thread*) const;
 
+	SmartPtr<StdStreamPipes> getStdStreamPipes(BPatch_thread*) const;
+	
     private:
 
-	// Map thread names to their Dyninst thread object pointer
+	/** Map thread names to their Dyninst thread object pointer. */
 	std::map<ThreadName, BPatch_thread*> dm_name_to_ptr;
 
-	// Map Dyninst thread object pointers to their names
+	/** Map Dyninst thread object pointers to their names. */
 	std::multimap<BPatch_thread*, ThreadName> dm_ptr_to_names;
+
+	/** Map Dyninst thread object pointers to their pipes. */
+	std::map<BPatch_thread*, SmartPtr<StdStreamPipes> > dm_ptr_to_pipes;
 	
     };
 

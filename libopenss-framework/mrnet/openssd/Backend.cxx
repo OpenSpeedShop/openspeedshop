@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -113,18 +113,45 @@ namespace {
 
 	// Instruct Dyninst to give source statement info with full path names
 	bpatch->truncateLineInfoFilenames(false);
-		
+
+	// Note: End of code that would normally be in "openssd.cxx".
+
+	// Get the Dyninst and MRNet file descriptors
+	int bpatch_fd = bpatch->getNotificationFD();
+	int mrnet_fd = network->get_SocketFd();
+	
 	// Run the message pump until instructed to exit
 	for(bool do_exit = false; !do_exit;) {
 
-	    // Give Dyninst the opportunity to poll for any status changes
-	    bpatch->pollForStatusChange();
+	    // Initialize the set of incoming file descriptors
+	    int nfds = 0;
+	    fd_set readfds;
+	    FD_ZERO(&readfds);
+	    nfds = std::max(nfds, bpatch_fd + 1);
+	    FD_SET(bpatch_fd, &readfds);
+	    nfds = std::max(nfds, mrnet_fd + 1);
+	    FD_SET(mrnet_fd, &readfds);
+	    
+	    // Initialize a one second timeout
+	    struct timeval timeout;
+	    timeout.tv_sec = 1;
+	    timeout.tv_usec = 0;
+	    
+ 	    // Wait for file descriptor activity or timeout expiration
+	    int retval = select(nfds, &readfds, NULL, NULL, &timeout);
 
-	    // Receive all available messages from the backends
-	    int retval = 1;
-	    while(retval == 1) {
+	    // Is Dyninst indicating there has been a status change?
+	    if((retval > 0) && (FD_ISSET(bpatch_fd, &readfds))) {
 
-		// Receive the next available message from the backends
+		// Give Dyninst the opportunity to poll for any status changes
+		bpatch->pollForStatusChange();
+		
+	    }
+
+	    // Receive all available messages from the frontend
+	    else while(retval > 0) {
+
+		// Receive the next available message from the frontend
 		int tag = -1;
 		MRN::Stream* stream = NULL;
 		MRN::Packet* packet = NULL;
@@ -138,8 +165,7 @@ namespace {
 		    unsigned size = 0;
 		    Assert(MRN::Stream::unpack(packet, "%auc",
 					       &contents, &size) == 0);
-		    Blob blob = ((size == 0) || (contents == NULL)) ?
-			Blob() : Blob(size, contents);
+		    Blob blob(size, contents);
 		    
 		    // Get the proper callbacks for this message's tag
 		    std::set<MessageCallback> callbacks =
@@ -153,26 +179,20 @@ namespace {
 			(**i)(blob);
 		    
 		}
-
-	    }
 		
+	    }
+	    
 	    // Exit monitor thread if instructed to do so
 	    Assert(pthread_mutex_lock(&monitor_request_exit.lock) == 0);
 	    do_exit = monitor_request_exit.flag;
 	    Assert(pthread_mutex_unlock(&monitor_request_exit.lock) == 0);
-
-	    // Suspend ourselves for one quarter of a second
-	    struct timespec wait;
-	    wait.tv_sec = 0;
-	    wait.tv_nsec = 250000000;  // 250 mS
-	    nanosleep(&wait, NULL);
-	    	    
+	    
 	}
 	
 	// Empty, unused, return value from this thread
 	return NULL;
     }
-        
+    
 
 
 }

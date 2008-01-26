@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -30,6 +30,7 @@
 #include "Path.hxx"
 #include "Protocol.h"
 
+#include <algorithm>
 #include <mrnet/MRNet.h>
 #include <pthread.h>
 #include <set>
@@ -97,16 +98,37 @@ namespace {
      */
     void* monitorThread(void*)
     {
-	// Initialize the tick counter
-        unsigned tick_counter = 0;
+	// Time when performance data was last flushed to databases
+	Time last_flush = Time::Now();
 
+	// Get the file descriptors used by the incoming backend connections
+	int* mrnet_fds = NULL;
+	unsigned int num_mrnet_fds = 0;
+	Assert(network->get_SocketFd(&mrnet_fds, &num_mrnet_fds) == 0);
+	
 	// Run the message pump until instructed to exit
-	for(bool do_exit = false; !do_exit; tick_counter++) {
+	for(bool do_exit = false; !do_exit;) {
 
+	    // Initialize the set of incoming file descriptors
+	    int nfds = 0;	
+	    fd_set readfds;
+	    FD_ZERO(&readfds);
+	    for(unsigned int i = 0; i < num_mrnet_fds; ++i) {
+		nfds = std::max(nfds, mrnet_fds[i] + 1);
+		FD_SET(mrnet_fds[i], &readfds);
+	    }
+	    
+	    // Initialize a one second timeout
+	    struct timeval timeout;
+	    timeout.tv_sec = 1;
+	    timeout.tv_usec = 0;
+
+	    // Wait for file descriptor activity or timeout expiration
+	    int retval = select(nfds, &readfds, NULL, NULL, &timeout);
+	    
 	    // Receive all available messages from the backends
-	    int retval = 1;
-	    while(retval == 1) {
-
+	    while(retval > 0) {
+		
 		// Receive the next available message
 		int tag = -1;
 		MRN::Packet* packet = NULL;
@@ -120,9 +142,8 @@ namespace {
 		    unsigned size = 0;
 		    Assert(MRN::Stream::unpack(packet, "%auc",
 					       &contents, &size) == 0);
-		    Blob blob = ((size == 0) || (contents == NULL)) ?
-			Blob() : Blob(size, contents);
-		    
+		    Blob blob(size, contents);
+			
 		    // Get the proper callbacks for this message's tag
 		    std::set<MessageCallback> callbacks =
 			message_callback_table->getCallbacksByTag(tag);
@@ -135,31 +156,29 @@ namespace {
 			(**i)(blob);
 		    
 		}
-
+		
 	    }
 
-	    // Has one second passed?
-	    if(tick_counter == 4) {
-		tick_counter = 0;
+	    // Has at least one second past since the last flush?
+	    Time now = Time::Now();
+	    if((now - last_flush) >= 1000000000 /* 10^9 nS = 1 sec */) {
+		last_flush = now;
 
 		// Request that all performance data be flushed to databases
 		DataQueues::flushPerformanceData();
-
+		
 	    }
-
+	    
 	    // Exit monitor thread if instructed to do so
 	    Assert(pthread_mutex_lock(&monitor_request_exit.lock) == 0);
 	    do_exit = monitor_request_exit.flag;
 	    Assert(pthread_mutex_unlock(&monitor_request_exit.lock) == 0);
-
-	    // Suspend ourselves for one quarter of a second
-	    struct timespec wait;
-	    wait.tv_sec = 0;
-	    wait.tv_nsec = 250000000;  // 250 mS
-	    nanosleep(&wait, NULL);
-
+	    
 	}
 
+	// Destroy the array of file descriptors
+	delete [] mrnet_fds;
+	
 	// Empty, unused, return value from this thread
 	return NULL;
     }

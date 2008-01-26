@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -23,6 +23,7 @@
  */
 
 #include "Guard.hxx"
+#include "StdStreamPipes.hxx"
 #include "ThreadNameGroup.hxx"
 #include "ThreadTable.hxx"
 #include "Utility.hxx"
@@ -100,7 +101,8 @@ BPatch_thread* ThreadTable::getPtrDirectly(const ThreadName& thread)
 ThreadTable::ThreadTable() :
     Lockable(),
     dm_name_to_ptr(),
-    dm_ptr_to_names()
+    dm_ptr_to_names(),
+    dm_ptr_to_pipes()
 {
 }
 
@@ -110,15 +112,18 @@ ThreadTable::ThreadTable() :
  * Add a thread.
  *
  * Adds the passed thread, and the corresponding Dyninst thread object pointer,
- * to this thread table.
+ * to this thread table. Standard stream pipes can also optionally be associated
+ * with this thread.
  *
  * @note    An assertion failure occurs if an attempt is made to add a thread
  *          more than once.
  *
  * @param thread    Thread to be added.
  * @param ptr       Dyninst thread object pointer.
+ * @param pipes     Pipes associated with the standard streams of this thread.
  */
-void ThreadTable::addThread(const ThreadName& thread, BPatch_thread* ptr)
+void ThreadTable::addThread(const ThreadName& thread, BPatch_thread* ptr,
+			    const SmartPtr<StdStreamPipes>& pipes)
 {
     Guard guard_myself(this);
 
@@ -130,14 +135,18 @@ void ThreadTable::addThread(const ThreadName& thread, BPatch_thread* ptr)
     for(; j != dm_ptr_to_names.upper_bound(ptr); ++j)
 	if(j->second == thread)
 	    break;
+    std::map<BPatch_thread*, SmartPtr<StdStreamPipes> >::const_iterator k =
+	dm_ptr_to_pipes.find(ptr);
     
     // Check assertions
     Assert(i == dm_name_to_ptr.end());
     Assert(j == dm_ptr_to_names.upper_bound(ptr));
+    Assert((k == dm_ptr_to_pipes.end()) || (k->second == pipes));
     
     // Add this thread
     dm_name_to_ptr.insert(std::make_pair(thread, ptr));
     dm_ptr_to_names.insert(std::make_pair(ptr, thread));
+    dm_ptr_to_pipes.insert(std::make_pair(ptr, pipes));
 }
 
 
@@ -164,14 +173,19 @@ void ThreadTable::removeThread(const ThreadName& thread, BPatch_thread* ptr)
     for(; j != dm_ptr_to_names.upper_bound(ptr); ++j)
 	if(j->second == thread)
 	    break;
+    std::map<BPatch_thread*, SmartPtr<StdStreamPipes> >::iterator k =
+	dm_ptr_to_pipes.find(ptr);
     
     // Check assertions
     Assert(i != dm_name_to_ptr.end());
     Assert(j != dm_ptr_to_names.upper_bound(ptr));
+    Assert(k != dm_ptr_to_pipes.end());
     
     // Remove this thread
     dm_name_to_ptr.erase(i);
     dm_ptr_to_names.erase(j);
+    if(dm_ptr_to_names.count(ptr) == 0)
+	dm_ptr_to_pipes.erase(k);
 }
 
 
@@ -222,4 +236,29 @@ ThreadNameGroup ThreadTable::getNames(BPatch_thread* ptr) const
     
     // Return the thread names to the caller
     return names;
+}
+
+
+
+/**
+ * Get standard stream pipes for a Dyninst thread object pointer.
+ *
+ * Returns the standard stream pipes for the specified Dyninst thread object
+ * pointer. A null pointer is returned if the pointer cannot be found.
+ *
+ * @param ptr    Dyninst thread object pointer whose pipes are to be found.
+ * @return       Standard stream pipes for that pointer.
+ */
+SmartPtr<StdStreamPipes>
+ThreadTable::getStdStreamPipes(BPatch_thread* ptr) const
+{    
+    Guard guard_myself(this);
+
+    // Find the entry (if any) for this Dyninst thread object pointer
+    std::map<BPatch_thread*, SmartPtr<StdStreamPipes> >::const_iterator i =
+	dm_ptr_to_pipes.find(ptr);
+
+    // Return the pipes to the caller
+    return (i != dm_ptr_to_pipes.end()) ? 
+	i->second : SmartPtr<StdStreamPipes>();
 }

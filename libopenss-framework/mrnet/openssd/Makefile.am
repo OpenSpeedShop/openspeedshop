@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -63,6 +63,7 @@ openssd_SOURCES = \
 	openssd.cxx \
 	Senders.hxx Senders.cxx \
 	SentFilesTable.hxx SentFilesTable.cxx \
+	StdStreamPipes.hxx StdStreamPipes.cxx \
 	StopAtEntryOrExitEntry.hxx StopAtEntryOrExitEntry.cxx \
 	SymbolTable.hxx SymbolTable.cxx \
 	ThreadName.hxx \

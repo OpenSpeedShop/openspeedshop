@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -259,11 +259,9 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread)
     if(i == dm_threads.end())
 	return;
 
-    //
     // Note: Ideally we'd use a reverse iterators here, but unfortunately
     //       the GCC 3.4.x compilers don't seem to support such iterators
     //       on STL vectors. For now we use simply index notion instead.
-    //
     
     // Iterate over each collector with instrumentation in this thread
     for(std::map<Collector, InstrumentationList>::const_iterator
@@ -332,11 +330,9 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread,
     if(j == i->second.dm_collectors.end())
 	return;
 
-    //
     // Note: Ideally we'd use a reverse iterator here, but unfortunately
     //       the GCC 3.4.x compilers don't seem to support such iterators
     //       on STL vectors. For now we use simply index notion instead.
-    //
 
     // Iterate over all instrumentation associated with this collector
     for(InstrumentationList::size_type k = j->second.size(); k > 0; --k) {
