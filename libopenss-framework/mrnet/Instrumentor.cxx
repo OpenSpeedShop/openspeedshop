@@ -22,7 +22,9 @@
  *
  */
 
+#include "Blob.hxx"
 #include "Callbacks.hxx"
+#include "EntrySpy.hxx"
 #include "Frontend.hxx"
 #include "Guard.hxx"
 #include "Instrumentor.hxx"
@@ -206,7 +208,41 @@ void Instrumentor::create(const Thread& thread,
 			  const OutputCallback stdout_cb,
 			  const OutputCallback stderr_cb)
 {
-    // TODO: implement!
+    // Add this thread to the thread table
+    ThreadTable::TheTable.addThread(thread);
+
+    //
+    // Update the thread's process identifier to be the negative of the
+    // thread's identifier. This is a placeholder value that is replaced
+    // with the real process identifier by Callbacks::createdProcess().
+    // 
+   
+    SmartPtr<Database> database = EntrySpy(thread).getDatabase();
+    BEGIN_WRITE_TRANSACTION(database);
+    database->prepareStatement("UPDATE Threads SET pid = ? WHERE id = ?;");
+    database->bindArgument(1, - EntrySpy(thread).getEntry());
+    database->bindArgument(2, EntrySpy(thread).getEntry());
+    while(database->executeStatement());    
+    END_TRANSACTION(database);
+
+    // TODO: register the callbacks
+
+    // Declare access to the external environment variables
+    extern char** environ;
+
+    // Assemble the environment variables into a single concatenated buffer
+    unsigned env_size = 0;
+    for(int i = 0; environ[i] != NULL; ++i)
+	env_size += strlen(environ[i]) + 1;
+    char* env = new char[env_size];
+    for(int i = 0, j = 0; environ[j] != NULL; i += strlen(environ[j]) + 1, ++j)
+	strcpy(&(env[i]), environ[j]);
+    
+    // Request the process be created
+    Senders::createProcess(thread, command, Blob(env_size, env));
+
+    // Destroy the concatenated environment variable buffer
+    delete [] env;
 }
 
 

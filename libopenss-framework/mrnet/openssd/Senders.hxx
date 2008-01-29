@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -60,6 +60,7 @@ namespace OpenSpeedShop { namespace Framework {
     namespace Senders
     {
 	void attachedToThreads(const ThreadNameGroup&);
+	void createdProcess(const ThreadName&, const ThreadName&);
 	void globalIntegerValue(const ThreadName&, const std::string&,
 				const int64_t&);
 	void globalJobValue(const ThreadName&, const std::string&,
@@ -70,6 +71,8 @@ namespace OpenSpeedShop { namespace Framework {
 				const AddressRange&, const FileName&,
 				const bool&);
 	void reportError(const std::string&);
+	void stdErr(const ThreadName&, const Blob&);
+	void stdOut(const ThreadName&, const Blob&);
 	void symbolTable(const ExperimentGroup&, const FileName&,
 			 const SymbolTable&);
 	void threadsStateChanged(const ThreadNameGroup&,

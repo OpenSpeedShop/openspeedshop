@@ -234,6 +234,47 @@ void Callbacks::attachedToThreads(const Blob& blob)
 
 
 /**
+ * Created a process.
+ *
+ * Callback function called by the frontend message pump when a message that
+ * indicates a process was created is received. Updates the experiment databases
+ * as necessary.
+ *
+ * @param blob    Blob containing the message.
+ */
+void Callbacks::createdProcess(const Blob& blob)
+{
+    // Decode the message
+    OpenSS_Protocol_CreatedProcess message;
+    memset(&message, 0, sizeof(message));
+    blob.getXDRDecoding(
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_CreatedProcess),
+	&message
+	);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
+    // Update the thread with its real process identifier
+    SmartPtr<Database> database = 
+	DataQueues::getDatabase(message.original_thread.experiment);
+    BEGIN_WRITE_TRANSACTION(database);
+    database->prepareStatement("UPDATE Threads SET pid = ? WHERE id = ?;");
+    database->bindArgument(1, - static_cast<int>(message.original_thread.pid));
+    database->bindArgument(2, static_cast<int>(message.created_thread.pid));
+    while(database->executeStatement());
+    END_TRANSACTION(database);
+}
+
+
+
+/**
  * Value of an integer global variable.
  *
  * ...
@@ -454,6 +495,68 @@ void Callbacks::reportError(const Blob& blob)
 
     // Display the message to the stderr stream
     std::cerr << "openssd: " << message.text << std::endl;
+}
+
+
+
+/**
+ * Standard error stream.
+ *
+ * ...
+ *
+ * @param blob    Blob containing the message.
+ */
+void Callbacks::stdErr(const Blob& blob)
+{
+    // Decode the message
+    OpenSS_Protocol_StdErr message;
+    memset(&message, 0, sizeof(message));
+    blob.getXDRDecoding(
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_StdErr),
+	&message
+	);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
+    // TODO: implement!
+}
+
+
+
+/**
+ * Standard output stream.
+ *
+ * ...
+ *
+ * @param blob    Blob containing the message.
+ */
+void Callbacks::stdOut(const Blob& blob)
+{
+    // Decode the message
+    OpenSS_Protocol_StdOut message;
+    memset(&message, 0, sizeof(message));
+    blob.getXDRDecoding(
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_StdOut),
+	&message
+	);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
+    // TODO: implement!
 }
 
 

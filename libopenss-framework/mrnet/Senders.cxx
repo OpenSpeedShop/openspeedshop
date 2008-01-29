@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -719,6 +719,55 @@ void Senders::setGlobalInteger(const Thread& thread,
     // Destroy the message
     xdr_free(
 	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_SetGlobalInteger),
+	reinterpret_cast<char*>(&message)
+	);
+}
+
+
+
+/**
+ * Standard input stream.
+ *
+ * Issue a request to the backends that data be written to the standard input
+ * stream of a created process.
+ *
+ * @param thread    Thread whose standard input stream should be written.
+ * @param data      Data to be written.
+ */
+void Senders::stdIn(const Thread& thread, const Blob& data)
+{
+    // Assemble the request into a message
+    OpenSS_Protocol_StdIn message;
+    ::convert(thread, message.thread);
+    OpenSpeedShop::Framework::convert(data, message.data);
+    
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
+    // Encode the message into a blob
+    Blob blob(
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_StdIn),
+	&message
+	);
+
+    // Send the encoded message to the appropriate backends
+    OpenSS_Protocol_ThreadNameGroup threads;
+    ::convert(thread, threads);
+    Frontend::sendToBackends(OPENSS_PROTOCOL_TAG_STDIN, blob, threads);
+    xdr_free(
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_ThreadNameGroup),
+	reinterpret_cast<char*>(&threads)
+	);
+    
+    // Destroy the message
+    xdr_free(
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_StdIn),
 	reinterpret_cast<char*>(&message)
 	);
 }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -67,6 +67,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void getMPICHProcTable(const Thread&);
 	void setGlobalInteger(const Thread&, const std::string&,
 			      const int64_t&);
+	void stdIn(const Thread&, const Blob&);
 	void stopAtEntryOrExit(const ThreadGroup&,
 			       const std::string&, const bool&);
 	void uninstrument(const ThreadGroup&, const Collector&);

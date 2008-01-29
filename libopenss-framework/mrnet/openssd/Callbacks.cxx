@@ -435,7 +435,7 @@ void Callbacks::createProcess(const Blob& blob)
 	
 	return;
     }
-    
+
     // Get the list of threads in this process
     BPatch_Vector<BPatch_thread*> threads;
     process->getThreads(threads);
@@ -467,7 +467,14 @@ void Callbacks::createProcess(const Blob& blob)
     
     // Were any threads actually created?
     if(!threads_created.empty()) {
-	
+
+	// Send the frontend the process that was created
+	Senders::createdProcess(ThreadName(message.thread),
+				ThreadName(message.thread.experiment,
+					   getCanonicalName(getLocalHost()),
+					   process->getPid(),
+					   std::make_pair(false, 0)));
+    	
 	// Send the frontend the list of threads that were created
 	Senders::attachedToThreads(threads_created);
 	
@@ -821,6 +828,37 @@ void Callbacks::setGlobalInteger(const Blob& blob)
     }
 #endif
 
+    // TODO: implement!
+}
+
+
+
+/**
+ * Standard input stream.
+ *
+ * ...
+ *
+ * @param blob    Blob containing the message.
+ */
+void Callbacks::stdIn(const Blob& blob)
+{
+    // Decode the message
+    OpenSS_Protocol_StdIn message;
+    memset(&message, 0, sizeof(message));
+    blob.getXDRDecoding(
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_StdIn),
+	&message
+	);
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+    
     // TODO: implement!
 }
 

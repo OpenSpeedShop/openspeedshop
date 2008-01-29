@@ -31,6 +31,7 @@
 
 #include "Lockable.hxx"
 #include "SmartPtr.hxx"
+#include "StdStreamPipes.hxx"
 #include "ThreadName.hxx"
 
 #include <BPatch.h>
@@ -40,7 +41,6 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
-    class StdStreamPipes;
     class ThreadNameGroup;
 
     /**

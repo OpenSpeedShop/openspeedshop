@@ -830,6 +830,29 @@ std::string OpenSpeedShop::Framework::toString(
 
 
 /**
+ * Conversion from OpenSS_Protocol_CreatedProcess to std::string.
+ *
+ * Returns the conversion of an OpenSS_Protocol_CreatedProcess message into a
+ * std::string.
+ *
+ * @param message    Message to be converted.
+ * @return           String conversion of that message.
+ */
+std::string OpenSpeedShop::Framework::toString(
+    const OpenSS_Protocol_CreatedProcess& message
+    )
+{
+    std::stringstream output;
+    output << "createdProcess(" << std::endl
+	   << "    " << toString(message.original_thread) << ", "
+	   << "    " << toString(message.created_thread) << ", "
+	   << ")" << std::endl;
+    return output.str();
+}
+
+
+
+/**
  * Conversion from OpenSS_Protocol_DetachFromThreads to std::string.
  *
  * Returns the conversion of an OpenSS_Protocol_DetachFromThreads message
@@ -946,7 +969,7 @@ std::string OpenSpeedShop::Framework::toString(
 {
     std::stringstream output;
     output << "getGlobalInteger("
-	   << toString(message.thread) << ", "
+	   << "    " << toString(message.thread) << ", "
 	   << "\"" << message.global << "\""
 	   << ")" << std::endl;
     return output.str();
@@ -969,7 +992,7 @@ std::string OpenSpeedShop::Framework::toString(
 {
     std::stringstream output;
     output << "getGlobalString("
-	   << toString(message.thread) << ", "
+	   << "    " << toString(message.thread) << ", "
 	   << "\"" << message.global << "\""
 	   << ")" << std::endl;
     return output.str();
@@ -992,7 +1015,7 @@ std::string OpenSpeedShop::Framework::toString(
 {
     std::stringstream output;
     output << "getMPICHProcTable("
-	   << toString(message.thread)
+	   << "    " << toString(message.thread)
 	   << ")" << std::endl;
     return output.str();
 }
@@ -1134,12 +1157,81 @@ std::string OpenSpeedShop::Framework::toString(
 {
     std::stringstream output;
     output << "setGlobalString("
-	   << toString(message.thread) << ", "
+	   << "    " << toString(message.thread) << ", "
 	   << "\"" << message.global << "\", "
 	   << message.value 
 	   << ")" << std::endl;
     return output.str();
 }
+
+
+
+/**
+ * Conversion from OpenSS_Protocol_StdErr to std::string.
+ *
+ * Returns the conversion of an OpenSS_Protocol_StdErr message into a
+ * std::string.
+ *
+ * @param message    Message to be converted.
+ * @return           String conversion of that message.
+ */
+std::string OpenSpeedShop::Framework::toString(
+    const OpenSS_Protocol_StdErr& message
+    )
+{
+    std::stringstream output;
+    output << "stdErr(" << std::endl
+	   << "    " << toString(message.thread) << ", "
+	   << toString(message.data) << std::endl
+	   << ")" << std::endl;
+    return output.str();
+} 
+
+
+
+/**
+ * Conversion from OpenSS_Protocol_StdIn to std::string.
+ *
+ * Returns the conversion of an OpenSS_Protocol_StdIn message into a
+ * std::string.
+ *
+ * @param message    Message to be converted.
+ * @return           String conversion of that message.
+ */
+std::string OpenSpeedShop::Framework::toString(
+    const OpenSS_Protocol_StdIn& message
+    )
+{
+    std::stringstream output;
+    output << "stdIn(" << std::endl
+	   << "    " << toString(message.thread) << ", "
+	   << toString(message.data) << std::endl
+	   << ")" << std::endl;
+    return output.str();
+} 
+
+
+
+/**
+ * Conversion from OpenSS_Protocol_StdOut to std::string.
+ *
+ * Returns the conversion of an OpenSS_Protocol_StdOut message into a
+ * std::string.
+ *
+ * @param message    Message to be converted.
+ * @return           String conversion of that message.
+ */
+std::string OpenSpeedShop::Framework::toString(
+    const OpenSS_Protocol_StdOut& message
+    )
+{
+    std::stringstream output;
+    output << "stdOut(" << std::endl
+	   << "    " << toString(message.thread) << ", "
+	   << toString(message.data) << std::endl
+	   << ")" << std::endl;
+    return output.str();
+} 
 
 
 

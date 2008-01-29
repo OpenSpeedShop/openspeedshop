@@ -77,6 +77,7 @@ namespace OpenSpeedShop { namespace Framework {
     std::string toString(const OpenSS_Protocol_AttachedToThreads&);
     std::string toString(const OpenSS_Protocol_ChangeThreadsState&);
     std::string toString(const OpenSS_Protocol_CreateProcess&);
+    std::string toString(const OpenSS_Protocol_CreatedProcess&);
     std::string toString(const OpenSS_Protocol_DetachFromThreads&);
     std::string toString(const OpenSS_Protocol_ExecuteNow&);
     std::string toString(const OpenSS_Protocol_ExecuteAtEntryOrExit&);
@@ -90,6 +91,9 @@ namespace OpenSpeedShop { namespace Framework {
     std::string toString(const OpenSS_Protocol_LoadedLinkedObject&);
     std::string toString(const OpenSS_Protocol_ReportError&);
     std::string toString(const OpenSS_Protocol_SetGlobalInteger&);
+    std::string toString(const OpenSS_Protocol_StdIn&);
+    std::string toString(const OpenSS_Protocol_StdErr&);
+    std::string toString(const OpenSS_Protocol_StdOut&);
     std::string toString(const OpenSS_Protocol_StopAtEntryOrExit&);
     std::string toString(const OpenSS_Protocol_SymbolTable&,
 			 const bool& = true);

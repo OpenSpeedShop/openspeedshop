@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+** Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 **
 ** This program is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU General Public License as published by the Free Software
@@ -328,28 +328,33 @@ typedef uint64_t OpenSS_Protocol_Time;
 %#define OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREADS                ((int)1101)
 %#define OPENSS_PROTOCOL_TAG_CHANGE_THREADS_STATE               ((int)1102)
 %#define OPENSS_PROTOCOL_TAG_CREATE_PROCESS                     ((int)1103)
-%#define OPENSS_PROTOCOL_TAG_DETACH_FROM_THREADS                ((int)1104)
+%#define OPENSS_PROTOCOL_TAG_CREATED_PROCESS                    ((int)1104)
 %
-%#define OPENSS_PROTOCOL_TAG_EXECUTE_NOW                        ((int)1105)
-%#define OPENSS_PROTOCOL_TAG_EXECUTE_AT_ENTRY_OR_EXIT           ((int)1106)
-%#define OPENSS_PROTOCOL_TAG_EXECUTE_IN_PLACE_OF                ((int)1107)
-%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_INTEGER                 ((int)1108)
-%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_STRING                  ((int)1109)
+%#define OPENSS_PROTOCOL_TAG_DETACH_FROM_THREADS                ((int)1105)
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_NOW                        ((int)1106)
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_AT_ENTRY_OR_EXIT           ((int)1107)
+%#define OPENSS_PROTOCOL_TAG_EXECUTE_IN_PLACE_OF                ((int)1108)
+%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_INTEGER                 ((int)1109)
 %
-%#define OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE               ((int)1110)
-%#define OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE               ((int)1111)
-%#define OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE                   ((int)1112)
-%#define OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE                ((int)1113)
-%#define OPENSS_PROTOCOL_TAG_LOADED_LINKED_OBJECT               ((int)1114)
+%#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_STRING                  ((int)1110)
+%#define OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE               ((int)1111)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE               ((int)1112)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE                   ((int)1113)
+%#define OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE                ((int)1114)
 %
-%#define OPENSS_PROTOCOL_TAG_REPORT_ERROR                       ((int)1115)
-%#define OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER                 ((int)1116)
-%#define OPENSS_PROTOCOL_TAG_STOP_AT_ENTRY_OR_EXIT              ((int)1117)
-%#define OPENSS_PROTOCOL_TAG_SYMBOL_TABLE                       ((int)1118)
-%#define OPENSS_PROTOCOL_TAG_THREADS_STATE_CHANGED              ((int)1119)
+%#define OPENSS_PROTOCOL_TAG_LOADED_LINKED_OBJECT               ((int)1115)
+%#define OPENSS_PROTOCOL_TAG_REPORT_ERROR                       ((int)1116)
+%#define OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER                 ((int)1117)
+%#define OPENSS_PROTOCOL_TAG_STDERR                             ((int)1118)
+%#define OPENSS_PROTOCOL_TAG_STDIN                              ((int)1119)
 %
-%#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)1120)
-%#define OPENSS_PROTOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)1121)
+%#define OPENSS_PROTOCOL_TAG_STDOUT                             ((int)1120)
+%#define OPENSS_PROTOCOL_TAG_STOP_AT_ENTRY_OR_EXIT              ((int)1121)
+%#define OPENSS_PROTOCOL_TAG_SYMBOL_TABLE                       ((int)1122)
+%#define OPENSS_PROTOCOL_TAG_THREADS_STATE_CHANGED              ((int)1123)
+%#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)1124)
+%
+%#define OPENSS_PROTOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)1125)
 %
 %#define OPENSS_PROTOCOL_TAG_PERFORMANCE_DATA                   ((int)10000)
 
@@ -422,6 +427,24 @@ struct OpenSS_Protocol_CreateProcess
 
     /** Environment in which to execute the command. */
     OpenSS_Protocol_Blob environment;
+};
+
+
+
+/**
+ * Created a process.
+ *
+ * Issued by a backend to indicate the specified process was created.
+ *
+ * @note    Sent only in response to a CreateProcess request.
+ */
+struct OpenSS_Protocol_CreatedProcess
+{
+    /** Original thread as specfied in the CreateProcess request. */
+    OpenSS_Protocol_ThreadName original_thread;
+
+    /** Process that was created. */
+    OpenSS_Protocol_ThreadName created_thread;
 };
 
 
@@ -713,6 +736,60 @@ struct OpenSS_Protocol_SetGlobalInteger
 
     /** New value of that variable. */
     int64_t value;
+};
+
+
+
+/**
+ * Standard error stream.
+ *
+ * Issued by a backend to indicate that data was received on a created process'
+ * standard error stream. Includes the data and the thread that generated that
+ * data.
+ */
+struct OpenSS_Protocol_StdErr
+{
+    /** Thread which generated the data on its standard error stream. */
+    OpenSS_Protocol_ThreadName thread;
+
+    /** Data that was generated. */
+    OpenSS_Protocol_Blob data;
+};
+
+
+
+/**
+ * Standard input stream.
+ *
+ * Issued by the frontend to request that data be written to the standard input
+ * stream of a created process. Includes the data and the thread that should
+ * receive that data.
+ */
+struct OpenSS_Protocol_StdIn
+{
+    /** Thread whose standard input stream should be written. */
+    OpenSS_Protocol_ThreadName thread;
+
+    /** Data to be written. */
+    OpenSS_Protocol_Blob data;
+};
+
+
+
+/**
+ * Standard output stream.
+ *
+ * Issued by a backend to indicate that data was received on a created process'
+ * standard output stream. Includes the data and the thread that generated that
+ * data.
+ */
+struct OpenSS_Protocol_StdOut
+{
+    /** Thread which generated the data on its standard output stream. */
+    OpenSS_Protocol_ThreadName thread;
+
+    /** Data that was generated. */
+    OpenSS_Protocol_Blob data;
 };
 
 

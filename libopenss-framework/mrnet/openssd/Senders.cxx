@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -115,6 +115,51 @@ void Senders::attachedToThreads(const ThreadNameGroup& threads)
     // Destroy the message
     xdr_free(
         reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_AttachedToThreads),
+	reinterpret_cast<char*>(&message)
+	);    
+}
+
+
+
+/**
+ * Created a process.
+ *
+ * Issue a message to the frontend to indicate the specified process was
+ * created.
+ *
+ * @param original_thread    Original thread as specified in the
+ *                           CreateProcess requesdt.
+ * @param created_thread     Process that was created.
+ */
+void Senders::createdProcess(const ThreadName& original_thread,
+			     const ThreadName& created_thread)
+{
+    // Assemble the request into a message
+    OpenSS_Protocol_CreatedProcess message;
+    message.original_thread = original_thread;
+    message.created_thread = created_thread;
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
+    // Encode the message into a blob
+    Blob blob(
+        reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_CreatedProcess),
+	&message
+	);
+
+    // Send the encoded message to the frontend
+    Backend::sendToFrontend(OPENSS_PROTOCOL_TAG_CREATED_PROCESS, blob);
+
+    // Destroy the message
+    xdr_free(
+        reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_CreatedProcess),
 	reinterpret_cast<char*>(&message)
 	);    
 }
@@ -352,6 +397,94 @@ void Senders::reportError(const std::string& text)
     // Destroy the message
     xdr_free(
         reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_ReportError),
+	reinterpret_cast<char*>(&message)
+	);    
+}
+
+
+
+/**
+ * Standard error stream.
+ *
+ * Issue a request to the backends that data be written to the standard error
+ * stream of a created process.
+ *
+ * @param thread    Thread which generated the data on its standard error
+ *                  stream.
+ * @param data      Data that was generated.
+ */
+void Senders::stdErr(const ThreadName& thread, const Blob& data)
+{
+    // Assemble the request into a message
+    OpenSS_Protocol_StdErr message;
+    message.thread = thread;
+    OpenSpeedShop::Framework::convert(data, message.data);
+    
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
+    // Encode the message into a blob
+    Blob blob(
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_StdErr),
+	&message
+	);
+
+    // Send the encoded message to the frontend
+    Backend::sendToFrontend(OPENSS_PROTOCOL_TAG_STDERR, blob);
+
+    // Destroy the message
+    xdr_free(
+        reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_StdErr),
+	reinterpret_cast<char*>(&message)
+	);    
+}
+
+
+
+/**
+ * Standard output stream.
+ *
+ * Issue a request to the backends that data be written to the standard output
+ * stream of a created process.
+ *
+ * @param thread    Thread which generated the data on its standard output
+ *                  stream.
+ * @param data      Data that was generated.
+ */
+void Senders::stdOut(const ThreadName& thread, const Blob& data)
+{
+    // Assemble the request into a message
+    OpenSS_Protocol_StdOut message;
+    message.thread = thread;
+    OpenSpeedShop::Framework::convert(data, message.data);
+    
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
+    // Encode the message into a blob
+    Blob blob(
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_StdOut),
+	&message
+	);
+
+    // Send the encoded message to the frontend
+    Backend::sendToFrontend(OPENSS_PROTOCOL_TAG_STDOUT, blob);
+
+    // Destroy the message
+    xdr_free(
+        reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_StdOut),
 	reinterpret_cast<char*>(&message)
 	);    
 }
