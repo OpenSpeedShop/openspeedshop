@@ -27,6 +27,9 @@
 #include "DyninstCallbacks.hxx"
 #include "MessageCallbackTable.hxx"
 #include "Protocol.h"
+#include "Senders.hxx"
+#include "ThreadNameGroup.hxx"
+#include "ThreadTable.hxx"
 
 #include <mrnet/MRNet.h>
 #include <stdexcept>
@@ -63,7 +66,7 @@ namespace {
 
     /** Flag indicating if symbols debugging is enabled. */
     bool is_symbols_debug_enabled = false;
-#endif    
+#endif
 
 
 
@@ -116,6 +119,9 @@ namespace {
 
 	// Note: End of code that would normally be in "openssd.cxx".
 
+	// Declare the buffer used when reading stdout/stderr streams
+	static char stream_buffer[4 * 1024];
+
 	// Get the Dyninst and MRNet file descriptors
 	int bpatch_fd = bpatch->getNotificationFD();
 	int mrnet_fd = network->get_SocketFd();
@@ -123,12 +129,26 @@ namespace {
 	// Run the message pump until instructed to exit
 	for(bool do_exit = false; !do_exit;) {
 
+	    // Get the file descriptors used to monitor stdout/stderr streams
+	    std::set<int> stdout_fds = ThreadTable::TheTable.getStdOutFDs();
+	    std::set<int> stderr_fds = ThreadTable::TheTable.getStdErrFDs();
+
 	    // Initialize the set of incoming file descriptors
 	    int nfds = 0;
 	    fd_set readfds;
 	    FD_ZERO(&readfds);
 	    nfds = std::max(nfds, bpatch_fd + 1);
 	    FD_SET(bpatch_fd, &readfds);
+	    for(std::set<int>::const_iterator
+		    i = stdout_fds.begin(); i != stdout_fds.end(); ++i) {
+		nfds = std::max(nfds, *i);
+		FD_SET(*i, &readfds);
+	    }
+	    for(std::set<int>::const_iterator
+		    i = stderr_fds.begin(); i != stderr_fds.end(); ++i) {
+		nfds = std::max(nfds, *i);
+		FD_SET(*i, &readfds);
+	    }
 	    nfds = std::max(nfds, mrnet_fd + 1);
 	    FD_SET(mrnet_fd, &readfds);
 	    
@@ -140,18 +160,10 @@ namespace {
  	    // Wait for file descriptor activity or timeout expiration
 	    int retval = select(nfds, &readfds, NULL, NULL, &timeout);
 
-	    // Is Dyninst indicating there has been a status change?
-	    if((retval > 0) && (FD_ISSET(bpatch_fd, &readfds))) {
+	    // Is there data available on the incoming frontend connection?
+	    if((retval > 0) && FD_ISSET(mrnet_fd, &readfds)) {
 
-		// Give Dyninst the opportunity to poll for any status changes
-		bpatch->pollForStatusChange();
-		
-	    }
-
-	    // Receive all available messages from the frontend
-	    else while(retval > 0) {
-
-		// Receive the next available message from the frontend
+		// Receive the next available message
 		int tag = -1;
 		MRN::Stream* stream = NULL;
 		MRN::Packet* packet = NULL;
@@ -174,13 +186,61 @@ namespace {
 		    // Iterate over the callbacks
 		    for(std::set<MessageCallback>::const_iterator
 			    i = callbacks.begin(); i != callbacks.end(); ++i)
-			
+			    
 			// Dispatch the message to this callback
 			(**i)(blob);
 		    
 		}
 		
 	    }
+
+	    // Is Dyninst indicating there has been a status change?
+	    if((retval > 0) && (FD_ISSET(bpatch_fd, &readfds))) {
+
+		// Give Dyninst the opportunity to poll for any status changes
+		bpatch->pollForStatusChange();
+		
+	    }
+
+	    // Handle any data available on incoming stdout streams
+	    for(std::set<int>::const_iterator
+		    i = stdout_fds.begin(); i != stdout_fds.end(); ++i)
+		if((retval > 0) && FD_ISSET(*i, &readfds)) {
+
+		    // Get the thread names for this stdout stream
+		    ThreadNameGroup names = ThreadTable::TheTable.getNames(*i);
+		    
+		    // Read from the stream into the stream buffer
+		    int retval = read(*i, stream_buffer, sizeof(stream_buffer));
+		    Assert((retval >= 0) || 
+			   ((retval == -1) && (errno == EINTR)));
+		    
+		    // Send contents (if any) to the frontend
+		    if((retval > 0) && (!names.empty()))
+			Senders::stdOut(*(names.begin()),
+					Blob(retval, stream_buffer));
+		    
+		}
+
+	    // Handle any data available on incoming stderr streams
+	    for(std::set<int>::const_iterator
+		    i = stderr_fds.begin(); i != stderr_fds.end(); ++i)
+		if((retval > 0) && FD_ISSET(*i, &readfds)) {
+
+		    // Get the thread names for this stderr stream
+		    ThreadNameGroup names = ThreadTable::TheTable.getNames(*i);
+		    
+		    // Read from the stream into the stream buffer
+		    int retval = read(*i, stream_buffer, sizeof(stream_buffer));
+		    Assert((retval >= 0) || 
+			   ((retval == -1) && (errno == EINTR)));
+		    
+		    // Send contents (if any) to the frontend
+		    if((retval > 0) && (!names.empty()))
+			Senders::stdErr(*(names.begin()),
+					Blob(retval, stream_buffer));
+
+		}
 	    
 	    // Exit monitor thread if instructed to do so
 	    Assert(pthread_mutex_lock(&monitor_request_exit.lock) == 0);

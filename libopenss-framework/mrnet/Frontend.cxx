@@ -125,9 +125,9 @@ namespace {
 
 	    // Wait for file descriptor activity or timeout expiration
 	    int retval = select(nfds, &readfds, NULL, NULL, &timeout);
-	    
-	    // Receive all available messages from the backends
-	    while(retval > 0) {
+
+	    // Is there data available on the incoming backend connections?
+	    if(retval > 0) {
 		
 		// Receive the next available message
 		int tag = -1;

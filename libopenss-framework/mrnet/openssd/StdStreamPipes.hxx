@@ -29,6 +29,10 @@
 #include "config.h"
 #endif
 
+#include "Assert.hxx"
+
+#include <unistd.h>
+
 
 
 namespace OpenSpeedShop { namespace Framework {
@@ -38,7 +42,7 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * Encapsulates a set of pipes, and their associated file descriptors, used
      * to write/read data to/from a Dyninst-created process' stdin, stdout, and
-     * stderr streams ...
+     * stderr streams.
      *
      * @ingroup Implementation
      */
@@ -47,25 +51,72 @@ namespace OpenSpeedShop { namespace Framework {
 	
     public:
 
-	StdStreamPipes();
-	~StdStreamPipes();
+	/** Default constructor. */
+	StdStreamPipes() :
+	    dm_stdin_pipe_fds(),
+	    dm_stdout_pipe_fds(),
+	    dm_stderr_pipe_fds()
+	{
+	    // Setup the pipe used to write the process' stdin stream
+	    Assert(pipe(dm_stdin_pipe_fds) == 0);
+	    
+	    // Setup the pipe used to read the process' stdout stream
+	    Assert(pipe(dm_stdout_pipe_fds) == 0);
+	    
+	    // Setup the pipe used to read the process' stderr stream
+	    Assert(pipe(dm_stderr_pipe_fds) == 0);
+	}
 
-	/** Read-only data member acessor function. */
-	int getStdinForCreatedProcess() const
+	/** Destructor. */
+	~StdStreamPipes()
+	{
+	    // Close the pipe used to write the process' stdin stream
+	    Assert(close(dm_stdin_pipe_fds[0]) == 0);
+	    Assert(close(dm_stdin_pipe_fds[1]) == 0);
+	    
+	    // Close the pipe used to read the process' stdout stream
+	    Assert(close(dm_stdout_pipe_fds[0]) == 0);
+	    Assert(close(dm_stdout_pipe_fds[1]) == 0);
+	    
+	    // Close the pipe used to read the process' stderr stream
+	    Assert(close(dm_stderr_pipe_fds[0]) == 0);
+	    Assert(close(dm_stderr_pipe_fds[1]) == 0);
+	}
+
+	/** Read-only data member accessor function. */
+	int getStdInForCreatedProcess() const
 	{
 	    return dm_stdin_pipe_fds[0];
 	}
 
-	/** Read-only data member acessor function. */
-	int getStdoutForCreatedProcess() const
+	/** Read-only data member accessor function. */
+	int getStdInForBackend() const
+	{
+	    return dm_stdin_pipe_fds[1];
+	}
+
+	/** Read-only data member accessor function. */
+	int getStdOutForCreatedProcess() const
 	{
 	    return dm_stdout_pipe_fds[1];
 	}
 
-	/** Read-only data member acessor function. */
-	int getStderrForCreatedProcess() const
+	/** Read-only data member accessor function. */
+	int getStdOutForBackend() const
+	{
+	    return dm_stdout_pipe_fds[0];
+	}
+
+	/** Read-only data member accessor function. */
+	int getStdErrForCreatedProcess() const
 	{
 	    return dm_stderr_pipe_fds[1];
+	}
+
+	/** Read-only data member accessor function. */
+	int getStdErrForBackend() const
+	{
+	    return dm_stderr_pipe_fds[0];
 	}
 
     private:

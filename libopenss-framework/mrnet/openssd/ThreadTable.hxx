@@ -36,6 +36,7 @@
 
 #include <BPatch.h>
 #include <map>
+#include <set>
 
 
 
@@ -74,6 +75,12 @@ namespace OpenSpeedShop { namespace Framework {
 	ThreadNameGroup getNames(BPatch_thread*) const;
 
 	SmartPtr<StdStreamPipes> getStdStreamPipes(BPatch_thread*) const;
+
+	std::set<int> getStdInFDs() const;
+	std::set<int> getStdErrFDs() const;
+	std::set<int> getStdOutFDs() const;
+
+	ThreadNameGroup getNames(const int&) const;
 	
     private:
 

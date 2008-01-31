@@ -63,7 +63,7 @@ openssd_SOURCES = \
 	openssd.cxx \
 	Senders.hxx Senders.cxx \
 	SentFilesTable.hxx SentFilesTable.cxx \
-	StdStreamPipes.hxx StdStreamPipes.cxx \
+	StdStreamPipes.hxx \
 	StopAtEntryOrExitEntry.hxx StopAtEntryOrExitEntry.cxx \
 	SymbolTable.hxx SymbolTable.cxx \
 	ThreadName.hxx \

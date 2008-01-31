@@ -262,3 +262,115 @@ ThreadTable::getStdStreamPipes(BPatch_thread* ptr) const
     return (i != dm_ptr_to_pipes.end()) ? 
 	i->second : SmartPtr<StdStreamPipes>();
 }
+
+
+
+/**
+ * Get the standard input stream file descriptors.
+ *
+ * Returns the set of standard input stream file descriptors for use by the
+ * backend. An empty set is returned if none of the threads have standard
+ * stream pipes associated with them.
+ *
+ * @return    Standard input stream file descriptors.
+ */
+std::set<int> ThreadTable::getStdInFDs() const
+{
+    Guard guard_myself(this);
+
+    // Find the standard input stream file descriptors for the backend
+    std::set<int> fds;
+    for(std::map<BPatch_thread*, SmartPtr<StdStreamPipes> >::const_iterator
+	    i = dm_ptr_to_pipes.begin(); i != dm_ptr_to_pipes.end(); ++i)
+	fds.insert(i->second->getStdInForBackend());
+    
+    // Return the file descriptors to the caller
+    return fds;   
+}
+
+
+
+/**
+ * Get the standard error stream file descriptors.
+ *
+ * Returns the set of standard error stream file descriptors for use by the
+ * backend. An empty set is returned if none of the threads have standard
+ * stream pipes associated with them.
+ *
+ * @return    Standard error stream file descriptors.
+ */
+std::set<int> ThreadTable::getStdErrFDs() const
+{
+    Guard guard_myself(this);
+
+    // Find the standard error stream file descriptors for the backend
+    std::set<int> fds;
+    for(std::map<BPatch_thread*, SmartPtr<StdStreamPipes> >::const_iterator
+	    i = dm_ptr_to_pipes.begin(); i != dm_ptr_to_pipes.end(); ++i)
+	fds.insert(i->second->getStdErrForBackend());
+    
+    // Return the file descriptors to the caller
+    return fds;   
+}
+
+
+
+/**
+ * Get the standard output stream file descriptors.
+ *
+ * Returns the set of standard output stream file descriptors for use by the
+ * backend. An empty set is returned if none of the threads have standard
+ * stream pipes associated with them.
+ *
+ * @return    Standard output stream file descriptors.
+ */
+std::set<int> ThreadTable::getStdOutFDs() const
+{
+    Guard guard_myself(this);
+
+    // Find the standard output stream file descriptors for the backend
+    std::set<int> fds;
+    for(std::map<BPatch_thread*, SmartPtr<StdStreamPipes> >::const_iterator
+	    i = dm_ptr_to_pipes.begin(); i != dm_ptr_to_pipes.end(); ++i)
+	fds.insert(i->second->getStdOutForBackend());
+    
+    // Return the file descriptors to the caller
+    return fds;   
+}
+
+
+
+/**
+ * Get thread names for a standard stream file descriptor.
+ *
+ * Returns the thread names for the specified standard stream file descriptor.
+ * An empty thread name gorup is returned if the file descriptor cannot be
+ * found.
+ *
+ * @note    Currently a linear search is being used to find the thread names.
+ *          The assumption is that the number of threads which actually have
+ *          stream pipes should be very small. If this is found to no longer
+ *          hold true, some type of map from file descriptors to names might
+ *          become necessary.
+ *
+ * @param fd    File descriptor whose names are to be found.
+ * @return      Thread names for that file descriptor.
+ */
+ThreadNameGroup ThreadTable::getNames(const int& fd) const
+{
+    Guard guard_myself(this);
+
+    // Find the entries (if any) for this file descriptor
+    ThreadNameGroup names;
+    for(std::map<BPatch_thread*, SmartPtr<StdStreamPipes> >::const_iterator
+	    i = dm_ptr_to_pipes.begin(); i != dm_ptr_to_pipes.end(); ++i)
+	if((i->second->getStdInForBackend() == fd) ||
+	   (i->second->getStdOutForBackend() == fd) ||
+	   (i->second->getStdErrForBackend() == fd)) {
+	    ThreadNameGroup names_to_insert = getNames(i->first);
+	    names.insert(names_to_insert.begin(), names_to_insert.end());
+	}
+    
+    // Return the thread names to the caller
+    return names;
+}

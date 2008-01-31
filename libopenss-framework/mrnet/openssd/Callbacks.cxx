@@ -406,9 +406,9 @@ void Callbacks::createProcess(const Blob& blob)
     Assert(bpatch != NULL);
     BPatch_process* process =
 	bpatch->processCreate(argv[0], argv, envp,
-			      pipes->getStdinForCreatedProcess(),
-			      pipes->getStdoutForCreatedProcess(),
-			      pipes->getStderrForCreatedProcess());
+			      pipes->getStdInForCreatedProcess(),
+			      pipes->getStdOutForCreatedProcess(),
+			      pipes->getStdErrForCreatedProcess());
     
     // Destroy argv-style argument list and envp-style environment
     delete [] argv;
