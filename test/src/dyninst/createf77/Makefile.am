@@ -34,6 +34,8 @@ mutator_CXXFLAGS = \
 mutator_LDFLAGS = \
 	$(DYNINST_LDFLAGS) \
 	$(DYNINST_LIBS) \
+	$(LIBDWARF_LDFLAGS) \
+	$(LIBDWARF_LIBS) \
 	-liberty -ldl
 
 mutator_LIBS = \
