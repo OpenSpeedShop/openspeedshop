@@ -760,6 +760,7 @@ AC_DEFUN([AC_PKG_MPI], [
     AC_PKG_LAMPI()
     AC_PKG_MPICH()
     AC_PKG_MPICH2()
+    AC_PKG_MVAPICH2()
     AC_PKG_MPT()
     AC_PKG_OPENMPI()
 
@@ -795,6 +796,10 @@ AC_DEFUN([AC_PKG_MPI], [
 	default_mpi=MPT;      default_mpi_name=mpt
 	all_mpi_names=" mpt $all_mpi_names"
     fi
+    if test x"$MVAPICH2_LDFLAGS" != x""; then
+	default_mpi=MVAPICH2;    default_mpi_name=mvapich2
+	all_mpi_names=" mvapich2 $all_mpi_names"
+    fi
 
     if test x"$default_mpi" != x""; then
 	AM_CONDITIONAL(HAVE_MPI, true)
@@ -811,3 +816,87 @@ AC_DEFUN([AC_PKG_MPI], [
 ])
 
 
+
+################################################################################
+# Check for MVAPICH2 (http://mvapich.cse.ohio-state.edu/overview/mvapich2/)
+################################################################################
+
+AC_DEFUN([AC_PKG_MVAPICH2], [
+
+    AC_ARG_WITH(mvapich2,
+		AC_HELP_STRING([--with-mvapich2=DIR],
+			       [MVAPICH2 installation @<:@/opt/mvapich2@:>@]),
+		mvapich2_dir=$withval, mvapich2_dir="/opt/mvapich2")
+
+#    AC_ARG_WITH(mvapich2-driver,
+#		AC_HELP_STRING([--with-mvapich2-driver=NAME],
+#			       [MVAPICH2 driver name @<:@ch-p4@:>@]),
+#		mvapich2_driver=$withval, mvapich2_driver="")
+
+    AC_MSG_CHECKING([for MVAPICH2 library and headers])
+
+    found_mvapich2=0
+
+    # Put -shlib into MVAPICH2_CC, since it is needed when building the
+    # tests, where $MVAPICH2_CC is used, and is not needed when building
+    # the MPI-related plugins, where $MVAPICH2_CC is not used.
+    MVAPICH2_CC="$mvapich2_dir/bin/mpicc"
+    MVAPICH2_CPPFLAGS="-I$mvapich2_dir/include"
+    MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir -L$mvapich2_dir/$alt_abi_libdir/libmpich.a"
+    MVAPICH2_LIBS="-libcommon -libumad"
+    MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
+    MVAPICH2_DIR="$mvapich2_dir"
+
+    # On the systems "mcr" and "thunder" at LLNL they have an MPICH variant
+    # that has things moved around a bit. Handle this by allowing a "llnl"
+    # pseudo-driver that makes the necessary configuration changes.
+#    if test x"$mvapich2_driver" == x"llnl"; then
+#	MVAPICH2_CC="$mvapich2_dir/bin/mpicc -shlib"
+#        MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir"
+#    fi
+
+    mvapich2_saved_CC=$CC
+    mvapich2_saved_CPPFLAGS=$CPPFLAGS
+    mvapich2_saved_LDFLAGS=$LDFLAGS
+
+    CC="$MVAPICH2_CC"
+    CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $MVAPICH2_LIBS $MVAPICH2_LDFLAGS $MVAPICH2_LIBS"
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+	#include <mpi.h>
+	]], [[
+	MPI_Initialized((int*)0);
+	]]),
+
+	found_mvapich2=1
+
+	, )
+
+    CC=$mvapich2_saved_CC
+    CPPFLAGS=$mvapich2_saved_CPPFLAGS
+    LDFLAGS=$mvapich2_saved_LDFLAGS
+
+    if test $found_mvapich2 -eq 1; then
+	AC_MSG_RESULT(yes)
+	AM_CONDITIONAL(HAVE_MVAPICH2, true)
+	AC_DEFINE(HAVE_MVAPICH2, 1, [Define to 1 if you have MPICH.])	
+    else
+	AC_MSG_RESULT(no)
+	AM_CONDITIONAL(HAVE_MVAPICH2, false)
+	MVAPICH2_CC=""
+	MVAPICH2_CPPFLAGS=""
+	MVAPICH2_LDFLAGS=""
+	MVAPICH2_LIBS=""
+	MVAPICH2_HEADER=""
+	MVAPICH2_DIR=""
+    fi
+
+    AC_SUBST(MVAPICH2_CC)
+    AC_SUBST(MVAPICH2_CPPFLAGS)
+    AC_SUBST(MVAPICH2_LDFLAGS)
+    AC_SUBST(MVAPICH2_LIBS)
+    AC_SUBST(MVAPICH2_HEADER)
+    AC_SUBST(MVAPICH2_DIR)
+
+])
