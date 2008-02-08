@@ -1,0 +1,52 @@
+#%Module1.0#####################################################################
+##
+## openss-root modulefile
+##
+proc ModulesHelp { } {
+        global version ossroot
+
+        puts stderr "\topenss-root - loads the OpenSpeedShop software & application environment"
+        puts stderr "\n\tThis adds $ossroot/* to several of the"
+        puts stderr "\tenvironment variables."
+        puts stderr "\n\tVersion $version\n"
+}
+
+module-whatis   "loads the OpenSpeedShop ROOT environment"
+
+
+# for Tcl script use only
+set     version         1.6
+set     ossroot         /opt/openss-ROOT
+
+setenv          OPENSS_ROOT     $ossroot
+setenv          OPENSS_PREFIX	$ossroot
+setenv          OPENSS_DOC_DIR	$ossroot/share/doc/packages/OpenSpeedShop
+prepend-path    PATH            $ossroot/bin
+prepend-path    MANPATH         $ossroot/share/man
+
+eval set  [ array get env HOME ]
+set     ownmoddir       $HOME/privatemodules
+
+set unameexe  "/bin/uname"
+if { [file exists $unameexe] } {
+    set machinetype [ exec /bin/uname -m ]
+    if { $machinetype == "x86" } {
+        set     qtdir                /usr/lib/qt-3.3
+        setenv  OPENSS_PLUGIN_PATH   $oss/lib/openspeedshop
+        prepend-path LD_LIBRARY_PATH $oss/lib
+    }
+    if { $machinetype == "x86_64" } {
+        set     qtdir                /usr/lib64/qt-3.3
+        setenv  OPENSS_PLUGIN_PATH   $ossroot/lib64/openspeedshop
+        setenv  OPENSS_PLUGIN_PATH   $oss/lib64/openspeedshop
+        prepend-path LD_LIBRARY_PATH $oss/lib64
+    }
+    if { $machinetype == "ia64" } {
+        set     qtdir                /usr/lib/qt-3.3
+        setenv  OPENSS_PLUGIN_PATH   $oss/lib/openspeedshop
+        prepend-path LD_LIBRARY_PATH $oss/lib
+    }
+setenv          QTDIR           $qtdir
+prepend-path    PATH            $qtdir/bin
+}
+
