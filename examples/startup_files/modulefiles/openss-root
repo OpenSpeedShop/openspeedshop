@@ -30,7 +30,10 @@ set     ownmoddir       $HOME/privatemodules
 set unameexe  "/bin/uname"
 if { [file exists $unameexe] } {
     set machinetype [ exec /bin/uname -m ]
-    if { $machinetype == "x86" } {
+    if { $machinetype == "x86" ||
+         $machinetype == "i386" ||
+         $machinetype == "i586" ||
+         $machinetype == "i686" } {
         set     qtdir                /usr/lib/qt-3.3
         setenv  OPENSS_PLUGIN_PATH   $oss/lib/openspeedshop
         prepend-path LD_LIBRARY_PATH $oss/lib
