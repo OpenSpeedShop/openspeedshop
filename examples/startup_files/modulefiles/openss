@@ -35,14 +35,20 @@ if { [file exists $unameexe] } {
          $machinetype == "i586" ||
          $machinetype == "i686" } {
 	setenv  OPENSS_PLUGIN_PATH   $oss/lib/openspeedshop
+        setenv DYNINSTAPI_RT_LIB $oss/lib/libdyninstAPI_RT.so.1
+        setenv DPCL_RT_LIB $oss/lib/libdpclRT.so.1
 	prepend-path LD_LIBRARY_PATH $oss/lib
     }
     if { $machinetype == "x86_64" } {
 	setenv  OPENSS_PLUGIN_PATH   $oss/lib64/openspeedshop
+        setenv DYNINSTAPI_RT_LIB $oss/lib64/libdyninstAPI_RT.so.1
+        setenv DPCL_RT_LIB $oss/lib64/libdpclRT.so.1
 	prepend-path LD_LIBRARY_PATH $oss/lib64
     }
     if { $machinetype == "ia64" } {
 	setenv  OPENSS_PLUGIN_PATH   $oss/lib/openspeedshop
+        setenv DYNINSTAPI_RT_LIB $oss/lib/libdyninstAPI_RT.so.1
+        setenv DPCL_RT_LIB $oss/lib/libdpclRT.so.1
 	prepend-path LD_LIBRARY_PATH $oss/lib
     }
 }
