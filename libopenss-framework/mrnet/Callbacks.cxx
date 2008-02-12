@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -502,7 +502,9 @@ void Callbacks::reportError(const Blob& blob)
 /**
  * Standard error stream.
  *
- * ...
+ * Callback function called by the frontend message pump when a message that
+ * contains standard error stream data is received. Passes the data on to the
+ * appropriate output callback.
  *
  * @param blob    Blob containing the message.
  */
@@ -525,7 +527,29 @@ void Callbacks::stdErr(const Blob& blob)
     }
 #endif
 
-    // TODO: implement!
+    // Get the threads matching this thread name
+    ThreadGroup threads = ThreadTable::TheTable.
+	getThreads(message.thread.host, message.thread.pid,
+		   std::make_pair(message.thread.has_posix_tid,
+				  message.thread.posix_tid)
+		   );
+
+    // Iterate over each of these threads
+    for(ThreadGroup::const_iterator
+	    i = threads.begin(); i != threads.end(); ++i) {
+	
+	// Get the standard error stream callback for this thread
+	OutputCallback callback = ThreadTable::TheTable.getStderrCallback(*i);
+	
+	// Pass the data on to the callback (if any)
+	if(callback.first != NULL)
+	    (*(callback.first))(
+	        reinterpret_cast<char*>(message.data.data.data_val),
+		message.data.data.data_len,
+		callback.second
+		);
+	
+    }
 }
 
 
@@ -533,7 +557,9 @@ void Callbacks::stdErr(const Blob& blob)
 /**
  * Standard output stream.
  *
- * ...
+ * Callback function called by the frontend message pump when a message that
+ * contains standard output stream data is received. Passes the data on to the
+ * appropriate output callback.
  *
  * @param blob    Blob containing the message.
  */
@@ -556,7 +582,29 @@ void Callbacks::stdOut(const Blob& blob)
     }
 #endif
 
-    // TODO: implement!
+    // Get the threads matching this thread name
+    ThreadGroup threads = ThreadTable::TheTable.
+	getThreads(message.thread.host, message.thread.pid,
+		   std::make_pair(message.thread.has_posix_tid,
+				  message.thread.posix_tid)
+		   );
+
+    // Iterate over each of these threads
+    for(ThreadGroup::const_iterator
+	    i = threads.begin(); i != threads.end(); ++i) {
+	
+	// Get the standard output stream callback for this thread
+	OutputCallback callback = ThreadTable::TheTable.getStdoutCallback(*i);
+	
+	// Pass the data on to the callback (if any)
+	if(callback.first != NULL)
+	    (*(callback.first))(
+	        reinterpret_cast<char*>(message.data.data.data_val),
+		message.data.data.data_len,
+		callback.second
+		);
+	
+    }
 }
 
 

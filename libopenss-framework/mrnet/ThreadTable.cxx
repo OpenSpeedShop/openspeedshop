@@ -45,7 +45,8 @@ ThreadTable ThreadTable::TheTable;
  */
 ThreadTable::ThreadTable() :
     Lockable(),
-    std::map<Thread, Thread::State>()
+    dm_thread_to_state(),
+    dm_thread_to_callbacks()
 {
 }
 
@@ -63,7 +64,7 @@ bool ThreadTable::isEmpty() const
     Guard guard_myself(this);
  
     // Return the caller the empty state of this thread table
-    return empty();
+    return dm_thread_to_state.empty();
 }
 
 
@@ -77,20 +78,32 @@ bool ThreadTable::isEmpty() const
  * @note    An assertion failure occurs if an attempt is made to add a thread
  *          more than once.
  *
- * @param thread    Thread to be added.
+ * @param thread             Thread to be added.
+ * @param stdout_callback    Standard output stream callback.
+ * @param stderr_callback    Standard error stream callback.
  */
-void ThreadTable::addThread(const Thread& thread)
+void ThreadTable::addThread(const Thread& thread,
+			    const OutputCallback stdout_callback,
+			    const OutputCallback stderr_callback)
 {    
     Guard guard_myself(this);
 
     // Find the entry (if any) for this thread
-    ThreadTable::const_iterator i = find(thread);
+    std::map<Thread, Thread::State>::const_iterator i =
+	dm_thread_to_state.find(thread);
+    std::map<Thread, std::pair<OutputCallback, 
+	                       OutputCallback> >::const_iterator j = 
+	dm_thread_to_callbacks.find(thread);
 
     // Check assertions
-    Assert(i == end());
+    Assert(i == dm_thread_to_state.end());
+    Assert(j == dm_thread_to_callbacks.end());
 
     // Add this thread
-    insert(std::make_pair(thread, Thread::Disconnected));
+    dm_thread_to_state.insert(std::make_pair(thread, Thread::Disconnected));
+    dm_thread_to_callbacks.insert(
+        std::make_pair(thread, std::make_pair(stdout_callback, stderr_callback))
+	);
 }
 
 
@@ -111,13 +124,14 @@ void ThreadTable::removeThread(const Thread& thread)
     Guard guard_myself(this);
 
     // Find the entry (if any) for this thread
-    ThreadTable::iterator i = find(thread);
+    std::map<Thread, Thread::State>::iterator i = 
+	dm_thread_to_state.find(thread);
 
     // Check assertions
-    Assert(i != end());
+    Assert(i != dm_thread_to_state.end());
 
     // Remove this thread
-    erase(i);
+    dm_thread_to_state.erase(i);
 }
 
 
@@ -136,14 +150,14 @@ void ThreadTable::removeThread(const Thread& thread)
  */
 ThreadGroup ThreadTable::getThreads(const std::string& host,
 				    const pid_t& pid,
-				    const std::pair<bool, pthread_t>& tid)
+				    const std::pair<bool, pthread_t>& tid) const
 {
     Guard guard_myself(this);
     ThreadGroup threads;
 
     // Iterate over each thread in this thread table
     for(std::map<Thread, Thread::State>::const_iterator 
-	    i = begin(); i != end(); ++i)
+	    i = dm_thread_to_state.begin(); i != dm_thread_to_state.end(); ++i)
 
 	// Add this thread if it matches the specified criteria
 	if((i->first.getHost() == host) &&
@@ -168,15 +182,16 @@ ThreadGroup ThreadTable::getThreads(const std::string& host,
  * @param thread    Thread whose state should be obtained.
  * @return          Current state of the thread.
  */
-Thread::State ThreadTable::getThreadState(const Thread& thread)
+Thread::State ThreadTable::getThreadState(const Thread& thread) const
 {
     Guard guard_myself(this);
     
     // Find the entry (if any) for this thread
-    ThreadTable::const_iterator i = find(thread);
+    std::map<Thread, Thread::State>::const_iterator i = 
+	dm_thread_to_state.find(thread);
 
     // Return the thread's current state to the caller
-    return (i == end()) ? Thread::Disconnected : i->second;
+    return (i == dm_thread_to_state.end()) ? Thread::Disconnected : i->second;
 }
 
 
@@ -196,13 +211,62 @@ void ThreadTable::setThreadState(const Thread& thread,
     Guard guard_myself(this);
 
     // Find the entry (if any) for this thread
-    ThreadTable::iterator i = find(thread);
+    std::map<Thread, Thread::State>::iterator i = 
+	dm_thread_to_state.find(thread);
 
     // Check assertions
-    Assert(i != end());
+    Assert(i != dm_thread_to_state.end());
     
     // Set the thread's current state to the specified state
     i->second = state;
+}
+
+
+
+/**
+ * Get a thread's stdout callback.
+ *
+ * Returns the standard output stream callback of the specified thread.
+ *
+ * @param thread    Thread whose stdout callback should be obtained.
+ * @return          Standard output stream callback for that thread.
+ */
+OutputCallback ThreadTable::getStdoutCallback(const Thread& thread) const
+{
+    Guard guard_myself(this);
+    
+    // Find the entry (if any) for this thread
+    std::map<Thread, std::pair<OutputCallback, 
+	                       OutputCallback> >::const_iterator i = 
+	dm_thread_to_callbacks.find(thread);
+
+    // Return the thread's stdout callback to the caller
+    return (i == dm_thread_to_callbacks.end()) ? 
+	OutputCallback() : i->second.first;
+}
+
+
+
+/**
+ * Get a thread's stderr callback.
+ *
+ * Returns the standard error stream callback of the specified thread.
+ *
+ * @param thread    Thread whose stderr callback should be obtained.
+ * @return          Standard error stream callback for that thread.
+ */
+OutputCallback ThreadTable::getStderrCallback(const Thread& thread) const
+{
+    Guard guard_myself(this);
+    
+    // Find the entry (if any) for this thread
+    std::map<Thread, std::pair<OutputCallback, 
+	                       OutputCallback> >::const_iterator i = 
+	dm_thread_to_callbacks.find(thread);
+
+    // Return the thread's stderr callback to the caller
+    return (i == dm_thread_to_callbacks.end()) ? 
+	OutputCallback() : i->second.second;
 }
 
 
@@ -216,7 +280,7 @@ void ThreadTable::setThreadState(const Thread& thread,
  * @return          Boolean "true" if this thread is connected, or "false"
  *                  otherwise.
  */
-bool ThreadTable::isConnected(const Thread& thread)
+bool ThreadTable::isConnected(const Thread& thread) const
 {
     // Find the current state of this thread
     Thread::State current = getThreadState(thread);
@@ -245,10 +309,11 @@ bool ThreadTable::setConnecting(const Thread& thread)
     Guard guard_myself(this);
     
     // Find the entry (if any) for this thread
-    ThreadTable::iterator i = find(thread);
+    std::map<Thread, Thread::State>::iterator i = 
+	dm_thread_to_state.find(thread);
     
     // Check assertions
-    Assert(i != end());
+    Assert(i != dm_thread_to_state.end());
 
     // Is the thread currently connected?
     bool is_connected = ((i->second != Thread::Disconnected) &&

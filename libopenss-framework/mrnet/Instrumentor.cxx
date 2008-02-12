@@ -205,11 +205,11 @@ void Instrumentor::release(const Thread& thread)
  */
 void Instrumentor::create(const Thread& thread, 
 			  const std::string& command,
-			  const OutputCallback stdout_cb,
-			  const OutputCallback stderr_cb)
+			  const OutputCallback stdout_callback,
+			  const OutputCallback stderr_callback)
 {
     // Add this thread to the thread table
-    ThreadTable::TheTable.addThread(thread);
+    ThreadTable::TheTable.addThread(thread, stdout_callback, stderr_callback);
 
     //
     // Update the thread's process identifier to be the negative of the
@@ -224,8 +224,6 @@ void Instrumentor::create(const Thread& thread,
     database->bindArgument(2, EntrySpy(thread).getEntry());
     while(database->executeStatement());    
     END_TRANSACTION(database);
-
-    // TODO: register the callbacks
 
     // Declare access to the external environment variables
     extern char** environ;

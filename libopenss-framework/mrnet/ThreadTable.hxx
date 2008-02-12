@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#include "OutputCallback.hxx"
 #include "Thread.hxx"
 
 #include <map>
@@ -56,8 +57,7 @@ namespace OpenSpeedShop { namespace Framework {
      * @ingroup Implementation
      */
     class ThreadTable :
-	private Lockable,
-	private std::map<Thread, Thread::State>
+	private Lockable
     {
 
     public:
@@ -68,20 +68,34 @@ namespace OpenSpeedShop { namespace Framework {
 
 	bool isEmpty() const;
 
-	void addThread(const Thread&);
+	void addThread(const Thread&,
+		       const OutputCallback = OutputCallback(),
+		       const OutputCallback = OutputCallback());
 	void removeThread(const Thread&);
 
 	ThreadGroup getThreads(const std::string&, const pid_t&,
-			       const std::pair<bool, pthread_t>&);
+			       const std::pair<bool, pthread_t>&) const;
 	
-	Thread::State getThreadState(const Thread&);
+	Thread::State getThreadState(const Thread&) const;
 	void setThreadState(const Thread&, const Thread::State&);
 
-	bool isConnected(const Thread&);
+	OutputCallback getStdoutCallback(const Thread&) const;
+	OutputCallback getStderrCallback(const Thread&) const;
+
+	bool isConnected(const Thread&) const;
 	bool setConnecting(const Thread&);
 
 	void validateThreads(const ThreadGroup&);
 
+    private:
+
+	/** Map threads to their thread state. */
+	std::map<Thread, Thread::State> dm_thread_to_state;
+
+	/** Map threads to their standard output/error stream callbacks. */
+	std::map<Thread, std::pair<OutputCallback, 
+				   OutputCallback> > dm_thread_to_callbacks;
+	
     };
 
 } }
