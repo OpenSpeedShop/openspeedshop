@@ -17,4 +17,4 @@
 ################################################################################
 
 # directories that will be built
-EXTRA_DIST = README
+EXTRA_DIST = README runit

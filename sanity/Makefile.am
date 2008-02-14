@@ -33,4 +33,4 @@ endif
 DIST_SUBDIRS = check_dpcl check_dyninst check_openss check_setup
 
 EXTRA_DIST = \
-	README
+	README runit
