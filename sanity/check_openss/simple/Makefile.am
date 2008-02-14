@@ -27,3 +27,6 @@ mutatee_LDADD = \
 
 mutatee_SOURCES = \
 	mutatee.cxx
+
+EXTRA_DIST = pcsamp1.tst.expected pcsamp1.tst test_config runit
+
