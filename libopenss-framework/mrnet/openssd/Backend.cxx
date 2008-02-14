@@ -141,12 +141,12 @@ namespace {
 	    FD_SET(bpatch_fd, &readfds);
 	    for(std::set<int>::const_iterator
 		    i = stdout_fds.begin(); i != stdout_fds.end(); ++i) {
-		nfds = std::max(nfds, *i);
+		nfds = std::max(nfds, *i + 1);
 		FD_SET(*i, &readfds);
 	    }
 	    for(std::set<int>::const_iterator
 		    i = stderr_fds.begin(); i != stderr_fds.end(); ++i) {
-		nfds = std::max(nfds, *i);
+		nfds = std::max(nfds, *i + 1);
 		FD_SET(*i, &readfds);
 	    }
 	    nfds = std::max(nfds, mrnet_fd + 1);

@@ -266,8 +266,8 @@ void Callbacks::createdProcess(const Blob& blob)
 	DataQueues::getDatabase(message.original_thread.experiment);
     BEGIN_WRITE_TRANSACTION(database);
     database->prepareStatement("UPDATE Threads SET pid = ? WHERE id = ?;");
-    database->bindArgument(1, - static_cast<int>(message.original_thread.pid));
-    database->bindArgument(2, static_cast<int>(message.created_thread.pid));
+    database->bindArgument(1, static_cast<int>(message.created_thread.pid));
+    database->bindArgument(2, - static_cast<int>(message.original_thread.pid));
     while(database->executeStatement());
     END_TRANSACTION(database);
 }

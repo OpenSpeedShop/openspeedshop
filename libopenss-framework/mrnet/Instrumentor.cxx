@@ -62,6 +62,8 @@ namespace {
 	// Register callbacks with the frontend
 	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREADS,
 				   Callbacks::attachedToThreads);
+	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_CREATED_PROCESS,
+				   Callbacks::createdProcess);
 	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE,
 				   Callbacks::globalIntegerValue);
 	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE,
@@ -72,6 +74,10 @@ namespace {
 				   Callbacks::loadedLinkedObject);
 	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_REPORT_ERROR,
 				   Callbacks::reportError);
+	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_STDERR,
+				   Callbacks::stdErr);
+	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_STDOUT,
+				   Callbacks::stdOut);
 	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_SYMBOL_TABLE,
 				   Callbacks::symbolTable);
 	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_THREADS_STATE_CHANGED,
@@ -110,6 +116,8 @@ namespace {
 	// Unregister callbacks with the frontend
 	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_ATTACHED_TO_THREADS,
 				     Callbacks::attachedToThreads);
+	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_CREATED_PROCESS,
+				     Callbacks::createdProcess);
 	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE,
 				     Callbacks::globalIntegerValue);
 	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE,
@@ -120,6 +128,10 @@ namespace {
 				     Callbacks::loadedLinkedObject);
 	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_REPORT_ERROR,
 				     Callbacks::reportError);
+	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_STDERR,
+				     Callbacks::stdErr);
+	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_STDOUT,
+				     Callbacks::stdOut);
 	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_SYMBOL_TABLE,
 				     Callbacks::symbolTable);
 	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_THREADS_STATE_CHANGED,
@@ -210,6 +222,7 @@ void Instrumentor::create(const Thread& thread,
 {
     // Add this thread to the thread table
     ThreadTable::TheTable.addThread(thread, stdout_callback, stderr_callback);
+    ThreadTable::TheTable.setConnecting(thread);
 
     //
     // Update the thread's process identifier to be the negative of the
@@ -235,6 +248,10 @@ void Instrumentor::create(const Thread& thread,
     char* env = new char[env_size];
     for(int i = 0, j = 0; environ[j] != NULL; i += strlen(environ[j]) + 1, ++j)
 	strcpy(&(env[i]), environ[j]);
+
+    // Initialize MRNet if it hasn't been yet
+    if(!isMRNetInitialized)
+	initializeMRNet();
     
     // Request the process be created
     Senders::createProcess(thread, command, Blob(env_size, env));

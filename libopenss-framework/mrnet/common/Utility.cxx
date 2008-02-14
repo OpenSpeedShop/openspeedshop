@@ -844,8 +844,8 @@ std::string OpenSpeedShop::Framework::toString(
 {
     std::stringstream output;
     output << "createdProcess(" << std::endl
-	   << "    " << toString(message.original_thread) << ", "
-	   << "    " << toString(message.created_thread) << ", "
+	   << "    " << toString(message.original_thread) << "," << std::endl
+	   << "    " << toString(message.created_thread) << std::endl
 	   << ")" << std::endl;
     return output.str();
 }
@@ -1181,7 +1181,7 @@ std::string OpenSpeedShop::Framework::toString(
 {
     std::stringstream output;
     output << "stdErr(" << std::endl
-	   << "    " << toString(message.thread) << ", "
+	   << "    " << toString(message.thread) << "," << std::endl
 	   << toString(message.data) << std::endl
 	   << ")" << std::endl;
     return output.str();
@@ -1204,7 +1204,7 @@ std::string OpenSpeedShop::Framework::toString(
 {
     std::stringstream output;
     output << "stdIn(" << std::endl
-	   << "    " << toString(message.thread) << ", "
+	   << "    " << toString(message.thread) << "," << std::endl
 	   << toString(message.data) << std::endl
 	   << ")" << std::endl;
     return output.str();
@@ -1227,7 +1227,7 @@ std::string OpenSpeedShop::Framework::toString(
 {
     std::stringstream output;
     output << "stdOut(" << std::endl
-	   << "    " << toString(message.thread) << ", "
+	   << "    " << toString(message.thread) << "," << std::endl
 	   << toString(message.data) << std::endl
 	   << ")" << std::endl;
     return output.str();
