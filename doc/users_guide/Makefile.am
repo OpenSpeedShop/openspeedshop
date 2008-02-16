@@ -73,6 +73,18 @@ EXTRA_DIST = BuildingInstallingDPCL.html \
 	UserTimeWizardLoadFred.png  \
 	UserTimeWizardSummary.png  \
 	UserTimeExperiment.png  \
+	BuildAndInstallGuide.html \
+	ClusterAnalysis1.png \
+	ClusterAnalysis2.png \
+	ClusterAnalysis3.png \
+	ClusterAnalysis4.png \
+	OpenExistingExperiment.png \
+	OpenSavedExperiment.png \
+	PC_SampleExperiment-PausedShowContinue.png \
+	PreferencePanel-SourcePathRedirection.png \
+	QuickStartGuide.html \
+	SaveExperimentGiveName.png \
+	SaveExperiment.png \
 	UserTimeExperimentResults.png
 
 
