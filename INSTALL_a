@@ -1,21 +1,257 @@
 ****
 ****
-USE THIS WHEN YOU HAVE ROOT ACCESS AND CAN INSTALL RPMS.  
-or would like to install as non-root using cpio
-****
-****
 
-                Installing Open|SpeedShop from Source
-
-This document describes the Installation process of Open|SpeedShop
-from source. We recommend this kind of installation if the
-RPMs provided on www.openspeedshop.org don't work for your
-platforms, if you don't have the required permissions to install
-RPMs into /usr, or if you would like to make changes to the 
-Open|SpeedShop toolset itself.
+THE INTENT:
 
 
-Please see the INSTALL-note_a and README files in the 
-OpenSpeedShop_ROOT development tree or the openspeedshop-release-r.n 
-release tree for how to build and install into a non-root location.
+This directory setup and install script is intended to
+make the build and installation of the components that 
+are needed to support Open|SpeedShop and Open|SpeedShop
+itself easier.
+
+Because Open|SpeedShop depends on components that are
+highly dependent on Operating System interfaces and
+libraries, it is difficult to produce executable rpms
+for installation.  This is why we offer a source
+build installation.
+
+PREREQUISITE NEEDS:
+
+There are some prerequisite packages that are necessary
+for building and running the Open|SpeedShop performance tool.
+Most will be present on a system that is used for debugging and
+performance analysis.  The README file in this directory lists
+the components and the versions that have been used successfully
+with Open|SpeedShop.
+
+INSTALLATION INFO:
+
+Please gunzip and untar the openspeedshop-release-1.6.tar.gz
+file and change directory into the openspeedshop-release-1.6
+directory.   
+
+example:
+gunzip openspeedshop-release-1.6.tar.gz
+tar -xvf openspeedshop-release-1.6.tar
+cd openspeedshop-release-1.6
+
+Inside that directory is the key script, install.sh,
+that can be used in building the Open|SpeedShop performance tool.
+
+The script, install.sh, can either step you through building
+the support libraries and Open|SpeedShop or you can choose an
+option (9) that will do all the steps without user intervention.
+
+This process builds RPMs for each package and allows you the 
+option of installing via RPM or to install as non-root through a
+rpm to cpio process that is built into the script.  The default 
+installation path is /opt/OSS
+
+If you would like to install in another location, set the
+environment variable OPENSS_PREFIX.  We recommend setting the
+variable.  You can base your LD_LIBRARY_PATH and PATH variables
+off the OPENSS_PREFIX variable when you have Open|SpeedShop built
+and you are ready to run it.
+
+example:
+export OPENSS_PREFIX=/usr/projects/OSS
+
+Another variable that is advisable to set is QTDIR for the location
+to the QT library if different from the default.  The default is 
+/usr/lib64/qt-3.3
+
+Additional (optional) environment variables needed for 
+building vampirtrace and configuring for MPI experiments.
+vampirtrace needs a MPI implementation specified in order
+to be built.  So, the intent is to be able to run vampirtrace
+trace under Open|SpeedShop, then one of the following MPI
+implementations must be specified.  
+
+   OPENSS_MPI_LAM  set to MPI LAM installation directory
+   OPENSS_MPI_LAMPI  set to MPI LAMPI installation directory 
+   OPENSS_MPI_OPENMPI  set to MPI OPENMPI installation directory
+   OPENSS_MPI_MPICH  set to MPI MPICH installation directory
+   OPENSS_MPI_MPICH2  set to MPI MPICH2 installation directory
+   OPENSS_MPI_MPICH_DRIVER mpich/mpich2 driver name [ch-p4]
+   OPENSS_MPI_MPT  set to SGI MPI MPT installation directory
+
+The install script and the Open|SpeedShop configuration code will
+read these environment variables and if set will configure Open|SpeedShop
+to recognize these MPI implementations.  That will allow users the
+ability to create MPI experiments and gather performance data for
+MPI applications built with the specific MPI implementation 
+(for example: openmpi).  
+
+example:
+export OPENSS_PREFIX=/usr/projects/openmpi-1.2.4
+
+The spec files associated with this build process include:
+libdwarf-20070703_a.spec  
+libunwind-0.99_a.spec     
+sqlite-3.5.1_a.spec
+papi-3.5.0_a.spec
+dyninst-5.1r_a.spec    
+dpcl-20060421_a.spec  
+vampirtrace-5.3.2_a.spec
+openspeedshop-1.6_a.spec
+
+There is an order that is required in building the
+components because some of the components depend on
+each other.  The install script will lead you through the process.
+
+There is an expectation that you have libelf available. Option 1
+will check and build if necessary and option 1a will install if 
+you are doing the non-root cpio process.
+
+To start, type:
+
+./install.sh
+
+These are the options that are provided. 
+
+For the most automated way to build the entire tool would be to 
+choose option: 9.  With this option all the components and openspeedshop
+will be built and installed into the location/path specified in your
+OPENSS_PREFIX environment variable.
+
+If you have trouble using option 9, you can build the components and 
+openspeedshop in a step by step manner to find any issues.  After each 
+step you will need to run ./install.sh again to get to the next step.
+You may also type install.sh and choose option 8 to see which
+component is not installed.  You may only have to rebuild from that
+component onward.
+
+Because Open|SpeedShop currently uses dpcl as it's communication 
+mechanism, a dpcl daemon must run on your machine and, if you have
+a cluster, a dpcl daemon must run on each node of your cluster.
+We have a default file named "site.py" that we will install
+during the running of the install.sh script.  The site.py file
+will work without intervention on your single system image machine,
+like a pc or laptop (or a SGI single system image (SSI) machine).
+If you going to run Open|SpeedShop on a cluster, some tweaking of
+the site.py file may be necessary.  
+
+See the startup_files subdirectory in this directory for example
+site.py files that are working on cluster machines at various sites.
+
+Please contact us at: oss-questions@openspeedshop.org if you 
+need assistance.
+
+ 
+This is what will be displayed when you type install.sh:
+
+---------------------------------------
+
+./install.sh
+
+    ---------------------------------------------------------------------------
+    This script builds RPMs and supports installation as non-root through cpio
+
+    The default install prefix is /opt/OSS. If another is preferred, please set
+    the OPENSS_PREFIX environment variable to reflect the new target directory
+
+    If you plan on installing RPMs as root, it will let you know at what point
+    ---------------------------------------------------------------------------
+
+
+    You are building for default dpcl Open|SpeedShop instrumentor: dpcl.
+    If you wish to change the Open|SpeedShop instrumentor, use
+    the OPENSS_INSTRUMENTOR to specify: dpcl, mrnet, or offline.
+
+    Choices:
+
+    9  - Automatic - Run all steps with no questions asked. Assume that the
+                     answer to any question which will be asked is yes. Please
+                     make certain that all required environment variables are
+                     set properly. It may be best for fresh installations
+                     to run though the choices one at a time, in ascending
+                     order, as this may help discover any missing system
+                     dependencies.  Everything will be installed in
+                     /opt/OSS (if OPENSS_PREFIX is not set) via cpio process
+
+    0  - Set ~/.rpmmacros %_topdir to /home/jeg/OpenSpeedShop_ROOT -
+         original will be copied to .rpmmacros.##
+    0a - View environment variables that may be set
+
+    1  - Check if libelf is installed, build if necessary
+    1a - Install libelf if built (non-root/cpio)
+         - Otherwise install RPM manually at this point
+    2  - Build base Support libraries: libdwarf
+    2a - Install libdwarf if built (non-root/cpio)
+         - Otherwise install RPM manually at this point
+    3  - Build base Support libraries: libunwind, papi, sqlite, monitor
+    3a - Install base Support libraries (non-root/cpio): libunwind, papi,
+         sqlite, monitor
+         - Otherwise install RPMs manually at this point
+    4  - Build base Support libraries: vampirtrace, dyninst
+    4a - Install base Support library (non-root/cpio): vampirtrace, dyninst
+         - Otherwise install RPMs manually at this point
+    5  - Build base Support libraries: dpcl,mrnet
+    5a - Install base Support library: dpcl,mrnet
+         - Otherwise install RPMs manually at this point
+    6  - Build Open|SpeedShop
+    6a - Install Open|SpeedShop
+         - Otherwise install RPMs manually at this point
+    7  - Prepare startup files - modules, dotkit, or environment variables that need
+to
+         be set
+         - dpcl daemon initiation - site.py
+
+    8  - Install status
+
+Enter Option:
+
+---------------------------------------
+
+
+TO RUN:
+
+
+To run Open|SpeedShop after you have completed the installation follow 
+these steps.
+
+
+1) Need to setup your module or set the necessary environment variables
+
+  a)  DYNINSTAPI_RT_LIB=$OPENSS_PREFIX/lib64/libdyninstAPI_RT.so.1 
+      OPENSS_PLUGIN_PATH=$OPENSS_PREFIX/lib64/openspeedshop 
+      LD_LIBRARY_PATH=$OPENSS_PREFIX/lib64:$LD_LIBRARY_PATH 
+      PATH=$OPENSS_PREFIX/bin:$PATH 
+      ***** THESE ARE NECESSARY TO RUN openss 
+
+
+  b) To invoke the running of the tool in GUI mode, type: “openss” 
+     and follow the GUI wizard steps to create your performance statistics
+     gathering experiment.  The GUI wizard guides you through all the steps
+     to create, run and view the performance statistics.
+
+  OR
+
+  c) To invoke the tool in command line mode, type: "openss -cli"
+     The tool then accepts commands (similar to gdb or dbx) interactively.
+     Three simple commands are all that is needed to create, run, and
+     view data.
+
+     1) Create an experiment:
+
+        expcreate -p <running pid> pcsamp 
+        expcreate -f <executable> pcsamp 
+
+     2) Run the experiment:
+
+        expgo 
+
+     3) View performance data from the experiment:
+
+        expview 
+
+     4) Get help
+
+        help
+        help commands
+
+     5) Exit the tool
+
+        quit
+
 

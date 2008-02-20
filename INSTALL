@@ -1,233 +1,26 @@
+****
+****
+USE THIS WHEN YOU HAVE ROOT ACCESS AND CAN INSTALL RPMS.  
+or would like to install as non-root using cpio
+****
+****
+
                 Installing Open|SpeedShop from Source
 
 This document describes the Installation process of Open|SpeedShop
 from source. We recommend this kind of installation if the
 RPMs provided on www.openspeedshop.org don't work for your
 platforms, if you don't have the required permissions to install
-RPMs into /usr, or if you would like to make changes to
-the Open|SpeedShop toolset itself.
+RPMs into /usr, or if you would like to make changes to the 
+Open|SpeedShop toolset itself.
 
-The instructions below refer to a non-root Open|SpeedShop installation
-on a RHEL 4 system. Installations on other distributions should
-be similar.
 
+Please see the INSTALL-note_a and README files in the 
+OpenSpeedShop_ROOT development tree or the openspeedshop-release-r.n 
+release tree for how to build and install into a non-root location.
 
-=================================================================
-SYSTEM
-=================================================================
+INSTALL_a in this directory is equivalent to INSTALL-note_a for your
+convenience.
 
-A) Install or locate base libraries
 
-   a) MPI 
 
->> setenv MPILIB <appropriate path>
-
-   b) QT (versions 3.3.1 to 3.3.8 work, newer versions recommended)
-
->> setenv QTDIR <appropriate path>
-
-   c) PAPI
-
->> setenv PAPIDIR <appropriate path>
-
-      Note: On x86 and x86-64, the kernel must be patched using
-            the perfctr patch, which is part of the PAPI
-            distribution from UTK
-
-      Note: if we are planning to use PAPI on Intel's new Woodcrest
-            CPUs, you need to use perfctr 2.6.65 and the head of
-            the version 3.2.0 PAPI CVS repository
-
-      Note: It is possible to install Open|SpeedShop without PAPI, but then
-            the ability to use hardware performance counters
-            will be missing
-
-
-=================================================================
-Environment
-=================================================================
-
-B) Download CVS packages
-
-   OpenSpeedShop
-
-   and
-
-   OpenSpeedShop_ROOT
-
-   e.g., into $HOME/oss/src
-
-
-C) Choose a root dir: E.g,
-
->> setenv PREFIX $HOME/oss/root
-
-   Choose an install dir: E.g.,
-
->> setenv OPENSS_INSTALL_DIR $HOME/oss/install
-
-
-D) Add to paths to environment
-
->> setenv PATH $PREFIX/bin:$OPENSS_INSTALL_DIR/bin:$PATH
->> setenv LD_LIBRARY_PATH $PREFIX/lib:$OPENSS_INSTALL_DIR/lib:$LD_LIBRARY_PATH
-
-
-=================================================================
-Packages not provided
-=================================================================
-
-E) Check versions of automake and libtool
-   Should be automake 1.9.5 and libtool 1.5.20
-
-   If not the correct, install in PREFIX
-
-Automake:
->> ./configure --prefix=$PREFIX
->> make
->> make install
-
-Libtool
-Automake:
->> ./configure --prefix=$PREFIX
->> make
->> make install
-
-
-F) If required for DPCL, set up xinetd
-   WARNING: security hole
-
-   a) install xinetd itself
-q>> ./configure --prefix=$PREFIX
->> make
->> make install
-
-   b) Create config file $PREFIX/etc/xinetd.conf with:
-
-defaults
-{
-        instances               = 60
-        log_type                = FILE /tmp/mylogfile
-        log_on_success          = HOST PID
-        log_on_failure          = HOST
-        cps                     = 25 30
-}
-
-includedir $PREFIX/etc/xinetd.d
-
-(the $PREFIX in the last line must be expanded)
-
-   c) Create directory specified in the last line
-
-
-G) Install epydoc (version 2.1)
-
->> python setup.py build
->> python setup.py install --prefix=$PREFIX
-
-
-=================================================================
-Packages provided in OpenSpeedShop_ROOT/SOURCES
-=================================================================
-
-H) Install SQLite (recommended version 3.2.7)
-
->> ./configure --prefix=$PREFIX --disable-tcl --enable-threadsafe
->> make
->> make install
-
-
-I) libelf -> check if you have a libelf installed
-
-   libelf.0.97.1 (RHEL / libelf.so.1) and
-   libelf.0.8.5  (SUSE / libelf.so.0)
-   are known to work
-
-   if no libelf is on the system (AND ONLY THEN!!!) install the one 
-   that is provided as part of the ROOT into PREFIX
-
->> ./configure --prefix=$PREFIX
->> make
->> make install
-
-   WARNING: USE SYSTEM LIBRARY BEFORE INSTALLING A NEW LIBELF
-   MIXING LIBELF CAUSES PROBLEMS!!!
-
-   If you are using a pre-installed libelf, make sure that the
-   headerfile /usr/include/libelf.h and the appropriate library
-   /usr/lib/libelf.so exist
-
-
-J) Install libdwarf
-
->> tar -xzf libdwarf-20060614.tgz
->> patch libdwarf-20060614/libdwarf/Makefile.in < libdwarf-20060614.patch
->> cd libdwarf-20060614
-
->> cd libdwarf
->> ./configure --with-libdir=$PREFIX/lib
->> cd ../dwarfdump
->> ./configure
-
->> cd ../libdwarf
->> make libdwarf.a
->> cd ../dwarfdump
->> make
->> cd ../libdwarf
->> make libdwarf.so
-
->> install -D libdwarf.so $PREFIX/lib/libdwarf.so
->> install -D -m u+rw,go+r dwarf.h $PREFIX/include/dwarf.h
->> install -D -m u+rw,go+r libdwarf.h $PREFIX/include/libdwarf.h
->> cd ../dwarfdump
->> install -D dwarfdump $PREFIX/bin/dwarfdump
->> install -D -m u+rw,go+r dwarfdump.1 $PREFIX/man/man1/dwarfdump.1
-
-
-K) Install libunwind
-
->> ./configure --prefix=$PREFIX
->> make
->> make install
-
-
-L) Install Dyninst from the dyninst-5.0 directory
-
-   Run ./Build
-   If this breaks fix the paths in dyninst/core/make.config.local
->> setenv DYNINST_INSTALL_DIR
-
-
-M) Install DPCL from the dpcl-20060421 directory
-
-   Run ./Build
-
-   If xinetd is used (WARNING: Security hole)
-
-   Create dpclSD in $PREFIX/etx/xinetd.d directory created above with:
-
-        service dpclSD
-        {
-	        type                    = UNLISTED
-                socket_type             = stream
-                protocol                = tcp
-                port                    = 7895
-                wait                    = no
-                user                    = <your user ID>
-                server                  = $PREFIX/bin/dpclSD
-                server_args             = $PREFIX/bin/dpcld /tmp/dpclSD01 /tmp/dpclsd
-                disable                 = no
-                env += LD_LIBRARY_PATH=$PREFIX/lib
-                env += DPCL_RT_LIB=$PREFIX/lib/libdpclRT.so.1
-                env += DYNINSTAPI_RT_LIB=$PREFIX/lib/libdyninstAPI_RT.so.1
-        }
-
-    and expand paths
-
-
-N) Adjust configuration file mc in OpenSpeedShop
-
-configure --prefix=$OPENSS_INSTALL_DIR --with-python=/usr --with-mpich=$MPIDIR --with-mpich-driver=mpich --with-dpcl=$PREFIX --with-dyninst=$PREFIX --with-papi=$PAPIDIR --with-sqlite=$PREFIX --with-qtlib=$QTDIR --with-libunwind=$PREFIX
-
-
-O) Compiler Open|SpeedShop by running the modified mc script
