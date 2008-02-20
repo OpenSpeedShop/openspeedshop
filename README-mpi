@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2006 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006, 2007, 2008 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -28,11 +28,10 @@ paths that are given for the various implementations.
 Run time is then a separate issue.  If an MPI job is created outside of
 openss, then openss has nothing to do with what implementation it uses; if it
 is created from openss, then it will use whatever is specified by the given
-mpirun command and openss's environment.  If I am not mistaken, the openss
-environment also determines the LD_LIBRARY_PATH used when loading MPI
-collector runtime libraries into the target process because the
-entire environment from the shell where Open|SpeedShop was run is passed
-through to created processes.
+mpirun command and openss's environment.  The openss environment also determines 
+the LD_LIBRARY_PATH used when loading MPI collector runtime libraries into the 
+target process because the entire environment from the shell where Open|SpeedShop 
+was run is passed through to created processes.
 
 
 So then the question of multiple versions of mpich, openmpi, etc., becomes a
@@ -72,37 +71,48 @@ built using said mpi version, use these configure options (taken from the output
 
 
   "configure option"      "MPI type"       "default directory for search" 
+
+  --with-lam=DIR          LAM installation [/usr/local]
   --with-lampi=DIR        LAMPI installation [/usr/local]
   --with-mpich=DIR        MPICH installation [/opt/mpich]
   --with-mpich-driver=NAME
                           MPICH driver name [ch-p4]
   --with-mpich2=DIR       MPICH2 installation [/opt/mpich2]
+  --with-mvapich2=DIR     MVAPICH2 installation [/opt/mvapich2]
   --with-mpt=DIR          MPT installation [/usr]
   --with-openmpi=DIR      OpenMPI installation [/usr/local]
 
 
-Also, when running a MPI or MPIT experiment on an application 
-built with a particular version of MPI.  Open|SpeedShop currently
-needs to know which implementation the application is built with.
-The environment variable: 
+
+Also, when running a MPI or MPIT experiment on an application built 
+with a particular version of MPI used to require setting an environment
+variable to specify which MPI implementation the monitored application
+was built with.
+
+With the 1.5 version, Open|SpeedShop no longer needs to the user to tell
+it which implementation the application is built with.  Open|SpeedShop
+now detects this automatically.   You can still use the environment varable
+to override the automatic detected setting, if necessary for some reason.
+Here are the details about how to use the environment variable: 
 
 OPENSS_MPI_IMPLEMENTATION
 
-Specifies the MPI implementation being used by the MPI application whose
-performance is being analyzed. Should be set to one of the currently
-supported MPI implementations:
+This variable specifies the MPI implementation being used by the MPI 
+application whose performance is being analyzed. It can be set to one 
+of the currently supported MPI implementations:
 
-  openmpi, lampi, mpich2, mpich, mpt
+  lam, lampi, mpich, mpich2, mpt, mvapich2, or openmpi
 
-Eventually Open|SpeedShop will be able to auto-detect the MPI implemetnation of
-the application and this variable will only be used to override the auto-
+Open|SpeedShop is able to auto-detect the MPI implementation of
+the application and this variable is only be used to override the auto-
 detection code.
 
 A typical setting of this environment variable would look like this:
 
 setenv OPENSS_MPI_IMPLEMENTATION openmpi
 
-This variable does not need to be set if you configured Open|SpeedShop for
+This variable does not really do anything if you configured Open|SpeedShop for
 only one MPI implementation or the implementation your application is built
 with is the default MPI implementation in Open|SpeedShop (see config.log for
 DEFAULT_MPI_IMPL_NAME).
+
