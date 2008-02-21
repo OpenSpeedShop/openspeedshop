@@ -1026,11 +1026,11 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 	    
 	    // Skip setting the rank number if it cannot be accessed
 	    int64_t mpt_rank;
-	    if(in_process.empty() ||
-	       Instrumentor::getGlobal(*(in_process.begin()), 
-				       "MPI_debug_rank",
-				       mpt_rank))
+            if(in_process.empty() || ( Instrumentor::getGlobal(*(in_process.begin()),
+                                       "MPI_debug_rank",
+                                       mpt_rank) == false )) {
 		continue;
+            }
 	    rank = static_cast<int>(mpt_rank);
 	    
 	}
