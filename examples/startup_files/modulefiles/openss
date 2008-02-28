@@ -28,7 +28,10 @@ eval set  [ array get env HOME ]
 set	ownmoddir	$HOME/privatemodules
 
 set unameexe  "/bin/uname"
+set qmakeexe  "$oss/qt3/bin/qmake"
+
 if { [file exists $unameexe] } {
+
     set machinetype [ exec /bin/uname -m ]
     if { $machinetype == "x86" ||
          $machinetype == "i386" ||
@@ -51,4 +54,10 @@ if { [file exists $unameexe] } {
         setenv DPCL_RT_LIB $oss/lib/libdpclRT.so.1
 	prepend-path LD_LIBRARY_PATH $oss/lib
     }
+# If qt was created, point to it
+    if { [file exists $qmakeexe] } {
+          prepend-path LD_LIBRARY_PATH $oss/qt3/lib
+          prepend-path    PATH       $oss/qt3/bin
+    }
+
 }
