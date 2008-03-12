@@ -1039,6 +1039,7 @@ std::string OpenSpeedShop::Framework::toString(
     output << "globalIntegerValue(" << std::endl
 	   << "    " << toString(message.thread) << "," << std::endl
 	   << "    \"" << message.global << "\"," << std::endl 
+	   << "    " << (message.found ? "true" : "false") << "," << std::endl
 	   << "    " << message.value << std::endl
 	   << ")" << std::endl;
     return output.str();
@@ -1063,6 +1064,7 @@ std::string OpenSpeedShop::Framework::toString(
     output << "globalJobValue(" << std::endl
 	   << "    " << toString(message.thread) << "," << std::endl
 	   << "    \"" << message.global << "\"," << std::endl
+	   << "    " << (message.found ? "true" : "false") << "," << std::endl
 	   << toString(message.value) << std::endl
 	   << ")" << std::endl;
     return output.str();
@@ -1087,6 +1089,7 @@ std::string OpenSpeedShop::Framework::toString(
     output << "globalStringValue(" << std::endl
 	   << "    " << toString(message.thread) << "," << std::endl
 	   << "    \"" << message.global << "\"," << std::endl 
+	   << "    " << (message.found ? "true" : "false") << "," << std::endl
 	   << "    \"" << message.value << "\"" << std::endl
 	   << ")" << std::endl;
     return output.str();

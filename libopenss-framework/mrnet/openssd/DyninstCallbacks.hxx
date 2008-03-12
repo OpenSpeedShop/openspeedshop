@@ -58,6 +58,8 @@ namespace OpenSpeedShop { namespace Framework {
 
 	BPatch_function* findFunction(/* const */ BPatch_process&,
 				      const std::string&);
+	BPatch_variableExpr* findGlobalVariable(/* const */ BPatch_process&,
+						const std::string&);
 	BPatch_function* findLibraryFunction(/* const */ BPatch_process&,
 					     const std::string&);
 	void sendSymbolsForThread(const ThreadNameGroup&);

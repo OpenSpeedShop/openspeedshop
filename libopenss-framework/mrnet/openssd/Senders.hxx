@@ -62,11 +62,11 @@ namespace OpenSpeedShop { namespace Framework {
 	void attachedToThreads(const ThreadNameGroup&);
 	void createdProcess(const ThreadName&, const ThreadName&);
 	void globalIntegerValue(const ThreadName&, const std::string&,
-				const int64_t&);
+				const bool&, const int64_t&);
 	void globalJobValue(const ThreadName&, const std::string&,
-			    const Job&);
+			    const bool&, const Job&);
 	void globalStringValue(const ThreadName&, const std::string&,
-			       const std::string&);
+			       const bool&, const std::string&);
 	void loadedLinkedObject(const ThreadNameGroup&, const Time&,
 				const AddressRange&, const FileName&,
 				const bool&);

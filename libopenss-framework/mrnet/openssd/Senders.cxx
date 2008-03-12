@@ -174,16 +174,20 @@ void Senders::createdProcess(const ThreadName& original_thread,
  *
  * @param thread    Thread from which the global variable value was retrieved.
  * @param global    Name of global variable whose value is being returned.
+ * @param found     Boolean "true" if that global variable was found, or
+ *                  "false" otherwise.
  * @param value     Current value of that variable.
  */
 void Senders::globalIntegerValue(const ThreadName& thread,
 				 const std::string& global,
+				 const bool& found,
 				 const int64_t& value)
 {
     // Assemble the request into a message
     OpenSS_Protocol_GlobalIntegerValue message;
     message.thread = thread;
     convert(global, message.global);
+    message.found = found;
     message.value = value;
 
 #ifndef NDEBUG
@@ -221,16 +225,20 @@ void Senders::globalIntegerValue(const ThreadName& thread,
  *
  * @param thread    Thread from which the global variable value was retrieved.
  * @param global    Name of global variable whose value is being returned.
+ * @param found     Boolean "true" if that global variable was found, or
+ *                  "false" otherwise.
  * @param job       Current value of that variable.
  */
 void Senders::globalJobValue(const ThreadName& thread,
 			     const std::string& global,
+			     const bool& found,
 			     const Job& job)
 {
     // Assemble the request into a message
     OpenSS_Protocol_GlobalJobValue message;
     message.thread = thread;
     convert(global, message.global);
+    message.found = found;
     ::convert(job, message.value);
     
 #ifndef NDEBUG
@@ -268,16 +276,20 @@ void Senders::globalJobValue(const ThreadName& thread,
  *
  * @param thread    Thread from which the global variable value was retrieved.
  * @param global    Name of global variable whose value is being returned.
+ * @param found     Boolean "true" if that global variable was found, or
+ *                  "false" otherwise.
  * @param value     Current value of that variable.
  */
 void Senders::globalStringValue(const ThreadName& thread,
 				const std::string& global,
+				const bool& found,
 				const std::string& value)
 {
     // Assemble the request into a message
     OpenSS_Protocol_GlobalStringValue message;
     message.thread = thread;
     convert(global, message.global);
+    message.found = found;
     convert(value, message.value);
 
 #ifndef NDEBUG

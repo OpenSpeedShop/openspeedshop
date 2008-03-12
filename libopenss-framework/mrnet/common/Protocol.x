@@ -621,6 +621,9 @@ struct OpenSS_Protocol_GlobalIntegerValue
     /** Name of global variable whose value is being returned. */
     string global<>;
 
+    /** Boolean "true" if that variable was found, or "false" otherwise. */
+    bool found;
+
     /** Current value of that variable. */
     int64_t value;
 };
@@ -643,6 +646,9 @@ struct OpenSS_Protocol_GlobalJobValue
     /** Name of global variable whose value is being returned. */
     string global<>;
     
+    /** Boolean "true" if that variable was found, or "false" otherwise. */
+    bool found;
+
     /** Current value of that variable. */
     OpenSS_Protocol_Job value;
 };
@@ -664,6 +670,9 @@ struct OpenSS_Protocol_GlobalStringValue
 
     /** Name of global variable whose value is being returned. */
     string global<>;
+
+    /** Boolean "true" if that variable was found, or "false" otherwise. */
+    bool found;
 
     /** Current value of that variable. */
     string value<>;

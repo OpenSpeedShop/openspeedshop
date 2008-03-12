@@ -384,6 +384,52 @@ DyninstCallbacks::findFunction(/* const */ BPatch_process& process,
 
 
 /**
+ * Find a global variable.
+ *
+ * Finds the named global variable in the specified process and returns the
+ * Dyninst variable expression pointer for that global variable to teh caller.
+ * A null pointer is returend if the global variable cannot be found.
+ *
+ * @note    This function isn't a real Dyninst callback function but rather a
+ *          utility function that is used in several other places. This seemed
+ *          as good a place as any to put it.
+ *
+ * @param process    Process in which to find the global variable.
+ * @param name       Name of the global variable to be found.
+ * @return           Dyninst variable expression pointer for the named
+ *                   function, or a null pointer if the global variable
+ *                   could not be found.
+ */
+BPatch_variableExpr*
+DyninstCallbacks::findGlobalVariable(/* const */ BPatch_process& process,
+				     const std::string& name)
+{
+    // Get the image pointer for this process
+    BPatch_image* image = process.getImage();
+    Assert(image != NULL);
+
+    // Attempt to find the requested global variable
+    BPatch_variableExpr* variable = image->findVariable(name.c_str());
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+        std::stringstream output;
+	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	       << "findGlobalVariable(PID " << process.getPid() 
+	       << ", \"" << name << "\") found "
+	       << ((variable == NULL) ? "0 matches" : "1 match")
+	       << "." << std::endl;
+        std::cerr << output.str();
+    }
+#endif
+
+    // Return the matching variable (if one was found) to the caller
+    return variable;
+}
+
+
+
+/**
  * Find a library function.
  *
  * Finds the named library function in the specified process. The library
