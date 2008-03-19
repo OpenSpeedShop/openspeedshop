@@ -1775,6 +1775,7 @@ StatsPanel::clearAuxiliarySelected()
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::clearAuxiliarySelected() entered\n" );
 #endif
+  currentUserSelectedReportStr = QString::null;
 
   toolbar_status_label->setText("Clearing Auxiliary Setttings:");
 
@@ -10342,6 +10343,9 @@ StatsPanel::functionsSelected()
  printf("functionsSelected()\n");
  printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
 
   currentUserSelectedReportStr = "Functions";
 
