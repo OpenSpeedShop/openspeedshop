@@ -18,9 +18,9 @@ chmod 644 openss/*.py
 cd openss
 set mymach=`uname -m`
 if ($mymach == "x86_64") then
-ln -s $OPENSS_INSTALL_DIR/lib64/libopenss-cli.so.0.0.0 PYopenss.so
+ln -s $OPENSS_PREFIX/lib64/libopenss-cli.so.0.0.0 PYopenss.so
 else
-ln -s $OPENSS_INSTALL_DIR/lib/libopenss-cli.so.0.0.0 PYopenss.so
+ln -s $OPENSS_PREFIX/lib/libopenss-cli.so.0.0.0 PYopenss.so
 endif
 cd ..
 
