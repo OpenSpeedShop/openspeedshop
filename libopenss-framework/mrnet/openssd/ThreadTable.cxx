@@ -102,7 +102,8 @@ ThreadTable::ThreadTable() :
     Lockable(),
     dm_name_to_ptr(),
     dm_ptr_to_names(),
-    dm_ptr_to_pipes()
+    dm_ptr_to_pipes(),
+    dm_ptr_to_state()
 {
 }
 
@@ -137,16 +138,20 @@ void ThreadTable::addThread(const ThreadName& thread, BPatch_thread* ptr,
 	    break;
     std::map<BPatch_thread*, SmartPtr<StdStreamPipes> >::const_iterator k =
 	dm_ptr_to_pipes.find(ptr);
+    std::map<BPatch_thread*, OpenSS_Protocol_ThreadState>::const_iterator l =
+	dm_ptr_to_state.find(ptr);
     
     // Check assertions
     Assert(i == dm_name_to_ptr.end());
     Assert(j == dm_ptr_to_names.upper_bound(ptr));
     Assert((k == dm_ptr_to_pipes.end()) || (k->second == pipes));
+    Assert(l == dm_ptr_to_state.end());
     
     // Add this thread
     dm_name_to_ptr.insert(std::make_pair(thread, ptr));
     dm_ptr_to_names.insert(std::make_pair(ptr, thread));
     dm_ptr_to_pipes.insert(std::make_pair(ptr, pipes));
+    dm_ptr_to_state.insert(std::make_pair(ptr, Disconnected));
 }
 
 
@@ -175,17 +180,21 @@ void ThreadTable::removeThread(const ThreadName& thread, BPatch_thread* ptr)
 	    break;
     std::map<BPatch_thread*, SmartPtr<StdStreamPipes> >::iterator k =
 	dm_ptr_to_pipes.find(ptr);
+    std::map<BPatch_thread*, OpenSS_Protocol_ThreadState>::iterator l =
+	dm_ptr_to_state.find(ptr);
     
     // Check assertions
     Assert(i != dm_name_to_ptr.end());
     Assert(j != dm_ptr_to_names.upper_bound(ptr));
     Assert(k != dm_ptr_to_pipes.end());
+    Assert(l != dm_ptr_to_state.end());
     
     // Remove this thread
     dm_name_to_ptr.erase(i);
     dm_ptr_to_names.erase(j);
     if(dm_ptr_to_names.count(ptr) == 0)
 	dm_ptr_to_pipes.erase(k);
+    dm_ptr_to_state.erase(l);
 }
 
 
@@ -373,4 +382,85 @@ ThreadNameGroup ThreadTable::getNames(const int& fd) const
     
     // Return the thread names to the caller
     return names;
+}
+
+
+
+/**
+ * Get a thread's state.
+ *
+ * Returns the current state of the thread for the specified Dyninst thread
+ * object pointer.
+ *
+ * @note    An assertion failure occurs if an attempt is made to get the
+ *          state of a thread that isn't in this thread table.
+ *
+ * @param ptr    Dyninst thread object pointer for the thread whose state
+ *               should be obtained.
+ * @return       Current state of the thread.
+ */
+OpenSS_Protocol_ThreadState
+ThreadTable::getThreadState(BPatch_thread* ptr) const
+{
+    Guard guard_myself(this);
+    
+    // Find the entry (if any) for this Dyninst thread object pointer
+    std::map<BPatch_thread*, OpenSS_Protocol_ThreadState>::const_iterator i =
+	dm_ptr_to_state.find(ptr);
+
+    // Check assertions
+    Assert(i != dm_ptr_to_state.end());
+        
+    // Return the thread's current state to the caller
+    return i->second;
+}
+
+
+
+/**
+ * Set a thread's state.
+ *
+ * Sets the current state of the thread for the specified Dyninst thread
+ * object pointer to the passed value.
+ *
+ * @note    An assertion failure occurs if an attempt is made to set the
+ *          state of a thread that isn't in this thread table.
+ *
+ * @param ptr      Dyninst thread object pointer for the thread whose
+ *                 state should be set.
+ * @param state    State to which this thread should be set.
+ */
+void ThreadTable::setThreadState(BPatch_thread* ptr,
+				 const OpenSS_Protocol_ThreadState& state)
+{
+    Guard guard_myself(this);
+    
+    // Find the entry (if any) for this Dyninst thread object pointer
+    std::map<BPatch_thread*, OpenSS_Protocol_ThreadState>::iterator i =
+	dm_ptr_to_state.find(ptr);
+    
+    // Check assertions
+    Assert(i != dm_ptr_to_state.end());
+    
+    // Set the thread's current state to the specified state
+    i->second = state;
+}
+
+
+
+/**
+ * Set threads' state.
+ *
+ * Sets the current state of every thread in the specified thread name group
+ * to the passed value.
+ *
+ * @param threads    Threads whose state should be set.
+ * @param state      State to which these threads should be set.
+ */
+void ThreadTable::setThreadState(const ThreadNameGroup& threads,
+				 const OpenSS_Protocol_ThreadState& state)
+{
+    for(ThreadNameGroup::const_iterator
+	    i = threads.begin(); i != threads.end(); ++i)
+	setThreadState(getPtr(*i), state);
 }

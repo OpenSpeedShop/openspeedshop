@@ -78,6 +78,9 @@ namespace {
     /** Flag indicating if debugging for the frontend is enabled. */
     bool is_frontend_debug_enabled = false;
 
+    /** Flag indicating if standard I/O debugging is enabled. */
+    bool is_stdio_debug_enabled = false;
+
     /** Flag indicating if symbols debugging is enabled. */
     bool is_symbols_debug_enabled = false;
 #endif
@@ -248,13 +251,6 @@ void Frontend::unregisterCallback(const int& tag,
  */
 void Frontend::startMessagePump(const Path& topology_file)
 {
-    static const char* DebugArgs[2] = { 
-	"--debug", NULL 
-    };
-    static const char* SymbolsDebugArgs[3] = { 
-	"--debug", "--symbols-debug", NULL 
-    };
-
     // Allocate the message callback table when necessary
     if(message_callback_table == NULL)
 	message_callback_table = new MessageCallbackTable();
@@ -266,16 +262,32 @@ void Frontend::startMessagePump(const Path& topology_file)
     bool is_backend_debug_enabled = 
         ((getenv("OPENSS_DEBUG_MRNET") != NULL) ||
 	 (getenv("OPENSS_DEBUG_MRNET_BACKEND") != NULL));
+    is_stdio_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_STDIO") != NULL);
     is_symbols_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_SYMBOLS") != NULL);
+
+    // Construct the arguments to the MRNet backend
+    std::vector<std::string> args;
+    if(is_backend_debug_enabled)
+	args.push_back("--debug");
+    if(is_stdio_debug_enabled)
+        args.push_back("--stdio-debug");
+    if(is_symbols_debug_enabled)
+	args.push_back("--symbols-debug");
     
+    // Translate the arguments into an argv-style argument list
+    const char** argv = new const char*[args.size() + 1];
+    for(std::vector<std::string>::size_type i = 0; i < args.size(); ++i)
+	argv[i] = args[i].c_str();
+    argv[args.size()] = NULL;
+
     // Initialize MRNet (participating as the frontend)
-    network = new MRN::Network(topology_file.getNormalized().c_str(), "openssd",
-			       is_backend_debug_enabled ? 
-			       (is_symbols_debug_enabled ? 
-				SymbolsDebugArgs : DebugArgs) :
-			       NULL);
+    network = new MRN::Network(topology_file.getNormalized().c_str(),
+			       "openssd", argv);
     if(network->fail())
 	throw std::runtime_error("Unable to initialize MRNet.");
+
+    // Destroy the argv-style argument list
+    delete [] argv;
     
     // Create the stream used by backends to pass data to the frontend.
     upstream = network->new_Stream(network->get_BroadcastCommunicator(),
@@ -412,6 +424,21 @@ void Frontend::sendToAllBackends(const int& tag, const Blob& blob)
 bool Frontend::isDebugEnabled()
 {
     return is_frontend_debug_enabled;
+}
+
+
+
+/**
+ * Get standard I/O debugging flag.
+ *
+ * Returns a flasg indicating if standard I/O debugging is enabled.
+ *
+ * @return    Boolean "true" if debugging for standard I/O is enabled,
+ *            "false" otherwise.
+ */
+bool Frontend::isStdioDebugEnabled()
+{
+    return is_stdio_debug_enabled;
 }
 
 

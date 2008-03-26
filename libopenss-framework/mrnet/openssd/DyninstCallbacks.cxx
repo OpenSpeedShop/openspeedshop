@@ -667,3 +667,105 @@ void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
 	
     }
 }
+
+
+
+/**
+ * Send thread state updates.
+ *
+ * Sends a series of messages to the frontend describing any thread state
+ * changes which have occured but have not yet been reported. Accomplished
+ * by comparing Dyninst's current notion of every known thread's state with
+ * that thread's state as stored in the thread table.
+ *
+ * @note    This function isn't a real Dyninst callback function but rather a
+ *          utility function. This seemed as good a place as any to put it.
+ */
+void DyninstCallbacks::sendThreadStateUpdates()
+{
+    //
+    // Note: Disable this function for now. Dyninst is giving us state
+    //       information that doesn't make sense (or at least doesn't
+    //       jive with what we expect). The result is that bogus state
+    //       updates are being sent to the frontend that mess things
+    //       up pretty badly.
+    // 
+    return;
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+        std::stringstream output;
+	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	       << "sendThreadStateUpdates()" << std::endl;
+        std::cerr << output.str();
+    }
+#endif
+
+    // Get Dyninst's list of active processes
+    BPatch* bpatch = BPatch::getBPatch();
+    Assert(bpatch != NULL);
+    BPatch_Vector<BPatch_process*>* processes = bpatch->getProcesses();
+    Assert(processes != NULL);
+
+    // Create an empty table for tracking thread state updates to be sent
+
+    typedef std::map<OpenSS_Protocol_ThreadState, ThreadNameGroup> StateUpdates;
+
+    StateUpdates updates;
+
+    updates.insert(std::make_pair(Disconnected, ThreadNameGroup()));
+    updates.insert(std::make_pair(Running, ThreadNameGroup()));
+    updates.insert(std::make_pair(Suspended, ThreadNameGroup()));
+    updates.insert(std::make_pair(Terminated, ThreadNameGroup()));
+
+    // Iterate over each active process
+    for(int i = 0; i < processes->size(); ++i) {
+	BPatch_process* process = (*processes)[i];
+	Assert(process != NULL);
+	
+	// Determine the current state of this process
+	OpenSS_Protocol_ThreadState state = Running;
+	if(process->isDetached())
+	    state = Disconnected;
+	else if(process->isTerminated())
+	    state = Terminated;
+	else if(process->isStopped())
+	    state = Suspended;
+	
+	// Get the list of threads in this process
+	BPatch_Vector<BPatch_thread*> threads;
+	process->getThreads(threads);
+	Assert(!threads.empty());
+
+	// Iterate over each thread in this process
+	for(int j = 0; j < threads.size(); ++j) {
+	    BPatch_thread* thread = threads[j];
+	    Assert(thread != NULL);
+
+	    // Is the thread's state in the thread table out of date?
+	    if(ThreadTable::TheTable.getThreadState(thread) != state) {
+
+		// Get all the names of this thread
+		ThreadNameGroup names = ThreadTable::TheTable.getNames(thread);
+
+		// Add these threads to the table of state updates
+		StateUpdates::iterator k = updates.find(state);
+		Assert(k != updates.end());
+		k->second.insert(names.begin(), names.end());
+		
+	    }
+	    
+	}
+	
+    }
+
+    // Iterate over all the updates that need to be sent
+    for(StateUpdates::const_iterator
+	    i = updates.begin(); i != updates.end(); ++i)
+	if(!i->second.empty()) {
+	    
+	    // Send the frontend the list of threads that have changed state
+	    Senders::threadsStateChanged(i->second, i->first);
+    
+	}
+}

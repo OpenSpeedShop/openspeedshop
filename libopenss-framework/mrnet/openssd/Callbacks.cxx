@@ -1142,7 +1142,7 @@ void Callbacks::stdIn(const Blob& blob)
 	);
 
 #ifndef NDEBUG
-    if(Backend::isDebugEnabled()) {
+    if(Backend::isStdioDebugEnabled()) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] Callbacks::"
 	       << toString(message);

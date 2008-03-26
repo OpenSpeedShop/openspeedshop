@@ -519,7 +519,7 @@ void Callbacks::stdErr(const Blob& blob)
 	);
 
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isStdioDebugEnabled()) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] Callbacks::"
 	       << toString(message);
@@ -574,7 +574,7 @@ void Callbacks::stdOut(const Blob& blob)
 	);
 
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isStdioDebugEnabled()) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] Callbacks::"
 	       << toString(message);

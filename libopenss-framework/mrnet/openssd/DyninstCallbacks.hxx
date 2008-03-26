@@ -62,7 +62,9 @@ namespace OpenSpeedShop { namespace Framework {
 						const std::string&);
 	BPatch_function* findLibraryFunction(/* const */ BPatch_process&,
 					     const std::string&);
+
 	void sendSymbolsForThread(const ThreadNameGroup&);
+	void sendThreadStateUpdates();
     }
     
 } }

@@ -81,6 +81,11 @@ namespace OpenSpeedShop { namespace Framework {
 	std::set<int> getStdOutFDs() const;
 
 	ThreadNameGroup getNames(const int&) const;
+
+	OpenSS_Protocol_ThreadState getThreadState(BPatch_thread*) const;
+	void setThreadState(BPatch_thread*, const OpenSS_Protocol_ThreadState&);
+	void setThreadState(const ThreadNameGroup&,
+			    const OpenSS_Protocol_ThreadState&);
 	
     private:
 
@@ -92,6 +97,9 @@ namespace OpenSpeedShop { namespace Framework {
 
 	/** Map Dyninst thread object pointers to their pipes. */
 	std::map<BPatch_thread*, SmartPtr<StdStreamPipes> > dm_ptr_to_pipes;
+
+	/** Map Dyninst thread object pointers to their state. */
+	std::map<BPatch_thread*, OpenSS_Protocol_ThreadState> dm_ptr_to_state;
 	
     };
 

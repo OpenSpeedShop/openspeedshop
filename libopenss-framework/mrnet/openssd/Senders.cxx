@@ -32,6 +32,7 @@
 #include "SymbolTable.hxx"
 #include "ThreadName.hxx"
 #include "ThreadNameGroup.hxx"
+#include "ThreadTable.hxx"
 #include "Time.hxx"
 #include "Utility.hxx"
 
@@ -433,7 +434,7 @@ void Senders::stdErr(const ThreadName& thread, const Blob& data)
     OpenSpeedShop::Framework::convert(data, message.data);
     
 #ifndef NDEBUG
-    if(Backend::isDebugEnabled()) {
+    if(Backend::isStdioDebugEnabled()) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] Senders::"
 	       << toString(message);
@@ -477,7 +478,7 @@ void Senders::stdOut(const ThreadName& thread, const Blob& data)
     OpenSpeedShop::Framework::convert(data, message.data);
     
 #ifndef NDEBUG
-    if(Backend::isDebugEnabled()) {
+    if(Backend::isStdioDebugEnabled()) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] Senders::"
 	       << toString(message);
@@ -589,6 +590,13 @@ void Senders::threadsStateChanged(const ThreadNameGroup& threads,
         reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_ThreadsStateChanged),
 	reinterpret_cast<char*>(&message)
 	);
+
+    //
+    // Update the state of these threads in the thread table. This information
+    // is used by DyninstCallbacks::sendThreadStateChanges() to insure it sends
+    // the minimal possible set of ThreadsStateChanged messages to the frontend.
+    //
+    ThreadTable::TheTable.setThreadState(threads, state);
 }
 
 

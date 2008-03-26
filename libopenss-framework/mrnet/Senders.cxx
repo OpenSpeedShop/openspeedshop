@@ -742,7 +742,7 @@ void Senders::stdIn(const Thread& thread, const Blob& data)
     OpenSpeedShop::Framework::convert(data, message.data);
     
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isStdioDebugEnabled()) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] Senders::"
 	       << toString(message);

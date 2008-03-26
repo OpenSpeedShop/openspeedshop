@@ -64,6 +64,9 @@ namespace {
     /** Flag indicating if debugging for the backend is enabled. */
     bool is_backend_debug_enabled = false;
 
+    /** Flag indicating if standard I/O debugging is enabled. */
+    bool is_stdio_debug_enabled = false;
+
     /** Flag indicating if symbols debugging is enabled. */
     bool is_symbols_debug_enabled = false;
 #endif
@@ -106,14 +109,6 @@ namespace {
 	bpatch->registerThreadEventCallback(BPatch_threadDestroyEvent,
 					    DyninstCallbacks::threadDestroy);
 	
-	// TODO: We need to register some sort of callback to pickup when a
-	//       process under our control stops at a breakpoint. Per Matt
-	//       Legendre on DEC-31-2007, Dyninst does not currently provide
-	//       any sort of callback for this. The only way to do this is
-	//       to track process state inside the daemon and have a thread
-	//       do a Dyninst waitForStatusChange() and watch for which
-	//       process has changed state, and if it has stopped.
-
 	// Instruct Dyninst to give source statement info with full path names
 	bpatch->truncateLineInfoFilenames(false);
 
@@ -200,6 +195,9 @@ namespace {
 		// Give Dyninst the opportunity to poll for any status changes
 		bpatch->pollForStatusChange();
 		
+		// Update the frontend with any new thread state changes
+		DyninstCallbacks::sendThreadStateUpdates();
+
 	    }
 
 	    // Handle any data available on incoming stdout streams
@@ -316,6 +314,8 @@ void Backend::startMessagePump(int argc, char* argv[])
 	    is_backend_debug_enabled = true;
 	else if(std::string(argv[i]) == std::string("--symbols-debug"))
 	    is_symbols_debug_enabled = true;
+	else if(std::string(argv[i]) == std::string("--stdio-debug"))
+	    is_stdio_debug_enabled = true;
 #endif
 
     // Initialize MRNet (participating as a backend)
@@ -399,6 +399,21 @@ void Backend::sendToFrontend(const int& tag, const Blob& blob)
 bool Backend::isDebugEnabled()
 {
     return is_backend_debug_enabled;
+}
+
+
+
+/**
+ * Get standard I/O debugging flag.
+ *
+ * Returns a flag indicating if standard I/O debugging is enabled.
+ *
+ * @return    Boolean "true" if debugging for standard I/O is enabled,
+ *            "false" otherwise.
+ */
+bool Backend::isStdioDebugEnabled()
+{
+    return is_stdio_debug_enabled;
 }
 
 
