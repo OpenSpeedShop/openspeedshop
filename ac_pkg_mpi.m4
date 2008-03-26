@@ -295,6 +295,14 @@ AC_DEFUN([AC_PKG_MPICH], [
         MPICH_LDFLAGS="-L$mpich_dir/lib"
     fi
 
+    if test x"$mpich_driver" == x"llnlib"; then
+	MPICH_CC="$mpich_dir/bin/mpicc -shlib"
+	# even on the Opterons/Peloton systems (x86_64) all libraries are in lib
+        # MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+        MPICH_LDFLAGS="-L$mpich_dir/lib"
+        MPICH_LIBS="-lmpich -libverbs"
+    fi
+
     # On the systems at LANL they have an MPICH variant
     # that has things moved around a bit. Handle this by allowing a "lanl"
     # pseudo-driver that makes the necessary configuration changes.
