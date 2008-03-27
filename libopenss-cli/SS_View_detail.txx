@@ -22,7 +22,12 @@
 #include "SS_Timings.hxx"
 
 /* Uncomment define immediately below for debug tracing */
+/* DEBUG_CLI provides tracing info, DEBUG_DUMP_CITEMS dumps a data */
+/* entry structure and can create large trace text files, it might be
+/* wise to only use when really needing to analyse the citem 
+/* structure entries  */
 /* #define DEBUG_CLI 1 */
+/* #define DEBUG_DUMP_CITEMS 1 */
 
 /**
  * Four templates are provided to generate the four differently formatted reports
@@ -94,13 +99,19 @@
 
 template <typename TDETAIL>
 bool Detail_Trace_Report(
-              CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-              ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
+              CommandObject *cmd, 
+              ExperimentObject *exp, 
+              int64_t topn,
+              ThreadGroup& tgrp, 
+              std::vector<Collector>& CV, 
+              std::vector<std::string>& MV,
+              std::vector<ViewInstruction *>& IV, 
+              std::vector<std::string>& HV,
               bool primary_is_inclusive,
               TDETAIL *dummy,
               std::list<CommandResult *>& view_output) {
 
+  std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
   int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
   Collector collector = CV[0];
   std::string metric = MV[0];
@@ -108,9 +119,10 @@ bool Detail_Trace_Report(
   bool add_stmts = (!Look_For_KeyWord(cmd, "ButterFly") ||
                     Look_For_KeyWord(cmd, "FullStack") ||
                     Look_For_KeyWord(cmd, "FullStacks"));
-   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
-         cli_timing_handle->cli_perf_data[SS_Timings::detailTraceReportStart] = Time::Now();
-    }
+
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+     cli_timing_handle->cli_perf_data[SS_Timings::detailTraceReportStart] = Time::Now();
+  }
 
 
 #if DEBUG_CLI
@@ -118,8 +130,7 @@ bool Detail_Trace_Report(
          num_temps, TraceBack_Order, add_stmts);
 #endif
 
-  std::vector<std::pair<CommandResult *,
-                        SmartPtr<std::vector<CommandResult *> > > > c_items;
+  std::vector<std::pair<CommandResult *, SmartPtr<std::vector<CommandResult *> > > > c_items;
 
  // Get the list of desired functions.
   std::set<Function> objects;
@@ -133,7 +144,17 @@ bool Detail_Trace_Report(
     collector.lockDatabase();
     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
     Time base_time = databaseExtent.getTimeInterval().getBegin();
+
 #if DEBUG_CLI
+    Framework::TimeInterval basetime = databaseExtent.getTimeInterval();
+    Framework::AddressRange baseaddr = databaseExtent.getAddressRange();
+
+    printf("In Detail_Trace_Report, basetime.getBegin().getValue()=%u\n", basetime.getBegin().getValue());
+    printf("In Detail_Trace_Report, basetime.getEnd().getValue()=%u\n", basetime.getEnd().getValue());
+    std::cout << "In Detail_Trace_Report, ------------ baseaddr.getBegin()=" << baseaddr.getBegin() << std::endl;
+    std::cout << "In Detail_Trace_Report, ------------ baseaddr.getEnd()=" << baseaddr.getEnd() << std::endl;
+    printf("In Detail_Trace_Report, baseaddr.getBegin().getValue()=%x\n", baseaddr.getBegin().getValue());
+    printf("In Detail_Trace_Report, baseaddr.getEnd().getValue()=%x\n", baseaddr.getEnd().getValue());
     printf("In Detail_Trace_Report, SS_View_detail.txx, base_time.getValue()=%u\n", base_time.getValue());
 #endif
 
@@ -147,10 +168,24 @@ bool Detail_Trace_Report(
     Parse_Interval_Specification (cmd, exp, intervals);
 
    // Acquire base set of metric values.
-    SmartPtr<std::map<Function,
-                      std::map<Framework::StackTrace,
-                               std::vector<TDETAIL> > > > raw_items;
+    SmartPtr<std::map<Function, std::map<Framework::StackTrace, std::vector<TDETAIL> > > > raw_items;
+
+#if DEBUG_CLI
+  for (std::vector<std::pair<Time,Time> >::iterator iv = intervals.begin(); iv != intervals.end(); iv++) {
+         cout << " In Detail_Trace_Report, SS_View_detail.txx, before GetMetricInThreadGroup, iv->first=" 
+              << iv->first << " iv->second=" << iv->second << endl;
+  }
+#endif
+
+    // Create raw_items which contains the items that are active in the thread group,
+    // for the objects, metric and collector specified.
+    //
+    // For the trace view, the objects are the functions being traced/wrapped.
+    // This appears to be working correctly, although we are getting extra functions
+    // included. They are part of the callstack for the wrapped functions.
+
     GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, raw_items);
+
 #if DEBUG_CLI
     printf("In Detail_Trace_Report, SS_View_detail.txx, after GetMetricInThreadGroup\n");
 #endif
@@ -170,38 +205,110 @@ bool Detail_Trace_Report(
     std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(Find_Max_ExtraMetrics(IV)+1);
     bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
 #if DEBUG_CLI
-    printf("In Detail_Trace_Report, SS_View_detail.txx, after GetReducedMetrics, ExtraTemps=%d\n",
-           ExtraTemps);
+    printf("In Detail_Trace_Report, SS_View_detail.txx, after GetReducedMetrics, ExtraTemps=%d\n", ExtraTemps);
 #endif
 
    // Combine all the items for each function.
     std::map<Address, CommandResult *> knownTraces;
     std::set<Framework::StackTrace, ltST> StackTraces_Processed;
     typename std::map<Function, std::map<Framework::StackTrace, std::vector<TDETAIL> > >::iterator fi;
+#if DEBUG_CLI
+    int rawcount = 0;
+    std::cout << "In Detail_Trace_Report, before raw_items loop, rawcount=" << rawcount << std::endl;
+#endif
     for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
      // Foreach Detail function ...
 
       Function F = (*fi).first;
-      std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
+
+#if DEBUG_CLI
+      rawcount = rawcount + 1; 
+      std::cout << "In Detail_Trace_Report, rawcount=" << rawcount << " F.getName()=" << F.getName() << std::endl;
+#endif
+
+      // Go off and get the subextents for the function that is being processed.
+      // The function is at the top of one of the stack traces being processed and
+      // it's event time needs to be reported.
+
       Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
+
+#if DEBUG_CLI
+      std::cout << "In Detail_Trace_Report, after Get_Subextents_To_Object_Map, SubExtents_Map.size()=" 
+                << SubExtents_Map.size() << std::endl;
+#endif
 
       typename std::map<Framework::StackTrace, std::vector<TDETAIL> >:: iterator si;
       for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
+
         Framework::StackTrace st = (*si).first;
+   
+
+#if DEBUG_CLI
+        std::cout << "In Detail_Trace_Report, getting new stacktrace=" << std::endl;
+#endif
+
+        // Get the details associated with this stacktrace entry (Event?)
         std::vector<TDETAIL> details = (*si).second;
 
        // If we have already processed this StackTrace, skip it!
         if (StackTraces_Processed.find(st) != StackTraces_Processed.end()) {
+#if DEBUG_CLI
+          std::cout << "In Detail_Trace_Report, skipping stacktrace" << std::endl;
+#endif
+          // skipping the reprocessing of a stacktrace item
           continue;
         }
 
-       // Find the extents associated with the stack trace's thread.
-        std::map<Framework::Thread, Framework::ExtentGroup>::iterator tei
-                                   = SubExtents_Map.find(st.getThread());
+        // JEG - It seems like we should be getting the first extent address (lowest)
+        // and then the last extent for the thread (highest address).  We seem to be taking
+        // the 1st and very narrow extent for this check.
+
+#if DEBUG_CLI
+        Thread debugThread = st.getThread();
+        std::cout << "In Detail_Trace_Report, st.getThread(), debugThread.getProcessId()=" 
+                  << debugThread.getProcessId() << std::endl;
+#endif
+
+        // Find the extents associated with the stack trace's thread.
+        // We should have subextents in the SubExtents_Map for this thread.  
+        // They were calculated for the  thread group above.   Now let us 
+        // find those associated with this particular thread.
+
+        std::map<Framework::Thread, Framework::ExtentGroup>::iterator tei = SubExtents_Map.find(st.getThread());
         Framework::ExtentGroup SubExtents;
+
         if (tei != SubExtents_Map.end()) {
           SubExtents = (*tei).second;
+
+#ifdef DEBUG_CLI
+          std::cout << "In Detail_Trace_Report, getting out SubExtents, SubExtents.size()=" 
+                    << SubExtents.size() << std::endl;
+          for (Framework::ExtentGroup::iterator debug_ei = SubExtents.begin(); debug_ei != SubExtents.end(); debug_ei++) {
+            Framework::Extent check = *debug_ei;
+            if (!check.isEmpty()) {
+              Framework::TimeInterval time = check.getTimeInterval();
+              Framework::AddressRange addr = check.getAddressRange();
+              printf("In Detail_Trace_Report, time.getBegin().getValue()=%u\n", time.getBegin().getValue());
+              printf("In Detail_Trace_Report, time.getEnd().getValue()=%u\n", time.getEnd().getValue());
+              std::cout << "In Detail_Trace_Report, ------------ addr.getBegin()=" << addr.getBegin() << std::endl;
+              std::cout << "In Detail_Trace_Report, ------------ addr.getEnd()=" << addr.getEnd() << std::endl;
+              printf("In Detail_Trace_Report, addr.getBegin().getValue()=%x\n", addr.getBegin().getValue());
+              printf("In Detail_Trace_Report, addr.getEnd().getValue()=%x\n", addr.getEnd().getValue());
+           }
         }
+#endif
+
+        } else {
+
+#ifdef DEBUG_CLI
+         std::cout << "In Detail_Trace_Report, DIDNT FIND SUBEXTENT ENTRY ERROR SubExtents.size()=" 
+                   << SubExtents.size() << std::endl;
+#endif
+
+        }
+
+       // So we should have the subextents associated with the object and the thread 
+       // and they should be in the vector SubExtents.
 
        // Count the number of recursive calls in the stack.
        // The count in the Detail metric includes each call,
@@ -218,16 +325,33 @@ bool Detail_Trace_Report(
          // Use macro to alocate temporaries
           def_Detail_values
 
-         // Use macro to assign to temporaries
+#if DEBUG_CLI
+          printf("In Detail_Trace_Report, SS_View_detail.txx, calling get_inclusive_trace, calls_In_stack=%d\n", calls_In_stack);
+#endif
+          // Use macro to assign to temporaries
           get_inclusive_trace(detail, calls_In_stack);
-
+ 
+         // JEG - the SubExtents appears to be only one range.  Should this be all the 
+         // subextents for the thread?
+         // We decided to do the get_exclusive_trace unconditionally, 
+         // so we've commented the topStack_In_Subextent if check out.
+#if 0
          // Decide if we accumulate exclusive_time, as well.
           if (topStack_In_Subextent (st, SubExtents)) {
            // Bottom of trace is current function.
            // Exclusive_time is the same as inclusive_time.
            // Deeper calls must go without exclusive_time.
+#if DEBUG_CLI
+            printf("In Detail_Trace_Report, SS_View_detail.txx, calling get_exclusive_trace, calls_In_stack=%d\n", calls_In_stack);
+#endif
             get_exclusive_trace(detail, calls_In_stack);
           }
+#else
+          get_exclusive_trace(detail, calls_In_stack);
+#if DEBUG_CLI
+          printf("In Detail_Trace_Report, calling get_exclusive_trace, calls_In_stack=%d\n", calls_In_stack);
+#endif 
+#endif
 
          // Use macro to assign temporaries to the result array
           SmartPtr<std::vector<CommandResult *> > vcs
@@ -239,20 +363,59 @@ bool Detail_Trace_Report(
 
           CommandResult *CSE;
           if (base_CSE == NULL) {
-            std::vector<CommandResult *> *call_stack =
-                                  Construct_CallBack (TraceBack_Order, add_stmts, st, knownTraces);
+            std::vector<CommandResult *> *call_stack = Construct_CallBack (TraceBack_Order, add_stmts, st, knownTraces);
+
 #if DEBUG_CLI
             printf("In Detail_Trace_Report, SS_View_detail.txx, after new CommandResult_CallStackEntry\n");
 #endif
+
             base_CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
             CSE = base_CSE;
+
+#if DEBUG_CLI
+            printf("In Detail_Trace_Report, SS_View_detail.txx, use existing base_CSE,after new CommandResult_CallStackEntry\n");
+#endif
+
           } else {
+
             CSE = base_CSE->Copy();
+#if DEBUG_CLI
+            printf("In Detail_Trace_Report, SS_View_detail.txx, make copy of base_CSE,after new CommandResult_CallStackEntry\n");
+#endif
           }
           c_items.push_back(std::make_pair(CSE, vcs));
+
+#if DEBUG_DUMP_CITEMS
+// -- BEGIN DEBUG CITEMS
+        cerr << "\nDump items.  Detail_Trace_Report, SS_View_detail.txx, after pushing back vcs, Number of items is " << c_items.size() << "\n";
+        std::vector<std::pair<CommandResult *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+        for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+         // Foreach CallStack entry, copy the desired sort value into the VMulti_sort_temp field.
+          std::pair<CommandResult *,
+                    SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
+          int64_t i;
+          for (i = 0; i < (*cp.second).size(); i++ ) {
+            CommandResult *p = (*cp.second)[i];
+            cerr << " Entry i= " << i << "  ";
+            if (p != NULL) {
+              p->Print(cerr); cerr << "\n";
+            } else {
+              cerr << "NULL\n";
+            }
+          }
+
+        }
+        fflush(stderr);
+// -- END DEBUG CITEMS
+#endif
+
         }
 
        // Remember that we have now processed this particular StackTrace.
+#if DEBUG_CLI
+        printf("In Detail_Trace_Report, SS_View_detail.txx, setting that we PROCESSED stacktrace st\n");
+#endif
         StackTraces_Processed.insert(st);
       }
     }
@@ -278,6 +441,32 @@ bool Detail_Trace_Report(
 #if DEBUG_CLI
   printf("In Detail_Trace_Report, SS_View_detail.txx, before calling Generic_Multi_View\n");
 #endif
+
+#if DEBUG_DUMP_CITEMS
+// -- BEGIN DEBUG CITEMS
+        cerr << "\nDump items.  Detail_Trace_Report, SS_View_detail.txx, before calling Generic_Multi_View, Number of items is " << c_items.size() << "\n";
+        std::vector<std::pair<CommandResult *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+        for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+         // Foreach CallStack entry, copy the desired sort value into the VMulti_sort_temp field.
+          std::pair<CommandResult *,
+                    SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
+          int64_t i;
+          for (i = 0; i < (*cp.second).size(); i++ ) {
+            CommandResult *p = (*cp.second)[i];
+            cerr << " Entry i= " << i << "  ";
+            if (p != NULL) {
+              p->Print(cerr); cerr << "\n";
+            } else {
+              cerr << "NULL\n";
+            }
+          }
+
+        }
+        fflush(stderr);
+// -- END DEBUG CITEMS
+#endif
+
   bool view_built = Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_Trace, c_items, view_output);
 #if DEBUG_CLI
   printf("In Detail_Trace_Report, SS_View_detail.txx, after calling Generic_Multi_View\n");
@@ -289,10 +478,12 @@ bool Detail_Trace_Report(
     delete vp;
     IV[i] = NULL;
   }
+
 #if DEBUG_CLI
   printf("Exit Detail_Trace_Report, SS_View_detail.txx, view_built=%d, topn=%d, c_items.size()=%d\n",
          view_built, topn, c_items.size());
 #endif
+
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
       cli_timing_handle->processTimingEventEnd( SS_Timings::detailTraceReportStart,
                                                 SS_Timings::detailTraceReportCount,
@@ -360,6 +551,9 @@ bool Detail_Base_Report(
     SmartPtr<std::map<TOBJECT,
                       std::map<Framework::StackTrace,
                                TDETAIL> > > raw_items;
+
+
+
     GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, raw_items);
 
 /* Don't issue this message - just go ahead an print the headers and an empty report.
@@ -606,6 +800,33 @@ bool Detail_CallStack_Report (
 #if DEBUG_CLI
         printf("In Detail_CallStack_Report, SS_View_detail.txx, after new CommandResult_CallStackEntry\n");
 #endif
+
+#if DEBUG_DUMP_CITEMS
+// -- BEGIN DEBUG CITEMS
+        cerr << "\nDump items.  Detail_CallStack_Report, SS_View_detail.txx, after new CommandResult_CallStackEntry, Number of items is " << c_items.size() << "\n";
+        std::vector<std::pair<CommandResult *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+        for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+         // Foreach CallStack entry, copy the desired sort value into the VMulti_sort_temp field.
+          std::pair<CommandResult *,
+                    SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
+          int64_t i;
+          for (i = 0; i < (*cp.second).size(); i++ ) {
+            CommandResult *p = (*cp.second)[i];
+            cerr << "  ";
+            if (p != NULL) {
+              p->Print(cerr); cerr << "\n";
+            } else {
+              cerr << "NULL\n";
+            }
+          }
+
+        }
+        fflush(stderr);
+// -- END DEBUG CITEMS
+
+//        *vcs->Print(cerr);
+#endif
         c_items.push_back(std::make_pair(CSE, vcs));
       }
     }
@@ -631,7 +852,9 @@ bool Detail_CallStack_Report (
 #if DEBUG_CLI
   printf("In Detail_CallStack_Report, SS_View_detail.txx, before calling Generic_Multi_View\n");
 #endif
+
   bool view_built = Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack,c_items, view_output);
+
 #if DEBUG_CLI
   printf("In Detail_CallStack_Report, SS_View_detail.txx, after calling Generic_Multi_View\n");
 #endif
@@ -706,32 +929,49 @@ bool Detail_ButterFly_Report (
     SmartPtr<std::map<Function,
                       std::map<Framework::StackTrace,
                                TDETAIL > > > raw_items;
+
     GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, raw_items);
+
+    if (raw_items->begin() == raw_items->end()) {
+
+#if DEBUG_CLI
+      printf("In detail_Butterfly_Report, SS_View_detail.txx, ******ERROR****** There are no data samples available for the requested Detail functions\n");
+#endif
 
 /* Don't issue this message - just go ahead an print the headers and an empty report.
    Consider turning this message into a Annotation.
-    if (raw_items->begin() == raw_items->end()) {
       Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for the requested functions.)");
-#if DEBUG_CLI
-    printf("In detail_Butterfly_Report, SS_View_detail.txx, There are no data samples available for the requested Detail functions\n");
-#endif
       return false;
-    }
 */
+    } // raw_items->begin() ....
 
    // Get any required intermediate reduction temps.
+
     std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(Find_Max_ExtraMetrics(IV)+1);
     bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
 
    // Generate a separate butterfly view for each function in the list.
+
     std::map<Address, CommandResult *> knownTraces;
     typename std::map<Function, std::map<Framework::StackTrace, TDETAIL > >::iterator fi1;
+
+#if DEBUG_CLI
+    int rawcount = 0;
+#endif
     for (fi1 = raw_items->begin(); fi1 != raw_items->end(); fi1++) {
+
+#if DEBUG_CLI
+      rawcount = rawcount + 1; 
+#endif
      // Define set of data for the current function.
       std::vector<std::pair<CommandResult *,
                             SmartPtr<std::vector<CommandResult *> > > > c_items;
 
       Function F = (*fi1).first;
+#if DEBUG_CLI
+      std::cout << "In Detail_Butterfly_Report, rawcount=" << rawcount << " F.getName()=" << F.getName() << std::endl;
+#endif
+
       std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
       Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
 
@@ -766,22 +1006,61 @@ bool Detail_ButterFly_Report (
        // Construct result entry
         std::vector<CommandResult *> *call_stack
                  = Construct_CallBack (TraceBack_Order, true, st, knownTraces);
+
         CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
+
+#if DEBUG_CLI
+        printf("In detail_ButterFly_Report, SS_View_detail.txx, pushing back vcs (c_items)\n");
+#endif
+
         c_items.push_back(std::make_pair(CSE, vcs));
+
+
+#if DEBUG_DUMP_CITEMS
+
+// -- BEGIN DEBUG CITEMS
+        cerr << "\nDump items.  Detail_Trace_Report, SS_View_detail.txx, after pushing back vcs, Number of items is " << c_items.size() << "\n";
+        std::vector<std::pair<CommandResult *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+        for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+         // Foreach CallStack entry, copy the desired sort value into the VMulti_sort_temp field.
+          std::pair<CommandResult *,
+                    SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
+          int64_t i;
+          for (i = 0; i < (*cp.second).size(); i++ ) {
+            CommandResult *p = (*cp.second)[i];
+            cerr << " Entry i= " << i << "  ";
+            if (p != NULL) {
+              p->Print(cerr); cerr << "\n";
+            } else {
+              cerr << "NULL\n";
+            }
+          }
+
+        }
+        fflush(stderr);
+// -- END DEBUG CITEMS
+#endif
+
       }
 
      // Generate the report.
 /* Don't issue this message - just go ahead an print the headers and an empty report.
    Consider turning this message into a Annotation.
       if (c_items.empty()) {
+
 #if DEBUG_CLI
         printf("In detail_Butterfly_Report, SS_View_detail.txx, There are no data samples available for the requested function=%s\n", F.getName());
 #endif
+
+
         std::string S = "(There are no data samples available for function '";
         S = S + F.getName() + "'.)";
         Mark_Cmd_With_Soft_Error(cmd, S);
+
       } else
 */
+
       (void) Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, VFC_CallStack, c_items, view_output);
     }
 

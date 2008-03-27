@@ -20,6 +20,10 @@
 #include "IOTCollector.hxx"
 #include "IOTDetail.hxx"
 
+/* Uncomment for debug traces 
+#define DEBUG_IOT 1
+*/
+
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
 
@@ -92,18 +96,20 @@
 #define set_IOT_values(value_array, sort_extime)                                          \
               if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;     \
               if (num_temps > start_temp) {                                               \
-                int64_t x= (start-base_time);                                             \
-                value_array[start_temp] = new CommandResult_Duration (x);                 \
-              }                                                                           \
-              if (num_temps > stop_temp) {                                                \
-                int64_t x= (end-base_time);                                               \
-                value_array[stop_temp] = new CommandResult_Duration (x);                  \
+                int64_t x= (start.getValue() /*-base_time*/);                             \
+                value_array[start_temp] = new CommandResult_Time (x);                     \
+              }                                                                          \
+              if (num_temps > stop_temp) {                                               \
+                int64_t x= (end.getValue() /*-base_time*/);                               \
+                value_array[stop_temp] = new CommandResult_Time (x);                      \
               }                                                                           \
               if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp]             \
                                                  = CRPTR (sort_extime ? extime : intime); \
-              if (num_temps > intime_temp) value_array[intime_temp] = CRPTR (intime);     \
+              if (num_temps > intime_temp) value_array[intime_temp]                       \
+                            = new CommandResult_Interval (intime);                        \
               if (num_temps > incnt_temp) value_array[incnt_temp] = CRPTR (incnt);        \
-              if (num_temps > extime_temp) value_array[extime_temp] = CRPTR (extime);     \
+              if (num_temps > extime_temp) value_array[extime_temp]                       \
+                            = new CommandResult_Interval (extime);                        \
               if (num_temps > excnt_temp) value_array[excnt_temp] = CRPTR (excnt);        \
               if (num_temps > min_temp) value_array[min_temp] = CRPTR (vmin);             \
               if (num_temps > max_temp) value_array[max_temp] = CRPTR (vmax);             \
@@ -301,8 +307,18 @@ static bool define_iot_columns (
         } else if (!strcasecmp(M_Name.c_str(), "percent") ||
                    !strcasecmp(M_Name.c_str(), "%") ||
                    !strcasecmp(M_Name.c_str(), "%time") ||
-                   !strcasecmp(M_Name.c_str(), "%times") ||
-                   !strcasecmp(M_Name.c_str(), "%exclusive_time") ||
+                   !strcasecmp(M_Name.c_str(), "%times")) {
+         // percent is calculate from 2 temps: time for this row and total time.
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // Use the metric needed for calculating total time.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+          } else {
+           // Sum the extime_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, VMulti_time_temp, totalIndex++));
+          HV.push_back("% of Total");
+        } else if (!strcasecmp(M_Name.c_str(), "%exclusive_time") ||
                    !strcasecmp(M_Name.c_str(), "%exclusive_times")) {
          // percent is calculate from 2 temps: time for this row and total time.
           if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
@@ -450,12 +466,25 @@ static bool define_iot_columns (
    // If nothing is requested ...
     if (vfc == VFC_Trace) {
       // Insert start and end times into report.
+#ifdef DEBUG_IOT
+      printf("iot_view, before VIEWINST_Display_Tmp=%d, for start_temp=%d, last_column=%d\n", VIEWINST_Display_Tmp, start_temp, last_column);
+#endif
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
+#ifdef DEBUG_IOT
+      printf("iot_view, after for start_temp=%d, last_column=%d\n", start_temp, last_column);
+#endif
       HV.push_back("Start Time");
       IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
     }
    // Always display elapsed time.
+#ifdef DEBUG_IOT
+    printf("iot_view, before for VIEWINST_Display_Tmp=%d, extime_temp=%d, last_column=%d\n", VIEWINST_Display_Tmp, extime_temp, last_column);
+#endif
+
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
+#ifdef DEBUG_IOT
+    printf("iot_view, after for extime_temp=%d, last_column=%d\n", extime_temp, last_column);
+#endif
     HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
 
   // and include % of exclusive time
@@ -486,6 +515,7 @@ static bool iot_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t 
       return false;
     }
     std::string M_Name = MV[0];
+    MV.push_back(M_Name);
     if (!Collector_Generates_Metric (*CV.begin(), M_Name)) {
       std::string s("The metrics required to generate the view are not available in the experiment.");
       Mark_Cmd_With_Soft_Error(cmd,s);
@@ -610,6 +640,9 @@ class iot_view : public ViewType {
       IOTDetail *dummyDetail;
       switch (Determine_Form_Category(cmd)) {
        case VFC_Trace:
+#ifdef DEBUG_IOT
+       printf("iot_view.cxx, calling Detail_Trace_Report\n");
+#endif
         return Detail_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                     Determine_Metric_Ordering(IV), dummyDetail, view_output);
        case VFC_CallStack:

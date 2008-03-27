@@ -715,11 +715,17 @@ bool Parse_Interval_Specification (
         std::vector<std::pair<Time,Time> >& intervals) {
   Assert (exp != NULL);
   Assert (exp->FW() != NULL);
+#if DEBUG_CLI
+    std::cout << "Enter Parse_Interval_Specification" << std::endl;
+#endif
   OpenSpeedShop::cli::ParseResult *parse_result = cmd->P_Result();
   vector<ParseInterval> *I_list = parse_result->getParseIntervalList();
 
   if (I_list->empty()) {
     intervals.push_back(make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
+#if DEBUG_CLI
+    std::cout << "Exit TRUE Parse_Interval_Specification I_list is empty" << std::endl;
+#endif
     return true;
   }
 
@@ -741,6 +747,9 @@ bool Parse_Interval_Specification (
       S << unit_string << "'  is not valid.";
       Mark_Cmd_With_Soft_Error(cmd, S.ostringstream::str());
       intervals.push_back(make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
+#if DEBUG_CLI
+    std::cout << "Exit TRUE Parse_Interval_Specification invalid attribute" << std::endl;
+#endif
       return true;
     }
   }
@@ -820,12 +829,17 @@ bool Parse_Interval_Specification (
       Mark_Cmd_With_Soft_Error(cmd, S.ostringstream::str());
       intervals.clear();
       intervals.push_back(make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
+#if DEBUG_CLI
+    std::cout << "Exit TRUE Parse_Interval_Specification start time is greater than end time" << std::endl;
+#endif
       return true;
     }
 
 #if DEBUG_CLI
     cerr << "In	Parse_Interval_Specification, Istart= " << Istart << "\n";
     cerr << "In	Parse_Interval_Specification, Iend= " << Iend << "last_time=" << last_time << "\n";
+    std::cout << "EXIT Parse_Interval_Specification, Istart= " << Istart << std::endl;
+    std::cout << "EXIT Parse_Interval_Specification, Iend= " << Iend << "last_time=" << last_time << std::endl;
 #endif
 
     intervals.push_back(std::make_pair<Time,Time>(Istart,

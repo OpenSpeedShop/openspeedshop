@@ -23,6 +23,7 @@
 */
 /* #define DEBUG_CLI 1 */
 
+
 /* TEST */
 template <typename TO, typename TS>
 void GetMetricInThreadGroupByThread (
@@ -38,22 +39,26 @@ void GetMetricInThreadGroupByThread (
                  iv = intervals.begin(); iv != intervals.end(); iv++) {
       Time Start_Time = iv->first;
       Time End_Time = iv->second;
+
 #if DEBUG_CLI
       printf("In GetMetricInThreadGroupByThread, Start_Time.getValue()=%u\n", Start_Time.getValue());
       printf("In GetMetricInThreadGroupByThread, End_Time.getValue()=%u\n", End_Time.getValue());
 #endif
+
       Queries::GetMetricValues(collector, metric,
                                TimeInterval(Start_Time, End_Time),
                                tgrp, objects, individual);
+#if DEBUG_CLI
+    printf("In GetMetricInThreadGroupByThread, after Queries::GetMetricValues, objects.size()=%d\n", objects.size());
+#endif
     }
 
 }
 
 template <typename TO, typename TS>
-void ReduceMetricByThread (
-    SmartPtr<std::map<TO, std::map<Thread, TS > > >& individual,
-    TS (*reduction)(const std::map<Framework::Thread, TS >&),
-    SmartPtr<std::map<TO, TS > >& result)
+void ReduceMetricByThread ( SmartPtr<std::map<TO, std::map<Thread, TS > > >& individual,
+                            TS (*reduction)(const std::map<Framework::Thread, TS >&),
+                            SmartPtr<std::map<TO, TS > >& result)
 {
    // Allocate (if necessary) a new map of source objects to values
     if(result.isNull()) {
@@ -61,17 +66,31 @@ void ReduceMetricByThread (
       Assert(!result.isNull());
     }
 
-   // Reduce the per-thread values.
-    SmartPtr<std::map<TO, TS > > reduced =
-        Queries::Reduction::Apply(individual, reduction);
+#if DEBUG_CLI
+//    cout << "In ReduceMetricByThread  individual->size()=" << individual->size() << endl;
+#endif
 
-   // Merge the temporary reduction into the actual results
-    for(typename std::map<TO, TS >::const_iterator
-            i = reduced->begin(); i != reduced->end(); ++i) {
-        if(result->find(i->first) == result->end())
+   // Reduce the per-thread values.
+    SmartPtr<std::map<TO, TS > > reduced = Queries::Reduction::Apply(individual, reduction);
+
+#if DEBUG_CLI
+//    cout << "In ReduceMetricByThread  reduced->size()=" << reduced->size() << endl;
+#endif
+
+    // Merge the temporary reduction into the actual results
+    for(typename std::map<TO, TS >::const_iterator i = reduced->begin(); i != reduced->end(); ++i) {
+
+
+#if DEBUG_CLI
+        fprintf(stderr, "ReduceMetricByThread, in reduction for loop\n");
+        fflush(stderr);
+#endif
+   
+        if(result->find(i->first) == result->end()) {
             result->insert(std::make_pair(i->first, i->second));
-        else
+        } else {
             (*result)[i->first] += i->second;
+        }
     }
 
 }
@@ -92,6 +111,9 @@ void GetMetricInThreadGroup(
 #endif
 
     if(result.isNull()) {
+#if DEBUG_CLI
+      printf("GetMetricInThreadGroup, result.isNull is true\n");
+#endif
       result = SmartPtr<std::map<TO, TS > >(new std::map<TO, TS >());
       Assert(!result.isNull());
     }
@@ -147,6 +169,7 @@ void GetReducedSet (
   for(typename std::map<TOBJECT, TI>::const_iterator
       item = result->begin(); item != result->end(); ++item) {
     std::pair<TOBJECT, TI> p = *item;
+//    cout << "GetReducedSet, p.second=" << p.second << endl;
     items->insert( std::make_pair(p.first, CRPTR (p.second)) );
   }
 }

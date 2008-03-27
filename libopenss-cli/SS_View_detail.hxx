@@ -25,6 +25,12 @@
  */
 
 
+/* Uncomment these lines if you want to get debugging traces
+#include "EntrySpy.hxx"
+#define DEBUG_CLI 1
+*/
+
+
 /**
  * 
  * inlined function topStack_In_Subextent 
@@ -35,6 +41,7 @@
  * @param st         Stack trace frames to be examined.
  * @param subextents The time and address ranges for the subextent to be searched.
  */
+
 
 
 inline bool topStack_In_Subextent (
@@ -51,6 +58,7 @@ inline bool topStack_In_Subextent (
 #if DEBUG_CLI
   printf("In topStack_In_Subextent, last callstack entry address value==> a.getValue()=%x\n", a.getValue());
   printf("Enter topStack_In_Subextent, t.getValue()=%u\n", t.getValue());
+  printf("Enter topStack_In_Subextent, subextents.size()=%d\n", subextents.size());
 #endif
 
   for (ExtentGroup::iterator ei = subextents.begin(); ei != subextents.end(); ei++) {
@@ -62,9 +70,13 @@ inline bool topStack_In_Subextent (
 #if DEBUG_CLI
       printf("In topStack_In_Subextent, time.getBegin().getValue()=%u\n", time.getBegin().getValue());
       printf("In topStack_In_Subextent, time.getEnd().getValue()=%u\n", time.getEnd().getValue());
-      printf("In topStack_In_Subextent, a.getValue()=%x\n", a.getValue());
+//      printf("In topStack_In_Subextent, a.getValue()=%x\n", a.getValue());
       printf("In topStack_In_Subextent, addr.getBegin().getValue()=%x\n", addr.getBegin().getValue());
       printf("In topStack_In_Subextent, addr.getEnd().getValue()=%x\n", addr.getEnd().getValue());
+
+      std::cout << "In topStack_In_Subextent, -------------> addr.getBegin()=" << addr.getBegin() << std::endl;
+      printf("In topStack_In_Subextent, a.getValue()=%x\n", a.getValue());
+      std::cout << "In topStack_In_Subextent, -------------> addr.getEnd()=" << addr.getEnd() << std::endl;
 #endif
       
 // Is the address and time for the stack frame being searched inside the subextent?
@@ -77,6 +89,10 @@ inline bool topStack_In_Subextent (
         // yes the address and time for the stack frame being searched IS inside the subextent
         return true;
       }
+    } else {
+#if DEBUG_CLI
+        printf("In topStack_In_Subextent, subextent is empty\n");
+#endif
     }
   }
 #if DEBUG_CLI
@@ -112,9 +128,9 @@ inline bool topCallStack_In_Subextent (
   Address a = st[st.size()-1];
 
 #if DEBUG_CLI
-  printf("In topCallStack_In_Subextent, top callstack entry address value==> a.getValue()=%x\n", a.getValue());
+  printf("In topCallStack_In_Subextent, TOP CALLSTACK ENTRY address value==> a.getValue()=%x\n", a.getValue());
   Address b = st[0];
-  printf("In topCallStack_In_Subextent, bottom callstack entry address value==> b.getValue()=%x\n", b.getValue());
+  printf("In topCallStack_In_Subextent, BOTTOM CALLSTACK ENTRY address value==> b.getValue()=%x\n", b.getValue());
   printf("Enter topCallStack_In_Subextent, t.getValue()=%u\n", t.getValue());
 #endif
 
@@ -127,9 +143,13 @@ inline bool topCallStack_In_Subextent (
 #if DEBUG_CLI
       printf("In topCallStack_In_Subextent, time.getBegin().getValue()=%u\n", time.getBegin().getValue());
       printf("In topCallStack_In_Subextent, time.getEnd().getValue()=%u\n", time.getEnd().getValue());
+//      printf("In topCallStack_In_Subextent, a.getValue()=%x\n", a.getValue());
+//      printf("In topCallStack_In_Subextent, addr.getBegin().getValue()=%x\n", addr.getBegin().getValue());
+//      printf("In topCallStack_In_Subextent, addr.getEnd().getValue()=%x\n", addr.getEnd().getValue());
+
+      std::cout << "In topCallStack_In_Subextent, -------------> addr.getBegin()=" << addr.getBegin() << std::endl;
       printf("In topCallStack_In_Subextent, a.getValue()=%x\n", a.getValue());
-      printf("In topCallStack_In_Subextent, addr.getBegin().getValue()=%x\n", addr.getBegin().getValue());
-      printf("In topCallStack_In_Subextent, addr.getEnd().getValue()=%x\n", addr.getEnd().getValue());
+      std::cout << "In topCallStack_In_Subextent, -------------> addr.getEnd()=" << addr.getEnd() << std::endl;
 #endif
       
 // Is the address and time for the stack frame being searched inside the subextent?
@@ -159,8 +179,21 @@ void Get_Subextents_To_Object (
 
   for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
     ExtentGroup newExtents = object.getExtentIn (*ti);
+
+#if DEBUG_CLI
+    printf("Enter Get_Subextents_To_Object, newExtents.size()=%d\n", newExtents.size());
+    std::pair<bool, int> prank = ti->getMPIRank();
+    int64_t rank = prank.first ? prank.second : -1;
+    std::pair<bool, pthread_t> xtid = ti->getPosixThreadId();
+    cout << "In Get_Subextents_To_Object,  xtid.first=" << xtid.first << endl;
+    cout << "In Get_Subextents_To_Object,  xtid.second=" << xtid.second << " rank=" << rank << endl;
+#endif
+
     for (ExtentGroup::iterator ei = newExtents.begin(); ei != newExtents.end(); ei++) {
       // if (subextents.find(*ei) != newExtents.end()) {
+#if DEBUG_CLI
+    printf("In Get_Subextents_To_Object, calling pushing back subextents(*ei)\n");
+#endif
         subextents.push_back(*ei);
       // }
     }
@@ -175,21 +208,60 @@ void Get_Subextents_To_Object_Map (
     std::map<Framework::Thread, Framework::ExtentGroup>& subextents_map)
 {
 
-  for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
 #if DEBUG_CLI
-    printf("In Get_Subextents_To_Object_Map, calling object.getExtentIn(*ti)\n");
+  printf("Enter Get_Subextents_To_Object_Map,  tgrp.size()=%d\n", tgrp.size());
+  std::cout << "Enter Get_Subextents_To_Object_Map,  tgrp.size()=" << tgrp.size() << std::endl;
+  fflush(stdout);
 #endif
+
+  for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+
+#if DEBUG_CLI
+    std::cout << "In Get_Subextents_To_Object_Map,  thread group loop" << std::endl;
+    Thread debugThread = *ti;
+    std::cout << "In Function::getExtentIn, EntrySpy(thread).getEntry()=" << EntrySpy(debugThread).getEntry() << std::endl;
+    std::pair<bool, int> prank = ti->getMPIRank();
+    int64_t rank = prank.first ? prank.second : -1;
+    std::pair<bool, pthread_t> xtid = ti->getPosixThreadId();
+    std::cout << "In Get_Subextents_To_Object_Map,  xtid.first=" << xtid.first << std::endl;
+    std::cout << "In Get_Subextents_To_Object_Map,  xtid.second=" << xtid.second << " rank=" << rank << std::endl;
+    printf("In Get_Subextents_To_Object_Map, calling object.getExtentIn(*ti)\n");
+    fflush(stdout);
+#endif
+
     ExtentGroup newExtents = object.getExtentIn (*ti);
     Framework::ExtentGroup subextents;
+
     for (ExtentGroup::iterator ei = newExtents.begin(); ei != newExtents.end(); ei++) {
+
 #if DEBUG_CLI
+      Extent Echeck = *ei;
+      if (!Echeck.isEmpty()) {
+        TimeInterval Etime = Echeck.getTimeInterval();
+        AddressRange Eaddr = Echeck.getAddressRange();
+        printf("In Get_Subextents_To_Object_Map, Etime.getBegin().getValue()=%u\n", Etime.getBegin().getValue());
+        printf("In Get_Subextents_To_Object_Map, Etime.getEnd().getValue()=%u\n", Etime.getEnd().getValue());
+        printf("In Get_Subextents_To_Object_Map, Eaddr.getBegin().getValue()=%x\n", Eaddr.getBegin().getValue());
+        printf("In Get_Subextents_To_Object_Map, Eaddr.getEnd().getValue()=%x\n", Eaddr.getEnd().getValue());
+        std::cout << "In Get_Subextents_To_Object_Map,------> Eaddr.getBegin()=" << Eaddr.getBegin() << std::endl;
+        std::cout << "In Get_Subextents_To_Object_Map,------> Eaddr.getEnd()=" << Eaddr.getEnd() << std::endl;
+      }
+
       printf("In Get_Subextents_To_Object_Map, pushing back *ei subextent to subextents\n");
 #endif
+
       subextents.push_back(*ei);
+
     }
+    
     subextents_map[*ti] = subextents;
+
 #if DEBUG_CLI
     printf("In Get_Subextents_To_Object_Map, adding subextents to the subextents_map[*ti]\n");
+    std::cout << "Exit Get_Subextents_To_Object_Map,  subextents.size()=" << subextents.size() << std::endl;
+    std::cout << "Exit Get_Subextents_To_Object_Map,  subextents_map.size()=" << subextents_map.size() << std::endl;
 #endif
   }
 
@@ -208,11 +280,11 @@ inline int64_t stack_contains_N_calls (
 
   int64_t num_calls = 0;
   for (ExtentGroup::iterator ei = subextents.begin(); ei != subextents.end(); ei ++) {
+
     Extent check = *ei;
     if (!check.isEmpty()) {
       TimeInterval time = check.getTimeInterval();
       AddressRange addr = check.getAddressRange();
-
 #if DEBUG_CLI
       printf("In stack_contains_N_calls, time.getBegin().getValue()=%u\n", time.getBegin().getValue());
       printf("In stack_contains_N_calls, time.getEnd().getValue()=%u\n", time.getEnd().getValue());
@@ -222,15 +294,20 @@ inline int64_t stack_contains_N_calls (
 
       int64_t sti;
       for (sti = 0; sti < st.size(); sti++) {
+
         Address a = st[sti];
 
 #if DEBUG_CLI
-        printf("In stack_contains_N_calls, a.getValue()=%x\n", a.getValue());
+        printf("In stack_contains_N_calls, stack index=%d, a.getValue()=%x\n", sti, a.getValue());
 #endif
 
-        if (time.doesContain(t) &&
-            addr.doesContain(a)) {
+        if (time.doesContain(t) && addr.doesContain(a)) {
           num_calls++;
+#if DEBUG_CLI
+          printf("In stack_contains_N_calls, if time contains t and addr contains a then bump num_calls=%d\n", num_calls);
+          printf("In stack_contains_N_calls, bump addr.getBegin().getValue()=%x\n", addr.getBegin().getValue());
+          printf("In stack_contains_N_calls, bump addr.getEnd().getValue()=%x\n", addr.getEnd().getValue());
+#endif
        }
       }
     }
@@ -392,6 +469,10 @@ struct ltST {
          printf("IN Accumulate_CallStack, after calling get_exclusive_values, calls_In_stack=%d\n", calls_In_stack);\
       }                                                                          \
                                                                                  \
+    } else {                                                                     \
+      if (DEBUG_FLAG) {                                                          \
+         printf("IN Accumulate_CallStack, topCallStack_In_Subextent FAILED, not calling get_exclusive_values\n");\
+      }                                                                          \
     }                                                                            \
                                                                                  \
    /* Remember that we have now processed this particular StackTrace. */         \

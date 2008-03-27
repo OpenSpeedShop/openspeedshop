@@ -69,34 +69,65 @@ static void Calculate_Totals (
       std::vector<CommandResult *>& Total_Values) {
 
 #if DEBUG_CLI
-  printf("in Calculate_Totals, c_items.size()=%d\n", c_items.size());
+  printf("in Calculate_Totals, c_items.size()=%d, IV.size()=%d\n", c_items.size(), IV.size());
 #endif
 
   for (int64_t i = 0; i < IV.size(); i++) {
+
+
     ViewInstruction *vp = IV[i];
+
+#if DEBUG_CLI
+      printf("in Calculate_Totals, i=%d, vp->OpCode()=%d\n", i, vp->OpCode());
+#endif
+
     CommandResult *TotalValue = NULL;
     bool Gen_Total_Percent = false;
 
     if (vp->OpCode() == VIEWINST_Define_Total_Metric) {
      // We calculate Total by adding all the values that were recorded for the thread group.
+#if DEBUG_CLI
+      printf("in Calculate_Totals, vp->OpCode() == VIEWINST_Define_Total_Metric, c_items.size()=%d\n", 
+             c_items.size());
+#endif
       int64_t metricIndex = vp->TMP1(); // this is a CV/MV index, not a column number!
+#if DEBUG_CLI
+      printf("in Calculate_Totals, vp->OpCode() == VIEWINST_Define_Total_Metric, metricIndex=%d\n", 
+             metricIndex);
+#endif
       TotalValue = Get_Total_Metric ( cmd, tgrp, CV[metricIndex], MV[metricIndex] );
+#if DEBUG_CLI
+      printf("in Calculate_Totals, VIEWINST_Define_Total_Metric, after TotalValue = Get_Total_Metric call, begin print TotalValue=\n" );
+      TotalValue->Print(cerr);
+      printf("\nin Calculate_Totals, VIEWINST_Define_Total_Metric, end print TotalValue=\n" );
+#endif
       Gen_Total_Percent = true;
     } else if (vp->OpCode() == VIEWINST_Define_Total_Tmp) {
      // Sum the specified temp.
       int64_t tmpIndex = vp->TMP1();
-      std::vector<std::pair<CommandResult *,
-                            SmartPtr<std::vector<CommandResult *> > > >::iterator ci;
+#if DEBUG_CLI
+      printf("in Calculate_Totals, VIEWINST_Define_Total_Tmp, tmpIndex=%d\n", tmpIndex );
+#endif
+      std::vector<std::pair<CommandResult *, SmartPtr<std::vector<CommandResult *> > > >::iterator ci;
       ci = c_items.begin();
       if (ci == c_items.end()) {
+#if DEBUG_CLI
+        printf("in Calculate_Totals, ci == c_items.end(), VIEWINST_Define_Total_Tmp, tmpIndex=%d\n", tmpIndex );
+#endif
        // Clearly, we can not add up a sequence if there is none.
         Gen_Total_Percent = false;
       } else if (tmpIndex >= (*ci).second->size()) {
        // Clearly, this is an error.
+#if DEBUG_CLI
+        printf("in Calculate_Totals, tmpIndex >= (*ci).second->size(), VIEWINST_Define_Total_Tmp, tmpIndex=%d\n", tmpIndex );
+#endif
         Gen_Total_Percent = false;
       } else {
         if (ci != c_items.end()) {
           Gen_Total_Percent = true;
+#if DEBUG_CLI
+        printf("in Calculate_Totals, ci != c_items.end(), VIEWINST_Define_Total_Tmp, tmpIndex=%d\n", tmpIndex );
+#endif
           TotalValue = (*(*ci).second)[tmpIndex]->Copy();
 #if DEBUG_CLI
           printf("START printing TotalValue in Copy section using  (*ci).second[tmpIndex=%d]->Print()\n", tmpIndex);
@@ -125,6 +156,11 @@ static void Calculate_Totals (
     if (Gen_Total_Percent) {
       Assert(vp->TR() >= 0);
       Total_Values[vp->TR()] = TotalValue;
+#if DEBUG_CLI
+      printf("START printing TotalValue in Gen_Total_Percent section using  TotalValue->Print()\n");
+      TotalValue->Print(cerr);
+      printf("\nEnd printing TotalValue in Gen_Total_Percent section using  TotalValue->Print()\n");
+#endif
     }
   }
 }
@@ -144,8 +180,32 @@ static void Setup_Sort(
     std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
     CommandResult *Old = (*cp.second)[VMulti_sort_temp];
+#if DEBUG_CLI
+    if (Old != NULL) {
+      printf("Setup_Sort, temp_index, START printing CommandResult (Old)\n");
+      cerr << "  ";
+      if (Old != NULL) {
+        Old->Print(cerr); cerr << "\n";
+      } else {
+        cerr << "NULL\n";
+      }
+      printf("Setup_Sort, temp_index, END printing CommandResult Old\n");
+    }
+#endif
     if (Old != NULL) delete Old;
     CommandResult *V1 = (*cp.second)[temp_index];
+#if DEBUG_CLI
+    if (V1 != NULL) {
+      printf("Setup_Sort, temp_index, START printing CommandResult (V1)\n");
+      cerr << "  ";
+      if (V1 != NULL) {
+        V1->Print(cerr); cerr << "\n";
+      } else {
+        cerr << "NULL\n";
+      }
+      printf("Setup_Sort, temp_index, END printing CommandResult V1\n");
+    }
+#endif
     CommandResult *New = V1->Copy();
     Assert (New != NULL);
     (*cp.second)[VMulti_sort_temp] = New;
@@ -170,21 +230,57 @@ static void Setup_Sort(
     std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
     CommandResult *Old = (*cp.second)[VMulti_sort_temp];
+#if DEBUG_CLI
+    if (Old != NULL) {
+      printf("Setup_Sort, START printing CommandResult (Old)\n");
+      cerr << "  ";
+      if (Old != NULL) {
+        Old->Print(cerr); cerr << "\n";
+      } else {
+        cerr << "NULL\n";
+      }
+      printf("Setup_Sort, END printing CommandResult Old\n");
+    }
+#endif
     if (Old != NULL) delete Old;
     CommandResult *New = NULL;
     CommandResult *V1 = (*cp.second)[vinst->TMP1()];
+#if DEBUG_CLI
+    if (V1 != NULL) {
+      printf("Setup_Sort, START printing CommandResult (V1)\n");
+      cerr << "  ";
+      if (V1 != NULL) {
+        V1->Print(cerr); cerr << "\n";
+      } else {
+        cerr << "NULL\n";
+      }
+      printf("Setup_Sort, END printing CommandResult V1\n");
+    }
+#endif
     if (vinst->OpCode() == VIEWINST_Display_Tmp) {
+#if DEBUG_CLI
+      printf("in Setup_Sort, VIEWINST_Display_Tmp\n");
+#endif
       New = V1->Copy();
     } else if (vinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
+#if DEBUG_CLI
+      printf("in Setup_Sort, VIEWINST_Display_Percent_Tmp\n");
+#endif
      // Use value without calculating percent - order will be the same.
       New = V1->Copy();
     } else if (vinst->OpCode() == VIEWINST_Display_Average_Tmp) {
+#if DEBUG_CLI
+      printf("in Setup_Sort, VIEWINST_Display_Average_Tmp\n");
+#endif
 /*
       if (!V1->isNullValue ()) {
 */{
         New = Calculate_Average (V1, (*cp.second)[vinst->TMP2()]);
       }
     } else if (vinst->OpCode() ==VIEWINST_Display_StdDeviation_Tmp) {
+#if DEBUG_CLI
+      printf("in Setup_Sort, VIEWINST_Display_StdDeviation_Tmp\n");
+#endif
       CommandResult *V1 = (*cp.second)[vinst->TMP1()];
       CommandResult *V2 = (*cp.second)[vinst->TMP2()];
       CommandResult *V3 = (*cp.second)[vinst->TMP3()];
@@ -704,6 +800,7 @@ bool Generic_Multi_View (
   cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator jegvpi;
+
   for (jegvpi = c_items.begin(); jegvpi != c_items.end(); jegvpi++) {
    // Foreach CallStack entry, copy the desired sort value into the VMulti_sort_temp field.
     std::pair<CommandResult *,
@@ -711,14 +808,14 @@ bool Generic_Multi_View (
     int64_t jegi;
     for (jegi = 0; jegi < (*jegcp.second).size(); jegi++ ) {
       CommandResult *jegp = (*jegcp.second)[jegi];
-      printf("Generic_Multi_View, START printing jegi=%d, jegp=%x\n", jegi, jegp);
+      printf("Generic_Multi_View, START printing CommandResult (jegp), indexed by jegi=%d, jegp=%x\n", jegi, jegp);
       cerr << "  ";
       if (jegp != NULL) {
         jegp->Print(cerr); cerr << "\n";
       } else {
         cerr << "NULL\n";
       }
-      printf("Generic_Multi_View, END printing jegp\n");
+      printf("Generic_Multi_View, END printing CommandResult jegp\n");
     }
 
   }
@@ -815,11 +912,12 @@ bool Generic_Multi_View (
       if ((topn < (int64_t)c_items.size()) &&
           !Look_For_KeyWord(cmd, "ButterFly")) {
        // Determine the topn items based on the time spent in each call.
+        printf("in Generic_Multi_View, calling Setup_Sort, VFC_Trace, Sort VMulti_time_temp, by the value displayed in the left most column. \n");
         Setup_Sort (VMulti_time_temp, c_items);
 
 
 #if DEBUG_CLI
-  cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
+  cerr << "\nDump items.  in VFC_Trace section, Number of items is " << c_items.size() << "\n";
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
@@ -848,14 +946,23 @@ bool Generic_Multi_View (
         c_items.erase ( (c_items.begin() + topn), c_items.end());
       }
      // Sort by the value displayed in the left most column.
+#if DEBUG_CLI
+      printf("in Generic_Multi_View, calling Setup_Sort, VFC_Trace, Sort ViewInst[0], by the value displayed in the left most column. \n");
+#endif
       Setup_Sort (ViewInst[0], c_items);
 
       if ((sortInst == NULL) ||
           (sortInst->TMP1() == 0)) {
+#if DEBUG_CLI
+      printf("in Generic_Multi_View, sort, VFC_Trace, sortInst == NULL, by the value displayed in the left most column. \n");
+#endif
         std::sort(c_items.begin(), c_items.end(),
                   sort_descending_CommandResult<std::pair<CommandResult *,
                                                           SmartPtr<std::vector<CommandResult *> > > >());
       } else {
+#if DEBUG_CLI
+      printf("in Generic_Multi_View, sort, VFC_Trace, NOT sortInst == NULL, by the value displayed in the left most column. \n");
+#endif
         std::sort(c_items.begin(), c_items.end(),
                   sort_ascending_CommandResult<std::pair<CommandResult *,
                                                           SmartPtr<std::vector<CommandResult *> > > >());
@@ -893,6 +1000,9 @@ bool Generic_Multi_View (
       Combine_Duplicate_CallStacks (AccumulateInst, FieldRequirements, c_items);
 
      // Sort by the value displayed in the left most column.
+#if DEBUG_CLI
+      printf("in Generic_Multi_View, calling Setup_Sort VFC_CallStack, Sort by the value displayed in the left most column. \n");
+#endif
       Setup_Sort (ViewInst[0], c_items);
       std::sort(c_items.begin(), c_items.end(),
                 sort_descending_CommandResult<std::pair<CommandResult *,
@@ -936,6 +1046,9 @@ bool Generic_Multi_View (
      }
 
      // Sort by the value displayed in the left most column.
+#if DEBUG_CLI
+      printf("in Generic_Multi_View, calling Setup_Sort, else clause, Sort by the value displayed in the left most column. \n");
+#endif
       Setup_Sort (ViewInst[0], c_items);
       std::sort(c_items.begin(), c_items.end(),
                 sort_descending_CommandResult<std::pair<CommandResult *,
