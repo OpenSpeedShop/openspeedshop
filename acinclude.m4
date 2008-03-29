@@ -1090,7 +1090,7 @@ dnl A common error message:
 ac_qtdir_errmsg="Not found in current PATH. Maybe QT development environment isn't available (qt3-devel)."
 
 dnl Check for Qt qmake utility.
-AC_PATH_PROG(ac_qmake, qmake, [no], $ac_qtdir/bin:${PATH})
+AC_PATH_PROG(ac_qmake, qmake, [no], $LQTDIR/bin:${PATH})
 if test "x$ac_qmake" = "xno"; then
    AC_MSG_ERROR([qmake $ac_qtdir_errmsg])
 fi
