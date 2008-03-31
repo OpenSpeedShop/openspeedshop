@@ -40,7 +40,7 @@ IntroWizardPanel_la_SOURCES = \
 	local_plugin_info.hxx
 
 moc_IntroWizardPanel.cxx: IntroWizardPanel.hxx
-	-moc -o moc_IntroWizardPanel.cxx IntroWizardPanel.hxx
+	-$(QTDIR)/bin/moc -o moc_IntroWizardPanel.cxx IntroWizardPanel.hxx
 
 CLEANFILES = \
 	moc_IntroWizardPanel.cxx

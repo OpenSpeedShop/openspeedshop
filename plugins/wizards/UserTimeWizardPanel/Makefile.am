@@ -49,7 +49,7 @@ UserTimeWizardPanel_la_SOURCES = \
 	local_plugin_info.hxx
 
 moc_UserTimeWizardPanel.cxx: UserTimeWizardPanel.hxx
-	-moc -o moc_UserTimeWizardPanel.cxx UserTimeWizardPanel.hxx
+	-$(QTDIR)/bin/moc -o moc_UserTimeWizardPanel.cxx UserTimeWizardPanel.hxx
 
 CLEANFILES = \
 	moc_UserTimeWizardPanel.cxx

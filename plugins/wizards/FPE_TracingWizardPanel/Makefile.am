@@ -49,7 +49,7 @@ FPE_TracingWizardPanel_la_SOURCES = \
 	local_plugin_info.hxx
 
 moc_FPE_TracingWizardPanel.cxx: FPE_TracingWizardPanel.hxx
-	-moc -o moc_FPE_TracingWizardPanel.cxx FPE_TracingWizardPanel.hxx
+	-$(QTDIR)/bin/moc -o moc_FPE_TracingWizardPanel.cxx FPE_TracingWizardPanel.hxx
 
 CLEANFILES = \
 	moc_FPE_TracingWizardPanel.cxx

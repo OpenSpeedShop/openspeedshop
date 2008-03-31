@@ -48,7 +48,7 @@ IOWizardPanel_la_SOURCES = \
 	local_plugin_info.hxx
 
 moc_IOWizardPanel.cxx: IOWizardPanel.hxx
-	-moc -o moc_IOWizardPanel.cxx IOWizardPanel.hxx
+	-$(QTDIR)/bin/moc -o moc_IOWizardPanel.cxx IOWizardPanel.hxx
 
 CLEANFILES = \
 	moc_IOWizardPanel.cxx

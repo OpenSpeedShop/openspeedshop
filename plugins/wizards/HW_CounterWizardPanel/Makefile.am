@@ -50,7 +50,7 @@ HW_CounterWizardPanel_la_SOURCES = \
 	local_plugin_info.hxx
 
 moc_HW_CounterWizardPanel.cxx: HW_CounterWizardPanel.hxx
-	-moc -o moc_HW_CounterWizardPanel.cxx HW_CounterWizardPanel.hxx
+	-$(QTDIR)/bin/moc -o moc_HW_CounterWizardPanel.cxx HW_CounterWizardPanel.hxx
 
 CLEANFILES = \
 	moc_HW_CounterWizardPanel.cxx

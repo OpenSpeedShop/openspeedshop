@@ -49,7 +49,7 @@ CompareWizardPanel_la_SOURCES = \
 	local_plugin_info.hxx
 
 moc_CompareWizardPanel.cxx: CompareWizardPanel.hxx
-	-moc -o moc_CompareWizardPanel.cxx CompareWizardPanel.hxx
+	-$(QTDIR)/bin/moc -o moc_CompareWizardPanel.cxx CompareWizardPanel.hxx
 
 CLEANFILES = \
 	moc_CompareWizardPanel.cxx
