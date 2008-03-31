@@ -50,7 +50,7 @@ CustomExperimentPanel_la_LIBADD = \
 	@QTLIB_LIBS@
 
 moc_CustomExperimentPanel.cxx: CustomExperimentPanel.hxx
-	-moc -o moc_CustomExperimentPanel.cxx CustomExperimentPanel.hxx
+	-$(QTDIR)/bin/moc -o moc_CustomExperimentPanel.cxx CustomExperimentPanel.hxx
 
 CustomExperimentPanel_la_SOURCES = \
 	CustomExperimentPanel.hxx CustomExperimentPanel.cxx \

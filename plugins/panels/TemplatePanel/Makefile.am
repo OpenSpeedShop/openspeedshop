@@ -41,7 +41,7 @@ TemplatePanel_la_SOURCES = \
 	local_plugin_info.hxx
 
 moc_TemplatePanel.cxx: TemplatePanel.hxx
-	-moc -o moc_TemplatePanel.cxx TemplatePanel.hxx
+	-$(QTDIR)/bin/moc -o moc_TemplatePanel.cxx TemplatePanel.hxx
 
 CLEANFILES = \
 	moc_TemplatePanel.cxx

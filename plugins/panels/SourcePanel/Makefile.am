@@ -51,16 +51,16 @@ SourcePanel_la_SOURCES = \
 	preference_plugin_info.hxx
 
 moc_SourcePanel.cxx: SourcePanel.hxx
-	-moc -o moc_SourcePanel.cxx SourcePanel.hxx
+	-$(QTDIR)/bin/moc -o moc_SourcePanel.cxx SourcePanel.hxx
 
 moc_SPCanvasForm.cxx: SPCanvasForm.hxx
-	-moc -o moc_SPCanvasForm.cxx SPCanvasForm.hxx
+	-$(QTDIR)/bin/moc -o moc_SPCanvasForm.cxx SPCanvasForm.hxx
 
 moc_SPCanvasView.cxx: SPCanvasView.hxx
-	-moc -o moc_SPCanvasView.cxx SPCanvasView.hxx
+	-$(QTDIR)/bin/moc -o moc_SPCanvasView.cxx SPCanvasView.hxx
 
 moc_SPTextEdit.cxx: SPTextEdit.hxx
-	-moc -o moc_SPTextEdit.cxx SPTextEdit.hxx
+	-$(QTDIR)/bin/moc -o moc_SPTextEdit.cxx SPTextEdit.hxx
 
 CLEANFILES = \
 	moc_SourcePanel.cxx \

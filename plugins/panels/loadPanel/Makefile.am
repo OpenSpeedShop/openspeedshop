@@ -33,7 +33,7 @@ loadPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-vers
 loadPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
 
 moc_loadPanel.cxx: loadPanel.hxx
-	-moc -o moc_loadPanel.cxx loadPanel.hxx
+	-$(QTDIR)/bin/moc -o moc_loadPanel.cxx loadPanel.hxx
 
 loadPanel_la_SOURCES = \
 	loadPanel.hxx loadPanel.cxx moc_loadPanel.cxx \

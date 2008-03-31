@@ -56,13 +56,13 @@ ManageProcessesPanel_la_SOURCES = \
 	preference_plugin_info.hxx
 
 moc_ManageCollectorsClass.cxx: ManageCollectorsClass.hxx
-	-moc -o moc_ManageCollectorsClass.cxx ManageCollectorsClass.hxx
+	-$(QTDIR)/bin/moc -o moc_ManageCollectorsClass.cxx ManageCollectorsClass.hxx
 
 moc_ManageProcessesPanel.cxx: ManageProcessesPanel.hxx
-	-moc -o moc_ManageProcessesPanel.cxx ManageProcessesPanel.hxx
+	-$(QTDIR)/bin/moc -o moc_ManageProcessesPanel.cxx ManageProcessesPanel.hxx
 
 moc_MPListView.cxx: MPListView.hxx
-	-moc -o moc_MPListView.cxx MPListView.hxx
+	-$(QTDIR)/bin/moc -o moc_MPListView.cxx MPListView.hxx
 
 CLEANFILES = \
 	moc_ManageCollectorsPanel.cxx \

@@ -53,7 +53,7 @@ CompareExperimentsPanel_la_SOURCES = \
 	local_plugin_info.hxx
 
 moc_CompareExperimentsPanel.cxx: CompareExperimentsPanel.hxx
-	-moc -o moc_CompareExperimentsPanel.cxx CompareExperimentsPanel.hxx
+	-$(QTDIR)/bin/moc -o moc_CompareExperimentsPanel.cxx CompareExperimentsPanel.hxx
 
 CLEANFILES = \
 	moc_CompareExperimentsPanel.cxx

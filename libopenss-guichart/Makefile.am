@@ -31,16 +31,16 @@ libopenss_guichart_la_LDFLAGS = \
 libopenss_guichart_la_LIBADD = $(LIBLTDL)
 
 moc_canvasview.cxx: canvasview.hxx
-	-moc -o moc_canvasview.cxx canvasview.hxx
+	-$(QTDIR)/bin/moc -o moc_canvasview.cxx canvasview.hxx
 
 moc_chartform.cxx: chartform.hxx
-	-moc -o moc_chartform.cxx chartform.hxx
+	-$(QTDIR)/bin/moc -o moc_chartform.cxx chartform.hxx
 
 moc_optionsform.cxx: optionsform.hxx
-	-moc -o moc_optionsform.cxx optionsform.hxx
+	-$(QTDIR)/bin/moc -o moc_optionsform.cxx optionsform.hxx
 
 moc_setdataform.cxx: setdataform.hxx
-	-moc -o moc_setdataform.cxx setdataform.hxx
+	-$(QTDIR)/bin/moc -o moc_setdataform.cxx setdataform.hxx
 
 libopenss_guichart_la_SOURCES = \
 	canvasellipse.hxx        canvastext.hxx  chartform.hxx  optionsform.hxx \

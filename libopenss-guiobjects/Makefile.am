@@ -42,10 +42,10 @@ libopenss_guiobjects_la_LDFLAGS = \
 libopenss_guiobjects_la_LIBADD = $(LIBLTDL)
 
 moc_ProcessControlObject.cxx: ProcessControlObject.hxx
-	-moc -o moc_ProcessControlObject.cxx ProcessControlObject.hxx
+	-$(QTDIR)/bin/moc -o moc_ProcessControlObject.cxx ProcessControlObject.hxx
 
 moc_InfoEventFilter.cxx: InfoEventFilter.hxx
-	-moc -o moc_InfoEventFilter.cxx InfoEventFilter.hxx
+	-$(QTDIR)/bin/moc -o moc_InfoEventFilter.cxx InfoEventFilter.hxx
 
 libopenss_guiobjects_la_SOURCES = \
 	HighlightObject.hxx \

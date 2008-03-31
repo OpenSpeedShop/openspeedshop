@@ -62,13 +62,13 @@ StatsPanel_la_SOURCES = \
 	preference_plugin_info.hxx
 
 moc_SPChartForm.cxx: SPChartForm.hxx
-	-moc -o moc_SPChartForm.cxx SPChartForm.hxx
+	-$(QTDIR)/bin/moc -o moc_SPChartForm.cxx SPChartForm.hxx
 
 moc_SPCheckBox.cxx: SPCheckBox.hxx
-	-moc -o moc_SPCheckBox.cxx SPCheckBox.hxx
+	-$(QTDIR)/bin/moc -o moc_SPCheckBox.cxx SPCheckBox.hxx
 
 moc_StatsPanel.cxx: StatsPanel.hxx
-	-moc -o moc_StatsPanel.cxx StatsPanel.hxx
+	-$(QTDIR)/bin/moc -o moc_StatsPanel.cxx StatsPanel.hxx
 
 CLEANFILES = \
 	moc_SPChartForm.cxx \

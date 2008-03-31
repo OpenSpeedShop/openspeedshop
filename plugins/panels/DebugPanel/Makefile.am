@@ -39,7 +39,7 @@ DebugPanel_la_SOURCES = \
 	local_plugin_info.hxx
 
 moc_DebugPanel.cxx: DebugPanel.hxx
-	-moc -o moc_DebugPanel.cxx DebugPanel.hxx
+	-$(QTDIR)/bin/moc -o moc_DebugPanel.cxx DebugPanel.hxx
 
 CLEANFILES = \
 	moc_DebugPanel.cxx

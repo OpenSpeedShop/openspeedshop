@@ -43,34 +43,34 @@ libopenss_guidialogs_la_LDFLAGS = \
 libopenss_guidialogs_la_LIBADD = $(LIBLTDL)  -L../libopenss-guiobjects -lopenss-guiobjects
 
 moc_AttachArgDialog.cxx: AttachArgDialog.hxx
-	-moc -o moc_AttachArgDialog.cxx AttachArgDialog.hxx
+	-$(QTDIR)/bin/moc -o moc_AttachArgDialog.cxx AttachArgDialog.hxx
 
 moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
-	-moc -o moc_AttachProcessDialog.cxx AttachProcessDialog.hxx
+	-$(QTDIR)/bin/moc -o moc_AttachProcessDialog.cxx AttachProcessDialog.hxx
 
 moc_AttachMPProcessDialog.cxx: AttachMPProcessDialog.hxx
-	-moc -o moc_AttachMPProcessDialog.cxx AttachMPProcessDialog.hxx
+	-$(QTDIR)/bin/moc -o moc_AttachMPProcessDialog.cxx AttachMPProcessDialog.hxx
 
 moc_AttachProgramDialog.cxx: AttachProgramDialog.hxx
-	-moc -o moc_AttachProgramDialog.cxx AttachProgramDialog.hxx
+	-$(QTDIR)/bin/moc -o moc_AttachProgramDialog.cxx AttachProgramDialog.hxx
 
 moc_AttachMPProgramDialog.cxx: AttachMPProgramDialog.hxx
-	-moc -o moc_AttachMPProgramDialog.cxx AttachMPProgramDialog.hxx
+	-$(QTDIR)/bin/moc -o moc_AttachMPProgramDialog.cxx AttachMPProgramDialog.hxx
 
 moc_ManageProcessesDialog.cxx: ManageProcessesDialog.hxx
-	-moc -o moc_ManageProcessesDialog.cxx ManageProcessesDialog.hxx
+	-$(QTDIR)/bin/moc -o moc_ManageProcessesDialog.cxx ManageProcessesDialog.hxx
 
 moc_SelectExperimentDialog.cxx: SelectExperimentDialog.hxx
-	-moc -o moc_SelectExperimentDialog.cxx SelectExperimentDialog.hxx
+	-$(QTDIR)/bin/moc -o moc_SelectExperimentDialog.cxx SelectExperimentDialog.hxx
 
 moc_SaveAsExperimentDialog.cxx: SaveAsExperimentDialog.hxx
-	-moc -o moc_SaveAsExperimentDialog.cxx SaveAsExperimentDialog.hxx
+	-$(QTDIR)/bin/moc -o moc_SaveAsExperimentDialog.cxx SaveAsExperimentDialog.hxx
 
 moc_GenericProgressDialog.cxx: GenericProgressDialog.hxx
-	-moc -o moc_GenericProgressDialog.cxx GenericProgressDialog.hxx
+	-$(QTDIR)/bin/moc -o moc_GenericProgressDialog.cxx GenericProgressDialog.hxx
 
 moc_SelectTimeSegmentDialog.cxx: SelectTimeSegmentDialog.hxx
-	-moc -o moc_SelectTimeSegmentDialog.cxx SelectTimeSegmentDialog.hxx
+	-$(QTDIR)/bin/moc -o moc_SelectTimeSegmentDialog.cxx SelectTimeSegmentDialog.hxx
 
 libopenss_guidialogs_la_SOURCES = \
 	AttachArgDialog.hxx AttachArgDialog.cxx moc_AttachArgDialog.cxx \

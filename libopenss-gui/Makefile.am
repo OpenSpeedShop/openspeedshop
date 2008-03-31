@@ -65,16 +65,16 @@ libopenss_gui_la_SOURCES = \
 	qmake_image_collection.cxx
 
 moc_AboutClass.cxx: AboutClass.hxx
-	-moc -o moc_AboutClass.cxx AboutClass.hxx
+	-$(QTDIR)/bin/moc -o moc_AboutClass.cxx AboutClass.hxx
 
 moc_CLIInterface.cxx: CLIInterface.hxx
-	-moc -o moc_CLIInterface.cxx CLIInterface.hxx
+	-$(QTDIR)/bin/moc -o moc_CLIInterface.cxx CLIInterface.hxx
 
 moc_openspeedshop.cxx: openspeedshop.hxx
-	-moc -o moc_openspeedshop.cxx openspeedshop.hxx
+	-$(QTDIR)/bin/moc -o moc_openspeedshop.cxx openspeedshop.hxx
 
 moc_preferencesdialog.cxx: preferencesdialog.hxx
-	-moc -o moc_preferencesdialog.cxx preferencesdialog.hxx
+	-$(QTDIR)/bin/moc -o moc_preferencesdialog.cxx preferencesdialog.hxx
 
 CLEANFILES = \
 	moc_AboutClass.cxx \

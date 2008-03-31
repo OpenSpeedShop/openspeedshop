@@ -49,10 +49,10 @@ CmdPanel_la_SOURCES = \
 	local_plugin_info.hxx
 
 moc_CmdPanel.cxx: CmdPanel.hxx
-	-moc -o moc_CmdPanel.cxx CmdPanel.hxx
+	-$(QTDIR)/bin/moc -o moc_CmdPanel.cxx CmdPanel.hxx
 
 moc_CPTextEdit.cxx: CPTextEdit.hxx
-	-moc -o moc_CPTextEdit.cxx CPTextEdit.hxx
+	-$(QTDIR)/bin/moc -o moc_CPTextEdit.cxx CPTextEdit.hxx
 
 CLEANFILES = \
 	moc_CmdPanel.cxx \
