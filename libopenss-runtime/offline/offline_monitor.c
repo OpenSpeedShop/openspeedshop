@@ -36,7 +36,11 @@ extern void offline_stop_sampling(const char* arguments);
 extern void offline_record_dso(const char* dsoname);
 extern char *OpenSS_dsopath;
 
+#if defined(_MONITOR_H_)
+void monitor_fini_process(int how, void *data)
+#else
 void monitor_fini_process(void)
+#endif
 {
     static int f = 0;
     if (f > 0)
@@ -47,18 +51,12 @@ void monitor_fini_process(void)
     offline_stop_sampling(NULL);
 }
 
+#if defined(_MONITOR_H_)
+void *monitor_init_process(int *argc, char **argv, void *data)
+#else
 void monitor_init_process(char *process, int *argc, char **argv, unsigned pid)
-{
-#if 0
-    pcsamp_start_sampling_args args;
-    memset(&args, 0, sizeof(args));
-    args.collector=1;
-    args.sampling_rate=100000;
-    args.thread=pid;
-    /* how to handle
-       Blob arguments(reinterpret_cast<xdrproc_t>(xdr_pcsamp_start_sampling_args), &args);
-    */
 #endif
+{
     offline_start_sampling(NULL);
 }
 
@@ -82,7 +80,11 @@ void monitor_fini_thread(void *ptr)
     offline_stop_sampling(NULL);
 }
 
+#if defined(_MONITOR_H_)
+void *monitor_init_thread(int tid, void *data)
+#else
 void *monitor_init_thread(const unsigned tid)
+#endif
 {
     void *retval = (void *)0xdeadbeef;
     offline_start_sampling(NULL);
