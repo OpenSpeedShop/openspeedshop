@@ -1151,7 +1151,7 @@ AC_DEFUN([AC_PKG_LIBMONITOR], [
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
         #include <monitor.h>
         ]], [[
-        monitor_fini_process();
+        monitor_init_library();
         ]]), [ AC_MSG_RESULT(yes)
 
             AM_CONDITIONAL(HAVE_LIBMONITOR, true)
