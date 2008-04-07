@@ -192,6 +192,23 @@ class loadPanel  : public Panel
     bool getMPIWizardCalledMe() {
         return areWeControlledByMPIWizard;
     }
+  
+    void setHaveWeLoadedAnExecutableBefore(bool indicator) {
+        haveWeLoadedAnExecutableBefore = indicator;
+    }
+
+    bool getHaveWeLoadedAnExecutableBefore() {
+        return haveWeLoadedAnExecutableBefore;
+    }
+
+    void setWasDoingParallel(bool wasIdoingParallel) {
+        doingParallelLoadsOrAttaches = wasIdoingParallel;
+    }
+
+    bool getWasDoingParallel() {
+        return doingParallelLoadsOrAttaches;
+    }
+
 
   public slots:
     virtual void vAttachOrLoadPageBackButtonSelected();
@@ -208,7 +225,7 @@ class loadPanel  : public Panel
     virtual void vMPLoadPageLoadButtonSelected();
     virtual void vMPLoadPageAcceptButtonSelected();
     virtual void vMPLoadPageArgBrowseSelected();
-    virtual void vSummaryPageFinishButtonSelected();
+    virtual void vSummaryPageFinishButtonSelected(bool wasParallel);
     virtual void finishButtonSelected();
     virtual void vMPLoadPageFinishButtonSelected();
 
@@ -216,6 +233,8 @@ class loadPanel  : public Panel
     //! Sets the language specific strings.
     virtual void languageChange();
     bool areWeControlledByMPIWizard;
+    bool haveWeLoadedAnExecutableBefore;
+    bool doingParallelLoadsOrAttaches;
 
   private:
 };

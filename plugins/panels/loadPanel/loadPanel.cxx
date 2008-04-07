@@ -53,7 +53,6 @@
 #include <qsplitter.h>  // For QSplitter in example below...
 #include <chartform.hxx>  // For chart in example below...
 
-
 loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
 
@@ -69,6 +68,14 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
 
   // Initialize that we are not under control of a MPIWizard
   setMPIWizardCalledMe(FALSE);
+
+  // Initialize that we have loaded an executable before, so we can ask if 
+  // we want to load a different one now
+  setHaveWeLoadedAnExecutableBefore(FALSE);
+
+  // Indicate that we were not doing parallel loads or stores when
+  // we left the loadPanel last.
+  setWasDoingParallel(FALSE);
 
   // Is an argument object present?
   if( ao ) {
@@ -1231,7 +1238,14 @@ void loadPanel::vMPLoadPageProcessAccept()
     if( mw->pidStr.isEmpty() ) {
       return;
     } else {
-      vSummaryPageFinishButtonSelected();
+      // Parallel Call
+#ifdef DEBUG_loadPanel
+      printf("loadPanel::xxx1, WasDoingParallel==TRUE\n");
+#endif
+      // Even though we are doing parallel attach here, we
+      // want to go back to the first load wizard page for the attach parallel
+      // option.  We call with a FALSE argument to accomplish that.
+      vSummaryPageFinishButtonSelected(FALSE /* WasDoingParallel */ );
     }
 
   }
@@ -1246,7 +1260,11 @@ void loadPanel::vMPLoadPageProcessAccept()
     if( mw->pidStr.isEmpty() ) {
       return;
     } else {
-      vSummaryPageFinishButtonSelected();
+      // Sequential Call
+#ifdef DEBUG_loadPanel
+      printf("loadPanel::xxx1, WasDoingParallel==FALSE\n");
+#endif
+      vSummaryPageFinishButtonSelected(FALSE /* WasDoingSequentialLA */);
     }
 
 #if 0
@@ -1272,7 +1290,11 @@ void loadPanel::vMPLoadPageProcessAccept()
 //      mw->loadNewMultiProcessProgram();
 
     }
-    vSummaryPageFinishButtonSelected();
+    // Parallel Call
+#ifdef DEBUG_loadPanel
+    printf("loadPanel::xxx1, WasDoingParallel==TRUE\n");
+#endif
+    vSummaryPageFinishButtonSelected(TRUE /* WasDoingParallelLA */);
 
 // Won't get here anymore because this handled by vMPStackPage1 logic
 #if 0
@@ -1306,7 +1328,11 @@ void loadPanel::vMPLoadPageProcessAccept()
     if( mw->executableName.isEmpty() ) {
       return;
     } else {
-      vSummaryPageFinishButtonSelected();
+      // Sequential Call
+#ifdef DEBUG_loadPanel
+     printf("loadPanel::xxx4, WasDoingParallel==FALSE\n");
+#endif
+      vSummaryPageFinishButtonSelected(FALSE /* WasDoingSequentialLA */);
     }
   }
 
@@ -1359,11 +1385,12 @@ void loadPanel::vMPLoadPageFinishButtonSelected()
   }
 
 #ifdef DEBUG_loadPanel
-    printf("loadPanel::finishButtonSelected(), vMPLoadCommandArgumentsLineedit->text()=%s\n",
+    printf("loadPanel::vMPLoadPageFinishButtonSelected(), vMPLoadCommandArgumentsLineedit->text()=%s\n",
           vMPLoadCommandArgumentsLineedit->text().ascii() );
-    printf("loadPanel::finishButtonSelected(),else clause call vSummaryPageFinishButtonSelected()\n" );
+    printf("loadPanel::vMPLoadPageFinishButtonSelected(),else clause call vSummaryPageFinishButtonSelected()\n" );
 #endif
-    vSummaryPageFinishButtonSelected();
+    // Parallel Call
+    vSummaryPageFinishButtonSelected(TRUE /* WasDoingParallelLA */);
 
 
 }
@@ -1375,6 +1402,7 @@ void loadPanel::finishButtonSelected()
   printf("loadPanel::finishButtonSelected() \n");
 #endif
 
+#if 0
   OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
   if( mw->executableName.isEmpty() && mw->pidStr.isEmpty() )
   {
@@ -1388,7 +1416,7 @@ void loadPanel::finishButtonSelected()
 #endif
       vAttachOrLoadPageNextButtonSelected();
 #ifdef DEBUG_loadPanel
-      printf("loadPanel::finishButtonSelected(),after vAttachOrLoadPageNextButtonSelected()\n" );
+      printf("loadPanel::finishButtonSelected(),after vAttachOrLoadPageNextButtonSelected(), calling vSummaryPageFinishButtonSelected\n" );
 #endif
       vSummaryPageFinishButtonSelected();
 #ifdef DEBUG_loadPanel
@@ -1411,17 +1439,34 @@ void loadPanel::finishButtonSelected()
           vMPLoadCommandArgumentsLineedit->text().ascii() );
     printf("loadPanel::finishButtonSelected(),else clause call vSummaryPageFinishButtonSelected()\n" );
 #endif
-    vSummaryPageFinishButtonSelected();
+    // Parallel Call
+    vSummaryPageFinishButtonSelected(TRUE /* WasDoingParallelLA */);
+  }
+#endif
+}
+
+static void clearMPSettings(OpenSpeedshop *mw)
+{
+  if( mw ) {
+    mw->parallelPrefixCommandStr = QString::null;
+    mw->executableName = QString::null;
+    mw->pidStr = QString::null;
   }
 }
 
-void loadPanel::vSummaryPageFinishButtonSelected()
+void loadPanel::vSummaryPageFinishButtonSelected(bool wasIdoingParallel)
 {
   nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 #ifdef DEBUG_loadPanel
-  printf("loadPanel::vSummaryPageFinishButtonSelected() \n");
+  printf("loadPanel::vSummaryPageFinishButtonSelected(), wasIdoingParallel=%d\n", wasIdoingParallel);
 #endif
 
+  // Indicate to the loadPanel that the last load or attach
+  // was parallel or sequential.  This is used to raise the
+  // correct page of the loadPanel when the Raise_Second_Load_Panel
+  // message is received in the listener
+
+  setWasDoingParallel(wasIdoingParallel);
   Panel *p = targetPanel;
 
 #ifdef DEBUG_loadPanel
@@ -1439,12 +1484,43 @@ void loadPanel::vSummaryPageFinishButtonSelected()
 
       if( !mw->executableName.isEmpty() ) {
 
+          // We should ask the user if he wants to change the
+          // previously selected executable because he is passing
+          // through this code again.
+          if (getHaveWeLoadedAnExecutableBefore() && mw->pidStr.isEmpty() ) {
+
+#ifdef DEBUG_loadPanel
+            printf("loadPanel::vSummaryPageFinishButtonSelected(), YOU WERE HERE BEFORE target panel=%s\n", p->getName() );
+#endif
+
+              if (getWasDoingParallel()) {
+                mainWidgetStack->raiseWidget(vMPStackPage1);
+              } else {
+                clearMPSettings(mw); /* Since we are coming through a second time we could have
+                                      set some multiprocessing items.  Clear them before going on. */
+                mw->loadNewProgram();
+              }
+              if( mw->executableName.isEmpty() ) {
+#ifdef DEBUG_loadPanel
+                printf("loadPanel::vSummaryPageFinishButtonSelected(), NOW THERE IS NO EXECUTABLE\n");
+                // FIX ME
+#endif
+                lao = NULL; // Clear away the object if no executable name is present
+              }
+            
+          }
+
 #ifdef DEBUG_loadPanel
         printf("loadPanel::vSummaryPageFinishButtonSelected(), executable name was specified as: %s\n", mw->executableName.ascii());
         printf("loadPanel::vSummaryPageFinishButtonSelected(), parallelPrefix was specified as: %s\n", mw->parallelPrefixCommandStr.ascii());
 #endif
 
-        lao = new LoadAttachObject(mw->executableName, (char *)NULL, mw->parallelPrefixCommandStr, paramList, TRUE);
+        // Do this check again because the user may have canceled out of
+        // the loadNewProgram dialog in the haveWeLoadedAnExecutableBefore check above
+        if( !mw->executableName.isEmpty() ) {
+           lao = new LoadAttachObject(mw->executableName, (char *)NULL, mw->parallelPrefixCommandStr, paramList, TRUE);
+           setHaveWeLoadedAnExecutableBefore(TRUE);
+        }
 
       } else if( !mw->pidStr.isEmpty() ) {
 
@@ -1477,16 +1553,20 @@ void loadPanel::vSummaryPageFinishButtonSelected()
           delete ao;
 
         } else {
+
 #ifdef DEBUG_loadPanel
           printf("loadPanel::vSummaryPageFinishButtonSelected calling p->listener with lao\n");
           printf("loadPanel::vSummaryPageFinishButtonSelected calling this=0x%x,  p->listener with Wizard_Raise_Summary_Page msg\n", this);
 #endif
+
           p->getPanelContainer()->raisePanel(p);
           p->listener((void *)lao);
           MessageObject *msg = new MessageObject("Wizard_Raise_Summary_Page");
+
 #ifdef DEBUG_loadPanel
           printf("loadPanel::vSummaryPageFinishButtonSelected(), sending Wizard_Raise_Summary_Page, targetPanels name is: p->getName()=%s\n", p->getName() );
 #endif
+
           p->listener((void *)msg);
           delete msg;
        }
@@ -1577,7 +1657,17 @@ loadPanel::listener(void *msg)
 //    vSummaryPageBackButton->setEnabled(TRUE);
 //    eSummaryPageBackButton->setEnabled(TRUE);
     qApp->flushX();
-    mainWidgetStack->raiseWidget(vMPStackPage1);
+    if (getWasDoingParallel()) {
+#ifdef DEBUG_loadPanel
+      printf("listener, getWasDoingParallel()==TRUE\n");
+#endif
+      mainWidgetStack->raiseWidget(vMPStackPage1);
+    } else {
+#ifdef DEBUG_loadPanel
+      printf("listener, getWasDoingParallel()==FALSE\n");
+#endif
+      mainWidgetStack->raiseWidget(vALStackPage0);
+    } 
     return 1;
   }
   if( messageObject->msgType == "Wizard_Hide_First_Page" )
