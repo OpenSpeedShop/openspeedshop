@@ -72,6 +72,7 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   // Initialize that we have loaded an executable before, so we can ask if 
   // we want to load a different one now
   setHaveWeLoadedAnExecutableBefore(FALSE);
+  setHaveWeAttachedToPidBefore(FALSE);
 
   // Indicate that we were not doing parallel loads or stores when
   // we left the loadPanel last.
@@ -785,6 +786,16 @@ void loadPanel::vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBoxSele
   }
 }
 
+static void clearPreviousSettings(OpenSpeedshop *mw)
+{
+  if( mw ) {
+    mw->parallelPrefixCommandStr = QString::null;
+    mw->executableName = QString::null;
+    mw->pidStr = QString::null;
+    mw->argsStr = QString::null;
+  }
+}
+
 void loadPanel::vAttachOrLoadPageNextButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vAttachOrLoadPageNextButtonSelected() \n");
@@ -846,6 +857,7 @@ void loadPanel::vAttachOrLoadPageNextButtonSelected()
 #ifdef DEBUG_loadPanel
       printf("loadPanel::vAttachOrLoadPageNextButtonSelected(), vAttachOrLoadPageNextButtonSelected, calling attachNewMultiProcess\n");
 #endif
+      clearPreviousSettings(mw);
       mw->attachNewMultiProcess();
     }
 
@@ -856,13 +868,16 @@ void loadPanel::vAttachOrLoadPageNextButtonSelected()
 
   }
 
-  // Old existing attach
+  // Sequential attach
+
   if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() ) {
 
     if( mw->pidStr.isEmpty() ) {
+
 #ifdef DEBUG_loadPanel
-      printf("loadPanel::vAttachOrLoadPageNextButtonSelected(), vAttachOrLoadPageNextButtonSelected, calling attachNewProcess\n");
+      printf("loadPanel::vAttachOrLoadPageNextButtonSelected(), calling attachNewProcess\n");
 #endif
+      clearPreviousSettings(mw);
       mw->attachNewProcess();
     }
 #ifdef DEBUG_loadPanel
@@ -883,21 +898,25 @@ void loadPanel::vAttachOrLoadPageNextButtonSelected()
 
   }
 
-  // Old existing load executable code
+  // Existing sequential load executable code
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
       vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() ) {
 
     if( mw->executableName.isEmpty() ||
         vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() ) {
+
 #ifdef DEBUG_loadPanel
       printf("loadPanel::vAttachOrLoadPageNextButtonSelected(), Load the QFile \n");
 #endif
+      clearPreviousSettings(mw);
       mw->loadNewProgram();
+
     }
 
 #ifdef DEBUG_loadPanel
     printf("loadPanel::vAttachOrLoadPageNextButtonSelected(), after loadNewProgram, calling vMPLoadPageProcessAccept() \n");
 #endif
+
     if( !mw->executableName.isEmpty() ) {
        vMPLoadPageProcessAccept();
     }
@@ -907,6 +926,8 @@ void loadPanel::vAttachOrLoadPageNextButtonSelected()
 #ifdef DEBUG_loadPanel
   printf("loadPanel::vAttachOrLoadPageNextButtonSelected(), exitted \n");
 #endif
+
+
 }
 
 
@@ -1199,18 +1220,20 @@ void loadPanel::vMPLoadPageProcessAccept()
   }
 
 #ifdef DEBUG_loadPanel
-  printf("loadPanel::vMPLoadPageProcessAccept(), vAttachOrLoadPageAttachToProcessCheckBox->isChecked()=%d \n",
+  printf("IN loadPanel::vMPLoadPageProcessAccept() --------------------------- \n");
+  printf("vAttachOrLoadPageAttachToProcessCheckBox->isChecked()=%d \n",
          vAttachOrLoadPageAttachToProcessCheckBox->isChecked() );
-  printf("loadPanel::vMPLoadPageProcessAccept(), vAttachOrLoadPageLoadExecutableCheckBox->isChecked()=%d \n",
+  printf("vAttachOrLoadPageLoadExecutableCheckBox->isChecked()=%d \n",
          vAttachOrLoadPageLoadExecutableCheckBox->isChecked() );
-  printf("loadPanel::vMPLoadPageProcessAccept(), vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->isChecked()=%d \n",
+  printf("vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->isChecked()=%d \n",
          vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->isChecked() );
-  printf("loadPanel::vMPLoadPageProcessAccept(), vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->isChecked()=%d \n",
+  printf("vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->isChecked()=%d \n",
          vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->isChecked() );
-  printf("loadPanel::vMPLoadPageProcessAccept(), vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked()=%d \n",
+  printf("vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked()=%d \n",
          vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked() );
-  printf("loadPanel::vMPLoadPageProcessAccept(), vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked()=%d \n",
+  printf("vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked()=%d \n",
          vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() );
+  printf("IN loadPanel::vMPLoadPageProcessAccept() --------------------------- \n");
 #endif
 
   if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
@@ -1232,7 +1255,10 @@ void loadPanel::vMPLoadPageProcessAccept()
   if( vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked() ) { 
 
     if( mw->pidStr.isEmpty() ) {
+// jeg this is double cancel issue
+#if 0
       mw->attachNewMultiProcess();
+#endif
     }
 
     if( mw->pidStr.isEmpty() ) {
@@ -1250,11 +1276,14 @@ void loadPanel::vMPLoadPageProcessAccept()
 
   }
 
-  // Old existing attach
+  // Existing sequential attach
   if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() ) { 
 
     if( mw->pidStr.isEmpty() ) {
+// jeg this is double cancel issue
+#if 0
       mw->attachNewProcess();
+#endif
     }
 
     if( mw->pidStr.isEmpty() ) {
@@ -1315,13 +1344,16 @@ void loadPanel::vMPLoadPageProcessAccept()
 
   }
 
-  // Old existing load executable code
+  // Existing sequential load executable code
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
       vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() ) {
 
     if( mw->executableName.isEmpty() ||
         vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() ) {
       nprintf(DEBUG_PANELS) ("Load the QFile \n");
+#ifdef DEBUG_loadPanel
+      printf("loadPanel::vMPLoadPageProcessAccept() calling loadNewProgram at Load the QFile area\n");
+#endif
       mw->loadNewProgram();
     }
 
@@ -1445,15 +1477,6 @@ void loadPanel::finishButtonSelected()
 #endif
 }
 
-static void clearMPSettings(OpenSpeedshop *mw)
-{
-  if( mw ) {
-    mw->parallelPrefixCommandStr = QString::null;
-    mw->executableName = QString::null;
-    mw->pidStr = QString::null;
-  }
-}
-
 void loadPanel::vSummaryPageFinishButtonSelected(bool wasIdoingParallel)
 {
   nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
@@ -1496,7 +1519,7 @@ void loadPanel::vSummaryPageFinishButtonSelected(bool wasIdoingParallel)
               if (getWasDoingParallel()) {
                 mainWidgetStack->raiseWidget(vMPStackPage1);
               } else {
-                clearMPSettings(mw); /* Since we are coming through a second time we could have
+                clearPreviousSettings(mw); /* Since we are coming through a second time we could have
                                       set some multiprocessing items.  Clear them before going on. */
                 mw->loadNewProgram();
               }
@@ -1525,9 +1548,47 @@ void loadPanel::vSummaryPageFinishButtonSelected(bool wasIdoingParallel)
       } else if( !mw->pidStr.isEmpty() ) {
 
 #ifdef DEBUG_loadPanel
-        printf("loadPanel::vSummaryPageFinishButtonSelected(), pid was specified as: %s\n", mw->pidStr.ascii() );
+          printf("loadPanel::vSummaryPageFinishButtonSelected(), pid was specified as: %s, getHaveWeAttachedToPidBefore()=%d\n", 
+                 mw->pidStr.ascii(), getHaveWeAttachedToPidBefore() );
 #endif
-        lao = new LoadAttachObject((char *)NULL, mw->pidStr, (char *)NULL, paramList, TRUE);
+
+          // We should ask the user if he wants to change the
+          // previously selected attached pid because he is passing through this code again.
+          //
+          if (getHaveWeAttachedToPidBefore() && mw->executableName.isEmpty() ) {
+
+#ifdef DEBUG_loadPanel
+          printf("loadPanel::vSummaryPageFinishButtonSelected(), ATTACH, YOU WERE HERE BEFORE target panel=%s\n", p->getName() );
+#endif
+
+            clearPreviousSettings(mw); /* Since we are coming through a second time we could have
+                                    set some multiprocessing items.  Clear them before going on. */
+            mw->attachNewProcess();
+//            mainWidgetStack->raiseWidget(vALStackPage0);
+
+            if( mw->pidStr.isEmpty() ) {
+
+#ifdef DEBUG_loadPanel
+              printf("loadPanel::vSummaryPageFinishButtonSelected(), NOW THERE IS NO ATTACHED PID\n");
+              // FIX ME
+#endif
+
+              lao = NULL; // Clear away the object if no pid name is present
+            }
+            
+        }
+
+        // Do this check again because the user may have canceled out of
+        // the attach dialog in the haveWeAttachedAnPidBefore check above
+        // Plus we've delayed the creation of the LAO until here because people
+        // may have changed their selection by going back and reselecting.
+        // This code would have been executed the first time also but the code
+        // has been rearranged to support changing when the user goes back.
+
+        if( !mw->pidStr.isEmpty() ) {
+           lao = new LoadAttachObject((char *)NULL, mw->pidStr, (char *)NULL, paramList, TRUE);
+           setHaveWeAttachedToPidBefore(TRUE);
+        }
 
       } else {
 

@@ -201,6 +201,14 @@ class loadPanel  : public Panel
         return haveWeLoadedAnExecutableBefore;
     }
 
+    void setHaveWeAttachedToPidBefore(bool indicator) {
+        haveWeAttachedToPidBefore = indicator;
+    }
+
+    bool getHaveWeAttachedToPidBefore() {
+        return haveWeAttachedToPidBefore;
+    }
+
     void setWasDoingParallel(bool wasIdoingParallel) {
         doingParallelLoadsOrAttaches = wasIdoingParallel;
     }
@@ -234,6 +242,7 @@ class loadPanel  : public Panel
     virtual void languageChange();
     bool areWeControlledByMPIWizard;
     bool haveWeLoadedAnExecutableBefore;
+    bool haveWeAttachedToPidBefore;
     bool doingParallelLoadsOrAttaches;
 
   private:
