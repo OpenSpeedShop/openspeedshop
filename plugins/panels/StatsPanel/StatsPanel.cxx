@@ -21,6 +21,7 @@
 // To enable debuging uncomment define DEBUG_StatsPanel statement
 //
 //#define DEBUG_StatsPanel 1
+//#define DEBUG_INTRO 1
 //
 
 
@@ -173,6 +174,11 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   metadataAllSpaceFrame = NULL;
   metadataAllSpaceLayout = NULL;
   metadataOneLineInfoLayout = NULL;
+
+  metadataToolButton = NULL;
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::StatsPanel() constructor CLEARING metadataToolButton=0x%lx\n", metadataToolButton);
+#endif
 
   statspanel_clip = NULL;
 #ifdef DEBUG_StatsPanel
@@ -506,7 +512,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 // End - Move to Panel.cxx
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::StatsPanel, addWidget(fileTools=0x%x)\n", fileTools);
+  printf("StatsPanel::StatsPanel, addWidget(fileTools=0x%lx)\n", fileTools);
 #endif
 
   frameLayout->addWidget(fileTools);
@@ -608,6 +614,37 @@ StatsPanel::~StatsPanel()
 
 }
 
+int
+StatsPanel::findExperimentID(QString command)
+{
+
+ if (command.isEmpty() ) {
+   return -1;
+ } else {
+   int start_index = command.find("-x");
+   if( start_index != -1 ) {
+     QString s = command.mid(start_index+3);
+
+#ifdef DEBUG_StatsPanel
+     printf("StatsPanel::findExperimentID, Have a -x in the command s=(%s)\n", s.ascii() );
+#endif // DEBUG_StatsPanel
+
+     int end_index = s.find(" ");
+     if( end_index == -1 ) {
+       end_index == 99999;
+     }
+
+     QString exp_x = s.mid(0, end_index);
+
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::findExperimentID, exp_x=%s\n", exp_x.ascii() );
+#endif // DEBUG_StatsPanel
+
+     int expID = exp_x.toInt();
+     return (expID);
+  }
+ }
+}
 
 /*! The user clicked.  -unused. */
 void
@@ -636,6 +673,7 @@ void StatsPanel::infoEditHeaderMoreButtonSelected()
 #if DEBUG_INTRO
   printf("Enter StatsPanel::infoEditHeaderMoreButtonSelected()\n");
 #endif
+
 //#ifdef TEXT
   if (metaDataTextEditFLAG) {
     metaDataTextEdit->hide();
@@ -644,6 +682,12 @@ void StatsPanel::infoEditHeaderMoreButtonSelected()
     infoEditHeaderMoreButton->setText( tr( "More Metadata" ) );
     infoEditHeaderMoreButton->setEnabled(TRUE);
 #else
+
+#if DEBUG_INTRO
+    printf("Enter StatsPanel::infoEditHeaderMoreButtonSelected(), this=0x%lx, metadataToolButton=0x%lx\n", 
+           this, metadataToolButton);
+#endif
+
     metadataToolButton->setIconSet( QIconSet(*MoreMetadata_icon));
     metadataToolButton->setIconText(QString("Show More Experiment Metadata"));
     QToolTip::add( metadataToolButton, tr( "Push for additional experiment metadata.  This is information relating to\nthe generation of the experiment performance data being shown in the display below." ) );
@@ -1032,13 +1076,15 @@ expID = groupID;
 #endif // DEBUG_StatsPanel
 updateCollectorList();
 #else // OLDWAY
+
 int start_index = command.find("-x");
-if( start_index != -1 )
-{
+if( start_index != -1 ) {
   QString s = command.mid(start_index+3);
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::listener, UPDATE-EXPERIMENT-DATA-OBJECT Got a -x in the command s=(%s)\n", s.ascii() );
 #endif // DEBUG_StatsPanel
+
   int end_index = s.find(" ");
   if( end_index == -1 )
   {
@@ -1058,6 +1104,7 @@ if( start_index != -1 )
 #endif // DEBUG_StatsPanel
 
    updateCollectorList();
+
 } else {
 
 #ifdef DEBUG_StatsPanel
@@ -1122,13 +1169,13 @@ if( start_index != -1 )
     manageProcessesSelected();
 
 #ifdef DEBUG_StatsPanel
-    printf("StatsPanel::listener, UPDATE-EXPERIMENT-DATA-OBJECT SAVED DATA LOAD, msg->raiseFLAG =%d, calling updateStatsPanelData \n", msg->raiseFLAG );
+    printf("StatsPanel::listener, UPDATE-EXPERIMENT-DATA-OBJECT SAVED DATA LOAD, msg->raiseFLAG=%d, calling updateStatsPanelData \n", msg->raiseFLAG );
 #endif // DEBUG_StatsPanel
 
     updateStatsPanelData(DONT_FORCE_UPDATE);
 
 #ifdef DEBUG_StatsPanel
-    printf("StatsPanel::listener, UPDATE-EXPERIMENT-DATA-OBJECT msg->raiseFLAG =%d \n", msg->raiseFLAG );
+    printf("StatsPanel::listener, UPDATE-EXPERIMENT-DATA-OBJECT msg->raiseFLAG=%d \n", msg->raiseFLAG );
 #endif // DEBUG_StatsPanel
 
     if( msg->raiseFLAG )
@@ -2379,8 +2426,7 @@ StatsPanel::focusOnExp(int val)
     index++;
     int id = valStr.mid(index,9999).stripWhiteSpace().toInt();
     focusedExpID = id;
-    if( experimentGroupList.count() > 0 )
-    {
+    if( experimentGroupList.count() > 0 ) {
       updateCollectorList();
     }
 
@@ -3368,7 +3414,8 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::updateStatsPanelInfoHeader, entered, ++++++++++++++++++++ lastCommand=(%s)\n", lastCommand.ascii() );
+  printf("StatsPanel::updateStatsPanelInfoHeader, entered, ++++++++++ this=0x%lx, lastCommand=(%s)\n", 
+         this, lastCommand.ascii() );
 #endif
 
   list_of_hosts.clear();
@@ -3928,9 +3975,11 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::updateStatsPanelInfoHeader() , infoString.ascii()=%s\n", infoString.ascii());
   printf("StatsPanel::updateStatsPanelInfoHeader() , infoSummaryStr.ascii()=%s\n", infoSummaryStr.ascii());
-  printf("StatsPanel::updateStatsPanelInfoHeader() , ADDING TO metaDataTextEdit->text().isEmpty()=%d\n", metaDataTextEdit->text().isEmpty());
+  printf("StatsPanel::updateStatsPanelInfoHeader() , ADDING TO metaDataTextEdit->text().isEmpty()=%d\n", 
+         metaDataTextEdit->text().isEmpty());
   if (!metaDataTextEdit->text().isEmpty()) {
-    printf("StatsPanel::updateStatsPanelInfoHeader() , ADDING TO metaDataTextEdit->text().ascii()=(%s)\n", metaDataTextEdit->text().ascii());
+    printf("StatsPanel::updateStatsPanelInfoHeader() , ADDING TO metaDataTextEdit->text().ascii()=(%s)\n",
+           metaDataTextEdit->text().ascii());
   }
 #endif
 
@@ -3952,6 +4001,11 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
   infoString = QString("");
   metaDataTextEdit->setCursorPosition(0, 0);
   metaDataTextEdit->hide();
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::updateStatsPanelInfoHeader(), metadataToolButton=0x%lx\n",metadataToolButton);
+#endif
+
 #if MORE_BUTTON
   infoEditHeaderMoreButton->setText( tr( "More Metadata" ) );
 #else
@@ -3963,10 +4017,13 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 //#endif
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::updateStatsPanelInfoHeader() , exitting +++++++++++++++++++++++ with infoString.ascii()=%s\n", infoString.ascii());
-  printf("StatsPanel::updateStatsPanelInfoHeader() , exitting metaDataTextEdit->text().isEmpty()=%d\n", metaDataTextEdit->text().isEmpty());
+  printf("StatsPanel::updateStatsPanelInfoHeader() , exitting +++++++++++++++++++++++ with infoString.ascii()=%s\n",
+          infoString.ascii());
+  printf("StatsPanel::updateStatsPanelInfoHeader() , exitting metaDataTextEdit->text().isEmpty()=%d\n", 
+          metaDataTextEdit->text().isEmpty());
   if (!metaDataTextEdit->text().isEmpty()) {
-    printf("StatsPanel::updateStatsPanelInfoHeader() , exitting metaDataTextEdit->text().ascii()=(%s)\n", metaDataTextEdit->text().ascii());
+    printf("StatsPanel::updateStatsPanelInfoHeader() , exitting metaDataTextEdit->text().ascii()=(%s)\n", 
+            metaDataTextEdit->text().ascii());
   }
 #endif
 
@@ -3979,11 +4036,9 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 void
 StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 {
-#ifdef DEBUG_StatsPanel
-  printf("StatsPanel::updateStatsPanelData, ENTERING -------------------------\n");
-#endif
 
 #ifdef DEBUG_StatsPanel
+  printf("StatsPanel::updateStatsPanelData, ENTERING -------------------------\n");
  printf("StatsPanel::updateStatsPanelData() entered., currentCollectorStr=%s, command=%s\n", 
         currentCollectorStr.ascii(), command.ascii() );
 #endif
@@ -4004,35 +4059,41 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   sml->hide();
 //  metadataAllSpaceFrame->resize( metadataAllSpaceFrame->sizeHint() );
 
-
   // Percent value list (for the chart)
   cpvl.clear();
   // Text value list (for the chart)
   ctvl.clear();
   color_names = NULL;
+
 #ifdef DEBUG_StatsPanel
   printf("updateStatsPanelData, CHART, calling cf->init()\n" );
 #endif
+
   cf->init();
   total_percent = 0.0;
   numberItemsToDisplayInStats = -1;
-  if( !getPreferenceTopNLineEdit().isEmpty() )
-  {
+
+  if( !getPreferenceTopNLineEdit().isEmpty() ) {
     bool ok;
     numberItemsToDisplayInStats = getPreferenceTopNLineEdit().toInt(&ok);
   }
+
   numberItemsToDisplayInChart = 5;
-  if( !getPreferenceTopNChartLineEdit().isEmpty() )
-  {
+
+  if( !getPreferenceTopNChartLineEdit().isEmpty() ) {
     bool ok;
     numberItemsToDisplayInChart = getPreferenceTopNChartLineEdit().toInt(&ok);
   }
+
 #ifdef DEBUG_StatsPanel
   printf("updateStatsPanelData, CHART, numberItemsToDisplayInChart = %d\n", numberItemsToDisplayInChart );
 #endif
 
   textENUM = getPreferenceShowTextInChart();
-// printf("updateStatsPanelData,textENUM=%d\n", textENUM );
+
+#ifdef DEBUG_StatsPanel
+  printf("updateStatsPanelData,textENUM=%d\n", textENUM );
+#endif
 
   lastlvi = NULL;
   gotHeader = FALSE;
@@ -4044,37 +4105,43 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 #ifdef DEBUG_StatsPanel
   printf("updateStatsPanelData, command.isEmpty()= %d\n", command.isEmpty() );
 #endif
-  if( command.isEmpty() )
-  {
+
+  if( command.isEmpty() ) {
     command = generateCommand();
-  } else
-  {
+  } else {
     aboutString = "Compare/Customize report for:\n  ";
+
 #ifdef DEBUG_StatsPanel
     printf("updateStatsPanelData, NOT command.isEmpty() aboutString.ascii()=%s\n", aboutString.ascii() );
 #endif
+
   }
 
-  if( command.isEmpty() )
-  {
+  if( command.isEmpty() ) {
+
+#ifdef DEBUG_StatsPanel
+    printf("  updateStatsPanelData, EXIT EARLY command is EMPTY\n" );
+#endif
+
     return;
   }
 
 #ifdef DEBUG_StatsPanel
-  printf("  updateStatsPanelData, calling generateToolBar(), currentCollectorStr = %s\n", currentCollectorStr.ascii() );
+  printf("  updateStatsPanelData, this=0x%lx, currentCollectorStr = %s\n", this, currentCollectorStr.ascii() );
   printf("  updateStatsPanelData, lastCommand = %s  command = %s\n", lastCommand.ascii(), command.ascii() );
 #endif
-  generateToolBar();
+
+  //generateToolBar();
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::updateStatsPanelData, getPreferenceShowToolbarCheckBox() == TRUE=%d\n",( getPreferenceShowToolbarCheckBox() == TRUE ));
 #endif
 
-  if( toolBarFLAG == TRUE ) {
-    fileTools->show();
-  } else {
-    fileTools->hide();
-  }
+//  if( toolBarFLAG == TRUE ) {
+//    fileTools->show();
+//  } else {
+//    fileTools->hide();
+//  }
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::updateStatsPanelData, about to append timeIntervalString = %s  to command = %s\n", 
@@ -4129,6 +4196,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
       char *panel_type = "Stats Panel";
       ArgumentObject *ao = new ArgumentObject("ArgumentObject", exp_id);
       sp = getPanelContainer()->dl_create_and_add_panel(panel_type, getPanelContainer(), ao);
+      // remember the collector we are dealing with for the new instantiation.
       delete ao;
     } 
 
@@ -4305,21 +4373,44 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 
   if( !command.startsWith("cview -c")  ) {
 #ifdef DEBUG_StatsPanel
-   printf("SP::updateStatsPanelData calling updateStatsPanelInfoHeader, expID=%d, lastCommand=%s, infoAboutString=%s\n",
+  printf("SP::updateStatsPanelData calling updateStatsPanelInfoHeader, expID=%d, lastCommand=%s, infoAboutString=%s\n",
            expID, lastCommand.ascii(), infoAboutString.ascii());
-  printf("StatsPanel::updateStatsPanelInfoHeader() , calling updateStatsPanelInfoHeader, CLEARING metaDataTextEdit->text().isEmpty()=%d\n", metaDataTextEdit->text().isEmpty());
+  printf("StatsPanel::updateStatsPanelData(), CLEARING metaDataTextEdit->text().isEmpty()=%d\n", 
+          metaDataTextEdit->text().isEmpty());
   if (metaDataTextEdit->text().isEmpty()) {
-    printf("StatsPanel::updateStatsPanelInfoHeader() calling updateStatsPanelInfoHeader, CLEARING metaDataTextEdit->text().ascii()=(%s)\n", metaDataTextEdit->text().ascii());
+    printf("StatsPanel::updateStatsPanelData(), CLEARING metaDataTextEdit->text().ascii()=(%s)\n", 
+           metaDataTextEdit->text().ascii());
   }
 #endif
 
    metaDataTextEdit->setText("");
 
 #ifdef DEBUG_StatsPanel
-   printf("SP::updateStatsPanelData CALLING UPDATESTATSPANELINFOHEADER, expID=%d\n", expID);
+   printf("SP::updateStatsPanelData CALLING UPDATESTATSPANELINFOHEADER, expID=%d, toolBarFLAG=%d\n", expID, toolBarFLAG);
+   printf("SP::updateStatsPanelData, calling generateToolBar(), calling GENERATETOOLBAR, this=0x%lx, currentCollectorStr = %s\n", 
+          this, currentCollectorStr.ascii() );
 #endif
 
+   generateToolBar( command );
+
+   if (expID <= 0) {
+     expID = findExperimentID( command);
+#ifdef DEBUG_StatsPanel
+     printf("SP::updateStatsPanelData after call to findExperimentID, expID=%d, toolBarFLAG=%d\n", expID, toolBarFLAG);
+#endif
+   }
    updateStatsPanelInfoHeader(expID);
+
+#ifdef DEBUG_StatsPanel
+   printf("SP::updateStatsPanelData this=0x%lx, toolBarFLAG=%d\n", this, toolBarFLAG);
+#endif
+
+   if( toolBarFLAG == TRUE ) {
+     fileTools->show();
+   } else {
+     fileTools->hide();
+   }
+
  }
 
 #ifdef DEBUG_StatsPanel
@@ -4535,7 +4626,7 @@ printf("StatsPanel::updateStatsPanelData, CHART: cpvl.count()=%d numberItemsToDi
   QApplication::restoreOverrideCursor();
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::updateStatsPanelData, EXITING -------------------------\n");
+  printf("StatsPanel::updateStatsPanelData, EXITING -------------------------toolBarFLAG=%d\n", toolBarFLAG);
 #endif
 
 }
@@ -6109,43 +6200,32 @@ int
 StatsPanel::getLineColor(uint64_t value)
 {
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::getLineColor(%lld)\n", value);
+  printf("StatsPanel::getLineColor(%lld), TotalTime=%lf\n", value, TotalTime);
+  printf("StatsPanel::getLineColor(%lld), (.90 * TotalTime)=%lf\n", value, (.90 *TotalTime));
 #endif
 
-  if( (uint64_t) value >  0.0 )
-  {
-    if( TotalTime*.90 >= value )
-    {
+  if( (uint64_t) value >  0.0 ) {
+    if( TotalTime*.90 >= value ) {
       return(0);
-    } else if( TotalTime*.80 >= value )
-    {
+    } else if( TotalTime*.80 >= value ) {
       return(1);
-    } else if( TotalTime*.70 >= value )
-    {
+    } else if( TotalTime*.70 >= value ) {
       return(2);
-    } else if( TotalTime*.60 >= value )
-    {
+    } else if( TotalTime*.60 >= value ) {
       return(3);
-    } else if( TotalTime*.50 >= value )
-    {
+    } else if( TotalTime*.50 >= value ) {
       return(4);
-    } else if( TotalTime*.40 >= value )
-    {
+    } else if( TotalTime*.40 >= value ) {
       return(5);
-    } else if( TotalTime*.30 >= value )
-    {
+    } else if( TotalTime*.30 >= value ) {
       return(6);
-    } else if( TotalTime*.20 >= value )
-    {
+    } else if( TotalTime*.20 >= value ) {
       return(7);
-    } else if( TotalTime*.10 >= value )
-    {
+    } else if( TotalTime*.10 >= value ) {
       return(8);
-    } else if( TotalTime*0 >= value )
-    {
+    } else if( TotalTime*0 >= value ) {
       return(9);
-    } else
-    {
+    } else {
       return(10);
     }
   }
@@ -6154,6 +6234,65 @@ StatsPanel::getLineColor(uint64_t value)
 }
 
 
+std::list<std::string>
+StatsPanel::findCollectors( int experimentID )
+{
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::findCollectors() entered\n");
+#endif
+
+  std::list<std::string> local_list_of_collectors;
+
+  if( experimentGroupList.count() > 0 && focusedExpID > 0 ) {
+
+    local_list_of_collectors.clear();
+    QString command = QString("list -v expTypes -x %1").arg(focusedExpID);
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::findCollectors-A: attempt to run (%s)\n", command.ascii() );
+#endif
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    InputLineObject *clip = NULL;
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
+               &local_list_of_collectors, clip, TRUE ) ) {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+
+  } else {
+
+    // Now get the collectors... and their metrics...
+    QString command = QString::null;
+
+    if( focusedExpID == -1 ) {
+      command = QString("list -v expTypes -x %1").arg(experimentID);
+    } else {
+      command = QString("list -v expTypes -x %1").arg(focusedExpID);
+    }
+
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::findCollectors-B: attempt to run (%s)\n", command.ascii() );
+#endif
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    local_list_of_collectors.clear();
+    InputLineObject *clip = NULL;
+
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
+           &local_list_of_collectors, clip, TRUE ) ) {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::findCollectors-ran %s\n", command.ascii() );
+    for( std::list<std::string>::const_iterator it = local_list_of_collectors.begin();
+      it != local_list_of_collectors.end(); it++ ) {
+      std::string collector_name = (std::string)*it;
+      printf("StatsPanel::findCollectors-DEBUG:A: collector_name = (%s)\n", collector_name.c_str() );
+    }
+#endif // DEBUG_StatsPanel
+
+  }
+  return local_list_of_collectors;
+}
 void
 StatsPanel::updateCollectorList()
 {
@@ -6161,8 +6300,7 @@ StatsPanel::updateCollectorList()
   printf("StatsPanel::updateCollectorList() entered\n");
 #endif
 
-  if( experimentGroupList.count() > 0 )
-  {
+  if( experimentGroupList.count() > 0 ) {
     list_of_collectors.clear();
     QString command = QString("list -v expTypes -x %1").arg(focusedExpID);
 #ifdef DEBUG_StatsPanel
@@ -6171,40 +6309,39 @@ StatsPanel::updateCollectorList()
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     InputLineObject *clip = NULL;
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-               &list_of_collectors, clip, TRUE ) )
-    {
+               &list_of_collectors, clip, TRUE ) ) {
       printf("Unable to run %s command.\n", command.ascii() );
     }
-  } else
-  {
+  } else {
+
     // Now get the collectors... and their metrics...
     QString command = QString::null;
-    if( focusedExpID == -1 )
-    {
+
+    if( focusedExpID == -1 ) {
       command = QString("list -v expTypes -x %1").arg(expID);
-    } else
-    {
+    } else {
       command = QString("list -v expTypes -x %1").arg(focusedExpID);
     }
+
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::updateCollectorList-B: attempt to run (%s)\n", command.ascii() );
 #endif
+
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     list_of_collectors.clear();
     InputLineObject *clip = NULL;
+
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-           &list_of_collectors, clip, TRUE ) )
-    {
+           &list_of_collectors, clip, TRUE ) ) {
       printf("Unable to run %s command.\n", command.ascii() );
     }
 
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::updateCollectorList-ran %s\n", command.ascii() );
     for( std::list<std::string>::const_iterator it = list_of_collectors.begin();
-      it != list_of_collectors.end(); it++ )
-    {
-    std::string collector_name = (std::string)*it;
-    printf("StatsPanel::updateCollectorList-DEBUG:A: collector_name = (%s)\n", collector_name.c_str() );
+      it != list_of_collectors.end(); it++ ) {
+      std::string collector_name = (std::string)*it;
+      printf("StatsPanel::updateCollectorList-DEBUG:A: collector_name = (%s)\n", collector_name.c_str() );
     }
 #endif // DEBUG_StatsPanel
 
@@ -10208,32 +10345,65 @@ printf("C: return TRUE\n");
 }
 
 void
-StatsPanel::generateToolBar()
+StatsPanel::generateToolBar( QString command )
 {
 
-if (currentCollectorStr != lastCollectorStr) {
+#ifdef DEBUG_StatsPanel
+ printf("ENTER StatsPanel::generateToolBar, this=0x%lx, currentCollectorStr.ascii()=%s\n", this, currentCollectorStr.ascii() );
+ printf("ENTER StatsPanel::generateToolBar, lastCollectorStr.ascii()=%s\n", lastCollectorStr.ascii() );
+ printf("ENTER StatsPanel::generateToolBar, recycleFLAG=%d\n", recycleFLAG );
+ printf("ENTER StatsPanel::generateToolBar, fileTools=0x%lx\n", fileTools );
+#endif
 
-  // Start of the Information Icons
+// If this invocation is related to a new StatsPanel from reuse
+// the necessary info is not usually available at this point.
+// So, we try to recreate it...
+if (currentCollectorStr == NULL && lastCollectorStr == NULL ) {
+    std::string collector_name = "";
+    int experiment_id = findExperimentID( command );
+    if (experiment_id > 0) {
+      std::list<std::string> collectors_list = findCollectors(experiment_id);
+      for( std::list<std::string>::const_iterator it = collectors_list.begin();
+           it != collectors_list.end(); it++ ) {
+               collector_name = (std::string)*it;
+      }
+
+      if (collector_name.size() > 0 ) {
+         currentCollectorStr = QString(collector_name);
+#ifdef DEBUG_StatsPanel
+         printf("StatsPanel::generateToolBar, currentCollectorStr.ascii()=%s\n", currentCollectorStr.ascii() );
+#endif
+      }
+    }
+}
+
+if (currentCollectorStr != lastCollectorStr || recycleFLAG == FALSE) {
+
+  // ----------------- Start of the Information Icons
   MoreMetadata_icon = new QPixmap(meta_information_plus_xpm);
   metadataToolButton = new QToolButton(*MoreMetadata_icon, "Show More Experiment Metadata", 
                                         QString::null, this, SLOT( infoEditHeaderMoreButtonSelected()), 
                                         fileTools, "show more experiment metadata");
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::StatsPanel() generateToolBar SETTING metadataToolButton=0x%lx\n", metadataToolButton);
+#endif
+
   QToolTip::add( metadataToolButton, tr( "Push for additional experiment metadata.  This is information relating to\nthe generation of the experiment performance data being shown in the display below." ) );
 // should not need this--  metadataToolButton->setIconText(QString("Show More Experiment Metadata"));
 
   LessMetadata_icon = new QPixmap(meta_information_minus_xpm);
-  // End of the Information Icons
+  // ----------------- End of the Information Icons
 
-  // Start of the Panel Administration Icons
+  // ----------------- Start of the Panel Administration Icons
   QPixmap *update_icon = new QPixmap( update_icon_xpm );
   new QToolButton(*update_icon, "Update the statistics panel.  Make viewing option changes\nand then click on this icon to display the new view.", QString::null, this, SLOT( updatePanel()), fileTools, "Update the statistics panel to show updated view");
 
   QPixmap *clear_auxiliary = new QPixmap( clear_auxiliary_xpm );
   new QToolButton(*clear_auxiliary, "Clear all auxiliary view settings, such as, specific function setting,\ntime segment settings, per event display settings, etc..", QString::null, this, SLOT( clearAuxiliarySelected()), fileTools, "clear auxiliary settings");
-  // End of the Panel Administration Icons
+  // ----------------- End of the Panel Administration Icons
 
 
-  // Start of the View Generation Icons
+  // ----------------- Start of the View Generation Icons
   QPixmap *functions_icon = new QPixmap( functions_xpm );
   new QToolButton(*functions_icon, "Show Functions: generate a performance statistics report\nshowing the performance data delineated by functions.", QString::null, this, SLOT( functionsSelected()), fileTools, "show functions");
 
@@ -10253,7 +10423,7 @@ if (currentCollectorStr != lastCollectorStr) {
     new QToolButton(*statements_icon, "Show Statements: generate a performance statistics report\nshowing the performance data delineated by the source line\nstatements in your program.", QString::null, this, SLOT( statementsSelected()), fileTools, "show statements");
 
 #ifdef DEBUG_StatsPanel
-    printf("StatsPanel::generateToolBar, statements_icon=%d\n", statements_icon );
+    printf("StatsPanel::generateToolBar, statements_icon=0x%lx\n", statements_icon );
 #endif
 
     QPixmap *statementsByFunction_icon = new QPixmap( statementsByFunction_xpm );
@@ -10293,9 +10463,9 @@ if (currentCollectorStr != lastCollectorStr) {
     QPixmap *butterfly_icon = new QPixmap( butterfly_xpm );
     new QToolButton(*butterfly_icon, "Show Butterfly", QString::null, this, SLOT( butterflySelected()), fileTools, "show butterfly");
   }
-  // End of the View Generatin Icons
+  // ----------------- End of the View Generatin Icons
 
-  // Start of the Analysis Icons
+  // ----------------- Start of the Analysis Icons
   if( currentCollectorStr == "iot" || currentCollectorStr == "mpit" ) {
     QPixmap *event_list_icon = new QPixmap( event_list_icon_xpm );
     new QToolButton(*event_list_icon, "Show a per event list display.  There will be one event (call a function that was specified to be traced) per line.", QString::null, this, SLOT( showEventListSelected()), fileTools, "Show per event display");
@@ -10314,6 +10484,7 @@ if (currentCollectorStr != lastCollectorStr) {
 
   QPixmap *custom_comparison_icon = new QPixmap( custom_comparison_xpm );
   new QToolButton(*custom_comparison_icon, "Show Custom Comparison report as built by user input: generate\na performance statistics report as the result of the user\ncreating comparison columns and then selecting which\nexperiments, ranks, threads, or processes\nwill comprise each column.", QString::null, this, SLOT( customizeExperimentsSelected()), fileTools, "show comparison analysis");
+  // ----------------- End of the Analysis Icons
 
   toolbar_status_label = new QLabel(fileTools,"toolbar_status_label");
   // default setting to match default views
@@ -10323,7 +10494,8 @@ if (currentCollectorStr != lastCollectorStr) {
 //   fileTools->show();
 
 #ifdef DEBUG_StatsPanel
- printf("StatsPanel::generateToolBar, toolbar_status_label=%d, also call fileTools->hide()\n", toolbar_status_label );
+ printf("StatsPanel::generateToolBar, fileTools=0x%lx\n", fileTools );
+ printf("StatsPanel::generateToolBar, toolbar_status_label=0x%lx, also call fileTools->hide()\n", toolbar_status_label );
 #endif
 
     fileTools->hide();

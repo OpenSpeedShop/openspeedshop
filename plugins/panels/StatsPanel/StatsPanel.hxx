@@ -273,6 +273,8 @@ class StatsPanel  : public Panel
     void updateStatsPanelInfoHeader(int expID);
     void updateToolBarStatus(QString optionChosen);
     void updateCollectorList();
+    std::list<std::string> findCollectors(int expID);
+    int findExperimentID(QString command);
     void updateCollectorMetricList();
     void outputAboutData(QString *data);
     void outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineNumber);
@@ -351,7 +353,7 @@ class StatsPanel  : public Panel
     QString collectorStrFromMenu;
 
     QFile *f;
-    void generateToolBar();
+    void generateToolBar(QString command);
     QLabel *toolbar_status_label;
 
     // Status Panel Message Label - put out messages when data is not available
