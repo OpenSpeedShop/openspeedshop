@@ -593,8 +593,8 @@ void Senders::threadsStateChanged(const ThreadNameGroup& threads,
 
     //
     // Update the state of these threads in the thread table. This information
-    // is used by DyninstCallbacks::sendThreadStateChanges() to insure it sends
-    // the minimal possible set of ThreadsStateChanged messages to the frontend.
+    // is used by Dyninst::sendThreadStateChanges() to insure it sends the
+    // minimal possible set of ThreadsStateChanged messages to the frontend.
     //
     ThreadTable::TheTable.setThreadState(threads, state);
 }

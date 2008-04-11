@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -18,14 +18,14 @@
 
 /** @file
  *
- * Definition of the DyninstCallbacks namespace.
+ * Definition of the Dyninst namespace.
  *
  */
 
 #include "AddressRange.hxx"
 #include "Assert.hxx"
 #include "Backend.hxx"
-#include "DyninstCallbacks.hxx"
+#include "Dyninst.hxx"
 #include "ExperimentGroup.hxx"
 #include "FileName.hxx"
 #include "Senders.hxx"
@@ -55,9 +55,9 @@ using namespace OpenSpeedShop::Framework;
  * @param is_load    Boolean "true" if the dynamic library was loaded, or
  *                   "false" if it was unloaded.
  */
-void DyninstCallbacks::dynLibrary(BPatch_thread* thread,
-				  BPatch_module* module,
-				  bool is_load)
+void OpenSpeedShop::Framework::Dyninst::dynLibrary(BPatch_thread* thread,
+						   BPatch_module* module,
+						   bool is_load)
 {
     // Check preconditions
     Assert(thread != NULL);
@@ -95,7 +95,7 @@ void DyninstCallbacks::dynLibrary(BPatch_thread* thread,
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {
         std::stringstream output;
-	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	output << "[TID " << pthread_self() << "] Dyninst::"
 	       << "dynLibrary(): PID " << process->getPid() << " "
 	       << (is_load ? "loaded" : "unloaded") << " \""
 	       << linked_object.getPath() << "\"." << std::endl;
@@ -152,8 +152,9 @@ void DyninstCallbacks::dynLibrary(BPatch_thread* thread,
  * @param number        Error number that occured.
  * @param parameters    Parameters to that error number's descriptive string.
  */
-void DyninstCallbacks::error(BPatchErrorLevel severity, int number,
-			     const char* const* parameters)
+void OpenSpeedShop::Framework::Dyninst::error(BPatchErrorLevel severity, 
+					      int number,
+					      const char* const* parameters)
 {
     std::string text;
 
@@ -195,7 +196,7 @@ void DyninstCallbacks::error(BPatchErrorLevel severity, int number,
  *
  * @param thread    ...
  */
-void DyninstCallbacks::exec(BPatch_thread* thread)
+void OpenSpeedShop::Framework::Dyninst::exec(BPatch_thread* thread)
 {
     // TODO: implement!
 }
@@ -212,7 +213,8 @@ void DyninstCallbacks::exec(BPatch_thread* thread)
  * @param thread       Thread in the process that has terminated.
  * @param exit_type    Description of how the process exited.
  */
-void DyninstCallbacks::exit(BPatch_thread* thread, BPatch_exitType exit_type)
+void OpenSpeedShop::Framework::Dyninst::exit(BPatch_thread* thread,
+					     BPatch_exitType exit_type)
 {
     // Check preconditions
     Assert(thread != NULL);
@@ -224,7 +226,7 @@ void DyninstCallbacks::exit(BPatch_thread* thread, BPatch_exitType exit_type)
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {
         std::stringstream output;
-	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	output << "[TID " << pthread_self() << "] Dyninst::"
 	       << "exit(): PID " << process->getPid() << " exited with \"";
 	switch(exit_type) {
 	case NoExit:
@@ -278,7 +280,8 @@ void DyninstCallbacks::exit(BPatch_thread* thread, BPatch_exitType exit_type)
  * @param parent    ...
  * @param child     ...
  */
-void DyninstCallbacks::postFork(BPatch_thread* parent, BPatch_thread* child)
+void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
+						 BPatch_thread* child)
 {
     // TODO: implement!
 }
@@ -293,8 +296,8 @@ void DyninstCallbacks::postFork(BPatch_thread* parent, BPatch_thread* child)
  * @param process    ...
  * @param thread     ...
  */
-void DyninstCallbacks::threadCreate(BPatch_process* process,
-				    BPatch_thread* thread)
+void OpenSpeedShop::Framework::Dyninst::threadCreate(BPatch_process* process,
+						     BPatch_thread* thread)
 {
     // TODO: implement!
 }
@@ -310,8 +313,8 @@ void DyninstCallbacks::threadCreate(BPatch_process* process,
  * @param process    Process containing the thread that has been destroyed.
  * @param thread     Thread that has been destroyed
  */
-void DyninstCallbacks::threadDestroy(BPatch_process* process,
-				     BPatch_thread* thread)
+void OpenSpeedShop::Framework::Dyninst::threadDestroy(BPatch_process* process,
+						      BPatch_thread* thread)
 {
     // Check preconditions
     Assert(process != NULL);
@@ -320,7 +323,7 @@ void DyninstCallbacks::threadDestroy(BPatch_process* process,
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {
         std::stringstream output;
-	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	output << "[TID " << pthread_self() << "] Dyninst::"
 	       << "threadDestroy(): TID " 
 	       << static_cast<uint64_t>(thread->getTid()) << " of PID "
 	       << process->getPid() << " was destroyed." << std::endl;
@@ -353,9 +356,10 @@ void DyninstCallbacks::threadDestroy(BPatch_process* process,
  * @return           Dyninst function pointer for the named function, or
  *                   a null pointer if the function could not be found.
  */
-BPatch_function*
-DyninstCallbacks::findFunction(/* const */ BPatch_process& process,
-			       const std::string& name)
+BPatch_function* OpenSpeedShop::Framework::Dyninst::findFunction(
+    /* const */ BPatch_process& process,
+    const std::string& name
+    )
 {
     // Get the image pointer for this process
     BPatch_image* image = process.getImage();
@@ -369,7 +373,7 @@ DyninstCallbacks::findFunction(/* const */ BPatch_process& process,
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {
         std::stringstream output;
-	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	output << "[TID " << pthread_self() << "] Dyninst::"
 	       << "findFunction(PID " << process.getPid() << ", \"" << name 
 	       << "\") found " << functions.size() << " match"
 	       << ((functions.size() == 1) ? "" : "es") << "." << std::endl;
@@ -400,9 +404,10 @@ DyninstCallbacks::findFunction(/* const */ BPatch_process& process,
  *                   function, or a null pointer if the global variable
  *                   could not be found.
  */
-BPatch_variableExpr*
-DyninstCallbacks::findGlobalVariable(/* const */ BPatch_process& process,
-				     const std::string& name)
+BPatch_variableExpr* OpenSpeedShop::Framework::Dyninst::findGlobalVariable(
+    /* const */ BPatch_process& process,
+    const std::string& name
+    )
 {
     // Get the image pointer for this process
     BPatch_image* image = process.getImage();
@@ -414,7 +419,7 @@ DyninstCallbacks::findGlobalVariable(/* const */ BPatch_process& process,
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {
         std::stringstream output;
-	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	output << "[TID " << pthread_self() << "] Dyninst::"
 	       << "findGlobalVariable(PID " << process.getPid() 
 	       << ", \"" << name << "\") found "
 	       << ((variable == NULL) ? "0 matches" : "1 match")
@@ -446,14 +451,15 @@ DyninstCallbacks::findGlobalVariable(/* const */ BPatch_process& process,
  * @return           Dyninst function pointer for the named library function,
  *                   or a null pointer if it could not be found.
  */
-BPatch_function*
-DyninstCallbacks::findLibraryFunction(/* const */ BPatch_process& process,
-				      const std::string& name)
+BPatch_function* OpenSpeedShop::Framework::Dyninst::findLibraryFunction(
+    /* const */ BPatch_process& process,
+    const std::string& name
+    )
 {
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {
         std::stringstream output;
-	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	output << "[TID " << pthread_self() << "] Dyninst::"
 	       << "findLibraryFunction(PID " << process.getPid() 
 	       << ", \"" << name << "\")" << std::endl;
         std::cerr << output.str();
@@ -488,7 +494,7 @@ DyninstCallbacks::findLibraryFunction(/* const */ BPatch_process& process,
 #ifndef NDEBUG
 	    if(Backend::isDebugEnabled()) {
 		std::stringstream output;
-		output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+		output << "[TID " << pthread_self() << "] Dyninst::"
 		       << "findLibraryFunction() failed to load \""
 		       << library << "\"." << std::endl;
 		std::cerr << output.str();
@@ -505,7 +511,7 @@ DyninstCallbacks::findLibraryFunction(/* const */ BPatch_process& process,
 #ifndef NDEBUG
 	    if(Backend::isDebugEnabled()) {
 		std::stringstream output;
-		output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+		output << "[TID " << pthread_self() << "] Dyninst::"
 		       << "findLibraryFunction() failed to find \""
 		       << library << "\" after loading." << std::endl;
 		std::cerr << output.str();
@@ -526,7 +532,7 @@ DyninstCallbacks::findLibraryFunction(/* const */ BPatch_process& process,
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {
         std::stringstream output;
-	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	output << "[TID " << pthread_self() << "] Dyninst::"
 	       << "findLibraryFunction() found " << functions.size() 
 	       << " match" << ((functions.size() == 1) ? "" : "es") << "." 
 	       << std::endl;
@@ -555,7 +561,9 @@ DyninstCallbacks::findLibraryFunction(/* const */ BPatch_process& process,
  *
  * @param threads    Threads for which symbols should be sent.
  */
-void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
+void OpenSpeedShop::Framework::Dyninst::sendSymbolsForThread(
+    const ThreadNameGroup& threads
+    )
 {
     // Get the current time
     Time now = Time::Now();
@@ -681,7 +689,7 @@ void DyninstCallbacks::sendSymbolsForThread(const ThreadNameGroup& threads)
  * @note    This function isn't a real Dyninst callback function but rather a
  *          utility function. This seemed as good a place as any to put it.
  */
-void DyninstCallbacks::sendThreadStateUpdates()
+void OpenSpeedShop::Framework::Dyninst::sendThreadStateUpdates()
 {
     //
     // Note: Disable this function for now. Dyninst is giving us state
@@ -695,7 +703,7 @@ void DyninstCallbacks::sendThreadStateUpdates()
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {
         std::stringstream output;
-	output << "[TID " << pthread_self() << "] DyninstCallbacks::"
+	output << "[TID " << pthread_self() << "] Dyninst::"
 	       << "sendThreadStateUpdates()" << std::endl;
         std::cerr << output.str();
     }

@@ -26,7 +26,7 @@
 #include "Backend.hxx"
 #include "Callbacks.hxx"
 #include "Collector.hxx"
-#include "DyninstCallbacks.hxx"
+#include "Dyninst.hxx"
 #include "InstrumentationTable.hxx"
 #include "Path.hxx"
 #include "Protocol.h"
@@ -221,7 +221,7 @@ void Callbacks::attachToThreads(const Blob& blob)
 		i = threads_attached.begin(); i != threads_attached.end(); ++i)
 	    
 	    // Send the frontend all the symbol information for this thread
-	    DyninstCallbacks::sendSymbolsForThread(*i);
+	    Dyninst::sendSymbolsForThread(*i);
 
 	// Send the frontend a message indicating these threads are suspended
 	Senders::threadsStateChanged(threads_attached, Suspended);
@@ -483,7 +483,7 @@ void Callbacks::createProcess(const Blob& blob)
 		i = threads_created.begin(); i != threads_created.end(); ++i)
 	    
 	    // Send the frontend all the symbol information for this thread
-	    DyninstCallbacks::sendSymbolsForThread(*i);
+	    Dyninst::sendSymbolsForThread(*i);
 	
 	// Send the frontend a message indicating these threads are suspended
 	Senders::threadsStateChanged(threads_created, Suspended);
@@ -776,7 +776,7 @@ void Callbacks::getGlobalInteger(const Blob& blob)
 
     // Find the global variable
     BPatch_variableExpr* variable = 
-	DyninstCallbacks::findGlobalVariable(*process, message.global);
+	Dyninst::findGlobalVariable(*process, message.global);
     if(variable != NULL) {
 	
 	// Get the name and size of the type of this variable
@@ -907,7 +907,7 @@ void Callbacks::getGlobalString(const Blob& blob)
 
     // Find the global variable
     BPatch_variableExpr* variable = 
-	DyninstCallbacks::findGlobalVariable(*process, message.global);
+	Dyninst::findGlobalVariable(*process, message.global);
     if(variable != NULL) {
 
 	// Get the name and size of the type of this variable
@@ -1070,7 +1070,7 @@ void Callbacks::setGlobalInteger(const Blob& blob)
 
     // Find the global variable
     BPatch_variableExpr* variable = 
-	DyninstCallbacks::findGlobalVariable(*process, message.global);
+	Dyninst::findGlobalVariable(*process, message.global);
     if(variable != NULL) {
 	
 	// Get the name and size of the type of this variable

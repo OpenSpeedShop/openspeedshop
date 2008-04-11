@@ -24,7 +24,7 @@
 
 #include "Assert.hxx"
 #include "Backend.hxx"
-#include "DyninstCallbacks.hxx"
+#include "Dyninst.hxx"
 #include "StopAtEntryOrExitEntry.hxx"
 #include "ThreadName.hxx"
 #include "Utility.hxx"
@@ -107,9 +107,7 @@ void StopAtEntryOrExitEntry::install()
     Assert(process != NULL);
 
     // Find the "where" function
-    BPatch_function* where =
-        DyninstCallbacks::findFunction(*process, dm_where);
-
+    BPatch_function* where = Dyninst::findFunction(*process, dm_where);
     if(where != NULL) {
 
 	//

@@ -24,7 +24,7 @@
 
 #include "Assert.hxx"
 #include "Backend.hxx"
-#include "DyninstCallbacks.hxx"
+#include "Dyninst.hxx"
 #include "ExecuteInPlaceOfEntry.hxx"
 #include "ThreadName.hxx"
 #include "Utility.hxx"
@@ -107,11 +107,8 @@ void ExecuteInPlaceOfEntry::install()
     Assert(process != NULL);
 
     // Find the "where" and "callee" functions
-    BPatch_function* where =
-        DyninstCallbacks::findFunction(*process, dm_where);
-    BPatch_function* callee =
-        DyninstCallbacks::findLibraryFunction(*process, dm_callee);
-
+    BPatch_function* where = Dyninst::findFunction(*process, dm_where);
+    BPatch_function* callee = Dyninst::findLibraryFunction(*process, dm_callee);
     if((where != NULL) && (callee != NULL)) {
 
 	// Request allocation of a variable in this process for storing a flag

@@ -24,7 +24,7 @@
 
 #include "Backend.hxx"
 #include "Blob.hxx"
-#include "DyninstCallbacks.hxx"
+#include "Dyninst.hxx"
 #include "MessageCallbackTable.hxx"
 #include "Protocol.h"
 #include "Senders.hxx"
@@ -99,15 +99,29 @@ namespace {
 	// Register callbacks with Dyninst
 	BPatch* bpatch = BPatch::getBPatch();
 	Assert(bpatch != NULL);
-	bpatch->registerDynLibraryCallback(DyninstCallbacks::dynLibrary);
-	bpatch->registerErrorCallback(DyninstCallbacks::error);
-	bpatch->registerExecCallback(DyninstCallbacks::exec);
-	bpatch->registerExitCallback(DyninstCallbacks::exit);
-	bpatch->registerPostForkCallback(DyninstCallbacks::postFork);
-	bpatch->registerThreadEventCallback(BPatch_threadCreateEvent,
-					    DyninstCallbacks::threadCreate);
-	bpatch->registerThreadEventCallback(BPatch_threadDestroyEvent,
-					    DyninstCallbacks::threadDestroy);
+	bpatch->registerDynLibraryCallback(
+	    OpenSpeedShop::Framework::Dyninst::dynLibrary
+	    );
+	bpatch->registerErrorCallback(
+	    OpenSpeedShop::Framework::Dyninst::error
+	    );
+	bpatch->registerExecCallback(
+	    OpenSpeedShop::Framework::Dyninst::exec
+	    );
+	bpatch->registerExitCallback(
+            OpenSpeedShop::Framework::Dyninst::exit
+	    );
+	bpatch->registerPostForkCallback(
+            OpenSpeedShop::Framework::Dyninst::postFork
+	    );
+	bpatch->registerThreadEventCallback(
+            BPatch_threadCreateEvent,
+	    OpenSpeedShop::Framework::Dyninst::threadCreate
+	    );
+	bpatch->registerThreadEventCallback(
+            BPatch_threadDestroyEvent,
+	    OpenSpeedShop::Framework::Dyninst::threadDestroy
+	    );
 	
 	// Instruct Dyninst to give source statement info with full path names
 	bpatch->truncateLineInfoFilenames(false);
@@ -196,8 +210,8 @@ namespace {
 		bpatch->pollForStatusChange();
 		
 		// Update the frontend with any new thread state changes
-		DyninstCallbacks::sendThreadStateUpdates();
-
+		OpenSpeedShop::Framework::Dyninst::sendThreadStateUpdates();
+		
 	    }
 
 	    // Handle any data available on incoming stdout streams
