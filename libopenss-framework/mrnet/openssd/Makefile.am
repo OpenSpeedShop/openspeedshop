@@ -51,7 +51,7 @@ openssd_SOURCES = \
 	Backend.hxx Backend.cxx \
 	Callbacks.hxx Callbacks.cxx \
 	Collector.hxx \
-	DyninstCallbacks.hxx DyninstCallbacks.cxx \
+	Dyninst.hxx Dyninst.cxx \
 	ExecuteAtEntryOrExitEntry.hxx ExecuteAtEntryOrExitEntry.cxx \
 	ExecuteInPlaceOfEntry.hxx ExecuteInPlaceOfEntry.cxx \
 	ExecuteNowEntry.hxx ExecuteNowEntry.cxx \
