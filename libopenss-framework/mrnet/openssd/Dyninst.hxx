@@ -29,7 +29,14 @@
 #include "config.h"
 #endif
 
+#include "Job.hxx"
+
 #include <BPatch.h>
+#ifdef HAVE_INTTYPES_H
+#include <inttypes.h>
+#endif
+#include <string>
+#include <utility>
 
 
 
@@ -62,6 +69,17 @@ namespace OpenSpeedShop { namespace Framework {
 						const std::string&);
 	BPatch_function* findLibraryFunction(/* const */ BPatch_process&,
 					     const std::string&);
+
+	void getGlobal(/* const */ BPatch_process&, const std::string&,
+		       std::pair<bool, int64_t>&);
+	void setGlobal(/* const */ BPatch_process&, const std::string&,
+		       int64_t&);
+
+	void getGlobal(/* const */ BPatch_process&, const std::string&,
+		       std::pair<bool, std::string>&);
+
+	void getMPICHProcTable(/* const */ BPatch_process&,
+			       std::pair<bool, Job>&);
 
 	void sendSymbolsForThread(const ThreadNameGroup&);
 	void sendThreadStateUpdates();

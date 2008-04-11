@@ -601,6 +601,9 @@ struct OpenSS_Protocol_GetMPICHProcTable
 {
     /** Thread from which the MPICH process table should be retrieved. */
     OpenSS_Protocol_ThreadName thread;
+
+    /** Name of global variable whose value is being requested. */
+    string global<>;
 };
 
 

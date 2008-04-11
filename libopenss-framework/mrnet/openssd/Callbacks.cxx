@@ -771,68 +771,10 @@ void Callbacks::getGlobalInteger(const Blob& blob)
     BPatch_process* process = thread->getProcess();
     Assert(process != NULL);
 
-    // Pair indicating if value was found and holding actual value
+    // Get the global variable
     std::pair<bool, int64_t> value = std::make_pair(false, 0);
+    Dyninst::getGlobal(*process, message.global, value);
 
-    // Find the global variable
-    BPatch_variableExpr* variable = 
-	Dyninst::findGlobalVariable(*process, message.global);
-    if(variable != NULL) {
-	
-	// Get the name and size of the type of this variable
-	const BPatch_type* type = variable->getType();
-	Assert(type != NULL);
-	const char* type_name = type->getName();
-	unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
-
-	// Is the variable a signed/unsigned integer type?
-
-	if(!strcmp(type_name, "unsigned char") && (type_size == 1)) {
-	    unsigned char raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-	else if(!strcmp(type_name, "char") && (type_size == 1)) {
-	    char raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-
-	else if(!strcmp(type_name, "unsigned short") && (type_size == 2)) {
-	    unsigned short raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-	else if(!strcmp(type_name, "short") && (type_size == 2)) {
-	    short raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-
-	else if(!strcmp(type_name, "unsigned int") && (type_size == 4)) {
-	    unsigned int raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-	else if(!strcmp(type_name, "int") && (type_size == 4)) {
-	    int raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-
-	else if(!strcmp(type_name, "unsigned long long") && (type_size == 8)) {
-	    unsigned long long raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-	else if(!strcmp(type_name, "long long") && (type_size == 8)) {
-	    long long raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-
-    }
-    
     // Send the frontend a message with the value (if found) of the variable
     Senders::globalIntegerValue(message.thread, message.global, 
 				value.first, value.second);
@@ -902,35 +844,9 @@ void Callbacks::getGlobalString(const Blob& blob)
     BPatch_process* process = thread->getProcess();
     Assert(process != NULL);
 
-    // Pair indicating if value was found and holding actual value
+    // Get the global variable
     std::pair<bool, std::string> value = std::make_pair(false, std::string());
-
-    // Find the global variable
-    BPatch_variableExpr* variable = 
-	Dyninst::findGlobalVariable(*process, message.global);
-    if(variable != NULL) {
-
-	// Get the name and size of the type of this variable
-	const BPatch_type* type = variable->getType();
-	Assert(type != NULL);
-	const char* type_name = type->getName();
-	unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
-
-	// Is the variable a character pointer type?
-
-	if(!strcmp(type_name, "char*") && (type_size == 4)) {
-	    
-	    // TODO: get the string value here
-
-	}
-
-	else if(!strcmp(type_name, "char*") && (type_size == 8)) {
-
-	    // TODO: get the string value here
-
-	}
-
-    }
+    Dyninst::getGlobal(*process, message.global, value);
 
     // Send the frontend a message with the value (if found) of the variable
     Senders::globalStringValue(message.thread, message.global,
@@ -979,7 +895,7 @@ void Callbacks::getMPICHProcTable(const Blob& blob)
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] Callbacks::"
-		   << "getGlobalString(): Thread " << toString(message.thread)
+		   << "getMPICHProcTable(): Thread " << toString(message.thread)
 		   << " is not attached." << std::endl;
 	    std::cerr << output.str();
 	}
@@ -991,7 +907,7 @@ void Callbacks::getMPICHProcTable(const Blob& blob)
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] Callbacks::"
-		   << "getGlobalString(): Thread " << toString(message.thread)
+		   << "getMPICHProcTable(): Thread " << toString(message.thread)
 		   << " is not stopped. Race conditions may result." 
 		   << std::endl;
 	    std::cerr << output.str();
@@ -1001,7 +917,13 @@ void Callbacks::getMPICHProcTable(const Blob& blob)
     BPatch_process* process = thread->getProcess();
     Assert(process != NULL);
 
-    // TODO: finish implementing!
+    // Get the global variable
+    std::pair<bool, Job> value = std::make_pair(false, Job());
+    Dyninst::getMPICHProcTable(*process, value);
+
+    // Send the frontend a message with the value (if found) of the variable
+    Senders::globalJobValue(message.thread, message.global,
+			    value.first, value.second);
 }
 
 
@@ -1068,58 +990,8 @@ void Callbacks::setGlobalInteger(const Blob& blob)
     BPatch_process* process = thread->getProcess();
     Assert(process != NULL);
 
-    // Find the global variable
-    BPatch_variableExpr* variable = 
-	Dyninst::findGlobalVariable(*process, message.global);
-    if(variable != NULL) {
-	
-	// Get the name and size of the type of this variable
-	const BPatch_type* type = variable->getType();
-	Assert(type != NULL);
-	const char* type_name = type->getName();
-	unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
-
-	// Is the variable a signed/unsigned integer type?
-
-	if(!strcmp(type_name, "unsigned char") && (type_size == 1)) {
-	    unsigned char raw_value = static_cast<unsigned char>(message.value);
-	    variable->writeValue(&raw_value);
-	}
-	else if(!strcmp(type_name, "char") && (type_size == 1)) {
-	    char raw_value = static_cast<char>(message.value);
-	    variable->writeValue(&raw_value);
-	}
-
-	else if(!strcmp(type_name, "unsigned short") && (type_size == 2)) {
-	    unsigned short raw_value = 
-		static_cast<unsigned short>(message.value);
-	    variable->writeValue(&raw_value);
-	}
-	else if(!strcmp(type_name, "short") && (type_size == 2)) {
-	    short raw_value = static_cast<short>(message.value);
-	    variable->writeValue(&raw_value);
-	}
-
-	else if(!strcmp(type_name, "unsigned int") && (type_size == 4)) {
-	    unsigned int raw_value = static_cast<unsigned int>(message.value);
-	    variable->writeValue(&raw_value);
-	}
-	else if(!strcmp(type_name, "int") && (type_size == 4)) {
-	    int raw_value = static_cast<int>(message.value);
-	    variable->writeValue(&raw_value);
-	}
-
-	else if(!strcmp(type_name, "unsigned long long") && (type_size == 8)) {
-	    unsigned long long raw_value =
-		static_cast<unsigned long long>(message.value);
-	    variable->writeValue(&raw_value);
-	}
-	else if(!strcmp(type_name, "long long") && (type_size == 8)) {
-	    long long raw_value = static_cast<long long>(message.value);
-	    variable->writeValue(&raw_value);
-	}
-
-    }
+    // Set the global variable
+    Dyninst::setGlobal(*process, message.global, message.value);
 }
 
 

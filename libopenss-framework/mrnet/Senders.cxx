@@ -629,12 +629,14 @@ void Senders::getGlobalString(const Thread& thread, const std::string& global)
  *
  * @param thread    Thread from which the MPICH process table should be
  *                  retrieved.
+ * @param global    Name of global variable whose value is being requested.
  */
-void Senders::getMPICHProcTable(const Thread& thread)
+void Senders::getMPICHProcTable(const Thread& thread, const std::string& global)
 {
     // Assemble the request into a message
     OpenSS_Protocol_GetMPICHProcTable message;
     ::convert(thread, message.thread);
+    OpenSpeedShop::Framework::convert(global, message.global);
     
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {

@@ -547,6 +547,239 @@ BPatch_function* OpenSpeedShop::Framework::Dyninst::findLibraryFunction(
 
 
 /**
+ * Get an integer global variable's value.
+ *
+ * Gets the current value of a signed or unsigned integer global variable
+ * within the specified process. The value is always returned as a signed
+ * 64-bit integer and is promoted/cast to this size as necessary. If the
+ * global variable wasn't found, the first value in the pair returned will
+ * be "false".
+ *
+ * @param process    Process from which to get the global variable.
+ * @param global     Name of the global variable whose value is being requested.
+ * @param value      Pair containing the current value of that variable.
+ */
+void OpenSpeedShop::Framework::Dyninst::getGlobal(
+    /* const */ BPatch_process& process,
+    const std::string& global,
+    std::pair<bool, int64_t>& value
+    )
+{
+    // Initially assume the global variable will not be found
+    value = std::make_pair(false, int64_t());
+
+    // Find the global variable
+    BPatch_variableExpr* variable = 
+	Dyninst::findGlobalVariable(process, global);
+    if(variable != NULL) {
+	
+	// Get the name and size of the type of this variable
+	const BPatch_type* type = variable->getType();
+	Assert(type != NULL);
+	const char* type_name = type->getName();
+	unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
+
+	// Is the variable a signed/unsigned integer type?
+
+	if(!strcmp(type_name, "unsigned char") && (type_size == 1)) {
+	    unsigned char raw_value;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+	}
+	else if(!strcmp(type_name, "char") && (type_size == 1)) {
+	    char raw_value;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+	}
+
+	else if(!strcmp(type_name, "unsigned short") && (type_size == 2)) {
+	    unsigned short raw_value;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+	}
+	else if(!strcmp(type_name, "short") && (type_size == 2)) {
+	    short raw_value;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+	}
+
+	else if(!strcmp(type_name, "unsigned int") && (type_size == 4)) {
+	    unsigned int raw_value;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+	}
+	else if(!strcmp(type_name, "int") && (type_size == 4)) {
+	    int raw_value;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+	}
+
+	else if(!strcmp(type_name, "unsigned long long") && (type_size == 8)) {
+	    unsigned long long raw_value;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+	}
+	else if(!strcmp(type_name, "long long") && (type_size == 8)) {
+	    long long raw_value;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+	}
+
+    }
+}
+
+
+
+/**
+ * Set an integer global variable's value.
+ *
+ * Sets the current value of a signed or unsigned integer global variable
+ * within the specified process. The new value is always specified as a
+ * signed 64-bit integer and is demoted/cast from this size as necessary.
+ *
+ * @param process    Process in which the global variable should be set.
+ * @param global     Name of the global variable whose value is being set.
+ * @param value      New value of that variable.
+ */
+void OpenSpeedShop::Framework::Dyninst::setGlobal(
+    /* const */ BPatch_process& process,
+    const std::string& global,
+    int64_t& value
+    )
+{
+    // Find the global variable
+    BPatch_variableExpr* variable = 
+	Dyninst::findGlobalVariable(process, global);
+    if(variable != NULL) {
+	
+	// Get the name and size of the type of this variable
+	const BPatch_type* type = variable->getType();
+	Assert(type != NULL);
+	const char* type_name = type->getName();
+	unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
+
+	// Is the variable a signed/unsigned integer type?
+
+	if(!strcmp(type_name, "unsigned char") && (type_size == 1)) {
+	    unsigned char raw_value = static_cast<unsigned char>(value);
+	    variable->writeValue(&raw_value);
+	}
+	else if(!strcmp(type_name, "char") && (type_size == 1)) {
+	    char raw_value = static_cast<char>(value);
+	    variable->writeValue(&raw_value);
+	}
+
+	else if(!strcmp(type_name, "unsigned short") && (type_size == 2)) {
+	    unsigned short raw_value = 
+		static_cast<unsigned short>(value);
+	    variable->writeValue(&raw_value);
+	}
+	else if(!strcmp(type_name, "short") && (type_size == 2)) {
+	    short raw_value = static_cast<short>(value);
+	    variable->writeValue(&raw_value);
+	}
+
+	else if(!strcmp(type_name, "unsigned int") && (type_size == 4)) {
+	    unsigned int raw_value = static_cast<unsigned int>(value);
+	    variable->writeValue(&raw_value);
+	}
+	else if(!strcmp(type_name, "int") && (type_size == 4)) {
+	    int raw_value = static_cast<int>(value);
+	    variable->writeValue(&raw_value);
+	}
+
+	else if(!strcmp(type_name, "unsigned long long") && (type_size == 8)) {
+	    unsigned long long raw_value =
+		static_cast<unsigned long long>(value);
+	    variable->writeValue(&raw_value);
+	}
+	else if(!strcmp(type_name, "long long") && (type_size == 8)) {
+	    long long raw_value = static_cast<long long>(value);
+	    variable->writeValue(&raw_value);
+	}
+
+    }
+}
+
+
+
+/**
+ * Get a string global variable's value.
+ *
+ * Gets the current value of a character string gobal variable within the
+ * specified process. The value is returned as a C++ standard string rather
+ * than a C character array. This makes managing the memory associated with
+ * the string more obvious. If the global variable wasn't found, the first
+ * value in the pair returned will be "false".
+ *
+ * @param process    Process from which to get the global variable.
+ * @param global     Name of the global variable whose value is being requested.
+ * @param value      Pair containing the current value of that variable.
+ */
+void OpenSpeedShop::Framework::Dyninst::getGlobal(
+    /* const */ BPatch_process& process,
+    const std::string& global,
+    std::pair<bool, std::string>& value
+    )
+{
+    // Initially assume the global variable will not be found
+    value = std::make_pair(false, std::string());
+
+    // Find the global variable
+    BPatch_variableExpr* variable = 
+	Dyninst::findGlobalVariable(process, global);
+    if(variable != NULL) {
+
+	// Get the name and size of the type of this variable
+	const BPatch_type* type = variable->getType();
+	Assert(type != NULL);
+	const char* type_name = type->getName();
+	unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
+
+	// Is the variable a character pointer type?
+
+	if(!strcmp(type_name, "char*") && (type_size == 4)) {
+	    
+	    // TODO: get the string value here
+
+	}
+
+	else if(!strcmp(type_name, "char*") && (type_size == 8)) {
+
+	    // TODO: get the string value here
+
+	}
+
+    }
+}
+
+
+
+/**
+ * Get the MPICH process table.
+ *
+ * Gets the current value of the MPICH process table within the specified
+ * process. The value is returned as a Job rather than directly as an array
+ * of MPIR_PROCDESC structures. This makes managing the memory associated
+ * with the table more obvious. If the table wasn't found, the first value
+ * in the pair returned will be "false".
+ *
+ * @sa    http://www-unix.mcs.anl.gov/mpi/mpi-debug/
+ *
+ * @param process    Process from which to get the table.
+ * @param value      Pair containing the current value of that table.
+ */
+void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
+    /* const */ BPatch_process& process,
+    std::pair<bool, Job>& value
+    )
+{
+    // TODO: implement!
+}
+
+
+
+/**
  * Send symbols for a thread.
  *
  * Sends a series of messages to the frontend describing the initial set of
@@ -691,15 +924,6 @@ void OpenSpeedShop::Framework::Dyninst::sendSymbolsForThread(
  */
 void OpenSpeedShop::Framework::Dyninst::sendThreadStateUpdates()
 {
-    //
-    // Note: Disable this function for now. Dyninst is giving us state
-    //       information that doesn't make sense (or at least doesn't
-    //       jive with what we expect). The result is that bogus state
-    //       updates are being sent to the frontend that mess things
-    //       up pretty badly.
-    // 
-    return;
-
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {
         std::stringstream output;

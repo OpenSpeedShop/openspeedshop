@@ -598,7 +598,7 @@ bool Instrumentor::getMPICHProcTable(const Thread& thread, Job& value)
     Assert(isMRNetInitialized);
 
     // Request the MPICH process table be retrieved from the thread
-    Senders::getMPICHProcTable(thread);
+    Senders::getMPICHProcTable(thread, "MPIR_proctable");
 
     // TODO: wait for response and return it
     return false;  // TEMPORARY DUMMY RETURN

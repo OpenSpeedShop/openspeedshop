@@ -1015,7 +1015,8 @@ std::string OpenSpeedShop::Framework::toString(
 {
     std::stringstream output;
     output << "getMPICHProcTable("
-	   << "    " << toString(message.thread)
+	   << "    " << toString(message.thread) << ", "
+	   << "\"" << message.global << "\""
 	   << ")" << std::endl;
     return output.str();
 }

@@ -64,7 +64,7 @@ namespace OpenSpeedShop { namespace Framework {
 			      const std::string&, const std::string&);
 	void getGlobalInteger(const Thread&, const std::string&);
 	void getGlobalString(const Thread&, const std::string&);
-	void getMPICHProcTable(const Thread&);
+	void getMPICHProcTable(const Thread&, const std::string&);
 	void setGlobalInteger(const Thread&, const std::string&,
 			      const int64_t&);
 	void stdIn(const Thread&, const Blob&);
