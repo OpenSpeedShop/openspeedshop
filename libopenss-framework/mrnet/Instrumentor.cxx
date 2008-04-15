@@ -634,3 +634,26 @@ void Instrumentor::setGlobal(const Thread& thread,
     // Request the global variable be set in the process
     Senders::setGlobalInteger(thread, global, value);
 }
+
+
+
+/**
+ * Set the MPI startup flag.
+ *
+ * Ignored by MRNet instrumentor.
+ */
+void Instrumentor::setMPIStartup(const Thread&, const bool)
+{
+}
+
+
+
+/**
+ * Test the MPI startup flag.
+ *
+ * Ignored by the MRNet instrumentor - always returns "false".
+ */
+bool Instrumentor::inMPIStartup(const Thread&)
+{
+    return false;
+}

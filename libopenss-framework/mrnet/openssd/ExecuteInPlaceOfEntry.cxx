@@ -93,8 +93,8 @@ void ExecuteInPlaceOfEntry::install()
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] ExecuteInPlaceOfEntry::"
-		   << "install(): Cannot instrument terminated thread {"
-		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+		   << "install(): Cannot instrument terminated thread "
+		   << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
 	    std::cerr << output.str();
  	}
 #endif
@@ -182,8 +182,8 @@ void ExecuteInPlaceOfEntry::install()
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] ExecuteInPlaceOfEntry::"
 		   << "install(): Execute " << dm_callee << "() in place of "
-		   << dm_where << "() in thread { "
-		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+		   << dm_where << "() in thread "
+		   << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
 	    std::cerr << output.str();
 	}
 #endif
@@ -214,8 +214,8 @@ void ExecuteInPlaceOfEntry::remove()
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] ExecuteInPlaceOfEntry::"
-		   << "remove(): Cannot uninstrument terminated thread {"
-		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+		   << "remove(): Cannot uninstrument terminated thread "
+		   << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
 	    std::cerr << output.str();
  	}
 #endif
@@ -241,8 +241,8 @@ void ExecuteInPlaceOfEntry::remove()
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] ExecuteInPlaceOfEntry::"
 		   << "remove(): Execute " << dm_callee << "() in place of "
-		   << dm_where << "() in thread { "
-		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+		   << dm_where << "() in thread "
+		   << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
 	    std::cerr << output.str();
 	}
 #endif

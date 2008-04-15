@@ -95,8 +95,8 @@ void ExecuteNowEntry::install()
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] ExecuteNowEntry::"
-		   << "install(): Cannot instrument terminated thread {"
-		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+		   << "install(): Cannot instrument terminated thread "
+		   << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
 	    std::cerr << output.str();
  	}
 #endif
@@ -141,8 +141,8 @@ void ExecuteNowEntry::install()
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] ExecuteNowEntry::"
 		   << "install(): Execute " << dm_callee << "(\"" 
-		   << dm_argument.getStringEncoding() << "\") in thread { "
-		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+		   << dm_argument.getStringEncoding() << "\") in thread "
+		   << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
 	    std::cerr << output.str();
 	}
 #endif

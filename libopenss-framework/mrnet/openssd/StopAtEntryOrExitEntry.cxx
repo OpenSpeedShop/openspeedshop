@@ -93,8 +93,8 @@ void StopAtEntryOrExitEntry::install()
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] StopAtEntryOrExitEntry::"
-		   << "install(): Cannot instrument terminated thread {"
-		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+		   << "install(): Cannot instrument terminated thread "
+		   << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
 	    std::cerr << output.str();
  	}
 #endif
@@ -143,8 +143,8 @@ void StopAtEntryOrExitEntry::install()
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] StopAtEntryOrExitEntry::"
 		   << "install(): Stop at "<< (dm_at_entry ? "entry" : "exit") 
-		   << " of "<< dm_where << "() in thread { "
-		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+		   << " of "<< dm_where << "() in thread "
+		   << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
 	    std::cerr << output.str();
 	}
 #endif
@@ -175,8 +175,8 @@ void StopAtEntryOrExitEntry::remove()
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] StopAtEntryOrExitEntry::"
-		   << "remove(): Cannot uninstrument terminated thread {"
-		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+		   << "remove(): Cannot uninstrument terminated thread "
+		   << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
 	    std::cerr << output.str();
  	}
 #endif
@@ -199,8 +199,8 @@ void StopAtEntryOrExitEntry::remove()
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] StopAtEntryOrExitEntry::"
 		   << "remove(): Stop at "<< (dm_at_entry ? "entry" : "exit") 
-		   << " of "<< dm_where << "() in thread { "
-		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+		   << " of "<< dm_where << "() in thread "
+		   << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
 	    std::cerr << output.str();
 	}
 #endif

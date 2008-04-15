@@ -102,8 +102,8 @@ void ExecuteAtEntryOrExitEntry::install()
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() 
 		   << "] ExecuteAtEntryOrExitEntry::"
-		   << "install(): Cannot instrument terminated thread {"
-		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+		   << "install(): Cannot instrument terminated thread "
+		   << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
 	    std::cerr << output.str();
  	}
 #endif
@@ -160,8 +160,8 @@ void ExecuteAtEntryOrExitEntry::install()
 		   << "install(): Execute " << dm_callee << "(\""
 		   << dm_argument.getStringEncoding() << "\") at "
 		   << (dm_at_entry ? "entry" : "exit") << " of "
-		   << dm_where << "() in thread { "
-		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+		   << dm_where << "() in thread "
+		   << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
 	    std::cerr << output.str();
 	}
 #endif
@@ -193,8 +193,8 @@ void ExecuteAtEntryOrExitEntry::remove()
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() 
 		   << "] ExecuteAtEntryOrExitEntry::"
-		   << "remove(): Cannot uninstrument terminated thread {"
-		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+		   << "remove(): Cannot uninstrument terminated thread "
+		   << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
 	    std::cerr << output.str();
  	}
 #endif
@@ -220,8 +220,8 @@ void ExecuteAtEntryOrExitEntry::remove()
 		   << "remove(): Execute " << dm_callee << "(\""
 		   << dm_argument.getStringEncoding() << "\") at "
 		   << (dm_at_entry ? "entry" : "exit") << " of "
-		   << dm_where << "() in thread { "
-		   << toString(ThreadName(-1, dm_thread)) << " }." << std::endl;
+		   << dm_where << "() in thread "
+		   << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
 	    std::cerr << output.str();
 	}
 #endif

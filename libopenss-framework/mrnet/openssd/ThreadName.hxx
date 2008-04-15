@@ -49,10 +49,10 @@ namespace OpenSpeedShop { namespace Framework {
     /**
      * Thread name.
      *
-     * Names a single thread of code execution. To unqiuely identify a thread,
-     * the host name and process identifier must be specified. A POSIX thread
-     * identifier must also be specified if a specific thread in a process is
-     * being named.
+     * Names a single thread of code execution. To uniquely identify a thread,
+     * the experiment, host name, and process identifier must be specified. A
+     * POSIX thread identifier must also be specified if a specific thread in
+     * a process is being named.
      *
      * @note    This class has intentionally been given an identical name to
      *          the similar class in the framework library itself. In the near

@@ -49,6 +49,8 @@ using namespace OpenSpeedShop::Framework;
 
 namespace {
 
+
+
     /**
      * Filter threads by local host.
      *
@@ -75,6 +77,8 @@ namespace {
 	// Return the filtered threads to the caller
 	return filtered;
     }
+
+
 
 }
 
@@ -122,8 +126,8 @@ void Callbacks::attachToThreads(const Blob& blob)
 	    if(Backend::isDebugEnabled()) {
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "attachToThreads(): Thread { " << toString(*i) 
-		       << " } is already attached." << std::endl;
+		       << "attachToThreads(): Thread " << toString(*i) 
+		       << " is already attached." << std::endl;
 		std::cerr << output.str();
 	    }
 #endif
@@ -138,8 +142,8 @@ void Callbacks::attachToThreads(const Blob& blob)
 	    if(Backend::isDebugEnabled()) {
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "attachToThreads(): Thread { " << toString(*i)
-		       << " } is already attached in another experiment." 
+		       << "attachToThreads(): Thread " << toString(*i)
+		       << " is already attached in another experiment." 
 		       << std::endl;
 		std::cerr << output.str();
 	    }
@@ -163,8 +167,8 @@ void Callbacks::attachToThreads(const Blob& blob)
 	    if(Backend::isDebugEnabled()) {
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "attachToThreads(): Thread { " << toString(*i)
-		       << " } could not be attached. Does it exist?"
+		       << "attachToThreads(): Thread " << toString(*i)
+		       << " could not be attached. Does it exist?"
 		       << std::endl;
 		std::cerr << output.str();
 	    }
@@ -199,8 +203,8 @@ void Callbacks::attachToThreads(const Blob& blob)
 	    if(Backend::isDebugEnabled()) {
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "attachToThreads(): Thread { " << toString(name)
-		       << " } is attached."
+		       << "attachToThreads(): Thread " << toString(name)
+		       << " is attached."
 		       << std::endl;
 		std::cerr << output.str();
 	    }
@@ -456,8 +460,8 @@ void Callbacks::createProcess(const Blob& blob)
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] Callbacks::"
-		   << "createProcess(): Thread { " << toString(name)
-		   << " } was created."
+		   << "createProcess(): Thread " << toString(name)
+		   << " was created."
 		   << std::endl;
 	    std::cerr << output.str();
 	}

@@ -39,6 +39,50 @@ using namespace OpenSpeedShop::Framework;
 
 
 
+namespace {
+
+
+
+    /**
+     * Get experiments for a process.
+     *
+     * Returns the group of experiments which contain the specified process.
+     * An empty set is returned if no experiment are found.
+     *
+     * @param process    Process whose experiments are to be found.
+     * @return           Group of experiments containing this process.
+     */
+    ExperimentGroup getExperiments(/* const */ BPatch_process& process)
+    {
+	ExperimentGroup experiments;
+
+	// Get the list of threads in this process
+	BPatch_Vector<BPatch_thread*> threads;
+	process.getThreads(threads);
+	Assert(!threads.empty());
+
+	// Iterate over each thread in this process
+        for(int i = 0; i < threads.size(); ++i) {
+            Assert(threads[i] != NULL);
+	    
+	    // Add all of this thread's experiments
+	    ThreadNameGroup names = ThreadTable::TheTable.getNames(threads[i]);
+	    for(ThreadNameGroup::const_iterator
+		    j = names.begin(); j != names.end(); ++j)
+		experiments.insert(Experiment(*j));
+	    
+	}
+
+	// Return the experiment group to the caller
+	return experiments;
+    }
+
+
+
+}
+
+
+
 /**
  * Dynamic library callback.
  *
@@ -190,14 +234,32 @@ void OpenSpeedShop::Framework::Dyninst::error(BPatchErrorLevel severity,
 
 
 /**
- * ...
+ * Exec callback.
  *
- * ...
+ * Callback function called by Dyninst when a process has performed an exec()
+ * call. ...
  *
- * @param thread    ...
+ * @param thread    Thread that has performed the exec() call.
  */
 void OpenSpeedShop::Framework::Dyninst::exec(BPatch_thread* thread)
 {
+    // Check preconditions
+    Assert(thread != NULL);
+
+    // Get the Dyninst process pointer for this thread
+    BPatch_process* process = thread->getProcess();
+    Assert(process != NULL);
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+        std::stringstream output;
+	output << "[TID " << pthread_self() << "] Dyninst::"
+	       << "exec(): PID " << process->getPid() 
+	       << " has called exec()." << std::endl;
+        std::cerr << output.str();
+    }
+#endif
+
     // TODO: implement!
 }
 
@@ -273,33 +335,163 @@ void OpenSpeedShop::Framework::Dyninst::exit(BPatch_thread* thread,
 
 
 /**
- * ...
+ * Fork callback.
  *
- * ...
+ * Callback function called by Dyninst when a process has forked. Sends the
+ * frontend a list of threads that were forked and the symbol information for
+ * those threads.
  *
- * @param parent    ...
- * @param child     ...
+ * @param parent    Parent process that has forked.
+ * @param child     Child process that was forked.
  */
 void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
 						 BPatch_thread* child)
 {
-    // TODO: implement!
+    // Check preconditions
+    Assert(parent != NULL);
+    Assert(child != NULL);
+
+    // Get the Dyninst process pointers for these threads
+    BPatch_process* parent_process = parent->getProcess();
+    Assert(parent_process != NULL);
+    BPatch_process* child_process = child->getProcess();
+    Assert(child_process != NULL);
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+        std::stringstream output;
+	output << "[TID " << pthread_self() << "] Dyninst::"
+	       << "postfork(): PID " << parent_process->getPid()
+	       << " forked PID " << child_process->getPid() 
+	       << "." << std::endl;
+        std::cerr << output.str();
+    }
+#endif
+
+    // Get the experiments containing the parent process
+    ExperimentGroup experiments = getExperiments(*parent_process);
+
+    // Get the list of threads in the child process
+    BPatch_Vector<BPatch_thread*> child_threads;
+    child_process->getThreads(child_threads);
+    Assert(!child_threads.empty());
+
+    // Iterate over each thread in the child process
+    ThreadNameGroup threads_forked;
+    for(int i = 0; i < child_threads.size(); ++i) {
+	Assert(child_threads[i] != NULL);
+
+	// Iterate over the experiments containing the parent process
+	for(ExperimentGroup::const_iterator
+		j = experiments.begin(); j != experiments.end(); ++j) {
+	    
+	    // Add this thread to the thread table and group of forked threads
+	    ThreadName name(j->getExperiment(), *(child_threads[i]));
+	    ThreadTable::TheTable.addThread(name, child_threads[i]);
+	    threads_forked.insert(name);
+
+	}
+	
+    }
+
+    // Were any threads actually forked?
+    if(!threads_forked.empty()) {
+	
+        // Send the frontend the list of threads that were forked
+        Senders::attachedToThreads(threads_forked);
+        
+        // Iterate over each thread that was forked
+        for(ThreadNameGroup::const_iterator 
+                i = threads_forked.begin(); i != threads_forked.end(); ++i)
+            
+            // Send the frontend all the symbol information for this thread
+            Dyninst::sendSymbolsForThread(*i);
+	
+        // Send the frontend a message indicating these threads are running
+        Senders::threadsStateChanged(threads_forked, Running);
+    }
+    
+    // TODO: copy instrumentation from the parent process to the child process 
 }
 
 
 
 /**
- * ...
+ * Thread creation callback.
  *
- * ...
+ * Callback function called by Dyninst when a thread has been created. Sends
+ * the frontend a list of threads that were created and the symbol information
+ * for those threads.
  *
- * @param process    ...
- * @param thread     ...
+ * @param process    Process containing the thread that has been created.
+ * @param thread     Thread that has been created.
  */
 void OpenSpeedShop::Framework::Dyninst::threadCreate(BPatch_process* process,
 						     BPatch_thread* thread)
 {
-    // TODO: implement!
+    // Check preconditions
+    Assert(process != NULL);
+    Assert(thread != NULL);
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+        std::stringstream output;
+	output << "[TID " << pthread_self() << "] Dyninst::"
+	       << "threadCreate(): TID " 
+	       << static_cast<int64_t>(thread->getTid()) << " of PID "
+	       << process->getPid() << " was created." << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
+    // Has this thread already been attached?
+    if(!ThreadTable::TheTable.getNames(thread).empty()) {
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] Dyninst::"
+		   << "threadCreate(): TID " 
+		   << static_cast<int64_t>(thread->getTid()) << " of PID "
+		   << process->getPid() << " is already attached." << std::endl;
+	    std::cerr << output.str();
+	}
+#endif
+	return;
+    }
+    
+    // Get the experiments containing the process
+    ExperimentGroup experiments = getExperiments(*process);
+    
+    // Iterate over the experiments containing the process
+    ThreadNameGroup threads_created;
+    for(ExperimentGroup::const_iterator
+	    i = experiments.begin(); i != experiments.end(); ++i) {
+	
+	// Add this thread to the thread table and group of created threads
+	ThreadName name(i->getExperiment(), *thread);
+	ThreadTable::TheTable.addThread(name, thread);
+	threads_created.insert(name);
+	
+    }
+    
+    // Were any threads actually created?
+    if(!threads_created.empty()) {
+	
+	// Send the frontend the list of threads that were created
+	Senders::attachedToThreads(threads_created);
+	
+	// Iterate over each thread that was created
+	for(ThreadNameGroup::const_iterator 
+		i = threads_created.begin(); i != threads_created.end(); ++i)
+	    
+	    // Send the frontend all the symbol information for this thread
+	    Dyninst::sendSymbolsForThread(*i);
+	
+	// Send the frontend a message indicating these threads are running
+	Senders::threadsStateChanged(threads_created, Running);
+    }
+    
+    // TODO: copy instrumentation from the process to the new thread
 }
 
 
@@ -325,7 +517,7 @@ void OpenSpeedShop::Framework::Dyninst::threadDestroy(BPatch_process* process,
         std::stringstream output;
 	output << "[TID " << pthread_self() << "] Dyninst::"
 	       << "threadDestroy(): TID " 
-	       << static_cast<uint64_t>(thread->getTid()) << " of PID "
+	       << static_cast<int64_t>(thread->getTid()) << " of PID "
 	       << process->getPid() << " was destroyed." << std::endl;
 	std::cerr << output.str();
     }
@@ -571,60 +763,60 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
     // Find the global variable
     BPatch_variableExpr* variable = 
 	Dyninst::findGlobalVariable(process, global);
-    if(variable != NULL) {
-	
-	// Get the name and size of the type of this variable
-	const BPatch_type* type = variable->getType();
-	Assert(type != NULL);
-	const char* type_name = type->getName();
-	unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
+    if(variable == NULL)
+	return;
 
-	// Is the variable a signed/unsigned integer type?
-
-	if(!strcmp(type_name, "unsigned char") && (type_size == 1)) {
-	    unsigned char raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-	else if(!strcmp(type_name, "char") && (type_size == 1)) {
-	    char raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-
-	else if(!strcmp(type_name, "unsigned short") && (type_size == 2)) {
-	    unsigned short raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-	else if(!strcmp(type_name, "short") && (type_size == 2)) {
-	    short raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-
-	else if(!strcmp(type_name, "unsigned int") && (type_size == 4)) {
-	    unsigned int raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-	else if(!strcmp(type_name, "int") && (type_size == 4)) {
-	    int raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-
-	else if(!strcmp(type_name, "unsigned long long") && (type_size == 8)) {
-	    unsigned long long raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-	else if(!strcmp(type_name, "long long") && (type_size == 8)) {
-	    long long raw_value;
-	    variable->readValue(&raw_value);
-	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
-	}
-
+    // Get the name and size of the type of this variable
+    const BPatch_type* type = variable->getType();
+    if(type == NULL)
+	return;
+    const char* type_name = type->getName();
+    unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
+    
+    // Is the variable a signed/unsigned integer type?
+    
+    if(!strcmp(type_name, "unsigned char") && (type_size == 1)) {
+	unsigned char raw_value;
+	variable->readValue(&raw_value);
+	value = std::make_pair(true, static_cast<int64_t>(raw_value));
+    }
+    else if(!strcmp(type_name, "char") && (type_size == 1)) {
+	char raw_value;
+	variable->readValue(&raw_value);
+	value = std::make_pair(true, static_cast<int64_t>(raw_value));
+    }
+    
+    else if(!strcmp(type_name, "unsigned short") && (type_size == 2)) {
+	unsigned short raw_value;
+	variable->readValue(&raw_value);
+	value = std::make_pair(true, static_cast<int64_t>(raw_value));
+    }
+    else if(!strcmp(type_name, "short") && (type_size == 2)) {
+	short raw_value;
+	variable->readValue(&raw_value);
+	value = std::make_pair(true, static_cast<int64_t>(raw_value));
+    }
+    
+    else if(!strcmp(type_name, "unsigned int") && (type_size == 4)) {
+	unsigned int raw_value;
+	variable->readValue(&raw_value);
+	value = std::make_pair(true, static_cast<int64_t>(raw_value));
+    }
+    else if(!strcmp(type_name, "int") && (type_size == 4)) {
+	int raw_value;
+	variable->readValue(&raw_value);
+	value = std::make_pair(true, static_cast<int64_t>(raw_value));
+    }
+    
+    else if(!strcmp(type_name, "unsigned long long") && (type_size == 8)) {
+	unsigned long long raw_value;
+	variable->readValue(&raw_value);
+	value = std::make_pair(true, static_cast<int64_t>(raw_value));
+    }
+    else if(!strcmp(type_name, "long long") && (type_size == 8)) {
+	long long raw_value;
+	variable->readValue(&raw_value);
+	value = std::make_pair(true, static_cast<int64_t>(raw_value));
     }
 }
 
@@ -650,54 +842,54 @@ void OpenSpeedShop::Framework::Dyninst::setGlobal(
     // Find the global variable
     BPatch_variableExpr* variable = 
 	Dyninst::findGlobalVariable(process, global);
-    if(variable != NULL) {
+    if(variable == NULL)
+	return;
 	
-	// Get the name and size of the type of this variable
-	const BPatch_type* type = variable->getType();
-	Assert(type != NULL);
-	const char* type_name = type->getName();
-	unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
-
-	// Is the variable a signed/unsigned integer type?
-
-	if(!strcmp(type_name, "unsigned char") && (type_size == 1)) {
-	    unsigned char raw_value = static_cast<unsigned char>(value);
-	    variable->writeValue(&raw_value);
-	}
-	else if(!strcmp(type_name, "char") && (type_size == 1)) {
-	    char raw_value = static_cast<char>(value);
-	    variable->writeValue(&raw_value);
-	}
-
-	else if(!strcmp(type_name, "unsigned short") && (type_size == 2)) {
-	    unsigned short raw_value = 
-		static_cast<unsigned short>(value);
-	    variable->writeValue(&raw_value);
-	}
-	else if(!strcmp(type_name, "short") && (type_size == 2)) {
-	    short raw_value = static_cast<short>(value);
-	    variable->writeValue(&raw_value);
-	}
-
-	else if(!strcmp(type_name, "unsigned int") && (type_size == 4)) {
-	    unsigned int raw_value = static_cast<unsigned int>(value);
-	    variable->writeValue(&raw_value);
-	}
-	else if(!strcmp(type_name, "int") && (type_size == 4)) {
-	    int raw_value = static_cast<int>(value);
-	    variable->writeValue(&raw_value);
-	}
-
-	else if(!strcmp(type_name, "unsigned long long") && (type_size == 8)) {
-	    unsigned long long raw_value =
-		static_cast<unsigned long long>(value);
-	    variable->writeValue(&raw_value);
-	}
-	else if(!strcmp(type_name, "long long") && (type_size == 8)) {
-	    long long raw_value = static_cast<long long>(value);
-	    variable->writeValue(&raw_value);
-	}
-
+    // Get the name and size of the type of this variable
+    const BPatch_type* type = variable->getType();
+    if(type == NULL)
+	return;
+    const char* type_name = type->getName();
+    unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
+    
+    // Is the variable a signed/unsigned integer type?
+    
+    if(!strcmp(type_name, "unsigned char") && (type_size == 1)) {
+	unsigned char raw_value = static_cast<unsigned char>(value);
+	variable->writeValue(&raw_value);
+    }
+    else if(!strcmp(type_name, "char") && (type_size == 1)) {
+	char raw_value = static_cast<char>(value);
+	variable->writeValue(&raw_value);
+    }
+    
+    else if(!strcmp(type_name, "unsigned short") && (type_size == 2)) {
+	unsigned short raw_value = 
+	    static_cast<unsigned short>(value);
+	variable->writeValue(&raw_value);
+    }
+    else if(!strcmp(type_name, "short") && (type_size == 2)) {
+	short raw_value = static_cast<short>(value);
+	variable->writeValue(&raw_value);
+    }
+    
+    else if(!strcmp(type_name, "unsigned int") && (type_size == 4)) {
+	unsigned int raw_value = static_cast<unsigned int>(value);
+	variable->writeValue(&raw_value);
+    }
+    else if(!strcmp(type_name, "int") && (type_size == 4)) {
+	int raw_value = static_cast<int>(value);
+	variable->writeValue(&raw_value);
+    }
+    
+    else if(!strcmp(type_name, "unsigned long long") && (type_size == 8)) {
+	unsigned long long raw_value =
+	    static_cast<unsigned long long>(value);
+	variable->writeValue(&raw_value);
+    }
+    else if(!strcmp(type_name, "long long") && (type_size == 8)) {
+	long long raw_value = static_cast<long long>(value);
+	variable->writeValue(&raw_value);
     }
 }
 
@@ -728,28 +920,28 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
     // Find the global variable
     BPatch_variableExpr* variable = 
 	Dyninst::findGlobalVariable(process, global);
-    if(variable != NULL) {
+    if(variable == NULL)
+	return;
 
-	// Get the name and size of the type of this variable
-	const BPatch_type* type = variable->getType();
-	Assert(type != NULL);
-	const char* type_name = type->getName();
-	unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
-
-	// Is the variable a character pointer type?
-
-	if(!strcmp(type_name, "char*") && (type_size == 4)) {
-	    
-	    // TODO: get the string value here
-
-	}
-
-	else if(!strcmp(type_name, "char*") && (type_size == 8)) {
-
-	    // TODO: get the string value here
-
-	}
-
+    // Get the name and size of the type of this variable
+    const BPatch_type* type = variable->getType();
+    if(type == NULL)
+	return;
+    const char* type_name = type->getName();
+    unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
+    
+    // Is the variable a character pointer type?
+    
+    if(!strcmp(type_name, "char*") && (type_size == 4)) {
+	
+	// TODO: get the string value here
+	
+    }
+    
+    else if(!strcmp(type_name, "char*") && (type_size == 8)) {
+	
+	// TODO: get the string value here
+	
     }
 }
 
@@ -774,7 +966,28 @@ void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
     std::pair<bool, Job>& value
     )
 {
+    // Initially assume the table will not be found
+    value = std::make_pair(false, Job());
+
+    // Find the value of "MPIR_proctable_size"
+    std::pair<bool, int64_t> MPIR_proctable_size;
+    getGlobal(process, "MPIR_proctable_size", MPIR_proctable_size);
+    if(!MPIR_proctable_size.first)
+	return;
+    
+    // Find the "MPIR_proctable" variable
+    BPatch_variableExpr* variable = 
+	Dyninst::findGlobalVariable(process, "MPIR_proctable");
+    if(variable == NULL)
+	return;
+
+    // Get the name and size of the type of this variable
+    const BPatch_type* type = variable->getType();
+    if(type == NULL)
+	return;
+
     // TODO: implement!
+
 }
 
 
@@ -786,11 +999,6 @@ void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
  * linked objects loaded into the address space of the specified thread. Also
  * sends messages containing the symbol tables of those linked objects which
  * have not already been sent to the frontend.
- *
- * @note    This function isn't a real Dyninst callback function but rather a
- *          utility function that is used by several of the Dyninst callbacks.
- *          It is also used, however, by several of the message callbacks, so
- *          this seemed as good a place as any to put this.
  *
  * @param threads    Threads for which symbols should be sent.
  */
@@ -918,9 +1126,6 @@ void OpenSpeedShop::Framework::Dyninst::sendSymbolsForThread(
  * changes which have occured but have not yet been reported. Accomplished
  * by comparing Dyninst's current notion of every known thread's state with
  * that thread's state as stored in the thread table.
- *
- * @note    This function isn't a real Dyninst callback function but rather a
- *          utility function. This seemed as good a place as any to put it.
  */
 void OpenSpeedShop::Framework::Dyninst::sendThreadStateUpdates()
 {

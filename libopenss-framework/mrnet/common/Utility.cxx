@@ -968,9 +968,9 @@ std::string OpenSpeedShop::Framework::toString(
     )
 {
     std::stringstream output;
-    output << "getGlobalInteger("
-	   << "    " << toString(message.thread) << ", "
-	   << "\"" << message.global << "\""
+    output << "getGlobalInteger(" << std::endl
+	   << "    " << toString(message.thread) << "," << std::endl
+	   << "    \"" << message.global << "\"" << std::endl
 	   << ")" << std::endl;
     return output.str();
 }
@@ -991,9 +991,9 @@ std::string OpenSpeedShop::Framework::toString(
     )
 {
     std::stringstream output;
-    output << "getGlobalString("
-	   << "    " << toString(message.thread) << ", "
-	   << "\"" << message.global << "\""
+    output << "getGlobalString(" << std::endl
+	   << "    " << toString(message.thread) << "," << std::endl
+	   << "    \"" << message.global << "\"" << std::endl
 	   << ")" << std::endl;
     return output.str();
 }
@@ -1014,9 +1014,9 @@ std::string OpenSpeedShop::Framework::toString(
     )
 {
     std::stringstream output;
-    output << "getMPICHProcTable("
-	   << "    " << toString(message.thread) << ", "
-	   << "\"" << message.global << "\""
+    output << "getMPICHProcTable(" << std::endl
+	   << "    " << toString(message.thread) << "," << std::endl
+	   << "    \"" << message.global << "\"" << std::endl
 	   << ")" << std::endl;
     return output.str();
 }
@@ -1160,10 +1160,10 @@ std::string OpenSpeedShop::Framework::toString(
     )
 {
     std::stringstream output;
-    output << "setGlobalString("
-	   << "    " << toString(message.thread) << ", "
-	   << "\"" << message.global << "\", "
-	   << message.value 
+    output << "setGlobalString(" << std::endl
+	   << "    " << toString(message.thread) << "," << std::endl
+	   << "    \"" << message.global << "\"," << std::endl
+	   << "    " << message.value << std::endl
 	   << ")" << std::endl;
     return output.str();
 }
@@ -1256,7 +1256,7 @@ std::string OpenSpeedShop::Framework::toString(
     output << "stopAtEntryOrExit(" << std::endl
 	   << toString(message.threads) << "," << std::endl
 	   << "    \"" << message.where << "\"," << std::endl
-	   << (message.at_entry ? "true" : "false") << std::endl
+	   << "    " << (message.at_entry ? "true" : "false") << std::endl
 	   << ")" << std::endl;
     return output.str();
 }
