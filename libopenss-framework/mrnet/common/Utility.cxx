@@ -1160,7 +1160,7 @@ std::string OpenSpeedShop::Framework::toString(
     )
 {
     std::stringstream output;
-    output << "setGlobalString(" << std::endl
+    output << "setGlobalInteger(" << std::endl
 	   << "    " << toString(message.thread) << "," << std::endl
 	   << "    \"" << message.global << "\"," << std::endl
 	   << "    " << message.value << std::endl

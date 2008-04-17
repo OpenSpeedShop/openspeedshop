@@ -73,6 +73,7 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	BPatch_thread* getPtr(const ThreadName&) const;
 	ThreadNameGroup getNames(BPatch_thread*) const;
+	ThreadNameGroup getNames(BPatch_process*) const;
 
 	SmartPtr<StdStreamPipes> getStdStreamPipes(BPatch_thread*) const;
 

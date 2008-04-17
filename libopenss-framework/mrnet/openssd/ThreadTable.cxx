@@ -238,10 +238,48 @@ ThreadNameGroup ThreadTable::getNames(BPatch_thread* ptr) const
     // Find the entries (if any) for this Dyninst thread object pointer
     ThreadNameGroup names;
     for(std::multimap<BPatch_thread*, ThreadName>::const_iterator
-	    j = dm_ptr_to_names.lower_bound(ptr);
-	j != dm_ptr_to_names.upper_bound(ptr);
-	++j)
-	names.insert(j->second);
+	    i = dm_ptr_to_names.lower_bound(ptr);
+	i != dm_ptr_to_names.upper_bound(ptr);
+	++i)
+	names.insert(i->second);
+    
+    // Return the thread names to the caller
+    return names;
+}
+
+
+
+/**
+ * Get thread names for a Dyninst process object pointer.
+ *
+ * Returns the thread names for the specified Dyninst process object pointer.
+ * An empty thread name gorup is returned if none of the threads from this
+ * process can be found.
+ *
+ * @param process    Dyninst process object pointer whose names are to be found.
+ * @return           Thread names for all threads in that process.
+ */
+ThreadNameGroup ThreadTable::getNames(BPatch_process* process) const
+{
+    Guard guard_myself(this);
+
+    // Get the list of threads in this process
+    BPatch_Vector<BPatch_thread*> threads;
+    process->getThreads(threads);
+    Assert(!threads.empty());
+
+    // Iterate over each thread in this process
+    ThreadNameGroup names;
+    for(int i = 0; i < threads.size(); ++i) {
+	Assert(threads[i] != NULL);
+	
+	// Find the entries (if any) for this Dyninst thread object pointer
+	for(std::multimap<BPatch_thread*, ThreadName>::const_iterator
+		j = dm_ptr_to_names.lower_bound(threads[i]);
+	    j != dm_ptr_to_names.upper_bound(threads[i]);
+	    ++j)
+	    names.insert(j->second);
+    }
     
     // Return the thread names to the caller
     return names;
@@ -291,7 +329,8 @@ std::set<int> ThreadTable::getStdInFDs() const
     std::set<int> fds;
     for(std::map<BPatch_thread*, SmartPtr<StdStreamPipes> >::const_iterator
 	    i = dm_ptr_to_pipes.begin(); i != dm_ptr_to_pipes.end(); ++i)
-	fds.insert(i->second->getStdInForBackend());
+	if(!i->second.isNull())
+	    fds.insert(i->second->getStdInForBackend());
     
     // Return the file descriptors to the caller
     return fds;   
@@ -316,7 +355,8 @@ std::set<int> ThreadTable::getStdErrFDs() const
     std::set<int> fds;
     for(std::map<BPatch_thread*, SmartPtr<StdStreamPipes> >::const_iterator
 	    i = dm_ptr_to_pipes.begin(); i != dm_ptr_to_pipes.end(); ++i)
-	fds.insert(i->second->getStdErrForBackend());
+	if(!i->second.isNull())
+	    fds.insert(i->second->getStdErrForBackend());
     
     // Return the file descriptors to the caller
     return fds;   
@@ -341,7 +381,8 @@ std::set<int> ThreadTable::getStdOutFDs() const
     std::set<int> fds;
     for(std::map<BPatch_thread*, SmartPtr<StdStreamPipes> >::const_iterator
 	    i = dm_ptr_to_pipes.begin(); i != dm_ptr_to_pipes.end(); ++i)
-	fds.insert(i->second->getStdOutForBackend());
+	if(!i->second.isNull())
+	    fds.insert(i->second->getStdOutForBackend());
     
     // Return the file descriptors to the caller
     return fds;   
@@ -390,29 +431,25 @@ ThreadNameGroup ThreadTable::getNames(const int& fd) const
  * Get a thread's state.
  *
  * Returns the current state of the thread for the specified Dyninst thread
- * object pointer.
- *
- * @note    An assertion failure occurs if an attempt is made to get the
- *          state of a thread that isn't in this thread table.
+ * object pointer. The "Nonexistent" state is returned if the specified thread
+ * isn't in this thread table.
  *
  * @param ptr    Dyninst thread object pointer for the thread whose state
  *               should be obtained.
- * @return       Current state of the thread.
+ * @return       Current state of the thread or "Nonexistent" if the thread
+ *               could not be found.
  */
 OpenSS_Protocol_ThreadState
 ThreadTable::getThreadState(BPatch_thread* ptr) const
 {
     Guard guard_myself(this);
-    
+
     // Find the entry (if any) for this Dyninst thread object pointer
     std::map<BPatch_thread*, OpenSS_Protocol_ThreadState>::const_iterator i =
 	dm_ptr_to_state.find(ptr);
 
-    // Check assertions
-    Assert(i != dm_ptr_to_state.end());
-        
     // Return the thread's current state to the caller
-    return i->second;
+    return (i == dm_ptr_to_state.end()) ? Nonexistent : i->second;
 }
 
 
@@ -460,6 +497,8 @@ void ThreadTable::setThreadState(BPatch_thread* ptr,
 void ThreadTable::setThreadState(const ThreadNameGroup& threads,
 				 const OpenSS_Protocol_ThreadState& state)
 {
+    Guard guard_myself(this);
+
     for(ThreadNameGroup::const_iterator
 	    i = threads.begin(); i != threads.end(); ++i)
 	setThreadState(getPtr(*i), state);

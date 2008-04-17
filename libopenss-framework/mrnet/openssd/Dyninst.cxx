@@ -107,32 +107,13 @@ void OpenSpeedShop::Framework::Dyninst::dynLibrary(BPatch_thread* thread,
     Assert(thread != NULL);
     Assert(module != NULL);
 
-    // Get the Dyninst process pointer for this thread
-    BPatch_process* process = thread->getProcess();
-    Assert(process != NULL);
-    
-    // Get the list of threads in this process
-    BPatch_Vector<BPatch_thread*> threads_in_process;
-    process->getThreads(threads_in_process);
-    Assert(!threads_in_process.empty());
-
-    // Names for these threads
-    ThreadNameGroup threads;
-
-    // Iterate over each thread in this process
-    for(int i = 0; i < threads_in_process.size(); ++i) {
-	Assert(threads_in_process[i] != NULL);
-
-	// Add all the names of this thread
-	ThreadNameGroup names = 
-	    ThreadTable::TheTable.getNames(threads_in_process[i]);
-	threads.insert(names.begin(), names.end());
-
-    }
-    
     // Get the current time
     Time now = Time::Now();
     
+    // Get the Dyninst process pointer for this thread
+    BPatch_process* process = thread->getProcess();
+    Assert(process != NULL);
+
     // Get the file name of this module
     FileName linked_object(*module);
 
@@ -146,7 +127,10 @@ void OpenSpeedShop::Framework::Dyninst::dynLibrary(BPatch_thread* thread,
         std::cerr << output.str();
     }
 #endif
-    
+
+    // Get the names for this process
+    ThreadNameGroup threads = ThreadTable::TheTable.getNames(process);
+        
     // Was this module loaded into the thread?
     if(is_load) {
 	
@@ -237,7 +221,7 @@ void OpenSpeedShop::Framework::Dyninst::error(BPatchErrorLevel severity,
  * Exec callback.
  *
  * Callback function called by Dyninst when a process has performed an exec()
- * call. ...
+ * call. Sends the frontend the new symbol information for the process.
  *
  * @param thread    Thread that has performed the exec() call.
  */
@@ -260,7 +244,17 @@ void OpenSpeedShop::Framework::Dyninst::exec(BPatch_thread* thread)
     }
 #endif
 
-    // TODO: implement!
+    // TODO: Do we need to "close out" the old set of threads for this
+    //       process? Or will Dyninst report threadDestroy() events for
+    //       those threads before exec()?
+
+    // Get the names for this process
+    ThreadNameGroup threads = ThreadTable::TheTable.getNames(process);
+    
+    // Send the frontend all the symbol information for these threads
+    Dyninst::sendSymbolsForThread(threads);
+
+    // TODO: copy instrumentation from the process back into itself
 }
 
 
@@ -308,26 +302,10 @@ void OpenSpeedShop::Framework::Dyninst::exit(BPatch_thread* thread,
         std::cerr << output.str();
     }
 #endif
+
+    // Get the names for this process
+    ThreadNameGroup threads = ThreadTable::TheTable.getNames(process);
     
-    // Get the list of threads in this process
-    BPatch_Vector<BPatch_thread*> threads_in_process;
-    process->getThreads(threads_in_process);
-    Assert(!threads_in_process.empty());
-
-    // Names for these threads
-    ThreadNameGroup threads;
-
-    // Iterate over each thread in this process
-    for(int i = 0; i < threads_in_process.size(); ++i) {
-	Assert(threads_in_process[i] != NULL);
-	
-	// Add all the names of this thread
-	ThreadNameGroup names = 
-	    ThreadTable::TheTable.getNames(threads_in_process[i]);
-	threads.insert(names.begin(), names.end());
-	
-    } 
-
     // Send the frontend the list of threads that have terminated
     Senders::threadsStateChanged(threads, Terminated);
 }
@@ -361,7 +339,7 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
     if(Backend::isDebugEnabled()) {
         std::stringstream output;
 	output << "[TID " << pthread_self() << "] Dyninst::"
-	       << "postfork(): PID " << parent_process->getPid()
+	       << "postFork(): PID " << parent_process->getPid()
 	       << " forked PID " << child_process->getPid() 
 	       << "." << std::endl;
         std::cerr << output.str();
@@ -399,13 +377,9 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
 	
         // Send the frontend the list of threads that were forked
         Senders::attachedToThreads(threads_forked);
-        
-        // Iterate over each thread that was forked
-        for(ThreadNameGroup::const_iterator 
-                i = threads_forked.begin(); i != threads_forked.end(); ++i)
-            
-            // Send the frontend all the symbol information for this thread
-            Dyninst::sendSymbolsForThread(*i);
+
+	// Send the frontend all the symbol information for these threads
+	Dyninst::sendSymbolsForThread(threads_forked);
 	
         // Send the frontend a message indicating these threads are running
         Senders::threadsStateChanged(threads_forked, Running);
@@ -438,7 +412,7 @@ void OpenSpeedShop::Framework::Dyninst::threadCreate(BPatch_process* process,
         std::stringstream output;
 	output << "[TID " << pthread_self() << "] Dyninst::"
 	       << "threadCreate(): TID " 
-	       << static_cast<int64_t>(thread->getTid()) << " of PID "
+       	       << static_cast<size_t>(thread->getTid()) << " of PID "
 	       << process->getPid() << " was created." << std::endl;
 	std::cerr << output.str();
     }
@@ -451,7 +425,7 @@ void OpenSpeedShop::Framework::Dyninst::threadCreate(BPatch_process* process,
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] Dyninst::"
 		   << "threadCreate(): TID " 
-		   << static_cast<int64_t>(thread->getTid()) << " of PID "
+		   << static_cast<size_t>(thread->getTid()) << " of PID "
 		   << process->getPid() << " is already attached." << std::endl;
 	    std::cerr << output.str();
 	}
@@ -480,12 +454,8 @@ void OpenSpeedShop::Framework::Dyninst::threadCreate(BPatch_process* process,
 	// Send the frontend the list of threads that were created
 	Senders::attachedToThreads(threads_created);
 	
-	// Iterate over each thread that was created
-	for(ThreadNameGroup::const_iterator 
-		i = threads_created.begin(); i != threads_created.end(); ++i)
-	    
-	    // Send the frontend all the symbol information for this thread
-	    Dyninst::sendSymbolsForThread(*i);
+	// Send the frontend all the symbol information for these threads
+	Dyninst::sendSymbolsForThread(threads_created);
 	
 	// Send the frontend a message indicating these threads are running
 	Senders::threadsStateChanged(threads_created, Running);
@@ -517,13 +487,13 @@ void OpenSpeedShop::Framework::Dyninst::threadDestroy(BPatch_process* process,
         std::stringstream output;
 	output << "[TID " << pthread_self() << "] Dyninst::"
 	       << "threadDestroy(): TID " 
-	       << static_cast<int64_t>(thread->getTid()) << " of PID "
+	       << static_cast<size_t>(thread->getTid()) << " of PID "
 	       << process->getPid() << " was destroyed." << std::endl;
 	std::cerr << output.str();
     }
 #endif
 
-    // Names for this thread
+    // Get the names for this thread
     ThreadNameGroup threads = ThreadTable::TheTable.getNames(thread);
     
     // Send the frontend the list of threads that have terminated
@@ -917,6 +887,10 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
     // Initially assume the global variable will not be found
     value = std::make_pair(false, std::string());
 
+    // Get the image pointer for this process
+    BPatch_image* image = process.getImage();
+    Assert(image != NULL);
+
     // Find the global variable
     BPatch_variableExpr* variable = 
 	Dyninst::findGlobalVariable(process, global);
@@ -932,17 +906,11 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
     
     // Is the variable a character pointer type?
     
-    if(!strcmp(type_name, "char*") && (type_size == 4)) {
-	
-	// TODO: get the string value here
-	
-    }
-    
-    else if(!strcmp(type_name, "char*") && (type_size == 8)) {
-	
-	// TODO: get the string value here
-	
-    }
+    if(!strcmp(type_name, "char*")) {
+	std::string raw_value;
+	image->readString(variable, raw_value);	
+	value = std::make_pair(true, raw_value);
+    }    
 }
 
 
@@ -1161,13 +1129,13 @@ void OpenSpeedShop::Framework::Dyninst::sendThreadStateUpdates()
 	Assert(process != NULL);
 	
 	// Determine the current state of this process
-	OpenSS_Protocol_ThreadState state = Running;
+	OpenSS_Protocol_ThreadState dyninst_state = Running;
 	if(process->isDetached())
-	    state = Disconnected;
+	    dyninst_state = Disconnected;
 	else if(process->isTerminated())
-	    state = Terminated;
+	    dyninst_state = Terminated;
 	else if(process->isStopped())
-	    state = Suspended;
+	    dyninst_state = Suspended;
 	
 	// Get the list of threads in this process
 	BPatch_Vector<BPatch_thread*> threads;
@@ -1180,13 +1148,15 @@ void OpenSpeedShop::Framework::Dyninst::sendThreadStateUpdates()
 	    Assert(thread != NULL);
 
 	    // Is the thread's state in the thread table out of date?
-	    if(ThreadTable::TheTable.getThreadState(thread) != state) {
+	    OpenSS_Protocol_ThreadState table_state =
+		ThreadTable::TheTable.getThreadState(thread);
+	    if((table_state != Nonexistent) && (table_state != dyninst_state)) {
 
 		// Get all the names of this thread
 		ThreadNameGroup names = ThreadTable::TheTable.getNames(thread);
 
 		// Add these threads to the table of state updates
-		StateUpdates::iterator k = updates.find(state);
+		StateUpdates::iterator k = updates.find(dyninst_state);
 		Assert(k != updates.end());
 		k->second.insert(names.begin(), names.end());
 		
