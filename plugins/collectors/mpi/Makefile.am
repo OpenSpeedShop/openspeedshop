@@ -51,6 +51,9 @@ endif
 if HAVE_OPENMPI
 pkglib_LTLIBRARIES += mpi-rt-openmpi.la
 endif
+if HAVE_MPICH
+pkglib_LTLIBRARIES += mpi-rt-mvapich.la
+endif
 
 mpi_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -234,6 +237,16 @@ mpi_rt_mpt_la_DEPENDENCIES =
 mpi_rt_mpt_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_mpt_la_SOURCES = $(wrapper_sources)
 endif
+
+if HAVE_MVAPICH
+mpi_rt_mvapich_la_CFLAGS = $(call rt_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
+mpi_rt_mvapich_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
+mpi_rt_mvapich_la_LIBADD = $(call rt_LIBADD_generate,@MVAPICH_LIBS@)
+mpi_rt_mvapich_la_DEPENDENCIES =
+mpi_rt_mvapich_la_SOURCES = $(rt_sources)
+nodist_mpi_rt_mvapich_la_SOURCES = $(wrapper_sources)
+endif
+
 
 if HAVE_OPENMPI
 mpi_rt_openmpi_la_CFLAGS = $(call rt_CFLAGS_generate,@OPENMPI_CPPFLAGS@)

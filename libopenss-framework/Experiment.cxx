@@ -588,6 +588,7 @@ bool is_debug_mpijob_enabled = (getenv("OPENSS_DEBUG_MPIJOB") != NULL);
     bool is_mpt = false;
     bool is_mpich2 = false;
     bool is_mpich1 = false;
+    bool is_mvapich = false;
 
     // Did we sucessfully create and connect to the thread?
     if(thread.isState(Thread::Suspended)) {
@@ -662,6 +663,8 @@ bool is_debug_mpijob_enabled = (getenv("OPENSS_DEBUG_MPIJOB") != NULL);
          value = "mpich2";
        } else if (is_mpich1) {
          value = "mpich";
+       } else if (is_mvapich) {
+         value = "mvapich";
        } else {
          value = "";
        }

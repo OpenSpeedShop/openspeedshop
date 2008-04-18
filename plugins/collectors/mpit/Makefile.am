@@ -43,6 +43,9 @@ endif
 if HAVE_MPT
 pkglib_LTLIBRARIES += mpit-rt-mpt.la
 endif
+if HAVE_MVAPICH
+pkglib_LTLIBRARIES += mpit-rt-mvapich.la
+endif
 if HAVE_OPENMPI
 pkglib_LTLIBRARIES += mpit-rt-openmpi.la
 endif
@@ -137,6 +140,16 @@ mpit_rt_mpt_la_LIBADD = $(call rt_LIBADD_generate,@MPT_LIBS@)
 mpit_rt_mpt_la_DEPENDENCIES =
 mpit_rt_mpt_la_SOURCES = $(rt_sources)
 endif
+
+
+if HAVE_MVAPICH
+mpit_rt_mvapich_la_CFLAGS = $(call rt_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
+mpit_rt_mvapich_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
+mpit_rt_mvapich_la_LIBADD = $(call rt_LIBADD_generate,@MVAPICH_LIBS@)
+mpit_rt_mvapich_la_DEPENDENCIES =
+mpit_rt_mvapich_la_SOURCES = $(rt_sources)
+endif
+
 
 
 

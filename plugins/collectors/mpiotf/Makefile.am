@@ -98,6 +98,18 @@ libvt-mpt-mpi-a:
 	ar d libvt.mpi.mpt.a libvt_mpi_a-vt_fmpiwrap.o
 endif
 
+if HAVE_MVAPICH
+libvt-mvapich-mpi-a:
+	cp -r @VT_LIBSDIR@/libvt.mpi.a libvt.mpi.mvapich.a
+	ar d libvt.mpi.mvapich.a libvt_mpi_a-vt_mpiwrap.o
+	ar d libvt.mpi.mvapich.a libvt_mpi_a-vt_sync.o
+	ar d libvt.mpi.mvapich.a libvt_mpi_a-vt_otf_trc.o
+	ar d libvt.mpi.mvapich.a libvt_mpi_a-vt_mpireq.o
+	ar d libvt.mpi.mvapich.a libvt_mpi_a-vt_mpireg.o
+	ar d libvt.mpi.mvapich.a libvt_mpi_a-vt_mpicom.o
+	ar d libvt.mpi.mvapich.a libvt_mpi_a-vt_fmpiwrap.o
+endif
+
 pkglib_LTLIBRARIES =
 
 if !BUILD_OFFLINE
@@ -116,6 +128,9 @@ pkglib_LTLIBRARIES += mpiotf-rt-mpich2.la
 endif
 if HAVE_MPT
 pkglib_LTLIBRARIES += mpiotf-rt-mpt.la
+endif
+if HAVE_MVAPICH
+pkglib_LTLIBRARIES += mpiotf-rt-mvapich.la
 endif
 if HAVE_OPENMPI
 pkglib_LTLIBRARIES += mpiotf-rt-openmpi.la
@@ -233,6 +248,18 @@ rt_mpich_LIBADD_generate = \
 	@OTF_LIBZ_LIBS@ \
 	-lrt 
 
+rt_mvapich_LIBADD_generate = \
+	-lopenss-runtime \
+	$(1) \
+	@LIBUNWIND_LIBS@ \
+	-lpthread \
+	-L./ -lvt.mpi.mvapich  \
+        @OTF_LDFLAGS@ \
+        @OTF_LIBS@ \
+        @OTF_LIBZ_LDFLAGS@ \
+	@OTF_LIBZ_LIBS@ \
+	-lrt 
+
 rt_mpich2_LIBADD_generate = \
 	-lopenss-runtime \
 	$(1) \
@@ -297,6 +324,14 @@ mpiotf_rt_mpt_la_DEPENDENCIES = libvt-mpt-mpi-a
 mpiotf_rt_mpt_la_SOURCES = $(rt_sources)
 endif
 
+if HAVE_MVAPICH
+mpiotf_rt_mvapich_la_CFLAGS = $(call rt_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
+mpiotf_rt_mvapich_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
+mpiotf_rt_mvapich_la_LIBADD = $(call rt_mvapich_LIBADD_generate,@MVAPICH_LIBS@)
+mpiotf_rt_mvapich_la_DEPENDENCIES = libvt-mvapich-mpi-a
+mpiotf_rt_mvapich_la_SOURCES = $(rt_sources)
+endif
+
 if HAVE_OPENMPI
 mpiotf_rt_openmpi_la_CFLAGS = $(call rt_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
 mpiotf_rt_openmpi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
@@ -324,6 +359,9 @@ CLEANFILES += libvt.mpi.mpich2.a
 endif
 if HAVE_MPT
 CLEANFILES += libvt.mpi.mpt.a
+endif
+if HAVE_MVAPICH
+CLEANFILES += libvt.mpi.mvapich.a
 endif
 if HAVE_OPENMPI
 CLEANFILES += libvt.mpi.openmpi.a
