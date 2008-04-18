@@ -85,12 +85,12 @@
 #define set_MPI_values(value_array, sort_extime)                                          \
               if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;     \
               if (num_temps > start_temp) {                                               \
-                int64_t x= (start-base_time);                                             \
-                value_array[start_temp] = new CommandResult_Duration (x);                 \
+                int64_t x= (start.getValue()/*-base_time*/);                                             \
+                value_array[start_temp] = new CommandResult_Time (x);                 \
               }                                                                           \
               if (num_temps > stop_temp) {                                                \
-                int64_t x= (end-base_time);                                               \
-                value_array[stop_temp] = new CommandResult_Duration (x);                  \
+                int64_t x= (end.getValue()/*-base_time*/);                                               \
+                value_array[stop_temp] = new CommandResult_Time (x);                  \
               }                                                                           \
               if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp]             \
                             = new CommandResult_Interval (sort_extime ? extime : intime); \
@@ -149,6 +149,10 @@ static void Determine_Objects (
    // There is no <target> list for filtering.
    // Get all the mpi functions for all the threads.
     objects = exp->FW()->getFunctionsByNamePattern ("PMPI*");
+    if (objects.size() == 0) {
+	// For offline experiments these are found via weak names...
+        objects = exp->FW()->getFunctionsByNamePattern ("MPI*");
+    }
   } else {
    // There is a list.  Is there a "-f" specifier?
     vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
@@ -159,6 +163,10 @@ static void Determine_Objects (
      // There is no <file> list for filtering.
      // Get all the mpi functions for all, previously selected, threads.
       objects = exp->FW()->getFunctionsByNamePattern ("PMPI*");
+      if (objects.size() == 0) {
+	// For offline experiments these are found via weak names...
+        objects = exp->FW()->getFunctionsByNamePattern ("MPI*");
+      }
     } else {
      // use the general utility to select the specified threads.
       Get_Filtered_Objects (cmd, exp, tgrp, objects);
@@ -443,7 +451,7 @@ static bool define_mpi_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
     HV.push_back("Inclusive Time(ms)");
 
-   // Column[1] in % of inclusive time
+  // Column[1] in % of inclusive time
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
     HV.push_back("% of Total");
@@ -455,11 +463,12 @@ static bool define_mpi_columns (
       HV.push_back("Start Time(d:h:m:s)");
       IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
     }
+
    // Always display elapsed time.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
     HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
 
-   // and include % of exclusive time
+  // and include % of exclusive time
     if (Filter_Uses_F(cmd)) {
      // Use the metric needed for calculating total time.
       IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));

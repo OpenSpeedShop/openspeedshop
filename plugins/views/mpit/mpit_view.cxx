@@ -107,12 +107,12 @@
 #define set_MPIT_values(value_array, sort_extime) \
               if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;     \
               if (num_temps > start_temp) {                                               \
-                int64_t x= (start-base_time);                                             \
-                value_array[start_temp] = new CommandResult_Duration (x);                 \
+                int64_t x= (start.getValue()/*-base_time*/);                                             \
+                value_array[start_temp] = new CommandResult_Time (x);                 \
               }                                                                           \
               if (num_temps > stop_temp) {                                                \
-                int64_t x= (end-base_time);                                               \
-                value_array[stop_temp] = new CommandResult_Duration (x);                  \
+                int64_t x= (end.getValue()/*-base_time*/);                                               \
+                value_array[stop_temp] = new CommandResult_Time (x);                  \
               }                                                                           \
               if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp]             \
                             = new CommandResult_Interval (sort_extime ? extime : intime); \
@@ -178,16 +178,24 @@ static void Determine_Objects (
    // There is no <target> list for filtering.
    // Get all the mpi functions for all the threads.
     objects = exp->FW()->getFunctionsByNamePattern ("PMPI*");
+    if (objects.size() == 0) {
+	// For offline experiments these are found via weak names...
+        objects = exp->FW()->getFunctionsByNamePattern ("MPI*");
+    }
   } else {
    // There is a list.  Is there a "-f" specifier?
     vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
     pt = *p_tlist->begin(); // There can only be one!
     f_list = pt.getFileList();
 
-    if ((f_list == NULL) || (f_list->empty())) { 
+    if ((f_list == NULL) || (f_list->empty())) {
      // There is no <file> list for filtering.
      // Get all the mpi functions for all, previously selected, threads.
       objects = exp->FW()->getFunctionsByNamePattern ("PMPI*");
+      if (objects.size() == 0) {
+	// For offline experiments these are found via weak names...
+        objects = exp->FW()->getFunctionsByNamePattern ("MPI*");
+      }
     } else {
      // use the general utility to select the specified threads.
       Get_Filtered_Objects (cmd, exp, tgrp, objects);
