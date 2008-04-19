@@ -57,6 +57,7 @@ libopenss_framework_la_SOURCES = \
 	CollectorImpl.hxx CollectorImpl.cxx \
 	CollectorPluginTable.hxx CollectorPluginTable.cxx \
 	Database.hxx Database.cxx \
+	DataBucket.hxx \
 	DataCache.hxx DataCache.cxx \
 	DataQueues.hxx DataQueues.cxx \
 	Entry.hxx Entry.cxx \

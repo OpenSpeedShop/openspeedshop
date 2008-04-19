@@ -79,6 +79,86 @@ namespace {
 
 
 
+    /**
+     * Implement getting the MPICH process table.
+     *
+     * Implements getting the current value of the specified MPICH process
+     * table. The value is returned as a Job rather than directly as an array
+     * of MPIR_PROCDESC structures. This makes managing the memory associated
+     * with the table more obvious. If the table wasn't found, the first value
+     * in the pair returned will be "false".
+     *
+     * @note    This function is templated on the address type in order to
+     *          handle tables found in both 32-bit and 64-bit processes.
+     *
+     * @sa    http://www-unix.mcs.anl.gov/mpi/mpi-debug/
+     *
+     * @param process                Process from which to get the table.
+     * @param MPIR_proctable         Table whose value is being requested.
+     * @param MPIR_proctable_size    Size of the table whose value is being
+     *                               requested.
+     * @param value                  Pair containing the current value of
+     *                               that table.
+     */
+    template <typename T>
+    std::pair<std::string, pid_t> getMPICHProcTableImpl(
+        /* const */ BPatch_process& process,
+	/* const */ BPatch_variableExpr& MPIR_proctable,
+	const int64_t& MPIR_proctable_size,
+	std::pair<bool, Job> value
+        )
+    {
+	// Define type for an entry in the table
+	typedef struct {
+	    T   host_name;        /* Something we can pass to inet_addr */
+	    T   executable_name;  /* The name of the image */
+	    int pid;              /* The pid of the process */
+	} MPIR_PROCDESC;
+
+	// Initially assume the table will not be read properly
+	value = std::make_pair(false, Job());
+
+	// Get the image pointer for this process
+	BPatch_image* image = process.getImage();
+	Assert(image != NULL);
+
+	// Read the base address of the table
+	T base_addr = 0;
+	MPIR_proctable.readValue(&base_addr);
+
+	// Iterate over each entry in the table
+	for(int64_t i = 0; i < MPIR_proctable_size; ++i) {
+
+#ifdef WDH_DISABLE_FOR_NOW
+
+	    // Construct a variable for this entry
+	    BPatch_variableExpr variable(
+		&process,
+		base_addr + (i * sizeof(MPIR_PROCDESC)),
+		sizeof(MPIR_PROCDESC)
+		);
+
+	    // Read the entry
+	    MPIR_PROCDESC raw_value;
+	    variable.readValue(&raw_value);
+
+	    // Read the host name for this entry
+	    std::string host_name;
+	    image->readString(raw_value.host_name, host_name);
+
+	    // Add this entry to the job value
+	    value.second.push_back(std::make_pair(host_name, raw_value.pid));
+
+#endif  // WDH_DISABLE_FOR_NOW
+
+	}
+
+	// Inform the caller that the table was successfully read
+	value.first = true;
+    }
+
+
+
 }
 
 
@@ -746,45 +826,45 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
     // Is the variable a signed/unsigned integer type?
     
     if(!strcmp(type_name, "unsigned char") && (type_size == 1)) {
-	unsigned char raw_value;
+	unsigned char raw_value = 0;
 	variable->readValue(&raw_value);
 	value = std::make_pair(true, static_cast<int64_t>(raw_value));
     }
     else if(!strcmp(type_name, "char") && (type_size == 1)) {
-	char raw_value;
+	char raw_value = 0;
 	variable->readValue(&raw_value);
 	value = std::make_pair(true, static_cast<int64_t>(raw_value));
     }
     
     else if(!strcmp(type_name, "unsigned short") && (type_size == 2)) {
-	unsigned short raw_value;
+	unsigned short raw_value = 0;
 	variable->readValue(&raw_value);
 	value = std::make_pair(true, static_cast<int64_t>(raw_value));
     }
     else if(!strcmp(type_name, "short") && (type_size == 2)) {
-	short raw_value;
+	short raw_value = 0;
 	variable->readValue(&raw_value);
 	value = std::make_pair(true, static_cast<int64_t>(raw_value));
     }
     
     else if(!strcmp(type_name, "unsigned int") && (type_size == 4)) {
-	unsigned int raw_value;
+	unsigned int raw_value = 0;
 	variable->readValue(&raw_value);
 	value = std::make_pair(true, static_cast<int64_t>(raw_value));
     }
     else if(!strcmp(type_name, "int") && (type_size == 4)) {
-	int raw_value;
+	int raw_value = 0;
 	variable->readValue(&raw_value);
 	value = std::make_pair(true, static_cast<int64_t>(raw_value));
     }
     
     else if(!strcmp(type_name, "unsigned long long") && (type_size == 8)) {
-	unsigned long long raw_value;
+	unsigned long long raw_value = 0;
 	variable->readValue(&raw_value);
 	value = std::make_pair(true, static_cast<int64_t>(raw_value));
     }
     else if(!strcmp(type_name, "long long") && (type_size == 8)) {
-	long long raw_value;
+	long long raw_value = 0;
 	variable->readValue(&raw_value);
 	value = std::make_pair(true, static_cast<int64_t>(raw_value));
     }
@@ -897,12 +977,11 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
     if(variable == NULL)
 	return;
 
-    // Get the name and size of the type of this variable
+    // Get the name of the type of this variable
     const BPatch_type* type = variable->getType();
     if(type == NULL)
 	return;
     const char* type_name = type->getName();
-    unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
     
     // Is the variable a character pointer type?
     
@@ -949,13 +1028,24 @@ void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
     if(variable == NULL)
 	return;
 
-    // Get the name and size of the type of this variable
+    // Get the name and size of the type of the "MPIR_proctable" variable
     const BPatch_type* type = variable->getType();
     if(type == NULL)
 	return;
+    const char* type_name = type->getName();
+    unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
 
-    // TODO: implement!
+    // Is the variable a MPIR_PROCDESC pointer type?
 
+    if(!strcmp(type_name, "MPIR_PROCDESC*") && (type_size == 4)) {
+	getMPICHProcTableImpl<uint32_t>(process, *variable,
+					MPIR_proctable_size.second, value);
+    }
+
+    else if(!strcmp(type_name, "MPIR_PROCDESC*") && (type_size == 8)) {
+	getMPICHProcTableImpl<uint64_t>(process, *variable,
+					MPIR_proctable_size.second, value);
+    }
 }
 
 
