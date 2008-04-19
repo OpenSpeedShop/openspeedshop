@@ -24,6 +24,7 @@
 
 #include "Blob.hxx"
 #include "Callbacks.hxx"
+#include "GlobalTable.hxx"
 #include "EntrySpy.hxx"
 #include "Frontend.hxx"
 #include "Guard.hxx"
@@ -526,9 +527,7 @@ bool Instrumentor::getGlobal(const Thread& thread,
 
     // Request the global variable be retrieved from the thread
     Senders::getGlobalInteger(thread, global);
-
-    // TODO: wait for response and return it
-    return false;  // TEMPORARY DUMMY RETURN
+    return GlobalTable::TheTable.waitForValue(thread, global, value);
 }
 
 
@@ -564,9 +563,7 @@ bool Instrumentor::getGlobal(const Thread& thread,
 
     // Request the global variable be retrieved from the thread
     Senders::getGlobalString(thread, global);
-
-    // TODO: wait for response and return it
-    return false;  // TEMPORARY DUMMY RETURN
+    return GlobalTable::TheTable.waitForValue(thread, global, value);
 }
 
 
@@ -598,10 +595,9 @@ bool Instrumentor::getMPICHProcTable(const Thread& thread, Job& value)
     Assert(isMRNetInitialized);
 
     // Request the MPICH process table be retrieved from the thread
-    Senders::getMPICHProcTable(thread, "MPIR_proctable");
-
-    // TODO: wait for response and return it
-    return false;  // TEMPORARY DUMMY RETURN
+    const std::string global = "MPIR_proctable";
+    Senders::getMPICHProcTable(thread, global);
+    return GlobalTable::TheTable.waitForValue(thread, global, value);
 }
 
 

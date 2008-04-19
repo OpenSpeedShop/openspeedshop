@@ -37,6 +37,7 @@ libopenss_framework_mrnet_la_LIBADD = \
 libopenss_framework_mrnet_la_SOURCES = \
 	Callbacks.hxx Callbacks.cxx \
 	Frontend.hxx Frontend.cxx \
+	GlobalTable.hxx GlobalTable.cxx \
 	Instrumentor.cxx \
 	Senders.hxx Senders.cxx \
 	ThreadTable.hxx ThreadTable.cxx

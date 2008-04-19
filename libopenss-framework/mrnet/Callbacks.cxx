@@ -28,6 +28,8 @@
 #include "Database.hxx"
 #include "DataQueues.hxx"
 #include "Frontend.hxx"
+#include "GlobalTable.hxx"
+#include "Job.hxx"
 #include "Protocol.h"
 #include "SmartPtr.hxx"
 #include "ThreadGroup.hxx"
@@ -42,6 +44,26 @@ using namespace OpenSpeedShop::Framework;
 
 
 namespace {
+
+
+
+    /**
+     * Convert job from protocol use.
+     *
+     * Converts a framework job object from the structure used in protocol
+     * messages.
+     *
+     * @param in      Structure to be converted.
+     * @retval out    Job to hold the results.
+     */
+    void convert(const OpenSS_Protocol_Job& in, Job& out)
+    {
+	out.clear();
+	for(int i = 0; i < in.entries.entries_len; ++i) {
+	    out.push_back(std::make_pair(in.entries.entries_val[i].host,
+					 in.entries.entries_val[i].pid));
+	}
+    }
 
 
 
@@ -277,7 +299,9 @@ void Callbacks::createdProcess(const Blob& blob)
 /**
  * Value of an integer global variable.
  *
- * ...
+ * Callback function called by the frontend message pump when a message that
+ * contains the value of an integer global variable is received. Provides the
+ * value to the appropriate waiting thread.
  *
  * @param blob    Blob containing the message.
  */
@@ -300,7 +324,19 @@ void Callbacks::globalIntegerValue(const Blob& blob)
     }
 #endif
 
-    // TODO: implement!
+    // Get the threads matching this thread name
+    ThreadGroup threads = ThreadTable::TheTable.
+	getThreads(message.thread.host, message.thread.pid,
+		   std::make_pair(message.thread.has_posix_tid,
+				  message.thread.posix_tid)
+		   );
+    Assert(threads.size() == 1);
+
+    // Provide the value of this global variable.
+    GlobalTable::TheTable.provideValue(
+        *threads.begin(), std::string(message.global),
+	std::make_pair(static_cast<bool>(message.found), message.value)
+	);
 }
 
 
@@ -308,7 +344,9 @@ void Callbacks::globalIntegerValue(const Blob& blob)
 /**
  * Value of a job description global variable.
  *
- * ...
+ * Callback function called by the frontend message pump when a message that
+ * contains the value of a job description global variable is received. Provides
+ * the value to the appropriate waiting thread.
  *
  * @param blob    Blob containing the message.
  */
@@ -331,7 +369,21 @@ void Callbacks::globalJobValue(const Blob& blob)
     }
 #endif
 
-    // TODO: implement!
+    // Get the threads matching this thread name
+    ThreadGroup threads = ThreadTable::TheTable.
+	getThreads(message.thread.host, message.thread.pid,
+		   std::make_pair(message.thread.has_posix_tid,
+				  message.thread.posix_tid)
+		   );
+    Assert(threads.size() == 1);
+
+    // Provide the value of this global variable.
+    Job job;
+    ::convert(message.value, job);
+    GlobalTable::TheTable.provideValue(
+        *threads.begin(), std::string(message.global),
+	std::make_pair(static_cast<bool>(message.found), job)
+	);
 }
 
 
@@ -339,7 +391,9 @@ void Callbacks::globalJobValue(const Blob& blob)
 /**
  * Value of a string global variable.
  *
- * ...
+ * Callback function called by the frontend message pump when a message that
+ * contains the value of a string global variable is received. Provides the
+ * value to the appropriate waiting thread.
  *
  * @param blob    Blob containing the message.
  */
@@ -362,7 +416,19 @@ void Callbacks::globalStringValue(const Blob& blob)
     }
 #endif
 
-    // TODO: implement!
+    // Get the threads matching this thread name
+    ThreadGroup threads = ThreadTable::TheTable.
+	getThreads(message.thread.host, message.thread.pid,
+		   std::make_pair(message.thread.has_posix_tid,
+				  message.thread.posix_tid)
+		   );
+    Assert(threads.size() == 1);
+
+    // Provide the value of this global variable.
+    GlobalTable::TheTable.provideValue(
+        *threads.begin(), std::string(message.global),
+	std::make_pair(static_cast<bool>(message.found), message.value)
+	);
 }
 
 
