@@ -414,9 +414,10 @@ ThreadNameGroup ThreadTable::getNames(const int& fd) const
     ThreadNameGroup names;
     for(std::map<BPatch_thread*, SmartPtr<StdStreamPipes> >::const_iterator
 	    i = dm_ptr_to_pipes.begin(); i != dm_ptr_to_pipes.end(); ++i)
-	if((i->second->getStdInForBackend() == fd) ||
-	   (i->second->getStdOutForBackend() == fd) ||
-	   (i->second->getStdErrForBackend() == fd)) {
+	if(!i->second.isNull() &&
+	   ((i->second->getStdInForBackend() == fd) ||
+	    (i->second->getStdOutForBackend() == fd) ||
+	    (i->second->getStdErrForBackend() == fd))) {
 	    ThreadNameGroup names_to_insert = getNames(i->first);
 	    names.insert(names_to_insert.begin(), names_to_insert.end());
 	}
