@@ -30,8 +30,8 @@ libopenss_framework_mrnet_la_LDFLAGS = \
 	@MRNET_LDFLAGS@
 
 libopenss_framework_mrnet_la_LIBADD = \
-	-lopenss-framework-mrnet-common \
 	@MRNET_LIBS@ \
+	$(top_srcdir)/libopenss-framework/mrnet/common/libopenss-framework-mrnet-common.la \
 	-lpthread
 
 libopenss_framework_mrnet_la_SOURCES = \
