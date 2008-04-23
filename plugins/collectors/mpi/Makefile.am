@@ -51,7 +51,7 @@ endif
 if HAVE_OPENMPI
 pkglib_LTLIBRARIES += mpi-rt-openmpi.la
 endif
-if HAVE_MPICH
+if HAVE_MVAPICH
 pkglib_LTLIBRARIES += mpi-rt-mvapich.la
 endif
 
