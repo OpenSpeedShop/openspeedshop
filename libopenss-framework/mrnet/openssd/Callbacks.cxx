@@ -286,6 +286,18 @@ void Callbacks::changeThreadsState(const Blob& blob)
 	}
 	BPatch_process* process = thread->getProcess();
 	Assert(process != NULL);
+
+	//
+	// TEMPORARY HACK (WDH APR-23-2008)
+	//
+	// The following code temporarily handles the fact that calling
+	// continueExecution() on a terminated process unexpectedly
+	// returns "true" rather than "false". Thus we attempt to send
+	// the client a message telling it that PID -1 is running and
+	// the thread table asserts out.
+	//
+	if(process->isTerminated())
+	    continue;
 	
 	// Change the state of the process containing this thread
 	bool did_change = false;

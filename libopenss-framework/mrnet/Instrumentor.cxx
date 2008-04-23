@@ -287,8 +287,8 @@ Thread::State Instrumentor::getState(const Thread& thread)
  * Changes the current state of the specified threads to the passed value. Used
  * to, for example, suspend threads that were previously running. This function
  * does not wait until the threads have actually completed the state change, and
- * calling getState() immediately following changeState() will not reflect the 
- * new state until the change has actually completed.
+ * calling getState() immediately following changeState() will reflect the new
+ * state immediately.
  *
  * @pre    Only applies to threads which are connected. A ProcessUnavailable or
  *         ThreadUnavailable exception is thrown if called for a thread that is
@@ -327,6 +327,11 @@ void Instrumentor::changeState(const ThreadGroup& threads,
 
 	// Request a state change from the threads
 	Senders::changeThreadsState(threads, state);
+
+	// Update these threads with their new state
+	for(ThreadGroup::const_iterator
+		i = threads.begin(); i != threads.end(); ++i)
+	    ThreadTable::TheTable.setThreadState(*i, state);
 	
     }
 }

@@ -937,6 +937,18 @@ void OpenSpeedShop::Framework::Dyninst::setGlobal(
 	long long raw_value = static_cast<long long>(value);
 	variable->writeValue(&raw_value);
     }
+
+    //
+    // TEMPORARY HACK (WDH APR-23-2008)
+    //
+    // The following code temporarily handles the fact that when we ask
+    // for the type name of MPIR_debug_gate, we are getting "".
+    //
+    else if(!strcmp(type_name, "") && (type_size == 4)) {
+	int raw_value = static_cast<int>(value);
+	variable->writeValue(&raw_value);	
+    }
+
 }
 
 
