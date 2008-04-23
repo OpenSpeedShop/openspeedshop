@@ -70,6 +70,8 @@ namespace OpenSpeedShop { namespace Framework {
 		       const SmartPtr<StdStreamPipes>& = 
 		           SmartPtr<StdStreamPipes>());
 	void removeThread(const ThreadName&, BPatch_thread*);
+        std::set<pid_t> getActivePids() const;
+
 	
 	BPatch_thread* getPtr(const ThreadName&) const;
 	ThreadNameGroup getNames(BPatch_thread*) const;

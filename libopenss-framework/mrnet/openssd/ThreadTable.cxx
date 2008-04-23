@@ -27,6 +27,10 @@
 #include "ThreadNameGroup.hxx"
 #include "ThreadTable.hxx"
 #include "Utility.hxx"
+/* if you enable the std::cout code below
+#include <iostream>
+*/
+
 
 using namespace OpenSpeedShop::Framework;
 
@@ -198,6 +202,30 @@ void ThreadTable::removeThread(const ThreadName& thread, BPatch_thread* ptr)
 }
 
 
+
+/**
+ * Get list of pids that are now active
+ *
+ * Returns the set of pids now active (that are being monitored) in the daemon.
+ *
+ * @return          Set of pids that are being monitored
+ */
+std::set<pid_t> ThreadTable::getActivePids() const
+{
+    Guard guard_myself(this);
+    std::set<pid_t> returnSet;
+
+    returnSet.clear();
+
+    // Find the entry (if any) for this thread
+    std::map<ThreadName, BPatch_thread*>::const_iterator i = dm_name_to_ptr.begin();
+    for(; i!=dm_name_to_ptr.end(); ++i) {
+/*       std::cout << "ThreadTable::getActivePids(), i->first.getProcessId()=" << i->first.getProcessId() << std::endl; */
+       returnSet.insert(i->first.getProcessId());
+    }
+    // Return the Dyninst thread object pointer to the caller
+    return (returnSet);
+}
 
 /**
  * Get Dyninst thread object pointer for a thread.

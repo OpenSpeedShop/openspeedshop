@@ -29,6 +29,7 @@
 #include "WatcherThreadTable.hxx"
 #include "Protocol.h"
 #include "Senders.hxx"
+#include "ThreadTable.hxx"
 
 #include <errno.h>
 #include <signal.h>
@@ -51,6 +52,7 @@
 using namespace OpenSpeedShop::Framework;
 using namespace OpenSpeedShop::Watcher;
 using namespace OpenSpeedShop;
+ThreadTable ThreadTable::TheTable;
 
     /** Identifier of the monitor thread. */
 pthread_t fileIOmonitor_tid;
@@ -159,6 +161,8 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
   long prevSize = 0;
   long prevPos = 0;
   WatcherThreadTable::FileInfoEntry currentFileEntryInfo;
+  std::set<pid_t> PidSet; 
+  pid_t pid_to_monitor=0; 
 
 #ifndef NDEBUG
   if (Watcher::isDebugEnabled ())
@@ -202,6 +206,22 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 	}
 #endif
 
+    PidSet.clear();
+    PidSet = OpenSpeedShop::Framework::ThreadTable::TheTable.getActivePids();
+
+    if (PidSet.size() > 0) {
+     for (std::set< pid_t >::iterator i = PidSet.begin(); i != PidSet.end(); i++) {
+
+#ifndef NDEBUG
+        if (Watcher::isDebugEnabled ()) {
+ 	    std::stringstream output;
+	    output << "[TID " << pthread_self () << "] OpenSpeedShop::Watcher::fileIOmonitorThread()" <<
+	    " ----- PidSet, pid=" << *i << std::endl;
+	    std::cerr << output.str ();
+        }
+#endif
+            pid_to_monitor = *i;
+
 #if 0
       // Get all the threads that are currently open during this session
       // Haven't found a use for this yet.  - jeg
@@ -242,8 +262,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
       // Once found, while through the directory looking for openss-data
       // type files.
 
-      DIR *
-	slashtmp_dirhandle = opendir ("/tmp");
+      DIR * slashtmp_dirhandle = opendir ("/tmp");
 
       if (slashtmp_dirhandle)
 	{
@@ -257,8 +276,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 		  sprintf (directoryName, "/tmp/%s",
 			   slashtmp_direntry->d_name);
 
-		  DIR *
-		    dirhandle = opendir (directoryName);
+		  DIR * dirhandle = opendir (directoryName);
 
 #ifndef NDEBUG
 		  if (Watcher::isDebugEnabled ())
@@ -332,7 +350,10 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 				             << std::endl;
                               }
 #endif
-
+                              if (pid != pid_to_monitor) {
+                                // skip this directory
+                                break;
+                              }
 			      // ************** Make legality checks on pid and tid
 			      // More here?
 
@@ -576,6 +597,8 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 		}		// end if openss-rawdata- match
 	    }			// while slashtmp_dirhandle
 	}			// end if slashtmp_dirhandle
+     } // PidSet loop
+    } // PidSet > 0 if
 
 #ifndef NDEBUG
       if (Watcher::isDebugEnabled ())
