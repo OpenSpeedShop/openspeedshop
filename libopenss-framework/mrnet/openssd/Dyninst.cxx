@@ -105,7 +105,7 @@ namespace {
         /* const */ BPatch_process& process,
 	/* const */ BPatch_variableExpr& MPIR_proctable,
 	const int64_t& MPIR_proctable_size,
-	std::pair<bool, Job> value
+	std::pair<bool, Job>& value
         )
     {
 	// Define type for an entry in the table
@@ -129,12 +129,10 @@ namespace {
 	// Iterate over each entry in the table
 	for(int64_t i = 0; i < MPIR_proctable_size; ++i) {
 
-#ifdef WDH_DISABLE_FOR_NOW
-
 	    // Construct a variable for this entry
 	    BPatch_variableExpr variable(
 		&process,
-		base_addr + (i * sizeof(MPIR_PROCDESC)),
+		(void*)(base_addr + (i * sizeof(MPIR_PROCDESC))),
 		sizeof(MPIR_PROCDESC)
 		);
 
@@ -148,8 +146,6 @@ namespace {
 
 	    // Add this entry to the job value
 	    value.second.push_back(std::make_pair(host_name, raw_value.pid));
-
-#endif  // WDH_DISABLE_FOR_NOW
 
 	}
 
@@ -1037,14 +1033,14 @@ void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
 
     // Is the variable a MPIR_PROCDESC pointer type?
 
-    if(!strcmp(type_name, "MPIR_PROCDESC*") && (type_size == 4)) {
+    if(!strcmp(type_name, "MPIR_PROCDESC *") && (type_size == 4)) {
 	getMPICHProcTableImpl<uint32_t>(process, *variable,
-					MPIR_proctable_size.second, value);
+	 				MPIR_proctable_size.second, value);
     }
 
-    else if(!strcmp(type_name, "MPIR_PROCDESC*") && (type_size == 8)) {
+    else if(!strcmp(type_name, "MPIR_PROCDESC *") && (type_size == 8)) {
 	getMPICHProcTableImpl<uint64_t>(process, *variable,
-					MPIR_proctable_size.second, value);
+	 				MPIR_proctable_size.second, value);
     }
 }
 

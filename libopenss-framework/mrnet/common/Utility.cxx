@@ -617,11 +617,9 @@ std::string OpenSpeedShop::Framework::toString(
     std::stringstream output;
     output << "    { ";
     for(int i = 0; i < job.entries.entries_len; ++i) {
-	if(i > 0)
-	    output << ", ";
 	output << toString(job.entries.entries_val[i]);
-	if(!(i % 4) && (i < (job.entries.entries_len - 1)))
-	    output << std::endl << "      ";
+	if(i < (job.entries.entries_len - 1))
+	    output << "," << std::endl << "      ";
     }
     output << " }";
     return output.str();
