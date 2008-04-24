@@ -35,6 +35,10 @@
 #include "ThreadTable.hxx"
 #include "Time.hxx"
 
+#ifdef HAVE_INTTYPES_H
+#include <inttypes.h>
+#endif
+
 using namespace OpenSpeedShop::Framework;
 
 
@@ -816,53 +820,102 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
     const BPatch_type* type = variable->getType();
     if(type == NULL)
 	return;
-    const char* type_name = type->getName();
+    std::string type_name(type->getName() ? type->getName() : "");
     unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
-    
-    // Is the variable a signed/unsigned integer type?
-    
-    if(!strcmp(type_name, "unsigned char") && (type_size == 1)) {
-	unsigned char raw_value = 0;
-	variable->readValue(&raw_value);
-	value = std::make_pair(true, static_cast<int64_t>(raw_value));
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Dyninst::"
+	       << "getGlobal(PID " << process.getPid() 
+	       << ", \"" << global << "\", <reference>): type_name = \"" 
+	       << type_name << "\", type_size = " << type_size << std::endl;
+	std::cerr << output.str();
     }
-    else if(!strcmp(type_name, "char") && (type_size == 1)) {
-	char raw_value = 0;
-	variable->readValue(&raw_value);
-	value = std::make_pair(true, static_cast<int64_t>(raw_value));
+#endif
+
+    // Can this variable be interpreted as an integer type?
+
+    if(type_size == 1) {
+	if((type_name.find("unsigned char") != std::string::npos) ||
+	   (type_name.find("uint8_t") != std::string::npos)) {
+
+	    uint8_t raw_value = 0;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+
+	}
+	else if((type_name.find("char") != std::string::npos) ||
+		(type_name.find("int8_t") != std::string::npos) ||
+		(type_name == "<no type>")) {
+
+	    int8_t raw_value = 0;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+
+	}
     }
-    
-    else if(!strcmp(type_name, "unsigned short") && (type_size == 2)) {
-	unsigned short raw_value = 0;
-	variable->readValue(&raw_value);
-	value = std::make_pair(true, static_cast<int64_t>(raw_value));
+
+    else if(type_size == 2) {
+	if((type_name.find("unsigned short") != std::string::npos) ||
+	   (type_name.find("uint16_t") != std::string::npos)) {
+
+	    uint16_t raw_value = 0;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+
+	}
+	else if((type_name.find("short") != std::string::npos) ||
+		(type_name.find("int16_t") != std::string::npos) ||
+		(type_name == "<no type>")) {
+
+	    int16_t raw_value = 0;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+
+	}
     }
-    else if(!strcmp(type_name, "short") && (type_size == 2)) {
-	short raw_value = 0;
-	variable->readValue(&raw_value);
-	value = std::make_pair(true, static_cast<int64_t>(raw_value));
+
+    else if(type_size == 4) {
+	if((type_name.find("unsigned int") != std::string::npos) ||
+	   (type_name.find("unsigned long") != std::string::npos) ||
+	   (type_name.find("uint32_t") != std::string::npos)) {
+
+	    uint32_t raw_value = 0;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+
+	}
+	else if((type_name.find("int") != std::string::npos) ||
+		(type_name.find("long") != std::string::npos) ||
+		(type_name.find("int32_t") != std::string::npos) ||
+		(type_name == "<no type>")) {
+
+	    int32_t raw_value = 0;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+
+	}
     }
-    
-    else if(!strcmp(type_name, "unsigned int") && (type_size == 4)) {
-	unsigned int raw_value = 0;
-	variable->readValue(&raw_value);
-	value = std::make_pair(true, static_cast<int64_t>(raw_value));
-    }
-    else if(!strcmp(type_name, "int") && (type_size == 4)) {
-	int raw_value = 0;
-	variable->readValue(&raw_value);
-	value = std::make_pair(true, static_cast<int64_t>(raw_value));
-    }
-    
-    else if(!strcmp(type_name, "unsigned long long") && (type_size == 8)) {
-	unsigned long long raw_value = 0;
-	variable->readValue(&raw_value);
-	value = std::make_pair(true, static_cast<int64_t>(raw_value));
-    }
-    else if(!strcmp(type_name, "long long") && (type_size == 8)) {
-	long long raw_value = 0;
-	variable->readValue(&raw_value);
-	value = std::make_pair(true, static_cast<int64_t>(raw_value));
+
+    else if(type_size == 8) {
+	if((type_name.find("unsigned long long") != std::string::npos) ||
+	   (type_name.find("uint64_t") != std::string::npos)) {
+
+	    uint64_t raw_value = 0;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+
+	}
+	else if((type_name.find("long long") != std::string::npos) ||
+		(type_name.find("int64_t") != std::string::npos) ||
+		(type_name == "<no type>")) {
+
+	    int64_t raw_value = 0;
+	    variable->readValue(&raw_value);
+	    value = std::make_pair(true, static_cast<int64_t>(raw_value));
+
+	}
     }
 }
 
@@ -895,60 +948,95 @@ void OpenSpeedShop::Framework::Dyninst::setGlobal(
     const BPatch_type* type = variable->getType();
     if(type == NULL)
 	return;
-    const char* type_name = type->getName();
+    std::string type_name(type->getName() ? type->getName() : "");
     unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
-    
-    // Is the variable a signed/unsigned integer type?
-    
-    if(!strcmp(type_name, "unsigned char") && (type_size == 1)) {
-	unsigned char raw_value = static_cast<unsigned char>(value);
-	variable->writeValue(&raw_value);
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Dyninst::"
+	       << "setGlobal(PID " << process.getPid() 
+	       << ", \"" << global << "\", <reference>): type_name = \"" 
+	       << type_name << "\", type_size = " << type_size << std::endl;
+	std::cerr << output.str();
     }
-    else if(!strcmp(type_name, "char") && (type_size == 1)) {
-	char raw_value = static_cast<char>(value);
-	variable->writeValue(&raw_value);
-    }
-    
-    else if(!strcmp(type_name, "unsigned short") && (type_size == 2)) {
-	unsigned short raw_value = 
-	    static_cast<unsigned short>(value);
-	variable->writeValue(&raw_value);
-    }
-    else if(!strcmp(type_name, "short") && (type_size == 2)) {
-	short raw_value = static_cast<short>(value);
-	variable->writeValue(&raw_value);
-    }
-    
-    else if(!strcmp(type_name, "unsigned int") && (type_size == 4)) {
-	unsigned int raw_value = static_cast<unsigned int>(value);
-	variable->writeValue(&raw_value);
-    }
-    else if(!strcmp(type_name, "int") && (type_size == 4)) {
-	int raw_value = static_cast<int>(value);
-	variable->writeValue(&raw_value);
-    }
-    
-    else if(!strcmp(type_name, "unsigned long long") && (type_size == 8)) {
-	unsigned long long raw_value =
-	    static_cast<unsigned long long>(value);
-	variable->writeValue(&raw_value);
-    }
-    else if(!strcmp(type_name, "long long") && (type_size == 8)) {
-	long long raw_value = static_cast<long long>(value);
-	variable->writeValue(&raw_value);
+#endif
+
+    // Can this variable be interpreted as an integer type?
+
+    if(type_size == 1) {
+	if((type_name.find("unsigned char") != std::string::npos) ||
+	   (type_name.find("uint8_t") != std::string::npos)) {
+
+	    uint8_t raw_value = static_cast<uint8_t>(value);
+	    variable->writeValue(&raw_value);	    
+
+	}
+	else if((type_name.find("char") != std::string::npos) ||
+		(type_name.find("int8_t") != std::string::npos) ||
+		(type_name == "<no type>")) {
+
+	    int8_t raw_value = static_cast<int8_t>(value);
+	    variable->writeValue(&raw_value);
+
+	}
     }
 
-    //
-    // TEMPORARY HACK (WDH APR-23-2008)
-    //
-    // The following code temporarily handles the fact that when we ask
-    // for the type name of MPIR_debug_gate, we are getting "".
-    //
-    else if(!strcmp(type_name, "") && (type_size == 4)) {
-	int raw_value = static_cast<int>(value);
-	variable->writeValue(&raw_value);	
+    else if(type_size == 2) {
+	if((type_name.find("unsigned short") != std::string::npos) ||
+	   (type_name.find("uint16_t") != std::string::npos)) {
+
+	    uint16_t raw_value = static_cast<uint16_t>(value);
+	    variable->writeValue(&raw_value);	    
+
+	}
+	else if((type_name.find("short") != std::string::npos) ||
+		(type_name.find("int16_t") != std::string::npos) ||
+		(type_name == "<no type>")) {
+
+	    int16_t raw_value = static_cast<int16_t>(value);
+	    variable->writeValue(&raw_value);
+
+	}
     }
 
+    else if(type_size == 4) {
+	if((type_name.find("unsigned int") != std::string::npos) ||
+	   (type_name.find("unsigned long") != std::string::npos) ||
+	   (type_name.find("uint32_t") != std::string::npos)) {
+
+	    uint32_t raw_value = static_cast<uint32_t>(value);
+	    variable->writeValue(&raw_value);	    
+
+	}
+	else if((type_name.find("int") != std::string::npos) ||
+		(type_name.find("long") != std::string::npos) ||
+		(type_name.find("int32_t") != std::string::npos) ||
+		(type_name == "<no type>")) {
+
+	    int32_t raw_value = static_cast<int32_t>(value);
+	    variable->writeValue(&raw_value);
+
+	}
+    }
+
+    else if(type_size == 8) {
+	if((type_name.find("unsigned long long") != std::string::npos) ||
+	   (type_name.find("uint64_t") != std::string::npos)) {
+
+	    uint64_t raw_value = static_cast<uint64_t>(value);
+	    variable->writeValue(&raw_value);	    
+
+	}
+	else if((type_name.find("long long") != std::string::npos) ||
+		(type_name.find("int64_t") != std::string::npos) ||
+		(type_name == "<no type>")) {
+
+	    int64_t raw_value = static_cast<int64_t>(value);
+	    variable->writeValue(&raw_value);
+
+	}
+    }
 }
 
 
@@ -989,15 +1077,31 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
     const BPatch_type* type = variable->getType();
     if(type == NULL)
 	return;
-    const char* type_name = type->getName();
-    
-    // Is the variable a character pointer type?
-    
-    if(!strcmp(type_name, "char*")) {
+    std::string type_name(type->getName() ? type->getName() : "");
+    unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Dyninst::"
+	       << "getGlobal(PID " << process.getPid() 
+	       << ", \"" << global << "\", <reference>): type_name = \""
+	       << type_name << "\"" << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
+    // Can this variable be interpreted as a character pointer type?
+
+    if(((type_size == 4) || (type_size == 8)) &&
+       ((type_name.find("char*") != std::string::npos) ||
+	(type_name == "<no type>"))) {
+
 	std::string raw_value;
 	image->readString(variable, raw_value);	
 	value = std::make_pair(true, raw_value);
-    }    
+
+    }
 }
 
 
@@ -1040,19 +1144,36 @@ void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
     const BPatch_type* type = variable->getType();
     if(type == NULL)
 	return;
-    const char* type_name = type->getName();
+    std::string type_name(type->getName() ? type->getName() : "");
     unsigned type_size = const_cast<BPatch_type*>(type)->getSize();
 
-    // Is the variable a MPIR_PROCDESC pointer type?
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Dyninst::"
+	       << "getMPICHProcTable(PID " << process.getPid() 
+	       << ", <reference>): type_name = \"" << type_name
+	       << "\", type_size = " << type_size << std::endl;
+	std::cerr << output.str();
+    }
+#endif
 
-    if(!strcmp(type_name, "MPIR_PROCDESC *") && (type_size == 4)) {
+    // Can this variable be interpreted as a MPIR_PROCDESC pointer type?
+
+    if((type_size == 4) &&
+       ((type_name == "MPIR_PROCDESC *") || (type_name == "<no_type>"))) {
+
 	getMPICHProcTableImpl<uint32_t>(process, *variable,
 	 				MPIR_proctable_size.second, value);
+
     }
 
-    else if(!strcmp(type_name, "MPIR_PROCDESC *") && (type_size == 8)) {
+    else if((type_size == 8) &&
+	    ((type_name == "MPIR_PROCDESC *") || (type_name == "<no_type>"))) {
+
 	getMPICHProcTableImpl<uint64_t>(process, *variable,
 	 				MPIR_proctable_size.second, value);
+
     }
 }
 

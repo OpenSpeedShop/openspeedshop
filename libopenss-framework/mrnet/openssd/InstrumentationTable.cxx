@@ -273,10 +273,10 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread)
 	for(InstrumentationList::size_type k = j->second.size(); k > 0; --k) {
 	    
 	    // Remove this instrumentation from the thread
-	    j->second[k]->remove();
+	    j->second[k - 1]->remove();
 
 	    // Destroy this instrumentation entry
-	    delete j->second[k];
+	    delete j->second[k - 1];
 
 	}
 
@@ -338,10 +338,10 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread,
     for(InstrumentationList::size_type k = j->second.size(); k > 0; --k) {
 
 	// Remove this instrumentation from the thread
-	j->second[k]->remove();
+	j->second[k - 1]->remove();
 	
 	// Destroy this instrumentation entry
-	delete j->second[k];
+	delete j->second[k - 1];
 	
     }
     

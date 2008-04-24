@@ -135,8 +135,8 @@ void ExecuteAtEntryOrExitEntry::install()
 	
 	BPatch_ifExpr expression(
 	    BPatch_boolExpr(BPatch_eq,
-			    BPatch_tidExpr(process),
-			    BPatch_constExpr(dm_thread.getTid())),
+			    BPatch_threadIndexExpr(),
+			    BPatch_constExpr(dm_thread.getBPatchID())),
 	    body
 	    );
 	
@@ -146,10 +146,10 @@ void ExecuteAtEntryOrExitEntry::install()
 	Assert(points != NULL);
 	
 	// Request the instrumentation be inserted
-	if(dm_thread.getTid() == 0)
-	    dm_handle = process->insertSnippet(body, *points);
-	else
+	if(process->isMultithreadCapable())
 	    dm_handle = process->insertSnippet(expression, *points);
+	else
+	    dm_handle = process->insertSnippet(body, *points);
 	Assert(dm_handle != NULL);
 	
 #ifndef NDEBUG
