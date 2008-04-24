@@ -64,6 +64,9 @@ namespace {
     /** Flag indicating if debugging for the backend is enabled. */
     bool is_backend_debug_enabled = false;
 
+    /** Flag indicating if performance data debugging is enabled. */
+    bool is_perfdata_debug_enabled = false;
+
     /** Flag indicating if standard I/O debugging is enabled. */
     bool is_stdio_debug_enabled = false;
 
@@ -326,6 +329,8 @@ void Backend::startMessagePump(int argc, char* argv[])
     for(int i = 0; i < argc; ++i)
 	if(std::string(argv[i]) == std::string("--debug"))
 	    is_backend_debug_enabled = true;
+	else if(std::string(argv[i]) == std::string("--perfdata-debug"))
+	    is_perfdata_debug_enabled = true;
 	else if(std::string(argv[i]) == std::string("--symbols-debug"))
 	    is_symbols_debug_enabled = true;
 	else if(std::string(argv[i]) == std::string("--stdio-debug"))
@@ -413,6 +418,21 @@ void Backend::sendToFrontend(const int& tag, const Blob& blob)
 bool Backend::isDebugEnabled()
 {
     return is_backend_debug_enabled;
+}
+
+
+
+/**
+ * Get performance data debugging flag.
+ *
+ * Returns a flag indicating if performance data debugging is enabled.
+ *
+ * @return    Boolean "true" if debugging for performance data is enabled,
+ *            "false" otherwise.
+ */
+bool Backend::isPerfDataDebugEnabled()
+{
+    return is_perfdata_debug_enabled;
 }
 
 

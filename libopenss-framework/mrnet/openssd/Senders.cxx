@@ -661,6 +661,19 @@ void Senders::unloadedLinkedObject(const ThreadNameGroup& threads,
  */
 void Senders::performanceData(const Blob& blob)
 {
+#ifndef NDEBUG
+    if(Backend::isPerfDataDebugEnabled()) {
+	OpenSS_Protocol_Blob perfdata;
+	perfdata.data.data_len = blob.getSize();
+	perfdata.data.data_val = 
+	    reinterpret_cast<uint8_t*>(const_cast<void*>(blob.getContents()));
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::performanceData("
+	       << std::endl << toString(perfdata) << ")" << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
     // Send the blob to the frontend
     Backend::sendToFrontend(OPENSS_PROTOCOL_TAG_PERFORMANCE_DATA, blob);
 }

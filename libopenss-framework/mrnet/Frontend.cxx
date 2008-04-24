@@ -78,6 +78,9 @@ namespace {
     /** Flag indicating if debugging for the frontend is enabled. */
     bool is_frontend_debug_enabled = false;
 
+    /** Flag indicating if debugging for performance data is enabled. */
+    bool is_perfdata_debug_enabled = false;
+
     /** Flag indicating if standard I/O debugging is enabled. */
     bool is_stdio_debug_enabled = false;
 
@@ -262,6 +265,7 @@ void Frontend::startMessagePump(const Path& topology_file)
     bool is_backend_debug_enabled = 
         ((getenv("OPENSS_DEBUG_MRNET") != NULL) ||
 	 (getenv("OPENSS_DEBUG_MRNET_BACKEND") != NULL));
+    is_perfdata_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_PERFDATA") != NULL);
     is_stdio_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_STDIO") != NULL);
     is_symbols_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_SYMBOLS") != NULL);
 
@@ -269,6 +273,8 @@ void Frontend::startMessagePump(const Path& topology_file)
     std::vector<std::string> args;
     if(is_backend_debug_enabled)
 	args.push_back("--debug");
+    if(is_perfdata_debug_enabled)
+	args.push_back("--perfdata-debug");
     if(is_stdio_debug_enabled)
         args.push_back("--stdio-debug");
     if(is_symbols_debug_enabled)
@@ -429,9 +435,24 @@ bool Frontend::isDebugEnabled()
 
 
 /**
+ * Get performance data debugging flag.
+ *
+ * Returns a flag indicating if performance data debugging is enabled.
+ *
+ * @return    Boolean "true" if debugging for performance data is enabled,
+ *            "false" otherwise.
+ */
+bool Frontend::isPerfDataDebugEnabled()
+{
+    return is_perfdata_debug_enabled;
+}
+
+
+
+/**
  * Get standard I/O debugging flag.
  *
- * Returns a flasg indicating if standard I/O debugging is enabled.
+ * Returns a flag indicating if standard I/O debugging is enabled.
  *
  * @return    Boolean "true" if debugging for standard I/O is enabled,
  *            "false" otherwise.

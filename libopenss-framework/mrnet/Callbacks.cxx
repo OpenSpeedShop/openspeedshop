@@ -979,6 +979,19 @@ void Callbacks::unloadedLinkedObject(const Blob& blob)
  */
 void Callbacks::performanceData(const Blob& blob)
 {
+#ifndef NDEBUG
+    if(Frontend::isPerfDataDebugEnabled()) {
+	OpenSS_Protocol_Blob perfdata;
+	perfdata.data.data_len = blob.getSize();
+	perfdata.data.data_val = 
+	    reinterpret_cast<uint8_t*>(const_cast<void*>(blob.getContents()));
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::performanceData("
+	       << std::endl << toString(perfdata) << ")" << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
     // Enqueue this performance data
     DataQueues::enqueuePerformanceData(blob);
 }
