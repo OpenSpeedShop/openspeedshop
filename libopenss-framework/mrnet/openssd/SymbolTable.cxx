@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -35,30 +35,18 @@ using namespace OpenSpeedShop::Framework;
 
 
 /**
- * Default constructor.
+ * Constructor from linked object file name and address range.
  *
- * Constructs an empty symbol table.
+ * Constructs an empty symbol table. Sets the linked object file name and
+ * address range for this symbol table to the specified values.
  */
-SymbolTable::SymbolTable() :
+SymbolTable::SymbolTable(const FileName& linked_object,
+			 const AddressRange& range) :
+    dm_linked_object(linked_object),
+    dm_range(range),
     dm_functions(),
     dm_statements()
 {
-}
-
-
-
-/**
- * Constructor from a BPatch_module object.
- *
- * Constructs a symbol table containing the symbols of the specified module.
- *
- * @param module    Module from which to construct the symbol table.
- */
-SymbolTable::SymbolTable(/* const */ BPatch_module& module) :
-    dm_functions(),
-    dm_statements()
-{
-    addModule(module);
 }
 
 
@@ -76,7 +64,7 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
     Address module_begin(reinterpret_cast<uintptr_t>(module.getBaseAddr()));
     Address module_end = module_begin + module.getSize();
     AddressRange module_range(module_begin, module_end);
-    
+
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {
 	char buffer[PATH_MAX];
@@ -87,7 +75,7 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
         std::cerr << output.str();
     }
 #endif
-    
+
     // Get the list of functions in this module
     BPatch_Vector<BPatch_function*>* functions = module.getProcedures(true);
     Assert(functions != NULL);

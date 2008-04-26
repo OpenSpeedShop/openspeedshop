@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -57,6 +57,13 @@ namespace OpenSpeedShop { namespace Framework {
     {
 
     public:
+
+	/** Default constructor. */
+	FileName() :
+	    dm_path(),
+	    dm_checksum(0)
+	{
+	}
 
 	/** Constructor from a path. */
 	FileName(const Path& path) :

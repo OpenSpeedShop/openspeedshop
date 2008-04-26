@@ -3745,89 +3745,53 @@ static bool SS_ListDatabase (CommandObject *cmd) {
 static void Most_Common_Executable (CommandObject *cmd,
                                     ExperimentObject *exp,
                                     bool returnFullPath,
-                                    std::list<std::string>& ExList) {
-  try {
-   // Get the list of threads used in the specified experiment.
-    ThreadGroup tgrp = exp->FW()->getThreads();
-#if DEBUG_CLI
-    printf("In Most_Common_Executable, returnFullPath=%d\n", returnFullPath);
-    int threadCount = 0;
-    printf("In Most_Common_Executable, (tgrp.begin()==tgrp.end())=%d\n", returnFullPath, (tgrp.begin()==tgrp.end()));
-#endif
+                                    std::list<std::string>& ExList)
+{
+    try {
 
-   // Get the executable name for each thread and count how many times it is used.
-    std::map<std::string,int64_t> NameMap;
-    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+	std::map<std::string, int64_t> NameMap;
 
-#if DEBUG_CLI
-       printf("In Most_Common_Executable, cmd->Status()=%d\n", cmd->Status() );
-#endif
-     // Check for asynchronous abort command
-      if (cmd->Status() == CMD_ABORTED) {
-        NameMap.clear();
-        break;
-      }
+	// Iterate over all executable names in this experiment
+	std::set<LinkedObject> executables = exp->FW()->getExecutables();
+	for(std::set<LinkedObject>::const_iterator
+		i = executables.begin(); i != executables.end(); ++i) {
+	    
+	    // Check for asynchronous abort command
+	    if(cmd->Status() == CMD_ABORTED) {
+		NameMap.clear();
+		break;
+	    }
+	    
+	    // Get the name of the executable
+	    std::string executable = (OPENSS_VIEW_FULLPATH || returnFullPath) ?
+		i->getPath() : i->getPath().getBaseName();
+	    
+	    // Add it to the name map
+	    if(NameMap.find(executable) == NameMap.end())
+		NameMap[executable] = 1;
+	    else
+		NameMap[executable]++;
+	}
 
-#if DEBUG_CLI
-      printf("In Most_Common_Executable, before  Thread t = *ti\n" );
-#endif
-      Thread t = *ti;
-#if DEBUG_CLI
-      printf("In Most_Common_Executable, before  t.getExecutable()\n" );
-#endif
-      std::pair<bool, LinkedObject> X = t.getExecutable(); // .getPath().getBaseName();
-#if DEBUG_CLI
-      printf("In Most_Common_Executable, after  t.getExecutable()\n" );
-      threadCount = threadCount + 1;
-      printf("In Most_Common_Executable, X.first=%d, threadCount=%d\n", X.first, threadCount);
-#endif
-      if (X.first == false) {
-        continue;
-      }
-      std::string ExName = (OPENSS_VIEW_FULLPATH || returnFullPath) ? X.second.getPath() : X.second.getPath().getBaseName();
-#if DEBUG_CLI
-      printf("In Most_Common_Executable, ExName.c_str()=%s\n", ExName.c_str());
-#endif
-      if (NameMap.find(ExName) != NameMap.end()) {
-       // Increment counts of the times the name has been seen.
-        NameMap[ExName]++;
-      } else {
-       // Add the name to the map.
-        NameMap[ExName] = 1;
-      }
+	// Build a new map that is sorted by frequency
+	std::multimap<int64_t, std::string> CountMap;
+	for(std::map<std::string, int64_t>::const_iterator
+		i = NameMap.begin(); i != NameMap.end(); ++i)
+	    CountMap.insert(std::make_pair(i->second, i->first));
+
+	// Provide the executable names to the caller, most common first
+	if(CountMap.empty())
+	    cmd->Result_String ("(none)");
+	else {
+	    for(std::multimap<int64_t, std::string>::reverse_iterator 
+		    i = CountMap.rbegin(); i != CountMap.rend(); ++i)
+		ExList.push_back(i->second);
+	}
+	
     }
-
-#if DEBUG_CLI
-      printf("In Most_Common_Executable, Build a new map that is sorted by frequency\n");
-#endif
-
-   // Build a new map that is sorted by frequency.
-    std::map<int64_t,std::string> CountMap;
-    for (std::map<std::string, int64_t>::iterator nmapi = NameMap.begin(); nmapi != NameMap.end(); nmapi ++) {
-      CountMap[(*nmapi).second] = (*nmapi).first;
+    catch (...) {
+	cmd->Result_String ("(error)");
     }
-
-#if DEBUG_CLI
-      printf("In Most_Common_Executable, CountMap.empty()=%d\n", CountMap.empty());
-#endif
-    if (CountMap.empty()) {
-      cmd->Result_String ("(none)");
-    } else {
-     // List the most frequenly used names first.
-      for (std::map<int64_t,std::string>::reverse_iterator cmapi = CountMap.rbegin();
-           cmapi != CountMap.rend(); cmapi++) {
-        ExList.push_back((*cmapi).second);
-      }
-    }
-
-  }
-  catch (...) {
-#if DEBUG_CLI
-      printf("In Most_Common_Executable, catch case block, return error\n");
-#endif
-    cmd->Result_String ("(error)");
-  }
-
 }
 
 /**

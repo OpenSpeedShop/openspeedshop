@@ -48,6 +48,18 @@ namespace {
 
 
     /**
+     * Symbol table map.
+     *
+     * Type defining a mapping from an address range to a symbol table for
+     * that address range along with the experiments for which that symbol
+     * table is currently unsent.
+     */
+    typedef std::map<AddressRange,
+	             std::pair<SymbolTable, ExperimentGroup> > SymbolTableMap;
+
+
+
+    /**
      * Get experiments for a process.
      *
      * Returns the group of experiments which contain the specified process.
@@ -208,6 +220,10 @@ void OpenSpeedShop::Framework::Dyninst::dynLibrary(BPatch_thread* thread,
     }
 #endif
 
+    // Ignore the callbacks for the Dyninst default module
+    if(linked_object.getPath() == "DEFAULT_MODULE")
+	return;
+    
     // Get the names for this process
     ThreadNameGroup threads = ThreadTable::TheTable.getNames(process);
         
@@ -228,9 +244,36 @@ void OpenSpeedShop::Framework::Dyninst::dynLibrary(BPatch_thread* thread,
 	    SentFilesTable::TheTable.getUnsent(linked_object,
 					       ExperimentGroup(threads));
 	if(!unsent.empty()) {
+
+	    // Get the Dyninst image pointer for this thread
+	    BPatch_image* image = process->getImage();
+	    Assert(image != NULL);
+
+	    // Get the list of modules in this thread
+	    BPatch_Vector<BPatch_module*>* modules = image->getModules();
+	    Assert(modules != NULL);
+
+	    // Symbol table for this module
+	    SymbolTable symbol_table(linked_object, range);
+
+	    // Iterate over each module in this thread
+	    for(int i = 0; i < modules->size(); ++i) {
+		module = (*modules)[i];
+		Assert(module != NULL);
+
+		// Get the address range of this module
+		begin = reinterpret_cast<uintptr_t>(module->getBaseAddr());
+		end = begin + module->getSize();
+		range = AddressRange(begin, end);
+		
+		// Add this module to the symbol table (if necessary)
+		if(range == symbol_table.getRange())
+		    symbol_table.addModule(*module);
+		
+	    }
 	    
 	    // Send the frontend the symbols for this linked object
-	    Senders::symbolTable(unsent, linked_object, SymbolTable(*module));
+	    Senders::symbolTable(unsent, linked_object, symbol_table);
 	    
 	    // These symbols are now sent for those experiments
 	    SentFilesTable::TheTable.addSent(linked_object, unsent);
@@ -847,7 +890,7 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
 	}
 	else if((type_name.find("char") != std::string::npos) ||
 		(type_name.find("int8_t") != std::string::npos) ||
-		(type_name == "<no type>")) {
+		(type_name == "<no type>") || (type_name == "")) {
 
 	    int8_t raw_value = 0;
 	    variable->readValue(&raw_value);
@@ -867,7 +910,7 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
 	}
 	else if((type_name.find("short") != std::string::npos) ||
 		(type_name.find("int16_t") != std::string::npos) ||
-		(type_name == "<no type>")) {
+		(type_name == "<no type>") || (type_name == "")) {
 
 	    int16_t raw_value = 0;
 	    variable->readValue(&raw_value);
@@ -889,7 +932,7 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
 	else if((type_name.find("int") != std::string::npos) ||
 		(type_name.find("long") != std::string::npos) ||
 		(type_name.find("int32_t") != std::string::npos) ||
-		(type_name == "<no type>")) {
+		(type_name == "<no type>") || (type_name == "")) {
 
 	    int32_t raw_value = 0;
 	    variable->readValue(&raw_value);
@@ -909,7 +952,7 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
 	}
 	else if((type_name.find("long long") != std::string::npos) ||
 		(type_name.find("int64_t") != std::string::npos) ||
-		(type_name == "<no type>")) {
+		(type_name == "<no type>") || (type_name == "")) {
 
 	    int64_t raw_value = 0;
 	    variable->readValue(&raw_value);
@@ -974,7 +1017,7 @@ void OpenSpeedShop::Framework::Dyninst::setGlobal(
 	}
 	else if((type_name.find("char") != std::string::npos) ||
 		(type_name.find("int8_t") != std::string::npos) ||
-		(type_name == "<no type>")) {
+		(type_name == "<no type>") || (type_name == "")) {
 
 	    int8_t raw_value = static_cast<int8_t>(value);
 	    variable->writeValue(&raw_value);
@@ -992,7 +1035,7 @@ void OpenSpeedShop::Framework::Dyninst::setGlobal(
 	}
 	else if((type_name.find("short") != std::string::npos) ||
 		(type_name.find("int16_t") != std::string::npos) ||
-		(type_name == "<no type>")) {
+		(type_name == "<no type>") || (type_name == "")) {
 
 	    int16_t raw_value = static_cast<int16_t>(value);
 	    variable->writeValue(&raw_value);
@@ -1012,7 +1055,7 @@ void OpenSpeedShop::Framework::Dyninst::setGlobal(
 	else if((type_name.find("int") != std::string::npos) ||
 		(type_name.find("long") != std::string::npos) ||
 		(type_name.find("int32_t") != std::string::npos) ||
-		(type_name == "<no type>")) {
+		(type_name == "<no type>") || (type_name == "")) {
 
 	    int32_t raw_value = static_cast<int32_t>(value);
 	    variable->writeValue(&raw_value);
@@ -1030,7 +1073,7 @@ void OpenSpeedShop::Framework::Dyninst::setGlobal(
 	}
 	else if((type_name.find("long long") != std::string::npos) ||
 		(type_name.find("int64_t") != std::string::npos) ||
-		(type_name == "<no type>")) {
+		(type_name == "<no type>") || (type_name == "")) {
 
 	    int64_t raw_value = static_cast<int64_t>(value);
 	    variable->writeValue(&raw_value);
@@ -1095,7 +1138,7 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
 
     if(((type_size == 4) || (type_size == 8)) &&
        ((type_name.find("char*") != std::string::npos) ||
-	(type_name == "<no type>"))) {
+	(type_name == "<no type>") || (type_name == ""))) {
 
 	std::string raw_value;
 	image->readString(variable, raw_value);	
@@ -1161,7 +1204,8 @@ void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
     // Can this variable be interpreted as a MPIR_PROCDESC pointer type?
 
     if((type_size == 4) &&
-       ((type_name == "MPIR_PROCDESC *") || (type_name == "<no_type>"))) {
+       ((type_name == "MPIR_PROCDESC *") || 
+	(type_name == "<no_type>") || (type_name == ""))) {
 
 	getMPICHProcTableImpl<uint32_t>(process, *variable,
 	 				MPIR_proctable_size.second, value);
@@ -1169,7 +1213,8 @@ void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
     }
 
     else if((type_size == 8) &&
-	    ((type_name == "MPIR_PROCDESC *") || (type_name == "<no_type>"))) {
+	    ((type_name == "MPIR_PROCDESC *") ||
+	     (type_name == "<no_type>") || (type_name == ""))) {
 
 	getMPICHProcTableImpl<uint64_t>(process, *variable,
 	 				MPIR_proctable_size.second, value);
@@ -1217,90 +1262,100 @@ void OpenSpeedShop::Framework::Dyninst::sendSymbolsForThread(
     BPatch_Vector<BPatch_module*>* modules = image->getModules();
     Assert(modules != NULL);
 
-    // Get the file name of the executable
-    FileName executable_linked_object(*image);
-
-    // Are there any experiments for which the executable is unsent?
-    ExperimentGroup executable_unsent = 
-	SentFilesTable::TheTable.getUnsent(executable_linked_object,
-					   ExperimentGroup(threads));
-
-    // Start with an empty address range and symbol table for the executable
-    AddressRange executable_range;
-    SymbolTable executable_symbol_table;
+    // File name of the executable and Dyninst's default module
+    FileName executable(*image), default_module("DEFAULT_MODULE");
+    
+    // Symbol tables under construction
+    SymbolTableMap symbol_tables;
 
     // Iterate over each module in this thread
     for(int i = 0; i < modules->size(); ++i) {
-	Assert((*modules)[i] != NULL);
-
+	BPatch_module* module = (*modules)[i];
+	Assert(module != NULL);
+	
+	// Get the file name of this module
+	FileName linked_object = 
+	    module->isSharedLib() ? FileName(*module) : executable;
+	
 	// Get the address range of this module
-	Address begin(reinterpret_cast<uintptr_t>(
-            (*modules)[i]->getBaseAddr()
-	    ));
-	Address end = begin + (*modules)[i]->getSize();
+	Address begin(reinterpret_cast<uintptr_t>(module->getBaseAddr()));
+	Address end = begin + module->getSize();
 	AddressRange range(begin, end);
+	
+	// Look for an existing symbol table for this module
+	SymbolTableMap::iterator j = symbol_tables.find(range);
 
-	// Is this module part of the executable?
-	if(!(*modules)[i]->isSharedLib()) {
+	// Create a new symbol table for this module if one doesn't exist
+	if(j == symbol_tables.end()) {
 
-	    // Add this module's address range to that of the executable
-	    executable_range |= range;
+	    j = symbol_tables.insert(std::make_pair(
+	        range,
+		std::make_pair(
+		    SymbolTable(linked_object, range),
+		    SentFilesTable::TheTable.getUnsent(
+		        linked_object, ExperimentGroup(threads)
+			)
+		    )
+		)).first;
+   
+	}
+	
+	//
+	// Replace this symbol table's linked object file name with the
+	// current one iff the symbol table's name is DEFAULT_MODULE and
+	// the current one is not. Also replace the experiments for which
+	// this symbol table is unsent.
+	// 
+
+	if((j->second.first.getLinkedObject() == default_module) &&
+	   (linked_object != default_module)) {
 	    
-	    // Are there any experiments for which the executable is unsent?
-	    if(!executable_unsent.empty()) {
+	    j->second.first.setLinkedObject(linked_object);
 
-		// Add this module's symbols to that of the executable
-		executable_symbol_table.addModule(*(*modules)[i]);
-	    
-	    }
+	    j->second.second = SentFilesTable::TheTable.getUnsent(
+			           linked_object, ExperimentGroup(threads)
+				   );
 
 	}
 
-	// Otherwise this module is a shared library
-	else {
+	// Are there any experiments for which the symbol table is unsent?
+	if(!j->second.second.empty()) {
 
-	    // Get the file name of this module
-	    FileName linked_object(*(*modules)[i]);
-
-	    // Send the frontend the initial "loaded" for this linked object
-	    Senders::loadedLinkedObject(threads, now, range,
-					linked_object, false);
-
-	    // Are there any experiments for which this linked object is unsent?
-	    ExperimentGroup unsent =
-		SentFilesTable::TheTable.getUnsent(linked_object,
-						   ExperimentGroup(threads));
-	    if(!unsent.empty()) {
-
-		// Send the frontend the symbols for this linked object
-		Senders::symbolTable(unsent, linked_object,
-				     SymbolTable(*(*modules)[i]));
-
-		// These symbols are now sent for those experiments
-		SentFilesTable::TheTable.addSent(linked_object, unsent);
-		
-	    }
-
+	    // Add this module to the symbol table
+	    j->second.first.addModule(*module);
+	    
 	}
 	
     }
 
-    // Send the frontend the initial "loaded" for the executable
-    Senders::loadedLinkedObject(threads, now, executable_range, 
-				executable_linked_object, true);
-    
-    // Are there any experiments for which the executable is unsent?
-    if(!executable_unsent.empty()) {
-	
-	// Send the frontend the symbols for the executable
-	Senders::symbolTable(executable_unsent,
-			     executable_linked_object,
-			     executable_symbol_table);
-	
-	// The executable is now sent for those experiments
-	SentFilesTable::TheTable.addSent(executable_linked_object,
-					 executable_unsent);
-	
+    // Iterate over each symbol table
+    for(SymbolTableMap::const_iterator 
+	    i = symbol_tables.begin(); i != symbol_tables.end(); ++i) {
+
+	// Send the frontend the initial "loaded" for the symbol tables
+	Senders::loadedLinkedObject(
+	    threads, now,
+	    i->second.first.getRange(),
+	    i->second.first.getLinkedObject(),
+	    (i->second.first.getLinkedObject() == executable)
+	    );
+
+	// Are there any experiments for which the symbol table are unsent?
+	if(!i->second.second.empty()) {
+
+	    // Send the frontend the symbols for this shared library
+	    Senders::symbolTable(
+		i->second.second,
+		i->second.first.getLinkedObject(), i->second.first
+		);
+	    
+	    // This shared library is now sent for those experiments
+	    SentFilesTable::TheTable.addSent(
+		i->second.first.getLinkedObject(), i->second.second
+		);
+	    
+	}
+
     }
 }
 

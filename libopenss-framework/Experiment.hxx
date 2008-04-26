@@ -147,6 +147,8 @@ namespace OpenSpeedShop { namespace Framework {
 			    const OutputCallback =
 			        OutputCallback(NULL, NULL)) const;
 
+	std::set<LinkedObject> getExecutables() const;
+
         int rerunCount;
 
         int setRerunCount(int count) {

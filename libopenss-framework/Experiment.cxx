@@ -1698,6 +1698,35 @@ void Experiment::prepareToRerun(const OutputCallback stdout_callback,
 
 
 /**
+ * Get our executables.
+ *
+ * Returns the set of linked objects which are executables. An empty set is
+ * returned if no executables can be found.
+ *
+ * @return    Executables in this experiment.
+ */
+std::set<LinkedObject> Experiment::getExecutables() const
+{
+    std::set<LinkedObject> executables;
+
+    // Find all the executables
+    BEGIN_TRANSACTION(dm_database);
+    dm_database->prepareStatement(
+	"SELECT id from LinkedObjects WHERE is_executable = 1;"
+	);
+    while(dm_database->executeStatement())
+	executables.insert(
+            LinkedObject(dm_database, dm_database->getResultAsInteger(1))
+	    );
+    END_TRANSACTION(dm_database);
+
+    // Return the executables to the caller
+    return executables;
+}
+
+
+
+/**
  * Attach to a job.
  *
  * Initiates attaches to the processes in the specified job <em>if</em> those

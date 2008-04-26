@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -63,13 +63,30 @@ namespace OpenSpeedShop { namespace Framework {
     {
 	
     public:
-	
-	SymbolTable();
-	SymbolTable(/* const */ BPatch_module&);
+
+	SymbolTable(const FileName&, const AddressRange&);
 	
 	void addModule(/* const */ BPatch_module&);
 	
 	operator OpenSS_Protocol_SymbolTable() const;
+
+	/** Set the file name of this symbol table's linked object. */
+	void setLinkedObject(const FileName& linked_object)
+	{
+	    dm_linked_object = linked_object;
+	}
+
+	/** Read-only data member accessor function. */
+	const FileName& getLinkedObject() const
+	{
+	    return dm_linked_object;
+	}
+
+	/** Read-only data member accessor function. */
+	const AddressRange& getRange() const
+	{
+	    return dm_range;
+	}
 	
     private:
 
@@ -78,6 +95,12 @@ namespace OpenSpeedShop { namespace Framework {
 
 	static void convert(const std::vector<AddressBitmap>&,
 			    u_int&, OpenSS_Protocol_AddressBitmap*&);
+
+	/** File name of this symbol table's linked object. */
+	FileName dm_linked_object;
+
+	/** Address range occupied by this symbol table. */
+	AddressRange dm_range;
 	
 	/** Table mapping function names to their address ranges. */
 	typedef std::map<std::string, std::vector<AddressRange> > FunctionTable;
