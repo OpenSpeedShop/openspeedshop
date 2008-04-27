@@ -1668,7 +1668,10 @@ bool SS_expClone (CommandObject *cmd) {
   // Do preparation to clone the existing experiment and prepare
   // the new experiments thread state etc for running.
 
-  output_experiment->prepareToRerun();
+  output_experiment->prepareToRerun(
+      OutputCallback(&ReDirect_User_Stdout, (void*)WindowID),
+      OutputCallback(&ReDirect_User_Stderr, (void*)WindowID)
+      );
 
  // When we allocate a new experiment, set the focus to point to it.
   (void)Experiment_Focus (WindowID, output_exp_id);
@@ -2157,7 +2160,13 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       } 
 #endif
 
-      experiment->prepareToRerun();
+      InputLineObject* clip = cmd->Clip();
+      CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+      experiment->prepareToRerun(
+          OutputCallback(&ReDirect_User_Stdout, (void*)WindowID),
+	  OutputCallback(&ReDirect_User_Stderr, (void*)WindowID)
+	  );
+
       exp->Q_Lock (cmd, false);
       exp->setStatus(ExpStatus_Paused);
       exp->Q_UnLock ();
