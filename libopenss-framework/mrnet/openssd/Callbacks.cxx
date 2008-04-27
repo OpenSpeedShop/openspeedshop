@@ -430,7 +430,7 @@ void Callbacks::createProcess(const Blob& blob)
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
 	    output << "[TID " << pthread_self() << "] Callbacks::"
-		   << "createProcess(): Process " << argv[0]
+		   << "createProcess(): Process " << args[0]
 		   << "  could not be created. Does the executable exist?"
 		   << std::endl;
 	    std::cerr << output.str();
