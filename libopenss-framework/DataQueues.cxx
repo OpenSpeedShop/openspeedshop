@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -217,7 +217,7 @@ namespace {
 	database->bindArgument(3, static_cast<pthread_t>(header.posix_tid));
 	while(database->executeStatement())
 	    thread = database->getResultAsInteger(1);
-	if (thread == 0) {
+	if(thread == 0) {
 	    database->prepareStatement(
 	        "SELECT id "
 		"FROM Threads "
@@ -230,6 +230,38 @@ namespace {
 	    while(database->executeStatement())
 		thread = database->getResultAsInteger(1); 
 	}
+
+	//
+	// TEMPORARY HACK (WDH APR-26-2008)
+	//
+	// The following code temporarily handles the fact that we are seeing
+	// forked processes for which Dyninst provides a TID of zero, and the
+	// thread's database entry is created with posix_tid=0. Later when the
+	// collector applies a TID to the performance data blob, it finds the
+	// real TID and uses it. Thus the TIDs don't match and this function
+	// tosses the data.
+	//
+	// I believe Dyninst's reporting of the TID is in error and needs to
+	// be fixed. But until then, we'll assume that only the first thread
+	// in each process may be misidentified, and if are unable to find an
+	// appropriate thread using the usual means above, we'll accept one
+	// that has posix_tid=0 (iff the host name and PID match correctly).
+	//
+	if(thread == 0) {
+	    database->prepareStatement(
+	        "SELECT id "
+		"FROM Threads "
+		"WHERE host = ? "
+		"  AND pid = ? "
+		"  AND posix_tid = ?;"
+		);
+	    database->bindArgument(1, host);
+	    database->bindArgument(2, static_cast<int>(header.pid));
+	    database->bindArgument(3, static_cast<pthread_t>(0));
+	    while(database->executeStatement())
+		thread = database->getResultAsInteger(1); 
+	}
+
 	if(thread == 0)
 	    ignore_data = true;
 
