@@ -62,9 +62,11 @@ namespace {
     {
 	// Allocate an appropriately sized array of job entries
 	out.entries.entries_len = in.size();
-	out.entries.entries_val = new OpenSS_Protocol_JobEntry[
-            std::max(static_cast<Job::size_type>(1), in.size())
-	    ];
+	out.entries.entries_val = 
+	    reinterpret_cast<OpenSS_Protocol_JobEntry*>(malloc(
+		std::max(static_cast<Job::size_type>(1), in.size()) *
+		sizeof(OpenSS_Protocol_JobEntry)
+		));
 
 	// Iterate over each entry of this job
 	OpenSS_Protocol_JobEntry* ptr = out.entries.entries_val;

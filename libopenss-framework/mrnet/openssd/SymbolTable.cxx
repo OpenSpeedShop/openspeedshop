@@ -242,9 +242,12 @@ SymbolTable::operator OpenSS_Protocol_SymbolTable() const
 
     // Allocate an appropriately sized array of functions
     object.functions.functions_len = dm_functions.size();
-    object.functions.functions_val = new OpenSS_Protocol_FunctionEntry[
-	std::max(static_cast<FunctionTable::size_type>(1), dm_functions.size())
-        ];
+    object.functions.functions_val =
+	reinterpret_cast<OpenSS_Protocol_FunctionEntry*>(malloc(
+	    std::max(static_cast<FunctionTable::size_type>(1),
+		     dm_functions.size()) *
+	    sizeof(OpenSS_Protocol_FunctionEntry)
+	    ));
 	
     // Iterate over all the functions in this symbol table
     int idx = 0;
@@ -266,11 +269,13 @@ SymbolTable::operator OpenSS_Protocol_SymbolTable() const
 
     // Allocate an appropriately sized array of statements
     object.statements.statements_len = dm_statements.size();
-    object.statements.statements_val = new OpenSS_Protocol_StatementEntry[
-	std::max(static_cast<StatementTable::size_type>(1),
-		 dm_statements.size())
-        ];
-
+    object.statements.statements_val =
+	reinterpret_cast<OpenSS_Protocol_StatementEntry*>(malloc(
+	    std::max(static_cast<StatementTable::size_type>(1),
+		     dm_statements.size()) *
+	    sizeof(OpenSS_Protocol_StatementEntry)
+	    ));
+    
     // Iterate over all the statements in this symbol table
     idx = 0;
     for(StatementTable::const_iterator
@@ -436,11 +441,13 @@ void SymbolTable::convert(const std::vector<AddressBitmap>& bitmaps,
 {
     // Allocate an appropriately sized array of bitmaps
     bitmaps_len = bitmaps.size();
-    bitmaps_val = new OpenSS_Protocol_AddressBitmap[
-        std::max(static_cast<std::vector<AddressBitmap>::size_type>(1),
-		 bitmaps.size())
-        ];
-
+    bitmaps_val = 
+	reinterpret_cast<OpenSS_Protocol_AddressBitmap*>(malloc(
+            std::max(static_cast<std::vector<AddressBitmap>::size_type>(1),
+		     bitmaps.size()) *
+	    sizeof(OpenSS_Protocol_AddressBitmap)
+	    ));
+    
     // Iterate over all the bitmaps
     for(std::vector<AddressBitmap>::size_type i = 0; i < bitmaps.size(); ++i) {
 	OpenSS_Protocol_AddressBitmap& entry = bitmaps_val[i];

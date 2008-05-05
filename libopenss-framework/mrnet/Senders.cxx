@@ -104,10 +104,12 @@ namespace {
     {
 	// Allocate an appropriately sized array of thread entries
 	out.names.names_len = in.size();
-	out.names.names_val = new OpenSS_Protocol_ThreadName[
-	    std::max(static_cast<ThreadGroup::size_type>(1), in.size())
-	    ];
-
+	out.names.names_val = 
+	    reinterpret_cast<OpenSS_Protocol_ThreadName*>(malloc(
+	        std::max(static_cast<ThreadGroup::size_type>(1), in.size()) *
+		sizeof(OpenSS_Protocol_ThreadName)
+		));
+	
 	// Iterate over each thread of this group
 	OpenSS_Protocol_ThreadName* ptr = out.names.names_val;
 	for(ThreadGroup::const_iterator

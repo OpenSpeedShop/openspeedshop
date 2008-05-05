@@ -314,7 +314,7 @@ Path OpenSpeedShop::Framework::searchForLibrary(const Path& library)
  */
 void OpenSpeedShop::Framework::convert(const std::string& in, char*& out)
 {
-    out = new char[in.size() + 1];
+    out = reinterpret_cast<char*>(malloc((in.size() + 1) * sizeof(char)));
     strcpy(out, in.c_str());
 }
 
@@ -336,9 +336,9 @@ void OpenSpeedShop::Framework::convert(const Blob& in,
 				       OpenSS_Protocol_Blob& out)
 {
     out.data.data_len = in.getSize();
-    out.data.data_val = new uint8_t[
-        std::max(static_cast<unsigned>(1), in.getSize())
-        ];
+    out.data.data_val = reinterpret_cast<uint8_t*>(malloc(
+        std::max(static_cast<unsigned>(1), in.getSize()) * sizeof(char)
+	));
     if(in.getSize() > 0)
 	memcpy(out.data.data_val, in.getContents(), in.getSize());
 }

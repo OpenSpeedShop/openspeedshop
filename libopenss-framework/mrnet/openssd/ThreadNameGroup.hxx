@@ -105,9 +105,11 @@ namespace OpenSpeedShop { namespace Framework {
 	{
 	    OpenSS_Protocol_ThreadNameGroup object;
 	    object.names.names_len = size();
-	    object.names.names_val = new OpenSS_Protocol_ThreadName[
-                std::max(static_cast<size_type>(1), size())
-	        ];
+	    object.names.names_val =
+		reinterpret_cast<OpenSS_Protocol_ThreadName*>(malloc(
+                    std::max(static_cast<size_type>(1), size()) *
+		    sizeof(OpenSS_Protocol_ThreadName)
+		    ));
 	    int idx = 0;
 	    for(ThreadNameGroup::const_iterator
 		    i = begin(); i != end(); ++i, ++idx)
