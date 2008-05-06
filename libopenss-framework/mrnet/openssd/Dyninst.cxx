@@ -142,6 +142,17 @@ namespace {
 	T base_addr = 0;
 	MPIR_proctable.readValue(&base_addr);
 
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Dyninst::"
+	       << "getMPICHProcTableImpl(PID=" << process.getPid() 
+	       << " MPIR_proctable_size=" << MPIR_proctable_size
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
 	// Iterate over each entry in the table
 	for(int64_t i = 0; i < MPIR_proctable_size; ++i) {
 
@@ -160,6 +171,17 @@ namespace {
 	    std::string host_name;
 	    image->readString(raw_value.host_name, host_name);
 
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Dyninst::"
+	       << "getMPICHProcTableImpl(PID=" << process.getPid() 
+	       << " host_name=" << host_name << " i=" << i
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
 	    // Add this entry to the job value
 	    value.second.push_back(std::make_pair(host_name, raw_value.pid));
 
@@ -167,7 +189,17 @@ namespace {
 
 	// Inform the caller that the table was successfully read
 	value.first = true;
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] EXITTING Dyninst::"
+	       << "getMPICHProcTableImpl(PID=" << process.getPid() 
+	       << " table was successfully read==value.first=" << value.first 
+	       << std::endl;
+	std::cerr << output.str();
     }
+#endif
+  }
 
 
 
@@ -1220,6 +1252,21 @@ void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
 	 				MPIR_proctable_size.second, value);
 
     }
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] EXITTING Dyninst::"
+	       << "getMPICHProcTable(PID " << process.getPid() 
+#if 0
+	       << ", <reference>): type_name = \"" << type_name
+	       << "\", type_size = " << type_size << std::endl;
+#else
+	       << std::endl;
+#endif
+	std::cerr << output.str();
+    }
+#endif
+
 }
 
 

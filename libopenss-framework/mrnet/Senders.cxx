@@ -635,6 +635,15 @@ void Senders::getGlobalString(const Thread& thread, const std::string& global)
  */
 void Senders::getMPICHProcTable(const Thread& thread, const std::string& global)
 {
+    
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Enter Senders::getMPICHProcTable";
+	std::cerr << output.str();
+    }
+#endif
+
     // Assemble the request into a message
     OpenSS_Protocol_GetMPICHProcTable message;
     ::convert(thread, message.thread);
@@ -658,8 +667,28 @@ void Senders::getMPICHProcTable(const Thread& thread, const std::string& global)
     // Send the encoded message to the appropriate backends
     OpenSS_Protocol_ThreadNameGroup threads;
     ::convert(thread, threads);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::getMPICHProcTable, BEFORE calling Frontend::sendToBackends with OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE\n";
+	std::cerr << output.str();
+    }
+#endif
+
     Frontend::sendToBackends(OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE,
 			     blob, threads);
+
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::getMPICHProcTable, AFTER calling Frontend::sendToBackends with OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE\n";
+	std::cerr << output.str();
+    }
+#endif
+
+
     xdr_free(
 	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_ThreadNameGroup),
 	reinterpret_cast<char*>(&threads)
@@ -689,6 +718,15 @@ void Senders::setGlobalInteger(const Thread& thread,
 			       const std::string& global,
 			       const int64_t& value)
 {
+    
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Enter Senders::setGlobalInteger";
+	std::cerr << output.str();
+    }
+#endif
+
     // Assemble the request into a message
     OpenSS_Protocol_SetGlobalInteger message;
     ::convert(thread, message.thread);
