@@ -163,6 +163,9 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
   WatcherThreadTable::FileInfoEntry currentFileEntryInfo;
   std::set<pid_t> PidSet; 
   pid_t pid_to_monitor=0; 
+#if 1
+  char data_dirname[PATH_MAX];
+#endif
 
 #ifndef NDEBUG
   if (Watcher::isDebugEnabled ())
@@ -262,7 +265,19 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
       // Once found, while through the directory looking for openss-data
       // type files.
 
+
+#if 1
+      if (getenv("OPENSS_RAWDATA_DIR") != NULL) {
+          sprintf(data_dirname,"%s",getenv("OPENSS_RAWDATA_DIR"));
+      } else {
+          sprintf(data_dirname,"%s","/tmp");
+      }
+
+      DIR * slashtmp_dirhandle = opendir (data_dirname);
+#else
       DIR * slashtmp_dirhandle = opendir ("/tmp");
+#endif
+
 
       if (slashtmp_dirhandle)
 	{
