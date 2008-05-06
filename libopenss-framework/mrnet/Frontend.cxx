@@ -40,6 +40,9 @@
 
 using namespace OpenSpeedShop::Framework;
 
+// Uncomment and recompile if you want to run valgrind on the openssd daemon
+//#define OPENSS_RUN_VALGRIND
+//
 
 
 namespace {
@@ -271,6 +274,10 @@ void Frontend::startMessagePump(const Path& topology_file)
 
     // Construct the arguments to the MRNet backend
     std::vector<std::string> args;
+#if OPENSS_RUN_VALGRIND
+    args.push_back("--log-file=openssd-valgrind");
+    args.push_back("openssd");
+#endif
     if(is_backend_debug_enabled)
 	args.push_back("--debug");
     if(is_perfdata_debug_enabled)
@@ -287,8 +294,13 @@ void Frontend::startMessagePump(const Path& topology_file)
     argv[args.size()] = NULL;
 
     // Initialize MRNet (participating as the frontend)
+#if OPENSS_RUN_VALGRIND
+    network = new MRN::Network(topology_file.getNormalized().c_str(),
+			       "valgrind", argv);
+#else
     network = new MRN::Network(topology_file.getNormalized().c_str(),
 			       "openssd", argv);
+#endif
     if(network->fail())
 	throw std::runtime_error("Unable to initialize MRNet.");
 
