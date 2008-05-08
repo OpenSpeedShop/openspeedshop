@@ -274,7 +274,7 @@ void Frontend::startMessagePump(const Path& topology_file)
 
     // Construct the arguments to the MRNet backend
     std::vector<std::string> args;
-#if OPENSS_RUN_VALGRIND
+#ifdef OPENSS_RUN_VALGRIND
     args.push_back("--log-file=openssd-valgrind");
     args.push_back("openssd");
 #endif
@@ -294,7 +294,7 @@ void Frontend::startMessagePump(const Path& topology_file)
     argv[args.size()] = NULL;
 
     // Initialize MRNet (participating as the frontend)
-#if OPENSS_RUN_VALGRIND
+#ifdef OPENSS_RUN_VALGRIND
     network = new MRN::Network(topology_file.getNormalized().c_str(),
 			       "valgrind", argv);
 #else
