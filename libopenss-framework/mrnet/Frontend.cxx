@@ -271,13 +271,19 @@ void Frontend::startMessagePump(const Path& topology_file)
     is_perfdata_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_PERFDATA") != NULL);
     is_stdio_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_STDIO") != NULL);
     is_symbols_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_SYMBOLS") != NULL);
+    bool is_mrnet_tracing_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_TRACING") != NULL);
 
     // Construct the arguments to the MRNet backend
     std::vector<std::string> args;
+
+    // If you want to run with valgrind, enable the define for OPENSS_RUN_VALGRIND above
+    // of add a -DOPENSS_RUN_VALGRIND to the compile line in the Makefile
+    // These lines define the arguments to valgrind
 #ifdef OPENSS_RUN_VALGRIND
     args.push_back("--log-file=openssd-valgrind");
     args.push_back("openssd");
 #endif
+
     if(is_backend_debug_enabled)
 	args.push_back("--debug");
     if(is_perfdata_debug_enabled)
@@ -293,7 +299,25 @@ void Frontend::startMessagePump(const Path& topology_file)
 	argv[i] = args[i].c_str();
     argv[args.size()] = NULL;
 
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+        std::stringstream output;
+        output << "[TID " << pthread_self() << "] Frontend::startMessagePump "
+               << " topology_file.getNormalized().c_str()=" << topology_file.getNormalized().c_str();
+        std::cerr << output.str();
+    }
+#endif
+
+#ifndef NDEBUG
+    if(is_mrnet_tracing_debug_enabled) {
+       MRN::set_OutputLevel(5);
+    }
+#endif
+
     // Initialize MRNet (participating as the frontend)
+
+    // If you want to run with valgrind, enable the define for OPENSS_RUN_VALGRIND above
+    // of add a -DOPENSS_RUN_VALGRIND to the compile line in the Makefile
 #ifdef OPENSS_RUN_VALGRIND
     network = new MRN::Network(topology_file.getNormalized().c_str(),
 			       "valgrind", argv);
@@ -301,6 +325,7 @@ void Frontend::startMessagePump(const Path& topology_file)
     network = new MRN::Network(topology_file.getNormalized().c_str(),
 			       "openssd", argv);
 #endif
+
     if(network->fail())
 	throw std::runtime_error("Unable to initialize MRNet.");
 
