@@ -20,7 +20,6 @@ SUBDIRS	= watcher
 bin_PROGRAMS = openssd
 
 openssd_CXXFLAGS = \
-	-g -O0 \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-framework/mrnet/common \
 	-I$(top_srcdir)/libopenss-framework/mrnet/openssd/watcher \
