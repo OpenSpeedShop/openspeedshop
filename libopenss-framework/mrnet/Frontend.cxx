@@ -301,10 +301,8 @@ void Frontend::startMessagePump(const Path& topology_file)
 
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
-        std::stringstream output;
-        output << "[TID " << pthread_self() << "] Frontend::startMessagePump "
-               << " topology_file.getNormalized().c_str()=" << topology_file.getNormalized().c_str();
-        std::cerr << output.str();
+        std::cout << "[TID " << pthread_self() << "] Frontend::startMessagePump "
+               << " topology_file.getNormalized().c_str()=" << topology_file.getNormalized().c_str() << std::endl;
     }
 #endif
 
