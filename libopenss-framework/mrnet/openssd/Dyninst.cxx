@@ -121,7 +121,7 @@ namespace {
         /* const */ BPatch_process& process,
 	/* const */ BPatch_variableExpr& MPIR_proctable,
 	const int64_t& MPIR_proctable_size,
-	std::pair<bool, Job>& value
+	std::pair<bool, Job>* value
         )
     {
 	// Define type for an entry in the table
@@ -131,8 +131,12 @@ namespace {
 	    int pid;              /* The pid of the process */
 	} MPIR_PROCDESC;
 
+	// fix memory coruption seen on FC8 systems and on YellowRail.
+	// Passing value as a pointer now.  Initialized by caller.
+	//
 	// Initially assume the table will not be read properly
-	value = std::make_pair(false, Job());
+	//Job job;
+	//value = std::make_pair(false, job);
 
 	// Get the image pointer for this process
 	BPatch_image* image = process.getImage();
@@ -183,22 +187,32 @@ namespace {
 #endif
 
 	    // Add this entry to the job value
+#if 0
 	    value.second.push_back(std::make_pair(host_name, raw_value.pid));
+#else
+	    // May not need this if passing value as a pointer
+	    // indeed fixes the memory coruption seen on FC8 systems
+	    // and on YellowRail.
+	    std::pair<std::string,int> mpich_ptable_entry =
+		std::make_pair(host_name, raw_value.pid);
+	    value->second.push_back(mpich_ptable_entry);
+#endif
 
 	}
 
 	// Inform the caller that the table was successfully read
-	value.first = true;
+	value->first = true;
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] EXITTING Dyninst::"
-	       << "getMPICHProcTableImpl(PID=" << process.getPid() 
-	       << " table was successfully read==value.first=" << value.first 
+	       << "getMPICHProcTableImpl(PID=" << process.getPid()
+	       << " table was successfully read==value.first=" <<  value->first
 	       << std::endl;
 	std::cerr << output.str();
     }
 #endif
+
   }
 
 
@@ -484,6 +498,28 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
     Assert(parent != NULL);
     Assert(child != NULL);
 
+    // FIXME: This should be changed to allow client
+    // to decide when to follow fork and when not to.
+    // Currently dyninst fails to follow fork with openmpi
+    // on FC8 systems. Crashes in orted.
+    // Additionally, LLNL has requested that we not follow
+    // forks during mpi startup (or make this optional).
+    // Since we do not gather any data during mpi startup
+    // (running up to the MPIR_Breakpoint), we may want to
+    // just ignore forked processes anyways. The framework
+    // has the instrumentor calls setMPIStartup and inMPIStartup
+    // which may be useful to flag when to do the detach
+    // on the forked child below rather than use this if 1.
+#if 1
+    if(child != NULL) {
+	// detach here from child.
+        BPatch_process *bp_fork_child_process = NULL;
+        bp_fork_child_process = child->getProcess();
+        bp_fork_child_process->detach(true);
+    }
+
+#else
+
     // Get the Dyninst process pointers for these threads
     BPatch_process* parent_process = parent->getProcess();
     Assert(parent_process != NULL);
@@ -540,6 +576,7 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
         Senders::threadsStateChanged(threads_forked, Running);
     }
     
+#endif
     // TODO: copy instrumentation from the parent process to the child process 
 }
 
@@ -1201,7 +1238,8 @@ void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
     )
 {
     // Initially assume the table will not be found
-    value = std::make_pair(false, Job());
+    Job job;
+    value = std::make_pair(false, job);
 
     // Find the value of "MPIR_proctable_size"
     std::pair<bool, int64_t> MPIR_proctable_size;
@@ -1240,7 +1278,7 @@ void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
 	(type_name == "<no_type>") || (type_name == ""))) {
 
 	getMPICHProcTableImpl<uint32_t>(process, *variable,
-	 				MPIR_proctable_size.second, value);
+	 				MPIR_proctable_size.second, &value);
 
     }
 
@@ -1249,7 +1287,7 @@ void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
 	     (type_name == "<no_type>") || (type_name == ""))) {
 
 	getMPICHProcTableImpl<uint64_t>(process, *variable,
-	 				MPIR_proctable_size.second, value);
+	 				MPIR_proctable_size.second, &value);
 
     }
 #ifndef NDEBUG
