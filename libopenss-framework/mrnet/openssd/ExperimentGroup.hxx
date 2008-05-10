@@ -96,9 +96,16 @@ namespace OpenSpeedShop { namespace Framework {
 	{
 	    OpenSS_Protocol_ExperimentGroup object;
 	    object.experiments.experiments_len = size();
+#if 0
 	    object.experiments.experiments_val = new OpenSS_Protocol_Experiment[
 	        std::max(static_cast<size_type>(1), size())
 	        ];
+#else
+	    OpenSS_Protocol_Experiment *p_exp_malloc = (OpenSS_Protocol_Experiment*)
+		malloc(std::max(static_cast<size_type>(1), size()));
+
+	    object.experiments.experiments_val = p_exp_malloc;
+#endif
 	    int idx = 0;
 	    for(ExperimentGroup::const_iterator
 		    i = begin(); i != end(); ++i, ++idx)
