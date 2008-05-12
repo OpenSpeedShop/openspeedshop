@@ -154,7 +154,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
   struct timespec wait;
   char directoryName[1024];
   struct dirent * direntry;
-  struct dirent * slashtmp_direntry;
+  struct dirent * perfdata_direntry;
   XDR xdrs;
   std::string host = "";
   unsigned int blobsize = 0;
@@ -225,29 +225,6 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 #endif
             pid_to_monitor = *i;
 
-#if 0
-      // Get all the threads that are currently open during this session
-      // Haven't found a use for this yet.  - jeg
-
-      WatcherThreadTable::VProcessThreadId threads;
-      threads = WatcherThreadTable::TheTable.getAllThreads ();
-
-      printf
-	("Watcher::fileIOMonitorThread, threads to look for threads.size()=%d\n",
-	 threads.size ());
-      for (int i = 0; i < threads.size (); ++i)
-	{
-	  printf
-	    ("Watcher::fileIOMonitorThread, threads to look for, i=%d, threads.size()=%d\n",
-	     i, threads.size ());
-	  printf
-	    ("Watcher::fileIOMonitorThread, threads[i].first=%ld, threads[i].second=%d\n",
-	     threads[i].first, threads[i].second);
-
-	}
-#endif
-
-
       // Search given directory for files with the openss-data suffix
       // When we find a openss data file, keep track of several items per file.
       // We will be reading from this file when the size of the blob and the blob bytes
@@ -273,23 +250,23 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
           sprintf(data_dirname,"%s","/tmp");
       }
 
-      DIR * slashtmp_dirhandle = opendir (data_dirname);
+      DIR * perfdata_dirhandle = opendir (data_dirname);
 #else
-      DIR * slashtmp_dirhandle = opendir ("/tmp");
+      DIR * perfdata_dirhandle = opendir ("/tmp");
 #endif
 
 
-      if (slashtmp_dirhandle)
+      if (perfdata_dirhandle)
 	{
 
-	  while ((slashtmp_direntry = readdir (slashtmp_dirhandle)) != NULL)
+	  while ((perfdata_direntry = readdir (perfdata_dirhandle)) != NULL)
 	    {
 
-	      if (strstr (slashtmp_direntry->d_name, "openss-rawdata-"))
+	      if (strstr (perfdata_direntry->d_name, "openss-rawdata-"))
 		{
 
 		  sprintf (directoryName, "/tmp/%s",
-			   slashtmp_direntry->d_name);
+			   perfdata_direntry->d_name);
 
 		  DIR * dirhandle = opendir (directoryName);
 
@@ -610,8 +587,9 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 		    }		// end if dirhandle
 
 		}		// end if openss-rawdata- match
-	    }			// while slashtmp_dirhandle
-	}			// end if slashtmp_dirhandle
+	    }			// while perfdata_dirhandle
+          closedir (perfdata_dirhandle);
+	}			// end if perfdata_dirhandle
      } // PidSet loop
     } // PidSet > 0 if
 
