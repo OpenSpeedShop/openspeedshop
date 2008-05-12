@@ -42,10 +42,6 @@
 
 using namespace OpenSpeedShop::Framework;
 
-// Uncomment and recompile if you want to run valgrind on the openssd daemon
-//#define OPENSS_RUN_VALGRIND
-//
-
 
 namespace {
 
@@ -274,17 +270,18 @@ void Frontend::startMessagePump(const Path& topology_file)
     is_stdio_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_STDIO") != NULL);
     is_symbols_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_SYMBOLS") != NULL);
     bool is_mrnet_tracing_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_TRACING") != NULL);
+    bool is_valgrind_tracing_debug_enabled = (getenv("OPENSS_DEBUG_OPENSSD_VALGRIND") != NULL);
 
     // Construct the arguments to the MRNet backend
     std::vector<std::string> args;
 
-    // If you want to run with valgrind, enable the define for OPENSS_RUN_VALGRIND above
-    // of add a -DOPENSS_RUN_VALGRIND to the compile line in the Makefile
+    // If you want to run with valgrind, set the OPENSS_DEBUG_OPENSSD_VALGRIND env variable
     // These lines define the arguments to valgrind
-#ifdef OPENSS_RUN_VALGRIND
-    args.push_back("--log-file=openssd-valgrind");
-    args.push_back("openssd");
-#endif
+    if (is_valgrind_tracing_debug_enabled) {
+//      args.push_back("-v --trace-children=yes --log-file=openssd-valgrind");
+      args.push_back("--log-file=openssd-valgrind");
+      args.push_back("openssd");
+    }
 
     if(is_backend_debug_enabled)
 	args.push_back("--debug");
@@ -318,15 +315,15 @@ void Frontend::startMessagePump(const Path& topology_file)
 
     // Initialize MRNet (participating as the frontend)
 
-    // If you want to run with valgrind, enable the define for OPENSS_RUN_VALGRIND above
-    // of add a -DOPENSS_RUN_VALGRIND to the compile line in the Makefile
-#ifdef OPENSS_RUN_VALGRIND
-    network = new MRN::Network(topology_file.getNormalized().c_str(),
-			       "valgrind", argv);
-#else
-    network = new MRN::Network(topology_file.getNormalized().c_str(),
+    // If you want to run with valgrind, set the OPENSS_DEBUG_OPENSSD_VALGRIND env variable
+    
+    if (is_valgrind_tracing_debug_enabled) {
+      network = new MRN::Network(topology_file.getNormalized().c_str(),
+  			       "valgrind", argv);
+    } else {
+      network = new MRN::Network(topology_file.getNormalized().c_str(),
 			       "openssd", argv);
-#endif
+    }
 
     if(network->fail())
 	throw std::runtime_error("Unable to initialize MRNet.");
