@@ -37,6 +37,8 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <iostream>
+#include <sstream>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -301,8 +303,10 @@ void Frontend::startMessagePump(const Path& topology_file)
 
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
-        std::cout << "[TID " << pthread_self() << "] Frontend::startMessagePump "
+        std::stringstream output;
+        output << "[TID " << pthread_self() << "] Frontend::startMessagePump "
                << " topology_file.getNormalized().c_str()=" << topology_file.getNormalized().c_str() << std::endl;
+        std::cerr << output.str();
     }
 #endif
 
