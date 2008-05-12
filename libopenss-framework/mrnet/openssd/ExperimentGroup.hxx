@@ -102,7 +102,9 @@ namespace OpenSpeedShop { namespace Framework {
 	        ];
 #else
 	    OpenSS_Protocol_Experiment *p_exp_malloc = (OpenSS_Protocol_Experiment*)
-		malloc(std::max(static_cast<size_type>(1), size()));
+//		malloc(std::max(static_cast<size_type>(1), size()));
+                malloc(std::max(static_cast<size_type>(1), size()) * sizeof(OpenSS_Protocol_Experiment));
+
 
 	    object.experiments.experiments_val = p_exp_malloc;
 #endif
