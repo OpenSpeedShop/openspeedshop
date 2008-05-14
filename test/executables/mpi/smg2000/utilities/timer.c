@@ -20,6 +20,7 @@
 
 #include <time.h>
 #include <sys/times.h>
+#include <unistd.h>
 #ifdef TIMER_USE_MPI
 #include "mpi.h"
 #endif
@@ -35,7 +36,7 @@ double time_getWallclockSeconds(void)
 #else
    struct tms usage;
    long wallclock = times(&usage);
-   return(((double) wallclock)/((double) CLK_TCK));
+   return(((double) wallclock)/((double) sysconf(_SC_CLK_TCK)));
 #endif
 
 #endif
@@ -48,7 +49,7 @@ double time_getCPUSeconds(void)
 #else
    struct tms usage;
    (void) times(&usage);
-   return(((double) (usage.tms_utime+usage.tms_stime))/((double) CLK_TCK));
+   return(((double) (usage.tms_utime+usage.tms_stime))/((double) sysconf(_SC_CLK_TCK)));
 #endif
 }
 
