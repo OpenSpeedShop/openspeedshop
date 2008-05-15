@@ -927,18 +927,13 @@ void Callbacks::getMPICHProcTable(const Blob& blob)
     Assert(process != NULL);
 
     // Get the global variable
+#ifdef USE_CPP_STYLE_JOB
     std::pair<bool, Job> value = std::make_pair(false, Job());
-    Dyninst::getMPICHProcTable(*process, value);
-
-#ifndef NDEBUG
-	if(Backend::isDebugEnabled()) {
-	    std::stringstream output;
-	    output << "[TID " << pthread_self() << "] Callbacks::"
-		   << "getMPICHProcTable(): after Dyninst::getMPICHProcTable, value.first=" << value.first
-		   << std::endl;
-	    std::cerr << output.str();
-	}
+#else
+    std::pair<bool, OpenSS_Protocol_Job> value = 
+	std::make_pair(false, OpenSS_Protocol_Job());
 #endif
+    Dyninst::getMPICHProcTable(*process, value);
 
     // Send the frontend a message with the value (if found) of the variable
     Senders::globalJobValue(message.thread, message.global,

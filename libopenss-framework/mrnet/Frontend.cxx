@@ -43,6 +43,7 @@
 using namespace OpenSpeedShop::Framework;
 
 
+
 namespace {
 
     // Note: It would seemingly make more sense for the following to be a
@@ -269,20 +270,19 @@ void Frontend::startMessagePump(const Path& topology_file)
     is_perfdata_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_PERFDATA") != NULL);
     is_stdio_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_STDIO") != NULL);
     is_symbols_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_SYMBOLS") != NULL);
-    bool is_mrnet_tracing_debug_enabled = (getenv("OPENSS_DEBUG_MRNET_TRACING") != NULL);
-    bool is_valgrind_tracing_debug_enabled = (getenv("OPENSS_DEBUG_OPENSSD_VALGRIND") != NULL);
+    bool is_tracing_debug_enabled = 
+	(getenv("OPENSS_DEBUG_MRNET_TRACING") != NULL);
+    bool is_valgrind_debug_enabled = 
+	(getenv("OPENSS_DEBUG_MRNET_VALGRIND") != NULL);
 
     // Construct the arguments to the MRNet backend
+    std::string executable =
+	is_valgrind_debug_enabled ? "valgrind" : "openssd";
     std::vector<std::string> args;
-
-    // If you want to run with valgrind, set the OPENSS_DEBUG_OPENSSD_VALGRIND env variable
-    // These lines define the arguments to valgrind
-    if (is_valgrind_tracing_debug_enabled) {
-//      args.push_back("-v --trace-children=yes --log-file=openssd-valgrind");
-      args.push_back("--log-file=openssd-valgrind");
-      args.push_back("openssd");
+    if(is_valgrind_debug_enabled) {
+	args.push_back("--log-file=/tmp/openssd-valgrind");
+	args.push_back("openssd");
     }
-
     if(is_backend_debug_enabled)
 	args.push_back("--debug");
     if(is_perfdata_debug_enabled)
@@ -301,30 +301,18 @@ void Frontend::startMessagePump(const Path& topology_file)
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
         std::stringstream output;
-        output << "[TID " << pthread_self() << "] Frontend::startMessagePump "
-               << " topology_file.getNormalized().c_str()=" << topology_file.getNormalized().c_str() << std::endl;
+        output << "[TID " << pthread_self() << "] Frontend::"
+	       << "startMessagePump() using MRNet topology file \""
+	       << topology_file.getNormalized() << "\"." << std::endl;
         std::cerr << output.str();
     }
 #endif
 
-#ifndef NDEBUG
-    if(is_mrnet_tracing_debug_enabled) {
-       MRN::set_OutputLevel(5);
-    }
-#endif
-
     // Initialize MRNet (participating as the frontend)
-
-    // If you want to run with valgrind, set the OPENSS_DEBUG_OPENSSD_VALGRIND env variable
-    
-    if (is_valgrind_tracing_debug_enabled) {
-      network = new MRN::Network(topology_file.getNormalized().c_str(),
-  			       "valgrind", argv);
-    } else {
-      network = new MRN::Network(topology_file.getNormalized().c_str(),
-			       "openssd", argv);
-    }
-
+    if(is_tracing_debug_enabled)
+	MRN::set_OutputLevel(5);
+    network = new MRN::Network(topology_file.getNormalized().c_str(),
+  			       executable.c_str(), argv);
     if(network->fail())
 	throw std::runtime_error("Unable to initialize MRNet.");
 

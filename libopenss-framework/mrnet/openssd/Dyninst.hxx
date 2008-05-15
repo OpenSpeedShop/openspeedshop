@@ -29,7 +29,11 @@
 #include "config.h"
 #endif
 
+#ifdef USE_CPP_STYLE_JOB
 #include "Job.hxx"
+#else
+#include "Protocol.h"
+#endif
 
 #include <BPatch.h>
 #ifdef HAVE_INTTYPES_H
@@ -79,7 +83,11 @@ namespace OpenSpeedShop { namespace Framework {
 		       std::pair<bool, std::string>&);
 
 	void getMPICHProcTable(/* const */ BPatch_process&,
+#ifdef USE_CPP_STYLE_JOB
 			       std::pair<bool, Job>&);
+#else
+			       std::pair<bool, OpenSS_Protocol_Job>&);
+#endif
 
 	void sendSymbolsForThread(const ThreadNameGroup&);
 	void sendThreadStateUpdates();

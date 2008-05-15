@@ -46,6 +46,7 @@ namespace {
 
 
 
+#ifdef USE_CPP_STYLE_JOB
     /**
      * Convert job for protocol use.
      *
@@ -76,6 +77,7 @@ namespace {
 	    ptr->pid = i->second;
 	}
     }
+#endif
     
     
     
@@ -235,14 +237,23 @@ void Senders::globalIntegerValue(const ThreadName& thread,
 void Senders::globalJobValue(const ThreadName& thread,
 			     const std::string& global,
 			     const bool& found,
+#ifdef USE_CPP_STYLE_JOB
 			     const Job& job)
+#else
+                             const OpenSS_Protocol_Job& job)
+#endif
 {
     // Assemble the request into a message
     OpenSS_Protocol_GlobalJobValue message;
     message.thread = thread;
     convert(global, message.global);
     message.found = found;
+#ifdef USE_CPP_STYLE_JOB
     ::convert(job, message.value);
+#else
+    message.value.entries.entries_len = job.entries.entries_len;
+    message.value.entries.entries_val = job.entries.entries_val;
+#endif
     
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {

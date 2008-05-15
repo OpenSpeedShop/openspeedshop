@@ -42,6 +42,7 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class ExperimentGroup;
     class ThreadNameGroup;
 
     /**
@@ -70,14 +71,16 @@ namespace OpenSpeedShop { namespace Framework {
 		       const SmartPtr<StdStreamPipes>& = 
 		           SmartPtr<StdStreamPipes>());
 	void removeThread(const ThreadName&, BPatch_thread*);
-        std::set<pid_t> getActivePids() const;
 
+        std::set<pid_t> getActivePids() const;
 	
 	BPatch_thread* getPtr(const ThreadName&) const;
-	ThreadNameGroup getNames(BPatch_thread*) const;
-	ThreadNameGroup getNames(BPatch_process*) const;
+	ThreadNameGroup getNames(/* const */ BPatch_thread*) const;
+	ThreadNameGroup getNames(/* const */ BPatch_process*) const;
+	ExperimentGroup getExperiments(/* const */ BPatch_process&) const;
 
-	SmartPtr<StdStreamPipes> getStdStreamPipes(BPatch_thread*) const;
+	SmartPtr<StdStreamPipes>
+	getStdStreamPipes(/* const */ BPatch_thread*) const;
 
 	std::set<int> getStdInFDs() const;
 	std::set<int> getStdErrFDs() const;
@@ -85,8 +88,11 @@ namespace OpenSpeedShop { namespace Framework {
 
 	ThreadNameGroup getNames(const int&) const;
 
-	OpenSS_Protocol_ThreadState getThreadState(BPatch_thread*) const;
-	void setThreadState(BPatch_thread*, const OpenSS_Protocol_ThreadState&);
+	OpenSS_Protocol_ThreadState
+	getThreadState(/* const */ BPatch_thread*) const;
+
+	void setThreadState(/* const */ BPatch_thread*,
+			    const OpenSS_Protocol_ThreadState&);
 	void setThreadState(const ThreadNameGroup&,
 			    const OpenSS_Protocol_ThreadState&);
 	

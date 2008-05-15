@@ -39,6 +39,17 @@
 #include <inttypes.h>
 #endif
 
+#ifdef USE_CPP_STYLE_JOB
+//
+// Maximum length of a host name. According to the Linux manual page for the
+// gethostname() function, this should be available in a header somewhere. But
+// it isn't found on all systems, so define it directly if necessary.
+//
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX (256)
+#endif
+#endif
+
 using namespace OpenSpeedShop::Framework;
 
 
@@ -56,42 +67,6 @@ namespace {
      */
     typedef std::map<AddressRange,
 	             std::pair<SymbolTable, ExperimentGroup> > SymbolTableMap;
-
-
-
-    /**
-     * Get experiments for a process.
-     *
-     * Returns the group of experiments which contain the specified process.
-     * An empty set is returned if no experiment are found.
-     *
-     * @param process    Process whose experiments are to be found.
-     * @return           Group of experiments containing this process.
-     */
-    ExperimentGroup getExperiments(/* const */ BPatch_process& process)
-    {
-	ExperimentGroup experiments;
-
-	// Get the list of threads in this process
-	BPatch_Vector<BPatch_thread*> threads;
-	process.getThreads(threads);
-	Assert(!threads.empty());
-
-	// Iterate over each thread in this process
-        for(int i = 0; i < threads.size(); ++i) {
-            Assert(threads[i] != NULL);
-	    
-	    // Add all of this thread's experiments
-	    ThreadNameGroup names = ThreadTable::TheTable.getNames(threads[i]);
-	    for(ThreadNameGroup::const_iterator
-		    j = names.begin(); j != names.end(); ++j)
-		experiments.insert(Experiment(*j));
-	    
-	}
-
-	// Return the experiment group to the caller
-	return experiments;
-    }
 
 
 
@@ -121,7 +96,11 @@ namespace {
         /* const */ BPatch_process& process,
 	/* const */ BPatch_variableExpr& MPIR_proctable,
 	const int64_t& MPIR_proctable_size,
-	std::pair<bool, Job>* value
+#ifdef USE_CPP_STYLE_JOB
+	std::pair<bool, Job>& value
+#else
+	std::pair<bool, OpenSS_Protocol_Job>& value
+#endif
         )
     {
 	// Define type for an entry in the table
@@ -131,13 +110,19 @@ namespace {
 	    int pid;              /* The pid of the process */
 	} MPIR_PROCDESC;
 
-	// fix memory coruption seen on FC8 systems and on YellowRail.
-	// Passing value as a pointer now.  Initialized by caller.
-	//
 	// Initially assume the table will not be read properly
-	//Job job;
-	//value = std::make_pair(false, job);
-
+#ifdef USE_CPP_STYLE_JOB
+	value = std::make_pair(false, Job());
+#else
+	value = std::make_pair(false, OpenSS_Protocol_Job());
+        value.second.entries.entries_len = MPIR_proctable_size;
+        value.second.entries.entries_val = 
+            reinterpret_cast<OpenSS_Protocol_JobEntry*>(malloc(
+                std::max(static_cast<int64_t>(1), MPIR_proctable_size) *
+                sizeof(OpenSS_Protocol_JobEntry)
+                ));
+#endif
+	
 	// Get the image pointer for this process
 	BPatch_image* image = process.getImage();
 	Assert(image != NULL);
@@ -145,17 +130,6 @@ namespace {
 	// Read the base address of the table
 	T base_addr = 0;
 	MPIR_proctable.readValue(&base_addr);
-
-#ifndef NDEBUG
-    if(Backend::isDebugEnabled()) {
-	std::stringstream output;
-	output << "[TID " << pthread_self() << "] Dyninst::"
-	       << "getMPICHProcTableImpl(PID=" << process.getPid() 
-	       << " MPIR_proctable_size=" << MPIR_proctable_size
-	       << std::endl;
-	std::cerr << output.str();
-    }
-#endif
 
 	// Iterate over each entry in the table
 	for(int64_t i = 0; i < MPIR_proctable_size; ++i) {
@@ -172,47 +146,28 @@ namespace {
 	    variable.readValue(&raw_value);
 
 	    // Read the host name for this entry
+#ifdef USE_CPP_STYLE_JOB
 	    std::string host_name;
 	    image->readString(raw_value.host_name, host_name);
-
-#ifndef NDEBUG
-    if(Backend::isDebugEnabled()) {
-	std::stringstream output;
-	output << "[TID " << pthread_self() << "] Dyninst::"
-	       << "getMPICHProcTableImpl(PID=" << process.getPid() 
-	       << " host_name=" << host_name << " i=" << i
-	       << std::endl;
-	std::cerr << output.str();
-    }
+#else
+	    value.second.entries.entries_val[i].host =
+		reinterpret_cast<char*>(malloc(HOST_NAME_MAX * sizeof(char)));
+	    image->readString(raw_value.host_name,
+			      value.second.entries.entries_val[i].host,
+			      HOST_NAME_MAX);
 #endif
 
 	    // Add this entry to the job value
-#if 0
+#ifdef USE_CPP_STYLE_JOB
 	    value.second.push_back(std::make_pair(host_name, raw_value.pid));
 #else
-	    // May not need this if passing value as a pointer
-	    // indeed fixes the memory coruption seen on FC8 systems
-	    // and on YellowRail.
-	    std::pair<std::string,int> mpich_ptable_entry =
-		std::make_pair(host_name, raw_value.pid);
-	    value->second.push_back(mpich_ptable_entry);
+	    value.second.entries.entries_val[i].pid = raw_value.pid;
 #endif
 
 	}
 
 	// Inform the caller that the table was successfully read
-	value->first = true;
-#ifndef NDEBUG
-    if(Backend::isDebugEnabled()) {
-	std::stringstream output;
-	output << "[TID " << pthread_self() << "] EXITTING Dyninst::"
-	       << "getMPICHProcTableImpl(PID=" << process.getPid()
-	       << " table was successfully read==value.first=" <<  value->first
-	       << std::endl;
-	std::cerr << output.str();
-    }
-#endif
-
+	value.first = true;
   }
 
 
@@ -419,7 +374,7 @@ void OpenSpeedShop::Framework::Dyninst::exec(BPatch_thread* thread)
 
     // Get the names for this process
     ThreadNameGroup threads = ThreadTable::TheTable.getNames(process);
-    
+
     // Send the frontend all the symbol information for these threads
     Dyninst::sendSymbolsForThread(threads);
 
@@ -498,27 +453,17 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
     Assert(parent != NULL);
     Assert(child != NULL);
 
-    // FIXME: This should be changed to allow client
-    // to decide when to follow fork and when not to.
-    // Currently dyninst fails to follow fork with openmpi
-    // on FC8 systems. Crashes in orted.
-    // Additionally, LLNL has requested that we not follow
-    // forks during mpi startup (or make this optional).
-    // Since we do not gather any data during mpi startup
-    // (running up to the MPIR_Breakpoint), we may want to
-    // just ignore forked processes anyways. The framework
-    // has the instrumentor calls setMPIStartup and inMPIStartup
-    // which may be useful to flag when to do the detach
-    // on the forked child below rather than use this if 1.
-#if 1
+    // TODO: For now detach from the child process and ignore it. Currently
+    //       Dyninst is failing when OpenMPI calls fork() on Fedora Core 8
+    //       systems.
+    //
+#ifdef WDH_DISABLE_THIS_FOR_NOW
     if(child != NULL) {
-	// detach here from child.
-        BPatch_process *bp_fork_child_process = NULL;
-        bp_fork_child_process = child->getProcess();
-        bp_fork_child_process->detach(true);
+	BPatch_process* child_process = child->getProcess();
+	child_process->detach(true);
+	return;
     }
-
-#else
+#endif  // WDH_DISABLE_THIS_FOR_NOW
 
     // Get the Dyninst process pointers for these threads
     BPatch_process* parent_process = parent->getProcess();
@@ -538,7 +483,8 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
 #endif
 
     // Get the experiments containing the parent process
-    ExperimentGroup experiments = getExperiments(*parent_process);
+    ExperimentGroup experiments = 
+	ThreadTable::TheTable.getExperiments(*parent_process);
 
     // Get the list of threads in the child process
     BPatch_Vector<BPatch_thread*> child_threads;
@@ -576,7 +522,6 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
         Senders::threadsStateChanged(threads_forked, Running);
     }
     
-#endif
     // TODO: copy instrumentation from the parent process to the child process 
 }
 
@@ -626,8 +571,9 @@ void OpenSpeedShop::Framework::Dyninst::threadCreate(BPatch_process* process,
     }
     
     // Get the experiments containing the process
-    ExperimentGroup experiments = getExperiments(*process);
-    
+    ExperimentGroup experiments =
+	ThreadTable::TheTable.getExperiments(*process);
+
     // Iterate over the experiments containing the process
     ThreadNameGroup threads_created;
     for(ExperimentGroup::const_iterator
@@ -1209,9 +1155,11 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
        ((type_name.find("char*") != std::string::npos) ||
 	(type_name == "<no type>") || (type_name == ""))) {
 
+#ifdef USE_CPP_STYLE_JOB
 	std::string raw_value;
 	image->readString(variable, raw_value);	
 	value = std::make_pair(true, raw_value);
+#endif
 
     }
 }
@@ -1234,12 +1182,19 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
  */
 void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
     /* const */ BPatch_process& process,
+#ifdef USE_CPP_STYLE_JOB
     std::pair<bool, Job>& value
+#else
+    std::pair<bool, OpenSS_Protocol_Job>& value
+#endif
     )
 {
     // Initially assume the table will not be found
-    Job job;
-    value = std::make_pair(false, job);
+#ifdef USE_CPP_STYLE_JOB
+    value = std::make_pair(false, Job());
+#else
+    value = std::make_pair(false, OpenSS_Protocol_Job());
+#endif
 
     // Find the value of "MPIR_proctable_size"
     std::pair<bool, int64_t> MPIR_proctable_size;
@@ -1278,7 +1233,7 @@ void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
 	(type_name == "<no_type>") || (type_name == ""))) {
 
 	getMPICHProcTableImpl<uint32_t>(process, *variable,
-	 				MPIR_proctable_size.second, &value);
+	 				MPIR_proctable_size.second, value);
 
     }
 
@@ -1287,24 +1242,9 @@ void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
 	     (type_name == "<no_type>") || (type_name == ""))) {
 
 	getMPICHProcTableImpl<uint64_t>(process, *variable,
-	 				MPIR_proctable_size.second, &value);
+	 				MPIR_proctable_size.second, value);
 
     }
-#ifndef NDEBUG
-    if(Backend::isDebugEnabled()) {
-	std::stringstream output;
-	output << "[TID " << pthread_self() << "] EXITTING Dyninst::"
-	       << "getMPICHProcTable(PID " << process.getPid() 
-#if 0
-	       << ", <reference>): type_name = \"" << type_name
-	       << "\", type_size = " << type_size << std::endl;
-#else
-	       << std::endl;
-#endif
-	std::cerr << output.str();
-    }
-#endif
-
 }
 
 
@@ -1499,7 +1439,6 @@ void OpenSpeedShop::Framework::Dyninst::sendThreadStateUpdates()
 	// Get the list of threads in this process
 	BPatch_Vector<BPatch_thread*> threads;
 	process->getThreads(threads);
-	Assert(!threads.empty());
 
 	// Iterate over each thread in this process
 	for(int j = 0; j < threads.size(); ++j) {

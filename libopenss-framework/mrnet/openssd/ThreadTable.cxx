@@ -22,15 +22,12 @@
  *
  */
 
+#include "ExperimentGroup.hxx"
 #include "Guard.hxx"
 #include "StdStreamPipes.hxx"
 #include "ThreadNameGroup.hxx"
 #include "ThreadTable.hxx"
 #include "Utility.hxx"
-/* if you enable the std::cout code below
-#include <iostream>
-*/
-
 
 using namespace OpenSpeedShop::Framework;
 
@@ -227,6 +224,8 @@ std::set<pid_t> ThreadTable::getActivePids() const
     return (returnSet);
 }
 
+
+
 /**
  * Get Dyninst thread object pointer for a thread.
  *
@@ -259,7 +258,7 @@ BPatch_thread* ThreadTable::getPtr(const ThreadName& thread) const
  * @param ptr    Dyninst thread object pointer whose names are to be found.
  * @return       Thread names for that pointer.
  */
-ThreadNameGroup ThreadTable::getNames(BPatch_thread* ptr) const
+ThreadNameGroup ThreadTable::getNames(/* const */ BPatch_thread* ptr) const
 {
     Guard guard_myself(this);
 
@@ -287,7 +286,7 @@ ThreadNameGroup ThreadTable::getNames(BPatch_thread* ptr) const
  * @param process    Dyninst process object pointer whose names are to be found.
  * @return           Thread names for all threads in that process.
  */
-ThreadNameGroup ThreadTable::getNames(BPatch_process* process) const
+ThreadNameGroup ThreadTable::getNames(/* const */ BPatch_process* process) const
 {
     Guard guard_myself(this);
 
@@ -316,6 +315,40 @@ ThreadNameGroup ThreadTable::getNames(BPatch_process* process) const
 
 
 /**
+ * Get experiments for a Dyninst process object pointer.
+ *
+ * Returns the group of experiments which contain the specified Dyninst process
+ * object pointer. An empty experiment group is returned if no experiments are
+ * found.
+ *
+ * @param process    Dyninst process object pointer whose experiments are
+ *                   to be found.
+ * @return           Group of experiments containing that process.
+ */
+ExperimentGroup ThreadTable::getExperiments(
+    /* const */ BPatch_process& process
+    ) const
+{
+    Guard guard_myself(this);
+
+    // Get the host and PID of this Dyninst process object pointer
+    std::string host(getCanonicalName(getLocalHost()));
+    pid_t pid = process.getPid();
+    
+    // Find the experiments for this Dyninst process object pointer
+    ExperimentGroup experiments;
+    for(std::map<ThreadName, BPatch_thread*>::const_iterator
+	    i = dm_name_to_ptr.begin(); i != dm_name_to_ptr.end(); ++i)
+	if((i->first.getHost() == host) && (i->first.getProcessId() == pid))
+	    experiments.insert(Experiment(i->first));
+    
+    // Return the experiment group to the caller
+    return experiments;
+}
+
+
+
+/**
  * Get standard stream pipes for a Dyninst thread object pointer.
  *
  * Returns the standard stream pipes for the specified Dyninst thread object
@@ -325,7 +358,7 @@ ThreadNameGroup ThreadTable::getNames(BPatch_process* process) const
  * @return       Standard stream pipes for that pointer.
  */
 SmartPtr<StdStreamPipes>
-ThreadTable::getStdStreamPipes(BPatch_thread* ptr) const
+ThreadTable::getStdStreamPipes(/* const */ BPatch_thread* ptr) const
 {    
     Guard guard_myself(this);
 
@@ -469,7 +502,7 @@ ThreadNameGroup ThreadTable::getNames(const int& fd) const
  *               could not be found.
  */
 OpenSS_Protocol_ThreadState
-ThreadTable::getThreadState(BPatch_thread* ptr) const
+ThreadTable::getThreadState(/* const */ BPatch_thread* ptr) const
 {
     Guard guard_myself(this);
 
@@ -496,7 +529,7 @@ ThreadTable::getThreadState(BPatch_thread* ptr) const
  *                 state should be set.
  * @param state    State to which this thread should be set.
  */
-void ThreadTable::setThreadState(BPatch_thread* ptr,
+void ThreadTable::setThreadState(/* const */ BPatch_thread* ptr,
 				 const OpenSS_Protocol_ThreadState& state)
 {
     Guard guard_myself(this);
