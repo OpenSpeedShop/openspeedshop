@@ -92,7 +92,7 @@ namespace {
      *                               that table.
      */
     template <typename T>
-    std::pair<std::string, pid_t> getMPICHProcTableImpl(
+    void getMPICHProcTableImpl(
         /* const */ BPatch_process& process,
 	/* const */ BPatch_variableExpr& MPIR_proctable,
 	const int64_t& MPIR_proctable_size,
