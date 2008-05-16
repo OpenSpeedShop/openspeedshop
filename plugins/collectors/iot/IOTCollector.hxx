@@ -72,6 +72,9 @@ namespace OpenSpeedShop { namespace Framework {
 				     const Extent&, const Blob&, 
 				     const ExtentGroup&, void*) const;
 	
+	virtual void getUniquePCValues( const Thread& thread,
+					const Blob& blob,
+					PCBuffer *buf) const;
     };
     
 } }

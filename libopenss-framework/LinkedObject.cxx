@@ -276,3 +276,35 @@ LinkedObject::LinkedObject(const SmartPtr<Database>& database,
     Entry(database, Entry::LinkedObjects, entry)
 {
 }
+
+
+// Used by the Offline Experiment BFDSymbols code to find
+// the address range of a linked object in the database.
+// This is used to restrict the search of performance sample addresses
+// to those found in the linked object being processed.
+std::set<AddressRange>
+LinkedObject::getAddressRange() const
+{
+    std::set<AddressRange> addressrange;
+    // Find the linked object containing the requested address/time
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+	"SELECT addr_begin, "
+	"       addr_end "
+        "FROM AddressSpaces WHERE linked_object = ?;"
+        );
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement()) {
+	Address addr_b = dm_database->getResultAsAddress(1);
+	Address addr_e = dm_database->getResultAsAddress(2);
+        addressrange.insert(AddressRange(addr_b,addr_e));
+        if (addressrange.empty())
+            throw Exception(Exception::EntryNotFound, "Address",
+                "<LinkedObjects-Referenced>");
+    }
+    END_TRANSACTION(dm_database);
+
+    // Return the addresses to the caller
+    return addressrange;
+}

@@ -95,9 +95,9 @@ usertime_rt_offline_la_LDFLAGS = \
 
 usertime_rt_offline_la_LIBADD = \
         @BINUTILS_LIBS@ \
-	-lopenss-runtime-offline \
         @LIBMONITOR_LIBS@ \
 	@LIBUNWIND_LIBS@ \
+	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 	-lpthread -lrt
 
 usertime_rt_offline_la_SOURCES = \
@@ -106,23 +106,23 @@ usertime_rt_offline_la_SOURCES = \
 	runtime.c
 
 libusertime_offline_la_CFLAGS = \
-        @LIBMONITOR_CPPFLAGS@ \
-	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-static -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
+        @LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
 
 libusertime_offline_la_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-runtime \
+	-static -L$(top_srcdir)/libopenss-runtime \
         @LIBMONITOR_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
-	-static -no-undefined -module -avoid-version
+	-no-undefined
 
 libusertime_offline_la_LIBADD = \
-	-lopenss-runtime-offline \
         @LIBMONITOR_LIBS@ \
-	@LIBUNWIND_LIBS@
+	@LIBUNWIND_LIBS@ \
+	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
 
 libusertime_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \

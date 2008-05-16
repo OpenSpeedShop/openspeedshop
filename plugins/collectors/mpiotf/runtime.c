@@ -73,12 +73,12 @@ static __thread struct {
     unsigned nesting_depth;
     
     OpenSS_DataHeader header;  /**< Header for following data blob. */
-    mpit_data data;            /**< Actual data blob. */
+    mpiotf_data data;            /**< Actual data blob. */
     
     /** Tracing buffer. */
     struct {
 	uint64_t stacktraces[StackTraceBufferSize];  /**< Stack traces. */
-	mpit_event events[EventBufferSize];          /**< MPI call events. */
+	mpiotf_event events[EventBufferSize];          /**< MPI call events. */
     } buffer;    
     
 } tls;
@@ -92,16 +92,16 @@ static __thread struct {
  * the experiment's database. Then resets the tracing buffer to the empty state.
  * This is done regardless of whether or not the buffer is actually full.
  */
-static void mpit_send_events()
+static void mpiotf_send_events()
 {
-//    fprintf(stderr, "mpit_send_events, entered for tls.header.thread=%d\n", tls.header.thread);
+//    fprintf(stderr, "mpiotf_send_events, entered for tls.header.thread=%d\n", tls.header.thread);
 //    fflush(stderr);
 
     /* Set the end time of this data blob */
     tls.header.time_end = OpenSS_GetTime();
     
     /* Send these events */
-    OpenSS_Send(&(tls.header), (xdrproc_t)xdr_mpit_data, &(tls.data));
+    OpenSS_Send(&(tls.header), (xdrproc_t)xdr_mpiotf_data, &(tls.data));
     
     /* Re-initialize the data blob's header */
     tls.header.time_begin = tls.header.time_end;
@@ -123,10 +123,10 @@ static void mpit_send_events()
  *
  * @param event    Event to be started.
  */
-void mpit_start_event(mpit_event* event)
+void mpiotf_start_event(mpiotf_event* event)
 {
 if (debug_trace) {
-    fprintf(stderr, "mpit_start_event, entered\n");
+    fprintf(stderr, "mpiotf_start_event, entered\n");
     fflush(stderr);
 }
 
@@ -134,7 +134,7 @@ if (debug_trace) {
     ++tls.nesting_depth;
     
     /* Initialize the event record. */
-    memset(event, 0, sizeof(mpit_event));
+    memset(event, 0, sizeof(mpiotf_event));
 }
 
 
@@ -152,7 +152,7 @@ if (debug_trace) {
  * @param function    Address of the MPI function for which the event is being
  *                    recorded.
  */
-void mpit_record_event(const mpit_event* event, uint64_t function, char * name_string)
+void mpiotf_record_event(const mpiotf_event* event, uint64_t function, char * name_string)
 
 {
     uint64_t stacktrace[MaxFramesPerStackTrace];
@@ -160,8 +160,8 @@ void mpit_record_event(const mpit_event* event, uint64_t function, char * name_s
     unsigned entry, start, i;
 
 if (debug_trace) {
-    fprintf(stderr, "mpit_record_event, entered\n");
-    fprintf(stderr, "mpit_record_event, function=0x%x, name_string=%s\n", function, name_string);
+    fprintf(stderr, "mpiotf_record_event, entered\n");
+    fprintf(stderr, "mpiotf_record_event, function=0x%x, name_string=%s\n", function, name_string);
     fflush(stderr);
 }
 
@@ -186,9 +186,9 @@ if (debug_trace) {
     /*
      * Replace the first entry in the call stack with the address of the MPI
      * function that is being wrapped. On most platforms, this entry will be
-     * the address of the call site of mpit_record_event() within the calling
+     * the address of the call site of mpiotf_record_event() within the calling
      * wrapper. On IA64, because OverheadFrameCount is one higher, it will be
-     * the mini-tramp for the wrapper that is calling mpit_record_event().
+     * the mini-tramp for the wrapper that is calling mpiotf_record_event().
      */
     if(stacktrace_size > 0)
 	stacktrace[0] = function;
@@ -229,7 +229,7 @@ if (debug_trace) {
 	/* Send events if there is insufficient room for this stack trace */
 	if((tls.data.stacktraces.stacktraces_len + stacktrace_size + 1) >=
 	   StackTraceBufferSize)
-	    mpit_send_events();
+	    mpiotf_send_events();
 	
 	/* Add each frame in the stack trace to the tracing buffer. */	
 	entry = tls.data.stacktraces.stacktraces_len;
@@ -256,13 +256,13 @@ if (debug_trace) {
     
     /* Add a new entry for this event to the tracing buffer. */
     memcpy(&(tls.buffer.events[tls.data.events.events_len]),
-	   event, sizeof(mpit_event));
+	   event, sizeof(mpiotf_event));
     tls.buffer.events[tls.data.events.events_len].stacktrace = entry;
     tls.data.events.events_len++;
     
     /* Send events if the tracing buffer is now filled with events */
     if(tls.data.events.events_len == EventBufferSize)
-	mpit_send_events();
+	mpiotf_send_events();
 }
 
 
@@ -296,7 +296,7 @@ void mpiotf_process_vt_otf_gen_env_vars()
 int mpiotf_openss_vt_init()
 {
 
-  mpit_event event;
+  mpiotf_event event;
   int retval; 
   int numprocs, i;
   unsigned char* grpv;
@@ -437,13 +437,13 @@ if (debug_trace) {
  */
 void mpiotf_start_tracing(const char* arguments)
 {
-    mpit_start_tracing_args args;
+    mpiotf_start_tracing_args args;
     int status;
 
     /* Decode the passed function arguments. */
     memset(&args, 0, sizeof(args));
     OpenSS_DecodeParameters(arguments,
-                            (xdrproc_t)xdr_mpit_start_tracing_args,
+                            (xdrproc_t)xdr_mpiotf_start_tracing_args,
                             &args);
     
     /* Initialize the MPI function wrapper nesting depth */
@@ -511,7 +511,7 @@ if (debug_trace) {
 
     /* Send events if there are any remaining in the tracing buffer */
     if(tls.data.events.events_len > 0)
-	mpit_send_events();
+	mpiotf_send_events();
 
 if (debug_trace) {
     fprintf(stderr, "mpiotf_stop_tracing, exiting\n");

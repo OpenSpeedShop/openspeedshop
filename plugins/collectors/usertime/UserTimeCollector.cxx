@@ -25,6 +25,7 @@
  
 #include "UserTimeCollector.hxx"
 #include "UserTimeDetail.hxx"
+#include "PCBuffer.hxx"
 #include "blobs.h"
 
 using namespace OpenSpeedShop::Framework;
@@ -360,4 +361,26 @@ void UserTimeCollector::getMetricValues(const std::string& metric,
     // Free the decoded data blob
     xdr_free(reinterpret_cast<xdrproc_t>(xdr_usertime_data),
              reinterpret_cast<char*>(&data));
+}
+
+void UserTimeCollector::getUniquePCValues( const Thread& thread,
+                                         const Blob& blob,
+                                         PCBuffer *buffer) const
+{
+
+    // Decode this data blob
+    usertime_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_usertime_data), &data);
+
+    if (data.bt.bt_len == 0) {
+	// todo
+    }
+
+    // Iterate over each stack trace in the data blob
+    for(unsigned i = 0; i < data.bt.bt_len; ++i) {
+	if (data.bt.bt_val[i] != 0) {
+	    UpdatePCBuffer(data.bt.bt_val[i], buffer);
+	}
+    }
 }

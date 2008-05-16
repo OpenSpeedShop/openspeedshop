@@ -45,8 +45,6 @@
 #include <string>
 #include <vector>
 
-
-
 namespace OpenSpeedShop { namespace Framework {
 
     class Database;
@@ -126,6 +124,10 @@ namespace OpenSpeedShop { namespace Framework {
 			     const ExtentGroup&, const int&,
 			     std::vector<T >&) const;
 	
+	void getUniquePCValues( const Thread&,
+				const ExtentGroup&,
+				PCBuffer* ) const;
+
 	Extent getExtentIn(const Thread&) const;
 	
 	ThreadGroup getThreads() const;

@@ -59,6 +59,21 @@ ThreadGroup ThreadGroup::getSubsetWithState(const Thread::State& state) const
 
 
 
+// Used by Experiment::compressDB to prune an OpenSpeedShop database of
+// any entries not found in the experiments sampled addresses.
+ThreadGroup ThreadGroup::getSubsetWithLinkedObject(const LinkedObject& lo) const
+{
+    ThreadGroup subset;
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i) {
+	int thread_lo_id = EntrySpy(i->getExecutable().second).getEntry();
+	if(thread_lo_id == EntrySpy(lo).getEntry())
+	    subset.insert(subset.end(), *i);
+    }
+    return subset;
+}
+
+
+
 /**
  * Test if any thread is in a particular state.
  *

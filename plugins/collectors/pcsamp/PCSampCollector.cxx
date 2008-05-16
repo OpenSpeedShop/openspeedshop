@@ -24,6 +24,7 @@
  */
  
 #include "PCSampCollector.hxx"
+#include "PCBuffer.hxx"
 #include "blobs.h"
 
 using namespace OpenSpeedShop::Framework;
@@ -201,6 +202,49 @@ void PCSampCollector::stopCollecting(const Collector& collector,
     uninstrument(collector, threads);
 }
 
+#if 0
+#define UINT8_MAX (255)
+bool_t OpenSS_UpdatePCData(uint64_t pc, OpenSS_PCData* buffer)
+{
+    unsigned bucket, entry;
+
+    /*
+     * Search the sample buffer for an existing entry corresponding to this
+     * PC address. Use the hash table and a simple linear probe to accelerate
+     * the search.
+     */
+    bucket = (pc >> 4) % OpenSS_PCHashTableSize;
+    while((buffer->hash_table[bucket] > 0) &&
+          (buffer->pc[buffer->hash_table[bucket] - 1] != pc))
+        bucket = (bucket + 1) % OpenSS_PCHashTableSize;
+
+    /* Increment count for existing entry if found and not already maxed */
+    if((buffer->hash_table[bucket] > 0) &&
+       (buffer->pc[buffer->hash_table[bucket] - 1] == pc) &&
+       (buffer->count[buffer->hash_table[bucket] - 1] < UINT8_MAX)) {
+        buffer->count[buffer->hash_table[bucket] - 1]++;
+        return FALSE;
+    }
+
+    /* Otherwise add a new entry for this PC address to the sample buffer */
+    entry = buffer->length;
+    buffer->pc[entry] = pc;
+    buffer->count[entry] = 1;
+    buffer->length++;
+
+    /* Update the address interval in the sample buffer */
+    if(pc < buffer->addr_begin)
+        buffer->addr_begin = pc;
+    if(pc > buffer->addr_end)
+        buffer->addr_end = pc;
+
+    /* Update the hash table with this new entry */
+    buffer->hash_table[bucket] = entry + 1;
+
+    /* Indicate to the caller if the sample buffer is full */
+    return (buffer->length == OpenSS_PCBufferSize);
+}
+#endif
 
 
 /**
@@ -226,6 +270,7 @@ void PCSampCollector::getMetricValues(const std::string& metric,
 				      const ExtentGroup& subextents,
 				      void* ptr) const
 {
+//std::cerr << "Entered PCSampCollector::getMetricValues" << std::endl;
     // Only the "time" metric returns anything
     if(metric != "time")
 	return;
@@ -246,7 +291,9 @@ void PCSampCollector::getMetricValues(const std::string& metric,
 
     // Calculate time (in nS) of data blob's extent
     double t_blob = static_cast<double>(extent.getTimeInterval().getWidth());
-    
+   
+   // std::cerr << "PASSED EXTENT TIME = " << t_blob << std::endl;
+ 
     // Iterate over each of the samples
     for(unsigned i = 0; i < data.pc.pc_len; ++i) {
 	
@@ -260,6 +307,13 @@ void PCSampCollector::getMetricValues(const std::string& metric,
 	// Calculate the time (in seconds) attributable to this sample
 	double t_sample = static_cast<double>(data.count.count_val[i]) *
 	    static_cast<double>(data.interval) / 1000000000.0;
+#if 0
+  std::cerr << "BLOB DATA INTERVAL TIME = " << t_sample
+	<< " COUNT " <<  static_cast<double> (data.count.count_val[i])
+	<< " * data.interval " << static_cast<double>(data.interval)
+	<< " / 1000000000.0"
+	<< std::endl;
+#endif
 	
 	// Iterate over each subextent in the intersection
 	for(std::set<ExtentGroup::size_type>::const_iterator
@@ -269,10 +323,19 @@ void PCSampCollector::getMetricValues(const std::string& metric,
 	    double t_intersection = static_cast<double>
 		((extent.getTimeInterval() & 
 		  subextents[*j].getTimeInterval()).getWidth());	    
+ //   std::cerr << "INTESECTION INTERVAL TIME = " << t_intersection << std::endl;
 
 	    // Add (to the subextent's metric value) the appropriate fraction
 	    // of the total time attributable to this sample
 	    (*values)[*j] += t_sample * (t_intersection / t_blob);
+#if 0
+    std::cerr << "COMPUTED TIME = " << (*values)[*j]
+	<< " t_sample " << t_sample
+	<< " * ( t_intersection " << t_intersection
+	<< " / t_blob " << t_blob
+	<< " )"
+	<< std::endl;
+#endif
 	    
 	}
 	
@@ -281,4 +344,30 @@ void PCSampCollector::getMetricValues(const std::string& metric,
     // Free the decoded data blob
     xdr_free(reinterpret_cast<xdrproc_t>(xdr_pcsamp_data),
 	     reinterpret_cast<char*>(&data));
+}
+
+void PCSampCollector::getUniquePCValues( const Thread& thread,
+					 const Blob& blob,
+					 PCBuffer *buffer) const
+{
+    // Decode this data blob
+    pcsamp_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_pcsamp_data), &data);
+
+    // Check assertions
+    // Assert(data.pc.pc_len == data.count.count_len);
+    if (data.pc.pc_len != data.count.count_len) {
+        std::cerr << "ASSERT getPCValues pc_len "
+	    << data.pc.pc_len
+	    << " != count_len "
+	    << data.count.count_len << std::endl;
+    } else {
+	// todo
+    }
+
+    // Iterate over each of the samples
+    for(unsigned i = 0; i < data.pc.pc_len; ++i) {
+        UpdatePCBuffer(data.pc.pc_val[i], buffer);
+    }
 }

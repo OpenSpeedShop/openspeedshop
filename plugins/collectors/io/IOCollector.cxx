@@ -364,6 +364,10 @@ void IOCollector::getMetricValues(const std::string& metric,
 #else
         uint64_t start_time = data.events.events_val[i].start_time;
         uint64_t stop_time = data.events.events_val[i].stop_time;
+#if 0
+	std::cerr << "IOCOLLECTOR: start_time " << start_time
+		  << " stop_time " << stop_time << std::endl;
+#endif
         if (start_time == stop_time) {
             stop_time = start_time + 1;
         } else if (start_time >= stop_time) {
@@ -452,4 +456,27 @@ void IOCollector::getMetricValues(const std::string& metric,
     // Free the decoded data blob
     xdr_free(reinterpret_cast<xdrproc_t>(xdr_io_data),
 	     reinterpret_cast<char*>(&data));
+}
+
+
+void IOCollector::getUniquePCValues( const Thread& thread,
+                                     const Blob& blob,
+                                     PCBuffer *buffer) const
+{
+
+    // Decode this data blob
+    io_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_io_data), &data);
+
+    if (data.stacktraces.stacktraces_len == 0) {
+	// todo
+    }
+
+    // Iterate over each stack trace in the data blob
+    for(unsigned i = 0; i < data.stacktraces.stacktraces_len; ++i) {
+	if (data.stacktraces.stacktraces_val[i] != 0) {
+	    UpdatePCBuffer(data.stacktraces.stacktraces_val[i], buffer);
+	}
+    }
 }

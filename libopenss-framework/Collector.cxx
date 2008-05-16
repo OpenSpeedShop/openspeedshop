@@ -29,6 +29,7 @@
 #include "DataQueues.hxx"
 #include "EntrySpy.hxx"
 #include "ThreadGroup.hxx"
+#include "PCBuffer.hxx"
 
 #include <typeinfo>
 
@@ -908,4 +909,40 @@ void Collector::getMetricValues(const std::string& unique_id,
 	    );
     
     END_TRANSACTION(dm_database);
+}
+
+
+// The Offline Experiment code that converts raw data to
+// an OpenSpeedShop database uses this method to restict
+// database entries to only those related to a sampled address.
+// The Experiment::compressDB code also makes use of this method.
+void Collector::getUniquePCValues(const Thread& thread,
+				  const ExtentGroup& subextents,
+				  PCBuffer *buf) const
+{
+    // Check assertions
+    Assert(inSameDatabase(thread));
+    Assert(dm_impl != NULL);
+
+    // Iterate over each performance data blob to be processed
+    std::set<int> identifiers = getIdentifiers(thread, subextents);
+    for(std::set<int>::const_iterator
+	    i = identifiers.begin(); i != identifiers.end(); ++i) {
+
+	// Find the specified performance data blob
+	BEGIN_TRANSACTION(dm_database);
+	dm_database->prepareStatement(
+		"SELECT data "
+		"FROM Data "
+		"WHERE ROWID = ?;"
+       	);
+	dm_database->bindArgument(1, *i);
+	while(dm_database->executeStatement()) {
+
+	    Blob blob = dm_database->getResultAsBlob(1);
+	    // Defer to our implementation
+	    dm_impl->getUniquePCValues(thread,blob,buf); 
+	}
+	END_TRANSACTION(dm_database);
+    }
 }

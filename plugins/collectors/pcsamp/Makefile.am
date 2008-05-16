@@ -40,13 +40,16 @@ endif
 
 if !BUILD_OFFLINE
 pcsamp_la_CXXFLAGS = \
+	@BINUTILS_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-framework
 
 pcsamp_la_LDFLAGS = \
+	@BINUTILS_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-framework \
 	-no-undefined -module -avoid-version
 
 pcsamp_la_LIBADD = \
+	@BINUTILS_LIBS@ \
 	-lopenss-framework
 
 pcsamp_la_SOURCES = \
@@ -81,7 +84,6 @@ endif
 
 if HAVE_LIBMONITOR
 pcsamp_rt_offline_la_CFLAGS = \
-	@BINUTILS_CPPFLAGS@ \
 	@LIBMONITOR_CPPFLAGS@ \
 	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
 	-I$(top_srcdir)/libopenss-runtime \
@@ -89,15 +91,13 @@ pcsamp_rt_offline_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime/offline
 
 pcsamp_rt_offline_la_LDFLAGS = \
-	@BINUTILS_LDFLAGS@ \
-	@LIBMONITOR_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-runtime \
+	@LIBMONITOR_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 pcsamp_rt_offline_la_LIBADD = \
-	@BINUTILS_LIBS@ \
 	@LIBMONITOR_LIBS@ \
-	-lopenss-runtime-offline
+	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
 
 pcsamp_rt_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
@@ -105,15 +105,15 @@ pcsamp_rt_offline_la_SOURCES = \
 	runtime.c
 
 libpcsamp_offline_la_CFLAGS = \
-        @LIBMONITOR_CPPFLAGS@ \
-	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-static -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/fileio \
-	-I/$(top_srcdir)/libopenss-runtime/offline
+	-I/$(top_srcdir)/libopenss-runtime/offline \
+        @LIBMONITOR_CPPFLAGS@
 
 libpcsamp_offline_la_LDFLAGS = \
-	@LIBMONITOR_LDFLAGS@ \
 	-static -L$(top_srcdir)/libopenss-runtime \
+	@LIBMONITOR_LDFLAGS@ \
 	-no-undefined
 
 libpcsamp_offline_la_LIBADD = \

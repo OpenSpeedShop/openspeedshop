@@ -31,7 +31,7 @@
 char *OpenSS_outfile;
 
 static __thread  char *OpenSS_rawprefix;
-static __thread  char *OpenSS_exepath;
+char *OpenSS_exepath;
 static __thread  pthread_t OpenSS_rawtid = 0;
 
 void OpenSS_CreateFilePrefix (char *collectorname);

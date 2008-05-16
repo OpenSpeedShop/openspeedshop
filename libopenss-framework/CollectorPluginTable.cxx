@@ -169,7 +169,6 @@ std::set<Metadata> CollectorPluginTable::getAvailable()
 CollectorImpl* CollectorPluginTable::instantiate(const std::string& unique_id)
 {
     CollectorImpl* instance = NULL;
-
     // Build the collector plugin table if necessary
     if(!dm_is_built)
 	build();
@@ -178,8 +177,9 @@ CollectorImpl* CollectorPluginTable::instantiate(const std::string& unique_id)
     // Find the entry for this unique identifier's plugin
     std::map<std::string, Entry>::iterator
 	i = dm_unique_id_to_entry.find(unique_id);
-    if(i == dm_unique_id_to_entry.end())
+    if(i == dm_unique_id_to_entry.end()) {
 	return NULL;
+    }
     
     // Critical section touching the collector plugin's entry
     {
@@ -287,6 +287,7 @@ void CollectorPluginTable::foreachCallback(const std::string& filename)
     // Only examine the framework related plugins.
     if (filename.find("_view") != string::npos ||
 	filename.find("Panel") != string::npos ||
+	filename.find("-offline") != string::npos ||
 	filename.find("-rt") != string::npos) {
         return;
     }
@@ -348,8 +349,9 @@ void CollectorPluginTable::build()
     SetOpenssLibPath(dummy);
 
     // Search for collector plugins in the libltdl user-defined search path
-    if(lt_dlgetsearchpath() != NULL)
+    if(lt_dlgetsearchpath() != NULL) {
 	lt_dlforeachfile(lt_dlgetsearchpath(), ::foreachCallback, this);
+    }
     
     // Indicate this table has now been built.
     dm_is_built = true;

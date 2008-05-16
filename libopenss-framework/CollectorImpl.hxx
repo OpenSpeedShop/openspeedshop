@@ -33,11 +33,11 @@
 #include "AddressRange.hxx"
 #include "Metadata.hxx"
 #include "TimeInterval.hxx"
+#include "PCBuffer.hxx"
 
 #include <map>
 #include <set>
 #include <string>
-
 
 
 namespace OpenSpeedShop { namespace Framework {
@@ -192,6 +192,9 @@ namespace OpenSpeedShop { namespace Framework {
 				     const Blob& blob,
 				     const ExtentGroup& subextents,
 				     void* ptr) const = 0;
+
+	virtual void getUniquePCValues( const Thread& thread, const Blob& blob,
+		PCBuffer *buf) const = 0;
 	
     protected:
 

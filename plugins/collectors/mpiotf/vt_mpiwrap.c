@@ -2750,9 +2750,9 @@ int mpiotf_PMPI_Get_count( MPI_Status *status,
 #if 0
     int retval;
     int datatype_size;
-    mpit_event event;
+    mpitof_event event;
 
-    mpit_start_event(&event);
+    mpitof_start_event(&event);
     event.start_time = OpenSS_GetTime();
 
     retval = PMPI_Get_count(status, datatype, count);
@@ -2765,7 +2765,7 @@ int mpiotf_PMPI_Get_count( MPI_Status *status,
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Get_count));
+    mpitof_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Get_count));
 #endif
 
     return result;

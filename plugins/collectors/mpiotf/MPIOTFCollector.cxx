@@ -194,7 +194,7 @@ MPIOTFCollector::MPIOTFCollector() :
 Blob MPIOTFCollector::getDefaultParameterValues() const
 {
     // Setup an empty parameter structure    
-    mpit_parameters parameters;
+    mpiotf_parameters parameters;
     memset(&parameters, 0, sizeof(parameters));
 
     // Set the default parameters
@@ -202,7 +202,7 @@ Blob MPIOTFCollector::getDefaultParameterValues() const
 	parameters.traced[i] = true;
     
     // Return the encoded blob to the caller
-    return Blob(reinterpret_cast<xdrproc_t>(xdr_mpit_parameters), &parameters);
+    return Blob(reinterpret_cast<xdrproc_t>(xdr_mpiotf_parameters), &parameters);
 }
 
 
@@ -220,9 +220,9 @@ void MPIOTFCollector::getParameterValue(const std::string& parameter,
 				      const Blob& data, void* ptr) const
 {
     // Decode the blob containing the parameter values
-    mpit_parameters parameters;
+    mpiotf_parameters parameters;
     memset(&parameters, 0, sizeof(parameters));
-    data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mpit_parameters),
+    data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mpiotf_parameters),
                         &parameters);
 
     // Handle the "traced_functions" parameter
@@ -250,9 +250,9 @@ void MPIOTFCollector::setParameterValue(const std::string& parameter,
 				      const void* ptr, Blob& data) const
 {
     // Decode the blob containing the parameter values
-    mpit_parameters parameters;
+    mpiotf_parameters parameters;
     memset(&parameters, 0, sizeof(parameters));
-    data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mpit_parameters),
+    data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mpiotf_parameters),
                         &parameters);
     
     // Handle the "traced_functions" parameter
@@ -266,7 +266,7 @@ void MPIOTFCollector::setParameterValue(const std::string& parameter,
     }
     
     // Re-encode the blob containing the parameter values
-    data = Blob(reinterpret_cast<xdrproc_t>(xdr_mpit_parameters), &parameters);
+    data = Blob(reinterpret_cast<xdrproc_t>(xdr_mpiotf_parameters), &parameters);
 }
 
 
@@ -288,11 +288,11 @@ void MPIOTFCollector::startCollecting(const Collector& collector,
     collector.getParameterValue("traced_functions", traced);
     
     // Assemble and encode arguments to mpiotf_start_tracing()
-    mpit_start_tracing_args args;
+    mpiotf_start_tracing_args args;
     memset(&args, 0, sizeof(args));
     args.experiment = getExperimentId(collector);
     args.collector = getCollectorId(collector);
-    Blob arguments(reinterpret_cast<xdrproc_t>(xdr_mpit_start_tracing_args),
+    Blob arguments(reinterpret_cast<xdrproc_t>(xdr_mpiotf_start_tracing_args),
                    &args);
     
 #if DEBUG_MPIOTF
@@ -479,9 +479,9 @@ void MPIOTFCollector::getMetricValues(const std::string& metric,
     }
 
     // Decode this data blob
-    mpit_data data;
+    mpiotf_data data;
     memset(&data, 0, sizeof(data));
-    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mpit_data), &data);
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mpiotf_data), &data);
     
     // Iterate over each of the events
     for(unsigned i = 0; i < data.events.events_len; ++i) {
@@ -596,6 +596,29 @@ void MPIOTFCollector::getMetricValues(const std::string& metric,
     }
 
     // Free the decoded data blob
-    xdr_free(reinterpret_cast<xdrproc_t>(xdr_mpit_data),
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_mpiotf_data),
 	     reinterpret_cast<char*>(&data));
+}
+
+
+void MPIOTFCollector::getUniquePCValues( const Thread& thread,
+                                      const Blob& blob,
+                                      PCBuffer *buffer) const
+{
+
+    // Decode this data blob
+    mpiotf_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mpiotf_data), &data);
+
+    if (data.stacktraces.stacktraces_len == 0) {
+	// todo
+    }
+
+    // Iterate over each stack trace in the data blob
+    for(unsigned i = 0; i < data.stacktraces.stacktraces_len; ++i) {
+	if (data.stacktraces.stacktraces_val[i] != 0) {
+	    UpdatePCBuffer(data.stacktraces.stacktraces_val[i], buffer);
+	}
+    }
 }

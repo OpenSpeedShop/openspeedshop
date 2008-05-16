@@ -33,8 +33,8 @@
 
 
 
-void mpit_start_event(mpit_event*);
-void mpit_record_event(const mpit_event*, uint64_t, char * );
+void mpiotf_start_event(mpiotf_event*);
+void mpiotf_record_event(const mpiotf_event*, uint64_t, char * );
 
 
 

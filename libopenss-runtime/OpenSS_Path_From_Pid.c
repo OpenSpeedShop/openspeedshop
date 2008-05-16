@@ -46,6 +46,6 @@ OpenSS_Path_From_Pid(char *exe_path)
 
     // Get the real name and full path of the executable.
     memset(name,'\0',PATH_MAX);
-    readlink(symlink,name,PATH_MAX);
+    readlink("/proc/self/exe",name,PATH_MAX);
     strncpy(exe_path,name,strlen(name));
 }

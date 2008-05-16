@@ -1,6 +1,7 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 ** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+** Copyright (c) 2007 Krell Institute.  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -33,9 +34,18 @@
 #if defined (OPENSS_OFFLINE)
 #include "pcsamp_offline.h"
 #endif
+
 #if defined (OPENSS_USE_FILEIO)
 #include "OpenSS_FileIO.h"
 #endif
+
+
+/*
+ * NOTE: For some reason GCC doesn't like it when the following two macros are
+ *       replaced with constant unsigned integers. It complains about the arrays
+ *       in the tls structure being "variable-size type declared outside of any
+ *       function" even though the size IS constant... Maybe this can be fixed?
+ */
 
 /** Thread-local storage. */
 static __thread struct {
@@ -78,7 +88,8 @@ static void pcsampTimerHandler(const ucontext_t* context)
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	    fprintf(stderr,"pcsampTimerHandler sends data:\n");
 	    fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] pc_len(%d) count_len(%d)\n",
-		tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,tls.data.pc.pc_len,
+		tls.header.time_end,tls.header.addr_begin,
+		tls.header.addr_end,tls.data.pc.pc_len,
 		tls.data.count.count_len);
 	}
 #endif
@@ -118,7 +129,8 @@ void pcsamp_start_sampling(const char* arguments)
     pcsamp_start_sampling_args args;
 
 #if defined (OPENSS_USE_FILEIO)
-    /* Create the rawdata output file prefix.  pcsamp_stop_sampling will append */
+    /* Create the rawdata output file prefix. */
+    /* fpe_stop_tracing will append */
     /* a tid as needed for the actuall .openss-xdrtype filename */
     OpenSS_CreateFilePrefix("pcsamp");
 #endif
@@ -128,19 +140,22 @@ void pcsamp_start_sampling(const char* arguments)
     /* TODO: need to handle arguments for offline collectors */
     args.collector=1;
     args.experiment=0; /* DataQueues index start at 0.*/
-    args.sampling_rate=100000;
+    args.sampling_rate=100;
 
     /* Initialize the info blob's header */
-    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
-     */
+    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was */
+    /* not safe on ia64 systems. */
     OpenSS_DataHeader local_info_header;
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_info_header));
     memcpy(&tlsinfo.header, &local_info_header, sizeof(OpenSS_DataHeader));
+
+    tlsinfo.header.time_begin = OpenSS_GetTime();
 
     char hostname[HOST_NAME_MAX];
     gethostname(hostname, HOST_NAME_MAX);
     tlsinfo.info.collector = "pcsamp";
     tlsinfo.info.hostname = strdup(hostname);
+    tlsinfo.info.exename = strdup(OpenSS_exepath);
     tlsinfo.info.pid = getpid();
 #if defined (OPENSS_USE_FILEIO)
     tlsinfo.info.tid = OpenSS_rawtid;
@@ -150,11 +165,15 @@ void pcsamp_start_sampling(const char* arguments)
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	fprintf(stderr,"pcsamp_start_sampling sends tlsinfo:\n");
 	fprintf(stderr,"collector=%s, hostname=%s, pid =%d, OpenSS_rawtid=%lx\n",
-	    tlsinfo.info.collector,tlsinfo.info.hostname,tlsinfo.info.pid,tlsinfo.info.tid);
+	    tlsinfo.info.collector,tlsinfo.info.hostname,
+	    tlsinfo.info.pid,tlsinfo.info.tid);
     }
 #endif
 
+    /* create the openss-info data and send it */
+#if defined (OPENSS_USE_FILEIO)
     OpenSS_CreateOutfile("openss-info");
+#endif
     OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
 
 #else
@@ -166,6 +185,7 @@ void pcsamp_start_sampling(const char* arguments)
 			    &args);
 #endif
     
+
     /* Initialize the data blob's header */
     /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
      */
@@ -189,7 +209,7 @@ void pcsamp_start_sampling(const char* arguments)
     tlsobj.objs.addr_begin = ~0;
     tlsobj.objs.addr_end = 0;
 #endif
-
+    
     /* Begin sampling */
     tls.header.time_begin = OpenSS_GetTime();
     OpenSS_Timer(tls.data.interval, pcsampTimerHandler);
@@ -224,18 +244,18 @@ void pcsamp_stop_sampling(const char* arguments)
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	    fprintf(stderr, "pcsamp_stop_sampling:\n");
 	    fprintf(stderr, "time_end(%#lu) addr range[%#lx, %#lx] pc_len(%d) count_len(%d)\n",
-		tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,tls.data.pc.pc_len,
+		tls.header.time_end,tls.header.addr_begin,
+		tls.header.addr_end,tls.data.pc.pc_len,
 		tls.data.count.count_len);
 	}
 #endif
 
 #if defined (OPENSS_USE_FILEIO)
-    /* Create the rawdata output file prefix.  pcsamp_stop_sampling will append */
-    /* a tid as needed for the actuall .openss-xdrtype filename */
-    OpenSS_CreateFilePrefix("pcsamp");
-#endif
+	/* Create the rawdata output file prefix. */
+	/* hwc_stop_sampling will append a tid as */
+	/* needed for the actuall .openss-xdrtype filename */
+	OpenSS_CreateFilePrefix("pcsamp");
 
-#if defined (OPENSS_USE_FILEIO)
 	/* Create the openss-data file name for this exe-collector-pid-tid */
 	/* Default is to create openss-data files in /tmp */
 	OpenSS_CreateOutfile("openss-data");

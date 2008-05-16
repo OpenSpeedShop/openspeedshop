@@ -64,6 +64,11 @@ namespace OpenSpeedShop { namespace Framework {
     public:
 
 	ThreadGroup getSubsetWithState(const Thread::State&) const;
+
+	// Used by Experiment::compressDB to prune an OpenSpeedShop database of
+	// any entries not found in the experiments sampled addresses.
+	ThreadGroup getSubsetWithLinkedObject(const LinkedObject&) const;
+
 	bool isAnyState(const Thread::State&) const;
 	bool areAllState(const Thread::State&) const;
 	void changeState(const Thread::State&);

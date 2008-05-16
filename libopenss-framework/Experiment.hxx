@@ -30,6 +30,7 @@
 #include "config.h"
 #endif
 
+#include "AddressRange.hxx"
 #include "Database.hxx"
 #include "Job.hxx"
 #include "NonCopyable.hxx"
@@ -121,7 +122,14 @@ namespace OpenSpeedShop { namespace Framework {
 				  const std::string& = getLocalHost()) const;
 	
 	void removeThread(const Thread&) const;
-	
+
+        // offline uses this to update database from raw data files.
+	void updateThreads(const pid_t&,
+			   const pthread_t&, const std::string&) const;
+
+	// pruning unneeded entries in database.
+	void compressDB() const;
+
 	CollectorGroup getCollectors() const;
 	Collector createCollector(const std::string&) const;
 	void removeCollector(const Collector&) const;
@@ -170,6 +178,7 @@ namespace OpenSpeedShop { namespace Framework {
 
 #ifndef NDEBUG
 	static bool is_debug_mpijob_enabled;
+	static bool is_debug_offline_enabled;
 #endif
 
 	static bool getMPIJobFromMPT(const Thread&, Job&);

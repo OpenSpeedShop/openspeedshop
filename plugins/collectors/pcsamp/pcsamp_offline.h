@@ -45,4 +45,4 @@ static __thread struct {
     
 } tlsinfo;
 
-void offline_record_dso(const char* dsoname, uint64_t begin, uint64_t end);
+void offline_record_dso(const char* dsoname, uint64_t begin, uint64_t end, uint8_t is_dlopen);

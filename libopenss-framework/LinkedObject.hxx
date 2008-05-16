@@ -30,6 +30,7 @@
 #endif
 
 #include "Entry.hxx"
+#include "AddressRange.hxx"
 
 #include <set>
 
@@ -81,6 +82,9 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	std::set<Function> getFunctions() const;
 	std::set<Statement> getStatements() const;
+
+	// Used by the Offline Experiment BFDSymbol code.
+	std::set<AddressRange> getAddressRange() const;
 
     private:
 

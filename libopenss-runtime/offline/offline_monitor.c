@@ -18,12 +18,39 @@
 
 /** @file
  *
- * Declaration and definition of the PC sampling collector's runtime.
+ * Declaration and definition of the offline libmonitor callbacks
+ * that we will override.
  *
+ */
+
+/*
+ * The Rice libmonitor package defines _MONITOR_H_
+ * and these callbacks we can use to monitor a process.
+ *
+ * monitor_init_library(void)
+ * monitor_fini_library(void)
+ * monitor_pre_fork(void)
+ * monitor_post_fork(pid_t child, void *data)
+ * monitor_init_process(int *argc, char **argv, void *data)  Openss callback.
+ * monitor_fini_process(int how, void *data)  Openss callback.
+ * monitor_thread_pre_create(void)
+ * monitor_thread_post_create(void *data)
+ * monitor_init_thread_support(void)
+ * monitor_init_thread(int tid, void *data)
+ * monitor_fini_thread(void *data)  Openss callback.
+ * monitor_dlopen(const char *path, int flags, void *handle)  Openss callback.
+ * monitor_dlclose(void *handle)
+ * monitor_init_mpi(int *argc, char ***argv)
+                  monitor_mpi_comm_size(), monitor_mpi_comm_rank(), *argc);
+ * monitor_fini_mpi(void)
  */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
+
+#if defined (OPENSS_USE_FILEIO)
+#include "OpenSS_FileIO.h"
 #endif
 
 #include <stdio.h>
@@ -106,5 +133,29 @@ void monitor_dlopen(const char *library, int flags, void *handle)
 void monitor_dlopen(const char *library)
 #endif
 {
-    offline_record_dso(library);
+    /* TODO: if OpenSS_GetDLInfo does not handle errors do so here. */
+    int retval = OpenSS_GetDLInfo(getpid(), library);
 }
+
+#if defined(_MONITOR_H_)
+/* Rice version of libmonitor.
+ * callbacks for handling of fork.
+ */
+void * monitor_pre_fork(void)
+{
+//    pid_t forked_pid = create_OpenSS_exepath();
+//    fprintf(stderr,"OPENSS monitor_pre_fork callback: %s:%d\n", OpenSS_exepath,forked_pid);
+    fprintf(stderr,"OPENSS monitor_pre_fork callback:\n");
+    return (NULL);
+}
+
+void monitor_post_fork(pid_t child, void *data)
+{
+/* TODO */
+#if 0
+//    pid_t forked_pid = create_OpenSS_exepath();
+//    fprintf(stderr,"OPENSS monitor_post_fork callback: %s:%d\n", OpenSS_exepath,forked_pid);
+    fprintf(stderr,"OPENSS monitor_post_fork callback:\n");
+#endif
+}
+#endif

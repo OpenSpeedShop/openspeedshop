@@ -95,10 +95,10 @@ hwctime_rt_offline_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 hwctime_rt_offline_la_LIBADD = \
-	-lopenss-runtime-offline \
         @LIBMONITOR_LIBS@ \
 	@LIBUNWIND_LIBS@ \
 	@PAPI_LIBS@ \
+	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 	-lpthread -lrt
 
 hwctime_rt_offline_la_SOURCES = \
@@ -107,26 +107,26 @@ hwctime_rt_offline_la_SOURCES = \
 	runtime.c
 
 libhwctime_offline_la_CFLAGS = \
-        @LIBMONITOR_CPPFLAGS@ \
-	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-static -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
+        @LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
 
 libhwctime_offline_la_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-runtime \
+	-static -L$(top_srcdir)/libopenss-runtime \
         @LIBMONITOR_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
 	@PAPI_LDFLAGS@ \
-	-static -no-undefined -module -avoid-version
+	-no-undefined
 
 libhwctime_offline_la_LIBADD = \
-	-lopenss-runtime-offline \
         @LIBMONITOR_LIBS@ \
 	@LIBUNWIND_LIBS@ \
 	@PAPI_LIBS@ \
+	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 	-lpthread -lrt
 
 libhwctime_offline_la_SOURCES = \

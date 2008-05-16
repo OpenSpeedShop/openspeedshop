@@ -16,7 +16,7 @@
 #include <sys/types.h>
 #include <errno.h>
 
-extern void offline_record_dso(const char* dsoname, uint64_t begin, uint64_t end);
+extern void offline_record_dso(const char* dsoname, uint64_t begin, uint64_t end, uint8_t is_dlopen);
 
 int OpenSS_GetDLInfo(pid_t pid, char *path)
 {
@@ -42,23 +42,21 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 	}
 
 	mappedpath[0] = '\0';
-#if 1
-	/* must read in the /proc/<pid>/maps file as it is formatted. */
+
+	/* Read in the /proc/<pid>/maps file as it is formatted. */
 	/* All fields are strings. The fields are as follows. */
-        /* address  perms offset  dev  inode  pathname */
-        /* The address field is begin-end in hex.  We record these as uint64_t. */
-        /* perms are at least one of rwxp - we just need the begin and end */
-	/* of the text section marked as "x". */
+	/* address  perms offset  dev  inode  pathname */
+	/* The address field is begin-end in hex. */
+	/* We record these as uint64_t. */
+	/* perms are at least one of rwxp - we want the begin and end */
+	/* address of the text section marked as "x". */
 	/* We record the mappedpath as is and ignore the rest of the fields. */
         sscanf(buf, "%lx-%lx %s %lx %s %ld %s", &begin, &end, perm,
                 &offset, dev, &inode, mappedpath);
-#else
-	sscanf(buf, "%lx %lx %4s %s", &begin, &end, perm, &offset, dev, &inode, mappedpath);
-#endif
 
-	/* If a dso is passed in the path argument we only want to record this */
-	/* particular dso into the openss-raw file. This happens when the victim */
-	/* application has performed a dlopen. */
+	/* If a dso is passed in the path argument we only want to record */
+	/* this particular dso into the openss-raw file. This happens when */
+	/* the victim application has performed a dlopen. */
 	if (path != NULL &&
 	    mappedpath != NULL &&
 	    perm[2] == 'x' &&
@@ -70,18 +68,34 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 		    mappedpath, begin, end);
 	    }
 #endif
-	    offline_record_dso(mappedpath, begin, end);
+	    offline_record_dso(mappedpath, begin, end, 1);
 	    break;
 	}
 
-	if (perm[2] == 'x') {
+	// DPM: added test for path 4-15-08
+	if (perm[2] == 'x' && path == NULL) {
 #ifndef NDEBUG
 	    if ( (getenv("OPENSS_DEBUG_OFFLINE") != NULL)) {
 		fprintf(stderr,"OpenSS_GetDLInfo record: %s [%08lx, %08lx]\n",
 		    mappedpath, begin, end);
 	    }
 #endif
-	    offline_record_dso(mappedpath, begin, end);
+	    if (strncmp("", mappedpath, strlen(mappedpath)) == 0) {
+#ifndef NDEBUG
+	        if ( (getenv("OPENSS_DEBUG_OFFLINE") != NULL)) {
+		    fprintf(stderr,"OpenSS_GetDLInfo mappedpath EMPTY\n");
+	        }
+#endif
+	        offline_record_dso("unknown", begin, end, 1);
+	    } else {
+#ifndef NDEBUG
+	        if ( (getenv("OPENSS_DEBUG_OFFLINE") != NULL)) {
+		    fprintf(stderr,"OpenSS_GetDLInfo mappedpath %s\n",
+			mappedpath);
+	        }
+#endif
+	        offline_record_dso(mappedpath, begin, end, 1);
+	    }
 	}
     }
     fclose(mapfile);

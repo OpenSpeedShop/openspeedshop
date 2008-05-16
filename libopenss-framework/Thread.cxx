@@ -463,8 +463,15 @@ Thread::getLinkedObjectAt(const Address& address, const Time& time) const
     dm_database->bindArgument(4, address);
     dm_database->bindArgument(5, address);	
     while(dm_database->executeStatement()) {
-	if(linked_object.first)
+	if(linked_object.first) {
+#if 0
+	    std::cerr <<"Thread::getLinkedObjectAt "
+		<< "EntryOverlapping AddressSpaces for " << address
+		<< " at Time " << time
+		<< std::endl;
+#endif
 	    throw Exception(Exception::EntryOverlapping, "AddressSpaces");
+	}
 	linked_object.first = true;
 	linked_object.second = LinkedObject(dm_database,
 					    dm_database->getResultAsInteger(1));
@@ -525,6 +532,17 @@ Thread::getFunctionAt(const Address& address, const Time& time) const
 #if 0
 	    throw Exception(Exception::EntryOverlapping, "AddressSpaces");
 #else
+// DEBUG
+#if 0
+	        std::cerr <<"Thread::getFunctionAt "
+		<< "LinkedObject EntryOverlapping AddressSpaces for " << address
+		<< std::endl;
+	        std::cerr <<"Thread::getFunctionAt "
+		<< "Overlapping LinkedObject is "
+		<< dm_database->getResultAsInteger(1)
+		<< " at " << dm_database->getResultAsAddress(2)
+		<< std::endl;
+#endif
             break;
 #endif
         }
@@ -556,6 +574,19 @@ Thread::getFunctionAt(const Address& address, const Time& time) const
 #if 0
 		throw Exception(Exception::EntryOverlapping, "Functions");
 #else
+// DEBUG
+#if 0
+	        std::cerr <<"Thread::getFunctionAt "
+		<< "Function EntryOverlapping AddressSpaces for " << address
+		<< std::endl;
+		function.second = Function(dm_database,
+                                       dm_database->getResultAsInteger(1));
+	        std::cerr <<"Thread::getFunctionAt "
+		<< "Overlapping Function is " << function.second.getName()
+		<< " at " << address
+		<< std::endl;
+                continue;
+#endif
                 break;
 #endif
             }
@@ -672,6 +703,156 @@ Thread::getStatementsAt(const Address& address, const Time& time) const
 
     // Return the statements to the caller
     return statements;
+}
+
+
+
+// Used by Experiment::compressDB to prune an OpenSpeedShop database of
+// any entries not found in the experiments sampled addresses.
+std::pair<std::pair<bool, Function> , std::set<Statement> >
+Thread::getFunctionAndStatementsAt(const Address& address) const
+{
+
+    std::pair<bool, Function> function(false, Function());
+    std::set<Statement> statements;
+
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    
+    // Find the linked object containing the requested address/time
+    bool found_linked_object = false; 
+    int linked_object = 0;
+    Address addr_begin = 0;    
+    dm_database->prepareStatement(
+	"SELECT linked_object, "
+	"       addr_begin "
+	"FROM AddressSpaces "
+	"WHERE thread = ? "
+	"  AND ? >= addr_begin "
+	"  AND ? < addr_end;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, address);
+    dm_database->bindArgument(3, address);	
+    while(dm_database->executeStatement()) {
+//
+//  Relax the overlap check in order to view traces for the iot experiment
+//  This is not a fix but is a relaxation of the testing for overlap.
+//
+	if(found_linked_object) {
+#if 0
+	    throw Exception(Exception::EntryOverlapping, "AddressSpaces");
+#else
+            //break;
+	    std::cerr <<"Thread::getFunctionAndStatementsAt "
+		<< "LinkedObject EntryOverlapping AddressSpaces for " << address
+		<< std::endl;
+#endif
+        }
+	found_linked_object = true;
+	linked_object = dm_database->getResultAsInteger(1);
+	addr_begin = dm_database->getResultAsAddress(2);
+    }
+
+    // Did we find the linked object?
+    if(found_linked_object) {
+
+	// Find the function containing the requested address
+	dm_database->prepareStatement(
+	    "SELECT Functions.id "
+	    "FROM Functions "
+	    "WHERE Functions.linked_object = ? "
+	    "  AND ? >= Functions.addr_begin "
+	    "  AND ? < Functions.addr_end;"
+	    );
+	dm_database->bindArgument(1, linked_object);
+	dm_database->bindArgument(2, Address(address - addr_begin));
+	dm_database->bindArgument(3, Address(address - addr_begin));
+	while(dm_database->executeStatement()) {
+	    bool overlap = false;
+	    if(function.first) {
+//
+//  Relax the overlap check in order to view traces for the iot experiment
+//  This is not a fix but is a relaxation of the testing for overlap.
+//
+#if 0
+		throw Exception(Exception::EntryOverlapping, "Functions");
+#else
+	        std::cerr <<"Thread::getFunctionAndStatementsAt "
+		<< "Function EntryOverlapping AddressSpaces for " << address
+		<< std::endl;
+		overlap = true;
+		function.second = Function(dm_database,
+                                       dm_database->getResultAsInteger(1));
+	        std::cerr <<"Thread::getFunctionAndStatementsAt "
+		<< "Overlapping Function is " << function.second.getName()
+		<< " at " << address
+		<< std::endl;
+                break;
+                //continue;
+#endif
+            }
+	    function.first = true;
+	    function.second = Function(dm_database,
+				       dm_database->getResultAsInteger(1));
+	        std::cerr <<"Thread::getFunctionAndStatementsAt "
+		<< "Function is " << function.second.getName()
+		<< " at " << address
+		<< std::endl;
+	}
+	
+	dm_database->prepareStatement(
+	    "SELECT Statements.id, "
+	    "       StatementRanges.addr_begin, "
+	    "       StatementRanges.addr_end, "
+	    "       StatementRanges.valid_bitmap "
+	    "FROM StatementRanges "
+	    "  JOIN Statements "
+	    "ON StatementRanges.statement = Statements.id "
+	    "WHERE Statements.linked_object = ? "
+	    "  AND ? >= StatementRanges.addr_begin "
+	    "  AND ? < StatementRanges.addr_end;"
+	    );
+	dm_database->bindArgument(1, linked_object);
+	dm_database->bindArgument(2, Address(address - addr_begin));
+	dm_database->bindArgument(3, Address(address - addr_begin));
+	while(dm_database->executeStatement()) {
+	    
+	    AddressBitmap bitmap(
+		AddressRange(dm_database->getResultAsAddress(2),
+			     dm_database->getResultAsAddress(3)),
+		dm_database->getResultAsBlob(4)
+		);
+	    
+	    if(bitmap.getValue(address - addr_begin)) {
+#if 0
+		Statement ss(dm_database,dm_database->getResultAsInteger(1));
+		std::set<Function> stmt_funcs = ss.getFunctions();
+		std::cerr << "STATEMENT in file " << ss.getPath()
+		    << "\n at line " << ss.getLine()
+		    << " at address " << address
+		    << " has " << stmt_funcs.size() << " funcs"
+		    << std::endl;
+#endif
+
+		statements.insert(
+		    Statement(dm_database,
+			      dm_database->getResultAsInteger(1))
+		    );
+	    } else {
+		//std::cerr << "NO STATEMENT HERE?" << std::endl;
+	    } 
+	}
+
+    }
+
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);
+
+    std::pair<std::pair<bool, Function>, std::set<Statement> >  functionAndStmts = std::make_pair(function,statements);
+    // Return the function and statements to the caller
+    return functionAndStmts;
 }
 
 

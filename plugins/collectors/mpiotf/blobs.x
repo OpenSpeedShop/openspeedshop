@@ -26,7 +26,7 @@
 
 
 /** Structure of the blob containing our parameters. */
-struct mpit_parameters {
+struct mpiotf_parameters {
 
     /** Flags indicating if each MPI function is to be traced. */
     uint8_t traced[1024];
@@ -36,7 +36,7 @@ struct mpit_parameters {
 
 
 /** Event structure describing a single MPI call. */
-struct mpit_event {
+struct mpiotf_event {
 
     uint64_t start_time;  /**< Start time of the call. */
     uint64_t stop_time;   /**< End time of the call. */
@@ -53,15 +53,15 @@ struct mpit_event {
 };
 
 /** Structure of the blob containing our performance data. */
-struct mpit_data {
+struct mpiotf_data {
     uint64_t stacktraces<>;  /**< Stack traces. */
-    mpit_event events<>;     /**< MPI call events. */
+    mpiotf_event events<>;     /**< MPI call events. */
 };
 
 
 
-/** Structure of the blob containing mpit_start_tracing()'s arguments. */
-struct mpit_start_tracing_args {
+/** Structure of the blob containing mpiotf_start_tracing()'s arguments. */
+struct mpiotf_start_tracing_args {
     int experiment;  /**< Identifier of experiment to contain the data. */
     int collector;   /**< Identifier of collector gathering data. */
 };

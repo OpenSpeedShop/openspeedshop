@@ -30,7 +30,11 @@
 
 
 
+#if defined (OPENSS_OFFLINE)
+int @FUNCTION@(@TYPED_ARGS@)
+#else
 int mpi_P@FUNCTION@(@TYPED_ARGS@)
+#endif
 {
     int retval, datatype_size;
     mpi_event event;

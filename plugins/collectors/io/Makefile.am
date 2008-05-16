@@ -1,6 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2008 The Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -30,6 +31,13 @@ if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += io.la io-rt.la
 endif
 
+if HAVE_LIBMONITOR
+OFFLINE_SOURCES = \
+	io_offline.c io_offline.h
+
+pkglib_LTLIBRARIES += io-rt-offline.la libio-offline.la
+endif
+
 if !BUILD_OFFLINE
 io_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -46,7 +54,7 @@ io_la_SOURCES = \
 	IOCollector.hxx IODetail.hxx IOCollector.cxx
 
 io_rt_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-runtime \
+	-D__USE_GNU -I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@
 
 io_rt_la_LDFLAGS = \
@@ -61,6 +69,60 @@ io_rt_la_LIBADD = \
 
 io_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
+	wrappers.c \
+	runtime.h runtime.c
+endif
+
+if HAVE_LIBMONITOR
+io_rt_offline_la_CFLAGS = \
+	-D__USE_GNU -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/fileio \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	@LIBMONITOR_CPPFLAGS@ \
+	@LIBUNWIND_CPPFLAGS@
+
+io_rt_offline_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-runtime \
+	@LIBMONITOR_LDFLAGS@ \
+	@LIBUNWIND_LDFLAGS@ \
+	-no-undefined -module -avoid-version
+
+io_rt_offline_la_LIBADD = \
+	@LIBUNWIND_LIBS@ \
+	@LIBMONITOR_LIBS@ \
+	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
+	-lpthread -lrt
+
+io_rt_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	wrappers.c \
+	runtime.h runtime.c
+
+libio_offline_la_CFLAGS = \
+	-static -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/fileio \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	@LIBMONITOR_CPPFLAGS@ \
+	@LIBUNWIND_CPPFLAGS@
+
+libio_offline_la_LDFLAGS = \
+	-static -L$(top_srcdir)/libopenss-runtime \
+	@LIBMONITOR_LDFLAGS@ \
+	@LIBUNWIND_LDFLAGS@ \
+	-no-undefined
+
+libio_offline_la_LIBADD = \
+	@LIBUNWIND_LIBS@ \
+	@LIBMONITOR_LIBS@ \
+	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
+	-lpthread -lrt
+
+libio_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
 	wrappers.c \
 	runtime.h runtime.c
 endif

@@ -1,6 +1,7 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 ** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+** Copyright (c) 2007 Krell Institute.  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -83,7 +84,8 @@ static void send_samples()
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"usertimeTimerHandler sends data:\n");
         fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] bt_len(%d) count_len(%d)\n",
-            tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,tls.data.bt.bt_len,
+            tls.header.time_end,tls.header.addr_begin,
+	    tls.header.addr_end,tls.data.bt.bt_len,
             tls.data.count.count_len);
     }
 #endif
@@ -247,6 +249,8 @@ static void usertimeTimerHandler(const ucontext_t* context)
     }
 }
 
+
+
 /**
  * Start sampling.
  *
@@ -259,28 +263,35 @@ static void usertimeTimerHandler(const ucontext_t* context)
 void usertime_start_sampling(const char* arguments)
 {
     usertime_start_sampling_args args;
+
+#if defined (OPENSS_USE_FILEIO)
+    /* Create the rawdata output file prefix. */
+    /* fpe_stop_tracing will append */
+    /* a tid as needed for the actuall .openss-xdrtype filename */
+    OpenSS_CreateFilePrefix("usertime");
+#endif
+
 #if defined (OPENSS_OFFLINE)
 
     /* TODO: need to handle arguments for offline collectors */
     args.collector=1;
     args.experiment=0; /* DataQueues index start at 0.*/
-    args.sampling_rate=100000;
-
-    /* Create the rawdata output file prefix.  usertime_stop_sampling will append */
-    /* a tid as needed for the actuall .openss-xdrtype filename */
-    OpenSS_CreateFilePrefix("usertime");
+    args.sampling_rate=35;
 
     /* Initialize the info blob's header */
-    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
-     */
+    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was */
+    /* not safe on ia64 systems. */
     OpenSS_DataHeader local_info_header;
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_info_header));
     memcpy(&tlsinfo.header, &local_info_header, sizeof(OpenSS_DataHeader));
+
+    tlsinfo.header.time_begin = OpenSS_GetTime();
 
     char hostname[HOST_NAME_MAX];
     gethostname(hostname, HOST_NAME_MAX);
     tlsinfo.info.collector = "usertime";
     tlsinfo.info.hostname = strdup(hostname);
+    tlsinfo.info.exename = strdup(OpenSS_exepath);
     tlsinfo.info.pid = getpid();
 #if defined (OPENSS_USE_FILEIO)
     tlsinfo.info.tid = OpenSS_rawtid;
@@ -290,7 +301,8 @@ void usertime_start_sampling(const char* arguments)
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"usertime_start_sampling sends tlsinfo:\n");
         fprintf(stderr,"collector=%s, hostname=%s, pid =%d, OpenSS_rawtid=%lx\n",
-            tlsinfo.info.collector,tlsinfo.info.hostname,tlsinfo.info.pid,tlsinfo.info.tid);
+            tlsinfo.info.collector,tlsinfo.info.hostname,
+	    tlsinfo.info.pid,tlsinfo.info.tid);
     }
 #endif
 
@@ -309,6 +321,7 @@ void usertime_start_sampling(const char* arguments)
 			    &args);
 #endif
     
+
     /* Initialize the data blob's header */
     /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
      */

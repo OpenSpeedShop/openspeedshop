@@ -1,6 +1,7 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 ** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+** Copyright (c) 2008 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -24,16 +25,25 @@
  */
 
 #include "RuntimeAPI.h"
-#include "blobs.h"
 #include "runtime.h"
 
+#if defined (OPENSS_OFFLINE)
+#include "mpi_offline.h"
+#endif
 
+#if defined (OPENSS_USE_FILEIO)
+#include "OpenSS_FileIO.h"
+#endif
 
 /** Number of overhead frames in each stack frame to be skipped. */
+#if defined(OPENSS_OFFLINE)
+const unsigned OverheadFrameCount = 2;
+#else
 #if defined(__linux) && defined(__ia64)
 const unsigned OverheadFrameCount = 3;
 #else
 const unsigned OverheadFrameCount = 2;
+#endif
 #endif
 
 /*
@@ -82,6 +92,23 @@ static void mpi_send_events()
 {
     /* Set the end time of this data blob */
     tls.header.time_end = OpenSS_GetTime();
+
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+        fprintf(stderr,"MPIT Collector runtime sends data:\n");
+        fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] "
+		" stacktraces_len(%d) events_len(%d)\n",
+            tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,
+	    tls.data.stacktraces.stacktraces_len,
+            tls.data.events.events_len);
+    }
+#endif
+
+#if defined (OPENSS_USE_FILEIO)
+    /* Create the openss-raw file name for this exe-collector-pid-tid */
+    /* Default is to create openss-raw files in /tmp */
+    OpenSS_CreateOutfile("openss-data");
+#endif
     
     /* Send these events */
     OpenSS_Send(&(tls.header), (xdrproc_t)xdr_mpi_data, &(tls.data));
@@ -251,18 +278,81 @@ void mpi_start_tracing(const char* arguments)
 {
     mpi_start_tracing_args args;
 
+#if defined (OPENSS_USE_FILEIO)
+    /* Create the rawdata output file prefix. */
+    /* fpe_stop_tracing will append */
+    /* a tid as needed for the actuall .openss-xdrtype filename */
+    OpenSS_CreateFilePrefix("mpi");
+#endif
+
+#if defined (OPENSS_OFFLINE)
+
+#if 0
+    /* TODO */
+    const char* TraceableFunctions[] = {
+       mpi traced functions
+    }
+#endif
+
+    /* TODO: need to handle arguments for offline collectors */
+    args.collector=1;
+    args.experiment=0; /* DataQueues index start at 0.*/
+    /* traced functions here? */
+
+    /* Initialize the info blob's header */
+    /* Passing &(tls.header) to OpenSS_InitializeDataHeader */
+    /* was not safe on ia64 systems. */
+    OpenSS_DataHeader local_info_header;
+    OpenSS_InitializeDataHeader(args.experiment, args.collector,
+				&(local_info_header));
+    memcpy(&tlsinfo.header, &local_info_header, sizeof(OpenSS_DataHeader));
+
+    tlsinfo.header.time_begin = OpenSS_GetTime();
+
+    char hostname[HOST_NAME_MAX];
+    gethostname(hostname, HOST_NAME_MAX);
+    tlsinfo.info.collector = "mpi";
+    tlsinfo.info.hostname = strdup(hostname);
+    tlsinfo.info.exename = strdup(OpenSS_exepath);
+    tlsinfo.info.pid = getpid();
+#if defined (OPENSS_USE_FILEIO)
+    tlsinfo.info.tid = OpenSS_rawtid;
+#endif
+
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+        fprintf(stderr,"mpi_start_tracing sends tlsinfo:\n");
+        fprintf(stderr,"collector=%s, hostname=%s, pid=%d, OpenSS_rawtid=%lx\n",
+            tlsinfo.info.collector,tlsinfo.info.hostname,
+	    tlsinfo.info.pid,tlsinfo.info.tid);
+    }
+#endif
+
+    /* create the openss-info data and send it */
+#if defined (OPENSS_USE_FILEIO)
+    OpenSS_CreateOutfile("openss-info");
+#endif
+    tlsinfo.header.time_end = OpenSS_GetTime();
+    OpenSS_Send(&(tlsinfo.header),
+		(xdrproc_t)xdr_openss_expinfo,
+		&(tlsinfo.info));
+
+#else
+
+
     /* Decode the passed function arguments. */
     memset(&args, 0, sizeof(args));
     OpenSS_DecodeParameters(arguments,
                             (xdrproc_t)xdr_mpi_start_tracing_args,
                             &args);
-    
+#endif
+
     /* Initialize the MPI function wrapper nesting depth */
     tls.nesting_depth = 0;
 
     /* Initialize the data blob's header */
-    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
-     */
+    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not */
+    /* safe on ia64 systems. */
     OpenSS_DataHeader local_header;
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
     memcpy(&tls.header, &local_header, sizeof(OpenSS_DataHeader));

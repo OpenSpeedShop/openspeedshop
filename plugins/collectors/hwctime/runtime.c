@@ -1,6 +1,7 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 ** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+** Copyright (c) 2007 Krell Institute.  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -36,6 +37,7 @@
 #if defined (OPENSS_OFFLINE)
 #include "hwctime_offline.h"
 #endif
+
 #if defined (OPENSS_USE_FILEIO)
 #include "OpenSS_FileIO.h"
 #endif
@@ -62,6 +64,9 @@ int EventSet = PAPI_NULL;
 /** Number of entries in the sample buffer. */
 #define BufferSize 1024
 
+/** Man number of frames for callstack collection */
+#define MAXFRAMES 100
+
 /** Thread-local storage. */
 static __thread struct {
 
@@ -87,8 +92,8 @@ static void send_samples()
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"hwctime send_samples: sends data:\n");
         fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] bt_len(%d)\n",
-            tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,tls.data.bt.bt_len
-            );
+            tls.header.time_end,tls.header.addr_begin,
+	    tls.header.addr_end,tls.data.bt.bt_len);
     }
 #endif
 
@@ -231,7 +236,7 @@ hwctimePAPIHandler(int EventSet, void *address, long_long overflow_vector,
 
     /* reset the signal handler overhead marker */
     overhead_marker = 0;
-total++;
+    total++;
 }
 
 /**
@@ -248,6 +253,13 @@ void hwctime_start_sampling(const char* arguments)
     hwc_init_papi();
 
     hwctime_start_sampling_args args;
+
+#if defined (OPENSS_USE_FILEIO)
+    /* Create the rawdata output file prefix. */
+    /* fpe_stop_tracing will append */
+    /* a tid as needed for the actuall .openss-xdrtype filename */
+    OpenSS_CreateFilePrefix("hwctime");
+#endif
 
 #if defined (OPENSS_OFFLINE)
 
@@ -271,21 +283,20 @@ void hwctime_start_sampling(const char* arguments)
 #endif
 
 
-    /* Create the rawdata output file prefix.  hwctime_stop_sampling will append */
-    /* a tid as needed for the actuall .openss-xdrtype filename */
-    OpenSS_CreateFilePrefix("hwctime");
-
     /* Initialize the info blob's header */
-    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
-     */
+    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was */
+    /* not safe on ia64 systems. */
     OpenSS_DataHeader local_info_header;
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_info_header));
     memcpy(&tlsinfo.header, &local_info_header, sizeof(OpenSS_DataHeader));
+
+    tlsinfo.header.time_begin = OpenSS_GetTime();
 
     char hostname[HOST_NAME_MAX];
     gethostname(hostname, HOST_NAME_MAX);
     tlsinfo.info.collector = "hwctime";
     tlsinfo.info.hostname = strdup(hostname);
+    tlsinfo.info.exename = strdup(OpenSS_exepath);
     tlsinfo.info.pid = getpid();
 #if defined (OPENSS_USE_FILEIO)
     tlsinfo.info.tid = OpenSS_rawtid;
@@ -295,16 +306,19 @@ void hwctime_start_sampling(const char* arguments)
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"hwctime_start_sampling sends tlsinfo:\n");
         fprintf(stderr,"collector=%s, hostname=%s, pid =%d, tid=%lx\n",
-            tlsinfo.info.collector,tlsinfo.info.hostname,tlsinfo.info.pid,tlsinfo.info.tid);
+            tlsinfo.info.collector,tlsinfo.info.hostname,
+	    tlsinfo.info.pid,tlsinfo.info.tid);
     }
 #endif
 
+    /* create the openss-info data and send it */
 #if defined (OPENSS_USE_FILEIO)
     OpenSS_CreateOutfile("openss-info");
 #endif
     OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
 
 #else
+
     /* Decode the passed function arguments. */
     memset(&args, 0, sizeof(args));
     OpenSS_DecodeParameters(arguments,
@@ -375,7 +389,7 @@ void hwctime_stop_sampling(const char* arguments)
 
     OpenSS_Stop(EventSet);
 
-/* debug */
+/* debug used to compute space needs for data blobs */
 #if 0
 fprintf(stderr,"hwctime_stop_sampling: total calls to handler= %d\n",total);
 fprintf(stderr,"hwctime_stop_sampling: stacktotal = %d\n",stacktotal);

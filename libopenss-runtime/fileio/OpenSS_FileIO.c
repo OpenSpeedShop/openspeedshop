@@ -30,13 +30,36 @@
 #include "RuntimeAPI.h"
 #include "OpenSS_FileIO.h"
 
-pid_t create_OpenSS_exepath () {
+static pid_t create_OpenSS_exepath () {
     pid_t pid = getpid();
-    char tmpname[PATH_MAX];
+    char tmpname[PATH_MAX],buf[PATH_MAX];
 
     /* find our exe path (read symlink for /proc/pid/exe) */
+#if 0
     OpenSS_Path_From_Pid(tmpname);
     OpenSS_exepath = strdup(tmpname);
+#else
+    memset(tmpname,0x0,sizeof(tmpname));
+    memset(buf,0x0,sizeof(buf));
+    sprintf(tmpname,"/proc/%d/exe",pid);
+    if (readlink(tmpname,buf,PATH_MAX) == -1) {
+	fprintf(stderr,"Openss could not determine executable.\n");
+	OpenSS_exepath = strdup("Unknown-exe");
+    } else {
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_FILEIO") != NULL) {
+	fprintf(stderr,"Openss finds executable %s.\n", buf);
+    }
+#endif
+	OpenSS_exepath = strdup(buf);
+    }
+#endif
+
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_FILEIO") != NULL) {
+	fprintf(stderr,"create_OpenSS_exepath: OpenSS_exepath = %s, pid = %d\n",OpenSS_exepath,pid);
+    }
+#endif
     return pid;
 }
 
@@ -64,6 +87,11 @@ void OpenSS_CreateFilePrefix (char *collectorname) {
     int rval = mkdir(dirname, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     sprintf(tmpname,"%s/%s-%d",dirname,bname,pid);
     OpenSS_rawprefix = strdup(tmpname);
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_FILEIO") != NULL) {
+	fprintf(stderr,"OpenSS_CreateFilePrefix: OpenSS_rawprefix = %s\n",OpenSS_rawprefix);
+    }
+#endif
 }
 
 void OpenSS_CreateOutfile (char *suffix) {

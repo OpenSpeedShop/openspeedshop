@@ -29,8 +29,10 @@
 dist_bin_SCRIPTS = ossrun
 BUILT_FILES = ossrun
 
+bin_PROGRAMS =
+
 if !BUILD_OFFLINE
-bin_PROGRAMS = openss
+bin_PROGRAMS += openss
 
 openss_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
@@ -49,6 +51,35 @@ openss_LDADD = \
 openss_SOURCES = \
 	openss.cxx
 endif
+
+bin_PROGRAMS += ossutil
+
+ossutil_CXXFLAGS = \
+        -I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-queries \
+        -I$(top_srcdir)/libopenss-runtime \
+        -DLIBRARY_DIR=\"$(libdir)\" \
+        -DPLUGIN_DIR=\"$(pkglibdir)\" \
+        -DLIB_DIR_NAME=\"$(abi_libdir_name)\" \
+        $(LTDLINCL)
+
+ossutil_LDFLAGS = \
+        -L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-queries \
+        -L$(top_srcdir)/libopenss-runtime
+
+ossutil_LDADD = \
+        $(LIBLTDL) \
+	-lopenss-framework \
+	-lopenss-queries \
+	-lbfd \
+	-lopcodes -liberty \
+        $(top_srcdir)/libopenss-runtime/.libs/libopenss-runtime-offline.a \
+        -lpthread
+
+ossutil_SOURCES = \
+        ossutil.cxx
+
 
 CLEANFILES = $(BUILT_FILES)
 

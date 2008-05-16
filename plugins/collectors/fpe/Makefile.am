@@ -1,6 +1,7 @@
 ################################################################################
 # Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2008 The Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -28,7 +29,16 @@ pkglib_LTLIBRARIES =
 
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += fpe.la fpe-rt.la
+endif
 
+if HAVE_LIBMONITOR
+OFFLINE_SOURCES = \
+	fpe_offline.c fpe_offline.h
+
+pkglib_LTLIBRARIES += fpe-rt-offline.la libfpe-offline.la
+endif
+
+if !BUILD_OFFLINE
 fpe_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -64,6 +74,64 @@ fpe_rt_la_LIBADD = \
 fpe_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.c
+endif
+
+if HAVE_LIBMONITOR
+fpe_rt_offline_la_CFLAGS = \
+	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/fileio \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	@BINUTILS_CPPFLAGS@ \
+	@LIBMONITOR_CPPFLAGS@ \
+	@LIBUNWIND_CPPFLAGS@
+
+fpe_rt_offline_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-runtime \
+	@BINUTILS_LDFLAGS@ \
+	@LIBMONITOR_LDFLAGS@ \
+	@LIBUNWIND_LDFLAGS@ \
+	-no-undefined -module -avoid-version
+
+fpe_rt_offline_la_LIBADD = \
+	@BINUTILS_LIBS@ \
+	@LIBUNWIND_LIBS@ \
+	@LIBMONITOR_LIBS@ \
+	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
+	-lpthread -lrt
+
+fpe_rt_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	runtime.h runtime.c
+
+libfpe_offline_la_CFLAGS = \
+	-static -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/fileio \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	@BINUTILS_CPPFLAGS@ \
+	@LIBMONITOR_CPPFLAGS@ \
+	@LIBUNWIND_CPPFLAGS@
+
+libfpe_offline_la_LDFLAGS = \
+	-static -L$(top_srcdir)/libopenss-runtime \
+	@BINUTILS_LDFLAGS@ \
+	@LIBMONITOR_LDFLAGS@ \
+	@LIBUNWIND_LDFLAGS@ \
+	-no-undefined
+
+libfpe_offline_la_LIBADD = \
+	@BINUTILS_LIBS@ \
+	@LIBUNWIND_LIBS@ \
+	@LIBMONITOR_LIBS@ \
+	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
+	-lpthread -lrt
+
+libfpe_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	runtime.h runtime.c
 endif
 
 SUFFIXES = .x

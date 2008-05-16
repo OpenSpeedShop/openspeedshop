@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2008 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -523,4 +524,26 @@ void FPECollector::getMetricValues(const std::string& metric,
     // Free the decoded data blob
     xdr_free(reinterpret_cast<xdrproc_t>(xdr_fpe_data),
 	     reinterpret_cast<char*>(&data));
+}
+
+
+void FPECollector::getUniquePCValues( const Thread& thread,
+                                     const Blob& blob,
+                                     PCBuffer *buffer) const
+{
+
+    // Decode this data blob
+    fpe_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_fpe_data), &data);
+
+    if (data.stacktraces.stacktraces_len == 0) {
+    }
+
+    // Iterate over each stack trace in the data blob
+    for(unsigned i = 0; i < data.stacktraces.stacktraces_len; ++i) {
+	if (data.stacktraces.stacktraces_val[i] != 0) {
+	    UpdatePCBuffer(data.stacktraces.stacktraces_val[i], buffer);
+	}
+    }
 }

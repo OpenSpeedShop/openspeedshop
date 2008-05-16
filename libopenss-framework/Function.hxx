@@ -74,6 +74,10 @@ namespace OpenSpeedShop { namespace Framework {
 	std::set<Thread> getThreads() const;
 	ExtentGroup getExtentIn(const Thread&) const;
 	LinkedObject getLinkedObject() const;
+
+	// Used by Experiment::compressDB to prune an OpenSpeedShop database of
+	// any entries not found in the experiments sampled addresses.
+	AddressRange getAddressRange() const;
 	
 	std::string getName() const;
 	std::string getMangledName() const;

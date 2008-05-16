@@ -26,11 +26,13 @@ libopenss_framework_la_CXXFLAGS = \
 	$(LTDLINCL) \
 	@ARRAYSVCS_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@ \
+	@BINUTILS_CPPFLAGS@ \
 	@SQLITE_CPPFLAGS@
 
 libopenss_framework_la_LDFLAGS = \
 	@ARRAYSVCS_LDFLAGS@ \
 	@PAPI_LDFLAGS@ \
+	@BINUTILS_LDFLAGS@ \
 	@SQLITE_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
 
@@ -39,8 +41,9 @@ libopenss_framework_la_LIBADD = \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
 	@PAPI_LIBS@ \
+	@BINUTILS_LIBS@ \
 	@SQLITE_LIBS@ \
-	-lpthread -lrt -liberty
+	-lpthread -lrt -lbfd -liberty
 
 libopenss_framework_la_SOURCES = \
 	$(top_srcdir)/libopenss-runtime/OpenSS_DataHeader.c \
@@ -50,6 +53,7 @@ libopenss_framework_la_SOURCES = \
 	AddressSpace.hxx AddressSpace.cxx \
 	Assert.hxx \
 	Blob.hxx Blob.cxx \
+	BFDSymbols.hxx BFDSymbols.cxx \
 	CallSite.hxx CallSite.cxx \
 	Collector.hxx Collector.cxx \
 	CollectorAPI.hxx \
@@ -78,7 +82,9 @@ libopenss_framework_la_SOURCES = \
 	Metadata.hxx \
 	NonCopyable.hxx \
 	OutputCallback.hxx \
+	OfflineExperiment.hxx OfflineExperiment.cxx \
 	Path.hxx Path.cxx \
+	PCBuffer.hxx PCBuffer.cxx \
 	SmartPtr.hxx \
 	StackTrace.hxx \
 	Statement.hxx Statement.cxx \

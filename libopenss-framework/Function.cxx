@@ -507,3 +507,30 @@ Function::Function(const SmartPtr<Database>& database, const int& entry) :
     Entry(database, Entry::Functions, entry)
 {
 }
+
+
+// Used by Experiment::compressDB to prune an OpenSpeedShop database of
+// any entries not found in the experiments sampled addresses.
+AddressRange Function::getAddressRange() const
+{
+    AddressRange frange;
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+	"SELECT "
+	"       addr_begin, "
+	"       addr_end "
+	"FROM Functions "
+	"WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement()) {
+
+	AddressRange range(dm_database->getResultAsAddress(1),
+			   dm_database->getResultAsAddress(2));
+	frange = range;
+    }
+    END_TRANSACTION(dm_database);
+
+    return frange;
+}

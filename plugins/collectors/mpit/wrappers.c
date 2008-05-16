@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2008 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -33,7 +34,12 @@ static int debug_trace = 0;
  * MPI_Irecv
  */
 
-int mpit_PMPI_Irecv(void* buf, int count, MPI_Datatype datatype, int source, 
+#if defined (OPENSS_OFFLINE)
+int MPI_Irecv(
+#else
+int mpit_PMPI_Irecv(
+#endif
+		    void* buf, int count, MPI_Datatype datatype, int source, 
 		    int tag, MPI_Comm comm, MPI_Request* request)
 {
     int retval, datatype_size;
@@ -50,14 +56,18 @@ int mpit_PMPI_Irecv(void* buf, int count, MPI_Datatype datatype, int source,
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Irecv));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Irecv));
     return retval;
 }
 
 /*
  * MPI_Recv
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Recv(
+#else
 int mpit_PMPI_Recv(
+#endif
     void* buf, 
     int count, 
     MPI_Datatype datatype, 
@@ -84,7 +94,7 @@ int mpit_PMPI_Recv(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Recv));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Recv));
 
     return retval;
 }
@@ -93,14 +103,18 @@ int mpit_PMPI_Recv(
 /*
  * MPI_Recv_init
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Recv_init(
+#else
 int mpit_PMPI_Recv_init(
+#endif
     void* buf, 
     int count, 
     MPI_Datatype datatype, 
     int source, 
     int tag, 
     MPI_Comm comm, 
-    MPI_Status *status)
+    MPI_Request *request)
 {
     int retval, datatype_size;
     mpit_event event;
@@ -108,7 +122,7 @@ int mpit_PMPI_Recv_init(
     mpit_start_event(&event);
     event.start_time = OpenSS_GetTime();
 
-    retval = PMPI_Recv_init(buf, count, datatype, source,  tag, comm, status);
+    retval = PMPI_Recv_init(buf, count, datatype, source,  tag, comm, request);
 
     event.stop_time = OpenSS_GetTime();
     event.source = source;
@@ -120,7 +134,7 @@ int mpit_PMPI_Recv_init(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Recv_init));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Recv_init));
 
     return retval;
 }
@@ -128,7 +142,11 @@ int mpit_PMPI_Recv_init(
 /*
  * MPI_Iprobe
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Iprobe(
+#else
 int mpit_PMPI_Iprobe(
+#endif
     int source, 
     int tag, 
     MPI_Comm comm, 
@@ -150,7 +168,7 @@ int mpit_PMPI_Iprobe(
     event.communicator = comm;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Iprobe));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Iprobe));
 
     return retval;
 }
@@ -158,7 +176,11 @@ int mpit_PMPI_Iprobe(
 /*
  * MPI_probe
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Probe(
+#else
 int mpit_PMPI_Probe(
+#endif
     int source, 
     int tag, 
     MPI_Comm comm, 
@@ -179,7 +201,7 @@ int mpit_PMPI_Probe(
     event.communicator = comm;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Probe));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Probe));
 
     return retval;
 }
@@ -190,7 +212,11 @@ int mpit_PMPI_Probe(
  * MPI_Isend
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Isend(
+#else
 int mpit_PMPI_Isend(
+#endif
     void* buf, 
     int count, 
     MPI_Datatype datatype, 
@@ -218,7 +244,7 @@ int mpit_PMPI_Isend(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Isend));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Isend));
 
     return retval;
 }
@@ -226,7 +252,11 @@ int mpit_PMPI_Isend(
 /*
  * MPI_Bsend
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Bsend(
+#else
 int mpit_PMPI_Bsend(
+#endif
     void* buf, 
     int count, 
     MPI_Datatype datatype, 
@@ -252,7 +282,7 @@ int mpit_PMPI_Bsend(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Bsend));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Bsend));
 
     return retval;
 }
@@ -261,7 +291,11 @@ int mpit_PMPI_Bsend(
 /*
  * MPI_Bsend_init
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Bsend_init(
+#else
 int mpit_PMPI_Bsend_init(
+#endif
     void* buf, 
     int count, 
     MPI_Datatype datatype, 
@@ -288,7 +322,7 @@ int mpit_PMPI_Bsend_init(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Bsend_init));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Bsend_init));
 
     return retval;
 }
@@ -296,7 +330,11 @@ int mpit_PMPI_Bsend_init(
 /*
  * MPI_Ibsend
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Ibsend(
+#else
 int mpit_PMPI_Ibsend(
+#endif
     void* buf, 
     int count, 
     MPI_Datatype datatype, 
@@ -323,7 +361,7 @@ int mpit_PMPI_Ibsend(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Ibsend));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Ibsend));
 
     return retval;
 }
@@ -331,7 +369,11 @@ int mpit_PMPI_Ibsend(
 /*
  * MPI_Irsend
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Irsend(    
+#else
 int mpit_PMPI_Irsend(    
+#endif
     void* buf, 
     int count, 
     MPI_Datatype datatype, 
@@ -358,7 +400,7 @@ int mpit_PMPI_Irsend(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Irsend));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Irsend));
 
     return retval;
 }
@@ -366,7 +408,11 @@ int mpit_PMPI_Irsend(
 /*
  * MPI_Issend
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Issend(
+#else
 int mpit_PMPI_Issend(
+#endif
     void* buf, 
     int count, 
     MPI_Datatype datatype, 
@@ -393,7 +439,7 @@ int mpit_PMPI_Issend(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Issend));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Issend));
 
     return retval;
 }
@@ -401,7 +447,11 @@ int mpit_PMPI_Issend(
 /*
  * MPI_Rsend
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Rsend(
+#else
 int mpit_PMPI_Rsend(
+#endif
     void* buf, 
     int count, 
     MPI_Datatype datatype, 
@@ -427,7 +477,7 @@ int mpit_PMPI_Rsend(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Rsend));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Rsend));
 
     return retval;
 }
@@ -436,7 +486,11 @@ int mpit_PMPI_Rsend(
 /*
  * MPI_Rsend_init
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Rsend_init(
+#else
 int mpit_PMPI_Rsend_init(
+#endif
     void* buf, 
     int count, 
     MPI_Datatype datatype, 
@@ -464,7 +518,7 @@ int mpit_PMPI_Rsend_init(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Rsend_init));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Rsend_init));
 
     return retval;
 }
@@ -472,7 +526,11 @@ int mpit_PMPI_Rsend_init(
 /*
  * MPI_Send
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Send(
+#else
 int mpit_PMPI_Send(
+#endif
     void* buf, 
     int count, 
     MPI_Datatype datatype, 
@@ -498,7 +556,7 @@ int mpit_PMPI_Send(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Send));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Send));
 
     return retval;
 }
@@ -507,7 +565,11 @@ int mpit_PMPI_Send(
 /*
  * MPI_Send_init
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Send_init(
+#else
 int mpit_PMPI_Send_init(
+#endif
     void* buf, 
     int count, 
     MPI_Datatype datatype, 
@@ -535,7 +597,7 @@ int mpit_PMPI_Send_init(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Send_init));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Send_init));
 
     return retval;
 }
@@ -543,7 +605,11 @@ int mpit_PMPI_Send_init(
 /*
  * MPI_Ssend
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Ssend(
+#else
 int mpit_PMPI_Ssend(
+#endif
     void* buf,
     int count, 
     MPI_Datatype datatype, 
@@ -569,7 +635,7 @@ int mpit_PMPI_Ssend(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Ssend));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Ssend));
 
     return retval;
 }
@@ -578,7 +644,11 @@ int mpit_PMPI_Ssend(
 /*
  * MPI_Ssend_init
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Ssend_init(
+#else
 int mpit_PMPI_Ssend_init(
+#endif
     void* buf,
     int count, 
     MPI_Datatype datatype, 
@@ -606,7 +676,7 @@ int mpit_PMPI_Ssend_init(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Ssend_init));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Ssend_init));
 
     return retval;
 }
@@ -614,7 +684,11 @@ int mpit_PMPI_Ssend_init(
 /*
  * MPI_Waitall
  */
+#if defined (OPENSS_OFFLINE)
+int MPI_Waitall(
+#else
 int mpit_PMPI_Waitall(
+#endif
     int count, 
     MPI_Request *array_of_requests, 
     MPI_Status *status)
@@ -631,7 +705,7 @@ int mpit_PMPI_Waitall(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Waitall));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Waitall));
 
     return retval;
 }
@@ -640,7 +714,11 @@ int mpit_PMPI_Waitall(
  * MPI_Finalize
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Finalize()
+#else
 int mpit_PMPI_Finalize()
+#endif
 {
     int retval;
     int datatype_size;
@@ -658,7 +736,7 @@ int mpit_PMPI_Finalize()
 
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Finalize));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Finalize));
 
     return retval;
 }
@@ -670,7 +748,11 @@ int mpit_PMPI_Finalize()
     
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Waitsome(
+#else
 int mpit_PMPI_Waitsome(
+#endif
     int incount, 
     MPI_Request *array_of_requests, 
     int *outcount, 
@@ -693,7 +775,7 @@ int mpit_PMPI_Waitsome(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Waitsome));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Waitsome));
 
     return retval;
 }
@@ -705,7 +787,11 @@ int mpit_PMPI_Waitsome(
     
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Testsome(
+#else
 int mpit_PMPI_Testsome(
+#endif
     int incount, 
     MPI_Request *array_of_requests, 
     int *outcount, 
@@ -728,7 +814,7 @@ int mpit_PMPI_Testsome(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Testsome));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Testsome));
 
     return retval;
 }
@@ -737,7 +823,11 @@ int mpit_PMPI_Testsome(
  * MPI_Waitany
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Waitany(
+#else
 int mpit_PMPI_Waitany(
+#endif
     int count,   
     MPI_Request *array_of_requests, 
     int *index, 
@@ -757,7 +847,7 @@ int mpit_PMPI_Waitany(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Waitany));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Waitany));
 
     return retval;
 }
@@ -769,7 +859,11 @@ int mpit_PMPI_Waitany(
     I'm going to use outsize.
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Unpack(
+#else
 int mpit_PMPI_Unpack(
+#endif
     void* inbuf, 
     int insize, 
     int *position, 
@@ -797,7 +891,7 @@ int mpit_PMPI_Unpack(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Unpack));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Unpack));
 
     return retval;
 }
@@ -806,7 +900,11 @@ int mpit_PMPI_Unpack(
  * MPI_Wait
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Wait(
+#else
 int mpit_PMPI_Wait(
+#endif
     MPI_Request *request, 
     MPI_Status *status
     )
@@ -824,7 +922,7 @@ int mpit_PMPI_Wait(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Wait));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Wait));
 
     return retval;
 }
@@ -833,7 +931,11 @@ int mpit_PMPI_Wait(
  * MPI_Testany
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Testany(
+#else
 int mpit_PMPI_Testany(
+#endif
     int count,
     MPI_Request *array_of_requests,
     int *index,
@@ -854,7 +956,7 @@ int mpit_PMPI_Testany(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Testany));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Testany));
 
     return retval;
 }
@@ -863,7 +965,11 @@ int mpit_PMPI_Testany(
  * MPI_Testall
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Testall(
+#else
 int mpit_PMPI_Testall(
+#endif
     int count,
     MPI_Request *array_of_requests, 
     int *flag, 
@@ -883,7 +989,7 @@ int mpit_PMPI_Testall(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Testall));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Testall));
 
     return retval;
 }
@@ -892,7 +998,11 @@ int mpit_PMPI_Testall(
  * MPI_Test
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Test(
+#else
 int mpit_PMPI_Test(
+#endif
     MPI_Request *request, 
     int *flag, 
     MPI_Status *status
@@ -911,7 +1021,7 @@ int mpit_PMPI_Test(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Test));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Test));
 
     return retval;
 }
@@ -920,7 +1030,11 @@ int mpit_PMPI_Test(
  * MPI_Scan
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Scan(
+#else
 int mpit_PMPI_Scan(
+#endif
     void* sendbuf, 
     void* recvbuf, 
     int count, 
@@ -947,7 +1061,7 @@ int mpit_PMPI_Scan(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Scan));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Scan));
 
     return retval;
 }
@@ -956,7 +1070,11 @@ int mpit_PMPI_Scan(
  * MPI_Request_free
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Request_free(
+#else
 int mpit_PMPI_Request_free(
+#endif
     MPI_Request *request
     )
 {
@@ -974,7 +1092,7 @@ int mpit_PMPI_Request_free(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Request_free));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Request_free));
 
     return retval;
 }
@@ -986,7 +1104,11 @@ int mpit_PMPI_Request_free(
     
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Reduce_scatter(
+#else
 int mpit_PMPI_Reduce_scatter(
+#endif
     void* sendbuf, 
     void* recvbuf, 
     int *recvcounts, 
@@ -1013,7 +1135,7 @@ int mpit_PMPI_Reduce_scatter(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Reduce_scatter));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Reduce_scatter));
 
     return retval;
 }
@@ -1022,7 +1144,11 @@ int mpit_PMPI_Reduce_scatter(
  * MPI_Reduce
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Reduce(
+#else
 int mpit_PMPI_Reduce(
+#endif
     void* sendbuf, 
     void* recvbuf, 
     int count, 
@@ -1050,7 +1176,7 @@ int mpit_PMPI_Reduce(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Reduce));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Reduce));
 
     return retval;
 }
@@ -1059,7 +1185,11 @@ int mpit_PMPI_Reduce(
  * MPI_Pack
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Pack(
+#else
 int mpit_PMPI_Pack(
+#endif
     void* inbuf, 
     int incount, 
     MPI_Datatype datatype, 
@@ -1088,7 +1218,7 @@ int mpit_PMPI_Pack(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Pack));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Pack));
 
     return retval;
 }
@@ -1097,7 +1227,11 @@ int mpit_PMPI_Pack(
  * MPI_Init
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Init(
+#else
 int mpit_PMPI_Init(
+#endif
     int *argc, 
     char ***argv
     )
@@ -1115,7 +1249,7 @@ int mpit_PMPI_Init(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Init));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Init));
 
     return retval;
 }
@@ -1124,7 +1258,11 @@ int mpit_PMPI_Init(
  * MPI_Get_count
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Get_count(
+#else
 int mpit_PMPI_Get_count(
+#endif
     MPI_Status *status, MPI_Datatype datatype, int *count
     )
 {
@@ -1145,7 +1283,7 @@ int mpit_PMPI_Get_count(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Get_count));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Get_count));
 
     return retval;
 }
@@ -1154,7 +1292,11 @@ int mpit_PMPI_Get_count(
  * MPI_Gatherv
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Gatherv(
+#else
 int mpit_PMPI_Gatherv(
+#endif
     void* sendbuf, 
     int sendcount, 
     MPI_Datatype sendtype, 
@@ -1185,7 +1327,7 @@ int mpit_PMPI_Gatherv(
     event.datatype = recvtype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Gatherv));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Gatherv));
 
     return retval;
 }
@@ -1194,7 +1336,11 @@ int mpit_PMPI_Gatherv(
  * MPI_Gather
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Gather(
+#else
 int mpit_PMPI_Gather(
+#endif
     void* sendbuf, 
     int sendcount, 
     MPI_Datatype sendtype, 
@@ -1225,7 +1371,7 @@ int mpit_PMPI_Gather(
     event.datatype = recvtype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Gather));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Gather));
 
     return retval;
 }
@@ -1234,7 +1380,11 @@ int mpit_PMPI_Gather(
  * MPI_Cancel
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Cancel(
+#else
 int mpit_PMPI_Cancel(
+#endif
     MPI_Request *request
     )
 {
@@ -1252,7 +1402,7 @@ int mpit_PMPI_Cancel(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Cancel));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Cancel));
 
     return retval;
 }
@@ -1261,7 +1411,11 @@ int mpit_PMPI_Cancel(
  * MPI_Bcast
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Bcast(
+#else
 int mpit_PMPI_Bcast(
+#endif
     void* buffer, 
     int count, 
     MPI_Datatype datatype, 
@@ -1287,7 +1441,7 @@ int mpit_PMPI_Bcast(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Bcast));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Bcast));
 
     return retval;
 }
@@ -1296,7 +1450,11 @@ int mpit_PMPI_Bcast(
  * MPI_Barrier
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Barrier(
+#else
 int mpit_PMPI_Barrier(
+#endif
     MPI_Comm comm
     )
 {
@@ -1315,7 +1473,7 @@ int mpit_PMPI_Barrier(
     event.communicator = comm;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Barrier));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Barrier));
 
     return retval;
 }
@@ -1324,7 +1482,11 @@ int mpit_PMPI_Barrier(
  * MPI_Alltoallv
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Alltoallv(
+#else
 int mpit_PMPI_Alltoallv(
+#endif
     void* sendbuf, 
     int *sendcounts, 
     int *sdispls, 
@@ -1356,7 +1518,7 @@ int mpit_PMPI_Alltoallv(
     event.datatype = recvtype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Alltoallv));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Alltoallv));
 
     return retval;
 }
@@ -1365,7 +1527,11 @@ int mpit_PMPI_Alltoallv(
  * MPI_Alltoall
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Alltoall(
+#else
 int mpit_PMPI_Alltoall(
+#endif
     void* sendbuf, 
     int sendcount, 
     MPI_Datatype sendtype, 
@@ -1394,7 +1560,7 @@ int mpit_PMPI_Alltoall(
     event.datatype = recvtype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Alltoall));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Alltoall));
 
     return retval;
 }
@@ -1403,7 +1569,11 @@ int mpit_PMPI_Alltoall(
  * MPI_Allreduce
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Allreduce(
+#else
 int mpit_PMPI_Allreduce(
+#endif
     void* sendbuf, 
     void* recvbuf, 
     int count, 
@@ -1430,7 +1600,7 @@ int mpit_PMPI_Allreduce(
     event.datatype = datatype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Allreduce));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Allreduce));
 
     return retval;
 }
@@ -1439,7 +1609,11 @@ int mpit_PMPI_Allreduce(
  * MPI_Allgatherv
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Allgatherv(
+#else
 int mpit_PMPI_Allgatherv(
+#endif
     void* sendbuf, 
     int sendcount, 
     MPI_Datatype sendtype, 
@@ -1470,7 +1644,7 @@ int mpit_PMPI_Allgatherv(
     event.datatype = recvtype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Allgatherv));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Allgatherv));
 
     return retval;
 }
@@ -1479,7 +1653,11 @@ int mpit_PMPI_Allgatherv(
  * MPI_Allgather
  */
 
+#if defined (OPENSS_OFFLINE)
+int MPI_Allgather(
+#else
 int mpit_PMPI_Allgather(
+#endif
     void* sendbuf, 
     int sendcount, 
     MPI_Datatype sendtype, 
@@ -1508,7 +1686,7 @@ int mpit_PMPI_Allgather(
     event.datatype = recvtype;
     event.retval = retval;
 
-    mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Allgather));
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Allgather));
 
     return retval;
 }
@@ -1517,7 +1695,11 @@ int mpit_PMPI_Allgather(
  * MPI_Scatter
  */
 
+#if defined (OPENSS_OFFLINE)
+MPI_Scatter(
+#else
 mpit_PMPI_Scatter(
+#endif
     	void*     	sendbuf, 
     	int 	    	sendcount, 
     	MPI_Datatype	sendtype, 
@@ -1553,7 +1735,7 @@ mpit_PMPI_Scatter(
     send_event.retval = retval;
     recv_event.start_time = send_event.start_time;
     recv_event.stop_time = send_event.stop_time;
-    mpit_record_event(&send_event, OpenSS_GetAddressOfFunction(MPI_Scatter));
+    mpit_record_event(&send_event, OpenSS_GetAddressOfFunction(PMPI_Scatter));
 
     /* Set up the recv record */
     PMPI_Type_size(recvtype, &datatype_size);
@@ -1562,14 +1744,18 @@ mpit_PMPI_Scatter(
 
     recv_event.communicator = comm;
     recv_event.retval = retval;
-    mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(MPI_Scatter));
+    mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(PMPI_Scatter));
     return retval;
 }
 /*
  * MPI_Scatterv
  */
 
+#if defined (OPENSS_OFFLINE)
+MPI_Scatterv(
+#else
 mpit_PMPI_Scatterv(
+#endif
     	void*     	sendbuf, 
     	int* 	    	sendcounts, 
 	int*	    	displs,
@@ -1607,7 +1793,7 @@ mpit_PMPI_Scatterv(
     send_event.retval = retval;
     recv_event.start_time = send_event.start_time;
     recv_event.stop_time = send_event.stop_time;
-    mpit_record_event(&send_event, OpenSS_GetAddressOfFunction(MPI_Scatterv));
+    mpit_record_event(&send_event, OpenSS_GetAddressOfFunction(PMPI_Scatterv));
 
     /* Set up the recv record */
     PMPI_Type_size(recvtype, &datatype_size);
@@ -1616,7 +1802,7 @@ mpit_PMPI_Scatterv(
 
     recv_event.communicator = comm;
     recv_event.retval = retval;
-    mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(MPI_Scatterv));
+    mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(PMPI_Scatterv));
     return retval;
 }
 
@@ -1625,7 +1811,11 @@ mpit_PMPI_Scatterv(
  */
 
 int 
+#if defined (OPENSS_OFFLINE)
+MPI_Sendrecv(
+#else
 mpit_PMPI_Sendrecv(
+#endif
     	void*     	sendbuf, 
     	int 	    	sendcount, 
     	MPI_Datatype	sendtype, 
@@ -1666,7 +1856,7 @@ mpit_PMPI_Sendrecv(
     send_event.retval = retval;
     recv_event.start_time = send_event.start_time;
     recv_event.stop_time = send_event.stop_time;
-    mpit_record_event(&send_event, OpenSS_GetAddressOfFunction(MPI_Sendrecv));
+    mpit_record_event(&send_event, OpenSS_GetAddressOfFunction(PMPI_Sendrecv));
 
     /* Set up the recv record */
     recv_event.source = source;
@@ -1678,7 +1868,7 @@ mpit_PMPI_Sendrecv(
 
     recv_event.communicator = comm;
     recv_event.retval = retval;
-    mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(MPI_Sendrecv));
+    mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(PMPI_Sendrecv));
     return retval;
 }
 
@@ -1686,8 +1876,11 @@ mpit_PMPI_Sendrecv(
  * MPI_Sendrecv
  */
 
-int 
-mpit_PMPI_Sendrecv_replace(
+#if defined (OPENSS_OFFLINE)
+int MPI_Sendrecv_replace(
+#else
+int mpit_PMPI_Sendrecv_replace(
+#endif
     	void*     	buf, 
     	int 	    	count, 
     	MPI_Datatype	datatype, 
@@ -1725,7 +1918,7 @@ mpit_PMPI_Sendrecv_replace(
     send_event.retval = retval;
     recv_event.start_time = send_event.start_time;
     recv_event.stop_time = send_event.stop_time;
-    mpit_record_event(&send_event, OpenSS_GetAddressOfFunction(MPI_Sendrecv_replace));
+    mpit_record_event(&send_event, OpenSS_GetAddressOfFunction(PMPI_Sendrecv_replace));
 
     /* Set up the recv record */
     recv_event.source = source;
@@ -1737,7 +1930,7 @@ mpit_PMPI_Sendrecv_replace(
 
     recv_event.communicator = comm;
     recv_event.retval = retval;
-    mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(MPI_Sendrecv_replace));
+    mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(PMPI_Sendrecv_replace));
     return retval;
 }
 
@@ -1751,7 +1944,12 @@ mpit_PMPI_Sendrecv_replace(
  *-----------------------------------------------------------------------------
  */
 
-int mpit_PMPI_Cart_create( MPI_Comm comm_old,
+#if defined (OPENSS_OFFLINE)
+int MPI_Cart_create(
+#else
+int mpit_PMPI_Cart_create(
+#endif
+		     MPI_Comm comm_old,
                      int ndims,
                      int* dims,
                      int* periodv,
@@ -1775,12 +1973,17 @@ int mpit_PMPI_Cart_create( MPI_Comm comm_old,
   event.stop_time = OpenSS_GetTime();
   event.retval = retval;
 
-  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Cart_create));
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Cart_create));
 
   return retval;
 }
 
-int mpit_PMPI_Cart_sub ( MPI_Comm comm,
+#if defined (OPENSS_OFFLINE)
+int MPI_Cart_sub (
+#else
+int mpit_PMPI_Cart_sub (
+#endif
+		   MPI_Comm comm,
                    int *rem_dims,
                    MPI_Comm *newcomm)
 {
@@ -1801,14 +2004,19 @@ int mpit_PMPI_Cart_sub ( MPI_Comm comm,
   event.stop_time = OpenSS_GetTime();
   event.retval = retval;
 
-  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Cart_sub));
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Cart_sub));
 
   return retval;
 }
 
 
 
-int mpit_PMPI_Graph_create( MPI_Comm comm_old,
+#if defined (OPENSS_OFFLINE)
+int MPI_Graph_create(
+#else
+int mpit_PMPI_Graph_create(
+#endif
+		      MPI_Comm comm_old,
                       int nnodes,
                       int* index,
                       int* edges,
@@ -1831,12 +2039,17 @@ int mpit_PMPI_Graph_create( MPI_Comm comm_old,
   event.stop_time = OpenSS_GetTime();
   event.retval = retval;
 
-  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Graph_create));
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Graph_create));
 
   return retval;
 }
 
-int mpit_PMPI_Intercomm_create (MPI_Comm local_comm,
+#if defined (OPENSS_OFFLINE)
+int MPI_Intercomm_create (
+#else
+int mpit_PMPI_Intercomm_create (
+#endif
+			  MPI_Comm local_comm,
                           int local_leader,
                           MPI_Comm peer_comm,
                           int remote_leader,
@@ -1862,12 +2075,17 @@ int mpit_PMPI_Intercomm_create (MPI_Comm local_comm,
   event.stop_time = OpenSS_GetTime();
   event.retval = retval;
 
-  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Intercomm_create));
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Intercomm_create));
 
   return retval;
 }
 
-int mpit_PMPI_Intercomm_merge (MPI_Comm intercomm,
+#if defined (OPENSS_OFFLINE)
+int MPI_Intercomm_merge (
+#else
+int mpit_PMPI_Intercomm_merge (
+#endif
+			 MPI_Comm intercomm,
                          int high,
                          MPI_Comm *newcomm)
 {
@@ -1887,7 +2105,7 @@ int mpit_PMPI_Intercomm_merge (MPI_Comm intercomm,
   event.stop_time = OpenSS_GetTime();
   event.retval = retval;
 
-  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Intercomm_merge));
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Intercomm_merge));
 
   return retval;
 }
@@ -1895,7 +2113,12 @@ int mpit_PMPI_Intercomm_merge (MPI_Comm intercomm,
 
 /* ------- Destructors ------- */
 
-int mpit_PMPI_Comm_free( MPI_Comm* comm )
+#if defined (OPENSS_OFFLINE)
+int MPI_Comm_free(
+#else
+int mpit_PMPI_Comm_free(
+#endif
+			MPI_Comm* comm )
 {
   int retval, datatype_size;
   mpit_event event;
@@ -1912,7 +2135,7 @@ int mpit_PMPI_Comm_free( MPI_Comm* comm )
   event.stop_time = OpenSS_GetTime();
   event.retval = retval;
 
-  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Comm_free));
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Comm_free));
 
   return retval;
 }
@@ -1927,7 +2150,12 @@ int mpit_PMPI_Comm_free( MPI_Comm* comm )
 
 /* ------- Constructors ------- */
 
-int mpit_PMPI_Comm_dup( MPI_Comm comm,
+#if defined (OPENSS_OFFLINE)
+int MPI_Comm_dup(
+#else
+int mpit_PMPI_Comm_dup(
+#endif
+			MPI_Comm comm,
                         MPI_Comm* newcomm )
 {
   int retval;
@@ -1945,12 +2173,17 @@ int mpit_PMPI_Comm_dup( MPI_Comm comm,
   event.stop_time = OpenSS_GetTime();
   event.retval = retval;
 
-  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Comm_dup));
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Comm_dup));
 
   return retval;
 }
 
-int mpit_PMPI_Comm_create( MPI_Comm comm,
+#if defined (OPENSS_OFFLINE)
+int MPI_Comm_create(
+#else
+int mpit_PMPI_Comm_create(
+#endif
+		     MPI_Comm comm,
                      MPI_Group group,
                      MPI_Comm* newcomm )
 {
@@ -1969,12 +2202,17 @@ int mpit_PMPI_Comm_create( MPI_Comm comm,
   event.stop_time = OpenSS_GetTime();
   event.retval = retval;
 
-  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Comm_create));
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Comm_create));
 
   return retval;
 }
 
-int mpit_PMPI_Comm_split( MPI_Comm comm,
+#if defined (OPENSS_OFFLINE)
+int MPI_Comm_split(
+#else
+int mpit_PMPI_Comm_split(
+#endif
+			  MPI_Comm comm,
                           int color,
                           int key,
                           MPI_Comm* newcomm )
@@ -1994,7 +2232,7 @@ int mpit_PMPI_Comm_split( MPI_Comm comm,
   event.stop_time = OpenSS_GetTime();
   event.retval = retval;
 
-  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Comm_split));
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Comm_split));
 
   return retval;
 }
@@ -2002,7 +2240,12 @@ int mpit_PMPI_Comm_split( MPI_Comm comm,
 
 /* -- MPI_Start -- */
 
-int mpit_PMPI_Start( MPI_Request* request )
+#if defined (OPENSS_OFFLINE)
+int MPI_Start
+#else
+int mpit_PMPI_Start
+#endif
+		( MPI_Request* request )
 {
   int retval;
   mpit_event event;
@@ -2019,14 +2262,19 @@ int mpit_PMPI_Start( MPI_Request* request )
   event.stop_time = OpenSS_GetTime();
   event.retval = retval;
 
-  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Start));
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Start));
 
   return retval;
 }
 
 /* -- MPI_Startall -- */
 
-int mpit_PMPI_Startall( int count,
+#if defined (OPENSS_OFFLINE)
+int MPI_Startall
+#else
+int mpit_PMPI_Startall
+#endif
+			( int count,
                         MPI_Request *array_of_requests )
 {
   int retval;
@@ -2044,7 +2292,7 @@ int mpit_PMPI_Startall( int count,
   event.stop_time = OpenSS_GetTime();
   event.retval = retval;
 
-  mpit_record_event(&event, OpenSS_GetAddressOfFunction(MPI_Startall));
+  mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Startall));
 
   return retval;
 }

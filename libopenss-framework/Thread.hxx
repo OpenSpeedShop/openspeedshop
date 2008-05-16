@@ -140,6 +140,11 @@ namespace OpenSpeedShop { namespace Framework {
 	std::set<Statement> getStatementsAt(
 	    const Address&, const Time& = Time::Now()) const;
 
+	// Used by Experiment::compressDB to prune an OpenSpeedShop database of
+	// any entries not found in the experiments sampled addresses.
+	std::pair<std::pair<bool, Function> , std::set<Statement> >
+	    getFunctionAndStatementsAt(const Address& address) const;
+
 	std::pair<bool, LinkedObject> getExecutable(
 	    const Time& = Time::Now()) const;	
 	std::pair<bool, Function> getFunctionByName(const std::string&) const;

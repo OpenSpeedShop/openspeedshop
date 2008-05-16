@@ -23,6 +23,8 @@
  *
  */
 
+#include "AddressSpace.hxx"
+#include "BFDSymbols.hxx"
 #include "CollectorGroup.hxx"
 #include "DataCache.hxx"
 #include "DataQueues.hxx"
@@ -35,6 +37,7 @@
 #include "Path.hxx"
 #include "Statement.hxx"
 #include "StatementCache.hxx"
+#include "SymbolTable.hxx"
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
 #include "ThreadName.hxx"
@@ -218,6 +221,10 @@ namespace {
 /** Flag indicating if debuging for MPI jobs is enabled. */
 bool Experiment::is_debug_mpijob_enabled = 
     (getenv("OPENSS_DEBUG_MPIJOB") != NULL);
+
+/** Flag indicating if debuging for offline experiments is enabled. */
+bool Experiment::is_debug_offline_enabled = 
+    (getenv("OPENSS_DEBUG_OFFLINE") != NULL);
 #endif
 
 
@@ -2092,4 +2099,500 @@ bool Experiment::getMPIJobFromMPICH(const Thread& thread, Job& job)
     job.insert(job.end(), table.begin(), table.end());
 
     return true;
+}
+
+
+
+// Used to update the THREAD table for offline experiments.
+void Experiment::updateThreads(const pid_t& pid,
+			       const pthread_t& tid,
+                               const std::string& host) const
+{
+    std::string canonical = getCanonicalName(host);
+
+    // Begin a multi-statement transaction
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    // Create a thread entry in the database
+    dm_database->prepareStatement(
+        "INSERT INTO Threads (host, pid, posix_tid) VALUES (?, ?, ?);"
+	);
+    dm_database->bindArgument(1, canonical);
+    dm_database->bindArgument(2, pid);
+    dm_database->bindArgument(3, tid);
+    while(dm_database->executeStatement());
+
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database); 
+}
+
+
+// TODO: Finish code to prune existing databases of database
+// entries that do not correspond to any of the sampled data.
+// The resulting database will still use the same disk space and
+// therefore will need to have the sqlite3 VACUUM command
+// run on the database to completely removed the unused space
+// and reduce the disk space consumed by the pruned database.
+void Experiment::compressDB() const
+{
+    PCBuffer data_addr_buffer;
+
+    std::string Data_File_Name = getName();
+    std::cerr << "Experiment::compressDB: found existing database "
+	<< Data_File_Name  << std::endl;
+
+    std::string new_data_base_name = "Orig-" + Data_File_Name;
+    copyTo(new_data_base_name);
+
+    std::cerr << "Experiment::compressDB: existing database copied to "
+	      << new_data_base_name  << std::endl;
+
+    std::string collector_name;
+    CollectorGroup cgrp = getCollectors();
+    CollectorGroup::iterator ci;
+    for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+	Collector c = *ci;
+	Metadata m = c.getMetadata();
+	collector_name = m.getUniqueId();
+    }
+
+    // create an Extent covering all time and all possible addresses
+    TimeInterval ti(Time::TheBeginning(),Time::TheEnd());
+    AddressRange ar(Address::TheLowest(),Address::TheHighest());
+    //Extent e(ti,ar);
+    Extent e = getPerformanceDataExtent();
+
+    // Add extent to extent group for use with getUniquePCValues.
+    ExtentGroup eg;
+    eg.push_back(e);
+
+    // Gather all threads in this experiment.
+    ThreadGroup Expthreads = getThreads();
+
+    // Set of all functions currently found in database.
+    // If a function is found to contain an address from
+    // the sampled data, it is removed from TGRPFunctions.
+    // Any remaining functions in TGRPFunctions are removed from
+    // the experiment database.
+    std::set<Function> TGRPFunctions = Expthreads.getFunctions();
+
+    // Set of all statements currently found in database.
+    // If a statement is found to contain an address from
+    // the sampled data, it is removed from TGRPStatements.
+    // Any remaining statements in TGRPStatements are removed from
+    // the experiment database.
+    // TODO: Preserve at least the statement that corresponds to
+    // the first statement in each function that does contain data!
+    std::set<Statement> TGRPStatements = Expthreads.getStatements();
+
+    std::set<std::string> EXPAF;
+    std::set<Statement> EXPAS;
+    std::set<Function> EXP_Funcs;
+    std::set<LinkedObject> EXPLO;
+
+    // create set of executables found in this experiment
+    std::set<LinkedObject> exesUsedInExp;
+    for(ThreadGroup::const_iterator i = Expthreads.begin();
+				    i != Expthreads.end(); ++i) {
+	exesUsedInExp.insert((*i).getExecutable().second);
+    }
+
+    // Create set that maps each unique executable to it's threadgroup
+    // We use this to find all unique sampled addresses for all
+    // threads that have this executable in the current experiment.
+    // example: all threads that are the mpi program run by mpirun.
+    std::set<std::pair<LinkedObject,ThreadGroup> > exeToThreads;
+    for(std::set<LinkedObject>::const_iterator
+		lo = exesUsedInExp.begin();
+		lo != exesUsedInExp.end(); ++lo) {
+
+	ThreadGroup tgrp = Expthreads.getSubsetWithLinkedObject((*lo));
+	LinkedObject l = (*lo);
+
+	std::cerr << "Experiment::compressDB: Found " << tgrp.size()
+		<< " threads for " << (*lo).getPath() << std::endl;
+
+	exeToThreads.insert(std::make_pair((*lo),tgrp));
+    } 
+
+    std::cerr << "Experiment::compressDB: Found  " << exeToThreads.size()
+	<< " executables with threads" << std::endl;
+
+    for(std::set<std::pair<LinkedObject,ThreadGroup> >::const_iterator
+		myexe = exeToThreads.begin();
+		myexe != exeToThreads.end(); ++myexe) {
+
+	std::cerr << "Experiment::compressDB: Examining threads for "
+		<< (*myexe).first.getPath() << std::endl;
+
+	bool has_sampled_data = false;
+	ThreadGroup exethreads = (*myexe).second;
+	ThreadGroup threads_with_no_data;
+	int total_pcs = 0;
+
+	// find the unique set of addresses that where sampled
+	// for this threadgroup.
+	for(ThreadGroup::const_iterator t = exethreads.begin();
+				    t != exethreads.end(); ++t) {
+
+
+	    Collector c = *getCollectors().begin();
+	    Metadata m = c.getMetadata();
+	    std::string collector_name = m.getUniqueId();
+
+	    c.getUniquePCValues(*t, eg, &data_addr_buffer);
+
+	
+	    if ( data_addr_buffer.length == total_pcs ) {
+	        // Did not find any new sampled addresses.
+		std::cerr << "Experiment::compressDB: Thread "
+		    << EntrySpy((*t)).getEntry()
+		    << " did not have any new addresses." << std::endl;
+		//threads_with_no_data.insert(*t);
+		continue;
+	    } else {
+	        // Found new sampled addresses in this thread.
+		std::cerr << "Experiment::compressDB: Thread "
+		    << EntrySpy((*t)).getEntry()
+		    << " has new data addresses." << std::endl;
+		has_sampled_data = true;
+		total_pcs =  data_addr_buffer.length;
+	    }
+
+	} // end for threads
+
+// DEBUG
+#if 1
+	    std::cerr << "Experiment::compressDB: Found "
+		<< data_addr_buffer.length
+	        << " unique addresses in sampled data for exe "
+	        << (*myexe).first.getPath() << std::endl;
+#endif
+
+	// For this executable threadgroup, look for functions and
+	// statements that correspond to sample data.
+	// Loop through the unique addresses.
+	for (unsigned ii = 0; ii < data_addr_buffer.length; ii++) {
+	    Address addr = Address(data_addr_buffer.pc[ii]);
+
+	    bool found_func;
+	    bool found_stmt;
+
+	    int funcs_found = 0;
+	    int stmts_found = 0;
+	    int lobjs_found = 0;
+
+	    // Now loop through threads.  We do this since some
+	    // statements and functions may be sampled in one thread
+	    // and possibly not any of the others.
+	    for(ThreadGroup::const_iterator t = exethreads.begin();
+				    t != exethreads.end(); ++t) {
+	    
+		found_func = false;
+		found_stmt = false;
+
+	    // This crashed processing an mvapich example from zeus.
+	    // This could have been due to the pthreading used by
+	    // the mvapich installed on zeus. Database is zeus-X1.4.openss.
+#if 1
+		std::pair<bool, LinkedObject> l =
+			(*t).getLinkedObjectAt(addr,Time::Now());
+	    
+		if (l.first) {
+		    lobjs_found++;
+		    if (EXPLO.find(l.second) == EXPLO.end()) {
+			std::cerr << "Found LinkedObj " << l.second.getPath()
+			    << " at " << addr
+			    << " in thread " << EntrySpy(*t).getEntry()
+			    << " at index " << ii
+			    << std::endl;
+			EXPLO.insert(l.second);
+			ExtentGroup leg = l.second.getExtentIn(*t);
+			for (ExtentGroup::iterator ei = leg.begin(); ei != leg.end(); ei++) {
+			    std::cerr << "LinkedObj has extent "
+				<< "Time " << (*ei).getTimeInterval()
+				<< "AddrRange " << (*ei).getAddressRange()
+				<< std::endl;
+			}
+		    }
+		} else {
+#if 0
+		    std::cerr << "Experiment::compressDB:"
+			<< "  DID NOT FIND LINKEDOBJECT FOR " << addr
+			<< " in thread " << EntrySpy(*t).getEntry()
+			<< " at index " << ii
+			<< std::endl;
+#endif
+		}
+#endif
+
+// TODO:
+// Want to find start address of a function.
+// In this case, passed function id would be from a function that
+// was found to contain an address sample.
+// If so, whe use the address to find the first statement of
+// the function so we can keep it.  Some of the expview metrics
+// will show the start address and statement of a function.
+// e.g. expview -v Functions.
+
+		// Test for function at this address.
+		std::pair<std::pair<bool, Function> , std::set<Statement> >
+			fs = (*t).getFunctionAndStatementsAt(addr);
+
+	        std::pair<bool, Function> f = fs.first;
+
+		AddressRange frange;
+		if (f.first) {
+		    found_func = true;
+		    funcs_found++;
+		    if (EXPAF.find(f.second.getName()) == EXPAF.end()) {
+
+			EXPAF.insert(f.second.getName());
+			EXP_Funcs.insert(f.second);
+			AddressRange addrFrange(f.second.getAddressRange());
+			frange = addrFrange;
+
+#if 1
+			std::cerr << "Experiment::compressDB: ADD Function "
+			    << f.second.getName() << " at " << addr
+		            << " in thread " << EntrySpy(*t).getEntry()
+			    << " frange is " << frange
+			    << std::endl;
+#endif
+		    }
+		} else {
+#if 1
+		    std::cerr << "Experiment::compressDB:"
+			<< "  DID NOT FIND FUNCTION FOR " << addr
+			<< " in thread " << EntrySpy(*t).getEntry()
+			<< " at index " << ii
+			<< std::endl;
+#endif
+		}
+
+		// Find any statements at this address.
+		std::set<Statement> s = fs.second;
+
+		//s = (*t).getStatementsAt(addr,Time::Now());
+
+		std::set<Statement> s_fbegin =
+			(*t).getStatementsAt(frange.getBegin(),Time::Now());
+		std::set<Statement> s_fend =
+			(*t).getStatementsAt(frange.getEnd(),Time::Now());
+#if 1
+		if (s.size() == 0 ) {
+		    std::cerr << "Experiment::compressDB:"
+			<< " DID NOT FIND STATMENT FOR " << addr
+			<< " in thread " << EntrySpy(*t).getEntry()
+			<< " at index " << ii
+			<< std::endl;
+		}
+#endif
+
+		std::set<Function> s_funcs;
+		for (std::set<Statement>::const_iterator si = s.begin();
+							 si != s.end(); ++si) {
+
+#if 0
+		    std::cerr << "Experiment::compressDB: Statement "
+			<< (*si).getPath() << ": " << (*si).getLine()
+		        << " at " << addr << " in thread "
+			<< EntrySpy(*t).getEntry()
+		        << std::endl;
+#endif
+		    EXPAS.insert(*si);
+		    found_stmt = true;
+		    stmts_found++;
+		    //s_funcs = (*si).getFunctions();
+		}
+
+		for (std::set<Statement>::const_iterator si = s_fbegin.begin();
+							 si != s_fbegin.end();
+							 ++si) {
+		    EXPAS.insert(*si);
+		    stmts_found++;
+		}
+
+		for (std::set<Statement>::const_iterator si = s_fend.begin();
+							 si != s_fend.end();
+							 ++si) {
+		    EXPAS.insert(*si);
+		    stmts_found++;
+		}
+
+		// No need to examine any more threads for this function
+		// since we found one for this address...
+		// FIXME: How about statements though.
+		if (found_func) {
+#if 1
+		    std::cerr << "Experiment::compressDB: Found function in "
+			<< " in thread " << EntrySpy(*t).getEntry()
+			<< std::endl;
+#endif
+		    break;
+		}
+
+	    } // end for executable threads
+
+#if 1
+	    if (!found_func) {
+		std::cerr << "Experiment::compressDB:"
+		    << " DID NOT FIND FUNCTION for "
+		    << addr << std::endl;
+	    }
+	    if (!found_func && !found_stmt) {
+		std::cerr << "Experiment::compressDB:"
+		    << " DID NOT FIND STATEMENT for "
+		    << addr << std::endl;
+	    }
+#endif
+	    std::cerr << "Experiment::compressDB: "
+		<< " funcs found " << funcs_found
+		<< " stmts found " << stmts_found
+		<< " lobjs found " << lobjs_found
+		<< " for address " << addr
+		<< " at index " << ii
+		<< std::endl;
+	} // end for data_addr_buffer
+
+	data_addr_buffer.length = 0;
+	memset(data_addr_buffer.hash_table,
+		0, sizeof(data_addr_buffer.hash_table));
+
+	// This executables threads contained no sampled addresses.
+	if (!has_sampled_data) {
+	    std::cerr << "Experiment::compressDB: No data for "
+		<< (*myexe).first.getPath() << std::endl;
+
+	    for(ThreadGroup::const_iterator t = threads_with_no_data.begin();
+				    t != threads_with_no_data.end(); ++t) {
+		std::cerr << "Experiment::compressDB: Thread "
+		    << EntrySpy((*t)).getEntry() << " has no data"
+		    << " removing from database." << std::endl;
+		//removeThread(*t);
+	    }
+	    continue;
+	}
+
+	// Report function statistics.
+	std::cerr << "Experiment::compressDB: Found "
+	    << TGRPFunctions.size() << " Total Functions "
+	    << "in executable " << (*myexe).first.getPath() << std::endl;
+	std::cerr << "Experiment::compressDB: Found "
+	    << EXPAF.size() << " Functions with data." << std::endl;
+	std::cerr << "Experiment::compressDB: Deleting "
+	    << TGRPFunctions.size() - EXPAF.size()
+	    << " Functions." << std::endl;
+
+	// Prepare list of functions to remove from database.
+	for (std::set<Function>::const_iterator fi = EXP_Funcs.begin();
+					  fi != EXP_Funcs.end(); ++fi) {
+	    if (TGRPFunctions.find(*fi) != TGRPFunctions.end()) {
+		TGRPFunctions.erase(*fi);
+	    }
+	}
+
+	// Now remove unneeded functions.
+	//removeFunctions(TGRPFunctions);
+	// Begin a multi-statement transaction
+	BEGIN_WRITE_TRANSACTION(dm_database);
+
+	std::set<Function>::iterator  fi;
+	for (fi = TGRPFunctions.begin(); fi != TGRPFunctions.end(); fi++) {
+	    dm_database->prepareStatement(
+		"DELETE FROM Functions WHERE id = ?;"
+		);
+	    dm_database->bindArgument(1, EntrySpy((*fi)).getEntry());
+	    while(dm_database->executeStatement());
+	}
+
+	END_TRANSACTION(dm_database);
+
+	// Report statement statistics.
+	std::cerr << "Experiment::compressDB: Found "
+	    << TGRPStatements.size() << " Total Statements."
+	    << "in executable " << (*myexe).first.getPath() << std::endl;
+	std::cerr << "Experiment::compressDB: Found "
+	    << EXPAS.size() << " Statements with data." << std::endl;
+	std::cerr << "Experiment::compressDB: Deleting "
+	    << TGRPStatements.size() - EXPAS.size()
+	    << " Statements." << std::endl;
+
+	// Prepare list of statements to remove from database.
+	for (std::set<Statement>::const_iterator si = EXPAS.begin();
+					   si != EXPAS.end(); ++si) {
+	    if (TGRPStatements.find(*si) != TGRPStatements.end()) {
+		TGRPStatements.erase(*si);
+	    }
+	}
+
+	// Now remove unneeded statements.
+	//removeStatements(TGRPStatements);
+	// Begin a multi-statement transaction
+	BEGIN_WRITE_TRANSACTION(dm_database);
+
+	std::set<Statement>::iterator  si;
+	for (si = TGRPStatements.begin(); si != TGRPStatements.end(); si++) {
+	    dm_database->prepareStatement(
+		"DELETE FROM Statements WHERE id = ?;"
+		);
+	    dm_database->bindArgument(1, EntrySpy((*si)).getEntry());
+	    while(dm_database->executeStatement());
+	}
+
+	dm_database->prepareStatement(
+	    "DELETE FROM StatementRanges "
+	    "WHERE statement "
+	    "  NOT IN (SELECT DISTINCT id FROM Statements)"
+	    );
+	while(dm_database->executeStatement());
+
+	dm_database->prepareStatement(
+	    "DELETE FROM Files "
+	    "WHERE id NOT IN (SELECT DISTINCT file FROM LinkedObjects) "
+	    "  AND id NOT IN (SELECT DISTINCT file FROM Statements);"
+	    );
+	while(dm_database->executeStatement());
+
+	END_TRANSACTION(dm_database);
+
+	// For now, leave in threads with potentially no data
+	// in a threadgroup where some threads have data...
+#if 0
+	for(ThreadGroup::const_iterator t = threads_with_no_data.begin();
+				    t != threads_with_no_data.end(); ++t) {
+	    std::cerr << "Thread " << EntrySpy((*t)).getEntry()
+		<< " has no data"
+		<< " removing from database." << std::endl;
+	    removeThread(*t);
+	}
+#endif
+
+    } // end for exes
+
+    // Now clean up any remaining linkedobjects, files, addressspaces.
+    // Begin a multi-statement transaction
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    dm_database->prepareStatement(
+	"DELETE FROM LinkedObjects "
+	"WHERE id NOT IN (SELECT DISTINCT linked_object FROM Functions) "
+	"  AND id NOT IN (SELECT DISTINCT linked_object FROM Statements);"
+	);
+    while(dm_database->executeStatement());
+
+    dm_database->prepareStatement(
+	"DELETE FROM Files "
+	"WHERE id NOT IN (SELECT DISTINCT file FROM LinkedObjects) "
+	"  AND id NOT IN (SELECT DISTINCT file FROM Statements);"
+	);
+    while(dm_database->executeStatement());
+
+    dm_database->prepareStatement(
+	"DELETE FROM AddressSpaces "
+	"WHERE linked_object NOT IN (SELECT DISTINCT id FROM LinkedObjects) "
+	"  AND linked_object NOT IN (SELECT DISTINCT linked_object FROM Statements);"
+	);
+    while(dm_database->executeStatement());
+
+    END_TRANSACTION(dm_database);
+
 }

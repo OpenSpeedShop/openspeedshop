@@ -27,12 +27,14 @@ struct openss_objects {
     string   objname<>;   /**< Name of the object. */
     uint64_t addr_begin;  /** < begin address of object */
     uint64_t addr_end;    /** < end address of object */
+    uint8_t  is_open;     /** < flag to indicate a dlclose */
 };
 
 /** Structure of the blob containing our process info. */
 struct openss_expinfo {
     string   collector<>;  /** < Name of the collector. */
     string   hostname<>;   /** < Name of the host. */
+    string   exename<>;    /** < Name of the executable. */
     uint32_t pid;          /** < pid for this object. */
     uint64_t tid;	   /** < tid for this object */
 };

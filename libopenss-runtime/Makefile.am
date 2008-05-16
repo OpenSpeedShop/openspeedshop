@@ -60,7 +60,7 @@ libopenss_runtime_la_LIBADD = \
 
 if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_CFLAGS = \
-	-DOPENSS_OFFLINE \
+	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
 	@LIBUNWIND_CPPFLAGS@ \
 	@BINUTILS_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
