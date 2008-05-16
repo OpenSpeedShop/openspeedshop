@@ -6,15 +6,28 @@
 BPatch bpatch;
 
 static void
-noFollowForkCB(BPatch_thread *parent, BPatch_thread *child)
+dyninstPostFork(BPatch_thread *parent, BPatch_thread *child)
 {
-std::cerr << "noFollowForkCB entered" << std::endl;
+#if 0
     if(child != NULL) {
+		
+std::cerr << "dyninstPostFork: Do NOT FOLLOW FORK. dyninst detach from child"
+	<< std::endl;
        // detach here!
         BPatch_process *bp_fork_child_process = NULL;
         bp_fork_child_process = child->getProcess();
         bp_fork_child_process->detach(true);
     }
+#else
+	BPatch_process* parent_process = parent->getProcess();
+	BPatch_process* child_process = child->getProcess();
+        std::stringstream output;
+        output << "dyninstpostFork(): PID " << parent_process->getPid()
+               << " forked PID " << child_process->getPid()
+               << "." << std::endl;
+        std::cerr << output.str();
+#endif
+
 }
 
 static void
@@ -91,7 +104,7 @@ int main(int argc, char* argv[])
 	exit(1);
     }
 
-    //bpatch.registerPostForkCallback(noFollowForkCB);
+    bpatch.registerPostForkCallback(dyninstPostFork);
     bpatch.registerExecCallback(dyninstExec);
     bpatch.registerExitCallback(dyninstExit);
     bpatch.registerDynLibraryCallback(dynLibrary);
