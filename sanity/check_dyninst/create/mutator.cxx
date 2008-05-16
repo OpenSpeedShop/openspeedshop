@@ -93,6 +93,32 @@ dyninstThreadDestroy(BPatch_process* process, BPatch_thread* thread)
         std::cerr << output.str();
 }
 
+static void
+dyninstError(BPatchErrorLevel severity, int number,
+	     const char* const* parameters)
+{
+    std::string text;
+
+    // Attach the error's severity to the error text
+    switch(severity) {
+    case BPatchFatal: text = "BPatchFatal"; break;
+    case BPatchSerious: text = "BPatchSerious"; break;
+    case BPatchWarning: text = "BPatchWarning"; break;
+    case BPatchInfo: text = "BPatchInfo"; break;
+    default: text = "?"; break;
+    }
+    text += ": ";
+
+    // Attach the formatted error string to the error text
+    char buffer[16384];
+    BPatch::formatErrorString(buffer, sizeof(buffer),
+                              BPatch::getEnglishErrorString(number),
+                              parameters);
+    text += buffer;
+    // Display the error to the stdout stream
+    std::cout << text << std::endl;
+}
+
 int main(int argc, char* argv[])
 {
     int count = 0;
@@ -104,6 +130,7 @@ int main(int argc, char* argv[])
 	exit(1);
     }
 
+    bpatch.registerErrorCallback(dyninstError);
     bpatch.registerPostForkCallback(dyninstPostFork);
     bpatch.registerExecCallback(dyninstExec);
     bpatch.registerExitCallback(dyninstExit);
