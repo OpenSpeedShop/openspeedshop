@@ -52,11 +52,13 @@ const unsigned OverheadFrameCount = 2;
 /** Maximum number of frames to allow in each stack trace. */
 #define MaxFramesPerStackTrace 64
 
+/** The following values provide reasonably good usage of the blob space */
+/** About 6 stacktraces and 215 events */
 /** Number of stack trace entries in the tracing buffer. */
-#define StackTraceBufferSize 200
+#define StackTraceBufferSize 384
 
 /** Number of event entries in the tracing buffer. */
-#define EventBufferSize 256
+#define EventBufferSize 215
 
 /** Thread-local storage. */
 static __thread struct {
@@ -92,9 +94,10 @@ static void mpit_send_events()
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"MPIT Collector runtime sends data:\n");
-        fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] "
+        fprintf(stderr,"time(%lu,%#lu) addr range [%#lx, %#lx] "
 		" stacktraces_len(%d) events_len(%d)\n",
-            tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,
+            tls.header.time_begin,tls.header.time_end,
+	    tls.header.addr_begin,tls.header.addr_end,
 	    tls.data.stacktraces.stacktraces_len,
             tls.data.events.events_len);
     }
@@ -224,10 +227,22 @@ void mpit_record_event(const mpit_event* event, uint64_t function)
 	/* Send events if there is insufficient room for this stack trace */
 	if((tls.data.stacktraces.stacktraces_len + stacktrace_size + 1) >=
 	   StackTraceBufferSize) {
-	    fprintf(stderr,"SENDING DUE TO StackTraceBufferSize, %d, %d\n",
-		tls.data.stacktraces.stacktraces_len, tls.data.stacktraces.stacktraces_len * 4096);
-	    fprintf(stderr,"EVENTBufferSize, %d, %d\n",
-		tls.data.events.events_len, tls.data.events.events_len * 56);
+#ifndef NDEBUG
+	    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	      fprintf(stderr,"RANK (%d,%lu) SENDING DUE TO StackTraceBufferSize, %d * %d = %d\n",
+		event->source, event->start_time,
+		tls.data.stacktraces.stacktraces_len,
+		sizeof(uint64_t),
+		(tls.data.stacktraces.stacktraces_len * sizeof(uint64_t)) );
+	      fprintf(stderr,"EVENTBufferSize, %d * %d = %d\n",
+		tls.data.events.events_len,
+		sizeof(mpit_event),
+		tls.data.events.events_len * sizeof(mpit_event));
+	      fprintf(stderr,"RANK (%d) TOTAL SENT %d\n",  event->source,
+		(tls.data.stacktraces.stacktraces_len * sizeof(uint64_t)) +
+		(tls.data.events.events_len * sizeof(mpit_event)));
+	    }
+#endif
 	    mpit_send_events();
 	}
 	
@@ -259,15 +274,29 @@ void mpit_record_event(const mpit_event* event, uint64_t function)
 	   event, sizeof(mpit_event));
     tls.buffer.events[tls.data.events.events_len].stacktrace = entry;
     tls.data.events.events_len++;
-    
+
     /* Send events if the tracing buffer is now filled with events */
-    if(tls.data.events.events_len == EventBufferSize) {
-	fprintf(stderr,"SENDING DUE TO EventBufferSize, %d, %d\n",
-		tls.data.events.events_len, tls.data.events.events_len * 56);
-	    fprintf(stderr,"StackTraceBufferSize, %d, %d\n",
-		tls.data.stacktraces.stacktraces_len, tls.data.stacktraces.stacktraces_len * 8);
+    if((tls.data.events.events_len ) >= EventBufferSize) {
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	    fprintf(stderr,"RANK (%d, %lu) SENDING DUE TO EventBufferSize, %d * %d = %d\n",
+		event->source, event->start_time,
+		tls.data.events.events_len,
+		sizeof(mpit_event),
+		tls.data.events.events_len * sizeof(mpit_event));
+	    fprintf(stderr,"StackTraceBufferSize, %d * %d = %d\n",
+		tls.data.stacktraces.stacktraces_len,
+		sizeof(uint64_t),
+		tls.data.stacktraces.stacktraces_len * sizeof(uint64_t));
+	    fprintf(stderr,"RANK (%d) TOTAL SENT %d\n",  event->source,
+		(tls.data.stacktraces.stacktraces_len * sizeof(uint64_t)) +
+		(tls.data.events.events_len * sizeof(mpit_event)));
+	}
+#endif
 	mpit_send_events();
+	tls.data.events.events_len = 0;
     }
+    
 }
 
 
@@ -282,9 +311,6 @@ void mpit_record_event(const mpit_event* event, uint64_t function)
  */
 void mpit_start_tracing(const char* arguments)
 {
-fprintf(stderr,"START.  sizeof EVENT %d\n",sizeof(mpit_event));
-fprintf(stderr,"START.  sizeof STACKS %d\n",sizeof(tls.buffer.stacktraces));
-
     mpit_start_tracing_args args;
 
 #if defined (OPENSS_USE_FILEIO)
