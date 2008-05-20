@@ -235,6 +235,16 @@ void OpenSpeedShop::Framework::Dyninst::dynLibrary(BPatch_thread* thread,
 	Address begin(reinterpret_cast<uintptr_t>(module->getBaseAddr()));
 	Address end = begin + module->getSize();
 	AddressRange range(begin, end);
+#ifndef NDEBUG
+        if(Backend::isDebugEnabled()) {
+            std::stringstream output;
+    	    output << "[TID " << pthread_self() << "] Dyninst::"
+	           << "dynLibrary(), calling loadedLinkedObject: PID " << process->getPid() << " "
+	           << "Address, begin=" << begin << " Address, end=" << end 
+	           << linked_object.getPath() << "\"." << std::endl;
+            std::cerr << output.str();
+        }
+#endif
 	
 	// Send the frontend the "loaded" message for this linked object
 	Senders::loadedLinkedObject(threads, now, range,
@@ -457,7 +467,7 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
     //       Dyninst is failing when OpenMPI calls fork() on Fedora Core 8
     //       systems.
     //
-#ifdef WDH_DISABLE_THIS_FOR_NOW
+#ifndef WDH_DISABLE_THIS_FOR_NOW
     if(child != NULL) {
 	BPatch_process* child_process = child->getProcess();
 	child_process->detach(true);
@@ -1357,6 +1367,16 @@ void OpenSpeedShop::Framework::Dyninst::sendSymbolsForThread(
     for(SymbolTableMap::const_iterator 
 	    i = symbol_tables.begin(); i != symbol_tables.end(); ++i) {
 
+#ifndef NDEBUG
+        if(Backend::isDebugEnabled()) {
+            std::stringstream output;
+    	    output << "[TID " << pthread_self() << "] Dyninst::"
+	           << "OpenSpeedShop::Framework::Dyninst::sendSymbolsForThread(), calling loadedLinkedObject: PID " << process->getPid() << " "
+	           << "Address, range=" << i->second.first.getRange() 
+	           << i->second.first.getLinkedObject().getPath() << "\"." << std::endl;
+            std::cerr << output.str();
+        }
+#endif
 	// Send the frontend the initial "loaded" for the symbol tables
 	Senders::loadedLinkedObject(
 	    threads, now,
