@@ -341,14 +341,10 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
     // Compute offset object was loaded at.
     // Use load address from /proc/self/maps if offset is
     // less than 0.
-    // FIXME. The long below may not be safe on 64bit systems.
-    // May need to use bfd_signed_vma.
-    bfd_vma base_offset = 0;
-    if ( (bfd_signed_vma )(bfd_text_begin - obj_load_addr) < 0 ) {
-	base_offset = obj_load_addr;
+    Address base = Address(0);
+    if ( (Address(bfd_text_begin) - Address(obj_load_addr)) < 0 ) {
+        base = Address(obj_load_addr);
     }
-	
-    Address base = Address((uint64_t)base_offset);
 
 // DEBUG
 #ifndef NDEBUG
