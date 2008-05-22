@@ -1040,6 +1040,15 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     """Run offline experiment for Open|SpeedShop.
     """
 
+    #Check For OPENSS_PREFIX and use it.  That is, only if
+    #installed's default value has not changed.  Allows
+    #users to explicitly define a different OSS installation path (even
+    #if OPENSS_PREFIX is defined).
+    if (os.environ.has_key("OPENSS_PREFIX") and installed == "/usr"):
+        print "OPENSS_PREFIX detected..."
+        print "Using OPENSS_PREFIX..."
+        installed = os.environ["OPENSS_PREFIX"]
+    
     # set up plugins path
     if os.environ.has_key("OPENSS_PLUGIN_PATH"):
 	plugins = os.environ["OPENSS_PLUGIN_PATH"]
