@@ -1035,3 +1035,66 @@ if os.environ.has_key("HOME"):
     user_specific_startup_file = os.environ["HOME"] + "/.openss.py"
     if os.path.isfile(user_specific_startup_file):
         execfile(user_specific_startup_file)
+
+def RunOfflineExp(program="*", collector="*", installed="/usr"):
+    """Run offline experiment for Open|SpeedShop.
+    """
+
+    if os.environ.has_key("OPENSS_PLUGIN_PATH"):
+	plugins = os.environ["OPENSS_PLUGIN_PATH"]
+
+    rawdir = "/tmp"
+
+    if 'OPENSS_RAWDATA_DIR' in os.environ:
+	rawdir = os.environ["OPENSS_RAWDATA_DIR"]
+	print "Setting up offline environment, OPENSS_RAWDATA_DIR = " + rawdir + "/offline-oss"
+	tempdir = rawdir + "/offline-oss"
+	os.system("/bin/rm -rf " + tempdir)
+	os.mkdir(tempdir)
+	os.environ['OPENSS_RAWDATA_DIR'] = tempdir
+    else:
+	print "Setting up offline environment, OPENSS_RAWDATA_DIR = /tmp/offline-oss"
+	os.system('/bin/rm -rf /tmp/offline-oss')
+	os.mkdir('/tmp/offline-oss')
+	os.environ['OPENSS_RAWDATA_DIR'] = '/tmp/offline-oss'
+
+    # Locate the libmonitor directory
+    libdir = installed + "/lib64"
+    if not os.path.isdir(libdir):
+        libdir = installed + "/lib"
+    if not os.path.isdir(libdir):
+        raise RuntimeError("Failed to locate the libmonitor library directory.")
+
+    # Locate the monitor-run command
+    libmonitor = libdir + "/libmonitor.so"
+    if not os.path.isfile(libmonitor):
+        raise RuntimeError("Failed to locate the libmonitor.so library.")
+
+    # Form the command that will run the offline experiment
+    #if program.count("*") is not 1:
+    #    raise RuntimeError("The program string must contain exactly one * symbol.")
+    #if collector.count("*") is not 1:
+    #    raise RuntimeError("The collector string must contain exactly one * symbol.")
+
+    command = "env" + \
+              " LD_PRELOAD="+ plugins + "/" + collector + "-rt-offline.so" + \
+	      ":" + libmonitor + ":$LD_PRELOAD " + program
+
+    # Execute the command to start the daemon(s)
+    print "\nRunning offline experiment using the command \"%s\"...\n" % command
+    os.system(command)
+
+    # currently ossutil writes openss databases to ever increasing
+    # database files from the lowest it finds.  Lets just always remove X.0.openss
+    # so that is our default for now.
+    os.system('/bin/rm -rf ./X.0.openss')
+
+    # Need to define or find path to ossutil
+    convert_command = OpenssInstallDir + "/bin/ossutil " + os.environ['OPENSS_RAWDATA_DIR']
+    os.system(convert_command)
+
+    r_line = myparse.process("exprestore -f ./X.0.openss")
+    myparse.runsource(r_line, "stderr")
+
+    # restore original rawdata directory
+    os.environ['OPENSS_RAWDATA_DIR'] = rawdir
