@@ -1040,11 +1040,20 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     """Run offline experiment for Open|SpeedShop.
     """
 
+    # set up plugins path
     if os.environ.has_key("OPENSS_PLUGIN_PATH"):
 	plugins = os.environ["OPENSS_PLUGIN_PATH"]
+    else:
+	plugin_dir =  OpenssInstallDir + "/lib64/openspeedshop"
+	if not os.path.isdir(plugin_dir):
+	    plugin_dir =  OpenssInstallDir + "/lib/openspeedshop"
+        if not os.path.isdir(plugin_dir):
+	    raise RuntimeError("Failed to locate the openspeedshop plugins directory.")
+	plugins = plugin_dir
 
     rawdir = "/tmp"
 
+    # always write into /tmp/offline-oss or $OPENSS_RAWDATA_DIR/offline-oss
     if 'OPENSS_RAWDATA_DIR' in os.environ:
 	rawdir = os.environ["OPENSS_RAWDATA_DIR"]
 	print "Setting up offline environment, OPENSS_RAWDATA_DIR = " + rawdir + "/offline-oss"
