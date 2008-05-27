@@ -53,9 +53,16 @@ io_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	IOCollector.hxx IODetail.hxx IOCollector.cxx
 
+if BUILD_MRNET
+io_rt_la_CFLAGS = \
+	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
+	-D__USE_GNU -I$(top_srcdir)/libopenss-runtime \
+	@LIBUNWIND_CPPFLAGS@
+else
 io_rt_la_CFLAGS = \
 	-D__USE_GNU -I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@
+endif
 
 io_rt_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \

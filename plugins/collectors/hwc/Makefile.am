@@ -59,9 +59,16 @@ hwc_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	HWCCollector.hxx HWCCollector.cxx
 
+if BUILD_MRNET
+hwc_rt_la_CFLAGS = \
+	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
+	-I$(top_srcdir)/libopenss-runtime \
+	@PAPI_CPPFLAGS@
+else
 hwc_rt_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	@PAPI_CPPFLAGS@
+endif
 
 hwc_rt_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \

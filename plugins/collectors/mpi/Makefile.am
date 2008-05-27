@@ -135,10 +135,18 @@ mpi_la_SOURCES = \
 # as parameter types, and the compilers do not currently complain, so
 # the same wrapper sources can be used for all implementations.
 
+if BUILD_MRNET
+rt_CFLAGS_generate = \
+	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
+	-I$(top_srcdir)/libopenss-runtime \
+	$(1) \
+	@LIBUNWIND_CPPFLAGS@
+else
 rt_CFLAGS_generate = \
 	-I$(top_srcdir)/libopenss-runtime \
 	$(1) \
 	@LIBUNWIND_CPPFLAGS@
+endif
 
 rt_LDFLAGS_generate = \
 	-L$(top_srcdir)/libopenss-runtime \

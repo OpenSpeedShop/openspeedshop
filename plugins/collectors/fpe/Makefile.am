@@ -54,10 +54,18 @@ fpe_la_SOURCES = \
 	FPECollector.hxx FPECollector.cxx \
 	FPEDetail.hxx
 
+if BUILD_MRNET
+fpe_rt_la_CFLAGS = \
+	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
+	-I$(top_srcdir)/libopenss-runtime \
+	@BINUTILS_CPPFLAGS@ \
+	@LIBUNWIND_CPPFLAGS@
+else
 fpe_rt_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	@BINUTILS_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
+endif
 
 fpe_rt_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \

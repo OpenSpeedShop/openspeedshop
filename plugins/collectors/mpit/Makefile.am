@@ -103,10 +103,18 @@ mpit_la_SOURCES = \
 # concerning the generated wrapper sources also apply to wrappers.c
 # here.
 
+if BUILD_MRNET
+rt_CFLAGS_generate = \
+	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
+	-I$(top_srcdir)/libopenss-runtime \
+	$(1) \
+	@LIBUNWIND_CPPFLAGS@
+else
 rt_CFLAGS_generate = \
 	-I$(top_srcdir)/libopenss-runtime \
 	$(1) \
 	@LIBUNWIND_CPPFLAGS@
+endif
 
 rt_LDFLAGS_generate = \
 	-L$(top_srcdir)/libopenss-runtime \

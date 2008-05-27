@@ -55,10 +55,18 @@ hwctime_la_SOURCES = \
 	HWTimeCollector.hxx HWTimeCollector.cxx \
 	HWTimeDetail.hxx
 
+if BUILD_MRNET
+hwctime_rt_la_CFLAGS = \
+	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
+	-I$(top_srcdir)/libopenss-runtime \
+	@LIBUNWIND_CPPFLAGS@ \
+	@PAPI_CPPFLAGS@
+else
 hwctime_rt_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
+endif
 
 hwctime_rt_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \

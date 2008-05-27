@@ -54,10 +54,18 @@ usertime_la_SOURCES = \
 	UserTimeCollector.hxx UserTimeCollector.cxx \
 	UserTimeDetail.hxx
 
+if BUILD_MRNET
+usertime_rt_la_CFLAGS = \
+        @BINUTILS_CPPFLAGS@ \
+        -DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
+        -I$(top_srcdir)/libopenss-runtime
+	@LIBUNWIND_CPPFLAGS@
+else
 usertime_rt_la_CFLAGS = \
         @BINUTILS_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@
+endif
 
 usertime_rt_la_LDFLAGS = \
         @BINUTILS_LDFLAGS@ \

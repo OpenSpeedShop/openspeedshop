@@ -52,9 +52,16 @@ iot_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	IOTCollector.hxx IOTDetail.hxx IOTCollector.cxx
 
+if BUILD_MRNET
+iot_rt_la_CFLAGS = \
+	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
+	-I$(top_srcdir)/libopenss-runtime \
+	@LIBUNWIND_CPPFLAGS@
+else
 iot_rt_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@
+endif
 
 iot_rt_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
