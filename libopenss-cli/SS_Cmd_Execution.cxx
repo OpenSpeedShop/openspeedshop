@@ -116,7 +116,9 @@ static int Wait_For_Exp_State (CommandObject *cmd, int to_state, ExperimentObjec
  // After changing the state of each thread, wait for the
  // status of the experiment to change.  This is necessary
  // because of the asynchronous nature of the FrameWork.
+  exp->Q_Lock (cmd, false);
   int latest = exp->Determine_Status();
+  exp->Q_UnLock ();
   while ((latest != to_state) &&
          (latest != ExpStatus_NonExistent) &&
          (latest != ExpStatus_Terminated) &&
@@ -126,8 +128,17 @@ static int Wait_For_Exp_State (CommandObject *cmd, int to_state, ExperimentObjec
         (cmd->Status() == CMD_ABORTED)) {
       break;
     }
+#if 0
     usleep (100000);
+#else
+      struct timespec wait;
+      wait.tv_sec = 0;
+      wait.tv_nsec = 250 * 1000 * 1000;
+      while(nanosleep(&wait, &wait));
+#endif
+    exp->Q_Lock (cmd, false);
     latest = exp->Determine_Status();
+    exp->Q_UnLock ();
   }
 
   return latest;
@@ -1525,9 +1536,13 @@ static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool 
   Cancle_Async_Notice (exp);
   Cancle_Exp_Wait     (exp);
 
+  exp->Q_Lock (cmd, false);
+  int latest = exp->Determine_Status();
+  exp->Q_UnLock ();
+
   if (Kill_KeyWord &&
       (exp->FW() != NULL) &&
-       ((exp->Determine_Status() == ExpStatus_NonExistent) ||
+       ((exp->Status() == ExpStatus_NonExistent) ||
         (exp->Status() == ExpStatus_Paused) ||
         (exp->Status() == ExpStatus_Running))) {
    // These are the only states that can be changed.
@@ -1797,9 +1812,13 @@ bool SS_expCreate (CommandObject *cmd) {
 
  // See Process_expTypes for the code to gather performance information on the sub-task portions of expCreate
 
+ // Prevent this experiment from changing until we are done.
+  exp->Q_Lock (cmd, true);
+
  // Determine target and collectors and link them together.
   if (!Process_expTypes (cmd, exp, &Attach_Command )) {
    // Something went wrong - delete the experiment.
+    exp->Q_UnLock ();
     delete exp;
     return false;
   }
@@ -1813,7 +1832,7 @@ bool SS_expCreate (CommandObject *cmd) {
   (void)Experiment_Focus (WindowID, exp_id);
 
  // Let other comamnds get access to the experiment and new focus.
-  SafeToDoNextCmd ();
+ //  SafeToDoNextCmd ();
 
  // Annotate the command
   cmd->Result_Annotation ("The new focused experiment identifier is:  -x ");
@@ -1821,6 +1840,7 @@ bool SS_expCreate (CommandObject *cmd) {
  // Return the EXPID for this command.
   cmd->Result_Int (exp_id);
   cmd->set_Status(CMD_COMPLETE);
+  exp->Q_UnLock ();
 
   // End the gathering of performance information on the sub-task portions of expCreate
   // Here the processing of focusing and bookkeeping work
@@ -1833,6 +1853,8 @@ bool SS_expCreate (CommandObject *cmd) {
                                               SS_Timings::expCreate_focusExp_End);
   }
 
+ // Let other comamnds get access to the experiment and new focus.
+  SafeToDoNextCmd ();
   return true;
 }
 

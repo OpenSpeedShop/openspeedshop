@@ -253,11 +253,15 @@ class Input_Source
         ss_ostream *this_ss_stream = ((ss_ttyout != NULL) && isatty(fileno(stderr)))
                                             ? ss_ttyout : ss_err;
         if (this_ss_stream != NULL) {
+
           this_ss_stream->acquireLock();
           this_ss_stream->mystream()
                 << "ERROR: Input line from " << Name << " is too long for buffer.\n" << std::flush;
+          if (ss_ttyout == this_ss_stream) {
+	    this_ss_stream->Issue_Prompt();
+	  }
           this_ss_stream->releaseLock();
-          if (ss_ttyout == this_ss_stream) this_ss_stream->Issue_Prompt();
+
         } else {
           cerr << "ERROR: Input line from " << Name << " is too long for buffer.\n" << std::flush;
         }
@@ -1674,7 +1678,11 @@ CMDWID TLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel,
   };
 
   ss_ttyout = new tli_ostream ();
+
+  ss_ttyout->acquireLock();
   ss_ttyout->Set_Issue_Prompt (true);
+  ss_ttyout->releaseLock();
+
   ttyout_stream = new ofstream ("/dev/tty", ios::out);
 
  // Create a new Window
@@ -2577,7 +2585,11 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
        // This indicates that someone freed the input window
         break; // terminate the thread
       }
+
+      ss_ttyout->acquireLock();
       ss_ttyout->Set_Issue_Prompt (true);
+      ss_ttyout->releaseLock();
+
       (void) Append_Input_String ((CMDWID)attachtowindow, &Buffer[0], 
                                    NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
     }

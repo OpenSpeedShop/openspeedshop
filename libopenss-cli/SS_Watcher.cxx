@@ -397,7 +397,14 @@ void SS_Watcher () {
 //    printf("SS_Watcher, Sleep briefly and retry, calling pthread_mutex_unlock(&Watch_Item_Lock=%ld)  \n", Watch_Item_Lock);
 #endif
       Assert(pthread_mutex_unlock(&Watch_Item_Lock) == 0);
+#if 0
       usleep (500000); // wait a while and see if conditions change.
+#else
+      struct timespec wait;
+      wait.tv_sec = 0;
+      wait.tv_nsec = 500 * 1000 * 1000;
+      while(nanosleep(&wait, &wait));
+#endif
     }
   }
   // Process the performance information on the cli's watcher thread 

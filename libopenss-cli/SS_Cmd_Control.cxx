@@ -963,6 +963,9 @@ static void Cmd_EXT_Create () {
      // Be sure that the next command can proceed.
       Ready_for_Next_Cmd = true;
     }
+    // Lock aquired around line 861 is only release if ShutDown is true.
+    // Should release it here since ShutDown releases the lock end calls pthread_exit...
+    Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
   }
 }
 
