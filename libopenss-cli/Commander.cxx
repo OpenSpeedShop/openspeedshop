@@ -1679,9 +1679,7 @@ CMDWID TLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel,
 
   ss_ttyout = new tli_ostream ();
 
-  ss_ttyout->acquireLock();
   ss_ttyout->Set_Issue_Prompt (true);
-  ss_ttyout->releaseLock();
 
   ttyout_stream = new ofstream ("/dev/tty", ios::out);
 
