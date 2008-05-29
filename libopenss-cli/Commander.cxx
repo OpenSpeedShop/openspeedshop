@@ -561,10 +561,11 @@ class CommandWindowID
   }
 
   void Abort_Executing_Input_Lines () {
-   // Get the lock to this window's current in-process commands.
+
 #if DEBUG_SYNC
       printf("Abort_Executing_Input_Lines(), Get the lock to this window current in-process commands, calling pthread_mutex_lock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+   // Get the lock to this window's current in-process commands.
     Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
 
    // Look through the list for unneeded Commands
@@ -613,31 +614,42 @@ class CommandWindowID
      // got ahold of the lock.
       if (Looking_for_Async_Inputs) {
         Looking_for_Async_Inputs = false;
+
 #if DEBUG_SYNC
         printf("Wake_Up_Reader(), After we get the lock, be sure that the reader is still waiting for input, before calling pthread_cond_signal(&Async_Input_Available) \n");
 #endif
+
         Assert(pthread_cond_signal(&Async_Input_Available) == 0);
+
 #if DEBUG_SYNC
         printf("Wake_Up_Reader(), After we get the lock, be sure that the reader is still waiting for input, after calling pthread_cond_signal(&Async_Input_Available) \n");
 #endif
+
       }
+
 #if DEBUG_SYNC
       printf("Wake_Up_Reader(), After we get the lock..... before calling pthread_mutex_unlock(&Async_Input_Lock)\n");
 #endif
+
       Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
+      
 #if DEBUG_SYNC
       printf("Wake_Up_Reader(), After we get the lock..... after calling pthread_mutex_unlock(&Async_Input_Lock)\n");
 #endif
+
     }
   }
 
   void Append_Input_Source (Input_Source *inp) {
-   // Get exclusive access to the lock so that only one
-   // read, write, add or delete is done at a time.
+
 #if DEBUG_SYNC
     printf("Append_Input_Source(), Get exclusive access to the lock so that only one read, write, add or delete is done at a time, before calling pthread_mutex_lock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
+   // Get exclusive access to the lock so that only one
+   // read, write, add or delete is done at a time.
     Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+
 #if DEBUG_SYNC
     printf("Append_Input_Source(), Get exclusive access to the lock so that only one read, write, add or delete is done at a time, after calling pthread_mutex_lock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
@@ -652,11 +664,13 @@ class CommandWindowID
       previous_inp->Link(inp);
     }
 
-   // Release the lock.
 #if DEBUG_SYNC
     printf("Append_Input_Source(), release the lock, before calling pthread_mutex_unlock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
+   // Release the lock.
     Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+
 #if DEBUG_SYNC
     printf("Append_Input_Source(), release the lock, after calling pthread_mutex_unlock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
@@ -664,12 +678,15 @@ class CommandWindowID
   }
 
   void Push_Input_Source (Input_Source *inp) {
-   // Get exclusive access to the lock so that only one
-   // read, write, add or delete is done at a time.
+
 #if DEBUG_SYNC
     printf("Push_Input_Source(), Get exclusive access to the lock so that only one read, write, add or delete is done at a time-2, before calling pthread_mutex_lock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
+   // Get exclusive access to the lock so that only one
+   // read, write, add or delete is done at a time.
     Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+
 #if DEBUG_SYNC
     printf("Push_Input_Source(), Get exclusive access to the lock so that only one read, write, add or delete is done at a time-2, after calling pthread_mutex_lock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
@@ -678,22 +695,28 @@ class CommandWindowID
     inp->Link(previous_inp);
     Input = inp;
 
-   // Release the lock.
 #if DEBUG_SYNC
     printf("Push_Input_Source(), release the lock-2 before calling pthread_mutex_unlock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
+   // Release the lock.
     Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+
 #if DEBUG_SYNC
     printf("Push_Input_Source(), release the lock-2 after calling pthread_mutex_unlock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
     Wake_Up_Reader ();
   }
   void TrackCmd (InputLineObject *Clip) {
-   // Get the lock to this window's current in-process commands.
+
 #if DEBUG_SYNC
       printf("TrackCmd(), Get the lock to this windows current in-process commands, before calling pthread_mutex_lock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
+   // Get the lock to this window's current in-process commands.
     Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
+
 #if DEBUG_SYNC
       printf("TrackCmd(), Get the lock to this windows current in-process commands, after calling pthread_mutex_lock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
@@ -701,21 +724,27 @@ class CommandWindowID
    // Add a new in-process command to the list.
     Complete_Cmds.push_back (Clip);
 
-   // Release the lock
 #if DEBUG_SYNC
-      printf("TrackCmd(), release the lock-3 before calling pthread_mutex_unlock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
+    printf("TrackCmd(), release the lock-3 before calling pthread_mutex_unlock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
+   // Release the lock
     Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
+
 #if DEBUG_SYNC
-      printf("TrackCmd(), release the lock-3 after calling pthread_mutex_unlock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
+    printf("TrackCmd(), release the lock-3 after calling pthread_mutex_unlock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
   }
+
   void Remove_Completed_Input_Lines (bool issue_prompt) {
-   // Get the lock to this window's current in-process commands.
+
 #if DEBUG_SYNC
    printf("Remove_Completed_Input_Lines(), Get the lock to this windows current in-process commands, before calling pthread_mutex_lock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
+   // Get the lock to this window's current in-process commands.
     Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
+
 #if DEBUG_SYNC
    printf("Remove_Completed_Input_Lines(), Get the lock to this windows current in-process commands, after calling pthread_mutex_lock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
@@ -787,33 +816,44 @@ class CommandWindowID
      // We only the command that started the transitiion
      // is left, feed more input to Python.
       Waiting_For_Cmds_Complete = false;
+
 #if DEBUG_SYNC
-     printf("Remove_Completed_Input_Lines(), Input is waiting at a nested Python command, before calling pthread_cond_signal(&Wait_For_Cmds_Complete=%ld)\n", Wait_For_Cmds_Complete);
+      printf("Remove_Completed_Input_Lines(), Input is waiting at a nested Python command, before calling pthread_cond_signal(&Wait_For_Cmds_Complete=%ld)\n", Wait_For_Cmds_Complete);
 #endif
+
       Assert(pthread_cond_signal(&Wait_For_Cmds_Complete) == 0);
+
 #if DEBUG_SYNC
-     printf("Remove_Completed_Input_Lines(), Input is waiting at a nested Python command, after calling pthread_cond_signal(&Wait_For_Cmds_Complete=%ld)\n", Wait_For_Cmds_Complete);
+      printf("Remove_Completed_Input_Lines(), Input is waiting at a nested Python command, after calling pthread_cond_signal(&Wait_For_Cmds_Complete=%ld)\n", Wait_For_Cmds_Complete);
 #endif
+
     }
 
-   // Release the lock
+
 #if DEBUG_SYNC
    printf("Remove_Completed_Input_Lines(), before calling pthread_mutex_unlock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
+   // Release the lock
     Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
+
 #if DEBUG_SYNC
    printf("Remove_Completed_Input_Lines(), after calling pthread_mutex_unlock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
   }
+
   void Remove_Null_Input_Lines () {
    // This routine can only safely be called when Python
    // is outside a nested construct.
 
-   // Get the lock to this window's current in-process commands.
 #if DEBUG_SYNC
    printf("Remove_Completed_Input_Lines(), Get the lock to this windows current in-process commands., before calling pthread_mutex_lock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
+   // Get the lock to this window's current in-process commands.
     Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
+
 #if DEBUG_SYNC
    printf("Remove_Completed_Input_Lines(), Get the lock to this windows current in-process commands., after calling pthread_mutex_lock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
@@ -838,11 +878,13 @@ class CommandWindowID
       }
     }
 
-   // Release the lock
 #if DEBUG_SYNC
    printf("Remove_Completed_Input_Lines(), Release the lock., before calling pthread_mutex_unlock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
+   // Release the lock
     Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
+
 #if DEBUG_SYNC
    printf("Remove_Completed_Input_Lines(), Release the lock., after calling pthread_mutex_unlock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
@@ -873,12 +915,14 @@ public:
       return NULL;
     }
 
-   // Get exclusive access to the lock so that only one
-   // read, write, add or delete is done at a time.
 #if DEBUG_SYNC
    printf("Pop_Input_Source(), Get exclusive access to the lock., before calling pthread_mutex_lock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
+   // Get exclusive access to the lock so that only one
+   // read, write, add or delete is done at a time.
     Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+
 #if DEBUG_SYNC
    printf("Pop_Input_Source(), Get exclusive access to the lock., after calling pthread_mutex_lock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
@@ -902,11 +946,13 @@ public:
       }
     }
 
-   // Release the lock.
 #if DEBUG_SYNC
    printf("Pop_Input_Source(), Release the lock., before calling pthread_mutex_unlock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
+   // Release the lock.
     Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+
 #if DEBUG_SYNC
    printf("Pop_Input_Source(), Release the lock., after calling pthread_mutex_unlock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
@@ -927,115 +973,160 @@ public:
   }
   bool Input_Queued () {
     bool there_is_input = false;
+
 #if DEBUG_SYNC
     printf("Input_Queued(), Get the lock., before calling pthread_mutex_lock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
     Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+
 #if DEBUG_SYNC
     printf("Input_Queued(), Get the lock., after calling pthread_mutex_lock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
     if (Input != NULL) {
       there_is_input = (Input->InObj() != NULL);
     }
+
 #if DEBUG_SYNC
     printf("Input_Queued(), Release the lock., before calling pthread_mutex_unlock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
     Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+
 #if DEBUG_SYNC
     printf("Input_Queued(), Release the lock., after calling pthread_mutex_unlock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
     return there_is_input;
   }
   bool Input_File () {
     bool there_is_input = false;
+
 #if DEBUG_SYNC
     printf("Input_File(), Get the lock., before calling pthread_mutex_lock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
     Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+
 #if DEBUG_SYNC
     printf("Input_File(), Get the lock., after calling pthread_mutex_lock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
     if (Input != NULL) {
       there_is_input = (Input->Is_File());
     }
+
 #if DEBUG_SYNC
     printf("Input_File(), Release the lock., before calling pthread_mutex_unlock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
     Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+
 #if DEBUG_SYNC
     printf("Input_File(), Release the lock., after calling pthread_mutex_unlock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
     return there_is_input;
   }
   std::string Input_File_Name () {
     std::string N = std::string ("");
+
 #if DEBUG_SYNC
     printf("Input_File_Name(), Get the lock., before calling pthread_mutex_lock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
     Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+
 #if DEBUG_SYNC
     printf("Input_File_Name(), Get the lock., after calling pthread_mutex_lock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
     if (Input != NULL) {
       if (Input->Is_File()) {
         N = Input->File_Name();
       }
     }
+
 #if DEBUG_SYNC
     printf("Input_File_Name(), Release the lock., before calling pthread_mutex_unlock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
     Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+
 #if DEBUG_SYNC
     printf("Input_File_Name(), Release the lock., after calling pthread_mutex_unlock(&Input_List_Lock=%ld)\n", Input_List_Lock);
 #endif
+
     return N;
   }
   bool Input_Available () {
     return (Input_Async() || Input_Queued() || Input_File());
   }
   bool Cmds_BeingProcessed () {
+
 #if DEBUG_SYNC
     printf("Input_Available(), Get the lock., before calling pthread_mutex_lock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
     Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
+
 #if DEBUG_SYNC
     printf("Input_Available(), Get the lock., after calling pthread_mutex_lock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
     bool there_are_some = (Complete_Cmds.size() != 0);
+
 #if DEBUG_SYNC
     printf("Input_Available(), Release the lock., before calling pthread_mutex_unlock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
     Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
+
 #if DEBUG_SYNC
     printf("Input_Available(), Release the lock., after calling pthread_mutex_unlock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
     return there_are_some;
   }
   void Wait_Until_Cmds_Complete () {
+
 #if DEBUG_SYNC
     printf("Wait_Until_Cmds_Complete(), Get the lock., before calling pthread_mutex_lock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
     Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
+
 #if DEBUG_SYNC
     printf("Wait_Until_Cmds_Complete(), Get the lock., after calling pthread_mutex_lock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
     if (Complete_Cmds.size() > 1) {
+
       Waiting_For_Cmds_Complete = true;
+
 #if DEBUG_SYNC
      printf("Wait_Until_Cmds_Complete(), before calling pthread_cond_wait(&Wait_For_Cmds_Complete=%ld,&Cmds_List_Lock=%ld)\n", Wait_For_Cmds_Complete, Cmds_List_Lock);
 #endif
+
       Assert(pthread_cond_wait(&Wait_For_Cmds_Complete,&Cmds_List_Lock) == 0);
+
 #if DEBUG_SYNC
      printf("Wait_Until_Cmds_Complete(), after calling pthread_cond_wait(&Wait_For_Cmds_Complete=%ld,&Cmds_List_Lock=%ld)\n", Wait_For_Cmds_Complete, Cmds_List_Lock);
 #endif
+
     }
+
 #if DEBUG_SYNC
     printf("Wait_Until_Cmds_Complete(), Release the lock., before calling pthread_mutex_unlock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
     Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
+
 #if DEBUG_SYNC
     printf("Wait_Until_Cmds_Complete(), Release the lock., after calling pthread_mutex_unlock(&Cmds_List_Lock=%ld)\n", Cmds_List_Lock);
 #endif
+
     return;
   }
 
@@ -1440,11 +1531,20 @@ void Clip_Complete (InputLineObject *clip) {
 }
 
 void Cmd_Obj_Complete (CommandObject *C) {
+
+
   InputLineObject *clip = C->Clip();
 
   if (!clip->Complex_Exp()) {
+
+   // Helgrind flaging this call, but how to protect
+   // Remove_Completed_Input_Lines has protection via
+   // Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
+   // in it's routine body
+
    // If output has been completed, issue a prompt
     clip->Set_Semantics_Complete ();
+
     CMDWID w = clip->Who();
     CommandWindowID *cw = (w) ? Find_Command_Window (w) : NULL;
     if (cw != NULL) cw->Remove_Completed_Input_Lines (true);
