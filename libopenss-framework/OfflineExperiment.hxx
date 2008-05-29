@@ -29,7 +29,13 @@
 #include "config.h"
 #endif
 
+#include "SymbolTable.hxx"
+
 namespace OpenSpeedShop { namespace Framework {
+
+typedef std::map<AddressRange,
+        std::pair<SymbolTable, std::set<LinkedObject> > >
+        SymbolTableMap;
 
     class Collector;
     class CollectorGroup;
@@ -67,6 +73,9 @@ class OfflineExperiment
     int		getRawDataFiles(std::string dir);
     int		convertToOpenSSDB();
     void	createOfflineSymbolTable();
+    void	findThreadsForExe(std::set<std::pair<LinkedObject,ThreadGroup> > &);
+    void	processOfflineSymbolTable();
+    void	getAddressesForThreads(ThreadGroup&, PCBuffer *);
 
     std::string expHost;
     std::string expCollector;
@@ -85,10 +94,11 @@ class OfflineExperiment
 
     private:
 
-
+    SymbolTableMap symtabmap;
 
     // map dso objects by name to their corresponding address ranges
     std::vector<std::pair<std::string, AddressRange> > names_to_range;
+    std::vector<std::pair<std::string, TimeInterval> > names_to_time;
 
     std::vector<std::string> rawfiles;
     std::string rawdatadir;
