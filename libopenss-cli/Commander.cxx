@@ -17,6 +17,7 @@
 *******************************************************************************/
 
 //#define DEBUG_SYNC 1
+//#define DEBUG_SYNC_SIGNAL 1
 
 #include "SS_Input_Manager.hxx"
 extern "C" void loadTheGUI(ArgStruct *);
@@ -615,14 +616,14 @@ class CommandWindowID
       if (Looking_for_Async_Inputs) {
         Looking_for_Async_Inputs = false;
 
-#if DEBUG_SYNC
-        printf("Wake_Up_Reader(), After we get the lock, be sure that the reader is still waiting for input, before calling pthread_cond_signal(&Async_Input_Available) \n");
+#if DEBUG_SYNC_SIGNAL
+        printf("Wake_Up_Reader(), After we get the lock, be sure that the reader is still waiting for input, before calling pthread_cond_signal(&Async_Input_Available=%ld) \n", Async_Input_Available);
 #endif
 
         Assert(pthread_cond_signal(&Async_Input_Available) == 0);
 
-#if DEBUG_SYNC
-        printf("Wake_Up_Reader(), After we get the lock, be sure that the reader is still waiting for input, after calling pthread_cond_signal(&Async_Input_Available) \n");
+#if DEBUG_SYNC_SIGNAL
+        printf("Wake_Up_Reader(), After we get the lock, be sure that the reader is still waiting for input, after calling pthread_cond_signal(&Async_Input_Available=%ld) \n", Async_Input_Available);
 #endif
 
       }
@@ -817,13 +818,13 @@ class CommandWindowID
      // is left, feed more input to Python.
       Waiting_For_Cmds_Complete = false;
 
-#if DEBUG_SYNC
+#if DEBUG_SYNC_SIGNAL
       printf("Remove_Completed_Input_Lines(), Input is waiting at a nested Python command, before calling pthread_cond_signal(&Wait_For_Cmds_Complete=%ld)\n", Wait_For_Cmds_Complete);
 #endif
 
       Assert(pthread_cond_signal(&Wait_For_Cmds_Complete) == 0);
 
-#if DEBUG_SYNC
+#if DEBUG_SYNC_SIGNAL
       printf("Remove_Completed_Input_Lines(), Input is waiting at a nested Python command, after calling pthread_cond_signal(&Wait_For_Cmds_Complete=%ld)\n", Wait_For_Cmds_Complete);
 #endif
 
@@ -1105,13 +1106,13 @@ public:
 
       Waiting_For_Cmds_Complete = true;
 
-#if DEBUG_SYNC
+#if DEBUG_SYNC_SIGNAL
      printf("Wait_Until_Cmds_Complete(), before calling pthread_cond_wait(&Wait_For_Cmds_Complete=%ld,&Cmds_List_Lock=%ld)\n", Wait_For_Cmds_Complete, Cmds_List_Lock);
 #endif
 
       Assert(pthread_cond_wait(&Wait_For_Cmds_Complete,&Cmds_List_Lock) == 0);
 
-#if DEBUG_SYNC
+#if DEBUG_SYNC_SIGNAL
      printf("Wait_Until_Cmds_Complete(), after calling pthread_cond_wait(&Wait_For_Cmds_Complete=%ld,&Cmds_List_Lock=%ld)\n", Wait_For_Cmds_Complete, Cmds_List_Lock);
 #endif
 
@@ -2591,6 +2592,9 @@ static void User_Interrupt (CMDWID issuedbywindow) {
   }
 
  // Awaken "wait" commands.
+#if DEBUG_SYNC
+  printf("User_Interrupt(),calling Purge_Watcher_Waits\n");
+#endif
   Purge_Watcher_Waits ();
 }
 
@@ -2856,11 +2860,11 @@ read_another_window:
               this_ss_stream->Issue_Prompt();
               this_ss_stream->releaseLock();
             }
-#if DEBUG_SYNC
+#if DEBUG_SYNC_SIGNAL
             printf("SpeedShop_ReadLine(), before calling pthread_cond_wait(&Async_Input_Available=%ld,&Async_Input_Lock=%ld)\n", Async_Input_Available, Async_Input_Lock);
 #endif
             Assert(pthread_cond_wait(&Async_Input_Available,&Async_Input_Lock) == 0);
-#if DEBUG_SYNC
+#if DEBUG_SYNC_SIGNAL
             printf("SpeedShop_ReadLine(), after calling pthread_cond_wait(&Async_Input_Available=%ld,&Async_Input_Lock=%ld)\n", Async_Input_Available, Async_Input_Lock);
 #endif
             I_HAVE_ASYNC_INPUT_LOCK = false;
@@ -2922,11 +2926,11 @@ read_another_window:
         } else {
          // An 'Exit' command has been processed.  
           I_HAVE_ASYNC_INPUT_LOCK = false;
-#if DEBUG_SYNC
+#if DEBUG_SYNC_SIGNAL
          printf("SpeedShop_ReadLine(), I_HAVE_ASYNC_INPUT_LOCK, before calling pthread_cond_wait(&Async_Input_Available=%ld,&Async_Input_Lock=%ld)\n", Async_Input_Available, Async_Input_Lock);
 #endif
           Assert(pthread_cond_wait(&Async_Input_Available,&Async_Input_Lock) == 0);
-#if DEBUG_SYNC
+#if DEBUG_SYNC_SIGNAL
          printf("SpeedShop_ReadLine(), I_HAVE_ASYNC_INPUT_LOCK, after calling pthread_cond_wait(&Async_Input_Available=%ld,&Async_Input_Lock=%ld)\n", Async_Input_Available, Async_Input_Lock);
 #endif
           clip = NULL;  // Signal an EOF to Python

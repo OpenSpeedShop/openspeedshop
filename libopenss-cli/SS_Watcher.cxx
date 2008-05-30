@@ -21,6 +21,7 @@
 #include "SS_Timings.hxx"
 
 //#define DEBUG_SYNC 1
+//#define DEBUG_SYNC_SIGNAL 1
 
 inline std::string int2str (int64_t e) {
   char s[40];
@@ -130,13 +131,13 @@ void Request_Async_Notice_Of_Termination (CommandObject *cmd, ExperimentObject *
   if (Waiting_to_Watch) {
     Waiting_to_Watch = false;
 
-#if DEBUG_SYNC
+#if DEBUG_SYNC_SIGNAL
     printf("Request_Async_Notice_Of_Termination, Waiting_to_Watch, before calling pthread_cond_signal(&Waiting_For_Items=%ld) \n", Waiting_For_Items);
 #endif
 
     Assert(pthread_cond_signal(&Waiting_For_Items) == 0);
 
-#if DEBUG_SYNC
+#if DEBUG_SYNC_SIGNAL
     printf("Request_Async_Notice_Of_Termination, Waiting_to_Watch, after calling pthread_cond_signal(&Waiting_For_Items=%ld) \n", Waiting_For_Items);
 #endif
 
@@ -155,9 +156,17 @@ void Request_Async_Notice_Of_Termination (CommandObject *cmd, ExperimentObject *
 }
 
 void Cancle_Exp_Wait (ExperimentObject *exp) {
+
+#if DEBUG_SYNC
+  printf("Cancle_Exp_Wait, entered, Watcher_Active=%ld\n", Watcher_Active);
+#endif
+
   if (!Watcher_Active) return;
+
   EXPID id = (exp != NULL) ? exp->ExperimentObject_ID() : 0;
+
   if (id != 0) {
+
     std::list<Watch_Item *>::iterator wli;
 
 #if DEBUG_SYNC
@@ -176,6 +185,9 @@ void Cancle_Exp_Wait (ExperimentObject *exp) {
       wli++;
       if ((wi->itemtype == Watch_Item::waitTermination) &&
           (id == wi->item.w.expid)) {
+#if DEBUG_SYNC
+        printf("Cancle_Exp_Wait, removing Watch_Item::waitTermination for expID=%ld)  \n", wi->item.w.expid );
+#endif
         Watch_Item_list.remove(wi);
         delete wi;
       }
@@ -216,27 +228,27 @@ void Wait_For_Exp (CommandObject *cmd, ExperimentObject *exp) {
   if (Waiting_to_Watch) {
     Waiting_to_Watch = false;
 
-#if DEBUG_SYNC
+#if DEBUG_SYNC_SIGNAL
     printf("Wait_For_Exp, Waiting_to_Watch, before calling pthread_cond_signal(&Waiting_For_Items=%ld) \n", Waiting_For_Items);
 #endif
 
     Assert(pthread_cond_signal(&Waiting_For_Items) == 0);
 
-#if DEBUG_SYNC
+#if DEBUG_SYNC_SIGNAL
     printf("Wait_For_Exp, Waiting_to_Watch, after calling pthread_cond_signal(&Waiting_For_Items=%ld) \n", Waiting_For_Items);
 #endif
 
   }
 
-#if DEBUG_SYNC
-    printf("Wait_For_Exp, Go to sleep until SS_Watcher or ~Watch_Item () wakes me up. before calling pthread_cond_wait(&(item->item.w.condition),&Watch_Item_Lock=%ld\n", Watch_Item_Lock);
+#if DEBUG_SYNC_SIGNAL
+    printf("Wait_For_Exp, Go to sleep until SS_Watcher or ~Watch_Item () wakes me up. before calling pthread_cond_wait(&(item->item.w.condition=%ld),&Watch_Item_Lock=%ld\n", item->item.w.condition, Watch_Item_Lock);
 #endif
 
   // Go to sleep until SS_Watcher or ~Watch_Item () wakes me up.
   Assert(pthread_cond_wait(&(item->item.w.condition),&Watch_Item_Lock) == 0);
 
-#if DEBUG_SYNC
-    printf("Wait_For_Exp, Go to sleep until SS_Watcher or ~Watch_Item () wakes me up. after calling pthread_cond_wait(&(item->item.w.condition),&Watch_Item_Lock=%ld\n", Watch_Item_Lock);
+#if DEBUG_SYNC_SIGNAL
+    printf("Wait_For_Exp, Go to sleep until SS_Watcher or ~Watch_Item () wakes me up. after calling pthread_cond_wait(&(item->item.w.condition=%ld),&Watch_Item_Lock=%ld\n", item->item.w.condition, Watch_Item_Lock);
 #endif
 
 
@@ -303,6 +315,9 @@ void Purge_Watcher_Waits () {
     Watch_Item *wi = *wli;
     wli++;
     if (wi->itemtype == Watch_Item::waitTermination) {
+#if DEBUG_SYNC
+      printf("Purge_Watcher_Waits, Watcher_Active, after removing waitTermination\n");
+#endif
       Watch_Item_list.remove(wi);
       delete wi;
     }
@@ -340,6 +355,10 @@ void SS_Watcher () {
          cli_timing_handle->cli_perf_data[SS_Timings::cliWatcherStart] = Time::Now();
     }
 
+#if DEBUG_SYNC
+  printf("SS_Watcher, Entered\n");
+#endif
+
   Watcher_Active = true;
 
  // Set up to catch keyboard control signals
@@ -354,6 +373,8 @@ void SS_Watcher () {
   for(;;) {
    // Look for something that changed.
     std::list<Watch_Item *>::iterator wli;
+    std::list<Watch_Item *> wli_copy;
+
 
 #if DEBUG_SYNC
     printf("SS_Watcher, Look for something that changed, before calling pthread_mutex_lock(&Watch_Item_Lock=%ld)  \n", Watch_Item_Lock);
@@ -365,10 +386,18 @@ void SS_Watcher () {
     printf("SS_Watcher, Look for something that changed, after calling pthread_mutex_lock(&Watch_Item_Lock=%ld)  \n", Watch_Item_Lock);
 #endif
 
-    for ( wli = Watch_Item_list.begin(); wli != Watch_Item_list.end(); ) {
+    wli_copy = Watch_Item_list;
+
+    Assert(pthread_mutex_unlock(&Watch_Item_Lock) == 0);
+
+
+    for ( wli = wli_copy.begin(); wli != wli_copy.end(); ) {
       bool purge_item = false;
       Watch_Item *wi = *wli;
       wli++;
+#if DEBUG_SYNC
+      printf("SS_Watcher, In wli = wli_copy.begin(); wli != wli_copy.end(); loop, wi->itemtype=%d\n", wi->itemtype);
+#endif
       switch (wi->itemtype) {
         case Watch_Item::printTermination:
         case Watch_Item::waitTermination:
@@ -396,13 +425,13 @@ void SS_Watcher () {
                                          );
               } else if (wi->itemtype == Watch_Item::waitTermination) {
 
-#if DEBUG_SYNC
+#if DEBUG_SYNC_SIGNAL
                printf("SS_Watcher, Watch_Item::waitTermination, before calling pthread_cond_signal(&(wi->item.w.condition=%ld) \n", wi->item.w.condition);
 #endif
 
                 Assert(pthread_cond_signal(&(wi->item.w.condition)) == 0);
 
-#if DEBUG_SYNC
+#if DEBUG_SYNC_SIGNAL
                printf("SS_Watcher, Watch_Item::waitTermination, after calling pthread_cond_signal(&(wi->item.w.condition=%ld) \n", wi->item.w.condition);
 #endif
 
@@ -414,24 +443,28 @@ void SS_Watcher () {
           break;
       }
       if (purge_item) {
-        Watch_Item_list.remove(wi);
+        wli_copy.remove(wi);
+        Assert(pthread_mutex_lock(&Watch_Item_Lock) == 0);
+        Watch_Item_list = wli_copy;
+        Assert(pthread_mutex_unlock(&Watch_Item_Lock) == 0);
         delete wi;
       }
-    }
+    } // end for
 
-    if (Watch_Item_list.begin() == Watch_Item_list.end()) {
+    if (wli_copy.begin() == wli_copy.end()) {
      // It might be a long time before we have something to look at.
      // Go into a long sleep.
+      Assert(pthread_mutex_lock(&Watch_Item_Lock) == 0);
       Waiting_to_Watch = true;
 
-#if DEBUG_SYNC
-      printf("SS_Watcher, Waiting_to_Watch, before calling pthread_cond_wait(&Waiting_For_Items=%ld, &Watch_Item_Lock=%ld) \n", Waiting_For_Items, Watch_Item_Lock);
+#if DEBUG_SYNC_SIGNAL
+    printf("SS_Watcher, Waiting_to_Watch, before calling pthread_cond_wait(&Waiting_For_Items=%ld, &Watch_Item_Lock=%ld) \n", Waiting_For_Items, Watch_Item_Lock);
 #endif
 
       Assert(pthread_cond_wait(&Waiting_For_Items,&Watch_Item_Lock) == 0);
 
-#if DEBUG_SYNC
-      printf("SS_Watcher, Waiting_to_Watch, after calling pthread_cond_wait(&Waiting_For_Items=%ld, &Watch_Item_Lock=%ld) \n", Waiting_For_Items, Watch_Item_Lock);
+#if DEBUG_SYNC_SIGNAL
+    printf("SS_Watcher, Waiting_to_Watch, after calling pthread_cond_wait(&Waiting_For_Items=%ld, &Watch_Item_Lock=%ld) \n", Waiting_For_Items, Watch_Item_Lock);
 #endif
 
 #if DEBUG_SYNC
@@ -452,7 +485,7 @@ void SS_Watcher () {
 
       // Assume it will be a short time before we have something to do.
       // Sleep briefly and retry.
-      Assert(pthread_mutex_unlock(&Watch_Item_Lock) == 0);
+//      Assert(pthread_mutex_unlock(&Watch_Item_Lock) == 0);
 
 #if 0
       usleep (500000); // wait a while and see if conditions change.
