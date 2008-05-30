@@ -17,6 +17,8 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+//#define DEBUG_SYNC_SIGNAL 1
+
 /** @file
  *
  * Definition of the ExperimentObject class.
@@ -189,6 +191,7 @@ class ExperimentObject
      // of the form "X<exp_id>.XXXXXX.openss".
      char base[256];
      char newName[256];
+
 #if DEBUG_CLI
      printf("createRerunNameFromCurrentName, newname=%s-%d.\n", current_exp_name, rerun_count);
 #endif
@@ -242,10 +245,35 @@ class ExperimentObject
   }
 
   void Q_Lock (CommandObject *cmd, bool start_next_cmd = false) {
+
+#ifdef DEBUG_SYNC_SIGNAL
+    printf("Q_Lock, before calling pthread_mutex_lock(&Experiment_Lock=%ld), start_next_cmd=%d\n", Experiment_Lock, start_next_cmd);
+#endif
+
     Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
+
+#ifdef DEBUG_SYNC_SIGNAL
+    printf("Q_Lock, after calling pthread_mutex_lock(&Experiment_Lock=%ld), start_next_cmd=%d\n", Experiment_Lock, start_next_cmd);
+#endif
+
     if (start_next_cmd) {
+
+#ifdef DEBUG_SYNC_SIGNAL
+     printf("Q_Lock, before calling SafeToDoNextCmd(), start_next_cmd=%d\n", start_next_cmd);
+#endif
+      
       SafeToDoNextCmd ();
+
+#ifdef DEBUG_SYNC_SIGNAL
+     printf("Q_Lock, after calling SafeToDoNextCmd(), start_next_cmd=%d\n", start_next_cmd);
+#endif
+
     }
+
+#ifdef DEBUG_SYNC_SIGNAL
+    printf("Q_Lock, exp_reserved=%d\n", exp_reserved);
+#endif
+
     if (exp_reserved) {
      // Queue myself up and wait until the previous
      // commands have completed execution.
@@ -254,24 +282,76 @@ class ExperimentObject
      // When we return, the lock has been reset.
     }
     exp_reserved = true;
+
+#ifdef DEBUG_SYNC_SIGNAL
+    printf("Q_Lock, before calling pthread_mutex_unlock(&Experiment_Lock=%ld)\n", Experiment_Lock);
+#endif
+
     Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
+
+#ifdef DEBUG_SYNC_SIGNAL
+    printf("Q_Lock, after calling pthread_mutex_unlock(&Experiment_Lock=%ld)\n", Experiment_Lock);
+#endif
+
     return;
   }
+
   void Q_UnLock () {
+
+#ifdef DEBUG_SYNC_SIGNAL
+    printf("Q_UnLock, before calling pthread_mutex_lock(&Experiment_Lock=%ld), exp_reserved=%d\n", Experiment_Lock, exp_reserved);
+#endif
+
     Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
+
+#ifdef DEBUG_SYNC_SIGNAL
+    printf("Q_UnLock, after calling pthread_mutex_lock(&Experiment_Lock=%ld), exp_reserved=%d\n", Experiment_Lock, exp_reserved);
+#endif
+
     if (waiting_cmds.begin() != waiting_cmds.end()) {
       CommandObject *cmd = *waiting_cmds.begin();
       waiting_cmds.pop_front();
       cmd->All_Clear ();
     }
     exp_reserved = false;
+
+#ifdef DEBUG_SYNC_SIGNAL
+    printf("Q_UnLock, before calling pthread_mutex_unlock(&Experiment_Lock=%ld), exp_reserved=%d\n", Experiment_Lock, exp_reserved);
+#endif
+
     Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
+
+#ifdef DEBUG_SYNC_SIGNAL
+    printf("Q_UnLock, after calling pthread_mutex_unlock(&Experiment_Lock=%ld), exp_reserved=%d\n", Experiment_Lock, exp_reserved);
+#endif
+
   }
+
   bool TS_Lock () {
+
+#ifdef DEBUG_SYNC_SIGNAL
+    printf("TS_LOCK, before calling pthread_mutex_lock(&Experiment_Lock=%ld), exp_reserved=%d\n", Experiment_Lock, exp_reserved);
+#endif
+
     Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
+
+#ifdef DEBUG_SYNC_SIGNAL
+    printf("TS_LOCK, before calling pthread_mutex_lock(&Experiment_Lock=%ld), exp_reserved=%d\n", Experiment_Lock, exp_reserved);
+#endif
+
     bool already_in_use = exp_reserved;
     exp_reserved = true;
+
+#ifdef DEBUG_SYNC_SIGNAL
+    printf("TS_LOCK, before calling pthread_mutex_unlock(&Experiment_Lock=%ld), already_in_use=%d, exp_reserved=%d\n", Experiment_Lock, already_in_use, exp_reserved);
+#endif
+
     Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
+
+#ifdef DEBUG_SYNC_SIGNAL
+    printf("TS_LOCK, after calling pthread_mutex_unlock(&Experiment_Lock=%ld), already_in_use=%d, exp_reserved=%d\n", Experiment_Lock, already_in_use, exp_reserved);
+#endif
+
     return !already_in_use;
   }
 
