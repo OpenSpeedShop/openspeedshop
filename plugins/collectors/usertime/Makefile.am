@@ -58,7 +58,7 @@ if BUILD_MRNET
 usertime_rt_la_CFLAGS = \
         @BINUTILS_CPPFLAGS@ \
         -DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
-        -I$(top_srcdir)/libopenss-runtime
+        -I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@
 else
 usertime_rt_la_CFLAGS = \
@@ -88,17 +88,17 @@ if HAVE_LIBMONITOR
 usertime_rt_offline_la_CFLAGS = \
         @BINUTILS_CPPFLAGS@ \
         @LIBMONITOR_CPPFLAGS@ \
+	@LIBUNWIND_CPPFLAGS@ \
 	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/fileio \
-	-I$(top_srcdir)/libopenss-runtime/offline \
-	@LIBUNWIND_CPPFLAGS@
+	-I$(top_srcdir)/libopenss-runtime/offline
 
 usertime_rt_offline_la_LDFLAGS = \
         @BINUTILS_LDFLAGS@ \
-	-L$(top_srcdir)/libopenss-runtime \
         @LIBMONITOR_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
+	-L$(top_srcdir)/libopenss-runtime \
 	-no-undefined -module -avoid-version
 
 usertime_rt_offline_la_LIBADD = \
