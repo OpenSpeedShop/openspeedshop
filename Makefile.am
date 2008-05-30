@@ -104,13 +104,40 @@ cli-install:
 # with the offline collectors.
 
 OFFLINE_SUBDIRS = \
+	libltdl \
+	libopenss-message \
 	libopenss-runtime \
 	libopenss-framework \
+	libopenss-queries \
+	libopenss-cli \
 	openss \
-	plugins/collectors
+	plugins/collectors \
+	plugins/views
 
 offline:
 	for i in $(OFFLINE_SUBDIRS); do (cd $$i; $(MAKE)); done
 
 offline-install:
 	for i in $(OFFLINE_SUBDIRS); do (cd $$i; $(MAKE) install); done
+
+offline-uninstall:
+	for i in $(OFFLINE_SUBDIRS); do (cd $$i; $(MAKE) uninstall); done
+
+offline-clean:
+	for i in $(OFFLINE_SUBDIRS); do (cd $$i; $(MAKE) clean); done
+
+OFFLINE_STATIC_SUBDIRS = \
+	libopenss-runtime \
+	plugins/collectors
+
+offlinestatic:
+	for i in $(OFFLINE_STATIC_SUBDIRS); do (cd $$i; $(MAKE)); done
+
+offlinestatic-install:
+	for i in $(OFFLINE_STATIC_SUBDIRS); do (cd $$i; $(MAKE) install); done
+
+offlinestatic-uninstall:
+	for i in $(OFFLINE_STATIC_SUBDIRS); do (cd $$i; $(MAKE) uninstall); done
+
+offlinestatic-clean:
+	for i in $(OFFLINE_STATIC_SUBDIRS); do (cd $$i; $(MAKE) clean); done
