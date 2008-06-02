@@ -36,11 +36,17 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c
 
-noinst_LTLIBRARIES = libopenss-runtime.la
+noinst_LTLIBRARIES =
+
+if !BUILD_OFFLINE
+noinst_LTLIBRARIES += libopenss-runtime.la
+endif
+
 if HAVE_LIBMONITOR
 noinst_LTLIBRARIES += libopenss-runtime-offline.la
 endif
 
+if !BUILD_OFFLINE
 libopenss_runtime_la_CFLAGS = \
 	@LIBUNWIND_CPPFLAGS@ \
 	@BINUTILS_CPPFLAGS@ \
@@ -57,6 +63,7 @@ libopenss_runtime_la_LIBADD = \
 	@BINUTILS_LIBS@ \
 	@PAPI_LIBS@ \
 	-lpthread -lrt
+endif
 
 if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_CFLAGS = \
