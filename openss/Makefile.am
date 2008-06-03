@@ -31,7 +31,6 @@ BUILT_FILES = ossrun
 
 bin_PROGRAMS =
 
-if !BUILD_OFFLINE
 bin_PROGRAMS += openss
 
 openss_CXXFLAGS = \
@@ -50,7 +49,6 @@ openss_LDADD = \
 
 openss_SOURCES = \
 	openss.cxx
-endif
 
 bin_PROGRAMS += ossutil
 
