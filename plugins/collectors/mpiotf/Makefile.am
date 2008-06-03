@@ -112,8 +112,8 @@ endif
 
 pkglib_LTLIBRARIES =
 
-if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpiotf.la
+if !BUILD_OFFLINE
 if HAVE_LAM
 pkglib_LTLIBRARIES += mpiotf-rt-lam.la
 endif

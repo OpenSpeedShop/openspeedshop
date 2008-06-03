@@ -42,49 +42,66 @@ endif
 pkglib_LTLIBRARIES += mpi.la
 
 if HAVE_LAM
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-lam.la
+endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-rt-offline-lam.la
 endif
 endif
 
 if HAVE_LAMPI
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-lampi.la
+endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-rt-offline-lampi.la
 endif
 endif
 
 if HAVE_MPICH
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-mpich.la
+endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-rt-offline-mpich.la
 endif
 endif
 
 if HAVE_MPICH2
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-mpich2.la
+endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-rt-offline-mpich2.la
 endif
 endif
 
 if HAVE_MPT
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-mpt.la
+endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-rt-offline-mpt.la
 endif
 endif
 
 if HAVE_OPENMPI
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-openmpi.la
+endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-rt-offline-openmpi.la libmpi-offline-openmpi.la
 endif
 endif
 
 if HAVE_MVAPICH
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-mvapich.la
+endif
+if HAVE_LIBMONITOR
+pkglib_LTLIBRARIES += mpi-rt-offline-mvapich.la libmpi-offline-mvapich.la
+endif
 endif
 
 mpi_la_CXXFLAGS = \

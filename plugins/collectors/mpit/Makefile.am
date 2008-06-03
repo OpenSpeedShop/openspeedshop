@@ -33,50 +33,63 @@ OFFLINE_SOURCES = \
 endif
 
 
-#if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpit.la
 
 if HAVE_LAM
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpit-rt-lam.la
+endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-rt-offline-lam.la
 endif
 endif
 
 if HAVE_LAMPI
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpit-rt-lampi.la
+endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-rt-offline-lampi.la
 endif
 endif
 
 if HAVE_MPICH
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpit-rt-mpich.la
+endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-rt-offline-mpich.la
 endif
 endif
 
 if HAVE_MPICH2
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpit-rt-mpich2.la
+endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-rt-offline-mpich2.la
 endif
 endif
 
 if HAVE_MPT
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpit-rt-mpt.la
+endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-rt-offline-mpt.la
 endif
 endif
 
 if HAVE_MVAPICH
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpit-rt-mvapich.la
+endif
 endif
 
 if HAVE_OPENMPI
+if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpit-rt-openmpi.la
+endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-openmpi-rt-offline.la libmpit-openmpi-offline.la
 endif

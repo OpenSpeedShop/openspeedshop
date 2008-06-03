@@ -27,8 +27,10 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+pkglib_LTLIBRARIES += hwc.la
+
 if !BUILD_OFFLINE
-pkglib_LTLIBRARIES += hwc.la hwc-rt.la
+pkglib_LTLIBRARIES += hwc-rt.la
 endif
 
 if HAVE_LIBMONITOR
@@ -38,7 +40,6 @@ OFFLINE_SOURCES = \
 pkglib_LTLIBRARIES += hwc-rt-offline.la libhwc-offline.la
 endif
 
-if !BUILD_OFFLINE
 hwc_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-message \
@@ -59,6 +60,7 @@ hwc_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	HWCCollector.hxx HWCCollector.cxx
 
+if !BUILD_OFFLINE
 if BUILD_MRNET
 hwc_rt_la_CFLAGS = \
 	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \

@@ -27,8 +27,10 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+pkglib_LTLIBRARIES += hwctime.la
+
 if !BUILD_OFFLINE
-pkglib_LTLIBRARIES += hwctime.la hwctime-rt.la
+pkglib_LTLIBRARIES += hwctime-rt.la
 endif
 
 if HAVE_LIBMONITOR
@@ -38,7 +40,6 @@ OFFLINE_SOURCES = \
 pkglib_LTLIBRARIES += hwctime-rt-offline.la libhwctime-offline.la
 endif
 
-if !BUILD_OFFLINE
 hwctime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
 	@PAPI_CPPFLAGS@
@@ -55,6 +56,7 @@ hwctime_la_SOURCES = \
 	HWTimeCollector.hxx HWTimeCollector.cxx \
 	HWTimeDetail.hxx
 
+if !BUILD_OFFLINE
 if BUILD_MRNET
 hwctime_rt_la_CFLAGS = \
 	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \

@@ -27,8 +27,10 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+pkglib_LTLIBRARIES += io.la
+
 if !BUILD_OFFLINE
-pkglib_LTLIBRARIES += io.la io-rt.la
+pkglib_LTLIBRARIES += io-rt.la
 endif
 
 if HAVE_LIBMONITOR
@@ -38,7 +40,6 @@ OFFLINE_SOURCES = \
 pkglib_LTLIBRARIES += io-rt-offline.la libio-offline.la
 endif
 
-if !BUILD_OFFLINE
 io_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -53,6 +54,7 @@ io_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	IOCollector.hxx IODetail.hxx IOCollector.cxx
 
+if !BUILD_OFFLINE
 if BUILD_MRNET
 io_rt_la_CFLAGS = \
 	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \

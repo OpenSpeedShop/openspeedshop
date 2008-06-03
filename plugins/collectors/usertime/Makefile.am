@@ -27,8 +27,10 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+pkglib_LTLIBRARIES += usertime.la
+
 if !BUILD_OFFLINE
-pkglib_LTLIBRARIES += usertime.la usertime-rt.la
+pkglib_LTLIBRARIES += usertime-rt.la
 endif
 
 if HAVE_LIBMONITOR
@@ -38,7 +40,6 @@ OFFLINE_SOURCES = \
 pkglib_LTLIBRARIES += usertime-rt-offline.la libusertime-offline.la
 endif
 
-if !BUILD_OFFLINE
 usertime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -54,6 +55,7 @@ usertime_la_SOURCES = \
 	UserTimeCollector.hxx UserTimeCollector.cxx \
 	UserTimeDetail.hxx
 
+if !BUILD_OFFLINE
 if BUILD_MRNET
 usertime_rt_la_CFLAGS = \
         @BINUTILS_CPPFLAGS@ \
