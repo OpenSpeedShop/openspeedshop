@@ -116,6 +116,9 @@ static int Wait_For_Exp_State (CommandObject *cmd, int to_state, ExperimentObjec
  // After changing the state of each thread, wait for the
  // status of the experiment to change.  This is necessary
  // because of the asynchronous nature of the FrameWork.
+#ifdef DEBUG_CLI
+  printf("Wait_For_Exp_State, enter to_state=%d\n", to_state);
+#endif
   exp->Q_Lock (cmd, false);
   int latest = exp->Determine_Status();
   exp->Q_UnLock ();
@@ -141,6 +144,9 @@ static int Wait_For_Exp_State (CommandObject *cmd, int to_state, ExperimentObjec
     exp->Q_UnLock ();
   }
 
+#ifdef DEBUG_CLI
+  printf("Wait_For_Exp_State, exit, latest=%d\n", latest);
+#endif
   return latest;
 }
 
@@ -1532,6 +1538,10 @@ bool SS_expAttach (CommandObject *cmd) {
  *
  */
 static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool Kill_KeyWord) {
+
+#ifdef DEBUG_CLI
+  cerr << "Enter Destroy_Experiment, calling Cancle_Exp_Wait" << "\n";
+#endif
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
   Cancle_Exp_Wait     (exp);
@@ -1811,7 +1821,6 @@ bool SS_expCreate (CommandObject *cmd) {
   }
 
  // See Process_expTypes for the code to gather performance information on the sub-task portions of expCreate
-
  // Prevent this experiment from changing until we are done.
   exp->Q_Lock (cmd, true);
 
@@ -1830,9 +1839,6 @@ bool SS_expCreate (CommandObject *cmd) {
   }
  // When we allocate a new experiment, set the focus to point to it.
   (void)Experiment_Focus (WindowID, exp_id);
-
- // Let other comamnds get access to the experiment and new focus.
- //  SafeToDoNextCmd ();
 
  // Annotate the command
   cmd->Result_Annotation ("The new focused experiment identifier is:  -x ");
@@ -1906,6 +1912,9 @@ bool SS_expDetach (CommandObject *cmd) {
  *
  */
 static bool Disable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+#ifdef DEBUG_CLI
+  cerr << "Enter Disable_Experiment, calling Cancle_Exp_Wait" << "\n";
+#endif
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
   Cancle_Exp_Wait     (exp);
@@ -1974,6 +1983,10 @@ bool SS_expDisable (CommandObject *cmd) {
  *
  */
 static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+
+#ifdef DEBUG_CLI
+  cerr << "Enter Enable_Experiment, calling Cancle_Exp_Wait" << "\n";
+#endif
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
   Cancle_Exp_Wait     (exp);
@@ -2119,18 +2132,26 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   exp->Q_UnLock ();
 
 #ifdef DEBUG_CLI
-  cerr << "Enter expGo, exp->ExpStatus_Name() " << exp->ExpStatus_Name() << "\n";
+  cerr << "Enter Execute_Experiment, exp->ExpStatus_Name() " << exp->ExpStatus_Name() << "\n";
+  exp->Q_Lock (cmd, false);
   if (exp->FW() != NULL) {
-    cerr << "Enter expGo,  exp->FW()->getRerunCount() " << exp->FW()->getRerunCount() << "\n";
+    cerr << "Enter Execute_Experiment,  exp->FW()->getRerunCount() " << exp->FW()->getRerunCount() << "\n";
   }
+  exp->Q_UnLock ();
 #endif
 
+  exp->Q_Lock (cmd, false);
   if (exp->FW() == NULL) {
     Mark_Cmd_With_Soft_Error(cmd,
                              "The experiment can not be run because "
                              "it is not atached to an application.");
     return false;
   }
+  exp->Q_UnLock ();
+
+#ifdef DEBUG_CLI
+  cerr << "In Execute_Experiment, exp->Status()=" << exp->Status() << "\n";
+#endif
 
   if (exp->Status() == ExpStatus_InError) {
    // Can not run if ExpStatus_InError
@@ -2169,19 +2190,24 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
         printf("Execute_Experiment, new_data_base_name of input experiment is %s\n", 
                new_data_base_name.c_str());
 #endif
+        exp->Q_Lock (cmd, false);
         exp->CopyDB (new_data_base_name);
+        exp->Q_UnLock ();
       }
        
 
 #ifdef DEBUG_CLI
-      std::string appCommand = experiment->getApplicationCommand();
-      if (appCommand.empty()) {
-        printf("Execute_Experiment, appCommand for the experiment is EMPTY\n");
-      } else {
-        printf("Execute_Experiment, appCommand for the experiment is %s\n", appCommand.c_str());
-      } 
+    exp->Q_Lock (cmd, false);
+    std::string appCommand = experiment->getApplicationCommand();
+    if (appCommand.empty()) {
+      printf("Execute_Experiment, appCommand for the experiment is EMPTY\n");
+    } else {
+      printf("Execute_Experiment, appCommand for the experiment is %s\n", appCommand.c_str());
+    } 
+    exp->Q_UnLock ();
 #endif
 
+      exp->Q_Lock (cmd, false);
       InputLineObject* clip = cmd->Clip();
       CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
       experiment->prepareToRerun(
@@ -2189,7 +2215,6 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 	  OutputCallback(&ReDirect_User_Stderr, (void*)WindowID)
 	  );
 
-      exp->Q_Lock (cmd, false);
       exp->setStatus(ExpStatus_Paused);
       exp->Q_UnLock ();
 
@@ -2255,12 +2280,19 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
    // something to actually start executing.
     (void) Wait_For_Exp_State (cmd, ExpStatus_Running, exp);
 
+#ifdef DEBUG_CLI
+     cerr << "In Execute_Experiment, Embedded_WindowID= " << Embedded_WindowID << "\n";
+#endif
    // Notify the user when the experiment has terminated.
     if (Embedded_WindowID == 0) {
       Request_Async_Notice_Of_Termination (cmd, exp);
     }
 
     std::string appCommand = exp->FW()->getApplicationCommand();
+
+#ifdef DEBUG_CLI
+     cerr << "In Execute_Experiment, appCommand= " << appCommand << "\n";
+#endif
 
     // Protect against empty application command and then use default execution message
     // which does not contain the executable name
@@ -2427,6 +2459,7 @@ bool SS_expCont (CommandObject *cmd) {
  *
  */
 bool SS_expGo (CommandObject *cmd) {
+
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
 
   if (All_KeyWord) {
@@ -2469,6 +2502,9 @@ bool SS_expGo (CommandObject *cmd) {
  *
  */
 static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+#ifdef DEBUG_CLI
+  cerr << "Enter Pause_Experiment, calling Cancle_Exp_Wait" << "\n";
+#endif
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
   Cancle_Exp_Wait     (exp);
@@ -2631,6 +2667,9 @@ bool SS_expSave (CommandObject *cmd) {
   if (exp == NULL) {
     return false;
   }
+  // Wait for previous comands to complete so that
+  // the copy has all the requested information.
+  Wait_For_Previous_Cmds ();
 
  // Extract the savefile name.
   parse_val_t *file_name_value = Get_Simple_File_Name (cmd);
@@ -2646,11 +2685,10 @@ bool SS_expSave (CommandObject *cmd) {
 
   if (Copy_KeyWord) {
     try {
-     // Wait for previous comands to complete so that
-     // the copy has all the requested information.
-      Wait_For_Previous_Cmds ();
-
+      // Prevent this experiment from changing until we are done.
+      exp->Q_Lock (cmd, false);
       exp->CopyDB (data_base_name);
+      exp->Q_UnLock ();
     }
     catch(const Exception& error) {
       Mark_Cmd_With_Std_Error (cmd, error);
@@ -2658,7 +2696,10 @@ bool SS_expSave (CommandObject *cmd) {
     }
   } else {
     try {
+      // Prevent this experiment from changing until we are done.
+      exp->Q_Lock (cmd, false);
       exp->RenameDB (data_base_name);
+      exp->Q_UnLock ();
     }
     catch(const Exception& error) {
       Mark_Cmd_With_Std_Error (cmd, error);
@@ -3253,8 +3294,17 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
  */
 static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
 
+#if DEBUG_CLI
+  printf("In ReportStatus\n");
+#endif
  // Prevent this experiment from changing until we are done.
+#if DEBUG_CLI
+  printf("In ReportStatus, before calling exp->Q_Lock (cmd, false);\n");
+#endif
   exp->Q_Lock (cmd, false);
+#if DEBUG_CLI
+  printf("In ReportStatus, after calling exp->Q_Lock (cmd, false);\n");
+#endif
   exp->Determine_Status ();
 
   char id[20]; sprintf(&id[0],"%lld",(int64_t)exp->ExperimentObject_ID());
@@ -3443,12 +3493,20 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
  *
  */
 bool SS_expStatus(CommandObject *cmd) {
+
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+#if DEBUG_CLI
+  printf("In SS_expStatus, Entered\n");
+#endif
 
   if (All_KeyWord) {
     std::list<ExperimentObject *>::reverse_iterator expi;
     for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++) {
       ExperimentObject *exp = *expi;
+#if DEBUG_CLI
+      printf("In SS_expStatus, All case, calling ReportStatus\n");
+#endif
       if (!ReportStatus (cmd, exp)) {
         return false;
       }
@@ -3458,11 +3516,17 @@ bool SS_expStatus(CommandObject *cmd) {
     if (exp == NULL) {
       return false;
     }
+#if DEBUG_CLI
+    printf("In SS_expStatus, not ALL case, calling ReportStatus\n");
+#endif
     if (!ReportStatus (cmd, exp)) {
       return false;
     }
   }
 
+#if DEBUG_CLI
+  printf("In SS_expStatus, calling cmd->set_Status(CMD_COMPLETE); before exiting\n");
+#endif
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -3486,11 +3550,29 @@ bool SS_expView (CommandObject *cmd) {
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   bool view_result = true;
 
+#if DEBUG_CLI
+  printf("In SS_expView, Entered, before calling Wait_For_Previous_Cmds()\n");
+#endif
+
+ // Wait for all executing commands to terminate.
+ // We do this so that another command thread won't get burned
+ // looking through the ExperimentObject_list when a new entry
+ // is added to it.
+  Wait_For_Previous_Cmds ();
+
+#if DEBUG_CLI
+  printf("In SS_expView, Entered, after calling Wait_For_Previous_Cmds()\n");
+#endif
+
  // Some views do not need depend on an ExperimentObject.
  // Examine the parsed command for a "-x" specifier.
   Assert(cmd->P_Result() != NULL);
   EXPID ExperimentID = (cmd->P_Result()->isExpId()) ? cmd->P_Result()->getExpId() : Experiment_Focus ( WindowID );
   ExperimentObject *exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
+
+#if DEBUG_CLI
+  printf("In SS_expView, ExperimentID=%d\n", ExperimentID);
+#endif
 
  // For batch processing, wait for completion before generating a report.
  // Unless, of course, the user explicitly tells us not to wait.
@@ -3500,21 +3582,38 @@ bool SS_expView (CommandObject *cmd) {
    // Be sure that write buffers are actually written to the database.
    // This assures us of getting all the data when we generate the view.
     try {
+#if DEBUG_CLI
+     printf("In SS_expView, before calling exp->FW()->flushPerformanceData()\n");
+#endif
       exp->FW()->flushPerformanceData();
+#if DEBUG_CLI
+     printf("In SS_expView, after calling exp->FW()->flushPerformanceData()\n");
+#endif
     }
     catch (const Exception& error) {
      // Ignore any errors and let them be regenerated when we try to do something else.
     }
   }
 
+#if DEBUG_CLI
+  printf("In SS_expView, before calling exp->Q_Lock (cmd, true)\n");
+#endif
+
  // Prevent this experiment from changing until we are done.
   if (exp != NULL) exp->Q_Lock (cmd, true);
+
+#if DEBUG_CLI
+  printf("In SS_expView, after calling exp->Q_Lock (cmd, true)\n");
+#endif
 
  // Pick up the <viewType> from the comand.
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<string> *p_slist = p_result->getViewList();
   vector<string>::iterator si;
   if (p_slist->begin() == p_slist->end()) {
+#if DEBUG_CLI
+    printf("In SS_expView, The user has not selected a view\n");
+#endif
    // The user has not selected a view.
     if ((exp == NULL) ||
         (exp->FW() == NULL)) {
@@ -3603,12 +3702,17 @@ bool SS_expView (CommandObject *cmd) {
     }
   }
 
- // Release the experiment lock.
-  if (exp != NULL) exp->Q_UnLock ();
+#if DEBUG_CLI
+  printf("In SS_expView, about to cmd->set_Status(CMD_COMPLETE), if view_result=%d\n", view_result);
+#endif
 
   if (view_result) {
     cmd->set_Status(CMD_COMPLETE);
   }
+
+ // Release the experiment lock.
+  if (exp != NULL) exp->Q_UnLock ();
+
   return view_result;
 }
 
