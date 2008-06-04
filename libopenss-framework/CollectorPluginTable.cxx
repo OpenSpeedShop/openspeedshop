@@ -287,7 +287,6 @@ void CollectorPluginTable::foreachCallback(const std::string& filename)
     // Only examine the framework related plugins.
     if (filename.find("_view") != string::npos ||
 	filename.find("Panel") != string::npos ||
-	filename.find("-offline") != string::npos ||
 	filename.find("-rt") != string::npos) {
         return;
     }
