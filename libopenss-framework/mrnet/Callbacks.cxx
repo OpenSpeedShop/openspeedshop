@@ -718,6 +718,20 @@ void Callbacks::symbolTable(const Blob& blob)
 	    getLinkedObjectIdentifier(database, message.linked_object);
 	Assert(linked_object != -1);
 
+	// ...
+	// If we have seen the functions for this linked_object already
+        // then skip putting them in the database.
+        // ...
+	bool has_functions = false;
+	database->prepareStatement(
+            "SELECT COUNT(*) FROM Functions WHERE linked_object = ?;"
+	    );
+	database->bindArgument(1, linked_object);
+	while(database->executeStatement())
+	    if(database->getResultAsInteger(1) > 0)
+	        has_functions = true;
+	if(!has_functions) {
+	  
 	// Iterate over each function entry
 	for(int j = 0; j < message.functions.functions_len; ++j) {
 	    const OpenSS_Protocol_FunctionEntry& msg_function = 
@@ -750,6 +764,21 @@ void Callbacks::symbolTable(const Blob& blob)
 	    }
 	    
 	}
+
+	// ...
+	// If we have seen the statements for this linked_object already
+        // then skip putting them in the database.
+        // ...
+	}
+	bool has_statements = false;
+	database->prepareStatement(
+            "SELECT COUNT(*) FROM Statements WHERE linked_object = ?;"
+	    );
+	database->bindArgument(1, linked_object);
+	while(database->executeStatement())
+	    if(database->getResultAsInteger(1) > 0)
+	        has_statements = true;
+	if(!has_statements) {
 
 	// Iterate over each statement entry
 	for(int j = 0; j < message.statements.statements_len; ++j) {
@@ -813,6 +842,9 @@ void Callbacks::symbolTable(const Blob& blob)
 		
 	    }
 	    
+	}
+
+	// ...
 	}
 	
 	// End the transaction on this thread's database
