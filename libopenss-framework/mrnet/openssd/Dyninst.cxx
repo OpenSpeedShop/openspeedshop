@@ -183,7 +183,7 @@ namespace {
  * into a process. Sends a message to the frontend describing the linked object
  * that was loaded into, or unloaded from, the address space of the specified
  * process. Also sends a message containing the symbol table of that linked
- * object if it has been loaded (rather than unloded) and hasn't yet been sent
+ * object if it has been loaded (rather than unloaded) and hasn't yet been sent
  * to the frontend.
  *
  * @param thread     Thread in the process which loaded or unloaded a
