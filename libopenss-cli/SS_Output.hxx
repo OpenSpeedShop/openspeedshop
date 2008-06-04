@@ -24,6 +24,7 @@
  *
  */
 
+//#define DEBUG_SYNC 1
 
 #ifndef CMD_OUTPUT_H
 #define CMD_OUTPUT_H
@@ -110,8 +111,25 @@ class ss_ostream : public std::basic_streambuf<char>
     flush_stream();
   }
 
-  void acquireLock() { Assert(pthread_mutex_lock(&stream_in_use) == 0); }
-  void releaseLock() { flush (); Assert(pthread_mutex_unlock(&stream_in_use) == 0); }
+  void acquireLock() { 
+#ifdef DEBUG_SYNC
+     printf("[TID=%ld], LOCK: acquireLock, before calling pthread_mutex_lock(&stream_in_use=%ld)\n", pthread_self(), stream_in_use);
+#endif
+     Assert(pthread_mutex_lock(&stream_in_use) == 0); 
+#ifdef DEBUG_SYNC
+     printf("[TID=%ld], LOCK: acquireLock, after calling pthread_mutex_lock(&stream_in_use=%ld)\n", pthread_self(), stream_in_use);
+#endif
+  }
+  void releaseLock() { 
+     flush (); 
+#ifdef DEBUG_SYNC
+     printf("[TID=%ld], UNLOCK: releaseLock, before calling pthread_mutex_unlock(&stream_in_use=%ld)\n", pthread_self(), stream_in_use);
+#endif
+     Assert(pthread_mutex_unlock(&stream_in_use) == 0); 
+#ifdef DEBUG_SYNC
+     printf("[TID=%ld], UNLOCK: releaseLock, after calling pthread_mutex_unlock(&stream_in_use=%ld)\n", pthread_self(), stream_in_use);
+#endif
+  }
 
  protected:
   virtual int_type overflow(int_type v) {

@@ -22,6 +22,8 @@
 #include "Python.h"
 #include "SS_Input_Manager.hxx"
 
+//#define DEBUG_SYNC 1
+
 extern void pcli_load_messages(void);
 extern void pcli_load_scripting_messages(void);
 
@@ -430,6 +432,10 @@ SS_ReadLine (PyObject *self, PyObject *args) {
   
     if (!PyArg_ParseTuple(args, "i", &more))
         return NULL;
+
+#ifdef DEBUG_SYNC
+    printf("[TID=%ld], SS_ReadLine, before calling SpeedShop_ReadLine, more=%ld\n", pthread_self(), more);
+#endif
 
     InputLineObject *clip = SpeedShop_ReadLine(more);
 

@@ -23,6 +23,7 @@
  *
  */
 
+//#define DEBUG_SYNC_SIGNAL 1
 
 enum Command_Status
 {
@@ -112,14 +113,32 @@ public:
    // Suspend processing of the command.
 
    // Release the lock and wait for the all-clear signal.
+#ifdef DEBUG_SYNC_SIGNAL 
+    printf("[TID=%ld], PTHREAD_COND_WAIT, Wait_On_Dependency before calling pthread_cond_wait(&wait_on_dependency=%ld,&exp_lock=%ld)\n", pthread_self(), wait_on_dependency, exp_lock);
+#endif
     Assert(pthread_cond_wait(&wait_on_dependency,&exp_lock) == 0);
+#ifdef DEBUG_SYNC_SIGNAL 
+    printf("[TID=%ld], PTHREAD_COND_WAIT, Wait_On_Dependency after calling pthread_cond_wait(&wait_on_dependency=%ld,&exp_lock=%ld)\n", pthread_self(), wait_on_dependency, exp_lock);
+#endif
 
    // Release the recently acquired lock and continue processing the command.
+#ifdef DEBUG_SYNC_SIGNAL 
+    printf("[TID=%ld], UNLOCK, Wait_On_Dependency before calling pthread_mutex_unlock(&exp_lock=%ld)\n", pthread_self(), exp_lock);
+#endif
     Assert(pthread_mutex_unlock(&exp_lock) == 0);
+#ifdef DEBUG_SYNC_SIGNAL 
+    printf("[TID=%ld], UNLOCK, Wait_On_Dependency after calling pthread_mutex_unlock(&exp_lock=%ld)\n", pthread_self(), exp_lock);
+#endif
   }
   void All_Clear () {
    // Release the suspended command.
+#ifdef DEBUG_SYNC_SIGNAL 
+    printf("[TID=%ld], PTHREAD_COND_SIGNAL, All_Clear before calling pthread_cond_signal(&wait_on_dependency=%ld)\n", pthread_self(), wait_on_dependency);
+#endif
     Assert(pthread_cond_signal(&wait_on_dependency) == 0);
+#ifdef DEBUG_SYNC_SIGNAL 
+    printf("[TID=%ld], PTHREAD_COND_SIGNAL, All_Clear after calling pthread_cond_signal(&wait_on_dependency=%ld)\n", pthread_self(), wait_on_dependency);
+#endif
   }
     
   void SetSeqNum (int64_t a) { Seq_Num = a; }

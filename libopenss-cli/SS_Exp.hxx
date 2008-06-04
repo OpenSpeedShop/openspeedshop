@@ -193,7 +193,7 @@ class ExperimentObject
      char newName[256];
 
 #if DEBUG_CLI
-     printf("createRerunNameFromCurrentName, newname=%s-%d.\n", current_exp_name, rerun_count);
+     printf("[TID=%ld], createRerunNameFromCurrentName, newname=%s-%d.\n", pthread_self(), current_exp_name, rerun_count);
 #endif
 
      int nameLen = strlen(current_exp_name);
@@ -203,14 +203,14 @@ class ExperimentObject
      snprintf(base, 256, "%s-%d", newName, rerun_count);
 
 #if DEBUG_CLI
-     printf("createRerunNameFromCurrentName, base=%s, rerun_count=%d\n", base, rerun_count);
+     printf("[TID=%ld], createRerunNameFromCurrentName, base=%s, rerun_count=%ld\n", pthread_self(), base, rerun_count);
 #endif
 
      Assert(base != NULL);
      LocalDataFileName = std::string(base) + ".openss";
 
 #if DEBUG_CLI
-     printf("createRerunNameFromCurrentName, LocalDataFileName.c_str()=%s\n", LocalDataFileName.c_str());
+     printf("[TID=%ld], createRerunNameFromCurrentName, LocalDataFileName.c_str()=%s\n", pthread_self(), LocalDataFileName.c_str());
 #endif
 
      return LocalDataFileName;
@@ -247,31 +247,31 @@ class ExperimentObject
   void Q_Lock (CommandObject *cmd, bool start_next_cmd = false) {
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("Q_Lock, before calling pthread_mutex_lock(&Experiment_Lock=%ld), start_next_cmd=%d\n", Experiment_Lock, start_next_cmd);
+    printf("[TID=%ld], Q_Lock, before calling pthread_mutex_lock(&Experiment_Lock=%ld), start_next_cmd=%ld\n", pthread_self(), Experiment_Lock, start_next_cmd);
 #endif
 
     Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("Q_Lock, after calling pthread_mutex_lock(&Experiment_Lock=%ld), start_next_cmd=%d\n", Experiment_Lock, start_next_cmd);
+    printf("[TID=%ld], Q_Lock, after calling pthread_mutex_lock(&Experiment_Lock=%ld), start_next_cmd=%ld\n", pthread_self(), Experiment_Lock, start_next_cmd);
 #endif
 
     if (start_next_cmd) {
 
 #ifdef DEBUG_SYNC_SIGNAL
-     printf("Q_Lock, before calling SafeToDoNextCmd(), start_next_cmd=%d\n", start_next_cmd);
+     printf("[TID=%ld], Q_Lock, before calling SafeToDoNextCmd(), start_next_cmd=%ld\n", pthread_self(), start_next_cmd);
 #endif
       
       SafeToDoNextCmd ();
 
 #ifdef DEBUG_SYNC_SIGNAL
-     printf("Q_Lock, after calling SafeToDoNextCmd(), start_next_cmd=%d\n", start_next_cmd);
+     printf("[TID=%ld], Q_Lock, after calling SafeToDoNextCmd(), start_next_cmd=%ld\n", pthread_self(), start_next_cmd);
 #endif
 
     }
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("Q_Lock, exp_reserved=%d\n", exp_reserved);
+    printf("[TID=%ld], Q_Lock, exp_reserved=%ld\n", pthread_self(), exp_reserved);
 #endif
 
     if (exp_reserved) {
@@ -284,13 +284,13 @@ class ExperimentObject
     exp_reserved = true;
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("Q_Lock, before calling pthread_mutex_unlock(&Experiment_Lock=%ld)\n", Experiment_Lock);
+    printf("[TID=%ld], Q_Lock, before calling pthread_mutex_unlock(&Experiment_Lock=%ld)\n", pthread_self(), Experiment_Lock);
 #endif
 
     Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("Q_Lock, after calling pthread_mutex_unlock(&Experiment_Lock=%ld)\n", Experiment_Lock);
+    printf("[TID=%ld], Q_Lock, after calling pthread_mutex_unlock(&Experiment_Lock=%ld)\n", pthread_self(), Experiment_Lock);
 #endif
 
     return;
@@ -299,13 +299,13 @@ class ExperimentObject
   void Q_UnLock () {
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("Q_UnLock, before calling pthread_mutex_lock(&Experiment_Lock=%ld), exp_reserved=%d\n", Experiment_Lock, exp_reserved);
+    printf("[TID=%ld], Q_UnLock, before calling pthread_mutex_lock(&Experiment_Lock=%ld), exp_reserved=%ld\n", pthread_self(), Experiment_Lock, exp_reserved);
 #endif
 
     Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("Q_UnLock, after calling pthread_mutex_lock(&Experiment_Lock=%ld), exp_reserved=%d\n", Experiment_Lock, exp_reserved);
+    printf("[TID=%ld], Q_UnLock, after calling pthread_mutex_lock(&Experiment_Lock=%ld), exp_reserved=%ld\n", pthread_self(), Experiment_Lock, exp_reserved);
 #endif
 
     if (waiting_cmds.begin() != waiting_cmds.end()) {
@@ -316,13 +316,13 @@ class ExperimentObject
     exp_reserved = false;
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("Q_UnLock, before calling pthread_mutex_unlock(&Experiment_Lock=%ld), exp_reserved=%d\n", Experiment_Lock, exp_reserved);
+    printf("[TID=%ld], Q_UnLock, before calling pthread_mutex_unlock(&Experiment_Lock=%ld), exp_reserved=%ld\n", pthread_self(), Experiment_Lock, exp_reserved);
 #endif
 
     Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("Q_UnLock, after calling pthread_mutex_unlock(&Experiment_Lock=%ld), exp_reserved=%d\n", Experiment_Lock, exp_reserved);
+    printf("[TID=%ld], Q_UnLock, after calling pthread_mutex_unlock(&Experiment_Lock=%ld), exp_reserved=%ld\n", pthread_self(), Experiment_Lock, exp_reserved);
 #endif
 
   }
@@ -330,26 +330,26 @@ class ExperimentObject
   bool TS_Lock () {
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("TS_LOCK, before calling pthread_mutex_lock(&Experiment_Lock=%ld), exp_reserved=%d\n", Experiment_Lock, exp_reserved);
+    printf("[TID=%ld], TS_LOCK, before calling pthread_mutex_lock(&Experiment_Lock=%ld), exp_reserved=%ld\n", pthread_self(), Experiment_Lock, exp_reserved);
 #endif
 
     Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("TS_LOCK, before calling pthread_mutex_lock(&Experiment_Lock=%ld), exp_reserved=%d\n", Experiment_Lock, exp_reserved);
+    printf("[TID=%ld], TS_LOCK, before calling pthread_mutex_lock(&Experiment_Lock=%ld), exp_reserved=%ld\n", pthread_self(), Experiment_Lock, exp_reserved);
 #endif
 
     bool already_in_use = exp_reserved;
     exp_reserved = true;
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("TS_LOCK, before calling pthread_mutex_unlock(&Experiment_Lock=%ld), already_in_use=%d, exp_reserved=%d\n", Experiment_Lock, already_in_use, exp_reserved);
+    printf("[TID=%ld], TS_LOCK, before calling pthread_mutex_unlock(&Experiment_Lock=%ld), already_in_use=%ld, exp_reserved=%ld\n", pthread_self(), Experiment_Lock, already_in_use, exp_reserved);
 #endif
 
     Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("TS_LOCK, after calling pthread_mutex_unlock(&Experiment_Lock=%ld), already_in_use=%d, exp_reserved=%d\n", Experiment_Lock, already_in_use, exp_reserved);
+    printf("[TID=%ld], TS_LOCK, after calling pthread_mutex_unlock(&Experiment_Lock=%ld), already_in_use=%ld, exp_reserved=%ld\n", pthread_self(), Experiment_Lock, already_in_use, exp_reserved);
 #endif
 
     return !already_in_use;
