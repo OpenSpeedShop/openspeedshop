@@ -40,6 +40,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
         if (!strcasecmp( argv[i], "-cli")) continue;
         if (!strcasecmp( argv[i], "-gui")) continue;
         if (!strcasecmp( argv[i], "-batch")) continue;
+//        if (!strcasecmp( argv[i], "-offline")) continue;
       }
       if ((strlen(argv[i]) > 0) &&
         !strncasecmp( argv[i], "--", 2)) {
@@ -82,7 +83,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
 
 }
 
-bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, bool batch_mode)
+bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, OpenSpeedShop_Start_Modes oss_start_mode)
 {
   Assert (my_window);
 
@@ -104,7 +105,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, bool bat
  // If there is no input file and the user specified "-batch" mode,
  // execute with an "expGo" command and display results with "expview stats".
  // Otherwise, assume the input file will control execution.
-  if (batch_mode && !read_stdin_file) {
+  if (oss_start_mode == SM_Batch && !read_stdin_file) {
     if ((NULL == Append_Input_String (my_window, "expGo\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
         (NULL == Append_Input_String (my_window, "expView\n", NULL,

@@ -19,6 +19,8 @@
   void Openss_Basic_Initialization ();
   void Openss_Basic_Termination();
 
+//#define DEBUG_CLI 1
+
 #include "ToolAPI.hxx"
 #include "SS_Input_Manager.hxx"
 
@@ -44,8 +46,8 @@ static bool Trying_to_terminate;
 static bool Watcher_Active;
 static bool need_gui;
 static bool need_tli;
-static bool need_batch;
 static bool need_command_line;
+static OpenSpeedShop_Start_Modes oss_start_mode;
 
 static bool executable_encountered;
 static bool collector_encountered;
@@ -78,6 +80,7 @@ Process_Command_Line (int argc, char **argv)
   bool found_tli = false;
   bool found_gui = false;
   bool found_batch = false;
+  bool found_offline = false;
   int i;
 
  /* Check the command line flags: */
@@ -101,9 +104,13 @@ Process_Command_Line (int argc, char **argv)
       continue;
     } else if (!strcasecmp( argv[i], "-batch")) {
       found_batch = true;
-      need_batch = true;
+      oss_start_mode = SM_Batch;
       read_stdin_file = (stdin && !isatty(fileno(stdin)));
       continue;
+//    } else if (!strcasecmp( argv[i], "-offline")) {
+//      found_offline = true;
+//      oss_start_mode = SM_Offline;
+//      read_stdin_file = (stdin && !isatty(fileno(stdin)));
     }
 
    /* Look for an executable description. */
@@ -127,7 +134,7 @@ Process_Command_Line (int argc, char **argv)
     }
   }
 
-  if (!found_batch && !found_gui && !found_tli) {
+  if (!found_offline && !found_batch && !found_gui && !found_tli) {
    // If not specified by the user, default to -gui only mode.
     need_gui = true;
     need_tli = false;
@@ -209,7 +216,7 @@ Initial_Python ()
     exit(EXIT_FAILURE);
 }
 
-bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, bool batch_mode);
+bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, OpenSpeedShop_Start_Modes oss_start_mode);
 void SS_Direct_stdin_Input (void *attachtowindow);
 void SS_Watcher ();
 
@@ -526,10 +533,10 @@ extern "C"
         if ( !Start_COMMAND_LINE_Mode( command_line_window, 
         	    	    	    	     argc, 
 				       argv, 
-				       need_batch) ) {
+				       oss_start_mode) ) {
           return -1;
         }
-      } else if (need_batch && (argc <= 2) && !read_stdin_file) {
+      } else if (oss_start_mode == SM_Batch && (argc <= 2) && !read_stdin_file) {
         cerr << "Missing command line arguments\n";
         return -1;
       }
@@ -537,10 +544,16 @@ extern "C"
       if (need_tli)
       {
        // Start up the Text Line Interface to read from the keyboard.
+#if DEBUG_CLI
+        cerr << "Calling pthread_create for SS_Direct_stdin_Input" <<  std::endl;
+#endif
         int stat = pthread_create(&phandle[1], 
         	    	    	    	0, 
 				(void   *(*)(void *))SS_Direct_stdin_Input,
 				(void   *)tli_window);
+#if DEBUG_CLI
+        cerr << "After Calling pthread_create for SS_Direct_stdin_Input" << phandle[1] << std::endl;
+#endif
       }
 
     // Process the performance information on the cli's command line and python initialization
@@ -553,7 +566,7 @@ extern "C"
                                                    SS_Timings::cliWindowInitEnd);
     }
 #if DEBUG_CLI
-      cerr << "Calling Start_Command_Line, need_gui? " << need_gui <<  std::endl;
+      cerr << "Calling Start_Command_Line, need_gui? " << need_gui <<  " \n" << std::endl;
 #endif
 
       // Gather performance information on the cli's gui loading
@@ -725,7 +738,7 @@ extern "C"
     Watcher_Active = false;
     need_gui = false;
     need_tli = false;
-    need_batch = false;
+    oss_start_mode = SM_Unknown;
     need_command_line = false;
     gui_window = 0;
     tli_window = 0;

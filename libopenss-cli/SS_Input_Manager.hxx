@@ -127,4 +127,13 @@ extern SS_Message_Czar& theMessageCzar();
 
 using namespace OpenSpeedShop::cli;
 
+enum OpenSpeedShop_Start_Modes {
+   SM_Batch,        /**< -batch  */
+   SM_Cli,          /**< -cli */
+   SM_Gui,          /**< default and -gui */
+   SM_Offline,      /**< -offline */
+   SM_Unknown       /**< UNKNOWN/ERROR */
+};
+
+
 #endif // SS_INPUT_MANAGER_H
