@@ -19,9 +19,14 @@
 #include "ToolAPI.hxx"
 #include "SS_Input_Manager.hxx"
 
+//#define DEBUG_CLI_OFF 1
+
 static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
 {
  /* What is the maximum length of the expCreate command? */  
+  bool processing_offline_option = false;
+  bool initial_set_of_command_done_yet = false;
+  bool processing_batch_option = false;
   int cmdlen = 0;
   int i;
   for ( i=1; i<argc; i++ ) {
@@ -31,17 +36,35 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
   }
 
   if (cmdlen > 0) {
-    char *cmdstr = (char *)malloc(10 + cmdlen + 1);
-    bcopy("expCreate", cmdstr, 10);
+    char *cmdstr = (char *)malloc(30 + cmdlen + 1);
     int num_cmds = 0;
     for ( i=1; i<argc; i++ ) {
       if (strlen(argv[i]) > 0) {
+
+#ifdef DEBUG_CLI_OFF
+        printf(" StartModes, cycling through the argument list, processing_batch_option=%d, processing_offline_option=%d, argv[i=%d]=%s\n", 
+                processing_batch_option, processing_offline_option,i, argv[i]);
+#endif
+        if (strcasecmp( argv[i], "-batch") == 0) {
+#ifdef DEBUG_CLI_OFF
+            printf(" StartModes, setting processing_batch_option to TRUE, cycling through the argument list, argv[i=%d]=%s\n", i, argv[i]);
+#endif
+            processing_batch_option = true;
+        } 
+        if (strcasecmp( argv[i], "-offline") == 0) {
+#ifdef DEBUG_CLI_OFF
+            printf(" StartModes, setting processing_offline_option to TRUE, cycling through the argument list, argv[i=%d]=%s\n", i, argv[i]);
+#endif
+            processing_offline_option = true;
+        }
+
        // Don't include any mode options.
         if (!strcasecmp( argv[i], "-cli")) continue;
         if (!strcasecmp( argv[i], "-gui")) continue;
         if (!strcasecmp( argv[i], "-batch")) continue;
-//        if (!strcasecmp( argv[i], "-offline")) continue;
+        if (!strcasecmp( argv[i], "-offline")) continue;
       }
+
       if ((strlen(argv[i]) > 0) &&
         !strncasecmp( argv[i], "--", 2)) {
        // This argument represents an Xwindow control option.
@@ -51,31 +74,72 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
           continue;
         }
       }
+      if (!initial_set_of_command_done_yet) {
+        initial_set_of_command_done_yet = true;
+        if (processing_offline_option) {
+          bcopy("RunOfflineExp", cmdstr, 15);
+        } else {
+          bcopy("expCreate", cmdstr, 10);
+        } 
+      } 
+     
       if (strlen(argv[i]) > 0) {
+
         num_cmds++;
         strcat(cmdstr," ");
-        strcat(cmdstr,argv[i]);
 
+#ifdef DEBUG_CLI_OFF
+        printf(" StartModes, before checks for args, processing_offline_option=%d, i=%d, argc=%d, cmdstr=%s\n", processing_offline_option, i, argc, cmdstr);
+#endif
+
+        if ( processing_offline_option && (strlen(argv[i]) == 2) && !strncasecmp( argv[i], "-f", 2) && ((i+1) < argc) && strncasecmp( argv[i+1], "-", 1)) {
+           // if this is offline then replace the -f with program=
+           strcat(cmdstr,"(program=");
+        } else if (processing_offline_option && ((i+1) == argc) ) {
+          // This is the last argument in the list, assumed to be the collector type
+          strcat(cmdstr,",collector=");
+          strcat(cmdstr," \"");
+          strcat(cmdstr,argv[i]);
+          strcat(cmdstr,"\"");
+          strcat(cmdstr,")");
+        } else {
+           strcat(cmdstr,argv[i]);
+        } 
+
+        // Still do this for offline option also, no additional checks needed
         if ((strlen(argv[i]) == 2) &&
           !strncasecmp( argv[i], "-f", 2) &&
           ((i+1) < argc) &&
           strncasecmp( argv[i+1], "-", 1)) {
+
          // Put quotes around the "-f" option string.
           i++;
           strcat(cmdstr," \"");
           strcat(cmdstr,argv[i]);
           strcat(cmdstr,"\"");
-        }
-      }
-    }
+
+#ifdef DEBUG_CLI_OFF
+          printf(" StartModes, after quoting around -f command for non offline and for program= for offlin, cmdstr=%s\n", cmdstr);
+#endif
+
+        } // end inside strlen if
+
+
+
+      } // end strlen(argv[i]) > 0
+
+#ifdef DEBUG_CLI_OFF
+      printf(" StartModes, at the bottom of the for loop, processing_batch_option=%d, processing_offline_option=%d, i=%d, argc=%d, cmdstr=%s\n", processing_batch_option, processing_offline_option, i, argc, cmdstr);
+#endif
+
+    } // end for
 
     if (num_cmds > 0) {
       strcat(cmdstr,"\n\0");
 
      /* Put the "expCreate" command to the input stack */
       (void)Append_Input_String (my_window, cmdstr,
-                                 NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
-    }
+                                 NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output); }
 
    // Release allocated space.
     free(cmdstr);
@@ -98,6 +162,17 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, OpenSpee
     if ( !Append_Input_File (my_window, std::string("stdin"),
                            &Default_TLI_Line_Output, &Default_TLI_Command_Output) ) {
       cerr << "ERROR: Unable to read piped in stdin file" << std::endl;
+      return false;
+    }
+  }
+
+ // If there is no input file and the user specified "-offline" mode,
+ // execute with an "RunOfflineExp" command and display results with "expview stats".
+ // Otherwise, assume the input file will control execution.
+  if (oss_start_mode == SM_Offline && !read_stdin_file) {
+    if ((NULL == Append_Input_String (my_window, "expView\n", NULL,
+                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output))) {
+      cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
       return false;
     }
   }

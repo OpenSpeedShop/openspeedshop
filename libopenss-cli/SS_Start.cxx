@@ -107,10 +107,10 @@ Process_Command_Line (int argc, char **argv)
       oss_start_mode = SM_Batch;
       read_stdin_file = (stdin && !isatty(fileno(stdin)));
       continue;
-//    } else if (!strcasecmp( argv[i], "-offline")) {
-//      found_offline = true;
-//      oss_start_mode = SM_Offline;
-//      read_stdin_file = (stdin && !isatty(fileno(stdin)));
+    } else if (!strcasecmp( argv[i], "-offline")) {
+      found_offline = true;
+      oss_start_mode = SM_Offline;
+      read_stdin_file = (stdin && !isatty(fileno(stdin)));
     }
 
    /* Look for an executable description. */
