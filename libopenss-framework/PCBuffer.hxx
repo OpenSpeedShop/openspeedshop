@@ -29,7 +29,7 @@
 #endif
 
 #define UINT8_MAX (255)
-#define PCBufferSize 32*1024
+#define PCBufferSize 1024*1024
 
 /** Number of entries in the hash table. */
 #define PCHashTableSize (PCBufferSize + (PCBufferSize / 4))
