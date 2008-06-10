@@ -46,7 +46,7 @@ if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-lam.la
 endif
 if HAVE_LIBMONITOR
-pkglib_LTLIBRARIES += mpi-rt-offline-lam.la
+pkglib_LTLIBRARIES += mpi-lam-rt-offline.la
 endif
 endif
 
@@ -55,7 +55,7 @@ if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-lampi.la
 endif
 if HAVE_LIBMONITOR
-pkglib_LTLIBRARIES += mpi-rt-offline-lampi.la
+pkglib_LTLIBRARIES += mpi-lampi-rt-offline.la
 endif
 endif
 
@@ -64,7 +64,7 @@ if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-mpich.la
 endif
 if HAVE_LIBMONITOR
-pkglib_LTLIBRARIES += mpi-rt-offline-mpich.la
+pkglib_LTLIBRARIES += mpi-mpich-rt-offline.la
 endif
 endif
 
@@ -73,7 +73,7 @@ if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-mpich2.la
 endif
 if HAVE_LIBMONITOR
-pkglib_LTLIBRARIES += mpi-rt-offline-mpich2.la
+pkglib_LTLIBRARIES += mpi-mpich2-rt-offline.la
 endif
 endif
 
@@ -82,7 +82,7 @@ if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-mpt.la
 endif
 if HAVE_LIBMONITOR
-pkglib_LTLIBRARIES += mpi-rt-offline-mpt.la
+pkglib_LTLIBRARIES += mpi-mpt-rt-offline.la
 endif
 endif
 
@@ -314,12 +314,12 @@ mpi_rt_lam_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_lam_la_SOURCES = $(wrapper_sources)
 
 if HAVE_LIBMONITOR
-mpi_rt_offline_lam_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@LAM_CPPFLAGS@)
-mpi_rt_offline_lam_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@LAM_LDFLAGS@)
-mpi_rt_offline_lam_la_LIBADD = $(call rt_offline_LIBADD_generate,@LAM_LIBS@)
-mpi_rt_offline_lam_la_DEPENDENCIES =
-mpi_rt_offline_lam_la_SOURCES = $(rt_offline_sources)
-nodist_mpi_rt_offline_lam_la_SOURCES = $(wrapper_sources)
+mpi_lam_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@LAM_CPPFLAGS@)
+mpi_lam_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@LAM_LDFLAGS@)
+mpi_lam_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@LAM_LIBS@)
+mpi_lam_rt_offline_la_DEPENDENCIES =
+mpi_lam_rt_offline_la_SOURCES = $(rt_offline_sources)
+nodist_mpi_lam_rt_offline_la_SOURCES = $(wrapper_sources)
 endif
 endif
 
@@ -334,12 +334,12 @@ mpi_rt_lampi_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_lampi_la_SOURCES = $(wrapper_sources)
 
 if HAVE_LIBMONITOR
-mpi_rt_offline_lampi_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@LAMPI_CPPFLAGS@)
-mpi_rt_offline_lampi_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@LAMPI_LDFLAGS@)
-mpi_rt_offline_lampi_la_LIBADD = $(call rt_offline_LIBADD_generate,@LAMPI_LIBS@)
-mpi_rt_offline_lampi_la_DEPENDENCIES =
-mpi_rt_offline_lampi_la_SOURCES = $(rt_offline_sources)
-nodist_mpi_rt_offline_lampi_la_SOURCES = $(wrapper_sources)
+mpi_lampi_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@LAMPI_CPPFLAGS@)
+mpi_lampi_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@LAMPI_LDFLAGS@)
+mpi_lampi_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@LAMPI_LIBS@)
+mpi_lampi_rt_offline_la_DEPENDENCIES =
+mpi_lampi_rt_offline_la_SOURCES = $(rt_offline_sources)
+nodist_mpi_lampi_rt_offline_la_SOURCES = $(wrapper_sources)
 endif
 endif
 
@@ -354,12 +354,12 @@ mpi_rt_mpich_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_mpich_la_SOURCES = $(wrapper_sources)
 
 if HAVE_LIBMONITOR
-mpi_rt_offline_mpich_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPICH_CPPFLAGS@)
-mpi_rt_offline_mpich_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPICH_LDFLAGS@)
-mpi_rt_offline_mpich_la_LIBADD = $(call rt_offline_LIBADD_generate,@MPICH_LIBS@)
-mpi_rt_offline_mpich_la_DEPENDENCIES =
-mpi_rt_offline_mpich_la_SOURCES = $(rt_offline_sources)
-nodist_mpi_rt_offline_mpich_la_SOURCES = $(wrapper_sources)
+mpi_mpich_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPICH_CPPFLAGS@)
+mpi_mpich_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPICH_LDFLAGS@)
+mpi_mpich_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@MPICH_LIBS@)
+mpi_mpich_rt_offline_la_DEPENDENCIES =
+mpi_mpich_rt_offline_la_SOURCES = $(rt_offline_sources)
+nodist_mpi_mpich_rt_offline_la_SOURCES = $(wrapper_sources)
 endif
 endif
 
@@ -372,12 +372,12 @@ mpi_rt_mpich2_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_mpich2_la_SOURCES = $(wrapper_sources)
 
 if HAVE_LIBMONITOR
-mpi_rt_offline_mpich2_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPICH2_CPPFLAGS@)
-mpi_rt_offline_mpich2_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPICH2_LDFLAGS@)
-mpi_rt_offline_mpich2_la_LIBADD = $(call rt_offline_LIBADD_generate,@MPICH2_LIBS@)
-mpi_rt_offline_mpich2_la_DEPENDENCIES =
-mpi_rt_offline_mpich2_la_SOURCES = $(rt_offline_sources)
-nodist_mpi_rt_offline_mpich2_la_SOURCES = $(wrapper_sources)
+mpi_mpich2_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPICH2_CPPFLAGS@)
+mpi_mpich2_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPICH2_LDFLAGS@)
+mpi_mpich2_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@MPICH2_LIBS@)
+mpi_mpich2_rt_offline_la_DEPENDENCIES =
+mpi_mpich2_rt_offline_la_SOURCES = $(rt_offline_sources)
+nodist_mpi_mpich2_rt_offline_la_SOURCES = $(wrapper_sources)
 endif
 endif
 
@@ -391,12 +391,12 @@ mpi_rt_mpt_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_mpt_la_SOURCES = $(wrapper_sources)
 
 if HAVE_LIBMONITOR
-mpi_rt_offline_mpt_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
-mpi_rt_offline_mpt_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
-mpi_rt_offline_mpt_la_LIBADD = $(call rt_offline_LIBADD_generate,@MPT_LIBS@)
-mpi_rt_offline_mpt_la_DEPENDENCIES =
-mpi_rt_offline_mpt_la_SOURCES = $(rt_offline_sources)
-nodist_mpi_rt_offline_mpt_la_SOURCES = $(wrapper_sources)
+mpi_mpt_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
+mpi_mpt_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
+mpi_mpt_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@MPT_LIBS@)
+mpi_mpt_rt_offline_la_DEPENDENCIES =
+mpi_mpt_rt_offline_la_SOURCES = $(rt_offline_sources)
+nodist_mpi_mpt_rt_offline_la_SOURCES = $(wrapper_sources)
 endif
 endif
 
