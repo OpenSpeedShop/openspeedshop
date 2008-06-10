@@ -83,8 +83,6 @@ ssize_t ioread(int fd, void *buf, size_t count)
 
     ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "read");
 
-fprintf(stderr,"address of read = %#lx\n",(*realfunc));
-
     event.start_time = OpenSS_GetTime();
 
     /* Call the real IO function */
