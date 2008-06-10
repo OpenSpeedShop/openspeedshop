@@ -91,7 +91,7 @@ if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-openmpi.la
 endif
 if HAVE_LIBMONITOR
-pkglib_LTLIBRARIES += mpi-rt-offline-openmpi.la libmpi-offline-openmpi.la
+pkglib_LTLIBRARIES += mpi-openmpi-rt-offline.la libmpi-openmpi-offline.la
 endif
 endif
 
@@ -100,7 +100,7 @@ if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-mvapich.la
 endif
 if HAVE_LIBMONITOR
-pkglib_LTLIBRARIES += mpi-rt-offline-mvapich.la libmpi-offline-mvapich.la
+pkglib_LTLIBRARIES += mpi-mvapich-rt-offline.la libmpi-mvapich-offline.la
 endif
 endif
 
@@ -419,19 +419,19 @@ mpi_rt_openmpi_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_openmpi_la_SOURCES = $(wrapper_sources)
 
 if HAVE_LIBMONITOR
-mpi_rt_offline_openmpi_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
-mpi_rt_offline_openmpi_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
-mpi_rt_offline_openmpi_la_LIBADD = $(call rt_offline_LIBADD_generate,@OPENMPI_LIBS@)
-mpi_rt_offline_openmpi_la_DEPENDENCIES =
-mpi_rt_offline_openmpi_la_SOURCES = $(rt_offline_sources)
-nodist_mpi_rt_offline_openmpi_la_SOURCES = $(wrapper_sources)
+mpi_openmpi_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
+mpi_openmpi_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
+mpi_openmpi_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@OPENMPI_LIBS@)
+mpi_openmpi_rt_offline_la_DEPENDENCIES =
+mpi_openmpi_rt_offline_la_SOURCES = $(rt_offline_sources)
+nodist_mpi_openmpi_rt_offline_la_SOURCES = $(wrapper_sources)
 
-libmpi_offline_openmpi_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
-libmpi_offline_openmpi_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
-libmpi_offline_openmpi_la_LIBADD = $(call lib_offline_LIBADD_generate,@OPENMPI_LIBS@)
-libmpi_offline_openmpi_la_DEPENDENCIES =
-libmpi_offline_openmpi_la_SOURCES = $(lib_offline_sources)
-nodist_libmpi_offline_openmpi_la_SOURCES = $(wrapper_sources)
+libmpi_openmpi_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
+libmpi_openmpi_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
+libmpi_openmpi_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@OPENMPI_LIBS@)
+libmpi_openmpi_offline_la_DEPENDENCIES =
+libmpi_openmpi_offline_la_SOURCES = $(lib_offline_sources)
+nodist_libmpi_openmpi_offline_la_SOURCES = $(wrapper_sources)
 endif
 endif
 
