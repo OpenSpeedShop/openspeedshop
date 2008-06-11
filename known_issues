@@ -1,6 +1,72 @@
 Legend * means fixed,
        - means still open.
 
+- 6-10-2008
+  The mrnet instrumentor is not working on zeus.llnl.gov and other
+  linux systems do to a kernel patch related to utrace.
+  Matt Legendre is working on this. From Matt:
+  ***
+  The problem starts when we attach to a process that is already in a stopped
+  state.  Every time we call wait() on such a process it immediately returns
+  with a report that the process recieved a signal 0. I would have expected
+  the call to wait() to block until an actual signal or event was recieved
+  (likely from a different process than the stopped one).
+  ***
+
+- 6-10-2008
+  Address overlap (seen on yellowrail and elsewhere) is causing the
+  performance metrics for those functions to be 2,3,4 times larger for
+  functions where overlap occurs. Matt Legendre notes that this is due
+  to shared code (Multiple functions look to be sharing an exit block.
+  If you treat functions as ranges, this will probably lead to confusion.)
+  This is not seen with offline where we lookup function and statements
+  via sample addresses and therefore map to the exact function that the
+  address is contained in.
+
+- 6-10-2008
+  The mrnet instrumentor has sporadic hangs on YellowRail (and possibly
+  other cluster based systems).  Jim (and Don) have been working on the
+  cli thread locking.  Jim has some fixes in progress and is still
+  pursing the issue.
+
+- 6-10-2008
+  Running the MRNet version of openss on alc.llnl.gov reveals a case where
+  dyninst reports that the srun process has terminated but it hasn't.
+  No sign of the srun process exiting in the dyninst signal trace, but
+  one of srun's threads is terminating just before O|SS reports the process
+  as exiting. Could O|SS be mixing up a thread deletion event for a
+  process deletion?
+
+- 6-10-2008
+  Need to automate creation of mrnet topology file for clusters.
+  This should be similar to how site.py is modified for starting remote
+  dpcld daemons for the dpcl instrumentor. One proposed method would
+  be to move any existing topology file to a backup, create an new
+  topology file with the pid of the current openss process in it's name,
+  set the MRENT topology envvironment to the new file and proceed.
+  Sam Gutierrez at LANL is working on this.
+
+- 6-10-2008
+  The OPENSS_RAWDATA_DIR defaults to /tmp for instrumentors that use
+  the runtime/fileio to write performance data (mrnet and offline).
+  For cluster systems this should default to the parallel file system
+  recommended for that cluster.  It should further be appended to use
+  the users account name.  e.g. raw data should be written to
+  $OPENSS_RAWDATA_DIR/$USERNAME.  This impacts the ossrun.in script,
+  the init.py RunOfflineExp method, and the framework/mrnet/Watcher code.
+
+- 6-10-2008
+  The offline collector runtimes need a method to record the rank id
+  of mpi processes.  This is availble to the mpi and mpit collectors
+  but is not available in general to the other collectors.  This will
+  require adding a rank field to openss_expinfo blobs.
+
+- 6-10-2008
+  The symboltables created for offline experiments need to include the
+  first statement for any function found with sampled address data even
+  if the first statement was not one of the samples.  This is needed by
+  various gui (source file focus events) and cli (list -v src) commands.
+
 - I/O collector doesn't support "-v" statements
   (error while double click on source during stacktrace)
 
