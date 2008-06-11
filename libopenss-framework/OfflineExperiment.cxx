@@ -46,12 +46,6 @@
 
 using namespace OpenSpeedShop::Framework;
 
-#if 0
-typedef std::map<AddressRange,
-        std::pair<SymbolTable, std::set<LinkedObject> > >
-        SymbolTableMap;
-#endif
-
 namespace {
 static   PCBuffer data_addr_buffer;
 };
@@ -120,6 +114,16 @@ OfflineExperiment::getRawDataFiles (std::string dir)
     DIR *dpsub;
     struct dirent *dirpsub;
 
+    std::set<std::string> infoList;
+    std::set<std::string> dataList;
+    std::set<std::string> dsosList;
+    std::set<std::string> executables_used;
+
+    string::size_type basedirpos =
+		rawdirs[1].find("/openss-rawdata-", 0);
+    std::string basedir = rawdirs[1].substr(0,basedirpos);
+
+
     for (unsigned int i = 0;i < rawdirs.size();i++) {
 
 	if((dpsub  = opendir(rawdirs[i].c_str())) == NULL) {
@@ -143,20 +147,67 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 
 	    }
 	}
+
 	if (rawfiles.size() > 0 ) {
-		rawdatadir = rawdirs[i];
-	        convertToOpenSSDB();
-	        createOfflineSymbolTable();
+	    rawdatadir = rawdirs[i];
 	}
+
+	// Sort our raw data files into info, dsos, and data lists. 
+	std::string rawname;
+	for (unsigned int i = 0;i < rawfiles.size();++i) {
+
+	    // create the master list of info files.
+	    if (rawfiles[i].find(".openss-info") != string::npos) {
+		rawname = rawdatadir + "/" + rawfiles[i];
+		infoList.insert(rawname);
+	    }
+
+	    // create the master list of data files.
+	    // update list of unique executables found.
+	    if (rawfiles[i].find(".openss-data") != string::npos) {
+		rawname = rawdatadir + "/" + rawfiles[i];
+
+		string::size_type pos = rawfiles[i].find_first_of("-", 0);
+		std::string temp = rawfiles[i].substr(0,pos);
+
+		executables_used.insert(temp);
+		dataList.insert(rawname);
+	    }
+
+	    // create the master list of dsos files.
+	    if (rawfiles[i].find(".openss-dsos") != string::npos) {
+		rawname = rawdatadir + "/" + rawfiles[i];
+		dsosList.insert(rawname);
+	    }
+	}
+
 	rawfiles.clear();
 	closedir(dpsub);
     }
 
-    std::set<std::pair<LinkedObject,ThreadGroup> > exeToThreads;
-    findThreadsForExe(exeToThreads);
-    processOfflineSymbolTable();
-    //createOfflineSymbolTable();
-	        
+    std::set<std::string>::iterator ssi,ssii;
+    for( ssi = executables_used.begin(); ssi != executables_used.end(); ++ssi) {
+	std::cerr << "Processing raw data for " << (*ssi) << std::endl;
+        for( ssii = infoList.begin(); ssii != infoList.end(); ++ssii) {
+	    if( (*ssii).find((*ssi)) != string::npos) {
+		rawfiles.push_back((*ssii));
+	    }
+	}
+        for( ssii = dataList.begin(); ssii != dataList.end(); ++ssii) {
+	    if( (*ssii).find((*ssi)) != string::npos) {
+		rawfiles.push_back((*ssii));
+	    }
+	}
+        for( ssii = dsosList.begin(); ssii != dsosList.end(); ++ssii) {
+	    if( (*ssii).find((*ssi)) != string::npos) {
+		rawfiles.push_back((*ssii));
+	    }
+	}
+        convertToOpenSSDB();
+        createOfflineSymbolTable();
+	rawfiles.clear();
+    }
+
     return 0;
 }
 
@@ -168,8 +219,8 @@ int OfflineExperiment::convertToOpenSSDB()
     for (unsigned int i = 0;i < rawfiles.size();++i) {
 	bool_t found_infofile = false;
 	if (rawfiles[i].find(".openss-info") != string::npos) {
-	    std::cerr << "processing " << rawfiles[i] << std::endl;
-	    rawname = rawdatadir + "/" + rawfiles[i];
+	    //std::cerr << "processing " << rawfiles[i] << std::endl;
+	    rawname = rawfiles[i];
 	    found_infofile = true;
 	} 
 
@@ -213,8 +264,8 @@ int OfflineExperiment::convertToOpenSSDB()
     for (unsigned int i = 0;i < rawfiles.size();i++) {
 	bool_t found_datafile = false;
 	if (rawfiles[i].find(".openss-data") != string::npos) {
-	    std::cout << "processing " << rawfiles[i] << std::endl;
-	    rawname = rawdatadir + "/" + rawfiles[i];
+	    //std::cout << "processing " << rawfiles[i] << std::endl;
+	    rawname = rawfiles[i];
 	    found_datafile = true;
 	} 
 
@@ -231,8 +282,8 @@ int OfflineExperiment::convertToOpenSSDB()
     for (unsigned int i = 0;i < rawfiles.size();i++) {
 	bool_t found_dsofile = false;
 	if (rawfiles[i].find(".openss-dsos") != string::npos) {
-	    std::cout << "processing " << rawfiles[i] << std::endl;
-	    rawname = rawdatadir + "/" + rawfiles[i];
+	    //std::cout << "processing " << rawfiles[i] << std::endl;
+	    rawname = rawfiles[i];
 	    found_dsofile = true;
 	} 
 
@@ -294,7 +345,7 @@ OfflineExperiment::process_expinfo(const std::string rawfilename)
     if(infocall) {
 	std::string command = "empty command";
 	expHost = info.hostname;
-	expExecutableName = info.exename;
+	expExecutableName.insert(info.exename);
 	expCollector = info.collector;
 	expPosixTid = infoheader.posix_tid;
 	expPid = info.pid;
@@ -307,6 +358,7 @@ OfflineExperiment::process_expinfo(const std::string rawfilename)
 	std::cout << "info..." << std::endl
 		  << "collector name: " << info.collector << std::endl
 		  << "host name:      " << info.hostname << std::endl
+		  << "executable :    " << info.exename << std::endl
 		  << "pid:            " << info.pid << std::endl
 		  << "tid:            " << info.tid << std::endl;
 
@@ -418,6 +470,7 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 	if(is_debug_offline_enabled) {
 	std::cerr << "OfflineExperiment::process_objects: "
 	    << " OBJECT loaded at TIME: begin " << Time(objsheader.time_begin)
+	    << " (" << objsheader.time_begin << ")"
 	    << " end " << Time(objsheader.time_end)
 	    << std::endl;
 	}
@@ -427,40 +480,38 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 
 	if (objcall) {
 
-	    uint64_t endaddr = objs.addr_end;
-	    Address b_addr(objs.addr_begin);
-
-	    Address e_addr(endaddr);
-	    AddressRange range(b_addr,e_addr);
-
-	    Time tbegin(objsheader.time_begin);
-	    Time tend(objsheader.time_end);
-
-	    TimeInterval time_interval(tbegin,tend);
-
 	    // do not include entries with no name or [vdso].
 	    std::string objname = objs.objname;
             if (objname.empty()) {
 		continue;
 	    }
 
-	    // TODO:  If we want to merge mpi raw data into
-	    // one directory for processing, then we need to group
-	    // the dsos per host-pid-thread.
-	    // Skip the vdso entry from /proc/self/maps.
-	    if ( objname.find("[vdso]") == string::npos &&
-		 objname.find("[vsyscall]") == string::npos ) {
-		names_to_range.push_back(std::make_pair(objname,range));
-		names_to_time.push_back(std::make_pair(objname,time_interval));
-	    }
+	    uint64_t endaddr = objs.addr_end;
+	    Address b_addr(objs.addr_begin);
+
+	    Address e_addr(endaddr);
+	    AddressRange range(b_addr,e_addr);
+
+            Time tbegin(objsheader.time_begin);
+            Time tend(objsheader.time_end);
+
+            TimeInterval time_interval(tbegin,tend);
+
+	    // Skip any vdso or vsyscall entry from /proc/self/maps.
+            if ( objname.find("[vdso]") == string::npos &&
+                 objname.find("[vsyscall]") == string::npos &&
+		 objname.compare("unknown") != 0 ) {
+                names_to_range.push_back(std::make_pair(objname,range));
+                names_to_time.push_back(std::make_pair(objname,time_interval));
+            }
 
 //DEBUG
 #ifndef NDEBUG
-	if(is_debug_offline_enabled) {
-	std::cout << "range for " << objs.objname << " is"
-		<< range << std::endl;
+	    if(is_debug_offline_enabled) {
+		std::cout << "range for " << objs.objname << " is"
+		  << range <<  " is dlopen " << objs.is_open << std::endl;
 
-	std::cout << "objectsheader..." << std::endl
+		std::cout << "objectsheader..." << std::endl
 		  << "experiment id:  " << objsheader.experiment << std::endl
 		  << "collector id:   " << objsheader.collector << std::endl
 		  << "host:           " << objsheader.host << std::endl
@@ -470,8 +521,8 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 		  << "time_end:       " << objsheader.time_end << std::endl
 		  << "addr_begin:     " << objsheader.addr_begin << std::endl
 		  << "addr_end:       " << objsheader.addr_end << std::endl;
-        std::cout << std::endl;
-	}
+        	std::cout << std::endl;
+	    }
 #endif
 	}
     } // end while
@@ -490,6 +541,12 @@ void OfflineExperiment::createOfflineSymbolTable()
     // reset the buffer of unique sampled addresses.
     data_addr_buffer.length=0;
     memset(&data_addr_buffer,0,sizeof(data_addr_buffer));
+
+    SymbolTableMap symtabmap;
+    BFDSymbols bfd_symbols;
+    FuncMap FunctionsWithData;
+    StatementsVec StatementsWithData;
+
 
     // Find current threads used in this experiment.
     ThreadGroup threads;
@@ -516,6 +573,8 @@ void OfflineExperiment::createOfflineSymbolTable()
     }
 #endif
 
+    // add any new threads to threads_processed group.
+    // the new threads will be processed below.
     insert_iterator< ThreadGroup > iu( threads_processed,
 					threads_processed.begin() );
     std::set_union(original.begin(), original.end(),
@@ -526,22 +585,21 @@ void OfflineExperiment::createOfflineSymbolTable()
 	return;
     }
 
-    // Create an Extent for all time and full address range
-    TimeInterval ti(Time::TheBeginning(),Time::TheEnd());
-    AddressRange ar(Address::TheLowest(),Address::TheHighest());
-    Extent e(ti,ar);
+    // Create an Extent from this experiments performance data.
+    Extent e = theExperiment->getPerformanceDataExtent();
 
-    // Add extent to extent group for use with getUniquePCValues.
+    // ExtentGroup for use with getUniquePCValues.
     ExtentGroup eg;
-    eg.push_back(e);
 
     CollectorGroup cgrp = theExperiment->getCollectors();
+
+    // Find the unique address values collected for this experiment
+    // from all threads for the current executable being processed.
+    // For mpi jobs we group threads to a specific executable.
+    // That allows us to find all the sampled address from each mpi rank
+    // and then search the linked objects for that  thread group
+    // for functions and statements.
     //
-    // Find the unique address values collected for this experiment.
-    // For mpi jobs it would be better to also group threads to 
-    // an executable. That would then allow us to find all the
-    // sampled address from each mpi rank and then search the
-    // linked objects for that group for functions and statements.
     for(ThreadGroup::const_iterator i = threads.begin();
                                     i != threads.end(); ++i) {
         Instrumentor::retain(*i);
@@ -551,6 +609,12 @@ void OfflineExperiment::createOfflineSymbolTable()
 	    Collector c = *ci;
 	    Metadata m = c.getMetadata();
 	    collector_name = m.getUniqueId();
+
+	    // get the Extent of this collectors data for this thread.
+	    eg.push_back(c.getExtentIn(*i));
+
+	    // add performance sample addresses to address buffer
+	    // for this thread group.
 	    c.getUniquePCValues(*i,eg,&data_addr_buffer);
 	}
     }
@@ -575,15 +639,17 @@ void OfflineExperiment::createOfflineSymbolTable()
 		    dsos_used.insert(j->first);
 		    bool is_exe = false;
 
-		    if (j->first == expExecutableName) {
-			is_exe = true;
-		    }
+                    std::set<std::string>::iterator exei =
+                                expExecutableName.find(j->first);
+                    if(exei != expExecutableName.end()) {
+                        is_exe = true;
+                    }
 // DEBUG
 #ifndef NDEBUG
-		    if(is_debug_offlinesymbols_enabled) {
+		    if(is_debug_offline_enabled) {
 		      std::cerr << "OfflineExperiment::createOfflineSymbolTable:"
 			<< " Added " << j->first
-			<< " to database linkedobjects, is executable "
+			<< " to linkedobjects table, is executable "
 			<< is_exe << std::endl;
 		    }
 #endif
@@ -598,12 +664,88 @@ void OfflineExperiment::createOfflineSymbolTable()
     for(std::vector<std::pair<std::string, TimeInterval> >::iterator
               j = names_to_time.begin(); j != names_to_time.end(); ++j) {
 	when = j->second.getBegin();
+	break;
     }
 
     // creates empty symboltable for these.
-    std::map<AddressRange, std::set<LinkedObject> > needed =
+    // Apparently, all symboltable seem to have Time::TheBegining
+    // as the load begin time.
+    // This updateThreads call will update the addressspace, linkedobjects,
+    // and files tables in the database. We do not use returned map
+    // of needed symboltables since some of the existing symboltables
+    // may also be used by the current executable (if more than one
+    // executable contributes data for this experiment - e.g. mpi).
+    std::map<AddressRange, std::set<LinkedObject> > tneeded =
     address_space.updateThreads(threads, when,
-				/*update_time_interval*/ true);
+				/*update_time_interval*/ false);
+
+    // For the conventional dpcl/mrnet dynamic instrumentors the
+    // AddressSpace::updateThreads call will return only those
+    // symboltables that where not previously built.  This is
+    // expected for dpcl/mrnet since ALL symbols are parsed and
+    // added to the database when first see a linked object.
+    //
+    // For offline experiments, we post process symbols according
+    // to performance data sample addresses. Therfore we can not
+    // assume any previously seen symboltables where completey built.
+    // In the case of openmpi, the orterun (mpirun) process may
+    // be first processed for symbols and creates entries in the
+    // database for any number of linked objects.  When we parse the
+    // mpi application later, AddressSpace::updateThreads assumes
+    // we have already gotten symbols for dsos like libc.so which
+    // was parsed previously by orterun and therefore would skip
+    // such dsos even though we may have new function addresses
+    // from the mpi aplication with in a previously see dso.
+    //
+    // The following code creates a map of address ranges and
+    // linkedobjects based on performance data sample addresses.
+    // We still need to call AddressSpace::updateThreads prior to
+    // this to update the database addressspace, file, linkedobects
+    // tables.
+    std::map<AddressRange, std::set<LinkedObject> > needed; 
+
+    // Find all linkedobjects for the current threadgroup.
+    std::set<LinkedObject> objects = threads.getLinkedObjects();
+    for(std::set<LinkedObject>::const_iterator li = objects.begin();
+				    li != objects.end(); ++li) {
+
+
+	// Find addressranges for this linked object.
+	std::set<AddressRange> obj_range = (*li).getAddressRange();
+	for(std::set<AddressRange>::const_iterator obj_ar = obj_range.begin();
+		obj_ar != obj_range.end(); ++obj_ar) {
+
+	    for(std::vector<std::pair<std::string, AddressRange> >::iterator
+           		nr = names_to_range.begin();
+			nr != names_to_range.end();
+			++nr) {
+
+		// See if this linked object is found in our list of
+		// dsos and addressranges for the current executable,
+		if ((*nr).second.doesContain(*obj_ar) &&
+			(*nr).first == (*li).getPath() ) {
+
+// DEBUG
+#ifndef NDEBUG
+		    if(is_debug_offline_enabled) {
+			std::cerr
+			<< "OfflineExperiment::createOfflineSymbolTable "
+			<< " linked object " << (*li).getPath()
+			<< " contains " << (*obj_ar) << std::endl;
+		    }
+#endif
+
+		    std::map<AddressRange, std::set<LinkedObject> >::iterator
+			ni = needed.insert( std::make_pair( (*obj_ar),
+					    std::set<LinkedObject>())).first;
+
+		    ni->second.insert(*li);
+		    // FOUND IT.  stop looking.
+		    break;
+		}
+	    }
+	}
+    }
 
     // Iterate over each needed symbol table for this address space
     for(std::map<AddressRange, std::set<LinkedObject> >::const_iterator
@@ -611,17 +753,16 @@ void OfflineExperiment::createOfflineSymbolTable()
 
 // DEBUG
 #ifndef NDEBUG
-    if(is_debug_offlinesymbols_enabled) {
-	for (std::set<LinkedObject>::const_iterator
-		l = t->second.begin();
-		l != t->second.end(); ++l) {
-	    std::cerr << "OfflineExperiment::createOfflineSymbolTable: "
-	    << " INSERT SYMTAB for " <<  (*l).getPath()
-	    << " RANGE " << t->first
-	    << " AT TIME " << when
-	    << std::endl;
+	if(is_debug_offlinesymbols_enabled) {
+	    for (std::set<LinkedObject>::const_iterator
+		    l = t->second.begin(); l != t->second.end(); ++l) {
+	        std::cerr << "OfflineExperiment::createOfflineSymbolTable: "
+	        << " INSERT SYMTAB for " <<  (*l).getPath()
+	        << " RANGE " << t->first
+	        << " AT TIME " << when
+	        << std::endl;
+	    }
 	}
-    }
 #endif
 
 	// Add an empty symbol table to the state for this address range
@@ -630,144 +771,109 @@ void OfflineExperiment::createOfflineSymbolTable()
 			);
     }
 
-#ifndef NDEBUG
-    if(is_debug_offlinesymbols_enabled) {
-	std::cerr << "OfflineExperiment::createOfflineSymbolTable: "
-	   << "symboltables needing symbols = " << needed.size()
-	   << std::endl;
-    }
-#endif
-
-    names_to_range.clear();
-    names_to_time.clear();
-    return;
-}
-
-/**
- *  Process and Store all functions and statements for this experient.
- */ 
-void OfflineExperiment::processOfflineSymbolTable()
-{
-    // reset the buffer of unique sampled addresses.
-    data_addr_buffer.length=0;
-    memset(&data_addr_buffer,0,sizeof(data_addr_buffer));
-
-    ThreadGroup threads;
-
-    std::set<std::pair<LinkedObject,ThreadGroup> > exeToThreads;
-    findThreadsForExe(exeToThreads);
-
-    for(std::set<std::pair<LinkedObject,ThreadGroup> >::const_iterator
-                myexe = exeToThreads.begin();
-                myexe != exeToThreads.end(); ++myexe) {
-
-	threads =  (*myexe).second;
-	getAddressesForThreads(threads, &data_addr_buffer);
-
-// DEBUG
-#ifndef NDEBUG
-	if(is_debug_offlinesymbols_enabled) {
-            std::cerr << "OfflineExperiment::processOfflineSymbolTable: Examining "
-	    << data_addr_buffer.length << " sample addresses from " << threads.size()
-	    << " threads for symbols from " << (*myexe).first.getPath() << std::endl;
-	}
-#endif
-
-	BFDSymbols bfd_symbols;
-	FuncMap FunctionsWithData;
-	StatementsVec StatementsWithData;
-	int addresses_found =-1;
+    int addresses_found =-1;
  
-	// TODO: Make this configurable for use with symtabAPI from dyninst.
-	// Using bfd to find symbols.
-	// Foreach linked object we find that has pc data,
-	// pass the buffer of PC addresses to getBFDFunctionStatements.
-	std::set<LinkedObject> tgrp_lo = threads.getLinkedObjects();
-	for(std::set<LinkedObject>::const_iterator j = tgrp_lo.begin();
+    // TODO: Make this configurable for use with symtabAPI from dyninst.
+    // Using bfd to find symbols.
+    // Foreach linked object we find that has pc data,
+    // pass the buffer of sampled addresses to getBFDFunctionStatements
+    // and resolve function and statement symbols.
+    std::set<LinkedObject> tgrp_lo = threads.getLinkedObjects();
+    for(std::set<LinkedObject>::const_iterator j = tgrp_lo.begin();
 		j != tgrp_lo.end(); ++j) {
 	    LinkedObject lo = (*j);
             addresses_found =
 		bfd_symbols.getBFDFunctionStatements(&data_addr_buffer, &lo);
-	}
+    }
 
-	FunctionsWithData = bfd_symbols.bfd_functions;
-	StatementsWithData =  bfd_symbols.bfd_statements;
+    FunctionsWithData = bfd_symbols.bfd_functions;
+    StatementsWithData =  bfd_symbols.bfd_statements;
 
 // DEBUG
 #ifndef NDEBUG
-    if(is_debug_offlinesymbols_enabled) {
-      std::cerr << "OfflineExperiment::processOfflineSymbolTable: "
+    if(is_debug_offline_enabled) {
+      std::cerr << "OfflineExperiment::createOfflineSymbolTable: "
 	<< " getBFDFunctionStatements found functions for " << addresses_found
 	<< " sample addresses from total "
 	<< data_addr_buffer.length << std::endl;
 
-      std::cerr << "OfflineExperiment::processOfflineSymbolTable: "
+      std::cerr << "OfflineExperiment::createOfflineSymbolTable: "
 	<< " Functions with DATA: " << FunctionsWithData.size()
 	<< std::endl;
-      std::cerr << "OfflineExperiment::processOfflineSymbolTable: "
+      std::cerr << "OfflineExperiment::createOfflineSymbolTable: "
 	<< " StatementsWithData with DATA: " << StatementsWithData.size()
 	<< std::endl;
     }
 #endif
 
-	// Add Functions
-	// RESTRICT functions to only those with sampled addresses.
-	int functionsadded = 0;
-	for(FuncMap::const_iterator ic = FunctionsWithData.begin();
+    // Add Functions
+    // RESTRICT functions to only those with sampled addresses.
+    int functionsadded = 0;
+    for(FuncMap::const_iterator ic = FunctionsWithData.begin();
 				ic != FunctionsWithData.end(); ++ic) {
-	    AddressRange frange(ic->second.func_begin,ic->second.func_end);
-            if (symtabmap.find(frange) != symtabmap.end()) {
-		SymbolTable& symbol_table =  symtabmap.find(frange)->second.first;
-		Address start = ic->second.func_begin;
-		Address end = ic->second.func_end;
+	AddressRange frange(ic->second.func_begin,ic->second.func_end);
+        if (symtabmap.find(frange) != symtabmap.end()) {
+	    SymbolTable& symbol_table =  symtabmap.find(frange)->second.first;
+	    Address start = ic->second.func_begin;
+	    Address end = ic->second.func_end;
 // DEBUG
 #ifndef NDEBUG
-	        if(is_debug_offlinesymbols_enabled) {
-                  std::cerr << "OfflineExperiment::processOfflineSymbolTable: "
-		    << "Add to symboltable function " << ic->first
-		    << " with range " << frange << std::endl;
-	        }
-#endif
-		symbol_table.addFunction(start, end, ic->first);
-		functionsadded++;
+	    if(is_debug_offline_enabled) {
+              std::cerr << "OfflineExperiment::createOfflineSymbolTable: "
+		<< "ADDING FUNCTION for " << ic->first
+		<< " with range " << frange << std::endl;
 	    }
+#endif
+	    symbol_table.addFunction(start, end, ic->first);
+	    functionsadded++;
+	} else {
+              std::cerr << "OfflineExperiment::createOfflineSymbolTable: "
+		<< "FAILED FUNCTION for " << ic->first
+		<< " with range " << frange << std::endl;
 	}
+    }
 
-	// Add Statements
-	// RESTRICT statement to only those with sampled addresses.
-	int statementsadded = 0;
-	for(StatementsVec::iterator objsyms = StatementsWithData.begin() ;
-				    objsyms != StatementsWithData.end(); ++objsyms) {
-	    AddressRange frange(objsyms->pc,objsyms->pc+1);
-	    if (symtabmap.find(frange) != symtabmap.end()) {
-		SymbolTable& symbol_table =  symtabmap.find(frange)->second.first;
-		Address s_begin = objsyms->pc;
-		Address s_end = objsyms->pc + 1;
-		std::string path = objsyms->file_name;
-		unsigned int line = objsyms->lineno;
-		unsigned int col = 0;
+    // Add Statements
+    // RESTRICT statement to only those with sampled addresses.
+    int statementsadded = 0;
+    for(StatementsVec::iterator objsyms = StatementsWithData.begin() ;
+	objsyms != StatementsWithData.end(); ++objsyms) {
+      AddressRange frange(objsyms->pc,objsyms->pc+1);
+      if (symtabmap.find(frange) != symtabmap.end()) {
+	SymbolTable& symbol_table =  symtabmap.find(frange)->second.first;
+	Address s_begin = objsyms->pc;
+	Address s_end = objsyms->pc + 1;
+	std::string path = objsyms->file_name;
+	unsigned int line = objsyms->lineno;
+	unsigned int col = 0;
 // DEBUG
 #ifndef NDEBUG
-		if(is_debug_offlinesymbols_enabled) {
-            		std::cerr << "OfflineExperiment::processOfflineSymbolTable"
-			<< " ADDING STATEMENT for " << Address(objsyms->pc)
-			<< " with path " << path
-			<< " line " << line
-			<< std::endl;
-		}
-#endif
-		if (path.size() != 0) {
-		    symbol_table.addStatement(s_begin,s_end,path,line,col);
-	    	    statementsadded++;
-		}
-	    }
+	if(is_debug_offline_enabled) {
+            std::cerr << "OfflineExperiment::createOfflineSymbolTable"
+		<< " ADDING STATEMENT for " << Address(objsyms->pc)
+		<< " with path " << path
+		<< " line " << line
+		<< std::endl;
 	}
+#endif
+	if (path.size() != 0) {
+	    symbol_table.addStatement(s_begin,s_end,path,line,col);
+	    statementsadded++;
+	} else {
+	}
+      } else {
+              std::cerr << "OfflineExperiment::createOfflineSymbolTable: "
+		<< "FAILED STATEMENT for " << objsyms->pc
+		<< " path " << objsyms->file_name
+		<< " line " << objsyms->lineno
+		<< std::endl;
+      }
+    }
 
-	std::cerr << "Added " << functionsadded << " functions to symboltable" << std::endl;
-	std::cerr << "Added " << statementsadded << " statements to symboltable" << std::endl;
-
-	data_addr_buffer.length=0;
-    } // end EXE THREADS FOR
+    std::cerr << "Added " << functionsadded
+	<< " functions to symboltable" << std::endl;
+    std::cerr << "Added " << statementsadded
+	<< " statements to symboltable" << std::endl;
 
     // Now update the database with all our functions and statements...
     for(SymbolTableMap::iterator i = symtabmap.begin();
@@ -779,78 +885,8 @@ void OfflineExperiment::processOfflineSymbolTable()
             i->second.first.processAndStore(*j);
         }
     }
-}
 
-/**
- * Find all threads that belong to a specific executable.
- *
- * @param exeToThreads	set of pairs of executable linkedobject and its threads.
- *
- */
-void
-OfflineExperiment::findThreadsForExe(std::set<std::pair<LinkedObject,ThreadGroup> >& exeToThreads)
-{
-    ThreadGroup Expthreads = getExperiment()->getThreads();
-    std::set<LinkedObject> exesUsedInExp;
-    for(ThreadGroup::const_iterator i = Expthreads.begin();
-                                    i != Expthreads.end(); ++i) {
-
-	std::pair<bool, LinkedObject> threadExe = (*i).getExecutable();
-
-	if (threadExe.first) {
-	    exesUsedInExp.insert(threadExe.second);
-	}
-    }
-
-    for(std::set<LinkedObject>::const_iterator
-                lo = exesUsedInExp.begin();
-                lo != exesUsedInExp.end(); ++lo) {
-
-        ThreadGroup tgrp = Expthreads.getSubsetWithLinkedObject((*lo));
-        LinkedObject l = (*lo);
-
-        exeToThreads.insert(std::make_pair((*lo),tgrp));
-    }
-}
-    
-/**
- * Look for all sample addresses in this thread group.
- * The passed threadgroup is created from all threads asociated with
- * a specific executable found in the database.
- *
- *  @param threads		set of threads to examine for unique sampled addresses.
- *  @param data_addr_buffer	unique sampled addresses buffer.
- *
- */
-void
-OfflineExperiment::getAddressesForThreads(ThreadGroup& threads, PCBuffer *data_addr_buffer)
-{
-    // Create an Extent for all time and full address range
-    TimeInterval ti(Time::TheBeginning(),Time::TheEnd());
-    AddressRange ar(Address::TheLowest(),Address::TheHighest());
-    Extent e(ti,ar);
-
-    // Add extent to extent group for use with getUniquePCValues.
-    ExtentGroup eg;
-    eg.push_back(e);
-
-    CollectorGroup cgrp = theExperiment->getCollectors();
-
-    //
-    // Find the unique address values collected for this experiment.
-    // For mpi jobs it would be better to also group threads to 
-    // an executable. That would then allow us to find all the
-    // sampled address from each mpi rank and then search the
-    // linked objects for that group for functions and statements.
-    for(ThreadGroup::const_iterator i = threads.begin();
-                                    i != threads.end(); ++i) {
-	std::string collector_name;
-	CollectorGroup::iterator ci;
-	for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-	    Collector c = *ci;
-	    Metadata m = c.getMetadata();
-	    collector_name = m.getUniqueId();
-	    c.getUniquePCValues(*i,eg,data_addr_buffer);
-	}
-    }
+    // clear names to range for our next linked object.
+    names_to_range.clear();
+    names_to_time.clear();
 }

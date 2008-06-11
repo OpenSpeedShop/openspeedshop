@@ -79,7 +79,7 @@ class OfflineExperiment
 
     std::string expHost;
     std::string expCollector;
-    std::string expExecutableName;
+    std::set<std::string> expExecutableName;
 
     int		expPid;
     uint64_t	expPosixTid;
