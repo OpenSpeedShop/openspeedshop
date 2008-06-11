@@ -418,7 +418,8 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 		}
 #endif
 
-		if (next_end_addr == begin_addr &&
+		if ( next+1 <= numsortedsyms &&
+		    next_end_addr == begin_addr &&
 		    (sym->flags & BSF_GLOBAL &&
 		     sym->flags & BSF_EXPORT &&
 		     !(sym->flags & BSF_WEAK)
