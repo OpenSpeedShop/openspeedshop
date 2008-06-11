@@ -983,6 +983,9 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
     // See find_address_in_section for details.
     int addresses_found = 0;
     int addresses_notfound = 0;
+    // store functions begin and end address for functions with found
+    // in the sampled address space.
+    std::set<Address> function_range_addresses;
     for (unsigned ii = 0; ii < addrvec.size(); ++ii) {
         int foundpc = 0;
         pc = addrvec[ii];
@@ -1004,6 +1007,11 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 #endif
 		foundpc++;
 		addresses_found++;
+		// record the begin and end addresses.
+		// function_range_addresses will be processed later
+		// for statement info and added to our statements.
+		function_range_addresses.insert(ic->second.func_begin);
+		function_range_addresses.insert(ic->second.func_end);
 	    } else {
 	    }
 	}
@@ -1028,6 +1036,17 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 	}
 
 	rval = addresses_found;
+        bfd_map_over_sections (theBFD, find_address_in_section, NULL);
+	
+    }
+
+    // Find any statements for the begin and end of functions that
+    // contained a valid sample address.
+    for(std::set<Address>::const_iterator fi=function_range_addresses.begin();
+				    fi != function_range_addresses.end();
+				    ++fi) {
+	found = false;
+	pc = (*fi).getValue();
         bfd_map_over_sections (theBFD, find_address_in_section, NULL);
     }
 
