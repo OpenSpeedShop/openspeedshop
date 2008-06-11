@@ -19,14 +19,11 @@
 noinst_LTLIBRARIES = libopenss-framework-offline.la
 
 libopenss_framework_offline_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework \
-	$(DYNINST_CPPFLAGS)
+	-I$(top_srcdir)/libopenss-framework
 
-libopenss_framework_offline_la_LDFLAGS = \
-	$(DYNINST_LDFLAGS)
+libopenss_framework_offline_la_LDFLAGS =
 
-libopenss_framework_offline_la_LIBADD = \
-	$(DYNINST_LIBS)
+libopenss_framework_offline_la_LIBADD =
 
 libopenss_framework_offline_la_SOURCES = \
 	Instrumentor.cxx
