@@ -17,10 +17,14 @@
 ################################################################################
 
 # directories that will be built
-SUBDIRS = dyninst regression
+SUBDIRS = regression
 
 if BUILD_DPCL
-SUBDIRS SUBDIRS += dpcl
+SUBDIRS SUBDIRS += dyninst dpcl
+endif
+
+if BUILD_MRNET
+SUBDIRS SUBDIRS += dyninst
 endif
 
 DIST_SUBDIRS =  dyninst dpcl regression

@@ -61,7 +61,40 @@ esac
 ################################################################################
 
 AC_PKG_LIBDWARF()
-AC_PKG_DYNINST()
+#AC_PKG_DYNINST()
+
+################################################################################
+# Check for Instrumentor
+################################################################################
+
+AC_ARG_WITH(instrumentor,
+            AC_HELP_STRING([--with-instrumentor=TYPE],
+                           [instrumentor (dpcl, dyninst, mrnet, offline) @<:@dpcl@:>@]),
+            INSTRUMENTOR=$withval, INSTRUMENTOR="dpcl")
+
+case "$INSTRUMENTOR" in
+    dpcl)
+        AC_PKG_DYNINST()
+        ;;
+
+    dyninst)
+        AC_PKG_DYNINST()
+	;;
+
+    mrnet)
+        AC_PKG_DYNINST()
+        ;;
+
+    offline)
+        ;;
+
+    *)
+        AC_MSG_ERROR([invalid instrumentor "$INSTRUMENTOR".])
+        ;;
+esac
+
+AC_SUBST(INSTRUMENTOR)
+
 
 ################################################################################
 # Generate Output Files
