@@ -185,22 +185,42 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 	closedir(dpsub);
     }
 
-    std::set<std::string>::iterator ssi,ssii;
+    std::set<std::string>::iterator ssi,ssii, temp;
     for( ssi = executables_used.begin(); ssi != executables_used.end(); ++ssi) {
 	std::cerr << "Processing raw data for " << (*ssi) << std::endl;
-        for( ssii = infoList.begin(); ssii != infoList.end(); ++ssii) {
-	    if( (*ssii).find((*ssi)) != string::npos) {
-		rawfiles.push_back((*ssii));
-	    }
-	}
         for( ssii = dataList.begin(); ssii != dataList.end(); ++ssii) {
 	    if( (*ssii).find((*ssi)) != string::npos) {
 		rawfiles.push_back((*ssii));
 	    }
 	}
+
+
+        for( ssii = infoList.begin(); ssii != infoList.end(); ++ssii) {
+	    if( (*ssii).find((*ssi)) != string::npos) {
+		// restrict list to only those for which a matching
+		// openss-data file exists.
+		string::size_type pos = (*ssii).find(".openss-info", 0);
+		std::string ts = (*ssii).substr(0,pos) + ".openss-data";
+		for(temp = dataList.begin(); temp != dataList.end();
+							++temp) {
+		    if ((*temp).find(ts) != string::npos) {
+			rawfiles.push_back((*ssii));
+		    }
+		}
+	    }
+	}
         for( ssii = dsosList.begin(); ssii != dsosList.end(); ++ssii) {
 	    if( (*ssii).find((*ssi)) != string::npos) {
-		rawfiles.push_back((*ssii));
+		// restrict list to only those for which a matching
+		// openss-data file exists.
+		string::size_type pos = (*ssii).find(".openss-dsos", 0);
+		std::string ts = (*ssii).substr(0,pos) + ".openss-data";
+		for(temp = dataList.begin(); temp != dataList.end();
+							++temp) {
+		    if ((*temp).find(ts) != string::npos) {
+			rawfiles.push_back((*ssii));
+		    }
+		}
 	    }
 	}
         convertToOpenSSDB();
