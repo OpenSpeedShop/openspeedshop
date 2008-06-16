@@ -134,6 +134,7 @@ extern void Purge_Executing_Commands ();
 
 // The following controls are used to properly order termination of threads.
 extern pthread_mutex_t Async_Input_Lock;
+extern int AsyncInputLockCount;
 extern pthread_cond_t  Async_Input_Available;  // The input reader waits here.
 extern bool            Shut_Down;              // Set when 'exit' command is processed
 
