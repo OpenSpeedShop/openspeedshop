@@ -19,7 +19,7 @@
 #include "ToolAPI.hxx"
 #include "SS_Input_Manager.hxx"
 
-//#define DEBUG_CLI_OFF 1
+//#define DEBUG_CLI_OPTIONS 1
 
 static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
 {
@@ -27,9 +27,20 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
   bool processing_offline_option = false;
   bool initial_set_of_command_done_yet = false;
   bool processing_batch_option = false;
+  bool areWeRestoring = false;
   int cmdlen = 0;
   int i;
+
+  // Do some preliminary setup work
   for ( i=1; i<argc; i++ ) {
+
+    if (strstr( argv[i], ".openss")) {
+      areWeRestoring = true;
+#ifdef DEBUG_CLI_OPTIONS
+      printf(" StartModes, WE ARE RESTORING, -f command argv[i]=%s, areWeRestoring=%d\n", argv[i], areWeRestoring);
+#endif
+    }
+
     if (strlen(argv[i]) > 0) {
       cmdlen += strlen(argv[i]) + 3;  // add 3 for space and possible quote characters
     }
@@ -41,18 +52,18 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
     for ( i=1; i<argc; i++ ) {
       if (strlen(argv[i]) > 0) {
 
-#ifdef DEBUG_CLI_OFF
+#ifdef DEBUG_CLI_OPTIONS
         printf(" StartModes, cycling through the argument list, processing_batch_option=%d, processing_offline_option=%d, argv[i=%d]=%s\n", 
                 processing_batch_option, processing_offline_option,i, argv[i]);
 #endif
         if (strcasecmp( argv[i], "-batch") == 0) {
-#ifdef DEBUG_CLI_OFF
+#ifdef DEBUG_CLI_OPTIONS
             printf(" StartModes, setting processing_batch_option to TRUE, cycling through the argument list, argv[i=%d]=%s\n", i, argv[i]);
 #endif
             processing_batch_option = true;
         } 
         if (strcasecmp( argv[i], "-offline") == 0) {
-#ifdef DEBUG_CLI_OFF
+#ifdef DEBUG_CLI_OPTIONS
             printf(" StartModes, setting processing_offline_option to TRUE, cycling through the argument list, argv[i=%d]=%s\n", i, argv[i]);
 #endif
             processing_offline_option = true;
@@ -79,7 +90,11 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
         if (processing_offline_option) {
           bcopy("RunOfflineExp", cmdstr, 15);
         } else {
-          bcopy("expCreate", cmdstr, 10);
+	  if ( areWeRestoring ) { 
+            bcopy("expRestore", cmdstr, 11);
+	  } else {
+            bcopy("expCreate", cmdstr, 10);
+	  }
         } 
       } 
      
@@ -88,7 +103,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
         num_cmds++;
         strcat(cmdstr," ");
 
-#ifdef DEBUG_CLI_OFF
+#ifdef DEBUG_CLI_OPTIONS
         printf(" StartModes, before checks for args, processing_offline_option=%d, i=%d, argc=%d, cmdstr=%s\n", processing_offline_option, i, argc, cmdstr);
 #endif
 
@@ -116,10 +131,13 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
           i++;
           strcat(cmdstr," \"");
           strcat(cmdstr,argv[i]);
+#ifdef DEBUG_CLI_OPTIONS
+            printf(" StartModes, -f command argv[i]=%s cmdstr=%s\n", argv[i], cmdstr);
+#endif
           strcat(cmdstr,"\"");
 
-#ifdef DEBUG_CLI_OFF
-          printf(" StartModes, after quoting around -f command for non offline and for program= for offlin, cmdstr=%s\n", cmdstr);
+#ifdef DEBUG_CLI_OPTIONS
+          printf(" StartModes, after quoting around -f command for non offline and for program= for offline, cmdstr=%s\n", cmdstr);
 #endif
 
         } // end inside strlen if
@@ -128,7 +146,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
 
       } // end strlen(argv[i]) > 0
 
-#ifdef DEBUG_CLI_OFF
+#ifdef DEBUG_CLI_OPTIONS
       printf(" StartModes, at the bottom of the for loop, processing_batch_option=%d, processing_offline_option=%d, i=%d, argc=%d, cmdstr=%s\n", processing_batch_option, processing_offline_option, i, argc, cmdstr);
 #endif
 
