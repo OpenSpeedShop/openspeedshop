@@ -32,6 +32,7 @@ pthread_mutex_t Async_Input_Lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t  Async_Input_Available = PTHREAD_COND_INITIALIZER;
 bool            Shut_Down = false;
 static bool     Waiting_For_Complex_Cmd = false;
+int		AsyncInputLockCount = 1000;
 
 int64_t History_Count = 0;
 std::list<std::string> History;
@@ -385,6 +386,7 @@ class CommandWindowID
   bool Record_File_Is_A_Temporary_File;
 
   pthread_mutex_t Cmds_List_Lock;
+  int CmdsListLockCount ; 
   bool Waiting_For_Cmds_Complete;
   pthread_cond_t  Wait_For_Cmds_Complete;
   std::list<InputLineObject *>Complete_Cmds;
@@ -446,6 +448,7 @@ class CommandWindowID
       Waiting_For_Cmds_Complete = false;
 
 #if DEBUG_SYNC
+      CmdsListLockCount = 1000 ; 
       printf("[TID=%ld], CommandWindowID(), before calling pthread_mutex_init(&Wait_For_Cmds_Complete=%ld)\n", pthread_self(), Wait_For_Cmds_Complete);
 #endif
 
@@ -706,12 +709,15 @@ class CommandWindowID
 
 #if DEBUG_SYNC_SIGNAL
         printf("[TID=%ld], PTHREAD_COND_SIGNAL: Wake_Up_Reader(), After we get the lock, be sure that the reader is still waiting for input, before calling pthread_cond_signal(&Async_Input_Available=%ld) (Async_Input_Lock) \n", pthread_self(), Async_Input_Available);
+        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Wake_Up_Reader(), After we get the lock, be sure that the reader is still waiting for input, before calling pthread_cond_signal() (Async_Input_Lock), AsyncInputLockCount=%ld \n", pthread_self(), AsyncInputLockCount);
 #endif
 
         Assert(pthread_cond_signal(&Async_Input_Available) == 0);
 
 #if DEBUG_SYNC_SIGNAL
+        AsyncInputLockCount = AsyncInputLockCount - 1;
         printf("[TID=%ld], PTHREAD_COND_SIGNAL: Wake_Up_Reader(), After we get the lock, be sure that the reader is still waiting for input, after calling pthread_cond_signal(&Async_Input_Available=%ld) (Async_Input_Lock) \n", pthread_self(), Async_Input_Available);
+        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Wake_Up_Reader(), After we get the lock, be sure that the reader is still waiting for input, after calling pthread_cond_signal() (Async_Input_Lock), AsyncInputLockCount=%ld \n", pthread_self(), AsyncInputLockCount);
 #endif
 
       }
@@ -865,6 +871,12 @@ class CommandWindowID
       }
     }
 
+#if DEBUG_SYNC
+    printf("[TID=%ld], Remove_Completed_Input_Lines, Waiting_For_Cmds_Complete=%ld, issue_prompt=%ld\n", pthread_self(), Waiting_For_Cmds_Complete, issue_prompt );
+    printf("[TID=%ld], Remove_Completed_Input_Lines, Waiting_For_Complex_Cmd=%ld, Input=%ld\n", pthread_self(), Waiting_For_Complex_Cmd, Input );
+    printf("[TID=%ld], Complete_Cmds.size(), Waiting_For_Complex_Cmd=%ld, Shut_Down=%ld\n", pthread_self(), Complete_Cmds.size(), Shut_Down );
+#endif
+
    // When all input has been processed,
    // issue a new prompt to the user.
     if (issue_prompt &&
@@ -926,12 +938,17 @@ class CommandWindowID
 
 #if DEBUG_SYNC_SIGNAL
       printf("[TID=%ld], PTHREAD_COND_SIGNAL:Remove_Completed_Input_Lines(), Input is waiting at a nested Python command, before calling pthread_cond_signal(&Wait_For_Cmds_Complete=%ld) (Cmds_List_Lock)\n", pthread_self(), Wait_For_Cmds_Complete);
+      printf("[TID=%ld], PTHREAD_COND_SIGNAL:Remove_Completed_Input_Lines(), Input is waiting at a nested Python command, before calling pthread_cond_signal,CmdsListLockCount=%ld\n", pthread_self(), CmdsListLockCount);
 #endif
 
       Assert(pthread_cond_signal(&Wait_For_Cmds_Complete) == 0);
 
+
 #if DEBUG_SYNC_SIGNAL
+      CmdsListLockCount = CmdsListLockCount - 1; 
+
       printf("[TID=%ld], PTHREAD_COND_SIGNAL:Remove_Completed_Input_Lines(), Input is waiting at a nested Python command, after calling pthread_cond_signal(&Wait_For_Cmds_Complete=%ld) (Cmds_List_Lock)\n", pthread_self(), Wait_For_Cmds_Complete);
+      printf("[TID=%ld], PTHREAD_COND_SIGNAL:Remove_Completed_Input_Lines(), Input is waiting at a nested Python command, after calling pthread_cond_signal,CmdsListLockCount=%ld\n", pthread_self(), CmdsListLockCount);
 #endif
 
     }
@@ -1214,12 +1231,15 @@ public:
 
 #if DEBUG_SYNC_SIGNAL
      printf("[TID=%ld], PTHREAD_COND_WAIT:Wait_Until_Cmds_Complete(), before calling pthread_cond_wait(&Wait_For_Cmds_Complete=%ld,&Cmds_List_Lock=%ld)\n", pthread_self(), Wait_For_Cmds_Complete, Cmds_List_Lock);
+      printf("[TID=%ld], PTHREAD_COND_WAIT:Wait_Until_Cmds_Complete(), before calling pthread_cond_wait,CmdsListLockCount=%ld\n", pthread_self(), CmdsListLockCount);
+      CmdsListLockCount = CmdsListLockCount + 1; 
 #endif
 
       Assert(pthread_cond_wait(&Wait_For_Cmds_Complete,&Cmds_List_Lock) == 0);
 
 #if DEBUG_SYNC_SIGNAL
      printf("[TID=%ld], PTHREAD_COND_WAIT:Wait_Until_Cmds_Complete(), after calling pthread_cond_wait(&Wait_For_Cmds_Complete=%ld,&Cmds_List_Lock=%ld)\n", pthread_self(), Wait_For_Cmds_Complete, Cmds_List_Lock);
+      printf("[TID=%ld], PTHREAD_COND_WAIT:Wait_Until_Cmds_Complete(), after calling pthread_cond_wait,CmdsListLockCount=%ld\n", pthread_self(), CmdsListLockCount);
 #endif
 
     }
@@ -3414,12 +3434,15 @@ read_another_window:
 #if DEBUG_SYNC_SIGNAL
             printf("[TID=%ld], PTHREAD_COND_WAIT: SpeedShop_ReadLine()-InputLineObject,  before calling pthread_cond_wait, Looking_for_Async_Inputs=%ld, I_HAVE_ASYNC_INPUT_LOCK=%ld\n", pthread_self(), Looking_for_Async_Inputs, I_HAVE_ASYNC_INPUT_LOCK);
             printf("[TID=%ld], PTHREAD_COND_WAIT: SpeedShop_ReadLine()-InputLineObject, before calling pthread_cond_wait(&Async_Input_Available=%ld,&Async_Input_Lock=%ld)\n", pthread_self(), Async_Input_Available, Async_Input_Lock);
+            printf("[TID=%ld], PTHREAD_COND_WAIT: SpeedShop_ReadLine()-InputLineObject, before calling pthread_cond_wait(), AsyncInputLockCount=%ld\n", pthread_self(), AsyncInputLockCount);
+            AsyncInputLockCount = AsyncInputLockCount +1;
 #endif
 
             Assert(pthread_cond_wait(&Async_Input_Available,&Async_Input_Lock) == 0);
 
 #if DEBUG_SYNC_SIGNAL
             printf("[TID=%ld], PTHREAD_COND_WAIT:SpeedShop_ReadLine()-InputLineObject, after calling pthread_cond_wait(&Async_Input_Available=%ld,&Async_Input_Lock=%ld)\n", pthread_self(), Async_Input_Available, Async_Input_Lock);
+            printf("[TID=%ld], PTHREAD_COND_WAIT: SpeedShop_ReadLine()-InputLineObject, after calling pthread_cond_wait(), AsyncInputLockCount=%ld\n", pthread_self(), AsyncInputLockCount);
 #endif
 
             I_HAVE_ASYNC_INPUT_LOCK = false;
@@ -3501,10 +3524,13 @@ read_another_window:
           I_HAVE_ASYNC_INPUT_LOCK = false;
 #if DEBUG_SYNC_SIGNAL
          printf("[TID=%ld], PTHREAD_COND_WAIT:SpeedShop_ReadLine()-InputLineObject, I_HAVE_ASYNC_INPUT_LOCK, before calling pthread_cond_wait(&Async_Input_Available=%ld,&Async_Input_Lock=%ld)\n", pthread_self(), Async_Input_Available, Async_Input_Lock);
+         printf("[TID=%ld], PTHREAD_COND_WAIT:SpeedShop_ReadLine()-InputLineObject, I_HAVE_ASYNC_INPUT_LOCK, before calling pthread_cond_wait(), AsyncInputLockCount=%ld\n", pthread_self(), AsyncInputLockCount);
+          AsyncInputLockCount = AsyncInputLockCount + 1;
 #endif
           Assert(pthread_cond_wait(&Async_Input_Available,&Async_Input_Lock) == 0);
 #if DEBUG_SYNC_SIGNAL
          printf("[TID=%ld], PTHREAD_COND_WAIT:SpeedShop_ReadLine()-InputLineObject, I_HAVE_ASYNC_INPUT_LOCK, after calling pthread_cond_wait(&Async_Input_Available=%ld,&Async_Input_Lock=%ld)\n", pthread_self(), Async_Input_Available, Async_Input_Lock);
+         printf("[TID=%ld], PTHREAD_COND_WAIT:SpeedShop_ReadLine()-InputLineObject, I_HAVE_ASYNC_INPUT_LOCK, after calling pthread_cond_wait(), AsyncInputLockCount=%ld\n", pthread_self(), AsyncInputLockCount);
 #endif
           clip = NULL;  // Signal an EOF to Python
         }

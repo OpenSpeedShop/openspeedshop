@@ -605,13 +605,16 @@ static int64_t Cmds_Executed = 0;
 static pthread_mutex_t Cmd_EXT_Lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  Cmd_EXT_Dispatch = PTHREAD_COND_INITIALIZER;
 static std::list<CommandObject *> EXT_Dispatch;
+int  CmdEXTDispatchCount = 1000;
 
 static bool Cmd_Waiting = false;
 static pthread_cond_t  Waiting_For_Cmds = PTHREAD_COND_INITIALIZER;
+int  WaitingForCmdsCount = 1000;
 
 static bool Main_Waiting = false;
 static int64_t Main_Waiting_Count = 0;
 static pthread_cond_t  Waiting_For_Main = PTHREAD_COND_INITIALIZER;
+int  WaitingForMainCount = 1000;
 
 static void Wait_For_Others_To_Terminate () {
 
@@ -636,12 +639,15 @@ static void Wait_For_Others_To_Terminate () {
 
 #if DEBUG_SYNC_SIGNAL
     printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Others_To_Terminate, before calling pthread_cond_wait(&Waiting_For_Cmds=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Cmds, Cmd_EXT_Lock);
+    printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Others_To_Terminate, before calling pthread_cond_wait,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
+    WaitingForCmdsCount = WaitingForCmdsCount + 1;
 #endif
 
     Assert(pthread_cond_wait(&Waiting_For_Cmds,&Cmd_EXT_Lock) == 0);
 
 #if DEBUG_SYNC_SIGNAL
     printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Others_To_Terminate, after calling pthread_cond_wait(&Waiting_For_Cmds=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Cmds, Cmd_EXT_Lock);
+    printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Others_To_Terminate, after calling pthread_cond_wait,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
 #endif
 
     Cmd_Waiting = false;
@@ -689,13 +695,20 @@ void Wait_For_Previous_Cmds () {
   while (EXT_Allocated > (EXT_Free + 1)) {
    // Wait for other pthreads to finish executing.
     Cmd_Waiting = true;
+
 #if DEBUG_SYNC_SIGNAL
     printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Previous_Cmds, before calling pthread_cond_wait(&Waiting_For_Cmds=%ld, &Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Cmds, Cmd_EXT_Lock);
+    printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Previous_Cmds, before calling pthread_cond_wait,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
+    WaitingForCmdsCount = WaitingForCmdsCount + 1;
 #endif
+
     Assert(pthread_cond_wait(&Waiting_For_Cmds,&Cmd_EXT_Lock) == 0);
+
 #if DEBUG_SYNC_SIGNAL
     printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Previous_Cmds, before calling pthread_cond_wait(&Waiting_For_Cmds=%ld, &Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Cmds, Cmd_EXT_Lock);
+    printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Previous_Cmds, after calling pthread_cond_wait,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
 #endif
+
     Cmd_Waiting = false;
   }
 
@@ -785,13 +798,16 @@ void SafeToDoNextCmd () {
 
 #if DEBUG_SYNC_SIGNAL
   printf("[TID=%ld], PTHREAD_COND_SIGNAL: SafeToDoNextCmd, Wake up someone to process it, before calling pthread_cond_signal(&Cmd_EXT_Dispatch=%ld) (Cmd_EXT_Lock)\n", pthread_self(), Cmd_EXT_Dispatch);
+  printf("[TID=%ld], PTHREAD_COND_SIGNAL: SafeToDoNextCmd, Wake up someone to process it, before calling pthread_cond_signal,CmdEXTDispatchCount=%ld, (Cmd_EXT_Lock)\n", pthread_self(), CmdEXTDispatchCount);
 #endif
 
    // Wake up someone to process it.
     Assert(pthread_cond_signal(&Cmd_EXT_Dispatch) == 0);
 
 #if DEBUG_SYNC_SIGNAL
-  printf("[TID=%ld], PTHREAD_COND_SIGNAL: SafeToDoNextCmd, Wake up someone to process it, after calling pthread_cond_signal(&Cmd_EXT_Dispatch=%ld) (Cmd_EXT_Lock)\n", pthread_self(), Cmd_EXT_Dispatch);
+    CmdEXTDispatchCount = CmdEXTDispatchCount - 1;
+    printf("[TID=%ld], PTHREAD_COND_SIGNAL: SafeToDoNextCmd, Wake up someone to process it, after calling pthread_cond_signal(&Cmd_EXT_Dispatch=%ld) (Cmd_EXT_Lock)\n", pthread_self(), Cmd_EXT_Dispatch);
+    printf("[TID=%ld], PTHREAD_COND_SIGNAL: SafeToDoNextCmd, Wake up someone to process it, after calling pthread_cond_signal,CmdEXTDispatchCount=%ld, (Cmd_EXT_Lock)\n", pthread_self(), CmdEXTDispatchCount);
 #endif
 
   }
@@ -848,27 +864,33 @@ static void Cmd_EXT_Create () {
           (EXT_Allocated == (EXT_Free + 1))) {
 
 #if DEBUG_SYNC_SIGNAL
-  printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the waiting process for single thread execution , before calling pthread_cond_signal(&Waiting_For_Cmds=%ld)\n", pthread_self(), Waiting_For_Cmds);
+        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the waiting process for single thread execution , before calling pthread_cond_signal(&Waiting_For_Cmds=%ld)\n", pthread_self(), Waiting_For_Cmds);
+        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the waiting process for single thread execution , before calling pthread_cond_signal,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
 #endif
 
        // Wakeup the waiting process for single thread execution
         Assert(pthread_cond_signal(&Waiting_For_Cmds) == 0);
 
 #if DEBUG_SYNC_SIGNAL
-  printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the waiting process for single thread execution , after calling pthread_cond_signal(&Waiting_For_Cmds=%ld)\n", pthread_self(), Waiting_For_Cmds);
+        WaitingForCmdsCount = WaitingForCmdsCount - 1;
+        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the waiting process for single thread execution , after calling pthread_cond_signal(&Waiting_For_Cmds=%ld)\n", pthread_self(), Waiting_For_Cmds);
+        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the waiting process for single thread execution , after calling pthread_cond_signal,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
 #endif
 
       }
 
 #if DEBUG_SYNC_SIGNAL
-  printf("[TID=%ld], PTHREAD_COND_WAIT: Cmd_EXT_Create, before calling pthread_cond_wait(&Cmd_EXT_Dispatch,&Cmd_EXT_Lock), Cmd_EXT_Dispatch=%ld, Cmd_EXT_Lock=%ld\n", pthread_self(),Cmd_EXT_Dispatch, Cmd_EXT_Lock);
+      printf("[TID=%ld], PTHREAD_COND_WAIT: Cmd_EXT_Create, before calling pthread_cond_wait(&Cmd_EXT_Dispatch,&Cmd_EXT_Lock), Cmd_EXT_Dispatch=%ld, Cmd_EXT_Lock=%ld\n", pthread_self(),Cmd_EXT_Dispatch, Cmd_EXT_Lock);
+      printf("[TID=%ld], PTHREAD_COND_WAIT: Cmd_EXT_Create, before calling pthread_cond_wait(), CmdEXTDispatchCount=%ld\n", pthread_self(),CmdEXTDispatchCount);
+      CmdEXTDispatchCount = CmdEXTDispatchCount + 1;
 #endif
 
      // Release the lock and wait.
       Assert(pthread_cond_wait(&Cmd_EXT_Dispatch,&Cmd_EXT_Lock) == 0);
 
 #if DEBUG_SYNC_SIGNAL
-  printf("[TID=%ld], PTHREAD_COND_WAIT: Cmd_EXT_Create, after calling pthread_cond_wait(&Cmd_EXT_Dispatch,&Cmd_EXT_Lock), Cmd_EXT_Dispatch=%ld, Cmd_EXT_Lock=%ld\n", pthread_self(),Cmd_EXT_Dispatch, Cmd_EXT_Lock);
+     printf("[TID=%ld], PTHREAD_COND_WAIT: Cmd_EXT_Create, after calling pthread_cond_wait(&Cmd_EXT_Dispatch,&Cmd_EXT_Lock), Cmd_EXT_Dispatch=%ld, Cmd_EXT_Lock=%ld\n", pthread_self(),Cmd_EXT_Dispatch, Cmd_EXT_Lock);
+     printf("[TID=%ld], PTHREAD_COND_WAIT: Cmd_EXT_Create, after calling pthread_cond_wait(), CmdEXTDispatchCount=%ld\n", pthread_self(),CmdEXTDispatchCount);
 #endif
 
      // When we wake up, we have the lock again.
@@ -879,14 +901,17 @@ static void Cmd_EXT_Create () {
         if (EXT_Allocated == 1) {
 
 #if DEBUG_SYNC_SIGNAL
-  printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the last process so it can terminate, before calling pthread_cond_signal(&Waiting_For_Cmds=%ld)\n", pthread_self(), Waiting_For_Cmds);
+          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the last process so it can terminate, before calling pthread_cond_signal(&Waiting_For_Cmds=%ld)\n", pthread_self(), Waiting_For_Cmds);
+          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the last process so it can terminate, before calling pthread_cond_signal,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
 #endif
 
          // Wakeup the last process so it can terminate.
           Assert(pthread_cond_signal(&Waiting_For_Cmds) == 0);
 
 #if DEBUG_SYNC_SIGNAL
-  printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the last process so it can terminate, after calling pthread_cond_signal(&Waiting_For_Cmds=%ld)\n", pthread_self(), Waiting_For_Cmds);
+          WaitingForCmdsCount = WaitingForCmdsCount - 1;
+          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the last process so it can terminate, after calling pthread_cond_signal(&Waiting_For_Cmds=%ld)\n", pthread_self(), Waiting_For_Cmds);
+          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the last process so it can terminate, after calling pthread_cond_signal,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
 #endif
 
         }
@@ -991,12 +1016,15 @@ static void Cmd_EXT_Create () {
 
 #if DEBUG_SYNC_SIGNAL
         printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create,  Tell the input routines to send EOF to Python, before calling pthread_cond_signal(&Async_Input_Available=%ld)\n", pthread_self(), Async_Input_Available);
+        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create,  Tell the input routines to send EOF to Python, before calling pthread_cond_signal(), AsyncInputLockCount=%ld\n", pthread_self(), AsyncInputLockCount);
 #endif
 
         Assert(pthread_cond_signal(&Async_Input_Available) == 0);
 
 #if DEBUG_SYNC
+	AsyncInputLockCount = AsyncInputLockCount - 1;
         printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create,  Tell the input routines to send EOF to Python, after calling pthread_cond_signal(&Async_Input_Available=%ld)\n", pthread_self(), Async_Input_Available);
+        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create,  Tell the input routines to send EOF to Python, after calling pthread_cond_signal(), AsyncInputLockCount=%ld\n", pthread_self(), AsyncInputLockCount);
 #endif
 
 #if DEBUG_SYNC_SIGNAL
@@ -1014,12 +1042,15 @@ static void Cmd_EXT_Create () {
 
 #if DEBUG_SYNC_SIGNAL
           printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, if Main_Waiting, before calling pthread_cond_signal(&Waiting_For_Main=%ld)\n", pthread_self(), Waiting_For_Main);
+          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, if Main_Waiting, before calling pthread_cond_signal,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
 #endif
 
           Assert(pthread_cond_signal(&Waiting_For_Main) == 0);
 
 #if DEBUG_SYNC_SIGNAL
+	  WaitingForMainCount = WaitingForMainCount - 1;
           printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, if Main_Waiting, after calling pthread_cond_signal(&Waiting_For_Main=%ld)\n", pthread_self(), Waiting_For_Main);
+          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, if Main_Waiting, after calling pthread_cond_signal,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
 #endif
 
         }
@@ -1030,7 +1061,8 @@ static void Cmd_EXT_Create () {
       } else if (Cmd_Waiting && (EXT_Allocated == 2)) {
 
 #if DEBUG_SYNC_SIGNAL
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, I am going to go away, so if there is just the waitingprocess remaining, wake it up so it can terminate, too, before calling pthread_cond_signal(&Waiting_For_Main=%ld)\n", pthread_self(), Waiting_For_Main);
+          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, I am going to go away, so if there is just the waitingprocess remaining, wake it up so it can terminate, too, before calling pthread_cond_signal(&Waiting_For_Main=%ld), Waiting_For_Cmds=%ld\n", pthread_self(), Waiting_For_Main, Waiting_For_Cmds);
+          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, I am going to go away, so if there is just the waitingprocess remaining, wake it up so it can terminate, too, before calling pthread_cond_signal,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
 #endif
 
          // I'm going to go away, so if there is just the waiting
@@ -1038,7 +1070,9 @@ static void Cmd_EXT_Create () {
           Assert(pthread_cond_signal(&Waiting_For_Cmds) == 0);
 
 #if DEBUG_SYNC_SIGNAL
+          WaitingForCmdsCount = WaitingForCmdsCount - 1;
           printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, I am going to go away, so if there is just the waitingprocess remaining, wake it up so it can terminate, too, after calling pthread_cond_signal(&Waiting_For_Main=%ld)\n", pthread_self(), Waiting_For_Main);
+          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, I am going to go away, so if there is just the waitingprocess remaining, wake it up so it can terminate, too, after calling pthread_cond_signal,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
 #endif
 
       }
@@ -1065,12 +1099,15 @@ static void Cmd_EXT_Create () {
 
 #if DEBUG_SYNC_SIGNAL
      printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, EXT_Dispatch.size() <= Main_Waiting_Count, before calling pthread_cond_signal(&Waiting_For_Main=%ld)\n", pthread_self(), Waiting_For_Main);
+     printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, EXT_Dispatch.size() <= Main_Waiting_Count, before calling pthread_cond_signal,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
 #endif
 
       Assert(pthread_cond_signal(&Waiting_For_Main) == 0);
 
 #if DEBUG_SYNC_SIGNAL
-     printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, EXT_Dispatch.size() <= Main_Waiting_Count, after calling pthread_cond_signal(&Waiting_For_Main=%ld)\n", pthread_self(), Waiting_For_Main);
+      WaitingForMainCount = WaitingForMainCount - 1;
+      printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, EXT_Dispatch.size() <= Main_Waiting_Count, after calling pthread_cond_signal(&Waiting_For_Main=%ld)\n", pthread_self(), Waiting_For_Main);
+      printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, EXT_Dispatch.size() <= Main_Waiting_Count, after calling pthread_cond_signal,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
 #endif
 
     }
@@ -1150,12 +1187,15 @@ void SS_Execute_Cmd (CommandObject *cmd) {
 
 #if DEBUG_SYNC_SIGNAL
           printf("[TID=%ld], PTHREAD_COND_SIGNAL: SS_Execute_Cmd, Wake up someone to process it, Ready_for_Next_Cmd before calling pthread_cond_signal(&Cmd_EXT_Dispatch=%ld) (Cmd_EXT_Lock)\n", pthread_self(), Cmd_EXT_Dispatch);
+          printf("[TID=%ld], PTHREAD_COND_SIGNAL: SS_Execute_Cmd, Wake up someone to process it, Ready_for_Next_Cmd before calling pthread_cond_signal,CmdEXTDispatchCount=%ld,(Cmd_EXT_Lock)\n", pthread_self(), CmdEXTDispatchCount);
 #endif
 
           Assert(pthread_cond_signal(&Cmd_EXT_Dispatch) == 0);
 
 #if DEBUG_SYNC_SIGNAL
+          CmdEXTDispatchCount = CmdEXTDispatchCount - 1;
           printf("[TID=%ld], PTHREAD_COND_SIGNAL: SS_Execute_Cmd, Wake up someone to process it, Ready_for_Next_Cmd after calling pthread_cond_signal(&Cmd_EXT_Dispatch=%ld) (Cmd_EXT_Lock)\n", pthread_self(), Cmd_EXT_Dispatch);
+          printf("[TID=%ld], PTHREAD_COND_SIGNAL: SS_Execute_Cmd, Wake up someone to process it, Ready_for_Next_Cmd after calling pthread_cond_signal,CmdEXTDispatchCount=%ld,(Cmd_EXT_Lock)\n", pthread_self(), CmdEXTDispatchCount);
 #endif
 
         }  else if (EXT_Allocated < OPENSS_MAX_ASYNC_COMMANDS) {
@@ -1199,13 +1239,16 @@ void SS_Execute_Cmd (CommandObject *cmd) {
         Main_Waiting_Count = 0;
 
 #if DEBUG_SYNC_SIGNAL
-       printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, serialize_exexcution, before calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
+        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, serialize_execution, before calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
+        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, serialize_execution, before calling pthread_cond_wait,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
+        WaitingForMainCount = WaitingForMainCount + 1;
 #endif
 
         Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
 
 #if DEBUG_SYNC_SIGNAL
-       printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, serialize_exexcution, after calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
+       printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, serialize_execution, after calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
+       printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, serialize_execution, after calling pthread_cond_wait,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
 #endif
 
       } else if (cmd->Type() == CMD_EXIT) {
@@ -1216,13 +1259,16 @@ void SS_Execute_Cmd (CommandObject *cmd) {
           Main_Waiting_Count = 0;
 
 #if DEBUG_SYNC_SIGNAL
-         printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_EXIT, before calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
+          printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_EXIT, before calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
+          printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_EXIT, before calling pthread_cond_wait,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
+          WaitingForMainCount = WaitingForMainCount + 1;
 #endif
 
           Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
 
 #if DEBUG_SYNC_SIGNAL
-         printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_EXIT, after calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
+          printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_EXIT, after calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
+          printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_EXIT, after calling pthread_cond_wait,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
 #endif
 
         }
@@ -1233,13 +1279,16 @@ void SS_Execute_Cmd (CommandObject *cmd) {
         Main_Waiting_Count = 0;
 
 #if DEBUG_SYNC_SIGNAL
-         printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_PLAYBACK, before calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
+        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_PLAYBACK, before calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
+        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_PLAYBACK, before calling pthread_cond_wait,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
+        WaitingForMainCount = WaitingForMainCount + 1;
 #endif
 
         Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
 
 #if DEBUG_SYNC_SIGNAL
-         printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_PLAYBACK, after calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
+        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_PLAYBACK, after calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
+        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_PLAYBACK, after calling pthread_cond_wait,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
 #endif
 
       } else if (EXT_Dispatch.size() > (OPENSS_MAX_ASYNC_COMMANDS * 2)) {
@@ -1250,12 +1299,15 @@ void SS_Execute_Cmd (CommandObject *cmd) {
 
 #if DEBUG_SYNC_SIGNAL
         printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, OPENSS_MAX_ASYNC_COMMANDS, before calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
+        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, OPENSS_MAX_ASYNC_COMMANDS, before calling pthread_cond_wait,WaitingForMainCount=%ld)\n", pthread_self(), WaitingForMainCount);
+        WaitingForMainCount = WaitingForMainCount + 1;
 #endif
 
         Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
 
 #if DEBUG_SYNC_SIGNAL
         printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, OPENSS_MAX_ASYNC_COMMANDS, after calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
+        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, OPENSS_MAX_ASYNC_COMMANDS, after calling pthread_cond_wait,WaitingForMainCount=%ld)\n", pthread_self(), WaitingForMainCount);
 #endif
 
       }

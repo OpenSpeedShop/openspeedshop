@@ -36,6 +36,7 @@ static CommandObject cmd;  // Needed to use the lock in the experiment
 static pthread_mutex_t Watch_Item_Lock = PTHREAD_MUTEX_INITIALIZER;
 static bool            Waiting_to_Watch = false;
 static pthread_cond_t  Waiting_For_Items = PTHREAD_COND_INITIALIZER;
+int WaitCount = 1000;
 static std::list<Watch_Item *> Watch_Item_list;
 
 class Watch_Item {
@@ -146,13 +147,16 @@ void Request_Async_Notice_Of_Termination (CommandObject *cmd, ExperimentObject *
     Waiting_to_Watch = false;
 
 #if DEBUG_SYNC_SIGNAL
-    printf("[TID=%ld], PTHREAD_COND_SIGNAL: Request_Async_Notice_Of_Termination, Waiting_to_Watch, before calling pthread_cond_signal(&Waiting_For_Items=%ld) \n", pthread_self(),  Waiting_For_Items);
+    printf("[TID=%ld], PTHREAD_COND_SIGNAL: Request_Async_Notice_Of_Termination, Waiting_to_Watch, before calling pthread_cond_signal(&Waiting_For_Items=%ld)\n", pthread_self(),  Waiting_For_Items);
+    printf("[TID=%ld], PTHREAD_COND_SIGNAL: Request_Async_Notice_Of_Termination, Waiting_to_Watch, before calling pthread_cond_signal WaitCount=%ld \n", pthread_self(), WaitCount);
 #endif
 
     Assert(pthread_cond_signal(&Waiting_For_Items) == 0);
 
 #if DEBUG_SYNC_SIGNAL
+    WaitCount = WaitCount - 1;
     printf("[TID=%ld], PTHREAD_COND_SIGNAL: Request_Async_Notice_Of_Termination, Waiting_to_Watch, after calling pthread_cond_signal(&Waiting_For_Items=%ld) \n", pthread_self(),  Waiting_For_Items);
+    printf("[TID=%ld], PTHREAD_COND_SIGNAL: Request_Async_Notice_Of_Termination, Waiting_to_Watch, after calling pthread_cond_signal WaitCount=%ld \n", pthread_self(), WaitCount);
 #endif
 
   }
@@ -247,13 +251,16 @@ void Wait_For_Exp (CommandObject *cmd, ExperimentObject *exp) {
     Waiting_to_Watch = false;
 
 #if DEBUG_SYNC_SIGNAL
-    printf("[TID=%ld], PTHREAD_COND_SIGNAL: Wait_For_Exp, Waiting_to_Watch, before calling pthread_cond_signal(&Waiting_For_Items=%ld) \n", pthread_self(),  Waiting_For_Items);
+    printf("[TID=%ld], PTHREAD_COND_SIGNAL: Wait_For_Exp, Waiting_to_Watch, before calling pthread_cond_signal(&Waiting_For_Items=%ld), WaitCount=%ld \n", pthread_self(),  Waiting_For_Items, WaitCount);
+    printf("[TID=%ld], PTHREAD_COND_SIGNAL: Wait_For_Exp, Waiting_to_Watch, before calling pthread_cond_signal(), WaitCount=%ld \n", pthread_self(), WaitCount);
 #endif
 
     Assert(pthread_cond_signal(&Waiting_For_Items) == 0);
 
 #if DEBUG_SYNC_SIGNAL
-    printf("[TID=%ld], PTHREAD_COND_SIGNAL: Wait_For_Exp, Waiting_to_Watch, after calling pthread_cond_signal(&Waiting_For_Items=%ld) \n", pthread_self(),  Waiting_For_Items);
+    WaitCount = WaitCount - 1;
+    printf("[TID=%ld], PTHREAD_COND_SIGNAL: Wait_For_Exp, Waiting_to_Watch, after calling pthread_cond_signal(&Waiting_For_Items=%ld), WaitCount=%ld \n", pthread_self(),  Waiting_For_Items, WaitCount);
+    printf("[TID=%ld], PTHREAD_COND_SIGNAL: Wait_For_Exp, Waiting_to_Watch, after calling pthread_cond_signal(), WaitCount=%ld \n", pthread_self(), WaitCount);
 #endif
 
   }
@@ -508,13 +515,16 @@ void SS_Watcher () {
       Waiting_to_Watch = true;
 
 #if DEBUG_SYNC_SIGNAL
-    printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Watcher, Waiting_to_Watch, before calling pthread_cond_wait(&Waiting_For_Items=%ld, &Watch_Item_Lock=%ld) \n", pthread_self(),  Waiting_For_Items, Watch_Item_Lock);
+    printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Watcher, Waiting_to_Watch, before calling pthread_cond_wait(&Waiting_For_Items=%ld, &Watch_Item_Lock=%ld)\n", pthread_self(),  Waiting_For_Items, Watch_Item_Lock);
+    printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Watcher, Waiting_to_Watch, before calling pthread_cond_wait(), WaitCount=%ld \n", pthread_self(), WaitCount);
+      WaitCount = WaitCount + 1;
 #endif
 
       Assert(pthread_cond_wait(&Waiting_For_Items,&Watch_Item_Lock) == 0);
 
 #if DEBUG_SYNC_SIGNAL
-    printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Watcher, Waiting_to_Watch, after calling pthread_cond_wait(&Waiting_For_Items=%ld, &Watch_Item_Lock=%ld) \n", pthread_self(),  Waiting_For_Items, Watch_Item_Lock);
+    printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Watcher, Waiting_to_Watch, after calling pthread_cond_wait(&Waiting_For_Items=%ld, &Watch_Item_Lock=%ld)\n", pthread_self(),  Waiting_For_Items, Watch_Item_Lock);
+    printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Watcher, Waiting_to_Watch, after calling pthread_cond_wait(), WaitCount=%ld\n", pthread_self(), WaitCount);
 #endif
 
 #if DEBUG_SYNC
