@@ -41,16 +41,13 @@ pkglib_LTLIBRARIES += pcsamp-rt-offline.la libpcsamp-offline.la
 endif
 
 pcsamp_la_CXXFLAGS = \
-	@BINUTILS_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-framework
 
 pcsamp_la_LDFLAGS = \
-	@BINUTILS_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-framework \
 	-no-undefined -module -avoid-version
 
 pcsamp_la_LIBADD = \
-	@BINUTILS_LIBS@ \
 	-lopenss-framework
 
 pcsamp_la_SOURCES = \
@@ -60,22 +57,18 @@ pcsamp_la_SOURCES = \
 if !BUILD_OFFLINE
 if BUILD_MRNET
 pcsamp_rt_la_CFLAGS = \
-	@BINUTILS_CPPFLAGS@ \
 	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
 	-I$(top_srcdir)/libopenss-runtime
 else
 pcsamp_rt_la_CFLAGS = \
-	@BINUTILS_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-runtime
 endif
 
 pcsamp_rt_la_LDFLAGS = \
-	@BINUTILS_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-runtime \
 	-no-undefined -module -avoid-version
 
 pcsamp_rt_la_LIBADD = \
-	@BINUTILS_LIBS@ \
 	-lopenss-runtime \
 	-lpthread -lrt
 
