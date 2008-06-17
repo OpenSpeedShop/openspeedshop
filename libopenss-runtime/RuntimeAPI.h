@@ -41,8 +41,20 @@
 
 
 
+/** dpcl limits blobs to about 16k. All collectors are tuned to */
+/** create blobs that attempt to maximize usage of the 16k blob sisze */
+/** fileio does not have a 16k restriction on the size of a blob */
+/** TODO: Since OpenSS_Send use alloca for allocation of blobs we */
+/** are still limited by what safely can be allocated on the stack. */
+/** For OPENSS_USE_FILEIO we could consider using malloc/free */
+#if defined (OPENSS_USE_FILEIO)
+#define OpenSS_BlobSizeFactor 15
+#else
+#define OpenSS_BlobSizeFactor 1
+#endif
+
 /** Number of entries in the sample buffer. */
-#define OpenSS_PCBufferSize 1024
+#define OpenSS_PCBufferSize (1024 * OpenSS_BlobSizeFactor)
 
 /** Number of entries in the hash table. */
 #define OpenSS_PCHashTableSize (OpenSS_PCBufferSize + (OpenSS_PCBufferSize / 4))
