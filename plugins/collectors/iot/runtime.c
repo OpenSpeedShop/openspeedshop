@@ -60,13 +60,15 @@ const unsigned OverheadFrameCount = 2;
 /** Number of stack trace entries in the tracing buffer. */
 /** event.stacktrace buffer is 64*8=512 bytes */
 /** allows for 6 unique stacktraces (384*8/512) */
-#define StackTraceBufferSize 384
+#define StackTraceBufferSize (OpenSS_BlobSizeFactor * 384)
 
 
 /** Number of event entries in the tracing buffer. */
 /* assume a pathname has at most 256 chars with terminating NULL.*/
-#define PathBufferSize  2048 /* space for pathnames */ 
-#define EventBufferSize 140  /* iot_event is 80 bytes */
+/* space for pathnames */ 
+#define PathBufferSize  (OpenSS_BlobSizeFactor * 2048)
+/* iot_event is 80 bytes */
+#define EventBufferSize (OpenSS_BlobSizeFactor * 140)
 
 /** Thread-local storage. */
 static __thread struct {

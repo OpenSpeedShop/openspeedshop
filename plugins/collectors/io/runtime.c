@@ -61,11 +61,12 @@ const unsigned OverheadFrameCount = 2;
 /** Number of stack trace entries in the tracing buffer. */
 /** event.stacktrace buffer is 64*8=512 bytes */
 /** allows for 6 unique stacktraces (384*8/512) */
-#define StackTraceBufferSize 384
+#define StackTraceBufferSize (OpenSS_BlobSizeFactor * 384)
 
 
 /** Number of event entries in the tracing buffer. */
-#define EventBufferSize 415  /* io_event is 32 bytes */
+/** io_event is 32 bytes */
+#define EventBufferSize (OpenSS_BlobSizeFactor * 415)
 
 /** Thread-local storage. */
 static __thread struct {

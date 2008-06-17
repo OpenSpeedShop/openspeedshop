@@ -62,7 +62,7 @@ int EventSet = PAPI_NULL;
  */
 
 /** Number of entries in the sample buffer. */
-#define BufferSize 1024
+#define BufferSize (OpenSS_BlobSizeFactor * 1024)
 
 /** Man number of frames for callstack collection */
 #define MAXFRAMES 100

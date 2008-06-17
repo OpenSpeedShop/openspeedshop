@@ -61,10 +61,10 @@ const unsigned OverheadFrameCount = 2;
 #define MaxFramesPerStackTrace 64
 
 /** Number of stack trace entries in the tracing buffer. */
-#define StackTraceBufferSize 512
+#define StackTraceBufferSize (OpenSS_BlobSizeFactor * 512)
 
 /** Number of event entries in the tracing buffer. */
-#define EventBufferSize 192
+#define EventBufferSize (OpenSS_BlobSizeFactor * 192)
 
 /** Thread-local storage. */
 static __thread struct {

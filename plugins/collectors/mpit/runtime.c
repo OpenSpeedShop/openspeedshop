@@ -55,10 +55,10 @@ const unsigned OverheadFrameCount = 2;
 /** The following values provide reasonably good usage of the blob space */
 /** About 6 stacktraces and 215 events */
 /** Number of stack trace entries in the tracing buffer. */
-#define StackTraceBufferSize 384
+#define StackTraceBufferSize (OpenSS_BlobSizeFactor * 384)
 
 /** Number of event entries in the tracing buffer. */
-#define EventBufferSize 215
+#define EventBufferSize (OpenSS_BlobSizeFactor * 215)
 
 /** Thread-local storage. */
 static __thread struct {
