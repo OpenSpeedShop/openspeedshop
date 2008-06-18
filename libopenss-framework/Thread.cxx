@@ -23,6 +23,9 @@
  *
  */
 
+// To output when addresses overlap, turn this define back on
+//#define DEBUG_OVERLAP 1
+
 #include "AddressBitmap.hxx"
 #include "CollectorGroup.hxx"
 #include "Function.hxx"
@@ -533,7 +536,7 @@ Thread::getFunctionAt(const Address& address, const Time& time) const
 	    throw Exception(Exception::EntryOverlapping, "AddressSpaces");
 #else
 // DEBUG
-#if 0
+#if DEBUG_OVERLAP
 	        std::cerr <<"Thread::getFunctionAt "
 		<< "LinkedObject EntryOverlapping AddressSpaces for " << address
 		<< std::endl;
@@ -575,7 +578,7 @@ Thread::getFunctionAt(const Address& address, const Time& time) const
 		throw Exception(Exception::EntryOverlapping, "Functions");
 #else
 // DEBUG
-#if 0
+#if DEBUG_OVERLAP
 	        std::cerr <<"Thread::getFunctionAt "
 		<< "Function EntryOverlapping AddressSpaces for " << address
 		<< std::endl;

@@ -22,6 +22,7 @@
  * Definition of the PCSampCollector class.
  *
  */
+//#define DEBUG_OVERLAP 1
  
 #include "PCSampCollector.hxx"
 #include "PCBuffer.hxx"
@@ -296,6 +297,23 @@ void PCSampCollector::getMetricValues(const std::string& metric,
  
     // Iterate over each of the samples
     for(unsigned i = 0; i < data.pc.pc_len; ++i) {
+
+
+#ifdef DEBUG_OVERLAP
+           std::cout << "pcsamp::getMetricValues,----------------> start function section <------------------------"  << std::endl;
+           Time first_time = extent.getTimeInterval().getBegin();
+           Time last_time = extent.getTimeInterval().getEnd();
+           std::cout << "pcsamp::getMetricValues,------> startTime=" << extent.getTimeInterval().getBegin() << std::endl;
+           std::cout << "pcsamp::getMetricValues,------> endTime="   << extent.getTimeInterval().getEnd() <<  std::endl;
+           std::cout << "pcsamp::getMetricValues,------> startAddr=" << extent.getAddressRange().getBegin() <<  std::endl;
+           std::cout << "pcsamp::getMetricValues,------> endAddr=" << extent.getAddressRange().getEnd() <<  std::endl;
+           std::pair<bool, Function> tf = thread.getFunctionAt(Address(data.pc.pc_val[i]), extent.getTimeInterval().getBegin());
+           if (tf.first) {
+              std::cerr << "Function tf.second.getName()=" << tf.second.getName() << "\n" <<  std::endl;
+	   }
+           std::cout << "pcsamp::getMetricValues,----------------> end function section <------------------------"  << std::endl;
+           std::cout << "pcsamp::getMetricValues,----------------------------------------------------------------"  << std::endl;
+#endif
 	
 	// Find the subextents that contain this sample
 	std::set<ExtentGroup::size_type> intersection = 

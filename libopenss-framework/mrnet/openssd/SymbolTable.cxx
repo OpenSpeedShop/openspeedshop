@@ -22,6 +22,8 @@
  *
  */
 
+//#define DEBUG_ADDR 1
+
 #include "Backend.hxx"
 #include "Blob.hxx"
 #include "SymbolTable.hxx"
@@ -96,6 +98,17 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
              (*functions)[i]->getBaseAddr()
 	     ));
 	Address end = begin + (*functions)[i]->getSize();
+
+#ifdef DEBUG_ADDR
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Function Addresses from Callbacks::"
+	       << "addModule(): Function "
+	       << (names.empty() ? "<unknown>" : names[0])
+	       << ": begin (" << Address(begin) 
+	       << ") >= end (" << Address(end) << ")."
+	       << std::endl;
+	std::cerr << output.str();
+#endif
 
 	// Sanity checks
 	if(end <= begin) {
