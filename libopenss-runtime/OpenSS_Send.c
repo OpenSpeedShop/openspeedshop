@@ -53,7 +53,7 @@ int openss_send(const unsigned, const void*);
 void OpenSS_Send(const OpenSS_DataHeader* header,
 		 const xdrproc_t xdrproc, const void* data)
 {
-    const size_t EncodingBufferSize = 15 * 1024;
+    const size_t EncodingBufferSize = (OpenSS_BlobSizeFactor * 15 * 1024);
     unsigned size;
     char* buffer = NULL;
     XDR xdrs;
