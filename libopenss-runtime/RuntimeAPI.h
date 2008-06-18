@@ -47,7 +47,7 @@
 /** TODO: Since OpenSS_Send use alloca for allocation of blobs we */
 /** are still limited by what safely can be allocated on the stack. */
 /** For OPENSS_USE_FILEIO we could consider using malloc/free */
-#if defined (OPENSS_USE_FILEIO)
+#if defined (OPENSS_OFFLINE)
 #define OpenSS_BlobSizeFactor 15
 #else
 #define OpenSS_BlobSizeFactor 1
