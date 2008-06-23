@@ -12,6 +12,11 @@ Legend * means fixed,
   the call to wait() to block until an actual signal or event was recieved
   (likely from a different process than the stopped one).
   ***
+  (jeg) tried Matts patch, but it causes problems on all the systems (jeg) tried
+  it on and didn't seem to fix the problem on zeus.  First (jeg) had to upgrade to the
+  latest dyninst release tarball, update the patch list and test that on a few systems.
+  (6-23-80-jeg)
+  ***
 
 - 6-10-2008
   Address overlap (seen on yellowrail and elsewhere) is causing the
@@ -22,12 +27,25 @@ Legend * means fixed,
   This is not seen with offline where we lookup function and statements
   via sample addresses and therefore map to the exact function that the
   address is contained in.
+  ***
+  We have received information from Matt along with a patch that gives us
+  some support for finding out which functions overlap at a particualar
+  address.  Bill has outlined where the code must be changed in openss
+  to address this issue. 
+  (6-23-80-jeg)
 
 - 6-10-2008
   The mrnet instrumentor has sporadic hangs on YellowRail (and possibly
   other cluster based systems).  Jim (and Don) have been working on the
   cli thread locking.  Jim has some fixes in progress and is still
   pursing the issue.
+  ***
+  I'm at an impasse on this.  I can't seem to figure out what is causing
+  us to seemingly be stuck in fgets on yellowrail's backend nodes.
+  Because of the issues on llnl machines and I can't run on catalyst 
+  because openmpi and mpich don't seem to be working there - I can't
+  tell if the issue is yellowrail specific.
+  (6-23-80-jeg)
 
 - 6-10-2008
   Running the MRNet version of openss on alc.llnl.gov reveals a case where
@@ -36,6 +54,14 @@ Legend * means fixed,
   one of srun's threads is terminating just before O|SS reports the process
   as exiting. Could O|SS be mixing up a thread deletion event for a
   process deletion?
+  ***
+  I don't believe this is O|SS mixing up a thread deletion.  It appears,
+  according to Matt's interpertation of the traces I sent him that the
+  server/backend seems to be farther along than the client thinks.  Our
+  openss client is waiting for the create process to complete.  Matt says
+  dyninst is past that stage??
+  (6-23-80-jeg)
+
 
 - 6-10-2008
   Need to automate creation of mrnet topology file for clusters.
