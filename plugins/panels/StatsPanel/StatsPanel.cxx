@@ -159,6 +159,36 @@ class AboutOutputClass : public ss_ostream
     }
 };
 
+void StatsPanel::clearModifiers()
+{
+  list_of_modifiers.clear(); // This is the global known list of modifiers.
+  list_of_mpi_modifiers.clear();
+  current_list_of_mpi_modifiers.clear();  // This is this list of user selected modifiers.
+  current_list_of_mpit_modifiers.clear();  // This is this list of user selected modifiers.
+  list_of_io_modifiers.clear();
+  current_list_of_io_modifiers.clear();  // This is this list of user selected modifiers.
+  list_of_iot_modifiers.clear();
+  current_list_of_iot_modifiers.clear();  // This is this list of user selected modifiers.
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::clearModifiers() CLEARING current_list_of_iot_modifiers\n");
+#endif
+
+  list_of_hwc_modifiers.clear();
+  current_list_of_hwc_modifiers.clear();  // This is this list of user selected modifiers.
+  list_of_hwctime_modifiers.clear();
+  current_list_of_hwctime_modifiers.clear();  // This is this list of user selected modifiers.
+  list_of_pcsamp_modifiers.clear();
+  current_list_of_pcsamp_modifiers.clear();  // This is this list of user selected modifiers.
+  list_of_usertime_modifiers.clear();
+  current_list_of_usertime_modifiers.clear();  // This is this list of user selected modifiers.
+
+  list_of_fpe_modifiers.clear();
+  current_list_of_fpe_modifiers.clear();  // This is this list of user selected modifiers.
+  current_list_of_modifiers.clear();  // This is this list of user selected modifiers.
+  IOtraceFLAG = FALSE;
+  MPItraceFLAG = FALSE;
+}
 
 /*! Create a Stats Panel.
 */
@@ -252,6 +282,9 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   usertime_menu = NULL;
   fpe_menu = NULL;
 
+#if 1
+  clearModifiers();
+#else
   list_of_modifiers.clear(); // This is the global known list of modifiers.
 
   list_of_mpi_modifiers.clear();
@@ -261,9 +294,11 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   current_list_of_io_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_iot_modifiers.clear();
   current_list_of_iot_modifiers.clear();  // This is this list of user selected modifiers.
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::StatsPanel() constructor CLEARING current_list_of_iot_modifiers\n");
 #endif
+
   list_of_hwc_modifiers.clear();
   current_list_of_hwc_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_hwctime_modifiers.clear();
@@ -277,6 +312,9 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   current_list_of_fpe_modifiers.clear();  // This is this list of user selected modifiers.
 
   current_list_of_modifiers.clear();  // This is this list of user selected modifiers.
+#endif
+
+
   selectedFunctionStr = QString::null;
   threadMenu = NULL;
   currentMetricStr = QString::null;
@@ -1831,6 +1869,8 @@ StatsPanel::clearAuxiliarySelected()
   timeIntervalString = QString::null;
 
   traceAddition = QString::null;
+
+  currentUserSelectedReportStr = QString::null;
 
 //  updateStatsPanelData(DONT_FORCE_UPDATE, command);
   toolbar_status_label->setText("Cleared Auxiliary Setttings, future reports are aggregated over all processes,threads, or ranks:");
@@ -7498,10 +7538,14 @@ StatsPanel::generateCommand()
 
   }
 
-  if( !currentUserSelectedReportStr.isEmpty() && !currentCollectorStr.isEmpty() ) {
+  if( !currentUserSelectedReportStr.isEmpty() && 
+      !currentCollectorStr.isEmpty() ) {
+
     if( currentCollectorStr != currentUserSelectedReportStr ) {  
+
        // If these 2 are equal, we want the default display... not a 
        // specific metric.
+
 #ifdef DEBUG_StatsPanel
        printf("generateCommand, (If these 2 are equal case block): command=(%s) currentCollectorStr=(%s) currentUserSelectedReportStr(%s) currentMetricStr=(%s)\n", 
         command.ascii(), currentCollectorStr.ascii(), 
@@ -8254,6 +8298,7 @@ StatsPanel::generateIOMenu(QString collectorName)
     list_of_iot_modifiers.push_back("syscallno");
     list_of_iot_modifiers.push_back("nsysargs");
     list_of_iot_modifiers.push_back("retval");
+    list_of_iot_modifiers.push_back("pathname");
 #endif
 
     if( iotModifierMenu )
@@ -10514,10 +10559,14 @@ StatsPanel::functionsSelected()
 #ifdef DEBUG_StatsPanel
  printf("functionsSelected()\n");
  printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+ printf("  traceAddition=(%s)\n", traceAddition.ascii() );
 #endif
 
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
+
+  // Clear all the -m modifiers (metrics)
+  clearModifiers();
 
   currentUserSelectedReportStr = "Functions";
 
@@ -10539,6 +10588,12 @@ StatsPanel::linkedObjectsSelected()
  printf("linkedObjectsSelected()\n");
  printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+
+  // Clear all the -m modifiers (metrics)
+  clearModifiers();
 
   currentUserSelectedReportStr = "LinkedObjects";
 
@@ -10563,6 +10618,12 @@ StatsPanel::statementsSelected()
 #endif
 
   currentUserSelectedReportStr = "Statements";
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+
+  // Clear all the -m modifiers (metrics)
+  clearModifiers();
 
   toolbar_status_label->setText("Generating Statements Report...");
 
@@ -10605,6 +10666,12 @@ StatsPanel::calltreesSelected()
 #endif
 
   currentUserSelectedReportStr = "CallTrees";
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+
+  // Clear all the -m modifiers (metrics)
+  clearModifiers();
 
   toolbar_status_label->setText("Generating CallTrees Report...");
 
@@ -10673,6 +10740,12 @@ StatsPanel::tracebacksSelected()
 #endif
 
   currentUserSelectedReportStr = "TraceBacks";
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+
+  // Clear all the -m modifiers (metrics)
+  clearModifiers();
 
   toolbar_status_label->setText("Generating TraceBacks Report...");
 

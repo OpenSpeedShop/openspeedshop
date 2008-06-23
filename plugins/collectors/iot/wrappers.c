@@ -17,6 +17,7 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+#define DEBUG_IOT 1
 #include "RuntimeAPI.h"
 
 #include "blobs.h"
@@ -104,6 +105,12 @@ ssize_t iotread(int fd, void *buf, size_t count)
 #endif
 {
     ssize_t retval;
+    int status = -1;
+    char namebuf[1024];
+    char pf[256];
+    memset(namebuf, 0, sizeof(namebuf));
+    memset(pf, 0, sizeof(pf));
+
     iot_event event;
 
     iot_start_event(&event);
@@ -127,6 +134,27 @@ ssize_t iotread(int fd, void *buf, size_t count)
     event.sysargs[2] = count;
     event.retval = retval;
 
+#ifdef DEBUG_IOT
+    printf("iotread, fd=%d, namebuf=%s\n", fd, namebuf);
+#endif
+    /* use that to get the path into /proc. */
+    sprintf(pf,"/proc/self/fd/%d",fd);
+
+    /* Read the link the file descriptor points to in the /proc filesystem */
+    status = readlink(pf,namebuf,1024);
+    if (status > 1024) {
+      printf("ERROR, name too large\n");
+    }
+    namebuf[status] = 0;
+    strncpy(currentpathname,namebuf,strlen(namebuf));
+/*
+    event.sysargs[3] = namebuf;
+*/
+
+#ifdef DEBUG_IOT
+    printf("iotread, status=%d, namebuf=%s\n", status, namebuf);
+#endif
+
     event.stop_time = OpenSS_GetTime();
 
     /* Record event and it's stacktrace*/
@@ -148,6 +176,11 @@ ssize_t iotwrite(int fd, void *buf, size_t count)
 #endif
 {    
     ssize_t retval;
+    int status = -1;
+    char namebuf[1024];
+    char pf[256];
+    memset(namebuf, 0, sizeof(namebuf));
+    memset(pf, 0, sizeof(pf));
     iot_event event;
 
     iot_start_event(&event);
@@ -171,6 +204,20 @@ ssize_t iotwrite(int fd, void *buf, size_t count)
     event.sysargs[2] = count;
     event.retval = retval;
 
+#ifdef DEBUG_IOT
+    printf("iotwrite, fd=%d, namebuf=%s\n", fd, namebuf);
+#endif
+    /* use that to get the path into /proc. */
+    sprintf(pf,"/proc/self/fd/%d",fd);
+
+    /* Read the link the file descriptor points to in the /proc filesystem */
+    status = readlink(pf,namebuf,1024);
+    if (status > 1024) {
+      printf("ERROR, name too large\n");
+    }
+    namebuf[status] = 0;
+    strncpy(currentpathname,namebuf,strlen(namebuf));
+
     event.stop_time = OpenSS_GetTime();
 
     /* Record event and it's stacktrace*/
@@ -193,6 +240,11 @@ off_t iotlseek(int fd, off_t offset, int whence)
 #endif
 {
     off_t retval;
+    int status = -1;
+    char namebuf[1024];
+    char pf[256];
+    memset(namebuf, 0, sizeof(namebuf));
+    memset(pf, 0, sizeof(pf));
     iot_event event;
 
     iot_start_event(&event);
@@ -216,6 +268,20 @@ off_t iotlseek(int fd, off_t offset, int whence)
     event.sysargs[2] = whence;
     event.retval = retval;
 
+    /* use that to get the path into /proc. */
+    sprintf(pf,"/proc/self/fd/%d",fd);
+
+    /* Read the link the file descriptor points to in the /proc filesystem */
+    status = readlink(pf,namebuf,1024);
+    if (status > 1024) {
+      printf("ERROR, name too large\n");
+    }
+    namebuf[status] = 0;
+    strncpy(currentpathname,namebuf,strlen(namebuf));
+#ifdef DEBUG_IOT
+    printf("iotlseek, fd=%d, namebuf=%s\n", fd, namebuf);
+#endif
+
     event.stop_time = OpenSS_GetTime();
 
     /* Record event and it's stacktrace*/
@@ -236,6 +302,11 @@ off_t iotlseek64(int fd, off_t offset, int whence)
 #endif
 {
     off_t retval;
+    int status = -1;
+    char namebuf[1024];
+    char pf[256];
+    memset(namebuf, 0, sizeof(namebuf));
+    memset(pf, 0, sizeof(pf));
     iot_event event;
 
     iot_start_event(&event);
@@ -259,6 +330,20 @@ off_t iotlseek64(int fd, off_t offset, int whence)
     event.sysargs[1] = offset;
     event.sysargs[2] = whence;
     event.retval = retval;
+
+    /* use that to get the path into /proc. */
+    sprintf(pf,"/proc/self/fd/%d",fd);
+
+    /* Read the link the file descriptor points to in the /proc filesystem */
+    status = readlink(pf,namebuf,1024);
+    if (status > 1024) {
+      printf("ERROR, name too large\n");
+    }
+    namebuf[status] = 0;
+    strncpy(currentpathname,namebuf,strlen(namebuf));
+#ifdef DEBUG_IOT
+    printf("iotlseek64, fd=%d, namebuf=%s\n", fd, namebuf);
+#endif
 
     event.stop_time = OpenSS_GetTime();
 
@@ -302,6 +387,7 @@ int iotopen(const char *pathname, int flags, mode_t mode)
     event.sysargs[0] = (long) pathname;
     event.sysargs[1] = flags;
     event.sysargs[2] = mode;
+
 
     event.stop_time = OpenSS_GetTime();
 
@@ -370,12 +456,35 @@ int iotclose(int fd)
 #endif
 {
     int retval;
+    int status = -1;
+    char namebuf[1024];
+    char pf[256];
+    memset(namebuf, 0, sizeof(namebuf));
+    memset(pf, 0, sizeof(pf));
     iot_event event;
 
     iot_start_event(&event);
 
+/* <<<<<<< wrappers.c */
+    /* use that to get the path into /proc. */
+    sprintf(pf,"/proc/self/fd/%d",fd);
+
+    /* Read the link the file descriptor points to in the /proc filesystem */
+    status = readlink(pf,namebuf,1024);
+    if (status > 1024) {
+      printf("ERROR, name too large\n");
+    }
+    namebuf[status] = 0;
+#ifdef DEBUG_IOT
+    printf("iotclose, fd=%d, namebuf=%s\n", fd, namebuf);
+#endif
+
+    strncpy(currentpathname,namebuf,strlen(namebuf));
+
+/* =======  */
     int (*realfunc)() = dlsym (RTLD_NEXT, "close");
 
+/* >>>>>>> 1.6  */
     event.start_time = OpenSS_GetTime();
 
     /* Call the real IO function */
@@ -411,6 +520,11 @@ int iotdup(int oldfd)
 #endif
 {
     int retval;
+    int status = -1;
+    char namebuf[1024];
+    char pf[256];
+    memset(namebuf, 0, sizeof(namebuf));
+    memset(pf, 0, sizeof(pf));
     iot_event event;
 
     iot_start_event(&event);
@@ -431,6 +545,20 @@ int iotdup(int oldfd)
     event.nsysargs = 1;
     event.sysargs[0] = oldfd;
     event.retval = retval;
+
+    /* use that to get the path into /proc. */
+    sprintf(pf,"/proc/self/fd/%d",oldfd);
+
+    /* Read the link the file descriptor points to in the /proc filesystem */
+    status = readlink(pf,namebuf,1024);
+    if (status > 1024) {
+      printf("ERROR, name too large\n");
+    }
+    namebuf[status] = 0;
+    strncpy(currentpathname,namebuf,strlen(namebuf));
+#ifdef DEBUG_IOT
+    printf("iotdup, oldfd=%d, namebuf=%s\n", oldfd, namebuf);
+#endif
 
     event.stop_time = OpenSS_GetTime();
 
@@ -453,6 +581,11 @@ int iotdup2(int oldfd, int newfd)
 #endif
 {
     int retval;
+    int status = -1;
+    char namebuf[1024];
+    char pf[256];
+    memset(namebuf, 0, sizeof(namebuf));
+    memset(pf, 0, sizeof(pf));
     iot_event event;
 
     iot_start_event(&event);
@@ -474,6 +607,20 @@ int iotdup2(int oldfd, int newfd)
     event.sysargs[0] = oldfd;
     event.sysargs[1] = newfd;
     event.retval = retval;
+
+    /* use that to get the path into /proc. */
+    sprintf(pf,"/proc/self/fd/%d",oldfd);
+
+    /* Read the link the file descriptor points to in the /proc filesystem */
+    status = readlink(pf,namebuf,1024);
+    if (status > 1024) {
+      printf("ERROR, name too large\n");
+    }
+    namebuf[status] = 0;
+    strncpy(currentpathname,namebuf,strlen(namebuf));
+#ifdef DEBUG_IOT
+    printf("iotdup2, oldfd=%d, namebuf=%s\n", oldfd, namebuf);
+#endif
 
     event.stop_time = OpenSS_GetTime();
 
@@ -680,6 +827,11 @@ ssize_t iotpread64(int fd, void *buf, size_t count, off_t offset)
 #endif
 {
     ssize_t retval;
+    int status = -1;
+    char namebuf[1024];
+    char pf[256];
+    memset(namebuf, 0, sizeof(namebuf));
+    memset(pf, 0, sizeof(pf));
     iot_event event;
 
     iot_start_event(&event);
@@ -712,6 +864,20 @@ ssize_t iotpread64(int fd, void *buf, size_t count, off_t offset)
     event.sysargs[3] = offset;
     event.retval = retval;
 
+#ifdef DEBUG_IOT
+    printf("iotpread64, fd=%d, namebuf=%s\n", fd, namebuf);
+#endif
+    /* use that to get the path into /proc. */
+    sprintf(pf,"/proc/self/fd/%d",fd);
+
+    /* Read the link the file descriptor points to in the /proc filesystem */
+    status = readlink(pf,namebuf,1024);
+    if (status > 1024) {
+      printf("ERROR, name too large\n");
+    }
+    namebuf[status] = 0;
+    strncpy(currentpathname,namebuf,strlen(namebuf));
+
     event.stop_time = OpenSS_GetTime();
 
     /* Record event and it's stacktrace*/
@@ -733,6 +899,11 @@ ssize_t iotpwrite(int fd, void *buf, size_t count, off_t offset)
 #endif
 {
     ssize_t retval;
+    int status = -1;
+    char namebuf[1024];
+    char pf[256];
+    memset(namebuf, 0, sizeof(namebuf));
+    memset(pf, 0, sizeof(pf));
     iot_event event;
 
     iot_start_event(&event);
@@ -765,6 +936,19 @@ ssize_t iotpwrite(int fd, void *buf, size_t count, off_t offset)
     event.sysargs[2] = count;
     event.sysargs[3] = offset;
     event.retval = retval;
+#ifdef DEBUG_IOT
+    printf("iotpwrite, fd=%d, namebuf=%s\n", fd, namebuf);
+#endif
+    /* use that to get the path into /proc. */
+    sprintf(pf,"/proc/self/fd/%d",fd);
+
+    /* Read the link the file descriptor points to in the /proc filesystem */
+    status = readlink(pf,namebuf,1024);
+    if (status > 1024) {
+      printf("ERROR, name too large\n");
+    }
+    namebuf[status] = 0;
+    strncpy(currentpathname,namebuf,strlen(namebuf));
 
     event.stop_time = OpenSS_GetTime();
 
@@ -788,6 +972,11 @@ ssize_t iotpwrite64(int fd, void *buf, size_t count, off_t offset)
 #endif
 {
     ssize_t retval;
+    int status = -1;
+    char namebuf[1024];
+    char pf[256];
+    memset(namebuf, 0, sizeof(namebuf));
+    memset(pf, 0, sizeof(pf));
     iot_event event;
 
     iot_start_event(&event);
@@ -820,6 +1009,20 @@ ssize_t iotpwrite64(int fd, void *buf, size_t count, off_t offset)
     event.sysargs[3] = offset;
     event.retval = retval;
 
+#ifdef DEBUG_IOT
+    printf("iotwrite64, fd=%d, namebuf=%s\n", fd, namebuf);
+#endif
+    /* use that to get the path into /proc. */
+    sprintf(pf,"/proc/self/fd/%d",fd);
+
+    /* Read the link the file descriptor points to in the /proc filesystem */
+    status = readlink(pf,namebuf,1024);
+    if (status > 1024) {
+      printf("ERROR, name too large\n");
+    }
+    namebuf[status] = 0;
+    strncpy(currentpathname,namebuf,strlen(namebuf));
+
     event.stop_time = OpenSS_GetTime();
 
     /* Record event and it's stacktrace*/
@@ -842,6 +1045,11 @@ ssize_t iotreadv(int fd, const struct iovec *vector, size_t count)
 #endif
 {
     ssize_t retval;
+    int status = -1;
+    char namebuf[1024];
+    char pf[256];
+    memset(namebuf, 0, sizeof(namebuf));
+    memset(pf, 0, sizeof(pf));
     iot_event event;
 
     iot_start_event(&event);
@@ -865,6 +1073,19 @@ ssize_t iotreadv(int fd, const struct iovec *vector, size_t count)
     event.sysargs[1] = (long) vector;
     event.sysargs[2] = count;
     event.retval = retval;
+#ifdef DEBUG_IOT
+    printf("iotreadv, fd=%d, namebuf=%s\n", fd, namebuf);
+#endif
+    /* use that to get the path into /proc. */
+    sprintf(pf,"/proc/self/fd/%d",fd);
+
+    /* Read the link the file descriptor points to in the /proc filesystem */
+    status = readlink(pf,namebuf,1024);
+    if (status > 1024) {
+      printf("ERROR, name too large\n");
+    }
+    namebuf[status] = 0;
+    strncpy(currentpathname,namebuf,strlen(namebuf));
 
 
     event.stop_time = OpenSS_GetTime();
@@ -889,6 +1110,11 @@ ssize_t iotwritev(int fd, const struct iovec *vector, size_t count)
 #endif
 {
     ssize_t retval;
+    int status = -1;
+    char namebuf[1024];
+    char pf[256];
+    memset(namebuf, 0, sizeof(namebuf));
+    memset(pf, 0, sizeof(pf));
     iot_event event;
 
     iot_start_event(&event);
@@ -912,7 +1138,24 @@ ssize_t iotwritev(int fd, const struct iovec *vector, size_t count)
     event.sysargs[2] = count;
     event.retval = retval;
 
+/* <<<<<<< wrappers.c  */
+#ifdef DEBUG_IOT
+    printf("iotwritev, fd=%d, namebuf=%s\n", fd, namebuf);
+#endif
+    /* use that to get the path into /proc. */
+    sprintf(pf,"/proc/self/fd/%d",fd);
 
+    /* Read the link the file descriptor points to in the /proc filesystem */
+    status = readlink(pf,namebuf,1024);
+    if (status > 1024) {
+      printf("ERROR, name too large\n");
+    }
+    namebuf[status] = 0;
+    strncpy(currentpathname,namebuf,strlen(namebuf));
+
+/* ======= */
+
+/* >>>>>>> 1.6 */
     event.stop_time = OpenSS_GetTime();
 
     /* Record event and it's stacktrace*/

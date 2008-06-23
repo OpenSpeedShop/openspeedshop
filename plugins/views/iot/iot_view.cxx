@@ -43,6 +43,7 @@
 #define syscallno_temp  VMulti_free_temp+12
 #define retval_temp  VMulti_free_temp+13
 #define nsysargs_temp  VMulti_free_temp+14
+#define pathname_temp  VMulti_free_temp+15
 
 // iot view
 
@@ -58,7 +59,8 @@
             double sum_squares = 0.0;            \
             int64_t detail_syscallno = 0;        \
             int64_t detail_nsysargs = 0;         \
-            int64_t detail_retval = 0;           
+            int64_t detail_retval = 0;           \
+            std::string detail_pathname = "";           
 
 #define get_IOT_invalues(primary,num_calls)                      \
               double v = primary.dm_time / num_calls;            \
@@ -71,7 +73,8 @@
               sum_squares += v * v;                              \
               detail_syscallno = primary.dm_syscallno;           \
               detail_retval = primary.dm_retval;                 \
-              detail_nsysargs = primary.dm_nsysargs;
+              detail_nsysargs = primary.dm_nsysargs;		 \
+              detail_pathname = primary.dm_pathname;
 
 #define get_IOT_exvalues(secondary,num_calls)          \
               extime += secondary.dm_time / num_calls; \
@@ -145,7 +148,8 @@
               }											     \
               if (num_temps > syscallno_temp) value_array[syscallno_temp] = CRPTR (detail_syscallno);\
               if (num_temps > retval_temp) value_array[retval_temp] = CRPTR (detail_retval);         \
-              if (num_temps > nsysargs_temp) value_array[nsysargs_temp] = CRPTR (detail_nsysargs); 
+              if (num_temps > nsysargs_temp) value_array[nsysargs_temp] = CRPTR (detail_nsysargs);   \
+              if (num_temps > pathname_temp) value_array[pathname_temp] = CRPTR (detail_pathname); 
 
 
 static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
@@ -442,6 +446,11 @@ static bool define_iot_columns (
 //            if (detail_nsysargs > 0) {
 //              printf("nsysargs is greater than zero\n");
 //            }
+
+        } else if (!strcasecmp(M_Name.c_str(), "pathname")) {
+
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, pathname_temp));
+            HV.push_back("File/Path Name");
 
 
         } else {

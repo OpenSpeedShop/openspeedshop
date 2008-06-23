@@ -17,6 +17,7 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+//#define DEBUG_CLI 1
 
 #include "SS_Input_Manager.hxx"
 
@@ -653,6 +654,9 @@ bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
       }
     }
 
+#if DEBUG_CLI
+    printf("In Select_User_Metrics, C_Name=%s\n", C_Name.c_str());
+#endif
     Collector C = Get_Collector (exp->FW(), C_Name);
     if (!Collector_Generates_Metric ( C, M_Name)) {
       std::string s("The specified collector, " + C_Name +
@@ -663,6 +667,9 @@ bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
 
     CV.push_back(C);
     MV.push_back(M_Name);
+#if DEBUG_CLI
+    printf("In Select_User_Metrics, IV.push_back, C_Name=%s, M_Name=%s, i=%d\n", C_Name.c_str(), M_Name.c_str(), i);
+#endif
     IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, i, i));
 
     std::string column_header;
@@ -672,13 +679,16 @@ bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
     } else {
       column_header = M_Name;
     }
+#if DEBUG_CLI
+    printf("In Select_User_Metrics, IV.push_back, column_header=%s, i=%d\n", column_header.c_str(), i);
+#endif
     HV.push_back(column_header);
 
     i++;
   }
 
 #if DEBUG_CLI
-  printf("Exit Select_User_Metrics \n");
+  printf("Exit Select_User_Metrics, i=%d \n", i);
 #endif
   return true;
 }

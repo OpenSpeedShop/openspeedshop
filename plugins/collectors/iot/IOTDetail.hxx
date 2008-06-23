@@ -49,6 +49,8 @@ namespace OpenSpeedShop { namespace Framework {
 	int dm_nsysargs;           /**< Number of args for this syscall*/
 	int dm_retval;             /**< Enumerated return value. */
 	int dm_sysargs[4];         /**< sysargs. */
+	int dm_pathindex;  	   /**< index into pathnames buffer. */
+	char dm_pathname[1024];  	   /**< pathname buffer of characters representing the path name */
 	int pathindex;		   /**< index into pathnames buffer. */
 
 	/** Operator "<" defined for two IOTDetail objects. */

@@ -391,6 +391,7 @@ class StatsPanel  : public Panel
     void progressUpdate();
     void valueChanged(int);
     void clicked(int, int);
+    void clearModifiers();
 
 // TOOLBAR SLOTS
     void functionsSelected();

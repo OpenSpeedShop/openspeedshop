@@ -23,7 +23,7 @@
  * Definition of the IOT event tracing collector's runtime.
  *
  */
-
+/* #define DEBUG 1 */
 #include "RuntimeAPI.h"
 #include "runtime.h"
 
@@ -187,7 +187,7 @@ void iot_record_event(const iot_event* event, uint64_t function)
     unsigned entry = 0, start, i;
     unsigned pathindex = 0;
 
-#ifdef DEBUG
+#if 0
 fprintf(stderr,"ENTERED iot_record_event, sizeof event=%d, sizeof stacktrace=%d\n",sizeof(iot_event),sizeof(stacktrace));
 #endif
 

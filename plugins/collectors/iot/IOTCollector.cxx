@@ -23,6 +23,8 @@
  *
  */
  
+//#define DEBUG_METRICS 1
+
 #include "IOTCollector.hxx"
 #include "IOTDetail.hxx"
 
@@ -354,6 +356,11 @@ void IOTCollector::getMetricValues(const std::string& metric,
     memset(&data, 0, sizeof(data));
     blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_iot_data), &data);
 
+
+    if (getenv("OPENSS_DEBUG_IOT_METRICS") != NULL) {
+      std::cerr << "IOTCollector::getMetricValues, data.pathnames.pathnames_len=" << data.pathnames.pathnames_len << std::endl;
+    }
+
     // Iterate over each of the events
     for(unsigned i = 0; i < data.events.events_len; ++i) {
 
@@ -442,6 +449,26 @@ void IOTCollector::getMetricValues(const std::string& metric,
 		    details.dm_retval = data.events.events_val[i].retval;
 		    details.dm_nsysargs = data.events.events_val[i].nsysargs;
 		    details.dm_syscallno = data.events.events_val[i].syscallno;
+
+		    details.dm_pathindex = data.events.events_val[i].pathindex;
+                    int pidx = data.events.events_val[i].pathindex;
+
+                    if (getenv("OPENSS_DEBUG_IOT_METRICS") != NULL) {
+                      std::cerr << "IOTCollector::getMetricValues, pidx=" << pidx << " i=" << i << " syscallno=" << details.dm_syscallno << std::endl;
+                    }
+
+                    if (pidx != 0) {
+                         while (data.pathnames.pathnames_val[pidx] != 0) {
+
+                         if (getenv("OPENSS_DEBUG_IOT_METRICS") != NULL) {
+//                            std::cerr << "IOTCollector::getMetricValues, pathnames value=" << data.pathnames.pathnames_val[pidx] << std::endl;
+                         }
+
+		            details.dm_pathname[pidx] = data.pathnames.pathnames_val[pidx]; 
+                            pidx = pidx+1;
+                         }
+                    }
+
 		    for(int sysarg = 0;
 			sysarg < data.events.events_val[i].nsysargs;
 			sysarg++)
