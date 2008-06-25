@@ -120,8 +120,8 @@ OfflineExperiment::getRawDataFiles (std::string dir)
     std::set<std::string> executables_used;
 
     string::size_type basedirpos =
-		rawdirs[1].find("/openss-rawdata-", 0);
-    std::string basedir = rawdirs[1].substr(0,basedirpos);
+		rawdirs[0].find("/openss-rawdata-", 0);
+    std::string basedir = rawdirs[0].substr(0,basedirpos);
 
 
     for (unsigned int i = 0;i < rawdirs.size();i++) {
