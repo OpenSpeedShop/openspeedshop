@@ -407,6 +407,22 @@ mpi_rt_mvapich_la_LIBADD = $(call rt_LIBADD_generate,@MVAPICH_LIBS@)
 mpi_rt_mvapich_la_DEPENDENCIES =
 mpi_rt_mvapich_la_SOURCES = $(rt_sources)
 nodist_mpi_rt_mvapich_la_SOURCES = $(wrapper_sources)
+
+if HAVE_LIBMONITOR
+mpi_mvapich_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
+mpi_mvapich_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
+mpi_mvapich_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@MVAPICH_LIBS@)
+mpi_mvapich_rt_offline_la_DEPENDENCIES =
+mpi_mvapich_rt_offline_la_SOURCES = $(rt_offline_sources)
+nodist_mpi_mvapich_rt_offline_la_SOURCES = $(wrapper_sources)
+
+libmpi_mvapich_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
+libmpi_mvapich_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
+libmpi_mvapich_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MVAPICH_LIBS@)
+libmpi_mvapich_offline_la_DEPENDENCIES =
+libmpi_mvapich_offline_la_SOURCES = $(lib_offline_sources)
+nodist_libmpi_mvapich_offline_la_SOURCES = $(wrapper_sources)
+endif
 endif
 
 
