@@ -41,12 +41,16 @@ CustomExperimentPanel_la_CXXFLAGS = \
 CustomExperimentPanel_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-guibase \
+	-L$(top_srcdir)/libopenss-guiobjects \
+	-L$(top_srcdir)/libopenss-cli \
 	@QTLIB_LDFLAGS@ \
 	-export-dynamic -export-all-symbols -module -avoid-version
 
 CustomExperimentPanel_la_LIBADD = \
 	-lopenss-framework \
 	-lopenss-guibase \
+	-lopenss-guiobjects \
+	-lopenss-cli \
 	@QTLIB_LIBS@
 
 moc_CustomExperimentPanel.cxx: CustomExperimentPanel.hxx
@@ -80,12 +84,16 @@ libopenss_CustomExperimentPanel_la_CXXFLAGS = \
 libopenss_CustomExperimentPanel_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-guibase \
+	-L$(top_srcdir)/libopenss-guiobjects \
+	-L$(top_srcdir)/libopenss-cli \
 	@QTLIB_LDFLAGS@ \
 	-export-dynamic -export-all-symbols -module -avoid-version
 
 libopenss_CustomExperimentPanel_la_LIBADD = \
 	-lopenss-framework \
 	-lopenss-guibase \
+	-lopenss-guiobjects \
+	-lopenss-cli \
 	@QTLIB_LIBS@
 
 libopenss_CustomExperimentPanel_la_SOURCES = \
