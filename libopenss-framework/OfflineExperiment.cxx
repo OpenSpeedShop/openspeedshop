@@ -510,10 +510,21 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 	    Address b_addr(objs.addr_begin);
 
 	    Address e_addr(endaddr);
+	    if (objs.addr_end <= objs.addr_begin) {
+		// have not seen this happen ever. still, lets be safe.
+		e_addr = Address(objs.addr_begin + 1);
+	    }
 	    AddressRange range(b_addr,e_addr);
 
             Time tbegin(objsheader.time_begin);
             Time tend(objsheader.time_end);
+
+	    if (objsheader.time_end <= objsheader.time_begin) {
+		// This may happen on very rare occasions on multi-core cpus.
+		// If we get a corrupted time end, just default 
+		// to the default largest time defined by the framework
+		tend = Time::TheEnd();
+	    }
 
             TimeInterval time_interval(tbegin,tend);
 
