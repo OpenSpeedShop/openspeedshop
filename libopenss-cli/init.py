@@ -24,6 +24,7 @@ import re
 import string
 import sys
 import types
+import shutil
 
 import PY_Input
 
@@ -1062,7 +1063,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 
     rawdir = "/tmp"
 
-    # always write into /tmp/offline-oss or $OPENSS_RAWDATA_DIR/offline-oss
+    # always write into /tmp/$USER/offline-oss or
+    # $OPENSS_RAWDATA_DIR/offline-oss. FIXME: should we add #USER here too?
     if 'OPENSS_RAWDATA_DIR' in os.environ:
 	rawdir = os.environ["OPENSS_RAWDATA_DIR"]
 	print "Setting up offline environment, OPENSS_RAWDATA_DIR = " + rawdir + "/offline-oss"
@@ -1071,10 +1073,20 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	os.mkdir(tempdir)
 	os.environ['OPENSS_RAWDATA_DIR'] = tempdir
     else:
-	print "Setting up offline environment, OPENSS_RAWDATA_DIR = /tmp/offline-oss"
-	os.system('/bin/rm -rf /tmp/offline-oss')
-	os.mkdir('/tmp/offline-oss')
-	os.environ['OPENSS_RAWDATA_DIR'] = '/tmp/offline-oss'
+	user = os.getlogin()
+        if 'USER' in os.environ:
+	    user = os.environ["USER"]
+
+	tempdir = rawdir + "/" + user + "/offline-oss"
+	print "Setting up offline environment, OPENSS_RAWDATA_DIR = " + tempdir
+	if not os.path.isdir(tempdir):
+	    os.mkdir(tempdir)
+	else:
+	    # Empty rawdata from any previous offline experiment
+	    # and then recreate the raw data directory.
+	    shutil.rmtree(tempdir);
+	    os.mkdir(tempdir)
+	os.environ['OPENSS_RAWDATA_DIR'] = tempdir
 
     # Locate the libmonitor directory
     libdir = installed + "/lib64"
@@ -1089,11 +1101,6 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
         raise RuntimeError("Failed to locate the libmonitor.so library.")
 
     # Form the command that will run the offline experiment
-    #if program.count("*") is not 1:
-    #    raise RuntimeError("The program string must contain exactly one * symbol.")
-    #if collector.count("*") is not 1:
-    #    raise RuntimeError("The collector string must contain exactly one * symbol.")
-
     command = "env" + \
               " LD_PRELOAD="+ plugins + "/" + collector + "-rt-offline.so" + \
 	      ":" + libmonitor + ":$LD_PRELOAD " + program
@@ -1103,8 +1110,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     os.system(command)
 
     # currently ossutil writes openss databases to ever increasing
-    # database files from the lowest it finds.  Lets just always remove X.0.openss
-    # so that is our default for now.
+    # database files from the lowest it finds.
+    # Lets just always remove X.0.openss so that is our default for now.
     os.system('/bin/rm -rf ./X.0.openss')
 
     # Need to define or find path to ossutil
