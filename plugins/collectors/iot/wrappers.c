@@ -17,7 +17,6 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
-#define DEBUG_IOT 1
 #include "RuntimeAPI.h"
 
 #include "blobs.h"
