@@ -200,11 +200,10 @@ def main():
             print 'On Compile Node...'
         #Make sure we have mrnet_topgen before we continue. 
         #It's not used here, but will be.??
-        if haveTopgen():
-            prepENV()
-            print generateSimpleTopologyString()
-			#TODO: FIXME Simple hack to get things going
-            createTopologyFile(generateSimpleTopologyString())
+        prepENV()
+        print generateSimpleTopologyString()
+		#TODO: FIXME Simple hack to get things going
+        createTopologyFile(generateSimpleTopologyString())
 
 if __name__ == '__main__' :
      main()
