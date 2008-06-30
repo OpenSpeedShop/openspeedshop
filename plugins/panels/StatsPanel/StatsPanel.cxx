@@ -1827,30 +1827,6 @@ StatsPanel::minMaxAverageSelected()
 }
 //#endif
 
-void
-StatsPanel::showEventListSelected()
-{
-  QString command = QString::null;
-  traceAddition = " -v trace";
-#if 0
-  if( focusedExpID == -1 ) {
-    command = QString("expview -x %1 %2 %3 %4").arg(expID).arg(currentCollectorStr).arg(timeIntervalString).arg(traceAddition);
-  } else {
-    command = QString("expview -x %1 %2 %3 %4").arg(focusedExpID).arg(currentCollectorStr).arg(timeIntervalString).arg(traceAddition);
-  }
-#endif
-
-
-#ifdef DEBUG_StatsPanel
-  printf("StatsPanel::showEventListSelected() about to call updateStatsPanelData, command=%s\n", 
-         command.ascii() );
-#endif
-
-  toolbar_status_label->setText("Generating Per Event Report:");
-  updateStatsPanelData(DO_FORCE_UPDATE, NULL);
-  toolbar_status_label->setText("Showing Per Event Report:");
-
-}
 
 void
 StatsPanel::clearAuxiliarySelected()
@@ -1874,6 +1850,34 @@ StatsPanel::clearAuxiliarySelected()
 
 //  updateStatsPanelData(DONT_FORCE_UPDATE, command);
   toolbar_status_label->setText("Cleared Auxiliary Setttings, future reports are aggregated over all processes,threads, or ranks:");
+
+}
+
+void
+StatsPanel::showEventListSelected()
+{
+  // Clear all residual view selections
+  clearAuxiliarySelected();
+
+  QString command = QString::null;
+  traceAddition = " -v trace";
+#if 0
+  if( focusedExpID == -1 ) {
+    command = QString("expview -x %1 %2 %3 %4").arg(expID).arg(currentCollectorStr).arg(timeIntervalString).arg(traceAddition);
+  } else {
+    command = QString("expview -x %1 %2 %3 %4").arg(focusedExpID).arg(currentCollectorStr).arg(timeIntervalString).arg(traceAddition);
+  }
+#endif
+
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::showEventListSelected() about to call updateStatsPanelData, command=%s\n", 
+         command.ascii() );
+#endif
+
+  toolbar_status_label->setText("Generating Per Event Report:");
+  updateStatsPanelData(DO_FORCE_UPDATE, NULL);
+  toolbar_status_label->setText("Showing Per Event Report:");
 
 }
 
