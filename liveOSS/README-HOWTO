@@ -1,7 +1,13 @@
+//===========================================================================//
+   Copyright (C) 2008 Los Alamos National Security, LLC. All Rights Reserved.
+               Author: Samuel K. Gutierrez - samuel[at]lanl.gov
+//===========================================================================//
+
+
 //***************************************************************************//
 //                              How To Build An                              //
 //                      Open|SpeedShop Live Distribution                     //
-//                                May 21, 2007                               //
+//                                Jun 30, 2008                               //
 //                                                                           //
 //***************************************************************************//
 
@@ -9,10 +15,10 @@
 //***************************************************************************//
 //                                Introduction                               //
 //***************************************************************************//
-The following text outlines steps taken in the creation of a specialized live
-Linux distribution.  In particular, the steps taken in creating a live
+The following text outlines the steps taken in the creation of a specialized 
+live Linux distribution.  In particular, the steps taken in creating a live
 distribution which contains pre-configured versions of Open|SpeedShop 
-and LA-MPI.
+and Open MPI.
 
 A Special Thanks To:
 Scientific Linux Live CD and DVD - http://linux.web.psi.ch/livecd/build.html
@@ -36,6 +42,7 @@ distribution.
 //                  Preparing The Skeleton Root File System                  //
 //***************************************************************************//
 1. Login as root.
+
 su
 
 2. Create some directories where we will be building the live distribution.
@@ -48,15 +55,18 @@ cd $LIVE
 mkdir dev proc sys etc tmp
 
 3. Create some empty files to avoid errors during the installation process.
+
 touch etc/fstab etc/mtab
 
 4. Mount some virtual file systems.
-mount --bind /dev dev
-mount null -t proc proc
+
+mount --bind /dev dev; \
+mount null -t proc proc; \
 mount null -t sysfs sys
 
 5. Copy yum configuration files to $LIVE/etc.
-cp -a /etc/yum.conf $LIVE/etc
+
+cp -a /etc/yum.conf $LIVE/etc; \
 cp -a /etc/yum.repos.d $LIVE/etc
 
    Note: For this particular installation, a modification to the 
@@ -68,17 +78,20 @@ cp -a /etc/yum.repos.d $LIVE/etc
          name=CentOS-4 - Contrib
 
 6. Create directory for rpm transaction lock.
+
 mkdir -p $LIVE/var/lock/rpm
 
 //***************************************************************************//
 //                   Download And Install Needed Packages                    //
-//***************************************************************************//            
+//***************************************************************************//
+
 1.  Use yum to download and install needed packages.
+
 yum -y -c $LIVE/etc/yum.conf --installroot=$LIVE install yum rootfiles \
 shadow-utils bind-utils gnupg vim-enhanced vixie-cron crontabs passwd which \
 kudzu dhclient pciutils eject alsa-utils mkisofs wget kernel grub kbd \
 system-config-keyboard system-config-display gdm xterm kdeartwork kdebase \
-kdegraphics kdelibs kdemultimedia kdenetwork kdepim kdesdk kdeutils 
+kdegraphics kdelibs kdemultimedia kdenetwork kdepim kdesdk kdeutils \
 kernel-devel autoconf automake binutils gcc python-devel qt qt-devel make \
 rpm-build e2fsprogs-devel tcsh gcc-g77 libtool tk openssh gcc-c++ rsh \
 openssh-clients firefox evolution emacs sudo sqlite-devel flex flex-devel \
@@ -90,15 +103,12 @@ It's going to be a 400+ Megabyte download.
 //***************************************************************************//
 //                          Enable Shadow Passwords                          //
 //***************************************************************************//
-cd $LIVE
 
-sed -i "s|\*|x|" etc/passwd
-
-sed -i "s|^root::|root:x:|" etc/passwd
-
+cd $LIVE; \
+sed -i "s|\*|x|" etc/passwd; \
+sed -i "s|^root::|root:x:|" etc/passwd; \
 cat etc/passwd | cut -d":" -f 1 | while read u; \
-do echo "$u:*:12345:0:99999:1:::"; done >> etc/shadow
-
+do echo "$u:*:12345:0:99999:1:::"; done >> etc/shadow; \
 chmod 600 etc/shadow
 
 //***************************************************************************//
@@ -106,20 +116,25 @@ chmod 600 etc/shadow
 //                    Preparing For The Chroot Environment                   //
 //***************************************************************************//
 1.  Copy resolv.conf so yum will work in the chroot.
+
 cp /etc/resolv.conf $LIVE/etc
 
 2.  Copy network configuration file into $LIVE/etc.
+
 cp /etc/sysconfig/network $LIVE/etc/sysconfig/
 
 3.  Copy some more system configuration files into $LIVE/etc.
-cp /etc/sysconfig/i18n $LIVE/etc/sysconfig
+
+cp /etc/sysconfig/i18n $LIVE/etc/sysconfig; \
 cp /etc/sysconfig/authconfig $LIVE/etc/sysconfig/
 
 4.  Change the terminal display when you are in the chroot environment.
+
 echo 'if [ ! -d /proc/1/root ] ; then PS1="[\u@LIVE \W]\\$ " ; fi' \
 >> $LIVE/root/.bashrc
 
 5.  Change into chroot environment.
+
 chroot $LIVE
 
 
@@ -127,21 +142,25 @@ chroot $LIVE
 //                      Installing squashfs And unionfs                      //
 //***************************************************************************//
 1. Change into chroot's /tmp directory.
+
 cd /tmp
 
 2.  Get squashfs and unionfs.
     Note: You may want to find the latest versions of the
           respective source rpms.  
           For this particular build, the following were utilized.
-wget ftp://ftp.psi.ch/psi/livecd/SRPMS/squashfs-3.1.2-1.sl4.psi.src.rpm
+
+wget ftp://ftp.psi.ch/psi/livecd/SRPMS/squashfs-3.1.2-1.sl4.psi.src.rpm; \
 wget ftp://ftp.psi.ch/psi/livecd/SRPMS/unionfs-1.1.5-2.sl4.psi.src.rpm
 
 3.  Place the needed spec/source files in the system's respective 
     default directories.
-rpm -Uvh squashfs-3.1.2-1.sl4.psi.src.rpm
+
+rpm -Uvh squashfs-3.1.2-1.sl4.psi.src.rpm; \
 rpm -Uvh unionfs-1.1.5-2.sl4.psi.src.rpm
 
 4.  Navigate into the system's default spec directory. 
+
 cd `rpm --eval '%{_specdir}'`
 
 5.  Build the source rpms.
@@ -173,10 +192,71 @@ echo '127.0.0.1 localhost.localdomain localhost' >> /etc/hosts
 
 
 //***************************************************************************//
+//             Building/Installing Open MPI In Chroot Environment            //
+//***************************************************************************//
+
+mkdir -p /opt/openmpi/src
+
+1. Get Open MPI.
+
+cd /opt/openmpi/src
+wget http://www.open-mpi.org/software/ompi/v1.2/downloads/openmpi-1.2.6.tar.gz
+tar xzvf openmpi-1.2.6.tar.gz
+cd openmpi-1.2.6
+
+2. Build/Install OpenMPI
+
+./configure --prefix=/opt/openmpi --enable-debug
+make; make install
+
+
+//***************************************************************************//
+//                      Preparing The Build Environment                      //
+//***************************************************************************//
+
+1.  Modify root's .bashrc file to include needed OpenSpeedShop-related 
+	environment variables.  In particular, QTDIR, OPENSS_PREFIX,
+ 	DYNINSTAPI_RT_LIB, MRNET_RSH, OPENSS_MPI_IMPLEMENTATION, 
+	OPENSS_MPI_OPENMPI, OPENSS_INSTRUMENTOR, LD_LIBRARY_PATH, and 
+	OPENSS_PLUGIN_PATH.
+
+		For Example:
+			export QTDIR=/usr/lib/qt-3.3
+			export OPENSS_PREFIX=/opt/OSS
+			export DYNINSTAPI_RT_LIB=$OPENSS_PREFIX/lib/libdyninstAPI_RT.so.1
+			export MRNET_RSH=ssh
+			export OPENSS_MPI_IMPLEMENTATION=openmpi
+			export OPENSS_MPI_OPENMPI=/opt/openmpi
+			export OPENSS_INSTRUMENTOR=mrnet
+			export LD_LIBRARY_PATH=$OPENSS_PREFIX/lib64
+			export OPENSS_INSTRUMENTOR=mrnet
+			export OPENSS_PLUGIN_PATH=$OPENSS_PREFIX/lib/openspeedshop
+
+echo 'export QTDIR=/usr/lib/qt-3.3' >> ~/.bashrc; \
+echo 'export OPENSS_PREFIX=/opt/OSS' >> ~/.bashrc; \
+echo 'export DYNINSTAPI_RT_LIB=$OPENSS_PREFIX/lib/libdyninstAPI_RT.so.1' \
+>> ~/.bashrc; \
+echo 'export MRNET_RSH=ssh' >> ~/.bashrc; \
+echo 'export OPENSS_MPI_IMPLEMENTATION=openmpi' >> ~/.bashrc; \
+echo 'export OPENSS_MPI_OPENMPI=/opt/openmpi' >> ~/.bashrc; \
+echo 'export OPENSS_INSTRUMENTOR=mrnet' >> ~/.bashrc; \
+echo 'export LD_LIBRARY_PATH=$OPENSS_PREFIX/lib64' >> ~/.bashrc; \
+echo 'export OPENSS_INSTRUMENTOR=mrnet' >> ~/.bashrc; \
+echo 'export OPENSS_PLUGIN_PATH=$OPENSS_PREFIX/lib/openspeedshop' \
+>> ~/.bashrc
+
+source ~/.bashrc
+
+
+//***************************************************************************//
 //              Installing Open|SpeedShop In Chroot Environment              //
 //***************************************************************************//
+
 1.  Checkout the latest OpenSpeedShop CVS snapshot.
     Note: When prompted for a password, hit <Enter>.
+
+cd /tmp
+
 cvs -d:pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss login
 
 cvs -z3 -d:pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss \
@@ -185,85 +265,28 @@ co -P OpenSpeedShop
 cvs -z3 -d:pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss \
 co -P OpenSpeedShop_ROOT
 
-2.  Navigate into OpenSpeedShop_ROOT and install the needed Open|SpeedShop 
-    prerequisites.
-    Note: The following outlines a source install of all the prerequisites
-    required to successfully build and install OpenSpeedShop.  If you wish, 
-    you could also use the supplied build script found within
-    OpenSpeedShop_ROOT and build the required RPMs.
-cd OpenSpeedShop_ROOT/SOURCES
-   Note: Each installation step assumes that you are in 
-         OpenSpeedShop_ROOT/SOURCES.
+3. Rename OpenSpeedShop
 
-3. Build/Install libdwarf/libunwind.
-tar xzvf libdwarf-x.tar.gz , where x is the provided version.
-cd libdwarf-x
-cd libdwarf
-./configure --prefix=/usr
-make
-make install
-cp dwarf.h /usr/include
-cp libdwarf.h /usr/include
-cp libdwarf.a /usr/lib
-cd ../dwarfdump
-./configure --prefix=/usr
-make
-make install
+mv OpenSpeedShop openspeedshop-<current version>
 
-4. Build/Install libunwind.
-tar xzvf libunwind-x.tar.gz , where x is the provided version.
-cd libunwind-x
-./configure --prefix=/usr
-make
-make install
+	For Example:
+		mv OpenSpeedShop openspeedshop-1.6
 
-5. Build/Install papi.
-tar xzvf papi-x.tar.gz , where x is the provided version.
-cd papi-x/src
-./configure --prefix=/usr
-make
-make install
+4. Create OpenSpeedShop Tarball
 
-6. Build/Install dyninst.
-   Note: dyninst may be provided as a tarball, in this particular
-   case it was not.
-cd dyninst-x
-PREFIX=/usr Note: Again, assuming that you are using bash. 
-./Build
+tar czf openspeedshop-<current version>.tar.gz openspeedshop-<current version>
 
-7. Build/Install dpcl.
-cd dpcl-x , where x is the provided version.
-   Note: An assumption is being made that PREFIX is currently defined to be 
-   /usr
-./Build
+5. Move OpenSpeedShop tarball to OpenSpeedShop_ROOT/SOURCES
 
-//***************************************************************************//
-//                             Installing LA-MPI                             //
-//***************************************************************************//
-1. To allow for source code mapping within OpenSpeedShop, place LA-MPI source 
-   code within /usr/src.
-cd /usr/src
+mv openspeedshop-<current version>.tar.gz OpenSpeedShop_ROOT/SOURCES/
 
-2. Get LA-MPI source.
-wget http://public.lanl.gov/lampi/lampi-1.5.16.tar.gz
-tar xzvf lampi-1.5.16.tar.gz
-cd lampi-1.5.16
-./configure --enable-debug --prefix=/opt/lampi
-make
-make install
+6. Build and install OpenSpeedShop via install.sh script.
 
-//***************************************************************************//
-//                     Building/Installing OpenSpeedShop                     //
-//***************************************************************************//
-   *Note: If an alternate prefix is desired, modification to the 
-          runlast script is required.  
-          Script Location: livecd-2.5.4-OSS/customize
-1. Navigate to the OpenSpeedShop directory.
-cd OpenSpeedShop
-./bootstrap
-./configure --with-lampi=/opt/lampi
-make 
-make install
+cd OpenSpeedShop_ROOT
+./install.sh --with-option 9
+
+7. Sit back and relax...
+
 
 //***************************************************************************//
 //                           Building The Live CD                            //
@@ -304,17 +327,17 @@ KERNEL=2.6.9-76.EL for example
    Note: The login for the live CD is: ossuser
 
 //***************************************************************************//
-* Alternate LA_MPI Installation Path
+* Alternate Open MPI Installation Path
   If an alternate installation path is desired for LA-MPI, a modification
   to the runlast script is required.
 
-1. Locate echo "LD_LIBRARY_PATH=/opt/lampi/lib:/usr/local/lib" >> $BASHRC
-2. Modify LD_LIBRARY_PATH=/opt/lampi/lib to reflect a different library path.
+1. Locate echo "LD_LIBRARY_PATH=/opt/openmpi/lib:/OPENSS_PREFIX/lib" >> $BASHRC
+2. Modify LD_LIBRARY_PATH=/opt/openmpi/lib to reflect a different library path.
    For example:
-      LA-MPI was installed in /local/lampi.  The line would then look like:
-      echo "LD_LIBRARY_PATH=/local/lampi/lib:/usr/local/lib" >> $BASHRC
-3. Locate echo "PATH=\$PATH:/opt/lampi/bin" >> $BASHRC
+      Open MPI was installed in /local/lampi.  The line would then look like:
+      echo "LD_LIBRARY_PATH=/local/openmpi/lib:OPENSS_PREFIX/lib" >> $BASHRC
+3. Locate echo "PATH=\$PATH:/opt/openmpi/bin" >> $BASHRC
    For example:
-      LA-MPI was installed in /local/lampi.  The line would then look like:
-      echo "PATH=\$PATH:/local/lampi/bin" >> $BASHRC
+      Open MPI was installed in /local/lampi.  The line would then look like:
+      echo "PATH=\$PATH:/local/openmpi/bin" >> $BASHRC
    
