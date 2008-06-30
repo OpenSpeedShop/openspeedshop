@@ -24,6 +24,8 @@
 #define DEBUG_IOT 1
 */
 
+#define DEBUG_IOT 1
+
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
 
@@ -436,7 +438,7 @@ static bool define_iot_columns (
         } else if (!strcasecmp(M_Name.c_str(), "retval")) {
 
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
-            HV.push_back("Return Value");
+            HV.push_back("Function Dependent Return Value");
 
         } else if (!strcasecmp(M_Name.c_str(), "nsysargs")) {
 
@@ -447,7 +449,7 @@ static bool define_iot_columns (
 //              printf("nsysargs is greater than zero\n");
 //            }
 
-        } else if (!strcasecmp(M_Name.c_str(), "pathname")) {
+        } else if ( (!strcasecmp(M_Name.c_str(), "pathname")) || (!strcasecmp(M_Name.c_str(), "pathnames")) ) {
 
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, pathname_temp));
             HV.push_back("File/Path Name");
