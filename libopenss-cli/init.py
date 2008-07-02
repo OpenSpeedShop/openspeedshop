@@ -1080,12 +1080,12 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	tempdir = rawdir + "/" + user + "/offline-oss"
 	print "Setting up offline environment, OPENSS_RAWDATA_DIR = " + tempdir
 	if not os.path.isdir(tempdir):
-	    os.mkdir(tempdir)
+	    os.makedirs(tempdir)
 	else:
 	    # Empty rawdata from any previous offline experiment
 	    # and then recreate the raw data directory.
 	    shutil.rmtree(tempdir);
-	    os.mkdir(tempdir)
+	    os.makedirs(tempdir)
 	os.environ['OPENSS_RAWDATA_DIR'] = tempdir
 
     # Locate the libmonitor directory
