@@ -228,7 +228,7 @@ make; make install
 			export OPENSS_MPI_IMPLEMENTATION=openmpi
 			export OPENSS_MPI_OPENMPI=/opt/openmpi
 			export OPENSS_INSTRUMENTOR=mrnet
-			export LD_LIBRARY_PATH=$OPENSS_PREFIX/lib64
+			export LD_LIBRARY_PATH=$OPENSS_PREFIX/lib
 			export OPENSS_INSTRUMENTOR=mrnet
 			export OPENSS_PLUGIN_PATH=$OPENSS_PREFIX/lib/openspeedshop
 
@@ -240,7 +240,7 @@ echo 'export MRNET_RSH=ssh' >> ~/.bashrc; \
 echo 'export OPENSS_MPI_IMPLEMENTATION=openmpi' >> ~/.bashrc; \
 echo 'export OPENSS_MPI_OPENMPI=/opt/openmpi' >> ~/.bashrc; \
 echo 'export OPENSS_INSTRUMENTOR=mrnet' >> ~/.bashrc; \
-echo 'export LD_LIBRARY_PATH=$OPENSS_PREFIX/lib64' >> ~/.bashrc; \
+echo 'export LD_LIBRARY_PATH=$OPENSS_PREFIX/lib' >> ~/.bashrc; \
 echo 'export OPENSS_INSTRUMENTOR=mrnet' >> ~/.bashrc; \
 echo 'export OPENSS_PLUGIN_PATH=$OPENSS_PREFIX/lib/openspeedshop' \
 >> ~/.bashrc
