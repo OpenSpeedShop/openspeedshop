@@ -88,7 +88,12 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 
 	// Get all the mangled names of this function
 	BPatch_Vector<const char*> names;
+#ifdef USE_DEMANGLED_NAMES_VEC
 	(*functions)[i]->getMangledNames(names);
+#else
+	char fname[PATH_MAX];
+	(*functions)[i]->getMangledName(fname,sizeof(fname));
+#endif
 
 	// TODO: How do we get the possibly discontiguous range of a function
 	//       from Dyninst? It is supposed to support this...
@@ -97,13 +102,19 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 	Address begin(reinterpret_cast<uintptr_t>(
              (*functions)[i]->getBaseAddr()
 	     ));
-	Address end = begin + (*functions)[i]->getSize();
+	// As of dyninst 5.1r, function ends need to be computed using
+	// getContigousSize.
+	Address end = begin + (*functions)[i]->getContiguousSize();
 
 #ifdef DEBUG_ADDR
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] Function Addresses from Callbacks::"
 	       << "addModule(): Function "
+#ifdef USE_DEMANGLED_NAMES_VEC
 	       << (names.empty() ? "<unknown>" : names[0])
+#else
+	       << (!fname ? "<unknown>" : fname)
+#endif
 	       << ": begin (" << Address(begin) 
 	       << ") >= end (" << Address(end) << ")."
 	       << std::endl;
@@ -118,7 +129,11 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "addModule(): Function "
+#ifdef USE_DEMANGLED_NAMES_VEC
 		       << (names.empty() ? "<unknown>" : names[0])
+#else
+		       << (!fname ? "<unknown>" : fname)
+#endif
 		       << ": begin (" << Address(begin) 
 		       << ") >= end (" << Address(end) << ")."
 		       << std::endl;
@@ -135,7 +150,11 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "addModule(): Function "
+#ifdef USE_DEMANGLED_NAMES_VEC
 		       << (names.empty() ? "<unknown>" : names[0])
+#else
+		       << (!fname ? "<unknown>" : fname)
+#endif
 		       << ": begin=" << Address(begin) 
 		       << ", end=" << Address(end)
 		       << ": is outside the module." << std::endl;
@@ -149,6 +168,7 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 	// Form address range of the function relative to module beginning
 	AddressRange range(begin - module_begin, end - module_begin);
 
+#ifdef USE_DEMANGLED_NAMES_VEC
 	// Iterate over each name of this function
 	for(int j = 0; j < names.size(); ++j) {
 
@@ -162,6 +182,16 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 	    k->second.push_back(range);
 
 	}
+#else
+	    // Add this function to the table (or find the existing entry)
+	    FunctionTable::iterator k =
+		dm_functions.insert(
+		    std::make_pair(fname, std::vector<AddressRange>())
+		    ).first;
+	    
+	    // Add this address range to the found/added function
+	    k->second.push_back(range);
+#endif
     }
 
     // Get the list of statements in this module
