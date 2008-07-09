@@ -38,7 +38,6 @@ OFFLINE_SOURCES = \
 endif
 
 
-#if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi.la
 
 if HAVE_LAM
