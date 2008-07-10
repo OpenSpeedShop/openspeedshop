@@ -450,6 +450,10 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	DataQueues::enqueuePerformanceData(Blob(blobsize, theData));
 	theExperiment->flushPerformanceData();
 
+	if (theData) {
+	    free(theData);
+	}
+
     } // while
 
     fclose(f);
