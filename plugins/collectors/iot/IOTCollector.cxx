@@ -457,6 +457,9 @@ void IOTCollector::getMetricValues(const std::string& metric,
                       std::cerr << "IOTCollector::getMetricValues, pidx=" << pidx << " i=" << i << " syscallno=" << details.dm_syscallno << std::endl;
                     }
 
+// FIXME: due to the flood of IOTDetail objects here, this
+// causes a crash (no more memory in cli).
+#if 0
                     if (pidx != 0) {
                          while (data.pathnames.pathnames_val[pidx] != 0) {
 
@@ -468,6 +471,7 @@ void IOTCollector::getMetricValues(const std::string& metric,
                             pidx = pidx+1;
                          }
                     }
+#endif
 
 		    for(int sysarg = 0;
 			sysarg < data.events.events_val[i].nsysargs;
