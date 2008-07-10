@@ -24,8 +24,6 @@
 #define DEBUG_IOT 1
 */
 
-#define DEBUG_IOT 1
-
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
 
@@ -636,8 +634,10 @@ class iot_view : public ViewType {
 
     CV.push_back (Get_Collector (exp->FW(), "iot"));  // Define the collector
     MV.push_back ("inclusive_details"); // define the metric needed for getting main time values
+#if 0
     CV.push_back (Get_Collector (exp->FW(), "iot"));  // Define the collector
     MV.push_back ("time"); // define the metric needed for calculating total time.
+#endif
     View_Form_Category vfc = Determine_Form_Category(cmd);
     if (iot_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc)) {
 

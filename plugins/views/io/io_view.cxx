@@ -84,18 +84,20 @@
 #define set_IO_values(value_array, sort_extime)                                           \
               if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;     \
               if (num_temps > start_temp) {                                               \
-                int64_t x= (start-base_time);                                             \
-                value_array[start_temp] = new CommandResult_Duration (x);                 \
-              }                                                                           \
-              if (num_temps > stop_temp) {                                                \
-                int64_t x= (end-base_time);                                               \
-                value_array[stop_temp] = new CommandResult_Duration (x);                  \
+                int64_t x= (start.getValue() /*-base_time*/);                             \
+                value_array[start_temp] = new CommandResult_Time (x);                     \
+              }                                                                          \
+              if (num_temps > stop_temp) {                                               \
+                int64_t x= (end.getValue() /*-base_time*/);                               \
+                value_array[stop_temp] = new CommandResult_Time (x);                      \
               }                                                                           \
               if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp]             \
                                                  = CRPTR (sort_extime ? extime : intime); \
-              if (num_temps > intime_temp) value_array[intime_temp] = CRPTR (intime);     \
+              if (num_temps > intime_temp) value_array[intime_temp]                       \
+                            = new CommandResult_Interval (intime);                        \
               if (num_temps > incnt_temp) value_array[incnt_temp] = CRPTR (incnt);        \
-              if (num_temps > extime_temp) value_array[extime_temp] = CRPTR (extime);     \
+              if (num_temps > extime_temp) value_array[extime_temp]                       \
+                            = new CommandResult_Interval (extime);                        \
               if (num_temps > excnt_temp) value_array[excnt_temp] = CRPTR (excnt);        \
               if (num_temps > min_temp) value_array[min_temp] = CRPTR (vmin);             \
               if (num_temps > max_temp) value_array[max_temp] = CRPTR (vmax);             \
@@ -284,13 +286,23 @@ static bool define_io_columns (
           HV.push_back("Inclusive Calls");
         } else if (!strcasecmp(M_Name.c_str(), "average")) {
          // average time is calculated from two temps: sum and total counts.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, extime_temp));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, intime_temp));
           HV.push_back("Average Time");
         } else if (!strcasecmp(M_Name.c_str(), "percent") ||
                    !strcasecmp(M_Name.c_str(), "%") ||
                    !strcasecmp(M_Name.c_str(), "%time") ||
-                   !strcasecmp(M_Name.c_str(), "%times") ||
-                   !strcasecmp(M_Name.c_str(), "%exclusive_time") ||
+                   !strcasecmp(M_Name.c_str(), "%times")) {
+         // percent is calculate from 2 temps: time for this row and total time.
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // Use the metric needed for calculating total time.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+          } else {
+           // Sum the extime_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, VMulti_time_temp, totalIndex++));
+          HV.push_back("% of Total");
+        } else if (!strcasecmp(M_Name.c_str(), "%exclusive_time") ||
                    !strcasecmp(M_Name.c_str(), "%exclusive_times")) {
          // percent is calculate from 2 temps: time for this row and total time.
           if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
@@ -563,8 +575,10 @@ class io_view : public ViewType {
 
     CV.push_back (Get_Collector (exp->FW(), "io"));  // Define the collector
     MV.push_back ("inclusive_details"); // define the metric needed for getting main time values
+#if 0
     CV.push_back (Get_Collector (exp->FW(), "io"));  // Define the collector
     MV.push_back ("time"); // define the metric needed for calculating total time.
+#endif
     View_Form_Category vfc = Determine_Form_Category(cmd);
     if (io_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc)) {
 

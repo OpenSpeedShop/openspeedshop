@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2008 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -16,20 +17,17 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+#include "RuntimeAPI.h"
 
-#if 1
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-#endif
+#include "blobs.h"
 
 #include <dlfcn.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/uio.h>
-#include "blobs.h"
-extern void io_start_event(io_event*);
-extern void io_record_event(const io_event*, uint64_t);
+
+#include "runtime.h"
+
 
 /*
  * IO Wrapper Functions

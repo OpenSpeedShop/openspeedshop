@@ -25,7 +25,6 @@
  */
 
 #include "RuntimeAPI.h"
-#include "blobs.h"
 #include "runtime.h"
 
 #if defined (OPENSS_OFFLINE)
