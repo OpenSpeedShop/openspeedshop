@@ -49,11 +49,7 @@ static int init_done = 0;
 
 // statics used by find_address_in_section and bfd_find_nearest_line.
 static bfd  *theBFD;
-static char **addr;
 static bfd_vma pc;
-static const char *filename;
-static const char *functionname;
-static unsigned int line;
 static bfd_boolean found;
 static bool debug_symbols = false;
 
@@ -744,6 +740,9 @@ find_address_in_section (bfd *theBFD, asection *section,
 
     // DO NOT USE sorted symbols here.  The bfd_find_nearest_line
     // need the original unsorted symbols.
+    const char *filename;
+    const char *functionname;
+    unsigned int line;
     found = bfd_find_nearest_line (theBFD, section, syms, pc - vma,
                                    &filename, &functionname, &line);
     if (!found) {
@@ -838,6 +837,7 @@ find_address_in_section (bfd *theBFD, asection *section,
     // TODO: Need to add at least the function entry statement info...
     BFDStatement datastatement(pc, tfile, line);
     smap->push_back(datastatement);
+
     fflush(stdout);
 }
 
@@ -1037,7 +1037,6 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 
 	rval = addresses_found;
         bfd_map_over_sections (theBFD, find_address_in_section, NULL);
-	
     }
 
     // Find any statements for the begin and end of functions that
@@ -1050,6 +1049,15 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
         bfd_map_over_sections (theBFD, find_address_in_section, NULL);
     }
 
+    if (syms) {
+	free(syms);
+	syms = NULL;
+    }
+    if (sortedsyms) {
+	free(sortedsyms);
+	sortedsyms = NULL;
+    }
+
     bfd_close(theBFD);
 // VERBOSE
 #ifndef NDEBUG
@@ -1059,5 +1067,6 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 	<< std::endl;
     }
 #endif
+
     return rval;
 }
