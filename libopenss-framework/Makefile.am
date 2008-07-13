@@ -23,6 +23,7 @@ lib_LTLIBRARIES = libopenss-framework.la
 
 libopenss_framework_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
 	$(LTDLINCL) \
 	@ARRAYSVCS_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@ \
@@ -47,6 +48,7 @@ libopenss_framework_la_LIBADD = \
 
 libopenss_framework_la_SOURCES = \
 	$(top_srcdir)/libopenss-runtime/OpenSS_DataHeader.c \
+	$(top_srcdir)/libopenss-runtime/offline/offline.c \
 	Address.hxx \
 	AddressBitmap.hxx AddressBitmap.cxx \
 	AddressRange.hxx \
