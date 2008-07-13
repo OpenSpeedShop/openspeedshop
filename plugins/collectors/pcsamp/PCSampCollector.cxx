@@ -388,4 +388,8 @@ void PCSampCollector::getUniquePCValues( const Thread& thread,
     for(unsigned i = 0; i < data.pc.pc_len; ++i) {
         UpdatePCBuffer(data.pc.pc_val[i], buffer);
     }
+    
+    // Free the decoded data blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_pcsamp_data),
+	     reinterpret_cast<char*>(&data));
 }

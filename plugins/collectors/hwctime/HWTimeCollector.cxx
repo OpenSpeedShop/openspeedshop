@@ -465,4 +465,8 @@ void HWTimeCollector::getUniquePCValues( const Thread& thread,
 	    UpdatePCBuffer(data.bt.bt_val[i], buffer);
 	}
     }
+ 
+    // Free the decoded data blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_hwctime_data),
+             reinterpret_cast<char*>(&data));
 }

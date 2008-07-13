@@ -526,4 +526,8 @@ void MPICollector::getUniquePCValues( const Thread& thread,
 	    UpdatePCBuffer(data.stacktraces.stacktraces_val[i], buffer);
 	}
     }
+
+    // Free the decoded data blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_mpi_data),
+	     reinterpret_cast<char*>(&data));
 }
