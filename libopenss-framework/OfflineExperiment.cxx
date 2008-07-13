@@ -228,6 +228,9 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 	rawfiles.clear();
     }
 
+    if (dp) {
+	free(dp);
+    }
     return 0;
 }
 
@@ -395,6 +398,8 @@ OfflineExperiment::process_expinfo(const std::string rawfilename)
 	}
 #endif
 	where = ftell(f);
+    	xdr_free(reinterpret_cast<xdrproc_t>(xdr_openss_expinfo),
+		      reinterpret_cast<char*>(&info));
     } else {
 	std::cerr << "process_expinfo info call FAILED" << std::endl;
 	return false;
@@ -447,7 +452,8 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	// For offline collection we really maintain one dataqueue.
 	// So the collector runtimes need to set the header.experiment to 0.
 	// This is the first index into the DataQueue.
-	DataQueues::enqueuePerformanceData(Blob(blobsize, theData));
+	Blob datablob(blobsize, theData);
+	DataQueues::enqueuePerformanceData(datablob);
 	theExperiment->flushPerformanceData();
 
 	if (theData) {
@@ -559,6 +565,8 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
         	std::cout << std::endl;
 	    }
 #endif
+    	     xdr_free(reinterpret_cast<xdrproc_t>(xdr_openss_objects),
+		      reinterpret_cast<char*>(&objs));
 	}
     } // end while
 
@@ -713,6 +721,15 @@ void OfflineExperiment::createOfflineSymbolTable()
     std::map<AddressRange, std::set<LinkedObject> > tneeded =
     address_space.updateThreads(threads, when,
 				/*update_time_interval*/ false);
+
+// FUTURE call in AddressSpace class to set time_begin for
+// addressspaces.  The offline rawdata conversion tool will
+// use this to ensure that the time stamp when linked object
+// is loaded will be set correctly in the database.
+// Currently updateThreads does not do this for offline.
+#if 0
+    address_space.updateThreadsTimeBegin(threads, when);
+#endif
 
     // For the conventional dpcl/mrnet dynamic instrumentors the
     // AddressSpace::updateThreads call will return only those
