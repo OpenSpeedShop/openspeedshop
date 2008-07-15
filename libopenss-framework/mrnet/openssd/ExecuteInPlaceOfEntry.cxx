@@ -133,7 +133,11 @@ void ExecuteInPlaceOfEntry::install()
 	BPatch_arithExpr statement1(BPatch_assign,
 				    *dm_flag,
 				    BPatch_constExpr((unsigned int)1));
+#if 0
 	BPatch_funcJumpExpr statement2(*where);
+#else
+	BPatch_funcJumpExpr statement2(*callee);
+#endif
 
 	BPatch_Vector<BPatch_snippet*> sequence;
 	sequence.push_back(&statement1);
