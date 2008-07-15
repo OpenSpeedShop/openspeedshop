@@ -1073,9 +1073,10 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	os.mkdir(tempdir)
 	os.environ['OPENSS_RAWDATA_DIR'] = tempdir
     else:
-	user = os.getlogin()
-        if 'USER' in os.environ:
+	if 'USER' in os.environ:
 	    user = os.environ["USER"]
+	else:
+	    user = ""
 
 	tempdir = rawdir + "/" + user + "/offline-oss"
 	print "Setting up offline environment, OPENSS_RAWDATA_DIR = " + tempdir
