@@ -124,7 +124,7 @@ void ExecuteInPlaceOfEntry::install()
 	//     if(tidExpr() == dm_thread.getTid()) {
 	//         if(dm_flag == 0) {
 	//             dm_flag = 1;
-	//             jump dm_wrapper();
+	//             jump dm_callee();
 	//         } else
 	//             dm_flag = 0;
 	//     }
@@ -133,11 +133,7 @@ void ExecuteInPlaceOfEntry::install()
 	BPatch_arithExpr statement1(BPatch_assign,
 				    *dm_flag,
 				    BPatch_constExpr((unsigned int)1));
-#if 0
-	BPatch_funcJumpExpr statement2(*where);
-#else
 	BPatch_funcJumpExpr statement2(*callee);
-#endif
 
 	BPatch_Vector<BPatch_snippet*> sequence;
 	sequence.push_back(&statement1);
