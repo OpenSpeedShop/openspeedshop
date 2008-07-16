@@ -265,7 +265,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 	      if (strstr (perfdata_direntry->d_name, "openss-rawdata-"))
 		{
 
-		  sprintf (directoryName, "/tmp/%s",
+		  sprintf (directoryName, "%s/%s", data_dirname,
 			   perfdata_direntry->d_name);
 
 		  DIR * dirhandle = opendir (directoryName);
