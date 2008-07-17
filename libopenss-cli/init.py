@@ -1090,16 +1090,30 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	os.environ['OPENSS_RAWDATA_DIR'] = tempdir
 
     # Locate the libmonitor directory
+    # If OPENSS_PREFIX is set, do not assume libmonitor is there.
+    # The following test ensures that installed (either /usr or the
+    # path from OPENSS_PREFIX) does indeed have a proper libdir.
     libdir = installed + "/lib64"
     if not os.path.isdir(libdir):
         libdir = installed + "/lib"
     if not os.path.isdir(libdir):
         raise RuntimeError("Failed to locate the libmonitor library directory.")
 
-    # Locate the monitor-run command
+    # Locate the monitor-run command and libmonitor runtime dso.
+    # If libmonitor.so is not found in the "installed" path, then
+    # fallback to /usr and try again (again, do not assume libmonitor
+    # was installed into OPENSS_PREFIX.
     libmonitor = libdir + "/libmonitor.so"
     if not os.path.isfile(libmonitor):
-        raise RuntimeError("Failed to locate the libmonitor.so library.")
+	systemdir = "/usr"
+	libdir = systemdir + "/lib64"
+	if not os.path.isdir(libdir):
+	    libdir = systemdir + "/lib"
+	if not os.path.isdir(libdir):
+            raise RuntimeError("Failed to locate the libmonitor library directory.")
+	libmonitor = libdir + "/libmonitor.so"
+	if not os.path.isfile(libmonitor):
+            raise RuntimeError("Failed to locate the libmonitor.so library. " + libmonitor)
 
     # Form the command that will run the offline experiment
     command = "env" + \
