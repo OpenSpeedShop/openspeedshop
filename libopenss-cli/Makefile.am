@@ -47,6 +47,7 @@ libopenss_cli_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-queries \
 	@PYTHON_LDFLAGS@ \
+	@OPENMP_LDFLAGS@ \
 	-export-dynamic -version-info 0:0:0
 
 libopenss_cli_la_LIBADD = \
@@ -55,6 +56,7 @@ libopenss_cli_la_LIBADD = \
 	-lopenss-queries \
 	$(LIBLTDL) \
 	@PYTHON_EXTRA_LIBS@ \
+	@OPENMP_LIBS@ \
 	-lpthread -lutil
 
 libopenss_cli_la_SOURCES = \
