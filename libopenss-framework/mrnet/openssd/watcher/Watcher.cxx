@@ -158,8 +158,8 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
   XDR xdrs;
   std::string host = "";
   unsigned int blobsize = 0;
-  long prevSize = 0;
-  long prevPos = 0;
+  uint64_t prevSize = 0;
+  uint64_t prevPos = 0;
   WatcherThreadTable::FileInfoEntry currentFileEntryInfo;
   std::set<pid_t> PidSet; 
   pid_t pid_to_monitor=0; 
@@ -386,7 +386,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 
 			      // **************** Get the file's current size in bytes
 			      //
-			      long currentFileSize = statbuf.st_size;
+			      uint64_t currentFileSize = statbuf.st_size;
 
 			      FILE * f = fopen (dataFilename, "r");
 			      if (f == NULL)
@@ -405,7 +405,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 			      while (continue_checking_for_data)
 				{
 
-				  long first_pos = ftell (f);
+				  uint64_t firstPos = ftell (f);
 
 				  currentFileEntryInfo = WatcherThreadTable::TheTable.getEntry (pid, tid);
 				  prevSize = currentFileEntryInfo.prevSize;
@@ -450,19 +450,20 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 #endif
 				  if (prevPos != 0)
 				    {
-				      fseek (f, prevPos, SEEK_SET);
-				    }
+				      uint64_t fseekPos = fseek (f, prevPos, SEEK_SET);
 #ifndef NDEBUG
-				  if (Watcher::isDebugEnabled ())
-				    {
-				      std::stringstream output;
-				      output << "[TID " << pthread_self () <<
-					"] OpenSpeedShop::Watcher::fileIOmonitorThread()"
-					<< " first position in file=" <<
-					first_pos << std::endl;
-				      std::cerr << output.str ();
-				    } //end debug
+				      if (Watcher::isDebugEnabled ())
+				        {
+				          std::stringstream output;
+				          output << "[TID " << pthread_self () <<
+					    "] OpenSpeedShop::Watcher::fileIOmonitorThread()"
+					    << " first position in file(firstPos)=" << firstPos 
+					    << " fseek position in file(fseekPos)=" << fseekPos 
+					    << " previous position in file(prevPos)=" << prevPos << std::endl;
+				          std::cerr << output.str ();
+				        } //end debug
 #endif
+				    } // end: if prevPos != 0
 
 				  xdrstdio_create (&xdrs, f, XDR_DECODE);
 
@@ -516,22 +517,22 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 				    }
 
 
-				  long last_pos = ftell (f);
+				  uint64_t lastPos = ftell (f);
 #ifndef NDEBUG
 				  if (Watcher::isDebugEnabled ())
 				    {
 				      std::stringstream output;
 				      output << "[TID " << pthread_self ()
                                              << "] OpenSpeedShop::Watcher::fileIOmonitorThread()"
-					     << " status for read of blob=" << bytesRead 
-					     << " position inside file after reading the blob is="
-					     << last_pos << std::endl;
+					     << " BYTESREAD, status for read of blob=" << bytesRead 
+					     << " position inside file after reading the blob is(lastPos)="
+					     << lastPos << std::endl;
 				      std::cerr << output.str ();
 				    }
 #endif
 				  // ****************  We have the position inside this file after reading of the blob.
 				  // Save this position of fseek usage when reading this file again
-				  currentFileEntryInfo.readPosition = last_pos;
+				  currentFileEntryInfo.readPosition = lastPos;
 				  currentFileEntryInfo.prevSize = currentFileSize;
 				  WatcherThreadTable::TheTable.setEntry (pid, tid, currentFileEntryInfo);
 
@@ -542,7 +543,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 				      std::stringstream output;
 				      output << "[TID " << pthread_self () 
                                              << "] OpenSpeedShop::Watcher::fileIOmonitorThread()"
-					     << " BEFORE Sending blob to performanceData, size="
+					     << " BEFORE SENDING BLOB, Sending blob to performanceData, size="
 					     << blobsize << std::endl;
 				      std::cerr << output.str ();
 				    } // end debug
@@ -558,7 +559,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 				      std::stringstream output;
 				      output << "[TID " << pthread_self ()
 					     << "] OpenSpeedShop::Watcher::fileIOmonitorThread()"
-					     << " AFTER Sending blob to performanceData, size="
+					     << " AFTER SENDING BLOB, Sending blob to performanceData, size="
 					     << blobsize << std::endl;
 				      std::cerr << output.str ();
 				    } // end debug
