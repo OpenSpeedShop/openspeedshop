@@ -619,14 +619,10 @@ int  WaitingForMainCount = 1000;
 static void Wait_For_Others_To_Terminate () {
 
 #if DEBUG_SYNC
-  printf("[TID=%ld], LOCK: Wait_For_Others_To_Terminate, before calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld) EXT_Allocated=%ld\n", pthread_self(), Cmd_EXT_Lock, EXT_Allocated);
+  printf("[TID=%ld], Wait_For_Others_To_Terminate, entered\n", pthread_self() );
 #endif
 
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC
-  printf("[TID=%ld], LOCK: Wait_For_Others_To_Terminate, after calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld) EXT_Allocated=%ld\n", pthread_self(), Cmd_EXT_Lock, EXT_Allocated);
-#endif
 
   // Start timing the processing time spent in the  Wait_For_Others_To_Terminate routine
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
@@ -637,18 +633,7 @@ static void Wait_For_Others_To_Terminate () {
    // Wait for other pthreads to finish executing and exit.
     Cmd_Waiting = true;
 
-#if DEBUG_SYNC_SIGNAL
-    printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Others_To_Terminate, before calling pthread_cond_wait(&Waiting_For_Cmds=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Cmds, Cmd_EXT_Lock);
-    printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Others_To_Terminate, before calling pthread_cond_wait,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
-    WaitingForCmdsCount = WaitingForCmdsCount + 1;
-#endif
-
     Assert(pthread_cond_wait(&Waiting_For_Cmds,&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC_SIGNAL
-    printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Others_To_Terminate, after calling pthread_cond_wait(&Waiting_For_Cmds=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Cmds, Cmd_EXT_Lock);
-    printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Others_To_Terminate, after calling pthread_cond_wait,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
-#endif
 
     Cmd_Waiting = false;
   }
@@ -663,29 +648,17 @@ static void Wait_For_Others_To_Terminate () {
                                                 SS_Timings::cliWaitForOthersTermEnd);
   }
 
-#if DEBUG_SYNC
-  printf("[TID=%ld], UNLOCK: Wait_For_Others_To_Terminate, before calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
   Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC
-  printf("[TID=%ld], UNLOCK: Wait_For_Others_To_Terminate, after calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
 
 }
 
 void Wait_For_Previous_Cmds () {
 
 #if DEBUG_SYNC
-  printf("[TID=%ld], LOCK: Wait_For_Previous_Cmds, before calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
+  printf("[TID=%ld], Wait_For_Previous_Cmds, entered\n", pthread_self() );
 #endif
 
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC
-  printf("[TID=%ld], LOCK: Wait_For_Previous_Cmds, after calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
 
   // Start timing the processing time spent in the  Wait_For_Previous_Cmds routine
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
@@ -696,18 +669,7 @@ void Wait_For_Previous_Cmds () {
    // Wait for other pthreads to finish executing.
     Cmd_Waiting = true;
 
-#if DEBUG_SYNC_SIGNAL
-    printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Previous_Cmds, before calling pthread_cond_wait(&Waiting_For_Cmds=%ld, &Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Cmds, Cmd_EXT_Lock);
-    printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Previous_Cmds, before calling pthread_cond_wait,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
-    WaitingForCmdsCount = WaitingForCmdsCount + 1;
-#endif
-
     Assert(pthread_cond_wait(&Waiting_For_Cmds,&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC_SIGNAL
-    printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Previous_Cmds, before calling pthread_cond_wait(&Waiting_For_Cmds=%ld, &Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Cmds, Cmd_EXT_Lock);
-    printf("[TID=%ld], PTHREAD_COND_WAIT: Wait_For_Previous_Cmds, after calling pthread_cond_wait,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
-#endif
 
     Cmd_Waiting = false;
   }
@@ -722,28 +684,17 @@ void Wait_For_Previous_Cmds () {
                                                 SS_Timings::cliWaitForPrevCmdsEnd);
   }
 
-#if DEBUG_SYNC
-  printf("[TID=%ld], UNLOCK: Wait_For_Previous_Cmds, before calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
   Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
 
-#if DEBUG_SYNC
-  printf("[TID=%ld], UNLOCK: Wait_For_Previous_Cmds, after calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
 }
 
 void Purge_Dispatch_Queue () {
 
 #if DEBUG_SYNC
-  printf("[TID=%ld], Purge_Dispatch_Queue, before calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
+  printf("[TID=%ld], Purge_Dispatch_Queue, entered\n", pthread_self() );
 #endif
 
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC
-  printf("[TID=%ld], Purge_Dispatch_Queue, after calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
 
   // Start timing the processing time spent in the  Purge_Dispatch_Queue routine
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
@@ -767,86 +718,41 @@ void Purge_Dispatch_Queue () {
                                                 SS_Timings::cliPurgeDispatchQueueEnd);
   }
 
-#if DEBUG_SYNC
-  printf("[TID=%ld], Purge_Dispatch_Queue, before calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
   Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC
-  printf("[TID=%ld], Purge_Dispatch_Queue, after calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
 }
 
 void SafeToDoNextCmd () {
 
 #if DEBUG_SYNC
-  printf("[TID=%ld], SafeToDoNextCmd, before calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
+  printf("[TID=%ld], SafeToDoNextCmd, entered\n", pthread_self() );
 #endif
 
  // Get exclusive access to dispatch queue.
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
 
-#if DEBUG_SYNC
-  printf("[TID=%ld], SafeToDoNextCmd, after calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
   Ready_for_Next_Cmd = true;
   if ((EXT_Dispatch.begin() != EXT_Dispatch.end()) &&
       (EXT_Free != 0)) {
 
-#if DEBUG_SYNC_SIGNAL
-  printf("[TID=%ld], PTHREAD_COND_SIGNAL: SafeToDoNextCmd, Wake up someone to process it, before calling pthread_cond_signal(&Cmd_EXT_Dispatch=%ld) (Cmd_EXT_Lock)\n", pthread_self(), Cmd_EXT_Dispatch);
-  printf("[TID=%ld], PTHREAD_COND_SIGNAL: SafeToDoNextCmd, Wake up someone to process it, before calling pthread_cond_signal,CmdEXTDispatchCount=%ld, (Cmd_EXT_Lock)\n", pthread_self(), CmdEXTDispatchCount);
-#endif
-
    // Wake up someone to process it.
     Assert(pthread_cond_signal(&Cmd_EXT_Dispatch) == 0);
-
-#if DEBUG_SYNC_SIGNAL
-    CmdEXTDispatchCount = CmdEXTDispatchCount - 1;
-    printf("[TID=%ld], PTHREAD_COND_SIGNAL: SafeToDoNextCmd, Wake up someone to process it, after calling pthread_cond_signal(&Cmd_EXT_Dispatch=%ld) (Cmd_EXT_Lock)\n", pthread_self(), Cmd_EXT_Dispatch);
-    printf("[TID=%ld], PTHREAD_COND_SIGNAL: SafeToDoNextCmd, Wake up someone to process it, after calling pthread_cond_signal,CmdEXTDispatchCount=%ld, (Cmd_EXT_Lock)\n", pthread_self(), CmdEXTDispatchCount);
-#endif
-
   }
-
-#if DEBUG_SYNC
-  printf("[TID=%ld], SafeToDoNextCmd, before calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
 
  // Release the lock so someone can pick up the command
   Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC
-  printf("[TID=%ld], SafeToDoNextCmd, after calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
 }
 
 static void Cmd_EXT_Create () {
 
-
 #if DEBUG_SYNC
-  printf("[TID=%ld], LOCK: ENTER Cmd_EXT_Create, entered, Cmd_EXT_Lock should not be set, before calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
+  printf("[TID=%ld], Cmd_EXT_Create, entered\n", pthread_self() );
 #endif
 
   // When we get here Cmd_EXT_Lock is not set.
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
 
-#if DEBUG_SYNC
-  printf("[TID=%ld], LOCK: ENTER Cmd_EXT_Create, entered, after calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
  // This is an infinite loop that waits for the dispatch signal.
   for(;;) {
-
-
-#if DEBUG_SYNC
-   printf("[TID=%ld], Cmd_EXT_Create, top of infinite loop, Cmd_Waiting=%ld, Shut_Down=%ld, EXT_Allocated=%ld, EXT_Free=%ld, Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_Waiting, Shut_Down, EXT_Allocated, EXT_Free, Cmd_EXT_Lock);
-#endif
-
 
     CommandObject *cmd = NULL;
     int64_t this_cmd_is = 0;
@@ -854,44 +760,16 @@ static void Cmd_EXT_Create () {
            (EXT_Dispatch.begin() == EXT_Dispatch.end())) {
       EXT_Free++;  // I am looking for work.
 
-#if DEBUG_SYNC
-   printf("[TID=%ld], Cmd_EXT_Create, top of infinite loop, inside while Ready_for_Next_Cmd=%ld, Cmd_Waiting=%ld, Shut_Down=%ld, EXT_Allocated=%ld, EXT_Free=%ld, Cmd_EXT_Lock=%ld)\n", 
-           pthread_self(), Ready_for_Next_Cmd, Cmd_Waiting, Shut_Down, EXT_Allocated, EXT_Free, Cmd_EXT_Lock);
-#endif
-
       if (Cmd_Waiting &&
           !Shut_Down &&
           (EXT_Allocated == (EXT_Free + 1))) {
 
-#if DEBUG_SYNC_SIGNAL
-        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the waiting process for single thread execution , before calling pthread_cond_signal(&Waiting_For_Cmds=%ld)\n", pthread_self(), Waiting_For_Cmds);
-        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the waiting process for single thread execution , before calling pthread_cond_signal,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
-#endif
-
        // Wakeup the waiting process for single thread execution
         Assert(pthread_cond_signal(&Waiting_For_Cmds) == 0);
-
-#if DEBUG_SYNC_SIGNAL
-        WaitingForCmdsCount = WaitingForCmdsCount - 1;
-        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the waiting process for single thread execution , after calling pthread_cond_signal(&Waiting_For_Cmds=%ld)\n", pthread_self(), Waiting_For_Cmds);
-        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the waiting process for single thread execution , after calling pthread_cond_signal,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
-#endif
-
       }
-
-#if DEBUG_SYNC_SIGNAL
-      printf("[TID=%ld], PTHREAD_COND_WAIT: Cmd_EXT_Create, before calling pthread_cond_wait(&Cmd_EXT_Dispatch,&Cmd_EXT_Lock), Cmd_EXT_Dispatch=%ld, Cmd_EXT_Lock=%ld\n", pthread_self(),Cmd_EXT_Dispatch, Cmd_EXT_Lock);
-      printf("[TID=%ld], PTHREAD_COND_WAIT: Cmd_EXT_Create, before calling pthread_cond_wait(), CmdEXTDispatchCount=%ld\n", pthread_self(),CmdEXTDispatchCount);
-      CmdEXTDispatchCount = CmdEXTDispatchCount + 1;
-#endif
 
      // Release the lock and wait.
       Assert(pthread_cond_wait(&Cmd_EXT_Dispatch,&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC_SIGNAL
-     printf("[TID=%ld], PTHREAD_COND_WAIT: Cmd_EXT_Create, after calling pthread_cond_wait(&Cmd_EXT_Dispatch,&Cmd_EXT_Lock), Cmd_EXT_Dispatch=%ld, Cmd_EXT_Lock=%ld\n", pthread_self(),Cmd_EXT_Dispatch, Cmd_EXT_Lock);
-     printf("[TID=%ld], PTHREAD_COND_WAIT: Cmd_EXT_Create, after calling pthread_cond_wait(), CmdEXTDispatchCount=%ld\n", pthread_self(),CmdEXTDispatchCount);
-#endif
 
      // When we wake up, we have the lock again.
       EXT_Free--;  // I found work.
@@ -900,32 +778,11 @@ static void Cmd_EXT_Create () {
         EXT_Allocated--;  // I'm going to go away.
         if (EXT_Allocated == 1) {
 
-#if DEBUG_SYNC_SIGNAL
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the last process so it can terminate, before calling pthread_cond_signal(&Waiting_For_Cmds=%ld)\n", pthread_self(), Waiting_For_Cmds);
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the last process so it can terminate, before calling pthread_cond_signal,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
-#endif
-
          // Wakeup the last process so it can terminate.
           Assert(pthread_cond_signal(&Waiting_For_Cmds) == 0);
-
-#if DEBUG_SYNC_SIGNAL
-          WaitingForCmdsCount = WaitingForCmdsCount - 1;
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the last process so it can terminate, after calling pthread_cond_signal(&Waiting_For_Cmds=%ld)\n", pthread_self(), Waiting_For_Cmds);
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, Wakeup the last process so it can terminate, after calling pthread_cond_signal,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
-#endif
-
         }
 
-#if DEBUG_SYNC
-       printf("[TID=%ld], UNLOCK: Cmd_EXT_Create, release lock and vanish, before calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
         Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);    // release lock
-
-#if DEBUG_SYNC
-       printf("[TID=%ld], UNLOCK: Cmd_EXT_Create, release lock and vanish, after calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
         pthread_exit(0);                                     // vanish
       }
     }
@@ -940,15 +797,7 @@ static void Cmd_EXT_Create () {
       Ready_for_Next_Cmd = false;
     }
 
-#if DEBUG_SYNC
-    printf("[TID=%ld], UNLOCK: Cmd_EXT_Create, before processing the command, before calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
     Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC
-    printf("[TID=%ld], UNLOCK: Cmd_EXT_Create, after processing the command, after calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
 
    // Go process the command.
     if ((cmd != NULL) &&
@@ -957,102 +806,35 @@ static void Cmd_EXT_Create () {
       Cmd_Execute (cmd);
     }
 
-#if DEBUG_SYNC
-    printf("[TID=%ld], LOCK: Cmd_EXT_Create, When we complete the command, look for more work to do, before calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
    // When we complete the command, look for more work to do.
     Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC
-    printf("[TID=%ld], LOCK: Cmd_EXT_Create, When we complete the command, look for more work to do, after calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
 
     if (Shut_Down) {
      // Somebody has processed an Exit command.
       if (EXT_Free != 0) {
-
-#if DEBUG_SYNC
-       printf("[TID=%ld], PTHREAD_COND_BROADCAST: Cmd_EXT_Create, Signal all the free processes to terminate, before calling pthread_cond_broadcast(&Cmd_EXT_Dispatch=%ld)\n", pthread_self(), Cmd_EXT_Dispatch);
-#endif
-
        // Signal all the free processes to terminate.
         Assert(pthread_cond_broadcast(&Cmd_EXT_Dispatch) == 0);
-
-
-#if DEBUG_SYNC
-       printf("[TID=%ld], PTHREAD_COND_BROADCAST: Cmd_EXT_Create, Signal all the free processes to terminate, after calling pthread_cond_broadcast(&Cmd_EXT_Dispatch=%ld)\n", pthread_self(), Cmd_EXT_Dispatch);
-#endif
-
       }
 
       if (this_cmd_is == Cmds_Executed) {
-
-#if DEBUG_SYNC
-        printf("[TID=%ld], UNLOCK: Cmd_EXT_Create,  I am the thread processing an 'Exit' command, Let other threads start up - free ones will terminate., before calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
 
        // I am the thread processing an 'Exit' command.
        // Let other threads start up - free ones will terminate.
         Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
 
-#if DEBUG_SYNC
-        printf("[TID=%ld], UNLOCK: Cmd_EXT_Create,  I am the thread processing an 'Exit' command, Let other threads start up - free ones will terminate., after calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
        // Wait for all executing threads to terminate.
         Wait_For_Others_To_Terminate ();
-
-#if DEBUG_SYNC
-        printf("[TID=%ld], LOCK: Cmd_EXT_Create,  Tell the input routines to send EOF to Python, before calling pthread_mutex_lock(&Async_Input_Lock=%ld)\n", pthread_self(), Async_Input_Lock);
-#endif
 
        // Tell the input routines to send EOF to Python.
         Assert(pthread_mutex_lock(&Async_Input_Lock) == 0);
 
-#if DEBUG_SYNC
-        printf("[TID=%ld], LOCK: Cmd_EXT_Create,  Tell the input routines to send EOF to Python, after calling pthread_mutex_lock(&Async_Input_Lock=%ld)\n", pthread_self(), Async_Input_Lock);
-#endif
-
-#if DEBUG_SYNC_SIGNAL
-        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create,  Tell the input routines to send EOF to Python, before calling pthread_cond_signal(&Async_Input_Available=%ld)\n", pthread_self(), Async_Input_Available);
-        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create,  Tell the input routines to send EOF to Python, before calling pthread_cond_signal(), AsyncInputLockCount=%ld\n", pthread_self(), AsyncInputLockCount);
-#endif
-
         Assert(pthread_cond_signal(&Async_Input_Available) == 0);
-
-#if DEBUG_SYNC
-	AsyncInputLockCount = AsyncInputLockCount - 1;
-        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create,  Tell the input routines to send EOF to Python, after calling pthread_cond_signal(&Async_Input_Available=%ld)\n", pthread_self(), Async_Input_Available);
-        printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create,  Tell the input routines to send EOF to Python, after calling pthread_cond_signal(), AsyncInputLockCount=%ld\n", pthread_self(), AsyncInputLockCount);
-#endif
-
-#if DEBUG_SYNC_SIGNAL
-        printf("[TID=%ld], UNLOCK: Cmd_EXT_Create,  Tell the input routines to send EOF to Python, before calling pthread_mutex_unlock(&Async_Input_Lock=%ld)\n", pthread_self(), Async_Input_Lock);
-#endif
 
         Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
 
-#if DEBUG_SYNC
-        printf("[TID=%ld], UNLOCK: Cmd_EXT_Create,  Tell the input routines to send EOF to Python, after calling pthread_mutex_unlock(&Async_Input_Lock=%ld)\n", pthread_self(), Async_Input_Lock);
-#endif
-
         if (Main_Waiting) {
           Main_Waiting = false;
-
-#if DEBUG_SYNC_SIGNAL
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, if Main_Waiting, before calling pthread_cond_signal(&Waiting_For_Main=%ld)\n", pthread_self(), Waiting_For_Main);
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, if Main_Waiting, before calling pthread_cond_signal,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
-#endif
-
           Assert(pthread_cond_signal(&Waiting_For_Main) == 0);
-
-#if DEBUG_SYNC_SIGNAL
-	  WaitingForMainCount = WaitingForMainCount - 1;
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, if Main_Waiting, after calling pthread_cond_signal(&Waiting_For_Main=%ld)\n", pthread_self(), Waiting_For_Main);
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, if Main_Waiting, after calling pthread_cond_signal,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
-#endif
-
         }
 
         // Relocking on exit from the if block so that the unlock before pthread_exit doesn't cause a double unlock
@@ -1060,56 +842,23 @@ static void Cmd_EXT_Create () {
 
       } else if (Cmd_Waiting && (EXT_Allocated == 2)) {
 
-#if DEBUG_SYNC_SIGNAL
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, I am going to go away, so if there is just the waitingprocess remaining, wake it up so it can terminate, too, before calling pthread_cond_signal(&Waiting_For_Main=%ld), Waiting_For_Cmds=%ld\n", pthread_self(), Waiting_For_Main, Waiting_For_Cmds);
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, I am going to go away, so if there is just the waitingprocess remaining, wake it up so it can terminate, too, before calling pthread_cond_signal,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
-#endif
-
          // I'm going to go away, so if there is just the waiting
          // process remaining, wake it up so it can terminate, too.
           Assert(pthread_cond_signal(&Waiting_For_Cmds) == 0);
-
-#if DEBUG_SYNC_SIGNAL
-          WaitingForCmdsCount = WaitingForCmdsCount - 1;
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, I am going to go away, so if there is just the waitingprocess remaining, wake it up so it can terminate, too, after calling pthread_cond_signal(&Waiting_For_Main=%ld)\n", pthread_self(), Waiting_For_Main);
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, I am going to go away, so if there is just the waitingprocess remaining, wake it up so it can terminate, too, after calling pthread_cond_signal,WaitingForCmdsCount=%ld\n", pthread_self(), WaitingForCmdsCount);
-#endif
-
       }
 
       EXT_Allocated--;  // I'm going away, now.
 
-#if DEBUG_SYNC
-     printf("[TID=%ld], UNLOCK: Cmd_EXT_Create, Im going away now, before calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(),Cmd_EXT_Lock);
-#endif
-
       Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
 
-#if DEBUG_SYNC
-     printf("[TID=%ld], UNLOCK: Cmd_EXT_Create, Im going away now, after calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(),Cmd_EXT_Lock);
-#endif
-
       pthread_exit(0);
-
     }
 
     if (Main_Waiting &&
         (EXT_Dispatch.size() <= Main_Waiting_Count)) {
       Main_Waiting = false;
 
-#if DEBUG_SYNC_SIGNAL
-     printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, EXT_Dispatch.size() <= Main_Waiting_Count, before calling pthread_cond_signal(&Waiting_For_Main=%ld)\n", pthread_self(), Waiting_For_Main);
-     printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, EXT_Dispatch.size() <= Main_Waiting_Count, before calling pthread_cond_signal,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
-#endif
-
       Assert(pthread_cond_signal(&Waiting_For_Main) == 0);
-
-#if DEBUG_SYNC_SIGNAL
-      WaitingForMainCount = WaitingForMainCount - 1;
-      printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, EXT_Dispatch.size() <= Main_Waiting_Count, after calling pthread_cond_signal(&Waiting_For_Main=%ld)\n", pthread_self(), Waiting_For_Main);
-      printf("[TID=%ld], PTHREAD_COND_SIGNAL: Cmd_EXT_Create, EXT_Dispatch.size() <= Main_Waiting_Count, after calling pthread_cond_signal,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
-#endif
-
     }
 
     if (!Ready_for_Next_Cmd &&
@@ -1119,59 +868,37 @@ static void Cmd_EXT_Create () {
     }
 
 
-  }
+  } // end for
 
-#if DEBUG_SYNC
-     printf("[TID=%ld], UNLOCK: Cmd_EXT_Create EXITING, before calling pthread_pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
-    // Lock aquired around line 861 is only release if ShutDown is true.
-    // Should release it here since ShutDown releases the lock end calls pthread_exit...
-    Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC
-     printf("[TID=%ld], UNLOCK: Cmd_EXT_Create EXITING, after calling pthread_pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
+  // Lock aquired around line 861 is only release if ShutDown is true.
+  // Should release it here since ShutDown releases the lock end calls pthread_exit...
+  Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
 }
 
 
 void SS_Execute_Cmd (CommandObject *cmd) {
   bool serialize_exexcution = cmd->Needed_By_Python();
 
+#if DEBUG_SYNC
+  printf("[TID=%ld], SS_Execute_Cmd, entered\n", pthread_self() );
+#endif
 
     // Start timing the processing time spent in the SS_Execute_Cmd routine
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::cliExecuteCmdStart] = Time::Now();
     }
 
-#if DEBUG_SYNC
-  printf("[TID=%ld], LOCK: SS_Execute_Cmd, Prevent unsafe changes, before calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
  // Prevent unsafe changes
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC
-  printf("[TID=%ld], LOCK: SS_Execute_Cmd, Prevent unsafe changes, after calling pthread_mutex_lock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
 
   if (!Shut_Down) {
 
     if (cmd->Type() == CMD_RECORD) {
-
-#if DEBUG_SYNC
-      printf("[TID=%ld], UNLOCK: SS_Execute_Cmd, cmd->Type() == CMD_RECORD, before calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
      // Execute this command with the main thread
      // and do it immediately so that any new comamnds
      // read from the same input file will be logged
      // in the record file.
       Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC
-      printf("[TID=%ld], UNLOCK: SS_Execute_Cmd, cmd->Type() == CMD_RECORD, after calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
 
       Cmd_Execute (cmd);
       return;
@@ -1184,20 +911,7 @@ void SS_Execute_Cmd (CommandObject *cmd) {
      // Wake up someone to process it.
       if (Ready_for_Next_Cmd) {
         if (EXT_Free != 0) {
-
-#if DEBUG_SYNC_SIGNAL
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: SS_Execute_Cmd, Wake up someone to process it, Ready_for_Next_Cmd before calling pthread_cond_signal(&Cmd_EXT_Dispatch=%ld) (Cmd_EXT_Lock)\n", pthread_self(), Cmd_EXT_Dispatch);
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: SS_Execute_Cmd, Wake up someone to process it, Ready_for_Next_Cmd before calling pthread_cond_signal,CmdEXTDispatchCount=%ld,(Cmd_EXT_Lock)\n", pthread_self(), CmdEXTDispatchCount);
-#endif
-
           Assert(pthread_cond_signal(&Cmd_EXT_Dispatch) == 0);
-
-#if DEBUG_SYNC_SIGNAL
-          CmdEXTDispatchCount = CmdEXTDispatchCount - 1;
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: SS_Execute_Cmd, Wake up someone to process it, Ready_for_Next_Cmd after calling pthread_cond_signal(&Cmd_EXT_Dispatch=%ld) (Cmd_EXT_Lock)\n", pthread_self(), Cmd_EXT_Dispatch);
-          printf("[TID=%ld], PTHREAD_COND_SIGNAL: SS_Execute_Cmd, Wake up someone to process it, Ready_for_Next_Cmd after calling pthread_cond_signal,CmdEXTDispatchCount=%ld,(Cmd_EXT_Lock)\n", pthread_self(), CmdEXTDispatchCount);
-#endif
-
         }  else if (EXT_Allocated < OPENSS_MAX_ASYNC_COMMANDS) {
 
          // Allocate a new process to execute comamnds.
@@ -1238,18 +952,7 @@ void SS_Execute_Cmd (CommandObject *cmd) {
         Main_Waiting = true;
         Main_Waiting_Count = 0;
 
-#if DEBUG_SYNC_SIGNAL
-        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, serialize_execution, before calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
-        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, serialize_execution, before calling pthread_cond_wait,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
-        WaitingForMainCount = WaitingForMainCount + 1;
-#endif
-
         Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC_SIGNAL
-       printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, serialize_execution, after calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
-       printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, serialize_execution, after calling pthread_cond_wait,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
-#endif
 
       } else if (cmd->Type() == CMD_EXIT) {
        // Don't read any more input until this command is
@@ -1258,18 +961,7 @@ void SS_Execute_Cmd (CommandObject *cmd) {
           Main_Waiting = true;
           Main_Waiting_Count = 0;
 
-#if DEBUG_SYNC_SIGNAL
-          printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_EXIT, before calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
-          printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_EXIT, before calling pthread_cond_wait,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
-          WaitingForMainCount = WaitingForMainCount + 1;
-#endif
-
           Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC_SIGNAL
-          printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_EXIT, after calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
-          printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_EXIT, after calling pthread_cond_wait,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
-#endif
 
         }
       } else if (cmd->Type() == CMD_PLAYBACK) {
@@ -1278,18 +970,7 @@ void SS_Execute_Cmd (CommandObject *cmd) {
         Main_Waiting = true;
         Main_Waiting_Count = 0;
 
-#if DEBUG_SYNC_SIGNAL
-        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_PLAYBACK, before calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
-        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_PLAYBACK, before calling pthread_cond_wait,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
-        WaitingForMainCount = WaitingForMainCount + 1;
-#endif
-
         Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC_SIGNAL
-        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_PLAYBACK, after calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
-        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, CMD_PLAYBACK, after calling pthread_cond_wait,WaitingForMainCount=%ld\n", pthread_self(), WaitingForMainCount);
-#endif
 
       } else if (EXT_Dispatch.size() > (OPENSS_MAX_ASYNC_COMMANDS * 2)) {
        // Don't read any more input until we can process
@@ -1297,34 +978,13 @@ void SS_Execute_Cmd (CommandObject *cmd) {
         Main_Waiting = true;
         Main_Waiting_Count = OPENSS_MAX_ASYNC_COMMANDS;
 
-#if DEBUG_SYNC_SIGNAL
-        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, OPENSS_MAX_ASYNC_COMMANDS, before calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
-        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, OPENSS_MAX_ASYNC_COMMANDS, before calling pthread_cond_wait,WaitingForMainCount=%ld)\n", pthread_self(), WaitingForMainCount);
-        WaitingForMainCount = WaitingForMainCount + 1;
-#endif
-
         Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC_SIGNAL
-        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, OPENSS_MAX_ASYNC_COMMANDS, after calling pthread_cond_wait(&Waiting_For_Main=%ld,&Cmd_EXT_Lock=%ld)\n", pthread_self(), Waiting_For_Main,Cmd_EXT_Lock);
-        printf("[TID=%ld], PTHREAD_COND_WAIT: SS_Execute_Cmd, OPENSS_MAX_ASYNC_COMMANDS, after calling pthread_cond_wait,WaitingForMainCount=%ld)\n", pthread_self(), WaitingForMainCount);
-#endif
-
       }
     }
   }
 
-
-#if DEBUG_SYNC
-  printf("[TID=%ld], UNLOCK: SS_Execute_Cmd, Release the lock so someone can pick up the command, before calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
-
  // Release the lock so someone can pick up the command
   Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
-
-#if DEBUG_SYNC
-  printf("[TID=%ld], UNLOCK: SS_Execute_Cmd, Release the lock so someone can pick up the command, after calling pthread_mutex_unlock(&Cmd_EXT_Lock=%ld)\n", pthread_self(), Cmd_EXT_Lock);
-#endif
 
   // Process the time spent in the SS_Execute_Cmd routine
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
