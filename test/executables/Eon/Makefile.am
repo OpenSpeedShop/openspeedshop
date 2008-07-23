@@ -95,3 +95,23 @@ EXTRA_DIST = \
 	ggMultiJitterSample3.cc ggNRooksSample3.cc ggPermute.cc ggPoissonDiskSample2.cc \
 	ggPoissonSphereSample3.cc ggRange.cc ggRanNum.cc ggRaster.cc ggRegularSample2.cc \
 	ggRegularSample3.cc ggRGBPixel.cc ggStaticArray.cc ggTimer.cc ggTrain.cc mrChiuPixelRenderer.cc
+
+eonstatic-pcsamp: eon
+	monitor-link -v -i /home/dpm/oss-demo/lib64/offline_monitor.o \
+		-i /home/dpm/oss-demo/lib64/openspeedshop/libpcsamp-offline.a \
+		g++ -o eonstatic-pcsamp ${eon_OBJECTS} -static -lpthread -lrt -lgcc -ldl -lstdc++
+
+eonstatic-hwc: eon
+	monitor-link -v -i /home/dpm/oss-demo/lib64/offline_monitor.o \
+		-i /home/dpm/oss-demo/lib64/openspeedshop/libhwc-offline.a \
+		g++ -o eonstatic-hwc ${eon_OBJECTS} -static -lpthread -lrt -ldl -lpapi
+
+eonstatic-usertime: eon
+	monitor-link -v -i /home/dpm/oss-demo/lib64/offline_monitor.o \
+		-i /home/dpm/oss-demo/lib64/openspeedshop/libusertime-offline.a \
+		g++ -o eonstatic-usertime ${eon_OBJECTS} -L/home/dpm/oss-demo/lib64 --static -lunwind -lpthread -lrt -ldl
+
+eonstatic-hwctime: eon
+	monitor-link -v -i /home/dpm/oss-demo/lib64/offline_monitor.o \
+		-i /home/dpm/oss-demo/lib64/openspeedshop/libhwctime-offline.a \
+		g++ -o eonstatic-hwctime ${eon_OBJECTS} -static -lpapi -lpthread -lrt -ldl
