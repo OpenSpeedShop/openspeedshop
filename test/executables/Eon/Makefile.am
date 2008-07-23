@@ -96,22 +96,31 @@ EXTRA_DIST = \
 	ggPoissonSphereSample3.cc ggRange.cc ggRanNum.cc ggRaster.cc ggRegularSample2.cc \
 	ggRegularSample3.cc ggRGBPixel.cc ggStaticArray.cc ggTimer.cc ggTrain.cc mrChiuPixelRenderer.cc
 
+#eonstatic-pcsamp: eon
+#	monitor-link -v -i /home/dpm/oss-demo/lib64/offline_monitor.o \
+#		-i /home/dpm/oss-demo/lib64/openspeedshop/libpcsamp-offline.a \
+#		g++ -o eonstatic-pcsamp ${eon_OBJECTS} -static -lpthread -lrt -lgcc -ldl -lstdc++
+
 eonstatic-pcsamp: eon
-	monitor-link -v -i /home/dpm/oss-demo/lib64/offline_monitor.o \
-		-i /home/dpm/oss-demo/lib64/openspeedshop/libpcsamp-offline.a \
+	monitor-link -v \
+		-i ../../../libopenss-runtime/offline/.libs/libopenss_runtime_offline_la-offline_monitor.o \
+		-i ../../../plugins/collectors/pcsamp/.libs/libpcsamp-offline.a \
 		g++ -o eonstatic-pcsamp ${eon_OBJECTS} -static -lpthread -lrt -lgcc -ldl -lstdc++
 
 eonstatic-hwc: eon
-	monitor-link -v -i /home/dpm/oss-demo/lib64/offline_monitor.o \
-		-i /home/dpm/oss-demo/lib64/openspeedshop/libhwc-offline.a \
+	monitor-link -v \
+		-i ../../../libopenss-runtime/offline/.libs/libopenss_runtime_offline_la-offline_monitor.o \
+		-i ../../../plugins/collectors/hwc/.libs/libhwc-offline.a \
 		g++ -o eonstatic-hwc ${eon_OBJECTS} -static -lpthread -lrt -ldl -lpapi
 
 eonstatic-usertime: eon
-	monitor-link -v -i /home/dpm/oss-demo/lib64/offline_monitor.o \
-		-i /home/dpm/oss-demo/lib64/openspeedshop/libusertime-offline.a \
-		g++ -o eonstatic-usertime ${eon_OBJECTS} -L/home/dpm/oss-demo/lib64 --static -lunwind -lpthread -lrt -ldl
+	monitor-link -v \
+		-i ../../../libopenss-runtime/offline/.libs/libopenss_runtime_offline_la-offline_monitor.o \
+		-i ../../../plugins/collectors/usertime/.libs/libusertime-offline.a \
+		g++ -o eonstatic-usertime ${eon_OBJECTS} -Wl,--allow-multiple-definition --static -lpthread -lrt -ldl -lunwind
 
 eonstatic-hwctime: eon
-	monitor-link -v -i /home/dpm/oss-demo/lib64/offline_monitor.o \
-		-i /home/dpm/oss-demo/lib64/openspeedshop/libhwctime-offline.a \
-		g++ -o eonstatic-hwctime ${eon_OBJECTS} -static -lpapi -lpthread -lrt -ldl
+	monitor-link -v \
+		-i ../../../libopenss-runtime/offline/.libs/libopenss_runtime_offline_la-offline_monitor.o \
+		-i ../../../plugins/collectors/hwctime/.libs/libhwctime-offline.a \
+		g++ -o eonstatic-hwctime ${eon_OBJECTS} -Wl,--allow-multiple-definition -static -lpapi -lpthread -lrt -ldl -lunwind
