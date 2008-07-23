@@ -3403,6 +3403,12 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
             }
             S = S + m.getUniqueId();
           }
+
+	  std::pair<bool, LinkedObject> tExe = t.getExecutable();
+	  if (tExe.first) {
+		std::string epath = tExe.second.getPath().getBaseName();
+		S = S + " (" + epath + ")";
+	  }
           cmd->Result_String ( S );
         }
 
