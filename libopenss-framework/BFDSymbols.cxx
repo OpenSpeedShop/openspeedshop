@@ -488,13 +488,6 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 			<< " is OUTOFRANGE." << std::endl;
 #endif
 		}
-// DEBUG
-#if 0
-		std::cerr << "getFunctionSyms: next sym name is: "
-			<< bfd_asymbol_name(nextsym)
-			<< " at index " << next
-			<< " at address " << Address(end_addr) << std::endl;
-#endif
 	      } else {
 // DEBUG
 #ifndef NDEBUG
@@ -578,14 +571,13 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 		continue;
 	    }
 
-	    // This adds any function found to functions_map.
-	    // We need to restrict this to functions who are found to
+	    // The following loop adds any function found to to the functions_map.
+	    // We restrict this to functions who are found to
 	    // contain an address for the performance PC address buffer.
 	    AddressRange frange(Address(base + begin_addr),
 				Address(base + f_end - 1 ));
 
 	    for (unsigned int ii = 0;ii < addrvec.size();ii++) {
-#if 1
 		// To improve performance of this search,
 		// see if one of the found functions already
 		// has this address so we do not search remaining
@@ -620,7 +612,6 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 			addrvec.erase(toremove);
 		    }
 		}
-#endif
 
 		if (frange.doesContain(Address(addrvec[ii]))) {
 // DEBUG
@@ -633,13 +624,10 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 			    << std::endl;
 		    }
 #endif
-		    uint64_t baddr = base.getValue() + begin_addr;
-		    uint64_t eaddr = base.getValue() + f_end;
-
 		    functions_map->insert(std::make_pair(symname,
 					     BFDFunction(symname,
-							    baddr,
-							    eaddr )
+							 frange.getBegin().getValue(),
+							 frange.getEnd().getValue())
 						));
 		    foundpcs++;
 		    // do not search for this address again.
@@ -648,9 +636,10 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 		    addrvec.erase(toremove);
 		    break;
 		}
-	    } // end for addrbuf
+	    } // end for addrvec
 	}
 
+	// If all addresses have been resolved, terminate search.
 	if (addrvec.size() == 0 ) {
 // DEBUG
 #ifndef NDEBUG
@@ -754,14 +743,6 @@ find_address_in_section (bfd *theBFD, asection *section,
 	return;
     }
 
-// VERBOSE
-#if 0
-    if (!functionname) {
-	std::cerr << "find_address_in_section: "
-	    << "WARNING: Found function with no name." << std::endl;
-    }
-#endif
-
     std::string tfunc = functionname ? functionname : "UNKNOWN FUNCTION";
     std::string tfile = filename ? filename : "";
 
@@ -781,11 +762,6 @@ find_address_in_section (bfd *theBFD, asection *section,
 
     // map vma to function start addr, vma + size to function end addr,
     // and use filename, function name, line for symtab.
-    // We need to pass getBFDFunctionStatements the current symtab for the
-    // current linked object. Since this function can not be
-    // passed a symtab, we need to store all this info in
-    // some structure that can later be parsed for details
-    // for addFunction and addStatement in SymbolTable...
 
     // See if this function is in our table of functions that
     // have had data collected.
@@ -1007,25 +983,14 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 #endif
 		foundpc++;
 		addresses_found++;
-		// record the begin and end addresses.
-		// function_range_addresses will be processed later
+		// Record the function begin addresses, This allows the cli and gui
+		// to focus on or display the first statement of a function.
+		// The function begin addresses will be processed later
 		// for statement info and added to our statements.
 		function_range_addresses.insert(ic->second.func_begin);
-		function_range_addresses.insert(ic->second.func_end);
 	    } else {
 	    }
 	}
-
-// VERBOSE
-#if 0
-	if (foundpc == 0) {
-		addresses_notfound++;
-		std::cerr << "getBFDFunctionStatements: WARNING did not"
-		    << " find function for pc " << static_cast<Address>(pc)
-		    << " at " << ii << " of " << addrvec.size()
-		    << std::endl;
-	}
-#endif
 
 	if (foundpc > 1) {
 	    addresses_found--;
