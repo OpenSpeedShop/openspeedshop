@@ -132,7 +132,7 @@ char *gram_user_defined_exp_arg = {
     "<user_defined_exp> ::= <file_name>"
 };
 char *gram_predefined_exp_arg = {
-    "<predefined_exp> ::= { pcsamp || usertime || mpi || fpe || hwc || io || <string> }"
+    "<predefined_exp> ::= { pcsamp || usertime || mpi || fpe || hwc || io || iot || mpit || mpiotf || <string> }"
 };
 
 //  RANK
@@ -281,6 +281,18 @@ char *gram_hwc_arg = {
     ""
 };
 char *gram_io_arg = {
+    ""
+};
+
+char *gram_iot_arg = {
+    ""
+};
+
+char *gram_mpit_arg = {
+    ""
+};
+
+char *gram_mpiotf_arg = {
     ""
 };
 
@@ -462,6 +474,15 @@ char *gram_hwc_brief = {
 };
 char *gram_io_brief = {
     "I/O (Input/Output) trace experiment."
+};
+char *gram_iot_brief = {
+    "I/O (Input/Output) extra info trace experiment."
+};
+char *gram_mpit_brief = {
+    "MPI call tracing with extra info."
+};
+char *gram_mpiotf_brief = {
+    "MPI call tracing through vampirtrace producing OTF (Open Trace Format) files."
 };
 
 
@@ -1110,6 +1131,30 @@ char *gram_io_detailed[] = {
     "",
     " "
 };
+char *gram_iot_detailed[] = {
+    gram_iot_arg,
+    " ",
+    gram_iot_brief,
+    " ",
+    "The io trace experiment traces calls to various I/O routines and records extra information.",
+    " "
+};
+char *gram_mpit_detailed[] = {
+    gram_mpit_arg,
+    " ",
+    gram_mpit_brief,
+    " ",
+    "The mpi trace experiment traces calls to various MPI routines and records extra information.",
+    " "
+};
+char *gram_mpiotf_detailed[] = {
+    gram_mpiotf_arg,
+    " ",
+    gram_mpiotf_brief,
+    " ",
+    "The mpi trace experiment traces calls to various MPI routines using vampirtrace and produces OTF (Open Trace Format) files.",
+    " "
+};
 
 /*********************************************/
 // GRAMMAR Examples
@@ -1421,6 +1466,16 @@ OpenSpeedShop::message_element_t grammar_msg[] = {
     gram_mpi_detailed,sizeof(gram_mpi_detailed)/sizeof(char **),
     NULL,0,NULL,0,
     NULL,0,
+//    mpit
+    -1,"mpit",NULL,0,"experiments",gram_mpit_brief,
+    gram_mpit_detailed,sizeof(gram_mpit_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    mpiotf
+    -1,"mpiotf",NULL,0,"experiments",gram_mpiotf_brief,
+    gram_mpiotf_detailed,sizeof(gram_mpiotf_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    fpe
     -1,"fpe",NULL,0,"experiments",gram_fpe_brief,
     gram_fpe_detailed,sizeof(gram_fpe_detailed)/sizeof(char **),
@@ -1437,6 +1492,11 @@ OpenSpeedShop::message_element_t grammar_msg[] = {
 //    io
     -1,"io",NULL,0,"experiments",gram_io_brief,
     gram_io_detailed,sizeof(gram_io_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    iot
+    -1,"iot",NULL,0,"experiments",gram_iot_brief,
+    gram_iot_detailed,sizeof(gram_iot_detailed)/sizeof(char **),
     NULL,0,NULL,0,
     NULL,0,
 //    

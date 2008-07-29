@@ -257,7 +257,8 @@ extern "C"
     printf("                   and the call stack at the time of the exception. See\n");
     printf("                   FPE Tracing Wizard.\n");
     printf("\n");
-    printf("      o hwc      - Counts at the source line, machine instruction, and\n");
+    printf("      o hwc/hwctime\n");
+    printf("                 - Counts at the source line, machine instruction, and\n");
     printf("                   function levels of various hardware events, including:\n");
     printf("                   clock cycles, graduated instructions, primary\n");
     printf("                   instruction cache misses, secondary instruction cache\n");
@@ -266,11 +267,12 @@ extern "C"
     printf("                   misses, and graduated floating-point instructions.\n");
     printf("                   See HW Counter Wizard.\n");
     printf("\n");
-    printf("      o io       - Traces the following I/O system calls: read, readv,\n");
+    printf("      o io/iot   - Traces the following I/O system calls: read, readv,\n");
     printf("                   write, writev, open, close, dup, pipe, creat.\n");
     printf("                   See IO Wizard.\n");
     printf("\n");
-    printf("      o mpi      - Traces calls to various MPI routines.\n");
+    printf("      o mpi/mpit/mpiotf\n");
+    printf("                 - Traces calls to various MPI routines.\n");
     printf("                   See MPI Wizard.\n");
     printf("  -p : pid of target process\n");
     printf("  -r : rank of \n");
