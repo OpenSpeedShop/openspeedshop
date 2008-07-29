@@ -113,7 +113,7 @@ fpe_rt_offline_la_LIBADD = \
 fpe_rt_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	$(OFFLINE_SOURCES) \
-	runtime.h runtime.c
+	runtime.c
 
 libfpe_offline_la_CFLAGS = \
 	-static -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
@@ -141,7 +141,7 @@ libfpe_offline_la_LIBADD = \
 libfpe_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	$(OFFLINE_SOURCES) \
-	runtime.h runtime.c
+	runtime.c
 endif
 
 SUFFIXES = .x
