@@ -401,11 +401,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 			      currentFileEntryInfo.filePtr = f;
 			      WatcherThreadTable::TheTable.setEntry (pid, tid, currentFileEntryInfo);
 
-			      bool continue_checking_for_data = true;
-			      while (continue_checking_for_data)
-				{
-
-				  uint64_t firstPos = ftell (f);
+				  uint64_t currentPos = ftell (f);
 
 				  currentFileEntryInfo = WatcherThreadTable::TheTable.getEntry (pid, tid);
 				  prevSize = currentFileEntryInfo.prevSize;
@@ -413,10 +409,11 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 #ifndef NDEBUG
 			          if (Watcher::isDebugEnabled ()) {
 				    std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() prevSize=" 
-                                               << prevSize << " currentFileSize=" << currentFileSize
+                                               << prevSize << ", currentPos=" << currentPos << ", currentFileSize=" << currentFileSize
 				               << std::endl;
 				  }
 #endif
+                                  // If this is the case break out of the main loop because there isn't any new data
 				  if (prevSize == currentFileSize)
 				    {
 				      // Skip processing this file, it is the same size it was before
@@ -425,10 +422,8 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 					{
 					  std::stringstream output;
 					  output << "[TID " << pthread_self ()
-					    <<
-					    "] OpenSpeedShop::Watcher::fileIOmonitorThread()"
-					    <<
-					    " file is same size as the last time file was saved="
+					    << "] OpenSpeedShop::Watcher::fileIOmonitorThread()"
+					    << " file is same size as the last time file was saved="
 					    << currentFileSize << std::endl;
 					  std::cerr << output.str ();
 				          std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() BREAK; prevSize=" 
@@ -439,12 +434,16 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 				      break;
 				    }
 
+			      bool continue_checking_for_data = true;
+			      while (continue_checking_for_data)
+				{
+
 				  // ********** Have we seen this file before and read from it?
 				  // Seek to the position we need to be at in order to read the next blob size and blob
 				  prevPos = currentFileEntryInfo.readPosition;
 #ifndef NDEBUG
 				  if (Watcher::isDebugEnabled ()) {
-				     std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() BREAK; prevPos=" 
+				     std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() prevPos=" 
                                                 << prevPos << std::endl;
 			       	  } // end debug
 #endif
@@ -455,9 +454,9 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 				      if (Watcher::isDebugEnabled ())
 				        {
 				          std::stringstream output;
-				          output << "[TID " << pthread_self () <<
-					    "] OpenSpeedShop::Watcher::fileIOmonitorThread()"
-					    << " first position in file(firstPos)=" << firstPos 
+				          output << "[TID " << pthread_self () 
+					    << "] OpenSpeedShop::Watcher::fileIOmonitorThread()"
+					    << " current position in file(currentPos)=" << currentPos 
 					    << " fseek position in file(fseekPos)=" << fseekPos 
 					    << " previous position in file(prevPos)=" << prevPos << std::endl;
 				          std::cerr << output.str ();
