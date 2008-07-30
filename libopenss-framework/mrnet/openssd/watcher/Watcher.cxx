@@ -103,19 +103,90 @@ getPidFromFilename (std::string filename)
   pid_t retval = 0;
 
   int filenameSize = filename.length ();
+
+  if (Watcher::isDebugEnabled ()) {
+    std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
+               << " filenameSize=" << filenameSize 
+               << std::endl;
+  }
+
   int suffixDx = filename.rfind (".openss-data", filenameSize);
+
+  if (Watcher::isDebugEnabled ()) {
+    std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
+               << " suffixDx=" << suffixDx 
+               << std::endl;
+  }
+
   filename.erase (suffixDx, 12);
 
+  if (Watcher::isDebugEnabled ()) {
+    std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
+               << " suffixDx=" << suffixDx 
+               << std::endl;
+  }
+
   filenameSize = filename.length ();
+
+  if (Watcher::isDebugEnabled ()) {
+    std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
+               << " filenameSize=" << filenameSize 
+               << std::endl;
+  }
+
   suffixDx = filename.rfind ("-", filenameSize);
+
+  if (Watcher::isDebugEnabled ()) {
+    std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
+               << " suffixDx=" << suffixDx 
+               << std::endl;
+  }
+
   std::string tidString = filename.substr (suffixDx + 1);
   filename.erase (suffixDx, filenameSize - suffixDx);
 
+  if (Watcher::isDebugEnabled ()) {
+    std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
+               << " tidString=" << tidString 
+               << " suffixDx=" << suffixDx 
+               << std::endl;
+  }
+
   filenameSize = filename.length ();
+
+  if (Watcher::isDebugEnabled ()) {
+    std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
+               << " filenameSize=" << filenameSize 
+               << " suffixDx=" << suffixDx 
+               << std::endl;
+  }
+
   suffixDx = filename.rfind ("-", filenameSize);
+
+  if (Watcher::isDebugEnabled ()) {
+    std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
+               << " filenameSize=" << filenameSize 
+               << " after rfind - suffixDx=" << suffixDx 
+               << std::endl;
+  }
+
   std::string pidString = filename.substr (suffixDx + 1);
 
-  sscanf (pidString.c_str (), "%lld", &retval);
+  if (Watcher::isDebugEnabled ()) {
+    std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
+               << " pidString=" << pidString 
+               << " after substr, suffixDx=" << suffixDx 
+               << std::endl;
+  }
+
+  sscanf (pidString.c_str (), "%d", &retval);
+
+  if (Watcher::isDebugEnabled ()) {
+    std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
+               << " pidString=" << pidString 
+               << " after sscanf, retval=" << retval 
+               << std::endl;
+  }
 
   return (retval);
 
@@ -327,19 +398,32 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 			      char dataFilename[PATH_MAX];
 			      char openssDataFilename[PATH_MAX];
 			      sprintf (dataFilename, "%s/%s", directoryName, direntry->d_name);
-
 			      sprintf (openssDataFilename, "%s", direntry->d_name);
+
+
+			      if (Watcher::isDebugEnabled ()) {
+  			         std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() openssDataFilename=" << openssDataFilename 
+                                            << " directoryName=" << directoryName 
+                                            << " dataFilename=" << dataFilename
+				            << std::endl;
+                              }
 
 			      // *********** We have found a filename that matches our criteria
 			      // Save the filename into our file information record
 			      currentFileEntryInfo.fileName = openssDataFilename;
 
 			      pid_t pid = getPidFromFilename (openssDataFilename);
-			      pthread_t tid = getTidFromFilename (openssDataFilename);
 #ifndef NDEBUG
 			      if (Watcher::isDebugEnabled ()) {
-				  std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() pid=" << pid << " tid=" << tid
-				             << std::endl;
+				  std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() pid=" << pid << std::endl;
+                              }
+#endif
+
+			      pthread_t tid = getTidFromFilename (openssDataFilename);
+
+#ifndef NDEBUG
+			      if (Watcher::isDebugEnabled ()) {
+				  std:: cout << "OpenSpeedShop::Watcher::fileIOmonitorThread() pid=" << pid << " tid=" << tid << std::endl;
                               }
 #endif
                               if (pid != pid_to_monitor) {
