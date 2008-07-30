@@ -80,12 +80,12 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 	skip_signal_frames = FALSE;
     }
     else
-	Assert(unw_getcontext(&context) == 0);
+	Assert(getcontext(&context) == 0);
 
 #elif defined(__linux) && defined(__ia64)
 
     /* Get the current thread context */
-    Assert(unw_getcontext(&context) == 0);
+    Assert(getcontext(&context) == 0);
     
 #else
 #error "Platform/OS Combination Unsupported!"
