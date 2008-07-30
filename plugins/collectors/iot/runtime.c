@@ -270,10 +270,19 @@ fprintf(stderr,"PathBufferSize is full, call iot_send_events\n");
     if(tls.nesting_depth > 0)
 	return;
     
+    /* Newer versions of libunwind now make io calls (open a file in /proc/<self>/maps)
+     * that cause a thread lock in the libunwind dwarf parser. We are not interested in
+     * any io done by libunwind while we get the stacktrace for the current context.
+     * So we need to bump the nesting_depth before requesting the stacktrace and
+     * then decrement nesting_depth after aquiring the stacktrace
+     */
+
+    ++tls.nesting_depth;
     /* Obtain the stack trace from the current thread context */
     OpenSS_GetStackTraceFromContext(NULL, FALSE, OverheadFrameCount,
 				    MaxFramesPerStackTrace,
 				    &stacktrace_size, stacktrace);
+    --tls.nesting_depth;
 
     /*
      * Replace the first entry in the call stack with the address of the IO
