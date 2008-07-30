@@ -1,6 +1,10 @@
 Legend * means fixed,
        - means still open.
 
+- 7-29-2008
+  Need to update offline collectors to allow changing the collector parameters.
+  e.g. sampling_rate, papi threshhold, papi events, etc etc etc...
+
 - 6-10-2008
   The mrnet instrumentor is not working on zeus.llnl.gov and other
   linux systems do to a kernel patch related to utrace.
@@ -33,6 +37,12 @@ Legend * means fixed,
   address.  Bill has outlined where the code must be changed in openss
   to address this issue. 
   (6-23-80-jeg)
+  ***
+  A number of these issues have been addressed with changes to the openss SymbolTable code.
+  i.e. We are getting decent metric values.  Bill Hachfeld has a beta version of code
+  to handle the remaining issues with non-contiguous functions.  That code is not integrated
+  and is currently being tested as of 7-29-2008.
+  (7-29-2008 -dpm)
 
 - 6-10-2008
   The mrnet instrumentor has sporadic hangs on YellowRail (and possibly
@@ -71,6 +81,10 @@ Legend * means fixed,
   topology file with the pid of the current openss process in it's name,
   set the MRENT topology envvironment to the new file and proceed.
   Sam Gutierrez at LANL is working on this.
+  ***
+  Jim sent out an email with some script examples for automating this
+  on LLNL's zeus system.
+  (7-29-2008 -dpm)
 
 - 6-10-2008
   The OPENSS_RAWDATA_DIR defaults to /tmp for instrumentors that use
@@ -80,18 +94,32 @@ Legend * means fixed,
   the users account name.  e.g. raw data should be written to
   $OPENSS_RAWDATA_DIR/$USERNAME.  This impacts the ossrun.in script,
   the init.py RunOfflineExp method, and the framework/mrnet/Watcher code.
+  ***
+  The RunOfflineExp python code in init.py now adds the users id to the
+  default OPENSS_RAWDATA_DIR.  This works for the openss -offline option as well.
+  e.g. For the python script the default is /tmp/$USER/offline-oss.
+  TODO: update ossrun and watcher to do same. i.e. default to /tmp/$USER/offline-oss
+  for ossrun and /tmp/$USER for the mrnet watcher.
+  (7-29-2008 -dpm)
 
 - 6-10-2008
   The offline collector runtimes need a method to record the rank id
   of mpi processes.  This is availble to the mpi and mpit collectors
   but is not available in general to the other collectors.  This will
   require adding a rank field to openss_expinfo blobs.
+  ***
+  This work is in progress. Will require a small dso that overrides MPI_Init
+  and records the mpi rank to the openss-info rawdata file for all collectors
+  other than the mpi, mpit, and mpiotf collectors.  The mpi, and mpit collectors
+  will need to record and send the rank info to the openss-info rawdata file too.
+  (7-29-2008 -dpm)
 
-- 6-10-2008
+* 6-10-2008
   The symboltables created for offline experiments need to include the
   first statement for any function found with sampled address data even
   if the first statement was not one of the samples.  This is needed by
   various gui (source file focus events) and cli (list -v src) commands.
+  (7-29-2008 -dpm -fixed)
 
 - I/O collector doesn't support "-v" statements
   (error while double click on source during stacktrace)
