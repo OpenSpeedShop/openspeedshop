@@ -138,24 +138,18 @@ void monitor_dlopen(const char *library)
 }
 
 #if defined(_MONITOR_H_)
+/* TODO */
 /* Rice version of libmonitor.
  * callbacks for handling of fork.
  */
 void * monitor_pre_fork(void)
 {
-//    pid_t forked_pid = create_OpenSS_exepath();
-//    fprintf(stderr,"OPENSS monitor_pre_fork callback: %s:%d\n", OpenSS_exepath,forked_pid);
-    fprintf(stderr,"OPENSS monitor_pre_fork callback:\n");
+    //fprintf(stderr,"OPENSS monitor_pre_fork callback:\n");
     return (NULL);
 }
 
 void monitor_post_fork(pid_t child, void *data)
 {
-/* TODO */
-#if 0
-//    pid_t forked_pid = create_OpenSS_exepath();
-//    fprintf(stderr,"OPENSS monitor_post_fork callback: %s:%d\n", OpenSS_exepath,forked_pid);
-    fprintf(stderr,"OPENSS monitor_post_fork callback:\n");
-#endif
+    //fprintf(stderr,"OPENSS monitor_post_fork callback:\n");
 }
 #endif
