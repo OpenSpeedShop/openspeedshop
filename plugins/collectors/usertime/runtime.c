@@ -276,7 +276,15 @@ void usertime_start_sampling(const char* arguments)
     /* TODO: need to handle arguments for offline collectors */
     args.collector=1;
     args.experiment=0; /* DataQueues index start at 0.*/
-    args.sampling_rate=35;
+
+    char* sampling_rate = getenv("OPENSS_USERTIME_RATE");
+
+    if (sampling_rate != NULL) {
+	args.sampling_rate=atoi(sampling_rate);
+	fprintf(stderr,"args.sampling_rate = %d\n", args.sampling_rate);
+    } else {
+	args.sampling_rate=35;
+    }
 
     /* Initialize the info blob's header */
     /* Passing &(tls.header) to OpenSS_InitializeDataHeader was */
