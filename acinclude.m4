@@ -108,11 +108,11 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 
     case "$host" in
 	ia64-*-linux*)
-	    binutils_required="false"
-            BINUTILS_DIR=""
-	    BINUTILS_CPPFLAGS=""
-	    BINUTILS_LDFLAGS=""
-	    BINUTILS_LIBS=""
+	    binutils_required="true"
+            BINUTILS_DIR="$binutils_dir"
+	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
+	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
+	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
             ;;
 	x86_64-*-linux*)
 	    binutils_required="true"
