@@ -132,7 +132,7 @@ void print_papi_events ()
         if (retval == PAPI_OK) {
             printf("%-30s 0x%-10x0s\n", info.symbol, info.event_code, info.long_descr);
         }
-    } while (PAPI_enum_event(&i, PAPI_ENUM_ALL) == PAPI_OK);
+    } while (PAPI_enum_event(&i, PAPI_PRESET_ENUM_AVAIL) == PAPI_OK);
 }
 
 void get_papi_name (int code, char *ecstr)
