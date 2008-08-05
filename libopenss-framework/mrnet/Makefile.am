@@ -23,16 +23,18 @@ noinst_LTLIBRARIES = libopenss-framework-mrnet.la
 libopenss_framework_mrnet_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-framework/mrnet/common \
+	@BINUTILS_CPPFLAGS@ \
 	@MRNET_CPPFLAGS@
 
 libopenss_framework_mrnet_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework/mrnet/common \
+	@BINUTILS_LDFLAGS@ \
 	@MRNET_LDFLAGS@
 
 libopenss_framework_mrnet_la_LIBADD = \
 	@MRNET_LIBS@ \
 	$(top_srcdir)/libopenss-framework/mrnet/common/libopenss-framework-mrnet-common.la \
-	-lpthread
+	-lpthread -liberty
 
 libopenss_framework_mrnet_la_SOURCES = \
 	Callbacks.hxx Callbacks.cxx \
