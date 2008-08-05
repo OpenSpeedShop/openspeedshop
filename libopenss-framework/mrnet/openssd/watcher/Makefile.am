@@ -67,7 +67,7 @@ libopenss_watcher_la_LDFLAGS = \
 libopenss_watcher_la_LIBADD = \
         @DYNINST_LIBS@ \
 	$(LIBLTDL) \
-	-lpthread -lrt -liberty 
+	-lpthread -lrt
 
 libopenss_watcher_la_SOURCES = \
 	Watcher.cxx Watcher.hxx  \
