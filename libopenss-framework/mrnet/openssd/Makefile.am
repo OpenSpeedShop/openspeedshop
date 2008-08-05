@@ -24,6 +24,7 @@ openssd_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework/mrnet/common \
 	-I$(top_srcdir)/libopenss-framework/mrnet/openssd/watcher \
 	@DYNINST_CPPFLAGS@ \
+	@BINUTILS_CPPFLAGS@ \
 	@LIBDWARF_CPPFLAGS@ \
 	@MRNET_CPPFLAGS@
 
@@ -31,8 +32,8 @@ openssd_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework/mrnet/common \
 	-L$(top_srcdir)/libopenss-framework/mrnet/openssd/watcher \
 	@DYNINST_LDFLAGS@ \
-	@LIBDWARF_LDFLAGS@ \
 	@BINUTILS_LDFLAGS@ \
+	@LIBDWARF_LDFLAGS@ \
 	@MRNET_LDFLAGS@
 
 openssd_LDADD = \
@@ -40,9 +41,8 @@ openssd_LDADD = \
 	-lopenss-watcher \
 	@DYNINST_LIBS@ \
 	@LIBDWARF_LIBS@ \
-	@BINUTILS_LIBS@ \
 	@MRNET_LIBS@ \
-	-lpthread -lrt
+	-lpthread -lrt -liberty
 
 openssd_SOURCES = \
 	$(top_srcdir)/libopenss-framework/AddressBitmap.cxx \
