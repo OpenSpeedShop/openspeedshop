@@ -44,7 +44,7 @@ libopenss_framework_la_LIBADD = \
 	@PAPI_LIBS@ \
 	@BINUTILS_LIBS@ \
 	@SQLITE_LIBS@ \
-	-lpthread -lrt -lbfd -liberty
+	-lpthread -lrt
 
 libopenss_framework_la_SOURCES = \
 	$(top_srcdir)/libopenss-runtime/OpenSS_DataHeader.c \
