@@ -39,19 +39,19 @@ MYCURRENT=${HERE%/*}
 # directory above MYCURRENT
 TOPLEVEL=${MYCURRENT%/*}
 
-# install the build from the workarea here if OPENSS_INSTALL_DIR is not set:
+# install the build from the workarea here if OPENSS_PREFIX is not set:
 export MYOSSINSTALLDIR=$TOPLEVEL/OpensSpeedShop/usr
 
-if [ "$OPENSS_INSTALL_DIR" = "" ] 
-then echo "NOTE: OPENSS_INSTALL_DIR not set."
+if [ "$OPENSS_PREFIX" = "" ] 
+then echo "NOTE: OPENSS_PREFIX not set."
      echo "NOTE: Defaulting to $MYOSSINSTALLDIR ..."
-     export OPENSS_INSTALL_DIR=$MYOSSINSTALLDIR
-else echo "OPENSS_INSTALL_DIR is set: $OPENSS_INSTALL_DIR"
+     export OPENSS_PREFIX=$MYOSSINSTALLDIR
+else echo "OPENSS_PREFIX is set: $OPENSS_PREFIX"
 fi
 
 echo
 echo "$0: configure workarea build/install using:"
-echo "configure --prefix=$OPENSS_INSTALL_DIR"
+echo "configure --prefix=$OPENSS_PREFIX"
 
 MYPWD=`pwd`
 echo
@@ -74,17 +74,17 @@ fi
 
 # configure the workarea build
 if [ ! -f ./.configure_ran ]
-then echo "+ ./configure --prefix=$OPENSS_INSTALL_DIR"
-     if ./configure --prefix=$OPENSS_INSTALL_DIR
+then echo "+ ./configure --prefix=$OPENSS_PREFIX"
+     if ./configure --prefix=$OPENSS_PREFIX
      then echo
           echo
           echo
-          echo "### \"./configure --prefix=$OPENSS_INSTALL_DIR\" ran successfully."
+          echo "### \"./configure --prefix=$OPENSS_PREFIX\" ran successfully."
           touch ./.configure_ran
      else echo
           echo
           echo
-          echo "### \"./configure --prefix=$OPENSS_INSTALL_DIR\" failed!  Bailing out."
+          echo "### \"./configure --prefix=$OPENSS_PREFIX\" failed!  Bailing out."
           exit 1
      fi 
 fi

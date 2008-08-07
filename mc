@@ -17,22 +17,22 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-if [ "$OPENSS_INSTALL_DIR" = "" ]
+if [ "$OPENSS_PREFIX" = "" ]
 then
-  echo "OPENSS_INSTALL_DIR not set."
+  echo "OPENSS_PREFIX not set."
   echo "For oss developers that's usually .../GUI/plugin/lib/openspeedshop"
   echo "- or -"
-  echo "export OPENSS_INSTALL_DIR=$OPENSS_PLUGIN_PATH/../.."
+  echo "export OPENSS_PREFIX=$OPENSS_PLUGIN_PATH/../.."
   if [ "$OPENSS_PLUGIN_PATH" != "" ]
   then
-    export OPENSS_INSTALL_DIR=$OPENSS_PLUGIN_PATH/../..;
+    export OPENSS_PREFIX=$OPENSS_PLUGIN_PATH/../..;
     echo "WARNING: Defaulting to developers location..."
   fi 
 #  exit
 fi
 if test -d plugins/panels
 then
-  bootstrap;configure --prefix=$OPENSS_INSTALL_DIR;make uninstall;make install;make dist;
+  bootstrap;configure --prefix=$OPENSS_PREFIX;make uninstall;make install;make dist;
 else
   echo NOTE: This must be run from the 'current' directory...
 fi

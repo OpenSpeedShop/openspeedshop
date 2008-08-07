@@ -68,8 +68,8 @@ Subsequently, you can checkout new code using:
 $ cvs update -d
  
 
-export OPENSS_INSTALL_DIR=/tmp/OpenSpeedshop
-PATH=$PATH:.:$OPENSS_INSTALL_DIR/bin
+export OPENSS_PREFIX=/tmp/OpenSpeedshop
+PATH=$PATH:.:$OPENSS_PREFIX/bin
 
 
 Do the following commands in the OpenSpeedShop directory:

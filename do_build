@@ -27,20 +27,20 @@ MYCURRENT=${HERE%/*}
 # directory above MYCURRENT
 TOPLEVEL=${MYCURRENT%/*}
 
-# install the build from the workarea here if OPENSS_INSTALL_DIR is not set:
+# install the build from the workarea here if OPENSS_PREFIX is not set:
 export MYOSSINSTALLDIR=$TOPLEVEL/OpensSpeedShop/usr
 
-if [ "$OPENSS_INSTALL_DIR" = "" ] ; then
-  echo "NOTE: OPENSS_INSTALL_DIR not set."
+if [ "$OPENSS_PREFIX" = "" ] ; then
+  echo "NOTE: OPENSS_PREFIX not set."
   echo "NOTE: Defaulting to $MYOSSINSTALLDIR ..."
-  export OPENSS_INSTALL_DIR=$MYOSSINSTALLDIR
+  export OPENSS_PREFIX=$MYOSSINSTALLDIR
 else
-  echo "OPENSS_INSTALL_DIR is set: $OPENSS_INSTALL_DIR"
+  echo "OPENSS_PREFIX is set: $OPENSS_PREFIX"
 fi
 
 echo
 echo "$0: configure workarea build/install using:"
-echo "configure --prefix=$OPENSS_INSTALL_DIR"
+echo "configure --prefix=$OPENSS_PREFIX"
 
 if test "$1" == ""  ; then
   echo "$0: Running build in $MYCURRENT"
@@ -49,8 +49,8 @@ if test "$1" == ""  ; then
   ./bootstrap;
 
   # configure the workarea build
-  echo "$0: Running configure --prefix=$OPENSS_INSTALL_DIR"
-  ./configure --prefix=$OPENSS_INSTALL_DIR
+  echo "$0: Running configure --prefix=$OPENSS_PREFIX"
+  ./configure --prefix=$OPENSS_PREFIX
 
   # clean up any previous build
   echo "$0: Running make clean"
@@ -111,7 +111,7 @@ fi
 # Setting your environment (i.e. PATH, LD_LIBRARY_PATH,OPENSS_PLUGIN_PATH)
 # to this installation allows you to test the software that
 # a user would build (not the software in you workare build).
-# i.e. $RPM_BUILD_ROOT/usr is the $OPENSS_INSTALL_DIR
+# i.e. $RPM_BUILD_ROOT/usr is the $OPENSS_PREFIX
 # for the software built from the tarball.
 ##############################################################################
 

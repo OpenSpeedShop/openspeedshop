@@ -19,7 +19,6 @@ set     oss        /opt/OSS
 set     home       /<homepath>/<username>
 
 setenv          OPENSS_HOME		$oss
-setenv          OPENSS_INSTALL_DIR	$oss
 setenv          OPENSS_PREFIX		$oss
 setenv          OPENSS_DOC_DIR		$oss/share/doc/packages/OpenSpeedShop
 setenv          OPENSS_MRNET_TOPOLOGY_FILE      $home/mrnet.top

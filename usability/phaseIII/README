@@ -17,10 +17,10 @@
 ################################################################################
 
 # if mpich
-configure --with-mpi=/opt/mpich --prefix=$OPENSS_INSTALL_DIR
+configure --with-mpi=/opt/mpich --prefix=$OPENSS_PREFIX
 
 # if Altix
-configure --prefix=$OPENSS_INSTALL_DIR
+configure --prefix=$OPENSS_PREFIX
 
 
 make

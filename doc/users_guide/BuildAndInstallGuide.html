@@ -494,12 +494,12 @@ Related Environment Variables</h4>
  name="mozTocId227574"></a>Generally used environment variables<br>
 </h5>
 <ul style="margin-left: 200px;">
-  <li>OPENSS_INSTALL_DIR
+  <li>OPENSS_PREFIX
 - This environment variable
 specifies where the <b>Open|SpeedShop</b> binaries and libraries will
 be
 installed.&nbsp; Set this variable to a path, (e.g. "setenv
-OPENSS_INSTALL_DIR /scratch/jeg/openss/install).&nbsp;&nbsp; After
+OPENSS_PREFIX /scratch/jeg/openss/install).&nbsp;&nbsp; After
 installation, a bin and lib directory containing the <b>Open|SpeedShop</b>
 components, will be present under the /scratch/jeg/openss/install
 directory. </li>
@@ -1463,7 +1463,7 @@ in it's build process.&nbsp; <br>
 install directory environment variable</h5>
 This is the location that the Open|SpeedShop libraries, plugins, and
 executables will be installed into.<br>
-setenv OPENSS_INSTALL_DIR /ptmp/fred/root/<br>
+setenv OPENSS_PREFIX /ptmp/fred/root/<br>
 <br>
 <h5><a class="mozTocH5" name="mozTocId4942"></a>Build Open|SpeedShop <br>
 </h5>
@@ -1488,7 +1488,7 @@ build.&nbsp; These are the component built from the instructions above
 or components that are installed via modules on the system.<br>
   </li>
   <li><span style="font-weight: bold;">configure
---prefix=$OPENSS_INSTALL_DIR --with-libunwind=/ptmp/fred/root/usr
+--prefix=$OPENSS_PREFIX --with-libunwind=/ptmp/fred/root/usr
 --with-papi=/ptmp/fred/root/usr --with-dpcl=/ptmp/fred/root/usr
 --with-dyninst=/ptmp/fred/root/usr --with-sqlite=/ptmp/fred/root/usr
 --with-lampi=/apps/x86_64/mpi/lampi/gcc-3.4.3-9/lampi-1.5.13-rc1 <br>
