@@ -1,0 +1,116 @@
+import code
+import os
+import os.path
+import re
+import string
+import sys
+import types
+import tempfile
+
+import PY_Input
+
+def RunOfflineExp(program="*", collector="*", installed="/usr"):
+    """Run offline experiment for Open|SpeedShop.
+    """
+
+    #Check For OPENSS_PREFIX and use it.  That is, only if
+    #installed's default value has not changed.  Allows
+    #users to explicitly define a different OSS installation path (even
+    #if OPENSS_PREFIX is defined).
+    if (os.environ.has_key("OPENSS_PREFIX") and installed == "/usr"):
+        print "OPENSS_PREFIX detected..."
+        print "Using OPENSS_PREFIX..."
+        installed = os.environ["OPENSS_PREFIX"]
+    
+    # set up plugins path
+    if os.environ.has_key("OPENSS_PLUGIN_PATH"):
+	plugins = os.environ["OPENSS_PLUGIN_PATH"]
+    else:
+	plugin_dir =  OpenssInstallDir + "/lib64/openspeedshop"
+	if not os.path.isdir(plugin_dir):
+	    plugin_dir =  OpenssInstallDir + "/lib/openspeedshop"
+        if not os.path.isdir(plugin_dir):
+	    raise RuntimeError("Failed to locate the openspeedshop plugins directory.")
+	plugins = plugin_dir
+
+    rawdir = "/tmp"
+
+    # always write into /tmp/$USER/offline-oss or
+    # $OPENSS_RAWDATA_DIR/offline-oss. FIXME: should we add #USER here too?
+    if 'OPENSS_RAWDATA_DIR' in os.environ:
+	rawdir = os.environ["OPENSS_RAWDATA_DIR"]
+	print "Setting up offline environment, OPENSS_RAWDATA_DIR = " + rawdir + "/offline-oss"
+	tempdir = rawdir + "/offline-oss"
+	os.system("/bin/rm -rf " + tempdir)
+	os.mkdir(tempdir)
+	os.environ['OPENSS_RAWDATA_DIR'] = tempdir
+    else:
+	if 'USER' in os.environ:
+	    user = os.environ["USER"]
+	else:
+	    user = ""
+
+	tempdir = rawdir + "/" + user + "/offline-oss"
+	print "Setting up offline environment, OPENSS_RAWDATA_DIR = " + tempdir
+	if not os.path.isdir(tempdir):
+	    os.makedirs(tempdir)
+	else:
+	    # Empty rawdata from any previous offline experiment
+	    # and then recreate the raw data directory.
+	    shutil.rmtree(tempdir);
+	    os.makedirs(tempdir)
+	os.environ['OPENSS_RAWDATA_DIR'] = tempdir
+
+    # Locate the libmonitor directory
+    # If OPENSS_PREFIX is set, do not assume libmonitor is there.
+    # The following test ensures that installed (either /usr or the
+    # path from OPENSS_PREFIX) does indeed have a proper libdir.
+    libdir = installed + "/lib64"
+    if not os.path.isdir(libdir):
+        libdir = installed + "/lib"
+    if not os.path.isdir(libdir):
+        raise RuntimeError("Failed to locate the libmonitor library directory.")
+
+    # Locate the monitor-run command and libmonitor runtime dso.
+    # If libmonitor.so is not found in the "installed" path, then
+    # fallback to /usr and try again (again, do not assume libmonitor
+    # was installed into OPENSS_PREFIX.
+    libmonitor = "@@libmonitordir@@/lib64/libmonitor.so"
+    if not os.path.isfile(libmonitor):
+     libmonitor = "@@libmonitordir@@/lib/libmonitor.so"
+     if not os.path.isfile(libmonitor):
+      libmonitor = libdir + "/libmonitor.so"
+      if not os.path.isfile(libmonitor):
+	systemdir = "/usr"
+	libdir = systemdir + "/lib64"
+	if not os.path.isdir(libdir):
+	    libdir = systemdir + "/lib"
+	if not os.path.isdir(libdir):
+            raise RuntimeError("Failed to locate the libmonitor library directory.")
+	libmonitor = libdir + "/libmonitor.so"
+	if not os.path.isfile(libmonitor):
+            raise RuntimeError("Failed to locate the libmonitor.so library. " + libmonitor)
+
+    # Form the command that will run the offline experiment
+    command = "env" + \
+              " LD_PRELOAD="+ plugins + "/" + collector + "-rt-offline.so" + \
+	      ":" + libmonitor + ":$LD_PRELOAD " + program
+
+    # Execute the command to start the daemon(s)
+    print "\nRunning offline experiment using the command \"%s\"...\n" % command
+    os.system(command)
+
+    # currently ossutil writes openss databases to ever increasing
+    # database files from the lowest it finds.
+    # Lets just always remove X.0.openss so that is our default for now.
+    os.system('/bin/rm -rf ./X.0.openss')
+
+    # Need to define or find path to ossutil
+    convert_command = OpenssInstallDir + "/bin/ossutil " + os.environ['OPENSS_RAWDATA_DIR']
+    os.system(convert_command)
+
+    r_line = myparse.process("exprestore -f ./X.0.openss")
+    myparse.runsource(r_line, "stderr")
+
+    # restore original rawdata directory
+    os.environ['OPENSS_RAWDATA_DIR'] = rawdir

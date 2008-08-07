@@ -21,13 +21,14 @@ BUILT_SOURCES = \
 	SS_Parse_Lex.cxx \
 	SS_Parse_Yacc.cxx \
 	SS_Parse_Yacc.h \
-	SS_Parse_Yacc.hxx
+	SS_Parse_Yacc.hxx \
+	offline.py
 
 AM_YFLAGS = -d
 YFLAGS = -d
 
 dist_pkglib_SCRIPTS = \
-	init.py
+	init.py offline.py
 
 lib_LTLIBRARIES = libopenss-cli.la
 
@@ -124,3 +125,13 @@ CLEANFILES = $(BUILT_SOURCES)
 
 doc:
 	$(DOXYGEN)
+
+offline.py: offline.py.in
+	@rm -f offline.py
+	@sed \
+		-e 's,@@osslibdir@@,$(pkglibdir),' \
+		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
+		$(srcdir)/offline.py.in > offline.py
+	@chmod 755 offline.py
+
+EXTRA_DIST += offline.py.in
