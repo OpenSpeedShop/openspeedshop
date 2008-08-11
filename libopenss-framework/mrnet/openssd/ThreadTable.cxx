@@ -280,7 +280,7 @@ ThreadNameGroup ThreadTable::getNames(/* const */ BPatch_thread* ptr) const
  * Get thread names for a Dyninst process object pointer.
  *
  * Returns the thread names for the specified Dyninst process object pointer.
- * An empty thread name gorup is returned if none of the threads from this
+ * An empty thread name group is returned if none of the threads from this
  * process can be found.
  *
  * @param process    Dyninst process object pointer whose names are to be found.
@@ -455,7 +455,7 @@ std::set<int> ThreadTable::getStdOutFDs() const
  * Get thread names for a standard stream file descriptor.
  *
  * Returns the thread names for the specified standard stream file descriptor.
- * An empty thread name gorup is returned if the file descriptor cannot be
+ * An empty thread name group is returned if the file descriptor cannot be
  * found.
  *
  * @note    Currently a linear search is being used to find the thread names.
