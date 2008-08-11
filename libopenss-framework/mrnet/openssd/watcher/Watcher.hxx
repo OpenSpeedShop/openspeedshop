@@ -30,9 +30,7 @@
 #endif
 
 #include <pthread.h>
-//#include <vector.h>
-#include <map.h>
-#include <multimap.h>
+#include <map>
 #include "Blob.hxx"
 
 namespace OpenSpeedShop { namespace Watcher {
