@@ -34,6 +34,7 @@
 #include "libiberty.h"
 #include <stdint.h>
 #include <dis-asm.h>
+#include <algorithm>
 
 
 // bfd symbols for current linkedobject
