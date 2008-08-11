@@ -25,6 +25,7 @@
 #include <vector>
 #include <sys/types.h>
 #include <unistd.h>
+#include <string.h>
 
 #define PATH_DELIMITER ':'
 #define RELATIVE_OPENSS_PLUGIN_PATH "/openspeedshop"
