@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string>
 #include <unistd.h>
+#include <string.h>
 
 extern char **environ;
 

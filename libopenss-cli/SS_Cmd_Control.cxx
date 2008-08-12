@@ -21,7 +21,7 @@
 //#define DEBUG_SYNC_SIGNAL 1
 
 #include "SS_Input_Manager.hxx"
-#include <fstream.h>
+//#include <fstream.h>
 #include "SS_Timings.hxx"
 
 static void Cmd_Execute (CommandObject *cmd) {

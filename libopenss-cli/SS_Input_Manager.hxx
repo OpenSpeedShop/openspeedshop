@@ -53,6 +53,7 @@
 
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 #ifndef PTHREAD_MUTEX_RECURSIVE_NP
 #define PTHREAD_MUTEX_RECURSIVE_NP 0
