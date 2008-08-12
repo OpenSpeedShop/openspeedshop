@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <limits.h>
 #include "BPatch.h"
 #include "BPatch_function.h"
 

@@ -419,7 +419,11 @@ static bool Generate_CustomView (CommandObject *cmd,
   std::vector<CommandResult *> master_vector(rows_in_Set0);
   std::map<CommandResult *, int64_t, ltCR> master_map;
   int64_t num_enders = 0;
-  std::vector<std::vector<CommandResult *> > master_ender_vector(enders_in_allSets,numQuickSets);
+//  std::vector<std::vector<CommandResult *> > master_ender_vector(enders_in_allSets,numQuickSets);
+
+  std::vector<std::vector<CommandResult*> > master_ender_vector(
+		enders_in_allSets, std::vector<CommandResult*>(numQuickSets));
+
   std::map<CommandResult *, int64_t, ltCR> master_ender_map;
 
  // Initial the master maps with information from Quick_Compare_Set[0].
