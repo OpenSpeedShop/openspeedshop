@@ -31,6 +31,7 @@
 #include <sys/stat.h>
 #endif
 #include <unistd.h>
+#include <limits.h>
 
 using namespace OpenSpeedShop::Framework;
 
