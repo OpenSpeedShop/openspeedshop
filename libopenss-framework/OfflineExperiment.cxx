@@ -33,6 +33,7 @@
 #include "Blob.hxx"
 #include "BFDSymbols.hxx"
 #include "ThreadName.hxx"
+#include <algorithm>
 
 #include <iostream>
 #include <string>

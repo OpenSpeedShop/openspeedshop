@@ -29,6 +29,7 @@
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
+#include <algorithm>
 
 using namespace OpenSpeedShop::Framework;
 
