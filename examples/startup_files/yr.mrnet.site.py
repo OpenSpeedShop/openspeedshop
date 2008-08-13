@@ -19,16 +19,23 @@
 # Temple Place, Suite 330, Boston, MA  02111-1307 USA                         #
 #=============================================================================#
 
-#Yellowrail MRNet site.py
+#LANL's Yellowrail MRNet site.py
 
 import commands
 from re import compile
 from sets import Set
 from sys import stdout
 from os import path
+import warnings 
 
 # Flag indicating if debugging output will be displayed.
 debug = True
+
+#Flag indicating if a topology file update is needed
+topFileUpdateNeeded = False
+
+# Regular expression string utilized to help parse qstat output.
+qstatRegEx = 'yra[^/*]*'
 
 def getRawAllocatedNodesString():
     if os.environ.has_key('PBS_JOBID'):
@@ -42,11 +49,12 @@ def getRawAllocatedNodesString():
         #allocated nodes in the form: 'yra051/7+yra051/6+yra051...
         #yra051/0+yra087/7+yra087...yra087/0
     else:
-        raise RuntimeError('fatal error...PBS_JOBID not defined.')
+        print 'fatal error...PBS_JOBID not defined.'
+        sys.exit()
     return qstatnodeinfo.split(' ')[-1]
 
 def getAllocatedNodesString():
-    regex = re.compile('yra[^/*]*')
+    regex = re.compile(qstatRegEx)
     dupnodeslist = regex.findall(getRawAllocatedNodesString())
     
     #Return string without duplicate node entries.
@@ -57,46 +65,52 @@ def getAllocatedNodesString():
 	for i in range(len(nodeslist)):
         nodeslist[i] += '.lanl.gov'
     """
+    # Not sure if sort is needed...
     nodelist.sort()
     return string.join(nodelist)
 
-def prepENV():
+def prepENV(topologyStringHash):
+    global topFileUpdateNeeded
+    
     if debug:
-        sys.stdout.write('Checking for OPENSS_MRNET_TOPOLOGY_FILE...')
+        sys.stdout.write('checking for OPENSS_MRNET_TOPOLOGY_FILE...')
     if os.environ.has_key('OPENSS_MRNET_TOPOLOGY_FILE'):
         if debug:
             print 'defined'
-        
-        #Backup User-defined OPENSS_MRNET_TOPOLOGY_FILE environment variable.
-        #This is probably not needed, but I'll keep it around for now.
-        backuptopenv = os.environ['OPENSS_MRNET_TOPOLOGY_FILE']
+            sys.stdout.write('topology update needed...')
         
         #Get topology file path for redefinition of OPENSS_MRNET_TOPOLOGY_FILE.
         #If OPENSS_MRNET_TOPOLOGY_FILE is defined, assume that user would like
         #all OpenSpeedShop-related topology files created in the same directory.
-        usertoproot = os.path.dirname(backuptopenv)
+        usertoproot = os.path.dirname(os.environ['OPENSS_MRNET_TOPOLOGY_FILE'])
 
         #Overwrite OPENSS_MRNET_TOPOLOGY_FILE with:
-        #/user/defined/top/path/HOSTNAME.<openssPID>.top
+        #/user/defined/top/path/HOSTNAME.<topologyStringHash>.top
         newtopenv = usertoproot + os.sep + os.uname()[1].split('.')[0] + \
-        '.%d.top' % (os.getpid())
-        os.environ['OPENSS_MRNET_TOPOLOGY_FILE'] = newtopenv
+        '.' + topologyStringHash + '.top'
         
-        if debug:
-            print 'Backup OPENSS_MRNET_TOPOLOGY_FILE: ' + backuptopenv
-            print ('Changing OPENSS_MRNET_TOPOLOGY_FILE: ' +
-                    os.environ['OPENSS_MRNET_TOPOLOGY_FILE'])
+        os.environ['OPENSS_MRNET_TOPOLOGY_FILE'] = newtopenv
     else:
         if debug:
             print 'not defined'
+            sys.stdout.write('topology update needed...')
+
         #If OPENSS_MRNET_TOPOLOGY_FILE is not defined, 
-        #then default to $HOME/<openssPID>.top
+        #then default to $HOME/HOSTNAME.<topologyStringHash>.top
         os.environ['OPENSS_MRNET_TOPOLOGY_FILE'] = \
-            (os.environ['HOME'] + os.sep + os.uname()[1].split('.')[0] + \
-            '.%d.top') % (os.getpid())
+        os.environ['HOME'] + os.sep + os.uname()[1].split('.')[0] + \
+        '.' + topologyStringHash + '.top'
+
+    if os.path.isfile(os.environ['OPENSS_MRNET_TOPOLOGY_FILE']):
         if debug:
-            print 'Defining OPENSS_MRNET_TOPOLOGY_FILE: ' + \
-                    os.environ['OPENSS_MRNET_TOPOLOGY_FILE']
+            print 'no'
+    else:
+        if debug:
+            print 'yes'
+        topFileUpdateNeeded = True
+    if debug:
+        print ('OPENSS_MRNET_TOPOLOGY_FILE: ' + \
+        os.environ['OPENSS_MRNET_TOPOLOGY_FILE'])
 
 ## haveTopgen()
 # Returns True if mrnet_topgen is present in $OPENSS_PREFIX/bin.
@@ -105,7 +119,10 @@ def haveTopgen():
     return os.path.isfile(os.environ['OPENSS_PREFIX'] + os.sep + 'bin' + \
                         os.sep + 'mrnet_topgen')
 
-def generateMRNetTopologyFile(degree, numleaves):
+#FIXME
+## generateMRNetTopologyString(degree, numleaves)
+# Returns mrnet_topgen-based MRNet topology string.
+def generateMRNetTopologyString(degree, numleaves):
     mrntstr = 'echo "' + getAllocatedNodesString() + '" | ' + \
 				'mrnet_topgen -b %dx%d' % (degree, numleaves)
     
@@ -115,24 +132,8 @@ def generateMRNetTopologyFile(degree, numleaves):
     if debug:
         print mrntopstr
 
-    print mrntopstr
+    return mrntopstr
     
-    #Make certain OPENSS_MRNET_TOPOLOGY_FILE is present
-    if os.environ.has_key('OPENSS_MRNET_TOPOLOGY_FILE'):
-        try:
-            topfile = open(os.environ['OPENSS_MRNET_TOPOLOGY_FILE'], 'w')
-            topfile.write(mrntopstr)
-            topfile.close()
-        except:
-            exc_info = sys.exc_info()
-            print exc_info[1]
-            print ('an error was encountered during MRNet topology file ' + 
-            'generation...')
-            sys.exit()
-    else:
-        raise RuntimeError('OPENSS_MRNET_TOPOLOGY_FILE environment variable ' +
-        'not defined...')
-
 def createTopologyFile(topologyString):
     #Make certain OPENSS_MRNET_TOPOLOGY_FILE is present
     if os.environ.has_key('OPENSS_MRNET_TOPOLOGY_FILE'):
@@ -147,8 +148,9 @@ def createTopologyFile(topologyString):
             'generation...')
             sys.exit()
     else:
-        raise RuntimeError('OPENSS_MRNET_TOPOLOGY_FILE environment variable ' +
+        print ('OPENSS_MRNET_TOPOLOGY_FILE environment variable ' +
         'not defined...')
+        sys.exit()
     
 
 def getAllocatedNodeCount():
@@ -182,28 +184,36 @@ def generateSimpleBETopologyString():
     topstring += ' ;'
     return topstring
 
+# Overkill
+def getStringHashValue(inputString):
+    return hex(hash(inputString))
+
 ##main()
 def main():
     #Assuming presence of PBS_JOBID is a good 
     #indicator that we are on compute nodes
     if os.environ.has_key('PBS_JOBID'):
         if debug:
-            print 'On Compute Node...'
-        prepENV()
+            print 'on compute node...'
+        prepENV(getStringHashValue(generateSimpleBETopologyString()))
         print generateSimpleBETopologyString()
         #TODO:FIXME Simple hack to get things going
-        createTopologyFile(generateSimpleBETopologyString()) 
+        if(topFileUpdateNeeded):
+            createTopologyFile(generateSimpleBETopologyString())
     #If PBS_JOBID is not present, then we
     #better be on a compile node...
     else:
         if debug:
-            print 'On Compile Node...'
+            print 'on compile node...'
         #Make sure we have mrnet_topgen before we continue. 
         #It's not used here, but will be.??
-        prepENV()
+        prepENV(getStringHashValue(generateSimpleTopologyString()))
         print generateSimpleTopologyString()
 		#TODO: FIXME Simple hack to get things going
-        createTopologyFile(generateSimpleTopologyString())
+        if(topFileUpdateNeeded):
+            createTopologyFile(generateSimpleTopologyString())
 
 if __name__ == '__main__' :
-     main()
+    #Used to suppress python hex() Future Warning message.
+    warnings.filterwarnings('ignore')
+    main()
