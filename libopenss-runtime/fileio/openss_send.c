@@ -26,7 +26,7 @@
 
 #include <stdio.h>
 
-extern char *OpenSS_outfile;
+extern __thread char *OpenSS_outfile;
 
 /**
  * Write blob data.

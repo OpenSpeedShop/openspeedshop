@@ -49,10 +49,6 @@
 #include "config.h"
 #endif
 
-#if defined (OPENSS_USE_FILEIO)
-#include "OpenSS_FileIO.h"
-#endif
-
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
@@ -61,7 +57,6 @@
 extern void offline_start_sampling(const char* arguments);
 extern void offline_stop_sampling(const char* arguments);
 extern void offline_record_dso(const char* dsoname);
-extern char *OpenSS_dsopath;
 
 #if defined(_MONITOR_H_)
 void monitor_fini_process(int how, void *data)

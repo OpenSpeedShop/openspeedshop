@@ -22,17 +22,10 @@
  *
  */
 
-#include <stdio.h>
-#include <dlfcn.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-char *OpenSS_outfile;
-
-static __thread  char *OpenSS_rawprefix;
-char *OpenSS_exepath;
-static __thread  pthread_t OpenSS_rawtid = 0;
+extern __thread  char *OpenSS_outfile;
+extern __thread  char *OpenSS_rawprefix;
+extern __thread  char *OpenSS_exepath;
+extern __thread  uint64_t  OpenSS_rawtid;
 
 void OpenSS_CreateFilePrefix (char *collectorname);
 void OpenSS_CreateOutfile (char *suffix);
