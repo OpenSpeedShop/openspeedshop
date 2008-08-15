@@ -850,8 +850,8 @@ AC_DEFUN([AC_PKG_MVAPICH], [
     # the MPI-related plugins, where $MVAPICH_CC is not used.
     MVAPICH_CC="$mvapich_dir/bin/mpicc -shlib"
     MVAPICH_CPPFLAGS="-I$mvapich_dir/include"
-    MVAPICH_LDFLAGS="-L$mvapich_dir/$abi_libdir -L$mvapich_dir/$alt_abi_libdir/libmpich.a"
-    MVAPICH_LIBS="-libverbs"
+    MVAPICH_LDFLAGS="-L$mvapich_dir/$abi_libdir -L$mvapich_dir/$alt_abi_libdir"
+    MVAPICH_LIBS="-lmpich -libverbs"
     MVAPICH_HEADER="$mvapich_dir/include/mpi.h"
     MVAPICH_DIR="$mvapich_dir"
 
