@@ -132,7 +132,13 @@ void StopAtEntryOrExitEntry::install()
         Assert(points != NULL);
         
         // Request the instrumentation be inserted
-	if(process->isMultithreadCapable())
+
+        // Note: The following extra conditional term checking dm_where is a
+        //       hack. It causes stops for MPIR_Breakpoint to be process-wide,
+        //       which is necessary on LLNL's SLURM based MPICH implementation.
+        //       In that implementation, the call to MPIR_Breakpoint does not
+        //       occur in the main thread.
+	if(process->isMultithreadCapable() && (dm_where != "MPIR_Breakpoint"))
 	    dm_handle = process->insertSnippet(expression, *points);
 	else
 	    dm_handle = process->insertSnippet(body, *points);
