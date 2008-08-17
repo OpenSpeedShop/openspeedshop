@@ -28,20 +28,7 @@
 #endif
 
 #include "RuntimeAPI.h"
-
-#include <stdio.h>
-#include <dlfcn.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-void OpenSS_CreateFilePrefix (char *collectorname);
-void OpenSS_CreateOutfile (char *suffix);
-
-__thread  char *OpenSS_outfile;
-__thread  char *OpenSS_rawprefix;
-__thread  char *OpenSS_exepath;
-__thread  uint64_t OpenSS_rawtid = 0;
+#include "OpenSS_FileIO.h"
 
 static pid_t create_OpenSS_exepath () {
     pid_t pid = getpid();
