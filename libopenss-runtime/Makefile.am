@@ -70,19 +70,22 @@ libopenss_runtime_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
 	@LIBUNWIND_CPPFLAGS@ \
 	@BINUTILS_CPPFLAGS@ \
-	@PAPI_CPPFLAGS@
+	@PAPI_CPPFLAGS@ \
+	@LIBMONITOR_CPPFLAGS@
 
 libopenss_runtime_offline_la_LDFLAGS = \
 	@LIBUNWIND_LDFLAGS@ \
 	@BINUTILS_LDFLAGS@ \
-	@PAPI_LDFLAGS@
+	@PAPI_LDFLAGS@ \
+	@LIBMONITOR_LDFLAGS@
 
 libopenss_runtime_offline_la_LIBADD = \
-	offline/libopenss-runtime-offline.la \
-	fileio/libopenss-runtime-fileio.la \
 	@LIBUNWIND_LIBS@ \
 	@BINUTILS_LIBS@ \
 	@PAPI_LIBS@ \
+	@LIBMONITOR_LIBS@ \
+	offline/libopenss-runtime-offline.la \
+	fileio/libopenss-runtime-fileio.la \
 	-lpthread -lrt
 endif
 

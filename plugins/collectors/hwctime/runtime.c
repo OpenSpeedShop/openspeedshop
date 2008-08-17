@@ -292,22 +292,15 @@ void hwctime_start_sampling(const char* arguments)
 
     tlsinfo.header.time_begin = OpenSS_GetTime();
 
-    char hostname[HOST_NAME_MAX];
-    gethostname(hostname, HOST_NAME_MAX);
     tlsinfo.info.collector = "hwctime";
-    tlsinfo.info.hostname = strdup(hostname);
     tlsinfo.info.exename = strdup(OpenSS_exepath);
-    tlsinfo.info.pid = getpid();
-#if defined (OPENSS_USE_FILEIO)
-    tlsinfo.info.tid = OpenSS_rawtid;
-#endif
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"hwctime_start_sampling sends tlsinfo:\n");
         fprintf(stderr,"collector=%s, hostname=%s, pid =%d, tid=%lx\n",
-            tlsinfo.info.collector,tlsinfo.info.hostname,
-	    tlsinfo.info.pid,tlsinfo.info.tid);
+            tlsinfo.info.collector,tlsinfo.header.host,
+	    tlsinfo.header.pid,tlsinfo.header.posix_tid);
     }
 #endif
 

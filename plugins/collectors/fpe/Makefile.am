@@ -108,7 +108,7 @@ fpe_rt_offline_la_LIBADD = \
 	@LIBUNWIND_LIBS@ \
 	@LIBMONITOR_LIBS@ \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
-	-lpthread -lrt
+	-lpthread -lrt -lm
 
 fpe_rt_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
@@ -136,7 +136,7 @@ libfpe_offline_la_LIBADD = \
 	@LIBUNWIND_LIBS@ \
 	@LIBMONITOR_LIBS@ \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
-	-lpthread -lrt
+	-lpthread -lrt -lm
 
 libfpe_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \

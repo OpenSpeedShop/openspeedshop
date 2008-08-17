@@ -63,6 +63,126 @@ bool OfflineExperiment::is_debug_offline_enabled =
     (getenv("OPENSS_DEBUG_OFFLINE") != NULL);
 #endif
 
+/**
+ * Utility: setparam()
+ * 
+ * Taken from cli and modified for OfflineExperiment.
+ * .
+ *     
+ * @param   .
+ *
+ * @return  bool
+ *
+ * @todo    Error handling.
+ *
+ */
+static bool setparam(Collector C, std::string pname,
+		     std::vector<OfflineParamVal> *value_list) {
+
+
+  std::set<Metadata>::const_iterator mi;
+  std::set<Metadata> md = C.getParameters();
+  for (mi = md.begin(); mi != md.end(); mi++) {
+    Metadata m = *mi;
+    if (m.getUniqueId() != pname) {
+     // Not the one we want - keep looking.
+      continue;
+    }
+
+    if ( m.isType(typeid(std::map<std::string, bool>)) ) {
+     // Set strings in the value_list to true.
+      std::map<std::string, bool> Value;
+      C.getParameterValue(pname, Value);
+
+     // Set all the booleans to true, if the corresponding name is in the list,
+     // and false otherwise.
+      for (std::map<std::string, bool>::iterator
+                 im = Value.begin(); im != Value.end(); im++) {
+        bool name_in_list = false;
+        for (std::vector<OfflineParamVal>::iterator
+                iv = value_list->begin(); iv != value_list->end(); iv++) {
+          Assert (iv->getValType() == PARAM_VAL_STRING);
+          if (!strcasecmp( im->first.c_str(), iv->getSVal() )) {
+            name_in_list = true;
+            break;
+	  }
+        }
+        im->second = name_in_list;
+
+      }
+
+      C.setParameterValue(pname,Value);
+    } else {
+      OfflineParamVal pvalue = (*value_list)[0];
+
+      if( m.isType(typeid(int)) ) {
+        int ival;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%d", &ival);
+        } else {
+          ival = (int)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(int)ival);
+      } else if( m.isType(typeid(int64_t)) ) {
+        int64_t i64val;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%lld", &i64val);
+        } else {
+          i64val = (int64_t)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(int64_t)i64val);
+      } else if( m.isType(typeid(uint)) ) {
+        uint uval;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%d", &uval);
+        } else {
+          uval = (uint)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(uint)uval);
+      } else if( m.isType(typeid(uint64_t)) ) {
+        uint64_t u64val;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%lld", &u64val);
+        } else {
+          u64val = (uint64_t)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(uint64_t)u64val);
+      } else if( m.isType(typeid(float)) ) {
+        float fval;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%f", &fval);
+        } else {
+          fval = (float)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(float)fval);
+      } else if( m.isType(typeid(double)) ) {
+        double dval;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%llf", &dval);
+        } else {
+          dval = (double)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(double)dval);
+      } else if( m.isType(typeid(string)) ) {
+        std::string sval;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sval = std::string(pvalue.getSVal());
+        } else {
+          char cval[20];
+          sprintf( cval, "%d", pvalue.getIVal());
+          sval = std::string(&cval[0]);
+        }
+        C.setParameterValue(pname,(std::string)sval);
+      }
+    }
+
+    return true;
+  }
+
+ // We didn't find the named parameter in this collector.
+  return false;
+}
+
 int
 OfflineExperiment::getRawDataFiles (std::string dir)
 {
@@ -276,7 +396,53 @@ int OfflineExperiment::convertToOpenSSDB()
     }
 
     if (expCollector != collector_name) {
-        theExperiment->createCollector(expCollector);
+        Collector c = theExperiment->createCollector(expCollector);
+        Metadata m = c.getMetadata();
+        collector_name = m.getUniqueId();
+	Blob b;
+
+// DEBUG
+#ifndef NDEBUG
+	if(is_debug_offline_enabled) {
+	    std::cerr << "COLLECTOR   : " << collector_name << std::endl;
+	    std::cerr << "            : " << m.getShortName() << std::endl;
+	    std::cerr << "            : " << m.getType() << std::endl;
+	    std::cerr << "            : " << m.getDescription() << std::endl;
+	}
+#endif
+	
+	std::set<Metadata> md = c.getParameters();
+	std::set<Metadata>::const_iterator mi;
+	for (mi = md.begin(); mi != md.end(); mi++) {
+	    Metadata mm = *mi;
+
+// DEBUG
+#ifndef NDEBUG
+	    if(is_debug_offline_enabled) {
+		std::cerr << "PARAMETERS  : " << mm.getUniqueId() << std::endl;
+		std::cerr << "            : " << mm.getShortName() << std::endl;
+		std::cerr << "            : " << mm.getType() << std::endl;
+		std::cerr << "            : " << mm.getDescription() << std::endl;
+	    }
+#endif
+
+	    char *type_name = (char*)collector_name.c_str();
+	    char *param_name =  (char*)mm.getUniqueId().c_str();
+	    OfflineParameters o_param(type_name, param_name);
+
+	    std::vector<OfflineParamVal> *value_list = o_param.getValList();
+
+	    if (mm.getUniqueId() == "sampling_rate") {
+	       //std::cerr << "sampling_rate is: " << expRate << std::endl;
+	       o_param.pushVal((int64_t) expRate);
+	    } else if (mm.getUniqueId() == "traced_functions") {
+		std::map<std::string, bool> traced;
+		c.getParameterValue("traced_functions", traced);
+	    } else if (mm.getUniqueId() == "event") {
+	    }
+
+	    (void) setparam(c, param_name, value_list);
+	}
     }
 
     // Process data first so we can find the unique pc values
@@ -368,11 +534,12 @@ OfflineExperiment::process_expinfo(const std::string rawfilename)
 
     if(infocall) {
 	std::string command = "empty command";
-	expHost = info.hostname;
+	expHost = infoheader.host;
 	expExecutableName.insert(info.exename);
 	expCollector = info.collector;
 	expPosixTid = infoheader.posix_tid;
-	expPid = info.pid;
+	expPid = infoheader.pid;
+	expRate = info.rate;
 	expColId = infoheader.collector;
 	expExpId = infoheader.experiment;
 
@@ -381,10 +548,10 @@ OfflineExperiment::process_expinfo(const std::string rawfilename)
 	if(is_debug_offline_enabled) {
 	std::cout << "info..." << std::endl
 		  << "collector name: " << info.collector << std::endl
-		  << "host name:      " << info.hostname << std::endl
+		  << "host name:      " << infoheader.host << std::endl
 		  << "executable :    " << info.exename << std::endl
-		  << "pid:            " << info.pid << std::endl
-		  << "tid:            " << info.tid << std::endl;
+		  << "pid:            " << infoheader.pid << std::endl
+		  << "tid:            " << infoheader.posix_tid << std::endl;
 
 	std::cout << "infoheader..." << std::endl
 		  << "experiment id:  " << infoheader.experiment << std::endl
@@ -663,6 +830,14 @@ void OfflineExperiment::createOfflineSymbolTable()
 	}
     }
 
+// DEBUG
+#ifndef NDEBUG
+    if(is_debug_offlinesymbols_enabled) {
+        std::cerr << "OfflineExperiment::createOfflineSymbolTable have total "
+	<< data_addr_buffer.length << " UNIQUE addresses" << std::endl;
+    }
+#endif
+
     std::set<std::string> dsos_used;
     AddressSpace address_space;
 
@@ -916,7 +1091,7 @@ void OfflineExperiment::createOfflineSymbolTable()
 	}
       } else {
               std::cerr << "OfflineExperiment::createOfflineSymbolTable: "
-		<< "FAILED STATEMENT for " << objsyms->pc
+		<< "FAILED STATEMENT for " << Address(objsyms->pc)
 		<< " path " << objsyms->file_name
 		<< " line " << objsyms->lineno
 		<< std::endl;

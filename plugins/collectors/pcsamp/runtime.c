@@ -145,7 +145,7 @@ void pcsamp_start_sampling(const char* arguments)
 
     if (sampling_rate != NULL) {
 	args.sampling_rate=atoi(sampling_rate);
-	fprintf(stderr,"args.sampling_rate = %d\n", args.sampling_rate);
+	//fprintf(stderr,"args.sampling_rate = %d\n", args.sampling_rate);
     } else {
 	args.sampling_rate=100;
     }
@@ -159,22 +159,16 @@ void pcsamp_start_sampling(const char* arguments)
 
     tlsinfo.header.time_begin = OpenSS_GetTime();
 
-    char hostname[HOST_NAME_MAX];
-    gethostname(hostname, HOST_NAME_MAX);
     tlsinfo.info.collector = "pcsamp";
-    tlsinfo.info.hostname = strdup(hostname);
     tlsinfo.info.exename = strdup(OpenSS_exepath);
-    tlsinfo.info.pid = getpid();
-#if defined (OPENSS_USE_FILEIO)
-    tlsinfo.info.tid = OpenSS_rawtid;
-#endif
+    tlsinfo.info.rate = args.sampling_rate;
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	fprintf(stderr,"pcsamp_start_sampling sends tlsinfo:\n");
 	fprintf(stderr,"collector=%s, hostname=%s, pid =%d, OpenSS_rawtid=%lx\n",
-	    tlsinfo.info.collector,tlsinfo.info.hostname,
-	    tlsinfo.info.pid,tlsinfo.info.tid);
+	    tlsinfo.info.collector,tlsinfo.header.host,
+	    tlsinfo.header.pid,tlsinfo.header.posix_tid);
     }
 #endif
 

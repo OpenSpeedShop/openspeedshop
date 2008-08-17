@@ -30,6 +30,7 @@
 #endif
 
 #include "SymbolTable.hxx"
+#include "OfflineParameters.hxx"
 
 namespace OpenSpeedShop { namespace Framework {
 
@@ -83,8 +84,11 @@ class OfflineExperiment
 
     int		expPid;
     uint64_t	expPosixTid;
-    uint64_t	expExpId;
-    uint64_t	expColId;
+    int		expExpId;
+    int		expColId;
+    int		expRate;
+    int		expRank;
+    int		expOmpTid;
 
     bool	process_expinfo(const std::string rawfilename);
     bool	process_data(const std::string rawfilename);

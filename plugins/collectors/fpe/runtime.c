@@ -102,7 +102,6 @@ void fpe_print_cause(const OpenSS_FPEType fpetype)
  */
 static void fpe_send_events()
 {
-//fprintf(stderr,"ENTER fpe_send_events\n");
     /* Set the end time of this data blob */
     tls.header.time_end = OpenSS_GetTime();
 
@@ -146,7 +145,6 @@ static void fpe_send_events()
  */
 void fpe_enable_fpes()
 {
-/* fprintf(stderr,"ENTER fpe_enable_fpes\n"); */
 #if 0
     feenableexcept(FE_ALL_EXCEPT);
 #else
@@ -168,8 +166,6 @@ void fpe_enable_fpes()
  */
 void fpe_record_event(const fpe_event* event, const ucontext_t* context)
 {
-
-//    fprintf(stderr,"ENTER fpe_record_event\n");
 
     uint64_t stacktrace[MaxFramesPerStackTrace];
     unsigned stacktrace_size = 0;
@@ -261,7 +257,6 @@ void fpe_record_event(const fpe_event* event, const ucontext_t* context)
  */
 static void fpeHandler(const OpenSS_FPEType fpetype, const ucontext_t* context)
 {
-/*    fprintf(stderr,"ENTER fpeHandler\n"); */
 
 #ifdef DEBUG
      fpe_print_cause(fpetype); 
@@ -338,7 +333,6 @@ static void fpeHandler(const OpenSS_FPEType fpetype, const ucontext_t* context)
  */
 void fpe_start_tracing(const char* arguments)
 {
-/* fprintf(stderr,"ENTER fpe_start_tracing\n"); */
     fpe_start_tracing_args args;
 
 #if defined (OPENSS_USE_FILEIO)
@@ -363,22 +357,15 @@ void fpe_start_tracing(const char* arguments)
 
     tlsinfo.header.time_begin = OpenSS_GetTime();
 
-    char hostname[HOST_NAME_MAX];
-    gethostname(hostname, HOST_NAME_MAX);
     tlsinfo.info.collector = "fpe";
-    tlsinfo.info.hostname = strdup(hostname);
     tlsinfo.info.exename = strdup(OpenSS_exepath);
-    tlsinfo.info.pid = getpid();
-#if defined (OPENSS_USE_FILEIO)
-    tlsinfo.info.tid = OpenSS_rawtid;
-#endif
 
 #ifdef DEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"fpe_start_tracing sends tlsinfo:\n");
         fprintf(stderr,"collector=%s, hostname=%s, pid=%d, OpenSS_rawtid=%lx\n",
-            tlsinfo.info.collector,tlsinfo.info.hostname,
-            tlsinfo.info.pid,tlsinfo.info.tid);
+            tlsinfo.info.collector,tlsinfo.header.host,
+            tlsinfo.header.pid,tlsinfo.header.posix_tid);
     }
 #endif
 
@@ -433,8 +420,9 @@ void fpe_start_tracing(const char* arguments)
        which FPE's to trap. For now we trap all FPE's.
     */
 
-/*    fprintf(stderr,"fpe_start_tracing: calling OpenSS_FPEHandler\n"); */
-
+#if defined (OPENSS_OFFLINE)
+    fpe_enable_fpes();
+#endif
     OpenSS_FPEHandler(AllFPE,fpeHandler);
 }
 
@@ -450,7 +438,6 @@ void fpe_start_tracing(const char* arguments)
  */
 void fpe_stop_tracing(const char* arguments)
 {
-/* fprintf(stderr,"ENTER fpe_stop_tracing\n"); */
     /* Send events if there are any remaining in the tracing buffer */
     if(tls.data.events.events_len > 0)
 	fpe_send_events();
