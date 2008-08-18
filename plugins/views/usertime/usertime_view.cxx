@@ -276,8 +276,8 @@ static bool define_usertime_columns (
            // Use the metric needed for calculating total time.
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
           } else {
-           // Sum the extime_temp values.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+           // Sum the intime_temp values.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, intime_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
           HV.push_back("% of Total Exclusive Time");
@@ -355,9 +355,9 @@ static bool define_usertime_columns (
     HV.push_back( Find_Metadata( CV[0], "inclusive_time" ).getDescription() );
 
   // Column[1] in % of inclusive time
-    IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, intime_temp));
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
-    HV.push_back("% of Total Exclusive CPU Time");
+    HV.push_back("% of Total Inclusive CPU Time");
 
   } else {
    // If nothing is requested ...
