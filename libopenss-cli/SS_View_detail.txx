@@ -954,6 +954,11 @@ bool Detail_ButterFly_Report (
 
     std::map<Address, CommandResult *> knownTraces;
     typename std::map<Function, std::map<Framework::StackTrace, TDETAIL > >::iterator fi1;
+#if 0
+Dump_CallStack (std::vector<CommandResult *> *call_stack,
+                std::vector<CommandResult *> *vcs) {
+#endif
+
 
 #if DEBUG_CLI
     int rawcount = 0;
@@ -980,6 +985,12 @@ bool Detail_ButterFly_Report (
       typename std::map<Framework::StackTrace, TDETAIL >:: iterator si1;
       for (si1 = (*fi1).second.begin(); si1 != (*fi1).second.end(); si1++) {
         Framework::StackTrace st = (*si1).first;
+#if DEBUG_CLI
+        printf("Butterfly view, begin dumping stack st\n");
+        Dump_StackTrace(st);
+        printf("Butterfly view, end dumping stack st\n");
+#endif
+
         TDETAIL details = (*si1).second;
 
        // Use macro to allocate imtermediate temporaries
@@ -1004,8 +1015,12 @@ bool Detail_ButterFly_Report (
         set_ExtraMetric_values((*vcs), Extra_Values, F)
 
        // Construct result entry
-        std::vector<CommandResult *> *call_stack
-                 = Construct_CallBack (TraceBack_Order, true, st, knownTraces);
+        std::vector<CommandResult *> *call_stack;
+        if (getenv("OPENSS_SHOW_BUTTERFLY_BY_STATEMENT_VIEW") != NULL) {
+           call_stack = Construct_CallBack (TraceBack_Order, true, st, knownTraces);
+        } else {
+           call_stack = Construct_CallBack (TraceBack_Order, false, st, knownTraces);
+       }
 
         CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
 
