@@ -31,6 +31,7 @@
 #include "Senders.hxx"
 #include "ThreadTable.hxx"
 
+
 #include <errno.h>
 #include <signal.h>
 #include <sys/time.h>
@@ -56,6 +57,7 @@ ThreadTable ThreadTable::TheTable;
 
     /** Identifier of the monitor thread. */
 pthread_t fileIOmonitor_tid;
+
 
     /** Access-controlled flag used to request that the monitor thread exit. */
 struct {
@@ -206,6 +208,362 @@ void Watcher::Watcher ()		// : Lockable()
   WatcherThreadTable ();
 }
 
+
+void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
+{
+  struct stat statbuf;
+  char directoryName[1024];
+  struct dirent * direntry;
+  struct dirent * perfdata_direntry;
+  char data_dirname[PATH_MAX];
+  char openssDataDirName[1024];
+  XDR xdrs;
+  std::string host = "";
+  unsigned int blobsize = 0;
+  uint64_t prevSize = 0;
+  uint64_t prevPos = 0;
+  WatcherThreadTable::FileInfoEntry currentFileEntryInfo;
+
+  if (getenv("OPENSS_RAWDATA_DIR") != NULL) {
+     sprintf(data_dirname,"%s",getenv("OPENSS_RAWDATA_DIR"));
+  } else {
+     sprintf(data_dirname,"%s","/tmp");
+  }
+
+  DIR * perfdata_dirhandle = opendir (data_dirname);
+
+  // Create the name of the raw data directory with pid included
+  sprintf (openssDataDirName, "openss-rawdata-%d", pid_to_monitor);
+
+#ifndef NDEBUG
+  if (Watcher::isDebugEnabled ()) {
+      std::stringstream output;
+      output << "[TID " << pthread_self () << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()" <<
+		" perfdata_dirhandle=" << perfdata_dirhandle << " openssDataDirName=" << openssDataDirName << std::endl;
+      std::cerr << output.str ();
+  }
+#endif
+
+  // If the main (upper level) directory exists continue the search for rawdata associated with pid == pid_to_monitor
+  
+  if (perfdata_dirhandle) {
+
+	  while ((perfdata_direntry = readdir (perfdata_dirhandle)) != NULL) {
+
+              // Look at the directories in the upper level directory until we find the one associated with the pid_to_monitor
+              // Then start processing the data
+	      if (strstr (perfdata_direntry->d_name, openssDataDirName)) {
+
+		  sprintf (directoryName, "%s/%s", data_dirname, perfdata_direntry->d_name);
+
+		  DIR * dirhandle = opendir (directoryName);
+
+#ifndef NDEBUG
+		  if (Watcher::isDebugEnabled ()) {
+		      std::stringstream output;
+		      output << "[TID " << pthread_self () << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()" <<
+			" Examining directories, looking at directoryName=" << directoryName << std::endl;
+		      std::cerr << output.str ();
+		    }
+#endif
+		  if (dirhandle) {
+
+		      while ((direntry = readdir (dirhandle)) != NULL) {
+
+#ifndef NDEBUG
+			  if (Watcher::isDebugEnabled ()) {
+			      std::stringstream output;
+			      output << "[TID " << pthread_self () <<
+				"] OpenSpeedShop::Watcher::scanForRawPerformanceData()" <<
+				" Examining files, looking at direntry->d_name=" << direntry->d_name << std::endl;
+			      std::cerr << output.str ();
+			    }
+#endif
+
+			  if (strstr (direntry->d_name, ".openss-data")) {
+
+			      // ******************* Initialize working copy of the file being processed
+			      // FileInfoEntry entry record.
+
+			      currentFileEntryInfo.filePtr = NULL;
+			      currentFileEntryInfo.fileName = "";
+			      currentFileEntryInfo.readPosition = 0;
+			      currentFileEntryInfo.prevSize = 0;
+#ifndef NDEBUG
+			      if (Watcher::isDebugEnabled ()) {
+				  std::stringstream output;
+				  output << "[TID " << pthread_self () <<
+				    "] OpenSpeedShop::Watcher::scanForRawPerformanceData()" <<
+				    " FOUND openss-data filename, direntry->d_name=" << direntry->d_name << std::endl;
+				  std::cerr << output.str ();
+				}
+#endif
+
+			      char dataFilename[PATH_MAX];
+			      char openssDataFilename[PATH_MAX];
+			      sprintf (dataFilename, "%s/%s", directoryName, direntry->d_name);
+			      sprintf (openssDataFilename, "%s", direntry->d_name);
+
+			      if (Watcher::isDebugEnabled ()) {
+  			         std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() openssDataFilename=" << openssDataFilename 
+                                            << " directoryName=" << directoryName 
+                                            << " dataFilename=" << dataFilename
+				            << std::endl;
+                              }
+
+			      // *********** We have found a filename that matches our criteria
+			      // Save the filename into our file information record
+			      currentFileEntryInfo.fileName = openssDataFilename;
+
+			      pid_t pid = getPidFromFilename (openssDataFilename);
+#ifndef NDEBUG
+			      if (Watcher::isDebugEnabled ()) {
+				  std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() pid=" << pid << std::endl;
+                              }
+#endif
+
+			      pthread_t tid = getTidFromFilename (openssDataFilename);
+
+#ifndef NDEBUG
+			      if (Watcher::isDebugEnabled ()) {
+				  std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() pid=" << pid << " tid=" << tid << std::endl;
+                              }
+#endif
+                              if (pid != pid_to_monitor) {
+                                // skip this directory
+                                break;
+                              }
+			      // ************** Make legality checks on pid and tid
+			      // More here?
+
+			      if (pid > 0 && tid > 0) {
+				  if (WatcherThreadTable::TheTable.getThreadAlreadyPresent (pid, tid)) {
+
+				      currentFileEntryInfo = WatcherThreadTable::TheTable.getEntry (pid, tid);
+#ifndef NDEBUG
+				      if (Watcher::isDebugEnabled ()) {
+					  std:: cout << "Call to WatcherThreadTable::getThreadAlreadyPresent is true"
+					             << std::endl;
+                                      }
+#endif
+				    } else {
+
+#ifndef NDEBUG
+				      if (Watcher::isDebugEnabled ()) {
+					  std::cout << "Call to WatcherThreadTable::getThreadAlreadyPresent is false" << std::endl;
+
+					  std::cout << "Calling WatcherThreadTable::addThread"
+                                                    << pid << tid << currentFileEntryInfo << std::endl;
+					}
+#endif
+				      WatcherThreadTable::TheTable.addThread (pid, tid, currentFileEntryInfo);
+				    }
+				}
+
+			      int status = stat (dataFilename, &statbuf);
+			      if (status == (-1)) {
+				  std::cerr << "OpenSpeedShop::Watcher::scanForRawPerformanceData() failed to stat file"
+				    	    << dataFilename << std::endl;
+				  break;
+                              }
+
+			      // **************** Get the file's current size in bytes
+			      //
+			      uint64_t currentFileSize = statbuf.st_size;
+
+			      FILE * f = fopen (dataFilename, "r");
+			      if (f == NULL) {
+				  std::cerr << "OpenSpeedShop::Watcher::scanForRawPerformanceData() failed to open file"
+				            << dataFilename << std::endl;
+				  break;
+				}
+
+			      // ************ We have the file pointer to the openss-data file
+			      // Save the pointer to the file information record
+			      currentFileEntryInfo.filePtr = f;
+			      WatcherThreadTable::TheTable.setEntry (pid, tid, currentFileEntryInfo);
+
+				  uint64_t currentPos = ftell (f);
+
+				  currentFileEntryInfo = WatcherThreadTable::TheTable.getEntry (pid, tid);
+				  prevSize = currentFileEntryInfo.prevSize;
+
+#ifndef NDEBUG
+			          if (Watcher::isDebugEnabled ()) {
+				    std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() prevSize=" 
+                                               << prevSize << ", currentPos=" << currentPos << ", currentFileSize=" << currentFileSize
+				               << std::endl;
+				  }
+#endif
+                                  // If this is the case break out of the main loop because there isn't any new data
+				  if (prevSize == currentFileSize) {
+				      // Skip processing this file, it is the same size it was before
+#ifndef NDEBUG
+				      if (Watcher::isDebugEnabled ()) {
+					  std::stringstream output;
+					  output << "[TID " << pthread_self ()
+					    << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()"
+					    << " file is same size as the last time file was saved="
+					    << currentFileSize << std::endl;
+					  std::cerr << output.str ();
+				          std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK; prevSize=" 
+                                                     << prevSize << " currentFileSize=" << currentFileSize
+				                     << std::endl;
+					} // end debug
+#endif
+				      break;
+				    }
+
+			      bool continue_checking_for_data = true;
+			      while (continue_checking_for_data) {
+
+				  // ********** Have we seen this file before and read from it?
+				  // Seek to the position we need to be at in order to read the next blob size and blob
+				  prevPos = currentFileEntryInfo.readPosition;
+#ifndef NDEBUG
+				  if (Watcher::isDebugEnabled ()) {
+				     std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() prevPos=" 
+                                                << prevPos << std::endl;
+			       	  } // end debug
+#endif
+				  if (prevPos != 0) {
+				      uint64_t fseekPos = fseek (f, prevPos, SEEK_SET);
+#ifndef NDEBUG
+				      if (Watcher::isDebugEnabled ()) {
+				          std::stringstream output;
+				          output << "[TID " << pthread_self () 
+					    << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()"
+					    << " current position in file(currentPos)=" << currentPos 
+					    << " fseek position in file(fseekPos)=" << fseekPos 
+					    << " previous position in file(prevPos)=" << prevPos << std::endl;
+				          std::cerr << output.str ();
+				        } //end debug
+#endif
+				    } // end: if prevPos != 0
+
+				  xdrstdio_create (&xdrs, f, XDR_DECODE);
+
+				  if (!xdr_u_int (&xdrs, &blobsize)) {
+				      continue_checking_for_data = false;
+#ifndef NDEBUG
+				      if (Watcher::isDebugEnabled ()) {
+				        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK; !xdr_u_int (&xdrs, &blobsize)" 
+                                                   << std::endl;
+				      } //end debug
+#endif
+				      break;
+				    } else {
+#ifndef NDEBUG
+				      if (Watcher::isDebugEnabled ()) {
+					  std::stringstream output;
+					  output << "[TID " << pthread_self () <<
+					    "] OpenSpeedShop::Watcher::scanForRawPerformanceData()"
+					    << " successfully read blobsize="
+					    << blobsize << std::endl;
+					  std::cerr << output.str ();
+					} //end debug
+#endif
+				    }
+
+				  char * blobbuff;
+				  blobbuff = (char *) malloc (blobsize + 4);
+				  if (blobbuff == 0) {
+				    abort ();
+                                  }
+				  memset (blobbuff, 0, blobsize);
+
+				  int bytesRead = fread (blobbuff, 1, blobsize, f);
+
+				  if (bytesRead == 0 || bytesRead < blobsize) {
+				      continue_checking_for_data = false;
+#ifndef NDEBUG
+				      if (Watcher::isDebugEnabled ()) {
+				        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK; bytesRead=" 
+                                                   << bytesRead << " blobsize=" << blobsize
+				                   << std::endl;
+				      } //end debug
+#endif
+				      break;
+				    }
+
+
+				  uint64_t lastPos = ftell (f);
+#ifndef NDEBUG
+				  if (Watcher::isDebugEnabled ()) {
+				      std::stringstream output;
+				      output << "[TID " << pthread_self ()
+                                             << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()"
+					     << " BYTESREAD, status for read of blob=" << bytesRead 
+					     << " position inside file after reading the blob is(lastPos)="
+					     << lastPos << std::endl;
+				      std::cerr << output.str ();
+				    }
+#endif
+				  // ****************  We have the position inside this file after reading of the blob.
+				  // Save this position of fseek usage when reading this file again
+				  currentFileEntryInfo.readPosition = lastPos;
+				  currentFileEntryInfo.prevSize = currentFileSize;
+				  WatcherThreadTable::TheTable.setEntry (pid, tid, currentFileEntryInfo);
+
+
+#ifndef NDEBUG
+				  if (Watcher::isDebugEnabled ()) {
+				      std::stringstream output;
+				      output << "[TID " << pthread_self () 
+                                             << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()"
+					     << " BEFORE SENDING BLOB, Sending blob to performanceData, size="
+					     << blobsize << std::endl;
+				      std::cerr << output.str ();
+				    } // end debug
+#endif
+
+				  // **************** Send the performance data blob upstream to be sent back to 
+				  // the client tool.
+
+				  OpenSpeedShop::Framework::Senders::performanceData (Blob (blobsize, blobbuff));
+#ifndef NDEBUG
+				  if (Watcher::isDebugEnabled ()) {
+				      std::stringstream output;
+				      output << "[TID " << pthread_self ()
+					     << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()"
+					     << " AFTER SENDING BLOB, Sending blob to performanceData, size="
+					     << blobsize << std::endl;
+				      std::cerr << output.str ();
+				    } // end debug
+#endif
+
+				}	// end while data in this file
+
+#ifndef NDEBUG
+		             if (Watcher::isDebugEnabled ()) {
+			        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() " 
+                                           << " Falling out,read blob loop for file, direntry->d_name=" << direntry->d_name 
+			                   << std::endl;
+			     } // end debug
+#endif
+			  } else {
+#ifndef NDEBUG
+		             if (Watcher::isDebugEnabled ()) {
+			        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() " 
+                                           << " Did not find openss-data filename, direntry->d_name=" << direntry->d_name 
+			                   << std::endl;
+			     } // end debug
+#endif
+		          } // end else
+			}
+		      closedir (dirhandle);
+		    }		// end if dirhandle
+
+		} else {
+                  // There was no match on the directory name created with the input pid (pid_to_monitor)
+                  // break;
+                }		
+	    }			// while perfdata_dirhandle
+          closedir (perfdata_dirhandle);
+   } // end if perfdata_dirhandle
+   return;
+} // end scan for directory and file
+
   /**
     * Watcher thread routine to monitor the fileIO files for data.
     *
@@ -226,6 +584,9 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
   char directoryName[1024];
   struct dirent * direntry;
   struct dirent * perfdata_direntry;
+#if 1
+  char data_dirname[PATH_MAX];
+#endif
   XDR xdrs;
   std::string host = "";
   unsigned int blobsize = 0;
@@ -234,9 +595,6 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
   WatcherThreadTable::FileInfoEntry currentFileEntryInfo;
   std::set<pid_t> PidSet; 
   pid_t pid_to_monitor=0; 
-#if 1
-  char data_dirname[PATH_MAX];
-#endif
 
 #ifndef NDEBUG
   if (Watcher::isDebugEnabled ())
@@ -313,8 +671,12 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
       // Once found, while through the directory looking for openss-data
       // type files.
 
-
 #if 1
+      scanForRawPerformanceData(pid_to_monitor);
+#else
+// THIS CODE WILL BE REMOVED AT SOME POINT
+
+
       if (getenv("OPENSS_RAWDATA_DIR") != NULL) {
           sprintf(data_dirname,"%s",getenv("OPENSS_RAWDATA_DIR"));
       } else {
@@ -322,10 +684,6 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
       }
 
       DIR * perfdata_dirhandle = opendir (data_dirname);
-#else
-      DIR * perfdata_dirhandle = opendir ("/tmp");
-#endif
-
 
       if (perfdata_dirhandle)
 	{
@@ -674,6 +1032,8 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 	    }			// while perfdata_dirhandle
           closedir (perfdata_dirhandle);
 	}			// end if perfdata_dirhandle
+#endif
+
      } // PidSet loop
     } // PidSet > 0 if
 
@@ -724,11 +1084,81 @@ OpenSpeedShop::Watcher::startWatching ()
 #endif
 
   // Create the monitor/watcher thread
-  Assert (pthread_create (&OpenSpeedShop::Watcher::fileIOmonitor_tid,
+  Assert (pthread_create (&fileIOmonitor_tid,
 			  NULL,
 			  OpenSpeedShop::Watcher::fileIOmonitorThread,
 			  NULL) == 0);
 
+}
+
+void
+OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads) 
+{
+
+ std::cout << "[TID " << pthread_self() << "] OpenSpeedShop::Watcher::watchProcess() Entered " << std::endl;
+
+      std::stringstream output;
+      output << "[TID " << pthread_self ()
+	     << "] OpenSpeedShop::Watcher::watchProcess()" 
+             << " Entered " << std::endl;
+      std::cerr << output.str ();
+
+#ifndef NDEBUG
+  if (Watcher::isDebugEnabled ()) {
+      std::stringstream output;
+      output << "[TID " << pthread_self ()
+	     << "] OpenSpeedShop::Watcher::watchProcess()" 
+             << " Entered " << std::endl;
+      std::cerr << output.str ();
+    }
+#endif
+    for(ThreadNameGroup::const_iterator i = threads.begin(); i != threads.end(); ++i) {
+
+//       std::cout << "[TID " << pthread_self() << "] OpenSpeedShop::Watcher::watchProcess(), i->getProcessId()=  " << i->getProcessId() << std::endl;
+
+
+
+#ifndef NDEBUG
+       if (Watcher::isDebugEnabled ()) {
+           std::stringstream output;
+           output << "[TID " << pthread_self ()
+	          << "] OpenSpeedShop::Watcher::watchProcess()" 
+                  << " i->getProcessId()= " << i->getProcessId() << std::endl;
+           std::cerr << output.str ();
+         }
+#endif
+       // Call to flush data for this pid before the completion of the termination processing for this process.
+       scanForRawPerformanceData(i->getProcessId());
+
+
+       std::pair<bool, pthread_t> tid = i->getPosixThreadId();
+       if(tid.first) {
+//           std::cout << "[TID " << pthread_self() << "] OpenSpeedShop::Watcher::watchProcess(), tid.second=  " << tid.second << std::endl;
+#ifndef NDEBUG
+          if (Watcher::isDebugEnabled ()) {
+              std::stringstream output;
+              output << "[TID " << pthread_self ()
+                     << "] OpenSpeedShop::Watcher::watchProcess()" 
+                     << " tid.second= " << tid.second << std::endl;
+              std::cerr << output.str ();
+         }
+#endif
+
+         } else {
+//           std::cout << "[TID " << pthread_self() << "] OpenSpeedShop::Watcher::watchProcess(), tid.first=  " << tid.first << std::endl;
+#ifndef NDEBUG
+           if (Watcher::isDebugEnabled ()) {
+              std::stringstream output;
+              output << "[TID " << pthread_self ()
+	             << "] OpenSpeedShop::Watcher::watchProcess()" 
+                     << " tid.first= " << tid.first << std::endl;
+              std::cerr << output.str ();
+          }
+#endif
+
+         } // end else clause where tid.first was not true, so therefore there is no thread_id
+
+     }  // end loop through threads
 }
 
 void

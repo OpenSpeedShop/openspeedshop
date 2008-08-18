@@ -32,16 +32,20 @@
 #include <pthread.h>
 #include <map>
 #include "Blob.hxx"
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#include "ThreadNameGroup.hxx"
 
 namespace OpenSpeedShop { namespace Watcher {
 
     void Watcher();
     void startWatching();
+    void watchProcess(OpenSpeedShop::Framework::ThreadNameGroup threads) ;
     void stopWatching();
     void* fileIOmonitorThread(void*);
+    void scanForRawPerformanceData(pid_t);
 
-    /** Identifier of the monitor thread. */
-    pthread_t fileIOmonitor_tid;
 
 #ifndef NDEBUG
     bool isDebugEnabled();

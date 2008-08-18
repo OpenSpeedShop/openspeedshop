@@ -34,6 +34,7 @@
 #include "ThreadNameGroup.hxx"
 #include "ThreadTable.hxx"
 #include "Time.hxx"
+#include "Watcher.hxx"
 
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
@@ -51,6 +52,7 @@
 #endif
 
 using namespace OpenSpeedShop::Framework;
+using namespace OpenSpeedShop::Watcher;
 
 
 
@@ -643,7 +645,22 @@ void OpenSpeedShop::Framework::Dyninst::threadDestroy(BPatch_process* process,
 
     // Get the names for this thread
     ThreadNameGroup threads = ThreadTable::TheTable.getNames(thread);
-    
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+        std::stringstream output;
+	output << "[TID " << pthread_self() << "] Dyninst::"
+	       << "threadDestroy(): TID " 
+	       << static_cast<size_t>(thread->getTid()) << " of PID "
+	       << process->getPid() << " before calling OpenSpeedShop::Watcher::watchProcess(threads)." << std::endl;
+        std::cerr << output.str();
+    }
+#endif
+
+    // Call the watcher code to make sure all of the data in the raw data file corresponding to these threads
+    // has been sent to the daemon, on it's way to the frontend
+    OpenSpeedShop::Watcher::watchProcess(threads);
+
     // Send the frontend the list of threads that have terminated
     Senders::threadsStateChanged(threads, Terminated);
 }
