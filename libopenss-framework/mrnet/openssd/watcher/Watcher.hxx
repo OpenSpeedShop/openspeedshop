@@ -45,6 +45,8 @@ namespace OpenSpeedShop { namespace Watcher {
     void stopWatching();
     void* fileIOmonitorThread(void*);
     void scanForRawPerformanceData(pid_t);
+    void acquireScanLock();
+    void releaseScanLock();
 
 
 #ifndef NDEBUG
