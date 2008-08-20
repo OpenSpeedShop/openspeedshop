@@ -69,10 +69,6 @@ ossutil_LDFLAGS = \
 ossutil_LDADD = \
         $(LIBLTDL) \
 	-lopenss-framework \
-	-lopenss-queries \
-	-lbfd \
-	-lopcodes -liberty \
-        $(top_srcdir)/libopenss-runtime/.libs/libopenss-runtime-offline.a \
         -lpthread
 
 ossutil_SOURCES = \
