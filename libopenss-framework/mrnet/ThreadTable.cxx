@@ -162,7 +162,8 @@ ThreadGroup ThreadTable::getThreads(const std::string& host,
 	// Add this thread if it matches the specified criteria
 	if((i->first.getHost() == host) &&
 	   (i->first.getProcessId() == pid) &&
-	   (i->first.getPosixThreadId() == tid))
+	   (i->first.getPosixThreadId().first == tid.first) &&
+	   (!tid.first || (i->first.getPosixThreadId().second == tid.second)))
 
 	    threads.insert(i->first);
 

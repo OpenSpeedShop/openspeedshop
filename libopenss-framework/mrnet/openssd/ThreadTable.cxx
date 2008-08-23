@@ -522,9 +522,6 @@ ThreadTable::getThreadState(/* const */ BPatch_thread* ptr) const
  * Sets the current state of the thread for the specified Dyninst thread
  * object pointer to the passed value.
  *
- * @note    An assertion failure occurs if an attempt is made to set the
- *          state of a thread that isn't in this thread table.
- *
  * @param ptr      Dyninst thread object pointer for the thread whose
  *                 state should be set.
  * @param state    State to which this thread should be set.
@@ -537,12 +534,10 @@ void ThreadTable::setThreadState(/* const */ BPatch_thread* ptr,
     // Find the entry (if any) for this Dyninst thread object pointer
     std::map<BPatch_thread*, OpenSS_Protocol_ThreadState>::iterator i =
 	dm_ptr_to_state.find(ptr);
-    
-    // Check assertions
-    Assert(i != dm_ptr_to_state.end());
-    
-    // Set the thread's current state to the specified state
-    i->second = state;
+
+    // Set the thread's current state to the specified state (if it was found)
+    if(i != dm_ptr_to_state.end())
+	i->second = state;
 }
 
 
@@ -561,7 +556,8 @@ void ThreadTable::setThreadState(const ThreadNameGroup& threads,
 {
     Guard guard_myself(this);
 
+    // Set each thread's state
     for(ThreadNameGroup::const_iterator
-	    i = threads.begin(); i != threads.end(); ++i)
+	    i = threads.begin(); i != threads.end(); ++i)	
 	setThreadState(getPtr(*i), state);
 }
