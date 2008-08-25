@@ -26,14 +26,14 @@ with Open|SpeedShop.
 
 INSTALLATION INFO:
 
-Please gunzip and untar the openspeedshop-release-1.6.tar.gz
-file and change directory into the openspeedshop-release-1.6
+Please gunzip and untar the openspeedshop-release-2.0.tar.gz
+file and change directory into the openspeedshop-release-2.0
 directory.   
 
 example:
-gunzip openspeedshop-release-1.6.tar.gz
-tar -xvf openspeedshop-release-1.6.tar
-cd openspeedshop-release-1.6
+gunzip openspeedshop-release-2.0.tar.gz
+tar -xvf openspeedshop-release-2.0.tar
+cd openspeedshop-release-2.0
 
 Inside that directory is the key script, install.sh,
 that can be used in building the Open|SpeedShop performance tool.
@@ -88,12 +88,16 @@ export OPENSS_PREFIX=/usr/projects/openmpi-1.2.4
 The spec files associated with this build process include:
 libdwarf-20070703_a.spec  
 libunwind-0.99_a.spec     
-sqlite-3.5.1_a.spec
-papi-3.5.0_a.spec
-dyninst-5.1r_a.spec    
+sqlite-3.6.1_a.spec
+papi-3.6.1_a.spec
+dyninst-5.2r_a.spec    
+--
 dpcl-20060421_a.spec  
+or
+mrnet-1.2_a.spec
+--
 vampirtrace-5.3.2_a.spec
-openspeedshop-1.6_a.spec
+openspeedshop-2.0_a.spec
 
 There is an order that is required in building the
 components because some of the components depend on
