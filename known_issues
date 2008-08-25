@@ -5,6 +5,8 @@ Legend * means fixed,
   Need to update offline collectors to allow changing the collector parameters.
   e.g. sampling_rate, papi threshhold, papi events, etc etc etc...
 
+------------------------------------------------------
+  
 - 6-10-2008
   The mrnet instrumentor is not working on zeus.llnl.gov and other
   linux systems do to a kernel patch related to utrace.
@@ -21,6 +23,10 @@ Legend * means fixed,
   latest dyninst release tarball, update the patch list and test that on a few systems.
   (6-23-80-jeg)
   ***
+- 8-25-2008
+  (jeg) - We now can create mpi jobs with Matt's new fix/patch but we hang in the cli on 
+  mimimal number of ranked processes.  Looks like a CLI threading issue.
+------------------------------------------------------
 
 - 6-10-2008
   Address overlap (seen on yellowrail and elsewhere) is causing the
@@ -43,6 +49,7 @@ Legend * means fixed,
   to handle the remaining issues with non-contiguous functions.  That code is not integrated
   and is currently being tested as of 7-29-2008.
   (7-29-2008 -dpm)
+--------------------------------------------------------
 
 - 6-10-2008
   The mrnet instrumentor has sporadic hangs on YellowRail (and possibly
@@ -56,6 +63,7 @@ Legend * means fixed,
   because openmpi and mpich don't seem to be working there - I can't
   tell if the issue is yellowrail specific.
   (6-23-80-jeg)
+--------------------------------------------------------
 
 - 6-10-2008
   Running the MRNet version of openss on alc.llnl.gov reveals a case where
@@ -72,6 +80,11 @@ Legend * means fixed,
   dyninst is past that stage??
   (6-23-80-jeg)
 
+- 8-25-2008
+  Matt has a trace that shows dyninst issuing an assert during MPI creation
+  on alc.
+--------------------------------------------------------
+
 
 - 6-10-2008
   Need to automate creation of mrnet topology file for clusters.
@@ -85,6 +98,7 @@ Legend * means fixed,
   Jim sent out an email with some script examples for automating this
   on LLNL's zeus system.
   (7-29-2008 -dpm)
+--------------------------------------------------------
 
 - 6-10-2008
   The OPENSS_RAWDATA_DIR defaults to /tmp for instrumentors that use
@@ -101,6 +115,7 @@ Legend * means fixed,
   TODO: update ossrun and watcher to do same. i.e. default to /tmp/$USER/offline-oss
   for ossrun and /tmp/$USER for the mrnet watcher.
   (7-29-2008 -dpm)
+--------------------------------------------------------
 
 - 6-10-2008
   The offline collector runtimes need a method to record the rank id
@@ -113,6 +128,7 @@ Legend * means fixed,
   other than the mpi, mpit, and mpiotf collectors.  The mpi, and mpit collectors
   will need to record and send the rank info to the openss-info rawdata file too.
   (7-29-2008 -dpm)
+--------------------------------------------------------
 
 * 6-10-2008
   The symboltables created for offline experiments need to include the
@@ -120,6 +136,7 @@ Legend * means fixed,
   if the first statement was not one of the samples.  This is needed by
   various gui (source file focus events) and cli (list -v src) commands.
   (7-29-2008 -dpm -fixed)
+--------------------------------------------------------
 
 - I/O collector doesn't support "-v" statements
   (error while double click on source during stacktrace)
@@ -137,6 +154,7 @@ Legend * means fixed,
   the icons displayed should match those available to a particular
   experiment. For example, the trace experiments do not support
   -v Statements and should not present that option as an icon.
+--------------------------------------------------------
 
 - Clicking on a entry in a stacktrace in the StatsPanel does
   not focus the SourcePanel on the correct line for the event
@@ -145,14 +163,17 @@ Legend * means fixed,
 * (dpm) This is now fixed by having the GUI compute the
    lineNumber to focus on by using the Callstak element Value
    data rather than the getDefinitions data.
+--------------------------------------------------------
 
 * (jeg) Bad times in stack trace data (usertime, I/O, ...)
    The fix went into the CLI, but Dave W. thinks this might
    be a framework issue.
+--------------------------------------------------------
 
 * (jeg) Disable full path view didn't work during tutorial
    Jim investigated and this appears to be working in his
    version.
+--------------------------------------------------------
 
 - MPI startup broken
         - Jim's system: can't execute
@@ -160,16 +181,21 @@ Legend * means fixed,
                   (test debug-0078)
                 - stop process during right after attach
                   doesn't work right away (only with delay)
+  This is fixed now.
+--------------------------------------------------------
 
 * (jeg) Record command broken
    Jim investigated and this appears to be working in his
    version.
+--------------------------------------------------------
 
 - IA-64 memory corruption bug (also on other systems?)
   -> contact Dong Ahn for help with TV on thunder
+--------------------------------------------------------
 
 - File not found box shows not the filename it tries to open
   (shown filename exists, but still can't open file)
+--------------------------------------------------------
 
 * (dpm) The shown filename is not the file that was actually requested
    but rather the last known opened file. The error was for the
@@ -177,28 +203,35 @@ Legend * means fixed,
    the sourcepanel should not do anything more than display
    the "file does not exist" string in it's label field.
    This should now be fixed.
+--------------------------------------------------------
 
 - When selecting system source files, we open any file, but
   give no error
+--------------------------------------------------------
 
 * (dpm) This appears related to the other SourcePanel focus
    issues where a source file does not exist (e.g. libc source files).
    In this case we just display "file does not exist" in the
    label field of the source panel in question.
 
+--------------------------------------------------------
 * (jeg) fixed 12/27/06 After focus stats panel we should open stats panel, not
   as currently the source panel
+--------------------------------------------------------
 
 * (jeg) added 12/27/06 Can't have multiple equal MPIs
   (at least need documentation about what changes)
   jeg - added README-mpi to top level source directory to explain mpi configurations
+--------------------------------------------------------
 
 - FPE: x86-64 get only one SI code
   (fix display to clean it up at least)
   Nathan and Don are looking into how to report this to kernel
   developers
+--------------------------------------------------------
 
 - GUI problem with PAPI selection?
+--------------------------------------------------------
 
 - Can't attach a second collector to an experiment created
   by a wizard
@@ -207,18 +240,23 @@ Legend * means fixed,
         to match that text with processes and hosts.  When you hover and right
         mouse button down over a blank area the GUI doesn't know what the processes
         and hosts you want to associate with the new collector and doesn't add it.
+--------------------------------------------------------
 
 * (jeg) added 12/27/08 Want the manageprocess panel brought up with the
   custom experiment
+--------------------------------------------------------
 
 * (jeg) added 01/02/07 Need error message/warning when experiment doesn't create
   data (right now it's just a blank screen)
+--------------------------------------------------------
 
 - Looks like the path remapping only applies to the first experiment.  I had multiple
   experiments up and did the path remapping from the 2nd experiments menu but only the
   first experiments path was changed.   jeg  1/5/2007
+--------------------------------------------------------
 
 * (jeg) fixed 1/8/2007 The "no data samples" message was not being hidden, so if
         there was data to be displayed for the current instantiation of the experiment
         view, it would not be viewable.  Added re-initialization when the data was updated.
 
+--------------------------------------------------------
