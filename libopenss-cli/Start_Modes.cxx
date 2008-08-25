@@ -1,5 +1,8 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2006 Krell Institute. All Rights Reserved.
+** Copyright (c) 2007 Krell Institute. All Rights Reserved.
+** Copyright (c) 2008 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -21,13 +24,13 @@
 
 //#define DEBUG_CLI_OPTIONS 1
 
-static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
+static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &areWeRestoring)
 {
  /* What is the maximum length of the expCreate command? */  
   bool processing_offline_option = false;
   bool initial_set_of_command_done_yet = false;
   bool processing_batch_option = false;
-  bool areWeRestoring = false;
+  areWeRestoring = false;
   int cmdlen = 0;
   int i;
 
@@ -170,9 +173,14 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, OpenSpee
   Assert (my_window);
 
   bool read_stdin_file = (stdin && !isatty(fileno(stdin)));
+  bool weAreRestoring = false;
 
  // Translate the command line arguments into an "expCreate command".
-  Input_Command_Args ( my_window, argc, argv);
+  Input_Command_Args ( my_window, argc, argv, weAreRestoring);
+
+#ifdef DEBUG_CLI_OPTIONS
+      printf(" Start_COMMAND_LINE_Mode, after Input_Command_Args, weAreRestoring=%d\n", weAreRestoring);
+#endif
 
  // After executing an expCreate command, read any piped-in file.
   if (read_stdin_file) {
@@ -198,7 +206,9 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, OpenSpee
  // If there is no input file and the user specified "-batch" mode,
  // execute with an "expGo" command and display results with "expview stats".
  // Otherwise, assume the input file will control execution.
-  if (oss_start_mode == SM_Batch && !read_stdin_file) {
+ // If we are restoring then don't to an expGo as the experiment can't run but we could to
+ // an expview if desired. 
+  if (oss_start_mode == SM_Batch && !read_stdin_file && !weAreRestoring) {
     if ((NULL == Append_Input_String (my_window, "expGo\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
         (NULL == Append_Input_String (my_window, "expView\n", NULL,
