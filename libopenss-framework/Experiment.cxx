@@ -969,7 +969,9 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 				     const std::string& host) const
 {
     ThreadGroup threads;
+#if HAVE_MPI
     std::string mpi_implementation_name = "";
+#endif
 
 #ifndef NDEBUG
     if(is_debug_mpijob_enabled) {
@@ -994,6 +996,7 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
     bool is_mpt_job = getMPIJobFromMPT(*(connected.begin()), job);
     bool is_mpich_job = is_mpt_job ? false : getMPIJobFromMPICH(*(connected.begin()), job);
 
+#if HAVE_MPI
     // If it is an mpi job go examine the mpirun/srun mpi driver to see what
     // mpi implementation is being activated inside openss.
     if (is_mpt_job || is_mpich_job) {
@@ -1004,6 +1007,7 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
       // Update this process' MPI implementation in the database
       connected.begin()->setMPIImplementation(mpi_implementation_name);
     }
+#endif
     
    
     // Canonicalize the host names in the MPI job information
@@ -1056,6 +1060,7 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 	while(dm_database->executeStatement());
 	END_TRANSACTION(dm_database);
 
+#if HAVE_MPI
 	// Update this process' MPI implementation in the database
 //        *i->setMPI_Impl(mpi_implementation_name);
         if(is_debug_mpijob_enabled) {
@@ -1071,6 +1076,7 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 	dm_database->bindArgument(3, i->second);	
 	while(dm_database->executeStatement());
 	END_TRANSACTION(dm_database);
+#endif
 
 	// Is this an "MPICH" job?
 	if(is_mpich_job)
