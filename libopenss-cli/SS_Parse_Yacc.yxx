@@ -68,7 +68,7 @@ char *string;
 %token JUST_QUIT_HEAD
 
 %token RANK_ID HOST_ID THREAD_ID ARGS_ID FILE_ID EXP_ID PROCESS_ID
-%token LINE_ID VIEW_ID METRIC_ID MODIFIER_ID INTERVAL_ID
+%token LINE_ID VIEW_ID METRIC_ID MODIFIER_ID INTERVAL_ID INSTRUMENTOR_ID
 
 %token COMMA SEMICOLON COLON END_LINE EQUAL DOUBLE_COLON REDIRECT APPEND
 
@@ -226,6 +226,7 @@ exp_create_args:    exp_create_element
 exp_create_element: modifier_list_spec
 		|   target_list
 		|   expType_list
+		|   instrumentor_list_spec
     	    	;
 
     	    /** EXP_COMPARE **/
@@ -909,6 +910,11 @@ modifier_list:	    modifier_name
 
 modifier_name:	    NAME {p_parse_result->pushModifiers($1);}
     	    	;
+
+instrumentor_list_spec:  INSTRUMENTOR_ID instrumentor_name
+		;
+
+instrumentor_name:    NAME {p_parse_result->pushInstrumentors($1);}
 
 
 %%

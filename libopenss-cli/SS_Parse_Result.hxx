@@ -256,6 +256,7 @@ class ParseResult {
     	void pushViewSet(int num1, int num2) {
 	    ParseRange view_set(num1,num2);
     	    dm_view_set_list.push_back(view_set); }
+
     	/** Handle list of general modifiers. */
     	vector<string> * getModifierList()
 	{
@@ -264,6 +265,16 @@ class ParseResult {
 
     	void pushModifiers(char * name) {
     	    dm_modifier_list.push_back(name);
+	}
+
+
+    	/** Handle list of general instrumentors. */
+    	vector<string> * getInstrumentor()
+	{
+	    return &dm_instrumentor_list;
+	}
+    	void pushInstrumentors(char * name) {
+    	    dm_instrumentor_list.push_back(name);
 	}
 
     	/** Handle list of help requests. */
@@ -448,6 +459,8 @@ class ParseResult {
     	vector<ParseRange> dm_view_set_list;
     	/** Container of general modifiers as strings */
     	vector<string> dm_modifier_list;
+    	/** Container of instrumentors as strings */
+    	vector<string> dm_instrumentor_list;
     	/** Container of help requests as strings */
     	vector<string> dm_help_list;
     	/** Container of help modifiers */

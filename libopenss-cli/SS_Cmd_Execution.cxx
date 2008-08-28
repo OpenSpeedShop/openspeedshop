@@ -1809,6 +1809,28 @@ bool SS_expCreate (CommandObject *cmd) {
   }
   EXPID exp_id = exp->ExperimentObject_ID();
 
+#if 1
+ // Look for a recognized option.
+ vector<string> *p_slist = cmd->P_Result()->getInstrumentor();
+ vector<string>::iterator j;
+
+ for (j=p_slist->begin();j != p_slist->end(); j++) {
+   std::string S = *j;
+
+   if (!strcasecmp(S.c_str(),"offline")) {
+      exp->setIsInstrumentorOffline(true);
+#if DEBUG_CLI
+      std::cout << "SS_expCreate, FOUND OFFLINE INSTRUMENTOR INDICATION" <<  std::endl;
+#endif
+   } else {
+      exp->setIsInstrumentorOffline(true);
+   }
+
+ }
+
+#endif
+
+
   // End the gathering of performance information on the sub-task portions of expCreate
   // Here the allocation of the Experiment experiment
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate() ) {
@@ -3315,6 +3337,17 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
                          + ", " + TmpDB + " database is " + exp->Data_Base_Name ());
   try {
       if (exp->FW() != NULL) {
+
+        bool offlineInstrumentor = exp->getIsInstrumentorOffline();
+        if (offlineInstrumentor) {
+          cmd->Result_String ("    Instrumentor: Offline");
+        } else {
+#if HAVE_MRNET
+          cmd->Result_String ("    Instrumentor: Online (MRNet)");
+#else
+          cmd->Result_String ("    Instrumentor: Online (DPCL)");
+#endif
+        } 
         Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
         if ((databaseExtent.getTimeInterval().getBegin() == Time::TheBeginning()) ||
             (databaseExtent.getTimeInterval().getBegin() ==

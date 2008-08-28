@@ -54,6 +54,7 @@ class ExperimentObject
   bool expRunAtLeastOnceAlreadyFlag;
   std::list<CommandObject *> waiting_cmds;
   bool isBatch;
+  bool isInstrumentorOffline;
 
  public:
   ExperimentObject (std::string data_base_name = std::string("")) {
@@ -63,6 +64,8 @@ class ExperimentObject
     exp_reserved = false;
     expRunAtLeastOnceAlreadyFlag = false;
     exp_rerun_count = 0;
+    // Determine this from the expCreate command
+    setIsInstrumentorOffline(false);
 
     Assert(pthread_mutex_init(&Experiment_Lock, NULL) == 0); // dynamic initialization
     Assert(pthread_mutex_lock(&Experiment_Lock) == 0);       // Lock it!
@@ -170,6 +173,8 @@ class ExperimentObject
   void setExpRunAtLeastOnceAlready (bool flag) {expRunAtLeastOnceAlreadyFlag = flag;}
   bool expIsBatch () {return isBatch;}
   void setExpIsBatch (bool flag) {isBatch = flag;}
+  bool getIsInstrumentorOffline () {return isInstrumentorOffline;}
+  void setIsInstrumentorOffline (bool flag) {isInstrumentorOffline = flag;}
   uint32_t exp_rerun_count;
 
   std::string createName (EXPID LocalExpId, bool LocalDataFileHasAGeneratedName) {

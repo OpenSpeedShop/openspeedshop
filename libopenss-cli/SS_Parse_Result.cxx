@@ -720,6 +720,17 @@ dumpInfo()
     if (p_slist->begin() != p_slist->end())
     	cout << endl ;
 
+    // general instrumentor types.
+    p_slist = this->getInstrumentor();
+	
+    if (p_slist->begin() != p_slist->end())
+    	cout << "\tGeneral Instrumentor Type: " ;
+    for (j=p_slist->begin();j != p_slist->end(); j++) {
+    	cout << *j << " " ;
+    }
+    if (p_slist->begin() != p_slist->end())
+    	cout << endl ;
+
     // Break id list.
     vector<int>::iterator i;
     vector<int> *p_ilist = this->getBreakList();
