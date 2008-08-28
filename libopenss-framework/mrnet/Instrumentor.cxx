@@ -308,6 +308,10 @@ void Instrumentor::changeState(const ThreadGroup& threads,
     // Are we attempting to connect to threads for the first time?
     if(state == Thread::Connecting) {
 
+	// Initialize MRNet if it hasn't been yet
+	if(!isMRNetInitialized)
+	    initializeMRNet();
+	
 	// Build the set of threads that need to be attached
 	ThreadGroup threads_to_attach;
 	for(ThreadGroup::const_iterator
@@ -315,12 +319,9 @@ void Instrumentor::changeState(const ThreadGroup& threads,
 	    if(ThreadTable::TheTable.setConnecting(*i))
 		threads_to_attach.insert(*i);
 
-	// Initialize MRNet if it hasn't been yet
-	if(!isMRNetInitialized)
-	    initializeMRNet();
-	
 	// Request these threads be attached
-	Senders::attachToThreads(threads_to_attach);
+	if(!threads_to_attach.empty())
+	    Senders::attachToThreads(threads_to_attach);
 	
     }
     else {

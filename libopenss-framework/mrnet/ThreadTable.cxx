@@ -23,6 +23,7 @@
  */
 
 #include "Exception.hxx"
+#include "Frontend.hxx"
 #include "Guard.hxx"
 #include "Lockable.hxx"
 #include "Protocol.h"
@@ -321,12 +322,15 @@ bool ThreadTable::setConnecting(const Thread& thread)
 			 (i->second != Thread::Connecting) &&
 			 (i->second != Thread::Nonexistent));
 
+    // Does the thread's host have an MRNet backend?
+    bool has_backend = Frontend::hasBackend(thread.getHost());
+
     // Set the thread's state to "Connecting" if it isn't connected
-    if(!is_connected)
+    if(!is_connected && has_backend)
 	i->second = Thread::Connecting;
     
     // Return flag indicating if this process was not connected to the caller
-    return !is_connected;
+    return !is_connected && has_backend;
 }
 
 
@@ -349,7 +353,7 @@ void ThreadTable::validateThreads(const ThreadGroup& threads)
 	    i = threads.begin(); i != threads.end(); ++i)
 	
 	// Check preconditions
-	if(!isConnected(*i)) {
+	if(!Frontend::hasBackend(i->getHost()) || !isConnected(*i)) {
 	    std::pair<bool, pthread_t> tid = i->getPosixThreadId();
 	    if(tid.first)
 		throw Exception(Exception::ThreadUnavailable, i->getHost(),

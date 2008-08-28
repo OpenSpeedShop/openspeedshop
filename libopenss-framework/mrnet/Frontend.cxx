@@ -190,8 +190,8 @@ namespace {
 	// Empty, unused, return value from this thread
 	return NULL;
     }
-    
-    
+
+
     
 }
 
@@ -438,6 +438,37 @@ void Frontend::sendToAllBackends(const int& tag, const Blob& blob)
     Assert(upstream->send(tag, "%auc",
 			  blob.getContents(), blob.getSize()) == 0);
     Assert(upstream->flush() == 0);
+}
+
+
+
+/**
+ * Test if a host has a backend.
+ *
+ * Returns a boolean value indicating if this host has a MRNet backend.
+ *
+ * @param host   Host to test.
+ * @return       Boolean "true" if this host has a MRNet backend,
+ *               "false" otherwise.
+ */
+bool Frontend::hasBackend(const std::string& host)
+{
+    // Check assertions
+    Assert(network != NULL);
+
+    // Iterate over all the MRNet endpoints
+    const std::vector<MRN::EndPoint*>& all_endpoints = 
+	network->get_BroadcastCommunicator()->get_EndPoints();
+    for(std::vector<MRN::EndPoint*>::const_iterator
+	    i = all_endpoints.begin(); i != all_endpoints.end(); ++i)
+
+	// Host has an MRNet backend if it matches the host of this endpoint
+	if(Experiment::getCanonicalName((*i)->get_HostName()) ==
+	   Experiment::getCanonicalName(host))
+	    return true;
+    
+    // Otherwise this host has no MRNet backend
+    return false;
 }
 
 

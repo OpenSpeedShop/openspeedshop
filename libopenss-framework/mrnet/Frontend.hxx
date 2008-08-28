@@ -29,6 +29,8 @@
 #include "config.h"
 #endif
 
+#include <string>
+
 #include "MessageCallback.hxx"
 #include "Protocol.h"
 
@@ -61,6 +63,8 @@ namespace OpenSpeedShop { namespace Framework {
 	void sendToBackends(const int&, const Blob&,
 			    const OpenSS_Protocol_ThreadNameGroup&);
 	void sendToAllBackends(const int&, const Blob&);
+
+	bool hasBackend(const std::string&);
 
 #ifndef NDEBUG
 	bool isDebugEnabled();
