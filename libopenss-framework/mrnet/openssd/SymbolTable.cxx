@@ -22,8 +22,6 @@
  *
  */
 
-//#define DEBUG_ADDR 1
-
 #include "Backend.hxx"
 #include "Blob.hxx"
 #include "SymbolTable.hxx"
@@ -58,9 +56,11 @@ SymbolTable::SymbolTable(const FileName& linked_object,
  *
  * Add the symbols of the specified module to this symbol table.
  *
+ * @param image     Image containing the module to be added.
  * @param module    Module to be added.
  */
-void SymbolTable::addModule(/* const */ BPatch_module& module)
+void SymbolTable::addModule(/* const */ BPatch_image& image,
+			    /* const */ BPatch_module& module)
 {
     // Get the address range of this module
     Address module_begin(reinterpret_cast<uintptr_t>(module.getBaseAddr()));
@@ -86,112 +86,119 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
     for(int i = 0; i < functions->size(); ++i) {
 	Assert((*functions)[i] != NULL);
 
-	// Get all the mangled names of this function
-	BPatch_Vector<const char*> names;
-#ifdef USE_DEMANGLED_NAMES_VEC
-	(*functions)[i]->getMangledNames(names);
-#else
-	char fname[PATH_MAX];
-	(*functions)[i]->getMangledName(fname,sizeof(fname));
-#endif
+	// Get the mangled name of this function
+	char name_buffer[16 * 1024] = "";
+	(*functions)[i]->getMangledName(name_buffer, sizeof(name_buffer));
+	std::string name = name_buffer;
+	
+	// Add this function to the table (or find the existing entry)
+	FunctionTable::iterator j =
+	    dm_functions.insert(
+	        std::make_pair(name, std::vector<AddressRange>())
+		).first;
 
-	// TODO: How do we get the possibly discontiguous range of a function
-	//       from Dyninst? It is supposed to support this...
+	// Get the list of basic blocks in this function
+	BPatch_Set<BPatch_basicBlock*> basic_blocks;
+	BPatch_flowGraph* cfg = (*functions)[i]->getCFG();
+	Assert(cfg != NULL);
+	cfg->getAllBasicBlocks(basic_blocks);
+	
+	// Iterate over each basic block in this function
+	for(BPatch_Set<BPatch_basicBlock*>::iterator
+		k = basic_blocks.begin(); k != basic_blocks.end(); k++) {
 
-	// Get the begin/end addresses of the function
-	Address begin(reinterpret_cast<uintptr_t>(
-             (*functions)[i]->getBaseAddr()
-	     ));
-	// As of dyninst 5.1r, function ends need to be computed using
-	// getContigousSize.
-	Address end = begin + (*functions)[i]->getContiguousSize();
+	    // Get the begin/end address of the basic block
+	    Address begin((*k)->getStartAddress());
+	    Address end((*k)->getEndAddress());
 
-#ifdef DEBUG_ADDR
-	std::stringstream output;
-	output << "[TID " << pthread_self() << "] Function Addresses from Callbacks::"
-	       << "addModule(): Function "
-#ifdef USE_DEMANGLED_NAMES_VEC
-	       << (names.empty() ? "<unknown>" : names[0])
-#else
-	       << (!fname ? "<unknown>" : fname)
-#endif
-	       << ": begin (" << Address(begin) 
-	       << ") >= end (" << Address(end) << ")."
-	       << std::endl;
-	std::cerr << output.str();
-#endif
-
-	// Sanity checks
-	if(end <= begin) {
-	    
+	    // Sanity checks
+	    if(end <= begin) {
+		
 #ifndef NDEBUG
-	    if(Backend::isDebugEnabled()) {
-		std::stringstream output;
-		output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "addModule(): Function "
-#ifdef USE_DEMANGLED_NAMES_VEC
-		       << (names.empty() ? "<unknown>" : names[0])
-#else
-		       << (!fname ? "<unknown>" : fname)
-#endif
-		       << ": begin (" << Address(begin) 
-		       << ") >= end (" << Address(end) << ")."
-		       << std::endl;
-		std::cerr << output.str();
-	    }
+		if(Backend::isSymbolsDebugEnabled()) {
+		    std::stringstream output;
+		    output << "[TID " << pthread_self() << "] Callbacks::"
+			   << "addModule(): Function "
+			   << (name.empty() ? "<unknown>" : name)
+			   << ": begin (" << Address(begin) 
+			   << ") >= end (" << Address(end) << ")."
+			   << std::endl;
+		    std::cerr << output.str();
+		}
 #endif
     
-	    continue;
-	}
-	if((begin < module_begin) || (begin >= module_end) ||
-	   (end <= module_begin) || (end > module_end)) {
-#ifndef NDEBUG
-	    if(Backend::isDebugEnabled()) {
-		std::stringstream output;
-		output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "addModule(): Function "
-#ifdef USE_DEMANGLED_NAMES_VEC
-		       << (names.empty() ? "<unknown>" : names[0])
-#else
-		       << (!fname ? "<unknown>" : fname)
-#endif
-		       << ": begin=" << Address(begin) 
-		       << ", end=" << Address(end)
-		       << ": is outside the module." << std::endl;
-		std::cerr << output.str();
+		continue;
 	    }
+	    if((begin < module_begin) || (begin >= module_end) ||
+	       (end <= module_begin) || (end > module_end)) {
+#ifndef NDEBUG
+		if(Backend::isSymbolsDebugEnabled()) {
+		    std::stringstream output;
+		    output << "[TID " << pthread_self() << "] Callbacks::"
+			   << "addModule(): Function "
+			   << (name.empty() ? "<unknown>" : name)
+			   << ": begin=" << Address(begin) 
+			   << ", end=" << Address(end)
+			   << ": is outside the module." << std::endl;
+		    std::cerr << output.str();
+		}
 #endif
-    
- 	    continue;
- 	}
+		
+		continue;
+	    }
 
-	// Form address range of the function relative to module beginning
-	AddressRange range(begin - module_begin, end - module_begin);
-
-#ifdef USE_DEMANGLED_NAMES_VEC
-	// Iterate over each name of this function
-	for(int j = 0; j < names.size(); ++j) {
-
-	    // Add this function to the table (or find the existing entry)
-	    FunctionTable::iterator k =
-		dm_functions.insert(
-		    std::make_pair(names[j], std::vector<AddressRange>())
-		    ).first;
+	    // Form address range of the function relative to module beginning
+	    AddressRange range(begin - module_begin, end - module_begin);
 	    
-	    // Add this address range to the found/added function
-	    k->second.push_back(range);
+	    // Is this address range shared by more than one function?
+	    BPatch_Vector<BPatch_function*> all_functions;
+#ifdef WDH_DISABLE_UNITL_DYNINST_BUG_IS_FIXED
+	    image.findFunction(
+		static_cast<Dyninst::Address>(begin.getValue()),
+		all_functions
+		);
+#endif
+	    if(all_functions.size() > 1) {
+
+#ifndef NDEBUG
+		if(Backend::isSymbolsDebugEnabled()) {
+		    std::stringstream output;
+		    output << "[TID " << pthread_self() << "] Callbacks::"
+			   << "addModule(): Function "
+			   << (name.empty() ? "<unknown>" : name)
+			   << ": begin=" << Address(begin)
+			   << ", end=" << Address(end)
+			   << ": is a shared code region." << std::endl;
+		    std::cerr << output.str();
+		}
+#endif
+
+		// Name the pseudo-function for this shared address range
+		std::ostringstream pseudo_name;
+		pseudo_name << "Shared Code Region @ +" << range.getBegin();
+
+		// Add this pseudo-function to the table (or find existing)
+		FunctionTable::iterator l =
+		    dm_functions.insert(
+		        std::make_pair(pseudo_name.str(),
+				       std::vector<AddressRange>())
+			).first;
+
+		// Add this address range to the found/added function
+		l->second.push_back(range);
+
+	    }
+
+	    // Otherwise this is just a plain-vanilla function
+	    else {
+
+		// Add this address range to the found/added function
+		j->second.push_back(range);
+
+	    }
 
 	}
-#else
-	    // Add this function to the table (or find the existing entry)
-	    FunctionTable::iterator k =
-		dm_functions.insert(
-		    std::make_pair(fname, std::vector<AddressRange>())
-		    ).first;
-	    
-	    // Add this address range to the found/added function
-	    k->second.push_back(range);
-#endif
+	
     }
 
     // Get the list of statements in this module
@@ -211,7 +218,7 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 	        std::make_pair(entry, std::vector<AddressRange>())
 		).first;
 
-	// Get the begin/end addresses of the function
+	// Get the begin/end addresses of the statement
 	Address begin(statements[i].begin);
 	Address end(statements[i].end);
 
@@ -219,7 +226,7 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
 	if(end <= begin) {
 
 #ifndef NDEBUG
-	    if(Backend::isDebugEnabled()) {
+	    if(Backend::isSymbolsDebugEnabled()) {
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "addModule(): Statement " << statements[i].path 
@@ -236,8 +243,9 @@ void SymbolTable::addModule(/* const */ BPatch_module& module)
  	}
 	if((begin < module_begin) || (begin >= module_end) ||
 	   (end <= module_begin) || (end > module_end)) {
+
 #ifndef NDEBUG
-	    if(Backend::isDebugEnabled()) {
+	    if(Backend::isSymbolsDebugEnabled()) {
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "addModule(): Statement " << statements[i].path 

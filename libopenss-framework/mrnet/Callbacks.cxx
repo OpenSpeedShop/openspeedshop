@@ -194,6 +194,21 @@ void Callbacks::attachedToThreads(const Blob& blob)
 	// Begin a transaction on this thread's database
 	SmartPtr<Database> database = 
 	    DataQueues::getDatabase(msg_thread.experiment);
+	if(database.isNull()) {
+
+#ifndef NDEBUG
+	    if(Frontend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "attachedToThreads(): Experiment " 
+		       << msg_thread.experiment 
+		       << " no longer exists.";
+		std::cerr << output.str();
+	    }
+#endif
+
+	    continue;
+	}
 	BEGIN_WRITE_TRANSACTION(database);
 
 	// Is there an existing placeholder for the entire process?
@@ -286,6 +301,21 @@ void Callbacks::createdProcess(const Blob& blob)
     // Update the thread with its real process identifier
     SmartPtr<Database> database = 
 	DataQueues::getDatabase(message.original_thread.experiment);
+    if(database.isNull()) {
+	
+#ifndef NDEBUG
+	if(Frontend::isDebugEnabled()) {
+	    std::stringstream output;
+	    output << "[TID " << pthread_self() << "] Callbacks::"
+		   << "createdProcess(): Experiment " 
+		   << message.original_thread.experiment 
+		   << " no longer exists.";
+	    std::cerr << output.str();
+	}
+#endif
+
+	return;
+    }
     BEGIN_WRITE_TRANSACTION(database);
     database->prepareStatement("UPDATE Threads SET pid = ? WHERE id = ?;");
     database->bindArgument(1, static_cast<int>(message.created_thread.pid));
@@ -434,6 +464,121 @@ void Callbacks::globalStringValue(const Blob& blob)
 
 
 /**
+ * Threads have been instrumented.
+ *
+ * Callback function called by the frontend message pump when a message that
+ * indicates a collector has instrumented one or more threads is received.
+ * Updates the experiment database as necessary.
+ *
+ * @param blob    Blob containing the message.
+ */
+void Callbacks::instrumented(const Blob& blob)
+{
+    // Decode the message
+    OpenSS_Protocol_Instrumented message;
+    memset(&message, 0, sizeof(message));
+    blob.getXDRDecoding(
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_Instrumented),
+	&message
+	);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
+    // Iterate over each thread being instrumented
+    for(int i = 0; i < message.threads.names.names_len; ++i) {
+	const OpenSS_Protocol_ThreadName& msg_thread =
+	    message.threads.names.names_val[i];
+
+	// Check preconditions
+	Assert(msg_thread.experiment == message.collector.experiment);
+
+	// Begin a transaction on this thread's database
+	SmartPtr<Database> database = 
+	    DataQueues::getDatabase(msg_thread.experiment);
+	if(database.isNull()) {
+
+#ifndef NDEBUG
+	    if(Frontend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "instrumented(): Experiment "
+		       << msg_thread.experiment 
+		       << " no longer exists.";
+		std::cerr << output.str();
+	    }
+#endif
+	    
+	    continue;
+	}
+	BEGIN_WRITE_TRANSACTION(database);
+
+	// Find the existing thread in the database
+	int thread = getThreadIdentifier(database, msg_thread);
+#ifndef NDEBUG
+	if(thread == -1) {
+	    if(Frontend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "instrumented(): Thread " << toString(msg_thread) 
+		       << " no longer exists.";
+		std::cerr << output.str();
+	    }
+	}
+#endif
+
+	// Find the existing collector in the database
+	bool has_collector = false;
+	database->prepareStatement(
+	    "SELECT COUNT(*) FROM Collectors WHERE id = ?;"
+	    );
+	database->bindArgument(1, message.collector.collector);
+	while(database->executeStatement())
+	    if(database->getResultAsInteger(1) > 0)
+		has_collector = true;
+#ifndef NDEBUG
+	if(!has_collector) {
+	    if(Frontend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "instrumented(): Collector " 
+		       << message.collector.collector 
+		       << " no longer exists.";
+		std::cerr << output.str();
+	    }
+	}
+#endif
+	
+	// Only proceed if the thread and collector were found
+	if((thread != -1) && has_collector) {
+
+	    // Create the collecting entry for this instrumentation
+	    database->prepareStatement(
+		"INSERT INTO Collecting "
+		"  (collector, thread, is_postponed) "
+		"VALUES (?, ?, 0);"
+		);
+	    database->bindArgument(1, thread);
+	    database->bindArgument(2, message.collector.collector);	
+	    while(database->executeStatement());	    
+	    
+	}
+	
+	// End the transaction on this thread's database
+	END_TRANSACTION(database);
+
+    }
+}
+
+
+
+/**
  * Linked object has been loaded.
  *
  * Callback function called by the frontend message pump when a message that
@@ -469,59 +614,90 @@ void Callbacks::loadedLinkedObject(const Blob& blob)
 	// Begin a transaction on this thread's database
 	SmartPtr<Database> database = 
 	    DataQueues::getDatabase(msg_thread.experiment);
+	if(database.isNull()) {
+
+#ifndef NDEBUG
+	    if(Frontend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "loadedLinkedObject(): Experiment "
+		       << msg_thread.experiment
+		       << " no longer exists.";
+		std::cerr << output.str();
+	    }
+#endif
+
+	    continue;
+	}
 	BEGIN_WRITE_TRANSACTION(database);
 
 	// Find the existing thread in the database
 	int thread = getThreadIdentifier(database, msg_thread);
-	Assert(thread != -1);
-	
-	// Is there an existing linked object in the database?
-	int linked_object = 
-	    getLinkedObjectIdentifier(database, message.linked_object);
-
-	// Create this linked object if it wasn't present in the database
-	if(linked_object == -1) {
-
-	    // Create the file entry
-	    database->prepareStatement(
-	        "INSERT INTO Files (path) VALUES (?);"
-		);
-	    database->bindArgument(1, message.linked_object.path);
-
-	    // TODO: insert the checksum
-
-	    while(database->executeStatement());
-	    int file = database->getLastInsertedUID();
-	    
-	    // Create the linked object entry
-	    database->prepareStatement(
-	        "INSERT INTO LinkedObjects "
-		"  (addr_begin, addr_end, file, is_executable) "
-		"VALUES (0, ?, ?, ?);"
-		);
-	    database->bindArgument(1, Address(message.range.end -
-					      message.range.begin));
-	    database->bindArgument(2, file);
-	    database->bindArgument(3, message.is_executable);
-	    while(database->executeStatement());
-	    linked_object = database->getLastInsertedUID();
-
+#ifndef NDEBUG
+	if(thread == -1) {
+	    if(Frontend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "loadedLinkedObject(): Thread "
+		       << toString(msg_thread) 
+		       << " no longer exists.";
+		std::cerr << output.str();
+	    }
 	}
+#endif
 
-	// Create an address space entry for this load
-	database->prepareStatement(
-	    "INSERT INTO AddressSpaces "
-	    "  (thread, time_begin, time_end, "
-	    "   addr_begin, addr_end, linked_object) "
-	    "VALUES (?, ?, ?, ?, ?, ?);"
-	    );
-	database->bindArgument(1, thread);
-	database->bindArgument(2, Time(message.time));
-	database->bindArgument(3, Time::TheEnd());
-	database->bindArgument(4, Address(message.range.begin));
-	database->bindArgument(5, Address(message.range.end));
-	database->bindArgument(6, linked_object);
-	while(database->executeStatement());
+	// Only proceed if the thread was found
+	if(thread != -1) {
+	    
+	    // Is there an existing linked object in the database?
+	    int linked_object = 
+		getLinkedObjectIdentifier(database, message.linked_object);
+
+	    // Create this linked object if it wasn't present in the database
+	    if(linked_object == -1) {
+
+		// Create the file entry
+		database->prepareStatement(
+	            "INSERT INTO Files (path) VALUES (?);"
+		    );
+		database->bindArgument(1, message.linked_object.path);
+
+		// TODO: insert the checksum
+		
+		while(database->executeStatement());
+		int file = database->getLastInsertedUID();
+	    
+		// Create the linked object entry
+		database->prepareStatement(
+	            "INSERT INTO LinkedObjects "
+		    "  (addr_begin, addr_end, file, is_executable) "
+		    "VALUES (0, ?, ?, ?);"
+		    );
+		database->bindArgument(1, Address(message.range.end -
+						  message.range.begin));
+		database->bindArgument(2, file);
+		database->bindArgument(3, message.is_executable);
+		while(database->executeStatement());
+		linked_object = database->getLastInsertedUID();
+		
+	    }
+
+	    // Create an address space entry for this load
+	    database->prepareStatement(
+	        "INSERT INTO AddressSpaces "
+	        "  (thread, time_begin, time_end, "
+	        "   addr_begin, addr_end, linked_object) "
+	        "VALUES (?, ?, ?, ?, ?, ?);"
+	        );
+	    database->bindArgument(1, thread);
+	    database->bindArgument(2, Time(message.time));
+	    database->bindArgument(3, Time::TheEnd());
+	    database->bindArgument(4, Address(message.range.begin));
+	    database->bindArgument(5, Address(message.range.end));
+	    database->bindArgument(6, linked_object);
+	    while(database->executeStatement());
+	    
+	}
 
 	// End the transaction on this thread's database
 	END_TRANSACTION(database);
@@ -711,140 +887,187 @@ void Callbacks::symbolTable(const Blob& blob)
 	// Begin a transaction on this experiment's database
 	SmartPtr<Database> database = 
 	    DataQueues::getDatabase(msg_experiment.experiment);
+	if(database.isNull()) {
+
+#ifndef NDEBUG
+	    if(Frontend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "symbolTable(): Experiment "
+		       << msg_experiment.experiment 
+		       << " no longer exists.";
+		std::cerr << output.str();
+	    }
+#endif
+
+	    continue;
+	}
 	BEGIN_WRITE_TRANSACTION(database);
 	
 	// Find the existing linked object in the database
 	int linked_object = 
 	    getLinkedObjectIdentifier(database, message.linked_object);
-	Assert(linked_object != -1);
-
-	// ...
-	// If we have seen the functions for this linked_object already
-        // then skip putting them in the database.
-        // ...
-	bool has_functions = false;
-	database->prepareStatement(
-            "SELECT COUNT(*) FROM Functions WHERE linked_object = ?;"
-	    );
-	database->bindArgument(1, linked_object);
-	while(database->executeStatement())
-	    if(database->getResultAsInteger(1) > 0)
-	        has_functions = true;
-	if(!has_functions) {
-	  
-	// Iterate over each function entry
-	for(int j = 0; j < message.functions.functions_len; ++j) {
-	    const OpenSS_Protocol_FunctionEntry& msg_function = 
-		message.functions.functions_val[j];
-	    
-	    // Iterate over each bitmap for this function
-	    for(int k = 0; k < msg_function.bitmaps.bitmaps_len; ++k) {
-		const OpenSS_Protocol_AddressBitmap& msg_bitmap =
-		    msg_function.bitmaps.bitmaps_val[k];
-
-		// TODO: Handle discontiguous ranges of functions. Right now
-		//       the daemon doesn't produce these, but it will soon.
-		//       For now simply take the address range of the first
-		//       bitmap as the address range of the function.
-		if(k > 0)
-		    break;
-
-		// Create the function entry
-		database->prepareStatement(
-		    "INSERT INTO Functions "
-		    "  (linked_object, addr_begin, addr_end, name) "
-		    "VALUES (?, ?, ?, ?);"
-		    );
-		database->bindArgument(1, linked_object);
-		database->bindArgument(2, Address(msg_bitmap.range.begin));
-		database->bindArgument(3, Address(msg_bitmap.range.end));
-		database->bindArgument(4, msg_function.name);
-		while(database->executeStatement());
-		
+#ifndef NDEBUG
+	if(linked_object == -1) {
+	    if(Frontend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "symbolTable(): Linked Object "
+		       << toString(message.linked_object) 
+		       << " no longer exists.";
+		std::cerr << output.str();
 	    }
-	    
 	}
+#endif
 
-	// ...
-	// If we have seen the statements for this linked_object already
-        // then skip putting them in the database.
-        // ...
-	}
-	bool has_statements = false;
-	database->prepareStatement(
-            "SELECT COUNT(*) FROM Statements WHERE linked_object = ?;"
-	    );
-	database->bindArgument(1, linked_object);
-	while(database->executeStatement())
-	    if(database->getResultAsInteger(1) > 0)
-	        has_statements = true;
-	if(!has_statements) {
+	// Only proceed if the linked object was found
+	if(linked_object != -1) {
 
-	// Iterate over each statement entry
-	for(int j = 0; j < message.statements.statements_len; ++j) {
-	    const OpenSS_Protocol_StatementEntry& msg_statement =
-		message.statements.statements_val[j];
-
-	    // Is there an existing file in the database?
-	    int file = -1;
-	    database->prepareStatement("SELECT id FROM Files WHERE path = ?;");
-	    database->bindArgument(1, msg_statement.path.path);
-
-	    // TODO: compare the checksum
-
-	    while(database->executeStatement())
-		file = database->getResultAsInteger(1);
-
-	    // Create the file entry if it wasn't present in the database
-	    if(file == -1) {
-		database->prepareStatement(
-		    "INSERT INTO Files (path) VALUES (?);"
-		    );
-		database->bindArgument(1, msg_statement.path.path);
-
-		// TODO: insert the checksum
-		
-		while(database->executeStatement());
-		file = database->getLastInsertedUID();
-	    }
-
-	    // Create the statement entry
+	    // Are there functions in the database for this linked object?
+	    bool has_functions = false;
 	    database->prepareStatement(
-	        "INSERT INTO Statements "
-		"  (linked_object, file, line, \"column\") "
-		"VALUES (?, ?, ?, ?);"
-		);
+	        "SELECT COUNT(*) FROM Functions WHERE linked_object = ?;"
+	        );
 	    database->bindArgument(1, linked_object);
-	    database->bindArgument(2, file);
-	    database->bindArgument(3, msg_statement.line);
-	    database->bindArgument(4, msg_statement.column);
-	    while(database->executeStatement());
-	    int statement = database->getLastInsertedUID();
+	    while(database->executeStatement())
+		if(database->getResultAsInteger(1) > 0)
+		    has_functions = true;
 
-	    // Iterate over each bitmap for this statement
-	    for(int k = 0; k < msg_statement.bitmaps.bitmaps_len; ++k) {
-		const OpenSS_Protocol_AddressBitmap& msg_bitmap =
-		    msg_statement.bitmaps.bitmaps_val[k];
-		
-		// Create the StatementRanges entry
-		database->prepareStatement(
-		    "INSERT INTO StatementRanges "
-		    "  (statement, addr_begin, addr_end, valid_bitmap) "
-		    "VALUES (?, ?, ?, ?);"
-		    );
-		database->bindArgument(1, statement);
-		database->bindArgument(2, Address(msg_bitmap.range.begin));
-		database->bindArgument(3, Address(msg_bitmap.range.end));
-		database->bindArgument(4, 
-				       Blob(msg_bitmap.bitmap.data.data_len,
-					    msg_bitmap.bitmap.data.data_val));
-		while(database->executeStatement());
+	    // Skip adding these functions if they are already present
+	    if(!has_functions) {
+	  
+		// Iterate over each function entry
+		for(int j = 0; j < message.functions.functions_len; ++j) {
+		    const OpenSS_Protocol_FunctionEntry& msg_function = 
+			message.functions.functions_val[j];
+
+		    // Create the function entry
+		    database->prepareStatement(
+		        "INSERT INTO Functions "
+			"  (linked_object, name) "
+			"VALUES (?, ?);"
+		        );
+		    database->bindArgument(1, linked_object);
+		    database->bindArgument(2, msg_function.name);
+		    while(database->executeStatement());
+		    int function = database->getLastInsertedUID();
+	    
+		    // Iterate over each bitmap for this function
+		    for(int k = 0; k < msg_function.bitmaps.bitmaps_len; ++k) {
+			const OpenSS_Protocol_AddressBitmap& msg_bitmap =
+			    msg_function.bitmaps.bitmaps_val[k];
+
+			// Create the function ranges entry
+			database->prepareStatement(
+		            "INSERT INTO FunctionRanges "
+			    "  (function, addr_begin, addr_end, valid_bitmap) "
+			    "VALUES (?, ?, ?, ?);"
+			    );
+			database->bindArgument(1, function);
+			database->bindArgument(2,
+			    Address(msg_bitmap.range.begin)
+			    );
+			database->bindArgument(3,
+			    Address(msg_bitmap.range.end)
+			    );
+			database->bindArgument(4, 
+			    Blob(msg_bitmap.bitmap.data.data_len,
+				 msg_bitmap.bitmap.data.data_val)
+			    );
+			while(database->executeStatement());
+			
+		    }
+		    
+		}
 		
 	    }
 	    
-	}
+	    // Are there statements in the database for this linked object?
+	    bool has_statements = false;
+	    database->prepareStatement(
+                "SELECT COUNT(*) FROM Statements WHERE linked_object = ?;"
+	        );
+	    database->bindArgument(1, linked_object);
+	    while(database->executeStatement())
+		if(database->getResultAsInteger(1) > 0)
+		    has_statements = true;
 
-	// ...
+	    // Skip adding these statements if they are already present
+	    if(!has_statements) {
+
+		// Iterate over each statement entry
+		for(int j = 0; j < message.statements.statements_len; ++j) {
+		    const OpenSS_Protocol_StatementEntry& msg_statement =
+			message.statements.statements_val[j];
+		    
+		    // Is there an existing file in the database?
+		    int file = -1;
+		    database->prepareStatement(
+		        "SELECT id FROM Files WHERE path = ?;"
+		        );
+		    database->bindArgument(1, msg_statement.path.path);
+
+		    // TODO: compare the checksum
+		    
+		    while(database->executeStatement())
+			file = database->getResultAsInteger(1);
+
+		    // Create the file entry if it wasn't present
+		    if(file == -1) {
+			database->prepareStatement(
+		            "INSERT INTO Files (path) VALUES (?);"
+			    );
+			database->bindArgument(1, msg_statement.path.path);
+
+			// TODO: insert the checksum
+			
+			while(database->executeStatement());
+			file = database->getLastInsertedUID();
+		    }
+
+		    // Create the statement entry
+		    database->prepareStatement(
+	                "INSERT INTO Statements "
+		        "  (linked_object, file, line, \"column\") "
+		        "VALUES (?, ?, ?, ?);"
+		        );
+		    database->bindArgument(1, linked_object);
+		    database->bindArgument(2, file);
+		    database->bindArgument(3, msg_statement.line);
+		    database->bindArgument(4, msg_statement.column);
+		    while(database->executeStatement());
+		    int statement = database->getLastInsertedUID();
+
+		    // Iterate over each bitmap for this statement
+		    for(int k = 0; k < msg_statement.bitmaps.bitmaps_len; ++k) {
+			const OpenSS_Protocol_AddressBitmap& msg_bitmap =
+			    msg_statement.bitmaps.bitmaps_val[k];
+		
+			// Create the statement ranges entry
+			database->prepareStatement(
+		            "INSERT INTO StatementRanges "
+			    "  (statement, addr_begin, addr_end, valid_bitmap) "
+			    "VALUES (?, ?, ?, ?);"
+			    );
+			database->bindArgument(1, statement);
+			database->bindArgument(2,
+			    Address(msg_bitmap.range.begin)
+			    );
+			database->bindArgument(3,
+			    Address(msg_bitmap.range.end)
+			    );
+			database->bindArgument(4, 
+		            Blob(msg_bitmap.bitmap.data.data_len,
+				 msg_bitmap.bitmap.data.data_val)
+			    );
+			while(database->executeStatement());
+		    
+		    }
+		    
+		}
+		
+	    }
+
 	}
 	
 	// End the transaction on this thread's database
@@ -967,30 +1190,72 @@ void Callbacks::unloadedLinkedObject(const Blob& blob)
 	// Begin a transaction on this thread's database
 	SmartPtr<Database> database = 
 	    DataQueues::getDatabase(msg_thread.experiment);
+	if(database.isNull()) {
+
+#ifndef NDEBUG
+	    if(Frontend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "unloadedLinkedObject(): Experiment "
+		       << msg_thread.experiment 
+		       << " no longer exists.";
+		std::cerr << output.str();
+	    }
+#endif
+
+	    continue;
+	}
 	BEGIN_WRITE_TRANSACTION(database);
 
 	// Find the existing thread in the database
 	int thread = getThreadIdentifier(database, msg_thread);
-	Assert(thread != -1);
+#ifndef NDEBUG
+	if(thread == -1) {
+	    if(Frontend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "unloadedLinkedObject(): Thread "
+		       << toString(msg_thread) 
+		       << " no longer exists.";
+		std::cerr << output.str();
+	    }
+	}
+#endif
 
 	// Find the existing linked object in the database
 	int linked_object = 
 	    getLinkedObjectIdentifier(database, message.linked_object);
-	Assert(linked_object != -1);
+#ifndef NDEBUG
+	if(linked_object == -1) {
+	    if(Frontend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "unloadedLinkedObject(): Linked Object "
+		       << toString(message.linked_object) 
+		       << " no longer exists.";
+		std::cerr << output.str();
+	    }
+	}
+#endif
 	
-	// Update the correct address space entry for this unload
-	database->prepareStatement(
-	    "UPDATE AddressSpaces "
-	    "SET time_end = ? "
-	    "WHERE thread = ? "
-	    "  AND time_end = ? "
-	    "  AND linked_object = ?;"
-	    );
-	database->bindArgument(1, Time(message.time));
-	database->bindArgument(2, thread);
-	database->bindArgument(3, Time::TheEnd());
-	database->bindArgument(4, linked_object);	
-	while(database->executeStatement());
+	// Only proceed if the thread and linked object were found
+	if((thread != -1) && (linked_object != -1)) {
+	    
+	    // Update the correct address space entry for this unload
+	    database->prepareStatement(
+	        "UPDATE AddressSpaces "
+		"SET time_end = ? "
+		"WHERE thread = ? "
+		"  AND time_end = ? "
+		"  AND linked_object = ?;"
+	        );
+	    database->bindArgument(1, Time(message.time));
+	    database->bindArgument(2, thread);
+	    database->bindArgument(3, Time::TheEnd());
+	    database->bindArgument(4, linked_object);	
+	    while(database->executeStatement());	    
+	    
+	}
 
 	// End the transaction on this thread's database
 	END_TRANSACTION(database);

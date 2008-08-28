@@ -329,32 +329,28 @@ typedef uint64_t OpenSS_Protocol_Time;
 %#define OPENSS_PROTOCOL_TAG_CHANGE_THREADS_STATE               ((int)1102)
 %#define OPENSS_PROTOCOL_TAG_CREATE_PROCESS                     ((int)1103)
 %#define OPENSS_PROTOCOL_TAG_CREATED_PROCESS                    ((int)1104)
-%
 %#define OPENSS_PROTOCOL_TAG_DETACH_FROM_THREADS                ((int)1105)
 %#define OPENSS_PROTOCOL_TAG_EXECUTE_NOW                        ((int)1106)
 %#define OPENSS_PROTOCOL_TAG_EXECUTE_AT_ENTRY_OR_EXIT           ((int)1107)
 %#define OPENSS_PROTOCOL_TAG_EXECUTE_IN_PLACE_OF                ((int)1108)
 %#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_INTEGER                 ((int)1109)
-%
 %#define OPENSS_PROTOCOL_TAG_GET_GLOBAL_STRING                  ((int)1110)
 %#define OPENSS_PROTOCOL_TAG_GET_MPICH_PROC_TABLE               ((int)1111)
 %#define OPENSS_PROTOCOL_TAG_GLOBAL_INTEGER_VALUE               ((int)1112)
 %#define OPENSS_PROTOCOL_TAG_GLOBAL_JOB_VALUE                   ((int)1113)
 %#define OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE                ((int)1114)
-%
-%#define OPENSS_PROTOCOL_TAG_LOADED_LINKED_OBJECT               ((int)1115)
-%#define OPENSS_PROTOCOL_TAG_REPORT_ERROR                       ((int)1116)
-%#define OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER                 ((int)1117)
-%#define OPENSS_PROTOCOL_TAG_STDERR                             ((int)1118)
-%#define OPENSS_PROTOCOL_TAG_STDIN                              ((int)1119)
-%
-%#define OPENSS_PROTOCOL_TAG_STDOUT                             ((int)1120)
-%#define OPENSS_PROTOCOL_TAG_STOP_AT_ENTRY_OR_EXIT              ((int)1121)
-%#define OPENSS_PROTOCOL_TAG_SYMBOL_TABLE                       ((int)1122)
-%#define OPENSS_PROTOCOL_TAG_THREADS_STATE_CHANGED              ((int)1123)
-%#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)1124)
-%
-%#define OPENSS_PROTOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)1125)
+%#define OPENSS_PROTOCOL_TAG_INSTRUMENTED			((int)1115)
+%#define OPENSS_PROTOCOL_TAG_LOADED_LINKED_OBJECT               ((int)1116)
+%#define OPENSS_PROTOCOL_TAG_REPORT_ERROR                       ((int)1117)
+%#define OPENSS_PROTOCOL_TAG_SET_GLOBAL_INTEGER                 ((int)1118)
+%#define OPENSS_PROTOCOL_TAG_STDERR                             ((int)1119)
+%#define OPENSS_PROTOCOL_TAG_STDIN                              ((int)1120)
+%#define OPENSS_PROTOCOL_TAG_STDOUT                             ((int)1121)
+%#define OPENSS_PROTOCOL_TAG_STOP_AT_ENTRY_OR_EXIT              ((int)1122)
+%#define OPENSS_PROTOCOL_TAG_SYMBOL_TABLE                       ((int)1123)
+%#define OPENSS_PROTOCOL_TAG_THREADS_STATE_CHANGED              ((int)1124)
+%#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)1125)
+%#define OPENSS_PROTOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)1126)
 %
 %#define OPENSS_PROTOCOL_TAG_PERFORMANCE_DATA                   ((int)10000)
 
@@ -679,6 +675,27 @@ struct OpenSS_Protocol_GlobalStringValue
 
     /** Current value of that variable. */
     string value<>;
+};
+
+
+
+/**
+ * Threads have been instrumented.
+ *
+ * Issued by the backend to indicate that the specified collector has placed
+ * instrumentation in the specified threads.
+ *
+ * @note    Sent only when the backend automatically applies instrumentation
+ *          to newly created threads. Not to report completion of frontend-
+ *          requested instrumentation.
+ */
+struct OpenSS_Protocol_Instrumented
+{
+    /** Threads to which instrumentation was applied. */
+    OpenSS_Protocol_ThreadNameGroup threads;
+
+    /** Collector which is instrumenting. */
+    OpenSS_Protocol_Collector collector;
 };
 
 

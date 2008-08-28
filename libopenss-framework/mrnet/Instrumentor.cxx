@@ -71,6 +71,8 @@ namespace {
 				   Callbacks::globalJobValue);
 	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE,
 				   Callbacks::globalStringValue);
+	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_INSTRUMENTED,
+				   Callbacks::instrumented);
 	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_LOADED_LINKED_OBJECT,
 				   Callbacks::loadedLinkedObject);
 	Frontend::registerCallback(OPENSS_PROTOCOL_TAG_REPORT_ERROR,
@@ -125,6 +127,8 @@ namespace {
 				     Callbacks::globalJobValue);
 	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_GLOBAL_STRING_VALUE,
 				     Callbacks::globalStringValue);
+	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_INSTRUMENTED,
+				     Callbacks::instrumented);
 	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_LOADED_LINKED_OBJECT,
 				     Callbacks::loadedLinkedObject);
 	Frontend::unregisterCallback(OPENSS_PROTOCOL_TAG_REPORT_ERROR,

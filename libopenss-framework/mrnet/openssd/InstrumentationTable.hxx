@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -33,6 +33,7 @@
 #include "Lockable.hxx"
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -76,7 +77,8 @@ namespace OpenSpeedShop { namespace Framework {
 	void removeInstrumentation(const ThreadName&);
 	void removeInstrumentation(const ThreadName&, const Collector&);
 
-	void copyInstrumentation(const ThreadName&, const ThreadName&);
+	std::set<Collector> copyInstrumentation(const ThreadName&, 
+						const ThreadName&);
 	
     private:
 

@@ -30,11 +30,7 @@
 #endif
 
 #include "AddressRange.hxx"
-#ifdef USE_CPP_STYLE_JOB
 #include "Job.hxx"
-#else
-#include "Protocol.h"
-#endif
 
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
@@ -46,6 +42,7 @@
 namespace OpenSpeedShop { namespace Framework {
 
     class Blob;
+    class Collector;
     class ExperimentGroup;
     class FileName;
     class SymbolTable;
@@ -68,13 +65,10 @@ namespace OpenSpeedShop { namespace Framework {
 	void globalIntegerValue(const ThreadName&, const std::string&,
 				const bool&, const int64_t&);
 	void globalJobValue(const ThreadName&, const std::string&,
-#ifdef USE_CPP_STYLE_JOB
 			    const bool&, const Job&);
-#else
-	                    const bool&, const OpenSS_Protocol_Job&);
-#endif
 	void globalStringValue(const ThreadName&, const std::string&,
 			       const bool&, const std::string&);
+	void instrumented(const ThreadNameGroup&, const Collector&);
 	void loadedLinkedObject(const ThreadNameGroup&, const Time&,
 				const AddressRange&, const FileName&,
 				const bool&);

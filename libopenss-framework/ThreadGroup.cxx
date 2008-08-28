@@ -547,18 +547,27 @@ ThreadGroup::getExtentsOf(const std::set<Function>& objects,
     for(std::set<Function>::const_iterator
 	    i = objects.begin(); i != objects.end(); ++i) {
 
-	// Find this function's linked object and address range
+	// Find this function's linked object and address ranges + bitmaps
 	EntrySpy(*i).validate();
 	database->prepareStatement(
-	    "SELECT linked_object, "
-	    "       addr_begin, "
-	    "       addr_end "
-	    "FROM Functions "
+	    "SELECT Functions.linked_object, "
+	    "       FunctionRanges.addr_begin, "
+	    "       FunctionRanges.addr_end, "
+	    "       FunctionRanges.valid_bitmap "
+	    "FROM FunctionRanges "
+	    "  JOIN Functions "
+	    "ON FunctionRanges.function = Functions.id "
 	    "WHERE Functions.id = ?;"
 	    );
 	database->bindArgument(1, EntrySpy(*i).getEntry());
 	while(database->executeStatement()) {
-	    
+
+	    std::set<AddressRange> ranges = 
+		AddressBitmap(AddressRange(database->getResultAsAddress(2),
+					   database->getResultAsAddress(3)),
+			      database->getResultAsBlob(4)).
+		getContiguousRanges(true);
+
 	    // Iterate over each thread of this group
 	    for(ThreadGroup::const_iterator j = begin(); j != end(); ++j) {
 
@@ -573,25 +582,31 @@ ThreadGroup::getExtentsOf(const std::set<Function>& objects,
 		    k != linked_objects.upper_bound(key);
 		    ++k) {
 
-		    // Intersect the function's extent with domain of interest
-		    Extent constrained = 
-			Extent(k->second.getTimeInterval(),
-			       AddressRange(
-				   k->second.getAddressRange().getBegin() +
-				   database->getResultAsAddress(2),
-				   k->second.getAddressRange().getBegin() +
-				   database->getResultAsAddress(3)
-				   )
-			    ) & domain;
-		    
-		    // Add constrained extent (if non-empty) to the table
-		    if(!constrained.isEmpty())
-			table.addExtent(*j, *i, constrained);
+		    // Iterate over the addresss ranges for this function
+		    for(std::set<AddressRange>::const_iterator
+			    l = ranges.begin(); l != ranges.end(); ++l) {
+
+			// Intersect this extent with domain of interest
+			Extent constrained =
+			    Extent(k->second.getTimeInterval(),
+				   AddressRange(
+				       k->second.getAddressRange().getBegin() +
+				       l->getBegin(),
+				       k->second.getAddressRange().getBegin() +
+				       l->getEnd()
+				       )
+				) & domain;
+			
+			// Add constrained extent (if non-empty) to table
+			if(!constrained.isEmpty())
+			    table.addExtent(*j, *i, constrained);
+			
+		    }
 		    
 		}
 		
 	    }
-	
+	    
 	}
 
     }

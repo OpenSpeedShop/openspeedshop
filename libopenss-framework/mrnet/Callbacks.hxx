@@ -51,6 +51,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void globalIntegerValue(const Blob&);
 	void globalJobValue(const Blob&);
 	void globalStringValue(const Blob&);
+	void instrumented(const Blob&);
 	void loadedLinkedObject(const Blob&);
 	void reportError(const Blob&);
 	void stdErr(const Blob&);

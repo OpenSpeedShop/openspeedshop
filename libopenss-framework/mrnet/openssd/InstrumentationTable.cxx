@@ -363,9 +363,11 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread,
  *
  * @param source         Thread from which instrumentation should be copied.
  * @param destination    Thread to which instrumentation should be copied.
+ * @return               Set of collectors that instrumented the thread.
  */
-void InstrumentationTable::copyInstrumentation(const ThreadName& source,
-					       const ThreadName& destination)
+std::set<Collector>
+InstrumentationTable::copyInstrumentation(const ThreadName& source,
+					  const ThreadName& destination)
 {
     Guard guard_myself(this);
     
@@ -374,7 +376,7 @@ void InstrumentationTable::copyInstrumentation(const ThreadName& source,
     
     // Go no further if there is no instrumentation for this thread
     if(i == dm_threads.end())
-	return;
+	return std::set<Collector>();
 
     // Get the Dyninst pointer for the destination thread
     BPatch_thread* thread = ThreadTable::TheTable.getPtr(destination);
@@ -400,10 +402,14 @@ void InstrumentationTable::copyInstrumentation(const ThreadName& source,
     }
 
     // Iterate over each collector with instrumentation in the source thread
+    std::set<Collector> collectors;
     for(std::map<Collector, InstrumentationList>::const_iterator
 	    k = i->second.dm_collectors.begin(); 
 	k != i->second.dm_collectors.end(); 
 	++k) {
+
+	// Add this collector to the set that instrumented the thread
+	collectors.insert(k->first);
 	
 	// Add this collector for the destination thread (or get existing entry)
 	std::map<Collector, InstrumentationList>::iterator l =
@@ -425,4 +431,7 @@ void InstrumentationTable::copyInstrumentation(const ThreadName& source,
 	}
 
     }
+
+    // Return the set of collectors that instrumented the thread
+    return collectors;
 }

@@ -1097,6 +1097,29 @@ std::string OpenSpeedShop::Framework::toString(
 
 
 /**
+ * Conversion from OpenSS_Protocol_Instrumented to std::string.
+ *
+ * Returns the conversion of an OpenSS_Protocol_Instrumented message into a
+ * std::string.
+ *
+ * @param message    Message to be converted.
+ * @return           String conversion of that message.
+ */
+std::string OpenSpeedShop::Framework::toString(
+    const OpenSS_Protocol_Instrumented& message
+    )
+{
+    std::stringstream output;
+    output << "instrumented(" << std::endl
+	   << toString(message.threads) << "," << std::endl
+	   << "    " << toString(message.collector) << std::endl
+	   << ")" << std::endl;
+    return output.str();
+}
+
+
+
+/**
  * Conversion from OpenSS_Protocol_LoadedLinkedObject to std::string.
  *
  * Returns the conversion of an OpenSS_Protocol_LoadedLinkedObject message

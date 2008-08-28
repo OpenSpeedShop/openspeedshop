@@ -40,7 +40,6 @@
 #include <inttypes.h>
 #endif
 
-#ifdef USE_CPP_STYLE_JOB
 //
 // Maximum length of a host name. According to the Linux manual page for the
 // gethostname() function, this should be available in a header somewhere. But
@@ -48,7 +47,6 @@
 //
 #ifndef HOST_NAME_MAX
 #define HOST_NAME_MAX (256)
-#endif
 #endif
 
 using namespace OpenSpeedShop::Framework;
@@ -98,11 +96,7 @@ namespace {
         /* const */ BPatch_process& process,
 	/* const */ BPatch_variableExpr& MPIR_proctable,
 	const int64_t& MPIR_proctable_size,
-#ifdef USE_CPP_STYLE_JOB
 	std::pair<bool, Job>& value
-#else
-	std::pair<bool, OpenSS_Protocol_Job>& value
-#endif
         )
     {
 	// Define type for an entry in the table
@@ -113,17 +107,7 @@ namespace {
 	} MPIR_PROCDESC;
 
 	// Initially assume the table will not be read properly
-#ifdef USE_CPP_STYLE_JOB
 	value = std::make_pair(false, Job());
-#else
-	value = std::make_pair(false, OpenSS_Protocol_Job());
-        value.second.entries.entries_len = MPIR_proctable_size;
-        value.second.entries.entries_val = 
-            reinterpret_cast<OpenSS_Protocol_JobEntry*>(malloc(
-                std::max(static_cast<int64_t>(1), MPIR_proctable_size) *
-                sizeof(OpenSS_Protocol_JobEntry)
-                ));
-#endif
 	
 	// Get the image pointer for this process
 	BPatch_image* image = process.getImage();
@@ -148,29 +132,17 @@ namespace {
 	    variable.readValue(&raw_value);
 
 	    // Read the host name for this entry
-#ifdef USE_CPP_STYLE_JOB
 	    std::string host_name;
 	    image->readString(raw_value.host_name, host_name);
-#else
-	    value.second.entries.entries_val[i].host =
-		reinterpret_cast<char*>(malloc(HOST_NAME_MAX * sizeof(char)));
-	    image->readString(raw_value.host_name,
-			      value.second.entries.entries_val[i].host,
-			      HOST_NAME_MAX);
-#endif
-
+	    
 	    // Add this entry to the job value
-#ifdef USE_CPP_STYLE_JOB
 	    value.second.push_back(std::make_pair(host_name, raw_value.pid));
-#else
-	    value.second.entries.entries_val[i].pid = raw_value.pid;
-#endif
 
 	}
 
 	// Inform the caller that the table was successfully read
 	value.first = true;
-  }
+    }
 
 
 
@@ -237,16 +209,6 @@ void OpenSpeedShop::Framework::Dyninst::dynLibrary(BPatch_thread* thread,
 	Address begin(reinterpret_cast<uintptr_t>(module->getBaseAddr()));
 	Address end = begin + module->getSize();
 	AddressRange range(begin, end);
-#ifndef NDEBUG
-        if(Backend::isDebugEnabled()) {
-            std::stringstream output;
-    	    output << "[TID " << pthread_self() << "] Dyninst::"
-	           << "dynLibrary(), calling loadedLinkedObject: PID " << process->getPid() << " "
-	           << "Address, begin=" << begin << " Address, end=" << end 
-	           << linked_object.getPath() << "\"." << std::endl;
-            std::cerr << output.str();
-        }
-#endif
 	
 	// Send the frontend the "loaded" message for this linked object
 	Senders::loadedLinkedObject(threads, now, range,
@@ -281,7 +243,7 @@ void OpenSpeedShop::Framework::Dyninst::dynLibrary(BPatch_thread* thread,
 		
 		// Add this module to the symbol table (if necessary)
 		if(range == symbol_table.getRange())
-		    symbol_table.addModule(*module);
+		    symbol_table.addModule(*image, *module);
 		
 	    }
 	    
@@ -390,7 +352,8 @@ void OpenSpeedShop::Framework::Dyninst::exec(BPatch_thread* thread)
     // Send the frontend all the symbol information for these threads
     Dyninst::sendSymbolsForThread(threads);
 
-    // TODO: copy instrumentation from the process back into itself
+    // Copy instrumentation to the thread
+    Dyninst::copyInstrumentation(threads, threads);
 }
 
 
@@ -532,9 +495,12 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
 	
         // Send the frontend a message indicating these threads are running
         Senders::threadsStateChanged(threads_forked, Running);
+
+	// Copy instrumentation to the new process
+	Dyninst::copyInstrumentation(ThreadTable::TheTable.getNames(parent),
+				     threads_forked);
+
     }
-    
-    // TODO: copy instrumentation from the parent process to the child process 
 }
 
 
@@ -569,6 +535,7 @@ void OpenSpeedShop::Framework::Dyninst::threadCreate(BPatch_process* process,
 
     // Has this thread already been attached?
     if(!ThreadTable::TheTable.getNames(thread).empty()) {
+
 #ifndef NDEBUG
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
@@ -579,6 +546,7 @@ void OpenSpeedShop::Framework::Dyninst::threadCreate(BPatch_process* process,
 	    std::cerr << output.str();
 	}
 #endif
+
 	return;
     }
     
@@ -609,9 +577,12 @@ void OpenSpeedShop::Framework::Dyninst::threadCreate(BPatch_process* process,
 	
 	// Send the frontend a message indicating these threads are running
 	Senders::threadsStateChanged(threads_created, Running);
+
+	// Copy instrumentation to the new thread
+	Dyninst::copyInstrumentation(ThreadTable::TheTable.getNames(process),
+				     threads_created);
+
     }
-    
-    // TODO: copy instrumentation from the process to the new thread
 }
 
 
@@ -646,23 +617,51 @@ void OpenSpeedShop::Framework::Dyninst::threadDestroy(BPatch_process* process,
     // Get the names for this thread
     ThreadNameGroup threads = ThreadTable::TheTable.getNames(thread);
 
-#ifndef NDEBUG
-    if(Backend::isDebugEnabled()) {
-        std::stringstream output;
-	output << "[TID " << pthread_self() << "] Dyninst::"
-	       << "threadDestroy(): TID " 
-	       << static_cast<size_t>(thread->getTid()) << " of PID "
-	       << process->getPid() << " before calling OpenSpeedShop::Watcher::watchProcess(threads)." << std::endl;
-        std::cerr << output.str();
-    }
-#endif
+    // Note: The following "watcher" call is necessary in order to insure that
+    //       this thread's performance data makes its way into the experiment
+    //       database. Otherwise it is possible for the frontend to receive the
+    //       termination notification and, if this is the last thread, shutdown
+    //       before the performance data can make its way to the frontend and
+    //       into the database.
 
-    // Call the watcher code to make sure all of the data in the raw data file corresponding to these threads
-    // has been sent to the daemon, on it's way to the frontend
+    // Insure the thread's performance data is sent to the frontend
     OpenSpeedShop::Watcher::watchProcess(threads);
 
     // Send the frontend the list of threads that have terminated
     Senders::threadsStateChanged(threads, Terminated);
+}
+
+
+
+/**
+ * Copy instrumentation from one set of threads to another.
+ *
+ * ...
+ *
+ * @param source         Threads from which instrumentation should be copied.
+ * @param destination    Threads to which instrumentation should be copied.
+ */
+void OpenSpeedShop::Framework::Dyninst::copyInstrumentation(
+    const ThreadNameGroup& source,
+    const ThreadNameGroup& destination
+    )
+{
+#ifdef DISABLE_FOR_NOW
+    // ...
+    std::map<Collector, ThreadNameGroup> xyz;
+    
+    // ...
+    for(ThreadNameGroup::const_iterator
+	    i = source.begin(); i != source.end(); ++i)
+	for(ThreadNameGroup::const_iterator
+		j = destination.begin(); j != destination.end(); ++j) {
+	    
+	    // ...
+	    
+	}
+
+    // ...
+#endif
 }
 
 
@@ -1182,11 +1181,9 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
        ((type_name.find("char*") != std::string::npos) ||
 	(type_name == "<no type>") || (type_name == ""))) {
 
-#ifdef USE_CPP_STYLE_JOB
 	std::string raw_value;
-	image->readString(variable, raw_value);	
+	image->readString(variable, raw_value);
 	value = std::make_pair(true, raw_value);
-#endif
 
     }
 }
@@ -1209,19 +1206,11 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
  */
 void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
     /* const */ BPatch_process& process,
-#ifdef USE_CPP_STYLE_JOB
     std::pair<bool, Job>& value
-#else
-    std::pair<bool, OpenSS_Protocol_Job>& value
-#endif
     )
 {
     // Initially assume the table will not be found
-#ifdef USE_CPP_STYLE_JOB
     value = std::make_pair(false, Job());
-#else
-    value = std::make_pair(false, OpenSS_Protocol_Job());
-#endif
 
     // Find the value of "MPIR_proctable_size"
     std::pair<bool, int64_t> MPIR_proctable_size;
@@ -1374,7 +1363,7 @@ void OpenSpeedShop::Framework::Dyninst::sendSymbolsForThread(
 	if(!j->second.second.empty()) {
 
 	    // Add this module to the symbol table
-	    j->second.first.addModule(*module);
+	    j->second.first.addModule(*image, *module);
 	    
 	}
 	
@@ -1384,16 +1373,6 @@ void OpenSpeedShop::Framework::Dyninst::sendSymbolsForThread(
     for(SymbolTableMap::const_iterator 
 	    i = symbol_tables.begin(); i != symbol_tables.end(); ++i) {
 
-#ifndef NDEBUG
-        if(Backend::isDebugEnabled()) {
-            std::stringstream output;
-    	    output << "[TID " << pthread_self() << "] Dyninst::"
-	           << "OpenSpeedShop::Framework::Dyninst::sendSymbolsForThread(), calling loadedLinkedObject: PID " << process->getPid() << " "
-	           << "Address, range=" << i->second.first.getRange() 
-	           << i->second.first.getLinkedObject().getPath() << "\"." << std::endl;
-            std::cerr << output.str();
-        }
-#endif
 	// Send the frontend the initial "loaded" for the symbol tables
 	Senders::loadedLinkedObject(
 	    threads, now,

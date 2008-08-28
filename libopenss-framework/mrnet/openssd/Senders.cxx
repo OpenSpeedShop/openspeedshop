@@ -46,7 +46,6 @@ namespace {
 
 
 
-#ifdef USE_CPP_STYLE_JOB
     /**
      * Convert job for protocol use.
      *
@@ -77,7 +76,6 @@ namespace {
 	    ptr->pid = i->second;
 	}
     }
-#endif
     
     
     
@@ -237,23 +235,14 @@ void Senders::globalIntegerValue(const ThreadName& thread,
 void Senders::globalJobValue(const ThreadName& thread,
 			     const std::string& global,
 			     const bool& found,
-#ifdef USE_CPP_STYLE_JOB
 			     const Job& job)
-#else
-                             const OpenSS_Protocol_Job& job)
-#endif
 {
     // Assemble the request into a message
     OpenSS_Protocol_GlobalJobValue message;
     message.thread = thread;
     convert(global, message.global);
     message.found = found;
-#ifdef USE_CPP_STYLE_JOB
     ::convert(job, message.value);
-#else
-    message.value.entries.entries_len = job.entries.entries_len;
-    message.value.entries.entries_val = job.entries.entries_val;
-#endif
     
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {
@@ -329,6 +318,50 @@ void Senders::globalStringValue(const ThreadName& thread,
         reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_GlobalStringValue),
 	reinterpret_cast<char*>(&message)
 	);    
+}
+
+
+
+/**
+ * Threads have been instrumented.
+ *
+ * Issue a message to the frontend to indicate that the specified collector
+ * has placed instrumentation in the specified threads.
+ *
+ * @param threads      Threads to which instrumentation was applied.
+ * @param collector    Collector which is instrumenting.
+ */
+void Senders::instrumented(const ThreadNameGroup& threads,
+			   const Collector& collector)
+{
+    // Assemble the request into a message
+    OpenSS_Protocol_Instrumented message;
+    message.threads = threads;
+    message.collector = collector;
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
+    // Encode the message into a blob
+    Blob blob(
+        reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_Instrumented),
+	&message
+	);
+
+    // Send the encoded message to the frontend
+    Backend::sendToFrontend(OPENSS_PROTOCOL_TAG_INSTRUMENTED, blob);
+
+    // Destroy the message
+    xdr_free(
+        reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_Instrumented),
+	reinterpret_cast<char*>(&message)
+	);
 }
 
 

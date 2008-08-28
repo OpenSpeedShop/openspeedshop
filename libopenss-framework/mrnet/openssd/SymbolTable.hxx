@@ -66,7 +66,7 @@ namespace OpenSpeedShop { namespace Framework {
 
 	SymbolTable(const FileName&, const AddressRange&);
 	
-	void addModule(/* const */ BPatch_module&);
+	void addModule(/* const */ BPatch_image&, /* const */ BPatch_module&);
 	
 	operator OpenSS_Protocol_SymbolTable() const;
 

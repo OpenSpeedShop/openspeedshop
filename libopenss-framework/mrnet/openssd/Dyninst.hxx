@@ -29,11 +29,7 @@
 #include "config.h"
 #endif
 
-#ifdef USE_CPP_STYLE_JOB
 #include "Job.hxx"
-#else
-#include "Protocol.h"
-#endif
 
 #include <BPatch.h>
 #ifdef HAVE_INTTYPES_H
@@ -67,6 +63,9 @@ namespace OpenSpeedShop { namespace Framework {
 	void threadCreate(BPatch_process*, BPatch_thread*);
 	void threadDestroy(BPatch_process*, BPatch_thread*);
 
+	void copyInstrumentation(const ThreadNameGroup&,
+				 const ThreadNameGroup&);
+
 	BPatch_function* findFunction(/* const */ BPatch_process&,
 				      const std::string&);
 	BPatch_variableExpr* findGlobalVariable(/* const */ BPatch_process&,
@@ -78,16 +77,10 @@ namespace OpenSpeedShop { namespace Framework {
 		       std::pair<bool, int64_t>&);
 	void setGlobal(/* const */ BPatch_process&, const std::string&,
 		       int64_t&);
-
 	void getGlobal(/* const */ BPatch_process&, const std::string&,
 		       std::pair<bool, std::string>&);
-
 	void getMPICHProcTable(/* const */ BPatch_process&,
-#ifdef USE_CPP_STYLE_JOB
 			       std::pair<bool, Job>&);
-#else
-			       std::pair<bool, OpenSS_Protocol_Job>&);
-#endif
 
 	void sendSymbolsForThread(const ThreadNameGroup&);
 	void sendThreadStateUpdates();

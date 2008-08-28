@@ -3821,8 +3821,7 @@ static bool SS_ListAppCommand (CommandObject *cmd) {
       cmd->Result_String ("'list -v appcommand' must have an experiment active.");
       return false;
   }
-  int db_version = experiment->getDBVersion( experiment->getName() );
-  if (db_version >= 2) {
+  if (experiment->getVersion() >= 2) {
     std::string appCommand = experiment->getApplicationCommand();
     cmd->Result_String ( appCommand );
   } else {

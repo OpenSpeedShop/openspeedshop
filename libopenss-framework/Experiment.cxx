@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -23,6 +23,7 @@
  *
  */
 
+#include "AddressBitmap.hxx"
 #include "AddressSpace.hxx"
 #include "BFDSymbols.hxx"
 #include "CollectorGroup.hxx"
@@ -37,7 +38,6 @@
 #include "Path.hxx"
 #include "Statement.hxx"
 #include "StatementCache.hxx"
-#include "SymbolTable.hxx"
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
 #include "ThreadName.hxx"
@@ -75,7 +75,7 @@ namespace {
 	"CREATE TABLE \"Open|SpeedShop\" ("
 	"    version INTEGER"
 	");",
-	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (3);",
+	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (4);",
 	
 	// Thread Table
 	"CREATE TABLE Threads ("
@@ -117,14 +117,22 @@ namespace {
 	"CREATE TABLE Functions ("
 	"    id INTEGER PRIMARY KEY,"
 	"    linked_object INTEGER," // From LinkedObjects.id
-	"    addr_begin INTEGER,"
-	"    addr_end INTEGER,"
 	"    name TEXT"
 	");",
 	"CREATE INDEX IndexFunctionsByName ON Functions (name);",
 	"CREATE INDEX IndexFunctionsByLinkedObject "
 	"  ON Functions (linked_object);",
 
+	// Function Range Table
+	"CREATE TABLE FunctionRanges ("
+	"    function INTEGER," // From Functions.id
+	"    addr_begin INTEGER,"
+	"    addr_end INTEGER,"
+	"    valid_bitmap BLOB"
+	");",
+        "CREATE INDEX IndexFunctionRangesByFunction "
+	"  ON FunctionRanges (function);",
+	
 	// Call Site Table
 	// "CREATE TABLE CallSites ("
 	// "    id INTEGER PRIMARY KEY"
@@ -360,37 +368,6 @@ std::string Experiment::getHostnameFromIP(const std::string& ip)
 }
 
 
-/**
- *
- * Returns the integer value indicating if the version of the experiment database
- *
- * @param name    Name of the experiment database to be tested.
- * @return        Integer version number of the experiment database,
- */
-int Experiment::getDBVersion(const std::string& name)
-{
-    int version = -1;
-    try {
-
-	// Open the experiment database
-	SmartPtr<Database> database = SmartPtr<Database>(new Database(name));
-
-	// Verify there is a "Open|SpeedShop" table containing a single row
-	BEGIN_TRANSACTION(database);
-	database->prepareStatement("SELECT version FROM \"Open|SpeedShop\";");
-	while(database->executeStatement())
-	    version = (database->getResultAsInteger(1) );
-	END_TRANSACTION(database);
-	
-    }
-    catch(...) {
-    }
-    
-    // Return the experiment database's accessibility to the caller
-    return version;
-}
-
-
 
 /**
  * Test accessibility of an experiment database.
@@ -505,6 +482,14 @@ Experiment::Experiment(const std::string& name) :
 
     // Set the experiment's rerun count to 0
     setRerunCount(-1);
+
+    // Update the experiment's database schema if necessary
+    if(getVersion() == 1)
+	updateToVersion2();
+    if(getVersion() == 2)
+	updateToVersion3();
+    if(getVersion() == 3)
+	updateToVersion4();
 }
 
 
@@ -766,6 +751,31 @@ std::string Experiment::getName() const
 {
     // Return the database name to the caller
     return dm_database->getName();
+}
+
+
+
+/**
+ *
+ * Get our experiment database version.
+ *
+ * Returns the version of the database for this experiment.
+ *
+ * @return    Version of the database for this experiment.
+ */
+int Experiment::getVersion() const
+{
+    int version = 0;
+
+    // Find our version
+    BEGIN_TRANSACTION(dm_database);
+    dm_database->prepareStatement("SELECT version FROM \"Open|SpeedShop\";");
+    while(dm_database->executeStatement())
+	version = dm_database->getResultAsInteger(1);
+    END_TRANSACTION(dm_database);
+
+    // Return the version to the caller
+    return version;
 }
 
 
@@ -1185,6 +1195,14 @@ void Experiment::removeThread(const Thread& thread) const
 	"DELETE FROM Functions "
 	"WHERE linked_object "
 	"  NOT IN (SELECT DISTINCT linked_object FROM AddressSpaces);"
+	);
+    while(dm_database->executeStatement());
+
+    // Remove unused function ranges
+    dm_database->prepareStatement(
+	"DELETE FROM FunctionRanges "
+	"WHERE function "
+	"  NOT IN (SELECT DISTINCT id FROM Functions)"
 	);
     while(dm_database->executeStatement());
 
@@ -1885,6 +1903,173 @@ ThreadGroup Experiment::getThreadsInProcess(const pid_t& pid,
 
 
 /**
+ * Update our schema to version 2.
+ *
+ * Updates the schema of this experiment's database to version 2. Adds an empty
+ * command column to the thread table, and updates the database's schema version
+ * number.
+ */
+void Experiment::updateToVersion2() const
+{
+    // Update procedure
+    const char* UpdateProcedure[] = {
+
+	// Add a column field to the Threads table
+	"ALTER TABLE Threads ADD COLUMN command TEXT DEFAULT NULL;",
+	
+	// Update the database's schema version number
+	"UPDATE \"Open|SpeedShop\" SET version = 2;",
+
+	// End Of Table Entry
+	NULL
+    };
+
+    // Apply the update procedure
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    for(int i = 0; UpdateProcedure[i] != NULL; ++i) {
+	dm_database->prepareStatement(UpdateProcedure[i]);
+	while(dm_database->executeStatement());
+    }
+    END_TRANSACTION(dm_database);
+}
+
+
+
+/**
+ * Update our schema to version 3.
+ *
+ * Updates the schema of this experiment's database to version 3. Adds an empty
+ * MPI implementation column to the thread table, and updates the database's
+ * schema version number.
+ */
+void Experiment::updateToVersion3() const
+{
+    // Update procedure
+    const char* UpdateProcedure[] = {
+
+	// Add a MPI implementation field to the Threads table
+	"ALTER TABLE Threads ADD COLUMN mpi_impl TEXT DEFAULT NULL;",
+	
+	// Update the database's schema version number
+	"UPDATE \"Open|SpeedShop\" SET version = 3;",
+
+	// End Of Table Entry
+	NULL
+    };
+
+    // Apply the update procedure
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    for(int i = 0; UpdateProcedure[i] != NULL; ++i) {
+	dm_database->prepareStatement(UpdateProcedure[i]);
+	while(dm_database->executeStatement());
+    }
+    END_TRANSACTION(dm_database);
+}
+
+
+
+/**
+ * Update our schema to version 4.
+ *
+ * Updates the schema of this experiment's database to version 4. Translates
+ * the existing function information into the new format, removes the older
+ * information, and updates the database's schema version number.
+ */
+void Experiment::updateToVersion4() const
+{
+    // Update procedure
+    const char* UpdateProcedure[] = {
+
+	// Remove indicies on the existing Functions table
+        "DROP INDEX IF EXISTS IndexFunctionsByName;",
+        "DROP INDEX IF EXISTS IndexFunctionsByLinkedObject;",
+
+	// Temporarily rename the existing Functions table
+        "ALTER TABLE Functions RENAME TO OldFunctions;",
+	
+	// Create the new Function table and its indicies
+        "CREATE TABLE Functions ("
+        "    id INTEGER PRIMARY KEY,"
+        "    linked_object INTEGER," // From LinkedObjects.id
+        "    name TEXT"
+	");",
+        "CREATE INDEX IndexFunctionsByName ON Functions (name);",
+        "CREATE INDEX IndexFunctionsByLinkedObject "
+        "  ON Functions (linked_object);",
+
+	// Create the new FunctionRanges table and its index
+        "CREATE TABLE FunctionRanges ("
+        "    function INTEGER," // From Functions.id
+        "    addr_begin INTEGER,"
+        "    addr_end INTEGER,"
+        "    valid_bitmap BLOB"
+        ");",
+        "CREATE INDEX IndexFunctionRangesByFunction "
+        "  ON FunctionRanges (function);",
+
+	// Translate the existing information into the new format
+	"INSERT INTO Functions"
+	"  SELECT id, linked_object, name FROM OldFunctions;",
+	"INSERT INTO FunctionRanges (function, addr_begin, addr_end)"
+	"  SELECT id, addr_begin, addr_end FROM OldFunctions;",
+
+	// Remove the previous Functions table
+	"DROP TABLE OldFunctions;",
+
+	// Update the database's schema version number
+	"UPDATE \"Open|SpeedShop\" SET version = 4;",
+
+	// End Of Table Entry
+	NULL
+    };
+
+    // Begin a multi-statement transaction
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    
+    // Apply the update procedure
+    for(int i = 0; UpdateProcedure[i] != NULL; ++i) {
+	dm_database->prepareStatement(UpdateProcedure[i]);
+	while(dm_database->executeStatement());
+    }
+
+    // Find all the function ranges in this database
+    dm_database->prepareStatement(
+        "SELECT function, addr_begin, addr_end FROM FunctionRanges;"
+	);
+    while(dm_database->executeStatement()) {
+
+	int function = dm_database->getResultAsInteger(1);
+	Address addr_begin = dm_database->getResultAsAddress(2);
+	Address addr_end = dm_database->getResultAsAddress(3);
+	
+	// Construct a valid bitmap for this (entire) function range
+	AddressBitmap valid_bitmap(AddressRange(addr_begin, addr_end));
+	for(Address addr = addr_begin; addr < addr_end; ++addr)
+	    valid_bitmap.setValue(addr, true);
+	
+	// Set the valid bitmap of this function range
+	dm_database->prepareStatement(
+	    "UPDATE FunctionRanges "
+	    "SET valid_bitmap = ? "
+	    "WHERE function = ? "
+	    "  AND addr_begin = ? "
+	    "  AND addr_end = ?;"
+	    );
+	dm_database->bindArgument(1, valid_bitmap.getBlob());
+	dm_database->bindArgument(2, function);
+	dm_database->bindArgument(3, addr_begin);
+	dm_database->bindArgument(4, addr_end);
+	while(dm_database->executeStatement());	
+	
+    }
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);    
+}
+
+
+
+/**
  * Get MPI job information from MPT.
  *
  * Returns MPI job information for the specified thread. Looks for specific 
@@ -2130,6 +2315,7 @@ void Experiment::updateThreads(const pid_t& pid,
     // End this multi-statement transaction
     END_TRANSACTION(dm_database); 
 }
+
 
 
 // TODO: Finish code to prune existing databases of database

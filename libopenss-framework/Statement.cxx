@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -261,6 +261,9 @@ std::set<Function> Statement::getFunctions() const
     //       the statement's bitmap. However the performance of this direct
     //       query was found to be lacking. A function cache was introduced
     //       to accelerate such queries and is now used below.
+    //
+    // Note: The above query is no longer correct beginning with experiment
+    //       database schema version 4.
 
     // Find our linked object and address range
     BEGIN_TRANSACTION(dm_database);
@@ -270,10 +273,10 @@ std::set<Function> Statement::getFunctions() const
 	"       StatementRanges.addr_begin, "
 	"       StatementRanges.addr_end, "
 	"       StatementRanges.valid_bitmap "
-	"FROM Statements "
-	"  JOIN StatementRanges "
-	"ON Statements.id = StatementRanges.statement "
-	"WHERE id = ?;"
+	"FROM StatementRanges "
+	"  JOIN Statements "
+	"ON StatementRanges.statement = Statements.id "
+	"WHERE Statements.id = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement()) {

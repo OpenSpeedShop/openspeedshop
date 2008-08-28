@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -116,25 +116,33 @@ void FunctionCache::addLinkedObject(const LinkedObject& linked_object)
     BEGIN_TRANSACTION(database);
     EntrySpy(linked_object).validate();
     database->prepareStatement(
-	"SELECT id, "
-	"       addr_begin, addr_end "
-	"FROM Functions "
-	"WHERE linked_object = ?;"
+        "SELECT Functions.id, "
+	"       FunctionRanges.addr_begin, "
+	"       FunctionRanges.addr_end, "
+	"       FunctionRanges.valid_bitmap "
+	"FROM FunctionRanges "
+	"  JOIN Functions "
+	"ON FunctionRanges.function = Functions.id "
+	"WHERE Functions.linked_object = ?;"
 	);
     database->bindArgument(1, EntrySpy(linked_object).getEntry());
     while(database->executeStatement()) {
 
-	dm_cache.addExtent(
-	    linked_object,
-	    Function(database, database->getResultAsInteger(1)),
-	    Extent(
-		TimeInterval(Time::TheBeginning(), 
-			     Time::TheEnd()),
-		AddressRange(database->getResultAsAddress(2),
-			     database->getResultAsAddress(3))
-		)
-	    );
-	
+        AddressBitmap bitmap(AddressRange(database->getResultAsAddress(2),
+                                          database->getResultAsAddress(3)),
+                             database->getResultAsBlob(4));
+
+        std::set<AddressRange> ranges = bitmap.getContiguousRanges(true);
+
+        for(std::set<AddressRange>::const_iterator
+                i = ranges.begin(); i != ranges.end(); ++i)
+
+            dm_cache.addExtent(
+                linked_object,
+                Function(database, database->getResultAsInteger(1)),
+                Extent(TimeInterval(Time::TheBeginning(), Time::TheEnd()), *i)
+                );
+
     }
     END_TRANSACTION(database);
 }

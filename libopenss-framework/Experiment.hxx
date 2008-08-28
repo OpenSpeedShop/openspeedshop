@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -106,6 +106,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void copyTo(const std::string&) const;
 	
 	std::string getName() const;
+	int getVersion() const;
 
 	ThreadGroup getThreads() const;
 	
@@ -147,7 +148,6 @@ namespace OpenSpeedShop { namespace Framework {
 	Extent getPerformanceDataExtent() const;
 	
 	std::string getApplicationCommand();
-	int getDBVersion(const std::string&);
 	void setApplicationCommand(const char *);
 
 	void prepareToRerun(const OutputCallback =
@@ -175,6 +175,10 @@ namespace OpenSpeedShop { namespace Framework {
 
 	ThreadGroup attachJob(const Job&) const;
 	ThreadGroup getThreadsInProcess(const pid_t&, const std::string&) const;
+
+	void updateToVersion2() const;
+	void updateToVersion3() const;
+	void updateToVersion4() const;
 
 #ifndef NDEBUG
 	static bool is_debug_mpijob_enabled;

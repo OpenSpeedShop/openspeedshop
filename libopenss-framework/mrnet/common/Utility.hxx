@@ -88,6 +88,7 @@ namespace OpenSpeedShop { namespace Framework {
     std::string toString(const OpenSS_Protocol_GlobalIntegerValue&);
     std::string toString(const OpenSS_Protocol_GlobalJobValue&);
     std::string toString(const OpenSS_Protocol_GlobalStringValue&);
+    std::string toString(const OpenSS_Protocol_Instrumented&);
     std::string toString(const OpenSS_Protocol_LoadedLinkedObject&);
     std::string toString(const OpenSS_Protocol_ReportError&);
     std::string toString(const OpenSS_Protocol_SetGlobalInteger&);

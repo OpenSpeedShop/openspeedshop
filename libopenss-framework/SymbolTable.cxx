@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -169,20 +170,36 @@ void SymbolTable::processAndStore(const LinkedObject& linked_object)
     for(std::map<AddressRange, std::string>::const_iterator
 	    i = dm_functions.begin(); i != dm_functions.end(); ++i) {
 
+	// Get the function range
+	Address addr_begin(i->first.getBegin() - dm_range.getBegin());
+	Address addr_end(i->first.getEnd() - dm_range.getBegin());
+	
+	// Construct a valid bitmap for this (entire) function range
+	AddressBitmap valid_bitmap(AddressRange(addr_begin, addr_end));
+	for(Address addr = addr_begin; addr < addr_end; ++addr)
+	    valid_bitmap.setValue(addr, true);
+
 	// Create the function entry
 	database->prepareStatement(
-	    "INSERT INTO Functions "
-	    "  (linked_object, addr_begin, addr_end, name) "
-	    "VALUES (?, ?, ?, ?);"
+	    "INSERT INTO Functions (linked_object, name) VALUES (?, ?);"
 	    );
 	database->bindArgument(1, EntrySpy(linked_object).getEntry());
-	database->bindArgument(2, Address(i->first.getBegin() - 
-					  dm_range.getBegin()));
-	database->bindArgument(3, Address(i->first.getEnd() -
-					  dm_range.getBegin()));
 	database->bindArgument(4, i->second);
 	while(database->executeStatement());	
+	int function = database->getLastInsertedUID();
 	
+	// Create the function ranges entry
+	database->prepareStatement(
+	    "INSERT INTO FunctionRanges "
+	    "  (function, addr_begin, addr_end, valid_bitmap) "
+	    "VALUES (?, ?, ?, ?);"
+	    );
+	database->bindArgument(1, function);
+	database->bindArgument(2, valid_bitmap.getRange().getBegin());
+	database->bindArgument(3, valid_bitmap.getRange().getEnd());
+	database->bindArgument(4, valid_bitmap.getBlob());
+	while(database->executeStatement());
+
     }
 
     // Iterate over each statement entry
@@ -239,7 +256,7 @@ void SymbolTable::processAndStore(const LinkedObject& linked_object)
 		    k = j->begin(); k != j->end(); ++k)
 		valid_bitmap.setValue(*k, true);
 	    
-	    // Create the StatementRanges entry
+	    // Create the statement ranges entry
 	    database->prepareStatement(
 		"INSERT INTO StatementRanges "
 		"  (statement, addr_begin, addr_end, valid_bitmap) "
