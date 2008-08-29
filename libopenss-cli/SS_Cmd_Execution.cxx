@@ -1809,26 +1809,32 @@ bool SS_expCreate (CommandObject *cmd) {
   }
   EXPID exp_id = exp->ExperimentObject_ID();
 
-#if 1
- // Look for a recognized option.
+ // Look for the -i option, this is the instrumentor type.
  vector<string> *p_slist = cmd->P_Result()->getInstrumentor();
  vector<string>::iterator j;
 
  for (j=p_slist->begin();j != p_slist->end(); j++) {
    std::string S = *j;
 
+    // If the -i option is equal to the offline instrumentor type, then set a flag in 
+    // the experiment object indicating this.  Other routines in the cli will look at this
+    // flag and do special actions if offline is the instrumentor.
    if (!strcasecmp(S.c_str(),"offline")) {
+
       exp->setIsInstrumentorOffline(true);
+
 #if DEBUG_CLI
       std::cout << "SS_expCreate, FOUND OFFLINE INSTRUMENTOR INDICATION" <<  std::endl;
 #endif
+
    } else {
-      exp->setIsInstrumentorOffline(true);
+
+      exp->setIsInstrumentorOffline(false);
+
    }
 
  }
 
-#endif
 
 
   // End the gathering of performance information on the sub-task portions of expCreate
