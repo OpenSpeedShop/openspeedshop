@@ -184,7 +184,7 @@ void SymbolTable::processAndStore(const LinkedObject& linked_object)
 	    "INSERT INTO Functions (linked_object, name) VALUES (?, ?);"
 	    );
 	database->bindArgument(1, EntrySpy(linked_object).getEntry());
-	database->bindArgument(4, i->second);
+	database->bindArgument(2, i->second);
 	while(database->executeStatement());	
 	int function = database->getLastInsertedUID();
 	
