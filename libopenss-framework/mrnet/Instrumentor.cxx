@@ -225,6 +225,10 @@ void Instrumentor::create(const Thread& thread,
 			  const OutputCallback stdout_callback,
 			  const OutputCallback stderr_callback)
 {
+    // Initialize MRNet if it hasn't been yet
+    if(!isMRNetInitialized)
+	initializeMRNet();
+    
     // Add this thread to the thread table
     ThreadTable::TheTable.addThread(thread, stdout_callback, stderr_callback);
     ThreadTable::TheTable.setConnecting(thread);
@@ -254,10 +258,6 @@ void Instrumentor::create(const Thread& thread,
     for(int i = 0, j = 0; environ[j] != NULL; i += strlen(environ[j]) + 1, ++j)
 	strcpy(&(env[i]), environ[j]);
 
-    // Initialize MRNet if it hasn't been yet
-    if(!isMRNetInitialized)
-	initializeMRNet();
-    
     // Request the process be created
     Senders::createProcess(thread, command, Blob(env_size, env));
 
@@ -327,8 +327,8 @@ void Instrumentor::changeState(const ThreadGroup& threads,
     else {
 	
 	// Check preconditions
-	ThreadTable::TheTable.validateThreads(threads);
 	Assert(isMRNetInitialized);
+	ThreadTable::TheTable.validateThreads(threads);
 
 	// Request a state change from the threads
 	Senders::changeThreadsState(threads, state);
@@ -365,8 +365,8 @@ void Instrumentor::executeNow(const ThreadGroup& threads,
 			      const bool& disableSaveFPR)
 {
     // Check preconditions
-    ThreadTable::TheTable.validateThreads(threads);
     Assert(isMRNetInitialized);
+    ThreadTable::TheTable.validateThreads(threads);
 
     // Request the library function be executed by these threads
     Senders::executeNow(threads, collector, disableSaveFPR, callee, argument);
@@ -402,8 +402,8 @@ void Instrumentor::executeAtEntryOrExit(const ThreadGroup& threads,
 					const Blob& argument)
 {
     // Check preconditions
-    ThreadTable::TheTable.validateThreads(threads);
     Assert(isMRNetInitialized);
+    ThreadTable::TheTable.validateThreads(threads);
 
     // Request the library function be executed in these threads
     Senders::executeAtEntryOrExit(threads, collector, where,
@@ -436,8 +436,8 @@ void Instrumentor::executeInPlaceOf(const ThreadGroup& threads,
 				    const std::string& callee)
 {
     // Check preconditions
-    ThreadTable::TheTable.validateThreads(threads);
     Assert(isMRNetInitialized);
+    ThreadTable::TheTable.validateThreads(threads);
 
     // Request the library function be executed in these threads
     Senders::executeInPlaceOf(threads, collector, where, callee);
@@ -463,8 +463,8 @@ void Instrumentor::uninstrument(const ThreadGroup& threads,
 				const Collector& collector)
 {
     // Check preconditions
-    ThreadTable::TheTable.validateThreads(threads);
     Assert(isMRNetInitialized);
+    ThreadTable::TheTable.validateThreads(threads);
     
     // Request the collector's instrumentation be removed from these threads
     Senders::uninstrument(threads, collector);
@@ -497,8 +497,8 @@ void Instrumentor::stopAtEntryOrExit(const Thread& thread,
     threads.insert(thread);
 
     // Check preconditions
-    ThreadTable::TheTable.validateThreads(threads);
     Assert(isMRNetInitialized);
+    ThreadTable::TheTable.validateThreads(threads);
 
     // Request the stop be added to these threads
     Senders::stopAtEntryOrExit(threads, where, at_entry);
@@ -532,8 +532,8 @@ bool Instrumentor::getGlobal(const Thread& thread,
     threads.insert(thread);
 
     // Check preconditions
-    ThreadTable::TheTable.validateThreads(threads);
     Assert(isMRNetInitialized);
+    ThreadTable::TheTable.validateThreads(threads);
 
     // Request the global variable be retrieved from the thread
     Senders::getGlobalInteger(thread, global);
@@ -568,8 +568,8 @@ bool Instrumentor::getGlobal(const Thread& thread,
     threads.insert(thread);
 
     // Check preconditions
-    ThreadTable::TheTable.validateThreads(threads);
     Assert(isMRNetInitialized);
+    ThreadTable::TheTable.validateThreads(threads);
 
     // Request the global variable be retrieved from the thread
     Senders::getGlobalString(thread, global);
@@ -601,8 +601,8 @@ bool Instrumentor::getMPICHProcTable(const Thread& thread, Job& value)
     threads.insert(thread);
 
     // Check preconditions
-    ThreadTable::TheTable.validateThreads(threads);
     Assert(isMRNetInitialized);
+    ThreadTable::TheTable.validateThreads(threads);
 
     // Request the MPICH process table be retrieved from the thread
     const std::string global = "MPIR_proctable";
@@ -634,8 +634,8 @@ void Instrumentor::setGlobal(const Thread& thread,
     threads.insert(thread);
 
     // Check preconditions
-    ThreadTable::TheTable.validateThreads(threads);
     Assert(isMRNetInitialized);
+    ThreadTable::TheTable.validateThreads(threads);
 
     // Request the global variable be set in the process
     Senders::setGlobalInteger(thread, global, value);
