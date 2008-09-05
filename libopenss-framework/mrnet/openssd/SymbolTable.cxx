@@ -100,7 +100,21 @@ void SymbolTable::addModule(/* const */ BPatch_image& image,
 	// Get the list of basic blocks in this function
 	BPatch_Set<BPatch_basicBlock*> basic_blocks;
 	BPatch_flowGraph* cfg = (*functions)[i]->getCFG();
-	Assert(cfg != NULL);
+	if (cfg == NULL) {
+#ifndef NDEBUG
+	    if(Backend::isSymbolsDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "addModule(): Function "
+		       << (name.empty() ? "<unknown>" : name)
+		       << ": no control flow graph."
+		       << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+	    
+	    continue;
+	}
 	cfg->getAllBasicBlocks(basic_blocks);
 	
 	// Iterate over each basic block in this function
