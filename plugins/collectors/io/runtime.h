@@ -34,6 +34,7 @@
 
 void io_start_event(io_event*);
 void io_record_event(const io_event*, uint64_t);
+bool_t io_do_trace(const char*);
 
 
 

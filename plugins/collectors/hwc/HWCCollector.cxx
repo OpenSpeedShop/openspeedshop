@@ -27,6 +27,9 @@
 #include "blobs.h"
 #include "PapiAPI.h"
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -111,6 +114,10 @@ Blob HWCCollector::getDefaultParameterValues() const
     hwc_init_papi();
 
     // Set the default parameters
+    // FIXME: the default threshold below may be too large
+    // for some events. May need to calculate a default
+    // based on event type...
+
 #if defined(linux)
     if (hw_info) {
 	parameters.sampling_rate = (unsigned) hw_info->mhz*10000*2;
@@ -127,6 +134,8 @@ Blob HWCCollector::getDefaultParameterValues() const
     return Blob(reinterpret_cast<xdrproc_t>(xdr_hwc_parameters),
 		&parameters);
 }
+
+
 
 /**
  * Get a parameter value.
@@ -187,6 +196,9 @@ void HWCCollector::setParameterValue(const std::string& parameter,
     if(parameter == "sampling_rate") {
         const unsigned* value = reinterpret_cast<const unsigned*>(ptr);
         parameters.sampling_rate = *value;
+	std::ostringstream rate;
+	rate << parameters.sampling_rate;
+	setenv("OPENSS_HWC_THRESHOLD", rate.str().c_str(), 1);
     }
 
     // Handle the "hwc_event" parameter
@@ -198,6 +210,7 @@ void HWCCollector::setParameterValue(const std::string& parameter,
 	const char *str = papi_event_name->c_str();
 	char *var = (char *)str;
 	parameters.hwc_event = get_papi_eventcode(var);
+	setenv("OPENSS_HWC_EVENT", (char *)var, 1);
     }
     
     // Re-encode the blob containing the parameter values

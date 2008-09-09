@@ -30,37 +30,32 @@
 #include "RuntimeAPI.h"
 #include "OpenSS_FileIO.h"
 
-static pid_t create_OpenSS_exepath () {
-    pid_t pid = getpid();
-    char tmpname[PATH_MAX],buf[PATH_MAX];
+static void create_OpenSS_exepath (pid_t pid) {
+    char exename_buf[PATH_MAX+1];
 
     /* find our exe path (read symlink for /proc/pid/exe) */
-#if 0
-    OpenSS_Path_From_Pid(tmpname);
-    OpenSS_exepath = strdup(tmpname);
-#else
-    memset(tmpname,0x0,sizeof(tmpname));
-    memset(buf,0x0,sizeof(buf));
-    sprintf(tmpname,"/proc/%d/exe",pid);
-    if (readlink(tmpname,buf,PATH_MAX) == -1) {
+    memset(exename_buf,0x0,sizeof(exename_buf));
+    const char* self = "/proc/self/exe";
+    int rlength = readlink(self,exename_buf,PATH_MAX);
+    if (rlength < 0) {
 	fprintf(stderr,"Openss could not determine executable.\n");
+	perror("readlink");
 	OpenSS_exepath = strdup("Unknown-exe");
     } else {
 #ifndef NDEBUG
-    if (getenv("OPENSS_DEBUG_FILEIO") != NULL) {
-	fprintf(stderr,"Openss finds executable %s.\n", buf);
-    }
+	exename_buf[rlength] = '\0'; /* null terminate string from readlink */
+	if (getenv("OPENSS_DEBUG_FILEIO") != NULL) {
+	    fprintf(stderr,"Openss finds executable %s.\n", exename_buf);
+	}
 #endif
-	OpenSS_exepath = strdup(buf);
+	OpenSS_exepath = strdup(exename_buf);
     }
-#endif
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_FILEIO") != NULL) {
 	fprintf(stderr,"create_OpenSS_exepath: OpenSS_exepath = %s, pid = %d\n",OpenSS_exepath,pid);
     }
 #endif
-    return pid;
 }
 
 void OpenSS_CreateFilePrefix (char *collectorname) {
@@ -69,7 +64,8 @@ void OpenSS_CreateFilePrefix (char *collectorname) {
 	abort();
     }
 
-    pid_t pid = create_OpenSS_exepath();
+    pid_t pid = getpid();
+    create_OpenSS_exepath(pid);
 
     char rawdirname[PATH_MAX], tmpname[PATH_MAX], dirname[PATH_MAX], bname[PATH_MAX];
 

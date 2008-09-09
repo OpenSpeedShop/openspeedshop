@@ -118,6 +118,10 @@ void PCSampCollector::getParameterValue(const std::string& parameter,
         unsigned* value = reinterpret_cast<unsigned*>(ptr);
         *value = parameters.sampling_rate;
     }
+ 
+    // Free the decoded parameters blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_pcsamp_parameters),
+	     reinterpret_cast<char*>(&parameters));
 }
 
 
@@ -144,11 +148,18 @@ void PCSampCollector::setParameterValue(const std::string& parameter,
     if(parameter == "sampling_rate") {
         const unsigned* value = reinterpret_cast<const unsigned*>(ptr);
         parameters.sampling_rate = *value;
+        std::ostringstream rate;
+        rate << parameters.sampling_rate;
+        setenv("OPENSS_PCSAMP_RATE", rate.str().c_str(), 1);
     }
     
     // Re-encode the blob containing the parameter values
     data = Blob(reinterpret_cast<xdrproc_t>(xdr_pcsamp_parameters),
                 &parameters);
+
+    // Free the decoded parameters blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_pcsamp_parameters),
+	     reinterpret_cast<char*>(&parameters));
 }
 
 
@@ -202,50 +213,6 @@ void PCSampCollector::stopCollecting(const Collector& collector,
     // Remove instrumentation associated with this collector/threads pairing
     uninstrument(collector, threads);
 }
-
-#if 0
-#define UINT8_MAX (255)
-bool_t OpenSS_UpdatePCData(uint64_t pc, OpenSS_PCData* buffer)
-{
-    unsigned bucket, entry;
-
-    /*
-     * Search the sample buffer for an existing entry corresponding to this
-     * PC address. Use the hash table and a simple linear probe to accelerate
-     * the search.
-     */
-    bucket = (pc >> 4) % OpenSS_PCHashTableSize;
-    while((buffer->hash_table[bucket] > 0) &&
-          (buffer->pc[buffer->hash_table[bucket] - 1] != pc))
-        bucket = (bucket + 1) % OpenSS_PCHashTableSize;
-
-    /* Increment count for existing entry if found and not already maxed */
-    if((buffer->hash_table[bucket] > 0) &&
-       (buffer->pc[buffer->hash_table[bucket] - 1] == pc) &&
-       (buffer->count[buffer->hash_table[bucket] - 1] < UINT8_MAX)) {
-        buffer->count[buffer->hash_table[bucket] - 1]++;
-        return FALSE;
-    }
-
-    /* Otherwise add a new entry for this PC address to the sample buffer */
-    entry = buffer->length;
-    buffer->pc[entry] = pc;
-    buffer->count[entry] = 1;
-    buffer->length++;
-
-    /* Update the address interval in the sample buffer */
-    if(pc < buffer->addr_begin)
-        buffer->addr_begin = pc;
-    if(pc > buffer->addr_end)
-        buffer->addr_end = pc;
-
-    /* Update the hash table with this new entry */
-    buffer->hash_table[bucket] = entry + 1;
-
-    /* Indicate to the caller if the sample buffer is full */
-    return (buffer->length == OpenSS_PCBufferSize);
-}
-#endif
 
 
 /**

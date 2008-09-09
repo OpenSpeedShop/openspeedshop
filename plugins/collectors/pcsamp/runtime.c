@@ -31,14 +31,14 @@
 #include "RuntimeAPI.h"
 #include "blobs.h"
 
-#if defined (OPENSS_OFFLINE)
-#include "pcsamp_offline.h"
-#endif
-
 #if defined (OPENSS_USE_FILEIO)
 #include "OpenSS_FileIO.h"
 #endif
 
+
+#if defined (OPENSS_OFFLINE)
+#include "pcsamp_offline.h"
+#endif
 
 /*
  * NOTE: For some reason GCC doesn't like it when the following two macros are
@@ -159,6 +159,9 @@ void pcsamp_start_sampling(const char* arguments)
 
     tlsinfo.header.time_begin = OpenSS_GetTime();
 
+    openss_expinfo local_info;
+    OpenSS_InitializeParameters(&(local_info));
+    memcpy(&tlsinfo.info, &local_info, sizeof(openss_expinfo));
     tlsinfo.info.collector = "pcsamp";
     tlsinfo.info.exename = strdup(OpenSS_exepath);
     tlsinfo.info.rate = args.sampling_rate;

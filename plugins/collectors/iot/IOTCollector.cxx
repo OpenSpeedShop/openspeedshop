@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2008 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -59,32 +60,8 @@ namespace {
      *          is changed, users will find that any saved databases suddenly
      *          trace different I/O functions than they did previously.
      */
-    const char* TraceableFunctions[] = {
 
-        "dup",
-        "dup2",
-        "creat",
-        "open",
-        "close",
-        "read",
-#ifndef DEBUG
-        "write",
-#endif
-        "pipe",
-        "lseek",
-        "pread",
-        "pwrite",
-        "readv",
-        "writev",
-        "open64",
-        "lseek64",
-        "creat64",
-        "pread64",
-        "pwrite64",
-	
-	// End Of Table Entry
-	NULL
-    };
+     #include "IOTTraceableFunctions.h"
 
 
     
@@ -218,12 +195,21 @@ void IOTCollector::setParameterValue(const std::string& parameter,
     
     // Handle the "traced_functions" parameter
     if(parameter == "traced_functions") {
+	std::string env_param;
 	const std::map<std::string, bool>* value = 
 	    reinterpret_cast<const std::map<std::string, bool>*>(ptr);
-	for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)
+	for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i) {
 	    parameters.traced[i] =
 		(value->find(TraceableFunctions[i]) != value->end()) &&
 		value->find(TraceableFunctions[i])->second;
+
+            if(parameters.traced[i]) {
+		env_param = env_param + TraceableFunctions[i] + ",";
+            }
+        }
+        if (env_param.size() > 0) {
+            setenv("OPENSS_IOT_TRACED", (char *)env_param.c_str(), 1);
+        }
     }
     
     // Re-encode the blob containing the parameter values
@@ -414,6 +400,7 @@ void IOTCollector::getMetricValues(const std::string& metric,
 
 		// Add this event to the results for this subextent
 		if(is_time) {
+//std::cerr << "IOTCollector::getMetricValues: is_time" << std::endl;
 
 		    // Add this event's time (in seconds) to the results
 		    (*reinterpret_cast<std::vector<double>*>(ptr))[*k] +=
@@ -421,6 +408,7 @@ void IOTCollector::getMetricValues(const std::string& metric,
 		    
 		}
 		else if(is_inclusive_times || is_exclusive_times) {
+//std::cerr << "IOTCollector::getMetricValues: is_inclusive_times || is_exclusive_times" << std::endl;
 
 		    // Find this event's stack trace in the results (or add it)
 		    CallTimes::iterator l =
@@ -434,6 +422,7 @@ void IOTCollector::getMetricValues(const std::string& metric,
 
 		}
 		else if(is_inclusive_details || is_exclusive_details) {
+//std::cerr << "IOTCollector::getMetricValues: is_inclusive_details || is_exclusive_details" << std::endl;
 
 		    // Find this event's stack trace in the results (or add it)
 		    CallDetails::iterator l =

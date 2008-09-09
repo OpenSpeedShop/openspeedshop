@@ -162,6 +162,9 @@ void UserTimeCollector::setParameterValue(const std::string& parameter,
     if(parameter == "sampling_rate") {
         const unsigned* value = reinterpret_cast<const unsigned*>(ptr);
         parameters.sampling_rate = *value;
+        std::ostringstream rate;
+        rate << parameters.sampling_rate;
+        setenv("OPENSS_USERTIME_RATE", rate.str().c_str(), 1);
     }
     
     // Re-encode the blob containing the parameter values

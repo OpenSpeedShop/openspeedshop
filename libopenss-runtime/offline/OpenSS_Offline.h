@@ -31,6 +31,7 @@ extern "C"
 #endif
 
 int OpenSS_GetDLInfo(pid_t pid, char *path);
+void OpenSS_InitializeParameters (openss_expinfo *info);
 #ifdef  __cplusplus
 }
 #endif

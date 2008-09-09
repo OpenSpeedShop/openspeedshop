@@ -47,18 +47,8 @@ namespace {
      *
      * @note   TODO. FIXME: This needs to be done.
      */
-    const char* TraceableFPE[] = {
 
-        "inexact_result",
-        "division_by_zero",
-        "underflow",
-        "overflow",
-        "invalid_operation",
-	"all",
-	
-	// End Of Table Entry
-	NULL
-    };
+     #include "TraceableFPES.h"
 
 }    
 
@@ -97,7 +87,7 @@ FPECollector::FPECollector() :
 		  )
 {
     // Declare our parameters
-    declareParameter(Metadata("traced_fpes", "Traced FP Exceptions",
+    declareParameter(Metadata("event", "Traced FP Exceptions",
 			      "Set of Floating Point Exceptions to be traced.",
 			      typeid(std::map<std::string, bool>)));
     
@@ -194,8 +184,8 @@ void FPECollector::getParameterValue(const std::string& parameter,
     data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_fpe_parameters),
                         &parameters);
 
-    // Handle the "traced_fpes" parameter
-    if(parameter == "traced_fpes") {
+    // Handle the "event" parameter
+    if(parameter == "event") {
 	std::map<std::string, bool>* value =
 	    reinterpret_cast<std::map<std::string, bool>*>(ptr);    
 	bool All_Traced = true;
@@ -234,21 +224,35 @@ void FPECollector::setParameterValue(const std::string& parameter,
     data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_fpe_parameters),
                         &parameters);
     
-    // Handle the "traced_fpes" parameter
-    if(parameter == "traced_fpes") {
+    // Handle the "event" parameter
+    if(parameter == "event") {
+        std::string env_param;
 	const std::map<std::string, bool>* value = 
 	    reinterpret_cast<const std::map<std::string, bool>*>(ptr);
         if ((value->find("all") != value->end()) &&
              value->find("all")->second) {
-          for(unsigned i = 0; TraceableFPE[i] != NULL; ++i)
-	      parameters.traced[i] = true;
+
+            for(unsigned i = 0; TraceableFPE[i] != NULL; ++i) {
+		parameters.traced[i] = true;
+		env_param = env_param + TraceableFPE[i] + ":";
+	    }
+	  
 	} else {
-          for(unsigned i = 0; TraceableFPE[i] != NULL; ++i) {
-	      parameters.traced[i] =
-		(value->find(TraceableFPE[i]) != value->end()) &&
-		value->find(TraceableFPE[i])->second;
-          }
+            for(unsigned i = 0; TraceableFPE[i] != NULL; ++i) {
+
+		parameters.traced[i] =
+		  (value->find(TraceableFPE[i]) != value->end()) &&
+		  value->find(TraceableFPE[i])->second;
+
+		if(parameters.traced[i]) {
+		    env_param = env_param + TraceableFPE[i] + ":";
+		}
+            }
         }
+	if (env_param.size() > 0) {
+	    setenv("OPENSS_FPE_TRACED", (char *)env_param.c_str(), 1);	
+	}
+	
     }
     
     // Re-encode the blob containing the parameter values
@@ -274,7 +278,7 @@ void FPECollector::startCollecting(const Collector& collector,
     // Assemble and encode arguments to fpe_start_tracing()
     fpe_start_tracing_args args;
     memset(&args, 0, sizeof(args));
-    collector.getParameterValue("traced_fpes", traced);
+    collector.getParameterValue("event", traced);
     args.experiment = getExperimentId(collector);
     args.collector = getCollectorId(collector);
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_fpe_start_tracing_args),

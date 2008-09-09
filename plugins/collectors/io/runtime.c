@@ -23,7 +23,7 @@
  * Definition of the IO event tracing collector's runtime.
  *
  */
-
+/* #define DEBUG 1 */
 #include "RuntimeAPI.h"
 #include "runtime.h"
 
@@ -34,6 +34,8 @@
 #if defined (OPENSS_USE_FILEIO)
 #include "OpenSS_FileIO.h"
 #endif
+
+#include "IOTraceableFunctions.h"
 
 /** Number of overhead frames in each stack frame to be skipped. */
 #if defined(OPENSS_OFFLINE)
@@ -82,6 +84,7 @@ static __thread struct {
 	io_event events[EventBufferSize];          /**< IO call events. */
     } buffer;    
     
+    char io_traced[PATH_MAX];
 } tls;
 
 /**
@@ -179,7 +182,7 @@ void io_record_event(const io_event* event, uint64_t function)
     unsigned pathindex = 0;
 
 #ifdef DEBUG
-fprintf(stderr,"ENTERED io_record_event, sizeof event=%d, sizeof stacktrace=%d\n",sizeof(io_event),sizeof(stacktrace));
+fprintf(stderr,"ENTERED io_record_event, sizeof event=%d, sizeof stacktrace=%d, NESTING=%d\n",sizeof(io_event),sizeof(stacktrace),tls.nesting_depth);
 #endif
 
     /* Decrement the IO function wrapper nesting depth */
@@ -192,8 +195,12 @@ fprintf(stderr,"ENTERED io_record_event, sizeof event=%d, sizeof stacktrace=%d\n
      * direct calls by the application to the IO library - not in the internal
      * implementation details of that library.
      */
-    if(tls.nesting_depth > 0)
+    if(tls.nesting_depth > 0) {
+#ifdef DEBUG
+	fprintf(stderr,"io_record_event RETURNS EARLY DUE TO NESTING\n");
+#endif
 	return;
+    }
     
     /* Newer versions of libunwind now make io calls (open a file in /proc/<self>/maps)
      * that cause a thread lock in the libunwind dwarf parser. We are not interested in
@@ -323,20 +330,6 @@ void io_start_tracing(const char* arguments)
 
 #if defined (OPENSS_OFFLINE)
 
-    const char* TraceableFunctions[] = {
-        "dup", "dup2", "creat", "open", "close", "read",
-#ifndef DEBUG
-        "write",
-#endif
-        "pipe", "lseek", "pread", "pwrite", "readv", "writev", "open64",
-        "lseek64", "creat64", "pread64", "pwrite64", NULL
-        };
-
-    int i;
-    for (i = 0; TraceableFunctions[i] != NULL; ++i) {
-	//args.traced[i] = true;
-    }
-
     /* TODO: need to handle arguments for offline collectors */
     args.collector=1;
     args.experiment=0; /* DataQueues index start at 0.*/
@@ -352,8 +345,29 @@ void io_start_tracing(const char* arguments)
 
     tlsinfo.header.time_begin = OpenSS_GetTime();
 
+    openss_expinfo local_info;
+    OpenSS_InitializeParameters(&(local_info));
+    memcpy(&tlsinfo.info, &local_info, sizeof(openss_expinfo));
     tlsinfo.info.collector = "io";
     tlsinfo.info.exename = strdup(OpenSS_exepath);
+
+    char* io_traced = getenv("OPENSS_IO_TRACED");
+
+    /* If OPENSS_IO_TRACED is set to a valid list of io functions, trace only
+     * those functions.
+     * If OPENSS_IO_TRACED is set and is empty, trace all functions.
+     * For any misspelled function name in OPENSS_IO_TRACED, silently ignore.
+     * If all names in OPENSS_IO_TRACED are misspelled or not part of
+     * TraceableFunctions, nothing will be traced.
+     */
+
+    if (io_traced != NULL && strcmp(io_traced,"") != 0) {
+	tlsinfo.info.traced = strdup(io_traced);
+	strcpy(tls.io_traced,io_traced);
+    } else {
+	tlsinfo.info.traced = strdup(traceable);
+	strcpy(tls.io_traced,traceable);
+    }
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
@@ -423,4 +437,41 @@ void io_stop_tracing(const char* arguments)
     /* Send events if there are any remaining in the tracing buffer */
     if(tls.data.events.events_len > 0)
 	io_send_events();
+}
+
+bool_t io_do_trace(const char* traced_func)
+{
+#if defined (OPENSS_OFFLINE)
+    /* See if this function has been selected for tracing */
+
+    char *tfptr, *saveptr, *tf_token;
+    tfptr = strdup(tls.io_traced);
+    int i;
+    for (i = 1;  ; i++, tfptr = NULL) {
+	tf_token = strtok_r(tfptr, ":,", &saveptr);
+	if (tf_token == NULL)
+	    break;
+	if ( strcmp(tf_token,traced_func) == 0) {
+	
+    	    if (tfptr)
+		free(tfptr);
+	    return TRUE;
+	}
+    }
+
+    /* Remove any nesting due to skipping io_start_event/io_record_event for
+     * potentially nested iop calls that are not being traced.
+     */
+
+    if (tls.nesting_depth > 1)
+	--tls.nesting_depth;
+
+    return FALSE;
+#else
+    /* Always return true for dynamic instrumentors since these collectors
+     * can be passed a list of traced functions for use with executeInPlaceOf.
+     */
+
+    return TRUE;
+#endif
 }

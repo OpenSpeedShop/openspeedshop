@@ -28,6 +28,8 @@
 #include "blobs.h"
 #include "PapiAPI.h"
 
+#include "PapiAPI.cxx"
+
 using namespace std;
 using namespace OpenSpeedShop::Framework;
 
@@ -118,7 +120,7 @@ Blob HWTimeCollector::getDefaultParameterValues() const
     if (hw_info) {
 	parameters.sampling_rate = (unsigned) hw_info->mhz*10000*2;
     } else {
-	parameters.sampling_rate = THRESHOLD*2;
+	parameters.sampling_rate = (unsigned) THRESHOLD*2;
     }
 #else
     parameters.sampling_rate = THRESHOLD*2;
@@ -193,16 +195,21 @@ void HWTimeCollector::setParameterValue(const std::string& parameter,
     if(parameter == "sampling_rate") {
         const unsigned* value = reinterpret_cast<const unsigned*>(ptr);
         parameters.sampling_rate = *value;
+	std::ostringstream rate;
+	rate << parameters.sampling_rate;
+	setenv("OPENSS_HWCTIME_THRESHOLD", rate.str().c_str(), 1);
     }
 
     // Handle the "hwctime_event" parameter
     if(parameter == "event") {
 
-        char EventCodeStr[PAPI_MAX_STR_LEN];
-        const std::string* papi_event_name =
+	char EventCodeStr[PAPI_MAX_STR_LEN];
+	const std::string* papi_event_name =
 				reinterpret_cast<const std::string*>(ptr);
-        const char *str = papi_event_name->c_str();
-        parameters.hwctime_event = get_papi_eventcode((char *)str);
+	const char *str = papi_event_name->c_str();
+	char *var = (char *)str;
+	parameters.hwctime_event = get_papi_eventcode(var);
+	setenv("OPENSS_HWCTIME_EVENT", (char *)var, 1);
     }
     
     // Re-encode the blob containing the parameter values

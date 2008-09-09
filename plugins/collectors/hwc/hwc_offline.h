@@ -23,9 +23,6 @@
  *
  */
 
-#include <stdio.h>
-#include <signal.h>
-#include "monitor.h"
 #include "OpenSS_DataHeader.h"
 #include "offline/offline.h"
 

@@ -432,13 +432,51 @@ int OfflineExperiment::convertToOpenSSDB()
 
 	    std::vector<OfflineParamVal> *value_list = o_param.getValList();
 
+	    // Parameter sampling_rate is an integer paramter.
+	    // sampling_rate is used by pcsamp and usertime.  The sampling_rate
+	    // parameter is aslo used by hwc and hwctime for threshold.
+	    // Parameter traced_functions is string of functions separated by either
+	    // a ":" or "," character.
+	    // The traced_functions parameter is used by the io, iot, mpi, and mpit
+	    // function tracing collectors.
+	    // Parameter event is a string representing a hardware counter name
+	    // or traced_fpes as a string of exceptions separated by either
+	    // a ":" or ","  character.
+	    // The event parameter is used by hwc and hwctime for the name of the
+	    // hardware counter to sample.  The event parameter also defines the
+	    // fpe execption (or exceptions) traced by the fpe collector.
 	    if (mm.getUniqueId() == "sampling_rate") {
-	       //std::cerr << "sampling_rate is: " << expRate << std::endl;
 	       o_param.pushVal((int64_t) expRate);
 	    } else if (mm.getUniqueId() == "traced_functions") {
-		std::map<std::string, bool> traced;
-		c.getParameterValue("traced_functions", traced);
+		char *tfptr, *saveptr, *tf_token;
+		tfptr = strdup(expTraced.c_str());
+		for (int i = 1; ; i++, tfptr = NULL) {
+		    tf_token = strtok_r(tfptr, ":,", &saveptr);
+		    if (tf_token == NULL) {
+			break;
+		    } else {
+			o_param.pushVal(tf_token);
+		    }
+		}
+
+		if (tfptr) {
+		    free(tfptr);
+		}
 	    } else if (mm.getUniqueId() == "event") {
+		char *evptr, *saveptr, *ev_token;
+		evptr = strdup(expEvent.c_str());
+		for (int i = 1; ; i++, evptr = NULL) {
+		    ev_token = strtok_r(evptr, ":,", &saveptr);
+		    if (ev_token == NULL) {
+			break;
+		    } else {
+			o_param.pushVal(ev_token);
+		    }
+		}
+
+		if (evptr) {
+		    free(evptr);
+		}
 	    }
 
 	    (void) setparam(c, param_name, value_list);
@@ -542,6 +580,8 @@ OfflineExperiment::process_expinfo(const std::string rawfilename)
 	expRate = info.rate;
 	expColId = infoheader.collector;
 	expExpId = infoheader.experiment;
+	expEvent = std::string(info.event);
+	expTraced = std::string(info.traced);
 
 // DEBUG
 #ifndef NDEBUG

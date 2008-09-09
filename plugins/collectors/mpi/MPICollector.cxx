@@ -54,70 +54,8 @@ namespace {
      *          is changed, users will find that any saved databases suddenly
      *          trace different MPI functions than they did previously.
      */
-    const char* TraceableFunctions[] = {
 
-	"MPI_Allgather",
-	"MPI_Allgatherv",
-	"MPI_Allreduce",
-	"MPI_Alltoall",
-	"MPI_Alltoallv",
-	"MPI_Barrier",
-	"MPI_Bcast",
-	"MPI_Bsend",
-	"MPI_Bsend_init",
-	"MPI_Cancel",
-	"MPI_Cart_create",
-	"MPI_Cart_sub",
-	"MPI_Comm_create",
-	"MPI_Comm_dup",
-	"MPI_Comm_free",
-	"MPI_Comm_split",
-	"MPI_Finalize",
-	"MPI_Gather",
-	"MPI_Gatherv",
-	"MPI_Get_count",
-	"MPI_Graph_create",
-	"MPI_Ibsend",
-	"MPI_Init",
-	"MPI_Intercomm_create",
-	"MPI_Intercomm_merge",
-	"MPI_Iprobe",
-	"MPI_Irecv",
-	"MPI_Irsend",
-	"MPI_Isend",
-	"MPI_Issend",
-	"MPI_Pack",
-	"MPI_Probe",
-	"MPI_Recv",
-	"MPI_Recv_init",
-	"MPI_Reduce",
-	"MPI_Reduce_scatter",
-	"MPI_Request_free",
-	"MPI_Rsend",
-	"MPI_Rsend_init",
-	"MPI_Scan",
-	"MPI_Scatter",
-	"MPI_Scatterv",
-	"MPI_Send",
-	"MPI_Sendrecv",
-	"MPI_Sendrecv_replace",
-	"MPI_Ssend",
-	"MPI_Ssend_init",
-	"MPI_Start",
-	"MPI_Startall",
-	"MPI_Test",
-	"MPI_Testall",
-	"MPI_Testany",
-	"MPI_Testsome",
-	"MPI_Unpack",
-	"MPI_Wait",
-	"MPI_Waitall",
-	"MPI_Waitany",
-	"MPI_Waitsome",
-	
-	// End Of Table Entry
-	NULL
-    };
+    #include "MPITraceableFunctions.h"
 
 }    
 
@@ -254,12 +192,21 @@ void MPICollector::setParameterValue(const std::string& parameter,
     
     // Handle the "traced_functions" parameter
     if(parameter == "traced_functions") {
+	std::string env_param;
 	const std::map<std::string, bool>* value = 
 	    reinterpret_cast<const std::map<std::string, bool>*>(ptr);
-	for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)
+	for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i) {
 	    parameters.traced[i] =
 		(value->find(TraceableFunctions[i]) != value->end()) &&
 		value->find(TraceableFunctions[i])->second;
+	    if(parameters.traced[i]) {
+		env_param = env_param + TraceableFunctions[i] + ",";
+	    }
+	}
+
+	if (env_param.size() > 0) {
+	    setenv("OPENSS_MPI_TRACED", (char *)env_param.c_str(), 1);
+	}
     }
     
     // Re-encode the blob containing the parameter values

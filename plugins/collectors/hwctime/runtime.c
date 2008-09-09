@@ -52,7 +52,7 @@
 void hwctime_start_sampling(const char*);
 void hwctime_stop_sampling(const char*);
 
-int EventSet = PAPI_NULL;
+static __thread int EventSet = PAPI_NULL;
 
 /*
  * NOTE: For some reason GCC doesn't like it when the following two macros are
@@ -242,17 +242,19 @@ hwctimePAPIHandler(int EventSet, void *address, long_long overflow_vector,
 /**
  * Start sampling.
  *
- * Starts user time sampling for the thread executing this function.
- * Initializes the appropriate thread-local data structures and then enables the
- * sampling timer.
+ * Starts hardware counter (HWC) sampling for the thread executing this
+ * function. Initializes the appropriate thread-local data structures and
+ * then enables the sampling counter.
  *
  * @param arguments    Encoded function arguments.
  */
 void hwctime_start_sampling(const char* arguments)
 {
-    hwc_init_papi();
-
     hwctime_start_sampling_args args;
+
+    if(EventSet == PAPI_NULL) {
+	hwc_init_papi();
+    }
 
 #if defined (OPENSS_USE_FILEIO)
     /* Create the rawdata output file prefix. */
@@ -267,22 +269,6 @@ void hwctime_start_sampling(const char* arguments)
     args.collector=1;
     args.experiment=0; /* DataQueues index start at 0.*/
 
-    if(EventSet == PAPI_NULL)
-        hwc_init_papi();
-
-    args.hwctime_event=get_papi_eventcode("PAPI_TOT_CYC");
-
-#if defined(linux)
-    if (hw_info) {
-        args.sampling_rate = (unsigned) hw_info->mhz*10000*2;
-    } else {
-        args.sampling_rate = THRESHOLD*2;
-    }
-#else
-    args.sampling_rate = THRESHOLD*2;
-#endif
-
-
     /* Initialize the info blob's header */
     /* Passing &(tls.header) to OpenSS_InitializeDataHeader was */
     /* not safe on ia64 systems. */
@@ -292,8 +278,38 @@ void hwctime_start_sampling(const char* arguments)
 
     tlsinfo.header.time_begin = OpenSS_GetTime();
 
+    openss_expinfo local_info;
+    OpenSS_InitializeParameters(&(local_info));
+    memcpy(&tlsinfo.info, &local_info, sizeof(openss_expinfo));
     tlsinfo.info.collector = "hwctime";
     tlsinfo.info.exename = strdup(OpenSS_exepath);
+
+    char* sampling_rate = getenv("OPENSS_HWCTIME_THRESHOLD");
+
+    if (sampling_rate != NULL) {
+	args.sampling_rate=atoi(sampling_rate);
+    } else {
+#if defined(linux)
+	if (hw_info) {
+	    args.sampling_rate = (unsigned) hw_info->mhz*10000*2;
+	} else {
+	    args.sampling_rate = THRESHOLD*2;
+	}
+#else
+	args.sampling_rate = THRESHOLD*2;
+#endif
+    }
+
+    char* hwctime_event_param = getenv("OPENSS_HWCTIME_EVENT");
+    if (hwctime_event_param != NULL) {
+	args.hwctime_event=get_papi_eventcode(hwctime_event_param);
+	tlsinfo.info.event = strdup(hwctime_event_param);
+    } else {
+	args.hwctime_event=get_papi_eventcode("PAPI_TOT_CYC");
+	tlsinfo.info.event = strdup("PAPI_TOT_CYC");
+    }
+
+    tlsinfo.info.rate = args.sampling_rate;
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
@@ -375,7 +391,7 @@ void hwctime_stop_sampling(const char* arguments)
     tls.header.time_end = OpenSS_GetTime();
 
     if (EventSet == PAPI_NULL) {
-        /*fprintf(stderr,"hwc_stop_sampling RETURNS - NO EVENTSET!\n");*/
+        /*fprintf(stderr,"hwctime_stop_sampling RETURNS - NO EVENTSET!\n");*/
         /* we are called before eny events are set in papi. just return */
         return;
     }

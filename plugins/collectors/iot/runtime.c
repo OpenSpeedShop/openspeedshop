@@ -35,6 +35,8 @@
 #include "OpenSS_FileIO.h"
 #endif
 
+#include "IOTTraceableFunctions.h"
+
 /** Number of overhead frames in each stack frame to be skipped. */
 #if defined(OPENSS_OFFLINE)
 const unsigned OverheadFrameCount = 2;
@@ -86,6 +88,7 @@ static __thread struct {
 	char      pathnames[PathBufferSize];          /**< pathname buffer */
     } buffer;    
     
+    char iot_traced[PATH_MAX];
 } tls;
 
 char currentpathname[PATH_MAX];
@@ -267,8 +270,12 @@ fprintf(stderr,"PathBufferSize is full, call iot_send_events\n");
      * direct calls by the application to the IO library - not in the internal
      * implementation details of that library.
      */
-    if(tls.nesting_depth > 0)
+    if(tls.nesting_depth > 0) {
+#ifdef DEBUG
+	fprintf(stderr,"iot_record_event RETURNS EARLY DUE TO NESTING\n");
+#endif
 	return;
+    }
     
     /* Newer versions of libunwind now make io calls (open a file in /proc/<self>/maps)
      * that cause a thread lock in the libunwind dwarf parser. We are not interested in
@@ -399,20 +406,6 @@ void iot_start_tracing(const char* arguments)
 
 #if defined (OPENSS_OFFLINE)
 
-    const char* TraceableFunctions[] = {
-        "dup", "dup2", "creat", "open", "close", "read",
-#ifndef DEBUG
-        "write",
-#endif
-        "pipe", "lseek", "pread", "pwrite", "readv", "writev", "open64",
-        "lseek64", "creat64", "pread64", "pwrite64", NULL
-        };
-
-    int i;
-    for (i = 0; TraceableFunctions[i] != NULL; ++i) {
-	//args.traced[i] = true;
-    }
-
     /* TODO: need to handle arguments for offline collectors */
     args.collector=1;
     args.experiment=0; /* DataQueues index start at 0.*/
@@ -428,10 +421,31 @@ void iot_start_tracing(const char* arguments)
 
     tlsinfo.header.time_begin = OpenSS_GetTime();
 
+    openss_expinfo local_info;
+    OpenSS_InitializeParameters(&(local_info));
+    memcpy(&tlsinfo.info, &local_info, sizeof(openss_expinfo));
     tlsinfo.info.collector = "iot";
     tlsinfo.info.exename = strdup(OpenSS_exepath);
 
-#ifdef DEBUG
+    char* iot_traced = getenv("OPENSS_IOT_TRACED");
+
+    /* If OPENSS_IOT_TRACED is set to a valid list of io functions, trace only
+     * those functions.
+     * If OPENSS_IOT_TRACED is set and is empty, trace all functions.
+     * For any misspelled function name in OPENSS_IOT_TRACED, silently ignore.
+     * If all names in OPENSS_IOT_TRACED are misspelled or not part of
+     * TraceableFunctions, nothing will be traced.
+     */
+
+    if (iot_traced != NULL && strcmp(iot_traced,"") != 0) {
+	tlsinfo.info.traced = strdup(iot_traced);
+	strcpy(tls.iot_traced,iot_traced);
+    } else {
+	tlsinfo.info.traced = strdup(traceable);
+	strcpy(tls.iot_traced,traceable);
+    }
+
+#ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"iot_start_tracing sends tlsinfo:\n");
         fprintf(stderr,"collector=%s, hostname=%s, pid=%d, OpenSS_rawtid=%lx\n",
@@ -502,4 +516,41 @@ void iot_stop_tracing(const char* arguments)
     /* Send events if there are any remaining in the tracing buffer */
     if(tls.data.events.events_len > 0)
 	iot_send_events();
+}
+
+bool_t iot_do_trace(const char* traced_func)
+{
+#if defined (OPENSS_OFFLINE)
+    /* See if this function has been selected for tracing */
+
+    char *tfptr, *saveptr, *tf_token;
+    tfptr = strdup(tls.iot_traced);
+    int i;
+    for (i = 1;  ; i++, tfptr = NULL) {
+	tf_token = strtok_r(tfptr, ":,", &saveptr);
+	if (tf_token == NULL)
+	    break;
+	if ( strcmp(tf_token,traced_func) == 0) {
+	
+    	    if (tfptr)
+		free(tfptr);
+	    return TRUE;
+	}
+    }
+
+    /* Remove any nesting due to skipping iot_start_event/iot_record_event for
+     * potentially nested iop calls that are not being traced.
+     */
+
+    if (tls.nesting_depth > 1)
+	--tls.nesting_depth;
+
+    return FALSE;
+#else
+    /* Always return true for dynamic instrumentors since these collectors
+     * can be passed a list of traced functions for use with executeInPlaceOf.
+     */
+
+    return TRUE;
+#endif
 }

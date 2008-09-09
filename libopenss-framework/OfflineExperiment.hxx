@@ -89,6 +89,8 @@ class OfflineExperiment
     int		expRate;
     int		expRank;
     int		expOmpTid;
+    std::string	expEvent;
+    std::string expTraced;
 
     bool	process_expinfo(const std::string rawfilename);
     bool	process_data(const std::string rawfilename);

@@ -35,6 +35,8 @@
 #include "OpenSS_FileIO.h"
 #endif
 
+#include "MPITraceableFunctions.h"
+
 /** Number of overhead frames in each stack frame to be skipped. */
 #if defined(OPENSS_OFFLINE)
 const unsigned OverheadFrameCount = 2;
@@ -77,6 +79,7 @@ static __thread struct {
 	mpi_event events[EventBufferSize];          /**< MPI call events. */
     } buffer;    
     
+    char mpi_traced[PATH_MAX];
 } tls;
 
 
@@ -95,7 +98,7 @@ static void mpi_send_events()
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"MPIT Collector runtime sends data:\n");
+        fprintf(stderr,"MPI Collector runtime sends data:\n");
         fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] "
 		" stacktraces_len(%d) events_len(%d)\n",
             tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,
@@ -140,7 +143,7 @@ void mpi_start_event(mpi_event* event)
     ++tls.nesting_depth;
     
     /* Initialize the event record. */
-    memset(event, 0, sizeof(mpi_event));
+    //memset(event, 0, sizeof(mpi_event));
 }
 
 
@@ -174,8 +177,12 @@ void mpi_record_event(const mpi_event* event, uint64_t function)
      * direct calls by the application to the MPI library - not in the internal
      * implementation details of that library.
      */
-    if(tls.nesting_depth > 0)
+    if(tls.nesting_depth > 0) {
+#ifdef DEBUG
+	fprintf(stderr,"mpi_record_event RETURNS EARLY DUE TO NESTING\n");
+#endif
 	return;
+    }
     
     /* Obtain the stack trace from the current thread context */
     OpenSS_GetStackTraceFromContext(NULL, FALSE, OverheadFrameCount,
@@ -309,8 +316,28 @@ void mpi_start_tracing(const char* arguments)
 
     tlsinfo.header.time_begin = OpenSS_GetTime();
 
+    openss_expinfo local_info;
+    OpenSS_InitializeParameters(&(local_info));
+    memcpy(&tlsinfo.info, &local_info, sizeof(openss_expinfo));
     tlsinfo.info.collector = "mpi";
     tlsinfo.info.exename = strdup(OpenSS_exepath);
+
+    char* mpi_traced = getenv("OPENSS_MPI_TRACED");
+
+    /* If OPENSS_MPI_TRACED is set to a valid list of io functions, trace only those functions.
+     * If OPENSS_MPI_TRACED is set and is empty, trace all functions. For any misspelled
+     * function name n OPENSS_MPI_TRACED, we will silently ignore it.  If all names in
+     * OPENSS_MPI_TRACED are misspelled or not part of TraceableFunctions, nothing will
+     * be traced.
+     */
+
+    if (mpi_traced != NULL && strcmp(mpi_traced,"") != 0) {
+	tlsinfo.info.traced = strdup(mpi_traced);
+	strcpy(tls.mpi_traced,mpi_traced);
+    } else {
+	tlsinfo.info.traced = strdup(all_traceable_mpi);
+	strcpy(tls.mpi_traced,all_traceable_mpi);
+    }
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
@@ -380,4 +407,41 @@ void mpi_stop_tracing(const char* arguments)
     /* Send events if there are any remaining in the tracing buffer */
     if(tls.data.events.events_len > 0)
 	mpi_send_events();
+}
+
+bool_t mpi_do_trace(const char* traced_func)
+{
+#if defined (OPENSS_OFFLINE)
+    /* See if this function has been selected for tracing */
+
+    char *tfptr, *saveptr, *tf_token;
+    tfptr = strdup(tls.mpi_traced);
+    int i;
+    for (i = 1;  ; i++, tfptr = NULL) {
+	tf_token = strtok_r(tfptr, ":,", &saveptr);
+	if (tf_token == NULL)
+	    break;
+	if ( strcmp(tf_token,traced_func) == 0) {
+	
+    	    if (tfptr)
+		free(tfptr);
+	    return TRUE;
+	}
+    }
+
+    /* Remove any nesting due to skipping mpi_start_event/mpi_record_event for
+     * potentially nested iop calls that are not being traced.
+     */
+
+    if (tls.nesting_depth > 1)
+	--tls.nesting_depth;
+
+    return FALSE;
+#else
+    /* Always return true for dynamic instrumentors since these collectors
+     * can be passed a list of traced functions for use with executeInPlaceOf.
+     */
+
+    return TRUE;
+#endif
 }

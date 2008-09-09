@@ -34,6 +34,7 @@ libopenss_runtime_offline_la_SOURCES = \
 	offline.x $(BUILT_SOURCES) \
 	offline_monitor.c \
 	OpenSS_GetDLInfo.c \
+	OpenSS_InitializeParameters.c \
 	OpenSS_Offline.h
 
 SUFFIXES = .x

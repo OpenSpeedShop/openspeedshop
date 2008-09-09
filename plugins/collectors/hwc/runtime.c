@@ -58,7 +58,7 @@ static __thread struct {
 } tls;
 
 /** PAPI event set. */
-static int event_set = PAPI_NULL;
+static __thread int EventSet = PAPI_NULL;
 
 
 
@@ -72,7 +72,7 @@ static int event_set = PAPI_NULL;
  *
  * @param context    Thread context at timer interrupt.
  */
-static void hwcPAPIHandler(int event_set, void* pc, 
+static void hwcPAPIHandler(int EventSet, void* pc, 
 			   long_long overflow_vector, void* context)
 {
     /* Update the sampling buffer and check if it has been filled */
@@ -142,21 +142,9 @@ void hwc_start_sampling(const char* arguments)
     args.collector=1;
     args.experiment=0; /* DataQueues index start at 0.*/
 
-    if(event_set == PAPI_NULL)
+    if(EventSet == PAPI_NULL) {
 	hwc_init_papi();
-
-    args.hwc_event=get_papi_eventcode("PAPI_TOT_CYC");
-
-#if defined(linux)
-    if (hw_info) {
-        args.sampling_rate = (unsigned) hw_info->mhz*10000*2;
-    } else {
-        args.sampling_rate = THRESHOLD*2;
     }
-#else
-    args.sampling_rate = THRESHOLD*2;
-#endif
-
 
     /* Initialize the info blob's header */
     /* Passing &(tls.header) to OpenSS_InitializeDataHeader was */
@@ -167,8 +155,38 @@ void hwc_start_sampling(const char* arguments)
 
     tlsinfo.header.time_begin = OpenSS_GetTime();
 
+    openss_expinfo local_info;
+    OpenSS_InitializeParameters(&(local_info));
+    memcpy(&tlsinfo.info, &local_info, sizeof(openss_expinfo));
     tlsinfo.info.collector = "hwc";
     tlsinfo.info.exename = strdup(OpenSS_exepath);
+
+    char* sampling_rate = getenv("OPENSS_HWC_THRESHOLD");
+
+    if (sampling_rate != NULL) {
+	args.sampling_rate=atoi(sampling_rate);
+    } else {
+#if defined(linux)
+	if (hw_info) {
+	    args.sampling_rate = (unsigned) hw_info->mhz*10000*2;
+	} else {
+	    args.sampling_rate = THRESHOLD*2;
+	}
+#else
+	args.sampling_rate = THRESHOLD*2;
+#endif
+    }
+
+    char* hwc_event_param = getenv("OPENSS_HWC_EVENT");
+    if (hwc_event_param != NULL) {
+	args.hwc_event=get_papi_eventcode(hwc_event_param);
+	tlsinfo.info.event = strdup(hwc_event_param);
+    } else {
+	args.hwc_event=get_papi_eventcode("PAPI_TOT_CYC");
+	tlsinfo.info.event = strdup("PAPI_TOT_CYC");
+    }
+
+    tlsinfo.info.rate = args.sampling_rate;
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
@@ -221,14 +239,14 @@ void hwc_start_sampling(const char* arguments)
 
     /* Begin sampling */
     tls.header.time_begin = OpenSS_GetTime();
-    if(event_set == PAPI_NULL) {
+    if(EventSet == PAPI_NULL) {
 	hwc_init_papi();
     }
-    OpenSS_Create_Eventset(&event_set);
-    OpenSS_AddEvent(event_set, args.hwc_event);
-    OpenSS_Overflow(event_set, args.hwc_event, tls.data.interval,
+    OpenSS_Create_Eventset(&EventSet);
+    OpenSS_AddEvent(EventSet, args.hwc_event);
+    OpenSS_Overflow(EventSet, args.hwc_event, tls.data.interval,
 		    hwcPAPIHandler);
-    OpenSS_Start(event_set);
+    OpenSS_Start(EventSet);
 }
 
 
@@ -244,7 +262,7 @@ void hwc_start_sampling(const char* arguments)
 void hwc_stop_sampling(const char* arguments)
 {
     /* Stop sampling */
-    OpenSS_Stop(event_set);
+    OpenSS_Stop(EventSet);
     tls.header.time_end = OpenSS_GetTime();
 
     /* Are there any unsent samples? */

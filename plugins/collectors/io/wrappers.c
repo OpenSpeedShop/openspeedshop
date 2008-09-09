@@ -77,23 +77,29 @@ ssize_t ioread(int fd, void *buf, size_t count)
     ssize_t retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("read");
+
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "read");
 
-    event.start_time = OpenSS_GetTime();
 
     /* Call the real IO function */
     retval = (*realfunc)(fd, buf, count);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
     /* Return the real IO function's return value to the caller */
     return retval;
@@ -108,23 +114,29 @@ ssize_t iowrite(int fd, void *buf, size_t count)
     ssize_t retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("write");
+
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "write");
 
-    event.start_time = OpenSS_GetTime();
 
     /* Call the real IO function */
     retval = (*realfunc)(fd, buf, count);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
 
     /* Return the real IO function's return value to the caller */
@@ -140,23 +152,29 @@ off_t iolseek(int fd, off_t offset, int whence)
     off_t retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("lseek");
+
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     off_t (*realfunc)() = dlsym (RTLD_NEXT, "lseek");
 
-    event.start_time = OpenSS_GetTime();
 
     /* Call the real IO function */
     retval = (*realfunc)(fd, offset, whence);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
     /* Return the real IO function's return value to the caller */
     return retval;
@@ -171,23 +189,29 @@ __off_t iolseek64(int fd, __off_t offset, int whence)
     off_t retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("lseek64");
+
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     off_t (*realfunc)() = dlsym (RTLD_NEXT, "lseek64");
 
-    event.start_time = OpenSS_GetTime();
 
     /* Call the real IO function */
     retval = (*realfunc)(fd, offset, whence);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
     /* Return the real IO function's return value to the caller */
     return retval;
@@ -202,23 +226,29 @@ int ioopen(const char *pathname, int flags, mode_t mode)
     int retval = 0;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("open");
+
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     int (*realfunc)() = dlsym (RTLD_NEXT, "open");
 
-    event.start_time = OpenSS_GetTime();
 
     /* Call the real IO function */
     retval = (*realfunc)(pathname, flags, mode);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
 
     /* Return the real IO function's return value to the caller */
@@ -234,23 +264,28 @@ int ioopen64(const char *pathname, int flags, mode_t mode)
     int retval = 0;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("open64");
 
-    event.start_time = OpenSS_GetTime();
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     int (*realfunc)() = dlsym (RTLD_NEXT, "open64");
 
     /* Call the real IO function */
     retval = (*realfunc)(pathname, flags, mode);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
     /* Return the real IO function's return value to the caller */
     return retval;
@@ -265,23 +300,28 @@ int ioclose(int fd)
     int retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("close");
+
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     int (*realfunc)() = dlsym (RTLD_NEXT, "close");
 
-    event.start_time = OpenSS_GetTime();
 
     /* Call the real IO function */
     retval = (*realfunc)(fd);
 
-    event.stop_time = OpenSS_GetTime();
-
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
     /* Return the real IO function's return value to the caller */
     return retval;
@@ -296,24 +336,29 @@ int iodup(int oldfd)
     int retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("dup");
 
-    event.start_time = OpenSS_GetTime();
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     int (*realfunc)() = dlsym (RTLD_NEXT, "dup");
 
     /* Call the real IO function */
     retval = (*realfunc)(oldfd);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
     /* defined(__i386) */
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
     /* Return the real IO function's return value to the caller */
     return retval;
@@ -328,23 +373,28 @@ int iodup2(int oldfd, int newfd)
     int retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("dup2");
 
-    event.start_time = OpenSS_GetTime();
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     int (*realfunc)() = dlsym (RTLD_NEXT, "dup2");
 
     /* Call the real IO function */
     retval = (*realfunc)(oldfd,newfd);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
     /* Return the real IO function's return value to the caller */
     return retval;
@@ -359,24 +409,28 @@ int iocreat(char *pathname, mode_t mode)
     int retval = 0;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("creat");
 
-    event.start_time = OpenSS_GetTime();
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     int (*realfunc)() = dlsym (RTLD_NEXT, "creat");
 
     /* Call the real IO function */
     retval = (*realfunc)(pathname,mode);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-    
+    }    
 
     /* Return the real IO function's return value to the caller */
     return retval;
@@ -391,23 +445,28 @@ int iocreat64(char *pathname, mode_t mode)
     int retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("creat64");
 
-    event.start_time = OpenSS_GetTime();
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     int (*realfunc)() = dlsym (RTLD_NEXT, "creat64");
 
     /* Call the real IO function */
     retval = (*realfunc)(pathname,mode);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
 
     /* Return the real IO function's return value to the caller */
@@ -423,23 +482,28 @@ int iopipe(int filedes[2])
     int retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("pipe");
+
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     int (*realfunc)() = dlsym (RTLD_NEXT, "pipe");
-
-    event.start_time = OpenSS_GetTime();
 
     /* Call the real IO function */
     retval = (*realfunc)(filedes);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
     /* Return the real IO function's return value to the caller */
     return retval;
@@ -454,23 +518,28 @@ ssize_t iopread(int fd, void *buf, size_t count, off_t offset)
     ssize_t retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("pread");
 
-    event.start_time = OpenSS_GetTime();
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "pread");
 
     /* Call the real IO function */
     retval = (*realfunc)(fd, buf, count, offset);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
     /* Return the real IO function's return value to the caller */
     return retval;
@@ -485,23 +554,28 @@ ssize_t iopread64(int fd, void *buf, size_t count, off_t offset)
     ssize_t retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("pread64");
+
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "pread64");
-
-    event.start_time = OpenSS_GetTime();
 
     /* Call the real IO function */
     retval = (*realfunc)(fd, buf, count, offset);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
     /* Return the real IO function's return value to the caller */
     return retval;
@@ -516,23 +590,28 @@ ssize_t iopwrite(int fd, __const void *buf, size_t count, __off64_t offset)
     ssize_t retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("pwrite");
+
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "pwrite");
-
-    event.start_time = OpenSS_GetTime();
 
     /* Call the real IO function */
     retval = (*realfunc)(fd, buf, count, offset);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
     /* Return the real IO function's return value to the caller */
     return retval;
@@ -547,23 +626,28 @@ ssize_t iopwrite64(int fd, void *buf, size_t count, off_t offset)
     ssize_t retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("pwrite64");
+
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "pwrite64");
-
-    event.start_time = OpenSS_GetTime();
 
     /* Call the real IO function */
     retval = (*realfunc)(fd, buf, count, offset);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
     /* Return the real IO function's return value to the caller */
     return retval;
@@ -579,23 +663,27 @@ ssize_t ioreadv(int fd, const struct iovec *vector, size_t count)
     ssize_t retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("readv");
+
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "readv");
-
-    event.start_time = OpenSS_GetTime();
 
     /* Call the real IO function */
     retval = (*realfunc)(fd, vector, count);
 
-    event.stop_time = OpenSS_GetTime();
-
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
     /* Return the real IO function's return value to the caller */
     return retval;
@@ -611,23 +699,28 @@ ssize_t iowritev(int fd, const struct iovec *vector, size_t count)
     ssize_t retval;
     io_event event;
 
-    io_start_event(&event);
+    bool_t dotrace = io_do_trace("writev");
+
+    if (dotrace) {
+        io_start_event(&event);
+        event.start_time = OpenSS_GetTime();
+    }
 
     ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "writev");
-
-    event.start_time = OpenSS_GetTime();
 
     /* Call the real IO function */
     retval = (*realfunc)(fd, vector, count);
 
-    event.stop_time = OpenSS_GetTime();
 
+    if (dotrace) {
+        event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(__linux) && defined(__x86_64)
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
-    io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
+    }
     
     /* Return the real IO function's return value to the caller */
     return retval;

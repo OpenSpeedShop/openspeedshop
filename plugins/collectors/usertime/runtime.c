@@ -295,6 +295,9 @@ void usertime_start_sampling(const char* arguments)
 
     tlsinfo.header.time_begin = OpenSS_GetTime();
 
+    openss_expinfo local_info;
+    OpenSS_InitializeParameters(&(local_info));
+    memcpy(&tlsinfo.info, &local_info, sizeof(openss_expinfo));
     tlsinfo.info.collector = "usertime";
     tlsinfo.info.exename = strdup(OpenSS_exepath);
     tlsinfo.info.rate = args.sampling_rate;

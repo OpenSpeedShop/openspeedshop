@@ -34,6 +34,7 @@
 
 #if defined (OPENSS_OFFLINE)
 #include "fpe_offline.h"
+#include "TraceableFPES.h"
 #endif
 
 #if defined (OPENSS_USE_FILEIO)
@@ -49,8 +50,8 @@
  */
 
 /*  Produce debug output about the reason for the exception
-*/
 #define DEBUG 
+*/
 
 /** Maximum number of frames to allow in each stack trace. */
 #define MaxFramesPerStackTrace 64 /*64*/
@@ -73,6 +74,7 @@ static __thread struct {
 	fpe_event events[EventBufferSize];          /**< FPE call events. */
     } buffer;    
     
+    char fpe_traced[1024];
 } tls;
 
 #ifdef DEBUG
@@ -143,10 +145,51 @@ static void fpe_send_events()
  *
  * @param event    Event to be started.
  */
+#if 0
+        "inexact_result",
+        "division_by_zero",
+        "underflow",
+        "overflow",
+        "invalid_operation",
+        "all"
+#endif
 void fpe_enable_fpes()
 {
-#if 0
-    feenableexcept(FE_ALL_EXCEPT);
+#if defined (OPENSS_OFFLINE)
+    int exceptions_to_trace = 0;
+
+    if (strcmp(tls.fpe_traced,"") == 0) {
+	exceptions_to_trace = FE_ALL_EXCEPT;
+    } else {
+	char *fpeptr, *saveptr, *fpe_token;
+	fpeptr = strdup(tls.fpe_traced);
+	int i;
+	for (i = 1;  ; i++, fpeptr = NULL) {
+	    fpe_token = strtok_r(fpeptr, ":,", &saveptr);
+	    if (fpe_token == NULL)
+		break;
+	    if ( strcmp(fpe_token,"all") == 0) {
+		exceptions_to_trace = FE_ALL_EXCEPT;
+		break;
+	    } else if ( strcmp(fpe_token,"inexact_result") == 0) {
+		exceptions_to_trace |= FE_INEXACT;
+	    } else if ( strcmp(fpe_token,"division_by_zero") == 0) {
+		exceptions_to_trace |= FE_DIVBYZERO;
+	    } else if ( strcmp(fpe_token,"underflow") == 0) {
+		exceptions_to_trace |= FE_UNDERFLOW;
+	    } else if ( strcmp(fpe_token,"overflow") == 0) {
+		exceptions_to_trace |= FE_OVERFLOW;
+	    } else if ( strcmp(fpe_token,"invalid_operation") == 0) {
+		exceptions_to_trace |= FE_INVALID;
+	    }
+	}
+
+	if (fpeptr) {
+	    free(fpeptr);
+	}
+    }
+
+    feenableexcept(exceptions_to_trace);
 #else
     feenableexcept(FE_DIVBYZERO|FE_INVALID|FE_OVERFLOW|FE_UNDERFLOW);
 #endif
@@ -357,8 +400,20 @@ void fpe_start_tracing(const char* arguments)
 
     tlsinfo.header.time_begin = OpenSS_GetTime();
 
+    openss_expinfo local_info;
+    OpenSS_InitializeParameters(&(local_info));
+    memcpy(&tlsinfo.info, &local_info, sizeof(openss_expinfo));
     tlsinfo.info.collector = "fpe";
     tlsinfo.info.exename = strdup(OpenSS_exepath);
+
+    char* fpe_traced = getenv("OPENSS_FPE_TRACED");
+
+    if (fpe_traced != NULL && strcmp(fpe_traced,"") != 0) {
+	tlsinfo.info.event = strdup(fpe_traced);
+	strcpy(tls.fpe_traced,fpe_traced);
+    } else {
+	tlsinfo.info.event = "all";
+    }
 
 #ifdef DEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
