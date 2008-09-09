@@ -65,6 +65,19 @@ typedef QValueList<CheckBoxInfoClass *> CheckBoxInfoClassList;
 #include "ArgumentObject.hxx"
 
 
+enum MPI_Category_Type {
+      MPI_Cat_Collective_Comm=0,
+      MPI_Cat_Persistent_Comm=1,
+      MPI_Cat_Synchronous_P2P=2,
+      MPI_Cat_Asynchronous_P2P=3,
+      MPI_Cat_Process_Topologies=4,
+      MPI_Cat_Groups_Contexts_Comms=5,
+      MPI_Cat_Environment=6,
+      MPI_Cat_Datatypes=7,
+      MPI_Cat_NULL=8
+};
+
+
 #define PANEL_CLASS_NAME MPIWizardPanel   // Change the value of the define
                                          // to the name of your new class.
 //! MPIWizardPanel Class
@@ -122,7 +135,7 @@ public:
   int broadcast(char *msg);
 
 
-  QVBoxLayout * mpiFormLayout;
+    QVBoxLayout * mpiFormLayout;
     QFrame* mainFrame;
     QWidgetStack* mainWidgetStack;
     QWidget* vDescriptionPageWidget;
@@ -152,8 +165,12 @@ public:
     QPushButton* eDescriptionPageFinishButton;
     QWidget* eParameterPageWidget;
     QTextEdit* eParameterPageDescriptionLabel;
-    CheckBoxInfoClassList vCheckBoxInfoClassList;
+
     CheckBoxInfoClassList eCheckBoxInfoClassList;
+    CheckBoxInfoClassList eCategoryCheckBoxInfoClassList;
+
+    CheckBoxInfoClassList vCheckBoxInfoClassList;
+    CheckBoxInfoClassList vCategoryCheckBoxInfoClassList;
     QFrame* eParameterPageLine;
     QCheckBox *vParameterTraceCheckBox;
     QCheckBox *vParameterOTFTraceCheckBox;
@@ -172,7 +189,9 @@ public:
     QCheckBox* ewizardMode;
 
     QScrollView *sv;
+    QScrollView *e_sv;
     QWidget *big_box_w;
+    QWidget *e_big_box_w;
     void handleSizeEvent(QResizeEvent *e);
 
     ParamList paramList;
@@ -187,6 +206,7 @@ public:
     void setThisWizardsLoadPanel(Panel* lpanel) {
        thisWizardsLoadPanel = lpanel;
     };
+
 
 public slots:
     virtual void eDescriptionPageNextButtonSelected();
@@ -210,6 +230,8 @@ public slots:
     virtual void wizardModeSelected();
     virtual void finishButtonSelected();
     virtual void vParameterPageCheckBoxSelected();
+    virtual void vDoAllOfCategorySelected();
+    virtual void eDoAllOfCategorySelected();
     virtual void eParameterPageCheckBoxSelected();
 
 protected:
