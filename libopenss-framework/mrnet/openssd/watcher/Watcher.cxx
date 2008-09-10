@@ -80,13 +80,13 @@ bool is_backend_debug_enabled = false;
 void
 OpenSpeedShop::Watcher::acquireScanLock ()
 {
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
     std:: cout << "[TID " << pthread_self () << " OpenSpeedShop::Watcher::acquireScanLock() ENTERED"  << std::endl;
   }
 
   Assert(pthread_mutex_lock(&RawDataScan_Lock) == 0);
 
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
     std:: cout << "[TID " << pthread_self () << " OpenSpeedShop::Watcher::acquireScanLock() EXITED"  << std::endl;
   }
 
@@ -99,13 +99,13 @@ OpenSpeedShop::Watcher::acquireScanLock ()
 void
 OpenSpeedShop::Watcher::releaseScanLock ()
 {
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
     std:: cout << "[TID " << pthread_self () << " OpenSpeedShop::Watcher::releaseScanLock() ENTERED"  << std::endl;
   }
 
   Assert(pthread_mutex_unlock(&RawDataScan_Lock) == 0);
 
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
     std:: cout << "[TID " << pthread_self () << " OpenSpeedShop::Watcher::releaseScanLock() EXITED"  << std::endl;
   }
 }
@@ -148,7 +148,7 @@ getPidFromFilename (std::string filename)
 
   int filenameSize = filename.length ();
 
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
     std:: cout << "[TID " << pthread_self () << " OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
                << " filenameSize=" << filenameSize 
                << std::endl;
@@ -156,7 +156,7 @@ getPidFromFilename (std::string filename)
 
   int suffixDx = filename.rfind (".openss-data", filenameSize);
 
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
     std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
                << " suffixDx=" << suffixDx 
                << std::endl;
@@ -164,7 +164,7 @@ getPidFromFilename (std::string filename)
 
   filename.erase (suffixDx, 12);
 
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
     std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
                << " suffixDx=" << suffixDx 
                << std::endl;
@@ -172,7 +172,7 @@ getPidFromFilename (std::string filename)
 
   filenameSize = filename.length ();
 
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
     std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
                << " filenameSize=" << filenameSize 
                << std::endl;
@@ -180,7 +180,7 @@ getPidFromFilename (std::string filename)
 
   suffixDx = filename.rfind ("-", filenameSize);
 
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
     std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
                << " suffixDx=" << suffixDx 
                << std::endl;
@@ -189,7 +189,7 @@ getPidFromFilename (std::string filename)
   std::string tidString = filename.substr (suffixDx + 1);
   filename.erase (suffixDx, filenameSize - suffixDx);
 
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
     std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
                << " tidString=" << tidString 
                << " suffixDx=" << suffixDx 
@@ -198,7 +198,7 @@ getPidFromFilename (std::string filename)
 
   filenameSize = filename.length ();
 
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
     std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
                << " filenameSize=" << filenameSize 
                << " suffixDx=" << suffixDx 
@@ -207,7 +207,7 @@ getPidFromFilename (std::string filename)
 
   suffixDx = filename.rfind ("-", filenameSize);
 
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
     std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
                << " filenameSize=" << filenameSize 
                << " after rfind - suffixDx=" << suffixDx 
@@ -216,7 +216,7 @@ getPidFromFilename (std::string filename)
 
   std::string pidString = filename.substr (suffixDx + 1);
 
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
     std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
                << " pidString=" << pidString 
                << " after substr, suffixDx=" << suffixDx 
@@ -225,7 +225,7 @@ getPidFromFilename (std::string filename)
 
   sscanf (pidString.c_str (), "%d", &retval);
 
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
     std:: cout << "OpenSpeedShop::Watcher::getPidFromFilename() filename=" << filename 
                << " pidString=" << pidString 
                << " after sscanf, retval=" << retval 
@@ -239,7 +239,7 @@ getPidFromFilename (std::string filename)
 void Watcher::Watcher ()		// : Lockable()
 {
 #ifndef NDEBUG
-  if (Watcher::isDebugEnabled ())
+  if (isDebugEnabled ())
     {
       std::stringstream output;
       output << "[TID " << pthread_self () <<
@@ -278,7 +278,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
   sprintf (openssDataDirName, "openss-rawdata-%d", pid_to_monitor);
 
 #ifndef NDEBUG
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
       std::stringstream output;
       output << "[TID " << pthread_self () << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()" <<
 		" perfdata_dirhandle=" << perfdata_dirhandle << " openssDataDirName=" << openssDataDirName << std::endl;
@@ -301,7 +301,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 		  DIR * dirhandle = opendir (directoryName);
 
 #ifndef NDEBUG
-		  if (Watcher::isDebugEnabled ()) {
+		  if (isDebugEnabled ()) {
 		      std::stringstream output;
 		      output << "[TID " << pthread_self () << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()" <<
 			" Examining directories, looking at directoryName=" << directoryName << std::endl;
@@ -313,7 +313,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 		      while ((direntry = readdir (dirhandle)) != NULL) {
 
 #ifndef NDEBUG
-			  if (Watcher::isDebugEnabled ()) {
+			  if (isDebugEnabled ()) {
 			      std::stringstream output;
 			      output << "[TID " << pthread_self () <<
 				"] OpenSpeedShop::Watcher::scanForRawPerformanceData()" <<
@@ -332,7 +332,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 			      currentFileEntryInfo.readPosition = 0;
 			      currentFileEntryInfo.prevSize = 0;
 #ifndef NDEBUG
-			      if (Watcher::isDebugEnabled ()) {
+			      if (isDebugEnabled ()) {
 				  std::stringstream output;
 				  output << "[TID " << pthread_self () <<
 				    "] OpenSpeedShop::Watcher::scanForRawPerformanceData()" <<
@@ -346,7 +346,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 			      sprintf (dataFilename, "%s/%s", directoryName, direntry->d_name);
 			      sprintf (openssDataFilename, "%s", direntry->d_name);
 
-			      if (Watcher::isDebugEnabled ()) {
+			      if (isDebugEnabled ()) {
   			         std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() openssDataFilename=" << openssDataFilename 
                                             << " directoryName=" << directoryName 
                                             << " dataFilename=" << dataFilename
@@ -359,7 +359,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 
 			      pid_t pid = getPidFromFilename (openssDataFilename);
 #ifndef NDEBUG
-			      if (Watcher::isDebugEnabled ()) {
+			      if (isDebugEnabled ()) {
 				  std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() pid=" << pid << std::endl;
                               }
 #endif
@@ -367,7 +367,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 			      pthread_t tid = getTidFromFilename (openssDataFilename);
 
 #ifndef NDEBUG
-			      if (Watcher::isDebugEnabled ()) {
+			      if (isDebugEnabled ()) {
 				  std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() pid=" << pid << " tid=" << tid << std::endl;
                               }
 #endif
@@ -383,7 +383,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 
 				      currentFileEntryInfo = WatcherThreadTable::TheTable.getEntry (pid, tid);
 #ifndef NDEBUG
-				      if (Watcher::isDebugEnabled ()) {
+				      if (isDebugEnabled ()) {
 					  std:: cout << "Call to WatcherThreadTable::getThreadAlreadyPresent is true"
 					             << std::endl;
                                       }
@@ -391,7 +391,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 				    } else {
 
 #ifndef NDEBUG
-				      if (Watcher::isDebugEnabled ()) {
+				      if (isDebugEnabled ()) {
 					  std::cout << "Call to WatcherThreadTable::getThreadAlreadyPresent is false" << std::endl;
 
 					  std::cout << "Calling WatcherThreadTable::addThread"
@@ -431,7 +431,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 				  prevSize = currentFileEntryInfo.prevSize;
 
 #ifndef NDEBUG
-			          if (Watcher::isDebugEnabled ()) {
+			          if (isDebugEnabled ()) {
 				    std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() prevSize=" 
                                                << prevSize << ", currentPos=" << currentPos << ", currentFileSize=" << currentFileSize
 				               << std::endl;
@@ -441,7 +441,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 				  if (prevSize == currentFileSize) {
 				      // Skip processing this file, it is the same size it was before
 #ifndef NDEBUG
-				      if (Watcher::isDebugEnabled ()) {
+				      if (isDebugEnabled ()) {
 					  std::stringstream output;
 					  output << "[TID " << pthread_self ()
 					    << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()"
@@ -463,7 +463,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 				  // Seek to the position we need to be at in order to read the next blob size and blob
 				  prevPos = currentFileEntryInfo.readPosition;
 #ifndef NDEBUG
-				  if (Watcher::isDebugEnabled ()) {
+				  if (isDebugEnabled ()) {
 				     std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() prevPos=" 
                                                 << prevPos << std::endl;
 			       	  } // end debug
@@ -471,7 +471,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 				  if (prevPos != 0) {
 				      uint64_t fseekPos = fseek (f, prevPos, SEEK_SET);
 #ifndef NDEBUG
-				      if (Watcher::isDebugEnabled ()) {
+				      if (isDebugEnabled ()) {
 				          std::stringstream output;
 				          output << "[TID " << pthread_self () 
 					    << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()"
@@ -488,7 +488,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 				  if (!xdr_u_int (&xdrs, &blobsize)) {
 				      continue_checking_for_data = false;
 #ifndef NDEBUG
-				      if (Watcher::isDebugEnabled ()) {
+				      if (isDebugEnabled ()) {
 				        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK; !xdr_u_int (&xdrs, &blobsize)" 
                                                    << std::endl;
 				      } //end debug
@@ -496,7 +496,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 				      break;
 				    } else {
 #ifndef NDEBUG
-				      if (Watcher::isDebugEnabled ()) {
+				      if (isDebugEnabled ()) {
 					  std::stringstream output;
 					  output << "[TID " << pthread_self () <<
 					    "] OpenSpeedShop::Watcher::scanForRawPerformanceData()"
@@ -519,7 +519,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 				  if (bytesRead == 0 || bytesRead < blobsize) {
 				      continue_checking_for_data = false;
 #ifndef NDEBUG
-				      if (Watcher::isDebugEnabled ()) {
+				      if (isDebugEnabled ()) {
 				        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK; bytesRead=" 
                                                    << bytesRead << " blobsize=" << blobsize
 				                   << std::endl;
@@ -531,7 +531,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 
 				  uint64_t lastPos = ftell (f);
 #ifndef NDEBUG
-				  if (Watcher::isDebugEnabled ()) {
+				  if (isDebugEnabled ()) {
 				      std::stringstream output;
 				      output << "[TID " << pthread_self ()
                                              << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()"
@@ -549,7 +549,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 
 
 #ifndef NDEBUG
-				  if (Watcher::isDebugEnabled ()) {
+				  if (isDebugEnabled ()) {
 				      std::stringstream output;
 				      output << "[TID " << pthread_self () 
                                              << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()"
@@ -564,7 +564,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 
 				  OpenSpeedShop::Framework::Senders::performanceData (Blob (blobsize, blobbuff));
 #ifndef NDEBUG
-				  if (Watcher::isDebugEnabled ()) {
+				  if (isDebugEnabled ()) {
 				      std::stringstream output;
 				      output << "[TID " << pthread_self ()
 					     << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()"
@@ -577,7 +577,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 				}	// end while data in this file
 
 #ifndef NDEBUG
-		             if (Watcher::isDebugEnabled ()) {
+		             if (isDebugEnabled ()) {
 			        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() " 
                                            << " Falling out,read blob loop for file, direntry->d_name=" << direntry->d_name 
 			                   << std::endl;
@@ -585,7 +585,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
 #endif
 			  } else {
 #ifndef NDEBUG
-		             if (Watcher::isDebugEnabled ()) {
+		             if (isDebugEnabled ()) {
 			        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() " 
                                            << " Did not find openss-data filename, direntry->d_name=" << direntry->d_name 
 			                   << std::endl;
@@ -639,7 +639,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
   pid_t pid_to_monitor=0; 
 
 #ifndef NDEBUG
-  if (Watcher::isDebugEnabled ())
+  if (isDebugEnabled ())
     {
       std::stringstream output;
       output << "[TID " << pthread_self () 
@@ -654,7 +654,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
     {
 
 #ifndef NDEBUG
-      if (Watcher::isDebugEnabled ()) {
+      if (isDebugEnabled ()) {
 	  std::stringstream output;
 	  output << "[TID " << pthread_self () << "] OpenSpeedShop::Watcher::fileIOmonitorThread()" 
 	         << " ----- Go to sleep using nanosleep." << std::endl;
@@ -672,7 +672,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
       OpenSpeedShop::Watcher::acquireScanLock();
 
 #ifndef NDEBUG
-      if (Watcher::isDebugEnabled ()) {
+      if (isDebugEnabled ()) {
 	  std::stringstream output;
 	  output << "[TID " << pthread_self () << "] OpenSpeedShop::Watcher::fileIOmonitorThread()" <<
 	    " ----- Wake up from nanosleep." << std::endl;
@@ -687,7 +687,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
      for (std::set< pid_t >::iterator i = PidSet.begin(); i != PidSet.end(); i++) {
 
 #ifndef NDEBUG
-        if (Watcher::isDebugEnabled ()) {
+        if (isDebugEnabled ()) {
  	    std::stringstream output;
 	    output << "[TID " << pthread_self () << "] OpenSpeedShop::Watcher::fileIOmonitorThread()" <<
 	    " ----- PidSet, pid=" << *i << std::endl;
@@ -723,7 +723,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
     OpenSpeedShop::Watcher::releaseScanLock();
 
 #ifndef NDEBUG
-      if (Watcher::isDebugEnabled ())
+      if (isDebugEnabled ())
 	{
 	  std::stringstream output;
 	  output << "[TID " << pthread_self ()
@@ -758,7 +758,7 @@ OpenSpeedShop::Watcher::startWatching ()
   OpenSpeedShop::Watcher::Watcher ();
 
 #ifndef NDEBUG
-  if (Watcher::isDebugEnabled ())
+  if (isDebugEnabled ())
     {
       std::stringstream output;
       output << "[TID " << pthread_self () 
@@ -789,7 +789,7 @@ OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads)
       std::cerr << output.str ();
 
 #ifndef NDEBUG
-  if (Watcher::isDebugEnabled ()) {
+  if (isDebugEnabled ()) {
       std::stringstream output;
       output << "[TID " << pthread_self ()
 	     << "] OpenSpeedShop::Watcher::watchProcess()" 
@@ -809,7 +809,7 @@ OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads)
 
 
 #ifndef NDEBUG
-       if (Watcher::isDebugEnabled ()) {
+       if (isDebugEnabled ()) {
            std::stringstream output;
            output << "[TID " << pthread_self ()
 	          << "] OpenSpeedShop::Watcher::watchProcess()" 
@@ -825,7 +825,7 @@ OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads)
        if(tid.first) {
 //           std::cout << "[TID " << pthread_self() << "] OpenSpeedShop::Watcher::watchProcess(), tid.second=  " << tid.second << std::endl;
 #ifndef NDEBUG
-          if (Watcher::isDebugEnabled ()) {
+          if (isDebugEnabled ()) {
               std::stringstream output;
               output << "[TID " << pthread_self ()
                      << "] OpenSpeedShop::Watcher::watchProcess()" 
@@ -837,7 +837,7 @@ OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads)
          } else {
 //           std::cout << "[TID " << pthread_self() << "] OpenSpeedShop::Watcher::watchProcess(), tid.first=  " << tid.first << std::endl;
 #ifndef NDEBUG
-           if (Watcher::isDebugEnabled ()) {
+           if (isDebugEnabled ()) {
               std::stringstream output;
               output << "[TID " << pthread_self ()
 	             << "] OpenSpeedShop::Watcher::watchProcess()" 
@@ -860,7 +860,7 @@ OpenSpeedShop::Watcher::stopWatching ()
 {
 
 #ifndef NDEBUG
-  if (Watcher::isDebugEnabled ())
+  if (isDebugEnabled ())
     {
       std::stringstream output;
       output << "[TID " << pthread_self ()
