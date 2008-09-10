@@ -3344,6 +3344,7 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
   try {
       if (exp->FW() != NULL) {
 
+#if OFFLINE_IN_CLI
         bool offlineInstrumentor = exp->getIsInstrumentorOffline();
         if (offlineInstrumentor) {
           cmd->Result_String ("    Instrumentor: Offline");
@@ -3354,6 +3355,7 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
           cmd->Result_String ("    Instrumentor: Online (DPCL)");
 #endif
         } 
+#endif
         Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
         if ((databaseExtent.getTimeInterval().getBegin() == Time::TheBeginning()) ||
             (databaseExtent.getTimeInterval().getBegin() ==
