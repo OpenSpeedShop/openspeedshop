@@ -1267,8 +1267,8 @@ FPE_TracingWizardPanel::languageChange()
 
       vDescriptionPageText->setText( tr( cm.getDescription().c_str() ) );
     }
-std::map<std::string,bool> tracedFunctions;
-      fpeCollector.getParameterValue("traced_fpes", tracedFunctions);
+      std::map<std::string,bool> tracedFunctions;
+      fpeCollector.getParameterValue("event", tracedFunctions);
 // printf("Initialize the text fields... (%s)\n", tracedFunctions.first);
 //    vParameterPageSampleRateText->setText(QString("%1").arg(tracedFunctions.first));
 //    eParameterPageSampleRateText->setText(QString("%1").arg(tracedFunctions.first));

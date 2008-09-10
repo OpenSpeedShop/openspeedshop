@@ -2181,7 +2181,7 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
     if( !paramStr.isEmpty() )
     {
       if( QString(getName()).startsWith("FPE") ) {
-        command = QString("expSetParam -x %1 fpe::traced_fpes=%2").arg(expID).arg(paramStr);
+        command = QString("expSetParam -x %1 fpe::event=%2").arg(expID).arg(paramStr);
 #ifdef DEBUG_CustomPanel
         printf("CustomExperimentPanel::processLAO(), paramStr: fpe =(%s)\n", paramStr.ascii() );
 #endif
