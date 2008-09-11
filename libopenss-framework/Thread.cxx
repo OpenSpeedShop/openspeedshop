@@ -553,8 +553,13 @@ Thread::getFunctionAt(const Address& address, const Time& time) const
 		);
 	    
 	    if(bitmap.getValue(address - addr_begin)) {
+// This is causing failures with some offline database views
+// (calltrees,butterfly). Disabling the exception until we can
+// figure out why some offline functions have overlapping entries.
+#if 0
 		if(function.first)
 		    throw Exception(Exception::EntryOverlapping, "Functions");
+#endif
 		function.first = true;
 		function.second = Function(dm_database,
 					   dm_database->getResultAsInteger(1));
