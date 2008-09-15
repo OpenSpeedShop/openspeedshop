@@ -1,6 +1,10 @@
 Legend * means fixed,
        - means still open.
 
+- 9-15-2000
+  Need to fix the openss -offline command error checking to look for missing arguments
+  and give better error messages (jeg)
+
 - 7-29-2008
   Need to update offline collectors to allow changing the collector parameters.
   e.g. sampling_rate, papi threshhold, papi events, etc etc etc...
