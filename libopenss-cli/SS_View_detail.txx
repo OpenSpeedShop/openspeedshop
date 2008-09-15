@@ -116,9 +116,10 @@ bool Detail_Trace_Report(
   Collector collector = CV[0];
   std::string metric = MV[0];
   bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
-  bool add_stmts = (!Look_For_KeyWord(cmd, "ButterFly") ||
-                    Look_For_KeyWord(cmd, "FullStack") ||
-                    Look_For_KeyWord(cmd, "FullStacks"));
+  bool add_stmts = (!Look_For_KeyWord(cmd, "DontExpand") &&
+                    !Look_For_KeyWord(cmd, "ButterFly") &&
+                    (Look_For_KeyWord(cmd, "FullStack") ||
+                     Look_For_KeyWord(cmd, "FullStacks")));
 
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
      cli_timing_handle->cli_perf_data[SS_Timings::detailTraceReportStart] = Time::Now();
@@ -682,9 +683,12 @@ bool Detail_CallStack_Report (
   Collector collector = CV[0];
   std::string metric = MV[0];
   bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
-  bool add_stmts = (!Look_For_KeyWord(cmd, "ButterFly") ||
-                    Look_For_KeyWord(cmd, "FullStack") ||
-                    Look_For_KeyWord(cmd, "FullStacks"));
+  bool add_stmts = (!Look_For_KeyWord(cmd, "DontExpand") &&
+                    (!(Look_For_KeyWord(cmd, "ButterFly") ||
+                       Look_For_KeyWord(cmd, "CallTree") ||
+                       Look_For_KeyWord(cmd, "CallTrees")) ||
+                     Look_For_KeyWord(cmd, "FullStack") ||
+                     Look_For_KeyWord(cmd, "FullStacks")));
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > > c_items;
 
@@ -899,6 +903,9 @@ bool Detail_ButterFly_Report (
   Collector collector = CV[0];
   std::string metric = MV[0];
   bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
+  bool add_stmts = (!Look_For_KeyWord(cmd, "DontExpand") &&
+                    (Look_For_KeyWord(cmd, "FullStack") ||
+                     Look_For_KeyWord(cmd, "FullStacks")));
 #if DEBUG_CLI
   printf("Enter detail_ButterFly_Report, SS_View_detail.txx, num_temps=%d, primary_is_inclusive=%d\n",
           num_temps, primary_is_inclusive);
@@ -1016,11 +1023,7 @@ Dump_CallStack (std::vector<CommandResult *> *call_stack,
 
        // Construct result entry
         std::vector<CommandResult *> *call_stack;
-        if (getenv("OPENSS_SHOW_BUTTERFLY_BY_STATEMENT_VIEW") != NULL) {
-           call_stack = Construct_CallBack (TraceBack_Order, true, st, knownTraces);
-        } else {
-           call_stack = Construct_CallBack (TraceBack_Order, false, st, knownTraces);
-       }
+        call_stack = Construct_CallBack (TraceBack_Order, add_stmts, st, knownTraces);
 
         CommandResult *CSE = new CommandResult_CallStackEntry (call_stack, TraceBack_Order);
 
