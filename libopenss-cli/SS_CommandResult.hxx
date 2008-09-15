@@ -64,6 +64,9 @@ class CommandResult {
   bool setNullValue () {
     NullValue = true;
   }
+  bool clearNullValue () {
+    NullValue = false;
+  }
   bool isNullValue () {
     return NullValue;
   }
@@ -188,6 +191,9 @@ class CommandResult_Address :
     return uint_value > ((CommandResult_Address *)A)->uint_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Address));
+    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
+      clearNullValue();
+    }
     uint_value += ((CommandResult_Address *)A)->uint_value; }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Address));
@@ -237,6 +243,9 @@ class CommandResult_Uint :
   virtual bool GT (CommandResult *A); //  defined in SS_CommandResult.cxx
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
+    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
+      clearNullValue();
+    }
     uint_value += ((CommandResult_Uint *)A)->uint_value; }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
@@ -295,6 +304,9 @@ class CommandResult_Int :
     return int_value > ((CommandResult_Int *)A)->int_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
+    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
+      clearNullValue();
+    }
     int_value += ((CommandResult_Int *)A)->int_value; }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
@@ -358,6 +370,9 @@ class CommandResult_Float :
     return float_value > ((CommandResult_Float *)A)->float_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
+    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
+      clearNullValue();
+    }
     float_value += ((CommandResult_Float *)A)->float_value; }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
@@ -415,6 +430,9 @@ class CommandResult_String :
     return string_value > ((CommandResult_String *)A)->string_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_String));
+    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
+      clearNullValue();
+    }
     string_value += ((CommandResult_String *)A)->string_value; }
 
   void Accumulate_String (CommandResult_String *B) {
@@ -481,6 +499,9 @@ class CommandResult_RawString :
     return string_value > ((CommandResult_RawString *)A)->string_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_RawString));
+    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
+      clearNullValue();
+    }
     string_value += ((CommandResult_RawString *)A)->string_value; }
 
 
@@ -1027,6 +1048,9 @@ class CommandResult_Duration : public CommandResult {
     return duration_value > ((CommandResult_Duration *)A)->duration_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
+    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
+      clearNullValue();
+    }
     duration_value += ((CommandResult_Duration *)A)->duration_value; }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
@@ -1155,6 +1179,9 @@ class CommandResult_Interval : public CommandResult {
     return interval_value > ((CommandResult_Interval *)A)->interval_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
+    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
+      clearNullValue();
+    }
     interval_value += ((CommandResult_Interval *)A)->interval_value; }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
