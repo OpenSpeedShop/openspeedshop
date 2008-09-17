@@ -60,6 +60,7 @@ enum ViewOpCode {
      VIEWINST_Min,                      // TMP_index1 is predefined temp# combined with 'min' op.
      VIEWINST_Max,                      // TMP_index1 is predefined temp# combined with 'max' op.
      VIEWINST_Summary_Max,              // TMP_index1 is predefined temp# combined with 'max' op.
+     VIEWINST_StackExpand,              // TMP_index1 is predefined temp# that is expanded by copy.
 };
 
 // Reduction function Indicators.
@@ -140,6 +141,7 @@ class ViewInstruction
      case VIEWINST_Min: op = "Min"; break;
      case VIEWINST_Max: op = "Max"; break;
      case VIEWINST_Summary_Max: op = "Summary_Max"; break;
+     case VIEWINST_StackExpand: op = "StackExpand"; break;
      default: op ="(unknown)"; break;
     }
     to << op << " " << TmpResult  << " "

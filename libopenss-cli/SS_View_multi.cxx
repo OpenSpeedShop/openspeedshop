@@ -617,20 +617,38 @@ static void Combine_Short_Stacks (
 }
 
 static SmartPtr<std::vector<CommandResult *> >
-  Dup_CRVector (SmartPtr<std::vector<CommandResult *> >& crv) {
+  Dup_CRVector (std::vector<ViewInstruction *>& IV,
+                SmartPtr<std::vector<CommandResult *> >& crv) {
      // Insert intermediate, dummy entry to fill a gap in the trace.
       SmartPtr<std::vector<CommandResult *> > vcs
               = Framework::SmartPtr<std::vector<CommandResult *> >(
                            new std::vector<CommandResult *>()
                            );
+     // Determine which data fields to duplicate
+      std::set<int64_t> xset;
+    // std::vector<ViewInstruction *> ViewInst(IV.size());
+      for (int64_t i=0; i < IV.size(); i++) {
+      //  ViewInstruction *vinst = Find_Column_Def (IV, i);
+        if (IV[i]->OpCode() == VIEWINST_StackExpand) {
+         // Exit if we didn't find a definition
+          xset.insert(IV[i]->TMP1());
+        }
+      }   
      // Generate initial value for each column.
       for (int64_t j = 0; j < crv->size(); j++) {
-// TEST
-       // Set flag in CommandResult to indicate null value.
-       // The display logic may decide to replace the value with
-       // blanks, if it is easier to read.
-        CommandResult *next = (*crv)[j]->Init();
-        next->setNullValue();
+        CommandResult *next;
+        if (xset.find(j) != xset.end()) {
+         // Propagate value up the calling tree.
+          next = (*crv)[j]->Copy();
+// printf("Propagate value up the calling tree location %lld: ",j);
+// next->Print(cerr,20,true);printf("\n");
+        } else {
+         // Set flag in CommandResult to indicate null value.
+         // The display logic may decide to replace the value with
+         // blanks, if it is easier to read.
+          next = (*crv)[j]->Init();
+          next->setNullValue();
+        }
         vcs->push_back ( next );
       }
 
@@ -663,7 +681,7 @@ static void Extract_Pivot_Items (
               std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& result) {
   bool pivot_added = false;
-#if DEBUG_CLI
+#if 0
   printf("in Extract_Pivot_Items\n");
 #endif
   std::pair<CommandResult *,
@@ -726,6 +744,7 @@ static void Extract_Pivot_Items (
 
 static void Expand_CallStack (
               bool TraceBack_Order,
+              std::vector<ViewInstruction *>& IV,
               std::vector<std::pair<CommandResult *,
                                     SmartPtr<std::vector<CommandResult *> > > >& c_items) {
 #if DEBUG_CLI
@@ -770,7 +789,7 @@ static void Expand_CallStack (
     // for (int64_t i = cs->size()-1; i > 0; i--) 
     for (int64_t i = 1; i < cs->size(); i++) {
      // Insert intermediate, dummy entry to fill a gap in the trace.
-      SmartPtr<std::vector<CommandResult *> > vcs = Dup_CRVector (cp.second);
+      SmartPtr<std::vector<CommandResult *> > vcs = Dup_CRVector (IV, cp.second);
       std::vector<CommandResult *> *ncs = Dup_Call_Stack (i, cs);
       CommandResult *CSE = new CommandResult_CallStackEntry (ncs, TraceBack_Order);
       result.push_back (std::make_pair(CSE, vcs));
@@ -977,7 +996,7 @@ bool Generic_Multi_View (
           Look_For_KeyWord(cmd, "FullStacks")) {
         if (!Look_For_KeyWord(cmd, "ButterFly")) {
           if (!Look_For_KeyWord(cmd, "DontExpand")) {
-            Expand_CallStack (TraceBack_Order, c_items);
+            Expand_CallStack (TraceBack_Order, IV, c_items);
           }
 
 /* We could compress the output, but this routine goes too far
@@ -1023,7 +1042,7 @@ bool Generic_Multi_View (
      // Should we expand the call stack entries in the report?
       if (!Look_For_KeyWord(cmd, "ButterFly")) {
         if (!Look_For_KeyWord(cmd, "DontExpand")) {
-          Expand_CallStack (TraceBack_Order, c_items);
+          Expand_CallStack (TraceBack_Order, IV, c_items);
         }
 
        // Should we eliminate redundant entries in the report?

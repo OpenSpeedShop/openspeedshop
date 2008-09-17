@@ -453,11 +453,7 @@ struct ltST {
    /* Use macro to accumulate all the separate samples. */                       \
     get_inclusive_values (details, calls_In_stack)                               \
                                                                                  \
-   /* Decide if we accumulate exclusive_time, as well. */                        \
-    if (topCallStack_In_Subextent (st, SubExtents, TraceBack_Order)) {           \
-     /* Bottom of trace is current function.                                     \
-        Exclusive_time is the same as inclusive_time.                            \
-        Deeper calls must go without exclusive_time. */                          \
+   /* Always record exclusive_time. */                                           \
                                                                                  \
       if (DEBUG_FLAG) {                                                          \
          printf("IN Accumulate_CallStack, before calling get_exclusive_values, calls_In_stack=%d\n", calls_In_stack);\
@@ -469,13 +465,6 @@ struct ltST {
          printf("IN Accumulate_CallStack, after calling get_exclusive_values, calls_In_stack=%d\n", calls_In_stack);\
       }                                                                          \
                                                                                  \
-    } else {                                                                     \
-      if (DEBUG_FLAG) {                                                          \
-         printf("IN Accumulate_CallStack, topCallStack_In_Subextent FAILED, not calling get_exclusive_values\n");\
-      }                                                                          \
-    }                                                                            \
-                                                                                 \
    /* Remember that we have now processed this particular StackTrace. */         \
     StackTraces_Processed.insert(st);                                            \
 }
-

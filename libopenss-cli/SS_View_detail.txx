@@ -776,7 +776,7 @@ bool Detail_CallStack_Report (
         def_Detail_values
 
 #if DEBUG_CLI
-        printf("In Detail_CallStack_Report, SS_View_detail.txx, calling Accumulate_Stack\n");
+        printf("In Detail_CallStack_Report, SS_View_detail.txx, calling Accumulate_CallStack\n");
 #endif
       bool DEBUG_FLAG = false;
 
