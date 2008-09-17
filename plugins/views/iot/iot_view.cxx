@@ -227,6 +227,7 @@ static bool define_iot_columns (
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  bool generate_nested_accounting = false;
   std::string Default_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
 
   if (Generate_Summary) {
@@ -280,6 +281,7 @@ static bool define_iot_columns (
                    !strcasecmp(M_Name.c_str(), "inclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "inclusive_details")) {
          // display times
+          generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
           HV.push_back(std::string("Inclusive ") + Default_Header + "(ms)");
         } else if (!strcasecmp(M_Name.c_str(), "min")) {
@@ -302,6 +304,7 @@ static bool define_iot_columns (
         } else if ( !strcasecmp(M_Name.c_str(), "inclusive_count") ||
                     !strcasecmp(M_Name.c_str(), "inclusive_counts")) {
          // display total exclusive counts
+          generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, incnt_temp));
           HV.push_back("Inclusive Calls");
         } else if (!strcasecmp(M_Name.c_str(), "average")) {
@@ -321,7 +324,7 @@ static bool define_iot_columns (
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, VMulti_time_temp, totalIndex++));
-          HV.push_back("% of Total");
+          HV.push_back("% of Total Exclusive Time");
         } else if (!strcasecmp(M_Name.c_str(), "%exclusive_time") ||
                    !strcasecmp(M_Name.c_str(), "%exclusive_times")) {
          // percent is calculate from 2 temps: time for this row and total time.
@@ -333,7 +336,7 @@ static bool define_iot_columns (
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
-          HV.push_back("% of Total");
+          HV.push_back("% of Total Exclusive Time");
         } else if (!strcasecmp(M_Name.c_str(), "%inclusive_time") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_times")) {
          // percent is calculate from 2 temps: number of counts for this row and total inclusive counts.
@@ -341,11 +344,12 @@ static bool define_iot_columns (
            // Use the metric needed for calculating total time.
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
           } else {
-           // Sum the extime_temp values.
+           // Sum the intime_temp values.
+            generate_nested_accounting = true;
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
-          HV.push_back("% of Total Inclusive Counts");
+          HV.push_back("% of Total Inclusive Time");
         } else if (!strcasecmp(M_Name.c_str(), "%count") ||
                    !strcasecmp(M_Name.c_str(), "%counts") ||
                    !strcasecmp(M_Name.c_str(), "%exclusive_count") ||
@@ -360,7 +364,7 @@ static bool define_iot_columns (
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, excnt_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp, totalIndex++));
-          HV.push_back("% of Total Counts");
+          HV.push_back("% of Total Exclusive Counts");
         } else if (!strcasecmp(M_Name.c_str(), "%inclusive_count") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_counts")) {
          // percent is calculate from 2 temps: number of counts for this row and total inclusive counts.
@@ -369,8 +373,9 @@ static bool define_iot_columns (
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m inclusive_counts' is not supported with '-f' option.");
             continue;
           } else {
-           // Sum the extime_temp values.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, incnt_temp));
+           // Sum the incnt_temp values.
+            generate_nested_accounting = true;
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, excnt_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
           HV.push_back("% of Total Inclusive Counts");
@@ -470,7 +475,7 @@ static bool define_iot_columns (
   // Column[1] in % of inclusive time
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
-    HV.push_back("% of Total");
+    HV.push_back("% of Total Inclusive Time");
   } else {
    // If nothing is requested ...
     if (vfc == VFC_Trace) {
@@ -487,14 +492,18 @@ static bool define_iot_columns (
     }
    // Always display elapsed time.
 #ifdef DEBUG_IOT
-    printf("iot_view, before for VIEWINST_Display_Tmp=%d, extime_temp=%d, last_column=%d\n", VIEWINST_Display_Tmp, extime_temp, last_column);
+    printf("iot_view, before for VIEWINST_Display_Tmp=%d, extime_temp=%d, last_column=%d\n", VIEWINST_Display_Tmp, intime_temp, last_column);
 #endif
 
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
+    if (Look_For_KeyWord(cmd, "CallTree") ||
+        Look_For_KeyWord(cmd, "CallTrees")) {
+      generate_nested_accounting = true;
+    }
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
 #ifdef DEBUG_IOT
     printf("iot_view, after for extime_temp=%d, last_column=%d\n", extime_temp, last_column);
 #endif
-    HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
+    HV.push_back(Default_Header + "(ms)");
 
   // and include % of exclusive time
     if (Filter_Uses_F(cmd)) {
@@ -504,8 +513,12 @@ static bool define_iot_columns (
      // Sum the extime_temp values.
       IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
     }
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
-    HV.push_back("% of Total");
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
+    HV.push_back("% of Total Time");
+  }
+  if (generate_nested_accounting) {
+    IV.push_back(new ViewInstruction (VIEWINST_StackExpand, intime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_StackExpand, incnt_temp));
   }
   return (HV.size() > 0);
 }

@@ -180,6 +180,7 @@ static bool define_hwctime_columns (
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  bool generate_nested_accounting = false;
 
   if (Generate_Summary) {
     if (Generate_ButterFly) {
@@ -224,6 +225,7 @@ static bool define_hwctime_columns (
          // With the '-v Butterfly' option, the default meaning of
          // 'counts' and 'events' is 'inclusive_counts' and 'inclusive_events'.
          // display inclusive events
+          generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, inevents_temp));
           std::string H = Event_Name_Header (CV[0], "inclusive_overflows");
           HV.push_back(H + " Counts");
@@ -244,6 +246,7 @@ static bool define_hwctime_columns (
                    !strcasecmp(M_Name.c_str(), "inclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "inclusive_details")) {
          // display the sum of inclusive events
+          generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, inevents_temp));
           std::string H = Event_Name_Header (CV[0], "inclusive_overflows");
           HV.push_back(H + " Counts");
@@ -258,6 +261,7 @@ static bool define_hwctime_columns (
         } else if ( !strcasecmp(M_Name.c_str(), "inclusive_overflow") ||
                     !strcasecmp(M_Name.c_str(), "inclusive_overflows")) {
          // display total inclusive count of the number of times the hardware counter overflowed.
+          generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, incnt_temp));
           std::string H = Event_Name_Header (CV[0], "inclusive_overflows");
           HV.push_back(H + " Overflows");
@@ -284,6 +288,7 @@ static bool define_hwctime_columns (
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
           } else {
            // Sum the exevent_temp values.
+            generate_nested_accounting = true;
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, exevents_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, inevents_temp, totalIndex++));
@@ -322,6 +327,7 @@ static bool define_hwctime_columns (
            // Sum the excnt_temp values.
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, excnt_temp));
           }
+          generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
           std::string H = Event_Name_Header (CV[0], "inclusive_overflows");
           HV.push_back(std::string("% of Total ") + H + " Counts");
@@ -381,6 +387,7 @@ static bool define_hwctime_columns (
     HV.push_back(H + " Counts");
 
    // Column[1] is inclusive events
+    generate_nested_accounting = true;
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, inevents_temp));
     HV.push_back(Event_Name_Header (CV[0], "inclusive_overflows") + " Counts");
 
@@ -394,6 +401,10 @@ static bool define_hwctime_columns (
     }
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, exevents_temp, totalIndex++));
     HV.push_back(std::string("% of Total ") + H + " Counts");
+  }
+  if (generate_nested_accounting) {
+    IV.push_back(new ViewInstruction (VIEWINST_StackExpand, inevents_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_StackExpand, incnt_temp));
   }
   return (HV.size() > 0);
 }

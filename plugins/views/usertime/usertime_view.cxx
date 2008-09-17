@@ -149,6 +149,7 @@ static bool define_usertime_columns (
   int64_t last_column = 0;  // Number of columns of information displayed.
   int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
   int64_t first_time_temp = 0;
+  bool generate_nested_accounting = false;
 
  // Define combination instructions for predefined temporaries.
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
@@ -233,6 +234,7 @@ static bool define_usertime_columns (
                    !strcasecmp(M_Name.c_str(), "inclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "inclusive_details")) {
          // display times
+          generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
           HV.push_back( Find_Metadata ( CV[0], "inclusive_time" ).getDescription() );
         } else if ( !strcasecmp(M_Name.c_str(), "count") ||
@@ -247,6 +249,7 @@ static bool define_usertime_columns (
         } else if ( !strcasecmp(M_Name.c_str(), "inclusive_count") ||
                     !strcasecmp(M_Name.c_str(), "inclusive_counts")) {
          // display total inclusive counts
+          generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, incnt_temp));
           HV.push_back("Number of Inclusive Counts");
         } else if (!strcasecmp(M_Name.c_str(), "percent") ||
@@ -277,6 +280,7 @@ static bool define_usertime_columns (
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
           } else {
            // Sum the intime_temp values.
+            generate_nested_accounting = true;
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, intime_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
@@ -306,7 +310,8 @@ static bool define_usertime_columns (
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m inclusive_counts' is not supported with '-f' option.");
             continue;
           } else {
-           // Sum the extime_temp values.
+           // Sum the incnt_temp values.
+            generate_nested_accounting = true;
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, incnt_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
@@ -368,6 +373,12 @@ static bool define_usertime_columns (
     HV.push_back(m.getDescription());
 
    // Column[1] is inclusive time
+    if (!Look_For_KeyWord(cmd, "TraceBack") &&
+        !Look_For_KeyWord(cmd, "TraceBacks") &&
+        !Look_For_KeyWord(cmd, "FullStack") &&
+        !Look_For_KeyWord(cmd, "FullStacks")) {
+      generate_nested_accounting = true;
+    }
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
     HV.push_back( Find_Metadata( CV[0], "inclusive_time" ).getDescription() );
 
@@ -382,6 +393,10 @@ static bool define_usertime_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back("% of Total Exclusive CPU Time");
   }
+  if (generate_nested_accounting) {
+    IV.push_back(new ViewInstruction (VIEWINST_StackExpand, intime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_StackExpand, incnt_temp));
+  }
   return (HV.size() > 0);
 }
 
@@ -394,7 +409,7 @@ static bool usertime_definition (
     Validate_V_Options (cmd, allowed_usertime_V_options);
 
     CV.push_back (Get_Collector (exp->FW(), "usertime"));  // Define the collector
-    MV.push_back ("inclusive_detail"); // define the metric needed for getting main time values
+    MV.push_back ("inclusive_details"); // define the metric needed for getting main time values
     CV.push_back (Get_Collector (exp->FW(), "usertime"));  // Define the collector
     MV.push_back ("exclusive_time"); // define the metric needed for calculating total time.
 

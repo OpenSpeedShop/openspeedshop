@@ -207,6 +207,7 @@ static bool define_io_columns (
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  bool generate_nested_accounting = false;
   std::string Default_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
 
   if (Generate_Summary) {
@@ -260,6 +261,7 @@ static bool define_io_columns (
                    !strcasecmp(M_Name.c_str(), "inclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "inclusive_details")) {
          // display times
+          generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
           HV.push_back(std::string("Inclusive ") + Default_Header + "(ms)");
         } else if (!strcasecmp(M_Name.c_str(), "min")) {
@@ -282,6 +284,7 @@ static bool define_io_columns (
         } else if ( !strcasecmp(M_Name.c_str(), "inclusive_count") ||
                     !strcasecmp(M_Name.c_str(), "inclusive_counts")) {
          // display total exclusive counts
+          generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, incnt_temp));
           HV.push_back("Inclusive Calls");
         } else if (!strcasecmp(M_Name.c_str(), "average")) {
@@ -322,6 +325,7 @@ static bool define_io_columns (
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
           } else {
            // Sum the extime_temp values.
+            generate_nested_accounting = true;
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
@@ -350,7 +354,8 @@ static bool define_io_columns (
             continue;
           } else {
            // Sum the extime_temp values.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, incnt_temp));
+            generate_nested_accounting = true;
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, excnt_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
           HV.push_back("% of Total Inclusive Counts");
@@ -448,6 +453,10 @@ static bool define_io_columns (
     }
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back("% of Total");
+  }
+  if (generate_nested_accounting) {
+    IV.push_back(new ViewInstruction (VIEWINST_StackExpand, intime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_StackExpand, incnt_temp));
   }
   return (HV.size() > 0);
 }

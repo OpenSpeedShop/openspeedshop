@@ -280,6 +280,7 @@ static bool define_mpit_columns (
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  bool generate_nested_accounting = false;
   std::string Default_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
 
   if (Generate_Summary) {
@@ -332,6 +333,7 @@ static bool define_mpit_columns (
                    !strcasecmp(M_Name.c_str(), "inclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "inclusive_details")) {
          // display times
+          generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
           HV.push_back(std::string("Inclusive ") + Default_Header + "(ms)");
         } else if (!strcasecmp(M_Name.c_str(), "min")) {
@@ -353,7 +355,8 @@ static bool define_mpit_columns (
           HV.push_back("Number of Calls");
         } else if ( !strcasecmp(M_Name.c_str(), "inclusive_count") ||
                     !strcasecmp(M_Name.c_str(), "inclusive_counts")) {
-         // display total exclusive counts
+         // display total inclusive counts
+          generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, incnt_temp));
           HV.push_back("Inclusive Calls");
         } else if (!strcasecmp(M_Name.c_str(), "average")) {
@@ -385,7 +388,7 @@ static bool define_mpit_columns (
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
-          HV.push_back("% of Total");
+          HV.push_back("% of Total Exclusive Time");
         } else if (!strcasecmp(M_Name.c_str(), "%inclusive_time") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_times")) {
          // percent is calculate from 2 temps: time for this row and total time.
@@ -393,11 +396,12 @@ static bool define_mpit_columns (
            // Use the metric needed for calculating total time.
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
           } else {
-           // Sum the extime_temp values.
+           // Sum the extime_temp values but display % of inclusive time.
+            generate_nested_accounting = true;
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
-          HV.push_back("% of Total");
+          HV.push_back("% of Total Inclusive Time");
         } else if (!strcasecmp(M_Name.c_str(), "%count") ||
                    !strcasecmp(M_Name.c_str(), "%counts") ||
                    !strcasecmp(M_Name.c_str(), "%exclusive_count") ||
@@ -412,7 +416,21 @@ static bool define_mpit_columns (
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, excnt_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp, totalIndex++));
-          HV.push_back("% of Total Counts");
+          HV.push_back("% of Total Exclusive Counts");
+        } else if (!strcasecmp(M_Name.c_str(), "%inclusive_count") ||
+                   !strcasecmp(M_Name.c_str(), "%inclusive_counts")) {
+         // percent is calculate from 2 temps: counts for this row and total counts.
+          if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
+           // There is no metric available for calculating total counts.
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m inclusive_counts' is not supported with '-f' option.");
+            continue;
+          } else {
+           // Sum the intime_temp values.
+            generate_nested_accounting = true;
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, excnt_temp));
+          }
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
+          HV.push_back("% of Total Inclusive Counts");
         } else if (!strcasecmp(M_Name.c_str(), "stddev")) {
          // The standard deviation is calculated from 3 temps: sum, sum of squares and total counts.
           IV.push_back(new ViewInstruction (VIEWINST_Display_StdDeviation_Tmp, last_column++,
@@ -531,6 +549,10 @@ static bool define_mpit_columns (
     HV.push_back("Inclusive Time(ms)");
 
   // Column[1] in % of inclusive time
+    if (Look_For_KeyWord(cmd, "CallTree") ||
+        Look_For_KeyWord(cmd, "CallTrees")) {
+      generate_nested_accounting = true;
+    }
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
     HV.push_back("% of Total");
@@ -557,6 +579,10 @@ static bool define_mpit_columns (
     }
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back("% of Total");
+  }
+  if (generate_nested_accounting) {
+    IV.push_back(new ViewInstruction (VIEWINST_StackExpand, intime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_StackExpand, incnt_temp));
   }
   return (HV.size() > 0);
 }

@@ -326,6 +326,7 @@ static bool define_fpe_columns (
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  bool generate_nested_accounting = false;
 
   if (Generate_Summary) {
     if (Generate_ButterFly) {
@@ -383,6 +384,7 @@ static bool define_fpe_columns (
                     !strcasecmp(M_Name.c_str(), "inclusive_detail") ||
                     !strcasecmp(M_Name.c_str(), "inclusive_details")) {
          // display total inclusive counts
+          generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, incnt_temp));
           HV.push_back("Inclusive Fpe Events");
           user_defined = true;
@@ -413,7 +415,7 @@ static bool define_fpe_columns (
            // Use the metric needed for calculating total counts.
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
           } else {
-           // Sum the extime_temp values.
+           // Sum the excnt_temp values.
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, excnt_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp, totalIndex++));
@@ -428,7 +430,8 @@ static bool define_fpe_columns (
            // Use the metric needed for calculating total counts.
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
           } else {
-           // Sum the extime_temp values.
+           // Sum the excnt_temp values.
+            generate_nested_accounting = true;
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, incnt_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
@@ -581,6 +584,9 @@ static bool define_fpe_columns (
       IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, excnt_temp, totalIndex++));
       HV.push_back("% of Total Counts");
     }
+  }
+  if (generate_nested_accounting) {
+    IV.push_back(new ViewInstruction (VIEWINST_StackExpand, incnt_temp));
   }
   return (HV.size() > 0);
 }
