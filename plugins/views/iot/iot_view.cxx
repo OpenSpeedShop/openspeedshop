@@ -16,9 +16,11 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+
 #include "SS_Input_Manager.hxx"
 #include "IOTCollector.hxx"
 #include "IOTDetail.hxx"
+#include "IOTTraceableFunctions.h"
 
 /* Uncomment for debug traces 
 #define DEBUG_IOT 1
@@ -27,7 +29,7 @@
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
 
-// These are needed to manage ito collector data.
+// These are needed to manage iot collector data.
 #define intime_temp VMulti_free_temp
 #define incnt_temp VMulti_free_temp+1
 #define extime_temp VMulti_free_temp+2
@@ -151,6 +153,134 @@
               if (num_temps > nsysargs_temp) value_array[nsysargs_temp] = CRPTR (detail_nsysargs);   \
               if (num_temps > pathname_temp) value_array[pathname_temp] = CRPTR (detail_pathname); 
 
+// The code here restricts any view for Functions (e.g. -v Functions)
+// to the functions listed in IOTTraceablefunctions.h.  In this case,
+// the I/O functions are the only events with data. All other functions
+// normally returned are just members of the callstacks and are displayed
+// by the various views that use the StackTrace details.
+static void Determine_Objects (
+               CommandObject *cmd,
+               ExperimentObject *exp,
+               ThreadGroup& tgrp,
+               std::set<Function>& objects) {
+
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
+  OpenSpeedShop::cli::ParseTarget pt;
+  if (p_tlist->begin() == p_tlist->end()) {
+
+    std::set<Function> io_objects;
+
+    for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i) {
+	std::string match = "*";
+	std::string f = match + TraceableFunctions[i] + match;
+	objects = exp->FW()->getFunctionsByNamePattern (f);
+	if (objects.size() > 0 ) {
+	    for (std::set<Function>::const_iterator j = objects.begin();
+		 j != objects.end(); ++j) {
+		LinkedObject lo = (*j).getLinkedObject();
+		std::string lopath = lo.getPath();
+		std::set<AddressRange> lor = lo.getAddressRange();
+		std::set<Thread> lot = lo.getThreads();
+		if (lopath.find("libpthread") != string::npos ||
+		    lopath.find("libc") != string::npos ) { 
+
+#ifdef DEBUG_IOT
+		    std::cerr << "Determine_Object IOT INSERT " << f
+			<< " FROM LO " << lo.getPath() << std::endl;
+
+		    for (std::set<AddressRange>::const_iterator k = lor.begin();
+			 k != lor.end(); ++k) {
+			std::cerr << " @ " << (*k) << std::endl;
+		    }
+
+		    for (std::set<Thread>::const_iterator l = lot.begin();
+			 l != lot.end(); ++l) {
+			std::cerr << " PID " << (*l).getProcessId() << std::endl;
+			ExtentGroup eg = lo.getExtentIn(*l);
+			Extent bounds = eg.getBounds();
+			std::cerr << "  Bound AR: " << bounds.getAddressRange() << std::endl;
+			std::cerr << "  Bound TI: " << bounds.getTimeInterval() << std::endl;
+
+			for(std::vector<Extent>::const_iterator m = eg.begin();
+			    m != eg.end(); ++m) {
+			    std::cerr << "  E AR: " << (*m).getAddressRange() << std::endl;
+                            std::cerr << "  E TI: " << (*m).getTimeInterval() << std::endl;
+			}
+		    }
+#endif
+		    io_objects.insert(*j);
+		}
+	    }
+	}
+    }
+
+    objects = io_objects;
+
+  } else {
+    vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
+    pt = *p_tlist->begin(); // There can only be one!
+    f_list = pt.getFileList();
+
+    if ((f_list == NULL) || (f_list->empty())) {
+
+      std::set<Function> io_objects;
+
+      for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i) {
+
+	std::string match = "*";
+	std::string f = match + TraceableFunctions[i] + match;
+	objects = exp->FW()->getFunctionsByNamePattern (f);
+
+	if (objects.size() > 0 ) {
+
+	    for (std::set<Function>::const_iterator j = objects.begin();
+		 j != objects.end(); ++j) {
+
+		LinkedObject lo = (*j).getLinkedObject();
+		std::string lopath = lo.getPath();
+		std::set<AddressRange> lor = lo.getAddressRange();
+		std::set<Thread> lot = lo.getThreads();
+
+		if (lopath.find("libpthread") != string::npos ||
+		    lopath.find("libc") != string::npos ) { 
+#ifdef DEBUG_IOT
+		    std::cerr << "Determine_Object IOT INSERT " << f
+			<< " FROM LO " << lo.getPath() << std::endl;
+
+		    for (std::set<AddressRange>::const_iterator k = lor.begin();
+			 k != lor.end(); ++k) {
+			std::cerr << " @ " << (*k) << std::endl;
+		    }
+
+		    for (std::set<Thread>::const_iterator l = lot.begin();
+			 l != lot.end(); ++l) {
+			std::cerr << " PID " << (*l).getProcessId() << std::endl;
+			ExtentGroup eg = lo.getExtentIn(*l);
+			Extent bounds = eg.getBounds();
+			std::cerr << "  Bound AR: " << bounds.getAddressRange() << std::endl;
+			std::cerr << "  Bound TI: " << bounds.getTimeInterval() << std::endl;
+
+			for(std::vector<Extent>::const_iterator m = eg.begin();
+			    m != eg.end(); ++m) {
+			    std::cerr << "  E AR: " << (*m).getAddressRange() << std::endl;
+                        std::cerr << "  E TI: " << (*m).getTimeInterval() << std::endl;
+			}
+		    }
+#endif
+		    io_objects.insert(*j);
+		}
+	    }
+	}
+      }
+
+    objects = io_objects;
+
+    } else {
+      Get_Filtered_Objects (cmd, exp, tgrp, objects);
+    }
+  }
+}
 
 static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
  // Determine which metric is the primary.
@@ -180,7 +310,6 @@ static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
 #define get_inclusive_trace get_IOT_invalues
 #define get_exclusive_trace get_IOT_exvalues
 #define set_Detail_values set_IOT_values
-#define Determine_Objects Get_Filtered_Objects
 #include "SS_View_detail.txx"
 
 static std::string allowed_iot_V_options[] = {
@@ -388,7 +517,7 @@ static bool define_iot_columns (
           if (vfc == VFC_Trace) {
            // display start time
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
-            HV.push_back("Start Time");
+            HV.push_back("Start Time(d:h:m:s)");
             column_is_DateTime = true;
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m start_time' only supported for '-v Trace' option.");
@@ -397,7 +526,7 @@ static bool define_iot_columns (
           if (vfc == VFC_Trace) {
            // display stop time
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, stop_temp));
-            HV.push_back("Stop Time");
+            HV.push_back("Stop Time(d:h:m:s)");
             column_is_DateTime = true;
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m stop_time' only supported for '-v Trace' option.");
@@ -647,10 +776,8 @@ class iot_view : public ViewType {
 
     CV.push_back (Get_Collector (exp->FW(), "iot"));  // Define the collector
     MV.push_back ("inclusive_details"); // define the metric needed for getting main time values
-#if 0
     CV.push_back (Get_Collector (exp->FW(), "iot"));  // Define the collector
     MV.push_back ("time"); // define the metric needed for calculating total time.
-#endif
     View_Form_Category vfc = Determine_Form_Category(cmd);
     if (iot_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc)) {
 

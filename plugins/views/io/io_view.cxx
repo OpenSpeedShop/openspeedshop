@@ -20,6 +20,12 @@
 #include "SS_Input_Manager.hxx"
 #include "IOCollector.hxx"
 #include "IODetail.hxx"
+#include "IOTraceableFunctions.h"
+
+/* Uncomment for debug traces
+#define DEBUG_IO 1
+*/
+
 
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
@@ -132,6 +138,135 @@
                 }                                                                                    \
               }
 
+// The code here restricts any view for Functions (e.g. -v Functions)
+// to the functions listed in IOTTraceablefunctions.h.  In this case,
+// the I/O functions are the only events with data. All other functions
+// normally returned are just members of the callstacks and are displayed
+// by the various views that use the StackTrace details.
+static void Determine_Objects (
+               CommandObject *cmd,
+               ExperimentObject *exp,
+               ThreadGroup& tgrp,
+               std::set<Function>& objects) {
+
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
+  OpenSpeedShop::cli::ParseTarget pt;
+  if (p_tlist->begin() == p_tlist->end()) {
+
+    std::set<Function> io_objects;
+
+    for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i) {
+	std::string match = "*";
+	std::string f = match + TraceableFunctions[i] + match;
+	objects = exp->FW()->getFunctionsByNamePattern (f);
+	if (objects.size() > 0 ) {
+	    for (std::set<Function>::const_iterator j = objects.begin();
+		 j != objects.end(); ++j) {
+		LinkedObject lo = (*j).getLinkedObject();
+		std::string lopath = lo.getPath();
+		std::set<AddressRange> lor = lo.getAddressRange();
+		std::set<Thread> lot = lo.getThreads();
+		if (lopath.find("libpthread") != string::npos ||
+		    lopath.find("libc") != string::npos ) { 
+
+#ifdef DEBUG_IO
+		    std::cerr << "Determine_Object IOT INSERT " << f
+			<< " FROM LO " << lo.getPath() << std::endl;
+
+		    for (std::set<AddressRange>::const_iterator k = lor.begin();
+			 k != lor.end(); ++k) {
+			std::cerr << " @ " << (*k) << std::endl;
+		    }
+
+		    for (std::set<Thread>::const_iterator l = lot.begin();
+			 l != lot.end(); ++l) {
+			std::cerr << " PID " << (*l).getProcessId() << std::endl;
+			ExtentGroup eg = lo.getExtentIn(*l);
+			Extent bounds = eg.getBounds();
+			std::cerr << "  Bound AR: " << bounds.getAddressRange() << std::endl;
+			std::cerr << "  Bound TI: " << bounds.getTimeInterval() << std::endl;
+
+			for(std::vector<Extent>::const_iterator m = eg.begin();
+			    m != eg.end(); ++m) {
+			    std::cerr << "  E AR: " << (*m).getAddressRange() << std::endl;
+                            std::cerr << "  E TI: " << (*m).getTimeInterval() << std::endl;
+			}
+		    }
+#endif
+		    io_objects.insert(*j);
+		}
+	    }
+	}
+    }
+
+    objects = io_objects;
+
+  } else {
+    vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
+    pt = *p_tlist->begin(); // There can only be one!
+    f_list = pt.getFileList();
+
+    if ((f_list == NULL) || (f_list->empty())) {
+
+      std::set<Function> io_objects;
+
+      for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i) {
+
+	std::string match = "*";
+	std::string f = match + TraceableFunctions[i] + match;
+	objects = exp->FW()->getFunctionsByNamePattern (f);
+
+	if (objects.size() > 0 ) {
+
+	    for (std::set<Function>::const_iterator j = objects.begin();
+		 j != objects.end(); ++j) {
+
+		LinkedObject lo = (*j).getLinkedObject();
+		std::string lopath = lo.getPath();
+		std::set<AddressRange> lor = lo.getAddressRange();
+		std::set<Thread> lot = lo.getThreads();
+
+		if (lopath.find("libpthread") != string::npos ||
+		    lopath.find("libc") != string::npos ) { 
+#ifdef DEBUG_IO
+		    std::cerr << "Determine_Object IOT INSERT " << f
+			<< " FROM LO " << lo.getPath() << std::endl;
+
+		    for (std::set<AddressRange>::const_iterator k = lor.begin();
+			 k != lor.end(); ++k) {
+			std::cerr << " @ " << (*k) << std::endl;
+		    }
+
+		    for (std::set<Thread>::const_iterator l = lot.begin();
+			 l != lot.end(); ++l) {
+			std::cerr << " PID " << (*l).getProcessId() << std::endl;
+			ExtentGroup eg = lo.getExtentIn(*l);
+			Extent bounds = eg.getBounds();
+			std::cerr << "  Bound AR: " << bounds.getAddressRange() << std::endl;
+			std::cerr << "  Bound TI: " << bounds.getTimeInterval() << std::endl;
+
+			for(std::vector<Extent>::const_iterator m = eg.begin();
+			    m != eg.end(); ++m) {
+			    std::cerr << "  E AR: " << (*m).getAddressRange() << std::endl;
+                        std::cerr << "  E TI: " << (*m).getTimeInterval() << std::endl;
+			}
+		    }
+#endif
+		    io_objects.insert(*j);
+		}
+	    }
+	}
+      }
+
+    objects = io_objects;
+
+    } else {
+      Get_Filtered_Objects (cmd, exp, tgrp, objects);
+    }
+  }
+}
+
 static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
  // Determine which metric is the primary.
   int64_t master_temp = 0;
@@ -160,7 +295,6 @@ static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
 #define get_inclusive_trace get_IO_invalues
 #define get_exclusive_trace get_IO_exvalues
 #define set_Detail_values set_IO_values
-#define Determine_Objects Get_Filtered_Objects
 #include "SS_View_detail.txx"
 
 static std::string allowed_io_V_options[] = {
@@ -584,10 +718,9 @@ class io_view : public ViewType {
 
     CV.push_back (Get_Collector (exp->FW(), "io"));  // Define the collector
     MV.push_back ("inclusive_details"); // define the metric needed for getting main time values
-#if 0
     CV.push_back (Get_Collector (exp->FW(), "io"));  // Define the collector
     MV.push_back ("time"); // define the metric needed for calculating total time.
-#endif
+
     View_Form_Category vfc = Determine_Form_Category(cmd);
     if (io_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc)) {
 

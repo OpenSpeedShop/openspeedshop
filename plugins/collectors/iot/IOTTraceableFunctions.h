@@ -54,8 +54,7 @@
 
 #if defined(OPENSS_OFFLINE)
         const char * traceable = \
-	"close,creat,creat64,dup,dup2,lseek,lseek64,open,open64, \
-        pipe,pread,pread64,pwrite,pwrite64,read,readv,write,writev";
+	"close,creat,creat64,dup,dup2,lseek,lseek64,open,open64,pipe,pread,pread64,pwrite,pwrite64,read,readv,write,writev";
 
 #endif
 
