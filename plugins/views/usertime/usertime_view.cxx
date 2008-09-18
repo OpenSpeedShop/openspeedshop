@@ -409,7 +409,7 @@ static bool usertime_definition (
     Validate_V_Options (cmd, allowed_usertime_V_options);
 
     CV.push_back (Get_Collector (exp->FW(), "usertime"));  // Define the collector
-    MV.push_back ("inclusive_details"); // define the metric needed for getting main time values
+    MV.push_back ("inclusive_detail"); // define the metric needed for getting main time values
     CV.push_back (Get_Collector (exp->FW(), "usertime"));  // Define the collector
     MV.push_back ("exclusive_time"); // define the metric needed for calculating total time.
 
