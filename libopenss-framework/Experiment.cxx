@@ -467,6 +467,14 @@ Experiment::Experiment(const std::string& name) :
     if(!isAccessible(name))
 	throw Exception(Exception::DatabaseInvalid, dm_database->getName());
     
+    // Update the experiment's database schema if necessary
+    if(getVersion() == 1)
+	updateToVersion2();
+    if(getVersion() == 2)
+	updateToVersion3();
+    if(getVersion() == 3)
+	updateToVersion4();
+
     // Iterate over each thread in this experiment
     ThreadGroup threads = getThreads();
     for(ThreadGroup::const_iterator
@@ -483,13 +491,6 @@ Experiment::Experiment(const std::string& name) :
     // Set the experiment's rerun count to 0
     setRerunCount(-1);
 
-    // Update the experiment's database schema if necessary
-    if(getVersion() == 1)
-	updateToVersion2();
-    if(getVersion() == 2)
-	updateToVersion3();
-    if(getVersion() == 3)
-	updateToVersion4();
 }
 
 
