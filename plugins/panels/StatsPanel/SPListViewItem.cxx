@@ -46,6 +46,10 @@ SPListViewItem::SPListViewItem( StatsPanel *sp, QString _funcName, QString _file
   fileName = _fileName;
   lineNumber = _lineNumber;
   statsPanel = sp;
+#if DEBUG_StatsPanel 
+  printf("SPListViewItem::SPListViewItem1, fileName=(%s), funcName=(%s), lineNumber=%d\n", 
+          fileName.ascii(), funcName.ascii(), lineNumber );
+#endif
 }
 
 SPListViewItem::SPListViewItem( StatsPanel *sp, QString _funcName, QString _fileName, int _lineNumber, SPListViewItem * parent, SPListViewItem *after, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
@@ -55,6 +59,10 @@ SPListViewItem::SPListViewItem( StatsPanel *sp, QString _funcName, QString _file
   fileName = _fileName;
   lineNumber = _lineNumber;
   statsPanel = sp;
+#if DEBUG_StatsPanel 
+  printf("SPListViewItem::SPListViewItem2, fileName=(%s), funcName=(%s), lineNumber=%d\n", 
+          fileName.ascii(), funcName.ascii(), lineNumber );
+#endif
 }
 
 /*! The default destructor. */

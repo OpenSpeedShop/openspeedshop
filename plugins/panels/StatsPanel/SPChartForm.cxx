@@ -65,7 +65,7 @@ SPChartForm::mouseClicked( int item )
 {
   nprintf(DEBUG_PANELS) ("SPChartForm::mouseClicked(item=%d) called.\n", item);
 #ifdef DEBUG_chart
-  printf("SPChartForm::mouseClicked() entered\n");
+  printf("SPChartForm::mouseClicked() entered, setting statsPanel->itemSelected(item)\n");
 #endif
   statsPanel->itemSelected(item);
 }
@@ -115,5 +115,8 @@ SPChartForm::createPopupMenu( const QPoint & pos )
 void
 SPChartForm::goToLine() 
 {
+#ifdef DEBUG_chart
+  printf("SPChartForm::goToLine() entered, calling statsPanel->gotoSource(TRUE)\n");
+#endif
   statsPanel->gotoSource(TRUE);
 }

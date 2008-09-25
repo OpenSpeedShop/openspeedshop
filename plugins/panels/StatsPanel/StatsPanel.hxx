@@ -159,6 +159,8 @@ class StatsPanel  : public Panel
     void removeDiffColumn(int removeIndex);
 
     int focusedExpID;
+    int focusedCompareExpID;
+    std::vector<int> compareExpIDs;
     ExperimentGroupList experimentGroupList;
     CInfoClassList cInfoClassList;
 
@@ -285,6 +287,10 @@ class StatsPanel  : public Panel
 
     bool isHeaderInfoAlreadyProcessed(int exp_id)
     {
+#if DEBUG_StatsPanel
+      printf("isHeaderInfoAlreadyProcessed, exp_id=%d, headerInfoProcessedExpID=%d\n", exp_id, headerInfoProcessedExpID);
+#endif
+
       if (exp_id == headerInfoProcessedExpID) {
         return true;
       } else {
@@ -292,7 +298,13 @@ class StatsPanel  : public Panel
       }
     }
     void setHeaderInfoAlreadyProcessed(int exp_id) {
+
+#if DEBUG_StatsPanel
+       printf("setHeaderInfoAlreadyProcessed, exp_id=%d, headerInfoProcessedExpID=%d\n", exp_id, headerInfoProcessedExpID);
+#endif
+
        headerInfoProcessedExpID = exp_id;
+
     }
 
   protected:
@@ -354,6 +366,7 @@ class StatsPanel  : public Panel
 
     QFile *f;
     void generateToolBar(QString command);
+    void generateBaseToolBar(QString command);
     QLabel *toolbar_status_label;
 
     // Status Panel Message Label - put out messages when data is not available
@@ -375,6 +388,11 @@ class StatsPanel  : public Panel
     void cviewQueryStatements();
     void updatePanel();
     void focusOnExp(int);
+    void gotoSourceCompare1Selected(bool use_current_item = FALSE);
+    void gotoSourceCompare2Selected(bool use_current_item = FALSE);
+    void gotoSourceCompare3Selected(bool use_current_item = FALSE);
+    void gotoSourceCompare4Selected(bool use_current_item = FALSE);
+    void gotoSourceCompare5Selected(bool use_current_item = FALSE);
     void gotoSource(bool use_current_item = FALSE);
     void aboutSelected();
     void MPItraceSelected();
@@ -510,6 +528,8 @@ class StatsPanel  : public Panel
 
     QString getFilenameFromString( QString ); 
     QString getFunctionNameFromString( QString, QString & );
+    QString getLinenumberFromString( QString );
+    QString getExperimentIdFromString( QString );
 
     bool descending_sort;
 
