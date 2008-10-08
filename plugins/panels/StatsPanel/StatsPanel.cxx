@@ -88,24 +88,24 @@ static char *hotToCold_color_names[] = {
   "cyan",
   "darksalmon",
   "green",
-  "gray",
-  "lightGray",
-  "pink",
   "orange",
-  "lightblue",
-  "lightred",
+  "coral",
+  "lightcoral",
+  "pink",
   "lightcyan",
+  "lightblue",
   "lightgreen",
+  "lightGray",
 };
 static char *coldToHot_color_names[] = {
-  "lightgreen",
-  "lightcyan",
-  "lightred",
-  "lightblue",
-  "orange",
-  "pink",
   "lightGray"
-  "gray",
+  "lightgreen",
+  "lightblue",
+  "lightcyan",
+  "pink",
+  "lightcoral",
+  "coral",
+  "orange",
   "green",
   "darksalmon",
   "cyan",
@@ -4517,7 +4517,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   progressTimer->start(0);
   pd->infoLabel->setText( QString("Running command - %1").arg(command) );
   qApp->flushX();
-  qApp->processEvents(1000);
+  qApp->processEvents(2000);
 
 #ifdef DEBUG_StatsPanel
   printf("updateStatsPanelData,sort command?, command.ascii()=%s\n", command.ascii());
