@@ -993,6 +993,7 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
 	}
 	else if((type_name.find("long long") != std::string::npos) ||
 		(type_name.find("int64_t") != std::string::npos) ||
+		(type_name.find("ash_t") != std::string::npos) ||
 		(type_name == "<no type>") || (type_name == "")) {
 
 	    int64_t raw_value = 0;
