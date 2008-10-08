@@ -191,7 +191,7 @@ extern "C"
     showTextByValueCheckBox->setChecked(FALSE);
     showTextByPercentCheckBox->setChecked(TRUE);
     showTextByLocationCheckBox->setChecked(FALSE);
-    chartTypeComboBox->setCurrentItem(0);
+    chartTypeComboBox->setCurrentItem(2);
     showToolbarCheckBox->setChecked(TRUE);
     showMetadataCheckBox->setChecked(TRUE);
     showSkylineCheckBox->setChecked(FALSE);
@@ -288,13 +288,11 @@ extern "C"
     checkBoxList.push_back( showTextByLocationCheckBox );
 
 
-chartTypeComboBox = new QComboBox( FALSE, textLabelGroupBox, "chartTypeComboBox" );
-chartTypeComboBox->insertItem( QPixmap( options_piechart ), "Pie Chart" );
-chartTypeComboBox->insertItem( QPixmap( options_verticalbarchart ),
-                   "Vertical Bar Chart" );
-chartTypeComboBox->insertItem( QPixmap( options_horizontalbarchart ),
-                   "Horizontal Bar Chart" );
-textLabelLayout->addWidget( chartTypeComboBox );
+    chartTypeComboBox = new QComboBox( FALSE, textLabelGroupBox, "chartTypeComboBox" );
+    chartTypeComboBox->insertItem( QPixmap( options_piechart ), "Pie Chart" );
+    chartTypeComboBox->insertItem( QPixmap( options_verticalbarchart ), "Vertical Bar Chart" );
+    chartTypeComboBox->insertItem( QPixmap( options_horizontalbarchart ), "Horizontal Bar Chart" );
+    textLabelLayout->addWidget( chartTypeComboBox );
 
     layout8->addWidget( textLabelGroupBox );
 
@@ -413,7 +411,7 @@ textLabelLayout->addWidget( chartTypeComboBox );
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showTextByValueCheckBox->name() );
       showTextByValueCheckBox->setChecked(
-        settings->readBoolEntry(settings_buffer, TRUE) );
+        settings->readBoolEntry(settings_buffer, FALSE) );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showTextByPercentCheckBox->name() );
@@ -423,12 +421,11 @@ textLabelLayout->addWidget( chartTypeComboBox );
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showTextByLocationCheckBox->name() );
       showTextByLocationCheckBox->setChecked(
-        settings->readBoolEntry(settings_buffer, TRUE) );
+        settings->readBoolEntry(settings_buffer, FALSE) );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, chartTypeComboBox->name() );
-      chartTypeComboBox->setCurrentItem(
-        settings->readNumEntry(settings_buffer, 0) );
+      chartTypeComboBox->setCurrentItem( settings->readNumEntry(settings_buffer, 2) );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showToolbarCheckBox->name() );
