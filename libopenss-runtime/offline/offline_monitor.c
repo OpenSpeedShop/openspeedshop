@@ -57,6 +57,7 @@
 extern void offline_start_sampling(const char* arguments);
 extern void offline_stop_sampling(const char* arguments);
 extern void offline_record_dso(const char* dsoname);
+int OpenSS_mpi_rank = -1;
 
 #if defined(_MONITOR_H_)
 void monitor_fini_process(int how, void *data)

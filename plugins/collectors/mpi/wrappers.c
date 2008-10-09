@@ -31,3 +31,43 @@
 #include "runtime.h"
 
 #include <mpi.h>
+
+#if defined (OPENSS_OFFLINE)
+extern int OpenSS_mpi_rank;
+#endif
+
+#if defined (OPENSS_OFFLINE)
+int MPI_Init(int * arg1, char *** arg2)
+#else
+int mpi_PMPI_Init(int * arg1, char *** arg2)
+#endif
+{
+    int retval, datatype_size;
+    mpi_event event;
+
+    bool_t dotrace = mpi_do_trace("MPI_Init");
+
+    if (dotrace) {
+	mpi_start_event(&event);
+	event.start_time = OpenSS_GetTime();
+    }
+
+    /* Call the real MPI function */
+    retval = PMPI_Init(arg1, arg2);
+
+#if defined (OPENSS_OFFLINE)
+    int oss_rank = -1;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &oss_rank);
+    OpenSS_mpi_rank = oss_rank;
+#endif
+
+    if (dotrace) {
+	event.stop_time = OpenSS_GetTime();
+
+	/* Record event */
+	mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Init));
+    }
+
+    /* Return the real MPI function's return value to the caller */
+    return retval;
+}

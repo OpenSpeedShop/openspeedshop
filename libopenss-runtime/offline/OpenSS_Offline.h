@@ -32,6 +32,8 @@ extern "C"
 
 int OpenSS_GetDLInfo(pid_t pid, char *path);
 void OpenSS_InitializeParameters (openss_expinfo *info);
+extern int OpenSS_mpi_rank;
+
 #ifdef  __cplusplus
 }
 #endif

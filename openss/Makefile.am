@@ -87,8 +87,9 @@ CLEANFILES = $(BUILT_FILES)
 ossrun: ossrun.in
 	@rm -f ossrun
 	@sed \
-		-e 's,@@osslibdir@@,$(pkglibdir),' \
+		-e 's,@@ossinstalldir@@,$(prefix),' \
 		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
+		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
 			$(srcdir)/ossrun.in > ossrun
 	@chmod 755 ossrun
 

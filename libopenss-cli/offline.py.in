@@ -18,8 +18,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     #users to explicitly define a different OSS installation path (even
     #if OPENSS_PREFIX is defined).
     if (os.environ.has_key("OPENSS_PREFIX") and installed == "/usr"):
-        print "OPENSS_PREFIX detected..."
-        print "Using OPENSS_PREFIX..."
+        print "OPENSS_PREFIX detected. Using OPENSS_PREFIX..."
         installed = os.environ["OPENSS_PREFIX"]
     
     # set up plugins path
@@ -36,7 +35,6 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     rawdir = "/tmp"
 
     # always write into /tmp/$USER/offline-oss or
-    # $OPENSS_RAWDATA_DIR/offline-oss. FIXME: should we add #USER here too?
     if 'OPENSS_RAWDATA_DIR' in os.environ:
 	rawdir = os.environ["OPENSS_RAWDATA_DIR"]
 	print "Setting up offline environment, OPENSS_RAWDATA_DIR = " + rawdir + "/offline-oss"
@@ -91,9 +89,40 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	if not os.path.isfile(libmonitor):
             raise RuntimeError("Failed to locate the libmonitor.so library. " + libmonitor)
 
+    default_mpi_impl = "@@ossdefaultmpi@@"
+
+    if 'OPENSS_MPI_IMPLEMENTATION' in os.environ:
+	use_mpi_impl = os.environ["OPENSS_MPI_IMPLEMENTATION"]
+    else:
+	use_mpi_impl = default_mpi_impl.lower()
+
+    mpiplugin = plugins + "/mpi-" + use_mpi_impl + "-rt-offline.so"
+
+    if not os.path.isfile(mpiplugin):
+	raise RuntimeError("Failed to locate the mpi runtime plugin. " + libmonitor)
+
+    if collector.startswith("mpi"):
+	preload_files = ""
+	if collector == "mpi":
+	    collector = collector + "-" + use_mpi_impl
+	elif collector == "mpit":
+	    collector = collector + "-" + use_mpi_impl
+    else:
+	preload_files = mpiplugin
+
+    program_list = program.split()
+
+    for s in program_list:
+        if os.path.isfile(s):
+	    # For some reason os.system needs the return code divided by 256!
+	    ismpi = os.system('nm ' + s + ' | grep -q MPI_Init')/256
+	    if not ismpi:
+		break
+
     # Form the command that will run the offline experiment
     command = "env" + \
               " LD_PRELOAD="+ plugins + "/" + collector + "-rt-offline.so" + \
+	      ":" + preload_files + \
 	      ":" + libmonitor + ":$LD_PRELOAD " + program
 
     # Execute the command to start the daemon(s)

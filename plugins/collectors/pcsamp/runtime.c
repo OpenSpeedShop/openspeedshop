@@ -38,6 +38,7 @@
 
 #if defined (OPENSS_OFFLINE)
 #include "pcsamp_offline.h"
+#include "OpenSS_Offline.h"
 #endif
 
 /*
@@ -175,12 +176,6 @@ void pcsamp_start_sampling(const char* arguments)
     }
 #endif
 
-    /* create the openss-info data and send it */
-#if defined (OPENSS_USE_FILEIO)
-    OpenSS_CreateOutfile("openss-info");
-#endif
-    OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
-
 #else
 
     /* Decode the passed function arguments. */
@@ -235,6 +230,18 @@ void pcsamp_stop_sampling(const char* arguments)
     /* Stop sampling */
     OpenSS_Timer(0, NULL);
     tls.header.time_end = OpenSS_GetTime();
+
+
+#if defined (OPENSS_OFFLINE)
+
+    tlsinfo.info.rank = OpenSS_mpi_rank;
+
+    /* create the openss-info data and send it */
+#if defined (OPENSS_USE_FILEIO)
+    OpenSS_CreateOutfile("openss-info");
+#endif
+    OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
+#endif
 
     /* Are there any unsent samples? */
     if(tls.buffer.length > 0) {

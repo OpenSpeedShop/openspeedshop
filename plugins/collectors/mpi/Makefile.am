@@ -264,7 +264,6 @@ wrapper_sources = \
 	MPI_Get_count.c \
 	MPI_Graph_create.c \
 	MPI_Ibsend.c \
-	MPI_Init.c \
 	MPI_Intercomm_create.c \
 	MPI_Intercomm_merge.c \
 	MPI_Iprobe.c \

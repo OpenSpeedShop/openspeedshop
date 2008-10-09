@@ -1596,6 +1596,11 @@ int mpit_PMPI_Init(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
+#if defined (OPENSS_OFFLINE)
+    extern int OpenSS_mpi_rank;
+    OpenSS_mpi_rank = event.destination;
+#endif
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Init));
 
     }

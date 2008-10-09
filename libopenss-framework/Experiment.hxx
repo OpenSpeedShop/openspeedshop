@@ -126,7 +126,9 @@ namespace OpenSpeedShop { namespace Framework {
 
         // offline uses this to update database from raw data files.
 	void updateThreads(const pid_t&,
-			   const pthread_t&, const std::string&) const;
+			   const pthread_t&,
+			   const int&,
+			   const std::string&) const;
 
 	// pruning unneeded entries in database.
 	void compressDB() const;

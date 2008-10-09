@@ -29,6 +29,7 @@
 
 #if defined (OPENSS_OFFLINE)
 #include "iot_offline.h"
+#include "OpenSS_Offline.h"
 #endif
 
 #if defined (OPENSS_USE_FILEIO)
@@ -454,15 +455,6 @@ void iot_start_tracing(const char* arguments)
     }
 #endif
 
-    /* create the openss-info data and send it */
-#if defined (OPENSS_USE_FILEIO)
-    OpenSS_CreateOutfile("openss-info");
-#endif
-    tlsinfo.header.time_end = OpenSS_GetTime();
-    OpenSS_Send(&(tlsinfo.header),
-		(xdrproc_t)xdr_openss_expinfo,
-		&(tlsinfo.info));
-
 #else
 
 
@@ -513,6 +505,18 @@ void iot_start_tracing(const char* arguments)
  */
 void iot_stop_tracing(const char* arguments)
 {
+
+#if defined (OPENSS_OFFLINE)
+
+    tlsinfo.info.rank = OpenSS_mpi_rank;
+
+    /* create the openss-info data and send it */
+#if defined (OPENSS_USE_FILEIO)
+    OpenSS_CreateOutfile("openss-info");
+#endif
+    OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
+#endif
+
     /* Send events if there are any remaining in the tracing buffer */
     if(tls.data.events.events_len > 0)
 	iot_send_events();

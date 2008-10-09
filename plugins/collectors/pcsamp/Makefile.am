@@ -103,7 +103,7 @@ libpcsamp_offline_la_CFLAGS = \
 	-static -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/fileio \
-	-I/$(top_srcdir)/libopenss-runtime/offline \
+	-I$(top_srcdir)/libopenss-runtime/offline \
         @LIBMONITOR_CPPFLAGS@
 
 libpcsamp_offline_la_LDFLAGS = \

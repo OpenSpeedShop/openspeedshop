@@ -130,6 +130,7 @@ offline.py: offline.py.in
 	@rm -f offline.py
 	@sed \
 		-e 's,@@osslibdir@@,$(pkglibdir),' \
+		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
 		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
 		$(srcdir)/offline.py.in > offline.py
 	@chmod 755 offline.py

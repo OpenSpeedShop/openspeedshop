@@ -36,7 +36,7 @@ struct openss_expinfo {
     string   exename<>;    /** < Name of the executable. */
     string   traced<>;     /** < list of colon separated traceable functions.*/
     string   event<>;      /** < list of colon separated traceable events. */
-    uint32_t rank;	   /** < mpi rank for this object */
+    int32_t rank;	   /** < mpi rank for this object */
     uint32_t omptid;	   /** < openmp tid for this object */
     uint32_t rate;	   /** < rate or threshold parameter for this object */
 };

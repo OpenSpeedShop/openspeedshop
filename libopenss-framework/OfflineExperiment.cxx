@@ -376,7 +376,7 @@ int OfflineExperiment::convertToOpenSSDB()
             }
 
             // add this pid and host to database.
-            theExperiment->updateThreads(expPid,expPosixTid,expHost);
+            theExperiment->updateThreads(expPid,expPosixTid,expRank,expHost);
         } else {
 	}
     }
@@ -582,18 +582,18 @@ OfflineExperiment::process_expinfo(const std::string rawfilename)
 	expExpId = infoheader.experiment;
 	expEvent = std::string(info.event);
 	expTraced = std::string(info.traced);
+	expRank = info.rank;
 
 // DEBUG
 #ifndef NDEBUG
 	if(is_debug_offline_enabled) {
-	std::cout << "info..." << std::endl
+	std::cout << "\ninfo..." << std::endl
 		  << "collector name: " << info.collector << std::endl
-		  << "host name:      " << infoheader.host << std::endl
 		  << "executable :    " << info.exename << std::endl
-		  << "pid:            " << infoheader.pid << std::endl
-		  << "tid:            " << infoheader.posix_tid << std::endl;
+		  << "mpi rank:       " << info.rank << std::endl;
 
-	std::cout << "infoheader..." << std::endl
+	std::cout << "\ninfoheader..." << std::endl
+		  << "host name:      " << infoheader.host << std::endl
 		  << "experiment id:  " << infoheader.experiment << std::endl
 		  << "collector id:   " << infoheader.collector << std::endl
 		  << "host:           " << infoheader.host << std::endl
@@ -605,6 +605,7 @@ OfflineExperiment::process_expinfo(const std::string rawfilename)
 		  << "addr_end:       " << infoheader.addr_end << std::endl;
 	}
 #endif
+
 	where = ftell(f);
     	xdr_free(reinterpret_cast<xdrproc_t>(xdr_openss_expinfo),
 		      reinterpret_cast<char*>(&info));
@@ -917,6 +918,20 @@ void OfflineExperiment::createOfflineSymbolTable()
 		}
 	    }
 	} 
+    }
+
+    // Some executables may not contribute a sample while one of their
+    // shared libraries may.  We always want the executable present
+    // in the database symbols.
+    for(std::vector<std::pair<std::string, AddressRange> >::iterator
+              j = names_to_range.begin(); j != names_to_range.end(); ++j) {
+	if (dsos_used.find(j->first) == dsos_used.end()) {
+	    dsos_used.insert(j->first);
+	    std::set<std::string>::iterator exei = expExecutableName.find(j->first);
+	    if (exei != expExecutableName.end()) {
+		address_space.setValue(j->second, j->first, true);
+	    }
+	}
     }
 
     Time when;

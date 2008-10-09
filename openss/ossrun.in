@@ -1,4 +1,6 @@
-#! /bin/sh
+#! /bin/bash
+# Some of this code is inspired by the libmonitor package (monitor-run).
+
 mach_type=`uname -m`
 if test "$mach_type" == "x86_64" ; then
     machlibdir=lib64
@@ -6,6 +8,142 @@ else
     machlibdir=lib
 fi
 
+monitor_prefix=@@libmonitordir@@
+monitor_exec_prefix="${monitor_prefix}"
+monitor_libdir="${monitor_prefix}/${machlibdir}"
+libmonitor="${monitor_libdir}/libmonitor.so"
+
+oss_prefix=@@ossinstalldir@@
+oss_libdir="${oss_prefix}/${machlibdir}"
+oss_bindir="${oss_prefix}/bin"
+oss_plugins="${oss_libdir}/openspeedshop"
+
+preload_files=
+output_dir=
+
+default_mpi_impl=@@ossdefaultmpi@@
+
+if [ -n "$OPENSS_MPI_IMPLEMENTATION" ]
+then
+    mpitouse=$OPENSS_MPI_IMPLEMENTATION
+else
+    mpitouse=`echo ${default_mpi_impl} |tr '[A-Z]' '[a-z]'`
+    export OPENSS_MPI_IMPLEMENTATION=$mpitouse
+fi
+
+
+for i in $*
+do
+    # test if argument is a file
+    if test -f "$i"
+    then
+	# test if the file has the symbol MPI_Init.
+	ismpi=`nm $i | grep MPI_Init`
+	if [ -n "$ismpi" ]
+	then
+            mpiplugin="${oss_plugins}/mpi-${mpitouse}-rt-offline.so"
+            if test -f "$mpiplugin"
+	    then
+                preload_files="${preload_files}:${mpiplugin}"
+	    fi
+	    break
+	fi
+    fi 
+done
+
+die()
+{
+    echo "$0: error: $*" 1>&2
+    exit 1
+}
+
+usage()
+{
+    cat <<EOF
+Usage: $0 [options] command arg collector...
+
+If command uses arguments then command and arg
+must be quoted. example:
+$0 "mpirun -np 2 foo" collector
+
+   -h, --help
+
+   -o, -output  <directory>
+Where directory is the location to write the
+raw performance data files. The utility tool
+${oss_bindir}/ossutil is then run with the
+named directory as an argument to create a .openss
+database that can be view with openss. On large
+cluster systems this should be set to fast file
+system capable of storing large datasets. 
+NOTE: this option will override any setting for
+the environment variable OPENSS_RAWDATA_DIR.
+
+EOF
+    exit 0
+}
+
+while test "x$1" != x
+do
+    case "$1" in
+
+        -h | --help )
+            usage
+            ;;
+
+	-o | --output)
+            test "x$2" != x || die "missing argument: $*"
+            case "$2" in
+                /* )  dir="$2" ;;
+		* )   dir="`pwd`/$2" ;;
+            esac
+	    test -d "$dir" || die "unable to find: $dir"
+	    export OPENSS_RAWDATA_DIR="${dir}"
+	    rm -rf ${dir}/*
+            shift ; shift
+            ;;
+
+        -- )
+            shift
+            break
+            ;;
+
+        -* )
+            die "unknown option: $1"
+            ;;
+
+        * )
+            break
+            ;;
+    esac
+done
+
+if [ "x${OPENSS_RAWDATA_DIR}" == "x" ]
+then
+   test -d "/tmp/${USER}/offline-oss" || mkdir -p "/tmp/${USER}/offline-oss"
+   export OPENSS_RAWDATA_DIR="/tmp/${USER}/offline-oss"
+   rm -rf ${OPENSS_RAWDATA_DIR}/*
+fi
+
+# 
 collector=$2
-export LD_PRELOAD=@@osslibdir@@/$collector-rt-offline.so:@@libmonitordir@@/${machlibdir}/libmonitor.so
+case "$collector" in
+    # the mpi tracing plugins already collect mpi rank information.
+    mpi )
+    mpicollector=${collector}-${mpitouse}
+    export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${libmonitor}
+    ;;
+    mpit )
+    mpicollector=${collector}-${mpitouse}
+    export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${libmonitor}
+    ;;
+
+    # The non mpi tracing experiments need to trace MPI_Init to
+    # gather the mpi rank information needed for the mpi_rank field
+    # in the TRHEADS table of the openss database.
+    * )
+    export OPENSS_MPI_TRACED=MPI_Init
+    export LD_PRELOAD=${oss_plugins}/$collector-rt-offline.so:${preload_files}:${libmonitor}
+    ;;
+esac
 $1
