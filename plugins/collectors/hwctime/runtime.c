@@ -36,6 +36,7 @@
 
 #if defined (OPENSS_OFFLINE)
 #include "hwctime_offline.h"
+#include "OpenSS_Offline.h"
 #endif
 
 #if defined (OPENSS_USE_FILEIO)
@@ -320,12 +321,6 @@ void hwctime_start_sampling(const char* arguments)
     }
 #endif
 
-    /* create the openss-info data and send it */
-#if defined (OPENSS_USE_FILEIO)
-    OpenSS_CreateOutfile("openss-info");
-#endif
-    OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
-
 #else
 
     /* Decode the passed function arguments. */
@@ -389,6 +384,17 @@ void hwctime_stop_sampling(const char* arguments)
     /* Stop sampling */
     OpenSS_Timer(0, NULL);
     tls.header.time_end = OpenSS_GetTime();
+
+#if defined (OPENSS_OFFLINE)
+
+    tlsinfo.info.rank = OpenSS_mpi_rank;
+
+    /* create the openss-info data and send it */
+#if defined (OPENSS_USE_FILEIO)
+    OpenSS_CreateOutfile("openss-info");
+#endif
+    OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
+#endif
 
     if (EventSet == PAPI_NULL) {
         /*fprintf(stderr,"hwctime_stop_sampling RETURNS - NO EVENTSET!\n");*/
