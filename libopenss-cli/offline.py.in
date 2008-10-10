@@ -114,10 +114,14 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 
     for s in program_list:
         if os.path.isfile(s):
+	    # test if the file is elf binary and has the symbol MPI_Init.
 	    # For some reason os.system needs the return code divided by 256!
-	    ismpi = os.system('nm ' + s + ' | grep -q MPI_Init')/256
-	    if not ismpi:
-		break
+	    isexecutable = os.system('file ' + s + ' | grep -q ELF')/256
+	    if isexecutable:
+	        ismpi = os.system('nm ' + s + ' | grep -q MPI_Init')/256
+	        if not ismpi:
+		    preload_files = ""
+		    break
 
     # Form the command that will run the offline experiment
     command = "env" + \

@@ -37,8 +37,14 @@ do
     # test if argument is a file
     if test -f "$i"
     then
-	# test if the file has the symbol MPI_Init.
-	ismpi=`nm $i | grep MPI_Init`
+	# test if the file is elf binary and has the symbol MPI_Init.
+	# may not be portable!
+	isexecutable=`file $i | grep ELF`
+	if [ -n "$isexecutable" ]
+	then
+	    ismpi=`nm $i | grep MPI_Init`
+	fi
+
 	if [ -n "$ismpi" ]
 	then
             mpiplugin="${oss_plugins}/mpi-${mpitouse}-rt-offline.so"
