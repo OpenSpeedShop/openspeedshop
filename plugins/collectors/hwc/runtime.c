@@ -261,6 +261,9 @@ void hwc_stop_sampling(const char* arguments)
     OpenSS_Stop(EventSet);
     tls.header.time_end = OpenSS_GetTime();
 
+    /* For MPT add this check because we were hanging becasuse this is a SGI MPT daemon process */
+    /* and not a ranked process.  So there is no data */
+    if(tls.buffer.length > 0) {
 
 #if defined (OPENSS_OFFLINE)
 
@@ -272,6 +275,8 @@ void hwc_stop_sampling(const char* arguments)
 #endif
     OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
 #endif
+
+    }
 
     /* Are there any unsent samples? */
     if(tls.buffer.length > 0) {
