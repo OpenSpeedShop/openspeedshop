@@ -490,14 +490,19 @@ void fpe_stop_tracing(const char* arguments)
 
     tlsinfo.info.rank = OpenSS_mpi_rank;
 
-    /* create the openss-info data and send it */
+    /* For MPT add this check because we were hanging becasuse this is a SGI MPT daemon process */
+    /* and not a ranked process.  So there is no data */
+    if(tls.data.events.events_len > 0) {
+
+      /* create the openss-info data and send it */
 #if defined (OPENSS_USE_FILEIO)
-    OpenSS_CreateOutfile("openss-info");
+      OpenSS_CreateOutfile("openss-info");
 #endif
-    tlsinfo.header.time_end = OpenSS_GetTime();
-    OpenSS_Send(&(tlsinfo.header),
-                (xdrproc_t)xdr_openss_expinfo,
-                &(tlsinfo.info));
+      tlsinfo.header.time_end = OpenSS_GetTime();
+      OpenSS_Send(&(tlsinfo.header),
+                  (xdrproc_t)xdr_openss_expinfo,
+                  &(tlsinfo.info));
+    }
 #endif
 
     /* Send events if there are any remaining in the tracing buffer */
