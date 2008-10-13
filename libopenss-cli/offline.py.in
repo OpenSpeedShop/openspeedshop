@@ -93,6 +93,44 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # Set the default mpi implementation defined by the O|SS configuration.
     default_mpi_impl = "@@ossdefaultmpi@@"
 
+    program_list = program.split()
+
+    # We need to see if any of the programs participating in the
+    # experiment are an mpi program. If so we need to include the
+    # mpi plugin and trace only MPI_Init to gather the mpi rank info.
+    # If we find there is no mpi program then we do not need the mpi
+    # plugin aded to preload_files.
+    mpi_executable = ""
+    mpi_exe_implmentation = ""
+    for s in program_list:
+	if os.path.isfile(s):
+	    # test if the file is elf binary and has the symbol MPI_Init.
+	    # We use os.WEXITSTATUS to properly decode the status.
+	    isexecutable = os.system('file -L ' + s + ' | grep -q ELF')
+	    if not os.WEXITSTATUS(isexecutable):
+		# is this the actual mpi program.
+		ismpi = os.system('nm ' + s + ' | grep -q -i MPI_Init')
+
+		# is this the mpidriver and what implementation is it.
+		islampi = os.system('nm ' + s + ' | grep -q lampi_environ_init')
+		ismpt = os.system('nm ' + s + ' | grep -q MPI_debug_breakpoint')
+		islam = os.system('nm ' + s + ' | grep -q lam_tv_init')
+		isopenmpi = os.system('nm ' + s + ' | grep -q orterun')
+
+		if not os.WEXITSTATUS(isopenmpi):
+		    mpi_exe_implmentation = "openmpi"
+		elif not os.WEXITSTATUS(islam):
+		    mpi_exe_implmentation = "lam"
+		elif not os.WEXITSTATUS(islampi):
+		    mpi_exe_implmentation = "lampi"
+		elif not os.WEXITSTATUS(ismpt):
+		    mpi_exe_implmentation = "mpt"
+
+		if not os.WEXITSTATUS(ismpi):
+		    preload_files = ""
+		    mpi_executable = s
+		    break
+
     # Set the mpiplugin to use for mpi jobs.  The OPENSS_MPI_IMPLEMENTATION
     # is primarily used to choose a different mpi (e.g. mpich vs. openmpi)
     # for systems that have more than on mpi implementation configured for
@@ -100,9 +138,14 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     if 'OPENSS_MPI_IMPLEMENTATION' in os.environ:
 	use_mpi_impl = os.environ["OPENSS_MPI_IMPLEMENTATION"]
     else:
-	use_mpi_impl = default_mpi_impl.lower()
+	if "mpi_exe_implmentation" == "":
+	    use_mpi_impl = default_mpi_impl.lower()
+	else:
+	    use_mpi_impl = mpi_exe_implmentation
 
     mpiplugin = plugins + "/mpi-" + use_mpi_impl + "-rt-offline.so"
+
+    os.environ['OPENSS_MPI_IMPLEMENTATION'] = use_mpi_impl
 
     if not os.path.isfile(mpiplugin):
 	# TODO: This should only error out for cases where something
@@ -126,26 +169,6 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	# also include the mpi plugin and tell it only to trace MPI_Init.
 	os.environ['OPENSS_MPI_TRACED'] = "MPI_Init"
 	preload_files = mpiplugin
-
-    program_list = program.split()
-
-    # We need to see if any of the programs participating in the
-    # experiment are an mpi program. If so we need to include the
-    # mpi plugin and trace only MPI_Init to gather the mpi rank info.
-    # If we find there is no mpi program then we do not need the mpi
-    # plugin aded to preload_files.
-    mpi_executable = ""
-    for s in program_list:
-	if os.path.isfile(s):
-	    # test if the file is elf binary and has the symbol MPI_Init.
-	    # We use os.WEXITSTATUS to properly decode the status.
-	    isexecutable = os.system('file -L ' + s + ' | grep -q ELF')
-	    if not os.WEXITSTATUS(isexecutable):
-		ismpi = os.system('nm ' + s + ' | grep -q -i MPI_Init')
-		if not os.WEXITSTATUS(ismpi):
-		    preload_files = ""
-		    mpi_executable = s
-		    break
 
     # Form the command that will run the offline experiment
     # For MPI programs we will call ossrun to handle setting up the
