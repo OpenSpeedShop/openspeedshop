@@ -371,6 +371,9 @@ void usertime_stop_sampling(const char* arguments)
     OpenSS_Timer(0, NULL);
     tls.header.time_end = OpenSS_GetTime();
 
+    /* Send any samples remaining in the sample buffer */
+    /* This checks for possible (non-rank) MPT daemon processes that might cause an abort if we try to send data */
+    if(tls.data.bt.bt_len > 0) {
 
 #if defined (OPENSS_OFFLINE)
 
@@ -382,6 +385,7 @@ void usertime_stop_sampling(const char* arguments)
 #endif
     OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
 #endif
+   }
 
     /* Send any samples remaining in the sample buffer */
     if(tls.data.bt.bt_len > 0) {
