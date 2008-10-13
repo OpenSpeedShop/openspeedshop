@@ -389,11 +389,17 @@ void hwctime_stop_sampling(const char* arguments)
 
     tlsinfo.info.rank = OpenSS_mpi_rank;
 
-    /* create the openss-info data and send it */
+
+    /* For MPT add this check because we were hanging becasuse this is a SGI MPT daemon process */
+    /* and not a ranked process.  So there is no data */
+    if(tls.data.bt.bt_len > 0) {
+
+      /* create the openss-info data and send it */
 #if defined (OPENSS_USE_FILEIO)
-    OpenSS_CreateOutfile("openss-info");
+      OpenSS_CreateOutfile("openss-info");
 #endif
-    OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
+      OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
+    }
 #endif
 
     if (EventSet == PAPI_NULL) {
