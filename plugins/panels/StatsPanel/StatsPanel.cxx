@@ -4353,10 +4353,14 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 #ifdef DEBUG_StatsPanel
   printf("updateStatsPanelData, command.isEmpty()= %d\n", command.isEmpty() );
   printf("updateStatsPanelData, lastCommand= %s\n", lastCommand.ascii() );
-  printf(" lastCommand.startsWith(\"cview -c\")=%d\n", lastCommand.startsWith("cview -c") );
+  printf("updateStatsPanelData, lastCommand.startsWith(\"cview -c\")=%d\n", lastCommand.startsWith("cview -c") );
+  printf("updateStatsPanelData, currentCollectorStr=%s\n", currentCollectorStr.ascii() );
+  printf("updateStatsPanelData, currentUserSelectedReportStr=%s\n", currentUserSelectedReportStr.ascii() );
+
 #endif
   // jeg 9/22/08
-  if (lastCommand.startsWith("cview -c") && command.isEmpty() ) {
+//  if (lastCommand.startsWith("cview -c") && command.isEmpty() ) {
+  if (lastCommand.startsWith("cview -c") && command.isEmpty() && currentUserSelectedReportStr.startsWith("Comparison") ) {
        command = lastCommand;
   }
 
