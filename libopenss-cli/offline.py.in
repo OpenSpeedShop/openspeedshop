@@ -114,6 +114,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 
     # Allow the user to just use the know mpi and mpit collector names.
     # We will prepend the prper mpi implementation.
+    orig_collectorname = collector;
     if collector.startswith("mpi"):
 	preload_files = ""
 	if collector == "mpi":
@@ -123,7 +124,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     else:
 	# In case this may be an mpi program, setup preload_files to
 	# also include the mpi plugin and tell it only to trace MPI_Init.
-        os.environ['OPENSS_MPI_TRACED'] = "MPI_Init"
+	os.environ['OPENSS_MPI_TRACED'] = "MPI_Init"
 	preload_files = mpiplugin
 
     program_list = program.split()
@@ -133,20 +134,28 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # mpi plugin and trace only MPI_Init to gather the mpi rank info.
     # If we find there is no mpi program then we do not need the mpi
     # plugin aded to preload_files.
+    mpi_executable = ""
     for s in program_list:
-        if os.path.isfile(s):
+	if os.path.isfile(s):
 	    # test if the file is elf binary and has the symbol MPI_Init.
 	    # We use os.WEXITSTATUS to properly decode the status.
-	    isexecutable = os.system('file ' + s + ' | grep -q ELF')
-	    if os.WEXITSTATUS(isexecutable):
-	        ismpi = os.system('nm ' + s + ' | grep -q MPI_Init')
-	        if not os.WEXITSTATUS(ismpi):
+	    isexecutable = os.system('file -L ' + s + ' | grep -q ELF')
+	    if not os.WEXITSTATUS(isexecutable):
+		ismpi = os.system('nm ' + s + ' | grep -q -i MPI_Init')
+		if not os.WEXITSTATUS(ismpi):
 		    preload_files = ""
+		    mpi_executable = s
 		    break
 
-
     # Form the command that will run the offline experiment
-    command = program
+    # For MPI programs we will call ossrun to handle setting up the
+    # collector for just the actual mpi program and not the mpi driver too.
+
+    if mpi_executable != "":
+	command = program.replace(mpi_executable, "ossrun \"" + mpi_executable)
+	command = command + "\" " +  orig_collectorname
+    else:
+	command = program
 
     collectorplugin =  plugins + "/" + collector + "-rt-offline.so"
 
@@ -158,12 +167,12 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	#preload_files = ""
 
     # Prepare our collectors and libmonitor for LD_PRELOAD.
-    oss_preload = \
+    if mpi_executable == "":
+        oss_preload = \
               collectorplugin + \
 	      ":" + preload_files + \
 	      ":" + libmonitor
-
-    os.environ['LD_PRELOAD'] = oss_preload
+        os.environ['LD_PRELOAD'] = oss_preload
 
     # Execute the command in a subprocess rather than replacing the
     # current process like os.system does. Need Python 2.4 or later for this.

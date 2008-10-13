@@ -134,19 +134,22 @@ fi
 # 
 collector=$2
 case "$collector" in
-    # the mpi tracing plugins already collect mpi rank information.
-    mpi )
-    mpicollector=${collector}-${mpitouse}
-    export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${libmonitor}
-    ;;
-    mpit )
+    # The mpi tracing plugins already collect mpi rank information so
+    # we do not add the preload_file...
+    mpi|mpit )
     mpicollector=${collector}-${mpitouse}
     export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${libmonitor}
     ;;
 
+    mpi-*|mpit-* )
+    mpicollector=${collector}
+    export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${libmonitor}
+    ;;
+
+
     # The non mpi tracing experiments need to trace MPI_Init to
     # gather the mpi rank information needed for the mpi_rank field
-    # in the TRHEADS table of the openss database.
+    # in the THREADS table of the openss database.
     * )
     export OPENSS_MPI_TRACED=MPI_Init
     export LD_PRELOAD=${oss_plugins}/$collector-rt-offline.so:${preload_files}:${libmonitor}
