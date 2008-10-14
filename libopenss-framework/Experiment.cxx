@@ -603,8 +603,11 @@ bool is_debug_mpijob_enabled = (getenv("OPENSS_DEBUG_MPIJOB") != NULL);
 
         // Is thread a "openmpi" MPI implementation?
         if(thread.getFunctionByName("ompi_mpi").first ||
+           thread.getFunctionByName("ompi_mpi_comm_world").first ||
            thread.getFunctionByName("orterun").first) {
+
             is_openmpi = true;
+
         }
 
     } else {
