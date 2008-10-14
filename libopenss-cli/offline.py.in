@@ -138,7 +138,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     if 'OPENSS_MPI_IMPLEMENTATION' in os.environ:
 	use_mpi_impl = os.environ["OPENSS_MPI_IMPLEMENTATION"]
     else:
-	if "mpi_exe_implmentation" == "":
+	if mpi_exe_implmentation == "":
 	    use_mpi_impl = default_mpi_impl.lower()
 	else:
 	    use_mpi_impl = mpi_exe_implmentation
