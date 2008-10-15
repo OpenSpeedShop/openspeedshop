@@ -166,8 +166,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    collector = collector + "-" + use_mpi_impl
     else:
 	# In case this may be an mpi program, setup preload_files to
-	# also include the mpi plugin and tell it only to trace MPI_Init.
-	os.environ['OPENSS_MPI_TRACED'] = "MPI_Init"
+	# also include the mpi plugin.  
+	# dpm/jeg 10/15/08 - Removed setting of OPENSS_MPI_TRACED here.  The new ossrun sets it instead of doing it here.
 	preload_files = mpiplugin
 
     # Form the command that will run the offline experiment
