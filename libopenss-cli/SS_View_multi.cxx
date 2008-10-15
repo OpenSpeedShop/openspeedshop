@@ -931,7 +931,9 @@ bool Generic_Multi_View (
       if ((topn < (int64_t)c_items.size()) &&
           !Look_For_KeyWord(cmd, "ButterFly")) {
        // Determine the topn items based on the time spent in each call.
+#if DEBUG_CLI
         printf("in Generic_Multi_View, calling Setup_Sort, VFC_Trace, Sort VMulti_time_temp, by the value displayed in the left most column. \n");
+#endif
         Setup_Sort (VMulti_time_temp, c_items);
 
 
