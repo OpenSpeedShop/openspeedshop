@@ -66,15 +66,16 @@ typedef QValueList<CheckBoxInfoClass *> CheckBoxInfoClassList;
 
 
 enum MPI_Category_Type {
-      MPI_Cat_Collective_Comm=0,
-      MPI_Cat_Persistent_Comm=1,
-      MPI_Cat_Synchronous_P2P=2,
-      MPI_Cat_Asynchronous_P2P=3,
-      MPI_Cat_Process_Topologies=4,
-      MPI_Cat_Groups_Contexts_Comms=5,
-      MPI_Cat_Environment=6,
-      MPI_Cat_Datatypes=7,
-      MPI_Cat_NULL=8
+      MPI_Cat_All=0,
+      MPI_Cat_Collective_Comm=1,
+      MPI_Cat_Persistent_Comm=2,
+      MPI_Cat_Synchronous_P2P=3,
+      MPI_Cat_Asynchronous_P2P=4,
+      MPI_Cat_Process_Topologies=5,
+      MPI_Cat_Groups_Contexts_Comms=6,
+      MPI_Cat_Environment=7,
+      MPI_Cat_Datatypes=8,
+      MPI_Cat_NULL=9
 };
 
 

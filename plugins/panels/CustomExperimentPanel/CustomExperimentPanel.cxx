@@ -2153,22 +2153,24 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
   printf("CustomExperimentPanel::processLAO(), ProcessLOA entered (%s) mpiFLAG=%d\n", getName(), getPanelContainer()->getMainWindow()->mpiFLAG );
 #endif
 
-  if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT") || QString(getName()).startsWith("FPE") || QString(getName()).startsWith("IO") )
-  {
+  if( QString(getName()).startsWith("MPI") || 
+      QString(getName()).startsWith("MPT") || 
+      QString(getName()).startsWith("FPE") || 
+      QString(getName()).startsWith("IO") ) {
+
 #ifdef DEBUG_CustomPanel
-    printf("CustomExperimentPanel::processLAO(), WHY AREN'T YOU HERE!\n");
+    printf("CustomExperimentPanel::processLAO(), inside MPI, MPT, FPE, IO section\n");
 #endif
+
 //    QString paramStr = QString::null;
     QString paramStr = QString((const char *)0);
     bool checkAll = FALSE;
     for( ParamList::Iterator it = lao->paramList->begin(); it != lao->paramList->end(); ++it)
     {
       QString val = (QString)*it;
-      if( paramStr.isEmpty() )
-      {
+      if( paramStr.isEmpty() ) {
         paramStr = QString("%1").arg(val);
-      } else
-      {
+      } else {
         paramStr += QString(",%1").arg(val);
       }                   
     }
@@ -2178,45 +2180,61 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
 
 //    QString command = QString::null;
     QString command = QString((const char *)0);
-    if( !paramStr.isEmpty() )
-    {
+    if( !paramStr.isEmpty() ) {
+
       if( QString(getName()).startsWith("FPE") ) {
+
         command = QString("expSetParam -x %1 fpe::event=%2").arg(expID).arg(paramStr);
 #ifdef DEBUG_CustomPanel
         printf("CustomExperimentPanel::processLAO(), paramStr: fpe =(%s)\n", paramStr.ascii() );
 #endif
+
       } else if( QString(getName()).startsWith("IO") ) {
+
         command = QString("expSetParam -x %1 io::traced_functions=%2").arg(expID).arg(paramStr);
 #ifdef DEBUG_CustomPanel
         printf("CustomExperimentPanel::processLAO, paramStr: IO =(%s)\n", paramStr.ascii() );
 #endif
+
       } else if( QString(getName()).startsWith("MPIOTF") ) {
+
         command = QString("expSetParam -x %1 mpiotf::traced_functions=%2").arg(expID).arg(paramStr);
+
 #ifdef DEBUG_CustomPanel
         printf("CustomExperimentPanel::processLAO, paramStr: MPIOTF =(%s)\n", paramStr.ascii() );
 #endif
+
       } else if( QString(getName()).startsWith("MPIT") ) {
+
         command = QString("expSetParam -x %1 mpit::traced_functions=%2").arg(expID).arg(paramStr);
 #ifdef DEBUG_CustomPanel
         printf("CustomExperimentPanel::processLAO, paramStr: MPIT =(%s)\n", paramStr.ascii() );
 #endif
+
       } else if( QString(getName()).startsWith("MPI") ) {
+
         command = QString("expSetParam -x %1 mpi::traced_functions=%2").arg(expID).arg(paramStr);
 #ifdef DEBUG_CustomPanel
         printf("CustomExperimentPanel::processLAO, paramStr: MPI =(%s)\n", paramStr.ascii() );
 #endif
+
       } else {
+
         return 0;
+
       }
+
       CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+
 #ifdef DEBUG_CustomPanel
       printf("CustomExperimentPanel::processLAO(), %s command=(%s)\n", getName(), command.ascii() );
 #endif
-      if( !cli->runSynchronousCLI((char *)command.ascii() ) )
-      {
+
+      if( !cli->runSynchronousCLI((char *)command.ascii() ) ) {
         return 0;
       }
     }
+
   } else if( lao->paramList ) {
 
     QString sample_rate_str = (QString)*lao->paramList->begin();
@@ -2230,51 +2248,55 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
     try
     {
       ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-      if( eo && eo->FW() )
-      {
+
+      if( eo && eo->FW() ) {
         experiment = eo->FW();
       }
+
       ThreadGroup tgrp = experiment->getThreads();
       CollectorGroup cgrp = experiment->getCollectors();
-      if( cgrp.size() > 0 )
-      {
+
+      if( cgrp.size() > 0 ) {
+
         CollectorGroup::iterator ci = cgrp.begin();
         // All others have a sampling_rate parameter... hwc, hwt,
         //  , and usertime
         nprintf( DEBUG_MESSAGES ) ("sampling_rate=%u\n", sampling_rate);
         QString command = QString("expSetParam -x %1 sampling_rate = %2").arg(expID).arg(sampling_rate);
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+
 #ifdef DEBUG_CustomPanel
         printf("CustomExperimentPanel::processLAO(), E: %s command=(%s)\n", getName(), command.ascii() );
 #endif
-        if( !QString(getName()).startsWith("IO") )  // IO* doesn't have a sampling_rate
-        {
-          if( !cli->runSynchronousCLI((char *)command.ascii() ) )
-          {
+
+        if( !QString(getName()).startsWith("IO") ) { // IO* doesn't have a sampling_rate
+          if( !cli->runSynchronousCLI((char *)command.ascii() ) ) {
             return 0;
           }
         }
-        if( QString(getName()).contains("HW Counter") )
-        {
+
+        if( QString(getName()).contains("HW Counter") ) {
+
 #ifdef DEBUG_CustomPanel
           printf("CustomExperimentPanel::processLAO(), We're the HW Counter Panel!!!\n");
 #endif
               
           ParamList::Iterator it = lao->paramList->begin();
           it++;
-          if( it != lao->paramList->end() )
-          {
+          if( it != lao->paramList->end() ) {
             QString event_value = (QString)*it;
             
             QString command = QString("expSetParam -x %1 event = %2").arg(expID).arg(event_value);
             CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+
 #ifdef DEBUG_CustomPanel
             printf("CustomExperimentPanel::processLAO(), F: command=(%s)\n", command.ascii() );
 #endif
-            if( !cli->runSynchronousCLI((char *)command.ascii() ) )
-            {
+
+            if( !cli->runSynchronousCLI((char *)command.ascii() ) ) {
               return 0;
             }
+
           }
         }
       }
@@ -2287,8 +2309,7 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
   }
   nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
 
-  if( lao->loadNowHint == TRUE || runnableFLAG == FALSE )
-  {
+  if( lao->loadNowHint == TRUE || runnableFLAG == FALSE ) {
     mw->executableName = lao->executableName;
     mw->parallelPrefixCommandStr = lao->parallelprefixstring;
     executableNameStr = lao->executableName;
@@ -2301,8 +2322,8 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
  
 //    QString command = QString::null;
     QString command = QString((const char *)0);
-    if( !executableNameStr.isEmpty() )
-    {
+    if( !executableNameStr.isEmpty() ) {
+
 #ifdef DEBUG_CustomPanel
          printf("CustomExperimentPanel::processLAO(), CREATING EXPATTACH, parallelPrefixCommandStr.isEmpty() =%d\n", parallelPrefixCommandStr.isEmpty() );
          printf("CustomExperimentPanel::processLAO(), CREATING EXPATTACH, parallelPrefixCommandStr.isNull() =%d\n", parallelPrefixCommandStr.isNull() );
@@ -2326,6 +2347,7 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
       printf("CustomExperimentPanel::processLAO(), executableNameStr is not empty.\n");
       printf("CustomExperimentPanel::processLAO(), command=%s\n", command.ascii());
 #endif
+
     } else if( !pidStr.isEmpty() ) { 
 
       QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
@@ -2342,21 +2364,27 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
 
 //   QString optionsStr = QString::null;
      QString optionsStr = QString((const char *)0);
-     if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
-     {
+     if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE ) {
        optionsStr += QString(" -v mpi");
      }
+
      optionsStr += QString(" -h %1").arg(mw->hostStr);
 //      command = QString("expAttach -x %1 %2 -p  %3 -h %4 ").arg(expID).arg(mpiStr).arg(pidStr).arg(mw->hostStr);
      command = QString("expAttach -x %1 %2 -p  %3 ").arg(expID).arg(optionsStr).arg(pidStr);
+
 #ifdef DEBUG_CustomPanel
      printf("CustomExperimentPanel::processLAO(), command=(%s)\n", command.ascii() );
 #endif
+
     } else {
+
         // Executable sting is empty and the pid string is empty??
         return 0;
 //    command = QString("expCreate  %1\n").arg(collector_names);
-      }
+    }
+
+
+
       bool mark_value_for_delete = true;
       int64_t val = 0;
  

@@ -91,40 +91,56 @@ public:
 };
 
 std::vector<catNameMap*> mpiCatNames;
+std::vector<catNameMap*> sendToCliMpiCatNames;
 std::vector<catNameMap*> e_lastStatusCategories;
 std::vector<catNameMap*> v_lastStatusCategories;
 
 void setupInitialLastStatus() {
-  v_lastStatusCategories.push_back(new catNameMap("All/None Collective Communicators", true));
-  v_lastStatusCategories.push_back(new catNameMap("All/None Persistent_Communicators", true));
-  v_lastStatusCategories.push_back(new catNameMap("All/None Synchronous Point to Point", true));
-  v_lastStatusCategories.push_back(new catNameMap("All/None Asynchronous Point to Point", true));
-  v_lastStatusCategories.push_back(new catNameMap("All/None Process Topologies", true));
-  v_lastStatusCategories.push_back(new catNameMap("All/None Groups Contexts Communicators", true));
-  v_lastStatusCategories.push_back(new catNameMap("All/None Environment", true));
-  v_lastStatusCategories.push_back(new catNameMap("All/None Datatypes", true));
+  v_lastStatusCategories.push_back(new catNameMap("MPI Functions (all)", true));
+  v_lastStatusCategories.push_back(new catNameMap("Collective Communicators", true));
+  v_lastStatusCategories.push_back(new catNameMap("Persistent_Communicators", true));
+  v_lastStatusCategories.push_back(new catNameMap("Synchronous Point to Point", true));
+  v_lastStatusCategories.push_back(new catNameMap("Asynchronous Point to Point", true));
+  v_lastStatusCategories.push_back(new catNameMap("Process Topologies", true));
+  v_lastStatusCategories.push_back(new catNameMap("Groups Contexts Communicators", true));
+  v_lastStatusCategories.push_back(new catNameMap("Environment", true));
+  v_lastStatusCategories.push_back(new catNameMap("Datatypes", true));
 
-  e_lastStatusCategories.push_back(new catNameMap("All/None Collective Communicators", true));
-  e_lastStatusCategories.push_back(new catNameMap("All/None Persistent_Communicators", true));
-  e_lastStatusCategories.push_back(new catNameMap("All/None Synchronous Point to Point", true));
-  e_lastStatusCategories.push_back(new catNameMap("All/None Asynchronous Point to Point", true));
-  e_lastStatusCategories.push_back(new catNameMap("All/None Process Topologies", true));
-  e_lastStatusCategories.push_back(new catNameMap("All/None Groups Contexts Communicators", true));
-  e_lastStatusCategories.push_back(new catNameMap("All/None Environment", true));
-  e_lastStatusCategories.push_back(new catNameMap("All/None Datatypes", true));
+  e_lastStatusCategories.push_back(new catNameMap("MPI Functions (all)", true));
+  e_lastStatusCategories.push_back(new catNameMap("Collective Communicators", true));
+  e_lastStatusCategories.push_back(new catNameMap("Persistent_Communicators", true));
+  e_lastStatusCategories.push_back(new catNameMap("Synchronous Point to Point", true));
+  e_lastStatusCategories.push_back(new catNameMap("Asynchronous Point to Point", true));
+  e_lastStatusCategories.push_back(new catNameMap("Process Topologies", true));
+  e_lastStatusCategories.push_back(new catNameMap("Groups Contexts Communicators", true));
+  e_lastStatusCategories.push_back(new catNameMap("Environment", true));
+  e_lastStatusCategories.push_back(new catNameMap("Datatypes", true));
 }
 //
 // Function Name Information Class
 
+void setupSendToCliCatNames() {
+  sendToCliMpiCatNames.push_back(new catNameMap("all", true));
+  sendToCliMpiCatNames.push_back(new catNameMap("collective_com", true));
+  sendToCliMpiCatNames.push_back(new catNameMap("persistent_com", true));
+  sendToCliMpiCatNames.push_back(new catNameMap("synchronous_p2p", true));
+  sendToCliMpiCatNames.push_back(new catNameMap("asynchronous_p2p", true));
+  sendToCliMpiCatNames.push_back(new catNameMap("process_topologies", true));
+  sendToCliMpiCatNames.push_back(new catNameMap("graphs_contexts_comms", true));
+  sendToCliMpiCatNames.push_back(new catNameMap("environment", true));
+  sendToCliMpiCatNames.push_back(new catNameMap("datatypes", true));
+}
+
 void setupCatNames() {
-  mpiCatNames.push_back(new catNameMap("All/None Collective Communicators", true));
-  mpiCatNames.push_back(new catNameMap("All/None Persistent_Communicators", true));
-  mpiCatNames.push_back(new catNameMap("All/None Synchronous Point to Point", true));
-  mpiCatNames.push_back(new catNameMap("All/None Asynchronous Point to Point", true));
-  mpiCatNames.push_back(new catNameMap("All/None Process Topologies", true));
-  mpiCatNames.push_back(new catNameMap("All/None Groups Contexts Communicators", true));
-  mpiCatNames.push_back(new catNameMap("All/None Environment", true));
-  mpiCatNames.push_back(new catNameMap("All/None Datatypes", true));
+  mpiCatNames.push_back(new catNameMap("MPI Functions (all)", true));
+  mpiCatNames.push_back(new catNameMap("Collective Communicators", true));
+  mpiCatNames.push_back(new catNameMap("Persistent_Communicators", true));
+  mpiCatNames.push_back(new catNameMap("Synchronous Point to Point", true));
+  mpiCatNames.push_back(new catNameMap("Asynchronous Point to Point", true));
+  mpiCatNames.push_back(new catNameMap("Process Topologies", true));
+  mpiCatNames.push_back(new catNameMap("Groups Contexts Communicators", true));
+  mpiCatNames.push_back(new catNameMap("Environment", true));
+  mpiCatNames.push_back(new catNameMap("Datatypes", true));
 }
 //
 // Function Name Information Class
@@ -177,11 +193,15 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
 
   // Setup the default version of the category checkbox status (all set).
   setupCatNames();
+  setupSendToCliCatNames();
 
   // Setup the initial version of the category checkbox previous status (all set).
   // This is used to compare which check boxes have changed
   setupInitialLastStatus();
 
+#ifdef DEBUG_MPIWizard
+  printf("MPIWizardPanel::MPIWizardPanel() CLEAR paramList.\n");
+#endif
   paramList.clear();
 
   mpiFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
@@ -1239,52 +1259,46 @@ void MPIWizardPanel::vSummaryPageFinishButtonSelected()
   if( getPanelContainer()->getMainWindow() )
   { 
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-    if( mw )
-    {
+    if( mw ) {
+
       LoadAttachObject *lao = NULL;
 //      ParamList *paramList = new ParamList();
 // printf("A: push_back (%s)\n", vParameterPageSampleRateText->text().ascii() );
-      if( !mw->executableName.isEmpty() )
-      {
+
+      if( !mw->executableName.isEmpty() ) {
 //printf("executable name was specified.\n");
         lao = new LoadAttachObject(mw->executableName, (char *)NULL, mw->parallelPrefixCommandStr, &paramList, TRUE);
-      } else if( !mw->pidStr.isEmpty() )
-      {
+      } else if( !mw->pidStr.isEmpty() ) {
 // printf("pid was specified.\n");
         lao = new LoadAttachObject((char *)NULL, mw->pidStr, (char *)NULL, &paramList, TRUE);
-      } else
-      {
+      } else {
 // printf("Warning: No attach or load parameters available.\n");
       }
-      if( lao != NULL )
-      {
+
+      if( lao != NULL ) {
         vSummaryPageFinishButton->setEnabled(FALSE);
         eSummaryPageFinishButton->setEnabled(FALSE);
         vSummaryPageBackButton->setEnabled(FALSE);
         eSummaryPageBackButton->setEnabled(FALSE);
         qApp->flushX();
 
-        if( !p )
-        {
+        if( !p ) {
+
           ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
           ao->lao = lao;
 
           if( (vwizardMode->isChecked() && vParameterTraceCheckBox->isChecked()) ||
-              (ewizardMode->isChecked() && eParameterTraceCheckBox->isChecked()) )
-          {
+              (ewizardMode->isChecked() && eParameterTraceCheckBox->isChecked()) ) {
               p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPIT", getPanelContainer(), ao);
           } else if( (vwizardMode->isChecked() && vParameterOTFTraceCheckBox->isChecked()) ||
-              (ewizardMode->isChecked() && eParameterOTFTraceCheckBox->isChecked()) )
-          {
+              (ewizardMode->isChecked() && eParameterOTFTraceCheckBox->isChecked()) ) {
               p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPIOTF", getPanelContainer(), ao);
-          } else 
-          {
+          } else {
             p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI", getPanelContainer(), ao);
           }
 
           delete ao;
-        } else
-        {
+        } else {
           p->listener((void *)lao);
         }
 
@@ -1432,6 +1446,7 @@ void
 MPIWizardPanel::appendFunctionsToMonitor()
 {
 
+  functionVector.clear();
 
 // Collective Communication:
   functionVector.push_back(new functionMap(MPI_Cat_Collective_Comm, "MPI_Allgather", true));
@@ -1523,12 +1538,14 @@ MPIWizardPanel::appendFunctionsToMonitor()
   int c = 0;
   CheckBoxInfoClass *e_cbic = NULL;
   CheckBoxInfoClass *v_cbic = NULL;
+
   vCheckBoxInfoClassList.clear();
   eCheckBoxInfoClassList.clear();
+
   eCategoryCheckBoxInfoClassList.clear();
   vCategoryCheckBoxInfoClassList.clear();
 
-  for (int catKey = MPI_Cat_Collective_Comm; catKey < MPI_Cat_NULL;  catKey++) {
+  for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
 
     // Handle the Category header
     std::vector<catNameMap*>::iterator cit = mpiCatNames.begin() + catKey;
@@ -1700,83 +1717,276 @@ MPIWizardPanel::handleSizeEvent(QResizeEvent *e)
 
 void MPIWizardPanel::vParameterPageCheckBoxSelected()
 {
-// printf("vParameterPageCheckBoxSelected() entered\n");
-  bool allChecked = TRUE;
+
   paramList.clear();
-paramString = QString::null;
-  for( CheckBoxInfoClassList::Iterator it = vCheckBoxInfoClassList.begin(); it != vCheckBoxInfoClassList.end(); ++it)
-  {
-    CheckBoxInfoClass *cbic = (CheckBoxInfoClass *)*it;
+#ifdef DEBUG_MPIWizard
+  printf("MPIWizardPanel::vParameterPageCheckBoxSelected(), CLEAR paramList.\n");
+#endif
+  paramString = QString::null;
 
 #if DEBUG_CHECKBOX
-    printf("v: cbic: (%s) == (%d)\n", cbic->checkbox->text().ascii(), cbic->checkbox->isChecked() );
+   printf("vParameterPageCheckBoxSelected() entered\n");
 #endif
 
-    if( !cbic->checkbox->isChecked() )
-    {
-      allChecked = FALSE;
-    }
-    if( cbic->checkbox->isChecked() )
-    {
-      paramList.push_back(cbic->checkbox->text());
-      if( paramString.isEmpty() )
-      {
-        paramString = QString("%1").arg(cbic->checkbox->text());
+   // Variables to hold counts of enabled functions within the MPI category
+   int enabledFunctionCatCount[MPI_Cat_NULL+1];
+   int disabledFunctionCatCount[MPI_Cat_NULL+1];
+
+  for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+      enabledFunctionCatCount[catKey] = 0;
+      disabledFunctionCatCount[catKey] = 0;
+  }
+
+  // Do initial loop to see what is set and what is not set set counts for enabled/disabled.
+  // If values are either all enabled or disabled we can send down the mpi category not all the individual "enabled" functions.
+  // We will need this information below
+  for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+     for( CheckBoxInfoClassList::Iterator cbit = vCheckBoxInfoClassList.begin(); cbit != vCheckBoxInfoClassList.end(); ++cbit) {
+         CheckBoxInfoClass *func_cbic = (CheckBoxInfoClass *)*cbit;
+         std::vector<functionMap*>::iterator it;
+         for(  it = functionVector.begin(); it < functionVector.end(); it++) {
+            if (func_cbic->checkbox->text() == (*it)->mpiFunctionName && (*it)->mpiCatType == catKey ) {
+               if (func_cbic->checkbox->isChecked())  {
+                    enabledFunctionCatCount[catKey] = enabledFunctionCatCount[catKey] + 1;
+               } else { 
+                    disabledFunctionCatCount[catKey] = disabledFunctionCatCount[catKey] + 1;
+               }
+            } // end if text matches cat name
+          } // end for functionVector
+     } // end for vCheckBoxInfo
+  } // end for category loop
+
 #if DEBUG_CHECKBOX
-        printf("vParameterPageCheckBoxSelected() paramString=%s\n", paramString.ascii());
+  cerr << "vParameterPageCheckBoxSelected(), After loop through categories the status before the button click was this:"  << endl;
+  for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+     cerr << "for catKey=" << catKey << " there are " <<  enabledFunctionCatCount[catKey] << 
+             " enabled function checkboxes and " << disabledFunctionCatCount[catKey] << 
+             " disabled function checkboxes" << endl;
+  }
 #endif
-      } else
-      {
-        paramString += QString(",%1").arg(cbic->checkbox->text());
-#if DEBUG_CHECKBOX
-        printf("vParameterPageCheckBoxSelected() paramString=%s\n", paramString.ascii());
-#endif
+   // If all categories are set and all function boxes with in are enabled, send down "all" mpi functions to be traced
+   bool allSet = false;
+   for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+      if ( enabledFunctionCatCount[catKey] > 0 && disabledFunctionCatCount[catKey] == 0) {
+           allSet = true;
+      } else {
+           // MPI_Cat_All doesn't have any functions so don't consider it.
+           if (catKey != MPI_Cat_All) {
+             allSet = false;
+             break;
+           }
       }
+   } // end for category loop
+
+  // -----------------------------------------------------------------------------------
+  // Try to read all the category checkboxes and function checkboxes to set the proper paramString
+  // and paramList using the mpi category names if possible
+  // -----------------------------------------------------------------------------------
+
+   if (!allSet) {
+    for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+      std::vector<catNameMap*>::iterator cli_cit = sendToCliMpiCatNames.begin() + catKey;
+      if (catKey != MPI_Cat_All) {
+
+        // if all function checkboxes are set for this category then send down the category text and include the text in the paramString
+        // The logic is:
+        //          If all enabled then send down category name
+        //          else all other cases go through the individual checkbox loop
+        //                because if all not set nothing will be sent down, if some are some aren't, then the set ones will be sent down individually
+
+        if ( enabledFunctionCatCount[catKey] > 0 && disabledFunctionCatCount[catKey] == 0) {
+#if DEBUG_CHECKBOX
+             cerr << "vParameterPageCheckBoxSelected(), category checkbox was true and all function checkboxes were also true in not wantedKey paramList setup loop, adding category="
+                  << (*cli_cit)->mpiCategoryName.c_str() << endl;
+#endif
+             paramList.push_back((*cli_cit)->mpiCategoryName.c_str());
+             if( paramString.isEmpty() ) {
+               paramString += QString("%1").arg((*cli_cit)->mpiCategoryName);
+             } else {
+               paramString += QString(",%1").arg((*cli_cit)->mpiCategoryName);
+             }
+        } else {
+        // not all function checkboxes are enabled/disabled  , we need to send down the ones that are set
+
+          for( CheckBoxInfoClassList::Iterator cbit = vCheckBoxInfoClassList.begin(); cbit != vCheckBoxInfoClassList.end(); ++cbit) {
+              CheckBoxInfoClass *func_cbic = (CheckBoxInfoClass *)*cbit;
+              std::vector<functionMap*>::iterator it;
+              for(  it = functionVector.begin(); it < functionVector.end(); it++) {
+                 if (func_cbic->checkbox->text() == (*it)->mpiFunctionName && (*it)->mpiCatType == catKey ) {
+                    if (func_cbic->checkbox->isChecked())  {
+
+#if DEBUG_CHECKBOX
+                      cerr << "vParameterPageCheckBoxSelected(), checkbox was true in not wantedKey paramList setup loop, adding (PUSH_BACK) function=" << func_cbic->checkbox->text() << endl;
+#endif
+                      paramList.push_back(func_cbic->checkbox->text() );
+                      if( paramString.isEmpty() ) {
+                        paramString += QString("%1").arg(func_cbic->checkbox->text());
+                      } else {
+                        paramString += QString(",%1").arg(func_cbic->checkbox->text());
+                      }
+
+
+                    } else {
+#if DEBUG_CHECKBOX
+                         cerr << "vParameterPageCheckBoxSelected(), checkbox was false in not wantedKey paramList setup loop, skipping function=" << func_cbic->checkbox->text() << endl;
+#endif
+                    }
+                 } // end if text matches cat name
+               } // end for functionVector
+          } // end for vCheckBoxInfo
+
+        } // end else enabled/disabled
+
+
+       } // end not equal wantedKey
+
+     } // end for category loop
+    } // !allSet
+    else {
+       std::vector<catNameMap*>::iterator cli_cit = sendToCliMpiCatNames.begin() /* + 0 */ ;
+       paramList.push_back((*cli_cit)->mpiCategoryName.c_str());
+       if( paramString.isEmpty() ) {
+         paramString += QString("%1").arg((*cli_cit)->mpiCategoryName);
+       } else {
+         paramString += QString(",%1").arg((*cli_cit)->mpiCategoryName);
+       }
     }
-  }
-  if( allChecked == TRUE )
-  { // simplify the parsing and clear this ... the default is all.
-    paramList.clear();
-    paramString = "All";
-  }
+
+
+
+#if DEBUG_CHECKBOX
+  printf("vParameterPageCheckBoxSelected() EXIT, paramString=(%s)\n", paramString.ascii() );
+#endif
 }
+
+
 
 void MPIWizardPanel::eParameterPageCheckBoxSelected()
 {
-// printf("eParameterPageCheckBoxSelected() entered\n");
-  bool allChecked = TRUE;
+
   paramList.clear();
+#ifdef DEBUG_MPIWizard
+  printf("MPIWizardPanel::eParameterPageCheckBoxSelected(), CLEAR paramList.\n");
+#endif
   paramString = QString::null;
-  for( CheckBoxInfoClassList::Iterator it = eCheckBoxInfoClassList.begin(); it != eCheckBoxInfoClassList.end(); ++it)
-  {
-    CheckBoxInfoClass *cbic = (CheckBoxInfoClass *)*it;
-// printf("e: cbic: (%s) == (%d)\n", cbic->checkbox->text().ascii(), cbic->checkbox->isChecked() );
-    if( !cbic->checkbox->isChecked() )
-    {
-      allChecked = FALSE;
-    }
-    if( cbic->checkbox->isChecked() )
-    {
-      paramList.push_back(cbic->checkbox->text());
-      if( paramString.isEmpty() )
-      {
-        paramString = QString("%1").arg(cbic->checkbox->text());
-      } else
-      {
-        paramString += QString(",%1").arg(cbic->checkbox->text());
-      }
-    }
+
+#if DEBUG_CHECKBOX
+   printf("eParameterPageCheckBoxSelected() entered\n");
+#endif
+
+   // Variables to hold counts of enabled functions within the MPI category
+   int enabledFunctionCatCount[MPI_Cat_NULL+1];
+   int disabledFunctionCatCount[MPI_Cat_NULL+1];
+
+  for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+      enabledFunctionCatCount[catKey] = 0;
+      disabledFunctionCatCount[catKey] = 0;
   }
-  
-  if( allChecked == TRUE )
-  { // simplify the parsing and clear this ... the default is all.
-    paramList.clear();
-    paramString = "All";
+
+  // Do initial loop to see what is set and what is not set set counts for enabled/disabled.
+  // If values are either all enabled or disabled we can send down the mpi category not all the individual "enabled" functions.
+  // We will need this information below
+  for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+     for( CheckBoxInfoClassList::Iterator cbit = eCheckBoxInfoClassList.begin(); cbit != eCheckBoxInfoClassList.end(); ++cbit) {
+         CheckBoxInfoClass *func_cbic = (CheckBoxInfoClass *)*cbit;
+         std::vector<functionMap*>::iterator it;
+         for(  it = functionVector.begin(); it < functionVector.end(); it++) {
+            if (func_cbic->checkbox->text() == (*it)->mpiFunctionName && (*it)->mpiCatType == catKey ) {
+               if (func_cbic->checkbox->isChecked())  {
+                    enabledFunctionCatCount[catKey] = enabledFunctionCatCount[catKey] + 1;
+               } else { 
+                    disabledFunctionCatCount[catKey] = disabledFunctionCatCount[catKey] + 1;
+               }
+            } // end if text matches cat name
+          } // end for functionVector
+     } // end for eCheckBoxInfo
+  } // end for category loop
+
+#if DEBUG_CHECKBOX
+  cerr << "eParameterPageCheckBoxSelected(), After loop through categories the status before the button click was this:"  << endl;
+  for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+     cerr << "for catKey=" << catKey << " there are " <<  enabledFunctionCatCount[catKey] << 
+             " enabled function checkboxes and " << disabledFunctionCatCount[catKey] << 
+             " disabled function checkboxes" << endl;
   }
+#endif
+
+  // -----------------------------------------------------------------------------------
+  // Try to read all the category checkboxes and function checkboxes to set the proper paramString
+  // and paramList using the mpi category names if possible
+  // -----------------------------------------------------------------------------------
+
+   for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+      std::vector<catNameMap*>::iterator cli_cit = sendToCliMpiCatNames.begin() + catKey;
+      if (catKey != MPI_Cat_All) {
+
+        // if all function checkboxes are set for this category then send down the category text and include the text in the paramString
+        // The logic is:
+        //          If all enabled then send down category name
+        //          else all other cases go through the individual checkbox loop
+        //                because if all not set nothing will be sent down, if some are some aren't, then the set ones will be sent down individually
+
+        if ( enabledFunctionCatCount[catKey] > 0 && disabledFunctionCatCount[catKey] == 0) {
+#if DEBUG_CHECKBOX
+             cerr << "eParameterPageCheckBoxSelected(), category checkbox was true and all function checkboxes were also true in not wantedKey paramList setup loop, PUSH_BACK category="
+                  << (*cli_cit)->mpiCategoryName.c_str() << endl;
+#endif
+             paramList.push_back((*cli_cit)->mpiCategoryName.c_str());
+             if( paramString.isEmpty() ) {
+               paramString += QString("%1").arg((*cli_cit)->mpiCategoryName);
+             } else {
+               paramString += QString(",%1").arg((*cli_cit)->mpiCategoryName);
+             }
+        } else {
+        // not all function checkboxes are enabled/disabled  , we need to send down the ones that are set
+
+          for( CheckBoxInfoClassList::Iterator cbit = eCheckBoxInfoClassList.begin(); cbit != eCheckBoxInfoClassList.end(); ++cbit) {
+              CheckBoxInfoClass *func_cbic = (CheckBoxInfoClass *)*cbit;
+              std::vector<functionMap*>::iterator it;
+              for(  it = functionVector.begin(); it < functionVector.end(); it++) {
+                 if (func_cbic->checkbox->text() == (*it)->mpiFunctionName && (*it)->mpiCatType == catKey ) {
+                    if (func_cbic->checkbox->isChecked())  {
+
+#if DEBUG_CHECKBOX
+                      cerr << "eParameterPageCheckBoxSelected(), checkbox was true in not wantedKey paramList setup loop, PUSH_BACK function=" << func_cbic->checkbox->text() << endl;
+#endif
+                      paramList.push_back(func_cbic->checkbox->text() );
+                      if( paramString.isEmpty() ) {
+                        paramString += QString("%1").arg(func_cbic->checkbox->text());
+                      } else {
+                        paramString += QString(",%1").arg(func_cbic->checkbox->text());
+                      }
+
+
+                    } else {
+#if DEBUG_CHECKBOX
+                         cerr << "eParameterPageCheckBoxSelected(), checkbox was false in not wantedKey paramList setup loop, skipping function=" << func_cbic->checkbox->text() << endl;
+#endif
+                    }
+                 } // end if text matches cat name
+               } // end for functionVector
+          } // end for eCheckBoxInfo
+
+        } // end else enabled/disabled
+
+
+       } // end not equal wantedKey
+
+     } // end for category loop
+
+#if DEBUG_CHECKBOX
+  printf("eParameterPageCheckBoxSelected() EXIT, paramString=(%s)\n", paramString.ascii() );
+#endif
 }
+
 
 void MPIWizardPanel::vDoAllOfCategorySelected()
 { 
+
+   // Variables to hold counts of enabled functions within the MPI category
+   int enabledFunctionCatCount[MPI_Cat_NULL+1];
+   int disabledFunctionCatCount[MPI_Cat_NULL+1];
+
 
 #if DEBUG_CHECKBOX
    printf("vDoAllOfCategorySelected() entered, ewizardMode->isOn() =%d \n", ewizardMode->isOn() );
@@ -1786,14 +1996,18 @@ if( ewizardMode->isOn() ) {
    return;
 }
 
-
 // Default to saying the check boxes were set
-  bool allChecked = TRUE;
+  bool thisCategoriesBoxCheckedValue = TRUE;
 
 // paramList is the string that is passed to the collector.  This must have all the MPI function names
 // that are to be profiled
   paramList.clear();
   paramString = QString::null;
+
+#if DEBUG_CHECKBOX
+  printf("vDoAllOfCategorySelected, paramList CLEAR\n");
+#endif
+
 
   MPI_Category_Type wantedKey = MPI_Cat_NULL;
 
@@ -1802,15 +2016,8 @@ if( ewizardMode->isOn() ) {
   for( CheckBoxInfoClassList::Iterator it = vCategoryCheckBoxInfoClassList.begin(); it != vCategoryCheckBoxInfoClassList.end(); ++it) {
     CheckBoxInfoClass *cbic = (CheckBoxInfoClass *)*it;
 
-    if( !cbic->checkbox->isChecked() ) {
-      allChecked = FALSE;
-    } else {
-      allChecked = TRUE;
-    }
-
 #if DEBUG_CHECKBOX
-    printf("vDoAllOfCategorySelected, cbic: (%s) == (%d), allChecked=%d\n\n",
-           cbic->checkbox->text().ascii(), cbic->checkbox->isChecked(), allChecked );
+    printf("vDoAllOfCategorySelected, cbic: (%s) == (%d)\n\n", cbic->checkbox->text().ascii(), cbic->checkbox->isChecked());
 #endif
 
 
@@ -1819,90 +2026,250 @@ if( ewizardMode->isOn() ) {
     // For example if the Datatypes checkbox is disabled then find MPI_Pack and MPI_Unpack and disable their
     // checkboxes.
     //
-  for (int catKey = MPI_Cat_Collective_Comm; catKey < MPI_Cat_NULL;  catKey++) {
-    // Handle the Category header
-    std::vector<catNameMap*>::iterator last_cit = v_lastStatusCategories.begin() + catKey;
-    std::vector<catNameMap*>::iterator cit = mpiCatNames.begin() + catKey;
+    for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+      // Handle the Category header
+      std::vector<catNameMap*>::iterator last_cit = v_lastStatusCategories.begin() + catKey;
+      std::vector<catNameMap*>::iterator cit = mpiCatNames.begin() + catKey;
 
 #if DEBUG_CHECKBOX
-    printf("vDoAllOfCategorySelected, (*cit)->enabled =%d, (*cit)->mpiCategoryName.c_str()=%s\n", (*cit)->enabled,  (*cit)->mpiCategoryName.c_str() );
-    printf("vDoAllOfCategorySelected, (*last_cit)->enabled=%d, (*last_cit)->mpiCategoryName.c_str()=%s\n", (*last_cit)->enabled, (*last_cit)->mpiCategoryName.c_str() );
-    printf("vDoAllOfCategorySelected, cbic->checkbox->isChecked()=%d, catKey=%d, wantedKey=%d, cbic->checkbox->text().ascii()=%s\n\n", cbic->checkbox->isChecked(), catKey, wantedKey, cbic->checkbox->text().ascii() );
+      std::vector<catNameMap*>::iterator cli_cit = sendToCliMpiCatNames.begin() + catKey;
+      printf("vDoAllOfCategorySelected, (*cit)->enabled =%d, (*cit)->mpiCategoryName.c_str()=%s\n", (*cit)->enabled,  (*cit)->mpiCategoryName.c_str() );
+      printf("vDoAllOfCategorySelected, (*last_cit)->enabled=%d, (*last_cit)->mpiCategoryName.c_str()=%s\n", (*last_cit)->enabled, (*last_cit)->mpiCategoryName.c_str() );
+      printf("vDoAllOfCategorySelected, cbic->checkbox->isChecked()=%d, catKey=%d, wantedKey=%d, cbic->checkbox->text().ascii()=%s\n\n", cbic->checkbox->isChecked(), catKey, wantedKey, cbic->checkbox->text().ascii() );
+      printf("vDoAllOfCategorySelected, (*cli_cit)->enabled =%d, (*cli_cit)->mpiCategoryName.c_str()=%s\n", (*cli_cit)->enabled,  (*cli_cit)->mpiCategoryName.c_str() );
 #endif
 
 
-        if ( cbic->checkbox->text() == (*cit)->mpiCategoryName && (*last_cit)->enabled != cbic->checkbox->isChecked() ) {
-            wantedKey = (MPI_Category_Type) catKey;
+      if ( cbic->checkbox->text() == (*cit)->mpiCategoryName && (*last_cit)->enabled != cbic->checkbox->isChecked() ) {
+
+          wantedKey = (MPI_Category_Type) catKey;
+          // Set a global boolean with the value of this categories check box 
+          if(cbic->checkbox->isChecked() ) {
+            thisCategoriesBoxCheckedValue = TRUE;
+          } else {
+            thisCategoriesBoxCheckedValue = FALSE;
+          }
+
 #if DEBUG_CHECKBOX
-            printf("vDoAllOfCategorySelected() FOUND wantedKey=%d \n", wantedKey);
+          printf("vDoAllOfCategorySelected() FOUND wantedKey=%d, cbic->checkbox->text().ascii()=%s, thisCategoriesBoxCheckedValue=%d\n", 
+                  wantedKey, cbic->checkbox->text().ascii(), thisCategoriesBoxCheckedValue );
 #endif
-            break;
+          break;
         }
-   } // end for catKey
+     } // end for catKey
 
-
-    // Loop through the MPI function class entries and adjust the entries that correspond to the MPI category
-    // we are interested in.
+   
     //
+    // -------------------------------------------------------------------------------
+    // If we have a valid wantedKey we loop through the MPI function class entries and 
+    // adjust the entries that correspond to the MPI category we are interested in.
+    // We handle the ALL case separately because it is the simplest and can be streamlined
+    // 
+    // We handle the other categories in a separate if block
+    //   In that block we do some preliminary work to see if all the function checkboxes
+    //   are enabled or disabled.  That allows us to make some quick decisions about 
+    //   sending down to the cli the mpi category names or sending down individual
+    //   function names.  mpi category names are preferred.
+    //
+    // Another thing to look for is the v_lastStatusCategories variable that is the 
+    // key to telling which category button was actually selected in the wizard
+    // We don't get the exact button, just that one was clicked, so we need to figure
+    // that out by keeping the previous state of the button settings.
+    // -------------------------------------------------------------------------------
+    //
+
     if (wantedKey != MPI_Cat_NULL) {
+
+     if (wantedKey == MPI_Cat_All) {
+
+        int keyIndx = 0;
+        // loop through all function and category checkboxes setting false or true and exit
+        for( CheckBoxInfoClassList::Iterator it = vCategoryCheckBoxInfoClassList.begin(); it != vCategoryCheckBoxInfoClassList.end(); ++it) {
+            CheckBoxInfoClass *cbic = (CheckBoxInfoClass *)*it;
+            cbic->checkbox->setChecked(thisCategoriesBoxCheckedValue) ;
+#if DEBUG_CHECKBOX
+            printf("vDoAllOfCategorySelected() setting all category boxes enabled/disabled, thisCategoriesBoxCheckedValue=%d, category=%s\n", thisCategoriesBoxCheckedValue, cbic->checkbox->text().ascii() );
+#endif
+             std::vector<catNameMap*>::iterator last_cat_it = v_lastStatusCategories.begin() + keyIndx;
+             (*last_cat_it)->enabled = thisCategoriesBoxCheckedValue;
+             keyIndx = keyIndx + 1;
+        } // for
+
+        for( CheckBoxInfoClassList::Iterator cbit = vCheckBoxInfoClassList.begin(); cbit != vCheckBoxInfoClassList.end(); ++cbit) {
+            CheckBoxInfoClass *func_cbic = (CheckBoxInfoClass *)*cbit;
+            func_cbic->checkbox->setChecked(thisCategoriesBoxCheckedValue) ;  
+#if DEBUG_CHECKBOX
+           printf("vDoAllOfCategorySelected() setting all function boxes enabled/disabled, thisCategoriesBoxCheckedValue=%d, function=%s\n", thisCategoriesBoxCheckedValue, func_cbic->checkbox->text().ascii() );
+#endif
+        } // for
+
+        // Set the MPI Category in for all
+        std::vector<catNameMap*>::iterator cli_cit = sendToCliMpiCatNames.begin() + wantedKey;
+        if (thisCategoriesBoxCheckedValue) {
+          paramList.push_back((*cli_cit)->mpiCategoryName.c_str());
+#if DEBUG_CHECKBOX
+         printf("vDoAllOfCategorySelected() PUSH_BACK all category=%s\n", (*cli_cit)->mpiCategoryName.c_str() );
+#endif
+          if( paramString.isEmpty() ) {
+            paramString += QString("%1").arg((*cli_cit)->mpiCategoryName);
+          } else {
+            paramString += QString(",%1").arg((*cli_cit)->mpiCategoryName);
+          }
+        }
+
+     } else {
+
+        // All other categories other than MPI_Cat_All come through here
+
+        for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+             enabledFunctionCatCount[catKey] = 0;
+             disabledFunctionCatCount[catKey] = 0;
+        }
+
+        // Do initial loop to see what is set and what is not set set counts for enabled/disabled.
+        // If values are either all enabled or disabled we can send down the mpi category not all the individual "enabled" functions.
+        // We will need this information below
+        for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+           for( CheckBoxInfoClassList::Iterator cbit = vCheckBoxInfoClassList.begin(); cbit != vCheckBoxInfoClassList.end(); ++cbit) {
+               CheckBoxInfoClass *func_cbic = (CheckBoxInfoClass *)*cbit;
+               std::vector<functionMap*>::iterator it;
+               for(  it = functionVector.begin(); it < functionVector.end(); it++) {
+                  if (func_cbic->checkbox->text() == (*it)->mpiFunctionName && (*it)->mpiCatType == catKey ) {
+                     if (func_cbic->checkbox->isChecked())  {
+                          enabledFunctionCatCount[catKey] = enabledFunctionCatCount[catKey] + 1;
+                     } else { 
+                          disabledFunctionCatCount[catKey] = disabledFunctionCatCount[catKey] + 1;
+                     }
+                  } // end if text matches cat name
+                } // end for functionVector
+           } // end for vCheckBoxInfo
+        } // end for category loop
+
+#if DEBUG_CHECKBOX
+       cerr << "After loop through categories the status before the button click was this:"  << endl;
+       for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+          cerr << "for catKey=" << catKey << " there are " <<  enabledFunctionCatCount[catKey] << 
+                  " enabled function checkboxes and " << disabledFunctionCatCount[catKey] << 
+                  " disabled function checkboxes" << endl;
+       }
+#endif
+
+      std::vector<catNameMap*>::iterator cli_cit = sendToCliMpiCatNames.begin() + wantedKey;
       std::vector<functionMap*>::iterator it;
-      for(  it = functionVector.begin(); it < functionVector.end(); it++) {
+      bool category_pushed = false;
 
-          if ( (*it)->mpiCatType == wantedKey ) {
+
+      // Now the wantedKey category was the one selected.  Update the function checkboxes and update the paramString, paramList
+      //
+      if ( thisCategoriesBoxCheckedValue == TRUE ) {
+         //  update the enabled and disabled function counts
+         enabledFunctionCatCount[wantedKey] = 99;
+         disabledFunctionCatCount[wantedKey] = 0;
+         paramList.push_back((*cli_cit)->mpiCategoryName.c_str());
+#if DEBUG_CHECKBOX
+         printf("vDoAllOfCategorySelected() PUSH_BACK wantedKey category=%s\n", (*cli_cit)->mpiCategoryName.c_str() );
+#endif
+         if( paramString.isEmpty() ) {
+           paramString += QString("%1").arg((*cli_cit)->mpiCategoryName);
+         } else {
+           paramString += QString(",%1").arg((*cli_cit)->mpiCategoryName);
+         }
             
-              if( allChecked == TRUE ) {
-                 paramList.push_back(cbic->checkbox->text());
-                 if( paramString.isEmpty() ) {
-                   paramString += QString("%1").arg((*it)->mpiFunctionName);
-                 } else {
-                   paramString += QString(",%1").arg((*it)->mpiFunctionName);
-                 }
+      } else {
+         enabledFunctionCatCount[wantedKey] = 0;
+         disabledFunctionCatCount[wantedKey] = 99;
+      }
 
-                 // FOR THE VERBOSE MODE
-                 for( CheckBoxInfoClassList::Iterator cbit = vCheckBoxInfoClassList.begin(); 
-                                                      cbit != vCheckBoxInfoClassList.end(); ++cbit) {
+      std::vector<catNameMap*>::iterator last_cit = v_lastStatusCategories.begin() + wantedKey;
+      (*last_cit)->enabled = thisCategoriesBoxCheckedValue;
 
+#if DEBUG_CHECKBOX
+       cerr << "the status after the button click update of the selected category was this:"  << endl;
+       for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+          cerr << "for catKey=" << catKey << " there are " <<  enabledFunctionCatCount[catKey] << 
+                  " enabled function checkboxes and " << disabledFunctionCatCount[catKey] << 
+                  " disabled function checkboxes" << endl;
+       }
+#endif
+
+      // Now set the checkboxes correctly for wantedKey MPI category
+      for( CheckBoxInfoClassList::Iterator cbit = vCheckBoxInfoClassList.begin(); cbit != vCheckBoxInfoClassList.end(); ++cbit) {
+           CheckBoxInfoClass *func_cbic = (CheckBoxInfoClass *)*cbit;
+           std::vector<functionMap*>::iterator it;
+           for(  it = functionVector.begin(); it < functionVector.end(); it++) {
+              if (func_cbic->checkbox->text() == (*it)->mpiFunctionName && (*it)->mpiCatType == wantedKey ) {
+#if DEBUG_CHECKBOX
+                 cerr << "Setting the checkbox for the wantedKey function loop, setting value=" << thisCategoriesBoxCheckedValue << " for function=" << func_cbic->checkbox->text() << endl;
+#endif
+                 func_cbic->checkbox->setChecked(thisCategoriesBoxCheckedValue) ;
+              } // end if text matches cat name
+            } // end for functionVector
+       } // end for vCheckBoxInfo
+        
+       // -----------------------------------------------------------------------------------
+       // Now handle the other functions and category checkboxes that weren't the ones selected
+       // -----------------------------------------------------------------------------------
+
+        for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+           std::vector<catNameMap*>::iterator cli_cit = sendToCliMpiCatNames.begin() + catKey;
+           if (catKey != wantedKey) {
+
+             // if all function checkboxes are set for this category then send down the category text and include the text in the paramString
+             // The logic is: 
+             //          If all enabled then send down category name
+             //          else all other cases go through the individual checkbox loop
+             //                because if all not set nothing will be sent down, if some are some aren't, then the set ones will be sent down individually
+
+             if ( enabledFunctionCatCount[catKey] > 0 && disabledFunctionCatCount[catKey] == 0) {
+#if DEBUG_CHECKBOX
+                  cerr << " category checkbox was true and all function checkboxes were also true in not wantedKey paramList setup loop, PUSH_BACK category=" 
+                       << (*cli_cit)->mpiCategoryName.c_str() << endl;
+#endif
+                  paramList.push_back((*cli_cit)->mpiCategoryName.c_str());
+                  if( paramString.isEmpty() ) {
+                    paramString += QString("%1").arg((*cli_cit)->mpiCategoryName);
+                  } else {
+                    paramString += QString(",%1").arg((*cli_cit)->mpiCategoryName);
+                  }
+             } else {
+             // not all function checkboxes are enabled/disabled  , we need to send down the ones that are set           
+
+               for( CheckBoxInfoClassList::Iterator cbit = vCheckBoxInfoClassList.begin(); cbit != vCheckBoxInfoClassList.end(); ++cbit) {
                    CheckBoxInfoClass *func_cbic = (CheckBoxInfoClass *)*cbit;
-                   if (func_cbic->checkbox->text() == (*it)->mpiFunctionName &&  (*it)->mpiCatType == wantedKey) {
-                        func_cbic->checkbox->setChecked(true);
-#if DEBUG_CHECKBOX
-                        printf("vDoAllOfCategorySelected() SETTING to TRUE function==%s \n", (*it)->mpiFunctionName.c_str());
-#endif
-                   } // if text equal
-                 } // for checkboxinfoclass
-              } else {
-                // The category check box was clicked to set it not enabled, clear the existing checks on the function check boxes
-                // and adjust the paramList
-                 paramList.push_back(cbic->checkbox->text());
-
-                 // FOR THE VERBOSE MODE
-                 for( CheckBoxInfoClassList::Iterator cbit = vCheckBoxInfoClassList.begin(); cbit != vCheckBoxInfoClassList.end(); ++cbit) {
-                   CheckBoxInfoClass *func_cbic = (CheckBoxInfoClass *)*cbit;
-                   if (func_cbic->checkbox->text() == (*it)->mpiFunctionName &&  (*it)->mpiCatType == wantedKey) {
-                        func_cbic->checkbox->setChecked(false);
-#if DEBUG_CHECKBOX
-                        printf("vDoAllOfCategorySelected() SETTING to FALSE function==%s \n", (*it)->mpiFunctionName.c_str());
-#endif
-                   } // if text equal
-                 } // for checkboxinfoclass
-              } // else not checked
-          } else { 
-             //  add the MPI function check boxes to build the paramList
-             //
-                 paramList.push_back(cbic->checkbox->text());
+                   std::vector<functionMap*>::iterator it;
+                   for(  it = functionVector.begin(); it < functionVector.end(); it++) {
+                      if (func_cbic->checkbox->text() == (*it)->mpiFunctionName && (*it)->mpiCatType == catKey ) {
+                         if (func_cbic->checkbox->isChecked())  {
 
 #if DEBUG_CHECKBOX
-                 printf("vDoAllOfCategorySelected() KEEPING THE SETTINGS for function==%s \n", (*it)->mpiFunctionName.c_str());
+                           cerr << " checkbox was true in not wantedKey paramList setup loop, PUSH_BACK function=" << func_cbic->checkbox->text() << endl;
 #endif
-                 if( paramString.isEmpty() ) {
-                   paramString += QString("%1").arg((*it)->mpiFunctionName);
-                 } else {
-                   paramString += QString(",%1").arg((*it)->mpiFunctionName);
-                 }
+                           paramList.push_back(func_cbic->checkbox->text() );
+                           if( paramString.isEmpty() ) {
+                             paramString += QString("%1").arg(func_cbic->checkbox->text());
+                           } else {
+                             paramString += QString(",%1").arg(func_cbic->checkbox->text());
+                           }
 
-           } // not wantedKey section
 
-       } // for function match loop
+                         } else { 
+#if DEBUG_CHECKBOX
+                              cerr << " checkbox was false in not wantedKey paramList setup loop, skipping function=" << func_cbic->checkbox->text() << endl;
+#endif
+                         }
+                      } // end if text matches cat name
+                    } // end for functionVector
+               } // end for vCheckBoxInfo
+
+             } // end else enabled/disabled
+
+
+            } // end not equal wantedKey
+
+          } // end for category loop
+
+
+      } // else MPI_Cat_All
      } // not NULL
 
     if (wantedKey != MPI_Cat_NULL) {
@@ -1912,12 +2279,16 @@ if( ewizardMode->isOn() ) {
   } // end for
 
 #if DEBUG_CHECKBOX
-  printf("vDoAllOfCategorySelected() after loop, wantedKey=%d \n", wantedKey);
+  printf("vDoAllOfCategorySelected() after loop, wantedKey=%d, paramString=(%s)\n", wantedKey, paramString.ascii() );
 #endif
+
   if (wantedKey != MPI_Cat_NULL) {
-    std::vector<catNameMap*>::iterator last_cit = v_lastStatusCategories.begin() + wantedKey;
+
+//    std::vector<catNameMap*>::iterator last_cit = v_lastStatusCategories.begin() + wantedKey;
+
     // This was the entry that changed last time.  Update it to the opposite value in the last status entry.
-    (*last_cit)->enabled = !(*last_cit)->enabled;
+ //   (*last_cit)->enabled = !(*last_cit)->enabled;
+
   } else {
 #if DEBUG_CHECKBOX
    printf("vDoAllOfCategorySelected() after loop, PROBLEMS, wantedKey=%d \n", wantedKey);
@@ -1926,8 +2297,15 @@ if( ewizardMode->isOn() ) {
 
 }
 
+
+
 void MPIWizardPanel::eDoAllOfCategorySelected()
-{
+{ 
+
+   // Variables to hold counts of enabled functions within the MPI category
+   int enabledFunctionCatCount[MPI_Cat_NULL+1];
+   int disabledFunctionCatCount[MPI_Cat_NULL+1];
+
 
 #if DEBUG_CHECKBOX
    printf("eDoAllOfCategorySelected() entered, vwizardMode->isOn() =%d \n", vwizardMode->isOn() );
@@ -1936,16 +2314,16 @@ void MPIWizardPanel::eDoAllOfCategorySelected()
 if( vwizardMode->isOn() ) {
    return;
 }
-#if DEBUG_CHECKBOX
-   printf("eDoAllOfCategorySelected() passed wizard check into real code\n");
-#endif
 
 // Default to saying the check boxes were set
-  bool allChecked = TRUE;
+  bool thisCategoriesBoxCheckedValue = TRUE;
 
 // paramList is the string that is passed to the collector.  This must have all the MPI function names
 // that are to be profiled
   paramList.clear();
+#if DEBUG_CHECKBOX
+  printf("eDoAllOfCategorySelected, paramList CLEAR\n");
+#endif
   paramString = QString::null;
 
   MPI_Category_Type wantedKey = MPI_Cat_NULL;
@@ -1955,102 +2333,257 @@ if( vwizardMode->isOn() ) {
   for( CheckBoxInfoClassList::Iterator it = eCategoryCheckBoxInfoClassList.begin(); it != eCategoryCheckBoxInfoClassList.end(); ++it) {
     CheckBoxInfoClass *cbic = (CheckBoxInfoClass *)*it;
 
-    if( !cbic->checkbox->isChecked() ) {
-      allChecked = FALSE;
-    } else {
-      allChecked = TRUE;
-    }
+#if DEBUG_CHECKBOX
+    printf("eDoAllOfCategorySelected, cbic: (%s) == (%d)\n\n", cbic->checkbox->text().ascii(), cbic->checkbox->isChecked());
+#endif
+
 
     // See which category the text corresponds to.  Then go through the list of functions and adjust their
     // checkbox setting to match that of the category checkbox setting.
     // For example if the Datatypes checkbox is disabled then find MPI_Pack and MPI_Unpack and disable their
     // checkboxes.
     //
-  for (int catKey = MPI_Cat_Collective_Comm; catKey < MPI_Cat_NULL;  catKey++) {
-    // Handle the Category header
-    std::vector<catNameMap*>::iterator last_cit = e_lastStatusCategories.begin() + catKey;
-    std::vector<catNameMap*>::iterator cit = mpiCatNames.begin() + catKey;
+    for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+      // Handle the Category header
+      std::vector<catNameMap*>::iterator last_cit = e_lastStatusCategories.begin() + catKey;
+      std::vector<catNameMap*>::iterator cit = mpiCatNames.begin() + catKey;
 
 #if DEBUG_CHECKBOX
-    printf("eDoAllOfCategorySelected, (*cit)->enabled =%d, (*cit)->mpiCategoryName.c_str()=%s\n", (*cit)->enabled,  (*cit)->mpiCategoryName.c_str() );
-    printf("eDoAllOfCategorySelected, (*last_cit)->enabled=%d, (*last_cit)->mpiCategoryName.c_str()=%s\n", (*last_cit)->enabled, (*last_cit)->mpiCategoryName.c_str() );
-    printf("eDoAllOfCategorySelected, cbic->checkbox->isChecked()=%d, catKey=%d, wantedKey=%d, cbic->checkbox->text().ascii()=%s\n\n", cbic->checkbox->isChecked(), catKey, wantedKey, cbic->checkbox->text().ascii() );
+      std::vector<catNameMap*>::iterator cli_cit = sendToCliMpiCatNames.begin() + catKey;
+      printf("eDoAllOfCategorySelected, (*cit)->enabled =%d, (*cit)->mpiCategoryName.c_str()=%s\n", (*cit)->enabled,  (*cit)->mpiCategoryName.c_str() );
+      printf("eDoAllOfCategorySelected, (*last_cit)->enabled=%d, (*last_cit)->mpiCategoryName.c_str()=%s\n", (*last_cit)->enabled, (*last_cit)->mpiCategoryName.c_str() );
+      printf("eDoAllOfCategorySelected, cbic->checkbox->isChecked()=%d, catKey=%d, wantedKey=%d, cbic->checkbox->text().ascii()=%s\n\n", cbic->checkbox->isChecked(), catKey, wantedKey, cbic->checkbox->text().ascii() );
+      printf("eDoAllOfCategorySelected, (*cli_cit)->enabled =%d, (*cli_cit)->mpiCategoryName.c_str()=%s\n", (*cli_cit)->enabled,  (*cli_cit)->mpiCategoryName.c_str() );
 #endif
 
-        if ( cbic->checkbox->text() == (*cit)->mpiCategoryName && (*last_cit)->enabled != cbic->checkbox->isChecked() ) {
-            wantedKey = (MPI_Category_Type) catKey;
+
+      if ( cbic->checkbox->text() == (*cit)->mpiCategoryName && (*last_cit)->enabled != cbic->checkbox->isChecked() ) {
+
+          wantedKey = (MPI_Category_Type) catKey;
+          // Set a global boolean with the value of this categories check box 
+          if(cbic->checkbox->isChecked() ) {
+            thisCategoriesBoxCheckedValue = TRUE;
+          } else {
+            thisCategoriesBoxCheckedValue = FALSE;
+          }
+
 #if DEBUG_CHECKBOX
-            printf("eDoAllOfCategorySelected() FOUND wantedKey=%d \n", wantedKey);
+          printf("eDoAllOfCategorySelected() FOUND wantedKey=%d, cbic->checkbox->text().ascii()=%s, thisCategoriesBoxCheckedValue=%d\n", 
+                  wantedKey, cbic->checkbox->text().ascii(), thisCategoriesBoxCheckedValue );
 #endif
-            break;
+          break;
         }
-   } // end for catKey
+     } // end for catKey
 
-
-    // Loop through the MPI function class entries and adjust the entries that correspond to the MPI category
-    // we are interested in.
+   
     //
+    // -------------------------------------------------------------------------------
+    // If we have a valid wantedKey we loop through the MPI function class entries and 
+    // adjust the entries that correspond to the MPI category we are interested in.
+    // We handle the ALL case separately because it is the simplest and can be streamlined
+    // 
+    // We handle the other categories in a separate if block
+    //   In that block we do some preliminary work to see if all the function checkboxes
+    //   are enabled or disabled.  That allows us to make some quick decisions about 
+    //   sending down to the cli the mpi category names or sending down individual
+    //   function names.  mpi category names are preferred.
+    //
+    // Another thing to look for is the e_lastStatusCategories variable that is the 
+    // key to telling which category button was actually selected in the wizard
+    // We don't get the exact button, just that one was clicked, so we need to figure
+    // that out by keeping the previous state of the button settings.
+    // -------------------------------------------------------------------------------
+    //
+
     if (wantedKey != MPI_Cat_NULL) {
+
+     if (wantedKey == MPI_Cat_All) {
+
+        int keyIndx = 0;
+        // loop through all function and category checkboxes setting false or true and exit
+        for( CheckBoxInfoClassList::Iterator it = eCategoryCheckBoxInfoClassList.begin(); it != eCategoryCheckBoxInfoClassList.end(); ++it) {
+            CheckBoxInfoClass *cbic = (CheckBoxInfoClass *)*it;
+            cbic->checkbox->setChecked(thisCategoriesBoxCheckedValue) ;
+#if DEBUG_CHECKBOX
+            printf("eDoAllOfCategorySelected() setting all category boxes enabled/disabled, thisCategoriesBoxCheckedValue=%d, category=%s\n", thisCategoriesBoxCheckedValue, cbic->checkbox->text().ascii() );
+#endif
+             std::vector<catNameMap*>::iterator last_cat_it = e_lastStatusCategories.begin() + keyIndx;
+             (*last_cat_it)->enabled = thisCategoriesBoxCheckedValue;
+             keyIndx = keyIndx + 1;
+        } // for
+
+        for( CheckBoxInfoClassList::Iterator cbit = vCheckBoxInfoClassList.begin(); cbit != vCheckBoxInfoClassList.end(); ++cbit) {
+            CheckBoxInfoClass *func_cbic = (CheckBoxInfoClass *)*cbit;
+            func_cbic->checkbox->setChecked(thisCategoriesBoxCheckedValue) ;  
+#if DEBUG_CHECKBOX
+           printf("eDoAllOfCategorySelected() setting all function boxes enabled/disabled, thisCategoriesBoxCheckedValue=%d, function=%s\n", thisCategoriesBoxCheckedValue, func_cbic->checkbox->text().ascii() );
+#endif
+        } // for
+
+        // Set the MPI Category in for all
+        std::vector<catNameMap*>::iterator cli_cit = sendToCliMpiCatNames.begin() + wantedKey;
+        if (thisCategoriesBoxCheckedValue) {
+#if DEBUG_CHECKBOX
+          cerr << " eDoAllOfCategorySelected(), PUSH_BACK all category=" << (*cli_cit)->mpiCategoryName.c_str() << endl;
+#endif
+          paramList.push_back((*cli_cit)->mpiCategoryName.c_str());
+          if( paramString.isEmpty() ) {
+            paramString += QString("%1").arg((*cli_cit)->mpiCategoryName);
+          } else {
+            paramString += QString(",%1").arg((*cli_cit)->mpiCategoryName);
+          }
+        }
+
+     } else {
+
+        // All other categories other than MPI_Cat_All come through here
+
+        for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+             enabledFunctionCatCount[catKey] = 0;
+             disabledFunctionCatCount[catKey] = 0;
+        }
+
+        // Do initial loop to see what is set and what is not set set counts for enabled/disabled.
+        // If values are either all enabled or disabled we can send down the mpi category not all the individual "enabled" functions.
+        // We will need this information below
+        for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+           for( CheckBoxInfoClassList::Iterator cbit = vCheckBoxInfoClassList.begin(); cbit != vCheckBoxInfoClassList.end(); ++cbit) {
+               CheckBoxInfoClass *func_cbic = (CheckBoxInfoClass *)*cbit;
+               std::vector<functionMap*>::iterator it;
+               for(  it = functionVector.begin(); it < functionVector.end(); it++) {
+                  if (func_cbic->checkbox->text() == (*it)->mpiFunctionName && (*it)->mpiCatType == catKey ) {
+                     if (func_cbic->checkbox->isChecked())  {
+                          enabledFunctionCatCount[catKey] = enabledFunctionCatCount[catKey] + 1;
+                     } else { 
+                          disabledFunctionCatCount[catKey] = disabledFunctionCatCount[catKey] + 1;
+                     }
+                  } // end if text matches cat name
+                } // end for functionVector
+           } // end for vCheckBoxInfo
+        } // end for category loop
+
+#if DEBUG_CHECKBOX
+       cerr << "After loop through categories the status before the button click was this:"  << endl;
+       for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+          cerr << "for catKey=" << catKey << " there are " <<  enabledFunctionCatCount[catKey] << 
+                  " enabled function checkboxes and " << disabledFunctionCatCount[catKey] << 
+                  " disabled function checkboxes" << endl;
+       }
+#endif
+
+      std::vector<catNameMap*>::iterator cli_cit = sendToCliMpiCatNames.begin() + wantedKey;
       std::vector<functionMap*>::iterator it;
-      for(  it = functionVector.begin(); it < functionVector.end(); it++) {
+      bool category_pushed = false;
 
-          if ( (*it)->mpiCatType == wantedKey ) {
+
+      // Now the wantedKey category was the one selected.  Update the function checkboxes and update the paramString, paramList
+      //
+      if ( thisCategoriesBoxCheckedValue == TRUE ) {
+         //  update the enabled and disabled function counts
+         enabledFunctionCatCount[wantedKey] = 99;
+         disabledFunctionCatCount[wantedKey] = 0;
+         paramList.push_back((*cli_cit)->mpiCategoryName.c_str());
+         if( paramString.isEmpty() ) {
+           paramString += QString("%1").arg((*cli_cit)->mpiCategoryName);
+         } else {
+           paramString += QString(",%1").arg((*cli_cit)->mpiCategoryName);
+         }
             
-              if( allChecked == TRUE ) {
-                 paramList.push_back(cbic->checkbox->text());
-                 if( paramString.isEmpty() ) {
-                   paramString += QString("%1").arg((*it)->mpiFunctionName);
-                 } else {
-                   paramString += QString(",%1").arg((*it)->mpiFunctionName);
-                 }
+      } else {
+         enabledFunctionCatCount[wantedKey] = 0;
+         disabledFunctionCatCount[wantedKey] = 99;
+      }
 
-                 // FOR THE EXPERT MODE
-                 for( CheckBoxInfoClassList::Iterator cbit = eCheckBoxInfoClassList.begin(); 
-                                                      cbit != eCheckBoxInfoClassList.end(); ++cbit) {
+      std::vector<catNameMap*>::iterator last_cit = e_lastStatusCategories.begin() + wantedKey;
+      (*last_cit)->enabled = thisCategoriesBoxCheckedValue;
 
+#if DEBUG_CHECKBOX
+       cerr << "the status after the button click update of the selected category was this:"  << endl;
+       for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+          cerr << "for catKey=" << catKey << " there are " <<  enabledFunctionCatCount[catKey] << 
+                  " enabled function checkboxes and " << disabledFunctionCatCount[catKey] << 
+                  " disabled function checkboxes" << endl;
+       }
+#endif
+
+      // Now set the checkboxes correctly for wantedKey MPI category
+      for( CheckBoxInfoClassList::Iterator cbit = vCheckBoxInfoClassList.begin(); cbit != vCheckBoxInfoClassList.end(); ++cbit) {
+           CheckBoxInfoClass *func_cbic = (CheckBoxInfoClass *)*cbit;
+           std::vector<functionMap*>::iterator it;
+           for(  it = functionVector.begin(); it < functionVector.end(); it++) {
+              if (func_cbic->checkbox->text() == (*it)->mpiFunctionName && (*it)->mpiCatType == wantedKey ) {
+#if DEBUG_CHECKBOX
+                 cerr << "Setting the checkbox for the wantedKey function loop, setting value=" << thisCategoriesBoxCheckedValue << " for function=" << func_cbic->checkbox->text() << endl;
+#endif
+                 func_cbic->checkbox->setChecked(thisCategoriesBoxCheckedValue) ;
+              } // end if text matches cat name
+            } // end for functionVector
+       } // end for vCheckBoxInfo
+        
+       // -----------------------------------------------------------------------------------
+       // Now handle the other functions and category checkboxes that weren't the ones selected
+       // -----------------------------------------------------------------------------------
+
+        for (int catKey = MPI_Cat_All; catKey < MPI_Cat_NULL;  catKey++) {
+           std::vector<catNameMap*>::iterator cli_cit = sendToCliMpiCatNames.begin() + catKey;
+           if (catKey != wantedKey) {
+
+             // if all function checkboxes are set for this category then send down the category text and include the text in the paramString
+             // The logic is: 
+             //          If all enabled then send down category name
+             //          else all other cases go through the individual checkbox loop
+             //                because if all not set nothing will be sent down, if some are some aren't, then the set ones will be sent down individually
+
+             if ( enabledFunctionCatCount[catKey] > 0 && disabledFunctionCatCount[catKey] == 0) {
+#if DEBUG_CHECKBOX
+                  cerr << " category checkbox was true and all function checkboxes were also true in not wantedKey paramList setup loop, adding category=" 
+                       << (*cli_cit)->mpiCategoryName.c_str() << endl;
+#endif
+                  paramList.push_back((*cli_cit)->mpiCategoryName.c_str());
+                  if( paramString.isEmpty() ) {
+                    paramString += QString("%1").arg((*cli_cit)->mpiCategoryName);
+                  } else {
+                    paramString += QString(",%1").arg((*cli_cit)->mpiCategoryName);
+                  }
+             } else {
+             // not all function checkboxes are enabled/disabled  , we need to send down the ones that are set           
+
+               for( CheckBoxInfoClassList::Iterator cbit = vCheckBoxInfoClassList.begin(); cbit != vCheckBoxInfoClassList.end(); ++cbit) {
                    CheckBoxInfoClass *func_cbic = (CheckBoxInfoClass *)*cbit;
-                   if (func_cbic->checkbox->text() == (*it)->mpiFunctionName &&  (*it)->mpiCatType == wantedKey) {
-                        func_cbic->checkbox->setChecked(true);
+                   std::vector<functionMap*>::iterator it;
+                   for(  it = functionVector.begin(); it < functionVector.end(); it++) {
+                      if (func_cbic->checkbox->text() == (*it)->mpiFunctionName && (*it)->mpiCatType == catKey ) {
+                         if (func_cbic->checkbox->isChecked())  {
+
 #if DEBUG_CHECKBOX
-                        printf("eDoAllOfCategorySelected() SETTING to TRUE function==%s \n", (*it)->mpiFunctionName.c_str());
+                           cerr << " checkbox was true in not wantedKey paramList setup loop, adding function=" << func_cbic->checkbox->text() << endl;
 #endif
-                   } // if text equal
-                 } // for checkboxinfoclass
+                           paramList.push_back(func_cbic->checkbox->text() );
+                           if( paramString.isEmpty() ) {
+                             paramString += QString("%1").arg(func_cbic->checkbox->text());
+                           } else {
+                             paramString += QString(",%1").arg(func_cbic->checkbox->text());
+                           }
 
-              } else {
-                // The category check box was clicked to set it not enabled, clear the existing checks on the function check boxes
-                // and adjust the paramList
-                 paramList.push_back(cbic->checkbox->text());
 
-                 // FOR THE EXPERT MODE
-                 for( CheckBoxInfoClassList::Iterator cbit = eCheckBoxInfoClassList.begin(); cbit != eCheckBoxInfoClassList.end(); ++cbit) {
-                   CheckBoxInfoClass *func_cbic = (CheckBoxInfoClass *)*cbit;
-                   if (func_cbic->checkbox->text() == (*it)->mpiFunctionName &&  (*it)->mpiCatType == wantedKey) {
-                        func_cbic->checkbox->setChecked(false);
+                         } else { 
 #if DEBUG_CHECKBOX
-                        printf("eDoAllOfCategorySelected() SETTING to FALSE function==%s \n", (*it)->mpiFunctionName.c_str());
+                              cerr << " checkbox was false in not wantedKey paramList setup loop, skipping function=" << func_cbic->checkbox->text() << endl;
 #endif
-                   } // if text equal
-                 } // for checkboxinfoclass
+                         }
+                      } // end if text matches cat name
+                    } // end for functionVector
+               } // end for vCheckBoxInfo
 
-              } // else not checked
-          } else { 
-             //  add the MPI function check boxes to build the paramList
-             //
-                 paramList.push_back(cbic->checkbox->text());
-#if DEBUG_CHECKBOX
-                 printf("eDoAllOfCategorySelected() KEEPING THE SETTINGS for function==%s \n", (*it)->mpiFunctionName.c_str());
-#endif
+             } // end else enabled/disabled
 
-                 if( paramString.isEmpty() ) {
-                   paramString += QString("%1").arg((*it)->mpiFunctionName);
-                 } else {
-                   paramString += QString(",%1").arg((*it)->mpiFunctionName);
-                 }
 
-           } // not wantedKey section
+            } // end not equal wantedKey
 
-       } // for function match loop
+          } // end for category loop
+
+
+      } // else MPI_Cat_All
      } // not NULL
 
     if (wantedKey != MPI_Cat_NULL) {
@@ -2059,15 +2592,23 @@ if( vwizardMode->isOn() ) {
     }
   } // end for
 
+#if DEBUG_CHECKBOX
+  printf("eDoAllOfCategorySelected() after loop, wantedKey=%d, paramString=(%s)\n", wantedKey, paramString.ascii() );
+#endif
+
   if (wantedKey != MPI_Cat_NULL) {
-    std::vector<catNameMap*>::iterator last_cit = e_lastStatusCategories.begin() + wantedKey;
+
+//    std::vector<catNameMap*>::iterator last_cit = e_lastStatusCategories.begin() + wantedKey;
+
     // This was the entry that changed last time.  Update it to the opposite value in the last status entry.
-    (*last_cit)->enabled = !(*last_cit)->enabled;
+ //   (*last_cit)->enabled = !(*last_cit)->enabled;
+
   } else {
 #if DEBUG_CHECKBOX
-    printf("eDoAllOfCategorySelected() after loop, PROBLEMS, wantedKey=%d \n", wantedKey);
+   printf("eDoAllOfCategorySelected() after loop, PROBLEMS, wantedKey=%d \n", wantedKey);
 #endif
-  } 
+  }
 
 }
+
 

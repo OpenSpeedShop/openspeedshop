@@ -55,6 +55,8 @@ namespace OpenSpeedShop { namespace Framework {
 	MPICollector();    
 
 	virtual Blob getDefaultParameterValues() const;
+        virtual void getCategoryValue(const std::string&,
+                                       const Blob&, void*) const;
         virtual void getParameterValue(const std::string&,
                                        const Blob&, void*) const;
         virtual void setParameterValue(const std::string&,

@@ -40,20 +40,26 @@ LoadAttachObject::LoadAttachObject() : MessageObject("LoadAttachObject")
 
 /*! Constructor for the LoadAttachObject.   Initializes the filename to load.
     or the pid to attach to. */
-LoadAttachObject::LoadAttachObject(QString executable_name, QString pid_string, QString parallelPrefix, ParamList *param_list, bool lnh) : MessageObject("LoadAttachObject")
+LoadAttachObject::LoadAttachObject(QString executable_name, 
+                                   QString pid_string, 
+                                   QString parallelPrefix, 
+                                   ParamList *param_list, bool lnh) : MessageObject("LoadAttachObject")
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("LoadAttachObject::LoadAttachObject(entered.\n");
+
 #ifdef DEBUG_LAO
   if (parallelPrefix) {
     printf( "LoadAttachObject::LoadAttachObject(entered). parallelPrefix.ascii()=%s\n", parallelPrefix.ascii());
   } else {
     printf( "LoadAttachObject::LoadAttachObject(entered). parallelPrefix is NULL\n");
   }
+
   if (executable_name) {
     printf( "LoadAttachObject::LoadAttachObject(entered). executable_name.ascii()=%s\n", executable_name.ascii());
   } else {
     printf( "LoadAttachObject::LoadAttachObject(entered). executable_name is NULL\n");
   }
+
   if (pid_string) {
     printf( "LoadAttachObject::LoadAttachObject(entered). pid_string.ascii()=%s\n", pid_string.ascii());
   } else {
@@ -66,10 +72,12 @@ LoadAttachObject::LoadAttachObject(QString executable_name, QString pid_string, 
   parallelprefixstring = parallelPrefix;
   paramList = param_list;
   loadNowHint = lnh;
+
 #ifdef DEBUG_LAO
   // debug for now
   print();
 #endif
+
 }
 
 /*! Destructor.   Releases the functionName and fileName. */
@@ -90,12 +98,14 @@ LoadAttachObject::print()
   if (pidStr)
     printf("	pidStr=(%s)\n", pidStr.ascii());
   if (paramList) {
+    printf("	paramList contains: \n");
     for( ParamList::Iterator pit = paramList->begin();
               pit != paramList->end(); ++pit )
     {
       QString paramStr = (QString)*pit;
-      if (paramStr)
+      if (paramStr) {
         printf("  paramStr=(%s)\n", paramStr.ascii() );
+      }
     }
   } // end paramList if
   printf("LoadAttachObject::print() exitted\n");

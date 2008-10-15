@@ -364,8 +364,8 @@ void mpit_start_tracing(const char* arguments)
 	tlsinfo.info.traced = strdup(mpit_traced);
 	strcpy(tls.mpit_traced,mpit_traced);
     } else {
-	tlsinfo.info.traced = strdup(all_traceable_mpi);
-	strcpy(tls.mpit_traced,all_traceable_mpi);
+	tlsinfo.info.traced = strdup(all);
+	strcpy(tls.mpit_traced,all);
     }
 
 #ifndef NDEBUG

@@ -56,6 +56,8 @@ namespace OpenSpeedShop { namespace Framework {
 	virtual Blob getDefaultParameterValues() const;
         virtual void getParameterValue(const std::string&,
                                        const Blob&, void*) const;
+        virtual void getCategoryValue(const std::string&,
+                                       const Blob&, void*) const;
         virtual void setParameterValue(const std::string&,
                                        const void*, Blob&) const;
 

@@ -145,6 +145,35 @@ Blob MPITCollector::getDefaultParameterValues() const
 
 
 /**
+ * Get a category and parameter value.
+ *
+ * Implement getting one of our parameter values.
+ *
+ * @param parameter    Unique identifier of the parameter.
+ * @param data         Blob containing the parameter values.
+ * @retval ptr         Untyped pointer to the parameter value.
+ */
+void MPITCollector::getCategoryValue(const std::string& parameter,
+				      const Blob& data, void* ptr) const
+{
+    // Decode the blob containing the category values
+    mpit_parameters parameters;
+    memset(&parameters, 0, sizeof(parameters));
+    data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mpit_parameters),
+                        &parameters);
+
+    // Handle the "traced_functions" parameter
+    if(parameter == "traced_functions") {
+	std::map<std::string, bool>* value =
+	    reinterpret_cast<std::map<std::string, bool>*>(ptr);    
+        for(unsigned i = 0; TraceableCategories[i] != NULL; ++i)
+	    value->insert(std::make_pair(TraceableCategories[i], parameters.traced[i]));
+    }
+}
+
+
+
+/**
  * Get a parameter value.
  *
  * Implement getting one of our parameter values.
@@ -186,6 +215,10 @@ void MPITCollector::getParameterValue(const std::string& parameter,
 void MPITCollector::setParameterValue(const std::string& parameter,
 				      const void* ptr, Blob& data) const
 {
+#if DEBUG_PARAM
+    std::cerr << "MPITCollector::setParameterValue, parameter=" << parameter << std::endl;
+#endif
+
     // Decode the blob containing the parameter values
     mpit_parameters parameters;
     memset(&parameters, 0, sizeof(parameters));
@@ -195,20 +228,220 @@ void MPITCollector::setParameterValue(const std::string& parameter,
     // Handle the "traced_functions" parameter
     if(parameter == "traced_functions") {
 	std::string env_param;
-	const std::map<std::string, bool>* value = 
-	    reinterpret_cast<const std::map<std::string, bool>*>(ptr);
-	for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i) {
-	    parameters.traced[i] =
-		(value->find(TraceableFunctions[i]) != value->end()) &&
-		value->find(TraceableFunctions[i])->second;
-	    if(parameters.traced[i]) {
-		env_param = env_param + TraceableFunctions[i] + ",";
-	    }
-	}
+	const std::map<std::string, bool>* value = reinterpret_cast<const std::map<std::string, bool>*>(ptr);
+
+        std::map<std::string, bool> tmp_value;
+        tmp_value.clear();
+
+#if DEBUG_PARAM
+        std::cerr << "MPITCollector::setParameterValue, after tmp_value clear()" << std::endl;
+#endif
+
+        for (std::map<std::string, bool>::const_iterator im = value->begin(); im != value->end(); im++) {
+
+#if DEBUG_PARAM
+           std::cerr << "MPITCollector::setParameterValue, CREATE VALUE_TMP PRINT LOOP im->first=" << im->first.c_str() << std::endl;
+           std::cerr << "MPITCollector::setParameterValue, CREATE VALUE_TMP PRINT LOOP im->second=" << im->second << std::endl;
+#endif
+
+           tmp_value.insert(make_pair(im->first, im->second));
+        }
+
+#if DEBUG_PARAM
+
+        for (std::map<std::string, bool>::iterator dbg_tmp_im = tmp_value.begin(); dbg_tmp_im != tmp_value.end(); dbg_tmp_im++) {
+           std::cerr << "MPITCollector::setParameterValue, DEBUG TMP_VALUE PRINT LOOP dbg_tmp_im->first=" << dbg_tmp_im->first.c_str() << std::endl;
+           std::cerr << "MPITCollector::setParameterValue, DEBUG TMP_VALUE PRINT LOOP dbg_tmp_im->second=" << dbg_tmp_im->second << std::endl;
+        }
+
+        for (std::map<std::string, bool>::const_iterator im = value->begin(); im != value->end(); im++) {
+           std::cerr << "MPITCollector::setParameterValue, DEBUG PRINT LOOP im->first=" << im->first.c_str() << std::endl;
+           std::cerr << "MPITCollector::setParameterValue, DEBUG PRINT LOOP im->second=" << im->second << std::endl;
+        }
+#endif
+
+/*  We are looking for these categories in addition to individual MPI function names.
+    See MPITraceableFunctions.h for the definitions.
+          "all",
+          "asynchronous_p2p",
+          "collective_com",
+          "datatypes",
+          "environment",
+          "graphs_contexts_comms",
+          "persistent_com",
+          "process_topologies",
+          "synchronous_p2p",
+*/
+
+        if ((tmp_value.find("all") != tmp_value.end()) &&
+             tmp_value.find("all")->second) {
+
+#if DEBUG_PARAM
+            std::cerr << "MPITCollector::setParameterValue, tmp_value.find(all) has been FOUND"  << std::endl;
+#endif
+
+            for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i) {
+                std::map<std::string, bool>::iterator tmp_im = tmp_value.find(TraceableFunctions[i]);
+                tmp_im->second = TRUE;
+                env_param = env_param + TraceableFunctions[i] + ",";
+            }
+          
+        } 
+
+        if ((tmp_value.find("asynchronous_p2p") != tmp_value.end()) &&
+             tmp_value.find("asynchronous_p2p")->second) {
+
+#if DEBUG_PARAM
+            std::cerr << "MPITCollector::setParameterValue, tmp_value.find(asynchronous_p2p) has been FOUND"  << std::endl;
+#endif
+
+            for(unsigned i = 0; TraceableAsynchronousP2P[i] != NULL; ++i) {
+                std::map<std::string, bool>::iterator tmp_im = tmp_value.find(TraceableAsynchronousP2P[i]);
+                tmp_im->second = TRUE;
+                env_param = env_param + TraceableAsynchronousP2P[i] + ",";
+            }
+          
+        } 
+
+        if ((tmp_value.find("collective_com") != tmp_value.end()) &&
+             tmp_value.find("collective_com")->second) {
+
+#if DEBUG_PARAM
+            std::cerr << "MPITCollector::setParameterValue, tmp_value.find(collective_com) has been FOUND"  << std::endl;
+#endif
+
+            for(unsigned i = 0; TraceableCollectives[i] != NULL; ++i) {
+                std::map<std::string, bool>::iterator tmp_im = tmp_value.find(TraceableCollectives[i]);
+                tmp_im->second = TRUE;
+                env_param = env_param + TraceableCollectives[i] + ",";
+            }
+          
+        } 
+
+        if ((tmp_value.find("datatypes") != tmp_value.end()) &&
+             tmp_value.find("datatypes")->second) {
+
+#if DEBUG_PARAM
+            std::cerr << "MPITCollector::setParameterValue, tmp_value.find(datatypes) has been FOUND"  << std::endl;
+#endif
+
+            for(unsigned i = 0; TraceableDatatypes[i] != NULL; ++i) {
+                std::map<std::string, bool>::iterator tmp_im = tmp_value.find(TraceableDatatypes[i]);
+                tmp_im->second = TRUE;
+                env_param = env_param + TraceableDatatypes[i] + ",";
+            }
+          
+        } 
+
+        if ((tmp_value.find("environment") != tmp_value.end()) &&
+             tmp_value.find("environment")->second) {
+
+#if DEBUG_PARAM
+            std::cerr << "MPITCollector::setParameterValue, tmp_value.find(environment) has been FOUND"  << std::endl;
+#endif
+
+            for(unsigned i = 0; TraceableEnvironment[i] != NULL; ++i) {
+                std::map<std::string, bool>::iterator tmp_im = tmp_value.find(TraceableEnvironment[i]);
+                tmp_im->second = TRUE;
+                env_param = env_param + TraceableEnvironment[i] + ",";
+            }
+          
+        } 
+
+        if ((tmp_value.find("graphs_contexts_comms") != tmp_value.end()) &&
+             tmp_value.find("graphs_contexts_comms")->second) {
+
+#if DEBUG_PARAM
+            std::cerr << "MPITCollector::setParameterValue, tmp_value.find(graphs_contexts_comms) has been FOUND"  << std::endl;
+#endif
+
+            for(unsigned i = 0; TraceableGraphsContexts[i] != NULL; ++i) {
+                std::map<std::string, bool>::iterator tmp_im = tmp_value.find(TraceableGraphsContexts[i]);
+                tmp_im->second = TRUE;
+                env_param = env_param + TraceableGraphsContexts[i] + ",";
+            }
+          
+        } 
+
+        if ((tmp_value.find("persistent_com") != tmp_value.end()) &&
+             tmp_value.find("persistent_com")->second) {
+
+#if DEBUG_PARAM
+            std::cerr << "MPITCollector::setParameterValue, tmp_value.find(persistent_com) has been FOUND"  << std::endl;
+#endif
+
+            for(unsigned i = 0; TraceablePersistent[i] != NULL; ++i) {
+                std::map<std::string, bool>::iterator tmp_im = tmp_value.find(TraceablePersistent[i]);
+                tmp_im->second = TRUE;
+                env_param = env_param + TraceablePersistent[i] + ",";
+            }
+          
+        } 
+
+        if ((tmp_value.find("process_topologies") != tmp_value.end()) &&
+             tmp_value.find("process_topologies")->second) {
+
+#if DEBUG_PARAM
+            std::cerr << "MPITCollector::setParameterValue, tmp_value.find(process_topologies) has been FOUND"  << std::endl;
+#endif
+
+            for(unsigned i = 0; TraceableProcessTopologies[i] != NULL; ++i) {
+                std::map<std::string, bool>::iterator tmp_im = tmp_value.find(TraceableProcessTopologies[i]);
+                tmp_im->second = TRUE;
+                env_param = env_param + TraceableProcessTopologies[i] + ",";
+            }
+          
+        } 
+
+        if ((tmp_value.find("synchronous_p2p") != tmp_value.end()) &&
+             tmp_value.find("synchronous_p2p")->second) {
+
+#if DEBUG_PARAM
+            std::cerr << "MPITCollector::setParameterValue, tmp_value.find(synchronous_p2p) has been FOUND"  << std::endl;
+#endif
+
+            for(unsigned i = 0; TraceableSynchronousP2P[i] != NULL; ++i) {
+                std::map<std::string, bool>::iterator tmp_im = tmp_value.find(TraceableSynchronousP2P[i]);
+                tmp_im->second = TRUE;
+                env_param = env_param + TraceableSynchronousP2P[i] + ",";
+            }
+          
+        } 
+
+        {   // handle individual function names
+
+#if DEBUG_PARAM
+           std::cerr << "MPITCollector::setParameterValue, TraceableFunction loop, HANDLE FUNCTION NAMES INDIVIDUALLY"  << std::endl;
+  	   for(unsigned dbgi = 0; TraceableFunctions[dbgi] != NULL; ++dbgi) {
+               std::cerr << "MPITCollector::setParameterValue, DEBUG TraceableFunction loop, TraceableFunctions[dbgi]=" << TraceableFunctions[dbgi] 
+                         << "  parameters.traced[dbgi]=" << parameters.traced[dbgi] << std::endl;
+           }
+#endif
+
+  	   for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i) {
+	       parameters.traced[i] = (tmp_value.find(TraceableFunctions[i]) != tmp_value.end()) && tmp_value.find(TraceableFunctions[i])->second;
+
+#if DEBUG_PARAM
+               std::cerr << "MPITCollector::setParameterValue, TraceableFunction loop, TraceableFunctions[i]=" << TraceableFunctions[i] << "  parameters.traced[i]=" << parameters.traced[i] << std::endl;
+#endif
+	       if(parameters.traced[i]) {
+		   env_param = env_param + TraceableFunctions[i] + ",";
+#if DEBUG_PARAM
+                   std::cerr << "MPITCollector::setParameterValue, TraceableFunction loop, env_param=" << env_param << std::endl;
+#endif
+	       }
+	   } // end for TraceableFunctions[]
+
+        } // handle individual function names
 
 	if (env_param.size() > 0) {
 	    setenv("OPENSS_MPI_TRACED", (char *)env_param.c_str(), 1);
 	}
+
+#if DEBUG_PARAM
+    std::cerr << "Exit MPITCollector::setParameterValue, env_param=" << env_param << std::endl;
+#endif
+
     }
     
     // Re-encode the blob containing the parameter values

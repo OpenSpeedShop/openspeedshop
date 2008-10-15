@@ -2758,9 +2758,15 @@ static bool setparam (Collector C, std::string pname, vector<ParamVal> *value_li
   active = C.getThreads();
   active.postponeCollecting(C);
 
+#ifdef DEBUG_CLI
+  printf("Enter setparam(), pname==%s\n", pname.c_str() );
+#endif
+
   std::set<Metadata> md = C.getParameters();
   std::set<Metadata>::const_iterator mi;
+
   for (mi = md.begin(); mi != md.end(); mi++) {
+
     Metadata m = *mi;
     if (m.getUniqueId() != pname) {
      // Not the one we want - keep looking.
@@ -2768,28 +2774,79 @@ static bool setparam (Collector C, std::string pname, vector<ParamVal> *value_li
     }
 
     if ( m.isType(typeid(std::map<std::string, bool>)) ) {
+
      // Set strings in the value_list to true.
       std::map<std::string, bool> Value;
       C.getParameterValue(pname, Value);
 
      // Set all the booleans to true, if the corresponding name is in the list,
      // and false otherwise.
-      for (std::map<std::string, bool>::iterator
-                 im = Value.begin(); im != Value.end(); im++) {
+
+      for (std::map<std::string, bool>::iterator im = Value.begin(); im != Value.end(); im++) {
+
         bool name_in_list = false;
-        for (vector<ParamVal>::iterator
-                iv = value_list->begin(); iv != value_list->end(); iv++) {
+        for (vector<ParamVal>::iterator iv = value_list->begin(); iv != value_list->end(); iv++) {
+
           Assert (iv->getValType() == PARAM_VAL_STRING);
+
+#ifdef DEBUG_CLI
+          printf("In setparam(), im->first.c_str()=%s, iv->getSVal()=%s\n", im->first.c_str(), iv->getSVal() );
+#endif
+
           if (!strcasecmp( im->first.c_str(), iv->getSVal() )) {
+#ifdef DEBUG_CLI
+            printf("In setparam(), SETTING NAME_IN_LIST TO TRUE, im->first.c_str()=%s, iv->getSVal()=%s\n", im->first.c_str(), iv->getSVal() );
+#endif
             name_in_list = true;
             break;
+          } else {
+#ifdef DEBUG_CLI
+            printf("In setparam(), NAME NOT IN LIST-------------->SETTING NAME_IN_LIST TO FALSE, im->first.c_str()=%s, iv->getSVal()=%s\n", 
+                   im->first.c_str(), iv->getSVal() );
+#endif
           }
-        }
+        } // end inner loop that contains actual arguments sent to SS_expSetParam
+
+#ifdef DEBUG_CLI
+        printf("In setparam(), SETTING im->second to name_in_list=%d, im->first.c_str()=%s\n", name_in_list, im->first.c_str() );
+#endif
+        // set boolean representing whether or not the parameter in a list obtained from the collector matches the list sent to expSetParam
         im->second = name_in_list;
-      }
+      } // end outer loop, which loops through the list of parameter items from the list obtained from the collector
+
+
+      // swap loops to search for names not appearing in the getParamValue list
+
+      for (vector<ParamVal>::iterator iv = value_list->begin(); iv != value_list->end(); iv++) {
+
+        bool no_match_at_all = TRUE;
+        for (std::map<std::string, bool>::iterator im = Value.begin(); im != Value.end(); im++) {
+          if (!strcasecmp( im->first.c_str(), iv->getSVal() )) {
+             no_match_at_all = FALSE;
+          }
+        } // end outer loop, which loops through the list of parameter items from the list obtained from the collector
+
+        std::map<std::string, bool>::iterator im_end = Value.end();
+        if (no_match_at_all) {
+         Value.insert(std::make_pair(iv->getSVal(), TRUE));
+
+#ifdef DEBUG_CLI
+         printf("In setparam(), NAME NOT IN LIST--INSERTING NEW ITEM INTO VALUE---iv->getSVal()=%s\n", iv->getSVal() );
+#endif
+
+        }
+
+      } // end inner loop that contains actual arguments sent to SS_expSetParam
+    
 
       C.setParameterValue(pname,Value);
+
     } else {
+
+#ifdef DEBUG_CLI
+      printf("In setparam(), ELSE not  m.isType(typeid(std::map<std::string, bool>)) \n" );
+#endif
+
       ParamVal pvalue = (*value_list)[0];
 
       if( m.isType(typeid(int)) ) {
@@ -2849,6 +2906,10 @@ static bool setparam (Collector C, std::string pname, vector<ParamVal> *value_li
           sprintf( cval, "%d", pvalue.getIVal());
           sval = std::string(&cval[0]);
         }
+#ifdef DEBUG_CLI
+       printf("In setparam(), ELSE string, sval==%s\n", sval.c_str() );
+#endif
+
         C.setParameterValue(pname,(std::string)sval);
       }
     }
@@ -2858,7 +2919,8 @@ static bool setparam (Collector C, std::string pname, vector<ParamVal> *value_li
    // Restart the collector with a different parameter value.
     active.startCollecting(C);
     return true;
-  }
+
+  } // end main for loop
 
  // Restart the collector with the old parameter value.
   active.startCollecting(C);
@@ -3170,6 +3232,10 @@ bool SS_expSetParam (CommandObject *cmd) {
     return false;
   }
 
+#ifdef DEBUG_CLI
+  printf("Enter SS_expSetParam()\n");
+#endif
+
   Assert(cmd->P_Result() != NULL);
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
 
@@ -3178,6 +3244,10 @@ bool SS_expSetParam (CommandObject *cmd) {
     char *type_name = p_param->getExpType();
     char *param_name = p_param->getParamType();
     vector<ParamVal> *value_list = p_param->getValList();
+
+#ifdef DEBUG_CLI
+    printf("In SS_expSetParam(), type_name=%s, param_name=%s\n", type_name, param_name);
+#endif
 
    // Prevent this experiment from changing until we are done.
     exp->Q_Lock (cmd, true);
@@ -3188,6 +3258,9 @@ bool SS_expSetParam (CommandObject *cmd) {
       std::string C_name = std::string(type_name);
       try {
         Collector C = Get_Collector (exp->FW(), C_name);
+#ifdef DEBUG_CLI
+        printf("In SS_expSetParam(), calling setparam, C_name==%s\n", C_name.c_str() );
+#endif
         (void) setparam(C, param_name, value_list);
       }
       catch(const Exception& error) {
@@ -3289,9 +3362,15 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
     bool need_comma = false;
     for (std::map<std::string, bool>::iterator
                im = Value.begin(); im != Value.end(); im++) {
+#if DEBUG_CLI
+//        printf("In Get_Collector_Metadata, im->second=%d, im->first.c_str()=%s\n", im->second, im->first.c_str());     
+#endif
       if (im->second) {
         if (need_comma) s += ", ";
         s += im->first;
+#if DEBUG_CLI
+//        printf("In Get_Collector_Metadata, building parameter list, s.c_str()=%s\n", s.c_str());     
+#endif
         need_comma = true;
       }
     }
@@ -3502,6 +3581,9 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
               Metadata m = *mi;
               S = "    " + cm.getUniqueId() + "::" + m.getUniqueId() + " =";
               C->CommandResult_Columns::Add_Column (new CommandResult_RawString (S));
+#if DEBUG_CLI
+              printf("In ReportStatus, Parameter Values=%s\n", S.c_str());
+#endif
               C->CommandResult_Columns::Add_Column (Get_Collector_Metadata (c, m));
               cmd->Result_Predefined (C);
             }
