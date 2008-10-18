@@ -202,14 +202,30 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 
 
     python_ver = sys.version[0:3]
-    if python_ver > "2.4":
-	import subprocess
-	subp = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,)
-	while True:
-	    o = subp.stdout.readline()
-	    if o == '' and subp.poll() != None: break
-	    sys.stdout.write(o)
+    if python_ver > "2.3":
+	# For python versions > 2.4 we run mpi programs using the Popen method
+	# of the subprocess class.  If the program is not MPI then just use
+	# the os.system call.
+	if mpi_executable == "":
+	    # This is the easiest way for simple scalar programs.
+	    # We do not need to worry about interfering with
+	    # interactive programs and muck with any stdIO here.
+	    # If we can handle an interactive programm (like openss itself)
+	    # with the subprocess method then we should eventually do that.
+	    os.system(command)
+	else:
+	    # This is specificly here for mpi programs.
+	    import subprocess
+	    subp = subprocess.Popen(command, shell=True,
+				    stdout=subprocess.PIPE,
+				    stdin=subprocess.PIPE,)
+	    while True:
+	        o = subp.stdout.readline()
+	        if o == '' and subp.poll() != None: break
+	        sys.stdout.write(o)
     else:
+	# For python 2.3 just run the experiment using os.system.
+	# This includes mpi programs.
 	os.system(command)
 
     # currently ossutil writes openss databases to ever increasing
