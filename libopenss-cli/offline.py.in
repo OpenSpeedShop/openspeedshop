@@ -177,6 +177,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	command = program.replace(mpi_executable, "ossrun \"" + mpi_executable)
 	command = command + "\" " +  orig_collectorname
     else:
+	preload_files = ""
 	command = program
 
     collectorplugin =  plugins + "/" + collector + "-rt-offline.so"
@@ -199,7 +200,6 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # Execute the command in a subprocess rather than replacing the
     # current process like os.system does. Need Python 2.4 or later for this.
     print "\nRunning offline experiment using the command:\n\"%s\"\n" % command
-
 
     python_ver = sys.version[0:3]
     if python_ver > "2.3":
