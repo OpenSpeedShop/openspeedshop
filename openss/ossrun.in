@@ -42,7 +42,7 @@ do
 	isexecutable=`file $i | grep ELF`
 	if [ -n "$isexecutable" ]
 	then
-	    ismpi=`nm $i | grep MPI_Init`
+	    ismpi=`nm $i | grep -i MPI_Init`
 	fi
 
 	if [ -n "$ismpi" ]
