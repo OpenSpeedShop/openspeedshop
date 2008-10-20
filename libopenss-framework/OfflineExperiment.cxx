@@ -893,8 +893,6 @@ void OfflineExperiment::createOfflineSymbolTable()
 
 	    bool_t range_found = false;
 	    if (j->second.doesContain(addr) && !range_found) {
-		range_found = true;
-		if (dsos_used.find(j->first) == dsos_used.end()) {
 
 		    dsos_used.insert(j->first);
 		    bool is_exe = false;
@@ -915,7 +913,6 @@ void OfflineExperiment::createOfflineSymbolTable()
 #endif
 		    address_space.setValue(j->second, j->first,
 					   /*is_executable*/ is_exe);
-		}
 	    }
 	} 
     }
