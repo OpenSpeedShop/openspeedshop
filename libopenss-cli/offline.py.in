@@ -101,6 +101,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # plugin aded to preload_files.
     mpi_executable = ""
     mpi_exe_implmentation = ""
+    ismpi = bool(0)
+    mpi_driver = ""
     for s in program_list:
 	if os.path.isfile(s):
 	    # test if the file is elf binary and has the symbol MPI_Init.
@@ -108,25 +110,32 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    isexecutable = os.system('file -L ' + s + ' | grep -q ELF')
 	    if not os.WEXITSTATUS(isexecutable):
 		# is this the actual mpi program.
-		ismpi = os.system('nm ' + s + ' | grep -q -i MPI_Init')
+		if not ismpi:
+		  ismpidriver = os.system('nm ' + s + ' | grep -q -i MPIR')
+		  if not os.WEXITSTATUS(ismpidriver):
+		    ismpi = bool(1)
+		    mpi_driver = s
+		    preload_files = ""
+		    if ismpi:
+			islampi = os.system('nm ' + s + ' | grep -q lampi_environ_init')
+			ismpt = os.system('nm ' + s + ' | grep -q  MPI_debug_breakpoint')
+			islam = os.system('nm ' + s + ' | grep -q  lam_tv_init')
+			isopenmpi = os.system('nm ' + s + ' | grep -q orterun')
+		        if not os.WEXITSTATUS(isopenmpi):
+		          mpi_exe_implmentation = "openmpi"
+		        elif not os.WEXITSTATUS(islam):
+		          mpi_exe_implmentation = "lam"
+		        elif not os.WEXITSTATUS(islampi):
+		          mpi_exe_implmentation = "lampi"
+		        elif not os.WEXITSTATUS(ismpt):
+		          mpi_exe_implmentation = "mpt"
+
+		        continue
 
 		# is this the mpidriver and what implementation is it.
-		islampi = os.system('nm ' + s + ' | grep -q lampi_environ_init')
-		ismpt = os.system('nm ' + s + ' | grep -q MPI_debug_breakpoint')
-		islam = os.system('nm ' + s + ' | grep -q lam_tv_init')
-		isopenmpi = os.system('nm ' + s + ' | grep -q orterun')
-
-		if not os.WEXITSTATUS(isopenmpi):
-		    mpi_exe_implmentation = "openmpi"
-		elif not os.WEXITSTATUS(islam):
-		    mpi_exe_implmentation = "lam"
-		elif not os.WEXITSTATUS(islampi):
-		    mpi_exe_implmentation = "lampi"
-		elif not os.WEXITSTATUS(ismpt):
-		    mpi_exe_implmentation = "mpt"
-
-		if not os.WEXITSTATUS(ismpi):
-		    preload_files = ""
+		if ismpi:
+		  has_mpi_init = os.system('nm ' + s + ' | grep -q -i MPI_Init')
+		  if not os.WEXITSTATUS(has_mpi_init):
 		    mpi_executable = s
 		    break
 
@@ -134,24 +143,28 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # is primarily used to choose a different mpi (e.g. mpich vs. openmpi)
     # for systems that have more than on mpi implementation configured for
     # use with O|SS.
-    if 'OPENSS_MPI_IMPLEMENTATION' in os.environ:
+    use_mpi_impl = ""
+    if ismpi:
+      if 'OPENSS_MPI_IMPLEMENTATION' in os.environ:
 	use_mpi_impl = os.environ["OPENSS_MPI_IMPLEMENTATION"]
-    else:
+      else:
 	if mpi_exe_implmentation == "":
 	    use_mpi_impl = default_mpi_impl.lower()
 	else:
 	    use_mpi_impl = mpi_exe_implmentation
 
-    mpiplugin = plugins + "/mpi-" + use_mpi_impl + "-rt-offline.so"
+      mpiplugin = plugins + "/mpi-" + use_mpi_impl + "-rt-offline.so"
 
-    os.environ['OPENSS_MPI_IMPLEMENTATION'] = use_mpi_impl
+      os.environ['OPENSS_MPI_IMPLEMENTATION'] = use_mpi_impl
 
-    if not os.path.isfile(mpiplugin):
+      if not os.path.isfile(mpiplugin):
 	# TODO: This should only error out for cases where something
 	# like pcsamp is the collector and there should be mpi too.
 	#raise RuntimeError("Failed to locate the mpi runtime plugin. " + libmonitor)
 	print "Failed to locate the mpi runtime plugin."
 	print "No MPI rank identifiers will be recorded in the openss database."
+    else:
+	mpiplugin = ""
 
 
     # Allow the user to just use the know mpi and mpit collector names.
