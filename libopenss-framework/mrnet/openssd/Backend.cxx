@@ -44,7 +44,7 @@ namespace {
     MessageCallbackTable message_callback_table;
 
     /** MRNet network containing this backend. */
-    MRN::Network* network = NULL;
+    MRN::Network* the_network = NULL;
 
     /** MRNet stream used by backends to pass data to the frontend. */
     MRN::Stream* upstream = NULL;
@@ -134,10 +134,12 @@ namespace {
 	// Declare the buffer used when reading stdout/stderr streams
 	static char stream_buffer[4 * 1024];
 
-	// Get the Dyninst and MRNet file descriptors
+	// Get the Dyninst file descriptor
 	int bpatch_fd = bpatch->getNotificationFD();
-	int mrnet_fd = network->get_SocketFd();
-	
+
+	// Get the MRNet file descriptor
+	int mrnet_fd = the_network->get_DataNotificationFd();
+
 	// Run the message pump until instructed to exit
 	for(bool do_exit = false; !do_exit;) {
 
@@ -146,23 +148,28 @@ namespace {
 	    std::set<int> stderr_fds = ThreadTable::TheTable.getStdErrFDs();
 
 	    // Initialize the set of incoming file descriptors
+	    
 	    int nfds = 0;
 	    fd_set readfds;
 	    FD_ZERO(&readfds);
+	    
 	    nfds = std::max(nfds, bpatch_fd + 1);
 	    FD_SET(bpatch_fd, &readfds);
+
+	    nfds = std::max(nfds, mrnet_fd + 1);
+	    FD_SET(mrnet_fd, &readfds);
+
 	    for(std::set<int>::const_iterator
 		    i = stdout_fds.begin(); i != stdout_fds.end(); ++i) {
 		nfds = std::max(nfds, *i + 1);
 		FD_SET(*i, &readfds);
 	    }
+
 	    for(std::set<int>::const_iterator
 		    i = stderr_fds.begin(); i != stderr_fds.end(); ++i) {
 		nfds = std::max(nfds, *i + 1);
 		FD_SET(*i, &readfds);
 	    }
-	    nfds = std::max(nfds, mrnet_fd + 1);
-	    FD_SET(mrnet_fd, &readfds);
 	    
 	    // Initialize a one second timeout
 	    struct timeval timeout;
@@ -172,23 +179,36 @@ namespace {
  	    // Wait for file descriptor activity or timeout expiration
 	    int retval = select(nfds, &readfds, NULL, NULL, &timeout);
 
-	    // Is there data available on the incoming frontend connection?
-	    if((retval > 0) && FD_ISSET(mrnet_fd, &readfds)) {
+	    // Is Dyninst indicating there has been a status change?
+	    if((retval > 0) && (FD_ISSET(bpatch_fd, &readfds))) {
 
-		// Receive the next available message
-		int tag = -1;
-		MRN::Stream* stream = NULL;
-		MRN::Packet* packet = NULL;
-		retval = network->recv(&tag, &packet, &stream, false);
-		Assert(retval != -1);
-		if(retval == 1) {
+		// Give Dyninst the opportunity to poll for any status changes
+		bpatch->pollForStatusChange();
+		
+		// Update the frontend with any new thread state changes
+		OpenSpeedShop::Framework::Dyninst::sendThreadStateUpdates();
+		
+	    }
+
+	    // Is MRNet indicating there is incoming data available?
+	    if((retval > 0) && (FD_ISSET(mrnet_fd, &readfds))) {
+
+		while(true) {
+
+		    // Receive the next available message
+		    int tag = -1;
+		    MRN::Stream* stream = NULL;
+		    MRN::PacketPtr packet;
+		    retval = the_network->recv(&tag, packet, &stream, false);
+		    Assert(retval != -1);
+		    if(retval == 0)
+			break;
 		    Assert(packet != NULL);
 		    
 		    // Decode the packet containing the message
 		    void* contents = NULL;
 		    unsigned size = 0;
-		    Assert(MRN::Stream::unpack(packet, "%auc",
-					       &contents, &size) == 0);
+		    Assert(packet->unpack("%auc", &contents, &size) == 0);
 		    Blob blob(size, contents);
 		    
 		    // Get the proper callbacks for this message's tag
@@ -198,22 +218,14 @@ namespace {
 		    // Iterate over the callbacks
 		    for(std::set<MessageCallback>::const_iterator
 			    i = callbacks.begin(); i != callbacks.end(); ++i)
-			    
+			
 			// Dispatch the message to this callback
 			(**i)(blob);
 		    
 		}
-		
-	    }
 
-	    // Is Dyninst indicating there has been a status change?
-	    if((retval > 0) && (FD_ISSET(bpatch_fd, &readfds))) {
-
-		// Give Dyninst the opportunity to poll for any status changes
-		bpatch->pollForStatusChange();
-		
-		// Update the frontend with any new thread state changes
-		OpenSpeedShop::Framework::Dyninst::sendThreadStateUpdates();
+		// Reset the MRNet notification descriptor
+		the_network->clear_DataNotificationFd();
 		
 	    }
 
@@ -338,14 +350,14 @@ void Backend::startMessagePump(int argc, char* argv[])
 #endif
 
     // Initialize MRNet (participating as a backend)
-    network = new MRN::Network(argc, argv);
-    if(network->fail())
+    the_network = new MRN::Network(argc, argv);
+    if(the_network->has_Error())
 	throw std::runtime_error("Unable to initialize MRNet.");
     
     // Create the stream used by backends to pass data to the frontend.
     int tag = -1;
-    MRN::Packet* packet = NULL;
-    Assert(network->recv(&tag, &packet, &upstream, true) == 1);
+    MRN::PacketPtr packet;
+    Assert(the_network->recv(&tag, packet, &upstream, true) == 1);
     Assert(tag == OPENSS_PROTOCOL_TAG_ESTABLISH_UPSTREAM);
     Assert(upstream != NULL);
     
@@ -380,7 +392,7 @@ void Backend::stopMessagePump()
     delete upstream;
 
     // Finalize MRNet
-    delete network;
+    delete the_network;
 }
 
 

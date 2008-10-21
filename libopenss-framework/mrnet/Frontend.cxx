@@ -60,7 +60,7 @@ namespace {
     MessageCallbackTable* message_callback_table = NULL;
 
     /** MRNet network containing this frontend. */
-    MRN::Network* network = NULL;
+    MRN::Network* the_network = NULL;
 
     /** MRNet stream used by backends to pass data to the frontend. */
     MRN::Stream* upstream = NULL;
@@ -109,23 +109,21 @@ namespace {
 	// Time when performance data was last flushed to databases
 	Time last_flush = Time::Now();
 
-	// Get the file descriptors used by the incoming backend connections
-	int* mrnet_fds = NULL;
-	unsigned int num_mrnet_fds = 0;
-	Assert(network->get_SocketFd(&mrnet_fds, &num_mrnet_fds) == 0);
-	
+	// Get the MRNet file descriptor
+	int mrnet_fd = the_network->get_DataNotificationFd();
+
 	// Run the message pump until instructed to exit
 	for(bool do_exit = false; !do_exit;) {
 
 	    // Initialize the set of incoming file descriptors
+
 	    int nfds = 0;	
 	    fd_set readfds;
 	    FD_ZERO(&readfds);
-	    for(unsigned int i = 0; i < num_mrnet_fds; ++i) {
-		nfds = std::max(nfds, mrnet_fds[i] + 1);
-		FD_SET(mrnet_fds[i], &readfds);
-	    }
-	    
+
+	    nfds = std::max(nfds, mrnet_fd + 1);
+	    FD_SET(mrnet_fd, &readfds);
+
 	    // Initialize a one second timeout
 	    struct timeval timeout;
 	    timeout.tv_sec = 1;
@@ -134,24 +132,26 @@ namespace {
 	    // Wait for file descriptor activity or timeout expiration
 	    int retval = select(nfds, &readfds, NULL, NULL, &timeout);
 
-	    // Is there data available on the incoming backend connections?
-	    if(retval > 0) {
-		
-		// Receive the next available message
-		int tag = -1;
-		MRN::Packet* packet = NULL;
-		retval = upstream->recv(&tag, &packet, false);
-		Assert(retval != -1);
-		if(retval == 1) {
+	    // Is MRNet indicating there is incoming data available?
+	    if((retval > 0) && (FD_ISSET(mrnet_fd, &readfds))) {
+
+		while(true) {
+		    
+		    // Receive the next available message
+		    int tag = -1;
+		    MRN::PacketPtr packet;
+		    retval = upstream->recv(&tag, packet, false);
+		    Assert(retval != -1);
+		    if(retval == 0)
+			break;
 		    Assert(packet != NULL);
 		    
 		    // Decode the packet containing the message
 		    void* contents = NULL;
 		    unsigned size = 0;
-		    Assert(MRN::Stream::unpack(packet, "%auc",
-					       &contents, &size) == 0);
+		    Assert(packet->unpack("%auc", &contents, &size) == 0);
 		    Blob blob(size, contents);
-			
+		    
 		    // Get the proper callbacks for this message's tag
 		    std::set<MessageCallback> callbacks =
 			message_callback_table->getCallbacksByTag(tag);
@@ -164,14 +164,17 @@ namespace {
 			(**i)(blob);
 		    
 		}
+
+		// Reset the MRNet notification descriptor
+		the_network->clear_DataNotificationFd();
 		
 	    }
-
+	    
 	    // Has at least one second past since the last flush?
 	    Time now = Time::Now();
 	    if((now - last_flush) >= 1000000000 /* 10^9 nS = 1 sec */) {
 		last_flush = now;
-
+		
 		// Request that all performance data be flushed to databases
 		DataQueues::flushPerformanceData();
 		
@@ -183,9 +186,6 @@ namespace {
 	    Assert(pthread_mutex_unlock(&monitor_request_exit.lock) == 0);
 	    
 	}
-
-	// Destroy the array of file descriptors
-	delete [] mrnet_fds;
 	
 	// Empty, unused, return value from this thread
 	return NULL;
@@ -311,16 +311,16 @@ void Frontend::startMessagePump(const Path& topology_file)
     // Initialize MRNet (participating as the frontend)
     if(is_tracing_debug_enabled)
 	MRN::set_OutputLevel(5);
-    network = new MRN::Network(topology_file.getNormalized().c_str(),
-  			       executable.c_str(), argv);
-    if(network->fail())
+    the_network = new MRN::Network(topology_file.getNormalized().c_str(),
+				   executable.c_str(), argv);
+    if(the_network->has_Error())
 	throw std::runtime_error("Unable to initialize MRNet.");
 
     // Destroy the argv-style argument list
     delete [] argv;
     
     // Create the stream used by backends to pass data to the frontend.
-    upstream = network->new_Stream(network->get_BroadcastCommunicator(),
+    upstream = network->new_Stream(the_network->get_BroadcastCommunicator(),
 	 			   MRN::TFILTER_NULL,
 				   MRN::SFILTER_DONTWAIT,
 				   MRN::TFILTER_NULL);
@@ -362,7 +362,7 @@ void Frontend::stopMessagePump()
     delete upstream;
     
     // Finalize MRNet
-    delete network;
+    delete the_network;
 }
 
 
@@ -383,7 +383,7 @@ void Frontend::sendToBackends(const int& tag, const Blob& blob,
 			      const OpenSS_Protocol_ThreadNameGroup& threads)
 {
     // Check assertions
-    Assert(network != NULL);
+    Assert(the_network != NULL);
 
     // Find all the unique host names in the specified thread group
     std::set<std::string> hosts;
@@ -392,22 +392,22 @@ void Frontend::sendToBackends(const int& tag, const Blob& blob,
 	    hosts.insert(threads.names.names_val[i].host);
 
     // Find all the endpoints corresponding to those hosts
-    std::vector<MRN::EndPoint*> endpoints;
-    const std::vector<MRN::EndPoint*>& all_endpoints = 
-	network->get_BroadcastCommunicator()->get_EndPoints();
-    for(std::vector<MRN::EndPoint*>::const_iterator
+    std::set<MRN::CommunicationNode*> endpoints;
+    const std::set<MRN::CommunicationNode*>& all_endpoints = 
+	the_network->get_BroadcastCommunicator()->get_EndPoints();
+    for(std::set<MRN::CommunicationNode*>::const_iterator
 	    i = all_endpoints.begin(); i != all_endpoints.end(); ++i)
 	if(hosts.find(Experiment::getCanonicalName((*i)->get_HostName())) != 
 	   hosts.end())
-	    endpoints.push_back(*i);
-    
+	    endpoints.insert(*i);
+
     // Create a communicator and stream for communicating with those endpoints
-    MRN::Communicator* communicator = network->new_Communicator(endpoints);
+    MRN::Communicator* communicator = the_network->new_Communicator(endpoints);
     Assert(communicator != NULL);
-    MRN::Stream* stream = network->new_Stream(communicator,
-					      MRN::TFILTER_NULL,
-					      MRN::SFILTER_DONTWAIT,
-					      MRN::TFILTER_NULL);
+    MRN::Stream* stream = the_network->new_Stream(communicator,
+						  MRN::TFILTER_NULL,
+						  MRN::SFILTER_DONTWAIT,
+						  MRN::TFILTER_NULL);
     Assert(stream != NULL);
 
     // Send the message
@@ -454,19 +454,19 @@ void Frontend::sendToAllBackends(const int& tag, const Blob& blob)
 bool Frontend::hasBackend(const std::string& host)
 {
     // Check assertions
-    Assert(network != NULL);
+    Assert(the_network != NULL);
 
     // Iterate over all the MRNet endpoints
-    const std::vector<MRN::EndPoint*>& all_endpoints = 
-	network->get_BroadcastCommunicator()->get_EndPoints();
-    for(std::vector<MRN::EndPoint*>::const_iterator
+    const std::set<MRN::CommunicationNode*>& all_endpoints = 
+	the_network->get_BroadcastCommunicator()->get_EndPoints();
+    for(std::set<MRN::CommunicationNode*>::const_iterator
 	    i = all_endpoints.begin(); i != all_endpoints.end(); ++i)
 
 	// Host has an MRNet backend if it matches the host of this endpoint
 	if(Experiment::getCanonicalName((*i)->get_HostName()) ==
 	   Experiment::getCanonicalName(host))
 	    return true;
-    
+
     // Otherwise this host has no MRNet backend
     return false;
 }
