@@ -164,4 +164,14 @@ cp $INSTALL_ROOT/usr/share/doc/HTML/readme-live-image/en_US/readme-live-image-en
 if [ "$(uname -i)" = "i386" -o "$(uname -i)" = "x86_64" ]; then
   cp /usr/bin/livecd-iso-to-disk $LIVE_ROOT/LiveOS
 fi
+
+# copy some test applications for OpenSpeedShop
+# make sure these apps exist on your host machine...and were compiled in
+# in the same location.  This makes source mapping easier for OpenSpeedShop.
+
+# copy binary and source files
+mkdir -p $LIVE_ROOT/opt/apps
+cp -r /opt/apps/nbody-mpi* $LIVE_ROOT/opt/apps/
+cp -r /opt/apps/threads* $LIVE_ROOT/opt/apps/
+
 %end
