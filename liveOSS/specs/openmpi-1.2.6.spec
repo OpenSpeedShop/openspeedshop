@@ -14,6 +14,12 @@ Open MPI is a project combining technologies and resources from
 several other projects (FT-MPI, LA-MPI, LAM/MPI, and PACX-MPI) in
 order to build the best MPI library available.
 
+# Do not strip symbols
+%define __os_install_post %{nil}
+%define __arch_install_post %{nil}
+%define debug_package %{nil}
+%define __strip /bin/true
+
 %prep
 if [ -d %{name}-%{version} ]; then
     rm -fr %{name}-%{version}
