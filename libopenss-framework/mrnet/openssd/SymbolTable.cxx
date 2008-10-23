@@ -166,12 +166,16 @@ void SymbolTable::addModule(/* const */ BPatch_image& image,
 	    
 	    // Is this address range shared by more than one function?
 	    BPatch_Vector<BPatch_function*> all_functions;
-#ifdef WDH_DISABLE_UNITL_DYNINST_BUG_IS_FIXED
+#ifdef WDH_TEMPORARY_HACK
+	    //
+	    // TODO: Temporarily disable the shared code region detection
+	    //       due to a bug in Dyninst.
+	    //
 	    image.findFunction(
 		static_cast<Dyninst::Address>(begin.getValue()),
 		all_functions
 		);
-#endif
+#endif  // WDH TEMPORARY HACK
 	    if(all_functions.size() > 1) {
 
 #ifndef NDEBUG

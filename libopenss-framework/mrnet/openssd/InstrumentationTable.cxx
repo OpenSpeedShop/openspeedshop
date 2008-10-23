@@ -350,7 +350,7 @@ void InstrumentationTable::removeInstrumentation(const ThreadName& thread,
 }
 
 
-
+#include <iostream>
 /**
  * Copy instrumentation from one thread to another.
  *
@@ -370,7 +370,7 @@ InstrumentationTable::copyInstrumentation(const ThreadName& source,
 					  const ThreadName& destination)
 {
     Guard guard_myself(this);
-    
+
     // Find the entry (if any) for the source thread
     std::map<ThreadName, ThreadEntry>::iterator i = dm_threads.find(source);
     
@@ -382,24 +382,28 @@ InstrumentationTable::copyInstrumentation(const ThreadName& source,
     BPatch_thread* thread = ThreadTable::TheTable.getPtr(destination);
     Assert(thread != NULL);
 
+    // Is this the first time the destination thread was encountered?
+    bool is_new_thread = (dm_threads.find(destination) == dm_threads.end());
+
     // Add the destination thread to the table (or find the existing entry)
     std::map<ThreadName, ThreadEntry>::iterator j =
 	dm_threads.insert(std::make_pair(destination, ThreadEntry())).first;
 
     // Iterate over all instrumentation not associated with a collector
-    for(InstrumentationList::const_iterator
-	    k = i->second.dm_general.begin(); 
-	k != i->second.dm_general.end(); 
-	++k) {
-
-	// Copy this instrumentation entry and add it to the list
-	InstrumentationEntry* entry = (*k)->copy(*thread);
-	j->second.dm_general.push_back(entry);
-	
-	// Install the instrumentation
-	entry->install();
-	
-    }
+    if(is_new_thread)
+	for(InstrumentationList::const_iterator
+		k = i->second.dm_general.begin(); 
+	    k != i->second.dm_general.end(); 
+	    ++k) {
+	    
+	    // Copy this instrumentation entry and add it to the list
+	    InstrumentationEntry* entry = (*k)->copy(*thread);
+	    j->second.dm_general.push_back(entry);
+	    
+	    // Install the instrumentation
+	    entry->install();
+	    
+	}
 
     // Iterate over each collector with instrumentation in the source thread
     std::set<Collector> collectors;
@@ -407,6 +411,11 @@ InstrumentationTable::copyInstrumentation(const ThreadName& source,
 	    k = i->second.dm_collectors.begin(); 
 	k != i->second.dm_collectors.end(); 
 	++k) {
+
+	// Skip this collector if it already instrumented the destination thread
+	if(j->second.dm_collectors.find(k->first) !=
+	   j->second.dm_collectors.end())
+	    continue;
 
 	// Add this collector to the set that instrumented the thread
 	collectors.insert(k->first);
@@ -416,18 +425,23 @@ InstrumentationTable::copyInstrumentation(const ThreadName& source,
 	    j->second.dm_collectors.insert(
 	        std::make_pair(k->first, InstrumentationList())
 		).first;
-	
+
 	// Iterate over all instrumentation associated with this collector
 	for(InstrumentationList::const_iterator
 		m = k->second.begin(); m != k->second.end(); ++m) {
 
 	    // Copy this instrumentation entry and add it to the list
-	    InstrumentationEntry* entry = (*m)->copy(*thread);
-	    l->second.push_back(entry);
+	    l->second.push_back((*m)->copy(*thread));
 	    
+	}
+
+	// Iterate over all instrumentation associated with this collector
+	for(InstrumentationList::iterator
+		m = l->second.begin(); m != l->second.end(); ++m) {
+
 	    // Install the instrumentation
-	    entry->install();
-	    
+	    (*m)->install();
+
 	}
 
     }

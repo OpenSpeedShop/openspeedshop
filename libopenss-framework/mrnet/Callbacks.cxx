@@ -564,9 +564,9 @@ void Callbacks::instrumented(const Blob& blob)
 		"  (collector, thread, is_postponed) "
 		"VALUES (?, ?, 0);"
 		);
-	    database->bindArgument(1, thread);
-	    database->bindArgument(2, message.collector.collector);	
-	    while(database->executeStatement());	    
+	    database->bindArgument(1, message.collector.collector);
+	    database->bindArgument(2, thread);
+	    while(database->executeStatement());
 	    
 	}
 	

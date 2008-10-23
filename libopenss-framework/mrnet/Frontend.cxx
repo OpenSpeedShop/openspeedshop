@@ -330,6 +330,15 @@ void Frontend::startMessagePump(const Path& topology_file)
     
     // Create the monitor thread
     Assert(pthread_create(&monitor_tid, NULL, monitorThread, NULL) == 0);
+
+#ifndef WDH_TEMPORARY_HACK
+    //
+    // TODO: Temporarily sleep for five seconds to get around what appears to
+    //       be a race condition in MRNet 2.0.1b that causes the daemon to sit
+    //       around waiting for messages from the frontend that never arrive.
+    //
+    sleep(5);
+#endif  // WDH_TEMPORARY_HACK
 }
 
 

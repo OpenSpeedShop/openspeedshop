@@ -28,6 +28,7 @@
 #include "Dyninst.hxx"
 #include "ExperimentGroup.hxx"
 #include "FileName.hxx"
+#include "InstrumentationTable.hxx"
 #include "Senders.hxx"
 #include "SentFilesTable.hxx"
 #include "SymbolTable.hxx"
@@ -428,17 +429,17 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
     Assert(parent != NULL);
     Assert(child != NULL);
 
-    // TODO: For now detach from the child process and ignore it. Currently
-    //       Dyninst is failing when OpenMPI calls fork() on Fedora Core 8
-    //       systems.
+#ifndef WDH_TEMPORARY_HACK
     //
-#ifndef WDH_DISABLE_THIS_FOR_NOW
+    // TODO: Temporarily detach from the child process and ignore it. Dyninst
+    //       is currently failing when OpenMPI calls fork() on Fedora 8 systems.
+    //
     if(child != NULL) {
 	BPatch_process* child_process = child->getProcess();
 	child_process->detach(true);
 	return;
     }
-#endif  // WDH_DISABLE_THIS_FOR_NOW
+#endif  // WDH_TEMPORARY_HACK
 
     // Get the Dyninst process pointers for these threads
     BPatch_process* parent_process = parent->getProcess();
@@ -636,7 +637,9 @@ void OpenSpeedShop::Framework::Dyninst::threadDestroy(BPatch_process* process,
 /**
  * Copy instrumentation from one set of threads to another.
  *
- * ...
+ * Copies all instrumentation from the specified source threads to the
+ * specified destination threads and sends a series of messages to the
+ * frontend describing any instrumentation additions which have occured.
  *
  * @param source         Threads from which instrumentation should be copied.
  * @param destination    Threads to which instrumentation should be copied.
@@ -646,22 +649,47 @@ void OpenSpeedShop::Framework::Dyninst::copyInstrumentation(
     const ThreadNameGroup& destination
     )
 {
-#ifdef DISABLE_FOR_NOW
-    // ...
-    std::map<Collector, ThreadNameGroup> xyz;
+    // Create an empty table for tracking instrumentation updates to be sent
     
-    // ...
+    typedef std::map<Collector, ThreadNameGroup> InstrumentationUpdates;
+    
+    InstrumentationUpdates updates;
+    
+    // Iterate over every source thread
     for(ThreadNameGroup::const_iterator
 	    i = source.begin(); i != source.end(); ++i)
+	
+	// Iterate over every destination thread
 	for(ThreadNameGroup::const_iterator
 		j = destination.begin(); j != destination.end(); ++j) {
-	    
-	    // ...
+
+	    // Instrument the destination thread based on the source thread
+	    std::set<Collector> collectors = 
+		InstrumentationTable::TheTable.copyInstrumentation(*i, *j);
+
+	    // Iterate over the collectors that instrumented this thread
+	    for(std::set<Collector>::const_iterator
+		    k = collectors.begin(); k != collectors.end(); ++k) {
+		
+		// Add the pairing to the table of instrumentation updates
+		InstrumentationUpdates::iterator l = 
+		    updates.insert(std::make_pair(*k, ThreadNameGroup())).first;
+		Assert(l != updates.end());
+		l->second.insert(*j);
+		
+	    }
 	    
 	}
-
-    // ...
-#endif
+    
+    // Iterate over all the updates that need to be sent
+    for(InstrumentationUpdates::const_iterator
+	    i = updates.begin(); i != updates.end(); ++i)
+	if(!i->second.empty()) {
+	    
+	    // Send the frontend the list of threads that have been instrumented
+	    Senders::instrumented(i->second, i->first);
+	    
+	}
 }
 
 
