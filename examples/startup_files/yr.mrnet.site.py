@@ -29,7 +29,7 @@ from os import path
 import warnings 
 
 # Flag indicating if debugging output will be displayed.
-debug = True
+debug = False
 
 #Flag indicating if a topology file update is needed
 topFileUpdateNeeded = False
@@ -210,7 +210,7 @@ def main():
         #Make sure we have mrnet_topgen before we continue. 
         #It's not used here, but will be.??
         prepENV(getStringHashValue(generateSimpleTopologyString()))
-        print generateSimpleTopologyString()
+        #print generateSimpleTopologyString()
 		#TODO: FIXME Simple hack to get things going
         if(topFileUpdateNeeded):
             createTopologyFile(generateSimpleTopologyString())
