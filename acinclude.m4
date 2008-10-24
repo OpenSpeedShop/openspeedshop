@@ -348,7 +348,7 @@ AC_DEFUN([AC_PKG_MRNET], [
                                [MRNet installation @<:@/usr@:>@]),
                 mrnet_dir=$withval, mrnet_dir="/usr")
 
-    MRNET_CPPFLAGS="-I$mrnet_dir/include"
+    MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
     MRNET_LDFLAGS="-L$mrnet_dir/$abi_libdir"
     MRNET_LIBS="-Wl,--whole-archive -lmrnet -lxplat -Wl,--no-whole-archive"
     MRNET_LIBS="$MRNET_LIBS -lpthread -ldl"
