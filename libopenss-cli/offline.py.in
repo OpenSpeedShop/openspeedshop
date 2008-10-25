@@ -18,8 +18,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     #users to explicitly define a different OSS installation path (even
     #if OPENSS_PREFIX is defined).
     if (os.environ.has_key("OPENSS_PREFIX") and installed == "/usr"):
-        print "OPENSS_PREFIX detected. Using OPENSS_PREFIX..."
         installed = os.environ["OPENSS_PREFIX"]
+        print "[openss]: Using OPENSS_PREFIX installed in " + installed
     
     # set up plugins path
     if os.environ.has_key("OPENSS_PLUGIN_PATH"):
@@ -37,7 +37,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # always write into /tmp/$USER/offline-oss or
     if 'OPENSS_RAWDATA_DIR' in os.environ:
 	rawdir = os.environ["OPENSS_RAWDATA_DIR"]
-	print "Setting up offline environment...\nOPENSS_RAWDATA_DIR = " + rawdir + "/offline-oss"
+	print "[openss]: Setting up offline raw data directory in " + rawdir + "/offline-oss"
 	tempdir = rawdir + "/offline-oss"
 	os.system("/bin/rm -rf " + tempdir)
 	os.mkdir(tempdir)
@@ -46,10 +46,10 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	if 'USER' in os.environ:
 	    user = os.environ["USER"]
 	else:
-	    user = ""
+	    user = os.path.expanduser(os.getlogin())
 
 	tempdir = rawdir + "/" + user + "/offline-oss"
-	print "Setting up offline environment...\nOPENSS_RAWDATA_DIR = " + tempdir
+	print "[openss]: Setting up offline raw data directory in " + tempdir
 	if not os.path.isdir(tempdir):
 	    os.makedirs(tempdir)
 	else:
@@ -67,7 +67,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     if not os.path.isdir(libdir):
         libdir = installed + "/lib"
     if not os.path.isdir(libdir):
-        raise RuntimeError("Failed to locate the libmonitor library directory.")
+        raise RuntimeError("[openss error]: Failed to locate the libmonitor library directory.")
 
     # Locate the monitor-run command and libmonitor runtime dso.
     # If libmonitor.so is not found in the "installed" path, then
@@ -84,10 +84,10 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	if not os.path.isdir(libdir):
 	    libdir = systemdir + "/lib"
 	if not os.path.isdir(libdir):
-            raise RuntimeError("Failed to locate the libmonitor library directory.")
+            raise RuntimeError("[openss error]: Failed to locate the libmonitor library directory.")
 	libmonitor = libdir + "/libmonitor.so"
 	if not os.path.isfile(libmonitor):
-            raise RuntimeError("Failed to locate the libmonitor.so library. " + libmonitor)
+            raise RuntimeError("[openss error]: Failed to locate the libmonitor.so library. " + libmonitor)
 
     # Set the default mpi implementation defined by the O|SS configuration.
     default_mpi_impl = "@@ossdefaultmpi@@"
@@ -103,24 +103,43 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     mpi_exe_implmentation = ""
     ismpi = bool(0)
     mpi_driver = ""
+    path_list = os.path.expandvars("$PATH").split(":")
+
     for s in program_list:
-	if os.path.isfile(s):
+	file_arg = s
+	if s.startswith("~"):
+	    file_arg = s.replace("~", os.path.expanduser("~"))
+	    program = program.replace("~", os.path.expanduser("~"))
+	    
+	for p in path_list:
+	   if not os.path.isfile(s) and not ismpi \
+	      and not s.startswith("-"):
+		file_arg = p + "/" + s
+		if os.path.isfile(file_arg):
+		    break
+		else:
+		    file_arg = s
+		
+	
+	if os.path.isfile(file_arg):
 	    # test if the file is elf binary and has the symbol MPI_Init.
 	    # We use os.WEXITSTATUS to properly decode the status.
-	    isexecutable = os.system('file -L ' + s + ' | grep -q ELF')
+	    isexecutable = os.system('file -L ' + file_arg + ' | grep -q ELF')
 	    if not os.WEXITSTATUS(isexecutable):
 		# is this the actual mpi program.
 		if not ismpi:
-		  ismpidriver = os.system('nm ' + s + ' | grep -q -i MPIR')
+		  ismpidriver = os.system('nm ' + file_arg + ' | grep -q -i MPIR')
 		  if not os.WEXITSTATUS(ismpidriver):
 		    ismpi = bool(1)
-		    mpi_driver = s
+		    mpi_driver = os.path.realpath(file_arg)
+		    orig_mpi_driver = s
+		    program = program.replace(s, file_arg)
 		    preload_files = ""
 		    if ismpi:
-			islampi = os.system('nm ' + s + ' | grep -q lampi_environ_init')
-			ismpt = os.system('nm ' + s + ' | grep -q  MPI_debug_breakpoint')
-			islam = os.system('nm ' + s + ' | grep -q  lam_tv_init')
-			isopenmpi = os.system('nm ' + s + ' | grep -q orterun')
+			islampi = os.system('nm ' + file_arg + ' | grep -q lampi_environ_init')
+			ismpt = os.system('nm ' + file_arg + ' | grep -q  MPI_debug_breakpoint')
+			islam = os.system('nm ' + file_arg + ' | grep -q  lam_tv_init')
+			isopenmpi = os.system('nm ' + file_arg + ' | grep -q orterun')
 		        if not os.WEXITSTATUS(isopenmpi):
 		          mpi_exe_implmentation = "openmpi"
 		        elif not os.WEXITSTATUS(islam):
@@ -134,9 +153,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 
 		# is this the mpidriver and what implementation is it.
 		if ismpi:
-		  has_mpi_init = os.system('nm ' + s + ' | grep -q -i MPI_Init')
+		  has_mpi_init = os.system('nm ' + file_arg + ' | grep -q -i MPI_Init')
 		  if not os.WEXITSTATUS(has_mpi_init):
-		    mpi_executable = s
+		    mpi_executable = file_arg
 		    break
 
     # Set the mpiplugin to use for mpi jobs.  The OPENSS_MPI_IMPLEMENTATION
@@ -145,6 +164,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # use with O|SS.
     use_mpi_impl = ""
     if ismpi:
+      if mpi_executable == "":
+	raise RuntimeError("[openss error]: Failed to locate the mpi program.")
+
       if 'OPENSS_MPI_IMPLEMENTATION' in os.environ:
 	use_mpi_impl = os.environ["OPENSS_MPI_IMPLEMENTATION"]
       else:
@@ -161,11 +183,10 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	# TODO: This should only error out for cases where something
 	# like pcsamp is the collector and there should be mpi too.
 	#raise RuntimeError("Failed to locate the mpi runtime plugin. " + libmonitor)
-	print "Failed to locate the mpi runtime plugin."
-	print "No MPI rank identifiers will be recorded in the openss database."
+	print "[openss warning]: Failed to locate the mpi runtime plugin."
+	print "[openss warning]: No MPI rank identifiers will be recorded in the openss database."
     else:
 	mpiplugin = ""
-
 
     # Allow the user to just use the know mpi and mpit collector names.
     # We will prepend the prper mpi implementation.
@@ -179,7 +200,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     else:
 	# In case this may be an mpi program, setup preload_files to
 	# also include the mpi plugin.  
-	# dpm/jeg 10/15/08 - Removed setting of OPENSS_MPI_TRACED here.  The new ossrun sets it instead of doing it here.
+	# dpm/jeg 10/15/08 - Removed setting of OPENSS_MPI_TRACED here.
+	# The new ossrun sets it instead of doing it here.
 	preload_files = mpiplugin
 
     # Form the command that will run the offline experiment
@@ -187,32 +209,39 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # collector for just the actual mpi program and not the mpi driver too.
 
     if mpi_executable != "":
-	command = program.replace(mpi_executable, "ossrun \"" + mpi_executable)
+	mpi_exe_orig = mpi_executable
+        if not mpi_executable.startswith("/") and not mpi_executable.startswith("."):
+	    mpi_executable = os.curdir + "/" + mpi_executable
+	command = program.replace(mpi_exe_orig, "ossrun \"" + mpi_executable)
 	command = command + "\" " +  orig_collectorname
     else:
 	preload_files = ""
 	command = program
+	if not command.startswith("/") and not command.startswith("."):
+	    command = os.curdir + "/" + command
 
     collectorplugin =  plugins + "/" + collector + "-rt-offline.so"
 
     if not os.path.isfile(collectorplugin):
-	raise RuntimeError("Failed to locate the " +  collector + " runtime plugin.")
+	raise RuntimeError("[openss error]: Failed to locate the " +  collector + " runtime plugin.")
 	# this code below could replace the error here so we could
 	# just let the program run without our data collectors.
 	#collectorplugin = ""
 	#preload_files = ""
 
     # Prepare our collectors and libmonitor for LD_PRELOAD.
+    oss_preload = ""
     if mpi_executable == "":
         oss_preload = \
               collectorplugin + \
 	      ":" + preload_files + \
 	      ":" + libmonitor
-        os.environ['LD_PRELOAD'] = oss_preload
+
 
     # Execute the command in a subprocess rather than replacing the
     # current process like os.system does. Need Python 2.4 or later for this.
-    print "\nRunning offline experiment using the command:\n\"%s\"\n" % command
+    print "[openss]: Running offline %(col)s experiment using the command:\n\"%(cmd)s\"\n" \
+	   % {'col':collector,'cmd':command}
 
     python_ver = sys.version[0:3]
     if python_ver > "2.3":
@@ -225,21 +254,39 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    # interactive programs and muck with any stdIO here.
 	    # If we can handle an interactive programm (like openss itself)
 	    # with the subprocess method then we should eventually do that.
+	    command = "env" +  \
+             " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
+
+	    #print "\n[openss debug]: USING os.system to execute " + command
 	    os.system(command)
 	else:
 	    # This is specificly here for mpi programs.
-	    import subprocess
-	    subp = subprocess.Popen(command, shell=True,
-				    stdout=subprocess.PIPE,
-				    stdin=subprocess.PIPE,)
-	    while True:
-	        o = subp.stdout.readline()
-	        if o == '' and subp.poll() != None: break
-	        sys.stdout.write(o)
+	    command = "env" +  \
+             " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
+
+	    #print "\n[openss debug]: USING os.system to execute " + command
+	    os.system(command)
+
+	# Comment out the subprocess code for now.
+	    #import subprocess
+	    #subp = subprocess.Popen(command, shell=True,
+	#			    stdout=subprocess.PIPE,
+	#			    stdin=subprocess.PIPE,)
+				    #env={"LD_PRELOAD":oss_preload})
+	#    while True:
+	#        o = subp.stdout.readline()
+	#        if o == '' and subp.poll() != None: break
+	#        sys.stdout.write(o)
+
     else:
 	# For python 2.3 just run the experiment using os.system.
 	# This includes mpi programs.
+	command = "env" +  \
+             " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
 	os.system(command)
+
+    print "\n[openss]: Converting raw data from %(rawdata)s into %(ossfile)s\n" \
+	   % {'rawdata':os.environ['OPENSS_RAWDATA_DIR'],'ossfile':"X.0.openss"}
 
     # currently ossutil writes openss databases to ever increasing
     # database files from the lowest it finds.
@@ -251,6 +298,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # Convert the rawdata files into opens database format.
     convert_command = OpenssInstallDir + "/bin/ossutil " + os.environ['OPENSS_RAWDATA_DIR']
     os.system(convert_command)
+
+    print "\n[openss]: Restoring and displaying default view for %(ossfile)s\n" % {'ossfile':"X.0.openss"}
 
     # restore the newly created database into openss.
     r_line = myparse.process("exprestore -f ./X.0.openss")
