@@ -128,8 +128,11 @@ if [ "x${OPENSS_RAWDATA_DIR}" == "x" ]
 then
    test -d "/tmp/${USER}/offline-oss" || mkdir -p "/tmp/${USER}/offline-oss"
    export OPENSS_RAWDATA_DIR="/tmp/${USER}/offline-oss"
-   rm -rf ${OPENSS_RAWDATA_DIR}/*
+else
+   test -d ${OPENSS_RAWDATA_DIR} || mkdir -p ${OPENSS_RAWDATA_DIR}
 fi
+
+test -d ${OPENSS_RAWDATA_DIR} && rm -rf ${OPENSS_RAWDATA_DIR}/*
 
 # 
 collector=$2
