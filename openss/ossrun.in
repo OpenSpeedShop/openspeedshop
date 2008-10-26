@@ -132,8 +132,6 @@ else
    test -d ${OPENSS_RAWDATA_DIR} || mkdir -p ${OPENSS_RAWDATA_DIR}
 fi
 
-test -d ${OPENSS_RAWDATA_DIR} && rm -rf ${OPENSS_RAWDATA_DIR}/*
-
 # 
 collector=$2
 case "$collector" in
