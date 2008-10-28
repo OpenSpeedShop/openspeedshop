@@ -197,6 +197,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    collector = collector + "-" + use_mpi_impl
 	elif collector == "mpit":
 	    collector = collector + "-" + use_mpi_impl
+        elif collector == "mpiotf":
+            collector = collector + "-" + use_mpi_impl
     else:
 	# In case this may be an mpi program, setup preload_files to
 	# also include the mpi plugin.  
@@ -285,25 +287,28 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
              " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
 	os.system(command)
 
-    print "\n[openss]: Converting raw data from %(rawdata)s into %(ossfile)s\n" \
-	   % {'rawdata':os.environ['OPENSS_RAWDATA_DIR'],'ossfile':"X.0.openss"}
+    if not collector.startswith("mpiotf"):
+        print "\n[openss]: Converting raw data from %(rawdata)s into %(ossfile)s\n" \
+          % {'rawdata':os.environ['OPENSS_RAWDATA_DIR'],'ossfile':"X.0.openss"}
 
-    # currently ossutil writes openss databases to ever increasing
-    # database files from the lowest it finds.
-    # Lets just always remove X.0.openss so that is our default for now.
-    # Always defaulting to X.0.openss allows us to use restore below with
-    # no need to worry about finding which file was just written.
-    os.system('/bin/rm -rf ./X.0.openss')
+	# currently ossutil writes openss databases to ever increasing
+	# database files from the lowest it finds.
+	# Lets just always remove X.0.openss so that is our default for now.
+	# Always defaulting to X.0.openss allows us to use restore below with
+	# no need to worry about finding which file was just written.
+	os.system('/bin/rm -rf ./X.0.openss')
 
-    # Convert the rawdata files into opens database format.
-    convert_command = OpenssInstallDir + "/bin/ossutil " + os.environ['OPENSS_RAWDATA_DIR']
-    os.system(convert_command)
+	# Convert the rawdata files into opens database format.
+	convert_command = OpenssInstallDir + "/bin/ossutil " + os.environ['OPENSS_RAWDATA_DIR']
+	os.system(convert_command)
+        print "\n[openss]: Restoring and displaying default view for %(ossfile)s\n" % {'ossfile':"X.0.openss"}
 
-    print "\n[openss]: Restoring and displaying default view for %(ossfile)s\n" % {'ossfile':"X.0.openss"}
+        # restore the newly created database into openss.
+        r_line = myparse.process("exprestore -f ./X.0.openss")
+        myparse.runsource(r_line, "stderr")
 
-    # restore the newly created database into openss.
-    r_line = myparse.process("exprestore -f ./X.0.openss")
-    myparse.runsource(r_line, "stderr")
+        # restore original rawdata directory
+        os.environ['OPENSS_RAWDATA_DIR'] = rawdir
+    else:
+	print "\n[openss]: Open Trace Files (OTF) files have been created.  Use an appropriate tool for viewing the OTF files."
 
-    # restore original rawdata directory
-    os.environ['OPENSS_RAWDATA_DIR'] = rawdir
