@@ -137,12 +137,12 @@ collector=$2
 case "$collector" in
     # The mpi tracing plugins already collect mpi rank information so
     # we do not add the preload_file...
-    mpi|mpit )
+    mpi|mpit|mpiotf )
     mpicollector=${collector}-${mpitouse}
     export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${libmonitor}
     ;;
 
-    mpi-*|mpit-* )
+    mpi-*|mpit-*|mpiotf-*)
     mpicollector=${collector}
     export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${libmonitor}
     ;;
