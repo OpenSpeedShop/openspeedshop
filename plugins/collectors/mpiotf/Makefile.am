@@ -19,12 +19,114 @@
 
 # Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
 
-CFLAGS =    -DBINDIR=\"@VT_DIR@/bin\" -DDATADIR=\"@VT_DIR@/share/vampirtrace\" -DVT_MPI -O0 -g -fPIC -shared -DRFG -DVT_BFDSYMCOLLECT -DVT_MEMHOOK 
+#CFLAGS =    -DBINDIR=\"@VT_DIR@/bin\" -DDATADIR=\"@VT_DIR@/share/vampirtrace\" -DVT_MPI -O0 -g -fPIC -shared -DRFG -DVT_BFDSYMCOLLECT -DVT_MEMHOOK 
+CFLAGS =    -DBINDIR=\"@VT_DIR@/bin\" -DDATADIR=\"@VT_DIR@/share/vampirtrace\" -DVT_MPI -O0 -g -fPIC -shared -DRFG -DVT_BFDSYMCOLLECT 
 
 BUILT_SOURCES = \
 	blobs.h blobs.c	
 
+pkglib_LTLIBRARIES =
+
+if HAVE_LIBMONITOR
+OFFLINE_SOURCES = \
+        mpiotf_offline.c mpiotf_offline.h
+
+endif
+
 #noinst_LIBRARIES = libvt.mpi.a
+
+pkglib_LTLIBRARIES += mpiotf.la
+
+if HAVE_LAM
+
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += mpiotf-rt-lam.la
+endif
+
+if HAVE_LIBMONITOR
+pkglib_LTLIBRARIES += mpiotf-lam-rt-offline.la libmpiotf-lam-offline.la
+endif
+
+endif
+
+if HAVE_LAMPI
+
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += mpiotf-rt-lampi.la
+endif
+
+if HAVE_LIBMONITOR
+pkglib_LTLIBRARIES += mpiotf-lampi-rt-offline.la libmpiotf-lampi-offline.la
+endif
+
+endif
+
+if HAVE_MPICH
+
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += mpiotf-rt-mpich.la
+endif
+
+if HAVE_LIBMONITOR
+pkglib_LTLIBRARIES += mpiotf-mpich_rt-offline.la libmpiotf-mpich-offline.la
+endif
+
+endif
+
+
+if HAVE_MPICH2
+
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += mpiotf-rt-mpich2.la
+endif
+
+if HAVE_LIBMONITOR
+pkglib_LTLIBRARIES += mpiotf-mpich2_rt-offline.la libmpiotf-mpich2-offline.la
+endif
+
+endif
+
+if HAVE_MPT
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += mpiotf-rt-mpt.la
+endif
+if HAVE_LIBMONITOR
+pkglib_LTLIBRARIES += mpiotf-mpt_rt-offline.la libmpiotf-mpt-offline.la
+endif
+endif
+
+if HAVE_MVAPICH
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += mpiotf-rt-mvapich.la
+endif
+if HAVE_LIBMONITOR
+pkglib_LTLIBRARIES += mpiotf-mvapich_rt-offline.la libmpiotf-mvapich-offline.la
+endif
+endif
+
+if HAVE_OPENMPI
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += mpiotf-rt-openmpi.la
+endif
+if HAVE_LIBMONITOR
+pkglib_LTLIBRARIES += mpiotf-openmpi-rt-offline.la libmpiotf-openmpi-offline.la
+endif
+endif
+
+mpiotf_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-framework
+
+mpiotf_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-framework \
+	-no-undefined -module -avoid-version
+
+mpiotf_la_LIBADD = \
+	-lopenss-framework
+
+mpiotf_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	MPIOTFCollector.hxx MPIOTFCollector.cxx \
+	MPIOTFDetail.hxx
 
 if HAVE_LAMPI
 libvt-lampi-mpi-a :
@@ -110,52 +212,80 @@ libvt-mvapich-mpi-a:
 	ar d libvt.mpi.mvapich.a libvt_mpi_a-vt_fmpiwrap.o
 endif
 
-pkglib_LTLIBRARIES =
-
-pkglib_LTLIBRARIES += mpiotf.la
-if !BUILD_OFFLINE
-if HAVE_LAM
-pkglib_LTLIBRARIES += mpiotf-rt-lam.la
-endif
-if HAVE_LAMPI
-pkglib_LTLIBRARIES += mpiotf-rt-lampi.la
-endif
-if HAVE_MPICH
-pkglib_LTLIBRARIES += mpiotf-rt-mpich.la
-endif
-if HAVE_MPICH2
-pkglib_LTLIBRARIES += mpiotf-rt-mpich2.la
-endif
-if HAVE_MPT
-pkglib_LTLIBRARIES += mpiotf-rt-mpt.la
-endif
-if HAVE_MVAPICH
-pkglib_LTLIBRARIES += mpiotf-rt-mvapich.la
-endif
-if HAVE_OPENMPI
-pkglib_LTLIBRARIES += mpiotf-rt-openmpi.la
-endif
-
-mpiotf_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework
-
-mpiotf_la_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-framework \
-	-no-undefined -module -avoid-version
-
-mpiotf_la_LIBADD = \
-	-lopenss-framework
-
-mpiotf_la_SOURCES = \
-	blobs.x $(BUILT_SOURCES) \
-	MPIOTFCollector.hxx MPIOTFCollector.cxx \
-	MPIOTFDetail.hxx
 
 # Common definitions for all MPI implementations
 #
 # See comments in plugins/collectors/mpi/Makefile.am.  Remarks there
 # concerning the generated wrapper sources also apply to wrappers.c
 # here.
+
+if HAVE_LIBMONITOR
+
+rt_offline_CFLAGS_generate = \
+	$(1) \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	-I$(top_srcdir)/libopenss-runtime/fileio \
+	-DOPENSS_OFFLINE  -DOPENSS_USE_FILEIO \
+	@VT_CPPFLAGS@ \
+        @OTF_CPPFLAGS@
+
+
+rt_offline_LDFLAGS_generate = \
+	$(1) \
+        -L$(top_srcdir)/libopenss-runtime \
+	-no-undefined -avoid-version
+
+rt_offline_sources = \
+        blobs.x $(BUILT_SOURCES) $(OFFLINE_SOURCES) \
+        runtime.h runtime.c  \
+        vt_mpiwrap-offline.c vt_sync.c vt_otf_trc.c \
+	vt_mpireq.c vt_mpireg.c vt_mpicom.c
+
+
+rt_offline_LIBADD_generate = \
+        $(1) \
+        -lopenss-runtime-offline \
+        -L$(top_srcdir)/plugins/collectors/mpiotf \
+        @VT_LIBS@ \
+        @OTF_LDFLAGS@ \
+        @OTF_LIBS@ \
+        @OTF_LIBZ_LDFLAGS@ \
+        @OTF_LIBZ_LIBS@ \
+        -lrt
+
+#  --- from  mpit below
+
+lib_offline_CFLAGS_generate = \
+        -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+        -I$(top_srcdir)/libopenss-runtime \
+        -I$(top_srcdir)/libopenss-runtime/fileio \
+        -I$(top_srcdir)/libopenss-runtime/offline \
+        $(1) \
+        @LIBMONITOR_CPPFLAGS@ \
+        @LIBUNWIND_CPPFLAGS@
+
+lib_offline_LDFLAGS_generate = \
+        -static -L$(top_srcdir)/libopenss-runtime \
+        $(1) \
+        @LIBMONITOR_LDFLAGS@ \
+        @LIBUNWIND_LDFLAGS@ \
+        -no-undefined
+
+lib_offline_LIBADD_generate = \
+        -lopenss-runtime-offline \
+        $(1) \
+        @LIBMONITOR_LIBS@ \
+        @LIBUNWIND_LIBS@ \
+        -lpthread -lrt
+
+lib_offline_sources = \
+        blobs.x $(BUILT_SOURCES) $(OFFLINE_SOURCES) \
+        vt_mpiwrap-offline.c \
+        runtime.h runtime.c
+
+endif
+
 
 rt_CFLAGS_generate = \
 	-I$(top_srcdir)/libopenss-runtime \
@@ -169,6 +299,7 @@ rt_LDFLAGS_generate = \
 	$(1) \
 	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined -avoid-version
+
 
 rt_LIBADD_generate = \
 	-lopenss-runtime \
@@ -187,6 +318,7 @@ rt_sources = \
 	runtime.h runtime.c  \
 	vt_mpiwrap.c vt_sync.c vt_otf_trc.c \
 	vt_mpireq.c vt_mpireg.c vt_mpicom.c 
+
 
 
 rt_openmpi_LIBADD_generate = \
@@ -284,13 +416,29 @@ rt_mpt_LIBADD_generate = \
 	@OTF_LIBZ_LIBS@ \
 	-lrt 
 
+
 if HAVE_LAM
 mpiotf_rt_lam_la_CFLAGS = $(call rt_CFLAGS_generate,@LAM_CPPFLAGS@)
 mpiotf_rt_lam_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@LAM_LDFLAGS@)
 mpiotf_rt_lam_la_LIBADD = $(call rt_lam_LIBADD_generate,@LAM_LIBS@)
 mpiotf_rt_lam_la_DEPENDENCIES = libvt-lam-mpi-a
 mpiotf_rt_lam_la_SOURCES = $(rt_sources)
+
+mpiotf_lam_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@LAM_CPPFLAGS@)
+mpiotf_lam_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@LAM_LDFLAGS@)
+mpiotf_lam_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@LAM_LIBS@)
+mpiotf_lam_rt_offline_la_DEPENDENCIES =
+mpiotf_lam_rt_offline_la_SOURCES = $(rt_offline_sources)
+
+libmpiotf_lam_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@LAM_CPPFLAGS@)
+libmpiotf_lam_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@LAM_LDFLAGS@)
+libmpiotf_lam_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@LAM_LIBS@)
+libmpiotf_lam_offline_la_DEPENDENCIES =
+libmpiotf_lam_offline_la_SOURCES = $(lib_offline_sources)
+nodist_libmpiotf_lam_offline_la_SOURCES =
 endif
+
+
 
 if HAVE_LAMPI
 mpiotf_rt_lampi_la_CFLAGS = $(call rt_CFLAGS_generate,@LAMPI_CPPFLAGS@)
@@ -298,7 +446,22 @@ mpiotf_rt_lampi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@LAMPI_LDFLAGS@)
 mpiotf_rt_lampi_la_LIBADD = $(call rt_lampi_LIBADD_generate,@LAMPI_LIBS@)
 mpiotf_rt_lampi_la_DEPENDENCIES = libvt-lampi-mpi-a
 mpiotf_rt_lampi_la_SOURCES = $(rt_sources)
+
+mpiotf_lampi_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@LAMPI_CPPFLAGS@)
+mpiotf_lampi_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@LAMPI_LDFLAGS@)
+mpiotf_lampi_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@LAMPI_LIBS@)
+mpiotf_lampi_rt_offline_la_DEPENDENCIES =
+mpiotf_lampi_rt_offline_la_SOURCES = $(rt_offline_sources)
+
+libmpiotf_lampi_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@LAMPI_CPPFLAGS@)
+libmpiotf_lampi_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@LAMPI_LDFLAGS@)
+libmpiotf_lampi_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@LAMPI_LIBS@)
+libmpiotf_lampi_offline_la_DEPENDENCIES =
+libmpiotf_lampi_offline_la_SOURCES = $(lib_offline_sources)
+nodist_libmpiotf_lampi_offline_la_SOURCES =
 endif
+
+
 
 if HAVE_MPICH
 mpiotf_rt_mpich_la_CFLAGS = $(call rt_CFLAGS_generate,@MPICH_CPPFLAGS@)
@@ -306,7 +469,21 @@ mpiotf_rt_mpich_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPICH_LDFLAGS@)
 mpiotf_rt_mpich_la_LIBADD = $(call rt_mpich_LIBADD_generate,@MPICH_LIBS@)
 mpiotf_rt_mpich_la_DEPENDENCIES = libvt-mpich-mpi-a
 mpiotf_rt_mpich_la_SOURCES = $(rt_sources)
+
+mpiotf_mpich_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPICH_CPPFLAGS@)
+mpiotf_mpich_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPICH_LDFLAGS@)
+mpiotf_mpich_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@MPICH_LIBS@)
+mpiotf_mpich_rt_offline_la_DEPENDENCIES =
+mpiotf_mpich_rt_offline_la_SOURCES = $(rt_offline_sources)
+
+libmpiotf_mpich_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPICH_CPPFLAGS@)
+libmpiotf_mpich_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPICH_LDFLAGS@)
+libmpiotf_mpich_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MPICH_LIBS@)
+libmpiotf_mpich_offline_la_DEPENDENCIES =
+libmpiotf_mpich_offline_la_SOURCES = $(lib_offline_sources)
+nodist_libmpiotf_mpich_offline_la_SOURCES =
 endif
+
 
 if HAVE_MPICH2
 mpiotf_rt_mpich2_la_CFLAGS = $(call rt_CFLAGS_generate,@MPICH2_CPPFLAGS@)
@@ -314,7 +491,22 @@ mpiotf_rt_mpich2_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPICH2_LDFLAGS
 mpiotf_rt_mpich2_la_LIBADD = $(call rt_mpich2_LIBADD_generate,@MPICH2_LIBS@)
 mpiotf_rt_mpich2_la_DEPENDENCIES = libvt-mpich2-mpi-a
 mpiotf_rt_mpich2_la_SOURCES = $(rt_sources)
+
+mpiotf_mpich2_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPICH2_CPPFLAGS@)
+mpiotf_mpich2_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPICH2_LDFLAGS@)
+mpiotf_mpich2_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@MPICH2_LIBS@)
+mpiotf_mpich2_rt_offline_la_DEPENDENCIES =
+mpiotf_mpich2_rt_offline_la_SOURCES = $(rt_offline_sources)
+
+libmpiotf_mpich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPICH2_CPPFLAGS@)
+libmpiotf_mpich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPICH2_LDFLAGS@)
+libmpiotf_mpich2_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MPICH2_LIBS@)
+libmpiotf_mpich2_offline_la_DEPENDENCIES =
+libmpiotf_mpich2_offline_la_SOURCES = $(lib_offline_sources)
+nodist_libmpiotf_mpich2_offline_la_SOURCES =
+
 endif
+
 
 if HAVE_MPT
 mpiotf_rt_mpt_la_CFLAGS = $(call rt_CFLAGS_generate,@MPT_CPPFLAGS@)
@@ -322,6 +514,19 @@ mpiotf_rt_mpt_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPT_LDFLAGS@)
 mpiotf_rt_mpt_la_LIBADD = $(call rt_mpt_LIBADD_generate,@MPT_LIBS@)
 mpiotf_rt_mpt_la_DEPENDENCIES = libvt-mpt-mpi-a
 mpiotf_rt_mpt_la_SOURCES = $(rt_sources)
+
+mpiotf_mpt_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
+mpiotf_mpt_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
+mpiotf_mpt_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@MPT_LIBS@)
+mpiotf_mpt_rt_offline_la_DEPENDENCIES =
+mpiotf_mpt_rt_offline_la_SOURCES = $(rt_offline_sources)
+
+libmpiotf_mpt_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
+libmpiotf_mpt_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
+libmpiotf_mpt_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MPT_LIBS@)
+libmpiotf_mpt_offline_la_DEPENDENCIES =
+libmpiotf_mpt_offline_la_SOURCES = $(lib_offline_sources)
+nodist_libmpiotf_mpt_offline_la_SOURCES =
 endif
 
 if HAVE_MVAPICH
@@ -330,6 +535,19 @@ mpiotf_rt_mvapich_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MVAPICH_LDFLA
 mpiotf_rt_mvapich_la_LIBADD = $(call rt_mvapich_LIBADD_generate,@MVAPICH_LIBS@)
 mpiotf_rt_mvapich_la_DEPENDENCIES = libvt-mvapich-mpi-a
 mpiotf_rt_mvapich_la_SOURCES = $(rt_sources)
+
+mpiotf_mvapich_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
+mpiotf_mvapich_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
+mpiotf_mvapich_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@MVAPICH_LIBS@)
+mpiotf_mvapich_rt_offline_la_DEPENDENCIES =
+mpiotf_mvapich_rt_offline_la_SOURCES = $(rt_offline_sources)
+
+libmpiotf_mvapich_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
+libmpiotf_mvapich_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
+libmpiotf_mvapich_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MVAPICH_LIBS@)
+libmpiotf_mvapich_offline_la_DEPENDENCIES =
+libmpiotf_mvapich_offline_la_SOURCES = $(lib_offline_sources)
+nodist_libmpiotf_mvapich_offline_la_SOURCES =
 endif
 
 if HAVE_OPENMPI
@@ -338,10 +556,24 @@ mpiotf_rt_openmpi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@OPENMPI_LDFLA
 mpiotf_rt_openmpi_la_LIBADD = $(call rt_openmpi_LIBADD_generate,@OPENMPI_LIBS@)
 mpiotf_rt_openmpi_la_DEPENDENCIES = libvt-openmpi-mpi-a
 mpiotf_rt_openmpi_la_SOURCES = $(rt_sources)
+
+mpiotf_openmpi_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
+mpiotf_openmpi_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
+mpiotf_openmpi_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@OPENMPI_LIBS@)
+mpiotf_openmpi_rt_offline_la_DEPENDENCIES =
+mpiotf_openmpi_rt_offline_la_SOURCES = $(rt_offline_sources)
+
+libmpiotf_openmpi_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
+libmpiotf_openmpi_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
+libmpiotf_openmpi_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@OPENMPI_LIBS@)
+libmpiotf_openmpi_offline_la_DEPENDENCIES =
+libmpiotf_openmpi_offline_la_SOURCES = $(lib_offline_sources)
+nodist_libmpiotf_openmpi_offline_la_SOURCES =
+
 endif
 
 #endif for !BUILD_OFFLINE
-endif
+#endif
 
 SUFFIXES = .x 
 CLEANFILES = $(BUILT_SOURCES) 

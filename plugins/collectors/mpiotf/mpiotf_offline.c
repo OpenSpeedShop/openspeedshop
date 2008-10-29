@@ -56,6 +56,7 @@ void offline_start_sampling(const char* arguments)
 #if DEBUG_OFFLINE
     printf("offline_start_sampling entered\n");
 #endif
+
 //    OpenSS_CreateFilePrefix("mpiotf");
 //    OpenSS_CreateOutfile("openss-dsos");
 //    int retval = OpenSS_GetDLInfo(getpid(), NULL);
@@ -65,9 +66,11 @@ void offline_start_sampling(const char* arguments)
 
 void offline_stop_sampling(const char* arguments)
 {
+
 #if DEBUG_OFFLINE
     printf("offline_stop_sampling entered\n");
 #endif
+
     /* call the collector specific stop sampling funcion. */
     /* This writes any data blobs to the specific openss-raw file */
     /* (exp-collector-pid-tid.openss-raw). */

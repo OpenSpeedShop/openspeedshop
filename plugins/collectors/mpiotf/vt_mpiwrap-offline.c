@@ -11,6 +11,7 @@
  **/
 
 #include "vt_trc.h"
+#include "vt_memhook.h"
 #include "vt_mpicom.h"
 #include "vt_mpireg.h"
 #include "vt_mpireq.h"
@@ -22,7 +23,7 @@
 #include <mpi.h>
 #include "vt_openss.h"
 
-#define debug_trace 1
+#define debug_trace 0
 
 static MPI_Status *my_status_array = 0;
 static int my_status_array_size = 0;
@@ -60,12 +61,35 @@ int MPI_Init( int *argc, char ***argv )
   unsigned char* grpv;
   uint64_t time;
 
+  /* shall I trace MPI events? */
+  vt_mpi_trace_is_on = vt_mpitrace = vt_env_mpitrace();
+  
+//  debugging/testing - take out 
+//  vt_mpi_trace_is_on = 1;
+//  vt_mpitrace = 1;
+
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, MPI_Init called, IS_TRACE_ON = %d, vt_enter_user_called=%d \n", 
+            IS_TRACE_ON, vt_enter_user_called);
+    fflush(stderr);
+  }
+
   if (IS_TRACE_ON)
     {
       TRACE_OFF();
-      vt_open();
 
-      time = vt_pform_wtime();
+      /* first event?
+	 -> initialize VT and enter dummy function 'user' */
+
+      if (!vt_open_called) {
+	vt_open();
+	time = vt_pform_wtime();
+	vt_enter_user(&time);
+	vt_enter_user_called = 1;
+      } else {
+	time = vt_pform_wtime();
+      }
+
       vt_enter(&time, vt_mpi_regid[VT__MPI_INIT]);
 
       returnVal = PMPI_Init(argc, argv);
@@ -90,9 +114,9 @@ int MPI_Init( int *argc, char ***argv )
       vt_exit(&time);
 
       TRACE_ON();
-    }
-  else
-    {
+
+    } else {
+
       returnVal = PMPI_Init(argc, argv);
 
       /* initialize mpi event handling */
@@ -132,13 +156,13 @@ int MPI_Finalize()
   uint64_t time;
 
 
+  if (debug_trace) {
     fprintf(stderr, "WRAPPER, MPI_Finalize called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
-  if (debug_trace) {
   }
 
-  if (IS_TRACE_ON)
-    {
+  if (IS_TRACE_ON) {
+
       TRACE_OFF();
 
       time = vt_pform_wtime();
@@ -148,10 +172,20 @@ int MPI_Finalize()
       vt_comm_finalize();
       vt_request_finalize();
 
+      if (debug_trace) {
+        fprintf(stderr, "WRAPPER, MPI_Finalize called, calling vt_mpi_finalize()\n");
+        fflush(stderr);
+      }
+
       /* finalize mpi event handling */
       vt_mpi_finalize();
 
       returnVal = PMPI_Finalize();
+
+      if (debug_trace) {
+        fprintf(stderr, "WRAPPER, MPI_Finalize called, after calling PMPI_Finalize()\n");
+        fflush(stderr);
+      }
 
       time = vt_pform_wtime();
       vt_exit(&time);
@@ -161,9 +195,7 @@ int MPI_Finalize()
 	vt_exit_user(&time);
 
       TRACE_ON();
-    }
-  else
-    {
+    } else {
       vt_comm_finalize();
       vt_request_finalize();
 
@@ -172,6 +204,10 @@ int MPI_Finalize()
       returnVal = PMPI_Finalize();
     }
 
+  if (debug_trace) {
+    fprintf(stderr, "WRAPPER, MPI_Finalize EXITING, returnVal=%d\n", returnVal);
+    fflush(stderr);
+  }
   return returnVal;
 }
 
