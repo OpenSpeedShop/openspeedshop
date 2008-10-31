@@ -7561,6 +7561,7 @@ StatsPanel::getFilenameFromString( QString selected_qstring )
 {
 
 // This is format of string: tdot_ (matmulMOD: matmulMOD.f90,5301)
+// But must also consider this form: ggGridIterator<mrSurface*>::Next(mrSurface*&, double&, double&) (eon: ggGrid.h,259)
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getFilenameFromString: Get filename from (%s)\n", selected_qstring.ascii() );
@@ -7569,6 +7570,7 @@ StatsPanel::getFilenameFromString( QString selected_qstring )
 
   int sfi = 0;
 
+#if OLDWAY
   sfi = selected_qstring.find(" in ");
 // printf("sfi=%d (Was there an \" in \"\n", sfi );
 
@@ -7586,6 +7588,65 @@ StatsPanel::getFilenameFromString( QString selected_qstring )
 
   filename = selected_qstring.mid(sfi, efi-sfi );
 
+#else
+
+// Here is the new algorithm
+
+  int efi = selected_qstring.findRev(")");
+#ifdef DEBUG_StatsPanel
+    printf("efi=%d after findRev for ) \n", efi );
+#endif
+  if( efi == -1 ) {
+      // return null
+      return(filename);
+  } else {
+    // This was part of the default path through this routine
+    // Commenting this out because have not seen this happen and it is not a very safe check.
+    // Leaving this in to see it this is really used anymore
+#if 0
+    sfi = selected_qstring.find(" in ");
+#else
+    sfi = -1;
+#endif
+
+#ifdef DEBUG_StatsPanel
+    printf("sfi=%d (Was there an \" in \"\n", sfi );
+#endif
+    if ( sfi == -1 )  {
+      sfi = selected_qstring.findRev(": ");
+      if( sfi == -1 ) {
+        // return null
+        return(filename);
+    } else {
+      // bump once for :
+      sfi++;
+      // bump once for space
+      sfi++;
+      efi = selected_qstring.findRev(",", efi);
+#ifdef DEBUG_StatsPanel
+      printf("efi=%d after findRev for , \n", efi );
+#endif
+
+// This is format of string: tdot_ (matmulMOD: matmulMOD.f90,5301)
+// But must also consider this form: ggGridIterator<mrSurface*>::Next(mrSurface*&, double&, double&) (eon: ggGrid.h,259)
+
+#ifdef DEBUG_StatsPanel
+      printf("new algorithm, sfi=(%d) efi=(%d) selected_qstring.ascii()=(%s), filename=%s\n", sfi, efi, selected_qstring.ascii(), selected_qstring.mid(sfi, efi-sfi ).ascii()  );
+#endif
+
+      filename = selected_qstring.mid(sfi, efi-sfi );
+    }
+   } else {
+#ifdef DEBUG_StatsPanel
+      printf("new algorithm, found - in - sfi=(%d) efi=(%d) (Was there a \",\" in (%s), filename=%s\n", sfi, efi, selected_qstring.ascii(), selected_qstring.mid(sfi, efi-sfi ).ascii()  );
+#endif
+     // sfi was not -1 on search for " in "
+     filename = selected_qstring.mid(sfi, efi-sfi );
+   }
+ 
+  }
+
+#endif
 // printf("   returning filename=(%s)\n", filename.ascii() );
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getFilenameFromString: returning filename=(%s)\n", filename.ascii() );
@@ -7633,12 +7694,16 @@ StatsPanel::getLinenumberFromString( QString selected_qstring )
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getLinenumberFromString, Get linenumber from (%s)\n", selected_qstring.ascii() );
 #endif
+
   QString linenumber = QString::null;
 
   int sfi = 0;
 
+#if OLDWAY
   sfi = selected_qstring.find(" in ");
-// printf("sfi=%d (Was there an \" in \"\n", sfi );
+#ifdef DEBUG_StatsPanel
+  printf("sfi=%d (Was there an \" in \"\n", sfi );
+#endif
 
   if( sfi == -1 )
   {
@@ -7651,9 +7716,61 @@ StatsPanel::getLinenumberFromString( QString selected_qstring )
 
   int efi = selected_qstring.find(")");
 
-// printf("sfi=(%d) efi=(%d) (Was there a \",\" in (%s)\n", sfi, efi, selected_qstring.ascii()  );
+#ifdef DEBUG_StatsPanel
+ printf("sfi=(%d) efi=(%d) (Was there a \",\" in (%s)\n", sfi, efi, selected_qstring.ascii()  );
+#endif
 
   linenumber = selected_qstring.mid(sfi, efi-sfi );
+#else
+
+// Here is the new algorithm - jeg
+// Look from the end of the string to avoid all the template and class special characters
+
+  int efi = selected_qstring.findRev(")");
+  if( efi == -1 ) {
+      // return null
+      return(linenumber);
+  } else {
+
+
+#if 0
+    // This was part of the default path through this routine
+    // Commenting this out because have not seen this happen and it is not a very safe check.
+    // Leaving this in to see it this is really used anymore
+    sfi = selected_qstring.find(" in ");
+#else
+    sfi = -1;
+#endif
+    
+
+#ifdef DEBUG_StatsPanel
+    printf("sfi=%d (Was there an \" in \"\n", sfi );
+#endif
+    if ( sfi == -1 )  {
+      sfi = selected_qstring.findRev(",");
+      if( sfi == -1 ) {
+        // return null
+        return(linenumber);
+    } else {
+      sfi++;
+
+#ifdef DEBUG_StatsPanel
+      printf("new algorithm, sfi=(%d) efi=(%d) (Was there a \",\" in (%s), linenumber=%s\n", sfi, efi, selected_qstring.ascii(), selected_qstring.mid(sfi, efi-sfi ).ascii()  );
+#endif
+
+      linenumber = selected_qstring.mid(sfi, efi-sfi );
+    }
+   } else {
+#ifdef DEBUG_StatsPanel
+      printf("new algorithm, found - in - sfi=(%d) efi=(%d) (Was there a \",\" in (%s), linenumber=%s\n", sfi, efi, selected_qstring.ascii(), selected_qstring.mid(sfi, efi-sfi ).ascii()  );
+#endif
+     // sfi was not -1 on search for " in "
+     linenumber = selected_qstring.mid(sfi, efi-sfi );
+   }
+ 
+  }
+
+#endif
 
 #ifdef DEBUG_StatsPanel
  printf("StatsPanel::getLinenumberFromString, returning linenumber=(%s)\n", linenumber.ascii() );
@@ -7665,72 +7782,100 @@ StatsPanel::getLinenumberFromString( QString selected_qstring )
 QString
 StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNumberStr )
 {
+
+// This is format of string: tdot_ (matmulMOD: matmulMOD.f90,5301)
+
 #ifdef DEBUG_StatsPanel
   printf("Get funcString from %s\n", selected_qstring.ascii() );
 #endif
+
   QString funcString = QString::null;
   QString workString = selected_qstring;
 
   int sfi = 0;
 
   sfi = selected_qstring.find(" in ");
-// printf("sfi=%d (Was there an \" in \"\n", sfi );
-  if( sfi != -1 )
-  {
+
+#ifdef DEBUG_StatsPanel
+  printf("sfi=%d (Was there an \" in \"\n", sfi );
+#endif
+
+  if( sfi != -1 ) {
     workString = selected_qstring.mid(sfi+4);
-  } else
-  {
+  } else {
     workString = selected_qstring;
   }
 
-// printf("Start you function lookup from (%s)\n", workString.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("Start you function lookup from (%s)\n", workString.ascii() );
+#endif
 
   funcString = workString.section(' ', 0, 0, QString::SectionSkipEmpty);
   std::string selected_function = funcString.ascii();
 
-// printf("funcString=(%s)\n", funcString.ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("funcString=(%s)\n", funcString.ascii() );
+#endif
 
   int efi = workString.find("(");
   QString function_name = workString.mid(0,efi);
 
-// printf("function_name=(%s)\n", function_name.ascii() );
+#ifdef DEBUG_StatsPanel
+   printf("function_name=(%s)\n", function_name.ascii() );
+#endif
 
-  if( ( currentCollectorStr == "mpi" || currentCollectorStr == "mpit" || currentCollectorStr == "io" || currentCollectorStr == "iot" ) && ( collectorStrFromMenu.startsWith("CallTrees") || collectorStrFromMenu.startsWith("Functions") || collectorStrFromMenu.startsWith("TraceBacks") || collectorStrFromMenu.startsWith("TraceBacks,FullStack") ) )
+  if( ( currentCollectorStr == "mpi" || 
+        currentCollectorStr == "mpit" || 
+        currentCollectorStr == "io" || 
+        currentCollectorStr == "iot" ) && ( collectorStrFromMenu.startsWith("CallTrees") || 
+                                            collectorStrFromMenu.startsWith("Functions") || 
+                                            collectorStrFromMenu.startsWith("TraceBacks") || 
+                                            collectorStrFromMenu.startsWith("TraceBacks,FullStack") ) )
   {
     int bof = -1;
     int eof = workString.find('(');
-// printf("eof=%d\n", eof);
-    if( eof == -1 )
-    {
+
+#ifdef DEBUG_StatsPanel
+    printf("eof=%d\n", eof);
+#endif
+
+    if( eof == -1 ) {
 // printf("main:  you should never be here..\n");
       function_name = "main";
-    } else
-    {
+    } else {
 
       QString tempString = workString.mid(0,eof);
-// printf("tempString=%s\n", tempString.ascii() );
+#ifdef DEBUG_StatsPanel
+       printf("tempString=%s\n", tempString.ascii() );
+#endif
 
       QRegExp rxp = QRegExp( "[ >]");
       bof = tempString.findRev(rxp, eof);
-// printf("bof=%d\n", bof);
-      if( bof == -1 )
-      {
+#ifdef DEBUG_StatsPanel
+      printf("bof=%d\n", bof);
+#endif
+      if( bof == -1 ) {
         bof = 0;
-      } else
-      {
+      } else {
         bof++;
       }
     }
     function_name = workString.mid(bof,eof-bof);
+#ifdef DEBUG_StatsPanel
+      printf("bof=%d, eof-bof=%d, workString.mid(bof,eof-bof)=%s\n", bof, eof-bof, function_name.ascii());
+#endif
 
     int boln = workString.find('@');
     boln++;
     int eoln = workString.find(" in ");
     lineNumberStr = workString.mid(boln,eoln-boln).stripWhiteSpace();
-// printf("lineNumberStr=(%s)\n", lineNumberStr.ascii() );
+
+#ifdef DEBUG_StatsPanel
+    printf("lineNumberStr=(%s)\n", lineNumberStr.ascii() );
+    printf("mpi: function_name=(%s)\n", function_name.ascii() );
+#endif
 
 
-// printf("mpi: function_name=(%s)\n", function_name.ascii() );
   }
 
 #ifdef DEBUG_StatsPanel
