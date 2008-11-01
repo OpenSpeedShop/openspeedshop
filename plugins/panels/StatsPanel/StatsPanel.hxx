@@ -507,6 +507,8 @@ class StatsPanel  : public Panel
     int steps;
 
     double TotalTime;
+    double maxEntryBasedOnTotalTime;
+
     double total_percent;
     int numberItemsToDisplayInStats;
     int numberItemsToDisplayInChart;

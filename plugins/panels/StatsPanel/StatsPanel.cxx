@@ -83,34 +83,34 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 // These are the pie chart colors..
 static char *hotToCold_color_names[] = {
   "red",
-  "magenta",
-  "skyblue",
-  "cyan",
-  "darksalmon",
-  "green",
+  "darkorange",
   "orange",
-  "coral",
-  "lightcoral",
-  "pink",
-  "lightcyan",
+  "gold",
+  "yellow",
+  "khaki",
+  "yellowgreen",
+  "limegreen",
+  "forestgreen",
+  "darkturquoise",
+  "turquoise",
+  "steelblue",
+  "skyblue",
   "lightblue",
-  "lightgreen",
-  "lightGray",
 };
 static char *coldToHot_color_names[] = {
-  "lightGray"
-  "lightgreen",
   "lightblue",
-  "lightcyan",
-  "pink",
-  "lightcoral",
-  "coral",
-  "orange",
-  "green",
-  "darksalmon",
-  "cyan",
   "skyblue",
-  "magenta",
+  "steelblue",
+  "turquoise",
+  "darkturquoise",
+  "forestgreen",
+  "limegreen",
+  "yellowgreen",
+  "khaki",
+  "yellow",
+  "gold",
+  "orange",
+  "darkorange",
   "red",
 };
 #else
@@ -368,6 +368,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   expID = -1;
   descending_sort = true;
   TotalTime = 0;
+  maxEntryBasedOnTotalTime = 0;
 
   if( ao->loadedFromSavedFile == TRUE ) {
 
@@ -4712,6 +4713,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 #endif
 
   TotalTime = 0.0;
+  maxEntryBasedOnTotalTime = 0;
   process_clip(statspanel_clip, NULL, FALSE);
 
 //  process_clip(statspanel_clip, NULL, TRUE);
@@ -6349,46 +6351,46 @@ StatsPanel::getLineColor(double value)
 {
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::getLineColor(%f) double, descending_sort= %d TotalTime=%f\n", value, descending_sort, TotalTime);
-  printf("StatsPanel::getLineColor double, (TotalTime*.90)=%f, (TotalTime*.80)=%f, (TotalTime*.70)=%f\n", 
-         (TotalTime*.90), (TotalTime*.80), (TotalTime*.70));
-  printf("StatsPanel::getLineColor double, (TotalTime*.60)=%f, (TotalTime*.50)=%f, (TotalTime*.40)=%f\n", 
-         (TotalTime*.60), (TotalTime*.50), (TotalTime*.40));
-  printf("StatsPanel::getLineColor double, (TotalTime*.30)=%f, (TotalTime*.20)=%f, (TotalTime*.10)=%f\n", 
-         (TotalTime*.30), (TotalTime*.20), (TotalTime*.10));
+  printf("StatsPanel::getLineColor(%f) double, descending_sort= %d TotalTime=%f, maxEntryBasedOnTotalTime=%f\n", value, descending_sort, TotalTime, maxEntryBasedOnTotalTime);
+  printf("StatsPanel::getLineColor double, (maxEntryBasedOnTotalTime*.90)=%f, (maxEntryBasedOnTotalTime*.80)=%f, (maxEntryBasedOnTotalTime*.70)=%f\n", 
+         (maxEntryBasedOnTotalTime*.90), (maxEntryBasedOnTotalTime*.80), (maxEntryBasedOnTotalTime*.70));
+  printf("StatsPanel::getLineColor double, (maxEntryBasedOnTotalTime*.60)=%f, (maxEntryBasedOnTotalTime*.50)=%f, (maxEntryBasedOnTotalTime*.40)=%f\n", 
+         (maxEntryBasedOnTotalTime*.60), (maxEntryBasedOnTotalTime*.50), (maxEntryBasedOnTotalTime*.40));
+  printf("StatsPanel::getLineColor double, (maxEntryBasedOnTotalTime*.30)=%f, (maxEntryBasedOnTotalTime*.20)=%f, (maxEntryBasedOnTotalTime*.10)=%f\n", 
+         (maxEntryBasedOnTotalTime*.30), (maxEntryBasedOnTotalTime*.20), (maxEntryBasedOnTotalTime*.10));
 #endif
 
   if( (double) value >  0.0 ) {
-    if( TotalTime*.90 <= value ) {
+    if( maxEntryBasedOnTotalTime*.90 <= value ) {
 #ifdef DEBUG_StatsPanel
-      printf("StatsPanel::getLineColor(%f) in (TotalTime*.90=)%f, case block, returning 0==red color\n", value, (TotalTime*.90));
+      printf("StatsPanel::getLineColor(%f) in (maxEntryBasedOnTotalTime*.90=)%f, case block, returning 0==red color\n", value, (maxEntryBasedOnTotalTime*.90));
 #endif
       return(0);
-    } else if( TotalTime*.80 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.80 <= value ) {
 #ifdef DEBUG_StatsPanel
-      printf("StatsPanel::getLineColor(%f) in (TotalTime*.80=)%f, case block, returning 1==xxx color\n", value, (TotalTime*.80));
+      printf("StatsPanel::getLineColor(%f) in (maxEntryBasedOnTotalTime*.80=)%f, case block, returning 1==xxx color\n", value, (maxEntryBasedOnTotalTime*.80));
 #endif
       return(1);
-    } else if( TotalTime*.70 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.70 <= value ) {
 #ifdef DEBUG_StatsPanel
-      printf("StatsPanel::getLineColor(%f) in (TotalTime*.70=)%f, case block, returning 2==xxx color\n", value, (TotalTime*.70));
+      printf("StatsPanel::getLineColor(%f) in (maxEntryBasedOnTotalTime*.70=)%f, case block, returning 2==xxx color\n", value, (maxEntryBasedOnTotalTime*.70));
 #endif
       return(2);
-    } else if( TotalTime*.60 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.60 <= value ) {
       return(3);
-    } else if( TotalTime*.50 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.50 <= value ) {
       return(4);
-    } else if( TotalTime*.40 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.40 <= value ) {
       return(5);
-    } else if( TotalTime*.30 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.30 <= value ) {
       return(6);
-    } else if( TotalTime*.20 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.20 <= value ) {
       return(7);
-    } else if( TotalTime*.10 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.10 <= value ) {
       return(8);
-    } else if( TotalTime*0 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*0 <= value ) {
 #ifdef DEBUG_StatsPanel
-      printf("StatsPanel::getLineColor(%f) in (TotalTime*0=)%f, case block, returning 10==xxx color\n", value, (TotalTime*0));
+      printf("StatsPanel::getLineColor(%f) in (maxEntryBasedOnTotalTime*0=)%f, case block, returning 10==xxx color\n", value, (maxEntryBasedOnTotalTime*0));
 #endif
       return(9);
     } else {
@@ -6403,30 +6405,30 @@ StatsPanel::getLineColor(unsigned int value)
 {
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getLineColor, unsigned, (%u)\n", value);
-  printf("StatsPanel::getLineColor, unsigned, TotalTime=%lf\n", TotalTime);
+  printf("StatsPanel::getLineColor(%f) unsigned, TotalTime=%f, maxEntryBasedOnTotalTime=%f\n", value, TotalTime, maxEntryBasedOnTotalTime);
 #endif
 
 
   if( (int) value >  0.0 ) {
-    if( TotalTime*.90 <= value ) {
+    if( maxEntryBasedOnTotalTime*.90 <= value ) {
       return(0);
-    } else if( TotalTime*.80 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.80 <= value ) {
       return(1);
-    } else if( TotalTime*.70 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.70 <= value ) {
       return(2);
-    } else if( TotalTime*.60 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.60 <= value ) {
       return(3);
-    } else if( TotalTime*.50 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.50 <= value ) {
       return(4);
-    } else if( TotalTime*.40 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.40 <= value ) {
       return(5);
-    } else if( TotalTime*.30 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.30 <= value ) {
       return(6);
-    } else if( TotalTime*.20 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.20 <= value ) {
       return(7);
-    } else if( TotalTime*.10 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.10 <= value ) {
       return(8);
-    } else if( TotalTime*0 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*0 <= value ) {
       return(9);
     } else {
       return(10);
@@ -6443,28 +6445,29 @@ StatsPanel::getLineColor(uint64_t value)
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getLineColor(%lld), unint64_t, TotalTime=%lf\n", value, TotalTime);
   printf("StatsPanel::getLineColor(%lld), unint64_t, (.90 * TotalTime)=%lf\n", value, (.90 *TotalTime));
+  printf("StatsPanel::getLineColor(%lld) unint64_t,, TotalTime=%f, maxEntryBasedOnTotalTime=%f\n", value, TotalTime, maxEntryBasedOnTotalTime);
 #endif
 
   if( (uint64_t) value >  0.0 ) {
-    if( TotalTime*.90 <= value ) {
+    if( maxEntryBasedOnTotalTime*.90 <= value ) {
       return(0);
-    } else if( TotalTime*.80 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.80 <= value ) {
       return(1);
-    } else if( TotalTime*.70 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.70 <= value ) {
       return(2);
-    } else if( TotalTime*.60 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.60 <= value ) {
       return(3);
-    } else if( TotalTime*.50 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.50 <= value ) {
       return(4);
-    } else if( TotalTime*.40 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.40 <= value ) {
       return(5);
-    } else if( TotalTime*.30 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.30 <= value ) {
       return(6);
-    } else if( TotalTime*.20 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.20 <= value ) {
       return(7);
-    } else if( TotalTime*.10 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*.10 <= value ) {
       return(8);
-    } else if( TotalTime*0 <= value ) {
+    } else if( maxEntryBasedOnTotalTime*0 <= value ) {
       return(9);
     } else {
       return(10);
@@ -7235,9 +7238,16 @@ for( ChartPercentValueList::Iterator it = cpvl.begin();
       QString value = strings[i];
       if( i == 0 ) // Grab the (some) default metric FIX
       {
+
         float f = value.toFloat();
+
+        if (f > maxEntryBasedOnTotalTime) {
+          maxEntryBasedOnTotalTime = f;
+        }
+
 #ifdef DEBUG_StatsPanel
-        printf("StatsPanel::outputCLIData, CHART, inside if cpvl.count() <= numberItemsToDisplayInChart, add f=%f to TotalTime=%f, i=%d\n", f, TotalTime, i);
+        printf("StatsPanel::outputCLIData, CHART, inside if cpvl.count() <= numberItemsToDisplayInChart, add f=%f to TotalTime=%f, i=%d, maxEntryBasedOnTotalTime=%f\n", 
+               f, TotalTime, i, maxEntryBasedOnTotalTime);
 #endif
 
         TotalTime += f;
@@ -7245,8 +7255,8 @@ for( ChartPercentValueList::Iterator it = cpvl.begin();
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::outputCLIData, CHART, inside if cpvl.count() <= numberItemsToDisplayInChart, percentIndex=%d, i=%d\n", percentIndex, i);
 #endif
-      if( percentIndex == i )
-      {
+
+      if( percentIndex == i ) {
 #ifdef DEBUG_StatsPanel
         printf("StatsPanel::outputCLIData, CHART, inside if cpvl.count() <= numberItemsToDisplayInChart, percentIndex=%d,EQUALS i=%d, value.isEmpty()=%d\n", 
                  percentIndex, i, value.isEmpty());
