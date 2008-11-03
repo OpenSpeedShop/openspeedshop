@@ -55,6 +55,35 @@ table.exp td {
 			<li><h3><a class="mozTocH3" name="mozTocId3287"></a>openss -batch:</h3></li>
 		</ul>
 		<div style="margin-left: 40px;">This invocation of <b>Open|SpeedShop</b> will execute a performance experiment. specified by additional arguments, directly without user interaction. The -batch operation can be used in scripts and batch processing environments.<br></div>
+       
+      
+
+
+        <ul>
+            <li><h3><a class="mozTocH3"></a> openss -offline -f "executable and arguments"  experiment:</h3></li>
+        </ul>
+        <div style="margin-left: 40px;">
+
+            This invocation of Open|SpeedShop will execute the command following the -f parameter.  
+            The experiment type at the end is the collector used.  As this collection method utilizes LD_PRELOAD to intercept calls, 
+            it must run during the entire execution time and will output files at the processor 
+            level that are post processed to add to the experiment database.  <br><br>
+            
+            An important environment variable for this type of invocation is OPENSS_RAWDATA_DIR.
+            The OPENSS_RAWDATA_DIR variable must be defined within the user's environment before 
+            OpenSpeedShop is invoked. If the OPENSS_RAWDATA_DIR environment variable is not defined in the user's 
+            current terminal session before the invocation of OpenSpeedShop, 
+            then all raw performance data files will be placed in /tmp/offline-oss 
+            which is expected to be shared file space. <br><br>
+            
+            Either the -gui or -cli interface can be brought up to load the experiment data for further analysis. <br><br>
+
+            <b>NOTE</b>: In general, it is best if a user selects a target directory 
+            located where processor written files are best placed. <br><br>
+            <b>WARNING</b>: Concurrent instances of OpenSpeedShop MUST have unique 
+            OPENSS_RAWDATA_DIR target values associated with each respective 
+            OpenSpeedShop instance. Also make sure the target exists.
+       </div>
        </blockquote>
         <br>
         
