@@ -19,6 +19,9 @@
 
 #include "SS_Input_Manager.hxx"
 
+//#define DEBUG_COMPARE 1
+//#define DEBUG_COMPARE_SETS 1
+
 static int64_t Get_Trailing_Int (std::string viewname, int64_t start) {
   int64_t topn = 0;
   for (int i = start; i < viewname.length(); i++) {
@@ -176,25 +179,52 @@ struct selectionTarget {
  */
 void Select_ThreadGroup (selectionTarget& S, ThreadGroup& base_grp, ThreadGroup& rgrp) {
 
+#if DEBUG_COMPARE
+  printf("SSCOMPARE: Select_ThreadGroup Generate_CustomView, base_grp.size()==%d, rgrp.size()=%d\n", base_grp.size(), rgrp.size());
+  printf("SSCOMPARE: Select_ThreadGroup Generate_CustomView, S.threadId=%d, S.rankId=%d, S.hostId.c_str()=%s, S.pidId=%d\n", 
+         S.threadId, S.rankId, S.hostId.c_str(), S.pidId);
+#endif
+
    // Go through every thread and decide if it is included.
     ThreadGroup::iterator ti;
     for (ti = base_grp.begin(); ti != base_grp.end(); ti++) {
       Thread t = *ti;
       bool include_thread = true;
 
-      if (include_thread && (S.rankId != 0)) {
+      if (include_thread && (S.rankId >= 0)) {
+
         std::pair<bool, int> prank = t.getMPIRank();
+
+#if DEBUG_COMPARE
+        printf("SSCOMPARE: Select_ThreadGroup Generate_CustomView, prank.first==%d\n", prank.first);
+        if (prank.first) printf("SSCOMPARE: Select_ThreadGroup Generate_CustomView, prank.second==%d\n", prank.second);
+#endif
         include_thread = (prank.first && (prank.second == S.rankId));
+
       }
+
+#if DEBUG_COMPARE
+     printf("SSCOMPARE: Select_ThreadGroup before check for threadId, include_thread=%d, S.threadId=%d\n", include_thread, S.threadId);
+#endif
 
       if (include_thread && (S.threadId != 0)) {
        // Does it match a pthread ID?
         std::pair<bool, int> pthread = t.getOpenMPThreadId();
         bool threadHasThreadId = false;
         int64_t pthreadid = 0;
+
+#if DEBUG_COMPARE
+     printf("SSCOMPARE: Select_ThreadGroup inside check for threadId, include_thread=%d, pthread.first=%d\n", include_thread, pthread.first);
+#endif
+
         if (pthread.first) {
           threadHasThreadId = true;
           pthreadid = pthread.second;
+
+#if DEBUG_COMPARE
+     printf("SSCOMPARE: Select_ThreadGroup inside check for threadId, include_thread=%d, pthread.second=%d\n", include_thread, pthread.second);
+#endif
+
         } else {
           std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
           if (posixthread.first) {
@@ -205,11 +235,19 @@ void Select_ThreadGroup (selectionTarget& S, ThreadGroup& base_grp, ThreadGroup&
         include_thread = (threadHasThreadId && (pthreadid == S.threadId));
       }
 
+#if DEBUG_COMPARE
+     printf("SSCOMPARE: Select_ThreadGroup before check for pidId, include_thread=%d, S.pidId=%d\n", include_thread, S.pidId);
+#endif
+
       if (include_thread && (S.pidId != 0)) {
        // Does it match the pid?
         pid_t pid = t.getProcessId();
         include_thread = (pid == S.pidId);
       }
+
+#if DEBUG_COMPARE
+     printf("SSCOMPARE: Select_ThreadGroup before check for hostId, include_thread=%d, S.hostId.c_str()=%s\n", include_thread, S.hostId.c_str());
+#endif
 
       if (include_thread && (S.hostId != "")) {
        // Does it match the host?
@@ -217,9 +255,16 @@ void Select_ThreadGroup (selectionTarget& S, ThreadGroup& base_grp, ThreadGroup&
         include_thread = (hid == S.hostId);
       }
 
+#if DEBUG_COMPARE
+     printf("SSCOMPARE: Select_ThreadGroup before check for rgrp.insert include_thread=%d\n", include_thread );
+#endif
+
      // Add matching threads to rgrp.
       if (include_thread) {
         rgrp.insert(t);
+#if DEBUG_COMPARE
+        printf("SSCOMPARE: Select_ThreadGroup rgrp.insert (t.getProcessId())=%d)\n", t.getProcessId());
+#endif
       }
 
     }
@@ -231,18 +276,25 @@ static bool Generate_CustomView (CommandObject *cmd,
   int64_t numQuickSets = Quick_Compare_Set.size();
   int64_t i;
 
+#if DEBUG_COMPARE
+  printf("SSCOMPARE: ------------- Enter Generate_CustomView, numQuickSets=%d\n", numQuickSets);
+#endif
+
   if (numQuickSets == 0) {
     Mark_Cmd_With_Soft_Error(cmd, "There are no valid comparisons requested.");
     return false;
   }
 
+
+#if DEBUG_COMPARE_SETS
 /* TEST */
-/*
+  printf("SSCOMPARE: In Generate_CustomView, START 1st print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
   for (i = 0; i < numQuickSets; i++) {
     cerr << i;
     Quick_Compare_Set[i].Print(cerr);
   }
-*/
+  printf("SSCOMPARE: In Generate_CustomView, END 1st print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
+#endif
 
  // Generate all the views in the list.
   for (i = 0; i < numQuickSets; i++) {
@@ -284,13 +336,46 @@ static bool Generate_CustomView (CommandObject *cmd,
         Filter_ThreadGroup (cmd->P_Result(), tgrp);
       }
     } else {
+
+#if DEBUG_COMPARE
+      printf("SSCOMPARE: In Generate_CustomView, processing expCompare command, numQuickSets=%d\n", numQuickSets);
+#endif
+
      // This path implies we are processing an expCompare command.
      // Get all the threads that are in the experiment.
       ThreadGroup base_tgrp = exp->FW()->getThreads();
+
+#if DEBUG_COMPARE
+    printf("SSCOMPARE: In Generate_CustomView, START -------------- BASE_TGRP processing expCompare command, base_tgrp.size()=%d\n", base_tgrp.size());
+    ThreadGroup::iterator ti;
+    for (ti = base_tgrp.begin(); ti != base_tgrp.end(); ti++) {
+      std::cerr << "SSCOMPARE: In Generate_CustomView, BASE_TGRP ProcessId in base_tgrp=" << (*ti).getProcessId() << " HostID in base_tgrp=" << (*ti).getHost() << std::endl;
+      Thread t = *ti;
+      std::pair<bool, int> prank = t.getMPIRank();
+      std::cerr << "SSCOMPARE: In Generate_CustomView, BASE_TGRP Rank in base_tgrp=" << prank.second << "\n" <<  std::endl;
+    }
+    printf("SSCOMPARE: In Generate_CustomView, END ----------------- BASE_TGRP processing expCompare command, base_tgrp.size()=%d\n", base_tgrp.size());
+#endif
+
+#if DEBUG_COMPARE
+      printf("SSCOMPARE: In Generate_CustomView, before calling Filter_ThreadGroup\n");
+#endif
      // Retain only the threads that may be of interest.
       Filter_ThreadGroup (cmd->P_Result(), base_tgrp);
+
+#if DEBUG_COMPARE
+      printf("SSCOMPARE: In Generate_CustomView, after calling Filter_ThreadGroup\n");
+      printf("SSCOMPARE: In Generate_CustomView, before calling Select_ThreadGroup, base_tgrp.size()=%d\n", base_tgrp.size());
+      printf("SSCOMPARE: In Generate_CustomView, before calling Select_ThreadGroup, tgrp.size()=%d\n", tgrp.size());
+#endif
+
      // Select specific ones.
       Select_ThreadGroup (Quick_Compare_Set[i], base_tgrp, tgrp);
+
+#if DEBUG_COMPARE
+      printf("SSCOMPARE: In Generate_CustomView, after calling Select_ThreadGroup, base_tgrp.size()=%d\n", base_tgrp.size());
+      printf("SSCOMPARE: In Generate_CustomView, after calling Select_ThreadGroup, tgrp.size()=%d\n", tgrp.size());
+#endif
 
      // Are we processing a restricted time range?
       if (!Quick_Compare_Set[i].timeSegment.empty()) {
@@ -299,9 +384,29 @@ static bool Generate_CustomView (CommandObject *cmd,
         interval_list->push_back(Quick_Compare_Set[i].timeSegment[0]);
       }
     }
+
+#if DEBUG_COMPARE
+    printf("SSCOMPARE: Generate_CustomView, START ---------- processing expCompare command, tgrp.size()=%d\n", tgrp.size());
+    ThreadGroup::iterator ti;
+    for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+      std::cerr << " SSCOMPARE: Generate_CustomView, ProcessId in tgrp=" << (*ti).getProcessId() << " HostID in tgrp=" << (*ti).getHost() << std::endl;
+      Thread t = *ti;
+      std::pair<bool, int> prank = t.getMPIRank();
+      std::cerr << " SSCOMPARE: Generate_CustomView, Rank in tgrp=" << prank.second << "\n" <<  std::endl;
+    }
+    printf("SSCOMPARE: Generate_CustomView, END -------- processing expCompare command, tgrp.size()=%d\n", tgrp.size());
+#endif
+
     if (tgrp.size() > 0) {
+#if DEBUG_COMPARE
+      printf("SSCOMPARE: Generate_CustomView, before calling vt->GenerateView, tgrp.size()=%d\n", tgrp.size());
+#endif
       bool success = vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),
                                        tgrp, Quick_Compare_Set[i].partial_view);
+#if DEBUG_COMPARE
+      printf("SSCOMPARE: Generate_CustomView, after calling vt->GenerateView, tgrp.size()=%d\n", tgrp.size());
+#endif
+
       if (!success) {
         Reclaim_CR_Space (Quick_Compare_Set[i].partial_view);
         Quick_Compare_Set[i].partial_view.clear();
@@ -319,15 +424,21 @@ static bool Generate_CustomView (CommandObject *cmd,
     return true;
   }
 
+#if DEBUG_COMPARE_SETS
 /* TEST */
-/*
+  printf("SSCOMPARE: IN Generate_CustomView, START 2nd print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
   for (i = 0; i < numQuickSets; i++) {
     cerr << i;
     Quick_Compare_Set[i].Print(cerr);
   }
-*/
+  printf("SSCOMPARE: IN Generate_CustomView, END 2nd print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
+#endif
+
+
+
+#if DEBUG_COMPARE_SETS
 /* TEST */
-/*
+  printf("SSCOMPARE: IN Generate_CustomView, START ------- print of generated views, numQuickSets=%d\n", numQuickSets);
   cerr << "Display generated views\n";
   for (i = 0; i < numQuickSets; i++) {
     cerr << "Set " << i << "\n";
@@ -344,7 +455,8 @@ static bool Generate_CustomView (CommandObject *cmd,
       }
     }
   }
-*/
+  printf("SSCOMPARE: IN Generate_CustomView, END ------- 1st print of generated views, numQuickSets=%d\n", numQuickSets);
+#endif
 
 // Merge the results from each separate view into a single view.
 
@@ -402,12 +514,15 @@ static bool Generate_CustomView (CommandObject *cmd,
   }
 
 /* TEST */
-/*
+#if DEBUG_COMPARE_SETS
+  printf("SSCOMPARE: IN Generate_CustomView, START 3rd print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
   for (i = 0; i < numQuickSets; i++) {
     cerr << i;
     Quick_Compare_Set[i].Print(cerr);
   }
-*/
+  printf("SSCOMPARE: IN Generate_CustomView, END 3rd print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
+#endif
+
  // Add the header for the last column and attach all of them to the output report.
   C->CommandResult_Headers::Add_Header ( last_header->Copy() );
   cmd->Result_Predefined (C); // attach column headers to output
@@ -415,6 +530,7 @@ static bool Generate_CustomView (CommandObject *cmd,
  // Build the master maps.
  // The master_map associates a CommandResult * with an index.
  // The index is into master_vector, which points to the Function, Statement, LinkedObject, ...
+
   int64_t num_rows = 0;
   std::vector<CommandResult *> master_vector(rows_in_Set0);
   std::map<CommandResult *, int64_t, ltCR> master_map;
@@ -429,7 +545,14 @@ static bool Generate_CustomView (CommandObject *cmd,
  // Initial the master maps with information from Quick_Compare_Set[0].
   for (coi = Quick_Compare_Set[0].partial_view.begin(); coi != Quick_Compare_Set[0].partial_view.end(); coi++) {
     CommandResult *c = *coi;
+
+#if DEBUG_COMPARE_SETS
+    printf("SSCOMPARE: IN Generate_CustomView, inside loop going through Quick_Compare_Set[0].partial_view, c->Type()=%d, CMD_RESULT_COLUMN_VALUES=%d, CMD_RESULT_COLUMN_ENDER=%d\n", 
+           c->Type(), CMD_RESULT_COLUMN_VALUES, CMD_RESULT_COLUMN_ENDER);
+#endif
+
     if (c->Type() == CMD_RESULT_COLUMN_VALUES) {
+
       std::list<CommandResult *> L;
       ((CommandResult_Headers *)c)->Value(L);
       CommandResult *last_column = NULL;
@@ -438,7 +561,9 @@ static bool Generate_CustomView (CommandObject *cmd,
       Assert (last_column != NULL);
       master_map[last_column] = num_rows;
       master_vector[num_rows++] = last_column;
+
     } else if (c->Type() == CMD_RESULT_COLUMN_ENDER) {
+
       std::list<CommandResult *> L;
       ((CommandResult_Enders *)c)->Value(L);
       CommandResult *last_column = NULL;
@@ -447,17 +572,31 @@ static bool Generate_CustomView (CommandObject *cmd,
       Assert (last_column != NULL);
       master_ender_map[last_column] = num_enders;
       master_ender_vector[num_enders++][0] = c;
+
     }
   }
   int64_t Set0_rows = num_rows;
 
+#if DEBUG_COMPARE_SETS
+    printf("SSCOMPARE: IN Generate_CustomView, after loop going through Quick_Compare_Set[0].partial_view, Set0_rows=%d, numQuickSets=%d, num_enders=%d\n", 
+           Set0_rows, numQuickSets, num_enders);
+#endif
+
  // Build maps for all but the first compare sets.
  // These maps associate the right most column value with the index into the master map.
   for (i = 1; i < numQuickSets; i++) {
+
     std::list<CommandResult *>::iterator coi;
     for (coi = Quick_Compare_Set[i].partial_view.begin(); coi != Quick_Compare_Set[i].partial_view.end(); coi++) {
+
       CommandResult *c = *coi;
+
       if (c->Type() == CMD_RESULT_COLUMN_VALUES) {
+
+#if DEBUG_COMPARE_SETS
+        printf("SSCOMPARE: IN Generate_CustomView, in c->Type() == CMD_RESULT_COLUMN_VALUES section\n");
+#endif
+
         std::list<CommandResult *> L;
         ((CommandResult_Columns *)c)->Value(L);
         CommandResult *last_column = NULL;
@@ -466,20 +605,32 @@ static bool Generate_CustomView (CommandObject *cmd,
         Assert (last_column != NULL);
         std::map<CommandResult *, int64_t, ltCR>::iterator result = master_map.find(last_column);
         int64_t master_index = -1;
+
         if (master_map.end() == result) {
+
          // Need to add a new entry into the master.
           master_index = num_rows;
           master_map[last_column] = num_rows;
           master_vector.push_back (last_column);
           num_rows++;
+
         } else {
+
          // Use the index to an existing entry.
           master_index = (*result).second;
+
         }
+
        // Map the master_vector index to the start of data for this entry.
         Assert (Quick_Compare_Set[i].merge_map[master_index] == NULL);
         Quick_Compare_Set[i].merge_map[master_index] = c;
+
       } else if (c->Type() == CMD_RESULT_COLUMN_ENDER) {
+
+#if DEBUG_COMPARE_SETS
+        printf("SSCOMPARE: IN Generate_CustomView, in c->Type() == CMD_RESULT_COLUMN_ENDER section\n");
+#endif
+
         std::list<CommandResult *> L;
         ((CommandResult_Enders *)c)->Value(L);
         CommandResult *last_column = NULL;
@@ -488,17 +639,24 @@ static bool Generate_CustomView (CommandObject *cmd,
         Assert (last_column != NULL);
         std::map<CommandResult *, int64_t, ltCR>::iterator result = master_ender_map.find(last_column);
         int64_t master_ender_index = -1;
+
         if (master_ender_map.end() == result) {
+
          // Need to add a new entry into the master.
           master_ender_index = num_enders++;
           master_ender_map[last_column] = master_ender_index;
+
         } else {
+
          // Use the index to an existing entry.
           master_ender_index = (*result).second;
+
         }
+
        // Map the master_ender_vector index to the start of data for this entry.
         Assert (master_ender_vector[master_ender_index][i] == NULL);
         master_ender_vector[master_ender_index][i] = c;
+
       }
     }
   }
@@ -507,6 +665,12 @@ static bool Generate_CustomView (CommandObject *cmd,
   int64_t Set0_Columns = Quick_Compare_Set[0].numColumns;
   std::list<CommandResult *> Set0 = Quick_Compare_Set[0].partial_view;
   std::list<CommandResult *>::iterator Set0i = Set0.begin();
+
+#if DEBUG_COMPARE
+   printf("SSCOMPARE: In Generate_CustomView, Merge the values from the various compare sets, numQuickSets=%d,  master_vector.size()=%d, Set0_rows=%d\n",  
+           numQuickSets,  master_vector.size(), Set0_rows);
+#endif
+
   for (int64_t rc = 0; rc < master_vector.size(); rc++) {
     CommandResult_Columns *NC = new CommandResult_Columns ();
 
@@ -529,6 +693,10 @@ static bool Generate_CustomView (CommandObject *cmd,
         NC->CommandResult_Columns::Add_Column ( CRPTR("") );
       }
     }
+
+#if DEBUG_COMPARE
+   printf("SSCOMPARE: In Generate_CustomView, get data for other sets numQuickSets=%d\n",  numQuickSets);
+#endif
 
    // Get data for other sets.
     for (i = 1; i < numQuickSets; i++) {
@@ -556,6 +724,11 @@ static bool Generate_CustomView (CommandObject *cmd,
   }
 
  // Append the Enders.
+
+#if DEBUG_COMPARE
+   printf("SSCOMPARE: In Generate_CustomView, get data for each ender (num_enders=%d) of each numQuickSets=%d\n", num_enders, numQuickSets);
+#endif
+
   for (int64_t ec = 0; ec < num_enders; ec++) {
     CommandResult_Enders *NC = new CommandResult_Enders ();
     CommandResult *last_column = NULL;
@@ -593,6 +766,10 @@ static bool Generate_CustomView (CommandObject *cmd,
   for (i = 0; i < numQuickSets; i++) {
     Reclaim_CR_Space (Quick_Compare_Set[i].partial_view);
   }
+
+#if DEBUG_COMPARE
+  printf("SSCOMPARE: EXIT Generate_CustomView, numQuickSets=%d\n", numQuickSets);
+#endif
 
   cmd->set_Status(CMD_COMPLETE);
   return true;
