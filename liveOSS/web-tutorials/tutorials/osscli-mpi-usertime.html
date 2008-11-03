@@ -39,17 +39,16 @@ table.exp td {
 	<h2 id="climpi">Using Open|SpeedShop's CLI</h2>
 	
 	<p>Within a terminal window, enter <b><font face="courier">openss -cli</font></b> and hit &#060;Enter&#062;. This will start Open|SpeedShop's interactive command line interface.  In this particular example, we are going to gather user time information from an MPI job (<b>Note:</b> We are going to simulate an MPI run by oversubscribing our processor).  For demonstration purposes, we are going to gather information from one of Open|SpeedShop's supported implementations of the message passing interface - Open MPI. We have provided test binaries that can be utilized for our purposes.
-    <b>Note:</b>
-    If you experience difficulties, please try running the provided reset-live.sh script (~/reset-live.sh).</p>
+</p>	
 	
-	
-	<p>Within the interactive CLI, enter <b><font face="courier">expcreate -f "mpirun -np 3 nbody-mpi" usertime</font></b>. (<b>Note: </b> In this particular case, the double quotes are required).  We should then be greeted with a new focused experiment identifier (<b>Note</b>: This may take a moment.).  Enter <b><font face="courier">expgo</font></b> to start the focused experiment.</p>
+	<p>Within the interactive CLI, enter <b><font face="courier">expcreate -f "mpirun -np 2 /home/openssuser/mpi/smg2000/test/smg2000" usertime</font></b>. (<b>Note: </b> In this particular case, the double quotes are required).  We should then be greeted with a new focused experiment identifier (<b>Note</b>: This may take a moment.).  Enter <b><font face="courier">expgo</font></b> to start the focused experiment. We could also utilize OpenSpeedShop's offline instrumentation capabilities by typing:  <b><font face="courier">RunOfflineExp("mpirun -np 2 /home/openssuser/mpi/smg2000/test/smg2000","usertime")</font></b>.</p>
 	
 	<img src="../img/sh08.png"> 
 	<br>
 	<img src="../img/sh09.png"> 
 	
-	<p>Once the experiment has terminated, we can view the collected data through the CLI by entering <b><font face="courier">expdata</font></b>, or we can open the GUI by entering <b><font face="courier">openGui</font></b>.  <br>Other test binaries are located in /home/ossuser/bin and are supplied for further exploration.  They are: <i>mm-mpi, mutatee, threads, </i>and <i>forever</i>.</p>
+	<p>Once the experiment has terminated, we can view the collected data through the CLI by entering <b><font face="courier">expdata</font></b>, or we can open the GUI by entering <b><font face="courier">openGui</font></b>.  
+    <br>Other test binaries are located in /home/openssuser/sequential/smg2000/test and /home/openssuser/mpi/smg2000/test and are supplied for further exploration.  </p>
 </p>Please also explore the various options offered via a panel's pull down menu.  Further options can be accessed by clicking on a colored downward-facing arrow.</p>
 	
 	<img src="../img/sh010.png">
