@@ -88,16 +88,19 @@ iot_rt_offline_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
+        @BINUTILS_CPPFLAGS@ \
 	@LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
 
 iot_rt_offline_la_LDFLAGS = \
+        @BINUTILS_LDFLAGS@ \
 	@LIBMONITOR_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-runtime \
 	-no-undefined -module -avoid-version
 
 iot_rt_offline_la_LIBADD = \
+        @BINUTILS_LIBS@ \
 	@LIBUNWIND_LIBS@ \
 	@LIBMONITOR_LIBS@ \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
@@ -114,16 +117,19 @@ libiot_offline_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
+        @BINUTILS_CPPFLAGS@ \
 	@LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
 
 libiot_offline_la_LDFLAGS = \
 	-static -L$(top_srcdir)/libopenss-runtime \
+        @BINUTILS_LDFLAGS@ \
 	@LIBMONITOR_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 libiot_offline_la_LIBADD = \
+        @BINUTILS_LIBS@ \
 	@LIBUNWIND_LIBS@ \
 	@LIBMONITOR_LIBS@ \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \

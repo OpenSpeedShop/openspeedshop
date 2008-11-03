@@ -94,16 +94,19 @@ hwc_rt_offline_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
+        @BINUTILS_CPPFLAGS@ \
         @LIBMONITOR_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
 
 hwc_rt_offline_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
+        @BINUTILS_LDFLAGS@ \
         @LIBMONITOR_LDFLAGS@ \
 	@PAPI_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 hwc_rt_offline_la_LIBADD = \
+        @BINUTILS_LIBS@ \
         @LIBMONITOR_LIBS@ \
 	@PAPI_LIBS@ \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
@@ -119,16 +122,19 @@ libhwc_offline_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
+        @BINUTILS_CPPFLAGS@ \
 	@LIBMONITOR_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
 
 libhwc_offline_la_LDFLAGS = \
 	-static -L$(top_srcdir)/libopenss-runtime \
+        @BINUTILS_LDFLAGS@ \
 	@PAPI_LDFLAGS@ \
         @LIBMONITOR_LDFLAGS@ \
 	-no-undefined
 
 libhwc_offline_la_LIBADD = \
+        @BINUTILS_LIBS@ \
 	@PAPI_LIBS@ \
         @LIBMONITOR_LIBS@ \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \

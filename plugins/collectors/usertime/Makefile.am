@@ -84,6 +84,7 @@ endif
 
 if HAVE_LIBMONITOR
 usertime_rt_offline_la_CFLAGS = \
+        @BINUTILS_CPPFLAGS@ \
         @LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@ \
 	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
@@ -92,12 +93,14 @@ usertime_rt_offline_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime/offline
 
 usertime_rt_offline_la_LDFLAGS = \
+        @BINUTILS_LDFLAGS@ \
         @LIBMONITOR_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-runtime \
 	-no-undefined -module -avoid-version
 
 usertime_rt_offline_la_LIBADD = \
+        @BINUTILS_LIBS@ \
         @LIBMONITOR_LIBS@ \
 	@LIBUNWIND_LIBS@ \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
@@ -113,16 +116,19 @@ libusertime_offline_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
+        @BINUTILS_CPPFLAGS@ \
         @LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
 
 libusertime_offline_la_LDFLAGS = \
 	-static -L$(top_srcdir)/libopenss-runtime \
+        @BINUTILS_LDFLAGS@ \
         @LIBMONITOR_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined
 
 libusertime_offline_la_LIBADD = \
+        @BINUTILS_LIBS@ \
         @LIBMONITOR_LIBS@ \
 	@LIBUNWIND_LIBS@ \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la

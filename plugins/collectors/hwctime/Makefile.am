@@ -89,6 +89,7 @@ endif
 
 if HAVE_LIBMONITOR
 hwctime_rt_offline_la_CFLAGS = \
+        @BINUTILS_CPPFLAGS@ \
         @LIBMONITOR_CPPFLAGS@ \
 	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
 	-I$(top_srcdir)/libopenss-runtime \
@@ -99,12 +100,14 @@ hwctime_rt_offline_la_CFLAGS = \
 
 hwctime_rt_offline_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
+        @BINUTILS_LDFLAGS@ \
         @LIBMONITOR_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
 	@PAPI_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 hwctime_rt_offline_la_LIBADD = \
+        @BINUTILS_LIBS@ \
         @LIBMONITOR_LIBS@ \
 	@LIBUNWIND_LIBS@ \
 	@PAPI_LIBS@ \
@@ -121,18 +124,21 @@ libhwctime_offline_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
+        @BINUTILS_CPPFLAGS@ \
         @LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
 
 libhwctime_offline_la_LDFLAGS = \
 	-static -L$(top_srcdir)/libopenss-runtime \
+        @BINUTILS_LDFLAGS@ \
         @LIBMONITOR_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
 	@PAPI_LDFLAGS@ \
 	-no-undefined
 
 libhwctime_offline_la_LIBADD = \
+        @BINUTILS_LIBS@ \
         @LIBMONITOR_LIBS@ \
 	@LIBUNWIND_LIBS@ \
 	@PAPI_LIBS@ \

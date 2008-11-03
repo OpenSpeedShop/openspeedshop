@@ -262,12 +262,14 @@ lib_offline_CFLAGS_generate = \
         -I$(top_srcdir)/libopenss-runtime/fileio \
         -I$(top_srcdir)/libopenss-runtime/offline \
         $(1) \
+        @BINUTILS_CPPFLAGS@ \
         @LIBMONITOR_CPPFLAGS@ \
         @LIBUNWIND_CPPFLAGS@
 
 lib_offline_LDFLAGS_generate = \
         -static -L$(top_srcdir)/libopenss-runtime \
         $(1) \
+        @BINUTILS_LDFLAGS@ \
         @LIBMONITOR_LDFLAGS@ \
         @LIBUNWIND_LDFLAGS@ \
         -no-undefined
@@ -275,6 +277,7 @@ lib_offline_LDFLAGS_generate = \
 lib_offline_LIBADD_generate = \
         -lopenss-runtime-offline \
         $(1) \
+        @BINUTILS_LIBS@ \
         @LIBMONITOR_LIBS@ \
         @LIBUNWIND_LIBS@ \
         -lpthread -lrt

@@ -79,6 +79,7 @@ endif
 
 if HAVE_LIBMONITOR
 pcsamp_rt_offline_la_CFLAGS = \
+        @BINUTILS_CPPFLAGS@ \
 	@LIBMONITOR_CPPFLAGS@ \
 	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
 	-I$(top_srcdir)/libopenss-runtime \
@@ -87,10 +88,12 @@ pcsamp_rt_offline_la_CFLAGS = \
 
 pcsamp_rt_offline_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
+        @BINUTILS_LDFLAGS@ \
 	@LIBMONITOR_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 pcsamp_rt_offline_la_LIBADD = \
+        @BINUTILS_LIBS@ \
 	@LIBMONITOR_LIBS@ \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
 
@@ -104,14 +107,17 @@ libpcsamp_offline_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
+        @BINUTILS_CPPFLAGS@ \
         @LIBMONITOR_CPPFLAGS@
 
 libpcsamp_offline_la_LDFLAGS = \
 	-static -L$(top_srcdir)/libopenss-runtime \
+        @BINUTILS_LDFLAGS@ \
 	@LIBMONITOR_LDFLAGS@ \
 	-no-undefined
 
 libpcsamp_offline_la_LIBADD = \
+        @BINUTILS_LIBS@ \
 	@LIBMONITOR_LIBS@ \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
 
