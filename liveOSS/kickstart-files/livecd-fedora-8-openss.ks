@@ -16,7 +16,6 @@ libmonitor
 dyninst
 mrnet
 openspeedshop
-
 toyprograms
 webtutorial
 
@@ -97,8 +96,8 @@ echo "[Default]" > /root/.session-manual
 echo "num_clients=2" >> /root/.session-manual
 echo "0,RestartClientHint=3" >> /root/.session-manual
 echo "0,Priority=50" >> /root/.session-manual
-echo "0,RestartCommand=firefox" >> /root/.session-manual
-echo "0,Program=firefox /opt/doc/index.html" >> /root/.session-manual
+echo "0,RestartCommand=firefox /opt/doc/index.html" >> /root/.session-manual
+echo "1,Program=firefox /opt/doc/index.html" >> /root/.session-manual
 echo "1,RestartClientHint=3" >> /root/.session-manual
 echo "1,Priority=50" >> /root/.session-manual
 echo "1,RestartCommand=gnome-terminal" >> /root/.session-manual
@@ -107,14 +106,20 @@ cp /root/.session-manual /home/openssuser/.gnome2/session-manual
 chown openssuser:openssuser /home/openssuser/.gnome2/session-manual
 rm -f /root/.session-manual
 
-# add some symlinks to the test applications and documentation
-ln -s /opt/apps/forever /home/openssuser/forever
-ln -s /opt/apps/nbody-mpi /home/openssuser/nbody-mpi
-ln -s /opt/apps/mm-mpi /home/openssuser/mm-mpi
-ln -s /opt/apps/mutatee /home/openssuser/mutatee
-ln -s /opt/apps/threads /home/openssuser/threads
-ln -s /opt/apps/smg2000 /home/openssuser/smg2000/test/smg2000
-ln -s /opt/doc/index.html /home/openssuser/index.html
+#move apps to /home/openssuser
+#mkdir -p /home/openssuser/{mpi,openmp,sequential}
+mkdir -p /home/openssuser/{mpi,sequential}
+mv /opt/tempapps/mpi/smg2000 /home/openssuser/mpi/
+mv /opt/tempapps/sequential/smg2000 /home/openssuser/sequential/
+#mv /opt/tempapps/openmp/smg2000 /home/openssuser/openmp/
+
+mv /opt/tempapps/sequential/forever* /home/openssuser/sequential/
+
+chown openssuser:openssuser -R /home/openssuser/mpi
+chown openssuser:openssuser -R /home/openssuser/sequential
+rm -rf /opt/tempapps
+
+rm -rf /tmp/*
 
 EOF
 

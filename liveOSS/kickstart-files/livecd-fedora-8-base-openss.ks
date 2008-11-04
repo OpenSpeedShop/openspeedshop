@@ -54,6 +54,23 @@ kernel
 anaconda
 isomd5sum
 
+# more stuff that I took out...
+-compiz-gnome
+-audiofile
+-libtiff
+-libogg
+-aspell
+-mailx
+-enchant
+-tmpwatch
+-cpio
+-cdrdao
+-meanwhile
+-cracklib-dicts
+-zenity
+-orca
+-pirut
+
 %end
 
 %post
@@ -168,10 +185,5 @@ fi
 # copy some test applications for OpenSpeedShop
 # make sure these apps exist on your host machine...and were compiled in
 # in the same location.  This makes source mapping easier for OpenSpeedShop.
-
-# copy binary and source files
-mkdir -p $LIVE_ROOT/opt/apps
-cp -r /opt/apps/nbody-mpi* $LIVE_ROOT/opt/apps/
-cp -r /opt/apps/threads* $LIVE_ROOT/opt/apps/
 
 %end
