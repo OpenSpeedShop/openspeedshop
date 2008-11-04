@@ -1,0 +1,72 @@
+//============================================================================//
+// Copyright (C) 2008 Los Alamos National Security, LLC. All Rights Reserved. //
+//                Author: Samuel K. Gutierrez - samuel[at]lanl.gov            //
+//                                                                            //
+//                              How To Build An                               //
+//                      Open|SpeedShop Live Distribution                      //
+//                               Creation Notes                               //
+//                                Nov 03, 2008                                //
+//============================================================================//
+
+
+//****************************************************************************//
+//                                Introduction                                //
+//****************************************************************************//
+The following text outlines steps taken in the creation of a live Linux 
+distribution utilizing the livecd-tools package.  In particular, the 
+steps taken in creating a live distribution which contains pre-configured 
+versions of Open|SpeedShop and Open MPI.
+
+//****************************************************************************//
+//                                Base System                                 //
+//****************************************************************************//
+-Fedora Core 8 i386
+-Firewall Enabled
+-SELinux Disabled
+-Base Installation (No System Updates)
+
+//****************************************************************************//
+//                              Getting Started                               //
+//                    Preparing The Base System Environment                   //
+//****************************************************************************//
+1. Install Needed Development Packages
+Note: Try to start with a base Fedora Core installation that includes most 
+development packages.
+
+yum -y install libtool-ltdl-devel livecd-tools createrepo
+
+2. Prepare The Local yum Repository
+
+mkdir -p /var/www/html/yum/{base,updates}
+
+cp /media/Fedora\ 8\ i386\ DVD/repodata/Fedora-8-comps.xml \
+/var/www/html/yum/base/
+
+cp -r /media/Fedora\ 8\ i386\ DVD/Packages/*.rpm /var/www/html/yum/base/
+
+3. Build Open MPI using provided spec file.  
+Note: I find it convenient use OpenSpeedShop's ROOT build structure.
+
+Copy created RPM to /var/www/html/yum/base/
+
+4. Build OpenSpeedShop prerequisite packages.
+
+Copy created RPMs to /var/www/html/yum/base/
+
+5. Build OpenSpeedShop
+
+Copy created RPM to /var/www/html/yum/base/
+
+6. Create Local yum Repository
+
+createrepo -dg /var/www/html/yum/base/Fedora-8-comps.xml /var/www/html/yum/base/
+
+
+//============================================================================//
+// Build Patched Kernel
+//============================================================================//
+rpmdev-setuptree
+yumdownloader --source kernel
+su -c 'yum-builddep kernel-<version>.src.rpm'
+rpm -Uvh kernel-<version>.src.rpm
+
