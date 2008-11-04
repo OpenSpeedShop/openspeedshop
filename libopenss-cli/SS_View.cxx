@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006, 2007, 2008 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -198,27 +198,38 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
 
   std::string *Metric_List = vt->Metrics();
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
+
   if (p_slist->empty()) {
+
    // Use the metrics specified in the experiment definition.
    // Check to be sure we have a chance of generating the view.
+
     bool collector_found = false;
     std::string *Collector_List = vt->Collectors();
     std::string C_Name = Collector_List[0];
+
     if ((Collector_List[0].length() != 0) &&
         (Collector_List[1].length() == 0)) {
+
      // There is a single, required collector.
        C_Name = vt->Unique_Name();
        collector_found = true;
+
     } else if ((Metric_List[0].length() > 0) &&
                (exp != NULL) &&
                (exp->FW() != NULL)) {
+
      // Look for a collector that produces the required metrics.
+
       CollectorGroup cgrp = exp->FW()->getCollectors();
       C_Name = Find_Collector_With_Metrics (cgrp, &Metric_List[0]);
       collector_found = (C_Name.length() > 0);
+
     } else {
+
      // We handle multiple collectors by letting the View figure out what to do.
      // This also includes Views that require no collectors.
+
     }
 
     if (vt->Need_Exp() &&
@@ -246,9 +257,15 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
   }
   Filter_ThreadGroup (cmd->P_Result(), tgrp);
 
+#if DEBUG_CLI
+  printf("In SS_Generate_View in SS_View.cxx, before calling vt->GenerateView\n");
+#endif
  // Try to Generate the Requested View!
   bool success = vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),
                                    tgrp, cmd->Result_List());
+#if DEBUG_CLI
+  printf("In SS_Generate_View in SS_View.cxx, after calling vt->GenerateView\n");
+#endif
 
 #if DEBUG_CLI
   printf("Exit SS_Generate_View in SS_View.cxx\n");

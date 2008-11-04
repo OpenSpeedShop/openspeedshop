@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -176,14 +176,12 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
   printf("id=%d\n", id);
 #endif
 
-  if( selectedID > 0 )
-  {
+  if( selectedID > 0 ) {
     id = selectedID;
   }
 
 
-  if( count == 0 )
-  {
+  if( count == 0 ) {
     QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("No experiments defined.  Try the \"Intro Wizard\" to create a new experiment."), QMessageBox::Ok );
     return;
   }
@@ -191,13 +189,11 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
   expID = id;
 
 #ifdef DEBUG_GUI
-  printf("count=%d selectedID=%d\n", count, selectedID );
+  printf("OpenSpeedshop::fileOpenExperiment, count=%d selectedID=%d\n", count, selectedID );
 #endif
 
-  if( selectedID == 0 )
-  {
-    if( dialog->exec() == QDialog::Accepted )
-    {
+  if( selectedID == 0 ) {
+    if( dialog->exec() == QDialog::Accepted ) {
 
 #ifdef DEBUG_GUI
        printf("QDialog::Accepted\n");
@@ -206,16 +202,14 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
       item = dialog->selectedExperiment(&expID);
 
 #ifdef DEBUG_GUI
-      printf("item=0x%x\n", item);
+      printf("OpenSpeedshop::fileOpenExperiment, item=0x%x\n", item);
 #endif
 
-      if( item == NULL || expID == 0 )
-      {
+      if( item == NULL || expID == 0 ) {
         return;
       }
-    } else
-    {
-// printf("Cancel selected!\n");
+    } else {
+// printf("OpenSpeedshop::fileOpenExperiment, Cancel selected!\n");
       return;
     }
   }
@@ -230,18 +224,18 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
   if( p )
   {
 // const char *name = p->getName();
-// printf( "panel name = (%s)\n", name );
+// printf( "OpenSpeedshop::fileOpenExperiment, panel name = (%s)\n", name );
     p->getPanelContainer()->raisePanel(p);
   } else
   {
-// printf("Create a new one!\n");
-// printf("expID = (%d) \n", expID );
+// printf("OpenSpeedshop::fileOpenExperiment, Create a new one!\n");
+// printf("OpenSpeedshop::fileOpenExperiment, expID = (%d) \n", expID );
     QString expStr = QString("%1").arg(expID);
 
     QString command;
 //    command = QString("listTypes -x %1").arg(expStr);
     command = QString("list -v exptypes -x %1").arg(expStr);
-// printf("run command=(%s)\n", command.ascii() );
+// printf("OpenSpeedshop::fileOpenExperiment, run command=(%s)\n", command.ascii() );
     std::list<std::string> list_of_collectors;
     
     InputLineObject *clip = NULL;
@@ -253,60 +247,53 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
   
     int knownCollectorType = FALSE;
     QString panel_type = "other";
-    if( list_of_collectors.size() > 0 )
-    {
-      for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
-      {
+    if( list_of_collectors.size() > 0 ) {
+
+      for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ ) {
+
   //      std::string collector_name = *it;
+
         QString collector_name = (QString)*it;
+
 // printf("A: collector_name = (%s)\n", collector_name.ascii() );
-        if( collector_name == "pcsamp" )
-        {
+
+        if( collector_name == "pcsamp" ) {
           knownCollectorType = TRUE;
           panel_type = "pc Sampling";
           break;
-        } else if( collector_name == "usertime" )
-        {
+        } else if( collector_name == "usertime" ) {
           knownCollectorType = TRUE;
           panel_type = "User Time";
           break;
-        } else if( collector_name == "fpe" )
-        {
+        } else if( collector_name == "fpe" ) {
           knownCollectorType = TRUE;
           panel_type = "FPE Tracing";
           break;
-        } else if( collector_name == "hwc" )
-        {
+        } else if( collector_name == "hwc" ) {
           panel_type = "HW Counter";
           knownCollectorType = TRUE;
           break;
-        } else if( collector_name == "hwctime" )
-        {
+        } else if( collector_name == "hwctime" ) {
           panel_type = "HWCTime Panel";
           knownCollectorType = TRUE;
           break;
-        } else if( collector_name == "io" )
-        {
+        } else if( collector_name == "io" ) {
           panel_type = "IO";
           knownCollectorType = TRUE;
           break;
-        } else if( collector_name == "iot" )
-        {
+        } else if( collector_name == "iot" ) {
           panel_type = "IOT";
           knownCollectorType = TRUE;
           break;
-        } else if( collector_name == "mpi" )
-        {
+        } else if( collector_name == "mpi" ) {
           panel_type = "MPI";
           knownCollectorType = TRUE;
           break;
-        } else if( collector_name == "mpit" )
-        {
+        } else if( collector_name == "mpit" ) {
           panel_type = "MPIT";
           knownCollectorType = TRUE;
           break;
-        } else if( collector_name == "mpiotf" )
-        {
+        } else if( collector_name == "mpiotf" ) {
            panel_type = "MPIOTF";
            knownCollectorType = TRUE;
            break;
@@ -336,7 +323,14 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
 
 void OpenSpeedshop::fileOpenSavedExperiment(QString filename, bool openPanel)
 {
-// printf("OpenSpeedshop::fileOpenSavedExperiment() entered\n");
+
+#ifdef DEBUG_GUI
+ printf("OpenSpeedshop::fileOpenSavedExperiment() entered\n");
+ if( !filename.isEmpty() ) {
+    printf("OpenSpeedshop::fileOpenSavedExperiment() filename.ascii()=%s\n", filename.ascii());
+ }
+#endif
+
 //printf("  Get a list of all the experiment files in the current directory\n");
 //printf("  and in the environment variable >INSERTONEHERE<.   Then create\n");
 //printf("  a dynamice menu with the list...    \n\n");
@@ -348,11 +342,9 @@ void OpenSpeedshop::fileOpenSavedExperiment(QString filename, bool openPanel)
 
   QString fn  = QString::null;
 
-  if( !filename.isEmpty() )
-  {
+  if( !filename.isEmpty() ) {
     fn = filename;
-  } else
-  {
+  } else {
     fn = QFileDialog::getOpenFileName(
                     "./",
                     "Open|SpeedShop files (*.openss);;Any Files(*.*)",
@@ -361,24 +353,40 @@ void OpenSpeedshop::fileOpenSavedExperiment(QString filename, bool openPanel)
                     "Choose a experiment file to open" );
   }
 
-  if( !fn.isEmpty() )
-  {
+  if( !fn.isEmpty() ) {
+
     QString command;
     command = QString("expRestore -f %1").arg(fn);
+
 //QMessageBox::information( (QWidget *)NULL, tr("Info: Unable to complete command"), tr("This feature currently under construction.\nCommand to be executed:\n%1").arg(command), QMessageBox::Ok );
 //return;
+
     bool mark_value_for_delete = true;
     int64_t val = 0;
-    if( !cli->getIntValueFromCLI( (char *)command.ascii(), &val, mark_value_for_delete ) )
-    {
-      QMessageBox::information( this, "No collector found for file.:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
-    } else
-    {
+
+#ifdef DEBUG_GUI
+    printf("OpenSpeedshop::fileOpenSavedExperiment() calling getIntValueFromCLI, command.ascii()=%s\n", 
+           command.ascii());
+#endif
+
+    if( !cli->getIntValueFromCLI( (char *)command.ascii(), &val, mark_value_for_delete ) ) {
+
+      QMessageBox::information( this, 
+                                "No collector found for file.:", 
+                                QString("Unable to issue command:\n  ")+command, 
+                                QMessageBox::Ok );
+    } else {
+
       loadedFromSavedFile = TRUE;
-      if( openPanel )
-      {
+
+#ifdef DEBUG_GUI
+    printf("OpenSpeedshop::fileOpenSavedExperiment() after calling getIntValueFromCLI, val=%d\n", val);
+#endif
+
+      if( openPanel ) {
         fileOpenExperiment(val);
       }
+
     }
   }
 }
@@ -387,7 +395,9 @@ void OpenSpeedshop::fileSaveExperiment(int uid)
 {
   PanelListViewItem *item = NULL;
 
-// printf("fileSaveExperiment(%d)\n", uid);
+#ifdef DEBUG_GUI
+  printf("fileSaveExperiment(%d)\n", uid);
+#endif
 
 
   int count = 0;
@@ -1167,11 +1177,11 @@ void OpenSpeedshop::loadArgumentFile()
 }
 
 
-Panel* OpenSpeedshop::loadNewProgramPanel( PanelContainer *pc, PanelContainer *topPC, int64_t expID, Panel *targetPanel)
+Panel* OpenSpeedshop::loadNewProgramPanel( PanelContainer *pc, PanelContainer *topPC, int64_t expID, Panel *targetPanel, bool isOffline)
 {
     QString name = "loadPanel";
 #ifdef DEBUG_GUI
-    printf("OpenSpeedshop::loadNewProgramPanel() trying to raise name.ascii()=%s\n", (char *)name.ascii() );
+    printf("OpenSpeedshop::loadNewProgramPanel() trying to raise name.ascii()=%s, isOffline=%d\n", (char *)name.ascii(), isOffline );
     printf("OpenSpeedshop::loadNewProgramPanel() targetPanel=%d\n", targetPanel);
     if (targetPanel) {
       printf("OpenSpeedshop::loadNewProgramPanel() targetPanel->getName()=%s\n",  (char *)targetPanel->getName() );
@@ -1186,7 +1196,8 @@ Panel* OpenSpeedshop::loadNewProgramPanel( PanelContainer *pc, PanelContainer *t
 
     PanelContainer *bestFitPC = pc->getMasterPC()->findBestFitPanelContainer(topPC);
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", targetPanel);
-//printf("CustomExperimentPanel::loadSourcePanel() create a new Source Panel!!\n");
+    ao->isInstrumentorOffline = isOffline;
+//printf("OpenSpeedshop::loadNewProgramPanel() create a new load Panel!!\n");
     Panel *myLoadPanel = topPC->dl_create_and_add_panel("loadPanel", bestFitPC, ao, (const char *)NULL);
     delete ao;
 

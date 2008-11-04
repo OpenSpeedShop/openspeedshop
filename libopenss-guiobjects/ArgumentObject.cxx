@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -42,6 +43,7 @@ ArgumentObject::init()
   qstring_data = QString::null;
   loadedFromSavedFile = FALSE;
   lao = NULL;
+  isInstrumentorOffline=FALSE;
 }
 
 ArgumentObject::ArgumentObject(QString msg_type, int d)
@@ -92,4 +94,5 @@ ArgumentObject::print()
   {
     lao->print();
   }
+  printf("  isInstrumentorOffline=%d:\n", isInstrumentorOffline);
 }

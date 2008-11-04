@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+// Copyright (c) 2006,2007,2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -18,8 +18,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // Debug Flag
-//#define DEBUG_PCWizard 1
 //
+//#define DEBUG_PCWizard 1
 
 #include <stdio.h>
 #include "pcSampleWizardPanel.hxx"
@@ -36,6 +36,8 @@
 #include <qcheckbox.h>
 #include <qframe.h>
 #include <qradiobutton.h>
+#include <qbuttongroup.h>
+#include <qgroupbox.h>
 #include <qlineedit.h>
 #include <qheader.h>
 #include <qlistview.h>
@@ -93,6 +95,22 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, Argu
   mainWidgetStack = new QWidgetStack( mainFrame, "mainWidgetStack" );
   mainWidgetStack->setMinimumSize( QSize(10,10) );
 
+#if 1
+  // Initialize the settings for offline before setting with actual values
+  setGlobalToolInstrumentorIsOffline(FALSE);
+  setThisWizardsInstrumentorIsOffline(FALSE);
+  setThisWizardsPreviousInstrumentorIsOffline(FALSE);
+
+  QSettings *settings = new QSettings();
+  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline");
+  setGlobalToolInstrumentorIsOffline(temp_instrumentorIsOffline);
+#ifdef DEBUG_PCWizard
+  printf("/openspeedshop/general/instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+#endif
+  delete settings;
+#endif
+
+
 // Begin: verbose description page
   vDescriptionPageWidget = new QWidget( mainWidgetStack, "vDescriptionPageWidget" );
   vDescriptionPageLayout = new QVBoxLayout( vDescriptionPageWidget, 11, 6, "vDescriptionPageLayout"); 
@@ -118,6 +136,31 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, Argu
   vwizardMode->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   vwizardMode->setChecked( TRUE );
   vDescriptionPageButtonLayout->addWidget( vwizardMode );
+
+#if 1
+  // Create an exclusive button group
+  QButtonGroup *vExclusiveBG = new QButtonGroup( 1, QGroupBox::Horizontal, "Instrumentation Choice", vDescriptionPageWidget);
+  vDescriptionPageButtonLayout->addWidget( vExclusiveBG );
+  vExclusiveBG->setExclusive( TRUE );
+
+  // insert 2 radiobuttons
+  vOnlineRB = new QRadioButton( "Use Online/Dynamic", vExclusiveBG );
+  vOfflineRB = new QRadioButton( "Use Offline", vExclusiveBG );
+  // Use the global preferences for the initial setting
+  bool vGlobalInstrumentorIsOffline = getGlobalToolInstrumentorIsOffline();
+  bool vLocalInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+
+#ifdef DEBUG_PCWizard
+  printf("Initial Setup values for offline RADIO BUTTONS: globalInstrumentorIsOffline=(%d), localInstrumentorIsOffline=(%d)\n", vGlobalInstrumentorIsOffline, vLocalInstrumentorIsOffline );
+#endif
+
+  vOnlineRB->setChecked( !vGlobalInstrumentorIsOffline );
+  vOfflineRB->setChecked( vGlobalInstrumentorIsOffline );
+
+  // Set these as the initial values, until the Radio button checkboxes are clicked
+  setThisWizardsInstrumentorIsOffline(vGlobalInstrumentorIsOffline);
+  setThisWizardsPreviousInstrumentorIsOffline(vGlobalInstrumentorIsOffline);
+#endif
 
   vDescriptionPageButtonSpacer = new QSpacerItem( 1, 10, QSizePolicy::Expanding, QSizePolicy::Fixed );
   vDescriptionPageButtonLayout->addItem( vDescriptionPageButtonSpacer );
@@ -255,6 +298,31 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, Argu
   ewizardMode->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   ewizardMode->setChecked( FALSE );
   eDescriptionPageButtonLayout->addWidget( ewizardMode );
+
+#if 1
+  // Create an exclusive button group
+  QButtonGroup *eExclusiveBG = new QButtonGroup( 1, QGroupBox::Horizontal, "Instrumentation Choice", eDescriptionPageWidget);
+  eDescriptionPageButtonLayout->addWidget( eExclusiveBG );
+  eExclusiveBG->setExclusive( TRUE );
+
+  // insert 2 radiobuttons
+  eOnlineRB = new QRadioButton( "Use Online/Dynamic", eExclusiveBG );
+  eOfflineRB = new QRadioButton( "Use Offline", eExclusiveBG );
+  // Use the global preferences for the initial setting
+  bool eGlobalInstrumentorIsOffline = getGlobalToolInstrumentorIsOffline();
+  bool eLocalInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+
+#ifdef DEBUG_PCWizard
+  printf("eDescriptionPageButtonLayout, Initial Setup values for offline RADIO BUTTONS: eGlobalInstrumentorIsOffline=(%d), eLocalInstrumentorIsOffline=(%d)\n", eGlobalInstrumentorIsOffline, eLocalInstrumentorIsOffline );
+#endif
+
+  eOnlineRB->setChecked( !eGlobalInstrumentorIsOffline );
+  eOfflineRB->setChecked( eGlobalInstrumentorIsOffline );
+
+  // Set these as the initial values, until the Radio button checkboxes are clicked
+  setThisWizardsInstrumentorIsOffline(eGlobalInstrumentorIsOffline);
+  setThisWizardsPreviousInstrumentorIsOffline(eGlobalInstrumentorIsOffline);
+#endif
 
 
   eDescriptionPageSpacer = new QSpacerItem( 1, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
@@ -411,6 +479,18 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, Argu
   connect( ewizardMode, SIGNAL( clicked() ), this,
            SLOT( ewizardModeSelected() ) );
 
+#if 1
+  connect( vOfflineRB, SIGNAL( clicked() ), this,
+           SLOT( vOfflineRBSelected() ) );
+  connect( vOnlineRB, SIGNAL( clicked() ), this,
+           SLOT( vOnlineRBSelected() ) );
+
+  connect( eOfflineRB, SIGNAL( clicked() ), this,
+           SLOT( eOfflineRBSelected() ) );
+  connect( eOnlineRB, SIGNAL( clicked() ), this,
+           SLOT( eOnlineRBSelected() ) );
+#endif
+
   connect( eDescriptionPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
   connect( eParameterPageFinishButton, SIGNAL( clicked() ), this,
@@ -525,6 +605,12 @@ pcSampleWizardPanel::listener(void *msg)
     eSummaryPageBackButton->setEnabled(TRUE);
     qApp->flushX();
     nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
+
+#ifdef DEBUG_PCWizard
+    printf("pcSampleWizardPanel::listener, Wizard_Raise_LoadPanel_Back_Page. vwizardMode->isOn()=%d, ewizardMode->isOn()=%d\n",
+            vwizardMode->isOn(), ewizardMode->isOn());
+#endif
+
     if( vwizardMode->isOn() && !ewizardMode->isOn() )
     {// is it verbose?
       mainWidgetStack->raiseWidget(vParameterPageWidget);
@@ -537,11 +623,15 @@ pcSampleWizardPanel::listener(void *msg)
     // Another usability study may provide feedback
 
     QString name = "loadPanel";
+
 #ifdef DEBUG_PCWizard
     printf("pcSampleWizardPanel::listener, Wizard_Raise_LoadPanel_Back_Page, try to find panel (%s)\n", name.ascii() );
 #endif
+
 //    Panel *loadPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+
     Panel *loadPanel = getThisWizardsLoadPanel();
+
 #ifdef DEBUG_PCWizard
     printf("pcSampleWizardPanel::listener, Wizard_Raise_LoadPanel_Back_Page, loadPanel=0x%x\n", loadPanel);
     if (loadPanel) {
@@ -557,25 +647,30 @@ pcSampleWizardPanel::listener(void *msg)
 
     return 1;
   }
-  if( messageObject->msgType == "Wizard_Raise_First_Page" )
-  {
+
+  if( messageObject->msgType == "Wizard_Raise_First_Page" ) {
     vSummaryPageFinishButton->setEnabled(TRUE);
     eSummaryPageFinishButton->setEnabled(TRUE);
     vSummaryPageBackButton->setEnabled(TRUE);
     eSummaryPageBackButton->setEnabled(TRUE);
     qApp->flushX();
+
     nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
-    if( vwizardMode->isOn() && !ewizardMode->isOn() )
-    {// is it verbose?
+
+#ifdef DEBUG_PCWizard
+      printf("pcSampleWizardPanel::listener, Wizard_Raise_First_Page. vwizardMode->isOn()=%d, ewizardMode->isOn()=%d\n",
+              vwizardMode->isOn(), ewizardMode->isOn());
+#endif
+
+    if( vwizardMode->isOn() && !ewizardMode->isOn() ) {// is it verbose?
       mainWidgetStack->raiseWidget(vDescriptionPageWidget);
-    } else
-    {
+    } else {
       mainWidgetStack->raiseWidget(eDescriptionPageWidget);
     }
     return 1;
   }
-  if( messageObject->msgType == "Wizard_Raise_Summary_Page" )
-  {
+
+  if( messageObject->msgType == "Wizard_Raise_Summary_Page" ) {
     vSummaryPageFinishButton->setEnabled(TRUE);
     eSummaryPageFinishButton->setEnabled(TRUE);
     vSummaryPageBackButton->setEnabled(TRUE);
@@ -584,55 +679,29 @@ pcSampleWizardPanel::listener(void *msg)
     
 #ifdef DEBUG_PCWizard
     printf("pcSampleWizardPanel::listener, Wizard_Raise_Summary_Page if block \n");
+    printf("pcSampleWizardPanel::listener, Wizard_Raise_Summary_Page. vwizardMode->isOn()=%d, ewizardMode->isOn()=%d\n", 
+            vwizardMode->isOn(), ewizardMode->isOn());
 #endif
 
     vPrepareForSummaryPage();
 
     return 1;
   }
-  return 0;  // 0 means, did not want this message and did not act on anything.
-}
 
-#if OLD
-//! This function listens for messages.
-int 
-pcSampleWizardPanel::listener(void *msg)
-{
-  nprintf(DEBUG_PANELS) ("pcSampleWizardPanel::listener() requested.\n");
-// printf("pcSampleWizardPanel::listener() requested.\n");
+#if 1
+  if( messageObject->msgType == "PreferencesChangedObject" ) {
 
-  MessageObject *messageObject = (MessageObject *)msg;
-  nprintf(DEBUG_PANELS) ("  messageObject->msgType = %s\n", messageObject->msgType.ascii() );
-  if( messageObject->msgType == getName() )
-  {
-    vSummaryPageFinishButton->setEnabled(TRUE);
-    eSummaryPageFinishButton->setEnabled(TRUE);
-    vSummaryPageBackButton->setEnabled(TRUE);
-    eSummaryPageBackButton->setEnabled(TRUE);
-    qApp->flushX();
-    return 1;
-  }
-  if( messageObject->msgType == "Wizard_Raise_First_Page" )
-  {
-    vSummaryPageFinishButton->setEnabled(TRUE);
-    eSummaryPageFinishButton->setEnabled(TRUE);
-    vSummaryPageBackButton->setEnabled(TRUE);
-    eSummaryPageBackButton->setEnabled(TRUE);
-    qApp->flushX();
-    nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
-    if( vwizardMode->isOn() && !ewizardMode->isOn() )
-    {// is it verbose?
-      mainWidgetStack->raiseWidget(vDescriptionPageWidget);
-    } else
-    {
-      mainWidgetStack->raiseWidget(eDescriptionPageWidget);
-    }
-    return 1;
-  }
-  return 0;  // 0 means, did not want this message and did not act on anything.
-}
-
+   bool temp_instrumentorIsOffline = getToolPreferenceInstrumentorIsOffline();
+#ifdef DEBUG_PCWizard
+   printf("PCWizard::listener, PREFERENCE-CHANGED-OBJECT temp_instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
 #endif
+    return 1;
+ }
+#endif
+
+  return 0;  // 0 means, did not want this message and did not act on anything.
+}
+
 
 //! This function broadcasts messages.
 int 
@@ -641,6 +710,92 @@ pcSampleWizardPanel::broadcast(char *msg)
   nprintf(DEBUG_PANELS) ("pcSampleWizardPanel::broadcast() requested.\n");
   return 0;
 }
+
+
+bool pcSampleWizardPanel::getToolPreferenceInstrumentorIsOffline()
+{
+  QSettings *settings = new QSettings();
+  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline");
+#ifdef DEBUG_PCWizard
+  printf("pcSampleWizardPanel::getToolPreferenceInstrumentorIsOffline, /openspeedshop/general/instrumentorIsOffline == instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+#endif
+  delete settings;
+}
+
+void pcSampleWizardPanel::vOfflineRBSelected()
+{
+#ifdef DEBUG_PCWizard
+  printf("pcSampleWizardPanel::vOfflineRBSelected() entered.\n");
+#endif
+  bool offlineCheckBoxValue = vOfflineRB->isOn();
+  if ( offlineCheckBoxValue ) {
+   // toggle the button settings or is this done for us?
+  }
+#ifdef DEBUG_PCWizard
+  printf("pcSampleWizardPanel::vOfflineRBSelected() offlineCheckBoxValue=(%d)\n", offlineCheckBoxValue);
+#endif
+  setThisWizardsInstrumentorIsOffline(offlineCheckBoxValue);
+}
+
+void pcSampleWizardPanel::vOnlineRBSelected()
+{
+#ifdef DEBUG_PCWizard
+  printf("pcSampleWizardPanel::vOnlineRBSelected() entered.\n");
+#endif
+  bool onlineCheckBoxValue = vOnlineRB->isOn();
+  if ( onlineCheckBoxValue ) {
+   // toggle the button settings or is this done for us?
+  }
+#ifdef DEBUG_PCWizard
+  printf("pcSampleWizardPanel::vOnlineRBSelected() onlineCheckBoxValue=(%d)\n", onlineCheckBoxValue);
+#endif
+  setThisWizardsInstrumentorIsOffline(!onlineCheckBoxValue);
+}
+
+
+void pcSampleWizardPanel::eOfflineRBSelected()
+{
+#ifdef DEBUG_PCWizard
+  printf("pcSampleWizardPanel::eOfflineRBSelected() entered.\n");
+#endif
+  bool offlineCheckBoxValue = eOfflineRB->isOn();
+  if ( offlineCheckBoxValue ) {
+   // toggle the button settings or is this done for us?
+  }
+#ifdef DEBUG_PCWizard
+  printf("pcSampleWizardPanel::eOfflineRBSelected() offlineCheckBoxValue=(%d)\n", offlineCheckBoxValue);
+#endif
+  setThisWizardsInstrumentorIsOffline(offlineCheckBoxValue);
+}
+
+void pcSampleWizardPanel::eOnlineRBSelected()
+{
+#ifdef DEBUG_PCWizard
+  printf("pcSampleWizardPanel::eOnlineRBSelected() entered.\n");
+#endif
+  bool onlineCheckBoxValue = eOnlineRB->isOn();
+  if ( onlineCheckBoxValue ) {
+   // toggle the button settings or is this done for us?
+  }
+#ifdef DEBUG_PCWizard
+  printf("pcSampleWizardPanel::eOnlineRBSelected() onlineCheckBoxValue=(%d)\n", onlineCheckBoxValue);
+#endif
+  setThisWizardsInstrumentorIsOffline(!onlineCheckBoxValue);
+}
+
+void pcSampleWizardPanel::instrumentorIsOfflineModeSelected()
+{
+#ifdef DEBUG_PCWizard
+  printf("pcSampleWizardPanel::instrumentorIsOfflineModeSelected() entered.\n");
+#endif
+  bool checkBoxValue = instrumentorIsOfflineMode->isOn();
+#ifdef DEBUG_PCWizard
+  printf("pcSampleWizardPanel::instrumentorIsOfflineModeSelected() checkBoxValue=(%d)\n", checkBoxValue);
+#endif
+  setThisWizardsInstrumentorIsOffline(checkBoxValue);
+}
+
+
 
 void pcSampleWizardPanel::vwizardModeSelected()
 {
@@ -710,13 +865,29 @@ Panel* pcSampleWizardPanel::findAndRaiseLoadPanel()
 {
   // Try to raise the load panel if there is one hidden
 #if 1
+
   Panel *p = getThisWizardsLoadPanel();
+  if (getThisWizardsInstrumentorIsOffline() == getThisWizardsPreviousInstrumentorIsOffline() ) {
+#ifdef DEBUG_PCWizard
+     printf("pcSampleWizardPanel::findAndRaiseLoadPanel, p=%x, getThisWizardsInstrumentorIsOffline()=%d, getThisWizardsPreviousInstrumentorIsOffline()=%d\n", 
+            p, getThisWizardsInstrumentorIsOffline(), getThisWizardsPreviousInstrumentorIsOffline());
+#endif
+  } else {
+#ifdef DEBUG_PCWizard
+     printf("pcSampleWizardPanel::findAndRaiseLoadPanel, SET P NULL, p=%x, getThisWizardsInstrumentorIsOffline()=%d, getThisWizardsPreviousInstrumentorIsOffline()=%d\n", 
+            p, getThisWizardsInstrumentorIsOffline(), getThisWizardsPreviousInstrumentorIsOffline());
+#endif
+     // create a new loadPanel
+     p = NULL;
+  }
+
 #ifdef DEBUG_PCWizard
   printf("pcSampleWizardPanel::findAndRaiseLoadPanel, found thisWizardsLoadPanel - now raising, p=%x\n", p);
   if (p) {
     printf("pcSampleWizardPanel::findAndRaiseLoadPanel, p->getName()=%s\n", p->getName() );
   }
 #endif
+
   if (p) {
      p->getPanelContainer()->raisePanel(p);
   } else {
@@ -807,10 +978,10 @@ void pcSampleWizardPanel::eParameterPageNextButtonSelected()
      mw->parallelPrefixCommandStr = QString((const char *)0);
 
 #ifdef DEBUG_PCWizard
-     printf("pcSampleWizardPanel calling mw->loadNewProgramPanel, this=0x%x\n", this );
+     printf("pcSampleWizardPanel calling mw->loadNewProgramPanel, this=0x%x, getThisWizardsInstrumentorIsOffline()=%d \n", this, getThisWizardsInstrumentorIsOffline()  );
 #endif
 
-     Panel* p = mw->loadNewProgramPanel(getPanelContainer(), getPanelContainer()->getMasterPC(), /* expID */-1, (Panel *) this);
+     Panel* p = mw->loadNewProgramPanel(getPanelContainer(), getPanelContainer()->getMasterPC(), /* expID */-1, (Panel *) this, getThisWizardsInstrumentorIsOffline() );
      setThisWizardsLoadPanel(p);
 #ifdef DEBUG_PCWizard
      printf("pcSampleWizardPanel::eParameterPageNextButtonSelected, after calling mw->loadNewProgramPanel, p=0x%x\n", p );
@@ -863,9 +1034,12 @@ void pcSampleWizardPanel::eSummaryPageBackButtonSelected()
     delete msg;
   } else {
 #ifdef DEBUG_PCWizard
-    printf("pcSampleWizardPanel::eSummaryPageBackButtonSelected, did not find loadPanel\n");
+    printf("pcSampleWizardPanel::eSummaryPageBackButtonSelected, creating loadPanel, getThisWizardsInstrumentorIsOffline()=%d\n", getThisWizardsInstrumentorIsOffline());
 #endif
-    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), NULL);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
+    bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+    ao->isInstrumentorOffline = localInstrumentorIsOffline;
+    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), ao);
     if (p) {
 #ifdef DEBUG_PCWizard
      printf("pcSampleWizardPanel::eSummaryPageBackButtonSelected, found loadPanel, p=%x\n", p);
@@ -958,10 +1132,10 @@ void pcSampleWizardPanel::vParameterPageNextButtonSelected()
     mw->parallelPrefixCommandStr = QString((const char *)0);
 
 #ifdef DEBUG_PCWizard
-    printf("pcSampleWizardPanel calling mw->loadNewProgramPanel, this=0x%x\n", this );
+    printf("pcSampleWizardPanel -2- calling mw->loadNewProgramPanel, this=0x%x, getThisWizardsInstrumentorIsOffline()=%d \n", this, getThisWizardsInstrumentorIsOffline()  );
 #endif
 
-    Panel* p = mw->loadNewProgramPanel(getPanelContainer(), getPanelContainer()->getMasterPC(), /* expID */-1, (Panel *) this);
+    Panel* p = mw->loadNewProgramPanel(getPanelContainer(), getPanelContainer()->getMasterPC(), /* expID */-1, (Panel *) this, getThisWizardsInstrumentorIsOffline());
     setThisWizardsLoadPanel(p);
 #ifdef DEBUG_PCWizard
     printf("pcSampleWizardPanel::vParameterPageNextButtonSelected, after calling mw->loadNewProgramPanel, p=0x%x\n", p );
@@ -1002,25 +1176,38 @@ void pcSampleWizardPanel::vPrepareForSummaryPage()
   char buffer[2048];
 
   OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-  if( !mw )
-  {
+  if( !mw ) {
     return;
   } 
 
-  if( !mw->pidStr.isEmpty() )
-  {
+  if( !mw->pidStr.isEmpty() ) {
+
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
     sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for process \"%s\" running on host \"%s\".<br><br>Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"pcSample\" panel will be raised.  At that point, you may alter the experiment, or just click the \"RUN\" button to run the experiment as it was created by the wizard process.<br><br>If you need to alter the experiment via the wizard, you may still press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
+
   } else if( !mw->executableName.isEmpty() ) {
+
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+
     if( mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
-        sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for command/executable:<br>\"%s\" to be run on host:<br>\"%s\".<br><br>Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"pcSample\" panel will be raised.  At that point, you may alter the experiment, or just click the \"RUN\" button to run the experiment as it was created by the wizard process.<br><br>If you need to alter the experiment via the wizard, you may still press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
+        if (getThisWizardsInstrumentorIsOffline()) {
+           sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for command/executable:<br>\"%s\" to be run on host:<br>\"%s\"<br>using offline instrumentation.<br><br>Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"pcSample\" panel will be raised.  At that point, you may alter the experiment, or just click the \"RUN\" button to run the experiment as it was created by the wizard process.<br><br>If you need to alter the experiment via the wizard, you may still press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
+        } else {
+           sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for command/executable:<br>\"%s\" to be run on host:<br>\"%s\"<br>using online/dynamic instrumentation.<br><br>Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"pcSample\" panel will be raised.  At that point, you may alter the experiment, or just click the \"RUN\" button to run the experiment as it was created by the wizard process.<br><br>If you need to alter the experiment via the wizard, you may still press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
+        } 
+
     } else {
-        sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for command/executable:<br>\"%s %s\" to be run on host:<br>\"%s\".<br><br>Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"pcSample\" panel will be raised.  At that point, you may alter the experiment, or click the \"RUN\" button to run the experiment as it was created by the wizard process.<br><br>If you need to alter the experiment via the wizard, you may still press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
+
+        if (getThisWizardsInstrumentorIsOffline()) {
+          sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for command/executable:<br>\"%s %s\" to be run on host:<br>\"%s\"<br>using offline instrumentation.<br><br>Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"pcSample\" panel will be raised.  At that point, you may alter the experiment, or click the \"RUN\" button to run the experiment as it was created by the wizard process.<br><br>If you need to alter the experiment via the wizard, you may still press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
+        } else {
+          sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for command/executable:<br>\"%s %s\" to be run on host:<br>\"%s\"<br>using online/dynamic instrumentation.<br><br>Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"pcSample\" panel will be raised.  At that point, you may alter the experiment, or click the \"RUN\" button to run the experiment as it was created by the wizard process.<br><br>If you need to alter the experiment via the wizard, you may still press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
+        } 
+
     }
   }
 
@@ -1073,9 +1260,12 @@ void pcSampleWizardPanel::vSummaryPageBackButtonSelected()
     delete msg;
   } else {
 #ifdef DEBUG_PCWizard
-    printf("pcSampleWizardPanel::vSummaryPageBackButtonSelected, did not find loadPanel\n");
+    printf("pcSampleWizardPanel::vSummaryPageBackButtonSelected, did not find loadPanel, getThisWizardsInstrumentorIsOffline()=%d\n", getThisWizardsInstrumentorIsOffline());
 #endif
-    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), NULL);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
+    bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+    ao->isInstrumentorOffline = localInstrumentorIsOffline;
+    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), ao);
     if (p) {
 #ifdef DEBUG_PCWizard
      printf("pcSampleWizardPanel::vSummaryPageBackButtonSelected, found loadPanel, p=%x\n", p);
@@ -1096,11 +1286,12 @@ void pcSampleWizardPanel::finishButtonSelected()
 #endif
 
   OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-  if( mw->executableName.isEmpty() && mw->pidStr.isEmpty() )
-  {
+  if( mw->executableName.isEmpty() && mw->pidStr.isEmpty() ) {
+
 #ifdef DEBUG_PCWizard
-    printf("finishButtonSelected(),vwizardMode->isOn()=%d\n",vwizardMode->isOn() );
+    printf("finishButtonSelected(),vwizardMode->isOn()=%d, ewizardMode->isOn()=%d\n",vwizardMode->isOn(), ewizardMode->isOn() );
 #endif
+
     if( vwizardMode->isOn() ) {
       vSummaryPageFinishButtonSelected();
     } else {
@@ -1119,6 +1310,7 @@ void pcSampleWizardPanel::finishButtonSelected()
 void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
+
 #ifdef DEBUG_PCWizard
   printf("vSummaryPageFinishButtonSelected() \n");
 #endif
@@ -1133,23 +1325,36 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
       LoadAttachObject *lao = NULL;
       ParamList *paramList = new ParamList();
       paramList->push_back(vParameterPageSampleRateText->text() );
-// printf("A: push_back (%s)\n", vParameterPageSampleRateText->text().ascii() );
+      bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+
+#ifdef DEBUG_PCWizard
+      printf("vSummaryPageFinishButtonSelected(), A: push_back (%s), localInstrumentorIsOffline=%d\n", vParameterPageSampleRateText->text().ascii(), localInstrumentorIsOffline );
+#endif
 
       if( !mw->executableName.isEmpty() ) {
 
-//printf("executable name was specified.\n");
+#ifdef DEBUG_PCWizard
+        printf("vSummaryPageFinishButtonSelected(), A: executable name was specified.\n");
+#endif
 
-        lao = new LoadAttachObject(mw->executableName, (char *)NULL, mw->parallelPrefixCommandStr, paramList, TRUE);
+        // The offline flag indicates to the custom experiment panel that the experiment is using offline instrumentation.
+        lao = new LoadAttachObject(mw->executableName, 
+                                   (char *)NULL, 
+                                   mw->parallelPrefixCommandStr, 
+                                   paramList, 
+                                   TRUE, 
+                                   localInstrumentorIsOffline);
 
       } else if( !mw->pidStr.isEmpty() ) {
 
-// printf("pid was specified.\n");
-        lao = new LoadAttachObject((char *)NULL, mw->pidStr, (char *)NULL, paramList, TRUE);
+#ifdef DEBUG_PCWizard
+        printf("vSummaryPageFinishButtonSelected(), A: pid was specified.\n");
+#endif
+        // The offline flag doesn't mean anything for attaching to a pid, but is passed for consistency
+        lao = new LoadAttachObject((char *)NULL, mw->pidStr, (char *)NULL, paramList, TRUE, localInstrumentorIsOffline);
 
       } else {
-
-// printf("Warning: No attach or load parameters available.\n");
-
+        printf("vSummaryPageFinishButtonSelected(), Warning: No attach or load parameters available.\n");
       }
 
       if( lao != NULL ) {
@@ -1163,6 +1368,12 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
 
           ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
           ao->lao = lao;
+          bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+          ao->isInstrumentorOffline = localInstrumentorIsOffline;
+
+#ifdef DEBUG_PCWizard
+          printf("pcSampleWizardPanel::vSummaryPageBackButtonSelected, creating pc Sampling experiment panel, getThisWizardsInstrumentorIsOffline()=%d\n", getThisWizardsInstrumentorIsOffline());
+#endif
           p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sampling", getPanelContainer(), ao);
           delete ao;
 
@@ -1301,18 +1512,20 @@ pcSampleWizardPanel::languageChange()
       }
       pcSampleCollector.getParameterValue("sampling_rate", sampling_rate);
       original_sampling_rate = sampling_rate;
+
 // printf("sampling_rate=%d\n", sampling_rate);
 //    pcSampleCollector.setParameterValue("sampling_rate", (unsigned)100);
 // printf("Initialize the text fields... (%d)\n", sampling_rate);
+
     vParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
     eParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
 
-    if( temp_name )
-    {
+    if( temp_name ) {
       (void) remove( temp_name );
     }
 
   }
+
   catch(const std::exception& error)
   {
     return;

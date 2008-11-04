@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2007 Krell Institute. All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -18,8 +19,8 @@
 
 
 //
-//#define DEBUG_loadPanel 1
 //
+//#define DEBUG_loadPanel 1
 
 #include "loadPanel.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
@@ -91,6 +92,13 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
     printf("loadPanel::loadPanel(), (targetPanel is initially set non-null) panel name is=%s\n", targetPanel->getName());
 #endif
 
+    bool temp_instrumentorIsOffline = ao->isInstrumentorOffline;
+    setInstrumentorIsOffline(temp_instrumentorIsOffline);
+
+#ifdef DEBUG_loadPanel
+    printf("loadPanel::loadPanel(), ao->isInstrumentorOffline=%d\n", ao->isInstrumentorOffline);
+#endif
+
     if (targetPanel->getName()) {
 
       QString panelName = targetPanel->getName();
@@ -110,13 +118,17 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
       
         QString expIDStr = panelName.mid(start_index+1, end_index-start_index-1);
         expID = expIDStr.toInt();
+
 #ifdef DEBUG_loadPanel
         printf("loadPanel::loadPanel(), expIDStr.ascii()=%s, expID=%d\n", expIDStr.ascii(), expID);
 #endif
+
       } else {
+
 #ifdef DEBUG_loadPanel
         printf("loadPanel::loadPanel(), NO expID in targetPanel name start_index=%d, expID=%d\n", start_index, expID);
 #endif
+
       }
     }
   }
@@ -219,8 +231,10 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   vAttachOrLoadPageLoadDifferentExecutableCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
 
   // Add single process attach label here
-  vAttachOrLoadPageAttachToProcessCheckBox = new QCheckBox( vpage0big_box, "vAttachOrLoadPageAttachToProcessCheckBox" );
-  vAttachOrLoadPageAttachToProcessCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
+  if (!getInstrumentorIsOffline() ) {
+    vAttachOrLoadPageAttachToProcessCheckBox = new QCheckBox( vpage0big_box, "vAttachOrLoadPageAttachToProcessCheckBox" );
+    vAttachOrLoadPageAttachToProcessCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
+   }
 
 
 //  QVBoxLayout  *_vALStackPage0Layout = new QVBoxLayout( vpage0big_box, 11, 6, "_vALStackPage0Layout"); 
@@ -250,8 +264,10 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
 
   // MultiProcess Attach
-  vAttachOrLoadPageAttachToMultiProcessCheckBox = new QCheckBox( vpage0big_box, "vAttachOrLoadPageAttachToMultiProcessCheckBox" );
-  vAttachOrLoadPageAttachToMultiProcessCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
+  if (!getInstrumentorIsOffline() ) {
+     vAttachOrLoadPageAttachToMultiProcessCheckBox = new QCheckBox( vpage0big_box, "vAttachOrLoadPageAttachToMultiProcessCheckBox" );
+     vAttachOrLoadPageAttachToMultiProcessCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
+  }
 
   vAttachOrLoadPageMultiProcessListLabel = new QLabel( vpage0big_box, "vAttachOrLoadPageMultiProcessListLabel" );
   vAttachOrLoadPageMultiProcessListLabel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum, 0, 0, FALSE ) );
@@ -483,8 +499,10 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   connect( vAttachOrLoadPageClearButton, SIGNAL( clicked() ), this,
            SLOT( vAttachOrLoadPageClearButtonSelected() ) );
 
-  connect( vAttachOrLoadPageAttachToMultiProcessCheckBox, SIGNAL( clicked() ), this,
-           SLOT( vAttachOrLoadPageAttachToMultiProcessCheckBoxSelected() ) );
+  if (!getInstrumentorIsOffline() ) {
+    connect( vAttachOrLoadPageAttachToMultiProcessCheckBox, SIGNAL( clicked() ), this,
+             SLOT( vAttachOrLoadPageAttachToMultiProcessCheckBoxSelected() ) );
+  }
 
   connect( vAttachOrLoadPageLoadMultiProcessExecutableCheckBox, SIGNAL( clicked() ), this,
            SLOT( vAttachOrLoadPageLoadMultiProcessExecutableCheckBoxSelected() ) );
@@ -493,8 +511,10 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
            SIGNAL( clicked() ), this,
            SLOT( vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBoxSelected() ) );
 
-  connect( vAttachOrLoadPageAttachToProcessCheckBox, SIGNAL( clicked() ), this,
-           SLOT( vAttachOrLoadPageAttachToProcessCheckBoxSelected() ) );
+  if (!getInstrumentorIsOffline() ) {
+     connect( vAttachOrLoadPageAttachToProcessCheckBox, SIGNAL( clicked() ), this,
+              SLOT( vAttachOrLoadPageAttachToProcessCheckBoxSelected() ) );
+  }
 
   connect( vAttachOrLoadPageLoadExecutableCheckBox, SIGNAL( clicked() ), this,
            SLOT( vAttachOrLoadPageLoadExecutableCheckBoxSelected() ) );
@@ -578,10 +598,14 @@ loadPanel::languageChange()
 
   setCaption( tr( "Load Program Panel" ) );
 
-  vAttachOrLoadPageDescriptionLabel->setText( tr( "Open|SpeedShop can attach to an existing running process (or running processes) or load an executable from disk.  It can also start a multiprocess job from disk or automatically attach to all the running processes/ranks of a MPI job.  Please select the desired action.  Note: A dialog will be raised, prompting for the information needed to load an executable or attach to a process.") );
 
-  vAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more already running processes/ranks/threads." ) );
-  vAttachOrLoadPageAttachToMultiProcessCheckBox->setText( tr( "Attach to all processes/ranks/threads in an already running multiprocess job (MPI)." ) );
+  if (!getInstrumentorIsOffline() ) {
+    vAttachOrLoadPageDescriptionLabel->setText( tr( "Open|SpeedShop can attach to an existing running process (or running processes) or load an executable from disk.  It can also start a multiprocess job from disk or automatically attach to all the running processes/ranks of a MPI job.  Please select the desired action.  Note: A dialog will be raised, prompting for the information needed to load an executable or attach to a process.") );
+    vAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more already running processes/ranks/threads." ) );
+    vAttachOrLoadPageAttachToMultiProcessCheckBox->setText( tr( "Attach to all processes/ranks/threads in an already running multiprocess job (MPI)." ) );
+  } else {
+    vAttachOrLoadPageDescriptionLabel->setText( tr( "Open|SpeedShop can load an executable from disk.  It can also start a multiprocess job from disk.  Please select the desired action.  Note: A dialog will be raised, prompting for the information needed to load an executable.") );
+  }
   vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
   vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->setText( tr( "Start/Run a multi-process executable from disk (MPI)." ) );
   vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different executable from disk." ) );
@@ -685,8 +709,11 @@ void loadPanel::vAttachOrLoadPageClearButtonSelected()
     vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
     vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->setChecked(FALSE);
   }
-  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(FALSE);
+
+  if (!getInstrumentorIsOffline() ) {
+    vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+    vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(FALSE);
+  }
 
   if( getPanelContainer()->getMainWindow() )
   {
@@ -736,10 +763,12 @@ void loadPanel::vAttachOrLoadPageLoadExecutableCheckBoxSelected()
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
     vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-    vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
     vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->setChecked(FALSE);
     vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->setChecked(FALSE);
-    vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(FALSE);
+    if (!getInstrumentorIsOffline() ) {
+       vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(FALSE);
+       vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+    }
   }
 }
 
@@ -750,10 +779,12 @@ void loadPanel::vAttachOrLoadPageLoadMultiProcessExecutableCheckBoxSelected()
 #endif
   if( vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->isChecked() ) {
     vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-    vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
     vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->setChecked(FALSE);
     vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
-    vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(FALSE);
+    if (!getInstrumentorIsOffline() ) {
+       vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(FALSE);
+       vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+    }
   }
 }
 
@@ -764,10 +795,12 @@ void loadPanel::vAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected()
 #endif
   if( vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() ) {
     vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
-    vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
     vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->setChecked(FALSE);
     vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->setChecked(FALSE);
-    vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(FALSE);
+    if (!getInstrumentorIsOffline() ) {
+       vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(FALSE);
+       vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+    }
   }
 }
 
@@ -779,10 +812,12 @@ void loadPanel::vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBoxSele
   if( vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->isChecked() )
   {
     vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
-    vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
     vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
     vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->setChecked(FALSE);
-    vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(FALSE);
+    if (!getInstrumentorIsOffline() ) {
+       vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(FALSE);
+       vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+    }
   }
 }
 
@@ -801,45 +836,64 @@ void loadPanel::vAttachOrLoadPageNextButtonSelected()
   nprintf(DEBUG_PANELS) ("vAttachOrLoadPageNextButtonSelected() \n");
 #ifdef DEBUG_loadPanel
   printf("loadPanel::vAttachOrLoadPageNextButtonSelected() \n");
-  printf("loadPanel::vAttachOrLoadPageNextButtonSelected(), vAttachOrLoadPageAttachToProcessCheckBox->isChecked()=%d \n",
-         vAttachOrLoadPageAttachToProcessCheckBox->isChecked() );
   printf("loadPanel::vAttachOrLoadPageNextButtonSelected(), vAttachOrLoadPageLoadExecutableCheckBox->isChecked()=%d \n",
          vAttachOrLoadPageLoadExecutableCheckBox->isChecked() );
   printf("loadPanel::vAttachOrLoadPageNextButtonSelected(), vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->isChecked()=%d \n",
          vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->isChecked() );
   printf("loadPanel::vAttachOrLoadPageNextButtonSelected(), vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->isChecked()=%d \n",
          vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->isChecked() );
-  printf("loadPanel::vAttachOrLoadPageNextButtonSelected(), vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked()=%d \n",
-         vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked() );
+  if (!getInstrumentorIsOffline() ) {
+    printf("loadPanel::vAttachOrLoadPageNextButtonSelected(), vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked()=%d \n",
+           vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked() );
+    printf("loadPanel::vAttachOrLoadPageNextButtonSelected(), vAttachOrLoadPageAttachToProcessCheckBox->isChecked()=%d \n",
+           vAttachOrLoadPageAttachToProcessCheckBox->isChecked() );
+  }
   printf("loadPanel::vAttachOrLoadPageNextButtonSelected(), vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked()=%d \n",
          vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() );
 #endif
 
   char buffer[2048];
 
-  if( !vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
-      !vAttachOrLoadPageLoadExecutableCheckBox->isChecked() &&
-      !vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->isChecked() &&
-      !vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->isChecked() &&
-      !vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked() &&
-      !vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
-  {
-    QString msg = QString("You must either select the option to attach to an \nexisting process or load an executable.  Please select one.\n");
-    QMessageBox::information( (QWidget *)this, "Process or executable needed...",
-                               msg, QMessageBox::Ok );
+  if (!getInstrumentorIsOffline()) {
+     if( !vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
+         !vAttachOrLoadPageLoadExecutableCheckBox->isChecked() &&
+         !vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->isChecked() &&
+         !vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->isChecked() &&
+         !vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked() &&
+         !vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
+     {
+       QString msg = QString("You must either select the option to attach to an \nexisting process or load an executable.  Please select one.\n");
+       QMessageBox::information( (QWidget *)this, "Process or executable needed...",
+                                  msg, QMessageBox::Ok );
     
-    return;
-  }
+       return;
+     }
+  } else {
+     if( !vAttachOrLoadPageLoadExecutableCheckBox->isChecked() &&
+         !vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->isChecked() &&
+         !vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->isChecked() &&
+         !vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
+     {
+       QString msg = QString("You must either select the option to load an executable.  Please select one.\n");
+       QMessageBox::information( (QWidget *)this, "Process or executable needed...",
+                                  msg, QMessageBox::Ok );
+    
+       return;
+     }
 
-  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
-      vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
-  {
-    QString msg = QString("From this wizard you can only select to either attach or load.  Please select only one.\n");
-    QMessageBox::information( (QWidget *)this, "Process or executable needed...",
-                               msg, QMessageBox::Ok );
+  } 
+
+  if (!getInstrumentorIsOffline()) {
+     if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
+         vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
+     {
+       QString msg = QString("From this wizard you can only select to either attach or load.  Please select only one.\n");
+       QMessageBox::information( (QWidget *)this, "Process or executable needed...",
+                                  msg, QMessageBox::Ok );
     
-    return;
-  }
+       return;
+     }
+   } 
 
   OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
 
@@ -851,7 +905,7 @@ void loadPanel::vAttachOrLoadPageNextButtonSelected()
   } 
 
   // New MultiProcess duplicate
-  if( vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked() ) { 
+  if( !getInstrumentorIsOffline() && vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked() ) { 
 
     if( mw->pidStr.isEmpty() ) {
 #ifdef DEBUG_loadPanel
@@ -870,7 +924,7 @@ void loadPanel::vAttachOrLoadPageNextButtonSelected()
 
   // Sequential attach
 
-  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() ) {
+  if( !getInstrumentorIsOffline() && vAttachOrLoadPageAttachToProcessCheckBox->isChecked() ) {
 
     if( mw->pidStr.isEmpty() ) {
 
@@ -1155,11 +1209,15 @@ loadPanel::vUpdateAttachOrLoadPageWidget()
         vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->show();
       } else if( !mw->pidStr.isEmpty() ) {
         if (getMPIWizardCalledMe()) {
-          vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(TRUE);
-          vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+          if (!getInstrumentorIsOffline()) {
+            vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(TRUE);
+            vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+          }
         } else {
-          vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(FALSE);
-          vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+          if (!getInstrumentorIsOffline()) {
+            vAttachOrLoadPageAttachToMultiProcessCheckBox->setChecked(FALSE);
+            vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+          }
         } 
         
         vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
@@ -1205,46 +1263,64 @@ void loadPanel::vMPLoadPageProcessAccept()
 
   char buffer[2048];
 
-  if( !vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
-      !vAttachOrLoadPageLoadExecutableCheckBox->isChecked() &&
-      !vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->isChecked() &&
-      !vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->isChecked() &&
-      !vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked() &&
-      !vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
-  {
-    QString msg = QString("You must either select the option to attach to an \nexisting process or load an executable.  Please select one.\n");
-    QMessageBox::information( (QWidget *)this, "Process or executable needed...",
-                               msg, QMessageBox::Ok );
+  if (!getInstrumentorIsOffline()) {
+     if( !vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
+         !vAttachOrLoadPageLoadExecutableCheckBox->isChecked() &&
+         !vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->isChecked() &&
+         !vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->isChecked() &&
+         !vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked() &&
+         !vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
+     {
+       QString msg = QString("You must either select the option to attach to an \nexisting process or load an executable.  Please select one.\n");
+       QMessageBox::information( (QWidget *)this, "Process or executable needed...",
+                                  msg, QMessageBox::Ok );
     
-    return;
+       return;
+     }
+  } else {
+     if( !vAttachOrLoadPageLoadExecutableCheckBox->isChecked() &&
+         !vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->isChecked() &&
+         !vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->isChecked() &&
+         !vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
+     {
+       QString msg = QString("You must either select one of the options to load an executable.  Please select one.\n");
+       QMessageBox::information( (QWidget *)this, "Process or executable needed...",
+                                  msg, QMessageBox::Ok );
+    
+       return;
+     }
   }
 
 #ifdef DEBUG_loadPanel
   printf("IN loadPanel::vMPLoadPageProcessAccept() --------------------------- \n");
-  printf("vAttachOrLoadPageAttachToProcessCheckBox->isChecked()=%d \n",
-         vAttachOrLoadPageAttachToProcessCheckBox->isChecked() );
   printf("vAttachOrLoadPageLoadExecutableCheckBox->isChecked()=%d \n",
          vAttachOrLoadPageLoadExecutableCheckBox->isChecked() );
   printf("vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->isChecked()=%d \n",
          vAttachOrLoadPageLoadDifferentMultiProcessExecutableCheckBox->isChecked() );
   printf("vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->isChecked()=%d \n",
          vAttachOrLoadPageLoadMultiProcessExecutableCheckBox->isChecked() );
-  printf("vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked()=%d \n",
-         vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked() );
+  if (!getInstrumentorIsOffline()) {
+    printf("vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked()=%d \n",
+           vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked() );
+    printf("vAttachOrLoadPageAttachToProcessCheckBox->isChecked()=%d \n",
+           vAttachOrLoadPageAttachToProcessCheckBox->isChecked() );
+  }
   printf("vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked()=%d \n",
          vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() );
   printf("IN loadPanel::vMPLoadPageProcessAccept() --------------------------- \n");
 #endif
 
-  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
-      vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
-  {
+  if (!getInstrumentorIsOffline() && 
+      vAttachOrLoadPageAttachToProcessCheckBox->isChecked() && 
+      vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ) {
+
     QString msg = QString("From this wizard you can only select to either attach or load.  Please select only one.\n");
     QMessageBox::information( (QWidget *)this, "Process or executable needed...",
                                msg, QMessageBox::Ok );
     
     return;
   }
+
   OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
   if( !mw ) {
     return;
@@ -1252,7 +1328,7 @@ void loadPanel::vMPLoadPageProcessAccept()
 
 
   // New MultiProcess duplicate
-  if( vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked() ) { 
+  if( !getInstrumentorIsOffline() && vAttachOrLoadPageAttachToMultiProcessCheckBox->isChecked() ) { 
 
     if( mw->pidStr.isEmpty() ) {
 // jeg this is double cancel issue
@@ -1277,7 +1353,7 @@ void loadPanel::vMPLoadPageProcessAccept()
   }
 
   // Existing sequential attach
-  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() ) { 
+  if( !getInstrumentorIsOffline() && vAttachOrLoadPageAttachToProcessCheckBox->isChecked() ) { 
 
     if( mw->pidStr.isEmpty() ) {
 // jeg this is double cancel issue
@@ -1731,14 +1807,33 @@ loadPanel::listener(void *msg)
     } 
     return 1;
   }
-  if( messageObject->msgType == "Wizard_Hide_First_Page" )
-  {
+
+  if( messageObject->msgType == "PreferencesChangedObject" ) {
+
+#ifdef DEBUG_loadPanel
+   printf("loadPanel::listener, PREFERENCE-CHANGED-OBJECT\n");
+#endif // DEBUG_StatsPanel
+
+#ifdef NEEDSTHOUGHT
+    QSettings *settings = new QSettings();
+    bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline");
+    setInstrumentorIsOffline(temp_instrumentorIsOffline);
+#ifdef DEBUG_StatsPanel
+    printf("loadPanel: listener, PREFERENCE-CHANGED-OBJECT, /openspeedshop/general/instrumentorIsOffline == instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+#endif
+    delete settings;
+#endif
+
+  }
+
+  if( messageObject->msgType == "Wizard_Hide_First_Page" ) {
     qApp->flushX();
   }
-  if( messageObject->msgType == "Wizard_Hide_Second_Page" )
-  {
+
+  if( messageObject->msgType == "Wizard_Hide_Second_Page" ) {
     qApp->flushX();
   }
+
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 

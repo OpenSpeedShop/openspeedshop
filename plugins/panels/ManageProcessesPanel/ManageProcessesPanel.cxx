@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -40,14 +41,15 @@
 ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
 #ifdef DEBUG_MPPanel
-   printf("ManageProcessesPanel::ManageProcessesPanel() ENTRY\n");
+   printf("ManageProcessesPanel::ManageProcessesPanel() ENTRY, ao->isInstrumentorOffline=%d\n", ao->isInstrumentorOffline);
 #endif
   expID = ao->int_data;
+  setInstrumentorIsOffline(ao->isInstrumentorOffline);
 
   setCaption("ManageProcessesPanel");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  mcc = new ManageCollectorsClass( this, getBaseWidgetFrame() );
+  mcc = new ManageCollectorsClass( this, getBaseWidgetFrame(),0 ,false ,0, -1, getInstrumentorIsOffline() );
 #ifdef DEBUG_MPPanel
    printf("ManageProcessesPanel::ManageProcessesPanel() mcc=%d\n", mcc);
 #endif

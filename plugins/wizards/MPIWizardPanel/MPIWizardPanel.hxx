@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+// Copyright (c) 2006,2007,2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -135,6 +135,8 @@ public:
   //! Calls the panel function broadcast() message request.
   int broadcast(char *msg);
 
+  // Get the overall openss tools preference for is the underlying instrumentor mode equal to offline
+  bool getToolPreferenceInstrumentorIsOffline();
 
     QVBoxLayout * mpiFormLayout;
     QFrame* mainFrame;
@@ -189,6 +191,11 @@ public:
     QCheckBox* vwizardMode;
     QCheckBox* ewizardMode;
 
+    QRadioButton *vOnlineRB;
+    QRadioButton *vOfflineRB;
+    QRadioButton *eOnlineRB;
+    QRadioButton *eOfflineRB;
+
     QScrollView *sv;
     QScrollView *e_sv;
     QWidget *big_box_w;
@@ -208,6 +215,30 @@ public:
        thisWizardsLoadPanel = lpanel;
     };
 
+    void setGlobalToolInstrumentorIsOffline(bool flag) {
+        globalToolInstrumentorIsOffline = flag;
+    }
+
+    bool getGlobalToolInstrumentorIsOffline() {
+        return globalToolInstrumentorIsOffline;
+    }
+
+    void setThisWizardsInstrumentorIsOffline(bool flag) {
+        thisWizardsPreviousInstrumentorIsOffline = thisWizardsInstrumentorIsOffline;
+        thisWizardsInstrumentorIsOffline = flag;
+    }
+
+    bool getThisWizardsInstrumentorIsOffline() {
+        return thisWizardsInstrumentorIsOffline;
+    }
+
+    bool getThisWizardsPreviousInstrumentorIsOffline() {
+        return thisWizardsPreviousInstrumentorIsOffline;
+    }
+
+    void setThisWizardsPreviousInstrumentorIsOffline(bool flag) {
+        thisWizardsPreviousInstrumentorIsOffline = flag;
+    }
 
 public slots:
     virtual void eDescriptionPageNextButtonSelected();
@@ -234,6 +265,10 @@ public slots:
     virtual void vDoAllOfCategorySelected();
     virtual void eDoAllOfCategorySelected();
     virtual void eParameterPageCheckBoxSelected();
+    virtual void vOfflineRBSelected();
+    virtual void vOnlineRBSelected();
+    virtual void eOfflineRBSelected();
+    virtual void eOnlineRBSelected();
 
 protected:
     QVBoxLayout* mainFrameLayout;
@@ -276,6 +311,10 @@ private:
     QString sampleRate;
 
     Panel *mpiPanel;
+
+    bool thisWizardsPreviousInstrumentorIsOffline;
+    bool thisWizardsInstrumentorIsOffline;
+    bool globalToolInstrumentorIsOffline;
 
     void appendFunctionsToMonitor();
 };

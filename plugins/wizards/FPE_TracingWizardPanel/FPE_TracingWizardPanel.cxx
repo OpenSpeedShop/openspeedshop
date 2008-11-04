@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -41,6 +41,8 @@
 #include <qgroupbox.h>
 #include <qframe.h>
 #include <qradiobutton.h>
+#include <qbuttongroup.h>
+#include <qgroupbox.h>
 #include <qlineedit.h>
 #include <qheader.h>
 #include <qlistview.h>
@@ -90,6 +92,24 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n
 
   paramList.clear();
 
+#if 1
+  // Initialize the settings for offline before setting with actual values
+  setGlobalToolInstrumentorIsOffline(FALSE);
+  setThisWizardsInstrumentorIsOffline(FALSE);
+  setThisWizardsPreviousInstrumentorIsOffline(FALSE);
+
+  QSettings *settings = new QSettings();
+  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline");
+  setGlobalToolInstrumentorIsOffline(temp_instrumentorIsOffline);
+
+#ifdef DEBUG_FPEWizard
+  printf("/openspeedshop/general/instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+#endif
+
+  delete settings;
+#endif
+
+
   fpeFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
   mainFrame = new QFrame( getBaseWidgetFrame(), "mainFrame" );
@@ -126,6 +146,32 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n
   vwizardMode->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   vwizardMode->setChecked( TRUE );
   vDescriptionPageButtonLayout->addWidget( vwizardMode );
+
+#if 1
+  // Create an exclusive button group
+  QButtonGroup *vExclusiveBG = new QButtonGroup( 1, QGroupBox::Horizontal, "Instrumentation Choice", vDescriptionPageWidget);
+  vDescriptionPageButtonLayout->addWidget( vExclusiveBG );
+  vExclusiveBG->setExclusive( TRUE );
+
+  // insert 2 radiobuttons
+  vOnlineRB = new QRadioButton( "Use Online/Dynamic", vExclusiveBG );
+  vOfflineRB = new QRadioButton( "Use Offline", vExclusiveBG );
+  // Use the global preferences for the initial setting
+  bool vGlobalInstrumentorIsOffline = getGlobalToolInstrumentorIsOffline();
+  bool vLocalInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+
+#ifdef DEBUG_FPEWizard
+  printf("Initial Setup values for offline RADIO BUTTONS: globalInstrumentorIsOffline=(%d), localInstrumentorIsOffline=(%d)\n", vGlobalInstrumentorIsOffline, vLocalInstrumentorIsOffline );
+#endif
+
+  vOnlineRB->setChecked( !vGlobalInstrumentorIsOffline );
+  vOfflineRB->setChecked( vGlobalInstrumentorIsOffline );
+
+  // Set these as the initial values, until the Radio button checkboxes are clicked
+  setThisWizardsInstrumentorIsOffline(vGlobalInstrumentorIsOffline);
+  setThisWizardsPreviousInstrumentorIsOffline(vGlobalInstrumentorIsOffline);
+#endif
+
 
   vDescriptionPageButtonSpacer = new QSpacerItem( 1, 10, QSizePolicy::Expanding, QSizePolicy::Fixed );
   vDescriptionPageButtonLayout->addItem( vDescriptionPageButtonSpacer );
@@ -281,6 +327,30 @@ vParameterTraceCheckBox->hide();
   ewizardMode->setChecked( FALSE );
   eDescriptionPageButtonLayout->addWidget( ewizardMode );
 
+#if 1
+  // Create an exclusive button group
+  QButtonGroup *eExclusiveBG = new QButtonGroup( 1, QGroupBox::Horizontal, "Instrumentation Choice", eDescriptionPageWidget);
+  eDescriptionPageButtonLayout->addWidget( eExclusiveBG );
+  eExclusiveBG->setExclusive( TRUE );
+
+  // insert 2 radiobuttons
+  eOnlineRB = new QRadioButton( "Use Online/Dynamic", eExclusiveBG );
+  eOfflineRB = new QRadioButton( "Use Offline", eExclusiveBG );
+  // Use the global preferences for the initial setting
+  bool eGlobalInstrumentorIsOffline = getGlobalToolInstrumentorIsOffline();
+  bool eLocalInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+
+#ifdef DEBUG_FPEWizard
+  printf("eDescriptionPageButtonLayout, Initial Setup values for offline RADIO BUTTONS: eGlobalInstrumentorIsOffline=(%d), eLocalInstrumentorIsOffline=(%d)\n", eGlobalInstrumentorIsOffline, eLocalInstrumentorIsOffline );
+#endif
+
+  eOnlineRB->setChecked( !eGlobalInstrumentorIsOffline );
+  eOfflineRB->setChecked( eGlobalInstrumentorIsOffline );
+
+  // Set these as the initial values, until the Radio button checkboxes are clicked
+  setThisWizardsInstrumentorIsOffline(eGlobalInstrumentorIsOffline);
+  setThisWizardsPreviousInstrumentorIsOffline(eGlobalInstrumentorIsOffline);
+#endif
 
   eDescriptionPageSpacer = new QSpacerItem( 1, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   eDescriptionPageButtonLayout->addItem( eDescriptionPageSpacer );
@@ -434,6 +504,18 @@ eParameterTraceCheckBox->hide();
            SLOT( vwizardModeSelected() ) );
   connect( ewizardMode, SIGNAL( clicked() ), this,
            SLOT( ewizardModeSelected() ) );
+
+#if 1
+  connect( vOfflineRB, SIGNAL( clicked() ), this,
+           SLOT( vOfflineRBSelected() ) );
+  connect( vOnlineRB, SIGNAL( clicked() ), this,
+           SLOT( vOnlineRBSelected() ) );
+
+  connect( eOfflineRB, SIGNAL( clicked() ), this,
+           SLOT( eOfflineRBSelected() ) );
+  connect( eOnlineRB, SIGNAL( clicked() ), this,
+           SLOT( eOnlineRBSelected() ) );
+#endif
 
   connect( eDescriptionPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
@@ -600,48 +682,21 @@ FPE_TracingWizardPanel::listener(void *msg)
     vPrepareForSummaryPage();
     return 1;
   }
-  return 0;  // 0 means, did not want this message and did not act on anything.
-}
 
-#if OLD
-//! This function listens for messages.
-int 
-FPE_TracingWizardPanel::listener(void *msg)
-{
-  nprintf(DEBUG_PANELS) ("FPE_TracingWizardPanel::listener() requested.\n");
+#if 1
+  if( messageObject->msgType == "PreferencesChangedObject" ) {
 
-  MessageObject *messageObject = (MessageObject *)msg;
-  nprintf(DEBUG_PANELS) ("  messageObject->msgType = %s\n", messageObject->msgType.ascii() );
-  if( messageObject->msgType == getName() )
-  {
-    vSummaryPageFinishButton->setEnabled(TRUE);
-    eSummaryPageFinishButton->setEnabled(TRUE);
-    vSummaryPageBackButton->setEnabled(TRUE);
-    eSummaryPageBackButton->setEnabled(TRUE);
-    qApp->flushX();
+   bool temp_instrumentorIsOffline = getToolPreferenceInstrumentorIsOffline();
+#ifdef DEBUG_FPEWizard
+   printf("PCWizard::listener, PREFERENCE-CHANGED-OBJECT temp_instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+#endif
     return 1;
-  }
-  if( messageObject->msgType == "Wizard_Raise_First_Page" )
-  {
-    vSummaryPageFinishButton->setEnabled(TRUE);
-    eSummaryPageFinishButton->setEnabled(TRUE);
-    vSummaryPageBackButton->setEnabled(TRUE);
-    eSummaryPageBackButton->setEnabled(TRUE);
-    qApp->flushX();
-    nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
-    if( vwizardMode->isOn() && !ewizardMode->isOn() )
-    {// is it verbose?
-      mainWidgetStack->raiseWidget(vDescriptionPageWidget);
-    } else
-    {
-      mainWidgetStack->raiseWidget(eDescriptionPageWidget);
-    }
-    return 1;
-  }
-  return 0;  // 0 means, did not want this message and did not act on anything.
-}
+
+ }
 #endif
 
+  return 0;  // 0 means, did not want this message and did not act on anything.
+}
 
 //! This function broadcasts messages.
 int 
@@ -650,6 +705,91 @@ FPE_TracingWizardPanel::broadcast(char *msg)
   nprintf(DEBUG_PANELS) ("FPE_TracingWizardPanel::broadcast() requested.\n");
   return 0;
 }
+
+bool FPE_TracingWizardPanel::getToolPreferenceInstrumentorIsOffline()
+{
+  QSettings *settings = new QSettings();
+  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline");
+#ifdef DEBUG_FPEWizard
+  printf("FPE_TracingWizardPanel::getToolPreferenceInstrumentorIsOffline, /openspeedshop/general/instrumentorIsOffline == instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+#endif
+  delete settings;
+}
+
+void FPE_TracingWizardPanel::vOfflineRBSelected()
+{
+#ifdef DEBUG_FPEWizard
+  printf("FPE_TracingWizardPanel::vOfflineRBSelected() entered.\n");
+#endif
+  bool offlineCheckBoxValue = vOfflineRB->isOn();
+  if ( offlineCheckBoxValue ) {
+   // toggle the button settings or is this done for us?
+  }
+#ifdef DEBUG_FPEWizard
+  printf("FPE_TracingWizardPanel::vOfflineRBSelected() offlineCheckBoxValue=(%d)\n", offlineCheckBoxValue);
+#endif
+  setThisWizardsInstrumentorIsOffline(offlineCheckBoxValue);
+}
+
+void FPE_TracingWizardPanel::vOnlineRBSelected()
+{
+#ifdef DEBUG_FPEWizard
+  printf("FPE_TracingWizardPanel::vOnlineRBSelected() entered.\n");
+#endif
+  bool onlineCheckBoxValue = vOnlineRB->isOn();
+  if ( onlineCheckBoxValue ) {
+   // toggle the button settings or is this done for us?
+  }
+#ifdef DEBUG_FPEWizard
+  printf("FPE_TracingWizardPanel::vOnlineRBSelected() onlineCheckBoxValue=(%d)\n", onlineCheckBoxValue);
+#endif
+  setThisWizardsInstrumentorIsOffline(!onlineCheckBoxValue);
+}
+
+void FPE_TracingWizardPanel::eOfflineRBSelected()
+{
+#ifdef DEBUG_FPEWizard
+  printf("FPE_TracingWizardPanel::eOfflineRBSelected() entered.\n");
+#endif
+  bool offlineCheckBoxValue = eOfflineRB->isOn();
+  if ( offlineCheckBoxValue ) {
+   // toggle the button settings or is this done for us?
+  }
+#ifdef DEBUG_FPEWizard
+  printf("FPE_TracingWizardPanel::eOfflineRBSelected() offlineCheckBoxValue=(%d)\n", offlineCheckBoxValue);
+#endif
+  setThisWizardsInstrumentorIsOffline(offlineCheckBoxValue);
+}
+
+void FPE_TracingWizardPanel::eOnlineRBSelected()
+{
+#ifdef DEBUG_FPEWizard
+  printf("FPE_TracingWizardPanel::eOnlineRBSelected() entered.\n");
+#endif
+  bool onlineCheckBoxValue = eOnlineRB->isOn();
+  if ( onlineCheckBoxValue ) {
+   // toggle the button settings or is this done for us?
+  }
+#ifdef DEBUG_FPEWizard
+  printf("FPE_TracingWizardPanel::eOnlineRBSelected() onlineCheckBoxValue=(%d)\n", onlineCheckBoxValue);
+#endif
+  setThisWizardsInstrumentorIsOffline(!onlineCheckBoxValue);
+}
+
+#if 0
+void FPE_TracingWizardPanel::instrumentorIsOfflineModeSelected()
+{
+#ifdef DEBUG_FPEWizard
+  printf("FPE_TracingWizardPanel::instrumentorIsOfflineModeSelected() entered.\n");
+#endif
+  bool checkBoxValue = instrumentorIsOfflineMode->isOn();
+#ifdef DEBUG_FPEWizard
+  printf("FPE_TracingWizardPanel::instrumentorIsOfflineModeSelected() checkBoxValue=(%d)\n", checkBoxValue);
+#endif
+  setThisWizardsInstrumentorIsOffline(checkBoxValue);
+}
+#endif
+
 
 void FPE_TracingWizardPanel::vwizardModeSelected()
 {
@@ -723,7 +863,65 @@ void FPE_TracingWizardPanel::wizardModeSelected()
   ewizardMode->setChecked( FALSE );
 }
 
+#if 1
+Panel* FPE_TracingWizardPanel::findAndRaiseLoadPanel()
+{
+  // Try to raise the load panel if there is one hidden
+#if 1
 
+  Panel *p = getThisWizardsLoadPanel();
+  if (getThisWizardsInstrumentorIsOffline() == getThisWizardsPreviousInstrumentorIsOffline() ) {
+#ifdef DEBUG_FPEWizard
+     printf("FPE_TracingWizardPanel::findAndRaiseLoadPanel, p=%x, getThisWizardsInstrumentorIsOffline()=%d, getThisWizardsPreviousInstrumentorIsOffline()=%d\n",
+            p, getThisWizardsInstrumentorIsOffline(), getThisWizardsPreviousInstrumentorIsOffline());
+#endif
+  } else {
+#ifdef DEBUG_FPEWizard
+     printf("FPE_TracingWizardPanel::findAndRaiseLoadPanel, SET P NULL, p=%x, getThisWizardsInstrumentorIsOffline()=%d, getThisWizardsPreviousInstrumentorIsOffline()=%d\n",
+            p, getThisWizardsInstrumentorIsOffline(), getThisWizardsPreviousInstrumentorIsOffline());
+#endif
+     // create a new loadPanel
+     p = NULL;
+  }
+
+#ifdef DEBUG_FPEWizard
+  printf("FPE_TracingWizardPanel::findAndRaiseLoadPanel, found thisWizardsLoadPanel - now raising, p=%x\n", p);
+  if (p) {
+    printf("FPE_TracingWizardPanel::findAndRaiseLoadPanel, p->getName()=%s\n", p->getName() );
+  }
+#endif
+
+  if (p) {
+     p->getPanelContainer()->raisePanel(p);
+  } else {
+#ifdef DEBUG_FPEWizard
+    printf("FPE_TracingWizardPanel::findAndRaiseLoadPanel, did not find loadPanel\n");
+#endif
+  }
+
+#else
+
+  QString name = QString("loadPanel");
+  Panel *p = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+  if (p) {
+#ifdef DEBUG_FPEWizard
+     printf("FPE_TracingWizardPanel::findAndRaiseLoadPanel, found loadPanel - now raising, p=%x\n", p);
+     if (p) {
+       printf("FPE_TracingWizardPanel::findAndRaiseLoadPanel, found loadPanel, p->getName()=%s\n", p->getName() );
+     }
+#endif
+     p->getPanelContainer()->raisePanel(p);
+  } else {
+#ifdef DEBUG_FPEWizard
+    printf("FPE_TracingWizardPanel::findAndRaiseLoadPanel, did not find loadPanel\n");
+#endif
+  }
+#endif
+
+  return p;
+}
+
+#else
 Panel* FPE_TracingWizardPanel::findAndRaiseLoadPanel()
 {
   // Try to raise the load panel if there is one hidden
@@ -759,6 +957,7 @@ Panel* FPE_TracingWizardPanel::findAndRaiseLoadPanel()
   return p;
 }
 
+#endif
 
 void FPE_TracingWizardPanel::eDescriptionPageNextButtonSelected()
 {
@@ -819,7 +1018,8 @@ void FPE_TracingWizardPanel::eParameterPageNextButtonSelected()
      printf("FPE_TracingWizardPanel calling mw->loadNewProgramPanel, this=0x%x\n", this );
 #endif
 
-     Panel* p = mw->loadNewProgramPanel(getPanelContainer(), getPanelContainer()->getMasterPC(), /* expID */-1, (Panel *) this);
+     bool tmp_is_offline = false;
+     Panel* p = mw->loadNewProgramPanel(getPanelContainer(), getPanelContainer()->getMasterPC(), /* expID */-1, (Panel *) this, tmp_is_offline);
      setThisWizardsLoadPanel(p);
 
      QString executableNameStr = mw->executableName;
@@ -863,10 +1063,16 @@ void FPE_TracingWizardPanel::eSummaryPageBackButtonSelected()
     p->listener((void *)msg);
     delete msg;
   } else {
+
 #ifdef DEBUG_FPEWizard
-    printf("FPE_TracingWizardPanel::eSummaryPageBackButtonSelected, did not find loadPanel\n");
+    printf("FPE_TracingWizardPan::eSummaryPageBackButtonSelected, creating loadPanel, getThisWizardsInstrumentorIsOffline()=%d\n",
+            getThisWizardsInstrumentorIsOffline());
 #endif
-    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), NULL);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
+    bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+    ao->isInstrumentorOffline = localInstrumentorIsOffline;
+    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), ao);
+
     if (p) {
 #ifdef DEBUG_FPEWizard
      printf("FPE_TracingWizardPanel::eSummaryPageBackButtonSelected, found loadPanel, p=%x\n", p);
@@ -958,7 +1164,11 @@ void FPE_TracingWizardPanel::vParameterPageNextButtonSelected()
     printf("FPE_TracingWizardPanel calling mw->loadNewProgramPanel, this=0x%x\n", this );
 #endif
 
-    Panel* p = mw->loadNewProgramPanel(getPanelContainer(), getPanelContainer()->getMasterPC(), /* expID */-1, (Panel *) this);
+#ifdef DEBUG_FPEWizard
+    printf("FPE_TracingWizardPanel -2- calling mw->loadNewProgramPanel, this=0x%x, getThisWizardsInstrumentorIsOffline()=%d \n", this, getThisWizardsInstrumentorIsOffline()  );
+#endif
+
+    Panel* p = mw->loadNewProgramPanel(getPanelContainer(), getPanelContainer()->getMasterPC(), /* expID */-1, (Panel *) this, getThisWizardsInstrumentorIsOffline());
     setThisWizardsLoadPanel(p);
     QString executableNameStr = mw->executableName;
     if( !mw->executableName.isEmpty() ) {
@@ -991,20 +1201,36 @@ void FPE_TracingWizardPanel::vPrepareForSummaryPage()
     return;
   } 
 
-  if( !mw->pidStr.isEmpty() )
-  {
+  if( !mw->pidStr.isEmpty() ) {
+
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
     sprintf(buffer, "<p align=\"left\">You've selected a FPE experiment for process \"%s\" running on host \"%s\".<br>Furthermore, you've chosen to monitor \"%s\" fpe functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpe\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+
   } else if( !mw->executableName.isEmpty() ) {
+
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+
     if (mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isEmpty() ) {
-    sprintf(buffer, "<p align=\"left\">You've selected a FPE experiment for executable \"%s\" to be run on host \"%s\".<br>Furthermore, you've chosen to monitor \"%s\" fpe functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpe\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+        if (getThisWizardsInstrumentorIsOffline()) {
+          sprintf(buffer, "<p align=\"left\">You've selected a FPE experiment for executable \"%s\" to be run on host \"%s\"<br>using offline instrumentation.<br>Furthermore, you've chosen to monitor \"%s\" fpe functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpe\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+        } else {
+          sprintf(buffer, "<p align=\"left\">You've selected a FPE experiment for executable \"%s\" to be run on host \"%s\"<br>using online/dynamic instrumentation.<br>Furthermore, you've chosen to monitor \"%s\" fpe functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpe\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+        }
+
+
     } else {
-    sprintf(buffer, "<p align=\"left\">You've selected a FPE experiment for command/executable <br>\"%s %s\" to be run on host \"%s\".<br>Furthermore, you've chosen to monitor \"%s\" fpe functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpe\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+
+        if (getThisWizardsInstrumentorIsOffline()) {
+           sprintf(buffer, "<p align=\"left\">You've selected a FPE experiment for command/executable <br>\"%s %s\" to be run on host \"%s\"<br>using offline instrumentation.<br>Furthermore, you've chosen to monitor \"%s\" fpe functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpe\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+        } else {
+           sprintf(buffer, "<p align=\"left\">You've selected a FPE experiment for command/executable <br>\"%s %s\" to be run on host \"%s\"<br>using online/dynamic instrumentation.<br>Furthermore, you've chosen to monitor \"%s\" fpe functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpe\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+        }
+
+
     }
   }
 
@@ -1057,9 +1283,12 @@ void FPE_TracingWizardPanel::vSummaryPageBackButtonSelected()
     delete msg;
   } else {
 #ifdef DEBUG_FPEWizard
-    printf("FPE_TracingWizardPanel::vSummaryPageBackButtonSelected, did not find loadPanel\n");
+    printf("FPE_TracingWizardPanel::vSummaryPageBackButtonSelected, did not find loadPanel, getThisWizardsInstrumentorIsOffline()=%d\n", getThisWizardsInstrumentorIsOffline());
 #endif
-    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), NULL);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
+    bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+    ao->isInstrumentorOffline = localInstrumentorIsOffline;
+    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), ao);
     if (p) {
 #ifdef DEBUG_FPEWizard
      printf("FPE_TracingWizardPanel::vSummaryPageBackButtonSelected, found loadPanel, p=%x\n", p);
@@ -1098,54 +1327,72 @@ void FPE_TracingWizardPanel::vSummaryPageFinishButtonSelected()
 // printf("vSummaryPageFinishButtonSelected() \n");
 
   Panel *p = fpePanel;
-  if( getPanelContainer()->getMainWindow() )
-  { 
+  if( getPanelContainer()->getMainWindow() ) { 
+
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-    if( mw )
-    {
+
+    if( mw ) {
+
       LoadAttachObject *lao = NULL;
+      bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+
+#ifdef DEBUG_FPEWizard
+      printf("vSummaryPageFinishButtonSelected(), A: localInstrumentorIsOffline=%d\n", localInstrumentorIsOffline );
+#endif
+
 //      ParamList *paramList = new ParamList();
 // printf("A: push_back the parameters... well, the checked ones.\n");
 // printf("valueList=(%s)\n", valueList.ascii() );
-      if( !mw->executableName.isEmpty() )
-      {
-// printf("executable name was specified.\n");
-        lao = new LoadAttachObject(mw->executableName, (char *)NULL, mw->parallelPrefixCommandStr, &paramList, TRUE);
-      } else if( !mw->pidStr.isEmpty() )
-      {
-// printf("pid was specified.\n");
-        lao = new LoadAttachObject((char *)NULL, mw->pidStr, (char *)NULL, &paramList, TRUE);
-      } else
-      {
-printf("Warning: No attach or load parameter available.\n");
+
+      if( !mw->executableName.isEmpty() ) {
+
+#ifdef DEBUG_FPEWizard
+        printf("vSummaryPageFinishButtonSelected(), A: executable name was specified.\n");
+#endif
+
+        // The offline flag indicates to the custom experiment panel that the experiment is using offline instrumentation.
+        lao = new LoadAttachObject(mw->executableName, (char *)NULL, mw->parallelPrefixCommandStr, &paramList, TRUE, localInstrumentorIsOffline);
+
+      } else if( !mw->pidStr.isEmpty() ) {
+
+#ifdef DEBUG_FPEWizard
+        printf("vSummaryPageFinishButtonSelected(), A: pid was specified.\n");
+#endif
+        // The offline flag doesn't mean anything for attaching to a pid, but is passed for consistency
+        lao = new LoadAttachObject((char *)NULL, mw->pidStr, (char *)NULL, &paramList, TRUE, localInstrumentorIsOffline);
+
+      } else {
+          printf("Warning: No attach or load parameter available.\n");
       }
-      if( lao != NULL )
-      {
+
+      if( lao != NULL ) {
+
         vSummaryPageFinishButton->setEnabled(FALSE);
         eSummaryPageFinishButton->setEnabled(FALSE);
         vSummaryPageBackButton->setEnabled(FALSE);
         eSummaryPageBackButton->setEnabled(FALSE);
         qApp->flushX();
 
-        if( !p )
-        {
+        if( !p ) {
           ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
           ao->lao = lao;
+          bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+          ao->isInstrumentorOffline = localInstrumentorIsOffline;
+
 
           if( (vwizardMode->isChecked() && vParameterTraceCheckBox->isChecked()) ||
-              (ewizardMode->isChecked() && eParameterTraceCheckBox->isChecked()) )
-          {
+              (ewizardMode->isChecked() && eParameterTraceCheckBox->isChecked()) ) {
               p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing", getPanelContainer(), ao);
-          } else 
-          {
-            p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing", getPanelContainer(), ao);
+          } else {
+              p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing", getPanelContainer(), ao);
           }
 
           delete ao;
-        } else
-        {
+        } else {
+
 // printf("Send the param list to the new panel\n");
           p->listener((void *)lao);
+
         }
 
 //        getPanelContainer()->hidePanel((Panel *)this);

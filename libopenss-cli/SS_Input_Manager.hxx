@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006, 2007, 2008 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -27,8 +27,8 @@
 /* Take the define below out of comments for debug 
    output in several CLI routines that
    include this include file.........
+#define DEBUG_CLI 1 
 */
-/* #define DEBUG_CLI 1 */
 
 
 #ifndef SS_INPUT_MANAGER_H

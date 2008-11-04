@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007 Krell Institute  All Rights Reserved.
+// Copyright (c) 2007, 2008 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -112,6 +112,12 @@ void PreferencesDialog::readPreferencesOnEntry()
   allowPythonCommandsCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/allowPythonCommands") );
 
+  instrumentorIsOfflineCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline") );
+
+  lessRestrictiveComparisonsCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/lessRestrictiveComparisons") );
+
   setShowSplashScreenCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/showSplashScreen") );
 
@@ -163,6 +169,10 @@ void PreferencesDialog::resetPreferenceDefaults()
    viewMangledNameCheckBox->setChecked(viewMangledName);
    allowPythonCommands = FALSE;
    allowPythonCommandsCheckBox->setChecked(allowPythonCommands);
+   instrumentorIsOffline = FALSE;
+   instrumentorIsOfflineCheckBox->setChecked(instrumentorIsOffline);
+   lessRestrictiveComparisons = FALSE;
+   lessRestrictiveComparisonsCheckBox->setChecked(lessRestrictiveComparisons);
 
 
   // Begin reset all preferences to defaults
@@ -282,6 +292,8 @@ void PreferencesDialog::applyPreferences()
   extern bool    OPENSS_ASK_ABOUT_SAVING_THE_DATABASE;
   extern bool    OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE;
   extern bool    OPENSS_ALLOW_PYTHON_COMMANDS;
+  extern bool    OPENSS_INSTRUMENTOR_IS_OFFLINE;
+  extern bool    OPENSS_LESS_RESTRICTIVE_COMPARISONS;
   extern bool    OPENSS_LOG_BY_DEFAULT;
   extern bool    OPENSS_LIMIT_SIGNAL_CATCHING;
   extern bool    OPENSS_VIEW_MANGLED_NAME;
@@ -299,6 +311,10 @@ void PreferencesDialog::applyPreferences()
     viewMangledNameCheckBox->isChecked();
   OPENSS_ALLOW_PYTHON_COMMANDS = 
     allowPythonCommandsCheckBox->isChecked();
+  OPENSS_INSTRUMENTOR_IS_OFFLINE = 
+    instrumentorIsOfflineCheckBox->isChecked();
+  OPENSS_LESS_RESTRICTIVE_COMPARISONS = 
+    lessRestrictiveComparisonsCheckBox->isChecked();
   OPENSS_VIEW_FULLPATH =
     viewFullPathCheckBox->isChecked();
   OPENSS_HELP_LEVEL_DEFAULT = helpLevelDefaultLineEdit->text().toInt();
@@ -443,6 +459,16 @@ void PreferencesDialog::savePreferences()
   if( !settings->writeEntry( "/openspeedshop/general/allowPythonCommands", allowPythonCommandsCheckBox->isChecked() ) )
   {
     printf("Unable to write allowPythonCommands.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/instrumentorIsOffline", instrumentorIsOfflineCheckBox->isChecked() ) )
+  {
+    printf("Unable to write instrumentorIsOffline.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/lessRestrictiveComparisons", lessRestrictiveComparisonsCheckBox->isChecked() ) )
+  {
+    printf("Unable to write lessRestrictiveComparisons.\n");
   }
 
   // Begin save all preferences

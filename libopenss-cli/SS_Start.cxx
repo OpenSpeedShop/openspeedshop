@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006, 2007, 2008 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -201,6 +201,12 @@ Initial_Python ()
 	    // Load the initialization file into Python
 	    FILE* fp = fopen(candidate.c_str(), "r");
 	    Assert(fp != NULL);
+
+#if DEBUG_CLI
+            std::cerr << "executing init.py, candidate.c_str()=" << candidate.c_str()
+	              << " candidate.getBaseName().c_str()=" << candidate.getBaseName().c_str() << std::endl;
+#endif
+
 	    PyRun_SimpleFile(fp, candidate.getBaseName().c_str());
 	    Assert(fclose(fp) == 0);
 

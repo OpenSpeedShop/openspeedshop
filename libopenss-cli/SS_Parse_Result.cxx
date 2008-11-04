@@ -1,6 +1,6 @@
 /* //////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006,2007,2008 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -29,6 +29,7 @@
 #include <cctype>
 
 #include "SS_Input_Manager.hxx"
+/* #define DEBUG_CLI 1 */
 
 using namespace std;
 
@@ -1315,6 +1316,9 @@ pushExpMetric(char * name1, char * name2)
 {
     ParseRange range(name1,name2);
 
+#if DEBUG_CLI
+    printf("ParseResult::pushExpMetric, name1=%s, name2=%s\n", name1, name2);
+#endif
     dm_exp_metric_list.push_back(range);
 
     return ;
@@ -1334,6 +1338,10 @@ ParseResult::
 pushExpMetric(char * name)
 {
     ParseRange range(name);
+
+#if DEBUG_CLI
+    printf("ParseResult::pushExpMetric, name=%s\n", name);
+#endif
 
    dm_exp_metric_list.push_back(range);
 

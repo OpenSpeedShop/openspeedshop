@@ -1,6 +1,6 @@
-/*******************************************************************************
+/******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2007 Krell Institute  All Rights Reserved.
+** Copyright (c) 2007, 2008 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -18,6 +18,7 @@
 *******************************************************************************/
 
 //#define DEBUG_SYNC_SIGNAL 1
+//#define DEBUG_CLI 1
 
 /** @file
  *
@@ -55,17 +56,49 @@ class ExperimentObject
   std::list<CommandObject *> waiting_cmds;
   bool isBatch;
   bool isInstrumentorOffline;
+  std::string offlineAppCommand;
 
  public:
-  ExperimentObject (std::string data_base_name = std::string("")) {
+
+  std::list<std::string> offlineCollectorList;
+
+  ExperimentObject (std::string data_base_name = std::string(""), EXPID preferred_ID = 0) {
+
     Assert(pthread_mutex_lock(&Experiment_List_Lock) == 0);
-    Exp_ID = ++Experiment_Sequence_Number;
+
+#ifdef DEBUG_CLI
+    cerr << "Enter ExperimentObject, preferred_ID=" << preferred_ID << "Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
+#endif
+
+    // preferred_ID indicates that this is an offline experiment that wants to write over the previous ExperimentObject
+    if (preferred_ID != 0) {
+
+#ifdef DEBUG_CLI
+      cerr << "ExperimentObject, preferred_ID=" << preferred_ID << "Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
+#endif
+
+      Assert (Experiment_Sequence_Number <= preferred_ID);
+
+      Exp_ID = preferred_ID;
+      Experiment_Sequence_Number = preferred_ID;
+
+    } else {
+
+      Exp_ID = ++Experiment_Sequence_Number;
+
+#ifdef DEBUG_CLI
+      cerr << "ExperimentObject, preferred_ID=" << preferred_ID << " after updating Experiment_Sequence_Number=" << Experiment_Sequence_Number << " Exp_ID=" << Exp_ID << "\n";
+#endif
+    } 
+//    Exp_ID = ++Experiment_Sequence_Number;
     ExpStatus = ExpStatus_Paused;
     exp_reserved = false;
     expRunAtLeastOnceAlreadyFlag = false;
     exp_rerun_count = 0;
-    // Determine this from the expCreate command
+
+    // Determine real value for this from the expCreate command (-i offline)
     setIsInstrumentorOffline(false);
+    offlineCollectorList.clear();
 
     Assert(pthread_mutex_init(&Experiment_Lock, NULL) == 0); // dynamic initialization
     Assert(pthread_mutex_lock(&Experiment_Lock) == 0);       // Lock it!
@@ -125,8 +158,28 @@ class ExperimentObject
 
    // Create and open an experiment
     try {
+
+#ifdef DEBUG_CLI
+      cerr << "try create/open experiment preferred_ID=" << preferred_ID << " Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
+#endif
       FW_Experiment = new OpenSpeedShop::Framework::Experiment (Data_File_Name);
-      ExperimentObject_list.push_front(this);
+      if (preferred_ID == 0) {
+
+#ifdef DEBUG_CLI
+        cerr << "Creating new experiment ID, pushing this to ExperimentObject_list, Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
+#endif
+
+        ExperimentObject_list.push_front(this);
+
+      } else {
+
+#ifdef DEBUG_CLI
+        cerr << "NOT CREATING A NEW FRAMEWORK EXPERIMENT because preferred_ID=" << preferred_ID << "\n";
+        cerr << "POP original experiment object and push this to ExperimentObject_list because preferred_ID=" << preferred_ID << "\n";
+#endif
+        ExperimentObject_list.pop_back();
+        ExperimentObject_list.push_front(this);
+      }
     }
     catch(const Exception& error) {
      // Don't really care why.
@@ -138,7 +191,14 @@ class ExperimentObject
 
     Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);       // Unlock new experiment
     Assert(pthread_mutex_unlock(&Experiment_List_Lock) == 0);
+
+#ifdef DEBUG_CLI
+    cerr << "Exit ExperimentObject, Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
+#endif
+
   }
+
+
   ~ExperimentObject () {
     Assert(pthread_mutex_lock(&Experiment_List_Lock) == 0);
     ExperimentObject_list.remove (this);
@@ -175,6 +235,15 @@ class ExperimentObject
   void setExpIsBatch (bool flag) {isBatch = flag;}
   bool getIsInstrumentorOffline () {return isInstrumentorOffline;}
   void setIsInstrumentorOffline (bool flag) {isInstrumentorOffline = flag;}
+
+  void setOfflineAppCommand(std::string appCmd) {
+         offlineAppCommand = appCmd;
+  }
+
+  std::string getOfflineAppCommand() {
+     return offlineAppCommand;
+  }
+
   uint32_t exp_rerun_count;
 
   std::string createName (EXPID LocalExpId, bool LocalDataFileHasAGeneratedName) {
@@ -348,13 +417,15 @@ class ExperimentObject
     exp_reserved = true;
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("[TID=%ld], TS_LOCK, before calling pthread_mutex_unlock(&Experiment_Lock=%ld), already_in_use=%ld, exp_reserved=%ld\n", pthread_self(), Experiment_Lock, already_in_use, exp_reserved);
+    printf("[TID=%ld], TS_LOCK, before calling pthread_mutex_unlock(&Experiment_Lock=%ld), already_in_use=%ld, exp_reserved=%ld\n", 
+            pthread_self(), Experiment_Lock, already_in_use, exp_reserved);
 #endif
 
     Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
 
 #ifdef DEBUG_SYNC_SIGNAL
-    printf("[TID=%ld], TS_LOCK, after calling pthread_mutex_unlock(&Experiment_Lock=%ld), already_in_use=%ld, exp_reserved=%ld\n", pthread_self(), Experiment_Lock, already_in_use, exp_reserved);
+    printf("[TID=%ld], TS_LOCK, after calling pthread_mutex_unlock(&Experiment_Lock=%ld), already_in_use=%ld, exp_reserved=%ld\n", 
+            pthread_self(), Experiment_Lock, already_in_use, exp_reserved);
 #endif
 
     return !already_in_use;

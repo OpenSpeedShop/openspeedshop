@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -217,6 +217,14 @@ class loadPanel  : public Panel
         return doingParallelLoadsOrAttaches;
     }
 
+    void setInstrumentorIsOffline(bool flag) {
+        instrumentorIsOffline = flag;
+    }
+
+    bool getInstrumentorIsOffline() {
+        return instrumentorIsOffline;
+    }
+
 
   public slots:
     virtual void vAttachOrLoadPageBackButtonSelected();
@@ -246,5 +254,6 @@ class loadPanel  : public Panel
     bool doingParallelLoadsOrAttaches;
 
   private:
+    bool instrumentorIsOffline;
 };
 #endif // TEMPLATE_PANEL_H

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+// Copyright (c) 2006,2007,2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -108,6 +108,8 @@ public:
   //! Calls the panel function broadcast() message request.
   int broadcast(char *msg);
 
+  // Get the overall openss tools preference for is the underlying instrumentor mode equal to offline
+  bool getToolPreferenceInstrumentorIsOffline();
 
     QVBoxLayout * pcSampleFormLayout;
     QFrame* mainFrame;
@@ -154,8 +156,15 @@ public:
     QPushButton* eSummaryPageBackButton;
     QPushButton* eSummaryPageFinishButton;
     QCheckBox* vwizardMode;
+    QCheckBox* instrumentorIsOfflineMode;
     QCheckBox* ewizardMode;
     void vPrepareForSummaryPage();
+
+    QRadioButton *vOnlineRB;
+    QRadioButton *vOfflineRB;
+    QRadioButton *eOnlineRB;
+    QRadioButton *eOfflineRB;
+
     Panel* findAndRaiseLoadPanel();
     Panel* getThisWizardsLoadPanel() {
        return thisWizardsLoadPanel;
@@ -163,6 +172,31 @@ public:
     void setThisWizardsLoadPanel(Panel* lpanel) {
        thisWizardsLoadPanel = lpanel;
     };
+
+    void setGlobalToolInstrumentorIsOffline(bool flag) {
+        globalToolInstrumentorIsOffline = flag;
+    }
+
+    bool getGlobalToolInstrumentorIsOffline() {
+        return globalToolInstrumentorIsOffline;
+    }
+
+    void setThisWizardsInstrumentorIsOffline(bool flag) {
+        thisWizardsPreviousInstrumentorIsOffline = thisWizardsInstrumentorIsOffline;
+        thisWizardsInstrumentorIsOffline = flag;
+    }
+
+    bool getThisWizardsInstrumentorIsOffline() {
+        return thisWizardsInstrumentorIsOffline;
+    }
+
+    bool getThisWizardsPreviousInstrumentorIsOffline() {
+        return thisWizardsPreviousInstrumentorIsOffline;
+    }
+
+    void setThisWizardsPreviousInstrumentorIsOffline(bool flag) {
+        thisWizardsPreviousInstrumentorIsOffline = flag;
+    }
 
 public slots:
 
@@ -185,8 +219,13 @@ public slots:
     virtual void eParameterPageSampleRateTextReturnPressed();
     virtual void ewizardModeSelected();
     virtual void vwizardModeSelected();
+    virtual void instrumentorIsOfflineModeSelected();
     virtual void wizardModeSelected();
     virtual void finishButtonSelected();
+    virtual void vOfflineRBSelected();
+    virtual void vOnlineRBSelected();
+    virtual void eOfflineRBSelected();
+    virtual void eOnlineRBSelected();
 
 protected:
     QVBoxLayout* mainFrameLayout;
@@ -221,12 +260,17 @@ protected:
     QSpacerItem* bottomSpacer;
     Panel*       thisWizardsLoadPanel;
 
+
 protected slots:
     virtual void languageChange();
 
 private:
     QString sampleRate;
     unsigned int original_sampling_rate;
+
+    bool thisWizardsPreviousInstrumentorIsOffline;
+    bool thisWizardsInstrumentorIsOffline;
+    bool globalToolInstrumentorIsOffline;
 
     Panel *pcSamplePanel;
 };

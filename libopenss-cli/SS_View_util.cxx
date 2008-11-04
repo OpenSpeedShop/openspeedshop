@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006, 2007, 2008 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -344,9 +344,20 @@ CommandResult *Get_Total_Metric (CommandObject *cmd,
   CommandResult *Param_Value = NULL;
   Metadata m = Find_Metadata ( collector, metric );
   std::string id = m.getUniqueId();
+
 #if DEBUG_CLI
-  printf("Enter Get_Total_Metric  - SS_View_util.cxx, id.c_str()=%s\n",id.c_str());
+  printf("Enter Get_Total_Metric  - SS_View_util.cxx, id.c_str()=%s, metric.c_str()=%s \n",id.c_str(), metric.c_str());
+  ThreadGroup::iterator ti;
+  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+    std::cerr << " ProcessId in tgrp=" << (*ti).getProcessId() << " HostID in tgrp=" << (*ti).getHost() << std::endl;
+    Thread t = *ti;
+    std::pair<bool, int> prank = t.getMPIRank();
+    std::cerr << " Rank in tgrp=" << prank.second << "\n" <<  std::endl;
+
+  }
+
 #endif
+
   if( m.isType(typeid(unsigned int)) ) {
     uint Value = 0;
     GetMetricsforThreads(cmd, tgrp, collector, metric, Value);

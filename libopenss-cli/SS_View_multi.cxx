@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006, 2007, 2008 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -219,17 +219,21 @@ static void Setup_Sort(
 #if DEBUG_CLI
   printf("in Setup_Sort\n");
 #endif
+
   if ((vinst->OpCode() == VIEWINST_Display_Metric) ||
       (vinst->OpCode() == VIEWINST_Display_Percent_Column)) {
     return;
   }
+
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, set the desired sort value into the VMulti_sort_temp field.
     std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
     CommandResult *Old = (*cp.second)[VMulti_sort_temp];
+
 #if DEBUG_CLI
     if (Old != NULL) {
       printf("Setup_Sort, START printing CommandResult (Old)\n");
@@ -242,9 +246,11 @@ static void Setup_Sort(
       printf("Setup_Sort, END printing CommandResult Old\n");
     }
 #endif
+
     if (Old != NULL) delete Old;
     CommandResult *New = NULL;
     CommandResult *V1 = (*cp.second)[vinst->TMP1()];
+
 #if DEBUG_CLI
     if (V1 != NULL) {
       printf("Setup_Sort, START printing CommandResult (V1)\n");
@@ -257,35 +263,49 @@ static void Setup_Sort(
       printf("Setup_Sort, END printing CommandResult V1\n");
     }
 #endif
+
+
     if (vinst->OpCode() == VIEWINST_Display_Tmp) {
+
 #if DEBUG_CLI
       printf("in Setup_Sort, VIEWINST_Display_Tmp\n");
 #endif
+
       New = V1->Copy();
+
     } else if (vinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
+
 #if DEBUG_CLI
       printf("in Setup_Sort, VIEWINST_Display_Percent_Tmp\n");
 #endif
+
      // Use value without calculating percent - order will be the same.
       New = V1->Copy();
+
     } else if (vinst->OpCode() == VIEWINST_Display_Average_Tmp) {
+
 #if DEBUG_CLI
       printf("in Setup_Sort, VIEWINST_Display_Average_Tmp\n");
 #endif
+
 /*
       if (!V1->isNullValue ()) {
 */{
         New = Calculate_Average (V1, (*cp.second)[vinst->TMP2()]);
       }
     } else if (vinst->OpCode() ==VIEWINST_Display_StdDeviation_Tmp) {
+
 #if DEBUG_CLI
       printf("in Setup_Sort, VIEWINST_Display_StdDeviation_Tmp\n");
 #endif
+
       CommandResult *V1 = (*cp.second)[vinst->TMP1()];
       CommandResult *V2 = (*cp.second)[vinst->TMP2()];
       CommandResult *V3 = (*cp.second)[vinst->TMP3()];
       New = Calculate_StdDev (V1, V2, V3);
+
     }
+
     Assert (New != NULL);
     (*cp.second)[VMulti_sort_temp] = New;
   }

@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006, 2007, 2008 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -27,25 +27,25 @@
 
 // types of results that can be returned in a CommandObject
 enum cmd_result_type_enum {
-  CMD_RESULT_NULL,
-  CMD_RESULT_ADDRESS,
-  CMD_RESULT_UINT,
-  CMD_RESULT_INT,
-  CMD_RESULT_FLOAT,
-  CMD_RESULT_STRING,
-  CMD_RESULT_RAWSTRING,
-  CMD_RESULT_FUNCTION,
-  CMD_RESULT_STATEMENT,
-  CMD_RESULT_LINKEDOBJECT,
-  CMD_RESULT_CALLTRACE,
-  CMD_RESULT_TIME,
-  CMD_RESULT_DURATION,
-  CMD_RESULT_INTERVAL,
-  CMD_RESULT_TITLE,
-  CMD_RESULT_COLUMN_HEADER,
-  CMD_RESULT_COLUMN_VALUES,
-  CMD_RESULT_COLUMN_ENDER,
-  CMD_RESULT_EXTENSION,
+/* 0 */  CMD_RESULT_NULL,
+/* 1 */  CMD_RESULT_ADDRESS,
+/* 2 */  CMD_RESULT_UINT,
+/* 3 */  CMD_RESULT_INT,
+/* 4 */  CMD_RESULT_FLOAT,
+/* 5 */  CMD_RESULT_STRING,
+/* 6 */  CMD_RESULT_RAWSTRING,
+/* 7 */  CMD_RESULT_FUNCTION,
+/* 8 */  CMD_RESULT_STATEMENT,
+/* 9 */  CMD_RESULT_LINKEDOBJECT,
+/* 10 */  CMD_RESULT_CALLTRACE,
+/* 11 */  CMD_RESULT_TIME,
+/* 12 */  CMD_RESULT_DURATION,
+/* 13 */  CMD_RESULT_INTERVAL,
+/* 14 */  CMD_RESULT_TITLE,
+/* 15 */  CMD_RESULT_COLUMN_HEADER,
+/* 16 */  CMD_RESULT_COLUMN_VALUES,
+/* 17 */  CMD_RESULT_COLUMN_ENDER,
+/* 18 */  CMD_RESULT_EXTENSION,
 };
 
 class CommandResult {
@@ -1156,43 +1156,57 @@ class CommandResult_Interval : public CommandResult {
   double interval_value;
 
  public:
+
   CommandResult_Interval () : CommandResult(CMD_RESULT_INTERVAL) {
   }
+
   CommandResult_Interval (double d)
       : CommandResult(CMD_RESULT_INTERVAL) {
     interval_value = d;
   }
+
   CommandResult_Interval (CommandResult_Interval *D)
       : CommandResult(CMD_RESULT_INTERVAL) {
     interval_value = D->interval_value;
   }
-  virtual ~CommandResult_Interval () {
-  }
+
+  virtual ~CommandResult_Interval () { }
 
   virtual CommandResult *Init () { return new CommandResult_Interval (); }
   virtual CommandResult *Copy () { return new CommandResult_Interval (this); }
+
   virtual bool LT (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    return interval_value < ((CommandResult_Interval *)A)->interval_value; }
+    return interval_value < ((CommandResult_Interval *)A)->interval_value; 
+  }
+
   virtual bool GT (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    return interval_value > ((CommandResult_Interval *)A)->interval_value; }
+    return interval_value > ((CommandResult_Interval *)A)->interval_value; 
+  }
+
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
     if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
       clearNullValue();
     }
-    interval_value += ((CommandResult_Interval *)A)->interval_value; }
+    interval_value += ((CommandResult_Interval *)A)->interval_value; 
+  }
+
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    interval_value = min (interval_value, ((CommandResult_Interval *)A)->interval_value); }
+    interval_value = min (interval_value, ((CommandResult_Interval *)A)->interval_value); 
+  }
+
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    interval_value = max (interval_value, ((CommandResult_Interval *)A)->interval_value); }
+    interval_value = max (interval_value, ((CommandResult_Interval *)A)->interval_value); 
+  }
 
   double& Value () {
     return interval_value;
   };
+
   void Value (double& d) {
     d = interval_value;
   };

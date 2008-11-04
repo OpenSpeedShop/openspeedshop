@@ -1,6 +1,6 @@
 /*/*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2007 Krell Institute  All Rights Reserved.
+** Copyright (c) 2007, 2008 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -306,7 +306,7 @@ char *cmd_expCont_args[] = {
 };
 
 char *cmd_expCreate_args[] = {
-    "<expId> = expCreate [ -v mpi] [ <target_list> ] [ <expType_list> ]"
+    "<expId> = expCreate [-i offline] [-v mpi] [ <target_list> ] [ <expType_list> ]"
 };
 
 char *cmd_expData_args[] = {
@@ -819,6 +819,13 @@ char *cmd_expCreate_detailed[] = {
     " ",
     "\to The experiment will not execute until an \'expGo\' command ",
     "\t  is issued.",
+    " ",
+    "- If the -i offline option is selected, the instrumentation ",
+    "  used to gather the data will be LD_PRELOAD.  This means that ",
+    "  the experiment will need to run to completion before any data",
+    "  will be available for viewing.  This also means that expPause,",
+    "  expCont, expDisable, and expEnable will not be available.  The",
+    "  experiment must run from start to finish without interruption.",
     " ",
     "- If the -v mpi option is selected, all the threads that ",
     "  are part of a running application will be included ",
@@ -1942,7 +1949,7 @@ char *cmd_expCreate_example[] = {
     "    If you need to add more attributes to this experiment",
     "    before running it, use the expAttach command.",
     " ",
-    "    ExpCreate changes the focus to the newly created",
+    "    expCreate changes the focus to the newly created",
     "    experiment. If you wish to change the focus back to an",
     "    existing experiment use the expFocus command.",
     " "

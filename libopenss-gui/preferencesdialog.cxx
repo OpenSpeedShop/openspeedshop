@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007 Krell Institute  All Rights Reserved.
+// Copyright (c) 2007, 2008 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -72,6 +72,8 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    askAboutChangingArgs = TRUE; 
    askAboutSavingTheDatabase = TRUE; 
    onRerunSaveCopyOfExperimentDatabase = TRUE; 
+   instrumentorIsOffline = TRUE; 
+   lessRestrictiveComparisons = FALSE;
 
 
    globalRemoteShell = "/usr/bin/rsh";
@@ -346,6 +348,22 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     rightSideLayout->addWidget( allowPythonCommandsCheckBox );
     }
 
+    { // INSTRUMENTOR IS OFFLINE
+    instrumentorIsOfflineCheckBox = new QCheckBox( GeneralGroupBox, "instrumentorIsOfflineCheckBox" );
+    instrumentorIsOfflineCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, instrumentorIsOfflineCheckBox->sizePolicy().hasHeightForWidth() ) );
+    instrumentorIsOfflineCheckBox->setChecked( TRUE );
+    instrumentorIsOfflineCheckBox->setText( tr( "Instrumentor Is Offline" ) );
+    rightSideLayout->addWidget( instrumentorIsOfflineCheckBox );
+    }
+
+    { // COMPARISONS IGNORING OBJECT AND DIRECTORY PATH
+    lessRestrictiveComparisonsCheckBox = new QCheckBox( GeneralGroupBox, "lessRestrictiveComparisonsCheckBox" );
+    lessRestrictiveComparisonsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, lessRestrictiveComparisonsCheckBox->sizePolicy().hasHeightForWidth() ) );
+    lessRestrictiveComparisonsCheckBox->setChecked( TRUE );
+    lessRestrictiveComparisonsCheckBox->setText( tr( "Less Restrictive Comparisons" ) );
+    rightSideLayout->addWidget( lessRestrictiveComparisonsCheckBox );
+    }
+
     generalStackPageLayout->addWidget( GeneralGroupBox );
     stack->addWidget( generalStackPage, 0 );
 }
@@ -376,59 +394,68 @@ void PreferencesDialog::languageChange()
   showGraphicsCheckBox->setChecked(FALSE);
 
   viewFieldSizeLineEdit->setText( QString("%1").arg(viewFieldSize) );
-QToolTip::add(viewFieldSizeLineEdit,
-  tr("Define the width of the field used for each column when the result of\nan 'expView' command is printed.  The default is 20.") );
+  QToolTip::add(viewFieldSizeLineEdit,
+                tr("Define the width of the field used for each column when the result of\nan 'expView' command is printed.  The default is 20.") );
 
   viewPrecisionLineEdit->setText( QString("%1").arg(viewPrecision) );
-QToolTip::add(viewPrecisionLineEdit,
-  tr("Define the precision used to format a floating point number when\nthe result of an 'expView' command is printed.  The default is 4.") );
+  QToolTip::add(viewPrecisionLineEdit,
+                tr("Define the precision used to format a floating point number when\nthe result of an 'expView' command is printed.  The default is 4.") );
 
   historyLimitLineEdit->setText( QString("%1").arg(historyLimit) );
-QToolTip::add(historyLimitLineEdit,
-  tr("Define the maximum number of commands that are remembered for the\n'history' command.  If the command is issued with a larger number,\nthis limit is automatically increased.  The default is 100.") );
+  QToolTip::add(historyLimitLineEdit,
+                tr("Define the maximum number of commands that are remembered for the\n'history' command.  If the command is issued with a larger number,\nthis limit is automatically increased.  The default is 100.") );
 
   historyDefaultLineEdit->setText( QString("%1").arg(historyDefault) );
-QToolTip::add(historyDefaultLineEdit,
-  tr("Define the number of previous commands that will be printed when\nthe 'history' command is issued without a requesting length. The\ndefault is 24;") );
+  QToolTip::add(historyDefaultLineEdit,
+                tr("Define the number of previous commands that will be printed when\nthe 'history' command is issued without a requesting length. The\ndefault is 24;") );
 
   maxAsyncCommandsLineEdit->setText( QString("%1").arg(maxAsyncCommands) );
-QToolTip::add(maxAsyncCommandsLineEdit,
-  tr("Define the maximum number of commands that can be processed at\nthe same time. This is a limit on the parallel execution of\ncommands in Open|SpeedShop and controls the degree to which commands\ncan be overlapped.  The default is 20.  This value must be greater than zero.\n") );
+  QToolTip::add(maxAsyncCommandsLineEdit,
+                tr("Define the maximum number of commands that can be processed at\nthe same time. This is a limit on the parallel execution of\ncommands in Open|SpeedShop and controls the degree to which commands\ncan be overlapped.  The default is 20.  This value must be greater than zero.\n") );
 
   helpLevelDefaultLineEdit->setText( QString("%1").arg(helpLevelDefault) );
-QToolTip::add(helpLevelDefaultLineEdit,
-  tr("Define the level of help information that is displayed when\nthe 'help' command is issued without a <verbosity_list_spec>.\nThe default is 2.") );
+  QToolTip::add(helpLevelDefaultLineEdit,
+                tr("Define the level of help information that is displayed when\nthe 'help' command is issued without a <verbosity_list_spec>.\nThe default is 2.") );
 
   viewFullPathCheckBox->setChecked(viewFullPathCheckBox);
-QToolTip::add(viewFullPathCheckBox,
-  tr("Declare whether or not a full path is displayed in place of\na file name when the function, linkedobject, or statement\nlocation is displayed as part of an 'expView' command.  The\ndefault is false, allowing only the containing file name to\nbe displayed.") );
+  QToolTip::add(viewFullPathCheckBox,
+                tr("Declare whether or not a full path is displayed in place of\na file name when the function, linkedobject, or statement\nlocation is displayed as part of an 'expView' command.  The\ndefault is false, allowing only the containing file name to\nbe displayed.") );
 
   saveExperimentDatabaseCheckBox->setChecked(saveExperimentDatabase);
-QToolTip::add(saveExperimentDatabaseCheckBox,
-  tr("Declare that the database created when an 'expCreate'\ncommand is issued will be saved when the Open|SpeedShop session is\nterminated.  The saved database will be in the user's\ncurrent directory and will be of the form:\n \"X<exp_id>_iiiiii.openss\"\nwhere the 'iiiiii' field is an integer, starting with 0,\nthat generates a unique file name.  The default is 'false'\nand experiment databases will be deleted when the Open|SpeedShop\nsession terminates unless the user has issued an 'expSave'\ncommand.") );
+  QToolTip::add(saveExperimentDatabaseCheckBox,
+                tr("Declare that the database created when an 'expCreate'\ncommand is issued will be saved when the Open|SpeedShop session is\nterminated.  The saved database will be in the user's\ncurrent directory and will be of the form:\n \"X<exp_id>_iiiiii.openss\"\nwhere the 'iiiiii' field is an integer, starting with 0,\nthat generates a unique file name.  The default is 'false'\nand experiment databases will be deleted when the Open|SpeedShop\nsession terminates unless the user has issued an 'expSave'\ncommand.") );
 
   askAboutChangingArgsCheckBox->setChecked(askAboutChangingArgs);
-QToolTip::add(askAboutChangingArgsCheckBox,
-  tr("When rerunning an experiment, pop up a dialog box that allows the application arguments to be changed") );
+  QToolTip::add(askAboutChangingArgsCheckBox,
+                tr("When rerunning an experiment, pop up a dialog box that allows the application arguments to be changed") );
 
 
   askAboutSavingTheDatabaseCheckBox->setChecked(askAboutSavingTheDatabase);
-QToolTip::add(askAboutChangingArgsCheckBox,
-  tr("When rerunning an experiment, pop up a dialog box that allows the existing database file to be named by the user and saved") );
+  QToolTip::add(askAboutChangingArgsCheckBox,
+                tr("When rerunning an experiment, pop up a dialog box that allows the existing database file to be named by the user and saved") );
 
   onRerunSaveCopyOfExperimentDatabaseCheckBox->setChecked(onRerunSaveCopyOfExperimentDatabase);
   onRerunSaveCopyOfExperimentDatabaseCheckBox->setChecked(onRerunSaveCopyOfExperimentDatabase);
-QToolTip::add(onRerunSaveCopyOfExperimentDatabaseCheckBox,
-  tr("When rerunning an experiment, save a copy of the database that was created when the 'expCreate'\ncommand was issued or from the previous rerun.  To make sure these copies will be saved when the Open|SpeedShop session is\nterminated choose the 'save Experiment Database' checkbox.  The copies of the saved database will be in the user's\ncurrent directory and will be of the form:\n \"X<exp_id>_iiiiii-nn.openss\"\"\nwhere the 'iiiiii' field is an integer, starting with 0,\nwhich generates a unique file name.\nand where the 'nn' field is an integer, starting with 1,\nwhich represents the rerun count.") );
+  QToolTip::add(onRerunSaveCopyOfExperimentDatabaseCheckBox,
+                tr("When rerunning an experiment, save a copy of the database that was created when the 'expCreate'\ncommand was issued or from the previous rerun.  To make sure these copies will be saved when the Open|SpeedShop session is\nterminated choose the 'save Experiment Database' checkbox.  The copies of the saved database will be in the user's\ncurrent directory and will be of the form:\n \"X<exp_id>_iiiiii-nn.openss\"\"\nwhere the 'iiiiii' field is an integer, starting with 0,\nwhich generates a unique file name.\nand where the 'nn' field is an integer, starting with 1,\nwhich represents the rerun count.") );
 
 
   viewMangledNameCheckBox->setChecked(viewMangledName);
-QToolTip::add(viewMangledNameCheckBox,
-  tr("Declare whether or not a mangled name is displayed when a function is displayed\nas part of an 'expView' command. The default is false, allowing the demangled\nnames, that are used in the source code, to be displayed.") );
+  QToolTip::add(viewMangledNameCheckBox,
+                tr("Declare whether or not a mangled name is displayed when a function is displayed\nas part of an 'expView' command. The default is false, allowing the demangled\nnames, that are used in the source code, to be displayed.") );
 
   allowPythonCommandsCheckBox->setChecked(allowPythonCommands);
-QToolTip::add(allowPythonCommandsCheckBox,
-  tr("Declare that Python commands may be intermixed with Open|SpeedShop\ncommands.  The default is true.") );
+  QToolTip::add(allowPythonCommandsCheckBox,
+                tr("Declare that Python commands may be intermixed with Open|SpeedShop\ncommands.  The default is true.") );
+
+  instrumentorIsOfflineCheckBox->setChecked(instrumentorIsOffline);
+  QToolTip::add(instrumentorIsOfflineCheckBox,
+                tr("Declare whether or not the underlying instrumention mechanism for Open|SpeedShop\nis offline if the checkbox is enabled, or if not set, dynamic.  What this means is\nthat, under the hood, the mechanism used to gather the performance\ndata is based on LD_PRELOAD, not dynamic instrumentation.  Attaching\nto a running process or any process control of the running\nperformance experiment is not able to be done because of the static nature of running based on\nusing LD_PRELOAD.  Use the dynamic\ninstrumentation mechanism for those\nfeatures") );
+
+
+  lessRestrictiveComparisonsCheckBox->setChecked(lessRestrictiveComparisons);
+  QToolTip::add(lessRestrictiveComparisonsCheckBox,
+                tr("Declare whether or not comparisons should consider the directory path and linked object\nwhen comparing performance data for a particular function.  If this preference is set,\nthe directory path of the source file and the linked object will not be considered.  Use this if you are comparing\nthe same program but have different source versions of the program in separate directories") );
 
     setCaption( tr( "Preferences Dialog" ) );
     categoryListView->header()->setLabel( 0, tr( "Categories" ) );

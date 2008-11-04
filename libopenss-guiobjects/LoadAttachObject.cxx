@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -43,11 +43,14 @@ LoadAttachObject::LoadAttachObject() : MessageObject("LoadAttachObject")
 LoadAttachObject::LoadAttachObject(QString executable_name, 
                                    QString pid_string, 
                                    QString parallelPrefix, 
-                                   ParamList *param_list, bool lnh) : MessageObject("LoadAttachObject")
+                                   ParamList *param_list, 
+                                   bool lnh, 
+                                   bool isOff) : MessageObject("LoadAttachObject")
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("LoadAttachObject::LoadAttachObject(entered.\n");
 
 #ifdef DEBUG_LAO
+
   if (parallelPrefix) {
     printf( "LoadAttachObject::LoadAttachObject(entered). parallelPrefix.ascii()=%s\n", parallelPrefix.ascii());
   } else {
@@ -65,6 +68,9 @@ LoadAttachObject::LoadAttachObject(QString executable_name,
   } else {
     printf( "LoadAttachObject::LoadAttachObject(entered). pid_string is NULL\n");
   }
+
+    printf( "LoadAttachObject::LoadAttachObject(entered). isOff=%d\n", isOff);
+
 #endif
 
   executableName = executable_name;
@@ -72,6 +78,7 @@ LoadAttachObject::LoadAttachObject(QString executable_name,
   parallelprefixstring = parallelPrefix;
   paramList = param_list;
   loadNowHint = lnh;
+  doesThisExperimentUseOfflineInstrumentation = isOff;
 
 #ifdef DEBUG_LAO
   // debug for now
@@ -89,7 +96,9 @@ LoadAttachObject::~LoadAttachObject()
 void
 LoadAttachObject::print()
 {
+
 #ifdef DEBUG_LAO
+
   printf("LoadAttachObject::print() entered\n");
   if (executableName)
     printf("	executableName=(%s)\n", executableName.ascii());
@@ -108,6 +117,10 @@ LoadAttachObject::print()
       }
     }
   } // end paramList if
+  printf("	loadNowHint=(%d)\n", loadNowHint);
+  printf("	doesThisExperimentUseOfflineInstrumentation=(%d)\n", doesThisExperimentUseOfflineInstrumentation);
+
   printf("LoadAttachObject::print() exitted\n");
+
 #endif
 }

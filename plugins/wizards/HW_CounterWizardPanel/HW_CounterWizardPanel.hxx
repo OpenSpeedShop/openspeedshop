@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -168,14 +168,50 @@ QComboBox* eParameterPagePAPIDescriptionText;
     QCheckBox* vwizardMode;
     QCheckBox* ewizardMode;
 
+    QCheckBox* instrumentorIsOfflineMode;
+
+    QRadioButton *vOnlineRB;
+    QRadioButton *vOfflineRB;
+    QRadioButton *eOnlineRB;
+    QRadioButton *eOfflineRB;
+
     void vPrepareForSummaryPage();
     Panel* findAndRaiseLoadPanel();
     Panel* getThisWizardsLoadPanel() {
        return thisWizardsLoadPanel;
     };
+
+    bool getToolPreferenceInstrumentorIsOffline();
+
     void setThisWizardsLoadPanel(Panel* lpanel) {
        thisWizardsLoadPanel = lpanel;
     };
+    void setGlobalToolInstrumentorIsOffline(bool flag) {
+        globalToolInstrumentorIsOffline = flag;
+    }
+
+    bool getGlobalToolInstrumentorIsOffline() {
+        return globalToolInstrumentorIsOffline;
+    }
+
+
+    void setThisWizardsInstrumentorIsOffline(bool flag) {
+        thisWizardsPreviousInstrumentorIsOffline = thisWizardsInstrumentorIsOffline;
+        thisWizardsInstrumentorIsOffline = flag;
+    }
+
+    bool getThisWizardsInstrumentorIsOffline() {
+        return thisWizardsInstrumentorIsOffline;
+    }
+
+    bool getThisWizardsPreviousInstrumentorIsOffline() {
+        return thisWizardsPreviousInstrumentorIsOffline;
+    }
+
+    void setThisWizardsPreviousInstrumentorIsOffline(bool flag) {
+        thisWizardsPreviousInstrumentorIsOffline = flag;
+    }
+
 
 public slots:
     virtual void eDescriptionPageNextButtonSelected();
@@ -198,6 +234,11 @@ public slots:
     virtual void vwizardModeSelected();
     virtual void wizardModeSelected();
     virtual void finishButtonSelected();
+    virtual void vOfflineRBSelected();
+    virtual void vOnlineRBSelected();
+    virtual void eOfflineRBSelected();
+    virtual void eOnlineRBSelected();
+
 
 protected:
     QVBoxLayout* mainFrameLayout;
@@ -251,5 +292,10 @@ private:
     void initPapiTypes();
     void appendComboBoxItems();
     QString findPAPIStr(QString);
+
+    bool thisWizardsPreviousInstrumentorIsOffline;
+    bool thisWizardsInstrumentorIsOffline;
+    bool globalToolInstrumentorIsOffline;
+
 };
 #endif // HW_COUNTERWIZARDPANEL_H

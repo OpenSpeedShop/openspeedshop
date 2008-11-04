@@ -52,7 +52,7 @@ void Construct_View_Output (CommandObject *cmd,
                                                   SmartPtr<std::vector<CommandResult *> > > >& items,
                             std::list<CommandResult *>& view_output ) {
 #ifdef DEBUG_CLI
-//  Print_View_Params (cerr, CV,MV,IV);
+  Print_View_Params (cerr, CV,MV,IV);
 #endif
 
  // If there is data then go through and create headers, etc.
@@ -122,10 +122,11 @@ void Construct_View_Output (CommandObject *cmd,
    // Format the report with the items that are in the vector.
     std::vector<std::pair<CommandResult *,
                           SmartPtr<std::vector<CommandResult *> > > >::iterator it;
+
 #ifdef DEBUG_CLI
-    printf("Construct_View_Output, items.begin() is equal to items.end()=%d \n", 
-            items.begin() == items.end());
+    printf("Construct_View_Output, items.begin() is equal to items.end()=%d \n", items.begin() == items.end());
 #endif
+
    //
    // If there is data, go through the for loop to put the data out, else put out 
    // a "no data" type message in place of the data that would have appeared in this view
@@ -176,9 +177,15 @@ void Construct_View_Output (CommandObject *cmd,
             Next_Metric_Value = Calculate_Percent (V, Total_Value[vinst->TMP2()]);
           }
         } else if (vinst->OpCode() == VIEWINST_Display_Average_Tmp) {
+#ifdef DEBUG_CLI
+          printf("Construct_View_Output, (vinst->OpCode()==VIEWINST_Display_Average_Tmp), CM_Index=%d \n", CM_Index);
+#endif
           CommandResult *V = (*it->second)[CM_Index];
-          if (!V->isNullValue ()) {
+          if ( !V->isNullValue() ) {
             Next_Metric_Value = Calculate_Average (V, (*it->second)[vinst->TMP2()]);
+#ifdef DEBUG_CLI
+            printf("Construct_View_Output, (vinst->OpCode()==VIEWINST_Display_Average_Tmp), (!V->isNullValue())=TRUE, we setup Next_Metric_Value\n" );
+#endif
           }
         } else if (vinst->OpCode() ==VIEWINST_Display_StdDeviation_Tmp) {
           CommandResult *V1 = (*it->second)[vinst->TMP1()];
@@ -240,9 +247,15 @@ void Construct_View_Output (CommandObject *cmd,
          // Only display the temp if we accumulation is defined.
           summary = summary_temp[sinst->TMP1()]->Copy();
         } else if (sinst->OpCode() == VIEWINST_Display_Average_Tmp) {
+#ifdef DEBUG_CLI
+          printf("Construct_View_Output, (sinst->OpCode()==VIEWINST_Display_Average_Tmp), sinst->TMP1()=%d \n", sinst->TMP1());
+#endif
           CommandResult *V = summary_temp[sinst->TMP1()];
           if (!V->isNullValue ()) {
             summary = Calculate_Average (V, summary_temp[sinst->TMP2()]);
+#ifdef DEBUG_CLI
+           printf("Construct_View_Output, (sinst->OpCode()==VIEWINST_Display_Average_Tmp),  setup summary, sinst->TMP2()=%d \n", sinst->TMP2());
+#endif
           }
         } else if (sinst->OpCode() == VIEWINST_Display_StdDeviation_Tmp) {
           CommandResult *V1 = summary_temp[sinst->TMP1()];

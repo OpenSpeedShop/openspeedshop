@@ -1,6 +1,6 @@
 /******************************************************************************
 ** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006, 2007, 2008 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -61,8 +61,7 @@ CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
   int64_t Ivalue;
 
 #if DEBUG_CLI
-  printf("In CommandResult *Calculate_Average, A->Type()=%d, B->Type()=%d\n", 
-         A->Type(), B->Type());
+  printf("In CommandResult *Calculate_Average, A->Type()=%d, B->Type()=%d\n", A->Type(), B->Type());
 #endif
 
 
@@ -87,6 +86,8 @@ CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
     ((CommandResult_Interval *)A)->Value(Avalue);
     break;
   }
+
+
   switch (B->Type()) {
    case CMD_RESULT_UINT:
     uint64_t Uvalue;
@@ -110,6 +111,12 @@ CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
   }
 
   double average = Avalue / Bvalue;
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Average, Avalue=%f, Bvalue()=%f, average=%f\n", 
+         Avalue, Bvalue, average);
+#endif
+
   return new CommandResult_Float (average);
 }
 

@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2007 Krell Institute  All Rights Reserved.
+** Copyright (c) 2007, 2008 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -41,6 +41,8 @@ extern bool    OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE;
 extern bool    OPENSS_ALLOW_PYTHON_COMMANDS;
 extern bool    OPENSS_LOG_BY_DEFAULT;
 extern bool    OPENSS_LIMIT_SIGNAL_CATCHING;
+extern bool    OPENSS_INSTRUMENTOR_IS_OFFLINE;
+extern bool    OPENSS_LESS_RESTRICTIVE_COMPARISONS;
 
 // Read in the environment variables that control OpenSpeedShop
 void SS_Configure ();

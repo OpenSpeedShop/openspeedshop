@@ -1,6 +1,6 @@
 /******************************************************************************e
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2007 Krell Institute  All Rights Reserved.
+** Copyright (c) 2007, 2008 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -37,6 +37,8 @@ bool    OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE = true;
 bool    OPENSS_ALLOW_PYTHON_COMMANDS = true;
 bool    OPENSS_LOG_BY_DEFAULT = false;
 bool    OPENSS_LIMIT_SIGNAL_CATCHING = false;
+bool    OPENSS_INSTRUMENTOR_IS_OFFLINE = true;
+bool    OPENSS_LESS_RESTRICTIVE_COMPARISONS = false;
 
 static inline void set_int64 (int64_t &env, std::string envName) {
   char *S = getenv (envName.c_str());
@@ -212,6 +214,25 @@ void SS_Configure () {
             "commands.  The default is false.");
   Bvalue = settings->readBoolEntry(std::string("allowPythonCommands"), OPENSS_ALLOW_PYTHON_COMMANDS, &ok);
   if (ok) OPENSS_ALLOW_PYTHON_COMMANDS = Bvalue;
+
+  Add_Help (czar, "instrumentorIsOffline", "a boolean, preference",
+            "Declare whether or not the underlying instrumention mechanism for Open|SpeedShop "
+            "is offline, or if not set: dynamic.  What this means is "
+	    "that under the hood the mechanism used to gather the performance "
+            "data is based on LD_PRELOAD not dynamic instrumentation.  Attaching "
+	    "to a running process or any process control of the running "
+	    "performance experiment is not able to be done.  Use the dynamic "
+	    "instrumentation mechanism for those features");
+  Bvalue = settings->readBoolEntry(std::string("instrumentorIsOffline"), OPENSS_INSTRUMENTOR_IS_OFFLINE, &ok);
+  if (ok) OPENSS_INSTRUMENTOR_IS_OFFLINE = Bvalue;
+
+  Add_Help (czar, "lessRestrictiveComparisions", "a boolean, preference",
+            "Declare whether or not comparisons should consider the directory path and linked object "
+            "when comparing performance data for a particular function.  If this preference is set, "
+            "the directory path of the source file and the linked object will not be considered.  Use this if you are comparing "
+            "the same program but have different source versions of the program in separate directories.");
+  Bvalue = settings->readBoolEntry(std::string("lessRestrictiveComparisions"), OPENSS_LESS_RESTRICTIVE_COMPARISONS, &ok);
+  if (ok) OPENSS_LESS_RESTRICTIVE_COMPARISONS = Bvalue;
 
   Add_Help (czar, "OPENSS_LOG_BY_DEFAULT", "a boolean, environment",
             "Declare that a log file will be opened and each command "

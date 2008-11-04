@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -147,6 +148,15 @@ public:
   int64_t rightSideExpID;   // Used by CompareExperimentsPanel ONLY
   static QString getMostImportantMetric(QString collector_name);
 
+  void setInstrumentorIsOffline(bool flag) {
+    instrumentorIsOffline = flag;
+  }
+
+  bool getInstrumentorIsOffline() {
+    return instrumentorIsOffline;
+  }
+
+
 public slots:
   virtual void saveAsSelected();
   virtual void loadSourcePanel();
@@ -193,5 +203,8 @@ private:
 
   virtual void resetRedirect();
   virtual QString getDatabaseName();
+
+  bool instrumentorIsOffline;
+
 };
 #endif // CUSTOMEXPERIMENTPANEL_H

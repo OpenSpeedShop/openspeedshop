@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -65,6 +66,14 @@ class ManageProcessesPanel  : public Panel
 
     void preferencesChanged();
 
+    void setInstrumentorIsOffline(bool flag) {
+      instrumentorIsOffline = flag;
+    }
+
+    bool getInstrumentorIsOffline() {
+      return instrumentorIsOffline;
+    }
+
     int expID;
     
   public slots:
@@ -75,6 +84,7 @@ class ManageProcessesPanel  : public Panel
   protected:
     //! Sets the language specific strings.
     virtual void languageChange();
+    bool instrumentorIsOffline;
 
   private:
     void raisePreferencePanel();

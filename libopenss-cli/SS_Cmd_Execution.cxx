@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2007 Krell Institute  All Rights Reserved.
+** Copyright (c) 2007, 2008 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -265,32 +265,55 @@ ExperimentObject *Find_Experiment_Object (EXPID ExperimentID)
  * @todo    Error handling.
  *
  */
-static ExperimentObject *Find_Specified_Experiment (CommandObject *cmd) {
+static ExperimentObject *Find_Specified_Experiment (CommandObject *cmd, bool putOutWarnings=true) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
+#ifdef DEBUG_CLI
+   printf("Enter Find_Specified_Experiment, clip=%d\n", clip);
+#endif
  // Examine the parsed command for a "-x" specifier.
   Assert(cmd->P_Result() != NULL);
   EXPID ExperimentID = (cmd->P_Result()->isExpId()) ? cmd->P_Result()->getExpId() : 0;
   ExperimentObject *exp = NULL;
 
+#ifdef DEBUG_CLI
+   printf("In Find_Specified_Experiment, ExperimentID=%d\n", ExperimentID);
+#endif
+
  // If not experiment has been specified, pick up the
  // "focused" experiment associated witht he input window.
   if (ExperimentID == 0) {
+
+#ifdef DEBUG_CLI
+   printf("In Find_Specified_Experiment, before calling Experiment_Focus, ExperimentID=%d\n", ExperimentID);
+#endif
+
     ExperimentID = Experiment_Focus ( WindowID );
-    if (ExperimentID == 0) {
+
+#ifdef DEBUG_CLI
+   printf("In Find_Specified_Experiment, after calling Experiment_Focus, ExperimentID=%d\n", ExperimentID);
+#endif
+
+    if (ExperimentID == 0 && putOutWarnings) {
       Mark_Cmd_With_Soft_Error(cmd, "There is no focused experiment.");
       return NULL;
     }
   }
   exp = Find_Experiment_Object (ExperimentID);
-  if (exp == NULL) {
+
+#ifdef DEBUG_CLI
+   printf("In Find_Specified_Experiment, after calling Find_Experiment_Object, ExperimentID=%d\n", ExperimentID);
+#endif
+
+
+  if (exp == NULL && putOutWarnings) {
     Mark_Cmd_With_Soft_Error(cmd, "The requested experiment ID does not exist.");
     return NULL;
   }
 
  // Is there an FrameWork Experiment to look at?
-  if (exp->FW() == NULL) {
+  if (exp && exp->FW() == NULL && putOutWarnings) {
     Mark_Cmd_With_Soft_Error(cmd, "The requested FrameWork experiment does not exist.");
     return NULL;
   }
@@ -1144,12 +1167,29 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
           cli_timing_handle->cli_perf_data[SS_Timings::expAttach_FW_createProcess_Start] = Time::Now();
         }
 
-        ThreadGroup tg = exp->FW()->createProcess(
-	    f_val1->name, host_name,
-	    OutputCallback(&ReDirect_User_Stdout,(void *)w),
-	    OutputCallback(&ReDirect_User_Stderr,(void *)w)
-	    );
-        tgrp->insert(tg.begin(), tg.end());
+#if 1
+        // offline changes: don't create a process for offline, we are executing this outside of the cli/framework infrastructure
+        // see expGo (actually Execute_Experiment for details of how we are executing under offline)
+
+        bool offlineInstrumentor = exp->getIsInstrumentorOffline();
+
+#ifdef DEBUG_CLI
+        cerr << "In Resolve_F_Target, local value of offlineInstrumentor=" << offlineInstrumentor << "\n";
+#endif
+
+	if (!offlineInstrumentor) {
+          ThreadGroup tg = exp->FW()->createProcess( f_val1->name, host_name, 
+                                                     OutputCallback(&ReDirect_User_Stdout,(void *)w), 
+                                                     OutputCallback(&ReDirect_User_Stderr,(void *)w)   );
+          tgrp->insert(tg.begin(), tg.end());
+        } else {
+#ifdef DEBUG_CLI
+            cerr << "In Resolve_F_Target, calling setOfflineAppCommand, offline case, f_val1->name=" << f_val1->name << "\n";
+            cerr << "In Resolve_F_Target, calling setOfflineAppCommand, offline case, host_name=" << host_name << "\n";
+#endif
+            exp->setOfflineAppCommand(f_val1->name.c_str());
+          }
+#endif
 
         if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate()) {
           cli_timing_handle->processTimingEventEnd( SS_Timings::expCreate_FW_createProcess_Start,
@@ -1304,6 +1344,17 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<string> *p_slist = p_result->getExpList();
 
+#ifdef DEBUG_CLI
+  cerr << "Enter Process_expTypes" << "\n";
+#endif
+
+  // offline collection variable is based on the global setting which can be overridden locally (per experiment)
+  bool offlineInstrumentor = exp->getIsInstrumentorOffline();
+
+#ifdef DEBUG_CLI
+  cerr << "Enter Process_expTypes, offlineInstrumentor=" << offlineInstrumentor << "\n";
+#endif
+
  // Determine the specified (or implied) set of Collectors.
   CollectorGroup cgrp;
 
@@ -1319,25 +1370,81 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
   }
 
   if (p_slist->begin() != p_slist->end()) {
+
+#ifdef DEBUG_CLI
+  cerr << "In Process_expTypes, in p_slist->begin() != p_slist->end() section" << "\n";
+#endif
+
    // The command contains a list of collectors to use.
    // Be sure they are all linked to the experiment.
     vector<string>::iterator si;
     for (si = p_slist->begin(); si != p_slist->end(); si++) {
       try {
-        Collector C = Get_Collector (exp->FW(), *si);
-        cgrp.insert (C);
+
+#ifdef DEBUG_CLI
+  cerr << "In Process_expTypes, in p_slist->begin() != p_slist->end() section, before Get_Collector, (*si)=" 
+       << (*si) << " offlineInstrumentor=" << offlineInstrumentor << "\n";
+#endif
+
+       if (offlineInstrumentor) {
+
+         exp->offlineCollectorList.push_back((*si));
+
+         size_t found;
+
+         std::string tmpStr = (*si);
+         found=(*si).find("mpi-");
+         if (found!=string::npos) {
+           tmpStr = "mpi";
+         }
+         found=(*si).find("mpit-");
+         if (found!=string::npos) {
+           tmpStr = "mpi";
+         }
+         found=(*si).find("mpiotf-");
+         if (found!=string::npos) {
+           tmpStr = "mpiotf";
+         } 
+
+#ifdef DEBUG_CLI
+         cerr << "In Process_expTypes, in p_slist->begin() != p_slist->end() section, before Get_Collector, tmpStr="  << tmpStr <<  "\n";
+#endif
+         Collector C = Get_Collector (exp->FW(), tmpStr);
+         cgrp.insert (C);
+        } else {
+         Collector C = Get_Collector (exp->FW(), *si);
+         cgrp.insert (C);
+        }
+
       }
+
       catch(const Exception& error) {
+
+#ifdef DEBUG_CLI
+        cerr << "In Process_expTypes, catch exception, Get_Collector" << "\n";
+#endif
+
         Mark_Cmd_With_Std_Error (cmd, error);
         return false;
       }
     }
+
   } else {
+
+#ifdef DEBUG_CLI
+        cerr << "In Process_expTypes, else of p_slist->begin() != p_slist->end() section" << "\n";
+#endif
+
    // Use all the collectors that are already part of the experiment.
     try {
       cgrp = exp->FW()->getCollectors();
     }
     catch(const Exception& error) {
+
+#ifdef DEBUG_CLI
+      cerr << "In Process_expTypes, catch error, else of p_slist->begin() != p_slist->end() section" << "\n";
+#endif
+
       Mark_Cmd_With_Std_Error (cmd, error);
       return false;
     }
@@ -1378,7 +1485,28 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
  // Determine the specified (or implied) set of Threads.
   ThreadGroup tgrp;
 
+
+#ifdef DEBUG_CLI
+  cerr << "In Process_expTypes, calling Resolve_Target_List" << "\n";
+#endif
+
   Resolve_Target_List (cmd, exp, tgrp);
+
+#ifdef DEBUG_CLI
+  cerr << "In Process_expTypes, early exit check, offlineInstrumentor=" << offlineInstrumentor << "\n";
+#endif
+  
+  if (offlineInstrumentor) {
+   // Save the application command for use in Execute_Experiment
+   // exp->FW()->setApplicationCommand(appCommand.c_str());
+
+#ifdef DEBUG_CLI
+     cerr << "EARLY EXIT Process_expTypes" << "\n";
+#endif
+
+     return true;
+  }
+
   if (tgrp.empty()) {
    // Use the threads that are already part of the experiment.
     try {
@@ -1773,6 +1901,7 @@ bool SS_expClose (CommandObject *cmd) {
  *
  */
 bool SS_expCreate (CommandObject *cmd) {
+
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
@@ -1824,7 +1953,7 @@ bool SS_expCreate (CommandObject *cmd) {
       exp->setIsInstrumentorOffline(true);
 
 #if DEBUG_CLI
-      std::cout << "SS_expCreate, FOUND OFFLINE INSTRUMENTOR INDICATION" <<  std::endl;
+      std::cout << "SS_expCreate, FOUND OFFLINE INSTRUMENTOR INDICATION (-i offline) " <<  std::endl;
 #endif
 
    } else {
@@ -1834,8 +1963,6 @@ bool SS_expCreate (CommandObject *cmd) {
    }
 
  }
-
-
 
   // End the gathering of performance information on the sub-task portions of expCreate
   // Here the allocation of the Experiment experiment
@@ -1851,6 +1978,10 @@ bool SS_expCreate (CommandObject *cmd) {
  // See Process_expTypes for the code to gather performance information on the sub-task portions of expCreate
  // Prevent this experiment from changing until we are done.
   exp->Q_Lock (cmd, true);
+
+#if DEBUG_CLI
+      std::cout << "SS_expCreate, calling Process_expTypes" <<  std::endl;
+#endif
 
  // Determine target and collectors and link them together.
   if (!Process_expTypes (cmd, exp, &Attach_Command )) {
@@ -2168,7 +2299,110 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   exp->Q_UnLock ();
 #endif
 
+
+  bool offlineInstrumentor = exp->getIsInstrumentorOffline();
+  if (offlineInstrumentor) {
+
+#ifdef DEBUG_CLI
+      cerr << "In Execute_Experiment, offlineInstrumentor=" << offlineInstrumentor << "\n";
+#endif
+
+    exp->Q_Lock (cmd, false);
+    std::string appCommand = exp->getOfflineAppCommand();
+
+#ifdef DEBUG_CLI
+    cerr << "In Execute_Experiment, offline, appCommand=" << appCommand << "\n";
+#endif
+
+#if 0
+  // Get the experiment class object
+//  experiment = exp->FW();
+
+    CollectorGroup cgrp = exp->FW()->getCollectors();
+    CollectorGroup::iterator ci;
+    bool atleastone = false;
+    std::string S ;
+    for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+      Collector c = *ci;
+      Metadata m = c.getMetadata();
+      if (atleastone) {
+        S = S + ",";
+      } else {
+//        cmd->Result_String ("  Previously Used Data Collectors:");
+        S = S + "    ";
+        atleastone = true;
+      }
+     S = S + m.getUniqueId();
+
+    } // end for collector group
+
+    if (atleastone) {
+
+#ifdef DEBUG_CLI
+       cerr << "In Execute_Experiment, offline, starting with S (collector)=" << S << "\n";
+#endif
+
+       size_t found;
+       found=S.find_first_of(" ");
+       while (found!=string::npos) {
+         S.erase(found, 1);
+#ifdef DEBUG_CLI
+         cerr << "In Execute_Experiment, offline, checking for blanks, S (collector)=" << S << "\n";
+#endif
+         found=S.find_first_of(" ",found);
+       }
+
+#ifdef DEBUG_CLI
+       cerr << "In Execute_Experiment, offline, S (collector)=" << S << "\n";
+#endif
+    } // end atleastone
+#endif
+
+
+       // Now let's check to see if we have a mpi type experiment and then modify the collector to match what is necessary to pass to RunOfflineExp
+    std::string S ;
+    S.clear();
+    std::list<std::string>::iterator offc;
+    bool firstTime = true;
+    for (offc = exp->offlineCollectorList.begin(); offc != exp->offlineCollectorList.end(); offc++) {
+
+        if (firstTime) {
+          firstTime = false;
+        } else {
+          S = S + ",";
+        }
+#ifdef DEBUG_CLI
+        cerr << "In Execute_Experiment, offline, exp->offlineCollectorList, (collector)=" << (*offc) << "\n";
+#endif
+        S = (*offc);
+
+    }
+
+//jeg 11-2-08    exp->Q_UnLock ();
+
+    // Run the offline experirment via RunOfflineExp instead of using the MRNet instrumentor
+    std::string runOfflineCmd = "RunOfflineExp(program=\"" + appCommand + "\", collector=\"" + S + "\")";
+
+#ifdef DEBUG_CLI
+    cerr << "In Execute_Experiment, offline, runOfflineCmd=" << runOfflineCmd << "\n";
+#endif
+
+    PyRun_SimpleString(runOfflineCmd.c_str());
+
+// move the unlock here - jeg 11-2-08    
+    exp->Q_UnLock ();
+//jeg 11-2-08    
+
+    exp->Q_Lock (cmd, false);
+    exp->setStatus(ExpStatus_Terminated);
+    exp->Q_UnLock ();
+    return true;
+
+  } // end if offlineInstrumentor
+  
+
   exp->Q_Lock (cmd, false);
+
   if (exp->FW() == NULL) {
     Mark_Cmd_With_Soft_Error(cmd,
                              "The experiment can not be run because "
@@ -2182,12 +2416,15 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 #endif
 
   if (exp->Status() == ExpStatus_InError) {
+
    // Can not run if ExpStatus_InError
     std::string s("The experiment can not be run because it is in the "
     	    	    + exp->ExpStatus_Name() + " state.");
     Mark_Cmd_With_Soft_Error(cmd,s);
     return false;
+
   } else if (exp->Status() != ExpStatus_Paused && exp->FW()->getRerunCount() != -1) {
+
    // Received a run request of a non-paused process, try to rerun
    // Do preparation to rerun before falling into the code below which
    // sets up the thread state and issues the run/rerun.
@@ -2637,8 +2874,22 @@ bool SS_expPause (CommandObject *cmd) {
  *
  */
 bool SS_expRestore (CommandObject *cmd) {
+
+  ExperimentObject *exp = NULL;
+#ifdef DEBUG_CLI
+  cerr << "Enter SS_expRestore " << "\n";
+#endif
+
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+#ifdef DEBUG_CLI
+  cerr << "Enter SS_expRestore before printing clip=" << clip << "\n";
+  if (clip != NULL) {
+    clip->Print(cerr);
+  }
+  cerr << "\nEnter SS_expRestore after printing clip=" << clip << "\n";
+#endif
 
  // Extract the savefile name.
   parse_val_t *file_name_value = Get_Simple_File_Name (cmd);
@@ -2655,8 +2906,64 @@ bool SS_expRestore (CommandObject *cmd) {
  // is added to it.
   Wait_For_Previous_Cmds ();
 
+#if 0
  // Create a new experiment and connect it to the saved data base.
-  ExperimentObject *exp = new ExperimentObject (data_base_name);
+  exp = new ExperimentObject (data_base_name);
+  if ((exp == NULL) ||
+      (exp->ExperimentObject_ID() <= 0)) {
+    Mark_Cmd_With_Soft_Error(cmd, "The specified file name is not a legal data base.");
+    return false;
+  }
+
+#else
+
+#ifdef DEBUG_CLI
+     cerr << "In SS_expRestore, after calling new ExperimentObject " << "\n";
+#endif
+
+  exp = Find_Specified_Experiment (cmd, false /* do not put out the no focus warning */);
+
+#ifdef DEBUG_CLI
+  cerr << "In SS_expRestore, exp= " << exp << "\n";
+  if (exp) {
+    bool DEBUG_offlineInstrumentor = exp->getIsInstrumentorOffline();
+    cerr << "In SS_expRestore, offlineInstrumentor= " << DEBUG_offlineInstrumentor << "\n";
+  }
+#endif
+
+  EXPID preferredEXP = 0;
+
+  if (exp != NULL) {
+
+     bool offlineInstrumentor = exp->getIsInstrumentorOffline();
+
+#ifdef DEBUG_CLI
+     cerr << "In SS_expRestore, offlineInstrumentor= " << offlineInstrumentor << "\n";
+#endif
+
+     if (offlineInstrumentor) {
+       preferredEXP = exp->ExperimentObject_ID();
+#ifdef DEBUG_CLI
+       cerr << "In SS_expRestore, preferredEXP= " << preferredEXP << "\n";
+#endif
+     }
+  }
+
+#ifdef DEBUG_CLI
+  cerr << "In SS_expRestore, calling new ExperimentObject with data_base_name=" << data_base_name << " preferredEXP=" << preferredEXP << "\n";
+#endif
+
+  exp = new ExperimentObject (data_base_name, preferredEXP);
+
+#ifdef DEBUG_CLI
+  cerr << "In SS_expRestore, after calling new ExperimentObject with data_base_name=" << data_base_name << " preferredEXP=" << preferredEXP << " exp=" << exp << "\n";
+  if (exp) {
+    cerr << "In SS_expRestore, after calling new ExperimentObject with data_base_name=" << data_base_name << " preferredEXP=" << preferredEXP << " exp->ExperimentObject_ID()=" << exp->ExperimentObject_ID() << "\n";
+  }
+#endif
+
+#endif
+
   if ((exp == NULL) ||
       (exp->ExperimentObject_ID() <= 0)) {
     Mark_Cmd_With_Soft_Error(cmd, "The specified file name is not a legal data base.");
@@ -2666,8 +2973,16 @@ bool SS_expRestore (CommandObject *cmd) {
  // Pick up the EXPID for an allocated experiment.
   EXPID ExperimentID = exp->ExperimentObject_ID();
 
+#ifdef DEBUG_CLI
+  cerr << "In SS_expRestore, after calling exp->ExperimentObject_ID(), ExperimentID=" << ExperimentID << " preferredEXP=" << preferredEXP << " exp=" << exp << "\n";
+#endif
+
  // Set the focus to point to the new EXPID.
   (void)Experiment_Focus (WindowID, ExperimentID);
+
+#ifdef DEBUG_CLI
+  cerr << "In SS_expRestore, after calling Experiment_Focus() with ExperimentID=" << ExperimentID << " preferredEXP=" << preferredEXP << " exp=" << exp << "\n";
+#endif
 
  // Annotate the command
   cmd->Result_Annotation ("The restored experiment identifier is:  -x ");
@@ -4318,6 +4633,113 @@ static bool SS_ListMetrics (CommandObject *cmd) {
 }
 
 /**
+ * SemanticRoutine: SS_ListMPIFunctions ()
+ * 
+ * Not yet implemented.
+ *     
+ * @param   cmd - the CommandObject being processed..
+ *
+ * @return  "true"
+ *
+ * @error   Always issue a "Not Yet Implemented" message.
+ *
+ */
+static bool SS_ListMPIFunctions (CommandObject *cmd) {
+  ExperimentObject *exp = Find_Specified_Experiment (cmd);
+
+  cmd->Result_String ("'list -v mpifunctions' is not yet implemented");
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+/**
+ * SemanticRoutine: SS_ListMPICategories ()
+ * 
+ * Not yet implemented.
+ *     
+ * @param   cmd - the CommandObject being processed..
+ *
+ * @return  "true"
+ *
+ * @error   Always issue a "Not Yet Implemented" message.
+ *
+ */
+static bool SS_ListMPICategories (CommandObject *cmd) {
+
+#if 1
+  bool cmd_error = false;
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<string> *p_slist = p_result->getExpList();
+
+  OpenSpeedShop::Framework::Experiment *fw_exp = NULL;
+  CollectorGroup cgrp;
+
+  if (cmd->P_Result()->isExpId()) {
+   // Get the list of collectors from the specified experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
+    cgrp = exp->FW()->getCollectors();
+
+    exp->Q_UnLock ();
+  } else if (p_slist->begin() != p_slist->end()) {
+   // Get the list of collectors from the command.
+    try {
+      OpenSpeedShop::Framework::Experiment::create (tmpdb);
+      fw_exp = new OpenSpeedShop::Framework::Experiment (tmpdb);
+
+      vector<string>::iterator si;
+      for (si = p_slist->begin(); si != p_slist->end(); si++) {
+       //  Get a collector object from the framework.
+        Collector C = Get_Collector (fw_exp, *si);
+        cgrp.insert (C);
+      }
+    }
+    catch(const Exception& error) {
+     // Return message, but fall through to clean up tmpdb.
+      Mark_Cmd_With_Std_Error (cmd, error);
+      cmd_error = true;
+    }
+
+  } else {
+   // Get the list of collectors from the focused experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
+    cgrp = exp->FW()->getCollectors();
+
+    exp->Q_UnLock ();
+  }
+  // use the collector group here to get the category information
+  cmd->Result_String ("'list -v mpicategories' is not yet implemented");
+  cmd->set_Status(CMD_COMPLETE);
+
+#else
+  ExperimentObject *exp = Find_Specified_Experiment (cmd);
+
+  cmd->Result_String ("'list -v mpicategories' is not yet implemented");
+  cmd->set_Status(CMD_COMPLETE);
+#endif
+  return true;
+}
+
+/**
  * SemanticRoutine: SS_ListObj ()
  * 
  * List the names of all LindekObjects that are aprt of an experiment..
@@ -4382,6 +4804,7 @@ static bool SS_ListObj (CommandObject *cmd) {
   return true;
 }
 
+
 /**
  * SemanticRoutine: SS_ListParams ()
  * 
@@ -4400,7 +4823,7 @@ static bool SS_ListObj (CommandObject *cmd) {
  * current values of the parameters is not determined.
  *
  */
-static bool SS_ListParams (CommandObject *cmd) {
+static bool SS_ListParams (CommandObject *cmd, bool showValues) {
   bool cmd_error = false;
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -4480,14 +4903,27 @@ static bool SS_ListParams (CommandObject *cmd) {
 
   if (!cmd_error) {
     CollectorGroup::iterator ci;
+    std::string S;
     for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
       Collector c = *ci;
       Metadata cm = c.getMetadata();
       std::set<Metadata> md = c.getParameters();
       std::set<Metadata>::const_iterator mi;
       for (mi = md.begin(); mi != md.end(); mi++) {
+        CommandResult_Columns *C = new CommandResult_Columns (2);
         Metadata m = *mi;
-        cmd->Result_String ( cm.getUniqueId() + "::" +  m.getUniqueId() );
+
+        if (!showValues) {
+          cmd->Result_String ( cm.getUniqueId() + "::" +  m.getUniqueId() );
+        } else {
+           S = "    " + cm.getUniqueId() + "::" + m.getUniqueId() + " =";
+           C->CommandResult_Columns::Add_Column (new CommandResult_RawString (S));
+#if DEBUG_CLI
+           printf("In SS_ListParams, Parameter Values=%s\n", S.c_str());
+#endif
+           C->CommandResult_Columns::Add_Column (Get_Collector_Metadata (c, m));
+           cmd->Result_Predefined (C);
+        } 
       }
     }
   }
@@ -4502,6 +4938,7 @@ static bool SS_ListParams (CommandObject *cmd) {
   }
   return cmd_error;
 }
+
 
 /**
  * SemanticRoutine: SS_ListPids ()
@@ -5042,10 +5479,17 @@ bool SS_ListGeneric (CommandObject *cmd) {
       result_of_first_list = SS_ListHosts(cmd);
     } else if (!strcasecmp(S.c_str(),"metrics")) {
       result_of_first_list = SS_ListMetrics(cmd);
+    } else if (!strcasecmp(S.c_str(),"mpifunctions")) {
+      result_of_first_list = SS_ListMPIFunctions(cmd);
+    } else if (!strcasecmp(S.c_str(),"mpicategories")) {
+      result_of_first_list = SS_ListMPICategories(cmd);
     } else if (!strcasecmp(S.c_str(),"obj")) {
       result_of_first_list = SS_ListObj(cmd);
     } else if (!strcasecmp(S.c_str(),"params")) {
-      result_of_first_list = SS_ListParams(cmd);
+      result_of_first_list = SS_ListParams(cmd, false);
+    } else if (!strcasecmp(S.c_str(),"paramvalues") ||
+               !strcasecmp(S.c_str(),"paramvals")) {
+      result_of_first_list = SS_ListParams(cmd, true);
     } else if (!strcasecmp(S.c_str(),"pids")) {
       result_of_first_list = SS_ListPids(cmd);
     } else if (!strcasecmp(S.c_str(),"ranks")) {

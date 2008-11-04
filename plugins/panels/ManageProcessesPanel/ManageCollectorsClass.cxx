@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -61,11 +62,16 @@ using namespace OpenSpeedShop::Framework;
 
 #include "CLIInterface.hxx"
 
-ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id )
+ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id, bool isInstrumentorOffline )
     : QWidget( parent, name )
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("ManageCollectorsClass::ManageCollectorsClass() constructor called.\n");
-  
+
+#if DEBUG_MPPanel
+  printf("ManageCollectorsClass::ManageCollectorsClass() constructor called.\n");
+  printf("ManageCollectorsClass::ManageCollectorsClass() isInstrumentorOffline=%d\n", isInstrumentorOffline);
+#endif
+
   dialog = NULL;
   user_defined_psets = NULL;
   userPsetCount = 0;
@@ -83,6 +89,7 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   expID = exp_id;
   timerValue = 10000;
   list_of_collectors.clear();
+  setInstrumentorIsOffline(isInstrumentorOffline);
 
   if ( !name ) setName( "ManageCollectorsClass" );
 
@@ -126,7 +133,6 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
 //  psetListView->setSelectionMode( QListView::Multi );
   psetListView->setSelectionMode( QListView::Single );
 
-
   QHeader *header = psetListView->header();
   header->resizeSection(0, 200);
 
@@ -136,12 +142,10 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   int height = p->getPanelContainer()->height();
   QValueList<int> sizeList;
   sizeList.clear();
-  if( splitter->orientation() == QSplitter::Vertical )
-  {
+  if( splitter->orientation() == QSplitter::Vertical ) {
     sizeList.push_back((int)(height/4));
     sizeList.push_back(height-(int)(height/6));
-  } else
-  {
+  } else {
     sizeList.push_back((int)(width/4));
     sizeList.push_back(width-(int)(width/6));
   }
@@ -167,12 +171,10 @@ ManageCollectorsClass::~ManageCollectorsClass()
 #if DEBUG_MPPanel
   printf("ManageCollectorsClass::ManageCollectorsClass() destructor called.\n");
 #endif
-  if( updateTimer )
-  {
+  if( updateTimer ) {
     updateTimer->stop();
   }
-  if( loadTimer )
-  {
+  if( loadTimer ) {
     loadTimer->stop();
   }
 }
@@ -200,37 +202,36 @@ void ManageCollectorsClass::languageChange()
 QString
 ManageCollectorsClass::selectedCollectors()
 {
-QListViewItem *selectedItem = NULL;
-QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
-while( it.current() )
-{
-  selectedItem = (QListViewItem *)it.current();
-  break;
-}
-  if( selectedItem )
-  {
+  QListViewItem *selectedItem = NULL;
+  QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+
+  while( it.current() ) {
+    selectedItem = (QListViewItem *)it.current();
+    break;
+  }
+
+  if( selectedItem ) {
     printf("Got an ITEM!\n");
     QString ret_value = selectedItem->text(0);
     return( ret_value );
-  } else
-  {
+  } else {
     printf("NO ITEMS SELECTED\n");
     return( NULL );
   }
+
 }
-
-
 
 void
 ManageCollectorsClass::updateAttachedList()
 {
+
 #if DEBUG_MPPanel
   printf("ManageCollectorsClass::updateAttachedList() dialogSortType=%d\n", dialogSortType);
   printf("ManageCollectorsClass::updateAttachedList(%d) \n", expID );
+  printf("ManageCollectorsClass::updateAttachedList, getInstrumentorIsOffline()=(%d) \n", getInstrumentorIsOffline() );
 #endif
 
-  if( MPListView::draggingFLAG == TRUE )
-  {
+  if( MPListView::draggingFLAG == TRUE ) {
     return;
   }
 
@@ -273,7 +274,7 @@ ManageCollectorsClass::updateAttachedList()
             printf("ManageCollectorsClass::updateAttachedList eo=(0x%x)\n", eo );
 #endif
       
-            if( eo->FW() != NULL ) {
+            if( eo && eo->FW() != NULL ) {
 
               // The following bit of code was snag and modified from SS_View_exp.cxx
 
@@ -369,7 +370,7 @@ ManageCollectorsClass::updateAttachedList()
       {
         ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
   
-        if( eo->FW() != NULL ) {
+        if( eo && eo->FW() != NULL ) {
 
 #ifdef DEBUG_MPPanel
           printf("ManageCollectorsClass::updateAttachedList(), got an experiment.\n");
@@ -530,7 +531,7 @@ ManageCollectorsClass::updateAttachedList()
       {
         ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
   
-        if( eo->FW() != NULL )
+        if( eo && eo->FW() != NULL )
         {
 #ifdef DEBUG_MPPanel
           printf("ManageCollectorsClass::updateAttachedList(), MPIRANK_T got an experiment.\n");
@@ -667,7 +668,7 @@ ManageCollectorsClass::updateAttachedList()
        printf("--------ManageCollectorsClass::updateAttachedList(), HOST_T, expID=%d\n", expID );
 #endif
 
-      if( eo->FW() != NULL )
+      if( eo && eo->FW() != NULL )
       {
 // The following bit of code was snag and modified from SS_View_exp.cxx
         ThreadGroup tgrp = eo->FW()->getThreads();
@@ -828,8 +829,7 @@ ManageCollectorsClass::updatePSetList(MPListView *lv)
     while ( it.current() )
     {
       QListViewItem *item = it.current();
-      if( lv->isOpen( item ) )
-      {
+      if( lv->isOpen( item ) ) {
 #ifdef DEBUG_MPPanel
         printf("ManageCollectorsClass::updatePSetList, lv (%s) is open\n", item->text(0).ascii() );
 #endif
@@ -844,16 +844,15 @@ ManageCollectorsClass::updatePSetList(MPListView *lv)
 
 if( lv == psetListView )
 {
-  if( user_defined_psets == NULL )
-  {
+  if( user_defined_psets == NULL ) {
     user_defined_psets = new MPListViewItem( lv, UDPS);
     user_defined_psets->setOpen(TRUE);
   }
 
-  if( user_defined_psets )
-  {
+  if( user_defined_psets ) {
     lv->takeItem(user_defined_psets);
   }
+
 }
 
   lv->clear();
@@ -874,7 +873,7 @@ if( lv == psetListView )
     {
       ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
 
-      if( eo->FW() != NULL )
+      if( eo && eo->FW() != NULL )
       {
 // The following bit of code was snag and modified from SS_View_exp.cxx
 // printf("ManageCollectorsClass::updatePSetList, For each host, create a dynamic collector.\n");
@@ -1027,7 +1026,7 @@ if( lv == psetListView )
       {
         ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
   
-        if( eo->FW() != NULL )
+        if( eo && eo->FW() != NULL )
         {
 #ifdef DEBUG_MPPanel
            printf("ManageCollectorsClass::updatePSetList, got an experiment.\n");
@@ -1495,7 +1494,7 @@ ManageCollectorsClass::attachProcessSelected()
   // Send out a message to all those that might care about this change request
   ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
     
-  if( eo->FW() != NULL )
+  if( eo && eo->FW() != NULL )
   {
     UpdateObject *msg = new UpdateObject(eo->FW(), expID,  NULL, 0);
     p->broadcast((char *)msg, GROUP_T);
@@ -1845,7 +1844,9 @@ ManageCollectorsClass::loadProgramSelected()
   mw->argsStr = QString::null;
 //  mw->loadNewProgram();
   PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
-  mw->loadNewProgramPanel(p->getPanelContainer(), bestFitPC, expID, (Panel *) p);
+  // JEG - figure this out
+  bool tmp_is_offline = false;
+  mw->loadNewProgramPanel(p->getPanelContainer(), bestFitPC, expID, (Panel *) p, tmp_is_offline);
 //  mw->loadNewProgramPanel(p->getPanelContainer(), this->topPC, expID, (Panel *) this);
 
 #ifdef DEBUG_CustomPanel
@@ -1891,7 +1892,7 @@ ManageCollectorsClass::loadProgramSelected()
 #if DEBUG_MPPanel
  printf("Send out update?\n");
 #endif
-    if( eo->FW() != NULL )
+    if( eo && eo->FW() != NULL )
     {
 #if DEBUG_MPPanel
  printf("Yes!  Send out update?\n");
@@ -2474,7 +2475,7 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   {
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
   
-    if( eo->FW() != NULL )
+    if( eo && eo->FW() != NULL )
     {
       // The following bit of code was snag and modified from SS_View_exp.cxx
       ThreadGroup tgrp = eo->FW()->getThreads();

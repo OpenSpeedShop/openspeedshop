@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -34,6 +35,7 @@
 #include "MPListView.hxx"
 
 #include "CompareProcessesDialog.hxx"
+#include "ArgumentObject.hxx"
 
 enum DialogSortType  { COLLECTOR_T, PID_T, MPIRANK_T, HOST_T };
 
@@ -57,7 +59,7 @@ class ManageCollectorsClass : public QWidget
     Q_OBJECT
 
 public:
-    ManageCollectorsClass( Panel *p, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0, int exp_id = -1 );
+    ManageCollectorsClass( Panel *p, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0, int exp_id = -1, bool isInstrumentorOffline = false );
     ~ManageCollectorsClass();
 
     MPListView* attachCollectorsListView;
@@ -84,6 +86,15 @@ public:
     Panel *p;
 
     int userPsetCount;
+
+    void setInstrumentorIsOffline(bool flag) {
+      instrumentorIsOffline = flag;
+    }
+
+    bool getInstrumentorIsOffline() {
+      return instrumentorIsOffline;
+    }
+
 
 protected:
     QVBoxLayout* ManageCollectorsClassLayout;
@@ -143,6 +154,7 @@ private slots:
 private:
 
     CompareProcessesDialog *dialog;
+    bool instrumentorIsOffline;
 
 };
 

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -23,7 +23,6 @@
 //#define DEBUG_StatsPanel 1
 //#define DEBUG_INTRO 1
 //
-
 
 #include "StatsPanel.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
@@ -1417,13 +1416,16 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   int mid = -1;
   QString defaultStatsReportStr = QString::null;
 
-// printf("Do you have a list of collectors?\n");
-  qaction = new QAction(this, "selectTimeSlice");
-  qaction->addTo( contextMenu );
-  qaction->setText( tr("Select: Time Segment") );
-  qaction->setToolTip(tr("Select a time segment to limiting future reports.") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT(timeSliceSelected()) );
+  // The time segment doesn't apply to comparisons well currently
+  if (compareExpIDs.size() < 1) {
+    qaction = new QAction(this, "selectTimeSlice");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Select: Time Segment") );
+    qaction->setToolTip(tr("Select a time segment to limiting future reports.") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT(timeSliceSelected()) );
+  }
 
+// printf("Do you have a list of collectors?\n");
   for( std::list<std::string>::const_iterator it = list_of_collectors.begin();
       it != list_of_collectors.end(); it++ )
   {
@@ -1431,50 +1433,42 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 #ifdef DEBUG_StatsPanel
      printf("collector_name = (%s)\n", collector_name.c_str() );
 #endif
-    if( QString(collector_name).startsWith("mpi") )
-    {
+    if( QString(collector_name).startsWith("mpi") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate an mpi* menu\n");
 #endif
       generateMPIMenu(QString(collector_name));
-    } else if( QString(collector_name).startsWith("io") )
-    {
+    } else if( QString(collector_name).startsWith("io") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate an io* menu\n");
 #endif
       generateIOMenu(QString(collector_name));
-    } else if( QString(collector_name).startsWith("hwctime") )
-    {
+    } else if( QString(collector_name).startsWith("hwctime") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate an hwctime menu\n");
 #endif
       generateHWCTimeMenu(QString(collector_name));
-    } else if( QString(collector_name).startsWith("hwc") )
-    {
+    } else if( QString(collector_name).startsWith("hwc") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate an hwc menu\n");
 #endif
       generateHWCMenu(QString(collector_name));
-    } else if( QString(collector_name).startsWith("usertime") )
-    {
+    } else if( QString(collector_name).startsWith("usertime") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate an usertime menu.\n");
 #endif
       generateUserTimeMenu();
-    } else if( QString(collector_name).startsWith("pcsamp") )
-    {
+    } else if( QString(collector_name).startsWith("pcsamp") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate a pcsamp menu\n");
 #endif
       generatePCSampMenu();
-    } else if( QString(collector_name).startsWith("fpe") )
-    {
+    } else if( QString(collector_name).startsWith("fpe") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate a fpe menu\n");
 #endif
       generateFPEMenu();
-    } else
-    {
+    } else {
 #ifdef DEBUG_StatsPanel
       printf("Generate an other (%s) menu\n", collector_name.c_str() );
 #endif
@@ -1558,11 +1552,9 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   { 
     QString s = (QString)*pit;
     columnsMenu->insertItem(s, this, SLOT(doOption(int)), CTRL+Key_1, id, -1);
-    if( splv->columnWidth(id) )
-    {
+    if( splv->columnWidth(id) ) {
       columnsMenu->setItemChecked(id, TRUE);
-    } else
-    {
+    } else {
       columnsMenu->setItemChecked(id, FALSE);
     }
     id++;
@@ -1738,15 +1730,13 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     qaction->setStatusTip( tr("Show the experiment metadata display.") );
   }
 
-  if( toolBarFLAG == TRUE )
-  {
+  if( toolBarFLAG == TRUE ) {
     qaction = new QAction( this,  "hideToolBar");
     qaction->addTo( contextMenu );
     qaction->setText( "Hide Experiment Display Option ToolBar..." );
     connect( qaction, SIGNAL( activated() ), this, SLOT( showToolBar() ) );
     qaction->setStatusTip( tr("Hide the experiment display option toolbar.") );
-  } else
-  {
+  } else {
     qaction = new QAction( this,  "showToolBar");
     qaction->addTo( contextMenu );
     qaction->setText( "Show Experiment Display Option ToolBar..." );
@@ -1755,18 +1745,18 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   }
 
 // printf("menu: canWeDiff()?\n");
-  if( canWeDiff() )
-  {
+
+  if( canWeDiff() ) {
+
 // printf("menu: canWeDiff() says we can!\n");
-    if( insertDiffColumnFLAG == TRUE )
-    {
+
+    if( insertDiffColumnFLAG == TRUE ) {
       qaction = new QAction( this,  "hideDifference");
       qaction->addTo( contextMenu );
       qaction->setText( "Hide Difference..." );
       connect( qaction, SIGNAL( activated() ), this, SLOT( showDiff() ) );
       qaction->setStatusTip( tr("Hide the difference column.") );
-    } else
-    {
+    } else {
       qaction = new QAction( this,  "showDifference");
       qaction->addTo( contextMenu );
       qaction->setText( "Show Difference..." );
@@ -1777,35 +1767,36 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 
 #ifdef CLUSTERANALYSIS
 // if( focusedExpID == -1 && currentCollectorStr == "usertime" )
-if( focusedExpID == -1 )
-{
-  contextMenu->insertSeparator();
-  qaction = new QAction( this,  "clusterAnalysisSelected");
-  qaction->addTo( contextMenu );
-  qaction->setText( "Compare and Analyze using cluster analysis" );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( clusterAnalysisSelected() ) );
-  qaction->setStatusTip( tr("Perform analysis on the processes, threads, or ranks of this experiment to group similar processes, threads, or ranks.") );
-}
+     if( focusedExpID == -1 && compareExpIDs.size() < 1) {
+       contextMenu->insertSeparator();
+       qaction = new QAction( this,  "clusterAnalysisSelected");
+       qaction->addTo( contextMenu );
+       qaction->setText( "Compare and Analyze using cluster analysis" );
+       connect( qaction, SIGNAL( activated() ), this, SLOT( clusterAnalysisSelected() ) );
+       qaction->setStatusTip( tr("Perform analysis on the processes, threads, or ranks of this experiment to group similar processes, threads, or ranks.") );
+     }
 
 #endif// CLUSTERANALYSIS
 
 
-  contextMenu->insertSeparator();
+     contextMenu->insertSeparator();
 
-  qaction = new QAction( this,  "customizeExperimentsSelected");
-  qaction->addTo( contextMenu );
-  qaction->setText( "Custom Comparison ..." );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( customizeExperimentsSelected() ) );
-  qaction->setStatusTip( tr("Customize column data in the StatsPanel.") );
+     qaction = new QAction( this,  "customizeExperimentsSelected");
+     qaction->addTo( contextMenu );
+     qaction->setText( "Custom Comparison ..." );
+     connect( qaction, SIGNAL( activated() ), this, SLOT( customizeExperimentsSelected() ) );
+     qaction->setStatusTip( tr("Customize column data in the StatsPanel.") );
 
 //#ifdef MIN_MAX_ENABLED
-  contextMenu->insertSeparator();
+     if (compareExpIDs.size() < 1) {
+       contextMenu->insertSeparator();
 
-  qaction = new QAction( this,  "minMaxAverageSelected");
-  qaction->addTo( contextMenu );
-  qaction->setText( "Show Load Balance Overview..." );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( minMaxAverageSelected() ) );
-  qaction->setStatusTip( tr("Generate a min, max, average report in the StatsPanel.") );
+       qaction = new QAction( this,  "minMaxAverageSelected");
+       qaction->addTo( contextMenu );
+       qaction->setText( "Show Load Balance Overview..." );
+       connect( qaction, SIGNAL( activated() ), this, SLOT( minMaxAverageSelected() ) );
+       qaction->setStatusTip( tr("Generate a min, max, average report in the StatsPanel.") );
+     }
 //#endif
 
   return( TRUE );
@@ -1817,29 +1808,21 @@ StatsPanel::getMostImportantClusterMetric(QString collector_name)
   QString metric = QString::null;
 
 #if 0
-  if( collector_name == "pcsamp" )
-  {
+  if( collector_name == "pcsamp" ) {
     metric = "-m pcsamp::exclusive_time";
-  } else if( collector_name == "usertime" )
-  {
+  } else if( collector_name == "usertime" ) {
     metric = "-m usertime::exclusive_time";
-  } else if( collector_name == "hwc" )
-  {
+  } else if( collector_name == "hwc" ) {
     metric = "-m hwc::ThreadAverage";
-  } else if( collector_name == "hwctime" )
-  {
+  } else if( collector_name == "hwctime" ) {
     metric = "-m hwc::ThreadAverage";
-  } else if( collector_name == "mpi" )
-  {
+  } else if( collector_name == "mpi" ) {
     metric = "-m mpi::ThreadAverage";
-  } else if( collector_name == "mpit" )
-  {
+  } else if( collector_name == "mpit" ) {
     metric = "-m mpit::ThreadAverage";
-  } else if( collector_name == "io" )
-  {
+  } else if( collector_name == "io" ) {
     metric = "-m io::ThreadAverage";
-  } else if( collector_name == "iot" )
-  {
+  } else if( collector_name == "iot" ) {
     metric = "-m io::ThreadAverage";
   }
 #endif
@@ -1851,20 +1834,25 @@ StatsPanel::getMostImportantClusterMetric(QString collector_name)
 void
 StatsPanel::clusterAnalysisSelected()
 {
+
   QString command = QString::null;
   QString mim = getMostImportantClusterMetric(currentCollectorStr);
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::clusterAnalysisSelected() most important cluster metric: mim=%s\n", mim.ascii() );
 #endif
+
   if( focusedExpID == -1 ) {
     command = QString("cviewCluster -x %1 %2 %3").arg(expID).arg(timeIntervalString).arg(mim);
   } else {
     command = QString("cviewCluster -x %1 %2 %3").arg(focusedExpID).arg(timeIntervalString).arg(mim);
   }
+
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   std::list<int64_t> list_of_cids;
   list_of_cids.clear();
   InputLineObject *clip = NULL;
+
   if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &list_of_cids, clip, TRUE ) ) {
     printf("Unable to run %s command.\n", command.ascii() );
   } else {
@@ -1876,8 +1864,7 @@ StatsPanel::clusterAnalysisSelected()
   }
 
 
-  if( clip )
-  {
+  if( clip ) {
     clip->Set_Results_Used();
   }
 
@@ -1892,21 +1879,23 @@ StatsPanel::clusterAnalysisSelected()
          it != list_of_cids.end(); it++ )
     {
       int64_t pid = (int64_t)*it;
+
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::clusterAnalysisSelected() in loop, pid=%ld\n", pid);
+      printf("StatsPanel::clusterAnalysisSelected() in loop, pid=%ld\n", pid);
 #endif
-      if( pidlist.isEmpty() )
-      { 
+
+      if( pidlist.isEmpty() ) { 
         pidlist = QString("%1").arg(pid);
-      } else 
-      {
+      } else {
         pidlist += QString(", %1").arg(pid);
       }
     }
   } else {
+
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::clusterAnalysisSelected(), No outliers...\n");
+    printf("StatsPanel::clusterAnalysisSelected(), No outliers...\n");
 #endif
+
     return;
   }
 
@@ -2111,14 +2100,12 @@ StatsPanel::showChart()
 #endif
 
     cf->show();
-    if( !lastCommand.startsWith("cview") )
-    {
+    if( !lastCommand.startsWith("cview") ) {
       lastCommand = QString::null;  // This will force a redraw of the data.
       // I'm not sure why, but the text won't draw unless the 
       // piechart is visible.
       updatePanel();
-    } else
-    {
+    } else {
       cf->setValues(cpvl, ctvl, color_names, MAX_COLOR_CNT);
       updatePanel();
     }
@@ -2619,7 +2606,11 @@ StatsPanel::focusOnExp(int val)
 void
 StatsPanel::gotoSourceCompare1Selected(bool use_current_item)
 {
+
+#ifdef DEBUG_StatsPanel
   printf("gotoSourceCompare1Selected() menu selected\n");
+#endif
+
   focusedCompareExpID = compareExpIDs[0];
   gotoSource(use_current_item);
 }
@@ -2628,7 +2619,9 @@ StatsPanel::gotoSourceCompare1Selected(bool use_current_item)
 void
 StatsPanel::gotoSourceCompare2Selected(bool use_current_item)
 {
+#ifdef DEBUG_StatsPanel
   printf("gotoSourceCompare2Selected() menu selected\n");
+#endif
   focusedCompareExpID = compareExpIDs[1];
   gotoSource(use_current_item);
 }
@@ -2637,7 +2630,9 @@ StatsPanel::gotoSourceCompare2Selected(bool use_current_item)
 void
 StatsPanel::gotoSourceCompare3Selected(bool use_current_item)
 {
+#ifdef DEBUG_StatsPanel
   printf("gotoSourceCompare3Selected() menu selected\n");
+#endif
   focusedCompareExpID = compareExpIDs[2];
   gotoSource(use_current_item);
 }
@@ -2646,7 +2641,9 @@ StatsPanel::gotoSourceCompare3Selected(bool use_current_item)
 void
 StatsPanel::gotoSourceCompare4Selected(bool use_current_item)
 {
+#ifdef DEBUG_StatsPanel
   printf("gotoSourceCompare4Selected() menu selected\n");
+#endif
   focusedCompareExpID = compareExpIDs[3];
   gotoSource(use_current_item);
 }
@@ -2655,7 +2652,9 @@ StatsPanel::gotoSourceCompare4Selected(bool use_current_item)
 void
 StatsPanel::gotoSourceCompare5Selected(bool use_current_item)
 {
+#ifdef DEBUG_StatsPanel
   printf("gotoSourceCompare5Selected() menu selected\n");
+#endif
   focusedCompareExpID = compareExpIDs[4];
   gotoSource(use_current_item);
 }
@@ -2691,8 +2690,8 @@ StatsPanel::aboutSelected()
   AboutOutputClass *aboutOutputClass = NULL;
 
   int cviewinfo_index = lastCommand.find("cview ");
-  if( cviewinfo_index != -1 )
-  {
+
+  if( cviewinfo_index != -1 ) {
     aboutOutputString = QString("%1\n\n").arg(aboutString);
     aboutOutputString += QString("Where:\n");
     for( CInfoClassList::Iterator it = cInfoClassList.begin(); it != cInfoClassList.end(); ++it)
@@ -2702,11 +2701,9 @@ StatsPanel::aboutSelected()
       aboutOutputString += QString("-c %1:\n").arg(cic->cid);
       aboutOutputString += QString("  Experiment: %1\n").arg(cic->expID);
       aboutOutputString += QString("  Collector: %1\n").arg(cic->collector_name);
-      if( cic->host_pid_names.isEmpty() )
-      {
+      if( cic->host_pid_names.isEmpty() ) {
         aboutOutputString += QString("  Host/pids: All\n");
-      } else
-      {
+      } else {
         aboutOutputString += QString("  Host/pids: %1\n").arg(cic->host_pid_names);
       }
       aboutOutputString += QString("  Metric: %1\n").arg(cic->metricStr);
@@ -2720,11 +2717,9 @@ StatsPanel::aboutSelected()
 void
 StatsPanel::MPItraceSelected()
 {
-  if( MPItraceFLAG == TRUE )
-  {
+  if( MPItraceFLAG == TRUE ) {
     MPItraceFLAG = FALSE;
-  } else
-  {
+  } else {
     MPItraceFLAG = TRUE;
   }
 }
@@ -2732,11 +2727,9 @@ StatsPanel::MPItraceSelected()
 void
 StatsPanel::IOtraceSelected()
 {
-  if( IOtraceFLAG == TRUE )
-  {
+  if( IOtraceFLAG == TRUE ) {
     IOtraceFLAG = FALSE;
-  } else
-  {
+  } else {
     IOtraceFLAG = TRUE;
   }
 }
@@ -4357,10 +4350,9 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   printf("updateStatsPanelData, lastCommand.startsWith(\"cview -c\")=%d\n", lastCommand.startsWith("cview -c") );
   printf("updateStatsPanelData, currentCollectorStr=%s\n", currentCollectorStr.ascii() );
   printf("updateStatsPanelData, currentUserSelectedReportStr=%s\n", currentUserSelectedReportStr.ascii() );
-
 #endif
-  // jeg 9/22/08
-//  if (lastCommand.startsWith("cview -c") && command.isEmpty() ) {
+
+  // jeg 9/22/08 and refined 10/13/08
   if (lastCommand.startsWith("cview -c") && command.isEmpty() && currentUserSelectedReportStr.startsWith("Comparison") ) {
        command = lastCommand;
   }
@@ -11150,7 +11142,7 @@ if (currentCollectorStr != lastCollectorStr ||
 
   // ----------------- Start of the View Generation Icons
   QPixmap *functions_icon = new QPixmap( functions_xpm );
-  new QToolButton(*functions_icon, "Show Functions: generate a performance statistics report\nshowing the performance data delineated by functions.", QString::null, this, SLOT( functionsSelected()), fileTools, "show functions");
+  new QToolButton(*functions_icon, "Show Functions: Generate a performance statistics report\nshowing the performance data delineated by functions.", QString::null, this, SLOT( functionsSelected()), fileTools, "show functions");
 
 #ifdef DEBUG_StatsPanel
  printf("StatsPanel::generateToolBar, currentCollectorStr.ascii()=%s\n", currentCollectorStr.ascii() );
@@ -11162,48 +11154,48 @@ if (currentCollectorStr != lastCollectorStr ||
        currentCollectorStr != "mpit" ) {
 
     QPixmap *linkedObjects_icon = new QPixmap( linkedObjects_xpm );
-    new QToolButton(*linkedObjects_icon, "Show LinkedObjects: generate a performance statistics report\nshowing the performance data delineated by the linked objects\nthat are involved in the execution of the executable(s).", QString::null, this, SLOT( linkedObjectsSelected()), fileTools, "show linked objects");
+    new QToolButton(*linkedObjects_icon, "Show LinkedObjects: Generate a performance statistics report\nshowing the performance data delineated by the linked objects\nthat are involved in the execution of the executable(s).", QString::null, this, SLOT( linkedObjectsSelected()), fileTools, "show linked objects");
 
     QPixmap *statements_icon = new QPixmap( statements_xpm );
-    new QToolButton(*statements_icon, "Show Statements: generate a performance statistics report\nshowing the performance data delineated by the source line\nstatements in your program.", QString::null, this, SLOT( statementsSelected()), fileTools, "show statements");
+    new QToolButton(*statements_icon, "Show Statements: Generate a performance statistics report\nshowing the performance data delineated by the source line\nstatements in your program.", QString::null, this, SLOT( statementsSelected()), fileTools, "show statements");
 
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::generateToolBar, statements_icon=0x%lx\n", statements_icon );
 #endif
 
     QPixmap *statementsByFunction_icon = new QPixmap( statementsByFunction_xpm );
-    new QToolButton(*statementsByFunction_icon, "Show Statements by Function: generate a performance statistics\nreport showing the performance data delineated by the\nsource line statements from a selected function in your program.\nSelect a function by selecting output line in the display below and\nthen clicking this icon.  This report will only show the\nperformance information for the statements in the selected function.", QString::null, this, SLOT( statementsByFunctionSelected()), fileTools, "show statements by function");
+    new QToolButton(*statementsByFunction_icon, "Show Statements by Function: Generate a performance statistics\nreport showing the performance data delineated by the\nsource line statements from a selected function in your program.\nSelect a function by selecting output line in the display below and\nthen clicking this icon.  This report will only show the\nperformance information for the statements in the selected function.", QString::null, this, SLOT( statementsByFunctionSelected()), fileTools, "show statements by function");
 
   }
 
   if(  currentCollectorStr != "pcsamp" && currentCollectorStr != "hwc" )
   {
     QPixmap *calltrees_icon = new QPixmap( calltrees_xpm );
-    new QToolButton(*calltrees_icon, "Show CallTrees", QString::null, this, SLOT( calltreesSelected()), fileTools, "show calltrees");
+    new QToolButton(*calltrees_icon, "Show CallTrees: This view displays all the call paths in your program.  Portions of common paths are\nsuppressed, they are displayed from the program start function down to the user function.", QString::null, this, SLOT( calltreesSelected()), fileTools, "show calltrees");
 
     QPixmap *calltreesByFunction_icon = new QPixmap( calltreesByFunction_xpm );
-    new QToolButton(*calltreesByFunction_icon, "Show CallTrees by Function", QString::null, this, SLOT( calltreesByFunctionSelected()), fileTools, "show calltrees by function");
+    new QToolButton(*calltreesByFunction_icon, "Show CallTrees by Function: This view displays all the call paths in your program that include the selected function.\nTo use click on one of the functions and then click the Calltrees By Function icon.", QString::null, this, SLOT( calltreesByFunctionSelected()), fileTools, "show calltrees by function");
 
     QPixmap *calltreesfull_icon = new QPixmap( calltreesfull_xpm );
-    new QToolButton(*calltreesfull_icon, "Show CallTrees,FullStack", QString::null, this, SLOT( calltreesFullStackSelected()), fileTools, "calltrees,fullstack");
+    new QToolButton(*calltreesfull_icon, "Show CallTrees,FullStack:  This view displays all the call paths in your program.  None of the common portions of\nthe call paths are suppressed, this is indicated by the name FullStack.", QString::null, this, SLOT( calltreesFullStackSelected()), fileTools, "calltrees,fullstack");
 
     QPixmap *calltreesfullByFunction_icon = new QPixmap( calltreesfullByFunction_xpm );
-    new QToolButton(*calltreesfullByFunction_icon, "Show CallTrees,FullStack by Function", QString::null, this, SLOT( calltreesFullStackByFunctionSelected()), fileTools, "calltrees,fullstack by function");
+    new QToolButton(*calltreesfullByFunction_icon, "Show CallTrees,FullStack by Function:  This view displays all the call paths in your program that include\nthe selected function.  None of the common portions of the call paths are suppressed.\nTo use click on one of the functions and then click the Calltrees By Function FullStack icon", QString::null, this, SLOT( calltreesFullStackByFunctionSelected()), fileTools, "calltrees,fullstack by function");
 
     QPixmap *tracebacks_icon = new QPixmap( tracebacks_xpm );
-    new QToolButton(*tracebacks_icon, "Show TraceBacks", QString::null, this, SLOT( tracebacksSelected()), fileTools, "show tracebacks");
+    new QToolButton(*tracebacks_icon, "Show TraceBacks:  This view displays all the call paths in your\nprogram, the call paths are displayed from the user function down to the program\nstart function.  Portions of common paths are suppressed.", QString::null, this, SLOT( tracebacksSelected()), fileTools, "show tracebacks");
 
     QPixmap *tracebacksByFunction_icon = new QPixmap( tracebacksByFunction_xpm );
-    new QToolButton(*tracebacksByFunction_icon, "Show TraceBacks by Function", QString::null, this, SLOT( tracebacksByFunctionSelected()), fileTools, "show tracebacks by function");
+    new QToolButton(*tracebacksByFunction_icon, "Show TraceBacks by Function: This view displays all the call paths in your program\nthat include the selected function. The paths are displayed from the user function down\nto the program start function.  Portions of common paths are suppressed.\nTo use click on one of the functions and then click the Tracebacks By Function icon", QString::null, this, SLOT( tracebacksByFunctionSelected()), fileTools, "show tracebacks by function");
 
     QPixmap *tracebacksfull_icon = new QPixmap( tracebacksfull_xpm );
-    new QToolButton(*tracebacksfull_icon, "Show TraceBacks,FullStack", QString::null, this, SLOT( tracebacksFullStackSelected()), fileTools, "show tracebacks,fullstack");
+    new QToolButton(*tracebacksfull_icon, "Show TraceBacks,FullStack: This view displays all the call paths in your program,\nthe call paths are displayed from the user function down\nto the program start function.  None of the portions of common\npaths are suppressed.  All call paths are displayed.", QString::null, this, SLOT( tracebacksFullStackSelected()), fileTools, "show tracebacks,fullstack");
 
     QPixmap *tracebacksfullByFunction_icon = new QPixmap( tracebacksfullByFunction_xpm );
-    new QToolButton(*tracebacksfullByFunction_icon, "Show TraceBacks,FullStack by Function", QString::null, this, SLOT( tracebacksFullStackByFunctionSelected()), fileTools, "show tracebacks,fullstack by function");
+    new QToolButton(*tracebacksfullByFunction_icon, " TraceBacks,FullStack by Function: This view displays all the call paths in your program that include\nthe selected function. The paths are displayed from the user function down to the program start function.\nNone of the portions of common paths are suppressed.\nTo use click on one of the functions and then click the Traceback,FullStack By Function icon", QString::null, this, SLOT( tracebacksFullStackByFunctionSelected()), fileTools, "show tracebacks,fullstack by function");
 
     QPixmap *butterfly_icon = new QPixmap( butterfly_xpm );
-    new QToolButton(*butterfly_icon, "Show Butterfly", QString::null, this, SLOT( butterflySelected()), fileTools, "show butterfly");
+    new QToolButton(*butterfly_icon, "Show Butterfly view:  This view shows the callers of the function selected (shown above the function)\nand the callees of the function selected (shown below the function).  Selecting one of the displayed functions\nand clicking on the Butterfly icon will make that function the pivot function for the callers and callees display.\nTo use click on one of the functions and then click the Butterfly icon.", QString::null, this, SLOT( butterflySelected()), fileTools, "show butterfly");
   }
   // ----------------- End of the View Generatin Icons
 

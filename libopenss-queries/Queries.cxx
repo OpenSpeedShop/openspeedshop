@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -22,8 +23,13 @@
  *
  */
 
+#include <inttypes.h>
+#include "SS_Configure.hxx"
 #include "Queries.hxx"
 #include "ToolAPI.hxx"
+
+
+//#define DEBUG_Queries 1
 
 using namespace OpenSpeedShop;
 
@@ -62,6 +68,14 @@ bool Queries::CompareLinkedObjects::operator()(
     const Framework::LinkedObject& lhs,
     const Framework::LinkedObject& rhs) const
 {
+
+#if DEBUG_Queries
+    std::cerr << "LO: Queries::CompareLinkedObjects::operator(), return (lhs.getPath() < rhs.getPath())=" 
+               << (lhs.getPath() < rhs.getPath()) << std::endl;
+    std::cerr << "LO: Queries::CompareLinkedObjects::operator(), lhs.getPath()=" << lhs.getPath() << std::endl;
+    std::cerr << "LO: Queries::CompareLinkedObjects::operator(), rhs.getPath()=" << rhs.getPath() << std::endl;
+#endif
+
     return lhs.getPath() < rhs.getPath();
 }
 
@@ -81,11 +95,56 @@ bool Queries::CompareFunctions::operator()(
     const Framework::Function& lhs,
     const Framework::Function& rhs) const
 {
-    if(lhs.getMangledName() < rhs.getMangledName())
+
+#if DEBUG_Queries
+     std::cerr << "Queries::CompareFunctions::operator, lhs.getMangledName()=" << lhs.getMangledName() << "\n";
+     std::cerr << "Queries::CompareFunctions::operator, rhs.getMangledName()=" << rhs.getMangledName() << "\n";
+#endif
+    
+    if(lhs.getMangledName() < rhs.getMangledName()) {
+#if DEBUG_Queries
+        std::cerr << "MANGLED <: Queries::CompareFunctions::operator(), return TRUE, " 
+                  << " lhs.getMangledName()=" << lhs.getMangledName() 
+                  << " rhs.getMangledName()=" << rhs.getMangledName() << std::endl;
+#endif
 	return true;
-    else if(lhs.getMangledName() > rhs.getMangledName())
+    } else if (lhs.getMangledName() > rhs.getMangledName()) {
+#if DEBUG_Queries
+        std::cerr << "MANGLED >: Queries::CompareFunctions::operator(), return FALSE, " 
+                  << " lhs.getMangledName()=" << lhs.getMangledName() 
+                  << " rhs.getMangledName()=" << rhs.getMangledName() << std::endl;
+#endif
 	return false;
-    return lhs.getLinkedObject().getPath() < rhs.getLinkedObject().getPath();
+    }
+    
+
+
+
+    bool compareOnlyFunctionName = FALSE;
+    if (OPENSS_LESS_RESTRICTIVE_COMPARISONS) {
+       compareOnlyFunctionName = TRUE;
+    }
+
+#if DEBUG_Queries
+     std::cerr << "Queries::CompareFunctions::operator, FALL THROUGH compareOnlyFunctionName=" <<  compareOnlyFunctionName << "\n";
+     std::cerr << "Queries::CompareFunctions::operator, FALL THROUGH lhs.getMangledName()=" << lhs.getMangledName() << "\n";
+     std::cerr << "Queries::CompareFunctions::operator, FALL THROUGH rhs.getMangledName()=" << rhs.getMangledName() << "\n";
+#endif
+
+
+    if (compareOnlyFunctionName) {
+#if DEBUG_Queries
+       std::cerr << "Queries::CompareFunctions::operator, FALL THROUGH RETURN false, compareOnlyFunctionName=" <<  compareOnlyFunctionName << "\n";
+#endif
+       return false;
+    } else {
+
+#if DEBUG_Queries
+       std::cerr << "Queries::CompareFunctions::operator, FALL THROUGH call getLinkedObject for each side and compare, compareOnlyFunctionName=" <<  compareOnlyFunctionName << "\n";
+#endif
+
+       return lhs.getLinkedObject().getPath() < rhs.getLinkedObject().getPath();
+    } 
 }
 
 
@@ -104,6 +163,18 @@ bool Queries::CompareStatements::operator()(
     const Framework::Statement& lhs,
     const Framework::Statement& rhs) const
 {
+
+#if DEBUG_Queries
+    std::cerr << "Queries::CompareStatements::operator(), lhs.getPath()=" << lhs.getPath() << std::endl;
+    std::cerr << "Queries::CompareStatements::operator(), lhs.getLine()=" << lhs.getLine() << std::endl;
+    std::cerr << "Queries::CompareStatements::operator(), lhs.getColumn()=" << lhs.getColumn() << std::endl;
+    std::cerr << "Queries::CompareStatements::operator(), lhs.getLinkedObject().getPath()=" << lhs.getLinkedObject().getPath() << std::endl;
+    std::cerr << "Queries::CompareStatements::operator(), rhs.getPath()=" << rhs.getPath() << std::endl;
+    std::cerr << "Queries::CompareStatements::operator(), rhs.getLine()=" << rhs.getLine() << std::endl;
+    std::cerr << "Queries::CompareStatements::operator(), rhs.getColumn()=" << rhs.getColumn() << std::endl;
+    std::cerr << "Queries::CompareStatements::operator(), rhs.getLinkedObject().getPath()=" << rhs.getLinkedObject().getPath() << std::endl;
+#endif
+
     if(lhs.getPath() < rhs.getPath())
 	return true;
     else if(lhs.getPath() > rhs.getPath())

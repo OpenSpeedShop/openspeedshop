@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -41,6 +41,8 @@
 #include <qgroupbox.h>
 #include <qframe.h>
 #include <qradiobutton.h>
+#include <qbuttongroup.h>
+#include <qgroupbox.h>
 #include <qlineedit.h>
 #include <qheader.h>
 #include <qlistview.h>
@@ -86,6 +88,21 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *
     }
   }
 
+#if 1
+  // Initialize the settings for offline before setting with actual values
+  setGlobalToolInstrumentorIsOffline(FALSE);
+  setThisWizardsInstrumentorIsOffline(FALSE);
+  setThisWizardsPreviousInstrumentorIsOffline(FALSE);
+
+  QSettings *settings = new QSettings();
+  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline");
+  setGlobalToolInstrumentorIsOffline(temp_instrumentorIsOffline);
+#ifdef IOWizard
+  printf("/openspeedshop/general/instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+#endif
+  delete settings;
+#endif
+
   ioFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
   mainFrame = new QFrame( getBaseWidgetFrame(), "mainFrame" );
@@ -122,6 +139,32 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *
   vwizardMode->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   vwizardMode->setChecked( TRUE );
   vDescriptionPageButtonLayout->addWidget( vwizardMode );
+
+#if 1
+  // Create an exclusive button group
+  QButtonGroup *vExclusiveBG = new QButtonGroup( 1, QGroupBox::Horizontal, "Instrumentation Choice", vDescriptionPageWidget);
+  vDescriptionPageButtonLayout->addWidget( vExclusiveBG );
+  vExclusiveBG->setExclusive( TRUE );
+
+  // insert 2 radiobuttons
+  vOnlineRB = new QRadioButton( "Use Online/Dynamic", vExclusiveBG );
+  vOfflineRB = new QRadioButton( "Use Offline", vExclusiveBG );
+  // Use the global preferences for the initial setting
+  bool vGlobalInstrumentorIsOffline = getGlobalToolInstrumentorIsOffline();
+  bool vLocalInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+
+#ifdef IOWizard
+  printf("Initial Setup values for offline RADIO BUTTONS: globalInstrumentorIsOffline=(%d), localInstrumentorIsOffline=(%d)\n", vGlobalInstrumentorIsOffline, vLocalInstrumentorIsOffline );
+#endif
+
+  vOnlineRB->setChecked( !vGlobalInstrumentorIsOffline );
+  vOfflineRB->setChecked( vGlobalInstrumentorIsOffline );
+
+  // Set these as the initial values, until the Radio button checkboxes are clicked
+  setThisWizardsInstrumentorIsOffline(vGlobalInstrumentorIsOffline);
+  setThisWizardsPreviousInstrumentorIsOffline(vGlobalInstrumentorIsOffline);
+#endif
+
 
   vDescriptionPageButtonSpacer = new QSpacerItem( 1, 10, QSizePolicy::Expanding, QSizePolicy::Fixed );
   vDescriptionPageButtonLayout->addItem( vDescriptionPageButtonSpacer );
@@ -276,6 +319,30 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *
   ewizardMode->setChecked( FALSE );
   eDescriptionPageButtonLayout->addWidget( ewizardMode );
 
+#if 1
+  // Create an exclusive button group
+  QButtonGroup *eExclusiveBG = new QButtonGroup( 1, QGroupBox::Horizontal, "Instrumentation Choice", eDescriptionPageWidget);
+  eDescriptionPageButtonLayout->addWidget( eExclusiveBG );
+  eExclusiveBG->setExclusive( TRUE );
+
+  // insert 2 radiobuttons
+  eOnlineRB = new QRadioButton( "Use Online/Dynamic", eExclusiveBG );
+  eOfflineRB = new QRadioButton( "Use Offline", eExclusiveBG );
+  // Use the global preferences for the initial setting
+  bool eGlobalInstrumentorIsOffline = getGlobalToolInstrumentorIsOffline();
+  bool eLocalInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+
+#ifdef IOWizard
+  printf("eDescriptionPageButtonLayout, Initial Setup values for offline RADIO BUTTONS: eGlobalInstrumentorIsOffline=(%d), eLocalInstrumentorIsOffline=(%d)\n", eGlobalInstrumentorIsOffline, eLocalInstrumentorIsOffline );
+#endif
+
+  eOnlineRB->setChecked( !eGlobalInstrumentorIsOffline );
+  eOfflineRB->setChecked( eGlobalInstrumentorIsOffline );
+
+  // Set these as the initial values, until the Radio button checkboxes are clicked
+  setThisWizardsInstrumentorIsOffline(eGlobalInstrumentorIsOffline);
+  setThisWizardsPreviousInstrumentorIsOffline(eGlobalInstrumentorIsOffline);
+#endif
 
   eDescriptionPageSpacer = new QSpacerItem( 1, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   eDescriptionPageButtonLayout->addItem( eDescriptionPageSpacer );
@@ -426,6 +493,18 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *
            SLOT( vwizardModeSelected() ) );
   connect( ewizardMode, SIGNAL( clicked() ), this,
            SLOT( ewizardModeSelected() ) );
+
+#if 1
+  connect( vOfflineRB, SIGNAL( clicked() ), this,
+           SLOT( vOfflineRBSelected() ) );
+  connect( vOnlineRB, SIGNAL( clicked() ), this,
+           SLOT( vOnlineRBSelected() ) );
+
+  connect( eOfflineRB, SIGNAL( clicked() ), this,
+           SLOT( eOfflineRBSelected() ) );
+  connect( eOnlineRB, SIGNAL( clicked() ), this,
+           SLOT( eOnlineRBSelected() ) );
+#endif
 
   connect( eDescriptionPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
@@ -593,47 +672,21 @@ IOWizardPanel::listener(void *msg)
     vPrepareForSummaryPage();
     return 1;
   }
-  return 0;  // 0 means, did not want this message and did not act on anything.
-}
 
-#if OLD
-//! This function listens for messages.
-int 
-IOWizardPanel::listener(void *msg)
-{
-  nprintf(DEBUG_PANELS) ("IOWizardPanel::listener() requested.\n");
+#if 1
+  if( messageObject->msgType == "PreferencesChangedObject" ) {
 
-  MessageObject *messageObject = (MessageObject *)msg;
-  nprintf(DEBUG_PANELS) ("  messageObject->msgType = %s\n", messageObject->msgType.ascii() );
-  if( messageObject->msgType == getName() )
-  {
-    vSummaryPageFinishButton->setEnabled(TRUE);
-    eSummaryPageFinishButton->setEnabled(TRUE);
-    vSummaryPageBackButton->setEnabled(TRUE);
-    eSummaryPageBackButton->setEnabled(TRUE);
-    qApp->flushX();
-    return 1;
-  }
-  if( messageObject->msgType == "Wizard_Raise_First_Page" )
-  {
-    vSummaryPageFinishButton->setEnabled(TRUE);
-    eSummaryPageFinishButton->setEnabled(TRUE);
-    vSummaryPageBackButton->setEnabled(TRUE);
-    eSummaryPageBackButton->setEnabled(TRUE);
-    qApp->flushX();
-    nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
-    if( vwizardMode->isOn() && !ewizardMode->isOn() )
-    {// is it verbose?
-      mainWidgetStack->raiseWidget(vDescriptionPageWidget);
-    } else
-    {
-      mainWidgetStack->raiseWidget(eDescriptionPageWidget);
-    }
-    return 1;
-  }
-  return 0;  // 0 means, did not want this message and did not act on anything.
-}
+   bool temp_instrumentorIsOffline = getToolPreferenceInstrumentorIsOffline();
+#ifdef IOWizard
+   printf("PCWizard::listener, PREFERENCE-CHANGED-OBJECT temp_instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
 #endif
+    return 1;
+
+ }
+#endif
+
+  return 0;  // 0 means, did not want this message and did not act on anything.
+}
 
 
 //! This function broadcasts messages.
@@ -642,6 +695,77 @@ IOWizardPanel::broadcast(char *msg)
 {
   nprintf(DEBUG_PANELS) ("IOWizardPanel::broadcast() requested.\n");
   return 0;
+}
+
+bool IOWizardPanel::getToolPreferenceInstrumentorIsOffline()
+{
+  QSettings *settings = new QSettings();
+  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline");
+#ifdef IOWizard
+  printf("IOWizardPanel::getToolPreferenceInstrumentorIsOffline, /openspeedshop/general/instrumentorIsOffline == instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+#endif
+  delete settings;
+}
+
+void IOWizardPanel::vOfflineRBSelected()
+{
+#ifdef IOWizard
+  printf("IOWizardPanel::vOfflineRBSelected() entered.\n");
+#endif
+  bool offlineCheckBoxValue = vOfflineRB->isOn();
+  if ( offlineCheckBoxValue ) {
+   // toggle the button settings or is this done for us?
+  }
+#ifdef IOWizard
+  printf("IOWizardPanel::vOfflineRBSelected() offlineCheckBoxValue=(%d)\n", offlineCheckBoxValue);
+#endif
+  setThisWizardsInstrumentorIsOffline(offlineCheckBoxValue);
+}
+
+void IOWizardPanel::vOnlineRBSelected()
+{
+#ifdef IOWizard
+  printf("IOWizardPanel::vOnlineRBSelected() entered.\n");
+#endif
+  bool onlineCheckBoxValue = vOnlineRB->isOn();
+  if ( onlineCheckBoxValue ) {
+   // toggle the button settings or is this done for us?
+  }
+#ifdef IOWizard
+  printf("IOWizardPanel::vOnlineRBSelected() onlineCheckBoxValue=(%d)\n", onlineCheckBoxValue);
+#endif
+  setThisWizardsInstrumentorIsOffline(!onlineCheckBoxValue);
+}
+
+
+void IOWizardPanel::eOfflineRBSelected()
+{
+#ifdef IOWizard
+  printf("IOWizardPanel::eOfflineRBSelected() entered.\n");
+#endif
+  bool offlineCheckBoxValue = eOfflineRB->isOn();
+  if ( offlineCheckBoxValue ) {
+   // toggle the button settings or is this done for us?
+  }
+#ifdef IOWizard
+  printf("IOWizardPanel::eOfflineRBSelected() offlineCheckBoxValue=(%d)\n", offlineCheckBoxValue);
+#endif
+  setThisWizardsInstrumentorIsOffline(offlineCheckBoxValue);
+}
+
+void IOWizardPanel::eOnlineRBSelected()
+{
+#ifdef IOWizard
+  printf("IOWizardPanel::eOnlineRBSelected() entered.\n");
+#endif
+  bool onlineCheckBoxValue = eOnlineRB->isOn();
+  if ( onlineCheckBoxValue ) {
+   // toggle the button settings or is this done for us?
+  }
+#ifdef IOWizard
+  printf("IOWizardPanel::eOnlineRBSelected() onlineCheckBoxValue=(%d)\n", onlineCheckBoxValue);
+#endif
+  setThisWizardsInstrumentorIsOffline(!onlineCheckBoxValue);
 }
 
 void IOWizardPanel::vwizardModeSelected()
@@ -716,6 +840,65 @@ void IOWizardPanel::wizardModeSelected()
   ewizardMode->setChecked( FALSE );
 }
 
+#if 1
+Panel* IOWizardPanel::findAndRaiseLoadPanel()
+{
+  // Try to raise the load panel if there is one hidden
+#if 1
+
+  Panel *p = getThisWizardsLoadPanel();
+  if (getThisWizardsInstrumentorIsOffline() == getThisWizardsPreviousInstrumentorIsOffline() ) {
+#ifdef IOWizard
+     printf("IOWizardPanel::findAndRaiseLoadPanel, p=%x, getThisWizardsInstrumentorIsOffline()=%d, getThisWizardsPreviousInstrumentorIsOffline()=%d\n",
+            p, getThisWizardsInstrumentorIsOffline(), getThisWizardsPreviousInstrumentorIsOffline());
+#endif
+  } else {
+#ifdef IOWizard
+     printf("IOWizardPanel::findAndRaiseLoadPanel, SET P NULL, p=%x, getThisWizardsInstrumentorIsOffline()=%d, getThisWizardsPreviousInstrumentorIsOffline()=%d\n",
+            p, getThisWizardsInstrumentorIsOffline(), getThisWizardsPreviousInstrumentorIsOffline());
+#endif
+     // create a new loadPanel
+     p = NULL;
+  }
+
+#ifdef IOWizard
+  printf("IOWizardPanel::findAndRaiseLoadPanel, found thisWizardsLoadPanel - now raising, p=%x\n", p);
+  if (p) {
+    printf("IOWizardPanel::findAndRaiseLoadPanel, p->getName()=%s\n", p->getName() );
+  }
+#endif
+
+  if (p) {
+     p->getPanelContainer()->raisePanel(p);
+  } else {
+#ifdef IOWizard
+    printf("IOWizardPanel::findAndRaiseLoadPanel, did not find loadPanel\n");
+#endif
+  }
+
+#else
+
+  QString name = QString("loadPanel");
+  Panel *p = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+  if (p) {
+#ifdef IOWizard
+     printf("IOWizardPanel::findAndRaiseLoadPanel, found loadPanel - now raising, p=%x\n", p);
+     if (p) {
+       printf("IOWizardPanel::findAndRaiseLoadPanel, found loadPanel, p->getName()=%s\n", p->getName() );
+     }
+#endif
+     p->getPanelContainer()->raisePanel(p);
+  } else {
+#ifdef IOWizard
+    printf("IOWizardPanel::findAndRaiseLoadPanel, did not find loadPanel\n");
+#endif
+  }
+#endif
+
+  return p;
+}
+
+#else
 Panel* IOWizardPanel::findAndRaiseLoadPanel()
 {
   // Try to raise the load panel if there is one hidden
@@ -750,6 +933,7 @@ Panel* IOWizardPanel::findAndRaiseLoadPanel()
 
   return p;
 }
+#endif
 
 void IOWizardPanel::eDescriptionPageNextButtonSelected()
 {
@@ -807,20 +991,37 @@ void IOWizardPanel::eParameterPageNextButtonSelected()
      mw->parallelPrefixCommandStr = QString((const char *)0);
 
 #ifdef DEBUG_IOWizard
-     printf("IOWizardPanel calling mw->loadNewProgramPanel, this=%d\n", this );
+     printf("IOWizardPanel calling mw->loadNewProgramPanel, this=0x%x, getThisWizardsInstrumentorIsOffline()=%d \n", 
+            this, getThisWizardsInstrumentorIsOffline()  );
 #endif
 
-     Panel* p = mw->loadNewProgramPanel(getPanelContainer(), getPanelContainer()->getMasterPC(), /* expID */-1, (Panel *) this);
+     Panel* p = mw->loadNewProgramPanel(getPanelContainer(), 
+                                        getPanelContainer()->getMasterPC(), 
+                                        /* expID */-1, (Panel *) 
+                                        this, 
+                                        getThisWizardsInstrumentorIsOffline() );
      setThisWizardsLoadPanel(p);
+#ifdef IOWizard
+     printf("IOWizardPanel::eParameterPageNextButtonSelected, after calling mw->loadNewProgramPanel, p=0x%x\n", p );
+     if (p) {
+       printf("IOWizardPanel::eParameterPageNextButtonSelected, p->getName()=%s\n", p->getName() );
+     }
+#endif
+
      QString executableNameStr = mw->executableName;
+
      if( !mw->executableName.isEmpty() ) {
+
 #ifdef DEBUG_IOWizard
       printf("IOWizardPanel, executableName=%s\n", mw->executableName.ascii() );
 #endif
+
      } else {
+
 #ifdef DEBUG_IOWizard
       printf("IOWizardPanel, executableName is empty\n" );
 #endif
+
      } // end if clause for empty executable name
     } // end if clause for mw
   } // end else clause for create new load panel
@@ -856,9 +1057,13 @@ void IOWizardPanel::eSummaryPageBackButtonSelected()
     delete msg;
   } else {
 #ifdef DEBUG_IOWizard
-    printf("IOWizardPanel::eSummaryPageBackButtonSelected, did not find loadPanel\n");
+    printf("IOWizardPanel::eSummaryPageBackButtonSelected, did not find loadPanel creating loadPanel, getThisWizardsInstrumentorIsOffline()=%d\n", getThisWizardsInstrumentorIsOffline());
 #endif
-    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), NULL);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
+    bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+    ao->isInstrumentorOffline = localInstrumentorIsOffline;
+    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), ao);
+
     if (p) {
 #ifdef DEBUG_IOWizard
      printf("IOWizardPanel::eSummaryPageBackButtonSelected, found loadPanel, p=%x\n", p);
@@ -950,11 +1155,18 @@ void IOWizardPanel::vParameterPageNextButtonSelected()
     mw->parallelPrefixCommandStr = QString((const char *)0);
 
 #ifdef DEBUG_IOWizard
-    printf("IOWizardPanel calling mw->loadNewProgramPanel, this=%d\n", this );
+    printf("IOWizardPanel -2- calling mw->loadNewProgramPanel, this=0x%x, getThisWizardsInstrumentorIsOffline()=%d \n", this, getThisWizardsInstrumentorIsOffline()  );
 #endif
 
-    Panel* p = mw->loadNewProgramPanel(getPanelContainer(), getPanelContainer()->getMasterPC(), /* expID */-1, (Panel *) this);
+    Panel* p = mw->loadNewProgramPanel(getPanelContainer(), getPanelContainer()->getMasterPC(), /* expID */-1, (Panel *) this, getThisWizardsInstrumentorIsOffline());
     setThisWizardsLoadPanel(p);
+#ifdef IOWizard
+    printf("IOWizardPanel::vParameterPageNextButtonSelected, after calling mw->loadNewProgramPanel, p=0x%x\n", p );
+    if (p) {
+      printf("IOWizardPanel::vParameterPageNextButtonSelected, p->getName()=%s\n", p->getName() );
+    }
+#endif
+
     QString executableNameStr = mw->executableName;
     if( !mw->executableName.isEmpty() ) {
 #ifdef DEBUG_IOWizard
@@ -992,20 +1204,32 @@ void IOWizardPanel::vPrepareForSummaryPage()
     return;
   } 
 
-  if( !mw->pidStr.isEmpty() )
-  {
+  if( !mw->pidStr.isEmpty() ) {
+
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
     sprintf(buffer, "<p align=\"left\">You've selected a IO experiment for process \"%s\" running on host \"%s\".<br>Furthermore, you've chosen to monitor \"%s\" io functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"io\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+
   } else if( !mw->executableName.isEmpty() ) {
+
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+
     if( mw->parallelPrefixCommandStr.isEmpty() || mw->parallelPrefixCommandStr.isNull() ) {
-      sprintf(buffer, "<p align=\"left\">You've selected a IO experiment for executable \"%s\" to be run on host \"%s\".<br>Furthermore, you've chosen to monitor \"%s\" io functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"io\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+        if (getThisWizardsInstrumentorIsOffline()) {
+          sprintf(buffer, "<p align=\"left\">You've selected a IO experiment for executable \"%s\" to be run on host \"%s\"<br>using offline instrumentation.<br>Furthermore, you've chosen to monitor \"%s\" io functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"io\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+        } else {
+          sprintf(buffer, "<p align=\"left\">You've selected a IO experiment for executable \"%s\" to be run on host \"%s\"<br>using online/dynamic instrumentation.<br>Furthermore, you've chosen to monitor \"%s\" io functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"io\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+        } 
+
     } else {
-      sprintf(buffer, "<p align=\"left\">You've selected a IO experiment for command/executable <br>\"%s %s\" to be run on host \"%s\".<br>Furthermore, you've chosen to monitor \"%s\" io functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"io\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+        if (getThisWizardsInstrumentorIsOffline()) {
+          sprintf(buffer, "<p align=\"left\">You've selected a IO experiment for command/executable <br>\"%s %s\" to be run on host \"%s\"<br>using offline instrumentation.<br>Furthermore, you've chosen to monitor \"%s\" io functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"io\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+        } else {
+          sprintf(buffer, "<p align=\"left\">You've selected a IO experiment for command/executable <br>\"%s %s\" to be run on host \"%s\"<br>using online/dynamic instrumentation.<br>Furthermore, you've chosen to monitor \"%s\" io functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"io\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), paramString.ascii() );
+        } 
     }
   }
 
@@ -1052,10 +1276,16 @@ void IOWizardPanel::vSummaryPageBackButtonSelected()
     p->listener((void *)msg);
     delete msg;
   } else {
+
 #ifdef DEBUG_IOWizard
-    printf("IOWizardPanel::vSummaryPageBackButtonSelected, did not find loadPanel\n");
+    printf("IOWizardPanel::vSummaryPageBackButtonSelected, did not find loadPanel, getThisWizardsInstrumentorIsOffline()=%d\n", 
+           getThisWizardsInstrumentorIsOffline());
 #endif
-    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), NULL);
+
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
+    bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+    ao->isInstrumentorOffline = localInstrumentorIsOffline;
+    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), ao);
     if (p) {
 #ifdef DEBUG_IOWizard
      printf("IOWizardPanel::vSummaryPageBackButtonSelected, found loadPanel, p=%x\n", p);
@@ -1073,17 +1303,13 @@ void IOWizardPanel::finishButtonSelected()
   nprintf(DEBUG_PANELS) ("finishButtonSelected() \n");
 
   OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-  if( mw->executableName.isEmpty() && mw->pidStr.isEmpty() )
-  {
-    if( vwizardMode->isOn() )
-    {
+  if( mw->executableName.isEmpty() && mw->pidStr.isEmpty() ) {
+    if( vwizardMode->isOn() ) {
       vSummaryPageFinishButtonSelected();
-    } else
-    {
+    } else {
       vSummaryPageFinishButtonSelected();
     }
-  } else
-  {
+  } else {
     vSummaryPageFinishButtonSelected();
   }
 }
@@ -1100,55 +1326,71 @@ void IOWizardPanel::vSummaryPageFinishButtonSelected()
   if( getPanelContainer()->getMainWindow() )
   { 
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-    if( mw )
-    {
+    if( mw ) {
       LoadAttachObject *lao = NULL;
+      bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+
 //      ParamList *paramList = new ParamList();
-      if( !mw->executableName.isEmpty() )
-      {
+      if( !mw->executableName.isEmpty() ) {
+
 #ifdef DEBUG_IOWizard
         printf("IOWizardPanel::vSummaryPageFinishButtonSelected(), executable name was specified., mw->executableName.ascii()=%s\n",
               mw->executableName.ascii());
 #endif
-        lao = new LoadAttachObject(mw->executableName, (char *)NULL, mw->parallelPrefixCommandStr, &paramList, TRUE);
+
+        // The offline flag indicates to the custom experiment panel that the experiment is using offline instrumentation.
+        lao = new LoadAttachObject(mw->executableName, (char *)NULL, mw->parallelPrefixCommandStr, &paramList, TRUE, localInstrumentorIsOffline);
+
       } else if( !mw->pidStr.isEmpty() ) {
+
 #ifdef DEBUG_IOWizard
         printf("IOWizardPanel::vSummaryPageFinishButtonSelected(), pid was specified., mw->pidStr.ascii()=%s\n", mw->pidStr.ascii());
 #endif
-        lao = new LoadAttachObject((char *)NULL, mw->pidStr, (char *)NULL, &paramList, TRUE);
-      } else
-      {
+        // The offline flag doesn't mean anything for attaching to a pid, but is passed for consistency
+        lao = new LoadAttachObject((char *)NULL, mw->pidStr, (char *)NULL, &paramList, TRUE, localInstrumentorIsOffline);
+
+      } else {
+
 #ifdef DEBUG_IOWizard
         printf("IOWizardPanel::vSummaryPageFinishButtonSelected(), Warning: No attach or load parameters available.\n");
 #endif
+
       }
-      if( lao != NULL )
-      {
+
+      if( lao != NULL ) {
         vSummaryPageFinishButton->setEnabled(FALSE);
         eSummaryPageFinishButton->setEnabled(FALSE);
         vSummaryPageBackButton->setEnabled(FALSE);
         eSummaryPageBackButton->setEnabled(FALSE);
         qApp->flushX();
 
-        if( !p )
-        {
+        if( !p ) {
+
           ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
           ao->lao = lao;
+          bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
+          ao->isInstrumentorOffline = localInstrumentorIsOffline;
+
+#ifdef IOWizard
+          printf("IOWizardPanel::vSummaryPageBackButtonSelected, creating IOWizardPanel experiment panel, getThisWizardsInstrumentorIsOffline()=%d\n", 
+                  getThisWizardsInstrumentorIsOffline());
+#endif
+
+
           if( (vwizardMode->isChecked() && vParameterTraceCheckBox->isChecked()) ||
-              (ewizardMode->isChecked() && eParameterTraceCheckBox->isChecked()) )
-          {
+              (ewizardMode->isChecked() && eParameterTraceCheckBox->isChecked()) ) {
+
 #ifdef DEBUG_IOWizard
            printf("IOWizardPanel::vSummaryPageFinishButtonSelected(), vParameterTraceCheckBox->isChecked()=(%d)\n", vParameterTraceCheckBox->isChecked() );
            printf("IOWizardPanel::vSummaryPageFinishButtonSelected(), eParameterTraceCheckBox->isChecked()=(%d)\n", eParameterTraceCheckBox->isChecked() );
 #endif
             p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IOT", getPanelContainer(), ao);
-          } else
-          {
+
+          } else {
             p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO", getPanelContainer(), ao);
           }
           delete ao;
-        } else
-        {
+        } else {
           p->listener((void *)lao);
         }
 

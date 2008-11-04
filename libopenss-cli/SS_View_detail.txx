@@ -1,6 +1,6 @@
 /********************************************************************************
 ** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006, 2007, 2008 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -534,6 +534,7 @@ bool Detail_Base_Report(
     collector.lockDatabase();
     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
     Time base_time = databaseExtent .getTimeInterval().getBegin();
+
 #if DEBUG_CLI
     printf("In Detail_Base_Report, SS_View_detail.txx, base_time.getValue()=%u\n", base_time.getValue());
 #endif
@@ -553,6 +554,16 @@ bool Detail_Base_Report(
                       std::map<Framework::StackTrace,
                                TDETAIL> > > raw_items;
 
+#if DEBUG_CLI
+    printf("In Detail_Base_Report, about to call GetMetricInThreadGroup, tgrp.size()=%d\n", tgrp.size());
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+      std::pair<bool, int> prank = ti->getMPIRank();
+      int64_t rank = prank.first ? prank.second : -1;
+      std::pair<bool, pthread_t> xtid = ti->getPosixThreadId();
+      cout << "In Detail_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.first=" << xtid.first << endl;
+      cout << "In Detail_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.second=" << xtid.second << " rank=" << rank << endl;
+   }
+#endif
 
 
     GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, raw_items);
@@ -574,6 +585,7 @@ bool Detail_Base_Report(
 
    // Combine all the items for each function, statement or linked object.
     typename std::map<TOBJECT, std::map<Framework::StackTrace, TDETAIL > >::iterator fi;
+
     for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
      // Use macro to allocate imtermediate temporaries
       def_Detail_values
@@ -584,16 +596,20 @@ bool Detail_Base_Report(
 
       std::set<Framework::StackTrace, ltST> StackTraces_Processed;
       typename std::map<Framework::StackTrace, TDETAIL >:: iterator si;
+
       for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
         Framework::StackTrace st = (*si).first;
         TDETAIL details = (*si).second;
 
-      bool DEBUG_FLAG = false;
+        bool DEBUG_FLAG = false;
 
 #if DEBUG_CLI
-      DEBUG_FLAG = true;
+        DEBUG_FLAG = true;
 #endif
 
+#if DEBUG_CLI
+        printf("In Detail_Base_Report, SS_View_detail.txx, calling Accumulate_Stack, for (*si)\n");
+#endif
         Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG);
       }
 
@@ -630,10 +646,21 @@ bool Detail_Base_Report(
   collector.unlockDatabase();
 
  // Generate the report.
+
 #if DEBUG_CLI
   printf("In Detail_Base_Report, SS_View_detail.txx, before Generic_Multi_View\n");
+  printf("In Detail_Base_Report, about to call Generic_Multi_View, tgrp.size()=%d\n", tgrp.size());
+  for (ThreadGroup::iterator dbti = tgrp.begin(); dbti != tgrp.end(); dbti++) {
+    std::pair<bool, int> dbprank = dbti->getMPIRank();
+    int64_t dbrank = dbprank.first ? dbprank.second : -1;
+    std::pair<bool, pthread_t> dbxtid = dbti->getPosixThreadId();
+    cout << "In Detail_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.first=" << dbxtid.first << endl;
+    cout << "In Detail_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.second=" << dbxtid.second << " dbrank=" << dbrank << endl;
+  }
 #endif
+
   bool view_built = Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc, c_items, view_output);
+
 #if DEBUG_CLI
   printf("In Detail_Base_Report, SS_View_detail.txx, after Generic_Multi_View\n");
 #endif
@@ -644,10 +671,12 @@ bool Detail_Base_Report(
     delete vp;
     IV[i] = NULL;
   }
+
 #if DEBUG_CLI
   printf("Exit Detail_Base_Report, SS_View_detail.txx, view_built=%d, topn=%d\n",
           view_built, topn);
 #endif
+
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
       cli_timing_handle->processTimingEventEnd( SS_Timings::detailBaseReportStart,
                                                 SS_Timings::detailBaseReportCount,
