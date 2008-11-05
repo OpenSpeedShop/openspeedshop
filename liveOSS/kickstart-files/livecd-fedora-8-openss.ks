@@ -60,7 +60,25 @@ if [ -e /usr/share/icons/hicolor/96x96/apps/fedora-logo-icon.png ] ; then
 fi
 
 # add some OpenSpeedShop bashrc goodies...
-echo "if \[ -f /etc/bashrc \]; then" > /root/.bashrc.oss
+echo "cat << EOF" > /root/.bashrc.oss
+echo "------------------------------"  >> /root/.bashrc.oss
+echo "Welcome to Open|SpeedShop Live"  >> /root/.bashrc.oss
+echo "------------------------------"  >> /root/.bashrc.oss
+echo " "  >> /root/.bashrc.oss
+echo "To run a sequential experiment:"  >> /root/.bashrc.oss
+echo "    >> cd sequential/smg2000/test"  >> /root/.bashrc.oss
+echo "    >> openss -offline -f smg2000 pcsamp"  >> /root/.bashrc.oss
+echo "    >> openss X.0.openss &"  >> /root/.bashrc.oss
+echo " "  >> /root/.bashrc.oss
+echo "To run an MPI experiment:"  >> /root/.bashrc.oss
+echo "    >> cd mpi/smg2000/test"  >> /root/.bashrc.oss
+echo "    >> openss -offline -f \"mpirun -np 2 smg2000\" pcsamp"  >> /root/.bashrc.oss
+echo "    >> openss X.0.openss &"  >> /root/.bashrc.oss
+echo " "  >> /root/.bashrc.oss
+echo "For more information, please see the included HTML documentation."  >> /root/.bashrc.oss
+echo "EOF"  >> /root/.bashrc.oss
+
+echo "if \[ -f /etc/bashrc \]; then" >> /root/.bashrc.oss
 echo "        . /etc/bashrc" >> /root/.bashrc.oss
 echo "fi" >> /root/.bashrc.oss
 echo "export QTDIR=/usr/lib/qt-3.3" >> /root/.bashrc.oss
