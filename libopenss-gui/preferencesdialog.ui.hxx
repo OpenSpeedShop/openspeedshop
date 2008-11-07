@@ -128,8 +128,13 @@ void PreferencesDialog::readPreferencesOnEntry()
 void PreferencesDialog::resetPreferenceDefaults()
 {
 //    qWarning( "PreferencesDialog::resetPreferenceDefaults(): Not implemented yet" );
-   globalFontFamily = "Sans Serif";
-   globalFontPointSize = 10;
+// jeg - these didn't match with the other file causing a switch in fonts when the user changed other preferences.
+//   globalFontFamily = "Sans Serif";
+//   globalFontPointSize = 10;
+
+   globalFontFamily = "Helvetica";
+   globalFontPointSize = 12;
+
    globalFontWeight = QFont::Normal;
    globalFontItalic = FALSE;
 

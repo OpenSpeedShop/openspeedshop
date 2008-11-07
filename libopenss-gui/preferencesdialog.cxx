@@ -72,7 +72,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    askAboutChangingArgs = TRUE; 
    askAboutSavingTheDatabase = TRUE; 
    onRerunSaveCopyOfExperimentDatabase = TRUE; 
-   instrumentorIsOffline = TRUE; 
+   instrumentorIsOffline = FALSE; 
    lessRestrictiveComparisons = FALSE;
 
 
@@ -351,7 +351,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     { // INSTRUMENTOR IS OFFLINE
     instrumentorIsOfflineCheckBox = new QCheckBox( GeneralGroupBox, "instrumentorIsOfflineCheckBox" );
     instrumentorIsOfflineCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, instrumentorIsOfflineCheckBox->sizePolicy().hasHeightForWidth() ) );
-    instrumentorIsOfflineCheckBox->setChecked( TRUE );
+    instrumentorIsOfflineCheckBox->setChecked( FALSE );
     instrumentorIsOfflineCheckBox->setText( tr( "Instrumentor Is Offline" ) );
     rightSideLayout->addWidget( instrumentorIsOfflineCheckBox );
     }
@@ -359,7 +359,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     { // COMPARISONS IGNORING OBJECT AND DIRECTORY PATH
     lessRestrictiveComparisonsCheckBox = new QCheckBox( GeneralGroupBox, "lessRestrictiveComparisonsCheckBox" );
     lessRestrictiveComparisonsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, lessRestrictiveComparisonsCheckBox->sizePolicy().hasHeightForWidth() ) );
-    lessRestrictiveComparisonsCheckBox->setChecked( TRUE );
+    lessRestrictiveComparisonsCheckBox->setChecked( FALSE );
     lessRestrictiveComparisonsCheckBox->setText( tr( "Less Restrictive Comparisons" ) );
     rightSideLayout->addWidget( lessRestrictiveComparisonsCheckBox );
     }

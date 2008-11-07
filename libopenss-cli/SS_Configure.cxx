@@ -37,7 +37,7 @@ bool    OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE = true;
 bool    OPENSS_ALLOW_PYTHON_COMMANDS = true;
 bool    OPENSS_LOG_BY_DEFAULT = false;
 bool    OPENSS_LIMIT_SIGNAL_CATCHING = false;
-bool    OPENSS_INSTRUMENTOR_IS_OFFLINE = true;
+bool    OPENSS_INSTRUMENTOR_IS_OFFLINE = false;
 bool    OPENSS_LESS_RESTRICTIVE_COMPARISONS = false;
 
 static inline void set_int64 (int64_t &env, std::string envName) {

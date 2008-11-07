@@ -751,6 +751,7 @@ bool HW_CounterWizardPanel::getToolPreferenceInstrumentorIsOffline()
 
 void HW_CounterWizardPanel::vOfflineRBSelected()
 {
+
 #ifdef DEBUG_HWCWizard
   printf("HW_CounterWizardPanel::vOfflineRBSelected() entered.\n");
 #endif
@@ -761,7 +762,33 @@ void HW_CounterWizardPanel::vOfflineRBSelected()
 #ifdef DEBUG_HWCWizard
   printf("HW_CounterWizardPanel::vOfflineRBSelected() offlineCheckBoxValue=(%d)\n", offlineCheckBoxValue);
 #endif
+
+#if WHEN_OFFLINE_READY
+   // The else won't be here when offline is ready to be run inside the GUI
+#else
+   if (offlineCheckBoxValue) {
+
+      int answer_val =  QMessageBox::Ok;
+
+      answer_val =  QMessageBox::question( this, tr("Feature In Progress"), tr("The ability to run offline experiments in the GUI is under construction.\n\nPlease run offline experiments using the:\n    openss -offline -f <executable> experiment_type\nsyntax, outside of the GUI.\n\nYou may use the online feature to create your experiment inside the GUI.\nSorry for the inconveinence.\n "),
+       QMessageBox::Ok );
+
+       if( answer_val ==  QMessageBox::Ok ) {
+          setThisWizardsInstrumentorIsOffline(false);
+          vOnlineRB->setChecked( true );
+          vOfflineRB->setChecked( false );
+//          printf("in CustomExperimentPanel::listener(), offlineCheckBoxValue=%d\n", offlineCheckBoxValue);
+        }
+
+    }
+#endif
+
+#if WHEN_OFFLINE_READY
   setThisWizardsInstrumentorIsOffline(offlineCheckBoxValue);
+#else
+  setThisWizardsInstrumentorIsOffline(false);
+#endif
+
 }
 
 void HW_CounterWizardPanel::vOnlineRBSelected()
@@ -792,7 +819,32 @@ void HW_CounterWizardPanel::eOfflineRBSelected()
 #ifdef DEBUG_HWCWizard
   printf("HW_CounterWizardPanel::eOfflineRBSelected() offlineCheckBoxValue=(%d)\n", offlineCheckBoxValue);
 #endif
+#if WHEN_OFFLINE_READY
+   // The else won't be here when offline is ready to be run inside the GUI
+#else
+   if (offlineCheckBoxValue) {
+
+      int answer_val =  QMessageBox::Ok;
+  
+      answer_val =  QMessageBox::question( this, tr("Feature In Progress"), tr("The ability to run offline experiments in the GUI is under construction.\n\nPlease run offline experiments using the:\n    openss -offline -f <executable> experiment_type\nsyntax, outside of the GUI.\n\nYou may use the online feature to create your experiment inside the GUI.\nSorry for the inconveinence.\n "),
+       QMessageBox::Ok );
+
+       if( answer_val ==  QMessageBox::Ok ) {
+          setThisWizardsInstrumentorIsOffline(false);
+          vOnlineRB->setChecked( true );
+          vOfflineRB->setChecked( false );
+//          printf("in CustomExperimentPanel::listener(), offlineCheckBoxValue=%d\n", offlineCheckBoxValue);
+        }
+
+    }
+#endif
+
+#if WHEN_OFFLINE_READY
   setThisWizardsInstrumentorIsOffline(offlineCheckBoxValue);
+#else
+  setThisWizardsInstrumentorIsOffline(false);
+#endif
+
 }
 
 void HW_CounterWizardPanel::eOnlineRBSelected()
