@@ -2578,6 +2578,16 @@ StatsPanel::timeSliceSelected()
 #endif
 
   }
+
+  // Now update the data
+
+#ifdef DEBUG_StatsPanel
+ printf("StatsPanel::timeSliceSelected(), calling updateStatsPanelData\n" );
+#endif
+
+  updateStatsPanelData(DONT_FORCE_UPDATE);
+
+
   return;
 }
 
