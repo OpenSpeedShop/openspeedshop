@@ -596,6 +596,7 @@ catch(const Exception& error) {
 }
 
 int64_t EXT_Created = 0;
+bool isOfflineCmd = false;
 static int64_t EXT_Allocated = 0;
 static int64_t EXT_Free      = 0;
 static bool Ready_for_Next_Cmd = true;
@@ -892,6 +893,14 @@ void SS_Execute_Cmd (CommandObject *cmd) {
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
 
   if (!Shut_Down) {
+
+    if (cmd->Type() == CMD_EXP_GO) {
+      if (isOfflineCmd) {
+        serialize_exexcution = true;
+      }
+    } else {
+	serialize_exexcution = cmd->Needed_By_Python();
+    }
 
     if (cmd->Type() == CMD_RECORD) {
      // Execute this command with the main thread

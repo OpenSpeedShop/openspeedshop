@@ -98,6 +98,7 @@ public:
   Command_Status Status () { return Cmd_Status; }
   oss_cmd_enum Type () { return Cmd_Type; }
   bool Needed_By_Python () { return result_needed_in_python; }
+  void SetNeeded_By_Python (bool needed) { result_needed_in_python = needed; }
   bool Results_Used () { return results_used; }
   OpenSpeedShop::cli::ParseResult *P_Result () { return PR; }
   void clearParseResult () { PR = NULL; }

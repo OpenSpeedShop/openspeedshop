@@ -1951,6 +1951,8 @@ bool SS_expCreate (CommandObject *cmd) {
    if (!strcasecmp(S.c_str(),"offline")) {
 
       exp->setIsInstrumentorOffline(true);
+      extern bool isOfflineCmd;
+      isOfflineCmd = true;
 
 #if DEBUG_CLI
       std::cout << "SS_expCreate, FOUND OFFLINE INSTRUMENTOR INDICATION (-i offline) " <<  std::endl;
@@ -1959,6 +1961,7 @@ bool SS_expCreate (CommandObject *cmd) {
    } else {
 
       exp->setIsInstrumentorOffline(false);
+      isOfflineCmd = false;
 
    }
 
