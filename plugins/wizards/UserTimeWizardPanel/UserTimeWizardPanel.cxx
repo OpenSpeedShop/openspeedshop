@@ -21,6 +21,9 @@
 //#define DEBUG_UTWizard 1
 //
 
+// This comments out the restrictions for using offline in the GUI Wizards - leave this set
+#define WHEN_OFFLINE_READY 1
+
 #include <stdio.h>
 #include "UserTimeWizardPanel.hxx"
 #include "PanelContainer.hxx"   // Do not remove

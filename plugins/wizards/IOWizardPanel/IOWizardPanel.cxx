@@ -22,6 +22,10 @@
 //#define DEBUG_IOWizard 1
 //
 
+// This comments out the restrictions for using offline in the GUI Wizards - leave this set
+#define WHEN_OFFLINE_READY 1
+
+
 #include <stdio.h>
 #include "IOWizardPanel.hxx"
 #include "PanelContainer.hxx"   // Do not remove
