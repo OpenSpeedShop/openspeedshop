@@ -1,279 +1,596 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-<!--
-      Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-      Copyright (c) 2008 Krell Institute. All Rights Reserved.
-      Permission is granted to copy, distribute and/or modify this document
-      under the terms of the GNU Free Documentation License, Version 1.2
-      or any later version published by the Free Software Foundation;
-      with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
-         Texts.  A copy of the license is included in the section entitled "GNU
-      Free Documentation License".
--->
-  <meta content="text/html; charset=ISO-8859-1"
- http-equiv="content-type">
-  <title>Open/SpeedShop User's Guide</title>
-  <style type="text/css">
-   H1 {border-width: 1; border: solid; text-align: center}
-  <style>
-v\:* {behavior:url(#default#VML);}
-o\:* {behavior:url(#default#VML);}
-w\:* {behavior:url(#default#VML);}
-.shape {behavior:url(#default#VML);}
-  </style>
-  <meta content="Jim Galarowicz" name="author">
-</head>
-<body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"
- alink="#000099" lang="EN-US" link="blue" vlink="purple">
-<div style="text-align: left;"><br>
-<span style="text-decoration: underline;"></span>
-<span style="text-decoration: underline;"></span></div>
-<div class="moz-text-html" lang="x-western">
-<div style="text-align: center;">
-<div class="Section1"><br>
-<p class="MsoNormal" style="text-align: center; color: rgb(0, 0, 102);"
- align="center"><b style=""><span
- style="font-size: 22pt; font-family: SGIAlt;"><img
- alt="Open|SpeedShop logo" src="OpenSpeedShop_Logo.jpg"
- style="width: 303px; height: 38px;"><br>
-Quick Start Guide<br>
-</span></b><big><span style="font-weight: bold;">Version 1.6 Release</span><br
- style="font-weight: bold;">
-<span style="font-weight: bold;">January 22, 2008</span></big><br>
-</p>
-<div class="Section2"><b style=""><br style="" clear="all">
-</b>
-<p style="text-align: left;" class="MsoNormal"><b style=""><b style=""><span
- style="font-size: 16pt; font-family: Arial; color: teal;"><a
- name="Contents"></a><span style="color: rgb(0, 0, 128);"> Table of
-Contents<br>
-</span></span></b></b></p>
-<ul style="text-align: left;" id="mozToc">
-<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId84094">Open|SpeedShop
-Quick Start Information </a>
-    <ul>
-      <li><a href="#mozTocId800987">Open|SpeedShop
-Invocation Command&nbsp; "openss"</a>
-        <ul>
-          <li><a href="#mozTocId171398">openss -gui</a></li>
-          <li><a href="#mozTocId654701">openss -cli:</a></li>
-          <li><a href="#mozTocId3287">openss -batch:</a></li>
-        </ul>
-      </li>
-      <li><a href="#mozTocId805334">Open|SpeedShop Invocation Example
-Information</a>
-        <ul>
-          <li><a href="#mozTocId931138">Example 1:&nbsp;
-Using GUI </a></li>
-          <li><a href="#mozTocId717950">Example 2:&nbsp;
-Using Interactive CLI </a></li>
-          <li><a href="#mozTocId985939">Example 3:&nbsp;
-Using Batch </a></li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ul>
-<p style="text-align: left;" class="MsoNormal"><br>
-<b style=""><b style=""><span
- style="font-size: 16pt; font-family: Arial; color: teal;"><span
- style="color: rgb(0, 0, 128);"></span></span></b></b></p>
-<p style="text-align: left;" class="MsoToc1"><!--if supportFields><span
-style='text-transform:none;font-weight:normal'><span style='mso-element:field-begin'></span><span
-style='mso-spacerun:yes'>&nbsp;</span>TOC \o &quot;1-4&quot; <span
-style='mso-element:field-separator'></span></span><![endif]--></p>
-</div>
-<div style="text-align: left;" class="Section6">
-<div style="text-align: left;"></div>
-<h1 style="margin-left: 40px; text-align: left;"><a class="mozTocH1"
- name="mozTocId84094"></a><b><b style=""><span
- style="color: rgb(0, 0, 128);"><a name="OpenSpeedShop_Tools"></a>Open|SpeedShop
-Quick Start Information<br>
-</span></b></b></h1>
-<blockquote> <b style=""> </b>
-  <p class="MsoBodyText"><span style=""><span style=""><span style=""><span
- style="">The tools that are the basis for <b>Open|SpeedShop</b>
-are the
-performance tool graphical user interface (GUI), the
-interactive
-command line (CLI), and the batch command.&nbsp;&nbsp; These are the
-three <b>Open|SpeedShop</b>
-tools that have user interfaces.&nbsp; <b style=""><br>
-  </b></span></span></span></span></p>
-</blockquote>
-<blockquote>
-  <h2><a class="mozTocH2" name="mozTocId800987"></a><b style=""><a
- name="OpenSpeedShop_Invocation_Command_"></a>Open|SpeedShop
-Invocation Command&nbsp; "openss"</b></h2>
-  <b style=""> <br>
-  </b>The <b>Open|SpeedShop</b> program will be invoked by the user
-typing the
-"openss" command.&nbsp; When the user invokes <b>Open|SpeedShop</b>
-command
-there are
-three options for it's mode of operation:<br>
-</blockquote>
-<blockquote>
-  <ul>
-    <li>
-      <h3><a class="mozTocH3" name="mozTocId171398"></a>openss -gui</h3>
-    </li>
-  </ul>
-  <div style="margin-left: 40px;">This invocation of <b>Open|SpeedShop</b>
-causes the GUI to be raised then a command
-panel is also
-created.&nbsp; This command panel window becomes the interactive CLI
-window.&nbsp; Under this invocation <b>Open|SpeedShop</b> interactive
-commands
-can be entered
-into the GUI's command panel and have the same effect as if they were
-entered under the "openss -cli" option.</div>
-  <ul>
-    <li>
-      <h3><a class="mozTocH3" name="mozTocId654701"></a>openss -cli:</h3>
-    </li>
-  </ul>
-  <div style="margin-left: 40px;">This invocation of <b>Open|SpeedShop</b>
-causes the window terminal becomes the interactive
-CLI window.&nbsp;&nbsp; </div>
-  <ul>
-    <li>
-      <h3><a class="mozTocH3" name="mozTocId3287"></a>openss -batch:</h3>
-    </li>
-  </ul>
-  <div style="margin-left: 40px;">This invocation of <b>Open|SpeedShop</b>
-causes <b>Open|SpeedShop</b> to execute a performance experiment.
-specified by
-additional arguments, directly without user interaction.&nbsp;&nbsp;
-The -batch operation can be used in scripts and batch processing
-environments.<br>
-  <b style=""><br>
-  </b></div>
-  <h2><a class="mozTocH2" name="mozTocId805334"></a><b><b style=""><span
- style=""><span style=""><span style=""><span style=""><span style=""><span
- style="">Open|SpeedShop Invocation Example Information</span></span></span></span></span></span></b></b></h2>
-  <br>
-  <b>Open|SpeedShop</b> can be invoked in a
-number of ways.&nbsp; This section gives a few examples that will
-hopefully help the first time users to get started and serve as an
-introduction to the following sections about <b>Open|SpeedShop</b>
-tool usage.<br>
-  <br>
-As stated above in the "openss" command section, the <b>Open|SpeedShop</b>
-command "openss" will initiate the <b>Open|SpeedShop</b> performance
-tool.&nbsp;&nbsp; The type of execution of <b>Open|SpeedShop</b>
-arguments to
-the openss command are "-batch", "-cli", and "-gui".&nbsp; The default
-type of execution is GUI.&nbsp;&nbsp; So, "openss" with no parameters
-will invoke the <b>Open|SpeedShop</b> GUI tool.&nbsp;&nbsp; The
-following
-examples show a few simple typical usage scenarios for <b>Open|SpeedShop</b>.<br>
-  <br>
-  <h3><a class="mozTocH3" name="mozTocId931138"></a>Example 1:&nbsp;
-Using GUI<br>
-  </h3>
-Using the <b>Open|SpeedShop</b> GUI,&nbsp; you know your
-executable and the experiment you want to run (PC Sampling)<br>
-  <br>
-prompt:&gt; <span style="font-weight: bold;">openss -f
-&lt;pathTOexecutable&gt;/executable_name pcsamp</span><br>
-  <br>
-The above command will bring up the GUI window with the executable
-loaded to run the PC Sampling experiment on localhost.&nbsp; All the
-user would need to do is push the "Run" button on the GUI and wait for
-the results to be displayed.&nbsp; The path to the executable can be a
-relative path.<br>
-  <br>
-If using the Open|SpeedShop wizard capability to guide you through the
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE>Open|SpeedShop-1.9 Quick Start Guide</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.3  (Unix)">
+	<META NAME="AUTHOR" CONTENT="DazzleTheEye">
+	<META NAME="CREATED" CONTENT="20081109;22340000">
+	<META NAME="CHANGEDBY" CONTENT="DazzleTheEye">
+	<META NAME="CHANGED" CONTENT="20081109;22340000">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { size: 8.5in 11in; margin: 1in }
+		P { margin-top: 0.19in; margin-bottom: 0.19in; direction: ltr; color: #000000; widows: 2; orphans: 2 }
+		P.western { font-family: "Times New Roman", serif; font-size: 12pt; so-language: en-US }
+		P.cjk { font-family: "Times New Roman", serif; font-size: 12pt }
+		P.ctl { font-family: "Times New Roman", serif; font-size: 12pt; so-language: ar-SA }
+		H1 { margin-top: 0.19in; margin-bottom: 0.19in; border: 1px solid #000000; padding: 0in; direction: ltr; color: #000000; text-align: center; widows: 2; orphans: 2; page-break-after: auto }
+		H1.western { font-family: "Times New Roman", serif; so-language: en-US }
+		H1.cjk { font-family: "Times New Roman", serif }
+		H1.ctl { font-family: "Times New Roman", serif; so-language: ar-SA }
+		H2 { margin-top: 0.19in; margin-bottom: 0.19in; direction: ltr; color: #000000; widows: 2; orphans: 2; page-break-after: auto }
+		H2.western { font-family: "Times New Roman", serif; so-language: en-US }
+		H2.cjk { font-family: "Times New Roman", serif }
+		H2.ctl { font-family: "Times New Roman", serif; so-language: ar-SA }
+		H3 { margin-top: 0.19in; margin-bottom: 0.19in; direction: ltr; color: #000000; widows: 2; orphans: 2; page-break-after: auto }
+		H3.western { font-family: "Times New Roman", serif; font-size: 13pt; so-language: en-US }
+		H3.cjk { font-family: "Times New Roman", serif; font-size: 13pt }
+		H3.ctl { font-family: "Times New Roman", serif; font-size: 13pt; so-language: ar-SA }
+		H1.toc-heading-western { margin-top: 0.33in; margin-bottom: 0in; border: none; padding: 0in; color: #365f91; font-family: "Cambria", serif; font-size: 14pt; so-language: en-US; line-height: 115%; text-align: left; page-break-inside: avoid; page-break-after: avoid }
+		H1.toc-heading-cjk { margin-top: 0.33in; margin-bottom: 0in; border: none; padding: 0in; color: #365f91; font-family: "Times New Roman", serif; font-size: 14pt; line-height: 115%; text-align: left; page-break-inside: avoid; page-break-after: avoid }
+		H1.toc-heading-ctl { margin-top: 0.33in; margin-bottom: 0in; border: none; padding: 0in; color: #365f91; font-family: "Times New Roman", serif; font-size: 14pt; so-language: ar-SA; line-height: 115%; text-align: left; page-break-inside: avoid; page-break-after: avoid }
+		A:link { color: #0000ff }
+		A:visited { color: #800080 }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" TEXT="#000000" LINK="#0000ff" VLINK="#800080" BGCOLOR="#ffffff" DIR="LTR">
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in"><BR>
+</P>
+<P CLASS="western" ALIGN=CENTER STYLE="margin-top: 0in; margin-bottom: 0in">
+<BR>
+</P>
+<P CLASS="western" ALIGN=CENTER><FONT COLOR="#000066"><IMG SRC="OpenSpeedShop_Logo.jpg" NAME="OpenSpeedShop_Logo" ALIGN=BOTTOM WIDTH=281 HEIGHT=35 BORDER=0></FONT><FONT COLOR="#000066"><FONT FACE="SGIAlt, Times New Roman, serif"><FONT SIZE=6 STYLE="font-size: 22pt"><B><BR>Quick
+Start Guide<BR></B></FONT></FONT></FONT><FONT COLOR="#000066"><FONT SIZE=4 STYLE="font-size: 13pt"><B>Version
+1.9 Release<BR>November 13, 2008</B></FONT></FONT></P>
+<P CLASS="western" ALIGN=CENTER STYLE="margin-top: 0in; margin-bottom: 0in">
+<B><BR></B><BR>
+</P>
+<H1 CLASS="toc-heading-western"><A NAME="Contents"></A>Contents</H1>
+<DIV ID="Table of Contents1" DIR="LTR">
+	<P><A HREF="#1.Open|SpeedShop Quick Start Information|outline">Open|SpeedShop
+	Quick Start Information</A></P>
+	<P STYLE="margin-left: 0.17in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.2.Selecting an Experiment Type|outline">Selecting an
+	Experiment Type</A></P>
+	<P STYLE="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.2.1.Table: Summary of Experiments|outline">Table:
+	Summary of Experiments</A></P>
+	<P STYLE="margin-left: 0.17in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.3.Open|SpeedShop Invocation Command&nbsp;”openss&quot;|outline">Open|SpeedShop
+	Invocation Command&nbsp;”openss&quot;</A></P>
+	<P STYLE="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.openss -offline|outline">openss -offline</A></P>
+	<P STYLE="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#2.openss -gui|outline">openss -gui</A></P>
+	<P STYLE="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.openss -cli:|outline">openss -cli:</A></P>
+	<P STYLE="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.openss -batch:|outline">openss -batch:</A></P>
+	<P STYLE="margin-left: 0.17in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.5.Open|SpeedShop Invocation Example Information|outline">Open|SpeedShop
+	Invocation Example Information</A></P>
+	<P STYLE="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.5.1.Key command options|outline">Key command options</A></P>
+	<P STYLE="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.5.2.Example 1:&nbsp; Using offline|outline">Example 1:&nbsp;
+	Using offline</A></P>
+	<P STYLE="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.5.3.Example 2:&nbsp; Using GUI|outline">Example 2:&nbsp;
+	Using GUI</A></P>
+	<P STYLE="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.5.4.Example 3:&nbsp; Using Interactive CLI|outline">Example
+	3:&nbsp; Using Interactive CLI</A></P>
+	<P STYLE="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.5.5.Example 4:&nbsp; Using Batch|outline">Example 4:&nbsp;
+	Using Batch</A></P>
+	<P STYLE="margin-left: 0.17in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.7.Viewing Open|SpeedShop Performance Data post-mortem|outline">Viewing
+	Open|SpeedShop Performance Data post-mortem</A></P>
+	<P STYLE="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.7.1.Example 1:&nbsp; Using the GUI|outline">Example 1:&nbsp;
+	Using the GUI</A></P>
+	<P STYLE="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in">
+	<A HREF="#1.7.2.Example 2:&nbsp; Using the Interactive CLI|outline">Example
+	2:&nbsp; Using the Interactive CLI</A></P>
+</DIV>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in"><BR>
+</P>
+<P CLASS="western"><BR><BR>
+</P>
+<H1 CLASS="western" ALIGN=LEFT STYLE="margin-left: 0.42in"><A NAME="OpenSpeedShop_Tools"></A><A NAME="mozTocId84094"></A><A NAME="1.Open|SpeedShop Quick Start Information|outline"></A>
+<FONT COLOR="#000080">Open|SpeedShop Quick Start Information</FONT></H1>
+<H2 CLASS="western"></H2>
+<H2 CLASS="western"><A NAME="SelectingAnExperimentType"></A><A NAME="1.2.Selecting an Experiment Type|outline"></A>
+Selecting an Experiment Type</H2>
+<P>The Summary of Experiments table below shows the possible
+experiments you can perform using the <B>Open|SpeedShop</B> tools and
+the reasons why you might want to choose a specific experiment. The
+Clues column shows when you might use an experiment. The Data
+Collected column indicates performance data collected by the
+experiment. For detailed information on the experiments, see the
+relevant section in the remainder of this chapter.&nbsp;&nbsp;&nbsp;
+Open|SpeedShop provides wizards in the Graphical User Interface that
+&quot;walk&quot; users through the process of selecting the
+performance data to be gathered.&nbsp;&nbsp; The wizards ask a set of
+&quot;plain&quot; language questions to focus on the desired
+performance monitoring experiment and, therefore also, the desired
+performance monitoring information to be gathered and analyzed.</P>
+<H3 CLASS="western"><A NAME="1.2.1.Table: Summary of Experiments|outline"></A>
+Table: Summary of Experiments</H3>
+<TABLE WIDTH=543 BORDER=1 BORDERCOLOR="#c0c0c0" CELLPADDING=2 CELLSPACING=3>
+	<COL WIDTH=77>
+	<COL WIDTH=142>
+	<COL WIDTH=298>
+	<THEAD>
+		<TR VALIGN=BOTTOM>
+			<TD WIDTH=77>
+				<P CLASS="western" STYLE="margin-top: 0in"><B>Experiment</B></P>
+			</TD>
+			<TD WIDTH=142>
+				<P CLASS="western" STYLE="margin-top: 0in"><B>Clues</B></P>
+			</TD>
+			<TD WIDTH=298>
+				<P CLASS="western" STYLE="margin-top: 0in"><B>Data Collected</B></P>
+			</TD>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=77>
+				<P CLASS="western" STYLE="margin-top: 0in"><FONT FACE="Courier New, monospace"><FONT SIZE=2><B>fpe</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=142>
+				<P CLASS="western" STYLE="margin-top: 0in">High system time.
+				Presence of floating point operations.</P>
+			</TD>
+			<TD WIDTH=298>
+				<P CLASS="western" STYLE="margin-top: 0in">All floating-point
+				exceptions, with the exception type and the call stack at the
+				time of the exception. 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=77>
+				<P CLASS="western" STYLE="margin-top: 0in"><FONT FACE="Courier New, monospace"><FONT SIZE=2><B>hwc</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=142>
+				<P CLASS="western" STYLE="margin-top: 0in">High user CPU time.</P>
+			</TD>
+			<TD WIDTH=298>
+				<P CLASS="western" STYLE="margin-top: 0in">Counts at the source
+				line, machine instruction, and function levels of various
+				hardware events, including: clock cycles, graduated instructions,
+				primary instruction cache misses, secondary instruction cache
+				misses, primary data cache misses, secondary data cache misses,
+				translation lookaside buffer (TLB) misses, etc..&nbsp; PC
+				sampling is used.&nbsp;&nbsp; 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=77>
+				<P CLASS="western" STYLE="margin-top: 0in"><FONT FACE="Courier New, monospace"><FONT SIZE=2><B>hwctime</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=142>
+				<P CLASS="western" STYLE="margin-top: 0in">High user CPU time.</P>
+			</TD>
+			<TD WIDTH=298>
+				<P CLASS="western" STYLE="margin-top: 0in">Similar to <FONT FACE="Courier New, monospace"><FONT SIZE=2>hwc</FONT></FONT>
+				experiment, except that callstack sampling is used.&nbsp;&nbsp;.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=77>
+				<P CLASS="western" STYLE="margin-top: 0in"><FONT FACE="Courier New, monospace"><FONT SIZE=2><B>io</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=142>
+				<P CLASS="western" STYLE="margin-top: 0in">I/O-bound.</P>
+			</TD>
+			<TD WIDTH=298>
+				<P CLASS="western" STYLE="margin-top: 0in">Times the following
+				I/O system calls: <FONT FACE="Courier New, monospace"><FONT SIZE=2>read</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>readv</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>write</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>writev</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>open</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>close</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>dup</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>pipe</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>creat</FONT></FONT>.&nbsp;&nbsp;
+				The time reported is wall clock time.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=77>
+				<P CLASS="western" STYLE="margin-top: 0in"><FONT FACE="Courier New, monospace"><FONT SIZE=2><B>iot</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=142>
+				<P CLASS="western" STYLE="margin-top: 0in">I/O-bound.</P>
+			</TD>
+			<TD WIDTH=298>
+				<P CLASS="western" STYLE="margin-top: 0in">Traces and times the
+				following I/O system calls: <FONT FACE="Courier New, monospace"><FONT SIZE=2>read</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>readv</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>write</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>writev</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>open</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>close</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>dup</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>pipe</FONT></FONT>,
+				<FONT FACE="Courier New, monospace"><FONT SIZE=2>creat</FONT></FONT>.&nbsp;&nbsp;
+				The time reported is wall clock time.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=77>
+				<P CLASS="western" STYLE="margin-top: 0in"><FONT FACE="Courier New, monospace"><FONT SIZE=2><B>mpi</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=142>
+				<P CLASS="western" STYLE="margin-top: 0in"><FONT FACE="Courier New, monospace"><FONT SIZE=2>MPI</FONT></FONT>
+				performance is poor.</P>
+			</TD>
+			<TD WIDTH=298>
+				<P CLASS="western" STYLE="margin-top: 0in">Times calls to various
+				MPI routines.&nbsp;&nbsp; The time reported is wall clock time.<BR><BR>
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=77>
+				<P CLASS="western" STYLE="margin-top: 0in"><FONT FACE="Courier New, monospace"><FONT SIZE=2><B>mpit</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=142>
+				<P CLASS="western" STYLE="margin-top: 0in"><FONT FACE="Courier New, monospace"><FONT SIZE=2>MPI
+				performance is poor </FONT></FONT>
+				</P>
+			</TD>
+			<TD WIDTH=298>
+				<P CLASS="western" STYLE="margin-top: 0in">Traces and times calls
+				to various MPI routines.&nbsp;&nbsp; Output is a line of trace
+				per MPI call.&nbsp; All calls are accounted for - no sampling.&nbsp;&nbsp;
+				The time reported is wall clock time.<BR><BR>
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=77>
+				<P CLASS="western" STYLE="margin-top: 0in"><FONT FACE="Courier New, monospace"><FONT SIZE=2><B>mpiotf</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=142>
+				<P CLASS="western" STYLE="margin-top: 0in"><FONT FACE="Courier New, monospace"><FONT SIZE=2>MPI
+				performance is poor and OTF files are preferred.</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=298>
+				<P CLASS="western" STYLE="margin-top: 0in">Traces and times calls
+				to various MPI routines and generates Open Trace Format (OTF)
+				files using VampirTrace as the underlying gathering tool.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=77>
+				<P CLASS="western" STYLE="margin-top: 0in"><FONT FACE="Courier New, monospace"><FONT SIZE=2><B>pcsamp</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=142>
+				<P CLASS="western" STYLE="margin-top: 0in">High user CPU time.</P>
+			</TD>
+			<TD WIDTH=298>
+				<P CLASS="western" STYLE="margin-top: 0in">Actual CPU time at the
+				source line, machine instruction, and function levels by sampling
+				the program counter at 10 or 1-millisecond intervals.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=77>
+				<P CLASS="western" STYLE="margin-top: 0in"><FONT FACE="Courier New, monospace"><FONT SIZE=2><B>usertime</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=142>
+				<P CLASS="western" STYLE="margin-top: 0in">Slow program, nothing
+				else known. Not CPU-bound. 
+				</P>
+			</TD>
+			<TD WIDTH=298>
+				<P CLASS="western" STYLE="margin-top: 0in">Inclusive and
+				exclusive CPU time for each function by sampling the callstack at
+				30-millisecond intervals.&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in"><BR><BR>
+</P>
+<P CLASS="western"><BR><BR>
+</P>
+<H2 CLASS="western"><A NAME="OpenSpeedShop_Invocation_Command_"></A><A NAME="mozTocId800987"></A><A NAME="1.3.Open|SpeedShop Invocation Command&nbsp;”openss&quot;|outline"></A>
+<FONT COLOR="#000000">Open|SpeedShop Invocation Command&nbsp;”openss&quot;</FONT></H2>
+<P CLASS="western"><FONT COLOR="#000000">The tools that are the basis
+for </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+are the performance tool graphical user interface (GUI), the
+interactive command line (CLI), and the batch command.&nbsp;&nbsp;
+These are the </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+tools that have user interfaces.&nbsp; The </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+program will be invoked by the user typing the &quot;openss&quot;
+command.&nbsp; When the user invokes </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+command there are four options for its mode of operation:</FONT></P>
+<UL>
+	<LI><H3 CLASS="western"><A NAME="1.openss -offline|outline"></A>openss
+	-offline</H3>
+</UL>
+<P CLASS="western" STYLE="margin-left: 0.5in; margin-top: 0in; margin-bottom: 0in">
+<FONT COLOR="#000000">This invocation of </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+uses the offline mode of operation which links our performance data
+collection modules with your application and collects the performance
+data you specify.   See the example below.</FONT></P>
+<P CLASS="western" STYLE="margin-left: 0.25in; margin-top: 0in; margin-bottom: 0in">
+<BR>
+</P>
+<UL>
+	<LI><H3 CLASS="western"><A NAME="mozTocId171398"></A><A NAME="2.openss -gui|outline"></A>
+	openss -gui</H3>
+</UL>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in"><FONT COLOR="#000000">This
+invocation of </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+causes the GUI to be raised then a command panel is also created.&nbsp;
+This command panel window becomes the interactive CLI window.&nbsp;
+Under this invocation </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+interactive commands can be entered into the GUI's command panel and
+have the same effect as if they were entered under the &quot;openss
+-cli&quot; mode of operation.    This option can gather data using
+the offline or online instrumentation mechanism.</FONT></P>
+<UL>
+	<LI><H3 CLASS="western"><A NAME="mozTocId654701"></A><A NAME="1.openss -cli:|outline"></A>
+	openss -cli:</H3>
+</UL>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in"><FONT COLOR="#000000">This
+invocation of </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+causes the window terminal becomes the interactive CLI window.&nbsp;&nbsp;
+This option can gather data using the offline or online
+instrumentation mechanism.</FONT></P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in"><BR>
+</P>
+<UL>
+	<LI><H3 CLASS="western"><A NAME="mozTocId3287"></A><A NAME="1.openss -batch:|outline"></A>
+	openss -batch:</H3>
+</UL>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in"><FONT COLOR="#000000">This
+invocation of </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+causes </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+to execute a performance experiment specified by additional
+arguments, directly without user interaction.&nbsp;&nbsp; The -batch
+operation can be used in scripts and batch processing environments.</FONT></P>
+<H2 CLASS="western"><A NAME="mozTocId805334"></A></H2>
+<H2 CLASS="western"><A NAME="1.5.Open|SpeedShop Invocation Example Information|outline"></A>
+Open|SpeedShop Invocation Example Information</H2>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in"><FONT COLOR="#000000"><BR></FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+can be invoked in a number of ways.&nbsp; This section gives a few
+examples that will hopefully help the first time users to get started
+and serve as an introduction to the sections in the full User Guide
+about </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+tool usage.<BR><BR>As stated above in the &quot;openss&quot; command
+section, the </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+command &quot;openss&quot; will initiate the </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+performance tool.&nbsp;&nbsp; The type of execution of </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+arguments to the openss command are &quot;-batch&quot;, &quot;-cli&quot;,
+“gui”, and &quot;-offline&quot;.&nbsp; The default type of
+execution is GUI.&nbsp;&nbsp; &quot;openss&quot; with no parameters
+will invoke the </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+GUI tool in wizard mode.&nbsp;&nbsp; The following examples show a
+few simple typical usage scenarios for </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">.
+  </FONT>
+</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in"><BR><BR>
+</P>
+<H3 CLASS="western"><A NAME="1.5.1.Key command options|outline"></A>Key
+command options</H3>
+<TABLE WIDTH=548 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=7 CELLSPACING=0>
+	<COL WIDTH=166>
+	<COL WIDTH=352>
+	<TR VALIGN=TOP>
+		<TD WIDTH=166>
+			<P STYLE="margin-top: 0in; margin-bottom: 0in">-f “executable
+			path and arguments”</P>
+			<P STYLE="margin-top: 0in">-f executable</P>
+		</TD>
+		<TD WIDTH=352>
+			<P STYLE="margin-top: 0in; margin-bottom: 0in">Specify the
+			executable/application that performance data will be gathered
+			for/on.</P>
+			<P STYLE="margin-top: 0in; margin-bottom: 0in">Quotes around the
+			executable are required if arguments or input files are specified.</P>
+			<P STYLE="margin-top: 0in; margin-bottom: 0in">Note: Specify the
+			executable and arguments just as you normally would to run</P>
+			<P STYLE="margin-top: 0in">the application</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=166>
+			<P STYLE="margin-top: 0in">experiment_type</P>
+		</TD>
+		<TD WIDTH=352>
+			<P STYLE="margin-top: 0in; margin-bottom: 0in">The type of
+			performance data that you would like to gather about your program.
+						</P>
+			<P STYLE="margin-top: 0in">See the section above about “Selecting
+			an Experiment Type”.</P>
+		</TD>
+	</TR>
+</TABLE>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in"><BR><BR>
+</P>
+<H3 CLASS="western"><A NAME="1.5.2.Example 1:&nbsp; Using offline|outline"></A>
+Example 1:&nbsp; Using offline</H3>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in"><FONT COLOR="#000000">Using
+the </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+offline mode of operation and assuming you know the executable you
+want to gather performance data for and the experiment you want to
+run (User Time)<BR></FONT><BR><BR>
+</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in"><FONT COLOR="#000000">General
+syntax: <BR>prompt :&gt; </FONT><FONT COLOR="#000000"><B>openss
+–offline -f “&lt;pathToExecutable&gt;/executable_name”
+&lt;experiment_type&gt;</B></FONT></P>
+<P STYLE="margin-top: 0in; margin-bottom: 0in">Real example:</P>
+<P STYLE="margin-top: 0in; margin-bottom: 0in">prompt :&gt; <B>openss
+–offline –f “/opt/openmpi-1.2.5/bin/orterun –np 64 ./smg2000
+–n 100 100 100” usertime</B><BR><BR>The above commands will
+execute as immediate commands on localhost.&nbsp;  The program output
+will come to the screen followed by the performance data report
+generated by Open|SpeedShop.   An Open|SpeedShop database file
+containing the results is also created and is available for
+post-mortem viewing.   Look for a file with the “.openss” suffix.
+  All Open|SpeedShop database files have the “.openss” suffix. 
+</P>
+<P STYLE="margin-top: 0in; margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-top: 0in; margin-bottom: 0in">Quotes are used around
+the –f option if the executable has parameters or arguments, such
+as in the MPI application shown above.<BR><BR>
+</P>
+<H3 CLASS="western"><A NAME="mozTocId931138"></A><A NAME="1.5.3.Example 2:&nbsp; Using GUI|outline"></A>
+<FONT COLOR="#000000">Example 2:&nbsp; Using GUI</FONT></H3>
+<P STYLE="margin-top: 0in; margin-bottom: 0in">Using the
+<B>Open|SpeedShop</B> GUI,&nbsp; you know your executable and the
+experiment you want to run (MPI)</P>
+<P STYLE="margin-top: 0in; margin-bottom: 0in"><BR>General
+syntax:<BR>prompt:&gt; <B>openss -f 
+&lt;pathToExecutable&gt;/executable_name  &lt;experiment_type&gt;</B></P>
+<P STYLE="margin-top: 0in; margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-top: 0in; margin-bottom: 0in">Real example:</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in">prompt:&gt;
+<B>openss  –f  “/usr/bin/srun –N 4 -n 4 ./smg2000 –n 100 100
+100” mpi</B><BR><FONT COLOR="#000000"><BR>The above command will
+bring up the GUI window with the executable loaded to run the MPI
+experiment on localhost.&nbsp; All the user would need to do is push
+the &quot;Run&quot; button on the GUI and wait for the results to be
+displayed.&nbsp; The path to the executable can be a relative path.</FONT></P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in">Quotes
+are used around the –f option if the executable has parameters or
+arguments, such as in the MPI application shown above.<FONT COLOR="#000000"><BR><BR>If
+using the Open|SpeedShop wizard capability to guide you through the
 process of creating and starting a performance experiment, just call
-out the openss command with no arguments.<br>
-  <br>
-prompt:&gt; <span style="font-weight: bold;">openss</span><br>
-  <br>
-  <h3><a class="mozTocH3" name="mozTocId717950"></a>Example 2:&nbsp;
-Using Interactive CLI<br>
-  </h3>
-The user
-wants use the command line interface, knows their executable,&nbsp;
-knows the experiment they want to run (User Time), and knows the host
-(bigiron.domain.com) on which the performance experiment will be run.<br>
-  <br>
-prompt:&gt;
-  <span style="font-weight: bold;">openss -cli</span><br>
-expcreate -hbigiron.domain.com -f
-&lt;pathTOexecutable&gt;/executable_name
-usertime<br>
-expgo<br>
-expview stats<br>
-  <br>
-The openss command above will invoke the command line interface in it's
-initial state.&nbsp;&nbsp; The user would then type the experiment
+out the openss command with no arguments.<BR><BR>prompt:&gt; </FONT><FONT COLOR="#000000"><B>openss</B></FONT></P>
+<H3 CLASS="western"><A NAME="mozTocId717950"></A><A NAME="1.5.4.Example 3:&nbsp; Using Interactive CLI|outline"></A>
+<FONT COLOR="#000000">Example 3:&nbsp; Using Interactive CLI</FONT></H3>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in"><FONT COLOR="#000000">The
+user wants use the command line interface and knows their executable
+and the type of experiment they want to run (User Time).  </FONT>
+</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in"><FONT COLOR="#000000">General
+syntax:<BR>prompt:&gt; </FONT><FONT COLOR="#000000"><B>openss
+-cli</B></FONT><FONT COLOR="#000000"><BR></FONT><FONT COLOR="#000000"><B>expcreate</B></FONT><FONT COLOR="#000000">
+-f &lt; pathToExecutable&gt;/executable_name
+&lt;experiment_type&gt;<BR></FONT><FONT COLOR="#000000"><B>expgo</B></FONT><FONT COLOR="#000000"><BR></FONT><FONT COLOR="#000000"><B>expview</B></FONT><FONT COLOR="#000000">
+</FONT>
+</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in"><FONT COLOR="#000000">Real
+example:<BR>prompt:&gt; </FONT><FONT COLOR="#000000"><B>openss
+-cli</B></FONT><FONT COLOR="#000000"><BR></FONT><FONT COLOR="#000000"><B>expcreate</B></FONT><FONT COLOR="#000000">
+-f  “/home/jeg/matmul &lt; matmul.input” usertime<BR></FONT><FONT COLOR="#000000"><B>expgo</B></FONT><FONT COLOR="#000000"><BR></FONT><FONT COLOR="#000000"><B>expview</B></FONT><FONT COLOR="#000000">
+<BR></FONT><BR><BR>
+</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in"><FONT COLOR="#000000">The
+openss command above will invoke the command line interface in its
+initial state.&nbsp;&nbsp; The user would then enter the experiment
 create command (expcreate) and specify the host, executable file and
-experiment name.&nbsp;&nbsp; The command to run the experiment (expgo)
-will start the user application and performance experiment
-running.&nbsp;&nbsp; Currently the <b>Open|SpeedShop</b> command line
-interface is asynchronous.&nbsp;&nbsp; The user will get a prompt back
-immediately after issuing the expgo command.&nbsp;&nbsp; This allows
-the user to issue other commands and/or monitor performance data prior
-to completion of a long running job.&nbsp;&nbsp; If performance
-experiment data is available, the performance result viewing command
-(expview) can be used to view the data on demand.&nbsp; <b>Open|SpeedShop</b>
-will return the data that it currently knows about.<br>
-  <br>
-  <h3><a class="mozTocH3" name="mozTocId985939"></a>Example 3:&nbsp;
-Using Batch<br>
-  </h3>
-The user
-wants use the batch interface, knows their executable,&nbsp; knows the
-experiment
-they want to run (PC Sampling), and knows the host (bigiron.domain.com)
-on
-which the performance experiment will be run.&nbsp;&nbsp; There are two
-methods for accomplishing this.&nbsp;&nbsp; The default method would be
-to use the "openss -batch" command line to specify all the arguments
-and let Open|SpeedShop run the experiment and display the performance
-data using the default view.&nbsp;&nbsp; The command for the example
-defined above would be:<br>
-  <br>
-prompt:&gt; <span style="font-weight: bold;">openss -batch -h
-bigiron.domain.com -f &lt;pathTOexecutable&gt;/executable_name pcsamp</span><br>
-  <br>
-In the above example, Open|SpeedShop uses the default view to display
-the performance data.<br>
-  <br>
-If the user wants to deaviate from the default view or wants to run
-other Open|SpeedShop CLI commands there is a way to do
-this.&nbsp;&nbsp; The user creates a file of Open|SpeedShop CLI
-commands and pipes them into Open|SpeedShop in this form: "openss
--batch &lt; batch.commands".<br>
-  <br>
-For example: Create a file (batch.input) containing the command line
-commands:<br>
-expcreate -h bigiron.domain.com
--f &lt;pathTOexecutable&gt;/executable_name pcsamp<br>
-expgo<br>
-expview -v statements<br>
-exit<br>
-  <br>
-Then execute the <b>Open|SpeedShop</b> batch tool by using the
-"-batch"
-argument on the "openss" command:<br>
-  <br>
-prompt:&gt;<span style="font-weight: bold;">
-openss -batch &lt; batch.input</span><br>
-  <br>
-The <b>Open|SpeedShop</b> PC Sampling experiment will be run and the
-output
-will be output to stout.<span style="font-weight: bold;"><br>
-  </span><span style="font-weight: bold;"></span><br>
-</blockquote>
-</div>
-<div class="Section13">
-<p class="MsoBodyText"><!--[endif]--></p>
-</div>
-</div>
-</div>
-</div>
-</body>
-</html>
+experiment name.&nbsp;&nbsp;</FONT>Quotes are used around the –f
+option if the executable has parameters as does the application shown
+above.<FONT COLOR="#000000"> The command to run the experiment
+(expgo) will start the user application and performance experiment
+running.&nbsp;&nbsp; Currently the </FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+command line interface is asynchronous.&nbsp;&nbsp; The user will get
+a prompt back immediately after issuing the expgo command.&nbsp;&nbsp;
+This allows the user to issue other commands and/or monitor
+performance data prior to completion of a long running job.&nbsp;&nbsp;
+If performance experiment data is available, the performance result
+viewing command (expview) can be used to view the data on demand.&nbsp;
+</FONT><FONT COLOR="#000000"><B>Open|SpeedShop</B></FONT><FONT COLOR="#000000">
+will return the data that it currently knows about.</FONT></P>
+<H3 CLASS="western"><A NAME="mozTocId985939"></A><A NAME="1.5.5.Example 4:&nbsp; Using Batch|outline"></A>
+<FONT COLOR="#000000">Example 4:&nbsp; Using Batch</FONT></H3>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in"><FONT COLOR="#000000">The
+user wants use the batch interface and knows the executable and the
+experiment they want to run (PC Sampling.&nbsp;&nbsp; There are two
+methods for accomplishing this.&nbsp;&nbsp; The default method would
+be to use the &quot;openss -batch&quot; command line to specify all
+the arguments and let Open|SpeedShop run the experiment and display
+the performance data using the default view.&nbsp;&nbsp; The command
+for the example defined above would be:<BR></FONT><BR><BR>
+</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in"><FONT COLOR="#000000">General
+syntax:<BR>prompt:&gt; </FONT><FONT COLOR="#000000"><B>openss -batch
+-f &lt; pathToExecutable&gt;/executable_name &lt;experiment_type&gt;</B></FONT></P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0.17in"><FONT COLOR="#000000">Real
+example:<BR>prompt:&gt; </FONT><FONT COLOR="#000000"><B>openss -batch
+-f ./sweep3d.single pcsamp</B></FONT></P>
+<P STYLE="margin-top: 0in; margin-bottom: 0in"><BR>In the above
+example, Open|SpeedShop uses the default view to display the
+performance data.<BR><BR>If the user wants to deviate from the
+default view or wants to run other Open|SpeedShop CLI commands there
+is a way to do this.&nbsp;&nbsp; The user creates a file of
+Open|SpeedShop CLI commands and pipes them into Open|SpeedShop in
+this form: &quot;<B>openss -batch &lt; batch.commands</B>&quot;.<BR><BR>For
+example: Create a file (batch.input) containing the command line
+commands:</P>
+<P STYLE="margin-top: 0in; margin-bottom: 0in"><BR><B>expcreate</B> <FONT COLOR="#000000"><B>
+-f ./sweep3d.single pcsamp</B></FONT></P>
+<P STYLE="margin-top: 0in; margin-bottom: 0in"><B>expgo</B><BR><B>expview</B><BR><BR>Then
+execute the <B>Open|SpeedShop</B> batch tool by using the &quot;-batch&quot;
+argument on the &quot;openss&quot; command:<BR><BR>prompt:&gt;<B>
+openss -batch &lt; batch.input</B><BR><BR>The <B>Open|SpeedShop</B>
+PC Sampling experiment will be run and the output will be output to
+stout.</P>
+<H2 CLASS="western"></H2>
+<H2 CLASS="western"><A NAME="1.7.Viewing Open|SpeedShop Performance Data post-mortem|outline"></A>
+Viewing Open|SpeedShop Performance Data post-mortem</H2>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in">As
+mentioned above, all the various ways of running Open|SpeedShop
+create a database file that has the suffix “.openss”.   This file
+contains all the symbols, time stamps, and performance data
+information to view the results of the Open|SpeedShop performance
+experiment which was run on the user’s application.</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in"><BR>
+</P>
+<H3 CLASS="western"><A NAME="1.7.1.Example 1:&nbsp; Using the GUI|outline"></A>
+Example 1:&nbsp; Using the GUI</H3>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in">To
+open the Open|SpeedShop database file with the graphical user
+interface (GUI), you can use either of two opens command forms:</P>
+<UL>
+	<LI><P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in">Use
+	the command “openss” and follow the wizard instructions to open
+	the saved database file</P>
+	<LI><P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in">Use
+	the command “opens –f &lt;database_filename&gt;.openss”.  
+	This command will load the database information into the GUI in one
+	step.  When the GUI is raised the data will be presented for
+	viewing.</P>
+</UL>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in"><BR>
+</P>
+<H3 CLASS="western"><A NAME="1.7.2.Example 2:&nbsp; Using the Interactive CLI|outline"></A>
+Example 2:&nbsp; Using <FONT COLOR="#000000">the Interactive </FONT>CLI</H3>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in">To
+open the Open|SpeedShop database file with the interactive command
+line user interface (CLI), you can use either of two opens command
+forms:</P>
+<UL>
+	<LI><P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in">Use
+	the command “opens -cli” and use the exprestore –f
+	&lt;database_filename&gt;.openss” to open the saved database file</P>
+	<LI><P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in">Use
+	the command “opens -cli –f &lt;database_filename&gt;.openss”. 
+	 This command will load the database information into the CLI in one
+	step.  When the CLI is opened the data will be loaded for viewing.</P>
+</UL>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in">In
+both cases above, use the “expview” command for the basic default
+view of the data.   Use the “help expview” command for more
+interesting options to filter, format, and view the performance
+report data.</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in"><BR>
+</P>
+</BODY>
+</HTML>
