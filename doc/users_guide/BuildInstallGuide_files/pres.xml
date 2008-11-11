@@ -1,0 +1,39 @@
+<xml xmlns:v="urn:schemas-microsoft-com:vml"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:p="urn:schemas-microsoft-com:office:powerpoint"
+ xmlns:oa="urn:schemas-microsoft-com:office:activation">
+ <p:presentation sizeof="screen" gridspacingx="49152" gridspacingy="49152"
+  subsetembed="1">
+  <p:master id="3" slidesn="1C9440D,49E41DC0" type="main" href="master03.htm"
+   xmlhref="master03.xml" template="Office Theme" layout="title_body"
+   slots="title,body,dateTime,footer,slideNumber">
+   <p:schemes>
+   </p:schemes>
+  </p:master>
+  <p:master id="16" slidesn="1C9440D,49E41DC0" type="main" href="master16.htm"
+   xmlhref="master16.xml" template="1_Office Theme" layout="title_body"
+   slots="title,body,dateTime,footer,slideNumber">
+   <p:schemes>
+   </p:schemes>
+  </p:master>
+  <p:master id="1" slidesn="1C9440D,4A0DECE0" type="notes" href="master01.htm"
+   layout="notes" slots="header,dateTime,slideImage,body,footer,slideNumber"/>
+  <p:slide id="2" slidesn="0,0" href="slide0002.htm" masterhref="master16.htm"/>
+  <p:slide id="3" slidesn="0,0" href="slide0003.htm"/>
+  <p:slide id="4" slidesn="0,0" href="slide0004.htm"/>
+  <p:slide id="5" slidesn="0,0" href="slide0005.htm"/>
+  <p:slide id="6" slidesn="0,0" href="slide0006.htm"/>
+  <p:slide id="7" slidesn="0,0" href="slide0007.htm"/>
+  <p:slide id="8" slidesn="0,0" href="slide0008.htm"/>
+  <p:slide id="9" slidesn="0,0" href="slide0009.htm"/>
+  <p:slide id="10" slidesn="0,0" href="slide0010.htm"/>
+  <p:slide id="11" slidesn="0,0" href="slide0011.htm"/>
+  <p:slide id="12" slidesn="0,0" href="slide0012.htm"/>
+  <p:slide id="13" slidesn="0,0" href="slide0013.htm"/>
+  <p:viewstate type="slideView" restoredleft="156" restoredtop="946"
+   hideoutlineicons="t"/>
+  <p:pptdocumentsettings framecolors="WhiteTextOnBlack" hideslideanimation="t"
+   browsersupport="v4"/>
+ </p:presentation>
+ <o:shapedefaults v:ext="edit" spidmax="27654"/>
+</xml>
