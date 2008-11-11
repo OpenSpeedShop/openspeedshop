@@ -796,7 +796,7 @@ void OfflineExperiment::createOfflineSymbolTable()
 
     SymbolTableMap symtabmap;
     BFDSymbols bfd_symbols;
-    FuncMap FunctionsWithData;
+    FunctionsVec FunctionsWithData;
     StatementsVec StatementsWithData;
 
 
@@ -1089,26 +1089,26 @@ void OfflineExperiment::createOfflineSymbolTable()
     // Add Functions
     // RESTRICT functions to only those with sampled addresses.
     int functionsadded = 0;
-    for(FuncMap::const_iterator ic = FunctionsWithData.begin();
-				ic != FunctionsWithData.end(); ++ic) {
-	AddressRange frange(ic->second.func_begin,ic->second.func_end);
+    for(FunctionsVec::iterator f = FunctionsWithData.begin();
+                    f != FunctionsWithData.end(); ++f) {
+	AddressRange frange(f->getFuncBegin(),f->getFuncEnd());
         if (symtabmap.find(frange) != symtabmap.end()) {
 	    SymbolTable& symbol_table =  symtabmap.find(frange)->second.first;
-	    Address start = ic->second.func_begin;
-	    Address end = ic->second.func_end;
+	    Address start = f->getFuncBegin();
+	    Address end = f->getFuncEnd();
 // DEBUG
 #ifndef NDEBUG
 	    if(is_debug_offline_enabled) {
               std::cerr << "OfflineExperiment::createOfflineSymbolTable: "
-		<< "ADDING FUNCTION for " << ic->first
+		<< "ADDING FUNCTION for " << f->getFuncName()
 		<< " with range " << frange << std::endl;
 	    }
 #endif
-	    symbol_table.addFunction(start, end, ic->first);
+	    symbol_table.addFunction(start, end, f->getFuncName());
 	    functionsadded++;
 	} else {
               std::cerr << "OfflineExperiment::createOfflineSymbolTable: "
-		<< "FAILED FUNCTION for " << ic->first
+		<< "FAILED FUNCTION for " << f->getFuncName()
 		<< " with range " << frange << std::endl;
 	}
     }

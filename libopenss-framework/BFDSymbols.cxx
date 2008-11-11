@@ -51,16 +51,17 @@ static int init_done = 0;
 // statics used by find_address_in_section and bfd_find_nearest_line.
 static bfd  *theBFD;
 static bfd_vma pc;
+static bfd_vma obj_base;
 static bfd_boolean found;
 static bool debug_symbols = false;
 
 using namespace OpenSpeedShop::Framework;
 
-StatementsVec* smap;
-FuncMap *fmap;
+StatementsVec* statementvec;
+FunctionsVec *funcvec;
 
 #ifndef NDEBUG
-/** Flag indicating if debuging for MPI jobs is enabled. */
+/** Flag indicating if debuging for offline symbols is enabled. */
 bool BFDSymbols::is_debug_symbols_enabled =
     (getenv("OPENSS_DEBUG_OFFLINE_SYMBOLS") != NULL);
 
@@ -235,7 +236,7 @@ long BFDSymbols::remove_useless_symbols(asymbol **symbols, long count)
 // the passed address range of [obj_load_addr, obj_end_addr).
 int
 BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
-			     FuncMap* functions_map,
+			     FunctionsVec& functions_vec,
 			     bfd_vma obj_load_addr,
 			     bfd_vma obj_end_addr)
 {
@@ -342,6 +343,8 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
     if ( (Address(bfd_text_begin) - Address(obj_load_addr)) < 0 ) {
         base = Address(obj_load_addr);
     }
+
+    obj_base = base.getValue();
 
 // DEBUG
 #ifndef NDEBUG
@@ -572,13 +575,13 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 		continue;
 	    }
 
-	    // The following loop adds any function found to to the functions_map.
+	    // The following loop adds any function found to to the functions_vec.
 	    // We restrict this to functions who are found to
 	    // contain an address for the performance PC address buffer.
 	    AddressRange frange(Address(base + begin_addr),
 				Address(base + f_end - 1 ));
 
-	    for (unsigned int ii = 0;ii < addrvec.size();ii++) {
+	    for (unsigned int ii = 0; ii < addrvec.size(); ii++) {
 		// To improve performance of this search,
 		// see if one of the found functions already
 		// has this address so we do not search remaining
@@ -588,11 +591,11 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 		// resolved, remove it from addrvec. If and when
 		// addrvec is empty we can terminate the search for
 		// functions to add to our symboltable.
-	        for(FuncMap::const_iterator ic = functions_map->begin();
-					    ic != functions_map->end();
-					    ic++) {
-        	    AddressRange range(ic->second.func_begin,
-				       ic->second.func_end);
+	        for(FunctionsVec::iterator f = functions_vec.begin();
+					   f != functions_vec.end(); ++f) {
+
+        	    AddressRange range(f->getFuncBegin(), f->getFuncEnd());
+
         	    if (range.doesContain(static_cast<Address>(addrvec[ii]))) {
 // DEBUG
 #ifndef NDEBUG
@@ -600,7 +603,8 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 			  std::cerr << "getFunctionSyms: Address "
 			    << Address(addrvec[ii])
 			    << " at addrvec[" << ii << "] "
-			    << "already found in function " << ic->first << std::endl;
+			    << "already found in function "
+			    << f->getFuncName() << std::endl;
 			}
 #endif
 
@@ -618,18 +622,17 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 // DEBUG
 #ifndef NDEBUG
 		    if(is_debug_symbols_enabled) {
-		        std::cerr << "getFunctionSyms: functions_map INSERT "
+		        std::cerr << "getFunctionSyms: functions_vec PUSH BACK "
 			    << symname << " at " << frange
 			    << " for pc " << Address(addrvec[ii])
 			    << " ii " << ii << " of " << addrvec.size()
 			    << std::endl;
 		    }
 #endif
-		    functions_map->insert(std::make_pair(symname,
-					     BFDFunction(symname,
-							 frange.getBegin().getValue(),
-							 frange.getEnd().getValue())
-						));
+		    functions_vec.push_back( BFDFunction(symname,
+							  frange.getBegin().getValue(),
+							  frange.getEnd().getValue())
+						);
 		    foundpcs++;
 		    // do not search for this address again.
 		    std::vector<uint64_t>::iterator toremove = 
@@ -708,15 +711,22 @@ find_address_in_section (bfd *theBFD, asection *section,
 	return;
     }
 
+    bfd_vma real_pc = pc;
+
+    if (obj_base > 0) {
+	real_pc = pc - obj_base;
+    }
+
     vma = bfd_get_section_vma (theBFD, section);
-    if (pc < vma) {
+
+    if (real_pc < vma) {
 	return;
     }
 
 
     size = bfd_get_section_size(section);
 
-    if (pc >= vma + size) {
+    if (real_pc >= vma + size) {
 // DEBUG
 #if 0
 	std::cerr << "find_address_in_section: RETURNS EARLY "
@@ -733,7 +743,7 @@ find_address_in_section (bfd *theBFD, asection *section,
     const char *filename;
     const char *functionname;
     unsigned int line;
-    found = bfd_find_nearest_line (theBFD, section, syms, pc - vma,
+    found = bfd_find_nearest_line (theBFD, section, syms, real_pc - vma,
                                    &filename, &functionname, &line);
     if (!found) {
 // VERBOSE
@@ -760,60 +770,11 @@ find_address_in_section (bfd *theBFD, asection *section,
     }
 #endif
 
-
-    // map vma to function start addr, vma + size to function end addr,
-    // and use filename, function name, line for symtab.
-
-    // See if this function is in our table of functions that
-    // have had data collected.
-    std::string funcname = functionname;
-    uint64_t fbegin = 0;
-    uint64_t fend = 0;
-    for(FuncMap::const_iterator ic = fmap->begin() ; ic != fmap->end(); ic++) {
-	AddressRange range(ic->second.func_begin,ic->second.func_end);
-	if (range.doesContain(static_cast<Address>(pc) )) {
-// DEBUG
-#ifndef NDEBUG
-	    if(debug_symbols) {
-	      std::cerr << "find_address_in_section: FuncMap fmap func "
-		<< ic->first
-		<< " range " << range
-		<< " does contain " << Address(pc)
-		<< std::endl;
-	    }
-#endif
-	    fbegin = ic->second.func_begin.getValue();
-	    fend = ic->second.func_end.getValue();
-	    break;
-	} else {
-// DEBUG
-#if 0
-	    std::cerr << "find_address_in_section: FuncMap fmap func "
-		<< ic->first
-		<< " range " << range
-		<< " does DOES NOT contain " << Address(pc)
-		<< std::endl;
-#endif
-	}
-    }
-
-    if (fbegin >= fend) {
-// VERBOSE
-#ifndef NDEBUG
-        if(debug_symbols) {
-	    std::cerr << "find_address_in_section: WARNING: Function " << funcname 
-		<< " has bad range " << fbegin << " , "
-		<< fend << " ...fixing" << std::endl;
-	}
-#endif
-	fend = fbegin + 1; // bad fix!
-    }
-
     // Create a BFDStatement object for this pc and add it into
     // StatementsWithData for later update to database.
     // TODO: Need to add at least the function entry statement info...
     BFDStatement datastatement(pc, tfile, line);
-    smap->push_back(datastatement);
+    statementvec->push_back(datastatement);
 
     fflush(stdout);
 }
@@ -876,8 +837,8 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
     }
 #endif
 
-    fmap = &bfd_functions;
-    smap = &bfd_statements;
+    funcvec = &bfd_functions;
+    statementvec = &bfd_statements;
 
     std::string filename = linkedobject->getPath();
     std::set<AddressRange> lorange = linkedobject->getAddressRange();
@@ -930,28 +891,26 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
     // Idx Name  Size      VMA               LMA               File off  Algn
     //   9 .text 0012fe68  00000000000720d0  00000000000720d0  000720d0  2**4
     //                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-    //
-
 
     // Find only those functions whose address range contains a value
     // in the passed address buffer addrbuf.
 
-    int found_functions = getFunctionSyms(addrbuf,fmap,loadaddr,endaddr);
+    int found_functions = getFunctionSyms(addrbuf,*funcvec,loadaddr,endaddr);
 
 // DEBUG
 #if 0
     std::cerr << "getBFDFunctionStatements: getFunctionSyms returned "
 	<< found_functions << " with data for " << objfilename << std::endl;
-    std::cerr << "getBFDFunctionStatements: now have " << fmap->size()
+    std::cerr << "getBFDFunctionStatements: now have " << funcvec->size()
 	<< " functions with data overall" << std::endl;
 
-    for(FuncMap::const_iterator ic = fmap->begin() ; ic != fmap->end(); ++ic) {
+    for(FunctionsVec::iterator ic = funcvec->begin() ; ic != funcvec->end(); ++ic) {
 	std::cerr << "getBFDFunctionStatements: getFunctionSyms returns: "
-	    << " name " << ic->second.func_name
-	    << " begin " << Address(ic->second.func_begin.getValue())
-	    << " end " << Address(ic->second.func_end.getValue())
+	    << " name " << ic->getFuncName()
+	    << " begin " << Address(ic->getFuncBegin().getValue())
+	    << " end " << Address(ic->getFuncEnd().getValue())
 	    << " fsize "
-	    << ic->second.func_end.getValue() - ic->second.func_begin.getValue()
+	    << ic->getFuncEnd().getValue() - ic->getFuncBegin().getValue()
 	    << std::endl;
     }
 #endif
@@ -968,17 +927,19 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
         pc = addrvec[ii];
         found = false;
 
-	for(FuncMap::const_iterator ic = fmap->begin() ;
-				    ic != fmap->end(); ++ic) {
-	    AddressRange range(ic->second.func_begin,ic->second.func_end);
-	    if (range.doesContain(static_cast<Address>(pc))) {
+	for(FunctionsVec::iterator f = funcvec->begin();
+				   f != funcvec->end(); ++f) {
+
+	    AddressRange range(f->getFuncBegin(),f->getFuncEnd());
+
+	    if (range.doesContain(static_cast<Address>(addrvec[ii]))) {
 // DEBUG
 #ifndef NDEBUG
 		if(is_debug_symbols_enabled) {
 		  std::cerr << "getBFDFunctionStatements: FOUND FUNCTION for pc "
-		    << static_cast<Address>(pc)
+		    << static_cast<Address>(addrvec[ii])
 		    << " at " << ii << " of " << addrbuf->length
-		    << " for " << ic->first
+		    << " for " << f->getFuncName()
 		    << std::endl;
 		}
 #endif
@@ -988,7 +949,7 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 		// to focus on or display the first statement of a function.
 		// The function begin addresses will be processed later
 		// for statement info and added to our statements.
-		function_range_addresses.insert(ic->second.func_begin);
+		function_range_addresses.insert(f->getFuncBegin());
 	    } else {
 	    }
 	}
@@ -996,7 +957,7 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 	if (foundpc > 1) {
 	    addresses_found--;
 	    std::cerr << "getBFDFunctionStatements: FOUND MULTIPLE " << foundpc
-		<< " functions with pc " << static_cast<Address>(pc)
+		<< " functions with pc " << static_cast<Address>(addrvec[ii])
 	        << " at " << ii << " of " << addrvec.size()
 	        << std::endl;
 	}
@@ -1025,6 +986,7 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
     }
 
     bfd_close(theBFD);
+
 // VERBOSE
 #ifndef NDEBUG
     if(is_debug_symbols_enabled) {
