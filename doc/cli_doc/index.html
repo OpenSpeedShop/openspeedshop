@@ -21,15 +21,17 @@
 </div>
 <p style="text-align: center; font-weight: bold;"><big><big><big>Command
 Line Interface Specification</big></big><br>
-Version 1.6 Release<br>
-&nbsp;January 22, 2008</big><br>
+Version 1.9 Release<br>
+&nbsp;
+November 13, 2008</big><br>
 </p>
 <h1><b><font face="Courier New" size="5">
 <p><a name="Table_of_Contents"></a>Table of Contents&nbsp;
 </p>
 </font></b></h1>
 <ul id="mozToc">
-<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId609241">Table
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
+  <li><a href="#mozTocId609241">Table
 of Contents&nbsp; </a>
     <ul>
       <li><a href="#mozTocId41396">Open|SpeedShop
@@ -78,7 +80,8 @@ Command Line Definitions</big></h2>
  name="Definitions_of_Important_Terms"></a>Definitions of Important
 Terms</font></b></h3>
 <ul>
-  <font size="2"><li><b><i>Experiment</i></b>: A set of collectors and
+  <font size="2">
+  <li><b><i>Experiment</i></b>: A set of collectors and
 executables
 bound together to generate performance metrics..</li>
   <li><b><i>Collector</i></b>: Portion of the tool containing logic
@@ -100,7 +103,8 @@ command to be the focused or default experiment.</li>
 allows the user
 interface to manage the creation and viewing of performance
 experiments.&nbsp; It is the interface between the&nbsp; user interface
-and the <b>DPCL</b> and <b>Dyninst</b> components.<br>
+and the <span style="font-weight: bold;">MRNet</span><b></b> and <b>Dyninst</b>
+components.<br>
   </li>
   </font>
 </ul>
@@ -108,9 +112,11 @@ and the <b>DPCL</b> and <b>Dyninst</b> components.<br>
  name="Assumptions_used_in_the_Definition_of"></a>Assumptions used in
 the Definition of the Commands</b></font></h3>
 <ol>
-  <font size="2"><li>There is a focused (default) experiment id
+  <font size="2">
+  <li>There is a focused (default) experiment id
 available to subsequent commands.</li>
-  </font> <font size="2"> <li>Our tool will not change the focus of
+  </font> <font size="2">
+  <li>Our tool will not change the focus of
 the tool
 on an experiment.
 It can only be changed or set initially by the user. The one exception
