@@ -128,7 +128,6 @@ EXTRA_DIST	=  \
 	item0108.xml \
 	Makefile.am \
 	PCSampWizardAttachRunningFred.png \
-	PC_SampleWizard-AttachToRunningProcess.png \
 	PC_SamplingWizard-4.png \
 	props0109.xml \
 	SaveExperimentGiveName.png \
