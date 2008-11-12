@@ -944,6 +944,22 @@ Open|SpeedShop executables.&nbsp; Set this to:&nbsp; $OPENSS_PREFIX/bin</small><
 (e.g. setenv PATH $OPENSS_PREFIX/bin:$PATH).</li>
 </ul>
 <br>
+<h4 style="margin-left: 120px;">OPENSS_RAWDATA_DIR</h4>
+<ul style="margin-left: 200px;">
+  <li><big><small>This envirionmnent variable s</small></big><big><small>pecifies
+the path to where the offline version of openss will store the rawdata
+files representing the performance data that was gathered from the
+users application. &nbsp; This is needed on clusters where the default
+rawdata file directory, /tmp, is not shared across the nodes. &nbsp; If
+this is the case on the cluster you are running "openss -offline" or
+using the GUI or CLI to run offline experiment, then OPENSS_RAWDATA_DIR
+must be set to a shared file system directory.&nbsp; Otherwise, /tmp is
+used. &nbsp;&nbsp; Set this to:&nbsp; OPENSS_RAWDATA_DIR
+&lt;path_to_subdir_for_rawdata_file_writing&gt; </small></big>(e.g.
+setenv OPENSS_RAWDATA_DIR /p/lscratchc/jeg).</li>
+</ul>
+<br>
+<br>
 <h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId435044"></a><a
  name="OpenSpeedShop_Tested_Platforms:"></a>Open|SpeedShop Tested
 Platforms:</h3>
