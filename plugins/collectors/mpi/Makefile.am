@@ -20,6 +20,7 @@
 # Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
 
 CFLAGS = -g -O0
+LDFLAGS =
 
 BUILT_SOURCES = \
 	blobs.h blobs.c
@@ -182,6 +183,7 @@ rt_sources = \
 	wrappers.c
 
 if HAVE_LIBMONITOR
+
 
 rt_offline_CFLAGS_generate = \
 	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
