@@ -21,6 +21,7 @@
 
 #CFLAGS =    -DBINDIR=\"@VT_DIR@/bin\" -DDATADIR=\"@VT_DIR@/share/vampirtrace\" -DVT_MPI -O0 -g -fPIC -shared -DRFG -DVT_BFDSYMCOLLECT -DVT_MEMHOOK 
 CFLAGS =    -DBINDIR=\"@VT_DIR@/bin\" -DDATADIR=\"@VT_DIR@/share/vampirtrace\" -DVT_MPI -O0 -g -fPIC -shared -DRFG -DVT_BFDSYMCOLLECT 
+LDFLAGS =
 
 BUILT_SOURCES = \
 	blobs.h blobs.c	
