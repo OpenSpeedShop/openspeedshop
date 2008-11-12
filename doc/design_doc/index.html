@@ -24,27 +24,36 @@
 Document</big></big></big></div>
 <big><big><big></big></big></big>
 <div></div>
-<div style="text-align: center;"><big style="font-weight: bold;">Version 1.6 Release<br>
-January 22, 2008</big><br>
+<div style="text-align: center;"><big style="font-weight: bold;">Version
+1.9 Release<br>
+November 13, 2008</big><br>
 </div>
 <br>
 <h2><a name="mozTocId156671" class="mozTocH2"></a><a class="anchor"
- name="TableOfContents">Table of Contents<br>
+ name="TableOfContents">Table of Content
 </a></h2>
-<ul id="mozToc">
-<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId156671">Table
-of Contents </a>
-    <ul>
+<ol id="mozToc">
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
+  <li><a href="#mozTocId156671"></a>
+    <ol>
       <li><a href="#mozTocId152427">Introduction</a>
-        <ul>
-          <li><a href="#mozTocId511853">General </a></li>
-          <li><a href="#mozTocId874420">Dyninst and DPCL </a></li>
-          <li><a href="#mozTocId708292">Framework </a></li>
-          <li><a href="#mozTocId198623">SQLITE </a></li>
-          <li><a href="#mozTocId864899">PAPI </a></li>
+        <ol>
+          <li><a href="#mozTocId511853">General
+            </a></li>
+          <li><a href="#mozTocId874420">Dyninst and DPCL
+            </a></li>
+          <li><a href="#mozTocId850761">Dyninst and MRNet
+            </a></li>
+          <li><a href="#mozTocId334814">Framework
+            </a></li>
+          <li><a href="#mozTocId198623">SQLITE
+            </a></li>
+          <li><a href="#mozTocId864899">PAPI
+            </a></li>
           <li><a href="#mozTocId824648">Graphical User
-Interface - GUI </a>
-            <ul>
+Interface - GUI
+            </a>
+            <ol>
               <li><a href="#mozTocId770242"> MainWindow -
 This is where the GUI starts.&nbsp;</a></li>
               <li><a href="#mozTocId952597"> Panel Containers
@@ -53,28 +62,33 @@ the screen where panels can be placed and managed.&nbsp;</a></li>
               <li><a href="#mozTocId540822"> Panels - A panel
 is where all the nuts-n-bolts knowledge and
 logic exists for an individual task. &nbsp; &nbsp;</a></li>
-            </ul>
+            </ol>
           </li>
           <li><a href="#mozTocId455111">Command Line
-Interface - CLI </a></li>
+Interface - CLI
+            </a></li>
           <li><a href="#mozTocId579981">Open|SpeedShop
 Scripting API</a></li>
           <li><a href="#mozTocId902967">Open|SpeedShop
-Invocation Command&nbsp; "openss" </a>
-            <ul>
+Invocation Command&nbsp; "openss"
+            </a>
+            <ol>
               <li><a href="#mozTocId970272">openss -gui </a></li>
               <li><a href="#mozTocId694560">openss -cli:</a></li>
               <li><a href="#mozTocId436747">openss -batch:</a></li>
-            </ul>
+            </ol>
           </li>
           <li><a href="#mozTocId282350">Bproc Support</a></li>
-        </ul>
+        </ol>
       </li>
       <li><a href="#mozTocId286382">API's Defined In Open|SpeedShop </a>
-        <ul>
-          <li><a href="#mozTocId779296">General </a></li>
+        <ol>
+          <li><a href="#mozTocId779296">General
+            </a></li>
           <li><a href="#mozTocId927649">API between the
 Open|SpeedShop Framework component and DPCL</a></li>
+          <li><a href="#mozTocId397430">API between the
+Open|SpeedShop Framework component and MRNet</a></li>
           <li><a href="#mozTocId406405">API between the
 Open|SpeedShop Framework component and the
 Experiment Collectors</a></li>
@@ -83,13 +97,13 @@ Open|SpeedShop Framework component and the
 GUI/CLI tools</a></li>
           <li><a href="#mozTocId155263">API between the
 Open|SpeedShop Framework component and PAPI</a></li>
-          <li><a href="#mozTocId891340">API between the DPCL
+          <li><a href="#mozTocId891340">API between the DPCL or MRNet
 and Dyninst components</a></li>
-        </ul>
+        </ol>
       </li>
-    </ul>
+    </ol>
   </li>
-</ul>
+</ol>
 <br>
 <h2><a name="mozTocId152427" class="mozTocH2"></a><a class="anchor"
  name="MP_S1">Introduction</a></h2>
@@ -147,7 +161,7 @@ will be run against create an instance of a performance experiment.<br>
  href="http://sourceforge.net/projects/dpcl"
  style="font-family: times new roman,times,serif;">http://sourceforge.net/projects/dpcl</a><span
  style="font-family: times new roman,times,serif;">) are key elements
-of the design.&nbsp; DPCL is the component in satisfying the
+of the design.&nbsp; DPCL a component in satisfying the
 clustering requirement.&nbsp; Dyninst allows the Open|SpeedShop
 performance tool to instrument executables to obtain timings and also
 allows the Open|SpeedShop performance tool to attach to running
@@ -169,8 +183,26 @@ forking processes and to properly handle executables with shared
 objects. Dyninst also provides a certain amount of symbol table lookup
 ability. It supports queries such as "What is the function at address
 XYZ?" </span><br style="font-family: times new roman,times,serif;">
-<br style="font-family: times new roman,times,serif;">
-<h3><a name="mozTocId708292" class="mozTocH3"></a>Framework<br>
+<h3><a class="mozTocH3" name="mozTocId850761"></a>Dyninst and MRNet<br>
+</h3>
+<span style="font-family: times new roman,times,serif;">Dyninst (</span><a
+ href="http://www.dyninst.org/"
+ style="font-family: times new roman,times,serif;">http://www.dyninst.org/</a><span
+ style="font-family: times new roman,times,serif;">) and&nbsp; MRNet (</span><span
+ style="font-family: times new roman,times,serif;"></span><a
+ href="http://www.dyninst.org/"
+ style="font-family: times new roman,times,serif;">http://www.dyninst.org/</a><span
+ style="font-family: times new roman,times,serif;">)&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">are key elements
+of the design.&nbsp; MRNet is the default component in satisfying the
+clustering requirement.&nbsp; Dyninst allows the Open|SpeedShop
+performance tool to instrument executables to obtain timings and also
+allows the Open|SpeedShop performance tool to attach to running
+processes.<br>
+</span><br style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;"><span
+ style="font-weight: bold;">TBD</span></span>
+<h3><a class="mozTocH3" name="mozTocId334814"></a>Framework<br>
 </h3>
 <span style="font-family: times new roman,times,serif;">On top of these
 components, an infrastructure that supports plugins (collectors, CLI
@@ -497,7 +529,9 @@ First a bullet list is provided, then the sections that follow will
 provide more detail as to the reasons for each API's
 existence.&nbsp;&nbsp; The major API's in Open|SpeedShop are as follows:<br>
 <ul>
-  <li>API between the Open|SpeedShop Framework component and DPCL</li>
+  <li>API between the Open|SpeedShop Framework component and DPCL </li>
+  <li>API between the Open|SpeedShop Framework component and MRNet<br>
+  </li>
   <li>API between the Open|SpeedShop Framework component and the
 Experiment Collectors</li>
   <li>API between the Open|SpeedShop Framework component and the
@@ -516,6 +550,15 @@ Reference document</a>.&nbsp;&nbsp; Open|SpeedShop uses this previously
 defined API to support clustering performance measurement collection
 and analysis.&nbsp; The use of this API is driven by requests from the
 API between the Framework component and the GUI/CLI tools.<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId397430"></a>API between the
+Open|SpeedShop Framework component and MRNet</h3>
+The API between the Open|SpeedShop Framework component and MRNet is the
+MRNet API. &nbsp; Open|SpeedShop uses this previously
+defined API to support clustering performance measurement collection
+and analysis.&nbsp; The use of this API is driven by requests from the
+API between the Framework component and the GUI/CLI tools.<br>
+<br>
 <h3><a name="mozTocId406405" class="mozTocH3"></a>API between the
 Open|SpeedShop Framework component and the
 Experiment Collectors</h3>
@@ -543,8 +586,10 @@ framework, the best place to start is with the page <a class="el"
 Open|SpeedShop Framework component and PAPI</h3>
 The API between the Open|SpeedShop Framework component and PAPI .......<br>
 <h3><a name="mozTocId891340" class="mozTocH3"></a>API between the DPCL
+or MRNet
 and Dyninst components</h3>
-The API between the DPCL and Dyninst components is the standard Dyninst
+The API between the DPCL or MRNet and Dyninst components is the
+standard Dyninst
 API defined by the&nbsp;<a
  href="ftp://ftp.cs.wisc.edu/paradyn/releases/release4.1/doc/dyninstProgGuide.v41.pdf">Dyninst
 API document</a>.<br>
