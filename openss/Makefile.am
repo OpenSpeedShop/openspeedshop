@@ -33,6 +33,8 @@ bin_PROGRAMS =
 
 bin_PROGRAMS += openss
 
+LDFLAGS = 
+
 openss_CXXFLAGS = \
         @BINUTILS_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-framework \
@@ -55,8 +57,6 @@ openss_SOURCES = \
 	openss.cxx
 
 bin_PROGRAMS += ossutil
-
-LDFLAGS = 
 
 ossutil_CXXFLAGS = \
         @BINUTILS_CPPFLAGS@ \
