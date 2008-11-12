@@ -127,7 +127,7 @@ EXTRA_DIST	=  \
 	image102.gif \
 	item0108.xml \
 	Makefile.am \
-	PC_SampleWizard-AttachToRunningProcess-fred.png \
+	PCSampWizardAttachRunningFred.png \
 	PC_SampleWizard-AttachToRunningProcess.png \
 	PC_SamplingWizard-4.png \
 	props0109.xml \
