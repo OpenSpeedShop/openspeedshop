@@ -1,0 +1,8 @@
+      Inclusive Time  Function Name
+              5.0000  _start(libc.so.6.1)
+              5.0000  work(mutatee)
+              5.0000  main(mutatee: mutatee.c,33)
+              5.0000  __libc_start_main(mutatee)
+              3.0000  f3(mutatee: mutatee.c,27)
+              2.0000  f2(mutatee: mutatee.c,18)
+              1.0000  f1(mutatee: mutatee.c,9)
