@@ -202,7 +202,10 @@ AC_CONFIG_FILES(
 	Makefile
 	doc/Makefile
 	doc/users_guide/Makefile
+	doc/users_guide/BuildInstallGuide_files/Makefile
+	doc/users_guide/BuildTutorial/Makefile
 	doc/users_guide/TroubleShootingGuide/Makefile
+	doc/users_guide/usersGuide-1.9c_files/Makefile
 	doc/cli_doc/Makefile
 	doc/plugin_guide/Makefile
 	libopenss-message/Makefile
