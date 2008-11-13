@@ -133,4 +133,5 @@ EXTRA_DIST	=  \
 	SaveExperimentGiveName.png \
 	themedata.thmx \
 	usersGuide-1.9c.htm \
+	ToolsMenu.png \
 	WizardMenuItems.png 
