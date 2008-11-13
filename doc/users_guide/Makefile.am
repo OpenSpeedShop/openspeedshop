@@ -19,73 +19,14 @@
 # directories that will be affected
 SUBDIRS = TroubleShootingGuide
 
-DIST_SUBDIRS = TroubleShootingGuide
+DIST_SUBDIRS = TroubleShootingGuide BuildInstallGuide_files BuildTutorial usersGuide-1.9c_files
 
 EXTRA_DIST = BuildingInstallingDPCL.html \
-	ExperimentMenuItems.png \
-	FileMenu.png \
-	HelpMenu.png \
+	BuildInstallGuideTutorial.html \
 	index.html \
-	InitialPanel.png \
-	IntroWizardRightMouseDown.png \
 	Makefile.am \
 	OpenSpeedShop_Logo.jpg \
-	PC_SampleExperiment-2.png \
-	PC_SampleExperiment-4-Split.png \
-	PC_SampleExperiment-5-f3click.png \
-	PC_SampleExperiment-non-wizard-1.png \
-	PC_SampleExperiment-non-wizard-2.png \
-	PC_SampleExperiment-non-wizard-3.png \
-	PC_SampleExperiment-non-wizard-4.png \
-	PC_SampleExperiment-non-wizard-5.png \
-	PC_SampleExperiment-non-wizard-6.png \
-	PC_SampleExperiment-non-wizard-7.png \
-	PC_SampleWizard-AttachToRunningProcess-fred1.png \
-	PC_SampleWizard-AttachToRunningProcess-fred.png \
-	PC_SampleWizard-AttachToRunningProcess-GUI-nonwizard1.png \
-	PC_SampleWizard-AttachToRunningProcess-GUI-nonwizard.png \
-	PC_SampleWizard-AttachToRunningProcess-MPIJOB1.png \
-	PC_SampleWizard-AttachToRunningProcess.png \
-	PCSampling-StatsPanel.png \
-	PCSampling-StatsPanel-Split.png \
-	PC_SamplingWizard-2.png \
-	PC_SamplingWizard-3A.png \
-	PC_SamplingWizard-3.png \
-	PC_SamplingWizard-4.png \
-	PC_SamplingWizard-5.png \
-	PC_SamplingWizard-6_OR_PC_SampleExperiment-1.png \
-	Preferences-General.png \
-	Preferences-Source.png \
-	Preferences-Stats.png \
-	Preferences-ManageProcessPanel.png \
-	rpmQuery.asc \
-	SourcePanel.png \
-	StatsPanel.png \
-	ToolsMenu.png \
-	valid-html401.png \
-	WizardMenuItems.png \
-	HWC-WizardInto.png  \
-	HWC-Wizard2.png  \
-	UserTimeIntroWizard.png  \
-	UserTimeWizard2.png  \
-	UserTimeWizardArgs.png  \
-	UserTimeWizardExecutables.png  \
-	UserTimeWizardLoadFred.png  \
-	UserTimeWizardSummary.png  \
-	UserTimeExperiment.png  \
-	BuildAndInstallGuide.html \
-	ClusterAnalysis1.png \
-	ClusterAnalysis2.png \
-	ClusterAnalysis3.png \
-	ClusterAnalysis4.png \
-	OpenExistingExperiment.png \
-	OpenSavedExperiment.png \
-	PC_SampleExperiment-PausedShowContinue.png \
-	PreferencePanel-SourcePathRedirection.png \
-	QuickStartGuide.html \
-	SaveExperimentGiveName.png \
-	SaveExperiment.png \
-	UserTimeExperimentResults.png
+	rpmQuery.asc 
 
 
 package = @PACKAGE@
