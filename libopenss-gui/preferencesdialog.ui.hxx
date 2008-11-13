@@ -174,7 +174,7 @@ void PreferencesDialog::resetPreferenceDefaults()
    viewMangledNameCheckBox->setChecked(viewMangledName);
    allowPythonCommands = FALSE;
    allowPythonCommandsCheckBox->setChecked(allowPythonCommands);
-   instrumentorIsOffline = FALSE;
+   instrumentorIsOffline = TRUE;
    instrumentorIsOfflineCheckBox->setChecked(instrumentorIsOffline);
    lessRestrictiveComparisons = FALSE;
    lessRestrictiveComparisonsCheckBox->setChecked(lessRestrictiveComparisons);

@@ -72,7 +72,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    askAboutChangingArgs = TRUE; 
    askAboutSavingTheDatabase = TRUE; 
    onRerunSaveCopyOfExperimentDatabase = TRUE; 
-   instrumentorIsOffline = FALSE; 
+   instrumentorIsOffline = TRUE; 
    lessRestrictiveComparisons = FALSE;
 
 
