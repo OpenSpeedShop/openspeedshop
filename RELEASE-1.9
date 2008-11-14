@@ -1,0 +1,110 @@
+
+Release 1.9 of OpenSpeedShop introduces a new "offline" mode of operation.  By offline,
+we mean that we use linker based instrumentation, not the dynamic instrumentation Open|SpeedShop
+has used in the past.  Online instrumentation is still available in Open|SpeedShop, although
+using the offline mode of operation is strongly recommended for the 1.9 version of Open|SpeedShop.
+There are still issues with online instrumentation as we move from using DPCL to using MRNet as
+our cluster node network management package.
+
+We recommend running Open|SpeedShop (openss is the command) in the "-offline" mode.  This will
+create an Open|SpeedShop database file from which the performance data can be viewed postmortem.
+The command to view the data is:
+   GUI: openss -f <database file name>
+   CLI: openss -cli -f <database file name>, then enter the "expview" command
+
+You may consult the Open|SpeedShop Users Guide or Quick Start Guide for more information.
+These are available on the Open|SpeedShop web site: openspeedshop.org or in the installation
+directory in <install_dir_path>/share/doc/packages/OpenSpeedShop/users_guide.
+
+Here is an example listed by steps:
+
+1) RUN openss -offline to gather the data:
+   This command attached the Open|SpeedShop performance data collectors specified by the experiment type
+   (pcsamp) in this example, to the nbody mpi application and runs the application.  The output from the
+   application comes to the screen as well as the Open|SpeedShop information messages and performance data
+   default report.   A database file containing the performance data and all the necessary information to 
+   view the performance information postmortem is created.
+
+prompt:>openss -offline -f "/opt/openmpi-1.2.4/bin/orterun -np 2 nbody" pcsamp
+[openss]: Using OPENSS_PREFIX installed in /opt/OSS-mrnet
+[openss]: Setting up offline raw data directory in /tmp/jeg/offline-oss
+[openss]: Running offline pcsamp experiment using the command:
+"/opt/openmpi-1.2.4/bin/orterun -np 2 ossrun "./nbody" pcsamp"
+
+Iteration 1 of 50...
+Iteration 2 of 50...
+...
+...
+Iteration 49 of 50...
+Iteration 50 of 50...
+
+[openss]: Converting raw data from /tmp/jeg/offline-oss into X.0.openss
+
+Processing raw data for nbody
+find_address_in_section:  bfd_find_nearest_line FAILS FOR 0x00002b03c306efd8
+Added 24 functions to symboltable
+Added 156 statements to symboltable
+
+[openss]: Restoring and displaying default view for X.0.openss
+
+The restored experiment identifier is:  -x 1                   
+
+  Exclusive CPU time         % of CPU Time  Function (defining location)
+         in seconds.                                            
+           35.730000             96.359223  main (nbody: nbody-mpi.c,71)
+            0.240000              0.647249  mca_btl_sm_component_progress (mca_btl_sm.so: btl_sm_component.c,340)
+            0.200000              0.539374  opal_sys_timer_get_cycles (libopen-pal.so.0.0.0: timer.h,43)
+            0.160000              0.431499  mca_bml_r2_progress (mca_bml_r2.so: bml_r2.c,98)
+            0.140000              0.377562  ompi_cb_fifo_read_from_tail (mca_btl_sm.so: ompi_circular_buffer_fifo.h,318)
+            0.120000              0.323625  opal_progress (libopen-pal.so.0.0.0: opal_progress.c,238)
+            0.100000              0.269687  ompi_fifo_read_from_tail (mca_btl_sm.so: ompi_fifo.h,408)
+            0.060000              0.161812  __read_nocancel (libc-2.6.so: interp.c,0)
+            0.030000              0.080906  opal_using_threads (mca_btl_sm.so: mutex.h,136)
+            0.030000              0.080906  _IO_vfscanf_internal (libc-2.6.so)
+
+2) The above command also created an Open|SpeedShop database file for postmortem viewing with optional ways to view
+   the performance data.   A "ls" command shows that the database file name is X.0.openss.
+
+ls -lastr *.openss  
+  52 -rw-r--r-- 1 jeg jeg   46080 2008-11-14 08:43 X.0.openss
+
+3) You may view the database in the Open|SpeedShop graphical user interface (GUI) with the command:  openss -f X.0.openss
+   Then select the StatsPanel tab to see the default results.  There is a toolbar which contains numerous icons which'
+   represent alternative views of the performance data.
+
+4) You may view the database in the Open|SpeedShop interactive command line user interface (CLI) with 
+   the command:  openss -cli -f X.0.openss
+   
+   a) The default view:
+
+prompt>openss -cli -f X.0.openss 
+The restored experiment identifier is:  -x 1                   
+openss>>expview
+
+  Exclusive CPU time         % of CPU Time  Function (defining location)
+         in seconds.                                            
+           35.590000             95.723507  main (nbody: nbody-mpi.c,71)
+            0.370000              0.995159  mca_btl_sm_component_progress (mca_btl_sm.so: btl_sm_component.c,340)
+            0.270000              0.726197  opal_sys_timer_get_cycles (libopen-pal.so.0.0.0: timer.h,43)
+            0.140000              0.376547  ompi_cb_fifo_read_from_tail (mca_btl_sm.so: ompi_circular_buffer_fifo.h,318)
+            0.130000              0.349650  mca_bml_r2_progress (mca_bml_r2.so: bml_r2.c,98)
+            0.120000              0.322754  opal_progress (libopen-pal.so.0.0.0: opal_progress.c,238)
+            0.090000              0.242066  ompi_fifo_read_from_tail (mca_btl_sm.so: ompi_fifo.h,408)
+
+     b) Find all the highest time taking statements
+
+openss>>expview -v statements
+
+  Exclusive CPU time         % of CPU Time  Statement Location (Line Number)
+         in seconds.                                            
+            8.460000             22.754169  nbody-mpi.c(226)    
+            5.570000             14.981173  nbody-mpi.c(239)    
+            4.690000             12.614309  nbody-mpi.c(237)    
+            4.540000             12.210866  nbody-mpi.c(238)    
+            2.950000              7.934373  nbody-mpi.c(232)    
+
+
+    c) See the users guide for more options or use the CLI "help commands" help command.
+
+
+
