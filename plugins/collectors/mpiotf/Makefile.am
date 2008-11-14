@@ -69,7 +69,7 @@ pkglib_LTLIBRARIES += mpiotf-rt-mpich.la
 endif
 
 if HAVE_LIBMONITOR
-pkglib_LTLIBRARIES += mpiotf-mpich_rt-offline.la libmpiotf-mpich-offline.la
+pkglib_LTLIBRARIES += mpiotf-mpich-rt-offline.la libmpiotf-mpich-offline.la
 endif
 
 endif
@@ -82,7 +82,7 @@ pkglib_LTLIBRARIES += mpiotf-rt-mpich2.la
 endif
 
 if HAVE_LIBMONITOR
-pkglib_LTLIBRARIES += mpiotf-mpich2_rt-offline.la libmpiotf-mpich2-offline.la
+pkglib_LTLIBRARIES += mpiotf-mpich2-rt-offline.la libmpiotf-mpich2-offline.la
 endif
 
 endif
@@ -92,7 +92,7 @@ if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpiotf-rt-mpt.la
 endif
 if HAVE_LIBMONITOR
-pkglib_LTLIBRARIES += mpiotf-mpt_rt-offline.la libmpiotf-mpt-offline.la
+pkglib_LTLIBRARIES += mpiotf-mpt-rt-offline.la libmpiotf-mpt-offline.la
 endif
 endif
 
@@ -101,7 +101,7 @@ if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpiotf-rt-mvapich.la
 endif
 if HAVE_LIBMONITOR
-pkglib_LTLIBRARIES += mpiotf-mvapich_rt-offline.la libmpiotf-mvapich-offline.la
+pkglib_LTLIBRARIES += mpiotf-mvapich-rt-offline.la libmpiotf-mvapich-offline.la
 endif
 endif
 
