@@ -9,6 +9,16 @@ import tempfile
 
 import PY_Input
 
+def create_unique_dbname(db_name):
+    cnt = 1
+    base_name, ext = os.path.splitext(db_name)
+    while os.path.lexists(db_name):
+	db_name = "%s-%d%s" % (base_name, cnt, ext)
+	cnt += 1
+    return db_name
+
+
+
 def RunOfflineExp(program="*", collector="*", installed="/usr"):
     """Run offline experiment for Open|SpeedShop.
     """
@@ -301,10 +311,20 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	# Convert the rawdata files into opens database format.
 	convert_command = OpenssInstallDir + "/bin/ossutil " + os.environ['OPENSS_RAWDATA_DIR']
 	os.system(convert_command)
-        print "\n[openss]: Restoring and displaying default view for %(ossfile)s\n" % {'ossfile':"X.0.openss"}
+
+	# rename the default X.0.openss database with program name
+	# and collector name as a base.  The create_unique_dbname call
+	# will ensure we do not overwrite and existing openss database
+	# by bumping a count and prepending it before the .openss extension.
+	ossdbfile = os.path.basename(program) + "-" + collector
+	tfile = ossdbfile + ".openss"
+	tfile = create_unique_dbname(tfile)
+	os.rename('X.0.openss',tfile)
+
+        print "\n[openss]: Restoring and displaying default view for %(ossfile)s\n" % {'ossfile':tfile}
 
         # restore the newly created database into openss.
-        r_line = myparse.process("exprestore -f ./X.0.openss")
+        r_line = myparse.process("exprestore -f " + tfile)
         myparse.runsource(r_line, "stderr")
 
         # restore original rawdata directory
