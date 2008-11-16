@@ -4189,7 +4189,7 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
      infoSummaryStr += QString("Pid/Rank/Thread: ");
 //    infoSummaryStr += QString("\n<b>Pid/Rank/Thread:</b> ");
    } else {
-     infoSummaryStr += QString("Processes/Ranks/Threads:(%1) ").arg(list_of_hosts.size());
+     infoSummaryStr += QString("Processes/Ranks/Threads:(%1) ").arg(list_of_pids.size());
 //    infoSummaryStr += QString("\n<b>Processes/Ranks/Threads:</b>(%1) ").arg(list_of_hosts.size());
    }
 
