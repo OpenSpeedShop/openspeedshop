@@ -316,7 +316,10 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	# and collector name as a base.  The create_unique_dbname call
 	# will ensure we do not overwrite and existing openss database
 	# by bumping a count and prepending it before the .openss extension.
-	ossdbfile = os.path.basename(program) + "-" + collector
+	if mpi_executable == "":
+	    ossdbfile = os.path.basename(program) + "-" + collector
+	else:
+	    ossdbfile = os.path.basename(mpi_executable) + "-" + collector
 	tfile = ossdbfile + ".openss"
 	tfile = create_unique_dbname(tfile)
 	os.rename('X.0.openss',tfile)
