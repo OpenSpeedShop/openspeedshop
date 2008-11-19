@@ -8557,7 +8557,7 @@ StatsPanel::generateMPIMenu(QString collectorName)
 //  list_of_mpi_modifiers.push_back("dest");
 //  list_of_mpi_modifiers.push_back("size");
 //  list_of_mpi_modifiers.push_back("tag");
-//  list_of_mpi_modifiers.push_back("commuinicator");
+//  list_of_mpi_modifiers.push_back("communicator");
 //  list_of_mpi_modifiers.push_back("datatype");
 //  list_of_mpi_modifiers.push_back("retval");
 

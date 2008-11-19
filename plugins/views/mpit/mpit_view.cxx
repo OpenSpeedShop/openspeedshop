@@ -490,7 +490,8 @@ static bool define_mpit_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m source' only supported for '-v Trace' option.");
           }
-        } else if (!strcasecmp(M_Name.c_str(), "dest")) {
+        } else if (!strcasecmp(M_Name.c_str(), "dest") ||
+                   !strcasecmp(M_Name.c_str(), "dest")) {
           if (vfc == VFC_Trace) {
            // display destination rank
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, destination_temp));
@@ -510,7 +511,8 @@ static bool define_mpit_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m tag' only supported for '-v Trace' option.");
           }
-        } else if (!strcasecmp(M_Name.c_str(), "comm")) {
+        } else if (!strcasecmp(M_Name.c_str(), "comm") ||
+                   !strcasecmp(M_Name.c_str(), "communicator")) {
           if (vfc == VFC_Trace) {
            // display communicator used
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, communicator_temp));

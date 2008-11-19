@@ -102,7 +102,7 @@ MPITCollector::MPITCollector() :
     declareMetric(Metadata("time", "MPI Call Time",
 			   "Exclusive MPI call time in seconds.",
 			   typeid(double)));
-    declareMetric(Metadata("bytes", "MPI Bytes Sent/Received",
+    declareMetric(Metadata("size", "MPI Bytes Sent/Received",
 			   "Exclusive MPI call bytes sent/recevied.",
 			   typeid(uint64_t)));
     declareMetric(Metadata("inclusive_times", "Inclusive Times",
