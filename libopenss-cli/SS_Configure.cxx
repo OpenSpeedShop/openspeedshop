@@ -226,12 +226,13 @@ void SS_Configure () {
   Bvalue = settings->readBoolEntry(std::string("instrumentorIsOffline"), OPENSS_INSTRUMENTOR_IS_OFFLINE, &ok);
   if (ok) OPENSS_INSTRUMENTOR_IS_OFFLINE = Bvalue;
 
-  Add_Help (czar, "lessRestrictiveComparisions", "a boolean, preference",
+  Add_Help (czar, "lessRestrictiveComparisons", "a boolean, preference",
             "Declare whether or not comparisons should consider the directory path and linked object "
             "when comparing performance data for a particular function.  If this preference is set, "
             "the directory path of the source file and the linked object will not be considered.  Use this if you are comparing "
             "the same program but have different source versions of the program in separate directories.");
-  Bvalue = settings->readBoolEntry(std::string("lessRestrictiveComparisions"), OPENSS_LESS_RESTRICTIVE_COMPARISONS, &ok);
+  Bvalue = settings->readBoolEntry(std::string("lessRestrictiveComparisons"), OPENSS_LESS_RESTRICTIVE_COMPARISONS, &ok);
+//  std::cout << " SS_Configure.cxx, lessRestrictiveComparisons section, Bvalue=" << Bvalue << " ok=" << ok << std::endl;
   if (ok) OPENSS_LESS_RESTRICTIVE_COMPARISONS = Bvalue;
 
   Add_Help (czar, "OPENSS_LOG_BY_DEFAULT", "a boolean, environment",
