@@ -34,6 +34,7 @@ IntroWizardPanel_la_LDFLAGS = \
 
 IntroWizardPanel_la_LIBADD = \
 	-lopenss-guibase \
+	-lopenss-guiobjects \
 	@QTLIB_LIBS@
 
 IntroWizardPanel_la_SOURCES = \

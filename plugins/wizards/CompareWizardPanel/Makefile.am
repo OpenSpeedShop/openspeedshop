@@ -35,11 +35,13 @@ CompareWizardPanel_la_CXXFLAGS = \
 
 CompareWizardPanel_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-guibase \
+	-L$(top_srcdir)/libopenss-guiobjects \
 	@QTLIB_LDFLAGS@ \
 	-export-dynamic -export-all-symbols -module -avoid-version
 
 CompareWizardPanel_la_LIBADD = \
 	-lopenss-guibase \
+	-lopenss-guiobjects \
 	@QTLIB_LIBS@
 
 CompareWizardPanel_la_SOURCES = \
