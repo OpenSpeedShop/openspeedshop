@@ -28,6 +28,7 @@ IntroWizardPanel_la_CXXFLAGS = \
 
 IntroWizardPanel_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-guibase \
+	-L$(top_srcdir)/libopenss-guiobjects \
 	@QTLIB_LDFLAGS@ \
 	-export-dynamic -export-all-symbols -module -avoid-version
 
