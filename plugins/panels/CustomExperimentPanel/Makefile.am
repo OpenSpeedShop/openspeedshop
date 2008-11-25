@@ -85,6 +85,7 @@ libopenss_CustomExperimentPanel_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-guibase \
 	-L$(top_srcdir)/libopenss-guiobjects \
+	-L$(top_srcdir)/libopenss-gui \
 	-L$(top_srcdir)/libopenss-cli \
 	@QTLIB_LDFLAGS@ \
 	-export-dynamic -export-all-symbols -module -avoid-version
@@ -93,6 +94,7 @@ libopenss_CustomExperimentPanel_la_LIBADD = \
 	-lopenss-framework \
 	-lopenss-guibase \
 	-lopenss-guiobjects \
+	-lopenss-gui \
 	-lopenss-cli \
 	@QTLIB_LIBS@
 
