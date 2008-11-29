@@ -70,7 +70,7 @@ void* work3(void* arg)
     return (void*)t;    
 }
 
-int main(long argc, char* argv[])
+int main(int argc, char* argv[])
 {
     const long SIZE = 500;
     void* (*funcs[4])(void*) = { work0, work1, work2, work3 };
