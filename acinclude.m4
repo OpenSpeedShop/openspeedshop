@@ -977,7 +977,7 @@ dnl Support the user enabled --with-qtlib option.
     AC_ARG_WITH(qtlib,
                 AC_HELP_STRING([--with-qtlib=DIR],
                                [QTLIB installation @<:@/usr@:>@]),
-                [LQTDIR=$withval AC_SUBST($LQTDIR) qtlib_dir=$withval], qtlib_dir="ac_qtlib")
+                [LQTDIR=$withval AC_SUBST(LQTDIR) qtlib_dir=$withval], qtlib_dir="ac_cv_qtlib")
 
 dnl Check for QTDIR environment variable.
 AC_MSG_CHECKING([whether QTDIR environment variable is set])
@@ -995,41 +995,41 @@ tmp_abi_libdir=$abi_libdir
 
 dnl Checks for Qt library.
 AC_CACHE_CHECK([for Qt library],
-  ac_qtlib, [
+  ac_cv_qtlib, [
   for X in qt-mt qt; do
-    if test "x$ac_qtlib" = "x"; then
+    if test "x$ac_cv_qtlib" = "x"; then
       if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-        ac_qtlib=$X
+        ac_cv_qtlib=$X
       fi
     fi
   done
 ])
-AC_MSG_RESULT([Temporary output: ac_qtlib=$ac_qtlib])
+AC_MSG_RESULT([Temporary output: ac_cv_qtlib=$ac_cv_qtlib])
 
-if test "x$ac_qtlib" = "x"; then
+if test "x$ac_cv_qtlib" = "x"; then
 dnl Conduct another check for the QT libs HERE look in lib or lib64
 dnl depending on where the first check looked. See configure.ac
 dnl section for determining abi_libdir.
   AC_CACHE_CHECK([for Qt library],
-    ac_qtlib, [
+    ac_cv_qtlib, [
     for X in qt-mt qt; do
-      if test "x$ac_qtlib" = "x"; then
+      if test "x$ac_cv_qtlib" = "x"; then
         if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_qtlib=$X
+          ac_cv_qtlib=$X
 	  tmp_abi_libdir=$alt_abi_libdir
         fi
       fi
     done
   ])
-  AC_MSG_RESULT([Temporary output: ac_qtlib=$ac_qtlib])
-  if test "x$ac_qtlib" = "x"; then
+  AC_MSG_RESULT([Temporary output: ac_cv_qtlib=$ac_cv_qtlib])
+  if test "x$ac_cv_qtlib" = "x"; then
     AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
   fi
 fi
-AC_SUBST(ac_qtlib)
+AC_SUBST(ac_cv_qtlib)
 
 dnl Check for Qt multi-thread support.
-if test "x$ac_qtlib" = "xqt-mt"; then
+if test "x$ac_cv_qtlib" = "xqt-mt"; then
   ac_thread="thread"
 fi
 AC_SUBST(ac_thread)
@@ -1042,7 +1042,7 @@ QTLIB_CPPFLAGS="$CPPFLAGS -I$LQTDIR/include -I$KDEDIR/include -DQT_NO_DEBUG -DQT
 dnl Use temporary abi library setting to set the QT library variables
 QTLIB_LIBS="-L$LQTDIR/$tmp_abi_libdir -L/usr/X11R6/$tmp_abi_libdir"
 
-QTLIB_LDFLAGS="-l$ac_qtlib"
+QTLIB_LDFLAGS="-l$ac_cv_qtlib"
 
 dnl Save the current CPPFLAGS and LDFLAGS variables prior to qt version test
 qtlib_saved_CPPFLAGS=$CPPFLAGS
@@ -1054,7 +1054,7 @@ LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
 
 dnl Check if we have qglobal.h which is an indication of QT 3.3 or greater
 AC_CACHE_CHECK(
-[for Qt library version >= 3.3.0], ac_qtlib_version,
+[for Qt library version >= 3.3.0], ac_cv_qtlib_version,
 [
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
 	#include <qglobal.h>
@@ -1072,9 +1072,9 @@ AC_CACHE_CHECK(
 		#endif
 	],
 	[
-		ac_qtlib_version="yes"
+		ac_cv_qtlib_version="yes"
 		QT_CFLAGS="$CFLAGS"
-		QT_LIBS="-l$ac_qtlib"
+		QT_LIBS="-l$ac_cv_qtlib"
 		QT_LDFLAGS="$LIBS"
 		],
 	[
@@ -1101,7 +1101,7 @@ dnl Support the user enabled --with-qtlib option.
     AC_ARG_WITH(qtlib,
                 AC_HELP_STRING([--with-qtlib=DIR],
                                [QTLIB installation @<:@/usr@:>@]),
-                qtlib_dir=$withval, qtlib_dir="ac_qtlib")
+                qtlib_dir=$withval, qtlib_dir="ac_cv_qtlib")
 
 dnl This only needed if we continue the build environment ROOT support
     if test -d "$ROOT"; then
