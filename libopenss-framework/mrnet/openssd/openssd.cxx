@@ -150,6 +150,19 @@ int main(int argc, char* argv[])
     // Stop watching for incoming performance data
     OpenSpeedShop::Watcher::stopWatching();
 
+    // Let the frontend know that this daemon is ready to shutdown
+    Backend::sendToFrontend(OPENSS_PROTOCOL_TAG_READY_TO_SHUTDOWN, Blob());
+    
+    // Note: Per Micahel Brim on NOV-25-2008, MRNet actually kills the backend
+    //       processes when it is time for them to shutdown. It is likely a bad
+    //       idea for that to happen in the middle of performing the following
+    //       shutdown sequence. Instead the daemon sleeps for 5 minutes, under
+    //       the assumption that it will be killed during that period. If that
+    //       doesn't happen for some unknown reason, the shutdown sequence will
+    //       proceed and the daemon will exit on its own.
+
+    sleep(5 * 60 /* 5 Minutes */);
+    
     // Stop the backend's message pump
     Backend::stopMessagePump();
 

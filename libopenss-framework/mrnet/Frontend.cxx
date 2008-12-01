@@ -366,6 +366,26 @@ void Frontend::stopMessagePump()
 
     // Instruct the backends to shutdown
     sendToAllBackends(OPENSS_PROTOCOL_TAG_SHUTDOWN_BACKENDS, Blob());
+
+    // Iterate until all backends are ready to shutdown
+    for(int remaining_endpoints =
+	    the_network->get_BroadcastCommunicator()->get_EndPoints().size();
+	remaining_endpoints > 0;) {
+
+	// Receive the next available message
+	int tag = -1;
+	MRN::PacketPtr packet;
+	int retval = upstream->recv(&tag, packet, false);
+	Assert(retval != -1);
+	if(retval == 0)
+	    continue;
+	Assert(packet != NULL);
+
+	// Was this a backend reporting its readiness to shutdown?
+	if (tag == OPENSS_PROTOCOL_TAG_READY_TO_SHUTDOWN)
+	    remaining_endpoints--;
+	
+    }
     
     // Destroy the stream used by backends to pass data to the frontend
     delete upstream;
