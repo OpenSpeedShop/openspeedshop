@@ -319,6 +319,10 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    ossdbfile = os.path.basename(program) + "-" + collector
 	else:
 	    ossdbfile = os.path.basename(mpi_executable) + "-" + collector
+
+	# if there are any spaces in the new name, replace them with a _.
+	# the spaces are due to arguments to the program.
+	ossdbfile = ossdbfile.replace(' ','_')
 	tfile = ossdbfile + ".openss"
 	tfile = create_unique_dbname(tfile)
 	os.rename('X.0.openss',tfile)
