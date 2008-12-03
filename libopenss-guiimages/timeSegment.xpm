@@ -16,7 +16,7 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 /* XPM */
-static const char *timeSegment[]={
+static const char *timeSegment_xpm[]={
 "28 28 18 1",
 "# c None",
 "l c #000000",
