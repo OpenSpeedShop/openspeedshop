@@ -223,7 +223,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	mpi_exe_orig = mpi_executable
         if not mpi_executable.startswith("/") and not mpi_executable.startswith("."):
 	    mpi_executable = os.curdir + "/" + mpi_executable
-	command = program.replace(mpi_exe_orig, "ossrun \"" + mpi_executable)
+	ossrun_command = OpenssInstallDir + "/bin/ossrun"
+	command = program.replace(mpi_exe_orig, ossrun_command + " \"" + mpi_executable)
 	command = command + "\" " +  orig_collectorname
     else:
 	preload_files = ""
@@ -325,7 +326,11 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	ossdbfile = ossdbfile.replace(' ','_')
 	tfile = ossdbfile + ".openss"
 	tfile = create_unique_dbname(tfile)
-	os.rename('X.0.openss',tfile)
+	if  os.path.lexists('X.0.openss'):
+	    os.rename('X.0.openss',tfile)
+	else:
+	    print "\n[openss error]: could not find X.0.openss"
+	    return
 
         print "\n[openss]: Restoring and displaying default view for %(ossfile)s\n" % {'ossfile':tfile}
 
