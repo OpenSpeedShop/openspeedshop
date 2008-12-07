@@ -11,7 +11,8 @@ import PY_Input
 def create_unique_dbname(db_name):
     cnt = 1
     base_name, ext = os.path.splitext(db_name)
-    while os.path.lexists(db_name):
+    # Python 2.3 does not have lexists which would be prefered here.
+    while os.path.isfile(db_name):
 	db_name = "%s-%d%s" % (base_name, cnt, ext)
 	cnt += 1
     return db_name
