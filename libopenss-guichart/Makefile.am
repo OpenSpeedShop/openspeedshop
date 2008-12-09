@@ -19,16 +19,21 @@
 lib_LTLIBRARIES = libopenss-guichart.la
 
 libopenss_guichart_la_CXXFLAGS = \
+	$(LTDLINCL) \
+	$(QTLIB_CPPFLAGS) \
 	-I/usr/include \
-	-I$(QTDIR)/include \
 	-I. \
 	-I$(top_srcdir)/plugin \
 	-I$(top_srcdir)/libopenss-guibase
 
 libopenss_guichart_la_LDFLAGS = \
+	$(QTLIB_LDFLAGS) \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_guichart_la_LIBADD = $(LIBLTDL)
+libopenss_guichart_la_LIBADD = \
+	$(LIBLTDL) \
+	$(QTLIB_LIBS) \
+	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la
 
 moc_canvasview.cxx: canvasview.hxx
 	-$(QTDIR)/bin/moc -o moc_canvasview.cxx canvasview.hxx

@@ -21,6 +21,8 @@
 pkglib_LTLIBRARIES = StatsPanel.la
 
 StatsPanel_la_CXXFLAGS = \
+	@PYTHON_CPPFLAGS@ \
+	@QTLIB_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-cli \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-gui \
@@ -34,22 +36,22 @@ StatsPanel_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-queries \
 	-I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
-	-I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
-	@PYTHON_CPPFLAGS@ \
-	@QTLIB_CPPFLAGS@
+	-I$(top_srcdir)/plugins/panels/ManageProcessesPanel
 
 StatsPanel_la_LDFLAGS = \
+	@QTLIB_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-gui \
 	-L$(top_srcdir)/libopenss-guibase \
 	-L$(top_srcdir)/libopenss-guichart \
-	@QTLIB_LDFLAGS@ \
+	-L$(top_srcdir)/libopenss-guidialogs \
 	-export-dynamic -export-all-symbols -module -avoid-version
 
 StatsPanel_la_LIBADD = \
-	-lopenss-gui \
-	-lopenss-guibase \
-	-lopenss-guichart \
-	@QTLIB_LIBS@
+	@QTLIB_LIBS@ \
+	$(top_srcdir)/libopenss-gui/libopenss-gui.la \
+	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la \
+	$(top_srcdir)/libopenss-guichart/libopenss-guichart.la \
+	$(top_srcdir)/libopenss-guidialogs/libopenss-guidialogs.la
 
 StatsPanel_la_SOURCES = \
 	SPChartForm.hxx SPChartForm.cxx moc_SPChartForm.cxx \
@@ -57,7 +59,7 @@ StatsPanel_la_SOURCES = \
 	SPListViewItem.hxx SPListViewItem.cxx \
 	SPListView.hxx SPListView.cxx \
 	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
-	SPTextEdit.hxx SPTextEdit.cxx \
+	SPTextEdit.hxx SPTextEdit.cxx moc_SPTextEdit.cxx \
 	local_plugin_info.hxx \
 	preference_plugin_info.hxx
 
@@ -70,7 +72,11 @@ moc_SPCheckBox.cxx: SPCheckBox.hxx
 moc_StatsPanel.cxx: StatsPanel.hxx
 	-$(QTDIR)/bin/moc -o moc_StatsPanel.cxx StatsPanel.hxx
 
+moc_SPTextEdit.cxx: SPTextEdit.hxx
+	-$(QTDIR)/bin/moc -o moc_SPTextEdit.cxx SPTextEdit.hxx
+
 CLEANFILES = \
 	moc_SPChartForm.cxx \
 	moc_SPCheckBox.cxx \
-	moc_StatsPanel.cxx
+	moc_StatsPanel.cxx \
+	moc_SPTextEdit.cxx

@@ -19,19 +19,24 @@
 lib_LTLIBRARIES = libopenss-guibase.la
 
 libopenss_guibase_la_CXXFLAGS = \
-    -I../libopenss-guiobjects \
-    -I/usr/include \
-    -I$(QTDIR)/include \
-    -I. \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guiimages \
-    -I$(top_srcdir)/libopenss-gui \
-    -I$(top_srcdir)/libopenss-guibase
+	$(LTDLINCL) \
+	$(QTLIB_CPPFLAGS) \
+	-I. \
+	-I/usr/include \
+	-I$(top_srcdir)/libopenss-guiobjects \
+	-I$(top_srcdir)/libopenss-guiplugin \
+	-I$(top_srcdir)/libopenss-guiimages \
+	-I$(top_srcdir)/libopenss-gui \
+	-I$(top_srcdir)/libopenss-guibase
 
 libopenss_guibase_la_LDFLAGS = \
+	$(QTLIB_LDFLAGS) \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_guibase_la_LIBADD =
+libopenss_guibase_la_LIBADD = \
+	$(LIBLTDL) \
+	$(QTLIB_LIBS)
+
 
 moc_TopWidget.cxx: TopWidget.hxx
 	-$(QTDIR)/bin/moc -o moc_TopWidget.cxx TopWidget.hxx

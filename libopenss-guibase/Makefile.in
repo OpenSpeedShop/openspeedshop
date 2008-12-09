@@ -69,7 +69,9 @@ am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(libdir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
-libopenss_guibase_la_DEPENDENCIES =
+am__DEPENDENCIES_1 =
+libopenss_guibase_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am_libopenss_guibase_la_OBJECTS = libopenss_guibase_la-pc_plugin.lo \
 	libopenss_guibase_la-DragNDropPanel.lo \
 	libopenss_guibase_la-TopWidget.lo \
@@ -347,19 +349,24 @@ top_srcdir = @top_srcdir@
 topdir_execprefix = @topdir_execprefix@
 lib_LTLIBRARIES = libopenss-guibase.la
 libopenss_guibase_la_CXXFLAGS = \
-    -I../libopenss-guiobjects \
-    -I/usr/include \
-    -I$(QTDIR)/include \
-    -I. \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guiimages \
-    -I$(top_srcdir)/libopenss-gui \
-    -I$(top_srcdir)/libopenss-guibase
+	$(LTDLINCL) \
+	$(QTLIB_CPPFLAGS) \
+	-I. \
+	-I/usr/include \
+	-I$(top_srcdir)/libopenss-guiobjects \
+	-I$(top_srcdir)/libopenss-guiplugin \
+	-I$(top_srcdir)/libopenss-guiimages \
+	-I$(top_srcdir)/libopenss-gui \
+	-I$(top_srcdir)/libopenss-guibase
 
 libopenss_guibase_la_LDFLAGS = \
+	$(QTLIB_LDFLAGS) \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_guibase_la_LIBADD = 
+libopenss_guibase_la_LIBADD = \
+	$(LIBLTDL) \
+	$(QTLIB_LIBS)
+
 libopenss_guibase_la_SOURCES = \
 	pc_plugin.cxx \
 	DragNDropPanel.hxx DragNDropPanel.cxx \

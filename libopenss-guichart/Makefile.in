@@ -70,7 +70,9 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libopenss_guichart_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
+libopenss_guichart_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) \
+	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la
 am_libopenss_guichart_la_OBJECTS =  \
 	libopenss_guichart_la-canvasview.lo \
 	libopenss_guichart_la-element.lo \
@@ -345,16 +347,22 @@ top_srcdir = @top_srcdir@
 topdir_execprefix = @topdir_execprefix@
 lib_LTLIBRARIES = libopenss-guichart.la
 libopenss_guichart_la_CXXFLAGS = \
+	$(LTDLINCL) \
+	$(QTLIB_CPPFLAGS) \
 	-I/usr/include \
-	-I$(QTDIR)/include \
 	-I. \
 	-I$(top_srcdir)/plugin \
 	-I$(top_srcdir)/libopenss-guibase
 
 libopenss_guichart_la_LDFLAGS = \
+	$(QTLIB_LDFLAGS) \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_guichart_la_LIBADD = $(LIBLTDL)
+libopenss_guichart_la_LIBADD = \
+	$(LIBLTDL) \
+	$(QTLIB_LIBS) \
+	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la
+
 libopenss_guichart_la_SOURCES = \
 	canvasellipse.hxx        canvastext.hxx  chartform.hxx  optionsform.hxx \
 	canvasrectangle.hxx \

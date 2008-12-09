@@ -36,12 +36,14 @@ ManageProcessesPanel_la_CXXFLAGS = \
 
 ManageProcessesPanel_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-gui \
 	-L$(top_srcdir)/libopenss-guibase \
 	@QTLIB_LDFLAGS@ \
-	-export-dynamic -export-all-symbols -module -avoid-version
+	-export-dynamic -module -avoid-version
 
 ManageProcessesPanel_la_LIBADD = \
 	-lopenss-framework \
+	-lopenss-gui \
 	-lopenss-guibase \
 	@QTLIB_LIBS@
 

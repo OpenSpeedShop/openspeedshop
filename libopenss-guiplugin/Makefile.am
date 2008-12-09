@@ -20,17 +20,20 @@ lib_LTLIBRARIES = libopenss-guiplugin.la
 
 libopenss_guiplugin_la_CXXFLAGS =  \
 	$(LTDLINCL) \
-	-I/usr/include \
-	-I$(QTDIR)/include \
+	$(QTLIB_CPPFLAGS) \
 	-I. \
+	-I/usr/include \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/libopenss-guibase \
 	-I$(top_srcdir)/libopenss-gui
 
 libopenss_guiplugin_la_LDFLAGS = \
+	$(QTLIB_LDFLAGS) \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_guiplugin_la_LIBADD = $(LIBLTDL)
+libopenss_guiplugin_la_LIBADD = \
+	$(LIBLTDL) \
+	$(QTLIB_LIBS)
 
 moc_SlotInfo.cxx: SlotInfo.hxx
 	-$(QTDIR)/bin/moc -o moc_SlotInfo.cxx SlotInfo.hxx

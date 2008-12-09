@@ -19,18 +19,24 @@
 pkglib_LTLIBRARIES = loadPanel.la
 
 loadPanel_la_CXXFLAGS = \
-    -I/usr/include \
 	$(QTLIB_CPPFLAGS) \
-    -I. \
-    -I$(top_srcdir)/libopenss-gui \
+	-I. \
+	-I/usr/include \
+	-I$(top_srcdir)/libopenss-gui \
 	-I$(top_srcdir)/libopenss-guichart \
 	-I$(top_srcdir)/libopenss-guiobjects \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guibase
+	-I$(top_srcdir)/libopenss-guiplugin \
+	-I$(top_srcdir)/libopenss-guibase
 
-loadPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+loadPanel_la_LDFLAGS = \
+	$(QTLIB_LDFLAGS) \
+	--export-dynamic --export-all-symbols -module -avoid-version
 
-loadPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
+loadPanel_la_LIBADD = \
+	$(QTLIB_LIBS) \
+	$(top_srcdir)/libopenss-gui/libopenss-gui.la \
+	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la \
+	$(top_srcdir)/libopenss-guiobjects/libopenss-guiobjects.la
 
 moc_loadPanel.cxx: loadPanel.hxx
 	-$(QTDIR)/bin/moc -o moc_loadPanel.cxx loadPanel.hxx

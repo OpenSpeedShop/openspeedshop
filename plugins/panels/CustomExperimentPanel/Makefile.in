@@ -414,7 +414,7 @@ libopenss_CustomExperimentPanel_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-gui \
 	-L$(top_srcdir)/libopenss-cli \
 	@QTLIB_LDFLAGS@ \
-	-export-dynamic -export-all-symbols -module -avoid-version
+	-export-dynamic -version-info 0:0:0
 
 libopenss_CustomExperimentPanel_la_LIBADD = \
 	-lopenss-framework \

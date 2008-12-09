@@ -37,12 +37,14 @@ pcSamplePanel_la_CXXFLAGS = \
 	@QTLIB_CPPFLAGS@
 
 pcSamplePanel_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-guibase \
 	-L$(top_srcdir)/plugins/panels/CustomExperimentPanel \
 	@QTLIB_LDFLAGS@ \
 	-export-dynamic -export-all-symbols -module -avoid-version
 
 pcSamplePanel_la_LIBADD = \
+	-lopenss-framework \
 	-lopenss-guibase \
 	-lopenss-CustomExperimentPanel \
 	@QTLIB_LIBS@

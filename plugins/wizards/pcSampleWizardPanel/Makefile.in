@@ -70,7 +70,8 @@ am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(pkglibdir)"
 pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
-pcSampleWizardPanel_la_DEPENDENCIES =
+pcSampleWizardPanel_la_DEPENDENCIES =  \
+	$(top_srcdir)/libopenss-framework/libopenss-framework.la
 am_pcSampleWizardPanel_la_OBJECTS =  \
 	pcSampleWizardPanel_la-pcSampleWizardPanel.lo \
 	pcSampleWizardPanel_la-moc_pcSampleWizardPanel.lo
@@ -358,6 +359,7 @@ pcSampleWizardPanel_la_LDFLAGS = \
 pcSampleWizardPanel_la_LIBADD = \
 	-lopenss-guibase \
 	-lopenss-guiobjects \
+	$(top_srcdir)/libopenss-framework/libopenss-framework.la \
 	@QTLIB_LIBS@
 
 pcSampleWizardPanel_la_SOURCES = \

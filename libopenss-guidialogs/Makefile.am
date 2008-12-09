@@ -21,8 +21,8 @@ lib_LTLIBRARIES = libopenss-guidialogs.la
 
 libopenss_guidialogs_la_CXXFLAGS = \
 	@PYTHON_CPPFLAGS@ \
+	$(QTLIB_CPPFLAGS) \
 	-I/usr/include \
-	-I$(QTDIR)/include \
 	-I. \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/libopenss-framework \
@@ -33,14 +33,19 @@ libopenss_guidialogs_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-guiimages \
 	-I$(top_srcdir)/libopenss-guibase \
 	-I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guiobjects \
-    -I$(top_srcdir)/libopenss-guichart \
-	-I$(QTDIR)
+	-I$(top_srcdir)/libopenss-guiobjects \
+	-I$(top_srcdir)/libopenss-guichart
 
 libopenss_guidialogs_la_LDFLAGS = \
+	$(QTLIB_LDFLAGS) \
+	-L../libopenss-guiobjects \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_guidialogs_la_LIBADD = $(LIBLTDL)  -L../libopenss-guiobjects -lopenss-guiobjects
+libopenss_guidialogs_la_LIBADD = $(LIBLTDL) \
+	$(QTLIB_LIBS) \
+	$(top_srcdir)/libopenss-cli/libopenss-cli.la \
+	$(top_srcdir)/libopenss-guichart/libopenss-guichart.la \
+	$(top_srcdir)/libopenss-guiobjects/libopenss-guiobjects.la
 
 moc_AttachArgDialog.cxx: AttachArgDialog.hxx
 	-$(QTDIR)/bin/moc -o moc_AttachArgDialog.cxx AttachArgDialog.hxx

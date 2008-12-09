@@ -42,6 +42,7 @@ pcSampleWizardPanel_la_LDFLAGS = \
 pcSampleWizardPanel_la_LIBADD = \
 	-lopenss-guibase \
 	-lopenss-guiobjects \
+	$(top_srcdir)/libopenss-framework/libopenss-framework.la \
 	@QTLIB_LIBS@
 
 pcSampleWizardPanel_la_SOURCES = \

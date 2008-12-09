@@ -70,7 +70,9 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libopenss_ExprInfo_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
+libopenss_ExprInfo_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) \
+	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la
 am_libopenss_ExprInfo_la_OBJECTS =  \
 	libopenss_ExprInfo_la-MetricInfo.lo \
 	libopenss_ExprInfo_la-CollectorInfo.lo
@@ -337,14 +339,19 @@ topdir_execprefix = @topdir_execprefix@
 lib_LTLIBRARIES = libopenss-ExprInfo.la
 libopenss_ExprInfo_la_CXXFLAGS = \
 	-I/usr/include\
-	 -I$(QTDIR)/include\
+	$(QTLIB_CPPFLAGS) \
 	 -I.\
 	 -I$(top_srcdir)/libopenss-guibase
 
 libopenss_ExprInfo_la_LDFLAGS = \
+	$(QTLIB_LDFLAGS) \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_ExprInfo_la_LIBADD = $(LIBLTDL)
+libopenss_ExprInfo_la_LIBADD = \
+	$(LIBLTDL) \
+	$(QTLIB_LIBS) \
+	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la
+
 libopenss_ExprInfo_la_SOURCES = \
 	MetricInfo.hxx MetricInfo.cxx \
 	CollectorInfo.hxx CollectorInfo.cxx 

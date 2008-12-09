@@ -24,10 +24,10 @@ BASE_SUBDIRS = \
 	libopenss-cli \
 	libopenss-guibase \
 	libopenss-guiobjects \
+	libopenss-guichart \
 	libopenss-guidialogs \
 	libopenss-guiexprinfo \
 	libopenss-guiplugin \
-	libopenss-guichart \
 	libopenss-gui \
 	plugins \
 	openss \

@@ -39,7 +39,7 @@ public:
     //! SPTextEdit(StatsPanel *sp, QWidget *parent, const char *name)
     SPTextEdit( StatsPanel *sp, QWidget *parent=0, const char *name=0 );
 
-    ~SPTextEdit( );
+    virtual ~SPTextEdit( );
 
     QPopupMenu* createPopupMenu( const QPoint & pos );
     QPopupMenu* createPopupMenu( ) { /* obsoleted function. */ return NULL; };

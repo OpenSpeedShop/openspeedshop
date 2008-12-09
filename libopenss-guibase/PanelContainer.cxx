@@ -120,6 +120,8 @@ extern QEventLoop *qeventloop;
 #include "vsplit.xpm"
 #include "x.xpm"
 
+static  void indentString(int indent_count, char *buffer);
+
 /*! PanelContainer(QWidget *parent, const char *name,
                        PanelContainer *parentPanelContainer,
                        PanelContainerList *panelContainerList,
@@ -1246,7 +1248,7 @@ PanelContainer::renamePanelContainer()
 void
 PanelContainer::savePanelContainer(int depth, FILE *fd)
 {
-  extern void indentString(int indent_count, char *buffer);
+  //extern void indentString(int indent_count, char *buffer);
   char indent_buffer[1024];
   indent_buffer[0] = '\0';
 

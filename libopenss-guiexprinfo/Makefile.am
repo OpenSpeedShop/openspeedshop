@@ -21,14 +21,18 @@ lib_LTLIBRARIES = libopenss-ExprInfo.la
 
 libopenss_ExprInfo_la_CXXFLAGS = \
 	-I/usr/include\
-	 -I$(QTDIR)/include\
+	$(QTLIB_CPPFLAGS) \
 	 -I.\
 	 -I$(top_srcdir)/libopenss-guibase
 
 libopenss_ExprInfo_la_LDFLAGS = \
+	$(QTLIB_LDFLAGS) \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_ExprInfo_la_LIBADD = $(LIBLTDL)
+libopenss_ExprInfo_la_LIBADD = \
+	$(LIBLTDL) \
+	$(QTLIB_LIBS) \
+	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la
 
 libopenss_ExprInfo_la_SOURCES = \
 	MetricInfo.hxx MetricInfo.cxx \

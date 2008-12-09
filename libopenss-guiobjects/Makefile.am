@@ -21,8 +21,8 @@ lib_LTLIBRARIES = libopenss-guiobjects.la
 
 libopenss_guiobjects_la_CXXFLAGS = \
 	@PYTHON_CPPFLAGS@ \
+	$(QTLIB_CPPFLAGS) \
 	-I/usr/include \
-	-I$(QTDIR)/include \
 	-I. \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/libopenss-guiimages \
@@ -33,13 +33,19 @@ libopenss_guiobjects_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-gui \
 	-I$(top_srcdir)/libopenss-guiplugin \
-	-I$(QTDIR) \
 	-I$(LTDLINCL)
 
 libopenss_guiobjects_la_LDFLAGS = \
+	$(QTLIB_LDFLAGS) \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_guiobjects_la_LIBADD = $(LIBLTDL)
+libopenss_guiobjects_la_LIBADD = \
+	$(LIBLTDL) \
+	$(QTLIB_LIBS) \
+	$(top_srcdir)/libopenss-cli/libopenss-cli.la \
+	$(top_srcdir)/libopenss-framework/libopenss-framework.la \
+	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la
+	
 
 moc_ProcessControlObject.cxx: ProcessControlObject.hxx
 	-$(QTDIR)/bin/moc -o moc_ProcessControlObject.cxx ProcessControlObject.hxx

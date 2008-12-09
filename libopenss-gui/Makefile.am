@@ -21,6 +21,9 @@
 lib_LTLIBRARIES = libopenss-gui.la
 
 libopenss_gui_la_CXXFLAGS = \
+	$(LTDLINCL) \
+	@PYTHON_CPPFLAGS@ \
+	@QTLIB_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-cli \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-guibase \
@@ -30,28 +33,25 @@ libopenss_gui_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-guiplugin \
 	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-queries \
-	-I$(top_srcdir)/plugins/panels/DebugPanel \
-	$(LTDLINCL) \
-	@PYTHON_CPPFLAGS@ \
-	@QTLIB_CPPFLAGS@
+	-I$(top_srcdir)/plugins/panels/DebugPanel
 
 libopenss_gui_la_LDFLAGS = \
+	@QTLIB_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-cli \
 	-L$(top_srcdir)/libopenss-guibase \
 	-L$(top_srcdir)/libopenss-guidialogs \
 	-L$(top_srcdir)/libopenss-guiobjects \
 	-L$(top_srcdir)/libopenss-guiplugin \
-	@QTLIB_LDFLAGS@ \
 	-export-dynamic -version-info 0:0:0
 
 libopenss_gui_la_LIBADD = \
-	-lopenss-cli \
-	-lopenss-guibase \
-	-lopenss-guidialogs \
-	-lopenss-guiobjects \
-	-lopenss-guiplugin \
 	$(LIBLTDL) \
 	@QTLIB_LIBS@ \
+	$(top_srcdir)/libopenss-cli/libopenss-cli.la \
+	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la \
+	$(top_srcdir)/libopenss-guidialogs/libopenss-guidialogs.la \
+	$(top_srcdir)/libopenss-guiobjects/libopenss-guiobjects.la \
+	$(top_srcdir)/libopenss-guiplugin/libopenss-guiplugin.la \
 	-lqassistantclient -lm -lpthread
 
 libopenss_gui_la_SOURCES = \

@@ -71,13 +71,17 @@ am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(pkglibdir)"
 pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
-StatsPanel_la_DEPENDENCIES =
+StatsPanel_la_DEPENDENCIES =  \
+	$(top_srcdir)/libopenss-gui/libopenss-gui.la \
+	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la \
+	$(top_srcdir)/libopenss-guichart/libopenss-guichart.la \
+	$(top_srcdir)/libopenss-guidialogs/libopenss-guidialogs.la
 am_StatsPanel_la_OBJECTS = StatsPanel_la-SPChartForm.lo \
 	StatsPanel_la-moc_SPChartForm.lo StatsPanel_la-SPCheckBox.lo \
 	StatsPanel_la-moc_SPCheckBox.lo \
 	StatsPanel_la-SPListViewItem.lo StatsPanel_la-SPListView.lo \
 	StatsPanel_la-StatsPanel.lo StatsPanel_la-moc_StatsPanel.lo \
-	StatsPanel_la-SPTextEdit.lo
+	StatsPanel_la-SPTextEdit.lo StatsPanel_la-moc_SPTextEdit.lo
 StatsPanel_la_OBJECTS = $(am_StatsPanel_la_OBJECTS)
 StatsPanel_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(StatsPanel_la_CXXFLAGS) \
@@ -339,6 +343,8 @@ top_srcdir = @top_srcdir@
 topdir_execprefix = @topdir_execprefix@
 pkglib_LTLIBRARIES = StatsPanel.la
 StatsPanel_la_CXXFLAGS = \
+	@PYTHON_CPPFLAGS@ \
+	@QTLIB_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-cli \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-gui \
@@ -352,22 +358,22 @@ StatsPanel_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-queries \
 	-I$(top_srcdir)/plugins/panels/CustomExperimentPanel \
-	-I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
-	@PYTHON_CPPFLAGS@ \
-	@QTLIB_CPPFLAGS@
+	-I$(top_srcdir)/plugins/panels/ManageProcessesPanel
 
 StatsPanel_la_LDFLAGS = \
+	@QTLIB_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-gui \
 	-L$(top_srcdir)/libopenss-guibase \
 	-L$(top_srcdir)/libopenss-guichart \
-	@QTLIB_LDFLAGS@ \
+	-L$(top_srcdir)/libopenss-guidialogs \
 	-export-dynamic -export-all-symbols -module -avoid-version
 
 StatsPanel_la_LIBADD = \
-	-lopenss-gui \
-	-lopenss-guibase \
-	-lopenss-guichart \
-	@QTLIB_LIBS@
+	@QTLIB_LIBS@ \
+	$(top_srcdir)/libopenss-gui/libopenss-gui.la \
+	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la \
+	$(top_srcdir)/libopenss-guichart/libopenss-guichart.la \
+	$(top_srcdir)/libopenss-guidialogs/libopenss-guidialogs.la
 
 StatsPanel_la_SOURCES = \
 	SPChartForm.hxx SPChartForm.cxx moc_SPChartForm.cxx \
@@ -375,14 +381,15 @@ StatsPanel_la_SOURCES = \
 	SPListViewItem.hxx SPListViewItem.cxx \
 	SPListView.hxx SPListView.cxx \
 	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
-	SPTextEdit.hxx SPTextEdit.cxx \
+	SPTextEdit.hxx SPTextEdit.cxx moc_SPTextEdit.cxx \
 	local_plugin_info.hxx \
 	preference_plugin_info.hxx
 
 CLEANFILES = \
 	moc_SPChartForm.cxx \
 	moc_SPCheckBox.cxx \
-	moc_StatsPanel.cxx
+	moc_StatsPanel.cxx \
+	moc_SPTextEdit.cxx
 
 all: all-am
 
@@ -461,6 +468,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-StatsPanel.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-moc_SPChartForm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-moc_SPCheckBox.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-moc_SPTextEdit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-moc_StatsPanel.Plo@am__quote@
 
 .cxx.o:
@@ -546,6 +554,13 @@ StatsPanel_la-SPTextEdit.lo: SPTextEdit.cxx
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SPTextEdit.cxx' object='StatsPanel_la-SPTextEdit.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(StatsPanel_la_CXXFLAGS) $(CXXFLAGS) -c -o StatsPanel_la-SPTextEdit.lo `test -f 'SPTextEdit.cxx' || echo '$(srcdir)/'`SPTextEdit.cxx
+
+StatsPanel_la-moc_SPTextEdit.lo: moc_SPTextEdit.cxx
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(StatsPanel_la_CXXFLAGS) $(CXXFLAGS) -MT StatsPanel_la-moc_SPTextEdit.lo -MD -MP -MF $(DEPDIR)/StatsPanel_la-moc_SPTextEdit.Tpo -c -o StatsPanel_la-moc_SPTextEdit.lo `test -f 'moc_SPTextEdit.cxx' || echo '$(srcdir)/'`moc_SPTextEdit.cxx
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/StatsPanel_la-moc_SPTextEdit.Tpo $(DEPDIR)/StatsPanel_la-moc_SPTextEdit.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='moc_SPTextEdit.cxx' object='StatsPanel_la-moc_SPTextEdit.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(StatsPanel_la_CXXFLAGS) $(CXXFLAGS) -c -o StatsPanel_la-moc_SPTextEdit.lo `test -f 'moc_SPTextEdit.cxx' || echo '$(srcdir)/'`moc_SPTextEdit.cxx
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -742,6 +757,9 @@ moc_SPCheckBox.cxx: SPCheckBox.hxx
 
 moc_StatsPanel.cxx: StatsPanel.hxx
 	-$(QTDIR)/bin/moc -o moc_StatsPanel.cxx StatsPanel.hxx
+
+moc_SPTextEdit.cxx: SPTextEdit.hxx
+	-$(QTDIR)/bin/moc -o moc_SPTextEdit.cxx SPTextEdit.hxx
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

@@ -70,7 +70,8 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libopenss_guiplugin_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
+libopenss_guiplugin_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am_libopenss_guiplugin_la_OBJECTS =  \
 	libopenss_guiplugin_la-plugin_handler.lo \
 	libopenss_guiplugin_la-PluginInfo.lo \
@@ -339,17 +340,21 @@ topdir_execprefix = @topdir_execprefix@
 lib_LTLIBRARIES = libopenss-guiplugin.la
 libopenss_guiplugin_la_CXXFLAGS = \
 	$(LTDLINCL) \
-	-I/usr/include \
-	-I$(QTDIR)/include \
+	$(QTLIB_CPPFLAGS) \
 	-I. \
+	-I/usr/include \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/libopenss-guibase \
 	-I$(top_srcdir)/libopenss-gui
 
 libopenss_guiplugin_la_LDFLAGS = \
+	$(QTLIB_LDFLAGS) \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_guiplugin_la_LIBADD = $(LIBLTDL)
+libopenss_guiplugin_la_LIBADD = \
+	$(LIBLTDL) \
+	$(QTLIB_LIBS)
+
 libopenss_guiplugin_la_SOURCES = \
     ../libopenss-gui/openspeedshop.hxx \
 	plugin_handler.hxx plugin_handler.cxx \

@@ -71,7 +71,9 @@ pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 loadPanel_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(top_srcdir)/libopenss-gui/libopenss-gui.la \
+	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la \
+	$(top_srcdir)/libopenss-guiobjects/libopenss-guiobjects.la
 am_loadPanel_la_OBJECTS = loadPanel_la-loadPanel.lo \
 	loadPanel_la-moc_loadPanel.lo
 loadPanel_la_OBJECTS = $(am_loadPanel_la_OBJECTS)
@@ -335,17 +337,25 @@ top_srcdir = @top_srcdir@
 topdir_execprefix = @topdir_execprefix@
 pkglib_LTLIBRARIES = loadPanel.la
 loadPanel_la_CXXFLAGS = \
-    -I/usr/include \
 	$(QTLIB_CPPFLAGS) \
-    -I. \
-    -I$(top_srcdir)/libopenss-gui \
+	-I. \
+	-I/usr/include \
+	-I$(top_srcdir)/libopenss-gui \
 	-I$(top_srcdir)/libopenss-guichart \
 	-I$(top_srcdir)/libopenss-guiobjects \
-    -I$(top_srcdir)/libopenss-guiplugin \
-    -I$(top_srcdir)/libopenss-guibase
+	-I$(top_srcdir)/libopenss-guiplugin \
+	-I$(top_srcdir)/libopenss-guibase
 
-loadPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
-loadPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
+loadPanel_la_LDFLAGS = \
+	$(QTLIB_LDFLAGS) \
+	--export-dynamic --export-all-symbols -module -avoid-version
+
+loadPanel_la_LIBADD = \
+	$(QTLIB_LIBS) \
+	$(top_srcdir)/libopenss-gui/libopenss-gui.la \
+	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la \
+	$(top_srcdir)/libopenss-guiobjects/libopenss-guiobjects.la
+
 loadPanel_la_SOURCES = \
 	loadPanel.hxx loadPanel.cxx moc_loadPanel.cxx \
 	local_plugin_info.hxx
