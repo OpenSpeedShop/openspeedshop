@@ -35,7 +35,7 @@ else
         AC_DEFINE(HAVE_F77, 1, [Define to 1 if you have F77.])
 fi
 
-AC_PROG_LIBTOOL
+#AC_PROG_LIBTOOL
 
 
 ################################################################################

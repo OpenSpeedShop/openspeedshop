@@ -36,11 +36,10 @@ BASE_SUBDIRS = \
 	usability
 
 SUBDIRS = \
-	libltdl \
 	$(BASE_SUBDIRS)
 
 CHECK_SUBDIRS = \
-    test
+	test
 
 check: $(CHECK_SUBDIRS)
 	cd $(CHECK_SUBDIRS); $(MAKE) clean; $(MAKE) check
@@ -70,7 +69,6 @@ EXTRA_DIST = libopenss-guiimages/* mc bootstrap do_build bootstrap_rpm INSTALL_a
 # with the framework library.
 
 FRAMEWORK_SUBDIRS = \
-	libltdl \
 	libopenss-runtime \
 	libopenss-framework \
 	libopenss-queries 
@@ -83,7 +81,6 @@ framework:
 # necessary for working with the CLI.
 
 CLI_SUBDIRS = \
-	libltdl \
 	libopenss-message \
 	libopenss-runtime \
 	libopenss-framework \
@@ -104,7 +101,6 @@ cli-install:
 # with the offline collectors.
 
 OFFLINE_SUBDIRS = \
-	libltdl \
 	libopenss-message \
 	libopenss-runtime \
 	libopenss-framework \

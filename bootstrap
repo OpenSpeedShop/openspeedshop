@@ -20,7 +20,7 @@
 
 echo "running bootstrap on top level source directory"
 aclocal
-libtoolize --force --ltdl --copy
+libtoolize --force --ltdl-tar --copy
 autoheader
 automake --foreign --add-missing --copy 
 autoconf
@@ -48,7 +48,7 @@ cd ../../..
 echo "running bootstrap on test/src/dyninst"
 cd test/src/dyninst
 aclocal
-libtoolize --force --ltdl --copy
+#libtoolize --force --ltdl-tar --copy
 automake --foreign --add-missing --copy
 autoconf
 cd ../../..
