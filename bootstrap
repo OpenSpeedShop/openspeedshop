@@ -19,6 +19,11 @@
 ################################################################################
 
 echo "running bootstrap on top level source directory"
+chmod 644 libltdl.tar.gz
+chmod 755 configure
+chmod 755 test/executables/configure
+chmod 755 test/executables/mpi/configure
+chmod 755 test/src/dyninst/configure
 aclocal
 libtoolize --force --ltdl-tar --copy
 autoheader
