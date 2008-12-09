@@ -53,7 +53,7 @@ cd ../../..
 echo "running bootstrap on test/src/dyninst"
 cd test/src/dyninst
 aclocal
-#libtoolize --force --ltdl-tar --copy
+libtoolize --force --ltdl-tar --copy
 automake --foreign --add-missing --copy
 autoconf
 cd ../../..
