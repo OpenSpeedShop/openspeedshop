@@ -264,6 +264,7 @@ PYTHON_LDFLAGS = @PYTHON_LDFLAGS@
 PYTHON_SITE_PKG = @PYTHON_SITE_PKG@
 PYTHON_VERSION = @PYTHON_VERSION@
 QTLIB_CPPFLAGS = @QTLIB_CPPFLAGS@
+QTLIB_HOME = @QTLIB_HOME@
 QTLIB_LDFLAGS = @QTLIB_LDFLAGS@
 QTLIB_LIBS = @QTLIB_LIBS@
 RANLIB = @RANLIB@
@@ -779,22 +780,22 @@ uninstall-am: uninstall-pkglibLTLIBRARIES
 
 
 moc_ColumnSet.cxx: ColumnSet.hxx
-	-$(QTDIR)/bin/moc -o moc_ColumnSet.cxx ColumnSet.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_ColumnSet.cxx ColumnSet.hxx
 
 moc_CompareProcessesDialog.cxx: CompareProcessesDialog.hxx
-	-$(QTDIR)/bin/moc -o moc_CompareProcessesDialog.cxx CompareProcessesDialog.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_CompareProcessesDialog.cxx CompareProcessesDialog.hxx
 
 moc_CompareSet.cxx: CompareSet.hxx
-	-$(QTDIR)/bin/moc -o moc_CompareSet.cxx CompareSet.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_CompareSet.cxx CompareSet.hxx
 
 moc_CustomizeClass.cxx: CustomizeClass.hxx
-	-$(QTDIR)/bin/moc -o moc_CustomizeClass.cxx CustomizeClass.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_CustomizeClass.cxx CustomizeClass.hxx
 
 moc_CustomizeStatsPanel.cxx: CustomizeStatsPanel.hxx
-	-$(QTDIR)/bin/moc -o moc_CustomizeStatsPanel.cxx CustomizeStatsPanel.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_CustomizeStatsPanel.cxx CustomizeStatsPanel.hxx
 
 moc_MPListView.cxx: $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx
-	-$(QTDIR)/bin/moc -o moc_MPListView.cxx $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_MPListView.cxx $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

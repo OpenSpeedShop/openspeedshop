@@ -282,6 +282,7 @@ PYTHON_LDFLAGS = @PYTHON_LDFLAGS@
 PYTHON_SITE_PKG = @PYTHON_SITE_PKG@
 PYTHON_VERSION = @PYTHON_VERSION@
 QTLIB_CPPFLAGS = @QTLIB_CPPFLAGS@
+QTLIB_HOME = @QTLIB_HOME@
 QTLIB_LDFLAGS = @QTLIB_LDFLAGS@
 QTLIB_LIBS = @QTLIB_LIBS@
 RANLIB = @RANLIB@
@@ -887,10 +888,10 @@ uninstall-am: uninstall-libLTLIBRARIES
 
 
 moc_ProcessControlObject.cxx: ProcessControlObject.hxx
-	-$(QTDIR)/bin/moc -o moc_ProcessControlObject.cxx ProcessControlObject.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_ProcessControlObject.cxx ProcessControlObject.hxx
 
 moc_InfoEventFilter.cxx: InfoEventFilter.hxx
-	-$(QTDIR)/bin/moc -o moc_InfoEventFilter.cxx InfoEventFilter.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_InfoEventFilter.cxx InfoEventFilter.hxx
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

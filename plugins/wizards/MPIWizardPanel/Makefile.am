@@ -50,7 +50,7 @@ MPIWizardPanel_la_SOURCES = \
 	local_plugin_info.hxx
 
 moc_MPIWizardPanel.cxx: MPIWizardPanel.hxx
-	-$(QTDIR)/bin/moc -o moc_MPIWizardPanel.cxx MPIWizardPanel.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_MPIWizardPanel.cxx MPIWizardPanel.hxx
 
 CLEANFILES = \
 	moc_MPIWizardPanel.cxx

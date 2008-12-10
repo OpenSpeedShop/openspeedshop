@@ -254,6 +254,7 @@ PYTHON_LDFLAGS = @PYTHON_LDFLAGS@
 PYTHON_SITE_PKG = @PYTHON_SITE_PKG@
 PYTHON_VERSION = @PYTHON_VERSION@
 QTLIB_CPPFLAGS = @QTLIB_CPPFLAGS@
+QTLIB_HOME = @QTLIB_HOME@
 QTLIB_LDFLAGS = @QTLIB_LDFLAGS@
 QTLIB_LIBS = @QTLIB_LIBS@
 RANLIB = @RANLIB@
@@ -666,7 +667,7 @@ uninstall-am: uninstall-pkglibLTLIBRARIES
 
 
 moc_HW_CounterWizardPanel.cxx: HW_CounterWizardPanel.hxx
-	-$(QTDIR)/bin/moc -o moc_HW_CounterWizardPanel.cxx HW_CounterWizardPanel.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_HW_CounterWizardPanel.cxx HW_CounterWizardPanel.hxx
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

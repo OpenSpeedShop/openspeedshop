@@ -257,6 +257,7 @@ PYTHON_LDFLAGS = @PYTHON_LDFLAGS@
 PYTHON_SITE_PKG = @PYTHON_SITE_PKG@
 PYTHON_VERSION = @PYTHON_VERSION@
 QTLIB_CPPFLAGS = @QTLIB_CPPFLAGS@
+QTLIB_HOME = @QTLIB_HOME@
 QTLIB_LDFLAGS = @QTLIB_LDFLAGS@
 QTLIB_LIBS = @QTLIB_LIBS@
 RANLIB = @RANLIB@
@@ -719,16 +720,16 @@ uninstall-am: uninstall-pkglibLTLIBRARIES
 
 
 moc_SourcePanel.cxx: SourcePanel.hxx
-	-$(QTDIR)/bin/moc -o moc_SourcePanel.cxx SourcePanel.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_SourcePanel.cxx SourcePanel.hxx
 
 moc_SPCanvasForm.cxx: SPCanvasForm.hxx
-	-$(QTDIR)/bin/moc -o moc_SPCanvasForm.cxx SPCanvasForm.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_SPCanvasForm.cxx SPCanvasForm.hxx
 
 moc_SPCanvasView.cxx: SPCanvasView.hxx
-	-$(QTDIR)/bin/moc -o moc_SPCanvasView.cxx SPCanvasView.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_SPCanvasView.cxx SPCanvasView.hxx
 
 moc_SPTextEdit.cxx: SPTextEdit.hxx
-	-$(QTDIR)/bin/moc -o moc_SPTextEdit.cxx SPTextEdit.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_SPTextEdit.cxx SPTextEdit.hxx
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

@@ -266,6 +266,7 @@ PYTHON_LDFLAGS = @PYTHON_LDFLAGS@
 PYTHON_SITE_PKG = @PYTHON_SITE_PKG@
 PYTHON_VERSION = @PYTHON_VERSION@
 QTLIB_CPPFLAGS = @QTLIB_CPPFLAGS@
+QTLIB_HOME = @QTLIB_HOME@
 QTLIB_LDFLAGS = @QTLIB_LDFLAGS@
 QTLIB_LIBS = @QTLIB_LIBS@
 RANLIB = @RANLIB@
@@ -757,16 +758,16 @@ uninstall-am: uninstall-libLTLIBRARIES
 
 
 moc_AboutClass.cxx: AboutClass.hxx
-	-$(QTDIR)/bin/moc -o moc_AboutClass.cxx AboutClass.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_AboutClass.cxx AboutClass.hxx
 
 moc_CLIInterface.cxx: CLIInterface.hxx
-	-$(QTDIR)/bin/moc -o moc_CLIInterface.cxx CLIInterface.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_CLIInterface.cxx CLIInterface.hxx
 
 moc_openspeedshop.cxx: openspeedshop.hxx
-	-$(QTDIR)/bin/moc -o moc_openspeedshop.cxx openspeedshop.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_openspeedshop.cxx openspeedshop.hxx
 
 moc_preferencesdialog.cxx: preferencesdialog.hxx
-	-$(QTDIR)/bin/moc -o moc_preferencesdialog.cxx preferencesdialog.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_preferencesdialog.cxx preferencesdialog.hxx
 
 doc:
 	$(DOXYGEN)

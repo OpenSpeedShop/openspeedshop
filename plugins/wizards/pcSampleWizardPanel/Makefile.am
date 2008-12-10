@@ -52,7 +52,7 @@ pcSampleWizardPanel_la_SOURCES = \
 	local_plugin_info.hxx
 
 moc_pcSampleWizardPanel.cxx: pcSampleWizardPanel.hxx
-	-$(QTDIR)/bin/moc -o moc_pcSampleWizardPanel.cxx pcSampleWizardPanel.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_pcSampleWizardPanel.cxx pcSampleWizardPanel.hxx
 
 CLEANFILES = \
 	moc_pcSampleWizardPanel.cxx

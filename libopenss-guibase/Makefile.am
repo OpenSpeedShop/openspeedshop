@@ -39,22 +39,22 @@ libopenss_guibase_la_LIBADD = \
 
 
 moc_TopWidget.cxx: TopWidget.hxx
-	-$(QTDIR)/bin/moc -o moc_TopWidget.cxx TopWidget.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_TopWidget.cxx TopWidget.hxx
 
 moc_TabWidget.cxx: TabWidget.hxx
-	-$(QTDIR)/bin/moc -o moc_TabWidget.cxx TabWidget.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_TabWidget.cxx TabWidget.hxx
 
 moc_TabBarWidget.cxx: TabBarWidget.hxx
-	-$(QTDIR)/bin/moc -o moc_TabBarWidget.cxx TabBarWidget.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_TabBarWidget.cxx TabBarWidget.hxx
 
 moc_Frame.cxx: Frame.hxx
-	-$(QTDIR)/bin/moc -o moc_Frame.cxx Frame.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_Frame.cxx Frame.hxx
 
 moc_PanelContainer.cxx: PanelContainer.hxx
-	-$(QTDIR)/bin/moc -o moc_PanelContainer.cxx PanelContainer.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_PanelContainer.cxx PanelContainer.hxx
 
 moc_Panel.cxx: Panel.hxx
-	-$(QTDIR)/bin/moc -o moc_Panel.cxx Panel.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_Panel.cxx Panel.hxx
 
 libopenss_guibase_la_SOURCES = \
 	pc_plugin.cxx \

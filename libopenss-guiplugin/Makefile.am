@@ -36,7 +36,7 @@ libopenss_guiplugin_la_LIBADD = \
 	$(QTLIB_LIBS)
 
 moc_SlotInfo.cxx: SlotInfo.hxx
-	-$(QTDIR)/bin/moc -o moc_SlotInfo.cxx SlotInfo.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_SlotInfo.cxx SlotInfo.hxx
 
 libopenss_guiplugin_la_SOURCES = \
     ../libopenss-gui/openspeedshop.hxx \

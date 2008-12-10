@@ -39,7 +39,7 @@ loadPanel_la_LIBADD = \
 	$(top_srcdir)/libopenss-guiobjects/libopenss-guiobjects.la
 
 moc_loadPanel.cxx: loadPanel.hxx
-	-$(QTDIR)/bin/moc -o moc_loadPanel.cxx loadPanel.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_loadPanel.cxx loadPanel.hxx
 
 loadPanel_la_SOURCES = \
 	loadPanel.hxx loadPanel.cxx moc_loadPanel.cxx \

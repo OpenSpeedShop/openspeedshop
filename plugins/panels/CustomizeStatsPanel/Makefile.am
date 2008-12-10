@@ -62,22 +62,22 @@ CustomizeStatsPanel_la_SOURCES = \
 	local_plugin_info.hxx
 
 moc_ColumnSet.cxx: ColumnSet.hxx
-	-$(QTDIR)/bin/moc -o moc_ColumnSet.cxx ColumnSet.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_ColumnSet.cxx ColumnSet.hxx
 
 moc_CompareProcessesDialog.cxx: CompareProcessesDialog.hxx
-	-$(QTDIR)/bin/moc -o moc_CompareProcessesDialog.cxx CompareProcessesDialog.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_CompareProcessesDialog.cxx CompareProcessesDialog.hxx
 
 moc_CompareSet.cxx: CompareSet.hxx
-	-$(QTDIR)/bin/moc -o moc_CompareSet.cxx CompareSet.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_CompareSet.cxx CompareSet.hxx
 
 moc_CustomizeClass.cxx: CustomizeClass.hxx
-	-$(QTDIR)/bin/moc -o moc_CustomizeClass.cxx CustomizeClass.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_CustomizeClass.cxx CustomizeClass.hxx
 
 moc_CustomizeStatsPanel.cxx: CustomizeStatsPanel.hxx
-	-$(QTDIR)/bin/moc -o moc_CustomizeStatsPanel.cxx CustomizeStatsPanel.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_CustomizeStatsPanel.cxx CustomizeStatsPanel.hxx
 
 moc_MPListView.cxx: $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx
-	-$(QTDIR)/bin/moc -o moc_MPListView.cxx $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_MPListView.cxx $(top_srcdir)/plugins/panels/ManageProcessesPanel/MPListView.hxx
 
 CLEANFILES = \
 	moc_ColumnSet.cxx \

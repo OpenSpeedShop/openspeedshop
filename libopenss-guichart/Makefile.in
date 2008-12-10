@@ -264,6 +264,7 @@ PYTHON_LDFLAGS = @PYTHON_LDFLAGS@
 PYTHON_SITE_PKG = @PYTHON_SITE_PKG@
 PYTHON_VERSION = @PYTHON_VERSION@
 QTLIB_CPPFLAGS = @QTLIB_CPPFLAGS@
+QTLIB_HOME = @QTLIB_HOME@
 QTLIB_LDFLAGS = @QTLIB_LDFLAGS@
 QTLIB_LIBS = @QTLIB_LIBS@
 RANLIB = @RANLIB@
@@ -743,16 +744,16 @@ uninstall-am: uninstall-libLTLIBRARIES
 
 
 moc_canvasview.cxx: canvasview.hxx
-	-$(QTDIR)/bin/moc -o moc_canvasview.cxx canvasview.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_canvasview.cxx canvasview.hxx
 
 moc_chartform.cxx: chartform.hxx
-	-$(QTDIR)/bin/moc -o moc_chartform.cxx chartform.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_chartform.cxx chartform.hxx
 
 moc_optionsform.cxx: optionsform.hxx
-	-$(QTDIR)/bin/moc -o moc_optionsform.cxx optionsform.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_optionsform.cxx optionsform.hxx
 
 moc_setdataform.cxx: setdataform.hxx
-	-$(QTDIR)/bin/moc -o moc_setdataform.cxx setdataform.hxx
+	-$(QTLIB_HOME)/bin/moc -o moc_setdataform.cxx setdataform.hxx
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
