@@ -32,7 +32,7 @@ then
 fi
 if test -d plugins/panels
 then
-  bootstrap;configure --prefix=$OPENSS_PREFIX;make uninstall;make install;make dist;
+  configure --prefix=$OPENSS_PREFIX;make uninstall;make install;make dist;
 else
   echo NOTE: This must be run from the 'current' directory...
 fi
