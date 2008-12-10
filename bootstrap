@@ -24,6 +24,7 @@ chmod 755 configure
 chmod 755 test/executables/configure
 chmod 755 test/executables/mpi/configure
 chmod 755 test/src/dyninst/configure
+chmod 644 test/src/dyninst/libltdl.tar.gz
 aclocal
 libtoolize --force --ltdl-tar --copy
 autoheader
