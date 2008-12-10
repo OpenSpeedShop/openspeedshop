@@ -852,6 +852,9 @@ am__fastdepCXX_FALSE
 F77
 FFLAGS
 ac_ct_F77
+FC
+FCFLAGS
+ac_ct_FC
 HAVE_F77_TRUE
 HAVE_F77_FALSE
 build
@@ -898,6 +901,8 @@ CXXFLAGS
 CCC
 F77
 FFLAGS
+FC
+FCFLAGS
 CPP
 CXXCPP'
 
@@ -1511,6 +1516,8 @@ Some influential environment variables:
   CXXFLAGS    C++ compiler flags
   F77         Fortran 77 compiler command
   FFLAGS      Fortran 77 compiler flags
+  FC          Fortran compiler command
+  FCFLAGS     Fortran compiler flags
   CPP         C preprocessor
   CXXCPP      C++ preprocessor
 
@@ -4256,6 +4263,265 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+ac_ext=${ac_fc_srcext-f}
+ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
+ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_fc_compiler_gnu
+if test -n "$ac_tool_prefix"; then
+  for ac_prog in gfortran g95 xlf95 f95 fort ifort ifc efc pgf95 lf95 ftn xlf90 f90 pgf90 pghpf epcf90 g77 xlf f77 frt pgf77 cf77 fort77 fl32 af77
+  do
+    # Extract the first word of "$ac_tool_prefix$ac_prog", so it can be a program name with args.
+set dummy $ac_tool_prefix$ac_prog; ac_word=$2
+{ echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
+if test "${ac_cv_prog_FC+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -n "$FC"; then
+  ac_cv_prog_FC="$FC" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+    ac_cv_prog_FC="$ac_tool_prefix$ac_prog"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+IFS=$as_save_IFS
+
+fi
+fi
+FC=$ac_cv_prog_FC
+if test -n "$FC"; then
+  { echo "$as_me:$LINENO: result: $FC" >&5
+echo "${ECHO_T}$FC" >&6; }
+else
+  { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+fi
+
+
+    test -n "$FC" && break
+  done
+fi
+if test -z "$FC"; then
+  ac_ct_FC=$FC
+  for ac_prog in gfortran g95 xlf95 f95 fort ifort ifc efc pgf95 lf95 ftn xlf90 f90 pgf90 pghpf epcf90 g77 xlf f77 frt pgf77 cf77 fort77 fl32 af77
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
+if test "${ac_cv_prog_ac_ct_FC+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -n "$ac_ct_FC"; then
+  ac_cv_prog_ac_ct_FC="$ac_ct_FC" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+    ac_cv_prog_ac_ct_FC="$ac_prog"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+IFS=$as_save_IFS
+
+fi
+fi
+ac_ct_FC=$ac_cv_prog_ac_ct_FC
+if test -n "$ac_ct_FC"; then
+  { echo "$as_me:$LINENO: result: $ac_ct_FC" >&5
+echo "${ECHO_T}$ac_ct_FC" >&6; }
+else
+  { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+fi
+
+
+  test -n "$ac_ct_FC" && break
+done
+
+  if test "x$ac_ct_FC" = x; then
+    FC=""
+  else
+    case $cross_compiling:$ac_tool_warned in
+yes:)
+{ echo "$as_me:$LINENO: WARNING: In the future, Autoconf will not detect cross-tools
+whose name does not start with the host triplet.  If you think this
+configuration is useful to you, please write to autoconf@gnu.org." >&5
+echo "$as_me: WARNING: In the future, Autoconf will not detect cross-tools
+whose name does not start with the host triplet.  If you think this
+configuration is useful to you, please write to autoconf@gnu.org." >&2;}
+ac_tool_warned=yes ;;
+esac
+    FC=$ac_ct_FC
+  fi
+fi
+
+
+# Provide some information about the compiler.
+echo "$as_me:$LINENO: checking for Fortran compiler version" >&5
+ac_compiler=`set X $ac_compile; echo $2`
+{ (ac_try="$ac_compiler --version >&5"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_compiler --version >&5") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }
+{ (ac_try="$ac_compiler -v >&5"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_compiler -v >&5") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }
+{ (ac_try="$ac_compiler -V >&5"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_compiler -V >&5") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }
+rm -f a.out
+
+# If we don't use `.F' as extension, the preprocessor is not run on the
+# input file.  (Note that this only needs to work for GNU compilers.)
+ac_save_ext=$ac_ext
+ac_ext=F
+{ echo "$as_me:$LINENO: checking whether we are using the GNU Fortran compiler" >&5
+echo $ECHO_N "checking whether we are using the GNU Fortran compiler... $ECHO_C" >&6; }
+if test "${ac_cv_fc_compiler_gnu+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+      program main
+#ifndef __GNUC__
+       choke me
+#endif
+
+      end
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_fc_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_compiler_gnu=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_compiler_gnu=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+ac_cv_fc_compiler_gnu=$ac_compiler_gnu
+
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_fc_compiler_gnu" >&5
+echo "${ECHO_T}$ac_cv_fc_compiler_gnu" >&6; }
+ac_ext=$ac_save_ext
+ac_test_FFLAGS=${FCFLAGS+set}
+ac_save_FFLAGS=$FCFLAGS
+FCFLAGS=
+{ echo "$as_me:$LINENO: checking whether $FC accepts -g" >&5
+echo $ECHO_N "checking whether $FC accepts -g... $ECHO_C" >&6; }
+if test "${ac_cv_prog_fc_g+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  FCFLAGS=-g
+cat >conftest.$ac_ext <<_ACEOF
+      program main
+
+      end
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_fc_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_cv_prog_fc_g=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_prog_fc_g=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_prog_fc_g" >&5
+echo "${ECHO_T}$ac_cv_prog_fc_g" >&6; }
+if test "$ac_test_FFLAGS" = set; then
+  FCFLAGS=$ac_save_FFLAGS
+elif test $ac_cv_prog_fc_g = yes; then
+  if test "x$ac_cv_fc_compiler_gnu" = xyes; then
+    FCFLAGS="-g -O2"
+  else
+    FCFLAGS="-g"
+  fi
+else
+  if test "x$ac_cv_fc_compiler_gnu" = xyes; then
+    FCFLAGS="-O2"
+  else
+    FCFLAGS=
+  fi
+fi
+
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
 
 if test "$ac_cv_f77_compiler_gnu" = no; then
          if false; then
@@ -5095,7 +5361,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5098 "configure"' > conftest.$ac_ext
+  echo '#line 5364 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7101,11 +7367,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7104: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7370: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7108: \$? = $ac_status" >&5
+   echo "$as_me:7374: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7391,11 +7657,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7394: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7660: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7398: \$? = $ac_status" >&5
+   echo "$as_me:7664: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7495,11 +7761,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7498: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7764: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7502: \$? = $ac_status" >&5
+   echo "$as_me:7768: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -9846,7 +10112,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9849 "configure"
+#line 10115 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -9946,7 +10212,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9949 "configure"
+#line 10215 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12366,11 +12632,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12369: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12635: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:12373: \$? = $ac_status" >&5
+   echo "$as_me:12639: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -12470,11 +12736,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12473: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12739: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:12477: \$? = $ac_status" >&5
+   echo "$as_me:12743: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14034,11 +14300,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14037: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14303: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14041: \$? = $ac_status" >&5
+   echo "$as_me:14307: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -14138,11 +14404,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14141: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14407: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14145: \$? = $ac_status" >&5
+   echo "$as_me:14411: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16327,11 +16593,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16330: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16596: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16334: \$? = $ac_status" >&5
+   echo "$as_me:16600: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16617,11 +16883,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16620: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16886: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16624: \$? = $ac_status" >&5
+   echo "$as_me:16890: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16721,11 +16987,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16724: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16990: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:16728: \$? = $ac_status" >&5
+   echo "$as_me:16994: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -20792,6 +21058,9 @@ am__fastdepCXX_FALSE!$am__fastdepCXX_FALSE$ac_delim
 F77!$F77$ac_delim
 FFLAGS!$FFLAGS$ac_delim
 ac_ct_F77!$ac_ct_F77$ac_delim
+FC!$FC$ac_delim
+FCFLAGS!$FCFLAGS$ac_delim
+ac_ct_FC!$ac_ct_FC$ac_delim
 HAVE_F77_TRUE!$HAVE_F77_TRUE$ac_delim
 HAVE_F77_FALSE!$HAVE_F77_FALSE$ac_delim
 build!$build$ac_delim
@@ -20802,9 +21071,6 @@ host!$host$ac_delim
 host_cpu!$host_cpu$ac_delim
 host_vendor!$host_vendor$ac_delim
 host_os!$host_os$ac_delim
-SED!$SED$ac_delim
-GREP!$GREP$ac_delim
-EGREP!$EGREP$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -20846,6 +21112,9 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+SED!$SED$ac_delim
+GREP!$GREP$ac_delim
+EGREP!$EGREP$ac_delim
 LN_S!$LN_S$ac_delim
 ECHO!$ECHO$ac_delim
 AR!$AR$ac_delim
@@ -20867,7 +21136,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 19; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 22; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

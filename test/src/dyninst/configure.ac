@@ -26,6 +26,7 @@ AM_INIT_AUTOMAKE
 AC_PROG_CC()
 AC_PROG_CXX()
 AC_PROG_F77
+AC_PROG_FC
 
 if test "$ac_cv_f77_compiler_gnu" = no; then
         AM_CONDITIONAL(HAVE_F77, false)
