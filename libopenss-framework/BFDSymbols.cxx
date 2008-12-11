@@ -395,7 +395,7 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 	    // the current function.
 	    int next = i + 1;
 	    bool notfound = true;
-	    while (notfound) {
+	    while (notfound && next < numsortedsyms) {
 	      asymbol* nextsym = sortedsyms[next];
 	      if ((nextsym->flags & BSF_FUNCTION) &&
 		!bfd_is_und_section(nextsym->section)) {
@@ -746,10 +746,12 @@ find_address_in_section (bfd *theBFD, asection *section,
     found = bfd_find_nearest_line (theBFD, section, syms, real_pc - vma,
                                    &filename, &functionname, &line);
     if (!found) {
-// VERBOSE
-#if 1
-	std::cerr << "find_address_in_section: "
+// DEBUG
+#ifndef NDEBUG
+	if(debug_symbols) {
+	    std::cerr << "find_address_in_section: "
 	    << " bfd_find_nearest_line FAILS FOR " << Address(pc) << std::endl;
+	}
 #endif
 	return;
     }
