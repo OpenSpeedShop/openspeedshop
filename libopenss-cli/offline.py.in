@@ -355,7 +355,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	ossdbfile = ossdbfile.replace(' ','_')
 	tfile = ossdbfile + ".openss"
 	tfile = create_unique_dbname(tfile)
-	if  os.path.lexists('X.0.openss'):
+	# Python 2.3 does not have lexists which would be prefered here.
+	if  os.path.isfile('X.0.openss'):
 	    os.rename('X.0.openss',tfile)
 	else:
 	    print "\n[openss error]: could not find X.0.openss"
