@@ -5145,6 +5145,177 @@ static bool SS_ListSrc (CommandObject *cmd) {
   return true;
 }
 
+static bool SS_ListStatements (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // List the functions for a specified Experiment or the focused Experiment.
+  ExperimentObject *exp = Find_Specified_Experiment (cmd);
+  if (exp == NULL) {
+    return false;
+  }
+
+ // Prevent this experiment from changing until we are done.
+  exp->Q_Lock (cmd, true);
+
+ // Get a list of the unique threads used in the specified experiment.
+  ThreadGroup tgrp = exp->FW()->getThreads();
+  Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+ // Filter that thread list with any "-f" specification and get a Function list.
+  std::set<Function> flset;
+  Get_Filtered_Objects (cmd, exp, tgrp, flset);
+
+ // Put the names of all the functions in a set to eliminate duplicates.
+  std::set<std::string> mset;
+  for (std::set<Function>:: iterator fi = flset.begin(); fi != flset.end(); fi++) {
+
+   // Check for asynchronous abort command
+    if (cmd->Status() == CMD_ABORTED) {
+      mset.clear();
+      break;
+    }
+
+    Function fobj = *fi;
+    std::set<Statement> sobj = fobj.getDefinitions();
+    if( sobj.size() > 0 ) {
+      for (std::set<Statement>:: iterator si = sobj.begin(); si != sobj.end(); si++) {
+        Statement st = *si;
+	std::string SL = st.getPath().getBaseName();
+	SL += ":";
+	stringstream ssl;
+	ssl << st.getLine();
+	SL += ssl.str();
+	//mset.insert ( SL );
+	std::set<Thread> st_threads = st.getThreads();
+	for (std::set<Thread>:: iterator ti = st_threads.begin();
+		ti != st_threads.end(); ti++) {
+		Thread t = *ti;
+		AddressRange ar = st.getExtentIn(t).getBounds().getAddressRange();  
+		stringstream ssa;
+		ssa << ar.getBegin();
+		SL += ":";
+		SL += ssa.str();
+		break;
+	}
+	mset.insert ( SL );
+      }
+    }
+  }
+
+ // Now we're ready to list the file names.
+  for (std::set<std::string>::iterator mseti = mset.begin(); mseti != mset.end(); mseti++) {
+    cmd->Result_String ( *mseti );
+  }
+
+  exp->Q_UnLock ();
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+static bool SS_ListFunctions (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // List the functions for a specified Experiment or the focused Experiment.
+  ExperimentObject *exp = Find_Specified_Experiment (cmd);
+  if (exp == NULL) {
+    return false;
+  }
+
+ // Prevent this experiment from changing until we are done.
+  exp->Q_Lock (cmd, true);
+
+ // Get a list of the unique threads used in the specified experiment.
+  ThreadGroup tgrp = exp->FW()->getThreads();
+  Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+ // Filter that thread list with any "-f" specification and get a Function list.
+  std::set<Function> flset;
+  Get_Filtered_Objects (cmd, exp, tgrp, flset);
+
+ // Put the names of all the functions in a set to eliminate duplicates.
+  std::set<std::string> mset;
+  for (std::set<Function>:: iterator fi = flset.begin(); fi != flset.end(); fi++) {
+
+   // Check for asynchronous abort command
+    if (cmd->Status() == CMD_ABORTED) {
+      mset.clear();
+      break;
+    }
+
+    Function fobj = *fi;
+    mset.insert ( fobj.getName() );
+    mset.insert ( fobj.getMangledName() );
+  }
+
+ // Now we're ready to list the file names.
+  for (std::set<std::string>::iterator mseti = mset.begin(); mseti != mset.end(); mseti++) {
+    cmd->Result_String ( *mseti );
+  }
+
+  exp->Q_UnLock ();
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+static bool SS_ListMangled (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // List the functions for a specified Experiment or the focused Experiment.
+  ExperimentObject *exp = Find_Specified_Experiment (cmd);
+  if (exp == NULL) {
+    return false;
+  }
+
+ // Prevent this experiment from changing until we are done.
+  exp->Q_Lock (cmd, true);
+
+ // Get a list of the unique threads used in the specified experiment.
+  ThreadGroup tgrp = exp->FW()->getThreads();
+  Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+ // Filter that thread list with any "-f" specification and get a Function list.
+  std::set<Function> flset;
+  Get_Filtered_Objects (cmd, exp, tgrp, flset);
+
+ // Put the names of all the functions in a set to eliminate duplicates.
+  std::set<std::string> mset;
+  for (std::set<Function>:: iterator fi = flset.begin(); fi != flset.end(); fi++) {
+
+   // Check for asynchronous abort command
+    if (cmd->Status() == CMD_ABORTED) {
+      mset.clear();
+      break;
+    }
+
+    Function fobj = *fi;
+    std::string MN = fobj.getMangledName();
+    std::string DN = fobj.getDemangledName();
+    if (MN != DN) {
+	std::string SN = DN;
+	SN += ";";
+	SN += MN;
+	mset.insert ( SN );
+    }
+    //mset.insert (  );
+  }
+
+ // Now we're ready to list the file names.
+  for (std::set<std::string>::iterator mseti = mset.begin(); mseti != mset.end(); mseti++) {
+    cmd->Result_String ( *mseti );
+  }
+
+  exp->Q_UnLock ();
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+
 /**
  * SemanticRoutine: SS_ListStatus ()
  * 
@@ -5499,6 +5670,12 @@ bool SS_ListGeneric (CommandObject *cmd) {
       result_of_first_list = SS_ListRanks(cmd);
     } else if (!strcasecmp(S.c_str(),"src")) {
       result_of_first_list = SS_ListSrc(cmd);
+    } else if (!strcasecmp(S.c_str(),"functions")) {
+      result_of_first_list = SS_ListFunctions(cmd);
+    } else if (!strcasecmp(S.c_str(),"mangled")) {
+      result_of_first_list = SS_ListMangled(cmd);
+    } else if (!strcasecmp(S.c_str(),"statements")) {
+      result_of_first_list = SS_ListStatements(cmd);
     } else if (!strcasecmp(S.c_str(),"status")) {
       result_of_first_list = SS_ListStatus(cmd);
     } else if (!strcasecmp(S.c_str(),"threads")) {
