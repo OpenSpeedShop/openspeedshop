@@ -242,11 +242,11 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 {
     std::vector<uint64_t> addrvec;
 
-    AddressRange objrange(Address((uint64_t)obj_load_addr),
+    AddressRange range_in_this_obj(Address((uint64_t)obj_load_addr),
 			Address((uint64_t)obj_end_addr));
 
     for (unsigned ii = 0; ii < addrbuf->length; ii++) {
-	if (objrange.doesContain(static_cast<Address>(addrbuf->pc[ii]))) {
+	if (range_in_this_obj.doesContain(static_cast<Address>(addrbuf->pc[ii]))) {
 // DEBUG
 #ifndef NDEBUG
             if(is_debug_symbols_enabled) {
@@ -272,37 +272,7 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
     }
 #endif
 
-
     std::sort(addrvec.begin(), addrvec.end());
-
-    // Sigh. we may not be able to do this performance tweak.
-    // The first address here may be in the middle of a function.
-    // Therefore we would miss that function.
-    // To do this we would need to find the function at low and
-    // the function at high and use those functions start
-    // addressess as the range.
-#if 0
-    std::vector<uint64_t>::iterator low =
-		std::min_element (addrvec.begin(), addrvec.end());
-    std::vector<uint64_t>::iterator high =
-		std::max_element (addrvec.begin(), addrvec.end());
-
-    uint64_t real_end = (uint64_t)*high;
-    if (*low == *high) {
-	real_end = (uint64_t) obj_end_addr;
-    }
-    AddressRange range_in_this_obj(Address((uint64_t)*low),
-				   Address(real_end));
-// DEBUG
-#if 0
-    std::cerr << "BFDSymbols::getFunctionSyms addrvec range is "
-	<< range_in_this_obj << std::endl;
-#endif
-
-#else
-    AddressRange range_in_this_obj(Address((uint64_t)obj_load_addr),
-				   Address((uint64_t)obj_end_addr));
-#endif
 
     /* We make a copy of syms to sort.  We don't want to sort syms
        because that will screw up any relocs.  */
@@ -368,7 +338,7 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 	    } 
 
 	    Address real_begin(base + (uint64_t)begin_addr);
-	    if (!range_in_this_obj.doesContain(Address(base + (uint64_t)begin_addr))) {
+	    if (!range_in_this_obj.doesContain(real_begin)) {
 		continue;
 	    }
 
@@ -380,7 +350,7 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 #ifndef NDEBUG
 	    if(is_debug_symbols_enabled) {
 	      std::cerr << "getFunctionSyms: TESTING "
-		<< symname << " at " << Address(base + begin_addr)
+		<< symname << " at " << real_begin
 		<< "," << Address(base + end_addr)
 		<< " in section " << Address(base + section_vma)
 		<< " with size " <<  size
@@ -531,17 +501,6 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 	    // address of the section.
 	    int ins_size = 1;
 
-// DEBUG
-#if 0
-	    // This is debug.  Shows all the functions found in
-	    // this object for this bfd.
-	    std::cerr << "getFunctionSyms: finds FUNCTION "
-		<< symname
-		<< " begin address " << Address(begin_addr)
-		<< " end address " << Address(end_addr - ins_size)
-		<< std::endl;
-#endif
-
 	    uint64_t f_end = end_addr;
 
 	    // skip weak symbols
@@ -578,7 +537,7 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 	    // The following loop adds any function found to to the functions_vec.
 	    // We restrict this to functions who are found to
 	    // contain an address for the performance PC address buffer.
-	    AddressRange frange(Address(base + begin_addr),
+	    AddressRange frange(real_begin,
 				Address(base + f_end - 1 ));
 
 	    for (unsigned int ii = 0; ii < addrvec.size(); ii++) {
@@ -591,17 +550,19 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 		// resolved, remove it from addrvec. If and when
 		// addrvec is empty we can terminate the search for
 		// functions to add to our symboltable.
+
+		Address cur_addr(addrvec[ii]);
 	        for(FunctionsVec::iterator f = functions_vec.begin();
 					   f != functions_vec.end(); ++f) {
 
         	    AddressRange range(f->getFuncBegin(), f->getFuncEnd());
 
-        	    if (range.doesContain(static_cast<Address>(addrvec[ii]))) {
+        	    if (range.doesContain(cur_addr)) {
 // DEBUG
 #ifndef NDEBUG
 		        if(is_debug_symbols_enabled) {
 			  std::cerr << "getFunctionSyms: Address "
-			    << Address(addrvec[ii])
+			    << cur_addr
 			    << " at addrvec[" << ii << "] "
 			    << "already found in function "
 			    << f->getFuncName() << std::endl;
@@ -618,13 +579,13 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 		    }
 		}
 
-		if (frange.doesContain(Address(addrvec[ii]))) {
+		if (frange.doesContain(cur_addr)) {
 // DEBUG
 #ifndef NDEBUG
 		    if(is_debug_symbols_enabled) {
 		        std::cerr << "getFunctionSyms: functions_vec PUSH BACK "
 			    << symname << " at " << frange
-			    << " for pc " << Address(addrvec[ii])
+			    << " for pc " << cur_addr
 			    << " ii " << ii << " of " << addrvec.size()
 			    << std::endl;
 		    }
@@ -774,9 +735,12 @@ find_address_in_section (bfd *theBFD, asection *section,
 
     // Create a BFDStatement object for this pc and add it into
     // StatementsWithData for later update to database.
-    // TODO: Need to add at least the function entry statement info...
-    BFDStatement datastatement(pc, tfile, line);
-    statementvec->push_back(datastatement);
+    // DPM: do not add statement info if there is no source file
+    // found. Typically tfile is empty and line is 0 in this case.
+    if (!tfile.empty()) {
+	BFDStatement datastatement(pc, tfile, line);
+	statementvec->push_back(datastatement);
+    }
 
     fflush(stdout);
 }
@@ -878,7 +842,7 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
     std::vector<uint64_t> addrvec;
 
     AddressRange objrange(Address((uint64_t)loadaddr),
-			Address((uint64_t)endaddr));
+			  Address((uint64_t)endaddr));
 
     for (unsigned ii = 0; ii < addrbuf->length; ii++) {
 	if (objrange.doesContain(static_cast<Address>(addrbuf->pc[ii]))) {
@@ -899,34 +863,18 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 
     int found_functions = getFunctionSyms(addrbuf,*funcvec,loadaddr,endaddr);
 
-// DEBUG
-#if 0
-    std::cerr << "getBFDFunctionStatements: getFunctionSyms returned "
-	<< found_functions << " with data for " << objfilename << std::endl;
-    std::cerr << "getBFDFunctionStatements: now have " << funcvec->size()
-	<< " functions with data overall" << std::endl;
-
-    for(FunctionsVec::iterator ic = funcvec->begin() ; ic != funcvec->end(); ++ic) {
-	std::cerr << "getBFDFunctionStatements: getFunctionSyms returns: "
-	    << " name " << ic->getFuncName()
-	    << " begin " << Address(ic->getFuncBegin().getValue())
-	    << " end " << Address(ic->getFuncEnd().getValue())
-	    << " fsize "
-	    << ic->getFuncEnd().getValue() - ic->getFuncBegin().getValue()
-	    << std::endl;
-    }
-#endif
-
     // foreach address in addrvec, find the function, file, line number.
     // See find_address_in_section for details.
     int addresses_found = 0;
     int addresses_notfound = 0;
+
     // store functions begin and end address for functions with found
     // in the sampled address space.
     std::set<Address> function_range_addresses;
     for (unsigned ii = 0; ii < addrvec.size(); ++ii) {
         int foundpc = 0;
         pc = addrvec[ii];
+        Address cur_pc(addrvec[ii]);
         found = false;
 
 	for(FunctionsVec::iterator f = funcvec->begin();
@@ -934,12 +882,12 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 
 	    AddressRange range(f->getFuncBegin(),f->getFuncEnd());
 
-	    if (range.doesContain(static_cast<Address>(addrvec[ii]))) {
+	    if (range.doesContain(cur_pc)) {
 // DEBUG
 #ifndef NDEBUG
 		if(is_debug_symbols_enabled) {
 		  std::cerr << "getBFDFunctionStatements: FOUND FUNCTION for pc "
-		    << static_cast<Address>(addrvec[ii])
+		    << cur_pc
 		    << " at " << ii << " of " << addrbuf->length
 		    << " for " << f->getFuncName()
 		    << std::endl;
@@ -959,7 +907,7 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 	if (foundpc > 1) {
 	    addresses_found--;
 	    std::cerr << "getBFDFunctionStatements: FOUND MULTIPLE " << foundpc
-		<< " functions with pc " << static_cast<Address>(addrvec[ii])
+		<< " functions with pc " << cur_pc
 	        << " at " << ii << " of " << addrvec.size()
 	        << std::endl;
 	}
