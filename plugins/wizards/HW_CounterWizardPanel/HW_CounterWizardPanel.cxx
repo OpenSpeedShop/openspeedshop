@@ -69,6 +69,11 @@
 #include "HW_CounterDescription.hxx"
 
 #include "SS_Input_Manager.hxx"
+
+// Temporary default value for instrumentor is offline preference
+// We need to set up a class for the preference defaults to access them across the GUI panels and wizards.
+bool defaultValue_instrumentorIsOffline = TRUE;
+
 using namespace OpenSpeedShop::Framework;
 #include "PapiAPI.h"
 
@@ -116,11 +121,17 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
   mainWidgetStack->setMinimumSize( QSize(10,10) );
 
 #if 1
+  // Initialize the settings for offline before setting with actual values
+  setGlobalToolInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
+  setThisWizardsInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
+  setThisWizardsPreviousInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
+
   QSettings *settings = new QSettings();
-  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline");
+  bool boolOK = false;
+  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline", defaultValue_instrumentorIsOffline, &boolOK);
   setGlobalToolInstrumentorIsOffline(temp_instrumentorIsOffline);
 #ifdef DEBUG_HWCWizard
-  printf("/openspeedshop/general/instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+  printf("HW_CounterWizard setup: /openspeedshop/general/instrumentorIsOffline=(%d), boolOK=%d\n", temp_instrumentorIsOffline, boolOK );
 #endif
   delete settings;
 #endif
@@ -1074,8 +1085,8 @@ void HW_CounterWizardPanel::eParameterPageNextButtonSelected()
      printf("HW_CounterWizardPanel calling mw->loadNewProgramPanel, this=0x%x\n", this );
 #endif
 
-#ifdef DEBUG_PCWizard
-     printf("pcSampleWizardPanel calling mw->loadNewProgramPanel, this=0x%x, getThisWizardsInstrumentorIsOffline()=%d \n", 
+#ifdef DEBUG_HWCWizard
+     printf("HWCWizardPanel calling mw->loadNewProgramPanel, this=0x%x, getThisWizardsInstrumentorIsOffline()=%d \n", 
              this, getThisWizardsInstrumentorIsOffline() );
 #endif
 

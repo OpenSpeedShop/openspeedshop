@@ -70,6 +70,11 @@
 #include "IODescription.hxx"
 
 #include "SS_Input_Manager.hxx"
+
+// Temporary default value for instrumentor is offline preference
+// We need to set up a class for the preference defaults to access them across the GUI panels and wizards.
+bool defaultValue_instrumentorIsOffline = TRUE;
+
 using namespace OpenSpeedShop::Framework;
 
 IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
@@ -94,15 +99,16 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *
 
 #if 1
   // Initialize the settings for offline before setting with actual values
-  setGlobalToolInstrumentorIsOffline(FALSE);
-  setThisWizardsInstrumentorIsOffline(FALSE);
-  setThisWizardsPreviousInstrumentorIsOffline(FALSE);
+  setGlobalToolInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
+  setThisWizardsInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
+  setThisWizardsPreviousInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
 
   QSettings *settings = new QSettings();
-  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline");
+  bool boolOK = false;
+  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline", defaultValue_instrumentorIsOffline, &boolOK);
   setGlobalToolInstrumentorIsOffline(temp_instrumentorIsOffline);
-#ifdef IOWizard
-  printf("/openspeedshop/general/instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+#ifdef DEBUG_IOWizard
+  printf("IOWizard setup: /openspeedshop/general/instrumentorIsOffline=(%d), boolOK=%d\n", temp_instrumentorIsOffline, boolOK );
 #endif
   delete settings;
 #endif
@@ -157,7 +163,7 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *
   bool vGlobalInstrumentorIsOffline = getGlobalToolInstrumentorIsOffline();
   bool vLocalInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
 
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
   printf("Initial Setup values for offline RADIO BUTTONS: globalInstrumentorIsOffline=(%d), localInstrumentorIsOffline=(%d)\n", vGlobalInstrumentorIsOffline, vLocalInstrumentorIsOffline );
 #endif
 
@@ -336,7 +342,7 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *
   bool eGlobalInstrumentorIsOffline = getGlobalToolInstrumentorIsOffline();
   bool eLocalInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
 
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
   printf("eDescriptionPageButtonLayout, Initial Setup values for offline RADIO BUTTONS: eGlobalInstrumentorIsOffline=(%d), eLocalInstrumentorIsOffline=(%d)\n", eGlobalInstrumentorIsOffline, eLocalInstrumentorIsOffline );
 #endif
 
@@ -681,8 +687,8 @@ IOWizardPanel::listener(void *msg)
   if( messageObject->msgType == "PreferencesChangedObject" ) {
 
    bool temp_instrumentorIsOffline = getToolPreferenceInstrumentorIsOffline();
-#ifdef IOWizard
-   printf("PCWizard::listener, PREFERENCE-CHANGED-OBJECT temp_instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+#ifdef DEBUG_IOWizard
+   printf("IOWizard::listener, PREFERENCE-CHANGED-OBJECT temp_instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
 #endif
     return 1;
 
@@ -705,7 +711,7 @@ bool IOWizardPanel::getToolPreferenceInstrumentorIsOffline()
 {
   QSettings *settings = new QSettings();
   bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline");
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
   printf("IOWizardPanel::getToolPreferenceInstrumentorIsOffline, /openspeedshop/general/instrumentorIsOffline == instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
 #endif
   delete settings;
@@ -713,14 +719,14 @@ bool IOWizardPanel::getToolPreferenceInstrumentorIsOffline()
 
 void IOWizardPanel::vOfflineRBSelected()
 {
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
   printf("IOWizardPanel::vOfflineRBSelected() entered.\n");
 #endif
   bool offlineCheckBoxValue = vOfflineRB->isOn();
   if ( offlineCheckBoxValue ) {
    // toggle the button settings or is this done for us?
   }
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
   printf("IOWizardPanel::vOfflineRBSelected() offlineCheckBoxValue=(%d)\n", offlineCheckBoxValue);
 #endif
 
@@ -754,14 +760,14 @@ void IOWizardPanel::vOfflineRBSelected()
 
 void IOWizardPanel::vOnlineRBSelected()
 {
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
   printf("IOWizardPanel::vOnlineRBSelected() entered.\n");
 #endif
   bool onlineCheckBoxValue = vOnlineRB->isOn();
   if ( onlineCheckBoxValue ) {
    // toggle the button settings or is this done for us?
   }
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
   printf("IOWizardPanel::vOnlineRBSelected() onlineCheckBoxValue=(%d)\n", onlineCheckBoxValue);
 #endif
   setThisWizardsInstrumentorIsOffline(!onlineCheckBoxValue);
@@ -770,14 +776,14 @@ void IOWizardPanel::vOnlineRBSelected()
 
 void IOWizardPanel::eOfflineRBSelected()
 {
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
   printf("IOWizardPanel::eOfflineRBSelected() entered.\n");
 #endif
   bool offlineCheckBoxValue = eOfflineRB->isOn();
   if ( offlineCheckBoxValue ) {
    // toggle the button settings or is this done for us?
   }
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
   printf("IOWizardPanel::eOfflineRBSelected() offlineCheckBoxValue=(%d)\n", offlineCheckBoxValue);
 #endif
 
@@ -811,14 +817,14 @@ void IOWizardPanel::eOfflineRBSelected()
 
 void IOWizardPanel::eOnlineRBSelected()
 {
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
   printf("IOWizardPanel::eOnlineRBSelected() entered.\n");
 #endif
   bool onlineCheckBoxValue = eOnlineRB->isOn();
   if ( onlineCheckBoxValue ) {
    // toggle the button settings or is this done for us?
   }
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
   printf("IOWizardPanel::eOnlineRBSelected() onlineCheckBoxValue=(%d)\n", onlineCheckBoxValue);
 #endif
   setThisWizardsInstrumentorIsOffline(!onlineCheckBoxValue);
@@ -904,12 +910,12 @@ Panel* IOWizardPanel::findAndRaiseLoadPanel()
 
   Panel *p = getThisWizardsLoadPanel();
   if (getThisWizardsInstrumentorIsOffline() == getThisWizardsPreviousInstrumentorIsOffline() ) {
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
      printf("IOWizardPanel::findAndRaiseLoadPanel, p=%x, getThisWizardsInstrumentorIsOffline()=%d, getThisWizardsPreviousInstrumentorIsOffline()=%d\n",
             p, getThisWizardsInstrumentorIsOffline(), getThisWizardsPreviousInstrumentorIsOffline());
 #endif
   } else {
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
      printf("IOWizardPanel::findAndRaiseLoadPanel, SET P NULL, p=%x, getThisWizardsInstrumentorIsOffline()=%d, getThisWizardsPreviousInstrumentorIsOffline()=%d\n",
             p, getThisWizardsInstrumentorIsOffline(), getThisWizardsPreviousInstrumentorIsOffline());
 #endif
@@ -917,7 +923,7 @@ Panel* IOWizardPanel::findAndRaiseLoadPanel()
      p = NULL;
   }
 
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
   printf("IOWizardPanel::findAndRaiseLoadPanel, found thisWizardsLoadPanel - now raising, p=%x\n", p);
   if (p) {
     printf("IOWizardPanel::findAndRaiseLoadPanel, p->getName()=%s\n", p->getName() );
@@ -927,7 +933,7 @@ Panel* IOWizardPanel::findAndRaiseLoadPanel()
   if (p) {
      p->getPanelContainer()->raisePanel(p);
   } else {
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
     printf("IOWizardPanel::findAndRaiseLoadPanel, did not find loadPanel\n");
 #endif
   }
@@ -937,7 +943,7 @@ Panel* IOWizardPanel::findAndRaiseLoadPanel()
   QString name = QString("loadPanel");
   Panel *p = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
   if (p) {
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
      printf("IOWizardPanel::findAndRaiseLoadPanel, found loadPanel - now raising, p=%x\n", p);
      if (p) {
        printf("IOWizardPanel::findAndRaiseLoadPanel, found loadPanel, p->getName()=%s\n", p->getName() );
@@ -945,7 +951,7 @@ Panel* IOWizardPanel::findAndRaiseLoadPanel()
 #endif
      p->getPanelContainer()->raisePanel(p);
   } else {
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
     printf("IOWizardPanel::findAndRaiseLoadPanel, did not find loadPanel\n");
 #endif
   }
@@ -1057,7 +1063,7 @@ void IOWizardPanel::eParameterPageNextButtonSelected()
                                         this, 
                                         getThisWizardsInstrumentorIsOffline() );
      setThisWizardsLoadPanel(p);
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
      printf("IOWizardPanel::eParameterPageNextButtonSelected, after calling mw->loadNewProgramPanel, p=0x%x\n", p );
      if (p) {
        printf("IOWizardPanel::eParameterPageNextButtonSelected, p->getName()=%s\n", p->getName() );
@@ -1216,7 +1222,7 @@ void IOWizardPanel::vParameterPageNextButtonSelected()
 
     Panel* p = mw->loadNewProgramPanel(getPanelContainer(), getPanelContainer()->getMasterPC(), /* expID */-1, (Panel *) this, getThisWizardsInstrumentorIsOffline());
     setThisWizardsLoadPanel(p);
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
     printf("IOWizardPanel::vParameterPageNextButtonSelected, after calling mw->loadNewProgramPanel, p=0x%x\n", p );
     if (p) {
       printf("IOWizardPanel::vParameterPageNextButtonSelected, p->getName()=%s\n", p->getName() );
@@ -1427,7 +1433,7 @@ void IOWizardPanel::vSummaryPageFinishButtonSelected()
           bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
           ao->isInstrumentorOffline = localInstrumentorIsOffline;
 
-#ifdef IOWizard
+#ifdef DEBUG_IOWizard
           printf("IOWizardPanel::vSummaryPageBackButtonSelected, creating IOWizardPanel experiment panel, getThisWizardsInstrumentorIsOffline()=%d\n", 
                   getThisWizardsInstrumentorIsOffline());
 #endif

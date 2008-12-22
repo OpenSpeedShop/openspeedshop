@@ -64,6 +64,11 @@
 #include "UserTimeDescription.hxx"
 
 #include "SS_Input_Manager.hxx"
+
+// Temporary default value for instrumentor is offline preference
+// We need to set up a class for the preference defaults to access them across the GUI panels and wizards.
+bool defaultValue_instrumentorIsOffline = TRUE;
+
 using namespace OpenSpeedShop::Framework;
 
 UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
@@ -104,16 +109,20 @@ UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, Argu
   mainWidgetStack->setMinimumSize( QSize(10,10) );
 
 #if 1
+  // Initialize the settings for offline before setting with actual values
+  setGlobalToolInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
+  setThisWizardsInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
+  setThisWizardsPreviousInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
+
   QSettings *settings = new QSettings();
-  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline");
+  bool boolOK = false;
+  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline", defaultValue_instrumentorIsOffline, &boolOK);
   setGlobalToolInstrumentorIsOffline(temp_instrumentorIsOffline);
 #ifdef DEBUG_UTWizard
-  printf("/openspeedshop/general/instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+  printf("UsertimeWizard setup: /openspeedshop/general/instrumentorIsOffline=(%d), boolOK=%d\n", temp_instrumentorIsOffline, boolOK );
 #endif
   delete settings;
 #endif
-
-
 
 // Begin: verbose description page
   vDescriptionPageWidget = new QWidget( mainWidgetStack, "vDescriptionPageWidget" );
@@ -914,12 +923,12 @@ Panel* UserTimeWizardPanel::findAndRaiseLoadPanel()
 #endif
 
   if (getThisWizardsInstrumentorIsOffline() == getThisWizardsPreviousInstrumentorIsOffline() ) {
-#ifdef DEBUG_PCWizard
+#ifdef DEBUG_UTWizard
      printf("UserTimeWizardPanel::findAndRaiseLoadPanel, p=%x, getThisWizardsInstrumentorIsOffline()=%d, getThisWizardsPreviousInstrumentorIsOffline()=%d\n",
             p, getThisWizardsInstrumentorIsOffline(), getThisWizardsPreviousInstrumentorIsOffline());
 #endif
   } else {
-#ifdef DEBUG_PCWizard
+#ifdef DEBUG_UTWizard
      printf("UserTimeWizardPanel::findAndRaiseLoadPanel, SET P NULL, p=%x, getThisWizardsInstrumentorIsOffline()=%d, getThisWizardsPreviousInstrumentorIsOffline()=%d\n",
             p, getThisWizardsInstrumentorIsOffline(), getThisWizardsPreviousInstrumentorIsOffline());
 #endif
@@ -927,7 +936,7 @@ Panel* UserTimeWizardPanel::findAndRaiseLoadPanel()
      p = NULL;
   }
 
-#ifdef DEBUG_PCWizard
+#ifdef DEBUG_UTWizard
   printf("UserTimeWizardPanel::findAndRaiseLoadPanel, found thisWizardsLoadPanel - now raising, p=%x\n", p);
   if (p) {
     printf("UserTimeWizardPanel::findAndRaiseLoadPanel, p->getName()=%s\n", p->getName() );

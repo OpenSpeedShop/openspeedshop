@@ -71,6 +71,11 @@
 
 #include "LoadAttachObject.hxx"
 
+// Temporary default value for instrumentor is offline preference
+// We need to set up a class for the preference defaults to access them across the GUI panels and wizards.
+bool defaultValue_instrumentorIsOffline = TRUE;
+
+
 // Category Name Information Class
 // Specify the category name to be displayed and whether that
 // category group is enabled or not.
@@ -211,20 +216,19 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
 
 
 #if 1
-
   // Initialize the settings for offline before setting with actual values
-  setGlobalToolInstrumentorIsOffline(FALSE);
-  setThisWizardsInstrumentorIsOffline(FALSE);
-  setThisWizardsPreviousInstrumentorIsOffline(FALSE);
+  setGlobalToolInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
+  setThisWizardsInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
+  setThisWizardsPreviousInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
 
   QSettings *settings = new QSettings();
-  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline");
+  bool boolOK = false;
+  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline", defaultValue_instrumentorIsOffline, &boolOK);
   setGlobalToolInstrumentorIsOffline(temp_instrumentorIsOffline);
 #ifdef DEBUG_MPIWizard
-  printf("/openspeedshop/general/instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+  printf("MPIWizard setup: /openspeedshop/general/instrumentorIsOffline=(%d), boolOK=%d\n", temp_instrumentorIsOffline, boolOK );
 #endif
   delete settings;
-
 #endif
 
   mpiFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
@@ -844,7 +848,7 @@ MPIWizardPanel::listener(void *msg)
 
    bool temp_instrumentorIsOffline = getToolPreferenceInstrumentorIsOffline();
 #ifdef DEBUG_MPIWizard
-   printf("PCWizard::listener, PREFERENCE-CHANGED-OBJECT temp_instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+   printf("MPIWizard::listener, PREFERENCE-CHANGED-OBJECT temp_instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
 #endif
     return 1;
 

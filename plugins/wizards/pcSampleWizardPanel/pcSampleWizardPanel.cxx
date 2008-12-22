@@ -65,6 +65,11 @@
 #include "pcSampleDescription.hxx"
 
 #include "SS_Input_Manager.hxx"
+
+// Temporary default value for instrumentor is offline preference
+// We need to set up a class for the preference defaults to access them across the GUI panels and wizards.
+bool defaultValue_instrumentorIsOffline = TRUE;
+
 using namespace OpenSpeedShop::Framework;
 
 pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
@@ -100,15 +105,16 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, Argu
 
 #if 1
   // Initialize the settings for offline before setting with actual values
-  setGlobalToolInstrumentorIsOffline(FALSE);
-  setThisWizardsInstrumentorIsOffline(FALSE);
-  setThisWizardsPreviousInstrumentorIsOffline(FALSE);
+  setGlobalToolInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
+  setThisWizardsInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
+  setThisWizardsPreviousInstrumentorIsOffline(defaultValue_instrumentorIsOffline);
 
   QSettings *settings = new QSettings();
-  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline");
+  bool boolOK = false;
+  bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline", defaultValue_instrumentorIsOffline, &boolOK);
   setGlobalToolInstrumentorIsOffline(temp_instrumentorIsOffline);
 #ifdef DEBUG_PCWizard
-  printf("/openspeedshop/general/instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
+  printf("pcsampleWizard setup: /openspeedshop/general/instrumentorIsOffline=(%d), boolOK=%d\n", temp_instrumentorIsOffline, boolOK );
 #endif
   delete settings;
 #endif
@@ -1388,7 +1394,7 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
       if( !mw->executableName.isEmpty() ) {
 
 #ifdef DEBUG_PCWizard
-        printf("vSummaryPageFinishButtonSelected(), A: executable name was specified.\n");
+        printf("vSummaryPageFinishButtonSelected(), A: executable name was specified. \n");
 #endif
 
         // The offline flag indicates to the custom experiment panel that the experiment is using offline instrumentation.
