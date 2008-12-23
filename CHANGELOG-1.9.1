@@ -10,4 +10,10 @@
 
 6) Modify the openssd shutdown process to work properly with MRNet 2.0.  This is related to the online mode of operation.  The daemons were not able to shutdown cleanly before this change.
 
+7) When no preference file has been written return the default value for instrumentorIsOffline, so that the OpenSpeedShop wizards have offline as the default instrumentation mechanism.
+
+8) Speedups for ossutil processing when processing symbols from the offline experiment.   ossutil is the utility that converts raw data files written by running the offline version of OpenSpeedShop.  
+
+9) Fixes to the offline script to invoke openss to support mpiexec for mpich2 and SGI MPT MPI implementations.
+
 
