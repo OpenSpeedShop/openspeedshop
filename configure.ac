@@ -145,8 +145,8 @@ AC_PKG_LIBMONITOR()
 
 AC_ARG_WITH(instrumentor,
 	    AC_HELP_STRING([--with-instrumentor=TYPE],
-			   [instrumentor (dpcl, dyninst, mrnet, offline) @<:@dpcl@:>@]),
-	    INSTRUMENTOR=$withval, INSTRUMENTOR="dpcl")
+			   [instrumentor (dpcl, dyninst, mrnet, offline) @<:@offline@:>@]),
+	    INSTRUMENTOR=$withval, INSTRUMENTOR="offline")
 
 case "$INSTRUMENTOR" in
     dpcl)

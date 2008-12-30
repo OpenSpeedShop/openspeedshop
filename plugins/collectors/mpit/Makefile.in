@@ -65,8 +65,10 @@ host_triplet = @host@
 @HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@am__append_10 = mpit-mpt-rt-offline.la libmpit-mpt-offline.la
 @BUILD_OFFLINE_FALSE@@HAVE_MVAPICH_TRUE@am__append_11 = mpit-rt-mvapich.la
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@am__append_12 = mpit-mvapich-rt-offline.la libmpit-mvapich-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_OPENMPI_TRUE@am__append_13 = mpit-rt-openmpi.la
-@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@am__append_14 = mpit-openmpi-rt-offline.la libmpit-openmpi-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_MVAPICH2_TRUE@am__append_13 = mpit-rt-mvapich2.la
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@am__append_14 = mpit-mvapich2-rt-offline.la libmpit-mvapich2-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_OPENMPI_TRUE@am__append_15 = mpit-rt-openmpi.la
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@am__append_16 = mpit-openmpi-rt-offline.la libmpit-openmpi-offline.la
 subdir = plugins/collectors/mpit
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -206,16 +208,36 @@ libmpit_mvapich_offline_la_LINK = $(LIBTOOL) --tag=CC \
 	$(libmpit_mvapich_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@am_libmpit_mvapich_offline_la_rpath =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@	-rpath $(pkglibdir)
-am__libmpit_openmpi_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
+am__libmpit_mvapich2_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	mpit_offline.c mpit_offline.h wrappers.c runtime.h runtime.c
-am__objects_19 = libmpit_openmpi_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_20 = libmpit_openmpi_offline_la-mpit_offline.lo
+am__objects_19 = libmpit_mvapich2_offline_la-blobs.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_20 = libmpit_mvapich2_offline_la-mpit_offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_21 = $(am__objects_19) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_20) \
+@HAVE_LIBMONITOR_TRUE@	libmpit_mvapich2_offline_la-wrappers.lo \
+@HAVE_LIBMONITOR_TRUE@	libmpit_mvapich2_offline_la-runtime.lo
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@am_libmpit_mvapich2_offline_la_OBJECTS =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@	$(am__objects_21)
+nodist_libmpit_mvapich2_offline_la_OBJECTS =
+libmpit_mvapich2_offline_la_OBJECTS =  \
+	$(am_libmpit_mvapich2_offline_la_OBJECTS) \
+	$(nodist_libmpit_mvapich2_offline_la_OBJECTS)
+libmpit_mvapich2_offline_la_LINK = $(LIBTOOL) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libmpit_mvapich2_offline_la_CFLAGS) $(CFLAGS) \
+	$(libmpit_mvapich2_offline_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@am_libmpit_mvapich2_offline_la_rpath =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@	-rpath $(pkglibdir)
+am__libmpit_openmpi_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
+	mpit_offline.c mpit_offline.h wrappers.c runtime.h runtime.c
+am__objects_22 = libmpit_openmpi_offline_la-blobs.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_23 = libmpit_openmpi_offline_la-mpit_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_24 = $(am__objects_22) \
+@HAVE_LIBMONITOR_TRUE@	$(am__objects_23) \
 @HAVE_LIBMONITOR_TRUE@	libmpit_openmpi_offline_la-wrappers.lo \
 @HAVE_LIBMONITOR_TRUE@	libmpit_openmpi_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@am_libmpit_openmpi_offline_la_OBJECTS =  \
-@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@	$(am__objects_21)
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@	$(am__objects_24)
 nodist_libmpit_openmpi_offline_la_OBJECTS =
 libmpit_openmpi_offline_la_OBJECTS =  \
 	$(am_libmpit_openmpi_offline_la_OBJECTS) \
@@ -228,15 +250,15 @@ libmpit_openmpi_offline_la_LINK = $(LIBTOOL) --tag=CC \
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@	-rpath $(pkglibdir)
 am__mpit_lam_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	mpit_offline.c mpit_offline.h wrappers.c runtime.h runtime.c
-am__objects_22 = mpit_lam_rt_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_23 =  \
+am__objects_25 = mpit_lam_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_26 =  \
 @HAVE_LIBMONITOR_TRUE@	mpit_lam_rt_offline_la-mpit_offline.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_24 = $(am__objects_22) \
-@HAVE_LIBMONITOR_TRUE@	$(am__objects_23) \
+@HAVE_LIBMONITOR_TRUE@am__objects_27 = $(am__objects_25) \
+@HAVE_LIBMONITOR_TRUE@	$(am__objects_26) \
 @HAVE_LIBMONITOR_TRUE@	mpit_lam_rt_offline_la-wrappers.lo \
 @HAVE_LIBMONITOR_TRUE@	mpit_lam_rt_offline_la-runtime.lo
 @HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@am_mpit_lam_rt_offline_la_OBJECTS =  \
-@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@	$(am__objects_24)
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@	$(am__objects_27)
 nodist_mpit_lam_rt_offline_la_OBJECTS =
 mpit_lam_rt_offline_la_OBJECTS = $(am_mpit_lam_rt_offline_la_OBJECTS) \
 	$(nodist_mpit_lam_rt_offline_la_OBJECTS)
@@ -248,14 +270,14 @@ mpit_lam_rt_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@	-rpath $(pkglibdir)
 am__mpit_lampi_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	mpit_offline.c mpit_offline.h wrappers.c runtime.h runtime.c
-am__objects_25 = mpit_lampi_rt_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_26 = mpit_lampi_rt_offline_la-mpit_offline.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_27 = $(am__objects_25) \
-@HAVE_LIBMONITOR_TRUE@	$(am__objects_26) \
+am__objects_28 = mpit_lampi_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_29 = mpit_lampi_rt_offline_la-mpit_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_30 = $(am__objects_28) \
+@HAVE_LIBMONITOR_TRUE@	$(am__objects_29) \
 @HAVE_LIBMONITOR_TRUE@	mpit_lampi_rt_offline_la-wrappers.lo \
 @HAVE_LIBMONITOR_TRUE@	mpit_lampi_rt_offline_la-runtime.lo
 @HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@am_mpit_lampi_rt_offline_la_OBJECTS =  \
-@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@	$(am__objects_27)
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@	$(am__objects_30)
 nodist_mpit_lampi_rt_offline_la_OBJECTS =
 mpit_lampi_rt_offline_la_OBJECTS =  \
 	$(am_mpit_lampi_rt_offline_la_OBJECTS) \
@@ -268,14 +290,14 @@ mpit_lampi_rt_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@	-rpath $(pkglibdir)
 am__mpit_mpich_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	mpit_offline.c mpit_offline.h wrappers.c runtime.h runtime.c
-am__objects_28 = mpit_mpich_rt_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_29 = mpit_mpich_rt_offline_la-mpit_offline.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_30 = $(am__objects_28) \
-@HAVE_LIBMONITOR_TRUE@	$(am__objects_29) \
+am__objects_31 = mpit_mpich_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_32 = mpit_mpich_rt_offline_la-mpit_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_33 = $(am__objects_31) \
+@HAVE_LIBMONITOR_TRUE@	$(am__objects_32) \
 @HAVE_LIBMONITOR_TRUE@	mpit_mpich_rt_offline_la-wrappers.lo \
 @HAVE_LIBMONITOR_TRUE@	mpit_mpich_rt_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@am_mpit_mpich_rt_offline_la_OBJECTS =  \
-@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@	$(am__objects_30)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@	$(am__objects_33)
 nodist_mpit_mpich_rt_offline_la_OBJECTS =
 mpit_mpich_rt_offline_la_OBJECTS =  \
 	$(am_mpit_mpich_rt_offline_la_OBJECTS) \
@@ -288,14 +310,14 @@ mpit_mpich_rt_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@	-rpath $(pkglibdir)
 am__mpit_mpich2_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	mpit_offline.c mpit_offline.h wrappers.c runtime.h runtime.c
-am__objects_31 = mpit_mpich2_rt_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_32 = mpit_mpich2_rt_offline_la-mpit_offline.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_33 = $(am__objects_31) \
-@HAVE_LIBMONITOR_TRUE@	$(am__objects_32) \
+am__objects_34 = mpit_mpich2_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_35 = mpit_mpich2_rt_offline_la-mpit_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_36 = $(am__objects_34) \
+@HAVE_LIBMONITOR_TRUE@	$(am__objects_35) \
 @HAVE_LIBMONITOR_TRUE@	mpit_mpich2_rt_offline_la-wrappers.lo \
 @HAVE_LIBMONITOR_TRUE@	mpit_mpich2_rt_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@am_mpit_mpich2_rt_offline_la_OBJECTS =  \
-@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@	$(am__objects_33)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@	$(am__objects_36)
 nodist_mpit_mpich2_rt_offline_la_OBJECTS =
 mpit_mpich2_rt_offline_la_OBJECTS =  \
 	$(am_mpit_mpich2_rt_offline_la_OBJECTS) \
@@ -308,15 +330,15 @@ mpit_mpich2_rt_offline_la_LINK = $(LIBTOOL) --tag=CC \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@	-rpath $(pkglibdir)
 am__mpit_mpt_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	mpit_offline.c mpit_offline.h wrappers.c runtime.h runtime.c
-am__objects_34 = mpit_mpt_rt_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_35 =  \
+am__objects_37 = mpit_mpt_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_38 =  \
 @HAVE_LIBMONITOR_TRUE@	mpit_mpt_rt_offline_la-mpit_offline.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_36 = $(am__objects_34) \
-@HAVE_LIBMONITOR_TRUE@	$(am__objects_35) \
+@HAVE_LIBMONITOR_TRUE@am__objects_39 = $(am__objects_37) \
+@HAVE_LIBMONITOR_TRUE@	$(am__objects_38) \
 @HAVE_LIBMONITOR_TRUE@	mpit_mpt_rt_offline_la-wrappers.lo \
 @HAVE_LIBMONITOR_TRUE@	mpit_mpt_rt_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@am_mpit_mpt_rt_offline_la_OBJECTS =  \
-@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@	$(am__objects_36)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@	$(am__objects_39)
 nodist_mpit_mpt_rt_offline_la_OBJECTS =
 mpit_mpt_rt_offline_la_OBJECTS = $(am_mpit_mpt_rt_offline_la_OBJECTS) \
 	$(nodist_mpit_mpt_rt_offline_la_OBJECTS)
@@ -328,14 +350,14 @@ mpit_mpt_rt_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@	-rpath $(pkglibdir)
 am__mpit_mvapich_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	mpit_offline.c mpit_offline.h wrappers.c runtime.h runtime.c
-am__objects_37 = mpit_mvapich_rt_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_38 = mpit_mvapich_rt_offline_la-mpit_offline.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_39 = $(am__objects_37) \
-@HAVE_LIBMONITOR_TRUE@	$(am__objects_38) \
+am__objects_40 = mpit_mvapich_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_41 = mpit_mvapich_rt_offline_la-mpit_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_42 = $(am__objects_40) \
+@HAVE_LIBMONITOR_TRUE@	$(am__objects_41) \
 @HAVE_LIBMONITOR_TRUE@	mpit_mvapich_rt_offline_la-wrappers.lo \
 @HAVE_LIBMONITOR_TRUE@	mpit_mvapich_rt_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@am_mpit_mvapich_rt_offline_la_OBJECTS =  \
-@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@	$(am__objects_39)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@	$(am__objects_42)
 nodist_mpit_mvapich_rt_offline_la_OBJECTS =
 mpit_mvapich_rt_offline_la_OBJECTS =  \
 	$(am_mpit_mvapich_rt_offline_la_OBJECTS) \
@@ -346,16 +368,36 @@ mpit_mvapich_rt_offline_la_LINK = $(LIBTOOL) --tag=CC \
 	$(mpit_mvapich_rt_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@am_mpit_mvapich_rt_offline_la_rpath =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@	-rpath $(pkglibdir)
+am__mpit_mvapich2_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
+	mpit_offline.c mpit_offline.h wrappers.c runtime.h runtime.c
+am__objects_43 = mpit_mvapich2_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_44 = mpit_mvapich2_rt_offline_la-mpit_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_45 = $(am__objects_43) \
+@HAVE_LIBMONITOR_TRUE@	$(am__objects_44) \
+@HAVE_LIBMONITOR_TRUE@	mpit_mvapich2_rt_offline_la-wrappers.lo \
+@HAVE_LIBMONITOR_TRUE@	mpit_mvapich2_rt_offline_la-runtime.lo
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@am_mpit_mvapich2_rt_offline_la_OBJECTS =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@	$(am__objects_45)
+nodist_mpit_mvapich2_rt_offline_la_OBJECTS =
+mpit_mvapich2_rt_offline_la_OBJECTS =  \
+	$(am_mpit_mvapich2_rt_offline_la_OBJECTS) \
+	$(nodist_mpit_mvapich2_rt_offline_la_OBJECTS)
+mpit_mvapich2_rt_offline_la_LINK = $(LIBTOOL) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(mpit_mvapich2_rt_offline_la_CFLAGS) $(CFLAGS) \
+	$(mpit_mvapich2_rt_offline_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@am_mpit_mvapich2_rt_offline_la_rpath =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@	-rpath $(pkglibdir)
 am__mpit_openmpi_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	mpit_offline.c mpit_offline.h wrappers.c runtime.h runtime.c
-am__objects_40 = mpit_openmpi_rt_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_41 = mpit_openmpi_rt_offline_la-mpit_offline.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_42 = $(am__objects_40) \
-@HAVE_LIBMONITOR_TRUE@	$(am__objects_41) \
+am__objects_46 = mpit_openmpi_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_47 = mpit_openmpi_rt_offline_la-mpit_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_48 = $(am__objects_46) \
+@HAVE_LIBMONITOR_TRUE@	$(am__objects_47) \
 @HAVE_LIBMONITOR_TRUE@	mpit_openmpi_rt_offline_la-wrappers.lo \
 @HAVE_LIBMONITOR_TRUE@	mpit_openmpi_rt_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@am_mpit_openmpi_rt_offline_la_OBJECTS =  \
-@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@	$(am__objects_42)
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@	$(am__objects_48)
 nodist_mpit_openmpi_rt_offline_la_OBJECTS =
 mpit_openmpi_rt_offline_la_OBJECTS =  \
 	$(am_mpit_openmpi_rt_offline_la_OBJECTS) \
@@ -368,10 +410,10 @@ mpit_openmpi_rt_offline_la_LINK = $(LIBTOOL) --tag=CC \
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@	-rpath $(pkglibdir)
 am__mpit_rt_lam_la_SOURCES_DIST = blobs.x blobs.h blobs.c runtime.h \
 	runtime.c wrappers.c
-am__objects_43 = mpit_rt_lam_la-blobs.lo
-am__objects_44 = $(am__objects_43) mpit_rt_lam_la-runtime.lo \
+am__objects_49 = mpit_rt_lam_la-blobs.lo
+am__objects_50 = $(am__objects_49) mpit_rt_lam_la-runtime.lo \
 	mpit_rt_lam_la-wrappers.lo
-@HAVE_LAM_TRUE@am_mpit_rt_lam_la_OBJECTS = $(am__objects_44)
+@HAVE_LAM_TRUE@am_mpit_rt_lam_la_OBJECTS = $(am__objects_50)
 nodist_mpit_rt_lam_la_OBJECTS =
 mpit_rt_lam_la_OBJECTS = $(am_mpit_rt_lam_la_OBJECTS) \
 	$(nodist_mpit_rt_lam_la_OBJECTS)
@@ -382,10 +424,10 @@ mpit_rt_lam_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @BUILD_OFFLINE_FALSE@@HAVE_LAM_TRUE@	$(pkglibdir)
 am__mpit_rt_lampi_la_SOURCES_DIST = blobs.x blobs.h blobs.c runtime.h \
 	runtime.c wrappers.c
-am__objects_45 = mpit_rt_lampi_la-blobs.lo
-am__objects_46 = $(am__objects_45) mpit_rt_lampi_la-runtime.lo \
+am__objects_51 = mpit_rt_lampi_la-blobs.lo
+am__objects_52 = $(am__objects_51) mpit_rt_lampi_la-runtime.lo \
 	mpit_rt_lampi_la-wrappers.lo
-@HAVE_LAMPI_TRUE@am_mpit_rt_lampi_la_OBJECTS = $(am__objects_46)
+@HAVE_LAMPI_TRUE@am_mpit_rt_lampi_la_OBJECTS = $(am__objects_52)
 nodist_mpit_rt_lampi_la_OBJECTS =
 mpit_rt_lampi_la_OBJECTS = $(am_mpit_rt_lampi_la_OBJECTS) \
 	$(nodist_mpit_rt_lampi_la_OBJECTS)
@@ -396,10 +438,10 @@ mpit_rt_lampi_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @BUILD_OFFLINE_FALSE@@HAVE_LAMPI_TRUE@	-rpath $(pkglibdir)
 am__mpit_rt_mpich_la_SOURCES_DIST = blobs.x blobs.h blobs.c runtime.h \
 	runtime.c wrappers.c
-am__objects_47 = mpit_rt_mpich_la-blobs.lo
-am__objects_48 = $(am__objects_47) mpit_rt_mpich_la-runtime.lo \
+am__objects_53 = mpit_rt_mpich_la-blobs.lo
+am__objects_54 = $(am__objects_53) mpit_rt_mpich_la-runtime.lo \
 	mpit_rt_mpich_la-wrappers.lo
-@HAVE_MPICH_TRUE@am_mpit_rt_mpich_la_OBJECTS = $(am__objects_48)
+@HAVE_MPICH_TRUE@am_mpit_rt_mpich_la_OBJECTS = $(am__objects_54)
 nodist_mpit_rt_mpich_la_OBJECTS =
 mpit_rt_mpich_la_OBJECTS = $(am_mpit_rt_mpich_la_OBJECTS) \
 	$(nodist_mpit_rt_mpich_la_OBJECTS)
@@ -410,10 +452,10 @@ mpit_rt_mpich_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @BUILD_OFFLINE_FALSE@@HAVE_MPICH_TRUE@	-rpath $(pkglibdir)
 am__mpit_rt_mpich2_la_SOURCES_DIST = blobs.x blobs.h blobs.c runtime.h \
 	runtime.c wrappers.c
-am__objects_49 = mpit_rt_mpich2_la-blobs.lo
-am__objects_50 = $(am__objects_49) mpit_rt_mpich2_la-runtime.lo \
+am__objects_55 = mpit_rt_mpich2_la-blobs.lo
+am__objects_56 = $(am__objects_55) mpit_rt_mpich2_la-runtime.lo \
 	mpit_rt_mpich2_la-wrappers.lo
-@HAVE_MPICH2_TRUE@am_mpit_rt_mpich2_la_OBJECTS = $(am__objects_50)
+@HAVE_MPICH2_TRUE@am_mpit_rt_mpich2_la_OBJECTS = $(am__objects_56)
 nodist_mpit_rt_mpich2_la_OBJECTS =
 mpit_rt_mpich2_la_OBJECTS = $(am_mpit_rt_mpich2_la_OBJECTS) \
 	$(nodist_mpit_rt_mpich2_la_OBJECTS)
@@ -425,10 +467,10 @@ mpit_rt_mpich2_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @BUILD_OFFLINE_FALSE@@HAVE_MPICH2_TRUE@	-rpath $(pkglibdir)
 am__mpit_rt_mpt_la_SOURCES_DIST = blobs.x blobs.h blobs.c runtime.h \
 	runtime.c wrappers.c
-am__objects_51 = mpit_rt_mpt_la-blobs.lo
-am__objects_52 = $(am__objects_51) mpit_rt_mpt_la-runtime.lo \
+am__objects_57 = mpit_rt_mpt_la-blobs.lo
+am__objects_58 = $(am__objects_57) mpit_rt_mpt_la-runtime.lo \
 	mpit_rt_mpt_la-wrappers.lo
-@HAVE_MPT_TRUE@am_mpit_rt_mpt_la_OBJECTS = $(am__objects_52)
+@HAVE_MPT_TRUE@am_mpit_rt_mpt_la_OBJECTS = $(am__objects_58)
 nodist_mpit_rt_mpt_la_OBJECTS =
 mpit_rt_mpt_la_OBJECTS = $(am_mpit_rt_mpt_la_OBJECTS) \
 	$(nodist_mpit_rt_mpt_la_OBJECTS)
@@ -439,10 +481,10 @@ mpit_rt_mpt_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @BUILD_OFFLINE_FALSE@@HAVE_MPT_TRUE@	$(pkglibdir)
 am__mpit_rt_mvapich_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	runtime.h runtime.c wrappers.c
-am__objects_53 = mpit_rt_mvapich_la-blobs.lo
-am__objects_54 = $(am__objects_53) mpit_rt_mvapich_la-runtime.lo \
+am__objects_59 = mpit_rt_mvapich_la-blobs.lo
+am__objects_60 = $(am__objects_59) mpit_rt_mvapich_la-runtime.lo \
 	mpit_rt_mvapich_la-wrappers.lo
-@HAVE_MVAPICH_TRUE@am_mpit_rt_mvapich_la_OBJECTS = $(am__objects_54)
+@HAVE_MVAPICH_TRUE@am_mpit_rt_mvapich_la_OBJECTS = $(am__objects_60)
 nodist_mpit_rt_mvapich_la_OBJECTS =
 mpit_rt_mvapich_la_OBJECTS = $(am_mpit_rt_mvapich_la_OBJECTS) \
 	$(nodist_mpit_rt_mvapich_la_OBJECTS)
@@ -452,12 +494,28 @@ mpit_rt_mvapich_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(mpit_rt_mvapich_la_LDFLAGS) $(LDFLAGS) -o $@
 @BUILD_OFFLINE_FALSE@@HAVE_MVAPICH_TRUE@am_mpit_rt_mvapich_la_rpath =  \
 @BUILD_OFFLINE_FALSE@@HAVE_MVAPICH_TRUE@	-rpath $(pkglibdir)
+am__mpit_rt_mvapich2_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
+	runtime.h runtime.c wrappers.c
+am__objects_61 = mpit_rt_mvapich2_la-blobs.lo
+am__objects_62 = $(am__objects_61) mpit_rt_mvapich2_la-runtime.lo \
+	mpit_rt_mvapich2_la-wrappers.lo
+@HAVE_MVAPICH2_TRUE@am_mpit_rt_mvapich2_la_OBJECTS =  \
+@HAVE_MVAPICH2_TRUE@	$(am__objects_62)
+nodist_mpit_rt_mvapich2_la_OBJECTS =
+mpit_rt_mvapich2_la_OBJECTS = $(am_mpit_rt_mvapich2_la_OBJECTS) \
+	$(nodist_mpit_rt_mvapich2_la_OBJECTS)
+mpit_rt_mvapich2_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(mpit_rt_mvapich2_la_CFLAGS) $(CFLAGS) \
+	$(mpit_rt_mvapich2_la_LDFLAGS) $(LDFLAGS) -o $@
+@BUILD_OFFLINE_FALSE@@HAVE_MVAPICH2_TRUE@am_mpit_rt_mvapich2_la_rpath =  \
+@BUILD_OFFLINE_FALSE@@HAVE_MVAPICH2_TRUE@	-rpath $(pkglibdir)
 am__mpit_rt_openmpi_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	runtime.h runtime.c wrappers.c
-am__objects_55 = mpit_rt_openmpi_la-blobs.lo
-am__objects_56 = $(am__objects_55) mpit_rt_openmpi_la-runtime.lo \
+am__objects_63 = mpit_rt_openmpi_la-blobs.lo
+am__objects_64 = $(am__objects_63) mpit_rt_openmpi_la-runtime.lo \
 	mpit_rt_openmpi_la-wrappers.lo
-@HAVE_OPENMPI_TRUE@am_mpit_rt_openmpi_la_OBJECTS = $(am__objects_56)
+@HAVE_OPENMPI_TRUE@am_mpit_rt_openmpi_la_OBJECTS = $(am__objects_64)
 nodist_mpit_rt_openmpi_la_OBJECTS =
 mpit_rt_openmpi_la_OBJECTS = $(am_mpit_rt_openmpi_la_OBJECTS) \
 	$(nodist_mpit_rt_openmpi_la_OBJECTS)
@@ -468,8 +526,8 @@ mpit_rt_openmpi_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @BUILD_OFFLINE_FALSE@@HAVE_OPENMPI_TRUE@am_mpit_rt_openmpi_la_rpath =  \
 @BUILD_OFFLINE_FALSE@@HAVE_OPENMPI_TRUE@	-rpath $(pkglibdir)
 mpit_la_DEPENDENCIES =
-am__objects_57 = blobs.lo
-am_mpit_la_OBJECTS = $(am__objects_57) mpit_la-MPITCollector.lo
+am__objects_65 = blobs.lo
+am_mpit_la_OBJECTS = $(am__objects_65) mpit_la-MPITCollector.lo
 mpit_la_OBJECTS = $(am_mpit_la_OBJECTS)
 mpit_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(mpit_la_CXXFLAGS) $(CXXFLAGS) \
@@ -507,6 +565,8 @@ SOURCES = $(libmpit_lam_offline_la_SOURCES) \
 	$(nodist_libmpit_mpt_offline_la_SOURCES) \
 	$(libmpit_mvapich_offline_la_SOURCES) \
 	$(nodist_libmpit_mvapich_offline_la_SOURCES) \
+	$(libmpit_mvapich2_offline_la_SOURCES) \
+	$(nodist_libmpit_mvapich2_offline_la_SOURCES) \
 	$(libmpit_openmpi_offline_la_SOURCES) \
 	$(nodist_libmpit_openmpi_offline_la_SOURCES) \
 	$(mpit_lam_rt_offline_la_SOURCES) \
@@ -521,6 +581,8 @@ SOURCES = $(libmpit_lam_offline_la_SOURCES) \
 	$(nodist_mpit_mpt_rt_offline_la_SOURCES) \
 	$(mpit_mvapich_rt_offline_la_SOURCES) \
 	$(nodist_mpit_mvapich_rt_offline_la_SOURCES) \
+	$(mpit_mvapich2_rt_offline_la_SOURCES) \
+	$(nodist_mpit_mvapich2_rt_offline_la_SOURCES) \
 	$(mpit_openmpi_rt_offline_la_SOURCES) \
 	$(nodist_mpit_openmpi_rt_offline_la_SOURCES) \
 	$(mpit_rt_lam_la_SOURCES) $(nodist_mpit_rt_lam_la_SOURCES) \
@@ -530,6 +592,8 @@ SOURCES = $(libmpit_lam_offline_la_SOURCES) \
 	$(nodist_mpit_rt_mpich2_la_SOURCES) $(mpit_rt_mpt_la_SOURCES) \
 	$(nodist_mpit_rt_mpt_la_SOURCES) $(mpit_rt_mvapich_la_SOURCES) \
 	$(nodist_mpit_rt_mvapich_la_SOURCES) \
+	$(mpit_rt_mvapich2_la_SOURCES) \
+	$(nodist_mpit_rt_mvapich2_la_SOURCES) \
 	$(mpit_rt_openmpi_la_SOURCES) \
 	$(nodist_mpit_rt_openmpi_la_SOURCES) $(mpit_la_SOURCES)
 DIST_SOURCES = $(am__libmpit_lam_offline_la_SOURCES_DIST) \
@@ -538,6 +602,7 @@ DIST_SOURCES = $(am__libmpit_lam_offline_la_SOURCES_DIST) \
 	$(am__libmpit_mpich2_offline_la_SOURCES_DIST) \
 	$(am__libmpit_mpt_offline_la_SOURCES_DIST) \
 	$(am__libmpit_mvapich_offline_la_SOURCES_DIST) \
+	$(am__libmpit_mvapich2_offline_la_SOURCES_DIST) \
 	$(am__libmpit_openmpi_offline_la_SOURCES_DIST) \
 	$(am__mpit_lam_rt_offline_la_SOURCES_DIST) \
 	$(am__mpit_lampi_rt_offline_la_SOURCES_DIST) \
@@ -545,6 +610,7 @@ DIST_SOURCES = $(am__libmpit_lam_offline_la_SOURCES_DIST) \
 	$(am__mpit_mpich2_rt_offline_la_SOURCES_DIST) \
 	$(am__mpit_mpt_rt_offline_la_SOURCES_DIST) \
 	$(am__mpit_mvapich_rt_offline_la_SOURCES_DIST) \
+	$(am__mpit_mvapich2_rt_offline_la_SOURCES_DIST) \
 	$(am__mpit_openmpi_rt_offline_la_SOURCES_DIST) \
 	$(am__mpit_rt_lam_la_SOURCES_DIST) \
 	$(am__mpit_rt_lampi_la_SOURCES_DIST) \
@@ -552,6 +618,7 @@ DIST_SOURCES = $(am__libmpit_lam_offline_la_SOURCES_DIST) \
 	$(am__mpit_rt_mpich2_la_SOURCES_DIST) \
 	$(am__mpit_rt_mpt_la_SOURCES_DIST) \
 	$(am__mpit_rt_mvapich_la_SOURCES_DIST) \
+	$(am__mpit_rt_mvapich2_la_SOURCES_DIST) \
 	$(am__mpit_rt_openmpi_la_SOURCES_DIST) $(mpit_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
@@ -665,6 +732,12 @@ MPT_LIBS = @MPT_LIBS@
 MRNET_CPPFLAGS = @MRNET_CPPFLAGS@
 MRNET_LDFLAGS = @MRNET_LDFLAGS@
 MRNET_LIBS = @MRNET_LIBS@
+MVAPICH2_CC = @MVAPICH2_CC@
+MVAPICH2_CPPFLAGS = @MVAPICH2_CPPFLAGS@
+MVAPICH2_DIR = @MVAPICH2_DIR@
+MVAPICH2_HEADER = @MVAPICH2_HEADER@
+MVAPICH2_LDFLAGS = @MVAPICH2_LDFLAGS@
+MVAPICH2_LIBS = @MVAPICH2_LIBS@
 MVAPICH_CC = @MVAPICH_CC@
 MVAPICH_CPPFLAGS = @MVAPICH_CPPFLAGS@
 MVAPICH_DIR = @MVAPICH_DIR@
@@ -796,7 +869,8 @@ pkglib_LTLIBRARIES = mpit.la $(am__append_1) $(am__append_2) \
 	$(am__append_3) $(am__append_4) $(am__append_5) \
 	$(am__append_6) $(am__append_7) $(am__append_8) \
 	$(am__append_9) $(am__append_10) $(am__append_11) \
-	$(am__append_12) $(am__append_13) $(am__append_14)
+	$(am__append_12) $(am__append_13) $(am__append_14) \
+	$(am__append_15) $(am__append_16)
 @HAVE_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	mpit_offline.c mpit_offline.h
 
@@ -1019,6 +1093,24 @@ rt_sources = \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@libmpit_mvapich_offline_la_DEPENDENCIES = 
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@libmpit_mvapich_offline_la_SOURCES = $(lib_offline_sources)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@nodist_libmpit_mvapich_offline_la_SOURCES = 
+@HAVE_MVAPICH2_TRUE@mpit_rt_mvapich2_la_CFLAGS = $(call rt_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
+@HAVE_MVAPICH2_TRUE@mpit_rt_mvapich2_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
+@HAVE_MVAPICH2_TRUE@mpit_rt_mvapich2_la_LIBADD = $(call rt_LIBADD_generate,@MVAPICH2_LIBS@)
+@HAVE_MVAPICH2_TRUE@mpit_rt_mvapich2_la_DEPENDENCIES = 
+@HAVE_MVAPICH2_TRUE@mpit_rt_mvapich2_la_SOURCES = $(rt_sources)
+@HAVE_MVAPICH2_TRUE@nodist_mpit_rt_mvapich2_la_SOURCES = 
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@mpit_mvapich2_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@mpit_mvapich2_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@mpit_mvapich2_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@MVAPICH2_LIBS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@mpit_mvapich2_rt_offline_la_DEPENDENCIES = 
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@mpit_mvapich2_rt_offline_la_SOURCES = $(rt_offline_sources)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@nodist_mpit_mvapich2_rt_offline_la_SOURCES = 
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpit_mvapich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpit_mvapich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpit_mvapich2_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MVAPICH2_LIBS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpit_mvapich2_offline_la_DEPENDENCIES = 
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpit_mvapich2_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@nodist_libmpit_mvapich2_offline_la_SOURCES = 
 @HAVE_OPENMPI_TRUE@mpit_rt_openmpi_la_CFLAGS = $(call rt_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
 @HAVE_OPENMPI_TRUE@mpit_rt_openmpi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
 @HAVE_OPENMPI_TRUE@mpit_rt_openmpi_la_LIBADD = $(call rt_LIBADD_generate,@OPENMPI_LIBS@)
@@ -1114,6 +1206,8 @@ libmpit-mpt-offline.la: $(libmpit_mpt_offline_la_OBJECTS) $(libmpit_mpt_offline_
 	$(libmpit_mpt_offline_la_LINK) $(am_libmpit_mpt_offline_la_rpath) $(libmpit_mpt_offline_la_OBJECTS) $(libmpit_mpt_offline_la_LIBADD) $(LIBS)
 libmpit-mvapich-offline.la: $(libmpit_mvapich_offline_la_OBJECTS) $(libmpit_mvapich_offline_la_DEPENDENCIES) 
 	$(libmpit_mvapich_offline_la_LINK) $(am_libmpit_mvapich_offline_la_rpath) $(libmpit_mvapich_offline_la_OBJECTS) $(libmpit_mvapich_offline_la_LIBADD) $(LIBS)
+libmpit-mvapich2-offline.la: $(libmpit_mvapich2_offline_la_OBJECTS) $(libmpit_mvapich2_offline_la_DEPENDENCIES) 
+	$(libmpit_mvapich2_offline_la_LINK) $(am_libmpit_mvapich2_offline_la_rpath) $(libmpit_mvapich2_offline_la_OBJECTS) $(libmpit_mvapich2_offline_la_LIBADD) $(LIBS)
 libmpit-openmpi-offline.la: $(libmpit_openmpi_offline_la_OBJECTS) $(libmpit_openmpi_offline_la_DEPENDENCIES) 
 	$(libmpit_openmpi_offline_la_LINK) $(am_libmpit_openmpi_offline_la_rpath) $(libmpit_openmpi_offline_la_OBJECTS) $(libmpit_openmpi_offline_la_LIBADD) $(LIBS)
 mpit-lam-rt-offline.la: $(mpit_lam_rt_offline_la_OBJECTS) $(mpit_lam_rt_offline_la_DEPENDENCIES) 
@@ -1128,6 +1222,8 @@ mpit-mpt-rt-offline.la: $(mpit_mpt_rt_offline_la_OBJECTS) $(mpit_mpt_rt_offline_
 	$(mpit_mpt_rt_offline_la_LINK) $(am_mpit_mpt_rt_offline_la_rpath) $(mpit_mpt_rt_offline_la_OBJECTS) $(mpit_mpt_rt_offline_la_LIBADD) $(LIBS)
 mpit-mvapich-rt-offline.la: $(mpit_mvapich_rt_offline_la_OBJECTS) $(mpit_mvapich_rt_offline_la_DEPENDENCIES) 
 	$(mpit_mvapich_rt_offline_la_LINK) $(am_mpit_mvapich_rt_offline_la_rpath) $(mpit_mvapich_rt_offline_la_OBJECTS) $(mpit_mvapich_rt_offline_la_LIBADD) $(LIBS)
+mpit-mvapich2-rt-offline.la: $(mpit_mvapich2_rt_offline_la_OBJECTS) $(mpit_mvapich2_rt_offline_la_DEPENDENCIES) 
+	$(mpit_mvapich2_rt_offline_la_LINK) $(am_mpit_mvapich2_rt_offline_la_rpath) $(mpit_mvapich2_rt_offline_la_OBJECTS) $(mpit_mvapich2_rt_offline_la_LIBADD) $(LIBS)
 mpit-openmpi-rt-offline.la: $(mpit_openmpi_rt_offline_la_OBJECTS) $(mpit_openmpi_rt_offline_la_DEPENDENCIES) 
 	$(mpit_openmpi_rt_offline_la_LINK) $(am_mpit_openmpi_rt_offline_la_rpath) $(mpit_openmpi_rt_offline_la_OBJECTS) $(mpit_openmpi_rt_offline_la_LIBADD) $(LIBS)
 mpit-rt-lam.la: $(mpit_rt_lam_la_OBJECTS) $(mpit_rt_lam_la_DEPENDENCIES) 
@@ -1142,6 +1238,8 @@ mpit-rt-mpt.la: $(mpit_rt_mpt_la_OBJECTS) $(mpit_rt_mpt_la_DEPENDENCIES)
 	$(mpit_rt_mpt_la_LINK) $(am_mpit_rt_mpt_la_rpath) $(mpit_rt_mpt_la_OBJECTS) $(mpit_rt_mpt_la_LIBADD) $(LIBS)
 mpit-rt-mvapich.la: $(mpit_rt_mvapich_la_OBJECTS) $(mpit_rt_mvapich_la_DEPENDENCIES) 
 	$(mpit_rt_mvapich_la_LINK) $(am_mpit_rt_mvapich_la_rpath) $(mpit_rt_mvapich_la_OBJECTS) $(mpit_rt_mvapich_la_LIBADD) $(LIBS)
+mpit-rt-mvapich2.la: $(mpit_rt_mvapich2_la_OBJECTS) $(mpit_rt_mvapich2_la_DEPENDENCIES) 
+	$(mpit_rt_mvapich2_la_LINK) $(am_mpit_rt_mvapich2_la_rpath) $(mpit_rt_mvapich2_la_OBJECTS) $(mpit_rt_mvapich2_la_LIBADD) $(LIBS)
 mpit-rt-openmpi.la: $(mpit_rt_openmpi_la_OBJECTS) $(mpit_rt_openmpi_la_DEPENDENCIES) 
 	$(mpit_rt_openmpi_la_LINK) $(am_mpit_rt_openmpi_la_rpath) $(mpit_rt_openmpi_la_OBJECTS) $(mpit_rt_openmpi_la_LIBADD) $(LIBS)
 mpit.la: $(mpit_la_OBJECTS) $(mpit_la_DEPENDENCIES) 
@@ -1174,6 +1272,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmpit_mpt_offline_la-mpit_offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmpit_mpt_offline_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmpit_mpt_offline_la-wrappers.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmpit_mvapich2_offline_la-blobs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmpit_mvapich2_offline_la-mpit_offline.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmpit_mvapich2_offline_la-runtime.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmpit_mvapich2_offline_la-wrappers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmpit_mvapich_offline_la-blobs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmpit_mvapich_offline_la-mpit_offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmpit_mvapich_offline_la-runtime.Plo@am__quote@
@@ -1203,6 +1305,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_mpt_rt_offline_la-mpit_offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_mpt_rt_offline_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_mpt_rt_offline_la-wrappers.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_mvapich2_rt_offline_la-blobs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_mvapich2_rt_offline_la-mpit_offline.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_mvapich2_rt_offline_la-runtime.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_mvapich2_rt_offline_la-wrappers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_mvapich_rt_offline_la-blobs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_mvapich_rt_offline_la-mpit_offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_mvapich_rt_offline_la-runtime.Plo@am__quote@
@@ -1226,6 +1332,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_rt_mpt_la-blobs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_rt_mpt_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_rt_mpt_la-wrappers.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_rt_mvapich2_la-blobs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_rt_mvapich2_la-runtime.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_rt_mvapich2_la-wrappers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_rt_mvapich_la-blobs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_rt_mvapich_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpit_rt_mvapich_la-wrappers.Plo@am__quote@
@@ -1421,6 +1530,34 @@ libmpit_mvapich_offline_la-runtime.lo: runtime.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='runtime.c' object='libmpit_mvapich_offline_la-runtime.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmpit_mvapich_offline_la_CFLAGS) $(CFLAGS) -c -o libmpit_mvapich_offline_la-runtime.lo `test -f 'runtime.c' || echo '$(srcdir)/'`runtime.c
+
+libmpit_mvapich2_offline_la-blobs.lo: blobs.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmpit_mvapich2_offline_la_CFLAGS) $(CFLAGS) -MT libmpit_mvapich2_offline_la-blobs.lo -MD -MP -MF $(DEPDIR)/libmpit_mvapich2_offline_la-blobs.Tpo -c -o libmpit_mvapich2_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmpit_mvapich2_offline_la-blobs.Tpo $(DEPDIR)/libmpit_mvapich2_offline_la-blobs.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='blobs.c' object='libmpit_mvapich2_offline_la-blobs.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmpit_mvapich2_offline_la_CFLAGS) $(CFLAGS) -c -o libmpit_mvapich2_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
+
+libmpit_mvapich2_offline_la-mpit_offline.lo: mpit_offline.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmpit_mvapich2_offline_la_CFLAGS) $(CFLAGS) -MT libmpit_mvapich2_offline_la-mpit_offline.lo -MD -MP -MF $(DEPDIR)/libmpit_mvapich2_offline_la-mpit_offline.Tpo -c -o libmpit_mvapich2_offline_la-mpit_offline.lo `test -f 'mpit_offline.c' || echo '$(srcdir)/'`mpit_offline.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmpit_mvapich2_offline_la-mpit_offline.Tpo $(DEPDIR)/libmpit_mvapich2_offline_la-mpit_offline.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mpit_offline.c' object='libmpit_mvapich2_offline_la-mpit_offline.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmpit_mvapich2_offline_la_CFLAGS) $(CFLAGS) -c -o libmpit_mvapich2_offline_la-mpit_offline.lo `test -f 'mpit_offline.c' || echo '$(srcdir)/'`mpit_offline.c
+
+libmpit_mvapich2_offline_la-wrappers.lo: wrappers.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmpit_mvapich2_offline_la_CFLAGS) $(CFLAGS) -MT libmpit_mvapich2_offline_la-wrappers.lo -MD -MP -MF $(DEPDIR)/libmpit_mvapich2_offline_la-wrappers.Tpo -c -o libmpit_mvapich2_offline_la-wrappers.lo `test -f 'wrappers.c' || echo '$(srcdir)/'`wrappers.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmpit_mvapich2_offline_la-wrappers.Tpo $(DEPDIR)/libmpit_mvapich2_offline_la-wrappers.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wrappers.c' object='libmpit_mvapich2_offline_la-wrappers.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmpit_mvapich2_offline_la_CFLAGS) $(CFLAGS) -c -o libmpit_mvapich2_offline_la-wrappers.lo `test -f 'wrappers.c' || echo '$(srcdir)/'`wrappers.c
+
+libmpit_mvapich2_offline_la-runtime.lo: runtime.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmpit_mvapich2_offline_la_CFLAGS) $(CFLAGS) -MT libmpit_mvapich2_offline_la-runtime.lo -MD -MP -MF $(DEPDIR)/libmpit_mvapich2_offline_la-runtime.Tpo -c -o libmpit_mvapich2_offline_la-runtime.lo `test -f 'runtime.c' || echo '$(srcdir)/'`runtime.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libmpit_mvapich2_offline_la-runtime.Tpo $(DEPDIR)/libmpit_mvapich2_offline_la-runtime.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='runtime.c' object='libmpit_mvapich2_offline_la-runtime.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmpit_mvapich2_offline_la_CFLAGS) $(CFLAGS) -c -o libmpit_mvapich2_offline_la-runtime.lo `test -f 'runtime.c' || echo '$(srcdir)/'`runtime.c
 
 libmpit_openmpi_offline_la-blobs.lo: blobs.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmpit_openmpi_offline_la_CFLAGS) $(CFLAGS) -MT libmpit_openmpi_offline_la-blobs.lo -MD -MP -MF $(DEPDIR)/libmpit_openmpi_offline_la-blobs.Tpo -c -o libmpit_openmpi_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
@@ -1618,6 +1755,34 @@ mpit_mvapich_rt_offline_la-runtime.lo: runtime.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_mvapich_rt_offline_la_CFLAGS) $(CFLAGS) -c -o mpit_mvapich_rt_offline_la-runtime.lo `test -f 'runtime.c' || echo '$(srcdir)/'`runtime.c
 
+mpit_mvapich2_rt_offline_la-blobs.lo: blobs.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_mvapich2_rt_offline_la_CFLAGS) $(CFLAGS) -MT mpit_mvapich2_rt_offline_la-blobs.lo -MD -MP -MF $(DEPDIR)/mpit_mvapich2_rt_offline_la-blobs.Tpo -c -o mpit_mvapich2_rt_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/mpit_mvapich2_rt_offline_la-blobs.Tpo $(DEPDIR)/mpit_mvapich2_rt_offline_la-blobs.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='blobs.c' object='mpit_mvapich2_rt_offline_la-blobs.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_mvapich2_rt_offline_la_CFLAGS) $(CFLAGS) -c -o mpit_mvapich2_rt_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
+
+mpit_mvapich2_rt_offline_la-mpit_offline.lo: mpit_offline.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_mvapich2_rt_offline_la_CFLAGS) $(CFLAGS) -MT mpit_mvapich2_rt_offline_la-mpit_offline.lo -MD -MP -MF $(DEPDIR)/mpit_mvapich2_rt_offline_la-mpit_offline.Tpo -c -o mpit_mvapich2_rt_offline_la-mpit_offline.lo `test -f 'mpit_offline.c' || echo '$(srcdir)/'`mpit_offline.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/mpit_mvapich2_rt_offline_la-mpit_offline.Tpo $(DEPDIR)/mpit_mvapich2_rt_offline_la-mpit_offline.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mpit_offline.c' object='mpit_mvapich2_rt_offline_la-mpit_offline.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_mvapich2_rt_offline_la_CFLAGS) $(CFLAGS) -c -o mpit_mvapich2_rt_offline_la-mpit_offline.lo `test -f 'mpit_offline.c' || echo '$(srcdir)/'`mpit_offline.c
+
+mpit_mvapich2_rt_offline_la-wrappers.lo: wrappers.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_mvapich2_rt_offline_la_CFLAGS) $(CFLAGS) -MT mpit_mvapich2_rt_offline_la-wrappers.lo -MD -MP -MF $(DEPDIR)/mpit_mvapich2_rt_offline_la-wrappers.Tpo -c -o mpit_mvapich2_rt_offline_la-wrappers.lo `test -f 'wrappers.c' || echo '$(srcdir)/'`wrappers.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/mpit_mvapich2_rt_offline_la-wrappers.Tpo $(DEPDIR)/mpit_mvapich2_rt_offline_la-wrappers.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wrappers.c' object='mpit_mvapich2_rt_offline_la-wrappers.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_mvapich2_rt_offline_la_CFLAGS) $(CFLAGS) -c -o mpit_mvapich2_rt_offline_la-wrappers.lo `test -f 'wrappers.c' || echo '$(srcdir)/'`wrappers.c
+
+mpit_mvapich2_rt_offline_la-runtime.lo: runtime.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_mvapich2_rt_offline_la_CFLAGS) $(CFLAGS) -MT mpit_mvapich2_rt_offline_la-runtime.lo -MD -MP -MF $(DEPDIR)/mpit_mvapich2_rt_offline_la-runtime.Tpo -c -o mpit_mvapich2_rt_offline_la-runtime.lo `test -f 'runtime.c' || echo '$(srcdir)/'`runtime.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/mpit_mvapich2_rt_offline_la-runtime.Tpo $(DEPDIR)/mpit_mvapich2_rt_offline_la-runtime.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='runtime.c' object='mpit_mvapich2_rt_offline_la-runtime.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_mvapich2_rt_offline_la_CFLAGS) $(CFLAGS) -c -o mpit_mvapich2_rt_offline_la-runtime.lo `test -f 'runtime.c' || echo '$(srcdir)/'`runtime.c
+
 mpit_openmpi_rt_offline_la-blobs.lo: blobs.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_openmpi_rt_offline_la_CFLAGS) $(CFLAGS) -MT mpit_openmpi_rt_offline_la-blobs.lo -MD -MP -MF $(DEPDIR)/mpit_openmpi_rt_offline_la-blobs.Tpo -c -o mpit_openmpi_rt_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/mpit_openmpi_rt_offline_la-blobs.Tpo $(DEPDIR)/mpit_openmpi_rt_offline_la-blobs.Plo
@@ -1771,6 +1936,27 @@ mpit_rt_mvapich_la-wrappers.lo: wrappers.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wrappers.c' object='mpit_rt_mvapich_la-wrappers.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_rt_mvapich_la_CFLAGS) $(CFLAGS) -c -o mpit_rt_mvapich_la-wrappers.lo `test -f 'wrappers.c' || echo '$(srcdir)/'`wrappers.c
+
+mpit_rt_mvapich2_la-blobs.lo: blobs.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_rt_mvapich2_la_CFLAGS) $(CFLAGS) -MT mpit_rt_mvapich2_la-blobs.lo -MD -MP -MF $(DEPDIR)/mpit_rt_mvapich2_la-blobs.Tpo -c -o mpit_rt_mvapich2_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/mpit_rt_mvapich2_la-blobs.Tpo $(DEPDIR)/mpit_rt_mvapich2_la-blobs.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='blobs.c' object='mpit_rt_mvapich2_la-blobs.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_rt_mvapich2_la_CFLAGS) $(CFLAGS) -c -o mpit_rt_mvapich2_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
+
+mpit_rt_mvapich2_la-runtime.lo: runtime.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_rt_mvapich2_la_CFLAGS) $(CFLAGS) -MT mpit_rt_mvapich2_la-runtime.lo -MD -MP -MF $(DEPDIR)/mpit_rt_mvapich2_la-runtime.Tpo -c -o mpit_rt_mvapich2_la-runtime.lo `test -f 'runtime.c' || echo '$(srcdir)/'`runtime.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/mpit_rt_mvapich2_la-runtime.Tpo $(DEPDIR)/mpit_rt_mvapich2_la-runtime.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='runtime.c' object='mpit_rt_mvapich2_la-runtime.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_rt_mvapich2_la_CFLAGS) $(CFLAGS) -c -o mpit_rt_mvapich2_la-runtime.lo `test -f 'runtime.c' || echo '$(srcdir)/'`runtime.c
+
+mpit_rt_mvapich2_la-wrappers.lo: wrappers.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_rt_mvapich2_la_CFLAGS) $(CFLAGS) -MT mpit_rt_mvapich2_la-wrappers.lo -MD -MP -MF $(DEPDIR)/mpit_rt_mvapich2_la-wrappers.Tpo -c -o mpit_rt_mvapich2_la-wrappers.lo `test -f 'wrappers.c' || echo '$(srcdir)/'`wrappers.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/mpit_rt_mvapich2_la-wrappers.Tpo $(DEPDIR)/mpit_rt_mvapich2_la-wrappers.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wrappers.c' object='mpit_rt_mvapich2_la-wrappers.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_rt_mvapich2_la_CFLAGS) $(CFLAGS) -c -o mpit_rt_mvapich2_la-wrappers.lo `test -f 'wrappers.c' || echo '$(srcdir)/'`wrappers.c
 
 mpit_rt_openmpi_la-blobs.lo: blobs.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mpit_rt_openmpi_la_CFLAGS) $(CFLAGS) -MT mpit_rt_openmpi_la-blobs.lo -MD -MP -MF $(DEPDIR)/mpit_rt_openmpi_la-blobs.Tpo -c -o mpit_rt_openmpi_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c

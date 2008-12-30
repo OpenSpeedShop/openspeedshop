@@ -704,6 +704,14 @@ MVAPICH_LDFLAGS
 MVAPICH_LIBS
 MVAPICH_HEADER
 MVAPICH_DIR
+HAVE_MVAPICH2_TRUE
+HAVE_MVAPICH2_FALSE
+MVAPICH2_CC
+MVAPICH2_CPPFLAGS
+MVAPICH2_LDFLAGS
+MVAPICH2_LIBS
+MVAPICH2_HEADER
+MVAPICH2_DIR
 HAVE_MPT_TRUE
 HAVE_MPT_FALSE
 MPT_CC
@@ -1328,6 +1336,7 @@ Optional Packages:
                           MPICH driver name [ch-p4]
   --with-mpich2=DIR       MPICH2 installation [/opt/mpich2]
   --with-mvapich=DIR      MVAPICH installation [/opt/mvapich]
+  --with-mvapich2=DIR     MVAPICH2 installation [/opt/mvapich2]
   --with-mpt=DIR          MPT installation [/usr]
   --with-openmpi=DIR      OpenMPI installation [/usr/local]
 
@@ -5247,6 +5256,150 @@ fi
 
 
 
+# Check whether --with-mvapich2 was given.
+if test "${with_mvapich2+set}" = set; then
+  withval=$with_mvapich2; mvapich2_dir=$withval
+else
+  mvapich2_dir="/opt/mvapich2"
+fi
+
+
+#    AC_ARG_WITH(mvapich2-driver,
+#		AC_HELP_STRING([--with-mvapich2-driver=NAME],
+#			       [MVAPICH2 driver name [ch-p4]]),
+#		mvapich2_driver=$withval, mvapich2_driver="")
+
+    { echo "$as_me:$LINENO: checking for MVAPICH2 library and headers" >&5
+echo $ECHO_N "checking for MVAPICH2 library and headers... $ECHO_C" >&6; }
+
+    found_mvapich2=0
+
+    # Put -shlib into MVAPICH2_CC, since it is needed when building the
+    # tests, where $MVAPICH2_CC is used, and is not needed when building
+    # the MPI-related plugins, where $MVAPICH2_CC is not used.
+    MVAPICH2_CC="$mvapich2_dir/bin/mpicc -shlib"
+    MVAPICH2_CPPFLAGS="-I$mvapich2_dir/include"
+    MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir -L$mvapich2_dir/$alt_abi_libdir"
+    MVAPICH2_LIBS="-lmpich -libverbs"
+    MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
+    MVAPICH2_DIR="$mvapich2_dir"
+
+    # On the systems "mcr" and "thunder" at LLNL they have an MPICH variant
+    # that has things moved around a bit. Handle this by allowing a "llnl"
+    # pseudo-driver that makes the necessary configuration changes.
+#    if test x"$mvapich2_driver" == x"llnl"; then
+#	MVAPICH2_CC="$mvapich2_dir/bin/mpicc -shlib"
+#        MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir"
+#    fi
+
+    mvapich2_saved_CC=$CC
+    mvapich2_saved_CPPFLAGS=$CPPFLAGS
+    mvapich2_saved_LDFLAGS=$LDFLAGS
+
+    CC="$MVAPICH2_CC"
+    CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $MVAPICH2_LIBS $MVAPICH2_LDFLAGS $MVAPICH2_LIBS"
+
+    cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+	#include <mpi.h>
+
+int
+main ()
+{
+
+	MPI_Initialized((int*)0);
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  found_mvapich=1
+
+
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+
+    CC=$mvapich2_saved_CC
+    CPPFLAGS=$mvapich2_saved_CPPFLAGS
+    LDFLAGS=$mvapich2_saved_LDFLAGS
+
+    if test $found_mvapich -eq 1; then
+	{ echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+	 if true; then
+  HAVE_MVAPICH2_TRUE=
+  HAVE_MVAPICH2_FALSE='#'
+else
+  HAVE_MVAPICH2_TRUE='#'
+  HAVE_MVAPICH2_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_MVAPICH2 1
+_ACEOF
+
+    else
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+	 if false; then
+  HAVE_MVAPICH2_TRUE=
+  HAVE_MVAPICH2_FALSE='#'
+else
+  HAVE_MVAPICH2_TRUE='#'
+  HAVE_MVAPICH2_FALSE=
+fi
+
+	MVAPICH2_CC=""
+	MVAPICH2_CPPFLAGS=""
+	MVAPICH2_LDFLAGS=""
+	MVAPICH2_LIBS=""
+	MVAPICH2_HEADER=""
+	MVAPICH2_DIR=""
+    fi
+
+
+
+
+
+
+
+
+
+
+
+
 # Check whether --with-mpt was given.
 if test "${with_mpt+set}" = set; then
   withval=$with_mpt; mpt_dir=$withval
@@ -5804,6 +5957,10 @@ fi
 	default_mpi=MVAPICH;    default_mpi_name=mvapich
 	all_mpi_names=" mvapich $all_mpi_names"
     fi
+    if test x"$MVAPICH2_LDFLAGS" != x""; then
+	default_mpi=MVAPICH2;    default_mpi_name=mvapich2
+	all_mpi_names=" mvapich2 $all_mpi_names"
+    fi
 
     if test x"$default_mpi" != x""; then
 	 if true; then
@@ -6203,6 +6360,20 @@ if test -z "${HAVE_MVAPICH_TRUE}" && test -z "${HAVE_MVAPICH_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_MVAPICH\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"HAVE_MVAPICH\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_MVAPICH2_TRUE}" && test -z "${HAVE_MVAPICH2_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_MVAPICH2\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_MVAPICH2\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_MVAPICH2_TRUE}" && test -z "${HAVE_MVAPICH2_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_MVAPICH2\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_MVAPICH2\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -6937,6 +7108,14 @@ MVAPICH_LDFLAGS!$MVAPICH_LDFLAGS$ac_delim
 MVAPICH_LIBS!$MVAPICH_LIBS$ac_delim
 MVAPICH_HEADER!$MVAPICH_HEADER$ac_delim
 MVAPICH_DIR!$MVAPICH_DIR$ac_delim
+HAVE_MVAPICH2_TRUE!$HAVE_MVAPICH2_TRUE$ac_delim
+HAVE_MVAPICH2_FALSE!$HAVE_MVAPICH2_FALSE$ac_delim
+MVAPICH2_CC!$MVAPICH2_CC$ac_delim
+MVAPICH2_CPPFLAGS!$MVAPICH2_CPPFLAGS$ac_delim
+MVAPICH2_LDFLAGS!$MVAPICH2_LDFLAGS$ac_delim
+MVAPICH2_LIBS!$MVAPICH2_LIBS$ac_delim
+MVAPICH2_HEADER!$MVAPICH2_HEADER$ac_delim
+MVAPICH2_DIR!$MVAPICH2_DIR$ac_delim
 HAVE_MPT_TRUE!$HAVE_MPT_TRUE$ac_delim
 HAVE_MPT_FALSE!$HAVE_MPT_FALSE$ac_delim
 MPT_CC!$MPT_CC$ac_delim
@@ -6961,7 +7140,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 51; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 59; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

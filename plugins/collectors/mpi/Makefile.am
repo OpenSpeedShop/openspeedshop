@@ -104,6 +104,15 @@ pkglib_LTLIBRARIES += mpi-mvapich-rt-offline.la libmpi-mvapich-offline.la
 endif
 endif
 
+if HAVE_MVAPICH2
+if !BUILD_OFFLINE
+pkglib_LTLIBRARIES += mpi-rt-mvapich2.la
+endif
+if HAVE_LIBMONITOR
+pkglib_LTLIBRARIES += mpi-mvapich2-rt-offline.la libmpi-mvapich2-offline.la
+endif
+endif
+
 mpi_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -406,6 +415,7 @@ nodist_mpi_mpt_rt_offline_la_SOURCES = $(wrapper_sources)
 endif
 endif
 
+
 if HAVE_MVAPICH
 mpi_rt_mvapich_la_CFLAGS = $(call rt_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
 mpi_rt_mvapich_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
@@ -428,6 +438,31 @@ libmpi_mvapich_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MVAPICH_L
 libmpi_mvapich_offline_la_DEPENDENCIES =
 libmpi_mvapich_offline_la_SOURCES = $(lib_offline_sources)
 nodist_libmpi_mvapich_offline_la_SOURCES = $(wrapper_sources)
+endif
+endif
+
+if HAVE_MVAPICH2
+mpi_rt_mvapich2_la_CFLAGS = $(call rt_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
+mpi_rt_mvapich2_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
+mpi_rt_mvapich2_la_LIBADD = $(call rt_LIBADD_generate,@MVAPICH2_LIBS@)
+mpi_rt_mvapich2_la_DEPENDENCIES =
+mpi_rt_mvapich2_la_SOURCES = $(rt_sources)
+nodist_mpi_rt_mvapich2_la_SOURCES = $(wrapper_sources)
+
+if HAVE_LIBMONITOR
+mpi_mvapich2_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
+mpi_mvapich2_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
+mpi_mvapich2_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@MVAPICH2_LIBS@)
+mpi_mvapich2_rt_offline_la_DEPENDENCIES =
+mpi_mvapich2_rt_offline_la_SOURCES = $(rt_offline_sources)
+nodist_mpi_mvapich2_rt_offline_la_SOURCES = $(wrapper_sources)
+
+libmpi_mvapich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
+libmpi_mvapich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
+libmpi_mvapich2_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MVAPICH2_LIBS@)
+libmpi_mvapich2_offline_la_DEPENDENCIES =
+libmpi_mvapich2_offline_la_SOURCES = $(lib_offline_sources)
+nodist_libmpi_mvapich2_offline_la_SOURCES = $(wrapper_sources)
 endif
 endif
 

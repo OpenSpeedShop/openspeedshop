@@ -89,6 +89,9 @@
 /* Define to 1 if you have MPICH. */
 #undef HAVE_MVAPICH
 
+/* Define to 1 if you have MVAPICH2. */
+#undef HAVE_MVAPICH2
+
 /* Define to 1 if you have OpenMP. */
 #undef HAVE_OPENMP
 
