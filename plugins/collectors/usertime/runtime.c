@@ -239,7 +239,7 @@ static void usertimeTimerHandler(const ucontext_t* context)
     /* updates tls.data.bt.bt_len. */
 
     int buflen = tls.data.bt.bt_len + framecount;
-    if ( buflen <= BufferSize) {
+    if ( buflen < BufferSize) {
 	update_samplebuffer(framecount,framebuf);
     } else {
         /* sample buffer has no room for these stack frames.*/
