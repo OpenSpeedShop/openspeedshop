@@ -512,7 +512,6 @@ AC_DEFUN([AC_PKG_MPICH2], [
 
 ])
 
-
 ################################################################################
 # Check for MPT (http://www.sgi.com/products/software/mpt)
 ################################################################################
@@ -946,6 +945,7 @@ AC_DEFUN([AC_PKG_MVAPICH2], [
     MVAPICH2_LIBS="-lmpich -libverbs"
     MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
     MVAPICH2_DIR="$mvapich2_dir"
+    MVAPICH2_NULL=""
 
     # On the systems "mcr" and "thunder" at LLNL they have an MPICH variant
     # that has things moved around a bit. Handle this by allowing a "llnl"
@@ -990,6 +990,7 @@ AC_DEFUN([AC_PKG_MVAPICH2], [
 	MVAPICH2_LIBS=""
 	MVAPICH2_HEADER=""
 	MVAPICH2_DIR=""
+        MVAPICH2_NULL=""
     fi
 
     AC_SUBST(MVAPICH2_CC)
@@ -998,6 +999,7 @@ AC_DEFUN([AC_PKG_MVAPICH2], [
     AC_SUBST(MVAPICH2_LIBS)
     AC_SUBST(MVAPICH2_HEADER)
     AC_SUBST(MVAPICH2_DIR)
+    AC_SUBST(MVAPICH2_NULL)
 
 ])
 

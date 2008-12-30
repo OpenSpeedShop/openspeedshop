@@ -712,6 +712,7 @@ MVAPICH2_LDFLAGS
 MVAPICH2_LIBS
 MVAPICH2_HEADER
 MVAPICH2_DIR
+MVAPICH2_NULL
 HAVE_MPT_TRUE
 HAVE_MPT_FALSE
 MPT_CC
@@ -5283,6 +5284,7 @@ echo $ECHO_N "checking for MVAPICH2 library and headers... $ECHO_C" >&6; }
     MVAPICH2_LIBS="-lmpich -libverbs"
     MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
     MVAPICH2_DIR="$mvapich2_dir"
+    MVAPICH2_NULL=""
 
     # On the systems "mcr" and "thunder" at LLNL they have an MPICH variant
     # that has things moved around a bit. Handle this by allowing a "llnl"
@@ -5387,7 +5389,9 @@ fi
 	MVAPICH2_LIBS=""
 	MVAPICH2_HEADER=""
 	MVAPICH2_DIR=""
+        MVAPICH2_NULL=""
     fi
+
 
 
 
@@ -7116,6 +7120,7 @@ MVAPICH2_LDFLAGS!$MVAPICH2_LDFLAGS$ac_delim
 MVAPICH2_LIBS!$MVAPICH2_LIBS$ac_delim
 MVAPICH2_HEADER!$MVAPICH2_HEADER$ac_delim
 MVAPICH2_DIR!$MVAPICH2_DIR$ac_delim
+MVAPICH2_NULL!$MVAPICH2_NULL$ac_delim
 HAVE_MPT_TRUE!$HAVE_MPT_TRUE$ac_delim
 HAVE_MPT_FALSE!$HAVE_MPT_FALSE$ac_delim
 MPT_CC!$MPT_CC$ac_delim
@@ -7140,7 +7145,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 59; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 60; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
