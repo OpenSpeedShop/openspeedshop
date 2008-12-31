@@ -66,6 +66,7 @@
 #include "load_balance_icon.xpm"
 #include "event_list_icon.xpm"
 #include "clear_auxiliary.xpm"
+#include "timeSegment.xpm"
 
 class MetricHeaderInfo;
 class QPushButton;
@@ -11206,6 +11207,12 @@ if (currentCollectorStr != lastCollectorStr ||
 
     QPixmap *butterfly_icon = new QPixmap( butterfly_xpm );
     new QToolButton(*butterfly_icon, "Show Butterfly view:  This view shows the callers of the function selected (shown above the function)\nand the callees of the function selected (shown below the function).  Selecting one of the displayed functions\nand clicking on the Butterfly icon will make that function the pivot function for the callers and callees display.\nTo use click on one of the functions and then click the Butterfly icon.", QString::null, this, SLOT( butterflySelected()), fileTools, "show butterfly");
+
+    QPixmap *timeSegment_icon = new QPixmap( timeSegment_xpm );
+    new QToolButton(*timeSegment_icon, "Select a Time Segment to view:  This view shows a section of the performance\nexperiments data that was chosen by selecting a segment of time from the\ntime segment dialog slider.  To return to viewing the complete experiment data, click\non the Clear icon followed by the Update icon.  This will restore viewing 100 percent\nof the experiment data.", QString::null, this, SLOT( timeSliceSelected()), fileTools, "show time segment");
+
+
+
   }
   // ----------------- End of the View Generatin Icons
 
