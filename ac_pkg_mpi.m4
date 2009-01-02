@@ -969,7 +969,7 @@ AC_DEFUN([AC_PKG_MVAPICH2], [
 	MPI_Initialized((int*)0);
 	]]),
 
-	found_mvapich=1
+	found_mvapich2=1
 
 	, )
 
@@ -977,7 +977,7 @@ AC_DEFUN([AC_PKG_MVAPICH2], [
     CPPFLAGS=$mvapich2_saved_CPPFLAGS
     LDFLAGS=$mvapich2_saved_LDFLAGS
 
-    if test $found_mvapich -eq 1; then
+    if test $found_mvapich2 -eq 1; then
 	AC_MSG_RESULT(yes)
 	AM_CONDITIONAL(HAVE_MVAPICH2, true)
 	AC_DEFINE(HAVE_MVAPICH2, 1, [Define to 1 if you have MVAPICH2.])	

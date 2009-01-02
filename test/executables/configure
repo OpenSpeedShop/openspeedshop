@@ -20915,7 +20915,7 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  found_mvapich=1
+  found_mvapich2=1
 
 
 else
@@ -20932,7 +20932,7 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
     CPPFLAGS=$mvapich2_saved_CPPFLAGS
     LDFLAGS=$mvapich2_saved_LDFLAGS
 
-    if test $found_mvapich -eq 1; then
+    if test $found_mvapich2 -eq 1; then
 	{ echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
 	 if true; then
