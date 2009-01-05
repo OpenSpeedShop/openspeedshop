@@ -80,6 +80,7 @@ AC_CONFIG_FILES([
 	mutatee/io_c_version/Makefile
         Eon/Makefile
         dlopen/Makefile
+        deep_callpath/Makefile
         threads/Makefile
 ])
 
