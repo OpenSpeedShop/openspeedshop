@@ -28,6 +28,7 @@ SUBDIRS = \
 	fredO2 \
 	dlopen \
 	threads \
+	deep_callpath \
 	fred
 
 #
@@ -45,6 +46,7 @@ DIST_SUBDIRS = \
 	fredO2 \
 	dlopen \
 	threads \
+	deep_callpath \
 	fred \
 	mpi
 
