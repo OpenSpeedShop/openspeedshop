@@ -942,7 +942,7 @@ AC_DEFUN([AC_PKG_MVAPICH2], [
     MVAPICH2_CC="$mvapich2_dir/bin/mpicc -shlib"
     MVAPICH2_CPPFLAGS="-I$mvapich2_dir/include"
     MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir -L$mvapich2_dir/$alt_abi_libdir"
-    MVAPICH2_LIBS="-lmpich -libverbs"
+    MVAPICH2_LIBS="-lmpich -libverbs -libcommon"
     MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
     MVAPICH2_DIR="$mvapich2_dir"
     MVAPICH2_NULL=""

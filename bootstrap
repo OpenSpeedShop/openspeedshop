@@ -27,7 +27,7 @@ chmod 755 test/src/dyninst/configure
 chmod 644 test/src/dyninst/libltdl.tar.gz
 aclocal
 libtoolize --force --ltdl-tar --copy
-autoheader
+autoheader -f
 automake --foreign --add-missing --copy 
 autoconf
 #
