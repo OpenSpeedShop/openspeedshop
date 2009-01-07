@@ -1338,6 +1338,8 @@ Optional Packages:
   --with-mpich2=DIR       MPICH2 installation [/opt/mpich2]
   --with-mvapich=DIR      MVAPICH installation [/opt/mvapich]
   --with-mvapich2=DIR     MVAPICH2 installation [/opt/mvapich2]
+  --with-mvapich2-ofed=DIR
+                          MVAPICH2 open fabrics installation dir [/usr]
   --with-mpt=DIR          MPT installation [/usr]
   --with-openmpi=DIR      OpenMPI installation [/usr/local]
 
@@ -4991,7 +4993,7 @@ echo $ECHO_N "checking for MPICH2 library and headers... $ECHO_C" >&6; }
     MPICH2_CC="$mpich2_dir/bin/mpicc"
 #    MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
     MPICH2_CPPFLAGS="-I$mpich2_dir/include"
-    MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir -L$mpich2_dir/$alt_abi_libdir/libmpich.a"
+    MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir -L$mpich2_dir/$abi_libdir/libmpich.a"
 #    MPICH2_LIBS="-lmpich"
     MPICH2_LIBS=""
     MPICH2_HEADER="$mpich2_dir/include/mpi.h"
@@ -5050,7 +5052,10 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  found_mpich2=1
+  if ( (test -f $mpich2_dir/$abi_libdir/libmpich.a) ||
+             (test -f $mpich2_dir/$abi_libdir/shared/libmpich.so) ) ; then
+	    found_mpich2=1
+        fi
 
 
 else
@@ -5062,6 +5067,82 @@ fi
 
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
+
+    if test $found_mpich2 -eq 0; then
+
+       { echo "$as_me:$LINENO: checking for MPICH2 library (alt locations) and headers" >&5
+echo $ECHO_N "checking for MPICH2 library (alt locations) and headers... $ECHO_C" >&6; }
+
+       # Put -shlib into MPICH2_CC, since it is needed when building the
+       # tests, where $MPICH2_CC is used, and is not needed when building
+       # the MPI-related plugins, where $MPICH2_CC is not used.
+       MPICH2_CC="$mpich2_dir/bin/mpicc"
+#       MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
+       MPICH2_CPPFLAGS="-I$mpich2_dir/include"
+       MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir -L$mpich2_dir/$alt_abi_libdir/libmpich.a"
+#       MPICH2_LIBS="-lmpich"
+       MPICH2_LIBS=""
+       MPICH2_HEADER="$mpich2_dir/include/mpi.h"
+       MPICH2_DIR="$mpich2_dir"
+
+       CC="$MPICH2_CC"
+       CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+
+       cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+   	  #include <mpi.h>
+
+int
+main ()
+{
+
+	  MPI_Initialized((int*)0);
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  if ( (test -f $mpich2_dir/$alt_abi_libdir/libmpich.a) ||
+              (test -f $mpich2_dir/$alt_abi_libdir/shared/libmpich.so) ) ; then
+	     found_mpich2=1
+         fi
+
+
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+
+    fi
 
     CC=$mpich2_saved_CC
     CPPFLAGS=$mpich2_saved_CPPFLAGS
@@ -5136,7 +5217,7 @@ echo $ECHO_N "checking for MVAPICH library and headers... $ECHO_C" >&6; }
     # the MPI-related plugins, where $MVAPICH_CC is not used.
     MVAPICH_CC="$mvapich_dir/bin/mpicc -shlib"
     MVAPICH_CPPFLAGS="-I$mvapich_dir/include"
-    MVAPICH_LDFLAGS="-L$mvapich_dir/$abi_libdir -L$mvapich_dir/$alt_abi_libdir"
+    MVAPICH_LDFLAGS="-L$mvapich_dir/$abi_libdir"
     MVAPICH_LIBS="-lmpich -libverbs"
     MVAPICH_HEADER="$mvapich_dir/include/mpi.h"
     MVAPICH_DIR="$mvapich_dir"
@@ -5194,7 +5275,10 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  found_mvapich=1
+  if ( (test -f $mvapich_dir/$abi_libdir/libmpich.a) ||
+             (test -f $mvapich_dir/$abi_libdir/shared/libmpich.so) ) ; then
+            found_mvapich=1
+        fi
 
 
 else
@@ -5206,6 +5290,79 @@ fi
 
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
+
+    if test $found_mvapich -eq 0; then
+       { echo "$as_me:$LINENO: checking for MVAPICH library (alt locations) and headers" >&5
+echo $ECHO_N "checking for MVAPICH library (alt locations) and headers... $ECHO_C" >&6; }
+
+       # Put -shlib into MVAPICH_CC, since it is needed when building the
+       # tests, where $MVAPICH_CC is used, and is not needed when building
+       # the MPI-related plugins, where $MVAPICH_CC is not used.
+       MVAPICH_CC="$mvapich_dir/bin/mpicc -shlib"
+       MVAPICH_CPPFLAGS="-I$mvapich_dir/include"
+       MVAPICH_LDFLAGS="-L$mvapich_dir/$alt_abi_libdir"
+       MVAPICH_LIBS="-lmpich -libverbs"
+       MVAPICH_HEADER="$mvapich_dir/include/mpi.h"
+       MVAPICH_DIR="$mvapich_dir"
+
+       CC="$MVAPICH_CC"
+       CPPFLAGS="$CPPFLAGS $MVAPICH_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MVAPICH_LIBS $MVAPICH_LDFLAGS $MVAPICH_LIBS"
+
+       cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+   	  #include <mpi.h>
+
+int
+main ()
+{
+
+	  MPI_Initialized((int*)0);
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  if ( (test -f $mvapich_dir/$alt_abi_libdir/libmpich.a) ||
+              (test -f $mvapich_dir/$alt_abi_libdir/shared/libmpich.so) ) ; then
+	     found_mvapich=1
+         fi
+
+
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+
+    fi
 
     CC=$mvapich_saved_CC
     CPPFLAGS=$mvapich_saved_CPPFLAGS
@@ -5265,10 +5422,14 @@ else
 fi
 
 
-#    AC_ARG_WITH(mvapich2-driver,
-#		AC_HELP_STRING([--with-mvapich2-driver=NAME],
-#			       [MVAPICH2 driver name [ch-p4]]),
-#		mvapich2_driver=$withval, mvapich2_driver="")
+
+# Check whether --with-mvapich2-ofed was given.
+if test "${with_mvapich2_ofed+set}" = set; then
+  withval=$with_mvapich2_ofed; mvapich2_ofed_dir=$withval
+else
+  mvapich2_ofed_dir="/usr"
+fi
+
 
     { echo "$as_me:$LINENO: checking for MVAPICH2 library and headers" >&5
 echo $ECHO_N "checking for MVAPICH2 library and headers... $ECHO_C" >&6; }
@@ -5280,7 +5441,7 @@ echo $ECHO_N "checking for MVAPICH2 library and headers... $ECHO_C" >&6; }
     # the MPI-related plugins, where $MVAPICH2_CC is not used.
     MVAPICH2_CC="$mvapich2_dir/bin/mpicc -shlib"
     MVAPICH2_CPPFLAGS="-I$mvapich2_dir/include"
-    MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir -L$mvapich2_dir/$alt_abi_libdir"
+    MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir -L$mvapich2_ofed_dir/$abi_libdir"
     MVAPICH2_LIBS="-lmpich -libverbs -libcommon"
     MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
     MVAPICH2_DIR="$mvapich2_dir"
@@ -5339,7 +5500,10 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  found_mvapich2=1
+  if ( (test -f $mvapich2_dir/$abi_libdir/libmpich.a) ||
+             (test -f $mvapich2_dir/$abi_libdir/shared/libmpich.so) ) ; then
+	    found_mvapich2=1
+        fi
 
 
 else
@@ -5351,6 +5515,81 @@ fi
 
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
+
+    if test $found_mvapich2 -eq 0; then
+
+       { echo "$as_me:$LINENO: checking for MVAPICH2 library (alt locations) and headers" >&5
+echo $ECHO_N "checking for MVAPICH2 library (alt locations) and headers... $ECHO_C" >&6; }
+
+       # Put -shlib into MVAPICH2_CC, since it is needed when building the
+       # tests, where $MVAPICH2_CC is used, and is not needed when building
+       # the MPI-related plugins, where $MVAPICH2_CC is not used.
+       MVAPICH2_CC="$mvapich2_dir/bin/mpicc -shlib"
+       MVAPICH2_CPPFLAGS="-I$mvapich2_dir/include"
+       MVAPICH2_LDFLAGS="-L$mvapich2_dir/$alt_abi_libdir -L$mvapich2_ofed_dir/$alt_abi_libdir"
+       MVAPICH2_LIBS="-lmpich -libverbs -libcommon"
+       MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
+       MVAPICH2_DIR="$mvapich2_dir"
+       MVAPICH2_NULL=""
+
+       CC="$MVAPICH2_CC"
+       CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MVAPICH2_LIBS $MVAPICH2_LDFLAGS $MVAPICH2_LIBS"
+
+       cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+   	  #include <mpi.h>
+
+int
+main ()
+{
+
+	  MPI_Initialized((int*)0);
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  if ( (test -f $mvapich2_dir/$alt_abi_libdir/libmpich.a) ||
+               (test -f $mvapich2_dir/$alt_abi_libdir/shared/libmpich.so) ) ; then
+	    found_mvapich2=1
+          fi
+
+
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+
+    fi
 
     CC=$mvapich2_saved_CC
     CPPFLAGS=$mvapich2_saved_CPPFLAGS

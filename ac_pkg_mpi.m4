@@ -452,7 +452,7 @@ AC_DEFUN([AC_PKG_MPICH2], [
     MPICH2_CC="$mpich2_dir/bin/mpicc"
 #    MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
     MPICH2_CPPFLAGS="-I$mpich2_dir/include"
-    MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir -L$mpich2_dir/$alt_abi_libdir/libmpich.a"
+    MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir -L$mpich2_dir/$abi_libdir/libmpich.a"
 #    MPICH2_LIBS="-lmpich"
     MPICH2_LIBS=""
     MPICH2_HEADER="$mpich2_dir/include/mpi.h"
@@ -480,9 +480,47 @@ AC_DEFUN([AC_PKG_MPICH2], [
 	MPI_Initialized((int*)0);
 	]]),
 
-	found_mpich2=1
+        if ( (test -f $mpich2_dir/$abi_libdir/libmpich.a) ||
+             (test -f $mpich2_dir/$abi_libdir/shared/libmpich.so) ) ; then
+	    found_mpich2=1
+        fi 
 
 	, )
+
+    if test $found_mpich2 -eq 0; then
+
+       AC_MSG_CHECKING([for MPICH2 library (alt locations) and headers])
+
+       # Put -shlib into MPICH2_CC, since it is needed when building the
+       # tests, where $MPICH2_CC is used, and is not needed when building
+       # the MPI-related plugins, where $MPICH2_CC is not used.
+       MPICH2_CC="$mpich2_dir/bin/mpicc"
+#       MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
+       MPICH2_CPPFLAGS="-I$mpich2_dir/include"
+       MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir -L$mpich2_dir/$alt_abi_libdir/libmpich.a"
+#       MPICH2_LIBS="-lmpich"
+       MPICH2_LIBS=""
+       MPICH2_HEADER="$mpich2_dir/include/mpi.h"
+       MPICH2_DIR="$mpich2_dir"
+
+       CC="$MPICH2_CC"
+       CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+
+       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]]),
+
+         if ( (test -f $mpich2_dir/$alt_abi_libdir/libmpich.a) ||
+              (test -f $mpich2_dir/$alt_abi_libdir/shared/libmpich.so) ) ; then
+	     found_mpich2=1
+         fi 
+
+	, )
+
+    fi
 
     CC=$mpich2_saved_CC
     CPPFLAGS=$mpich2_saved_CPPFLAGS
@@ -854,7 +892,7 @@ AC_DEFUN([AC_PKG_MVAPICH], [
     # the MPI-related plugins, where $MVAPICH_CC is not used.
     MVAPICH_CC="$mvapich_dir/bin/mpicc -shlib"
     MVAPICH_CPPFLAGS="-I$mvapich_dir/include"
-    MVAPICH_LDFLAGS="-L$mvapich_dir/$abi_libdir -L$mvapich_dir/$alt_abi_libdir"
+    MVAPICH_LDFLAGS="-L$mvapich_dir/$abi_libdir"
     MVAPICH_LIBS="-lmpich -libverbs"
     MVAPICH_HEADER="$mvapich_dir/include/mpi.h"
     MVAPICH_DIR="$mvapich_dir"
@@ -881,9 +919,44 @@ AC_DEFUN([AC_PKG_MVAPICH], [
 	MPI_Initialized((int*)0);
 	]]),
 
-	found_mvapich=1
+        if ( (test -f $mvapich_dir/$abi_libdir/libmpich.a) ||
+             (test -f $mvapich_dir/$abi_libdir/shared/libmpich.so) ) ; then
+            found_mvapich=1
+        fi 
 
 	, )
+
+    if test $found_mvapich -eq 0; then
+       AC_MSG_CHECKING([for MVAPICH library (alt locations) and headers])
+
+       # Put -shlib into MVAPICH_CC, since it is needed when building the
+       # tests, where $MVAPICH_CC is used, and is not needed when building
+       # the MPI-related plugins, where $MVAPICH_CC is not used.
+       MVAPICH_CC="$mvapich_dir/bin/mpicc -shlib"
+       MVAPICH_CPPFLAGS="-I$mvapich_dir/include"
+       MVAPICH_LDFLAGS="-L$mvapich_dir/$alt_abi_libdir"
+       MVAPICH_LIBS="-lmpich -libverbs"
+       MVAPICH_HEADER="$mvapich_dir/include/mpi.h"
+       MVAPICH_DIR="$mvapich_dir"
+
+       CC="$MVAPICH_CC"
+       CPPFLAGS="$CPPFLAGS $MVAPICH_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MVAPICH_LIBS $MVAPICH_LDFLAGS $MVAPICH_LIBS"
+
+       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]]),
+
+         if ( (test -f $mvapich_dir/$alt_abi_libdir/libmpich.a) ||
+              (test -f $mvapich_dir/$alt_abi_libdir/shared/libmpich.so) ) ; then
+	     found_mvapich=1
+         fi 
+
+	, )
+
+    fi
 
     CC=$mvapich_saved_CC
     CPPFLAGS=$mvapich_saved_CPPFLAGS
@@ -927,10 +1000,10 @@ AC_DEFUN([AC_PKG_MVAPICH2], [
 			       [MVAPICH2 installation @<:@/opt/mvapich2@:>@]),
 		mvapich2_dir=$withval, mvapich2_dir="/opt/mvapich2")
 
-#    AC_ARG_WITH(mvapich2-driver,
-#		AC_HELP_STRING([--with-mvapich2-driver=NAME],
-#			       [MVAPICH2 driver name @<:@ch-p4@:>@]),
-#		mvapich2_driver=$withval, mvapich2_driver="")
+   AC_ARG_WITH(mvapich2-ofed,
+	AC_HELP_STRING([--with-mvapich2-ofed=DIR],
+		       [MVAPICH2 open fabrics installation dir @<:@/usr@:>@]),
+		mvapich2_ofed_dir=$withval, mvapich2_ofed_dir="/usr")
 
     AC_MSG_CHECKING([for MVAPICH2 library and headers])
 
@@ -941,7 +1014,7 @@ AC_DEFUN([AC_PKG_MVAPICH2], [
     # the MPI-related plugins, where $MVAPICH2_CC is not used.
     MVAPICH2_CC="$mvapich2_dir/bin/mpicc -shlib"
     MVAPICH2_CPPFLAGS="-I$mvapich2_dir/include"
-    MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir -L$mvapich2_dir/$alt_abi_libdir"
+    MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir -L$mvapich2_ofed_dir/$abi_libdir"
     MVAPICH2_LIBS="-lmpich -libverbs -libcommon"
     MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
     MVAPICH2_DIR="$mvapich2_dir"
@@ -969,9 +1042,46 @@ AC_DEFUN([AC_PKG_MVAPICH2], [
 	MPI_Initialized((int*)0);
 	]]),
 
-	found_mvapich2=1
+        if ( (test -f $mvapich2_dir/$abi_libdir/libmpich.a) ||
+             (test -f $mvapich2_dir/$abi_libdir/shared/libmpich.so) ) ; then
+	    found_mvapich2=1
+        fi 
 
 	, )
+
+    if test $found_mvapich2 -eq 0; then
+
+       AC_MSG_CHECKING([for MVAPICH2 library (alt locations) and headers])
+
+       # Put -shlib into MVAPICH2_CC, since it is needed when building the
+       # tests, where $MVAPICH2_CC is used, and is not needed when building
+       # the MPI-related plugins, where $MVAPICH2_CC is not used.
+       MVAPICH2_CC="$mvapich2_dir/bin/mpicc -shlib"
+       MVAPICH2_CPPFLAGS="-I$mvapich2_dir/include"
+       MVAPICH2_LDFLAGS="-L$mvapich2_dir/$alt_abi_libdir -L$mvapich2_ofed_dir/$alt_abi_libdir"
+       MVAPICH2_LIBS="-lmpich -libverbs -libcommon"
+       MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
+       MVAPICH2_DIR="$mvapich2_dir"
+       MVAPICH2_NULL=""
+
+       CC="$MVAPICH2_CC"
+       CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MVAPICH2_LIBS $MVAPICH2_LDFLAGS $MVAPICH2_LIBS"
+
+       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]]),
+
+          if ( (test -f $mvapich2_dir/$alt_abi_libdir/libmpich.a) ||
+               (test -f $mvapich2_dir/$alt_abi_libdir/shared/libmpich.so) ) ; then
+	    found_mvapich2=1
+          fi 
+
+	, )
+
+    fi
 
     CC=$mvapich2_saved_CC
     CPPFLAGS=$mvapich2_saved_CPPFLAGS
