@@ -1,0 +1,412 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <title>OfflineEnvironmentVariables</title>
+</head>
+<body>
+<br>
+<br>
+<br>
+<h1><a class="mozTocH1" name="mozTocId276774"></a>Open|SpeedShop
+Offline Version Collection Control Environment Variables</h1>
+<h2><a class="mozTocH2" name="mozTocId315737"></a>Table of Contents</h2>
+<ul class="readonly" id="mozToc">
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
+  <li><a href="#mozTocId276774">Open|SpeedShop Offline Version
+Collection Control Environment Variables</a>
+    <ul>
+      <li><a href="#mozTocId315737">Table of Contents</a></li>
+      <li><a href="#mozTocId672936">PCSAMP</a>
+        <ul>
+          <li><a href="#mozTocId271032">Environment Variable Definition
+and Example:</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId759962">USERTIME</a>
+        <ul>
+          <li><a href="#mozTocId347651">Environment Variable Definition
+and Example:</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId848421">HWC and HWCTIME</a>
+        <ul>
+          <li><a href="#mozTocId17410">Background Information and How
+to find which events are available on your machine:</a></li>
+          <li><a href="#mozTocId569785">Environment Variable Definition
+and Example:</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId258061">IO and IOT</a>
+        <ul>
+          <li><a href="#mozTocId199271">Environment Variable Definition
+and Example:</a></li>
+          <li><a href="#mozTocId442933">Acceptable values:</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId949343">MPI and MPIT and MPIOTF</a>
+        <ul>
+          <li><a href="#mozTocId174486">Environment Variable Definition
+and Example:</a></li>
+          <li><a href="#mozTocId635433">Acceptable values:</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId643119">FPE</a>
+        <ul>
+          <li><a href="#mozTocId472454">Environment Variable Definition
+and Example:</a></li>
+          <li><a href="#mozTocId656064">Acceptable values:</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<br>
+<h2><a class="mozTocH2" name="mozTocId672936"></a>PCSAMP</h2>
+<h3><a class="mozTocH3" name="mozTocId271032"></a>Environment Variable
+Definition and Example:</h3>
+OPENSS_PCSAMP_RATE="new sampling rate &lt;int&gt;"<br>
+example:<br>
+export OPENSS_PCSAMP_RATE=1000<br>
+<h2><a class="mozTocH2" name="mozTocId759962"></a>USERTIME</h2>
+<h3><a class="mozTocH3" name="mozTocId347651"></a>Environment Variable
+Definition and Example:</h3>
+OPENSS_USERTIME_RATE="new sampling rate &lt;int&gt;"<br>
+example:<br>
+export OPENSS_USERTIME_RATE=350
+<h2><a class="mozTocH2" name="mozTocId848421"></a>HWC and HWCTIME</h2>
+<h3><a class="mozTocH3" name="mozTocId17410"></a>Background Information
+and How to find which events are available on your machine:</h3>
+To find which counters the hwc/hwctime collectors support, you
+can use papi_avail | grep "Yes&nbsp;&nbsp; No".&nbsp;&nbsp; The Yes
+means that the
+counter is available and the No means that it is not derived.
+<br>
+Open|SpeedShop does not support derived events with the hwc experiments
+since
+the Papi_overflow call Open|SpeedShop uses does not work with them.
+<br>
+<br>
+To change the default hwc event, example:
+<br>
+export OPENSS_HWC_EVENT="PAPI_L1_DCM" for the hwc collector.
+<br>
+export OPENSS_HWCTIME_EVENT="PAPI_L1_DCM" for the hwctime collector.
+<br>
+<div id=":5h" class="ArwC7c ckChnd"><br>
+Note that the default overflow threshold is set as a reasobable
+value for PAPI_TOT_CYC or PAPI_TOT_INS.&nbsp; For other counters
+you may need to lower the default threashold value.
+<br>
+<br>
+examples:
+<br>
+export OPENSS_HWC_THRESHOLD=10000
+<br>
+export OPENSS_HWCTIME_THRESHOLD=10000
+<br>
+<br>
+The above says record a pc (hwc) or callstack (hwctime) when
+the selected hardware counter overflow count reaches 10000.
+<br>
+<br>
+Below is a list of available events from an example machine.
+<br>
+processor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : 7
+<br>
+vendor_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : AuthenticAMD
+<br>
+cpu family&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : 15
+<br>
+model&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : 65
+<br>
+model name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : Dual-Core AMD Opteron(tm)
+Processor 8216
+<br>
+<br>
+&lt;promt&gt; papi_avail | grep "Yes&nbsp;&nbsp; No"
+<br>
+PAPI_L1_DCM&nbsp; 0x80000000&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Level
+1 data cache misses
+<br>
+PAPI_L1_ICM&nbsp; 0x80000001&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Level
+1 instruction cache misses
+<br>
+PAPI_L2_DCM&nbsp; 0x80000002&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Level
+2 data cache misses
+<br>
+PAPI_L2_ICM&nbsp; 0x80000003&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Level
+2 instruction cache misses
+<br>
+PAPI_L2_TCM&nbsp; 0x80000007&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Level
+2 cache misses
+<br>
+PAPI_FPU_IDL 0x80000012&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Cycles
+floating point units are idle
+<br>
+PAPI_TLB_DM&nbsp; 0x80000014&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Data
+translation lookaside buffer misses
+<br>
+PAPI_TLB_IM&nbsp; 0x80000015&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp;
+Instruction translation lookaside buffer misses
+<br>
+PAPI_STL_ICY 0x80000025&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Cycles
+with no instruction issue
+<br>
+PAPI_HW_INT&nbsp; 0x80000029&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp;
+Hardware interrupts
+<br>
+PAPI_BR_TKN&nbsp; 0x8000002c&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp;
+Conditional branch instructions taken
+<br>
+PAPI_BR_MSP&nbsp; 0x8000002e&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp;
+Conditional branch instructions mispredicted
+<br>
+PAPI_TOT_INS 0x80000032&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp;
+Instructions completed
+<br>
+PAPI_FP_INS&nbsp; 0x80000034&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp;
+Floating point instructions
+<br>
+PAPI_BR_INS&nbsp; 0x80000037&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp;
+Branch instructions
+<br>
+PAPI_VEC_INS 0x80000038&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp;
+Vector/SIMD instructions
+<br>
+PAPI_RES_STL 0x80000039&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Cycles
+stalled on any resource
+<br>
+PAPI_TOT_CYC 0x8000003b&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Total
+cycles
+<br>
+PAPI_L1_DCA&nbsp; 0x80000040&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Level
+1 data cache accesses
+<br>
+PAPI_L2_DCA&nbsp; 0x80000041&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Level
+2 data cache accesses
+<br>
+PAPI_L2_ICH&nbsp; 0x8000004a&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Level
+2 instruction cache hits
+<br>
+PAPI_L1_ICA&nbsp; 0x8000004c&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Level
+1 instruction cache accesses
+<br>
+PAPI_L2_ICA&nbsp; 0x8000004d&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Level
+2 instruction cache accesses
+<br>
+PAPI_L1_ICR&nbsp; 0x8000004f&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Level
+1 instruction cache reads
+<br>
+PAPI_L2_TCA&nbsp; 0x80000059&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Level
+2 total cache accesses
+<br>
+PAPI_FML_INS 0x80000061&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Floating
+point multiply instructions
+<br>
+PAPI_FAD_INS 0x80000062&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Floating
+point add instructions
+<br>
+PAPI_FP_OPS&nbsp; 0x80000066&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp;
+Floating point operations<br>
+<h3><a class="mozTocH3" name="mozTocId569785"></a>Environment Variable
+Definition and Example:</h3>
+OPENSS_HWC_THRESHOLD="new threshold &lt;int&gt;"<br>
+OPENSS_HWCTIME_THRESHOLD="new threshold &lt;int&gt;"<br>
+OPENSS_HWC_EVENT="new papi event &lt;string&gt;"<br>
+OPENSS_HWCTIME_EVENT="new papi event &lt;string&gt;"<br>
+example:<br>
+export OPENSS_HWC_THRESHOLD=19999999<br>
+export OPENSS_HWC_EVENT=PAPI_BR_INS<br>
+<h2><a class="mozTocH2" name="mozTocId258061"></a>IO and IOT</h2>
+<h3><a class="mozTocH3" name="mozTocId199271"></a>Environment Variable
+Definition and Example:</h3>
+OPENSS_IO_TRACED="comma separated list of IO functions &lt;string&gt;"<br>
+OPENSS_IOT_TRACED="comma separated list of IO functions &lt;string&gt;"<br>
+example:<br>
+export OPENSS_IOT_TRACED=read,write<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId442933"></a>Acceptable values:</h3>
+All (default), one, or any combination of the following io calls:<br>
+"dup", "dup2", "creat", "open", "close", "read","write",<br>
+"pipe", "lseek", "pread", "pwrite", "readv", "writev", "open64",<br>
+"lseek64", "creat64", "pread64", "pwrite64"<br>
+<h2><a class="mozTocH2" name="mozTocId949343"></a>MPI and MPIT and
+MPIOTF</h2>
+<h3><a class="mozTocH3" name="mozTocId174486"></a>Environment Variable
+Definition and Example:</h3>
+OPENSS_MPI_TRACED="comma separated list of mpi functions &lt;string&gt;"<br>
+OPENSS_MPIT_TRACED="comma separated list of mpi functions
+&lt;string&gt;"<br>
+OPENSS_MPIOTF_TRACED="comma separated list of mpi functions
+&lt;string&gt;"<br>
+example:<br>
+export OPENSS_MPIT_TRACED=MPI_Isendv,MPI_Irecv<br>
+<h3><a class="mozTocH3" name="mozTocId635433"></a>Acceptable values:</h3>
+<br>
+<table style="width: 493px; height: 256px;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">MPI Category<br>
+      </td>
+      <td style="vertical-align: top;">Acceptable Argument<br>
+      </td>
+    </tr>
+    <tr>
+      <td>All the MPI Functions </td>
+      <td>all</td>
+    </tr>
+    <tr>
+      <td>Collective Communicators </td>
+      <td>collective_com</td>
+    </tr>
+    <tr>
+      <td>Persistent_Communicators </td>
+      <td>persistent_com</td>
+    </tr>
+    <tr>
+      <td>Synchronous Point to Point </td>
+      <td>synchronous_p2p</td>
+    </tr>
+    <tr>
+      <td>Asynchronous Point to Point </td>
+      <td>asynchronous_p2p</td>
+    </tr>
+    <tr>
+      <td>Process Topologies </td>
+      <td>process_topologies</td>
+    </tr>
+    <tr>
+      <td>Groups Contexts Communicators </td>
+      <td>graphs_contexts_comms</td>
+    </tr>
+    <tr>
+      <td>Environment </td>
+      <td>environment</td>
+    </tr>
+    <tr>
+      <td>Datatypes </td>
+      <td>datatypes</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Also, acceptable is one or any combination of the following MPI calls:<br>
+<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Allgather",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Allgatherv",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Allreduce",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Alltoall",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Alltoallv",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Barrier",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Bcast",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Bsend",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Bsend_init",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Cancel",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Cart_create",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Cart_sub",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Comm_create",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Comm_dup",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Comm_free",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Comm_split",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Finalize",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Gather",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Gatherv",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Get_count",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Graph_create",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Ibsend",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Init",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Intercomm_create",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Intercomm_merge",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Iprobe",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Irecv",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Irsend",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Isend",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Issend",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Pack",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Probe",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Recv",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Recv_init",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Reduce",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Reduce_scatter",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Request_free",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Rsend",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Rsend_init",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Scan",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Scatter",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Scatterv",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Send",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Sendrecv",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Sendrecv_replace",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Ssend",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Ssend_init",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Start",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Startall",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Test",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Testall",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Testany",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Testsome",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Unpack",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Wait",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Waitall",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Waitany",<br>
+&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Waitsome"<br>
+<h2><a class="mozTocH2" name="mozTocId643119"></a>FPE</h2>
+<h3><a class="mozTocH3" name="mozTocId472454"></a>Environment Variable
+Definition and Example:</h3>
+OPENSS_FPE_EVENT="comma separated list of FP Exceptions &lt;string&gt;"<br>
+export OPENSS_FPE_EVENT=division_by_zero,invalid_operation<br>
+<h3><a class="mozTocH3" name="mozTocId656064"></a>Acceptable values:</h3>
+All, one, or any combination of the following exceptions.<br>
+&nbsp; <br>
+<table style="width: 790px; height: 172px;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td>Floating Point Exception</td>
+      <td> Type</td>
+      <td> Acceptable Value</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">All of the exceptions<br>
+      </td>
+      <td style="vertical-align: top;">All of the types<br>
+      </td>
+      <td style="vertical-align: top;">all<br>
+      </td>
+    </tr>
+    <tr>
+      <td>FE_INEXACT</td>
+      <td> inexact result</td>
+      <td>inexact_result</td>
+    </tr>
+    <tr>
+      <td>FE_DIVBYZERO</td>
+      <td> division by zero</td>
+      <td>division_by_zero</td>
+    </tr>
+    <tr>
+      <td>FE_UNDERFLOW </td>
+      <td> result not representable due to underflow</td>
+      <td>underflow</td>
+    </tr>
+    <tr>
+      <td>FE_OVERFLOW</td>
+      <td> result not representable due to overflow</td>
+      <td>overflow</td>
+    </tr>
+    <tr>
+      <td>FE_INVALID </td>
+      <td> invalid operation</td>
+      <td>invalid_operation</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<br>
+<br>
+</div>
+</body>
+</html>
