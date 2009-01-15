@@ -13,68 +13,110 @@ Offline Version Collection Control Environment Variables</h1>
 <h2><a class="mozTocH2" name="mozTocId315737"></a>Table of Contents</h2>
 <ul class="readonly" id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
-  <li><a href="#mozTocId276774">Open|SpeedShop Offline Version
-Collection Control Environment Variables</a>
+  <li><a href="#mozTocId276774">Open|SpeedShop
+Offline Version Collection Control Environment Variables</a>
     <ul>
       <li><a href="#mozTocId315737">Table of Contents</a></li>
-      <li><a href="#mozTocId672936">PCSAMP</a>
+      <li><a href="#mozTocId561475">Key Environment Variable for
+running on Clusters Independent of Experiment Type</a>
         <ul>
-          <li><a href="#mozTocId271032">Environment Variable Definition
-and Example:</a></li>
+          <li><a href="#mozTocId374420">OPENSS_RAWDATA_DIR</a>
+            <ul>
+              <li><a href="#mozTocId858255">Environment Variable
+Definition and Example:
+                </a></li>
+            </ul>
+          </li>
         </ul>
       </li>
-      <li><a href="#mozTocId759962">USERTIME</a>
+      <li><a href="#mozTocId672936">PCSAMP Experiment Related
+Information</a>
         <ul>
-          <li><a href="#mozTocId347651">Environment Variable Definition
-and Example:</a></li>
+          <li><a href="#mozTocId271032">Environment Variable
+Definition and Example:</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId848421">HWC and HWCTIME</a>
+      <li><a href="#mozTocId759962">USERTIME Experiment Related
+Information</a>
         <ul>
-          <li><a href="#mozTocId17410">Background Information and How
-to find which events are available on your machine:</a></li>
-          <li><a href="#mozTocId569785">Environment Variable Definition
-and Example:</a></li>
+          <li><a href="#mozTocId347651">Environment Variable
+Definition and Example:</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId258061">IO and IOT</a>
+      <li><a href="#mozTocId848421">HWC and HWCTIME Experiment Related
+Information</a>
         <ul>
-          <li><a href="#mozTocId199271">Environment Variable Definition
-and Example:</a></li>
+          <li><a href="#mozTocId17410">Background Information
+and How to find which events are available on your machine:</a></li>
+          <li><a href="#mozTocId569785">Environment Variable
+Definition and Example:</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId258061">IO and IOT Experiment Related
+Information</a>
+        <ul>
+          <li><a href="#mozTocId199271">Environment Variable
+Definition and Example:</a></li>
           <li><a href="#mozTocId442933">Acceptable values:</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId949343">MPI and MPIT and MPIOTF</a>
+      <li><a href="#mozTocId949343">MPI and MPIT and
+MPIOTF Experiment Related Information</a>
         <ul>
-          <li><a href="#mozTocId174486">Environment Variable Definition
-and Example:</a></li>
+          <li><a href="#mozTocId174486">Environment Variable
+Definition and Example:</a></li>
           <li><a href="#mozTocId635433">Acceptable values:</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId643119">FPE</a>
+      <li><a href="#mozTocId643119">FPE Experiment Related Information</a>
         <ul>
-          <li><a href="#mozTocId472454">Environment Variable Definition
-and Example:</a></li>
+          <li><a href="#mozTocId472454">Environment Variable
+Definition and Example:</a></li>
           <li><a href="#mozTocId656064">Acceptable values:</a></li>
         </ul>
       </li>
     </ul>
   </li>
 </ul>
+<h2><a class="mozTocH2" name="mozTocId561475"></a>Key Environment
+Variable for running on Clusters Independent of Experiment Type<br>
+</h2>
+<h3><a class="mozTocH3" name="mozTocId374420"></a>OPENSS_RAWDATA_DIR</h3>
+This enviroment variable is needed on cluster systems where the /tmp
+file system is unique on each node.&nbsp;&nbsp; The offline version of
+Open|SpeedShop needs to save the "raw" data files from the performance
+experiment on a file system where all the files for the entire job can
+be located together.&nbsp;&nbsp; In order to have a way for the user to
+indicate this, the OPENSS_RAWDATA_DIR environment variable was
+created.&nbsp; The definition and example usage follow.<br>
+<span style="font-weight: bold;"><br>
+</span>
+<h4><a class="mozTocH3" name="mozTocId858255"></a><span
+ style="font-weight: bold;"></span>Environment Variable
+Definition and Example:
+</h4>
+OPENSS_RAWDATA_DIR="path to shared file system with user or some unique
+naming"<br>
+example:<br>
+export OPENSS_RAWDATA_DIR=/opt/sharedfile/userid<br>
 <br>
-<h2><a class="mozTocH2" name="mozTocId672936"></a>PCSAMP</h2>
+<h2><a class="mozTocH2" name="mozTocId672936"></a>PCSAMP Experiment
+Related Information<br>
+</h2>
 <h3><a class="mozTocH3" name="mozTocId271032"></a>Environment Variable
 Definition and Example:</h3>
 OPENSS_PCSAMP_RATE="new sampling rate &lt;int&gt;"<br>
 example:<br>
 export OPENSS_PCSAMP_RATE=1000<br>
-<h2><a class="mozTocH2" name="mozTocId759962"></a>USERTIME</h2>
+<h2><a class="mozTocH2" name="mozTocId759962"></a>USERTIME Experiment
+Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId347651"></a>Environment Variable
 Definition and Example:</h3>
 OPENSS_USERTIME_RATE="new sampling rate &lt;int&gt;"<br>
 example:<br>
 export OPENSS_USERTIME_RATE=350
-<h2><a class="mozTocH2" name="mozTocId848421"></a>HWC and HWCTIME</h2>
+<h2><a class="mozTocH2" name="mozTocId848421"></a>HWC and HWCTIME
+Experiment Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId17410"></a>Background Information
 and How to find which events are available on your machine:</h3>
 To find which counters the hwc/hwctime collectors support, you
@@ -218,7 +260,8 @@ OPENSS_HWCTIME_EVENT="new papi event &lt;string&gt;"<br>
 example:<br>
 export OPENSS_HWC_THRESHOLD=19999999<br>
 export OPENSS_HWC_EVENT=PAPI_BR_INS<br>
-<h2><a class="mozTocH2" name="mozTocId258061"></a>IO and IOT</h2>
+<h2><a class="mozTocH2" name="mozTocId258061"></a>IO and IOT Experiment
+Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId199271"></a>Environment Variable
 Definition and Example:</h3>
 OPENSS_IO_TRACED="comma separated list of IO functions &lt;string&gt;"<br>
@@ -232,7 +275,7 @@ All (default), one, or any combination of the following io calls:<br>
 "pipe", "lseek", "pread", "pwrite", "readv", "writev", "open64",<br>
 "lseek64", "creat64", "pread64", "pwrite64"<br>
 <h2><a class="mozTocH2" name="mozTocId949343"></a>MPI and MPIT and
-MPIOTF</h2>
+MPIOTF Experiment Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId174486"></a>Environment Variable
 Definition and Example:</h3>
 OPENSS_MPI_TRACED="comma separated list of mpi functions &lt;string&gt;"<br>
@@ -352,7 +395,8 @@ Also, acceptable is one or any combination of the following MPI calls:<br>
 &nbsp; &nbsp; &nbsp; &nbsp;"MPI_Waitall",<br>
 &nbsp; &nbsp; &nbsp; &nbsp;"MPI_Waitany",<br>
 &nbsp; &nbsp; &nbsp; &nbsp;"MPI_Waitsome"<br>
-<h2><a class="mozTocH2" name="mozTocId643119"></a>FPE</h2>
+<h2><a class="mozTocH2" name="mozTocId643119"></a>FPE Experiment
+Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId472454"></a>Environment Variable
 Definition and Example:</h3>
 OPENSS_FPE_EVENT="comma separated list of FP Exceptions &lt;string&gt;"<br>
