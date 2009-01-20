@@ -16,7 +16,7 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 /* XPM */
-static char *optional_views_icon[]={
+static const char *optional_views_icon_xpm[]={
 "28 28 8 1",
 "# c None",
 "f c #00ff00",
