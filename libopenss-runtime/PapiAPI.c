@@ -23,6 +23,9 @@
  */
 
 #include "PapiAPI.h"
+#include <dlfcn.h>
+#include <fcntl.h>
+#include <pthread.h>
 
 /**
  * Method: hwc_init_papi()
@@ -60,11 +63,28 @@ void hwc_init_papi()
 	fprintf(stderr,"SYSTEM error: %s\n", strerror(errno));
 	return;
     }
-  hw_info = PAPI_get_hardware_info() ;
-  if (hw_info == NULL) {
-    fprintf(stderr, "PAPI_get_hardware_info failed\n") ;
-    fprintf(stderr, "At line %d in file %s\n", __LINE__, __FILE__) ;
-  }
+
+    hw_info = PAPI_get_hardware_info() ;
+    if (hw_info == NULL) {
+	fprintf(stderr, "PAPI_get_hardware_info failed\n") ;
+	fprintf(stderr, "At line %d in file %s\n", __LINE__, __FILE__) ;
+    }
+
+    pthread_t (*f_pthread_self)();
+    pthread_t local_tid = 0;
+
+    /* Init papi for threads and get the identifier of this thread */
+    f_pthread_self = (pthread_t (*)())dlsym(RTLD_DEFAULT, "pthread_self");
+    local_tid = (f_pthread_self != NULL) ? (*f_pthread_self)() : 0;
+    if (local_tid != 0) {
+        if (PAPI_thread_init(f_pthread_self) != PAPI_OK)
+            fprintf(stderr, "PAPI_thread_init failed\n") ;
+    }
+
+    /* init papi for multiplexing events */
+    if (PAPI_multiplex_init() != PAPI_OK) {
+        fprintf(stderr, "PAPI_multiplex_init failed\n") ;
+    }
 }
 
 #ifdef USE_ALLOC_VALUES

@@ -35,7 +35,7 @@ endif
 
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
-	iot_offline.c iot_offline.h
+	offline.c
 
 pkglib_LTLIBRARIES += iot-rt-offline.la libiot-offline.la
 endif

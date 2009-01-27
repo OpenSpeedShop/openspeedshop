@@ -1,6 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2006,2007 Krell Institute All Rights Reserved.
+# Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -17,11 +18,6 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-
-# Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
-
-CFLAGS = -g -O0
-
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
@@ -35,7 +31,7 @@ endif
 
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
-	pcsamp_offline.c pcsamp_offline.h
+	offline.c
 
 pkglib_LTLIBRARIES += pcsamp-rt-offline.la libpcsamp-offline.la
 endif

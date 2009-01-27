@@ -35,7 +35,7 @@ endif
 
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
-	usertime_offline.c usertime_offline.h
+	offline.c
 
 pkglib_LTLIBRARIES += usertime-rt-offline.la libusertime-offline.la
 endif

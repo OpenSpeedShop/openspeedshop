@@ -35,7 +35,7 @@ endif
 
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
-	io_offline.c io_offline.h
+	offline.c
 
 pkglib_LTLIBRARIES += io-rt-offline.la libio-offline.la
 endif

@@ -885,6 +885,8 @@ YACC
 YFLAGS
 topdir_execprefix
 abi_libdir_name
+USE_EXPLICIT_TLS_TRUE
+USE_EXPLICIT_TLS_FALSE
 ARRAYSVCS_CPPFLAGS
 ARRAYSVCS_LDFLAGS
 ARRAYSVCS_LIBS
@@ -899,6 +901,12 @@ HAVE_LIBDWARF_FALSE
 LIBDWARF_CPPFLAGS
 LIBDWARF_LDFLAGS
 LIBDWARF_LIBS
+HAVE_LIBMONITOR_TRUE
+HAVE_LIBMONITOR_FALSE
+LIBMONITOR_CPPFLAGS
+LIBMONITOR_LDFLAGS
+LIBMONITOR_LIBS
+LIBMONITOR_DIR
 HAVE_LIBUNWIND_TRUE
 HAVE_LIBUNWIND_FALSE
 LIBUNWIND_CPPFLAGS
@@ -986,28 +994,11 @@ OTF_LDFLAGS
 OTF_LIBS
 OTF_LIBZ_LDFLAGS
 OTF_LIBZ_LIBS
-HAVE_VT_TRUE
-HAVE_VT_FALSE
-VT_DIR
-VT_CPPFLAGS
-VT_LDFLAGS
-VT_LIBS
-VT_LIBSDIR
 HAVE_PAPI_TRUE
 HAVE_PAPI_FALSE
 PAPI_CPPFLAGS
 PAPI_LDFLAGS
 PAPI_LIBS
-SQLITE_CPPFLAGS
-SQLITE_LDFLAGS
-SQLITE_LIBS
-HAVE_XERCES_TRUE
-HAVE_XERCES_FALSE
-XERCES_DIR
-XERCES_LIBSDIR
-XERCES_CPPFLAGS
-XERCES_LDFLAGS
-XERCES_LIBS
 PYTHON_VERSION
 PYTHON
 PYTHON_CPPFLAGS
@@ -1015,19 +1006,6 @@ PYTHON_LDFLAGS
 PYTHON_SITE_PKG
 PYTHON_EXTRA_LIBS
 PYTHON_EXTRA_LDFLAGS
-HAVE_LIBMONITOR_TRUE
-HAVE_LIBMONITOR_FALSE
-LIBMONITOR_CPPFLAGS
-LIBMONITOR_LDFLAGS
-LIBMONITOR_LIBS
-LIBMONITOR_DIR
-DYNINST_CPPFLAGS
-DYNINST_LDFLAGS
-DYNINST_LIBS
-DYNINST_DIR
-DPCL_CPPFLAGS
-DPCL_LDFLAGS
-DPCL_LIBS
 LQTDIR
 ac_cv_qtlib
 ac_thread
@@ -1036,6 +1014,30 @@ QTLIB_HOME
 QTLIB_CPPFLAGS
 QTLIB_LDFLAGS
 QTLIB_LIBS
+SQLITE_CPPFLAGS
+SQLITE_LDFLAGS
+SQLITE_LIBS
+HAVE_VT_TRUE
+HAVE_VT_FALSE
+VT_DIR
+VT_CPPFLAGS
+VT_LDFLAGS
+VT_LIBS
+VT_LIBSDIR
+HAVE_XERCES_TRUE
+HAVE_XERCES_FALSE
+XERCES_DIR
+XERCES_LIBSDIR
+XERCES_CPPFLAGS
+XERCES_LDFLAGS
+XERCES_LIBS
+DYNINST_CPPFLAGS
+DYNINST_LDFLAGS
+DYNINST_LIBS
+DYNINST_DIR
+DPCL_CPPFLAGS
+DPCL_LDFLAGS
+DPCL_LIBS
 BUILD_DPCL_TRUE
 BUILD_DPCL_FALSE
 BUILD_OFFLINE_TRUE
@@ -1673,6 +1675,7 @@ Optional Packages:
   --with-binutils-version=VERS
                           binutils-version installation []
   --with-libdwarf=DIR     libdwarf installation [/usr]
+  --with-libmonitor=DIR   libmonitor installation [/usr]
   --with-libunwind=DIR    libunwind installation [/usr]
   --with-lam=DIR          LAM installation [/usr/local]
   --with-lampi=DIR        LAMPI installation [/usr/local]
@@ -1688,18 +1691,17 @@ Optional Packages:
   --with-openmpi=DIR      OpenMPI installation [/usr/local]
   --with-otf=DIR          OTF Open Trace Format library installation [/usr]
   --with-libz=DIR         libz installation [/usr]
-  --with-vt=DIR           VampirTrace (vt) library installation [/usr]
   --with-papi=DIR         PAPI installation [/usr]
-  --with-sqlite=DIR       SQLite installation [/usr]
-  --with-xerces=DIR       XERCES installation [/usr]
   --with-python=PYTHON    path name of Python libraries
-  --with-libmonitor=DIR   libmonitor installation [/usr]
+  --with-qtlib=DIR        QTLIB installation [/usr]
+  --with-sqlite=DIR       SQLite installation [/usr]
+  --with-vt=DIR           VampirTrace (vt) library installation [/usr]
+  --with-xerces=DIR       XERCES installation [/usr]
   --with-instrumentor=TYPE
                           instrumentor (dpcl, dyninst, mrnet, offline)
                           [offline]
   --with-dyninst=DIR      Dyninst installation [/usr]
   --with-dpcl=DIR         DPCL installation [/usr]
-  --with-qtlib=DIR        QTLIB installation [/usr]
   --with-mrnet=DIR        MRNet installation [/usr]
 
 Some influential environment variables:
@@ -20579,6 +20581,20 @@ fi
 
 
 
+ if true; then
+  USE_EXPLICIT_TLS_TRUE=
+  USE_EXPLICIT_TLS_FALSE='#'
+else
+  USE_EXPLICIT_TLS_TRUE='#'
+  USE_EXPLICIT_TLS_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define USE_EXPLICIT_TLS 1
+_ACEOF
+
+
 ################################################################################
 # Check for Additional Packages
 ################################################################################
@@ -21104,6 +21120,121 @@ _ACEOF
     fi
 
     CPPFLAGS=$libdwarf_saved_CPPFLAGS LDFLAGS=$libdwarf_saved_LDFLAGS
+
+
+
+
+
+
+
+
+
+# Check whether --with-libmonitor was given.
+if test "${with_libmonitor+set}" = set; then
+  withval=$with_libmonitor; libmonitor_dir=$withval
+else
+  libmonitor_dir="/usr"
+fi
+
+
+    LIBMONITOR_CPPFLAGS="-I$libmonitor_dir/include"
+    LIBMONITOR_LDFLAGS="-L$libmonitor_dir/$abi_libdir"
+    LIBMONITOR_LIBS="-lmonitor"
+    LIBMONITOR_DIR="$libmonitor_dir"
+
+    libmonitor_saved_CPPFLAGS=$CPPFLAGS
+    libmonitor_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $LIBMONITOR_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $LIBMONITOR_LDFLAGS $LIBMONITOR_LIBS -lpthread"
+
+    { echo "$as_me:$LINENO: checking for libmonitor library and headers" >&5
+echo $ECHO_N "checking for libmonitor library and headers... $ECHO_C" >&6; }
+
+    cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+        #include <monitor.h>
+
+int
+main ()
+{
+
+        monitor_init_library();
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+   { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+
+             if true; then
+  HAVE_LIBMONITOR_TRUE=
+  HAVE_LIBMONITOR_FALSE='#'
+else
+  HAVE_LIBMONITOR_TRUE='#'
+  HAVE_LIBMONITOR_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_LIBMONITOR 1
+_ACEOF
+
+
+
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	 { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+
+             if false; then
+  HAVE_LIBMONITOR_TRUE=
+  HAVE_LIBMONITOR_FALSE='#'
+else
+  HAVE_LIBMONITOR_TRUE='#'
+  HAVE_LIBMONITOR_FALSE=
+fi
+
+            LIBMONITOR_CPPFLAGS=""
+            LIBMONITOR_LDFLAGS=""
+            LIBMONITOR_LIBS=""
+
+
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+
+    CPPFLAGS=$libmonitor_saved_CPPFLAGS
+    LDFLAGS=$libmonitor_saved_LDFLAGS
+
 
 
 
@@ -23581,110 +23712,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-# Check whether --with-vt was given.
-if test "${with_vt+set}" = set; then
-  withval=$with_vt; vt_dir=$withval
-else
-  vt_dir="/usr"
-fi
-
-
-    VT_DIR="$vt_dir"
-    VT_CPPFLAGS="-I$vt_dir/include"
-    VT_LIBS="-lvt.mpi"
-
-    ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-
-
-    { echo "$as_me:$LINENO: checking for VampirTrace support" >&5
-echo $ECHO_N "checking for VampirTrace support... $ECHO_C" >&6; }
-
-    foundVT=0
-    if test -f  $vt_dir/$abi_libdir/libvt.mpi.a; then
-       { echo "$as_me:$LINENO: checking found VampirTrace library" >&5
-echo $ECHO_N "checking found VampirTrace library... $ECHO_C" >&6; }
-       VT_LDFLAGS="-L$vt_dir/$abi_libdir"
-       VT_LIBSDIR="$vt_dir/$abi_libdir"
-       foundVT=1
-    else
-      if test -f  $vt_dir/$alt_abi_libdir/libvt.mpi.a; then
-         { echo "$as_me:$LINENO: checking found VampirTrace library" >&5
-echo $ECHO_N "checking found VampirTrace library... $ECHO_C" >&6; }
-         VT_LDFLAGS="-L$vt_dir/$alt_abi_libdir"
-         VT_LIBSDIR="$vt_dir/$alt_abi_libdir"
-         foundVT=1
-      else
-         foundVT=0
-      fi
-    fi
-
-    if test $foundVT == 1 && test -f  $vt_dir/include/vt_user.h; then
-       { echo "$as_me:$LINENO: checking found VampirTrace headers" >&5
-echo $ECHO_N "checking found VampirTrace headers... $ECHO_C" >&6; }
-       foundVT=1
-    else
-       foundVT=0
-    fi
-
-    if test $foundVT == 1; then
-      { echo "$as_me:$LINENO: checking found all VampirTrace headers, libraries." >&5
-echo $ECHO_N "checking found all VampirTrace headers, libraries.... $ECHO_C" >&6; }
-      { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-       if true; then
-  HAVE_VT_TRUE=
-  HAVE_VT_FALSE='#'
-else
-  HAVE_VT_TRUE='#'
-  HAVE_VT_FALSE=
-fi
-
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_VT 1
-_ACEOF
-
-    else
-      { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-       if false; then
-  HAVE_VT_TRUE=
-  HAVE_VT_FALSE='#'
-else
-  HAVE_VT_TRUE='#'
-  HAVE_VT_FALSE=
-fi
-
-      VT_CPPFLAGS=""
-      VT_DIR=""
-      VT_LDFLAGS=""
-      VT_LIBS=""
-      VT_LIBSDIR=""
-    fi
-
-
-    ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-
-
-
-
-
-
-
-
-
-
 # Check whether --with-papi was given.
 if test "${with_papi+set}" = set; then
   withval=$with_papi; papi_dir=$withval
@@ -23801,214 +23828,6 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
     CPPFLAGS=$papi_saved_CPPFLAGS
     LDFLAGS=$papi_saved_LDFLAGS
     LIBS=$papi_saved_LIBS
-
-
-
-
-
-
-
-
-
-# Check whether --with-sqlite was given.
-if test "${with_sqlite+set}" = set; then
-  withval=$with_sqlite; sqlite_dir=$withval
-else
-  sqlite_dir="/usr"
-fi
-
-
-    SQLITE_CPPFLAGS="-I$sqlite_dir/include"
-    SQLITE_LDFLAGS="-L$sqlite_dir/$abi_libdir"
-    SQLITE_LIBS="-lsqlite3"
-
-    sqlite_saved_CPPFLAGS=$CPPFLAGS
-    sqlite_saved_LDFLAGS=$LDFLAGS
-
-    CPPFLAGS="$CPPFLAGS $SQLITE_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $SQLITE_LDFLAGS $SQLITE_LIBS"
-
-    { echo "$as_me:$LINENO: checking for SQLite library and headers" >&5
-echo $ECHO_N "checking for SQLite library and headers... $ECHO_C" >&6; }
-
-    cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-        #include <sqlite3.h>
-
-int
-main ()
-{
-
-	sqlite3_libversion();
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-  { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	 { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-        { { echo "$as_me:$LINENO: error: cannot locate SQLite library and/or headers.
-See \`config.log' for more details." >&5
-echo "$as_me: error: cannot locate SQLite library and/or headers.
-See \`config.log' for more details." >&2;}
-   { (exit 1); exit 1; }; }
-
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-
-    CPPFLAGS=$sqlite_saved_CPPFLAGS
-    LDFLAGS=$sqlite_saved_LDFLAGS
-
-
-
-
-
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_SQLITE 1
-_ACEOF
-
-
-
-
-
-
-# Check whether --with-xerces was given.
-if test "${with_xerces+set}" = set; then
-  withval=$with_xerces; xerces_dir=$withval
-else
-  xerces_dir="/usr"
-fi
-
-
-    XERCES_DIR="$xerces_dir"
-    XERCES_LIBSDIR="$xerces_dir/$abi_libdir"
-    XERCES_CPPFLAGS="-DOPENSS_ENABLE_PERIXML -I$xerces_dir/include/xercesc"
-    XERCES_LDFLAGS="-L$xerces_dir/$abi_libdir"
-    XERCES_LIBS="-lxerces-c"
-
-    ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-
-
-    xerces_saved_CPPFLAGS=$CPPFLAGS
-    xerces_saved_LDFLAGS=$LDFLAGS
-
-    CPPFLAGS="$CPPFLAGS $XERCES_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $XERCES_LDFLAGS $XERCES_LIBS"
-
-    { echo "$as_me:$LINENO: checking for XERCES support" >&5
-echo $ECHO_N "checking for XERCES support... $ECHO_C" >&6; }
-
-    foundXERCES=0
-    if test -f  $xerces_dir/$abi_libdir/libxerces-c.so; then
-       { echo "$as_me:$LINENO: checking found xerces library" >&5
-echo $ECHO_N "checking found xerces library... $ECHO_C" >&6; }
-       foundXERCES=1
-    else
-	if test -f $xerces_dir/$alt_abi_libdir/libxerces-c.so; then
-          { echo "$as_me:$LINENO: checking found xerces library" >&5
-echo $ECHO_N "checking found xerces library... $ECHO_C" >&6; }
-          XERCES_LIBSDIR="$xerces_dir/$alt_abi_libdir"
-          XERCES_LDFLAGS="-L$xerces_dir/$alt_abi_libdir"
-          foundXERCES=1
-       else
-          foundXERCES=0
-       fi
-    fi
-
-    if test $foundXERCES == 1 && test -f  $xerces_dir/include/xercesc/util/XMLString.hpp; then
-       { echo "$as_me:$LINENO: checking found xerces headers" >&5
-echo $ECHO_N "checking found xerces headers... $ECHO_C" >&6; }
-       foundXERCES=1
-    else
-       foundXERCES=0
-    fi
-
-    if test $foundXERCES == 1; then
-      { echo "$as_me:$LINENO: checking found all xerces headers, libraries and supporting libz library" >&5
-echo $ECHO_N "checking found all xerces headers, libraries and supporting libz library... $ECHO_C" >&6; }
-      { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-       if true; then
-  HAVE_XERCES_TRUE=
-  HAVE_XERCES_FALSE='#'
-else
-  HAVE_XERCES_TRUE='#'
-  HAVE_XERCES_FALSE=
-fi
-
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_XERCES 1
-_ACEOF
-
-    else
-      { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-       if false; then
-  HAVE_XERCES_TRUE=
-  HAVE_XERCES_FALSE='#'
-else
-  HAVE_XERCES_TRUE='#'
-  HAVE_XERCES_FALSE=
-fi
-
-      XERCES_DIR=""
-      XERCES_LIBSDIR=""
-      XERCES_CPPFLAGS=""
-      XERCES_LDFLAGS=""
-      XERCES_LIBS=""
-    fi
-
-
-    CPPFLAGS=$xerces_saved_CPPFLAGS
-    LDFLAGS=$xerces_saved_LDFLAGS
-
-    ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-
-
 
 
 
@@ -24268,29 +24087,362 @@ echo "${ECHO_T}$PYTHON_EXTRA_LDFLAGS" >&6; }
 
 
 
-
-# Check whether --with-libmonitor was given.
-if test "${with_libmonitor+set}" = set; then
-  withval=$with_libmonitor; libmonitor_dir=$withval
+if test "x$QTDIR" = "x"; then
+   LQTDIR=/usr
 else
-  libmonitor_dir="/usr"
+   LQTDIR=$QTDIR
 fi
 
 
-    LIBMONITOR_CPPFLAGS="-I$libmonitor_dir/include"
-    LIBMONITOR_LDFLAGS="-L$libmonitor_dir/$abi_libdir"
-    LIBMONITOR_LIBS="-lmonitor"
-    LIBMONITOR_DIR="$libmonitor_dir"
+# Check whether --with-qtlib was given.
+if test "${with_qtlib+set}" = set; then
+  withval=$with_qtlib; LQTDIR=$withval  qtlib_dir=$withval
+else
+  qtlib_dir="ac_cv_qtlib"
+fi
 
-    libmonitor_saved_CPPFLAGS=$CPPFLAGS
-    libmonitor_saved_LDFLAGS=$LDFLAGS
 
-    CPPFLAGS="$CPPFLAGS $LIBMONITOR_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $LIBMONITOR_LDFLAGS $LIBMONITOR_LIBS -lpthread"
+{ echo "$as_me:$LINENO: checking whether QTDIR environment variable is set" >&5
+echo $ECHO_N "checking whether QTDIR environment variable is set... $ECHO_C" >&6; }
+#if test "x$LQTDIR" = "x"; then
+#  AC_MSG_RESULT([no])
+#  AC_MSG_ERROR([QTDIR must be properly set.])
+#else
+#  AC_MSG_RESULT([$LQTDIR])
+#fi
 
-    { echo "$as_me:$LINENO: checking for libmonitor library and headers" >&5
-echo $ECHO_N "checking for libmonitor library and headers... $ECHO_C" >&6; }
+tmp_abi_libdir=$abi_libdir
 
+{ echo "$as_me:$LINENO: checking for Qt library" >&5
+echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
+if test "${ac_cv_qtlib+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+  for X in qt-mt qt; do
+    if test "x$ac_cv_qtlib" = "x"; then
+      if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
+        ac_cv_qtlib=$X
+        tmp_lqtdir=$LQTDIR
+      fi
+    fi
+  done
+
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
+echo "${ECHO_T}$ac_cv_qtlib" >&6; }
+
+{ echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
+echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
+
+if test "x$ac_cv_qtlib" = "x"; then
+  { echo "$as_me:$LINENO: checking for Qt library" >&5
+echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
+if test "${ac_cv_qtlib+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    for X in qt-mt qt; do
+      if test "x$ac_cv_qtlib" = "x"; then
+        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
+          ac_cv_qtlib=$X
+	  tmp_abi_libdir=$alt_abi_libdir
+	  tmp_lqtdir=$LQTDIR
+        fi
+      fi
+    done
+
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
+echo "${ECHO_T}$ac_cv_qtlib" >&6; }
+
+  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
+echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
+
+#  if test "x$ac_cv_qtlib" = "x"; then
+#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
+#  fi
+
+{ echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
+echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
+
+#
+# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
+LQTDIR=/usr/$abi_libdir/qt3
+
+if test "x$ac_cv_qtlib" = "x"; then
+  { echo "$as_me:$LINENO: checking for Qt library" >&5
+echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
+if test "${ac_cv_qtlib+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    for X in qt-mt qt; do
+      if test "x$ac_cv_qtlib" = "x"; then
+        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
+          ac_cv_qtlib=$X
+	  tmp_abi_libdir=$abi_libdir
+	  tmp_lqtdir=$LQTDIR
+        fi
+      fi
+    done
+
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
+echo "${ECHO_T}$ac_cv_qtlib" >&6; }
+
+  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
+echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
+fi
+
+# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
+
+if test "x$ac_cv_qtlib" = "x"; then
+  { echo "$as_me:$LINENO: checking for Qt library" >&5
+echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
+if test "${ac_cv_qtlib+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    for X in qt-mt qt; do
+      if test "x$ac_cv_qtlib" = "x"; then
+        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
+          ac_cv_qtlib=$X
+	  tmp_abi_libdir=$alt_abi_libdir
+	  tmp_lqtdir=$LQTDIR
+        fi
+      fi
+    done
+
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
+echo "${ECHO_T}$ac_cv_qtlib" >&6; }
+
+  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
+echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
+fi
+
+# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
+
+LQTDIR=/usr/$alt_abi_libdir/qt3.3
+
+if test "x$ac_cv_qtlib" = "x"; then
+  { echo "$as_me:$LINENO: checking for Qt library" >&5
+echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
+if test "${ac_cv_qtlib+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    for X in qt-mt qt; do
+      if test "x$ac_cv_qtlib" = "x"; then
+        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
+          ac_cv_qtlib=$X
+	  tmp_abi_libdir=$abi_libdir
+	  tmp_lqtdir=$LQTDIR
+        fi
+      fi
+    done
+
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
+echo "${ECHO_T}$ac_cv_qtlib" >&6; }
+
+  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
+echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
+fi
+
+# Start trying /usr/lib/qt-3.3 and /usr/lib64/qt-3.3 locations
+
+if test "x$ac_cv_qtlib" = "x"; then
+  { echo "$as_me:$LINENO: checking for Qt library" >&5
+echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
+if test "${ac_cv_qtlib+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    for X in qt-mt qt; do
+      if test "x$ac_cv_qtlib" = "x"; then
+        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
+          ac_cv_qtlib=$X
+	  tmp_abi_libdir=$alt_abi_libdir
+	  tmp_lqtdir=$LQTDIR
+        fi
+      fi
+    done
+
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
+echo "${ECHO_T}$ac_cv_qtlib" >&6; }
+
+  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
+echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
+
+#  if test "x$ac_cv_qtlib" = "x"; then
+#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
+#  fi
+
+fi
+#
+# Now start trying /usr/lib/qt-3.3 and /usr/lib64/qt-3.3 locations
+
+LQTDIR=/usr/$abi_libdir/qt-3.3
+
+if test "x$ac_cv_qtlib" = "x"; then
+  { echo "$as_me:$LINENO: checking for Qt library" >&5
+echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
+if test "${ac_cv_qtlib+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    for X in qt-mt qt; do
+      if test "x$ac_cv_qtlib" = "x"; then
+        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
+          ac_cv_qtlib=$X
+	  tmp_abi_libdir=$abi_libdir
+	  tmp_lqtdir=$LQTDIR
+        fi
+      fi
+    done
+
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
+echo "${ECHO_T}$ac_cv_qtlib" >&6; }
+
+  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
+echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
+fi
+
+# Try alt_abi_libdir now
+
+if test "x$ac_cv_qtlib" = "x"; then
+  { echo "$as_me:$LINENO: checking for Qt library" >&5
+echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
+if test "${ac_cv_qtlib+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    for X in qt-mt qt; do
+      if test "x$ac_cv_qtlib" = "x"; then
+        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
+          ac_cv_qtlib=$X
+	  tmp_abi_libdir=$alt_abi_libdir
+	  tmp_lqtdir=$LQTDIR
+        fi
+      fi
+    done
+
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
+echo "${ECHO_T}$ac_cv_qtlib" >&6; }
+
+  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
+echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
+fi
+
+# Start trying /usr/lib64/qt-3.3 locations
+
+LQTDIR=/usr/$alt_abi_libdir/qt3.3
+
+if test "x$ac_cv_qtlib" = "x"; then
+  { echo "$as_me:$LINENO: checking for Qt library" >&5
+echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
+if test "${ac_cv_qtlib+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    for X in qt-mt qt; do
+      if test "x$ac_cv_qtlib" = "x"; then
+        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
+          ac_cv_qtlib=$X
+	  tmp_abi_libdir=$abi_libdir
+	  tmp_lqtdir=$LQTDIR
+        fi
+      fi
+    done
+
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
+echo "${ECHO_T}$ac_cv_qtlib" >&6; }
+
+  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
+echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
+fi
+
+# Try alt_abi_libdir for  /usr/lib64/qt-3.3
+
+if test "x$ac_cv_qtlib" = "x"; then
+  { echo "$as_me:$LINENO: checking for Qt library" >&5
+echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
+if test "${ac_cv_qtlib+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    for X in qt-mt qt; do
+      if test "x$ac_cv_qtlib" = "x"; then
+        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
+          ac_cv_qtlib=$X
+	  tmp_abi_libdir=$alt_abi_libdir
+	  tmp_lqtdir=$LQTDIR
+        fi
+      fi
+    done
+
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
+echo "${ECHO_T}$ac_cv_qtlib" >&6; }
+
+  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
+echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
+
+#  if test "x$ac_cv_qtlib" = "x"; then
+#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
+#  fi
+
+fi
+
+
+
+
+#  if test "x$ac_cv_qtlib" = "x"; then
+#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
+#  fi
+fi
+
+
+
+{ echo "$as_me:$LINENO: result: Temporary output: tmp_lqtdir=$tmp_lqtdir" >&5
+echo "${ECHO_T}Temporary output: tmp_lqtdir=$tmp_lqtdir" >&6; }
+
+if test "x$ac_cv_qtlib" = "xqt-mt"; then
+  ac_thread="thread"
+fi
+
+
+QTLIB_CFLAGS="$CFLAGS -I$tmp_lqtdir/include -I$KDEDIR/include"
+QTLIB_CPPFLAGS="$CPPFLAGS -I$tmp_lqtdir/include -I$KDEDIR/include -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
+
+
+QTLIB_LIBS="-L$tmp_lqtdir/$tmp_abi_libdir -L/usr/X11R6/$tmp_abi_libdir"
+QTLIB_LDFLAGS="-l$ac_cv_qtlib"
+
+qtlib_saved_CPPFLAGS=$CPPFLAGS
+qtlib_saved_LDFLAGS=$LDFLAGS
+
+CPPFLAGS="$CPPFLAGS $QTLIB_CPPFLAGS"
+LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
+
+{ echo "$as_me:$LINENO: checking for Qt library version >= 3.3.0" >&5
+echo $ECHO_N "checking for Qt library version >= 3.3.0... $ECHO_C" >&6; }
+if test "${ac_cv_qtlib_version+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+#    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+#	#include <qglobal.h>
+#	        ]], [[
+#	        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
+#	        AC_MSG_FAILURE(Can not locate Qt library and/or the headers.) ]
+#   	    )
     cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -24298,13 +24450,12 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
-        #include <monitor.h>
+	#include <qglobal.h>
 
 int
 main ()
 {
 
-        monitor_init_library();
 
   ;
   return 0;
@@ -24328,52 +24479,453 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-   { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-
-             if true; then
-  HAVE_LIBMONITOR_TRUE=
-  HAVE_LIBMONITOR_FALSE='#'
-else
-  HAVE_LIBMONITOR_TRUE='#'
-  HAVE_LIBMONITOR_FALSE=
-fi
-
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_LIBMONITOR 1
-_ACEOF
-
-
-
+  found_qt_inc=1
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	 { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-
-             if false; then
-  HAVE_LIBMONITOR_TRUE=
-  HAVE_LIBMONITOR_FALSE='#'
-else
-  HAVE_LIBMONITOR_TRUE='#'
-  HAVE_LIBMONITOR_FALSE=
-fi
-
-            LIBMONITOR_CPPFLAGS=""
-            LIBMONITOR_LDFLAGS=""
-            LIBMONITOR_LIBS=""
-
-
+	 found_qt_inc=0
 
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
 
-    CPPFLAGS=$libmonitor_saved_CPPFLAGS
-    LDFLAGS=$libmonitor_saved_LDFLAGS
+    if test $found_qt_inc -eq 1; then
+      { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+    else
+      QTLIB_CFLAGS="$CFLAGS -I$tmp_lqtdir/include/qt3 -I$KDEDIR/include"
+      QTLIB_CPPFLAGS="$CPPFLAGS -I$tmp_lqtdir/include/qt3 -I$KDEDIR/include -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
+      CPPFLAGS="$CPPFLAGS $QTLIB_CPPFLAGS"
+      LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
+
+      cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+  	#include <qglobal.h>
+
+int
+main ()
+{
+
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  found_qt_inc=1
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	 found_qt_inc=0
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+    fi
+
+    if test $found_qt_inc -eq 1; then
+      { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+    else
+        { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+	{ { echo "$as_me:$LINENO: error: Can not locate Qt library and/or the headers.
+See \`config.log' for more details." >&5
+echo "$as_me: error: Can not locate Qt library and/or the headers.
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+
+    cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+		#include "qglobal.h"
+
+int
+main ()
+{
+
+		#if QT_VERSION < 0x030300
+		#error Qt library 3.3 or greater is required.
+		#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+
+		ac_cv_qtlib_version="yes"
+		QT_CFLAGS="$CFLAGS"
+		QT_LIBS="-l$ac_cv_qtlib"
+		QT_LDFLAGS="$LIBS"
+
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+
+		QT_CFLAGS=""
+		QT_LIBS=""
+		QT_LDFLAGS=""
+		{ { echo "$as_me:$LINENO: error: ** QT version 3.3 or greater is required for the Open|SpeedShop QT gui." >&5
+echo "$as_me: error: ** QT version 3.3 or greater is required for the Open|SpeedShop QT gui." >&2;}
+   { (exit 1); exit 1; }; }
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+
+
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_qtlib_version" >&5
+echo "${ECHO_T}$ac_cv_qtlib_version" >&6; }
+
+ac_qtdir_errmsg="Not found in current PATH. Maybe QT development environment isn't available (qt3-devel)."
+
+# Extract the first word of "qmake", so it can be a program name with args.
+set dummy qmake; ac_word=$2
+{ echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
+if test "${ac_cv_path_ac_qmake+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $ac_qmake in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_ac_qmake="$ac_qmake" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="$tmp_lqtdir/bin:${PATH}"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+    ac_cv_path_ac_qmake="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_ac_qmake" && ac_cv_path_ac_qmake="no"
+  ;;
+esac
+fi
+ac_qmake=$ac_cv_path_ac_qmake
+if test -n "$ac_qmake"; then
+  { echo "$as_me:$LINENO: result: $ac_qmake" >&5
+echo "${ECHO_T}$ac_qmake" >&6; }
+else
+  { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+fi
+
+
+if test "x$ac_qmake" = "xno"; then
+   { { echo "$as_me:$LINENO: error: qmake $ac_qtdir_errmsg" >&5
+echo "$as_me: error: qmake $ac_qtdir_errmsg" >&2;}
+   { (exit 1); exit 1; }; }
+else
+   QTLIB_HOME=$tmp_lqtdir
+fi
+
+
+
+
+# Check whether --with-qtlib was given.
+if test "${with_qtlib+set}" = set; then
+  withval=$with_qtlib; qtlib_dir=$withval
+else
+  qtlib_dir="ac_cv_qtlib"
+fi
+
+
+
+    if test -d "$ROOT"; then
+        as_ac_File=`echo "ac_cv_file_$ROOT/include/qt-3.3/qtwidget.h" | $as_tr_sh`
+{ echo "$as_me:$LINENO: checking for $ROOT/include/qt-3.3/qtwidget.h" >&5
+echo $ECHO_N "checking for $ROOT/include/qt-3.3/qtwidget.h... $ECHO_C" >&6; }
+if { as_var=$as_ac_File; eval "test \"\${$as_var+set}\" = set"; }; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  test "$cross_compiling" = yes &&
+  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "$ROOT/include/qt-3.3/qtwidget.h"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+ac_res=`eval echo '${'$as_ac_File'}'`
+	       { echo "$as_me:$LINENO: result: $ac_res" >&5
+echo "${ECHO_T}$ac_res" >&6; }
+if test `eval echo '${'$as_ac_File'}'` = yes; then
+
+            QTLIB_CPPFLAGS="-I$ROOT/include/qt-3.3"
+            QTLIB_LDFLAGS="-L$ROOT/$abi_libdir"
+            QTLIB_LIBS="-lqt-mt"
+
+fi
+
+    fi
+
+    CPPFLAGS=$qtlib_saved_CPPFLAGS
+    LDFLAGS=$qtlib_saved_LDFLAGS
+
+
+
+
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_QTLIB 1
+_ACEOF
+
+
+
+
+
+
+# Check whether --with-sqlite was given.
+if test "${with_sqlite+set}" = set; then
+  withval=$with_sqlite; sqlite_dir=$withval
+else
+  sqlite_dir="/usr"
+fi
+
+
+    SQLITE_CPPFLAGS="-I$sqlite_dir/include"
+    SQLITE_LDFLAGS="-L$sqlite_dir/$abi_libdir"
+    SQLITE_LIBS="-lsqlite3"
+
+    sqlite_saved_CPPFLAGS=$CPPFLAGS
+    sqlite_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $SQLITE_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $SQLITE_LDFLAGS $SQLITE_LIBS"
+
+    { echo "$as_me:$LINENO: checking for SQLite library and headers" >&5
+echo $ECHO_N "checking for SQLite library and headers... $ECHO_C" >&6; }
+
+    cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+        #include <sqlite3.h>
+
+int
+main ()
+{
+
+	sqlite3_libversion();
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	 { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+        { { echo "$as_me:$LINENO: error: cannot locate SQLite library and/or headers.
+See \`config.log' for more details." >&5
+echo "$as_me: error: cannot locate SQLite library and/or headers.
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+
+    CPPFLAGS=$sqlite_saved_CPPFLAGS
+    LDFLAGS=$sqlite_saved_LDFLAGS
+
+
+
+
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_SQLITE 1
+_ACEOF
+
+
+
+
+
+
+# Check whether --with-vt was given.
+if test "${with_vt+set}" = set; then
+  withval=$with_vt; vt_dir=$withval
+else
+  vt_dir="/usr"
+fi
+
+
+    VT_DIR="$vt_dir"
+    VT_CPPFLAGS="-I$vt_dir/include"
+    VT_LIBS="-lvt.mpi"
+
+    ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
+
+    { echo "$as_me:$LINENO: checking for VampirTrace support" >&5
+echo $ECHO_N "checking for VampirTrace support... $ECHO_C" >&6; }
+
+    foundVT=0
+    if test -f  $vt_dir/$abi_libdir/libvt.mpi.a; then
+       { echo "$as_me:$LINENO: checking found VampirTrace library" >&5
+echo $ECHO_N "checking found VampirTrace library... $ECHO_C" >&6; }
+       VT_LDFLAGS="-L$vt_dir/$abi_libdir"
+       VT_LIBSDIR="$vt_dir/$abi_libdir"
+       foundVT=1
+    else
+      if test -f  $vt_dir/$alt_abi_libdir/libvt.mpi.a; then
+         { echo "$as_me:$LINENO: checking found VampirTrace library" >&5
+echo $ECHO_N "checking found VampirTrace library... $ECHO_C" >&6; }
+         VT_LDFLAGS="-L$vt_dir/$alt_abi_libdir"
+         VT_LIBSDIR="$vt_dir/$alt_abi_libdir"
+         foundVT=1
+      else
+         foundVT=0
+      fi
+    fi
+
+    if test $foundVT == 1 && test -f  $vt_dir/include/vt_user.h; then
+       { echo "$as_me:$LINENO: checking found VampirTrace headers" >&5
+echo $ECHO_N "checking found VampirTrace headers... $ECHO_C" >&6; }
+       foundVT=1
+    else
+       foundVT=0
+    fi
+
+    if test $foundVT == 1; then
+      { echo "$as_me:$LINENO: checking found all VampirTrace headers, libraries." >&5
+echo $ECHO_N "checking found all VampirTrace headers, libraries.... $ECHO_C" >&6; }
+      { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+       if true; then
+  HAVE_VT_TRUE=
+  HAVE_VT_FALSE='#'
+else
+  HAVE_VT_TRUE='#'
+  HAVE_VT_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_VT 1
+_ACEOF
+
+    else
+      { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+       if false; then
+  HAVE_VT_TRUE=
+  HAVE_VT_FALSE='#'
+else
+  HAVE_VT_TRUE='#'
+  HAVE_VT_FALSE=
+fi
+
+      VT_CPPFLAGS=""
+      VT_DIR=""
+      VT_LDFLAGS=""
+      VT_LIBS=""
+      VT_LIBSDIR=""
+    fi
+
+
+    ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
@@ -24382,15 +24934,120 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
 
 
 
-################################################################################
-# Disable this static Check for Dynamic Instrumentation Package
-# This check is moved to the instrumentors that actually use it.
-# offline does not need/use dyninst (though in the future it will nee
-# libsymtabAPI from a future dyninst release).
-################################################################################
 
-#AC_PKG_DYNINST()
-#AC_PKG_QTLIB()
+
+
+
+# Check whether --with-xerces was given.
+if test "${with_xerces+set}" = set; then
+  withval=$with_xerces; xerces_dir=$withval
+else
+  xerces_dir="/usr"
+fi
+
+
+    XERCES_DIR="$xerces_dir"
+    XERCES_LIBSDIR="$xerces_dir/$abi_libdir"
+    XERCES_CPPFLAGS="-DOPENSS_ENABLE_PERIXML -I$xerces_dir/include/xercesc"
+    XERCES_LDFLAGS="-L$xerces_dir/$abi_libdir"
+    XERCES_LIBS="-lxerces-c"
+
+    ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
+
+    xerces_saved_CPPFLAGS=$CPPFLAGS
+    xerces_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $XERCES_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $XERCES_LDFLAGS $XERCES_LIBS"
+
+    { echo "$as_me:$LINENO: checking for XERCES support" >&5
+echo $ECHO_N "checking for XERCES support... $ECHO_C" >&6; }
+
+    foundXERCES=0
+    if test -f  $xerces_dir/$abi_libdir/libxerces-c.so; then
+       { echo "$as_me:$LINENO: checking found xerces library" >&5
+echo $ECHO_N "checking found xerces library... $ECHO_C" >&6; }
+       foundXERCES=1
+    else
+	if test -f $xerces_dir/$alt_abi_libdir/libxerces-c.so; then
+          { echo "$as_me:$LINENO: checking found xerces library" >&5
+echo $ECHO_N "checking found xerces library... $ECHO_C" >&6; }
+          XERCES_LIBSDIR="$xerces_dir/$alt_abi_libdir"
+          XERCES_LDFLAGS="-L$xerces_dir/$alt_abi_libdir"
+          foundXERCES=1
+       else
+          foundXERCES=0
+       fi
+    fi
+
+    if test $foundXERCES == 1 && test -f  $xerces_dir/include/xercesc/util/XMLString.hpp; then
+       { echo "$as_me:$LINENO: checking found xerces headers" >&5
+echo $ECHO_N "checking found xerces headers... $ECHO_C" >&6; }
+       foundXERCES=1
+    else
+       foundXERCES=0
+    fi
+
+    if test $foundXERCES == 1; then
+      { echo "$as_me:$LINENO: checking found all xerces headers, libraries and supporting libz library" >&5
+echo $ECHO_N "checking found all xerces headers, libraries and supporting libz library... $ECHO_C" >&6; }
+      { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+       if true; then
+  HAVE_XERCES_TRUE=
+  HAVE_XERCES_FALSE='#'
+else
+  HAVE_XERCES_TRUE='#'
+  HAVE_XERCES_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_XERCES 1
+_ACEOF
+
+    else
+      { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+       if false; then
+  HAVE_XERCES_TRUE=
+  HAVE_XERCES_FALSE='#'
+else
+  HAVE_XERCES_TRUE='#'
+  HAVE_XERCES_FALSE=
+fi
+
+      XERCES_DIR=""
+      XERCES_LIBSDIR=""
+      XERCES_CPPFLAGS=""
+      XERCES_LDFLAGS=""
+      XERCES_LIBS=""
+    fi
+
+
+    CPPFLAGS=$xerces_saved_CPPFLAGS
+    LDFLAGS=$xerces_saved_LDFLAGS
+
+    ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+
+
+
+
+
+
+
 
 ################################################################################
 # Check for Instrumentor
@@ -24635,658 +25292,6 @@ _ACEOF
 
 
 
-
-
-if test "x$QTDIR" = "x"; then
-   LQTDIR=/usr
-else
-   LQTDIR=$QTDIR
-fi
-
-
-# Check whether --with-qtlib was given.
-if test "${with_qtlib+set}" = set; then
-  withval=$with_qtlib; LQTDIR=$withval  qtlib_dir=$withval
-else
-  qtlib_dir="ac_cv_qtlib"
-fi
-
-
-{ echo "$as_me:$LINENO: checking whether QTDIR environment variable is set" >&5
-echo $ECHO_N "checking whether QTDIR environment variable is set... $ECHO_C" >&6; }
-#if test "x$LQTDIR" = "x"; then
-#  AC_MSG_RESULT([no])
-#  AC_MSG_ERROR([QTDIR must be properly set.])
-#else
-#  AC_MSG_RESULT([$LQTDIR])
-#fi
-
-tmp_abi_libdir=$abi_libdir
-
-{ echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-  for X in qt-mt qt; do
-    if test "x$ac_cv_qtlib" = "x"; then
-      if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-        ac_cv_qtlib=$X
-        tmp_lqtdir=$LQTDIR
-      fi
-    fi
-  done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-{ echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-
-{ echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#
-# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
-LQTDIR=/usr/$abi_libdir/qt3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
-
-LQTDIR=/usr/$alt_abi_libdir/qt3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib/qt-3.3 and /usr/lib64/qt-3.3 locations
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-
-fi
-#
-# Now start trying /usr/lib/qt-3.3 and /usr/lib64/qt-3.3 locations
-
-LQTDIR=/usr/$abi_libdir/qt-3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Try alt_abi_libdir now
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib64/qt-3.3 locations
-
-LQTDIR=/usr/$alt_abi_libdir/qt3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Try alt_abi_libdir for  /usr/lib64/qt-3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-
-fi
-
-
-
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-fi
-
-
-
-{ echo "$as_me:$LINENO: result: Temporary output: tmp_lqtdir=$tmp_lqtdir" >&5
-echo "${ECHO_T}Temporary output: tmp_lqtdir=$tmp_lqtdir" >&6; }
-
-if test "x$ac_cv_qtlib" = "xqt-mt"; then
-  ac_thread="thread"
-fi
-
-
-QTLIB_CFLAGS="$CFLAGS -I$tmp_lqtdir/include -I$KDEDIR/include"
-QTLIB_CPPFLAGS="$CPPFLAGS -I$tmp_lqtdir/include -I$KDEDIR/include -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
-
-
-QTLIB_LIBS="-L$tmp_lqtdir/$tmp_abi_libdir -L/usr/X11R6/$tmp_abi_libdir"
-QTLIB_LDFLAGS="-l$ac_cv_qtlib"
-
-qtlib_saved_CPPFLAGS=$CPPFLAGS
-qtlib_saved_LDFLAGS=$LDFLAGS
-
-CPPFLAGS="$CPPFLAGS $QTLIB_CPPFLAGS"
-LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
-
-{ echo "$as_me:$LINENO: checking for Qt library version >= 3.3.0" >&5
-echo $ECHO_N "checking for Qt library version >= 3.3.0... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib_version+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-#    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
-#	#include <qglobal.h>
-#	        ]], [[
-#	        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
-#	        AC_MSG_FAILURE(Can not locate Qt library and/or the headers.) ]
-#   	    )
-    cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-	#include <qglobal.h>
-
-int
-main ()
-{
-
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-  found_qt_inc=1
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	 found_qt_inc=0
-
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-
-    if test $found_qt_inc -eq 1; then
-      { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-    else
-      QTLIB_CFLAGS="$CFLAGS -I$tmp_lqtdir/include/qt3 -I$KDEDIR/include"
-      QTLIB_CPPFLAGS="$CPPFLAGS -I$tmp_lqtdir/include/qt3 -I$KDEDIR/include -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
-      CPPFLAGS="$CPPFLAGS $QTLIB_CPPFLAGS"
-      LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
-
-      cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-  	#include <qglobal.h>
-
-int
-main ()
-{
-
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-  found_qt_inc=1
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	 found_qt_inc=0
-
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-    fi
-
-    if test $found_qt_inc -eq 1; then
-      { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-    else
-        { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-	{ { echo "$as_me:$LINENO: error: Can not locate Qt library and/or the headers.
-See \`config.log' for more details." >&5
-echo "$as_me: error: Can not locate Qt library and/or the headers.
-See \`config.log' for more details." >&2;}
-   { (exit 1); exit 1; }; }
-    fi
-
-    cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-		#include "qglobal.h"
-
-int
-main ()
-{
-
-		#if QT_VERSION < 0x030300
-		#error Qt library 3.3 or greater is required.
-		#endif
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-
-		ac_cv_qtlib_version="yes"
-		QT_CFLAGS="$CFLAGS"
-		QT_LIBS="-l$ac_cv_qtlib"
-		QT_LDFLAGS="$LIBS"
-
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-
-		QT_CFLAGS=""
-		QT_LIBS=""
-		QT_LDFLAGS=""
-		{ { echo "$as_me:$LINENO: error: ** QT version 3.3 or greater is required for the Open|SpeedShop QT gui." >&5
-echo "$as_me: error: ** QT version 3.3 or greater is required for the Open|SpeedShop QT gui." >&2;}
-   { (exit 1); exit 1; }; }
-
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib_version" >&5
-echo "${ECHO_T}$ac_cv_qtlib_version" >&6; }
-
-ac_qtdir_errmsg="Not found in current PATH. Maybe QT development environment isn't available (qt3-devel)."
-
-# Extract the first word of "qmake", so it can be a program name with args.
-set dummy qmake; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_path_ac_qmake+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $ac_qmake in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_ac_qmake="$ac_qmake" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="$tmp_lqtdir/bin:${PATH}"
-for as_dir in $as_dummy
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_ac_qmake="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_ac_qmake" && ac_cv_path_ac_qmake="no"
-  ;;
-esac
-fi
-ac_qmake=$ac_cv_path_ac_qmake
-if test -n "$ac_qmake"; then
-  { echo "$as_me:$LINENO: result: $ac_qmake" >&5
-echo "${ECHO_T}$ac_qmake" >&6; }
-else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-fi
-
-
-if test "x$ac_qmake" = "xno"; then
-   { { echo "$as_me:$LINENO: error: qmake $ac_qtdir_errmsg" >&5
-echo "$as_me: error: qmake $ac_qtdir_errmsg" >&2;}
-   { (exit 1); exit 1; }; }
-else
-   QTLIB_HOME=$tmp_lqtdir
-fi
-
-
-
-
-# Check whether --with-qtlib was given.
-if test "${with_qtlib+set}" = set; then
-  withval=$with_qtlib; qtlib_dir=$withval
-else
-  qtlib_dir="ac_cv_qtlib"
-fi
-
-
-
-    if test -d "$ROOT"; then
-        as_ac_File=`echo "ac_cv_file_$ROOT/include/qt-3.3/qtwidget.h" | $as_tr_sh`
-{ echo "$as_me:$LINENO: checking for $ROOT/include/qt-3.3/qtwidget.h" >&5
-echo $ECHO_N "checking for $ROOT/include/qt-3.3/qtwidget.h... $ECHO_C" >&6; }
-if { as_var=$as_ac_File; eval "test \"\${$as_var+set}\" = set"; }; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "$ROOT/include/qt-3.3/qtwidget.h"; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-ac_res=`eval echo '${'$as_ac_File'}'`
-	       { echo "$as_me:$LINENO: result: $ac_res" >&5
-echo "${ECHO_T}$ac_res" >&6; }
-if test `eval echo '${'$as_ac_File'}'` = yes; then
-
-            QTLIB_CPPFLAGS="-I$ROOT/include/qt-3.3"
-            QTLIB_LDFLAGS="-L$ROOT/$abi_libdir"
-            QTLIB_LIBS="-lqt-mt"
-
-fi
-
-    fi
-
-    CPPFLAGS=$qtlib_saved_CPPFLAGS
-    LDFLAGS=$qtlib_saved_LDFLAGS
-
-
-
-
-
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_QTLIB 1
-_ACEOF
-
-
-
 	 if true; then
   BUILD_DPCL_TRUE=
   BUILD_DPCL_FALSE='#'
@@ -25433,658 +25438,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 cat >>confdefs.h <<\_ACEOF
 #define HAVE_DYNINST 1
-_ACEOF
-
-
-
-
-
-if test "x$QTDIR" = "x"; then
-   LQTDIR=/usr
-else
-   LQTDIR=$QTDIR
-fi
-
-
-# Check whether --with-qtlib was given.
-if test "${with_qtlib+set}" = set; then
-  withval=$with_qtlib; LQTDIR=$withval  qtlib_dir=$withval
-else
-  qtlib_dir="ac_cv_qtlib"
-fi
-
-
-{ echo "$as_me:$LINENO: checking whether QTDIR environment variable is set" >&5
-echo $ECHO_N "checking whether QTDIR environment variable is set... $ECHO_C" >&6; }
-#if test "x$LQTDIR" = "x"; then
-#  AC_MSG_RESULT([no])
-#  AC_MSG_ERROR([QTDIR must be properly set.])
-#else
-#  AC_MSG_RESULT([$LQTDIR])
-#fi
-
-tmp_abi_libdir=$abi_libdir
-
-{ echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-  for X in qt-mt qt; do
-    if test "x$ac_cv_qtlib" = "x"; then
-      if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-        ac_cv_qtlib=$X
-        tmp_lqtdir=$LQTDIR
-      fi
-    fi
-  done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-{ echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-
-{ echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#
-# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
-LQTDIR=/usr/$abi_libdir/qt3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
-
-LQTDIR=/usr/$alt_abi_libdir/qt3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib/qt-3.3 and /usr/lib64/qt-3.3 locations
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-
-fi
-#
-# Now start trying /usr/lib/qt-3.3 and /usr/lib64/qt-3.3 locations
-
-LQTDIR=/usr/$abi_libdir/qt-3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Try alt_abi_libdir now
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib64/qt-3.3 locations
-
-LQTDIR=/usr/$alt_abi_libdir/qt3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Try alt_abi_libdir for  /usr/lib64/qt-3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-
-fi
-
-
-
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-fi
-
-
-
-{ echo "$as_me:$LINENO: result: Temporary output: tmp_lqtdir=$tmp_lqtdir" >&5
-echo "${ECHO_T}Temporary output: tmp_lqtdir=$tmp_lqtdir" >&6; }
-
-if test "x$ac_cv_qtlib" = "xqt-mt"; then
-  ac_thread="thread"
-fi
-
-
-QTLIB_CFLAGS="$CFLAGS -I$tmp_lqtdir/include -I$KDEDIR/include"
-QTLIB_CPPFLAGS="$CPPFLAGS -I$tmp_lqtdir/include -I$KDEDIR/include -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
-
-
-QTLIB_LIBS="-L$tmp_lqtdir/$tmp_abi_libdir -L/usr/X11R6/$tmp_abi_libdir"
-QTLIB_LDFLAGS="-l$ac_cv_qtlib"
-
-qtlib_saved_CPPFLAGS=$CPPFLAGS
-qtlib_saved_LDFLAGS=$LDFLAGS
-
-CPPFLAGS="$CPPFLAGS $QTLIB_CPPFLAGS"
-LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
-
-{ echo "$as_me:$LINENO: checking for Qt library version >= 3.3.0" >&5
-echo $ECHO_N "checking for Qt library version >= 3.3.0... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib_version+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-#    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
-#	#include <qglobal.h>
-#	        ]], [[
-#	        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
-#	        AC_MSG_FAILURE(Can not locate Qt library and/or the headers.) ]
-#   	    )
-    cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-	#include <qglobal.h>
-
-int
-main ()
-{
-
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-  found_qt_inc=1
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	 found_qt_inc=0
-
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-
-    if test $found_qt_inc -eq 1; then
-      { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-    else
-      QTLIB_CFLAGS="$CFLAGS -I$tmp_lqtdir/include/qt3 -I$KDEDIR/include"
-      QTLIB_CPPFLAGS="$CPPFLAGS -I$tmp_lqtdir/include/qt3 -I$KDEDIR/include -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
-      CPPFLAGS="$CPPFLAGS $QTLIB_CPPFLAGS"
-      LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
-
-      cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-  	#include <qglobal.h>
-
-int
-main ()
-{
-
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-  found_qt_inc=1
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	 found_qt_inc=0
-
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-    fi
-
-    if test $found_qt_inc -eq 1; then
-      { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-    else
-        { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-	{ { echo "$as_me:$LINENO: error: Can not locate Qt library and/or the headers.
-See \`config.log' for more details." >&5
-echo "$as_me: error: Can not locate Qt library and/or the headers.
-See \`config.log' for more details." >&2;}
-   { (exit 1); exit 1; }; }
-    fi
-
-    cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-		#include "qglobal.h"
-
-int
-main ()
-{
-
-		#if QT_VERSION < 0x030300
-		#error Qt library 3.3 or greater is required.
-		#endif
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-
-		ac_cv_qtlib_version="yes"
-		QT_CFLAGS="$CFLAGS"
-		QT_LIBS="-l$ac_cv_qtlib"
-		QT_LDFLAGS="$LIBS"
-
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-
-		QT_CFLAGS=""
-		QT_LIBS=""
-		QT_LDFLAGS=""
-		{ { echo "$as_me:$LINENO: error: ** QT version 3.3 or greater is required for the Open|SpeedShop QT gui." >&5
-echo "$as_me: error: ** QT version 3.3 or greater is required for the Open|SpeedShop QT gui." >&2;}
-   { (exit 1); exit 1; }; }
-
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib_version" >&5
-echo "${ECHO_T}$ac_cv_qtlib_version" >&6; }
-
-ac_qtdir_errmsg="Not found in current PATH. Maybe QT development environment isn't available (qt3-devel)."
-
-# Extract the first word of "qmake", so it can be a program name with args.
-set dummy qmake; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_path_ac_qmake+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $ac_qmake in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_ac_qmake="$ac_qmake" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="$tmp_lqtdir/bin:${PATH}"
-for as_dir in $as_dummy
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_ac_qmake="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_ac_qmake" && ac_cv_path_ac_qmake="no"
-  ;;
-esac
-fi
-ac_qmake=$ac_cv_path_ac_qmake
-if test -n "$ac_qmake"; then
-  { echo "$as_me:$LINENO: result: $ac_qmake" >&5
-echo "${ECHO_T}$ac_qmake" >&6; }
-else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-fi
-
-
-if test "x$ac_qmake" = "xno"; then
-   { { echo "$as_me:$LINENO: error: qmake $ac_qtdir_errmsg" >&5
-echo "$as_me: error: qmake $ac_qtdir_errmsg" >&2;}
-   { (exit 1); exit 1; }; }
-else
-   QTLIB_HOME=$tmp_lqtdir
-fi
-
-
-
-
-# Check whether --with-qtlib was given.
-if test "${with_qtlib+set}" = set; then
-  withval=$with_qtlib; qtlib_dir=$withval
-else
-  qtlib_dir="ac_cv_qtlib"
-fi
-
-
-
-    if test -d "$ROOT"; then
-        as_ac_File=`echo "ac_cv_file_$ROOT/include/qt-3.3/qtwidget.h" | $as_tr_sh`
-{ echo "$as_me:$LINENO: checking for $ROOT/include/qt-3.3/qtwidget.h" >&5
-echo $ECHO_N "checking for $ROOT/include/qt-3.3/qtwidget.h... $ECHO_C" >&6; }
-if { as_var=$as_ac_File; eval "test \"\${$as_var+set}\" = set"; }; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "$ROOT/include/qt-3.3/qtwidget.h"; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-ac_res=`eval echo '${'$as_ac_File'}'`
-	       { echo "$as_me:$LINENO: result: $ac_res" >&5
-echo "${ECHO_T}$ac_res" >&6; }
-if test `eval echo '${'$as_ac_File'}'` = yes; then
-
-            QTLIB_CPPFLAGS="-I$ROOT/include/qt-3.3"
-            QTLIB_LDFLAGS="-L$ROOT/$abi_libdir"
-            QTLIB_LIBS="-lqt-mt"
-
-fi
-
-    fi
-
-    CPPFLAGS=$qtlib_saved_CPPFLAGS
-    LDFLAGS=$qtlib_saved_LDFLAGS
-
-
-
-
-
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_QTLIB 1
 _ACEOF
 
 
@@ -26441,658 +25794,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-
-
-if test "x$QTDIR" = "x"; then
-   LQTDIR=/usr
-else
-   LQTDIR=$QTDIR
-fi
-
-
-# Check whether --with-qtlib was given.
-if test "${with_qtlib+set}" = set; then
-  withval=$with_qtlib; LQTDIR=$withval  qtlib_dir=$withval
-else
-  qtlib_dir="ac_cv_qtlib"
-fi
-
-
-{ echo "$as_me:$LINENO: checking whether QTDIR environment variable is set" >&5
-echo $ECHO_N "checking whether QTDIR environment variable is set... $ECHO_C" >&6; }
-#if test "x$LQTDIR" = "x"; then
-#  AC_MSG_RESULT([no])
-#  AC_MSG_ERROR([QTDIR must be properly set.])
-#else
-#  AC_MSG_RESULT([$LQTDIR])
-#fi
-
-tmp_abi_libdir=$abi_libdir
-
-{ echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-  for X in qt-mt qt; do
-    if test "x$ac_cv_qtlib" = "x"; then
-      if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-        ac_cv_qtlib=$X
-        tmp_lqtdir=$LQTDIR
-      fi
-    fi
-  done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-{ echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-
-{ echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#
-# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
-LQTDIR=/usr/$abi_libdir/qt3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
-
-LQTDIR=/usr/$alt_abi_libdir/qt3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib/qt-3.3 and /usr/lib64/qt-3.3 locations
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-
-fi
-#
-# Now start trying /usr/lib/qt-3.3 and /usr/lib64/qt-3.3 locations
-
-LQTDIR=/usr/$abi_libdir/qt-3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Try alt_abi_libdir now
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib64/qt-3.3 locations
-
-LQTDIR=/usr/$alt_abi_libdir/qt3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Try alt_abi_libdir for  /usr/lib64/qt-3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-
-fi
-
-
-
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-fi
-
-
-
-{ echo "$as_me:$LINENO: result: Temporary output: tmp_lqtdir=$tmp_lqtdir" >&5
-echo "${ECHO_T}Temporary output: tmp_lqtdir=$tmp_lqtdir" >&6; }
-
-if test "x$ac_cv_qtlib" = "xqt-mt"; then
-  ac_thread="thread"
-fi
-
-
-QTLIB_CFLAGS="$CFLAGS -I$tmp_lqtdir/include -I$KDEDIR/include"
-QTLIB_CPPFLAGS="$CPPFLAGS -I$tmp_lqtdir/include -I$KDEDIR/include -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
-
-
-QTLIB_LIBS="-L$tmp_lqtdir/$tmp_abi_libdir -L/usr/X11R6/$tmp_abi_libdir"
-QTLIB_LDFLAGS="-l$ac_cv_qtlib"
-
-qtlib_saved_CPPFLAGS=$CPPFLAGS
-qtlib_saved_LDFLAGS=$LDFLAGS
-
-CPPFLAGS="$CPPFLAGS $QTLIB_CPPFLAGS"
-LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
-
-{ echo "$as_me:$LINENO: checking for Qt library version >= 3.3.0" >&5
-echo $ECHO_N "checking for Qt library version >= 3.3.0... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib_version+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-#    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
-#	#include <qglobal.h>
-#	        ]], [[
-#	        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
-#	        AC_MSG_FAILURE(Can not locate Qt library and/or the headers.) ]
-#   	    )
-    cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-	#include <qglobal.h>
-
-int
-main ()
-{
-
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-  found_qt_inc=1
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	 found_qt_inc=0
-
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-
-    if test $found_qt_inc -eq 1; then
-      { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-    else
-      QTLIB_CFLAGS="$CFLAGS -I$tmp_lqtdir/include/qt3 -I$KDEDIR/include"
-      QTLIB_CPPFLAGS="$CPPFLAGS -I$tmp_lqtdir/include/qt3 -I$KDEDIR/include -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
-      CPPFLAGS="$CPPFLAGS $QTLIB_CPPFLAGS"
-      LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
-
-      cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-  	#include <qglobal.h>
-
-int
-main ()
-{
-
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-  found_qt_inc=1
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	 found_qt_inc=0
-
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-    fi
-
-    if test $found_qt_inc -eq 1; then
-      { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-    else
-        { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-	{ { echo "$as_me:$LINENO: error: Can not locate Qt library and/or the headers.
-See \`config.log' for more details." >&5
-echo "$as_me: error: Can not locate Qt library and/or the headers.
-See \`config.log' for more details." >&2;}
-   { (exit 1); exit 1; }; }
-    fi
-
-    cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-		#include "qglobal.h"
-
-int
-main ()
-{
-
-		#if QT_VERSION < 0x030300
-		#error Qt library 3.3 or greater is required.
-		#endif
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-
-		ac_cv_qtlib_version="yes"
-		QT_CFLAGS="$CFLAGS"
-		QT_LIBS="-l$ac_cv_qtlib"
-		QT_LDFLAGS="$LIBS"
-
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-
-		QT_CFLAGS=""
-		QT_LIBS=""
-		QT_LDFLAGS=""
-		{ { echo "$as_me:$LINENO: error: ** QT version 3.3 or greater is required for the Open|SpeedShop QT gui." >&5
-echo "$as_me: error: ** QT version 3.3 or greater is required for the Open|SpeedShop QT gui." >&2;}
-   { (exit 1); exit 1; }; }
-
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib_version" >&5
-echo "${ECHO_T}$ac_cv_qtlib_version" >&6; }
-
-ac_qtdir_errmsg="Not found in current PATH. Maybe QT development environment isn't available (qt3-devel)."
-
-# Extract the first word of "qmake", so it can be a program name with args.
-set dummy qmake; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_path_ac_qmake+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $ac_qmake in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_ac_qmake="$ac_qmake" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="$tmp_lqtdir/bin:${PATH}"
-for as_dir in $as_dummy
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_ac_qmake="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_ac_qmake" && ac_cv_path_ac_qmake="no"
-  ;;
-esac
-fi
-ac_qmake=$ac_cv_path_ac_qmake
-if test -n "$ac_qmake"; then
-  { echo "$as_me:$LINENO: result: $ac_qmake" >&5
-echo "${ECHO_T}$ac_qmake" >&6; }
-else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-fi
-
-
-if test "x$ac_qmake" = "xno"; then
-   { { echo "$as_me:$LINENO: error: qmake $ac_qtdir_errmsg" >&5
-echo "$as_me: error: qmake $ac_qtdir_errmsg" >&2;}
-   { (exit 1); exit 1; }; }
-else
-   QTLIB_HOME=$tmp_lqtdir
-fi
-
-
-
-
-# Check whether --with-qtlib was given.
-if test "${with_qtlib+set}" = set; then
-  withval=$with_qtlib; qtlib_dir=$withval
-else
-  qtlib_dir="ac_cv_qtlib"
-fi
-
-
-
-    if test -d "$ROOT"; then
-        as_ac_File=`echo "ac_cv_file_$ROOT/include/qt-3.3/qtwidget.h" | $as_tr_sh`
-{ echo "$as_me:$LINENO: checking for $ROOT/include/qt-3.3/qtwidget.h" >&5
-echo $ECHO_N "checking for $ROOT/include/qt-3.3/qtwidget.h... $ECHO_C" >&6; }
-if { as_var=$as_ac_File; eval "test \"\${$as_var+set}\" = set"; }; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "$ROOT/include/qt-3.3/qtwidget.h"; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-ac_res=`eval echo '${'$as_ac_File'}'`
-	       { echo "$as_me:$LINENO: result: $ac_res" >&5
-echo "${ECHO_T}$ac_res" >&6; }
-if test `eval echo '${'$as_ac_File'}'` = yes; then
-
-            QTLIB_CPPFLAGS="-I$ROOT/include/qt-3.3"
-            QTLIB_LDFLAGS="-L$ROOT/$abi_libdir"
-            QTLIB_LIBS="-lqt-mt"
-
-fi
-
-    fi
-
-    CPPFLAGS=$qtlib_saved_CPPFLAGS
-    LDFLAGS=$qtlib_saved_LDFLAGS
-
-
-
-
-
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_QTLIB 1
-_ACEOF
-
-
-
 	 if true; then
   BUILD_MRNET_TRUE=
   BUILD_MRNET_FALSE='#'
@@ -27125,773 +25826,6 @@ fi
 	;;
 
     offline)
-
-
-
-# Check whether --with-libmonitor was given.
-if test "${with_libmonitor+set}" = set; then
-  withval=$with_libmonitor; libmonitor_dir=$withval
-else
-  libmonitor_dir="/usr"
-fi
-
-
-    LIBMONITOR_CPPFLAGS="-I$libmonitor_dir/include"
-    LIBMONITOR_LDFLAGS="-L$libmonitor_dir/$abi_libdir"
-    LIBMONITOR_LIBS="-lmonitor"
-    LIBMONITOR_DIR="$libmonitor_dir"
-
-    libmonitor_saved_CPPFLAGS=$CPPFLAGS
-    libmonitor_saved_LDFLAGS=$LDFLAGS
-
-    CPPFLAGS="$CPPFLAGS $LIBMONITOR_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $LIBMONITOR_LDFLAGS $LIBMONITOR_LIBS -lpthread"
-
-    { echo "$as_me:$LINENO: checking for libmonitor library and headers" >&5
-echo $ECHO_N "checking for libmonitor library and headers... $ECHO_C" >&6; }
-
-    cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-        #include <monitor.h>
-
-int
-main ()
-{
-
-        monitor_init_library();
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-   { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-
-             if true; then
-  HAVE_LIBMONITOR_TRUE=
-  HAVE_LIBMONITOR_FALSE='#'
-else
-  HAVE_LIBMONITOR_TRUE='#'
-  HAVE_LIBMONITOR_FALSE=
-fi
-
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_LIBMONITOR 1
-_ACEOF
-
-
-
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	 { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-
-             if false; then
-  HAVE_LIBMONITOR_TRUE=
-  HAVE_LIBMONITOR_FALSE='#'
-else
-  HAVE_LIBMONITOR_TRUE='#'
-  HAVE_LIBMONITOR_FALSE=
-fi
-
-            LIBMONITOR_CPPFLAGS=""
-            LIBMONITOR_LDFLAGS=""
-            LIBMONITOR_LIBS=""
-
-
-
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-
-    CPPFLAGS=$libmonitor_saved_CPPFLAGS
-    LDFLAGS=$libmonitor_saved_LDFLAGS
-
-
-
-
-
-
-
-
-
-if test "x$QTDIR" = "x"; then
-   LQTDIR=/usr
-else
-   LQTDIR=$QTDIR
-fi
-
-
-# Check whether --with-qtlib was given.
-if test "${with_qtlib+set}" = set; then
-  withval=$with_qtlib; LQTDIR=$withval  qtlib_dir=$withval
-else
-  qtlib_dir="ac_cv_qtlib"
-fi
-
-
-{ echo "$as_me:$LINENO: checking whether QTDIR environment variable is set" >&5
-echo $ECHO_N "checking whether QTDIR environment variable is set... $ECHO_C" >&6; }
-#if test "x$LQTDIR" = "x"; then
-#  AC_MSG_RESULT([no])
-#  AC_MSG_ERROR([QTDIR must be properly set.])
-#else
-#  AC_MSG_RESULT([$LQTDIR])
-#fi
-
-tmp_abi_libdir=$abi_libdir
-
-{ echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-  for X in qt-mt qt; do
-    if test "x$ac_cv_qtlib" = "x"; then
-      if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-        ac_cv_qtlib=$X
-        tmp_lqtdir=$LQTDIR
-      fi
-    fi
-  done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-{ echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-
-{ echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#
-# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
-LQTDIR=/usr/$abi_libdir/qt3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib/qt3 and /usr/lib64/qt3 locations
-
-LQTDIR=/usr/$alt_abi_libdir/qt3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib/qt-3.3 and /usr/lib64/qt-3.3 locations
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-
-fi
-#
-# Now start trying /usr/lib/qt-3.3 and /usr/lib64/qt-3.3 locations
-
-LQTDIR=/usr/$abi_libdir/qt-3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Try alt_abi_libdir now
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Start trying /usr/lib64/qt-3.3 locations
-
-LQTDIR=/usr/$alt_abi_libdir/qt3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$abi_libdir/lib$X.so -o -f $LQTDIR/$abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-fi
-
-# Try alt_abi_libdir for  /usr/lib64/qt-3.3
-
-if test "x$ac_cv_qtlib" = "x"; then
-  { echo "$as_me:$LINENO: checking for Qt library" >&5
-echo $ECHO_N "checking for Qt library... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-    for X in qt-mt qt; do
-      if test "x$ac_cv_qtlib" = "x"; then
-        if test -f $LQTDIR/$alt_abi_libdir/lib$X.so -o -f $LQTDIR/$alt_abi_libdir/lib$X.a; then
-          ac_cv_qtlib=$X
-	  tmp_abi_libdir=$alt_abi_libdir
-	  tmp_lqtdir=$LQTDIR
-        fi
-      fi
-    done
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib" >&5
-echo "${ECHO_T}$ac_cv_qtlib" >&6; }
-
-  { echo "$as_me:$LINENO: result: Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&5
-echo "${ECHO_T}Temporary output: ac_cv_qtlib=$ac_cv_qtlib" >&6; }
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-
-fi
-
-
-
-
-#  if test "x$ac_cv_qtlib" = "x"; then
-#    AC_MSG_ERROR([Qt library not found. Maybe QTDIR isn't properly set.])
-#  fi
-fi
-
-
-
-{ echo "$as_me:$LINENO: result: Temporary output: tmp_lqtdir=$tmp_lqtdir" >&5
-echo "${ECHO_T}Temporary output: tmp_lqtdir=$tmp_lqtdir" >&6; }
-
-if test "x$ac_cv_qtlib" = "xqt-mt"; then
-  ac_thread="thread"
-fi
-
-
-QTLIB_CFLAGS="$CFLAGS -I$tmp_lqtdir/include -I$KDEDIR/include"
-QTLIB_CPPFLAGS="$CPPFLAGS -I$tmp_lqtdir/include -I$KDEDIR/include -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
-
-
-QTLIB_LIBS="-L$tmp_lqtdir/$tmp_abi_libdir -L/usr/X11R6/$tmp_abi_libdir"
-QTLIB_LDFLAGS="-l$ac_cv_qtlib"
-
-qtlib_saved_CPPFLAGS=$CPPFLAGS
-qtlib_saved_LDFLAGS=$LDFLAGS
-
-CPPFLAGS="$CPPFLAGS $QTLIB_CPPFLAGS"
-LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
-
-{ echo "$as_me:$LINENO: checking for Qt library version >= 3.3.0" >&5
-echo $ECHO_N "checking for Qt library version >= 3.3.0... $ECHO_C" >&6; }
-if test "${ac_cv_qtlib_version+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-#    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
-#	#include <qglobal.h>
-#	        ]], [[
-#	        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
-#	        AC_MSG_FAILURE(Can not locate Qt library and/or the headers.) ]
-#   	    )
-    cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-	#include <qglobal.h>
-
-int
-main ()
-{
-
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-  found_qt_inc=1
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	 found_qt_inc=0
-
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-
-    if test $found_qt_inc -eq 1; then
-      { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-    else
-      QTLIB_CFLAGS="$CFLAGS -I$tmp_lqtdir/include/qt3 -I$KDEDIR/include"
-      QTLIB_CPPFLAGS="$CPPFLAGS -I$tmp_lqtdir/include/qt3 -I$KDEDIR/include -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
-      CPPFLAGS="$CPPFLAGS $QTLIB_CPPFLAGS"
-      LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
-
-      cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-  	#include <qglobal.h>
-
-int
-main ()
-{
-
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-  found_qt_inc=1
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	 found_qt_inc=0
-
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-    fi
-
-    if test $found_qt_inc -eq 1; then
-      { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-    else
-        { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-	{ { echo "$as_me:$LINENO: error: Can not locate Qt library and/or the headers.
-See \`config.log' for more details." >&5
-echo "$as_me: error: Can not locate Qt library and/or the headers.
-See \`config.log' for more details." >&2;}
-   { (exit 1); exit 1; }; }
-    fi
-
-    cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-		#include "qglobal.h"
-
-int
-main ()
-{
-
-		#if QT_VERSION < 0x030300
-		#error Qt library 3.3 or greater is required.
-		#endif
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-
-		ac_cv_qtlib_version="yes"
-		QT_CFLAGS="$CFLAGS"
-		QT_LIBS="-l$ac_cv_qtlib"
-		QT_LDFLAGS="$LIBS"
-
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-
-		QT_CFLAGS=""
-		QT_LIBS=""
-		QT_LDFLAGS=""
-		{ { echo "$as_me:$LINENO: error: ** QT version 3.3 or greater is required for the Open|SpeedShop QT gui." >&5
-echo "$as_me: error: ** QT version 3.3 or greater is required for the Open|SpeedShop QT gui." >&2;}
-   { (exit 1); exit 1; }; }
-
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-
-
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_qtlib_version" >&5
-echo "${ECHO_T}$ac_cv_qtlib_version" >&6; }
-
-ac_qtdir_errmsg="Not found in current PATH. Maybe QT development environment isn't available (qt3-devel)."
-
-# Extract the first word of "qmake", so it can be a program name with args.
-set dummy qmake; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_path_ac_qmake+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $ac_qmake in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_ac_qmake="$ac_qmake" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="$tmp_lqtdir/bin:${PATH}"
-for as_dir in $as_dummy
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_ac_qmake="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_ac_qmake" && ac_cv_path_ac_qmake="no"
-  ;;
-esac
-fi
-ac_qmake=$ac_cv_path_ac_qmake
-if test -n "$ac_qmake"; then
-  { echo "$as_me:$LINENO: result: $ac_qmake" >&5
-echo "${ECHO_T}$ac_qmake" >&6; }
-else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-fi
-
-
-if test "x$ac_qmake" = "xno"; then
-   { { echo "$as_me:$LINENO: error: qmake $ac_qtdir_errmsg" >&5
-echo "$as_me: error: qmake $ac_qtdir_errmsg" >&2;}
-   { (exit 1); exit 1; }; }
-else
-   QTLIB_HOME=$tmp_lqtdir
-fi
-
-
-
-
-# Check whether --with-qtlib was given.
-if test "${with_qtlib+set}" = set; then
-  withval=$with_qtlib; qtlib_dir=$withval
-else
-  qtlib_dir="ac_cv_qtlib"
-fi
-
-
-
-    if test -d "$ROOT"; then
-        as_ac_File=`echo "ac_cv_file_$ROOT/include/qt-3.3/qtwidget.h" | $as_tr_sh`
-{ echo "$as_me:$LINENO: checking for $ROOT/include/qt-3.3/qtwidget.h" >&5
-echo $ECHO_N "checking for $ROOT/include/qt-3.3/qtwidget.h... $ECHO_C" >&6; }
-if { as_var=$as_ac_File; eval "test \"\${$as_var+set}\" = set"; }; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "$ROOT/include/qt-3.3/qtwidget.h"; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-ac_res=`eval echo '${'$as_ac_File'}'`
-	       { echo "$as_me:$LINENO: result: $ac_res" >&5
-echo "${ECHO_T}$ac_res" >&6; }
-if test `eval echo '${'$as_ac_File'}'` = yes; then
-
-            QTLIB_CPPFLAGS="-I$ROOT/include/qt-3.3"
-            QTLIB_LDFLAGS="-L$ROOT/$abi_libdir"
-            QTLIB_LIBS="-lqt-mt"
-
-fi
-
-    fi
-
-    CPPFLAGS=$qtlib_saved_CPPFLAGS
-    LDFLAGS=$qtlib_saved_LDFLAGS
-
-
-
-
-
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_QTLIB 1
-_ACEOF
-
-
-
 	 if false; then
   BUILD_DPCL_TRUE=
   BUILD_DPCL_FALSE='#'
@@ -28064,6 +25998,13 @@ echo "$as_me: error: conditional \"am__fastdepCXX\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
+if test -z "${USE_EXPLICIT_TLS_TRUE}" && test -z "${USE_EXPLICIT_TLS_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"USE_EXPLICIT_TLS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"USE_EXPLICIT_TLS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
 if test -z "${HAVE_BINUTILS_TRUE}" && test -z "${HAVE_BINUTILS_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_BINUTILS\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
@@ -28103,6 +26044,20 @@ if test -z "${HAVE_LIBDWARF_TRUE}" && test -z "${HAVE_LIBDWARF_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_LIBDWARF\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"HAVE_LIBDWARF\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_LIBMONITOR_TRUE}" && test -z "${HAVE_LIBMONITOR_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_LIBMONITOR\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_LIBMONITOR\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_LIBMONITOR_TRUE}" && test -z "${HAVE_LIBMONITOR_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_LIBMONITOR\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_LIBMONITOR\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -28302,20 +26257,6 @@ echo "$as_me: error: conditional \"HAVE_OTF\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${HAVE_VT_TRUE}" && test -z "${HAVE_VT_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_VT\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_VT\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${HAVE_VT_TRUE}" && test -z "${HAVE_VT_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_VT\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_VT\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
 if test -z "${HAVE_PAPI_TRUE}" && test -z "${HAVE_PAPI_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_PAPI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
@@ -28327,6 +26268,20 @@ if test -z "${HAVE_PAPI_TRUE}" && test -z "${HAVE_PAPI_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_PAPI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"HAVE_PAPI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_VT_TRUE}" && test -z "${HAVE_VT_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_VT\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_VT\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_VT_TRUE}" && test -z "${HAVE_VT_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_VT\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_VT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -28344,20 +26299,6 @@ echo "$as_me: error: conditional \"HAVE_XERCES\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${HAVE_LIBMONITOR_TRUE}" && test -z "${HAVE_LIBMONITOR_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_LIBMONITOR\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_LIBMONITOR\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${HAVE_LIBMONITOR_TRUE}" && test -z "${HAVE_LIBMONITOR_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_LIBMONITOR\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_LIBMONITOR\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
 if test -z "${BUILD_DPCL_TRUE}" && test -z "${BUILD_DPCL_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"BUILD_DPCL\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
@@ -28446,20 +26387,6 @@ if test -z "${BUILD_OFFLINE_TRUE}" && test -z "${BUILD_OFFLINE_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"BUILD_OFFLINE\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"BUILD_OFFLINE\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${HAVE_LIBMONITOR_TRUE}" && test -z "${HAVE_LIBMONITOR_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_LIBMONITOR\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_LIBMONITOR\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${HAVE_LIBMONITOR_TRUE}" && test -z "${HAVE_LIBMONITOR_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_LIBMONITOR\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_LIBMONITOR\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -29432,6 +27359,8 @@ YACC!$YACC$ac_delim
 YFLAGS!$YFLAGS$ac_delim
 topdir_execprefix!$topdir_execprefix$ac_delim
 abi_libdir_name!$abi_libdir_name$ac_delim
+USE_EXPLICIT_TLS_TRUE!$USE_EXPLICIT_TLS_TRUE$ac_delim
+USE_EXPLICIT_TLS_FALSE!$USE_EXPLICIT_TLS_FALSE$ac_delim
 ARRAYSVCS_CPPFLAGS!$ARRAYSVCS_CPPFLAGS$ac_delim
 ARRAYSVCS_LDFLAGS!$ARRAYSVCS_LDFLAGS$ac_delim
 ARRAYSVCS_LIBS!$ARRAYSVCS_LIBS$ac_delim
@@ -29446,6 +27375,12 @@ HAVE_LIBDWARF_FALSE!$HAVE_LIBDWARF_FALSE$ac_delim
 LIBDWARF_CPPFLAGS!$LIBDWARF_CPPFLAGS$ac_delim
 LIBDWARF_LDFLAGS!$LIBDWARF_LDFLAGS$ac_delim
 LIBDWARF_LIBS!$LIBDWARF_LIBS$ac_delim
+HAVE_LIBMONITOR_TRUE!$HAVE_LIBMONITOR_TRUE$ac_delim
+HAVE_LIBMONITOR_FALSE!$HAVE_LIBMONITOR_FALSE$ac_delim
+LIBMONITOR_CPPFLAGS!$LIBMONITOR_CPPFLAGS$ac_delim
+LIBMONITOR_LDFLAGS!$LIBMONITOR_LDFLAGS$ac_delim
+LIBMONITOR_LIBS!$LIBMONITOR_LIBS$ac_delim
+LIBMONITOR_DIR!$LIBMONITOR_DIR$ac_delim
 HAVE_LIBUNWIND_TRUE!$HAVE_LIBUNWIND_TRUE$ac_delim
 HAVE_LIBUNWIND_FALSE!$HAVE_LIBUNWIND_FALSE$ac_delim
 LIBUNWIND_CPPFLAGS!$LIBUNWIND_CPPFLAGS$ac_delim
@@ -29501,14 +27436,6 @@ MVAPICH2_HEADER!$MVAPICH2_HEADER$ac_delim
 MVAPICH2_DIR!$MVAPICH2_DIR$ac_delim
 MVAPICH2_NULL!$MVAPICH2_NULL$ac_delim
 HAVE_MPT_TRUE!$HAVE_MPT_TRUE$ac_delim
-HAVE_MPT_FALSE!$HAVE_MPT_FALSE$ac_delim
-MPT_CC!$MPT_CC$ac_delim
-MPT_CPPFLAGS!$MPT_CPPFLAGS$ac_delim
-MPT_LDFLAGS!$MPT_LDFLAGS$ac_delim
-MPT_LIBS!$MPT_LIBS$ac_delim
-MPT_HEADER!$MPT_HEADER$ac_delim
-MPT_DIR!$MPT_DIR$ac_delim
-HAVE_OPENMPI_TRUE!$HAVE_OPENMPI_TRUE$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -29550,6 +27477,14 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+HAVE_MPT_FALSE!$HAVE_MPT_FALSE$ac_delim
+MPT_CC!$MPT_CC$ac_delim
+MPT_CPPFLAGS!$MPT_CPPFLAGS$ac_delim
+MPT_LDFLAGS!$MPT_LDFLAGS$ac_delim
+MPT_LIBS!$MPT_LIBS$ac_delim
+MPT_HEADER!$MPT_HEADER$ac_delim
+MPT_DIR!$MPT_DIR$ac_delim
+HAVE_OPENMPI_TRUE!$HAVE_OPENMPI_TRUE$ac_delim
 HAVE_OPENMPI_FALSE!$HAVE_OPENMPI_FALSE$ac_delim
 OPENMPI_CC!$OPENMPI_CC$ac_delim
 OPENMPI_CPPFLAGS!$OPENMPI_CPPFLAGS$ac_delim
@@ -29574,28 +27509,11 @@ OTF_LDFLAGS!$OTF_LDFLAGS$ac_delim
 OTF_LIBS!$OTF_LIBS$ac_delim
 OTF_LIBZ_LDFLAGS!$OTF_LIBZ_LDFLAGS$ac_delim
 OTF_LIBZ_LIBS!$OTF_LIBZ_LIBS$ac_delim
-HAVE_VT_TRUE!$HAVE_VT_TRUE$ac_delim
-HAVE_VT_FALSE!$HAVE_VT_FALSE$ac_delim
-VT_DIR!$VT_DIR$ac_delim
-VT_CPPFLAGS!$VT_CPPFLAGS$ac_delim
-VT_LDFLAGS!$VT_LDFLAGS$ac_delim
-VT_LIBS!$VT_LIBS$ac_delim
-VT_LIBSDIR!$VT_LIBSDIR$ac_delim
 HAVE_PAPI_TRUE!$HAVE_PAPI_TRUE$ac_delim
 HAVE_PAPI_FALSE!$HAVE_PAPI_FALSE$ac_delim
 PAPI_CPPFLAGS!$PAPI_CPPFLAGS$ac_delim
 PAPI_LDFLAGS!$PAPI_LDFLAGS$ac_delim
 PAPI_LIBS!$PAPI_LIBS$ac_delim
-SQLITE_CPPFLAGS!$SQLITE_CPPFLAGS$ac_delim
-SQLITE_LDFLAGS!$SQLITE_LDFLAGS$ac_delim
-SQLITE_LIBS!$SQLITE_LIBS$ac_delim
-HAVE_XERCES_TRUE!$HAVE_XERCES_TRUE$ac_delim
-HAVE_XERCES_FALSE!$HAVE_XERCES_FALSE$ac_delim
-XERCES_DIR!$XERCES_DIR$ac_delim
-XERCES_LIBSDIR!$XERCES_LIBSDIR$ac_delim
-XERCES_CPPFLAGS!$XERCES_CPPFLAGS$ac_delim
-XERCES_LDFLAGS!$XERCES_LDFLAGS$ac_delim
-XERCES_LIBS!$XERCES_LIBS$ac_delim
 PYTHON_VERSION!$PYTHON_VERSION$ac_delim
 PYTHON!$PYTHON$ac_delim
 PYTHON_CPPFLAGS!$PYTHON_CPPFLAGS$ac_delim
@@ -29603,19 +27521,6 @@ PYTHON_LDFLAGS!$PYTHON_LDFLAGS$ac_delim
 PYTHON_SITE_PKG!$PYTHON_SITE_PKG$ac_delim
 PYTHON_EXTRA_LIBS!$PYTHON_EXTRA_LIBS$ac_delim
 PYTHON_EXTRA_LDFLAGS!$PYTHON_EXTRA_LDFLAGS$ac_delim
-HAVE_LIBMONITOR_TRUE!$HAVE_LIBMONITOR_TRUE$ac_delim
-HAVE_LIBMONITOR_FALSE!$HAVE_LIBMONITOR_FALSE$ac_delim
-LIBMONITOR_CPPFLAGS!$LIBMONITOR_CPPFLAGS$ac_delim
-LIBMONITOR_LDFLAGS!$LIBMONITOR_LDFLAGS$ac_delim
-LIBMONITOR_LIBS!$LIBMONITOR_LIBS$ac_delim
-LIBMONITOR_DIR!$LIBMONITOR_DIR$ac_delim
-DYNINST_CPPFLAGS!$DYNINST_CPPFLAGS$ac_delim
-DYNINST_LDFLAGS!$DYNINST_LDFLAGS$ac_delim
-DYNINST_LIBS!$DYNINST_LIBS$ac_delim
-DYNINST_DIR!$DYNINST_DIR$ac_delim
-DPCL_CPPFLAGS!$DPCL_CPPFLAGS$ac_delim
-DPCL_LDFLAGS!$DPCL_LDFLAGS$ac_delim
-DPCL_LIBS!$DPCL_LIBS$ac_delim
 LQTDIR!$LQTDIR$ac_delim
 ac_cv_qtlib!$ac_cv_qtlib$ac_delim
 ac_thread!$ac_thread$ac_delim
@@ -29624,6 +27529,30 @@ QTLIB_HOME!$QTLIB_HOME$ac_delim
 QTLIB_CPPFLAGS!$QTLIB_CPPFLAGS$ac_delim
 QTLIB_LDFLAGS!$QTLIB_LDFLAGS$ac_delim
 QTLIB_LIBS!$QTLIB_LIBS$ac_delim
+SQLITE_CPPFLAGS!$SQLITE_CPPFLAGS$ac_delim
+SQLITE_LDFLAGS!$SQLITE_LDFLAGS$ac_delim
+SQLITE_LIBS!$SQLITE_LIBS$ac_delim
+HAVE_VT_TRUE!$HAVE_VT_TRUE$ac_delim
+HAVE_VT_FALSE!$HAVE_VT_FALSE$ac_delim
+VT_DIR!$VT_DIR$ac_delim
+VT_CPPFLAGS!$VT_CPPFLAGS$ac_delim
+VT_LDFLAGS!$VT_LDFLAGS$ac_delim
+VT_LIBS!$VT_LIBS$ac_delim
+VT_LIBSDIR!$VT_LIBSDIR$ac_delim
+HAVE_XERCES_TRUE!$HAVE_XERCES_TRUE$ac_delim
+HAVE_XERCES_FALSE!$HAVE_XERCES_FALSE$ac_delim
+XERCES_DIR!$XERCES_DIR$ac_delim
+XERCES_LIBSDIR!$XERCES_LIBSDIR$ac_delim
+XERCES_CPPFLAGS!$XERCES_CPPFLAGS$ac_delim
+XERCES_LDFLAGS!$XERCES_LDFLAGS$ac_delim
+XERCES_LIBS!$XERCES_LIBS$ac_delim
+DYNINST_CPPFLAGS!$DYNINST_CPPFLAGS$ac_delim
+DYNINST_LDFLAGS!$DYNINST_LDFLAGS$ac_delim
+DYNINST_LIBS!$DYNINST_LIBS$ac_delim
+DYNINST_DIR!$DYNINST_DIR$ac_delim
+DPCL_CPPFLAGS!$DPCL_CPPFLAGS$ac_delim
+DPCL_LDFLAGS!$DPCL_LDFLAGS$ac_delim
+DPCL_LIBS!$DPCL_LIBS$ac_delim
 BUILD_DPCL_TRUE!$BUILD_DPCL_TRUE$ac_delim
 BUILD_DPCL_FALSE!$BUILD_DPCL_FALSE$ac_delim
 BUILD_OFFLINE_TRUE!$BUILD_OFFLINE_TRUE$ac_delim
@@ -29640,7 +27569,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 88; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 90; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

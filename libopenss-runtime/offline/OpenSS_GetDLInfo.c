@@ -86,7 +86,7 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 		    fprintf(stderr,"OpenSS_GetDLInfo mappedpath EMPTY\n");
 	        }
 #endif
-	        offline_record_dso("unknown", begin, end, 1);
+	        offline_record_dso("unknown", begin, end, 0);
 	    } else {
 #ifndef NDEBUG
 	        if ( (getenv("OPENSS_DEBUG_OFFLINE") != NULL)) {
@@ -94,7 +94,7 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 			mappedpath);
 	        }
 #endif
-	        offline_record_dso(mappedpath, begin, end, 1);
+	        offline_record_dso(mappedpath, begin, end, 0);
 	    }
 	}
     }

@@ -20,10 +20,9 @@ noinst_PROGRAMS = mutatee
 
 
 CXXFLAGS = \
-	-g -gdwarf-2 -O1
+	-g -O0
 
-mutatee_LDADD = \
-	-ldl
+mutatee_LDADD =
 
 mutatee_SOURCES = \
 	mutatee.cxx

@@ -1,6 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+# Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -23,15 +24,6 @@ DIST_SUBDIRS = dpcl dyninst offline mrnet fileio
 if HAVE_LIBMONITOR
 SUBDIRS += offline fileio
 endif
-
-# Note: Some versions of GCC (e.g. 3.3.3) appear to contain an optimization bug
-#       that causes accesses of thread-local storage (TLS) to fail with SIGSEGV.
-#       The exact nature of the bug has yet to be identified, but it results in
-#       incorrect addresses being calculated for TLS data structures, and occurs
-#       under both "-O1" and "-O2" on affected systems. For now it is safest to
-#       turn off ALL optimizations for code that uses TLS.
-
-CFLAGS = -g -O0
 
 BUILT_SOURCES = \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c
@@ -93,12 +85,15 @@ COMMON_SOURCES = \
 	Assert.h \
 	OpenSS_DataHeader.x $(BUILT_SOURCES) \
 	OpenSS_DecodeParameters.c \
+	OpenSS_EncodeParameters.c \
 	OpenSS_GetAddressOfFunction.c \
+	OpenSS_GetExecutablePath.c \
 	OpenSS_GetPCFromContext.c \
 	OpenSS_InitializeDataHeader.c \
 	OpenSS_UpdatePCData.c \
 	OpenSS_GetTime.c \
 	OpenSS_Send.c \
+	OpenSS_SendToFile.c \
 	OpenSS_Timer.c \
 	OpenSS_FPEHandler.c \
 	OpenSS_SetPCInContext.c \
@@ -138,6 +133,17 @@ if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_GetInstrLength.c
 endif
+endif
+
+if USE_EXPLICIT_TLS
+libopenss_runtime_la_SOURCES += \
+	OpenSS_TLS.c
+
+if HAVE_LIBMONITOR
+libopenss_runtime_offline_la_SOURCES += \
+	OpenSS_TLS.c
+endif
+
 endif
 
 SUFFIXES = .x

@@ -77,9 +77,10 @@ pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 @HAVE_LIBMONITOR_TRUE@libusertime_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
 am__libusertime_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
-	usertime_offline.c usertime_offline.h runtime.c
+	offline.c runtime.c
 am__objects_1 = libusertime_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_2 = libusertime_offline_la-usertime_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_2 =  \
+@HAVE_LIBMONITOR_TRUE@	libusertime_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_libusertime_offline_la_OBJECTS =  \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_1) $(am__objects_2) \
 @HAVE_LIBMONITOR_TRUE@	libusertime_offline_la-runtime.lo
@@ -92,9 +93,10 @@ libusertime_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @HAVE_LIBMONITOR_TRUE@	$(pkglibdir)
 @HAVE_LIBMONITOR_TRUE@usertime_rt_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
 am__usertime_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
-	usertime_offline.c usertime_offline.h runtime.c
+	offline.c runtime.c
 am__objects_3 = usertime_rt_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_4 = usertime_rt_offline_la-usertime_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_4 =  \
+@HAVE_LIBMONITOR_TRUE@	usertime_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_usertime_rt_offline_la_OBJECTS =  \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_3) $(am__objects_4) \
 @HAVE_LIBMONITOR_TRUE@	usertime_rt_offline_la-runtime.lo
@@ -398,7 +400,7 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES = usertime.la $(am__append_1) $(am__append_2)
 @HAVE_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
-@HAVE_LIBMONITOR_TRUE@	usertime_offline.c usertime_offline.h
+@HAVE_LIBMONITOR_TRUE@	offline.c
 
 usertime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -573,14 +575,14 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blobs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libusertime_offline_la-blobs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libusertime_offline_la-offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libusertime_offline_la-runtime.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libusertime_offline_la-usertime_offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/usertime_la-UserTimeCollector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/usertime_rt_la-blobs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/usertime_rt_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/usertime_rt_offline_la-blobs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/usertime_rt_offline_la-offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/usertime_rt_offline_la-runtime.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/usertime_rt_offline_la-usertime_offline.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -610,12 +612,12 @@ libusertime_offline_la-blobs.lo: blobs.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libusertime_offline_la_CFLAGS) $(CFLAGS) -c -o libusertime_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
 
-libusertime_offline_la-usertime_offline.lo: usertime_offline.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libusertime_offline_la_CFLAGS) $(CFLAGS) -MT libusertime_offline_la-usertime_offline.lo -MD -MP -MF $(DEPDIR)/libusertime_offline_la-usertime_offline.Tpo -c -o libusertime_offline_la-usertime_offline.lo `test -f 'usertime_offline.c' || echo '$(srcdir)/'`usertime_offline.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libusertime_offline_la-usertime_offline.Tpo $(DEPDIR)/libusertime_offline_la-usertime_offline.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='usertime_offline.c' object='libusertime_offline_la-usertime_offline.lo' libtool=yes @AMDEPBACKSLASH@
+libusertime_offline_la-offline.lo: offline.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libusertime_offline_la_CFLAGS) $(CFLAGS) -MT libusertime_offline_la-offline.lo -MD -MP -MF $(DEPDIR)/libusertime_offline_la-offline.Tpo -c -o libusertime_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libusertime_offline_la-offline.Tpo $(DEPDIR)/libusertime_offline_la-offline.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='offline.c' object='libusertime_offline_la-offline.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libusertime_offline_la_CFLAGS) $(CFLAGS) -c -o libusertime_offline_la-usertime_offline.lo `test -f 'usertime_offline.c' || echo '$(srcdir)/'`usertime_offline.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libusertime_offline_la_CFLAGS) $(CFLAGS) -c -o libusertime_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
 
 libusertime_offline_la-runtime.lo: runtime.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libusertime_offline_la_CFLAGS) $(CFLAGS) -MT libusertime_offline_la-runtime.lo -MD -MP -MF $(DEPDIR)/libusertime_offline_la-runtime.Tpo -c -o libusertime_offline_la-runtime.lo `test -f 'runtime.c' || echo '$(srcdir)/'`runtime.c
@@ -631,12 +633,12 @@ usertime_rt_offline_la-blobs.lo: blobs.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(usertime_rt_offline_la_CFLAGS) $(CFLAGS) -c -o usertime_rt_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
 
-usertime_rt_offline_la-usertime_offline.lo: usertime_offline.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(usertime_rt_offline_la_CFLAGS) $(CFLAGS) -MT usertime_rt_offline_la-usertime_offline.lo -MD -MP -MF $(DEPDIR)/usertime_rt_offline_la-usertime_offline.Tpo -c -o usertime_rt_offline_la-usertime_offline.lo `test -f 'usertime_offline.c' || echo '$(srcdir)/'`usertime_offline.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/usertime_rt_offline_la-usertime_offline.Tpo $(DEPDIR)/usertime_rt_offline_la-usertime_offline.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='usertime_offline.c' object='usertime_rt_offline_la-usertime_offline.lo' libtool=yes @AMDEPBACKSLASH@
+usertime_rt_offline_la-offline.lo: offline.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(usertime_rt_offline_la_CFLAGS) $(CFLAGS) -MT usertime_rt_offline_la-offline.lo -MD -MP -MF $(DEPDIR)/usertime_rt_offline_la-offline.Tpo -c -o usertime_rt_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/usertime_rt_offline_la-offline.Tpo $(DEPDIR)/usertime_rt_offline_la-offline.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='offline.c' object='usertime_rt_offline_la-offline.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(usertime_rt_offline_la_CFLAGS) $(CFLAGS) -c -o usertime_rt_offline_la-usertime_offline.lo `test -f 'usertime_offline.c' || echo '$(srcdir)/'`usertime_offline.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(usertime_rt_offline_la_CFLAGS) $(CFLAGS) -c -o usertime_rt_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
 
 usertime_rt_offline_la-runtime.lo: runtime.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(usertime_rt_offline_la_CFLAGS) $(CFLAGS) -MT usertime_rt_offline_la-runtime.lo -MD -MP -MF $(DEPDIR)/usertime_rt_offline_la-runtime.Tpo -c -o usertime_rt_offline_la-runtime.lo `test -f 'runtime.c' || echo '$(srcdir)/'`runtime.c

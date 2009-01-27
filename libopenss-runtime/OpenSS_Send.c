@@ -58,7 +58,7 @@ void OpenSS_Send(const OpenSS_DataHeader* header,
     char* buffer = NULL;
     XDR xdrs;
     
-    /* Check assertions */
+    /* Check preconditions */
     Assert(header != NULL);
     Assert(xdrproc != NULL);
     Assert(data != NULL);

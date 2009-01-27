@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -22,6 +22,4 @@ libopenss_runtime_mrnet_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime
 
 libopenss_runtime_mrnet_la_SOURCES = \
-	$(top_srcdir)/libopenss-runtime/fileio/openss_send.c \
-	$(top_srcdir)/libopenss-runtime/fileio/OpenSS_FileIO.c \
-	$(top_srcdir)/libopenss-runtime/fileio/OpenSS_FileIO.h
+	openss_send.c

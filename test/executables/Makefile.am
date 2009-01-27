@@ -19,7 +19,6 @@
 # directories that will be built
 SUBDIRS = \
 	mutatee\
-	Eon \
 	forever \
 	forever_cxx  \
 	fpe_print \

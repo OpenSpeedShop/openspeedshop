@@ -27,15 +27,6 @@
 #include "RuntimeAPI.h"
 #include "runtime.h"
 
-#if defined (OPENSS_OFFLINE)
-#include "io_offline.h"
-#include "OpenSS_Offline.h"
-#endif
-
-#if defined (OPENSS_USE_FILEIO)
-#include "OpenSS_FileIO.h"
-#endif
-
 #include "IOTraceableFunctions.h"
 
 /** Number of overhead frames in each stack frame to be skipped. */
@@ -71,7 +62,7 @@ const unsigned OverheadFrameCount = 2;
 #define EventBufferSize (OpenSS_BlobSizeFactor * 415)
 
 /** Thread-local storage. */
-static __thread struct {
+typedef struct {
     
     /** Nesting depth within the IO function wrappers. */
     unsigned nesting_depth;
@@ -85,8 +76,43 @@ static __thread struct {
 	io_event events[EventBufferSize];          /**< IO call events. */
     } buffer;    
     
+#if defined (OPENSS_OFFLINE)
     char io_traced[PATH_MAX];
-} tls;
+    int do_trace;
+#endif
+} TLS;
+
+
+#ifdef USE_EXPLICIT_TLS
+
+/**
+ * Thread-local storage key.
+ *
+ * Key used for looking up our thread-local storage. This key <em>must</em>
+ * be globally unique across the entire Open|SpeedShop code base.
+ */
+static const uint32_t TLSKey = 0x00001EF7;
+int io_init_tls_done = 0;
+
+#else
+
+/** Thread-local storage. */
+static __thread TLS the_tls;
+
+#endif
+
+#if defined (OPENSS_OFFLINE)
+void defer_trace(int defer_tracing) {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+    tls->do_trace = defer_tracing;
+}
+#endif
 
 /**
  * Send events.
@@ -98,40 +124,35 @@ static __thread struct {
 /*
 NO DEBUG PRINT STATEMENTS HERE.
 */
-static void io_send_events()
+static void io_send_events(TLS *tls)
 {
     /* Set the end time of this data blob */
-    tls.header.time_end = OpenSS_GetTime();
+    tls->header.time_end = OpenSS_GetTime();
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"IO Collector runtime sends data:\n");
         fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] "
 		" stacktraces_len(%d) events_len(%d)\n",
-            tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,
-	    tls.data.stacktraces.stacktraces_len,
-            tls.data.events.events_len);
+            tls->header.time_end,tls->header.addr_begin,tls->header.addr_end,
+	    tls->data.stacktraces.stacktraces_len,
+            tls->data.events.events_len);
     }
 #endif
 
-#if defined (OPENSS_USE_FILEIO)
-    /* Create the openss-raw file name for this exe-collector-pid-tid */
-    /* Default is to create openss-raw files in /tmp */
-    OpenSS_CreateOutfile("openss-data");
-#endif
-    
     /* Send these events */
-    OpenSS_Send(&(tls.header), (xdrproc_t)xdr_io_data, &(tls.data));
+    OpenSS_SetSendToFile("io","openss-data");
+    OpenSS_Send(&(tls->header), (xdrproc_t)xdr_io_data, &(tls->data));
     
     /* Re-initialize the data blob's header */
-    tls.header.time_begin = tls.header.time_end;
-    tls.header.time_end = 0;
-    tls.header.addr_begin = ~0;
-    tls.header.addr_end = 0;
+    tls->header.time_begin = tls->header.time_end;
+    tls->header.time_end = 0;
+    tls->header.addr_begin = ~0;
+    tls->header.addr_end = 0;
     
     /* Re-initialize the actual data blob */
-    tls.data.stacktraces.stacktraces_len = 0;
-    tls.data.events.events_len = 0;    
+    tls->data.stacktraces.stacktraces_len = 0;
+    tls->data.events.events_len = 0;    
 }
     
 
@@ -149,8 +170,16 @@ NO DEBUG PRINT STATEMENTS HERE.
 */
 void io_start_event(io_event* event)
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     /* Increment the IO function wrapper nesting depth */
-    ++tls.nesting_depth;
+    ++tls->nesting_depth;
 
     /* Initialize the event record. */
     memset(event, 0, sizeof(io_event));
@@ -177,17 +206,25 @@ NO DEBUG PRINT STATEMENTS HERE IF TRACING "write, __libc_write".
 */
 void io_record_event(const io_event* event, uint64_t function)
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     uint64_t stacktrace[MaxFramesPerStackTrace];
     unsigned stacktrace_size = 0;
     unsigned entry = 0, start, i;
     unsigned pathindex = 0;
 
 #ifdef DEBUG
-fprintf(stderr,"ENTERED io_record_event, sizeof event=%d, sizeof stacktrace=%d, NESTING=%d\n",sizeof(io_event),sizeof(stacktrace),tls.nesting_depth);
+fprintf(stderr,"ENTERED io_record_event, sizeof event=%d, sizeof stacktrace=%d, NESTING=%d\n",sizeof(io_event),sizeof(stacktrace),tls->nesting_depth);
 #endif
 
     /* Decrement the IO function wrapper nesting depth */
-    --tls.nesting_depth;
+    --tls->nesting_depth;
 
     /*
      * Don't record events for any recursive calls to our IO function wrappers.
@@ -196,7 +233,7 @@ fprintf(stderr,"ENTERED io_record_event, sizeof event=%d, sizeof stacktrace=%d, 
      * direct calls by the application to the IO library - not in the internal
      * implementation details of that library.
      */
-    if(tls.nesting_depth > 0) {
+    if(tls->nesting_depth > 0) {
 #ifdef DEBUG
 	fprintf(stderr,"io_record_event RETURNS EARLY DUE TO NESTING\n");
 #endif
@@ -210,12 +247,12 @@ fprintf(stderr,"ENTERED io_record_event, sizeof event=%d, sizeof stacktrace=%d, 
      * then decrement nesting_depth after aquiring the stacktrace
      */
 
-    ++tls.nesting_depth;
+    ++tls->nesting_depth;
     /* Obtain the stack trace from the current thread context */
     OpenSS_GetStackTraceFromContext(NULL, FALSE, OverheadFrameCount,
 				    MaxFramesPerStackTrace,
 				    &stacktrace_size, stacktrace);
-    --tls.nesting_depth;
+    --tls->nesting_depth;
 
     /*
      * Replace the first entry in the call stack with the address of the IO
@@ -233,16 +270,16 @@ fprintf(stderr,"ENTERED io_record_event, sizeof event=%d, sizeof stacktrace=%d, 
      */
     for(start = 0, i = 0;
 	(i < stacktrace_size) &&
-	    ((start + i) < tls.data.stacktraces.stacktraces_len);
+	    ((start + i) < tls->data.stacktraces.stacktraces_len);
 	++i)
 	
 	/* Do the i'th frames differ? */
-	if(stacktrace[i] != tls.buffer.stacktraces[start + i]) {
+	if(stacktrace[i] != tls->buffer.stacktraces[start + i]) {
 	    
 	    /* Advance in the tracing buffer to the end of this stack trace */
 	    for(start += i;
-		(tls.buffer.stacktraces[start] != 0) &&
-		    (start < tls.data.stacktraces.stacktraces_len);
+		(tls->buffer.stacktraces[start] != 0) &&
+		    (start < tls->data.stacktraces.stacktraces_len);
 		++start);
 	    
 	    /* Advance in the tracing buffer past the terminating zero */
@@ -261,49 +298,49 @@ fprintf(stderr,"ENTERED io_record_event, sizeof event=%d, sizeof stacktrace=%d, 
     else {
 	
 	/* Send events if there is insufficient room for this stack trace */
-	if((tls.data.stacktraces.stacktraces_len + stacktrace_size + 1) >=
+	if((tls->data.stacktraces.stacktraces_len + stacktrace_size + 1) >=
 	   StackTraceBufferSize) {
 #ifdef DEBUG
 fprintf(stderr,"StackTraceBufferSize is full, call io_send_events\n");
 #endif
-	    io_send_events();
+	    io_send_events(tls);
 	}
 	
 	/* Add each frame in the stack trace to the tracing buffer. */	
-	entry = tls.data.stacktraces.stacktraces_len;
+	entry = tls->data.stacktraces.stacktraces_len;
 	for(i = 0; i < stacktrace_size; ++i) {
 	    
 	    /* Add the i'th frame to the tracing buffer */
-	    tls.buffer.stacktraces[entry + i] = stacktrace[i];
+	    tls->buffer.stacktraces[entry + i] = stacktrace[i];
 	    
 	    /* Update the address interval in the data blob's header */
-	    if(stacktrace[i] < tls.header.addr_begin)
-		tls.header.addr_begin = stacktrace[i];
-	    if(stacktrace[i] > tls.header.addr_end)
-		tls.header.addr_end = stacktrace[i];
+	    if(stacktrace[i] < tls->header.addr_begin)
+		tls->header.addr_begin = stacktrace[i];
+	    if(stacktrace[i] > tls->header.addr_end)
+		tls->header.addr_end = stacktrace[i];
 	    
 	}
 	
 	/* Add a terminating zero frame to the tracing buffer */
-	tls.buffer.stacktraces[entry + stacktrace_size] = 0;
+	tls->buffer.stacktraces[entry + stacktrace_size] = 0;
 	
 	/* Set the new size of the tracing buffer */
-	tls.data.stacktraces.stacktraces_len += (stacktrace_size + 1);
+	tls->data.stacktraces.stacktraces_len += (stacktrace_size + 1);
 	
     }
     
     /* Add a new entry for this event to the tracing buffer. */
-    memcpy(&(tls.buffer.events[tls.data.events.events_len]),
+    memcpy(&(tls->buffer.events[tls->data.events.events_len]),
 	   event, sizeof(io_event));
-    tls.buffer.events[tls.data.events.events_len].stacktrace = entry;
-    tls.data.events.events_len++;
+    tls->buffer.events[tls->data.events.events_len].stacktrace = entry;
+    tls->data.events.events_len++;
     
     /* Send events if the tracing buffer is now filled with events */
-    if(tls.data.events.events_len == EventBufferSize) {
+    if(tls->data.events.events_len == EventBufferSize) {
 #ifdef DEBUG
 fprintf(stderr,"Event Buffer is full, call io_send_events\n");
 #endif
-	io_send_events();
+	io_send_events(tls);
     }
 
 }
@@ -322,37 +359,28 @@ void io_start_tracing(const char* arguments)
 {
     io_start_tracing_args args;
 
-#if defined (OPENSS_USE_FILEIO)
-    /* Create the rawdata output file prefix. */
-    /* fpe_stop_tracing will append */
-    /* a tid as needed for the actuall .openss-xdrtype filename */
-    OpenSS_CreateFilePrefix("io");
+    /* Create and access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+	//fprintf(stderr,"io_start_tracing sets TLSKey %#x\n",TLSKey);
+    TLS* tls = malloc(sizeof(TLS));
+    Assert(tls != NULL);
+    OpenSS_SetTLS(TLSKey, tls);
+    io_init_tls_done = 1;
+#else
+    TLS* tls = &the_tls;
 #endif
+    Assert(tls != NULL);
 
-#if defined (OPENSS_OFFLINE)
 
-    /* TODO: need to handle arguments for offline collectors */
-    args.collector=1;
-    args.experiment=0; /* DataQueues index start at 0.*/
-    /* traced functions here? */
+    /* Decode the passed function arguments. */
+    memset(&args, 0, sizeof(args));
+    OpenSS_DecodeParameters(arguments,
+                            (xdrproc_t)xdr_io_start_tracing_args,
+                            &args);
 
-    /* Initialize the info blob's header */
-    /* Passing &(tls.header) to OpenSS_InitializeDataHeader */
-    /* was not safe on ia64 systems. */
-    OpenSS_DataHeader local_info_header;
-    OpenSS_InitializeDataHeader(args.experiment, args.collector,
-				&(local_info_header));
-    memcpy(&tlsinfo.header, &local_info_header, sizeof(OpenSS_DataHeader));
+#if defined(OPENSS_OFFLINE)
 
-    tlsinfo.header.time_begin = OpenSS_GetTime();
-
-    openss_expinfo local_info;
-    OpenSS_InitializeParameters(&(local_info));
-    memcpy(&tlsinfo.info, &local_info, sizeof(openss_expinfo));
-    tlsinfo.info.collector = "io";
-    tlsinfo.info.exename = strdup(OpenSS_exepath);
-
-    char* io_traced = getenv("OPENSS_IO_TRACED");
+    tls->do_trace = 1;
 
     /* If OPENSS_IO_TRACED is set to a valid list of io functions, trace only
      * those functions.
@@ -361,57 +389,38 @@ void io_start_tracing(const char* arguments)
      * If all names in OPENSS_IO_TRACED are misspelled or not part of
      * TraceableFunctions, nothing will be traced.
      */
+    const char* io_traced = getenv("OPENSS_IO_TRACED");
 
     if (io_traced != NULL && strcmp(io_traced,"") != 0) {
-	tlsinfo.info.traced = strdup(io_traced);
-	strcpy(tls.io_traced,io_traced);
+	strcpy(tls->io_traced,io_traced);
     } else {
-	tlsinfo.info.traced = strdup(traceable);
-	strcpy(tls.io_traced,traceable);
-    }
-
-#ifndef NDEBUG
-    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"io_start_tracing sends tlsinfo:\n");
-        fprintf(stderr,"collector=%s, hostname=%s, pid=%d, OpenSS_rawtid=%lx\n",
-            tlsinfo.info.collector,tlsinfo.header.host,
-	    tlsinfo.header.pid,tlsinfo.header.posix_tid);
+	strcpy(tls->io_traced,traceable);
     }
 #endif
 
-#else
-
-
-    /* Decode the passed function arguments. */
-    memset(&args, 0, sizeof(args));
-    OpenSS_DecodeParameters(arguments,
-                            (xdrproc_t)xdr_io_start_tracing_args,
-                            &args);
-#endif
- 
     /* Initialize the IO function wrapper nesting depth */
-    tls.nesting_depth = 0;
+    tls->nesting_depth = 0;
 
     /* Initialize the data blob's header */
-    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not */
+    /* Passing &(tls->header) to OpenSS_InitializeDataHeader was not */
     /* safe on ia64 systems. */
     OpenSS_DataHeader local_header;
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
-    memcpy(&tls.header, &local_header, sizeof(OpenSS_DataHeader));
+    memcpy(&tls->header, &local_header, sizeof(OpenSS_DataHeader));
 
-    tls.header.time_begin = 0;
-    tls.header.time_end = 0;
-    tls.header.addr_begin = ~0;
-    tls.header.addr_end = 0;
+    tls->header.time_begin = 0;
+    tls->header.time_end = 0;
+    tls->header.addr_begin = ~0;
+    tls->header.addr_end = 0;
     
     /* Initialize the actual data blob */
-    tls.data.stacktraces.stacktraces_len = 0;
-    tls.data.stacktraces.stacktraces_val = tls.buffer.stacktraces;
-    tls.data.events.events_len = 0;
-    tls.data.events.events_val = tls.buffer.events;
+    tls->data.stacktraces.stacktraces_len = 0;
+    tls->data.stacktraces.stacktraces_val = tls->buffer.stacktraces;
+    tls->data.events.events_len = 0;
+    tls->data.events.events_val = tls->buffer.events;
 
     /* Set the begin time of this data blob */
-    tls.header.time_begin = OpenSS_GetTime();
+    tls->header.time_begin = OpenSS_GetTime();
 }
 
 
@@ -426,37 +435,44 @@ void io_start_tracing(const char* arguments)
  */
 void io_stop_tracing(const char* arguments)
 {
-
-#if defined (OPENSS_OFFLINE)
-
-    tlsinfo.info.rank = OpenSS_mpi_rank;
-
-    /* For MPT add this check because we were hanging becasuse this is a SGI MPT daemon process */
-    /* and not a ranked process.  So there is no data */
-    if(tls.data.events.events_len > 0) {
-
-    /* create the openss-info data and send it */
-#if defined (OPENSS_USE_FILEIO)
-    OpenSS_CreateOutfile("openss-info");
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
 #endif
-    OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
-
-   }
-#endif
-
+    Assert(tls != NULL);
 
     /* Send events if there are any remaining in the tracing buffer */
-    if(tls.data.events.events_len > 0)
-	io_send_events();
+    if(tls->data.events.events_len > 0)
+	io_send_events(tls);
 }
 
 bool_t io_do_trace(const char* traced_func)
 {
 #if defined (OPENSS_OFFLINE)
-    /* See if this function has been selected for tracing */
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls;
+    if (io_init_tls_done) {
+        tls = OpenSS_GetTLS(TLSKey);
+    } else {
+	return FALSE;
+    }
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
 
+    if (tls->do_trace == 0) {
+	if (tls->nesting_depth > 1)
+	    --tls->nesting_depth;
+	return FALSE;
+    }
+
+    /* See if this function has been selected for tracing */
     char *tfptr, *saveptr, *tf_token;
-    tfptr = strdup(tls.io_traced);
+    tfptr = strdup(tls->io_traced);
     int i;
     for (i = 1;  ; i++, tfptr = NULL) {
 	tf_token = strtok_r(tfptr, ":,", &saveptr);
@@ -474,8 +490,8 @@ bool_t io_do_trace(const char* traced_func)
      * potentially nested iop calls that are not being traced.
      */
 
-    if (tls.nesting_depth > 1)
-	--tls.nesting_depth;
+    if (tls->nesting_depth > 1)
+	--tls->nesting_depth;
 
     return FALSE;
 #else

@@ -76,11 +76,10 @@ am__installdirs = "$(DESTDIR)$(pkglibdir)"
 pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 @HAVE_LIBMONITOR_TRUE@fpe_rt_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
-am__fpe_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
-	fpe_offline.c fpe_offline.h runtime.c
+am__fpe_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
+	runtime.c
 am__objects_1 = fpe_rt_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_2 =  \
-@HAVE_LIBMONITOR_TRUE@	fpe_rt_offline_la-fpe_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_2 = fpe_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_fpe_rt_offline_la_OBJECTS = $(am__objects_1) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_2) \
 @HAVE_LIBMONITOR_TRUE@	fpe_rt_offline_la-runtime.lo
@@ -108,11 +107,10 @@ fpe_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(fpe_la_CXXFLAGS) $(CXXFLAGS) \
 	$(fpe_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@libfpe_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
-am__libfpe_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
-	fpe_offline.c fpe_offline.h runtime.c
+am__libfpe_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
+	runtime.c
 am__objects_5 = libfpe_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_6 =  \
-@HAVE_LIBMONITOR_TRUE@	libfpe_offline_la-fpe_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_6 = libfpe_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_libfpe_offline_la_OBJECTS = $(am__objects_5) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_6) \
 @HAVE_LIBMONITOR_TRUE@	libfpe_offline_la-runtime.lo
@@ -396,7 +394,7 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES = fpe.la $(am__append_1) $(am__append_2)
 @HAVE_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
-@HAVE_LIBMONITOR_TRUE@	fpe_offline.c fpe_offline.h
+@HAVE_LIBMONITOR_TRUE@	offline.c
 
 fpe_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -579,10 +577,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fpe_rt_la-blobs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fpe_rt_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fpe_rt_offline_la-blobs.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fpe_rt_offline_la-fpe_offline.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fpe_rt_offline_la-offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fpe_rt_offline_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfpe_offline_la-blobs.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfpe_offline_la-fpe_offline.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfpe_offline_la-offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfpe_offline_la-runtime.Plo@am__quote@
 
 .c.o:
@@ -613,12 +611,12 @@ fpe_rt_offline_la-blobs.lo: blobs.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fpe_rt_offline_la_CFLAGS) $(CFLAGS) -c -o fpe_rt_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
 
-fpe_rt_offline_la-fpe_offline.lo: fpe_offline.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fpe_rt_offline_la_CFLAGS) $(CFLAGS) -MT fpe_rt_offline_la-fpe_offline.lo -MD -MP -MF $(DEPDIR)/fpe_rt_offline_la-fpe_offline.Tpo -c -o fpe_rt_offline_la-fpe_offline.lo `test -f 'fpe_offline.c' || echo '$(srcdir)/'`fpe_offline.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/fpe_rt_offline_la-fpe_offline.Tpo $(DEPDIR)/fpe_rt_offline_la-fpe_offline.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fpe_offline.c' object='fpe_rt_offline_la-fpe_offline.lo' libtool=yes @AMDEPBACKSLASH@
+fpe_rt_offline_la-offline.lo: offline.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fpe_rt_offline_la_CFLAGS) $(CFLAGS) -MT fpe_rt_offline_la-offline.lo -MD -MP -MF $(DEPDIR)/fpe_rt_offline_la-offline.Tpo -c -o fpe_rt_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/fpe_rt_offline_la-offline.Tpo $(DEPDIR)/fpe_rt_offline_la-offline.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='offline.c' object='fpe_rt_offline_la-offline.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fpe_rt_offline_la_CFLAGS) $(CFLAGS) -c -o fpe_rt_offline_la-fpe_offline.lo `test -f 'fpe_offline.c' || echo '$(srcdir)/'`fpe_offline.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fpe_rt_offline_la_CFLAGS) $(CFLAGS) -c -o fpe_rt_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
 
 fpe_rt_offline_la-runtime.lo: runtime.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fpe_rt_offline_la_CFLAGS) $(CFLAGS) -MT fpe_rt_offline_la-runtime.lo -MD -MP -MF $(DEPDIR)/fpe_rt_offline_la-runtime.Tpo -c -o fpe_rt_offline_la-runtime.lo `test -f 'runtime.c' || echo '$(srcdir)/'`runtime.c
@@ -648,12 +646,12 @@ libfpe_offline_la-blobs.lo: blobs.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfpe_offline_la_CFLAGS) $(CFLAGS) -c -o libfpe_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
 
-libfpe_offline_la-fpe_offline.lo: fpe_offline.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfpe_offline_la_CFLAGS) $(CFLAGS) -MT libfpe_offline_la-fpe_offline.lo -MD -MP -MF $(DEPDIR)/libfpe_offline_la-fpe_offline.Tpo -c -o libfpe_offline_la-fpe_offline.lo `test -f 'fpe_offline.c' || echo '$(srcdir)/'`fpe_offline.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libfpe_offline_la-fpe_offline.Tpo $(DEPDIR)/libfpe_offline_la-fpe_offline.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fpe_offline.c' object='libfpe_offline_la-fpe_offline.lo' libtool=yes @AMDEPBACKSLASH@
+libfpe_offline_la-offline.lo: offline.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfpe_offline_la_CFLAGS) $(CFLAGS) -MT libfpe_offline_la-offline.lo -MD -MP -MF $(DEPDIR)/libfpe_offline_la-offline.Tpo -c -o libfpe_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libfpe_offline_la-offline.Tpo $(DEPDIR)/libfpe_offline_la-offline.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='offline.c' object='libfpe_offline_la-offline.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfpe_offline_la_CFLAGS) $(CFLAGS) -c -o libfpe_offline_la-fpe_offline.lo `test -f 'fpe_offline.c' || echo '$(srcdir)/'`fpe_offline.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfpe_offline_la_CFLAGS) $(CFLAGS) -c -o libfpe_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
 
 libfpe_offline_la-runtime.lo: runtime.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfpe_offline_la_CFLAGS) $(CFLAGS) -MT libfpe_offline_la-runtime.lo -MD -MP -MF $(DEPDIR)/libfpe_offline_la-runtime.Tpo -c -o libfpe_offline_la-runtime.lo `test -f 'runtime.c' || echo '$(srcdir)/'`runtime.c

@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -15,7 +16,6 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-CFLAGS = -g -O0
 
 noinst_LTLIBRARIES = libopenss-runtime-offline.la
 
@@ -33,6 +33,7 @@ libopenss_runtime_offline_la_CFLAGS = \
 libopenss_runtime_offline_la_SOURCES = \
 	offline.x $(BUILT_SOURCES) \
 	offline_monitor.c \
+	openss_send.c \
 	OpenSS_GetDLInfo.c \
 	OpenSS_InitializeParameters.c \
 	OpenSS_Offline.h

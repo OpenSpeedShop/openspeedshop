@@ -34,33 +34,11 @@
 
 #include <libunwind.h>
 
-#if defined (OPENSS_OFFLINE)
-#include "hwctime_offline.h"
-#include "OpenSS_Offline.h"
-#endif
-
-#if defined (OPENSS_USE_FILEIO)
-#include "OpenSS_FileIO.h"
-#endif
-
-#if UNW_TARGET_X86
+#if UNW_TARGET_X86 || UNW_TARGET_X86_64
 # define STACK_SIZE     (128*1024)      /* On x86, SIGSTKSZ is too small */
 #else
 # define STACK_SIZE     SIGSTKSZ
 #endif
-
-/* Forward Declarations */
-void hwctime_start_sampling(const char*);
-void hwctime_stop_sampling(const char*);
-
-static __thread int EventSet = PAPI_NULL;
-
-/*
- * NOTE: For some reason GCC doesn't like it when the following two macros are
- *       replaced with constant unsigned integers. It complains about the arrays
- *       in the tls structure being "variable-size type declared outside of any
- *       function" even though the size IS constant... Maybe this can be fixed?
- */
 
 /** Number of entries in the sample buffer. */
 #define BufferSize 1024
@@ -68,8 +46,8 @@ static __thread int EventSet = PAPI_NULL;
 /** Man number of frames for callstack collection */
 #define MAXFRAMES 100
 
-/** Thread-local storage. */
-static __thread struct {
+/** Type defining the items stored in thread-local storage. */
+typedef struct {
 
     OpenSS_DataHeader header;       /**< Header for following data blob. */
     hwctime_data data;             /**< Actual data blob. */
@@ -80,42 +58,88 @@ static __thread struct {
 				    /**< Each stack is terminated by */
 				    /**< a NULL address.             */
     } buffer;    
-    
-} tls;
+
+    int EventSet;
+} TLS;
+
+static int hwctime_papi_init_done = 0;
+
+#ifdef USE_EXPLICIT_TLS
+
+/**
+ * Thread-local storage key.
+ *
+ * Key used for looking up our thread-local storage. This key <em>must</em>
+ * be globally unique across the entire Open|SpeedShop code base.
+ */
+static const uint32_t TLSKey = 0x00001EF6;
+
+#else
+
+/** Thread-local storage. */
+static __thread TLS the_tls;
+
+#endif
+
+#if defined (OPENSS_OFFLINE)
+
+void hwctime_resume_papi()
+{
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    if (hwctime_papi_init_done == 0 || tls == NULL)
+        return;
+    OpenSS_Start(tls->EventSet);
+}
+
+void hwctime_suspend_papi()
+{
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    if (hwctime_papi_init_done == 0 || tls == NULL)
+        return;
+    OpenSS_Stop(tls->EventSet);
+}
+#endif
 
 /* utility to send samples when needed */
-static void send_samples()
+static void send_samples(TLS *tls)
 {
     /* Send these samples */
-    tls.header.time_end = OpenSS_GetTime();
+    tls->header.time_end = OpenSS_GetTime();
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"hwctime send_samples: sends data:\n");
         fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] bt_len(%d)\n",
-            tls.header.time_end,tls.header.addr_begin,
-	    tls.header.addr_end,tls.data.bt.bt_len);
+            tls->header.time_end,tls->header.addr_begin,
+	    tls->header.addr_end,tls->data.bt.bt_len);
     }
 #endif
 
-#if defined (OPENSS_USE_FILEIO)
-    /* Create the openss-raw file name for this exe-collector-pid-tid */
-    /* Default is to create openss-raw files in /tmp */
-    OpenSS_CreateOutfile("openss-data");
-#endif
-
-    OpenSS_Send(&(tls.header),(xdrproc_t)xdr_hwctime_data,&(tls.data));
+    OpenSS_SetSendToFile("hwctime","openss-data");
+    OpenSS_Send(&(tls->header),(xdrproc_t)xdr_hwctime_data,&(tls->data));
 
     /* Re-initialize the data blob's header */
-    tls.header.time_begin = tls.header.time_end;
-    tls.header.time_end = 0;
-    tls.header.addr_begin = ~0;
-    tls.header.addr_end = 0;
+    tls->header.time_begin = tls->header.time_end;
+    tls->header.time_end = 0;
+    tls->header.addr_begin = ~0;
+    tls->header.addr_end = 0;
 
     /* Re-initialize the actual data blob */
-    tls.data.bt.bt_len = 0;
+    tls->data.bt.bt_len = 0;
 }
 
+static int total = 0;
+static int stacktotal = 0;
 
 /**
  * PAPI event handler.
@@ -128,14 +152,20 @@ static void send_samples()
  *
  * @note    
  * 
- * @param context    Thread context at timer interrupt.
+ * @param context    Thread context at papi overflow.
  */
-static int total = 0;
-static int stacktotal = 0;
 void
 hwctimePAPIHandler(int EventSet, void *address, long_long overflow_vector,
 		    void* context)
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     /* Obtain the program counter (PC) address from the thread context */
     /* We will test passedpc against the first stack frame address */
     /* to see if we have to skip any signal handler overhead. */
@@ -193,21 +223,21 @@ hwctimePAPIHandler(int EventSet, void *address, long_long overflow_vector,
 	/* add frame address if we are past any signal handler overhead */
 	if (overhead_marker > 3) {
 	    /* add frame address to buffer */
-            tls.buffer.bt[tls.data.bt.bt_len] = (uint64_t) ip;
+            tls->buffer.bt[tls->data.bt.bt_len] = (uint64_t) ip;
 
             /* Update the address interval in the data blob's header */
-            if(ip < tls.header.addr_begin) {
-	        tls.header.addr_begin = (uint64_t) ip;
+            if(ip < tls->header.addr_begin) {
+	        tls->header.addr_begin = (uint64_t) ip;
 	    }
-            if(ip > tls.header.addr_end) {
-	        tls.header.addr_end = (uint64_t) ip;
+            if(ip > tls->header.addr_end) {
+	        tls->header.addr_end = (uint64_t) ip;
 	    }
-	    tls.data.bt.bt_len++;
+	    tls->data.bt.bt_len++;
 
             /* Is the sample buffer full? */
-            if(tls.data.bt.bt_len == BufferSize) {
+            if(tls->data.bt.bt_len == BufferSize) {
     	        /* Send these samples */
-	        send_samples();
+	        send_samples(tls);
             }
 	    stacktotal++;
 
@@ -227,18 +257,20 @@ hwctimePAPIHandler(int EventSet, void *address, long_long overflow_vector,
     while (rval > 0);
 
     /* terminate this stack trace with a NULL and bump bt_len*/
-    tls.buffer.bt[tls.data.bt.bt_len] = 0L;
-    tls.data.bt.bt_len++;
+    tls->buffer.bt[tls->data.bt.bt_len] = 0L;
+    tls->data.bt.bt_len++;
 
     /* Is the sample buffer full? */
-    if(tls.data.bt.bt_len == BufferSize) {
-	send_samples();
+    if(tls->data.bt.bt_len == BufferSize) {
+	send_samples(tls);
     }
 
     /* reset the signal handler overhead marker */
     overhead_marker = 0;
     total++;
 }
+
+
 
 /**
  * Start sampling.
@@ -253,162 +285,101 @@ void hwctime_start_sampling(const char* arguments)
 {
     hwctime_start_sampling_args args;
 
-    if(EventSet == PAPI_NULL) {
-	hwc_init_papi();
-    }
-
-#if defined (OPENSS_USE_FILEIO)
-    /* Create the rawdata output file prefix. */
-    /* fpe_stop_tracing will append */
-    /* a tid as needed for the actuall .openss-xdrtype filename */
-    OpenSS_CreateFilePrefix("hwctime");
-#endif
-
-#if defined (OPENSS_OFFLINE)
-
-    /* TODO: need to handle arguments for offline collectors */
-    args.collector=1;
-    args.experiment=0; /* DataQueues index start at 0.*/
-
-    /* Initialize the info blob's header */
-    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was */
-    /* not safe on ia64 systems. */
-    OpenSS_DataHeader local_info_header;
-    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_info_header));
-    memcpy(&tlsinfo.header, &local_info_header, sizeof(OpenSS_DataHeader));
-
-    tlsinfo.header.time_begin = OpenSS_GetTime();
-
-    openss_expinfo local_info;
-    OpenSS_InitializeParameters(&(local_info));
-    memcpy(&tlsinfo.info, &local_info, sizeof(openss_expinfo));
-    tlsinfo.info.collector = "hwctime";
-    tlsinfo.info.exename = strdup(OpenSS_exepath);
-
-    char* sampling_rate = getenv("OPENSS_HWCTIME_THRESHOLD");
-
-    if (sampling_rate != NULL) {
-	args.sampling_rate=atoi(sampling_rate);
-    } else {
-#if defined(linux)
-	if (hw_info) {
-	    args.sampling_rate = (unsigned) hw_info->mhz*10000*2;
-	} else {
-	    args.sampling_rate = THRESHOLD*2;
-	}
+    /* Create and access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = malloc(sizeof(TLS));
+    Assert(tls != NULL);
+    OpenSS_SetTLS(TLSKey, tls);
 #else
-	args.sampling_rate = THRESHOLD*2;
+    TLS* tls = &the_tls;
 #endif
-    }
+    Assert(tls != NULL);
 
-    char* hwctime_event_param = getenv("OPENSS_HWCTIME_EVENT");
-    if (hwctime_event_param != NULL) {
-	args.hwctime_event=get_papi_eventcode(hwctime_event_param);
-	tlsinfo.info.event = strdup(hwctime_event_param);
-    } else {
-	args.hwctime_event=get_papi_eventcode("PAPI_TOT_CYC");
-	tlsinfo.info.event = strdup("PAPI_TOT_CYC");
-    }
-
-    tlsinfo.info.rate = args.sampling_rate;
-
-#ifndef NDEBUG
-    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"hwctime_start_sampling sends tlsinfo:\n");
-        fprintf(stderr,"collector=%s, hostname=%s, pid =%d, tid=%lx\n",
-            tlsinfo.info.collector,tlsinfo.header.host,
-	    tlsinfo.header.pid,tlsinfo.header.posix_tid);
-    }
-#endif
-
-#else
-
-    /* Decode the passed function arguments. */
+    /* Decode the passed function arguments */
     memset(&args, 0, sizeof(args));
     OpenSS_DecodeParameters(arguments,
 			    (xdrproc_t)xdr_hwctime_start_sampling_args,
 			    &args);
-#endif
+
+    int hwctime_papithreshold = (uint64_t)(args.sampling_rate);
     
-    /* Initialize the data blob's header */
-    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
+    /* 
+     * Initialize the data blob's header
+     *
+     * Passing &tls->header to OpenSS_InitializeDataHeader() was found
+     * to not be safe on IA64 systems. Hopefully the extra copy can be
+     * removed eventually.
      */
-    OpenSS_DataHeader local_header;
-    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
-    memcpy(&tls.header, &local_header, sizeof(OpenSS_DataHeader));
-
-    tls.header.time_begin = 0;
-    tls.header.time_end = 0;
-    tls.header.addr_begin = ~0;
-    tls.header.addr_end = 0;
-
-    /* Initialize the actual data blob */
-    tls.data.interval = (uint64_t)(args.sampling_rate);
-    tls.data.bt.bt_len = 0;
-    tls.data.bt.bt_val = tls.buffer.bt;
     
-#if defined (OPENSS_OFFLINE)
-    tlsobj.objs.objname = NULL;
-    tlsobj.objs.addr_begin = ~0;
-    tlsobj.objs.addr_end = 0;
-#endif
+    OpenSS_DataHeader local_data_header;
+    OpenSS_InitializeDataHeader(args.experiment, args.collector,
+				&local_data_header);
+    memcpy(&tls->header, &local_data_header, sizeof(OpenSS_DataHeader));
+    
+    /* Initialize the actual data blob */
+    tls->data.interval = (uint64_t)(args.sampling_rate);
+    tls->data.bt.bt_len = 0;
+    tls->data.bt.bt_val = tls->buffer.bt;
+
 
     /* Begin sampling */
-    tls.header.time_begin = OpenSS_GetTime();
+    tls->header.time_begin = OpenSS_GetTime();
 
-    papithreshold = (uint64_t)(args.sampling_rate);
+    if(hwctime_papi_init_done == 0) {
+	hwc_init_papi();
+	tls->EventSet = PAPI_NULL;
+	hwctime_papi_init_done = 1;
+    }
 
-    if(EventSet == PAPI_NULL)
-        hwc_init_papi();
+    int hwctime_papi_event = PAPI_NULL;
+#if defined (OPENSS_OFFLINE)
+    const char* hwctime_event_param = getenv("OPENSS_HWC_EVENT");
+    if (hwctime_event_param != NULL) {
+        hwctime_papi_event=get_papi_eventcode((char *)hwctime_event_param);
+    } else {
+        hwctime_papi_event=get_papi_eventcode("PAPI_TOT_CYC");
+    }
+#else
+    hwctime_papi_event = args.hwctime_event;
+#endif
 
-    OpenSS_Create_Eventset(&EventSet);
-    OpenSS_AddEvent(EventSet,args.hwctime_event);
-    OpenSS_Overflow(EventSet,args.hwctime_event,
-                         papithreshold, hwctimePAPIHandler);
-    OpenSS_Start(EventSet);
+    OpenSS_Create_Eventset(&tls->EventSet);
+    OpenSS_AddEvent(tls->EventSet, hwctime_papi_event);
+    OpenSS_Overflow(tls->EventSet, hwctime_papi_event,
+		    hwctime_papithreshold, hwctimePAPIHandler);
+    OpenSS_Start(tls->EventSet);
 }
+
 
 
 /**
  * Stop sampling.
  *
- * Stops hardware counter sampling for the thread executing this function.
- * Disables the sampling timer and sends any samples remaining in the buffer.
+ * Stops hardware counter (HWC) sampling for the thread executing this function.
+ * Disables the sampling counter and sends any samples remaining in the buffer.
  *
  * @param arguments    Encoded (unused) function arguments.
  */
 void hwctime_stop_sampling(const char* arguments)
 {
-    hwc_init_papi();
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
 
     /* Stop sampling */
-    OpenSS_Timer(0, NULL);
-    tls.header.time_end = OpenSS_GetTime();
+    OpenSS_Stop(tls->EventSet);
+    tls->header.time_end = OpenSS_GetTime();
 
-#if defined (OPENSS_OFFLINE)
-
-    tlsinfo.info.rank = OpenSS_mpi_rank;
-
-
-    /* For MPT add this check because we were hanging becasuse this is a SGI MPT daemon process */
-    /* and not a ranked process.  So there is no data */
-    if(tls.data.bt.bt_len > 0) {
-
-      /* create the openss-info data and send it */
-#if defined (OPENSS_USE_FILEIO)
-      OpenSS_CreateOutfile("openss-info");
-#endif
-      OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
-    }
-#endif
-
-    if (EventSet == PAPI_NULL) {
-        /*fprintf(stderr,"hwctime_stop_sampling RETURNS - NO EVENTSET!\n");*/
-        /* we are called before eny events are set in papi. just return */
+    if (tls->EventSet == PAPI_NULL) {
+	/*fprintf(stderr,"hwctime_stop_sampling RETURNS - NO EVENTSET!\n");*/
+	/* we are called before eny events are set in papi. just return */
         return;
     }
 
-    OpenSS_Stop(EventSet);
 
 /* debug used to compute space needs for data blobs */
 #if 0
@@ -419,6 +390,13 @@ fprintf(stderr,"hwctime_stop_sampling: values[1] = %d\n",values[1]);
 #endif
 
     /* Send any samples remaining in the sample buffer */
-    if(tls.data.bt.bt_len > 0)
-	send_samples();
+    if(tls->data.bt.bt_len > 0) {
+	send_samples(tls);
+    }
+
+    /* Destroy our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    free(tls);
+    OpenSS_SetTLS(TLSKey, NULL);
+#endif
 }

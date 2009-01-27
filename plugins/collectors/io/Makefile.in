@@ -76,10 +76,10 @@ am__installdirs = "$(DESTDIR)$(pkglibdir)"
 pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 @HAVE_LIBMONITOR_TRUE@io_rt_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
-am__io_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
-	io_offline.c io_offline.h wrappers.c runtime.h runtime.c
+am__io_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
+	wrappers.c runtime.h runtime.c
 am__objects_1 = io_rt_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_2 = io_rt_offline_la-io_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_2 = io_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_io_rt_offline_la_OBJECTS = $(am__objects_1) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_2) \
 @HAVE_LIBMONITOR_TRUE@	io_rt_offline_la-wrappers.lo \
@@ -108,10 +108,10 @@ io_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(io_la_CXXFLAGS) $(CXXFLAGS) \
 	$(io_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@libio_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
-am__libio_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
-	io_offline.c io_offline.h wrappers.c runtime.h runtime.c
+am__libio_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
+	wrappers.c runtime.h runtime.c
 am__objects_5 = libio_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_6 = libio_offline_la-io_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_6 = libio_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_libio_offline_la_OBJECTS = $(am__objects_5) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_6) \
 @HAVE_LIBMONITOR_TRUE@	libio_offline_la-wrappers.lo \
@@ -395,7 +395,7 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES = io.la $(am__append_1) $(am__append_2)
 @HAVE_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
-@HAVE_LIBMONITOR_TRUE@	io_offline.c io_offline.h
+@HAVE_LIBMONITOR_TRUE@	offline.c
 
 io_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -577,11 +577,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/io_rt_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/io_rt_la-wrappers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/io_rt_offline_la-blobs.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/io_rt_offline_la-io_offline.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/io_rt_offline_la-offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/io_rt_offline_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/io_rt_offline_la-wrappers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libio_offline_la-blobs.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libio_offline_la-io_offline.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libio_offline_la-offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libio_offline_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libio_offline_la-wrappers.Plo@am__quote@
 
@@ -613,12 +613,12 @@ io_rt_offline_la-blobs.lo: blobs.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(io_rt_offline_la_CFLAGS) $(CFLAGS) -c -o io_rt_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
 
-io_rt_offline_la-io_offline.lo: io_offline.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(io_rt_offline_la_CFLAGS) $(CFLAGS) -MT io_rt_offline_la-io_offline.lo -MD -MP -MF $(DEPDIR)/io_rt_offline_la-io_offline.Tpo -c -o io_rt_offline_la-io_offline.lo `test -f 'io_offline.c' || echo '$(srcdir)/'`io_offline.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/io_rt_offline_la-io_offline.Tpo $(DEPDIR)/io_rt_offline_la-io_offline.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='io_offline.c' object='io_rt_offline_la-io_offline.lo' libtool=yes @AMDEPBACKSLASH@
+io_rt_offline_la-offline.lo: offline.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(io_rt_offline_la_CFLAGS) $(CFLAGS) -MT io_rt_offline_la-offline.lo -MD -MP -MF $(DEPDIR)/io_rt_offline_la-offline.Tpo -c -o io_rt_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/io_rt_offline_la-offline.Tpo $(DEPDIR)/io_rt_offline_la-offline.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='offline.c' object='io_rt_offline_la-offline.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(io_rt_offline_la_CFLAGS) $(CFLAGS) -c -o io_rt_offline_la-io_offline.lo `test -f 'io_offline.c' || echo '$(srcdir)/'`io_offline.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(io_rt_offline_la_CFLAGS) $(CFLAGS) -c -o io_rt_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
 
 io_rt_offline_la-wrappers.lo: wrappers.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(io_rt_offline_la_CFLAGS) $(CFLAGS) -MT io_rt_offline_la-wrappers.lo -MD -MP -MF $(DEPDIR)/io_rt_offline_la-wrappers.Tpo -c -o io_rt_offline_la-wrappers.lo `test -f 'wrappers.c' || echo '$(srcdir)/'`wrappers.c
@@ -662,12 +662,12 @@ libio_offline_la-blobs.lo: blobs.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libio_offline_la_CFLAGS) $(CFLAGS) -c -o libio_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
 
-libio_offline_la-io_offline.lo: io_offline.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libio_offline_la_CFLAGS) $(CFLAGS) -MT libio_offline_la-io_offline.lo -MD -MP -MF $(DEPDIR)/libio_offline_la-io_offline.Tpo -c -o libio_offline_la-io_offline.lo `test -f 'io_offline.c' || echo '$(srcdir)/'`io_offline.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libio_offline_la-io_offline.Tpo $(DEPDIR)/libio_offline_la-io_offline.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='io_offline.c' object='libio_offline_la-io_offline.lo' libtool=yes @AMDEPBACKSLASH@
+libio_offline_la-offline.lo: offline.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libio_offline_la_CFLAGS) $(CFLAGS) -MT libio_offline_la-offline.lo -MD -MP -MF $(DEPDIR)/libio_offline_la-offline.Tpo -c -o libio_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libio_offline_la-offline.Tpo $(DEPDIR)/libio_offline_la-offline.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='offline.c' object='libio_offline_la-offline.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libio_offline_la_CFLAGS) $(CFLAGS) -c -o libio_offline_la-io_offline.lo `test -f 'io_offline.c' || echo '$(srcdir)/'`io_offline.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libio_offline_la_CFLAGS) $(CFLAGS) -c -o libio_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
 
 libio_offline_la-wrappers.lo: wrappers.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libio_offline_la_CFLAGS) $(CFLAGS) -MT libio_offline_la-wrappers.lo -MD -MP -MF $(DEPDIR)/libio_offline_la-wrappers.Tpo -c -o libio_offline_la-wrappers.lo `test -f 'wrappers.c' || echo '$(srcdir)/'`wrappers.c

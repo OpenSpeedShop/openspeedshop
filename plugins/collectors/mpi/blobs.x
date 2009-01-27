@@ -50,6 +50,10 @@ struct mpi_data {
 
 /** Structure of the blob containing mpi_start_tracing()'s arguments. */
 struct mpi_start_tracing_args {
+
+    /** Flags indicating if each MPI function is to be traced. */
+    /*uint8_t traced[1024]; */
+
     int experiment;  /**< Identifier of experiment to contain the data. */
     int collector;   /**< Identifier of collector gathering data. */
 };

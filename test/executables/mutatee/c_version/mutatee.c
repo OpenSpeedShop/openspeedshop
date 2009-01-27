@@ -43,5 +43,6 @@ int main()
 {
    int size = 900;
 
-    work(size);
+   int val = work(size);
+   printf("work(%d)=%d\n",size,val);
 }

@@ -35,7 +35,7 @@ endif
 
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
-	fpe_offline.c fpe_offline.h
+	offline.c
 
 pkglib_LTLIBRARIES += fpe-rt-offline.la libfpe-offline.la
 endif

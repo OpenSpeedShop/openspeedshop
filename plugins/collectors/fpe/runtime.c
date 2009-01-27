@@ -33,22 +33,15 @@
 #include <fenv.h>
 
 #if defined (OPENSS_OFFLINE)
-#include "fpe_offline.h"
-#include "OpenSS_Offline.h"
 #include "TraceableFPES.h"
 #endif
 
-#if defined (OPENSS_USE_FILEIO)
-#include "OpenSS_FileIO.h"
+
+#if UNW_TARGET_X86 || UNW_TARGET_X86_64
+# define STACK_SIZE     (128*1024)      /* On x86, SIGSTKSZ is too small */
+#else
+# define STACK_SIZE     SIGSTKSZ
 #endif
-
-
-/*
- * NOTE: For some reason GCC doesn't like it when the following three macros are
- *       replaced with constant unsigned integers. It complains about the arrays
- *       in the tls structure being "variable-size type declared outside of any
- *       function" even though the size IS constant... Maybe this can be fixed?
- */
 
 /*  Produce debug output about the reason for the exception
 #define DEBUG 
@@ -64,7 +57,7 @@
 #define EventBufferSize (OpenSS_BlobSizeFactor * 554)
 
 /** Thread-local storage. */
-static __thread struct {
+typedef struct {
     
     OpenSS_DataHeader header;  /**< Header for following data blob. */
     fpe_data data;            /**< Actual data blob. */
@@ -75,8 +68,28 @@ static __thread struct {
 	fpe_event events[EventBufferSize];          /**< FPE call events. */
     } buffer;    
     
+#if defined (OPENSS_OFFLINE)
     char fpe_traced[1024];
-} tls;
+#endif
+} TLS;
+
+#ifdef USE_EXPLICIT_TLS
+
+/**
+ *  * Thread-local storage key.
+ *   *
+ *    * Key used for looking up our thread-local storage. This key <em>must</em>
+ *     * be globally unique across the entire Open|SpeedShop code base.
+ *      */
+static const uint32_t TLSKey = 0x00001EFC;
+int fpe_init_tls_done = 0;
+
+#else
+
+/** Thread-local storage. */
+static __thread TLS the_tls;
+
+#endif
 
 #ifdef DEBUG
 void fpe_print_cause(const OpenSS_FPEType fpetype)
@@ -103,40 +116,35 @@ void fpe_print_cause(const OpenSS_FPEType fpetype)
  * the experiment's database. Then resets the tracing buffer to the empty state.
  * This is done regardless of whether or not the buffer is actually full.
  */
-static void fpe_send_events()
+static void fpe_send_events(TLS *tls)
 {
     /* Set the end time of this data blob */
-    tls.header.time_end = OpenSS_GetTime();
+    tls->header.time_end = OpenSS_GetTime();
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"FPE Collector runtime sends data:\n");
         fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] "
 		" stacktraces_len(%d) events_len(%d)\n",
-            tls.header.time_end,tls.header.addr_begin,tls.header.addr_end,
-	    tls.data.stacktraces.stacktraces_len,
-            tls.data.events.events_len);
+            tls->header.time_end,tls->header.addr_begin,tls->header.addr_end,
+	    tls->data.stacktraces.stacktraces_len,
+            tls->data.events.events_len);
     }
 #endif
 
-#if defined (OPENSS_USE_FILEIO)
-    /* Create the openss-raw file name for this exe-collector-pid-tid */
-    /* Default is to create openss-raw files in /tmp */
-    OpenSS_CreateOutfile("openss-data");
-#endif
-    
     /* Send these events */
-    OpenSS_Send(&(tls.header), (xdrproc_t)xdr_fpe_data, &(tls.data));
+    OpenSS_SetSendToFile("fpe","openss-data");
+    OpenSS_Send(&(tls->header), (xdrproc_t)xdr_fpe_data, &(tls->data));
     
     /* Re-initialize the data blob's header */
-    tls.header.time_begin = tls.header.time_end;
-    tls.header.time_end = 0;
-    tls.header.addr_begin = ~0;
-    tls.header.addr_end = 0;
+    tls->header.time_begin = tls->header.time_end;
+    tls->header.time_end = 0;
+    tls->header.addr_begin = ~0;
+    tls->header.addr_end = 0;
     
     /* Re-initialize the actual data blob */
-    tls.data.stacktraces.stacktraces_len = 0;
-    tls.data.events.events_len = 0;    
+    tls->data.stacktraces.stacktraces_len = 0;
+    tls->data.events.events_len = 0;    
 }
     
 
@@ -154,16 +162,16 @@ static void fpe_send_events()
         "invalid_operation",
         "all"
 #endif
-void fpe_enable_fpes()
+void fpe_enable_fpes(TLS *tls)
 {
 #if defined (OPENSS_OFFLINE)
     int exceptions_to_trace = 0;
 
-    if (strcmp(tls.fpe_traced,"") == 0) {
+    if (strcmp(tls->fpe_traced,"") == 0) {
 	exceptions_to_trace = FE_ALL_EXCEPT;
     } else {
 	char *fpeptr, *saveptr, *fpe_token;
-	fpeptr = strdup(tls.fpe_traced);
+	fpeptr = strdup(tls->fpe_traced);
 	int i;
 	for (i = 1;  ; i++, fpeptr = NULL) {
 	    fpe_token = strtok_r(fpeptr, ":,", &saveptr);
@@ -211,6 +219,14 @@ void fpe_enable_fpes()
 void fpe_record_event(const fpe_event* event, const ucontext_t* context)
 {
 
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     uint64_t stacktrace[MaxFramesPerStackTrace];
     unsigned stacktrace_size = 0;
     unsigned entry, start, i;
@@ -226,16 +242,16 @@ void fpe_record_event(const fpe_event* event, const ucontext_t* context)
      */
     for(start = 0, i = 0;
 	(i < stacktrace_size) &&
-	    ((start + i) < tls.data.stacktraces.stacktraces_len);
+	    ((start + i) < tls->data.stacktraces.stacktraces_len);
 	++i)
 	
 	/* Do the i'th frames differ? */
-	if(stacktrace[i] != tls.buffer.stacktraces[start + i]) {
+	if(stacktrace[i] != tls->buffer.stacktraces[start + i]) {
 	    
 	    /* Advance in the tracing buffer to the end of this stack trace */
 	    for(start += i;
-		(tls.buffer.stacktraces[start] != 0) &&
-		    (start < tls.data.stacktraces.stacktraces_len);
+		(tls->buffer.stacktraces[start] != 0) &&
+		    (start < tls->data.stacktraces.stacktraces_len);
 		++start);
 	    
 	    /* Advance in the tracing buffer past the terminating zero */
@@ -254,42 +270,42 @@ void fpe_record_event(const fpe_event* event, const ucontext_t* context)
     else {
 	
 	/* Send events if there is insufficient room for this stack trace */
-	if((tls.data.stacktraces.stacktraces_len + stacktrace_size + 1) >=
+	if((tls->data.stacktraces.stacktraces_len + stacktrace_size + 1) >=
 	   StackTraceBufferSize)
-	    fpe_send_events();
+	    fpe_send_events(tls);
 	
 	/* Add each frame in the stack trace to the tracing buffer. */	
-	entry = tls.data.stacktraces.stacktraces_len;
+	entry = tls->data.stacktraces.stacktraces_len;
 	for(i = 0; i < stacktrace_size; ++i) {
 	    
 	    /* Add the i'th frame to the tracing buffer */
-	    tls.buffer.stacktraces[entry + i] = stacktrace[i];
+	    tls->buffer.stacktraces[entry + i] = stacktrace[i];
 	    
 	    /* Update the address interval in the data blob's header */
-	    if(stacktrace[i] < tls.header.addr_begin)
-		tls.header.addr_begin = stacktrace[i];
-	    if(stacktrace[i] > tls.header.addr_end)
-		tls.header.addr_end = stacktrace[i];
+	    if(stacktrace[i] < tls->header.addr_begin)
+		tls->header.addr_begin = stacktrace[i];
+	    if(stacktrace[i] > tls->header.addr_end)
+		tls->header.addr_end = stacktrace[i];
 	    
 	}
 	
 	/* Add a terminating zero frame to the tracing buffer */
-	tls.buffer.stacktraces[entry + stacktrace_size] = 0;
+	tls->buffer.stacktraces[entry + stacktrace_size] = 0;
 	
 	/* Set the new size of the tracing buffer */
-	tls.data.stacktraces.stacktraces_len += (stacktrace_size + 1);
+	tls->data.stacktraces.stacktraces_len += (stacktrace_size + 1);
 	
     }
     
     /* Add a new entry for this event to the tracing buffer. */
-    memcpy(&(tls.buffer.events[tls.data.events.events_len]),
+    memcpy(&(tls->buffer.events[tls->data.events.events_len]),
 	   event, sizeof(fpe_event));
-    tls.buffer.events[tls.data.events.events_len].stacktrace = entry;
-    tls.data.events.events_len++;
+    tls->buffer.events[tls->data.events.events_len].stacktrace = entry;
+    tls->data.events.events_len++;
     
     /* Send events if the tracing buffer is now filled with events */
-    if(tls.data.events.events_len == EventBufferSize)
-	fpe_send_events();
+    if(tls->data.events.events_len == EventBufferSize)
+	fpe_send_events(tls);
 }
 
 
@@ -347,8 +363,6 @@ static void fpeHandler(const OpenSS_FPEType fpetype, const ucontext_t* context)
     
     int instr_length = OpenSS_GetInstrLength(where);
 
-/*    fprintf(stderr,"OpenSS_GetInstrLength(%#lx) returns %d\n",
-	    where, instr_length); */
 #if defined(__linux) && defined(__ia64)
     /* for IA64 OpenSS_GetInstrLength returns the length of
        an instruction bundle. We need to determine the
@@ -379,86 +393,53 @@ void fpe_start_tracing(const char* arguments)
 {
     fpe_start_tracing_args args;
 
-#if defined (OPENSS_USE_FILEIO)
-    /* Create the rawdata output file prefix. */
-    /* fpe_stop_tracing will append */
-    /* a tid as needed for the actuall .openss-xdrtype filename */
-    OpenSS_CreateFilePrefix("fpe");
-#endif
-
-#if defined (OPENSS_OFFLINE)
-    /* TODO: need to handle arguments for offline collectors */
-    args.collector=1;
-    args.experiment=0; /* DataQueues index start at 0.*/
-
-    /* Initialize the info blob's header */
-    /* Passing &(tls.header) to OpenSS_InitializeDataHeader */
-    /* was not safe on ia64 systems. */
-    OpenSS_DataHeader local_info_header;
-    OpenSS_InitializeDataHeader(args.experiment, args.collector,
-                                &(local_info_header));
-    memcpy(&tlsinfo.header, &local_info_header, sizeof(OpenSS_DataHeader));
-
-    tlsinfo.header.time_begin = OpenSS_GetTime();
-
-    openss_expinfo local_info;
-    OpenSS_InitializeParameters(&(local_info));
-    memcpy(&tlsinfo.info, &local_info, sizeof(openss_expinfo));
-    tlsinfo.info.collector = "fpe";
-    tlsinfo.info.exename = strdup(OpenSS_exepath);
-
-    char* fpe_traced = getenv("OPENSS_FPE_TRACED");
-
-    if (fpe_traced != NULL && strcmp(fpe_traced,"") != 0) {
-	tlsinfo.info.event = strdup(fpe_traced);
-	strcpy(tls.fpe_traced,fpe_traced);
-    } else {
-	tlsinfo.info.event = "all";
-    }
-
-#ifdef DEBUG
-    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"fpe_start_tracing sends tlsinfo:\n");
-        fprintf(stderr,"collector=%s, hostname=%s, pid=%d, OpenSS_rawtid=%lx\n",
-            tlsinfo.info.collector,tlsinfo.header.host,
-            tlsinfo.header.pid,tlsinfo.header.posix_tid);
-    }
-#endif
-
+    /* Create and access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = malloc(sizeof(TLS));
+    Assert(tls != NULL);
+    OpenSS_SetTLS(TLSKey, tls);
+    fpe_init_tls_done = 1;
 #else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     /* Decode the passed function arguments. */
     memset(&args, 0, sizeof(args));
     OpenSS_DecodeParameters(arguments,
                             (xdrproc_t)xdr_fpe_start_tracing_args,
                             &args);
+
+#if defined (OPENSS_OFFLINE)
+    const char* fpe_traced = getenv("OPENSS_FPE_TRACED");
+
+    if (fpe_traced != NULL && strcmp(fpe_traced,"") != 0) {
+	strcpy(tls->fpe_traced,fpe_traced);
+    } else {
+	strcpy(tls->fpe_traced,"all");
+    }
 #endif
     
     /* Initialize the data blob's header */
-    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
+    /* Passing &(tls->header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
      */
     OpenSS_DataHeader local_header;
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
-    memcpy(&tls.header, &local_header, sizeof(OpenSS_DataHeader));
+    memcpy(&tls->header, &local_header, sizeof(OpenSS_DataHeader));
 
-    tls.header.time_begin = 0;
-    tls.header.time_end = 0;
-    tls.header.addr_begin = ~0;
-    tls.header.addr_end = 0;
+    tls->header.time_begin = 0;
+    tls->header.time_end = 0;
+    tls->header.addr_begin = ~0;
+    tls->header.addr_end = 0;
     
     /* Initialize the actual data blob */
-    tls.data.stacktraces.stacktraces_len = 0;
-    tls.data.stacktraces.stacktraces_val = tls.buffer.stacktraces;
-    tls.data.events.events_len = 0;
-    tls.data.events.events_val = tls.buffer.events;
-
-#if defined (OPENSS_OFFLINE)
-    tlsobj.objs.objname = NULL;
-    tlsobj.objs.addr_begin = ~0;
-    tlsobj.objs.addr_end = 0;
-#endif
+    tls->data.stacktraces.stacktraces_len = 0;
+    tls->data.stacktraces.stacktraces_val = tls->buffer.stacktraces;
+    tls->data.events.events_len = 0;
+    tls->data.events.events_val = tls->buffer.events;
 
     /* Set the begin time of this data blob */
-    tls.header.time_begin = OpenSS_GetTime();
+    tls->header.time_begin = OpenSS_GetTime();
 
     /* Enable FPE trapping and install the handler.
        FIXME: eventually, we likely will remove the OpenSS_FPEtype arg
@@ -468,7 +449,7 @@ void fpe_start_tracing(const char* arguments)
     */
 
 #if defined (OPENSS_OFFLINE)
-    fpe_enable_fpes();
+    fpe_enable_fpes(tls);
 #endif
     OpenSS_FPEHandler(AllFPE,fpeHandler);
 }
@@ -486,26 +467,23 @@ void fpe_start_tracing(const char* arguments)
 void fpe_stop_tracing(const char* arguments)
 {
 
-#if defined (OPENSS_OFFLINE)
-
-    tlsinfo.info.rank = OpenSS_mpi_rank;
-
-    /* For MPT add this check because we were hanging becasuse this is a SGI MPT daemon process */
-    /* and not a ranked process.  So there is no data */
-    if(tls.data.events.events_len > 0) {
-
-      /* create the openss-info data and send it */
-#if defined (OPENSS_USE_FILEIO)
-      OpenSS_CreateOutfile("openss-info");
-#endif
-      tlsinfo.header.time_end = OpenSS_GetTime();
-      OpenSS_Send(&(tlsinfo.header),
-                  (xdrproc_t)xdr_openss_expinfo,
-                  &(tlsinfo.info));
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls;
+    if (fpe_init_tls_done == 0 ) {
+	tls = malloc(sizeof(TLS));
+	Assert(tls != NULL);
+	OpenSS_SetTLS(TLSKey, tls);
+	fpe_init_tls_done = 1;
+    } else {
+     tls = OpenSS_GetTLS(TLSKey);
     }
+#else
+    TLS* tls = &the_tls;
 #endif
+    Assert(tls != NULL);
 
     /* Send events if there are any remaining in the tracing buffer */
-    if(tls.data.events.events_len > 0)
-	fpe_send_events();
+    if(tls->data.events.events_len > 0)
+	fpe_send_events(tls);
 }

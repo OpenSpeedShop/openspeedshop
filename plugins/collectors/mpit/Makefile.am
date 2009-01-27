@@ -29,7 +29,7 @@ pkglib_LTLIBRARIES =
 
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
-	mpit_offline.c mpit_offline.h
+	offline.c
 
 endif
 

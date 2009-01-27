@@ -672,6 +672,9 @@ OfflineExperiment::process_data(const std::string rawfilename)
     } // while
 
     fclose(f);
+    // experimental code to remove raw openss-data file
+    // once it is copied to the openss database.
+    //std::remove(rawfilename.c_str());
     return true;
 }
 

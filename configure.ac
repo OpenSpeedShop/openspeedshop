@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006, 2007,2008,2009 Krell Institute All Rights Reserved.
-# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2006-2009 Krell Institute All Rights Reserved.
+# Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -110,6 +110,9 @@ AC_CHECK_HEADER(pthread.h, [ AC_CHECK_LIB(pthread, pthread_create, [
     AC_MSG_FAILURE([cannot locate POSIX thread library and/or headers.])
 ]) ])
 
+AM_CONDITIONAL(USE_EXPLICIT_TLS, true)
+AC_DEFINE(USE_EXPLICIT_TLS, 1, [Define to 1 if you want to use an explicit TLS implementation instead of the __thread keyword.])
+
 ################################################################################
 # Check for Additional Packages
 ################################################################################
@@ -117,27 +120,17 @@ AC_CHECK_HEADER(pthread.h, [ AC_CHECK_LIB(pthread, pthread_create, [
 AC_PKG_ARRAYSVCS()
 AC_PKG_BINUTILS()
 AC_PKG_LIBDWARF()
+AC_PKG_LIBMONITOR()
 AC_PKG_LIBUNWIND()
 AC_PKG_MPI()
 AC_PKG_OPENMP()
 AC_PKG_OTF()
-AC_PKG_VT()
 AC_PKG_PAPI()
-AC_PKG_SQLITE()
-AC_PKG_XERCES()
-
 AC_PYTHON_DEVEL([>= '2.3'])
-AC_PKG_LIBMONITOR()
-
-################################################################################
-# Disable this static Check for Dynamic Instrumentation Package
-# This check is moved to the instrumentors that actually use it.
-# offline does not need/use dyninst (though in the future it will nee
-# libsymtabAPI from a future dyninst release).
-################################################################################
-
-#AC_PKG_DYNINST()
-#AC_PKG_QTLIB()
+AC_PKG_QTLIB()
+AC_PKG_SQLITE()
+AC_PKG_VT()
+AC_PKG_XERCES()
 
 ################################################################################
 # Check for Instrumentor
@@ -152,7 +145,6 @@ case "$INSTRUMENTOR" in
     dpcl)
 	AC_PKG_DYNINST()
 	AC_PKG_DPCL()
-	AC_PKG_QTLIB()
 	AM_CONDITIONAL(BUILD_DPCL, true)
 	AC_DEFINE(BUILD_DPCL, 1, [Define to 1 if you only want the dpcl instrumentor.])
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
@@ -162,7 +154,6 @@ case "$INSTRUMENTOR" in
 
     dyninst)
 	AC_PKG_DYNINST()
-	AC_PKG_QTLIB()
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
@@ -172,7 +163,6 @@ case "$INSTRUMENTOR" in
     mrnet)
 	AC_PKG_DYNINST()
 	AC_PKG_MRNET()
-	AC_PKG_QTLIB()
 	AM_CONDITIONAL(BUILD_MRNET, true)
 	AC_DEFINE(BUILD_MRNET, 1, [Define to 1 if you only want the mrnet instrumentor.])
 	AM_CONDITIONAL(BUILD_DPCL, false)
@@ -180,8 +170,6 @@ case "$INSTRUMENTOR" in
 	;;
 
     offline)
-	AC_PKG_LIBMONITOR()
-	AC_PKG_QTLIB()
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
 	AM_CONDITIONAL(HAVE_MRNET, false)

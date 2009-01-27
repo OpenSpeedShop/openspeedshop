@@ -321,6 +321,8 @@ top_srcdir = @top_srcdir@
 topdir_execprefix = @topdir_execprefix@
 SUBDIRS = pcsamp $(am__append_1) $(am__append_2) $(am__append_3) \
 	$(am__append_4) $(am__append_5) $(am__append_6)
+
+#SUBDIRS = pcsamp usertime hwc hwctime io iot mpi mpit fpe
 DIST_SUBDIRS = \
 	pcsamp usertime io iot hwc hwctime mpi mpit mpiotf fpe
 

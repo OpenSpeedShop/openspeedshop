@@ -21,7 +21,7 @@
  * Definition of the MPIOTFCollector TraceableFunctions.
  *
  */
-    const char* TraceableFunctions[] = {
+    static const char* TraceableFunctions[] = {
 
 	"MPI_Allgather",
 	"MPI_Allgatherv",
@@ -85,7 +85,7 @@
 	// End Of Table Entry
 	NULL
     };
-    const char* TraceableCategories[] = {
+    static const char* TraceableCategories[] = {
 
 	"all",
 	"asynchronous_p2p",
@@ -100,7 +100,7 @@
 	NULL
     };
 
-    const char* TraceableAsynchronousP2P[] = {
+    static const char* TraceableAsynchronousP2P[] = {
           "MPI_Cancel",
           "MPI_Ibsend",
           "MPI_Iprobe",
@@ -121,7 +121,7 @@
 	NULL
     };
 
-    const char* TraceableCollectives[] = {
+    static const char* TraceableCollectives[] = {
          "MPI_Allgather",
          "MPI_Allgatherv",
          "MPI_Allreduce",
@@ -140,21 +140,21 @@
 	NULL
     };
 
-    const char *TraceableDatatypes[] = {
+    static const char *TraceableDatatypes[] = {
           "MPI_Pack",
           "MPI_Unpack",
 	// End Of Table Entry
 	NULL
     };
 
-    const char *TraceableEnvironment[] = {
+    static const char *TraceableEnvironment[] = {
           "MPI_Finalize",
           "MPI_Init",
 	// End Of Table Entry
 	NULL
     };
 
-    const char *TraceableGraphsContexts[] = {
+    static const char *TraceableGraphsContexts[] = {
           "MPI_Comm_create",
           "MPI_Comm_dup",
           "MPI_Comm_free",
@@ -165,7 +165,7 @@
 	NULL
     };
 
-    const char *TraceablePersistent[] = {
+    static const char *TraceablePersistent[] = {
           "MPI_Bsend_init",
           "MPI_Recv_init",
           "MPI_Rsend_init",
@@ -176,7 +176,7 @@
 	// End Of Table Entry
 	NULL
     };
-    const char *TraceableProcessTopologies[] = {
+    static const char *TraceableProcessTopologies[] = {
           "MPI_Cart_create",
           "MPI_Cart_sub",
           "MPI_Graph_create",
@@ -184,7 +184,7 @@
 	NULL
     };
 
-    const char *TraceableSynchronousP2P[] = {
+    static const char *TraceableSynchronousP2P[] = {
           "MPI_Bsend",
           "MPI_Get_count",
           "MPI_Probe",
@@ -200,38 +200,38 @@
 
 /* -------------------------------------------------------- */
 
-    char *asynchronous_p2p =
+    static const char *asynchronous_p2p =
 "MPI_Cancel:MPI_Ibsend:MPI_Iprobe:MPI_Irecv:MPI_Irsend:\
 MPI_Isend:MPI_Issend:MPI_Request_free:MPI_Test:MPI_Testall:\
 MPI_Testany:MPI_Testsome:MPI_Wait:MPI_Waitall:MPI_Waitany:MPI_Waitsome";
 
-    char *collective_com =
+    static const char *collective_com =
 "MPI_Allgather:MPI_Allgatherv:MPI_Allreduce:MPI_Alltoall:\
 MPI_Alltoallv:MPI_Barrier:MPI_Bcast:MPI_Gather:MPI_Gatherv:\
 MPI_Reduce:MPI_Reduce_scatter:MPI_Scan:MPI_Scatter:MPI_Scatterv";
 
-    char *datatypes =
+    static const char *datatypes =
 "MPI_Pack:MPI_Unpack";
 
-    char *environment =
+    static const char *environment =
 "MPI_Finalize:MPI_Init";
 
-    char *graphs_contexts_comms =
+    static const char *graphs_contexts_comms =
 "MPI_Comm_create:MPI_Comm_dup:MPI_Comm_free:MPI_Comm_split:\
 MPI_Intercomm_create:MPI_Intercomm_merge";
 
-    char *persistent_com =
+    static const char *persistent_com =
 "MPI_Bsend_init:MPI_Recv_init:MPI_Rsend_init:MPI_Send_init:\
 MPI_Ssend_init:MPI_Start:MPI_Startall";
 
-    char *process_topologies =
+    static const char *process_topologies =
 "MPI_Cart_create:MPI_Cart_sub:MPI_Graph_create";
 
-    char *synchronous_p2p =
+    static const char *synchronous_p2p =
 "MPI_Bsend:MPI_Get_count:MPI_Probe:MPI_Recv:\
 MPI_Rsend:MPI_Send:MPI_Sendrecv:MPI_Sendrecv_replace:MPI_Ssend";
 
-    char *all =
+    static const char *all =
 "MPI_Allgather:MPI_Allgatherv:MPI_Allreduce:MPI_Alltoall:\
 MPI_Alltoallv:MPI_Barrier:MPI_Bcast:MPI_Bsend:MPI_Bsend_init:\
 MPI_Cancel:MPI_Cart_create:MPI_Cart_sub:MPI_Comm_create:\

@@ -25,11 +25,12 @@
 #include "RuntimeAPI.h"
 #include "PapiAPI.h"
 
-static void OpenSS_PAPIerror (int rval)
+static void OpenSS_PAPIerror (int rval, const char *where)
 {
 	char error_str[PAPI_MAX_STR_LEN];
 	PAPI_perror(rval,error_str,PAPI_MAX_STR_LEN);
-	fprintf(stderr,"PAPI_error %d: %s\n",rval,error_str);
+	unsigned long mytid = PAPI_thread_id();
+	fprintf(stderr,"PAPI_error %d in %lu: %s\n",where,rval,mytid,error_str);
 }
 
 typedef int oss_boolean;
@@ -43,7 +44,7 @@ static oss_boolean OpenSS_event_exists (int event)
 	if (rval != PAPI_OK) {
 	    fprintf(stderr,"The event %#x does not seem to be supported\n",
 		event);
-	    OpenSS_PAPIerror(rval);
+	    OpenSS_PAPIerror(rval,"OpenSS_event_exists");
 	    return false;
 	}
 
@@ -53,15 +54,17 @@ static oss_boolean OpenSS_event_exists (int event)
 	if (rval != PAPI_OK) {
 	    fprintf(stderr,"The event %#x does not seem to be supported\n",
 		event);
-	    OpenSS_PAPIerror(rval);
+	    OpenSS_PAPIerror(rval,"OpenSS_event_exists");
 	    return false;
 	}
 
+#if 0
 	if (info.count > 0) {
 	    fprintf (stderr, "%s (%s) is available on this hardware.\n",
 		info.symbol ? info.symbol : "",
 		info.short_descr ? info.short_descr : "");
 	}
+#endif
 
 	if (info.count > 1) {
 	    fprintf (stderr,"%s is a derived event on this hardware.\n",
@@ -73,21 +76,23 @@ void OpenSS_Create_Eventset(int *EventSet)
 {
     int rval = PAPI_OK;
     if (*EventSet != PAPI_NULL) {
+#if 0
 	/* Remove all events in the eventset */
 	rval = PAPI_cleanup_eventset(*EventSet);
 	if (rval != PAPI_OK) {
-	    OpenSS_PAPIerror(rval);
+	    OpenSS_PAPIerror(rval,"OpenSS_Create_Eventset");
 	}
 	rval = PAPI_destroy_eventset(EventSet);
 	if (rval != PAPI_OK) {
-	    OpenSS_PAPIerror(rval);
+	    OpenSS_PAPIerror(rval,"OpenSS_Create_Eventset");
 	}
+#endif
 	*EventSet = PAPI_NULL;
     }
 
     rval = PAPI_create_eventset(EventSet);
     if (rval != PAPI_OK) {
-	OpenSS_PAPIerror(rval);
+	OpenSS_PAPIerror(rval,"OpenSS_Create_Eventset");
         return;
     }
 }
@@ -99,8 +104,7 @@ void OpenSS_AddEvent(int EventSet, int event)
     int rval = PAPI_add_event(EventSet,event);
 
     if ( rval != PAPI_OK) {
-        fprintf(stderr,"PAPI_add_event FAILED!\n");
-	OpenSS_PAPIerror(rval);
+	OpenSS_PAPIerror(rval,"OpenSS_AddEvent");
         return;
     }
 }
@@ -111,15 +115,11 @@ void OpenSS_Overflow(int EventSet, int event, int threshold , void *hwcPAPIHandl
         fprintf(stderr,"OpenSS_Overflow:EventSet is PAPI_NULL!\n");
     }
 
-#if 0
-fprintf(stderr,"OpenSS_Overflow: call PAPI_overflow for event %s, with threshold %d\n",get_papi_name(event),threshold);
-#endif
-
     int rval = PAPI_overflow(EventSet,event,threshold, 0, hwcPAPIHandler);
 
     if (rval != PAPI_OK) {
         fprintf(stderr,"PAPI_overflow() for event %#x FAILED!\n", event);
-	OpenSS_PAPIerror(rval);
+	OpenSS_PAPIerror(rval,"OpenSS_Overflow");
     }
 }
 
@@ -128,8 +128,7 @@ void OpenSS_Start(int EventSet)
     int rval = PAPI_start(EventSet);
 
     if (rval != PAPI_OK) {
-        fprintf(stderr,"PAPI_start(EventSet) FAILED!\n");
-	OpenSS_PAPIerror(rval);
+	OpenSS_PAPIerror(rval,"OpenSS_Start");
     }
 }
 
@@ -146,12 +145,11 @@ void OpenSS_Stop(int EventSet)
     int rval = PAPI_stop(EventSet,values);
 
     if (rval == PAPI_ENOTRUN) {
-	OpenSS_PAPIerror(rval);
+	OpenSS_PAPIerror(rval,"OpenSS_Stop");
 	return;
     }
 
     if (rval != PAPI_OK) {
-        fprintf(stderr,"PAPI_stop(EventSet,values) FAILED!\n");
-	OpenSS_PAPIerror(rval);
+	OpenSS_PAPIerror(rval,"OpenSS_Stop");
     }
 }

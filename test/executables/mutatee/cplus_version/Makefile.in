@@ -97,7 +97,7 @@ CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = \
-	-g -gdwarf-2 -O1
+	-g -O0
 
 CYGPATH_W = @CYGPATH_W@
 DEFAULT_MPI_IMPL = @DEFAULT_MPI_IMPL@
@@ -239,9 +239,7 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-mutatee_LDADD = \
-	-ldl
-
+mutatee_LDADD = 
 mutatee_SOURCES = \
 	mutatee.cxx
 

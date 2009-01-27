@@ -47,6 +47,8 @@ SUBDIRS += fpe
 endif
 endif
 
+#SUBDIRS = pcsamp usertime hwc hwctime io iot mpi mpit fpe
+
 DIST_SUBDIRS = \
 	pcsamp usertime io iot hwc hwctime mpi mpit mpiotf fpe
 

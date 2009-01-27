@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+** Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -52,6 +52,15 @@
 #else
 #define OpenSS_BlobSizeFactor 1
 #endif
+
+
+
+/*
+ * NOTE: For some reason GCC doesn't like it when the following two macros are
+ *       replaced with constant unsigned integers. It complains about the arrays
+ *       in the tls structure being "variable-size type declared outside of any
+ *       function" even though the size IS constant... Maybe this can be fixed?
+ */
 
 /** Number of entries in the sample buffer. */
 #define OpenSS_PCBufferSize (1024 * OpenSS_BlobSizeFactor)
@@ -106,8 +115,10 @@ typedef void (*OpenSS_TimerEventHandler)(const ucontext_t*);
 
 
 void OpenSS_DecodeParameters(const char*, const xdrproc_t, void*);
-void OpenSS_FPEHandler(const OpenSS_FPEType, const OpenSS_FPEEventHandler);
+void OpenSS_EncodeParameters(const void*, const xdrproc_t, char*);
+void OpenSS_FPEHandler(OpenSS_FPEType, const OpenSS_FPEEventHandler);
 uint64_t OpenSS_GetAddressOfFunction(const void*);
+const char* OpenSS_GetExecutablePath();
 uint64_t OpenSS_GetPCFromContext(const ucontext_t*);
 void OpenSS_InitializeDataHeader(int, int, OpenSS_DataHeader*);
 void OpenSS_SetPCInContext(uint64_t, ucontext_t*);
@@ -133,6 +144,11 @@ void OpenSS_Stop(int);
 
 #ifdef HAVE_BINUTILS
 int OpenSS_GetInstrLength(uint64_t);
+#endif
+
+#ifdef USE_EXPLICIT_TLS
+void* OpenSS_GetTLS(uint32_t);
+void OpenSS_SetTLS(uint32_t, void*);
 #endif
 
 

@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -27,11 +28,12 @@
 
 #include <pthread.h>
 #include <signal.h>
+#include <stdlib.h>
 #include <time.h>
 
 
 
-/** Mutual exclusion lock for accessing shared timer state. */
+/** Mutual exclusion lock for accessing shared state. */
 static pthread_mutex_t mutex_lock = PTHREAD_MUTEX_INITIALIZER;
 
 /** Number of threads currently using timers (shared state). */
@@ -40,17 +42,41 @@ static unsigned num_threads = 0;
 /** Old SIGPROF signal handler action (shared state). */
 struct sigaction original_sigprof_action;
 
-/** Timer event handling function (per-thread). */
-static __thread OpenSS_TimerEventHandler timer_handler = NULL;
+
+
+/** Type defining the items stored in thread-local storage. */
+typedef struct {
+
+    /** Timer event handling function. */
+    OpenSS_TimerEventHandler timer_handler;
+
+} TLS;
+
+#ifdef USE_EXPLICIT_TLS
+
+/**
+ * Thread-local storage key.
+ *
+ * Key used for looking up our thread-local storage. This key <em>must</em>
+ * be globally unique across the entire Open|SpeedShop code base.
+ */
+static const uint32_t TLSKey = 0xBAD0BEEF;
+
+#else
+
+/** Thread-local storage. */
+static __thread TLS the_tls;
+
+#endif
 
 
 
 /**
  * Signal handler.
  *
- * Called by the operating system's signal handling system each time the running
- * thread is interrupt by our timer. Passes the signal context to the per-thread
- * timer event handling function.
+ * Called by the operating system's signal handling system each time the
+ * running thread is interrupted by our timer. Passes the signal context
+ * to the per-thread timer event handling function.
  *
  * @param signal    Signal number.
  * @param info      Signal information.
@@ -60,9 +86,17 @@ static __thread OpenSS_TimerEventHandler timer_handler = NULL;
  */
 static void signalHandler(int signal, siginfo_t* info, void* ptr)
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     /* Call this thread's timer event handler */
-    if(timer_handler != NULL)
-	(*timer_handler)((ucontext_t*)ptr);
+    if(tls->timer_handler != NULL)
+	(*tls->timer_handler)((ucontext_t*)ptr);
 }
 
 
@@ -87,11 +121,24 @@ void OpenSS_Timer(uint64_t interval, const OpenSS_TimerEventHandler handler)
     struct sigaction action;
     struct itimerval spec;
 
+    /* Create and/or access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+    if(tls == NULL) {
+	tls = malloc(sizeof(TLS));
+	Assert(tls != NULL);
+	OpenSS_SetTLS(TLSKey, tls);
+    }
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     /* Disable the timer for this thread */
     memset(&spec, 0, sizeof(spec));
     Assert(setitimer(ITIMER_PROF, &spec, NULL) == 0);
 
-    /* Obtain exclusive access to shared timer state */
+    /* Obtain exclusive access to shared state */
     Assert(pthread_mutex_lock(&mutex_lock) == 0);
 
     /* Is this thread enabling its timer? */
@@ -110,7 +157,7 @@ void OpenSS_Timer(uint64_t interval, const OpenSS_TimerEventHandler handler)
 	}
 	
 	/* Is this thread using a timer now were it wasn't previously? */
-	if(timer_handler == NULL) {
+	if(tls->timer_handler == NULL) {
 	    
 	    /* Increment the timer usage thread count */
 	    ++num_threads;
@@ -135,14 +182,14 @@ void OpenSS_Timer(uint64_t interval, const OpenSS_TimerEventHandler handler)
 	
     }
     
-    /** Release exclusive access to shared timer state */
+    /** Release exclusive access to shared state */
     Assert(pthread_mutex_unlock(&mutex_lock) == 0);
     
     /* Is this thread enabling a new timer? */
     if((interval > 0) && (handler != NULL)) {
 
 	/* Configure the new timer event handler for this thread */
-	timer_handler = handler;
+	tls->timer_handler = handler;
 	
 	/* Enable a timer for this thread */
 	spec.it_interval.tv_sec = interval / (uint64_t)(1000000000);
@@ -156,7 +203,7 @@ void OpenSS_Timer(uint64_t interval, const OpenSS_TimerEventHandler handler)
     else {
 
 	/* Remove the timer event handler for this thread */
-	timer_handler = NULL;
+	tls->timer_handler = NULL;
 	
     }
 }

@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2008 The Krell Institute. All Rights Reserved.
+# Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -15,7 +16,6 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-CFLAGS = -g -O0
 
 noinst_LTLIBRARIES = libopenss-runtime-fileio.la
 
@@ -23,6 +23,4 @@ libopenss_runtime_fileio_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime
 
 libopenss_runtime_fileio_la_SOURCES = \
-	openss_send.c \
-	OpenSS_FileIO.c \
-	OpenSS_FileIO.h
+	OpenSS_FileIO.c OpenSS_FileIO.h

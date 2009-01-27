@@ -319,6 +319,8 @@ void PCSampCollector::getMetricValues(const std::string& metric,
 	<< " * ( t_intersection " << t_intersection
 	<< " / t_blob " << t_blob
 	<< " )"
+	<< "\nCOUNT FOR " << i << " is " << static_cast<double>(data.count.count_val[i])
+	<< "\nADDR for " << i << " is " << Address(data.pc.pc_val[i])
 	<< std::endl;
 #endif
 	    

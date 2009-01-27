@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -44,9 +45,9 @@
  *          certain. The memory cannot be zeroed here because we don't know
  *          the type (or even the size) of the parameter data structure.
  *
- * @param argument  Encoded blob argument to be decoded.
- * @param xdrproc   XDR procedure for the parameter data structure.
- * @retval data     Pointer to the decoded parameter data structure.
+ * @param argument    Encoded blob argument to be decoded.
+ * @param xdrproc     XDR procedure for the parameter data structure.
+ * @retval data       Pointer to the decoded parameter data structure.
  *
  * @ingroup RuntimeAPI
  */

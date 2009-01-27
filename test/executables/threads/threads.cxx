@@ -46,7 +46,7 @@ void* work1(void* arg)
 
     for(i = 0; i < size; i++)
         for(j = 0; j < size; j++)
-            t += f3(i, j) + f2(i, j);
+            t += f3(i, j) - f2(i, j) - f1(i, j);
     return (void*)t;    
 }
 
@@ -56,7 +56,7 @@ void* work2(void* arg)
 
     for(i = 0; i < size; i++)
         for(j = 0; j < size; j++)
-            t += f2(i, j) - f1(i, j);
+            t += f3(i, j) - f2(i, j) - f1(i, j);
     return (void*)t;    
 }
 
@@ -66,7 +66,7 @@ void* work3(void* arg)
 
     for(i = 0; i < size; i++)
         for(j = 0; j < size; j++)
-            t += f1(i, j);
+            t += f3(i, j) - f2(i, j) - f1(i, j);
     return (void*)t;    
 }
 

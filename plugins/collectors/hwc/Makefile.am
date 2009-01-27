@@ -36,7 +36,7 @@ endif
 
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
-	hwc_offline.c hwc_offline.h
+	offline.c
 
 pkglib_LTLIBRARIES += hwc-rt-offline.la libhwc-offline.la
 endif

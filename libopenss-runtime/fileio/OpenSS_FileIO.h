@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2008 The Krell Institute. All Rights Reserved.
+** Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -18,21 +19,18 @@
 
 /** @file
  *
- * Declaration for the file io routines needed for offline and mrnet collector runtimes.
+ * Declaration of file I/O routines used by offline/MRNet collector runtimes.
  *
  */
 
-#include <stdio.h>
-#include <dlfcn.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#ifndef _OpenSpeedShop_Runtime_FileIO_
+#define _OpenSpeedShop_Runtime_FileIO_
 
-char *OpenSS_outfile;
 
-static __thread  char *OpenSS_rawprefix;
-char *OpenSS_exepath;
-static __thread  pthread_t OpenSS_rawtid = 0;
 
-void OpenSS_CreateFilePrefix (char *collectorname);
-void OpenSS_CreateOutfile (char *suffix);
+void OpenSS_CreateFilePrefix(char*);
+void OpenSS_CreateOutfile(char*);
+
+
+
+#endif

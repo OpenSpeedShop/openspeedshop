@@ -31,19 +31,11 @@
 #include "RuntimeAPI.h"
 #include "blobs.h"
 
-#if defined (OPENSS_OFFLINE)
-#include "usertime_offline.h"
-#include "OpenSS_Offline.h"
+#if UNW_TARGET_X86 || UNW_TARGET_X86_64
+# define STACK_SIZE     (128*1024)      /* On x86, SIGSTKSZ is too small */
+#else
+# define STACK_SIZE     SIGSTKSZ
 #endif
-
-#if defined (OPENSS_USE_FILEIO)
-#include "OpenSS_FileIO.h"
-#endif
-
-/* Forward Declarations */
-void usertime_start_sampling(const char*);
-void usertime_stop_sampling(const char*);
-
 
 /*
  * NOTE: For some reason GCC doesn't like it when the following two macros are
@@ -58,11 +50,11 @@ void usertime_stop_sampling(const char*);
 /** Man number of frames for callstack collection */
 #define MAXFRAMES 100
 
-/** Thread-local storage. */
-static __thread struct {
+/** Type defining the items stored in thread-local storage. */
+typedef struct {
 
-    OpenSS_DataHeader header;       /**< Header for following data blob. */
-    usertime_data data;             /**< Actual data blob. */
+    OpenSS_DataHeader header;	/**< Header for following data blob. */
+    usertime_data data;		/**< Actual data blob. */
 
     /** Sample buffer. */
     struct {
@@ -73,104 +65,76 @@ static __thread struct {
 				    /**< exist in buffer bt. */
     } buffer;    
     
-} tls;
+} TLS;
+
+#ifdef USE_EXPLICIT_TLS
+
+/**
+ * Thread-local storage key.
+ *
+ * Key used for looking up our thread-local storage. This key <em>must</em>
+ * be globally unique across the entire Open|SpeedShop code base.
+ */
+static const uint32_t TLSKey = 0x00001EF4;
+
+#else
+
+/** Thread-local storage. */
+static __thread TLS the_tls;
+
+#endif
+
+
+#if defined (OPENSS_OFFLINE)
+static void usertimeTimerHandler(const ucontext_t* context);
+
+void usertime_start_timer()
+{
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    if (tls == NULL)
+	return;
+    OpenSS_Timer(tls->data.interval, usertimeTimerHandler);
+}
+
+void usertime_stop_timer()
+{
+    OpenSS_Timer(0, NULL);
+}
+#endif
 
 /* utility to send samples when needed */
-static void send_samples()
+static void send_samples(TLS *tls)
 {
     /* Send these samples */
-    tls.header.time_end = OpenSS_GetTime();
+    tls->header.time_end = OpenSS_GetTime();
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"usertimeTimerHandler sends data:\n");
         fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] bt_len(%d) count_len(%d)\n",
-            tls.header.time_end,tls.header.addr_begin,
-	    tls.header.addr_end,tls.data.bt.bt_len,
-            tls.data.count.count_len);
+            tls->header.time_end,tls->header.addr_begin,
+	    tls->header.addr_end,tls->data.bt.bt_len,
+            tls->data.count.count_len);
     }
 #endif
 
-#if defined (OPENSS_USE_FILEIO)
-    /* Create the openss-raw file name for this exe-collector-pid-tid */
-    /* Default is to create openss-raw files in /tmp */
-    OpenSS_CreateOutfile("openss-data");
-#endif
-
-    OpenSS_Send(&(tls.header),(xdrproc_t)xdr_usertime_data,&(tls.data));
+    OpenSS_SetSendToFile("usertime", "openss-data");
+    OpenSS_Send(&(tls->header),(xdrproc_t)xdr_usertime_data,&(tls->data));
 
     /* Re-initialize the data blob's header */
-    tls.header.time_begin = tls.header.time_end;
-    tls.header.time_end = 0;
-    tls.header.addr_begin = ~0;
-    tls.header.addr_end = 0;
+    tls->header.time_begin = tls->header.time_end;
+    tls->header.time_end = 0;
+    tls->header.addr_begin = ~0;
+    tls->header.addr_end = 0;
 
     /* Re-initialize the actual data blob */
-    tls.data.bt.bt_len = 0;
-    tls.data.count.count_len = 0;
-}
-
-bool_t cmp_samplebuffer(int framecount, int *stackindex, uint64_t *framebuf)
-{
-    int i,j;
-    bool_t found = FALSE;
-    /* search individual stacks via count/indexing array */
-    for (i = 0; i < tls.data.count.count_len ; i++ )
-    {
-	/* a count > 0 indexes the top of stack in the data buffer. */
-	/* a count == 255 indicates this stack is at the count limit. */
-	if (tls.buffer.count[i] == 0) {
-	    continue;
-	}
-	if (tls.buffer.count[i] == 255) {
-	    found = FALSE;
-	    continue;
-	}
-
-	/* see if the stack addresses match */
-	for (j = 0; j < framecount ; j++ )
-	{
-	    if ( tls.buffer.bt[i+j] != framebuf[j] ) {
-		   found = FALSE;
-		   break;
-	    }
-	}
-
-	if ( j == framecount) {
-	    found = TRUE;
-	    *stackindex = i;
-	    return found;
-	}
-    }
-    return found;
-}
-
-static void update_samplebuffer(int framecount, uint64_t *framebuf)
-{
-	/* add frames to sample buffer, compute addresss range */
-	int i;
-	for (i = 0; i < framecount ; i++)
-	{
-	    /* always add address to buffer bt */
-	    tls.buffer.bt[tls.data.bt.bt_len] = framebuf[i];
-
-	    /* top of stack indicated by a positive count. */
-	    /* all other elements are 0 */
-	    if (i > 0 ) {
-		tls.buffer.count[tls.data.count.count_len] = 0;
-	    } else {
-		tls.buffer.count[tls.data.count.count_len] = 1;
-	    }
-
-	    if (framebuf[i] < tls.header.addr_begin ) {
-		tls.header.addr_begin = framebuf[i];
-	    }
-	    if (framebuf[i] > tls.header.addr_end ) {
-		tls.header.addr_end = framebuf[i];
-	    }
-	    tls.data.bt.bt_len++;
-	    tls.data.count.count_len++;
-	}
+    tls->data.bt.bt_len = 0;
+    tls->data.count.count_len = 0;
 }
 
 /**
@@ -207,46 +171,94 @@ static void update_samplebuffer(int framecount, uint64_t *framebuf)
 
 static void usertimeTimerHandler(const ucontext_t* context)
 {
-    bool_t stack_already_exists = FALSE;
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     int framecount = 0;
     int stackindex = 0;
     uint64_t framebuf[MAXFRAMES];
-    uint64_t beginaddr = tls.header.addr_begin;
-    uint64_t endaddr = tls.header.addr_end;
+    uint64_t beginaddr = tls->header.addr_begin;
+    uint64_t endaddr = tls->header.addr_end;
+
+    memset(framebuf,0, sizeof(framebuf));
 
     /* get stack address for current context and store them into framebuf. */
 
     OpenSS_GetStackTraceFromContext (context, TRUE, 0,
                         MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
 
-    stack_already_exists = cmp_samplebuffer(framecount, &stackindex, framebuf);
+    bool_t stack_already_exists = FALSE;
 
+    int i, j;
+    /* search individual stacks via count/indexing array */
+    for (i = 0; i < tls->data.count.count_len ; i++ )
+    {
+	/* a count > 0 indexes the top of stack in the data buffer. */
+	/* a count == 255 indicates this stack is at the count limit. */
+	if (tls->buffer.count[i] == 0) {
+	    continue;
+	}
+	if (tls->buffer.count[i] == 255) {
+	    continue;
+	}
+
+	/* see if the stack addresses match */
+	for (j = 0; j < framecount ; j++ )
+	{
+	    if ( tls->buffer.bt[i+j] != framebuf[j] ) {
+		   break;
+	    }
+	}
+
+	if ( j == framecount) {
+	    stack_already_exists = TRUE;
+	    stackindex = i;
+	}
+    }
 
     /* if the stack already exisits in the buffer, update its count
-     * and return. If the stack is already at the count limit, cmp_samplebuffer
-     * will return false so a new stack entry will be created even though
-     * the stack may already exist in the buffer.
-     * Otherwise, add the new stack to the buffer
+     * and return. If the stack is already at the count limit.
     */
-    if (stack_already_exists && tls.buffer.count[stackindex] < 255 ) {
+    if (stack_already_exists && tls->buffer.count[stackindex] < 255 ) {
 	/* update count for this stack */
-	tls.buffer.count[stackindex] = tls.buffer.count[stackindex] + 1;
+	tls->buffer.count[stackindex] = tls->buffer.count[stackindex] + 1;
 	return;
     }
 
-    /* Will this stack trace fit into the sample buffer? */
-    /* update_samplebuffer adds the 0 stack termination marker and */
-    /* updates tls.data.bt.bt_len. */
-
-    int buflen = tls.data.bt.bt_len + framecount;
-    if ( buflen < BufferSize) {
-	update_samplebuffer(framecount,framebuf);
-    } else {
-        /* sample buffer has no room for these stack frames.*/
+    /* sample buffer has no room for these stack frames.*/
+    int buflen = tls->data.bt.bt_len + framecount;
+    if ( buflen > BufferSize) {
 	/* send the current sample buffer. (will init a new buffer) */
-        send_samples();
+	send_samples(tls);
+    }
 
-	update_samplebuffer(framecount,framebuf);
+    /* add frames to sample buffer, compute addresss range */
+    for (i = 0; i < framecount ; i++)
+    {
+	/* always add address to buffer bt */
+	tls->buffer.bt[tls->data.bt.bt_len] = framebuf[i];
+
+	/* top of stack indicated by a positive count. */
+	/* all other elements are 0 */
+	if (i > 0 ) {
+	    tls->buffer.count[tls->data.count.count_len] = 0;
+	} else {
+	    tls->buffer.count[tls->data.count.count_len] = 1;
+	}
+
+	if (framebuf[i] < tls->header.addr_begin ) {
+	    tls->header.addr_begin = framebuf[i];
+	}
+	if (framebuf[i] > tls->header.addr_end ) {
+	    tls->header.addr_end = framebuf[i];
+	}
+	tls->data.bt.bt_len++;
+	tls->data.count.count_len++;
     }
 }
 
@@ -265,94 +277,47 @@ void usertime_start_sampling(const char* arguments)
 {
     usertime_start_sampling_args args;
 
-#if defined (OPENSS_USE_FILEIO)
-    /* Create the rawdata output file prefix. */
-    /* fpe_stop_tracing will append */
-    /* a tid as needed for the actuall .openss-xdrtype filename */
-    OpenSS_CreateFilePrefix("usertime");
-#endif
-
-#if defined (OPENSS_OFFLINE)
-
-    /* TODO: need to handle arguments for offline collectors */
-    args.collector=1;
-    args.experiment=0; /* DataQueues index start at 0.*/
-
-    char* sampling_rate = getenv("OPENSS_USERTIME_RATE");
-
-    if (sampling_rate != NULL) {
-	args.sampling_rate=atoi(sampling_rate);
-	//fprintf(stderr,"args.sampling_rate = %d\n", args.sampling_rate);
-    } else {
-	args.sampling_rate=35;
-    }
-
-    /* Initialize the info blob's header */
-    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was */
-    /* not safe on ia64 systems. */
-    OpenSS_DataHeader local_info_header;
-    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_info_header));
-    memcpy(&tlsinfo.header, &local_info_header, sizeof(OpenSS_DataHeader));
-
-    tlsinfo.header.time_begin = OpenSS_GetTime();
-
-    openss_expinfo local_info;
-    OpenSS_InitializeParameters(&(local_info));
-    memcpy(&tlsinfo.info, &local_info, sizeof(openss_expinfo));
-    tlsinfo.info.collector = "usertime";
-    tlsinfo.info.exename = strdup(OpenSS_exepath);
-    tlsinfo.info.rate = args.sampling_rate;
-
-#ifndef NDEBUG
-    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"usertime_start_sampling sends tlsinfo:\n");
-        fprintf(stderr,"collector=%s, hostname=%s, pid =%d, OpenSS_rawtid=%lx\n",
-            tlsinfo.info.collector,tlsinfo.header.host,
-	    tlsinfo.header.pid,tlsinfo.header.posix_tid);
-    }
-#endif
-
+    /* Create and access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = malloc(sizeof(TLS));
+    Assert(tls != NULL);
+    OpenSS_SetTLS(TLSKey, tls);
 #else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
 
     /* Decode the passed function arguments. */
     memset(&args, 0, sizeof(args));
     OpenSS_DecodeParameters(arguments,
 			    (xdrproc_t)xdr_usertime_start_sampling_args,
 			    &args);
-#endif
-    
 
     /* Initialize the data blob's header */
-    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
+    /* Passing &(tls->header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
      */
     OpenSS_DataHeader local_header;
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
-    memcpy(&tls.header, &local_header, sizeof(OpenSS_DataHeader));
+    memcpy(&tls->header, &local_header, sizeof(OpenSS_DataHeader));
 
-    tls.header.time_begin = 0;
-    tls.header.time_end = 0;
-    tls.header.addr_begin = ~0;
-    tls.header.addr_end = 0;
+    tls->header.time_begin = 0;
+    tls->header.time_end = 0;
+    tls->header.addr_begin = ~0;
+    tls->header.addr_end = 0;
 
-    memset(tls.buffer.bt, 0, sizeof(tls.buffer.bt));
-    memset(tls.buffer.count, 0, sizeof(tls.buffer.count));
+    memset(tls->buffer.bt, 0, sizeof(tls->buffer.bt));
+    memset(tls->buffer.count, 0, sizeof(tls->buffer.count));
 
     /* Initialize the actual data blob */
-    tls.data.interval = (uint64_t)(1000000000) / (uint64_t)(args.sampling_rate);
-    tls.data.bt.bt_len = 0;
-    tls.data.bt.bt_val = tls.buffer.bt;
-    tls.data.count.count_len = 0;
-    tls.data.count.count_val = tls.buffer.count;
+    tls->data.interval = (uint64_t)(1000000000) / (uint64_t)(args.sampling_rate);
+    tls->data.bt.bt_len = 0;
+    tls->data.bt.bt_val = tls->buffer.bt;
+    tls->data.count.count_len = 0;
+    tls->data.count.count_val = tls->buffer.count;
 
-#if defined (OPENSS_OFFLINE)
-    tlsobj.objs.objname = NULL;
-    tlsobj.objs.addr_begin = ~0;
-    tlsobj.objs.addr_end = 0;
-#endif
-    
     /* Begin sampling */
-    tls.header.time_begin = OpenSS_GetTime();
-    OpenSS_Timer(tls.data.interval, usertimeTimerHandler);
+    tls->header.time_begin = OpenSS_GetTime();
+    OpenSS_Timer(tls->data.interval, usertimeTimerHandler);
 }
 
 
@@ -369,39 +334,24 @@ void usertime_stop_sampling(const char* arguments)
 {
     /* Stop sampling */
     OpenSS_Timer(0, NULL);
-    tls.header.time_end = OpenSS_GetTime();
+
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    tls->header.time_end = OpenSS_GetTime();
 
     /* Send any samples remaining in the sample buffer */
-    /* This checks for possible (non-rank) MPT daemon processes that might cause an abort if we try to send data */
-    if(tls.data.bt.bt_len > 0) {
-
-#if defined (OPENSS_OFFLINE)
-
-    tlsinfo.info.rank = OpenSS_mpi_rank;
-
-    /* create the openss-info data and send it */
-#if defined (OPENSS_USE_FILEIO)
-    OpenSS_CreateOutfile("openss-info");
-#endif
-    OpenSS_Send(&(tlsinfo.header), (xdrproc_t)xdr_openss_expinfo, &(tlsinfo.info));
-#endif
-   }
-
-    /* Send any samples remaining in the sample buffer */
-    if(tls.data.bt.bt_len > 0) {
-
-#if 0  /* debug only - shows stacks and counts*/
-	int i;
-	for (i=0; i < tls.data.bt.bt_len; i++ )
-	{
-fprintf(stderr,"usertime_stop_sampling: tls.buffer.bt.[%d]=%016llX, count=%d\n",i,tls.buffer.bt[i], tls.buffer.count[i]);
-	}
-	for (i=0; i < tls.data.count.count_len; i++ )
-	{
-fprintf(stderr,"usertime_stop_sampling: tls.buffer.count[%d]=%d\n",i,tls.buffer.count[i]);
-	}
-#endif
-
-	send_samples();
+    if(tls->data.bt.bt_len > 0) {
+	send_samples(tls);
     }
+    /* Destroy our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    free(tls);
+    OpenSS_SetTLS(TLSKey, NULL);
+#endif
 }

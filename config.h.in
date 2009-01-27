@@ -161,6 +161,10 @@
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
+/* Define to 1 if you want to use an explicit TLS implementation instead of
+   the __thread keyword. */
+#undef USE_EXPLICIT_TLS
+
 /* Version number of package */
 #undef VERSION
 

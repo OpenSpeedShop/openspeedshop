@@ -17,6 +17,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+# Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -74,6 +75,12 @@ host_triplet = @host@
 @HAVE_BINUTILS_TRUE@@HAVE_LIBMONITOR_TRUE@am__append_9 = \
 @HAVE_BINUTILS_TRUE@@HAVE_LIBMONITOR_TRUE@	OpenSS_GetInstrLength.c
 
+@USE_EXPLICIT_TLS_TRUE@am__append_10 = \
+@USE_EXPLICIT_TLS_TRUE@	OpenSS_TLS.c
+
+@HAVE_LIBMONITOR_TRUE@@USE_EXPLICIT_TLS_TRUE@am__append_11 = \
+@HAVE_LIBMONITOR_TRUE@@USE_EXPLICIT_TLS_TRUE@	OpenSS_TLS.c
+
 subdir = libopenss-runtime
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -90,22 +97,26 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 @HAVE_LIBMONITOR_TRUE@	fileio/libopenss-runtime-fileio.la
 am__libopenss_runtime_offline_la_SOURCES_DIST = Assert.h \
 	OpenSS_DataHeader.x OpenSS_DataHeader.h OpenSS_DataHeader.c \
-	OpenSS_DecodeParameters.c OpenSS_GetAddressOfFunction.c \
+	OpenSS_DecodeParameters.c OpenSS_EncodeParameters.c \
+	OpenSS_GetAddressOfFunction.c OpenSS_GetExecutablePath.c \
 	OpenSS_GetPCFromContext.c OpenSS_InitializeDataHeader.c \
 	OpenSS_UpdatePCData.c OpenSS_GetTime.c OpenSS_Send.c \
-	OpenSS_Timer.c OpenSS_FPEHandler.c OpenSS_SetPCInContext.c \
-	OpenSS_Path_From_Pid.c RuntimeAPI.h \
+	OpenSS_SendToFile.c OpenSS_Timer.c OpenSS_FPEHandler.c \
+	OpenSS_SetPCInContext.c OpenSS_Path_From_Pid.c RuntimeAPI.h \
 	OpenSS_GetStackTraceFromContext.c OpenSS_Overflow.c PapiAPI.h \
-	PapiAPI.c OpenSS_GetInstrLength.c
+	PapiAPI.c OpenSS_GetInstrLength.c OpenSS_TLS.c
 am__objects_1 = libopenss_runtime_offline_la-OpenSS_DataHeader.lo
 am__objects_2 = $(am__objects_1) \
 	libopenss_runtime_offline_la-OpenSS_DecodeParameters.lo \
+	libopenss_runtime_offline_la-OpenSS_EncodeParameters.lo \
 	libopenss_runtime_offline_la-OpenSS_GetAddressOfFunction.lo \
+	libopenss_runtime_offline_la-OpenSS_GetExecutablePath.lo \
 	libopenss_runtime_offline_la-OpenSS_GetPCFromContext.lo \
 	libopenss_runtime_offline_la-OpenSS_InitializeDataHeader.lo \
 	libopenss_runtime_offline_la-OpenSS_UpdatePCData.lo \
 	libopenss_runtime_offline_la-OpenSS_GetTime.lo \
 	libopenss_runtime_offline_la-OpenSS_Send.lo \
+	libopenss_runtime_offline_la-OpenSS_SendToFile.lo \
 	libopenss_runtime_offline_la-OpenSS_Timer.lo \
 	libopenss_runtime_offline_la-OpenSS_FPEHandler.lo \
 	libopenss_runtime_offline_la-OpenSS_SetPCInContext.lo \
@@ -114,9 +125,11 @@ am__objects_2 = $(am__objects_1) \
 @HAVE_LIBMONITOR_TRUE@@HAVE_PAPI_TRUE@am__objects_4 = libopenss_runtime_offline_la-OpenSS_Overflow.lo \
 @HAVE_LIBMONITOR_TRUE@@HAVE_PAPI_TRUE@	libopenss_runtime_offline_la-PapiAPI.lo
 @HAVE_BINUTILS_TRUE@@HAVE_LIBMONITOR_TRUE@am__objects_5 = libopenss_runtime_offline_la-OpenSS_GetInstrLength.lo
+@HAVE_LIBMONITOR_TRUE@@USE_EXPLICIT_TLS_TRUE@am__objects_6 = libopenss_runtime_offline_la-OpenSS_TLS.lo
 @HAVE_LIBMONITOR_TRUE@am_libopenss_runtime_offline_la_OBJECTS =  \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_2) $(am__objects_3) \
-@HAVE_LIBMONITOR_TRUE@	$(am__objects_4) $(am__objects_5)
+@HAVE_LIBMONITOR_TRUE@	$(am__objects_4) $(am__objects_5) \
+@HAVE_LIBMONITOR_TRUE@	$(am__objects_6)
 libopenss_runtime_offline_la_OBJECTS =  \
 	$(am_libopenss_runtime_offline_la_OBJECTS)
 libopenss_runtime_offline_la_LINK = $(LIBTOOL) --tag=CC \
@@ -127,33 +140,39 @@ libopenss_runtime_offline_la_LINK = $(LIBTOOL) --tag=CC \
 @BUILD_OFFLINE_FALSE@libopenss_runtime_la_DEPENDENCIES = @INSTRUMENTOR@/libopenss-runtime-@INSTRUMENTOR@.la
 am__libopenss_runtime_la_SOURCES_DIST = Assert.h OpenSS_DataHeader.x \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c \
-	OpenSS_DecodeParameters.c OpenSS_GetAddressOfFunction.c \
+	OpenSS_DecodeParameters.c OpenSS_EncodeParameters.c \
+	OpenSS_GetAddressOfFunction.c OpenSS_GetExecutablePath.c \
 	OpenSS_GetPCFromContext.c OpenSS_InitializeDataHeader.c \
 	OpenSS_UpdatePCData.c OpenSS_GetTime.c OpenSS_Send.c \
-	OpenSS_Timer.c OpenSS_FPEHandler.c OpenSS_SetPCInContext.c \
-	OpenSS_Path_From_Pid.c RuntimeAPI.h \
+	OpenSS_SendToFile.c OpenSS_Timer.c OpenSS_FPEHandler.c \
+	OpenSS_SetPCInContext.c OpenSS_Path_From_Pid.c RuntimeAPI.h \
 	OpenSS_GetStackTraceFromContext.c OpenSS_Overflow.c PapiAPI.h \
-	PapiAPI.c OpenSS_GetInstrLength.c
-am__objects_6 = libopenss_runtime_la-OpenSS_DataHeader.lo
-am__objects_7 = $(am__objects_6) \
+	PapiAPI.c OpenSS_GetInstrLength.c OpenSS_TLS.c
+am__objects_7 = libopenss_runtime_la-OpenSS_DataHeader.lo
+am__objects_8 = $(am__objects_7) \
 	libopenss_runtime_la-OpenSS_DecodeParameters.lo \
+	libopenss_runtime_la-OpenSS_EncodeParameters.lo \
 	libopenss_runtime_la-OpenSS_GetAddressOfFunction.lo \
+	libopenss_runtime_la-OpenSS_GetExecutablePath.lo \
 	libopenss_runtime_la-OpenSS_GetPCFromContext.lo \
 	libopenss_runtime_la-OpenSS_InitializeDataHeader.lo \
 	libopenss_runtime_la-OpenSS_UpdatePCData.lo \
 	libopenss_runtime_la-OpenSS_GetTime.lo \
 	libopenss_runtime_la-OpenSS_Send.lo \
+	libopenss_runtime_la-OpenSS_SendToFile.lo \
 	libopenss_runtime_la-OpenSS_Timer.lo \
 	libopenss_runtime_la-OpenSS_FPEHandler.lo \
 	libopenss_runtime_la-OpenSS_SetPCInContext.lo \
 	libopenss_runtime_la-OpenSS_Path_From_Pid.lo
-@HAVE_LIBUNWIND_TRUE@am__objects_8 = libopenss_runtime_la-OpenSS_GetStackTraceFromContext.lo
-@HAVE_PAPI_TRUE@am__objects_9 =  \
+@HAVE_LIBUNWIND_TRUE@am__objects_9 = libopenss_runtime_la-OpenSS_GetStackTraceFromContext.lo
+@HAVE_PAPI_TRUE@am__objects_10 =  \
 @HAVE_PAPI_TRUE@	libopenss_runtime_la-OpenSS_Overflow.lo \
 @HAVE_PAPI_TRUE@	libopenss_runtime_la-PapiAPI.lo
-@HAVE_BINUTILS_TRUE@am__objects_10 = libopenss_runtime_la-OpenSS_GetInstrLength.lo
-am_libopenss_runtime_la_OBJECTS = $(am__objects_7) $(am__objects_8) \
-	$(am__objects_9) $(am__objects_10)
+@HAVE_BINUTILS_TRUE@am__objects_11 = libopenss_runtime_la-OpenSS_GetInstrLength.lo
+@USE_EXPLICIT_TLS_TRUE@am__objects_12 =  \
+@USE_EXPLICIT_TLS_TRUE@	libopenss_runtime_la-OpenSS_TLS.lo
+am_libopenss_runtime_la_OBJECTS = $(am__objects_8) $(am__objects_9) \
+	$(am__objects_10) $(am__objects_11) $(am__objects_12)
 libopenss_runtime_la_OBJECTS = $(am_libopenss_runtime_la_OBJECTS)
 libopenss_runtime_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
@@ -204,14 +223,7 @@ BINUTILS_LDFLAGS = @BINUTILS_LDFLAGS@
 BINUTILS_LIBS = @BINUTILS_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
-
-# Note: Some versions of GCC (e.g. 3.3.3) appear to contain an optimization bug
-#       that causes accesses of thread-local storage (TLS) to fail with SIGSEGV.
-#       The exact nature of the bug has yet to be identified, but it results in
-#       incorrect addresses being calculated for TLS data structures, and occurs
-#       under both "-O1" and "-O2" on affected systems. For now it is safest to
-#       turn off ALL optimizations for code that uses TLS.
-CFLAGS = -g -O0
+CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
@@ -484,12 +496,15 @@ COMMON_SOURCES = \
 	Assert.h \
 	OpenSS_DataHeader.x $(BUILT_SOURCES) \
 	OpenSS_DecodeParameters.c \
+	OpenSS_EncodeParameters.c \
 	OpenSS_GetAddressOfFunction.c \
+	OpenSS_GetExecutablePath.c \
 	OpenSS_GetPCFromContext.c \
 	OpenSS_InitializeDataHeader.c \
 	OpenSS_UpdatePCData.c \
 	OpenSS_GetTime.c \
 	OpenSS_Send.c \
+	OpenSS_SendToFile.c \
 	OpenSS_Timer.c \
 	OpenSS_FPEHandler.c \
 	OpenSS_SetPCInContext.c \
@@ -497,10 +512,11 @@ COMMON_SOURCES = \
 	RuntimeAPI.h
 
 libopenss_runtime_la_SOURCES = $(COMMON_SOURCES) $(am__append_4) \
-	$(am__append_6) $(am__append_8)
+	$(am__append_6) $(am__append_8) $(am__append_10)
 @HAVE_LIBMONITOR_TRUE@libopenss_runtime_offline_la_SOURCES =  \
 @HAVE_LIBMONITOR_TRUE@	$(COMMON_SOURCES) $(am__append_5) \
-@HAVE_LIBMONITOR_TRUE@	$(am__append_7) $(am__append_9)
+@HAVE_LIBMONITOR_TRUE@	$(am__append_7) $(am__append_9) \
+@HAVE_LIBMONITOR_TRUE@	$(am__append_11)
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
 all: $(BUILT_SOURCES)
@@ -559,8 +575,10 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_DataHeader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_DecodeParameters.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_EncodeParameters.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_FPEHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_GetAddressOfFunction.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_GetExecutablePath.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_GetInstrLength.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_GetPCFromContext.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_GetStackTraceFromContext.Plo@am__quote@
@@ -569,14 +587,18 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_Overflow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_Path_From_Pid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_Send.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_SendToFile.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_SetPCInContext.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_TLS.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_Timer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-OpenSS_UpdatePCData.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_la-PapiAPI.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_DataHeader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_DecodeParameters.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_EncodeParameters.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_FPEHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_GetAddressOfFunction.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_GetExecutablePath.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_GetInstrLength.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_GetPCFromContext.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_GetStackTraceFromContext.Plo@am__quote@
@@ -585,7 +607,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_Overflow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_Path_From_Pid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_Send.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_SendToFile.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_SetPCInContext.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_TLS.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_Timer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_UpdatePCData.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-PapiAPI.Plo@am__quote@
@@ -625,12 +649,26 @@ libopenss_runtime_offline_la-OpenSS_DecodeParameters.lo: OpenSS_DecodeParameters
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_offline_la-OpenSS_DecodeParameters.lo `test -f 'OpenSS_DecodeParameters.c' || echo '$(srcdir)/'`OpenSS_DecodeParameters.c
 
+libopenss_runtime_offline_la-OpenSS_EncodeParameters.lo: OpenSS_EncodeParameters.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_offline_la-OpenSS_EncodeParameters.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_EncodeParameters.Tpo -c -o libopenss_runtime_offline_la-OpenSS_EncodeParameters.lo `test -f 'OpenSS_EncodeParameters.c' || echo '$(srcdir)/'`OpenSS_EncodeParameters.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_EncodeParameters.Tpo $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_EncodeParameters.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='OpenSS_EncodeParameters.c' object='libopenss_runtime_offline_la-OpenSS_EncodeParameters.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_offline_la-OpenSS_EncodeParameters.lo `test -f 'OpenSS_EncodeParameters.c' || echo '$(srcdir)/'`OpenSS_EncodeParameters.c
+
 libopenss_runtime_offline_la-OpenSS_GetAddressOfFunction.lo: OpenSS_GetAddressOfFunction.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_offline_la-OpenSS_GetAddressOfFunction.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_GetAddressOfFunction.Tpo -c -o libopenss_runtime_offline_la-OpenSS_GetAddressOfFunction.lo `test -f 'OpenSS_GetAddressOfFunction.c' || echo '$(srcdir)/'`OpenSS_GetAddressOfFunction.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_GetAddressOfFunction.Tpo $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_GetAddressOfFunction.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='OpenSS_GetAddressOfFunction.c' object='libopenss_runtime_offline_la-OpenSS_GetAddressOfFunction.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_offline_la-OpenSS_GetAddressOfFunction.lo `test -f 'OpenSS_GetAddressOfFunction.c' || echo '$(srcdir)/'`OpenSS_GetAddressOfFunction.c
+
+libopenss_runtime_offline_la-OpenSS_GetExecutablePath.lo: OpenSS_GetExecutablePath.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_offline_la-OpenSS_GetExecutablePath.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_GetExecutablePath.Tpo -c -o libopenss_runtime_offline_la-OpenSS_GetExecutablePath.lo `test -f 'OpenSS_GetExecutablePath.c' || echo '$(srcdir)/'`OpenSS_GetExecutablePath.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_GetExecutablePath.Tpo $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_GetExecutablePath.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='OpenSS_GetExecutablePath.c' object='libopenss_runtime_offline_la-OpenSS_GetExecutablePath.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_offline_la-OpenSS_GetExecutablePath.lo `test -f 'OpenSS_GetExecutablePath.c' || echo '$(srcdir)/'`OpenSS_GetExecutablePath.c
 
 libopenss_runtime_offline_la-OpenSS_GetPCFromContext.lo: OpenSS_GetPCFromContext.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_offline_la-OpenSS_GetPCFromContext.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_GetPCFromContext.Tpo -c -o libopenss_runtime_offline_la-OpenSS_GetPCFromContext.lo `test -f 'OpenSS_GetPCFromContext.c' || echo '$(srcdir)/'`OpenSS_GetPCFromContext.c
@@ -666,6 +704,13 @@ libopenss_runtime_offline_la-OpenSS_Send.lo: OpenSS_Send.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='OpenSS_Send.c' object='libopenss_runtime_offline_la-OpenSS_Send.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_offline_la-OpenSS_Send.lo `test -f 'OpenSS_Send.c' || echo '$(srcdir)/'`OpenSS_Send.c
+
+libopenss_runtime_offline_la-OpenSS_SendToFile.lo: OpenSS_SendToFile.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_offline_la-OpenSS_SendToFile.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_SendToFile.Tpo -c -o libopenss_runtime_offline_la-OpenSS_SendToFile.lo `test -f 'OpenSS_SendToFile.c' || echo '$(srcdir)/'`OpenSS_SendToFile.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_SendToFile.Tpo $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_SendToFile.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='OpenSS_SendToFile.c' object='libopenss_runtime_offline_la-OpenSS_SendToFile.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_offline_la-OpenSS_SendToFile.lo `test -f 'OpenSS_SendToFile.c' || echo '$(srcdir)/'`OpenSS_SendToFile.c
 
 libopenss_runtime_offline_la-OpenSS_Timer.lo: OpenSS_Timer.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_offline_la-OpenSS_Timer.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_Timer.Tpo -c -o libopenss_runtime_offline_la-OpenSS_Timer.lo `test -f 'OpenSS_Timer.c' || echo '$(srcdir)/'`OpenSS_Timer.c
@@ -723,6 +768,13 @@ libopenss_runtime_offline_la-OpenSS_GetInstrLength.lo: OpenSS_GetInstrLength.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_offline_la-OpenSS_GetInstrLength.lo `test -f 'OpenSS_GetInstrLength.c' || echo '$(srcdir)/'`OpenSS_GetInstrLength.c
 
+libopenss_runtime_offline_la-OpenSS_TLS.lo: OpenSS_TLS.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_offline_la-OpenSS_TLS.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_TLS.Tpo -c -o libopenss_runtime_offline_la-OpenSS_TLS.lo `test -f 'OpenSS_TLS.c' || echo '$(srcdir)/'`OpenSS_TLS.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_TLS.Tpo $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_TLS.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='OpenSS_TLS.c' object='libopenss_runtime_offline_la-OpenSS_TLS.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_offline_la-OpenSS_TLS.lo `test -f 'OpenSS_TLS.c' || echo '$(srcdir)/'`OpenSS_TLS.c
+
 libopenss_runtime_la-OpenSS_DataHeader.lo: OpenSS_DataHeader.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_la-OpenSS_DataHeader.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_la-OpenSS_DataHeader.Tpo -c -o libopenss_runtime_la-OpenSS_DataHeader.lo `test -f 'OpenSS_DataHeader.c' || echo '$(srcdir)/'`OpenSS_DataHeader.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libopenss_runtime_la-OpenSS_DataHeader.Tpo $(DEPDIR)/libopenss_runtime_la-OpenSS_DataHeader.Plo
@@ -737,12 +789,26 @@ libopenss_runtime_la-OpenSS_DecodeParameters.lo: OpenSS_DecodeParameters.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_la-OpenSS_DecodeParameters.lo `test -f 'OpenSS_DecodeParameters.c' || echo '$(srcdir)/'`OpenSS_DecodeParameters.c
 
+libopenss_runtime_la-OpenSS_EncodeParameters.lo: OpenSS_EncodeParameters.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_la-OpenSS_EncodeParameters.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_la-OpenSS_EncodeParameters.Tpo -c -o libopenss_runtime_la-OpenSS_EncodeParameters.lo `test -f 'OpenSS_EncodeParameters.c' || echo '$(srcdir)/'`OpenSS_EncodeParameters.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libopenss_runtime_la-OpenSS_EncodeParameters.Tpo $(DEPDIR)/libopenss_runtime_la-OpenSS_EncodeParameters.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='OpenSS_EncodeParameters.c' object='libopenss_runtime_la-OpenSS_EncodeParameters.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_la-OpenSS_EncodeParameters.lo `test -f 'OpenSS_EncodeParameters.c' || echo '$(srcdir)/'`OpenSS_EncodeParameters.c
+
 libopenss_runtime_la-OpenSS_GetAddressOfFunction.lo: OpenSS_GetAddressOfFunction.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_la-OpenSS_GetAddressOfFunction.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_la-OpenSS_GetAddressOfFunction.Tpo -c -o libopenss_runtime_la-OpenSS_GetAddressOfFunction.lo `test -f 'OpenSS_GetAddressOfFunction.c' || echo '$(srcdir)/'`OpenSS_GetAddressOfFunction.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libopenss_runtime_la-OpenSS_GetAddressOfFunction.Tpo $(DEPDIR)/libopenss_runtime_la-OpenSS_GetAddressOfFunction.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='OpenSS_GetAddressOfFunction.c' object='libopenss_runtime_la-OpenSS_GetAddressOfFunction.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_la-OpenSS_GetAddressOfFunction.lo `test -f 'OpenSS_GetAddressOfFunction.c' || echo '$(srcdir)/'`OpenSS_GetAddressOfFunction.c
+
+libopenss_runtime_la-OpenSS_GetExecutablePath.lo: OpenSS_GetExecutablePath.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_la-OpenSS_GetExecutablePath.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_la-OpenSS_GetExecutablePath.Tpo -c -o libopenss_runtime_la-OpenSS_GetExecutablePath.lo `test -f 'OpenSS_GetExecutablePath.c' || echo '$(srcdir)/'`OpenSS_GetExecutablePath.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libopenss_runtime_la-OpenSS_GetExecutablePath.Tpo $(DEPDIR)/libopenss_runtime_la-OpenSS_GetExecutablePath.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='OpenSS_GetExecutablePath.c' object='libopenss_runtime_la-OpenSS_GetExecutablePath.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_la-OpenSS_GetExecutablePath.lo `test -f 'OpenSS_GetExecutablePath.c' || echo '$(srcdir)/'`OpenSS_GetExecutablePath.c
 
 libopenss_runtime_la-OpenSS_GetPCFromContext.lo: OpenSS_GetPCFromContext.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_la-OpenSS_GetPCFromContext.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_la-OpenSS_GetPCFromContext.Tpo -c -o libopenss_runtime_la-OpenSS_GetPCFromContext.lo `test -f 'OpenSS_GetPCFromContext.c' || echo '$(srcdir)/'`OpenSS_GetPCFromContext.c
@@ -778,6 +844,13 @@ libopenss_runtime_la-OpenSS_Send.lo: OpenSS_Send.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='OpenSS_Send.c' object='libopenss_runtime_la-OpenSS_Send.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_la-OpenSS_Send.lo `test -f 'OpenSS_Send.c' || echo '$(srcdir)/'`OpenSS_Send.c
+
+libopenss_runtime_la-OpenSS_SendToFile.lo: OpenSS_SendToFile.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_la-OpenSS_SendToFile.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_la-OpenSS_SendToFile.Tpo -c -o libopenss_runtime_la-OpenSS_SendToFile.lo `test -f 'OpenSS_SendToFile.c' || echo '$(srcdir)/'`OpenSS_SendToFile.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libopenss_runtime_la-OpenSS_SendToFile.Tpo $(DEPDIR)/libopenss_runtime_la-OpenSS_SendToFile.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='OpenSS_SendToFile.c' object='libopenss_runtime_la-OpenSS_SendToFile.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_la-OpenSS_SendToFile.lo `test -f 'OpenSS_SendToFile.c' || echo '$(srcdir)/'`OpenSS_SendToFile.c
 
 libopenss_runtime_la-OpenSS_Timer.lo: OpenSS_Timer.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_la-OpenSS_Timer.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_la-OpenSS_Timer.Tpo -c -o libopenss_runtime_la-OpenSS_Timer.lo `test -f 'OpenSS_Timer.c' || echo '$(srcdir)/'`OpenSS_Timer.c
@@ -834,6 +907,13 @@ libopenss_runtime_la-OpenSS_GetInstrLength.lo: OpenSS_GetInstrLength.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='OpenSS_GetInstrLength.c' object='libopenss_runtime_la-OpenSS_GetInstrLength.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_la-OpenSS_GetInstrLength.lo `test -f 'OpenSS_GetInstrLength.c' || echo '$(srcdir)/'`OpenSS_GetInstrLength.c
+
+libopenss_runtime_la-OpenSS_TLS.lo: OpenSS_TLS.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_la-OpenSS_TLS.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_la-OpenSS_TLS.Tpo -c -o libopenss_runtime_la-OpenSS_TLS.lo `test -f 'OpenSS_TLS.c' || echo '$(srcdir)/'`OpenSS_TLS.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libopenss_runtime_la-OpenSS_TLS.Tpo $(DEPDIR)/libopenss_runtime_la-OpenSS_TLS.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='OpenSS_TLS.c' object='libopenss_runtime_la-OpenSS_TLS.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_la-OpenSS_TLS.lo `test -f 'OpenSS_TLS.c' || echo '$(srcdir)/'`OpenSS_TLS.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

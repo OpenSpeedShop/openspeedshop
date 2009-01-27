@@ -42,15 +42,6 @@ int vt_mpi_trace_is_on = 1;
 
 #include "vt_openss.h"
 
-#if defined (OPENSS_OFFLINE)
-#include "mpiotf_offline.h"
-#include "OpenSS_Offline.h"
-#endif
-
-#if defined (OPENSS_USE_FILEIO)
-#include "OpenSS_FileIO.h"
-#endif
-
 #include "MPIOTFTraceableFunctions.h"
 
 /** Number of overhead frames in each stack frame to be skipped. */
@@ -79,7 +70,7 @@ const unsigned OverheadFrameCount = 2;
 #define EventBufferSize (OpenSS_BlobSizeFactor * 215)
 
 /** Thread-local storage. */
-static __thread struct {
+typedef struct {
     
     /** Nesting depth within the MPI function wrappers. */
     unsigned nesting_depth;
@@ -93,11 +84,29 @@ static __thread struct {
 	mpiotf_event events[EventBufferSize];          /**< MPI call events. */
     } buffer;    
 
+#if defined(OPENSS_OFFLINE)
     char mpiotf_traced[PATH_MAX];
+#endif
+} TLS;
 
-    
-} tls;
 
+#ifdef USE_EXPLICIT_TLS
+
+/**
+ * Thread-local storage key.
+ *
+ * Key used for looking up our thread-local storage. This key <em>must</em>
+ * be globally unique across the entire Open|SpeedShop code base.
+ */
+static const uint32_t TLSKey = 0x00001EFF;
+int mpiotf_init_tls_done = 0;
+
+#else
+
+/** Thread-local storage. */
+static __thread TLS the_tls;
+
+#endif
 
 
 /**
@@ -107,44 +116,39 @@ static __thread struct {
  * the experiment's database. Then resets the tracing buffer to the empty state.
  * This is done regardless of whether or not the buffer is actually full.
  */
-static void mpiotf_send_events()
+static void mpiotf_send_events(TLS *tls)
 {
-//    fprintf(stderr, "mpiotf_send_events, entered for tls.header.thread=%d\n", tls.header.thread);
+//    fprintf(stderr, "mpiotf_send_events, entered for tls->header.thread=%d\n", tls->header.thread);
 //    fflush(stderr);
 
     /* Set the end time of this data blob */
-    tls.header.time_end = OpenSS_GetTime();
+    tls->header.time_end = OpenSS_GetTime();
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"MPIOTF Collector runtime sends data:\n");
         fprintf(stderr,"time(%lu,%#lu) addr range [%#lx, %#lx] "
 		" stacktraces_len(%d) events_len(%d)\n",
-            tls.header.time_begin,tls.header.time_end,
-	    tls.header.addr_begin,tls.header.addr_end,
-	    tls.data.stacktraces.stacktraces_len,
-            tls.data.events.events_len);
+            tls->header.time_begin,tls->header.time_end,
+	    tls->header.addr_begin,tls->header.addr_end,
+	    tls->data.stacktraces.stacktraces_len,
+            tls->data.events.events_len);
     }
 #endif
 
-#if defined (OPENSS_USE_FILEIO)
-    /* Create the openss-raw file name for this exe-collector-pid-tid */
-    /* Default is to create openss-raw files in /tmp */
-    OpenSS_CreateOutfile("openss-data");
-#endif
-    
     /* Send these events */
-    OpenSS_Send(&(tls.header), (xdrproc_t)xdr_mpiotf_data, &(tls.data));
+    OpenSS_SetSendToFile("mpit", "openss-data");
+    OpenSS_Send(&(tls->header), (xdrproc_t)xdr_mpiotf_data, &(tls->data));
     
     /* Re-initialize the data blob's header */
-    tls.header.time_begin = tls.header.time_end;
-    tls.header.time_end = 0;
-    tls.header.addr_begin = ~0;
-    tls.header.addr_end = 0;
+    tls->header.time_begin = tls->header.time_end;
+    tls->header.time_end = 0;
+    tls->header.addr_begin = ~0;
+    tls->header.addr_end = 0;
     
     /* Re-initialize the actual data blob */
-    tls.data.stacktraces.stacktraces_len = 0;
-    tls.data.events.events_len = 0;    
+    tls->data.stacktraces.stacktraces_len = 0;
+    tls->data.events.events_len = 0;    
 }
     
 
@@ -159,11 +163,16 @@ static void mpiotf_send_events()
  */
 void mpiotf_start_event(mpiotf_event* event)
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     /* Increment the MPI function wrapper nesting depth */
-    ++tls.nesting_depth;
-    
-    /* Initialize the event record. */
-    memset(event, 0, sizeof(mpiotf_event));
+    ++tls->nesting_depth;
 }
 
 
@@ -184,6 +193,14 @@ void mpiotf_start_event(mpiotf_event* event)
 void mpiotf_record_event(const mpiotf_event* event, uint64_t function, char * name_string)
 
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     uint64_t stacktrace[MaxFramesPerStackTrace];
     unsigned stacktrace_size = 0;
     unsigned entry, start, i;
@@ -195,7 +212,7 @@ if (debug_trace) {
 }
 
     /* Decrement the MPI function wrapper nesting depth */
-    --tls.nesting_depth;
+    --tls->nesting_depth;
 
     /*
      * Don't record events for any recursive calls to our MPI function wrappers.
@@ -204,7 +221,7 @@ if (debug_trace) {
      * direct calls by the application to the MPI library - not in the internal
      * implementation details of that library.
      */
-    if(tls.nesting_depth > 0) {
+    if(tls->nesting_depth > 0) {
 #ifdef DEBUG
 	fprintf(stderr,"mpiotf_record_event RETURNS EARLY DUE TO NESTING\n");
 #endif
@@ -232,16 +249,16 @@ if (debug_trace) {
      */
     for(start = 0, i = 0;
 	(i < stacktrace_size) &&
-	    ((start + i) < tls.data.stacktraces.stacktraces_len);
+	    ((start + i) < tls->data.stacktraces.stacktraces_len);
 	++i)
 	
 	/* Do the i'th frames differ? */
-	if(stacktrace[i] != tls.buffer.stacktraces[start + i]) {
+	if(stacktrace[i] != tls->buffer.stacktraces[start + i]) {
 	    
 	    /* Advance in the tracing buffer to the end of this stack trace */
 	    for(start += i;
-		(tls.buffer.stacktraces[start] != 0) &&
-		    (start < tls.data.stacktraces.stacktraces_len);
+		(tls->buffer.stacktraces[start] != 0) &&
+		    (start < tls->data.stacktraces.stacktraces_len);
 		++start);
 	    
 	    /* Advance in the tracing buffer past the terminating zero */
@@ -260,76 +277,76 @@ if (debug_trace) {
     else {
 	
 	/* Send events if there is insufficient room for this stack trace */
-	if((tls.data.stacktraces.stacktraces_len + stacktrace_size + 1) >=
+	if((tls->data.stacktraces.stacktraces_len + stacktrace_size + 1) >=
 	   StackTraceBufferSize) {
 #ifndef NDEBUG
 	    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	      fprintf(stderr,"RANK (%d,%lu) SENDING DUE TO StackTraceBufferSize, %d * %d = %d\n",
 		event->source, event->start_time,
-		tls.data.stacktraces.stacktraces_len,
+		tls->data.stacktraces.stacktraces_len,
 		sizeof(uint64_t),
-		(tls.data.stacktraces.stacktraces_len * sizeof(uint64_t)) );
+		(tls->data.stacktraces.stacktraces_len * sizeof(uint64_t)) );
 	      fprintf(stderr,"EVENTBufferSize, %d * %d = %d\n",
-		tls.data.events.events_len,
+		tls->data.events.events_len,
 		sizeof(mpiotf_event),
-		tls.data.events.events_len * sizeof(mpiotf_event));
+		tls->data.events.events_len * sizeof(mpiotf_event));
 	      fprintf(stderr,"RANK (%d) TOTAL SENT %d\n",  event->source,
-		(tls.data.stacktraces.stacktraces_len * sizeof(uint64_t)) +
-		(tls.data.events.events_len * sizeof(mpiotf_event)));
+		(tls->data.stacktraces.stacktraces_len * sizeof(uint64_t)) +
+		(tls->data.events.events_len * sizeof(mpiotf_event)));
 	    }
 #endif
-	    mpiotf_send_events();
+	    mpiotf_send_events(tls);
 	}
 	
 	/* Add each frame in the stack trace to the tracing buffer. */	
-	entry = tls.data.stacktraces.stacktraces_len;
+	entry = tls->data.stacktraces.stacktraces_len;
 	for(i = 0; i < stacktrace_size; ++i) {
 	    
 	    /* Add the i'th frame to the tracing buffer */
-	    tls.buffer.stacktraces[entry + i] = stacktrace[i];
+	    tls->buffer.stacktraces[entry + i] = stacktrace[i];
 	    
 	    /* Update the address interval in the data blob's header */
-	    if(stacktrace[i] < tls.header.addr_begin)
-		tls.header.addr_begin = stacktrace[i];
-	    if(stacktrace[i] > tls.header.addr_end)
-		tls.header.addr_end = stacktrace[i];
+	    if(stacktrace[i] < tls->header.addr_begin)
+		tls->header.addr_begin = stacktrace[i];
+	    if(stacktrace[i] > tls->header.addr_end)
+		tls->header.addr_end = stacktrace[i];
 	    
 	}
 	
 	/* Add a terminating zero frame to the tracing buffer */
-	tls.buffer.stacktraces[entry + stacktrace_size] = 0;
+	tls->buffer.stacktraces[entry + stacktrace_size] = 0;
 	
 	/* Set the new size of the tracing buffer */
-	tls.data.stacktraces.stacktraces_len += (stacktrace_size + 1);
+	tls->data.stacktraces.stacktraces_len += (stacktrace_size + 1);
 	
     }
     
     /* Add a new entry for this event to the tracing buffer. */
-    memcpy(&(tls.buffer.events[tls.data.events.events_len]),
+    memcpy(&(tls->buffer.events[tls->data.events.events_len]),
 	   event, sizeof(mpiotf_event));
-    tls.buffer.events[tls.data.events.events_len].stacktrace = entry;
-    tls.data.events.events_len++;
+    tls->buffer.events[tls->data.events.events_len].stacktrace = entry;
+    tls->data.events.events_len++;
 
     /* Send events if the tracing buffer is now filled with events */
-    if((tls.data.events.events_len ) >= EventBufferSize) {
+    if((tls->data.events.events_len ) >= EventBufferSize) {
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	    fprintf(stderr,"RANK (%d, %lu) SENDING DUE TO EventBufferSize, %d * %d = %d\n",
 		event->source, event->start_time,
-		tls.data.events.events_len,
+		tls->data.events.events_len,
 		sizeof(mpiotf_event),
-		tls.data.events.events_len * sizeof(mpiotf_event));
+		tls->data.events.events_len * sizeof(mpiotf_event));
 	    fprintf(stderr,"StackTraceBufferSize, %d * %d = %d\n",
-		tls.data.stacktraces.stacktraces_len,
+		tls->data.stacktraces.stacktraces_len,
 		sizeof(uint64_t),
-		tls.data.stacktraces.stacktraces_len * sizeof(uint64_t));
+		tls->data.stacktraces.stacktraces_len * sizeof(uint64_t));
 	    fprintf(stderr,"RANK (%d) TOTAL SENT %d\n",  event->source,
-		(tls.data.stacktraces.stacktraces_len * sizeof(uint64_t)) +
-		(tls.data.events.events_len * sizeof(mpiotf_event)));
+		(tls->data.stacktraces.stacktraces_len * sizeof(uint64_t)) +
+		(tls->data.events.events_len * sizeof(mpiotf_event)));
 	}
 #endif
-	mpiotf_send_events();
-	tls.data.events.events_len = 0;
+	mpiotf_send_events(tls);
+	tls->data.events.events_len = 0;
     }
     
 
@@ -515,116 +532,63 @@ if (debug_trace) {
  */
 void mpiotf_start_tracing(const char* arguments)
 {
+
     mpiotf_start_tracing_args args;
+
+    /* Create and access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = malloc(sizeof(TLS));
+    Assert(tls != NULL);
+    OpenSS_SetTLS(TLSKey, tls);
+    mpiotf_init_tls_done = 1;
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
 
 #if DEBUG_MPIOTF
     printf("mpiotf_start_tracing entered\n");
 #endif
-
-#if defined (OPENSS_USE_FILEIO)
-    /* Create the rawdata output file prefix. */
-    /* fpe_stop_tracing will append */
-    /* a tid as needed for the actuall .openss-xdrtype filename */
-    OpenSS_CreateFilePrefix("mpiotf");
-#endif
-
-#if defined (OPENSS_OFFLINE)
-
-    /* TODO: need to handle arguments for offline collectors */
-    args.collector=1;
-    args.experiment=0; /* DataQueues index start at 0.*/
-    /* traced functions here? */
-
-    /* Initialize the info blob's header */
-    /* Passing &(tls.header) to OpenSS_InitializeDataHeader */
-    /* was not safe on ia64 systems. */
-    OpenSS_DataHeader local_info_header;
-    OpenSS_InitializeDataHeader(args.experiment, args.collector,
-				&(local_info_header));
-    memcpy(&tlsinfo.header, &local_info_header, sizeof(OpenSS_DataHeader));
-
-#if DEBUG_MPIOTF
-    printf("mpiotf_start_tracing after memcpy\n");
-#endif
-
-    tlsinfo.header.time_begin = OpenSS_GetTime();
-
-    openss_expinfo local_info;
-    OpenSS_InitializeParameters(&(local_info));
-    memcpy(&tlsinfo.info, &local_info, sizeof(openss_expinfo));
-    tlsinfo.info.collector = "mpiotf";
-    tlsinfo.info.exename = strdup(OpenSS_exepath);
-
-    char* mpiotf_traced = getenv("OPENSS_MPIOTF_TRACED");
-
-#if DEBUG_MPIOTF
-    printf("mpiotf_start_tracing after getenv mpiotf_traced=%s\n", mpiotf_traced);
-#endif
-
-    /* If OPENSS_MPIOTF_TRACED is set to a valid list of io functions, trace only those functions.
-     * If OPENSS_MPIOTF_TRACED is set and is empty, trace all functions. For any misspelled
-     * function name n OPENSS_MPIOTF_TRACED, we will silently ignore it.  If all names in
-     * OPENSS_MPIOTF_TRACED are misspelled or not part of TraceableFunctions, nothing will
-     * be traced.
-     */
-
-    if (mpiotf_traced != NULL && strcmp(mpiotf_traced,"") != 0) {
-	tlsinfo.info.traced = strdup(mpiotf_traced);
-	strcpy(tls.mpiotf_traced,mpiotf_traced);
-    } else {
-	tlsinfo.info.traced = strdup(all);
-	strcpy(tls.mpiotf_traced,all);
-    }
-
-#ifndef NDEBUG
-    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"mpiotf_start_tracing sends tlsinfo:\n");
-        fprintf(stderr,"collector=%s, hostname=%s, pid=%d, OpenSS_rawtid=%lx\n",
-            tlsinfo.info.collector,tlsinfo.header.host,
-	    tlsinfo.header.pid,tlsinfo.header.posix_tid);
-    }
-#endif
-
-#if DEBUG_MPIOTF
-    printf("mpiotf_start_tracing before time_end\n");
-#endif
-
-    /* create the openss-info data and send it */
-    tlsinfo.header.time_end = OpenSS_GetTime();
-
-#else
-
 
     /* Decode the passed function arguments. */
     memset(&args, 0, sizeof(args));
     OpenSS_DecodeParameters(arguments,
                             (xdrproc_t)xdr_mpiotf_start_tracing_args,
                             &args);
+
+#if defined(OPENSS_OFFLINE)
+    const char* mpiotf_traced = getenv("OPENSS_MPIOTF_TRACED");
+    if (mpiotf_traced != NULL && strcmp(mpiotf_traced,"") != 0) {
+        strcpy(tls->mpiotf_traced,mpiotf_traced);
+    } else {
+        strcpy(tls->mpiotf_traced,all);
+    }
 #endif
 
     /* Initialize the MPI function wrapper nesting depth */
-    tls.nesting_depth = 0;
+    tls->nesting_depth = 0;
 
     /* Initialize the data blob's header */
-    /* Passing &(tls.header) to OpenSS_InitializeDataHeader was not */
+    /* Passing &(tls->header) to OpenSS_InitializeDataHeader was not */
     /* safe on ia64 systems. */
     OpenSS_DataHeader local_header;
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
-    memcpy(&tls.header, &local_header, sizeof(OpenSS_DataHeader));
+    memcpy(&tls->header, &local_header, sizeof(OpenSS_DataHeader));
 
-    tls.header.time_begin = 0;
-    tls.header.time_end = 0;
-    tls.header.addr_begin = ~0;
-    tls.header.addr_end = 0;
+    tls->header.time_begin = 0;
+    tls->header.time_end = 0;
+    tls->header.addr_begin = ~0;
+    tls->header.addr_end = 0;
     
     /* Initialize the actual data blob */
-    tls.data.stacktraces.stacktraces_len = 0;
-    tls.data.stacktraces.stacktraces_val = tls.buffer.stacktraces;
-    tls.data.events.events_len = 0;
-    tls.data.events.events_val = tls.buffer.events;
+    tls->data.stacktraces.stacktraces_len = 0;
+    tls->data.stacktraces.stacktraces_val = tls->buffer.stacktraces;
+    tls->data.events.events_len = 0;
+    tls->data.events.events_val = tls->buffer.events;
 
     /* Set the begin time of this data blob */
-    tls.header.time_begin = OpenSS_GetTime();
+    tls->header.time_begin = OpenSS_GetTime();
 }
 
 
@@ -640,35 +604,53 @@ void mpiotf_start_tracing(const char* arguments)
 void mpiotf_stop_tracing(const char* arguments)
 {
 
-#if defined (OPENSS_OFFLINE)
-
-    tlsinfo.info.rank = OpenSS_mpi_rank;
-
-    /* For MPT add this check because we were hanging because this is a SGI MPT daemon process */
-    /* and not a ranked process.  So there is no data */
-    if(tls.data.events.events_len > 0) {
-
-#if defined (OPENSS_USE_FILEIO)
-       OpenSS_CreateOutfile("openss-info");
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
 #endif
-       OpenSS_Send(&(tlsinfo.header),
-		   (xdrproc_t)xdr_openss_expinfo,
-		   &(tlsinfo.info));
-    }
-#endif
+    Assert(tls != NULL);
 
     /* Send events if there are any remaining in the tracing buffer */
-    if(tls.data.events.events_len > 0)
-	mpiotf_send_events();
+    if(tls->data.events.events_len > 0)
+	mpiotf_send_events(tls);
 }
 
 bool_t mpiotf_do_trace(const char* traced_func)
 {
+
 #if defined (OPENSS_OFFLINE)
+
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    /* libmonitor can start tracing one of the traced functons
+     * immediately (even before the start_tracing function is
+     * called). i.e. when we do a pcsamp experiment the MPI_Init
+     * is traced and mpi_do_trace is called prior to having
+     * set up the initial TLS via mallocc and OpenSS_SetTLS. 
+     * Complicating this further is io tracing which also can
+     * start tracing before it's TLS is initialized.
+     * So we add a test to see if the collector TLS is initialized.
+     * mpi_init_tls_done, io_init_tls_done, etc. for iot.
+     * This is only an issue for collectors that must also trace
+     * MPI_Init to get the mpi rank information.
+     */
+    TLS* tls;
+    if (mpiotf_init_tls_done) {
+	tls = OpenSS_GetTLS(TLSKey);
+    } else {
+	return FALSE;
+    }
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     /* See if this function has been selected for tracing */
 
     char *tfptr, *saveptr, *tf_token;
-    tfptr = strdup(tls.mpiotf_traced);
+    tfptr = strdup(tls->mpiotf_traced);
     int i;
     for (i = 1;  ; i++, tfptr = NULL) {
 	tf_token = strtok_r(tfptr, ":,", &saveptr);
@@ -686,8 +668,8 @@ bool_t mpiotf_do_trace(const char* traced_func)
      * potentially nested iop calls that are not being traced.
      */
 
-    if (tls.nesting_depth > 1)
-	--tls.nesting_depth;
+    if (tls->nesting_depth > 1)
+	--tls->nesting_depth;
 
     return FALSE;
 #else

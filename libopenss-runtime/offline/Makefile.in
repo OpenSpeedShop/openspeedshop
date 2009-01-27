@@ -14,6 +14,25 @@
 
 @SET_MAKE@
 
+################################################################################
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2008 William Hachfeld. All Rights Reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
@@ -47,6 +66,7 @@ libopenss_runtime_offline_la_LIBADD =
 am__objects_1 = libopenss_runtime_offline_la-offline.lo
 am_libopenss_runtime_offline_la_OBJECTS = $(am__objects_1) \
 	libopenss_runtime_offline_la-offline_monitor.lo \
+	libopenss_runtime_offline_la-openss_send.lo \
 	libopenss_runtime_offline_la-OpenSS_GetDLInfo.lo \
 	libopenss_runtime_offline_la-OpenSS_InitializeParameters.lo
 libopenss_runtime_offline_la_OBJECTS =  \
@@ -88,25 +108,7 @@ BINUTILS_LDFLAGS = @BINUTILS_LDFLAGS@
 BINUTILS_LIBS = @BINUTILS_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
-
-################################################################################
-# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-#
-# This library is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Lesser General Public License as published by the Free
-# Software Foundation; either version 2.1 of the License, or (at your option)
-# any later version.
-#
-# This library is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with this library; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-################################################################################
-CFLAGS = -g -O0
+CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
@@ -345,6 +347,7 @@ libopenss_runtime_offline_la_CFLAGS = \
 libopenss_runtime_offline_la_SOURCES = \
 	offline.x $(BUILT_SOURCES) \
 	offline_monitor.c \
+	openss_send.c \
 	OpenSS_GetDLInfo.c \
 	OpenSS_InitializeParameters.c \
 	OpenSS_Offline.h
@@ -407,6 +410,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-OpenSS_InitializeParameters.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-offline_monitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopenss_runtime_offline_la-openss_send.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -442,6 +446,13 @@ libopenss_runtime_offline_la-offline_monitor.lo: offline_monitor.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='offline_monitor.c' object='libopenss_runtime_offline_la-offline_monitor.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_offline_la-offline_monitor.lo `test -f 'offline_monitor.c' || echo '$(srcdir)/'`offline_monitor.c
+
+libopenss_runtime_offline_la-openss_send.lo: openss_send.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_offline_la-openss_send.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_offline_la-openss_send.Tpo -c -o libopenss_runtime_offline_la-openss_send.lo `test -f 'openss_send.c' || echo '$(srcdir)/'`openss_send.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libopenss_runtime_offline_la-openss_send.Tpo $(DEPDIR)/libopenss_runtime_offline_la-openss_send.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='openss_send.c' object='libopenss_runtime_offline_la-openss_send.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -c -o libopenss_runtime_offline_la-openss_send.lo `test -f 'openss_send.c' || echo '$(srcdir)/'`openss_send.c
 
 libopenss_runtime_offline_la-OpenSS_GetDLInfo.lo: OpenSS_GetDLInfo.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) -MT libopenss_runtime_offline_la-OpenSS_GetDLInfo.lo -MD -MP -MF $(DEPDIR)/libopenss_runtime_offline_la-OpenSS_GetDLInfo.Tpo -c -o libopenss_runtime_offline_la-OpenSS_GetDLInfo.lo `test -f 'OpenSS_GetDLInfo.c' || echo '$(srcdir)/'`OpenSS_GetDLInfo.c

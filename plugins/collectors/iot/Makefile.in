@@ -76,11 +76,10 @@ am__installdirs = "$(DESTDIR)$(pkglibdir)"
 pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 @HAVE_LIBMONITOR_TRUE@iot_rt_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
-am__iot_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
-	iot_offline.c iot_offline.h wrappers.c runtime.h runtime.c
+am__iot_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
+	wrappers.c runtime.h runtime.c
 am__objects_1 = iot_rt_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_2 =  \
-@HAVE_LIBMONITOR_TRUE@	iot_rt_offline_la-iot_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_2 = iot_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_iot_rt_offline_la_OBJECTS = $(am__objects_1) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_2) \
 @HAVE_LIBMONITOR_TRUE@	iot_rt_offline_la-wrappers.lo \
@@ -111,11 +110,10 @@ iot_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(iot_la_CXXFLAGS) $(CXXFLAGS) \
 	$(iot_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@libiot_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
-am__libiot_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
-	iot_offline.c iot_offline.h wrappers.c runtime.h runtime.c
+am__libiot_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
+	wrappers.c runtime.h runtime.c
 am__objects_5 = libiot_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_6 =  \
-@HAVE_LIBMONITOR_TRUE@	libiot_offline_la-iot_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_6 = libiot_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_libiot_offline_la_OBJECTS = $(am__objects_5) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_6) \
 @HAVE_LIBMONITOR_TRUE@	libiot_offline_la-wrappers.lo \
@@ -400,7 +398,7 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES = iot.la $(am__append_1) $(am__append_2)
 @HAVE_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
-@HAVE_LIBMONITOR_TRUE@	iot_offline.c iot_offline.h
+@HAVE_LIBMONITOR_TRUE@	offline.c
 
 iot_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -582,11 +580,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/iot_rt_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/iot_rt_la-wrappers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/iot_rt_offline_la-blobs.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/iot_rt_offline_la-iot_offline.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/iot_rt_offline_la-offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/iot_rt_offline_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/iot_rt_offline_la-wrappers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libiot_offline_la-blobs.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libiot_offline_la-iot_offline.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libiot_offline_la-offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libiot_offline_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libiot_offline_la-wrappers.Plo@am__quote@
 
@@ -618,12 +616,12 @@ iot_rt_offline_la-blobs.lo: blobs.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(iot_rt_offline_la_CFLAGS) $(CFLAGS) -c -o iot_rt_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
 
-iot_rt_offline_la-iot_offline.lo: iot_offline.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(iot_rt_offline_la_CFLAGS) $(CFLAGS) -MT iot_rt_offline_la-iot_offline.lo -MD -MP -MF $(DEPDIR)/iot_rt_offline_la-iot_offline.Tpo -c -o iot_rt_offline_la-iot_offline.lo `test -f 'iot_offline.c' || echo '$(srcdir)/'`iot_offline.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/iot_rt_offline_la-iot_offline.Tpo $(DEPDIR)/iot_rt_offline_la-iot_offline.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='iot_offline.c' object='iot_rt_offline_la-iot_offline.lo' libtool=yes @AMDEPBACKSLASH@
+iot_rt_offline_la-offline.lo: offline.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(iot_rt_offline_la_CFLAGS) $(CFLAGS) -MT iot_rt_offline_la-offline.lo -MD -MP -MF $(DEPDIR)/iot_rt_offline_la-offline.Tpo -c -o iot_rt_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/iot_rt_offline_la-offline.Tpo $(DEPDIR)/iot_rt_offline_la-offline.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='offline.c' object='iot_rt_offline_la-offline.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(iot_rt_offline_la_CFLAGS) $(CFLAGS) -c -o iot_rt_offline_la-iot_offline.lo `test -f 'iot_offline.c' || echo '$(srcdir)/'`iot_offline.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(iot_rt_offline_la_CFLAGS) $(CFLAGS) -c -o iot_rt_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
 
 iot_rt_offline_la-wrappers.lo: wrappers.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(iot_rt_offline_la_CFLAGS) $(CFLAGS) -MT iot_rt_offline_la-wrappers.lo -MD -MP -MF $(DEPDIR)/iot_rt_offline_la-wrappers.Tpo -c -o iot_rt_offline_la-wrappers.lo `test -f 'wrappers.c' || echo '$(srcdir)/'`wrappers.c
@@ -667,12 +665,12 @@ libiot_offline_la-blobs.lo: blobs.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libiot_offline_la_CFLAGS) $(CFLAGS) -c -o libiot_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
 
-libiot_offline_la-iot_offline.lo: iot_offline.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libiot_offline_la_CFLAGS) $(CFLAGS) -MT libiot_offline_la-iot_offline.lo -MD -MP -MF $(DEPDIR)/libiot_offline_la-iot_offline.Tpo -c -o libiot_offline_la-iot_offline.lo `test -f 'iot_offline.c' || echo '$(srcdir)/'`iot_offline.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libiot_offline_la-iot_offline.Tpo $(DEPDIR)/libiot_offline_la-iot_offline.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='iot_offline.c' object='libiot_offline_la-iot_offline.lo' libtool=yes @AMDEPBACKSLASH@
+libiot_offline_la-offline.lo: offline.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libiot_offline_la_CFLAGS) $(CFLAGS) -MT libiot_offline_la-offline.lo -MD -MP -MF $(DEPDIR)/libiot_offline_la-offline.Tpo -c -o libiot_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libiot_offline_la-offline.Tpo $(DEPDIR)/libiot_offline_la-offline.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='offline.c' object='libiot_offline_la-offline.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libiot_offline_la_CFLAGS) $(CFLAGS) -c -o libiot_offline_la-iot_offline.lo `test -f 'iot_offline.c' || echo '$(srcdir)/'`iot_offline.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libiot_offline_la_CFLAGS) $(CFLAGS) -c -o libiot_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
 
 libiot_offline_la-wrappers.lo: wrappers.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libiot_offline_la_CFLAGS) $(CFLAGS) -MT libiot_offline_la-wrappers.lo -MD -MP -MF $(DEPDIR)/libiot_offline_la-wrappers.Tpo -c -o libiot_offline_la-wrappers.lo `test -f 'wrappers.c' || echo '$(srcdir)/'`wrappers.c

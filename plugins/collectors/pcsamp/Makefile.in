@@ -17,6 +17,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2006,2007 Krell Institute All Rights Reserved.
+# Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -32,8 +33,6 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-
-# Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
 
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
@@ -76,10 +75,9 @@ pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 @HAVE_LIBMONITOR_TRUE@libpcsamp_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
 am__libpcsamp_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
-	pcsamp_offline.c pcsamp_offline.h runtime.c
+	offline.c runtime.c
 am__objects_1 = libpcsamp_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_2 =  \
-@HAVE_LIBMONITOR_TRUE@	libpcsamp_offline_la-pcsamp_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_2 = libpcsamp_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_libpcsamp_offline_la_OBJECTS =  \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_1) $(am__objects_2) \
 @HAVE_LIBMONITOR_TRUE@	libpcsamp_offline_la-runtime.lo
@@ -92,10 +90,9 @@ libpcsamp_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @HAVE_LIBMONITOR_TRUE@	$(pkglibdir)
 @HAVE_LIBMONITOR_TRUE@pcsamp_rt_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
 am__pcsamp_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
-	pcsamp_offline.c pcsamp_offline.h runtime.c
+	offline.c runtime.c
 am__objects_3 = pcsamp_rt_offline_la-blobs.lo
-@HAVE_LIBMONITOR_TRUE@am__objects_4 =  \
-@HAVE_LIBMONITOR_TRUE@	pcsamp_rt_offline_la-pcsamp_offline.lo
+@HAVE_LIBMONITOR_TRUE@am__objects_4 = pcsamp_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_pcsamp_rt_offline_la_OBJECTS =  \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_3) $(am__objects_4) \
 @HAVE_LIBMONITOR_TRUE@	pcsamp_rt_offline_la-runtime.lo
@@ -169,7 +166,7 @@ BINUTILS_LDFLAGS = @BINUTILS_LDFLAGS@
 BINUTILS_LIBS = @BINUTILS_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
-CFLAGS = -g -O0
+CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
@@ -398,7 +395,7 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES = pcsamp.la $(am__append_1) $(am__append_2)
 @HAVE_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
-@HAVE_LIBMONITOR_TRUE@	pcsamp_offline.c pcsamp_offline.h
+@HAVE_LIBMONITOR_TRUE@	offline.c
 
 pcsamp_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -561,13 +558,13 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blobs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpcsamp_offline_la-blobs.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpcsamp_offline_la-pcsamp_offline.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpcsamp_offline_la-offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpcsamp_offline_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pcsamp_la-PCSampCollector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pcsamp_rt_la-blobs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pcsamp_rt_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pcsamp_rt_offline_la-blobs.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pcsamp_rt_offline_la-pcsamp_offline.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pcsamp_rt_offline_la-offline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pcsamp_rt_offline_la-runtime.Plo@am__quote@
 
 .c.o:
@@ -598,12 +595,12 @@ libpcsamp_offline_la-blobs.lo: blobs.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcsamp_offline_la_CFLAGS) $(CFLAGS) -c -o libpcsamp_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
 
-libpcsamp_offline_la-pcsamp_offline.lo: pcsamp_offline.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcsamp_offline_la_CFLAGS) $(CFLAGS) -MT libpcsamp_offline_la-pcsamp_offline.lo -MD -MP -MF $(DEPDIR)/libpcsamp_offline_la-pcsamp_offline.Tpo -c -o libpcsamp_offline_la-pcsamp_offline.lo `test -f 'pcsamp_offline.c' || echo '$(srcdir)/'`pcsamp_offline.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libpcsamp_offline_la-pcsamp_offline.Tpo $(DEPDIR)/libpcsamp_offline_la-pcsamp_offline.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pcsamp_offline.c' object='libpcsamp_offline_la-pcsamp_offline.lo' libtool=yes @AMDEPBACKSLASH@
+libpcsamp_offline_la-offline.lo: offline.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcsamp_offline_la_CFLAGS) $(CFLAGS) -MT libpcsamp_offline_la-offline.lo -MD -MP -MF $(DEPDIR)/libpcsamp_offline_la-offline.Tpo -c -o libpcsamp_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libpcsamp_offline_la-offline.Tpo $(DEPDIR)/libpcsamp_offline_la-offline.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='offline.c' object='libpcsamp_offline_la-offline.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcsamp_offline_la_CFLAGS) $(CFLAGS) -c -o libpcsamp_offline_la-pcsamp_offline.lo `test -f 'pcsamp_offline.c' || echo '$(srcdir)/'`pcsamp_offline.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcsamp_offline_la_CFLAGS) $(CFLAGS) -c -o libpcsamp_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
 
 libpcsamp_offline_la-runtime.lo: runtime.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcsamp_offline_la_CFLAGS) $(CFLAGS) -MT libpcsamp_offline_la-runtime.lo -MD -MP -MF $(DEPDIR)/libpcsamp_offline_la-runtime.Tpo -c -o libpcsamp_offline_la-runtime.lo `test -f 'runtime.c' || echo '$(srcdir)/'`runtime.c
@@ -619,12 +616,12 @@ pcsamp_rt_offline_la-blobs.lo: blobs.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pcsamp_rt_offline_la_CFLAGS) $(CFLAGS) -c -o pcsamp_rt_offline_la-blobs.lo `test -f 'blobs.c' || echo '$(srcdir)/'`blobs.c
 
-pcsamp_rt_offline_la-pcsamp_offline.lo: pcsamp_offline.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pcsamp_rt_offline_la_CFLAGS) $(CFLAGS) -MT pcsamp_rt_offline_la-pcsamp_offline.lo -MD -MP -MF $(DEPDIR)/pcsamp_rt_offline_la-pcsamp_offline.Tpo -c -o pcsamp_rt_offline_la-pcsamp_offline.lo `test -f 'pcsamp_offline.c' || echo '$(srcdir)/'`pcsamp_offline.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pcsamp_rt_offline_la-pcsamp_offline.Tpo $(DEPDIR)/pcsamp_rt_offline_la-pcsamp_offline.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pcsamp_offline.c' object='pcsamp_rt_offline_la-pcsamp_offline.lo' libtool=yes @AMDEPBACKSLASH@
+pcsamp_rt_offline_la-offline.lo: offline.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pcsamp_rt_offline_la_CFLAGS) $(CFLAGS) -MT pcsamp_rt_offline_la-offline.lo -MD -MP -MF $(DEPDIR)/pcsamp_rt_offline_la-offline.Tpo -c -o pcsamp_rt_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pcsamp_rt_offline_la-offline.Tpo $(DEPDIR)/pcsamp_rt_offline_la-offline.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='offline.c' object='pcsamp_rt_offline_la-offline.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pcsamp_rt_offline_la_CFLAGS) $(CFLAGS) -c -o pcsamp_rt_offline_la-pcsamp_offline.lo `test -f 'pcsamp_offline.c' || echo '$(srcdir)/'`pcsamp_offline.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pcsamp_rt_offline_la_CFLAGS) $(CFLAGS) -c -o pcsamp_rt_offline_la-offline.lo `test -f 'offline.c' || echo '$(srcdir)/'`offline.c
 
 pcsamp_rt_offline_la-runtime.lo: runtime.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pcsamp_rt_offline_la_CFLAGS) $(CFLAGS) -MT pcsamp_rt_offline_la-runtime.lo -MD -MP -MF $(DEPDIR)/pcsamp_rt_offline_la-runtime.Tpo -c -o pcsamp_rt_offline_la-runtime.lo `test -f 'runtime.c' || echo '$(srcdir)/'`runtime.c

@@ -156,4 +156,4 @@ case "$collector" in
     export LD_PRELOAD=${oss_plugins}/$collector-rt-offline.so:${preload_files}:${libmonitor}
     ;;
 esac
-$1
+exec $1
