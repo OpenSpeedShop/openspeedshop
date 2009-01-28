@@ -1,0 +1,178 @@
+/* config.h.in.  Generated from configure.ac by autoheader.  */
+
+
+/*******************************************************************************
+** Copyright (c) 2008 Krell Institute. All Rights Reserved.
+**
+** This library is free software; you can redistribute it and/or modify it under
+** the terms of the GNU Lesser General Public License as published by the Free
+** Software Foundation; either version 2.1 of the License, or (at your option)
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but WITHOUT
+** ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+** FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+** details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation, Inc.,
+** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*******************************************************************************/
+
+
+/* Names of all MPI Implementations */
+#undef ALL_MPI_IMPL_NAMES
+
+/* Define to 1 if you only want the dpcl instrumentor. */
+#undef BUILD_DPCL
+
+/* Define to 1 if you only want the mrnet instrumentor. */
+#undef BUILD_MRNET
+
+/* Define to 1 if you only want the offline instrumentor. */
+#undef BUILD_OFFLINE
+
+/* Name of default MPI Implementation */
+#undef DEFAULT_MPI_IMPL_NAME
+
+/* Define to 1 if you have array services. */
+#undef HAVE_ARRAYSVCS
+
+/* Define to 1 if you have BINUTILS. */
+#undef HAVE_BINUTILS
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* Define to 1 if you have DPCL. */
+#undef HAVE_DPCL
+
+/* Define to 1 if you have Dyninst. */
+#undef HAVE_DYNINST
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have LAM. */
+#undef HAVE_LAM
+
+/* Define to 1 if you have LAMPI. */
+#undef HAVE_LAMPI
+
+/* Define to 0 if you do not have LIBDWARF. */
+#undef HAVE_LIBDWARF
+
+/* Define to 1 if you have libmonitor. */
+#undef HAVE_LIBMONITOR
+
+/* Define to 1 if you have libunwind. */
+#undef HAVE_LIBUNWIND
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 if you have MPI. */
+#undef HAVE_MPI
+
+/* Define to 1 if you have MPICH. */
+#undef HAVE_MPICH
+
+/* Define to 1 if you have MPICH. */
+#undef HAVE_MPICH2
+
+/* Define to 1 if you have MPT. */
+#undef HAVE_MPT
+
+/* Define to 1 if you have MRNet. */
+#undef HAVE_MRNET
+
+/* Define to 1 if you have MPICH. */
+#undef HAVE_MVAPICH
+
+/* Define to 1 if you have MVAPICH2. */
+#undef HAVE_MVAPICH2
+
+/* Define to 1 if you have OpenMP. */
+#undef HAVE_OPENMP
+
+/* Define to 1 if you have OpenMPI. */
+#undef HAVE_OPENMPI
+
+/* Define to 1 if you have OTF. */
+#undef HAVE_OTF
+
+/* Define to 1 if you have PAPI. */
+#undef HAVE_PAPI
+
+/* Define to 1 if you have POSIX threads. */
+#undef HAVE_POSIX_THREADS
+
+/* Define to 1 if you have Qt library 3.3 > */
+#undef HAVE_QTLIB
+
+/* Define to 1 if you have SQLite. */
+#undef HAVE_SQLITE
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define to 1 if you have VT. */
+#undef HAVE_VT
+
+/* Define to 1 if you have XERCES. */
+#undef HAVE_XERCES
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Define to 1 if you want to use an explicit TLS implementation instead of
+   the __thread keyword. */
+#undef USE_EXPLICIT_TLS
+
+/* Version number of package */
+#undef VERSION
+
+/* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
+   `char[]'. */
+#undef YYTEXT_POINTER
+
+/* Enable GNU extensions on systems that have them.  */
+#ifndef _GNU_SOURCE
+# undef _GNU_SOURCE
+#endif

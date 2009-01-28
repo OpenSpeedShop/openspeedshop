@@ -65,7 +65,7 @@ am_mutatee_OBJECTS = mutatee.$(OBJEXT)
 mutatee_OBJECTS = $(am_mutatee_OBJECTS)
 mutatee_DEPENDENCIES =
 DEFAULT_INCLUDES = -I.@am__isrc@
-depcomp = $(SHELL) $(top_srcdir)/../../depcomp
+depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)

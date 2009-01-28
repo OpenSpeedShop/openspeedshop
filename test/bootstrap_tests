@@ -1,0 +1,78 @@
+#! /bin/sh
+################################################################################
+# Copyright (c) 2009 Krell Institute.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+echo "running bootstrap on top level test directory"
+
+chmod 755 executables/configure
+chmod 755 executables/mpi/configure
+chmod 755 src/dyninst/configure
+chmod 644 src/dyninst/libltdl.tar.gz
+chmod 755 src/regression/configure
+chmod 644 libltdl.tar.gz
+chmod 755 configure
+
+aclocal
+libtoolize --force --ltdl-tar --copy
+autoheader -f
+automake --foreign --add-missing --copy
+autoconf
+#
+
+#
+# configure src/regression 
+#
+echo "running bootstrap on src/regression"
+cd src/regression
+aclocal
+automake --foreign --add-missing --copy
+autoconf
+cd ../..
+
+#
+# configure executables to allow for alternative compilers
+#
+echo "running bootstrap on executables"
+cd executables
+aclocal
+automake --foreign --add-missing --copy
+autoconf
+cd ..
+#
+# configure mpi executables to allow for alternative compilers
+#
+echo "running bootstrap on executables/mpi"
+cd executables/mpi
+aclocal
+automake --foreign --add-missing --copy
+autoconf
+cd ../..
+#
+# configure dyninst tests for alternative installs of dyninst
+#
+echo "running bootstrap on src/dyninst"
+cd src/dyninst
+aclocal
+libtoolize --force --ltdl-tar --copy
+automake --foreign --add-missing --copy
+autoconf
+cd ../..
+
+
+echo "finished - running bootstrap on src/regression directory"
+
