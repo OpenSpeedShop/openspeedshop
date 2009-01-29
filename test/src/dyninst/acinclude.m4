@@ -17,7 +17,6 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-
 ################################################################################
 # Check for Dyninst (http://www.dyninst.org)
 # This is only used for configuring for the dyninst tests
