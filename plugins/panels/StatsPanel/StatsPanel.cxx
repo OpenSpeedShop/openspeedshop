@@ -43,7 +43,7 @@
 #include <qdockarea.h>
 #include <qbutton.h>
 #include <qpushbutton.h>
-#include <map.h>
+#include <map>
 
 #include <qpixmap.h>
 #include "functions.xpm"
