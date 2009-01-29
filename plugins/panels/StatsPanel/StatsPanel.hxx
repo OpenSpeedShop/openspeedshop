@@ -25,6 +25,7 @@
 #include "CollectorListObject.hxx"
 #include "GenericProgressDialog.hxx"
 #include "SelectTimeSegmentDialog.hxx"
+#include "OptionalViewsDialog.hxx"
 
 #include "ToolAPI.hxx"
 #include "Queries.hxx"
@@ -139,6 +140,21 @@ class StatsPanel  : public Panel
 
     //! Calls the user panel function listener() request.
     int listener(void *msg);
+ 
+    void generatePCSAMPmodifiers();
+    void generateUSERTIMEmodifiers();
+    void generateHWCmodifiers();
+    void generateHWCTIMEmodifiers();
+    void generateIOmodifiers();
+    void generateIOTmodifiers();
+    void generateMPImodifiers();
+    void generateMPITmodifiers();
+    void generateFPEmodifiers();
+
+    void updateCurrentModifierList( std::list<std::string> genericModifierList,
+                                    std::list<std::string> *currentSelectedModifierList,
+                                    std::map<std::string, bool> newDesiredModifierList);
+
 
     //! Adds use panel menus (if any).
     virtual bool menu(QPopupMenu* contextMenu);
@@ -150,6 +166,7 @@ class StatsPanel  : public Panel
     void process_clip(InputLineObject *statspanel_clip, HighlightList *highlightList, bool dumpClipFLAG);
     GenericProgressDialog *pd;
     SelectTimeSegmentDialog *timeSegmentDialog;
+    OptionalViewsDialog *optionalViewsDialog;
     QString timeIntervalString;
     QString prevTimeIntervalString;
     QTimer *progressTimer;
@@ -157,6 +174,7 @@ class StatsPanel  : public Panel
     bool absDiffFLAG;
     void insertDiffColumn(int insertAtIndex=0);
     void removeDiffColumn(int removeIndex);
+
 
     int focusedExpID;
     int focusedCompareExpID;
@@ -284,6 +302,17 @@ class StatsPanel  : public Panel
     bool MPItraceFLAG;
     bool IOtraceFLAG;
     PanelContainer* thisPC;
+
+    bool getAdvancedToolBar()
+    {
+       return advancedToolBar;
+    }
+
+    bool setAdvancedToolBar(bool flag)
+    {
+       advancedToolBar = flag;
+    }
+
 
     bool isHeaderInfoAlreadyProcessed(int exp_id)
     {
@@ -459,6 +488,7 @@ class StatsPanel  : public Panel
     void setOrientation();
 
     void timeSliceSelected();
+    void optionalViewsCreationSelected();
 
   private:
     QString getMostImportantClusterMetric(QString collector_name);
@@ -503,6 +533,7 @@ class StatsPanel  : public Panel
     void raisePreferencePanel();
 
     int levelsToOpen;
+    bool advancedToolBar;
 
     int steps;
 

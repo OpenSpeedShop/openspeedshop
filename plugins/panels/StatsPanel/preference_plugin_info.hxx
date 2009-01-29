@@ -78,6 +78,7 @@ extern "C"
 
   QHBoxLayout* layoutSkyline;
   QCheckBox* showToolbarCheckBox;
+  QCheckBox* advancedToolbarCheckBox;
   QCheckBox* showMetadataCheckBox;
   QCheckBox* showSkylineCheckBox;
   QLabel* showSkylineLabel;
@@ -150,6 +151,12 @@ extern "C"
     return( chartTypeComboBox->currentItem() );
   }
 
+  bool getPreferenceAdvancedToolbarCheckBox()
+  {
+// printf("getPreferenceAdvancedToolbarCheckBox(%s)\n", pname);
+    return( advancedToolbarCheckBox->isChecked() );
+  }
+
   bool getPreferenceShowToolbarCheckBox()
   {
 // printf("getPreferenceShowToolbarCheckBox(%s)\n", pname);
@@ -192,6 +199,7 @@ extern "C"
     showTextByPercentCheckBox->setChecked(TRUE);
     showTextByLocationCheckBox->setChecked(FALSE);
     chartTypeComboBox->setCurrentItem(2);
+    advancedToolbarCheckBox->setChecked(FALSE);
     showToolbarCheckBox->setChecked(TRUE);
     showMetadataCheckBox->setChecked(TRUE);
     showSkylineCheckBox->setChecked(FALSE);
@@ -301,6 +309,11 @@ extern "C"
     showToolbarCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showToolbarCheckBox->sizePolicy().hasHeightForWidth() ) );
     layout8->addWidget( showToolbarCheckBox );
 
+    advancedToolbarCheckBox =
+      new QCheckBox( statsPanelGroupBox, "advancedToolbarCheckBox" );
+    advancedToolbarCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, advancedToolbarCheckBox->sizePolicy().hasHeightForWidth() ) );
+    layout8->addWidget( advancedToolbarCheckBox );
+
     showMetadataCheckBox =
       new QCheckBox( statsPanelGroupBox, "showMetadataCheckBox" );
     showMetadataCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showMetadataCheckBox->sizePolicy().hasHeightForWidth() ) );
@@ -365,6 +378,7 @@ extern "C"
     showTextByPercentCheckBox->setText( "  Show text by percent:" );
     showTextByLocationCheckBox->setText( "  Show text by location:" );
     showToolbarCheckBox->setText( "  Show display option toolbar:" );
+    advancedToolbarCheckBox->setText( "  Show the advanced display option toolbar:" );
     showMetadataCheckBox->setText( "  Show expanded experiment metadata information::" );
     showSkylineCheckBox->setText( "  Show skyline view in time dialog:" );
 
@@ -431,6 +445,11 @@ extern "C"
         "openspeedshop", name, showToolbarCheckBox->name() );
       showToolbarCheckBox->setChecked(
         settings->readBoolEntry(settings_buffer, TRUE) );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, advancedToolbarCheckBox->name() );
+      advancedToolbarCheckBox->setChecked(
+        settings->readBoolEntry(settings_buffer, FALSE) );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showMetadataCheckBox->name() );
@@ -510,6 +529,10 @@ extern "C"
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showToolbarCheckBox->name() );
     settings->writeEntry(settings_buffer, showToolbarCheckBox->isChecked() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, advancedToolbarCheckBox->name() );
+    settings->writeEntry(settings_buffer, advancedToolbarCheckBox->isChecked() );
 
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showMetadataCheckBox->name() );

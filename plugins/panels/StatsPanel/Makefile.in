@@ -80,6 +80,8 @@ am_StatsPanel_la_OBJECTS = StatsPanel_la-SPChartForm.lo \
 	StatsPanel_la-moc_SPChartForm.lo StatsPanel_la-SPCheckBox.lo \
 	StatsPanel_la-moc_SPCheckBox.lo \
 	StatsPanel_la-SPListViewItem.lo StatsPanel_la-SPListView.lo \
+	StatsPanel_la-OptionalViewsDialog.lo \
+	StatsPanel_la-moc_OptionalViewsDialog.lo \
 	StatsPanel_la-StatsPanel.lo StatsPanel_la-moc_StatsPanel.lo \
 	StatsPanel_la-SPTextEdit.lo StatsPanel_la-moc_SPTextEdit.lo
 StatsPanel_la_OBJECTS = $(am_StatsPanel_la_OBJECTS)
@@ -391,6 +393,8 @@ StatsPanel_la_SOURCES = \
 	SPCheckBox.hxx SPCheckBox.cxx moc_SPCheckBox.cxx \
 	SPListViewItem.hxx SPListViewItem.cxx \
 	SPListView.hxx SPListView.cxx \
+	OptionalViewsDialog.hxx OptionalViewsDialog.cxx \
+	moc_OptionalViewsDialog.cxx  \
 	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
 	SPTextEdit.hxx SPTextEdit.cxx moc_SPTextEdit.cxx \
 	local_plugin_info.hxx \
@@ -400,6 +404,7 @@ CLEANFILES = \
 	moc_SPChartForm.cxx \
 	moc_SPCheckBox.cxx \
 	moc_StatsPanel.cxx \
+	moc_OptionalViewsDialog.cxx \
 	moc_SPTextEdit.cxx
 
 all: all-am
@@ -471,12 +476,14 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-OptionalViewsDialog.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-SPChartForm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-SPCheckBox.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-SPListView.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-SPListViewItem.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-SPTextEdit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-StatsPanel.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-moc_OptionalViewsDialog.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-moc_SPChartForm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-moc_SPCheckBox.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StatsPanel_la-moc_SPTextEdit.Plo@am__quote@
@@ -544,6 +551,20 @@ StatsPanel_la-SPListView.lo: SPListView.cxx
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SPListView.cxx' object='StatsPanel_la-SPListView.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(StatsPanel_la_CXXFLAGS) $(CXXFLAGS) -c -o StatsPanel_la-SPListView.lo `test -f 'SPListView.cxx' || echo '$(srcdir)/'`SPListView.cxx
+
+StatsPanel_la-OptionalViewsDialog.lo: OptionalViewsDialog.cxx
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(StatsPanel_la_CXXFLAGS) $(CXXFLAGS) -MT StatsPanel_la-OptionalViewsDialog.lo -MD -MP -MF $(DEPDIR)/StatsPanel_la-OptionalViewsDialog.Tpo -c -o StatsPanel_la-OptionalViewsDialog.lo `test -f 'OptionalViewsDialog.cxx' || echo '$(srcdir)/'`OptionalViewsDialog.cxx
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/StatsPanel_la-OptionalViewsDialog.Tpo $(DEPDIR)/StatsPanel_la-OptionalViewsDialog.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='OptionalViewsDialog.cxx' object='StatsPanel_la-OptionalViewsDialog.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(StatsPanel_la_CXXFLAGS) $(CXXFLAGS) -c -o StatsPanel_la-OptionalViewsDialog.lo `test -f 'OptionalViewsDialog.cxx' || echo '$(srcdir)/'`OptionalViewsDialog.cxx
+
+StatsPanel_la-moc_OptionalViewsDialog.lo: moc_OptionalViewsDialog.cxx
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(StatsPanel_la_CXXFLAGS) $(CXXFLAGS) -MT StatsPanel_la-moc_OptionalViewsDialog.lo -MD -MP -MF $(DEPDIR)/StatsPanel_la-moc_OptionalViewsDialog.Tpo -c -o StatsPanel_la-moc_OptionalViewsDialog.lo `test -f 'moc_OptionalViewsDialog.cxx' || echo '$(srcdir)/'`moc_OptionalViewsDialog.cxx
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/StatsPanel_la-moc_OptionalViewsDialog.Tpo $(DEPDIR)/StatsPanel_la-moc_OptionalViewsDialog.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='moc_OptionalViewsDialog.cxx' object='StatsPanel_la-moc_OptionalViewsDialog.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(StatsPanel_la_CXXFLAGS) $(CXXFLAGS) -c -o StatsPanel_la-moc_OptionalViewsDialog.lo `test -f 'moc_OptionalViewsDialog.cxx' || echo '$(srcdir)/'`moc_OptionalViewsDialog.cxx
 
 StatsPanel_la-StatsPanel.lo: StatsPanel.cxx
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(StatsPanel_la_CXXFLAGS) $(CXXFLAGS) -MT StatsPanel_la-StatsPanel.lo -MD -MP -MF $(DEPDIR)/StatsPanel_la-StatsPanel.Tpo -c -o StatsPanel_la-StatsPanel.lo `test -f 'StatsPanel.cxx' || echo '$(srcdir)/'`StatsPanel.cxx
@@ -768,6 +789,9 @@ moc_SPCheckBox.cxx: SPCheckBox.hxx
 
 moc_StatsPanel.cxx: StatsPanel.hxx
 	-$(QTLIB_HOME)/bin/moc -o moc_StatsPanel.cxx StatsPanel.hxx
+
+moc_OptionalViewsDialog.cxx: OptionalViewsDialog.hxx OptionalViewsDialog.cxx
+	-$(QTLIB_HOME)/bin/moc -o moc_OptionalViewsDialog.cxx OptionalViewsDialog.hxx
 
 moc_SPTextEdit.cxx: SPTextEdit.hxx
 	-$(QTLIB_HOME)/bin/moc -o moc_SPTextEdit.cxx SPTextEdit.hxx

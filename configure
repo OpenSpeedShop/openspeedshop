@@ -20596,11 +20596,6 @@ else
   USE_EXPLICIT_TLS_FALSE=
 fi
 
-
-cat >>confdefs.h <<\_ACEOF
-#define USE_EXPLICIT_TLS 0
-_ACEOF
-
 	;;
 
     explicit)

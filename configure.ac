@@ -119,7 +119,6 @@ AC_ARG_WITH(tls,
 case "$TLS" in
     implicit)
 	AM_CONDITIONAL(USE_EXPLICIT_TLS, false)
-	AC_DEFINE(USE_EXPLICIT_TLS, 0, [Define to 0 if you want to use implicit tls, i.e. the __thread keyword.])
 	;; 
 
     explicit)

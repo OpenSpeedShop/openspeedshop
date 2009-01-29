@@ -58,6 +58,8 @@ StatsPanel_la_SOURCES = \
 	SPCheckBox.hxx SPCheckBox.cxx moc_SPCheckBox.cxx \
 	SPListViewItem.hxx SPListViewItem.cxx \
 	SPListView.hxx SPListView.cxx \
+	OptionalViewsDialog.hxx OptionalViewsDialog.cxx \
+	moc_OptionalViewsDialog.cxx  \
 	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
 	SPTextEdit.hxx SPTextEdit.cxx moc_SPTextEdit.cxx \
 	local_plugin_info.hxx \
@@ -72,6 +74,9 @@ moc_SPCheckBox.cxx: SPCheckBox.hxx
 moc_StatsPanel.cxx: StatsPanel.hxx
 	-$(QTLIB_HOME)/bin/moc -o moc_StatsPanel.cxx StatsPanel.hxx
 
+moc_OptionalViewsDialog.cxx: OptionalViewsDialog.hxx OptionalViewsDialog.cxx
+	-$(QTLIB_HOME)/bin/moc -o moc_OptionalViewsDialog.cxx OptionalViewsDialog.hxx
+
 moc_SPTextEdit.cxx: SPTextEdit.hxx
 	-$(QTLIB_HOME)/bin/moc -o moc_SPTextEdit.cxx SPTextEdit.hxx
 
@@ -79,4 +84,5 @@ CLEANFILES = \
 	moc_SPChartForm.cxx \
 	moc_SPCheckBox.cxx \
 	moc_StatsPanel.cxx \
+	moc_OptionalViewsDialog.cxx \
 	moc_SPTextEdit.cxx
