@@ -32,6 +32,7 @@ libtoolize --force --ltdl-tar --copy
 autoheader -f
 automake --foreign --add-missing --copy
 autoconf
+echo "finished - running bootstrap on top (test) directory"
 #
 
 #
@@ -42,6 +43,7 @@ cd src/regression
 aclocal
 automake --foreign --add-missing --copy
 autoconf
+echo "finished - running bootstrap on src/regression directory"
 cd ../..
 
 #
@@ -52,6 +54,7 @@ cd executables
 aclocal
 automake --foreign --add-missing --copy
 autoconf
+echo "finished - running bootstrap on executables directory"
 cd ..
 #
 # configure mpi executables to allow for alternative compilers
@@ -61,12 +64,14 @@ cd executables/mpi
 aclocal
 automake --foreign --add-missing --copy
 autoconf
+echo "finished - running bootstrap on executables/mpi directory"
 cd ../..
 #
 # configure dyninst tests for alternative installs of dyninst
 #
 echo "running bootstrap on src/dyninst"
 cd src/dyninst
+
 aclocal
 libtoolize --force --ltdl-tar --copy
 automake --foreign --add-missing --copy
@@ -74,5 +79,5 @@ autoconf
 cd ../..
 
 
-echo "finished - running bootstrap on src/regression directory"
+echo "finished - running bootstrap on src/dyninst directory"
 

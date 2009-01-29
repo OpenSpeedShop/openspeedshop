@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2009 Krell Institute All Rights Reserved.
-# Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2006-2009 Krell Institute   All Rights Reserved.
+# Copyright (c) 2007-2008 William Hachfeld. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -19,7 +19,7 @@
 ################################################################################
 
 AC_INIT(OpenSpeedShop, 1.9.2)
-AC_COPYRIGHT([[Copyright (c) 2008 Krell Institute. All Rights Reserved.]])
+AC_COPYRIGHT([[Copyright (c) 2009 Krell Institute. All Rights Reserved.]])
 AM_INIT_AUTOMAKE
 
 ################################################################################
@@ -65,10 +65,10 @@ AC_SUBST(LIBLTDL)
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
 AC_CONFIG_SUBDIRS(libltdl)
+AC_CONFIG_SUBDIRS(src/dyninst)
 AC_CONFIG_SUBDIRS(executables)
 AC_CONFIG_SUBDIRS(executables/mpi)
 AC_CONFIG_SUBDIRS(src/regression)
-AC_CONFIG_SUBDIRS(src/dyninst)
 
 AC_PATH_PROG([DOXYGEN], doxygen)
 AC_PROG_INSTALL

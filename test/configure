@@ -7,7 +7,7 @@
 # This configure script is free software; the Free Software Foundation
 # gives unlimited permission to copy, distribute and modify it.
 #
-# Copyright (c) 2008 Krell Institute. All Rights Reserved.
+# Copyright (c) 2009 Krell Institute. All Rights Reserved.
 ## --------------------- ##
 ## M4sh Initialization.  ##
 ## --------------------- ##
@@ -1074,10 +1074,10 @@ YACC
 YFLAGS
 PYTHON_VERSION'
 ac_subdirs_all='libltdl
+src/dyninst
 executables
 executables/mpi
-src/regression
-src/dyninst'
+src/regression'
 
 # Initialize some variables set by options.
 ac_init_help=
@@ -1803,7 +1803,7 @@ Copyright (C) 1992, 1993, 1994, 1995, 1996, 1998, 1999, 2000, 2001,
 This configure script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it.
 
-Copyright (c) 2008 Krell Institute. All Rights Reserved.
+Copyright (c) 2009 Krell Institute. All Rights Reserved.
 _ACEOF
   exit
 fi
@@ -19930,13 +19930,13 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 subdirs="$subdirs libltdl"
 
+subdirs="$subdirs src/dyninst"
+
 subdirs="$subdirs executables"
 
 subdirs="$subdirs executables/mpi"
 
 subdirs="$subdirs src/regression"
-
-subdirs="$subdirs src/dyninst"
 
 
 # Extract the first word of "doxygen", so it can be a program name with args.
