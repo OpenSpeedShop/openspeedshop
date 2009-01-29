@@ -58,6 +58,15 @@ AC_PROG_CXX
 AC_PROG_FC
 AC_PROG_F77
 
+if test "$ac_cv_f77_compiler_gnu" = no; then
+        AM_CONDITIONAL(HAVE_F77, false)
+        AC_DEFINE(HAVE_F77, 0, [Define to 0 if you do not have F77.])
+else
+        AM_CONDITIONAL(HAVE_F77, true)
+        AC_DEFINE(HAVE_F77, 1, [Define to 1 if you have F77.])
+fi
+
+
 AC_DISABLE_STATIC
 AC_LIBLTDL_INSTALLABLE
 AC_SUBST(LTDLINCL)
@@ -65,11 +74,6 @@ AC_SUBST(LIBLTDL)
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
 AC_CONFIG_SUBDIRS(libltdl)
-AC_CONFIG_SUBDIRS(src/dyninst)
-AC_CONFIG_SUBDIRS(executables)
-AC_CONFIG_SUBDIRS(executables/mpi)
-AC_CONFIG_SUBDIRS(src/regression)
-
 AC_PATH_PROG([DOXYGEN], doxygen)
 AC_PROG_INSTALL
 AC_PROG_LEX
@@ -214,7 +218,31 @@ AC_SUBST(INSTRUMENTOR)
 
 AC_CONFIG_FILES(
 	Makefile
-	test_scripts/Makefile
+        executables/Makefile
+        executables/forever/Makefile
+        executables/forever_cxx/Makefile
+        executables/fpetest/Makefile
+        executables/fpetest_attach/Makefile
+        executables/fpe_print/Makefile
+        executables/fredO2/Makefile
+        executables/fred/Makefile
+        executables/mutatee/Makefile
+        executables/mutatee/c_version/Makefile
+        executables/mutatee/cplus_version/Makefile
+        executables/mutatee/f77_version/Makefile
+        executables/mutatee/io_c_version/Makefile
+        executables/Eon/Makefile
+        executables/dlopen/Makefile
+        executables/deep_callpath/Makefile
+        executables/threads/Makefile
+        executables/mpi/Makefile
+        executables/mpi/smg2000/Makefile
+        executables/mpi/smg2000/krylov/Makefile
+        executables/mpi/smg2000/struct_ls/Makefile
+        executables/mpi/smg2000/struct_mv/Makefile
+        executables/mpi/smg2000/utilities/Makefile
+        executables/mpi/smg2000/test/Makefile
+        executables/mpi/nbody/Makefile
 	src/Makefile
 	src/dpcl/Makefile
 	src/dpcl/one_shot/Makefile
@@ -232,6 +260,145 @@ AC_CONFIG_FILES(
 	src/dyninst/findPoint/Makefile
 	src/dyninst/fpe/Makefile
 	src/dyninst/exitpt/Makefile
+        src/regression/Makefile
+        src/regression/bb/Makefile
+        src/regression/bb/close/Makefile
+        src/regression/bb/close/close1/Makefile
+        src/regression/bb/close/close2/Makefile
+        src/regression/bb/close/close3/Makefile
+        src/regression/bb/close/close4/Makefile
+        src/regression/bb/close/close5/Makefile
+        src/regression/bb/detach/Makefile
+        src/regression/bb/detach/detach1/Makefile
+        src/regression/bb/detach/detach2/Makefile
+        src/regression/bb/detach/detach3/Makefile
+        src/regression/bb/detach/detach4/Makefile
+        src/regression/bb/detach/detach5/Makefile
+        src/regression/bb/disable/Makefile
+        src/regression/bb/disable/disable1/Makefile
+        src/regression/bb/disable/disable2/Makefile
+        src/regression/bb/disable/disable3/Makefile
+        src/regression/bb/disable/disable4/Makefile
+        src/regression/bb/disable/disable5/Makefile
+        src/regression/bb/enable/Makefile
+        src/regression/bb/enable/enable1/Makefile
+        src/regression/bb/enable/enable2/Makefile
+        src/regression/bb/enable/enable3/Makefile
+        src/regression/bb/enable/enable4/Makefile
+        src/regression/bb/enable/enable5/Makefile
+        src/regression/bb/focus/Makefile
+        src/regression/bb/focus/focus1/Makefile
+        src/regression/bb/focus/focus2/Makefile
+        src/regression/bb/focus/focus3/Makefile
+        src/regression/bb/focus/focus4/Makefile
+        src/regression/bb/focus/focus5/Makefile
+        src/regression/bb/pause/Makefile
+        src/regression/bb/pause/pause1/Makefile
+        src/regression/bb/pause/pause2/Makefile
+        src/regression/bb/pause/pause3/Makefile
+        src/regression/bb/pause/pause4/Makefile
+        src/regression/bb/pause/pause5/Makefile
+        src/regression/bb/restore/Makefile
+        src/regression/bb/restore/restore1/Makefile
+        src/regression/bb/restore/restore2/Makefile
+        src/regression/bb/restore/restore3/Makefile
+        src/regression/bb/restore/restore4/Makefile
+        src/regression/bb/restore/restore5/Makefile
+        src/regression/fpe/Makefile
+        src/regression/fpe/fpe1/Makefile
+        src/regression/inf/Makefile
+        src/regression/inf/hosts/Makefile
+        src/regression/inf/hosts/hosts1/Makefile
+        src/regression/inf/hosts/hosts2/Makefile
+        src/regression/inf/hosts/hosts3/Makefile
+        src/regression/inf/hosts/hosts4/Makefile
+        src/regression/inf/listexp/Makefile
+        src/regression/inf/listexp/listexp1/Makefile
+        src/regression/inf/listexp/listexp2/Makefile
+        src/regression/inf/listexp/listexp3/Makefile
+        src/regression/inf/listexp/listexp4/Makefile
+        src/regression/inf/views/Makefile
+        src/regression/inf/views/views1/Makefile
+        src/regression/inf/views/views2/Makefile
+        src/regression/inf/views/views3/Makefile
+        src/regression/inf/views/views4/Makefile
+        src/regression/inf/types/Makefile
+        src/regression/inf/types/types1/Makefile
+        src/regression/inf/types/types2/Makefile
+        src/regression/inf/types/types3/Makefile
+        src/regression/inf/types/types4/Makefile
+        src/regression/inf/metrics/Makefile
+        src/regression/inf/metrics/metrics1/Makefile
+        src/regression/inf/metrics/metrics2/Makefile
+        src/regression/inf/metrics/metrics3/Makefile
+        src/regression/inf/metrics/metrics4/Makefile
+        src/regression/inf/params/Makefile
+        src/regression/inf/params/params1/Makefile
+        src/regression/inf/params/params2/Makefile
+        src/regression/inf/params/params3/Makefile
+        src/regression/inf/params/params4/Makefile
+        src/regression/inf/pids/Makefile
+        src/regression/inf/pids/pids1/Makefile
+        src/regression/inf/pids/pids2/Makefile
+        src/regression/inf/pids/pids3/Makefile
+        src/regression/inf/pids/pids4/Makefile
+        src/regression/inf/status/Makefile
+        src/regression/inf/status/status1/Makefile
+        src/regression/inf/status/status2/Makefile
+        src/regression/inf/status/status3/Makefile
+        src/regression/inf/status/status4/Makefile
+        src/regression/io/Makefile
+        src/regression/io/io1/Makefile
+        src/regression/pcsamp/Makefile
+        src/regression/pcsamp/pcsamp1/Makefile
+        src/regression/pcsamp/pcsamp2/Makefile
+        src/regression/pcsamp/pcsamp3/Makefile
+        src/regression/pvs/Makefile
+        src/regression/pvs/939887/Makefile
+        src/regression/pvs/939885/Makefile
+        src/regression/hwc/Makefile
+        src/regression/hwc/hwc1/Makefile
+        src/regression/hwc/hwc2/Makefile
+        src/regression/hwc/hwc3/Makefile
+        src/regression/hwctime/Makefile
+        src/regression/hwctime/hwctime1/Makefile
+        src/regression/hwctime/hwctime2/Makefile
+        src/regression/hwctime/hwctime3/Makefile
+        src/regression/usertime/Makefile
+        src/regression/usertime/usertime1/Makefile
+        src/regression/usertime/usertime2/Makefile
+        src/regression/usertime/usertime3/Makefile
+        src/regression/usertime/usertime4/Makefile
+        src/regression/usertime/usertime5/Makefile
+        src/regression/usertime/usertime6/Makefile
+        src/regression/mpi/Makefile
+        src/regression/mpi/mpi1/Makefile
+        src/regression/mpi/smg2000/Makefile
+        src/regression/mpi/smg2000/smg1/Makefile
+        src/regression/views/Makefile
+        src/regression/views/io/Makefile
+        src/regression/views/io/calltrees/Makefile
+        src/regression/views/io/calltrees/call1/Makefile
+        src/regression/views/io/calltrees/call2/Makefile
+        src/regression/views/io/calltrees/call3/Makefile
+        src/regression/views/io/functions/Makefile
+        src/regression/views/io/functions/functions1/Makefile
+        src/regression/views/io/functions/functions2/Makefile
+        src/regression/views/io/trace/Makefile
+        src/regression/views/io/trace/trace1/Makefile
+        src/regression/views/io/tracebacks/Makefile
+        src/regression/views/io/tracebacks/tb1/Makefile
+        src/regression/views/io/tracebacks/tb2/Makefile
+        src/regression/views/io/tracebacks/tb3/Makefile
+        src/regression/views/pcsamp/Makefile
+        src/regression/views/pcsamp/functions/Makefile
+        src/regression/views/pcsamp/functions/functions1/Makefile
+        src/regression/views/pcsamp/linked_objects/Makefile
+        src/regression/views/pcsamp/linked_objects/lo1/Makefile
+        src/regression/views/pcsamp/statements/Makefile
+        src/regression/views/pcsamp/statements/state1/Makefile
+	test_scripts/Makefile
+
 )
 
 AC_OUTPUT

@@ -19,11 +19,6 @@
 
 echo "running bootstrap on top level test directory"
 
-chmod 755 executables/configure
-chmod 755 executables/mpi/configure
-chmod 755 src/dyninst/configure
-chmod 644 src/dyninst/libltdl.tar.gz
-chmod 755 src/regression/configure
 chmod 644 libltdl.tar.gz
 chmod 755 configure
 
@@ -33,51 +28,4 @@ autoheader -f
 automake --foreign --add-missing --copy
 autoconf
 echo "finished - running bootstrap on top (test) directory"
-#
-
-#
-# configure src/regression 
-#
-echo "running bootstrap on src/regression"
-cd src/regression
-aclocal
-automake --foreign --add-missing --copy
-autoconf
-echo "finished - running bootstrap on src/regression directory"
-cd ../..
-
-#
-# configure executables to allow for alternative compilers
-#
-echo "running bootstrap on executables"
-cd executables
-aclocal
-automake --foreign --add-missing --copy
-autoconf
-echo "finished - running bootstrap on executables directory"
-cd ..
-#
-# configure mpi executables to allow for alternative compilers
-#
-echo "running bootstrap on executables/mpi"
-cd executables/mpi
-aclocal
-automake --foreign --add-missing --copy
-autoconf
-echo "finished - running bootstrap on executables/mpi directory"
-cd ../..
-#
-# configure dyninst tests for alternative installs of dyninst
-#
-echo "running bootstrap on src/dyninst"
-cd src/dyninst
-
-aclocal
-libtoolize --force --ltdl-tar --copy
-automake --foreign --add-missing --copy
-autoconf
-cd ../..
-
-
-echo "finished - running bootstrap on src/dyninst directory"
 

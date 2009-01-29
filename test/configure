@@ -855,6 +855,8 @@ ac_ct_FC
 F77
 FFLAGS
 ac_ct_F77
+HAVE_F77_TRUE
+HAVE_F77_FALSE
 LTDLINCL
 LIBLTDL
 build
@@ -960,7 +962,6 @@ MVAPICH2_LDFLAGS
 MVAPICH2_LIBS
 MVAPICH2_HEADER
 MVAPICH2_DIR
-MVAPICH2_NULL
 HAVE_MPT_TRUE
 HAVE_MPT_FALSE
 MPT_CC
@@ -1073,11 +1074,7 @@ CXXCPP
 YACC
 YFLAGS
 PYTHON_VERSION'
-ac_subdirs_all='libltdl
-src/dyninst
-executables
-executables/mpi
-src/regression'
+ac_subdirs_all='libltdl'
 
 # Initialize some variables set by options.
 ac_init_help=
@@ -4750,6 +4747,37 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+if test "$ac_cv_f77_compiler_gnu" = no; then
+         if false; then
+  HAVE_F77_TRUE=
+  HAVE_F77_FALSE='#'
+else
+  HAVE_F77_TRUE='#'
+  HAVE_F77_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_F77 0
+_ACEOF
+
+else
+         if true; then
+  HAVE_F77_TRUE=
+  HAVE_F77_FALSE='#'
+else
+  HAVE_F77_TRUE='#'
+  HAVE_F77_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_F77 1
+_ACEOF
+
+fi
+
+
 # Check whether --enable-static was given.
 if test "${enable_static+set}" = set; then
   enableval=$enable_static; p=${PACKAGE-default}
@@ -5648,7 +5676,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5651 "configure"' > conftest.$ac_ext
+  echo '#line 5679 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7654,11 +7682,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7657: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7685: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7661: \$? = $ac_status" >&5
+   echo "$as_me:7689: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7944,11 +7972,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7947: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7975: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7951: \$? = $ac_status" >&5
+   echo "$as_me:7979: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8048,11 +8076,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8051: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8079: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8055: \$? = $ac_status" >&5
+   echo "$as_me:8083: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10399,7 +10427,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10402 "configure"
+#line 10430 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10499,7 +10527,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10502 "configure"
+#line 10530 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12919,11 +12947,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12922: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12950: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:12926: \$? = $ac_status" >&5
+   echo "$as_me:12954: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13023,11 +13051,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13026: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13054: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13030: \$? = $ac_status" >&5
+   echo "$as_me:13058: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14587,11 +14615,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14590: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14618: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14594: \$? = $ac_status" >&5
+   echo "$as_me:14622: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -14691,11 +14719,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14694: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14722: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14698: \$? = $ac_status" >&5
+   echo "$as_me:14726: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16880,11 +16908,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16883: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16911: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16887: \$? = $ac_status" >&5
+   echo "$as_me:16915: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17170,11 +17198,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17173: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17201: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17177: \$? = $ac_status" >&5
+   echo "$as_me:17205: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17274,11 +17302,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17277: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17305: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17281: \$? = $ac_status" >&5
+   echo "$as_me:17309: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -19929,15 +19957,6 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 
 subdirs="$subdirs libltdl"
-
-subdirs="$subdirs src/dyninst"
-
-subdirs="$subdirs executables"
-
-subdirs="$subdirs executables/mpi"
-
-subdirs="$subdirs src/regression"
-
 
 # Extract the first word of "doxygen", so it can be a program name with args.
 set dummy doxygen; ac_word=$2
@@ -22696,7 +22715,6 @@ echo $ECHO_N "checking for MVAPICH2 library and headers... $ECHO_C" >&6; }
     MVAPICH2_LIBS="-lmpich -libverbs -libcommon"
     MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
     MVAPICH2_DIR="$mvapich2_dir"
-    MVAPICH2_NULL=""
 
     # On the systems "mcr" and "thunder" at LLNL they have an MPICH variant
     # that has things moved around a bit. Handle this by allowing a "llnl"
@@ -22781,7 +22799,6 @@ echo $ECHO_N "checking for MVAPICH2 library (alt locations) and headers... $ECHO
        MVAPICH2_LIBS="-lmpich -libverbs -libcommon"
        MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
        MVAPICH2_DIR="$mvapich2_dir"
-       MVAPICH2_NULL=""
 
        CC="$MVAPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
@@ -22879,9 +22896,7 @@ fi
 	MVAPICH2_LIBS=""
 	MVAPICH2_HEADER=""
 	MVAPICH2_DIR=""
-        MVAPICH2_NULL=""
     fi
-
 
 
 
@@ -25922,7 +25937,7 @@ esac
 # Generate Output Files
 ################################################################################
 
-ac_config_files="$ac_config_files Makefile test_scripts/Makefile src/Makefile src/dpcl/Makefile src/dpcl/one_shot/Makefile src/dpcl/probe_module/Makefile src/dpcl/point_probe/Makefile src/dpcl/start_terminate/Makefile src/dpcl/module_addr/Makefile src/dpcl/stmt_info/Makefile src/dpcl/daemonRT_locking/Makefile src/dpcl/phase/Makefile src/dpcl/data_type/Makefile src/dyninst/Makefile src/dyninst/create/Makefile src/dyninst/createf77/Makefile src/dyninst/findPoint/Makefile src/dyninst/fpe/Makefile src/dyninst/exitpt/Makefile"
+ac_config_files="$ac_config_files Makefile executables/Makefile executables/forever/Makefile executables/forever_cxx/Makefile executables/fpetest/Makefile executables/fpetest_attach/Makefile executables/fpe_print/Makefile executables/fredO2/Makefile executables/fred/Makefile executables/mutatee/Makefile executables/mutatee/c_version/Makefile executables/mutatee/cplus_version/Makefile executables/mutatee/f77_version/Makefile executables/mutatee/io_c_version/Makefile executables/Eon/Makefile executables/dlopen/Makefile executables/deep_callpath/Makefile executables/threads/Makefile executables/mpi/Makefile executables/mpi/smg2000/Makefile executables/mpi/smg2000/krylov/Makefile executables/mpi/smg2000/struct_ls/Makefile executables/mpi/smg2000/struct_mv/Makefile executables/mpi/smg2000/utilities/Makefile executables/mpi/smg2000/test/Makefile executables/mpi/nbody/Makefile src/Makefile src/dpcl/Makefile src/dpcl/one_shot/Makefile src/dpcl/probe_module/Makefile src/dpcl/point_probe/Makefile src/dpcl/start_terminate/Makefile src/dpcl/module_addr/Makefile src/dpcl/stmt_info/Makefile src/dpcl/daemonRT_locking/Makefile src/dpcl/phase/Makefile src/dpcl/data_type/Makefile src/dyninst/Makefile src/dyninst/create/Makefile src/dyninst/createf77/Makefile src/dyninst/findPoint/Makefile src/dyninst/fpe/Makefile src/dyninst/exitpt/Makefile src/regression/Makefile src/regression/bb/Makefile src/regression/bb/close/Makefile src/regression/bb/close/close1/Makefile src/regression/bb/close/close2/Makefile src/regression/bb/close/close3/Makefile src/regression/bb/close/close4/Makefile src/regression/bb/close/close5/Makefile src/regression/bb/detach/Makefile src/regression/bb/detach/detach1/Makefile src/regression/bb/detach/detach2/Makefile src/regression/bb/detach/detach3/Makefile src/regression/bb/detach/detach4/Makefile src/regression/bb/detach/detach5/Makefile src/regression/bb/disable/Makefile src/regression/bb/disable/disable1/Makefile src/regression/bb/disable/disable2/Makefile src/regression/bb/disable/disable3/Makefile src/regression/bb/disable/disable4/Makefile src/regression/bb/disable/disable5/Makefile src/regression/bb/enable/Makefile src/regression/bb/enable/enable1/Makefile src/regression/bb/enable/enable2/Makefile src/regression/bb/enable/enable3/Makefile src/regression/bb/enable/enable4/Makefile src/regression/bb/enable/enable5/Makefile src/regression/bb/focus/Makefile src/regression/bb/focus/focus1/Makefile src/regression/bb/focus/focus2/Makefile src/regression/bb/focus/focus3/Makefile src/regression/bb/focus/focus4/Makefile src/regression/bb/focus/focus5/Makefile src/regression/bb/pause/Makefile src/regression/bb/pause/pause1/Makefile src/regression/bb/pause/pause2/Makefile src/regression/bb/pause/pause3/Makefile src/regression/bb/pause/pause4/Makefile src/regression/bb/pause/pause5/Makefile src/regression/bb/restore/Makefile src/regression/bb/restore/restore1/Makefile src/regression/bb/restore/restore2/Makefile src/regression/bb/restore/restore3/Makefile src/regression/bb/restore/restore4/Makefile src/regression/bb/restore/restore5/Makefile src/regression/fpe/Makefile src/regression/fpe/fpe1/Makefile src/regression/inf/Makefile src/regression/inf/hosts/Makefile src/regression/inf/hosts/hosts1/Makefile src/regression/inf/hosts/hosts2/Makefile src/regression/inf/hosts/hosts3/Makefile src/regression/inf/hosts/hosts4/Makefile src/regression/inf/listexp/Makefile src/regression/inf/listexp/listexp1/Makefile src/regression/inf/listexp/listexp2/Makefile src/regression/inf/listexp/listexp3/Makefile src/regression/inf/listexp/listexp4/Makefile src/regression/inf/views/Makefile src/regression/inf/views/views1/Makefile src/regression/inf/views/views2/Makefile src/regression/inf/views/views3/Makefile src/regression/inf/views/views4/Makefile src/regression/inf/types/Makefile src/regression/inf/types/types1/Makefile src/regression/inf/types/types2/Makefile src/regression/inf/types/types3/Makefile src/regression/inf/types/types4/Makefile src/regression/inf/metrics/Makefile src/regression/inf/metrics/metrics1/Makefile src/regression/inf/metrics/metrics2/Makefile src/regression/inf/metrics/metrics3/Makefile src/regression/inf/metrics/metrics4/Makefile src/regression/inf/params/Makefile src/regression/inf/params/params1/Makefile src/regression/inf/params/params2/Makefile src/regression/inf/params/params3/Makefile src/regression/inf/params/params4/Makefile src/regression/inf/pids/Makefile src/regression/inf/pids/pids1/Makefile src/regression/inf/pids/pids2/Makefile src/regression/inf/pids/pids3/Makefile src/regression/inf/pids/pids4/Makefile src/regression/inf/status/Makefile src/regression/inf/status/status1/Makefile src/regression/inf/status/status2/Makefile src/regression/inf/status/status3/Makefile src/regression/inf/status/status4/Makefile src/regression/io/Makefile src/regression/io/io1/Makefile src/regression/pcsamp/Makefile src/regression/pcsamp/pcsamp1/Makefile src/regression/pcsamp/pcsamp2/Makefile src/regression/pcsamp/pcsamp3/Makefile src/regression/pvs/Makefile src/regression/pvs/939887/Makefile src/regression/pvs/939885/Makefile src/regression/hwc/Makefile src/regression/hwc/hwc1/Makefile src/regression/hwc/hwc2/Makefile src/regression/hwc/hwc3/Makefile src/regression/hwctime/Makefile src/regression/hwctime/hwctime1/Makefile src/regression/hwctime/hwctime2/Makefile src/regression/hwctime/hwctime3/Makefile src/regression/usertime/Makefile src/regression/usertime/usertime1/Makefile src/regression/usertime/usertime2/Makefile src/regression/usertime/usertime3/Makefile src/regression/usertime/usertime4/Makefile src/regression/usertime/usertime5/Makefile src/regression/usertime/usertime6/Makefile src/regression/mpi/Makefile src/regression/mpi/mpi1/Makefile src/regression/mpi/smg2000/Makefile src/regression/mpi/smg2000/smg1/Makefile src/regression/views/Makefile src/regression/views/io/Makefile src/regression/views/io/calltrees/Makefile src/regression/views/io/calltrees/call1/Makefile src/regression/views/io/calltrees/call2/Makefile src/regression/views/io/calltrees/call3/Makefile src/regression/views/io/functions/Makefile src/regression/views/io/functions/functions1/Makefile src/regression/views/io/functions/functions2/Makefile src/regression/views/io/trace/Makefile src/regression/views/io/trace/trace1/Makefile src/regression/views/io/tracebacks/Makefile src/regression/views/io/tracebacks/tb1/Makefile src/regression/views/io/tracebacks/tb2/Makefile src/regression/views/io/tracebacks/tb3/Makefile src/regression/views/pcsamp/Makefile src/regression/views/pcsamp/functions/Makefile src/regression/views/pcsamp/functions/functions1/Makefile src/regression/views/pcsamp/linked_objects/Makefile src/regression/views/pcsamp/linked_objects/lo1/Makefile src/regression/views/pcsamp/statements/Makefile src/regression/views/pcsamp/statements/state1/Makefile test_scripts/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -26039,6 +26054,20 @@ if test -z "${am__fastdepCXX_TRUE}" && test -z "${am__fastdepCXX_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"am__fastdepCXX\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"am__fastdepCXX\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_F77_TRUE}" && test -z "${HAVE_F77_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_F77\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_F77\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_F77_TRUE}" && test -z "${HAVE_F77_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_F77\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_F77\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -26939,7 +26968,31 @@ do
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "test_scripts/Makefile") CONFIG_FILES="$CONFIG_FILES test_scripts/Makefile" ;;
+    "executables/Makefile") CONFIG_FILES="$CONFIG_FILES executables/Makefile" ;;
+    "executables/forever/Makefile") CONFIG_FILES="$CONFIG_FILES executables/forever/Makefile" ;;
+    "executables/forever_cxx/Makefile") CONFIG_FILES="$CONFIG_FILES executables/forever_cxx/Makefile" ;;
+    "executables/fpetest/Makefile") CONFIG_FILES="$CONFIG_FILES executables/fpetest/Makefile" ;;
+    "executables/fpetest_attach/Makefile") CONFIG_FILES="$CONFIG_FILES executables/fpetest_attach/Makefile" ;;
+    "executables/fpe_print/Makefile") CONFIG_FILES="$CONFIG_FILES executables/fpe_print/Makefile" ;;
+    "executables/fredO2/Makefile") CONFIG_FILES="$CONFIG_FILES executables/fredO2/Makefile" ;;
+    "executables/fred/Makefile") CONFIG_FILES="$CONFIG_FILES executables/fred/Makefile" ;;
+    "executables/mutatee/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mutatee/Makefile" ;;
+    "executables/mutatee/c_version/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mutatee/c_version/Makefile" ;;
+    "executables/mutatee/cplus_version/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mutatee/cplus_version/Makefile" ;;
+    "executables/mutatee/f77_version/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mutatee/f77_version/Makefile" ;;
+    "executables/mutatee/io_c_version/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mutatee/io_c_version/Makefile" ;;
+    "executables/Eon/Makefile") CONFIG_FILES="$CONFIG_FILES executables/Eon/Makefile" ;;
+    "executables/dlopen/Makefile") CONFIG_FILES="$CONFIG_FILES executables/dlopen/Makefile" ;;
+    "executables/deep_callpath/Makefile") CONFIG_FILES="$CONFIG_FILES executables/deep_callpath/Makefile" ;;
+    "executables/threads/Makefile") CONFIG_FILES="$CONFIG_FILES executables/threads/Makefile" ;;
+    "executables/mpi/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mpi/Makefile" ;;
+    "executables/mpi/smg2000/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mpi/smg2000/Makefile" ;;
+    "executables/mpi/smg2000/krylov/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mpi/smg2000/krylov/Makefile" ;;
+    "executables/mpi/smg2000/struct_ls/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mpi/smg2000/struct_ls/Makefile" ;;
+    "executables/mpi/smg2000/struct_mv/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mpi/smg2000/struct_mv/Makefile" ;;
+    "executables/mpi/smg2000/utilities/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mpi/smg2000/utilities/Makefile" ;;
+    "executables/mpi/smg2000/test/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mpi/smg2000/test/Makefile" ;;
+    "executables/mpi/nbody/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mpi/nbody/Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "src/dpcl/Makefile") CONFIG_FILES="$CONFIG_FILES src/dpcl/Makefile" ;;
     "src/dpcl/one_shot/Makefile") CONFIG_FILES="$CONFIG_FILES src/dpcl/one_shot/Makefile" ;;
@@ -26957,6 +27010,144 @@ do
     "src/dyninst/findPoint/Makefile") CONFIG_FILES="$CONFIG_FILES src/dyninst/findPoint/Makefile" ;;
     "src/dyninst/fpe/Makefile") CONFIG_FILES="$CONFIG_FILES src/dyninst/fpe/Makefile" ;;
     "src/dyninst/exitpt/Makefile") CONFIG_FILES="$CONFIG_FILES src/dyninst/exitpt/Makefile" ;;
+    "src/regression/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/Makefile" ;;
+    "src/regression/bb/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/Makefile" ;;
+    "src/regression/bb/close/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/close/Makefile" ;;
+    "src/regression/bb/close/close1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/close/close1/Makefile" ;;
+    "src/regression/bb/close/close2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/close/close2/Makefile" ;;
+    "src/regression/bb/close/close3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/close/close3/Makefile" ;;
+    "src/regression/bb/close/close4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/close/close4/Makefile" ;;
+    "src/regression/bb/close/close5/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/close/close5/Makefile" ;;
+    "src/regression/bb/detach/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/detach/Makefile" ;;
+    "src/regression/bb/detach/detach1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/detach/detach1/Makefile" ;;
+    "src/regression/bb/detach/detach2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/detach/detach2/Makefile" ;;
+    "src/regression/bb/detach/detach3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/detach/detach3/Makefile" ;;
+    "src/regression/bb/detach/detach4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/detach/detach4/Makefile" ;;
+    "src/regression/bb/detach/detach5/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/detach/detach5/Makefile" ;;
+    "src/regression/bb/disable/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/disable/Makefile" ;;
+    "src/regression/bb/disable/disable1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/disable/disable1/Makefile" ;;
+    "src/regression/bb/disable/disable2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/disable/disable2/Makefile" ;;
+    "src/regression/bb/disable/disable3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/disable/disable3/Makefile" ;;
+    "src/regression/bb/disable/disable4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/disable/disable4/Makefile" ;;
+    "src/regression/bb/disable/disable5/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/disable/disable5/Makefile" ;;
+    "src/regression/bb/enable/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/enable/Makefile" ;;
+    "src/regression/bb/enable/enable1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/enable/enable1/Makefile" ;;
+    "src/regression/bb/enable/enable2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/enable/enable2/Makefile" ;;
+    "src/regression/bb/enable/enable3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/enable/enable3/Makefile" ;;
+    "src/regression/bb/enable/enable4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/enable/enable4/Makefile" ;;
+    "src/regression/bb/enable/enable5/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/enable/enable5/Makefile" ;;
+    "src/regression/bb/focus/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/focus/Makefile" ;;
+    "src/regression/bb/focus/focus1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/focus/focus1/Makefile" ;;
+    "src/regression/bb/focus/focus2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/focus/focus2/Makefile" ;;
+    "src/regression/bb/focus/focus3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/focus/focus3/Makefile" ;;
+    "src/regression/bb/focus/focus4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/focus/focus4/Makefile" ;;
+    "src/regression/bb/focus/focus5/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/focus/focus5/Makefile" ;;
+    "src/regression/bb/pause/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/pause/Makefile" ;;
+    "src/regression/bb/pause/pause1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/pause/pause1/Makefile" ;;
+    "src/regression/bb/pause/pause2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/pause/pause2/Makefile" ;;
+    "src/regression/bb/pause/pause3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/pause/pause3/Makefile" ;;
+    "src/regression/bb/pause/pause4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/pause/pause4/Makefile" ;;
+    "src/regression/bb/pause/pause5/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/pause/pause5/Makefile" ;;
+    "src/regression/bb/restore/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/restore/Makefile" ;;
+    "src/regression/bb/restore/restore1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/restore/restore1/Makefile" ;;
+    "src/regression/bb/restore/restore2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/restore/restore2/Makefile" ;;
+    "src/regression/bb/restore/restore3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/restore/restore3/Makefile" ;;
+    "src/regression/bb/restore/restore4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/restore/restore4/Makefile" ;;
+    "src/regression/bb/restore/restore5/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/bb/restore/restore5/Makefile" ;;
+    "src/regression/fpe/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/fpe/Makefile" ;;
+    "src/regression/fpe/fpe1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/fpe/fpe1/Makefile" ;;
+    "src/regression/inf/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/Makefile" ;;
+    "src/regression/inf/hosts/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/hosts/Makefile" ;;
+    "src/regression/inf/hosts/hosts1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/hosts/hosts1/Makefile" ;;
+    "src/regression/inf/hosts/hosts2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/hosts/hosts2/Makefile" ;;
+    "src/regression/inf/hosts/hosts3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/hosts/hosts3/Makefile" ;;
+    "src/regression/inf/hosts/hosts4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/hosts/hosts4/Makefile" ;;
+    "src/regression/inf/listexp/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/listexp/Makefile" ;;
+    "src/regression/inf/listexp/listexp1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/listexp/listexp1/Makefile" ;;
+    "src/regression/inf/listexp/listexp2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/listexp/listexp2/Makefile" ;;
+    "src/regression/inf/listexp/listexp3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/listexp/listexp3/Makefile" ;;
+    "src/regression/inf/listexp/listexp4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/listexp/listexp4/Makefile" ;;
+    "src/regression/inf/views/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/views/Makefile" ;;
+    "src/regression/inf/views/views1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/views/views1/Makefile" ;;
+    "src/regression/inf/views/views2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/views/views2/Makefile" ;;
+    "src/regression/inf/views/views3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/views/views3/Makefile" ;;
+    "src/regression/inf/views/views4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/views/views4/Makefile" ;;
+    "src/regression/inf/types/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/types/Makefile" ;;
+    "src/regression/inf/types/types1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/types/types1/Makefile" ;;
+    "src/regression/inf/types/types2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/types/types2/Makefile" ;;
+    "src/regression/inf/types/types3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/types/types3/Makefile" ;;
+    "src/regression/inf/types/types4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/types/types4/Makefile" ;;
+    "src/regression/inf/metrics/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/metrics/Makefile" ;;
+    "src/regression/inf/metrics/metrics1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/metrics/metrics1/Makefile" ;;
+    "src/regression/inf/metrics/metrics2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/metrics/metrics2/Makefile" ;;
+    "src/regression/inf/metrics/metrics3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/metrics/metrics3/Makefile" ;;
+    "src/regression/inf/metrics/metrics4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/metrics/metrics4/Makefile" ;;
+    "src/regression/inf/params/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/params/Makefile" ;;
+    "src/regression/inf/params/params1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/params/params1/Makefile" ;;
+    "src/regression/inf/params/params2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/params/params2/Makefile" ;;
+    "src/regression/inf/params/params3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/params/params3/Makefile" ;;
+    "src/regression/inf/params/params4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/params/params4/Makefile" ;;
+    "src/regression/inf/pids/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/pids/Makefile" ;;
+    "src/regression/inf/pids/pids1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/pids/pids1/Makefile" ;;
+    "src/regression/inf/pids/pids2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/pids/pids2/Makefile" ;;
+    "src/regression/inf/pids/pids3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/pids/pids3/Makefile" ;;
+    "src/regression/inf/pids/pids4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/pids/pids4/Makefile" ;;
+    "src/regression/inf/status/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/status/Makefile" ;;
+    "src/regression/inf/status/status1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/status/status1/Makefile" ;;
+    "src/regression/inf/status/status2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/status/status2/Makefile" ;;
+    "src/regression/inf/status/status3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/status/status3/Makefile" ;;
+    "src/regression/inf/status/status4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/inf/status/status4/Makefile" ;;
+    "src/regression/io/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/io/Makefile" ;;
+    "src/regression/io/io1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/io/io1/Makefile" ;;
+    "src/regression/pcsamp/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/pcsamp/Makefile" ;;
+    "src/regression/pcsamp/pcsamp1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/pcsamp/pcsamp1/Makefile" ;;
+    "src/regression/pcsamp/pcsamp2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/pcsamp/pcsamp2/Makefile" ;;
+    "src/regression/pcsamp/pcsamp3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/pcsamp/pcsamp3/Makefile" ;;
+    "src/regression/pvs/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/pvs/Makefile" ;;
+    "src/regression/pvs/939887/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/pvs/939887/Makefile" ;;
+    "src/regression/pvs/939885/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/pvs/939885/Makefile" ;;
+    "src/regression/hwc/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/hwc/Makefile" ;;
+    "src/regression/hwc/hwc1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/hwc/hwc1/Makefile" ;;
+    "src/regression/hwc/hwc2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/hwc/hwc2/Makefile" ;;
+    "src/regression/hwc/hwc3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/hwc/hwc3/Makefile" ;;
+    "src/regression/hwctime/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/hwctime/Makefile" ;;
+    "src/regression/hwctime/hwctime1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/hwctime/hwctime1/Makefile" ;;
+    "src/regression/hwctime/hwctime2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/hwctime/hwctime2/Makefile" ;;
+    "src/regression/hwctime/hwctime3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/hwctime/hwctime3/Makefile" ;;
+    "src/regression/usertime/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/usertime/Makefile" ;;
+    "src/regression/usertime/usertime1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/usertime/usertime1/Makefile" ;;
+    "src/regression/usertime/usertime2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/usertime/usertime2/Makefile" ;;
+    "src/regression/usertime/usertime3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/usertime/usertime3/Makefile" ;;
+    "src/regression/usertime/usertime4/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/usertime/usertime4/Makefile" ;;
+    "src/regression/usertime/usertime5/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/usertime/usertime5/Makefile" ;;
+    "src/regression/usertime/usertime6/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/usertime/usertime6/Makefile" ;;
+    "src/regression/mpi/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/mpi/Makefile" ;;
+    "src/regression/mpi/mpi1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/mpi/mpi1/Makefile" ;;
+    "src/regression/mpi/smg2000/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/mpi/smg2000/Makefile" ;;
+    "src/regression/mpi/smg2000/smg1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/mpi/smg2000/smg1/Makefile" ;;
+    "src/regression/views/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/Makefile" ;;
+    "src/regression/views/io/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/io/Makefile" ;;
+    "src/regression/views/io/calltrees/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/io/calltrees/Makefile" ;;
+    "src/regression/views/io/calltrees/call1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/io/calltrees/call1/Makefile" ;;
+    "src/regression/views/io/calltrees/call2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/io/calltrees/call2/Makefile" ;;
+    "src/regression/views/io/calltrees/call3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/io/calltrees/call3/Makefile" ;;
+    "src/regression/views/io/functions/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/io/functions/Makefile" ;;
+    "src/regression/views/io/functions/functions1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/io/functions/functions1/Makefile" ;;
+    "src/regression/views/io/functions/functions2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/io/functions/functions2/Makefile" ;;
+    "src/regression/views/io/trace/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/io/trace/Makefile" ;;
+    "src/regression/views/io/trace/trace1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/io/trace/trace1/Makefile" ;;
+    "src/regression/views/io/tracebacks/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/io/tracebacks/Makefile" ;;
+    "src/regression/views/io/tracebacks/tb1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/io/tracebacks/tb1/Makefile" ;;
+    "src/regression/views/io/tracebacks/tb2/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/io/tracebacks/tb2/Makefile" ;;
+    "src/regression/views/io/tracebacks/tb3/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/io/tracebacks/tb3/Makefile" ;;
+    "src/regression/views/pcsamp/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/pcsamp/Makefile" ;;
+    "src/regression/views/pcsamp/functions/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/pcsamp/functions/Makefile" ;;
+    "src/regression/views/pcsamp/functions/functions1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/pcsamp/functions/functions1/Makefile" ;;
+    "src/regression/views/pcsamp/linked_objects/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/pcsamp/linked_objects/Makefile" ;;
+    "src/regression/views/pcsamp/linked_objects/lo1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/pcsamp/linked_objects/lo1/Makefile" ;;
+    "src/regression/views/pcsamp/statements/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/pcsamp/statements/Makefile" ;;
+    "src/regression/views/pcsamp/statements/state1/Makefile") CONFIG_FILES="$CONFIG_FILES src/regression/views/pcsamp/statements/state1/Makefile" ;;
+    "test_scripts/Makefile") CONFIG_FILES="$CONFIG_FILES test_scripts/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -27106,6 +27297,8 @@ ac_ct_FC!$ac_ct_FC$ac_delim
 F77!$F77$ac_delim
 FFLAGS!$FFLAGS$ac_delim
 ac_ct_F77!$ac_ct_F77$ac_delim
+HAVE_F77_TRUE!$HAVE_F77_TRUE$ac_delim
+HAVE_F77_FALSE!$HAVE_F77_FALSE$ac_delim
 LTDLINCL!$LTDLINCL$ac_delim
 LIBLTDL!$LIBLTDL$ac_delim
 build!$build$ac_delim
@@ -27114,8 +27307,6 @@ build_vendor!$build_vendor$ac_delim
 build_os!$build_os$ac_delim
 host!$host$ac_delim
 host_cpu!$host_cpu$ac_delim
-host_vendor!$host_vendor$ac_delim
-host_os!$host_os$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -27157,6 +27348,8 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+host_vendor!$host_vendor$ac_delim
+host_os!$host_os$ac_delim
 SED!$SED$ac_delim
 GREP!$GREP$ac_delim
 EGREP!$EGREP$ac_delim
@@ -27252,8 +27445,6 @@ MVAPICH2_LDFLAGS!$MVAPICH2_LDFLAGS$ac_delim
 MVAPICH2_LIBS!$MVAPICH2_LIBS$ac_delim
 MVAPICH2_HEADER!$MVAPICH2_HEADER$ac_delim
 MVAPICH2_DIR!$MVAPICH2_DIR$ac_delim
-MVAPICH2_NULL!$MVAPICH2_NULL$ac_delim
-HAVE_MPT_TRUE!$HAVE_MPT_TRUE$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -27295,6 +27486,7 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+HAVE_MPT_TRUE!$HAVE_MPT_TRUE$ac_delim
 HAVE_MPT_FALSE!$HAVE_MPT_FALSE$ac_delim
 MPT_CC!$MPT_CC$ac_delim
 MPT_CPPFLAGS!$MPT_CPPFLAGS$ac_delim
@@ -27387,7 +27579,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 90; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 91; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

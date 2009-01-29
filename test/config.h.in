@@ -50,6 +50,9 @@
 /* Define to 1 if you have Dyninst. */
 #undef HAVE_DYNINST
 
+/* Define to 1 if you have F77. */
+#undef HAVE_F77
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
