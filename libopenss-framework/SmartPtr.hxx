@@ -34,6 +34,10 @@
 
 #include <pthread.h>
 
+// WDH DEBUGGING
+#include <iostream>
+#include <sstream>
+
 
 
 namespace OpenSpeedShop { namespace Framework {
@@ -172,6 +176,12 @@ namespace OpenSpeedShop { namespace Framework {
 		dm_references(1)
 	    {
 		Assert(pthread_mutex_init(&dm_lock, NULL) == 0);
+	    }
+
+	    /** Destructor. */
+	    ~Bookkeeping()
+	    {
+		Assert(pthread_mutex_destroy(&dm_lock) == 0);
 	    }
 	    
 	};
