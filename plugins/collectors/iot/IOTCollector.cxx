@@ -68,7 +68,6 @@ namespace {
 }    
 
 
-
 /**
  * Collector's factory method.
  *
@@ -97,6 +96,9 @@ IOTCollector::IOTCollector() :
 		  "and start/end time. Detailed ancillary data is also stored "
 		  "stored such as the function's parameters and return value.")
 {
+    // Allocate a map for pathnames.
+    iotPathNames = new std::map<std::string, std::string> ;
+
     // Declare our parameters
     declareParameter(Metadata("traced_functions", "Traced Functions",
 			      "Set of I/O functions to be traced.",
@@ -118,6 +120,41 @@ IOTCollector::IOTCollector() :
     declareMetric(Metadata("exclusive_details", "Exclusive Details",
 			   "Exclusive I/O call details.",
 			   typeid(CallDetails)));
+}
+
+
+
+/**
+ * Default destructor.
+ *
+ * Reclaim space allocated for removing duplicate pathnames.
+ */
+IOTCollector::~IOTCollector()
+{
+    if (iotPathNames != NULL) {
+      (*iotPathNames).clear();
+      delete iotPathNames;
+    }
+}
+
+
+
+/**
+ * Look for duplicate pathnames
+ *
+ * Save space by reusing duplicate pathnames.
+ *
+ * @return    std::string
+ */
+std::string IOTCollector::findPathNameString ( std::string s ) const
+{
+    std::map<std::string, std::string>::iterator si = (*iotPathNames).find(s);
+    if ( si != (*iotPathNames).end() ) {
+      return (*si).second;
+    } else {
+      (*iotPathNames).insert( make_pair(s, s) );
+      return s;
+    }
 }
 
 
@@ -400,7 +437,6 @@ void IOTCollector::getMetricValues(const std::string& metric,
 
 		// Add this event to the results for this subextent
 		if(is_time) {
-//std::cerr << "IOTCollector::getMetricValues: is_time" << std::endl;
 
 		    // Add this event's time (in seconds) to the results
 		    (*reinterpret_cast<std::vector<double>*>(ptr))[*k] +=
@@ -408,7 +444,6 @@ void IOTCollector::getMetricValues(const std::string& metric,
 		    
 		}
 		else if(is_inclusive_times || is_exclusive_times) {
-//std::cerr << "IOTCollector::getMetricValues: is_inclusive_times || is_exclusive_times" << std::endl;
 
 		    // Find this event's stack trace in the results (or add it)
 		    CallTimes::iterator l =
@@ -422,7 +457,6 @@ void IOTCollector::getMetricValues(const std::string& metric,
 
 		}
 		else if(is_inclusive_details || is_exclusive_details) {
-//std::cerr << "IOTCollector::getMetricValues: is_inclusive_details || is_exclusive_details" << std::endl;
 
 		    // Find this event's stack trace in the results (or add it)
 		    CallDetails::iterator l =
@@ -439,28 +473,17 @@ void IOTCollector::getMetricValues(const std::string& metric,
 		    details.dm_nsysargs = data.events.events_val[i].nsysargs;
 		    details.dm_syscallno = data.events.events_val[i].syscallno;
 
-		    details.dm_pathindex = data.events.events_val[i].pathindex;
                     int pidx = data.events.events_val[i].pathindex;
 
                     if (getenv("OPENSS_DEBUG_IOT_METRICS") != NULL) {
                       std::cerr << "IOTCollector::getMetricValues, pidx=" << pidx << " i=" << i << " syscallno=" << details.dm_syscallno << std::endl;
                     }
 
-// FIXME: due to the flood of IOTDetail objects here, this
-// causes a crash (no more memory in cli).
-#if 0
                     if (pidx != 0) {
-                         while (data.pathnames.pathnames_val[pidx] != 0) {
-
-                         if (getenv("OPENSS_DEBUG_IOT_METRICS") != NULL) {
-//                            std::cerr << "IOTCollector::getMetricValues, pathnames value=" << data.pathnames.pathnames_val[pidx] << std::endl;
-                         }
-
-		            details.dm_pathname[pidx] = data.pathnames.pathnames_val[pidx]; 
-                            pidx = pidx+1;
-                         }
+		     // By eliminating duplicates the memory usage is reduced.`
+		      std::string s = std::string(&data.pathnames.pathnames_val[pidx]);
+		      details.dm_pathname = findPathNameString( s );
                     }
-#endif
 
 		    for(int sysarg = 0;
 			sysarg < data.events.events_val[i].nsysargs;

@@ -51,10 +51,15 @@ namespace OpenSpeedShop { namespace Framework {
     class IOTCollector :
 	public CollectorImpl
     {
+
+	std::map<std::string, std::string> *iotPathNames;
 	
     public:
 	
 	IOTCollector();    
+	~IOTCollector();    
+
+	std::string findPathNameString( std::string ) const;
 
 	virtual Blob getDefaultParameterValues() const;
         virtual void getParameterValue(const std::string&,
