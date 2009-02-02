@@ -620,6 +620,9 @@ static bool Generate_CustomView (CommandObject *cmd,
           master_index = (*result).second;
 
         }
+#if DEBUG_COMPARE_SETS
+        printf("SSCOMPARE: IN Generate_CustomView, master_index section, master_index=%d\n", master_index);
+#endif
 
        // Map the master_vector index to the start of data for this entry.
         Assert (Quick_Compare_Set[i].merge_map[master_index] == NULL);

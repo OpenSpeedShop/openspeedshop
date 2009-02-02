@@ -25,6 +25,7 @@
 typedef QValueList<QString> ParamList;
 
 #include "MessageObject.hxx"
+#include "CompareInfo.hxx"
 
 //! The message object for passing file/line/highlight changes to the SourcePanel
 class LoadAttachObject : public MessageObject
@@ -33,7 +34,13 @@ public:
     //! Unused constructor.
     LoadAttachObject();
     //! Constructor for attaching to executable
-    LoadAttachObject(QString executable_name = NULL, QString pid_string = NULL, QString parallelprefixstring = NULL, ParamList *param_list = NULL, bool loadNowHint = FALSE, bool doesThisExperimentUseOfflineInstrumentation = FALSE );
+    LoadAttachObject(QString executable_name = NULL, 
+                     QString pid_string = NULL, 
+                     QString parallelprefixstring = NULL, 
+                     ParamList *param_list = NULL, 
+                     bool loadNowHint = FALSE, 
+                     bool doesThisExperimentUseOfflineInstrumentation = FALSE,
+                     compareByType localCompareByType = compareByFunctionType );
 
     //! Destructor
     ~LoadAttachObject();
@@ -65,5 +72,8 @@ public:
 
     //! Offline Instrumentation flag!
     bool doesThisExperimentUseOfflineInstrumentation;
+
+    //! Compare by what criteria 
+    compareByType compareByThisType;
 };
 #endif // LOADATTACHOBJECT_H

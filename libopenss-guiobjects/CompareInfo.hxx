@@ -1,6 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2009 Krell Institute. All Rights Reserved.
+// Copyright (c) 2009 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -18,7 +17,5 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-// #define vCompareDescription "This wizard helps compare 2 previously saved experiment files."
-#define vCompareDescription "This wizard helps compare 2 previously saved experiment files.\n\nDepending on the experiment types being compared, the result of this wizard will be a CompareExperimentsPanel showing the details of 2 experiment files side-by-side.\n\nFrom there one will be able to further customize the display."
+enum compareByType { compareByFunctionType, compareByStatementType, compareByLinkedObjectType };
 
-#define eCompareDescription "Helps load saved experiment files."

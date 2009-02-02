@@ -110,6 +110,18 @@ public:
   //! Calls the panel function broadcast() message request.
   int broadcast(char *msg);
 
+  //! Get the current setting of compare type (by function, by statement or by linked object
+  compareByType getCompareByType()
+  {
+    return currentCompareByType;
+  }
+
+  //! Set the current setting of compare type (by function, by statement or by linked object
+  void setCompareByType(compareByType type)
+  {
+    currentCompareByType = type;
+  }
+
 
   QVBoxLayout * mpiFormLayout;
     QFrame* mainFrame;
@@ -139,6 +151,24 @@ public:
     QComboBox *leftSideExperimentComboBox;
     QComboBox *rightSideExperimentComboBox;
 
+    QCheckBox* vCompareTypeByFunctionCheckBox;
+    QCheckBox* vCompareTypeByStatementCheckBox;
+    QCheckBox* vCompareTypeByLinkedObjectCheckBox;
+
+
+    QWidget *vCompareTypePageWidget;
+    QVBoxLayout *vCompareTypePageLayout;
+    QTextEdit *vCompareTypePageDescriptionText;
+    QFrame *vCompareTypePageLine;
+    QFrame *vCompareTypePageLine2;
+    QVBoxLayout *vCompareTypePageChoiceLayout;
+
+    QHBoxLayout *vCompareTypePageButtonLayout;
+    QSpacerItem *vCompareTypePageButtonSpacer;
+    QPushButton *vCompareTypePageBackButton;
+    QPushButton *vCompareTypePageClearButton;
+    QPushButton *vCompareTypePageNextButton;
+    QPushButton *vCompareTypePageFinishButton;
 
     QString fn;
 
@@ -162,9 +192,14 @@ public slots:
     virtual void vDescriptionPageIntroButtonSelected();
     virtual void loadPageBackButtonSelected();
     virtual void loadPageNextButtonSelected();
+    virtual void compareTypePageBackButtonSelected();
+    virtual void compareTypePageNextButtonSelected();
     virtual void vSummaryPageBackButtonSelected();
     virtual void vSummaryPageFinishButtonSelected();
     virtual void finishButtonSelected();
+    virtual void vCompareTypeByFunctionCheckBoxSelected();
+    virtual void vCompareTypeByStatementCheckBoxSelected();
+    virtual void vCompareTypeByLinkedObjectCheckBoxSelected();
 
 private slots:
     void leftSideExperimentDirButtonSelected();
@@ -199,6 +234,7 @@ protected slots:
 private:
     void warnOfnoSavedData();
     void requestExperimentFileName();
+    compareByType currentCompareByType;
 
 };
 #endif // COMPAREWIZARDPANEL_H

@@ -31,6 +31,8 @@
 #include <qlistview.h>
 #include <qtooltip.h>
 
+// I added looking for tr
+
 #include <SPCheckBox.hxx>
 
 #include <qcombobox.h>
@@ -200,9 +202,12 @@ extern "C"
     showTextByLocationCheckBox->setChecked(FALSE);
     chartTypeComboBox->setCurrentItem(2);
     advancedToolbarCheckBox->setChecked(FALSE);
+//    QToolTip::add(advancedToolbarCheckBox,
+//                tr("Show all the ToolBar options for this experiment type. For most experiments this adds several additional icons.  The default is false.") );
     showToolbarCheckBox->setChecked(TRUE);
     showMetadataCheckBox->setChecked(TRUE);
     showSkylineCheckBox->setChecked(FALSE);
+
     showSkylineLabel->setText("Percentage breakdown for skyline view:");
     showSkylineLineEdit->setText("25");
   }

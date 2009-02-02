@@ -20,7 +20,6 @@
 //
 // To enable debuging uncomment define DEBUG_StatsPanel statement
 //
-//
 //#define DEBUG_StatsPanel 1
 //#define DEBUG_INTRO 1
 
@@ -2742,6 +2741,7 @@ StatsPanel::optionalViewsCreationSelected()
 
      } // end iot specific
 
+     updateStatsPanelData(DONT_FORCE_UPDATE);
    }
 #ifdef DEBUG_StatsPanel
  printf("EXIT StatsPanel::optionalViewsCreationSelected, optionalViewsDialog=%d\n", optionalViewsDialog);
@@ -4789,14 +4789,18 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
     // didn't find previous time interval (-I % nn:mm)
     command += timeIntervalString;
   } else {
+
     // did find previous time interval (-I % nn:mm)
     // so fix up by replacing with the new interval
+
     int prevLength = prevTimeIntervalString.length();
     command = command.replace( timeIndex, prevLength, timeIntervalString);
+
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::updateStatsPanelData, replaced prevTimeIntervalString =%s with timeIntervalString = %s  in command = %s\n", 
             prevTimeIntervalString.ascii(), timeIntervalString.ascii(), command.ascii() );
 #endif
+
   }
 
   if( recycleFLAG == FALSE ) {
@@ -4806,8 +4810,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
     printf("StatsPanel::updateStatsPanelData,fire up a new stats panel and send (%s) to it.\n", command.ascii() );
 #endif
     int exp_id = expID;
-    if( expID == -1  )
-    {
+    if( expID == -1  ) {
       exp_id = groupID;
     }
      
@@ -4817,8 +4820,8 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 
     QString name = QString("Stats Panel [%1]").arg(exp_id);
     Panel *sp = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
-    if( !sp )
-    {
+
+    if( !sp ) {
       char *panel_type = "Stats Panel";
       ArgumentObject *ao = new ArgumentObject("ArgumentObject", exp_id);
       sp = getPanelContainer()->dl_create_and_add_panel(panel_type, getPanelContainer(), ao);
@@ -4830,6 +4833,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 
       UpdateObject *msg = new UpdateObject((void *)NULL, -1, command.ascii(), 1);
       sp->listener( (void *)msg );
+
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::updateStatsPanelData, calling listener with UPDATEOBJECT,command.ascii()=%s\n", command.ascii() );
 #endif
@@ -5156,6 +5160,8 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
    printf("SP::updateStatsPanelData, CVIEW2, calling generateToolBar, command=%s, this=0x%lx, currentCollectorStr = %s\n", 
           command.ascii(), this, currentCollectorStr.ascii() );
 #endif
+
+
          if ( !isHeaderInfoAlreadyProcessed(compareExpID)) {
 #ifdef DEBUG_StatsPanel
           printf("SP::updateStatsPanelData CALLING UPDATESTATSPANELINFOHEADER, compareExpID=%d, metadataToolButton=%d\n", 
@@ -5165,9 +5171,14 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
            updateStatsPanelInfoHeader(compareExpID);
 
          }
+
          // keep from repeating Metadata for the same experiment
          setHeaderInfoAlreadyProcessed(compareExpID);
-     }
+
+     } // end compareExpID > 0
+
+//     generateToolBar(command);
+
      start_expID_index = expIDindex + 1;
 
 #ifdef DEBUG_StatsPanel
@@ -11543,6 +11554,8 @@ printf("C: return TRUE\n");
   return(FALSE);
 #endif // 0
 }
+
+
 void
 StatsPanel::generateBaseToolBar( QString command )
 {
@@ -11602,7 +11615,9 @@ StatsPanel::generateToolBar( QString command )
 // If this invocation is related to a new StatsPanel from reuse
 // the necessary info is not usually available at this point.
 // So, we try to recreate it...
+
 if (currentCollectorStr == NULL && lastCollectorStr == NULL ) {
+
     std::string collector_name = "";
     int experiment_id = -1;
     if( command.startsWith("cview") ) {
@@ -11639,8 +11654,10 @@ if (currentCollectorStr == NULL && lastCollectorStr == NULL ) {
          printf("StatsPanel::generateToolBar, currentCollectorStr.ascii()=%s\n", currentCollectorStr.ascii() );
 #endif
       }
-    }
-}
+
+    } // end experiment_id > 0
+
+} // end NULL collectorStr check
 
 if (currentCollectorStr != lastCollectorStr || 
     (currentCollectorStr == NULL && lastCollectorStr == NULL) || 

@@ -97,11 +97,21 @@ CustomExperimentPanel::setAlreadyRun(bool runAlready)
 
 CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
+
+#ifdef DEBUG_CustomPanel
+  printf( "CustomExperimentPanel:: constructor called, non-cn version\n");
+#endif
+
   init( pc, n, ao, (const char *)NULL);
 }
 
 CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, ArgumentObject *ao, const char *cn = NULL) : Panel(pc, n)
 {
+
+#ifdef DEBUG_CustomPanel
+  printf( "CustomExperimentPanel:: constructor called, cn version\n");
+#endif
+
   init( pc, n, ao, cn);
 }
 
@@ -112,12 +122,11 @@ CustomExperimentPanel::init( PanelContainer *pc, const char *n, ArgumentObject *
   nprintf( DEBUG_CONST_DESTRUCT ) ("CustomExperimentPanel::init() constructor called\n");
 
 #ifdef DEBUG_CustomPanel
-  printf( "CustomExperimentPanel::init() constructor called\n");
+  printf( "CustomExperimentPanel::init() constructor called, collector name version\n");
 #endif
 
   collector_names = QString(" ");
-  if( cn )
-  {
+  if( cn ) {
     collector_names = QString(cn);
   }
 
@@ -126,27 +135,21 @@ CustomExperimentPanel::init( PanelContainer *pc, const char *n, ArgumentObject *
 
 // This flag only gets set to true when the data is read from a file
 // or when the program is terminated.
+
   staticDataFLAG = FALSE;
-  if( collector_names.stripWhiteSpace().startsWith("pcsamp") )
-  {
+  if( collector_names.stripWhiteSpace().startsWith("pcsamp") ) {
     wizardName = "pc Sample Wizard";
-  } else if( collector_names.stripWhiteSpace().startsWith("usertime") )
-  {
+  } else if( collector_names.stripWhiteSpace().startsWith("usertime") ) {
     wizardName = "User Time Wizard";
-  } else if( collector_names.stripWhiteSpace().startsWith("hwc") )
-  {
+  } else if( collector_names.stripWhiteSpace().startsWith("hwc") ) {
     wizardName = "HW Counter Wizard"; 
-  } else if( collector_names.stripWhiteSpace().startsWith("mpi") )
-  {
+  } else if( collector_names.stripWhiteSpace().startsWith("mpi") ) {
     wizardName = "MPI Wizard";
-  } else if( collector_names.stripWhiteSpace().startsWith("io") )
-  {
+  } else if( collector_names.stripWhiteSpace().startsWith("io") ) {
     wizardName = "IO Wizard";
-  } else if( collector_names.stripWhiteSpace().startsWith("fpe") )
-  {
+  } else if( collector_names.stripWhiteSpace().startsWith("fpe") ) {
     wizardName = "FPE Tracing Wizard";
-  } else
-  {
+  } else {
     wizardName = "Custom Experiment Wizard";
   }
 
@@ -913,10 +916,12 @@ CustomExperimentPanel::listener(void *msg)
 
     lao = (LoadAttachObject *)msg;
 
+
     if( lao && !lao->leftSideExperiment.isEmpty() ) {
 
 #ifdef DEBUG_CustomPanel
       printf("CustomExperimentPanel::listener, %s: %s\n", lao->leftSideExperiment.ascii(), lao->rightSideExperiment.ascii() );
+      printf("CustomExperimentPanel::listener, compareByThisType=%d\n", lao->compareByThisType);
 #endif
 
       CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -941,12 +946,9 @@ CustomExperimentPanel::listener(void *msg)
         {
           printf("Unable to run %s command.\n", command.ascii() );
         }
-        if( list_of_collectors.size() > 0 )
-        {
-          if( list_of_collectors.size() == 1 ) 
-          {
-            for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
-            {
+        if( list_of_collectors.size() > 0 ) {
+          if( list_of_collectors.size() == 1 ) {
+            for( std::list<std::string>::const_iterator it = list_of_collectors.begin(); it != list_of_collectors.end(); it++ ) {
               collector_name = (QString)*it;
             }
           }
@@ -954,7 +956,20 @@ CustomExperimentPanel::listener(void *msg)
       }
       QString metric = getMostImportantMetric(collector_name);
 
-      command = QString("cViewCreate -x %1 %2 %3").arg(val).arg(collector_name).arg(metric); 
+      // Handle the compare type here
+      QString cType = "-v linkedobjects";
+      compareByType useThisCompareType = lao->compareByThisType;
+      if (useThisCompareType == compareByFunctionType) {
+              cType = "-v functions";
+      } else if (useThisCompareType == compareByStatementType) {
+              cType = "-v statements";
+      } else if (useThisCompareType == compareByLinkedObjectType) {
+              cType = "-v linkedobjects";
+      } else {
+              cType = "-v functions";
+      }
+
+      command = QString("cViewCreate -x %1 %2 %3 %4").arg(val).arg(collector_name).arg(metric).arg(cType); 
       leftSideExpID = val;
 
 #ifdef DEBUG_CustomPanel
@@ -993,7 +1008,7 @@ CustomExperimentPanel::listener(void *msg)
         {
           if( list_of_collectors.size() == 1 ) 
           {
-            for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
+            for( std::list<std::string>::const_iterator it = list_of_collectors.begin(); it != list_of_collectors.end(); it++ )
             {
               collector_name = (QString)*it;
             }
@@ -1002,13 +1017,17 @@ CustomExperimentPanel::listener(void *msg)
       }
       metric = getMostImportantMetric(collector_name);
 
-      command = QString("cViewCreate -x %1 %2 %3").arg(val).arg(collector_name).arg(metric); 
+#if 0
+      command = QString("cViewCreate -x %1 %2 %3 %4").arg(val).arg(collector_name).arg(metric).arg(vType); 
+#endif
+
+      command = QString("cViewCreate -x %1 %2 %3 %4").arg(val).arg(collector_name).arg(metric).arg(cType); 
+
       rightSideExpID = val;
 #ifdef DEBUG_CustomPanel
       printf("            CustomExperimentPanel.cxx: command=(%s)\n", command.ascii() );
 #endif
-      if( !cli->getIntValueFromCLI(command.ascii(), &rightSideCval, mark_value_for_delete ) )
-      {
+      if( !cli->getIntValueFromCLI(command.ascii(), &rightSideCval, mark_value_for_delete ) ) {
         printf("Unable to create cview for %d\n", rightSideCval);
         return 0;
       }
@@ -1440,6 +1459,7 @@ CLIInterface::interrupt = true;
     nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
 
 #ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::listener, 1, compareByThisType=%d\n", lao->compareByThisType);
     printf("CustomExperimentPanel::listener, 1, calling processLAO.\n");
 #endif
 
@@ -2272,6 +2292,7 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
 
 #ifdef DEBUG_CustomPanel
   printf("CustomExperimentPanel::processLAO(), ProcessLOA entered (%s) mpiFLAG=%d\n", getName(), getPanelContainer()->getMainWindow()->mpiFLAG );
+  printf("CustomExperimentPanel::processLAO, compareByThisType=%d\n", lao->compareByThisType);
 #endif
 
   if( QString(getName()).startsWith("MPI") || 

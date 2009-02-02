@@ -163,6 +163,10 @@ bool Queries::CompareStatements::operator()(
     const Framework::Statement& lhs,
     const Framework::Statement& rhs) const
 {
+    bool compareOnlyStmtLine = FALSE;
+    if (OPENSS_LESS_RESTRICTIVE_COMPARISONS) {
+       compareOnlyStmtLine = TRUE;
+    }
 
 #if DEBUG_Queries
     std::cerr << "Queries::CompareStatements::operator(), lhs.getPath()=" << lhs.getPath() << std::endl;
@@ -175,17 +179,25 @@ bool Queries::CompareStatements::operator()(
     std::cerr << "Queries::CompareStatements::operator(), rhs.getLinkedObject().getPath()=" << rhs.getLinkedObject().getPath() << std::endl;
 #endif
 
-    if(lhs.getPath() < rhs.getPath())
-	return true;
-    else if(lhs.getPath() > rhs.getPath())
-	return false;
-    else if(lhs.getLine() < rhs.getLine())
+    if(lhs.getLine() < rhs.getLine())
 	return true;
     else if(lhs.getLine() > rhs.getLine())
 	return false;
     else if(lhs.getColumn() < rhs.getColumn())
 	return true;
     else if(lhs.getColumn() > rhs.getColumn())
+	return false;
+
+    if (lhs.getLine() != 0 && rhs.getLine() != 0 && compareOnlyStmtLine) {
+#if DEBUG_Queries
+       std::cerr << "Queries::CompareStatements::operator, FALL THROUGH RETURN false, compareOnlyStmtLine=" <<  compareOnlyStmtLine << "\n";
+#endif
+       return false;
+    } 
+
+    if(lhs.getPath() < rhs.getPath())
+	return true;
+    else if(lhs.getPath() > rhs.getPath())
 	return false;
     return lhs.getLinkedObject().getPath() < rhs.getLinkedObject().getPath();
 }

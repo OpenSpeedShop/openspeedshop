@@ -45,7 +45,8 @@ LoadAttachObject::LoadAttachObject(QString executable_name,
                                    QString parallelPrefix, 
                                    ParamList *param_list, 
                                    bool lnh, 
-                                   bool isOff) : MessageObject("LoadAttachObject")
+                                   bool isOff,
+                                   compareByType localCompareByType) : MessageObject("LoadAttachObject")
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("LoadAttachObject::LoadAttachObject(entered.\n");
 
@@ -71,6 +72,7 @@ LoadAttachObject::LoadAttachObject(QString executable_name,
 
     printf( "LoadAttachObject::LoadAttachObject(entered). isOff=%d\n", isOff);
 
+    printf( "LoadAttachObject::LoadAttachObject(entered). localCompareByType=%d\n", localCompareByType);
 #endif
 
   executableName = executable_name;
@@ -79,6 +81,7 @@ LoadAttachObject::LoadAttachObject(QString executable_name,
   paramList = param_list;
   loadNowHint = lnh;
   doesThisExperimentUseOfflineInstrumentation = isOff;
+  compareByThisType = localCompareByType;
 
 #ifdef DEBUG_LAO
   // debug for now
@@ -119,6 +122,7 @@ LoadAttachObject::print()
   } // end paramList if
   printf("	loadNowHint=(%d)\n", loadNowHint);
   printf("	doesThisExperimentUseOfflineInstrumentation=(%d)\n", doesThisExperimentUseOfflineInstrumentation);
+  printf("      compareByThisType=(%d)\n", compareByThisType); 
 
   printf("LoadAttachObject::print() exitted\n");
 

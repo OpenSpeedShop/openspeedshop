@@ -97,6 +97,9 @@ CompareWizardPanel::CompareWizardPanel(PanelContainer *pc, const char *n, Argume
   fn = QString::null;
   leftSideBaseName = QString::null;
   rightSideBaseName = QString::null;
+
+  setCompareByType(compareByFunctionType);
+
   char *cwd = get_current_dir_name();
   rightSideDirName = cwd;
   leftSideDirName = cwd;
@@ -339,6 +342,90 @@ vAttachOrLoadPageClearButton->hide();
   mainWidgetStack->addWidget( vAttachOrLoadPageWidget, 1 );
 // End: AttachOrLoad page
 
+
+// Begin: Select Comparison Type
+  vCompareTypePageWidget = new QWidget( mainWidgetStack, "vCompareTypePageWidget" );
+  vCompareTypePageWidget->setMinimumSize( QSize(10,10) );
+  vCompareTypePageLayout = new QVBoxLayout( vCompareTypePageWidget, 11, 6, "vCompareTypePageLayout"); 
+
+  vCompareTypePageChoiceLayout = new QVBoxLayout( 0, 0, 6, "vCompareTypePageChoiceLayout"); 
+
+  vCompareTypePageDescriptionText = new QTextEdit( vCompareTypePageWidget, "vCompareTypePageDescriptionText" );
+  vCompareTypePageDescriptionText->setReadOnly(TRUE);
+  vCompareTypePageDescriptionText->setMinimumSize( QSize(10,10) );
+  vCompareTypePageDescriptionText->setText( "Please choose the granularity of the comparison by selecting one of the following:\n\tBy Function Comparison: Show differences using per function performance information.\n\tBy Statement Comparison: Show differences using per statement performance information.\n\tBy Linked Object Comparison: Show differences using per linked object performance information.\n\t" );
+
+  vCompareTypePageDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
+  vCompareTypePageDescriptionText->setMinimumSize( QSize(10,10) );
+  vCompareTypePageDescriptionText->setWordWrap( QTextEdit::WidgetWidth );
+  vCompareTypePageLayout->addWidget( vCompareTypePageDescriptionText );
+
+
+  vCompareTypePageLine = new QFrame( vCompareTypePageWidget, "vCompareTypePageLine" );
+  vCompareTypePageLine->setMinimumSize( QSize(10,10) );
+  vCompareTypePageLine->setFrameShape( QFrame::HLine );
+  vCompareTypePageLine->setFrameShadow( QFrame::Sunken );
+  vCompareTypePageLine->setFrameShape( QFrame::HLine );
+  vCompareTypePageChoiceLayout->addWidget( vCompareTypePageLine );
+
+
+  vCompareTypeByFunctionCheckBox = new QCheckBox( vCompareTypePageWidget, "vCompareTypeByFunctionComboBox" );
+  vCompareTypeByFunctionCheckBox->setText(tr("By Function: Compare these two experiments based on function performance information.\n") );
+  vCompareTypeByFunctionCheckBox->setChecked(TRUE);
+  vCompareTypePageChoiceLayout->addWidget( vCompareTypeByFunctionCheckBox );
+  QToolTip::add( vCompareTypeByFunctionCheckBox, tr( "Selecting this directs Open|SpeedShop to compare these two\nexperiments using per function performance information.") );
+
+
+  vCompareTypeByStatementCheckBox = new QCheckBox( vCompareTypePageWidget, "vCompareTypeByStatementComboBox" );
+  vCompareTypeByStatementCheckBox->setText(tr("By Statement: Compare these two experiments based on statement performance information.\n") );
+  vCompareTypeByStatementCheckBox->setChecked(FALSE);
+  vCompareTypePageChoiceLayout->addWidget( vCompareTypeByStatementCheckBox );
+  QToolTip::add( vCompareTypeByStatementCheckBox, tr( "Selecting this directs Open|SpeedShop to compare these two\nexperiments using per statement performance information.") );
+
+
+  vCompareTypeByLinkedObjectCheckBox = new QCheckBox( vCompareTypePageWidget, "vCompareTypeByLinkedObjectComboBox" );
+  vCompareTypeByLinkedObjectCheckBox->setText(tr("By Linked Object: Compare these two experiments based on linked object performance information.\n") );
+  vCompareTypeByLinkedObjectCheckBox->setChecked(FALSE);
+  vCompareTypePageChoiceLayout->addWidget( vCompareTypeByLinkedObjectCheckBox );
+  QToolTip::add( vCompareTypeByLinkedObjectCheckBox, tr( "Selecting this directs Open|SpeedShop to compare these two\nexperiments using per linked object performance information.") );
+
+  vCompareTypePageLine2 = new QFrame( vCompareTypePageWidget, "vCompareTypePageLine2" );
+  vCompareTypePageLine2->setMinimumSize( QSize(10,10) );
+  vCompareTypePageLine2->setFrameShape( QFrame::HLine );
+  vCompareTypePageLine2->setFrameShadow( QFrame::Sunken );
+  vCompareTypePageLine2->setFrameShape( QFrame::HLine );
+  vCompareTypePageChoiceLayout->addWidget( vCompareTypePageLine2 );
+
+  vCompareTypePageButtonLayout = new QHBoxLayout( 0, 0, 6, "vCompareTypePageButtonLayout"); 
+
+  vCompareTypePageButtonSpacer = new QSpacerItem( 251, 1, QSizePolicy::Expanding, QSizePolicy::Minimum );
+  vCompareTypePageButtonLayout->addItem( vCompareTypePageButtonSpacer );
+
+  vCompareTypePageBackButton = new QPushButton( vCompareTypePageWidget, "vCompareTypePageBackButton" );
+  vCompareTypePageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vCompareTypePageBackButton->sizePolicy().hasHeightForWidth() ) );
+
+  vCompareTypePageButtonLayout->addWidget( vCompareTypePageBackButton );
+
+  vCompareTypePageClearButton = new QPushButton( vCompareTypePageWidget, "vCompareTypePageClearButton" );
+  vCompareTypePageClearButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vCompareTypePageClearButton->sizePolicy().hasHeightForWidth() ) );
+  vCompareTypePageButtonLayout->addWidget( vCompareTypePageClearButton );
+  vCompareTypePageClearButton->hide();
+
+  vCompareTypePageNextButton = new QPushButton( vCompareTypePageWidget, "vCompareTypePageNextButton" );
+  vCompareTypePageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vCompareTypePageNextButton->sizePolicy().hasHeightForWidth() ) );
+
+  vCompareTypePageButtonLayout->addWidget( vCompareTypePageNextButton );
+
+  vCompareTypePageFinishButton = new QPushButton( vCompareTypePageWidget, "vCompareTypePageFinishButton" );
+  vCompareTypePageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vCompareTypePageFinishButton->sizePolicy().hasHeightForWidth() ) );
+  vCompareTypePageButtonLayout->addWidget( vCompareTypePageFinishButton );
+
+  vCompareTypePageLayout->addLayout( vCompareTypePageChoiceLayout );
+  vCompareTypePageLayout->addLayout( vCompareTypePageButtonLayout );
+
+
+  mainWidgetStack->addWidget( vCompareTypePageWidget, 2 );
+
 // Begin: verbose summary page
   vSummaryPageWidget = new QWidget( mainWidgetStack, "vSummaryPageWidget" );
   vSummaryPageWidget->setMinimumSize( QSize(10,10) );
@@ -396,6 +483,15 @@ vAttachOrLoadPageClearButton->hide();
   connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this,
            SLOT( loadPageNextButtonSelected() ) );
 
+  connect( vCompareTypePageBackButton, SIGNAL( clicked() ), this,
+           SLOT( compareTypePageBackButtonSelected() ) );
+
+  connect( vCompareTypePageNextButton, SIGNAL( clicked() ), this,
+           SLOT( compareTypePageNextButtonSelected() ) );
+
+  connect( vCompareTypePageFinishButton, SIGNAL( clicked() ), this,
+           SLOT( vSummaryPageFinishButtonSelected() ) );
+
   connect( vSummaryPageBackButton, SIGNAL( clicked() ), this,
            SLOT( vSummaryPageBackButtonSelected() ) );
   connect( vSummaryPageFinishButton, SIGNAL( clicked() ), this,
@@ -403,6 +499,15 @@ vAttachOrLoadPageClearButton->hide();
 
   connect( vAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
+
+  connect( vCompareTypeByFunctionCheckBox, SIGNAL( clicked() ), this,
+           SLOT( vCompareTypeByFunctionCheckBoxSelected() ) );
+
+  connect( vCompareTypeByStatementCheckBox, SIGNAL( clicked() ), this,
+           SLOT( vCompareTypeByStatementCheckBoxSelected() ) );
+
+  connect( vCompareTypeByLinkedObjectCheckBox, SIGNAL( clicked() ), this,
+           SLOT( vCompareTypeByLinkedObjectCheckBoxSelected() ) );
 
   if( ao && ao->int_data == 0 )
   {
@@ -523,8 +628,8 @@ void CompareWizardPanel::loadPageNextButtonSelected()
 {
 #ifdef DEBUG_CWP
  printf("CompareWizardPanel::loadPageNextButtonSelected, loadPageNextButtonSelected() \n");
- printf("CompareWizardPanel::loadPageNextButtonSelected, leftSideExperimentComboBox->text()=(%s)\n", leftSideExperimentComboBox->currentText().ascii() );
- printf("CompareWizardPanel::loadPageNextButtonSelected, rightSideExperimentComboBox->text()=(%s)\n", rightSideExperimentComboBox->currentText().ascii() );
+ printf("CompareWizardPanel::loadPageNextButtonSelected, leftSideExperimentComboBox->currentText()=(%s)\n", leftSideExperimentComboBox->currentText().ascii() );
+ printf("CompareWizardPanel::loadPageNextButtonSelected, rightSideExperimentComboBox->currentText()=(%s)\n", rightSideExperimentComboBox->currentText().ascii() );
 #endif
 
   if( leftSideExperimentComboBox->currentText().isEmpty() )
@@ -538,11 +643,31 @@ void CompareWizardPanel::loadPageNextButtonSelected()
 
   vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment <b>\"%1/%2\"</b> with experiment <b>\"%3/%4\"</b>.  <p><p>Pressing finish will bring up a Compare Experiments Panel with your requested information.\n").arg(leftSideDirName).arg(leftSideExperimentComboBox->currentText()).arg(rightSideDirName).arg(rightSideExperimentComboBox->currentText()) ) );
 
+#if OLDWAY
   mainWidgetStack->raiseWidget(vSummaryPageWidget);
+#else 
+  mainWidgetStack->raiseWidget(vCompareTypePageWidget);
+#endif
 
   
 }
+
 // End verbose AttachOrLoad callbacks
+
+void CompareWizardPanel::compareTypePageBackButtonSelected()
+{
+  nprintf(DEBUG_PANELS) ("compareTypePageBackButtonSelected() \n");
+
+  mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
+}
+
+
+void CompareWizardPanel::compareTypePageNextButtonSelected()
+{
+  nprintf(DEBUG_PANELS) ("compareTypePageNextButtonSelected() \n");
+
+  mainWidgetStack->raiseWidget(vSummaryPageWidget);
+}
 
 
 void CompareWizardPanel::vSummaryPageBackButtonSelected()
@@ -550,6 +675,75 @@ void CompareWizardPanel::vSummaryPageBackButtonSelected()
   nprintf(DEBUG_PANELS) ("CompareWizardPanel::vSummaryPageBackButtonSelected() \n");
 
   mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
+}
+
+void CompareWizardPanel::vCompareTypeByFunctionCheckBoxSelected()
+{
+#ifdef DEBUG_CWP
+  printf("CompareWizardPanel::vCompareTypeByFunctionCheckBoxSelected(), leftSideExperimentComboBox->currentText().ascii()=%s\n", leftSideExperimentComboBox->currentText().ascii() );
+#endif
+  vCompareTypeByFunctionCheckBox->setChecked(TRUE);
+  setCompareByType(compareByFunctionType);
+  vCompareTypeByStatementCheckBox->setChecked(FALSE);
+  vCompareTypeByLinkedObjectCheckBox->setChecked(FALSE);
+}
+
+void CompareWizardPanel::vCompareTypeByStatementCheckBoxSelected()
+{
+#ifdef DEBUG_CWP
+  printf("CompareWizardPanel::vCompareTypeByStatementCheckBoxSelected(),leftSideExperimentComboBox->currentText().ascii()=%s\n", leftSideExperimentComboBox->currentText().ascii() );
+#endif
+  if( QString(leftSideExperimentComboBox->currentText()).contains("iot.openss") ||  
+      QString(leftSideExperimentComboBox->currentText()).contains("io.openss")  ||
+      QString(leftSideExperimentComboBox->currentText()).contains("mpi.openss")  ||
+      QString(leftSideExperimentComboBox->currentText()).contains("mpit.openss") ) {
+    // Warn about not being able to compare with statements for these experiments
+      int answer = QMessageBox::question ( this, tr("Question:"), tr("You're requesting to compare by statements for an experiment that does not have that information available.\n\nOnly by function comparisons are available.  Would you like to continue using function comparison information?"),   QMessageBox::Yes,  QMessageBox::No,  QMessageBox::NoButton );
+        if( answer ==  QMessageBox::Yes ) {
+            vCompareTypeByFunctionCheckBox->setChecked(TRUE);
+            vCompareTypeByStatementCheckBox->setChecked(FALSE);
+            setCompareByType(compareByFunctionType);
+            vCompareTypeByLinkedObjectCheckBox->setChecked(FALSE);
+            return;
+        }
+#ifdef DEBUG_CWP
+       printf("CompareWizardPanel::vCompareTypeByStatementCheckBoxSelected(), WE SHOULD WARN HERE leftSideExperimentComboBox->currentText().ascii()=%s\n", leftSideExperimentComboBox->currentText().ascii() );
+#endif
+  }
+
+  vCompareTypeByFunctionCheckBox->setChecked(FALSE);
+  vCompareTypeByStatementCheckBox->setChecked(TRUE);
+  setCompareByType(compareByStatementType);
+  vCompareTypeByLinkedObjectCheckBox->setChecked(FALSE);
+}
+
+void CompareWizardPanel::vCompareTypeByLinkedObjectCheckBoxSelected()
+{
+#ifdef DEBUG_CWP
+  printf("CompareWizardPanel::vCompareTypeByLinkedObjectCheckBoxSelected(), leftSideExperimentComboBox->currentText().ascii()=%s\n", leftSideExperimentComboBox->currentText().ascii() );
+#endif
+  if( QString(leftSideExperimentComboBox->currentText()).contains("iot.openss") ||  
+      QString(leftSideExperimentComboBox->currentText()).contains("io.openss")  ||
+      QString(leftSideExperimentComboBox->currentText()).contains("mpi.openss")  ||
+      QString(leftSideExperimentComboBox->currentText()).contains("mpit.openss") ) {
+    // Warn about not being able to compare with statements for these experiments
+      int answer = QMessageBox::question ( this, tr("Question:"), tr("You're requesting to compare by statements for an experiment that does not have that information available.\n\nOnly by function comparisons are available.  Would you like to continue using function comparison information?"),   QMessageBox::Yes,  QMessageBox::No,  QMessageBox::NoButton );
+        if( answer ==  QMessageBox::Yes ) {
+            vCompareTypeByFunctionCheckBox->setChecked(TRUE);
+            vCompareTypeByStatementCheckBox->setChecked(FALSE);
+            setCompareByType(compareByFunctionType);
+            vCompareTypeByLinkedObjectCheckBox->setChecked(FALSE);
+            return;
+        }
+#ifdef DEBUG_CWP
+       printf("CompareWizardPanel::vCompareTypeByLinkedObjectCheckBoxSelected(), WE SHOULD WARN HERE leftSideExperimentComboBox->currentText().ascii()=%s\n", leftSideExperimentComboBox->currentText().ascii() );
+#endif
+  }
+
+  vCompareTypeByFunctionCheckBox->setChecked(FALSE);
+  vCompareTypeByStatementCheckBox->setChecked(FALSE);
+  vCompareTypeByLinkedObjectCheckBox->setChecked(TRUE);
+  setCompareByType(compareByLinkedObjectType);
 }
 
 void CompareWizardPanel::finishButtonSelected()
@@ -563,76 +757,80 @@ void CompareWizardPanel::finishButtonSelected()
 void CompareWizardPanel::vSummaryPageFinishButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("CompareWizardPanel::vSummaryPageFinishButtonSelected() \n");
+
 #ifdef DEBUG_CWP
- printf("CompareWizardPanel::vSummaryPageFinishButtonSelected() \n");
+  printf("CompareWizardPanel::vSummaryPageFinishButtonSelected() \n");
 #endif
 
   {
-    if( fn.isEmpty() )
-    {
+
+    if( fn.isEmpty() ) {
+
 #ifdef DEBUG_CWP
- printf("CompareWizardPanel::leftSideExperimentComboBox->text()=(%s/%s)\n", leftSideDirName.ascii(), leftSideExperimentComboBox->currentText().ascii() );
- printf("CompareWizardPanel::rightSideExperimentComboBox->text()=(%s/%s)\n", rightSideDirName.ascii(), rightSideExperimentComboBox->currentText().ascii() );
+      printf("CompareWizardPanel::leftSideExperimentComboBox->text()=(%s/%s)\n", leftSideDirName.ascii(), leftSideExperimentComboBox->currentText().ascii() );
+      printf("CompareWizardPanel::rightSideExperimentComboBox->text()=(%s/%s)\n", rightSideDirName.ascii(), rightSideExperimentComboBox->currentText().ascii() );
 #endif
 
 //      leftSideDirName = leftSideExperimentComboBox->currentText();
 //      rightSideDirName = rightSideExperimentComboBox->currentText();
   
       if( leftSideDirName+"/"+leftSideExperimentComboBox->currentText() == 
-          rightSideDirName+"/"+rightSideExperimentComboBox->currentText() )
-      {
+          rightSideDirName+"/"+rightSideExperimentComboBox->currentText() ) {
         int answer = QMessageBox::question ( this, tr("Question:"), tr("You're requesting to compare the same 2 experiments.\n\nIs that what you intended?"),   QMessageBox::Yes,  QMessageBox::No,  QMessageBox::NoButton );
-        if( answer ==  QMessageBox::No )
-        {
+        if( answer ==  QMessageBox::No ) {
           mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
           return;
         }
       }
 
       vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment <b>\"%1/%2\"</b> with experiment <b>\"%3/%4\"</b>.  Pressing finish will bring up a Compare Experiments Panel with your requested information.\n").arg(leftSideDirName).arg(leftSideExperimentComboBox->currentText()).arg(rightSideDirName).arg(rightSideExperimentComboBox->currentText()) ) );
+
       mainWidgetStack->raiseWidget(vSummaryPageWidget);
-      if( getPanelContainer()->getMainWindow() )
-      { 
+
+      if( getPanelContainer()->getMainWindow() ) {
         OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-        if( mw )
-        {
+        if( mw ) {
           LoadAttachObject *lao = NULL;
           vSummaryPageFinishButton->setEnabled(FALSE);
           vSummaryPageBackButton->setEnabled(FALSE);
           qApp->flushX();
 
 #ifdef DEBUG_CWP
- printf("CompareWizardPanel::Create the CompareExperimentsPanel...\n");
+          printf("CompareWizardPanel::Create the CompareExperimentsPanel...\n");
 #endif
 
           Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Compare Experiments", getPanelContainer());
 
-          if( p )
-          {
-#ifdef DEBUG_CWP
- printf("CompareWizardPanel::First expRestore -f exp1; expRestore -f exp2;\n");
+          if( p ) {
 
- printf("CompareWizardPanel::The call the CompareExperimentsPanel's listener to load the stats panel with the arguments expCompare -x 1 -x 2 sort of syntax....\n");
- printf("CompareWizardPanel::leftSideDirName=%s\n",leftSideDirName.ascii());
- printf("CompareWizardPanel::leftSideExperimentComboBox->currentText()=%s\n",leftSideExperimentComboBox->currentText().ascii());
- printf("CompareWizardPanel::rightSideDirName=%s\n",rightSideDirName.ascii());
- printf("CompareWizardPanel::rightleftSideExperimentComboBox->currentText()=%s\n",rightSideExperimentComboBox->currentText().ascii());
+#ifdef DEBUG_CWP
+           printf("CompareWizardPanel::First expRestore -f exp1; expRestore -f exp2;\n");
+           printf("CompareWizardPanel::Then call the CompareExperimentsPanel's listener to load the stats panel with the arguments expCompare -x 1 -x 2 sort of syntax....\n");
+           printf("CompareWizardPanel::leftSideDirName=%s\n",leftSideDirName.ascii());
+           printf("CompareWizardPanel::leftSideExperimentComboBox->currentText()=%s\n",leftSideExperimentComboBox->currentText().ascii());
+           printf("CompareWizardPanel::rightSideDirName=%s\n",rightSideDirName.ascii());
+           printf("CompareWizardPanel::rightleftSideExperimentComboBox->currentText()=%s\n",rightSideExperimentComboBox->currentText().ascii());
+           printf("CompareWizardPanel:: getCompareByType()=%d\n", getCompareByType() );
 #endif
-           lao = new LoadAttachObject(QString::null, QString::null, QString::null, NULL, TRUE);
+           lao = new LoadAttachObject(QString::null, QString::null, QString::null, NULL, TRUE, compareByFunctionType /* default */ );
            lao->leftSideExperiment = leftSideDirName+"/"+leftSideExperimentComboBox->currentText();
            lao->rightSideExperiment = rightSideDirName+"/"+rightSideExperimentComboBox->currentText();
+           lao->compareByThisType = getCompareByType();
+
            p->listener((void *)lao);
-        } else 
-        {
+        } else {
           printf("Error creating \"Compare Experiments Panel\"\n");
         }
-        }
-      }
-    } else
-    {
+
+       } // end if (mw)
+      } // end getmainwindo
+
+    } else {
+
 #ifdef DEBUG_CWP
- printf("CompareWizardPanel::fn was not empty\n");
+      printf("CompareWizardPanel::fn was not empty\n");
 #endif
+
       getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
     }
   }
@@ -668,6 +866,13 @@ CompareWizardPanel::languageChange()
   QToolTip::add( vAttachOrLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
   vSummaryPageFinishLabel->setText( tr( "No summary available.\n" ) );
 
+  vCompareTypePageNextButton->setText( tr( "> Next" ) );
+  QToolTip::add( vCompareTypePageNextButton, tr( "Advance to the next wizard page." ) );
+  vCompareTypePageBackButton->setText( tr( "< Back" ) );
+  QToolTip::add( vCompareTypePageBackButton, tr( "Takes you back one page." ) );
+  vCompareTypePageFinishButton->setText( tr( ">> Finish" ) );
+  QToolTip::add( vCompareTypePageFinishButton, tr( "Advance to the wizard finish page." ) );
+
   vSummaryPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vSummaryPageBackButton, tr( "Takes you back one page." ) );
   vSummaryPageNextButton->setText( tr( "> Next" ) );
@@ -680,11 +885,10 @@ void
 CompareWizardPanel::vUpdateAttachOrLoadPageWidget()
 {
 #ifdef DEBUG_CWP
- printf("CompareWizardPanel::vUpdateAttachOrLoadPageWidget(), Pop up the dialog box to load an saved file.\n");
+  printf("CompareWizardPanel::vUpdateAttachOrLoadPageWidget(), Pop up the dialog box to load an saved file.\n");
 #endif
   requestExperimentFileName();
-  if( !fn.isEmpty() )
-  {
+  if( !fn.isEmpty() ) {
     mainWidgetStack->raiseWidget(vSummaryPageWidget);
   }
 
@@ -706,8 +910,8 @@ CompareWizardPanel::requestExperimentFileName()
     {
       getPanelContainer()->getMainWindow()->executableName = QString::null;
 #ifdef DEBUG_CWP
- printf("CompareWizardPanel::requestExperimentFileName, fn = %s\n", fn.ascii() );
- printf("CompareWizardPanel::requestExperimentFileName, A: Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
+      printf("CompareWizardPanel::requestExperimentFileName, fn = %s\n", fn.ascii() );
+      printf("CompareWizardPanel::requestExperimentFileName, A: Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
 #endif
       vSummaryPageFinishLabel->setText( tr( QString("You are requesting to load saved experiment <b>\"%1\"</b>.  Pressing finish will bring up your requested information.\n").arg(fn) ) );
     }
@@ -817,23 +1021,17 @@ printf("CompareWizardPanel::rightSideExperimentDirButtonSelected, fn=(%s)\n", fn
   if( !rightSideDirName.isEmpty() )
   {
     char buffer[2048];
-    if( !fn.isEmpty() )
-    {
-      if( fi.isFile() )
-      { // The user gave us a direct, possibly non .openss conforming filename.
+    if( !fn.isEmpty() ) {
+      if( fi.isFile() ) { // The user gave us a direct, possibly non .openss conforming filename.
         rightSideExperimentComboBox->insertItem( fn );
-      } else
-      {
+      } else {
         QDir *dir = new QDir( rightSideDirName, "*.openss" );
         QFileInfoList *fileList = (QFileInfoList*)(dir->entryInfoList());
-        if( rightSideExperimentComboBox )
-        {
-          if( fileList )
-          {
+        if( rightSideExperimentComboBox ) {
+          if( fileList ) {
             rightSideExperimentComboBox->clear();
             QFileInfo *fileInfo = fileList->first();
-            while( fileInfo )
-            {
+            while( fileInfo ) {
               rightSideExperimentComboBox->insertItem( fileInfo->fileName().ascii() );
               fileInfo = fileList->next();
             }
@@ -856,8 +1054,7 @@ CompareWizardPanel::handleSizeEvent(QResizeEvent *e)
   calculated_height += leftSideExperimentDirButton->height();
 
   int height = getPanelContainer()->parent->height();
-  if( calculated_height > height )
-  {
+  if( calculated_height > height ) {
     height = calculated_height;
   }
 
