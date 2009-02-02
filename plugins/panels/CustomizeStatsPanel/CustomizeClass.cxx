@@ -85,6 +85,8 @@ CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bo
 
   csl = NULL;
   dialog = NULL;
+  currentCompareByType = compareByFunctionType; // default compare type is by function
+  currentCompareTypeStr = "functions"; // default current compare by string
 
   if ( !name ) setName( "CustomizeClass" );
 
@@ -148,19 +150,51 @@ void CustomizeClass::languageChange()
   setCaption( tr( "Customize StatsPanel Class" ) );
 }
 
+void
+CustomizeClass::compareByFunction()
+{
+#ifdef DEBUG_CC 
+  printf("CustomizeClass::compareByFunction() entered\n");
+#endif
+  currentCompareTypeStr = "functions";
+  currentCompareByType = compareByFunctionType;
+}
+
+void
+CustomizeClass::compareByStatement()
+{
+#ifdef DEBUG_CC 
+  printf("CustomizeClass::compareByStatement() entered\n");
+#endif
+  currentCompareTypeStr = "statements";
+  currentCompareByType = compareByStatementType;
+}
+
+void
+CustomizeClass::compareByLinkedObject()
+{
+#ifdef DEBUG_CC 
+  printf("CustomizeClass::compareByLinkedObject() entered\n");
+#endif
+  currentCompareTypeStr = "linkedobjects";
+  currentCompareByType = compareByLinkedObjectType;
+}
+
 bool
 CustomizeClass::menu(QPopupMenu* contextMenu)
 {
+
   CompareSet *currentCompareSet = findCurrentCompareSet();
   QString currentCompareSetString = QString::null;
   QString currentColumnString = QString::null;
 
-  if( currentCompareSet )
-  {
+  if( currentCompareSet ) {
+
     currentCompareSetString = QString(" (%1)").arg(currentCompareSet->name);
     QTabWidget *currentTabWidget = (QTabWidget* )csetTB->currentItem();
     QWidget *currentTab = currentTabWidget->currentPage();
     currentColumnString = QString(" (%1)").arg(currentTabWidget->tabLabel( currentTab ) );
+
   }
 
 
@@ -179,12 +213,60 @@ CustomizeClass::menu(QPopupMenu* contextMenu)
   qaction = new QAction( this,  "focusOnProcess");
   qaction->addTo( contextMenu );
 //  qaction->setText( tr(QString("Focus Stats Panel with defined info...")+currentCompareSetString) );
-  qaction->setText( tr(QString("Focus StatsPanel")) );
+  qaction->setText( tr(QString("Focus StatsPanel (Generate Compare View)")) );
   connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnCSetSelected() ) );
   qaction->setStatusTip( tr("Focus the StatsPanel on defined set of information.") );
 
 
   contextMenu->insertSeparator();
+
+  bool full_compare_by_menu = TRUE;
+  QString collectorName = getCollectorName();
+  if (collectorName.contains("mpi") || collectorName.contains("io")) {
+    full_compare_by_menu = FALSE;
+  }
+
+  QPopupMenu *compareByMenu = new QPopupMenu( contextMenu );
+//  qaction = new QAction( this,  "compareByFunction");
+//  qaction->addTo( compareByMenu );
+//  qaction->setText( tr("Compare By Function") );
+//  connect( qaction, SIGNAL( activated() ), this, SLOT( compareByFunction() ) );
+//  qaction->setStatusTip( tr("Compare the columns using function level performance information.") );
+  compareByMenu->insertItem(tr("Compare By Function"), this, SLOT(compareByFunction()),CTRL+Key_1,0,-1);
+  if (currentCompareByType == compareByFunctionType || !full_compare_by_menu) {
+     compareByMenu->setItemChecked(0, TRUE);
+  } else {
+     compareByMenu->setItemChecked(0, FALSE);
+  } 
+
+  if (full_compare_by_menu) {
+
+//    qaction = new QAction( this,  "compareByStatement");
+//    qaction->addTo( compareByMenu );
+//    qaction->setText( tr("Compare By Statement") );
+//    connect( qaction, SIGNAL( activated() ), this, SLOT( compareByStatement() ) );
+//    qaction->setStatusTip( tr("Compare the columns using statement level performance information.") );
+    compareByMenu->insertItem(tr("Compare By Statement"), this, SLOT(compareByStatement()),CTRL+Key_1,1,-1);
+    if (currentCompareByType == compareByStatementType) {
+       compareByMenu->setItemChecked(1, TRUE);
+    } else {
+       compareByMenu->setItemChecked(1, FALSE);
+    } 
+
+//    qaction = new QAction( this,  "compareByLinkedObject");
+//    qaction->addTo( compareByMenu );
+//    qaction->setText( tr("Compare By Linked Object") );
+//    connect( qaction, SIGNAL( activated() ), this, SLOT( compareByLinkedObject() ) );
+//    qaction->setStatusTip( tr("Compare the columns using linked object level performance information.") );
+    compareByMenu->insertItem(tr("Compare By Linked Object"), this, SLOT(compareByLinkedObject()),CTRL+Key_1,2,-1);
+    if (currentCompareByType == compareByLinkedObjectType) {
+       compareByMenu->setItemChecked(2, TRUE);
+    } else {
+       compareByMenu->setItemChecked(2, FALSE);
+    } 
+  } // end full_compare_by_menu
+
+  contextMenu->insertItem("Compare By... ", compareByMenu);
 
 #ifdef NONWALKING
   qaction = new QAction( this,  "addNewColumn");
@@ -307,6 +389,42 @@ CustomizeClass::updatePanel()
   updateInfo();
 }
 
+QString
+CustomizeClass::getCollectorName()
+{
+  CompareSet *compareSet = findCurrentCompareSet();
+  if( compareSet ) {
+
+#ifdef DEBUG_CC
+    printf("CustomizeClass::getCollectorName, CompareSet: (%s)'s info\n", compareSet->name.ascii() );
+#endif
+
+    ColumnSetList::Iterator it;
+    it = compareSet->columnSetList.begin();
+    if ( it != compareSet->columnSetList.end() ) {
+      ColumnSet *columnSet = (ColumnSet *)*it;
+
+#ifdef DEBUG_CC
+      printf("CustomizeClass::getCollectorName, \t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
+      printf("CustomizeClass::getCollectorName, \t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
+      printf("CustomizeClass::getCollectorName, \t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
+      printf("CustomizeClass::getCollectorName, \t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
+#endif // 0
+
+      {
+       QString collectorName = columnSet->collectorComboBox->currentText().ascii();
+       QString metricName = columnSet->metricComboBox->currentText().ascii();
+#ifdef DEBUG_CC
+       printf("CustomizeClass::getCollectorName, collectorName=(%s)\n", collectorName.ascii() );
+#endif
+       return collectorName;
+      }
+    } // end if not end()
+  } // end if compareSet
+
+
+}
+
 void
 CustomizeClass::focusOnCSetSelected()
 {
@@ -321,38 +439,38 @@ CustomizeClass::focusOnCSetSelected()
   QString temp_expCompareCommand = "cViewCreate ";
 
   CompareSet *compareSet = findCurrentCompareSet();
-  if( compareSet )
-  {
+
+  if( compareSet ) {
+
     cIntList.clear();
+
 #ifdef DEBUG_CC 
     printf("CustomizeClass::focusOnCSetSelected, CompareSet: (%s)'s info\n", compareSet->name.ascii() );
 #endif
+
     ColumnSetList::Iterator it;
     for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
     {
       ColumnSet *columnSet = (ColumnSet *)*it;
+
 #ifdef DEBUG_CC 
       printf("CustomizeClass::focusOnCSetSelected, \t: ColumnSet (%s)'s info\n", columnSet->name.ascii() );
       printf("CustomizeClass::focusOnCSetSelected, \t\t: experimentComboBox=(%s)\n", columnSet->experimentComboBox->currentText().ascii() );
       printf("CustomizeClass::focusOnCSetSelected, \t\t: collectorComboBox=(%s)\n", columnSet->collectorComboBox->currentText().ascii() );
       printf("CustomizeClass::focusOnCSetSelected, \t\t: metricComboBox=(%s)\n", columnSet->metricComboBox->currentText().ascii() );
 #endif // 0
-      {
-      int id = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
-      QString collectorName = columnSet->collectorComboBox->currentText().ascii();
-      QString metricName = columnSet->metricComboBox->currentText().ascii();
-#if 0
-      QString vType = "-v statements";
-      cViewCreateCommand += QString("-x %1 %2 -m %3 %4").arg(id).arg(collectorName).arg(metricName).arg(vType);
-#else
-      QString loType = "-v linkedobjects";
-      cViewCreateCommand += QString("-x %1 %2 -m %3 %4").arg(id).arg(collectorName).arg(metricName).arg(loType);
-#endif
 
-      if( temp_expCompareCommand.isEmpty() )
       {
-        temp_expCompareCommand += QString("%2 -m %3 ").arg(collectorName).arg(metricName);
-      }
+       int id = columnSet->getExpidFromExperimentComboBoxStr(columnSet->experimentComboBox->currentText());
+       QString collectorName = columnSet->collectorComboBox->currentText().ascii();
+       QString metricName = columnSet->metricComboBox->currentText().ascii();
+
+       cViewCreateCommand += QString("-x %1 %2 -m %3 -v %4").arg(id).arg(collectorName).arg(metricName).arg(currentCompareTypeStr);
+ 
+       if( temp_expCompareCommand.isEmpty() ) {
+         temp_expCompareCommand += QString("%2 -m %3 ").arg(collectorName).arg(metricName);
+       }
+
       }
 
 
@@ -383,29 +501,32 @@ CustomizeClass::focusOnCSetSelected()
          lvi->descriptionClassObject->Print();
        }
 #endif // 1
-        if( focus_msg == NULL )
-        {
+
+        if( focus_msg == NULL ) {
           focus_msg = new FocusCompareObject(expID,  NULL, TRUE);
         }
-        if( !lvi || !lvi->descriptionClassObject )
-        {
+
+        if( !lvi || !lvi->descriptionClassObject ) {
           ++it;
           continue;
 //      QMessageBox::information( this, tr("Focus Error:"), tr("Unable to focus on selection: No description for process(es)."), QMessageBox::Ok );
 //      return;
         }
 
-        if( lvi->descriptionClassObject->all )
-        {
+        if( lvi->descriptionClassObject->all ) {
+
 #ifdef DEBUG_CC 
            printf("CustomizeClass::focusOnCSetSelected, Do ALL threads, everywhere.\n");
 #endif
-        } else if( lvi->descriptionClassObject->root )
-        {
+
+        } else if( lvi->descriptionClassObject->root ) {
+
           // Loop through all the children...
+
 #ifdef DEBUG_CC 
           printf("CustomizeClass::focusOnCSetSelected, Loop through all the children.\n");
 #endif
+
           MPListViewItem *mpChild = (MPListViewItem *)lvi->firstChild();
           while( mpChild )
           {
@@ -504,22 +625,26 @@ CustomizeClass::focusOnCSetSelected()
       int64_t val = 0;
       bool mark_value_for_delete = true;
       QString command = QString(cViewCreateCommand);
+
 #ifdef DEBUG_CC 
        printf("CustomizeClass::focusOnCSetSelected, command=(%s)\n", command.ascii() );
 #endif
-      if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete   ) )
-      {
+
+      if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete   ) ) {
         printf("CustomizeClass::focusOnCSetSelected, Unable to creat cview for %s\n", command.ascii() );
         return;
       }
+
 #ifdef DEBUG_CC 
       printf("CustomizeClass::focusOnCSetSelected, pushback %d\n", val);
 #endif
+
       cIntList.push_back(val);
       // Now start over...
       cViewCreateCommand = "cViewCreate ";
       }
-    }
+
+    } // end for
 
     focus_msg->compare_command = QString("cview -c ");
     QValueList<int64_t>::Iterator cit;
@@ -528,8 +653,7 @@ CustomizeClass::focusOnCSetSelected()
     {
       int64_t cval = (int64_t)*cit;
   
-      if( count > 0 )
-      {
+      if( count > 0 ) {
         focus_msg->compare_command += QString(", ");
       }
       focus_msg->compare_command += QString("%1").arg(cval);

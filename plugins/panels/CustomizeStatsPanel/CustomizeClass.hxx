@@ -79,6 +79,9 @@ public:
     int ccnt;
 
     CompareProcessesDialog *dialog;
+    QString currentCompareTypeStr;
+    int currentCompareByType;
+    QString getCollectorName();
 
 protected:
     QVBoxLayout* compareClassLayout;
@@ -93,6 +96,9 @@ protected slots:
     virtual void languageChange();
 
 public slots:
+    void compareByFunction();
+    void compareByStatement();
+    void compareByLinkedObject();
     void updatePanel();
     void addNewCSet();
     void addNewColumn();

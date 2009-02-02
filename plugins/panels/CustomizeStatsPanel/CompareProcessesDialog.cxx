@@ -16,6 +16,10 @@
 // along with this library; if not, write to the Free Software Foundation, Inc.,
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
+
+// debug flag
+//#define DEBUG_COMPARE 1
+// end debug flag
   
 
 #include "CompareProcessesDialog.hxx"
@@ -46,9 +50,6 @@
 #include "SS_Input_Manager.hxx"
 
 
-// debug flag
-//#define DEBUG_COMPARE 1
-// end debug flag
 
 
 CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
@@ -194,6 +195,11 @@ CompareProcessesDialog::~CompareProcessesDialog()
  */
 void CompareProcessesDialog::languageChange()
 {
+
+#ifdef DEBUG_COMPARE
+  printf("CompareProcessesDialog::languageChange called.\n");
+#endif
+
   setCaption( tr( name() ) );
   addProcessesLabel->setText( tr( "Add processes:" ) );
 #ifndef LATER
@@ -215,11 +221,19 @@ CompareProcessesDialog::selectedExperiment(int *expID)
 #ifdef DEBUG_COMPARE
   printf("CompareProcessesDialog:::selectedExperiment() expID=%d, selectedItem=%d\n", expID, selectedItem);
 #endif
+
   if( selectedItem ) {
+
 #ifdef DEBUG_COMPARE
     printf("CompareProcessesDialog:::selectedExperiment() HAVE selectedItem=%d\n", selectedItem);
 #endif
+
   } else {
+
+#ifdef DEBUG_COMPARE
+    printf("CompareProcessesDialog:::selectedExperiment() NO ITEMS SELECTED\n");
+#endif
+
     nprintf( DEBUG_PANELS ) ("NO ITEMS SELECTED\n");
     return( NULL );
   }
@@ -229,6 +243,10 @@ CompareProcessesDialog::selectedExperiment(int *expID)
 void
 CompareProcessesDialog::updateInfo()
 {
+
+#ifdef DEBUG_COMPARE
+  printf("CompareProcessesDialog:::updateInfo(), call restoreOverridCursor\n");
+#endif
 
   QApplication::restoreOverrideCursor();
 }
@@ -248,15 +266,18 @@ CompareProcessesDialog::help()
 void
 CompareProcessesDialog::acceptProcesses()
 {
+
 #ifdef DEBUG_COMPARE
  printf("CompareProcessesDialog::acceptProcesses()\n");
 #endif
+
  accept();
 }
 
 void
 CompareProcessesDialog::addProcesses()
 {
+
 #ifdef DEBUG_COMPARE
  printf("CompareProcessesDialog::addProcesses(), addProcessesRegExpLineEdit->text().ascii()=%s\n", addProcessesRegExpLineEdit->text().ascii() );
 #endif
@@ -273,9 +294,11 @@ CompareProcessesDialog::addProcesses()
   host = "Unknown";
 
   QStringList fields = QStringList::split( ",", inputText );
+
 #ifdef DEBUG_COMPARE
   printf("CompareProcessesDialog::addProcesses(), inputText.ascii()=%s\n", inputText.ascii() );
 #endif
+
   for ( QStringList::Iterator it = fields.begin(); it != fields.end(); ++it )
   {
     host_pidstr = ((QString)*it).stripWhiteSpace();
@@ -286,38 +309,43 @@ CompareProcessesDialog::addProcesses()
 
     DescriptionClassObjectList *validatedHostPidList = validateHostPid(host_pidstr);
 
-    if( validatedHostPidList )
-    {
+    if( validatedHostPidList ) {
+
 #ifdef DEBUG_COMPARE
     printf("CompareProcessesDialog::addProcesses(), There seems to be a list... is there really something to add?\n");
 #endif
+
       // First look for a selected item in the drop zone.
+
       MPListViewItem *selectedItem = NULL;
       QListViewItemIterator it(lv, QListViewItemIterator::Selected);
-      while( it.current() )
-      {
+
+      while( it.current() ) {
         selectedItem = (MPListViewItem *)it.current();
         break;
       }
+
       // Make sure it the right target
-      if( selectedItem && selectedItem->parent() && selectedItem->parent()->text(0) == UDPS )
-      {
+      if( selectedItem && selectedItem->parent() && selectedItem->parent()->text(0) == UDPS ) {
+
 #ifdef DEBUG_COMPARE
         printf("CompareProcessesDialog::addProcesses(), Well I think we have a real selected item to add to ..\n");
 #endif
-      } else
-      {
+
+      } else {
+
 #ifdef DEBUG_COMPARE
         printf("CompareProcessesDialog::addProcesses(), Well I thought we had a real selected item to add to ..BUT NO\n");
 #endif
+
         selectedItem = NULL;
       }
       
 #ifdef DEBUG_COMPARE
       printf("CompareProcessesDialog::addProcesses(), selectedItem=%d\n", selectedItem);
 #endif
-      if( !selectedItem )
-      {
+
+      if( !selectedItem ) {
         selectedItem = (MPListViewItem *)lv->firstChild();
       }
 
@@ -326,8 +354,10 @@ CompareProcessesDialog::addProcesses()
       {
         DescriptionClassObject *dco = (DescriptionClassObject *)*it;
         MPListViewItem *item = new MPListViewItem( selectedItem, dco->host_name, dco->pid_name, dco->rid_name, dco->tid_name );
+
 #ifdef DEBUG_COMPARE
-    printf("CompareProcessesDialog::addProcesses(), A: host_name=(%s) pid_name=(%s) rid_name=(%s) tid_name=(%s)\n", dco->host_name.ascii(), dco->pid_name.ascii(), dco->rid_name.ascii(), dco->tid_name.ascii() );
+        printf("CompareProcessesDialog::addProcesses(), A: host_name=(%s) pid_name=(%s) rid_name=(%s) tid_name=(%s)\n", 
+               dco->host_name.ascii(), dco->pid_name.ascii(), dco->rid_name.ascii(), dco->tid_name.ascii() );
 #endif
         item->descriptionClassObject = dco;
       }
@@ -340,8 +370,9 @@ CompareProcessesDialog::addProcesses()
 void
 CompareProcessesDialog::removeProcesses()
 {
+
 #ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(), removeProcesses(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
+  printf("CompareProcessesDialog::removeProcesses(), removeProcesses(%s)\n", addProcessesRegExpLineEdit->text().ascii() );
 #endif
 
   QString lower_rangestr = QString::null;
@@ -363,39 +394,39 @@ CompareProcessesDialog::removeProcesses()
     target_hostpid_str = (QString)*it;
     target_hoststr = QString::null;
     int colon_index = target_hostpid_str.find(":");
-    if( colon_index > -1 )
-    {
+    if( colon_index > -1 ) {
       target_hoststr =  target_hostpid_str.left(colon_index).stripWhiteSpace();
     
       int length = target_hostpid_str.length();
       length--; // We want to skip the ":"
       target_pidstr = target_hostpid_str.right(length-colon_index).stripWhiteSpace();
-    } else
-    {
+    } else {
       target_pidstr = target_hostpid_str.stripWhiteSpace();
     }
+
 // Begin PSET delete
   // First check to see if we have a dynamic pset name.
-    if( isPSetName(target_pidstr) == TRUE )
-    {
+
+    if( isPSetName(target_pidstr) == TRUE ) {
       bool deleted = FALSE;
       QListViewItemIterator it( lv );
       it++;
-      while ( it.current() )
-      {
+      while ( it.current() ) {
+
         QListViewItem *item = it.current();
-        if( item->text(0) == target_pidstr || item->text(0) == target_pidstr+"*" )
-        {
+        if( item->text(0) == target_pidstr || item->text(0) == target_pidstr+"*" ) {
           delete item;
           deleted = TRUE;
           break;
         }
         it++;
-      }
-      if( deleted == TRUE )
-      {
+
+      } // end while
+
+      if( deleted == TRUE ) {
         continue;
       }
+
     }
 // End PSET delete
   
@@ -417,23 +448,26 @@ CompareProcessesDialog::removeProcesses()
 #endif
       int lb_index = target_pidstr.findRev("[", dash_index);
       int rb_index = target_pidstr.findRev("]", dash_index);
-      if( rb_index > lb_index || lb_index == -1 )
-      {
+      if( rb_index > lb_index || lb_index == -1 ) {
+
 #ifdef DEBUG_COMPARE
-    printf("CompareProcessesDialog::removeProcesses(), There's a RANGE of processes to remove!\n");
+        printf("CompareProcessesDialog::removeProcesses(), There's a RANGE of processes to remove!\n");
 #endif
+
         int length = target_pidstr.length();
         lower_rangestr = target_pidstr.left(dash_index);
-        if( !lower_rangestr.isEmpty() )
-        {
+
+        if( !lower_rangestr.isEmpty() ) {
           lower_range = lower_rangestr.toInt();
         }
+
         length--; // We want to skip the "-"
         upper_rangestr = target_pidstr.right(length-dash_index);
-        if( !upper_rangestr.isEmpty() )
-        {
+
+        if( !upper_rangestr.isEmpty() ) {
           upper_range = upper_rangestr.toInt();
         }
+
       }
     }
 
@@ -444,208 +478,220 @@ CompareProcessesDialog::removeProcesses()
     printf("CompareProcessesDialog::removeProcesses(), upper_rangestr=(%s)\n", upper_rangestr.ascii() );
 #endif
    
-    if( target_pidstr.find("*") > -1 )
-    {
+    if( target_pidstr.find("*") > -1 ) {
+
 #ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(), Found a wildcard!\n");
+      printf("CompareProcessesDialog::removeProcesses(), Found a wildcard!\n");
 #endif
+
     }
+
     // Loop through and attempt to find and delete this item.
-// First look for a selected item in the drop zone.
-MPListViewItem *selectedItem = NULL;
-QListViewItemIterator it(lv, QListViewItemIterator::Selected);
-while( it.current() )
-{
-  selectedItem = (MPListViewItem *)it.current();
-  break;
-}
-// Make sure it the right target
-if( selectedItem && selectedItem->parent() && selectedItem->parent()->text(0) == UDPS )
-{
-#ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(), Well I think we have a real seletected item to remove to ..\n");
-#endif
-} else
-{
-  selectedItem = NULL;
-}
-
-if( !selectedItem )
-{
-  selectedItem = (MPListViewItem *)lv->firstChild();
-}
-
-#ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(), lv->firstChild()->text(0)=(%s)\n", lv->firstChild()->text(0).ascii() );
-#endif
-if( !selectedItem || lv->firstChild()->text(0) == CPS )
-{
-#ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(), Do it the old way and loop through everyone..\n");
-#endif
-    QListViewItemIterator it( lv );
-    it++;
-    while ( it.current() )
+    // First look for a selected item in the drop zone.
+    MPListViewItem *selectedItem = NULL;
+    QListViewItemIterator it(lv, QListViewItemIterator::Selected);
+    while( it.current() )
     {
+      selectedItem = (MPListViewItem *)it.current();
+      break;
+    }
+    // Make sure it the right target
+    if( selectedItem && selectedItem->parent() && selectedItem->parent()->text(0) == UDPS ) {
+
+#ifdef DEBUG_COMPARE
+      printf("CompareProcessesDialog::removeProcesses(), Well I think we have a real seletected item to remove to ..\n");
+#endif
+    } else {
+      selectedItem = NULL;
+    }
+
+    if( !selectedItem ) {
+      selectedItem = (MPListViewItem *)lv->firstChild();
+    }
+
+#ifdef DEBUG_COMPARE
+     printf("CompareProcessesDialog::removeProcesses(), lv->firstChild()->text(0)=(%s)\n", lv->firstChild()->text(0).ascii() );
+#endif
+    if( !selectedItem || lv->firstChild()->text(0) == CPS ) {
+#ifdef DEBUG_COMPARE
+     printf("CompareProcessesDialog::removeProcesses(), Do it the old way and loop through everyone..\n");
+#endif
+     QListViewItemIterator it( lv );
+     it++;
+     while ( it.current() ) {
       QListViewItem *item = it.current();
       ++it;
 
-      if( !item )
-      {
+      if( !item ) {
         continue;
       }
 
-      if( item->text(0).isEmpty() )
-      {
+      if( item->text(0).isEmpty() ) {
         continue;
       }
   
       QString pidstr = item->text(0).stripWhiteSpace();
+
 #ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(), pidstr=(%s)\n", pidstr.ascii() );
+      printf("CompareProcessesDialog::removeProcesses(), pidstr=(%s)\n", pidstr.ascii() );
 #endif
+
       // Skip any pset names...\n");
-      if( isPSetName(QString(pidstr)) == TRUE )
-      { // skip pset names...
+      if( isPSetName(QString(pidstr)) == TRUE ) { 
+        // skip pset names...
         continue;
       }
+
       QString host_name = item->text(1).stripWhiteSpace();
+
 #ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(), host_name=(%s)\n", host_name.ascii() );
+      printf("CompareProcessesDialog::removeProcesses(), host_name=(%s)\n", host_name.ascii() );
 #endif
-      if( !host_name.isEmpty() && host_name.find(hostRegExp) == -1 )
-      {
+
+      if( !host_name.isEmpty() && host_name.find(hostRegExp) == -1 ) {
+
 #ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(), NO MATCH FOR HOSTNAME!\n");
+        printf("CompareProcessesDialog::removeProcesses(), NO MATCH FOR HOSTNAME!\n");
 #endif
         continue;
       }
-      if( lower_range >= 0 && upper_range >= 0 )
-      {
+
+#ifdef DEBUG_COMPARE
+      printf("CompareProcessesDialog::removeProcesses(), lower_range=%d, upper_range=%d\n", lower_range, upper_range);
+#endif
+      if( lower_range >= 0 && upper_range >= 0 ) {
         int pid = pidstr.toInt();
-        if( pid < lower_range || pid > upper_range )
-        {
+#ifdef DEBUG_COMPARE
+        printf("CompareProcessesDialog::removeProcesses(), pid=%d, lower_range=%d, upper_range=%d\n", pid, lower_range, upper_range);
+#endif
+        if( pid < lower_range || pid > upper_range ) {
           continue;
         }
-      } else
-      {
-        if( pidstr.find(pidRegExp) == -1 )
-        {
+      } else {
+        if( pidstr.find(pidRegExp) == -1 ) {
+
 #ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(), NO MATCH FOR PID!\n");
+          printf("CompareProcessesDialog::removeProcesses(), NO MATCH FOR PID!\n");
 #endif
           continue;
         }
       }
+
 #ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(), HERE: delete item=(%s)\n", item->text(0).ascii() );
+      printf("CompareProcessesDialog::removeProcesses(), HERE: delete item=(%s)\n", item->text(0).ascii() );
 #endif
       delete item;
     }
-} else
-{
+
+   } else {
+
 #ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(), Loop through just the children of (%s)\n", selectedItem->text(0).ascii() );
+    printf("CompareProcessesDialog::removeProcesses(), Loop through just the children of (%s)\n", selectedItem->text(0).ascii() );
 #endif
+
     QListViewItemIterator it( lv );
     it++;
 
     MPListViewItem *endItem = NULL;
     // find the start item.
-    while( it.current() )
-    {
-      if( it.current() == selectedItem )
-      {
+    while( it.current() ) {
+      if( it.current() == selectedItem ) {
         break;
       }
       ++it;
     }
+
     endItem = (MPListViewItem *)selectedItem->nextSibling();
     ++it;
-    while ( it.current() )
-    {
+
+    while ( it.current() ) {
       QListViewItem *item = it.current();
-      if( endItem != NULL && endItem == item )
-      { // That's the end of the range to remove items from...
+      if( endItem != NULL && endItem == item ) { 
+        // That's the end of the range to remove items from...
         break;
       }
       ++it;
 
-      if( !item )
-      {
+      if( !item ) {
         continue;
       }
 
-      if( item->text(0).isEmpty() )
-      {
+      if( item->text(0).isEmpty() ) {
         continue;
       }
   
       QString pidstr = item->text(0).stripWhiteSpace();
+
 #ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(), pidstr=(%s)\n", pidstr.ascii() );
+      printf("CompareProcessesDialog::removeProcesses(), pidstr=(%s)\n", pidstr.ascii() );
 #endif
+
       // Skip any pset names...\n");
-      if( isPSetName(QString(pidstr)) == TRUE )
-      { // skip pset names...
+      if( isPSetName(QString(pidstr)) == TRUE ) { 
+        // skip pset names...
         continue;
       }
+
       QString host_name = item->text(1).stripWhiteSpace();
-      if( !host_name.isEmpty() && host_name.find(hostRegExp) == -1 )
-      {
+
+      if( !host_name.isEmpty() && host_name.find(hostRegExp) == -1 ) {
         continue;
       }
+
 #ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(), host_name=(%s)\n", host_name.ascii() );
+      printf("CompareProcessesDialog::removeProcesses(), host_name=(%s)\n", host_name.ascii() );
 #endif
-      if( lower_range >= 0 && upper_range >= 0 )
-      {
+
+      if( lower_range >= 0 && upper_range >= 0 ) {
         int pid = pidstr.toInt();
-        if( pid < lower_range || pid > upper_range )
-        {
+        if( pid < lower_range || pid > upper_range ) {
           continue;
         }
-      } else
-      {
-        if( pidstr.find(pidRegExp) == -1 )
-        {
+      } else {
+        if( pidstr.find(pidRegExp) == -1 ) {
           continue;
         }
       }
+
 #ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(),  Can you delete?\n");
+      printf("CompareProcessesDialog::removeProcesses(),  Can you delete?\n");
 #endif
-      if( !item->firstChild() )
-      {
+
+      if( !item->firstChild() ) {
+
 #ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::removeProcesses(), here: delete item=(%s)\n", item->text(0).ascii() );
+        printf("CompareProcessesDialog::removeProcesses(), here: delete item=(%s)\n", item->text(0).ascii() );
 #endif
         delete item;
       }
     }
-}
-  }
+   }
+  } // end for
 
 }
 
 bool
 CompareProcessesDialog::isPSetName(QString name)
 {
+
 #ifdef DEBUG_COMPARE
- printf("CompareProcessesDialog::isPSetName(%s) entered\n", name.ascii() );
+  printf("CompareProcessesDialog::isPSetName(%s) entered\n", name.ascii() );
 #endif
 
   for ( QStringList::Iterator it = psetNameList.begin(); it != psetNameList.end(); ++it )
   {
     QString pset_namestr = (QString)*it;
+
 #ifdef DEBUG_COMPARE
 // printf("Is it pset named %s\n", pset_namestr.ascii() );
 #endif
-    if( pset_namestr == name || pset_namestr+"*" == name )
-    {
+
+    if( pset_namestr == name || pset_namestr+"*" == name ) {
+
 #ifdef DEBUG_COMPARE
 // printf("Found pset named %s\n", pset_namestr.ascii() );
 #endif
+
       return TRUE;
     }
   }
@@ -656,11 +702,11 @@ bool
 CompareProcessesDialog::updateFocus(int _expID, MPListView *_lv )
 {
 #ifdef DEBUG_COMPARE
- printf("updateFocus _expID = (%d) (%d)\n", expID, _expID );
+  printf("updateFocus _expID = (%d) (%d)\n", expID, _expID );
 #endif
+
   lv = _lv;
-  if( _expID != -1 && _expID == expID )
-  {
+  if( _expID != -1 && _expID == expID ) {
     return FALSE;
   }
   psetNameList.clear();

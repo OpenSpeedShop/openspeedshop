@@ -39,6 +39,7 @@ CustomizeStatsPanel::CustomizeStatsPanel(PanelContainer *pc, const char *n, Argu
 #endif
 
   setCaption("CustomizeStatsPanel");
+
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
 
@@ -193,22 +194,29 @@ CustomizeStatsPanel::listener(void *msg)
       getPanelContainer()->raisePanel((Panel *)this);
     }
     mcc1->updateInfo();
-  } else if( msgObject->msgType == "PreferencesChangedObject" )
-  {
+  } else if( msgObject->msgType == "PreferencesChangedObject" ) {
+
     nprintf(DEBUG_MESSAGES) ("CustomizeStatsPanel::listener() PreferencesChangedObject!\n");
+
 #ifdef DEBUG_CSP
     printf("CustomizeStatsPanel::listener() PreferencesChangedObject!\n");
 #endif
+
     pco = (PreferencesChangedObject *)msgObject;
+
 // Currently ignored.
+
     preferencesChanged();
-  } else if( msgObject->msgType == "SaveAsObject" )
-  {
+  } else if( msgObject->msgType == "SaveAsObject" ) {
+
 //    SaveAsObject *sao = (SaveAsObject *)msg;
+
   dprintf("CustomizeStatsPanel!!!!! Save as!\n");
+
 #ifdef DEBUG_CSP
   printf("CustomizeStatsPanel!!!!! Save as!\n");
 #endif
+
 //    if( !sao )
 //    {
 //      return 0;  // 0 means, did not act on message.

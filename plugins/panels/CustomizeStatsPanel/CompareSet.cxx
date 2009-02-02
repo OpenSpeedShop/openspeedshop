@@ -113,12 +113,18 @@ CompareSet::~CompareSet()
 void
 CompareSet::currentChanged( QWidget *tab )
 {
+#ifdef DEBUG_COMPARE
+  printf("CompareSet::currentChanged() called.\n");
+#endif
   setNewFocus(tab);
 }
 
 void
 CompareSet::setNewFocus(QWidget *tab)
 {
+#ifdef DEBUG_COMPARE
+  printf("CompareSet::setNewFocus() called.\n");
+#endif
   if( !tab )
   {
 // find the current tab... 
@@ -178,8 +184,12 @@ CompareSet::setNewFocus(QWidget *tab)
 void
 CompareSet::updatePSetList()
 {
-  if( !compareClass->dialog )
-  {
+
+#ifdef DEBUG_COMPARE
+  printf("CompareSet::updatePSetList() called.\n");
+#endif
+
+  if( !compareClass->dialog ) {
     return;
   }
 
@@ -680,10 +690,11 @@ CompareSet::relabel()
     columnSet->name = header;
     tabWidget->setTabLabel(thisTab, header);
 #ifdef DEBUG_COMPARE
- printf("CompareSet::updatePSetList, NEW: columnSet->name=(%s) tabWidget->tabLabel()=(%s)\n", columnSet->name.ascii(), tabWidget->tabLabel(thisTab).ascii()  );
+ printf("CompareSet::relabel, NEW: columnSet->name=(%s) tabWidget->tabLabel()=(%s)\n", columnSet->name.ascii(), tabWidget->tabLabel(thisTab).ascii()  );
 #endif
     i++;
   }
 
   tcnt = i+1;
 }
+

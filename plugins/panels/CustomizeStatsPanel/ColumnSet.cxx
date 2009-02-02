@@ -16,6 +16,7 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+//#define DEBUG_COMPARE 1
 
 #include "ColumnSet.hxx"
 #include "CompareSet.hxx"
@@ -54,7 +55,9 @@ using namespace OpenSpeedShop::Framework;
 
 ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
 {
-// printf("ColumnSet::ColumnSet() constructor called.\n");
+#ifdef DEBUG_COMPARE
+  printf("ColumnSet::ColumnSet() constructor called.\n");
+#endif
 
 
   clo = NULL;
@@ -170,13 +173,18 @@ ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
  */
 ColumnSet::~ColumnSet()
 {
-// printf("ColumnSet destructor called\n");
+#ifdef DEBUG_COMPARE
+  printf("ColumnSet::ColumnSet destructor called\n");
+#endif
 }
 
 void
 ColumnSet::updateInfo()
 {
-// printf("ColumnSet::updateInfo() entered\n");
+#ifdef DEBUG_COMPARE
+  printf("ColumnSet::updateInfo() entered\n");
+#endif
+
   gatherExperimentInfo();
 
   if( compareSet == NULL || compareSet->compareClass == NULL )
@@ -194,7 +202,9 @@ int
 ColumnSet::gatherExperimentInfo()
 { // Begin gather experiment info
 
-// printf("ColumnSet::gatherExperimentInfo() entered\n");
+#ifdef DEBUG_COMPARE
+  printf("ColumnSet::gatherExperimentInfo() entered\n");
+#endif
 
   CLIInterface *cli = compareSet->compareClass->p->getPanelContainer()->getMainWindow()->cli;
 
@@ -308,12 +318,16 @@ ColumnSet::gatherExperimentInfo()
 // printf("WE HAVE AN experimentComboBox!\n");
       QString label(str2);
       experimentComboBox->insertItem( label );
-// printf("label.ascii()=(%s) expStr.ascii()=(%s)\n", label.ascii(), expStr.ascii() );
+#ifdef DEBUG_COMPARE
+      printf("label.ascii()=(%s) expStr.ascii()=(%s)\n", label.ascii(), expStr.ascii() );
+#endif
       if( compareSet->compareClass->focusedExpID > 0 )
       {
         if( getExpidFromExperimentComboBoxStr(str2) == compareSet->compareClass->focusedExpID )
         {
-// printf("FORCE THE FOCUS\n");
+#ifdef DEBUG_COMPARE
+          printf("FORCE THE FOCUS\n");
+#endif
           expStrFoundFLAG = TRUE;
           saved_eid = getExpidFromExperimentComboBoxStr(str2);
           // Unset this...
@@ -325,35 +339,48 @@ ColumnSet::gatherExperimentInfo()
         {
           expStrFoundFLAG = TRUE;
           saved_eid = getExpidFromExperimentComboBoxStr(str2);
-// printf("A: We found the existing label, prepare to reset it.\n");
+#ifdef DEBUG_COMPARE
+          printf("A: We found the existing label, prepare to reset it.\n");
+#endif
           expStr = str2;
         }
       } else if( label == expStr )
       {
         expStrFoundFLAG = TRUE;
         saved_eid = getExpidFromExperimentComboBoxStr(str2);
-// printf("B: We found the existing label, prepare to reset it.\n");
+#ifdef DEBUG_COMPARE
+        printf("B: We found the existing label, prepare to reset it.\n");
+#endif
         expStr = str2;
       }
     }
   }
   if( !expStr.isEmpty() )
   {
-// printf("Try to set the ComboBox back to what it was. (%s)\n", expStr.ascii() );
+#ifdef DEBUG_COMPARE
+    printf("Try to set the ComboBox back to what it was. (%s)\n", expStr.ascii() );
+#endif
     experimentComboBox->setCurrentText( expStr );
   }
 
-// printf("is saved_eid=(%d) better?\n", saved_eid );
-  if( saved_eid > 0 )
-  {
+#ifdef DEBUG_COMPARE
+  printf("is saved_eid=(%d) better?\n", saved_eid );
+#endif
+
+  if( saved_eid > 0 ) {
     eid = saved_eid;
   }
   if( compareSet->compareClass->focusedExpID > 0 )
   {
-// printf("If saved_eid <= 0 force the new one!\n");
+#ifdef DEBUG_COMPARE
+    printf("If saved_eid <= 0 force the new one!\n");
+#endif
     saved_eid = compareSet->compareClass->focusedExpID;
   }
-// printf("Sending eid=(%d) down to gatherCollectorInfo()\n", eid) ;
+#ifdef DEBUG_COMPARE
+  printf("Sending eid=(%d) down to gatherCollectorInfo()\n", eid) ;
+#endif
+
   ce = gatherCollectorInfo(eid);
 
   return( eid );
@@ -362,9 +389,11 @@ ColumnSet::gatherExperimentInfo()
 CollectorEntry *
 ColumnSet::gatherCollectorInfo(int id)
 {
-// printf("ColumnSet::gatherCollectorInfo(%d) entered\n", id);
-  if( clo )
-  {
+#ifdef DEBUG_COMPARE
+  printf("ColumnSet::gatherCollectorInfo(%d) entered\n", id);
+#endif
+
+  if( clo ) {
     delete(clo);
   }
   
@@ -446,9 +475,8 @@ void
 ColumnSet::gatherMetricInfo(CollectorEntry *ce)
 {
 
-  if( ce == NULL )
-  {
-fprintf(stderr, "WARNING: ColumnSet::gatherMetricInfo() returned\n");
+  if( ce == NULL ) {
+    fprintf(stderr, "WARNING: ColumnSet::gatherMetricInfo() returned\n");
     return;
   }
 
@@ -624,7 +652,9 @@ fprintf(stderr, "WARNING: ColumnSet::gatherMetricInfo() returned\n");
 int
 ColumnSet::getExpidFromExperimentComboBoxStr( const QString path )
 {
-// printf("ColumnSet::getExpidFromExperimentComboBoxStr(%s)\n", path.ascii()  );
+#ifdef DEBUG_COMPARE
+  printf("ColumnSet::getExpidFromExperimentComboBoxStr(%s)\n", path.ascii()  );
+#endif
   int si = 0;
   int ei = 0;
   QString expIDStr = QString::null;
@@ -643,7 +673,9 @@ ColumnSet::getExpidFromExperimentComboBoxStr( const QString path )
     expID = expIDStr.toInt();
   }
 
-// printf("The expID = (%d)\n", expID);
+#ifdef DEBUG_COMPARE
+  printf("The expID = (%d)\n", expID);
+#endif
 
   return( expID );
 }
@@ -652,7 +684,9 @@ ColumnSet::getExpidFromExperimentComboBoxStr( const QString path )
 void 
 ColumnSet::changeExperiment( const QString &path )
 {
-// printf("ColumnSet::changeExperiment()\n");
+#ifdef DEBUG_COMPARE
+  printf("ColumnSet::changeExperiment()\n");
+#endif
 
   int expID = getExpidFromExperimentComboBoxStr(path);
 
@@ -671,7 +705,9 @@ ColumnSet::changeExperiment( const QString &path )
 void 
 ColumnSet::changeCollector( const QString &path )
 {
-// printf("ColumnSet::changeCollector(%s)\n", path.ascii()  );
+#ifdef DEBUG_COMPARE
+  printf("ColumnSet::changeCollector(%s)\n", path.ascii()  );
+#endif
 
   CollectorEntryList::Iterator it;
   for( it = clo->collectorEntryList.begin();
@@ -693,6 +729,9 @@ ColumnSet::changeCollector( const QString &path )
 void
 ColumnSet::initializeListView()
 {
+#ifdef DEBUG_COMPARE
+  printf("ColumnSet::initializeListView\n" );
+#endif
   lv->clear();
   MPListViewItem *dynamic_items = new MPListViewItem( lv, CPS);
 
