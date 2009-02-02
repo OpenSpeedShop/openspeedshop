@@ -18,7 +18,7 @@
   
 //
 // Debug Flag
-#define DEBUG_CC 1
+//#define DEBUG_CC 1
 //
 
 #include "CustomizeClass.hxx"
