@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006-2009 Krell Institute   All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -94,6 +95,7 @@ CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bo
   QLabel *header = new QLabel(this, "header");
   header->setText("Customize StatsPanel Factory:");
   header->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+
   QToolTip::add(header, tr("The Customize StatsPanel Factory is the interface that allows you to compare one set\nof process/thread to another -or- one experiment run against another.\n\nIt allows you manage columns of data that will be displayed in the StatsPanel.\nEach cset defined can have mulitiple columns defined.   Each coloumn can have an\nindividual collector/metric/modifier displayed.\n\nFirst you create the CompareSet (cset) definition, using this panel, then select\n\"Focus on this CSET\" and the StatsPanel (and eventually the SourcePanel) will be\nupdated with the selected statistics.") );
   mainCompareLayout->addWidget(header);
 
@@ -227,46 +229,75 @@ CustomizeClass::menu(QPopupMenu* contextMenu)
   }
 
   QPopupMenu *compareByMenu = new QPopupMenu( contextMenu );
-//  qaction = new QAction( this,  "compareByFunction");
-//  qaction->addTo( compareByMenu );
-//  qaction->setText( tr("Compare By Function") );
-//  connect( qaction, SIGNAL( activated() ), this, SLOT( compareByFunction() ) );
-//  qaction->setStatusTip( tr("Compare and or display the columns using function level performance information.") );
+
+#if 1
+  qaction = new QAction( this,  "compareByFunction");
+  qaction->addTo( compareByMenu );
+  qaction->setText( tr("Compare By Function") );
+  qaction->setToggleAction(TRUE  );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( compareByFunction() ) );
+  qaction->setStatusTip( tr("Compare and or display the columns using function level performance information.") );
+  if (currentCompareByType == compareByFunctionType || !full_compare_by_menu) {
+     qaction->setOn(TRUE);
+  } else {
+     qaction->setOn(FALSE);
+  } 
+#else
   compareByMenu->insertItem(tr("Compare/Display By Function"), this, SLOT(compareByFunction()),0,0,-1);
   if (currentCompareByType == compareByFunctionType || !full_compare_by_menu) {
      compareByMenu->setItemChecked(0, TRUE);
   } else {
      compareByMenu->setItemChecked(0, FALSE);
   } 
+#endif
 
   if (full_compare_by_menu) {
 
-//    qaction = new QAction( this,  "compareByStatement");
-//    qaction->addTo( compareByMenu );
-//    qaction->setText( tr("Compare/Display By Statement") );
-//    connect( qaction, SIGNAL( activated() ), this, SLOT( compareByStatement() ) );
-//    qaction->setStatusTip( tr("Compare and or display the columns using statement level performance information.") );
+#if 1
+    qaction = new QAction( this,  "compareByStatement");
+    qaction->addTo( compareByMenu );
+    qaction->setText( tr("Compare/Display By Statement") );
+    qaction->setToggleAction(TRUE  );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( compareByStatement() ) );
+    qaction->setStatusTip( tr("Compare and or display the columns using statement level performance information.") );
+   if (currentCompareByType == compareByStatementType) {
+       qaction->setOn(TRUE);
+    } else {
+       qaction->setOn(FALSE);
+    } 
+#else
     compareByMenu->insertItem(tr("Compare/Display By Statement"), this, SLOT(compareByStatement()),0,1,-1);
     if (currentCompareByType == compareByStatementType) {
        compareByMenu->setItemChecked(1, TRUE);
     } else {
        compareByMenu->setItemChecked(1, FALSE);
     } 
+#endif
 
-//    qaction = new QAction( this,  "compareByLinkedObject");
-//    qaction->addTo( compareByMenu );
-//    qaction->setText( tr("Compare/Display By Linked Object") );
-//    connect( qaction, SIGNAL( activated() ), this, SLOT( compareByLinkedObject() ) );
-//    qaction->setStatusTip( tr("Compare  and or displaythe columns using linked object level performance information.") );
+#if 1
+   qaction = new QAction( this,  "compareByLinkedObject");
+   qaction->addTo( compareByMenu );
+   qaction->setText( tr("Compare/Display By Linked Object") );
+   qaction->setToggleAction(TRUE  );
+   connect( qaction, SIGNAL( activated() ), this, SLOT( compareByLinkedObject() ) );
+   qaction->setStatusTip( tr("Compare and/or display the columns using linked object level performance information.") );
+   if (currentCompareByType == compareByLinkedObjectType) {
+       qaction->setOn(TRUE);
+    } else {
+       qaction->setOn(FALSE);
+    } 
+#else
     compareByMenu->insertItem(tr("Compare/Display By Linked Object"), this, SLOT(compareByLinkedObject()),0,2,-1);
     if (currentCompareByType == compareByLinkedObjectType) {
        compareByMenu->setItemChecked(2, TRUE);
     } else {
        compareByMenu->setItemChecked(2, FALSE);
     } 
+#endif
   } // end full_compare_by_menu
 
   contextMenu->insertItem("Compare/Display By... ", compareByMenu);
+  //compareByMenu->setStatusTip( tr("Compare or Display Performance Information at the Function, Statement, or Linked Object level.") );
 
 #ifdef NONWALKING
   qaction = new QAction( this,  "addNewColumn");
