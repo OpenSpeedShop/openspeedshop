@@ -45,6 +45,7 @@ class QListView;
 class QListViewItem;
 class QSplitter;
 class QToolBox;
+class QToolBar;
 class QTabWidget;
 class QComboBox;
 
@@ -103,14 +104,14 @@ public slots:
     void addNewCSet();
     void addNewColumn();
     void addNewColumn(CompareSet *);
-
-private slots:
+    void addProcessesSelected();
+    void removeUserPSet();
     void removeCSet();
     void removeRaisedTab();
-    void removeUserPSet();
     void focusOnCSetSelected();
-    void addProcessesSelected();
     void loadAdditionalExperimentSelected();
+
+private slots:
 
 private:
 

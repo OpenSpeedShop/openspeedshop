@@ -56,6 +56,7 @@ CompareProcessesDialog::CompareProcessesDialog( QWidget* parent, const char* nam
     : QDialog( parent, name, modal, fl )
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("CompareProcessesDialog::CompareProcessesDialog() constructor called.\n");
+
 #ifdef DEBUG_COMPARE
   printf("CompareProcessesDialog::CompareProcessesDialog() constructor called.\n");
 #endif
@@ -148,6 +149,9 @@ headerLabel->hide();
   Horizontal_Spacing2 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   Layout1->addItem( Horizontal_Spacing2 );
 
+#ifdef DEBUG_COMPARE
+  printf("CompareProcessesDialog::CompareProcessesDialog() constructor after Layout1->addItem( Horizontal_Spacing2 ).\n");
+#endif
 
   buttonFinished = new QPushButton( this, "buttonFinished" );
   buttonFinished->setAutoDefault( TRUE );
@@ -159,7 +163,23 @@ headerLabel->hide();
   buttonCancel = new QPushButton( this, "buttonCancel" );
   buttonCancel->setAutoDefault( TRUE );
   Layout1->addWidget( buttonCancel );
+
+#ifdef DEBUG_COMPARE
+  printf("CompareProcessesDialog::CompareProcessesDialog() constructor before    CompareProcessesDialogLayout->addLayout( Layout1 ); \n");
+#endif
+
+// jeg removing this after changes for adding the toolbar into the customize stats panel code caused the following error:
+// QLayout::addChildLayout: layout already has a parent
+// Commenting out this addLayout line seems to fix the problem w/o side effects.
+//
+#if 0
   CompareProcessesDialogLayout->addLayout( Layout1 );
+#endif
+
+#ifdef DEBUG_COMPARE
+  printf("CompareProcessesDialog::CompareProcessesDialog() constructor before languageChange and after CompareProcessesDialogLayout->addLayout( Layout1 );.\n");
+#endif
+
   languageChange();
   resize( QSize(511, 282).expandedTo(minimumSizeHint()) );
   clearWState( WState_Polished );
@@ -174,6 +194,10 @@ headerLabel->hide();
 
   connect( addButton, SIGNAL( clicked() ), this, SLOT( addProcesses() ) );
   connect( removeButton, SIGNAL( clicked() ), this, SLOT( removeProcesses() ) );
+
+#ifdef DEBUG_COMPARE
+  printf("CompareProcessesDialog::CompareProcessesDialog() constructor exits.\n");
+#endif
   
 }
 
@@ -718,6 +742,10 @@ CompareProcessesDialog::updateFocus(int _expID, MPListView *_lv )
     return FALSE;
   }
 */
+
+#ifdef DEBUG_COMPARE
+  printf("Exit updateFocus _expID = (%d) (%d)\n", expID, _expID );
+#endif
 
   return TRUE;
 }

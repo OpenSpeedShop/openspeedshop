@@ -47,6 +47,7 @@
 #include <qvaluelist.h>
 #include <qheader.h>
 #include <qtooltip.h>
+#include <qtoolbar.h>
 
 #include <qtoolbox.h>
 
@@ -75,13 +76,12 @@ CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bo
   ccnt = 1;
   
   p = _p;
-  if( focusedExpIDStr.isEmpty() )
-  {
+  if( focusedExpIDStr.isEmpty() ) {
     focusedExpID = -1;
-  } else
-  {
+  } else {
     focusedExpID = focusedExpIDStr.toInt();
   }
+
   expID = exp_id;
 
   csl = NULL;
@@ -101,6 +101,15 @@ CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bo
 
 // I'm not sure this header makes much sense here.   Hide for now.
   header->hide();
+
+#if 0
+//getPanelContainer()->getMainWindow(), (QWidget *)getBaseWidgetFrame()
+  fileTools = new QToolBar(QString("label"), p->getPanelContainer()->getMainWindow(), (QWidget *)p->getBaseWidgetFrame(), "file operations" );
+  fileTools->setOrientation( Qt::Horizontal );
+  fileTools->setLabel( "File Operations" );
+  fileTools->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, 0, 0, fileTools->sizePolicy().hasHeightForWidth() ) );
+  mainCompareLayout->addWidget(fileTools);
+#endif
 
   compareClassLayout = new QVBoxLayout( mainCompareLayout, 1, "compareClassLayout"); 
 
@@ -611,18 +620,17 @@ CustomizeClass::focusOnCSetSelected()
 #endif
           QString rid_name = lvi->descriptionClassObject->rid_name;
           QString tid_name = lvi->descriptionClassObject->tid_name;
-          if( !expCompareProcessList.isEmpty() )
-          {
+
+          if( !expCompareProcessList.isEmpty() ) {
             expCompareProcessList += " ; ";
           }
-          if( !rid_name.isEmpty() )
-          {
+
+          if( !rid_name.isEmpty() ) {
             expCompareProcessList += QString(" -h %1 -r %1 ").arg(host_name).arg(rid_name);
-          } else if( !tid_name.isEmpty() )
-          {
+          } else if( !tid_name.isEmpty() ) {
             expCompareProcessList += QString(" -h %1 -t %1 ").arg(host_name).arg(tid_name);
-          } else  // Default to pid.. We should get here if its null.
-          {
+          } else  {
+            // Default to pid.. We should get here if its null.
             expCompareProcessList += QString(" -h %1 -p %1 ").arg(host_name).arg(pid_name);
           }
         } 
@@ -631,11 +639,9 @@ CustomizeClass::focusOnCSetSelected()
 
 
       // If nothing was selected, just return.
-      if( !focus_msg )
-      {
+      if( !focus_msg ) {
         QMessageBox::information( this, tr("Error process selection:"), tr("Unable to focus: No processes selected."), QMessageBox::Ok );
-        if( focus_msg )
-        {
+        if( focus_msg ) {
           delete focus_msg;
         }
         return;
@@ -695,36 +701,48 @@ CustomizeClass::focusOnCSetSelected()
     printf("CustomizeClass::focusOnCSetSelected, Really send this : command: (%s)\n", focus_msg->compare_command.ascii() );
     printf("CustomizeClass::focusOnCSetSelected, A: focus the StatsPanel...\n");
 #endif
+
     QString name = QString("Stats Panel [%1]").arg(expID);
+
 #ifdef DEBUG_CC 
     printf("CustomizeClass::focusOnCSetSelected, find a stats panel named (%s)\n", name.ascii() );
 #endif
+
     Panel *sp = p->getPanelContainer()->findNamedPanel(p->getPanelContainer()->getMasterPC(), (char *)name.ascii() );
-    if( !sp )
-    {
+
+    if( !sp ) {
+
 #ifdef DEBUG_CC 
        printf("CustomizeClass::focusOnCSetSelected, Didn't find a stats panel.... Create one.\n");
 #endif
+
       char *panel_type = "Stats Panel";
       PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
       ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
       sp = p->getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
       delete ao;
-      if( sp != NULL )
-      {
+
+      if( sp != NULL ) {
+
 #ifdef DEBUG_CC 
       printf("CustomizeClass::focusOnCSetSelected, Created a stats panel... First update it's data... expID=%d\n", expID);
 #endif
+
       sp->listener( (void *)focus_msg );
+
       }
-    } else
-    {
+
+    } else {
+
 #ifdef DEBUG_CC 
       printf("CustomizeClass::focusOnCSetSelected, There was a statspanel... send the update message.\n");
 #endif
+
       sp->listener( (void *)focus_msg );
+
     }
-// End real focus logic
+
+  // End real focus logic
   }
 
 }
@@ -732,24 +750,27 @@ CustomizeClass::focusOnCSetSelected()
 void
 CustomizeClass::addProcessesSelected()
 {
+
 #ifdef DEBUG_CC 
   printf("CustomizeClass::addProcessesSelected() entered\n");
 #endif
 
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
-  if( dialog == NULL )
-  {
+  if( dialog == NULL ) {
     dialog = new CompareProcessesDialog(this, "Add/Delete/Describe Compare Processes Dialog");
   }
+
 #ifdef DEBUG_CC 
   printf("CustomizeClass::addProcessesSelected() dialog=%x\n", dialog);
 #endif
+
   QApplication::restoreOverrideCursor();
 
   CompareSet *compareSet = findCurrentCompareSet();
 
   ColumnSet *columnSet = NULL;
+
 {
 
   QTabWidget *currentTabWidget = (QTabWidget* )csetTB->currentItem();
@@ -758,21 +779,20 @@ CustomizeClass::addProcessesSelected()
 
   // Look for the tab in the CompareSet.   The delete it from the compareSet's
   // list.
-  if( compareSet )
-  {
+
+  if( compareSet ) {
+
     ColumnSetList::Iterator it;
     for( it = compareSet->columnSetList.begin(); it != compareSet->columnSetList.end(); ++it )
     {
       ColumnSet *cs = (ColumnSet *)*it;
-      if( cs->name == currentTabWidget->tabLabel( currentTab ) )
-      {
+      if( cs->name == currentTabWidget->tabLabel( currentTab ) ) {
         columnSet = cs;
         break;
       }
     }
 
   }
-
 
 }
 

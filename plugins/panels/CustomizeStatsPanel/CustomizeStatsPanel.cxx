@@ -29,9 +29,32 @@
 #include "plugin_entry_point.hxx"   // Do not remove
 #include "ArgumentObject.hxx"
 
+#include <qtoolbutton.h>
+
+#include "update_icon.xpm"
+#include "add_processes_icon.xpm"
+#include "remove_processes_icon.xpm"
+#include "add_column_icon.xpm"
+#include "remove_column_icon.xpm"
+#include "focus_stats_icon.xpm"
+#include "load_experiment.xpm"
+
+
+
 #include <qtextedit.h>  // For QTextEdit in example below...
 CustomizeStatsPanel::CustomizeStatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
+
+  frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
+
+  splitterA = new QSplitter( getBaseWidgetFrame(), "splitterA");
+  splitterA->setCaption("StatsPanelSplitterA");
+  splitterA->setOrientation( QSplitter::Vertical );
+
+#ifdef DEBUG_StatsPanel
+  printf("CustomizeStatsPanel::CustomizeStatsPanel:: splitterA created as Vertical\n");
+#endif
+
   expID = ao->int_data;
 
 #ifdef DEBUG_CSP
@@ -40,23 +63,74 @@ CustomizeStatsPanel::CustomizeStatsPanel(PanelContainer *pc, const char *n, Argu
 
   setCaption("CustomizeStatsPanel");
 
-  frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
 
+  fileTools = new QToolBar(QString("label"), getPanelContainer()->getMainWindow(), (QWidget *)getBaseWidgetFrame(), "file operations" );
+  fileTools->setOrientation( Qt::Horizontal );
+  fileTools->setLabel( "File Operations" );
+  fileTools->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, 0, 0, fileTools->sizePolicy().hasHeightForWidth() ) );
+  frameLayout->addWidget(fileTools);
+
+
+#ifdef DEBUG_StatsPanel
+  printf("CustomizeStatsPanel::CustomizeStatsPanel:: fileTools created as QToolBar\n");
+#endif
+
+
+#if NOSPLITTER
   mcc1 = new CustomizeClass( this, getBaseWidgetFrame(), "CustomizeClass", FALSE, 0, ao->int_data, ao->qstring_data );
+#else
+  mcc1 = new CustomizeClass( this, splitterA, "CustomizeClass", FALSE, 0, ao->int_data, ao->qstring_data );
+#endif
 
 #ifdef DEBUG_CSP
   printf("CustomizeStatsPanel::constructor called, mcc1=%x\n", mcc1);
 #endif
 
+#if NOSPLITTER
   frameLayout->addWidget(mcc1);
+#else
+//  splitterA->addWidget(mcc1);
+#endif
+
   mcc1->expID = ao->int_data;
   groupID = mcc1->expID;
   getBaseWidgetFrame()->setCaption("CustomizeStatsPanelBaseWidget");
 
+  QPixmap *update_icon = new QPixmap( update_icon_xpm );
+  new QToolButton(*update_icon, "Update the customize stats panel.", QString::null, this, SLOT( updatePanel() ), fileTools, "Update the custimized statistics panel");
+
+  QPixmap *add_processes_icon = new QPixmap( add_processes_icon_xpm );
+  new QToolButton(*add_processes_icon, "Add new processes to the compare process set.", QString::null, this, SLOT( addProcessesSelected() ), fileTools, "Add new processes to the compare process set.");
+
+  QPixmap *remove_processes_icon = new QPixmap( remove_processes_icon_xpm );
+  new QToolButton(*remove_processes_icon, "Remove new processes to the compare process set.", QString::null, this, SLOT( removeUserPSet() ), fileTools, "Remove new processes to the compare process set.");
+
+  QPixmap *add_column_icon = new QPixmap( add_column_icon_xpm );
+  new QToolButton(*add_column_icon, "Add new column to the compare set.", QString::null, this, SLOT( addColumn() ), fileTools, "Add a new column to the compare set.");
+
+  QPixmap *remove_column_icon = new QPixmap( remove_column_icon_xpm );
+  new QToolButton(*remove_column_icon, "Remove the raised tab column from the compare set.", QString::null, this, SLOT( removeColumn() ), fileTools, "Remove the raised tab column.");
+
+  QPixmap *load_experiment_icon = new QPixmap( load_experiment_xpm );
+  new QToolButton(*load_experiment_icon, "Load another experiment into the customize stats panel.", QString::null, this, SLOT( loadExperiment() ), fileTools, "Load another experiment into the customize stats panel.");
+
+  QPixmap *focus_stats_icon = new QPixmap( focus_stats_icon_xpm );
+  new QToolButton(*focus_stats_icon, "Focus the StatsPanel on this information.  Generate/Display the view from the currently requested settings.", QString::null, this, SLOT( focusStatsPanel() ), fileTools, "Generate the StatsPanel view from the current settings.");
+
+  toolbar_status_label = new QLabel(fileTools,"toolbar_status_label");
+  // default setting to match default views
+  toolbar_status_label->setText("Use these icons or the menu under CustomizeStatsPanel tab.");
+  fileTools->setStretchableWidget(toolbar_status_label);
+
+
+
+
   char name_buffer[100];
   sprintf(name_buffer, "%s [%d]", getName(), expID);
   setName(name_buffer);
+
+  frameLayout->addWidget( splitterA );
 
   preferencesChanged();
 }
@@ -77,6 +151,48 @@ CustomizeStatsPanel::~CustomizeStatsPanel()
     // that suggest this has been a problem in the past.
     // Look for TERMINATE in the source to find these comments
 //  delete mcc1;
+}
+
+void
+CustomizeStatsPanel::focusStatsPanel()
+{
+   mcc1->focusOnCSetSelected();
+}
+
+void
+CustomizeStatsPanel::updatePanel()
+{
+   mcc1->updatePanel();
+}
+
+void
+CustomizeStatsPanel::addColumn()
+{
+   mcc1->addNewColumn();
+}
+
+void
+CustomizeStatsPanel::removeColumn()
+{
+   mcc1->removeRaisedTab();
+}
+
+void
+CustomizeStatsPanel::addProcessesSelected()
+{
+   mcc1->addProcessesSelected();
+}
+
+void
+CustomizeStatsPanel::removeUserPSet()
+{
+   mcc1->removeUserPSet();
+}
+
+void
+CustomizeStatsPanel::loadExperiment()
+{
+   mcc1->loadAdditionalExperimentSelected();
 }
 
 void
