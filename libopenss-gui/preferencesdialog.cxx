@@ -17,7 +17,7 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
   
-
+//#define DEBUG_PREF 1
 
 #include "preferencesdialog.hxx"
 
@@ -39,6 +39,9 @@
 #include <qimage.h>
 #include <qpixmap.h>
 #include <qvalidator.h>
+#include <qscrollview.h>
+#include <qvbox.h>
+
 
 #include "preferencesdialog.ui.hxx"
 
@@ -80,19 +83,44 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
 
     if ( !name )
 	setName( "PreferencesDialog" );
+
     setSizeGripEnabled( TRUE );
     PreferencesDialogLayout = new QVBoxLayout( this, 11, 6, "PreferencesDialogLayout"); 
 
     preferenceDialogListLayout = new QVBoxLayout( 0, 0, 6, "preferenceDialogListLayout"); 
 
+/*  
+
+    These are the values as of 2/3/2009 from QT 3 for the QSizePolicy::SizeType:
+
+      QSizePolicy::Fixed=0
+      QSizePolicy::Minimum=1
+      QSizePolicy::Ignored=2
+      QSizePolicy::MinimumExpanding=3
+      QSizePolicy::Maximum=4
+      QSizePolicy::Preferred=5
+      QSizePolicy::Expanding=7
+
+*/
+
+#if 0
+    printf("QSizePolicy::Fixed=%d\n", QSizePolicy::Fixed);
+    printf("QSizePolicy::Minimum=%d\n", QSizePolicy::Minimum);
+    printf("QSizePolicy::Maximum=%d\n", QSizePolicy::Maximum);
+    printf("QSizePolicy::Preferred=%d\n", QSizePolicy::Preferred);
+    printf("QSizePolicy::Expanding=%d\n", QSizePolicy::Expanding);
+    printf("QSizePolicy::MinimumExpanding=%d\n", QSizePolicy::MinimumExpanding);
+    printf("QSizePolicy::Ignored=%d\n", QSizePolicy::Ignored);
+#endif
+
     mainSplitter = new QSplitter( this, "mainSplitter" );
-    mainSplitter->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)5, 0, 0, mainSplitter->sizePolicy().hasHeightForWidth() ) );
+    mainSplitter->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)3, 0, 0, mainSplitter->sizePolicy().hasHeightForWidth() ) );
     mainSplitter->setOrientation( QSplitter::Horizontal );
     mainSplitter->setChildrenCollapsible( FALSE );
 
     preferenceDialogLeftFrame = new QFrame( mainSplitter, "preferenceDialogLeftFrame" );
     preferenceDialogLeftFrame->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)5, 0, 0, preferenceDialogLeftFrame->sizePolicy().hasHeightForWidth() ) );
-    preferenceDialogLeftFrame->setMinimumSize( QSize( 15, 0 ) );
+    preferenceDialogLeftFrame->setMinimumSize( QSize( 95, 10 ) );
     preferenceDialogLeftFrame->setFrameShape( QFrame::StyledPanel );
     preferenceDialogLeftFrame->setFrameShadow( QFrame::Raised );
     preferenceDialogLeftFrameLayout = new QVBoxLayout( preferenceDialogLeftFrame, 11, 6, "preferenceDialogLeftFrameLayout"); 
@@ -111,6 +139,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
     preferenceDialogLeftFrameLayout->addWidget( categoryListView );
 
     preferenceDialogRightFrame = new QFrame( mainSplitter, "preferenceDialogRightFrame" );
+//    preferenceDialogRightFrame->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)3, 0, 0, preferenceDialogRightFrame->sizePolicy().hasHeightForWidth() ) );
     preferenceDialogRightFrame->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)5, 0, 0, preferenceDialogRightFrame->sizePolicy().hasHeightForWidth() ) );
     preferenceDialogRightFrame->setFrameShape( QFrame::StyledPanel );
     preferenceDialogRightFrame->setFrameShadow( QFrame::Raised );
@@ -118,6 +147,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
 
     preferenceDialogWidgetStack = new QWidgetStack( preferenceDialogRightFrame, "preferenceDialogWidgetStack" );
     preferenceDialogWidgetStack->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)5, 0, 0, preferenceDialogWidgetStack->sizePolicy().hasHeightForWidth() ) );
+//    preferenceDialogWidgetStack->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)3, 0, 0, preferenceDialogWidgetStack->sizePolicy().hasHeightForWidth() ) );
 
 
     createGeneralStackPage(preferenceDialogWidgetStack, "General" );
@@ -192,44 +222,76 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     generalStackPage = new QWidget( stack, name );
     generalStackPageLayout = new QVBoxLayout( generalStackPage, 11, 6, "generalStackPageLayout"); 
 
+    vpage0sv = new QScrollView( generalStackPage, "vpage0sv" );
+    vpage0sv->setSizePolicy(QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding, 0, 0, FALSE ) );
+
+#if DEBUG_PREF
+    // match this up with the real call above to see what qt thinks the settings are 
+    QSizePolicy *qscrollview_policy = NULL;
+    qscrollview_policy = new QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding, 0, 0, FALSE );
+
+    printf("qscrollview_policy->mayGrowHorizontally()=%d\n", qscrollview_policy->mayGrowHorizontally() );
+    printf("qscrollview_policy->mayGrowVertically()=%d\n", qscrollview_policy->mayGrowVertically() );
+    printf("qscrollview_policy->horStretch()=%d\n", qscrollview_policy->horStretch() );
+    printf("qscrollview_policy->verStretch()=%d\n", qscrollview_policy->verStretch() );
+    printf("qscrollview_policy->verData()=%d\n", qscrollview_policy->verData() );
+    printf("qscrollview_policy->horData()=%d\n", qscrollview_policy->horData() );
+#endif
+
+    vpage0big_box = new QGroupBox( vpage0sv->viewport(), "vpage0big_box" );
+    vpage0big_box->setColumnLayout(0, Qt::Vertical );
+    vpage0big_box->layout()->setSpacing( 6 );
+    vpage0big_box->layout()->setMargin( 11 );
+//    vpage0big_box->layout()->setResizeMode(QLayout::Minimum);
+
+    rightSideLayout = new QVBoxLayout( vpage0big_box->layout(), 11, "rightSideLayout"); 
+    vpage0sv->addChild(vpage0big_box);
+
+#if 0
     GeneralGroupBox = new QGroupBox( generalStackPage, "GeneralGroupBox" );
     GeneralGroupBox->setColumnLayout(0, Qt::Vertical );
     GeneralGroupBox->layout()->setSpacing( 6 );
     GeneralGroupBox->layout()->setMargin( 11 );
-
     rightSideLayout = new QVBoxLayout( GeneralGroupBox->layout(), 11, "rightSideLayout"); 
+#endif
 
     fontLayout = new QHBoxLayout( 0, 0, 6, "fontLayout"); 
 
-    setFontButton = new QPushButton( GeneralGroupBox, "setFontButton" );
+    setFontButton = new QPushButton( vpage0big_box, "setFontButton" );
     fontLayout->addWidget( setFontButton );
 
-    fontLineEdit = new QLineEdit( GeneralGroupBox, "fontLineEdit" );
+    fontLineEdit = new QLineEdit( vpage0big_box, "fontLineEdit" );
     fontLayout->addWidget( fontLineEdit );
     rightSideLayout->addLayout( fontLayout );
 
     remoteShellLayout = new QHBoxLayout( 0, 0, 6, "remoteShellLayout"); 
-    remoteShellLabel = new QLabel( GeneralGroupBox, "remote shell label" );
+    remoteShellLabel = new QLabel( vpage0big_box, "remote shell label" );
     remoteShellLayout->addWidget( remoteShellLabel );
 
-    remoteShellEdit = new QLineEdit( GeneralGroupBox, "remoteShellEdit" );
+    const QColor vpage0color = remoteShellLabel->paletteBackgroundColor();
+    vpage0sv->viewport()->setBackgroundColor(vpage0color);
+    vpage0sv->viewport()->setPaletteBackgroundColor(vpage0color);
+
+
+
+    remoteShellEdit = new QLineEdit( vpage0big_box, "remoteShellEdit" );
     remoteShellLayout->addWidget( remoteShellEdit );
     rightSideLayout->addLayout( remoteShellLayout );
 
-    setShowSplashScreenCheckBox = new QCheckBox( GeneralGroupBox, "setShowSplashScreenCheckBox" );
+    setShowSplashScreenCheckBox = new QCheckBox( vpage0big_box, "setShowSplashScreenCheckBox" );
     setShowSplashScreenCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, setShowSplashScreenCheckBox->sizePolicy().hasHeightForWidth() ) );
     rightSideLayout->addWidget( setShowSplashScreenCheckBox );
 
-    showGraphicsCheckBox = new QCheckBox( GeneralGroupBox, "showGraphicsCheckBox" );
+    showGraphicsCheckBox = new QCheckBox( vpage0big_box, "showGraphicsCheckBox" );
     showGraphicsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showGraphicsCheckBox->sizePolicy().hasHeightForWidth() ) );
     rightSideLayout->addWidget( showGraphicsCheckBox );
 
     { // VIEW_FIELD_SIZE
     viewFieldSizeLayout = new QHBoxLayout( 0, 0, 6, "viewFieldSizeLayout");
-    viewFieldSizeLabel = new QLabel( GeneralGroupBox, "viewFieldSizeLabel" );
+    viewFieldSizeLabel = new QLabel( vpage0big_box, "viewFieldSizeLabel" );
     viewFieldSizeLabel->setText("View field size:");
     viewFieldSizeLayout->addWidget( viewFieldSizeLabel );
-    viewFieldSizeLineEdit = new QLineEdit( GeneralGroupBox, "viewFieldSizeLineEdit" );
+    viewFieldSizeLineEdit = new QLineEdit( vpage0big_box, "viewFieldSizeLineEdit" );
     viewFieldSizeLineEdit->setText("123");
     viewFieldSizeLineEdit->setValidator( new QIntValidator( 1, 99999, viewFieldSizeLineEdit ) );
     viewFieldSizeLayout->addWidget( viewFieldSizeLineEdit );
@@ -237,10 +299,10 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     }
     { // VIEW_PRECISION
     viewPrecisionLayout = new QHBoxLayout( 0, 0, 6, "viewPrecisionLayout");
-    viewPrecisionLabel = new QLabel( GeneralGroupBox, "viewPrecisionLabel" );
+    viewPrecisionLabel = new QLabel( vpage0big_box, "viewPrecisionLabel" );
     viewPrecisionLabel->setText("View Precision:");
     viewPrecisionLayout->addWidget( viewPrecisionLabel );
-    viewPrecisionLineEdit = new QLineEdit( GeneralGroupBox, "viewPrecisionLineEdit" );
+    viewPrecisionLineEdit = new QLineEdit( vpage0big_box, "viewPrecisionLineEdit" );
     viewPrecisionLineEdit->setText("123");
     viewPrecisionLineEdit->setValidator( new QIntValidator( 0, 99999, viewPrecisionLineEdit ) );
     viewPrecisionLayout->addWidget( viewPrecisionLineEdit );
@@ -248,10 +310,10 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     }
     { // HISTORY_LIMIT
     historyLimitLayout = new QHBoxLayout( 0, 0, 6, "historyLimitLayout");
-    historyLimitLabel = new QLabel( GeneralGroupBox, "historyLimitLabel" );
+    historyLimitLabel = new QLabel( vpage0big_box, "historyLimitLabel" );
     historyLimitLabel->setText("History Limit:");
     historyLimitLayout->addWidget( historyLimitLabel );
-    historyLimitLineEdit = new QLineEdit( GeneralGroupBox, "historyLimitLineEdit" );
+    historyLimitLineEdit = new QLineEdit( vpage0big_box, "historyLimitLineEdit" );
     historyLimitLineEdit->setText("123");
     historyLimitLineEdit->setValidator( new QIntValidator( 0, 99999, historyLimitLineEdit ) );
     historyLimitLayout->addWidget( historyLimitLineEdit );
@@ -259,10 +321,10 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     }
     { // HISTORY_DEFAULT
     historyDefaultLayout = new QHBoxLayout( 0, 0, 6, "historyDefaultLayout");
-    historyDefaultLabel = new QLabel( GeneralGroupBox, "historyDefaultLabel" );
+    historyDefaultLabel = new QLabel( vpage0big_box, "historyDefaultLabel" );
     historyDefaultLabel->setText("History Default:");
     historyDefaultLayout->addWidget( historyDefaultLabel );
-    historyDefaultLineEdit = new QLineEdit( GeneralGroupBox, "historyDefaultLineEdit" );
+    historyDefaultLineEdit = new QLineEdit( vpage0big_box, "historyDefaultLineEdit" );
     historyDefaultLineEdit->setText("123");
     historyDefaultLineEdit->setValidator( new QIntValidator( 0, 99999, historyDefaultLineEdit ) );
     historyDefaultLayout->addWidget( historyDefaultLineEdit );
@@ -270,10 +332,10 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     }
     { // MAX_ASYNC_COMMANDS
     maxAsyncCommandsLayout = new QHBoxLayout( 0, 0, 6, "maxAsyncCommandsLayout");
-    maxAsyncCommandsLabel = new QLabel( GeneralGroupBox, "maxAsyncCommandsLabel" );
+    maxAsyncCommandsLabel = new QLabel( vpage0big_box, "maxAsyncCommandsLabel" );
     maxAsyncCommandsLabel->setText("Max Async Commands:");
     maxAsyncCommandsLayout->addWidget( maxAsyncCommandsLabel );
-    maxAsyncCommandsLineEdit = new QLineEdit( GeneralGroupBox, "maxAsyncCommandsLineEdit" );
+    maxAsyncCommandsLineEdit = new QLineEdit( vpage0big_box, "maxAsyncCommandsLineEdit" );
     maxAsyncCommandsLineEdit->setText("123");
     maxAsyncCommandsLineEdit->setValidator( new QIntValidator( 1, 99999, maxAsyncCommandsLineEdit ) );
     maxAsyncCommandsLayout->addWidget( maxAsyncCommandsLineEdit );
@@ -281,10 +343,10 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     }
     { // HELP_LEVEL_DEFAULT
     helpLevelDefaultLayout = new QHBoxLayout( 0, 0, 6, "helpLevelDefaultLayout");
-    helpLevelDefaultLabel = new QLabel( GeneralGroupBox, "helpLevelDefaultLabel" );
+    helpLevelDefaultLabel = new QLabel( vpage0big_box, "helpLevelDefaultLabel" );
     helpLevelDefaultLabel->setText("Help Level Default:");
     helpLevelDefaultLayout->addWidget( helpLevelDefaultLabel );
-    helpLevelDefaultLineEdit = new QLineEdit( GeneralGroupBox, "helpLevelDefaultLineEdit" );
+    helpLevelDefaultLineEdit = new QLineEdit( vpage0big_box, "helpLevelDefaultLineEdit" );
     helpLevelDefaultLineEdit->setValidator( new QIntValidator( 0, 99999, helpLevelDefaultLineEdit ) );
     helpLevelDefaultLineEdit->setText("123");
     helpLevelDefaultLayout->addWidget( helpLevelDefaultLineEdit );
@@ -292,7 +354,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     }
 
     { // VIEW_FULLPATH
-    viewFullPathCheckBox = new QCheckBox( GeneralGroupBox, "viewFullPathCheckBox" );
+    viewFullPathCheckBox = new QCheckBox( vpage0big_box, "viewFullPathCheckBox" );
     viewFullPathCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, viewFullPathCheckBox->sizePolicy().hasHeightForWidth() ) );
     viewFullPathCheckBox->setChecked( TRUE );
     viewFullPathCheckBox->setText( tr( "View Full Path" ) );
@@ -300,7 +362,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     }
 
     { // SAVE_EXPERIMENT_DATABASE
-    saveExperimentDatabaseCheckBox = new QCheckBox( GeneralGroupBox, "saveExperimentDatabaseCheckBox" );
+    saveExperimentDatabaseCheckBox = new QCheckBox( vpage0big_box, "saveExperimentDatabaseCheckBox" );
     saveExperimentDatabaseCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, saveExperimentDatabaseCheckBox->sizePolicy().hasHeightForWidth() ) );
     saveExperimentDatabaseCheckBox->setChecked( TRUE );
     saveExperimentDatabaseCheckBox->setText( tr( "Save Experiment Database" ) );
@@ -308,7 +370,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     }
 
     { // ASK_ABOUT_CHANGING_ARGS
-    askAboutChangingArgsCheckBox = new QCheckBox( GeneralGroupBox, "askAboutChangingArgsCheckBox" );
+    askAboutChangingArgsCheckBox = new QCheckBox( vpage0big_box, "askAboutChangingArgsCheckBox" );
     askAboutChangingArgsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, askAboutChangingArgsCheckBox->sizePolicy().hasHeightForWidth() ) );
     askAboutChangingArgsCheckBox->setChecked( askAboutChangingArgs );
     askAboutChangingArgsCheckBox->setText( tr( "On Rerun Allow Changing Application Arguments" ) );
@@ -316,7 +378,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     }
 
     { // ASK_ABOUT_SAVING_THE_DATABASE
-    askAboutSavingTheDatabaseCheckBox = new QCheckBox( GeneralGroupBox, "askAboutSavingTheDatabaseCheckBox" );
+    askAboutSavingTheDatabaseCheckBox = new QCheckBox( vpage0big_box, "askAboutSavingTheDatabaseCheckBox" );
     askAboutSavingTheDatabaseCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, askAboutSavingTheDatabaseCheckBox->sizePolicy().hasHeightForWidth() ) );
     askAboutSavingTheDatabaseCheckBox->setChecked( askAboutSavingTheDatabase);
     askAboutSavingTheDatabaseCheckBox->setText( tr( "On Rerun Ask About Saving The Experiment Database" ) );
@@ -325,7 +387,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
 
 
     { // ON_RERUN_SAVE_EXPERIMENT_DATABASE
-    onRerunSaveCopyOfExperimentDatabaseCheckBox = new QCheckBox( GeneralGroupBox, "onRerunSaveCopyOfExperimentDatabaseCheckBox" );
+    onRerunSaveCopyOfExperimentDatabaseCheckBox = new QCheckBox( vpage0big_box, "onRerunSaveCopyOfExperimentDatabaseCheckBox" );
     onRerunSaveCopyOfExperimentDatabaseCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, onRerunSaveCopyOfExperimentDatabaseCheckBox->sizePolicy().hasHeightForWidth() ) );
     onRerunSaveCopyOfExperimentDatabaseCheckBox->setChecked( onRerunSaveCopyOfExperimentDatabase);
     onRerunSaveCopyOfExperimentDatabaseCheckBox->setText( tr( "On Rerun Save Copy of Experiment Database from previous run" ) );
@@ -333,7 +395,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     }
 
     { // VIEW MANGLED NAMES
-    viewMangledNameCheckBox = new QCheckBox( GeneralGroupBox, "viewMangledNameCheckBox" );
+    viewMangledNameCheckBox = new QCheckBox( vpage0big_box, "viewMangledNameCheckBox" );
     viewMangledNameCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, viewMangledNameCheckBox->sizePolicy().hasHeightForWidth() ) );
     viewMangledNameCheckBox->setChecked( TRUE );
     viewMangledNameCheckBox->setText( tr( "View Mangled Names" ) );
@@ -341,7 +403,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     }
 
     { // ALLOW_PYTHON_COMMANDS
-    allowPythonCommandsCheckBox = new QCheckBox( GeneralGroupBox, "allowPythonCommandsCheckBox" );
+    allowPythonCommandsCheckBox = new QCheckBox( vpage0big_box, "allowPythonCommandsCheckBox" );
     allowPythonCommandsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, allowPythonCommandsCheckBox->sizePolicy().hasHeightForWidth() ) );
     allowPythonCommandsCheckBox->setChecked( TRUE );
     allowPythonCommandsCheckBox->setText( tr( "Allow Python Commands" ) );
@@ -349,7 +411,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     }
 
     { // INSTRUMENTOR IS OFFLINE
-    instrumentorIsOfflineCheckBox = new QCheckBox( GeneralGroupBox, "instrumentorIsOfflineCheckBox" );
+    instrumentorIsOfflineCheckBox = new QCheckBox( vpage0big_box, "instrumentorIsOfflineCheckBox" );
     instrumentorIsOfflineCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, instrumentorIsOfflineCheckBox->sizePolicy().hasHeightForWidth() ) );
     instrumentorIsOfflineCheckBox->setChecked( FALSE );
     instrumentorIsOfflineCheckBox->setText( tr( "Instrumentor Is Offline" ) );
@@ -357,14 +419,14 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     }
 
     { // COMPARISONS IGNORING OBJECT AND DIRECTORY PATH
-    lessRestrictiveComparisonsCheckBox = new QCheckBox( GeneralGroupBox, "lessRestrictiveComparisonsCheckBox" );
+    lessRestrictiveComparisonsCheckBox = new QCheckBox( vpage0big_box, "lessRestrictiveComparisonsCheckBox" );
     lessRestrictiveComparisonsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, lessRestrictiveComparisonsCheckBox->sizePolicy().hasHeightForWidth() ) );
     lessRestrictiveComparisonsCheckBox->setChecked( FALSE );
     lessRestrictiveComparisonsCheckBox->setText( tr( "Less Restrictive Comparisons" ) );
     rightSideLayout->addWidget( lessRestrictiveComparisonsCheckBox );
     }
 
-    generalStackPageLayout->addWidget( GeneralGroupBox );
+    generalStackPageLayout->addWidget( vpage0sv );
     stack->addWidget( generalStackPage, 0 );
 }
 
@@ -461,7 +523,7 @@ void PreferencesDialog::languageChange()
     categoryListView->header()->setLabel( 0, tr( "Categories" ) );
     categoryListView->clear();
 
-    GeneralGroupBox->setTitle( tr( "General" ) );
+    vpage0big_box->setTitle( tr( "General" ) );
     setFontButton->setText( tr( "Font:" ) );
 
     setShowSplashScreenCheckBox->setText( tr( "Show splash screen on startup" ) );

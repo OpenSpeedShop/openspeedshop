@@ -26,6 +26,8 @@
 #include <qdialog.h>
 
 class QVBoxLayout;
+class QVBox;
+class QScrollView;
 class QHBoxLayout;
 class QGridLayout;
 class QSpacerItem;
@@ -53,6 +55,9 @@ public:
     ~PreferencesDialog();
 
     PanelContainer *panelContainer;
+
+    QScrollView *vpage0sv;
+    QGroupBox *vpage0big_box;
 
     QSplitter* mainSplitter;
     QFrame* preferenceDialogLeftFrame;
