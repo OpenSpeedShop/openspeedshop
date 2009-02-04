@@ -68,6 +68,7 @@
 #include "clear_auxiliary.xpm"
 #include "timeSegment.xpm"
 #include "optional_views_icon.xpm"
+#include "hotcallpath_icon.xpm"
 
 class MetricHeaderInfo;
 class QPushButton;
@@ -1934,7 +1935,6 @@ StatsPanel::minMaxAverageSelected()
   } else {
     command = QString("expview -x %1 %2 -m %3::ThreadMin, %4::ThreadMax, %5::ThreadAverage").arg(focusedExpID).arg(timeIntervalString).arg(currentCollectorStr).arg(currentCollectorStr).arg(currentCollectorStr);
   }
-
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::minMaxAverageSelected() about to call updateStatsPanelData, command=%s\n", 
@@ -5538,21 +5538,26 @@ StatsPanel::MPIReportSelected(int val)
       }
     }
 
-  // The status for the tool bar needs to reflect what is 
-  // going on when the same features are selected via the menu
-  if( getPreferenceShowToolbarCheckBox() == TRUE ) {
-#ifdef DEBUG_StatsPanel
-    printf("StatsPanel::collectorMPIReportSelected, currentUserSelectedReportStr = (%s)\n", currentUserSelectedReportStr.ascii() );
-    printf("StatsPanel::collectorMPIReportSelected, calling updateToolBarStatus() \n");
-#endif
-    updateToolBarStatus( currentUserSelectedReportStr );
-  } 
+    // The status for the tool bar needs to reflect what is 
+    // going on when the same features are selected via the menu
+
+    if( getPreferenceShowToolbarCheckBox() == TRUE ) {
 
 #ifdef DEBUG_StatsPanel
- printf("StatsPanel::MPIReportSelected, currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
- printf("StatsPanel::MPIReportSelected, Collector changed call updateStatsPanelData() \n");
+      printf("StatsPanel::collectorMPIReportSelected, calling updateToolBarStatus(), currentUserSelectedReportStr = (%s)\n", 
+             currentUserSelectedReportStr.ascii() );
 #endif
+
+      updateToolBarStatus( currentUserSelectedReportStr );
+    } 
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::MPIReportSelected, currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+  printf("StatsPanel::MPIReportSelected, Collector changed call updateStatsPanelData() \n");
+#endif
+
   }
+
   updateStatsPanelData(DONT_FORCE_UPDATE);
 }
 
@@ -8318,6 +8323,13 @@ StatsPanel::generateCommand()
   QString command = QString("expView -x %1").arg(exp_id);
   aboutString = QString("Experiment: %1\n").arg(exp_id);
 
+  // For Hot Call Path view, just set the number of items to display to one and change the 
+  // user requested report string to CallTrees with a FullStack.
+  if (currentUserSelectedReportStr == "HotCallPath") {
+     numberItemsToDisplayInStats = 1;
+     currentUserSelectedReportStr = "CallTrees,FullStack";
+  }
+
   if( currentCollectorStr.isEmpty() ) {
     if( numberItemsToDisplayInStats > 0 ) {
 
@@ -8648,15 +8660,13 @@ StatsPanel::generateCommand()
     printf("generateCommand, It thinks we're mpi | io!\n");
 #endif
     if( currentUserSelectedReportStr.isEmpty() || currentUserSelectedReportStr == "CallTrees" ) {
+
       if( numberItemsToDisplayInStats > 0 ) {
-
         command = QString("expView -x %1 %2%3 -v CallTrees").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-
       } else {
-
         command = QString("expView -x %1 %2 -v CallTrees").arg(exp_id).arg(currentCollectorStr);
-
       }
+
     } else if ( currentUserSelectedReportStr == "CallTrees by Selected Function" ) {
 
       selectedFunctionStr = findSelectedFunction();
@@ -8676,6 +8686,7 @@ StatsPanel::generateCommand()
       } else {
         command = QString("expView -x %1 %2 -v CallTrees -f %4").arg(exp_id).arg(currentCollectorStr).arg(selectedFunctionStr);
       }
+
     } else if ( currentUserSelectedReportStr == "TraceBacks" ) {
 
       if( numberItemsToDisplayInStats > 0 ) {
@@ -11740,7 +11751,9 @@ if (currentCollectorStr != lastCollectorStr ||
 
   if(  currentCollectorStr != "pcsamp" && currentCollectorStr != "hwc" )
   {
+
   if ( getPreferenceAdvancedToolbarCheckBox() == TRUE ) {
+
     QPixmap *calltrees_icon = new QPixmap( calltrees_xpm );
     new QToolButton(*calltrees_icon, "Show CallTrees: This view displays all the call paths in your program.  Portions of common paths are\nsuppressed, they are displayed from the program start function down to the user function.", QString::null, this, SLOT( calltreesSelected()), fileTools, "show calltrees");
 
@@ -11753,6 +11766,9 @@ if (currentCollectorStr != lastCollectorStr ||
 
     QPixmap *calltreesfullByFunction_icon = new QPixmap( calltreesfullByFunction_xpm );
     new QToolButton(*calltreesfullByFunction_icon, "Show CallTrees,FullStack by Function:  This view displays all the call paths in your program that include\nthe selected function.  None of the common portions of the call paths are suppressed.\nTo use click on one of the functions and then click the Calltrees By Function FullStack icon", QString::null, this, SLOT( calltreesFullStackByFunctionSelected()), fileTools, "calltrees,fullstack by function");
+
+    QPixmap *hotcallpath_icon = new QPixmap( hotcallpath_icon_xpm );
+    new QToolButton(*hotcallpath_icon, "Show the top time taking callpath in this program:  This view displays\nthe most expensive call path in your program.\n", QString::null, this, SLOT( hotCallpathSelected()), fileTools, "hot call path");
 
   if ( getPreferenceAdvancedToolbarCheckBox() == TRUE ) {
     QPixmap *tracebacks_icon = new QPixmap( tracebacks_xpm );
@@ -11769,7 +11785,7 @@ if (currentCollectorStr != lastCollectorStr ||
   } // advanced toolbar
 
     QPixmap *butterfly_icon = new QPixmap( butterfly_xpm );
-    new QToolButton(*butterfly_icon, "Show Butterfly view:  This view shows the callers of the function selected (shown above the function)\nand the callees of the function selected (shown below the function).  Selecting one of the displayed functions\nand clicking on the Butterfly icon will make that function the pivot function for the callers and callees display.\nTo use click on one of the functions and then click the Butterfly icon.", QString::null, this, SLOT( butterflySelected()), fileTools, "show butterfly");
+    new QToolButton(*butterfly_icon, "Show Butterfly view:  This view shows the callers of\nthe function selected (shown above the function)\nand the callees of the function selected\n(shown below the function).  Selecting one of the displayed functions\nand clicking on the Butterfly icon will make that function\nthe pivot function for the callers and callees display.\nTo use click on one of the functions and then click the Butterfly icon.", QString::null, this, SLOT( butterflySelected()), fileTools, "show butterfly");
 
     QPixmap *timeSegment_icon = new QPixmap( timeSegment_xpm );
     new QToolButton(*timeSegment_icon, "Select a Time Segment to view:  This view shows a section of the performance\nexperiments data that was chosen by selecting a segment of time from the\ntime segment dialog slider.  To return to viewing the complete experiment data, click\non the Clear icon followed by the Update icon.  This will restore viewing 100 percent\nof the experiment data.", QString::null, this, SLOT( timeSliceSelected()), fileTools, "show time segment");
@@ -11788,7 +11804,7 @@ if (currentCollectorStr != lastCollectorStr ||
   // ----------------- Start of the Analysis Icons
   if( currentCollectorStr == "iot" || currentCollectorStr == "mpit" ) {
     QPixmap *event_list_icon = new QPixmap( event_list_icon_xpm );
-    new QToolButton(*event_list_icon, "Show a per event list display.  There will be one event (call to a function that was specified to be traced) per line.", QString::null, this, SLOT( showEventListSelected()), fileTools, "Show per event display");
+    new QToolButton(*event_list_icon, "Show a per event list display.  There will be one event\n(call to a function that was specified to be traced) per line.", QString::null, this, SLOT( showEventListSelected()), fileTools, "Show per event display");
   }
 
 #ifdef DEBUG_StatsPanel
@@ -12121,4 +12137,23 @@ StatsPanel::butterflySelected()
   updateStatsPanelData(DONT_FORCE_UPDATE);
 
   toolbar_status_label->setText("Showing Butterfly Report:");
+}
+
+void
+StatsPanel::hotCallpathSelected()
+{
+#ifdef DEBUG_StatsPanel
+ printf("hotCallpathSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
+  currentUserSelectedReportStr = "HotCallPath";
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+
+  toolbar_status_label->setText("Generating Hot Callpath Report:");
+
+  updateStatsPanelData(DONT_FORCE_UPDATE);
+
+  toolbar_status_label->setText("Showing Hot Callpath Report:");
 }

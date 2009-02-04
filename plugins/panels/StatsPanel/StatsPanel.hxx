@@ -455,6 +455,7 @@ class StatsPanel  : public Panel
     void tracebacksFullStackByFunctionSelected();
     void butterflySelected();
     void infoEditHeaderMoreButtonSelected();
+    void hotCallpathSelected();
 
   private slots:
     void threadSelected(int);
