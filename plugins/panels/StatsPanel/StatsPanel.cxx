@@ -8269,7 +8269,6 @@ QString
 StatsPanel::generateCommand()
 {
 
-
 #ifdef DEBUG_StatsPanel
   if (!currentCollectorStr.isEmpty()) {
      printf("StatsPanel::generateCommand, currentCollectorStr=(%s), MPItraceFLAG=(%d), IOtraceFLAG=%d\n", 
@@ -8421,11 +8420,11 @@ StatsPanel::generateCommand()
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
                                  QString("Which function?:"), 
                                  QLineEdit::Normal, QString::null, &ok, this);
+        if ( !ok || selectedFunctionStr.isEmpty() ) {
+          // user entered nothing or pressed Cancel
+          return( QString::null );
+        } 
 
-      }
-
-      if( selectedFunctionStr.isEmpty() ) {
-        return( QString::null );
       }
 
       command = QString("expView -x %1 %4%2 -v statements -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
@@ -8476,10 +8475,10 @@ StatsPanel::generateCommand()
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
                                     QString("Which function?:"), 
                                     QLineEdit::Normal, QString::null, &ok, this);
-      }
-
-      if( selectedFunctionStr.isEmpty() ) {
-        return( QString::null );
+        if ( !ok || selectedFunctionStr.isEmpty() ) {
+          // user entered nothing or pressed Cancel
+          return( QString::null );
+        } 
       }
 
 #ifdef DEBUG_StatsPanel
@@ -8503,14 +8502,14 @@ StatsPanel::generateCommand()
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
                                  QString("Which function?:"), 
                                  QLineEdit::Normal, QString::null, &ok, this);
+        if ( !ok || selectedFunctionStr.isEmpty() ) {
+          // user entered nothing or pressed Cancel
+          return( QString::null );
+        } 
 
-      }
-
-      if( selectedFunctionStr.isEmpty() ) {
-        return( QString::null );
-      }
-
+      } 
       command = QString("expView -x %1 %4%2 -v statements -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+
 #ifdef DEBUG_StatsPanel
      printf("generateCommand, StatementsByFunction, command=(%s)\n", command.ascii() );
 #endif
@@ -8531,8 +8530,11 @@ StatsPanel::generateCommand()
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
                                   QString("Which function?:"), 
                                   QLineEdit::Normal, QString::null, &ok, this);
-      }
-
+        if ( !ok || selectedFunctionStr.isEmpty() ) {
+          // user entered nothing or pressed Cancel
+          return( QString::null );
+        } 
+      } 
       command = QString("expView -x %1 %4%2 -v CallTrees -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
 
     } else if( currentUserSelectedReportStr == "CallTrees,FullStack by Function" ) {
@@ -8551,8 +8553,11 @@ StatsPanel::generateCommand()
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
                                   QString("Which function?:"), 
                                   QLineEdit::Normal, QString::null, &ok, this);
-      }
-
+        if ( !ok || selectedFunctionStr.isEmpty() ) {
+          // user entered nothing or pressed Cancel
+          return( QString::null );
+        } 
+      } 
       command = QString("expView -x %1 %4%2 -v CallTrees,FullStack -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
 
     } else if( currentUserSelectedReportStr == "TraceBacks by Function" ) {
@@ -8570,9 +8575,13 @@ StatsPanel::generateCommand()
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
                                   QString("Which function?:"), 
                                   QLineEdit::Normal, QString::null, &ok, this);
-      }
-
+        if ( !ok || selectedFunctionStr.isEmpty() ) {
+          // user entered nothing or pressed Cancel
+          return( QString::null );
+        } 
+      } 
       command = QString("expView -x %1 %4%2 -v Tracebacks -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+
 
     } else if( currentUserSelectedReportStr == "TraceBacks,FullStack by Function" ) {
 
@@ -8589,9 +8598,13 @@ StatsPanel::generateCommand()
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
                                   QString("Which function?:"), 
                                   QLineEdit::Normal, QString::null, &ok, this);
+        if ( !ok || selectedFunctionStr.isEmpty() ) {
+          // user entered nothing or pressed Cancel
+          return( QString::null );
+        } 
       }
-
       command = QString("expView -x %1 %4%2 -v Tracebacks,FullStack -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+
 
     } else {
 
@@ -8652,10 +8665,10 @@ StatsPanel::generateCommand()
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
                                   QString("Which function?:"), 
                                   QLineEdit::Normal, QString::null, &ok, this);
-      }
-
-      if( selectedFunctionStr.isEmpty() ) {
-        return( QString::null );
+        if ( !ok || selectedFunctionStr.isEmpty() ) {
+          // user entered nothing or pressed Cancel
+          return( QString::null );
+        } 
       }
 
       if( numberItemsToDisplayInStats > 0 ) {
@@ -8690,10 +8703,10 @@ StatsPanel::generateCommand()
         selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
                                   QString("Which function?:"), 
                                   QLineEdit::Normal, QString::null, &ok, this);
-      }
-
-      if( selectedFunctionStr.isEmpty() ) {
-        return( QString::null );
+        if ( !ok || selectedFunctionStr.isEmpty() ) {
+          // user entered nothing or pressed Cancel
+          return( QString::null );
+        } 
       }
 
       if( numberItemsToDisplayInStats > 0 ) {
@@ -11912,6 +11925,9 @@ StatsPanel::statementsByFunctionSelected()
 
   currentUserSelectedReportStr = "Statements by Function";
 
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+
   toolbar_status_label->setText("Generating Statements by Function Report...");
 
 #ifdef DEBUG_StatsPanel
@@ -11957,6 +11973,9 @@ StatsPanel::calltreesByFunctionSelected()
 
   currentUserSelectedReportStr = "CallTrees by Function";
 
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+
   toolbar_status_label->setText("Generating CallTrees by Function Report...");
 
   updateStatsPanelData(DONT_FORCE_UPDATE);
@@ -11974,6 +11993,9 @@ StatsPanel::calltreesFullStackSelected()
 
   currentUserSelectedReportStr = "CallTrees,FullStack";
 
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+
   toolbar_status_label->setText("Generating CallTrees,FullStack Report...");
 
   updateStatsPanelData(DONT_FORCE_UPDATE);
@@ -11990,6 +12012,9 @@ StatsPanel::calltreesFullStackByFunctionSelected()
 #endif
 
   currentUserSelectedReportStr = "CallTrees,FullStack by Function";
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
 
   toolbar_status_label->setText("Generating CallTrees,FullStack by Function Report...");
 
@@ -12031,6 +12056,9 @@ StatsPanel::tracebacksByFunctionSelected()
 
   currentUserSelectedReportStr = "TraceBacks by Function";
 
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+
   toolbar_status_label->setText("Generating TraceBacks by Function Report...");
 
   updateStatsPanelData(DONT_FORCE_UPDATE);
@@ -12046,6 +12074,9 @@ StatsPanel::tracebacksFullStackSelected()
  printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
   currentUserSelectedReportStr = "TraceBacks,FullStack";
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
 
   toolbar_status_label->setText("Generating TraceBacks,FullStack Report...");
 
@@ -12063,6 +12094,9 @@ StatsPanel::tracebacksFullStackByFunctionSelected()
 #endif
   currentUserSelectedReportStr = "TraceBacks,FullStack by Function";
 
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+
   toolbar_status_label->setText("Generating TraceBacks,FullStack by Function Report...");
 
   updateStatsPanelData(DONT_FORCE_UPDATE);
@@ -12078,6 +12112,9 @@ StatsPanel::butterflySelected()
  printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
   currentUserSelectedReportStr = "Butterfly";
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
 
   toolbar_status_label->setText("Generating Butterfly Report:");
 
