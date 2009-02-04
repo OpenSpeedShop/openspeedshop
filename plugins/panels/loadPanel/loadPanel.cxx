@@ -200,10 +200,7 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
 
   vALStackPage0Layout->addWidget( vAttachOrLoadPageDescriptionLabel);
 
-  const QColor vpage0acolor = vAttachOrLoadPageDescriptionLabel->paletteBackgroundColor();
 
-//  vpage0sv->viewport()->setBackgroundColor(vpage0acolor);
-//  vpage0sv->viewport()->setPaletteBackgroundColor(vpage0acolor);
 //  vpage0sv->viewport()->setBackgroundColor("Yellow");
 
   //
@@ -218,6 +215,10 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
 
   // Add single process label here
   vLAPageTitleLabel1 = new QLabel( vpage0big_box, "vLAPageTitleLabel1" );
+  const QColor vpage0acolor = vLAPageTitleLabel1->paletteBackgroundColor();
+
+  vpage0sv->viewport()->setBackgroundColor(vpage0acolor);
+  vpage0sv->viewport()->setPaletteBackgroundColor(vpage0acolor);
 
   vAttachOrLoadPageLoadExecutableCheckBox = new QCheckBox( vpage0big_box, "vAttachOrLoadPageLoadExecutableCheckBox" );
   vAttachOrLoadPageLoadExecutableCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
