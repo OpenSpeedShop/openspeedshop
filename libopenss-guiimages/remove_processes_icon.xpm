@@ -1,53 +1,37 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2009 The Krell Institute. All Rights Reserved.
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
-// any later version.
-//
-// This library is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-// details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with this library; if not, write to the Free Software Foundation, Inc.,
-// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-////////////////////////////////////////////////////////////////////////////////
 /* XPM */
 static const char *remove_processes_icon_xpm[]={
-"28 28 5 1",
-". c None",
-"a c #000000",
-"c c #00ff00",
-"# c #303030",
-"b c #e2e3e2",
+"28 28 6 1",
+"# c None",
+"b c #000000",
+"d c #00ff00",
+"a c #303030",
+". c #808080",
+"c c #e2e3e2",
 "............................",
-"............................",
-"............................",
-"............................",
-"............................",
-"............................",
-"............................",
-"............................",
-"............................",
-"......#aaaaa.......aaaaa....",
-"....baccccca#.....accccca...",
-"....accccccca#...accccccca..",
-"...accccccccca..accccccccca.",
-"...accccccccca..accccccccca.",
-"...accaaaaaccca.accaaaaaccca",
-"...acca...accca.acca...accca",
-"...acca...acccc#acca...accca",
-"...acca...acccc#acca...accca",
-"...accaaaaacccc#accaaaaacca.",
-"...acccccccccaaaacccccccca..",
-"...acccccccca...acccccccca..",
-"...accaaaaccca..acc#aaaaab..",
-"...acca..accca..acc#....b...",
-"...acca...accca.acc#........",
-"...acca...accca.acc#........",
-"...acca....acccaacc#........",
-"...acca....accccacc#........",
-"...acca....accccacc#........"};
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".#####abbbbb#######bbbbb###.",
+".###cbdddddba#####bdddddb##.",
+".###bdddddddba###bdddddddb#.",
+".##bdddddddddb##bdddddddddb.",
+".##bdddddddddb##bdddddddddb.",
+".##bddbbbbbdddb#bddbbbbbdddb",
+".##bddb###bdddb#bddb###bdddb",
+".##bddb###bddddabddb###bdddb",
+".##bddb###bddddabddb###bdddb",
+".##bddbbbbbddddabddbbbbbddb.",
+".##bdddddddddbbbbddddddddb#.",
+".##bddddddddb###bddddddddb#.",
+".##bddbbbbdddb##bddabbbbbc#.",
+".##bddb##bdddb##bdda####c##.",
+".##bddb###bdddb#bdda#######.",
+".##bddb###bdddb#bdda#######.",
+".##bddb####bdddbbdda#######.",
+".##bddb####bddddbdda#######.",
+".##bddb####bddddbdda#######."};

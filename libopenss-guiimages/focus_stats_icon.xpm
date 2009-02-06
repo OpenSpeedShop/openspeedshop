@@ -1,57 +1,36 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2009 The Krell Institute. All Rights Reserved.
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
-// any later version.
-//
-// This library is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-// details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with this library; if not, write to the Free Software Foundation, Inc.,
-// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-////////////////////////////////////////////////////////////////////////////////
 /* XPM */
 static const char *focus_stats_icon_xpm[]={
-"28 28 9 1",
-". c None",
-"d c #000000",
-"e c #58a8ff",
-"g c #7c7c7c",
-"a c #c1c1c1",
-"b c #ededed",
-"f c #f2f2f1",
-"c c #f2f3f3",
-"# c #ffffff",
+"28 28 5 1",
+"# c None",
+"a c #000000",
+"b c #58a8ff",
+". c #808080",
+"c c #c1c1c1",
 "............................",
-"............................",
-"............................",
-".....#......................",
-"............................",
-".............a..............",
-"...........b................",
-"............................",
-"...........c................",
-"..dddddddddddd...dddddddd...",
-"..deeeeeeeeeed.adeeeeeeedd..",
-"..deeeeeeeeeed.deeeeeeeeeed.",
-"..deeeeeeeeeeddeeeeeeeeeeed.",
-"..deeeeeeeeeeddeeeeeeeeeeeed",
-"..deeeeddddddddeeeeeeddeeeed",
-"..deeeed.......deeeeeddeeeed",
-"..deeeeddddd...ddeeeeddddddd",
-"..deeeeeeeed..aadeeeedd.....",
-"..deeeeeeeed..fffdeeeeeed...",
-"..deeeeeeeed..fffaeeeeeeed..",
-"..deeeeddddd....aaadeeeeeed.",
-"..deeeeda.g....ddddddeeeeeed",
-"..deeeed......deeeedddeeeeed",
-"..deeeed......deeeeddeeeeeed",
-"..deeeed..g...deeeeeeeeeeeed",
-"..deeeedg.....deeeeeeeeeeed.",
-"..deeeed.....deddeeeeeeeed..",
-"..deeeed.....deedeeeeeeed..."};
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".#aaaaaaaaaaaa###aaaaaaaa##.",
+".#abbbbbbbbbba##abbbbbbbaa#.",
+".#abbbbbbbbbba#abbbbbbbbbba.",
+".#abbbbbbbbbbaabbbbbbbbbbba.",
+".#abbbbbbbbbbaabbbbbbbbbbbba",
+".#abbbbaaaaaaaabbbbbbaabbbba",
+".#abbbba#######abbbbbaabbbba",
+".#abbbbaaaaa###aabbbbaaaaaaa",
+".#abbbbbbbba####abbbbaa####.",
+".#abbbbbbbba#####abbbbbba##.",
+".#abbbbbbbba######bbbbbbba#.",
+".#abbbbaaaaa######cabbbbbba.",
+".#abbbba#######aaaaaabbbbbba",
+".#abbbba######abbbbaaabbbbba",
+".#abbbba######abbbbaabbbbbba",
+".#abbbba######abbbbbbbbbbbba",
+".#abbbba######abbbbbbbbbbba.",
+".#abbbba#####abaabbbbbbbba#.",
+"..abbbba.....abbabbbbbbba..."};

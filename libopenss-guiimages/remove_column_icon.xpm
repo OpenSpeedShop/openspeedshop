@@ -1,55 +1,37 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2009 The Krell Institute. All Rights Reserved.
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
-// any later version.
-//
-// This library is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-// details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with this library; if not, write to the Free Software Foundation, Inc.,
-// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-////////////////////////////////////////////////////////////////////////////////
 /* XPM */
 static const char *remove_column_icon_xpm[]={
-"28 28 7 1",
-". c None",
-"c c #000000",
-"e c #303030",
-"d c #58a8ff",
-"# c #c1c1c1",
-"a c #e2e3e2",
-"b c #ffffff",
+"28 28 6 1",
+"# c None",
+"a c #000000",
+"c c #303030",
+"b c #58a8ff",
+". c #808080",
+"d c #e2e3e2",
 "............................",
-"............................",
-"............................",
-"....#.......................",
-"...#........................",
-".....#......................",
-"............................",
-"............................",
-".......a..#b................",
-".....accccccaabaaaacccccc...",
-"....acdddddccaaaaacdddddec..",
-"...acdddddddccaaacdddddddcc.",
-"...cdddddddddcaacddddddddde.",
-"..acdddddddddcacddddddddddc.",
-"..acddcccccdddccdddccccdddc.",
-"..acddcaaacdddccdddc..cdddc.",
-"..acddcaaacddddcdddc.acddcc.",
-"...cddcaaacddddcdddc.acccca.",
-".#.cddcccccdddccdddc........",
-".#.cdddddddddc#cdddc.a......",
-".#.cddddddddcaacdddc..ccccc.",
-"...cddccccdddcacdddc..cdddc.",
-"...cddc..cdddcacdddc..cdddc.",
-"...cddc...cdddcacddccccdddc.",
-"...cddc...cdddcacdddddddddc.",
-"...cddc...#cdddccddddddddcc.",
-"...cddc....cddddccddddddcc..",
-"..#cddc....cddddc#cddddcc#.."};
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".##########################.",
+".#####aaaaaa#######aaaaaa##.",
+".####abbbbbaa######bbbbbca#.",
+".###abbbbbbbaa###abbbbbbbaa.",
+".##abbbbbbbbba##abbbbbbbbbc.",
+".##abbbbbbbbbadabbbbbbbbbba.",
+".##abbaaaaabbbaabbbaaaabbba.",
+".##abba###abbbaabbba##abbba.",
+".##abba###abbbbabbba##abbaa.",
+".##abba###abbbbabbba##aaaa#.",
+".##abbaaaaabbbaabbba#######.",
+".##abbbbbbbbba#abbba#######.",
+".##abbbbbbbba##abbba##aaaaa.",
+".##abbaaaabbba#abbba##abbba.",
+".##abba##abbba#abbba##abbba.",
+".##abba###abbba#abbaaaabbba.",
+".##abba###abbba#abbbbbbbbba.",
+".##abba####abbbaabbbbbbbbaa.",
+".##abba####abbbbaabbbbbbaa#.",
+".##abba####abbbba#abbbbaa#.."};
