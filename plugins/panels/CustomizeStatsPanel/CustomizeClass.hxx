@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006-2009 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -23,6 +24,10 @@
 #include <qvariant.h>
 #include <qdialog.h>
 #include <qpopupmenu.h>
+#include <qradiobutton.h>
+#include <qbuttongroup.h>
+#include <qtoolbutton.h>
+
 
 #include "openspeedshop.hxx"
 #include "CLIInterface.hxx"
@@ -48,6 +53,7 @@ class QToolBox;
 class QToolBar;
 class QTabWidget;
 class QComboBox;
+class QRadioButton;
 
 class PanelContainer;
 class CustomizeStatsPanel;
@@ -55,6 +61,14 @@ class CompareProcessesDialog;
 
 #include "ColumnSet.hxx"
 #include "CompareSet.hxx"
+
+#include "update_icon.xpm"
+#include "add_processes_icon.xpm"
+#include "remove_processes_icon.xpm"
+#include "add_column_icon.xpm"
+#include "remove_column_icon.xpm"
+#include "focus_stats_icon.xpm"
+#include "load_experiment.xpm"
 
 
 typedef QValueList <QListView *> CompareList;
@@ -83,6 +97,17 @@ public:
     QString currentCompareTypeStr;
     int currentCompareByType;
     QString getCollectorName();
+
+
+    QRadioButton *vCompareTypeFunctionRB;
+    QRadioButton *vCompareTypeStatementRB;
+    QRadioButton *vCompareTypeLinkedObjectRB;
+    QButtonGroup *vCompareTypeBG;
+    QToolBar *fileTools;
+    QSplitter *splitterA;
+    QLabel *toolbar_status_label;
+
+
 
 protected:
     QVBoxLayout* compareClassLayout;

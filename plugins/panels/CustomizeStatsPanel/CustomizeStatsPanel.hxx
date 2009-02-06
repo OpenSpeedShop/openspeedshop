@@ -24,12 +24,9 @@
 
 class PanelContainer;
 class CustomizeClass;
-class QLabel;
-class QVBoxLayout;
+class QHBoxLayout;
 class ArgumentObject;
 class QAction;
-class QToolBar;
-class QSplitter;
 
 #undef PANEL_CLASS_NAME
 #define PANEL_CLASS_NAME CustomizeStatsPanel   // Change the value of the define
@@ -62,9 +59,7 @@ class CustomizeStatsPanel  : public Panel
     int broadcast(char *msg);
 
     //! Controls the base layout of the Panel's widgets.
-    QVBoxLayout * frameLayout;
-    QSplitter *splitterA;
-    QLabel *toolbar_status_label;
+    QHBoxLayout * frameLayout;
 
     CustomizeClass *mcc;
     CustomizeClass *mcc1;
@@ -74,17 +69,8 @@ class CustomizeStatsPanel  : public Panel
     int expID;
 
   public slots:
-    virtual void updatePanel();
-    virtual void loadExperiment();
-    virtual void addProcessesSelected();
-    virtual void removeUserPSet();
-    virtual void addColumn();
-    virtual void removeColumn();
-    virtual void focusStatsPanel();
 
   protected:
-    QToolBar *fileTools;
-
     //! Sets the language specific strings.
     virtual void languageChange();
 

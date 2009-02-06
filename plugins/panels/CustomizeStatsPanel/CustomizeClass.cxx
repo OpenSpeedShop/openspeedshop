@@ -19,7 +19,7 @@
   
 //
 // Debug Flag
-//#define DEBUG_CC 1
+#define DEBUG_CC 1
 //
 
 #include "CustomizeClass.hxx"
@@ -92,6 +92,8 @@ CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bo
   if ( !name ) setName( "CustomizeClass" );
 
   QVBoxLayout *mainCompareLayout = new QVBoxLayout( this, 1, 1, "mainCompareLayout");
+
+#if 0
   QLabel *header = new QLabel(this, "header");
   header->setText("Customize StatsPanel Factory:");
   header->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
@@ -100,16 +102,49 @@ CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bo
   mainCompareLayout->addWidget(header);
 
 // I'm not sure this header makes much sense here.   Hide for now.
-  header->hide();
+//jeg  header->hide();
 
-#if 0
-//getPanelContainer()->getMainWindow(), (QWidget *)getBaseWidgetFrame()
-  fileTools = new QToolBar(QString("label"), p->getPanelContainer()->getMainWindow(), (QWidget *)p->getBaseWidgetFrame(), "file operations" );
+#endif
+
+
+#if 1
+
+// Add toolbar here
+//  fileTools = new QToolBar(QString("label"), NULL, NULL , "file operations" );
+  fileTools = new QToolBar(QString("label"), NULL, this , "file operations" );
+//  fileTools = new QToolBar(QString("label"), p->getPanelContainer()->getMainWindow(), (QWidget *)p->getBaseWidgetFrame(), "file operations" );
   fileTools->setOrientation( Qt::Horizontal );
   fileTools->setLabel( "File Operations" );
   fileTools->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, 0, 0, fileTools->sizePolicy().hasHeightForWidth() ) );
+
   mainCompareLayout->addWidget(fileTools);
+
+#ifdef DEBUG_StatsPanel
+  printf("CustomClass::CustomClass:: fileTools created as QToolBar\n");
 #endif
+
+  QPixmap *update_icon = new QPixmap( update_icon_xpm );
+  new QToolButton(*update_icon, "Update the customize stats panel.", QString::null, this, SLOT( updatePanel() ), fileTools, "Update the custimized statistics panel");
+
+  QPixmap *add_processes_icon = new QPixmap( add_processes_icon_xpm );
+  new QToolButton(*add_processes_icon, "Add new processes to the compare process set.", QString::null, this, SLOT( addProcessesSelected() ), fileTools, "Add new processes to the compare process set.");
+
+  QPixmap *remove_processes_icon = new QPixmap( remove_processes_icon_xpm );
+  new QToolButton(*remove_processes_icon, "Remove new processes to the compare process set.", QString::null, this, SLOT( removeUserPSet() ), fileTools, "Remove new processes to the compare process set.");
+
+  QPixmap *add_column_icon = new QPixmap( add_column_icon_xpm );
+  new QToolButton(*add_column_icon, "Add new column to the compare set.", QString::null, this, SLOT( addNewColumn() ), fileTools, "Add a new column to the compare set.");
+
+  QPixmap *remove_column_icon = new QPixmap( remove_column_icon_xpm );
+  new QToolButton(*remove_column_icon, "Remove the raised tab column from the compare set.", QString::null, this, SLOT( removeRaisedTab() ), fileTools, "Remove the raised tab column.");
+
+  QPixmap *load_experiment_icon = new QPixmap( load_experiment_xpm );
+  new QToolButton(*load_experiment_icon, "Load another experiment into the customize stats panel.", QString::null, this, SLOT( loadAdditionalExperimentSelected() ), fileTools, "Load another experiment into the customize stats panel.");
+
+  QPixmap *focus_stats_icon = new QPixmap( focus_stats_icon_xpm );
+  new QToolButton(*focus_stats_icon, "Focus the StatsPanel on this information.  Generate/Display the view from the currently requested settings.", QString::null, this, SLOT( focusOnCSetSelected() ), fileTools, "Generate the StatsPanel view from the current settings.");
+
+
 
   compareClassLayout = new QVBoxLayout( mainCompareLayout, 1, "compareClassLayout"); 
 
@@ -120,12 +155,77 @@ CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bo
 
   compareClassLayout->addWidget( csetTB );
 
+#ifdef DEBUG_CC 
+  printf("CustomizeClass() constructor calling updateInfo\n");
+#endif
+
   updateInfo();
 
   compareList.clear();
 
+#ifdef DEBUG_CC 
+  printf("CustomizeClass() constructor calling addNewCSet\n");
+#endif
+
   addNewCSet();
 
+  toolbar_status_label = new QLabel(fileTools,"toolbar_status_label");
+
+#if 1
+
+  // Create a compare type button group
+  QButtonGroup *vCompareTypeBG = new QButtonGroup( 1, QGroupBox::Vertical, "Compare/Display Choice", fileTools);
+  vCompareTypeBG->setExclusive( TRUE );
+
+  // insert 1 or 3 radiobuttons
+  vCompareTypeFunctionRB = new QRadioButton( "Functions", vCompareTypeBG );
+  connect( vCompareTypeFunctionRB, SIGNAL( clicked() ), this, SLOT( compareByFunction() ) );
+
+  bool full_compare_by_menu = TRUE;
+  if (csetTB) {
+    QString collectorName = getCollectorName();
+    if (collectorName.contains("mpi") || collectorName.contains("io")) {
+      full_compare_by_menu = FALSE;
+    }
+  } else {
+    full_compare_by_menu = FALSE;
+  } 
+
+  if (full_compare_by_menu) {
+    vCompareTypeStatementRB = new QRadioButton( "Statements", vCompareTypeBG );
+    connect( vCompareTypeStatementRB, SIGNAL( clicked() ), this, SLOT( compareByStatement() ) );
+    vCompareTypeLinkedObjectRB = new QRadioButton( "Linked Objects", vCompareTypeBG );
+    connect( vCompareTypeLinkedObjectRB, SIGNAL( clicked() ), this, SLOT( compareByLinkedObject() ) );
+
+    if (currentCompareByType == compareByFunctionType) {
+       vCompareTypeFunctionRB->setChecked(TRUE);
+       vCompareTypeStatementRB->setChecked(FALSE);
+       vCompareTypeLinkedObjectRB->setChecked(FALSE);
+    } else if (currentCompareByType == compareByStatementType) {
+       vCompareTypeFunctionRB->setChecked(FALSE);
+       vCompareTypeStatementRB->setChecked(TRUE);
+       vCompareTypeLinkedObjectRB->setChecked(FALSE);
+    } else {
+       vCompareTypeFunctionRB->setChecked(FALSE);
+       vCompareTypeStatementRB->setChecked(FALSE);
+       vCompareTypeLinkedObjectRB->setChecked(TRUE);
+    }
+  } else {
+       vCompareTypeFunctionRB->setChecked(TRUE);
+  }
+
+#endif
+
+
+  // default setting to match default views
+  toolbar_status_label->setText("");
+  fileTools->setStretchableWidget(toolbar_status_label);
+
+#endif
+
+#ifdef DEBUG_CC 
+  printf("CustomizeClass() constructor calling languageChange\n");
+#endif
 
   languageChange();
 }
@@ -232,8 +332,12 @@ CustomizeClass::menu(QPopupMenu* contextMenu)
   contextMenu->insertSeparator();
 
   bool full_compare_by_menu = TRUE;
-  QString collectorName = getCollectorName();
-  if (collectorName.contains("mpi") || collectorName.contains("io")) {
+  if (csetTB) {
+    QString collectorName = getCollectorName();
+    if (collectorName.contains("mpi") || collectorName.contains("io")) {
+      full_compare_by_menu = FALSE;
+    }
+  } else {
     full_compare_by_menu = FALSE;
   }
 
@@ -304,6 +408,14 @@ CustomizeClass::menu(QPopupMenu* contextMenu)
     } 
 #endif
   } // end full_compare_by_menu
+
+  if (full_compare_by_menu) {
+     // hide button group 
+//     (QWidget *)p->getBaseWidgetFrame()->vCompareTypeBG->hide();
+  } else {
+     // show button group 
+//     parent.vCompareTypeBG->show();
+  }
 
   contextMenu->insertItem("Compare/Display By... ", compareByMenu);
   //compareByMenu->setStatusTip( tr("Compare or Display Performance Information at the Function, Statement, or Linked Object level.") );
