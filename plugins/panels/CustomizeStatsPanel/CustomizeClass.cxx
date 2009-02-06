@@ -123,8 +123,8 @@ CustomizeClass::CustomizeClass( Panel *_p, QWidget* parent, const char* name, bo
   printf("CustomClass::CustomClass:: fileTools created as QToolBar\n");
 #endif
 
-  QPixmap *update_icon = new QPixmap( update_icon_xpm );
-  new QToolButton(*update_icon, "Update the customize stats panel.", QString::null, this, SLOT( updatePanel() ), fileTools, "Update the custimized statistics panel");
+  QPixmap *customize_update_icon = new QPixmap( customize_update_icon_xpm );
+  new QToolButton(*customize_update_icon, "Update the customize stats panel.", QString::null, this, SLOT( updatePanel() ), fileTools, "Update the custimized statistics panel");
 
   QPixmap *add_processes_icon = new QPixmap( add_processes_icon_xpm );
   new QToolButton(*add_processes_icon, "Add new processes to the compare process set.", QString::null, this, SLOT( addProcessesSelected() ), fileTools, "Add new processes to the compare process set.");

@@ -62,7 +62,7 @@ class CompareProcessesDialog;
 #include "ColumnSet.hxx"
 #include "CompareSet.hxx"
 
-#include "update_icon.xpm"
+#include "customize_update_icon.xpm"
 #include "add_processes_icon.xpm"
 #include "remove_processes_icon.xpm"
 #include "add_column_icon.xpm"
