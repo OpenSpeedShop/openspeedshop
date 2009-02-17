@@ -228,7 +228,7 @@ optionsBarChartActionWith3D = new QAction(
 		    settings.readNumEntry( APP_KEY + "AddValues", int(NO) ));
     m_decimalPlaces = settings.readNumEntry( APP_KEY + "Decimals", 2 );
 #ifdef OLDWAY
-    m_font = QFont( "Helvetica", 18, QFont::Bold );
+    m_font = QFont( "Bitstream Charter", 18, QFont::Bold );
     m_font.fromString(
 	    settings.readEntry( APP_KEY + "Font", m_font.toString() ) );
 #else // OLDWAY

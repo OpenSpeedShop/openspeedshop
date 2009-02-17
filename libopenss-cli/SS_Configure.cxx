@@ -38,7 +38,7 @@ bool    OPENSS_ALLOW_PYTHON_COMMANDS = true;
 bool    OPENSS_LOG_BY_DEFAULT = false;
 bool    OPENSS_LIMIT_SIGNAL_CATCHING = false;
 bool    OPENSS_INSTRUMENTOR_IS_OFFLINE = true;
-bool    OPENSS_LESS_RESTRICTIVE_COMPARISONS = false;
+bool    OPENSS_LESS_RESTRICTIVE_COMPARISONS = true;
 
 static inline void set_int64 (int64_t &env, std::string envName) {
   char *S = getenv (envName.c_str());

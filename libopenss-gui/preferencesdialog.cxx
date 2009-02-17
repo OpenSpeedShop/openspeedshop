@@ -57,8 +57,8 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
 {
    panelContainer = (PanelContainer *)parent;
 
-   globalFontFamily = "Helvetica";
-   globalFontPointSize = 12;
+   globalFontFamily = "Bitstream Charter";
+   globalFontPointSize = 10;
    globalFontWeight = QFont::Normal;
    globalFontItalic = FALSE;
 
@@ -76,7 +76,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    askAboutSavingTheDatabase = TRUE; 
    onRerunSaveCopyOfExperimentDatabase = TRUE; 
    instrumentorIsOffline = TRUE; 
-   lessRestrictiveComparisons = FALSE;
+   lessRestrictiveComparisons = TRUE;
 
 
    globalRemoteShell = "/usr/bin/rsh";
@@ -120,7 +120,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
 
     preferenceDialogLeftFrame = new QFrame( mainSplitter, "preferenceDialogLeftFrame" );
     preferenceDialogLeftFrame->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)5, 0, 0, preferenceDialogLeftFrame->sizePolicy().hasHeightForWidth() ) );
-    preferenceDialogLeftFrame->setMinimumSize( QSize( 95, 10 ) );
+    preferenceDialogLeftFrame->setMinimumSize( QSize( 195, 10 ) );
     preferenceDialogLeftFrame->setFrameShape( QFrame::StyledPanel );
     preferenceDialogLeftFrame->setFrameShadow( QFrame::Raised );
     preferenceDialogLeftFrameLayout = new QVBoxLayout( preferenceDialogLeftFrame, 11, 6, "preferenceDialogLeftFrameLayout"); 
@@ -421,7 +421,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     { // COMPARISONS IGNORING OBJECT AND DIRECTORY PATH
     lessRestrictiveComparisonsCheckBox = new QCheckBox( vpage0big_box, "lessRestrictiveComparisonsCheckBox" );
     lessRestrictiveComparisonsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, lessRestrictiveComparisonsCheckBox->sizePolicy().hasHeightForWidth() ) );
-    lessRestrictiveComparisonsCheckBox->setChecked( FALSE );
+    lessRestrictiveComparisonsCheckBox->setChecked( TRUE );
     lessRestrictiveComparisonsCheckBox->setText( tr( "Less Restrictive Comparisons" ) );
     rightSideLayout->addWidget( lessRestrictiveComparisonsCheckBox );
     }
@@ -439,8 +439,8 @@ void PreferencesDialog::languageChange()
 {
 
 // printf("PreferencesDialog::languageChange() entered\n");
-  globalFontFamily = "Helvetica";
-  globalFontPointSize = 12;
+  globalFontFamily = "Bitstream Charter";
+  globalFontPointSize = 10;
   globalFontWeight = QFont::Normal;
   globalFontItalic = FALSE;
   fontLineEdit->setText( globalFontFamily );

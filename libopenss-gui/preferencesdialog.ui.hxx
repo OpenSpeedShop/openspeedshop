@@ -132,8 +132,8 @@ void PreferencesDialog::resetPreferenceDefaults()
 //   globalFontFamily = "Sans Serif";
 //   globalFontPointSize = 10;
 
-   globalFontFamily = "Helvetica";
-   globalFontPointSize = 12;
+   globalFontFamily = "Bitstream Charter";
+   globalFontPointSize = 10;
 
    globalFontWeight = QFont::Normal;
    globalFontItalic = FALSE;
@@ -172,11 +172,11 @@ void PreferencesDialog::resetPreferenceDefaults()
    onRerunSaveCopyOfExperimentDatabaseCheckBox->setChecked(onRerunSaveCopyOfExperimentDatabase);
    viewMangledName = FALSE;
    viewMangledNameCheckBox->setChecked(viewMangledName);
-   allowPythonCommands = FALSE;
+   allowPythonCommands = TRUE;
    allowPythonCommandsCheckBox->setChecked(allowPythonCommands);
    instrumentorIsOffline = TRUE;
    instrumentorIsOfflineCheckBox->setChecked(instrumentorIsOffline);
-   lessRestrictiveComparisons = FALSE;
+   lessRestrictiveComparisons = TRUE;
    lessRestrictiveComparisonsCheckBox->setChecked(lessRestrictiveComparisons);
 
 
