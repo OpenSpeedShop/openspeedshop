@@ -338,7 +338,7 @@ AC_DEFUN([AC_PKG_MPICH], [
 
     CC="$MPICH_CC"
     CPPFLAGS="$CPPFLAGS $MPICH_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
+    LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
 	#include <mpi.h>
@@ -346,7 +346,9 @@ AC_DEFUN([AC_PKG_MPICH], [
 	MPI_Initialized((int*)0);
 	]]),
 
-	found_mpich=1
+        if ( (test -f $mpich_dir/$abi_libdir/shared/libmpich.so) ) ; then
+	    found_mpich=1
+        fi 
 
 	, )
 
@@ -356,10 +358,12 @@ AC_DEFUN([AC_PKG_MPICH], [
 	AM_CONDITIONAL(HAVE_MPICH, true)
 	AC_DEFINE(HAVE_MPICH, 1, [Define to 1 if you have MPICH.])	
     else
+        AC_MSG_RESULT([Temporary output: found_mpich=$found_mpich])
         # Try again looking in the alternative lib dir with no driver
         AC_MSG_CHECKING([for MPICH alternative library and headers with no mpich_driver specified])
         MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
-        LDFLAGS="$LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
+        MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir -L$mpich_dir/$alt_abi_libdir/libmpich.a"
+        LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
 
         AC_LINK_IFELSE(AC_LANG_PROGRAM([[
     	    #include <mpi.h>
@@ -367,7 +371,9 @@ AC_DEFUN([AC_PKG_MPICH], [
 	    MPI_Initialized((int*)0);
 	    ]]),
 
-	    found_mpich=1
+            if ( (test -f $mpich_dir/$alt_abi_libdir/libmpich.a) ) ; then
+    	        found_mpich=1
+            fi 
 
 	    , )
 
@@ -377,11 +383,12 @@ AC_DEFUN([AC_PKG_MPICH], [
 	  AC_DEFINE(HAVE_MPICH, 1, [Define to 1 if you have MPICH.])	
 
         else
+             AC_MSG_RESULT([Temporary output: found_mpich=$found_mpich])
 
              # Try again looking in the normal lib dir with no driver
              AC_MSG_CHECKING([for MPICH normal lib library and headers with no mpich_driver specified])
-             MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
-             LDFLAGS="$LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
+             MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir -L$mpich_dir/$abi_libdir/libmpich.a"
+             LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
 
              AC_LINK_IFELSE(AC_LANG_PROGRAM([[
                  #include <mpi.h>
@@ -389,7 +396,9 @@ AC_DEFUN([AC_PKG_MPICH], [
                  MPI_Initialized((int*)0);
                  ]]),
 
-                 found_mpich=1
+                 if ( (test -f $mpich_dir/$abi_libdir/libmpich.a) ) ; then
+	           found_mpich=1
+                 fi 
 
                  , )
 

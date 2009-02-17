@@ -21948,7 +21948,7 @@ echo $ECHO_N "checking for MPICH library and headers... $ECHO_C" >&6; }
 
     CC="$MPICH_CC"
     CPPFLAGS="$CPPFLAGS $MPICH_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
+    LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
 
     cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -21987,7 +21987,9 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  found_mpich=1
+  if ( (test -f $mpich_dir/$abi_libdir/shared/libmpich.so) ) ; then
+	    found_mpich=1
+        fi
 
 
 else
@@ -22018,11 +22020,14 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
     else
+        { echo "$as_me:$LINENO: result: Temporary output: found_mpich=$found_mpich" >&5
+echo "${ECHO_T}Temporary output: found_mpich=$found_mpich" >&6; }
         # Try again looking in the alternative lib dir with no driver
         { echo "$as_me:$LINENO: checking for MPICH alternative library and headers with no mpich_driver specified" >&5
 echo $ECHO_N "checking for MPICH alternative library and headers with no mpich_driver specified... $ECHO_C" >&6; }
         MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
-        LDFLAGS="$LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
+        MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir -L$mpich_dir/$alt_abi_libdir/libmpich.a"
+        LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
 
         cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -22061,7 +22066,9 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  found_mpich=1
+  if ( (test -f $mpich_dir/$alt_abi_libdir/libmpich.a) ) ; then
+    	        found_mpich=1
+            fi
 
 
 else
@@ -22092,12 +22099,14 @@ _ACEOF
 
 
         else
+             { echo "$as_me:$LINENO: result: Temporary output: found_mpich=$found_mpich" >&5
+echo "${ECHO_T}Temporary output: found_mpich=$found_mpich" >&6; }
 
              # Try again looking in the normal lib dir with no driver
              { echo "$as_me:$LINENO: checking for MPICH normal lib library and headers with no mpich_driver specified" >&5
 echo $ECHO_N "checking for MPICH normal lib library and headers with no mpich_driver specified... $ECHO_C" >&6; }
-             MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
-             LDFLAGS="$LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
+             MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir -L$mpich_dir/$abi_libdir/libmpich.a"
+             LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
 
              cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -22136,7 +22145,9 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  found_mpich=1
+  if ( (test -f $mpich_dir/$abi_libdir/libmpich.a) ) ; then
+	           found_mpich=1
+                 fi
 
 
 else
