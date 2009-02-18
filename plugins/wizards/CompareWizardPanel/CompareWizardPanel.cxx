@@ -353,7 +353,7 @@ vAttachOrLoadPageClearButton->hide();
   vCompareTypePageDescriptionText = new QTextEdit( vCompareTypePageWidget, "vCompareTypePageDescriptionText" );
   vCompareTypePageDescriptionText->setReadOnly(TRUE);
   vCompareTypePageDescriptionText->setMinimumSize( QSize(10,10) );
-  vCompareTypePageDescriptionText->setText( "Please choose the granularity of the comparison by selecting one of the following:\n\tBy Function Comparison: Show differences using per function performance information.\n\tBy Statement Comparison: Show differences using per statement performance information.\n\tBy Linked Object Comparison: Show differences using per linked object performance information.\n\t" );
+  vCompareTypePageDescriptionText->setText( "Please choose the granularity of the comparison by selecting one of the following:\n(a) By Function Comparison: Show differences using per function performance information.\n(b) By Statement Comparison: Show differences using per statement performance information.\n(c) By Linked Object Comparison: Show differences using per linked object performance information.\n" );
 
   vCompareTypePageDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
   vCompareTypePageDescriptionText->setMinimumSize( QSize(10,10) );
@@ -641,7 +641,7 @@ void CompareWizardPanel::loadPageNextButtonSelected()
   
   fn = QString::null;
 
-  vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment <b>\"%1/%2\"</b> with experiment <b>\"%3/%4\"</b>.  <p><p>Pressing finish will bring up a Compare Experiments Panel with your requested information.\n").arg(leftSideDirName).arg(leftSideExperimentComboBox->currentText()).arg(rightSideDirName).arg(rightSideExperimentComboBox->currentText()) ) );
+  vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment:<p><b>\"%1/%2\"</b><p>with experiment:<p><b>\"%3/%4\"</b>.\n  <p><p>Pressing finish will bring up a Compare Experiments Panel with your requested information.\n").arg(leftSideDirName).arg(leftSideExperimentComboBox->currentText()).arg(rightSideDirName).arg(rightSideExperimentComboBox->currentText()) ) );
 
 #if OLDWAY
   mainWidgetStack->raiseWidget(vSummaryPageWidget);
@@ -783,7 +783,7 @@ void CompareWizardPanel::vSummaryPageFinishButtonSelected()
         }
       }
 
-      vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment <b>\"%1/%2\"</b> with experiment <b>\"%3/%4\"</b>.  Pressing finish will bring up a Compare Experiments Panel with your requested information.\n").arg(leftSideDirName).arg(leftSideExperimentComboBox->currentText()).arg(rightSideDirName).arg(rightSideExperimentComboBox->currentText()) ) );
+      vSummaryPageFinishLabel->setText( tr( QString("You are requesting to compare experiment:<p><b>\"%1/%2\"</b><p> with experiment: <p><b>\"%3/%4\"</b>. <p><p>Pressing finish will bring up a Compare Experiments Panel with your requested information.\n").arg(leftSideDirName).arg(leftSideExperimentComboBox->currentText()).arg(rightSideDirName).arg(rightSideExperimentComboBox->currentText()) ) );
 
       mainWidgetStack->raiseWidget(vSummaryPageWidget);
 
@@ -913,7 +913,7 @@ CompareWizardPanel::requestExperimentFileName()
       printf("CompareWizardPanel::requestExperimentFileName, fn = %s\n", fn.ascii() );
       printf("CompareWizardPanel::requestExperimentFileName, A: Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
 #endif
-      vSummaryPageFinishLabel->setText( tr( QString("You are requesting to load saved experiment <b>\"%1\"</b>.  Pressing finish will bring up your requested information.\n").arg(fn) ) );
+      vSummaryPageFinishLabel->setText( tr( QString("You are requesting to load saved experiment <b>\"%1\"</b>.<p><p>Pressing finish will bring up your requested information.\n").arg(fn) ) );
     }
   }
 }
