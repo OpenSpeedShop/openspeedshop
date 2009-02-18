@@ -92,6 +92,7 @@ Process_Command_Line (int argc, char **argv)
 
    // Look for an indication of which input control window to open.
    // (I really do intend to allow both gui and tli windows at the same time!)
+
     if (!strcasecmp( argv[i], "-cli")) {
       found_tli = true;
       need_tli = true;

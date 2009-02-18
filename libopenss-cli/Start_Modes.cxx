@@ -110,18 +110,28 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
         printf(" StartModes, before checks for args, processing_offline_option=%d, i=%d, argc=%d, cmdstr=%s\n", processing_offline_option, i, argc, cmdstr);
 #endif
 
-        if ( processing_offline_option && (strlen(argv[i]) == 2) && !strncasecmp( argv[i], "-f", 2) && ((i+1) < argc) && strncasecmp( argv[i+1], "-", 1)) {
+        if ( processing_offline_option && 
+             (strlen(argv[i]) == 2) && 
+              !strncasecmp( argv[i], "-f", 2) && 
+              ((i+1) < argc) && 
+              strncasecmp( argv[i+1], "-", 1)) {
+
            // if this is offline then replace the -f with program=
            strcat(cmdstr,"(program=");
+
         } else if (processing_offline_option && ((i+1) == argc) ) {
+
           // This is the last argument in the list, assumed to be the collector type
           strcat(cmdstr,",collector=");
           strcat(cmdstr," \"");
           strcat(cmdstr,argv[i]);
           strcat(cmdstr,"\"");
           strcat(cmdstr,")");
+
         } else {
+
            strcat(cmdstr,argv[i]);
+
         } 
 
         // Still do this for offline option also, no additional checks needed
