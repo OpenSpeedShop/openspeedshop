@@ -80,6 +80,8 @@ protected slots:
     virtual void languageChange();
 
 public slots:
+    void ok_accept();
+    void cancel_reject();
     void buttonDefaultsSelected();
     void startSliderMoved(int);
     void endSliderMoved(int);

@@ -154,8 +154,8 @@ endValue->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0,
   clearWState( WState_Polished );
 
   // signals and slots connections
-  connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
-  connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+  connect( buttonOk, SIGNAL( clicked() ), this, SLOT( ok_accept() ) );
+  connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( cancel_reject() ) );
   connect( buttonDefaults, SIGNAL( clicked() ), this, SLOT( buttonDefaultsSelected() ) );
 }
 
@@ -211,3 +211,18 @@ SelectTimeSegmentDialog::endSliderMoved(int val)
 // printf("endSliderMoved(%d)\n", val);
   endValue->setText( tr( QString("%1").arg(val) ) );
 }
+
+
+void SelectTimeSegmentDialog::ok_accept()
+{
+// printf("SelectTimeSegmentDialog::ok_accept() called.\n");
+  QDialog::accept();
+}
+
+
+void SelectTimeSegmentDialog::cancel_reject()
+{
+// printf("SelectTimeSegmentDialog::cancel_reject() called.\n");
+  QDialog::reject();
+}
+
