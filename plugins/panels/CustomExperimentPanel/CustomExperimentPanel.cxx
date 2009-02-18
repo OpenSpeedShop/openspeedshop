@@ -1711,8 +1711,7 @@ CustomExperimentPanel::loadStatsPanel()
       } // experiment found
     } // was already run 
     getPanelContainer()->raisePanel(statsPanel);
-  } else
-  {
+  } else {
 #ifdef DEBUG_CustomPanel
     printf("in CustomExperimentPanel::loadStatsPanel(), no Stats Panel found.. create one.\n");
 #endif
@@ -1800,8 +1799,7 @@ CustomExperimentPanel::loadManageProcessesPanel()
   printf("CustomExperimentPanel::loadManageProcessesPanel(), second - loadManageProcessesPanel() manageProcessPanel=%d\n", manageProcessPanel);
 #endif
 
-  if( manageProcessPanel )
-  {
+  if( manageProcessPanel ) {
 //    nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", manageProcessPanel->getName());
 
 #ifdef DEBUG_CustomPanel
