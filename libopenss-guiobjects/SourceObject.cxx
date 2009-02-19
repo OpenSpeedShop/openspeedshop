@@ -31,24 +31,39 @@
 
 #include "debug.hxx"
 
+//#define DEBUG_SO 1
+
 /*! Unused constructor. */
 SourceObject::SourceObject() : MessageObject("SourceObject")
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("SourceObject::SourceObject(entered.\n");
+#if DEBUG_SO
+  printf("SourceObject::SourceObject(entered.\n");
+#endif
 }
 
 /*! Constructor for the SourceObject.   Initializes the filename to load, 
     the line to center in the SourcePanel, flags if the SourcePanel should
     be raised, and passes a list of lines to highlight. */
-SourceObject::SourceObject(QString _functionName, QString _fileName, int l, int gid, bool rF, HighlightList *hll) : MessageObject("SourceObject")
+SourceObject::SourceObject(QString _functionName, QString _fileName, int l, int gid, bool rF, HighlightList *hll, int cid) : MessageObject("SourceObject")
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("SourceObject::SourceObject(entered.\n");
+#if DEBUG_SO
+  printf("SourceObject::SourceObject entered, _functionName=%s\n", _functionName.ascii());
+  printf("SourceObject::SourceObject entered, _fileName=%s\n", _fileName.ascii());
+  printf("SourceObject::SourceObject entered, line_number=%d\n", l);
+  printf("SourceObject::SourceObject entered, group_id=%d\n", gid);
+  printf("SourceObject::SourceObject entered, raiseFLAG=%d\n", rF);
+  printf("SourceObject::SourceObject entered, highlightList=%d\n", hll);
+  printf("SourceObject::SourceObject entered, compare_id=%d\n", cid);
+#endif
   functionName = _functionName;
   fileName = _fileName;
   line_number = l;
   group_id = gid;
   raiseFLAG = rF;
   highlightList = hll;
+  compare_id = cid;
 }
 
 /*! Destructor.   Releases the functionName and fileName. */
@@ -67,6 +82,7 @@ SourceObject::print()
   printf("	group_id=(%d)\n", group_id);
   printf("	raiseFLAG=(%d)\n", raiseFLAG);
   printf("	highlightList=(0x%x)\n", highlightList);
+  printf("	compare_id=(%d)\n", compare_id);
 
   for( HighlightList::Iterator it = highlightList->begin();
        it != highlightList->end();

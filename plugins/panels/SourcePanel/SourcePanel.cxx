@@ -69,6 +69,7 @@ SourcePanel::SourcePanel()
 SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "SourcePanel::SourcePanel() constructor called\n");
+
 #ifdef DEBUG_SourcePanel
   printf ( "SourcePanel::SourcePanel() constructor called\n");
 #endif
@@ -105,11 +106,14 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) 
 
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  if( ao )
-  {
+  if( ao ) {
     expID = ao->int_data;
   }
   groupID = expID;
+
+#ifdef DEBUG_SourcePanel
+  printf ( "SourcePanel::SourcePanel() constructor ao->int_data=%d\n", ao->int_data);
+#endif
 
   splitter = new QSplitter(getBaseWidgetFrame(), "SourcePanel: splitter");
   splitter->setOrientation( QSplitter::Horizontal );
@@ -175,8 +179,7 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) 
   textEdit->setWordWrap(QTextEdit::NoWrap);
   vscrollbar = textEdit->verticalScrollBar();
   hscrollbar = textEdit->horizontalScrollBar();
-  if( vscrollbar )
-  {
+  if( vscrollbar ) {
     connect( vscrollbar, SIGNAL(valueChanged(int)),
            this, SLOT(valueChanged(int)) );
   }
@@ -210,25 +213,32 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) 
   label->show();
 
   textEdit->setFocus();
+
 #ifdef DEBUG_SourcePanel
    printf("SourcePanel::SourcePanel, Now, getShowStatistics()= %d\n", getShowStatistics() );
 #endif
-  if( getShowStatistics() == TRUE )
-  {
+
+  if( getShowStatistics() == TRUE ) {
+
 #ifdef DEBUG_SourcePanel
    printf("SourcePanel::SourcePanel, show canvas form!\n");
 #endif
+
     showCanvasForm();
   }
+
 #ifdef DEBUG_SourcePanel
    printf("SourcePanel::SourcePanel, Now, getShowLineNumbers()= %d\n", getShowLineNumbers() );
 #endif
-  if( getShowLineNumbers() == TRUE )
-  {
+
+  if( getShowLineNumbers() == TRUE ) {
+
 #ifdef DEBUG_SourcePanel
    printf("SourcePanel::SourcePanel, show line numbers!\n");
 #endif
+
     showLineNumbers();
+
   }
 
   char name_buffer[100];
@@ -421,6 +431,7 @@ SourcePanel::saveAs()
 void
 SourcePanel::preferencesChanged()
 {
+
 #ifdef DEBUG_SourcePanel
    printf("SourcePanel::preferencesChanged()\n");
 #endif
@@ -429,11 +440,14 @@ SourcePanel::preferencesChanged()
 #ifdef DEBUG_SourcePanel
    printf("SourcePanel::preferencesChanged,  show_stats_val=%d\n", new_show_stats_val );
 #endif
+
   if( statsFLAG != new_show_stats_val )
   {
     showCanvasForm();
   }
+
   bool show_line_numbers_val = getShowLineNumbers();
+
 #ifdef DEBUG_SourcePanel
    printf("SourcePanel::preferencesChanged,  show_line_numbers_val=%d\n", show_line_numbers_val );
 #endif
@@ -453,60 +467,95 @@ SourcePanel::preferencesChanged()
 int 
 SourcePanel::listener(void *msg)
 {
+
   SourceObject *spo = NULL;
   SaveAsObject *sao = NULL;
   PreferencesChangedObject *pco = NULL;
+
   nprintf(DEBUG_PANELS) ("SourcePanel::listener() requested.\n");
+
 #ifdef DEBUG_SourcePanel
-  printf("SourcePanel::listener() requested.\n");
+  printf("SourcePanel::listener() requested., recyleFLAG=%d\n", recycleFLAG);
 #endif
 
   MessageObject *msgObject = (MessageObject *)msg;
 
 #ifdef DEBUG_SourcePanel
   printf("SourcePanel::listener(), msgObject->msgType-%s getName()=%s\n", msgObject->msgType.ascii(), getName() );
+  msgObject->print();
 #endif
 
   // Check the message type to make sure it's our type...
-  if( msgObject->msgType == getName() && recycleFLAG == TRUE )
-  {
+  if( msgObject->msgType == getName() && recycleFLAG == TRUE ) {
+
+#ifdef DEBUG_SourcePanel
+    printf("SourcePanel::listener() Someone is looking for us\n");
+#endif
+
     // Someone's looking for us... \n");
     return 1;
-  } else if( msgObject->msgType == "SourceObject" && recycleFLAG == TRUE )
-  {
+
+  } else if( msgObject->msgType == "SourceObject" && recycleFLAG == TRUE ) {
+
     // ---------------------------------------- 
     // ---------------------------------------- SOURCE-OBJECT
     // ---------------------------------------- 
+
     nprintf(DEBUG_PANELS)  ("Its a SourceObject\n");
+
 #ifdef DEBUG_SourcePanel
    printf("SourcePanel::listener(), Its a SourceObject\n");
 #endif
+
     spo = (SourceObject *)msg;
-    if( !spo )
-    {
+
+#ifdef DEBUG_SourcePanel
+   printf("SourcePanel::listener(), Its a SourceObject, spo=%d\n", spo);
+#endif
+
+    if( !spo ) {
+#ifdef DEBUG_SourcePanel
+      printf("SourcePanel::listener(), Its a SourceObject, RETURN EARLY, spo=%d\n", spo);
+#endif
       return 0;  // 0 means, did not act on message.
     }
+
     // If there's a specific group_id that is to be raised,
     // only raise it....   All other source panels should
     // ignore this request...
-    if( spo->group_id > 0 )
-    {
-      if( spo->group_id != groupID )
-      {
+
+#ifdef DEBUG_SourcePanel
+    printf ("SourcePanel::listener(), spo->group_id=%d, groupID=%d, spo->compare_id=%d\n", 
+            spo->group_id, groupID, spo->compare_id );
+#endif
+
+    if( spo->group_id > 0 ) {
+      if( spo->group_id != groupID && spo->group_id != spo->compare_id) {
+
+#ifdef DEBUG_SourcePanel
+        printf ("SourcePanel::listener(), EARLY EXIT spo->group_id=%d, groupID=%d, spo->compare_id=%d\n", 
+                spo->group_id, groupID, spo->compare_id );
+#endif
+
         return 0; // 0 means, did not act on message.
       }
     }
 
     last_spo = spo;
 
+#ifdef DEBUG_SourcePanel
+    printf ("SourcePanel::listener(), last_spo=%d\n", last_spo );
+#endif
+
 
 #if OLDWAY
     lineCount = 0;
+
 #ifdef DEBUG_SourcePanel
   printf ("SourcePanel::listener(), load the file spo->fileName=%s\n", spo->fileName.ascii() );
 #endif
-    if( loadFile(spo->fileName) == FALSE )
-    {
+
+    if( loadFile(spo->fileName) == FALSE ) {
       // We didn't find or load the file, but we did attempt
       // to handle this message.   Return 1.
       return 1;
@@ -537,10 +586,14 @@ SourcePanel::listener(void *msg)
     // Now just make sure everything is lined up and resized correctly.
     valueChanged(-1);
 #else // OLDWAY
+#ifdef DEBUG_SourcePanel
+    printf("SourcePanel::listener(), calling refresh()\n");
+#endif
+
     refresh();
 #endif // OLDWAY
-  } else if( msgObject->msgType == "SaveAsObject" )
-  {
+
+  } else if( msgObject->msgType == "SaveAsObject" ) {
     // ---------------------------------------- 
     // ---------------------------------------- SAVED-AS-OBJECT
     // ---------------------------------------- 
@@ -554,8 +607,7 @@ SourcePanel::listener(void *msg)
       doSaveAs(sao->ts);
       sao->f->flush();
     }
-  } else if( msgObject->msgType == "PreferencesChangedObject" )
-  {
+  } else if( msgObject->msgType == "PreferencesChangedObject" ) {
     // ---------------------------------------- 
     // ---------------------------------------- PREFERENCES-CHANGED-OBJECT
     // ---------------------------------------- 
@@ -564,8 +616,7 @@ SourcePanel::listener(void *msg)
 #endif
     pco = (PreferencesChangedObject *)msg;
     preferencesChanged();
-  } else
-  {
+  } else {
     return 0; // 0 means, did not act on message.
   }
 
@@ -803,14 +854,14 @@ SourcePanel::showCanvasForm()
 void
 SourcePanel::showLineNumbers()
 {
-  if( line_numbersFLAG == TRUE )
-  {
+  if( line_numbersFLAG == TRUE ) {
     line_numbersFLAG = FALSE;
-  } else
-  {
+  } else {
     line_numbersFLAG = TRUE;
   }
+
   nprintf(DEBUG_PANELS) ("SourcePanel::showLineNumbers() entered\n");
+
 #ifdef DEBUG_SourcePanel
   printf("SourcePanel::showLineNumbers, entered and calling loadFile with fileName=%s\n", fileName.ascii());
 #endif

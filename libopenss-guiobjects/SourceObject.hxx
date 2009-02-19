@@ -34,7 +34,7 @@ public:
     //! Unused constructor.
     SourceObject();
     //! Constructor for creating source message.
-    SourceObject(QString _functionName, QString _fileName, int l, int gid = -1, bool rF=1, HighlightList *hll=NULL);
+    SourceObject(QString _functionName, QString _fileName, int l, int gid = -1, bool rF=1, HighlightList *hll=NULL, int cid = -1);
 
     //! Destructor
     ~SourceObject();
@@ -60,5 +60,8 @@ public:
 
     //! The list of lines to hightlight.
     HighlightList *highlightList;
+
+    //! compare id
+    int compare_id;
 };
 #endif // SOURCEOBJECT_H

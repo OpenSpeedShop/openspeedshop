@@ -1645,7 +1645,7 @@ CustomExperimentPanel::experimentStatus()
       return;
     }
 
-    qApp->processEvents(1000);
+    qApp->processEvents(4000);
 
     if( !cli->shouldWeContinue() )
     {
@@ -1885,7 +1885,7 @@ CustomExperimentPanel::loadMain()
       if(statement_definition.size() > 0 )
       {
         std::set<Statement>::const_iterator i = statement_definition.begin();
-        SourceObject *spo = new SourceObject(main_string.c_str(), i->getPath(), i->getLine()-1, expID, TRUE, NULL);
+        SourceObject *spo = new SourceObject(main_string.c_str(), i->getPath(), i->getLine()-1, expID, TRUE, NULL, -1 /* compareID */);
   
         QString name = QString("Source Panel [%1]").arg(expID);
 #ifdef DEBUG_CustomPanel
@@ -2788,29 +2788,21 @@ CustomExperimentPanel::getMostImportantMetric(QString collector_name)
   QString metric = QString((const char *)0);
 
 
-  if( collector_name == "pcsamp" )
-  {
+  if( collector_name == "pcsamp" ) {
     metric = "-m pcsamp::time";
-  } else if( collector_name == "usertime" )
-  {
+  } else if( collector_name == "usertime" ) {
     metric = "-m usertime::exclusive_time";
-  } else if( collector_name == "hwc" )
-  {
+  } else if( collector_name == "hwc" ) {
     metric = "-m hwc::overflows";
-  } else if( collector_name == "hwctime" )
-  {
+  } else if( collector_name == "hwctime" ) {
     metric = "-m hwc::exclusive_overflows";
-  } else if( collector_name == "mpi" )
-  {
+  } else if( collector_name == "mpi" ) {
     metric = "-m mpi::exclusive_times";
-  } else if( collector_name == "mpit" )
-  {
+  } else if( collector_name == "mpit" ) {
     metric = "-m mpit::start_time, mpit::end_time, mpit::exclusive";
-  } else if( collector_name == "io" )
-  {
+  } else if( collector_name == "io" ) {
     metric = "-m io::exclusive_times";
-  } else if( collector_name == "iot" )
-  {
+  } else if( collector_name == "iot" ) {
     metric = "-m io::exclusive_times";
   }
   
@@ -2820,16 +2812,13 @@ CustomExperimentPanel::getMostImportantMetric(QString collector_name)
 QString
 CustomExperimentPanel::getDatabaseName()
 {
-  if( databaseNameStr.isEmpty() )
-  {
+  if( databaseNameStr.isEmpty() ) {
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     InputLineObject *clip = NULL;
 
-    std::string cstring;
+    std::string cstring = "";
     QString command = QString("list -x %1 -v database").arg(expID);
-    if( !cli->getStringValueFromCLI( (char *)command.ascii(),
-           &cstring, clip, TRUE ) )
-    {
+    if( !cli->getStringValueFromCLI( (char *)command.ascii(), &cstring, clip, TRUE ) ) {
       printf("Unable to run %s command.\n", command.ascii() );
     }
     QString str = QString( cstring.c_str() );

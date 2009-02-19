@@ -26,9 +26,11 @@
 #include "GenericProgressDialog.hxx"
 #include "SelectTimeSegmentDialog.hxx"
 #include "OptionalViewsDialog.hxx"
+#include "ChooseExperimentDialog.hxx"
 
 #include "ToolAPI.hxx"
 #include "Queries.hxx"
+#include <vector>
 
 
 #define DEFAULT_CANVAS_WIDTH 100
@@ -166,6 +168,7 @@ class StatsPanel  : public Panel
     void process_clip(InputLineObject *statspanel_clip, HighlightList *highlightList, bool dumpClipFLAG);
     GenericProgressDialog *pd;
     SelectTimeSegmentDialog *timeSegmentDialog;
+    ChooseExperimentDialog *chooseExperimentDialog;
     OptionalViewsDialog *optionalViewsDialog;
     QString timeIntervalString;
     QString prevTimeIntervalString;
@@ -183,6 +186,7 @@ class StatsPanel  : public Panel
     CInfoClassList cInfoClassList;
 
     void analyzeTheCView();
+    int getValidExperimentIdForView();
     bool canWeDiff();
 
     SPListView *splv;
@@ -259,6 +263,8 @@ class StatsPanel  : public Panel
     std::list<std::string> list_of_collectors;
     std::list<int64_t> list_of_pids;
     std::list<std::string> list_of_modifiers;
+
+    std::list<int> current_list_of_cview_exp_ids;
     std::list<std::string> current_list_of_modifiers;
 
     std::list<std::string> list_of_mpi_modifiers;

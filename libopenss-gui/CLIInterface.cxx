@@ -113,7 +113,7 @@ nprintf(DEBUG_COMMANDS) ("runSynchronousCLI() command = (%s)\n", command );
        RETURN_FALSE;
     }
 
-    qApp->processEvents(1000);
+    qApp->processEvents(8000);
 
     if( !shouldWeContinue() )
     {
@@ -249,7 +249,7 @@ CLIInterface::getIntValueFromCLI(const char *command, int64_t *val, bool mark_va
       break;
     }
     
-    qApp->processEvents(1000);
+    qApp->processEvents(8000);
 
     if( !shouldWeContinue() )
     {
@@ -392,7 +392,7 @@ CLIInterface::getIntListValueFromCLI(const char *command, std::list<int64_t> *in
       break;
     }
     
-    qApp->processEvents(1000);
+    qApp->processEvents(8000);
 
     if( !shouldWeContinue() )
     {
@@ -514,7 +514,7 @@ CLIInterface::getStringValueFromCLI(const char *command, std::string *str_val, b
       break;
     }
     
-    qApp->processEvents(1000);
+    qApp->processEvents(8000);
 
     if( !shouldWeContinue() )
     {
@@ -620,7 +620,7 @@ nprintf(DEBUG_COMMANDS) ("getStringListValueFromCLI() command = (%s)\n", command
       break;
     }
     
-    qApp->processEvents(1000);
+    qApp->processEvents(8000);
 
     if( !shouldWeContinue() )
     {
