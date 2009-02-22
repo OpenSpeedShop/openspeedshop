@@ -423,7 +423,7 @@ static bool define_io_columns (
           HV.push_back("Inclusive Calls");
         } else if (!strcasecmp(M_Name.c_str(), "average")) {
          // average time is calculated from two temps: sum and total counts.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, intime_temp));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, incnt_temp));
           HV.push_back("Average Time");
         } else if (!strcasecmp(M_Name.c_str(), "percent") ||
                    !strcasecmp(M_Name.c_str(), "%") ||
@@ -496,7 +496,7 @@ static bool define_io_columns (
         } else if (!strcasecmp(M_Name.c_str(), "stddev")) {
          // The standard deviation is calculated from 3 temps: sum, sum of squares and total counts.
           IV.push_back(new ViewInstruction (VIEWINST_Display_StdDeviation_Tmp, last_column++,
-                                            VMulti_time_temp, ssq_temp, intime_temp));
+                                            VMulti_time_temp, ssq_temp, incnt_temp));
           HV.push_back("Standard Deviation");
         } else if (!strcasecmp(M_Name.c_str(), "start_time")) {
           if (vfc == VFC_Trace) {

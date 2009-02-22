@@ -360,8 +360,8 @@ static bool define_mpit_columns (
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, incnt_temp));
           HV.push_back("Inclusive Calls");
         } else if (!strcasecmp(M_Name.c_str(), "average")) {
-         // average time is calculated from two temps: sum and total time.
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, extime_temp));
+         // average time is calculated from two temps: sum and total counts.
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, incnt_temp));
           HV.push_back("Average Time(ms)");
         } else if (!strcasecmp(M_Name.c_str(), "percent") ||
                    !strcasecmp(M_Name.c_str(), "%") ||
