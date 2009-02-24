@@ -236,7 +236,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   sprintf(tmp_str, "originalLeftFrame for %s", getInternalName().ascii() );
   leftFrame = new Frame(this, splitter, "left_frame");
   leftFrame->setMinimumSize( QSize(10,10) );
-  if( debug(DEBUG_FRAMES) ) leftFrame->setBackgroundColor("white");
+  if( debug(DEBUG_FRAMES) ) leftFrame->setBackgroundColor(Qt::white);
   leftFrame->setDragEnabled(TRUE);
   leftFrame->setDropEnabled(TRUE);
 
@@ -3583,58 +3583,58 @@ PanelContainer::getTabColor(int id)
  switch( id )
  {
    case 0:
-    return( QColor(white) );
+    return( QColor(Qt::white) );
     break;
    case 1:
-    return( QColor(red) );
+    return( QColor(Qt::red) );
     break;
    case 2:
-    return( QColor(blue) );
+    return( QColor(Qt::blue) );
     break;
    case 3:
-    return( QColor(green) );
+    return( QColor(Qt::green) );
     break;
    case 4:
-    return( QColor(black) );
+    return( QColor(Qt::black) );
     break;
    case 5:
-    return( QColor(magenta) );
+    return( QColor(Qt::magenta) );
     break;
    case 6:
-    return( QColor(yellow) );
+    return( QColor(Qt::yellow) );
     break;
    case 7:
-    return( QColor(gray) );
+    return( QColor(Qt::gray) );
     break;
    case 8:
-    return( QColor(cyan) );
+    return( QColor(Qt::cyan) );
     break;
    case 9:
-    return( QColor(darkRed) );
+    return( QColor(Qt::darkRed) );
     break;
    case 10:
-    return( QColor(darkGreen) );
+    return( QColor(Qt::darkGreen) );
     break;
    case 11:
-    return( QColor(darkBlue) );
+    return( QColor(Qt::darkBlue) );
     break;
    case 12:
-    return( QColor(darkCyan) );
+    return( QColor(Qt::darkCyan) );
     break;
    case 13:
-    return( QColor(darkMagenta) );
+    return( QColor(Qt::darkMagenta) );
     break;
    case 14:
-    return( QColor(darkYellow) );
+    return( QColor(Qt::darkYellow) );
     break;
    case 15:
-    return( QColor(darkGray) );
+    return( QColor(Qt::darkGray) );
     break;
    case 16:
    default:
-    return( QColor(lightGray) );
+    return( QColor(Qt::lightGray) );
     break;
  }
 
-  return( QColor(lightGray) );
+  return( QColor(Qt::lightGray) );
 }

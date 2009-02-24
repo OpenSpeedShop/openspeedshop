@@ -51,7 +51,7 @@ AboutClass::AboutClass(QWidget *w) : QDialog(w, "", 0, 0)
   QLabel *label1 = new QLabel(tab1Widget, "label1");
   QPixmap *splashPixmap = new QPixmap( splash_noborder_xpm );
   label1->setPixmap( *splashPixmap );
-  label1->setBackgroundColor( QColor(white) );
+  label1->setBackgroundColor( QColor(Qt::white) );
   label1->setFrameStyle( QFrame::NoFrame );
   tabWidget->addTab(tab1Widget, "About");
   tab1Layout->addWidget(label1);

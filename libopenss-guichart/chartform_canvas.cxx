@@ -133,7 +133,7 @@ if( m_chartType == PIEWITHSHADOW )
 	    arc->setX( x+shadow_angle );
 	    arc->setY( y+depth );
 	    arc->setZ( 0 );
-	    arc->setBrush( QBrush( QColor("black"),
+	    arc->setBrush( QBrush( QColor(Qt::black),
 				   BrushStyle(1)) );
 	    arc->show();
 	    angle += extent;

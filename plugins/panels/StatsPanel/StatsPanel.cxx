@@ -26,6 +26,7 @@
 //#define DEBUG_StatsPanel_toolbar 1
 //#define DEBUG_StatsPanel_cview 1
 //#define DEBUG_StatsPanel_menu 1
+//#define DEBUG_StatsPanel_diff 1
 
 #include "StatsPanel.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
@@ -188,7 +189,7 @@ class AboutOutputClass : public ss_ostream
     virtual void output_string (std::string s)
     {
        line_buffer += s.c_str();
-       if( QString(s).contains("\n") )
+       if( QString(s.c_str()).contains("\n") )
        {
          QString *data = new QString(line_buffer);
          sp->outputAboutData(data);
@@ -268,7 +269,6 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 
   insertDiffColumnFLAG = FALSE;
   focusedExpID = -1;
-  focusedCompareExpID = -1;
 
   compareExpIDs.clear();
   experimentGroupList.clear();
@@ -1422,7 +1422,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   contextMenu->insertSeparator();
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::menu, expID=(%d) focusedExpID=(%d), focusedCompareExpID=(%d)\n", expID, focusedExpID, focusedCompareExpID );
+  printf("StatsPanel::menu, expID=(%d) focusedExpID=(%d)\n", expID, focusedExpID );
 #endif
 
   if( focusedExpID > 0 ) {
@@ -1468,37 +1468,37 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 #ifdef DEBUG_StatsPanel
      printf("collector_name = (%s)\n", collector_name.c_str() );
 #endif
-    if( QString(collector_name).startsWith("mpi") ) {
+    if( QString(collector_name.c_str()).startsWith("mpi") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate an mpi* menu\n");
 #endif
-      generateMPIMenu(QString(collector_name));
-    } else if( QString(collector_name).startsWith("io") ) {
+      generateMPIMenu(QString(collector_name.c_str()));
+    } else if( QString(collector_name.c_str()).startsWith("io") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate an io* menu\n");
 #endif
-      generateIOMenu(QString(collector_name));
-    } else if( QString(collector_name).startsWith("hwctime") ) {
+      generateIOMenu(QString(collector_name.c_str()));
+    } else if( QString(collector_name.c_str()).startsWith("hwctime") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate an hwctime menu\n");
 #endif
-      generateHWCTimeMenu(QString(collector_name));
-    } else if( QString(collector_name).startsWith("hwc") ) {
+      generateHWCTimeMenu(QString(collector_name.c_str()));
+    } else if( QString(collector_name.c_str()).startsWith("hwc") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate an hwc menu\n");
 #endif
-      generateHWCMenu(QString(collector_name));
-    } else if( QString(collector_name).startsWith("usertime") ) {
+      generateHWCMenu(QString(collector_name.c_str()));
+    } else if( QString(collector_name.c_str()).startsWith("usertime") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate an usertime menu.\n");
 #endif
       generateUserTimeMenu();
-    } else if( QString(collector_name).startsWith("pcsamp") ) {
+    } else if( QString(collector_name.c_str()).startsWith("pcsamp") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate a pcsamp menu\n");
 #endif
       generatePCSampMenu();
-    } else if( QString(collector_name).startsWith("fpe") ) {
+    } else if( QString(collector_name.c_str()).startsWith("fpe") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate a fpe menu\n");
 #endif
@@ -1612,7 +1612,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
      printf("menu, in splv->selectedItem(), compareExpIDs.size()=(%d)\n", compareExpIDs.size() );
 #endif
 
-     if (compareExpIDs.size() > 0) {
+     if (compareExpIDs.size() > 1) {
 
 #ifdef DEBUG_StatsPanel
          printf("StatsPanel::menu, CHECK if compareExpIDs>2, currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
@@ -1709,8 +1709,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         int exp_id = s.mid(index,9999).stripWhiteSpace().toInt();
         s = QString("Experiment: %1").arg(exp_id);
         id = experimentsMenu->insertItem(s);
-        if( exp_id == focusedExpID )
-        {
+        if( exp_id == focusedExpID ) {
           experimentsMenu->setItemChecked(id, TRUE);
         }
       }
@@ -2039,12 +2038,19 @@ StatsPanel::customizeExperimentsSelected()
 {
   nprintf( DEBUG_PANELS ) ("StatsPanel::customizeExperimentsSelected()\n");
 
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::customizeExperimentsSelected()\n");
+#endif
+
   QString name = QString("CustomizeStatsPanel [%1]").arg(expID);
 
   Panel *customizePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
 
   if( customizePanel ) { 
 
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::customizePanel() found customizePanel found.. raise it.\n");
+#endif
     nprintf( DEBUG_PANELS ) ("customizePanel() found customizePanel found.. raise it.\n");
     getPanelContainer()->raisePanel(customizePanel);
 
@@ -2058,9 +2064,12 @@ StatsPanel::customizeExperimentsSelected()
 //    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
 
    ArgumentObject *ao = new ArgumentObject("ArgumentObject", groupID);
+
    if( focusedExpID != -1 ) {
 
-// printf("assigning qstring_data\n");
+#ifdef DEBUG_StatsPanel
+     printf("StatsPanel::assigning qstring_data\n");
+#endif
 
      ao->qstring_data = QString("%1").arg(focusedExpID);
    } else {
@@ -2995,8 +3004,10 @@ StatsPanel::timeSliceSelected()
 void
 StatsPanel::focusOnExp(int val)
 {
-// printf("Just set the focus to the first for now... val=%d\n", val );
-// printf("Menu item %s selected \n", experimentsMenu->text(val).ascii() );
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::focusOnExp, Just set the focus to the first for now... val=%d\n", val );
+  printf("StatsPanel::focusOnExp, Menu item %s selected \n", experimentsMenu->text(val).ascii() );
+#endif
 
   QString valStr = experimentsMenu->text(val).ascii();
   int index = valStr.find(":");
@@ -3009,7 +3020,10 @@ StatsPanel::focusOnExp(int val)
       updateCollectorList();
     }
 
-// printf("You just assigned the focusedExpID=%d\n", focusedExpID);
+#ifdef DEBUG_StatsPanel
+   printf("You just assigned the focusedExpID=%d\n", focusedExpID);
+#endif
+
   }
 }
 
@@ -3019,10 +3033,10 @@ StatsPanel::gotoSourceCompare1Selected(bool use_current_item)
 {
 
 #ifdef DEBUG_StatsPanel
-  printf("gotoSourceCompare1Selected() menu selected\n");
+  printf("gotoSourceCompare1Selected() menu selected, compareExpIDs[0]=%d\n", compareExpIDs[0]);
 #endif
 
-  focusedCompareExpID = compareExpIDs[0];
+  focusedExpID = compareExpIDs[0];
   gotoSource(use_current_item);
 }
 
@@ -3031,9 +3045,11 @@ void
 StatsPanel::gotoSourceCompare2Selected(bool use_current_item)
 {
 #ifdef DEBUG_StatsPanel
-  printf("gotoSourceCompare2Selected() menu selected\n");
+  printf("gotoSourceCompare2Selected() menu selected, compareExpIDs[0]=%d\n", compareExpIDs[0]);
+  printf("gotoSourceCompare2Selected() menu selected, compareExpIDs[1]=%d\n", compareExpIDs[1]);
 #endif
-  focusedCompareExpID = compareExpIDs[1];
+
+  focusedExpID = compareExpIDs[1];
   gotoSource(use_current_item);
 }
 
@@ -3042,9 +3058,11 @@ void
 StatsPanel::gotoSourceCompare3Selected(bool use_current_item)
 {
 #ifdef DEBUG_StatsPanel
-  printf("gotoSourceCompare3Selected() menu selected\n");
+  printf("gotoSourceCompare3Selected() menu selected, compareExpIDs[0]=%d\n", compareExpIDs[0]);
+  printf("gotoSourceCompare3Selected() menu selected, compareExpIDs[1]=%d\n", compareExpIDs[1]);
+  printf("gotoSourceCompare3Selected() menu selected, compareExpIDs[2]=%d\n", compareExpIDs[2]);
 #endif
-  focusedCompareExpID = compareExpIDs[2];
+  focusedExpID = compareExpIDs[2];
   gotoSource(use_current_item);
 }
 
@@ -3053,9 +3071,12 @@ void
 StatsPanel::gotoSourceCompare4Selected(bool use_current_item)
 {
 #ifdef DEBUG_StatsPanel
-  printf("gotoSourceCompare4Selected() menu selected\n");
+  printf("gotoSourceCompare4Selected() menu selected, compareExpIDs[0]=%d\n", compareExpIDs[0]);
+  printf("gotoSourceCompare4Selected() menu selected, compareExpIDs[1]=%d\n", compareExpIDs[1]);
+  printf("gotoSourceCompare4Selected() menu selected, compareExpIDs[2]=%d\n", compareExpIDs[2]);
+  printf("gotoSourceCompare4Selected() menu selected, compareExpIDs[3]=%d\n", compareExpIDs[3]);
 #endif
-  focusedCompareExpID = compareExpIDs[3];
+  focusedExpID = compareExpIDs[3];
   gotoSource(use_current_item);
 }
 
@@ -3064,9 +3085,13 @@ void
 StatsPanel::gotoSourceCompare5Selected(bool use_current_item)
 {
 #ifdef DEBUG_StatsPanel
-  printf("gotoSourceCompare5Selected() menu selected\n");
+  printf("gotoSourceCompare5Selected() menu selected, compareExpIDs[0]=%d\n", compareExpIDs[0]);
+  printf("gotoSourceCompare5Selected() menu selected, compareExpIDs[1]=%d\n", compareExpIDs[1]);
+  printf("gotoSourceCompare5Selected() menu selected, compareExpIDs[2]=%d\n", compareExpIDs[2]);
+  printf("gotoSourceCompare5Selected() menu selected, compareExpIDs[3]=%d\n", compareExpIDs[3]);
+  printf("gotoSourceCompare5Selected() menu selected, compareExpIDs[4]=%d\n", compareExpIDs[4]);
 #endif
-  focusedCompareExpID = compareExpIDs[4];
+  focusedExpID = compareExpIDs[4];
   gotoSource(use_current_item);
 }
 
@@ -3340,7 +3365,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   QString lineNumberStr = "-1";
   QString filename = QString::null;
   SourceObject *spo = NULL;
-  QString ssf = QString(sf).stripWhiteSpace();
+  QString ssf = QString(sf.c_str()).stripWhiteSpace();
 
   filename = spitem->fileName.ascii();
   if (filename == QString::null) {
@@ -3378,15 +3403,15 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   QApplication::setOverrideCursor(QCursor::WaitCursor);
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::matchSelectedItem, LOOK UP FILE HIGHLIGHTS THE NEW WAY!, filename.ascii()=%s, expID=%d, focusedCompareExpID=%d\n", 
-         filename.ascii(), expID, focusedCompareExpID);
+  printf("StatsPanel::matchSelectedItem, LOOK UP FILE HIGHLIGHTS THE NEW WAY!, filename.ascii()=%s, expID=%d, focusedExpID=%d\n", 
+         filename.ascii(), expID, focusedExpID);
 #endif
 
   spo = lookUpFileHighlights(filename, lineNumberStr, highlightList);
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::matchSelectedItem, after calling lookUpFileHighlights, filename=%s expID=%d, focusedCompareExpID=%d\n", 
-         filename.ascii(), expID, focusedCompareExpID);
+  printf("StatsPanel::matchSelectedItem, after calling lookUpFileHighlights, filename=%s expID=%d, focusedExpID=%d\n", 
+         filename.ascii(), expID, focusedExpID);
 #endif
 
   if( !spo ) {
@@ -3420,8 +3445,8 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
       if( expID == -1  ) {
         name = QString("Source Panel [%1]").arg(groupID);
       } else {
-        if ( focusedCompareExpID != -1) {
-           name = QString("Source Panel [%1]").arg(focusedCompareExpID);
+        if ( focusedExpID != -1) {
+           name = QString("Source Panel [%1]").arg(focusedExpID);
         } else {
            name = QString("Source Panel [%1]").arg(expID);
         }
@@ -3566,151 +3591,176 @@ static int findNextMajorToken(QString str, int start_index, QString searchStr)
 
 void StatsPanel::getPidList(int exp_id)
 {
+
 // Now get the threads.
+
  QString command = QString::null;
+
 #ifdef DEBUG_StatsPanel
  printf("StatsPanel::getPidList exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
 #endif
 
  currentThreadStrENUM = UNKNOWN;
+
  if( exp_id > 0 || focusedExpID > 0 ) {
-  if( focusedExpID == -1 )
-  {
+  if( focusedExpID == -1 ) {
     command = QString("list -v ranks -x %1").arg(exp_id);
-  } else
-  {
+  } else {
     command = QString("list -v ranks -x %1").arg(focusedExpID);
   }
+
   currentThreadStrENUM = RANK;
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getPidList-attempt to run (%s)\n", command.ascii() );
 #endif
+
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   list_of_pids.clear();
   InputLineObject *clip = NULL;
   if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-         &list_of_pids, clip, TRUE ) )
-  {
+         &list_of_pids, clip, TRUE ) ) {
     printf("Unable to run %s command.\n", command.ascii() );
   }
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getPidList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
 #endif
-  if( list_of_pids.size() == 0 )
-  {
+
+  if( list_of_pids.size() == 0 ) {
     currentThreadStrENUM = THREAD;
-    if( focusedExpID == -1 )
-    {
+    if( focusedExpID == -1 ) {
       command = QString("list -v threads -x %1").arg(exp_id);
-    } else
-    {
+    } else {
       command = QString("list -v threads -x %1").arg(focusedExpID);
     }
+
 // printf("attempt to run (%s)\n", command.ascii() );
+
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     list_of_pids.clear();
     InputLineObject *clip = NULL;
+
     if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-           &list_of_pids, clip, TRUE ) )
-    {
+           &list_of_pids, clip, TRUE ) ) {
       printf("Unable to run %s command.\n", command.ascii() );
     }
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getPidList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
 #endif
-  } 
-  if( list_of_pids.size() == 0 )
-  {
-    currentThreadStrENUM = PID;
-    if( focusedExpID == -1 )
-    {
-      command = QString("list -v pids -x %1").arg(exp_id);
-    } else
-    {
-      command = QString("list -v pids -x %1").arg(focusedExpID);
-    }
-// printf("attempt to run (%s)\n", command.ascii() );
-    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-    list_of_pids.clear();
-    InputLineObject *clip = NULL;
-    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-           &list_of_pids, clip, TRUE ) )
-    {
-      printf("Unable to run %s command.\n", command.ascii() );
-    }
-#ifdef DEBUG_StatsPanel
-  printf("StatsPanel::getPidList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
-#endif
+
   } 
 
-  if( list_of_pids.size() > 1 )
-  {
+  if( list_of_pids.size() == 0 ) {
+    currentThreadStrENUM = PID;
+    if( focusedExpID == -1 ) {
+      command = QString("list -v pids -x %1").arg(exp_id);
+    } else {
+      command = QString("list -v pids -x %1").arg(focusedExpID);
+    }
+
+// printf("attempt to run (%s)\n", command.ascii() );
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    list_of_pids.clear();
+    InputLineObject *clip = NULL;
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
+           &list_of_pids, clip, TRUE ) ) {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getPidList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
+#endif
+
+  } 
+
+  if( list_of_pids.size() > 1 ) {
+
     for( std::list<int64_t>::const_iterator it = list_of_pids.begin();
-         it != list_of_pids.end(); it++ )
-    {
+         it != list_of_pids.end(); it++ ) {
+
       int64_t pid = (int64_t)*it;
+
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::getPidList, pid=(%ld)\n", pid );
 #endif
+
     }
   }
+
  } else {
+
     list_of_pids.clear();
+
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::getPidList, not valid exp_id=%d, no pids/ranks/threads\n", exp_id);
 #endif
+
  }
 }
 
 void StatsPanel::getHostList(int exp_id)
 {
+
 // Now get the hosts
+
  QString command = QString::null;
+
 #ifdef DEBUG_StatsPanel
  printf("StatsPanel::getHostList exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
 #endif
 
 //  currentThreadStrENUM = UNKNOWN;
+
  if( exp_id > 0 || focusedExpID > 0 ) {
-  if( focusedExpID == -1 )
-  {
+  if( focusedExpID == -1 ) {
     command = QString("list -v hosts -x %1").arg(exp_id);
-  } else
-  {
+  } else {
     command = QString("list -v hosts -x %1").arg(focusedExpID);
   }
+
 //  currentThreadStrENUM = RANK;
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getHostList-attempt to run (%s)\n", command.ascii() );
 #endif
+
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   list_of_hosts.clear();
   InputLineObject *clip = NULL;
+
   if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-         &list_of_hosts, clip, TRUE ) )
-  {
+         &list_of_hosts, clip, TRUE ) ) {
+
     printf("Unable to run %s command.\n", command.ascii() );
+
   }
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getHostList, ran %s, list_of_hosts.size()=%d\n", command.ascii(), list_of_hosts.size() );
 #endif
 
-  if( list_of_hosts.size() > 1 )
-  {
+  if( list_of_hosts.size() > 1 ) {
     for( std::list<std::string>::const_iterator it = list_of_hosts.begin();
-         it != list_of_hosts.end(); it++ )
-    {
+         it != list_of_hosts.end(); it++ ) {
       std::string host = *it;
+
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::getHostList, host=(%s)\n", host.c_str() );
 #endif
+
     }
   }
  } else {
+
   list_of_hosts.clear();
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getHostList, not valid exp_id=%d, no hosts\n", exp_id);
 #endif
+
  }
 }
 
@@ -3724,11 +3774,9 @@ void StatsPanel::getExecutableList(int exp_id)
 
 //  currentThreadStrENUM = UNKNOWN;
  if( exp_id > 0 || focusedExpID > 0 ) {
-  if( focusedExpID == -1 )
-  {
+  if( focusedExpID == -1 ) {
     command = QString("list -v executable -x %1").arg(exp_id);
-  } else
-  {
+  } else {
     command = QString("list -v executable -x %1").arg(focusedExpID);
   }
 //  currentThreadStrENUM = RANK;
@@ -4840,6 +4888,16 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 
     return;
   }
+
+  if( !command.startsWith("cview -c") ) {
+    // better clear the compareExpIDs structure
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::updateStatsPanelData, CLEAR compareExpIDs\n"); 
+#endif
+    compareExpIDs.clear();
+  }
+
+
 
 #ifdef DEBUG_StatsPanel
   printf("  updateStatsPanelData, this=0x%lx, currentCollectorStr = %s\n", this, currentCollectorStr.ascii() );
@@ -6977,9 +7035,11 @@ StatsPanel::findCollectors( int experimentID )
 
     local_list_of_collectors.clear();
     QString command = QString("list -v expTypes -x %1").arg(focusedExpID);
+
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::findCollectors-A: attempt to run (%s)\n", command.ascii() );
 #endif
+
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     InputLineObject *clip = NULL;
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
@@ -8504,20 +8564,36 @@ StatsPanel::generateCommand()
     exp_id = focusedExpID;
   }
 
+#ifdef DEBUG_StatsPanel_toolbar
+  printf("GENERATE_COMMAND, prior to method checks, compareExpIDs.size()=%d\n", compareExpIDs.size());
+#endif
+
   if (lastCommand.startsWith("cview -c")) {
-//  if (exp_id < 0) {
+
+     // don't burden the user with a choice dialog, there is only one experiment being offered
+
+     if (compareExpIDs.size() == 1) {
+          exp_id = compareExpIDs[0];
 
 #ifdef DEBUG_StatsPanel_toolbar
-     printf("GENERATE_COMMAND, exp_id=%d\n", exp_id);
-     printf("GENERATE_COMMAND,  lastCommand=(%s)\n", lastCommand.ascii());
+     printf("GENERATE_COMMAND, 1st method, compareExpIDs.size() == 1), exp_id=%d\n", exp_id);
+     printf("GENERATE_COMMAND, 1st method, compareExpIDs.size() == 1),  lastCommand=(%s)\n", lastCommand.ascii());
 #endif
+
+     } else {
 
      exp_id = getValidExperimentIdForView();    
-     focusedExpID = exp_id;
 
 #ifdef DEBUG_StatsPanel_toolbar
+     printf("GENERATE_COMMAND, 2nd method, exp_id=%d\n", exp_id);
+     printf("GENERATE_COMMAND, 2nd method,  lastCommand=(%s)\n", lastCommand.ascii());
      printf("GENERATE_COMMAND, after getValidExperimentIdForView, exp_id=%d\n", exp_id);
 #endif
+
+
+     }
+
+     focusedExpID = exp_id;
 
   } 
 
@@ -9153,18 +9229,18 @@ StatsPanel::generateMPIMenu(QString collectorName)
 
   list_of_mpi_modifiers.clear();
   list_of_mpit_modifiers.clear();
-  if( collectorName == "mpi" )
-  {
+  if( collectorName == "mpi" ) {
+
     addMPIReports(mpi_menu);
     connect(mpi_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorMPIReportSelected(int)) );
-    if( focusedExpID != -1 )
-    {
+
+    if( focusedExpID != -1 ) {
       contextMenu->insertItem(QString("Show Metrics (Exp: %1) : MPI").arg(focusedExpID), mpi_menu);
-    } else
-    {
+    } else {
       contextMenu->insertItem(QString("Display Options: MPI"), mpi_menu);
     }
+
     list_of_mpi_modifiers.push_back("mpi::exclusive_times");
     list_of_mpi_modifiers.push_back("mpi::inclusive_times");
 //  list_of_mpi_modifiers.push_back("mpi::exclusive_details");
@@ -9206,16 +9282,17 @@ StatsPanel::generateMPIMenu(QString collectorName)
     qaction->setToolTip(tr("When available, show traced timings."));
     connect( qaction, SIGNAL( activated() ), this, SLOT(MPItraceSelected()) );
   } else if( collectorName == "mpit" ) {
+
     addMPIReports(mpi_menu);
     connect(mpi_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorMPITReportSelected(int)) );
-    if( focusedExpID != -1 )
-    {
+
+    if( focusedExpID != -1 ) {
       contextMenu->insertItem(QString("Show Metrics (Exp: %1) : MPIT").arg(focusedExpID), mpi_menu);
-    } else
-    {
+    } else {
       contextMenu->insertItem(QString("Display Options: MPIT"), mpi_menu);
     }
+
     list_of_mpit_modifiers.push_back("mpit::exclusive_times");
     list_of_mpit_modifiers.push_back("mpit::inclusive_times");
 //  list_of_mpit_modifiers.push_back("mpit::exclusive_details");
@@ -9427,19 +9504,20 @@ StatsPanel::generateIOMenu(QString collectorName)
 
   io_menu->insertSeparator();
 
-  if( collectorName == "io" )
-  {
+  if( collectorName == "io" ) {
+
     addIOReports(io_menu);
     connect(io_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorIOReportSelected(int)) );
-    if( focusedExpID != -1 )
-    {
+
+    if( focusedExpID != -1 ) {
       contextMenu->insertItem(QString("Display Options: (Exp: %1) IO").arg(focusedExpID), io_menu);
-    } else
-    {
+    } else {
       contextMenu->insertItem(QString("Display Options: IO"), io_menu);
     }
+
     // Build the static list of io modifiers.
+
 #if 1
     generateIOmodifiers();
 #else
@@ -9560,11 +9638,9 @@ StatsPanel::generateHWCMenu(QString collectorName)
 
   hwc_menu = new QPopupMenu(this);
 
-  if( focusedExpID != -1 )
-  {
+  if( focusedExpID != -1 ) {
     contextMenu->insertItem(QString("Display Options: (Exp: %1) hwc").arg(focusedExpID), hwc_menu);
-  } else
-  {
+  } else {
     contextMenu->insertItem(QString("Display Options: hwc"), hwc_menu);
   }
 
@@ -9609,11 +9685,9 @@ StatsPanel::generateHWCTimeMenu(QString collectorName)
 
   hwctime_menu = new QPopupMenu(this);
 
-  if( focusedExpID != -1 )
-  {
+  if( focusedExpID != -1 ) {
     contextMenu->insertItem(QString("Display Options: (Exp: %1) hwctime").arg(focusedExpID), hwctime_menu);
-  } else
-  {
+  } else {
     contextMenu->insertItem(QString("Display Options: hwctime"), hwctime_menu);
   }
 
@@ -9661,11 +9735,9 @@ StatsPanel::generateUserTimeMenu()
   QAction *qaction = NULL;
 
 
-  if( focusedExpID != -1 )
-  {
+  if( focusedExpID != -1 ) {
     contextMenu->insertItem(QString("Display Options: (Exp: %1) UserTime").arg(focusedExpID), usertime_menu);
-  } else
-  {
+  } else {
     contextMenu->insertItem(QString("Display Options: UserTime"), usertime_menu);
   }
 
@@ -9713,11 +9785,9 @@ StatsPanel::generatePCSampMenu()
   connect(pcsamp_menu, SIGNAL( activated(int) ),
            this, SLOT(collectorPCSampReportSelected(int)) );
   
-  if( focusedExpID != -1 )
-  {
+  if( focusedExpID != -1 ) {
     contextMenu->insertItem(QString("Display Options: (Exp: %1) pcsamp").arg(focusedExpID), pcsamp_menu);
-  } else
-  {
+  } else {
     contextMenu->insertItem(QString("Display Options: pcsamp"), pcsamp_menu);
   }
 
@@ -9760,11 +9830,9 @@ StatsPanel::generateFPEMenu()
   QAction *qaction = NULL;
 
 
-  if( focusedExpID != -1 )
-  {
+  if( focusedExpID != -1 ) {
     contextMenu->insertItem(QString("Display Options: (Exp: %1) FPE").arg(focusedExpID), fpe_menu);
-  } else
-  {
+  } else {
     contextMenu->insertItem(QString("Display Options: FPE"), fpe_menu);
   }
 
@@ -10274,7 +10342,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
   nprintf(DEBUG_PANELS) ("lookUpFileHighlights: filename=(%s) lineNumberStr=(%s)\n", filename.ascii(), lineNumberStr.ascii() );
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::lookUpFileHighlights, lfhA: expID=%d focusedExpID=%d, focusedCompareExpID=%d\n", expID, focusedExpID, focusedCompareExpID );
+  printf("StatsPanel::lookUpFileHighlights, lfhA: expID=%d focusedExpID=%d\n", expID, focusedExpID );
   printf("StatsPanel::lookUpFileHighlights, localExpID=%d, currentMetricStr=%s\n", localExpID, currentMetricStr.ascii() );
   printf("StatsPanel::lookUpFileHighlights, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
   printf("StatsPanel::lookUpFileHighlights, currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
@@ -10304,16 +10372,16 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
     }
 
 #ifdef DEBUG_StatsPanel
-     printf("StatsPanel::lookUpFileHighlights, lfhB: expID=%d focusedExpID=%d, focusedCompareExpID=%d\n", 
-            expID, focusedExpID, focusedCompareExpID );
+     printf("StatsPanel::lookUpFileHighlights, lfhB: expID=%d focusedExpID=%d\n", 
+            expID, focusedExpID );
 #endif
 
     if( expID > 0 ) {
 
 
-      if (focusedCompareExpID != -1) {
+      if (focusedExpID != -1) {
         // use compare id instead of main experiment id for these commands
-        localExpID = focusedCompareExpID;
+        localExpID = focusedExpID;
       } else {
         localExpID = expID;
       }
@@ -10347,9 +10415,9 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 
     if( expID > 0 ) {
 
-        if (focusedCompareExpID != -1) {
+        if (focusedExpID != -1) {
           // use compare id instead of main experiment id for these commands
-          localExpID = focusedCompareExpID;
+          localExpID = focusedExpID;
         } else {
           localExpID = expID;
         }
@@ -10378,17 +10446,23 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
                printf("StatsPanel::lookUpFileHighlights2, 33, dosomething here, lastCommand=(%s)\n", lastCommand.ascii() );
 #endif
 
-               QString firstExperimentIdStr = getExperimentIdFromString(lastCommand);
-               newExpId = atoi(firstExperimentIdStr.ascii());
-               // Take one off to get experiment id of first compare exeriment
-               newExpId = newExpId - 1;
-               if (focusedCompareExpID == -1) {
-                  localExpID = newExpId;
-               }
+              if (compareExpIDs.size() == 1) {
+                   localExpID = compareExpIDs[0];
+                   newExpId = compareExpIDs[0];
+#ifdef DEBUG_StatsPanel
+                   printf("StatsPanel::lookUpFileHighlights2, 33, one experiment , localExpID=(%d)\n", localExpID );
+#endif
+              } else if (compareExpIDs.size()  > 1) {
+
+                   localExpID = getValidExperimentIdForView();    
+#ifdef DEBUG_StatsPanel
+                   printf("StatsPanel::lookUpFileHighlights2, 33, more than one experiment , localExpID=(%d)\n", localExpID );
+#endif
+              }
 
 #ifdef DEBUG_StatsPanel
-               printf("StatsPanel::lookUpFileHighlights2, 33, dosomething here, newExpId=%d, focusedCompareExpID=%d, localExpID=%d\n", 
-                       newExpId, focusedCompareExpID, localExpID);
+               printf("StatsPanel::lookUpFileHighlights2, 33, dosomething here, newExpId=%d, focusedExpID=%d, localExpID=%d\n", 
+                       newExpId, focusedExpID, localExpID);
 #endif
           }
 
@@ -10402,32 +10476,39 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 
     } else { // start else clause for expID > 0 check
 
-        if (focusedCompareExpID != -1) {
+        if (focusedExpID != -1) {
           // use compare id instead of main experiment id for these commands
-          localExpID = focusedCompareExpID;
-        } else {
           localExpID = focusedExpID;
-        }
+        } 
 
-        int newExpId = focusedExpID;
+        int newExpId = -1;
 
         if( lastCommand.startsWith("cview -c") ) {
 
 #ifdef DEBUG_StatsPanel
             printf("StatsPanel::lookUpFileHighlights2, 44, dosomething here, lastCommand=(%s)\n", lastCommand.ascii() );
 #endif
-
-            QString firstExperimentIdStr = getExperimentIdFromString(lastCommand);
-            newExpId = atoi(firstExperimentIdStr.ascii());
-            // Take one off to get experiment id of first compare exeriment
-            newExpId = newExpId - 1;
-            if (focusedCompareExpID == -1) {
-               localExpID = newExpId;
-            }
+              if (compareExpIDs.size() == 1) {
+                   localExpID = compareExpIDs[0];
+                   newExpId = compareExpIDs[0];
 
 #ifdef DEBUG_StatsPanel
-            printf("StatsPanel::lookUpFileHighlights2, 44, dosomething here, newExpId=%d, focusedCompareExpID=%d, localExpID=%d\n", 
-                    newExpId, focusedCompareExpID, localExpID);
+                   printf("StatsPanel::lookUpFileHighlights2, 44, one experiment , localExpID=(%d)\n", localExpID );
+#endif
+
+              } else if (compareExpIDs.size()  > 1) {
+
+                   localExpID = getValidExperimentIdForView();    
+                   newExpId = localExpID;
+#ifdef DEBUG_StatsPanel
+                   printf("StatsPanel::lookUpFileHighlights2, 44, more than one experiment , localExpID=(%d)\n", localExpID );
+#endif
+              }
+
+
+#ifdef DEBUG_StatsPanel
+            printf("StatsPanel::lookUpFileHighlights2, 44, dosomething here, newExpId=%d, focusedExpID=%d, localExpID=%d\n", 
+                    newExpId, focusedExpID, localExpID);
 #endif
           }
 
@@ -11282,11 +11363,9 @@ StatsPanel::analyzeTheCView()
 {
 
 #ifdef DEBUG_StatsPanel_cview
-   printf("analyzeTheCView(%s) entered: focusedCompareExpID=%d, focusedExpID was=%d\n", lastCommand.ascii(), focusedCompareExpID, focusedExpID );
+   printf("analyzeTheCView(%s) entered: focusedExpID was=%d\n", lastCommand.ascii(), focusedExpID );
    printf("analyzeTheCView, RESETTING focusedExpID to -1\n");
 #endif
-
-//  focusedExpID = -1;
 
   if( !lastCommand.startsWith("cview -c") ) {
     return;
@@ -11777,9 +11856,9 @@ StatsPanel::analyzeTheCView()
 
 #ifdef DEBUG_StatsPanel_cview
           printf("StatsPanel::analyzeTheCView, PUSH_BACK experiment id=%d\n", cic->expID);
-          printf("StatsPanel::analyzeTheCView, cic->expId=%d, focusedCompareExpID=%d, focusedExpID=%d\n", 
-                 cic->expID, focusedCompareExpID, focusedExpID );
+          printf("StatsPanel::analyzeTheCView, cic->expId=%d, focusedExpID=%d\n", cic->expID, focusedExpID );
 #endif
+
           if( focusedExpID == -1 ) {
             focusedExpID = cic->expID;
           }
@@ -11809,7 +11888,7 @@ StatsPanel::analyzeTheCView()
   }
 
 #ifdef DEBUG_StatsPanel_cview
- printf("Exit StatsPanel::analyzeTheCView, focusedExpID=%d, focusedCompareExpID=%d\n", focusedExpID, focusedCompareExpID);
+ printf("Exit StatsPanel::analyzeTheCView, focusedExpID=%d\n", focusedExpID);
 #endif
 }
 
@@ -11820,79 +11899,129 @@ StatsPanel::canWeDiff()
 // A new approach needs to be done.
 
 return (FALSE);
+
 #if 0
-// printf("canWeDiff() entered\n");
+
+#ifdef DEBUG_StatsPanel_diff
+  printf("canWeDiff() entered\n");
+#endif
+
   int diffIndex = -1;
-  if( splv->columns() < 2 )
-  {
-// printf("canWeDiff() return FALSE(A)\n");
+  if( splv->columns() < 2 ) {
+
+#ifdef DEBUG_StatsPanel_diff
+    printf("canWeDiff() return FALSE(A)\n");
+#endif
+
     return( FALSE );
+
   }
 
 #ifdef CLUSTERANALYSIS
-// printf("canWeDiff:  lastCommand (%s)\n", lastCommand.ascii() );
-if( lastCommand.startsWith("cview -c") && lastCommand.contains("-m ") )
-{
-// printf("lastCommand was (%s) and we're not going to sort!\n", lastCommand.ascii() );
-// printf("canWeDiff() return FALSE(B)\n");
-  return( FALSE );
-}
+
+#ifdef DEBUG_StatsPanel_diff
+  printf("canWeDiff:  lastCommand (%s)\n", lastCommand.ascii() );
+#endif
+
+  if( lastCommand.startsWith("cview -c") && lastCommand.contains("-m ") ) {
+
+#ifdef DEBUG_StatsPanel_diff
+    printf("lastCommand was (%s) and we're not going to sort!\n", lastCommand.ascii() );
+    printf("canWeDiff() return FALSE(B)\n");
+#endif
+
+    return( FALSE );
+  }
+
 #endif // CLUSTERANALYSIS
 
   QString c1header = splv->columnText(0);
   QString c2header = splv->columnText(1);
 
-  if( c1header == "|Difference|" )
-  {
-// printf("A: return TRUE\n");
+  if( c1header == "|Difference|" ) {
+
+#ifdef DEBUG_StatsPanel_diff
+    printf("A: return TRUE\n");
+#endif
+
     return(TRUE);
   }
 
-// printf("c1header=(%s) c2header=(%s)\n", c1header.ascii(), c2header.ascii() );
+#ifdef DEBUG_StatsPanel_diff
+  printf("c1header=(%s) c2header=(%s)\n", c1header.ascii(), c2header.ascii() );
+#endif
 
-  if( c1header == c2header )
-  {
-// printf("c1header==c2header\n");
-// printf("B: return TRUE\n");
+  if( c1header == c2header ) {
+
+#ifdef DEBUG_StatsPanel_diff
+    printf("c1header==c2header\n");
+    printf("B: return TRUE\n");
+#endif
+
     return(TRUE);
   }
 
   diffIndex = c1header.find(":");
-printf("A: diffInde=%d\n", diffIndex);
+
+#ifdef DEBUG_StatsPanel_diff
+  printf("A: diffInde=%d\n", diffIndex);
+#endif
+
 int commaIndex = c1header.find(",");
-printf("B: commaIndex=%d\n", commaIndex);
-if(commaIndex != -1 )
-{
-  diffIndex = commaIndex;
-}
-  if( diffIndex > 0 )
-  {
+
+#ifdef DEBUG_StatsPanel_diff
+  printf("B: commaIndex=%d\n", commaIndex);
+#endif
+
+  if(commaIndex != -1 ) {
+    diffIndex = commaIndex;
+  }
+
+  if( diffIndex > 0 ) {
     c1header = c1header.mid(diffIndex+1);
   }
+
   diffIndex = c2header.find(":");
-printf("B: diffInde=%d\n", diffIndex);
-commaIndex = c2header.find(",");
-printf("B: commaIndex=%d\n", commaIndex);
-if(commaIndex != -1 )
-{
-  diffIndex = commaIndex;
-}
-  if( diffIndex > 0 )
-  {
+
+#ifdef DEBUG_StatsPanel_diff
+  printf("B: diffInde=%d\n", diffIndex);
+#endif
+
+  commaIndex = c2header.find(",");
+
+#ifdef DEBUG_StatsPanel_diff
+  printf("B: commaIndex=%d\n", commaIndex);
+#endif
+
+  if(commaIndex != -1 ) {
+    diffIndex = commaIndex;
+  }
+
+  if( diffIndex > 0 ) {
     c2header = c2header.mid(diffIndex+1);
   }
     
-printf("B: c1header=(%s) c2header=(%s)\n", c1header.ascii(), c2header.ascii() );
-  if( c1header == c2header )
-  {
-printf("new c1header==c2header\n");
-printf("C: return TRUE\n");
+#ifdef DEBUG_StatsPanel_diff
+  printf("B: c1header=(%s) c2header=(%s)\n", c1header.ascii(), c2header.ascii() );
+#endif
+
+  if( c1header == c2header ) {
+
+#ifdef DEBUG_StatsPanel_diff
+    printf("new c1header==c2header\n");
+    printf("C: return TRUE\n");
+#endif
+
     return(TRUE);
   }
 
 
-// printf("canWeDiff() return FALSE(C)\n");
+#ifdef DEBUG_StatsPanel_diff
+  printf("canWeDiff() return FALSE(C)\n");
+#endif
+
   return(FALSE);
+
 #endif // 0
 }
 
@@ -11990,7 +12119,7 @@ if (currentCollectorStr == NULL && lastCollectorStr == NULL ) {
       }
 
       if (collector_name.size() > 0 ) {
-         currentCollectorStr = QString(collector_name);
+         currentCollectorStr = QString(collector_name.c_str() );
 #ifdef DEBUG_StatsPanel_toolbar
          printf("StatsPanel::generateToolBar, currentCollectorStr.ascii()=%s\n", currentCollectorStr.ascii() );
 #endif
