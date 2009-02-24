@@ -453,8 +453,9 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 
   infoEditHeaderLabel = new QLabel( metadataAllSpaceFrame, "info label", 0 );
   infoEditHeaderLabel->setCaption("StatsPanel: info label");
-  infoEditHeaderLabel->setPaletteBackgroundColor( QColor("skyblue").light(145) );
-//  infoEditHeaderLabel->setPaletteBackgroundColor( QColor("blue").light(185));
+  infoEditHeaderLabel->setPaletteBackgroundColor( QColor(Qt::cyan).light(185) );
+//  infoEditHeaderLabel->setPaletteBackgroundColor( QColor(Qt::skyblue).light(145) );
+//  infoEditHeaderLabel->setPaletteBackgroundColor( QColor(Qt::blue).light(185));
 #ifdef DEBUG_StatsPanel
   printf("stats panel 2nd infoEditHeaderLabel->height()=%d\n", infoEditHeaderLabel->height());
 #endif
@@ -7449,7 +7450,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
 
   SPListViewItem *highlight_item = NULL;
   bool highlight_line = FALSE;
-  QColor highlight_color = QColor("blue");
+  QColor highlight_color = QColor(Qt::blue);
 
   QString strippedString1 = QString::null; // MPI only.
 
@@ -7971,7 +7972,7 @@ for( ChartPercentValueList::Iterator it = cpvl.begin();
     //    highlight_item->setSelected(TRUE);
     for( int i=0;i<fieldCount;i++)
     {
-      highlight_item->setBackground( i, QColor("red") );
+      highlight_item->setBackground( i, QColor(Qt::red) );
     }
   }
 
