@@ -668,7 +668,7 @@ AC_DEFUN([AC_PKG_PAPI], [
 	    PAPI_LIBS="-lpapi -lpfm"
             ;;
 	*)
-	    PAPI_LIBS="-lpapi -lperfctr"
+	    PAPI_LIBS="-lpapi -lperfctr -lpfm"
             ;;
     esac
 
