@@ -84,6 +84,8 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 
 #define CLUSTERANALYSIS 1
 #define OPTIONAL_VIEW 1
+// enable the viewing of pathnames for iot experiments
+#define PATHNAME_READY 1
 
 #include "GenericProgressDialog.hxx"
 

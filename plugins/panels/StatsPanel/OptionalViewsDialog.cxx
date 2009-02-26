@@ -55,6 +55,9 @@
 #include "OptionalViewsDialog.hxx"
 #include "StatsPanel.hxx"
 
+// enable the viewing of pathnames for iot experiments
+#define PATHNAME_READY 1
+
 //#define DEBUG_optional 1
 
 
