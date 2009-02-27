@@ -144,11 +144,11 @@ OptionalViewsDialog::OptionalViewsDialog( QWidget* parent,
      mpit_count = FALSE;
      mpit_percent = FALSE;
      mpit_stddev = FALSE;
+     mpit_size = FALSE;
      mpit_start_time = FALSE;
      mpit_stop_time = FALSE;
      mpit_source = FALSE;
      mpit_dest = FALSE;
-     mpit_size = FALSE;
      mpit_tag = FALSE;
      mpit_communicator = FALSE;
      mpit_datatype = FALSE;
@@ -1151,6 +1151,20 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     rightSideLayout->addWidget( mpit_stddev_CheckBox );
     }
 
+    if (isInCurrentModifierList("size")) {
+       mpit_size = TRUE;
+    } else {
+       mpit_size = FALSE;
+    }
+
+    { // mpit_size
+    mpit_size_CheckBox = new QCheckBox( GeneralGroupBox, "mpit_size" );
+    mpit_size_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpit_size_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mpit_size_CheckBox->setChecked( TRUE );
+    mpit_size_CheckBox->setText( tr( "MPIT Message Size Values." ) );
+    rightSideLayout->addWidget( mpit_size_CheckBox );
+    }
+
     if (isInCurrentModifierList("start_time")) {
        mpit_start_time = TRUE;
     } else {
@@ -1205,20 +1219,6 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     mpit_dest_CheckBox->setChecked( TRUE );
     mpit_dest_CheckBox->setText( tr( "MPIT Destination Rank Numbers." ) );
     rightSideLayout->addWidget( mpit_dest_CheckBox );
-    }
-
-    if (isInCurrentModifierList("size")) {
-       mpit_size = TRUE;
-    } else {
-       mpit_size = FALSE;
-    }
-
-    { // mpit_size
-    mpit_size_CheckBox = new QCheckBox( GeneralGroupBox, "mpit_size" );
-    mpit_size_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpit_size_CheckBox->sizePolicy().hasHeightForWidth() ) );
-    mpit_size_CheckBox->setChecked( TRUE );
-    mpit_size_CheckBox->setText( tr( "MPIT Message Size Values." ) );
-    rightSideLayout->addWidget( mpit_size_CheckBox );
     }
 
     if (isInCurrentModifierList("tag")) {
@@ -1845,6 +1845,10 @@ void OptionalViewsDialog::languageChange()
     QToolTip::add(mpit_stddev_CheckBox,
                 tr("Display MPI trace experiment standard deviation values.") );
 
+    mpit_size_CheckBox->setChecked(mpit_size);
+    QToolTip::add(mpit_size_CheckBox,
+                tr("Display MPI trace experiment message size values.") );
+
     mpit_start_time_CheckBox->setChecked(mpit_start_time);
     QToolTip::add(mpit_start_time_CheckBox,
                 tr("Display MPI trace experiment start time values.") );
@@ -1860,10 +1864,6 @@ void OptionalViewsDialog::languageChange()
     mpit_dest_CheckBox->setChecked(mpit_dest);
     QToolTip::add(mpit_dest_CheckBox,
                 tr("Display MPI trace experiment destination rank values.") );
-
-    mpit_size_CheckBox->setChecked(mpit_size);
-    QToolTip::add(mpit_size_CheckBox,
-                tr("Display MPI trace experiment message size values.") );
 
     mpit_tag_CheckBox->setChecked(mpit_tag);
     QToolTip::add(mpit_tag_CheckBox,
@@ -2150,6 +2150,8 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      mpit_percent_CheckBox->setChecked(mpit_percent);
      mpit_stddev = FALSE;
      mpit_stddev_CheckBox->setChecked(mpit_stddev);
+     mpit_size = FALSE;
+     mpit_size_CheckBox->setChecked(mpit_size);
      mpit_start_time = FALSE;
      mpit_start_time_CheckBox->setChecked(mpit_start_time);
      mpit_stop_time = FALSE;
@@ -2158,8 +2160,6 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      mpit_source_CheckBox->setChecked(mpit_source);
      mpit_dest = FALSE;
      mpit_dest_CheckBox->setChecked(mpit_dest);
-     mpit_size = FALSE;
-     mpit_size_CheckBox->setChecked(mpit_size);
      mpit_tag = FALSE;
      mpit_tag_CheckBox->setChecked(mpit_tag);
      mpit_communicator = FALSE;
@@ -2338,11 +2338,11 @@ void OptionalViewsDialog::applyPreferences()
      mpit_count = mpit_count_CheckBox->isChecked();
      mpit_percent = mpit_percent_CheckBox->isChecked();
      mpit_stddev = mpit_stddev_CheckBox->isChecked();
+     mpit_size = mpit_size_CheckBox->isChecked();
      mpit_start_time = mpit_start_time_CheckBox->isChecked();
      mpit_stop_time = mpit_stop_time_CheckBox->isChecked();
      mpit_source = mpit_source_CheckBox->isChecked();
      mpit_dest = mpit_dest_CheckBox->isChecked();
-     mpit_size = mpit_size_CheckBox->isChecked();
      mpit_tag = mpit_tag_CheckBox->isChecked();
      mpit_communicator = mpit_communicator_CheckBox->isChecked();
      mpit_datatype = mpit_datatype_CheckBox->isChecked();
