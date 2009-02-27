@@ -67,6 +67,7 @@ public:
     QWidgetStack* preferenceDialogWidgetStack;
     QWidget* generalStackPage;
     QGroupBox* GeneralGroupBox;
+    QGroupBox* VTraceGroupBox;
     QPushButton* setFontButton;
     QLineEdit* fontLineEdit;
     QLabel* remoteShellLabel;
@@ -222,6 +223,7 @@ protected:
     QVBoxLayout* preferenceDialogRightFrameLayout;
     QVBoxLayout* generalStackPageLayout;
     QVBoxLayout* rightSideLayout;
+    QVBoxLayout* rightSideVTraceLayout;
     QHBoxLayout* fontLayout;
     QHBoxLayout* remoteShellLayout;
     QVBoxLayout* generalStackPageLayout_4;

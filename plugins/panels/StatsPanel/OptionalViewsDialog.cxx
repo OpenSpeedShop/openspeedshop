@@ -337,8 +337,16 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
 
     rightSideLayout = new QVBoxLayout( GeneralGroupBox->layout(), 11, "rightSideLayout"); 
 
+    VTraceGroupBox = new QGroupBox( generalStackPage, "VTraceGroupBox" );
+    VTraceGroupBox->setColumnLayout(0, Qt::Vertical );
+    VTraceGroupBox->layout()->setSpacing( 6 );
+    VTraceGroupBox->layout()->setMargin( 11 );
+
+    rightSideVTraceLayout = new QVBoxLayout( VTraceGroupBox->layout(), 11, "rightSideVTraceLayout"); 
+
   if( globalCollectorString.contains("pcsamp") ) {
 
+    VTraceGroupBox->hide();
     if (isInCurrentModifierList("pcsamp::time")) {
        pcsamp_time = TRUE;
     } else {
@@ -410,6 +418,8 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
   } else if ( globalCollectorString.contains("usertime") ) {
+
+    VTraceGroupBox->hide();
 
     if (isInCurrentModifierList("usertime::exclusive_times")) {
        usertime_exclusive_times = TRUE;
@@ -510,6 +520,8 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
   } else if ( globalCollectorString.contains("hwctime") ) {
+
+    VTraceGroupBox->hide();
 
     if (isInCurrentModifierList("hwctime::exclusive_counts")) {
        hwctime_exclusive_counts = TRUE;
@@ -624,6 +636,7 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
   } else if ( globalCollectorString.contains("hwc") ) {
+    VTraceGroupBox->hide();
 
     if (isInCurrentModifierList("hwc::overflows")) {
        hwc_overflows = TRUE;
@@ -711,6 +724,7 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
 
 
   } else if ( globalCollectorString.contains("iot") ) {
+
 
     if (isInCurrentModifierList("iot::exclusive_times")) {
        iot_exclusive_times = TRUE;
@@ -831,11 +845,11 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
     { // iot_start_time
-    iot_start_time_CheckBox = new QCheckBox( GeneralGroupBox, "iot_start_time_CheckBox" );
+    iot_start_time_CheckBox = new QCheckBox( VTraceGroupBox, "iot_start_time_CheckBox" );
     iot_start_time_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, iot_start_time_CheckBox->sizePolicy().hasHeightForWidth() ) );
     iot_start_time_CheckBox->setChecked( iot_start_time );
     iot_start_time_CheckBox->setText( tr( "IOT Start Time" ) );
-    rightSideLayout->addWidget( iot_start_time_CheckBox );
+    rightSideVTraceLayout->addWidget( iot_start_time_CheckBox );
     }
 
     if (isInCurrentModifierList("stop_time")) {
@@ -845,11 +859,11 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
     { // iot_stop_time
-    iot_stop_time_CheckBox = new QCheckBox( GeneralGroupBox, "iot_stop_time_CheckBox" );
+    iot_stop_time_CheckBox = new QCheckBox( VTraceGroupBox, "iot_stop_time_CheckBox" );
     iot_stop_time_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, iot_stop_time_CheckBox->sizePolicy().hasHeightForWidth() ) );
     iot_stop_time_CheckBox->setChecked( iot_stop_time );
     iot_stop_time_CheckBox->setText( tr( "IOT Stop Time" ) );
-    rightSideLayout->addWidget( iot_stop_time_CheckBox );
+    rightSideVTraceLayout->addWidget( iot_stop_time_CheckBox );
     }
 
     if (isInCurrentModifierList("syscallno")) {
@@ -859,11 +873,11 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
     { // iot_syscallno
-    iot_syscallno_CheckBox = new QCheckBox( GeneralGroupBox, "iot_syscallno_CheckBox" );
+    iot_syscallno_CheckBox = new QCheckBox( VTraceGroupBox, "iot_syscallno_CheckBox" );
     iot_syscallno_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, iot_syscallno_CheckBox->sizePolicy().hasHeightForWidth() ) );
     iot_syscallno_CheckBox->setChecked( iot_syscallno );
     iot_syscallno_CheckBox->setText( tr( "IOT System Call Number" ) );
-    rightSideLayout->addWidget( iot_syscallno_CheckBox );
+    rightSideVTraceLayout->addWidget( iot_syscallno_CheckBox );
     }
 
     if (isInCurrentModifierList("nsysargs")) {
@@ -873,11 +887,11 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
     { // iot_nsysargs
-    iot_nsysargs_CheckBox = new QCheckBox( GeneralGroupBox, "iot_nsysargs_CheckBox" );
+    iot_nsysargs_CheckBox = new QCheckBox( VTraceGroupBox, "iot_nsysargs_CheckBox" );
     iot_nsysargs_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, iot_nsysargs_CheckBox->sizePolicy().hasHeightForWidth() ) );
     iot_nsysargs_CheckBox->setChecked( iot_nsysargs );
     iot_nsysargs_CheckBox->setText( tr( "IOT Number of Arguments to System Call" ) );
-    rightSideLayout->addWidget( iot_nsysargs_CheckBox );
+    rightSideVTraceLayout->addWidget( iot_nsysargs_CheckBox );
     }
 
     if (isInCurrentModifierList("retval")) {
@@ -887,11 +901,11 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
     { // iot_retval
-    iot_retval_CheckBox = new QCheckBox( GeneralGroupBox, "iot_retval_CheckBox" );
+    iot_retval_CheckBox = new QCheckBox( VTraceGroupBox, "iot_retval_CheckBox" );
     iot_retval_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, iot_retval_CheckBox->sizePolicy().hasHeightForWidth() ) );
     iot_retval_CheckBox->setChecked( iot_retval );
     iot_retval_CheckBox->setText( tr( "IOT System Call Dependent Return Value (bytes read, bytes written etc." ) );
-    rightSideLayout->addWidget( iot_retval_CheckBox );
+    rightSideVTraceLayout->addWidget( iot_retval_CheckBox );
     }
 
 #if PATHNAME_READY
@@ -902,15 +916,16 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
     { // iot_pathname
-    iot_pathname_CheckBox = new QCheckBox( GeneralGroupBox, "iot_pathname_CheckBox" );
+    iot_pathname_CheckBox = new QCheckBox( VTraceGroupBox, "iot_pathname_CheckBox" );
     iot_pathname_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, iot_pathname_CheckBox->sizePolicy().hasHeightForWidth() ) );
     iot_pathname_CheckBox->setChecked( iot_pathname );
     iot_pathname_CheckBox->setText( tr( "IOT PathName" ) );
-    rightSideLayout->addWidget( iot_pathname_CheckBox );
+    rightSideVTraceLayout->addWidget( iot_pathname_CheckBox );
     }
 #endif
 
    } else if (globalCollectorString.contains("io") ) {
+    VTraceGroupBox->hide();
 
     if (isInCurrentModifierList("min")) {
        io_min = TRUE;
@@ -1172,11 +1187,11 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
     { // mpit_start_time
-    mpit_start_time_CheckBox = new QCheckBox( GeneralGroupBox, "mpit_start_time_CheckBox" );
+    mpit_start_time_CheckBox = new QCheckBox( VTraceGroupBox, "mpit_start_time_CheckBox" );
     mpit_start_time_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpit_start_time_CheckBox->sizePolicy().hasHeightForWidth() ) );
     mpit_start_time_CheckBox->setChecked( TRUE );
     mpit_start_time_CheckBox->setText( tr( "MPIT Individual Event Start Times." ) );
-    rightSideLayout->addWidget( mpit_start_time_CheckBox );
+    rightSideVTraceLayout->addWidget( mpit_start_time_CheckBox );
     }
 
     if (isInCurrentModifierList("stop_time")) {
@@ -1186,11 +1201,11 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
     { // mpit_stop_time
-    mpit_stop_time_CheckBox = new QCheckBox( GeneralGroupBox, "mpit_stop_time_CheckBox" );
+    mpit_stop_time_CheckBox = new QCheckBox( VTraceGroupBox, "mpit_stop_time_CheckBox" );
     mpit_stop_time_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpit_stop_time_CheckBox->sizePolicy().hasHeightForWidth() ) );
     mpit_stop_time_CheckBox->setChecked( TRUE );
     mpit_stop_time_CheckBox->setText( tr( "MPIT Individual Event Stop Times." ) );
-    rightSideLayout->addWidget( mpit_stop_time_CheckBox );
+    rightSideVTraceLayout->addWidget( mpit_stop_time_CheckBox );
     }
 
     if (isInCurrentModifierList("source")) {
@@ -1200,11 +1215,11 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
     { // mpit_source
-    mpit_source_CheckBox = new QCheckBox( GeneralGroupBox, "mpit_source_CheckBox" );
+    mpit_source_CheckBox = new QCheckBox( VTraceGroupBox, "mpit_source_CheckBox" );
     mpit_source_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpit_source_CheckBox->sizePolicy().hasHeightForWidth() ) );
     mpit_source_CheckBox->setChecked( TRUE );
     mpit_source_CheckBox->setText( tr( "MPIT Source Rank Numbers." ) );
-    rightSideLayout->addWidget( mpit_source_CheckBox );
+    rightSideVTraceLayout->addWidget( mpit_source_CheckBox );
     }
 
     if (isInCurrentModifierList("dest")) {
@@ -1214,11 +1229,11 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
     { // mpit_dest
-    mpit_dest_CheckBox = new QCheckBox( GeneralGroupBox, "mpit_dest_CheckBox" );
+    mpit_dest_CheckBox = new QCheckBox( VTraceGroupBox, "mpit_dest_CheckBox" );
     mpit_dest_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpit_dest_CheckBox->sizePolicy().hasHeightForWidth() ) );
     mpit_dest_CheckBox->setChecked( TRUE );
     mpit_dest_CheckBox->setText( tr( "MPIT Destination Rank Numbers." ) );
-    rightSideLayout->addWidget( mpit_dest_CheckBox );
+    rightSideVTraceLayout->addWidget( mpit_dest_CheckBox );
     }
 
     if (isInCurrentModifierList("tag")) {
@@ -1228,11 +1243,11 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
     { // mpit_tag
-    mpit_tag_CheckBox = new QCheckBox( GeneralGroupBox, "mpit_tag_CheckBox" );
+    mpit_tag_CheckBox = new QCheckBox( VTraceGroupBox, "mpit_tag_CheckBox" );
     mpit_tag_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpit_tag_CheckBox->sizePolicy().hasHeightForWidth() ) );
     mpit_tag_CheckBox->setChecked( TRUE );
     mpit_tag_CheckBox->setText( tr( "MPIT Message Tag Values." ) );
-    rightSideLayout->addWidget( mpit_tag_CheckBox );
+    rightSideVTraceLayout->addWidget( mpit_tag_CheckBox );
     }
 
     if (isInCurrentModifierList("communicator")) {
@@ -1242,11 +1257,11 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
     { // mpit_communicator
-    mpit_communicator_CheckBox = new QCheckBox( GeneralGroupBox, "mpit_communicator" );
+    mpit_communicator_CheckBox = new QCheckBox( VTraceGroupBox, "mpit_communicator" );
     mpit_communicator_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpit_communicator_CheckBox->sizePolicy().hasHeightForWidth() ) );
     mpit_communicator_CheckBox->setChecked( TRUE );
     mpit_communicator_CheckBox->setText( tr( "MPIT Communicator Used Values." ) );
-    rightSideLayout->addWidget( mpit_communicator_CheckBox );
+    rightSideVTraceLayout->addWidget( mpit_communicator_CheckBox );
     }
 
     if (isInCurrentModifierList("datatype")) {
@@ -1256,11 +1271,11 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
     { // mpit_datatype
-    mpit_datatype_CheckBox = new QCheckBox( GeneralGroupBox, "mpit_datatype" );
+    mpit_datatype_CheckBox = new QCheckBox( VTraceGroupBox, "mpit_datatype" );
     mpit_datatype_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpit_datatype_CheckBox->sizePolicy().hasHeightForWidth() ) );
     mpit_datatype_CheckBox->setChecked( TRUE );
     mpit_datatype_CheckBox->setText( tr( "MPIT Message Data Type Values." ) );
-    rightSideLayout->addWidget( mpit_datatype_CheckBox );
+    rightSideVTraceLayout->addWidget( mpit_datatype_CheckBox );
     }
 
     if (isInCurrentModifierList("retval")) {
@@ -1270,14 +1285,15 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
     { // mpit_retval
-    mpit_retval_CheckBox = new QCheckBox( GeneralGroupBox, "mpit_retval" );
+    mpit_retval_CheckBox = new QCheckBox( VTraceGroupBox, "mpit_retval" );
     mpit_retval_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpit_retval_CheckBox->sizePolicy().hasHeightForWidth() ) );
     mpit_retval_CheckBox->setChecked( TRUE );
     mpit_retval_CheckBox->setText( tr( "MPIT Function Dependent Return Values." ) );
-    rightSideLayout->addWidget( mpit_retval_CheckBox );
+    rightSideVTraceLayout->addWidget( mpit_retval_CheckBox );
     }
 
    } else if ( globalCollectorString.contains("mpi") ) {
+    VTraceGroupBox->hide();
 
     if (isInCurrentModifierList("mpit::exclusive_times")) {
        mpit_exclusive_times = TRUE;
@@ -1392,6 +1408,7 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
    } else if ( globalCollectorString.contains("fpe") ) {
+    VTraceGroupBox->hide();
 
     if (isInCurrentModifierList("fpe::time")) {
        fpe_time = TRUE;
@@ -1576,9 +1593,12 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 
    } else {
+    VTraceGroupBox->hide();
    }
 
+//    GeneralGroupBox->insertChild( VTraceGroupBox );
     generalStackPageLayout->addWidget( GeneralGroupBox );
+    generalStackPageLayout->addWidget( VTraceGroupBox );
     stack->addWidget( generalStackPage, 0 );
 }
 
@@ -1987,10 +2007,12 @@ void OptionalViewsDialog::languageChange()
        GeneralGroupBox->setTitle( tr( "HWC Experiment Custom Report Selection Dialog" ) );
     } else if ( globalCollectorString.contains("iot") ) {
        GeneralGroupBox->setTitle( tr( "IOT Experiment Custom Report Selection Dialog" ) );
+       VTraceGroupBox->setTitle( tr( "IOT Experiment Event List (-v trace) ONLY" ) );
     } else if (globalCollectorString.contains("io") ) {
        GeneralGroupBox->setTitle( tr( "IO Experiment Custom Report Selection Dialog" ) );
     } else if ( globalCollectorString.contains("mpit") ) {
        GeneralGroupBox->setTitle( tr( "MPIT Experiment Custom Report Selection Dialog" ) );
+       VTraceGroupBox->setTitle( tr( "MPIT Experiment Event List (-v trace) ONLY" ) );
     } else if ( globalCollectorString.contains("mpi") ) {
        GeneralGroupBox->setTitle( tr( "MPI Experiment Custom Report Selection Dialog" ) );
     } else if ( globalCollectorString.contains("fpe") ) {
