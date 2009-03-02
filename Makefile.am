@@ -58,8 +58,7 @@ doc: $(DOC_SUBDIRS)
 	for i in $(DOC_SUBDIRS); do (cd $$i; $(MAKE) doc); done
 
 DIST_SUBDIRS = \
-	$(BASE_SUBDIRS) \
-	test
+	$(BASE_SUBDIRS) 
 
 # Need the images files and the tests files in tarball.
 EXTRA_DIST = libopenss-guiimages/* mc bootstrap do_build bootstrap_rpm INSTALL_a README-mpi

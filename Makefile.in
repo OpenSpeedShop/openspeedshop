@@ -363,8 +363,7 @@ DOC_SUBDIRS = \
 	libopenss-gui
 
 DIST_SUBDIRS = \
-	$(BASE_SUBDIRS) \
-	test
+	$(BASE_SUBDIRS) 
 
 
 # Need the images files and the tests files in tarball.
