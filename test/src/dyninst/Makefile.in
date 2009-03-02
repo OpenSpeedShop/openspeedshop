@@ -32,7 +32,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 subdir = src/dyninst
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	AUTHORS COPYING ChangeLog INSTALL NEWS
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/ac_pkg_mpi.m4 $(top_srcdir)/configure.ac
@@ -328,7 +329,7 @@ DIST_SUBDIRS = $(SUBDIRS) createf77
 check_SCRIPTS_common = runall-dyninst
 check_SCRIPTS = $(check_SCRIPTS_common)
 TESTS = $(check_SCRIPTS)
-EXTRA_DIST = runall-dyninst configure.ac Makefile.am acinclude.m4 NEWS README AUTHORS INSTALL COPYING ChangeLog
+EXTRA_DIST = runall-dyninst Makefile.am NEWS README AUTHORS INSTALL COPYING ChangeLog
 all: all-recursive
 
 .SUFFIXES:
