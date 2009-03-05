@@ -18,7 +18,7 @@ oss_libdir="${oss_prefix}/${machlibdir}"
 oss_bindir="${oss_prefix}/bin"
 oss_plugins="${oss_libdir}/openspeedshop"
 
-preload_files=
+mpi_plugin=
 output_dir=
 
 default_mpi_impl=@@ossdefaultmpi@@
@@ -47,11 +47,7 @@ do
 
 	if [ -n "$ismpi" ]
 	then
-            mpiplugin="${oss_plugins}/mpi-${mpitouse}-rt-offline.so"
-            if test -f "$mpiplugin"
-	    then
-                preload_files="${preload_files}:${mpiplugin}"
-	    fi
+            mpi_plugin="${oss_plugins}/mpi-${mpitouse}-rt-offline.so"
 	    break
 	fi
     fi 
@@ -152,8 +148,7 @@ case "$collector" in
     # gather the mpi rank information needed for the mpi_rank field
     # in the THREADS table of the openss database.
     * )
-    export OPENSS_MPI_TRACED=MPI_Init
-    export LD_PRELOAD=${oss_plugins}/$collector-rt-offline.so:${preload_files}:${libmonitor}
+    export LD_PRELOAD=${oss_plugins}/$collector-rt-offline.so:${libmonitor}
     ;;
 esac
 exec $1

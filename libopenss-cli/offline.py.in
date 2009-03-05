@@ -229,7 +229,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	# TODO: This should only error out for cases where something
 	# like pcsamp is the collector and there should be mpi too.
 	#raise RuntimeError("Failed to locate the mpi runtime plugin. " + libmonitor)
-	print "[openss warning]: Failed to locate the mpi runtime plugin."
+	print "[openss warning]: Failed to locate the mpi runtime plugin. " + mpiplugin
 	print "[openss warning]: No MPI rank identifiers will be recorded in the openss database."
     else:
 	mpiplugin = ""

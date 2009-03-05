@@ -65,13 +65,18 @@ void monitor_fini_process(int how, void *data)
 void monitor_fini_process(void)
 #endif
 {
+#if 0
     static int f = 0;
     if (f > 0)
       raise(SIGSEGV);
     f++;
+#endif
 
     /*collector stop_sampling does not use the arguments param */
     offline_stop_sampling(NULL);
+    OpenSS_mpi_rank = monitor_mpi_comm_rank();
+    //fprintf(stderr,"OPENSS monitor_fini_process callback: OpenSS_mpi_rank = %d\n",
+    //OpenSS_mpi_rank);
 }
 
 #if defined(_MONITOR_H_)
@@ -81,6 +86,7 @@ void monitor_init_process(char *process, int *argc, char **argv, unsigned pid)
 #endif
 {
     offline_start_sampling(NULL);
+    return data;
 }
 
 void monitor_init_library(void)
@@ -101,6 +107,10 @@ void monitor_fini_library(void)
 void monitor_fini_thread(void *ptr)
 {
     offline_stop_sampling(NULL);
+    OpenSS_mpi_rank = monitor_mpi_comm_rank();
+    //fprintf(stderr,"OPENSS monitor_fini_process callback: OpenSS_mpi_rank = %d\n",
+    //OpenSS_mpi_rank);
+    return (ptr);
 }
 
 #if defined(_MONITOR_H_)
@@ -109,9 +119,8 @@ void *monitor_init_thread(int tid, void *data)
 void *monitor_init_thread(const unsigned tid)
 #endif
 {
-    void *retval = (void *)0xdeadbeef;
     offline_start_sampling(NULL);
-    return(retval);
+    return(data);
 }
 
 void monitor_init_thread_support(void)
@@ -147,5 +156,14 @@ void * monitor_pre_fork(void)
 void monitor_post_fork(pid_t child, void *data)
 {
     //fprintf(stderr,"OPENSS monitor_post_fork callback:\n");
+}
+#endif
+
+#if defined(_MONITOR_H_)
+void monitor_fini_mpi(void)
+{
+    OpenSS_mpi_rank = monitor_mpi_comm_rank();
+    //fprintf(stderr,"OPENSS OpenSS_mpi_rank callback: OpenSS_mpi_rank = %d\n",
+    //OpenSS_mpi_rank);
 }
 #endif
