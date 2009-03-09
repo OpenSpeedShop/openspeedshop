@@ -1,0 +1,2 @@
+#!/bin/tcsh
+rsh $1 $2 "source /usr/global/tools/dotkit/init ; use openss_mrnet_x86_64 >> /dev/null ; $3 $4 $5 $6 $7 $8 $9"
