@@ -1,0 +1,10 @@
+#!/bin/tcsh
+
+srun hostname | sort | uniq > $HOME/.openspeedshop/.openss-mrnet-hosts
+setenv length `wc -l $HOME/.openspeedshop/.openss-mrnet-hosts | gawk '{print $1}'`
+hostname >> $HOME/.openspeedshop/.openss-mrnet-hosts
+echo `hostname`":0 =>" > $HOME/.openspeedshop/.openss-mrnet-topology
+uniq -c $HOME/.openspeedshop/.openss-mrnet-hosts | head -$length | gawk 'BEGIN {a=1} { printf "\t%s:%i\n",$2,$1-1; } END { print ";" }' >> $HOME/.openspeedshop/.openss-mrnet-topology
+
+
+
