@@ -568,12 +568,14 @@ static bool define_iot_columns (
             HV.push_back("Syscall Number");
 
         } else if (!strcasecmp(M_Name.c_str(), "retval")) {
-
+          if (vfc == VFC_Trace) {
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
             HV.push_back("Function Dependent Return Value");
-
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m retval' only supported for '-v Trace' option.");
+          }
         } else if (!strcasecmp(M_Name.c_str(), "nsysargs")) {
-
+ 
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, nsysargs_temp));
             HV.push_back("Number of System Args");
  
@@ -583,9 +585,12 @@ static bool define_iot_columns (
 
         } else if ( (!strcasecmp(M_Name.c_str(), "pathname")) || (!strcasecmp(M_Name.c_str(), "pathnames")) ) {
 
+          if (vfc == VFC_Trace) {
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, pathname_temp));
             HV.push_back("File/Path Name");
-
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m pathname' only supported for '-v Trace' option.");
+          }
 
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
@@ -644,6 +649,12 @@ static bool define_iot_columns (
     }
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
     HV.push_back("% of Total Time");
+
+  // display a count of the calls to each function
+    if (vfc != VFC_Trace) {
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
+      HV.push_back("Number of Calls");
+    }
   }
   if (generate_nested_accounting) {
     IV.push_back(new ViewInstruction (VIEWINST_StackExpand, intime_temp));
@@ -699,8 +710,8 @@ static std::string VIEW_iot_long  =
                   "\n\t'-v Trace' will produce a report of each individual  call to an io"
                   " function."
                   " It will be sorted in ascending order of the starting time for the event."
-                  " The information available for display from an 'iot' experiment is very"
-                  " limited when compared to what is available from an 'iot' experiment."
+                  " There is more information available for display from an 'iot' experiment"
+                  " than is available from an 'io' experiment."
                   "\n\t'-v CallTrees' will produce a calling stack report that is presented"
                   " in calling tree order - from the start of the program to the measured"
                   " program."
@@ -727,7 +738,7 @@ static std::string VIEW_iot_long  =
                   " process unit that the program was partitioned into: Pid's,"
                   " Posix threads, Mpi threads or Ranks."
                   " If no '-m' option is specified, the default is equivalent to"
-                  " '-m exclusive times, percent'."
+                  " '-m exclusive times, percent, counts'."
                   " The available '-m' options are:"
                   " \n\t'-m exclusive_times' reports the wall clock time used in the function."
                   " \n\t'-m min' reports the minimum time spent in the function."
@@ -740,6 +751,10 @@ static std::string VIEW_iot_long  =
                   " \n\t'-m ThreadAverage' reports the average cpu time for a process."
                   " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
                   " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
+                  " \n\t'-m syscallno' reports the system call number associated  with the function."
+                  " \n\t'-m retval' reports the value returned from the call."
+                  " \n\t'-m nsysargs' reports the number of arguments to the call."
+                  " \n\t'-m pathname' reports the pathname to the function."
                   "\n";
 static std::string VIEW_iot_example = "\texpView iot\n"
                                       "\texpView -v CallTrees,FullStack iot10 -m min,max,count\n";

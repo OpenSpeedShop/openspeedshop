@@ -587,6 +587,11 @@ static bool define_io_columns (
     }
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back("% of Total");
+  // display a count of the calls to each function
+    if (vfc != VFC_Trace) {
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
+      HV.push_back("Number of Calls");
+    }
   }
   if (generate_nested_accounting) {
     IV.push_back(new ViewInstruction (VIEWINST_StackExpand, intime_temp));
@@ -669,7 +674,7 @@ static std::string VIEW_io_long  =
                   " process unit that the program was partitioned into: Pid's,"
                   " Posix threads, Mpi threads or Ranks."
                   " If no '-m' option is specified, the default is equivalent to"
-                  " '-m exclusive times, percent'."
+                  " '-m exclusive times, percent, count'."
                   " The available '-m' options are:"
                   " \n\t'-m exclusive_times' reports the wall clock time used in the function."
                   " \n\t'-m min' reports the minimum time spent in the function."
