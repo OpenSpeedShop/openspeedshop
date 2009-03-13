@@ -25,6 +25,7 @@ import string
 import sys
 import types
 import shutil
+import gc
 
 import PY_Input
 
@@ -800,6 +801,9 @@ class CLI(code.InteractiveConsole):
 
         while 1:
             try :
+		# Turn off garbage collection
+		gc.disable();
+	         
                 if myparse.terminate_SS:
                   self.write("\n")
                   self.resetbuffer()
@@ -854,6 +858,9 @@ class CLI(code.InteractiveConsole):
 			if d_line[0] != "#":
 		    	    PY_Input.CallParser(d_line)
 
+		# Turn on garbage collection
+		gc.enable();
+	         
             # Handle CTRL-C
             except KeyboardInterrupt:                
                 self.write("\nKeyboardInterrupt\n")

@@ -80,6 +80,7 @@ class CommandResult {
   virtual bool LT (CommandResult *A) { cerr << "< operation not implimented\n"; return false; }
   virtual bool GT (CommandResult *A) { cerr << "> operation not implimented\n"; return false; }
   virtual void Accumulate_Value (CommandResult *A) { cerr << "Sum operation not implimented\n"; }
+  virtual void AbsDiff_value (CommandResult *A) { cerr << "Difference operation not implimented\n"; }
   virtual void Accumulate_Min (CommandResult *A) { cerr << "Min operation not implimented\n"; }
   virtual void Accumulate_Max (CommandResult *A) { cerr << "Max operation not implimented\n"; }
 
@@ -195,6 +196,17 @@ class CommandResult_Address :
       clearNullValue();
     }
     uint_value += ((CommandResult_Address *)A)->uint_value; }
+  virtual void AbsDiff_value (CommandResult *A) {
+    Assert (typeid(*this) == typeid(CommandResult_Address));
+    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
+      clearNullValue();
+    }
+    if (uint_value >= ((CommandResult_Address *)A)->uint_value) {
+      uint_value -= ((CommandResult_Address *)A)->uint_value;
+    } else {
+      uint_value = ((CommandResult_Address *)A)->uint_value - uint_value;
+    }
+  }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Address));
     uint_value = min (uint_value, ((CommandResult_Address *)A)->uint_value); }
@@ -247,6 +259,17 @@ class CommandResult_Uint :
       clearNullValue();
     }
     uint_value += ((CommandResult_Uint *)A)->uint_value; }
+  virtual void AbsDiff_value (CommandResult *A) {
+    Assert (typeid(*this) == typeid(CommandResult_Uint));
+    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
+      clearNullValue();
+    }
+    if (uint_value >= ((CommandResult_Uint *)A)->uint_value) {
+      uint_value -= ((CommandResult_Uint *)A)->uint_value;
+    } else {
+      uint_value = ((CommandResult_Uint *)A)->uint_value - uint_value;
+    }
+  }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
     uint_value = min (uint_value, ((CommandResult_Uint *)A)->uint_value); }
@@ -308,6 +331,17 @@ class CommandResult_Int :
       clearNullValue();
     }
     int_value += ((CommandResult_Int *)A)->int_value; }
+  virtual void AbsDiff_value (CommandResult *A) {
+    Assert (typeid(*this) == typeid(CommandResult_Int));
+    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
+      clearNullValue();
+    }
+    if (int_value >= ((CommandResult_Int *)A)->int_value) {
+      int_value -= ((CommandResult_Int *)A)->int_value;
+    } else {
+      int_value = ((CommandResult_Int *)A)->int_value - int_value;
+    }
+  }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
     int_value = min (int_value, ((CommandResult_Int *)A)->int_value); }
@@ -374,6 +408,17 @@ class CommandResult_Float :
       clearNullValue();
     }
     float_value += ((CommandResult_Float *)A)->float_value; }
+  virtual void AbsDiff_value (CommandResult *A) {
+    Assert (typeid(*this) == typeid(CommandResult_Float));
+    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
+      clearNullValue();
+    }
+    if (float_value >= ((CommandResult_Float *)A)->float_value) {
+      float_value -= ((CommandResult_Float *)A)->float_value;
+    } else {
+      float_value = ((CommandResult_Float *)A)->float_value - float_value;
+    }
+  }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
     float_value = min (float_value, ((CommandResult_Float *)A)->float_value); }
@@ -462,6 +507,18 @@ class CommandResult_String :
         for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";
       }
 
+    } else if (string_value.length() > fieldsize) {
+     // The string is too big for the field.
+     // Decide how, or if, to truncate the string.
+      if (OPENSS_VIEW_ENTIRE_STRING) {
+       // Ignore the field size and print the full string.
+        to << std::setiosflags(std::ios::left) << string_value;
+      } else {
+       // Don't let it exceed the size of the field.
+       // Print leading indicator to signal incomplete value.
+        to << std::setiosflags(std::ios::left) << "???"
+           << string_value.substr((string_value.length() - fieldsize + 3), string_value.length());
+      }
     } else {
      // Right justify the string in the field.
      // Don't let it exceed the size of the field.
@@ -1052,6 +1109,17 @@ class CommandResult_Duration : public CommandResult {
       clearNullValue();
     }
     duration_value += ((CommandResult_Duration *)A)->duration_value; }
+  virtual void AbsDiff_value (CommandResult *A) {
+    Assert (typeid(*this) == typeid(CommandResult_Duration));
+    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
+      clearNullValue();
+    }
+    if (duration_value >= ((CommandResult_Duration *)A)->duration_value) {
+      duration_value -= ((CommandResult_Duration *)A)->duration_value;
+    } else {
+      duration_value = ((CommandResult_Duration *)A)->duration_value - duration_value;
+    }
+  }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
     duration_value = min (duration_value, ((CommandResult_Duration *)A)->duration_value); }
@@ -1191,6 +1259,18 @@ class CommandResult_Interval : public CommandResult {
       clearNullValue();
     }
     interval_value += ((CommandResult_Interval *)A)->interval_value; 
+  }
+
+  virtual void AbsDiff_value (CommandResult *A) {
+    Assert (typeid(*this) == typeid(CommandResult_Interval));
+    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
+      clearNullValue();
+    }
+    if (interval_value >= ((CommandResult_Interval *)A)->interval_value) {
+      interval_value -= ((CommandResult_Interval *)A)->interval_value;
+    } else {
+      interval_value = ((CommandResult_Interval *)A)->interval_value - interval_value;
+    }
   }
 
   virtual void Accumulate_Min (CommandResult *A) {

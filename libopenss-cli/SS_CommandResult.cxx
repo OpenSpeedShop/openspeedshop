@@ -132,10 +132,10 @@ CommandResult *Calculate_StdDev  (CommandResult *A, CommandResult *B, CommandRes
   printf("In CommandResult *Calculate_StdDev, A=%x, B=%x, C=%x\n", A, B, C);
 #endif
 
-  double Avalue;
-  double Bvalue;
-  double Cvalue;
-  int64_t Ivalue;
+  double Avalue = 0.0;
+  double Bvalue = 0.0;
+  double Cvalue = 0.0;
+  int64_t Ivalue = 0;
 
   
 #if DEBUG_CLI

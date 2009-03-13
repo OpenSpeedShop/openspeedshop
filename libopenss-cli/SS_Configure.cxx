@@ -28,6 +28,7 @@ int64_t OPENSS_HISTORY_DEFAULT = 24;
 int64_t OPENSS_MAX_ASYNC_COMMANDS = 20;
 int64_t OPENSS_HELP_LEVEL_DEFAULT = 1;
 bool    OPENSS_VIEW_FULLPATH = false;
+bool    OPENSS_VIEW_ENTIRE_STRING = false;
 bool    OPENSS_VIEW_DEFINING_LOCATION = true;
 bool    OPENSS_VIEW_MANGLED_NAME = false;
 bool    OPENSS_SAVE_EXPERIMENT_DATABASE = false;
@@ -142,7 +143,6 @@ void SS_Configure () {
   Ivalue = settings->readNumEntry(std::string("helpLevelDefault"), OPENSS_HELP_LEVEL_DEFAULT, &ok);
   if (ok && (Ivalue >= 0)) OPENSS_HELP_LEVEL_DEFAULT = Ivalue;
 
-
   Add_Help (czar, "viewFullPath", "a boolean, preference",
             "Declare whether or not a full path is displayed in place of "
             "a file name when the function, linkedobject, or statement "
@@ -151,6 +151,20 @@ void SS_Configure () {
             "be displayed.");
   Bvalue = settings->readBoolEntry(std::string("viewFullPath"), OPENSS_VIEW_FULLPATH, &ok);
   if (ok) OPENSS_VIEW_FULLPATH = Bvalue;
+
+  Add_Help (czar, "viewEntireString", "a boolean, preference",
+            "Declare whether or not an entire string is displayed for "
+            "a file name when the length of the string exceeds the "
+            "size specified by viewFieldSize preference.  The "
+            "default is false, requiring that the string be truncated "
+            "on the left (indicated with '???' characters) to fit "
+            "within the allowed space.  If this preference is selected "
+            "and the string is larger than the FieldSize, the FieldSize "
+            "is ignored which will cause misalignment of other fields "
+            "to the right of the one the string was to occupy.");
+
+  Bvalue = settings->readBoolEntry(std::string("viewEntireString"), OPENSS_VIEW_ENTIRE_STRING, &ok);
+  if (ok) OPENSS_VIEW_ENTIRE_STRING = Bvalue;
 
   Add_Help (czar, "viewDefiningLocation", "a boolean, preference",
             "Declare whether or not the defining location is displayed "
