@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2009 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -33,10 +34,6 @@
 #include "TotallyOrdered.hxx"
 
 #include <pthread.h>
-
-// WDH DEBUGGING
-#include <iostream>
-#include <sstream>
 
 
 
@@ -182,6 +179,7 @@ namespace OpenSpeedShop { namespace Framework {
 	    ~Bookkeeping()
 	    {
 		Assert(pthread_mutex_destroy(&dm_lock) == 0);
+		memset(&dm_lock, 0, sizeof(pthread_mutex_t));
 	    }
 	    
 	};
