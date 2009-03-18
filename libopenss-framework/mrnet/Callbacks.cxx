@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007-2009 William Hachfeld. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -457,8 +457,11 @@ void Callbacks::globalStringValue(const Blob& blob)
     // Provide the value of this global variable.
     GlobalTable::TheTable.provideValue(
         *threads.begin(), std::string(message.global),
-	std::make_pair(static_cast<bool>(message.found), message.value)
-	);
+	std::make_pair(
+	    static_cast<bool>(message.found),
+	    std::string((message.value == NULL) ? message.value : "")
+	    )
+        );
 }
 
 
