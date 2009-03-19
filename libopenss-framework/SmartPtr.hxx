@@ -179,7 +179,6 @@ namespace OpenSpeedShop { namespace Framework {
 	    ~Bookkeeping()
 	    {
 		Assert(pthread_mutex_destroy(&dm_lock) == 0);
-		memset(&dm_lock, 0, sizeof(pthread_mutex_t));
 	    }
 	    
 	};

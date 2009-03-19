@@ -53,7 +53,6 @@
 using namespace OpenSpeedShop::Framework;
 using namespace OpenSpeedShop::Watcher;
 using namespace OpenSpeedShop;
-ThreadTable ThreadTable::TheTable;
 
     /** Identifier of the monitor thread. */
 pthread_t fileIOmonitor_tid;
