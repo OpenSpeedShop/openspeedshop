@@ -838,7 +838,7 @@ void StatsPanel::infoEditHeaderMoreButtonSelected()
 void
 StatsPanel::raiseManageProcessesPanel()
 {
-#ifdef DEBUG_MPPanel
+#ifdef DEBUG_StatsPanel
   printf("StatsPanel::raiseManageProcessesPanel(), expID=%d\n", expID);
 #endif
 
@@ -847,6 +847,9 @@ StatsPanel::raiseManageProcessesPanel()
   Panel *manageProcessesPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
 
   if( manageProcessesPanel ) {
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::raiseManageProcessesPanel(), RAISING MANAGE PROCESS PANEL, expID=%d\n", expID);
+#endif
     getPanelContainer()->raisePanel(manageProcessesPanel);
   }
 
@@ -904,7 +907,7 @@ StatsPanel::listener(void *msg)
 
 #ifdef DEBUG_StatsPanel
    printf("StatsPanel::listener-1-(%s)\n", msgObject->msgType.ascii() );
-   printf("StatsPanel::listener-1-(getName()=%s)\n", getName() );
+   printf("StatsPanel::listener-1- RAISING THIS PANEL this=%d, (getName()=%s)\n", this, getName() );
 #endif
 
     getPanelContainer()->raisePanel(this);
@@ -1079,6 +1082,11 @@ StatsPanel::listener(void *msg)
 
     updateStatsPanelData(DONT_FORCE_UPDATE);
     if( msg->raiseFLAG == TRUE ) {
+
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::listener FocusObject, after calling updateStatsPanelData  RAISE THIS PANEL, this=%d\n", this);
+#endif
+
       getPanelContainer()->raisePanel(this);
     }
 // now focus a source file that's listening....
@@ -1154,7 +1162,7 @@ StatsPanel::listener(void *msg)
     if( msg->raiseFLAG == TRUE ) {
 
 #ifdef DEBUG_StatsPanel
-   printf("StatsPanel::listener() FocusCompareObject, raise this panel.. \n");
+   printf("StatsPanel::listener() FocusCompareObject, RAISE THIS PANEL, raise this panel.., this=%d\n", this);
 #endif // DEBUG_StatsPanel
 
       getPanelContainer()->raisePanel(this);
@@ -1295,10 +1303,13 @@ if( start_index != -1 ) {
 
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::listener, UPDATE-EXPERIMENT-DATA-OBJECT msg->raiseFLAG=%d \n", msg->raiseFLAG );
+    printf("StatsPanel::listener, UPDATE-EXPERIMENT-DATA-OBJECT (%s)\n", msgObject->msgType.ascii() );
 #endif // DEBUG_StatsPanel
 
-    if( msg->raiseFLAG )
-    {
+    if( msg->raiseFLAG ) {
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::listener, UPDATE-EXPERIMENT-DATA-OBJECT RAISING THIS PANEL this=%d \n", this );
+#endif
       getPanelContainer()->raisePanel((Panel *)this);
     }
    // ---------------------------- 
@@ -2052,7 +2063,7 @@ StatsPanel::customizeExperimentsSelected()
   if( customizePanel ) { 
 
 #ifdef DEBUG_StatsPanel
-    printf("StatsPanel::customizePanel() found customizePanel found.. raise it.\n");
+    printf("StatsPanel::customizePanel() found customizePanel found.. RAISE customizePanel.\n");
 #endif
     nprintf( DEBUG_PANELS ) ("customizePanel() found customizePanel found.. raise it.\n");
     getPanelContainer()->raisePanel(customizePanel);
@@ -2629,11 +2640,21 @@ StatsPanel::optionalViewsCreationSelected()
 
      }else if( currentCollectorStr == "io" ) {
 
+#ifdef DEBUG_StatsPanel
+     printf("StatsPanel::optionalViewsCreationSelected, io, The user hit accept.\n");
+     printf("StatsPanel::optionalViewsCreationSelected, after returning, OptionalViewsCreationDialog, optionalViewsDialog->io_exclusive_times=%d\n", optionalViewsDialog->io_exclusive_times);
+     printf("StatsPanel::optionalViewsCreationSelected, after returning, OptionalViewsCreationDialog, optionalViewsDialog->io_min=%d\n", optionalViewsDialog->io_min);
+     printf("StatsPanel::optionalViewsCreationSelected, after returning, OptionalViewsCreationDialog, optionalViewsDialog->io_percent=%d\n", optionalViewsDialog->io_percent);
+     printf("StatsPanel::optionalViewsCreationSelected, after returning, OptionalViewsCreationDialog, optionalViewsDialog->io_average=%d\n", optionalViewsDialog->io_average);
+     printf("StatsPanel::optionalViewsCreationSelected, after returning, OptionalViewsCreationDialog, optionalViewsDialog->io_count=%d\n", optionalViewsDialog->io_count);
+#endif
+
       // Generate the list of io modifiers
       generateIOmodifiers();
 
       std::map<std::string, bool> io_desired_list;
       io_desired_list.clear();
+      io_desired_list.insert(std::pair<std::string,int>("io::exclusive_times",optionalViewsDialog->io_exclusive_times));
       io_desired_list.insert(std::pair<std::string,int>("min",optionalViewsDialog->io_min));
       io_desired_list.insert(std::pair<std::string,int>("max",optionalViewsDialog->io_max));
       io_desired_list.insert(std::pair<std::string,int>("average",optionalViewsDialog->io_average));
@@ -3197,34 +3218,51 @@ StatsPanel::manageProcessesSelected()
 // printf("manageProcessesSelected() menu selected.\n");
   QString name = QString("ManageProcessesPanel [%1]").arg(expID);
 
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::manageProcessesSelected(), expID=%d\n", expID);
+#endif
 
   Panel *manageProcessesPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
 
-  if( manageProcessesPanel )
-  { 
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::manageProcessesSelected(), manageProcessesPanel=%d\n", manageProcessesPanel);
+#endif
+
+  if( manageProcessesPanel ) { 
     nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel() found ManageProcessesPanel found.. raise it.\n");
+#ifdef DEBUG_StatsPanel
+    printf( "StatsPanel::manageProcessesSelected() found ManageProcessesPanel found.. raise it.\n");
+#endif
     getPanelContainer()->raisePanel(manageProcessesPanel);
-  } else
-  {
+  } else {
 //    nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel() no ManageProcessesPanel found.. create one.\n");
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::manageProcessesSelected() no ManageProcessesPanel found.. create one.\n");
+#endif
 
     PanelContainer *startPC = getPanelContainer();
     PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
 
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
     manageProcessesPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ManageProcessesPanel", startPC, ao);
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::manageProcessesSelected(), just created manageProcessesPanel=%d\n", manageProcessesPanel);
+#endif
     delete ao;
   }
 
-  if( manageProcessesPanel )
-  {
+  if( manageProcessesPanel ) {
+
 //    nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", manageProcessesPanel->getName());
+//
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::manageProcessesSelected, call (%s)'s listener routine.\n", manageProcessesPanel->getName());
+#endif
+
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-    if( eo && eo->FW() )
-    {
+    if( eo && eo->FW() ) {
       Experiment *experiment = eo->FW();
-      UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "pcsamp", 1);
+      UpdateObject *msg = new UpdateObject((void *)experiment, expID, "pcsamp", 1);
       manageProcessesPanel->listener( (void *)msg );
     }
   }

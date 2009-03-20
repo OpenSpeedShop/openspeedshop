@@ -113,6 +113,7 @@ public:
     bool hwctime_ThreadMin;
     bool hwctime_ThreadMax;
 
+    bool io_exclusive_times;
     bool io_min;
     bool io_max;
     bool io_average;
@@ -295,6 +296,7 @@ protected:
     QCheckBox *iot_retval_CheckBox;
     QCheckBox *iot_pathname_CheckBox;
 
+    QCheckBox *io_exclusive_times_CheckBox;
     QCheckBox *io_min_CheckBox;
     QCheckBox *io_max_CheckBox;
     QCheckBox *io_average_CheckBox;

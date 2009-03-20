@@ -126,6 +126,7 @@ OptionalViewsDialog::OptionalViewsDialog( QWidget* parent,
      iot_pathname = FALSE;
 #endif
    } else if (globalCollectorString.contains("io") ) {
+     io_exclusive_times = FALSE;
      io_min = FALSE;
      io_max = FALSE;
      io_average = FALSE;
@@ -926,6 +927,19 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
 
    } else if (globalCollectorString.contains("io") ) {
     VTraceGroupBox->hide();
+
+    if (isInCurrentModifierList("io::exclusive_times")) {
+       io_exclusive_times = TRUE;
+    } else {
+       io_exclusive_times = FALSE;
+    }
+    { // io_exclusive_times
+    io_exclusive_times_CheckBox = new QCheckBox( GeneralGroupBox, "io_exclusive_times_CheckBox" );
+    io_exclusive_times_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, io_exclusive_times_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    io_exclusive_times_CheckBox->setChecked( TRUE );
+    io_exclusive_times_CheckBox->setText( tr( "IO Exclusive Times Value" ) );
+    rightSideLayout->addWidget( io_exclusive_times_CheckBox );
+    }
 
     if (isInCurrentModifierList("min")) {
        io_min = TRUE;
@@ -1794,6 +1808,10 @@ void OptionalViewsDialog::languageChange()
 #endif
    } else if (globalCollectorString.contains("io") ) {
 
+    io_exclusive_times_CheckBox->setChecked(io_exclusive_times);
+    QToolTip::add(io_exclusive_times_CheckBox,
+                tr("Display I/O experiment exclusive times value.") );
+
     io_min_CheckBox->setChecked(io_min);
     QToolTip::add(io_min_CheckBox,
                 tr("Display I/O experiment minimum value.") );
@@ -2073,15 +2091,15 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      usertime_ThreadMax = FALSE;
      usertime_ThreadMax_CheckBox->setChecked(usertime_ThreadMax);
    } else if ( globalCollectorString.contains("hwctime") ) {
-     hwctime_exclusive_counts = TRUE;
+     hwctime_exclusive_counts = FALSE;
      hwctime_exclusive_counts_CheckBox->setChecked(hwctime_exclusive_counts);
-     hwctime_exclusive_overflows = FALSE;
+     hwctime_exclusive_overflows = TRUE;
      hwctime_exclusive_overflows_CheckBox->setChecked(hwctime_exclusive_overflows);
      hwctime_inclusive_overflows = FALSE;
      hwctime_inclusive_overflows_CheckBox->setChecked(hwctime_inclusive_overflows);
      hwctime_inclusive_counts = FALSE;
      hwctime_inclusive_counts_CheckBox->setChecked(hwctime_inclusive_counts);
-     hwctime_percent = FALSE;
+     hwctime_percent = TRUE;
      hwctime_percent_CheckBox->setChecked(hwctime_percent);
      hwctime_ThreadAverage = FALSE;
      hwctime_ThreadAverage_CheckBox->setChecked(hwctime_ThreadAverage);
@@ -2090,11 +2108,11 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      hwctime_ThreadMax = FALSE;
      hwctime_ThreadMax_CheckBox->setChecked(hwctime_ThreadMax);
    } else if ( globalCollectorString.contains("hwc") ) {
-     hwc_overflows = FALSE;
+     hwc_overflows = TRUE;
      hwc_overflows_CheckBox->setChecked(hwc_overflows);
      hwc_counts = FALSE;
      hwc_counts_CheckBox->setChecked(hwc_counts);
-     hwc_percent = FALSE;
+     hwc_percent = TRUE;
      hwc_percent_CheckBox->setChecked(hwc_percent);
      hwc_ThreadAverage = FALSE;
      hwc_ThreadAverage_CheckBox->setChecked(hwc_ThreadAverage);
@@ -2104,7 +2122,7 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      hwc_ThreadMax_CheckBox->setChecked(hwc_ThreadMax);
    } else if ( globalCollectorString.contains("iot") ) {
 #ifdef DEBUG_optional
-      printf("OptionalViewsDialog::resetPreferenceDefaults, setting iot_exclusive_times=(%d) to false\n", iot_exclusive_times);
+      printf("OptionalViewsDialog::resetPreferenceDefaults, setting iot_exclusive_times=(%d) to TRUE\n", iot_exclusive_times);
 #endif
      iot_exclusive_times = TRUE;
      iot_exclusive_times_CheckBox->setChecked(iot_exclusive_times);
@@ -2116,7 +2134,7 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      iot_max_CheckBox->setChecked(iot_max);
      iot_average = FALSE;
      iot_average_CheckBox->setChecked(iot_average);
-     iot_count = FALSE;
+     iot_count = TRUE;
      iot_count_CheckBox->setChecked(iot_count);
      iot_percent = TRUE;
      iot_percent_CheckBox->setChecked(iot_percent);
@@ -2137,18 +2155,23 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      iot_pathname_CheckBox->setChecked(iot_pathname);
 #endif
    } else if (globalCollectorString.contains("io") ) {
+     io_exclusive_times = TRUE;
+#ifdef DEBUG_optional
+      printf("OptionalViewsDialog::resetPreferenceDefaults, setting io_exclusive_times=(%d) to TRUE\n", iot_exclusive_times);
+#endif
+     io_exclusive_times_CheckBox->setChecked(io_exclusive_times);
      io_min = FALSE;
-     io_min_CheckBox->setChecked(iot_min);
+     io_min_CheckBox->setChecked(io_min);
      io_max = FALSE;
-     io_max_CheckBox->setChecked(iot_max);
+     io_max_CheckBox->setChecked(io_max);
      io_average = FALSE;
-     io_average_CheckBox->setChecked(iot_average);
-     io_count = FALSE;
-     io_count_CheckBox->setChecked(iot_count);
+     io_average_CheckBox->setChecked(io_average);
+     io_count = TRUE;
+     io_count_CheckBox->setChecked(io_count);
      io_percent = TRUE;
-     io_percent_CheckBox->setChecked(iot_percent);
+     io_percent_CheckBox->setChecked(io_percent);
      io_stddev = FALSE;
-     io_stddev_CheckBox->setChecked(iot_stddev);
+     io_stddev_CheckBox->setChecked(io_stddev);
      io_ThreadAverage = FALSE;
      io_ThreadAverage_CheckBox->setChecked(io_ThreadAverage);
      io_ThreadMin = FALSE;
@@ -2208,9 +2231,9 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      mpi_percent_CheckBox->setChecked(mpi_percent);
      mpi_stddev_CheckBox->setChecked(mpi_stddev);
    } else if ( globalCollectorString.contains("fpe") ) {
-     fpe_time = FALSE;
+     fpe_time = TRUE;
      fpe_counts = FALSE;
-     fpe_percent = FALSE;
+     fpe_percent = TRUE;
      fpe_ThreadAverage = FALSE;
      fpe_ThreadMin = FALSE;
      fpe_ThreadMax = FALSE;
@@ -2342,6 +2365,7 @@ void OptionalViewsDialog::applyPreferences()
      printf("OptionalViewsDialog::applyPreferences, iot_min=(%d)\n", iot_min);
 #endif
    } else if (globalCollectorString.contains("io") ) {
+     io_exclusive_times = io_exclusive_times_CheckBox->isChecked();
      io_min = io_min_CheckBox->isChecked();
      io_max = io_max_CheckBox->isChecked();
      io_average = io_average_CheckBox->isChecked();
