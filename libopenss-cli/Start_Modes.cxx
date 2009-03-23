@@ -31,6 +31,11 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
   bool initial_set_of_command_done_yet = false;
   bool processing_batch_option = false;
   areWeRestoring = false;
+
+#ifdef DEBUG_CLI_OPTIONS
+  printf(" StartModes in Input_Command_Args, INITIALIZE areWeRestoring=%d\n", areWeRestoring);
+#endif
+
   int cmdlen = 0;
   int i;
 
@@ -40,7 +45,8 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
     if (strstr( argv[i], ".openss")) {
       areWeRestoring = true;
 #ifdef DEBUG_CLI_OPTIONS
-      printf(" StartModes, WE ARE RESTORING, -f command argv[i]=%s, areWeRestoring=%d\n", argv[i], areWeRestoring);
+      printf(" StartModes in Input_Command_Args, WE ARE RESTORING, -f command argv[i=%d]=%s, areWeRestoring=%d\n", 
+              i, argv[i], areWeRestoring);
 #endif
     }
 
@@ -93,6 +99,10 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
         if (processing_offline_option) {
           bcopy("RunOfflineExp", cmdstr, 15);
         } else {
+
+#ifdef DEBUG_CLI_OPTIONS
+          printf(" StartModes in Input_Command_Args, Making a decision to restore or create, areWeRestoring=%d\n", areWeRestoring);
+#endif
 	  if ( areWeRestoring ) { 
             bcopy("expRestore", cmdstr, 11);
 	  } else {
@@ -185,11 +195,15 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, OpenSpee
   bool read_stdin_file = (stdin && !isatty(fileno(stdin)));
   bool weAreRestoring = false;
 
+#ifdef DEBUG_CLI_OPTIONS
+      printf(" Start_COMMAND_LINE_Mode, before calling Input_Command_Args, weAreRestoring=%d\n", weAreRestoring);
+#endif
+
  // Translate the command line arguments into an "expCreate command".
   Input_Command_Args ( my_window, argc, argv, weAreRestoring);
 
 #ifdef DEBUG_CLI_OPTIONS
-      printf(" Start_COMMAND_LINE_Mode, after Input_Command_Args, weAreRestoring=%d\n", weAreRestoring);
+      printf(" Start_COMMAND_LINE_Mode, after calling Input_Command_Args, weAreRestoring=%d\n", weAreRestoring);
 #endif
 
  // After executing an expCreate command, read any piped-in file.
