@@ -223,6 +223,10 @@ void iot_record_event(const iot_event* event, uint64_t function)
 #endif
     Assert(tls != NULL);
 
+#if defined (OPENSS_OFFLINE)
+    tls->do_trace = 0;
+#endif
+
     uint64_t stacktrace[MaxFramesPerStackTrace];
     unsigned stacktrace_size = 0;
     unsigned entry = 0, start, i;
@@ -419,6 +423,9 @@ fprintf(stderr,"Event Buffer is full, call iot_send_events\n");
 	iot_send_events(tls);
     }
 
+#if defined (OPENSS_OFFLINE)
+    tls->do_trace = 1;
+#endif
 }
 
 
