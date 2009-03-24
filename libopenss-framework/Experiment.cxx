@@ -1016,13 +1016,19 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 #if HAVE_MPI
     // If it is an mpi job go examine the mpirun/srun mpi driver to see what
     // mpi implementation is being activated inside openss.
+
     if (is_mpt_job || is_mpich_job) {
+
       mpi_implementation_name = getMPIImplementationName(*(connected.begin()));
-      if(is_debug_mpijob_enabled) {
-        fprintf(stderr, "mpi_implementation_name = %s \n", mpi_implementation_name.c_str());
-      }
+
       // Update this process' MPI implementation in the database
-      connected.begin()->setMPIImplementation(mpi_implementation_name);
+      for(ThreadGroup::const_iterator i = connected.begin(); i != connected.end(); ++i) {
+         if(is_debug_mpijob_enabled) {
+           fprintf(stderr, "setting mpi_implementation_name=%s\n", mpi_implementation_name.c_str());
+         }
+         (*i).setMPIImplementation(mpi_implementation_name);
+      }
+
     }
 #endif
     
@@ -1080,9 +1086,9 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 #if HAVE_MPI
 	// Update this process' MPI implementation in the database
 //        *i->setMPI_Impl(mpi_implementation_name);
-        if(is_debug_mpijob_enabled) {
-          fprintf(stderr, "UPDATE Threads SET mpi_impl, mpi_implementation_name = %s \n", mpi_implementation_name.c_str());
-        }
+//        if(is_debug_mpijob_enabled) {
+//          fprintf(stderr, "UPDATE Threads SET mpi_impl, mpi_implementation_name = %s \n", mpi_implementation_name.c_str());
+//        }
 
 	// Update this process' MPI implementation in the database
 	BEGIN_WRITE_TRANSACTION(dm_database);
