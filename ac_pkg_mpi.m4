@@ -902,7 +902,7 @@ AC_DEFUN([AC_PKG_MVAPICH], [
     MVAPICH_CC="$mvapich_dir/bin/mpicc -shlib"
     MVAPICH_CPPFLAGS="-I$mvapich_dir/include"
     MVAPICH_LDFLAGS="-L$mvapich_dir/$abi_libdir"
-    MVAPICH_LIBS="-lmpich -libverbs"
+    MVAPICH_LIBS="-lmpich -libverbs -libumad -libcommon"
     MVAPICH_HEADER="$mvapich_dir/include/mpi.h"
     MVAPICH_DIR="$mvapich_dir"
 
@@ -944,7 +944,7 @@ AC_DEFUN([AC_PKG_MVAPICH], [
        MVAPICH_CC="$mvapich_dir/bin/mpicc -shlib"
        MVAPICH_CPPFLAGS="-I$mvapich_dir/include"
        MVAPICH_LDFLAGS="-L$mvapich_dir/$alt_abi_libdir"
-       MVAPICH_LIBS="-lmpich -libverbs"
+       MVAPICH_LIBS="-lmpich -libverbs -libumad -libcommon"
        MVAPICH_HEADER="$mvapich_dir/include/mpi.h"
        MVAPICH_DIR="$mvapich_dir"
 

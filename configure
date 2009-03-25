@@ -22463,7 +22463,7 @@ echo $ECHO_N "checking for MVAPICH library and headers... $ECHO_C" >&6; }
     MVAPICH_CC="$mvapich_dir/bin/mpicc -shlib"
     MVAPICH_CPPFLAGS="-I$mvapich_dir/include"
     MVAPICH_LDFLAGS="-L$mvapich_dir/$abi_libdir"
-    MVAPICH_LIBS="-lmpich -libverbs"
+    MVAPICH_LIBS="-lmpich -libverbs -libumad -libcommon"
     MVAPICH_HEADER="$mvapich_dir/include/mpi.h"
     MVAPICH_DIR="$mvapich_dir"
 
@@ -22546,7 +22546,7 @@ echo $ECHO_N "checking for MVAPICH library (alt locations) and headers... $ECHO_
        MVAPICH_CC="$mvapich_dir/bin/mpicc -shlib"
        MVAPICH_CPPFLAGS="-I$mvapich_dir/include"
        MVAPICH_LDFLAGS="-L$mvapich_dir/$alt_abi_libdir"
-       MVAPICH_LIBS="-lmpich -libverbs"
+       MVAPICH_LIBS="-lmpich -libverbs -libumad -libcommon"
        MVAPICH_HEADER="$mvapich_dir/include/mpi.h"
        MVAPICH_DIR="$mvapich_dir"
 
@@ -23886,9 +23886,11 @@ if test "${with_python+set}" = set; then
   withval=$with_python;  if test "$withval" != "yes"
                   then
                     PYTHON="$withval/bin/python"
+                    python_dir="$withval"
                     { echo "$as_me:$LINENO: result: $withval" >&5
 echo "${ECHO_T}$withval" >&6; }
                   else
+                    python_dir="/usr"
                     { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
                   fi
@@ -23946,63 +23948,22 @@ echo "$as_me: error: Cannot find python$PYTHON_VERSION in your system path" >&2;
    { (exit 1); exit 1; }; }
         fi
 
-        #
-        # Check for a version of Python >= 2.1.0
-        #
-        { echo "$as_me:$LINENO: checking for a version of Python >= '2.1.0'" >&5
-echo $ECHO_N "checking for a version of Python >= '2.1.0'... $ECHO_C" >&6; }
-        ac_supports_python_ver=`$PYTHON -c "import sys, string; \
-                ver = string.split(sys.version)[0]; \
-                print ver >= '2.1.0'"`
-        if test "$ac_supports_python_ver" != "True"; then
-                if test -z "$PYTHON_NOVERSIONCHECK"; then
-                        { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-                        { { echo "$as_me:$LINENO: error:
-This version of the AC_PYTHON_DEVEL macro
-doesn't work properly with versions of Python before
-2.1.0. You may need to re-run configure, setting the
-variables PYTHON_CPPFLAGS, PYTHON_LDFLAGS, PYTHON_SITE_PKG,
-PYTHON_EXTRA_LIBS and PYTHON_EXTRA_LDFLAGS by hand.
-Moreover, to disable this check, set PYTHON_NOVERSIONCHECK
-to something else than an empty string.
-
-See \`config.log' for more details." >&5
-echo "$as_me: error:
-This version of the AC_PYTHON_DEVEL macro
-doesn't work properly with versions of Python before
-2.1.0. You may need to re-run configure, setting the
-variables PYTHON_CPPFLAGS, PYTHON_LDFLAGS, PYTHON_SITE_PKG,
-PYTHON_EXTRA_LIBS and PYTHON_EXTRA_LDFLAGS by hand.
-Moreover, to disable this check, set PYTHON_NOVERSIONCHECK
-to something else than an empty string.
-
-See \`config.log' for more details." >&2;}
-   { (exit 1); exit 1; }; }                else
-                        { echo "$as_me:$LINENO: result: skip at user request" >&5
-echo "${ECHO_T}skip at user request" >&6; }
-                fi
-        else
-                { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-        fi
-
-        #
-        # if the macro parameter ``version'' is set, honour it
-        #
-        if test -n ">= '2.3'"; then
-                { echo "$as_me:$LINENO: checking for a version of Python >= '2.3'" >&5
+    #
+    # if the macro parameter ``version'' is set, honour it
+    #
+    if test -n ">= '2.3'"; then
+            { echo "$as_me:$LINENO: checking for a version of Python >= '2.3'" >&5
 echo $ECHO_N "checking for a version of Python >= '2.3'... $ECHO_C" >&6; }
-                ac_supports_python_ver=`$PYTHON -c "import sys, string; \
-                        ver = string.split(sys.version)[0]; \
-                        print ver >= '2.3'"`
-                if test "$ac_supports_python_ver" = "True"; then
-                   { echo "$as_me:$LINENO: result: yes" >&5
+            ac_supports_python_ver=`$PYTHON -c "import sys, string; \
+                    ver = string.split(sys.version)[0]; \
+                    print ver >= '2.3'"`
+            if test "$ac_supports_python_ver" = "True"; then
+               { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
-                else
-                        { echo "$as_me:$LINENO: result: no" >&5
+            else
+                    { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
-                        { { echo "$as_me:$LINENO: error: this package requires Python >= '2.3'.
+                    { { echo "$as_me:$LINENO: error: this package requires Python >= '2.3'.
 If you have it installed, but it isn't the default Python
 interpreter in your system path, please pass the PYTHON_VERSION
 variable to configure. See \`\`configure --help'' for reference.
@@ -24012,115 +23973,152 @@ If you have it installed, but it isn't the default Python
 interpreter in your system path, please pass the PYTHON_VERSION
 variable to configure. See \`\`configure --help'' for reference.
 " >&2;}
-   { (exit 1); exit 1; }; }                fi
-        fi
+   { (exit 1); exit 1; }; }            fi
+    fi
 
-        #
-        # Check if you have distutils, else fail
-        #
-        { echo "$as_me:$LINENO: checking for the distutils Python package" >&5
+    #
+    # Check if you have distutils, else fail
+    #
+    { echo "$as_me:$LINENO: checking for the distutils Python package" >&5
 echo $ECHO_N "checking for the distutils Python package... $ECHO_C" >&6; }
-        ac_distutils_result=`$PYTHON -c "import distutils" 2>&1`
-        if test -z "$ac_distutils_result"; then
-                { echo "$as_me:$LINENO: result: yes" >&5
+    ac_distutils_result=`$PYTHON -c "import distutils" 2>&1`
+    if test -z "$ac_distutils_result"; then
+            { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
-        else
-                { echo "$as_me:$LINENO: result: no" >&5
+    else
+            { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
-                { { echo "$as_me:$LINENO: error: cannot import Python module \"distutils\".
+            { { echo "$as_me:$LINENO: error: cannot import Python module \"distutils\".
 Please check your Python installation. The error was:
 $ac_distutils_result" >&5
 echo "$as_me: error: cannot import Python module \"distutils\".
 Please check your Python installation. The error was:
 $ac_distutils_result" >&2;}
    { (exit 1); exit 1; }; }
-        fi
+    fi
 
-        #
-        # Check for Python include path
-        #
-        { echo "$as_me:$LINENO: checking for Python include path" >&5
+    #
+    # Check for Python include path
+    #
+    { echo "$as_me:$LINENO: checking for Python include path" >&5
 echo $ECHO_N "checking for Python include path... $ECHO_C" >&6; }
-        if test -z "$PYTHON_CPPFLAGS"; then
-                python_path=`$PYTHON -c "import distutils.sysconfig; \
-                        print distutils.sysconfig.get_python_inc();"`
-                if test -n "${python_path}"; then
-                        python_path="-I$python_path"
-                fi
-                PYTHON_CPPFLAGS=$python_path
-        fi
-        { echo "$as_me:$LINENO: result: $PYTHON_CPPFLAGS" >&5
+    if test -z "$PYTHON_CPPFLAGS"; then
+            python_path=`$PYTHON -c "import distutils.sysconfig; \
+                    print distutils.sysconfig.get_python_inc();"`
+            if test -n "${python_path}"; then
+                    python_path="-I$python_path"
+            fi
+            PYTHON_CPPFLAGS=$python_path
+    fi
+    { echo "$as_me:$LINENO: result: $PYTHON_CPPFLAGS" >&5
 echo "${ECHO_T}$PYTHON_CPPFLAGS" >&6; }
 
 
-        #
-        # Check for Python library path
-        #
-        { echo "$as_me:$LINENO: checking for Python library path" >&5
+    #
+    # Check for Python library path
+    #
+    { echo "$as_me:$LINENO: checking for Python library path" >&5
 echo $ECHO_N "checking for Python library path... $ECHO_C" >&6; }
-        if test -z "$PYTHON_LDFLAGS"; then
-                # (makes two attempts to ensure we've got a version number
-                # from the interpreter)
-                py_version=`$PYTHON -c "from distutils.sysconfig import *; \
-                        from string import join; \
-                        print join(get_config_vars('VERSION'))"`
-                if test "$py_version" == "None"; then
-                        if test -n "$PYTHON_VERSION"; then
-                                py_version=$PYTHON_VERSION
-                        else
-                                py_version=`$PYTHON -c "import sys; \
-                                        print sys.version[:3]"`
-                        fi
-                fi
+    if test -z "$PYTHON_LDFLAGS"; then
+            # (makes two attempts to ensure we've got a version number
+            # from the interpreter)
+            py_version=`$PYTHON -c "from distutils.sysconfig import *; \
+                    from string import join; \
+                    print join(get_config_vars('VERSION'))"`
+            if test "$py_version" == "None"; then
+                    if test -n "$PYTHON_VERSION"; then
+                            py_version=$PYTHON_VERSION
+                    else
+                            py_version=`$PYTHON -c "import sys; \
+                                    print sys.version[:3]"`
+                    fi
+            fi
 
-                PYTHON_LDFLAGS=`$PYTHON -c "from distutils.sysconfig import *; \
-                        from string import join; \
-                        print '-L' + get_python_lib(0,1), \
-                        '-lpython';"`$py_version
-        fi
-        { echo "$as_me:$LINENO: result: $PYTHON_LDFLAGS" >&5
+            PYTHON_LDFLAGS=`$PYTHON -c "from distutils.sysconfig import *; \
+                    from string import join; \
+                    print '-L' + get_python_lib(0,1), \
+                    '-lpython';"`$py_version
+    fi
+    { echo "$as_me:$LINENO: result: $PYTHON_LDFLAGS" >&5
 echo "${ECHO_T}$PYTHON_LDFLAGS" >&6; }
 
 
-        #
-        # Check for site packages
-        #
-        { echo "$as_me:$LINENO: checking for Python site-packages path" >&5
+    #
+    # Check for site packages
+    #
+    { echo "$as_me:$LINENO: checking for Python site-packages path" >&5
 echo $ECHO_N "checking for Python site-packages path... $ECHO_C" >&6; }
-        if test -z "$PYTHON_SITE_PKG"; then
-                PYTHON_SITE_PKG=`$PYTHON -c "import distutils.sysconfig; \
-                        print distutils.sysconfig.get_python_lib(0,0);"`
-        fi
-        { echo "$as_me:$LINENO: result: $PYTHON_SITE_PKG" >&5
+    if test -z "$PYTHON_SITE_PKG"; then
+            PYTHON_SITE_PKG=`$PYTHON -c "import distutils.sysconfig; \
+                    print distutils.sysconfig.get_python_lib(0,0);"`
+    fi
+    { echo "$as_me:$LINENO: result: $PYTHON_SITE_PKG" >&5
 echo "${ECHO_T}$PYTHON_SITE_PKG" >&6; }
 
 
-        #
-        # libraries which must be linked in when embedding
-        #
-        { echo "$as_me:$LINENO: checking python extra libraries" >&5
+    #
+    # libraries which must be linked in when embedding
+    #
+    { echo "$as_me:$LINENO: checking python extra libraries" >&5
 echo $ECHO_N "checking python extra libraries... $ECHO_C" >&6; }
-        if test -z "$PYTHON_EXTRA_LIBS"; then
-           PYTHON_EXTRA_LIBS=`$PYTHON -c "import distutils.sysconfig; \
-                conf = distutils.sysconfig.get_config_var; \
-                print conf('LOCALMODLIBS'), conf('LIBS')"`
-        fi
-        { echo "$as_me:$LINENO: result: $PYTHON_EXTRA_LIBS" >&5
+    if test -z "$PYTHON_EXTRA_LIBS"; then
+       PYTHON_EXTRA_LIBS=`$PYTHON -c "import distutils.sysconfig; \
+            conf = distutils.sysconfig.get_config_var; \
+            print conf('LOCALMODLIBS'), conf('LIBS')"`
+    fi
+    { echo "$as_me:$LINENO: result: $PYTHON_EXTRA_LIBS" >&5
 echo "${ECHO_T}$PYTHON_EXTRA_LIBS" >&6; }
 
 
-        #
-        # linking flags needed when embedding
-        #
-        { echo "$as_me:$LINENO: checking python extra linking flags" >&5
+    #
+    # linking flags needed when embedding
+    #
+    { echo "$as_me:$LINENO: checking python extra linking flags" >&5
 echo $ECHO_N "checking python extra linking flags... $ECHO_C" >&6; }
-        if test -z "$PYTHON_EXTRA_LDFLAGS"; then
-                PYTHON_EXTRA_LDFLAGS=`$PYTHON -c "import distutils.sysconfig; \
-                        conf = distutils.sysconfig.get_config_var; \
-                        print conf('LINKFORSHARED')"`
-        fi
-        { echo "$as_me:$LINENO: result: $PYTHON_EXTRA_LDFLAGS" >&5
+    if test -z "$PYTHON_EXTRA_LDFLAGS"; then
+            PYTHON_EXTRA_LDFLAGS=`$PYTHON -c "import distutils.sysconfig; \
+                    conf = distutils.sysconfig.get_config_var; \
+                    print conf('LINKFORSHARED')"`
+    fi
+    { echo "$as_me:$LINENO: result: $PYTHON_EXTRA_LDFLAGS" >&5
 echo "${ECHO_T}$PYTHON_EXTRA_LDFLAGS" >&6; }
+
+
+    python_saved_CPPFLAGS=$CPPFLAGS
+    python_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $PYTHON_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $PYTHON_LDFLAGS $PYTHON_LIBS"
+
+    #
+    # Check for a version of Python >= 2.1.0
+    #
+    { echo "$as_me:$LINENO: checking for a version of Python >= '2.1.0'" >&5
+echo $ECHO_N "checking for a version of Python >= '2.1.0'... $ECHO_C" >&6; }
+    ac_supports_python_ver=`$PYTHON -c "import sys, string; \
+            ver = string.split(sys.version)[0]; \
+            print ver >= '2.1.0'"`
+
+    if test "$ac_supports_python_ver" != "True"; then
+                    { { echo "$as_me:$LINENO: error:
+This version of the PYTHON_DEVEL macro
+doesn't work properly with versions of Python before
+2.1.0. You may need to install a newer version of Python.
+
+See \`config.log' for more details." >&5
+echo "$as_me: error:
+This version of the PYTHON_DEVEL macro
+doesn't work properly with versions of Python before
+2.1.0. You may need to install a newer version of Python.
+
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }    else
+            { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+    fi
+
+    CPPFLAGS=$python_saved_CPPFLAGS
+    LDFLAGS=$python_saved_LDFLAGS
 
 
 
