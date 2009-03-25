@@ -102,6 +102,17 @@ void ExecuteInPlaceOfEntry::install()
 	return;
     }
 
+	
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+      std::stringstream output;
+      output << "[TID " << pthread_self() << "] ExecuteInPlaceOfEntry::"
+  	        << "install(): thread="
+	        << toString(ThreadName(-1, dm_thread)) << "." << std::endl;
+      std::cerr << output.str();
+    }
+#endif
+
     // Get the Dyninst process pointer for the thread to be instrumented
     BPatch_process* process = dm_thread.getProcess();
     Assert(process != NULL);
@@ -113,6 +124,18 @@ void ExecuteInPlaceOfEntry::install()
 
 	// Request allocation of a variable in this process for storing a flag
 	BPatch_image* image = process->getImage();
+
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+          std::stringstream output;
+          output << "[TID " << pthread_self() << "] ExecuteInPlaceOfEntry::"
+  	            << "install(): Execute " << dm_callee << "() in place of "
+	            << dm_where << "() in thread "
+	            << " process=" << process << " image=" << image << std::endl;
+          std::cerr << output.str();
+        }
+#endif
+
 	Assert(image != NULL);
 	BPatch_type* type = image->findType("unsigned int");
 	Assert(type != NULL);
@@ -156,9 +179,21 @@ void ExecuteInPlaceOfEntry::install()
 	    body
             );
 
-        // Find the entry points of the "where" function
-        BPatch_Vector<BPatch_point*>* points = 
-	    where->findPoint(BPatch_locEntry);
+	
+#ifndef NDEBUG
+	if(Backend::isDebugEnabled()) {
+          std::stringstream output;
+          output << "[TID " << pthread_self() << "] ExecuteInPlaceOfEntry::"
+      	         << "install():  where=" << where->getName() << std::endl;
+          std::cerr << output.str();
+        }
+#endif
+
+        BPatch_Vector<BPatch_point*>* points = where->findPoint(BPatch_locEntry);
+        if (points == NULL && !strcasecmp(where->getName(),"PMPI_Init")) {
+            dm_is_installed = false;
+            return;
+        } else {
         Assert(points != NULL);
 
 	// Instruct Dyninst to allow recursive calls into instrumentation
@@ -187,6 +222,7 @@ void ExecuteInPlaceOfEntry::install()
 	    std::cerr << output.str();
 	}
 #endif
+    }
 	
     }
     
