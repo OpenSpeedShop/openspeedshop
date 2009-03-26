@@ -170,7 +170,7 @@ void offline_record_dso(const char* dsoname,
 			uint8_t is_dlopen)
 {
     if (is_dlopen)
-        hwctime_suspend_papi();
+        hwc_suspend_papi();
     OpenSS_DataHeader header;
     openss_objects objects;
     
@@ -196,5 +196,5 @@ void offline_record_dso(const char* dsoname,
     OpenSS_SetSendToFile("hwc", "openss-dsos");
     OpenSS_Send(&header, (xdrproc_t)xdr_openss_objects, &objects);
     if (is_dlopen)
-        hwctime_resume_papi();
+        hwc_resume_papi();
 }
