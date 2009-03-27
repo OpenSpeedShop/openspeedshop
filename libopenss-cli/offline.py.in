@@ -260,7 +260,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	mpi_exe_orig = mpi_executable
         if not mpi_executable.startswith("/") and not mpi_executable.startswith("."):
 	    mpi_executable = os.curdir + "/" + mpi_executable
-	ossrun_command = OpenssInstallDir + "/bin/ossrun"
+	ossrun_command = OpenssInstallDir + "/bin/ossrun -o " + os.environ['OPENSS_RAWDATA_DIR']
 	command = program.replace(mpi_exe_orig, ossrun_command + " \"" + mpi_executable)
 	command = command + "\" " +  orig_collectorname
     else:
