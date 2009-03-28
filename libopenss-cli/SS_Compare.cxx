@@ -275,6 +275,11 @@ static bool Generate_CustomView (CommandObject *cmd,
                                  std::vector<selectionTarget>& Quick_Compare_Set) {
   int64_t numQuickSets = Quick_Compare_Set.size();
   int64_t i;
+  bool Compute_Delta = (Look_For_KeyWord (cmd, "diff") || Look_For_KeyWord (cmd, "sortdiff"))
+                            ? TRUE
+                            : (Look_For_KeyWord (cmd, "nodiff")
+                                   ? FALSE
+                                   : FALSE);
 
 #if DEBUG_COMPARE
   printf("SSCOMPARE: ------------- Enter Generate_CustomView, numQuickSets=%d\n", numQuickSets);
@@ -287,7 +292,6 @@ static bool Generate_CustomView (CommandObject *cmd,
 
 
 #if DEBUG_COMPARE_SETS
-/* TEST */
   printf("SSCOMPARE: In Generate_CustomView, START 1st print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
   for (i = 0; i < numQuickSets; i++) {
     cerr << i;
@@ -424,8 +428,25 @@ static bool Generate_CustomView (CommandObject *cmd,
     return true;
   }
 
+  if (Compute_Delta) {
+   // Are we capable of generating a difference column?
+    if (numQuickSets != 2) {
+      Mark_Cmd_With_Soft_Error(cmd, "Differences between metrics are only meaningful when exactly 2 views are compared.");
+      Compute_Delta = FALSE;
+    } else if (Quick_Compare_Set[0].partial_view.empty()) {
+      Mark_Cmd_With_Soft_Error(cmd, "The first view is empty.  No differences can be computed.");
+      Compute_Delta = FALSE;
+      cmd->Result_Predefined (Quick_Compare_Set[0].partial_view);
+      return true;
+    } else if (Quick_Compare_Set[1].partial_view.empty()) {
+      Mark_Cmd_With_Soft_Error(cmd, "The second view is empty.  No differences can be computed.");
+      Compute_Delta = FALSE;
+      cmd->Result_Predefined (Quick_Compare_Set[0].partial_view);
+      return true;
+    }
+  }
+
 #if DEBUG_COMPARE_SETS
-/* TEST */
   printf("SSCOMPARE: IN Generate_CustomView, START 2nd print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
   for (i = 0; i < numQuickSets; i++) {
     cerr << i;
@@ -437,7 +458,6 @@ static bool Generate_CustomView (CommandObject *cmd,
 
 
 #if DEBUG_COMPARE_SETS
-/* TEST */
   printf("SSCOMPARE: IN Generate_CustomView, START ------- print of generated views, numQuickSets=%d\n", numQuickSets);
   cerr << "Display generated views\n";
   for (i = 0; i < numQuickSets; i++) {
@@ -482,6 +502,11 @@ static bool Generate_CustomView (CommandObject *cmd,
           for (hi = H.begin(), cnt--; (hi != H.end()) && (cnt > 0); hi++, cnt--) {
             std::string s;
             ((CommandResult_String *)(*hi))->Value(s);
+            if (Compute_Delta && (i == 0) ) {
+              std::string delta = std::string("Difference Between ") + s;
+              C->CommandResult_Headers::Add_Header (CRPTR (delta));
+              num_columns++;
+            }
             std::string p = Quick_Compare_Set[i].headerPrefix;
             int64_t h_len = p.size();
             if (h_len > 0) {
@@ -513,7 +538,6 @@ static bool Generate_CustomView (CommandObject *cmd,
     return false;
   }
 
-/* TEST */
 #if DEBUG_COMPARE_SETS
   printf("SSCOMPARE: IN Generate_CustomView, START 3rd print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
   for (i = 0; i < numQuickSets; i++) {
@@ -625,8 +649,16 @@ static bool Generate_CustomView (CommandObject *cmd,
 #endif
 
        // Map the master_vector index to the start of data for this entry.
-        Assert (Quick_Compare_Set[i].merge_map[master_index] == NULL);
-        Quick_Compare_Set[i].merge_map[master_index] = c;
+        if (Quick_Compare_Set[i].merge_map[master_index] != NULL) {
+         // This is an error and should be reported.
+          std::ostringstream M;
+          M << "The name portion of '" << last_column->Form()
+            << "' appears more than once in the view."
+            << " Only the first occurence is included in the generated comparison.";
+          Mark_Cmd_With_Soft_Error(cmd, M.ostringstream::str());
+        } else {
+          Quick_Compare_Set[i].merge_map[master_index] = c;
+        }
 
       } else if (c->Type() == CMD_RESULT_COLUMN_ENDER) {
 
@@ -676,6 +708,7 @@ static bool Generate_CustomView (CommandObject *cmd,
 
   for (int64_t rc = 0; rc < master_vector.size(); rc++) {
     CommandResult_Columns *NC = new CommandResult_Columns ();
+    CommandResult *delta = NULL;
 
    // Get data for set[0].
     if (rc < Set0_rows) {
@@ -686,6 +719,10 @@ static bool Generate_CustomView (CommandObject *cmd,
       ((CommandResult_Columns *)(*Set0i))->Value(DL);
       Assert (Set0_Columns == (DL.size() - 1));
       std::list<CommandResult *>::iterator Di = DL.begin();
+      if (Compute_Delta) {
+        delta = (*Di)->Copy();
+        NC->CommandResult_Columns::Add_Column ( delta );
+      }
       for (int64_t j = 0; j < Set0_Columns; j ++, Di++) {
         NC->CommandResult_Columns::Add_Column ( (*Di)->Copy() );
       }
@@ -711,6 +748,9 @@ static bool Generate_CustomView (CommandObject *cmd,
         std::list<CommandResult *> DL;
         ((CommandResult_Columns *)C)->Value(DL);
         std::list<CommandResult *>::iterator Di = DL.begin();
+        if (Compute_Delta) {
+          delta->AbsDiff_value( (*Di) );
+        }
         for (int64_t j = 0; j < numColumns; j ++, Di++) {
           NC->CommandResult_Columns::Add_Column ( (*Di)->Copy() );
         }
@@ -735,6 +775,7 @@ static bool Generate_CustomView (CommandObject *cmd,
   for (int64_t ec = 0; ec < num_enders; ec++) {
     CommandResult_Enders *NC = new CommandResult_Enders ();
     CommandResult *last_column = NULL;
+    CommandResult *delta = NULL;
 
    // Get data for each ender of each Quick_Compare_Set.
     for (i = 0; i < numQuickSets; i++) {
@@ -749,11 +790,20 @@ static bool Generate_CustomView (CommandObject *cmd,
         for (Di = DL.begin(); Di != DL.end(); Di++) { last_column = *Di; }
 
         Di = DL.begin();
+        if (Compute_Delta && (i == 0)) {
+          delta = (*Di)->Copy();
+          NC->CommandResult_Enders::Add_Ender ( delta );
+        } else {
+          delta->AbsDiff_value( (*Di) );
+        }
         for (int64_t j = 0; j < numColumns; j ++, Di++) {
           NC->CommandResult_Enders::Add_Ender ( (*Di)->Copy() );
         }
       } else {
        // Fill the columns with place holders.
+        if (Compute_Delta && (i == 0)) {
+          NC->CommandResult_Enders::Add_Ender ( CRPTR("") );
+        }
         for (int64_t j = 0; j < numColumns; j++) {
           NC->CommandResult_Enders::Add_Ender ( CRPTR("") );
         }
@@ -1730,13 +1780,6 @@ bool SS_cView (CommandObject *cmd) {
     }
 
   }
-/* TEST */
-/*
-  for (int64_t i = 0; i < Quick_Compare_Set.size(); i++) {
-    cerr << i;
-    Quick_Compare_Set[i].Print(cerr);
-  }
-*/
   bool success = Generate_CustomView (cmd, Quick_Compare_Set);
 
  // Need to delete the copies made of the overriding Parse components.
