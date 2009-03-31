@@ -1,5 +1,28 @@
 #! /bin/bash
 
+#
+#  This script is focused on running on Sandia systems
+#
+if [ "$1" == "help" -o "$1" = "--help" ]
+then
+  echo ""
+  echo "Usage: This script automatically compiles smg2000 and sweep3d"
+  echo "       using the Intel, PGI, and GNU compilers and the default OpenMPI MPI implementation."
+  echo ""
+  echo "       It then runs OpenSpeedShop on each of the smg2000 and sweep3d versions using:"
+  echo "       the pcsamp, usertime, hwc, hwctime, io, iot, mpi, and mpit experiments."
+  echo ""
+  echo "       It verifies the results only by searching for a common expected value.  At this time"
+  echo "       no performance ratios are tested for."
+  echo ""
+  exit
+fi
+
+#
+#
+debug_flag=1
+
+
 ##set -x
 basedir=`pwd`
 
@@ -29,15 +52,40 @@ fi
 
 for testname in `ls *.tar.gz`
 do
-  (echo "1st loop, testname=" $testname)
+   if [ debug_flag == 1 ]
+   then
+      echo "1st loop, testname=" $testname
+   fi
+
    NEWNAME=$(echo "$testname" | sed -e 's/.tar.gz//')
-   echo "1st loop, NEWNAME=" $NEWNAME
+
+   if [ debug_flag == 1 ]
+   then
+     echo "1st loop, NEWNAME=" $NEWNAME
+   fi
+
    cd $basedir
-   echo "1st loop, basedir=" $basedir
+
+   if [ debug_flag == 1 ]
+   then
+     echo "1st loop, basedir=" $basedir
+   fi
+
+#thiscompiler="intel"
+#  for thiscompiler in intel pgi gnu
+
+#  loop here through a compiler list
+   for thiscompiler in pgi
+   do
 
 
-echo $testsuffix
-echo $testCC
+
+     if [ debug_flag == 1 ]
+     then
+       echo "thiscompiler=" $thiscompiler  
+       echo "testsuffix=" $testsuffix
+       echo "testCC=" $testCC
+     fi
 
 
 hostabi=`uname -m`
@@ -408,6 +456,10 @@ REQ_NNODES=2
 REQ_SCRIPT="$RUN_DIR/sweep3d_openmpi_script.sh"
 sbatch --account=FY093085 --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
 fi
+
+# end loop through the compiler list
+done
+
 
 # end loop through the test list
 done
