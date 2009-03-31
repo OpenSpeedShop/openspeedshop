@@ -198,6 +198,18 @@ theopenss=`which openss`
 echo "NOTE: Using openss=" $theopenss
 echo "NOTE: Using the raw data directory storage environment variable: OPENSS_RAWDATA_DIR=" $OPENSS_RAWDATA_DIR
 
+#
+# Create the default test configuration file if it does not exist
+#
+if [ !-a default_test_config ]
+then
+cat > default_test_config << EOF
+2
+16
+pgi
+jegkas@gmail.com
+EOF
+fi
 
 cat > common_commands << EOF
 wait
@@ -580,13 +592,55 @@ executable=`which sweep3d.mpi`
 echo "Current directory is:" `$pwd`
 echo "sweep3d.mpi executable path directory is:" $executable
 #
+# Read in test parameters
+#
+# script defaults
+NodeCount=2
+RankCount=16
+CompilerType="gnu"
+EmailAddress="jegkas@gmail.com"
+
+if [ -a default_test_config ] 
+then
+  n=0
+  while read curline; do
+    n=`expr $n + 1`
+    echo "$curline"
+    echo "$n" 
+
+    if [ $n == 1 ]
+    then
+       NodeCount=$curline
+    elif [ $n == 2 ]
+    then
+       RankCount=$curline
+    elif [ $n == 3 ]
+    then
+       CompilerType=$curline
+    elif [ $n == 4 ]
+    then
+       EmailAddress=$curline
+    fi
+  done < "default_test_config"
+fi
+
+#
+if [ debug_flag == 1 ]
+then
+  echo "NodeCount: $NodeCount"
+  echo "RankCount: $RankCount"
+  echo "CompilerType: $CompilerType"
+  echo "EmailAddress: $EmailAddress"
+fi
+
+#
 # Run all experiments
 #
 
 #
 # Run pcsamp and analyze the results
 #
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./sweep3d.mpi" pcsamp
+openss -offline -f "/usr/bin/srun -N $NodeCount -n $RankCount -p pdebug ./sweep3d.mpi" pcsamp
 ls *.openss | grep "sweep3d.mpi-pcsamp\." > sweep3d_intel_create_pcsamp
 echo "-------------------------------------"
 echo "BEGIN Analyzing sweep3d.mpi pcsamp experiment"
