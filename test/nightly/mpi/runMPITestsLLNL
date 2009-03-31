@@ -201,8 +201,11 @@ echo "NOTE: Using the raw data directory storage environment variable: OPENSS_RA
 #
 # Create the default test configuration file if it does not exist
 #
-if [ !-a default_test_config ]
+if [ -a default_test_config ]
 then
+  echo "NOTE: Using default_test_config file which already exists"
+else
+  echo "NOTE: Creating default_test_config file"
 cat > default_test_config << EOF
 2
 16
@@ -228,8 +231,8 @@ cat > smg2000_intel_script.sh << EOF
 use openss_mrnet_x86_64
 which openss
 executable=`which smg2000`
-echo "Current directory is:" `$pwd`
-echo "smg2000 executable path directory is:" $executable
+echo "Current directory is:" `\$pwd`
+echo "smg2000 executable path directory is:" \$executable
 #
 # Run all experiments
 #
@@ -237,7 +240,7 @@ echo "smg2000 executable path directory is:" $executable
 #
 # Run pcsamp and analyze the results
 #
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./smg2000 -n 25 25 25" pcsamp
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 25 25 25" pcsamp
 ls *.openss | grep "smg2000-pcsamp\." > smg2000_intel_create_pcsamp
 echo "-------------------------------------"
 echo "BEGIN Analyzing smg2000 pcsamp experiment"
@@ -256,7 +259,7 @@ echo "-------------------------------------"
 #
 # Run usertime and analyze the results
 #
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./smg2000 -n 25 25 25" usertime
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 25 25 25" usertime
 ls *.openss | grep "smg2000-usertime\." > smg2000_intel_create_usertime
 
 echo "-------------------------------------"
@@ -276,7 +279,7 @@ echo ""
 
 
 
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./smg2000 -n 25 25 25" hwc
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 25 25 25" hwc
 ls *.openss | grep "smg2000-hwc\." > smg2000_intel_create_hwc
 
 echo ""
@@ -294,7 +297,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./smg2000 -n 25 25 25" hwctime
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 25 25 25" hwctime
 ls *.openss | grep "smg2000-hwctime\." > smg2000_intel_create_hwctime
 
 echo ""
@@ -314,7 +317,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./smg2000 -n 25 25 25" io
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 25 25 25" io
 ls *.openss | grep "smg2000-io\." > smg2000_intel_create_io
 
 echo ""
@@ -334,7 +337,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./smg2000 -n 25 25 25" iot
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 25 25 25" iot
 ls *.openss | grep "smg2000-iot\." > smg2000_intel_create_iot
 
 echo ""
@@ -354,7 +357,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./smg2000 -n 5 5 5" mpi
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 5 5 5" mpi
 ls *.openss | grep "smg2000-mpi\-" > smg2000_intel_create_mpi
 
 echo ""
@@ -366,7 +369,7 @@ echo "log -f smg2000_intel_mpi_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "32  PMPI_Finalize" smg2000_intel_mpi_results.log | cat > smg2000_intel_mpi_results.status
+grep "\$RankCount  PMPI_Finalize" smg2000_intel_mpi_results.log | cat > smg2000_intel_mpi_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 mpi experiment"
@@ -374,7 +377,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./smg2000 -n 5 5 5" mpit
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 5 5 5" mpit
 
 #
 # Find corresponding experiment database files and create files that can be used to restore the databases
@@ -393,7 +396,7 @@ echo "log -f smg2000_intel_mpit_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "32  PMPI_Finalize" smg2000_intel_mpi_results.log | cat > smg2000_intel_mpi_results.status
+grep "\$RankCount  PMPI_Finalize" smg2000_intel_mpi_results.log | cat > smg2000_intel_mpi_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 mpit experiment"
@@ -428,20 +431,20 @@ SUBJECT="LLNL OpenSpeedShop MPI smg2000 executable test results"
 EMAIL="jegkas@gmail.com"
 # Email text/message
 EMAILMESSAGE="/tmp/openss_test_message.txt"
-echo " OpenSpeedShop Performance Tool SMG2000 Test Results" >$EMAILMESSAGE
-echo "" >>$EMAILMESSAGE
-echo " Intel compiler, 2 Nodes 32 ranks">> $EMAILMESSAGE
+echo " OpenSpeedShop Performance Tool SMG2000 Test Results" >\$EMAILMESSAGE
+echo "" >>\$EMAILMESSAGE
+echo " Intel compiler, $NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
 thisuname=`uname -srnmo`
-echo " System uname: " $thisuname>> $EMAILMESSAGE
+echo " System uname: " \$thisuname>> \$EMAILMESSAGE
 thisdate=`date`
-echo " Date/time of run: " $thisdate>> $EMAILMESSAGE
+echo " Date/time of run: " \$thisdate>> \$EMAILMESSAGE
 thisdir=`pwd`
-echo " Directory where tests were run: " $thisdir>> $EMAILMESSAGE
-echo "" >>$EMAILMESSAGE
+echo " Directory where tests were run: " \$thisdir>> \$EMAILMESSAGE
+echo "" >>\$EMAILMESSAGE
 #
 testval=`ls *.status | wc -l`
-echo " Expected tests: 8">> $EMAILMESSAGE
-echo " Completed tests: " $testval>> $EMAILMESSAGE
+echo " Expected tests: 8">> \$EMAILMESSAGE
+echo " Completed tests: " \$testval>> \$EMAILMESSAGE
 #
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
@@ -450,12 +453,12 @@ if [ -a smg2000_intel_pcsamp_results.status ]
 then
   if [ -s smg2000_intel_pcsamp_results.status ]
   then
-    echo " PCSAMP EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " PCSAMP EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " PCSAMP EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " PCSAMP EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " PCSAMP EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " PCSAMP EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
 #
@@ -466,12 +469,12 @@ if [ -a smg2000_intel_usertime_results.status ]
 then
   if [ -s smg2000_intel_usertime_results.status ]
   then
-    echo " USERTIME EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " USERTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " USERTIME EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " USERTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " USERTIME EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " USERTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
 #
@@ -482,12 +485,12 @@ if [ -a smg2000_intel_hwc_results.status ]
 then
   if [ -s smg2000_intel_usertime_results.status ]
   then
-    echo " HWC EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " HWC EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " HWC EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " HWC EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " HWC EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " HWC EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
 #
@@ -498,12 +501,12 @@ if [ -a smg2000_intel_hwctime_results.status ]
 then
   if [ -s smg2000_intel_hwctime_results.status ]
   then
-    echo " HWCTIME EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " HWCTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " HWCTIME EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " HWCTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " HWCTIME EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " HWCTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
 #
@@ -514,12 +517,12 @@ if [ -a smg2000_intel_io_results.status ]
 then
   if [ -s smg2000_intel_io_results.status ]
   then
-    echo " I/O EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " I/O EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " I/O EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " I/O EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " I/O EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " I/O EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
 #
@@ -530,12 +533,12 @@ if [ -a smg2000_intel_iot_results.status ]
 then
   if [ -s smg2000_intel_iot_results.status ]
   then
-    echo " I/O TRACE EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " I/O TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " I/O TRACE EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " I/O TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " I/O TRACE EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " I/O TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
 #
@@ -546,12 +549,12 @@ if [ -a smg2000_intel_mpi_results.status ]
 then
   if [ -s smg2000_intel_mpi_results.status ]
   then
-    echo " MPI EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " MPI EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " MPI EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " MPI EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " MPI EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " MPI EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
 #
@@ -562,17 +565,17 @@ if [ -a smg2000_intel_mpit_results.status ]
 then
   if [ -s smg2000_intel_mpit_results.status ]
   then
-    echo " MPI TRACE EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " MPI TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " MPI TRACE EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " MPI TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " MPI TRACE EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " MPI TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
-#echo "This is an email message test">> $EMAILMESSAGE
-#echo "This is email text" >>$EMAILMESSAGE
+#echo "This is an email message test">> \$EMAILMESSAGE
+#echo "This is email text" >>\$EMAILMESSAGE
 # send an email using /bin/mail
-/bin/mail -s "$SUBJECT" "$EMAIL" < $EMAILMESSAGE
+/bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
 EOF
 
 # Send out the results for smg2000
@@ -589,8 +592,8 @@ cat > sweep3d_intel_script.sh << EOF
 use openss_mrnet_x86_64
 which openss
 executable=`which sweep3d.mpi`
-echo "Current directory is:" `$pwd`
-echo "sweep3d.mpi executable path directory is:" $executable
+echo "Current directory is:" `\$pwd`
+echo "sweep3d.mpi executable path directory is:" \$executable
 #
 # Read in test parameters
 #
@@ -602,24 +605,26 @@ EmailAddress="jegkas@gmail.com"
 
 if [ -a default_test_config ] 
 then
+  echo "Current directory is:" `\$pwd`
+else
   n=0
   while read curline; do
-    n=`expr $n + 1`
-    echo "$curline"
-    echo "$n" 
+    n=`expr \$n + 1`
+    echo "\$curline"
+    echo "\$n" 
 
-    if [ $n == 1 ]
+    if [ \$n == 1 ]
     then
-       NodeCount=$curline
-    elif [ $n == 2 ]
+       NodeCount=\$curline
+    elif [ \$n == 2 ]
     then
-       RankCount=$curline
-    elif [ $n == 3 ]
+       RankCount=\$curline
+    elif [ \$n == 3 ]
     then
-       CompilerType=$curline
-    elif [ $n == 4 ]
+       CompilerType=\$curline
+    elif [ \$n == 4 ]
     then
-       EmailAddress=$curline
+       EmailAddress=\$curline
     fi
   done < "default_test_config"
 fi
@@ -627,10 +632,10 @@ fi
 #
 if [ debug_flag == 1 ]
 then
-  echo "NodeCount: $NodeCount"
-  echo "RankCount: $RankCount"
-  echo "CompilerType: $CompilerType"
-  echo "EmailAddress: $EmailAddress"
+  echo "NodeCount: \$NodeCount"
+  echo "RankCount: \$RankCount"
+  echo "CompilerType: \$CompilerType"
+  echo "EmailAddress: \$EmailAddress"
 fi
 
 #
@@ -640,7 +645,7 @@ fi
 #
 # Run pcsamp and analyze the results
 #
-openss -offline -f "/usr/bin/srun -N $NodeCount -n $RankCount -p pdebug ./sweep3d.mpi" pcsamp
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./sweep3d.mpi" pcsamp
 ls *.openss | grep "sweep3d.mpi-pcsamp\." > sweep3d_intel_create_pcsamp
 echo "-------------------------------------"
 echo "BEGIN Analyzing sweep3d.mpi pcsamp experiment"
@@ -659,7 +664,7 @@ echo "-------------------------------------"
 #
 # Run usertime and analyze the results
 #
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./sweep3d.mpi" usertime
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./sweep3d.mpi" usertime
 ls *.openss | grep "sweep3d.mpi-usertime\." > sweep3d_intel_create_usertime
 
 echo "-------------------------------------"
@@ -679,7 +684,7 @@ echo ""
 
 
 
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./sweep3d.mpi" hwc
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./sweep3d.mpi" hwc
 ls *.openss | grep "sweep3d.mpi-hwc\." > sweep3d_intel_create_hwc
 
 echo ""
@@ -697,7 +702,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./sweep3d.mpi" hwctime
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./sweep3d.mpi" hwctime
 ls *.openss | grep "sweep3d.mpi-hwctime\." > sweep3d_intel_create_hwctime
 
 echo ""
@@ -717,7 +722,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./sweep3d.mpi" io
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./sweep3d.mpi" io
 ls *.openss | grep "sweep3d.mpi-io\." > sweep3d_intel_create_io
 
 echo ""
@@ -737,7 +742,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./sweep3d.mpi" iot
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./sweep3d.mpi" iot
 ls *.openss | grep "sweep3d.mpi-iot\." > sweep3d_intel_create_iot
 
 echo ""
@@ -757,7 +762,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./sweep3d.mpi" mpi
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./sweep3d.mpi" mpi
 ls *.openss | grep "sweep3d.mpi-mpi\-" > sweep3d_intel_create_mpi
 
 echo ""
@@ -769,7 +774,7 @@ echo "log -f sweep3d_intel_mpi_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "32  PMPI_Finalize" sweep3d_intel_mpi_results.log | cat > sweep3d_intel_mpi_results.status
+grep "\$RankCount  PMPI_Finalize" sweep3d_intel_mpi_results.log | cat > sweep3d_intel_mpi_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi mpi experiment"
@@ -777,7 +782,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/usr/bin/srun -N 2 -n 32 -p pdebug ./sweep3d.mpi" mpit
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./sweep3d.mpi" mpit
 
 #
 # Find corresponding experiment database files and create files that can be used to restore the databases
@@ -796,7 +801,7 @@ echo "log -f sweep3d_intel_mpit_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "32  PMPI_Finalize" sweep3d_intel_mpi_results.log | cat > sweep3d_intel_mpi_results.status
+grep "\$RankCount  PMPI_Finalize" sweep3d_intel_mpi_results.log | cat > sweep3d_intel_mpi_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi mpit experiment"
@@ -827,27 +832,70 @@ sh ${REQ_SCRIPT}
 cat > sweep_intel_email.sh << EOF
 #! /bin/bash
 
+
+#
+# Read in test parameters
+#
+# script defaults
+NodeCount=2
+RankCount=16
+CompilerType="gnu"
+EmailAddress="jegkas@gmail.com"
+
+if [ -a default_test_config ] 
+then
+  n=0
+  while read curline; do
+    n=`expr \$n + 1`
+    echo "\$curline"
+    echo "\$n" 
+
+    if [ \$n == 1 ]
+    then
+       NodeCount=\$curline
+    elif [ \$n == 2 ]
+    then
+       RankCount=\$curline
+    elif [ \$n == 3 ]
+    then
+       CompilerType=\$curline
+    elif [ \$n == 4 ]
+    then
+       EmailAddress=\$curline
+    fi
+  done < "default_test_config"
+fi
+
+#
+if [ debug_flag == 1 ]
+then
+  echo "NodeCount: \$NodeCount"
+  echo "RankCount: \$RankCount"
+  echo "CompilerType: \$CompilerType"
+  echo "EmailAddress: \$EmailAddress"
+fi
+
 # script to send test results email
 # email subject
 SUBJECT="LLNL OpenSpeedShop MPI sweep3d.mpi executable test results"
 # Email To ?
-EMAIL="jegkas@gmail.com"
+EMAIL=\$EmailAddress
 # Email text/message
 EMAILMESSAGE="/tmp/openss_test_message.txt"
-echo " OpenSpeedShop Performance Tool SWEEP3D.MPI Test Results" >$EMAILMESSAGE
-echo "" >>$EMAILMESSAGE
-echo " Intel compiler, 2 Nodes 32 ranks">> $EMAILMESSAGE
+echo " OpenSpeedShop Performance Tool SWEEP3D.MPI Test Results" >\$EMAILMESSAGE
+echo "" >>\$EMAILMESSAGE
+echo " Intel compiler, \$NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
 thisuname=`uname -srnmo`
-echo " System uname: " $thisuname>> $EMAILMESSAGE
+echo " System uname: " \$thisuname>> \$EMAILMESSAGE
 thisdate=`date`
-echo " Date/time of run: " $thisdate>> $EMAILMESSAGE
+echo " Date/time of run: " \$thisdate>> \$EMAILMESSAGE
 thisdir=`pwd`
-echo " Directory where tests were run: " $thisdir>> $EMAILMESSAGE
-echo "" >>$EMAILMESSAGE
+echo " Directory where tests were run: " \$thisdir>> \$EMAILMESSAGE
+echo "" >>\$EMAILMESSAGE
 #
 testval=`ls *.status | wc -l`
-echo " Expected tests: 8">> $EMAILMESSAGE
-echo " Completed tests: " $testval>> $EMAILMESSAGE
+echo " Expected tests: 8">> \$EMAILMESSAGE
+echo " Completed tests: " \$testval>> \$EMAILMESSAGE
 #
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
@@ -856,12 +904,12 @@ if [ -a sweep3d_intel_pcsamp_results.status ]
 then
   if [ -s sweep3d_intel_pcsamp_results.status ]
   then
-    echo " PCSAMP EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " PCSAMP EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " PCSAMP EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " PCSAMP EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " PCSAMP EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " PCSAMP EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
 #
@@ -872,12 +920,12 @@ if [ -a sweep3d_intel_usertime_results.status ]
 then
   if [ -s sweep3d_intel_usertime_results.status ]
   then
-    echo " USERTIME EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " USERTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " USERTIME EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " USERTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " USERTIME EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " USERTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
 #
@@ -888,12 +936,12 @@ if [ -a sweep3d_intel_hwc_results.status ]
 then
   if [ -s sweep3d_intel_usertime_results.status ]
   then
-    echo " HWC EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " HWC EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " HWC EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " HWC EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " HWC EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " HWC EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
 #
@@ -904,12 +952,12 @@ if [ -a sweep3d_intel_hwctime_results.status ]
 then
   if [ -s sweep3d_intel_hwctime_results.status ]
   then
-    echo " HWCTIME EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " HWCTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " HWCTIME EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " HWCTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " HWCTIME EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " HWCTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
 #
@@ -920,12 +968,12 @@ if [ -a sweep3d_intel_io_results.status ]
 then
   if [ -s sweep3d_intel_io_results.status ]
   then
-    echo " I/O EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " I/O EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " I/O EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " I/O EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " I/O EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " I/O EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
 #
@@ -936,12 +984,12 @@ if [ -a sweep3d_intel_iot_results.status ]
 then
   if [ -s sweep3d_intel_iot_results.status ]
   then
-    echo " I/O TRACE EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " I/O TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " I/O TRACE EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " I/O TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " I/O TRACE EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " I/O TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
 #
@@ -952,12 +1000,12 @@ if [ -a sweep3d_intel_mpi_results.status ]
 then
   if [ -s sweep3d_intel_mpi_results.status ]
   then
-    echo " MPI EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " MPI EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " MPI EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " MPI EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " MPI EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " MPI EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
 #
@@ -968,17 +1016,17 @@ if [ -a sweep3d_intel_mpit_results.status ]
 then
   if [ -s sweep3d_intel_mpit_results.status ]
   then
-    echo " MPI TRACE EXPERIMENT PASSED">> $EMAILMESSAGE
+    echo " MPI TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " MPI TRACE EXPERIMENT FAILED">> $EMAILMESSAGE
+    echo " MPI TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " MPI TRACE EXPERIMENT FAILED">> $EMAILMESSAGE
+  echo " MPI TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
-#echo "This is an email message test">> $EMAILMESSAGE
-#echo "This is email text" >>$EMAILMESSAGE
+#echo "This is an email message test">> \$EMAILMESSAGE
+#echo "This is email text" >>\$EMAILMESSAGE
 # send an email using /bin/mail
-/bin/mail -s "$SUBJECT" "$EMAIL" < $EMAILMESSAGE
+/bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
 EOF
 
 # Send out the results for sweep3d.mpi
