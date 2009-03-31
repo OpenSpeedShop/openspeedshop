@@ -479,9 +479,10 @@ EmailAddress="jegkas@gmail.com"
 
 if [ -a default_test_config ] 
 then
-  n=0
+  declare -i n=0
   while read curline; do
-    n=`expr \$n + 1`
+#    n=`expr \$n + 1`
+    let "n += 1"
     echo "\$curline"
     echo "\$n" 
 
@@ -694,9 +695,10 @@ if [ -a default_test_config ]
 then
   echo "Current directory is:" `\$pwd`
 else
-  n=0
+  declare -i n=0
   while read curline; do
-    n=`expr \$n + 1`
+#    n=`expr \$n + 1`
+    let "n += 1"
     echo "\$curline"
     echo "\$n" 
 
