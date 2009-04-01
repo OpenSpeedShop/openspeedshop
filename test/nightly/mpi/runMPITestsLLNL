@@ -253,7 +253,7 @@ then
   declare -i n=0
   while read curline; do
 #    n=`expr \$n + 1`
-    let "n += 1"
+    let \"n += 1\"
     echo "\$curline"
     echo "\$n" 
 
@@ -490,7 +490,7 @@ then
   declare -i n=0
   while read curline; do
 #    n=`expr \$n + 1`
-    let "n += 1"
+    let \"n += 1\"
     echo "\$curline"
     echo "\$n" 
 
@@ -705,7 +705,7 @@ then
   declare -i n=0
   while read curline; do
 #    n=`expr \$n + 1`
-    let "n += 1"
+    let \"n += 1\"
     echo "\$curline"
     echo "\$n" 
 
@@ -943,7 +943,7 @@ then
   declare -i n=0
   while read curline; do
 #    n=`expr \$n + 1`
-    let "n += 1"
+    let \"n += 1\"
     echo "\$curline"
     echo "\$n" 
 
