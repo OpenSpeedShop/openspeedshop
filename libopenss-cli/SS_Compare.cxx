@@ -484,6 +484,7 @@ static bool Generate_CustomView (CommandObject *cmd,
   int64_t num_columns = 0;
   int64_t rows_in_Set0 = 0;
   int64_t enders_in_allSets = 0;
+  bool diff_column_needed = Compute_Delta;
   CommandResult_Headers *C = new CommandResult_Headers ();
   CommandResult *last_header = NULL;
   std::list<CommandResult *>::iterator coi;
@@ -502,10 +503,11 @@ static bool Generate_CustomView (CommandObject *cmd,
           for (hi = H.begin(), cnt--; (hi != H.end()) && (cnt > 0); hi++, cnt--) {
             std::string s;
             ((CommandResult_String *)(*hi))->Value(s);
-            if (Compute_Delta && (i == 0) ) {
+            if (diff_column_needed) {
               std::string delta = std::string("Difference Between ") + s;
               C->CommandResult_Headers::Add_Header (CRPTR (delta));
               num_columns++;
+              diff_column_needed = false;
             }
             std::string p = Quick_Compare_Set[i].headerPrefix;
             int64_t h_len = p.size();
@@ -729,6 +731,9 @@ static bool Generate_CustomView (CommandObject *cmd,
       Set0i++;
     } else {
      // Fill the columns with place holders.
+      if (Compute_Delta) {
+        NC->CommandResult_Columns::Add_Column ( CRPTR("") );
+      }
       for (int64_t j = 0; j < Set0_Columns; j++) {
         NC->CommandResult_Columns::Add_Column ( CRPTR("") );
       }
@@ -749,7 +754,7 @@ static bool Generate_CustomView (CommandObject *cmd,
         ((CommandResult_Columns *)C)->Value(DL);
         std::list<CommandResult *>::iterator Di = DL.begin();
         if (Compute_Delta) {
-          delta->AbsDiff_value( (*Di) );
+          NC->CommandResult_Columns::Column_AbsDiff( (*Di), 0 );
         }
         for (int64_t j = 0; j < numColumns; j ++, Di++) {
           NC->CommandResult_Columns::Add_Column ( (*Di)->Copy() );
@@ -790,11 +795,13 @@ static bool Generate_CustomView (CommandObject *cmd,
         for (Di = DL.begin(); Di != DL.end(); Di++) { last_column = *Di; }
 
         Di = DL.begin();
-        if (Compute_Delta && (i == 0)) {
-          delta = (*Di)->Copy();
-          NC->CommandResult_Enders::Add_Ender ( delta );
-        } else {
-          delta->AbsDiff_value( (*Di) );
+        if (Compute_Delta) {
+          if (i == 0) {
+            delta = (*Di)->Copy();
+            NC->CommandResult_Enders::Add_Ender ( delta );
+          } else {
+            NC->CommandResult_Enders::Enders_AbsDiff( (*Di), 0 );
+          }
         }
         for (int64_t j = 0; j < numColumns; j ++, Di++) {
           NC->CommandResult_Enders::Add_Ender ( (*Di)->Copy() );

@@ -1445,6 +1445,41 @@ class CommandResult_Enders :
   void Value (std::list<CommandResult *>& R) {
     R = Enders;
   }
+  void Enders_AbsDiff (CommandResult *A, int IDX) {
+    cmd_result_type_enum T = A->Type();
+    if ( (T == CMD_RESULT_ADDRESS) ||
+         (T == CMD_RESULT_UINT) ||
+         (T == CMD_RESULT_INT) ||
+         (T == CMD_RESULT_FLOAT) ||
+         (T == CMD_RESULT_DURATION) ||
+         (T == CMD_RESULT_FLOAT) ) {
+     // Determine which column value to use.
+      CommandResult *delta = NULL;
+      std::list<CommandResult *>::iterator cri = Enders.begin();
+      int64_t column_num = 0;
+      for (cri = Enders.begin(); cri != Enders.end(); cri++) {
+        if (column_num++ == IDX) {
+          delta = (*cri);
+          break;
+        }
+      }
+      if (delta != NULL) {
+        cmd_result_type_enum T = delta->Type();
+        if ( (T == CMD_RESULT_ADDRESS) ||
+             (T == CMD_RESULT_UINT) ||
+             (T == CMD_RESULT_INT) ||
+             (T == CMD_RESULT_FLOAT) ||
+             (T == CMD_RESULT_DURATION) ||
+             (T == CMD_RESULT_FLOAT) ) {
+           // Calculate differences with the first column entry.
+            delta->AbsDiff_value( A );
+        } else {
+          Enders.insert (cri, A->Copy());
+          Enders.erase (cri);
+        }
+      }
+    }
+  }
 
   virtual std::string Form () {
     std::string S;
@@ -1509,6 +1544,41 @@ class CommandResult_Columns :
   }
   void Value (std::list<CommandResult *>& R) {
     R = Columns;
+  }
+  void Column_AbsDiff (CommandResult *A, int IDX) {
+    cmd_result_type_enum T = A->Type();
+    if ( (T == CMD_RESULT_ADDRESS) ||
+         (T == CMD_RESULT_UINT) ||
+         (T == CMD_RESULT_INT) ||
+         (T == CMD_RESULT_FLOAT) ||
+         (T == CMD_RESULT_DURATION) ||
+         (T == CMD_RESULT_FLOAT) ) {
+     // Determine which column value to use.
+      CommandResult *delta = NULL;
+      std::list<CommandResult *>::iterator cri = Columns.begin();
+      int64_t column_num = 0;
+      for (cri = Columns.begin(); cri != Columns.end(); cri++) {
+        if (column_num++ == IDX) {
+          delta = (*cri);
+          break;
+        }
+      }
+      if (delta != NULL) {
+        cmd_result_type_enum T = delta->Type();
+        if ( (T == CMD_RESULT_ADDRESS) ||
+             (T == CMD_RESULT_UINT) ||
+             (T == CMD_RESULT_INT) ||
+             (T == CMD_RESULT_FLOAT) ||
+             (T == CMD_RESULT_DURATION) ||
+             (T == CMD_RESULT_FLOAT) ) {
+           // Calculate differences with the first column entry.
+            delta->AbsDiff_value( A );
+        } else {
+          Columns.insert (cri, A->Copy());
+          Columns.erase (cri);
+        }
+      }
+    }
   }
 
   virtual std::string Form () {
