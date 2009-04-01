@@ -440,7 +440,7 @@ echo "log -f smg2000_intel_mvapich_mpit_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "\$RankCount  PMPI_Finalize" smg2000_intel_mvapich_mpi_results.log | cat > smg2000_intel_mvapich_mpi_results.status
+grep "\$RankCount  PMPI_Finalize" smg2000_intel_mvapich_mpit_results.log | cat > smg2000_intel_mvapich_mpit_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 mpit experiment"
@@ -890,7 +890,7 @@ echo "log -f sweep3d_intel_mvapich_mpit_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "\$RankCount  PMPI_Finalize" sweep3d_intel_mvapich_mpi_results.log | cat > sweep3d_intel_mvapich_mpi_results.status
+grep "\$RankCount  PMPI_Finalize" sweep3d_intel_mvapich_mpit_results.log | cat > sweep3d_intel_mvapich_mpit_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi mpit experiment"
