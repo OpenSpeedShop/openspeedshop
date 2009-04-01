@@ -916,9 +916,9 @@ REQ_SCRIPT="$RUN_DIR/sweep3d_intel_mvapich_script.sh"
 sh ${REQ_SCRIPT}
 #exit
 
-# sweep_intel_email.sh
+# sweep_intel_mvapich_email.sh
 
-cat > sweep_intel_email.sh << EOF
+cat > sweep_intel_mvapich_email.sh << EOF
 #! /bin/bash
 
 
@@ -974,11 +974,11 @@ EMAILMESSAGE="/tmp/openss_test_message.txt"
 echo " OpenSpeedShop Performance Tool SWEEP3D.MPI Test Results" >\$EMAILMESSAGE
 echo "" >>\$EMAILMESSAGE
 echo " Intel compiler, \$NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
-thisuname=`uname -srnmo`
+thisuname="\`uname -srnmo\`"
 echo " System uname: " \$thisuname>> \$EMAILMESSAGE
-thisdate=`date`
+thisdate="\`date\`"
 echo " Date/time of run: " \$thisdate>> \$EMAILMESSAGE
-thisdir=`pwd`
+thisdir="\`pwd\`"
 echo " Directory where tests were run: " \$thisdir>> \$EMAILMESSAGE
 echo "" >>\$EMAILMESSAGE
 #
@@ -1119,8 +1119,8 @@ fi
 EOF
 
 # Send out the results for sweep3d.mpi
-# sweep_intel_email.sh
-EMAIL_REQ_SCRIPT="$RUN_DIR/sweep_intel_email.sh"
+# sweep_intel_mvapich_email.sh
+EMAIL_REQ_SCRIPT="$RUN_DIR/sweep_intel_mvapich_email.sh"
 sh ${EMAIL_REQ_SCRIPT}
 
 fi
