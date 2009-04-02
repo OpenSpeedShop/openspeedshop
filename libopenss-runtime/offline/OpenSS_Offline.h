@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) 2007 The Krell Institue. All Rights Reserved.
+** Copyright (c) 2007,2008,2009 The Krell Institue. All Rights Reserved.
 ** Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
@@ -37,7 +37,6 @@ extern "C"
 
 int OpenSS_GetDLInfo(pid_t pid, char *path);
 void OpenSS_InitializeParameters (openss_expinfo *info);
-extern int OpenSS_mpi_rank;
 
 #ifdef  __cplusplus
 }

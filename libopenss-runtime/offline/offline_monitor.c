@@ -57,7 +57,6 @@
 extern void offline_start_sampling(const char* arguments);
 extern void offline_stop_sampling(const char* arguments);
 extern void offline_record_dso(const char* dsoname);
-int OpenSS_mpi_rank = -1;
 
 #if defined(_MONITOR_H_)
 void monitor_fini_process(int how, void *data)
@@ -74,9 +73,6 @@ void monitor_fini_process(void)
 
     /*collector stop_sampling does not use the arguments param */
     offline_stop_sampling(NULL);
-    OpenSS_mpi_rank = monitor_mpi_comm_rank();
-    //fprintf(stderr,"OPENSS monitor_fini_process callback: OpenSS_mpi_rank = %d\n",
-    //OpenSS_mpi_rank);
 }
 
 #if defined(_MONITOR_H_)
@@ -107,9 +103,6 @@ void monitor_fini_library(void)
 void monitor_fini_thread(void *ptr)
 {
     offline_stop_sampling(NULL);
-    OpenSS_mpi_rank = monitor_mpi_comm_rank();
-    //fprintf(stderr,"OPENSS monitor_fini_process callback: OpenSS_mpi_rank = %d\n",
-    //OpenSS_mpi_rank);
     return (ptr);
 }
 
@@ -162,8 +155,5 @@ void monitor_post_fork(pid_t child, void *data)
 #if defined(_MONITOR_H_)
 void monitor_fini_mpi(void)
 {
-    OpenSS_mpi_rank = monitor_mpi_comm_rank();
-    //fprintf(stderr,"OPENSS OpenSS_mpi_rank callback: OpenSS_mpi_rank = %d\n",
-    //OpenSS_mpi_rank);
 }
 #endif

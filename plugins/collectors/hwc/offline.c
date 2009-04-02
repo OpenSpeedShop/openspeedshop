@@ -116,7 +116,7 @@ void offline_stop_sampling(const char* in_arguments)
     OpenSS_InitializeParameters(&info);
     info.collector = strdup("hwc");
     info.exename = strdup(OpenSS_GetExecutablePath());
-    info.rank = OpenSS_mpi_rank;
+    info.rank = monitor_mpi_comm_rank();
 
     /* Access the environment-specified arguments */
     const char* sampling_rate = getenv("OPENSS_HWC_THRESHOLD");

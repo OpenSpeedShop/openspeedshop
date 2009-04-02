@@ -98,7 +98,7 @@ void offline_stop_sampling(const char* in_arguments)
     OpenSS_InitializeParameters(&info);
     info.collector = strdup("io");
     info.exename = strdup(OpenSS_GetExecutablePath());
-    info.rank = OpenSS_mpi_rank;
+    info.rank = monitor_mpi_comm_rank();
     if (io_traced != NULL && strcmp(io_traced,"") != 0) {
 	info.traced = strdup(io_traced);
     } else {

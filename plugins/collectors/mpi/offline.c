@@ -33,7 +33,6 @@
 #include "MPITraceableFunctions.h"
 
 uint64_t mpi_time_started;
-extern int OpenSS_mpi_rank;
 
 /**
  * Start offline sampling.
@@ -91,7 +90,7 @@ void offline_stop_sampling(const char* in_arguments)
     OpenSS_InitializeParameters(&info);
     info.collector = strdup("mpi");
     info.exename = strdup(OpenSS_GetExecutablePath());
-    info.rank = OpenSS_mpi_rank;
+    info.rank = monitor_mpi_comm_rank();
 
     /* Access the environment-specified arguments */
     const char* mpi_traced = getenv("OPENSS_MPI_TRACED");

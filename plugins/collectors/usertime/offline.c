@@ -98,7 +98,7 @@ void offline_stop_sampling(const char* in_arguments)
     OpenSS_InitializeParameters(&info);
     info.collector = strdup("usertime");
     info.exename = strdup(OpenSS_GetExecutablePath());
-    info.rank = OpenSS_mpi_rank;
+    info.rank = monitor_mpi_comm_rank();
     info.rate = (sampling_rate != NULL) ? atoi(sampling_rate) : 35;
     
     /* Send the offline "info" blob */

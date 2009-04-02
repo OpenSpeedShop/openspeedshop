@@ -29,7 +29,6 @@
 
 #include "MPITraceableFunctions.h"
 
-extern int OpenSS_mpi_rank;
 
 /** Number of overhead frames in each stack frame to be skipped. */
 #if defined(OPENSS_OFFLINE)
@@ -261,7 +260,7 @@ void mpi_record_event(const mpi_event* event, uint64_t function)
 #ifndef NDEBUG
 	    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	      fprintf(stderr,"RANK (%d,%lu) SENDING DUE TO StackTraceBufferSize, %d * %d = %d\n",
-		OpenSS_mpi_rank, event->start_time,
+		getpid(), event->start_time,
 		tls->data.stacktraces.stacktraces_len,
 		sizeof(uint64_t),
 		(tls->data.stacktraces.stacktraces_len * sizeof(uint64_t)) );
@@ -269,7 +268,7 @@ void mpi_record_event(const mpi_event* event, uint64_t function)
 		tls->data.events.events_len,
 		sizeof(mpi_event),
 		tls->data.events.events_len * sizeof(mpi_event));
-	      fprintf(stderr,"RANK (%d) TOTAL SENT %d\n",  OpenSS_mpi_rank,
+	      fprintf(stderr,"RANK (%d) TOTAL SENT %d\n",  getpid(),
 		(tls->data.stacktraces.stacktraces_len * sizeof(uint64_t)) +
 		(tls->data.events.events_len * sizeof(mpi_event)));
 	    }
@@ -311,7 +310,7 @@ void mpi_record_event(const mpi_event* event, uint64_t function)
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	    fprintf(stderr,"RANK (%d, %lu) SENDING DUE TO EventBufferSize, %d * %d = %d\n",
-		OpenSS_mpi_rank, event->start_time,
+		getpid(), event->start_time,
 		tls->data.events.events_len,
 		sizeof(mpi_event),
 		tls->data.events.events_len * sizeof(mpi_event));
@@ -319,7 +318,7 @@ void mpi_record_event(const mpi_event* event, uint64_t function)
 		tls->data.stacktraces.stacktraces_len,
 		sizeof(uint64_t),
 		tls->data.stacktraces.stacktraces_len * sizeof(uint64_t));
-	    fprintf(stderr,"RANK (%d) TOTAL SENT %d\n",  OpenSS_mpi_rank,
+	    fprintf(stderr,"RANK (%d) TOTAL SENT %d\n",  getpid(),
 		(tls->data.stacktraces.stacktraces_len * sizeof(uint64_t)) +
 		(tls->data.events.events_len * sizeof(mpi_event)));
 	}

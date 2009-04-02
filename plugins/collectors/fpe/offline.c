@@ -94,7 +94,7 @@ void offline_stop_sampling(const char* in_arguments)
     OpenSS_InitializeParameters(&info);
     info.collector = strdup("fpe");
     info.exename = strdup(OpenSS_GetExecutablePath());
-    info.rank = OpenSS_mpi_rank;
+    info.rank = monitor_mpi_comm_rank();
     if (fpe_traced != NULL && strcmp(fpe_traced,"") != 0) {
         info.traced = strdup(fpe_traced);
     } else {
