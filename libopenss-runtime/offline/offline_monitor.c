@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) 2007 The Krell Institue. All Rights Reserved.
+** Copyright (c) 2007,2008,2009 The Krell Institue. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -53,43 +53,78 @@
 #include <signal.h>
 #include <string.h>
 #include "monitor.h"
+#include "OpenSS_Monitor.h"
 
 extern void offline_start_sampling(const char* arguments);
-extern void offline_stop_sampling(const char* arguments);
+extern void offline_stop_sampling(const char* arguments, const int finished);
 extern void offline_record_dso(const char* dsoname);
+extern void offline_defer_sampling(const int flag);
 
-#if defined(_MONITOR_H_)
-void monitor_fini_process(int how, void *data)
-#else
-void monitor_fini_process(void)
-#endif
+int sampling_active = 0;
+int process_is_terminating = 0;
+int thread_is_terminating = 0;
+OpenSS_Monitor_Type OpenSS_monitor_type = OpenSS_Monitor_Default;
+
+#define OPENSS_HANDLE_UNWIND_SEGV 1
+
+#if defined(OPENSS_HANDLE_UNWIND_SEGV)
+#include <setjmp.h>
+sigjmp_buf unwind_jmp;
+volatile int OpenSS_numsegv;
+volatile int OpenSS_unwinding;
+
+int
+OpenSS_SEGVhandler(int sig, siginfo_t *siginfo, void *context)
 {
-#if 0
+    if (OpenSS_unwinding) {
+        OpenSS_numsegv++;
+        siglongjmp(unwind_jmp,9);
+    }
+    return 1;
+}
+
+int OpenSS_SetSEGVhandler(void)
+{
+    int rval = monitor_sigaction(SIGSEGV, &OpenSS_SEGVhandler, 0, NULL);
+
+    if (rval != 0) {
+        fprintf(stderr,"Unable to install SIGSEGV handler", __FILE__, __LINE__);
+    }
+
+    return rval;
+}
+#endif
+
+/*
+ * callbacks for handling of PROCESS
+ */
+void monitor_fini_process(int how, void *data)
+{
+    /*collector stop_sampling does not use the arguments param */
+    //fprintf(stderr,"monitor_fini_process STOP SAMPLING %d\n",getpid());
     static int f = 0;
     if (f > 0)
       raise(SIGSEGV);
     f++;
-#endif
-
-    /*collector stop_sampling does not use the arguments param */
-    offline_stop_sampling(NULL);
+    sampling_active = 0;
+    process_is_terminating = 1;
+    offline_stop_sampling(NULL, 1);
 }
 
-#if defined(_MONITOR_H_)
 void *monitor_init_process(int *argc, char **argv, void *data)
-#else
-void monitor_init_process(char *process, int *argc, char **argv, unsigned pid)
-#endif
 {
+    //fprintf(stderr,"monitor_init_process START SAMPLING %d\n",getpid());
+    OpenSS_monitor_type = OpenSS_Monitor_Proc;
+    sampling_active = 1;
     offline_start_sampling(NULL);
-    return data;
+    return (data);
 }
 
+/*
+ * callbacks for handling of monitor init
+ */
 void monitor_init_library(void)
 {
-/* removed previous code that was specific to UTK monitor and
- * only used for debug error checking
- */
 }
 
 void monitor_fini_library(void)
@@ -100,18 +135,22 @@ void monitor_fini_library(void)
     f++;
 }
 
+/*
+ * callbacks for handling of THREADS
+ */
 void monitor_fini_thread(void *ptr)
 {
-    offline_stop_sampling(NULL);
-    return (ptr);
+    //fprintf(stderr,"monitor_fini_thread STOP SAMPLING %d\n",getpid());
+    sampling_active = 0;
+    thread_is_terminating = 1;
+    offline_stop_sampling(NULL,1);
 }
 
-#if defined(_MONITOR_H_)
 void *monitor_init_thread(int tid, void *data)
-#else
-void *monitor_init_thread(const unsigned tid)
-#endif
 {
+    //fprintf(stderr,"monitor_init_thread START SAMPLING %d\n",getpid());
+    OpenSS_monitor_type = OpenSS_Monitor_Thread;
+    sampling_active = 1;
     offline_start_sampling(NULL);
     return(data);
 }
@@ -120,40 +159,132 @@ void monitor_init_thread_support(void)
 {
 }
 
-/* The Rice version of libmonitor added the flags adn
- * handle arguments to monitor dlopen. Use _MONITOR_H_
- * as define by Rice to determine which libmonitor
- * is being used. The UTK monitor package defines libmonitor_h
+/*
+ * callbacks for handling of DLOPEN/DLCLOSE.
  */
-#if defined(_MONITOR_H_)
 void monitor_dlopen(const char *library, int flags, void *handle)
-#else
-void monitor_dlopen(const char *library)
-#endif
 {
-    /* TODO: if OpenSS_GetDLInfo does not handle errors do so here. */
+    /* TODO:
+     * if OpenSS_GetDLInfo does not handle errors do so here.
+     */
     int retval = OpenSS_GetDLInfo(getpid(), library);
+    if (!sampling_active) {
+	//fprintf(stderr,"monitor_dlopen RESUME SAMPLING %d\n",getpid());
+	sampling_active = 1;
+	offline_start_sampling(NULL);
+    }
 }
 
-#if defined(_MONITOR_H_)
-/* TODO */
-/* Rice version of libmonitor.
- * callbacks for handling of fork.
+void
+monitor_pre_dlopen(const char *path, int flags)
+{
+    if (sampling_active) {
+	//fprintf(stderr,"monitor_pre_dlopen PAUSE SAMPLING %d\n",getpid());
+	sampling_active = 0;
+	offline_stop_sampling(NULL,0);
+    }
+}
+
+void
+monitor_dlclose(void *handle)
+{
+    if (!thread_is_terminating || !process_is_terminating) {
+	if (sampling_active) {
+	    //fprintf(stderr,"monitor_dlclose PAUSE SAMPLING %d\n",getpid());
+	    sampling_active = 0;
+	    offline_stop_sampling(NULL,0);
+	}
+    }
+}
+
+void
+monitor_post_dlclose(void *handle, int ret)
+{
+    if (!thread_is_terminating || !process_is_terminating) {
+	if (!sampling_active) {
+	    //fprintf(stderr,"monitor_post_dlclose RESUME SAMPLING %d\n",getpid());
+	    sampling_active = 1;
+	    offline_start_sampling(NULL);
+	}
+    }
+}
+
+/* 
+ * callbacks for handling of FORK.
  */
 void * monitor_pre_fork(void)
 {
-    //fprintf(stderr,"OPENSS monitor_pre_fork callback:\n");
+    /* Stop sampling prior to real fork. */
+    if (sampling_active) {
+	//fprintf(stderr,"monitor_pre_fork PAUSE SAMPLING %d\n",getpid());
+	sampling_active = 0;
+	offline_stop_sampling(NULL,1);
+    }
     return (NULL);
 }
 
 void monitor_post_fork(pid_t child, void *data)
 {
-    //fprintf(stderr,"OPENSS monitor_post_fork callback:\n");
+    /* Resume/start sampling forked process. */
+    if (!sampling_active) {
+	//fprintf(stderr,"monitor_post_fork RESUME SAMPLING %d\n",getpid());
+	OpenSS_monitor_type = OpenSS_Monitor_Proc;
+	sampling_active = 1;
+	offline_start_sampling(NULL);
+    }
 }
-#endif
 
-#if defined(_MONITOR_H_)
+/*
+ * callbacks for handling of MPI programs.
+ */
+
+void monitor_mpi_pre_init(void)
+{
+    if (sampling_active) {
+	//fprintf(stderr,"monitor_mpi_pre_init PAUSE SAMPLING %d\n",getpid());
+	sampling_active = 0;
+	offline_stop_sampling(NULL,0);
+    }
+}
+
+void
+monitor_init_mpi(int *argc, char ***argv)
+{
+    //fprintf(stderr,"ENTER monitor_init_mpi RANK %s\n",monitor_mpi_comm_rank());
+    if (!sampling_active) {
+	sampling_active = 1;
+	//fprintf(stderr,"monitor_init_mpi RESUME SAMPLING %d\n",getpid());
+	OpenSS_monitor_type = OpenSS_Monitor_Proc;
+	offline_start_sampling(NULL);
+    }
+}
+
 void monitor_fini_mpi(void)
 {
 }
-#endif
+
+void OpenSS_AdjustStackTrace(int index, unsigned* stacktrace_size,
+			     uint64_t* stacktrace)
+{
+    /*
+     * Remove details on libmonitor from stracktraces. 
+     * Libmonitor adds two frames to all processes.
+     * and one frame for threads started via clone.
+     * If we find other cases we can add a new OpenSS_Monitor_Type
+     * to deal with them.  OpenSS_Monitor_Default means no change.
+     */
+
+    if (OpenSS_monitor_type == OpenSS_Monitor_Proc) {
+	/* PROCESS CASE */
+        stacktrace[index-4] = stacktrace[index-3];
+        stacktrace[index-3] = stacktrace[index-1];
+        stacktrace[index-2] = stacktrace[index-1] = 0;
+        *stacktrace_size = index - 2;
+    } else if (OpenSS_monitor_type == OpenSS_Monitor_Thread) {
+	/* THREAD CASE */
+        stacktrace[index-3] = stacktrace[index-2];
+        stacktrace[index-2] = stacktrace[index-1];
+        stacktrace[index-1] = 0;
+        *stacktrace_size = index - 1;
+    }
+}

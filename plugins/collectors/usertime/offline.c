@@ -78,13 +78,17 @@ void offline_start_sampling(const char* in_arguments)
  *
  * @param in_arguments    Encoded function arguments. Always null.
  */
-void offline_stop_sampling(const char* in_arguments)
+void offline_stop_sampling(const char* in_arguments, const int finished)
 {
     OpenSS_DataHeader header;
     openss_expinfo info;
 
     /* Stop sampling */
     usertime_stop_sampling(NULL);
+
+    if (!finished) {
+	return;
+    }
 
     /* Access the environment-specified arguments */
     const char* sampling_rate = getenv("OPENSS_USERTIME_RATE");
@@ -127,9 +131,6 @@ void offline_record_dso(const char* dsoname,
 			uint64_t begin, uint64_t end,
 			uint8_t is_dlopen)
 {
-    if (is_dlopen) {
-	usertime_stop_timer();
-    }
     OpenSS_DataHeader header;
     openss_objects objects;
     
@@ -154,7 +155,4 @@ void offline_record_dso(const char* dsoname,
     /* Send the offline "dso" blob */
     OpenSS_SetSendToFile("usertime", "openss-dsos");
     OpenSS_Send(&header, (xdrproc_t)xdr_openss_objects, &objects);
-    if (is_dlopen) {
-	usertime_start_timer();
-    }
 }

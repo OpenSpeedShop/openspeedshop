@@ -99,13 +99,17 @@ void offline_start_sampling(const char* in_arguments)
  *
  * @param in_arguments    Encoded function arguments. Always null.
  */
-void offline_stop_sampling(const char* in_arguments)
+void offline_stop_sampling(const char* in_arguments, const int finished)
 {
     OpenSS_DataHeader header;
     openss_expinfo info;
 
     /* Stop sampling */
     hwc_stop_sampling(NULL);
+
+    if (!finished) {
+	return;
+    }
 
     /* Initialize the offline "info" blob's header */
     OpenSS_InitializeDataHeader(0, /* Experiment */

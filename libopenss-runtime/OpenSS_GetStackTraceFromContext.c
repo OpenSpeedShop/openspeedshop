@@ -76,7 +76,8 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
      * thread context directly.
      */
     if(signal_context != NULL) {
-	memcpy(&context, signal_context, sizeof(unw_context_t));
+	//memcpy(&context, signal_context, sizeof(unw_context_t));
+	memmove(&context, signal_context, sizeof(unw_context_t));
 	skip_signal_frames = FALSE;
     }
     else
@@ -135,4 +136,7 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
     
     /* Return the stack trace size to the caller */
     *stacktrace_size = index;
+#if defined(OPENSS_OFFLINE)
+     OpenSS_AdjustStackTrace(index, stacktrace_size,stacktrace);
+#endif
 }

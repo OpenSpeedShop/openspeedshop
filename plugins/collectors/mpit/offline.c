@@ -32,7 +32,8 @@
 #include "blobs.h"
 #include "MPITTraceableFunctions.h"
 
-uint64_t mpit_time_started;
+static uint64_t mpit_time_started;
+static int is_tracing = 0;
 
 /**
  * Start offline sampling.
@@ -45,6 +46,11 @@ uint64_t mpit_time_started;
  */
 void offline_start_sampling(const char* in_arguments)
 {
+    if (is_tracing) {
+	return;
+    }
+    is_tracing = 1;
+
     mpit_start_tracing_args args;
     char arguments[3 * sizeof(mpit_start_tracing_args)];
 
@@ -73,13 +79,21 @@ void offline_start_sampling(const char* in_arguments)
  *
  * @param in_arguments    Encoded function arguments. Always null.
  */
-void offline_stop_sampling(const char* in_arguments)
+void offline_stop_sampling(const char* in_arguments, const int finished)
 {
     OpenSS_DataHeader header;
     openss_expinfo info;
 
+    if (!is_tracing) {
+	return;
+    }
+
     /* Stop sampling */
     mpit_stop_tracing(NULL);
+
+    if (!finished) {
+	return;
+    }
 
     /* Initialize the offline "info" blob's header */
     OpenSS_InitializeDataHeader(0, /* Experiment */

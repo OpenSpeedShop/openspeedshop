@@ -76,7 +76,7 @@ void offline_start_sampling(const char* in_arguments)
  *
  * @param in_arguments    Encoded function arguments. Always null.
  */
-void offline_stop_sampling(const char* in_arguments)
+void offline_stop_sampling(const char* in_arguments, const int finished)
 {
     OpenSS_DataHeader header;
     openss_expinfo info;
@@ -85,6 +85,10 @@ void offline_stop_sampling(const char* in_arguments)
 
     /* Stop sampling */
     io_stop_tracing(NULL);
+
+    if (!finished) {
+	return;
+    }
 
     /* Access the environment-specified arguments */
     const char* io_traced = getenv("OPENSS_IO_TRACED");

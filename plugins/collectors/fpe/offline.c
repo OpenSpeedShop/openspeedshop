@@ -74,16 +74,20 @@ void offline_start_sampling(const char* in_arguments)
  *
  * @param in_arguments    Encoded function arguments. Always null.
  */
-void offline_stop_sampling(const char* in_arguments)
+void offline_stop_sampling(const char* in_arguments, const int finished)
 {
     OpenSS_DataHeader header;
     openss_expinfo info;
 
-    /* Access the environment-specified arguments */
-    const char* fpe_traced = getenv("OPENSS_FPE_TRACED");
-
     /* Stop sampling */
     fpe_stop_tracing(NULL);
+
+    if (!finished) {
+	return;
+    }
+
+    /* Access the environment-specified arguments */
+    const char* fpe_traced = getenv("OPENSS_FPE_TRACED");
 
     /* Initialize the offline "info" blob's header */
     OpenSS_InitializeDataHeader(0, /* Experiment */
