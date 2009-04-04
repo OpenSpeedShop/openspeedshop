@@ -643,8 +643,10 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	    break;
 	}
 
-	char *theData;
-	theData = (char *) malloc (blobsize+4);
+	// This should be safe here.
+	char* theData = NULL;
+	theData = (char*) alloca(blobsize+4);
+
 	if (theData == 0) {
 	    std::cerr << "Could Not allocate memory for data!" << std::endl;
 	    fclose(f);
@@ -663,13 +665,10 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	// This is the first index into the DataQueue.
 	Blob datablob(blobsize, theData);
 	DataQueues::enqueuePerformanceData(datablob);
-	theExperiment->flushPerformanceData();
-
-	if (theData) {
-	    free(theData);
-	}
 
     } // while
+
+    theExperiment->flushPerformanceData();
 
     fclose(f);
     // experimental code to remove raw openss-data file
@@ -865,8 +864,12 @@ void OfflineExperiment::createOfflineSymbolTable()
 	    Metadata m = c.getMetadata();
 	    collector_name = m.getUniqueId();
 
-	    // get the Extent of this collectors data for this thread.
-	    eg.push_back(c.getExtentIn(*i));
+	    // Create an extentgroup to encompass the entire time
+	    // and address ranges known to openspeedshop.
+	    TimeInterval TI(Time::TheBeginning(),Time::TheEnd());
+	    AddressRange AR(Address::TheLowest(),Address::TheHighest());
+
+	    eg.push_back(Extent(TI,AR));
 
 	    // add performance sample addresses to address buffer
 	    // for this thread group.
