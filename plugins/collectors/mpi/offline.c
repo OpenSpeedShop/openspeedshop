@@ -32,6 +32,8 @@
 #include "blobs.h"
 #include "MPITraceableFunctions.h"
 
+int OpenSS_mpi_rank = -1;
+
 static uint64_t mpi_time_started;
 static int is_tracing = 0;
 
@@ -104,7 +106,8 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
     OpenSS_InitializeParameters(&info);
     info.collector = strdup("mpi");
     info.exename = strdup(OpenSS_GetExecutablePath());
-    info.rank = monitor_mpi_comm_rank();
+    info.rank = OpenSS_mpi_rank;
+fprintf(stderr,"mpi offline_stop_sampling for %d\n",info.rank);
 
     /* Access the environment-specified arguments */
     const char* mpi_traced = getenv("OPENSS_MPI_TRACED");

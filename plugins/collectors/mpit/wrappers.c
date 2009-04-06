@@ -28,6 +28,10 @@
 
 #include <mpi.h>
 
+#if defined (OPENSS_OFFLINE)
+extern int OpenSS_mpi_rank;
+#endif
+
 static int debug_trace = 0;
 
 /*
@@ -1588,6 +1592,12 @@ int mpit_PMPI_Init(
     }
 
     retval = PMPI_Init(argc, argv);
+
+#if defined (OPENSS_OFFLINE)
+    int oss_rank = -1;
+    PMPI_Comm_rank(MPI_COMM_WORLD, &oss_rank);
+    OpenSS_mpi_rank = oss_rank;
+#endif
 
     if (dotrace) {
 
