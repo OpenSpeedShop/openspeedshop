@@ -101,7 +101,6 @@ do
             esac
 	    test -d "$dir" || die "unable to find: $dir"
 	    export OPENSS_RAWDATA_DIR="${dir}"
-	    rm -rf ${dir}/*
             shift ; shift
             ;;
 
