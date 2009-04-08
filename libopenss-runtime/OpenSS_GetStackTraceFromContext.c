@@ -136,7 +136,4 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
     
     /* Return the stack trace size to the caller */
     *stacktrace_size = index;
-#if defined(OPENSS_OFFLINE)
-     OpenSS_AdjustStackTrace(index, stacktrace_size,stacktrace);
-#endif
 }
