@@ -107,7 +107,6 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
     info.collector = strdup("mpi");
     info.exename = strdup(OpenSS_GetExecutablePath());
     info.rank = OpenSS_mpi_rank;
-fprintf(stderr,"mpi offline_stop_sampling for %d\n",info.rank);
 
     /* Access the environment-specified arguments */
     const char* mpi_traced = getenv("OPENSS_MPI_TRACED");
