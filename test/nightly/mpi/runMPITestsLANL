@@ -7,7 +7,7 @@ if [ "$1" == "help" -o "$1" = "--help" ]
 then
   echo ""
   echo "Usage: This script automatically compiles smg2000 and sweep3d"
-  echo "       using the Intel, PGI, and GNU compilers and the default OpenMPI MPI implementation."
+  echo "       using the Intel, PGI, and GNU compilers and the default MPI implementation."
   echo ""
   echo "       It then runs OpenSpeedShop on each of the smg2000 and sweep3d versions using:"
   echo "       the pcsamp, usertime, hwc, hwctime, io, iot, mpi, and mpit experiments."
@@ -98,6 +98,21 @@ do
        echo "testsuffix=" $testsuffix
        echo "testCC=" $testCC
      fi
+
+     if [ $thiscompiler == "gnu" ] 
+     then
+        module load openmpi-gcc/1.2.4
+     elif  [ $thiscompiler == "pgi" ]
+     then
+        module load openmpi-pgi/1.2.4
+     elif  [ $thiscompiler == "intel" ]
+     then
+        module load openmpi-intel/1.2.4
+     elif  [ $thiscompiler == "pathscale" ]
+     then
+        module load openmpi-pathscale/1.2.4
+     fi
+
 
 
 hostabi=`uname -m`
