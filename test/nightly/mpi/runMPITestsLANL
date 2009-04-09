@@ -143,7 +143,8 @@ then
 elif  [ "$testexe" == "sweep3d" ]
 then
 #  mv -f new_makefile makefile
-  make mpi
+  make -f makefile.lanl clean
+  make -f makefile.lanl mpi
 fi
 
 if [ "$testexe" == "smg2000" ]
@@ -236,6 +237,8 @@ which openss
 executable=`which smg2000`
 echo "Current directory is:" `\$pwd`
 echo "smg2000 executable path directory is:" \$executable
+mpicommand=`which mpirun`
+echo "mpirun command path directory is:" \$mpicommand
 #
 # Read in test parameters
 #
@@ -289,7 +292,7 @@ cd $testpath
 #
 # Run pcsamp and analyze the results
 #
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount \$executable -n 25 25 25" pcsamp
+openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" pcsamp
 ls *.openss | grep "smg2000-pcsamp\." > smg2000_pgi_openmpi_create_pcsamp
 echo "-------------------------------------"
 echo "BEGIN Analyzing smg2000 pcsamp experiment"
@@ -308,7 +311,7 @@ echo "-------------------------------------"
 #
 # Run usertime and analyze the results
 #
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount \$executable -n 25 25 25" usertime
+openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" usertime
 ls *.openss | grep "smg2000-usertime\." > smg2000_pgi_openmpi_create_usertime
 
 echo "-------------------------------------"
@@ -328,7 +331,7 @@ echo ""
 
 
 
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount \$executable -n 25 25 25" hwc
+openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" hwc
 ls *.openss | grep "smg2000-hwc\." > smg2000_pgi_openmpi_create_hwc
 
 echo ""
@@ -346,7 +349,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount \$executable -n 25 25 25" hwctime
+openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" hwctime
 ls *.openss | grep "smg2000-hwctime\." > smg2000_pgi_openmpi_create_hwctime
 
 echo ""
@@ -366,7 +369,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount \$executable -n 25 25 25" io
+openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" io
 ls *.openss | grep "smg2000-io\." > smg2000_pgi_openmpi_create_io
 
 echo ""
@@ -386,7 +389,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount \$executable -n 25 25 25" iot
+openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" iot
 ls *.openss | grep "smg2000-iot\." > smg2000_pgi_openmpi_create_iot
 
 echo ""
@@ -406,7 +409,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount \$executable -n 5 5 5" mpi
+openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 5 5 5" mpi
 ls *.openss | grep "smg2000-mpi\-" > smg2000_pgi_openmpi_create_mpi
 
 echo ""
@@ -426,7 +429,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount \$executable -n 5 5 5" mpit
+openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 5 5 5" mpit
 
 #
 # Find corresponding experiment database files and create files that can be used to restore the databases
@@ -613,7 +616,6 @@ EOF
 
 echo "pwd=$pwd"
 
-echo "SNLSYSTEM=$SNLSYSTEM"
 RUN_DIR=$testpath
 echo "RUN_DIR=$RUN_DIR"
 cd $RUN_DIR
@@ -651,6 +653,8 @@ which openss
 executable=`which sweep3d.mpi`
 echo "Current directory is:" `\$pwd`
 echo "sweep3d.mpi executable path directory is:" \$executable
+mpicommand=`which mpirun`
+echo "mpirun command path directory is:" \$mpicommand
 #
 # Read in test parameters
 #
@@ -703,7 +707,7 @@ cd \$testpath
 #
 # Run pcsamp and analyze the results
 #
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount ./sweep3d.mpi" pcsamp
+openss -offline -f "\$mpicommand -np \$RankCount \$executable" pcsamp
 ls *.openss | grep "sweep3d.mpi-pcsamp\." > sweep3d_pgi_openmpi_create_pcsamp
 echo "-------------------------------------"
 echo "BEGIN Analyzing sweep3d.mpi pcsamp experiment"
@@ -722,7 +726,7 @@ echo "-------------------------------------"
 #
 # Run usertime and analyze the results
 #
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount ./sweep3d.mpi" usertime
+openss -offline -f "\$mpicommand -np \$RankCount \$executable" usertime
 ls *.openss | grep "sweep3d.mpi-usertime\." > sweep3d_pgi_openmpi_create_usertime
 
 echo "-------------------------------------"
@@ -742,7 +746,7 @@ echo ""
 
 
 
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount ./sweep3d.mpi" hwc
+openss -offline -f "\$mpicommand -np \$RankCount \$executable" hwc
 ls *.openss | grep "sweep3d.mpi-hwc\." > sweep3d_pgi_openmpi_create_hwc
 
 echo ""
@@ -760,7 +764,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount ./sweep3d.mpi" hwctime
+openss -offline -f "\$mpicommand -np \$RankCount \$executable" hwctime
 ls *.openss | grep "sweep3d.mpi-hwctime\." > sweep3d_pgi_openmpi_create_hwctime
 
 echo ""
@@ -780,7 +784,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount ./sweep3d.mpi" io
+openss -offline -f "\$mpicommand -np \$RankCount \$executable" io
 ls *.openss | grep "sweep3d.mpi-io\." > sweep3d_pgi_openmpi_create_io
 
 echo ""
@@ -800,7 +804,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount ./sweep3d.mpi" iot
+openss -offline -f "\$mpicommand -np \$RankCount \$executable" iot
 ls *.openss | grep "sweep3d.mpi-iot\." > sweep3d_pgi_openmpi_create_iot
 
 echo ""
@@ -820,7 +824,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount ./sweep3d.mpi" mpi
+openss -offline -f "\$mpicommand -np \$RankCount \$executable" mpi
 ls *.openss | grep "sweep3d.mpi-mpi\-" > sweep3d_pgi_openmpi_create_mpi
 
 echo ""
@@ -840,7 +844,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin/mpirun -np \$RankCount ./sweep3d.mpi" mpit
+openss -offline -f "\$mpicommand -np \$RankCount \$executable" mpit
 
 #
 # Find corresponding experiment database files and create files that can be used to restore the databases
