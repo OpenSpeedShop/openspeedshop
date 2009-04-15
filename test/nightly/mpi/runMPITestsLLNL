@@ -816,6 +816,40 @@ fi
 # Run all experiments
 #
 
+# Check the rank count and use an appropriate input file.  The supported sweep3d.mpi input files
+# are 8, 16, 32, 64, 128, or 256 ranks.   We move the input.8 or input.16 etc into the default
+# input file named "input"
+if [ \$RankCount == 8 ] 
+then
+  echo "Moving the input.8 specific input file to the default input file"
+  cp -f input.8 input
+elif  [ \$RankCount == 16 ]
+then
+  echo "Moving the input.16 specific input file to the default input file"
+  cp -f input.16 input
+elif [ \$RankCount == 32 ]
+then
+  echo "Moving the input.32 specific input file to the default input file"
+  cp -f input.32 input
+elif [ \$RankCount == 64 ]
+then
+  echo "Moving the input.64 specific input file to the default input file"
+  cp -f input.64 input
+elif [ \$RankCount == 128 ]
+then
+  echo "Moving the input.128 specific input file to the default input file"
+  cp -f input.128 input
+elif [ \$RankCount == 256 ]
+then
+  echo "Moving the input.256 specific input file to the default input file"
+  cp -f input.256 input
+fi
+
+# this didn't work
+#sysSED=`which sed`
+#myrankdiv=\$RankCount/2
+#$sysSED 's?4 4?2 $myrankdiv?' input > new_input
+
 #
 # Run pcsamp and analyze the results
 #
