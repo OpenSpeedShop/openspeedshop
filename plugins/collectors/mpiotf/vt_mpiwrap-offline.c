@@ -51,7 +51,9 @@ static MPI_Status* vt_get_status_array(int size) {
  *-----------------------------------------------------------------------------
  */
 
+#if 0
 //extern int vt_mpi_notrace = 0;
+#endif
 
 /* -- MPI_Init -- */
 
@@ -64,13 +66,15 @@ int MPI_Init( int *argc, char ***argv )
   /* shall I trace MPI events? */
   vt_mpi_trace_is_on = vt_mpitrace = vt_env_mpitrace();
   
+#if 0
 //  debugging/testing - take out 
 //  vt_mpi_trace_is_on = 1;
 //  vt_mpitrace = 1;
+#endif
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Init called, IS_TRACE_ON = %d, vt_enter_user_called=%d \n", 
-            IS_TRACE_ON, vt_enter_user_called);
+    fprintf(stderr, "WRAPPER, MPI_Init called, IS_TRACE_ON = %d, vt_enter_user_called=%d, vt_open_called=%d \n", 
+            IS_TRACE_ON, vt_enter_user_called, vt_open_called);
     fflush(stderr);
   }
 

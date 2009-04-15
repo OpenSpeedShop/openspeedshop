@@ -23,6 +23,10 @@
  *
  */
 
+/*
+#define DEBUG_OFFLINE 1
+*/
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -54,7 +58,7 @@ void offline_start_sampling(const char* arguments)
 #endif
 
 #if DEBUG_OFFLINE
-    printf("offline_start_sampling entered\n");
+    printf("mpiotf, offline_start_sampling entered\n");
 #endif
 
 //    OpenSS_CreateFilePrefix("mpiotf");
@@ -68,7 +72,7 @@ void offline_stop_sampling(const char* arguments)
 {
 
 #if DEBUG_OFFLINE
-    printf("offline_stop_sampling entered\n");
+    printf("mpiotf, offline_stop_sampling entered\n");
 #endif
 
     /* call the collector specific stop sampling funcion. */
@@ -108,7 +112,7 @@ void offline_record_dso(const char* dsoname, uint64_t begin, uint64_t end, uint8
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-	fprintf(stderr,"offline_record_dso: record %s to %s\n",
+	fprintf(stderr,"mpiotf, offline_record_dso: record %s to %s\n",
 		dsoname,OpenSS_outfile);
     }
 #endif
